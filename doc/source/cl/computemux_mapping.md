@@ -30,6 +30,18 @@ A `cl_program` can also be created directly from a pre-compiled binary using
 `clCreateProgramWithBinary()`. In this path, the compiler is not utilised and
 instead the binary is passed directly to the ComputeMux runtime.
 
+Kernel arguments *may* also need to be set before a kernel can be launched so
+that it has necessary values to properly perform its operations. This can be
+done via `clSetKernelArg()` which internally stores the value of argument that
+is to be set when kernel is launched.
+
+Kernel arguments are mapped internally to to `mux_descriptor_info_t`. The
+mapping is one to one, except in case where kernel has a `printf` call.
+In cases where kernel has a `printf` call, there is an extra argument added
+at the end, after all kernel arguments. This argument has type
+`mux_descriptor_info_type_buffer` and the memory points to `printf_buffer`
+allocated to handle the `printf` calls from the kernel.
+
 When running the kernel, calls to `clEnqueueNDRangeKernel()` or
 `clEnqueueTask()` are made contingent on the desired work dimensions.
 ComputeAorta may still perform compilation late at these entry points before
