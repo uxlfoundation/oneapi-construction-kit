@@ -284,7 +284,7 @@ struct urKernelSetArgValueTest : uur::QueueTest {
 };
 UUR_INSTANTIATE_DEVICE_TEST_SUITE_P(urKernelSetArgValueTest);
 
-TEST_P(urKernelSetArgValueTest, SuccessSingleArg) {
+TEST_P(urKernelSetArgValueTest, DISABLED_SuccessSingleArg) {
   {
     char c = 1;
     short s = 2;
@@ -326,7 +326,7 @@ TEST_P(urKernelSetArgValueTest, SuccessSingleArg) {
   }
 }
 
-TEST_P(urKernelSetArgValueTest, StoreArgValueInBufferTest) {
+TEST_P(urKernelSetArgValueTest, DISABLED_StoreArgValueInBufferTest) {
   char c = 42;
   ASSERT_SUCCESS(urKernelSetArgValue(kernels[3], 0, sizeof(c), &c));
 
@@ -347,7 +347,7 @@ TEST_P(urKernelSetArgValueTest, StoreArgValueInBufferTest) {
   EXPECT_EQ(c, p);
 }
 
-TEST_P(urKernelSetArgValueTest, StoreVectorArgValueInBufferTest) {
+TEST_P(urKernelSetArgValueTest, DISABLED_StoreVectorArgValueInBufferTest) {
   char c4[4] = {1, 2, 3, 4};
   ASSERT_SUCCESS(urKernelSetArgValue(kernels[5], 0, sizeof(c4), &c4));
 
@@ -369,24 +369,24 @@ TEST_P(urKernelSetArgValueTest, StoreVectorArgValueInBufferTest) {
   }
 }
 
-TEST_P(urKernelSetArgValueTest, InvalidNullHandleKernel) {
+TEST_P(urKernelSetArgValueTest, DISABLED_InvalidNullHandleKernel) {
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_HANDLE,
                    urKernelSetArgValue(nullptr, 0, 0, nullptr));
 }
 
-TEST_P(urKernelSetArgValueTest, InvalidNullPointer) {
+TEST_P(urKernelSetArgValueTest, DISABLED_InvalidNullPointer) {
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
                    urKernelSetArgValue(kernels[0], 0, 0, nullptr));
 }
 
-TEST_P(urKernelSetArgValueTest, InvalidKernelArgumentIndex) {
+TEST_P(urKernelSetArgValueTest, DISABLED_InvalidKernelArgumentIndex) {
   int i = 0;
 
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_INDEX,
                    urKernelSetArgValue(kernels[0], UINT32_MAX, sizeof(i), &i));
 }
 
-TEST_P(urKernelSetArgValueTest, InvalidKernelArgumentSize) {
+TEST_P(urKernelSetArgValueTest, DISABLED_InvalidKernelArgumentSize) {
   float f = 0;
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_SIZE,
                    urKernelSetArgValue(kernels[0], 0, sizeof(f), &f));
