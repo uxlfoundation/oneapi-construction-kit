@@ -1,0 +1,246 @@
+@type_guard_start@
+/// @brief Convert from @generate_type@ to @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Saturated convert from @generate_type@ to @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_sat.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_sat(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_sat.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_sat(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_sat(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to even convert from @generate_type@ to @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rte.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_rte(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_rte.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_rte(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_rte(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to negative infinity convert from @generate_type@ to 
+///   @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rtn.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_rtn(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_rtn.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_rtn(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_rtn(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to zero convert from @generate_type@ to @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rtz.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_rtz(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_rtz.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_rtz(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_rtz(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to positive infinity convert from @generate_type@ to 
+///   @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rtp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_rtp(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_rtp.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_rtp(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_rtp(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to even convert from @generate_type@ to @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rte.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_sat_rte(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_sat_rte.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_sat_rte(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_sat_rte(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to negative infinity convert from @generate_type@ to 
+///   @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rtn.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_sat_rtn(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_sat_rtn.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_sat_rtn(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_sat_rtn(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to zero convert from @generate_type@ to @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rtz.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_sat_rtz(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_sat_rtz.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_sat_rtz(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_sat_rtz(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to positive infinity convert from @generate_type@ to 
+///   @generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 convert_rtp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/convert_T.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_convert_@generate_return_type@_sat_rtp(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_convert_@generate_return_type@_sat_rtp.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API convert_@generate_return_type@_sat_rtp(abacus_@generate_type@ x) {
+  return __abacus_convert_@generate_return_type@_sat_rtp(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+@type_guard_end@
+

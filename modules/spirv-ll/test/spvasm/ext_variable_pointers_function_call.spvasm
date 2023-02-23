@@ -1,0 +1,95 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c VariablePointersStorageBuffer %p/ext_variable_pointers_function_call.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; tests that variable pointers work correctly with functions, that they can be
+; passed as arguments and returned
+               OpCapability Shader
+               OpCapability VariablePointersStorageBuffer
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %foo_b1_b1_ "foo(b1;b1;"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %res "res"
+               OpName %param "param"
+               OpName %param_0 "param"
+               OpDecorate %res DescriptorSet 0
+               OpDecorate %res Binding 0
+               OpDecorate %param DescriptorSet 0
+               OpDecorate %param Binding 1
+               OpDecorate %param_0 DescriptorSet 0
+               OpDecorate %param_0 Binding 2
+       %void = OpTypeVoid
+       %uint = OpTypeInt 32 0
+%_ptr_StorageBuffer_uint = OpTypePointer StorageBuffer %uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function__ptr_StorageBuffer_uint = OpTypePointer Function %_ptr_StorageBuffer_uint
+         %14 = OpTypeFunction %void
+         %15 = OpTypeFunction %_ptr_Function_uint %_ptr_Function__ptr_StorageBuffer_uint %_ptr_Function__ptr_StorageBuffer_uint
+        %res = OpVariable %_ptr_StorageBuffer_uint StorageBuffer
+      %param = OpVariable %_ptr_StorageBuffer_uint StorageBuffer
+    %param_0 = OpVariable %_ptr_StorageBuffer_uint StorageBuffer
+       %main = OpFunction %void None %14
+         %16 = OpLabel
+         %17 = OpVariable %_ptr_Function__ptr_StorageBuffer_uint Function
+         %18 = OpVariable %_ptr_Function__ptr_StorageBuffer_uint Function
+               OpStore %17 %param
+               OpStore %18 %param_0
+         %19 = OpFunctionCall %_ptr_Function_uint %foo_b1_b1_ %17 %18
+         %20 = OpLoad %uint %19
+               OpStore %res %20
+               OpReturn
+               OpFunctionEnd
+ %foo_b1_b1_ = OpFunction %_ptr_Function_uint None %15
+          %a = OpFunctionParameter %_ptr_Function__ptr_StorageBuffer_uint
+          %b = OpFunctionParameter %_ptr_Function__ptr_StorageBuffer_uint
+         %21 = OpLabel
+         %22 = OpVariable %_ptr_Function_uint Function
+         %23 = OpLoad %_ptr_StorageBuffer_uint %a
+         %24 = OpLoad %uint %23
+         %25 = OpLoad %_ptr_StorageBuffer_uint %b
+         %26 = OpLoad %uint %25
+         %27 = OpIAdd %uint %24 %26
+               OpStore %22 %27
+               OpReturnValue %22
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: source_filename = "{{.*}}"
+; CHECK-GE15: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}, ptr addrspace(1){{( %2)?}}, ptr addrspace(1){{( %3)?}})
+; CHECK-LT15: define spir_kernel void @main(i32 addrspace(1)*{{( %0)?}}, i32 addrspace(1)*{{( %1)?}}, i32 addrspace(1)*{{( %2)?}}, i32 addrspace(1)*{{( %3)?}})
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca ptr addrspace(1)
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32 addrspace(1)*
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca ptr addrspace(1)
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32 addrspace(1)*
+; CHECK-GE15: store ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: store ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func ptr @{{(foo|"foo\(.+")}}(ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32* @{{(foo|"foo\(.+")}}(i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void
+; CHECK-GE15: define private spir_func ptr @{{(foo|"foo\(.+")}}(ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-LT15: define private spir_func i32* @{{(foo|"foo\(.+")}}(i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load ptr addrspace(1), ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32 addrspace(1)*, i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load ptr addrspace(1), ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32 addrspace(1)*, i32 addrspace(1)** {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: ret ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: ret i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

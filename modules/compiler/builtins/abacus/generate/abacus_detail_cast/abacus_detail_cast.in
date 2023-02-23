@@ -1,0 +1,93 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Abacus configuration.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_DETAIL_CAST__
+#define __ABACUS_DETAIL_CAST__
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+
+#ifndef __ABACUS_TYPE_TRAITS__
+#include <abacus/abacus_type_traits.h>
+#endif
+
+#if defined(__cplusplus)
+#if !defined(__OPENCL_VERSION__)
+#include <string.h>
+#endif
+
+#if !defined(__has_builtin)
+#define __has_builtin(x) 0  // Compatibility with non-clang compilers
+#endif
+
+namespace abacus {
+namespace detail {
+namespace cast {
+template<typename T, typename U, unsigned N = TypeTraits<T>::num_elements>
+  struct convert_helper {
+  /// @brief Convert between vector types.
+  /// @param[in] u operand.
+  /// @return converted operand.
+  static T _(const U& u) {
+#if defined(__OPENCL_VERSION__) && __has_builtin(__builtin_convertvector)
+    return __builtin_convertvector(u, T);
+#else
+    T t{};
+    for (unsigned i = 0; i < N; i++) {
+      t[i] = (typename TypeTraits<T>::ElementType)u[i];
+    }
+    return t;
+#endif
+  }
+};
+
+template<typename T, typename U> struct convert_helper<T, U, 1> {
+  /// @brief Convert between scalar types.
+  /// @param[in] u operand.
+  /// @return converted operand.
+  static T _(const U& u) {
+    return (T)u;
+  }
+};
+
+/// @brief Convert between types (including vectors).
+/// @param[in] u operand.
+/// @return converted operand.
+template<typename T, typename U> T convert(const U& u) {
+  return convert_helper<T, U>::_(u);
+}
+
+template<typename T, typename U, bool SIZE_OK = sizeof(T) == sizeof(U)>
+  struct as_helper;
+
+template<typename T, typename U> struct as_helper<T, U, true> {
+  static T _(const U& u) {
+    T t{};
+#if defined(__OPENCL_VERSION__)
+    __builtin_memcpy(&t, &u, sizeof(U));
+#elif defined(__cplusplus)
+    memcpy(&t, &u, sizeof(U));
+#endif
+    return t;
+  }
+};
+
+/// @brief Bitcast between types (including vectors).
+/// @param[in] u operand.
+/// @return converted operand.
+template<typename T, typename U> T as(const U& u) {
+  return as_helper<T, U>::_(u);
+}
+}
+}
+}
+#endif
+
+#endif  //__ABACUS_DETAIL_CAST__

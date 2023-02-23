@@ -1,0 +1,15 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+layout (std430, set=0, binding=0) buffer inA {
+  vec2 arg0;
+};
+
+layout (std430, set=0, binding=1) buffer outR {
+  uint res;
+};
+
+void main() {
+  res = packSnorm2x16(arg0);
+  return;
+}

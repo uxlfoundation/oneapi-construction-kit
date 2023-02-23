@@ -1,0 +1,51 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google Shaderc over Glslang; 1
+; Bound: 19
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
+               OpSourceExtension "GL_GOOGLE_include_directive"
+               OpName %main "main"
+               OpName %block_out "block_out"
+               OpMemberName %block_out 0 "result"
+               OpName %_ ""
+               OpName %block "block"
+               OpMemberName %block 0 "a"
+               OpMemberName %block 1 "runtime_array"
+               OpName %__0 ""
+               OpMemberDecorate %block_out 0 Offset 0
+               OpDecorate %block_out BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 1
+               OpDecorate %_runtimearr_int ArrayStride 4
+               OpMemberDecorate %block 0 Offset 0
+               OpMemberDecorate %block 1 Offset 4
+               OpDecorate %block BufferBlock
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %__0 Binding 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+  %block_out = OpTypeStruct %int
+%_ptr_Uniform_block_out = OpTypePointer Uniform %block_out
+          %_ = OpVariable %_ptr_Uniform_block_out Uniform
+      %int_0 = OpConstant %int 0
+      %float = OpTypeFloat 32
+%_runtimearr_int = OpTypeRuntimeArray %int
+      %block = OpTypeStruct %float %_runtimearr_int
+%_ptr_Uniform_block = OpTypePointer Uniform %block
+        %__0 = OpVariable %_ptr_Uniform_block Uniform
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %16 = OpArrayLength %int %__0 1
+         %18 = OpAccessChain %_ptr_Uniform_int %_ %int_0
+               OpStore %18 %16
+               OpReturn
+               OpFunctionEnd

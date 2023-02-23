@@ -1,0 +1,28 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -c Kernel -b 64 %p/op_less_or_greater_scalar.spv -o %t
+; RUN: %filecheck < %t %s
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %8 "lessorgreater"
+               OpSource OpenCL_C 102000
+               OpName %res "res"
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+          %7 = OpTypeFunction %void
+       %bool = OpTypeBool
+%float_constant = OpConstant %float 0x1p-126
+          %8 = OpFunction %void None %7
+         %11 = OpLabel
+        %res = OpLessOrGreater %bool %float_constant %float_constant
+               OpReturn
+               OpFunctionEnd
+; CHECK: define spir_kernel void @lessorgreater()
+; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func i32 @_Z13islessgreaterff(float 0x3810000000000000, float 0x3810000000000000)
+; CHECK: {{%[a-zA-Z0-9_]+}} = trunc i32 [[RES]] to i1
+; CHECK: declare spir_func i32 @_Z13islessgreaterff(float, float)

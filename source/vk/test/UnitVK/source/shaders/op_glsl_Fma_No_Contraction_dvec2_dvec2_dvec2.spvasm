@@ -1,0 +1,56 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Shader
+               OpCapability Float64
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outR "outR"
+               OpMemberName %outR 0 "res"
+               OpName %_ ""
+               OpName %inA "inA"
+               OpMemberName %inA 0 "arg0"
+               OpMemberName %inA 1 "arg1"
+               OpMemberName %inA 2 "arg2"
+               OpName %__0 ""
+               OpMemberDecorate %outR 0 Offset 0
+               OpDecorate %outR BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 1
+               OpMemberDecorate %inA 0 Offset 0
+               OpMemberDecorate %inA 1 Offset 16
+               OpMemberDecorate %inA 2 Offset 32
+               OpDecorate %inA BufferBlock
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %__0 Binding 0
+	       OpDecorate %24 NoContraction
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+     %double = OpTypeFloat 64
+   %v2double = OpTypeVector %double 2
+       %outR = OpTypeStruct %v2double
+%_ptr_Uniform_outR = OpTypePointer Uniform %outR
+          %_ = OpVariable %_ptr_Uniform_outR Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+        %inA = OpTypeStruct %v2double %v2double %v2double
+%_ptr_Uniform_inA = OpTypePointer Uniform %inA
+        %__0 = OpVariable %_ptr_Uniform_inA Uniform
+%_ptr_Uniform_v2double = OpTypePointer Uniform %v2double
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpAccessChain %_ptr_Uniform_v2double %__0 %int_0
+         %18 = OpLoad %v2double %17
+         %20 = OpAccessChain %_ptr_Uniform_v2double %__0 %int_1
+         %21 = OpLoad %v2double %20
+         %23 = OpAccessChain %_ptr_Uniform_v2double %__0 %int_2
+         %24 = OpLoad %v2double %23
+         %25 = OpExtInst %v2double %1 Fma %18 %21 %24
+         %26 = OpAccessChain %_ptr_Uniform_v2double %_ %int_0
+               OpStore %26 %25
+               OpReturn
+               OpFunctionEnd

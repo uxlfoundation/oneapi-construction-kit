@@ -1,0 +1,10 @@
+{
+  "target_name": "cpu",
+  "llvm_name": "X86",
+  "llvm_cpu": "llvm::sys::getHostCPUName().str()",
+  "llvm_triple": "'x86_64-unknown-unknown-elf'",
+  "llvm_features": "''",
+  "link" : "true",
+  "link_shared": "true"
+}
+

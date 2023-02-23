@@ -1,0 +1,10 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue Reset_kernel_parameters -compare frontier_length:%p/Inputs/bfs_uiuc_spill_k_Reset_kernel_parameters_out.txt -arg frontier_length,repeat(1,73) -compare g_mutex:%p/Inputs/bfs_uiuc_spill_k_Reset_kernel_parameters_out.txt -arg g_mutex,repeat(1,73) -compare g_mutex2:%p/Inputs/bfs_uiuc_spill_k_Reset_kernel_parameters_out.txt -arg g_mutex2,repeat(1,73) -compare g_q_offsets:%p/Inputs/bfs_uiuc_spill_k_Reset_kernel_parameters_out.txt -arg g_q_offsets,repeat(1,73) -compare g_q_size:%p/Inputs/bfs_uiuc_spill_k_Reset_kernel_parameters_out.txt -arg g_q_size,repeat(3,73) %p/Inputs/KernelsCL/kernels/PerfCL/shoc/bfs_uiuc_spill.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: frontier_length - match
+CHECK-DAG: g_mutex - match
+CHECK-DAG: g_mutex2 - match
+CHECK-DAG: g_q_offsets - match
+CHECK-DAG: g_q_size - match

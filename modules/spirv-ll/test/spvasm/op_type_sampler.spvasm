@@ -1,0 +1,20 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_type_sampler.spv -o %t
+; RUN: %filecheck < %t %s
+; CHECK: ; ModuleID = '{{.*}}'
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %sampler_type "sampler_type"
+                        OpSource OpenCL_C 120
+                %void = OpTypeVoid
+           %sampler_t = OpTypeSampler
+        %sampler_fn_t = OpTypeFunction %void %sampler_t             
+        %sampler_type = OpFunction %void None %sampler_fn_t
+; CHECK: define spir_kernel void @sampler_type(i32{{( %0)?}})
+  %sampler_type_enter = OpLabel
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,23 @@
+print("Half precision rootn:");
+
+Range=[-0.5; 0];
+Func=log2(x+1)/x;
+Order=6;
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+
+print("\nInitial:");
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);
+
+Range=[0; 1];
+Func=(2^x-1)/x;
+Order=2;
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+
+print("\nRefinement:");
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

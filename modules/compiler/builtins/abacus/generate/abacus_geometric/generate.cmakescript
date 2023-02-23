@@ -1,0 +1,54 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+set(generate_input_definitions "")
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/main.in" main)
+
+set(types "half;float;double")
+set(vector_sizes ";2;3;4")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_scalar_type "${type}")
+    set(generate_type "${type}${vector_size}")
+    if(type STREQUAL "half")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_HALF_SUPPORT\n${main}\n#endif\n"
+        processed @ONLY)
+    elseif(type STREQUAL "double")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${main}\n#endif\n"
+        processed @ONLY)
+    else()
+      string(CONFIGURE "${main}" processed @ONLY)
+    endif()
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/cross.in" cross)
+
+set(types "half;float;double")
+set(vector_sizes "3;4")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_type "${type}${vector_size}")
+    if(type STREQUAL "half")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_HALF_SUPPORT\n${cross}\n#endif\n"
+        processed @ONLY)
+    elseif(type STREQUAL "double")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${cross}\n#endif\n"
+        processed @ONLY)
+    else()
+      string(CONFIGURE "${cross}" processed @ONLY)
+    endif()
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_geometric.in" abacus_geometric)
+string(CONFIGURE "${abacus_geometric}" abacus_geometric @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_geometric}")

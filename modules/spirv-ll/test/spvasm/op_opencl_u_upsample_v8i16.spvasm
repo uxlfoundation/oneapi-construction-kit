@@ -1,0 +1,36 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_upsample_v8i16.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int8
+                        OpCapability Int16
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_upsample_v8i16 "u_upsample_v8i16"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+                %i8_t = OpTypeInt 8 0
+               %i16_t = OpTypeInt 16 0
+              %v8i8_t = OpTypeVector %i8_t 8
+             %v8i16_t = OpTypeVector %i16_t 8
+     %u_upsample_fn_t = OpTypeFunction %void_t
+                %i8_3 = OpConstant %i8_t 3
+                %i8_4 = OpConstant %i8_t 4
+              %v8i8_3 = OpConstantComposite %v8i8_t %i8_3 %i8_3 %i8_3 %i8_3 %i8_3 %i8_3 %i8_3 %i8_3
+              %v8i8_4 = OpConstantComposite %v8i8_t %i8_4 %i8_4 %i8_4 %i8_4 %i8_4 %i8_4 %i8_4 %i8_4
+
+; All functions
+    %u_upsample_v8i16 = OpFunction %void_t None %u_upsample_fn_t
+; CHECK: define spir_kernel void @u_upsample_v8i16()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v8i16_t %1 u_upsample %v8i8_3 %v8i8_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i16> @_Z8upsampleDv8_hS_(<8 x i8> <i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3>, <8 x i8> <i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

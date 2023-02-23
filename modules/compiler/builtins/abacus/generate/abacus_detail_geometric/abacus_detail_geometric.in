@@ -1,0 +1,256 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Exposing implementations of non-IP restricted functions.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_DETAIL_GEOMETRIC__
+#define __ABACUS_DETAIL_GEOMETRIC__
+
+#if !defined(__cplusplus)
+#error This header should only be included from C++!
+#endif
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+#ifndef __ABACUS_ABACUS_GEOMETRIC__
+#include <abacus/abacus_geometric.h>
+#endif
+#ifndef __ABACUS_ABACUS_MATH__
+#include <abacus/abacus_math.h>
+#endif
+#ifndef __ABACUS_TYPE_TRAITS__
+#include <abacus/abacus_type_traits.h>
+#endif
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_detail_cast.h>
+#endif
+#ifndef __ABACUS_DETAIL_RELATIONAL__
+#include <abacus/abacus_detail_relational.h>
+#endif
+
+namespace abacus {
+namespace detail {
+namespace geometric {
+
+template <typename T>
+T cross(const T& x, const T& y) {
+  // We need to initialize the result to 0 because for vec4, the fourth element
+  // must be set to 0.
+  T result(0);
+
+  result[0] = (x[1] * y[2]) - (x[2] * y[1]);
+  result[1] = (x[2] * y[0]) - (x[0] * y[2]);
+  result[2] = (x[0] * y[1]) - (x[1] * y[0]);
+
+  return result;
+}
+
+template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
+struct dot_helper {
+  static typename TypeTraits<T>::ElementType _(const T& x, const T& y) {
+    const T sum = x * y;
+
+    typename TypeTraits<T>::ElementType result = sum[0];
+
+    for (unsigned i = 1; i < TypeTraits<T>::num_elements; i++) {
+      result += sum[i];
+    }
+
+    return result;
+  }
+};
+
+template <typename T>
+struct dot_helper<T, true> {
+  static typename TypeTraits<T>::ElementType _(const T& x, const T& y) {
+    return x * y;
+  }
+};
+
+template <typename T>
+typename TypeTraits<T>::ElementType dot(const T& x, const T& y) {
+  return dot_helper<T>::_(x, y);
+}
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+struct length_typed_helper;
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+template <typename T>
+struct length_typed_helper<T, abacus_half> {
+  static abacus_half _(const T& x) {
+    // 2^-11
+    const abacus_half reducingFactor = 0.00048828125f16;
+    // 2^11
+    const abacus_half increasingFactor = 2048.0f16;
+    const abacus_half denormLimit =
+        cast::as<abacus_half>(FPShape<T>::LeastSignificantExponentBit());
+
+    const abacus_half part = geometric::dot<T>(x, x);
+
+    if (relational::isinf(part)) {
+      const T xR = x * reducingFactor;
+      return __abacus_sqrt(geometric::dot<T>(xR, xR)) * increasingFactor;
+    } else if (part < denormLimit) {
+      const T xI = x * increasingFactor;
+      return __abacus_sqrt(geometric::dot<T>(xI, xI)) * reducingFactor;
+    } else {
+      return __abacus_sqrt(part);
+    }
+  }
+};
+#endif  // __CA_BUILTINS_HALF_SUPPORT
+
+template <typename T>
+struct length_typed_helper<T, abacus_float> {
+  static abacus_float _(const T& x) {
+    // 1.2924697E-26, 2^-86
+    const abacus_float reducingFactor = cast::as<abacus_float>(0x14800000);
+    // 7.7371252E25, 2^86
+    const abacus_float increasingFactor = cast::as<abacus_float>(0x6a800000);
+    const abacus_float denormLimit =
+        cast::as<abacus_float>(FPShape<T>::LeastSignificantExponentBit());
+
+    const abacus_float part = geometric::dot<T>(x, x);
+
+    if (relational::isinf(part)) {
+      const T xR = x * reducingFactor;
+      return __abacus_sqrt(geometric::dot<T>(xR, xR)) * increasingFactor;
+    } else if (part < denormLimit) {
+      const T xI = x * increasingFactor;
+      return __abacus_sqrt(geometric::dot<T>(xI, xI)) * reducingFactor;
+    } else {
+      return __abacus_sqrt(part);
+    }
+  }
+};
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+template <typename T>
+struct length_typed_helper<T, abacus_double> {
+  static abacus_double _(const T& x) {
+    // 1.8645851828000517e-155, 2^-514
+    const abacus_double reducingFactor =
+        cast::as<abacus_double>(0x1fd0000000000000);
+    // 5.36312317197703883982960999928E154, 2^514
+    const abacus_double increasingFactor =
+        cast::as<abacus_double>(0x6010000000000000);
+    const abacus_double denormLimit =
+        cast::as<abacus_double>(FPShape<T>::LeastSignificantExponentBit());
+
+    const abacus_double part = geometric::dot<T>(x, x);
+
+    if (relational::isinf(part)) {
+      const T xR = x * reducingFactor;
+      return __abacus_sqrt(geometric::dot<T>(xR, xR)) * increasingFactor;
+    } else if (part < denormLimit) {
+      const T xI = x * increasingFactor;
+      return __abacus_sqrt(geometric::dot<T>(xI, xI)) * reducingFactor;
+    } else {
+      return __abacus_sqrt(part);
+    }
+  }
+};
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+
+template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
+struct length_untyped_helper {
+  static typename TypeTraits<T>::ElementType _(const T& x) {
+    return length_typed_helper<T>::_(x);
+  }
+};
+
+template <typename T>
+struct length_untyped_helper<T, true> {
+  static typename TypeTraits<T>::ElementType _(const T x) {
+    return __abacus_fabs(x);
+  }
+};
+
+template <typename T>
+typename TypeTraits<T>::ElementType length(const T& p) {
+  return length_untyped_helper<T>::_(p);
+}
+
+template <typename T>
+typename TypeTraits<T>::ElementType distance(const T& x, const T& y) {
+  return geometric::length<T>(x - y);
+}
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+struct fast_length_helper {
+  static typename TypeTraits<T>::ElementType _(const T& p) {
+    return __abacus_sqrt(geometric::dot<T>(p, p));
+  }
+};
+
+template <typename T>
+struct fast_length_helper<T, abacus_float> {
+  static typename TypeTraits<T>::ElementType _(const T& p) {
+    return __abacus_half_sqrt(geometric::dot<T>(p, p));
+  }
+};
+
+template <typename T>
+typename TypeTraits<T>::ElementType fast_length(const T& p) {
+  return fast_length_helper<T>::_(p);
+}
+
+template <typename T>
+typename TypeTraits<T>::ElementType fast_distance(const T& x, const T& y) {
+  return geometric::fast_length<T>(x - y);
+}
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+struct fast_normalize_helper {
+  static T _(const T& p) { return p * __abacus_rsqrt(geometric::dot<T>(p, p)); }
+};
+
+template <typename T>
+struct fast_normalize_helper<T, abacus_float> {
+  static T _(const T& p) {
+    return p * __abacus_half_rsqrt(geometric::dot<T>(p, p));
+  }
+};
+
+template <typename T>
+T fast_normalize(const T& p) {
+  return fast_normalize_helper<T>::_(p);
+}
+
+template <typename T>
+T normalize(const T& p) {
+  using IntType = typename TypeTraits<T>::SignedType;
+
+  // Check if *any* vector lane is INF.
+  const IntType isInf = __abacus_isinf(p);
+
+  // Broadcasts scalar abacus_int to vector type since `__abacus_any()` returns
+  // scalar 1 if any vector lane has a sign bit set.
+  const IntType isAnyInf = __abacus_any(isInf) == 1;
+
+  // Flush non-INFs to zero if any other lane is INF.
+  T infsFlushed = __abacus_select(p, T(0.0), __abacus_isfinite(p) & isAnyInf);
+
+  // Flush positive INF to 1.
+  const IntType isPosInf = isInf & ~__abacus_signbit(p);
+  infsFlushed = __abacus_select(infsFlushed, T(1.0), isPosInf);
+
+  // Flush negative INF to -1.
+  const IntType isNegInf = isInf & __abacus_signbit(p);
+  infsFlushed = __abacus_select(infsFlushed, T(-1.0), isNegInf);
+
+  const T tmp = geometric::fast_normalize<T>(infsFlushed);
+  return tmp * __abacus_rsqrt(geometric::dot<T>(tmp, tmp));
+}
+
+}  // namespace geometric
+}  // namespace detail
+}  // namespace abacus
+
+#endif  //__ABACUS_DETAIL_GEOMETRIC__

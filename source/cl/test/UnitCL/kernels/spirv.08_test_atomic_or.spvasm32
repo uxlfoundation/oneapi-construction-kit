@@ -1,0 +1,47 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 27
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %9 "test_atomic_or" %__spirv_BuiltInGlobalInvocationId
+         %25 = OpString "kernel_arg_type.test_atomic_or.uint*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %26 Alignment 4
+         %26 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %26 %13 %15
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+    %uint_16 = OpConstant %uint 16
+     %uint_0 = OpConstant %uint 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %8 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+          %9 = OpFunction %void DontInline %8
+         %10 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %11 = OpLabel
+         %13 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %15 = OpVariable %_ptr_Function_uint Function
+               OpStore %13 %10 Aligned 4
+         %16 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %17 = OpCompositeExtract %uint %16 0
+               OpStore %15 %17 Aligned 4
+         %18 = OpLoad %_ptr_CrossWorkgroup_uint %13 Aligned 4
+         %19 = OpLoad %uint %15 Aligned 4
+         %20 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %18 %19
+         %21 = OpAtomicOr %uint %20 %uint_1 %uint_16 %uint_0
+               OpReturn
+               OpFunctionEnd

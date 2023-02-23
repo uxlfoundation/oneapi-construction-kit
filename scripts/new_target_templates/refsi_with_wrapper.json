@@ -1,0 +1,11 @@
+{
+  "target_name": "refsi_tutorial",
+  "llvm_name": "RISCV",
+  "llvm_cpu": "'generic-rv64'",
+  "llvm_features": "'+m,+f,+a,+d,+c,+v,+zbc,+zvl512b'",
+  "llvm_triple": "'riscv64-unknown-elf'",
+  "vlen" : "512",
+  "link" : "true",
+  "scalable_vector": "true",
+  "feature" : "refsi_wrapper_pass"
+}

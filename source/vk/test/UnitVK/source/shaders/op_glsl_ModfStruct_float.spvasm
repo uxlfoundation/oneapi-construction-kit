@@ -1,0 +1,57 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpMemberDecorate %inputBuffer 0 Offset 0
+               ; ^ set offset of first element
+               OpDecorate %inputBuffer BufferBlock
+
+               ; v Bind variable to descriptor
+               OpDecorate %inBufferVar DescriptorSet 0
+               OpDecorate %inBufferVar Binding 0
+
+               ; same for output buffer:
+               OpMemberDecorate %outputBuffer 0 Offset 0
+               OpDecorate %outputBuffer BufferBlock
+
+               ; V Bind variable to descriptor
+               OpDecorate %outBufferVar DescriptorSet 0
+               OpDecorate %outBufferVar Binding 1
+
+               ; Set up member offsets of ResType
+               OpMemberDecorate %ResType 0 Offset 0
+               OpMemberDecorate %ResType 1 Offset 4
+
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%ptrToGfloat = OpTypePointer Uniform %float
+%inputBuffer = OpTypeStruct %float
+; ^ this is the type of the input buffer
+%ptrInputBuf = OpTypePointer Uniform %inputBuffer
+; declare input buffer:
+%inBufferVar = OpVariable %ptrInputBuf Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %ResType = OpTypeStruct %float %float
+%ptrToResType = OpTypePointer Uniform %ResType
+; declare type of output buffer:
+%outputBuffer = OpTypeStruct %ResType
+; declare output buffer:
+%ptrOutBuffer = OpTypePointer Uniform %outputBuffer
+%outBufferVar = OpVariable %ptrOutBuffer Uniform
+
+
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          ; get input variable from descriptor:
+ %ptrToInput = OpAccessChain %ptrToGfloat %inBufferVar %int_0
+        %arg = OpLoad %float %ptrToInput
+     %result = OpExtInst %ResType %1 ModfStruct %arg
+; store result in descriptor:
+%ptrToResult = OpAccessChain %ptrToResType %outBufferVar %int_0
+               OpStore %ptrToResult %result
+               OpReturn
+               OpFunctionEnd

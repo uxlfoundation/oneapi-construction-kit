@@ -1,0 +1,121 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan %p/op_group_decorate.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; CHECK: ; ModuleID = '{{.*}}'
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %id "id"
+               OpName %gl_GlobalInvocationID "gl_GlobalInvocationID"
+               OpName %ablock "ablock"
+               OpName %bblock "bblock"
+               OpName %cblock "cblock"
+               OpName %dblock "dblock"
+               OpName %inGroup "inGroup"
+               OpName %outGroup "outGroup"
+               OpName %blockGroup "blockGroup"
+               OpName %offsetGroup "offsetGroup"
+               OpDecorate %inGroup DescriptorSet 0
+               OpDecorate %inGroup NonWritable
+               OpDecorate %outGroup DescriptorSet 0
+               OpDecorate %outGroup Binding 3
+               OpDecorate %blockGroup Block
+               OpDecorate %offsetGroup Offset 0
+    %inGroup = OpDecorationGroup 
+   %outGroup = OpDecorationGroup
+ %blockGroup = OpDecorationGroup
+%offsetGroup = OpDecorationGroup
+               OpGroupDecorate %inGroup %__0 %__1 %__2 
+               OpGroupDecorate %outGroup %_
+; Do some redundant decorating like the CTS to make sure duplicates are handled
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 3
+               OpGroupDecorate %blockGroup %ablock %bblock %cblock
+               OpGroupMemberDecorate %offsetGroup %ablock 0 %bblock 0 %cblock 0 %dblock 0
+               OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %dblock BufferBlock
+               OpDecorate %__0 Binding 0
+               OpDecorate %__1 Binding 1
+               OpDecorate %__2 Binding 2
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+%_runtimearr_int = OpTypeRuntimeArray %int
+     %ablock = OpTypeStruct %int
+     %bblock = OpTypeStruct %int
+     %cblock = OpTypeStruct %int
+     %dblock = OpTypeStruct %_runtimearr_int
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { i32 }
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { i32 }
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { i32 }
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { [0 x i32] }
+    %v3uint = OpTypeVector %uint 3
+ %_ptr_Function_uint = OpTypePointer Function %uint
+   %_ptr_Uniform_int = OpTypePointer Uniform %int
+  %_ptr_Input_v3uint = OpTypePointer Input %v3uint
+    %_ptr_Input_uint = OpTypePointer Input %uint
+%_ptr_Uniform_ablock = OpTypePointer Uniform %ablock
+%_ptr_Uniform_bblock = OpTypePointer Uniform %bblock
+%_ptr_Uniform_cblock = OpTypePointer Uniform %cblock
+%_ptr_Uniform_dblock = OpTypePointer Uniform %dblock
+        %__0 = OpVariable %_ptr_Uniform_ablock Uniform
+        %__1 = OpVariable %_ptr_Uniform_bblock Uniform
+        %__2 = OpVariable %_ptr_Uniform_cblock Uniform
+          %_ = OpVariable %_ptr_Uniform_dblock Uniform
+%gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+     %uint_0 = OpConstant %uint 0
+      %int_0 = OpConstant %int 0
+       %main = OpFunction %void None %3
+; CHECK-GE15: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}, ptr addrspace(1){{( %2)?}}, ptr addrspace(1){{( %3)?}}, ptr addrspace(1){{( %4)?}}) {
+; CHECK-LT15: define spir_kernel void @main({{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)*{{( %0)?}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)*{{( %1)?}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)*{{( %2)?}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)*{{( %3)?}}, i32 addrspace(1)*{{( %4)?}}) {
+          %5 = OpLabel
+         %id = OpVariable %_ptr_Function_uint Function
+; CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
+         %14 = OpAccessChain %_ptr_Input_uint %gl_GlobalInvocationID %uint_0
+         %15 = OpLoad %uint %14
+; CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func {{i[0-9]+}} @_Z13get_global_idj(i32 0)
+               OpStore %id %15
+; CHECK-GE15:   store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+         %22 = OpLoad %uint %id
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+         %27 = OpAccessChain %_ptr_Uniform_int %__0 %int_0
+         %32 = OpAccessChain %_ptr_Uniform_int %__1 %int_0
+         %38 = OpAccessChain %_ptr_Uniform_int %__2 %int_0
+         %47 = OpAccessChain %_ptr_Uniform_int %_ %int_0 %22
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+         %28 = OpLoad %int %27
+         %33 = OpLoad %int %32
+         %39 = OpLoad %int %38
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+         %34 = OpIAdd %int %28 %33
+         %40 = OpIAdd %int %34 %39
+; CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+               OpStore %47 %40
+; CHECK-GE15:   store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15:   store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+               OpReturn
+; CHECK:   ret void
+               OpFunctionEnd
+; CHECK: declare spir_func {{i[0-9]+}} @_Z13get_global_idj

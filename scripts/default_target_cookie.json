@@ -1,0 +1,15 @@
+{
+  "target_name": "UNKNOWN",
+  "llvm_name": "UNKNOWN",
+  "llvm_cpu": "UNKNOWN",
+  "llvm_triple": "UNKNOWN",
+  "link" : "false",
+  "link_shared" : "false",
+  "scalable_vector" : "false",
+  "llvm_features": "''",
+  "vlen": "1",
+  "bit_width": "64",
+  "capabilities_fp16": "false",
+  "capabilities_fp64": "true",
+  "feature" : ""
+}

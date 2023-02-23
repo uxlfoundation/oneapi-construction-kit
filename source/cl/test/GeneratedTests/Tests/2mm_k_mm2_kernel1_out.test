@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue mm2_kernel1 -arg tmp,repeat(34,rand(0,1.0)) -compare tmp:%p/Inputs/2mm_k_mm2_kernel1_out.txt -arg A,repeat(40,rand(0,1.0)) -arg B,repeat(94,rand(0,1.0)) -arg ni,repeat(1,randint(0,255)) -arg nj,repeat(1,10) -arg nk,repeat(1,10) -arg nl,repeat(1,randint(0,255)) -arg alpha,repeat(1,rand(0,1.0)) -arg beta,repeat(1,rand(0,1.0)) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/2mm/2mm.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: tmp - match

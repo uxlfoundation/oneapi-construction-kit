@@ -1,0 +1,54 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Addresses -c Float64 -c Int64 %p/ptr_int_conversions.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Addresses
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %ptr "ptr"
+               OpName %a "a"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+          %7 = OpConstant %uint 2
+%_arr_uint_7 = OpTypeArray %uint %7
+%_ptr_Function__arr_uint_7 = OpTypePointer Function %_arr_uint_7
+         %11 = OpConstant %uint 42
+         %12 = OpConstantComposite %_arr_uint_7 %11 %11
+%_ptr_Function_uint = OpTypePointer Function %uint
+         %16 = OpConstant %uint 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %ptr = OpVariable %_ptr_Function__arr_uint_7 Function
+          %a = OpVariable %_ptr_Function_uint Function
+               OpStore %ptr %12
+         %17 = OpConvertPtrToU %uint %ptr ; pointer to uint
+         %18 = OpIAdd %uint %16 %17 ; increment
+         %19 = OpConvertUToPtr %_ptr_Function_uint %18 ; convert back again
+         %20 = OpLoad %uint %19
+               OpStore %a %20
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca [2 x i32]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
+; CHECK-GE15: store [2 x i32] [i32 42, i32 42], ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store [2 x i32] [i32 42, i32 42], [2 x i32]* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = ptrtoint ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i32
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = ptrtoint [2 x i32]* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i32
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 1, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = inttoptr i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to ptr
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = inttoptr i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i32
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_normalize_v3double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Float64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %normalize_v3double "normalize_v3double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+          %v3double_t = OpTypeVector %double_t 3
+      %normalize_fn_t = OpTypeFunction %void_t
+            %double_5 = OpConstant %double_t 5.0
+          %v3double_5 = OpConstantComposite %v3double_t %double_5 %double_5 %double_5
+
+; All functions
+  %normalize_v3double = OpFunction %void_t None %normalize_fn_t
+; CHECK: define spir_kernel void @normalize_v3double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v3double_t %1 normalize %v3double_5
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x double> @_Z9normalizeDv3_d(<3 x double> <double 5.000000e+00, double 5.000000e+00, double 5.000000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

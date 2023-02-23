@@ -1,0 +1,110 @@
+print("# Half precision tgamma polynomials");
+
+// See https://en.wikipedia.org/wiki/Lanczos_approximation#Simple_implementation
+p = [|676.5203681218851,
+    -1259.1392167224028,
+    771.32342877765313,
+    -176.61502916214059,
+    12.507343278686905,
+    -0.13857109526572012,
+    9.9843695780195716e-6,
+    1.5056327351493116e-7|
+    ];
+
+// WARNING: Assumes n > 0.5
+procedure lancoz(n) {
+  n = n - 1;
+  a = 0.99999999999980993;
+  for i from 0 to (length(p)-1) do {
+    a := a + (p[i] / (n + i + 1));
+  };
+  t = n + length(p) - 0.5;
+  y = sqrt(2*pi) * t^(n+0.5) * exp(-t) * a;
+  return y;
+};
+
+// The number of terms in that polynomial approximation.
+number_of_terms = 3;
+
+
+print("\n## gamma(x)/(exp(-x) * x^((0.5 * x) - 0.25)) for range [0.5, 1.0]");
+
+// The function we are getting a polynomial approximation of.
+lancoz_divisor =  exp(-x) * x^((0.5 * x) - 0.25);
+function_to_approximate = lancoz(x) / lancoz_divisor(x);
+
+// The domain_range is the range of values the polynomial approximation is good for.
+domain_range = [0.5, 1.0];
+
+// The generated polynomial.
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+
+// Print the approximation to the user.
+polynomial_approximation;
+
+// max_error is the maximum imprecision possible in any result.
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+
+// Print the error.
+print("inf-norm error:", max_error);
+
+
+print("\n## gamma(x)/(exp(-x) * x^((0.5 * x) - 0.25)) for range [1.0, 1.6]");
+
+domain_range = [1.0, 1.6];
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:", max_error);
+
+
+print("\n## gamma(x)/(exp(-x) * x^((0.5 * x) - 0.25)) for range [1.6, 1.8]");
+
+domain_range = [1.6, 1.8];
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:", max_error);
+
+
+print("\n## gamma(x)/(exp(-x) * x^(x - 0.5)) polynomial for range [1.8, 3]");
+
+lancoz_divisor =  exp(-x) * x^(x - 0.5);
+function_to_approximate = lancoz(x) / lancoz_divisor(x);
+
+domain_range = [1.8, 3];
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:", max_error);
+
+
+print("\n## gamma(x)/(exp(-x) * x^(x - 0.5)) polynomial for range [3, 6]");
+
+domain_range = [3, 6];
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:", max_error);
+
+
+print("\n## gamma(x)/(exp(-x) * x^(x - 2)) polynomial for range [6, 9.2]");
+
+lancoz_divisor =  exp(-x) * x^(x - 2);
+function_to_approximate = lancoz(x) / lancoz_divisor(x);
+
+domain_range = [6, 9.2];
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:", max_error);

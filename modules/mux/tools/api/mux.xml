@@ -1,0 +1,2481 @@
+<?xml version="1.0"?>
+<interface>
+  <comment>Copyright (C) Codeplay Software Limited. All Rights Reserved.</comment>
+
+  <code>/// @file
+///
+/// @brief The ${Prefix} API.
+///
+/// @note This file was automatically generated from an XML API specification.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+</code>
+
+  <guard form="include">${FUNCTION_PREFIX}_${FUNCTION_PREFIX}${STUB_PREFIX}_H_INCLUDED
+    <block>
+      <include>stdbool.h</include>
+      <include>stddef.h</include>
+      <include>stdint.h</include>
+    </block>
+
+    <guard form="defined">__cplusplus<scope form="open">extern "C"</scope></guard>
+
+    <code form="always">/// @addtogroup ${function_prefix}
+/// @{
+</code>
+
+    <block>
+      <define priority="high">${FUNCTION_PREFIX}_MAJOR_VERSION<value>0</value>
+        <doxygen><brief>${Function_Prefix} major version number.</brief></doxygen></define>
+      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>73</value>
+        <doxygen><brief>${Function_Prefix} minor version number.</brief></doxygen></define>
+      <define priority="high">${FUNCTION_PREFIX}_PATCH_VERSION<value>0</value>
+        <doxygen><brief>${Function_Prefix} patch version number.</brief></doxygen></define>
+      <define priority="high">${FUNCTION_PREFIX}_VERSION
+        <value>(((uint32_t)${FUNCTION_PREFIX}_MAJOR_VERSION &lt;&lt; 22) | ((uint32_t)${FUNCTION_PREFIX}_MINOR_VERSION &lt;&lt; 12) | ((uint32_t)${FUNCTION_PREFIX}_PATCH_VERSION))</value>
+        <doxygen><brief>${Function_Prefix} combined version number.</brief></doxygen>
+      </define>
+    </block>
+
+    <define>${PREFIX}_NULL_ID<value>0</value>
+      <doxygen><brief>Default value for initializing ${Prefix} object `id` member variable.</brief></doxygen></define>
+
+    <typedef>${prefix}_result_t<type>int32_t</type>
+      <doxygen><brief>A result code type.</brief>
+        <detail>The return code from our ${Prefix} functions.</detail>
+        <see>${prefix}_result_e</see>
+      </doxygen>
+    </typedef>
+    <typedef>${prefix}_id_t<type>uint32_t</type>
+      <doxygen><brief>Declare ${Prefix}'s combined identifier type.</brief></doxygen></typedef>
+    <typedef>${prefix}_object_id_t<type>uint32_t</type>
+      <doxygen><brief>Declare ${Prefix}'s object identifier type.</brief></doxygen></typedef>
+    <typedef>${prefix}_target_id_t<type>uint32_t</type>
+      <doxygen><brief>Declare ${Prefix}'s target identifier type.</brief></doxygen></typedef>
+    <typedef>${prefix}_command_id_t<type>uint32_t</type>
+      <doxygen><brief>Declare ${Prefix}'s command identifier type.</brief></doxygen></typedef>
+    <typedef>${prefix}_device_info_t<type>*<struct>${prefix}_device_info_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s device information container.</brief></doxygen></typedef>
+    <typedef>${prefix}_device_t<type>*<struct>${prefix}_device_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s device container.</brief></doxygen></typedef>
+    <typedef>${prefix}_memory_t<type>*<struct>${prefix}_memory_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s memory container.</brief></doxygen></typedef>
+    <typedef>${prefix}_buffer_t<type>*<struct>${prefix}_buffer_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s buffer container.</brief></doxygen></typedef>
+    <typedef>${prefix}_offset_3d_t<type><struct>${prefix}_offset_3d_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s three dimensional offset.</brief></doxygen></typedef>
+    <typedef>${prefix}_extent_3d_t<type><struct>${prefix}_extent_3d_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s three dimensional extent.</brief></doxygen></typedef>
+    <typedef>${prefix}_extent_2d_t<type><struct>${prefix}_extent_2d_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s two dimensional extent.</brief></doxygen></typedef>
+    <typedef>${prefix}_image_t<type>*<struct>${prefix}_image_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s image container.</brief></doxygen></typedef>
+    <!-- TODO: Currently ${prefix}_sampler_t is not a pointer to ${prefix}_sampler_s, this must change once the old OCL target device mechanism is removed and samplers are implemented only using Core. -->
+    <typedef>${prefix}_sampler_t<type><struct>${prefix}_sampler_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s sampler container.</brief></doxygen></typedef>
+    <typedef>${prefix}_queue_t<type>*<struct>${prefix}_queue_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s queue container.</brief></doxygen></typedef>
+    <typedef>${prefix}_command_buffer_t<type>*<struct>${prefix}_command_buffer_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s command buffer container.</brief></doxygen></typedef>
+    <typedef>${prefix}_semaphore_t<type>*<struct>${prefix}_semaphore_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s semaphore container.</brief></doxygen></typedef>
+    <typedef>${prefix}_fence_t<type>*<struct>${prefix}_fence_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s fence container.</brief></doxygen></typedef>
+    <typedef>${prefix}_sync_point_t<type>*<struct>${prefix}_sync_point_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s sync-point container.</brief></doxygen></typedef>
+    <typedef>${prefix}_executable_t<type>*<struct>${prefix}_executable_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s executable container.</brief></doxygen></typedef>
+    <typedef>${prefix}_kernel_t<type>*<struct>${prefix}_kernel_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s kernel container.</brief></doxygen></typedef>
+    <typedef>${prefix}_query_pool_t<type>*<struct>${prefix}_query_pool_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s query pool container.</brief></doxygen></typedef>
+    <typedef>${prefix}_query_counter_t<type><struct>${prefix}_query_counter_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s query counter container.</brief></doxygen></typedef>
+    <typedef>${prefix}_query_counter_description_t<type><struct>${prefix}_query_counter_description_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s query counter description container.</brief></doxygen></typedef>
+    <typedef>${prefix}_query_counter_config_t<type><struct>${prefix}_query_counter_config_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s query counter configuration container.</brief></doxygen></typedef>
+    <typedef>${prefix}_query_duration_result_t<type>*<struct>${prefix}_query_duration_result_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s duration query result container.</brief></doxygen></typedef>
+    <typedef>${prefix}_query_counter_result_t<type>*<struct>${prefix}_query_counter_result_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s counter query result container.</brief></doxygen></typedef>
+    <typedef>${prefix}_allocator_info_t<type><struct>${prefix}_allocator_info_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s allocator container.</brief></doxygen></typedef>
+    <typedef>${prefix}_callback_info_t<type>*<struct>${prefix}_callback_info_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s callback container.</brief></doxygen></typedef>
+    <typedef>${prefix}_descriptor_info_t<type><struct>${prefix}_descriptor_info_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s descriptor container.</brief></doxygen></typedef>
+    <typedef>${prefix}_buffer_region_info_t<type><struct>${prefix}_buffer_region_info_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s buffer region container.</brief></doxygen></typedef>
+    <typedef>${prefix}_ndrange_options_t<type><struct>${prefix}_ndrange_options_s</struct></type>
+      <doxygen><brief>Forward declare ${Prefix}'s kernel execution options container.</brief></doxygen></typedef>
+
+    <enum>${prefix}_result_e
+      <scope>
+        <constant>${prefix}_success<value>0</value>
+          <doxygen><brief>No error occurred.</brief></doxygen></constant>
+        <constant>${prefix}_error_failure<value>1</value>
+          <doxygen><brief>An unknown error occurred.</brief></doxygen></constant>
+        <constant>${prefix}_error_null_out_parameter<value>2</value>
+          <doxygen><brief>An out parameter (EG. a pointer argument) was null when it should not be.</brief></doxygen></constant>
+        <constant>${prefix}_error_invalid_value<value>3</value>
+          <doxygen><brief>An invalid parameter was provided.</brief></doxygen></constant>
+        <constant>${prefix}_error_out_of_memory<value>4</value>
+          <doxygen><brief>An allocation failed.</brief></doxygen></constant>
+        <constant>${prefix}_error_null_allocator_callback<value>5</value>
+          <doxygen><brief>An allocator callback provided to ${Prefix} was null.</brief></doxygen></constant>
+        <constant>${prefix}_error_device_entry_hook_failed<value>6</value>
+          <doxygen><brief>A device entry hook was malformed.</brief></doxygen></constant>
+        <constant>${prefix}_error_invalid_binary<value>7</value>
+          <doxygen><brief>A file was an invalid binary.</brief></doxygen></constant>
+        <constant>${prefix}_error_feature_unsupported<value>8</value>
+          <doxygen><brief>Feature is unsupported by ${Prefix} API.</brief></doxygen></constant>
+        <constant>${prefix}_error_missing_kernel<value>9</value>
+          <doxygen><brief>Kernel was not found.</brief></doxygen></constant>
+        <constant>${prefix}_error_internal<value>10</value>
+          <doxygen><brief>An internal error has occurred, this should never happen. Use this in place of assertions.</brief></doxygen></constant>
+        <constant>${prefix}_error_fence_failure<value>11</value>
+          <doxygen><brief>A fence waited upon failed.</brief></doxygen></constant>
+        <constant>${prefix}_fence_not_ready<value>12</value>
+          <doxygen><brief>A fence waited upon was not yet complete.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>All ${Prefix} result types.</brief>
+        <detail>Used as the return codes from our ${Prefix} functions, to denote whether the function was successful.</detail>
+      </doxygen>
+    </enum>1
+
+    <enum>${prefix}_object_id_e
+      <scope>
+        <constant>${prefix}_object_id_buffer<value>(1 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_buffer_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_command_buffer<value>(2 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_command_buffer_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_device<value>(3 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_device_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_executable<value>(4 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_executable_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_image<value>(5 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_image_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_kernel<value>(6 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_kernel_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_memory<value>(7 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_memory_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_queue<value>(8 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_queue_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_sampler<value>(9 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_sampler_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_semaphore<value>(10 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_semaphore_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_query_pool<value>(11 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_query_pool_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_sync_point<value>(12 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_sync_point_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_fence<value>(13 &lt;&lt; 16)</value>
+          <doxygen><brief>ID for `::${prefix}_fence_t` objects.</brief></doxygen></constant>
+        <constant>${prefix}_object_id_mask<value>0xffff0000</value>
+          <doxygen><brief>Mask for ID values which are always help in the upper 16 bits of the 32 bit `::${prefix}_id_t`.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>All ${Prefix} object type tags.</brief>
+        <detail>Type IDs are combined with the generated `${prefix}_target_id_e`, using a bitwise and, to create the value for each ${Prefix} object's `id` member, all `::${prefix}_object_id_e` values are in the upper 16 bits of the 32 bit `::${prefix}_id_t`.</detail></doxygen>
+    </enum>
+
+    <enum>${prefix}_device_type_e
+      <scope>
+        <constant>${prefix}_device_type_cpu<value>(0x1 &lt;&lt; 0)</value>
+          <doxygen><brief>Device is a CPU.</brief></doxygen></constant>
+        <constant>${prefix}_device_type_gpu_integrated<value>(0x1 &lt;&lt; 1)</value>
+          <doxygen><brief>Device is an integrated GPU.</brief></doxygen></constant>
+        <constant>${prefix}_device_type_gpu_discrete<value>(0x1 &lt;&lt; 2)</value>
+          <doxygen><brief>Device is a discrete GPU.</brief></doxygen></constant>
+        <constant>${prefix}_device_type_gpu_virtual<value>(0x1 &lt;&lt; 3)</value>
+          <doxygen><brief>Device is a virtualized GPU.</brief></doxygen></constant>
+        <constant>${prefix}_device_type_accelerator<value>(0x1 &lt;&lt; 4)</value>
+          <doxygen><brief>Device is an accelerator chip.</brief></doxygen></constant>
+        <constant>${prefix}_device_type_custom<value>(0x1 &lt;&lt; 5)</value>
+          <doxygen><brief>Device is a mysterious custom type.</brief></doxygen></constant>
+        <constant>${prefix}_device_type_all<value>0xFFFFFFFF</value>
+          <doxygen><brief>Mask to match all device types.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>All possible device types.</brief>
+        <see>${prefix}_device_info_s::device_type</see>
+        <detail>Used to identify which type an ${Prefix} device is, can be used as a bitfield to select devices by type with `::${prefix}GetDeviceInfos`.</detail>
+      </doxygen>
+    </enum>
+
+    <typedef>${prefix}_queue_type_e<type>
+        <enum>${prefix}_queue_type_e
+          <scope>
+            <constant>${prefix}_queue_type_compute<value>0</value>
+              <doxygen><brief>A queue type that supports all compute operations.</brief></doxygen></constant>
+            <constant>${prefix}_queue_type_total<value>1</value>
+              <doxygen><brief>The total number of queue types used.</brief></doxygen></constant>
+          </scope>
+        </enum>
+      </type>
+      <doxygen><brief>All possible queue types that can be supported.</brief>
+        <detail>Used to identify which queue type is required for operations.
+
+@note There exists code that assumes that this enum starts at zero, and that the numbers increment contiguously until ${prefix}_queue_type_total.</detail>
+      </doxygen>
+    </typedef>
+
+    <typedef>${prefix}_allocation_type_e<type>
+        <enum>${prefix}_allocation_type_e
+          <scope>
+            <constant>${prefix}_allocation_type_alloc_host<value>0</value>
+              <doxygen><brief>Allocate pinned memory visible on both host and device. Used in combination with ${prefix}_memory_property_host_coherent or ${prefix}_memory_property_host_cached.</brief></doxygen></constant>
+            <constant>${prefix}_allocation_type_alloc_device<value>1</value>
+              <doxygen><brief>Allocate device memory. Can be used with ${prefix}_memory_property_device_local or ${prefix}_memory_property_host_visible.</brief></doxygen></constant>
+          </scope>
+        </enum>
+      </type>
+      <doxygen><brief>All possible allocation types that can be supported.</brief>
+        <detail>Used when allocating memory through the ${Prefix} device to specify what allocation type is being requested.</detail>
+      </doxygen>
+    </typedef>
+
+    <enum>${prefix}_allocation_capabilities_e
+      <scope>
+        <constant>${prefix}_allocation_capabilities_coherent_host<value>0x1 &lt;&lt; 0</value>
+          <doxygen><brief>Can an ${Prefix} device allocate cache coherent host memory, or use pre-allocated host memory without synchronization.</brief></doxygen></constant>
+        <constant>${prefix}_allocation_capabilities_cached_host<value>0x1 &lt;&lt; 1</value>
+          <doxygen><brief>Can an ${Prefix} device use host memory with explicit synchronization.</brief></doxygen></constant>
+        <constant>${prefix}_allocation_capabilities_alloc_device<value>0x1 &lt;&lt; 2</value>
+          <doxygen><brief>Can an ${Prefix} device allocate device-only memory.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible allocation capabilities.</brief>
+        <see>${prefix}_device_info_s::allocation_capabilities</see>
+        <detail>Each ${Prefix} device info struct has a member which denotes the allocation capabilities of that device, as a bitfield of the following enum.</detail>
+      </doxygen>
+    </enum>
+
+    <typedef>${prefix}_memory_property_e<type>
+        <enum>${prefix}_memory_property_e
+          <scope>
+            <constant>${prefix}_memory_property_device_local<value>(0x1 &lt;&lt; 1)</value>
+              <doxygen><brief>Memory is visible only on the device and can not be mapped. Must not be used in combination with ${prefix}_memory_property_host_visible, ${prefix}_memory_property_host_coherent, or ${prefix}_memory_property_host_cached.</brief></doxygen></constant>
+            <constant>${prefix}_memory_property_host_visible<value>(0x1 &lt;&lt; 2)</value>
+              <doxygen><brief>Memory is visible on host and device, can be mapped using ${prefix}MapMemory. Can be used with ${prefix}_memory_property_host_coherent or ${prefix}_memory_property_host_cached.</brief></doxygen></constant>
+            <constant>${prefix}_memory_property_host_coherent<value>(0x1 &lt;&lt; 3)</value>
+              <doxygen><brief>Memory caches are coherent between host and device. No explicit synchronization is required. Can be used with ${prefix}_memory_property_host_visible, is mutually exclusive with ${prefix}_memory_property_host_cached.</brief></doxygen></constant>
+            <constant>${prefix}_memory_property_host_cached<value>(0x1 &lt;&lt; 4)</value>
+              <doxygen><brief>Memory caches are not coherent between host and device. Explicit synchronization is required, using ${prefix}MapMemory and ${prefix}UnmapMemory, before updates are visible on host or device. Can be used with ${prefix}_memory_property_host_visible, is mutually exclusive with ${prefix}_memory_property_host_coherent.</brief></doxygen></constant>
+            <!-- TODO: When we decided to support lazy allocation uncomment below -->
+            <!-- <constant>${prefix}_memory_property_lazily_allocated<value>(0x1 &lt;&lt; 5)</value> -->
+            <!--   <doxygen><brief>Device only memory which is may be allocated lazily, must not be combined with ${prefix}_memory_property_host_visible.</brief></doxygen></constant> -->
+          </scope>
+        </enum>
+      </type>
+      <doxygen><brief>Each of the memory properties which may be requested for an allocation.</brief></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_image_type_e<type>
+        <enum>${prefix}_image_type_e
+          <scope>
+            <constant>${prefix}_image_type_1d<doxygen><brief>A 1 dimensional image type.</brief></doxygen></constant>
+            <constant>${prefix}_image_type_2d<doxygen><brief>A 2 dimensional image type.</brief></doxygen></constant>
+            <constant>${prefix}_image_type_3d<doxygen><brief>A 3 dimensional image type.</brief></doxygen></constant>
+            <constant>${prefix}_force_size_image_type<value>0x7fffffff</value><doxygen><brief>Force enum size to 32 bits</brief></doxygen></constant>
+          </scope>
+        </enum>
+      </type>
+      <doxygen><brief>All possible image types that can be supported.</brief>
+        <detail>Used when creating a ${prefix}_image_t object to specify the dimensionality of the image.</detail></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_image_tiling_e<type>
+        <enum>${prefix}_image_tiling_e<scope>
+            <constant>${prefix}_image_tiling_linear
+              <doxygen><brief>Linear tiling mode lays out pixel data in linear order, this order should be used when transferring data to/from the host.</brief></doxygen></constant>
+            <constant>${prefix}_image_tiling_optimal
+              <doxygen><brief>Optimal tiling mode lays out pixel data in cache friendly order, this mode should be used for best device performance.</brief></doxygen></constant>
+      </scope></enum></type>
+      <doxygen><brief>All possible image tiling modes an image can be in.</brief></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_image_format_e<type>
+      <enum>${prefix}_image_format_e
+        <scope>
+          <!-- R channel formats -->
+          <constant>${prefix}_image_format_R8_snorm<value>(0x10B0 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16_snorm<value>(0x10B0 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8_unorm<value>(0x10B0 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16_unorm<value>(0x10B0 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8_sint<value>(0x10B0 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16_sint<value>(0x10B0 | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32_sint<value>(0x10B0 | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8_uint<value>(0x10B0 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16_uint<value>(0x10B0 | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32_uint<value>(0x10B0 | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16_sfloat<value>(0x10B0 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32_sfloat<value>(0x10B0 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>R channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- A channel formats -->
+          <constant>${prefix}_image_format_A8_snorm<value>(0x10B1 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A16_snorm<value>(0x10B1 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A8_unorm<value>(0x10B1 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A16_unorm<value>(0x10B1 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A8_sint<value>(0x10B1 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A16_sint<value>(0x10B1 | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A32_sint<value>(0x10B1 | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A8_uint<value>(0x10B1 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A16_uint<value>(0x10B1 | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A32_uint<value>(0x10B1 | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A16_sfloat<value>(0x10B1 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A32_sfloat<value>(0x10B1 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>A channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- RG channel formats -->
+          <constant>${prefix}_image_format_R8G8_snorm<value>(0x10B2 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16_snorm<value>(0x10B2 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8_unorm<value>(0x10B2 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16_unorm<value>(0x10B2 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8_sint<value>(0x10B2 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16_sint<value>(0x10B2 | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32_sint<value>(0x10B2 | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8_uint<value>(0x10B2 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16_uint<value>(0x10B2 | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32_uint<value>(0x10B2 | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16_sfloat<value>(0x10B2 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32_sfloat<value>(0x10B2 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>RG channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- RA channel formats -->
+          <constant>${prefix}_image_format_R8A8_snorm<value>(0x10B3 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16A16_snorm<value>(0x10B3 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8A8_unorm<value>(0x10B3 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16A16_unorm<value>(0x10B3 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8A8_sint<value>(0x10B3 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16A16_sint<value>(0x10B3 | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32A32_sint<value>(0x10B3 | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8A8_uint<value>(0x10B3 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16A16_uint<value>(0x10B3 | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32A32_uint<value>(0x10B3 | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16A16_sfloat<value>(0x10B3 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32A32_sfloat<value>(0x10B3 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>RA channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- RGB channel formats -->
+          <constant>${prefix}_image_format_R5G6B5_unorm_pack16<value>(0x10B4 | (0x10D4 &lt;&lt; 16))</value>
+            <doxygen><brief>RGB channel format with 16 bits of unsigned normalized storage.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R5G5B5_unorm_pack16<value>(0x10B4 | (0x10D5 &lt;&lt; 16))</value>
+            <doxygen><brief>RGB channel format with 16 bits of unsigned normalized storage.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R10G10B10_unorm_pack32<value>(0x10B4 | (0x10D6 &lt;&lt; 16))</value>
+            <doxygen><brief>RGB channel format with 32 bits of unsigned normalized storage.</brief></doxygen></constant>
+
+          <!-- RGBA channel formats -->
+          <constant>${prefix}_image_format_R8G8B8A8_snorm<value>(0x10B5 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16A16_snorm<value>(0x10B5 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8B8A8_unorm<value>(0x10B5 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16A16_unorm<value>(0x10B5 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8B8A8_sint<value>(0x10B5 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16A16_sint<value>(0x10B5 | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32B32A32_sint<value>(0x10B5 | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8B8A8_uint<value>(0x10B5 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16A16_uint<value>(0x10B5 | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32B32A32_uint<value>(0x10B5 | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16A16_sfloat<value>(0x10B5 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32B32A32_sfloat<value>(0x10B5 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>RGBA channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- BGRA channel formats -->
+          <constant>${prefix}_image_format_B8G8R8A8_snorm<value>(0x10B6 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>BGRA channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_B8G8R8A8_unorm<value>(0x10B6 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>BGRA channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_B8G8R8A8_sint<value>(0x10B6 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>BGRA channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_B8G8R8A8_uint<value>(0x10B6 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>BGRA channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+
+          <!-- ARGB channel formats -->
+          <constant>${prefix}_image_format_A8R8G8B8_snorm<value>(0x10B7 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>ARGB channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A8R8G8B8_unorm<value>(0x10B7 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>ARGB channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A8R8G8B8_sint<value>(0x10B7 | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>ARGB channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_A8R8G8B8_uint<value>(0x10B7 | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>ARGB channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+
+          <!-- INTENSITY channel formats -->
+          <constant>${prefix}_image_format_INTENSITY8_snorm<value>(0x10B8 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>Intensity channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_INTENSITY16_snorm<value>(0x10B8 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>Intensity channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_INTENSITY8_unorm<value>(0x10B8 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>Intensity channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_INTENSITY16_unorm<value>(0x10B8 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>Intensity channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_INTENSITY16_sfloat<value>(0x10B8 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>Intensity channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_INTENSITY32_sfloat<value>(0x10B8 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>Intensity channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- LUMINANCE channel formats -->
+          <constant>${prefix}_image_format_LUMINANCE8_snorm<value>(0x10B9 | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>Luminance channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_LUMINANCE16_snorm<value>(0x10B9 | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>Luminance channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_LUMINANCE8_unorm<value>(0x10B9 | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>Luminance channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_LUMINANCE16_unorm<value>(0x10B9 | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>Luminance channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_LUMINANCE16_sfloat<value>(0x10B9 | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>Luminance channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_LUMINANCE32_sfloat<value>(0x10B9 | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>Luminance channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- Rx channel formats -->
+          <constant>${prefix}_image_format_R8x8_snorm<value>(0x10BA | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16x16_snorm<value>(0x10BA | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8x8_unorm<value>(0x10BA | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16x16_unorm<value>(0x10BA | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8x8_sint<value>(0x10BA | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16x16_sint<value>(0x10BA | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32x32_sint<value>(0x10BA | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8x8_uint<value>(0x10BA | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16x16_uint<value>(0x10BA | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32x32_uint<value>(0x10BA | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16x16_sfloat<value>(0x10BA | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32x32_sfloat<value>(0x10BA | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>Rx channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- RGx channel formats -->
+          <constant>${prefix}_image_format_R8G8Bx_snorm<value>(0x10BB | (0x10D0 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 8 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16_snorm<value>(0x10BB | (0x10D1 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 16 signed normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8Bx_unorm<value>(0x10BB | (0x10D2 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 8 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16_unorm<value>(0x10BB | (0x10D3 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 16 unsigned normalized bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8Bx_sint<value>(0x10BB | (0x10D7 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 8 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16_sint<value>(0x10BB | (0x10D8 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 16 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32B32_sint<value>(0x10BB | (0x10D9 &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 32 signed integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R8G8Bx_uint<value>(0x10BB | (0x10DA &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 8 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16B16_uint<value>(0x10BB | (0x10DB &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 16 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32B32_uint<value>(0x10BB | (0x10DC &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 32 unsigned integer bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R16G16B16_sfloat<value>(0x10BB | (0x10DD &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 16 signed floating point bits per channel.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R32G32B32_sfloat<value>(0x10BB | (0x10DE &lt;&lt; 16))</value>
+            <doxygen><brief>RGx channel format with 32 signed floating point bits per channel.</brief></doxygen></constant>
+
+          <!-- RGBx channel formats -->
+          <constant>${prefix}_image_format_R5G6B5x0_unorm_pack16<value>(0x10BC | (0x10D4 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBx channel format with 16 bits of unsigned normalized storage.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R5G5B5x1_unorm_pack16<value>(0x10BC | (0x10D5 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBx channel format with 16 bits of unsigned normalized storage.</brief></doxygen></constant>
+          <constant>${prefix}_image_format_R10G10B10x2_unorm_pack32<value>(0x10BC | (0x10D6 &lt;&lt; 16))</value>
+            <doxygen><brief>RGBx channel format with 32 bits of unsigned normalized storage.</brief></doxygen></constant>
+
+        </scope>
+      </enum></type>
+      <doxygen><brief>All possible image formats that can be supported.</brief>
+        <detail>Used when creating a ::${prefix}_image_t object to specify the pixel data format of the image. The enum values are constructed from the hexadecimal constants specified by OpenCL, the lower 16 bits contains the cl_channel_order value and the upper 16 bits contains the cl_channel_type value.</detail></doxygen>
+    </typedef>
+
+    <enum>${prefix}_address_type_e
+      <scope>
+        <constant>${prefix}_address_type_logical<value>0</value>
+          <doxygen><brief>Logical addressing.</brief></doxygen></constant>
+        <constant>${prefix}_address_type_bits32<value>1</value>
+          <doxygen><brief>32-bit wide pointer addressing.</brief></doxygen></constant>
+        <constant>${prefix}_address_type_bits64<value>2</value>
+          <doxygen><brief>64-bit wide pointer addressing.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>All possible addressing types that can be used.</brief>
+        <detail>Used to specify what modes of addressing are supported by the platform.</detail>
+      </doxygen>
+    </enum>
+
+    <enum>${prefix}_address_capabilities_e
+      <scope>
+        <constant>${prefix}_address_capabilities_logical<value>0x1 &lt;&lt; ${prefix}_address_type_logical</value>
+          <doxygen><brief>Logical addressing supported.</brief></doxygen></constant>
+        <constant>${prefix}_address_capabilities_bits32<value>0x1 &lt;&lt; ${prefix}_address_type_bits32</value>
+          <doxygen><brief>32-bit wide pointer addressing supported.</brief></doxygen></constant>
+        <constant>${prefix}_address_capabilities_bits64<value>0x1 &lt;&lt; ${prefix}_address_type_bits64</value>
+          <doxygen><brief>64-bit wide pointer addressing supported.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible addressing capabilities.</brief>
+        <see>${prefix}_device_info_s::source_capabilities</see>
+        <detail>Each ${Prefix} device info struct has a member which denotes the addressing capabilities of that device, as a bitfield of the following enum.</detail>
+      </doxygen>
+    </enum>
+
+    <enum>${prefix}_cache_capabilities_e
+      <scope>
+        <constant>${prefix}_cache_capabilities_read<value>0x1</value>
+          <doxygen><brief>Read caching supported.</brief></doxygen></constant>
+        <constant>${prefix}_cache_capabilities_write<value>0x2</value>
+          <doxygen><brief>Write caching supported.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible caching capabilities.</brief>
+        <detail>Each ${Prefix} device struct has a member which denotes the caching capabilities of that device, as a bitfield of the following enum.</detail>
+      </doxygen>
+    </enum>
+
+    <enum>${prefix}_floating_point_capabilities_e
+      <scope>
+        <constant>${prefix}_floating_point_capabilities_denorm<value>0x1</value>
+          <doxygen><brief>Denormals supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_inf_nan<value>0x2</value>
+          <doxygen><brief>INF and NaN are supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_rte<value>0x4</value>
+          <doxygen><brief>Round to nearest even supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_rtz<value>0x8</value>
+          <doxygen><brief>Round to zero supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_rtp<value>0x10</value>
+          <doxygen><brief>Round to positive infinity supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_rtn<value>0x20</value>
+          <doxygen><brief>Round to negative infinity supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_fma<value>0x40</value>
+          <doxygen><brief>Fused multiply add supported.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_soft<value>0x80</value>
+          <doxygen><brief>Floating point operations are written in software.</brief></doxygen></constant>
+        <constant>${prefix}_floating_point_capabilities_full<value>0x100</value>
+          <doxygen><brief>Binary format conforms to the IEEE-754 specification.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible floating point capabilities.</brief>
+        <detail>Each ${Prefix} device struct has a member which denotes the floating point capabilities of that device, as a bitfield of the following enum.</detail>
+      </doxygen>
+    </enum>
+
+    <enum>${prefix}_integer_capabilities_e
+      <scope>
+        <constant>${prefix}_integer_capabilities_8bit<value>0x1</value>
+          <doxygen><brief>8 bit integer support</brief></doxygen></constant>
+        <constant>${prefix}_integer_capabilities_16bit<value>0x2</value>
+          <doxygen><brief>16 bit integer support</brief></doxygen></constant>
+        <constant>${prefix}_integer_capabilities_32bit<value>0x4</value>
+          <doxygen><brief>32 bit integer support</brief></doxygen></constant>
+        <constant>${prefix}_integer_capabilities_64bit<value>0x8</value>
+          <doxygen><brief>64 bit integer support</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible integer capabilities.</brief>
+        <detail>Each ${Prefix} device struct has a member which denotes the integer capabilities of that device, as a bitfield of the following enum.</detail>
+      </doxygen>
+    </enum>
+
+    <enum>${prefix}_custom_buffer_capabilities_e
+      <scope>
+        <constant>${prefix}_custom_buffer_capabilities_data<value>0x1</value>
+          <doxygen><brief>Custom buffer support for setting `data` and `size` in ${prefix}_descriptor_info_custom_buffer_s.</brief></doxygen></constant>
+        <constant>${prefix}_custom_buffer_capabilities_address_space<value>0x2</value>
+          <doxygen><brief>Custom buffer support for setting `address_space` in ${prefix}_descriptor_info_custom_buffer_s.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible custom buffer capabilities.</brief>
+        <detail>Each ${Prefix} device struct has a member which denotes the custom buffer capabilities of that device, as a bitfield of the following enum.</detail></doxygen>
+    </enum>
+
+    <enum>${prefix}_endianness_e
+      <scope>
+        <constant>${prefix}_endianness_little<value>0x1</value>
+          <doxygen><brief>Little endian device</brief></doxygen></constant>
+        <constant>${prefix}_endianness_big<value>0x2</value>
+          <doxygen><brief>Big endian device</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>All possible endiannesses.</brief></doxygen>
+    </enum>
+
+    <enum>${prefix}_shared_local_memory_type_e
+      <scope>
+        <constant>${prefix}_shared_local_memory_physical<value>0</value><doxygen>
+            <brief>Shared local memory for a device is physical.</brief>
+            <detail>The shared local memory used by the device is truely that - physical memory on the device.</detail>
+        </doxygen></constant>
+        <constant>${prefix}_shared_local_memory_virtual<value>1</value><doxygen>
+            <brief>Shared local memory for a device is virtual.</brief>
+            <detail>The shared local memory used by the device is virtual - its actually using the global memory available to the device to pretend that it has shared local memory support.</detail>
+        </doxygen></constant>
+      </scope>
+      <doxygen><brief>All possible shared local memory types.</brief></doxygen>
+    </enum>
+
+    <enum>${prefix}_descriptor_info_type_e
+      <scope>
+        <constant>${prefix}_descriptor_info_type_buffer<value>0</value>
+          <doxygen><brief>Descriptor is a buffer.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_image<value>1</value>
+          <doxygen><brief>Descriptor is an image.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_sampler<value>2</value>
+          <doxygen><brief>Descriptor is a sampler.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_plain_old_data<value>3</value>
+          <doxygen><brief>Descriptor is plain-old-data.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_shared_local_buffer<value>4</value>
+          <doxygen><brief>Descriptor is a shared local buffer.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_null_buffer<value>5</value>
+          <doxygen><brief>Descriptor is a null buffer.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_custom_buffer<value>6</value>
+          <doxygen><brief>Descriptor is a custom buffer.</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>All possible descriptor types.</brief>
+        <see>${prefix}_descriptor_info_s::_type</see>
+        <detail>Used to identify which type a descriptor is.</detail>
+      </doxygen>
+    </enum>
+
+    <typedef>${prefix}_address_mode_e<type>
+        <enum>${prefix}_address_mode_e<scope>
+            <constant>${prefix}_address_mode_none
+              <doxygen><brief>Image coordinates must reside within the image dimensions.</brief></doxygen></constant>
+            <constant>${prefix}_address_mode_repeat
+              <doxygen><brief>Out of range image coordinates are wrapped around to a valid range.</brief></doxygen></constant>
+            <constant>${prefix}_address_mode_repeat_mirror
+              <doxygen><brief>Out of range image coordinates are mirrored along image boundaries.</brief></doxygen></constant>
+            <constant>${prefix}_address_mode_clamp
+              <doxygen><brief>Out of range image coordinates are clamped to the border colour.</brief></doxygen></constant>
+            <constant>${prefix}_address_mode_clamp_edge
+              <doxygen><brief>Out of range image coordinates are clamped to the image extent.</brief></doxygen></constant>
+      </scope></enum></type>
+      <doxygen><brief>All possible addressing modes describing how to handle out of range image coordinates.</brief></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_filter_mode_e<type>
+        <enum>${prefix}_filter_mode_e<scope>
+            <constant>${prefix}_filter_mode_nearest
+              <doxygen><brief>Sample the nearest pixel to the specified coordinate.</brief></doxygen></constant>
+            <constant>${prefix}_filter_mode_linear
+              <doxygen><brief>Sample and blend the neighbouring pixels to the specified coordinate.</brief></doxygen></constant>
+      </scope></enum></type>
+      <doxygen><brief>All possible filter modes for image sampling.</brief></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_query_type_e<type>
+        <enum>${prefix}_query_type_e<scope>
+            <constant>${prefix}_query_type_duration
+              <doxygen><brief>Query the command duration with a start and end time stamp, the `start` and `end` timestamps **must** be CPU timestamps which **may** require interpolation of device timestamps, only a single command duration query **shall** be enabled in a command buffer at one time.</brief></doxygen></constant>
+            <constant>${prefix}_query_type_counter
+              <doxygen><brief>Query the values of an enabled set of hardware counters.</brief></doxygen></constant>
+        </scope></enum></type>
+        <doxygen><brief>Accepted as `query_type` parameter to ${prefix}CreateQueryPool.</brief>
+          <detail>The type of a query pool specifies the data that can be stored within it.</detail></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_query_counter_storage_e<type>
+        <enum>${prefix}_query_counter_storage_e<scope>
+            <constant>${prefix}_query_counter_result_type_int32<doxygen><brief>Query counter storage is `int32_t`.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_result_type_int64<doxygen><brief>Query counter storage is `int64_t`.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_result_type_uint32<doxygen><brief>Query counter storage is `uint32_t`.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_result_type_uint64<doxygen><brief>Query counter storage is `uint64_t`.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_result_type_float32<doxygen><brief>Query counter storage is `float`.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_result_type_float64<doxygen><brief>Query counter storage is `double`.</brief></doxygen></constant>
+        </scope></enum></type>
+      <doxygen><brief>All possible query counter storage types.</brief></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_query_counter_unit_e<type>
+        <enum>${prefix}_query_counter_unit_e<scope>
+            <constant>${prefix}_query_counter_unit_generic<doxygen><brief>The counter unit is a generic value.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_percentage<doxygen><brief>The counter unit is a percentage.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_nanoseconds<doxygen><brief>The counter unit is nanoseconds.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_bytes<doxygen><brief>The counter unit is bytes.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_bytes_per_second<doxygen><brief>The counter unit is bytes per second.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_kelvin<doxygen><brief>The counter unit is degrees kelvin.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_watts<doxygen><brief>The counter unit is watts.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_volts<doxygen><brief>The counter unit is volts.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_amps<doxygen><brief>The counter unit is amperes.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_hertz<doxygen><brief>The counter unit is hertz.</brief></doxygen></constant>
+            <constant>${prefix}_query_counter_unit_cycles<doxygen><brief>The counter unit is cycles.</brief></doxygen></constant>
+        </scope></enum></type>
+        <doxygen><brief>All possible query counter unit types.</brief></doxygen>
+    </typedef>
+
+    <typedef>${prefix}_wfv_status_e<type>
+        <enum>${prefix}_wfv_status_e<scope>
+            <constant>${prefix}_wfv_status_none<doxygen><brief>Whole function vectorization has not been performed.</brief></doxygen></constant>
+            <constant>${prefix}_wfv_status_error<doxygen><brief>An error was encountered while trying to perform whole function vectorization.</brief></doxygen></constant>
+            <constant>${prefix}_wfv_status_success<doxygen><brief>Whole function vectorization has been performed successfully.</brief></doxygen></constant>
+        </scope></enum></type>
+        <doxygen><brief>All possible whole function vectorization status codes for a kernel.</brief></doxygen>
+    </typedef>
+
+
+    <typedef>
+      <type><function form="pointer">${prefix}_command_user_callback_t
+        <return>void</return>
+        <param>queue<type>mux_queue_t</type></param>
+        <param>command_buffer<type>mux_command_buffer_t</type></param>
+        <param>user_data<type>void *const</type></param>
+      </function></type>
+      <doxygen><brief>Command buffer user callback function type.</brief>
+        <detail>A parameter type of ${prefix}CommandUserCallback, defining the signature of callback functors.</detail>
+      </doxygen>
+    </typedef>
+
+    <function stub="none">${function_prefix}${Stub_Prefix}GetDeviceInfos
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device_types<type>uint32_t</type>
+        <doxygen><param form="in">A bitfield of `::${prefix}_device_type_e` values to return in `out_device_infos`.</param></doxygen></param>
+      <param>device_infos_length<type>uint64_t</type>
+        <doxygen><param form="in">The length of out_device_infos. Must be 0, if out_devices is null.</param></doxygen></param>
+      <param>out_device_infos<type>${prefix}_device_info_t*</type>
+        <doxygen><param form="out">Array of information for devices ${Prefix} knows about, or null if an error occurred. Can be null, if out_device_infos_length is non-null.</param></doxygen></param>
+      <param>out_device_infos_length<type>uint64_t*</type>
+        <doxygen><param form="out">The total number of devices for which we are returning information, or 0 if an error occurred. Can be null, if out_device_infos is non-null.</param></doxygen></param>
+      <doxygen><brief>Gets ${Prefix} devices' information.</brief></doxygen>
+    </function>
+
+    <function stub="none">${function_prefix}${Stub_Prefix}CreateDevices
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>devices_length<type>uint64_t</type>
+        <doxygen><param form="in">The length of out_devices. Must be 0, if out_devices is null.</param></doxygen></param>
+      <param>device_infos<type>${prefix}_device_info_t *</type>
+        <doxygen><param form="in">Array of device information determining which devices to create.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type>
+        <doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_devices<type>${prefix}_device_t*</type>
+        <doxygen><param form="out">Array of devices ${Prefix} knows about, or null if an error occurred.</param></doxygen></param>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyDevice
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a device.</brief>
+        <detail>This function allows ${Prefix} to call into our partner's code to destroy a device that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}AllocateMemory
+      <return>${prefix}_result_t<doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">A ${Prefix} device.</param></doxygen></param>
+      <param>size<type>size_t</type><doxygen><param form="in">The size in bytes of memory to allocate.</param></doxygen></param>
+      <param>heap<type>uint32_t</type><doxygen><param form="in">Value of a single set bit in the `::${prefix}_memory_requirements_s::supported_heaps` bitfield of the buffer or image the device memory is being allocated for. Passing the value of `1` to `heap` must result in a successful allocation, `heap` must not be `0`.</param></doxygen></param>
+      <param>memory_properties<type>uint32_t</type>
+        <doxygen><param form="in">Bitfield of memory properties this allocation should support, values from ${prefix}_memory_property_e.</param></doxygen></param>
+      <param>allocation_type<type>${prefix}_allocation_type_e</type><doxygen><param form="in">The type of allocation.</param></doxygen></param>
+      <param>alignment<type>uint32_t</type>
+        <doxygen><param form="in">Minimum alignment in bytes for the requested allocation.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_memory<type>${prefix}_memory_t*</type><doxygen><param form="out">The created memory, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Allocate ${Prefix} device memory to be bound to a buffer or image.</brief>
+        <detail>This function uses a ${Prefix} device to allocate device memory which can later be bound to buffers and images, providing physical memory backing, with the ::${prefix}BindBufferMemory and ::${prefix}BindImageMemory functions.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateMemoryFromHost
+      <return>${prefix}_result_t<doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">A ${Prefix} device.</param></doxygen></param>
+      <param>size<type>size_t</type><doxygen><param form="in">The size in bytes of allocated memory.</param></doxygen></param>
+      <param>host_pointer<type>void*</type>
+        <doxygen><param form="in">Pointer to pre-allocated host addressable memory, must not be null.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_memory<type>${prefix}_memory_t*</type><doxygen><param form="out">The created memory, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Assigns ${Prefix} device visible memory from pre-allocated host side memory.</brief>
+          <detail>This function takes a pointer to pre-allocated host memory and binds it to device visible memory, which is cache coherent with the host allocation. Entry point is optional and must return ${prefix}_error_feature_unsupported if device doesn't support ${prefix}_allocation_capabilities_cached_host.</detail>
+        <see>${prefix}_device_info_s::allocation_capabilities</see>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}FreeMemory
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the memory was allocated for.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type><doxygen><param form="in">The ${Prefix} device memory to be freed.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Free ${Prefix} device memory after use has finished.</brief>
+          <detail>This function uses the ${Prefix} device used for allocation with either ::${prefix}AllocateMemory or ::${prefix}CreateMemoryFromHost to deallocate the device memory.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}MapMemory
+      <return>${prefix}_result_t<doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The device where the device memory is allocated.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type><doxygen><param form="in">The memory to be mapped to a host accessible memory address.</param></doxygen></param>
+      <param>offset<type>uint64_t</type><doxygen><param form="in">Offset in bytes into the device memory to map to host addressable memory.</param></doxygen></param>
+      <param>size<type>uint64_t</type><doxygen><param form="in">Size in bytes of device memory to map to host addressable memory.</param></doxygen></param>
+      <param>out_data<type>void**</type><doxygen><param form="out">Pointer to returned mapped host address, must not be null.</param></doxygen></param>
+      <doxygen><brief>Map ${Prefix} device memory to a host address.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}UnmapMemory
+      <return>${prefix}_result_t<doxygen><brief>${prefix}_success, or a ${prefix}_error_* if an error occurred.</brief></doxygen></return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The device where the device memory is allocated.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type><doxygen><param form="in">The device memory to unmap.</param></doxygen></param>
+      <doxygen><brief>Unmap a mapped device memory.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}FlushMappedMemoryToDevice
+      <return>${prefix}_result_t
+        <doxygen><return>Returns ${prefix}_success on success or ${prefix}_error_invalid_value when; @p device is not a valid ${prefix}_device_t, @p memory is not a valid ${prefix}_memory_t, @p offset combined with @p size is greater than @p memory size.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">The device where the memory is allocated.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type>
+        <doxygen><param form="in">The device memory to be flushed.</param></doxygen></param>
+      <param>offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset in bytes into the device memory to begin the range.</param></doxygen></param>
+      <param>size<type>uint64_t</type>
+        <doxygen><param form="in">The size in bytes of the range to flush.</param></doxygen></param>
+      <doxygen><brief>Explicitly update device memory with data residing in host memory.</brief>
+        <detail>${function_prefix}FlushMappedMemoryToDevice is intended to be used with ${prefix}_memory_ts allocated with the ${prefix}_memory_property_host_cached flag set. It updates device memory with the content currently residing in host memory.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}FlushMappedMemoryFromDevice
+      <return>${prefix}_result_t
+        <doxygen><return>Returns ${prefix}_success on success or ${prefix}_error_invalid_value when; @p device is not a valid ${prefix}_device_t, @p memory is not a valid ${prefix}_memory_t, @p offset combined with @p size is greater than @p memory size.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">The device where the memory is allocated.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type>
+        <doxygen><param form="in">The device memory to be flushed.</param></doxygen></param>
+      <param>offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset in bytes into the device memory to begin the range.</param></doxygen></param>
+      <param>size<type>uint64_t</type>
+        <doxygen><param form="in">The size in bytes of the range to flush.</param></doxygen></param>
+      <doxygen><brief>Explicitly update host memory with data residing in device memory.</brief>
+        <detail>${function_prefix}FlushMappedMemoryFromDevice is intended to be used with ${prefix}_memory_ts allocated with the ${prefix}_memory_property_host_cached flag set. It updates host memory with the content currently residing in device memory.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device.</param></doxygen></param>
+      <param>size<type>size_t</type>
+        <doxygen><param form="in">The size (in bytes) of buffer requested.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_buffer<type>${prefix}_buffer_t*</type>
+        <doxygen><param form="out">The created buffer, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create buffer memory.</brief>
+        <detail>The function uses an ${Prefix} device, and is used to call into the ${Prefix} device code to create a buffer of a specific type and size.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyBuffer
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the buffer was created with.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type><doxygen><param form="in">The buffer to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a buffer.</brief>
+        <detail>This function allows ${Prefix} to call into our partner's code to destroy a buffer that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}BindBufferMemory
+      <return>${prefix}_result_t<doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The device on which the memory resides.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type><doxygen><param form="in">The device memory to be bound to the buffer.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type><doxygen><param form="in">The buffer to which the device memory is to be bound.</param></doxygen></param>
+      <param>offset<type>uint64_t</type><doxygen><param form="in">The offset into device memory to bind to the buffer.</param></doxygen></param>
+      <doxygen><brief>Bind ${Prefix} device memory to the ${Prefix} buffer.</brief>
+        <detail>Bind device memory to a buffer providing physical backing so it can be used when processing a ::${prefix}_command_buffer_t.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateImage
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">A ${Prefix} device.</param></doxygen></param>
+      <param>type<type>${prefix}_image_type_e</type>
+        <doxygen><param form="in">The type of image to create.</param></doxygen></param>
+      <param>format<type>${prefix}_image_format_e</type>
+        <doxygen><param form="in">The pixel data format of the image to create.</param></doxygen></param>
+      <param>width<type>uint32_t</type>
+        <doxygen><param form="in">The width of the image in pixels, must be greater than one and less than max width.</param></doxygen></param>
+      <param>height<type>uint32_t</type>
+        <doxygen><param form="in">The height of the image in pixels, must be zero for 1D images, must be greater than one and less than max height for 2D and 3D images.</param></doxygen></param>
+      <param>depth<type>uint32_t</type>
+        <doxygen><param form="in">The depth of the image in pixels, must be zero for 1D and 2D images, must be greater than one and less than max depth for 3D images.</param></doxygen></param>
+      <param>array_layers<type form="in">uint32_t</type>
+        <doxygen><param form="in">The number of layers in an image array, must be 0 for non image arrays, must be and less than max array layers for image arrays.</param></doxygen></param>
+      <param>row_size<type>uint64_t</type>
+        <doxygen><param form="in">The size of an image row in bytes.</param></doxygen></param>
+      <param>slice_size<type>uint64_t</type>
+        <doxygen><param form="in">The size on an image slice in bytes.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_image<type>${prefix}_image_t*</type>
+        <doxygen><param form="out">The created image, or null if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create an image.</brief>
+        <detail>The function uses a ${Prefix} device to create an image with specific type, format, and dimensions. Newly created images are by default in the @p ::${prefix}_image_tiling_linear mode.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyImage
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The device the image was created with.</param></doxygen></param>
+      <param>image<type>${prefix}_image_t</type><doxygen><param form="in">The image to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy an image.</brief>
+        <detail>The function allows ${Prefix} to call into client code to destroy an image that was previously created.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}BindImageMemory
+      <return>${prefix}_result_t
+        <doxygen><return>Return ${prefix}_success on success, or an ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The device on which the memory resides.</param></doxygen></param>
+      <param>memory<type>${prefix}_memory_t</type><doxygen><param form="in">The device memory to be bound to the image.</param></doxygen></param>
+      <param>image<type>${prefix}_image_t</type><doxygen><param form="in">The image to which the device memory is to be bound.</param></doxygen></param>
+      <param>offset<type>uint64_t</type><doxygen><param form="in">The offset into device memory to bind the image.</param></doxygen></param>
+      <doxygen><brief>Bind ${Prefix} device memory to the ${Prefix} image.</brief>
+        <detail>Bind device memory to an image providing physical backing so it can be used when processing a ::${prefix}_command_buffer_t.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}GetSupportedImageFormats
+      <return>${prefix}_result_t
+        <doxygen><return>Return ${prefix}_success on success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">The device to query for supported image formats.</param></doxygen></param>
+      <param>image_type<type>${prefix}_image_type_e</type>
+        <doxygen><param form="in">The type of the image.</param></doxygen></param>
+      <param>allocation_type<type>${prefix}_allocation_type_e</type>
+        <doxygen><param form="in">The required allocation capabilities of the image.</param></doxygen></param>
+      <param>count<type>uint32_t</type>
+        <doxygen><param form="in">The element count of the @p out_formats array, must be greater than zero if @p out_formats is not null and zero otherwise.</param></doxygen></param>
+      <param>out_formats<type>${prefix}_image_format_e*</type>
+        <doxygen><param form="out">Return the list of supported formats, may be null. Storage must be an array of @p out_count elements.</param></doxygen></param>
+      <param>out_count<type>uint32_t*</type>
+        <doxygen><param form="out">Return the number of supported formats, may be null.</param></doxygen></param>
+      <doxygen><brief>Query the ${Prefix} device for a list of supported image formats.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}GetSupportedQueryCounters
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">A ${Prefix} device.</param></doxygen></param>
+      <param>queue_type<type>${prefix}_queue_type_e</type>
+        <doxygen><param form="in">The type of queue to get the supported query counters list for.</param></doxygen></param>
+      <param>count<type>uint32_t</type>
+        <doxygen><param form="in">The element count of the `out_counters` and `out_descriptions` arrays, **must** be greater than zero if `out_counters` is not null and zero otherwise.</param></doxygen></param>
+      <param>out_counters<type>${prefix}_query_counter_t*</type>
+        <doxygen><param form="out">Return the list of supported query counters, **may** be null. Storage **must** be an array of `count` elements.</param></doxygen></param>
+      <param>out_descriptions<type>${prefix}_query_counter_description_t*</type>
+        <doxygen><param form="out">Return the list of descriptions of support query counters, **may** be null. Storage **must** be an array of `count` elements.</param></doxygen></param>
+      <param>out_count<type>uint32_t*</type>
+        <doxygen><param form="out">Return the total count of supported query counters.</param></doxygen></param>
+      <doxygen><brief>Get the list of supported query counters for a device's queue type.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}GetQueue
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device.</param></doxygen></param>
+      <param>queue_type<type>${prefix}_queue_type_e</type>
+        <doxygen><param form="in">The type of queue we want.</param></doxygen></param>
+      <param>queue_index<type>uint32_t</type>
+        <doxygen><param form="in">The index of the queue_type we want to get from the device.</param></doxygen></param>
+      <param>out_queue<type>${prefix}_queue_t*</type>
+        <doxygen><param form="out">The created queue, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Get a queue from the owning device.</brief>
+        <detail>The function uses a ${Prefix} device, and is used to call into the ${Prefix} code to create a queue.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateFence
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_fence<type>${prefix}_fence_t*</type>
+        <doxygen><param form="out">The created fence, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create a fence.</brief>
+        <detail>The function uses ${Prefix} device, and is used to call into the ${Prefix} code to create a fence.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyFence
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the fence was created with.</param></doxygen></param>
+      <param>fence<type>${prefix}_fence_t</type>
+        <doxygen><param form="in">The fence to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a fence.</brief>
+        <detail>This hook allows ${Prefix} to call into our partner's code to destroy a fence that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}ResetFence
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>fence<type>${prefix}_fence_t</type>
+          <doxygen><param form="in">The fence to reset.</param></doxygen></param>
+      <doxygen><brief>Reset a fence such that it has no previous signalled state.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateSemaphore
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_semaphore<type>${prefix}_semaphore_t*</type>
+        <doxygen><param form="out">The created semaphore, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create a semaphore.</brief>
+        <detail>The function uses ${Prefix} device, and is used to call into the ${Prefix} code to create a semaphore.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroySemaphore
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the semaphore was created with.</param></doxygen></param>
+      <param>semaphore<type>${prefix}_semaphore_t</type>
+        <doxygen><param form="in">The semaphore to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a semaphore.</brief>
+        <detail>This hook allows ${Prefix} to call into our partner's code to destroy a semaphore that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}ResetSemaphore
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>semaphore<type>${prefix}_semaphore_t</type>
+          <doxygen><param form="in">The semaphore to reset.</param></doxygen></param>
+      <doxygen><brief>Reset a semaphore such that it has no previous signalled state.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateCommandBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device.</param></doxygen></param>
+      <param>callback_info<type>${prefix}_callback_info_t</type><doxygen><param form="in">User provided callback, which **may** be null, can be used by the implementation to provide detailed messages about command buffer execution to the user.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_command_buffer<type>${prefix}_command_buffer_t*</type>
+        <doxygen><param form="out">The newly created command buffer, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create a command buffer.</brief>
+        <detail>This function allows ${Prefix} to call into our partner's code to create a command buffer. Command buffers are a construct whereby we can encapsulate a group of commands for execution on a device.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}FinalizeCommandBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">An ${Prefix} command buffer.</param></doxygen></param>
+      <doxygen><brief>Finalize a command buffer.</brief>
+        <detail>This function allows ${Prefix} to call into our partner's code to finalize a command buffer. Finalized command buffers are in an immutable state and cannot have further commands pushed to them.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CloneCommandBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, a ${prefix}_error_* if an error occurred or ${prefix}_error_feature_unsupported if cloning command buffers is not supported by the device.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">An ${Prefix} device.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">An ${Prefix} command buffer to clone.</param></doxygen></param>
+      <param>out_command_buffer<type>${prefix}_command_buffer_t*</type>
+        <doxygen><param form="out">The newly created command buffer, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Clone a command buffer.</brief>
+        <detail>This function allows ${Prefix} to call into our partner's code to clone a command buffer.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyCommandBuffer
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the command buffer was created with.</param></doxygen></param>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a command buffer.</brief>
+        <detail>This hook allows ${Prefix} to call into our partner's code to destroy a command buffer that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateExecutable
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">The ${Prefix} device to create the executable with.</param></doxygen></param>
+      <param>binary<type>const void*</type>
+        <doxygen><param form="in">The source binary data.</param></doxygen></param>
+      <param>binary_length<type>uint64_t</type>
+        <doxygen><param form="in">The length of the source binary (in bytes).</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_executable<type>${prefix}_executable_t*</type>
+        <doxygen><param form="out">The newly created executable, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Load a binary into an executable container.</brief>
+        <detail>This function takes a precompiled binary and turns it into an executable.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyExecutable
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the executable was created with.</param></doxygen></param>
+      <param>executable<type>${prefix}_executable_t</type>
+        <doxygen><param form="in">The executable to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy an executable.</brief>
+        <detail>This hook allows ${Prefix} to call into our partner's code to destroy an executable that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateKernel
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">The ${Prefix} device to create the kernel with.</param></doxygen></param>
+      <param>executable<type>${prefix}_executable_t</type>
+        <doxygen><param form="in">A previously created ${Prefix} executable.</param></doxygen></param>
+      <param>name<type>const char *</type>
+        <doxygen><param form="in">The name of the kernel we want to create.</param></doxygen></param>
+      <param>name_length<type>uint64_t</type>
+        <doxygen><param form="in">The length (in bytes) of @p name.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_kernel<type>${prefix}_kernel_t*</type>
+        <doxygen><param form="out">The newly created kernel, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create a kernel from an executable.</brief>
+        <detail>This function creates an object that represents a kernel function inside an executable.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateBuiltInKernel
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>device<type>${prefix}_device_t</type>
+        <doxygen><param form="in">The ${Prefix} device to create the kernel with.</param></doxygen></param>
+      <param>name<type>const char *</type>
+        <doxygen><param form="in">The name of the kernel we want to create.</param></doxygen></param>
+      <param>name_length<type>uint64_t</type>
+        <doxygen><param form="in">The length (in bytes) of @p name.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_kernel<type>${prefix}_kernel_t*</type>
+        <doxygen><param form="out">The newly created kernel, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create a kernel from a built-in kernel name provided by the device.</brief>
+        <detail>This function creates an object that represents a kernel which is provided by the device itself, rather than contained within a binary contained within an executable.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}QueryMaxNumSubGroups
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>kernel<type>${prefix}_kernel_t</type>
+        <doxygen><param form="in">The ${Prefix} kernel to query the max number of subgroups for.</param></doxygen></param>
+      <param>out_max_num_sub_groups<type>size_t*</type>
+        <doxygen><param form="out">The maximum number of sub-groups this kernel supports.</param></doxygen></param>
+      <doxygen><brief>Query the maximum number of sub-groups that this kernel supports for each work-group.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}QueryLocalSizeForSubGroupCount
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>kernel<type>${prefix}_kernel_t</type>
+        <doxygen><param form="in">The ${Prefix} kernel to query the local size for.</param></doxygen></param>
+      <param>sub_group_count<type>size_t</type>
+        <doxygen><param form="in">The requested number of sub-groups.</param></doxygen></param>
+      <param>out_local_size_x<type>size_t*</type>
+        <doxygen><param form="out">The local size in the x dimension which would give the requested number of sub-groups.</param></doxygen></param>
+      <param>out_local_size_y<type>size_t*</type>
+        <doxygen><param form="out">The local size in the y dimension which would give the requested number of sub-groups.</param></doxygen></param>
+      <param>out_local_size_z<type>size_t*</type>
+        <doxygen><param form="out">The local size in the z dimension which would give the requested number of sub-groups.</param></doxygen></param>
+      <doxygen><brief>Query the local size that would give the requested number of sub-groups.</brief>
+        <detail>This function queries a kernel for the local size that would give the requested number of sub-groups. It must return 0 if no local size would give the requested number of sub-groups.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}QuerySubGroupSizeForLocalSize
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>kernel<type>${prefix}_kernel_t</type>
+        <doxygen><param form="in">The ${Prefix} kernel to query the sub-group size for.</param></doxygen></param>
+      <param>local_size_x<type>size_t</type>
+        <doxygen><param form="in">The local size in the x dimension for which we wish to query sub-group size.</param></doxygen></param>
+      <param>local_size_y<type>size_t</type>
+        <doxygen><param form="in">The local size in the y dimension for which we wish to query sub-group size.</param></doxygen></param>
+      <param>local_size_z<type>size_t</type>
+        <doxygen><param form="in">The local size in the z dimension for which we wish to query sub-group size.</param></doxygen></param>
+      <param>out_sub_group_size<type>size_t*</type>
+        <doxygen><param form="out">The maximum sub-group sub-group size for the queried local size.</param></doxygen></param>
+      <doxygen><brief>Query the sub-group size for the given local size.</brief>
+        <detail>This function queries a kernel for maximum sub-group size that would exist in a kernel enqueued with the local work-group size passed as parameters. A kernel enqueue **may** include one sub-group with a smaller size when the sub-group size doesn't evenly divide the local size.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}QueryWFVInfoForLocalSize
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>kernel<type>${prefix}_kernel_t</type>
+        <doxygen><param form="in">The ${Prefix} kernel to query the WFV info for.</param></doxygen></param>
+      <param>local_size_x<type>size_t</type>
+        <doxygen><param form="in">The local size in the x dimension for which we wish to query WFV info.</param></doxygen></param>
+      <param>local_size_y<type>size_t</type>
+        <doxygen><param form="in">The local size in the y dimension for which we wish to query WFV info.</param></doxygen></param>
+      <param>local_size_z<type>size_t</type>
+        <doxygen><param form="in">The local size in the z dimension for which we wish to query WFV info.</param></doxygen></param>
+      <param>out_wfv_status<type>${prefix}_wfv_status_e*</type>
+        <doxygen><param form="out">The status of whole function vectorization for the queried local size.</param></doxygen></param>
+      <param>out_work_width_x<type>size_t*</type>
+        <doxygen><param form="out">The work width in the x dimension for the queried local size.</param></doxygen></param>
+      <param>out_work_width_y<type>size_t*</type>
+        <doxygen><param form="out">The work width in the y dimension for the queried local size.</param></doxygen></param>
+      <param>out_work_width_z<type>size_t*</type>
+        <doxygen><param form="out">The work width in the z dimension for the queried local size.</param></doxygen></param>
+      <doxygen><brief>Query the whole function vectorization status and dimension work widths for the given local size.</brief>
+        <detail>This function queries a kernel for the whole function vectorization status and dimension work widths that would be applicable for a kernel enqueued with the local work-group size passed as parameters. The number of work-items executed per kernel invocation **shall** be equal to the dimension work widths returned from this function.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyKernel
+      <return>void</return>
+      <param>device<type>${prefix}_device_t</type><doxygen><param form="in">The ${Prefix} device the kernel was created with.</param></doxygen></param>
+      <param>kernel<type>${prefix}_kernel_t</type>
+        <doxygen><param form="in">The kernel to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a kernel.</brief>
+        <detail>This hook allows ${Prefix} to call into our partner's code to destroy a kernel that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CreateQueryPool
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>queue<type>${prefix}_queue_t</type><doxygen><param form="in">The ${Prefix} queue to create the query pool with.</param></doxygen></param>
+      <param>query_type<type>${prefix}_query_type_e</type>
+        <doxygen><param form="in">The type of query pool to create (one of the values in the enum ${prefix}_query_type_e).</param></doxygen></param>
+      <param>query_count<type>uint32_t</type><doxygen><param form="in">The number of queries to allocate storage for.</param></doxygen></param>
+      <param>query_counter_configs<type>const ${prefix}_query_counter_config_t*</type>
+        <doxygen><param form="in">Array of query counter configuration data with length `query_count`, **must** be provided when `query_type` is `${prefix}_query_type_counter`, otherwise **must** be NULL.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <param>out_query_pool<type>${prefix}_query_pool_t *</type><doxygen><param form="out">The newly created query pool, or uninitialized if an error occurred.</param></doxygen></param>
+      <doxygen><brief>Create a query pool.</brief>
+        <detail>This function creates a query pool into which data can be stored about the runtime behavior of commands on a queue.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}DestroyQueryPool
+      <return>void</return>
+      <param>queue<type>${prefix}_queue_t</type><doxygen><param form="in">The ${Prefix} queue the query pool was created with.</param></doxygen></param>
+      <param>query_pool<type>${prefix}_query_pool_t</type><doxygen><param form="in">The ${Prefix} query pool to destroy.</param></doxygen></param>
+      <param>allocator_info<type>${prefix}_allocator_info_t</type><doxygen><param form="in">Allocator information.</param></doxygen></param>
+      <doxygen><brief>Destroy a query pool.</brief>
+        <detail>This hook allows ${Prefix} to call into our partner's code to destroy a query pool that was created previously by the partner.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}GetQueryCounterRequiredPasses
+      <return>${prefix}_result_t<doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>queue<type>${prefix}_queue_t</type><doxygen><param form="in">A ${Prefix} queue.</param></doxygen></param>
+      <param>query_count<type>uint32_t</type><doxygen><param form="in">The number of elements in the array pointed to by `query_info`.</param></doxygen></param>
+      <param>query_counter_configs<type>const ${prefix}_query_counter_config_t*</type><doxygen><param form="in">Array of query counter configuration data with length `query_count`, **must** be provided when `query_type` is `${prefix}_query_type_counter`, otherwise **must** be NULL.</param></doxygen></param>
+      <param>out_pass_count<type>uint32_t*</type><doxygen><param form="out">Return the number of passes required to produce valid results for the given list of query counters.</param></doxygen></param>
+      <doxygen><brief>Get the number of passes required for valid query counter results.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}GetQueryPoolResults
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>queue<type>${prefix}_queue_t</type><doxygen><param form="in">The ${Prefix} queue the query pool was created with.</param></doxygen></param>
+      <param>query_pool<type>${prefix}_query_pool_t</type><doxygen><param form="in">The ${Prefix} query pool to get the results from.</param></doxygen></param>
+      <param>query_index<type>uint32_t</type><doxygen><param form="in">The query index of the first query to get the result of.</param></doxygen></param>
+      <param>query_count<type>uint32_t</type><doxygen><param form="in">The number of queries to get the results of.</param></doxygen></param>
+      <param>size<type>size_t</type><doxygen><param form="in">The size in bytes of the memory pointed to by `data`.</param></doxygen></param>
+      <param>data<type>void *</type><doxygen><param form="out">A pointer to the memory to write the query results into.</param></doxygen></param>
+      <param>stride<type>size_t</type><doxygen><param form="in">The stride in bytes between query results to be written into `data`.</param></doxygen></param>
+      <doxygen><brief>Get query results previously written to the query pool.</brief>
+        <detail>This function copies the requested query pool results previously written during runtime on the ${Prefix} queue into the user provided storage.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandReadBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the read command to.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The buffer to read from.</param></doxygen></param>
+      <param>offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset (in bytes) into the buffer object to read.</param></doxygen></param>
+      <param>host_pointer<type>void *</type>
+        <doxygen><param form="out">The host pointer to write to.</param></doxygen></param>
+      <param>size<type>uint64_t</type>
+        <doxygen><param form="in">The size (in bytes) of the buffer object to read.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a read buffer command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandReadBufferRegions
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the command to.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The buffer to read from.</param></doxygen></param>
+      <param>host_pointer<type>void *</type>
+        <doxygen><param form="out">The host pointer to write to.</param></doxygen></param>
+      <param>regions<type>${prefix}_buffer_region_info_t*</type>
+        <doxygen><param form="in">The regions to read from buffer to host_pointer.</param></doxygen></param>
+      <param>regions_length<type>uint64_t</type>
+        <doxygen><param form="in">The length of regions.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a read buffer regions command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandWriteBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the write command to.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The buffer to write to.</param></doxygen></param>
+      <param>offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset (in bytes) into the buffer object to write.</param></doxygen></param>
+      <param>host_pointer<type>const void *</type>
+        <doxygen><param form="in">The host pointer to read from.</param></doxygen></param>
+      <param>size<type>uint64_t</type>
+        <doxygen><param form="in">The size (in bytes) of the buffer object to write.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a write buffer command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandWriteBufferRegions
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the command to.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The buffer to write to.</param></doxygen></param>
+      <param>host_pointer<type>const void *</type>
+        <doxygen><param form="in">The host pointer to read from.</param></doxygen></param>
+      <param>regions<type>${prefix}_buffer_region_info_t*</type>
+        <doxygen><param form="in">The regions to read from host_pointer to buffer.</param></doxygen></param>
+      <param>regions_length<type>uint64_t</type>
+        <doxygen><param form="in">The length of regions.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a write buffer regions command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandCopyBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the copy command to.</param></doxygen></param>
+      <param>src_buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The source buffer to copy from.</param></doxygen></param>
+      <param>src_offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset (in bytes) into the source buffer to copy.</param></doxygen></param>
+      <param>dst_buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The destination buffer to copy to.</param></doxygen></param>
+      <param>dst_offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset (in bytes) into the destination buffer to copy.</param></doxygen></param>
+      <param>size<type>uint64_t</type>
+        <doxygen><param form="in">The size (in bytes) to copy.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a copy buffer command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandCopyBufferRegions
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the copy command to.</param></doxygen></param>
+      <param>src_buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The source buffer to copy from.</param></doxygen></param>
+      <param>dst_buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The destination buffer to copy to.</param></doxygen></param>
+      <param>regions<type>${prefix}_buffer_region_info_t*</type>
+        <doxygen><param form="in">The regions to copy from src to dst.</param></doxygen></param>
+      <param>regions_length<type>uint64_t</type>
+        <doxygen><param form="in">The length of regions.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a copy buffer regions command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandFillBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer push the fill command to.</param></doxygen></param>
+      <param>buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The buffer to fill.</param></doxygen></param>
+      <param>offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset (in bytes) into the buffer object to fill.</param></doxygen></param>
+      <param>size<type>uint64_t</type>
+        <doxygen><param form="in">The size (in bytes) of the buffer object to fill.</param></doxygen></param>
+      <param>pattern_pointer<type>const void *</type>
+        <doxygen><param form="in">The pointer to the pattern to read and fill the buffer with, this data must be copied by the device.</param></doxygen></param>
+      <param>pattern_size<type>uint64_t</type>
+        <doxygen><param form="in">The size (in bytes) of `pattern_pointer`, the maximum size is 128 bytes which is the size of the largest supported vector type.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a write buffer command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandReadImage
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the image read command to.</param></doxygen></param>
+      <param>image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The image to read from.</param></doxygen></param>
+      <param>offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z, offset in pixels into the image to read from.</param></doxygen></param>
+      <param>extent<type>${prefix}_extent_3d_t</type>
+        <doxygen><param form="in">The width, height, depth in pixels of the image to read from.</param></doxygen></param>
+      <param>row_size<type>uint64_t</type>
+        <doxygen><param form="in">The row size in bytes of the host addressable pointer data.</param></doxygen></param>
+      <param>slice_size<type>uint64_t</type>
+        <doxygen><param form="in">The slice size in bytes of the host addressable pointer data.</param></doxygen></param>
+      <param>pointer<type>void *</type>
+        <doxygen><param form="out">The host addressable pointer to image data to write into.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a read image command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandWriteImage
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the image write command to.</param></doxygen></param>
+      <param>image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The image to write to.</param></doxygen></param>
+      <param>offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z, offset in pixel into the image to write to.</param></doxygen></param>
+      <param>extent<type>${prefix}_extent_3d_t</type>
+        <doxygen><param form="in">The width, height, depth in pixels of the image to write to.</param></doxygen></param>
+      <param>row_size<type>uint64_t</type>
+        <doxygen><param form="in">The row size in bytes of the host addressable pointer data.</param></doxygen></param>
+      <param>slice_size<type>uint64_t</type>
+        <doxygen><param form="in">The slice size in bytes of the host addressable pointer data.</param></doxygen></param>
+      <param>pointer<type>const void *</type>
+        <doxygen><param form="in">The host addressable pointer to image data to read from.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a write image command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandFillImage
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the image fill command to.</param></doxygen></param>
+      <param>image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The image to fill.</param></doxygen></param>
+      <param>color<type>const void *</type>
+        <doxygen><param form="in">The color to fill the image with, this data must be copied by the device.</param></doxygen></param>
+      <param>color_size<type>uint32_t</type>
+        <doxygen><param form="in">The size (in bytes) of the color.</param></doxygen></param>
+      <param>offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z, offset in pixels into the image to fill.</param></doxygen></param>
+      <param>extent<type>${prefix}_extent_3d_t</type>
+        <doxygen><param form="in">The width, height, depth in pixels of the image to fill.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a fill image command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandCopyImage
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the image copy command to.</param></doxygen></param>
+      <param>src_image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The source image where data will be copied from.</param></doxygen></param>
+      <param>dst_image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The destination image where data will be copied to.</param></doxygen></param>
+      <param>src_offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z offset in pixels into the source image.</param></doxygen></param>
+      <param>dst_offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z offset in pixels into the destination image.</param></doxygen></param>
+      <param>extent<type>${prefix}_extent_3d_t</type>
+        <doxygen><param form="in">The width, height, depth in pixels range of the images to be copied.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a copy image command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandCopyImageToBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the image to buffer copy to.</param></doxygen></param>
+      <param>src_image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The source image to copy data from.</param></doxygen></param>
+      <param>dst_buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The destination buffer to copy data to.</param></doxygen></param>
+      <param>src_offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z, offset in pixels into the source image to copy.</param></doxygen></param>
+      <param>dst_offset<type>uint64_t</type>
+        <doxygen><param form="in">The offset in bytes into the destination buffer to copy.</param></doxygen></param>
+      <param>extent<type>${prefix}_extent_3d_t</type>
+        <doxygen><param form="in">The width, height, depth in pixels of the image to copy.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a copy image to buffer command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandCopyBufferToImage
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the buffer to image copy command to.</param></doxygen></param>
+      <param>src_buffer<type>${prefix}_buffer_t</type>
+        <doxygen><param form="in">The source buffer to copy data from.</param></doxygen></param>
+      <param>dst_image<type>${prefix}_image_t</type>
+        <doxygen><param form="in">The destination image to copy data to.</param></doxygen></param>
+      <param>src_offset<type>uint32_t</type>
+        <doxygen><param form="in">The offset in bytes into the source buffer to copy.</param></doxygen></param>
+      <param>dst_offset<type>${prefix}_offset_3d_t</type>
+        <doxygen><param form="in">The x, y, z, offset in pixels into the destination image to copy.</param></doxygen></param>
+      <param>extent<type>${prefix}_extent_3d_t</type>
+        <doxygen><param form="in">The width, height, depth in pixels range of the data to copy.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a copy buffer to image command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandNDRange
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the N-Dimensional run command to.</param></doxygen></param>
+      <param>kernel<type>${prefix}_kernel_t</type>
+        <doxygen><param form="in">The kernel to execute.</param></doxygen></param>
+      <param>options<type>${prefix}_ndrange_options_t</type>
+        <doxygen><param form="in">The execution options to use during the run command.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+    <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+    <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push an N-Dimensional run command to the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}UpdateDescriptors
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer containing an N-Dimensional run command to update.</param></doxygen></param>
+      <param>command_id<type>${prefix}_command_id_t</type>
+        <doxygen><param form="in">The unique ID representing the index of the ND range command within its containing command buffer.</param></doxygen></param>
+      <param>num_args<type>uint64_t</type>
+        <doxygen><param form="in">Number of arguments to the kernel to be updated.</param></doxygen></param>
+      <param>arg_indices<type>uint64_t *</type>
+        <doxygen><param form="in">Indices of the arguments to be updated in the order they appear as parameters to the kernel.</param></doxygen></param>
+      <param>descriptors<type>${prefix}_descriptor_info_t *</type>
+        <doxygen><param form="in">Array of num_args argument descriptors which are the new values for the arguments to the kernel.</param></doxygen></param>
+      <doxygen><brief>Update arguments to an N-Dimensional run command within the command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandUserCallback
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the user callback command to.</param></doxygen></param>
+      <param>user_function<type>${prefix}_command_user_callback_t</type>
+        <doxygen><param form="in">The user callback to invoke, must not be null.</param></doxygen></param>
+      <param>user_data<type>void*</type>
+        <doxygen><param form="in">The data to pass to the user callback on invocation, may be null.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a user callback to the command buffer.</brief><detail>User callback commands allow a command to be placed within a command buffer that will call back into user code. Care should be taken that the work done within the user callback is minimal, as this will stall any forward progress on the command buffer.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandBeginQuery
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* error code in an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the begin query command to.</param></doxygen></param>
+      <param>query_pool<type>${prefix}_query_pool_t</type>
+        <doxygen><param form="in">The query pool to store the query result in.</param></doxygen></param>
+      <param>query_index<type>uint32_t</type>
+        <doxygen><param form="in">The initial query slot index that will contain the result.</param></doxygen></param>
+      <param>query_count<type>uint32_t</type>
+        <doxygen><param form="in">The number of query slots to enable.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+      <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a begin query command to the command buffer.</brief>
+        <detail>Begin query commands enable a query pool for use storing query results.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandEndQuery
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* error code in an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the end query command to.</param></doxygen></param>
+      <param>query_pool<type>${prefix}_query_pool_t</type>
+        <doxygen><param form="in">The query pool the result is stored in.</param></doxygen></param>
+      <param>query_index<type>uint32_t</type>
+        <doxygen><param form="in">The initial query slot index that contains the result.</param></doxygen></param>
+      <param>query_count<type>uint32_t</type>
+        <doxygen><param form="in">The number of query slots to disable.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+       <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a begin query command to the command buffer.</brief>
+        <detail>End query commands disable a query pool from use for storing query results.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}CommandResetQueryPool
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* error code in an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to push the query pool reset command to.</param></doxygen></param>
+      <param>query_pool<type>${prefix}_query_pool_t</type>
+        <doxygen><param form="in">The query pool to reset.</param></doxygen></param>
+      <param>query_index<type>uint32_t</type>
+        <doxygen><param form="in">The first query index to reset.</param></doxygen></param>
+      <param>query_count<type>uint32_t</type>
+        <doxygen><param form="in">The number of query slots to reset.</param></doxygen></param>
+      <param>num_sync_points_in_wait_list<type>uint32_t</type>
+        <doxygen><param form="in">Number of items in sync_point_wait_list.</param></doxygen></param>
+      <param>sync_point_wait_list<type>const ${prefix}_sync_point_t*</type>
+        <doxygen><param form="in">List of sync-points that need to complete before this command can be executed.</param></doxygen></param>
+       <param>sync_point<type>${prefix}_sync_point_t*</type>
+        <doxygen><param form="out">Returns a sync-point identifying this command, which may be passed as NULL, that other commands in the command-buffer can wait on.</param></doxygen></param>
+      <doxygen><brief>Push a reset query pool command to the command buffer.</brief>
+        <detail>Reset query pool commands enable reuse of the query pool as if it was newly created.</detail></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}ResetCommandBuffer
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">The command buffer to reset.</param></doxygen></param>
+      <doxygen><brief>Reset a command buffer.</brief></doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}Dispatch
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>queue<type>${prefix}_queue_t</type>
+        <doxygen><param form="in">An ${Prefix} queue.</param></doxygen></param>
+      <param>command_buffer<type>${prefix}_command_buffer_t</type>
+        <doxygen><param form="in">A command buffer to push to a queue.</param></doxygen></param>
+      <param>fence<type>${prefix}_fence_t</type>
+        <doxygen><param form="in">A fence to signal when the dispatch completes.</param></doxygen></param>
+      <param>wait_semaphores<type>${prefix}_semaphore_t*</type>
+        <doxygen><param form="in">An array of semaphores that this dispatch must wait on before executing.</param></doxygen></param>
+      <param>wait_semaphores_length<type>uint32_t</type>
+        <doxygen><param form="in">The length of wait_semaphores.</param></doxygen></param>
+      <param>signal_semaphores<type>${prefix}_semaphore_t*</type>
+        <doxygen><param form="in">An array of semaphores that this dispatch will signal when complete.</param></doxygen></param>
+      <param>signal_semaphores_length<type>uint32_t</type>
+        <doxygen><param form="in">The length of signal_semaphores.</param></doxygen></param>
+      <param><type><function form="pointer">user_function
+            <return>void</return>
+            <param>command_buffer<type>${prefix}_command_buffer_t</type></param>
+            <param>error<type>${prefix}_result_t</type></param>
+            <param>user_data<type>void *const</type></param>
+          </function>
+        </type><doxygen><param form="in">The command buffer complete callback, may be null.</param></doxygen></param>
+      <param>user_data<type>void*</type>
+        <doxygen><param form="in">The data to pass to the command buffer complete callback on completion, may be null.</param></doxygen></param>
+      <doxygen><brief>Push a command buffer to a queue.</brief>
+        <detail>Push a command buffer to a queue.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}TryWait
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>queue<type>${prefix}_queue_t</type>
+        <doxygen><param form="in">An ${Prefix} queue.</param></doxygen></param>
+      <param>timeout<type>uint64_t</type>
+        <doxygen><param form="in">The timeout period in units of nanoseconds. If the fence waited on isn't signaled before timeout nanoseconds after the API is called, tryWait will return with the fence having not been signaled. timeout == UINT64_MAX indicates an infinite timeout period and the entry point will block until the fence is signaled.</param></doxygen></param>
+      <param>fence<type>${prefix}_fence_t</type>
+        <doxygen><param form="in">A fence to wait on.</param></doxygen></param>
+      <doxygen><brief>Try to wait for a fence to be signaled.</brief>
+        <detail>If the fence is not yet signaled, return ${prefix}_fence_not_ready.</detail>
+      </doxygen>
+    </function>
+
+    <function>${function_prefix}${Stub_Prefix}WaitAll
+      <return>${prefix}_result_t
+        <doxygen><return>${prefix}_success, or a ${prefix}_error_* if an error occurred.</return></doxygen></return>
+      <param>queue<type>${prefix}_queue_t</type>
+        <doxygen><param form="in">An ${Prefix} queue.</param></doxygen></param>
+      <doxygen><brief>Wait for all previously pushed command buffers to complete.</brief>
+        <detail>Wait for all previously pushed command buffers to complete.</detail>
+      </doxygen>
+    </function>
+
+    <struct>${prefix}_allocator_info_s
+      <scope>
+        <member>
+          <function form="pointer">alloc
+            <return>void*</return>
+            <param>user_data<type>void*</type></param>
+            <param>size<type>size_t</type></param>
+            <param>alignment<type>size_t</type></param>
+          </function>
+          <doxygen><brief>Callback to allocate aligned memory.</brief></doxygen>
+        </member>
+        <member>
+          <function form="pointer">free
+            <return>void</return>
+            <param>user_data<type>void*</type></param>
+            <param>pointer<type>void*</type></param>
+          </function>
+          <doxygen><brief>Callback to free previously allocated memory.</brief></doxygen>
+        </member>
+        <member>user_data<type>void*</type>
+          <doxygen><brief>The user data to be used when calling our callbacks.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s allocator container.</brief>
+        <detail>This struct is used to pass in the allocator functions, and the user data required, to an ${Prefix} device.</detail>
+      </doxygen>
+    </struct>
+
+    <struct>${prefix}_callback_info_s
+      <scope>
+        <member>
+          <function form="pointer">callback
+            <return>void</return>
+            <param>user_data<type>void*</type></param>
+            <param>message<type>const char*</type></param>
+            <param>data<type>const void*</type></param>
+            <param>data_size<type>size_t</type></param>
+          </function>
+          <doxygen><brief>Callback to provide a message to the user.</brief></doxygen>
+        </member>
+        <member>user_data<type>void*</type>
+          <doxygen><brief>The user data to be used when calling the callback.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s callback container.</brief>
+        <detail>This struct is used to pass in a message callback function, and the user data required, to an ${Prefix} device. The callback may be invoked by the implementation to provide more detailed information about API usage.</detail></doxygen>
+    </struct>
+
+    <struct>${prefix}_device_info_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this device object.</brief></doxygen></member>
+
+        <member>allocation_capabilities<type>uint32_t </type>
+          <doxygen><brief>The buffer capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_allocation_capabilities_e</see></doxygen></member>
+
+        <member>address_capabilities<type>uint32_t </type>
+          <doxygen><brief>The addressing capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_address_capabilities_e</see></doxygen></member>
+
+        <member>cache_capabilities<type>uint32_t </type>
+          <doxygen><brief>The caching capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_cache_capabilities_e</see></doxygen></member>
+
+        <member>half_capabilities<type>uint32_t </type>
+          <doxygen><brief>The half floating point capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_floating_point_capabilities_e</see>
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_HALF_FP_CONFIG.</doxygen></member>
+
+        <member>float_capabilities<type>uint32_t </type>
+          <doxygen><brief>The floating point capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_floating_point_capabilities_e</see>
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_SINGLE_FP_CONFIG.</doxygen></member>
+
+        <member>double_capabilities<type>uint32_t </type>
+          <doxygen><brief>The double floating point capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_floating_point_capabilities_e</see>
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_DOUBLE_FP_CONFIG.</doxygen></member>
+
+        <member>integer_capabilities<type>uint32_t </type>
+          <doxygen><brief>The integer capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_integer_capabilities_e</see>
+
+For OpenCL certain integer support can be optional when emdedded profile is selected. Querying clGetDeviceInfo for CL_DEVICE_EXTENSIONS will return 'cles_khr_int64' in the extension list if longs are supported.</doxygen></member>
+
+        <member>custom_buffer_capabilities<type>uint32_t </type>
+          <doxygen><brief>The custom buffer capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_custom_buffer_capabilities_e</see>
+
+For use in extensions which require customized handling of kernel buffer arguments.</doxygen></member>
+
+        <member>endianness<type>uint32_t </type>
+          <doxygen><brief>The endianness of this ${Prefix} device.</brief>
+            <see>${prefix}_endianness_e</see>
+        </doxygen></member>
+
+        <member>khronos_vendor_id<type>uint32_t </type>
+          <doxygen><brief>The unique Khronos-allocated vendor ID of this ${Prefix} device.</brief>
+            <see>${PREFIX}_DEVICE_KHRONOS_CODEPLAY_ID</see>
+            <detail>This value is assigned by Khronos to all fee-paying implementers of Khronos standards, used primarily to differentiate between different vendor implementations of standards. For ${Prefix}, we allow our partners to return 0 for applications that do not want to advertise that they support any of the Khronos standards, but if a partner does want to be able to tell their own userbase, or use Khronos conformance to any standard as part of any marketing materials, they must either have their own allocated Khronos ID, or use Codeplay's Khronos ID.
+
+For OpenCL, this value is queryable by calling clGetDeviceInfo, asking for CL_DEVICE_VENDOR_ID.</detail>
+          </doxygen></member>
+
+        <member>shared_local_memory_type<type>uint32_t </type>
+          <doxygen><brief>The type of this ${Prefix} device's shared local memory.</brief>
+            <see>${prefix}_shared_local_memory_type_e</see>
+            <detail>This value specifies which type an ${Prefix} device's shared local memory is.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_LOCAL_MEM_TYPE.</detail>
+        </doxygen></member>
+
+        <member>device_type<type>uint32_t </type>
+          <doxygen><brief>The type of this ${Prefix} device.</brief>
+            <see>${prefix}_device_type_e</see>
+            <detail>This value specifies which type an ${Prefix} device is. This is used to provide information to users of the various standards that sit above ${Prefix} as to what each device actually is.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_TYPE.</detail>
+        </doxygen></member>
+
+        <member>builtin_kernel_declarations<type>const char* </type>
+          <doxygen><brief>A semicolon-separated, null-terminated list of built-in kernel declarations.</brief>
+            <detail>The declarations are of the form `kernel_name(parameters)`, e.g., `a_kernel(global float* foo, int bar)`. Kernel names and parameters conform to the OpenCL specification for kernel names and kernel parameters with the following exceptions:
+
+1.  The leading `__kernel` keyword **must not** be used
+2.  The return type (`void`) **must** be omitted
+3.  Pointer parameters using `[]` notation **must not** be used
+4.  Struct parameters and pointer-to-struct parameters **must not** be used
+5.  Type and variable attributes (e.g., `__attribute__*`) **must not** be used
+6.  All whitespace **must** only be ` ` characters; other whitespace characters (`\t`, `\n`, etc.) **must not** be used
+7.  The built-in kernel name including a trailing NUL character must not exceed
+    `CL_NAME_VERSION_KHR` (64 characters).
+
+Also note that:
+
+1.  Pointer-to-pointer parameters are not supported.
+2.  The `const` and `volatile` type qualifiers are ignored when used with a value parameter. I.e., `const int foo` and `int foo` are equivalent.</detail>
+        </doxygen></member>
+
+        <member>device_name<type>const char* </type>
+          <doxygen><brief>A null-terminated string, with static lifetime duration, of this ${Prefix} device's name.</brief>
+            <detail>This value is a human-readable variant of the device_type field. It is used for standards that return a string to users to help them identify whose implementation of a given standard they are using.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_NAME.</detail>
+        </doxygen></member>
+
+        <member>max_concurrent_work_items<type>uint32_t </type>
+          <doxygen><brief>The maximum number of work items in a work group that can run concurrently.</brief>
+            <detail>The maximum number of work items that can inhabit a work/thread group. Various standards refer to work items and work/thread groups using different lingo, but at the heart work items should execute on a given device concurrently, up to this maximum number of work items.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_WORK_GROUP_SIZE.</detail>
+        </doxygen></member>
+
+        <member>max_work_group_size_x<type>uint32_t </type>
+          <doxygen><brief>The maximum work group size in the x dimension.</brief>
+            <detail>The maximum number of work items allowed in the x dimension of a work group.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_WORK_ITEM_SIZES.</detail>
+        </doxygen></member>
+
+        <member>max_work_group_size_y<type>uint32_t </type>
+          <doxygen><brief>The maximum work group size in the y dimension.</brief>
+            <detail>The maximum number of work items allowed in the y dimension of a work group.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_WORK_ITEM_SIZES.</detail>
+        </doxygen></member>
+
+        <member>max_work_group_size_z<type>uint32_t </type>
+          <doxygen><brief>The maximum work group size in the z dimension.</brief>
+            <detail>The maximum number of work items allowed in the z dimension of a work group.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_WORK_ITEM_SIZES.</detail>
+        </doxygen></member>
+
+        <member>max_work_width<type>uint32_t </type>
+          <doxygen><brief>The maximum work width.</brief>
+            <detail>The maximum number of work items of a work group allowed to execute in one invocation of a kernel.</detail>
+        </doxygen></member>
+
+        <member>clock_frequency<type>uint32_t </type>
+          <doxygen><brief>The clock frequency (in MHz) of this ${Prefix} device.</brief>
+            <detail>Used for standards that want to know the frequency of the chip they are going to execute with.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_CLOCK_FREQUENCY.</detail>
+        </doxygen></member>
+
+        <member>compute_units<type>uint32_t </type>
+          <doxygen><brief>The number of compute units in this ${Prefix} device.</brief>
+            <detail>Used for standards that want to know how many distinct compute units make up a given ${Prefix} device.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_COMPUTE_UNITS.</detail>
+        </doxygen></member>
+
+        <member>buffer_alignment<type>uint32_t </type>
+          <doxygen><brief>The alignment (in bytes) of buffer's allocated via this device.</brief>
+            <detail>Used for standards that need to know what alignment buffer objects will have in device memory. Must be a power of 2.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE.</detail>
+        </doxygen></member>
+
+        <member>memory_size<type>uint64_t </type>
+          <doxygen><brief>The size (in bytes) of our device memory.</brief>
+            <detail>Used for standards that want to know the total size of memory allocatable from each device.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_GLOBAL_MEM_SIZE.</detail>
+        </doxygen></member>
+
+        <member>allocation_size<type>uint64_t </type>
+          <doxygen><brief>The maximum size (in bytes) of a single device memory allocation.</brief>
+            <detail>Used for standards that want to know the maximum size of a single memory allocation from each device. For some devices this value may be the same as memory_size, i.e. there is no single allocation limit beyond the total memory capacity.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_MAX_MEM_ALLOC_SIZE. For OpenCL full profile a minimum value of 128MiB (128*1024*1024) will be required, for embedded profile a minimum value of 1MiB (1*1024*1024) will be required.
+
+@note Although OpenCL also generally calculates maximum allocation size as 1/4 of total memory size, this is *not* required here, it is the OpenCL implementation's responsibility to consider such things.</detail>
+        </doxygen></member>
+
+        <member>cache_size<type>uint64_t </type>
+          <doxygen><brief>The size (in bytes) of our device memory cache.</brief>
+            <detail>Used for standards that want to know the total size of memory that is cached by the device.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_GLOBAL_MEM_CACHE_SIZE.
+            </detail>
+        </doxygen></member>
+
+        <member>cacheline_size<type>uint64_t </type>
+          <doxygen><brief>The size (in bytes) of our device memory cache line.</brief>
+            <detail>Used for standards that want to know the total size of memory that is held, in each line of a cache, by the device.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE.
+            </detail>
+        </doxygen></member>
+
+        <member>shared_local_memory_size<type>uint64_t </type>
+          <doxygen><brief>The size (in bytes) of our shared local device memory.</brief>
+            <detail>Used for standards that want to know the total size of memory allocatable in shared local memory from each device.
+
+For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_DEVICE_LOCAL_MEM_SIZE.
+            </detail>
+        </doxygen></member>
+
+        <member>native_vector_width<type>uint32_t</type>
+          <doxygen><brief>Native vector width of the device (in bytes).</brief><detail>For OpenCL, this value is used to implement clGetDeviceInfo, when asking for all of the CL_DEVICE_NATIVE_VECTOR_WIDTH_* queries.</detail></doxygen></member>
+        <member>preferred_vector_width<type>uint32_t</type>
+          <doxygen><brief>Preferred vector width of the device (in bytes).</brief><detail>For OpenCL, this value is used to implement clGetDeviceInfo, when asking for all of the CL_DEVICE_PREFERRED_VECTOR_WIDTH_* queries.</detail></doxygen></member>
+
+        <member>image_support<type>bool</type><doxygen><brief>Is @p true if the device supports images, @p false otherwise.</brief></doxygen></member>
+        <member>image2d_array_writes<type>bool</type><doxygen><brief>Is @p true if the device supports 2D image array writes, @p false otherwise.</brief></doxygen></member>
+        <member>image3d_writes<type>bool</type><doxygen><brief>Is @p true if the device supports 3D image writes, @p false otherwise.</brief></doxygen></member>
+        <member>max_image_dimension_1d<type>uint32_t</type>
+          <doxygen><brief>The maximum dimension size in pixels for a one dimensional image, zero if images are not supported.</brief></doxygen></member>
+        <member>max_image_dimension_2d<type>uint32_t</type>
+          <doxygen><brief>The maximum dimension size in pixels for a two dimensional image, zero if images are not supported.</brief></doxygen></member>
+        <member>max_image_dimension_3d<type>uint32_t</type>
+          <doxygen><brief>The maximum dimension size in pixels for a three dimensional image, zero if images are not supported.</brief></doxygen></member>
+        <member>max_image_array_layers<type>uint32_t</type>
+          <doxygen><brief>The maximum array layers count for an image array, zero if images are not supported.</brief></doxygen></member>
+        <member>max_storage_images<type>uint32_t</type>
+          <doxygen><brief>The maximum number of bound images for image storage (write), zero if images are not supported.</brief></doxygen></member>
+        <member>max_sampled_images<type>uint32_t</type>
+          <doxygen><brief>The maximum number of bound images for image sampling (read), zero if images are not supported.</brief></doxygen></member>
+        <member>max_samplers<type>uint32_t</type>
+          <doxygen><brief>The maximum number of bound samplers, zero if images are not supported.</brief></doxygen></member>
+
+        <member>queue_types[${prefix}_queue_type_total]<type>uint32_t</type>
+          <doxygen><brief>The number of queues of each type that are available with this device.</brief></doxygen></member>
+
+        <member>device_priority<type>int8_t</type>
+          <doxygen><brief>The priority of devices on the system for deciding which should be default device.</brief>
+            <detail>This value is used for tracking device priority when deciding which devices shall be returned if `CL_DEVICE_TYPE_DEFAULT` is requested. Host will have a value of `0` where higher priority devices will be in the positive range and conversely a lower priority for the negative range.</detail>
+        </doxygen></member>
+        <member>query_counter_support<type>bool</type><doxygen><brief>If `true` the device supports `${prefix}_query_type_counter`, `false` otherwise.</brief></doxygen></member>
+        <member>descriptors_updatable<type>bool</type><doxygen><brief>If `true` the device supports updating the `${prefix}_device_info_t` argument descriptors passed to a specialized kernel in a `${prefix}CommandNDRange` command after the containing `${prefix}_command_buffer` has been finalized.</brief></doxygen></member>
+        <member>can_clone_command_buffers<type>bool</type><doxygen><brief>If `true` the device supports cloning `${prefix}_command_buffers` via the `${prefix}CloneCommandBuffer` entry point.</brief></doxygen></member>
+        <member>supports_builtin_kernels<type>bool</type><doxygen><brief>If `true` the device supports creating built-in kernels via the `${prefix}CreateBuiltInKernel` entry point.</brief></doxygen></member>
+        <member>max_sub_group_count<type>uint32_t</type><doxygen><brief>The maximum number of sub-groups in a work-group. A target not supporting sub-groups must set this to `0`.</brief></doxygen></member>
+        <member>sub_groups_support_ifp<type>bool</type><doxygen><brief>If `true` the device supports independent forward progress in its sub-groups. A target not supporting sub-groups must set this to `false`.</brief></doxygen></member>
+        <member>max_hardware_counters<type>uint32_t</type><doxygen><brief>Maximum number of hardware counters that can be active at one time.</brief></doxygen></member>
+        <member>supports_work_group_collectives<type>bool</type><doxygen><brief>Boolean value indicating if work-group collective functions are supported by the device.</brief></doxygen></member>
+        <member>supports_generic_address_space<type>bool</type><doxygen><brief>Boolean value indicating if the generic address space is supported by the device.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s device information container.</brief>
+        <detail>Holds details about a partner device, allowing the access to them without initializing that device.</detail>
+      </doxygen>
+    </struct>
+
+    <struct>${prefix}_device_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this device object, matches the device info ID.</brief></doxygen></member>
+        <member>info<type>mux_device_info_t</type><doxygen><brief>The information associated with this device.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s device container.</brief>
+        <detail>The entry struct into all partner code - the device. Each partner must register at least one device (by defining hooks of type coreGetDeviceInfos_t and coreCreateDevices_t). All other partner code is interfaced with through instances of this device struct.</detail>
+      </doxygen>
+    </struct>
+
+    <typedef>${prefix}_memory_requirements_s
+      <type>
+        <struct>${prefix}_memory_requirements_s
+          <scope>
+            <member>size<type>uint64_t</type><doxygen><brief>The size in bytes of device memory required.</brief></doxygen></member>
+            <member>alignment<type>uint32_t</type><doxygen><brief>The alignment in bytes of the required device memory offset.</brief></doxygen></member>
+            <member>supported_heaps<type>uint32_t</type><doxygen><brief>Bitfield of device memory heaps which support this buffer or image. The bitfield must have at least one bit set, for implementations with only one heap the first bit must be set.</brief></doxygen></member>
+          </scope>
+        </struct>
+      </type>
+      <doxygen><brief>Description of the device memory requirements of a buffer or an image.</brief></doxygen>
+    </typedef>
+
+    <struct>${prefix}_memory_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this memory object.</brief></doxygen></member>
+        <member>size<type>uint64_t</type><doxygen><brief>The size in bytes of the allocated device memory.</brief></doxygen></member>
+        <member>properties<type>uint32_t</type><doxygen><brief>The memory properties of the allocated device memory.</brief></doxygen></member>
+        <member>handle<type>uint64_t</type><doxygen><brief>A handle to the allocated memory. For memory objects with the ${prefix}_memory_property_host_visible property this is a host accessible pointer.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s memory container.</brief>
+        <detail>Each ${Prefix} device can allocate memory which can be bound to objects requiring device memory, such as buffers and images.</detail></doxygen>
+    </struct>
+
+    <struct>${prefix}_buffer_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this buffer object.</brief></doxygen></member>
+        <member>memory_requirements<type>${prefix}_memory_requirements_s</type><doxygen><brief>The device memory requirements for this buffer.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s buffer container.</brief>
+        <detail>Each ${Prefix} device can allocate buffers for use when executing programs on a device.</detail>
+      </doxygen>
+    </struct>
+
+    <struct>${prefix}_offset_3d_s
+      <scope>
+        <member>x<type>uint32_t</type><doxygen><brief>The value of the x dimension of the three dimensional offset.</brief></doxygen></member>
+        <member>y<type>uint32_t</type><doxygen><brief>The value of the y dimension of the three dimensional offset.</brief></doxygen></member>
+        <member>z<type>uint32_t</type><doxygen><brief>The value of the z dimension of the three dimensional offset.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>Describes an offset in three dimensions.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_extent_3d_s
+      <scope>
+        <member>x<type>size_t</type><doxygen><brief>The value of the x dimension of the three dimensional extent.</brief></doxygen></member>
+        <member>y<type>size_t</type><doxygen><brief>The value of the y dimension of the three dimensional extent.</brief></doxygen></member>
+        <member>z<type>size_t</type><doxygen><brief>The value of the z dimension of the three dimensional extent.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>Describes a range in three dimensions.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_extent_2d_s
+      <scope>
+        <member>x<type>size_t</type><doxygen><brief>The value of the x dimension of the two dimensional extent.</brief></doxygen></member>
+        <member>y<type>size_t</type><doxygen><brief>The value of the y dimension of the two dimensional extent.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>Describes a range in two dimensions.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_image_s<scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this image object.</brief></doxygen></member>
+        <member>memory_requirements<type>${prefix}_memory_requirements_s</type>
+          <doxygen><brief>The device memory requirements for this image.</brief></doxygen></member>
+        <member>type<type>${prefix}_image_type_e</type>
+          <doxygen><brief>The type of this image.</brief></doxygen></member>
+        <member>format<type>${prefix}_image_format_e</type>
+          <doxygen><brief>The pixel format of this image.</brief></doxygen></member>
+        <member>pixel_size<type>uint32_t</type>
+          <doxygen><brief>The size in bytes of a single pixel.</brief></doxygen></member>
+        <member>size<type>${prefix}_extent_3d_t</type>
+          <doxygen><brief>The width, height, depth of this image.</brief></doxygen></member>
+        <member>array_layers<type>uint32_t</type>
+          <doxygen><brief>The number of array layers in the image.</brief></doxygen></member>
+        <member>row_size<type>uint64_t</type>
+          <doxygen><brief>The size in bytes of an image row.</brief></doxygen></member>
+        <member>slice_size<type>uint64_t</type>
+          <doxygen><brief>The size in bytes of an image slice.</brief></doxygen></member>
+        <member>tiling<type>${prefix}_image_tiling_e</type>
+          <doxygen><brief>The current image tiling mode of this image.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s image container.</brief>
+        <detail>Each ${Prefix} device can allocate images for use when executing programs on a device.</detail></doxygen>
+    </struct>
+
+    <struct>${prefix}_sampler_s<scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this sampler object.</brief></doxygen></member>
+        <member>address_mode<type>${prefix}_address_mode_e</type>
+          <doxygen><brief>Specify what happens when an out-of-range image coordinate is specified.</brief></doxygen></member>
+        <member>filter_mode<type>${prefix}_filter_mode_e</type>
+          <doxygen><brief>Specify what kind of filter to user when reading image data.</brief></doxygen></member>
+        <member>normalize_coords<type>bool</type>
+          <doxygen><brief>If true sampler expects coordinates to be normalized, if false sampler does not expect normalized coordinates.</brief></doxygen></member>
+        <!-- TODO: The capabilities of Vulkan samplers are much more detailed and powerful, this has made no attempt to follow Vulkan in favour supporting OpenCL samplers quickly. -->
+      </scope>
+      <doxygen><brief>A container describing a sampler.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_queue_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this queue object.</brief></doxygen></member>
+        <member>device<type>${prefix}_device_t</type>
+          <doxygen><brief>The ${Prefix} device that this object was got from.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s queue container.</brief>
+        <detail>Each ${Prefix} device has zero or more queues to execute programs, run commands, and interact with the asynchronous device. This struct contains members that denote information about this queue.</detail>
+      </doxygen>
+    </struct>
+
+    <struct>${prefix}_semaphore_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this semaphore object.</brief></doxygen></member>
+        <member>device<type>${prefix}_device_t</type>
+          <doxygen><brief>The ${Prefix} device that this object was created from.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s semaphore container.</brief><detail>Each ${Prefix} device can allocate a semaphore that can be used to synchronize on device between command buffer's.</detail></doxygen>
+    </struct>
+
+    <struct>${prefix}_fence_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this fence object.</brief></doxygen></member>
+        <member>device<type>${prefix}_device_t</type>
+          <doxygen><brief>The ${Prefix} device that this object was created from.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s fence container.</brief><detail>Each ${Prefix} device can allocate a fence that can be used to synchronize from device to host.</detail></doxygen>
+    </struct>
+
+    <struct>${prefix}_sync_point_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this sync-point object.</brief></doxygen></member>
+        <member>command_buffer<type>${prefix}_command_buffer_t</type>
+          <doxygen><brief>The ${Prefix} command-buffer that this object was created from.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s sync-point container.</brief><detail>Each ${Prefix} command-buffer command can return a sync-point object that can be used to synchronize on commands inside a command-buffer.</detail></doxygen>
+    </struct>
+
+    <struct>${prefix}_executable_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this executable object.</brief></doxygen></member>
+        <member>device<type>${prefix}_device_t</type>
+          <doxygen><brief>The ${Prefix} device that this object was created from.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s executable container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_kernel_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this kernel object.</brief></doxygen></member>
+        <member>device<type>${prefix}_device_t</type>
+          <doxygen><brief>The ${Prefix} device that this object was created from.</brief></doxygen></member>
+        <member>preferred_local_size_x<type>size_t</type><doxygen><brief>The preferred local size in the x dimension for this kernel.</brief></doxygen></member>
+        <member>preferred_local_size_y<type>size_t</type><doxygen><brief>The preferred local size in the y dimension for this kernel.</brief></doxygen></member>
+        <member>preferred_local_size_z<type>size_t</type><doxygen><brief>The preferred local size in the z dimension for this kernel.</brief></doxygen></member>
+        <member>local_memory_size<type>size_t</type><doxygen><brief>The amount of local memory used by this kernel.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s kernel container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_ndrange_options_s
+      <scope>
+        <member>descriptors<type>${prefix}_descriptor_info_t*</type><doxygen><brief>Array of argument descriptors.</brief></doxygen></member>
+        <member>descriptors_length<type>uint64_t</type><doxygen><brief>Length of the descriptors array.</brief></doxygen></member>
+        <member>local_size[3]<type>size_t</type><doxygen><brief>Local size in the x, y and z dimensions.</brief></doxygen></member>
+        <member>global_offset<type>const size_t*</type><doxygen><brief>Array of global offsets (can be null).</brief></doxygen></member>
+        <member>global_size<type>const size_t*</type><doxygen><brief>Array of global sizes.</brief></doxygen></member>
+        <member>dimensions<type>size_t</type><doxygen><brief>The length of `global_offset` and `global_size` (if they are non-null).</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>Describes a kernel's execution options.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_command_buffer_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this command buffer object.</brief></doxygen></member>
+        <member>device<type>${prefix}_device_t</type>
+          <doxygen><brief>The ${Prefix} device that this object was created from.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s command buffer container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_query_pool_s
+      <scope>
+        <member>id<type>mux_id_t</type><doxygen><brief>The ID of this query pool object.</brief></doxygen></member>
+        <member>type<type>${prefix}_query_type_e</type><doxygen><brief>The type of the query pool (one of the values in the enum ${prefix}_query_type_e).</brief></doxygen></member>
+        <member>count<type>uint32_t</type><doxygen><brief>The total number of queries that can be stored in the query pool.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s query pool container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_query_counter_s
+      <scope>
+        <member>unit<type>${prefix}_query_counter_unit_e</type><doxygen><brief>The unit of the query counter result.</brief></doxygen></member>
+        <member>storage<type>${prefix}_query_counter_storage_e</type><doxygen><brief>The storage type of the query counter result.</brief></doxygen></member>
+        <member>uuid<type>uint32_t</type><doxygen><brief>The unique ID of the query counter.</brief></doxygen></member>
+        <member>hardware_counters<type>uint32_t</type><doxygen><brief>How many hardware counters this query counter uses to take its measurement.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s query counter information container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_query_counter_description_s
+      <scope>
+        <member>name[256]<type>char</type><doxygen><brief>The counter name stored in a UTF-8 encoded null terminated array of 256 characters.</brief></doxygen></member>
+        <member>category[256]<type>char</type><doxygen><brief>The counter category stored in a UTF-8 encoded null terminated array of 256 characters.</brief></doxygen></member>
+        <member>description[256]<type>char</type><doxygen><brief>The counter description stored in a UTF-8 encoded null terminated array of 256 characters.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s query counter description container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_query_counter_config_s
+      <scope>
+        <member>uuid<type>uint32_t</type><doxygen><brief>The unique ID of the query counter.</brief></doxygen></member>
+        <member>data<type>void*</type><doxygen><brief>Data used to specify how a counter is to be configured, **may** be NULL.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s query counter configuration container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_query_duration_result_s
+      <scope>
+        <member>start<type>uint64_t</type><doxygen><brief>The CPU timestamp at the start of the command, in nanoseconds.</brief></doxygen></member>
+        <member>end<type>uint64_t</type><doxygen><brief>The CPU timestamp at the end of the command, in nanoseconds.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s duration query result container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_query_counter_result_s
+      <scope>
+        <member>
+          <union><scope>
+              <member>int32<type>int32_t</type></member>
+              <member>int64<type>int64_t</type></member>
+              <member>uint32<type>uint32_t</type></member>
+              <member>uint64<type>uint64_t</type></member>
+              <member>float32<type>float</type></member>
+              <member>float64<type>double</type></member>
+          </scope></union>
+          <doxygen><brief>The union of possible counter query results.</brief></doxygen>
+        </member>
+      </scope>
+      <doxygen><brief>${Prefix}'s counter query result container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_buffer_s
+      <scope>
+        <member>buffer<type>${prefix}_buffer_t</type>
+          <doxygen><brief>Buffer descriptor.</brief></doxygen></member>
+        <member>offset<type>uint64_t</type>
+          <doxygen><brief>Offset in bytes into @p buffer.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>An ${Prefix} descriptor for buffers.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_image_s<scope>
+        <member>image<type>${prefix}_image_t</type>
+          <doxygen><brief>Image object.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>A ${Prefix} descriptor for images.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_sampler_s<scope>
+        <member>sampler<type>${prefix}_sampler_t</type>
+          <doxygen><brief>Sampler object.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>A ${Prefix} descriptor for samplers.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_plain_old_data_s
+      <scope>
+        <member>data<type>const void*</type>
+          <doxygen><brief>Pointer to plain old data.</brief></doxygen></member>
+        <member>length<type>size_t</type>
+          <doxygen><brief>Size in bytes of @p data storage.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>An ${Prefix} descriptor for plain old data.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_shared_local_buffer_s
+      <scope>
+        <member>size<type>size_t</type>
+          <doxygen><brief>Size in bytes of shared local buffer.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>An ${Prefix} descriptor for a shared local buffer.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_custom_buffer_s
+      <scope>
+        <member>data<type>const void *</type>
+          <doxygen><brief>Pointer to custom data representing the buffer.</brief></doxygen></member>
+        <member>size<type>size_t</type>
+          <doxygen><brief>Size in bytes of the memory pointed to by `data`.</brief></doxygen></member>
+        <member>address_space<type>uint32_t</type>
+          <doxygen><brief>Address space of the custom buffer.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>An ${Prefix} descriptor for a custom buffer.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_null_buffer_s
+      <scope>
+      </scope>
+      <doxygen><brief>An ${Prefix} descriptor for passing null instead of a pointer to buffer data to a kernel.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_descriptor_info_s
+      <scope>
+        <member>type<type>uint32_t</type>
+          <doxygen><brief>The type of this descriptor (one of the values in the enum ${prefix}_descriptor_info_type_e).</brief></doxygen></member>
+        <member><union><scope>
+        <member>buffer_descriptor<struct>${prefix}_descriptor_info_buffer_s</struct></member>
+        <member>image_descriptor<struct>${prefix}_descriptor_info_image_s</struct></member>
+        <member>sampler_descriptor<struct>${prefix}_descriptor_info_sampler_s</struct></member>
+        <member>plain_old_data_descriptor<struct>${prefix}_descriptor_info_plain_old_data_s</struct></member>
+        <member>shared_local_buffer_descriptor<struct>${prefix}_descriptor_info_shared_local_buffer_s</struct></member>
+        <member>custom_buffer_descriptor<struct>${prefix}_descriptor_info_custom_buffer_s</struct></member>
+        </scope></union></member>
+      </scope>
+      <doxygen><brief>${Prefix}'s descriptor container.</brief></doxygen>
+    </struct>
+
+    <struct>${prefix}_buffer_region_info_s
+      <scope>
+         <member>region<type>${prefix}_extent_3d_t</type><doxygen><brief>The dimensions of the region of memory. If a 2D shape z must be 1, if a 1D shape y and z must be 1.</brief></doxygen></member>
+        <member>src_origin<type>${prefix}_extent_3d_t</type><doxygen><brief>In bytes, source origin offset expressed in 3D.</brief></doxygen></member>
+        <member>dst_origin<type>${prefix}_extent_3d_t</type><doxygen><brief>In bytes, destination origin offset, expressed in 3D.</brief></doxygen></member>
+        <member>src_desc<type>${prefix}_extent_2d_t</type><doxygen><brief>The description of the source buffer, where x represents the length of a row, and y represents the size of a 2D slice. If a 1D shape y must be 1.</brief></doxygen> </member>
+        <member>dst_desc<type>${prefix}_extent_2d_t</type><doxygen><brief>The description of the destination buffer, where x represents the length of a row, and y represents the size of a 2D slice. If a 1D shape y must be 1.</brief></doxygen></member>     </scope>
+      <doxygen><brief>A buffer region.</brief></doxygen>
+    </struct>
+
+    <code form="always">/// @}
+</code>
+
+    <guard form="defined">__cplusplus<scope form="close">extern "C"</scope></guard>
+  </guard>
+
+  <stubs>
+    <include>mux/config.h</include>
+    <stub name="select_with_compat" prefix="select" qualifier="inline">  switch (mux_target_id_device_mask &amp; ${0}->id) {
+    ${foreach}(target in targets)
+    case ${prefix}_target_id_${target}:
+      return ${target}${name}(${forward});
+    ${endforeach}
+    default:
+      return compat${name}(${forward});
+    }</stub>
+    <stub name="compat" prefix="select" qualifier="inline">  return compat${name}(${forward});</stub>
+    <stub name="select" prefix="select" qualifier="inline">  switch (mux_target_id_device_mask &amp; ${0}->id) {
+    ${foreach}(target in targets)
+    case ${prefix}_target_id_${target}:
+      return ${target}${name}(${forward});
+    ${endforeach}
+    default:
+      return static_cast&lt;${return_type}&gt;(${prefix}_error_invalid_value);
+    }</stub>
+    <stub name="single" prefix="select" qualifier="inline">  return ${target}${name}(${forward});</stub>
+    <stub name="empty">  // TODO: Implement me ...</stub>
+  </stubs>
+</interface>

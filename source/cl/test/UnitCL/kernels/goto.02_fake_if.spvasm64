@@ -1,0 +1,91 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 58
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %10 "fake_if" %__spirv_BuiltInGlobalInvocationId
+         %56 = OpString "kernel_arg_type.fake_if.int*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %57 Alignment 8
+         %57 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %26 Alignment 1
+               OpGroupDecorate %57 %21 %23
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+    %ulong_2 = OpConstant %ulong 2
+    %ulong_1 = OpConstant %ulong 1
+    %uchar_0 = OpConstant %uchar 0
+    %uchar_1 = OpConstant %uchar 1
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+       %bool = OpTypeBool
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %12 = OpLabel
+         %21 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %23 = OpVariable %_ptr_Function_ulong Function
+         %26 = OpVariable %_ptr_Function_uchar Function
+               OpStore %21 %11 Aligned 8
+         %27 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %28 = OpCompositeExtract %ulong %27 0
+               OpStore %23 %28 Aligned 8
+         %29 = OpLoad %ulong %23 Aligned 8
+         %31 = OpUMod %ulong %29 %ulong_2
+         %34 = OpIEqual %bool %31 %ulong_1
+         %37 = OpSelect %uchar %34 %uchar_1 %uchar_0
+               OpStore %26 %37 Aligned 1
+         %38 = OpLoad %uchar %26 Aligned 1
+         %39 = OpBitwiseAnd %uchar %38 %uchar_1
+         %40 = OpINotEqual %bool %39 %uchar_0
+         %43 = OpSelect %uint %40 %uint_1 %uint_0
+         %44 = OpIEqual %bool %43 %uint_0
+               OpBranchConditional %44 %13 %14
+         %13 = OpLabel
+               OpBranch %17
+         %14 = OpLabel
+         %45 = OpLoad %uchar %26 Aligned 1
+         %46 = OpBitwiseAnd %uchar %45 %uchar_1
+         %47 = OpINotEqual %bool %46 %uchar_0
+         %48 = OpSelect %uint %47 %uint_1 %uint_0
+         %49 = OpIEqual %bool %48 %uint_1
+               OpBranchConditional %49 %15 %16
+         %15 = OpLabel
+               OpBranch %18
+         %16 = OpLabel
+               OpBranch %19
+         %17 = OpLabel
+         %50 = OpLoad %_ptr_CrossWorkgroup_uint %21 Aligned 8
+         %51 = OpLoad %ulong %23 Aligned 8
+         %52 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %50 %51
+               OpStore %52 %uint_0 Aligned 4
+               OpBranch %19
+         %18 = OpLabel
+         %53 = OpLoad %_ptr_CrossWorkgroup_uint %21 Aligned 8
+         %54 = OpLoad %ulong %23 Aligned 8
+         %55 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %53 %54
+               OpStore %55 %uint_1 Aligned 4
+               OpBranch %19
+         %19 = OpLabel
+               OpReturn
+               OpFunctionEnd

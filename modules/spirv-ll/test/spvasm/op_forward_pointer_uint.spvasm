@@ -1,0 +1,58 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Addresses -c Float64 -c Int64 %p/op_forward_pointer_uint.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; CHECK: ; ModuleID = '{{.*}}'
+                        OpCapability Addresses
+                        OpCapability Shader
+                        OpCapability Float64
+                        OpCapability Int64
+                   %1 = OpExtInstImport "GLSL.std.450"
+                        OpMemoryModel Logical GLSL450
+                        OpEntryPoint GLCompute %main "main"
+                        OpExecutionMode %main LocalSize 1 1 1
+                        OpSource GLSL 450
+                        OpName %main "main"
+                        OpName %main "main"
+                        OpName %res "res"
+                        OpName %Foo "Foo"
+                        OpMemberName %Foo 0 "a"
+                        OpMemberName %Foo 1 "b"
+                        OpName %f "f"
+                %void = OpTypeVoid
+                   %3 = OpTypeFunction %void
+               %float = OpTypeFloat 32
+ %_ptr_Function_float = OpTypePointer Function %float
+                %uint = OpTypeInt 32 0  ; this should be blank if type is Foo
+                   %9 = OpConstant %float 42.42
+          %struct_int = OpTypeInt 32 0
+                        OpTypeForwardPointer %ptr_uint Function
+                 %Foo = OpTypeStruct %struct_int %float %ptr_uint
+; CHECK-GE15: [[Foo:%[a-zA-Z0-9_]+]] = type { i32, float, ptr }
+; CHECK-LT15: [[Foo:%[a-zA-Z0-9_]+]] = type { i32, float, i32* }
+            %ptr_uint = OpTypePointer Function %uint  ; this should be blank if type is Foo
+             %ptr_Foo = OpTypePointer Function %Foo
+                  %14 = OpConstant %struct_int 1
+                %main = OpFunction %void None %3
+; CHECK: define spir_kernel void @main()
+                   %5 = OpLabel
+                 %res = OpVariable %_ptr_Function_float Function
+; CHECK: %res = alloca float
+                   %f = OpVariable %ptr_Foo Function
+; CHECK: %f = alloca [[Foo]]
+                  %15 = OpInBoundsAccessChain %_ptr_Function_float %f %14
+; CHECK-GE15: [[float_ptr:%[a-zA-Z0-9_]+]] = getelementptr inbounds [[Foo]], ptr %f, i32 0, i32 1
+; CHECK-LT15: [[float_ptr:%[a-zA-Z0-9_]+]] = getelementptr inbounds [[Foo]], [[Foo]]* %f, i32 0, i32 1
+                  %16 = OpLoad %float %15
+; CHECK-GE15: [[float_value:%[a-zA-Z0-9_]+]] = load float, ptr [[float_ptr]]
+; CHECK-LT15: [[float_value:%[a-zA-Z0-9_]+]] = load float, float* [[float_ptr]]
+                  %17 = OpFAdd %float %9 %16
+; CHECK: [[res:%[a-zA-Z0-9_]+]] = fadd float 0x404535C280000000, [[float_value]]
+                        OpStore %res %17
+; CHECK-GE15: store float [[res]], ptr %res
+; CHECK-LT15: store float [[res]], float* %res
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

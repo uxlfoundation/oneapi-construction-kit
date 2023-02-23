@@ -1,0 +1,32 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
+// outlines all host specific passes.
+
+#ifndef MODULE_ANALYSIS
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)
+#endif
+
+#ifndef MODULE_PASS
+#define MODULE_PASS(NAME, CREATE_PASS)
+#endif
+
+#ifndef MODULE_PASS_WITH_PARAMS
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)
+#endif
+
+MODULE_ANALYSIS("host-vecz-pass-opts",
+                vecz::VeczPassOptionsAnalysis(hostVeczPassOpts))
+
+MODULE_PASS("add-entry-hook", AddEntryHookPass())
+MODULE_PASS("disable-neon-attr", host::DisableNeonAttributePass())
+MODULE_PASS("remove-byval-attrs", host::RemoveByValAttributesPass())
+
+MODULE_PASS_WITH_PARAMS(
+    "add-fp-control", "host::AddFloatingPointControlPass",
+    [](bool Ftz) { return AddFloatingPointControlPass(Ftz); },
+    parseFloatPointControlPassOptions, "ftz")
+
+#undef MODULE_ANALYSIS
+#undef MODULE_PASS
+#undef MODULE_PASS_WITH_PARAMS

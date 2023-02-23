@@ -1,0 +1,81 @@
+diff --git a/include/refsi_hal.h b/include/refsi_hal.h
+index 5a96851..a0bf0c4 100644
+--- a/include/refsi_hal.h
++++ b/include/refsi_hal.h
+@@ -4,6 +4,7 @@
+ #define _HAL_REFSI_REFSI_HAL_H
+ 
+ #include <mutex>
++#include <string>
+ 
+ #include "hal.h"
+ #include "hal_riscv.h"
+@@ -11,6 +12,14 @@
+ 
+ using refsi_locker = std::lock_guard<std::recursive_mutex>;
+ 
++struct refsi_hal_kernel {
++  refsi_hal_kernel(hal::hal_addr_t symbol, std::string name)
++      : symbol(symbol), name(std::move(name)) {}
++
++  const hal::hal_addr_t symbol;
++  const std::string name;
++};
++
+ class refsi_hal_device : public hal::hal_device_t {
+  public:
+   refsi_hal_device(riscv::hal_device_info_riscv_t *info, refsi_device_t device,
+diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
+index 1c976d6..4e97324 100644
+--- a/source/refsi_hal.cpp
++++ b/source/refsi_hal.cpp
+@@ -4,6 +4,10 @@
+ 
+ #include <string.h>
+ 
++#include <memory>
++
++#include "elf_loader.h"
++
+ refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
+                                    refsi_device_t device,
+                                    std::recursive_mutex &hal_lock)
+@@ -17,18 +21,35 @@ refsi_hal_device::~refsi_hal_device() {
+ hal::hal_kernel_t refsi_hal_device::program_find_kernel(
+     hal::hal_program_t program, const char *name) {
+   refsi_locker locker(hal_lock);
+-  return hal::hal_invalid_kernel;
++  if (program == hal::hal_invalid_program) {
++    return hal::hal_invalid_kernel;
++  }
++  ELFProgram *elf = (ELFProgram *)program;
++  hal::hal_addr_t kernel = elf->find_symbol(name);
++  if (kernel == hal::hal_nullptr) {
++    return hal::hal_invalid_kernel;
++  }
++  return (hal::hal_kernel_t) new refsi_hal_kernel(kernel, name);
+ }
+ 
+ hal::hal_program_t refsi_hal_device::program_load(const void *data,
+                                                   hal::hal_size_t size) {
+   refsi_locker locker(hal_lock);
+-  return hal::hal_invalid_program;
++  BufferDevice elf_data(data, size);
++  std::unique_ptr<ELFProgram> new_program(new ELFProgram());
++  if (!new_program->read(elf_data)) {
++    return hal::hal_invalid_program;
++  }
++  return (hal::hal_program_t)new_program.release();
+ }
+ 
+ bool refsi_hal_device::program_free(hal::hal_program_t program) {
+   refsi_locker locker(hal_lock);
+-  return false;
++  if (program == hal::hal_invalid_program) {
++    return false;
++  }
++  delete (ELFProgram *)program;
++  return true;
+ }
+ 
+ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,

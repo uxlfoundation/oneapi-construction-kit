@@ -1,0 +1,50 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_opencl_memset_gotcha.spv -o %t
+; RUN: %filecheck < %t %t.pp
+
+; The point of this test is that it looks a lot like a memset to spirv-ll
+; but the checks in OpCopyMemorySized should notice that our constant array
+; isn't the same all the way through and generate a memcpy instead.
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %6 "memset_gotcha"
+               OpSource OpenCL_C 102000
+               OpName %out "out"
+               OpName %entry "entry"
+               OpDecorate %24 Constant
+               OpDecorate %size_addr Alignment 4
+               OpDecorate %out_addr Alignment 8
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+      %uchar = OpTypeInt 8 0
+    %ulong_4 = OpConstant %ulong 4
+   %uchar_42 = OpConstant %uchar 42
+   %uchar_41 = OpConstant %uchar 41
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_arr_uchar_ulong_4 = OpTypeArray %uchar %ulong_4
+%_ptr_UniformConstant__arr_uchar_ulong_16 = OpTypePointer UniformConstant %_arr_uchar_ulong_4
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %22 = OpConstantComposite %_arr_uchar_ulong_4 %uchar_42 %uchar_42 %uchar_42 %uchar_41
+         %24 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_16 UniformConstant %22
+          %6 = OpFunction %void None %5
+; CHECK-GE15: define spir_kernel void @memset_gotcha(ptr addrspace(1) %out)
+; CHECK-LT15: define spir_kernel void @memset_gotcha(i32 addrspace(1)* %out)
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+         %16 = OpConvertPtrToU %ulong %out
+         %19 = OpConvertUToPtr %_ptr_Function_uchar %16
+         %26 = OpBitcast %_ptr_UniformConstant_uchar %24
+               OpCopyMemorySized %19 %26 %ulong_4 Aligned 1
+; CHECK-GE15: call void @llvm.memcpy.p0.p2.i64(ptr align 1 {{%[a-zA-Z0-9]+}}, ptr addrspace(2) align 1 @0, i64 4, i1 false)
+; CHECK-LT15: call void @llvm.memcpy.p0i8.p2i8.i64(i8* align 1 {{%[a-zA-Z0-9]+}}, i8 addrspace(2)* align 1 getelementptr inbounds ([4 x i8], [4 x i8] addrspace(2)* @0, i32 0, i32 0), i64 4, i1 false)
+               OpReturn
+               OpFunctionEnd

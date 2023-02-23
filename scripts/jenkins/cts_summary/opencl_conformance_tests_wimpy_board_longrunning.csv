@@ -1,0 +1,11 @@
+Thread Dimensions,conformance_test_thread_dimensions full_3d_explicit_local
+Images (Kernel),conformance_test_image_streams read 1Darray CL_FILTER_NEAREST
+Images (Kernel),conformance_test_image_streams read 2D CL_FILTER_NEAREST
+Images (Kernel),conformance_test_image_streams read 2Darray CL_FILTER_NEAREST
+Images (Kernel),conformance_test_image_streams read 3D CL_FILTER_NEAREST
+Images (Kernel),conformance_test_image_streams use_pitches CL_FILTER_NEAREST
+Images (Kernel),conformance_test_image_streams max_images CL_FILTER_NEAREST
+CL_DEVICE_TYPE_CPU,Images (Kernel),conformance_test_image_streams CL_FILTER_LINEAR
+CL_DEVICE_TYPE_CPU,Images (Kernel),conformance_test_image_streams use_pitches CL_FILTER_LINEAR
+CL_DEVICE_TYPE_CPU,Images (Kernel),conformance_test_image_streams max_images CL_FILTER_LINEAR
+SPIR,conformance_test_spir conversions_double no-unzip

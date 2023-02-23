@@ -1,0 +1,7 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+config.unsupported |= @SPVASM_UNSUPPORTED@
+
+# Add features for each spirv-as release year up to the year provided.
+for year in range(2016, @SPIRV_AS_VERSION_YEAR@):
+    config.available_features.add('spirv-as-v' + str(year))

@@ -1,0 +1,35 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/op_shl_ivec4_scalar_int_operands.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+void main() {
+  ivec4 a = ivec4(-42, -42, -42, -42);
+  int b = -42;
+  ivec4 c = a << b;
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK: define spir_kernel void @main() {
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x i32>
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x i32>
+// CHECK-GE15: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, <4 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: store i32 -42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store i32 -42, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x i32>, <4 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <4 x i32> undef, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = shl <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: store <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret void

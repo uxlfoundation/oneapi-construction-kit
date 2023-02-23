@@ -1,0 +1,78 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 48
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Vector16
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %16 "shuffle_function_call"
+         %45 = OpString "kernel_arg_type.shuffle_function_call.char8*,char16*,"
+               OpSource OpenCL_C 102000
+               OpName %shuffle_helper "shuffle_helper"
+               OpDecorate %46 Alignment 4
+         %46 = OpDecorationGroup
+               OpDecorate %47 Alignment 8
+         %47 = OpDecorationGroup
+               OpDecorate %shuffle_helper LinkageAttributes "shuffle_helper" Export
+               OpDecorate %25 Alignment 16
+               OpGroupDecorate %46 %21 %23
+               OpGroupDecorate %47 %9 %26
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+    %v8uchar = OpTypeVector %uchar 8
+          %4 = OpTypeFunction %v8uchar %v8uchar
+%_ptr_Function_v8uchar = OpTypePointer Function %v8uchar
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_v8uchar = OpTypePointer CrossWorkgroup %v8uchar
+   %v16uchar = OpTypeVector %uchar 16
+%_ptr_CrossWorkgroup_v16uchar = OpTypePointer CrossWorkgroup %v16uchar
+         %15 = OpTypeFunction %void %_ptr_CrossWorkgroup_v8uchar %_ptr_CrossWorkgroup_v16uchar
+%_ptr_Function__ptr_CrossWorkgroup_v8uchar = OpTypePointer Function %_ptr_CrossWorkgroup_v8uchar
+%_ptr_Function__ptr_CrossWorkgroup_v16uchar = OpTypePointer Function %_ptr_CrossWorkgroup_v16uchar
+%_ptr_Function_v16uchar = OpTypePointer Function %v16uchar
+    %v2uchar = OpTypeVector %uchar 2
+         %27 = OpConstantNull %v16uchar
+         %35 = OpUndef %v8uchar
+         %39 = OpUndef %v2uchar
+%shuffle_helper = OpFunction %v8uchar DontInline %4
+          %6 = OpFunctionParameter %v8uchar
+          %7 = OpLabel
+          %9 = OpVariable %_ptr_Function_v8uchar Function
+               OpStore %9 %6 Aligned 8
+         %10 = OpLoad %v8uchar %9 Aligned 8
+               OpReturnValue %10
+               OpFunctionEnd
+         %16 = OpFunction %void DontInline %15
+         %17 = OpFunctionParameter %_ptr_CrossWorkgroup_v8uchar
+         %18 = OpFunctionParameter %_ptr_CrossWorkgroup_v16uchar
+         %19 = OpLabel
+         %21 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v8uchar Function
+         %23 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v16uchar Function
+         %25 = OpVariable %_ptr_Function_v16uchar Function
+         %26 = OpVariable %_ptr_Function_v8uchar Function
+               OpStore %21 %17 Aligned 4
+               OpStore %23 %18 Aligned 4
+               OpStore %25 %27 Aligned 16
+         %28 = OpLoad %_ptr_CrossWorkgroup_v8uchar %21 Aligned 4
+         %31 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v8uchar %28 %uint_0
+         %32 = OpLoad %v8uchar %31 Aligned 8
+         %33 = OpFunctionCall %v8uchar %shuffle_helper %32
+               OpStore %26 %33 Aligned 8
+         %34 = OpLoad %v8uchar %26 Aligned 8
+         %37 = OpVectorShuffle %v2uchar %34 %35 3 7
+         %38 = OpLoad %v16uchar %25 Aligned 16
+         %40 = OpVectorShuffle %v16uchar %37 %39 0 1 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295
+         %41 = OpVectorShuffle %v16uchar %38 %40 0 1 2 3 4 16 6 7 8 9 10 17 12 13 14 15
+               OpStore %25 %41 Aligned 16
+         %42 = OpLoad %v16uchar %25 Aligned 16
+         %43 = OpLoad %_ptr_CrossWorkgroup_v16uchar %23 Aligned 4
+         %44 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v16uchar %43 %uint_0
+               OpStore %44 %42 Aligned 16
+               OpReturn
+               OpFunctionEnd

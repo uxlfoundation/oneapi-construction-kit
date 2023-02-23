@@ -1,0 +1,21 @@
+print("Half precision tanpi");
+
+print("\nHalf precision sinpi approximation:");
+Range=[1e-24, (0.25)^2];
+Func=sin(pi * sqrt(x)) / sqrt(x);
+Order=3;
+Poly=fpminimax(Func, Order, [|single, halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);
+
+print("\nHalf precision cospi approximation:");
+Range=[1e-24, (0.25)^2];
+Func=cos(pi * sqrt(x));
+Order=3;
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

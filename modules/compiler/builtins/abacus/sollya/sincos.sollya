@@ -1,0 +1,18 @@
+print("Half precision sincos:");
+Range=[0.0; 1.0];
+Func=cos(x*pi/4);
+Poly= fpminimax(Func, [|0,2,4,6|],[|11...|], Range, relative, floating);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);
+
+
+Range2=[0.0; 1.0];
+Func2=sin(x*pi/4);
+Poly2= fpminimax(Func2, [|1,3,5,7|],[|11...|], Range2, relative, floating);
+Poly2;
+
+Err=dirtyinfnorm(Poly2-Func2, Range2);
+print("\ninf-norm error:", Err);
+

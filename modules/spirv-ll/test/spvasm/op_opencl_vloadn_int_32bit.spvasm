@@ -1,0 +1,72 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses %p/op_opencl_vloadn_int_32bit.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Vector16
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %7 "foo"
+               OpSource OpenCL_C 102000
+               OpName %in "in"
+               OpName %loc "loc"
+               OpName %entry "entry"
+               OpName %call "call"
+               OpName %call1 "call1"
+               OpName %call2 "call2"
+               OpName %call3 "call3"
+               OpName %call4 "call4"
+               OpName %call5 "call5"
+               OpName %call6 "call6"
+               OpName %call7 "call7"
+               OpName %call8 "call8"
+               OpName %call9 "call9"
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+          %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_Workgroup_uint
+     %v2uint = OpTypeVector %uint 2
+     %v3uint = OpTypeVector %uint 3
+     %v4uint = OpTypeVector %uint 4
+     %v8uint = OpTypeVector %uint 8
+    %v16uint = OpTypeVector %uint 16
+          %7 = OpFunction %void None %6
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+        %loc = OpFunctionParameter %_ptr_Workgroup_uint
+      %entry = OpLabel
+       %call = OpExtInst %v2uint %1 vloadn %uint_0 %in 2
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z6vload2jPU3AS1Kj(i32 0, ptr addrspace(1) %in)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z6vload2jPU3AS1Kj(i32 0, i32 addrspace(1)* %in)
+      %call1 = OpExtInst %v3uint %1 vloadn %uint_0 %in 3
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z6vload3jPU3AS1Kj(i32 0, ptr addrspace(1) %in)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z6vload3jPU3AS1Kj(i32 0, i32 addrspace(1)* %in)
+      %call2 = OpExtInst %v4uint %1 vloadn %uint_0 %in 4
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z6vload4jPU3AS1Kj(i32 0, ptr addrspace(1) %in)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z6vload4jPU3AS1Kj(i32 0, i32 addrspace(1)* %in)
+      %call3 = OpExtInst %v8uint %1 vloadn %uint_0 %in 8
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i32> @_Z6vload8jPU3AS1Kj(i32 0, ptr addrspace(1) %in)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i32> @_Z6vload8jPU3AS1Kj(i32 0, i32 addrspace(1)* %in)
+      %call4 = OpExtInst %v16uint %1 vloadn %uint_0 %in 16
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z7vload16jPU3AS1Kj(i32 0, ptr addrspace(1) %in)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z7vload16jPU3AS1Kj(i32 0, i32 addrspace(1)* %in)
+      %call5 = OpExtInst %v2uint %1 vloadn %uint_0 %loc 2
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z6vload2jPU3AS3Kj(i32 0, ptr addrspace(3) %loc)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z6vload2jPU3AS3Kj(i32 0, i32 addrspace(3)* %loc)
+      %call6 = OpExtInst %v3uint %1 vloadn %uint_0 %loc 3
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z6vload3jPU3AS3Kj(i32 0, ptr addrspace(3) %loc)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z6vload3jPU3AS3Kj(i32 0, i32 addrspace(3)* %loc)
+      %call7 = OpExtInst %v4uint %1 vloadn %uint_0 %loc 4
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z6vload4jPU3AS3Kj(i32 0, ptr addrspace(3) %loc)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z6vload4jPU3AS3Kj(i32 0, i32 addrspace(3)* %loc)
+      %call8 = OpExtInst %v8uint %1 vloadn %uint_0 %loc 8
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i32> @_Z6vload8jPU3AS3Kj(i32 0, ptr addrspace(3) %loc)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i32> @_Z6vload8jPU3AS3Kj(i32 0, i32 addrspace(3)* %loc)
+      %call9 = OpExtInst %v16uint %1 vloadn %uint_0 %loc 16
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z7vload16jPU3AS3Kj(i32 0, ptr addrspace(3) %loc)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z7vload16jPU3AS3Kj(i32 0, i32 addrspace(3)* %loc)
+               OpReturn
+               OpFunctionEnd

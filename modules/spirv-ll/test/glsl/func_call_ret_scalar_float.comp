@@ -1,0 +1,31 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/func_call_ret_scalar_float.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+float func_ret_float() {
+  float a = 42.42;
+  return a;
+}
+
+void main() {
+  float a = func_ret_float();
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK: define spir_kernel void @main() {
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float  @{{("func_ret_float.+")}}()
+// CHECK-GE15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret void
+// CHECK: define private spir_func float @{{("func_ret_float.+")}}()
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
+// CHECK-GE15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, float* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

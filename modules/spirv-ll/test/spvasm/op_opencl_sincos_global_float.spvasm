@@ -1,0 +1,33 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_sincos_global_float.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %sincos_float "sincos_float"
+                        OpSource OpenCL_C 102000
+                        OpName %in_cosval "in_cosval"
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+         %float_ptr_t = OpTypePointer CrossWorkgroup %float_t
+         %sincos_fn_t = OpTypeFunction %void_t %float_ptr_t
+             %float_1 = OpConstant %float_t 1.05
+
+; All functions
+        %sincos_float = OpFunction %void_t None %sincos_fn_t
+           %in_cosval = OpFunctionParameter %float_ptr_t
+; CHECK-GE15: define spir_kernel void @sincos_float(ptr addrspace(1) %in_cosval)
+; CHECK-LT15: define spir_kernel void @sincos_float(float addrspace(1)* %in_cosval)
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 sincos %float_1 %in_cosval
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6sincosfPU3AS1f(float 0x3FF0CCCCC0000000, ptr addrspace(1) %in_cosval)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6sincosfPU3AS1f(float 0x3FF0CCCCC0000000, float addrspace(1)* %in_cosval)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

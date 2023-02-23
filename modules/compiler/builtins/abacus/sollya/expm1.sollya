@@ -1,0 +1,9 @@
+print("Half precision expm1:");
+Range=[-0.6; 1.7];
+Func=expm1(x);
+Order=9;
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

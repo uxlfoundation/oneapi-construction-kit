@@ -1,0 +1,21 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a Vulkan %p/op_control_barrier_acquire.spv | %filecheck %s
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+       %void = OpTypeVoid
+          %4 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+   %uint_258 = OpConstant %uint 258
+       %main = OpFunction %void None %4
+          %8 = OpLabel
+               OpControlBarrier %uint_2 %uint_2 %uint_258
+               OpReturn
+               OpFunctionEnd
+; CHECK: call spir_func void @__mux_work_group_barrier(i32 0, i32 2, i32 258)

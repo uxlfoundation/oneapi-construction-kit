@@ -1,0 +1,176 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Exposing implementations of non-IP restricted functions.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_DETAIL_COMMON__
+#define __ABACUS_DETAIL_COMMON__
+
+#if !defined(__cplusplus)
+#error This header should only be included from C++!
+#endif
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+#ifndef __ABACUS_ABACUS_COMMON__
+#include <abacus/abacus_common.h>
+#endif
+#ifndef __ABACUS_ABACUS_MATH__
+#include <abacus/abacus_math.h>
+#endif
+#ifndef __ABACUS_TYPE_TRAITS__
+#include <abacus/abacus_type_traits.h>
+#endif
+#ifndef __ABACUS_DETAIL_CAST__
+#include <abacus/abacus_detail_cast.h>
+#endif
+#ifndef __ABACUS_DETAIL_RELATIONAL__
+#include <abacus/abacus_detail_relational.h>
+#endif
+
+namespace abacus {
+namespace detail {
+namespace common {
+
+template<typename T, typename U> T max(const T& x, const U& y) {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+
+  // When U is a scalar type, duplicate across all elements of T
+  const T broadcast_y = y;
+
+  SignedType c = 0;  // Return y when set
+  if (__abacus_isftz()) {
+    const SignedType xInt = abacus::detail::cast::as<SignedType>(x);
+    const SignedType yInt = abacus::detail::cast::as<SignedType>(broadcast_y);
+
+    // (xInt < 0) & (yInt >= 0) - Then the sign bit of x is set, and sign
+    // bit of y isn't. So x is negative and y is positive, set to true to
+    // return y.
+    //
+    // (xInt >= yInt) - If integer representation xInt is larger than yInt
+    // then float x will also be larger than float y. However this only
+    // holds if both x and y are positive, due to 2s complement representation
+    // of negative integers, so XOR to get the other cases where x will be
+    // smaller.
+    c = ((xInt >= yInt) ^ (xInt >= 0)) | ((xInt < 0) & (yInt >= 0));
+  } else {
+    c = x < broadcast_y;
+  }
+
+  return relational::select(x, broadcast_y, c);
+}
+
+template<typename T, typename U> T min(const T& x, const U& y) {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+
+  // When U is a scalar type, duplicate across all elements of T
+  const T broadcast_y = y;
+
+  SignedType c = 0;  // Return x when set
+  if (__abacus_isftz()) {
+    const SignedType xInt = abacus::detail::cast::as<SignedType>(x);
+    const SignedType yInt = abacus::detail::cast::as<SignedType>(broadcast_y);
+
+    // (xInt < 0) & (yInt >= 0) - Then the sign bit of x is set, and sign
+    // bit of y isn't. So x is negative and y is positive, set to true to
+    // return x.
+    //
+    // (xInt >= yInt) - If integer representation xInt is larger than yInt
+    // then float x will also be larger than float y. However this only
+    // holds if both x and y are positive, due to 2s complement representation
+    // of negative integers, so XOR to get the other cases where x will be
+    // smaller.
+    c = ((xInt >= yInt) ^ (xInt >= 0)) | ((xInt < 0) & (yInt >= 0));
+  } else {
+    c = x < broadcast_y;
+  }
+
+  return relational::select(broadcast_y, x, c);
+}
+
+template<typename T, typename U> T clamp(const T& x, const U& y, const U& z) {
+  // clamp() is implemented using fmin()/fmax() rather than min()/max()
+  // https://github.com/KhronosGroup/OpenCL-Docs/issues/49
+  return __abacus_fmin(__abacus_fmax(x, y), z);
+}
+
+template<typename T> T degrees(const T& t) {
+  return t * T(57.295779513082320876798154814105170332405472466564321);
+}
+
+template<typename T, typename U> T mix(const T& x, const T& y, const U& a) {
+  return x + ((y - x) * T(a));
+}
+
+template<typename T> T radians(const T& t) {
+  return t * T(0.0174532925199432957692369076848861271344287188854172);
+}
+
+template<typename T> T sign(const T& t) {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+
+  const T zero(0.0);
+  const T one(1.0);
+
+  const UnsignedType shift = (sizeof(typename TypeTraits<T>::ElementType) * 8) - 1;
+  const UnsignedType mask = UnsignedType(0x1) << shift;
+
+  const UnsignedType tAs = cast::as<UnsignedType>(t);
+
+  const SignedType c1 = cast::as<T>(UnsignedType(tAs & ~mask)) > zero;
+  T preResult = relational::select(zero, one, c1);
+
+  const UnsignedType maskedResult =
+    cast::as<UnsignedType>(preResult) | (mask & tAs);
+
+  const SignedType c2 = relational::isnan(t);
+  return relational::select(cast::as<T>(maskedResult), zero, c2);
+}
+
+template<typename T, typename U> T smoothstep(const U& e0, const U& e1, const T& x) {
+  const T t = common::clamp((x - e0) / (e1 - e0), T(0), T(1));
+  return t * t * (T(3) - T(2) * t);
+}
+
+template <typename U, typename T,
+            typename E = typename TypeTraits<T>::ElementType>
+struct step_helper {
+  using SignedType = typename TypeTraits<T>::SignedType;
+  static T _(const U& e, const T& x) {
+    const SignedType bit = T(e) <= x;
+    return cast::convert<T>(bit & 1);
+  }
+};
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+template <typename U, typename T>
+struct step_helper<U, T, abacus_half> {
+  using SignedType = typename TypeTraits<T>::SignedType;
+  static T _(const U& e, const T& x) {
+    const SignedType bit = T(e) <= x;
+#if __clang_major__ < 8
+    // Workaround backend assert in LLVM 7.0 SelectionDAG when compiling
+    // for 32-bit ARM with half types.
+    return relational::select(T(0.0), T(1.0), bit);
+#else
+    return cast::convert<T>(bit & 1);
+#endif  // __clang_major__
+  }
+};
+#endif  // __CA_BUILTINS_HALF_SUPPORT
+
+template<typename T, typename U> T step(const U& e, const T& x) {
+  return step_helper<U, T>::_(e,x);
+}
+
+} // namespace common
+} // namespace detail
+} // namespace abacus
+
+#endif  //__ABACUS_DETAIL_COMMON__

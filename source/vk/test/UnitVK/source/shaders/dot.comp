@@ -1,0 +1,11 @@
+#version 450
+
+layout(set=0, binding=0) buffer out_buffer{
+    float out_float;
+};
+
+void main(){
+    vec3 x = vec3(2.f, 2.f, 2.f);
+    vec3 y = vec3(2.f, 2.f, 2.f);
+    out_float = dot(x, y);
+}

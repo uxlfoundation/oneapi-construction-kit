@@ -1,0 +1,34 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_FClamp_double_double_double.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+layout (std430, set=0, binding=0) buffer inA {
+  double arg0;
+  double arg1;
+  double arg2;
+};
+
+layout (std430, set=0, binding=1) buffer outR {
+  double res;
+};
+
+void main() {
+  res = clamp(arg0,arg1,arg2);
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, double addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, double addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, double addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func double @_Z5clampddd(double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+// CHECK-GE15: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret void
+// CHECK: declare spir_func double @_Z5clampddd(double, double, double)

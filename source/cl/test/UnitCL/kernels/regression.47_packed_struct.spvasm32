@@ -1,0 +1,92 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 59
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int16
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %24 "packed_struct" %__spirv_BuiltInGlobalInvocationId
+         %55 = OpString "kernel_arg_type.packed_struct.ulong*,"
+               OpSource OpenCL_C 102000
+               OpName %struct_paddedStruct "struct.paddedStruct"
+               OpName %struct_packedStruct "struct.packedStruct"
+               OpName %__const_packed_struct_s "__const.packed_struct.s"
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %56 Constant
+         %56 = OpDecorationGroup
+               OpDecorate %57 Alignment 1
+         %57 = OpDecorationGroup
+               OpDecorate %58 Alignment 4
+         %58 = OpDecorationGroup
+               OpDecorate %struct_packedStruct CPacked
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %56 %__const_packed_struct_s %__spirv_BuiltInGlobalInvocationId
+               OpGroupDecorate %57 %__const_packed_struct_s %32
+               OpGroupDecorate %58 %28 %30
+      %uchar = OpTypeInt 8 0
+     %ushort = OpTypeInt 16 0
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+   %uchar_98 = OpConstant %uchar 98
+  %ushort_42 = OpConstant %ushort 42
+     %uint_0 = OpConstant %uint 0
+    %uint_10 = OpConstant %uint 10
+     %uint_1 = OpConstant %uint 1
+    %v2uchar = OpTypeVector %uchar 2
+      %float = OpTypeFloat 32
+%struct_paddedStruct = OpTypeStruct %ushort %float
+%struct_packedStruct = OpTypeStruct %v2uchar %struct_paddedStruct
+%_ptr_UniformConstant_struct_packedStruct = OpTypePointer UniformConstant %struct_packedStruct
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+         %23 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function_struct_packedStruct = OpTypePointer Function %struct_packedStruct
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+%_ptr_Function_struct_paddedStruct = OpTypePointer Function %struct_paddedStruct
+%_ptr_Function_ushort = OpTypePointer Function %ushort
+          %5 = OpConstantComposite %v2uchar %uchar_98 %uchar_98
+%float_3_1400001 = OpConstant %float 3.1400001
+         %11 = OpConstantComposite %struct_paddedStruct %ushort_42 %float_3_1400001
+         %13 = OpConstantComposite %struct_packedStruct %5 %11
+%__const_packed_struct_s = OpVariable %_ptr_UniformConstant_struct_packedStruct UniformConstant %13
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+         %24 = OpFunction %void DontInline %23
+         %25 = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+         %26 = OpLabel
+         %28 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+         %30 = OpVariable %_ptr_Function_uint Function
+         %32 = OpVariable %_ptr_Function_struct_packedStruct Function
+               OpStore %28 %25 Aligned 4
+         %33 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %34 = OpCompositeExtract %uint %33 0
+               OpStore %30 %34 Aligned 4
+         %36 = OpBitcast %_ptr_Function_uchar %32
+         %39 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %__const_packed_struct_s %uint_0 %uint_0 %uint_0
+               OpCopyMemorySized %36 %39 %uint_10 Aligned 1
+         %41 = OpLoad %uint %30 Aligned 4
+         %42 = OpUConvert %ushort %41
+         %45 = OpInBoundsPtrAccessChain %_ptr_Function_struct_paddedStruct %32 %uint_0 %uint_1
+         %47 = OpInBoundsPtrAccessChain %_ptr_Function_ushort %45 %uint_0 %uint_0
+               OpStore %47 %42 Aligned 1
+         %48 = OpInBoundsPtrAccessChain %_ptr_Function_struct_paddedStruct %32 %uint_0 %uint_1
+         %49 = OpConvertPtrToU %ulong %48
+         %50 = OpConvertPtrToU %ulong %32
+         %51 = OpISub %ulong %49 %50
+         %52 = OpLoad %_ptr_CrossWorkgroup_ulong %28 Aligned 4
+         %53 = OpLoad %uint %30 Aligned 4
+         %54 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %52 %53
+               OpStore %54 %51 Aligned 8
+               OpReturn
+               OpFunctionEnd

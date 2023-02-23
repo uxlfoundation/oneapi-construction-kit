@@ -1,0 +1,80 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 50
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %12 "sum_reduce4" %__spirv_BuiltInGlobalInvocationId
+         %47 = OpString "kernel_arg_type.sum_reduce4.int4*,int*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %48 Alignment 8
+         %48 = OpDecorationGroup
+               OpDecorate %49 NoSignedWrap
+         %49 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %25 Alignment 4
+               OpDecorate %23 Alignment 16
+               OpGroupDecorate %48 %17 %19 %21
+               OpGroupDecorate %49 %36 %39 %42
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+     %v4uint = OpTypeVector %uint 4
+%_ptr_CrossWorkgroup_v4uint = OpTypePointer CrossWorkgroup %v4uint
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+         %11 = OpTypeFunction %void %_ptr_CrossWorkgroup_v4uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_v4uint = OpTypePointer Function %_ptr_CrossWorkgroup_v4uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %12 = OpFunction %void DontInline %11
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_v4uint
+         %14 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %15 = OpLabel
+         %17 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v4uint Function
+         %19 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %21 = OpVariable %_ptr_Function_ulong Function
+         %23 = OpVariable %_ptr_Function_v4uint Function
+         %25 = OpVariable %_ptr_Function_uint Function
+               OpStore %17 %13 Aligned 8
+               OpStore %19 %14 Aligned 8
+         %26 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %27 = OpCompositeExtract %ulong %26 0
+               OpStore %21 %27 Aligned 8
+         %28 = OpLoad %_ptr_CrossWorkgroup_v4uint %17 Aligned 8
+         %29 = OpLoad %ulong %21 Aligned 8
+         %30 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v4uint %28 %29
+         %31 = OpLoad %v4uint %30 Aligned 16
+               OpStore %23 %31 Aligned 16
+         %32 = OpLoad %v4uint %23 Aligned 16
+         %33 = OpCompositeExtract %uint %32 0
+         %34 = OpLoad %v4uint %23 Aligned 16
+         %35 = OpCompositeExtract %uint %34 1
+         %36 = OpIAdd %uint %33 %35
+         %37 = OpLoad %v4uint %23 Aligned 16
+         %38 = OpCompositeExtract %uint %37 2
+         %39 = OpIAdd %uint %36 %38
+         %40 = OpLoad %v4uint %23 Aligned 16
+         %41 = OpCompositeExtract %uint %40 3
+         %42 = OpIAdd %uint %39 %41
+               OpStore %25 %42 Aligned 4
+         %43 = OpLoad %uint %25 Aligned 4
+         %44 = OpLoad %_ptr_CrossWorkgroup_uint %19 Aligned 8
+         %45 = OpLoad %ulong %21 Aligned 8
+         %46 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %44 %45
+               OpStore %46 %43 Aligned 4
+               OpReturn
+               OpFunctionEnd

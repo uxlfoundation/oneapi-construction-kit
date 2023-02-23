@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue hotspotOpt1 -arg p,repeat(1834,rand(0,1.0)) -arg tIn,repeat(1844,rand(0,1.0)) -compare tOut:%p/Inputs/hotspotKernel_k_hotspotOpt1_out.txt -arg tOut,repeat(1834,73) -arg sdc,repeat(1,rand(0,1.0)) -arg nx,repeat(1,10) -arg ny,repeat(1,10) -arg nz,repeat(1,10) -arg ce,repeat(1,rand(0,1.0)) -arg cw,repeat(1,rand(0,1.0)) -arg cn,repeat(1,rand(0,1.0)) -arg cs,repeat(1,rand(0,1.0)) -arg ct,repeat(1,rand(0,1.0)) -arg cb,repeat(1,rand(0,1.0)) -arg cc,repeat(1,rand(0,1.0)) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/hotspotKernel.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: tOut - match

@@ -1,0 +1,34 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// REQUIRES: WorkingFrem
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fmod_dvec2.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+// CHECK: ; ModuleID = '{{.*}}'
+#version 450
+
+void main() {
+// CHECK: define spir_kernel void @main() {
+// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <2 x double>
+// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <2 x double>
+// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <2 x double>
+  dvec2 x = dvec2(-42.42, -42.42);
+// CHECK-GE15:  store <2 x double> <double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15:  store <2 x double> <double -4.242000e+01, double -4.242000e+01>, <2 x double>* {{%[a-zA-Z0-9_]+}}
+  dvec2 y = dvec2(-42.42, -42.42);
+// CHECK-GE15:  store <2 x double> <double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15:  store <2 x double> <double -4.242000e+01, double -4.242000e+01>, <2 x double>* {{%[a-zA-Z0-9_]+}}
+// CHECK-GE15:  [[X:%[a-zA-Z0-9_]+]] = load <2 x double>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15:  [[X:%[a-zA-Z0-9_]+]] = load <2 x double>, <2 x double>* {{%[a-zA-Z0-9_]+}}
+// CHECK-GE15:  [[Y:%[a-zA-Z0-9_]+]] = load <2 x double>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15:  [[Y:%[a-zA-Z0-9_]+]] = load <2 x double>, <2 x double>* {{%[a-zA-Z0-9_]+}}
+  dvec2 res = mod(x, y);
+// CHECK:  [[MOD:%[a-zA-Z0-9_]+]] = call spir_func <2 x double> @_Z4fmodDv2_dS_(<2 x double> [[X]], <2 x double> [[Y]])
+// CHECK:  [[RES:%[a-zA-Z0-9_]+]] = call spir_func <2 x double> @_Z8copysignDv2_dS_(<2 x double> [[MOD]], <2 x double> [[Y]])
+// CHECK-GE15:  store <2 x double> [[RES]], ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15:  store <2 x double> [[RES]], <2 x double>* {{%[a-zA-Z0-9_]+}}
+// CHECK:  ret void
+}
+
+// CHECK: declare spir_func <2 x double> @_Z8copysignDv2_dS_(<2 x double>, <2 x double>)

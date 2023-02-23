@@ -1,0 +1,37 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_shuffle2_v16i64.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_shuffle2_v16i64 "s_shuffle2_v16i64"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %ui64_t = OpTypeInt 64 0
+               %i64_t = OpTypeInt 64 1
+           %v16ui64_t = OpTypeVector %ui64_t 16
+            %v16i64_t = OpTypeVector %i64_t 16
+     %s_shuffle2_fn_t = OpTypeFunction %void_t
+               %i64_3 = OpConstant %i64_t 3
+               %i64_4 = OpConstant %i64_t 4
+              %ui64_5 = OpConstant %ui64_t 5
+            %v16i64_3 = OpConstantComposite %v16i64_t %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3 %i64_3
+            %v16i64_4 = OpConstantComposite %v16i64_t %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4
+           %v16ui64_5 = OpConstantComposite %v16ui64_t %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5 %ui64_5
+
+; All functions
+   %s_shuffle2_v16i64 = OpFunction %void_t None %s_shuffle2_fn_t
+; CHECK: define spir_kernel void @s_shuffle2_v16i64()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16i64_t %1 shuffle2 %v16i64_3 %v16i64_4 %v16ui64_5
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i64> @_Z8shuffle2Dv16_lS_Dv16_m(<16 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>, <16 x i64> <i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4>, <16 x i64> <i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

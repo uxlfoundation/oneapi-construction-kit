@@ -1,0 +1,475 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 310
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %9 "loop_diverge" %__spirv_BuiltInGlobalInvocationId
+        %307 = OpString "kernel_arg_type.loop_diverge.int*,int,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %308 Alignment 4
+        %308 = OpDecorationGroup
+               OpDecorate %309 NoSignedWrap
+        %309 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %308 %108 %110 %111 %112 %113 %114 %115 %116 %117 %118 %119 %120 %121 %122 %123 %124 %125 %126 %127
+               OpGroupDecorate %309 %140 %142 %151 %153 %162 %164 %173 %175 %184 %186 %195 %197 %206 %208 %217 %219 %228 %230 %239 %241 %250 %252 %261 %263 %272 %274 %283 %285 %294 %296 %299 %303
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+     %uint_4 = OpConstant %uint 4
+     %uint_5 = OpConstant %uint 5
+     %uint_6 = OpConstant %uint 6
+     %uint_7 = OpConstant %uint 7
+     %uint_8 = OpConstant %uint 8
+     %uint_9 = OpConstant %uint 9
+    %uint_10 = OpConstant %uint 10
+    %uint_11 = OpConstant %uint 11
+    %uint_12 = OpConstant %uint 12
+    %uint_13 = OpConstant %uint 13
+    %uint_14 = OpConstant %uint 14
+    %uint_15 = OpConstant %uint 15
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %8 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+       %bool = OpTypeBool
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+          %9 = OpFunction %void DontInline %8
+         %10 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %11 = OpFunctionParameter %uint
+         %12 = OpLabel
+        %108 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+        %110 = OpVariable %_ptr_Function_uint Function
+        %111 = OpVariable %_ptr_Function_uint Function
+        %112 = OpVariable %_ptr_Function_uint Function
+        %113 = OpVariable %_ptr_Function_uint Function
+        %114 = OpVariable %_ptr_Function_uint Function
+        %115 = OpVariable %_ptr_Function_uint Function
+        %116 = OpVariable %_ptr_Function_uint Function
+        %117 = OpVariable %_ptr_Function_uint Function
+        %118 = OpVariable %_ptr_Function_uint Function
+        %119 = OpVariable %_ptr_Function_uint Function
+        %120 = OpVariable %_ptr_Function_uint Function
+        %121 = OpVariable %_ptr_Function_uint Function
+        %122 = OpVariable %_ptr_Function_uint Function
+        %123 = OpVariable %_ptr_Function_uint Function
+        %124 = OpVariable %_ptr_Function_uint Function
+        %125 = OpVariable %_ptr_Function_uint Function
+        %126 = OpVariable %_ptr_Function_uint Function
+        %127 = OpVariable %_ptr_Function_uint Function
+               OpStore %108 %10 Aligned 4
+               OpStore %110 %11 Aligned 4
+        %128 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+        %129 = OpCompositeExtract %uint %128 0
+               OpStore %111 %129 Aligned 4
+               OpStore %112 %uint_0 Aligned 4
+               OpBranch %13
+         %13 = OpLabel
+        %131 = OpLoad %uint %111 Aligned 4
+        %134 = OpSLessThan %bool %131 %uint_1
+               OpBranchConditional %134 %14 %19
+         %14 = OpLabel
+               OpStore %113 %uint_0 Aligned 4
+               OpBranch %15
+         %15 = OpLabel
+        %135 = OpLoad %uint %113 Aligned 4
+        %136 = OpLoad %uint %110 Aligned 4
+        %137 = OpSLessThan %bool %135 %136
+               OpBranchConditional %137 %16 %18
+         %16 = OpLabel
+        %138 = OpLoad %uint %110 Aligned 4
+        %139 = OpLoad %uint %112 Aligned 4
+        %140 = OpIAdd %uint %139 %138
+               OpStore %112 %140 Aligned 4
+               OpBranch %17
+         %17 = OpLabel
+        %141 = OpLoad %uint %113 Aligned 4
+        %142 = OpIAdd %uint %141 %uint_1
+               OpStore %113 %142 Aligned 4
+               OpBranch %15
+         %18 = OpLabel
+               OpBranch %19
+         %19 = OpLabel
+        %143 = OpLoad %uint %111 Aligned 4
+        %145 = OpSLessThan %bool %143 %uint_2
+               OpBranchConditional %145 %20 %25
+         %20 = OpLabel
+               OpStore %114 %uint_0 Aligned 4
+               OpBranch %21
+         %21 = OpLabel
+        %146 = OpLoad %uint %114 Aligned 4
+        %147 = OpLoad %uint %110 Aligned 4
+        %148 = OpSLessThan %bool %146 %147
+               OpBranchConditional %148 %22 %24
+         %22 = OpLabel
+        %149 = OpLoad %uint %110 Aligned 4
+        %150 = OpLoad %uint %112 Aligned 4
+        %151 = OpIAdd %uint %150 %149
+               OpStore %112 %151 Aligned 4
+               OpBranch %23
+         %23 = OpLabel
+        %152 = OpLoad %uint %114 Aligned 4
+        %153 = OpIAdd %uint %152 %uint_1
+               OpStore %114 %153 Aligned 4
+               OpBranch %21
+         %24 = OpLabel
+               OpBranch %25
+         %25 = OpLabel
+        %154 = OpLoad %uint %111 Aligned 4
+        %156 = OpSLessThan %bool %154 %uint_3
+               OpBranchConditional %156 %26 %31
+         %26 = OpLabel
+               OpStore %115 %uint_0 Aligned 4
+               OpBranch %27
+         %27 = OpLabel
+        %157 = OpLoad %uint %115 Aligned 4
+        %158 = OpLoad %uint %110 Aligned 4
+        %159 = OpSLessThan %bool %157 %158
+               OpBranchConditional %159 %28 %30
+         %28 = OpLabel
+        %160 = OpLoad %uint %110 Aligned 4
+        %161 = OpLoad %uint %112 Aligned 4
+        %162 = OpIAdd %uint %161 %160
+               OpStore %112 %162 Aligned 4
+               OpBranch %29
+         %29 = OpLabel
+        %163 = OpLoad %uint %115 Aligned 4
+        %164 = OpIAdd %uint %163 %uint_1
+               OpStore %115 %164 Aligned 4
+               OpBranch %27
+         %30 = OpLabel
+               OpBranch %31
+         %31 = OpLabel
+        %165 = OpLoad %uint %111 Aligned 4
+        %167 = OpSLessThan %bool %165 %uint_4
+               OpBranchConditional %167 %32 %37
+         %32 = OpLabel
+               OpStore %116 %uint_0 Aligned 4
+               OpBranch %33
+         %33 = OpLabel
+        %168 = OpLoad %uint %116 Aligned 4
+        %169 = OpLoad %uint %110 Aligned 4
+        %170 = OpSLessThan %bool %168 %169
+               OpBranchConditional %170 %34 %36
+         %34 = OpLabel
+        %171 = OpLoad %uint %110 Aligned 4
+        %172 = OpLoad %uint %112 Aligned 4
+        %173 = OpIAdd %uint %172 %171
+               OpStore %112 %173 Aligned 4
+               OpBranch %35
+         %35 = OpLabel
+        %174 = OpLoad %uint %116 Aligned 4
+        %175 = OpIAdd %uint %174 %uint_1
+               OpStore %116 %175 Aligned 4
+               OpBranch %33
+         %36 = OpLabel
+               OpBranch %37
+         %37 = OpLabel
+        %176 = OpLoad %uint %111 Aligned 4
+        %178 = OpSLessThan %bool %176 %uint_5
+               OpBranchConditional %178 %38 %43
+         %38 = OpLabel
+               OpStore %117 %uint_0 Aligned 4
+               OpBranch %39
+         %39 = OpLabel
+        %179 = OpLoad %uint %117 Aligned 4
+        %180 = OpLoad %uint %110 Aligned 4
+        %181 = OpSLessThan %bool %179 %180
+               OpBranchConditional %181 %40 %42
+         %40 = OpLabel
+        %182 = OpLoad %uint %110 Aligned 4
+        %183 = OpLoad %uint %112 Aligned 4
+        %184 = OpIAdd %uint %183 %182
+               OpStore %112 %184 Aligned 4
+               OpBranch %41
+         %41 = OpLabel
+        %185 = OpLoad %uint %117 Aligned 4
+        %186 = OpIAdd %uint %185 %uint_1
+               OpStore %117 %186 Aligned 4
+               OpBranch %39
+         %42 = OpLabel
+               OpBranch %43
+         %43 = OpLabel
+        %187 = OpLoad %uint %111 Aligned 4
+        %189 = OpSLessThan %bool %187 %uint_6
+               OpBranchConditional %189 %44 %49
+         %44 = OpLabel
+               OpStore %118 %uint_0 Aligned 4
+               OpBranch %45
+         %45 = OpLabel
+        %190 = OpLoad %uint %118 Aligned 4
+        %191 = OpLoad %uint %110 Aligned 4
+        %192 = OpSLessThan %bool %190 %191
+               OpBranchConditional %192 %46 %48
+         %46 = OpLabel
+        %193 = OpLoad %uint %110 Aligned 4
+        %194 = OpLoad %uint %112 Aligned 4
+        %195 = OpIAdd %uint %194 %193
+               OpStore %112 %195 Aligned 4
+               OpBranch %47
+         %47 = OpLabel
+        %196 = OpLoad %uint %118 Aligned 4
+        %197 = OpIAdd %uint %196 %uint_1
+               OpStore %118 %197 Aligned 4
+               OpBranch %45
+         %48 = OpLabel
+               OpBranch %49
+         %49 = OpLabel
+        %198 = OpLoad %uint %111 Aligned 4
+        %200 = OpSLessThan %bool %198 %uint_7
+               OpBranchConditional %200 %50 %55
+         %50 = OpLabel
+               OpStore %119 %uint_0 Aligned 4
+               OpBranch %51
+         %51 = OpLabel
+        %201 = OpLoad %uint %119 Aligned 4
+        %202 = OpLoad %uint %110 Aligned 4
+        %203 = OpSLessThan %bool %201 %202
+               OpBranchConditional %203 %52 %54
+         %52 = OpLabel
+        %204 = OpLoad %uint %110 Aligned 4
+        %205 = OpLoad %uint %112 Aligned 4
+        %206 = OpIAdd %uint %205 %204
+               OpStore %112 %206 Aligned 4
+               OpBranch %53
+         %53 = OpLabel
+        %207 = OpLoad %uint %119 Aligned 4
+        %208 = OpIAdd %uint %207 %uint_1
+               OpStore %119 %208 Aligned 4
+               OpBranch %51
+         %54 = OpLabel
+               OpBranch %55
+         %55 = OpLabel
+        %209 = OpLoad %uint %111 Aligned 4
+        %211 = OpSLessThan %bool %209 %uint_8
+               OpBranchConditional %211 %56 %61
+         %56 = OpLabel
+               OpStore %120 %uint_0 Aligned 4
+               OpBranch %57
+         %57 = OpLabel
+        %212 = OpLoad %uint %120 Aligned 4
+        %213 = OpLoad %uint %110 Aligned 4
+        %214 = OpSLessThan %bool %212 %213
+               OpBranchConditional %214 %58 %60
+         %58 = OpLabel
+        %215 = OpLoad %uint %110 Aligned 4
+        %216 = OpLoad %uint %112 Aligned 4
+        %217 = OpIAdd %uint %216 %215
+               OpStore %112 %217 Aligned 4
+               OpBranch %59
+         %59 = OpLabel
+        %218 = OpLoad %uint %120 Aligned 4
+        %219 = OpIAdd %uint %218 %uint_1
+               OpStore %120 %219 Aligned 4
+               OpBranch %57
+         %60 = OpLabel
+               OpBranch %61
+         %61 = OpLabel
+        %220 = OpLoad %uint %111 Aligned 4
+        %222 = OpSLessThan %bool %220 %uint_9
+               OpBranchConditional %222 %62 %67
+         %62 = OpLabel
+               OpStore %121 %uint_0 Aligned 4
+               OpBranch %63
+         %63 = OpLabel
+        %223 = OpLoad %uint %121 Aligned 4
+        %224 = OpLoad %uint %110 Aligned 4
+        %225 = OpSLessThan %bool %223 %224
+               OpBranchConditional %225 %64 %66
+         %64 = OpLabel
+        %226 = OpLoad %uint %110 Aligned 4
+        %227 = OpLoad %uint %112 Aligned 4
+        %228 = OpIAdd %uint %227 %226
+               OpStore %112 %228 Aligned 4
+               OpBranch %65
+         %65 = OpLabel
+        %229 = OpLoad %uint %121 Aligned 4
+        %230 = OpIAdd %uint %229 %uint_1
+               OpStore %121 %230 Aligned 4
+               OpBranch %63
+         %66 = OpLabel
+               OpBranch %67
+         %67 = OpLabel
+        %231 = OpLoad %uint %111 Aligned 4
+        %233 = OpSLessThan %bool %231 %uint_10
+               OpBranchConditional %233 %68 %73
+         %68 = OpLabel
+               OpStore %122 %uint_0 Aligned 4
+               OpBranch %69
+         %69 = OpLabel
+        %234 = OpLoad %uint %122 Aligned 4
+        %235 = OpLoad %uint %110 Aligned 4
+        %236 = OpSLessThan %bool %234 %235
+               OpBranchConditional %236 %70 %72
+         %70 = OpLabel
+        %237 = OpLoad %uint %110 Aligned 4
+        %238 = OpLoad %uint %112 Aligned 4
+        %239 = OpIAdd %uint %238 %237
+               OpStore %112 %239 Aligned 4
+               OpBranch %71
+         %71 = OpLabel
+        %240 = OpLoad %uint %122 Aligned 4
+        %241 = OpIAdd %uint %240 %uint_1
+               OpStore %122 %241 Aligned 4
+               OpBranch %69
+         %72 = OpLabel
+               OpBranch %73
+         %73 = OpLabel
+        %242 = OpLoad %uint %111 Aligned 4
+        %244 = OpSLessThan %bool %242 %uint_11
+               OpBranchConditional %244 %74 %79
+         %74 = OpLabel
+               OpStore %123 %uint_0 Aligned 4
+               OpBranch %75
+         %75 = OpLabel
+        %245 = OpLoad %uint %123 Aligned 4
+        %246 = OpLoad %uint %110 Aligned 4
+        %247 = OpSLessThan %bool %245 %246
+               OpBranchConditional %247 %76 %78
+         %76 = OpLabel
+        %248 = OpLoad %uint %110 Aligned 4
+        %249 = OpLoad %uint %112 Aligned 4
+        %250 = OpIAdd %uint %249 %248
+               OpStore %112 %250 Aligned 4
+               OpBranch %77
+         %77 = OpLabel
+        %251 = OpLoad %uint %123 Aligned 4
+        %252 = OpIAdd %uint %251 %uint_1
+               OpStore %123 %252 Aligned 4
+               OpBranch %75
+         %78 = OpLabel
+               OpBranch %79
+         %79 = OpLabel
+        %253 = OpLoad %uint %111 Aligned 4
+        %255 = OpSLessThan %bool %253 %uint_12
+               OpBranchConditional %255 %80 %85
+         %80 = OpLabel
+               OpStore %124 %uint_0 Aligned 4
+               OpBranch %81
+         %81 = OpLabel
+        %256 = OpLoad %uint %124 Aligned 4
+        %257 = OpLoad %uint %110 Aligned 4
+        %258 = OpSLessThan %bool %256 %257
+               OpBranchConditional %258 %82 %84
+         %82 = OpLabel
+        %259 = OpLoad %uint %110 Aligned 4
+        %260 = OpLoad %uint %112 Aligned 4
+        %261 = OpIAdd %uint %260 %259
+               OpStore %112 %261 Aligned 4
+               OpBranch %83
+         %83 = OpLabel
+        %262 = OpLoad %uint %124 Aligned 4
+        %263 = OpIAdd %uint %262 %uint_1
+               OpStore %124 %263 Aligned 4
+               OpBranch %81
+         %84 = OpLabel
+               OpBranch %85
+         %85 = OpLabel
+        %264 = OpLoad %uint %111 Aligned 4
+        %266 = OpSLessThan %bool %264 %uint_13
+               OpBranchConditional %266 %86 %91
+         %86 = OpLabel
+               OpStore %125 %uint_0 Aligned 4
+               OpBranch %87
+         %87 = OpLabel
+        %267 = OpLoad %uint %125 Aligned 4
+        %268 = OpLoad %uint %110 Aligned 4
+        %269 = OpSLessThan %bool %267 %268
+               OpBranchConditional %269 %88 %90
+         %88 = OpLabel
+        %270 = OpLoad %uint %110 Aligned 4
+        %271 = OpLoad %uint %112 Aligned 4
+        %272 = OpIAdd %uint %271 %270
+               OpStore %112 %272 Aligned 4
+               OpBranch %89
+         %89 = OpLabel
+        %273 = OpLoad %uint %125 Aligned 4
+        %274 = OpIAdd %uint %273 %uint_1
+               OpStore %125 %274 Aligned 4
+               OpBranch %87
+         %90 = OpLabel
+               OpBranch %91
+         %91 = OpLabel
+        %275 = OpLoad %uint %111 Aligned 4
+        %277 = OpSLessThan %bool %275 %uint_14
+               OpBranchConditional %277 %92 %97
+         %92 = OpLabel
+               OpStore %126 %uint_0 Aligned 4
+               OpBranch %93
+         %93 = OpLabel
+        %278 = OpLoad %uint %126 Aligned 4
+        %279 = OpLoad %uint %110 Aligned 4
+        %280 = OpSLessThan %bool %278 %279
+               OpBranchConditional %280 %94 %96
+         %94 = OpLabel
+        %281 = OpLoad %uint %110 Aligned 4
+        %282 = OpLoad %uint %112 Aligned 4
+        %283 = OpIAdd %uint %282 %281
+               OpStore %112 %283 Aligned 4
+               OpBranch %95
+         %95 = OpLabel
+        %284 = OpLoad %uint %126 Aligned 4
+        %285 = OpIAdd %uint %284 %uint_1
+               OpStore %126 %285 Aligned 4
+               OpBranch %93
+         %96 = OpLabel
+               OpBranch %97
+         %97 = OpLabel
+        %286 = OpLoad %uint %111 Aligned 4
+        %288 = OpSLessThan %bool %286 %uint_15
+               OpBranchConditional %288 %98 %103
+         %98 = OpLabel
+               OpStore %127 %uint_0 Aligned 4
+               OpBranch %99
+         %99 = OpLabel
+        %289 = OpLoad %uint %127 Aligned 4
+        %290 = OpLoad %uint %110 Aligned 4
+        %291 = OpSLessThan %bool %289 %290
+               OpBranchConditional %291 %100 %102
+        %100 = OpLabel
+        %292 = OpLoad %uint %110 Aligned 4
+        %293 = OpLoad %uint %112 Aligned 4
+        %294 = OpIAdd %uint %293 %292
+               OpStore %112 %294 Aligned 4
+               OpBranch %101
+        %101 = OpLabel
+        %295 = OpLoad %uint %127 Aligned 4
+        %296 = OpIAdd %uint %295 %uint_1
+               OpStore %127 %296 Aligned 4
+               OpBranch %99
+        %102 = OpLabel
+               OpBranch %103
+        %103 = OpLabel
+        %297 = OpLoad %uint %112 Aligned 4
+        %298 = OpLoad %uint %111 Aligned 4
+        %299 = OpIAdd %uint %297 %298
+        %300 = OpSGreaterThanEqual %bool %299 %uint_15
+               OpBranchConditional %300 %104 %105
+        %104 = OpLabel
+               OpBranch %106
+        %105 = OpLabel
+               OpBranch %13
+        %106 = OpLabel
+        %301 = OpLoad %uint %112 Aligned 4
+        %302 = OpLoad %uint %111 Aligned 4
+        %303 = OpIAdd %uint %301 %302
+        %304 = OpLoad %_ptr_CrossWorkgroup_uint %108 Aligned 4
+        %305 = OpLoad %uint %111 Aligned 4
+        %306 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %304 %305
+               OpStore %306 %303 Aligned 4
+               OpReturn
+               OpFunctionEnd

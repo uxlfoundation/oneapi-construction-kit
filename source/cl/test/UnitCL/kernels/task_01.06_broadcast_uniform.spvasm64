@@ -1,0 +1,56 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 30
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %10 "broadcast_uniform" %__spirv_BuiltInGlobalInvocationId
+         %28 = OpString "kernel_arg_type.broadcast_uniform.int*,int,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %29 Alignment 8
+         %29 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %17 Alignment 4
+               OpDecorate %24 NoSignedWrap
+               OpGroupDecorate %29 %15 %19
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %12 = OpFunctionParameter %uint
+         %13 = OpLabel
+         %15 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %17 = OpVariable %_ptr_Function_uint Function
+         %19 = OpVariable %_ptr_Function_ulong Function
+               OpStore %15 %11 Aligned 8
+               OpStore %17 %12 Aligned 4
+         %20 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %21 = OpCompositeExtract %ulong %20 0
+               OpStore %19 %21 Aligned 8
+         %22 = OpLoad %uint %17 Aligned 4
+         %24 = OpIAdd %uint %22 %uint_1
+         %25 = OpLoad %_ptr_CrossWorkgroup_uint %15 Aligned 8
+         %26 = OpLoad %ulong %19 Aligned 8
+         %27 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %25 %26
+               OpStore %27 %24 Aligned 4
+               OpReturn
+               OpFunctionEnd

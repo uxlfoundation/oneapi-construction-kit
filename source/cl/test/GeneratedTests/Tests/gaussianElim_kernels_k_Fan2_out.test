@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue Fan2 -arg m_dev,repeat(154,rand(0,1.0)) -arg a_dev,repeat(154,rand(0,1.0)) -compare a_dev:%p/Inputs/gaussianElim_kernels_k_Fan2_out.txt -arg b_dev,repeat(15,rand(0,1.0)) -compare b_dev:%p/Inputs/gaussianElim_kernels_k_Fan2_out.txt -arg size,repeat(1,10) -arg t,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/gaussianElim_kernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: a_dev - match
+CHECK-DAG: b_dev - match

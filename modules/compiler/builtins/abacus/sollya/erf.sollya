@@ -1,0 +1,38 @@
+print("# Half precision erf");
+
+function_to_approximate = erf(abs(x)) / abs(x);
+
+print("\n## Range [0, 0.8]");
+
+domain_range = [2^-24, 0.8];
+number_of_terms = 3;
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error=dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:",max_error);
+
+
+print("\n## Range [0.8, 1.75]");
+
+domain_range = [0.8, 1.75];
+number_of_terms = 3;
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error=dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:",max_error);
+
+
+print("\n## Range [1.75, 2.1]");
+
+number_of_terms = 2;
+domain_range = [1.75, 2.1];
+
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+polynomial_approximation;
+
+max_error=dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+print("inf-norm error:",max_error);

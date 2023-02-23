@@ -1,0 +1,30 @@
+# Directories and everything under them
+build*/
+install*/
+libs/
+modules/dummy/*
+tools/TreaCL
+doc/conf.py
+doc/modules/*/hal
+doc/specifications/hal.md
+.vscode/
+.cache/
+
+# Python files
+.*env
+*.pyc
+
+# JSON Compilation Database
+compile_commands.json
+
+# CTag files
+.tags*
+
+# Swap files
+*.swp
+
+# Local TODO file
+TODO
+
+# OpenCL kernels stored for debugging purposes
+*cl_program_*.cl

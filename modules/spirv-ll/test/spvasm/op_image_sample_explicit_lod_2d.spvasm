@@ -1,0 +1,56 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D %p/op_image_sample_explicit_lod_2d.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                      OpCapability Kernel
+                      OpCapability Addresses
+                      OpCapability Sampled1D
+                      OpMemoryModel Physical64 OpenCL
+                      OpEntryPoint Kernel %image2d "image2d"
+                      OpSource OpenCL_C 102000
+                      OpName %in_image "in_image"
+                      OpName %in_sampler "in_sampler"
+
+; All types, variables and constants
+            %void_t = OpTypeVoid
+            %uint_t = OpTypeInt 32 0
+           %float_t = OpTypeFloat 32         
+           %v2int_t = OpTypeVector %uint_t 2
+          %v4uint_t = OpTypeVector %uint_t 4
+         %v2float_t = OpTypeVector %float_t 2       
+         %v4float_t = OpTypeVector %float_t 4
+         %sampler_t = OpTypeSampler
+      %image2d_t = OpTypeImage %void_t 2D 0 0 0 0 Unknown ReadOnly
+      %sampler_fn_t = OpTypeFunction %void_t %sampler_t %image2d_t
+   %sampled_image_t = OpTypeSampledImage %image2d_t
+             %int_1 = OpConstant %uint_t 1
+           %float_1 = OpConstant %float_t 1
+           %v2int_1 = OpConstantComposite %v2int_t %int_1 %int_1
+         %v2float_1 = OpConstantComposite %v2float_t %float_1 %float_1
+
+; All functions
+           %image2d = OpFunction %void_t None %sampler_fn_t
+        %in_sampler = OpFunctionParameter %sampler_t
+          %in_image = OpFunctionParameter %image2d_t
+; CHECK-LT15: %opencl.image2d_t = type opaque
+; CHECK-GE15: define spir_kernel void @image2d(i32 %in_sampler, ptr addrspace(1) %in_image)
+; CHECK-LT15: define spir_kernel void @image2d(i32 %in_sampler, %opencl.image2d_t addrspace(1)* %in_image)
+                 %1 = OpLabel
+     %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
+                 %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2float_1 None
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image2d11ocl_samplerDv2_f(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image2d11ocl_samplerDv2_f(%opencl.image2d_t addrspace(1)* %in_image, i32 %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+                 %3 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2int_1 None
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image2d11ocl_samplerDv2_i(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x i32> <i32 1, i32 1>)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image2d11ocl_samplerDv2_i(%opencl.image2d_t addrspace(1)* %in_image, i32 %in_sampler, <2 x i32> <i32 1, i32 1>)
+                 %6 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v2float_1 None
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image2d11ocl_samplerDv2_f(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image2d11ocl_samplerDv2_f(%opencl.image2d_t addrspace(1)* %in_image, i32 %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+                 %7 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v2int_1 None
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image2d11ocl_samplerDv2_i(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x i32> <i32 1, i32 1>)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image2d11ocl_samplerDv2_i(%opencl.image2d_t addrspace(1)* %in_image, i32 %in_sampler, <2 x i32> <i32 1, i32 1>)
+                      OpReturn
+; CHECK: ret void                         
+                      OpFunctionEnd
+; CHECK: }

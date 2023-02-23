@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_upsample_v4i32.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_upsample_v4i32 "s_upsample_v4i32"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %ui16_t = OpTypeInt 16 0
+              %ui32_t = OpTypeInt 32 0
+            %v4ui16_t = OpTypeVector %ui16_t 4
+            %v4ui32_t = OpTypeVector %ui32_t 4
+     %s_upsample_fn_t = OpTypeFunction %void_t
+               %i16_3 = OpConstant %ui16_t 3
+              %ui16_4 = OpConstant %ui16_t 4
+            %v4ui16_3 = OpConstantComposite %v4ui16_t %i16_3 %i16_3 %i16_3 %i16_3
+            %v4ui16_4 = OpConstantComposite %v4ui16_t %ui16_4 %ui16_4 %ui16_4 %ui16_4
+
+; All functions
+    %s_upsample_v4i32 = OpFunction %void_t None %s_upsample_fn_t
+; CHECK: define spir_kernel void @s_upsample_v4i32()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v4ui32_t %1 s_upsample %v4ui16_3 %v4ui16_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z8upsampleDv4_sS_(<4 x i16> <i16 3, i16 3, i16 3, i16 3>, <4 x i16> <i16 4, i16 4, i16 4, i16 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

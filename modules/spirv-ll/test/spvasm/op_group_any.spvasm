@@ -1,0 +1,81 @@
+; Copyright (C) Codeplay Software Limited. sub_group_any Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_group_any.spv -o %t
+; RUN: %opt -S --always-inline %t -o - | %filecheck -- %t.pp
+
+                              OpCapability Addresses
+                              OpCapability Kernel
+                              OpCapability Groups
+
+                              OpMemoryModel Physical64 OpenCL
+
+                              OpEntryPoint Kernel %sub_group_any_fcn "sub_group_any"
+                              OpEntryPoint Kernel %work_group_any_fcn "work_group_any"
+                              OpEntryPoint Kernel %variable_scope_any_fcn "variable_scope_any"
+
+                  %uint_ty  = OpTypeInt 32 0
+                   %bool_ty = OpTypeBool
+%ptr_CrossWorkgroup_bool_ty = OpTypePointer CrossWorkgroup %bool_ty
+                   %void_ty = OpTypeVoid
+                    %fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_bool_ty
+     %variable_scope_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_bool_ty %uint_ty
+
+          %work_group_scope = OpConstant %uint_ty 2
+           %sub_group_scope = OpConstant %uint_ty 3
+
+                              OpName %sub_group_any_in "a"
+                              OpName %work_group_any_in "a"
+                              OpName %variable_scope_any_in "a"
+
+; CHECK-GE15: define spir_kernel void @sub_group_any(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-LT15: define spir_kernel void @sub_group_any(i1 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+         %sub_group_any_fcn = OpFunction %void_ty None %fcn_ty
+          %sub_group_any_in = OpFunctionParameter %ptr_CrossWorkgroup_bool_ty
+          %sub_group_any_bb = OpLabel
+; CHECK-GE15: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, ptr addrspace(1) [[IN]], align 4
+; CHECK-LT15: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, i1 addrspace(1)* [[IN]], align 4
+         %sub_group_any_val = OpLoad %bool_ty %sub_group_any_in Aligned 4
+; CHECK: [[VALI32:%[a-zA-Z0-9_]+]] = sext i1 [[VALI1]] to i32
+; CHECK: [[RESI32:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z13sub_group_anyi(i32 [[VALI32]])
+; CHECK: [[RESI1:%[a-zA-Z0-9]+]] = trunc i32 [[RESI32]] to i1
+         %sub_group_any_res = OpGroupAny %bool_ty %sub_group_scope %sub_group_any_val
+; CHECK-GE15: store i1 [[RESI1]], ptr addrspace(1) [[IN]]
+; CHECK-LT15: store i1 [[RESI1]], i1 addrspace(1)* [[IN]]
+                              OpStore %sub_group_any_in %sub_group_any_res Aligned 4
+; CHECK: ret void
+                              OpReturn
+                              OpFunctionEnd
+
+; CHECK-GE15: define spir_kernel void @work_group_any(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-LT15: define spir_kernel void @work_group_any(i1 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+        %work_group_any_fcn = OpFunction %void_ty None %fcn_ty
+         %work_group_any_in = OpFunctionParameter %ptr_CrossWorkgroup_bool_ty
+         %work_group_any_bb = OpLabel
+; CHECK-GE15: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, ptr addrspace(1) [[IN]], align 4
+; CHECK-LT15: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, i1 addrspace(1)* [[IN]], align 4
+        %work_group_any_val = OpLoad %bool_ty %work_group_any_in Aligned 4
+; CHECK: [[VALI32:%[a-zA-Z0-9_]+]] = sext i1 [[VALI1]] to i32
+; CHECK: [[RESI32:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z14work_group_anyi(i32 [[VALI32]])
+; CHECK: [[RESI1:%[a-zA-Z0-9]+]] = trunc i32 [[RESI32]] to i1
+        %work_group_any_res = OpGroupAny %bool_ty %work_group_scope %work_group_any_val
+; CHECK-GE15: store i1 [[RESI1]], ptr addrspace(1) [[IN]]
+; CHECK-LT15: store i1 [[RESI1]], i1 addrspace(1)* [[IN]]
+                             OpStore %work_group_any_in %work_group_any_res Aligned 4
+; CHECK: ret void
+                             OpReturn
+                             OpFunctionEnd
+
+; CHECK-GE15: define spir_kernel void @variable_scope_any(ptr addrspace(1) %a, i32 %0)
+; CHECK-LT15: define spir_kernel void @variable_scope_any(i1 addrspace(1)* %a, i32 %0)
+    %variable_scope_any_fcn = OpFunction %void_ty None %variable_scope_fcn_ty
+     %variable_scope_any_in = OpFunctionParameter %ptr_CrossWorkgroup_bool_ty
+                     %scope = OpFunctionParameter %uint_ty
+     %variable_scope_any_bb = OpLabel
+    %variable_scope_any_val = OpLoad %bool_ty %variable_scope_any_in Aligned 4
+; CHECK: call spir_func i32 @_Z14work_group_anyi(i32 {{%[0-9a-zA-Z_]+}})
+; CHECK: call spir_func i32 @_Z13sub_group_anyi(i32 {{%[0-9a-zA-Z_]+}})
+    %variable_scope_any_res = OpGroupAny %bool_ty %scope %variable_scope_any_val
+                              OpStore %variable_scope_any_in %variable_scope_any_res Aligned 4
+                              OpReturn
+                              OpFunctionEnd

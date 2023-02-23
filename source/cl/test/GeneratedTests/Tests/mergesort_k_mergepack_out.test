@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue mergepack -arg orig,repeat(4,rand(0,1.0)) -compare result:%p/Inputs/mergesort_k_mergepack_out.txt -arg result,repeat(4,73) -arg constStartAddr,repeat(1,randint(0,255)) -arg nullElems,repeat(1,randint(0,255)) -arg finalStartAddr,repeat(2,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/mergesort.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: result - match

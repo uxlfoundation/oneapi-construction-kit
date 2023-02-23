@@ -1,0 +1,26 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Abacus memory builtins.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_ABACUS_MEMORY__
+#define __ABACUS_ABACUS_MEMORY__
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+/// @defgroup abacus_memory abacus_memory
+/// @{
+
+@generate_input_definitions@
+
+/// @}
+////////////////////////////////////////////////////////////////////////////////
+
+#endif  //__ABACUS_ABACUS_MEMORY__

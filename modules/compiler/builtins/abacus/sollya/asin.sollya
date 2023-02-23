@@ -1,0 +1,17 @@
+print("Half precision asin:");
+Range=[5.9375E-1 - 1, -0.00000000001];
+Func=(asin(x + 1) - pi / 2)^2;
+Poly=fpminimax(Func, [|1,2,3|],[|halfprecision...|],Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);
+
+
+Range2=[0.0, 0.59375];
+Func2 = asin(x);
+Poly2=fpminimax(Func2, [|1,3,5|],[|11...|], Range2, floating, relative);
+Poly2;
+
+Err2=dirtyinfnorm(Poly2-Func2, Range);
+print("\ninf-norm error:", Err2);

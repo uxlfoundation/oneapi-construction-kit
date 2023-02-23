@@ -1,0 +1,72 @@
+Name String
+
+    cl_codeplay_set_threads
+
+Contributors
+
+    Erik Tomusk, Codeplay Software Ltd.
+
+Contact
+
+    Erik Tomusk, Codeplay Software Ltd. (erik 'at' codeplay.com)
+
+Version
+
+    Version 1, November 14, 2018
+
+Number
+
+    OpenCL Extension #XX
+
+Status
+
+    Proposal
+
+Dependencies
+
+    OpenCL 1.2 is required.
+
+Overview
+
+    This extension allows user code to set the maximum number of threads that a
+    CPU device will use. The CPU device may use fewer threads.
+
+New Types
+
+    None
+
+New API Functions
+
+    cl_int CL_API_CALL clSetNumThreadsCODEPLAY_fn(cl_device_id device,
+                                                  cl_uint max_threads);
+
+Add a new Section 5.XX - "Device Configuration":
+
+    Some devices can be configured on initialization.
+
+Add a new section 5.xx.1 - "Limiting Number of CPU Threads"
+
+    On devices of type CL_DEVICE_TYPE_CPU, the function
+
+        cl_int CL_API_CALL clSetNumThreadsCODEPLAY_fn(cl_device_id device,
+                                                      cl_uint max_threads);
+
+    is used to set the maximum number of worker threads. The CPU device may use
+    fewer threads.
+
+    <device> must be a valid cl_device_id.
+
+    <max_threads> must greater than 0.
+
+    clSetNumThreadsCODEPLAY_fn returns CL_SUCCESS on successful execution. On
+    failure, it will return one of the following error codes:
+
+    * CL_INVALID_DEVICE_TYPE if <device> does not support
+      cl_codeplay_set_threads.
+    * CL_INVALID_VALUE if <max_threads> is 0.
+    * CL_DEVICE_NOT_AVAILABLE if it is not possible to set the maximum number
+      of threads.
+
+Revision History
+
+    Version 1 (2018/11/14): Initial proposal.

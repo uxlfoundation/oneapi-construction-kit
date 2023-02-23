@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_radians_v16double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Float64
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %radians_v16double "radians_v16double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+         %v16double_t = OpTypeVector %double_t 16
+        %radians_fn_t = OpTypeFunction %void_t
+           %double_90 = OpConstant %double_t 90.0
+        %v16double_90 = OpConstantComposite %v16double_t %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90 %double_90
+
+; All functions
+   %radians_v16double = OpFunction %void_t None %radians_fn_t
+; CHECK: define spir_kernel void @radians_v16double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16double_t %1 radians %v16double_90
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x double> @_Z7radiansDv16_d(<16 x double> <double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,33 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_mad_v4float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %mad_v4float "mad_v4float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v4float_t = OpTypeVector %float_t 4
+            %mad_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.2
+             %float_2 = OpConstant %float_t 2.1
+             %float_3 = OpConstant %float_t 3.21
+           %v4float_1 = OpConstantComposite %v4float_t %float_1 %float_1 %float_1 %float_1
+           %v4float_2 = OpConstantComposite %v4float_t %float_2 %float_2 %float_2 %float_2
+           %v4float_3 = OpConstantComposite %v4float_t %float_3 %float_3 %float_3 %float_3
+
+; All functions
+         %mad_v4float = OpFunction %void_t None %mad_fn_t
+; CHECK: define spir_kernel void @mad_v4float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v4float_t %1 mad %v4float_2 %v4float_1 %v4float_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z3madDv4_fS_S_(<4 x float> <float 0x4000CCCCC0000000, float 0x4000CCCCC0000000, float 0x4000CCCCC0000000, float 0x4000CCCCC0000000>, <4 x float> <float 0x3FF3333340000000, float 0x3FF3333340000000, float 0x3FF3333340000000, float 0x3FF3333340000000>, <4 x float> <float 0x4009AE1480000000, float 0x4009AE1480000000, float 0x4009AE1480000000, float 0x4009AE1480000000>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

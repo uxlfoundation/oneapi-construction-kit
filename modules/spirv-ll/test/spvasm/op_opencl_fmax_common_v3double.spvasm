@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_fmax_common_v3double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Float64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %fmax_common_v3double "fmax_common_v3double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+          %v3double_t = OpTypeVector %double_t 3
+    %fmax_common_fn_t = OpTypeFunction %void_t
+            %double_1 = OpConstant %double_t 1.9
+            %double_2 = OpConstant %double_t 2.4
+          %v3double_1 = OpConstantComposite %v3double_t %double_1 %double_1 %double_1
+          %v3double_2 = OpConstantComposite %v3double_t %double_2 %double_2 %double_2
+
+; All functions
+%fmax_common_v3double = OpFunction %void_t None %fmax_common_fn_t
+; CHECK: define spir_kernel void @fmax_common_v3double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v3double_t %1 fmax_common %v3double_1 %v3double_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x double> @_Z3maxDv3_dS_(<3 x double> <double 1.900000e+00, double 1.900000e+00, double 1.900000e+00>, <3 x double> <double 2.400000e+00, double 2.400000e+00, double 2.400000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

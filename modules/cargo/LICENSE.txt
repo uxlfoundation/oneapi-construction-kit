@@ -1,0 +1,20 @@
+Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+For licensing information, see the applicable license agreement under which
+this project was delivered.
+
+The optional and expected implementations contain files derived from
+https://github.com/TartanLlama/optional,
+https://github.com/TartanLlama/expected, and
+https://github.com/TartanLlama/function_ref held under the Creative Commons CC0
+1.0 Universal license (see optional.LICENSE.txt and expected.LICENSE.txt).  The
+files that were derived from these repositories are:
+
+  * include/cargo/optional.h
+  * include/cargo/detail/optional.h
+  * test/optional.cpp
+  * include/cargo/expected.h
+  * include/cargo/detail/expected.h
+  * test/expected.cpp
+  * include/cargo/function_ref.h
+  * test/function_ref.cpp

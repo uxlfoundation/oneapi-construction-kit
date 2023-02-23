@@ -1,0 +1,47 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_select_uint.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %a "a"
+               OpName %b "b"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %bool = OpTypeBool
+%_ptr_Function_bool = OpTypePointer Function %bool
+          %9 = OpConstantTrue %bool
+        %uint = OpTypeInt 32 0
+    %ptr_uint = OpTypePointer Function %uint
+         %17 = OpConstant %uint 42
+         %19 = OpConstant %uint 42
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %a = OpVariable %_ptr_Function_bool Function
+          %b = OpVariable %ptr_uint Function
+               OpStore %a %9
+         %14 = OpLoad %bool %a
+         %15 = OpSelect %uint %14 %17 %19 ; testing this
+               OpStore %b %15
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
+; CHECK-GE15: store i1 true, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i1 true, i1* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, i1* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = select i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 42, i32 42
+; CHECK-GE15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void

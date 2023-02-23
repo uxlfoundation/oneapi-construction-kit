@@ -1,0 +1,10 @@
+print("Half log2 with extended precision for use in pow:");
+
+Range=[-0.25;0.5];
+Func=log2(x+1);
+Order=[|1,2,3,4,5,6|];
+Poly=fpminimax(Func, Order, [|single, halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

@@ -1,0 +1,12 @@
+#version 450
+
+layout(constant_id=0) const int test_in = 24;
+
+layout(set=0, binding=0) buffer test_block {
+    int test_out;
+};
+
+void main(){
+    int result = test_in;
+    test_out = result + 24;
+}

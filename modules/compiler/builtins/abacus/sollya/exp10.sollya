@@ -1,0 +1,9 @@
+print("Half precision exp10:");
+Range=[-log(2)/(2*log(10)); log(2)/(2*log(10))];
+Func=10^x;
+Order=4;
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

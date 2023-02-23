@@ -1,0 +1,57 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 34
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %10 "reqd_work_group_size" %__spirv_BuiltInWorkgroupSize
+               OpExecutionMode %10 LocalSize 16 8 4
+         %33 = OpString "kernel_arg_type.reqd_work_group_size.ulong*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInWorkgroupSize "__spirv_BuiltInWorkgroupSize"
+               OpDecorate %__spirv_BuiltInWorkgroupSize BuiltIn WorkgroupSize
+               OpDecorate %__spirv_BuiltInWorkgroupSize Constant
+               OpDecorate %__spirv_BuiltInWorkgroupSize LinkageAttributes "__spirv_BuiltInWorkgroupSize" Import
+               OpDecorate %14 Alignment 4
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+%__spirv_BuiltInWorkgroupSize = OpVariable %_ptr_Input_v3uint Input
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+         %12 = OpLabel
+         %14 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+               OpStore %14 %11 Aligned 4
+         %15 = OpLoad %v3uint %__spirv_BuiltInWorkgroupSize
+         %16 = OpCompositeExtract %uint %15 0
+         %17 = OpUConvert %ulong %16
+         %18 = OpLoad %_ptr_CrossWorkgroup_ulong %14 Aligned 4
+         %20 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %18 %uint_0
+               OpStore %20 %17 Aligned 8
+         %21 = OpLoad %v3uint %__spirv_BuiltInWorkgroupSize
+         %22 = OpCompositeExtract %uint %21 1
+         %23 = OpUConvert %ulong %22
+         %24 = OpLoad %_ptr_CrossWorkgroup_ulong %14 Aligned 4
+         %26 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %24 %uint_1
+               OpStore %26 %23 Aligned 8
+         %27 = OpLoad %v3uint %__spirv_BuiltInWorkgroupSize
+         %28 = OpCompositeExtract %uint %27 2
+         %29 = OpUConvert %ulong %28
+         %30 = OpLoad %_ptr_CrossWorkgroup_ulong %14 Aligned 4
+         %32 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %30 %uint_2
+               OpStore %32 %29 Aligned 8
+               OpReturn
+               OpFunctionEnd

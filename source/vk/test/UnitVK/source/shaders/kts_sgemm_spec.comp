@@ -1,0 +1,26 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+
+layout(local_size_x = 2, local_size_y = 2, local_size_z = 1) in;
+
+layout(constant_id = 0) const int M = 0;
+layout(constant_id = 1) const int K = 0;
+layout(constant_id = 2) const int N = 0;
+
+layout(set = 0, binding = 0) buffer a_buffer { float mat_A[]; };
+layout(set = 0, binding = 1) buffer b_buffer { float mat_B[]; };
+layout(set = 0, binding = 2) buffer out_buffer { float mat_C[]; };
+
+void main() {
+  uint xindex = gl_GlobalInvocationID.x;
+  uint yindex = gl_GlobalInvocationID.y;
+  float sum = 0.;
+  uint a_row_length = K;
+  uint b_row_length = N;
+
+  for (int i = 0; i < K; i++)
+    sum += mat_A[yindex * a_row_length + i] * mat_B[i * b_row_length + xindex];
+
+  mat_C[yindex * b_row_length + xindex] = sum;
+}

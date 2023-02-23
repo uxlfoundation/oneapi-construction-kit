@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_sub_sat_v8i32.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_sub_sat_v8i32 "u_sub_sat_v8i32"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i32_t = OpTypeInt 32 0
+             %v8i32_t = OpTypeVector %i32_t 8
+      %u_sub_sat_fn_t = OpTypeFunction %void_t
+               %i32_3 = OpConstant %i32_t 3
+               %i32_4 = OpConstant %i32_t 4
+             %v8i32_3 = OpConstantComposite %v8i32_t %i32_3 %i32_3 %i32_3 %i32_3 %i32_3 %i32_3 %i32_3 %i32_3
+             %v8i32_4 = OpConstantComposite %v8i32_t %i32_4 %i32_4 %i32_4 %i32_4 %i32_4 %i32_4 %i32_4 %i32_4
+
+; All functions
+     %u_sub_sat_v8i32 = OpFunction %void_t None %u_sub_sat_fn_t
+; CHECK: define spir_kernel void @u_sub_sat_v8i32()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v8i32_t %1 u_sub_sat %v8i32_3 %v8i32_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i32> @_Z7sub_satDv8_jS_(<8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>, <8 x i32> <i32 4, i32 4, i32 4, i32 4, i32 4, i32 4, i32 4, i32 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

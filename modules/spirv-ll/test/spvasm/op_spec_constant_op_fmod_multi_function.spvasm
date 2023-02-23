@@ -1,0 +1,66 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_spec_constant_op_fmod_multi_function.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %add "add"
+            OpName %main "main"
+            OpName %res "res"
+            OpName %test "test"
+            OpName %const "const"
+            OpDecorate %test SpecId 0
+    %void = OpTypeVoid
+       %3 = OpTypeFunction %void
+  %double = OpTypeFloat 64
+%func_double = OpTypeFunction %double %double %double
+%ptr_double = OpTypePointer Function %double
+    %test = OpSpecConstant %double -42.42
+   %const = OpConstant %double 42.42
+      %11 = OpSpecConstantOp %double FMod %const %const
+      %12 = OpSpecConstantOp %double FMod %test %11
+     %add = OpFunction %double None %func_double
+       %a = OpFunctionParameter %double
+       %b = OpFunctionParameter %double
+       %6 = OpLabel
+       %7 = OpFAdd %double %a %b
+       %8 = OpFAdd %double %7 %12
+            OpReturnValue %8
+            OpFunctionEnd
+    %main = OpFunction %void None %3
+       %5 = OpLabel
+     %res = OpVariable %ptr_double Function
+      %20 = OpFunctionCall %double %add %11 %12
+            OpStore %res %20
+            OpReturn
+            OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define private spir_func double @add(double{{( %0)?}}, double{{( %1)?}})
+; CHECK: init_spec_constants:
+; CHECK: [[MOD_A:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double 4.242000e+01, double 4.242000e+01)
+; CHECK: [[SPEC_A:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_A]], double 4.242000e+01)
+; CHECK: [[MOD_B:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double [[SPEC_A]])
+; CHECK: [[SPEC_B:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_B]], double [[SPEC_A]])
+; CHECK: br label {{%[a-zA-Z0-9_]+}}
+; CHECK: [[ADD:%[a-zA-Z0-9_]+]] = fadd double {{%[a-zA-Z0-9_]+}}, {{%[a-zA-Z0-9_]+}}
+; CHECK: [[RET:%[a-zA-Z0-9_]+]] = fadd double [[ADD]], [[SPEC_B]]
+; CHECK: ret double [[RET]]
+; CHECK: define spir_kernel void @main()
+; CHECK: init_spec_constants:
+; CHECK: [[MOD_C:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double 4.242000e+01, double 4.242000e+01)
+; CHECK: [[SPEC_C:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_C]], double 4.242000e+01)
+; CHECK: [[MOD_D:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double [[SPEC_C]])
+; CHECK: [[SPEC_D:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_D]], double [[SPEC_C]])
+; CHECK: br label {{%[a-zA-Z0-9_]+}}
+; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca double
+; CHECK: [[CALL:%[a-zA-Z0-9_]+]] = call spir_func double @add(double [[SPEC_C]], double [[SPEC_D]])
+; CHECK-GE15: store double [[CALL]], ptr [[RES]]
+; CHECK-LT15: store double [[CALL]], double* [[RES]]
+; CHECK: ret void

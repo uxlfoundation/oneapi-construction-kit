@@ -1,0 +1,45 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_bitcast_long_to_double.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %src "src"
+               OpName %dst "dst"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %long = OpTypeInt 64 1
+    %ptr_long = OpTypePointer Function %long
+          %9 = OpConstant %long -4200000000
+        %double = OpTypeFloat 64
+    %ptr_double = OpTypePointer Function %double
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %src = OpVariable %ptr_long Function
+        %dst = OpVariable %ptr_double Function
+               OpStore %src %9
+         %13 = OpLoad %long %src
+         %14 = OpBitcast %double %13
+               OpStore %dst %14
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i64
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
+; CHECK-GE15: store i64 -4200000000, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i64 -4200000000, i64* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i64, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i64, i64* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = bitcast i64 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to double
+; CHECK-GE15: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void

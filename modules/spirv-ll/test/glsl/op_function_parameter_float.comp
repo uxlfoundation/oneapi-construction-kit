@@ -1,0 +1,42 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/op_function_parameter_float.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+bool foo(float a, float b){ 
+  return a == b;
+}
+
+void main() {
+  bool res = foo(42.42, 42.42);
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+
+// CHECK: define spir_kernel void @main() {
+// CHECK: [[res:%[a-zA-Z0-9]+]] = alloca i1
+// CHECK: [[param:%[a-zA-Z0-9]+]] = alloca float
+// CHECK: [[param1:%[a-zA-Z0-9]+]] = alloca float
+// CHECK-GE15: store float 0x404535C280000000, ptr [[param]]
+// CHECK-LT15: store float 0x404535C280000000, float* [[param]]
+// CHECK-GE15: store float 0x404535C280000000, ptr [[param1]]
+// CHECK-LT15: store float 0x404535C280000000, float* [[param1]]
+// CHECK-GE15: [[call:%[a-zA-Z0-9]+]] = call spir_func i1 @{{(foo|"foo\(.+")}}(ptr [[param]], ptr [[param1]])
+// CHECK-LT15: [[call:%[a-zA-Z0-9]+]] = call spir_func i1 @{{(foo|"foo\(.+")}}(float* [[param]], float* [[param1]])
+// CHECK-GE15: store i1 [[call]], ptr [[res]]
+// CHECK-LT15: store i1 [[call]], i1* [[res]]
+// CHECK: ret void
+// CHECK: }
+
+// CHECK-GE15: define private spir_func i1 @{{(foo|"foo\(.+")}}(ptr %a, ptr %b) {
+// CHECK-LT15: define private spir_func i1 @{{(foo|"foo\(.+")}}(float* %a, float* %b) {
+// CHECK-GE15: [[a:%[a-zA-Z0-9]+]] = load float, ptr %a
+// CHECK-LT15: [[a:%[a-zA-Z0-9]+]] = load float, float* %a
+// CHECK-GE15: [[b:%[a-zA-Z0-9]+]] = load float, ptr %b
+// CHECK-LT15: [[b:%[a-zA-Z0-9]+]] = load float, float* %b
+// CHECK: [[ret:%[a-zA-Z0-9]+]] = fcmp oeq float [[a]], [[b]]
+// CHECK: ret i1 [[ret]]
+// CHECK: }

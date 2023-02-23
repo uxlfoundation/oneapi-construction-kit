@@ -1,0 +1,97 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses -c Linkage %p/op_opencl_call_byval_arg.spv -o %t
+; RUN: %filecheck < %t %t.pp
+
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %26 "struct_helper_func"
+         %46 = OpString "kernel_arg_type.struct_helper_func.long*,long*,"
+               OpSource OpenCL_C 100000
+               OpName %struct_testStruct "struct.testStruct"
+               OpName %struct_helper_func_x "struct_helper_func.x"
+               OpName %byval_helper "byval_helper"
+               OpName %x "x"
+               OpName %entry "entry"
+               OpName %y "y"
+               OpName %mask "mask"
+               OpName %out "out"
+               OpName %entry_0 "entry"
+               OpName %mask_addr "mask.addr"
+               OpName %out_addr "out.addr"
+               OpName %x_0 "x"
+               OpName %call "call"
+               OpName %arrayidx "arrayidx"
+               OpName %and "and"
+               OpName %arrayidx1 "arrayidx1"
+               OpDecorate %47 Alignment 4
+         %47 = OpDecorationGroup
+               OpDecorate %48 Alignment 8
+         %48 = OpDecorationGroup
+               OpDecorate %struct_helper_func_x Constant
+               OpDecorate %x FuncParamAttr ByVal
+               OpDecorate %byval_helper LinkageAttributes "byval_helper" Export
+               OpGroupDecorate %47 %mask_addr %out_addr
+               OpGroupDecorate %48 %struct_helper_func_x %x_0
+      %uchar = OpTypeInt 8 0
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+   %uchar_97 = OpConstant %uchar 97
+    %ulong_1 = OpConstant %ulong 1
+    %ulong_2 = OpConstant %ulong 2
+    %ulong_3 = OpConstant %ulong 3
+     %uint_0 = OpConstant %uint 0
+     %uint_2 = OpConstant %uint 2
+    %uint_32 = OpConstant %uint 32
+%struct_testStruct = OpTypeStruct %uchar %ulong %ulong %ulong
+%_ptr_UniformConstant_struct_testStruct = OpTypePointer UniformConstant %struct_testStruct
+%_ptr_Function_struct_testStruct = OpTypePointer Function %struct_testStruct
+         %13 = OpTypeFunction %ulong %_ptr_Function_struct_testStruct
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+         %25 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+          %9 = OpConstantComposite %struct_testStruct %uchar_97 %ulong_1 %ulong_2 %ulong_3
+%struct_helper_func_x = OpVariable %_ptr_UniformConstant_struct_testStruct UniformConstant %9
+%byval_helper = OpFunction %ulong DontInline %13
+          %x = OpFunctionParameter %_ptr_Function_struct_testStruct
+      %entry = OpLabel
+          %y = OpInBoundsPtrAccessChain %_ptr_Function_ulong %x %uint_0 %uint_2
+         %22 = OpLoad %ulong %y Aligned 8
+               OpReturnValue %22
+               OpFunctionEnd
+         %26 = OpFunction %void DontInline %25
+       %mask = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+    %entry_0 = OpLabel
+  %mask_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+   %out_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+        %x_0 = OpVariable %_ptr_Function_struct_testStruct Function
+               OpStore %mask_addr %mask Aligned 4
+               OpStore %out_addr %out Aligned 4
+         %35 = OpBitcast %_ptr_Function_uchar %x_0
+         %37 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %struct_helper_func_x %uint_0 %uint_0
+               OpCopyMemorySized %35 %37 %uint_32 Aligned 8
+       %call = OpFunctionCall %ulong %byval_helper %x_0
+         %40 = OpLoad %_ptr_CrossWorkgroup_ulong %mask_addr Aligned 4
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %40 %uint_0
+         %42 = OpLoad %ulong %arrayidx Aligned 8
+        %and = OpBitwiseAnd %ulong %call %42
+         %44 = OpLoad %_ptr_CrossWorkgroup_ulong %out_addr Aligned 4
+  %arrayidx1 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %44 %uint_0
+               OpStore %arrayidx1 %and Aligned 8
+               OpReturn
+               OpFunctionEnd
+
+        ; CHECK-LABEL: define spir_kernel void @struct_helper_func
+        ; CHECK-GE15:  call spir_func i64 @byval_helper(ptr byval{{(\(%struct.testStruct\))?}} %x)
+        ; CHECK-LT15:  call spir_func i64 @byval_helper(%struct.testStruct* byval{{(\(%struct.testStruct\))?}} %x)

@@ -1,0 +1,27 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+# Disable looking for undefined behaviour in the STL headers.  These are false
+# positives, but they trigger _all_ the time.  These seem to have been fixed in
+# GCC 4.9.1, but they affect older versions.
+#
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61086
+#
+# Note: The odd absolute path with .. entries is because that is the form that
+# clang ends up using, and although the second line is equivalent to the first,
+# only the second counts as a match.  So it is actually the first line that
+# doesn't do anything, but it is much clearer.
+src:/usr/include/c*/4.[78]/bits/*.h
+src:/usr/bin/../lib/gcc/*/4.[78]/../../../../include/c*/4.[78]/bits/*.h
+
+# The CTS tests have undefined behaviour, but that does not affect the
+# correctness of ComputeAorta, and fixing them means deviating further from
+# upstream CTS.  So blacklist the CTS.
+# Note that this path is relative to the build folder.
+src:../source/cl/test/OpenCL-CTS/test_*/*/*
+
+# llvm::ilist_traits<Instruction>::createSentinel() uses an invalid downcast
+# to create a sentinel that is then never accesses - therefore the ubsan error
+# message does not really identify a problem:
+# runtime error: downcast of address 0x7f2c869ac3d0 with insufficient space for
+#                an object of type 'llvm::Instruction'
+fun:*llvm*ilist_traits*createSentinel*

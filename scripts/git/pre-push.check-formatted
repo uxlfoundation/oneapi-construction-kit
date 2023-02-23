@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# An example hook script to verify that what is about to be pushed does not
+# contain `clang-format` violations.  Called by "git push" after it has checked
+# the remote status, but before anything has been pushed.  If this script exits
+# with a non-zero status nothing will be pushed.
+#
+# This hook is called with the following parameters:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+# If pushing without using a named remote those arguments will be equal.
+#
+# Information about the commits which are being pushed is supplied as lines to
+# the standard input in the form:
+#
+#   <local ref> <local sha1> <remote ref> <remote sha1>
+#
+# To install
+# mv .git/hooks/pre-push .git/hooks/pre-push.bak
+# ln -s $(pwd)/scripts/git/pre-push.check-formatted -T .git/hooks/pre-push
+# from the root of your ComputeAorta repository
+
+remote="$1"
+url="$2"
+
+z40=0000000000000000000000000000000000000000
+
+while read local_ref local_sha remote_ref remote_sha
+do
+    if [ "$local_sha" = $z40 ]
+    then
+        # Handle delete
+        :
+    else
+        if [ "$remote_sha" = $z40 ]
+        then
+            # New branch, examine all commits
+            range="$local_sha"
+        else
+            # Update to existing branch, examine new commits
+            range="$remote_sha..$local_sha"
+        fi
+
+        # Check for badly formatted commit
+        git rev-list -n 1 $range | while read commit ; do
+          echo checking "$commit" >&2
+          if [ -n "$(git show -U0 $commit | clang-format-diff-9 -p1 -regex \
+            '^(?!(.+\/)*external\/).*\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$' \
+            | awk '/^(---|\+\+\+)/ {gsub(/\(.* formatting\)$/, "")} { print }' \
+            | tee /dev/stderr)" ]
+          then
+              echo "$commit introduces bad formatting" >&2
+              exit 1
+          fi
+        done
+    fi
+done

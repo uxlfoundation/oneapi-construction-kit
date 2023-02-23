@@ -1,0 +1,8 @@
+print("Half precision atanpi:");
+Range=[0.0000000001;1.2];
+Func=atan(x)/pi;
+Poly = fpminimax(Func,[|1,3,5,7,9|],[|11...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error: ", Err);

@@ -1,0 +1,46 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL %p/op_copy_object_constant.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; This is a smoke test to check that OpCopyObject propagates values correctly
+               OpCapability Kernel
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
+               OpSourceExtension "GL_GOOGLE_include_directive"
+               OpName %main "main"
+               OpName %x "x"
+               OpName %y "y"
+               OpName %res "res"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+       %bool = OpTypeBool
+%_ptr_Function_float = OpTypePointer Function %float
+%_ptr_Function_bool = OpTypePointer Function %bool
+%float_42_42 = OpConstant %float 42.42
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %res = OpVariable %_ptr_Function_bool Function
+          %x = OpVariable %_ptr_Function_float Function %float_42_42
+         %12 = OpLoad %float %x
+          %y = OpCopyObject %float %12
+         %14 = OpLessOrGreater %bool %12 %y
+               OpStore %res %14
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
+; CHECK: [[X:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
+; CHECK-GE15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
+; CHECK-LT15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float* [[X]]
+; CHECK-GE15: [[CPY:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = load float, ptr [[X]]
+; CHECK-LT15: [[CPY:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = load float, float* [[X]]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z13islessgreaterff(float [[CPY]], float [[CPY]])
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = trunc i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i1
+; CHECK-GE15: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i1* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void
+; CHECK: declare spir_func i32 @_Z13islessgreaterff(float, float)

@@ -1,0 +1,18 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#include <cstdint>
+
+#include "../riscvlib32.h"
+#include "../riscvlib64.h"
+
+const uint8_t *get_rtlib64_data() {
+  return reinterpret_cast<const uint8_t *>(riscvgenheader64);
+}
+
+size_t get_rtlib64_size() { return riscvgenheader64_size; }
+
+const uint8_t *get_rtlib32_data() {
+  return reinterpret_cast<const uint8_t *>(riscvgenheader32);
+}
+
+size_t get_rtlib32_size() { return riscvgenheader32_size; }

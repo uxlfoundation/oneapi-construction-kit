@@ -1,0 +1,23 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_get_global_linear_id.spv -o %t
+; RUN: %filecheck < %t %s
+                                 OpCapability Addresses
+                                 OpCapability Kernel
+                                OpCapability Int64
+                            %1 = OpExtInstImport "OpenCL.std"
+                                 OpMemoryModel Physical64 OpenCL
+                                 OpEntryPoint Kernel %get_global_linear_id_fn "get_global_linear_id_fn" %__spirv_BuiltInGlobalLinearID
+                                 OpDecorate %__spirv_BuiltInGlobalLinearID BuiltIn GlobalLinearId
+                       %size_t = OpTypeInt 64 0
+                   %size_ptr_t = OpTypePointer Input %size_t
+                       %void_t = OpTypeVoid
+    %get_global_linear_id_fn_t = OpTypeFunction %void_t
+
+%__spirv_BuiltInGlobalLinearID = OpVariable %size_ptr_t Input
+      %get_global_linear_id_fn = OpFunction %void_t None %get_global_linear_id_fn_t
+                            %2 = OpLabel
+;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z20get_global_linear_idv()
+                          %res = OpLoad %size_t %__spirv_BuiltInGlobalLinearID
+                                 OpReturn
+                                 OpFunctionEnd

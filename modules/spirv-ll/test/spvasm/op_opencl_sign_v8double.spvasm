@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_sign_v8double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Float64
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %sign_v8double "sign_v8double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+          %v8double_t = OpTypeVector %double_t 8
+           %sign_fn_t = OpTypeFunction %void_t
+            %double_3 = OpConstant %double_t 3.14
+          %v8double_3 = OpConstantComposite %v8double_t %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3
+
+; All functions
+       %sign_v8double = OpFunction %void_t None %sign_fn_t
+; CHECK: define spir_kernel void @sign_v8double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v8double_t %1 sign %v8double_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x double> @_Z4signDv8_d(<8 x double> <double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

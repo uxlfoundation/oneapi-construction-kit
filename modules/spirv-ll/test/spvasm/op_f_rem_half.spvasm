@@ -1,0 +1,51 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_f_rem_half.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Kernel
+               OpCapability Float16
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %main "main"
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %res "res"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %half = OpTypeFloat 16
+  %ptr_float = OpTypePointer Function %half
+          %9 = OpConstant %half 42.42
+         %11 = OpConstant %half 42.42
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          %a = OpVariable %ptr_float Function
+          %b = OpVariable %ptr_float Function
+        %res = OpVariable %ptr_float Function
+               OpStore %a %9
+               OpStore %b %11
+         %13 = OpLoad %half %a
+         %14 = OpLoad %half %b
+         %15 = OpFRem %half %13 %14 ; testing this
+               OpStore %res %15
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
+; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
+; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
+; CHECK-GE15: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK-LT15: store half 0xH514D, half* {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK-GE15: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK-LT15: store half 0xH514D, half* {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK-GE15: [[a:%[a-zA-Z0-9_]+]] = load half, ptr %a
+; CHECK-LT15: [[a:%[a-zA-Z0-9_]+]] = load half, half* %a
+; CHECK-GE15: [[b:%[a-zA-Z0-9_]+]] = load half, ptr %b
+; CHECK-LT15: [[b:%[a-zA-Z0-9_]+]] = load half, half* %b
+; CHECK: [[mod:%[a-zA-Z0-9_]+]] = call spir_func half @_Z4fmodDhDh(half [[a]], half [[b]])
+; CHECK-GE15: store half [[mod]], ptr {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK-LT15: store half [[mod]], half* {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK: ret void

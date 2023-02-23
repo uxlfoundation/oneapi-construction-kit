@@ -1,0 +1,28 @@
+# Copyright Codeplay Software Limited. All rights reserved
+
+import lit.util
+from platform import system
+
+config.test_exec_root = '@CURRENT_BINARY_DIR@'
+
+config.tool_paths = {
+    'muxc': '@muxc_EXECUTABLE@',    
+}
+
+config.compiler_cross_x86_64 = '@COMPILER_CROSS_x86_64@'
+config.compiler_cross_aarch64 = '@COMPILER_CROSS_AArch64@'
+config.compiler_cross_x86 = '@COMPILER_CROSS_x86@'
+config.compiler_cross_arm = '@COMPILER_CROSS_Arm@'
+
+# Defer to the common lit configuration to set up the bulk of the config.
+common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',
+                                   'lit', 'lit.common.cfg')
+
+lit_config.load_config(config, common_lit_cfg_path)
+
+# Now load the in-tree lit config
+lit_cfg_path = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'lit.cfg')
+if not os.path.exists(lit_cfg_path):
+    lit_cfg_path = os.path.join(os.path.dirname(__file__), 'lit.cfg')
+
+lit_config.load_config(config, lit_cfg_path)

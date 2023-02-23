@@ -1,0 +1,26 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Abacus integer builtins.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_ABACUS_INTEGER__
+#define __ABACUS_ABACUS_INTEGER__
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+/// @defgroup abacus_integer abacus_integer
+/// @{
+
+@generate_input_definitions@
+
+/// @}
+////////////////////////////////////////////////////////////////////////////////
+
+#endif  //__ABACUS_ABACUS_INTEGER__

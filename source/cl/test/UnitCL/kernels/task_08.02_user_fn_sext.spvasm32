@@ -1,0 +1,82 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 48
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int16
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %22 "user_fn_sext" %__spirv_BuiltInGlobalInvocationId
+         %45 = OpString "kernel_arg_type.user_fn_sext.int*,short*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %bar "bar"
+               OpDecorate %46 FuncParamAttr Sext
+         %46 = OpDecorationGroup
+               OpDecorate %47 Alignment 4
+         %47 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %bar LinkageAttributes "bar" Export
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %12 Alignment 2
+               OpDecorate %16 NoSignedWrap
+               OpGroupDecorate %46 %9 %bar
+               OpGroupDecorate %47 %27 %29 %31 %32
+       %uint = OpTypeInt 32 0
+     %ushort = OpTypeInt 16 0
+     %uint_0 = OpConstant %uint 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+          %7 = OpTypeFunction %ushort %ushort
+%_ptr_Function_ushort = OpTypePointer Function %ushort
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_CrossWorkgroup_ushort = OpTypePointer CrossWorkgroup %ushort
+         %21 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_ushort
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_ushort = OpTypePointer Function %_ptr_CrossWorkgroup_ushort
+%_ptr_Function_uint = OpTypePointer Function %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+        %bar = OpFunction %ushort DontInline %7
+          %9 = OpFunctionParameter %ushort
+         %10 = OpLabel
+         %12 = OpVariable %_ptr_Function_ushort Function
+               OpStore %12 %9 Aligned 2
+         %13 = OpLoad %ushort %12 Aligned 2
+         %14 = OpSConvert %uint %13
+         %16 = OpISub %uint %uint_0 %14
+         %17 = OpUConvert %ushort %16
+               OpReturnValue %17
+               OpFunctionEnd
+         %22 = OpFunction %void DontInline %21
+         %23 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %24 = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+         %25 = OpLabel
+         %27 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %29 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ushort Function
+         %31 = OpVariable %_ptr_Function_uint Function
+         %32 = OpVariable %_ptr_Function_uint Function
+               OpStore %27 %23 Aligned 4
+               OpStore %29 %24 Aligned 4
+         %33 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %34 = OpCompositeExtract %uint %33 0
+               OpStore %31 %34 Aligned 4
+         %35 = OpLoad %_ptr_CrossWorkgroup_ushort %29 Aligned 4
+         %36 = OpLoad %uint %31 Aligned 4
+         %37 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ushort %35 %36
+         %38 = OpLoad %ushort %37 Aligned 2
+         %39 = OpFunctionCall %ushort %bar %38
+         %40 = OpSConvert %uint %39
+               OpStore %32 %40 Aligned 4
+         %41 = OpLoad %uint %32 Aligned 4
+         %42 = OpLoad %_ptr_CrossWorkgroup_uint %27 Aligned 4
+         %43 = OpLoad %uint %31 Aligned 4
+         %44 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %42 %43
+               OpStore %44 %41 Aligned 4
+               OpReturn
+               OpFunctionEnd

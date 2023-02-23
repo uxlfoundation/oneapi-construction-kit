@@ -1,0 +1,33 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_fmax_common_v16double.spv -o %t
+; RUN: %filecheck < %t %s
+                          OpCapability Kernel
+                          OpCapability Addresses
+                          OpCapability Float64
+                          OpCapability Vector16
+                     %1 = OpExtInstImport "OpenCL.std"
+                          OpMemoryModel Physical64 OpenCL
+                          OpEntryPoint Kernel %fmax_common_v16double "fmax_common_v16double"
+                          OpSource OpenCL_C 102000
+
+; All types, variables and constants
+                %void_t = OpTypeVoid
+              %double_t = OpTypeFloat 64
+           %v16double_t = OpTypeVector %double_t 16
+      %fmax_common_fn_t = OpTypeFunction %void_t
+              %double_1 = OpConstant %double_t 1.9
+              %double_2 = OpConstant %double_t 2.4
+           %v16double_1 = OpConstantComposite %v16double_t %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1
+           %v16double_2 = OpConstantComposite %v16double_t %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2 %double_2
+
+; All functions
+ %fmax_common_v16double = OpFunction %void_t None %fmax_common_fn_t
+; CHECK: define spir_kernel void @fmax_common_v16double()
+                     %2 = OpLabel
+                     %3 = OpExtInst %v16double_t %1 fmax_common %v16double_1 %v16double_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x double> @_Z3maxDv16_dS_(<16 x double> <double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00>, <16 x double> <double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00>)
+                          OpReturn
+; CHECK: ret void
+                          OpFunctionEnd
+; CHECK: }

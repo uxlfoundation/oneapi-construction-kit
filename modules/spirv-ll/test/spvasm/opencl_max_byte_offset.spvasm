@@ -1,0 +1,39 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/opencl_max_byte_offset.spv -o %t
+; RUN: %filecheck < %t %t.pp --dump-input always
+
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %7 "foo"
+         %18 = OpString "kernel_arg_type.foo.int*,int*,"
+               OpSource OpenCL_C 100000
+               OpDecorate %8 MaxByteOffset 128
+               OpDecorate %9 MaxByteOffset 256
+               OpDecorate %12 Alignment 8
+               OpDecorate %14 Alignment 8
+       %uint = OpTypeInt 32 0
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+          %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_Workgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_Workgroup_uint = OpTypePointer Function %_ptr_Workgroup_uint
+; CHECK-GE15: define spir_kernel void @foo(ptr addrspace(1) dereferenceable(128) {{%.*}}, ptr addrspace(3) dereferenceable(256) {{%.*}})
+; CHECK-LT15: define spir_kernel void @foo(i32 addrspace(1)* dereferenceable(128) {{%.*}}, i32 addrspace(3)* dereferenceable(256) {{%.*}})
+          %7 = OpFunction %void DontInline %6
+          %8 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+          %9 = OpFunctionParameter %_ptr_Workgroup_uint
+         %10 = OpLabel
+         %12 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %14 = OpVariable %_ptr_Function__ptr_Workgroup_uint Function
+               OpStore %12 %8 Aligned 8
+               OpStore %14 %9 Aligned 8
+         %15 = OpLoad %_ptr_Workgroup_uint %14 Aligned 8
+         %16 = OpLoad %uint %15 Aligned 4
+         %17 = OpLoad %_ptr_CrossWorkgroup_uint %12 Aligned 8
+               OpStore %17 %16 Aligned 4
+               OpReturn
+               OpFunctionEnd

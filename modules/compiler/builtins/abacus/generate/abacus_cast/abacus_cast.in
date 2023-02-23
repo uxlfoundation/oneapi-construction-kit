@@ -1,0 +1,26 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Abacus cast builtins.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_ABACUS_CAST__
+#define __ABACUS_ABACUS_CAST__
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+/// @defgroup abacus_cast abacus_cast
+/// @{
+
+@generate_input_definitions@
+
+/// @}
+////////////////////////////////////////////////////////////////////////////////
+
+#endif  //__ABACUS_ABACUS_CAST__

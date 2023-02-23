@@ -1,0 +1,68 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+# Python configuration file for lit.
+import os
+import lit.formats
+
+# Name of the test suite.
+config.name = 'GeneratedTests'
+
+# File extensions for testing.
+# We're using separate source kernels and test transcripts,
+# the test transcripts use the '.test' suffix.
+config.suffixes = ['.test']
+
+# The test format used to interpret tests.
+config.test_format = lit.formats.ShTest(execute_external=False)
+
+# Paths to helper utilities
+tool_paths = {
+    'oclc': '@oclc_EXECUTABLE@',
+    'filecheck': '@FileCheck_EXECUTABLE@',
+}
+
+# Check at runtime if environmental variables have been set
+# with paths to helper tools. This is useful when testing on
+# jenkins where the executables may have been built on a different
+# physical machine.
+for key in tool_paths:
+    env_var = 'LIT_' + key.upper()
+    if os.environ.get(env_var):
+        tool_paths[key] = os.environ[env_var]
+
+# Custom substitutions
+for key, path in tool_paths.items():
+    config.substitutions.append(('%' + key, path))
+
+# The root path where tests are located.
+config.test_source_root = os.path.dirname(__file__)
+config.test_exec_root = config.test_source_root
+
+
+def exe_exists(exe_file):
+    ''' Determines if executable can be found
+
+        Given the name of an executable, function returns
+        True if it can find the executable in the PATH or
+        executable is a correct absolute path.
+
+        Args:
+            exe_file (string): name of executable to find
+
+        Returns:
+            bool: True if successful, False otherwise
+    '''
+    for path in os.environ['PATH'].split(os.pathsep):
+        path = path.strip('"')
+
+        exe_path = os.path.join(path, exe_file)
+        if os.path.isfile(exe_path) and os.access(exe_path, os.X_OK):
+            return True
+
+    return False
+
+# Check we can find helper tools, otherwise raise an exception
+# to prevent any tests running.
+for key, path in tool_paths.items():
+    if not exe_exists(path):
+        lit_config.fatal('Could not find {0} in path {1}'.format(key, path))

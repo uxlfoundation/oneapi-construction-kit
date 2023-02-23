@@ -1,0 +1,25 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/op_convert_ivec4_to_vec4.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+void main() {
+  ivec4 a = ivec4(-42, -42, -42, -42);
+  vec4 b = vec4(a);
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK: define spir_kernel void @main() {
+// CHECK: [[FROM:%[a-zA-Z0-9_]+]] = alloca <4 x i32>
+// CHECK: [[TO:%[a-zA-Z0-9_]+]] = alloca <4 x float>
+// CHECK-GE15: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, ptr [[FROM]]
+// CHECK-LT15: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, <4 x i32>* [[FROM]]
+// CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load <4 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load <4 x i32>, <4 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: [[RESULT:%[a-zA-Z0-9_]+]] = call spir_func <4 x float> @_Z14convert_float4Dv4_i(<4 x i32> %1)
+// CHECK-GE15: store <4 x float> [[RESULT]], ptr [[TO]]
+// CHECK-LT15: store <4 x float> [[RESULT]], <4 x float>* [[TO]]
+// CHECK: ret void

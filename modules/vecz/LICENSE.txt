@@ -1,0 +1,4 @@
+Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+For licensing information, see the applicable license agreement under which
+this project was delivered.

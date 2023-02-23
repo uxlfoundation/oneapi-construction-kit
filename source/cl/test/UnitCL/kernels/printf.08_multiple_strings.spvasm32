@@ -1,0 +1,61 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 42
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %31 "multiple_strings"
+         %39 = OpString "kernel_arg_type.multiple_strings."
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpName %_str_1 ".str.1"
+               OpName %_str_2 ".str.2"
+               OpDecorate %40 Constant
+         %40 = OpDecorationGroup
+               OpDecorate %41 Alignment 1
+         %41 = OpDecorationGroup
+               OpGroupDecorate %40 %_str %_str_1 %_str_2
+               OpGroupDecorate %41 %_str %_str_1 %_str_2
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+   %uchar_37 = OpConstant %uchar 37
+  %uchar_115 = OpConstant %uchar 115
+   %uchar_32 = OpConstant %uchar 32
+    %uchar_0 = OpConstant %uchar 0
+     %uint_6 = OpConstant %uint 6
+  %uchar_116 = OpConstant %uchar 116
+  %uchar_101 = OpConstant %uchar 101
+     %uint_5 = OpConstant %uint 5
+  %uchar_114 = OpConstant %uchar 114
+  %uchar_105 = OpConstant %uchar 105
+  %uchar_110 = OpConstant %uchar 110
+  %uchar_103 = OpConstant %uchar 103
+     %uint_7 = OpConstant %uint 7
+     %uint_0 = OpConstant %uint 0
+%_arr_uchar_uint_6 = OpTypeArray %uchar %uint_6
+%_ptr_UniformConstant__arr_uchar_uint_6 = OpTypePointer UniformConstant %_arr_uchar_uint_6
+%_arr_uchar_uint_5 = OpTypeArray %uchar %uint_5
+%_ptr_UniformConstant__arr_uchar_uint_5 = OpTypePointer UniformConstant %_arr_uchar_uint_5
+%_arr_uchar_uint_7 = OpTypeArray %uchar %uint_7
+%_ptr_UniformConstant__arr_uchar_uint_7 = OpTypePointer UniformConstant %_arr_uchar_uint_7
+       %void = OpTypeVoid
+         %30 = OpTypeFunction %void
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %10 = OpConstantComposite %_arr_uchar_uint_6 %uchar_37 %uchar_115 %uchar_32 %uchar_37 %uchar_115 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_uint_6 UniformConstant %10
+         %17 = OpConstantComposite %_arr_uchar_uint_5 %uchar_116 %uchar_101 %uchar_115 %uchar_116 %uchar_0
+     %_str_1 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_5 UniformConstant %17
+         %26 = OpConstantComposite %_arr_uchar_uint_7 %uchar_115 %uchar_116 %uchar_114 %uchar_105 %uchar_110 %uchar_103 %uchar_0
+     %_str_2 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_7 UniformConstant %26
+         %31 = OpFunction %void DontInline %30
+         %32 = OpLabel
+         %35 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+         %36 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_1 %uint_0 %uint_0
+         %37 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_2 %uint_0 %uint_0
+         %38 = OpExtInst %uint %1 printf %35 %36 %37
+               OpReturn
+               OpFunctionEnd

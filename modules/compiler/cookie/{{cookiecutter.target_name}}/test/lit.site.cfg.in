@@ -1,0 +1,22 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+import lit.util
+
+# Paths to helper utilities, set during cmake configuration
+config.tool_paths = { 'muxc': '@muxc_EXECUTABLE@' }
+# Defer to the common lit configuration to set up the bulk of the config.
+common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',
+                                   'lit', 'lit.common.cfg')
+
+lit_config.load_config(config, common_lit_cfg_path)
+
+config.test_exec_root = '@CURRENT_BINARY_DIR@'
+
+# extend config as needed
+
+# Now load the in-tree lit config
+lit_cfg_path = os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', 'lit.cfg')
+if not os.path.exists(lit_cfg_path):
+    lit_cfg_path = os.path.join(os.path.dirname(__file__), 'lit.cfg')
+
+lit_config.load_config(config, lit_cfg_path)

@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue top_scan -arg isums,repeat(1154,randint(0,255)) -compare isums:%p/Inputs/sort_k_top_scan_out.txt -arg n,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/shoc/sort.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: isums - match

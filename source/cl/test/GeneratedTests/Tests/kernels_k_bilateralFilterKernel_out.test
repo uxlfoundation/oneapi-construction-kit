@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue bilateralFilterKernel -compare out:%p/Inputs/kernels_k_bilateralFilterKernel_out.txt -arg out,repeat(16,73) -arg in,repeat(16,rand(0,1.0)) -arg gaussian,repeat(121,rand(0,1.0)) -arg e_d,repeat(1,rand(0,1.0)) -arg r,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/slambench/kernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: out - match

@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_fract_private_float.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %fract_float "fract_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+         %float_ptr_t = OpTypePointer Function %float_t
+          %fract_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.4
+
+; All functions
+         %fract_float = OpFunction %void_t None %fract_fn_t
+; CHECK: define spir_kernel void @fract_float()
+                   %2 = OpLabel
+                   %3 = OpVariable %float_ptr_t Function
+; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca float
+                   %4 = OpExtInst %float_t %1 fract %float_1 %3
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, float* [[ptr]])
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

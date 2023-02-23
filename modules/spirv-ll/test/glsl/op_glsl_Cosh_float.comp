@@ -1,0 +1,29 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/op_glsl_Cosh_float.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+layout (std430, set=0, binding=0) buffer inA {
+  float arg0;
+};
+
+layout (std430, set=0, binding=1) buffer outR {
+  float res;
+};
+
+void main() {
+  res = cosh(arg0);
+  return;
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, float addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float @_Z4coshf(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+// CHECK-GE15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret void
+// CHECK: declare spir_func float @_Z4coshf(float)

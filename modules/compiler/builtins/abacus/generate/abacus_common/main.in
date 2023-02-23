@@ -1,0 +1,242 @@
+/// @brief min(max(x, y), z).
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// clamp returns min(max(x, y), z). Results are undefined if y > z.
+///
+/// Standards compliant implementation of OpenCL 1.2 clamp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clamp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_clamp(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_clamp.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API clamp(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_clamp(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Converts radians to degrees.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 degrees.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/degrees.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_degrees(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_degrees.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API degrees(abacus_@generate_type@ x) {
+  return __abacus_degrees(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The greater of x or y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 max.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/max.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_max(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_max.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API max(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_max(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The lesser of x or y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 min.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/min.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_min(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_min.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API min(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_min(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Linear blend of x and y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] a A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// x + (y - x) * a. @a a must be a value in the range 0.0 ... 1.0. If @a a is 
+/// not in the range 0.0 ... 1.0, the return values are undefined.
+///
+/// Standards compliant implementation of OpenCL 1.2 mix.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mix.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mix(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ a);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mix.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] a A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mix(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ a) {
+  return __abacus_mix(x, y, a);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Converts degrees to radians.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 radians.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/radians.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_radians(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_radians.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API radians(abacus_@generate_type@ x) {
+  return __abacus_radians(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Sign of a value.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sign.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sign.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sign(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_sign.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API sign(abacus_@generate_type@ x) {
+  return __abacus_sign(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Step and interpolate.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] a A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Returns 0.0 if a <= x and 1.0 if a >= y and performs smooth Hermite 
+/// interpolation between 0 and 1 when x < a < y. Results are undefined if 
+/// x >= y or if x, y or a is a NaN.
+///
+/// Standards compliant implementation of OpenCL 1.2 smoothstep.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/smoothstep.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_smoothstep(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ a);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_smoothstep.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] a A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API smoothstep(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ a) {
+  return __abacus_smoothstep(x, y, a);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Returns 0.0 if x < e, else 1.0.
+/// @param[in] e A abacus_@generate_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 step.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/step.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_step(abacus_@generate_type@ e, abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_step.
+/// @param[in] e A abacus_@generate_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API step(abacus_@generate_type@ e, abacus_@generate_type@ x) {
+  return __abacus_step(e, x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

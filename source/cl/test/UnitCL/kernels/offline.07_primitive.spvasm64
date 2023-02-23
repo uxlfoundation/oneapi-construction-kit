@@ -1,0 +1,46 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 24
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %10 "primitive" %__spirv_BuiltInGlobalInvocationId
+         %23 = OpString "kernel_arg_type.primitive.float*,float,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %17 Alignment 4
+               OpDecorate %15 Alignment 8
+      %ulong = OpTypeInt 64 0
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_float %float
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+%_ptr_Function_float = OpTypePointer Function %float
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %12 = OpFunctionParameter %float
+         %13 = OpLabel
+         %15 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %17 = OpVariable %_ptr_Function_float Function
+               OpStore %15 %11 Aligned 8
+               OpStore %17 %12 Aligned 4
+         %18 = OpLoad %float %17 Aligned 4
+         %19 = OpLoad %_ptr_CrossWorkgroup_float %15 Aligned 8
+         %20 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %21 = OpCompositeExtract %ulong %20 0
+         %22 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %19 %21
+               OpStore %22 %18 Aligned 4
+               OpReturn
+               OpFunctionEnd

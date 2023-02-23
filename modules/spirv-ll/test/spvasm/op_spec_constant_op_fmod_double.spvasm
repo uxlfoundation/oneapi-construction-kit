@@ -1,0 +1,42 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_spec_constant_op_fmod_double.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %res "res"
+            OpName %test "test"
+            OpName %const "const"
+            OpDecorate %test SpecId 0
+    %void = OpTypeVoid
+       %3 = OpTypeFunction %void
+  %double = OpTypeFloat 64
+%ptr_double = OpTypePointer Function %double
+    %test = OpSpecConstant %double -42.42
+   %const = OpConstant %double -42.42
+      %11 = OpSpecConstantOp %double FMod %test %const
+    %main = OpFunction %void None %3
+       %5 = OpLabel
+     %res = OpVariable %ptr_double Function
+            OpStore %res %11
+            OpReturn
+            OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main() {
+; CHECK: [[MOD:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double -4.242000e+01)
+; CHECK: [[SPEC:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
+; CHECK: br label {{%[a-zA-Z0-9_]+}}
+; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca double
+; CHECK-GE15: store double [[SPEC]], ptr [[RES]]
+; CHECK-LT15: store double [[SPEC]], double* [[RES]]
+; CHECK: ret void
+; CHECK: declare spir_func double @_Z4fmoddd(double, double)
+; CHECK: declare spir_func double @_Z8copysigndd(double, double)

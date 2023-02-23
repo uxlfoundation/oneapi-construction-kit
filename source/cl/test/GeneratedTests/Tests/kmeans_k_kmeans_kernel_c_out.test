@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue kmeans_kernel_c -arg feature,repeat(94,rand(0,1.0)) -arg clusters,repeat(200,rand(0,1.0)) -compare membership:%p/Inputs/kmeans_k_kmeans_kernel_c_out.txt -arg membership,repeat(4,73) -arg npoints,repeat(1,10) -arg nclusters,repeat(1,10) -arg nfeatures,repeat(1,10) -arg offset,repeat(1,randint(0,255)) -arg size,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/kmeans.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: membership - match

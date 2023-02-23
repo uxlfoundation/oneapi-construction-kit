@@ -1,0 +1,44 @@
+Name String
+
+    cl_codeplay_host_builtins
+
+Contributors
+
+    Erik Tomusk, Codeplay Software Ltd.
+
+Contact
+
+    Erik Tomusk, Codeplay Software Ltd. (erik 'at' codeplay.com)
+
+Version
+
+    Version 1, December 6, 2018
+
+Number
+
+    OpenCL Extension #XX
+
+Status
+
+    Proposal
+
+Dependencies
+
+    OpenCL 1.2 is required.
+
+Overview
+
+    The presence of this extension indicates that builtins specific to the
+    Codeplay "host" CPU device are available for use in OpenCL C programs.
+
+New Types
+
+    None
+
+New API Functions
+
+    None
+
+Revision History
+
+    Version 1(2018/12/06): Initial proposal.

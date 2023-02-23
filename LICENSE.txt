@@ -1,0 +1,42 @@
+Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+For licensing information, see the applicable license agreement under which
+this project was delivered.
+
+The source/cl/external/OpenCL-Headers folder (Khronos OpenCL headers), if
+present, is held under its own licensing terms.
+
+The source/cl/external/OpenCL-ICD-Loader folder (Khronos OpenCL ICD loader), if
+present, is held under its own licensing terms.
+
+The source/cl/test/OpenCL-CTS folder (Khronos OpenCL CTS), if present, is held
+under its own licensing terms.
+
+The source/vk/external/Khronos folder (Khronos Vulkan headers), if present, is
+held under its own licensing terms.
+
+The modules/spirv-ll/external/SPIRV-Headers folder (Khronos SPIR-V headers), is
+held under its own licensing terms.
+
+The external/googletest folder is held under its own licensing terms, (see
+external/googletest/LICENSE for details).
+
+The external/benchmark folder is held under its own licensing terms (see
+external/benchmark/LICENSE for details).
+
+The modules/cargo folder contains some files derived from code under the
+Creative Commons CC0 1.0 Universal license (see modules/cargo/LICENSE.txt for
+details).
+
+The modules/mux/external/api-generator folder is held under its own licensing
+terms (see modules/mux/external/api-generator/README.md for details).
+
+The platform/arm-android/android-cmake folder is held under its own licensing
+terms (see platform/arm-android/android-cmake/README.md for details).
+
+The doc/_static/images/opencl folder is held under its own licensing terms (see
+doc/_static/images/opencl/copyrights-ccby.txt)
+
+The modules/compiler/targets/riscv/runtimelib/source/external if present
+contains some code from musl, which is licensed under an MIT license - see
+modules/compiler/targets/riscv/runtimelib/source/external/COPYRIGHT.

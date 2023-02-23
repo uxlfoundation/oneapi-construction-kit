@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue atax_kernel2 -arg A,repeat(94,rand(0,1.0)) -arg y,repeat(4,rand(0,1.0)) -compare y:%p/Inputs/atax_k_atax_kernel2_out.txt -arg tmp,repeat(10,rand(0,1.0)) -arg nx,repeat(1,10) -arg ny,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/atax/atax.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: y - match

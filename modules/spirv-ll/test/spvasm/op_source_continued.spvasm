@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a Vulkan %p/op_source_continued.spv -o %t
+; RUN: %filecheck < %t %s
+ OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+      %file1 = OpString "fakeShaderName.comp"
+      %file2 = OpString "otherShader.comp"
+               OpSource GLSL 450 %file1 "Test A "
+               OpSourceContinued "Test B"
+               OpSource ESSL 100 %file2 ""
+               OpSourceContinued "Test C"
+               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
+               OpSourceExtension "GL_GOOGLE_include_directive"
+               OpName %main "main"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: ret void
+; CHECK: !llvm.ident = !{!0, !1}
+; CHECK: !0 = !{!"Source language: GLSL, Version: 450, Source file: fakeShaderName.comp\0D\0ATest A Test B"}
+; CHECK: !1 = !{!"Source language: ESSL, Version: 100, Source file: otherShader.comp\0D\0ATest C"}

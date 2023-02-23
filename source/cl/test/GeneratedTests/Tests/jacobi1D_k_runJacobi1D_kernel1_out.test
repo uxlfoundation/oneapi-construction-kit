@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue runJacobi1D_kernel1 -arg A,repeat(5,rand(0,1.0)) -compare B:%p/Inputs/jacobi1D_k_runJacobi1D_kernel1_out.txt -arg B,repeat(4,73) -arg n,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/stencils/jacobi-1d-imper/jacobi1D.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: B - match

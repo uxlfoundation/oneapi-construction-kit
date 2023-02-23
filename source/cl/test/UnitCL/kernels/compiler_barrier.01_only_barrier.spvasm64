@@ -1,0 +1,22 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 10
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %4 "only_barrier"
+          %9 = OpString "kernel_arg_type.only_barrier."
+               OpSource OpenCL_C 102000
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+   %uint_272 = OpConstant %uint 272
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+          %4 = OpFunction %void DontInline %3
+          %5 = OpLabel
+               OpControlBarrier %uint_2 %uint_2 %uint_272
+               OpReturn
+               OpFunctionEnd

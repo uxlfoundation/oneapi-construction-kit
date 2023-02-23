@@ -1,0 +1,115 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 72
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int16
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %46 "struct_helper_func"
+         %69 = OpString "kernel_arg_type.struct_helper_func.ulong*,ulong*,"
+               OpSource OpenCL_C 102000
+               OpName %struct_testStruct "struct.testStruct"
+               OpName %__const_returnHelper_x "__const.returnHelper.x"
+               OpName %returnHelper "returnHelper"
+               OpName %passValHelper "passValHelper"
+               OpName %passPtrHelper "passPtrHelper"
+               OpDecorate %70 Alignment 4
+         %70 = OpDecorationGroup
+               OpDecorate %71 Alignment 8
+         %71 = OpDecorationGroup
+               OpDecorate %__const_returnHelper_x Constant
+               OpDecorate %30 FuncParamAttr ByVal
+               OpDecorate %18 FuncParamAttr Sret
+               OpDecorate %18 FuncParamAttr NoAlias
+               OpDecorate %passValHelper LinkageAttributes "passValHelper" Export
+               OpDecorate %passPtrHelper LinkageAttributes "passPtrHelper" Export
+               OpDecorate %returnHelper LinkageAttributes "returnHelper" Export
+               OpGroupDecorate %70 %40 %51 %52
+               OpGroupDecorate %71 %__const_returnHelper_x %53
+      %uchar = OpTypeInt 8 0
+     %ushort = OpTypeInt 16 0
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+   %uchar_97 = OpConstant %uchar 97
+   %ushort_1 = OpConstant %ushort 1
+   %ushort_2 = OpConstant %ushort 2
+   %ushort_3 = OpConstant %ushort 3
+     %uint_0 = OpConstant %uint 0
+    %uint_16 = OpConstant %uint 16
+     %uint_1 = OpConstant %uint 1
+   %v3ushort = OpTypeVector %ushort 3
+%struct_testStruct = OpTypeStruct %uchar %v3ushort
+%_ptr_UniformConstant_struct_testStruct = OpTypePointer UniformConstant %struct_testStruct
+       %void = OpTypeVoid
+%_ptr_Function_struct_testStruct = OpTypePointer Function %struct_testStruct
+         %16 = OpTypeFunction %void %_ptr_Function_struct_testStruct
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %28 = OpTypeFunction %ulong %_ptr_Function_struct_testStruct
+%_ptr_Function_v3ushort = OpTypePointer Function %v3ushort
+%_ptr_Function__ptr_Function_struct_testStruct = OpTypePointer Function %_ptr_Function_struct_testStruct
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+         %45 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+          %9 = OpConstantComposite %v3ushort %ushort_1 %ushort_2 %ushort_3
+         %11 = OpConstantComposite %struct_testStruct %uchar_97 %9
+%__const_returnHelper_x = OpVariable %_ptr_UniformConstant_struct_testStruct UniformConstant %11
+%returnHelper = OpFunction %void DontInline %16
+         %18 = OpFunctionParameter %_ptr_Function_struct_testStruct
+         %19 = OpLabel
+         %21 = OpBitcast %_ptr_Function_uchar %18
+         %25 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %__const_returnHelper_x %uint_0 %uint_0
+               OpCopyMemorySized %21 %25 %uint_16 Aligned 8
+               OpReturn
+               OpFunctionEnd
+%passValHelper = OpFunction %ulong DontInline %28
+         %30 = OpFunctionParameter %_ptr_Function_struct_testStruct
+         %31 = OpLabel
+         %34 = OpInBoundsPtrAccessChain %_ptr_Function_v3ushort %30 %uint_0 %uint_1
+         %35 = OpConvertPtrToU %ulong %34
+               OpReturnValue %35
+               OpFunctionEnd
+%passPtrHelper = OpFunction %ulong DontInline %28
+         %37 = OpFunctionParameter %_ptr_Function_struct_testStruct
+         %38 = OpLabel
+         %40 = OpVariable %_ptr_Function__ptr_Function_struct_testStruct Function
+               OpStore %40 %37 Aligned 4
+         %41 = OpLoad %_ptr_Function_struct_testStruct %40 Aligned 4
+         %42 = OpInBoundsPtrAccessChain %_ptr_Function_v3ushort %41 %uint_0 %uint_1
+         %43 = OpConvertPtrToU %ulong %42
+               OpReturnValue %43
+               OpFunctionEnd
+         %46 = OpFunction %void DontInline %45
+         %47 = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+         %48 = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+         %49 = OpLabel
+         %51 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+         %52 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+         %53 = OpVariable %_ptr_Function_struct_testStruct Function
+               OpStore %51 %47 Aligned 4
+               OpStore %52 %48 Aligned 4
+         %54 = OpFunctionCall %void %returnHelper %53
+         %55 = OpFunctionCall %ulong %passValHelper %53
+         %56 = OpLoad %_ptr_CrossWorkgroup_ulong %51 Aligned 4
+         %57 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %56 %uint_0
+         %58 = OpLoad %ulong %57 Aligned 8
+         %59 = OpBitwiseAnd %ulong %55 %58
+         %60 = OpLoad %_ptr_CrossWorkgroup_ulong %52 Aligned 4
+         %61 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %60 %uint_0
+               OpStore %61 %59 Aligned 8
+         %62 = OpFunctionCall %ulong %passPtrHelper %53
+         %63 = OpLoad %_ptr_CrossWorkgroup_ulong %51 Aligned 4
+         %64 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %63 %uint_1
+         %65 = OpLoad %ulong %64 Aligned 8
+         %66 = OpBitwiseAnd %ulong %62 %65
+         %67 = OpLoad %_ptr_CrossWorkgroup_ulong %52 Aligned 4
+         %68 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %67 %uint_1
+               OpStore %68 %66 Aligned 8
+               OpReturn
+               OpFunctionEnd

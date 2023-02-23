@@ -1,0 +1,61 @@
+/// @brief Constructs a permutation of elements from an input vector.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] m A abacus_@generate_unsigned_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Constructs a permutation of elements from an input vector. The elements of 
+/// the input vector are numbered from left to right.
+///
+/// Standards compliant implementation of OpenCL 1.2 shuffle.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/shuffle.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_shuffle(abacus_@generate_type@ x, abacus_@generate_unsigned_type@ m);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_shuffle.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] m A abacus_@generate_unsigned_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API shuffle(abacus_@generate_type@ x, abacus_@generate_unsigned_type@ m) {
+  return __abacus_shuffle(x, m);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Constructs a permutation of elements from two vectors.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] m A abacus_@generate_unsigned_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Constructs a permutation of elements from two input vectors. The elements of 
+/// the input vector are numbered from left to right across both vectors.
+///
+/// Standards compliant implementation of OpenCL 1.2 shuffle.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/shuffle.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_shuffle2(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_unsigned_type@ m);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_shuffle2.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] m A abacus_@generate_unsigned_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API shuffle2(abacus_@generate_type@ x,  abacus_@generate_type@ y, abacus_@generate_unsigned_type@ m) {
+  return __abacus_shuffle2(x, y, m);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

@@ -1,0 +1,9 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+layout (std430, set=0, binding=0) buffer inA {mat2 arg0;};
+layout (std430, set=0, binding=1) buffer outR {mat2 res;};
+void main() {
+res = inverse(arg0);
+return;
+}

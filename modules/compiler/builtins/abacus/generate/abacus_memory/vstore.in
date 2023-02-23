@@ -1,0 +1,63 @@
+/// @brief Store a vector to unaligned memory.
+/// @param[in] data   The vector to store.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A pointer to abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vstore@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vstoren.html
+void ABACUS_EXPORT_API __abacus_vstore@vector_size@(abacus_@generate_type@@vector_size@ data, size_t offset, abacus_@generate_type@* x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_vstore@vector_size@.
+/// @param[in] data   The vector to store.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A pointer to abacus_@generate_type@.
+inline void ABACUS_API vstore@vector_size@(abacus_@generate_type@@vector_size@ data, size_t offset, abacus_@generate_type@* x) {
+  __abacus_vstore@vector_size@(data, offset, x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__)
+
+/// @brief Store a vector to unaligned memory.
+/// @param[in] data   The vector to store.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A pointer to abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vstore@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vstoren.html
+void ABACUS_EXPORT_API __abacus_vstore@vector_size@(abacus_@generate_type@@vector_size@ data, size_t offset, abacus_@generate_type@ local* x);
+
+/// @brief Wrapper for __abacus_vstore@vector_size@.
+/// @param[in] data   The vector to store.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A pointer to abacus_@generate_type@.
+inline void ABACUS_API vstore@vector_size@(abacus_@generate_type@@vector_size@ data, size_t offset, abacus_@generate_type@ local* x) {
+  __abacus_vstore@vector_size@(data, offset, x);
+}
+
+/// @brief Store a vector to unaligned memory.
+/// @param[in] data   The vector to store.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A pointer to abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vstore@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vstoren.html
+void ABACUS_EXPORT_API __abacus_vstore@vector_size@(abacus_@generate_type@@vector_size@ data, size_t offset, abacus_@generate_type@ global* x);
+
+/// @brief Wrapper for __abacus_vstore@vector_size@.
+/// @param[in] data   The vector to store.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A pointer to abacus_@generate_type@.
+inline void ABACUS_API vstore@vector_size@(abacus_@generate_type@@vector_size@ data, size_t offset, abacus_@generate_type@ global* x) {
+  __abacus_vstore@vector_size@(data, offset, x);
+}
+
+#endif

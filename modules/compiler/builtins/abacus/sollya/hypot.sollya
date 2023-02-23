@@ -1,0 +1,29 @@
+print("Half precision:");
+
+
+// The function we are getting a polynomial approximation of.
+function_to_approximate = sqrt(1 + x^2);
+
+
+// The number of terms in that polynomial approximation.
+number_of_terms = 4;
+
+
+// The domain_range is the range of values the polynomial approximation is good for.
+domain_range = [0;1];
+
+
+// The generated polynomial.
+polynomial_approximation = fpminimax(function_to_approximate, number_of_terms, [|halfprecision...|], domain_range, floating, relative);
+
+
+// Print the approximation to the user.
+polynomial_approximation;
+
+
+// max_error is the maximum imprecision possible in any result.
+max_error=dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+
+
+// Print the error.
+print("\ninf-norm error:",max_error);

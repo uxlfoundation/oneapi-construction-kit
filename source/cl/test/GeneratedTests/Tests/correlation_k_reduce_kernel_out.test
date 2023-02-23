@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue reduce_kernel -arg mean,repeat(4,rand(0,1.0)) -arg std,repeat(4,rand(0,1.0)) -arg data,repeat(34,rand(0,1.0)) -compare data:%p/Inputs/correlation_k_reduce_kernel_out.txt -arg float_n,repeat(1,rand(0,1.0)) -arg m,repeat(1,10) -arg n,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/datamining/correlation/correlation.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: data - match

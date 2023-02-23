@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_abs_v2i32.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_abs_v2i32 "s_abs_v2i32"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %ui32_t = OpTypeInt 32 0
+               %i32_t = OpTypeInt 32 1
+            %v2ui32_t = OpTypeVector %ui32_t 2
+             %v2i32_t = OpTypeVector %i32_t 2
+          %s_abs_fn_t = OpTypeFunction %void_t
+               %i32_2 = OpConstant %i32_t -2
+             %v2i32_2 = OpConstantComposite %v2i32_t %i32_2 %i32_2
+
+; All functions
+         %s_abs_v2i32 = OpFunction %void_t None %s_abs_fn_t
+; CHECK: define spir_kernel void @s_abs_v2i32()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2ui32_t %1 s_abs %v2i32_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z3absDv2_i(<2 x i32> <i32 -2, i32 -2>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

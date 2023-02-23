@@ -1,0 +1,34 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// REQUIRES: arm
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fmod_double.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+void main() {
+  double x = -42.42;
+  double y = -42.42;
+  double res = mod(x, y);
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK: define spir_kernel void @main() {
+// CHECK: {{%[a-zA-Z0-9_]+}} = alloca double
+// CHECK: {{%[a-zA-Z0-9_]+}} = alloca double
+// CHECK: {{%[a-zA-Z0-9_]+}} = alloca double
+// CHECK-GE15: store double -4.242000e+01, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15: store double -4.242000e+01, double* {{%[a-zA-Z0-9_]+}}
+// CHECK-GE15: store double -4.242000e+01, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15: store double -4.242000e+01, double* {{%[a-zA-Z0-9_]+}}
+// CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load double, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load double, double* {{%[a-zA-Z0-9_]+}}
+// CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load double, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load double, double* {{%[a-zA-Z0-9_]+}}
+// CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func double @_Z4fmoddd(double {{%[a-zA-Z0-9_]+}}, double {{%[a-zA-Z0-9_]+}})
+// CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func double @_Z8copysigndd(double {{%[a-zA-Z0-9_]+}}, double {{%[a-zA-Z0-9_]+}})
+// CHECK-GE15: store double {{%[a-zA-Z0-9_]+}}, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK-LT15: store double {{%[a-zA-Z0-9_]+}}, double* {{%[a-zA-Z0-9_]+}}
+// CHECK: ret void
+// CHECK: declare spir_func double @_Z8copysigndd(double, double)

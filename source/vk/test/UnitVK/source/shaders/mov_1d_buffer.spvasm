@@ -1,0 +1,53 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google Shaderc over Glslang; 1
+; Bound: 22
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
+               OpSourceExtension "GL_GOOGLE_include_directive"
+               OpName %main "main"
+               OpName %outA "outA"
+               OpMemberName %outA 0 "r"
+               OpName %_ ""
+               OpName %inA "inA"
+               OpMemberName %inA 0 "a"
+               OpName %__0 ""
+               OpDecorate %_arr_int_uint_1 ArrayStride 4
+               OpMemberDecorate %outA 0 Offset 0
+               OpDecorate %outA BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 1
+               OpDecorate %_arr_int_uint_1_0 ArrayStride 4
+               OpMemberDecorate %inA 0 Offset 0
+               OpDecorate %inA BufferBlock
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %__0 Binding 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+%_arr_int_uint_1 = OpTypeArray %int %uint_1
+       %outA = OpTypeStruct %_arr_int_uint_1
+%_ptr_Uniform_outA = OpTypePointer Uniform %outA
+          %_ = OpVariable %_ptr_Uniform_outA Uniform
+      %int_0 = OpConstant %int 0
+%_arr_int_uint_1_0 = OpTypeArray %int %uint_1
+        %inA = OpTypeStruct %_arr_int_uint_1_0
+%_ptr_Uniform_inA = OpTypePointer Uniform %inA
+        %__0 = OpVariable %_ptr_Uniform_inA Uniform
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %19 = OpAccessChain %_ptr_Uniform_int %__0 %int_0 %int_0
+         %20 = OpLoad %int %19
+         %21 = OpAccessChain %_ptr_Uniform_int %_ %int_0 %int_0
+               OpStore %21 %20
+               OpReturn
+               OpFunctionEnd

@@ -1,0 +1,79 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 51
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Float16Buffer
+               OpCapability Int64
+               OpCapability Int16
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %12 "convert_half_to_float_vload" %__spirv_BuiltInGlobalInvocationId
+         %49 = OpString "kernel_arg_type.convert_half_to_float_vload.ushort*,uint*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %50 Alignment 8
+         %50 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %25 Alignment 2
+               OpGroupDecorate %50 %17 %19 %21 %29
+      %ulong = OpTypeInt 64 0
+     %ushort = OpTypeInt 16 0
+       %uint = OpTypeInt 32 0
+    %ulong_1 = OpConstant %ulong 1
+     %uint_0 = OpConstant %uint 0
+    %ulong_0 = OpConstant %ulong 0
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ushort = OpTypePointer CrossWorkgroup %ushort
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+         %11 = OpTypeFunction %void %_ptr_CrossWorkgroup_ushort %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_ushort = OpTypePointer Function %_ptr_CrossWorkgroup_ushort
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+%_arr_ushort_ulong_1 = OpTypeArray %ushort %ulong_1
+%_ptr_Function__arr_ushort_ulong_1 = OpTypePointer Function %_arr_ushort_ulong_1
+       %half = OpTypeFloat 16
+%_ptr_Function_half = OpTypePointer Function %half
+%_ptr_Function__ptr_Function_half = OpTypePointer Function %_ptr_Function_half
+%_ptr_Function_ushort = OpTypePointer Function %ushort
+      %float = OpTypeFloat 32
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %12 = OpFunction %void DontInline %11
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+         %14 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %15 = OpLabel
+         %17 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ushort Function
+         %19 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %21 = OpVariable %_ptr_Function_ulong Function
+         %25 = OpVariable %_ptr_Function__arr_ushort_ulong_1 Function
+         %29 = OpVariable %_ptr_Function__ptr_Function_half Function
+               OpStore %17 %13 Aligned 8
+               OpStore %19 %14 Aligned 8
+         %30 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %31 = OpCompositeExtract %ulong %30 0
+               OpStore %21 %31 Aligned 8
+         %34 = OpInBoundsPtrAccessChain %_ptr_Function_ushort %25 %uint_0 %uint_0
+         %35 = OpBitcast %_ptr_Function_half %34
+               OpStore %29 %35 Aligned 8
+         %36 = OpLoad %_ptr_CrossWorkgroup_ushort %17 Aligned 8
+         %37 = OpLoad %ulong %21 Aligned 8
+         %38 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ushort %36 %37
+         %39 = OpLoad %ushort %38 Aligned 2
+         %41 = OpInBoundsPtrAccessChain %_ptr_Function_ushort %25 %ulong_0 %ulong_0
+               OpStore %41 %39 Aligned 2
+         %42 = OpLoad %_ptr_Function_half %29 Aligned 8
+         %44 = OpExtInst %float %1 vload_half %ulong_0 %42
+         %45 = OpBitcast %uint %44
+         %46 = OpLoad %_ptr_CrossWorkgroup_uint %19 Aligned 8
+         %47 = OpLoad %ulong %21 Aligned 8
+         %48 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %46 %47
+               OpStore %48 %45 Aligned 4
+               OpReturn
+               OpFunctionEnd

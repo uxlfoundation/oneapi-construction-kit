@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue mm2metersKernel -compare depth:%p/Inputs/kernels_k_mm2metersKernel_out.txt -arg depth,repeat(34,73) -arg depthSize,repeat(2,10) -arg in,repeat(331,randint(0,255)) -arg inSize,repeat(2,10) -arg ratio,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/slambench/kernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: depth - match

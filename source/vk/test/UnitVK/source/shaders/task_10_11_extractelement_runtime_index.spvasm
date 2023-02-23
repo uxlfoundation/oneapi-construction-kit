@@ -1,0 +1,74 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Codeplay; 0
+; Bound: 42        
+; Schema: 0
+	OpCapability Shader
+	OpCapability VariablePointers
+	OpExtension "SPV_KHR_storage_buffer_storage_class"
+	OpExtension "SPV_KHR_variable_pointers"
+	OpMemoryModel Logical GLSL450
+	OpEntryPoint GLCompute %31 "extractelement_runtime_index" %22
+	OpSource OpenCL_C 120
+	OpDecorate %23 SpecId 0
+	OpDecorate %24 SpecId 1
+	OpDecorate %25 SpecId 2
+	OpDecorate %4 ArrayStride 16
+	OpMemberDecorate %5 0 Offset 0
+	OpDecorate %5 Block
+	OpDecorate %8 ArrayStride 4
+	OpMemberDecorate %9 0 Offset 0
+	OpDecorate %9 Block
+	OpDecorate %22 BuiltIn GlobalInvocationId
+	OpDecorate %26 BuiltIn WorkgroupSize
+	OpDecorate %28 DescriptorSet 0
+	OpDecorate %28 Binding 0
+	OpDecorate %29 DescriptorSet 0
+	OpDecorate %29 Binding 1
+	OpDecorate %30 DescriptorSet 0
+	OpDecorate %30 Binding 2
+%1 = 	OpTypeInt 32 0
+%2 = 	OpTypeVector %1 4
+%3 = 	OpTypePointer StorageBuffer %2
+%4 = 	OpTypeRuntimeArray %2
+%5 = 	OpTypeStruct %4
+%6 = 	OpTypePointer StorageBuffer %5
+%7 = 	OpTypePointer StorageBuffer %1
+%8 = 	OpTypeRuntimeArray %1
+%9 = 	OpTypeStruct %8
+%10 = 	OpTypePointer StorageBuffer %9
+%11 = 	OpTypeVoid
+%12 = 	OpTypeFunction %11
+%13 = 	OpTypeVector %1 3
+%14 = 	OpTypePointer Input %13
+%15 = 	OpTypePointer Input %1
+%16 = 	OpTypePointer Private %13
+%17 = 	OpConstant %1 0
+%18 = 	OpConstant %1 4
+%19 = 	OpConstantComposite %2 %18 %18 %18 %18
+%20 = 	OpUndef %1
+%21 = 	OpConstantComposite %2 %18 %18 %20 %18
+%22 = 	OpVariable %14 Input
+%23 = 	OpSpecConstant %1 1
+%24 = 	OpSpecConstant %1 1
+%25 = 	OpSpecConstant %1 1
+%26 = 	OpSpecConstantComposite %13 %23 %24 %25
+%27 = 	OpVariable %16 Private %26
+%28 = 	OpVariable %6 StorageBuffer
+%29 = 	OpVariable %6 StorageBuffer
+%30 = 	OpVariable %10 StorageBuffer
+%31 = 	OpFunction %11 None %12
+%32 = 	OpLabel
+%33 = 	OpAccessChain %7 %30 %17 %17
+%34 = 	OpAccessChain %15 %22 %17
+%35 = 	OpLoad %1 %34
+%36 = 	OpAccessChain %3 %29 %17 %35
+	OpStore %36 %19
+%37 = 	OpAccessChain %3 %28 %17 %35
+%38 = 	OpLoad %2 %37
+%39 = 	OpLoad %1 %33
+%40 = 	OpVectorExtractDynamic %1 %38 %39
+%41 = 	OpCompositeInsert %2 %40 %21 2
+	OpStore %36 %41
+	OpReturn
+	OpFunctionEnd

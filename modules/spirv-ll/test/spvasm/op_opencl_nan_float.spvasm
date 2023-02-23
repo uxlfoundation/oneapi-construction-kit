@@ -1,0 +1,28 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_nan_float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %nan_float "nan_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %uint_t = OpTypeInt 32 0
+             %float_t = OpTypeFloat 32
+            %nan_fn_t = OpTypeFunction %void_t
+              %uint_3 = OpConstant %uint_t 3
+
+; All functions
+           %nan_float = OpFunction %void_t None %nan_fn_t
+; CHECK: define spir_kernel void @nan_float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 nan %uint_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z3nanj(i32 3)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

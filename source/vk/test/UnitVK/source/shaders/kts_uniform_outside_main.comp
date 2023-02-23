@@ -1,0 +1,23 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+
+layout(set=0, binding=0) buffer block_a{
+  int a[];
+};
+
+layout(set=0, binding=1) buffer block_b{
+  int b[];
+};
+
+layout(push_constant) uniform pushConstants {
+  int push;
+};
+
+void add(){
+  b[gl_GlobalInvocationID.x] = a[gl_GlobalInvocationID.x] + push;
+}
+
+void main(){
+  add();
+}

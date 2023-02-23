@@ -1,0 +1,395 @@
+/// @brief (x + y) and saturates result.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// add_sat returns (x + y) and saturates result.
+///
+/// Standards compliant implementation of OpenCL 1.2 add_sat.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/add_sat.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_add_sat(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_add_sat.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API add_sat(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_add_sat(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The number of leading 0-bits in x.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// clz returns the number of leading 0-bits in x, starting at the most 
+/// significant bit position.
+///
+/// Standards compliant implementation of OpenCL 1.2 clz.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clz.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_clz(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_clz.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API clz(abacus_@generate_type@ x) {
+  return __abacus_clz(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The number of trailing 0-bits in x.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// ctz returns the number of trailing 0-bits in x, starting at the most
+/// significant bit position.
+///
+/// Standards compliant implementation of OpenCL 2.0 ctz.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clz.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_ctz(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_3_0_BUILTINS)
+/// @brief Wrapper for __abacus_ctz.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API ctz(abacus_@generate_type@ x) {
+  return __abacus_ctz(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief min(max(x, y), z).
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// clamp returns min(max(x, y), z). Results are undefined if y > z.
+///
+/// Standards compliant implementation of OpenCL 1.2 clamp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/integerClamp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_clamp(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_clamp.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API clamp(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_clamp(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief (x + y) >> 1 without modulo overflow.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// hadd returns (x + y) >> 1. The intermediate sum does not modulo overflow.
+///
+/// Standards compliant implementation of OpenCL 1.2 hadd.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/hadd.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_hadd(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_hadd.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API hadd(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_hadd(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The greater of x or y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 max.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/integerMax.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_max(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_max.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API max(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_max(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The lesser of x or y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 min.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/integerMin.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_min(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_min.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API min(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_min(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief __abacus_mul_hi(a , b) + c.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// mad_hi returns __abacus_mul_hi(a, b) + c.
+///
+/// Standards compliant implementation of OpenCL 1.2 mad_hi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mad_hi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mad_hi(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mad_hi.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mad_hi(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_mad_hi(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief a * b + c and saturate the result.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// mad_hi a * b + c and saturate the result.
+///
+/// Standards compliant implementation of OpenCL 1.2 mad_sat.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mad_sat.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mad_sat(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mad_sat.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mad_sat(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_mad_sat(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief High half of the product of x and y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// x * y and returns the high half of the product of x and y.
+///
+/// Standards compliant implementation of OpenCL 1.2 mul_hi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mul_hi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mul_hi(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mul_hi.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mul_hi(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_mul_hi(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Returns the number of non-zero bits in x.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// popcount returns the number of non-zero bits in x.
+///
+/// Standards compliant implementation of OpenCL 1.2 popcount.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/popcount.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_popcount(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_popcount.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API popcount(abacus_@generate_type@ x) {
+  return __abacus_popcount(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief (x + y) >> 1 without modulo overflow.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// rhadd returns (x + y + 1) >> 1. The intermediate sum does not modulo
+///   overflow.
+///
+/// Standards compliant implementation of OpenCL 1.2 rhadd.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/hadd.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_rhadd(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_rhadd.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API rhadd(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_rhadd(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Rotate bits left.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// For each element in v, the bits are shifted left by the number of bits given 
+/// by the corresponding element in i (subject to usual shift modulo rules). 
+/// Bits shifted off the left side of the element are shifted back in from the 
+/// right.
+///
+/// Standards compliant implementation of OpenCL 1.2 rotate.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/rotate.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_rotate(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_rotate.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API rotate(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_rotate(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief (x - y) and saturates result.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// sub_sat returns (x - y) and saturates result.
+///
+/// Standards compliant implementation of OpenCL 1.2 sub_sat.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sub_sat.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sub_sat(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_sub_sat.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API sub_sat(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_sub_sat(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

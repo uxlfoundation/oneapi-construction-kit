@@ -1,0 +1,5 @@
+# You complete me config file
+.ycm_extra_conf.pyc
+
+# Build dir
+build

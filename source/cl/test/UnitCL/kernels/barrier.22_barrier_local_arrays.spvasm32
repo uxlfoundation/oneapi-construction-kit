@@ -1,0 +1,202 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 137
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %14 "barrier_local_arrays" %__spirv_BuiltInLocalInvocationId
+        %133 = OpString "kernel_arg_type.barrier_local_arrays.float*,float*,"
+               OpSource OpenCL_C 102000
+               OpName %barrier_local_arrays_tmp "barrier_local_arrays.tmp"
+               OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
+               OpDecorate %134 FuncParamAttr NoAlias
+        %134 = OpDecorationGroup
+               OpDecorate %135 Alignment 4
+        %135 = OpDecorationGroup
+               OpDecorate %136 NoSignedWrap
+        %136 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
+               OpDecorate %__spirv_BuiltInLocalInvocationId Constant
+               OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
+               OpGroupDecorate %134 %15 %16
+               OpGroupDecorate %135 %barrier_local_arrays_tmp %39 %40 %44 %46 %47 %48 %49 %50 %51 %52 %53
+               OpGroupDecorate %136 %64 %81 %83 %113 %115 %117 %132
+       %uint = OpTypeInt 32 0
+   %uint_256 = OpConstant %uint 256
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %uint_64 = OpConstant %uint 64
+     %uint_2 = OpConstant %uint 2
+   %uint_272 = OpConstant %uint 272
+    %uint_16 = OpConstant %uint 16
+  %uint_1023 = OpConstant %uint 1023
+     %uint_3 = OpConstant %uint 3
+      %float = OpTypeFloat 32
+%_arr_float_uint_256 = OpTypeArray %float %uint_256
+%_ptr_Workgroup__arr_float_uint_256 = OpTypePointer Workgroup %_arr_float_uint_256
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+         %13 = OpTypeFunction %void %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_float
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+%_arr_float_uint_4 = OpTypeArray %float %uint_4
+%_ptr_Function__arr_float_uint_4 = OpTypePointer Function %_arr_float_uint_4
+%_ptr_Function_uint = OpTypePointer Function %uint
+       %bool = OpTypeBool
+%_ptr_Function_float = OpTypePointer Function %float
+%_ptr_Workgroup_float = OpTypePointer Workgroup %float
+%barrier_local_arrays_tmp = OpVariable %_ptr_Workgroup__arr_float_uint_256 Workgroup
+%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3uint Input
+    %float_0 = OpConstant %float 0
+         %14 = OpFunction %void DontInline %13
+         %15 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %16 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %17 = OpLabel
+         %39 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %40 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %44 = OpVariable %_ptr_Function__arr_float_uint_4 Function
+         %46 = OpVariable %_ptr_Function_uint Function
+         %47 = OpVariable %_ptr_Function_uint Function
+         %48 = OpVariable %_ptr_Function_uint Function
+         %49 = OpVariable %_ptr_Function_uint Function
+         %50 = OpVariable %_ptr_Function_uint Function
+         %51 = OpVariable %_ptr_Function_uint Function
+         %52 = OpVariable %_ptr_Function_uint Function
+         %53 = OpVariable %_ptr_Function_uint Function
+               OpStore %39 %15 Aligned 4
+               OpStore %40 %16 Aligned 4
+               OpStore %46 %uint_0 Aligned 4
+               OpBranch %18
+         %18 = OpLabel
+         %55 = OpLoad %uint %46 Aligned 4
+         %57 = OpSLessThan %bool %55 %uint_4
+               OpBranchConditional %57 %19 %21
+         %19 = OpLabel
+         %58 = OpLoad %uint %46 Aligned 4
+         %60 = OpInBoundsPtrAccessChain %_ptr_Function_float %44 %uint_0 %58
+               OpStore %60 %float_0 Aligned 4
+               OpBranch %20
+         %20 = OpLabel
+         %62 = OpLoad %uint %46 Aligned 4
+         %64 = OpIAdd %uint %62 %uint_1
+               OpStore %46 %64 Aligned 4
+               OpBranch %18
+         %21 = OpLabel
+               OpStore %47 %uint_0 Aligned 4
+               OpBranch %22
+         %22 = OpLabel
+         %65 = OpLoad %uint %47 Aligned 4
+         %67 = OpSLessThan %bool %65 %uint_64
+               OpBranchConditional %67 %23 %33
+         %23 = OpLabel
+               OpStore %48 %uint_0 Aligned 4
+               OpBranch %24
+         %24 = OpLabel
+         %68 = OpLoad %uint %48 Aligned 4
+         %70 = OpSLessThan %bool %68 %uint_2
+               OpBranchConditional %70 %25 %31
+         %25 = OpLabel
+               OpControlBarrier %uint_2 %uint_2 %uint_272
+         %72 = OpLoad %v3uint %__spirv_BuiltInLocalInvocationId
+         %73 = OpCompositeExtract %uint %72 1
+         %75 = OpIMul %uint %73 %uint_16
+         %76 = OpLoad %v3uint %__spirv_BuiltInLocalInvocationId
+         %77 = OpCompositeExtract %uint %76 0
+         %78 = OpIAdd %uint %75 %77
+               OpStore %49 %78 Aligned 4
+         %79 = OpLoad %_ptr_CrossWorkgroup_float %39 Aligned 4
+         %80 = OpLoad %uint %49 Aligned 4
+         %81 = OpIMul %uint %80 %uint_64
+         %82 = OpLoad %uint %47 Aligned 4
+         %83 = OpIAdd %uint %81 %82
+         %85 = OpBitwiseAnd %uint %83 %uint_1023
+         %86 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %79 %85
+         %87 = OpLoad %float %86 Aligned 4
+         %88 = OpLoad %uint %49 Aligned 4
+         %90 = OpInBoundsPtrAccessChain %_ptr_Workgroup_float %barrier_local_arrays_tmp %uint_0 %88
+               OpStore %90 %87 Aligned 4
+               OpControlBarrier %uint_2 %uint_2 %uint_272
+               OpStore %50 %uint_0 Aligned 4
+               OpBranch %26
+         %26 = OpLabel
+         %91 = OpLoad %uint %50 Aligned 4
+         %92 = OpSLessThan %bool %91 %uint_16
+               OpBranchConditional %92 %27 %29
+         %27 = OpLabel
+         %93 = OpLoad %v3uint %__spirv_BuiltInLocalInvocationId
+         %94 = OpCompositeExtract %uint %93 1
+         %95 = OpIMul %uint %94 %uint_16
+         %96 = OpLoad %uint %50 Aligned 4
+         %97 = OpIAdd %uint %95 %96
+               OpStore %51 %97 Aligned 4
+         %98 = OpLoad %_ptr_CrossWorkgroup_float %39 Aligned 4
+         %99 = OpLoad %uint %51 Aligned 4
+        %100 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %98 %99
+        %101 = OpLoad %float %100 Aligned 4
+        %102 = OpLoad %uint %51 Aligned 4
+        %103 = OpInBoundsPtrAccessChain %_ptr_Workgroup_float %barrier_local_arrays_tmp %uint_0 %102
+        %104 = OpLoad %float %103 Aligned 4
+        %105 = OpLoad %uint %50 Aligned 4
+        %107 = OpBitwiseAnd %uint %105 %uint_3
+        %108 = OpInBoundsPtrAccessChain %_ptr_Function_float %44 %uint_0 %107
+        %109 = OpLoad %float %108 Aligned 4
+        %110 = OpFMul %float %101 %104
+        %111 = OpFAdd %float %110 %109
+               OpStore %108 %111 Aligned 4
+               OpBranch %28
+         %28 = OpLabel
+        %112 = OpLoad %uint %50 Aligned 4
+        %113 = OpIAdd %uint %112 %uint_1
+               OpStore %50 %113 Aligned 4
+               OpBranch %26
+         %29 = OpLabel
+               OpBranch %30
+         %30 = OpLabel
+        %114 = OpLoad %uint %48 Aligned 4
+        %115 = OpIAdd %uint %114 %uint_1
+               OpStore %48 %115 Aligned 4
+               OpBranch %24
+         %31 = OpLabel
+               OpBranch %32
+         %32 = OpLabel
+        %116 = OpLoad %uint %47 Aligned 4
+        %117 = OpIAdd %uint %116 %uint_1
+               OpStore %47 %117 Aligned 4
+               OpBranch %22
+         %33 = OpLabel
+               OpStore %52 %uint_0 Aligned 4
+               OpBranch %34
+         %34 = OpLabel
+        %118 = OpLoad %uint %52 Aligned 4
+        %119 = OpSLessThan %bool %118 %uint_4
+               OpBranchConditional %119 %35 %37
+         %35 = OpLabel
+        %120 = OpLoad %v3uint %__spirv_BuiltInLocalInvocationId
+        %121 = OpCompositeExtract %uint %120 1
+        %122 = OpIMul %uint %121 %uint_4
+        %123 = OpLoad %uint %52 Aligned 4
+        %124 = OpIAdd %uint %122 %123
+               OpStore %53 %124 Aligned 4
+        %125 = OpLoad %uint %52 Aligned 4
+        %126 = OpInBoundsPtrAccessChain %_ptr_Function_float %44 %uint_0 %125
+        %127 = OpLoad %float %126 Aligned 4
+        %128 = OpLoad %_ptr_CrossWorkgroup_float %40 Aligned 4
+        %129 = OpLoad %uint %53 Aligned 4
+        %130 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %128 %129
+               OpStore %130 %127 Aligned 4
+               OpBranch %36
+         %36 = OpLabel
+        %131 = OpLoad %uint %52 Aligned 4
+        %132 = OpIAdd %uint %131 %uint_1
+               OpStore %52 %132 Aligned 4
+               OpBranch %34
+         %37 = OpLabel
+               OpReturn
+               OpFunctionEnd

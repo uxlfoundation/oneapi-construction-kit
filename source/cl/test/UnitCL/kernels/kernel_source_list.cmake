@@ -1,0 +1,784 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+# `KERNEL_FILES` is the full list of kernels that we need for UnitCL testing.
+# For every `.cl` file you add here, our cmake will automatically check for
+# associated `.bc(32|64)` and `.spvasm(32|64)` of the same name. These files
+# will also be passed through to `clc` for Offline testing. If you are adding
+# new kernels add them to `KERNEL_NAMES` as normal. If they might not be
+# supported by `clc` these may be skipped by adding the name to the appropriate
+# list at the bottom of this file.
+set(KERNEL_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/attribute.01_reqd_work_group_size.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.01_barrier_in_function.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.02_barrier_no_duplicates.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.03_barrier_noinline.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.04_barrier_local_mem.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.05_barrier_in_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.06_barrier_with_ifs.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.07_barrier_in_loop_2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.07_barrier_in_loop_3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.07_barrier_in_loop_4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.08_barrier_debug.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.09_barrier_with_alias.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.10_barriers_with_alias.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.10_barriers_with_alias_2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.11_barrier_with_align.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.12_barrier_in_sub_function_called_twice.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.13_barrier_shift_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.14_barrier_in_reduce.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.15_vector_barriers_with_alias.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.16_memory_fence_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.16_memory_fence_global.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.17_barrier_store_mask.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.18_barrier_store_mask.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.19_barrier_store_mask.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.20_barriers_with_alias.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.21_barrier_in_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.22_barrier_local_arrays.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.23_barrier_inline_stray_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/barrier.24_three_barriers.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/builtins.01_fmin_vector_scalar_nan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/builtins.02_fmax_vector_scalar_nan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/builtins.03_mad_conversions.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/builtins.04_mad24_conversions.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/clCreateBufferHostPtr.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler_barrier.01_only_barrier.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler_barrier.02_group_divergent_barriers.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler_barrier.03_odd_work_group_size.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler_barrier.04_mutually_exclusive_barriers.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler_barrier.05_simple_mutually_exclusive_barriers.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversion.01_implicit_cast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversion.02_explicit_cast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversion.03_reinterpret.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversion.04_explicit_convert.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dimension.01_single_group_1d.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dimension.02_single_group_2d.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dimension.03_single_group_3d.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dimension.04_total_work_single_atomic.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dimension.05_total_work_many_atomics.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.01_direct.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.02_explicit_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.03_explicit_copy_rotate.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.04_async_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.05_async_double_buffer.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.06_auto_dma_convolution.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.07_auto_dma_loop_convolution.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.07_auto_dma_loop_convolution_looprotate.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.08_auto_dma_loop_convolution_cond_round_inner_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.09_auto_dma_loop_convolution_cond_not_global_id.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.09_auto_dma_loop_convolution_cond_not_global_id_looprotate.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.10_half_async_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.11_half_async_strided_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.12_half_prefetch.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.13_wait_event_is_barrier.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.14_wait_event_is_barrier_overwrite.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.15_wait_event_is_execution_barrier.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/dma.16_wait_event_is_barrier_strided.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/geometric.01_half_dot.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/geometric.02_half_length.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/geometric.03_half_distance.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/geometric.04_half_normalize.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/geometric.05_half_cross.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/goto.01_noop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/goto.02_fake_if.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/goto.03_fake_for.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/native.01_log2_accuracy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.01_pow_func.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.02_denorms.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.03_half_add.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.04_half_sub.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.05_half_mul.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.06_half_div.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.07_half_recip.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.08_half_ldexp.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.09_half_exp10.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.10_half_exp.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.11_half_exp2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.12_half_expm1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.13_half_fabs.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.14_half_copysign.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.15_half_floor.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.16_half_ceil.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.17_double_constant.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.17_half_sqrt.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.18_half_frexp.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.18_half_frexp_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.18_half_frexp_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.19_half_rsqrt.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.20_half_sinpi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.21_half_cospi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.22_half_ilogb.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.23_half_log2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.24_half_log10.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.25_half_log.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.26_half_fmax.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.27_half_fmin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.28_half_maxmag.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.29_half_minmag.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.30_half_trunc.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.31_half_nan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.32_half_mad.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.33_half_fmod.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.34_half_round.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.35_half_rint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.36_half_remainder.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.37_half_remquo.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.37_half_remquo_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.37_half_remquo_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.38_half_fdim.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.39_half_fract.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.39_half_fract_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.39_half_fract_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.40_half_logb.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.41_half_modf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.41_half_modf_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.41_half_modf_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.42_half_nextafter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.43_half_fma.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.44_half_log1p.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.45_half_cbrt.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.46_half_hypot.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.47_half_max.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.47_half_max_scalar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.48_half_min.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.48_half_min_scalar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.49_half_sign.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.50_half_degrees.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.51_half_radians.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.52_half_clamp.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.52_half_clamp_scalar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.53_half_mix.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.53_half_mix_scalar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.54_half_step.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.54_half_step_scalar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.55_half_smoothstep.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.55_half_smoothstep_scalar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.56_half_asin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.57_half_acos.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.58_half_atan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.59_half_sin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.60_half_cos.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.61_half_tan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.62_half_asinh.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.63_half_acosh.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.64_half_atanh.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.65_half_asinpi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.66_half_acospi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.67_half_atanpi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.68_half_atan2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.69_half_atan2pi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.70_half_sincos.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.70_half_sincos_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.70_half_sincos_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.71_half_tanpi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.72_half_erfc.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.73_half_erf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.74_half_lgamma.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.75_half_lgammar.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.75_half_lgammar_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.75_half_lgammar_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.76_half_tgamma.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.77_half_sinh.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.78_half_cosh.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.79_half_tanh.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.80_half_pow.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.81_half_powr.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.82_half_pown.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.83_half_rootn.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.84_double_remquo.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.85_single_tgamma.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.86_single_lgamma.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.87_single_sincos.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.87_double_sincos.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.87_single_sincos_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.87_double_sincos_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.88_half_pown_edgecases.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.89_half_atan2_zeros.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.90_half_ldexp_edgecases.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.91_double_convert_char_rtn.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.91_double_convert_char_rtp.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.92_half_hypot_edgecases.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/precision.93_divide_relaxed.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.01_hello.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.02_order.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.03_string.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.04_multiple_printf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.05_side_effects.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.06_signed_unsigned.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.07_multiple_functions.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.08_multiple_strings.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.09_percent.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.10_print_nan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.11_print_inf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.12_multiple_workgroups.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.13_concurrent_printf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.14_print_vector.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.15_floats.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.16_floats_vectors.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.17_float_formatting_aa.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.17_float_formatting_ee.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.17_float_formatting_ff.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.17_float_formatting_gg.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.18_concurrent_printf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.19_print_halfs.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.20_multiple_kernels.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.21_float_with_double_conversion.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.22_half_with_double_conversion.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.01_pointer_to_long_cast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.02_work_dim.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.03_shuffle_cast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.04_shuffle_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.05_bit_shift.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.06_cross_elem4_zero.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.07_mad_sat_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.08_mem2reg_bitcast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.09_mem2reg_store.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.10_dont_mask_workitem_builtins.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.11_interleavedgroupcombine_safety.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.12_isgreater_double3_vloadstore.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.13_varying_alloca.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.14_argument_stride.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.15_negative_stride.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.16_negative_argument_stride.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.17_scalar_select_transform.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.17_scalar_select_transform_2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.17_scalar_select_transform_3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.18_uniform_alloca.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.19_memcpy_optimization.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.20_group_barrier_0.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.20_group_barrier_1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.20_group_barrier_2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.20_group_barrier_3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.20_group_barrier_4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.21_unaligned_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.22_unaligned_load2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.23_shuffle_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.24_memop_loop_dep.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.25_multiple_inlining.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.26_predeclared_internal_builtins.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.27_divergent_atomics.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.28_uniform_atomics.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.29_divergent_memfence.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.30_local_alignment.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.31_local_struct_alignment2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.31_local_struct_alignment3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.31_local_struct_alignment.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.32_struct_member_alignment.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.33_struct_param_alignment.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.34_codegen_1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.34_codegen_2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.35_constant_struct_alignment.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.36_struct_sizeof.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.37_cfc.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.38_attribute_align.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.39_struct_helper_func.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.40_fract_double3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.41_shuffle_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.42_shuffle_function_call.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.43_scatter_gather.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.44_short3_char3_codegen.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.44_short3_uchar3_codegen.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.44_ushort3_char3_codegen.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.44_ushort3_uchar3_codegen.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.45_mad_sat_short3_codegen.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.45_mad_sat_ushort3_codegen.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.46_local_vecalign.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.47_packed_struct.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.48_image_sampler.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.48_image_sampler_kernel_call_kernel.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.49_local_select.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.50_local_atomic.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.51_local_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.52_nested_loop_using_kernel_arg.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.53_kernel_arg_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.54_negative_comparison.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.55_float_memcpy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.56_local_vec_mem.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.57_attribute_aligned.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.58_nested_structs.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.59_right_shift.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.60_multiple_dimensions_0.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.60_multiple_dimensions_1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.61_sycl_barrier.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.62_sycl_barrier.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.63_barrier_shift_loop_reduced.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.64_explicit_copy_rotate_compare.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.65_fract_double.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.66_loop_diverge.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.67_check_ore_call.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.68_load16.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.69_partial_linearization_varying_uniform_condition.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.70_kernel_call_kernel.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.71_global_id_array3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.71_global_id_array4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.71_global_id_elements.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.72_rotate_by_variable.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.73_rotate_by_literal.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.74_stride_aligned.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.74_stride_misaligned.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization0.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization5.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization6.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization7.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization8.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization9.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization10.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization11.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization12.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization13.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization14.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization15.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization16.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization17.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization18.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.75_partial_linearization19.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.76_boscc_nested_loops.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.77_masked_interleaved_group.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.78_global_id_parameter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.78_local_id_parameter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.79_global_id_self_parameter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.79_global_id_zero_parameter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.80_varying_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.81_boscc_nested_loops1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.81_boscc_nested_loops2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.81_boscc_nested_loops3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.82_boscc_merge.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.83_vecz_lcssa.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.84_vecz_merge.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.85_scan_fact.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.86_store_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.87_pow_powr.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.88_vstore_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.88_scalar_loop_tail.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.89_multiple_local_memory_kernels.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.90_offline_local_memcpy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.90_offline_local_memcpy_fixed.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.91_loop_bypass_branch.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.92_danger_div_hoist.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.92_danger_div_hoist_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.93_ashr_index_underflow_1.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.93_ashr_index_underflow_2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.94_boscc_sese_backdoor.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.95_illegal_uniform_stride.cl
+  # Note: To trigger the original crash regression 96 must actually be zero
+  # bytes, so no comment explaining that inside, and no copyright notice.
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.96_zero_byte_file.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.97_libm_functions.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.97_libm_functions_double.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.98_store_uniform_pointer.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.99_as_double3_inline.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.100_integer_zero_divide.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.101_extract_vec3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.102_shuffle_vec3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.103_byval_struct_align.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.104_async_work_group_copy_int3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.105_alloca_boscc_confuser.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.106_varying_lcssa_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.01_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.02_async_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.03_test_atomic_add.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.04_test_atomic_sub.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.05_test_atomic_min.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.06_test_atomic_max.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.07_test_atomic_and.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.08_test_atomic_or.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.09_test_atomic_xor.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.10_test_atomic_exchange.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.11_test_atomic_compare_exchange.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.16_frexp_smoke.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.17_ldexp_smoke.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.18_lgammar_smoke.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.19_pown_smoke.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.20_remquo_smoke.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.21_rootn_smoke.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.01_copy.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.02_add.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.03_mul_fma.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.04_ternary.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.05_broadcast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.06_broadcast_uniform.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_01.07_mulhi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.01_abs_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.02_dot_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.03_distance_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.04_fabs_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.05_clz_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.06_clamp_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.07_length_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.08_barrier_add.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.09_printf_add.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_02.10_modf_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.01_copy4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.02_add4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.03_abs4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.04_dot4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.05_distance4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.06_ternary4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.07_transpose4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.08_clz4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.09_clamp4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.10_s2v_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.11_sum_reduce4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.12_v2s2v2s.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.13_copy2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.14_add2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.15_copy3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.16_add3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.17_length4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.18_normalize4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.19_add4_i32_tid.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.20_all3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.21_any3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.22_as_uchar4_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.23_as_uint_uchar4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.24_as_uint4_float4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.25_as_ushort2_uchar4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.27_atomic_inc_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.29_modf4_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.01_copy_constant_offset.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.02_copy_uniform_offset.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.03_mul_fma_uniform_offset_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.04_mul_fma_uniform_offset_store.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.05_scatter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.06_gather.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.07_mul_fma_uniform_addr_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.08_mul_fma_uniform_addr_store.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.09_copy4_scalarized.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.10_alloca.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.11_byval_struct.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.12_work_item.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.13_struct_offset.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.14_alloca4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.15_scatter_offset.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.16_gather_offset.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.17_local_array.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_04.18_private_array.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_05.01_sum_static_trip.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_05.02_saxpy_static_trip.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_05.03_sum_static_trip_uniform.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_05.04_saxpy_static_trip_uniform.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_06.01_copy_if_constant.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_06.02_copy_if_even_group.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.01_copy_if_even_item.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.02_copy_if_nested_item.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.03_add_no_nan.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.04_convolution.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.05_ternary_pointer.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.06_copy_if_even_item_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.07_masked_loop_uniform.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.08_masked_loop_varying.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.09_control_dep_packetization.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.10_control_dep_scalarization.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.11_copy_if_even_item_early_return.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.12_scalar_masked_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.13_scalar_masked_store_uniform.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.14_scalar_masked_store_varying.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.15_normalize_range.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.16_normalize_range_while.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.17_if_in_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.18_if_in_uniform_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.19_nested_loops.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.20_sibling_loops.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.21_convert_half_to_float_impl.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.22_convert_half_to_float_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.23_convert_half_to_float_nested_ifs.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_07.24_convert_half_to_float_vload.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_08.01_user_fn_identity.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_08.02_user_fn_sext.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_08.03_user_fn_two_contexts.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.01_masked_interleaved_store.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.02_masked_interleaved_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.03_masked_scatter.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.04_masked_gather.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.05_masked_argument_stride.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.06_masked_negative_stride.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.07_masked_negative_argument_stride.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.08_phi_memory.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.08_phi_memory2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_09.09_masked_vector_load.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.01_shuffle_constant.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.02_shuffle_runtime.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.03_vector_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.04_onearg_relationals.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.05_atomic_cmpxchg_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.06_noinline_kernels.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.07_break_loop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.08_insertelement_constant_index.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.09_insertelement_runtime_index.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.10_extractelement_constant_index.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.11_extractelement_runtime_index.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.12_intptr_cast.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_10.13_intptr_cast_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_11.01_kernel_signature.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_11.02_kernel_signature_noinline_before.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_11.03_kernel_signature_noinline_after.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_11.04_kernel_signature_noinline_functions.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_12.01_interleaved_load_4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_12.02_interleaved_load_5.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_12.03_interleaved_load_6.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_13.01_magic_square.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_13.02_magic_square.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_14.01_balance.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_14.02_negate.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_15.01_convert.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_15.02_convert2.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_15.03_convert3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_15.04_convert4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_15.05_convert3.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/vloadvstore.01_half_global.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/vloadvstore.02_half_local.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/vloadvstore.03_half_private.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/vloadvstore.04_half_constant.cl
+  )
+
+if(CA_CL_STANDARD_INTERNAL EQUAL 300)
+  list(APPEND KERNEL_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.03_fence_acquire_release.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.04_fence_acquire.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.05_fence_release.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.06_fence_relaxed.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.07_fence_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.08_fence_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.17_flag_local_clear_set.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.18_flag_local_set_twice.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.19_flag_global_clear.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.20_flag_global_set_once.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.21_fetch_global_add_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.22_fetch_global_sub_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.23_fetch_global_or_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.24_fetch_global_xor_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.25_fetch_global_and_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.26_fetch_global_min_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.27_fetch_global_max_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.28_fetch_local_add_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.29_fetch_local_sub_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.30_fetch_local_or_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.31_fetch_local_xor_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.32_fetch_local_and_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.33_fetch_local_min_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.34_fetch_local_max_check_return.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.35_fetch_global_add.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.36_fetch_local_add.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.37_fetch_global_sub.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.38_fetch_local_sub.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.39_fetch_global_or.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.40_fetch_local_or.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.41_fetch_global_xor.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.42_fetch_local_xor.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.43_fetch_global_and.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.44_fetch_local_and.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.45_fetch_global_min.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.46_fetch_local_min.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.47_fetch_global_max.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.48_fetch_local_max.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.49_fetch_global_or_truth_table.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.50_fetch_global_xor_truth_table.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.51_fetch_global_and_truth_table.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.52_fetch_local_or_truth_table.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.53_fetch_local_xor_truth_table.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.54_fetch_local_and_truth_table.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.55_compare_exchange_strong_global_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.56_compare_exchange_strong_global_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.57_compare_exchange_strong_global_private.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.58_compare_exchange_strong_local_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.59_compare_exchange_strong_local_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.60_compare_exchange_strong_local_private.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.61_compare_exchange_strong_global_global_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.62_compare_exchange_strong_global_local_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.63_compare_exchange_strong_global_private_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.64_compare_exchange_strong_local_global_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.65_compare_exchange_strong_local_local_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.66_compare_exchange_strong_local_private_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.67_compare_exchange_weak_global_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.68_compare_exchange_weak_global_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.69_compare_exchange_weak_global_private.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.70_compare_exchange_weak_local_global.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.71_compare_exchange_weak_local_local.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.72_compare_exchange_weak_local_private.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.73_compare_exchange_weak_global_global_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.74_compare_exchange_weak_global_local_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.75_compare_exchange_weak_global_private_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.76_compare_exchange_weak_local_global_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.77_compare_exchange_weak_local_local_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.78_compare_exchange_weak_local_private_single.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.01_get_sub_group_size.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.02_get_max_sub_group_size.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.03_get_num_sub_groups.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.04_get_enqueued_num_sub_groups.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.05_get_sub_group_id.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.06_get_sub_group_local_id.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.07_sub_group_all.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.08_sub_group_any.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.09_sub_group_broadcast_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.09_sub_group_broadcast_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.09_sub_group_broadcast_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.10_sub_group_reduce_add_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.10_sub_group_reduce_add_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.10_sub_group_reduce_add_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.11_sub_group_reduce_min_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.11_sub_group_reduce_min_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.11_sub_group_reduce_min_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.12_sub_group_reduce_max_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.12_sub_group_reduce_max_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.12_sub_group_reduce_max_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.13_sub_group_scan_exclusive_add_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.13_sub_group_scan_exclusive_add_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.13_sub_group_scan_exclusive_add_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.14_sub_group_scan_exclusive_min_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.14_sub_group_scan_exclusive_min_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.14_sub_group_scan_exclusive_min_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.15_sub_group_scan_exclusive_max_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.15_sub_group_scan_exclusive_max_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.15_sub_group_scan_exclusive_max_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.16_sub_group_scan_inclusive_add_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.16_sub_group_scan_inclusive_add_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.16_sub_group_scan_inclusive_add_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.17_sub_group_scan_inclusive_min_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.17_sub_group_scan_inclusive_min_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.17_sub_group_scan_inclusive_min_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.18_sub_group_scan_inclusive_max_int.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.18_sub_group_scan_inclusive_max_uint.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.18_sub_group_scan_inclusive_max_float.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.01_all.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.02_any.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.03_broadcast_1d.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.04_broadcast_2d.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.05_broadcast_3d.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.06_reduce_add.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.07_reduce_min.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.08_reduce_max.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.09_scan_exclusive_add.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.10_scan_exclusive_min.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.11_scan_exclusive_max.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.12_scan_inclusive_add.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.13_scan_inclusive_min.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.14_scan_inclusive_max.cl
+  )
+endif()
+
+if(${OCL_EXTENSION_cl_khr_extended_async_copies})
+  list(APPEND KERNEL_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext_async.01_simple_2d.cl
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext_async.02_simple_3d.cl)
+endif()
+
+# TODO CA-1879: These kernels were originally written specifically for offline
+# testing, however, now all kernels can be made into offline tests so there may
+# be some redundancy here.
+set(legacy_offline_kernels
+  ${CMAKE_CURRENT_SOURCE_DIR}/clCreateProgramWithBinaryTest.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.01_noop.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.02_add.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.02_addf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.03_add4.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.03_add4f.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.04_multikernel.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.04_multikernel_wgs.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.04_multikernel_wgs_vecz.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.05_relocation.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.06_twokernel.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.06_twokernel_different_types.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.06_twokernel_different_number_types.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.06_twokernel_different_number_types_swapped.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.07_primitive.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.07_twokernel_primitive.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.07_twokernel_int_primitive.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.07_twokernel_both_primitive.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.07_twokernel_different_primitive.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/offline.08_nokernel.cl
+  )
+
+# Append the offline kernels to the full list of kernels
+list(APPEND KERNEL_FILES ${legacy_offline_kernels})
+
+# Append the spirv files to the full list of kernels. These files don't have
+# associated `.cl` kernels and so need to be explicitly mentioned here.
+set(spirv_test
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.12_const_struct_int_char.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.12_const_struct_int_char.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.12_copy_struct_int_char.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.12_copy_struct_int_char.spvasm64
+#  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.13_write_image_array.spvasm32 - Disabled due to CA-2844 (OpCapability 13 not supported)
+#  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.13_write_image_array.spvasm64 - Disabled due to CA-2844 (OpCapability 13 not supported)
+#  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.14_query_image_size.spvasm32 - Disabled due to CA-2844 (OpCapability 13 not supported)
+#  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.14_query_image_size.spvasm64 - Disabled due to CA-2844 (OpCapability 13 not supported)
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.15_work_dim.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.15_work_dim.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.22_nameless_dma.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.22_nameless_dma.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.23_memset_kernel.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv.23_memset_kernel.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm64
+  )
+
+# TODO(CA-3968): Revert when fixed.
+if(NOT CMAKE_CROSSCOMPILING)
+  list(APPEND spirv_test
+    ${CMAKE_CURRENT_SOURCE_DIR}/spirv.24_max_work_dim.spvasm32
+    ${CMAKE_CURRENT_SOURCE_DIR}/spirv.24_max_work_dim.spvasm64)
+endif()
+
+list(APPEND KERNEL_FILES ${spirv_test})
+
+# This function takes an input list of kernels `INPUT_KERNEL_FILES` and checks
+# each file for corresponding spir and spirv variants. These will be returned
+# as whatever value is set in `OUTPUT_KERNEL_FILES` via CMakes `PARENT_SCOPE`
+# setting.
+function(add_spir_spirv INPUT_KERNEL_FILES OUTPUT_KERNEL_FILES)
+  set(local_kernel_list ${${INPUT_KERNEL_FILES}})
+  # For each of the kernels we have specified we need to check if there are
+  # associated spir bc and spir-v asm files. If they exist we then append them to
+  # the list of present kernels.
+  foreach(KERNEL ${${INPUT_KERNEL_FILES}})
+    get_filename_component(KERNEL_NAME ${KERNEL} NAME_WLE)
+    get_filename_component(KERNEL_EXT ${KERNEL} LAST_EXT)
+    # Some kernels might live in different directories.
+    get_filename_component(KERNEL_DIR ${KERNEL} DIRECTORY)
+    # Only process ".cl" files
+    if(${KERNEL_EXT} MATCHES ".cl")
+      # Create the names of the files.
+      set(spir32_kernel_name "${KERNEL_NAME}.bc32")
+      set(spir64_kernel_name "${KERNEL_NAME}.bc64")
+      set(spvasm32_kernel_name "${KERNEL_NAME}.spvasm32")
+      set(spvasm64_kernel_name "${KERNEL_NAME}.spvasm64")
+
+      set(spir_files_to_check)
+
+      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spir32_kernel_name})
+      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spir64_kernel_name})
+      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spvasm32_kernel_name})
+      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spvasm64_kernel_name})
+
+      # Check if each of the files exists and, if it does, append it to the list
+      # of kernel files. This check *will* greedily pick up stub SPIR and
+      # SPIR-V files if the kernel directory hasn't been `git clean`-ed, and
+      # the stub files will be copied to the build directory. These copied stub
+      # files have no effects on testing.
+      foreach(FILE ${spir_files_to_check})
+        if(EXISTS ${FILE})
+          list(APPEND local_kernel_list ${FILE})
+        endif()
+      endforeach()
+    endif()
+  endforeach()
+
+  # CMakes functions have their own scope, to be able to `return` a value we
+  # need to set the given list in the `PARENT_SCOPE`
+  set(${OUTPUT_KERNEL_FILES} ${local_kernel_list} PARENT_SCOPE)
+endfunction()

@@ -1,0 +1,36 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_prefetch_i8_64bit.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int8
+                        OpCapability Int64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_prefetch_i8 "s_prefetch_i8"
+                        OpSource OpenCL_C 102000
+                        OpName %in_ptr "in_ptr"
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+                %i8_t = OpTypeInt 8 1
+              %ui64_t = OpTypeInt 64 0
+            %i8_ptr_t = OpTypePointer CrossWorkgroup %i8_t
+     %s_prefetch_fn_t = OpTypeFunction %void_t %i8_ptr_t
+              %ui64_1 = OpConstant %ui64_t 2
+
+; All functions
+       %s_prefetch_i8 = OpFunction %void_t None %s_prefetch_fn_t
+              %in_ptr = OpFunctionParameter %i8_ptr_t
+; CHECK-GE15: define spir_kernel void @s_prefetch_i8(ptr addrspace(1) %in_ptr)
+; CHECK-LT15: define spir_kernel void @s_prefetch_i8(i8 addrspace(1)* %in_ptr)
+                   %2 = OpLabel
+                   %3 = OpExtInst %void_t %1 prefetch %in_ptr %ui64_1
+; CHECK-GE15: call spir_func void @_Z8prefetchPU3AS1Kcm(ptr addrspace(1) %in_ptr, i64 2)
+; CHECK-LT15: call spir_func void @_Z8prefetchPU3AS1Kcm(i8 addrspace(1)* %in_ptr, i64 2)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

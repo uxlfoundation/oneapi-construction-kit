@@ -1,0 +1,62 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan %p/op_group_member_decorate.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; CHECK: ; ModuleID = '{{.*}}'
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %out_buffer "out_buffer"
+               OpMemberName %out_buffer 0 "out_bools"
+               OpName %_ ""
+               OpDecorate %group Volatile
+               OpDecorate %group Coherent
+               OpDecorate %group Offset 0
+      %group = OpDecorationGroup
+               OpGroupMemberDecorate %group %out_buffer 0
+               OpMemberDecorate %out_buffer 1 Offset 4
+               OpDecorate %out_buffer BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+ %out_buffer = OpTypeStruct %int %int
+%_ptr_Uniform_out_buffer = OpTypePointer Uniform %out_buffer
+          %_ = OpVariable %_ptr_Uniform_out_buffer Uniform
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+      %int_1 = OpConstant %int 1
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+    %in_bool = OpVariable %_ptr_Function_int Function
+         %17 = OpAccessChain %_ptr_Uniform_int %_ %int_0
+         %18 = OpLoad %int %17
+               OpStore %in_bool %18
+         %19 = OpLoad %int %in_bool
+         %21 = OpIAdd %int %19 %int_1
+               OpStore %in_bool %21
+         %22 = OpLoad %int %in_bool
+         %23 = OpAccessChain %_ptr_Uniform_int %_ %int_1
+               OpStore %23 %22
+               OpReturn
+               OpFunctionEnd
+; CHECK: [[STRUCT:%[a-zA-Z0-9_]+]] = type { i32, i32 }
+; CHECK-GE15: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) {
+; CHECK-LT15: define spir_kernel void @main([[STRUCT]] addrspace(1)*{{( %0)?}}, i32 addrspace(1)*{{( %1)?}}) {
+; CHECK-GE15: [[IN_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 0
+; CHECK-LT15: [[IN_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], [[STRUCT]] addrspace(1)* %0, i32 0, i32 0
+; Check that the volatile decoration was correctly propagated to the result of the GEP
+; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load volatile i32, ptr addrspace(1) [[IN_GEP]]
+; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load volatile i32, i32 addrspace(1)* [[IN_GEP]]
+; CHECK-GE15: [[OUT_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 1
+; CHECK-LT15: [[OUT_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], [[STRUCT]] addrspace(1)* %0, i32 0, i32 1
+; Check that the volatile decoration was only applied to the first member
+; CHECK-GE15: store i32 {{%[a-zA-Z0-9_]+}}, ptr addrspace(1) [[OUT_GEP]]
+; CHECK-LT15: store i32 {{%[a-zA-Z0-9_]+}}, i32 addrspace(1)* [[OUT_GEP]]

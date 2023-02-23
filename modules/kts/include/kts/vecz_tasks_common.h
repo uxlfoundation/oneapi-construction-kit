@@ -1,0 +1,97 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+#ifndef KTS_VECZ_TASKS_COMMON_H_INCLUDED
+#define KTS_VECZ_TASKS_COMMON_H_INCLUDED
+
+// System headers
+#include <algorithm>
+#include <cmath>
+
+// In-house headers
+#include "kts/arguments_shared.h"
+#include "kts/reference_functions.h"
+
+/// @brief Populate and verify the contents of buffers used in atomic tests.
+class AtomicStreamer : public kts::BufferStreamer {
+ public:
+  AtomicStreamer(int init_value, int count)
+      : init_value_(init_value), count_(count) {}
+
+  virtual void PopulateBuffer(kts::ArgumentBase &arg,
+                              const kts::BufferDesc &desc) override {
+    kts::MemoryAccessor<int> accessor;
+    arg.SetBufferStorageSize(desc.size_ * sizeof(int));
+    if (arg.GetIndex() == 0) {
+      // Initialize the global counter.
+      accessor.StoreToBuffer(init_value_, arg.GetBufferStoragePtr(), 0);
+    } else if (arg.GetIndex() == 1) {
+      // Initialize the intermediate result buffer.
+      for (size_t i = 0; i < desc.size_; i++) {
+        accessor.StoreToBuffer(0, arg.GetBufferStoragePtr(), (unsigned int)i);
+      }
+    }
+  }
+
+  virtual bool ValidateBuffer(kts::ArgumentBase &arg,
+                              const kts::BufferDesc &desc,
+                              std::vector<std::string> *errors) override {
+    kts::MemoryAccessor<int> accessor;
+    if (arg.GetIndex() == 0) {
+      // Validate the global counter, which should be equal to 'init + count'
+      int result = accessor.LoadFromBuffer(arg.GetBufferStoragePtr(), 0);
+      int expected = init_value_ + count_;
+      if (expected != result) {
+        std::stringstream ss;
+        ss << "Result mismatch (expected: " << expected
+           << ", actual: " << result << ")";
+        errors->push_back(ss.str());
+        return false;
+      }
+      return true;
+    } else if (arg.GetIndex() == 1) {
+      // Validate the intermediate result buffer, which should hold one copy of
+      // all values from 'min_expected' to 'max_expected'.
+      int min_expected = init_value_;
+      int max_expected = init_value_ + count_ - 1;
+      // Count the number of times each value appears in the buffer.
+      std::vector<int> histogram;
+      histogram.resize(count_, 0);
+      for (size_t i = 0; i < desc.size_; i++) {
+        int result =
+            accessor.LoadFromBuffer(arg.GetBufferStoragePtr(), (unsigned int)i);
+        if ((result < min_expected) || (result > max_expected)) {
+          std::stringstream ss;
+          ss << "Unexpected value " << result << " (valid range: ["
+             << min_expected << ";" << max_expected << "])";
+          errors->push_back(ss.str());
+          return false;
+        }
+        histogram[result - min_expected]++;
+      }
+      // Verify that each value appears once.
+      for (size_t i = 0; i < desc.size_; i++) {
+        if (histogram[i] == 0) {
+          std::stringstream ss;
+          ss << "Did not find value " << (min_expected + i);
+          errors->push_back(ss.str());
+          return false;
+        } else if (histogram[i] > 1) {
+          std::stringstream ss;
+          ss << "Found " << histogram[i] << " copies of value "
+             << (min_expected + i);
+          errors->push_back(ss.str());
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  virtual size_t GetElementSize() override { return sizeof(int); }
+
+ private:
+  int init_value_;
+  int count_;
+};
+
+#endif  // KTS_VECZ_TASKS_COMMON_H_INCLUDED

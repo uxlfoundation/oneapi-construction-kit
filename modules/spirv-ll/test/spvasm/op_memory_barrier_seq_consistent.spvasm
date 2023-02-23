@@ -1,0 +1,22 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 32 %p/op_memory_barrier_seq_consistent.spv -o %t
+; RUN: %filecheck < %t %s
+               OpCapability Kernel
+               OpCapability Addresses
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource OpenCL_C 102000
+               OpName %main "main"
+       %void = OpTypeVoid
+          %4 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+    %uint_16 = OpConstant %uint 16
+       %main = OpFunction %void None %4
+          %8 = OpLabel
+               OpMemoryBarrier %uint_2 %uint_16
+               OpReturn
+               OpFunctionEnd
+; CHECK: call spir_func void @__mux_mem_barrier(i32 2, i32 16)

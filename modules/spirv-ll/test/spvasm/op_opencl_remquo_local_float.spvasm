@@ -1,0 +1,35 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_remquo_local_float.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %remquo_float "remquo_float"
+                        OpSource OpenCL_C 102000
+                        OpName %in_quo "in_quo"
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %int_t = OpTypeInt 32 1
+             %float_t = OpTypeFloat 32
+           %int_ptr_t = OpTypePointer Workgroup %int_t
+         %remquo_fn_t = OpTypeFunction %void_t %int_ptr_t
+             %float_1 = OpConstant %float_t 1.5
+             %float_2 = OpConstant %float_t 2.0
+
+; All functions
+        %remquo_float = OpFunction %void_t None %remquo_fn_t
+              %in_quo = OpFunctionParameter %int_ptr_t
+; CHECK-GE15: define spir_kernel void @remquo_float(ptr addrspace(3) %in_quo)
+; CHECK-LT15: define spir_kernel void @remquo_float(i32 addrspace(3)* %in_quo)
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 remquo %float_2 %float_1 %in_quo
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6remquoffPU3AS3i(float 2.000000e+00, float 1.500000e+00, ptr addrspace(3) %in_quo)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6remquoffPU3AS3i(float 2.000000e+00, float 1.500000e+00, i32 addrspace(3)* %in_quo)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

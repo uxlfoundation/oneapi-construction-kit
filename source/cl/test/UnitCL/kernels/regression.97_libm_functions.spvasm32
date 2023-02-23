@@ -1,0 +1,193 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 163
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %6 "libm_functions"
+        %161 = OpString "kernel_arg_type.libm_functions.float*,float*,"
+               OpSource OpenCL_C 102000
+               OpDecorate %162 Alignment 4
+        %162 = OpDecorationGroup
+               OpGroupDecorate %162 %11 %12
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+     %uint_0 = OpConstant %uint 0
+    %ulong_0 = OpConstant %ulong 0
+    %ulong_1 = OpConstant %ulong 1
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+     %uint_3 = OpConstant %uint 3
+     %uint_4 = OpConstant %uint 4
+     %uint_5 = OpConstant %uint 5
+     %uint_6 = OpConstant %uint 6
+     %uint_7 = OpConstant %uint 7
+     %uint_8 = OpConstant %uint 8
+     %uint_9 = OpConstant %uint 9
+    %uint_10 = OpConstant %uint 10
+    %uint_11 = OpConstant %uint 11
+    %uint_12 = OpConstant %uint 12
+    %uint_13 = OpConstant %uint 13
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+          %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_float
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+       %bool = OpTypeBool
+    %float_5 = OpConstant %float 5
+    %float_1 = OpConstant %float 1
+    %float_2 = OpConstant %float 2
+          %6 = OpFunction %void DontInline %5
+          %7 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+          %8 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+          %9 = OpLabel
+         %11 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %12 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+               OpStore %11 %7 Aligned 4
+               OpStore %12 %8 Aligned 4
+         %13 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %16 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %13 %uint_0
+         %17 = OpLoad %float %16 Aligned 4
+         %18 = OpExtInst %float %1 exp %17
+         %21 = OpFOrdGreaterThanEqual %bool %18 %float_5
+         %25 = OpSelect %ulong %21 %ulong_1 %ulong_0
+         %28 = OpSelect %float %21 %float_2 %float_1
+         %29 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %30 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %29 %uint_0
+               OpStore %30 %28 Aligned 4
+         %31 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %33 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %31 %uint_1
+         %34 = OpLoad %float %33 Aligned 4
+         %35 = OpExtInst %float %1 native_exp %34
+         %36 = OpFOrdGreaterThanEqual %bool %35 %float_5
+         %37 = OpSelect %ulong %36 %ulong_1 %ulong_0
+         %38 = OpSelect %float %36 %float_2 %float_1
+         %39 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %40 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %39 %uint_1
+               OpStore %40 %38 Aligned 4
+         %41 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %43 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %41 %uint_2
+         %44 = OpLoad %float %43 Aligned 4
+         %45 = OpExtInst %float %1 exp2 %44
+         %46 = OpFOrdGreaterThanEqual %bool %45 %float_5
+         %47 = OpSelect %ulong %46 %ulong_1 %ulong_0
+         %48 = OpSelect %float %46 %float_2 %float_1
+         %49 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %50 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %49 %uint_2
+               OpStore %50 %48 Aligned 4
+         %51 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %53 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %51 %uint_3
+         %54 = OpLoad %float %53 Aligned 4
+         %55 = OpExtInst %float %1 native_exp2 %54
+         %56 = OpFOrdGreaterThanEqual %bool %55 %float_5
+         %57 = OpSelect %ulong %56 %ulong_1 %ulong_0
+         %58 = OpSelect %float %56 %float_2 %float_1
+         %59 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %60 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %59 %uint_3
+               OpStore %60 %58 Aligned 4
+         %61 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %63 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %61 %uint_4
+         %64 = OpLoad %float %63 Aligned 4
+         %65 = OpExtInst %float %1 log %64
+         %66 = OpFOrdGreaterThanEqual %bool %65 %float_5
+         %67 = OpSelect %ulong %66 %ulong_1 %ulong_0
+         %68 = OpSelect %float %66 %float_2 %float_1
+         %69 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %70 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %69 %uint_4
+               OpStore %70 %68 Aligned 4
+         %71 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %73 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %71 %uint_5
+         %74 = OpLoad %float %73 Aligned 4
+         %75 = OpExtInst %float %1 native_log %74
+         %76 = OpFOrdGreaterThanEqual %bool %75 %float_5
+         %77 = OpSelect %ulong %76 %ulong_1 %ulong_0
+         %78 = OpSelect %float %76 %float_2 %float_1
+         %79 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %80 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %79 %uint_5
+               OpStore %80 %78 Aligned 4
+         %81 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %83 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %81 %uint_6
+         %84 = OpLoad %float %83 Aligned 4
+         %85 = OpExtInst %float %1 log2 %84
+         %86 = OpFOrdGreaterThanEqual %bool %85 %float_5
+         %87 = OpSelect %ulong %86 %ulong_1 %ulong_0
+         %88 = OpSelect %float %86 %float_2 %float_1
+         %89 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+         %90 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %89 %uint_6
+               OpStore %90 %88 Aligned 4
+         %91 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+         %93 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %91 %uint_7
+         %94 = OpLoad %float %93 Aligned 4
+         %95 = OpExtInst %float %1 native_log2 %94
+         %96 = OpFOrdGreaterThanEqual %bool %95 %float_5
+         %97 = OpSelect %ulong %96 %ulong_1 %ulong_0
+         %98 = OpSelect %float %96 %float_2 %float_1
+         %99 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %100 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %99 %uint_7
+               OpStore %100 %98 Aligned 4
+        %101 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+        %103 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %101 %uint_8
+        %104 = OpLoad %float %103 Aligned 4
+        %105 = OpExtInst %float %1 log10 %104
+        %106 = OpFOrdGreaterThanEqual %bool %105 %float_5
+        %107 = OpSelect %ulong %106 %ulong_1 %ulong_0
+        %108 = OpSelect %float %106 %float_2 %float_1
+        %109 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %110 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %109 %uint_8
+               OpStore %110 %108 Aligned 4
+        %111 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+        %113 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %111 %uint_9
+        %114 = OpLoad %float %113 Aligned 4
+        %115 = OpExtInst %float %1 native_log10 %114
+        %116 = OpFOrdGreaterThanEqual %bool %115 %float_5
+        %117 = OpSelect %ulong %116 %ulong_1 %ulong_0
+        %118 = OpSelect %float %116 %float_2 %float_1
+        %119 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %120 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %119 %uint_9
+               OpStore %120 %118 Aligned 4
+        %121 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+        %123 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %121 %uint_10
+        %124 = OpLoad %float %123 Aligned 4
+        %125 = OpExtInst %float %1 sin %124
+        %126 = OpFOrdGreaterThanEqual %bool %125 %float_5
+        %127 = OpSelect %ulong %126 %ulong_1 %ulong_0
+        %128 = OpSelect %float %126 %float_2 %float_1
+        %129 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %130 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %129 %uint_10
+               OpStore %130 %128 Aligned 4
+        %131 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+        %133 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %131 %uint_11
+        %134 = OpLoad %float %133 Aligned 4
+        %135 = OpExtInst %float %1 native_sin %134
+        %136 = OpFOrdGreaterThanEqual %bool %135 %float_5
+        %137 = OpSelect %ulong %136 %ulong_1 %ulong_0
+        %138 = OpSelect %float %136 %float_2 %float_1
+        %139 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %140 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %139 %uint_11
+               OpStore %140 %138 Aligned 4
+        %141 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+        %143 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %141 %uint_12
+        %144 = OpLoad %float %143 Aligned 4
+        %145 = OpExtInst %float %1 cos %144
+        %146 = OpFOrdGreaterThanEqual %bool %145 %float_5
+        %147 = OpSelect %ulong %146 %ulong_1 %ulong_0
+        %148 = OpSelect %float %146 %float_2 %float_1
+        %149 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %150 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %149 %uint_12
+               OpStore %150 %148 Aligned 4
+        %151 = OpLoad %_ptr_CrossWorkgroup_float %11 Aligned 4
+        %153 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %151 %uint_13
+        %154 = OpLoad %float %153 Aligned 4
+        %155 = OpExtInst %float %1 native_cos %154
+        %156 = OpFOrdGreaterThanEqual %bool %155 %float_5
+        %157 = OpSelect %ulong %156 %ulong_1 %ulong_0
+        %158 = OpSelect %float %156 %float_2 %float_1
+        %159 = OpLoad %_ptr_CrossWorkgroup_float %12 Aligned 4
+        %160 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %159 %uint_13
+               OpStore %160 %158 Aligned 4
+               OpReturn
+               OpFunctionEnd

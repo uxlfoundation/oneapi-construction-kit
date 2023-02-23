@@ -1,0 +1,128 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 95
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %12 "struct_sizeof" %__spirv_BuiltInGlobalInvocationId
+               OpExecutionMode %12 ContractionOff
+         %92 = OpString "kernel_arg_type.struct_sizeof.float3*,uint*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %struct_testStruct "struct.testStruct"
+               OpDecorate %93 Alignment 4
+         %93 = OpDecorationGroup
+               OpDecorate %94 Alignment 16
+         %94 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %93 %17 %19 %21 %33 %36 %39
+               OpGroupDecorate %94 %32 %41
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+      %ulong = OpTypeInt 64 0
+     %uint_4 = OpConstant %uint 4
+     %uint_2 = OpConstant %uint 2
+     %uint_8 = OpConstant %uint 8
+     %uint_3 = OpConstant %uint 3
+   %uint_192 = OpConstant %uint 192
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %uint_64 = OpConstant %uint 64
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_CrossWorkgroup_v3float = OpTypePointer CrossWorkgroup %v3float
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+         %11 = OpTypeFunction %void %_ptr_CrossWorkgroup_v3float %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_v3float = OpTypePointer Function %_ptr_CrossWorkgroup_v3float
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_arr_ulong_uint_2 = OpTypeArray %ulong %uint_2
+%_arr_uchar_uint_8 = OpTypeArray %uchar %uint_8
+%struct_testStruct = OpTypeStruct %uchar %v3float %uint %_arr_ulong_uint_2 %_arr_uchar_uint_8
+%_arr_struct_testStruct_uint_4 = OpTypeArray %struct_testStruct %uint_4
+%_ptr_Function__arr_struct_testStruct_uint_4 = OpTypePointer Function %_arr_struct_testStruct_uint_4
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_ptr_Function__ptr_Function_uchar = OpTypePointer Function %_ptr_Function_uchar
+%_ptr_Function_struct_testStruct = OpTypePointer Function %struct_testStruct
+%_ptr_Function__ptr_Function_struct_testStruct = OpTypePointer Function %_ptr_Function_struct_testStruct
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+         %52 = OpUndef %v3float
+%float_0_200000003 = OpConstant %float 0.200000003
+  %float_0_5 = OpConstant %float 0.5
+         %70 = OpUndef %v4float
+         %12 = OpFunction %void DontInline %11
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_v3float
+         %14 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %15 = OpLabel
+         %17 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v3float Function
+         %19 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %21 = OpVariable %_ptr_Function_uint Function
+         %32 = OpVariable %_ptr_Function__arr_struct_testStruct_uint_4 Function
+         %33 = OpVariable %_ptr_Function_uint Function
+         %36 = OpVariable %_ptr_Function__ptr_Function_uchar Function
+         %39 = OpVariable %_ptr_Function__ptr_Function_struct_testStruct Function
+         %41 = OpVariable %_ptr_Function_v3float Function
+               OpStore %17 %13 Aligned 4
+               OpStore %19 %14 Aligned 4
+         %42 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %43 = OpCompositeExtract %uint %42 0
+               OpStore %21 %43 Aligned 4
+               OpStore %33 %uint_3 Aligned 4
+         %45 = OpBitcast %_ptr_Function_uchar %32
+               OpStore %36 %45 Aligned 4
+         %46 = OpLoad %_ptr_Function_uchar %36 Aligned 4
+         %48 = OpInBoundsPtrAccessChain %_ptr_Function_uchar %46 %uint_192
+         %49 = OpBitcast %_ptr_Function_struct_testStruct %48
+               OpStore %39 %49 Aligned 4
+         %50 = OpLoad %uint %21 Aligned 4
+         %51 = OpConvertUToF %float %50
+         %53 = OpCompositeInsert %v3float %51 %52 0
+         %54 = OpLoad %uint %21 Aligned 4
+         %55 = OpConvertUToF %float %54
+         %57 = OpFAdd %float %55 %float_0_200000003
+         %58 = OpCompositeInsert %v3float %57 %53 1
+         %59 = OpLoad %uint %21 Aligned 4
+         %60 = OpConvertUToF %float %59
+         %62 = OpFAdd %float %60 %float_0_5
+         %63 = OpCompositeInsert %v3float %62 %58 2
+         %65 = OpVectorShuffle %v4float %63 %52 0 1 2 4294967295
+         %67 = OpBitcast %_ptr_Function_v4float %41
+               OpStore %67 %65 Aligned 16
+         %68 = OpBitcast %_ptr_Function_v4float %41
+         %69 = OpLoad %v4float %68 Aligned 16
+         %71 = OpVectorShuffle %v3float %69 %70 0 1 2
+         %72 = OpLoad %_ptr_Function_struct_testStruct %39 Aligned 4
+         %75 = OpInBoundsPtrAccessChain %_ptr_Function_v3float %72 %uint_0 %uint_1
+         %76 = OpVectorShuffle %v4float %71 %52 0 1 2 4294967295
+         %77 = OpBitcast %_ptr_Function_v4float %75
+               OpStore %77 %76 Aligned 16
+         %78 = OpInBoundsPtrAccessChain %_ptr_Function_struct_testStruct %32 %uint_0 %uint_3
+         %79 = OpInBoundsPtrAccessChain %_ptr_Function_v3float %78 %uint_0 %uint_1
+         %80 = OpBitcast %_ptr_Function_v4float %79
+         %81 = OpLoad %v4float %80 Aligned 16
+         %82 = OpVectorShuffle %v3float %81 %70 0 1 2
+         %83 = OpLoad %uint %21 Aligned 4
+         %84 = OpLoad %_ptr_CrossWorkgroup_v3float %17 Aligned 4
+         %86 = OpBitcast %_ptr_CrossWorkgroup_float %84
+         %87 = OpExtInst %void %1 vstoren %82 %83 %86
+         %88 = OpLoad %_ptr_CrossWorkgroup_uint %19 Aligned 4
+         %89 = OpLoad %uint %21 Aligned 4
+         %90 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %88 %89
+               OpStore %90 %uint_64 Aligned 4
+               OpReturn
+               OpFunctionEnd

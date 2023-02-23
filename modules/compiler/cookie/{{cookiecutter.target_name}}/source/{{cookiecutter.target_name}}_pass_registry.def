@@ -1,0 +1,46 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
+// outlines all {{cookiecutter.target_name}} specific passes.
+#ifndef MODULE_PASS
+#define MODULE_PASS(NAME, CREATE_PASS)
+#endif
+
+#ifndef MODULE_ANALYSIS
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)
+#endif
+
+MODULE_ANALYSIS("{{cookiecutter.target_name}}-vecz-pass-opts",
+                vecz::VeczPassOptionsAnalysis({{cookiecutter.target_name.capitalize()}}VeczPassOpts))
+
+
+#ifndef FUNCTION_ANALYSIS
+#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)
+#endif
+#ifndef FUNCTION_PASS
+#define FUNCTION_PASS(NAME, CREATE_PASS)
+#endif
+
+{% if "refsi_wrapper_pass"  in cookiecutter.feature.split(";") -%}
+MODULE_PASS("refsi-wrapper", {{cookiecutter.target_name}}::RefSiM1WrapperPass())
+{% endif -%}
+#ifndef FUNCTION_PASS_WITH_PARAMS
+#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)
+#endif
+
+#ifndef CGSCC_PASS
+#define CGSCC_PASS(NAME, CREATE_PASS)
+#endif
+
+#ifndef MODULE_PASS_NO_PARSE
+#define MODULE_PASS_NO_PARSE(NAME, CREATE_PASS)
+#endif
+
+#undef MODULE_PASS
+#undef MODULE_PASS_WITH_PARAMS
+#undef MODULE_ANALYSIS
+#undef FUNCTION_ANALYSIS
+#undef FUNCTION_PASS
+#undef FUNCTION_PASS_WITH_PARAMS
+#undef CGSCC_PASS
+#undef MODULE_PASS_NO_PARSE

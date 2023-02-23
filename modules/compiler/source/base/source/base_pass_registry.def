@@ -1,0 +1,198 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
+// outlines most compiler::utils and compiler:: passes.
+
+#ifndef MODULE_PASS
+#define MODULE_PASS(NAME, CREATE_PASS)
+#endif
+MODULE_PASS("add-generic-metadata",
+            (compiler::utils::AddMetadataPass<compiler::utils::GenericMetadataAnalysis,
+                                              handler::GenericMetadataHandler>()));
+MODULE_PASS(
+    "add-vectorize-metadata",
+    (compiler::utils::AddMetadataPass<compiler::utils::VectorizeMetadataAnalysis,
+                                      handler::VectorizeInfoMetadataHandler>()))
+MODULE_PASS("add-sched-params", compiler::utils::AddSchedulingParametersPass())
+MODULE_PASS("align-module-structs", compiler::utils::AlignModuleStructsPass())
+MODULE_PASS("check-ext-funcs", compiler::CheckForExtFuncsPass())
+MODULE_PASS("compute-local-memory-usage", compiler::utils::ComputeLocalMemoryUsagePass())
+MODULE_PASS("define-mux-builtins", compiler::utils::DefineMuxBuiltinsPass())
+MODULE_PASS("degenerate-sub-groups", compiler::utils::DegenerateSubGroupPass())
+MODULE_PASS("missing-builtins",
+            compiler::utils::MaterializeAbsentWorkItemBuiltinsPass())
+MODULE_PASS("prepare-barriers", compiler::utils::PrepareBarriersPass())
+MODULE_PASS("rename-builtins", compiler::utils::RenameBuiltinsPass())
+MODULE_PASS("replace-async-copies", compiler::utils::ReplaceAsyncCopiesPass())
+MODULE_PASS("replace-atomic-funcs", compiler::utils::ReplaceAtomicFuncsPass())
+MODULE_PASS("replace-barriers", compiler::utils::ReplaceBarriersPass())
+MODULE_PASS("replace-c11-atomic-funcs",
+            compiler::utils::ReplaceC11AtomicFuncsPass())
+MODULE_PASS("replace-wgc", compiler::utils::ReplaceWGCPass())
+
+MODULE_PASS("replace-mux-dma", compiler::utils::ReplaceMuxDmaPass())
+MODULE_PASS("replace-module-scope-vars",
+            compiler::utils::ReplaceLocalModuleScopeVariablesPass())
+
+MODULE_PASS("builtin-simplify", compiler::BuiltinSimplificationPass())
+MODULE_PASS("image-arg-subst", compiler::ImageArgumentSubstitutionPass())
+MODULE_PASS("fast-math", compiler::FastMathPass())
+MODULE_PASS("replace-printf", compiler::PrintfReplacementPass())
+MODULE_PASS("set-barrier-convergent", compiler::SetBarrierConvergentPass())
+MODULE_PASS("spir-fixup", compiler::spir::SpirFixupPass())
+MODULE_PASS("transfer-kernel-metadata",
+            compiler::utils::TransferKernelMetadataPass())
+
+MODULE_PASS("unique-opaque-structs", compiler::utils::UniqueOpaqueStructsPass())
+
+MODULE_PASS("run-vecz", vecz::RunVeczPass())
+MODULE_PASS("print<vecz-pass-opts>", vecz::VeczPassOptionsPrinterPass(dbgs()))
+
+#ifndef MODULE_PASS_WITH_PARAMS
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)
+#endif
+
+MODULE_PASS_WITH_PARAMS(
+    "add-kernel-wrapper", "compiler::utils::AddKernelWrapperPass",
+    [](compiler::utils::AddKernelWrapperPassOptions Options) {
+      return compiler::utils::AddKernelWrapperPass(Options);
+    },
+    parseAddKernelWrapperPassOptions,
+    "packed;unpacked;local-buffers-by-size;local-buffers-by-ptr")
+
+MODULE_PASS_WITH_PARAMS(
+    "encode-builtin-range-metadata",
+    "compiler::utils::EncodeBuiltinRangeMetadataPass",
+    [](compiler::utils::EncodeBuiltinRangeMetadataOptions Options) {
+      return compiler::utils::EncodeBuiltinRangeMetadataPass(Options);
+    },
+    parseEncodeBuiltinRangeMetadataPassOptions,
+    "max-local-sizes=X(:Y(:Z)?)?;max-global-sizes=X(:Y(:Z)?)?")
+
+MODULE_PASS_WITH_PARAMS(
+    "encode-kernel-metadata",
+    "compiler::utils::EncodeKernelMetadataPass",
+    [](compiler::utils::EncodeKernelMetadataPassOptions Options)  {
+      return compiler::utils::EncodeKernelMetadataPass(Options);
+    },
+    parseEncodeKernelMetadataPassOptions,
+    "name=N;local-sizes=X:Y:Z;")
+
+MODULE_PASS_WITH_PARAMS(
+    "link-builtins", "compiler::utils::LinkBuiltinsPass",
+    [](bool EarlyLinking) {
+      return compiler::utils::LinkBuiltinsPass(EarlyLinking);
+    },
+    parseLinkBuiltinsPassOptions, "early")
+
+MODULE_PASS_WITH_PARAMS(
+    "replace-mux-math-decls", "compiler::utils::ReplaceMuxMathDeclsPass",
+    [](bool IsFastMath) {
+      return compiler::utils::ReplaceMuxMathDeclsPass(IsFastMath);
+    },
+    parseReplaceMuxMathDeclsPassOptions, "fast")
+
+MODULE_PASS_WITH_PARAMS(
+    "fixup-calling-conv", "compiler::utils::FixupCallingConventionPass",
+    [](llvm::CallingConv::ID Option) {
+      return compiler::utils::FixupCallingConventionPass(Option);
+    },
+    parseFixupCallingConventionPassOptions, "call-conv")
+
+MODULE_PASS_WITH_PARAMS(
+    "barriers-pass", "compiler::utils::HandleBarriersPass",
+    [](compiler::utils::HandleBarriersOptions Options) {
+      return compiler::utils::HandleBarriersPass(Options);
+    },
+    parseHandleBarrierPassOptions,
+    "debug;no-tail")
+
+MODULE_PASS_WITH_PARAMS(
+    "reduce-to-func", "compiler::utils::ReduceToFunctionPass",
+    [](const std::vector<llvm::StringRef> &Names) {
+      return compiler::utils::ReduceToFunctionPass(Names);
+    },
+    parseReduceToFunctionPassOptions, "names=A:B:C:...")
+
+#ifndef MODULE_ANALYSIS
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)
+#endif
+
+MODULE_ANALYSIS("builtin-info",
+                !BICallback ? compiler::utils::BuiltinInfoAnalysis() :
+                              compiler::utils::BuiltinInfoAnalysis(BICallback))
+
+MODULE_ANALYSIS("device-info",
+                !Info ? compiler::utils::DeviceInfoAnalysis() :
+                        compiler::utils::DeviceInfoAnalysis(*Info))
+
+// Note - a default implementation to avoid crashes when retrieving the
+// analysis. Targets will most certainly want to register their own
+// vecz::VeczPassOptionsAnalysis before this is registered.
+MODULE_ANALYSIS("vecz-pass-opts", vecz::VeczPassOptionsAnalysis())
+
+// Note - a default implementation to avoid crashes when retrieving the
+// analysis. Targets may want to register their own vecz::TargetInfoAnalysis
+// before this is registered.
+MODULE_ANALYSIS("vecz-target-info", vecz::TargetInfoAnalysis(TM))
+
+#ifndef FUNCTION_ANALYSIS
+#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)
+#endif
+FUNCTION_ANALYSIS("generic-metadata", compiler::utils::GenericMetadataAnalysis());
+FUNCTION_ANALYSIS("vectorize-metadata", compiler::utils::VectorizeMetadataAnalysis());
+
+
+#ifndef FUNCTION_PASS
+#define FUNCTION_PASS(NAME, CREATE_PASS)
+#endif
+
+FUNCTION_PASS("bit-shift-fixup", compiler::BitShiftFixupPass())
+FUNCTION_PASS("ca-mem2reg", compiler::MemToRegPass())
+FUNCTION_PASS("check-doubles", compiler::CheckForDoublesPass())
+FUNCTION_PASS("combine-fpext-fptrunc", compiler::CombineFPExtFPTruncPass())
+FUNCTION_PASS("software-div", compiler::SoftwareDivisionPass())
+FUNCTION_PASS("replace-addrspace-fns", compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass())
+FUNCTION_PASS("remove-lifetime", compiler::utils::RemoveLifetimeIntrinsicsPass())
+FUNCTION_PASS("remove-exceptions", compiler::utils::RemoveExceptionsPass())
+FUNCTION_PASS("remove-fences", compiler::utils::RemoveFencesPass())
+FUNCTION_PASS("replace-mem-intrins", compiler::utils::ReplaceMemIntrinsicsPass())
+FUNCTION_PASS("print<generic-metadata>", compiler::utils::GenericMetadataPrinterPass(llvm::dbgs()))
+FUNCTION_PASS("print<vectorize-metadata>", compiler::utils::VectorizeMetadataPrinterPass(llvm::dbgs()))
+
+
+#ifndef FUNCTION_PASS_WITH_PARAMS
+#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)
+#endif
+
+FUNCTION_PASS_WITH_PARAMS(
+    "make-unique-func", "compiler::utils::MakeFunctionNameUniquePass",
+    [](llvm::StringRef Name) {
+      return compiler::utils::MakeFunctionNameUniquePass(Name);
+    },
+    parseMakeFunctionNameUniquePassOptions, "name")
+
+
+#ifndef CGSCC_PASS
+#define CGSCC_PASS(NAME, CREATE_PASS)
+#endif
+
+CGSCC_PASS("optimal-builtin-replace",
+           compiler::utils::OptimalBuiltinReplacementPass())
+
+
+#ifndef MODULE_PASS_NO_PARSE
+#define MODULE_PASS_NO_PARSE(NAME, CREATE_PASS)
+#endif
+
+// The following are deferred for parsing until parsing improved
+MODULE_PASS_NO_PARSE("simple-callback-pass", "compiler::utils::SimpleCallbackPass")
+
+#undef MODULE_PASS
+#undef MODULE_PASS_WITH_PARAMS
+#undef MODULE_ANALYSIS
+#undef FUNCTION_ANALYSIS
+#undef FUNCTION_PASS
+#undef FUNCTION_PASS_WITH_PARAMS
+#undef CGSCC_PASS
+#undef MODULE_PASS_NO_PARSE

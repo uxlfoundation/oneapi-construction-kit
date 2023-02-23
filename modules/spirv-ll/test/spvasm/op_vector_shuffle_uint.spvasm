@@ -1,0 +1,38 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_vector_shuffle_uint.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %main "main"
+               OpName %res "res"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %uint = OpTypeInt 32 0
+     %v3_uint = OpTypeVector %uint 3
+ %ptr_v3_uint = OpTypePointer Function %v3_uint
+         %10 = OpConstant %uint 42
+         %11 = OpConstantComposite %v3_uint %10 %10 %10
+         %13 = OpConstant %uint 42
+         %14 = OpConstantComposite %v3_uint %13 %13 %13
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+        %res = OpVariable %ptr_v3_uint Function
+         %23 = OpVectorShuffle %v3_uint %11 %14 0 3 4
+               OpStore %res %23
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x i32>
+; CHECK-GE15: store <3 x i32> <i32 42, i32 42, i32 42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store <3 x i32> <i32 42, i32 42, i32 42>, <3 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void

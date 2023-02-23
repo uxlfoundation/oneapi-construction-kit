@@ -1,0 +1,49 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_spec_constant_composite_uint_vec.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %test_block "test_block"
+               OpMemberName %test_block 0 "test_out"
+               OpName %_ ""
+               OpMemberDecorate %test_block 0 Offset 0
+               OpDecorate %test_block BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 0
+               OpDecorate %12 SpecId 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+   %idx_type = OpTypeInt 32 0
+        %uint = OpTypeInt 32 0
+    %vec_uint = OpTypeVector %uint 3
+ %test_block = OpTypeStruct %vec_uint
+%_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
+          %_ = OpVariable %_ptr_Uniform_test_block Uniform
+         %11 = OpConstant %idx_type 0
+         %12 = OpSpecConstant %uint 42
+         %13 = OpSpecConstantComposite %vec_uint %12 %12 %12 ; testing this
+%ptr_vec_uint = OpTypePointer Uniform %vec_uint
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %15 = OpAccessChain %ptr_vec_uint %_ %11
+               OpStore %15 %13
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: [[test_block:%[a-zA-Z0-9_]+]] = type { <3 x i32> }
+; CHECK-GE15: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
+; CHECK-GE15: [[anon:%[a-zA-Z0-9]+]] = getelementptr [[test_block]], ptr addrspace(1) {{%[a-zA-Z0-9]+}}, i32 0, i32 0
+; CHECK-GE15: store <3 x i32> <i32 42, i32 42, i32 42>, ptr addrspace(1) [[anon]]
+; CHECK-LT15: define spir_kernel void @main([[test_block]] addrspace(1)*{{( %0)?}}, i32 addrspace(1)*{{( %1)?}})
+; CHECK-LT15: [[anon:%[a-zA-Z0-9]+]] = getelementptr [[test_block]], [[test_block]] addrspace(1)* {{%[a-zA-Z0-9]+}}, i32 0, i32 0
+; CHECK-LT15: store <3 x i32> <i32 42, i32 42, i32 42>, <3 x i32> addrspace(1)* [[anon]]
+; CHECK: ret void

@@ -1,0 +1,61 @@
+/// @brief The number of trailing 0-bits in x.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@signed_generate_type@.
+///
+/// find_lsb returns the number of trailing 0-bits in x, starting at the least 
+/// significant bit position.
+abacus_@signed_generate_type@ ABACUS_EXPORT_API __abacus_find_lsb(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_find_lsb.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@signed_generate_type@.
+inline abacus_@signed_generate_type@ ABACUS_API findLSB(abacus_@generate_type@ x) {
+  return __abacus_find_lsb(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The number of leading 1-bits in x.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@signed_generate_type@.
+///
+/// find_msb returns the number of leading 1-bits in x, starting at the most 
+/// significant bit position.
+abacus_@signed_generate_type@ ABACUS_EXPORT_API __abacus_find_msb(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_find_msb.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@signed_generate_type@.
+inline abacus_@signed_generate_type@ ABACUS_API findMSB(abacus_@generate_type@ x) {
+  return __abacus_find_msb(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Reverse the bits in x.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// bit_reverse returns the reversal of the bits of x.
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_bit_reverse(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_bit_reverse.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API bitfieldReverse(abacus_@generate_type@ x) {
+  return __abacus_bit_reverse(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif

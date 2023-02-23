@@ -1,0 +1,51 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+set(generate_input_definitions "")
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/vload.in" vload)
+
+set(types "char;short;int;long;uchar;ushort;uint;ulong;half;float;double")
+set(vector_sizes "2;3;4;8;16")
+
+foreach(generate_type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    if(generate_type STREQUAL "double")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${vload}\n#endif\n"
+        processed @ONLY)
+    elseif(generate_type STREQUAL "half")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_HALF_SUPPORT\n${vload}\n#endif\n"
+        processed @ONLY)
+    else()
+      string(CONFIGURE "${vload}" processed @ONLY)
+    endif()
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/vstore.in" vstore)
+
+set(types "char;short;int;long;uchar;ushort;uint;ulong;half;float;double")
+set(vector_sizes "2;3;4;8;16")
+
+foreach(generate_type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    if(generate_type STREQUAL "double")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${vstore}\n#endif\n"
+        processed @ONLY)
+    elseif(generate_type STREQUAL "half")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_HALF_SUPPORT\n${vstore}\n#endif\n"
+        processed @ONLY)
+    else()
+      string(CONFIGURE "${vstore}" processed @ONLY)
+    endif()
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_memory.in" abacus_memory)
+string(CONFIGURE "${abacus_memory}" abacus_memory @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_memory}")

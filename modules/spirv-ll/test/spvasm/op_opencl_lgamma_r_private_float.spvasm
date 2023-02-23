@@ -1,0 +1,33 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_lgamma_r_private_float.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %lgamma_r_float "lgamma_r_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %int_t = OpTypeInt 32 1
+             %float_t = OpTypeFloat 32
+           %int_ptr_t = OpTypePointer Function %int_t
+       %lgamma_r_fn_t = OpTypeFunction %void_t
+             %float_2 = OpConstant %float_t 2.14
+
+; All functions
+      %lgamma_r_float = OpFunction %void_t None %lgamma_r_fn_t
+; CHECK: define spir_kernel void @lgamma_r_float()
+                   %2 = OpLabel
+                   %3 = OpVariable %int_ptr_t Function
+; CHECK: [[signp:%[a-zA-Z0-9]+]] = alloca i32
+                   %4 = OpExtInst %float_t %1 lgamma_r %float_2 %3
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z8lgamma_rfPi(float 0x40011EB860000000, ptr [[signp]])
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z8lgamma_rfPi(float 0x40011EB860000000, i32* [[signp]])
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+from os import access, X_OK
+from sys import stdout, stderr
+from subprocess import call
+
+# Paths from CMake.
+LLVM_LIT = '@LIT@'
+PYTHON_EXECUTABLE = '@PYTHON_EXECUTABLE@'
+SOURCE_DIR = '@CMAKE_CURRENT_BINARY_DIR@'
+
+# Run the test suite.
+command = [LLVM_LIT, SOURCE_DIR]
+if not access(LLVM_LIT, X_OK):
+    command = [PYTHON_EXECUTABLE] + command
+call(command, stdout=stdout, stderr=stderr)

@@ -1,0 +1,27 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_native_sin_float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %native_sin_float "native_sin_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+     %native_sin_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.57
+
+; All functions
+    %native_sin_float = OpFunction %void_t None %native_sin_fn_t
+; CHECK: define spir_kernel void @native_sin_float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 native_sin %float_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z10native_sinf(float 0x3FF91EB860000000)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,23 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+# See https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions
+# The path to this file needs to be exported at runtime using TSAN_OPTIONS
+# e.g TSAN_OPTIONS="suppressions=/path/to/tsan_suppressions.txt" a.out
+
+# Ignore thread leaks and data races from CTS tests not joining created threads
+# before exiting main.
+thread:ThreadPool_Init
+race:ThreadPool_Exit
+
+# Ignore data races from CTS integer_ops test when seeding the initial data.
+race:genrand_int32
+
+# Ignore races in LLVM/Clang around timing passes, as this seems to have global
+# state, not per-LLVMContext state. The global variables are bools, that seem
+# to always get written with the same values in our uses.  So the write/read
+# data race is extremely theoretical, but extremely hard to lock as the
+# LLVM/Clang global variable can be accessed from separate LLVMContext.
+race:llvm::TimePassesIsEnabled
+race:clang::FrontendTimesIsEnabled
+race:llvm::TimePassesPerRun
+race:clang::TimePassesPerRun

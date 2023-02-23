@@ -1,0 +1,8 @@
+#version 450
+
+layout (std430, set=0, binding=0) buffer outR { int r[2]; };
+
+void main() {
+  r[0] = 2000;
+  r[1] = 4000;
+}

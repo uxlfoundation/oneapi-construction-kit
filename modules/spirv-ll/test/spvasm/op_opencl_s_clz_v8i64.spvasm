@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_clz_v8i64.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_clz_v8i64 "s_clz_v8i64"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i64_t = OpTypeInt 64 1
+             %v8i64_t = OpTypeVector %i64_t 8
+          %s_clz_fn_t = OpTypeFunction %void_t
+               %i64_1 = OpConstant %i64_t 1
+             %v8i64_1 = OpConstantComposite %v8i64_t %i64_1 %i64_1 %i64_1 %i64_1 %i64_1 %i64_1 %i64_1 %i64_1
+
+; All functions
+         %s_clz_v8i64 = OpFunction %void_t None %s_clz_fn_t
+; CHECK: define spir_kernel void @s_clz_v8i64()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v8i64_t %1 clz %v8i64_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i64> @_Z3clzDv8_l(<8 x i64> <i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,47 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+""" A convenience testing wrapper which allows running of lit tests directly
+from a source directly. It is a thin wrapper around lit; all parameters are
+forwarded onto lit directly. Only the hidden parameter 'config_map' is set,
+which allows mapping from source directories to a config in the build
+directory.
+
+Usage:
+
+  ca-lit modules/vecz/test/lit/llvm/
+
+Note: this script was copied more-or-less directly from LLVM's
+llvm/utils/llvm-lit/llvm-lit.in
+"""
+
+import os
+import sys
+from pathlib import Path
+
+config_map = {}
+
+# Allow generated file to be relocatable.
+def path(p):
+    if not p: return ''
+    return str((Path(__file__).parent / p).resolve())
+
+
+def map_config(source_dir, site_config):
+    global config_map
+    source_dir = os.path.realpath(source_dir)
+    source_dir = os.path.normcase(source_dir)
+    site_config = os.path.normpath(site_config)
+    config_map[source_dir] = site_config
+
+# Set up some builtin parameters, so that by default the LLVM test suite
+# configuration file knows how to find the object tree.
+builtin_parameters = { 'build_mode' : '@BUILD_MODE@' }
+
+@CA_LIT_CONFIG_MAP@
+
+builtin_parameters['config_map'] = config_map
+
+if __name__=='__main__':
+    from lit.main import main
+    main(builtin_parameters)

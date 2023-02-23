@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue c_CopySrcToComponent -compare d_c:%p/Inputs/com_dwt_k_c_CopySrcToComponent_out.txt -arg d_c,repeat(4,73) -arg cl_d_src,repeat(4,randint(0,255)) -arg pixels,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/com_dwt.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: d_c - match

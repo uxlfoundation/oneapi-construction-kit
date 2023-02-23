@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_rotate_v4i64.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_rotate_v4i64 "u_rotate_v4i64"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i64_t = OpTypeInt 64 0
+             %v4i64_t = OpTypeVector %i64_t 4
+       %u_rotate_fn_t = OpTypeFunction %void_t
+               %i64_2 = OpConstant %i64_t 2
+               %i64_4 = OpConstant %i64_t 4
+             %v4i64_2 = OpConstantComposite %v4i64_t %i64_2 %i64_2 %i64_2 %i64_2
+             %v4i64_4 = OpConstantComposite %v4i64_t %i64_4 %i64_4 %i64_4 %i64_4
+
+; All functions
+      %u_rotate_v4i64 = OpFunction %void_t None %u_rotate_fn_t
+; CHECK: define spir_kernel void @u_rotate_v4i64()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v4i64_t %1 rotate %v4i64_2 %v4i64_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i64> @_Z6rotateDv4_mS_(<4 x i64> <i64 2, i64 2, i64 2, i64 2>, <4 x i64> <i64 4, i64 4, i64 4, i64 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

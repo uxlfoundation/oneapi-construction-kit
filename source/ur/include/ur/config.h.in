@@ -1,0 +1,18 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+/// @file
+///
+/// @brief
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef UR_CONFIG_H_INCLUDED
+#define UR_CONFIG_H_INCLUDED
+
+#define CA_UR_PLATFORM_NAME "@CA_UR_PLATFORM_NAME@"
+#define CA_UR_PLATFORM_VENDOR "@CA_UR_PLATFORM_VENDOR@"
+#define CA_UR_PLATFORM_VERSION "@CA_UR_PLATFORM_VERSION@"
+#define CA_UR_PLATFORM_EXTENSIONS "@CA_UR_PLATFORM_EXTENSIONS@"
+#define CA_UR_PLATFORM_PROFILE "@CA_UR_PLATFORM_PROFILE@"
+
+#endif  // UR_CONFIG_H_INCLUDED

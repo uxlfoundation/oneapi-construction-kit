@@ -1,0 +1,122 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#include "builtins/bakery.h"
+#include "builtins/resources.h"
+
+#include <cstring>
+
+namespace builtins {
+cargo::array_view<const uint8_t> get_api_src_file() {
+  return rc::builtins::builtins_h;
+}
+
+#if defined(CL_VERSION_3_0)
+cargo::array_view<const uint8_t> get_api_30_src_file() {
+  return rc::builtins::builtins_3_0_h;
+}
+#endif
+
+cargo::array_view<const uint8_t> get_api_force_file_device(
+    const char *const device_name) {
+  // Begin auto-generated boilerplate
+@get_force_header_src@
+  // End auto-generated boilerplate
+  return {};
+}
+
+cargo::array_view<const uint8_t> get_pch_file(
+    file::capabilities_bitfield caps) {
+  cargo::array_view<const uint8_t> resource;
+  switch (caps) {
+    case file::CAPS_32BIT | file::CAPS_FP64 | file::CAPS_FP16:
+      resource = rc::builtins::builtins32_fp64_fp16_pch;
+      break;
+    case file::CAPS_32BIT | file::CAPS_FP64:
+      resource = rc::builtins::builtins32_fp64_pch;
+      break;
+    case file::CAPS_32BIT | file::CAPS_FP16:
+      resource = rc::builtins::builtins32_fp16_pch;
+      break;
+    case file::CAPS_32BIT:
+      resource = rc::builtins::builtins32_pch;
+      break;
+    case file::CAPS_FP64 | file::CAPS_FP16:
+      resource = rc::builtins::builtins64_fp64_fp16_pch;
+      break;
+    case file::CAPS_FP64:
+      resource = rc::builtins::builtins64_fp64_pch;
+      break;
+    case file::CAPS_FP16:
+      resource = rc::builtins::builtins64_fp16_pch;
+      break;
+    case file::CAPS_DEFAULT:
+      resource = rc::builtins::builtins64_pch;
+      break;
+    default:
+      fprintf(stderr, "Illegal capabilities_bitfield\n");
+      abort();
+  }
+  if (resource.size() == 1) {
+    fprintf(stderr,
+            "Attempted to load an unavailable PCH file with capabilities:\n");
+    fprintf(stderr, "Bit width: %d\n", (caps & file::CAPS_32BIT) ? 32 : 64);
+    fprintf(stderr, "Doubles: %s\n",
+            (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
+    fprintf(stderr, "Halfs: %s\n",
+            (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
+    fprintf(stderr,
+            "This usually indicates that the device capabilities were "
+            "incorrectly listed in the target device's CMakeLists.txt.\n");
+    abort();
+  }
+  return resource;
+}
+
+cargo::array_view<const uint8_t> get_bc_file(file::capabilities_bitfield caps) {
+  cargo::array_view<const uint8_t> resource;
+  switch (caps) {
+    case file::CAPS_32BIT | file::CAPS_FP64 | file::CAPS_FP16:
+      resource = rc::builtins::builtins32_fp64_fp16_bc;
+      break;
+    case file::CAPS_32BIT | file::CAPS_FP64:
+      resource = rc::builtins::builtins32_fp64_bc;
+      break;
+    case file::CAPS_32BIT | file::CAPS_FP16:
+      resource = rc::builtins::builtins32_fp16_bc;
+      break;
+    case file::CAPS_32BIT:
+      resource = rc::builtins::builtins32_bc;
+      break;
+    case file::CAPS_FP64 | file::CAPS_FP16:
+      resource = rc::builtins::builtins64_fp64_fp16_bc;
+      break;
+    case file::CAPS_FP64:
+      resource = rc::builtins::builtins64_fp64_bc;
+      break;
+    case file::CAPS_FP16:
+      resource = rc::builtins::builtins64_fp16_bc;
+      break;
+    case file::CAPS_DEFAULT:
+      resource = rc::builtins::builtins64_bc;
+      break;
+    default:
+      fprintf(stderr, "Illegal capabilities_bitfield\n");
+      abort();
+  }
+  if (resource.size() == 1) {
+    fprintf(stderr,
+            "Attempted to load an unavailable BC file with capabilities:\n");
+    fprintf(stderr, "Bit width: %d\n", (caps & file::CAPS_32BIT) ? 32 : 64);
+    fprintf(stderr, "Doubles: %s\n",
+            (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
+    fprintf(stderr, "Halfs: %s\n",
+            (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
+    fprintf(stderr,
+            "This usually indicates that the device capabilities were "
+            "incorrectly listed in the target device's CMakeLists.txt.\n");
+    abort();
+  }
+  return resource;
+}
+
+}  // namespace builtins

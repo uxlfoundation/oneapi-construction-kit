@@ -1,0 +1,51 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 32
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Float16Buffer
+               OpCapability Float64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %17 "half_with_double_conversion"
+         %31 = OpString "kernel_arg_type.half_with_double_conversion.half*,"
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpDecorate %_str Constant
+               OpDecorate %_str Alignment 1
+               OpDecorate %21 Alignment 4
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+   %uchar_37 = OpConstant %uchar 37
+   %uchar_97 = OpConstant %uchar 97
+   %uchar_10 = OpConstant %uchar 10
+    %uchar_0 = OpConstant %uchar 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+%_arr_uchar_uint_4 = OpTypeArray %uchar %uint_4
+%_ptr_UniformConstant__arr_uchar_uint_4 = OpTypePointer UniformConstant %_arr_uchar_uint_4
+       %void = OpTypeVoid
+       %half = OpTypeFloat 16
+%_ptr_CrossWorkgroup_half = OpTypePointer CrossWorkgroup %half
+         %16 = OpTypeFunction %void %_ptr_CrossWorkgroup_half
+%_ptr_Function__ptr_CrossWorkgroup_half = OpTypePointer Function %_ptr_CrossWorkgroup_half
+     %double = OpTypeFloat 64
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %10 = OpConstantComposite %_arr_uchar_uint_4 %uchar_37 %uchar_97 %uchar_10 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_uint_4 UniformConstant %10
+         %17 = OpFunction %void DontInline %16
+         %18 = OpFunctionParameter %_ptr_CrossWorkgroup_half
+         %19 = OpLabel
+         %21 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_half Function
+               OpStore %21 %18 Aligned 4
+         %22 = OpLoad %_ptr_CrossWorkgroup_half %21 Aligned 4
+         %24 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %22 %uint_0
+         %25 = OpLoad %half %24 Aligned 2
+         %27 = OpFConvert %double %25
+         %29 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+         %30 = OpExtInst %uint %1 printf %29 %27
+               OpReturn
+               OpFunctionEnd

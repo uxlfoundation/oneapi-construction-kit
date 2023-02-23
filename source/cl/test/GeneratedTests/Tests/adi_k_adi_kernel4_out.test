@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue adi_kernel4 -arg A,repeat(104,rand(0,1.0)) -arg B,repeat(104,rand(0,1.0)) -compare B:%p/Inputs/adi_k_adi_kernel4_out.txt -arg X,repeat(104,rand(0,1.0)) -compare X:%p/Inputs/adi_k_adi_kernel4_out.txt -arg i1,repeat(1,10) -arg n,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/stencils/adi/adi.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: B - match
+CHECK-DAG: X - match

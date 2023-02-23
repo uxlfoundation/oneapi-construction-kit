@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue gesummv_kernel -arg a,repeat(40,rand(0,1.0)) -arg b,repeat(40,rand(0,1.0)) -arg x,repeat(10,rand(0,1.0)) -arg y,repeat(4,rand(0,1.0)) -compare y:%p/Inputs/gesummv_k_gesummv_kernel_out.txt -arg tmp,repeat(4,rand(0,1.0)) -compare tmp:%p/Inputs/gesummv_k_gesummv_kernel_out.txt -arg alpha,repeat(1,rand(0,1.0)) -arg beta,repeat(1,rand(0,1.0)) -arg n,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/gesummv/gesummv.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: y - match
+CHECK-DAG: tmp - match

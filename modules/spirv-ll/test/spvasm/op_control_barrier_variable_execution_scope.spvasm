@@ -1,0 +1,28 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_control_barrier_variable_execution_scope.spv -o %t
+; RUN: %filecheck < %t %s
+                   OpCapability Addresses
+                   OpCapability Kernel
+              %1 = OpExtInstImport "OpenCL.std"
+                   OpMemoryModel Physical64 OpenCL
+                   OpEntryPoint Kernel %main "main"
+                   OpName %main "main"
+
+        %void_ty = OpTypeVoid
+        %uint_ty = OpTypeInt 32 0
+         %fcn_ty = OpTypeFunction %void_ty %uint_ty
+
+      %semantics = OpConstant %uint_ty 264
+   %memory_scope = OpConstant %uint_ty 2
+
+                   OpName %execution_scope "execution_scope"
+
+           %main = OpFunction %void_ty DontInline %fcn_ty
+%execution_scope = OpFunctionParameter %uint_ty
+             %bb = OpLabel
+                   OpControlBarrier %execution_scope %memory_scope %semantics
+                   OpReturn
+                   OpFunctionEnd
+
+; CHECK: call void @barrier_wrapper(i32 %execution_scope, i32 2, i32 264)

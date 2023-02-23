@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %6 "memset_kernel" %24
+               OpSource OpenCL_C 102000
+               OpName %out "out"
+               OpName %entry "entry"
+               OpDecorate %24 Constant
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+    %uint_64 = OpConstant %uint 64
+   %uint_256 = OpConstant %uint 256
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_arr_uchar_uint_64 = OpTypeArray %uchar %uint_64
+%_ptr_UniformConstant__arr_uchar_uint_64 = OpTypePointer UniformConstant %_arr_uchar_uint_64
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %22 = OpConstantNull %_arr_uchar_uint_64
+         %24 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_64 UniformConstant %22
+          %6 = OpFunction %void None %5
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+         %16 = OpConvertPtrToU %uint %out
+         %19 = OpConvertUToPtr %_ptr_Function_uchar %16
+         %26 = OpBitcast %_ptr_UniformConstant_uchar %24
+               OpCopyMemorySized %19 %26 %uint_256 Aligned 1
+               OpReturn
+               OpFunctionEnd

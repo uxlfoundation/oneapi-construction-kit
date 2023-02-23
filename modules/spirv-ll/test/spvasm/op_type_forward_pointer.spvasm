@@ -1,0 +1,11 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_type_forward_pointer.spv -o %t
+; RUN: %filecheck < %t %t.pp
+
+OpTypeForwardPointer %a Function
+%b = OpTypeVoid
+%c = OpTypePointer Function %a
+%a = OpTypePointer Function %b
+; CHECK: ; ModuleID = '{{.*}}'

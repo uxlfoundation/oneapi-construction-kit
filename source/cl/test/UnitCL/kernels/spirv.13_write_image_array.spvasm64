@@ -1,0 +1,21 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability ImageBasic
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %5 "write_image_array"
+               OpSource OpenCL_C 102000
+               OpName %out "out"
+       %uint = OpTypeInt 32 0
+       %void = OpTypeVoid
+          %3 = OpTypeImage %void 2D 0 1 0 0 Unknown WriteOnly
+          %4 = OpTypeFunction %void %3
+     %v4uint = OpTypeVector %uint 4
+         %10 = OpConstantNull %v4uint
+          %5 = OpFunction %void None %4
+        %out = OpFunctionParameter %3
+          %7 = OpLabel
+               OpImageWrite %out %10 %10
+               OpReturn
+               OpFunctionEnd

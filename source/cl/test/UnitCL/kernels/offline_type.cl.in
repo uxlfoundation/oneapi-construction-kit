@@ -1,0 +1,9 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+__kernel void type_${fulltype}(${fulltype} in_p,
+                               global ${fulltype} *in_g,
+                               constant ${fulltype} *in_c,
+                               local ${fulltype} *in_l,
+                               global volatile ${fulltype} *in_gv,
+                               local const ${fulltype} *in_lc,
+                               local ${fulltype}* restrict in_lr) {}

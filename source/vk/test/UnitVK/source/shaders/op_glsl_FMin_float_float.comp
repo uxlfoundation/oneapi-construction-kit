@@ -1,0 +1,12 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+layout (std430, set=0, binding=0) buffer inA {
+float arg0;
+float arg1;
+};
+layout (std430, set=0, binding=1) buffer outR {float res;};
+void main() {
+res = min(arg0,arg1);
+return;
+}

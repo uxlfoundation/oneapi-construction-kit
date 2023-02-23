@@ -1,0 +1,785 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+//
+
+/// @file
+///
+/// Abacus configuration.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#define __ABACUS_ABACUS_CONFIG__
+
+#if defined(__OPENCL_VERSION__)
+  #if !defined(__has_attribute)
+    #define __has_attribute(x) 0  // Compatibility with non-clang compilers
+  #endif
+
+  #if __has_attribute(overloadable)
+    #define ABACUS_API __attribute__((overloadable))
+    #define ABACUS_EXPORT_API __attribute__((overloadable, visibility("hidden")))
+  #else
+    #define ABACUS_API
+    #define ABACUS_EXPORT_API __attribute__((visibility("hidden")))
+  #endif
+#elif defined(__cplusplus)
+  #ifdef _MSC_VER
+    #ifdef ABACUS_LIBRARY_STATIC
+      #define ABACUS_EXPORT_API
+    #else
+      #ifdef ABACUS_LIBRARY_EXPORTS
+        #define ABACUS_EXPORT_API __declspec(dllexport)
+      #else
+        #define ABACUS_EXPORT_API __declspec(dllimport)
+      #endif
+    #endif
+
+    #define ABACUS_API ABACUS_EXPORT_API
+  #else
+    #define ABACUS_API
+    #define ABACUS_EXPORT_API __attribute__((visibility("default")))
+  #endif
+#else
+  #error Abacus only support C++ and OpenCL compilation!
+#endif
+
+#if defined(__OPENCL_VERSION__)
+  #define ABACUS_CONSTANT __constant const
+
+  #define ABACUS_INFINITY INFINITY
+  #define ABACUS_NAN NAN
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+  #define ABACUS_NAN_H (0.0f16 / 0.0f16)
+#endif
+  #define ABACUS_FP_ILOGB0 FP_ILOGB0
+  #define ABACUS_FP_ILOGBNAN FP_ILOGBNAN
+
+  #define ABACUS_E_F M_E_F
+  #define ABACUS_LOG2E_F M_LOG2E_F
+  #define ABACUS_LOG10E_F M_LOG10E_F
+  #define ABACUS_LN2_F M_LN2_F
+  #define ABACUS_LN10_F M_LN10_F
+  #define ABACUS_PI_F M_PI_F
+  #define ABACUS_PI_2_F M_PI_2_F
+  #define ABACUS_PI_4_F M_PI_4_F
+  #define ABACUS_1_PI_F M_1_PI_F
+  #define ABACUS_2_PI_F M_2_PI_F
+  #define ABACUS_2_SQRTPI_F M_2_SQRTPI_F
+  #define ABACUS_SQRT2_F M_SQRT2_F
+  #define ABACUS_SQRT1_2_F M_SQRT1_2_F
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+  #define ABACUS_E_H M_E_H
+  #define ABACUS_LOG2E_H M_LOG2E_H
+  #define ABACUS_LOG10E_H M_LOG10E_H
+  #define ABACUS_LN2_H M_LN2_H
+  #define ABACUS_LN10_H M_LN10_H
+  #define ABACUS_PI_H M_PI_H
+  #define ABACUS_PI_2_H M_PI_2_H
+  #define ABACUS_PI_4_H M_PI_4_H
+  #define ABACUS_1_PI_H M_1_PI_H
+  #define ABACUS_2_PI_H M_2_PI_H
+  #define ABACUS_2_SQRTPI_H M_2_SQRTPI_H
+  #define ABACUS_SQRT2_H M_SQRT2_H
+  #define ABACUS_SQRT1_2_H M_SQRT1_2_H
+#endif
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+  #define ABACUS_E M_E
+  #define ABACUS_LOG2E M_LOG2E
+  #define ABACUS_LOG10E M_LOG10E
+  #define ABACUS_LN2 M_LN2
+  #define ABACUS_LN10 M_LN10
+  #define ABACUS_PI M_PI
+  #define ABACUS_PI_2 M_PI_2
+  #define ABACUS_PI_4 M_PI_4
+  #define ABACUS_1_PI M_1_PI
+  #define ABACUS_2_PI M_2_PI
+  #define ABACUS_2_SQRTPI M_2_SQRTPI
+  #define ABACUS_SQRT2 M_SQRT2
+  #define ABACUS_SQRT1_2 M_SQRT1_2
+#else
+  #define ABACUS_E M_E_F
+  #define ABACUS_LOG2E M_LOG2E_F
+  #define ABACUS_LOG10E M_LOG10E_F
+  #define ABACUS_LN2 M_LN2_F
+  #define ABACUS_LN10 M_LN10_F
+  #define ABACUS_PI M_PI_F
+  #define ABACUS_PI_2 M_PI_2_F
+  #define ABACUS_PI_4 M_PI_4_F
+  #define ABACUS_1_PI M_1_PI_F
+  #define ABACUS_2_PI M_2_PI_F
+  #define ABACUS_2_SQRTPI M_2_SQRTPI_F
+  #define ABACUS_SQRT2 M_SQRT2_F
+  #define ABACUS_SQRT1_2 M_SQRT1_2_F
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+#elif defined(__cplusplus)
+  #define ABACUS_CONSTANT const
+
+  inline float __abacus_infinity() {
+    union Both {
+      float f;
+      int i;
+    } both;
+
+    both.i = 0x7f800000;
+    return both.f;
+  }
+
+  inline float __abacus_nan() {
+    union Both {
+      float f;
+      int i;
+    } both;
+
+    both.i = 0x7f800001;
+    return both.f;
+  }
+
+  #define ABACUS_INFINITY      (__abacus_infinity())
+  #define ABACUS_NAN           (__abacus_nan())
+  #define ABACUS_FP_ILOGB0     (0x80000000)
+  #define ABACUS_FP_ILOGBNAN   (0x7fffffff)
+
+  #define ABACUS_E_F           2.71828174591064f
+  #define ABACUS_LOG2E_F       1.44269502162933f
+  #define ABACUS_LOG10E_F      0.43429449200630f
+  #define ABACUS_LN2_F         0.69314718246460f
+  #define ABACUS_LN10_F        2.30258512496948f
+  #define ABACUS_PI_F          3.14159274101257f
+  #define ABACUS_PI_2_F        1.57079637050629f
+  #define ABACUS_PI_4_F        0.78539818525314f
+  #define ABACUS_1_PI_F        0.31830987334251f
+  #define ABACUS_2_PI_F        0.63661974668503f
+  #define ABACUS_2_SQRTPI_F    1.12837922573090f
+  #define ABACUS_SQRT2_F       1.41421353816986f
+  #define ABACUS_SQRT1_2_F     0.70710676908493f
+
+  #define ABACUS_E             2.718281828459045090796
+  #define ABACUS_LOG2E         1.442695040888963387005
+  #define ABACUS_LOG10E        0.434294481903251816668
+  #define ABACUS_LN2           0.693147180559945286227
+  #define ABACUS_LN10          2.302585092994045901094
+  #define ABACUS_PI            3.141592653589793115998
+  #define ABACUS_PI_2          1.570796326794896557999
+  #define ABACUS_PI_4          0.785398163397448278999
+  #define ABACUS_1_PI          0.318309886183790691216
+  #define ABACUS_2_PI          0.636619772367581382433
+  #define ABACUS_2_SQRTPI      1.128379167095512558561
+  #define ABACUS_SQRT2         1.414213562373095145475
+  #define ABACUS_SQRT1_2       0.707106781186547572737
+#endif
+
+// Abacus's reflection API
+#if defined(__OPENCL_VERSION__)
+extern ABACUS_API bool __abacus_isftz(void);
+extern ABACUS_API bool __abacus_usefast(void);
+extern ABACUS_API bool __abacus_isembeddedprofile(void);
+#else
+// by default we just assume flush to zero
+inline bool __abacus_isftz(void) {
+  return true;
+}
+
+// don't use unsafe maths algorithms by default
+inline bool __abacus_usefast(void) {
+  return false;
+}
+
+// assume full profile by default
+inline bool __abacus_isembeddedprofile(void) {
+  return false;
+}
+#endif
+
+#if defined(__OPENCL_VERSION__)
+  typedef char abacus_char;
+  typedef short abacus_short;
+  typedef int abacus_int;
+  typedef long abacus_long;
+  typedef uchar abacus_uchar;
+  typedef ushort abacus_ushort;
+  typedef uint abacus_uint;
+  typedef ulong abacus_ulong;
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+  typedef half abacus_half;
+#endif
+  typedef float abacus_float;
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+  typedef double abacus_double;
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+  typedef char2 abacus_char2;
+  typedef char3 abacus_char3;
+  typedef char4 abacus_char4;
+  typedef char8 abacus_char8;
+  typedef char16 abacus_char16;
+
+  typedef uchar2 abacus_uchar2;
+  typedef uchar3 abacus_uchar3;
+  typedef uchar4 abacus_uchar4;
+  typedef uchar8 abacus_uchar8;
+  typedef uchar16 abacus_uchar16;
+
+  typedef short2 abacus_short2;
+  typedef short3 abacus_short3;
+  typedef short4 abacus_short4;
+  typedef short8 abacus_short8;
+  typedef short16 abacus_short16;
+
+  typedef ushort2 abacus_ushort2;
+  typedef ushort3 abacus_ushort3;
+  typedef ushort4 abacus_ushort4;
+  typedef ushort8 abacus_ushort8;
+  typedef ushort16 abacus_ushort16;
+
+  typedef int2 abacus_int2;
+  typedef int3 abacus_int3;
+  typedef int4 abacus_int4;
+  typedef int8 abacus_int8;
+  typedef int16 abacus_int16;
+
+  typedef uint2 abacus_uint2;
+  typedef uint3 abacus_uint3;
+  typedef uint4 abacus_uint4;
+  typedef uint8 abacus_uint8;
+  typedef uint16 abacus_uint16;
+
+  typedef long2 abacus_long2;
+  typedef long3 abacus_long3;
+  typedef long4 abacus_long4;
+  typedef long8 abacus_long8;
+  typedef long16 abacus_long16;
+
+  typedef ulong2 abacus_ulong2;
+  typedef ulong3 abacus_ulong3;
+  typedef ulong4 abacus_ulong4;
+  typedef ulong8 abacus_ulong8;
+  typedef ulong16 abacus_ulong16;
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+  typedef half2 abacus_half2;
+  typedef half3 abacus_half3;
+  typedef half4 abacus_half4;
+  typedef half8 abacus_half8;
+  typedef half16 abacus_half16;
+#endif
+
+  typedef float2 abacus_float2;
+  typedef float3 abacus_float3;
+  typedef float4 abacus_float4;
+  typedef float8 abacus_float8;
+  typedef float16 abacus_float16;
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+  typedef double2 abacus_double2;
+  typedef double3 abacus_double3;
+  typedef double4 abacus_double4;
+  typedef double8 abacus_double8;
+  typedef double16 abacus_double16;
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+#elif defined(__cplusplus)
+  #include <stdint.h>
+  #include <stddef.h>
+
+  // Signedness of the 'char' type is implementation defined, abacus expects it
+  // to be signed so enforce this by using the 'signed char' type instead.
+  //
+  // Note: This may cause problems for SYCL when implementations use this code
+  // on host. Since a user can force the signedness of 'char' to unsigned in
+  // C++ via a command line option, which will not be reflected in abacus
+  // computations. In addition different architectures can have different
+  // defaults, e.g. ARM is unsigned by default while x86 defaults to signed.
+  typedef signed char abacus_char;
+  typedef int16_t abacus_short;
+  typedef int32_t abacus_int;
+  typedef int64_t abacus_long;
+
+  typedef uint8_t abacus_uchar;
+  typedef uint16_t abacus_ushort;
+  typedef uint32_t abacus_uint;
+  typedef uint64_t abacus_ulong;
+
+  typedef float abacus_float;
+  typedef double abacus_double;
+
+  template<typename T> struct abacus_vector_signed_type_helper {
+    /// @brief The corresponding signed type.
+    typedef T type;
+  };
+
+  template<> struct abacus_vector_signed_type_helper<abacus_uchar> {
+    /// @brief The corresponding signed type.
+    typedef abacus_char type;
+  };
+
+  template<> struct abacus_vector_signed_type_helper<abacus_ushort> {
+    /// @brief The corresponding signed type.
+    typedef abacus_short type;
+  };
+
+  template<> struct abacus_vector_signed_type_helper<abacus_uint> {
+    /// @brief The corresponding signed type.
+    typedef abacus_int type;
+  };
+
+  template<> struct abacus_vector_signed_type_helper<abacus_ulong> {
+    /// @brief The corresponding signed type.
+    typedef abacus_long type;
+  };
+
+  template<> struct abacus_vector_signed_type_helper<abacus_float> {
+    /// @brief The corresponding signed type.
+    typedef abacus_int type;
+  };
+
+  template<> struct abacus_vector_signed_type_helper<abacus_double> {
+    /// @brief The corresponding signed type.
+    typedef abacus_long type;
+  };
+
+  template <typename T, unsigned N>
+  struct abacus_vector {
+    /// @brief Default constructor.
+    abacus_vector() = default;
+
+    /// @brief Splat constructor.
+    /// @param[in] other operand.
+    abacus_vector(const T& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] = other;
+      }
+
+      // Initialize the padding 4th element of vec3. Prevents uninitialized
+      // warnings from more recent gcc versions as this element is still
+      // accessible via the [] operator.
+      if (3 == N) {
+        payload[3] = 0;
+      }
+    }
+
+    /// @brief Copy constructor.
+    /// @param[in] other operand.
+    abacus_vector(const abacus_vector& other) = default;
+
+    /// @brief Copy assignment operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator=(const abacus_vector& other) = default;
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator+=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] += other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator-=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] -= other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Converting constructor.
+    /// @param[in] other operand.
+    template <typename U>
+    explicit abacus_vector(const abacus_vector<U, N>& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] = other[i];
+      }
+
+      // Initialize the padding 4th element of vec3. Prevents uninitialized
+      // warnings from more recent gcc versions as this element is still
+      // accessible via the [] operator.
+      if (N == 3) {
+        payload[3] = 0;
+      }
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator*=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] *= other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator&=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] &= other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator|=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] |= other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator<<=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] <<= other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector& operator>>=(const abacus_vector& other) {
+      for (unsigned i = 0; i < N; i++) {
+        payload[i] >>= other.payload[i];
+      }
+      return *this;
+    }
+
+    /// @brief Element extraction.
+    /// @param[in] i index.
+    /// @return reference to element.
+    T& operator[](uint64_t i) { return payload[i]; }
+
+    /// @brief Element extraction.
+    /// @param[in] i index.
+    /// @return constant reference to element.
+    const T& operator[](uint64_t i) const { return payload[i]; }
+
+    /// @brief Element by element operator.
+    /// @return reference to this.
+    abacus_vector operator~() const {
+      abacus_vector r{};
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] = ~payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @return reference to this.
+    abacus_vector operator-() const {
+      abacus_vector r{};
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] = -payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator+(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] += other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator-(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] -= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator*(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] *= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator/(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] /= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator%(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] %= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator&(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] &= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator|(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] |= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator^(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] ^= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator>>(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] >>= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return reference to this.
+    abacus_vector operator<<(const abacus_vector& other) const {
+      abacus_vector r(*this);
+      for (unsigned i = 0; i < N; i++) {
+        r.payload[i] <<= other.payload[i];
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return signed comparator.
+    abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+    operator<(const abacus_vector& other) const {
+      abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
+      for (unsigned i = 0; i < N; i++) {
+        r[i] = payload[i] < other.payload[i] ? -1 : 0;
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return signed comparator.
+    abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+    operator<=(const abacus_vector& other) const {
+      abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
+      for (unsigned i = 0; i < N; i++) {
+        r[i] = payload[i] <= other.payload[i] ? -1 : 0;
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return signed comparator.
+    abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+    operator>(const abacus_vector& other) const {
+      abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
+      for (unsigned i = 0; i < N; i++) {
+        r[i] = payload[i] > other.payload[i] ? -1 : 0;
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return signed comparator.
+    abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+    operator>=(const abacus_vector& other) const {
+      abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
+      for (unsigned i = 0; i < N; i++) {
+        r[i] = payload[i] >= other.payload[i] ? -1 : 0;
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return signed comparator.
+    abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+    operator==(const abacus_vector& other) const {
+      abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
+      for (unsigned i = 0; i < N; i++) {
+        r[i] = payload[i] == other.payload[i] ? -1 : 0;
+      }
+      return r;
+    }
+
+    /// @brief Element by element operator.
+    /// @param[in] other operand.
+    /// @return signed comparator.
+    abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+    operator!=(const abacus_vector& other) const {
+      abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
+      for (unsigned i = 0; i < N; i++) {
+        r[i] = payload[i] != other.payload[i] ? -1 : 0;
+      }
+      return r;
+    }
+
+    /// @brief The actual vector data that this class represents.
+    ///
+    /// In general it should not be necessary to access `payload` directly as
+    /// there is an `operator[]`.  However, as we treat this class as a
+    /// primitive, using it with memcpy etc, we do not make this private as we
+    /// expect the value to be accessed directly in such cases.
+    T payload[(N == 3) ? 4 : N];
+  };
+
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_char, 2>  abacus_char2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_short, 2> abacus_short2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_int, 2>   abacus_int2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_long, 2>  abacus_long2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_uchar, 2>  abacus_uchar2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_ushort, 2> abacus_ushort2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_uint, 2>   abacus_uint2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_ulong, 2>  abacus_ulong2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_float, 2>  abacus_float2;
+  /// @brief vector of 2 elements.
+  typedef abacus_vector<abacus_double, 2> abacus_double2;
+
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_char, 3>  abacus_char3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_short, 3> abacus_short3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_int, 3>   abacus_int3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_long, 3>  abacus_long3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_uchar, 3>  abacus_uchar3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_ushort, 3> abacus_ushort3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_uint, 3>   abacus_uint3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_ulong, 3>  abacus_ulong3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_float, 3>  abacus_float3;
+  /// @brief vector of 3 elements.
+  typedef abacus_vector<abacus_double, 3> abacus_double3;
+
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_char, 4>  abacus_char4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_short, 4> abacus_short4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_int, 4>   abacus_int4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_long, 4>  abacus_long4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_uchar, 4>  abacus_uchar4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_ushort, 4> abacus_ushort4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_uint, 4>   abacus_uint4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_ulong, 4>  abacus_ulong4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_float, 4>  abacus_float4;
+  /// @brief vector of 4 elements.
+  typedef abacus_vector<abacus_double, 4> abacus_double4;
+
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_char, 8>  abacus_char8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_short, 8> abacus_short8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_int, 8>   abacus_int8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_long, 8>  abacus_long8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_uchar, 8>  abacus_uchar8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_ushort, 8> abacus_ushort8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_uint, 8>   abacus_uint8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_ulong, 8>  abacus_ulong8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_float, 8>  abacus_float8;
+  /// @brief vector of 8 elements.
+  typedef abacus_vector<abacus_double, 8> abacus_double8;
+
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_char, 16>  abacus_char16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_short, 16> abacus_short16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_int, 16>   abacus_int16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_long, 16>  abacus_long16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_uchar, 16>  abacus_uchar16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_ushort, 16> abacus_ushort16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_uint, 16>   abacus_uint16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_ulong, 16>  abacus_ulong16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_float, 16>  abacus_float16;
+  /// @brief vector of 16 elements.
+  typedef abacus_vector<abacus_double, 16> abacus_double16;
+#endif
+
+#endif  //__ABACUS_ABACUS_CONFIG__

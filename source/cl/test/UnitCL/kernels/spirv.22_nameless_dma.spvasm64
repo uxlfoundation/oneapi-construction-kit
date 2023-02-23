@@ -1,0 +1,57 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %10 "nameless_dma" %__spirv_BuiltInGlobalInvocationId
+         %34 = OpString "kernel_arg_type.nameless_dma.int*,int*,int*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %35 Alignment 8
+         %35 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %29 NoSignedWrap
+               OpGroupDecorate %35 %16 %17 %18
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %12 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %14 = OpLabel
+         %16 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %17 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %18 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+               OpStore %16 %11 Aligned 8
+               OpStore %17 %12 Aligned 8
+               OpStore %18 %13 Aligned 8
+         %19 = OpLoad %_ptr_CrossWorkgroup_uint %16 Aligned 8
+         %20 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %21 = OpCompositeExtract %ulong %20 0
+         %22 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %19 %21
+         %23 = OpLoad %uint %22 Aligned 4
+         %24 = OpLoad %_ptr_CrossWorkgroup_uint %17 Aligned 8
+         %25 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %26 = OpCompositeExtract %ulong %25 0
+         %27 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %24 %26
+         %28 = OpLoad %uint %27 Aligned 4
+         %29 = OpIAdd %uint %23 %28
+         %30 = OpLoad %_ptr_CrossWorkgroup_uint %18 Aligned 8
+         %31 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %32 = OpCompositeExtract %ulong %31 0
+         %33 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %30 %32
+               OpStore %33 %29 Aligned 4
+               OpReturn
+               OpFunctionEnd

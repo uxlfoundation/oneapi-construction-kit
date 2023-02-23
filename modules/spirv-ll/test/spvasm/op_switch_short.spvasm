@@ -1,0 +1,69 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Int16 %p/op_switch_short.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Shader
+               OpCapability Int16
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %cond "cond"
+               OpName %a "a"
+               OpName %res "res"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %short = OpTypeInt 16 1
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Function_short = OpTypePointer Function %short
+     %int_42 = OpConstant %int 42
+     %int_24 = OpConstant %int 24
+   %short_42 = OpConstant %short 42
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+       %cond = OpVariable %_ptr_Function_short Function
+          %a = OpVariable %_ptr_Function_int Function
+        %res = OpVariable %_ptr_Function_int Function
+               OpStore %cond %short_42
+         %10 = OpLoad %short %cond
+               OpSelectionMerge %13 None
+               OpSwitch %10 %12 42 %11
+         %12 = OpLabel
+               OpStore %a %int_24
+               OpBranch %13
+         %11 = OpLabel
+               OpStore %a %int_42
+               OpBranch %13
+         %13 = OpLabel
+         %19 = OpLoad %int %a
+         %20 = OpBitwiseXor %int %19 %int_42
+               OpStore %res %20
+               OpReturn
+               OpFunctionEnd
+; CHECK: define spir_kernel void @main()
+; CHECK: [[COND:%[a-zA-Z0-9_]+]] = alloca i16
+; CHECK: [[A:%[a-zA-Z0-9_]+]] = alloca i32
+; CHECK-GE15: store i16 42, ptr [[COND]]
+; CHECK-LT15: store i16 42, i16* [[COND]]
+; CHECK-GE15: [[LD_COND:%[a-zA-Z0-9_]+]] = load i16, ptr [[COND]]
+; CHECK-LT15: [[LD_COND:%[a-zA-Z0-9_]+]] = load i16, i16* [[COND]]
+; CHECK: switch i16 [[LD_COND]], label %[[DEFAULT:[0-9]]] [
+; CHECK: i16 42, label %[[CASE:[0-9]]]
+; CHECK: [[DEFAULT]]:
+; CHECK-GE15: store i32 24, ptr [[A]]
+; CHECK-LT15: store i32 24, i32* [[A]]
+; CHECK: br label [[END:%[a-zA-Z0-9_]+]]
+; CHECK: [[CASE]]:
+; CHECK-GE15: store i32 42, ptr [[A]]
+; CHECK-LT15: store i32 42, i32* [[A]]
+; CHECK: br label [[END]]
+; CHECK-GE15: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
+; CHECK-LT15: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, i32* [[A]]
+; CHECK: [[XOR_A:%[a-zA-Z0-9_]+]] = xor i32 [[LD_A]], 42
+; CHECK-GE15: store i32 [[XOR_A]], ptr {{%[a-zA-Z0-9_]+}}
+; CHECK-LT15: store i32 [[XOR_A]], i32* {{%[a-zA-Z0-9_]+}}
+; CHECK ret void

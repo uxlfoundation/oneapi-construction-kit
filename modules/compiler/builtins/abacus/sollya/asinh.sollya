@@ -1,0 +1,38 @@
+print("Half precision:");
+
+// The function we are getting a polynomial approximation of.
+function_to_approximate = asinh(x);
+
+// The domain_range is the range of values the polynomial approximation is good for.
+domain_range = [-0.55; 0.55];
+
+// The generated polynomial.
+polynomial_approximation = fpminimax(function_to_approximate,[|1,3|],[|11...|], domain_range, floating, relative);
+
+// Print the approximation to the user.
+polynomial_approximation;
+
+// max_error is the maximum imprecision possible in any result.
+max_error = dirtyinfnorm(polynomial_approximation - function_to_approximate, domain_range);
+
+// Print the error.
+print("\ninf-norm error: ",max_error);
+
+
+// The function we are getting a polynomial approximation of.
+function_to_approximate2 = asinh(exp(x));
+
+// The domain_range is the range of values the polynomial approximation is good for.
+domain_range2 = [log(0.55); log(10)];
+
+// The generated polynomial.
+polynomial_approximation2 = fpminimax(function_to_approximate2,[|0,1,2,3,4,5|],[|11...|],domain_range2, floating, relative);
+
+// Print the approximation to the user.
+polynomial_approximation2;
+
+// max_error is the maximum imprecision possible in any result.
+max_error2 = dirtyinfnorm(polynomial_approximation2 - function_to_approximate2, domain_range2);
+
+// Print the error.
+print("\ninf-norm error: ",max_error2);

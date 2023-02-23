@@ -1,0 +1,15 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+
+layout(local_size_x_id = 0, local_size_y = 2, local_size_z_id = 1) in;
+
+layout(set = 0, binding = 0) buffer in_buffer { float in_buf[]; };
+layout(set = 0, binding = 1) buffer out_buffer { float out_buf[]; };
+
+void main() {
+  uint id = gl_WorkGroupID.x * gl_WorkGroupSize.x * gl_WorkGroupSize.y *
+                gl_WorkGroupSize.z +
+            gl_LocalInvocationIndex;
+  out_buf[id] = in_buf[id];
+}

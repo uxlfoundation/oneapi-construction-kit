@@ -1,0 +1,35 @@
+#######################################################
+# The following are very quick, take less that a minute
+#######################################################
+
+Basic,basic/test_basic explicit_s2v_long
+Basic,basic/test_basic explicit_s2v_ulong
+
+Common Functions,commonfns/test_commonfns maxf
+Common Functions,commonfns/test_commonfns minf
+Common Functions,commonfns/test_commonfns stepf
+
+Integer Ops,integer_ops/test_integer_ops integer_add_sat
+Integer Ops,integer_ops/test_integer_ops integer_clz
+Integer Ops,integer_ops/test_integer_ops integer_mad24
+Integer Ops,integer_ops/test_integer_ops integer_sub_sat
+Integer Ops,integer_ops/test_integer_ops integer_mad_sat
+
+Relationals,relationals/test_relationals relational_any
+Relationals,relationals/test_relationals relational_all
+
+SPIR (cl_khr_spir),spir/test_spir basic no-unzip
+
+# #############################################################################
+# Slower ones from now on, about a minute each (math_bruteforce_double about 3)
+# #############################################################################
+
+SPIR (cl_khr_spir),spir/test_spir basic_double no-unzip
+SPIR (cl_khr_spir),spir/test_spir relationals no-unzip
+SPIR (cl_khr_spir),spir/test_spir integer_ops no-unzip
+SPIR (cl_khr_spir),spir/test_spir math_brute_force no-unzip
+SPIR (cl_khr_spir),spir/test_spir math_brute_force_double no-unzip
+SPIR (cl_khr_spir),spir/test_spir half_double no-unzip
+
+Relationals,relationals/test_relationals shuffle_built_in
+Relationals,relationals/test_relationals shuffle_copy

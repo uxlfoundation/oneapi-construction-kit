@@ -1,0 +1,26 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Abacus math builtins.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_ABACUS_MATH__
+#define __ABACUS_ABACUS_MATH__
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+/// @defgroup abacus_math abacus_math
+/// @{
+
+@generate_input_definitions@
+
+/// @}
+////////////////////////////////////////////////////////////////////////////////
+
+#endif  //__ABACUS_ABACUS_MATH__

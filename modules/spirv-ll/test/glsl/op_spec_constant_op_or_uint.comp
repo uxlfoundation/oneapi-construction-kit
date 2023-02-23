@@ -1,0 +1,20 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/op_spec_constant_op_or_uint.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+layout(constant_id=0) const uint test = 42;
+
+void main() {
+  uint res = test | 42;
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK: define spir_kernel void @main() {
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
+// CHECK-GE15: store i32 {{[0-9]+}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store i32 {{[0-9]+}}, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret void

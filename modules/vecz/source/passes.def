@@ -1,0 +1,37 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
+// outlines all vecz-specific passes (FIXME: not analyses).
+#ifndef MODULE_PASS
+#define MODULE_PASS(NAME, CREATE_PASS)
+#endif
+MODULE_PASS("builtin-inlining", BuiltinInliningPass())
+MODULE_PASS("define-builtins", DefineInternalBuiltinsPass())
+#undef MODULE_PASS
+
+#ifndef FUNCTION_PASS
+#define FUNCTION_PASS(NAME, CREATE_PASS)
+#endif
+FUNCTION_PASS("vecz-mem2reg", BasicMem2RegPass())
+FUNCTION_PASS("pre-linearize", PreLinearizePass())
+FUNCTION_PASS("remove-int-ptr", RemoveIntPtrPass())
+FUNCTION_PASS("squash-small-vecs", SquashSmallVectorsPass())
+FUNCTION_PASS("uniform-reassoc", UniformReassociationPass())
+FUNCTION_PASS("ternary-transform", TernaryTransformPass())
+FUNCTION_PASS("cfg-convert", ControlFlowConversionPass())
+FUNCTION_PASS("cleanup-divergence", DivergenceCleanupPass())
+FUNCTION_PASS("gep-elim", CommonGEPEliminationPass())
+FUNCTION_PASS("scalarize", ScalarizationPass())
+FUNCTION_PASS("mask-memops", SimplifyMaskedMemOpsPass())
+FUNCTION_PASS("packetizer", PacketizationPass())
+FUNCTION_PASS("inline-post-vecz", InlinePostVectorizationPass())
+FUNCTION_PASS("interleave-combine-loads", InterleavedGroupCombinePass(eInterleavedLoad))
+FUNCTION_PASS("interleave-combine-stores", InterleavedGroupCombinePass(eInterleavedStore))
+#undef FUNCTION_PASS
+
+#ifndef LOOP_PASS
+#define LOOP_PASS(NAME, CREATE_PASS)
+#endif
+LOOP_PASS("simplify-infinite-loops", SimplifyInfiniteLoopPass())
+LOOP_PASS("vecz-loop-rotate", VeczLoopRotatePass())
+#undef LOOP_PASS

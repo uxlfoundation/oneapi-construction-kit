@@ -1,0 +1,70 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 44
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %17 "concurrent_printf" %__spirv_BuiltInGlobalInvocationId
+         %42 = OpString "kernel_arg_type.concurrent_printf."
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %43 Constant
+         %43 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %_str Alignment 1
+               OpDecorate %23 Alignment 8
+               OpGroupDecorate %43 %_str %__spirv_BuiltInGlobalInvocationId
+      %uchar = OpTypeInt 8 0
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+   %uchar_37 = OpConstant %uchar 37
+  %uchar_100 = OpConstant %uchar 100
+    %uchar_0 = OpConstant %uchar 0
+    %ulong_3 = OpConstant %ulong 3
+    %ulong_2 = OpConstant %ulong 2
+    %ulong_0 = OpConstant %ulong 0
+     %uint_0 = OpConstant %uint 0
+    %ulong_1 = OpConstant %ulong 1
+%_arr_uchar_ulong_3 = OpTypeArray %uchar %ulong_3
+%_ptr_UniformConstant__arr_uchar_ulong_3 = OpTypePointer UniformConstant %_arr_uchar_ulong_3
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+         %16 = OpTypeFunction %void
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+       %bool = OpTypeBool
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+          %9 = OpConstantComposite %_arr_uchar_ulong_3 %uchar_37 %uchar_100 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_3 UniformConstant %9
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %17 = OpFunction %void DontInline %16
+         %18 = OpLabel
+         %23 = OpVariable %_ptr_Function_ulong Function
+         %24 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %25 = OpCompositeExtract %ulong %24 0
+               OpStore %23 %25 Aligned 8
+         %26 = OpLoad %ulong %23 Aligned 8
+         %28 = OpUMod %ulong %26 %ulong_2
+         %31 = OpIEqual %bool %ulong_0 %28
+         %35 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+               OpBranchConditional %31 %19 %20
+         %19 = OpLabel
+         %36 = OpLoad %ulong %23 Aligned 8
+         %37 = OpExtInst %uint %1 printf %35 %36
+               OpBranch %21
+         %20 = OpLabel
+         %38 = OpLoad %ulong %23 Aligned 8
+         %40 = OpIAdd %ulong %38 %ulong_1
+         %41 = OpExtInst %uint %1 printf %35 %40
+               OpBranch %21
+         %21 = OpLabel
+               OpReturn
+               OpFunctionEnd

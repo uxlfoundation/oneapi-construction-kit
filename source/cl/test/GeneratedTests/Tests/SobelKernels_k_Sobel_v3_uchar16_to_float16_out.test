@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue Sobel_v3_uchar16_to_float16 -arg pSrcImage,repeat(576,randint(0,255)) -compare pDstImage:%p/Inputs/SobelKernels_k_Sobel_v3_uchar16_to_float16_out.txt -arg pDstImage,repeat(256,73) %p/Inputs/KernelsCL/kernels/PerfCL/Sobel_OCL/SobelKernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: pDstImage - match

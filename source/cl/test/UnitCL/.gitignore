@@ -1,0 +1,3 @@
+# Ignore any build directory
+build*
+.ycm_extra_conf.pyc

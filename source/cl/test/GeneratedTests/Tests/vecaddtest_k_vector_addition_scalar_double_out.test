@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue vector_addition_scalar_double -arg scalar,repeat(1,rand(0,1.0)) -arg src1,repeat(4,rand(0,1.0)) -arg src2,repeat(4,rand(0,1.0)) -compare dst:%p/Inputs/vecaddtest_k_vector_addition_scalar_double_out.txt -arg dst,repeat(4,73) %p/Inputs/KernelsCL/kernels/PerfCL/vecaddtest.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: dst - match

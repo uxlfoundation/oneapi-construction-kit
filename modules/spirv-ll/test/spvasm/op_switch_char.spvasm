@@ -1,0 +1,67 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Int8 %p/op_switch_char.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Kernel
+               OpCapability Addresses
+               OpCapability Int8
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %main "main"
+               OpName %main "main"
+               OpName %cond "cond"
+               OpName %a "a"
+               OpName %res "res"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 0
+       %char = OpTypeInt 8 0
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Function_char = OpTypePointer Function %char
+     %int_42 = OpConstant %int 42
+     %int_24 = OpConstant %int 24
+    %char_42 = OpConstant %char 42
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+       %cond = OpVariable %_ptr_Function_char Function
+          %a = OpVariable %_ptr_Function_int Function
+        %res = OpVariable %_ptr_Function_int Function
+               OpStore %cond %char_42
+         %10 = OpLoad %char %cond
+               OpSelectionMerge %13 None
+               OpSwitch %10 %12 42 %11
+         %12 = OpLabel
+               OpStore %a %int_24
+               OpBranch %13
+         %11 = OpLabel
+               OpStore %a %int_42
+               OpBranch %13
+         %13 = OpLabel
+         %19 = OpLoad %int %a
+         %20 = OpBitwiseXor %int %19 %int_42
+               OpStore %res %20
+               OpReturn
+               OpFunctionEnd
+; CHECK: define spir_kernel void @main()
+; CHECK: [[COND:%[a-zA-Z0-9_]+]] = alloca i8
+; CHECK: [[A:%[a-zA-Z0-9_]+]] = alloca i32
+; CHECK-GE15: store i8 42, ptr [[COND]]
+; CHECK-LT15: store i8 42, i8* [[COND]]
+; CHECK-GE15: [[LD_COND:%[a-zA-Z0-9_]+]] = load i8, ptr [[COND]]
+; CHECK-LT15: [[LD_COND:%[a-zA-Z0-9_]+]] = load i8, i8* [[COND]]
+; CHECK: switch i8 [[LD_COND]], label %[[DEFAULT:[0-9]]] [
+; CHECK: i8 42, label %[[CASE:[0-9]]]
+; CHECK: [[DEFAULT]]:
+; CHECK-GE15: store i32 24, ptr [[A]]
+; CHECK-LT15: store i32 24, i32* [[A]]
+; CHECK: br label [[END:%[a-zA-Z0-9_]+]]
+; CHECK: [[CASE]]:
+; CHECK-GE15: store i32 42, ptr [[A]]
+; CHECK-LT15: store i32 42, i32* [[A]]
+; CHECK: br label [[END]]
+; CHECK-GE15: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
+; CHECK-LT15: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, i32* [[A]]
+; CHECK: [[XOR_A:%[a-zA-Z0-9_]+]] = xor i32 [[LD_A]], 42
+; CHECK-GE15: store i32 [[XOR_A]], ptr {{%[a-zA-Z0-9_]+}}
+; CHECK-LT15: store i32 [[XOR_A]], i32* {{%[a-zA-Z0-9_]+}}
+; CHECK ret void

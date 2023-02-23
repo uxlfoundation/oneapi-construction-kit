@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue find_index_kernel -arg arrayX,repeat(10,rand(0,1.0)) -arg arrayY,repeat(10,rand(0,1.0)) -arg CDF,repeat(10,rand(0,1.0)) -arg u,repeat(4,rand(0,1.0)) -compare xj:%p/Inputs/particle_single_k_find_index_kernel_out.txt -arg xj,repeat(4,73) -compare yj:%p/Inputs/particle_single_k_find_index_kernel_out.txt -arg yj,repeat(4,73) -arg Nparticles,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/particle_single.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: xj - match
+CHECK-DAG: yj - match

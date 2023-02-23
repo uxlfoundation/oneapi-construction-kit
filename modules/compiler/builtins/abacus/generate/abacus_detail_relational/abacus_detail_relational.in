@@ -1,0 +1,330 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Exposing implementations of non-IP restricted functions.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_DETAIL_RELATIONAL__
+#define __ABACUS_DETAIL_RELATIONAL__
+
+#if !defined(__cplusplus)
+#error This header should only be included from C++!
+#endif
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+#ifndef __ABACUS_ABACUS_RELATIONAL__
+#include <abacus/abacus_relational.h>
+#endif
+#ifndef __ABACUS_TYPE_TRAITS__
+#include <abacus/abacus_type_traits.h>
+#endif
+#ifndef __ABACUS_DETAIL_CAST__
+#include <abacus/abacus_detail_cast.h>
+#endif
+
+namespace abacus {
+namespace detail {
+namespace relational {
+
+template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
+struct all_helper {
+  static abacus_int _(const T& x) {
+    for (unsigned int i = 0; i < TypeTraits<T>::num_elements; i++) {
+      if (x[i] >= 0) {
+        return 0;
+      }
+    }
+
+    return 1;
+  }
+};
+
+template <typename T>
+struct all_helper<T, true> {
+  static abacus_int _(const T& x) { return (x < 0) ? 1 : 0; }
+};
+
+template <typename T> abacus_int all(const T& x) {
+  return all_helper<T>::_(x);
+}
+
+template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
+struct any_helper {
+  static abacus_int _(const T& x) {
+    typename TypeTraits<T>::ElementType result = 0;
+
+    for (unsigned int i = 0; i < TypeTraits<T>::num_elements; i++) {
+      result |= x[i];
+    }
+
+    return (result < 0) ? 1 : 0;
+  }
+};
+
+template <typename T>
+struct any_helper<T, true> {
+  static abacus_int _(const T& x) { return (x < 0) ? 1 : 0; }
+};
+
+template <typename T> abacus_int any(const T& x) {
+  return any_helper<T>::_(x);
+}
+
+template <typename T>
+T bitselect(const T& a, const T& b, const T& c) {
+  const typename TypeTraits<T>::SignedType aAs =
+      cast::as<typename TypeTraits<T>::SignedType>(a);
+  const typename TypeTraits<T>::SignedType bAs =
+      cast::as<typename TypeTraits<T>::SignedType>(b);
+  const typename TypeTraits<T>::SignedType cAs =
+      cast::as<typename TypeTraits<T>::SignedType>(c);
+  const typename TypeTraits<T>::SignedType result = aAs ^ ((aAs ^ bAs) & cAs);
+  return cast::as<T>(result);
+}
+
+template <typename T>
+typename TypeTraits<T>::SignedType isequal(const T& x, const T& y) {
+  return x == y;
+}
+
+template<typename T, typename E = typename TypeTraits<T>::ElementType>
+  struct isfinite_helper;
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+template<typename T> struct isfinite_helper<T, abacus_half> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x) & 0x7FFF;
+    return (xAs < 0x7C00);
+  }
+};
+#endif
+
+template<typename T> struct isfinite_helper<T, abacus_float> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x) & 0x7FFFFFFF;
+    return (xAs < 0x7F800000);
+  }
+};
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+template<typename T> struct isfinite_helper<T, abacus_double> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x) & 0x7FFFFFFFFFFFFFFF;
+    return (xAs < 0x7FF0000000000000);
+  }
+};
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+template<typename T> typename TypeTraits<T>::SignedType isfinite(const T& x) {
+  return isfinite_helper<T>::_(x);
+}
+
+template<typename T> typename TypeTraits<T>::SignedType isgreater(const T& x, const T& y) {
+  return x > y;
+}
+
+template<typename T> typename TypeTraits<T>::SignedType isgreaterequal(const T& x, const T& y) {
+  return x >= y;
+}
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+  struct isinf_helper;
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+template<typename T> struct isinf_helper<T, abacus_half> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x);
+    return (xAs & 0x7FFF) == 0x7C00;
+  }
+};
+#endif
+
+template<typename T> struct isinf_helper<T, abacus_float> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x);
+    return (xAs & 0x7FFFFFFF) == 0x7F800000;
+  }
+};
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+template<typename T> struct isinf_helper<T, abacus_double> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x);
+    return (xAs & 0x7FFFFFFFFFFFFFFF) == 0x7FF0000000000000;
+  }
+};
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+template <typename T> typename TypeTraits<T>::SignedType isinf(const T& x) {
+  return isinf_helper<T>::_(x);
+}
+
+template<typename T> typename TypeTraits<T>::SignedType isless(const T& x, const T& y) {
+  return x < y;
+}
+
+template<typename T> typename TypeTraits<T>::SignedType islessequal(const T& x, const T& y) {
+  return x <= y;
+}
+
+template<typename T> typename TypeTraits<T>::SignedType islessgreater(const T& x, const T& y) {
+  return __abacus_isless(x, y) | __abacus_isgreater(x, y);
+}
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+  struct isnan_helper;
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+template<typename T> struct isnan_helper<T, abacus_half> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const typename TypeTraits<T>::SignedType infPart =
+        (typename TypeTraits<T>::SignedType)0x7C00;
+    const typename TypeTraits<T>::SignedType nonInfPart =
+        (typename TypeTraits<T>::SignedType)0x03FF;
+    const typename TypeTraits<T>::SignedType xAs =
+        cast::as<typename TypeTraits<T>::SignedType>(x) &
+        (typename TypeTraits<T>::SignedType)0x7FFF;
+    const typename TypeTraits<T>::SignedType cond =
+        (infPart == (infPart & xAs)) &
+        ((nonInfPart & xAs) > (typename TypeTraits<T>::SignedType)0);
+    return cond;
+  }
+};
+#endif
+
+template<typename T> struct isnan_helper<T, abacus_float> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const typename TypeTraits<T>::SignedType infPart =
+        (typename TypeTraits<T>::SignedType)0x7F800000;
+    const typename TypeTraits<T>::SignedType nonInfPart =
+        (typename TypeTraits<T>::SignedType)0x007FFFFF;
+    const typename TypeTraits<T>::SignedType xAs =
+        cast::as<typename TypeTraits<T>::SignedType>(x) &
+        (typename TypeTraits<T>::SignedType)0x7FFFFFFF;
+    const typename TypeTraits<T>::SignedType cond =
+        (infPart == (infPart & xAs)) &
+        ((nonInfPart & xAs) > (typename TypeTraits<T>::SignedType)0);
+    return cond;
+  }
+};
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+template<typename T> struct isnan_helper<T, abacus_double> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const typename TypeTraits<T>::SignedType infPart =
+        (typename TypeTraits<T>::SignedType)0x7FF0000000000000;
+    const typename TypeTraits<T>::SignedType nonInfPart =
+        (typename TypeTraits<T>::SignedType)0x000FFFFFFFFFFFFF;
+    const typename TypeTraits<T>::SignedType xAs =
+        cast::as<typename TypeTraits<T>::SignedType>(x) &
+        (typename TypeTraits<T>::SignedType)0x7FFFFFFFFFFFFFFF;
+    const typename TypeTraits<T>::SignedType cond =
+        (infPart == (infPart & xAs)) &
+        ((nonInfPart & xAs) > (typename TypeTraits<T>::SignedType)0);
+    return cond;
+  }
+};
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+template <typename T> typename TypeTraits<T>::SignedType isnan(const T& x) {
+  return isnan_helper<T>::_(x);
+}
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+  struct isnormal_helper;
+
+#ifdef __CA_BUILTINS_HALF_SUPPORT
+template<typename T> struct isnormal_helper<T, abacus_half> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x) & 0x7FFF;
+    return (xAs < 0x7C00) & (xAs > 0x03FF);
+  }
+};
+#endif
+
+template<typename T> struct isnormal_helper<T, abacus_float> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x) & 0x7FFFFFFF;
+    return (xAs < 0x7F800000) & (xAs > 0x007FFFFF);
+  }
+};
+
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+template<typename T> struct isnormal_helper<T, abacus_double> {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  static SignedType _(const T& x) {
+    const SignedType xAs = cast::as<SignedType>(x) & 0x7FFFFFFFFFFFFFFF;
+    return (xAs < 0x7FF0000000000000) & (xAs > 0x000FFFFFFFFFFFFF);
+  }
+};
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+
+template <typename T> typename TypeTraits<T>::SignedType isnormal(const T& x) {
+  return isnormal_helper<T>::_(x);
+}
+
+template<typename T> typename TypeTraits<T>::SignedType isnotequal(const T& x, const T& y) {
+  return x != y;
+}
+
+template <typename T>
+typename TypeTraits<T>::SignedType isordered(const T& x, const T& y) {
+  return relational::isequal(x, x) & relational::isequal(y, y);
+}
+
+template <typename T>
+typename TypeTraits<T>::SignedType isunordered(const T& x, const T& y) {
+  return relational::isnan(x) | relational::isnan(y);
+}
+
+template <typename T, typename U, bool SCALAR = 1 == TypeTraits<T>::num_elements>
+struct select_helper {
+  static T _(const T& a, const T& b, const U& c) {
+    typedef typename TypeTraits<U>::ElementType ElementType;
+    typedef typename TypeTraits<U>::SignedType SignedType;
+    return relational::bitselect(a, b, cast::as<T>(
+      cast::as<SignedType>(c) >> ((sizeof(ElementType) * 8) - 1)));
+  }
+};
+
+template <typename T, typename U>
+struct select_helper<T, U, true> {
+  static T _(const T& a, const T& b, const U& c) { return c ? b : a; }
+};
+
+template <typename T> T select(const T& a, const T& b,
+  const typename TypeTraits<T>::SignedType & c) {
+  return select_helper<T, typename TypeTraits<T>::SignedType>::_(a, b, c);
+}
+
+template <typename T> T select(const T& a, const T& b,
+  const typename TypeTraits<T>::UnsignedType & c) {
+  return select_helper<T, typename TypeTraits<T>::UnsignedType>::_(a, b, c);
+}
+
+template <typename T> typename TypeTraits<T>::SignedType signbit(const T& x) {
+  const typename TypeTraits<T>::SignedType xAs =
+      cast::as<typename TypeTraits<T>::SignedType>(x);
+  return (xAs < (typename TypeTraits<T>::SignedType)0);
+}
+
+} // namespace relational
+} // namespace detail
+} // namespace abacus
+
+#endif  //__ABACUS_DETAIL_RELATIONAL__

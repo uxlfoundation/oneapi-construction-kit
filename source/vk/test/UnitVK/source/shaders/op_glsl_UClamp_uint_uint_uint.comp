@@ -1,0 +1,13 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+layout (std430, set=0, binding=0) buffer inA {
+uint arg0;
+uint arg1;
+uint arg2;
+};
+layout (std430, set=0, binding=1) buffer outR {uint res;};
+void main() {
+res = clamp(arg0,arg1,arg2);
+return;
+}

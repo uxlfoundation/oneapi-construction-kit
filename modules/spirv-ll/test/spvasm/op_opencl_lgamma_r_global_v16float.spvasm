@@ -1,0 +1,38 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_lgamma_r_global_v16float.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %lgamma_r_v16float "lgamma_r_v16float"
+                        OpSource OpenCL_C 102000
+                        OpName %in_signp "in_signp"
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %int_t = OpTypeInt 32 1
+             %float_t = OpTypeFloat 32
+            %v16int_t = OpTypeVector %int_t 16
+          %v16float_t = OpTypeVector %float_t 16
+        %v16int_ptr_t = OpTypePointer CrossWorkgroup %v16int_t
+       %lgamma_r_fn_t = OpTypeFunction %void_t %v16int_ptr_t
+             %float_2 = OpConstant %float_t 2.14
+          %v16float_2 = OpConstantComposite %v16float_t %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2
+
+; All functions
+   %lgamma_r_v16float = OpFunction %void_t None %lgamma_r_fn_t
+            %in_signp = OpFunctionParameter %v16int_ptr_t
+; CHECK-GE15: define spir_kernel void @lgamma_r_v16float(ptr addrspace(1) %in_signp)
+; CHECK-LT15: define spir_kernel void @lgamma_r_v16float(<16 x i32> addrspace(1)* %in_signp)
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16float_t %1 lgamma_r %v16float_2 %in_signp
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z8lgamma_rDv16_fPU3AS1Dv16_i(<16 x float> <float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000>, ptr addrspace(1) %in_signp)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z8lgamma_rDv16_fPU3AS1Dv16_i(<16 x float> <float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000>, <16 x i32> addrspace(1)* %in_signp)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

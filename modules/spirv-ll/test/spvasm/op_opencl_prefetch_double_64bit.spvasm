@@ -1,0 +1,36 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_prefetch_double_64bit.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                        OpCapability Float64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %prefetch_double "prefetch_double"
+                        OpSource OpenCL_C 102000
+                        OpName %in_ptr "in_ptr"
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+               %i64_t = OpTypeInt 64 0
+        %double_ptr_t = OpTypePointer CrossWorkgroup %double_t
+       %prefetch_fn_t = OpTypeFunction %void_t %double_ptr_t
+               %i64_1 = OpConstant %i64_t 2
+
+; All functions
+     %prefetch_double = OpFunction %void_t None %prefetch_fn_t
+              %in_ptr = OpFunctionParameter %double_ptr_t
+; CHECK-GE15: define spir_kernel void @prefetch_double(ptr addrspace(1) %in_ptr)
+; CHECK-LT15: define spir_kernel void @prefetch_double(double addrspace(1)* %in_ptr)
+                   %2 = OpLabel
+                   %3 = OpExtInst %void_t %1 prefetch %in_ptr %i64_1
+; CHECK-GE15: call spir_func void @_Z8prefetchPU3AS1Kdm(ptr addrspace(1) %in_ptr, i64 2)
+; CHECK-LT15: call spir_func void @_Z8prefetchPU3AS1Kdm(double addrspace(1)* %in_ptr, i64 2)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

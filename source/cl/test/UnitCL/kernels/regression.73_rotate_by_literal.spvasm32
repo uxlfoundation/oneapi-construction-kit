@@ -1,0 +1,65 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 46
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %6 "rotate_by_literal"
+         %44 = OpString "kernel_arg_type.rotate_by_literal.uint*,uint*,"
+               OpSource OpenCL_C 102000
+               OpDecorate %45 Alignment 4
+         %45 = OpDecorationGroup
+               OpGroupDecorate %45 %11 %12
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %uint_32 = OpConstant %uint 32
+     %uint_2 = OpConstant %uint 2
+     %uint_4 = OpConstant %uint 4
+     %uint_3 = OpConstant %uint 3
+     %uint_7 = OpConstant %uint 7
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+          %6 = OpFunction %void DontInline %5
+          %7 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+          %8 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+          %9 = OpLabel
+         %11 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %12 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+               OpStore %11 %7 Aligned 4
+               OpStore %12 %8 Aligned 4
+         %13 = OpLoad %_ptr_CrossWorkgroup_uint %11 Aligned 4
+         %15 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %13 %uint_0
+         %16 = OpLoad %uint %15 Aligned 4
+         %17 = OpExtInst %uint %1 rotate %16 %uint_0
+         %18 = OpLoad %_ptr_CrossWorkgroup_uint %12 Aligned 4
+         %19 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %18 %uint_0
+               OpStore %19 %17 Aligned 4
+         %20 = OpLoad %_ptr_CrossWorkgroup_uint %11 Aligned 4
+         %22 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %20 %uint_1
+         %23 = OpLoad %uint %22 Aligned 4
+         %25 = OpExtInst %uint %1 rotate %23 %uint_32
+         %26 = OpLoad %_ptr_CrossWorkgroup_uint %12 Aligned 4
+         %27 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %26 %uint_1
+               OpStore %27 %25 Aligned 4
+         %28 = OpLoad %_ptr_CrossWorkgroup_uint %11 Aligned 4
+         %30 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %28 %uint_2
+         %31 = OpLoad %uint %30 Aligned 4
+         %33 = OpExtInst %uint %1 rotate %31 %uint_4
+         %34 = OpLoad %_ptr_CrossWorkgroup_uint %12 Aligned 4
+         %35 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %34 %uint_2
+               OpStore %35 %33 Aligned 4
+         %36 = OpLoad %_ptr_CrossWorkgroup_uint %11 Aligned 4
+         %38 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %36 %uint_3
+         %39 = OpLoad %uint %38 Aligned 4
+         %41 = OpExtInst %uint %1 rotate %39 %uint_7
+         %42 = OpLoad %_ptr_CrossWorkgroup_uint %12 Aligned 4
+         %43 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %42 %uint_3
+               OpStore %43 %41 Aligned 4
+               OpReturn
+               OpFunctionEnd

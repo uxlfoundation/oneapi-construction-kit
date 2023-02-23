@@ -1,0 +1,24 @@
+/* override table width restrictions */
+@media screen and (min-width: 767px) {
+  .wy-table-responsive table td {
+    /* !important prevents the common CSS stylesheets from
+       overriding this as on RTD they are loaded after this stylesheet */
+    white-space: normal !important;
+  }
+
+  .wy-table-responsive {
+    overflow: visible !important;
+  }
+}
+code, .rst-content tt, .rst-content code {
+  background: inherit;
+  border: none;
+  font-size: 75%;
+  padding: 0;
+}
+.rst-content tt, .rst-content tt, .rst-content code {
+  padding: 0;
+}
+.rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
+  color: #404040;
+}

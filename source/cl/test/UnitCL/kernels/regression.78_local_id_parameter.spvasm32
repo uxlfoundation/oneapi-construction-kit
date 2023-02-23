@@ -1,0 +1,83 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 50
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %31 "local_id_parameter" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInGlobalSize %__spirv_BuiltInLocalInvocationId
+         %47 = OpString "kernel_arg_type.local_id_parameter.uint,uint*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %__spirv_BuiltInGlobalSize "__spirv_BuiltInGlobalSize"
+               OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
+               OpName %get_sycl_global_linear_id "get_sycl_global_linear_id"
+               OpDecorate %48 Constant
+         %48 = OpDecorationGroup
+               OpDecorate %49 Alignment 4
+         %49 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalSize BuiltIn GlobalSize
+               OpDecorate %get_sycl_global_linear_id LinkageAttributes "get_sycl_global_linear_id" Export
+               OpDecorate %__spirv_BuiltInGlobalSize LinkageAttributes "__spirv_BuiltInGlobalSize" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
+               OpGroupDecorate %48 %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInGlobalSize %__spirv_BuiltInLocalInvocationId
+               OpGroupDecorate %49 %36 %38 %39
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+          %8 = OpTypeFunction %uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+         %30 = OpTypeFunction %void %uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+%__spirv_BuiltInGlobalSize = OpVariable %_ptr_Input_v3uint Input
+%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3uint Input
+%get_sycl_global_linear_id = OpFunction %uint DontInline %8
+         %10 = OpLabel
+         %11 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %12 = OpCompositeExtract %uint %11 0
+         %13 = OpLoad %v3uint %__spirv_BuiltInGlobalSize
+         %14 = OpCompositeExtract %uint %13 1
+         %15 = OpIMul %uint %12 %14
+         %16 = OpLoad %v3uint %__spirv_BuiltInGlobalSize
+         %17 = OpCompositeExtract %uint %16 2
+         %18 = OpIMul %uint %15 %17
+         %19 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %20 = OpCompositeExtract %uint %19 1
+         %21 = OpLoad %v3uint %__spirv_BuiltInGlobalSize
+         %22 = OpCompositeExtract %uint %21 2
+         %23 = OpIMul %uint %20 %22
+         %24 = OpIAdd %uint %18 %23
+         %25 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %26 = OpCompositeExtract %uint %25 2
+         %27 = OpIAdd %uint %24 %26
+               OpReturnValue %27
+               OpFunctionEnd
+         %31 = OpFunction %void DontInline %30
+         %32 = OpFunctionParameter %uint
+         %33 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %34 = OpLabel
+         %36 = OpVariable %_ptr_Function_uint Function
+         %38 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %39 = OpVariable %_ptr_Function_uint Function
+               OpStore %36 %32 Aligned 4
+               OpStore %38 %33 Aligned 4
+         %40 = OpFunctionCall %uint %get_sycl_global_linear_id
+               OpStore %39 %40 Aligned 4
+         %41 = OpLoad %uint %36 Aligned 4
+         %42 = OpLoad %v3uint %__spirv_BuiltInLocalInvocationId
+         %43 = OpVectorExtractDynamic %uint %42 %41
+         %44 = OpLoad %_ptr_CrossWorkgroup_uint %38 Aligned 4
+         %45 = OpLoad %uint %39 Aligned 4
+         %46 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %44 %45
+               OpStore %46 %43 Aligned 4
+               OpReturn
+               OpFunctionEnd

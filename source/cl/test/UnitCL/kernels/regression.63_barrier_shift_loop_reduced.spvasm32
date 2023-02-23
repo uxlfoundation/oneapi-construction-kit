@@ -1,0 +1,73 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 41
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int8
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %6 "barrier_shift_loop_reduced"
+         %38 = OpString "kernel_arg_type.barrier_shift_loop_reduced.uchar*,"
+               OpSource OpenCL_C 102000
+               OpDecorate %39 Alignment 4
+         %39 = OpDecorationGroup
+               OpDecorate %40 NoSignedWrap
+         %40 = OpDecorationGroup
+               OpGroupDecorate %39 %18 %21 %22
+               OpGroupDecorate %40 %35 %37
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_2 = OpConstant %uint 2
+   %uint_272 = OpConstant %uint 272
+   %uchar_23 = OpConstant %uchar 23
+     %uint_1 = OpConstant %uint 1
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
+          %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_uchar
+%_ptr_Function__ptr_CrossWorkgroup_uchar = OpTypePointer Function %_ptr_CrossWorkgroup_uchar
+%_ptr_Function_uint = OpTypePointer Function %uint
+       %bool = OpTypeBool
+          %6 = OpFunction %void DontInline %5
+          %7 = OpFunctionParameter %_ptr_CrossWorkgroup_uchar
+          %8 = OpLabel
+         %18 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uchar Function
+         %21 = OpVariable %_ptr_Function_uint Function
+         %22 = OpVariable %_ptr_Function_uint Function
+               OpStore %18 %7 Aligned 4
+               OpStore %21 %uint_0 Aligned 4
+               OpBranch %9
+          %9 = OpLabel
+         %24 = OpLoad %uint %21 Aligned 4
+         %27 = OpSLessThan %bool %24 %uint_2
+               OpBranchConditional %27 %10 %16
+         %10 = OpLabel
+               OpStore %22 %uint_0 Aligned 4
+               OpBranch %11
+         %11 = OpLabel
+         %28 = OpLoad %uint %22 Aligned 4
+         %29 = OpSLessThan %bool %28 %uint_2
+               OpBranchConditional %29 %12 %14
+         %12 = OpLabel
+               OpControlBarrier %uint_2 %uint_2 %uint_272
+         %31 = OpLoad %_ptr_CrossWorkgroup_uchar %18 Aligned 4
+               OpStore %31 %uchar_23 Aligned 1
+               OpBranch %13
+         %13 = OpLabel
+         %33 = OpLoad %uint %22 Aligned 4
+         %35 = OpIAdd %uint %33 %uint_1
+               OpStore %22 %35 Aligned 4
+               OpBranch %11
+         %14 = OpLabel
+               OpBranch %15
+         %15 = OpLabel
+         %36 = OpLoad %uint %21 Aligned 4
+         %37 = OpIAdd %uint %36 %uint_1
+               OpStore %21 %37 Aligned 4
+               OpBranch %9
+         %16 = OpLabel
+               OpReturn
+               OpFunctionEnd

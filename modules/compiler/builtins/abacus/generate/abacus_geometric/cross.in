@@ -1,0 +1,28 @@
+/// @brief Cross product.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Cross product of @a x and @a y. The .w components of @a x and @a y are 
+/// ignored, and the result .w is 0.
+///
+/// Standards compliant implementation of OpenCL 1.2 cross.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/cross.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_cross(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_cross.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API cross(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_cross(x, y);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

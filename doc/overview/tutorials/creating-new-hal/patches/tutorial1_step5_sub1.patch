@@ -1,0 +1,157 @@
+diff --git a/include/refsi_command_buffer.h b/include/refsi_command_buffer.h
+new file mode 100644
+index 0000000..e17e53d
+--- /dev/null
++++ b/include/refsi_command_buffer.h
+@@ -0,0 +1,33 @@
++// Copyright (C) Codeplay Software Limited. All Rights Reserved.
++
++#ifndef _HAL_REFSI_REFSI_COMMAND_BUFFER_H
++#define _HAL_REFSI_REFSI_COMMAND_BUFFER_H
++
++#include <vector>
++
++#include "refsidrv/refsidrv.h"
++#include "refsi_hal.h"
++
++class refsi_hal_device;
++
++/// @brief Utility class that can be used to generate RefSi command buffers and
++/// execute them on a RefSi device.
++class refsi_command_buffer {
++ public:
++  /// @brief Add a command to stop execution of commands in the command buffer.
++  void addFINISH();
++
++  /// @brief Add a command to store a 64-bit value to a CMP register.
++  /// @param reg CMP register index to write to.
++  /// @param value Immediate value to write to the register.
++  void addWRITE_REG64(refsi_cmp_register_id reg, uint64_t value);
++
++  /// @brief Execute the commands that have been added to the buffer.
++  /// @param hal_device Device to execute the command buffer.
++  refsi_result run(refsi_hal_device &hal_device);
++
++private:
++  std::vector<uint64_t> chunks;
++};
++
++#endif  // _HAL_REFSI_REFSI_COMMAND_BUFFER_H
+diff --git a/include/refsi_hal.h b/include/refsi_hal.h
+index a0bf0c4..a2aaa02 100644
+--- a/include/refsi_hal.h
++++ b/include/refsi_hal.h
+@@ -5,6 +5,7 @@
+ 
+ #include <mutex>
+ #include <string>
++#include <vector>
+ 
+ #include "hal.h"
+ #include "hal_riscv.h"
+@@ -20,15 +21,18 @@ struct refsi_hal_kernel {
+   const std::string name;
+ };
+ 
++using refsi_locker = std::lock_guard<std::recursive_mutex>;
++
+ class refsi_hal_device : public hal::hal_device_t {
+  public:
+   refsi_hal_device(riscv::hal_device_info_riscv_t *info, refsi_device_t device,
+                    std::recursive_mutex &hal_lock);
+-
+   virtual ~refsi_hal_device();
+ 
+   bool initialize();
+ 
++  refsi_device_t get_device() const { return device; }
++
+   // find a specific kernel function in a compiled program
+   // returns `hal_invalid_kernel` if no symbol could be found
+   hal::hal_kernel_t program_find_kernel(hal::hal_program_t program,
+diff --git a/source/CMakeLists.txt b/source/CMakeLists.txt
+index c8b2a30..38e8869 100644
+--- a/source/CMakeLists.txt
++++ b/source/CMakeLists.txt
+@@ -5,6 +5,7 @@ add_subdirectory(common)
+ add_library(hal_refsi_tutorial SHARED
+   hal_main.cpp
+   refsi_hal.cpp
++  refsi_command_buffer.cpp
+ )
+ 
+ target_compile_definitions(hal_refsi_tutorial PUBLIC -DBUILD_HAL_DLL)
+diff --git a/source/refsi_command_buffer.cpp b/source/refsi_command_buffer.cpp
+new file mode 100644
+index 0000000..a819c6a
+--- /dev/null
++++ b/source/refsi_command_buffer.cpp
+@@ -0,0 +1,34 @@
++// Copyright (C) Codeplay Software Limited. All Rights Reserved.
++
++#include "refsi_command_buffer.h"
++
++#include "refsi_hal.h"
++
++refsi_result refsi_command_buffer::run(refsi_hal_device &hal_device) {
++  // Write the command buffer to device memory.
++  size_t cb_size = chunks.size() * sizeof(uint64_t);
++  hal::hal_addr_t cb_addr = hal_device.mem_alloc(cb_size, sizeof(uint64_t));
++  if (!cb_addr || !hal_device.mem_write(cb_addr, chunks.data(), cb_size)) {
++    return refsi_failure;
++  }
++
++  // Execute the command buffer and wait for its completion.
++  if (refsi_result result = refsiExecuteCommandBuffer(hal_device.get_device(),
++                                                      cb_addr, cb_size)) {
++    hal_device.mem_free(cb_addr);
++    return result;
++  }
++  refsiWaitForDeviceIdle(hal_device.get_device());
++  hal_device.mem_free(cb_addr);
++  return refsi_success;
++}
++
++void refsi_command_buffer::addFINISH() {
++  chunks.push_back(refsiEncodeCMPCommand(CMP_FINISH, 0, 0));
++}
++
++void refsi_command_buffer::addWRITE_REG64(refsi_cmp_register_id reg,
++                                          uint64_t value) {
++  chunks.push_back(refsiEncodeCMPCommand(CMP_WRITE_REG64, 1, reg));
++  chunks.push_back(value);
++}
+diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
+index 4e97324..4bb197a 100644
+--- a/source/refsi_hal.cpp
++++ b/source/refsi_hal.cpp
+@@ -7,6 +7,7 @@
+ #include <memory>
+ 
+ #include "elf_loader.h"
++#include "refsi_command_buffer.h"
+ 
+ refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
+                                    refsi_device_t device,
+@@ -58,7 +59,20 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+                                    const hal::hal_arg_t *args,
+                                    uint32_t num_args, uint32_t work_dim) {
+   refsi_locker locker(hal_lock);
+-  return false;
++
++  refsi_hal_kernel *kernel_wrapper = (refsi_hal_kernel *)kernel;
++
++  // Encode the command buffer.
++  refsi_command_buffer cb;
++  cb.addWRITE_REG64(CMP_REG_ENTRY_PT_FN, kernel_wrapper->symbol);
++  cb.addFINISH();
++
++  // Execute the command buffer.
++  if (refsi_success != cb.run(*this)) {
++    return false;
++  }
++
++  return true;
+ }
+ 
+ hal::hal_addr_t refsi_hal_device::mem_alloc(hal::hal_size_t size,

@@ -1,0 +1,130 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 84
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability ImageBasic
+               OpCapability Sampled1D
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %13 "image_sampler" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInGlobalSize
+               OpExecutionMode %13 ContractionOff
+         %78 = OpString "kernel_arg_type.image_sampler.uint*,image1d_t,sampler_t,sampler_t,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %__spirv_BuiltInGlobalSize "__spirv_BuiltInGlobalSize"
+               OpName %TempSampledImage "TempSampledImage"
+               OpName %TempSampledImage1 "TempSampledImage1"
+               OpDecorate %79 Constant
+         %79 = OpDecorationGroup
+               OpDecorate %80 Alignment 4
+         %80 = OpDecorationGroup
+               OpDecorate %81 Alignment 8
+         %81 = OpDecorationGroup
+               OpDecorate %82 Alignment 16
+         %82 = OpDecorationGroup
+               OpDecorate %83 NoSignedWrap
+         %83 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalSize BuiltIn GlobalSize
+               OpDecorate %__spirv_BuiltInGlobalSize LinkageAttributes "__spirv_BuiltInGlobalSize" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %79 %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInGlobalSize
+               OpGroupDecorate %80 %27 %30
+               OpGroupDecorate %81 %20 %22 %24 %25
+               OpGroupDecorate %82 %33 %34
+               OpGroupDecorate %83 %66 %73 %75
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+     %uint_1 = OpConstant %uint 1
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+         %10 = OpTypeImage %void 1D 0 0 0 0 Unknown ReadOnly
+         %11 = OpTypeSampler
+         %12 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %10 %11 %11
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_10 = OpTypePointer Function %10
+%_ptr_Function_11 = OpTypePointer Function %11
+%_ptr_Function_uint = OpTypePointer Function %uint
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+     %v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+         %52 = OpTypeSampledImage %10
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%__spirv_BuiltInGlobalSize = OpVariable %_ptr_Input_v3ulong Input
+    %float_2 = OpConstant %float 2
+%float_0_0500000007 = OpConstant %float 0.0500000007
+    %float_0 = OpConstant %float 0
+         %13 = OpFunction %void DontInline %12
+         %14 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %15 = OpFunctionParameter %10
+         %16 = OpFunctionParameter %11
+         %17 = OpFunctionParameter %11
+         %18 = OpLabel
+         %20 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %22 = OpVariable %_ptr_Function_10 Function
+         %24 = OpVariable %_ptr_Function_11 Function
+         %25 = OpVariable %_ptr_Function_11 Function
+         %27 = OpVariable %_ptr_Function_uint Function
+         %30 = OpVariable %_ptr_Function_float Function
+         %33 = OpVariable %_ptr_Function_v4uint Function
+         %34 = OpVariable %_ptr_Function_v4uint Function
+               OpStore %20 %14 Aligned 8
+               OpStore %22 %15 Aligned 8
+               OpStore %24 %16 Aligned 8
+               OpStore %25 %17 Aligned 8
+         %35 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %36 = OpCompositeExtract %ulong %35 0
+         %37 = OpUConvert %uint %36
+               OpStore %27 %37 Aligned 4
+         %38 = OpLoad %uint %27 Aligned 4
+         %39 = OpConvertSToF %float %38
+               OpStore %30 %39 Aligned 4
+         %40 = OpLoad %float %30 Aligned 4
+         %41 = OpLoad %v3ulong %__spirv_BuiltInGlobalSize
+         %42 = OpCompositeExtract %ulong %41 0
+         %43 = OpConvertUToF %float %42
+         %45 = OpFDiv %float %43 %float_2
+         %46 = OpFDiv %float %40 %45
+         %48 = OpFAdd %float %46 %float_0_0500000007
+               OpStore %30 %48 Aligned 4
+         %49 = OpLoad %10 %22 Aligned 8
+         %50 = OpLoad %11 %24 Aligned 8
+         %51 = OpLoad %float %30 Aligned 4
+%TempSampledImage = OpSampledImage %52 %49 %50
+         %54 = OpImageSampleExplicitLod %v4uint %TempSampledImage %51 Lod %float_0
+               OpStore %33 %54 Aligned 16
+         %56 = OpLoad %10 %22 Aligned 8
+         %57 = OpLoad %11 %25 Aligned 8
+         %58 = OpLoad %float %30 Aligned 4
+%TempSampledImage1 = OpSampledImage %52 %56 %57
+         %60 = OpImageSampleExplicitLod %v4uint %TempSampledImage1 %58 Lod %float_0
+               OpStore %34 %60 Aligned 16
+         %61 = OpLoad %v4uint %33 Aligned 16
+         %62 = OpCompositeExtract %uint %61 0
+         %63 = OpLoad %_ptr_CrossWorkgroup_uint %20 Aligned 8
+         %64 = OpLoad %uint %27 Aligned 4
+         %66 = OpIMul %uint %64 %uint_2
+         %67 = OpSConvert %ulong %66
+         %68 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %63 %67
+               OpStore %68 %62 Aligned 4
+         %69 = OpLoad %v4uint %34 Aligned 16
+         %70 = OpCompositeExtract %uint %69 0
+         %71 = OpLoad %_ptr_CrossWorkgroup_uint %20 Aligned 8
+         %72 = OpLoad %uint %27 Aligned 4
+         %73 = OpIMul %uint %72 %uint_2
+         %75 = OpIAdd %uint %73 %uint_1
+         %76 = OpSConvert %ulong %75
+         %77 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %71 %76
+               OpStore %77 %70 Aligned 4
+               OpReturn
+               OpFunctionEnd

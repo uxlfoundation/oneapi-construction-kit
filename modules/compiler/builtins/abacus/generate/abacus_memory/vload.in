@@ -1,0 +1,81 @@
+/// @brief Load an unaligned vector from memory.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vload@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vloadn.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_vload@vector_size@(size_t offset, const abacus_@generate_type@ * x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_vload@vector_size@.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API vload@vector_size@(size_t offset, const abacus_@generate_type@ * x) {
+  return __abacus_vload@vector_size@(offset, x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__)
+
+/// @brief Load an unaligned vector from memory.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vload@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vloadn.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_vload@vector_size@(size_t offset, const abacus_@generate_type@ local* x);
+
+/// @brief Wrapper for __abacus_vload@vector_size@.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API vload@vector_size@(size_t offset, const abacus_@generate_type@ local* x) {
+  return __abacus_vload@vector_size@(offset, x);
+}
+
+/// @brief Load an unaligned vector from memory.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vload@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vloadn.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_vload@vector_size@(size_t offset, const abacus_@generate_type@ global* x);
+
+/// @brief Wrapper for __abacus_vload@vector_size@.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API vload@vector_size@(size_t offset, const abacus_@generate_type@ global* x) {
+  return __abacus_vload@vector_size@(offset, x);
+}
+
+/// @brief Load an unaligned vector from memory.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 vload@vector_size@.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/vloadn.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_vload@vector_size@(size_t offset, const abacus_@generate_type@ constant* x);
+
+/// @brief Wrapper for __abacus_vload@vector_size@.
+/// @param[in] offset The offset to use.
+/// @param[in] x      A abacus_@generate_type@ pointer.
+/// @return           A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API vload@vector_size@(size_t offset, const abacus_@generate_type@ constant* x) {
+  return __abacus_vload@vector_size@(offset, x);
+}
+
+#endif

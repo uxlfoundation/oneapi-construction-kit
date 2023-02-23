@@ -1,0 +1,13 @@
+Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+For licensing information, see the applicable license agreement under which
+this project was delivered.
+
+The external/refsidrv folder (Codeplay Reference Silicon Driver), if present, is
+held under its own licensing terms. See external/refsidrv/LICENSE.txt.
+
+The source/loader folder contain files derived from the Spike RISC-V Simulator
+project referred to above and can be identified by the presence of a 'See
+LICENSE.spike for license details.' comment at the top of the relevant files.
+These files are held under their own licensing terms,
+source/loader/LICENSE.spike.

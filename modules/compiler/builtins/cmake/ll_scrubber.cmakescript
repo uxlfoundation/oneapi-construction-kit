@@ -1,0 +1,32 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+# Takes an input LLVM .ll file, removes unwanted metadata from it,
+# and outputs an LLVM .ll file.
+
+# We need to do this as a CMake/build step, rather than an LLVM pass because:
+# - we can't edit LLVM/Clang
+# - this transformation has to be done at build time
+# - we'd have to use LLVM opt's plugin architecture to run a pass
+# - Windows can't load passes this way
+# - and we'd have to (for cross-compile builds) build the pass for host
+
+if(NOT DEFINED INPUT_FILE)
+  message(FATAL_ERROR "Required cmake variable INPUT_FILE not set!")
+endif()
+
+if(NOT DEFINED OUTPUT_FILE)
+  message(FATAL_ERROR "Required cmake variable OUTPUT_FILE not set!")
+endif()
+
+if(NOT EXISTS ${INPUT_FILE})
+  message(FATAL_ERROR "File '${INPUT_FILE}' does not exist!")
+endif()
+
+# read the input file
+file(READ ${INPUT_FILE} data)
+
+# replace the target triple
+string(REGEX REPLACE "target triple = \"spir(64)?-unknown-unknown(_fp64)?(_fp16)?\"" "target triple = \"unknown-unknown-unknown\""  data "${data}")
+
+# and finally output the result to a file
+file(WRITE ${OUTPUT_FILE} "${data}")

@@ -1,0 +1,271 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 206
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %9 "vector_barriers_with_alias" %__spirv_BuiltInGlobalInvocationId
+        %203 = OpString "kernel_arg_type.vector_barriers_with_alias.int*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %struct_mystruct "struct.mystruct"
+               OpDecorate %204 Alignment 4
+        %204 = OpDecorationGroup
+               OpDecorate %205 NoSignedWrap
+        %205 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %204 %25 %27 %34 %35 %36 %37 %38
+               OpGroupDecorate %205 %73 %74 %90 %91 %105 %106 %120 %121 %152 %153 %154 %160 %161 %162 %168 %169 %170 %176 %177 %178 %182 %183 %188 %189 %194 %195 %200 %201
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+     %uint_2 = OpConstant %uint 2
+     %uint_0 = OpConstant %uint 0
+    %uint_20 = OpConstant %uint 20
+     %uint_1 = OpConstant %uint 1
+    %uint_22 = OpConstant %uint 22
+     %uint_3 = OpConstant %uint 3
+   %uint_272 = OpConstant %uint 272
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %8 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_arr_uint_uint_2 = OpTypeArray %uint %uint_2
+%struct_mystruct = OpTypeStruct %_arr_uint_uint_2 %_ptr_Function_uint
+%_arr_struct_mystruct_uint_4 = OpTypeArray %struct_mystruct %uint_4
+%_ptr_Function__arr_struct_mystruct_uint_4 = OpTypePointer Function %_arr_struct_mystruct_uint_4
+%_ptr_Function_struct_mystruct = OpTypePointer Function %struct_mystruct
+%_ptr_Function__arr_uint_uint_2 = OpTypePointer Function %_arr_uint_uint_2
+       %bool = OpTypeBool
+%_ptr_Function__ptr_Function_uint = OpTypePointer Function %_ptr_Function_uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+          %9 = OpFunction %void DontInline %8
+         %10 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %11 = OpLabel
+         %25 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %27 = OpVariable %_ptr_Function_uint Function
+         %34 = OpVariable %_ptr_Function__arr_struct_mystruct_uint_4 Function
+         %35 = OpVariable %_ptr_Function_uint Function
+         %36 = OpVariable %_ptr_Function_uint Function
+         %37 = OpVariable %_ptr_Function_uint Function
+         %38 = OpVariable %_ptr_Function_uint Function
+               OpStore %25 %10 Aligned 4
+         %39 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %40 = OpCompositeExtract %uint %39 0
+               OpStore %27 %40 Aligned 4
+         %43 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+         %45 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %43 %uint_0 %uint_0
+         %46 = OpInBoundsPtrAccessChain %_ptr_Function_uint %45 %uint_0 %uint_0
+               OpStore %46 %uint_20 Aligned 4
+         %48 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+         %49 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %48 %uint_0 %uint_0
+         %51 = OpInBoundsPtrAccessChain %_ptr_Function_uint %49 %uint_0 %uint_1
+               OpStore %51 %uint_22 Aligned 4
+         %53 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+         %54 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %53 %uint_0 %uint_0
+         %55 = OpInBoundsPtrAccessChain %_ptr_Function_uint %54 %uint_0 %uint_0
+               OpStore %55 %uint_20 Aligned 4
+         %56 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+         %57 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %56 %uint_0 %uint_0
+         %58 = OpInBoundsPtrAccessChain %_ptr_Function_uint %57 %uint_0 %uint_1
+               OpStore %58 %uint_22 Aligned 4
+         %59 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+         %60 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %59 %uint_0 %uint_0
+         %61 = OpInBoundsPtrAccessChain %_ptr_Function_uint %60 %uint_0 %uint_0
+               OpStore %61 %uint_20 Aligned 4
+         %62 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+         %63 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %62 %uint_0 %uint_0
+         %64 = OpInBoundsPtrAccessChain %_ptr_Function_uint %63 %uint_0 %uint_1
+               OpStore %64 %uint_22 Aligned 4
+         %66 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+         %67 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %66 %uint_0 %uint_0
+         %68 = OpInBoundsPtrAccessChain %_ptr_Function_uint %67 %uint_0 %uint_0
+               OpStore %68 %uint_20 Aligned 4
+         %69 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+         %70 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %69 %uint_0 %uint_0
+         %71 = OpInBoundsPtrAccessChain %_ptr_Function_uint %70 %uint_0 %uint_1
+               OpStore %71 %uint_22 Aligned 4
+         %72 = OpLoad %uint %27 Aligned 4
+         %73 = OpIMul %uint %72 %uint_4
+         %74 = OpIAdd %uint %73 %uint_0
+         %75 = OpBitwiseAnd %uint %74 %uint_1
+         %77 = OpINotEqual %bool %75 %uint_0
+               OpBranchConditional %77 %12 %13
+         %12 = OpLabel
+         %78 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+         %79 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %78 %uint_0 %uint_0
+         %80 = OpInBoundsPtrAccessChain %_ptr_Function_uint %79 %uint_0 %uint_1
+         %81 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+         %83 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %81 %uint_0 %uint_1
+               OpStore %83 %80 Aligned 4
+               OpBranch %14
+         %13 = OpLabel
+         %84 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+         %85 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %84 %uint_0 %uint_0
+         %86 = OpInBoundsPtrAccessChain %_ptr_Function_uint %85 %uint_0 %uint_0
+         %87 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+         %88 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %87 %uint_0 %uint_1
+               OpStore %88 %86 Aligned 4
+               OpBranch %14
+         %14 = OpLabel
+         %89 = OpLoad %uint %27 Aligned 4
+         %90 = OpIMul %uint %89 %uint_4
+         %91 = OpIAdd %uint %90 %uint_1
+         %92 = OpBitwiseAnd %uint %91 %uint_1
+         %93 = OpINotEqual %bool %92 %uint_0
+               OpBranchConditional %93 %15 %16
+         %15 = OpLabel
+         %94 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+         %95 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %94 %uint_0 %uint_0
+         %96 = OpInBoundsPtrAccessChain %_ptr_Function_uint %95 %uint_0 %uint_1
+         %97 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+         %98 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %97 %uint_0 %uint_1
+               OpStore %98 %96 Aligned 4
+               OpBranch %17
+         %16 = OpLabel
+         %99 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+        %100 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %99 %uint_0 %uint_0
+        %101 = OpInBoundsPtrAccessChain %_ptr_Function_uint %100 %uint_0 %uint_0
+        %102 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+        %103 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %102 %uint_0 %uint_1
+               OpStore %103 %101 Aligned 4
+               OpBranch %17
+         %17 = OpLabel
+        %104 = OpLoad %uint %27 Aligned 4
+        %105 = OpIMul %uint %104 %uint_4
+        %106 = OpIAdd %uint %105 %uint_2
+        %107 = OpBitwiseAnd %uint %106 %uint_1
+        %108 = OpINotEqual %bool %107 %uint_0
+               OpBranchConditional %108 %18 %19
+         %18 = OpLabel
+        %109 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+        %110 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %109 %uint_0 %uint_0
+        %111 = OpInBoundsPtrAccessChain %_ptr_Function_uint %110 %uint_0 %uint_1
+        %112 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+        %113 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %112 %uint_0 %uint_1
+               OpStore %113 %111 Aligned 4
+               OpBranch %20
+         %19 = OpLabel
+        %114 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+        %115 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %114 %uint_0 %uint_0
+        %116 = OpInBoundsPtrAccessChain %_ptr_Function_uint %115 %uint_0 %uint_0
+        %117 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+        %118 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %117 %uint_0 %uint_1
+               OpStore %118 %116 Aligned 4
+               OpBranch %20
+         %20 = OpLabel
+        %119 = OpLoad %uint %27 Aligned 4
+        %120 = OpIMul %uint %119 %uint_4
+        %121 = OpIAdd %uint %120 %uint_3
+        %122 = OpBitwiseAnd %uint %121 %uint_1
+        %123 = OpINotEqual %bool %122 %uint_0
+               OpBranchConditional %123 %21 %22
+         %21 = OpLabel
+        %124 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+        %125 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %124 %uint_0 %uint_0
+        %126 = OpInBoundsPtrAccessChain %_ptr_Function_uint %125 %uint_0 %uint_1
+        %127 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+        %128 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %127 %uint_0 %uint_1
+               OpStore %128 %126 Aligned 4
+               OpBranch %23
+         %22 = OpLabel
+        %129 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+        %130 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %129 %uint_0 %uint_0
+        %131 = OpInBoundsPtrAccessChain %_ptr_Function_uint %130 %uint_0 %uint_0
+        %132 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+        %133 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %132 %uint_0 %uint_1
+               OpStore %133 %131 Aligned 4
+               OpBranch %23
+         %23 = OpLabel
+               OpControlBarrier %uint_2 %uint_2 %uint_272
+        %135 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+        %136 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %135 %uint_0 %uint_0
+        %137 = OpInBoundsPtrAccessChain %_ptr_Function_uint %136 %uint_0 %uint_0
+               OpStore %137 %uint_1 Aligned 4
+        %138 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+        %139 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %138 %uint_0 %uint_0
+        %140 = OpInBoundsPtrAccessChain %_ptr_Function_uint %139 %uint_0 %uint_0
+               OpStore %140 %uint_1 Aligned 4
+        %141 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+        %142 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %141 %uint_0 %uint_0
+        %143 = OpInBoundsPtrAccessChain %_ptr_Function_uint %142 %uint_0 %uint_0
+               OpStore %143 %uint_1 Aligned 4
+        %144 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+        %145 = OpInBoundsPtrAccessChain %_ptr_Function__arr_uint_uint_2 %144 %uint_0 %uint_0
+        %146 = OpInBoundsPtrAccessChain %_ptr_Function_uint %145 %uint_0 %uint_0
+               OpStore %146 %uint_1 Aligned 4
+        %147 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_0
+        %148 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %147 %uint_0 %uint_1
+        %149 = OpLoad %_ptr_Function_uint %148 Aligned 4
+        %150 = OpLoad %uint %149 Aligned 4
+        %151 = OpLoad %uint %27 Aligned 4
+        %152 = OpIMul %uint %151 %uint_4
+        %153 = OpIAdd %uint %150 %152
+        %154 = OpIAdd %uint %153 %uint_0
+               OpStore %35 %154 Aligned 4
+        %155 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_1
+        %156 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %155 %uint_0 %uint_1
+        %157 = OpLoad %_ptr_Function_uint %156 Aligned 4
+        %158 = OpLoad %uint %157 Aligned 4
+        %159 = OpLoad %uint %27 Aligned 4
+        %160 = OpIMul %uint %159 %uint_4
+        %161 = OpIAdd %uint %158 %160
+        %162 = OpIAdd %uint %161 %uint_1
+               OpStore %36 %162 Aligned 4
+        %163 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_2
+        %164 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %163 %uint_0 %uint_1
+        %165 = OpLoad %_ptr_Function_uint %164 Aligned 4
+        %166 = OpLoad %uint %165 Aligned 4
+        %167 = OpLoad %uint %27 Aligned 4
+        %168 = OpIMul %uint %167 %uint_4
+        %169 = OpIAdd %uint %166 %168
+        %170 = OpIAdd %uint %169 %uint_2
+               OpStore %37 %170 Aligned 4
+        %171 = OpInBoundsPtrAccessChain %_ptr_Function_struct_mystruct %34 %uint_0 %uint_3
+        %172 = OpInBoundsPtrAccessChain %_ptr_Function__ptr_Function_uint %171 %uint_0 %uint_1
+        %173 = OpLoad %_ptr_Function_uint %172 Aligned 4
+        %174 = OpLoad %uint %173 Aligned 4
+        %175 = OpLoad %uint %27 Aligned 4
+        %176 = OpIMul %uint %175 %uint_4
+        %177 = OpIAdd %uint %174 %176
+        %178 = OpIAdd %uint %177 %uint_3
+               OpStore %38 %178 Aligned 4
+        %179 = OpLoad %uint %35 Aligned 4
+        %180 = OpLoad %_ptr_CrossWorkgroup_uint %25 Aligned 4
+        %181 = OpLoad %uint %27 Aligned 4
+        %182 = OpIMul %uint %181 %uint_4
+        %183 = OpIAdd %uint %182 %uint_0
+        %184 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %180 %183
+               OpStore %184 %179 Aligned 4
+        %185 = OpLoad %uint %36 Aligned 4
+        %186 = OpLoad %_ptr_CrossWorkgroup_uint %25 Aligned 4
+        %187 = OpLoad %uint %27 Aligned 4
+        %188 = OpIMul %uint %187 %uint_4
+        %189 = OpIAdd %uint %188 %uint_1
+        %190 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %186 %189
+               OpStore %190 %185 Aligned 4
+        %191 = OpLoad %uint %37 Aligned 4
+        %192 = OpLoad %_ptr_CrossWorkgroup_uint %25 Aligned 4
+        %193 = OpLoad %uint %27 Aligned 4
+        %194 = OpIMul %uint %193 %uint_4
+        %195 = OpIAdd %uint %194 %uint_2
+        %196 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %192 %195
+               OpStore %196 %191 Aligned 4
+        %197 = OpLoad %uint %38 Aligned 4
+        %198 = OpLoad %_ptr_CrossWorkgroup_uint %25 Aligned 4
+        %199 = OpLoad %uint %27 Aligned 4
+        %200 = OpIMul %uint %199 %uint_4
+        %201 = OpIAdd %uint %200 %uint_3
+        %202 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %198 %201
+               OpStore %202 %197 Aligned 4
+               OpReturn
+               OpFunctionEnd

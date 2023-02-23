@@ -1,0 +1,69 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/ints.in" ints)
+
+set(types "char;short;int;long")
+set(vector_sizes ";2;3;4;8;16")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(signed_generate_type "${type}${vector_size}")
+    set(generate_type "${signed_generate_type}")
+    string(CONFIGURE "${ints}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+    set(signed_generate_type "${type}${vector_size}")
+    set(generate_type "u${signed_generate_type}")
+    string(CONFIGURE "${ints}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/floats.in" floats)
+
+set(types "float;double")
+set(vector_sizes ";2;3;4")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_type "${type}${vector_size}")
+    if(type STREQUAL "double")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${floats}\n#endif\n"
+        processed @ONLY)
+    else()
+      string(CONFIGURE "${floats}" processed @ONLY)
+    endif()
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/refract.in" refract)
+
+set(scalar_types "float;double")
+
+foreach(type IN LISTS types)
+  foreach(scalar_type IN LISTS scalar_types)
+    if((${scalar_type} STREQUAL "double") AND (NOT (${type} STREQUAL "double")))
+      continue()
+    endif()
+    foreach(vector_size IN LISTS vector_sizes)
+      set(scalar_type "${scalar_type}")
+      set(generate_type "${type}${vector_size}")
+      if(type STREQUAL "double" OR scalar_type STREQUAL "double")
+        string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${refract}\n#endif\n"
+          processed @ONLY)
+      else()
+        string(CONFIGURE "${refract}" processed @ONLY)
+      endif()
+      set(generate_input_definitions "${generate_input_definitions}${processed}")
+    endforeach()
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_extra.in" abacus_extra)
+string(CONFIGURE "${abacus_extra}" abacus_extra @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_extra}")

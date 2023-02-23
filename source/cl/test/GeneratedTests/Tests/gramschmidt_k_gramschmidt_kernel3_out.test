@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue gramschmidt_kernel3 -arg a,repeat(105,rand(0,1.0)) -compare a:%p/Inputs/gramschmidt_k_gramschmidt_kernel3_out.txt -arg r,repeat(115,rand(0,1.0)) -compare r:%p/Inputs/gramschmidt_k_gramschmidt_kernel3_out.txt -arg q,repeat(101,rand(0,1.0)) -arg k,repeat(1,10) -arg ni,repeat(1,10) -arg nj,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/solvers/gramschmidt/gramschmidt.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: a - match
+CHECK-DAG: r - match

@@ -1,0 +1,42 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_spec_constant_deps.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %Foo "Foo"
+               OpMemberName %Foo 0 "a"
+               OpDecorate %11 SpecId 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+        %Foo = OpTypeStruct %v2int
+%_ptr_Function_Foo = OpTypePointer Function %Foo
+         %11 = OpSpecConstant %int 42
+         %12 = OpSpecConstantComposite %v2int %11 %11
+         %13 = OpConstant %int 42
+         %14 = OpConstantComposite %v2int %13 %13
+         %15 = OpSpecConstantOp %v2int IAdd %12 %14
+         %16 = OpSpecConstantComposite %Foo %15
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpVariable %_ptr_Function_Foo Function
+               OpStore %17 %16
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { <2 x i32> }
+; CHECK: define spir_kernel void @main()
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} { <2 x i32> <i32 84, i32 84> }, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} { <2 x i32> <i32 84, i32 84> }, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void

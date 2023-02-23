@@ -1,0 +1,15 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %spirv-ll --spec-constants %p/spec_constants.spv -o %t
+// RUN: %filecheck < %t %s
+
+#version 450
+
+layout (constant_id = 0) const bool constBool = true;
+// CHECK: SpecId: 0	OpTypeBool	1 bit
+layout (constant_id = 1) const int constInt = 42;
+// CHECK: SpecId: 1	OpTypeInt	32 bit
+layout (constant_id = 2) const float constFloat = 42.0f;
+// CHECK: SpecId: 2	OpTypeFloat	32 bit
+
+void main() {}

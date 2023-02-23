@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue lu_kernel2 -arg A,repeat(155,rand(0,1.0)) -compare A:%p/Inputs/lu_k_lu_kernel2_out.txt -arg k,repeat(1,10) -arg n,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/solvers/lu/lu.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: A - match

@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_fclamp_v8float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %fclamp_v8float "fclamp_v8float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v8float_t = OpTypeVector %float_t 8
+         %fclamp_fn_t = OpTypeFunction %void_t
+             %float_0 = OpConstant %float_t 0.8
+             %float_1 = OpConstant %float_t 1.0
+             %float_2 = OpConstant %float_t 2.0
+           %v8float_0 = OpConstantComposite %v8float_t %float_0 %float_0 %float_0 %float_0 %float_0 %float_0 %float_0 %float_0
+           %v8float_1 = OpConstantComposite %v8float_t %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1
+           %v8float_2 = OpConstantComposite %v8float_t %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2
+
+; All functions
+      %fclamp_v8float = OpFunction %void_t None %fclamp_fn_t
+; CHECK: define spir_kernel void @fclamp_v8float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v8float_t %1 fclamp %v8float_0 %v8float_1 %v8float_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z5clampDv8_fS_S_(<8 x float> <float 0x3FE99999A0000000, float 0x3FE99999A0000000, float 0x3FE99999A0000000, float 0x3FE99999A0000000, float 0x3FE99999A0000000, float 0x3FE99999A0000000, float 0x3FE99999A0000000, float 0x3FE99999A0000000>, <8 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <8 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

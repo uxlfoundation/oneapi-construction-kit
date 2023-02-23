@@ -1,0 +1,29 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_sign_v2float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %sign_v2float "sign_v2float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v2float_t = OpTypeVector %float_t 2
+           %sign_fn_t = OpTypeFunction %void_t
+             %float_3 = OpConstant %float_t 3.14
+           %v2float_3 = OpConstantComposite %v2float_t %float_3 %float_3
+
+; All functions
+        %sign_v2float = OpFunction %void_t None %sign_fn_t
+; CHECK: define spir_kernel void @sign_v2float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2float_t %1 sign %v2float_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z4signDv2_f(<2 x float> <float 0x40091EB860000000, float 0x40091EB860000000>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,73 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_opencl_vstoren_long_64bit.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Vector16
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %7 "foo"
+               OpSource OpenCL_C 102000
+               OpName %out "out"
+               OpName %loc "loc"
+               OpName %entry "entry"
+      %ulong = OpTypeInt 64 0
+    %ulong_2 = OpConstant %ulong 2
+    %ulong_0 = OpConstant %ulong 0
+    %ulong_3 = OpConstant %ulong 3
+    %ulong_4 = OpConstant %ulong 4
+    %ulong_8 = OpConstant %ulong 8
+   %ulong_16 = OpConstant %ulong 16
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+%_ptr_Workgroup_ulong = OpTypePointer Workgroup %ulong
+          %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong %_ptr_Workgroup_ulong
+    %v2ulong = OpTypeVector %ulong 2
+    %v3ulong = OpTypeVector %ulong 3
+    %v4ulong = OpTypeVector %ulong 4
+    %v8ulong = OpTypeVector %ulong 8
+   %v16ulong = OpTypeVector %ulong 16
+         %13 = OpConstantComposite %v2ulong %ulong_2 %ulong_2
+         %18 = OpConstantComposite %v3ulong %ulong_3 %ulong_3 %ulong_3
+         %22 = OpConstantComposite %v4ulong %ulong_4 %ulong_4 %ulong_4 %ulong_4
+         %26 = OpConstantComposite %v8ulong %ulong_8 %ulong_8 %ulong_8 %ulong_8 %ulong_8 %ulong_8 %ulong_8 %ulong_8
+         %30 = OpConstantComposite %v16ulong %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16 %ulong_16
+          %7 = OpFunction %void None %6
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+        %loc = OpFunctionParameter %_ptr_Workgroup_ulong
+      %entry = OpLabel
+         %15 = OpExtInst %void %1 vstoren %13 %ulong_0 %out
+         %19 = OpExtInst %void %1 vstoren %18 %ulong_0 %out
+         %23 = OpExtInst %void %1 vstoren %22 %ulong_0 %out
+         %27 = OpExtInst %void %1 vstoren %26 %ulong_0 %out
+         %31 = OpExtInst %void %1 vstoren %30 %ulong_0 %out
+         %32 = OpExtInst %void %1 vstoren %13 %ulong_0 %loc
+         %33 = OpExtInst %void %1 vstoren %18 %ulong_0 %loc
+         %34 = OpExtInst %void %1 vstoren %22 %ulong_0 %loc
+         %35 = OpExtInst %void %1 vstoren %26 %ulong_0 %loc
+         %36 = OpExtInst %void %1 vstoren %30 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_mmPU3AS1m(<2 x i64> <i64 2, i64 2>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_mmPU3AS1m(<2 x i64> <i64 2, i64 2>, i64 0, i64 addrspace(1)* %out)
+; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_mmPU3AS1m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_mmPU3AS1m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, i64 addrspace(1)* %out)
+; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_mmPU3AS1m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_mmPU3AS1m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, i64 addrspace(1)* %out)
+; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_mmPU3AS1m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_mmPU3AS1m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, i64 addrspace(1)* %out)
+; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_mmPU3AS1m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_mmPU3AS1m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, i64 addrspace(1)* %out)
+; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_mmPU3AS3m(<2 x i64> <i64 2, i64 2>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_mmPU3AS3m(<2 x i64> <i64 2, i64 2>, i64 0, i64 addrspace(3)* %loc)
+; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_mmPU3AS3m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_mmPU3AS3m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, i64 addrspace(3)* %loc)
+; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_mmPU3AS3m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_mmPU3AS3m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, i64 addrspace(3)* %loc)
+; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_mmPU3AS3m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_mmPU3AS3m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, i64 addrspace(3)* %loc)
+; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_mmPU3AS3m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_mmPU3AS3m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, i64 addrspace(3)* %loc)
+               OpReturn
+               OpFunctionEnd

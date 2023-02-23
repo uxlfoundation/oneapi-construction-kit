@@ -1,0 +1,34 @@
+diff --git a/cmake/CompileKernel.cmake b/cmake/CompileKernel.cmake
+index d369b7c..166179e 100644
+--- a/cmake/CompileKernel.cmake
++++ b/cmake/CompileKernel.cmake
+@@ -7,7 +7,17 @@ function(hal_refsi_tutorial_compile_kernel_source OBJECT SRC)
+   get_property(ROOT_DIR GLOBAL PROPERTY HAL_REFSI_TUTORIAL_DIR)
+   get_target_property(REFSIDRV_SRC_DIR refsidrv SOURCE_DIR)
+ 
+-  # TODO: Compile a kernel source file (${SRC}) into a kernel object (${OBJECT})
++  # Compile a kernel source file (${SRC}) into a kernel object (${OBJECT})
++  set(LINKER_SCRIPT ${ROOT_DIR}/include/device/program.lds)
++  set(KERNEL_CFLAGS -DBUILD_FOR_DEVICE)
++  list(APPEND INCLUDES ${REFSIDRV_SRC_DIR}/../include/device)
++  list(APPEND INCLUDES ${ROOT_DIR}/include/device)
++  foreach(INCLUDE ${INCLUDES})
++    set(KERNEL_CFLAGS ${KERNEL_CFLAGS} -I${INCLUDE})
++  endforeach()
++  add_custom_command(OUTPUT ${OBJECT}
++                     COMMAND ${RISCV_CC} ${RISCV_CC_FLAGS} -O2 -c -nodefaultlibs -fno-stack-protector ${KERNEL_CFLAGS} ${SRC} -o ${OBJECT}
++                     DEPENDS ${SRC})
+ endfunction()
+ 
+ function(hal_refsi_tutorial_link_kernel BINARY)
+@@ -21,5 +31,9 @@ function(hal_refsi_tutorial_link_kernel BINARY)
+   get_property(RISCV_LINKER_FLAGS GLOBAL PROPERTY RISCV_LINKER_FLAGS)
+   get_property(ROOT_DIR GLOBAL PROPERTY HAL_REFSI_TUTORIAL_DIR)
+ 
+-  # TODO: Link multiple objects (${OBJECTS}) into a kernel executable (${BINARY})
++  # Link multiple objects (${OBJECTS}) into a kernel executable (${BINARY})
++  set(LINKER_SCRIPT ${ROOT_DIR}/include/device/program.lds)
++  add_custom_command(OUTPUT ${BINARY}
++                     COMMAND ${RISCV_CC} ${RISCV_CC_FLAGS} -static ${RISCV_LINKER_FLAGS} -nodefaultlibs ${OBJECTS} -Wl,-e -Wl,kernel_main -Wl,--build-id=none -o ${BINARY} -T${LINKER_SCRIPT}
++                     DEPENDS ${OBJECTS} ${LINKER_SCRIPT})
+ endfunction()

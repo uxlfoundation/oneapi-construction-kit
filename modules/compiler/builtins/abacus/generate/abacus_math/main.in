@@ -1,0 +1,1915 @@
+/// @brief Arc cosine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 acos.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/acos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_acos(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_acos.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API acos(abacus_@generate_type@ x) {
+  return __abacus_acos(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Hyperbolic inverse cosine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 acosh.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/acosh.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_acosh(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_acosh.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API acosh(abacus_@generate_type@ x) {
+  return __abacus_acosh(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Arc cosine over &pi; function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 acospi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/acospi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_acospi(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_acospi.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API acospi(abacus_@generate_type@ x) {
+  return __abacus_acospi(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Arc sine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 asin.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/asin.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_asin(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_asin.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API asin(abacus_@generate_type@ x) {
+  return __abacus_asin(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Hyperbolic inverse sine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 asinh.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/asinh.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_asinh(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_asinh.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API asinh(abacus_@generate_type@ x) {
+  return __abacus_asinh(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Arc sine over &pi; function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 asinpi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/asinpi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_asinpi(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_asinpi.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API asinpi(abacus_@generate_type@ x) {
+  return __abacus_asinpi(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Arc tangent function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 atan.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/atan.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_atan(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_atan.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API atan(abacus_@generate_type@ x) {
+  return __abacus_atan(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Hyperbolic inverse tangent function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 atanh.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/atanh.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_atanh(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_atanh.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API atanh(abacus_@generate_type@ x) {
+  return __abacus_atanh(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Arc tangent over &pi; function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 atanpi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/atanpi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_atanpi(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_atanpi.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API atanpi(abacus_@generate_type@ x) {
+  return __abacus_atanpi(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Arc tangent @a y / @a x function.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 atan2.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/atan2.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_atan2(abacus_@generate_type@ y, abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_atan2.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API atan2(abacus_@generate_type@ y, abacus_@generate_type@ x) {
+  return __abacus_atan2(y, x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief __abacus_atan2(y, x) / &pi;.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 atan2pi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/atan2pi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_atan2pi(abacus_@generate_type@ y, abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_atan2pi.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API atan2pi(abacus_@generate_type@ y, abacus_@generate_type@ x) {
+  return __abacus_atan2pi(y, x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to whole number towards +&infin;.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 ceil.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/ceil.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_ceil(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_ceil.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API ceil(abacus_@generate_type@ x) {
+  return __abacus_ceil(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Cube root function.
+/// @param x The number to process.
+/// @return The cube root of @a x.
+///
+/// Standards compliant implementation of OpenCL 1.2 cbrt.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/cbrt.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_cbrt(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_cbrt.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API cbrt(abacus_@generate_type@ x) {
+  return __abacus_cbrt(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Cosine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 cos.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/cos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_cos(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_cos.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API cos(abacus_@generate_type@ x) {
+  return __abacus_cos(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Hyperbolic cosine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 cosh.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/cos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_cosh(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_cosh.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API cosh(abacus_@generate_type@ x) {
+  return __abacus_cosh(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief cospiine by &pi; function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 cospi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/cos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_cospi(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_cospi.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API cospi(abacus_@generate_type@ x) {
+  return __abacus_cospi(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Copies the sign of one number to another.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return @a x with the sign of @a y.
+///
+/// Standards compliant implementation of OpenCL 1.2 copysign.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/copysign.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_copysign(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_copysign.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API copysign(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_copysign(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Error in integrating the normal distribution function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 erf.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/erf.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_erf(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_erf.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API erf(abacus_@generate_type@ x) {
+  return __abacus_erf(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Complementary error function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 erfc.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/erf.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_erfc(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_erfc.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API erfc(abacus_@generate_type@ x) {
+  return __abacus_erfc(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Exponential base e function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 exp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/exp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_exp(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_exp.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API exp(abacus_@generate_type@ x) {
+  return __abacus_exp(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Exponential base 2 function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 exp2.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/exp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_exp2(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_exp2.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API exp2(abacus_@generate_type@ x) {
+  return __abacus_exp2(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Exponential base 10 function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 exp10.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/exp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_exp10(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_exp10.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API exp10(abacus_@generate_type@ x) {
+  return __abacus_exp10(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief e<sup>x</sup> - 1 function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 expm1.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/exp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_expm1(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_expm1.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API expm1(abacus_@generate_type@ x) {
+  return __abacus_expm1(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Absolute value function.
+/// @param[in] x The number to process.
+/// @return The fabs of @a x.
+///
+/// Standards compliant implementation of OpenCL 1.2 fabs.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fabs.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fabs(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fabs.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fabs(abacus_@generate_type@ x) {
+  return __abacus_fabs(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Positive difference between two values function.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fdim.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fdim.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fdim(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fdim.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fdim(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_fdim(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to whole number towards -&infin;.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 floor.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/floor.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_floor(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_floor.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API floor(abacus_@generate_type@ x) {
+  return __abacus_floor(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Fused multiply add (x * y) + z without intermediate rounding.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fma.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fma.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fma(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fma.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fma(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_fma(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The max of two numbers.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fmax.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fmax.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fmax(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fmax.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fmax(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_fmax(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The min of two numbers.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fmin.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fmin.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fmin(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fmin.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fmin(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_fmin(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief x % m function.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fmod.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fmod.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fmod(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fmod.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fmod(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_fmod(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Fractional part of x function.
+/// @param[in]  x            A abacus_@generate_type@.
+/// @param[out] whole_number The floor @a x.
+/// @return                  A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fract.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fract.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fract(abacus_@generate_type@ x, abacus_@generate_type@ * whole_number);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fract.
+/// @param[in]  x            A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return                  A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API fract(abacus_@generate_type@ x, abacus_@generate_type@ * whole_number) {
+  return __abacus_fract(x, whole_number);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__) && !defined(__cplusplus)
+/// @brief Fractional part of x function.
+/// @param[in]  x            A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return                  A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fract.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fract.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fract(abacus_@generate_type@ x, __global abacus_@generate_type@ * whole_number);
+
+/// @brief Wrapper for __abacus_fract.
+/// @param[in]  x            A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return                  A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API fract(abacus_@generate_type@ x, __global abacus_@generate_type@ * whole_number) {
+  return __abacus_fract(x, whole_number);
+}
+
+/// @brief Fractional part of x function.
+/// @param[in]  x            A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return                  A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fract.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fract.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fract(abacus_@generate_type@ x, __local abacus_@generate_type@ * whole_number);
+
+/// @brief Wrapper for __abacus_fract.
+/// @param[in]  x            A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return                  A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API fract(abacus_@generate_type@ x, __local abacus_@generate_type@ * whole_number) {
+  return __abacus_fract(x, whole_number);
+}
+#endif
+
+/// @brief Extract mantissa and exponent x function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] exponent The exponent of x.
+/// @return              A abacus_@generate_type@, in range [0.5f..1.0f).
+///
+/// Standards compliant implementation of OpenCL 1.2 frexp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/frexp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_frexp(abacus_@generate_type@ x, abacus_int@vector_size@ * exponent);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_frexp.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] exponent The exponent of x.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API frexp(abacus_@generate_type@ x, abacus_int@vector_size@ * exponent) {
+  return __abacus_frexp(x, exponent);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__) && !defined(__cplusplus)
+/// @brief Extract mantissa and exponent x function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] exponent The exponent of x.
+/// @return              A abacus_@generate_type@, in range [0.5f..1.0f).
+///
+/// Standards compliant implementation of OpenCL 1.2 frexp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/frexp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_frexp(abacus_@generate_type@ x, __global abacus_int@vector_size@ * exponent);
+
+/// @brief Wrapper for __abacus_frexp.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] exponent The exponent of x.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API frexp(abacus_@generate_type@ x, __global abacus_int@vector_size@ * exponent) {
+  return __abacus_frexp(x, exponent);
+}
+
+/// @brief Extract mantissa and exponent x function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] exponent The exponent of x.
+/// @return              A abacus_@generate_type@, in range [0.5f..1.0f).
+///
+/// Standards compliant implementation of OpenCL 1.2 frexp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/frexp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_frexp(abacus_@generate_type@ x, __local abacus_int@vector_size@ * exponent);
+
+/// @brief Wrapper for __abacus_frexp.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] exponent The exponent of x.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API frexp(abacus_@generate_type@ x, __local abacus_int@vector_size@ * exponent) {
+  return __abacus_frexp(x, exponent);
+}
+#endif
+
+/// @brief &radic;(x<sup>2</sup> + y<sup>2</sup>)
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 hypot.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/hypot.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_hypot(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_hypot.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API hypot(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_hypot(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Extract exponent as an integer value function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_int@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 ilogb.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/ilogb.html
+abacus_int@vector_size@ ABACUS_EXPORT_API __abacus_ilogb(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_ilogb.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_int@vector_size@.
+inline abacus_int@vector_size@ ABACUS_API ilogb(abacus_@generate_type@ x) {
+  return __abacus_ilogb(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Log gamma function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 lgamma.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/lgamma.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_lgamma(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_lgamma.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API lgamma(abacus_@generate_type@ x) {
+  return __abacus_lgamma(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Log gamma with sign function.
+/// @param[in] x         The number to process.
+/// @param[out] out_sign The sign of the gamma function.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 lgamma_r.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/lgamma.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_lgamma_r(abacus_@generate_type@ x, abacus_int@vector_size@ * out_sign);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_lgamma_r.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] out_sign The sign of the gamma function.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API lgamma_r(abacus_@generate_type@ x, abacus_int@vector_size@ * out_sign) {
+  return __abacus_lgamma_r(x, out_sign);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__) && !defined(__cplusplus)
+/// @brief Log gamma with sign function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] out_sign The sign of the gamma function.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 lgamma_r.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/lgamma.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_lgamma_r(abacus_@generate_type@ x, __global abacus_int@vector_size@ * out_sign);
+
+/// @brief Wrapper for __abacus_lgamma_r.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] out_sign The sign of the gamma function.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API lgamma_r(abacus_@generate_type@ x, __global abacus_int@vector_size@ * out_sign) {
+  return __abacus_lgamma_r(x, out_sign);
+}
+
+/// @brief Log gamma with sign function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] out_sign The sign of the gamma function.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 lgamma_r.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/lgamma.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_lgamma_r(abacus_@generate_type@ x, __local abacus_int@vector_size@ * out_sign);
+
+/// @brief Wrapper for __abacus_lgamma_r.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] out_sign The sign of the gamma function.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API lgamma_r(abacus_@generate_type@ x, __local abacus_int@vector_size@ * out_sign) {
+  return __abacus_lgamma_r(x, out_sign);
+}
+#endif
+
+/// @brief x * 2<sup>n</sup> function.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] n A abacus_int@vector_size@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 ldexp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/ldexp.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_ldexp(abacus_@generate_type@ x, abacus_int@vector_size@ n);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_ldexp.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] n A abacus_int@vector_size@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API ldexp(abacus_@generate_type@ x, abacus_int@vector_size@ n) {
+  return __abacus_ldexp(x, n);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Logarithm base e function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 log.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/log.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_log(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_log.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API log(abacus_@generate_type@ x) {
+  return __abacus_log(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Logarithm base 2 function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 log2.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/log.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_log2(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_log2.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API log2(abacus_@generate_type@ x) {
+  return __abacus_log2(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Logarithm base 10 function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 log10.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/log.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_log10(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_log10.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API log10(abacus_@generate_type@ x) {
+  return __abacus_log10(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Extract exponent as an floating point value function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 logb.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/log.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_logb(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_logb.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API logb(abacus_@generate_type@ x) {
+  return __abacus_logb(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief ln(1 + x) function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 log1p.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/log1p.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_log1p(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_log1p.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API log1p(abacus_@generate_type@ x) {
+  return __abacus_log1p(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Multiply add (x * y) + z.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 mad.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mad.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mad(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mad.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mad(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_mad(x, y, z);
+}
+#endif
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Greatest magnitude function.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 maxmag.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/maxmag.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_maxmag(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_maxmag.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API maxmag(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_maxmag(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Smallest magnitude function.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 minmag.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/minmag.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_minmag(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_minmag.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API minmag(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_minmag(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Decompose x function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 modf.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/modf.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_modf(abacus_@generate_type@ x, abacus_@generate_type@ * whole_number);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_modf.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API modf(abacus_@generate_type@ x, abacus_@generate_type@ * whole_number) {
+  return __abacus_modf(x, whole_number);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__) && !defined(__cplusplus)
+/// @brief Decompose x function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 modf.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/modf.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_modf(abacus_@generate_type@ x, __global abacus_@generate_type@ * whole_number);
+
+/// @brief Wrapper for __abacus_modf.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API modf(abacus_@generate_type@ x, __global abacus_@generate_type@ * whole_number) {
+  return __abacus_modf(x, whole_number);
+}
+
+/// @brief Decompose x function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 modf.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/modf.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_modf(abacus_@generate_type@ x, __local abacus_@generate_type@ * whole_number);
+
+/// @brief Wrapper for __abacus_modf.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API modf(abacus_@generate_type@ x, __local abacus_@generate_type@ * whole_number) {
+  return __abacus_modf(x, whole_number);
+}
+#endif
+
+/// @brief Quiet nan function.
+/// @param[in] x A abacus_@generate_nan_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 nan.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/nan.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_nan(abacus_@generate_nan_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_nan.
+/// @param[in] x A abacus_@generate_nan_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API nan(abacus_@generate_nan_type@ x) {
+  return __abacus_nan(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Next representable number of @a x in the direction of @a y function.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 nextafter.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/nextafter.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_nextafter(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_nextafter.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API nextafter(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_nextafter(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief x^y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 pow.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/pow.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_pow(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_pow.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API pow(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_pow(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief x^y.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_int@vector_size@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 pown.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/pow.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_pown(abacus_@generate_type@ x, abacus_int@vector_size@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_pown.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_int@vector_size@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API pown(abacus_@generate_type@ x, abacus_int@vector_size@ y) {
+  return __abacus_pown(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief x^y, x >= 0.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 powr.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/pow.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_powr(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_powr.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API powr(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_powr(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief @a x - (round(@a x / @a y) * @a y).
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 remainder.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/remainder.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_remainder(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_remainder.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API remainder(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_remainder(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Remainder and quotient function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[in]  y        A abacus_@generate_type@.
+/// @param[out] quotient The quotient of x.
+/// @return              A abacus_@generate_type@, in range [0.5f..1.0f).
+///
+/// Standards compliant implementation of OpenCL 1.2 remquo.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/remquo.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_remquo(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_int@vector_size@ * quotient);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_remquo.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[in]  y        A abacus_@generate_type@.
+/// @param[out] quotient The quotient of x.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API remquo(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_int@vector_size@ * quotient) {
+  return __abacus_remquo(x, y, quotient);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__) && !defined(__cplusplus)
+/// @brief Remainder and quotient function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[in]  y        A abacus_@generate_type@.
+/// @param[out] quotient The quotient of x.
+/// @return              A abacus_@generate_type@, in range [0.5f..1.0f).
+///
+/// Standards compliant implementation of OpenCL 1.2 remquo.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/remquo.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_remquo(abacus_@generate_type@ x, abacus_@generate_type@ y, __global abacus_int@vector_size@ * quotient);
+
+/// @brief Wrapper for __abacus_remquo.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[in]  y        A abacus_@generate_type@.
+/// @param[out] quotient The quotient of x.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API remquo(abacus_@generate_type@ x, abacus_@generate_type@ y, __global abacus_int@vector_size@ * quotient) {
+  return __abacus_remquo(x, y, quotient);
+}
+
+/// @brief Remainder and quotient function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[in]  y        A abacus_@generate_type@.
+/// @param[out] quotient The quotient of x.
+/// @return              A abacus_@generate_type@, in range [0.5f..1.0f).
+///
+/// Standards compliant implementation of OpenCL 1.2 remquo.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/remquo.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_remquo(abacus_@generate_type@ x, abacus_@generate_type@ y, __local abacus_int@vector_size@ * quotient);
+
+/// @brief Wrapper for __abacus_remquo.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[in]  y        A abacus_@generate_type@.
+/// @param[out] quotient The quotient of x.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API remquo(abacus_@generate_type@ x, abacus_@generate_type@ y, __local abacus_int@vector_size@ * quotient) {
+  return __abacus_remquo(x, y, quotient);
+}
+#endif
+
+/// @brief Round to nearest even integer.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 rint.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/rint.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_rint(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_rint.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API rint(abacus_@generate_type@ x) {
+  return __abacus_rint(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief x^(1/y).
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_int@vector_size@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 rootn.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/rootn.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_rootn(abacus_@generate_type@ x, abacus_int@vector_size@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_rootn.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_int@vector_size@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API rootn(abacus_@generate_type@ x, abacus_int@vector_size@ y) {
+  return __abacus_rootn(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to whole number, halfway cases away from zero.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 round.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/round.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_round(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_round.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API round(abacus_@generate_type@ x) {
+  return __abacus_round(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief  1 / &radic; x function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 rsqrt.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sqrt.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_rsqrt(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_rsqrt.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API rsqrt(abacus_@generate_type@ x) {
+  return __abacus_rsqrt(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Sine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sin.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sin.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sin(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_sin.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API sin(abacus_@generate_type@ x) {
+  return __abacus_sin(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Hyperbolic sine function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sinh.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sin.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sinh(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_sinh.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API sinh(abacus_@generate_type@ x) {
+  return __abacus_sinh(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Sine by &pi; function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sinpi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sinpi.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sinpi(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_sinpi.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API sinpi(abacus_@generate_type@ x) {
+  return __abacus_sinpi(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Sine and cosine function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sincos.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sincos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sincos(abacus_@generate_type@ x, abacus_@generate_type@ * whole_number);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_sincos.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API sincos(abacus_@generate_type@ x, abacus_@generate_type@ * whole_number) {
+  return __abacus_sincos(x, whole_number);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+#if defined(__OPENCL_VERSION__) && !defined(__cplusplus)
+/// @brief Sine and cosine function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sincos.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sincos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sincos(abacus_@generate_type@ x, __global abacus_@generate_type@ * whole_number);
+
+/// @brief Wrapper for __abacus_sincos.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API sincos(abacus_@generate_type@ x, __global abacus_@generate_type@ * whole_number) {
+  return __abacus_sincos(x, whole_number);
+}
+
+/// @brief Sine and cosine function.
+/// @param[in]  x        A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return              A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sincos.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sincos.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sincos(abacus_@generate_type@ x, __local abacus_@generate_type@ * whole_number);
+
+/// @brief Wrapper for __abacus_sincos.
+/// @param[in]  x A abacus_@generate_type@.
+/// @param[out] whole_number A abacus_@generate_type@.
+/// @return     A abacus_@generate_type@.
+
+inline abacus_@generate_type@ ABACUS_API sincos(abacus_@generate_type@ x, __local abacus_@generate_type@ * whole_number) {
+  return __abacus_sincos(x, whole_number);
+}
+#endif
+
+/// @brief &radic; x function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 sqrt.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/sqrt.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_sqrt(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_sqrt.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API sqrt(abacus_@generate_type@ x) {
+  return __abacus_sqrt(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Tangent function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 tan.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/tan.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_tan(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_tan.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API tan(abacus_@generate_type@ x) {
+  return __abacus_tan(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Hyperbolic tangent function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 tanh.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/tan.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_tanh(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_tanh.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API tanh(abacus_@generate_type@ x) {
+  return __abacus_tanh(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Tangent by &pi; function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 tanpi.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/tan.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_tanpi(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_tanpi.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API tanpi(abacus_@generate_type@ x) {
+  return __abacus_tanpi(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Gamma function.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Stgammadards compliant implementation of OpenCL 1.2 tgamma.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/pow.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_tgamma(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_tgamma.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API tgamma(abacus_@generate_type@ x) {
+  return __abacus_tgamma(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Round to whole number towards 0.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 trunc.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/trunc.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_trunc(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_trunc.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API trunc(abacus_@generate_type@ x) {
+  return __abacus_trunc(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif

@@ -1,0 +1,16 @@
+print("Half precision log1p:");
+Range=[-0.4;0.7];
+Func=log1p(x);
+Poly=fpminimax(Func, [|1,2,3,4,5,6,7,8|],[|halfprecision...|],Range, 0, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);
+
+
+Range2=[sqrt(0.5)-1, sqrt(2)-1];
+Poly2=fpminimax(log(x + 1)/x, [|0,1,2,3,4,5,6,7,8|],[|11...|], Range2, floating, relative);
+Poly2;
+
+Err2=dirtyinfnorm(Poly2-Func, Range);
+print("\ninf-norm error:", Err2);

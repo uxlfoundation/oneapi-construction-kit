@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue fdtd_kernel1 -arg _fict_,repeat(11,rand(0,1.0)) -arg ey,repeat(34,rand(0,1.0)) -compare ey:%p/Inputs/fdtd2d_k_fdtd_kernel1_out.txt -arg hz,repeat(34,rand(0,1.0)) -arg t,repeat(1,10) -arg nx,repeat(1,randint(0,255)) -arg ny,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/stencils/fdtd-2d/fdtd2d.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: ey - match

@@ -1,0 +1,44 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_sat_convert_uint_to_char.spv -o %t
+; RUN: %filecheck < %t %t.pp
+
+                OpCapability Kernel
+                OpCapability Addresses
+                OpCapability Int8
+                OpMemoryModel Physical64 OpenCL
+                OpEntryPoint Kernel %main "main"
+                OpSource OpenCL_C 102000
+                OpName %main "main"
+                OpName %a "a"
+                OpName %b "b"
+        %void = OpTypeVoid
+      %main_t = OpTypeFunction %void
+         %int = OpTypeInt 32 0
+        %char = OpTypeInt 8 0
+     %ptr_int = OpTypePointer Function %int
+    %ptr_char = OpTypePointer Function %char
+  %const_1024 = OpConstant %int 1024
+
+        %main = OpFunction %void None %main_t
+; CHECK: define spir_kernel void @main()
+       %label = OpLabel
+           %a = OpVariable %ptr_int Function
+; CHECK: [[a:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca i32
+           %b = OpVariable %ptr_char Function
+; CHECK: [[b:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca i8
+                OpStore %a %const_1024
+; CHECK-GE15: store i32 1024, ptr [[a]]
+; CHECK-LT15: store i32 1024, i32* [[a]]
+       %a_val = OpLoad %int %a
+; CHECK-GE15: [[a_val:%[0-9]+]] = load i32, ptr [[a]]
+; CHECK-LT15: [[a_val:%[0-9]+]] = load i32, i32* [[a]]
+       %b_val = OpSatConvertUToS %char %a_val
+; CHECK: [[b_val:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = call spir_func signext i8 @_Z16convert_char_satj(i32 [[a_val]])
+                OpStore %b %b_val
+; CHECK-GE15: store i8 [[b_val]], ptr [[b]]
+; CHECK-LT15: store i8 [[b_val]], i8* [[b]]
+                OpReturn
+                OpFunctionEnd
+; CHECK: ret void

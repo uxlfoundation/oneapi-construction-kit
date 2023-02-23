@@ -1,0 +1,356 @@
+---
+# Classes of checks we enable, exclusions are listed further down:
+# * All clang diagnostic and analyzer checks are enabled.
+# * All CERT checks are enabled, many are disabled as the rules to cause a lot
+#   of collateral fallout.  CERT does not make their justifications
+#   publicly available, so it is hard to understand their rationale.
+# * All High Integrity C++ checks are enabled, though again many are excluded.
+# * Various other bug-pattern checks: Bugprone, High-Integrity C++,
+#   Miscellaneous.  All with exclusions where they seem to cause harm.
+# * Readability and modernization checks, though with exclusions that
+#   sometimes just relate to style so far.
+# * Concurrency orientated checks.
+# * Performance orientated checks.
+#
+# Classes of checks that we do not enable:
+# * We ignore all codebase specific checks (Google, Android, etc), except for
+#   LLVM checks and Google Test checks.  We disable the checks that are related
+#   purely to coding style though, as we don't follow LLVM style.
+# * We do not enable the cppcoreguidelines checks because a quick attempt
+#   suggests that they are not appropriate for our codebase.  A deeper analysis
+#   could result in some specific checks being enabled after fixes.
+#
+# Use `clang-tidy --list-checks` inside the codebase, so that this file is
+# parsed, to see what checks run.
+#
+# Individual tests that are concretely undesirable in ComputeAorta:
+#   * bugprone-reserved-identifier, cert-dcl37-c, cert-dcl51-cpp - These all
+#     hit on using `__foo` names as that is a reserved pattern.  But it's
+#     reserved for the compiler, and ComputeAorta is a compiler.
+#   * bugprone-signed-char-misuse - Triggers on valid code around `int8_t`
+#     being implicitly converted to `int`.  Wants to go via `unsigned char`
+#     which is just concretely wrong for us.
+#   * cert-dcl21-cpp - Makes copies of iterators const for no benefit.
+#   * clang-analyzer-cplusplus.NewDeleteLeaks - Seems to result in many false
+#     positives in compiler code that uses FooInst::Create.
+#   * hicpp-named-parameter, readability-named-parameter - Insists on
+#     parameter names being present as a comment, which just adds noise.
+#   * misc-misplaced-const - Incompatible with using OpenCL types in our code,
+#     it wants to put const in the middle of OpenCL types, `cl_context` etc,
+#     but we can't modify those.
+#   * misc-unused-parameters - Already use an equivalent compiler warning,
+#     that we explicitly disable per-file where desirable.  Hard to disable
+#     clang-tidy checks per-file, so just leave it off.
+#   * readability-function-cognitive-complexity - This is tunable, so could set
+#     this to a large number, but essentially this problem is too endemic to
+#     fix. Also, OpenCL and Vulkan APIs naturally result in complex entry
+#     points.
+#   * readability-magic-numbers - This just hits far far too often for us.
+#   * misc-no-recursion - ComputeAorta chooses to use recursion.
+#   * readability-redundant-member-init - Makes code less readable, because you
+#     end up with partial member initialization lists when some members are
+#     default constructed and some are not.
+#
+# Individual tests that are maybe undesirable in ComputeAorta, perhaps enable
+# and use specific `NOLINT(check-name-here)` exclusions:
+#   * bugprone-branch-clone - Many of the clones improve readability.
+#   * bugprone-macro-parentheses - Applying the suggested fixes often results
+#     in code that does not compile, especially when types are passed as macro
+#     parameters.
+#   * bugprone-not-null-terminated-result - Dubious memcpy conversions.
+#   * bugprone-use-after-move - UnitCargo does weird stuff on purpose.
+#   * bugprone-sizeof-expression - These checks make sense, but the CL, Core,
+#     and VK interfaces all use lots of opaque types, which means lots of
+#     `sizeof(A*)` type code which this check warns on.  I hope in the future
+#     that there is a configuration option for this particular sub-class of
+#     this check.
+#   * cert-dcl59-cpp - Following this makes things verbose?
+#   * concurrency-mt-unsafe - The warnings are fundamentally true, but it
+#     complains about uses of things such as `std::getenv` when there is no
+#     real alternative.
+#   * google-readability-avoid-underscore-in-googletest-name - The Google Test
+#     FAQ gives good reasons for this, but we have many test names with `_`.
+#   * misc-macro-parentheses - See bugprone-macro-parentheses.
+#   * misc-redundant-expression - Complains about things like
+#     `static_assert(MACRO1 == MACRO2, "");` where the expression is always
+#     true, but `[static_]assert` is meant to be always true.
+#   * performance-no-int-to-ptr - The logic behind this is good, but it hits on
+#     casting error codes to pointers, which is sometimes functionally
+#     required.
+#
+# Still to be considered (i.e. either fixed, left for later, or document why
+# they are disabled):
+#   * bugprone-forwarding-reference-overload  # Wait for C++14 enable_if_t?
+#   * bugprone-narrowing-conversions
+#   * bugprone-parent-virtual-call
+#   * bugprone-too-small-loop-variable
+#   * cert-err34-c
+#   * cert-err58-cpp
+#   * cert-flp30-c
+#   * cert-msc30-c
+#   * cert-msc32-c
+#   * cert-msc50-cpp
+#   * cert-msc51-cpp
+#   * cert-oop11-cpp
+#   * cert-oop54-cpp: See CA-2374
+#   * cert-str34-c
+#   * hicpp-avoid-c-arrays
+#   * hicpp-avoid-goto
+#   * hicpp-deprecated-headers
+#   * hicpp-explicit-conversions
+#   * hicpp-function-size
+#   * hicpp-invalid-access-moved
+#   * hicpp-member-init
+#   * hicpp-move-const-arg
+#   * hicpp-multiway-paths-covered
+#   * hicpp-no-array-decay
+#   * hicpp-noexcept-move
+#   * hicpp-no-malloc
+#   * hicpp-signed-bitwise
+#   * hicpp-special-member-functions
+#   * hicpp-uppercase-literal-suffix
+#   * hicpp-use-auto
+#   * hicpp-use-emplace
+#   * hicpp-use-equals-default
+#   * hicpp-use-equals-delete
+#   * hicpp-use-nullptr
+#   * hicpp-use-override
+#   * hicpp-vararg
+#   * llvm-else-after-return
+#   * llvm-include-order
+#   * llvm-header-guard
+#   * llvm-namespace-comment
+#   * llvm-twine-local: See CA-2567
+#   * llvm-qualified-auto
+#   * misc-definitions-in-headers
+#   * misc-forwarding-reference-overload  # Wait for C++14 enable_if_t?
+#   * misc-non-private-member-variables-in-classes
+#   * misc-string-compare
+#   * misc-unconventional-assign-operator
+#   * modernize-avoid-bind
+#   * modernize-avoid-c-arrays
+#   * modernize-deprecated-headers
+#   * modernize-loop-convert
+#   * modernize-make-unique
+#   * modernize-pass-by-value
+#   * modernize-redundant-void-arg
+#   * modernize-return-braced-init-list
+#   * modernize-use-auto
+#   * modernize-use-bool-literals
+#   * modernize-use-default-member-init
+#   * modernize-use-emplace
+#   * modernize-use-equals-default
+#   * modernize-use-equals-delete
+#   * modernize-use-nullptr
+#   * modernize-use-override
+#   * modernize-use-trailing-return-type
+#   * modernize-use-using
+#   * performance-move-const-arg
+#   * performance-move-constructor-init
+#   * performance-noexcept-move-constructor
+#   * performance-unnecessary-value-param
+#   * readability-avoid-const-params-in-decls
+#   * readability-const-return-type
+#   * readability-container-size-empty
+#   * readability-convert-member-functions-to-static,
+#   * readability-delete-null-pointer
+#   * readability-else-after-return
+#   * readability-function-size
+#   * readability-implicit-bool-conversion
+#   * readability-inconsistent-declaration-parameter-name
+#   * readability-isolate-declaration
+#   * readability-non-const-parameter
+#   * readability-qualified-auto
+#   * readability-redundant-control-flow
+#   * readability-redundant-smartptr-get
+#   * readability-redundant-string-cstr
+#   * readability-redundant-string-init
+#   * readability-simplify-boolean-expr
+#   * readability-static-accessed-through-instance
+#   * readability-static-definition-in-anonymous-namespace
+#   * readability-string-compare
+#   * readability-uppercase-literal-suffix
+#   * readability-use-anyofallof
+Checks: "bugprone-*,\
+         -bugprone-branch-clone,\
+         -bugprone-easily-swappable-parameters,\
+         -bugprone-forwarding-reference-overload,\
+         -bugprone-macro-parentheses,\
+         -bugprone-narrowing-conversions,\
+         -bugprone-not-null-terminated-result,\
+         -bugprone-parent-virtual-call,\
+         -bugprone-signed-char-misuse,\
+         -bugprone-sizeof-expression,\
+         -bugprone-reserved-identifier,\
+         -bugprone-too-small-loop-variable,\
+         -bugprone-use-after-move,\
+         cert-*,\
+         -cert-dcl21-cpp,\
+         -cert-dcl37-c,\
+         -cert-dcl51-cpp,\
+         -cert-dcl59-cpp,\
+         -cert-err34-c,\
+         -cert-err58-cpp,\
+         -cert-flp30-c,\
+         -cert-msc30-c,\
+         -cert-msc32-c,\
+         -cert-msc50-cpp,\
+         -cert-msc51-cpp,\
+         -cert-oop11-cpp,\
+         -cert-oop54-cpp,\
+         -cert-str34-c,\
+         clang-diagnostic-*,\
+         -clang-diagnostic-typedef-redefinition,\
+         clang-analyzer-*,\
+         -clang-analyzer-cplusplus.NewDelete,\
+         -clang-analyzer-cplusplus.NewDeleteLeaks,\
+         *googletest*,\
+         -google-readability-avoid-underscore-in-googletest-name,\
+         concurrency-*,\
+         -concurrency-mt-unsafe,\
+         hicpp-*,\
+         -hicpp-avoid-c-arrays,\
+         -hicpp-avoid-goto,\
+         -hicpp-deprecated-headers,\
+         -hicpp-explicit-conversions,\
+         -hicpp-function-size,\
+         -hicpp-invalid-access-moved,\
+         -hicpp-member-init,\
+         -hicpp-move-const-arg,\
+         -hicpp-multiway-paths-covered,\
+         -hicpp-named-parameter,\
+         -hicpp-no-array-decay,\
+         -hicpp-noexcept-move,\
+         -hicpp-no-malloc,\
+         -hicpp-signed-bitwise,\
+         -hicpp-special-member-functions,\
+         -hicpp-uppercase-literal-suffix,\
+         -hicpp-use-auto,\
+         -hicpp-use-emplace,\
+         -hicpp-use-equals-default,\
+         -hicpp-use-equals-delete,\
+         -hicpp-use-nullptr,\
+         -hicpp-use-override,\
+         -hicpp-vararg,\
+         llvm-*,\
+         -llvm-else-after-return,\
+         -llvm-include-order,\
+         -llvm-header-guard,\
+         -llvm-namespace-comment,\
+         -llvm-twine-local,\
+         -llvm-qualified-auto,\
+         misc-*,\
+         -misc-definitions-in-headers,\
+         -misc-forwarding-reference-overload,\
+         -misc-macro-parentheses,\
+         -misc-misplaced-const,\
+         -misc-non-private-member-variables-in-classes,\
+         -misc-no-recursion,\
+         -misc-redundant-expression,\
+         -misc-string-compare,\
+         -misc-unconventional-assign-operator,\
+         -misc-unused-parameters,\
+         modernize-*,\
+         -modernize-avoid-bind,\
+         -modernize-avoid-c-arrays,\
+         -modernize-concat-nested-namespaces,\
+         -modernize-deprecated-headers,\
+         -modernize-loop-convert,\
+         -modernize-make-unique,\
+         -modernize-pass-by-value,\
+         -modernize-redundant-void-arg,\
+         -modernize-return-braced-init-list,\
+         -modernize-use-auto,\
+         -modernize-use-bool-literals,\
+         -modernize-use-default-member-init,\
+         -modernize-use-emplace,\
+         -modernize-use-equals-default,\
+         -modernize-use-equals-delete,\
+         -modernize-use-nodiscard,\
+         -modernize-use-nullptr,\
+         -modernize-use-override,\
+         -modernize-use-trailing-return-type,\
+         -modernize-use-using,\
+         performance-*,\
+         -performance-move-const-arg,\
+         -performance-move-constructor-init,\
+         -performance-noexcept-move-constructor,\
+         -performance-no-int-to-ptr,\
+         -performance-unnecessary-value-param,\
+         portability-*,\
+         readability-*,\
+         -readability-avoid-const-params-in-decls,\
+         -readability-const-return-type,\
+         -readability-container-size-empty,\
+         -readability-convert-member-functions-to-static,
+         -readability-delete-null-pointer,\
+         -readability-else-after-return,\
+         -readability-function-cognitive-complexity,\
+         -readability-function-size,\
+         -readability-implicit-bool-conversion,\
+         -readability-inconsistent-declaration-parameter-name,\
+         -readability-isolate-declaration,\
+         -readability-magic-numbers,\
+         -readability-make-member-function-const,\
+         -readability-named-parameter,\
+         -readability-non-const-parameter,\
+         -readability-qualified-auto,\
+         -readability-redundant-control-flow,\
+         -readability-redundant-member-init,\
+         -readability-redundant-smartptr-get,\
+         -readability-redundant-string-cstr,\
+         -readability-redundant-string-init,\
+         -readability-simplify-boolean-expr,\
+         -readability-static-accessed-through-instance,\
+         -readability-static-definition-in-anonymous-namespace,\
+         -readability-string-compare,\
+         -readability-uppercase-literal-suffix,\
+         -readability-use-anyofallof"
+# -UNDEBUG so that clang-tidy always sees asserts, whatever the build type.
+# -fno-caret-diagnostics to silence warning counts from headers.
+# -Wno-unknown-warning-option so we can use compilation database on GCC configs
+# -Wno-return-type-c-linkage so we can export functions that return C++ types using C linkage.
+ExtraArgs: [
+    '-UNDEBUG',
+    '-fno-caret-diagnostics',
+    '-Wno-unknown-warning-option',
+    '-Wno-return-type-c-linkage'
+]
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
+AnalyzeTemporaryDtors: false
+FormatStyle:     'file'
+CheckOptions:
+  - key:             readability-braces-around-statements.ShortStatementLines
+    value:           '1'
+  - key:             hicpp-braces-around-statements.ShortStatementLines
+    value:           '1'
+  - key:             readability-function-size.StatementThreshold
+    value:           '800'
+  - key:             google-readability-namespace-comments.ShortNamespaceLines
+    value:           '10'
+  - key:             google-readability-namespace-comments.SpacesBeforeComments
+    value:           '2'
+  - key:             modernize-loop-convert.MaxCopySize
+    value:           '16'
+  - key:             modernize-loop-convert.MinConfidence
+    value:           reasonable
+  - key:             modernize-loop-convert.NamingStyle
+    value:           CamelCase
+  - key:             modernize-pass-by-value.IncludeStyle
+    value:           llvm
+  - key:             modernize-replace-auto-ptr.IncludeStyle
+    value:           llvm
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'
+  - key:             modernize-use-transparent-functors.SafeMode
+    value:           '1'
+  - key:             readability-redundant-access-specifiers.CheckFirstDeclaration
+    value:           '1'
+  - key:             readability-identifier-length.MinimumParameterNameLength
+    value:           '1'
+  - key:             readability-identifier-length.MinimumVariableNameLength
+    value:           '1'
+  - key:             readability-identifier-length.MinimumLoopCounterNameLength
+    value:           '1'
+...

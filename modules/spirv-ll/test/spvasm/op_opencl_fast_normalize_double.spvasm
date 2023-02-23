@@ -1,0 +1,28 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_fast_normalize_double.spv -o %t
+; RUN: %filecheck < %t %s
+                          OpCapability Kernel
+                          OpCapability Addresses
+                          OpCapability Float64
+                     %1 = OpExtInstImport "OpenCL.std"
+                          OpMemoryModel Physical64 OpenCL
+                          OpEntryPoint Kernel %fast_normalize_double "fast_normalize_double"
+                          OpSource OpenCL_C 102000
+
+; All types, variables and constants
+                %void_t = OpTypeVoid
+              %double_t = OpTypeFloat 64
+   %fast_normalize_fn_t = OpTypeFunction %void_t
+              %double_5 = OpConstant %double_t 5.0
+
+; All functions
+ %fast_normalize_double = OpFunction %void_t None %fast_normalize_fn_t
+; CHECK: define spir_kernel void @fast_normalize_double()
+                     %2 = OpLabel
+                     %3 = OpExtInst %double_t %1 fast_normalize %double_5
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z14fast_normalized(double 5.000000e+00)
+                          OpReturn
+; CHECK: ret void
+                          OpFunctionEnd
+; CHECK: }

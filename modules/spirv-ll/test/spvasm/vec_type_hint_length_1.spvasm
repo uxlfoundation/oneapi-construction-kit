@@ -1,0 +1,22 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/vec_type_hint_length_1.spv -o %t
+; RUN: %filecheck < %t %s
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %4 "foo"
+               OpExecutionMode %4 VecTypeHint 0
+          %6 = OpString "kernel_arg_type.foo."
+               OpSource OpenCL_C 102000
+               OpName %entry "entry"
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+          %4 = OpFunction %void DontInline %3
+      %entry = OpLabel
+               OpReturn
+               OpFunctionEnd
+; CHECK-LABEL: foo
+; CHECK-SAME: !vec_type_hint ![[MDNAME:[0-9]+]]
+; CHECK: ![[MDNAME]] = !{<1 x i8> undef, i32 0}

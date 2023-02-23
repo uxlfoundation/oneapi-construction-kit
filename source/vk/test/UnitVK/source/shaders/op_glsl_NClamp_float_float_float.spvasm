@@ -1,0 +1,57 @@
+; SPIR-V
+; Version: 1.2
+; Generator: Khronos SPIR-V Tools Assembler; 0
+; Bound: 26
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outR "outR"
+               OpMemberName %outR 0 "res"
+               OpName %_ ""
+               OpName %inA "inA"
+               OpMemberName %inA 0 "arg0"
+               OpMemberName %inA 1 "arg1"
+               OpMemberName %inA 2 "arg2"
+               OpName %__0 ""
+               OpMemberDecorate %outR 0 Offset 0
+               OpDecorate %outR BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 1
+               OpMemberDecorate %inA 0 Offset 0
+               OpMemberDecorate %inA 1 Offset 4
+               OpMemberDecorate %inA 2 Offset 8
+               OpDecorate %inA BufferBlock
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %__0 Binding 0
+       %void = OpTypeVoid
+          %8 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+       %outR = OpTypeStruct %float
+%_ptr_Uniform_outR = OpTypePointer Uniform %outR
+          %_ = OpVariable %_ptr_Uniform_outR Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+        %inA = OpTypeStruct %float %float %float
+%_ptr_Uniform_inA = OpTypePointer Uniform %inA
+        %__0 = OpVariable %_ptr_Uniform_inA Uniform
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+       %main = OpFunction %void None %8
+         %17 = OpLabel
+         %18 = OpAccessChain %_ptr_Uniform_float %__0 %int_0
+         %19 = OpLoad %float %18
+         %20 = OpAccessChain %_ptr_Uniform_float %__0 %int_1
+         %21 = OpLoad %float %20
+         %22 = OpAccessChain %_ptr_Uniform_float %__0 %int_2
+         %23 = OpLoad %float %22
+         %24 = OpExtInst %float %1 NClamp %19 %21 %23
+         %25 = OpAccessChain %_ptr_Uniform_float %_ %int_0
+               OpStore %25 %24
+               OpReturn
+               OpFunctionEnd

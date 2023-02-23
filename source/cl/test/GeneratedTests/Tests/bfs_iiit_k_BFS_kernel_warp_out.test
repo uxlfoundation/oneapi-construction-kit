@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue BFS_kernel_warp -arg levels,repeat(10,randint(0,255)) -compare levels:%p/Inputs/bfs_iiit_k_BFS_kernel_warp_out.txt -arg edgeArray,repeat(21,randint(0,255)) -arg edgeArrayAux,repeat(4,randint(0,255)) -arg W_SZ,repeat(1,10) -arg CHUNK_SZ,repeat(1,10) -arg numVertices,repeat(1,10) -arg curr,repeat(1,randint(0,255)) -compare flag:%p/Inputs/bfs_iiit_k_BFS_kernel_warp_out.txt -arg flag,repeat(3,73) %p/Inputs/KernelsCL/kernels/PerfCL/shoc/bfs_iiit.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: levels - match
+CHECK-DAG: flag - match

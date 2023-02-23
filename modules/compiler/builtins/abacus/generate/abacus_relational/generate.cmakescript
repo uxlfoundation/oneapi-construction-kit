@@ -1,0 +1,68 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+set(generate_input_definitions "")
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/main.in" main)
+
+set(signed_types "short;int;long")
+set(types "half;float;double")
+set(vector_sizes "2;3;4;8;16")
+
+foreach(iter RANGE 2)
+  list(GET types ${iter} generate_type)
+  set(generate_type "${generate_type}")
+  set(generate_signed_type "int")
+  list(GET signed_types ${iter} generate_signed_same_size_type)
+
+  if(${generate_type} STREQUAL "half")
+    # Half support is optional and needs hidden behind a macro
+    string(CONFIGURE "#ifdef __CA_BUILTINS_HALF_SUPPORT\n${main}\n#endif  // Half Support\n"
+      processed @ONLY)
+  elseif(${generate_type} STREQUAL "double")
+    string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${main}\n#endif\n"
+      processed @ONLY)
+  else()
+    string(CONFIGURE "${main}" processed @ONLY)
+  endif()
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+  foreach(vector_size IN LISTS vector_sizes)
+    list(GET types ${iter} generate_scalar_type)
+    set(generate_type "${generate_scalar_type}${vector_size}")
+    list(GET signed_types ${iter} generate_signed_type)
+    set(generate_signed_type "${generate_signed_type}${vector_size}")
+    set(generate_signed_same_size_type "${generate_signed_type}")
+    if(${generate_scalar_type} STREQUAL "half")
+      # Half support is optional and needs hidden behind a macro
+      string(CONFIGURE "#ifdef __CA_BUILTINS_HALF_SUPPORT\n${main}\n#endif  // Half Support\n"
+        processed @ONLY)
+    elseif(${generate_scalar_type} STREQUAL "double")
+      string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${main}\n#endif\n"
+        processed @ONLY)
+    else()
+       string(CONFIGURE "${main}" processed @ONLY)
+    endif()
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/select.in" select)
+
+set(types "char;short;int;long")
+set(vector_sizes ";2;3;4;8;16")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_type "${type}${vector_size}")
+    string(CONFIGURE "${select}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_relational.in" abacus_relational)
+string(CONFIGURE "${abacus_relational}" abacus_relational @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_relational}")

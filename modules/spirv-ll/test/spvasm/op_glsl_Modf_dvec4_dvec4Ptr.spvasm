@@ -1,0 +1,65 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_Modf_dvec4_dvec4Ptr.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                         OpCapability Shader
+                         OpCapability Float64
+        %1             = OpExtInstImport "GLSL.std.450"
+                         OpMemoryModel Logical GLSL450
+                         OpEntryPoint GLCompute %main "main"
+                         OpExecutionMode %main LocalSize 1 1 1
+                         OpSource GLSL 450
+                         OpName %main "main"
+                         OpName %inBuff "inBuff"
+                         OpName %inBuff_t "inBuff_t"
+                         OpMemberName %inBuff_t 0 "x"
+                         OpName %outBuff "outBuff"
+                         OpName %outBuff_t "outBuff_t"
+                         OpMemberName %outBuff_t 0 "fract"
+                         OpMemberName %outBuff_t 1 "whole"
+                         OpMemberDecorate %outBuff_t 0 Offset 0
+                         OpMemberDecorate %outBuff_t 1 Offset 32
+                         OpDecorate %outBuff BufferBlock
+                         OpDecorate %outBuff DescriptorSet 0
+                         OpDecorate %outBuff Binding 1
+                         OpMemberDecorate %inBuff_t 0 Offset 0
+                         OpDecorate %inBuff BufferBlock
+                         OpDecorate %inBuff DescriptorSet 0
+                         OpDecorate %inBuff Binding 0
+     %void_t           = OpTypeVoid
+ %voidFnct_t           = OpTypeFunction %void_t
+    %float_t           = OpTypeFloat 64
+ %vec_float_t           = OpTypeVector %float_t 4
+%vec_float_ptr_Uniform_t = OpTypePointer Uniform %vec_float_t
+     %int_t            = OpTypeInt 32 1
+  %vec_int_t            = OpTypeVector %int_t 4
+%vec_int_ptr_Uniform_t  = OpTypePointer Uniform %vec_int_t
+  %inBuff_t            = OpTypeStruct %vec_float_t
+ %outBuff_t            = OpTypeStruct %vec_float_t %vec_float_t
+%inBuff_ptr_Uniform_t  = OpTypePointer Uniform %inBuff_t
+%outBuff_ptr_Uniform_t = OpTypePointer Uniform %outBuff_t
+%int_0                 = OpConstant %int_t 0
+%int_1                 = OpConstant %int_t 1
+%inBuff                = OpVariable %inBuff_ptr_Uniform_t Uniform
+%outBuff               = OpVariable %outBuff_ptr_Uniform_t Uniform
+%main                  = OpFunction %void_t None %voidFnct_t
+%mainEntry             = OpLabel
+%ptrTox                = OpAccessChain %vec_float_ptr_Uniform_t %inBuff %int_0
+%x                     = OpLoad %vec_float_t %ptrTox
+%ptrToSecond           = OpAccessChain %vec_float_ptr_Uniform_t %outBuff %int_1
+%res                   = OpExtInst %vec_float_t %1 Modf %x %ptrToSecond
+%ptrToret              = OpAccessChain %vec_float_ptr_Uniform_t %outBuff %int_0
+                         OpStore %ptrToret %res
+                         OpReturn
+                         OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, <4 x double> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x double> addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-GE15: store <4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store <4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x double> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: ret void
+; CHECK-GE15: declare spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double>, ptr addrspace(1))
+; CHECK-LT15: declare spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double>, <4 x double> addrspace(1)*)

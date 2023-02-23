@@ -1,0 +1,312 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#include <base/base_pass_machinery.h>
+#include <compiler/utils/attributes.h>
+#include <compiler/utils/cl_builtin_info.h>
+#include <compiler/utils/encode_kernel_metadata_pass.h>
+#include <compiler/utils/llvm_global_mutex.h>
+#include <compiler/utils/metadata.h>
+#include <compiler/utils/metadata_analysis.h>
+#include <compiler/utils/pass_functions.h>
+#include <host/compiler_kernel.h>
+#include <host/host_mux_builtin_info.h>
+#include <host/host_pass_machinery.h>
+#include <host/module.h>
+#include <host/passes.h>
+#include <host/perf_support.h>
+#include <host/target.h>
+#include <llvm/ADT/Statistic.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/Module.h>
+#include <llvm/Support/CrashRecoveryContext.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Transforms/Utils/Cloning.h>
+#include <multi_llvm/llvm_version.h>
+
+#include "cargo/expected.h"
+#include "tracer/tracer.h"
+
+namespace host {
+
+HostKernel::HostKernel(
+    HostTarget &target, compiler::Options &build_options,
+    cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots,
+    llvm::Module *module, std::string name,
+    std::array<size_t, 3> preferred_local_sizes, size_t local_memory_used)
+    : BaseKernel(name, preferred_local_sizes[0], preferred_local_sizes[1],
+                 preferred_local_sizes[2], local_memory_used),
+      module(module),
+      target(target),
+      build_options(build_options),
+      snapshots(snapshots) {}
+
+HostKernel::~HostKernel() {
+  if (target.engine) {
+    for (auto &entry : optimized_kernel_map) {
+      target.engine->removeModule(entry.second.optimized_module);
+    }
+  }
+}
+
+compiler::Result HostKernel::precacheLocalSize(size_t local_size_x,
+                                               size_t local_size_y,
+                                               size_t local_size_z) {
+  if (local_size_x == 0 || local_size_y == 0 || local_size_z == 0) {
+    return compiler::Result::INVALID_VALUE;
+  }
+
+  auto optimized_kernel =
+      lookupOrCreateOptimizedKernel({local_size_x, local_size_y, local_size_z});
+  if (!optimized_kernel) {
+    return optimized_kernel.error();
+  }
+  return compiler::Result::SUCCESS;
+}
+
+cargo::expected<uint32_t, compiler::Result> HostKernel::getDynamicWorkWidth(
+    size_t local_size_x, size_t local_size_y, size_t local_size_z) {
+  auto optimized_kernel =
+      lookupOrCreateOptimizedKernel({local_size_x, local_size_y, local_size_z});
+  if (!optimized_kernel) {
+    return cargo::make_unexpected(optimized_kernel.error());
+  }
+  // We report the preferred work width as the maximum work width.
+  return optimized_kernel->binary_kernel->pref_work_width;
+}
+
+cargo::expected<cargo::dynamic_array<uint8_t>, compiler::Result>
+HostKernel::createSpecializedKernel(
+    const mux_ndrange_options_t &specialization_options) {
+  if (!specialization_options.descriptors &&
+      specialization_options.descriptors_length > 0) {
+    return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+  }
+
+  if (specialization_options.descriptors &&
+      specialization_options.descriptors_length == 0) {
+    return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+  }
+
+  for (int i = 0; i < 3; i++) {
+    if (specialization_options.local_size[i] == 0) {
+      return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+    }
+  }
+
+  if (!specialization_options.global_offset) {
+    return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+  }
+
+  if (!specialization_options.global_size) {
+    return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+  }
+
+  if (specialization_options.dimensions == 0 ||
+      specialization_options.dimensions > 3) {
+    return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+  }
+
+  if (target.getCompilerInfo()->device_info->custom_buffer_capabilities == 0) {
+    for (uint64_t i = 0; i < specialization_options.descriptors_length; i++) {
+      if (specialization_options.descriptors[i].type ==
+          mux_descriptor_info_type_custom_buffer) {
+        return cargo::make_unexpected(compiler::Result::INVALID_VALUE);
+      }
+    }
+  }
+
+  std::array<size_t, 3> local_size;
+  std::copy(std::begin(specialization_options.local_size),
+            std::end(specialization_options.local_size),
+            std::begin(local_size));
+  auto optimized_kernel = lookupOrCreateOptimizedKernel(local_size);
+  if (!optimized_kernel) {
+    return cargo::make_unexpected(optimized_kernel.error());
+  }
+
+  cargo::dynamic_array<uint8_t> binary_out;
+  if (binary_out.alloc(host::getSizeForJITKernel())) {
+    return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
+  }
+  host::serializeJITKernel(optimized_kernel->binary_kernel.get(),
+                           binary_out.data());
+  return {std::move(binary_out)};
+}
+
+cargo::expected<uint32_t, compiler::Result>
+HostKernel::querySubGroupSizeForLocalSize(size_t local_size_x,
+                                          size_t local_size_y,
+                                          size_t local_size_z) {
+  auto optimized_kernel =
+      lookupOrCreateOptimizedKernel({local_size_x, local_size_y, local_size_z});
+  if (!optimized_kernel) {
+    return cargo::make_unexpected(optimized_kernel.error());
+  }
+  // If we've compiled with degenerate sub-groups, the sub-group size is the
+  // work-group size.
+  if (optimized_kernel->binary_kernel->sub_group_size == 0) {
+    return local_size_x * local_size_y * local_size_z;
+  }
+
+  // Otherwise, on host we always use vectorize in the x-dimension, so
+  // sub-groups "go" in the x-dimension.
+  return std::min(
+      local_size_x,
+      static_cast<size_t>(optimized_kernel->binary_kernel->sub_group_size));
+}
+
+cargo::expected<std::array<size_t, 3>, compiler::Result>
+HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
+  // FIXME: For a single sub-group, we know we can satisfy that with a
+  // work-group of 1,1,1. For any other sub-group count, we should ensure that
+  // the work-group size we report comes back through the deferred kernel's
+  // sub-group count when it comes to compiling it. See CA-4784.
+  if (sub_group_count == 1) {
+    return {{1, 1, 1}};
+  }
+  return {{0, 0, 0}};
+};
+
+cargo::expected<size_t, compiler::Result> HostKernel::queryMaxSubGroupCount() {
+  // FIXME: Without compiling this kernel, we can't determine the maximum
+  // number of sub-groups. We can't meaningfully compile unless we know the
+  // local size. We're just returning 1 here, assuming degenerate sub-groups,
+  // but the compiler may choose to take advantage of the local work-group size
+  // and emit a kernel with a larger sub-group size that fits the work-group
+  // size (e.g., vecz).
+  // For now we return an unfeasibly high number so that we're conservative,
+  // assuming a trivial sub-group size of 1. See CA-4785.
+  const auto &info = *target.getCompilerInfo()->device_info;
+  return static_cast<size_t>(info.max_work_group_size_x) *
+         static_cast<size_t>(info.max_work_group_size_y) *
+         static_cast<size_t>(info.max_work_group_size_z);
+}
+
+cargo::expected<const OptimizedKernel &, compiler::Result>
+HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
+  if (0 < optimized_kernel_map.count(local_size)) {
+    return optimized_kernel_map[local_size];
+  }
+
+  {
+    std::lock_guard<compiler::Context> guard(target.getContext());
+
+    std::unique_ptr<llvm::Module> optimized_module(llvm::CloneModule(*module));
+    if (nullptr == optimized_module) {
+      return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
+    }
+
+    // max length of a uint64_t is 20 digits, 64 just to be comfortable with the
+    // prefix of '__mux_host_'
+    const unsigned unique_name_data_length = 64;
+    char unique_name_data[unique_name_data_length];
+    if (snprintf(unique_name_data, unique_name_data_length,
+                 "__mux_host_%" PRIu64, target.unique_identifier++) < 0) {
+      return cargo::make_unexpected(compiler::Result::FAILURE);
+    }
+    llvm::StringRef unique_name(unique_name_data);
+
+    auto device_info = target.getCompilerInfo()->device_info;
+
+    // FIXME: Ideally we'd be able to call/reuse HostModule::createPassMachinery
+    // but we only have access to the HostTarget
+    auto *const TM = target.engine->getTargetMachine();
+    auto builtinInfoCallback = [&](const llvm::Module &) {
+      return compiler::utils::BuiltinInfo(
+          std::make_unique<HostBIMuxInfo>(),
+          compiler::utils::createCLBuiltinInfo(target.getBuiltins()));
+    };
+    auto deviceInfo = compiler::initDeviceInfoFromMux(device_info);
+    HostPassMachinery pass_mach(TM, deviceInfo, builtinInfoCallback,
+                                target.getContext().isLLVMVerifyEachEnabled(),
+                                target.getContext().getLLVMDebugLoggingLevel(),
+                                target.getContext().isLLVMTimePassesEnabled());
+    host::initializePassMachineryForFinalize(pass_mach, target);
+
+    llvm::ModulePassManager pm;
+    // Set up the kernel metadata which informs later passes which kernel we're
+    // interested in optimizing. We've already done this when initially
+    // creating the kernel, but now we have more accurate local size data.
+    compiler::utils::EncodeKernelMetadataPassOptions pass_opts;
+    pass_opts.KernelName = name;
+    pass_opts.LocalSizes = {static_cast<uint64_t>(local_size[0]),
+                            static_cast<uint64_t>(local_size[1]),
+                            static_cast<uint64_t>(local_size[2])};
+    pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
+
+    pm.addPass(hostGetKernelPasses(build_options, pass_mach.getPB(), snapshots,
+                                   unique_name));
+
+    {
+      // Using the CrashRecoveryContext and statistics touches LLVM's global
+      // state.
+      std::lock_guard<std::mutex> globalLock(
+          compiler::utils::getLLVMGlobalMutex());
+      llvm::CrashRecoveryContext CRC;
+      llvm::CrashRecoveryContext::Enable();
+      bool crashed = !CRC.RunSafely(
+          [&] { pm.run(*optimized_module, pass_mach.getMAM()); });
+      llvm::CrashRecoveryContext::Disable();
+      if (crashed) {
+        return cargo::make_unexpected(
+            compiler::Result::FINALIZE_PROGRAM_FAILURE);
+      }
+
+      if (llvm::AreStatisticsEnabled()) {
+        llvm::PrintStatistics();
+      }
+    }
+
+    // Retrieve the vectorization width and amount of local memory used.
+    auto default_work_width = FixedOrScalableQuantity<uint32_t>::getOne();
+    handler::VectorizeInfoMetadata fn_metadata(
+        unique_name.str(), unique_name.str(),
+        /* local_memory_usage */ 0,
+        /* sub_group_size */ FixedOrScalableQuantity<uint32_t>(),
+        /* min_work_item_factor= */ default_work_width,
+        /* pref_work_item_factor */ default_work_width);
+    if (auto *f = optimized_module->getFunction(unique_name)) {
+      fn_metadata =
+          pass_mach.getFAM()
+              .getResult<compiler::utils::VectorizeMetadataAnalysis>(*f);
+    }
+
+    // Host doesn't support scalable values.
+    if (fn_metadata.min_work_item_factor.isScalable() ||
+        fn_metadata.pref_work_item_factor.isScalable() ||
+        fn_metadata.sub_group_size.isScalable()) {
+      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
+    }
+
+#if defined(__linux__)
+    // Create Cache and register with MCJIT
+    host::PerfInterface jit_cache(unique_name_data);
+    if (jit_cache.is_enabled()) {
+      target.engine->setObjectCache(&jit_cache);
+    }
+    std::string module_id = module->getModuleIdentifier();
+#endif  // defined(__linux__)
+
+    llvm::Module *optimized_module_ptr = optimized_module.get();
+    {
+      tracer::TraceGuard<tracer::Impl> traceGuard("MCJIT");
+      target.engine->addModule(std::move(optimized_module));
+      target.engine->finalizeObject();
+    }
+
+    const uint64_t hook = target.engine->getFunctionAddress(unique_name.str());
+
+    uint32_t min_width = fn_metadata.min_work_item_factor.getFixedValue();
+    uint32_t pref_width = fn_metadata.pref_work_item_factor.getFixedValue();
+    uint32_t sub_group_size = fn_metadata.sub_group_size.getFixedValue();
+
+    std::unique_ptr<host::jit_kernel_s> jit_kernel(new host::jit_kernel_s{
+        name, hook, static_cast<uint32_t>(fn_metadata.local_memory_usage),
+        min_width, pref_width, sub_group_size});
+    optimized_kernel_map.emplace(
+        local_size,
+        OptimizedKernel{optimized_module_ptr, std::move(jit_kernel)});
+  }
+  return optimized_kernel_map[local_size];
+}
+}  // namespace host

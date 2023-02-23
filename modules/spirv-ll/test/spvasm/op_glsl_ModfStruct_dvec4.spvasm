@@ -1,0 +1,77 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_ModfStruct_dvec4.spv -o %t
+; RUN: %filecheck < %t %t.pp
+
+               OpCapability Shader
+               OpCapability Float64
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpMemberDecorate %inputBuffer 0 Offset 0
+               ; ^ set offset of first element
+               OpDecorate %inputBuffer BufferBlock
+
+               ; v Bind variable to descriptor
+               OpDecorate %inBufferVar DescriptorSet 0
+               OpDecorate %inBufferVar Binding 0
+
+               ; same for output buffer:
+               OpMemberDecorate %outputBuffer 0 Offset 0
+               OpDecorate %outputBuffer BufferBlock
+
+               ; V Bind variable to descriptor
+               OpDecorate %outBufferVar DescriptorSet 0
+               OpDecorate %outBufferVar Binding 1
+
+               ; Set up member offsets of ResType
+               OpMemberDecorate %ResType 0 Offset 0
+               OpMemberDecorate %ResType 1 Offset 32
+
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 64
+   %floatVec = OpTypeVector %float 4
+%ptrToGfvec  = OpTypePointer Uniform %floatVec
+%inputBuffer = OpTypeStruct %floatVec
+; ^ this is the type of the input buffer
+%ptrInputBuf = OpTypePointer Uniform %inputBuffer
+; declare input buffer:
+%inBufferVar = OpVariable %ptrInputBuf Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+    %ResType = OpTypeStruct %floatVec %floatVec
+%ptrToResType = OpTypePointer Uniform %ResType
+; declare type of output buffer:
+%outputBuffer = OpTypeStruct %ResType
+; declare output buffer:
+%ptrOutBuffer = OpTypePointer Uniform %outputBuffer
+%outBufferVar = OpVariable %ptrOutBuffer Uniform
+
+
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+          ; get input variable from descriptor:
+ %ptrToInput = OpAccessChain %ptrToGfvec %inBufferVar %int_0
+        %arg = OpLoad %floatVec %ptrToInput
+     %result = OpExtInst %ResType %1 ModfStruct %arg
+; store result in descriptor:
+%ptrToResult = OpAccessChain %ptrToResType %outBufferVar %int_0
+               OpStore %ptrToResult %result
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, <4 x double> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x double>
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x double> @_Z4modfDv4_dPS_(<4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x double> @_Z4modfDv4_dPS_(<4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x double>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} undef, <4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, <4 x double>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
+; CHECK-GE15: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

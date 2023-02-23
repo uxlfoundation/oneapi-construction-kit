@@ -1,0 +1,194 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/prioritize_function_names.spv -o %t
+; RUN: %filecheck < %t %t.pp
+
+; Ensure entry point functions get priority on assignment of their names when there are normal functions with the same name
+
+%1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %44 "signed_ints"
+               OpEntryPoint Kernel %51 "unsigned_ints"
+               OpEntryPoint Kernel %58 "floating_point"
+               OpEntryPoint Kernel %63 "signed_char"
+               OpEntryPoint Kernel %68 "vector_char4"
+               OpEntryPoint Kernel %72 "vector_char4_buffer"
+               OpSource OpenCL_C 102000
+               OpName %signed_ints "signed_ints"
+               OpName %c "c"
+               OpName %s "s"
+               OpName %i "i"
+               OpName %l "l"
+               OpName %entry "entry"
+               OpName %unsigned_ints "unsigned_ints"
+               OpName %c_0 "c"
+               OpName %s_0 "s"
+               OpName %i_0 "i"
+               OpName %l_0 "l"
+               OpName %entry_0 "entry"
+               OpName %floating_point "floating_point"
+               OpName %f "f"
+               OpName %b "b"
+               OpName %entry_1 "entry"
+               OpName %signed_char "signed_char"
+               OpName %c_1 "c"
+               OpName %p "p"
+               OpName %entry_2 "entry"
+               OpName %vector_char4 "vector_char4"
+               OpName %c_2 "c"
+               OpName %entry_3 "entry"
+               OpName %vector_char4_buffer "vector_char4_buffer"
+               OpName %c_3 "c"
+               OpName %p_0 "p"
+               OpName %entry_4 "entry"
+               OpName %c_4 "c"
+               OpName %s_1 "s"
+               OpName %i_1 "i"
+               OpName %l_1 "l"
+               OpName %c_5 "c"
+               OpName %s_2 "s"
+               OpName %i_2 "i"
+               OpName %l_2 "l"
+               OpName %f_0 "f"
+               OpName %b_0 "b"
+               OpName %c_6 "c"
+               OpName %p_1 "p"
+               OpName %c_7 "c"
+               OpName %c_8 "c"
+               OpName %p_2 "p"
+               OpDecorate %signed_ints LinkageAttributes "signed_ints" Export
+               OpDecorate %c FuncParamAttr Sext
+               OpDecorate %s FuncParamAttr Sext
+               OpDecorate %unsigned_ints LinkageAttributes "unsigned_ints" Export
+               OpDecorate %c_0 FuncParamAttr Zext
+               OpDecorate %s_0 FuncParamAttr Zext
+               OpDecorate %floating_point LinkageAttributes "floating_point" Export
+               OpDecorate %signed_char LinkageAttributes "signed_char" Export
+               OpDecorate %c_1 FuncParamAttr Sext
+               OpDecorate %p FuncParamAttr NoCapture
+               OpDecorate %vector_char4 LinkageAttributes "vector_char4" Export
+               OpDecorate %vector_char4_buffer LinkageAttributes "vector_char4_buffer" Export
+               OpDecorate %p_0 FuncParamAttr NoCapture
+               OpDecorate %c_4 FuncParamAttr Sext
+               OpDecorate %s_1 FuncParamAttr Sext
+               OpDecorate %c_5 FuncParamAttr Zext
+               OpDecorate %s_2 FuncParamAttr Zext
+               OpDecorate %c_6 FuncParamAttr Sext
+               OpDecorate %p_1 FuncParamAttr NoCapture
+               OpDecorate %p_2 FuncParamAttr NoCapture
+      %uchar = OpTypeInt 8 0
+     %ushort = OpTypeInt 16 0
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+       %void = OpTypeVoid
+          %7 = OpTypeFunction %void %uchar %ushort %uint %ulong
+      %float = OpTypeFloat 32
+     %double = OpTypeFloat 64
+         %22 = OpTypeFunction %void %float %double
+%_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
+         %28 = OpTypeFunction %void %uchar %_ptr_CrossWorkgroup_uchar
+    %v4uchar = OpTypeVector %uchar 4
+         %34 = OpTypeFunction %void %v4uchar
+%_ptr_CrossWorkgroup_v4uchar = OpTypePointer CrossWorkgroup %v4uchar
+         %39 = OpTypeFunction %void %v4uchar %_ptr_CrossWorkgroup_v4uchar
+%signed_ints = OpFunction %void Pure %7
+          %c = OpFunctionParameter %uchar
+          %s = OpFunctionParameter %ushort
+          %i = OpFunctionParameter %uint
+          %l = OpFunctionParameter %ulong
+      %entry = OpLabel
+               OpReturn
+               OpFunctionEnd
+%unsigned_ints = OpFunction %void Pure %7
+        %c_0 = OpFunctionParameter %uchar
+        %s_0 = OpFunctionParameter %ushort
+        %i_0 = OpFunctionParameter %uint
+        %l_0 = OpFunctionParameter %ulong
+    %entry_0 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%floating_point = OpFunction %void Pure %22
+          %f = OpFunctionParameter %float
+          %b = OpFunctionParameter %double
+    %entry_1 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%signed_char = OpFunction %void None %28
+        %c_1 = OpFunctionParameter %uchar
+          %p = OpFunctionParameter %_ptr_CrossWorkgroup_uchar
+    %entry_2 = OpLabel
+               OpStore %p %c_1 Aligned 1
+               OpReturn
+               OpFunctionEnd
+%vector_char4 = OpFunction %void Pure %34
+        %c_2 = OpFunctionParameter %v4uchar
+    %entry_3 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%vector_char4_buffer = OpFunction %void None %39
+        %c_3 = OpFunctionParameter %v4uchar
+        %p_0 = OpFunctionParameter %_ptr_CrossWorkgroup_v4uchar
+    %entry_4 = OpLabel
+               OpStore %p_0 %c_3 Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %44 = OpFunction %void Pure %7
+        %c_4 = OpFunctionParameter %uchar
+        %s_1 = OpFunctionParameter %ushort
+        %i_1 = OpFunctionParameter %uint
+        %l_1 = OpFunctionParameter %ulong
+         %49 = OpLabel
+         %50 = OpFunctionCall %void %signed_ints %c_4 %s_1 %i_1 %l_1
+               OpReturn
+               OpFunctionEnd
+         %51 = OpFunction %void Pure %7
+        %c_5 = OpFunctionParameter %uchar
+        %s_2 = OpFunctionParameter %ushort
+        %i_2 = OpFunctionParameter %uint
+        %l_2 = OpFunctionParameter %ulong
+         %56 = OpLabel
+         %57 = OpFunctionCall %void %unsigned_ints %c_5 %s_2 %i_2 %l_2
+               OpReturn
+               OpFunctionEnd
+         %58 = OpFunction %void Pure %22
+        %f_0 = OpFunctionParameter %float
+        %b_0 = OpFunctionParameter %double
+         %61 = OpLabel
+         %62 = OpFunctionCall %void %floating_point %f_0 %b_0
+               OpReturn
+               OpFunctionEnd
+         %63 = OpFunction %void None %28
+        %c_6 = OpFunctionParameter %uchar
+        %p_1 = OpFunctionParameter %_ptr_CrossWorkgroup_uchar
+         %66 = OpLabel
+         %67 = OpFunctionCall %void %signed_char %c_6 %p_1
+               OpReturn
+               OpFunctionEnd
+         %68 = OpFunction %void Pure %34
+        %c_7 = OpFunctionParameter %v4uchar
+         %70 = OpLabel
+         %71 = OpFunctionCall %void %vector_char4 %c_7
+               OpReturn
+               OpFunctionEnd
+         %72 = OpFunction %void None %39
+        %c_8 = OpFunctionParameter %v4uchar
+        %p_2 = OpFunctionParameter %_ptr_CrossWorkgroup_v4uchar
+         %75 = OpLabel
+         %76 = OpFunctionCall %void %vector_char4_buffer %c_8 %p_2
+               OpReturn
+               OpFunctionEnd
+
+; CHECK-NOT: define spir_func void @{{-signed_ints[.][0-9].+}}
+; CHECK-NOT: define spir_func void @{{-unsigned_ints[.][0-9].+}}
+; CHECK-NOT: define spir_func void @{{-floating_point[.][0-9].+}}
+; CHECK-NOT: define spir_func void @{{-signed_char[.][0-9].+}}
+; CHECK-NOT: define spir_func void @{{-vector_char4[.][0-9].+}}
+; CHECK-NOT: define spir_func void @{{-vector_char4_buffer[.][0-9].+}}
+
+; CHECK: define spir_kernel void @signed_ints{{([^)]+)}}
+; CHECK: define spir_kernel void @unsigned_ints{{([^)]+)}}
+; CHECK: define spir_kernel void @floating_point{{([^)]+)}}
+; CHECK: define spir_kernel void @signed_char{{([^)]+)}}
+; CHECK: define spir_kernel void @vector_char4{{([^)]+)}}
+; CHECK: define spir_kernel void @vector_char4_buffer{{([^)]+)}}

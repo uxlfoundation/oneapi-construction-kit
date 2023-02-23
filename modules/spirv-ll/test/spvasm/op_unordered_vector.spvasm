@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -c Kernel -b 64 %p/op_unordered_vector.spv -o %t
+; RUN: %filecheck < %t %s
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %8 "unordered"
+               OpSource OpenCL_C 102000
+               OpName %res "res"
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+     %float2 = OpTypeVector %float 2
+          %7 = OpTypeFunction %void
+       %bool = OpTypeBool
+      %bool2 = OpTypeVector %bool 2
+%float_constant = OpConstant %float 0x1p-126
+   %floatvec = OpConstantComposite %float2 %float_constant %float_constant
+          %8 = OpFunction %void None %7
+         %11 = OpLabel
+        %res = OpUnordered %bool2 %floatvec %floatvec
+               OpReturn
+               OpFunctionEnd
+; CHECK: define spir_kernel void @unordered()
+; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func <2 x i32> @_Z11isunorderedDv2_fS_(<2 x float> <float 0x3810000000000000, float 0x3810000000000000>, <2 x float> <float 0x3810000000000000, float 0x3810000000000000>)
+; CHECK: {{%[a-zA-Z0-9_]+}} = trunc <2 x i32> [[RES]] to <2 x i1>
+; CHECK: declare spir_func <2 x i32> @_Z11isunorderedDv2_fS_(<2 x float>, <2 x float>)

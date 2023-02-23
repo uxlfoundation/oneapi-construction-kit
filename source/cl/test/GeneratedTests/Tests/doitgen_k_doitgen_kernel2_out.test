@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue doitgen_kernel2 -arg nr,repeat(1,randint(0,255)) -arg nq,repeat(1,10) -arg np,repeat(1,10) -compare A:%p/Inputs/doitgen_k_doitgen_kernel2_out.txt -arg A,repeat(1034,73) -arg sum,repeat(1034,rand(0,1.0)) -arg r,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/doitgen/doitgen.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: A - match

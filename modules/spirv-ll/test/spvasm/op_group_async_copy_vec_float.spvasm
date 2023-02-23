@@ -1,0 +1,58 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_group_async_copy_vec_float.spv -o %t
+; RUN: %filecheck < %t %t.pp             
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %2 "async_copy"
+               OpSource OpenCL_C 102000
+               OpName %in "in"
+               OpName %out "out"
+               OpName %size "size"
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+      %float = OpTypeFloat 32
+     %float3 = OpTypeVector %float 3
+       %void = OpTypeVoid
+      %Event = OpTypeEvent
+%_ptr_CrossWorkgroup_float3 = OpTypePointer CrossWorkgroup %float3
+%_ptr_Workgroup_float3 = OpTypePointer Workgroup %float3
+%_ptr_Function_Event = OpTypePointer Function %Event
+         %13 = OpTypeFunction %void %_ptr_CrossWorkgroup_float3 %_ptr_Workgroup_float3 %ulong
+     %uint_2 = OpConstant %uint 2
+     %uint_1 = OpConstant %uint 1
+    %ulong_1 = OpConstant %ulong 1
+ %event_null = OpConstantNull %Event
+          %2 = OpFunction %void None %13
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_float3
+        %out = OpFunctionParameter %_ptr_Workgroup_float3
+       %size = OpFunctionParameter %ulong
+         %19 = OpLabel
+         %20 = OpVariable %_ptr_Function_Event Function
+         %21 = OpGroupAsyncCopy %Event %uint_2 %in %out %size %ulong_1 %event_null
+               OpStore %20 %21
+               OpGroupWaitEvents %uint_2 %uint_1 %20
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK-LT15: %opencl.event_t = type opaque
+; CHECK-GE15: define spir_kernel void @async_copy(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size)
+; CHECK-LT15: define spir_kernel void @async_copy(<3 x float> addrspace(1)* %in, <3 x float> addrspace(3)* %out, i64 %size)
+; CHECK-GE15: [[EVENT_VAR:%[a-zA-Z0-9_]+]] = alloca ptr
+; CHECK-LT15: [[EVENT_VAR:%[a-zA-Z0-9_]+]] = alloca %opencl.event_t*
+; CHECK-GE15: [[EVENT:%[a-zA-Z0-9_]+]] = call spir_func ptr @_Z29async_work_group_strided_copyPU3AS1Dv3_fPU3AS3KS_mm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, ptr null)
+; CHECK-LT15: [[EVENT:%[a-zA-Z0-9_]+]] = call spir_func %opencl.event_t* @_Z29async_work_group_strided_copyPU3AS1Dv3_fPU3AS3KS_mm9ocl_event(<3 x float> addrspace(1)* %in, <3 x float> addrspace(3)* %out, i64 %size, i64 1, %opencl.event_t* null)
+; CHECK-GE15: store ptr [[EVENT]], ptr [[EVENT_VAR]]
+; CHECK-LT15: store %opencl.event_t* [[EVENT]], %opencl.event_t** [[EVENT_VAR]]
+; CHECK-GE15: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, ptr [[EVENT_VAR]])
+; CHECK-LT15: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, %opencl.event_t** [[EVENT_VAR]])
+; CHECK: ret void
+; CHECK-GE15: declare spir_func ptr @_Z29async_work_group_strided_copyPU3AS1Dv3_fPU3AS3KS_mm9ocl_event(ptr addrspace(1), ptr addrspace(3), i64, i64, ptr)
+; CHECK-LT15: declare spir_func %opencl.event_t* @_Z29async_work_group_strided_copyPU3AS1Dv3_fPU3AS3KS_mm9ocl_event(<3 x float> addrspace(1)*, <3 x float> addrspace(3)*, i64, i64, %opencl.event_t*)
+; CHECK-GE15: declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, ptr)
+; CHECK-LT15: declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, %opencl.event_t**)

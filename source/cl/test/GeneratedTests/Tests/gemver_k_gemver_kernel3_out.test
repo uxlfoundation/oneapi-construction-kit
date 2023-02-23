@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue gemver_kernel3 -arg A,repeat(40,rand(0,1.0)) -arg X,repeat(10,rand(0,1.0)) -arg w,repeat(4,rand(0,1.0)) -compare w:%p/Inputs/gemver_k_gemver_kernel3_out.txt -arg alpha,repeat(1,rand(0,1.0)) -arg n,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/gemver/gemver.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: w - match

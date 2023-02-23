@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_degrees_v16double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Float64
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %degrees_v16double "degrees_v16double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+         %v16double_t = OpTypeVector %double_t 16
+        %degrees_fn_t = OpTypeFunction %void_t
+            %double_1 = OpConstant %double_t 1.57
+         %v16double_1 = OpConstantComposite %v16double_t %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1 %double_1
+
+; All functions
+   %degrees_v16double = OpFunction %void_t None %degrees_fn_t
+; CHECK: define spir_kernel void @degrees_v16double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16double_t %1 degrees %v16double_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x double> @_Z7degreesDv16_d(<16 x double> <double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

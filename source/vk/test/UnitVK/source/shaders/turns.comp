@@ -1,0 +1,18 @@
+#version 450
+
+layout(set = 0, binding = 0) buffer block_a { uint test_in[]; };
+
+layout(set = 0, binding = 1) buffer block_b { uint test_out[]; };
+
+void main() {
+  uint id = gl_GlobalInvocationID.z;
+  if (gl_NumWorkGroups.x == 1) {
+    if (gl_WorkGroupID.x == 0 && gl_WorkGroupID.y == 0) {
+      test_out[id] = test_in[id] + gl_NumWorkGroups.y;
+    }
+  } else {
+    if (gl_WorkGroupID.x == 0 && gl_WorkGroupID.y == 0) {
+      test_in[id] = test_out[id] + gl_NumWorkGroups.y;
+    }
+  }
+}

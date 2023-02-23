@@ -1,0 +1,8 @@
+---
+Language:        Cpp
+BasedOnStyle:  Google
+# `AlignConsecutiveMacros` is pending, but at time of writing (2019-06-27) it
+# is not yet merged.  With luck it will reach clang-format-9.
+# AlignConsecutiveMacros: True
+Standard: Cpp11
+...

@@ -1,0 +1,11 @@
+Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+For licensing information, see the applicable license agreement under which
+this project was delivered.
+
+The external/api-generator folder is held under its own licensing terms (see
+external/api-generator/README.md for details).
+
+The source/profile folder contains multiple files which are a copy
+with minor modifications of files held under it's own licensing terms (see
+source/profile/LICENSE.txt for details).

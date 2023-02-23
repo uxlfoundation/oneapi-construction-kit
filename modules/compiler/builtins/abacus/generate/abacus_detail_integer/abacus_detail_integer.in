@@ -1,0 +1,316 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Exposing implementations of non-IP restricted functions.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_DETAIL_INTEGER__
+#define __ABACUS_DETAIL_INTEGER__
+
+#if !defined(__cplusplus)
+#error This header should only be included from C++!
+#endif
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+#ifndef __ABACUS_ABACUS_INTEGER__
+#include <abacus/abacus_integer.h>
+#endif
+#ifndef __ABACUS_TYPE_TRAITS__
+#include <abacus/abacus_type_traits.h>
+#endif
+#ifndef __ABACUS_DETAIL_CAST__
+#include <abacus/abacus_detail_cast.h>
+#endif
+#ifndef __ABACUS_ABACUS_RELATIONAL__
+#include <abacus/abacus_detail_relational.h>
+#endif
+
+namespace abacus {
+namespace detail {
+namespace integer {
+template<typename T, bool SIGNED = TypeTraits<T>::is_signed> struct abs_helper {
+  static T _(const T& t) { return t; }
+};
+
+template<typename T> struct abs_helper<T, true> {
+  static typename TypeTraits<T>::UnsignedType _(const T& x) {
+    const typename TypeTraits<T>::SignedType cond = x < 0;
+    return cast::as<typename TypeTraits<T>::UnsignedType>(
+      relational::select(x, (T)-x, cond));
+  }
+};
+
+template<typename T> inline typename TypeTraits<T>::UnsignedType abs(const T& x) {
+  return abs_helper<T>::_(x);
+}
+
+template<typename T> typename TypeTraits<T>::UnsignedType abs_diff(
+  const T& x, const T& y) {
+  const T lhs = y - x;
+  const T rhs = x - y;
+  const typename TypeTraits<T>::SignedType cond = x > y;
+  return cast::as<typename TypeTraits<T>::UnsignedType>(
+    relational::select(lhs, rhs, cond));
+}
+
+template <typename T,
+        bool SIGNED = TypeTraits<T>::is_signed>
+struct add_sat_helper {
+static T _(const T& x, const T& y) {
+  const T max = TypeTraits<T>::max();
+  const T add = x + y;
+  const typename TypeTraits<T>::SignedType cond = add >= x;
+  return relational::select(max, add, cond);
+}
+};
+
+template <typename T>
+struct add_sat_helper<T, true> {
+static T _(const T& x, const T& y) {
+  const T min = TypeTraits<T>::min();
+  const T max = TypeTraits<T>::max();
+  const T cond1 = (T)(x < (T)0) & (T)(y < (min - x));
+  const T cond2 = (T)(x >= (T)0) & (T)((max - x) < y);
+  const T add = x + y;
+  return relational::select(relational::select(add, min, cond1), max, cond2);
+}
+};
+
+template <typename T>
+T add_sat(const T& x, const T& y) {
+  return add_sat_helper<T>::_(x, y);
+}
+
+template <typename T, typename U>
+T clamp(const T& x, const U& y, const U& z) {
+  return __abacus_min(__abacus_max(x, y), z);
+}
+
+template<typename T> T clz(const T& t) {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+  typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
+
+  const UnsignedElementType shiftAmount = sizeof(typename TypeTraits<T>::ElementType) * 4;
+
+  UnsignedType data = cast::as<UnsignedType>(t);
+  UnsignedType result = (UnsignedType)0;
+
+  for (UnsignedElementType shift = shiftAmount; shift; shift >>= 1) {
+    const UnsignedElementType rightShift = (shiftAmount * 2) - shift;
+    const UnsignedType mask =
+        (TypeTraits<UnsignedElementType>::max() >> rightShift) << shift;
+    const SignedType condition = (UnsignedType)0 != (mask & data);
+    const UnsignedType dataShifted = data >> (UnsignedType)shift;
+    data = __abacus_select(data, dataShifted, condition);
+    const UnsignedType resultOrred = result | (UnsignedType)shift;
+    result = __abacus_select(result, resultOrred, condition);
+  }
+
+  const T a = shiftAmount * 2;
+  const T b = (a - (T)1) - cast::as<T>(result);
+  const SignedType c = (T)0 != t;
+  return relational::select(a, b, c);
+}
+
+#if !defined(__OPENCL_VERSION__) && __GNUC__ == 5 && __GNUC_MINOR__ == 2
+// This overload is required to work around a compiler bug in GCC 5.2 for ARM
+// which results in an ICE. See CA-861.
+template <typename E, unsigned N, typename T = abacus_vector<E, N>>
+T clz(const abacus_vector<E, N>& t) {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+  typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
+
+  const UnsignedElementType shiftAmount =
+      sizeof(typename TypeTraits<T>::ElementType) * 4;
+
+  UnsignedType data = cast::as<UnsignedType>(t);
+  UnsignedType result = (UnsignedType)0;
+
+  for (UnsignedElementType shift = shiftAmount; shift;) {
+    const UnsignedElementType rightShift = (shiftAmount * 2) - shift;
+    const UnsignedType mask =
+        (TypeTraits<UnsignedElementType>::max() >> rightShift) << shift;
+    const SignedType condition = (UnsignedType)0 != (mask & data);
+
+    // Inlining the shifting of this data works around the compiler bug
+    UnsignedType dataShifted = data;
+    for (unsigned i = 0; i < N; ++i) {
+      dataShifted[i] >>= shift;
+    }
+    data = __abacus_select(data, dataShifted, condition);
+    const UnsignedType resultOrred = result | (UnsignedType)shift;
+    result = __abacus_select(result, resultOrred, condition);
+  }
+
+  const T a = shiftAmount * 2;
+  const T b = (a - (T)1) - cast::as<T>(result);
+  const SignedType c = (T)0 != t;
+  return relational::select(a, b, c);
+}
+#endif
+
+template <typename T>
+typename TypeTraits<T>::SignedType ctz(const T& t) {
+  typedef typename TypeTraits<T>::SignedType SignedType;
+  typedef typename TypeTraits<SignedType>::ElementType SignedElementType;
+
+  const abacus_long table[6] = {
+      0x5555555555555555, 0x3333333333333333, 0x0f0f0f0f0f0f0f0f,
+      0x00ff00ff00ff00ff, 0x0000ffff0000ffff, 0x00000000ffffffff,
+  };
+
+  const abacus_int bits = sizeof(SignedElementType) * 8;
+
+  SignedType data = cast::as<SignedType>(t) & -cast::as<SignedType>(t);
+
+  SignedType result = (SignedType)(bits - 1);
+
+  for (abacus_int i = 0; (1 << i) < bits; i++) {
+    SignedType c1 = (data & cast::convert<SignedElementType>(table[i])) != 0;
+    SignedType intermediate = result - cast::convert<SignedElementType>(1 << i);
+    result = __abacus_select(result, intermediate, c1);
+  }
+
+  SignedType c0 = t != 0;
+  const SignedType bit_width = sizeof(SignedElementType) << 3;
+  result = __abacus_select(bit_width, result, c0);
+  return result;
+}
+
+template <typename T>
+T hadd(const T& x, const T& y) {
+  const T one(1);
+  return (x >> (one)) + (y >> one) + ((x & y) & one);
+}
+
+template <typename T>
+T mul24(const T& x, const T& y) {
+  return x * y;
+}
+
+template <typename T>
+T mad24(const T& x, const T& y, const T& z) {
+  return integer::mul24(x, y) + z;
+}
+
+template <typename T>
+T mad_hi(const T& x, const T& y, const T& z) {
+  return __abacus_mul_hi(x, y) + z;
+}
+
+template <typename T, typename U> T max(const T& x, const U& y) {
+  const T yAsT = (T)y;
+  const typename TypeTraits<T>::SignedType cond = x > yAsT;
+  return relational::select(yAsT, x, cond);
+}
+
+template <typename T, typename U> T min(const T& x, const U& y) {
+  const T yAsT = (T)y;
+  const typename TypeTraits<T>::SignedType cond = x < yAsT;
+  return relational::select(yAsT, x, cond);
+}
+
+template <typename T>
+T popcount(const T& t) {
+  typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+  // making the following constants - mask1 0x5555..., mask2 0x3333...,
+  // mask3 0x1010..., mask4 0xf0f0...
+  const UnsignedType mask1 = (TypeTraits<UnsignedType>::max()) / 3u;
+  const UnsignedType mask2 = (mask1 / 5u) * 3u;
+  const UnsignedType mask3 = (mask1 / 85u);
+  const UnsignedType mask4 = (mask3 * 15u);
+
+  UnsignedType v = cast::as<UnsignedType>(t);
+
+  v = v - ((v >> 1u) & mask1);
+  v = (v & mask2) + ((v >> 2u) & mask2);
+  v = (v + (v >> 4u)) & mask4;
+
+  return (cast::convert<T>(v * mask3)) >> (
+    (sizeof(typename TypeTraits<T>::ElementType) - 1) * 8);
+}
+
+template <typename T>
+T rhadd(const T& x, const T& y) {
+  return integer::hadd(x, y) + ((x ^ y) & (T)1);
+}
+
+template <typename T>
+T rotate(const T& x, const T& y) {
+  enum { BITWIDTH = (sizeof(typename TypeTraits<T>::ElementType) * 8) };
+  typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+
+  const T yBits = (T)(BITWIDTH - 1);
+  const UnsignedType mask = cast::as<UnsignedType>(yBits);
+
+  const UnsignedType modY = cast::as<UnsignedType>(y) & mask;
+  const UnsignedType xAs = cast::as<UnsignedType>(x);
+
+  // When y is a multiple of the number of bits in x, x is or'ed with itself.
+  const UnsignedType result =
+      (xAs << modY) | (xAs >> (((UnsignedType)BITWIDTH - modY) & mask));
+
+  return cast::as<T>(result);
+}
+
+template <typename T,
+          bool SIGNED = TypeTraits<T>::is_signed>
+struct sub_sat_helper {
+  static T _(const T& x, const T& y) {
+    const T sub = x - y;
+    const typename TypeTraits<T>::SignedType cond = sub <= x;
+    return relational::select((T)0, sub, cond);
+  }
+};
+
+template <typename T>
+struct sub_sat_helper<T, true> {
+  static T _(const T& x, const T& y) {
+    typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+    enum { SHIFT = ((sizeof(typename TypeTraits<T>::ElementType) * 8) - 1) };
+
+    const T max = TypeTraits<T>::max();
+
+    UnsignedType ux = cast::convert<UnsignedType>(x);
+    const UnsignedType uy = cast::convert<UnsignedType>(y);
+    const UnsignedType res = ux - uy;
+
+    ux = (ux >> (UnsignedType)SHIFT) + cast::convert<UnsignedType>(max);
+
+    UnsignedType lhs = (ux ^ uy) & (ux ^ res);
+
+    const T cond = cast::as<T>(lhs) < (T)0;
+
+    return relational::select(cast::as<T>(res), cast::as<T>(ux), cond);
+  }
+};
+
+template <typename T>
+T sub_sat(const T& x, const T& y) {
+  return sub_sat_helper<T>::_(x, y);
+}
+
+template <typename H, typename L>
+typename TypeTraits<H>::LargerType upsample(const H& hi, const L& lo) {
+  typedef typename TypeTraits<H>::LargerType LargerType;
+  enum { SHIFT = (sizeof(typename TypeTraits<H>::ElementType) * 8) };
+
+  const LargerType hiUp = abacus::detail::cast::convert<LargerType>(hi);
+  const LargerType loUp = abacus::detail::cast::convert<LargerType>(lo);
+  const LargerType shift = (LargerType)SHIFT;
+
+  return (hiUp << shift) | loUp;
+}
+
+}
+}
+}
+
+#endif  //__ABACUS_DETAIL_INTEGER__

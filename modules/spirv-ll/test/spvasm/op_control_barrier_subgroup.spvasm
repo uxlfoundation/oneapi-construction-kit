@@ -1,0 +1,22 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_control_barrier_subgroup.spv -o %t
+; RUN: %opt -S --always-inline %t -o - | %filecheck -- %s
+               OpCapability Addresses
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %4 "sub_group_barrier_kernel"
+               OpSource OpenCL_C 300000
+               OpName %entry "entry"
+       %uint = OpTypeInt 32 0
+     %uint_3 = OpConstant %uint 3
+   %uint_272 = OpConstant %uint 272
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+          %4 = OpFunction %void DontInline %3
+      %entry = OpLabel
+               OpControlBarrier %uint_3 %uint_3 %uint_272
+               OpReturn
+               OpFunctionEnd
+; CHECK: call spir_func void @__mux_sub_group_barrier(i32 0, i32 3, i32 272)

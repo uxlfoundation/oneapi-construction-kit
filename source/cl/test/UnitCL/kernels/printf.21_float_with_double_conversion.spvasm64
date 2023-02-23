@@ -1,0 +1,49 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 30
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Float64
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %15 "float_with_double_conversion"
+         %29 = OpString "kernel_arg_type.float_with_double_conversion."
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpDecorate %_str Constant
+               OpDecorate %_str Alignment 1
+               OpDecorate %19 Alignment 4
+      %uchar = OpTypeInt 8 0
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+   %uchar_37 = OpConstant %uchar 37
+  %uchar_102 = OpConstant %uchar 102
+   %uchar_10 = OpConstant %uchar 10
+    %uchar_0 = OpConstant %uchar 0
+    %ulong_4 = OpConstant %ulong 4
+     %uint_0 = OpConstant %uint 0
+%_arr_uchar_ulong_4 = OpTypeArray %uchar %ulong_4
+%_ptr_UniformConstant__arr_uchar_ulong_4 = OpTypePointer UniformConstant %_arr_uchar_ulong_4
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+     %double = OpTypeFloat 64
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %10 = OpConstantComposite %_arr_uchar_ulong_4 %uchar_37 %uchar_102 %uchar_10 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_4 UniformConstant %10
+    %float_4 = OpConstant %float 4
+         %15 = OpFunction %void DontInline %14
+         %16 = OpLabel
+         %19 = OpVariable %_ptr_Function_float Function
+               OpStore %19 %float_4 Aligned 4
+         %21 = OpLoad %float %19 Aligned 4
+         %23 = OpFConvert %double %21
+         %27 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+         %28 = OpExtInst %uint %1 printf %27 %23
+               OpReturn
+               OpFunctionEnd

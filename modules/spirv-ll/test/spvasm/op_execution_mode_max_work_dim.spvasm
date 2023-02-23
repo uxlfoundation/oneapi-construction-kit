@@ -1,0 +1,22 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; REQUIRES: spirv-as-v2020
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_execution_mode_max_work_dim.spv -o %t
+; RUN: %filecheck < %t %s
+
+                  OpCapability Kernel
+                  OpCapability Addresses
+                  OpCapability KernelAttributesINTEL
+             %1 = OpExtInstImport "OpenCL.std"
+                  OpMemoryModel Physical64 OpenCL
+                  OpEntryPoint Kernel %foo "metadata"
+                  OpExecutionMode %foo MaxWorkDimINTEL 2
+                  OpSource OpenCL_C 102000
+        %void_t = OpTypeVoid
+         %foo_t = OpTypeFunction %void_t
+           %foo = OpFunction %void_t None %foo_t
+; CHECK: !max_work_dim [[MD:![0-9]+]]
+             %2 = OpLabel
+                  OpReturn
+                  OpFunctionEnd
+; CHECK: [[MD]] = !{i32 2}

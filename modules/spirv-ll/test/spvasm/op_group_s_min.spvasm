@@ -1,0 +1,85 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_group_s_min.spv -o %t
+; RUN: %opt -S --always-inline %t -o - | %filecheck -- %t.pp
+
+                              OpCapability Addresses
+                              OpCapability Kernel
+                              OpCapability Groups
+
+                              OpMemoryModel Physical64 OpenCL
+
+                              OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction"
+                              OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction"
+                              OpEntryPoint Kernel %sub_group_scan_exc_fcn "sub_group_scan_exclusive"
+                              OpEntryPoint Kernel %sub_group_scan_inc_fcn "sub_group_scan_inclusive"
+
+                  %uint_ty  = OpTypeInt 32 0
+                   %int_ty  = OpTypeInt 32 1
+ %ptr_CrossWorkgroup_int_ty = OpTypePointer CrossWorkgroup %int_ty
+                   %void_ty = OpTypeVoid
+                    %fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_int_ty
+
+           %sub_group_scope = OpConstant %uint_ty 3
+
+                              OpName %sub_group_reduction_in "a"
+                              OpName %sub_group_scan_inc_in "a"
+                              OpName %sub_group_scan_exc_in "a"
+
+; CHECK-GE15: define spir_kernel void @sub_group_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-LT15: define spir_kernel void @sub_group_reduction(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+   %sub_group_reduction_fcn = OpFunction %void_ty None %fcn_ty
+    %sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_int_ty
+    %sub_group_reduction_bb = OpLabel
+; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+   %sub_group_reduction_val = OpLoad %int_ty %sub_group_reduction_in Aligned 4
+; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20sub_group_reduce_mini(i32 [[VAL]])
+   %sub_group_reduction_res = OpGroupSMin %int_ty %sub_group_scope Reduce %sub_group_reduction_val
+; CHECK-GE15: store i32 [[RES]], ptr addrspace(1) [[IN]]
+; CHECK-LT15: store i32 [[RES]], i32 addrspace(1)* [[IN]]
+                              OpStore %sub_group_reduction_in %sub_group_reduction_res Aligned 4
+; CHECK: ret void
+                              OpReturn
+                              OpFunctionEnd
+
+; CHECK: declare spir_func i32 @_Z20sub_group_reduce_mini(i32)
+
+; CHECK-GE15: define spir_kernel void @sub_group_scan_inclusive(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-LT15: define spir_kernel void @sub_group_scan_inclusive(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+    %sub_group_scan_inc_fcn = OpFunction %void_ty None %fcn_ty
+     %sub_group_scan_inc_in = OpFunctionParameter %ptr_CrossWorkgroup_int_ty
+     %sub_group_scan_inc_bb = OpLabel
+; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+    %sub_group_scan_inc_val = OpLoad %int_ty %sub_group_scan_inc_in Aligned 4
+; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z28sub_group_scan_inclusive_mini(i32 [[VAL]])
+    %sub_group_scan_inc_res = OpGroupSMin %int_ty %sub_group_scope InclusiveScan %sub_group_scan_inc_val
+; CHECK-GE15: store i32 [[RES]], ptr addrspace(1) [[IN]]
+; CHECK-LT15: store i32 [[RES]], i32 addrspace(1)* [[IN]]
+                              OpStore %sub_group_scan_inc_in %sub_group_scan_inc_res Aligned 4
+; CHECK: ret void
+                              OpReturn
+                              OpFunctionEnd
+
+; CHECK: declare spir_func i32 @_Z28sub_group_scan_inclusive_mini(i32)
+
+; CHECK-GE15: define spir_kernel void @sub_group_scan_exclusive(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-LT15: define spir_kernel void @sub_group_scan_exclusive(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+    %sub_group_scan_exc_fcn = OpFunction %void_ty None %fcn_ty
+     %sub_group_scan_exc_in = OpFunctionParameter %ptr_CrossWorkgroup_int_ty
+     %sub_group_scan_exc_bb = OpLabel
+; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+    %sub_group_scan_exc_val = OpLoad %int_ty %sub_group_scan_exc_in Aligned 4
+; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z28sub_group_scan_exclusive_mini(i32 [[VAL]])
+    %sub_group_scan_exc_res = OpGroupSMin %int_ty %sub_group_scope ExclusiveScan %sub_group_scan_exc_val
+; CHECK-GE15: store i32 [[RES]], ptr addrspace(1) [[IN]]
+; CHECK-LT15: store i32 [[RES]], i32 addrspace(1)* [[IN]]
+                              OpStore %sub_group_scan_exc_in %sub_group_scan_exc_res Aligned 4
+; CHECK: ret void
+                              OpReturn
+                              OpFunctionEnd
+
+; CHECK: declare spir_func i32 @_Z28sub_group_scan_exclusive_mini(i32)

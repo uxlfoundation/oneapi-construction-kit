@@ -1,0 +1,23 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_get_max_sub_group_size.spv -o %t
+; RUN: %filecheck < %t %s
+                                  OpCapability Addresses
+                                  OpCapability Kernel
+                                  OpCapability Int64
+                             %1 = OpExtInstImport "OpenCL.std"
+                                  OpMemoryModel Physical64 OpenCL
+                                  OpEntryPoint Kernel %get_max_sub_group_size_fn "get_max_sub_group_size_fn" %__spirv_BuiltInSubgroupID
+                                  OpDecorate %__spirv_BuiltInSubgroupMaxSize BuiltIn SubgroupMaxSize
+                        %size_t = OpTypeInt 64 0
+                    %size_ptr_t = OpTypePointer Input %size_t
+                        %void_t = OpTypeVoid
+   %get_max_sub_group_size_fn_t = OpTypeFunction %void_t
+
+%__spirv_BuiltInSubgroupMaxSize = OpVariable %size_ptr_t Input
+     %get_max_sub_group_size_fn = OpFunction %void_t None %get_max_sub_group_size_fn_t
+                             %2 = OpLabel
+;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z22get_max_sub_group_sizev()
+                           %res = OpLoad %size_t %__spirv_BuiltInSubgroupMaxSize
+                                  OpReturn
+                                  OpFunctionEnd

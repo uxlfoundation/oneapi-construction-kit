@@ -1,0 +1,14 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450 core
+
+layout(set = 0, binding = 0) buffer block_a { int[] test_in1; };
+
+layout(set = 0, binding = 1) buffer block_b { int[] test_in2; };
+
+layout(set = 0, binding = 2) buffer block_c { int[] test_out; };
+
+void main() {
+  uint id = gl_GlobalInvocationID.x;
+  test_out[id] = test_in1[id] + test_in2[id];
+}

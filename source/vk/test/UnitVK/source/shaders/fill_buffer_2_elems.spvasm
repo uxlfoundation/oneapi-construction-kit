@@ -1,0 +1,44 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google Shaderc over Glslang; 1
+; Bound: 20
+; Schema: 0
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
+               OpSourceExtension "GL_GOOGLE_include_directive"
+               OpName %main "main"
+               OpName %outR "outR"
+               OpMemberName %outR 0 "r"
+               OpName %_ ""
+               OpDecorate %_arr_int_uint_2 ArrayStride 4
+               OpMemberDecorate %outR 0 Offset 0
+               OpDecorate %outR BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+%_arr_int_uint_2 = OpTypeArray %int %uint_2
+       %outR = OpTypeStruct %_arr_int_uint_2
+%_ptr_Uniform_outR = OpTypePointer Uniform %outR
+          %_ = OpVariable %_ptr_Uniform_outR Uniform
+      %int_0 = OpConstant %int 0
+   %int_2000 = OpConstant %int 2000
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+      %int_1 = OpConstant %int 1
+   %int_4000 = OpConstant %int 4000
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %16 = OpAccessChain %_ptr_Uniform_int %_ %int_0 %int_0
+               OpStore %16 %int_2000
+         %19 = OpAccessChain %_ptr_Uniform_int %_ %int_0 %int_1
+               OpStore %19 %int_4000
+               OpReturn
+               OpFunctionEnd

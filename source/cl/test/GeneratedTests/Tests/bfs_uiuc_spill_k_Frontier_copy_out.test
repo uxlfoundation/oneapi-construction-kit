@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue Frontier_copy -compare frontier:%p/Inputs/bfs_uiuc_spill_k_Frontier_copy_out.txt -arg frontier,repeat(4,73) -arg frontier2,repeat(4,randint(0,255)) -arg frontier_length,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/shoc/bfs_uiuc_spill.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: frontier - match

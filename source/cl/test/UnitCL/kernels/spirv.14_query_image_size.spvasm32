@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability ImageBasic
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %5 "query_image_size"
+               OpSource OpenCL_C 102000
+               OpName %out "out"
+       %uint = OpTypeInt 32 0
+       %void = OpTypeVoid
+          %3 = OpTypeImage %void 2D 0 1 0 0 Unknown WriteOnly
+          %8 = OpTypeImage %void 3D 0 0 0 0 Unknown WriteOnly
+     %v3uint = OpTypeVector %uint 3
+%ptr_CrossWorkgroup_v3uint = OpTypePointer CrossWorkgroup %v3uint
+          %4 = OpTypeFunction %void %3 %8 %ptr_CrossWorkgroup_v3uint
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+          %5 = OpFunction %void None %4
+      %2darr = OpFunctionParameter %3
+         %3d = OpFunctionParameter %8
+        %out = OpFunctionParameter %ptr_CrossWorkgroup_v3uint
+          %7 = OpLabel
+          %9 = OpImageQuerySizeLod %v3uint %2darr %uint_0
+         %10 = OpImageQuerySizeLod %v3uint %3d %uint_0
+         %11 = OpInBoundsPtrAccessChain %ptr_CrossWorkgroup_v3uint %out %uint_0
+               OpStore %11 %9
+         %12 = OpInBoundsPtrAccessChain %ptr_CrossWorkgroup_v3uint %out %uint_1
+               OpStore %12 %10
+               OpReturn
+               OpFunctionEnd

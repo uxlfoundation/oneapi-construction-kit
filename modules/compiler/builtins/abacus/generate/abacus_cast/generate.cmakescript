@@ -1,0 +1,335 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+set(generate_input_definitions "")
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/main.in" main)
+
+set(types "char;short;int;long;uchar;ushort;uint;ulong;half;float;double")
+set(vector_sizes ";2;3;4;8;16")
+
+foreach(iter RANGE 10)
+  foreach(kter RANGE 10)
+    foreach(vector_size IN LISTS vector_sizes)
+      list(GET types ${iter} generate_scalar_type)
+      set(generate_type "${generate_scalar_type}${vector_size}")
+
+      list(GET types ${kter} generate_scalar_return_type)
+      set(generate_return_type "${generate_scalar_return_type}${vector_size}")
+
+      set(type_guard_start "")
+      set(type_guard_end "")
+
+      if(${generate_scalar_type} STREQUAL "half" OR
+          ${generate_scalar_return_type} STREQUAL "half")
+        string(CONCAT type_guard_start ${type_guard_start}
+          "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+        string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+          ${type_guard_end})
+      endif()
+
+      if(${generate_scalar_type} STREQUAL "double" OR
+          ${generate_scalar_return_type} STREQUAL "double")
+        string(CONCAT type_guard_start ${type_guard_start}
+          "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+        string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+          ${type_guard_end})
+      endif()
+
+      string(CONFIGURE "${main}" processed @ONLY)
+      set(generate_input_definitions "${generate_input_definitions}${processed}")
+    endforeach()
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/as.in" as)
+
+set(types "char;uchar")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "char2;uchar2;short;ushort;half")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "half" OR
+        ${generate_return_type} STREQUAL "half")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "char4;uchar4;short2;ushort2;int;uint;half2;float")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "half2" OR
+        ${generate_return_type} STREQUAL "half2")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "char8;uchar8;short4;ushort4;int2;uint2;half4;float2;long;ulong;double")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "half4" OR
+        ${generate_return_type} STREQUAL "half4")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    if(${generate_type} STREQUAL "double" OR
+        ${generate_return_type} STREQUAL "double")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "char16;uchar16;short8;ushort8;int4;uint4;half8;float4;long2;ulong2;double2")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "half8" OR
+        ${generate_return_type} STREQUAL "half8")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    if(${generate_type} STREQUAL "double2" OR
+        ${generate_return_type} STREQUAL "double2")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "short16;ushort16;int8;uint8;half16;float8;long4;ulong4;double4")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "half16" OR
+        ${generate_return_type} STREQUAL "half16")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    if(${generate_type} STREQUAL "double4" OR
+        ${generate_return_type} STREQUAL "double4")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "int16;uint16;float16;long8;ulong8;double8")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "double8" OR
+        ${generate_return_type} STREQUAL "double8")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "long16;ulong16;double16")
+
+foreach(generate_type IN LISTS types)
+  foreach(generate_return_type IN LISTS types)
+    set(type_guard_start "")
+    set(type_guard_end "")
+
+    if(${generate_type} STREQUAL "double16" OR
+        ${generate_return_type} STREQUAL "double16")
+      string(CONCAT type_guard_start ${type_guard_start}
+        "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+      string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+        ${type_guard_end})
+    endif()
+
+    string(CONFIGURE "${as}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+set(types "char;short;int;long;uchar;ushort;uint;ulong;half;float;double")
+
+foreach(type IN LISTS types)
+  set(generate_type "${type}3")
+  set(generate_return_type "${type}4")
+
+  set(type_guard_start "")
+  set(type_guard_end "")
+
+  if(${type} STREQUAL "half")
+    string(CONCAT type_guard_start ${type_guard_start}
+      "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+    string(CONCAT type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n"
+      ${type_guard_end})
+  endif()
+
+  if(${type} STREQUAL "double")
+    string(CONCAT type_guard_start ${type_guard_start}
+      "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+    string(CONCAT type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n"
+      ${type_guard_end})
+  endif()
+
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+  set(generate_type "${type}4")
+  set(generate_return_type "${type}3")
+
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+endforeach()
+
+set(types "char;short;int;long")
+
+foreach(type IN LISTS types)
+  set(type_guard_start "")
+  set(type_guard_end "")
+
+  set(generate_type "${type}3")
+  set(generate_return_type "u${type}3")
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+  set(generate_type "u${type}3")
+  set(generate_return_type "${type}3")
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+endforeach()
+
+set(types "short;ushort")
+
+foreach(type IN LISTS types)
+  set(type_guard_start "")
+  set(type_guard_end "")
+
+  set(generate_type "${type}3")
+  set(generate_return_type "half3")
+
+  # Half support is optional and needs hidden behind a macro
+  set(type_guard_start "#ifdef __CA_BUILTINS_HALF_SUPPORT\n")
+  set(type_guard_end "#endif // __CA_BUILTINS_HALF_SUPPORT\n")
+
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+  set(generate_type "half3")
+  set(generate_return_type "${type}3")
+
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+endforeach()
+
+set(types "int;uint")
+
+foreach(type IN LISTS types)
+  set(type_guard_start "")
+  set(type_guard_end "")
+
+  set(generate_type "${type}3")
+  set(generate_return_type "float3")
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+  set(generate_type "float3")
+  set(generate_return_type "${type}3")
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+endforeach()
+
+set(types "long;ulong")
+
+foreach(type IN LISTS types)
+  set(generate_type "${type}3")
+  set(generate_return_type "double3")
+
+  # Double support is optional and needs hidden behind a macro
+  set(type_guard_start "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n")
+  set(type_guard_end "#endif // __CA_BUILTINS_DOUBLE_SUPPORT\n")
+
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+
+  set(generate_type "double3")
+  set(generate_return_type "${type}3")
+
+  string(CONFIGURE "${as}" processed @ONLY)
+  set(generate_input_definitions "${generate_input_definitions}${processed}")
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_cast.in" abacus_cast)
+string(CONFIGURE "${abacus_cast}" abacus_cast @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_cast}")

@@ -1,0 +1,13 @@
+# Documentation generator.
+sphinx==4.0.3
+# Markdown -> Sphinx extension.
+myst-parser==0.15.2
+linkify-it-py==1.0.2
+# Doxygen -> Sphinx extension.
+breathe==4.31.0
+# ReadTheDocs theme.
+sphinx-rtd-theme==0.5.2
+# CMake domain extension.
+sphinxcontrib-moderncmakedomain==3.19
+# Utilities
+sphinx-autobuild==2021.3.14

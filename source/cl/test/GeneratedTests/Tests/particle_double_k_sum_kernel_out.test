@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue sum_kernel -arg partial_sums,repeat(3,rand(0,1.0)) -compare partial_sums:%p/Inputs/particle_double_k_sum_kernel_out.txt -arg Nparticles,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/particle_double.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: partial_sums - match

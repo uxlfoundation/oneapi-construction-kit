@@ -1,0 +1,14 @@
+#version 450
+
+layout(set=0, binding=0) buffer block{
+    float a;
+    int[] runtime_array;
+};
+
+layout(set=0, binding=1) buffer block_out{
+    int result;
+};
+
+void main(){
+    result = runtime_array.length();
+}

@@ -1,0 +1,56 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Shader
+               OpCapability Float64
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 1 1 1
+               OpSource GLSL 450
+               OpName %main "main"
+               OpName %outR "outR"
+               OpMemberName %outR 0 "res"
+               OpName %_ ""
+               OpName %inA "inA"
+               OpMemberName %inA 0 "arg0"
+               OpMemberName %inA 1 "arg1"
+               OpMemberName %inA 2 "arg2"
+               OpName %__0 ""
+               OpMemberDecorate %outR 0 Offset 0
+               OpDecorate %outR BufferBlock
+               OpDecorate %_ DescriptorSet 0
+               OpDecorate %_ Binding 1
+               OpMemberDecorate %inA 0 Offset 0
+               OpMemberDecorate %inA 1 Offset 8
+               OpMemberDecorate %inA 2 Offset 16
+               OpDecorate %inA BufferBlock
+               OpDecorate %__0 DescriptorSet 0
+               OpDecorate %__0 Binding 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+     %double = OpTypeFloat 64
+       %outR = OpTypeStruct %double
+%_ptr_Uniform_outR = OpTypePointer Uniform %outR
+          %_ = OpVariable %_ptr_Uniform_outR Uniform
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %float = OpTypeFloat 32
+        %inA = OpTypeStruct %double %double %float
+%_ptr_Uniform_inA = OpTypePointer Uniform %inA
+        %__0 = OpVariable %_ptr_Uniform_inA Uniform
+%_ptr_Uniform_double = OpTypePointer Uniform %double
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+         %17 = OpAccessChain %_ptr_Uniform_double %__0 %int_0
+         %18 = OpLoad %double %17
+         %20 = OpAccessChain %_ptr_Uniform_double %__0 %int_1
+         %21 = OpLoad %double %20
+         %24 = OpAccessChain %_ptr_Uniform_float %__0 %int_2
+         %25 = OpLoad %float %24
+         %27 = OpExtInst %double %1 Refract %18 %21 %25
+         %28 = OpAccessChain %_ptr_Uniform_double %_ %int_0
+               OpStore %28 %27
+               OpReturn
+               OpFunctionEnd

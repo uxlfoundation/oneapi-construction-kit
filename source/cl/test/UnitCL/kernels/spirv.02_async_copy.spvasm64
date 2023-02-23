@@ -1,0 +1,89 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 55
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Groups
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %12 "async_copy" %__spirv_BuiltInWorkgroupId %__spirv_BuiltInWorkgroupSize
+         %52 = OpString "kernel_arg_type.async_copy.uint*,uint*,uint*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInWorkgroupId "__spirv_BuiltInWorkgroupId"
+               OpName %__spirv_BuiltInWorkgroupSize "__spirv_BuiltInWorkgroupSize"
+               OpDecorate %53 Constant
+         %53 = OpDecorationGroup
+               OpDecorate %54 Alignment 8
+         %54 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInWorkgroupSize BuiltIn WorkgroupSize
+               OpDecorate %__spirv_BuiltInWorkgroupId BuiltIn WorkgroupId
+               OpDecorate %13 FuncParamAttr NoWrite
+               OpDecorate %__spirv_BuiltInWorkgroupId LinkageAttributes "__spirv_BuiltInWorkgroupId" Import
+               OpDecorate %__spirv_BuiltInWorkgroupSize LinkageAttributes "__spirv_BuiltInWorkgroupSize" Import
+               OpGroupDecorate %53 %__spirv_BuiltInWorkgroupId %__spirv_BuiltInWorkgroupSize
+               OpGroupDecorate %54 %18 %20 %21 %23 %24 %27
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+    %ulong_1 = OpConstant %ulong 1
+     %uint_1 = OpConstant %uint 1
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+         %11 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_Workgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_Workgroup_uint = OpTypePointer Function %_ptr_Workgroup_uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+      %Event = OpTypeEvent
+%_ptr_Function_Event = OpTypePointer Function %Event
+%__spirv_BuiltInWorkgroupId = OpVariable %_ptr_Input_v3ulong Input
+%__spirv_BuiltInWorkgroupSize = OpVariable %_ptr_Input_v3ulong Input
+         %41 = OpConstantNull %Event
+         %12 = OpFunction %void DontInline %11
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %14 = OpFunctionParameter %_ptr_Workgroup_uint
+         %15 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %16 = OpLabel
+         %18 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %20 = OpVariable %_ptr_Function__ptr_Workgroup_uint Function
+         %21 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+         %23 = OpVariable %_ptr_Function_ulong Function
+         %24 = OpVariable %_ptr_Function_ulong Function
+         %27 = OpVariable %_ptr_Function_Event Function
+               OpStore %18 %13 Aligned 8
+               OpStore %20 %14 Aligned 8
+               OpStore %21 %15 Aligned 8
+         %28 = OpLoad %v3ulong %__spirv_BuiltInWorkgroupId
+         %29 = OpCompositeExtract %ulong %28 0
+               OpStore %23 %29 Aligned 8
+         %30 = OpLoad %v3ulong %__spirv_BuiltInWorkgroupSize
+         %31 = OpCompositeExtract %ulong %30 0
+               OpStore %24 %31 Aligned 8
+         %32 = OpLoad %_ptr_Workgroup_uint %20 Aligned 8
+         %33 = OpLoad %_ptr_CrossWorkgroup_uint %18 Aligned 8
+         %34 = OpLoad %ulong %23 Aligned 8
+         %35 = OpLoad %ulong %24 Aligned 8
+         %36 = OpIMul %ulong %34 %35
+         %37 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %33 %36
+         %38 = OpLoad %ulong %24 Aligned 8
+         %42 = OpGroupAsyncCopy %Event %uint_2 %32 %37 %38 %ulong_1 %41
+               OpStore %27 %42 Aligned 8
+               OpGroupWaitEvents %uint_2 %uint_1 %27
+         %44 = OpLoad %_ptr_CrossWorkgroup_uint %21 Aligned 8
+         %45 = OpLoad %ulong %23 Aligned 8
+         %46 = OpLoad %ulong %24 Aligned 8
+         %47 = OpIMul %ulong %45 %46
+         %48 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %44 %47
+         %49 = OpLoad %_ptr_Workgroup_uint %20 Aligned 8
+         %50 = OpLoad %ulong %24 Aligned 8
+         %51 = OpGroupAsyncCopy %Event %uint_2 %48 %49 %50 %ulong_1 %41
+               OpStore %27 %51 Aligned 8
+               OpGroupWaitEvents %uint_2 %uint_1 %27
+               OpReturn
+               OpFunctionEnd

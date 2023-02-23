@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_minmag_v3float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %minmag_v3float "minmag_v3float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v3float_t = OpTypeVector %float_t 3
+         %minmag_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.2
+             %float_2 = OpConstant %float_t -2.1
+           %v3float_1 = OpConstantComposite %v3float_t %float_1 %float_1 %float_1
+           %v3float_2 = OpConstantComposite %v3float_t %float_2 %float_2 %float_2
+
+; All functions
+      %minmag_v3float = OpFunction %void_t None %minmag_fn_t
+; CHECK: define spir_kernel void @minmag_v3float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v3float_t %1 minmag %v3float_2 %v3float_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z6minmagDv3_fS_(<3 x float> <float 0xC000CCCCC0000000, float 0xC000CCCCC0000000, float 0xC000CCCCC0000000>, <3 x float> <float 0x3FF3333340000000, float 0x3FF3333340000000, float 0x3FF3333340000000>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

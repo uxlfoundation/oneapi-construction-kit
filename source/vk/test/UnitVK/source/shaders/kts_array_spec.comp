@@ -1,0 +1,22 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(constant_id = 0) const int size = 1;
+
+layout(set = 0, binding = 0) buffer in_buffer { float in_buf[]; };
+layout(set = 0, binding = 1) buffer out_buffer { float out_buf[]; };
+
+void main() {
+  float tmp[size];
+
+  for (int i = 0; i < size; i++) {
+    tmp[i] = in_buf[i];
+  }
+
+  for (int i = 0; i < size; i++) {
+    out_buf[i] = tmp[i];
+  }
+}

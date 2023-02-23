@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+# This git pre-commit hook checks if the cached changes have been formatted
+# with clang-format, if the have not the commit will be aborted, otherwise the
+# commit will proceed as normal.
+#
+# To install this hook run the following command from the root of the
+# repository.
+#
+#   cp scripts/git/pre-commit.check-formatted .git/hooks/pre-commit
+
+result=$(git-clang-format-9 --binary /usr/bin/clang-format-9 --diff)
+if [ "$result" == "no modified files to format" ] ||
+   [ "$result" == "clang-format did not modify any files" ]
+then
+  exit 0
+else
+  cat <<\EOF
+Aborted commit due to cached source files not being formatted.
+Run clang-format on changes before committing.
+EOF
+  exit 1
+fi

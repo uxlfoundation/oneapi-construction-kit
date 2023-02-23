@@ -1,0 +1,95 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 62
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %10 "add_no_nan" %__spirv_BuiltInGlobalInvocationId
+               OpExecutionMode %10 ContractionOff
+         %60 = OpString "kernel_arg_type.add_no_nan.float*,float*,float*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %_tmp ".tmp"
+               OpName %_tmp1 ".tmp1"
+               OpDecorate %61 Alignment 4
+         %61 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %61 %19 %20 %21 %23 %25 %26 %27
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_float
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function_float = OpTypePointer Function %float
+       %bool = OpTypeBool
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+    %float_0 = OpConstant %float 0
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %12 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %14 = OpLabel
+         %19 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %20 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %21 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %23 = OpVariable %_ptr_Function_uint Function
+         %25 = OpVariable %_ptr_Function_float Function
+         %26 = OpVariable %_ptr_Function_float Function
+         %27 = OpVariable %_ptr_Function_uint Function
+               OpStore %19 %11 Aligned 4
+               OpStore %20 %12 Aligned 4
+               OpStore %21 %13 Aligned 4
+         %28 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %29 = OpCompositeExtract %uint %28 0
+               OpStore %23 %29 Aligned 4
+         %30 = OpLoad %_ptr_CrossWorkgroup_float %19 Aligned 4
+         %31 = OpLoad %uint %23 Aligned 4
+         %32 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %30 %31
+         %33 = OpLoad %float %32 Aligned 4
+               OpStore %25 %33 Aligned 4
+         %34 = OpLoad %_ptr_CrossWorkgroup_float %20 Aligned 4
+         %35 = OpLoad %uint %23 Aligned 4
+         %36 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %34 %35
+         %37 = OpLoad %float %36 Aligned 4
+               OpStore %26 %37 Aligned 4
+         %38 = OpLoad %float %25 Aligned 4
+       %_tmp = OpIsNan %bool %38
+         %43 = OpSelect %uint %_tmp %uint_1 %uint_0
+         %44 = OpLoad %float %26 Aligned 4
+      %_tmp1 = OpIsNan %bool %44
+         %46 = OpSelect %uint %_tmp1 %uint_1 %uint_0
+         %47 = OpBitwiseOr %uint %43 %46
+               OpStore %27 %47 Aligned 4
+         %48 = OpLoad %uint %27 Aligned 4
+         %49 = OpINotEqual %bool %48 %uint_0
+               OpBranchConditional %49 %16 %15
+         %15 = OpLabel
+         %50 = OpLoad %float %25 Aligned 4
+         %51 = OpLoad %float %26 Aligned 4
+         %52 = OpFAdd %float %50 %51
+         %53 = OpLoad %_ptr_CrossWorkgroup_float %21 Aligned 4
+         %54 = OpLoad %uint %23 Aligned 4
+         %55 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %53 %54
+               OpStore %55 %52 Aligned 4
+               OpBranch %17
+         %16 = OpLabel
+         %56 = OpLoad %_ptr_CrossWorkgroup_float %21 Aligned 4
+         %57 = OpLoad %uint %23 Aligned 4
+         %58 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %56 %57
+               OpStore %58 %float_0 Aligned 4
+               OpBranch %17
+         %17 = OpLabel
+               OpReturn
+               OpFunctionEnd

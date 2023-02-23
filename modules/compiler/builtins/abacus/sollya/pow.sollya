@@ -1,0 +1,17 @@
+print("Half precision pow:");
+
+Range=[0.0;1.0];
+Func=2^x;
+Order=[|0,1,2,3,4,5|];
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);
+
+print("\nSingle precision pow:");
+Poly=fpminimax(Func, 7, [|single...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

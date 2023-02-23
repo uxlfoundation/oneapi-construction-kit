@@ -1,0 +1,71 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 45
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %14 "struct_offset" %__spirv_BuiltInGlobalInvocationId
+         %43 = OpString "kernel_arg_type.struct_offset.struct SampleBuffer*,int,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %struct_SampleBuffer "struct.SampleBuffer"
+               OpDecorate %44 Alignment 8
+         %44 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %21 Alignment 4
+               OpGroupDecorate %44 %19 %23 %24
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+   %ulong_16 = OpConstant %ulong 16
+     %uint_0 = OpConstant %uint 0
+    %ulong_0 = OpConstant %ulong 0
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_arr_float_ulong_16 = OpTypeArray %float %ulong_16
+%struct_SampleBuffer = OpTypeStruct %_arr_float_ulong_16
+%_ptr_CrossWorkgroup_struct_SampleBuffer = OpTypePointer CrossWorkgroup %struct_SampleBuffer
+         %13 = OpTypeFunction %void %_ptr_CrossWorkgroup_struct_SampleBuffer %uint
+%_ptr_Function__ptr_CrossWorkgroup_struct_SampleBuffer = OpTypePointer Function %_ptr_CrossWorkgroup_struct_SampleBuffer
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+%_ptr_CrossWorkgroup__arr_float_ulong_16 = OpTypePointer CrossWorkgroup %_arr_float_ulong_16
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%float_0_0625 = OpConstant %float 0.0625
+         %14 = OpFunction %void DontInline %13
+         %15 = OpFunctionParameter %_ptr_CrossWorkgroup_struct_SampleBuffer
+         %16 = OpFunctionParameter %uint
+         %17 = OpLabel
+         %19 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_struct_SampleBuffer Function
+         %21 = OpVariable %_ptr_Function_uint Function
+         %23 = OpVariable %_ptr_Function_ulong Function
+         %24 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_struct_SampleBuffer Function
+               OpStore %19 %15 Aligned 8
+               OpStore %21 %16 Aligned 4
+         %25 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %26 = OpCompositeExtract %ulong %25 0
+               OpStore %23 %26 Aligned 8
+         %27 = OpLoad %_ptr_CrossWorkgroup_struct_SampleBuffer %19 Aligned 8
+         %28 = OpLoad %uint %21 Aligned 4
+         %29 = OpSConvert %ulong %28
+         %30 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_struct_SampleBuffer %27 %29
+               OpStore %24 %30 Aligned 8
+         %31 = OpLoad %ulong %23 Aligned 8
+         %32 = OpConvertUToF %float %31
+         %34 = OpFMul %float %32 %float_0_0625
+         %35 = OpLoad %_ptr_CrossWorkgroup_struct_SampleBuffer %24 Aligned 8
+         %38 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup__arr_float_ulong_16 %35 %uint_0 %uint_0
+         %39 = OpLoad %ulong %23 Aligned 8
+         %42 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %38 %ulong_0 %39
+               OpStore %42 %34 Aligned 4
+               OpReturn
+               OpFunctionEnd

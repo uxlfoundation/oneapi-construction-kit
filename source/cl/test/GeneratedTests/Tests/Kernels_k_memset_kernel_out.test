@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue memset_kernel -compare mem_d:%p/Inputs/Kernels_k_memset_kernel_out.txt -arg mem_d,repeat(4,73) -arg val,repeat(1,randint(0,255)) -arg number_bytes,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/Kernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: mem_d - match

@@ -1,0 +1,75 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_opencl_vstoren_short_64bit.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Vector16
+               OpCapability Int64
+               OpCapability Int16
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %7 "foo"
+               OpSource OpenCL_C 102000
+               OpName %out "out"
+               OpName %loc "loc"
+               OpName %entry "entry"
+     %ushort = OpTypeInt 16 0
+      %ulong = OpTypeInt 64 0
+   %ushort_2 = OpConstant %ushort 2
+    %ulong_0 = OpConstant %ulong 0
+   %ushort_3 = OpConstant %ushort 3
+   %ushort_4 = OpConstant %ushort 4
+   %ushort_8 = OpConstant %ushort 8
+  %ushort_16 = OpConstant %ushort 16
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ushort = OpTypePointer CrossWorkgroup %ushort
+%_ptr_Workgroup_ushort = OpTypePointer Workgroup %ushort
+          %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_ushort %_ptr_Workgroup_ushort
+   %v2ushort = OpTypeVector %ushort 2
+   %v3ushort = OpTypeVector %ushort 3
+   %v4ushort = OpTypeVector %ushort 4
+   %v8ushort = OpTypeVector %ushort 8
+  %v16ushort = OpTypeVector %ushort 16
+         %13 = OpConstantComposite %v2ushort %ushort_2 %ushort_2
+         %19 = OpConstantComposite %v3ushort %ushort_3 %ushort_3 %ushort_3
+         %23 = OpConstantComposite %v4ushort %ushort_4 %ushort_4 %ushort_4 %ushort_4
+         %27 = OpConstantComposite %v8ushort %ushort_8 %ushort_8 %ushort_8 %ushort_8 %ushort_8 %ushort_8 %ushort_8 %ushort_8
+         %31 = OpConstantComposite %v16ushort %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16 %ushort_16
+          %7 = OpFunction %void None %6
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+        %loc = OpFunctionParameter %_ptr_Workgroup_ushort
+      %entry = OpLabel
+         %16 = OpExtInst %void %1 vstoren %13 %ulong_0 %out
+; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_tmPU3AS1t(<2 x i16> <i16 2, i16 2>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_tmPU3AS1t(<2 x i16> <i16 2, i16 2>, i64 0, i16 addrspace(1)* %out)
+         %20 = OpExtInst %void %1 vstoren %19 %ulong_0 %out
+; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_tmPU3AS1t(<3 x i16> <i16 3, i16 3, i16 3>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_tmPU3AS1t(<3 x i16> <i16 3, i16 3, i16 3>, i64 0, i16 addrspace(1)* %out)
+         %24 = OpExtInst %void %1 vstoren %23 %ulong_0 %out
+; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_tmPU3AS1t(<4 x i16> <i16 4, i16 4, i16 4, i16 4>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_tmPU3AS1t(<4 x i16> <i16 4, i16 4, i16 4, i16 4>, i64 0, i16 addrspace(1)* %out)
+         %28 = OpExtInst %void %1 vstoren %27 %ulong_0 %out
+; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_tmPU3AS1t(<8 x i16> <i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_tmPU3AS1t(<8 x i16> <i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8>, i64 0, i16 addrspace(1)* %out)
+         %32 = OpExtInst %void %1 vstoren %31 %ulong_0 %out
+; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_tmPU3AS1t(<16 x i16> <i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16>, i64 0, ptr addrspace(1) %out)
+; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_tmPU3AS1t(<16 x i16> <i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16>, i64 0, i16 addrspace(1)* %out)
+         %33 = OpExtInst %void %1 vstoren %13 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_tmPU3AS3t(<2 x i16> <i16 2, i16 2>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_tmPU3AS3t(<2 x i16> <i16 2, i16 2>, i64 0, i16 addrspace(3)* %loc)
+         %34 = OpExtInst %void %1 vstoren %19 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_tmPU3AS3t(<3 x i16> <i16 3, i16 3, i16 3>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_tmPU3AS3t(<3 x i16> <i16 3, i16 3, i16 3>, i64 0, i16 addrspace(3)* %loc)
+         %35 = OpExtInst %void %1 vstoren %23 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_tmPU3AS3t(<4 x i16> <i16 4, i16 4, i16 4, i16 4>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_tmPU3AS3t(<4 x i16> <i16 4, i16 4, i16 4, i16 4>, i64 0, i16 addrspace(3)* %loc)
+         %36 = OpExtInst %void %1 vstoren %27 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_tmPU3AS3t(<8 x i16> <i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_tmPU3AS3t(<8 x i16> <i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8>, i64 0, i16 addrspace(3)* %loc)
+         %37 = OpExtInst %void %1 vstoren %31 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_tmPU3AS3t(<16 x i16> <i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_tmPU3AS3t(<16 x i16> <i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16>, i64 0, i16 addrspace(3)* %loc)
+               OpReturn
+               OpFunctionEnd

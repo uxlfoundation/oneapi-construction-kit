@@ -1,0 +1,13 @@
+#version 450
+
+layout(push_constant) uniform push{
+    int test_in;
+} test_push;
+
+layout(set=0, binding=0) buffer out_buffer{
+    int test_out;
+};
+
+void main(){
+   test_out = test_push.test_in;
+}

@@ -1,0 +1,33 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+"""Python configuration file for lit."""
+
+import os
+
+config.test_exec_root = r"@CURRENT_BINARY_DIR@"
+
+# Paths to helper utilities
+config.tool_paths = {
+    'veczc': '@veczc_EXECUTABLE@',
+}
+
+# Defer to the common lit configuration to set up the bulk of the config.
+common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',
+                                   'lit', 'lit.common.cfg')
+
+lit_config.load_config(config, common_lit_cfg_path)
+
+if '@CMAKE_SYSTEM_PROCESSOR@' == 'ARM64':
+    config.available_features.add('aarch64')
+elif '@CMAKE_SYSTEM_PROCESSOR@' == 'ARM':
+    config.available_features.add('arm')
+
+# Some lit tests may fail when cross-compiled, so add the native feature if not
+# cross-compiling.
+if '@CMAKE_CROSSCOMPILING@'.upper() in ['0', 'OFF', 'NO', 'FALSE', 'N']:
+    config.available_features.add('native')
+
+import lit.llvm
+lit.llvm.initialize(lit_config, config)
+
+# Let the main config do the real work.
+lit_config.load_config(config, os.path.join('@CMAKE_CURRENT_SOURCE_DIR@', "lit.cfg.py"))

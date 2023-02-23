@@ -1,0 +1,29 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_mad_hi_i32.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_mad_hi_i32 "u_mad_hi_i32"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i32_t = OpTypeInt 32 0
+       %u_mad_hi_fn_t = OpTypeFunction %void_t
+               %i32_2 = OpConstant %i32_t 2
+               %i32_3 = OpConstant %i32_t 3
+               %i32_4 = OpConstant %i32_t 4
+
+; All functions
+        %u_mad_hi_i32 = OpFunction %void_t None %u_mad_hi_fn_t
+; CHECK: define spir_kernel void @u_mad_hi_i32()
+                   %2 = OpLabel
+                   %3 = OpExtInst %i32_t %1 u_mad_hi %i32_2 %i32_3 %i32_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z6mad_hijjj(i32 2, i32 3, i32 4)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4,4 -local 4,4,4 -enqueue initVolumeKernel -compare data:%p/Inputs/kernels_k_initVolumeKernel_out.txt -arg data,repeat(128,73) %p/Inputs/KernelsCL/kernels/PerfCL/slambench/kernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: data - match

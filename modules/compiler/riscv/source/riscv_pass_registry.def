@@ -1,0 +1,21 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
+// outlines all risc-v specific passes.
+
+#ifndef MODULE_ANALYSIS
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)
+#endif
+
+MODULE_ANALYSIS("riscv-vecz-pass-opts",
+                vecz::VeczPassOptionsAnalysis(riscvVeczPassOpts))
+
+#ifndef MODULE_PASS
+#define MODULE_PASS(NAME, CREATE_PASS)
+#endif
+
+MODULE_PASS("ir-to-builtins", riscv::IRToBuiltinReplacementPass())
+
+
+#undef MODULE_ANALYSIS
+#undef MODULE_PASS

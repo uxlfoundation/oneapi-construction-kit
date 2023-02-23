@@ -1,0 +1,27 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_lgamma_float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %lgamma_float "lgamma_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+         %lgamma_fn_t = OpTypeFunction %void_t
+             %float_3 = OpConstant %float_t 3.14
+
+; All functions
+        %lgamma_float = OpFunction %void_t None %lgamma_fn_t
+; CHECK: define spir_kernel void @lgamma_float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 lgamma %float_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6lgammaf(float 0x40091EB860000000)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

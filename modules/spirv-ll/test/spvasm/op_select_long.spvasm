@@ -1,0 +1,48 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_select_long.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; CHECK: ; ModuleID = '{{.*}}'
+                      OpCapability Shader
+                      OpCapability Float64
+                      OpCapability Int64
+                 %1 = OpExtInstImport "GLSL.std.450"
+                      OpMemoryModel Logical GLSL450
+                      OpEntryPoint GLCompute %main "main"
+                      OpExecutionMode %main LocalSize 1 1 1
+                      OpSource GLSL 450
+                      OpName %main "main"
+                      OpName %a "a"
+                      OpName %b "b"
+              %void = OpTypeVoid
+           %main_fn = OpTypeFunction %void
+              %bool = OpTypeBool
+%_ptr_Function_bool = OpTypePointer Function %bool
+              %true = OpConstantTrue %bool
+              %long = OpTypeInt 64 1
+          %ptr_long = OpTypePointer Function %long
+                %17 = OpConstant %long -4200000000
+                %19 = OpConstant %long 4200000000
+              %main = OpFunction %void None %main_fn
+; CHECK: define spir_kernel void @main()
+                 %5 = OpLabel
+                 %a = OpVariable %_ptr_Function_bool Function
+; CHECK: %a = alloca i1
+                 %b = OpVariable %ptr_long Function
+; CHECK: %b = alloca i64
+                      OpStore %a %true
+; CHECK-GE15: store i1 true, ptr %a
+; CHECK-LT15: store i1 true, i1* %a
+                %14 = OpLoad %bool %a
+; CHECK-GE15: [[aValue:%[a-zA-Z0-9_]+]] = load i1, ptr %a
+; CHECK-LT15: [[aValue:%[a-zA-Z0-9_]+]] = load i1, i1* %a
+                %15 = OpSelect %long %14 %17 %19  ; testing this
+; CHECK: [[selected:%[a-zA-Z0-9_]+]] = select i1 [[aValue]], i64 -4200000000, i64 4200000000
+                      OpStore %b %15
+; CHECK-GE15: store i64 [[selected]], ptr %b
+; CHECK-LT15: store i64 [[selected]], i64* %b
+                      OpReturn
+; CHECK: ret void
+                      OpFunctionEnd
+; CHECK: }

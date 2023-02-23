@@ -1,0 +1,27 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_logb_float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %logb_float "logb_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %logb_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.4
+
+; All functions
+          %logb_float = OpFunction %void_t None %logb_fn_t
+; CHECK: define spir_kernel void @logb_float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 logb %float_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z4logbf(float 0x3FF6666660000000)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

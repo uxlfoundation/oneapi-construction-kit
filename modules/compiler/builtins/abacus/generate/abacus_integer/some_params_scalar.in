@@ -1,0 +1,82 @@
+/// @brief min(max(x, y), z).
+/// @param[in] x A abacus_@generate_type@@vector_size@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@@vector_size@.
+///
+/// clamp returns min(max(x, y), z). Results are undefined if y > z.
+///
+/// Standards compliant implementation of OpenCL 1.2 clamp.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/integerClamp.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_clamp(abacus_@generate_type@@vector_size@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_clamp.
+/// @param[in] x A abacus_@generate_type@@vector_size@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API clamp(abacus_@generate_type@@vector_size@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_clamp(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The greater of x or y.
+/// @param[in] x A abacus_@generate_type@@vector_size@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 max.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/integerMax.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_max(abacus_@generate_type@@vector_size@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_max.
+/// @param[in] x A abacus_@generate_type@@vector_size@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API max(abacus_@generate_type@@vector_size@ x, abacus_@generate_type@ y) {
+  return __abacus_max(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The lesser of x or y.
+/// @param[in] x A abacus_@generate_type@@vector_size@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@@vector_size@.
+///
+/// Standards compliant implementation of OpenCL 1.2 min.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/integerMin.html
+abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_min(abacus_@generate_type@@vector_size@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_min.
+/// @param[in] x A abacus_@generate_type@@vector_size@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@@vector_size@.
+inline abacus_@generate_type@@vector_size@ ABACUS_API min(abacus_@generate_type@@vector_size@ x, abacus_@generate_type@ y) {
+  return __abacus_min(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+

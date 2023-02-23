@@ -1,0 +1,22 @@
+@type_guard_start@
+/// @brief Bitcast.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 as.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/as_typen.html
+abacus_@generate_return_type@ ABACUS_EXPORT_API __abacus_as_@generate_return_type@(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+/// @brief Wrapper for __abacus_as_@generate_return_type@.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_return_type@.
+inline abacus_@generate_return_type@ ABACUS_API as_@generate_return_type@(abacus_@generate_type@ x) {
+  return __abacus_as_@generate_return_type@(x);
+}
+}
+#endif
+@type_guard_end@
+

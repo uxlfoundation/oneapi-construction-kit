@@ -1,0 +1,11 @@
+#version 450
+
+layout(set = 0, binding = 0) buffer block_a { int test_out; };
+
+layout(set = 0, binding = 1) buffer block_b { int test_in; };
+
+void main() {
+  if (test_in > 0) {
+    test_out = 42;
+  }
+}

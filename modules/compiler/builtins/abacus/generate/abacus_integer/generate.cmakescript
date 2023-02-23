@@ -1,0 +1,79 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abs_and_abs_diff.in" abs_and_abs_diff)
+
+set(types "char;short;int;long")
+set(vector_sizes ";2;3;4;8;16")
+
+set(generate_input_definitions "")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_type "${type}${vector_size}")
+    string(CONFIGURE "${abs_and_abs_diff}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/main.in" main)
+
+set(types "char;short;int;long;uchar;ushort;uint;ulong")
+set(vector_sizes ";2;3;4;8;16")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_type "${type}${vector_size}")
+    string(CONFIGURE "${main}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/upsample.in" upsample)
+
+set(types    "char;short;int")
+set(up_types "short;int;long")
+set(vector_sizes ";2;3;4;8;16")
+
+foreach(iter RANGE 2)
+  foreach(vector_size IN LISTS vector_sizes)
+    list(GET types ${iter} generate_type)
+    set(generate_type "${generate_type}${vector_size}")
+    list(GET up_types ${iter} generate_up_type)
+    set(generate_up_type "${generate_up_type}${vector_size}")
+    string(CONFIGURE "${upsample}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/some_params_scalar.in" some_params_scalar)
+
+set(types "char;short;int;long;uchar;ushort;uint;ulong")
+set(vector_sizes "2;3;4;8;16")
+
+foreach(generate_type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    string(CONFIGURE "${some_params_scalar}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/int24.in" int24)
+
+set(types "int;uint")
+set(vector_sizes ";2;3;4;8;16")
+
+foreach(type IN LISTS types)
+  foreach(vector_size IN LISTS vector_sizes)
+    set(generate_type "${type}${vector_size}")
+    string(CONFIGURE "${int24}" processed @ONLY)
+    set(generate_input_definitions "${generate_input_definitions}${processed}")
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_integer.in" abacus_integer)
+string(CONFIGURE "${abacus_integer}" abacus_integer @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_integer}")

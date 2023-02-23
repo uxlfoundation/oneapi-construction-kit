@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_rotate_v2i8.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int8
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_rotate_v2i8 "u_rotate_v2i8"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+                %i8_t = OpTypeInt 8 0
+              %v2i8_t = OpTypeVector %i8_t 2
+       %u_rotate_fn_t = OpTypeFunction %void_t
+                %i8_2 = OpConstant %i8_t 2
+                %i8_4 = OpConstant %i8_t 4
+              %v2i8_2 = OpConstantComposite %v2i8_t %i8_2 %i8_2
+              %v2i8_4 = OpConstantComposite %v2i8_t %i8_4 %i8_4
+
+; All functions
+       %u_rotate_v2i8 = OpFunction %void_t None %u_rotate_fn_t
+; CHECK: define spir_kernel void @u_rotate_v2i8()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2i8_t %1 rotate %v2i8_2 %v2i8_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i8> @_Z6rotateDv2_hS_(<2 x i8> <i8 2, i8 2>, <2 x i8> <i8 4, i8 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

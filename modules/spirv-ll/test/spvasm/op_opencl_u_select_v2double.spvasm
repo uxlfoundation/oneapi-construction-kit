@@ -1,0 +1,37 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_u_select_v2double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                        OpCapability Float64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %select_v2double "select_v2double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %ui64_t = OpTypeInt 64 0
+            %double_t = OpTypeFloat 64
+            %v2ui64_t = OpTypeVector %ui64_t 2
+          %v2double_t = OpTypeVector %double_t 2
+         %select_fn_t = OpTypeFunction %void_t
+            %double_1 = OpConstant %double_t 1.0
+            %double_2 = OpConstant %double_t 2.0
+              %ui64_3 = OpConstant %ui64_t 3
+          %v2double_1 = OpConstantComposite %v2double_t %double_1 %double_1
+          %v2double_2 = OpConstantComposite %v2double_t %double_2 %double_2
+            %v2ui64_3 = OpConstantComposite %v2ui64_t %ui64_3 %ui64_3
+
+; All functions
+     %select_v2double = OpFunction %void_t None %select_fn_t
+; CHECK: define spir_kernel void @select_v2double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2double_t %1 select %v2double_1 %v2double_2 %v2ui64_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x double> @_Z6selectDv2_dS_Dv2_m(<2 x double> <double 1.000000e+00, double 1.000000e+00>, <2 x double> <double 2.000000e+00, double 2.000000e+00>, <2 x i64> <i64 3, i64 3>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

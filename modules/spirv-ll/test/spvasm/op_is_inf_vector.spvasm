@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -c Kernel -c Float64 -b 64 %p/op_is_inf_vector.spv -o %t
+; RUN: %filecheck < %t %s
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Float64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %8 "isinf"
+               OpSource OpenCL_C 102000
+               OpName %res "res"
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+       %void = OpTypeVoid
+     %double = OpTypeFloat 64
+    %double2 = OpTypeVector %double 2
+          %7 = OpTypeFunction %void
+       %bool = OpTypeBool
+      %bool2 = OpTypeVector %bool 2
+%double_0x1p_1024 = OpConstant %double 0x1p+1024
+  %doublevec = OpConstantComposite %double2 %double_0x1p_1024 %double_0x1p_1024 
+          %8 = OpFunction %void None %7
+         %11 = OpLabel
+        %res = OpIsInf %bool2 %doublevec
+               OpReturn
+               OpFunctionEnd
+; CHECK: define spir_kernel void @isinf()
+; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func <2 x i64> @_Z5isinfDv2_d(<2 x double> <double 0x7FF0000000000000, double 0x7FF0000000000000>)
+; CHECK: {{%[a-zA-Z0-9_]+}} = trunc <2 x i64> [[RES]] to <2 x i1>
+; CHECK: declare spir_func <2 x i64> @_Z5isinfDv2_d(<2 x double>)

@@ -1,0 +1,47 @@
+/// @brief The max of a vector and a scalar.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fmax.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fmax.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fmax(abacus_@generate_type@ x, abacus_@type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_fmax.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fmax(abacus_@generate_type@ x, abacus_@type@ y) {
+  return __abacus_fmax(x, y);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief The min of a vector and a scalar.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fmin.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fmin.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fmin(abacus_@generate_type@ x, abacus_@type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_fmin.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fmin(abacus_@generate_type@ x, abacus_@type@ y) {
+  return __abacus_fmin(x, y);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif

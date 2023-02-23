@@ -1,0 +1,29 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_popcount_v2i32.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_popcount_v2i32 "u_popcount_v2i32"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i32_t = OpTypeInt 32 0
+             %v2i32_t = OpTypeVector %i32_t 2
+     %u_popcount_fn_t = OpTypeFunction %void_t
+               %i32_3 = OpConstant %i32_t 3
+             %v2i32_3 = OpConstantComposite %v2i32_t %i32_3 %i32_3
+
+; All functions
+    %u_popcount_v2i32 = OpFunction %void_t None %u_popcount_fn_t
+; CHECK: define spir_kernel void @u_popcount_v2i32()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2i32_t %1 popcount %v2i32_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z8popcountDv2_j(<2 x i32> <i32 3, i32 3>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

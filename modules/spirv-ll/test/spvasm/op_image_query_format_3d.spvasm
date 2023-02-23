@@ -1,0 +1,33 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D %p/op_image_query_format_3d.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Sampled1D
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %image3d "image3d"
+                        OpSource OpenCL_C 102000
+                        OpName %in_image "in_image"
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %int_t = OpTypeInt 32 1
+        %image3d_t = OpTypeImage %void_t 3D 0 0 0 0 Unknown ReadOnly
+   %query_format_fn_t = OpTypeFunction %void_t %image3d_t
+
+; All functions
+             %image3d = OpFunction %void_t None %query_format_fn_t
+            %in_image = OpFunctionParameter %image3d_t
+; CHECK-LT15: %opencl.image3d_t = type opaque
+; CHECK-GE15: define spir_kernel void @image3d(ptr addrspace(1) %in_image)
+; CHECK-LT15: define spir_kernel void @image3d(%opencl.image3d_t addrspace(1)* %in_image)
+                   %1 = OpLabel
+                   %2 = OpImageQueryFormat %int_t %in_image
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z27get_image_channel_data_type11ocl_image3d(ptr addrspace(1) %in_image)
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z27get_image_channel_data_type11ocl_image3d(%opencl.image3d_t addrspace(1)* %in_image)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

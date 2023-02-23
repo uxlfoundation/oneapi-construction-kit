@@ -1,0 +1,51 @@
+/// @brief Combines two smaller types into a large one.
+/// @param[in] hi A abacus_@generate_type@.
+/// @param[in] lo A abacus_u@generate_type@.
+/// @return       A abacus_@generate_up_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 upsample.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/upsample.html
+abacus_@generate_up_type@ ABACUS_EXPORT_API __abacus_upsample(abacus_@generate_type@ hi, abacus_u@generate_type@ lo);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_upsample.
+/// @param[in] hi A abacus_@generate_type@.
+/// @param[in] lo A abacus_u@generate_type@.
+/// @return       A abacus_@generate_up_type@.
+inline abacus_@generate_up_type@ ABACUS_API upsample(abacus_@generate_type@ hi, abacus_u@generate_type@ lo) {
+  return __abacus_upsample(hi, lo);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Combines two smaller types into a large one.
+/// @param[in] hi A abacus_u@generate_type@.
+/// @param[in] lo A abacus_u@generate_type@.
+/// @return       A abacus_u@generate_up_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 upsample.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/upsample.html
+abacus_u@generate_up_type@ ABACUS_EXPORT_API __abacus_upsample(abacus_u@generate_type@ hi, abacus_u@generate_type@ lo);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_upsample.
+/// @param[in] hi A abacus_u@generate_type@.
+/// @param[in] lo A abacus_u@generate_type@.
+/// @return       A abacus_u@generate_up_type@.
+inline abacus_u@generate_up_type@ ABACUS_API upsample(abacus_u@generate_type@ hi, abacus_u@generate_type@ lo) {
+  return __abacus_upsample(hi, lo);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif

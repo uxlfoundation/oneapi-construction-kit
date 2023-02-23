@@ -1,0 +1,9 @@
+print("Half precision sinpi:");
+Range=[1e-50, (0.5)^2];
+Func=sin(pi * sqrt(x)) / sqrt(x);
+Order=2;
+Poly=fpminimax(Func, Order, [|halfprecision...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

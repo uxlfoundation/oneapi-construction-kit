@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_distance_v4double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Float64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %distance_v4double "distance_v4double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+          %v4double_t = OpTypeVector %double_t 4
+       %distance_fn_t = OpTypeFunction %void_t
+            %double_2 = OpConstant %double_t 2.0
+            %double_4 = OpConstant %double_t 4.0
+          %v4double_2 = OpConstantComposite %v4double_t %double_2 %double_2 %double_2 %double_2
+          %v4double_4 = OpConstantComposite %v4double_t %double_4 %double_4 %double_4 %double_4
+
+; All functions
+   %distance_v4double = OpFunction %void_t None %distance_fn_t
+; CHECK: define spir_kernel void @distance_v4double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %double_t %1 distance %v4double_2 %v4double_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z8distanceDv4_dS_(<4 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>, <4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

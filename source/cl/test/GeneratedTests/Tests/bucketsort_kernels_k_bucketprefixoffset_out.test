@@ -1,0 +1,7 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue bucketprefixoffset -arg d_prefixoffsets,repeat(9220,randint(0,255)) -compare d_prefixoffsets:%p/Inputs/bucketsort_kernels_k_bucketprefixoffset_out.txt -compare d_offsets:%p/Inputs/bucketsort_kernels_k_bucketprefixoffset_out.txt -arg d_offsets,repeat(4,73) -arg blocks,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/bucketsort_kernels.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: d_prefixoffsets - match
+CHECK-DAG: d_offsets - match

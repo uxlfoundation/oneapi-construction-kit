@@ -1,0 +1,9 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_detail_cast.in" abacus_detail_cast)
+string(CONFIGURE "${abacus_detail_cast}" abacus_detail_cast @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_detail_cast}")

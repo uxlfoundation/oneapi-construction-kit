@@ -1,0 +1,42 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan %p/op_atomic_xor_global_signed.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %atomic "atomic"
+            OpExecutionMode %atomic LocalSize 1 1 1
+            OpName %atomic "atomic"
+            OpName %a "a"
+            OpDecorate %block_t Block
+            OpDecorate %block_var DescriptorSet 0
+            OpDecorate %block_var Binding 0
+    %void = OpTypeVoid
+    %uint = OpTypeInt 32 0
+     %int = OpTypeInt 32 1
+ %block_t = OpTypeStruct %int
+%ptr_Uniform_block_t = OpTypePointer Uniform %block_t
+%ptr_Uniform_int = OpTypePointer Uniform %int
+       %3 = OpTypeFunction %void
+       %9 = OpConstant %int 424
+  %uint_1 = OpConstant %uint 1
+  %uint_0 = OpConstant %uint 0
+%block_var = OpVariable %ptr_Uniform_block_t Uniform
+  %atomic = OpFunction %void None %3
+       %5 = OpLabel
+       %a = OpAccessChain %ptr_Uniform_int %block_var %uint_0
+%original = OpAtomicXor %int %a %uint_1 %uint_0 %9
+            OpReturn
+            OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK-GE15: define spir_kernel void @atomic(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
+; CHECK-LT15: define spir_kernel void @atomic([[BLOCK:%[a-zA-Z0-9_]+]] addrspace(1)*{{( %0)?}}, i32 addrspace(1)*{{( %1)?}})
+; CHECK-GE15: [[PTR:%[a-zA-Z0-9_]+]] = getelementptr [[BLOCK:%.*]], ptr addrspace(1) [[BLOCK]], i32 0, i32 0
+; CHECK-LT15: [[PTR:%[a-zA-Z0-9_]+]] = getelementptr [[BLOCK]], [[BLOCK]] addrspace(1)* [[BLOCK]], i32 0, i32 0
+; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_xorPU3AS1Vii(ptr addrspace(1) [[PTR]], i32 424)
+; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_xorPU3AS1Vii(i32 addrspace(1)* [[PTR]], i32 424)
+; CHECK: ret void
+; CHECK-GE15: declare spir_func i32 @_Z10atomic_xorPU3AS1Vii(ptr addrspace(1), i32)
+; CHECK-LT15: declare spir_func i32 @_Z10atomic_xorPU3AS1Vii(i32 addrspace(1)*, i32)

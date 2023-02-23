@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue dilate_kernel -arg img_m,repeat(1,10) -arg img_n,repeat(1,10) -arg strel_m,repeat(1,10) -arg strel_n,repeat(1,10) -arg c_strel,repeat(210,rand(0,1.0)) -arg img,repeat(158,rand(0,1.0)) -compare dilated:%p/Inputs/find_ellipse_kernel_k_dilate_kernel_out.txt -arg dilated,repeat(31,73) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/find_ellipse_kernel.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: dilated - match

@@ -1,0 +1,13 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
+// outlines all RefSi M1 specific passes.
+
+#ifndef MODULE_PASS
+#define MODULE_PASS(NAME, CREATE_PASS)
+#endif
+
+MODULE_PASS("refsi-replace-mux-dma", refsi_m1::RefSiM1ReplaceMuxDmaPass())
+MODULE_PASS("refsi-wrapper", refsi_m1::RefSiM1WrapperPass())
+
+#undef MODULE_PASS

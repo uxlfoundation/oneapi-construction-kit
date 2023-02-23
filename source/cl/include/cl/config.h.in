@@ -1,0 +1,52 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef CL_CONFIG_H_INCLUDED
+#define CL_CONFIG_H_INCLUDED
+
+// If defined the host platform is Android
+#cmakedefine CA_PLATFORM_ANDROID
+
+// If defined the host platform is Linux
+#cmakedefine CA_PLATFORM_LINUX
+
+// If defined the host platform is Windows
+#cmakedefine CA_PLATFORM_WINDOWS
+
+// If defined the host platform is Mac OS X
+#cmakedefine CA_PLATFORM_MAC
+
+
+// OpenCL platform version
+#define CA_CL_PLATFORM_VERSION "@CA_CL_PLATFORM_VERSION@"
+
+// OpenCL numeric platform versions.
+#define CA_CL_PLATFORM_VERSION_MAJOR @CA_CL_PLATFORM_VERSION_MAJOR@
+#define CA_CL_PLATFORM_VERSION_MINOR @CA_CL_PLATFORM_VERSION_MINOR@
+
+// Platform name
+#define CA_CL_PLATFORM_NAME "@CA_CL_PLATFORM_NAME@"
+
+// Platform vendor
+#define CA_CL_PLATFORM_VENDOR "@CA_CL_PLATFORM_VENDOR@"
+
+// OpenCL device vendor
+#define CA_CL_DEVICE_VENDOR "@CA_CL_DEVICE_VENDOR@"
+
+// OpenCL driver version
+#define CA_CL_DRIVER_VERSION "@CA_CL_DRIVER_VERSION@"
+
+// OpenCL device version
+#define CA_CL_DEVICE_VERSION "@CA_CL_DEVICE_VERSION@"
+
+// OpenCL C version
+#define CA_CL_DEVICE_OPENCL_C_VERSION "@CA_CL_DEVICE_OPENCL_C_VERSION@"
+
+// ComputeAorta version number
+#define CA_VERSION "@PROJECT_VERSION@"
+
+// ComputeAorta host device name prefix. All ComputeAorta host devices
+// will have this prefix, which enables detection if a host device is used
+// even though it might encode extra information in the name.
+#define CA_HOST_CL_DEVICE_NAME_PREFIX "@CA_HOST_CL_DEVICE_NAME_PREFIX@"
+
+#endif // CL_CONFIG_H_INCLUDED

@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_ilogb_v16float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %ilogb_v16float "ilogb_v16float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %int_t = OpTypeInt 32 1
+             %float_t = OpTypeFloat 32
+            %v16int_t = OpTypeVector %int_t 16
+          %v16float_t = OpTypeVector %float_t 16
+          %ilogb_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1
+          %v16float_1 = OpConstantComposite %v16float_t %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1 %float_1
+
+; All functions
+      %ilogb_v16float = OpFunction %void_t None %ilogb_fn_t
+; CHECK: define spir_kernel void @ilogb_v16float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16int_t %1 ilogb %v16float_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z5ilogbDv16_f(<16 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

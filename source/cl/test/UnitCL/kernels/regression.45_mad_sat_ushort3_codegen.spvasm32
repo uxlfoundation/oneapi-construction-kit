@@ -1,0 +1,101 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 71
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int16
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %10 "mad_sat_ushort3_codegen" %__spirv_BuiltInGlobalInvocationId
+         %68 = OpString "kernel_arg_type.mad_sat_ushort3_codegen.ushort*,ushort*,ushort*,ushort*,"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %69 Alignment 4
+         %69 = OpDecorationGroup
+               OpDecorate %70 Alignment 8
+         %70 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpGroupDecorate %69 %17 %18 %19 %20 %22
+               OpGroupDecorate %70 %25 %26 %27 %28
+       %uint = OpTypeInt 32 0
+     %ushort = OpTypeInt 16 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ushort = OpTypePointer CrossWorkgroup %ushort
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_ushort %_ptr_CrossWorkgroup_ushort %_ptr_CrossWorkgroup_ushort %_ptr_CrossWorkgroup_ushort
+%_ptr_Function__ptr_CrossWorkgroup_ushort = OpTypePointer Function %_ptr_CrossWorkgroup_ushort
+%_ptr_Function_uint = OpTypePointer Function %uint
+   %v3ushort = OpTypeVector %ushort 3
+%_ptr_Function_v3ushort = OpTypePointer Function %v3ushort
+   %v4ushort = OpTypeVector %ushort 4
+%_ptr_Function_v4ushort = OpTypePointer Function %v4ushort
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+         %34 = OpUndef %v3ushort
+         %51 = OpUndef %v4ushort
+         %10 = OpFunction %void DontInline %9
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+         %12 = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+         %13 = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+         %14 = OpFunctionParameter %_ptr_CrossWorkgroup_ushort
+         %15 = OpLabel
+         %17 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ushort Function
+         %18 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ushort Function
+         %19 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ushort Function
+         %20 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ushort Function
+         %22 = OpVariable %_ptr_Function_uint Function
+         %25 = OpVariable %_ptr_Function_v3ushort Function
+         %26 = OpVariable %_ptr_Function_v3ushort Function
+         %27 = OpVariable %_ptr_Function_v3ushort Function
+         %28 = OpVariable %_ptr_Function_v3ushort Function
+               OpStore %17 %11 Aligned 4
+               OpStore %18 %12 Aligned 4
+               OpStore %19 %13 Aligned 4
+               OpStore %20 %14 Aligned 4
+         %29 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId
+         %30 = OpCompositeExtract %uint %29 0
+               OpStore %22 %30 Aligned 4
+         %31 = OpLoad %uint %22 Aligned 4
+         %32 = OpLoad %_ptr_CrossWorkgroup_ushort %17 Aligned 4
+         %33 = OpExtInst %v3ushort %1 vloadn %31 %32 3
+         %36 = OpVectorShuffle %v4ushort %33 %34 0 1 2 4294967295
+         %38 = OpBitcast %_ptr_Function_v4ushort %25
+               OpStore %38 %36 Aligned 8
+         %39 = OpLoad %uint %22 Aligned 4
+         %40 = OpLoad %_ptr_CrossWorkgroup_ushort %18 Aligned 4
+         %41 = OpExtInst %v3ushort %1 vloadn %39 %40 3
+         %42 = OpVectorShuffle %v4ushort %41 %34 0 1 2 4294967295
+         %43 = OpBitcast %_ptr_Function_v4ushort %26
+               OpStore %43 %42 Aligned 8
+         %44 = OpLoad %uint %22 Aligned 4
+         %45 = OpLoad %_ptr_CrossWorkgroup_ushort %19 Aligned 4
+         %46 = OpExtInst %v3ushort %1 vloadn %44 %45 3
+         %47 = OpVectorShuffle %v4ushort %46 %34 0 1 2 4294967295
+         %48 = OpBitcast %_ptr_Function_v4ushort %27
+               OpStore %48 %47 Aligned 8
+         %49 = OpBitcast %_ptr_Function_v4ushort %25
+         %50 = OpLoad %v4ushort %49 Aligned 8
+         %52 = OpVectorShuffle %v3ushort %50 %51 0 1 2
+         %53 = OpBitcast %_ptr_Function_v4ushort %26
+         %54 = OpLoad %v4ushort %53 Aligned 8
+         %55 = OpVectorShuffle %v3ushort %54 %51 0 1 2
+         %56 = OpBitcast %_ptr_Function_v4ushort %27
+         %57 = OpLoad %v4ushort %56 Aligned 8
+         %58 = OpVectorShuffle %v3ushort %57 %51 0 1 2
+         %59 = OpExtInst %v3ushort %1 u_mad_sat %52 %55 %58
+         %60 = OpVectorShuffle %v4ushort %59 %34 0 1 2 4294967295
+         %61 = OpBitcast %_ptr_Function_v4ushort %28
+               OpStore %61 %60 Aligned 8
+         %62 = OpBitcast %_ptr_Function_v4ushort %28
+         %63 = OpLoad %v4ushort %62 Aligned 8
+         %64 = OpVectorShuffle %v3ushort %63 %51 0 1 2
+         %65 = OpLoad %uint %22 Aligned 4
+         %66 = OpLoad %_ptr_CrossWorkgroup_ushort %20 Aligned 4
+         %67 = OpExtInst %void %1 vstoren %64 %65 %66
+               OpReturn
+               OpFunctionEnd

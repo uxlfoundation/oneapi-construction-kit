@@ -1,0 +1,221 @@
+/// @brief Select from a and b, based on most significant bit of c.
+/// @param[in] a A abacus_@generate_type@.
+/// @param[in] b A abacus_@generate_type@.
+/// @param[in] c A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// For each component of a vector type, result[i] = if most significant bit of 
+/// c[i] is set ?  b[i] : a[i] For scalar type, result = c ? b : a.
+///
+/// Standards compliant implementation of OpenCL 1.2 select.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/select.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_select(abacus_@generate_type@ a, abacus_@generate_type@ b, abacus_@generate_type@ c);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_select.
+/// @param[in] a A abacus_@generate_type@.
+/// @param[in] b A abacus_@generate_type@.
+/// @param[in] c A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API select(abacus_@generate_type@ a, abacus_@generate_type@ b, abacus_@generate_type@ c) {
+  return __abacus_select(a, b, c);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Select from a and b, based on most significant bit of c.
+/// @param[in] a A abacus_@generate_type@.
+/// @param[in] b A abacus_@generate_type@.
+/// @param[in] c A abacus_u@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// For each component of a vector type, result[i] = if most significant bit of 
+/// c[i] is set ?  b[i] : a[i] For scalar type, result = c ? b : a.
+///
+/// Standards compliant implementation of OpenCL 1.2 select.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/select.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_select(abacus_@generate_type@ a, abacus_@generate_type@ b, abacus_u@generate_type@ c);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_select.
+/// @param[in] a A abacus_@generate_type@.
+/// @param[in] b A abacus_@generate_type@.
+/// @param[in] c A abacus_u@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API select(abacus_@generate_type@ a, abacus_@generate_type@ b, abacus_u@generate_type@ c) {
+  return __abacus_select(a, b, c);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Select from a and b, based on most significant bit of c.
+/// @param[in] a A abacus_u@generate_type@.
+/// @param[in] b A abacus_u@generate_type@.
+/// @param[in] c A abacus_@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// For each component of a vector type, result[i] = if most significant bit of 
+/// c[i] is set ?  b[i] : a[i] For scalar type, result = c ? b : a.
+///
+/// Standards compliant implementation of OpenCL 1.2 select.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/select.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_select(abacus_u@generate_type@ a, abacus_u@generate_type@ b, abacus_@generate_type@ c);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_select.
+/// @param[in] a A abacus_u@generate_type@.
+/// @param[in] b A abacus_u@generate_type@.
+/// @param[in] c A abacus_@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API select(abacus_u@generate_type@ a, abacus_u@generate_type@ b, abacus_@generate_type@ c) {
+  return __abacus_select(a, b, c);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Select from a and b, based on most significant bit of c.
+/// @param[in] a A abacus_u@generate_type@.
+/// @param[in] b A abacus_u@generate_type@.
+/// @param[in] c A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// For each component of a vector type, result[i] = if most significant bit of 
+/// c[i] is set ?  b[i] : a[i] For scalar type, result = c ? b : a.
+///
+/// Standards compliant implementation of OpenCL 1.2 select.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/select.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_select(abacus_u@generate_type@ a, abacus_u@generate_type@ b, abacus_u@generate_type@ c);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_select.
+/// @param[in] a A abacus_u@generate_type@.
+/// @param[in] b A abacus_u@generate_type@.
+/// @param[in] c A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API select(abacus_u@generate_type@ a, abacus_u@generate_type@ b, abacus_u@generate_type@ c) {
+  return __abacus_select(a, b, c);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Bit select from a and b, based on bits in c.
+/// @param[in] a A abacus_@generate_type@.
+/// @param[in] b A abacus_@generate_type@.
+/// @param[in] c A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Each bit of result is corresponding bit of a if corresponding bit of c is 0.
+///
+/// Standards compliant implementation of OpenCL 1.2 bitselect.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/bitselect.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_bitselect(abacus_@generate_type@ a, abacus_@generate_type@ b, abacus_@generate_type@ c);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_bitselect.
+/// @param[in] a A abacus_@generate_type@.
+/// @param[in] b A abacus_@generate_type@.
+/// @param[in] c A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API bitselect(abacus_@generate_type@ a, abacus_@generate_type@ b, abacus_@generate_type@ c) {
+  return __abacus_bitselect(a, b, c);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Bit select from a and b, based on bits in c.
+/// @param[in] a A abacus_u@generate_type@.
+/// @param[in] b A abacus_u@generate_type@.
+/// @param[in] c A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// Each bit of result is corresponding bit of a if corresponding bit of c is 0.
+///
+/// Standards compliant implementation of OpenCL 1.2 bitselect.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/bitselect.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_bitselect(abacus_u@generate_type@ a, abacus_u@generate_type@ b, abacus_u@generate_type@ c);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_bitselect.
+/// @param[in] a A abacus_u@generate_type@.
+/// @param[in] b A abacus_u@generate_type@.
+/// @param[in] c A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API bitselect(abacus_u@generate_type@ a, abacus_u@generate_type@ b, abacus_u@generate_type@ c) {
+  return __abacus_bitselect(a, b, c);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Any most significant bit is set.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_int.
+///
+/// Any of the elements in @a x have most significant bit set.
+///
+/// Standards compliant implementation of OpenCL 1.2 any.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/any.html
+abacus_int ABACUS_EXPORT_API __abacus_any(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_any.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_int.
+inline abacus_int ABACUS_API any(abacus_@generate_type@ x) {
+  return __abacus_any(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief All most significant bit is set.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_int.
+///
+/// All of the elements in @a x have most significant bit set.
+///
+/// Standards compliant implementation of OpenCL 1.2 all.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/any.html
+abacus_int ABACUS_EXPORT_API __abacus_all(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_all.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_int ABACUS_API all(abacus_@generate_type@ x) {
+  return __abacus_all(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

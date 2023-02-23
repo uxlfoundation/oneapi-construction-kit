@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_fmin_common_v3float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %fmin_common_v3float "fmin_common_v3float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v3float_t = OpTypeVector %float_t 3
+    %fmin_common_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.9
+             %float_2 = OpConstant %float_t 2.4
+           %v3float_1 = OpConstantComposite %v3float_t %float_1 %float_1 %float_1
+           %v3float_2 = OpConstantComposite %v3float_t %float_2 %float_2 %float_2
+
+; All functions
+ %fmin_common_v3float = OpFunction %void_t None %fmin_common_fn_t
+; CHECK: define spir_kernel void @fmin_common_v3float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v3float_t %1 fmin_common %v3float_1 %v3float_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z3minDv3_fS_(<3 x float> <float 0x3FFE666660000000, float 0x3FFE666660000000, float 0x3FFE666660000000>, <3 x float> <float 0x4003333340000000, float 0x4003333340000000, float 0x4003333340000000>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

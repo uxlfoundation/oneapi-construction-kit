@@ -1,0 +1,13 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#version 450
+layout (std430, set=0, binding=0) buffer inA {
+dvec2 arg0;
+dvec2 arg1;
+dvec2 arg2;
+};
+layout (std430, set=0, binding=1) buffer outR {dvec2 res;};
+void main() {
+res = smoothstep(arg0,arg1,arg2);
+return;
+}

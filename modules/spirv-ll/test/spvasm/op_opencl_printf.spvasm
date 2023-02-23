@@ -1,0 +1,54 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses %p/op_opencl_printf.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %23 "foo"
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpName %entry "entry"
+               OpName %call "call"
+               OpDecorate %_str Constant
+               OpDecorate %_str Alignment 1
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+   %uchar_97 = OpConstant %uchar 97
+  %uchar_110 = OpConstant %uchar 110
+  %uchar_115 = OpConstant %uchar 115
+  %uchar_119 = OpConstant %uchar 119
+  %uchar_101 = OpConstant %uchar 101
+  %uchar_114 = OpConstant %uchar 114
+   %uchar_58 = OpConstant %uchar 58
+   %uchar_32 = OpConstant %uchar 32
+   %uchar_37 = OpConstant %uchar 37
+  %uchar_100 = OpConstant %uchar 100
+   %uchar_10 = OpConstant %uchar 10
+    %uchar_0 = OpConstant %uchar 0
+    %uint_12 = OpConstant %uint 12
+     %uint_0 = OpConstant %uint 0
+    %uint_42 = OpConstant %uint 42
+%_arr_uchar_uint_12 = OpTypeArray %uchar %uint_12
+%_ptr_UniformConstant__arr_uchar_uint_12 = OpTypePointer UniformConstant %_arr_uchar_uint_12
+       %void = OpTypeVoid
+         %22 = OpTypeFunction %void
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %18 = OpConstantComposite %_arr_uchar_uint_12 %uchar_97 %uchar_110 %uchar_115 %uchar_119 %uchar_101 %uchar_114 %uchar_58 %uchar_32 %uchar_37 %uchar_100 %uchar_10 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_uint_12 UniformConstant %18
+; CHECK: @.str = private unnamed_addr addrspace(2) constant [12 x i8] c"answer: %d\0A\00", align 1
+         %23 = OpFunction %void None %22
+      %entry = OpLabel
+         %27 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+; CHECK-GE15: %0 = getelementptr inbounds [12 x i8], ptr addrspace(2) @.str, i32 0, i32 0
+; CHECK-LT15: %0 = getelementptr inbounds [12 x i8], [12 x i8] addrspace(2)* @.str, i32 0, i32 0
+       %call = OpExtInst %uint %1 printf %27 %uint_42
+; CHECK-GE15: %call = tail call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) %0, i32 42)
+; CHECK-LT15: %call = tail call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* %0, i32 42)
+               OpReturn
+               OpFunctionEnd
+; CHECK-GE15: declare extern_weak spir_func i32 @printf(ptr addrspace(2) nocapture readonly, ...) local_unnamed_addr
+; CHECK-LT15: declare extern_weak spir_func i32 @printf(i8 addrspace(2)* nocapture readonly, ...) local_unnamed_addr

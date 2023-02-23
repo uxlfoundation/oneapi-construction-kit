@@ -1,0 +1,124 @@
+diff --git a/include/refsi_hal.h b/include/refsi_hal.h
+index 34b3bc1..cd2667c 100644
+--- a/include/refsi_hal.h
++++ b/include/refsi_hal.h
+@@ -8,6 +8,7 @@
+ #include <vector>
+ 
+ #include "common_devices.h"
++#include "device/device_if.h"
+ #include "hal.h"
+ #include "hal_riscv.h"
+ #include "refsidrv/refsidrv.h"
+@@ -75,6 +76,12 @@ class refsi_hal_device : public hal::hal_device_t {
+   bool createWindow(refsi_command_buffer &cb, uint32_t win_id, uint32_t mode,
+                     refsi_addr_t base, refsi_addr_t target, uint64_t scale,
+                     uint64_t size);
++  bool populateSchedulingInfo(exec_state_t &exec,
++                              const hal::hal_ndrange_t &range,
++                              uint32_t work_dim);
++  hal::hal_addr_t allocateKUB(const exec_state_t &exec,
++                              hal::hal_size_t &kub_desc,
++                              hal::hal_size_t &tsd_info);
+ 
+   std::recursive_mutex &hal_lock;
+   hal::hal_device_info_t *info;
+diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
+index f6ff7bc..bfa1488 100644
+--- a/source/refsi_hal.cpp
++++ b/source/refsi_hal.cpp
+@@ -59,6 +59,57 @@ bool refsi_hal_device::program_free(hal::hal_program_t program) {
+   return true;
+ }
+ 
++bool refsi_hal_device::populateSchedulingInfo(exec_state_t &exec,
++                                              const hal::hal_ndrange_t &range,
++                                              uint32_t work_dim) {
++  wg_info_t &wg(exec.wg);
++  memset(&exec, 0, sizeof(exec_state_t));
++  wg.num_dim = work_dim;
++  for (int i = 0; i < DIMS; i++) {
++    wg.local_size[i] = range.local[i];
++    wg.num_groups[i] = (range.global[i] / wg.local_size[i]);
++    if ((wg.num_groups[i] * wg.local_size[i]) != range.global[i]) {
++      return false;
++    }
++    wg.global_offset[i] = range.offset[i];
++  }
++  return true;
++}
++
++hal::hal_addr_t refsi_hal_device::allocateKUB(const exec_state_t &exec,
++                                              hal::hal_size_t &kub_desc,
++                                              hal::hal_size_t &tsd_info) {
++  auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
++    uint64_t padding = align - (buffer.size() % align);
++    buffer.resize(buffer.size() + padding);
++  };
++  std::vector<uint8_t> kub_data;
++
++  // Pack work-group scheduling info into the KUB.
++  uint64_t sched_offset = kub_data.size();
++  uint64_t sched_size = sizeof(exec_state_t);
++  kub_data.resize(kub_data.size() + sched_size);
++  memcpy(&kub_data[sched_offset], &exec, sched_size);
++  alignBuffer(kub_data, sizeof(uint64_t));
++
++  // Allocate memory for the Kernel Uniform Block and copy it to device memory.
++  const uint64_t kub_align = 256;
++  alignBuffer(kub_data, kub_align);
++  uint64_t kub_size = kub_data.size();
++  hal::hal_addr_t kub_addr = mem_alloc(kub_size, kub_align);
++  if (!kub_addr || !mem_write(kub_addr, kub_data.data(), kub_size)) {
++    mem_free(kub_addr);
++    return hal::hal_nullptr;
++  }
++
++  // Prepare the CMP register values.
++  kub_desc = (kub_addr & 0xffffffffffff) | ((kub_size / kub_align) << 48ull);
++  tsd_info = ((sched_offset & 0xffffffull) << 16ull) |
++             ((sched_size & 0xffffffull) << 40ull);
++
++  return kub_addr;
++}
++
+ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+                                    hal::hal_kernel_t kernel,
+                                    const hal::hal_ndrange_t *nd_range,
+@@ -75,12 +126,26 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+     return false;
+   }
+ 
++  // Store work-group scheduling info for the kernel in the KUB.
++  exec_state_t exec;
++  if (!populateSchedulingInfo(exec, *nd_range, work_dim)) {
++    return false;
++  }
++  hal::hal_size_t kub_desc = 0;
++  hal::hal_size_t tsd_info = 0;
++  hal::hal_addr_t kub_addr = allocateKUB(exec, kub_desc, tsd_info);
++  if (!kub_addr) {
++    return false;
++  }
++
+   // Encode the command buffer.
+   refsi_command_buffer cb;
+-  size_t num_instances = nd_range->global[0] / nd_range->local[0];
++  size_t num_instances = exec.wg.num_groups[0];
+   cb.addWRITE_REG64(CMP_REG_ENTRY_PT_FN, kernel_wrapper->symbol);
+   cb.addWRITE_REG64(CMP_REG_RETURN_ADDR, elf->find_symbol("kernel_exit"));
+-  cb.addRUN_KERNEL_SLICE(1, num_instances, 0);
++  cb.addWRITE_REG64(CMP_REG_KUB_DESC, kub_desc);
++  cb.addWRITE_REG64(CMP_REG_TSD_INFO, tsd_info);
++  cb.addRUN_KERNEL_SLICE(0, num_instances, 0);
+   cb.addFINISH();
+ 
+   // Execute the command buffer.
+@@ -88,6 +153,7 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+     return false;
+   }
+ 
++  mem_free(kub_addr);
+   return true;
+ }
+ 

@@ -1,0 +1,127 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 89
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %29 "floats_vectors" %__spirv_BuiltInGlobalInvocationId
+         %86 = OpString "kernel_arg_type.floats_vectors.float2*,float2*,"
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %87 Constant
+         %87 = OpDecorationGroup
+               OpDecorate %88 Alignment 8
+         %88 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %_str Alignment 1
+               OpDecorate %46 Alignment 4
+               OpDecorate %85 NoSignedWrap
+               OpGroupDecorate %87 %_str %__spirv_BuiltInGlobalInvocationId
+               OpGroupDecorate %88 %40 %41 %43
+      %uchar = OpTypeInt 8 0
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+   %uchar_37 = OpConstant %uchar 37
+   %uchar_35 = OpConstant %uchar 35
+   %uchar_49 = OpConstant %uchar 49
+   %uchar_54 = OpConstant %uchar 54
+   %uchar_46 = OpConstant %uchar 46
+  %uchar_118 = OpConstant %uchar 118
+   %uchar_50 = OpConstant %uchar 50
+  %uchar_104 = OpConstant %uchar 104
+  %uchar_108 = OpConstant %uchar 108
+   %uchar_65 = OpConstant %uchar 65
+   %uchar_10 = OpConstant %uchar 10
+    %uchar_0 = OpConstant %uchar 0
+   %ulong_13 = OpConstant %ulong 13
+    %ulong_0 = OpConstant %ulong 0
+     %uint_0 = OpConstant %uint 0
+    %uint_16 = OpConstant %uint 16
+     %uint_1 = OpConstant %uint 1
+%_arr_uchar_ulong_13 = OpTypeArray %uchar %ulong_13
+%_ptr_UniformConstant__arr_uchar_ulong_13 = OpTypePointer UniformConstant %_arr_uchar_ulong_13
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_CrossWorkgroup_v2float = OpTypePointer CrossWorkgroup %v2float
+         %28 = OpTypeFunction %void %_ptr_CrossWorkgroup_v2float %_ptr_CrossWorkgroup_v2float
+%_ptr_Function__ptr_CrossWorkgroup_v2float = OpTypePointer Function %_ptr_CrossWorkgroup_v2float
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+%_ptr_Function_uint = OpTypePointer Function %uint
+       %bool = OpTypeBool
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %18 = OpConstantComposite %_arr_uchar_ulong_13 %uchar_37 %uchar_35 %uchar_49 %uchar_54 %uchar_46 %uchar_49 %uchar_118 %uchar_50 %uchar_104 %uchar_108 %uchar_65 %uchar_10 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_13 UniformConstant %18
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %29 = OpFunction %void DontInline %28
+         %30 = OpFunctionParameter %_ptr_CrossWorkgroup_v2float
+         %31 = OpFunctionParameter %_ptr_CrossWorkgroup_v2float
+         %32 = OpLabel
+         %40 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v2float Function
+         %41 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v2float Function
+         %43 = OpVariable %_ptr_Function_ulong Function
+         %46 = OpVariable %_ptr_Function_uint Function
+               OpStore %40 %30 Aligned 8
+               OpStore %41 %31 Aligned 8
+         %47 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %48 = OpCompositeExtract %ulong %47 0
+               OpStore %43 %48 Aligned 8
+         %49 = OpLoad %_ptr_CrossWorkgroup_v2float %40 Aligned 8
+         %50 = OpLoad %ulong %43 Aligned 8
+         %51 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2float %49 %50
+         %52 = OpLoad %v2float %51 Aligned 8
+         %53 = OpLoad %_ptr_CrossWorkgroup_v2float %40 Aligned 8
+         %54 = OpLoad %ulong %43 Aligned 8
+         %55 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2float %53 %54
+         %56 = OpLoad %v2float %55 Aligned 8
+         %57 = OpFMul %v2float %52 %56
+         %58 = OpLoad %_ptr_CrossWorkgroup_v2float %41 Aligned 8
+         %59 = OpLoad %ulong %43 Aligned 8
+         %60 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2float %58 %59
+               OpStore %60 %57 Aligned 8
+         %61 = OpLoad %ulong %43 Aligned 8
+         %64 = OpIEqual %bool %61 %ulong_0
+         %67 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+               OpBranchConditional %64 %33 %38
+         %33 = OpLabel
+               OpStore %46 %uint_0 Aligned 4
+               OpBranch %34
+         %34 = OpLabel
+         %68 = OpLoad %uint %46 Aligned 4
+         %70 = OpSLessThan %bool %68 %uint_16
+               OpBranchConditional %70 %35 %37
+         %35 = OpLabel
+         %71 = OpLoad %_ptr_CrossWorkgroup_v2float %40 Aligned 8
+         %72 = OpLoad %uint %46 Aligned 4
+         %73 = OpSConvert %ulong %72
+         %74 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2float %71 %73
+         %75 = OpLoad %v2float %74 Aligned 8
+         %76 = OpLoad %_ptr_CrossWorkgroup_v2float %40 Aligned 8
+         %77 = OpLoad %uint %46 Aligned 4
+         %78 = OpSConvert %ulong %77
+         %79 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2float %76 %78
+         %80 = OpLoad %v2float %79 Aligned 8
+         %81 = OpFMul %v2float %75 %80
+         %82 = OpExtInst %uint %1 printf %67 %81
+               OpBranch %36
+         %36 = OpLabel
+         %83 = OpLoad %uint %46 Aligned 4
+         %85 = OpIAdd %uint %83 %uint_1
+               OpStore %46 %85 Aligned 4
+               OpBranch %34
+         %37 = OpLabel
+               OpBranch %38
+         %38 = OpLabel
+               OpReturn
+               OpFunctionEnd

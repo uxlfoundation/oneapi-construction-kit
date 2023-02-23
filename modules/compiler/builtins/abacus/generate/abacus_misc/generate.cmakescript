@@ -1,0 +1,37 @@
+if(NOT DEFINED GENERATE_OUTPUT_FILE)
+  message(FATAL_ERROR
+    "Required cmake variable GENERATE_OUTPUT_FILE not set!"
+  )
+endif()
+
+set(generate_input_definitions "")
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/main.in" main)
+
+set(unsigned_types "uchar;ushort;uint;ulong;uchar;ushort;uint;ulong;uint;ulong")
+set(types "char;short;int;long;uchar;ushort;uint;ulong;float;double")
+set(vector_sizes "2;3;4;8;16")
+
+foreach(iter RANGE 9)
+  foreach(vector_size IN LISTS vector_sizes)
+    foreach(vector_size2 IN LISTS vector_sizes)
+      list(GET types ${iter} itype)
+      set(generate_return_type "${itype}${vector_size2}")
+      set(generate_type "${itype}${vector_size}")
+
+      list(GET unsigned_types ${iter} generate_unsigned_type)
+      set(generate_unsigned_type "${generate_unsigned_type}${vector_size2}")
+      if(itype STREQUAL "double")
+        string(CONFIGURE "#ifdef __CA_BUILTINS_DOUBLE_SUPPORT\n${main}\n#endif\n"
+          processed @ONLY)
+      else()
+        string(CONFIGURE "${main}" processed @ONLY)
+      endif()
+      set(generate_input_definitions "${generate_input_definitions}${processed}")
+    endforeach()
+  endforeach()
+endforeach()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_misc.in" abacus_misc)
+string(CONFIGURE "${abacus_misc}" abacus_misc @ONLY)
+file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_misc}")

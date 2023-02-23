@@ -1,0 +1,197 @@
+diff --git a/include/refsi_command_buffer.h b/include/refsi_command_buffer.h
+index e17e53d..38bb2a2 100644
+--- a/include/refsi_command_buffer.h
++++ b/include/refsi_command_buffer.h
+@@ -22,6 +22,13 @@ class refsi_command_buffer {
+   /// @param value Immediate value to write to the register.
+   void addWRITE_REG64(refsi_cmp_register_id reg, uint64_t value);
+ 
++  /// @brief Add a command to run a kernel slice on the device.
++  /// @param max_harts Maximum number of harts to use for running the kernel.
++  /// @param num_instances How many times the kernel will be invoked.
++  /// @param slice_id Identifies the kernel slice command as part of a batch.
++  void addRUN_KERNEL_SLICE(uint32_t max_harts, uint64_t num_instances,
++                           uint64_t slice_id);
++
+   /// @brief Execute the commands that have been added to the buffer.
+   /// @param hal_device Device to execute the command buffer.
+   refsi_result run(refsi_hal_device &hal_device);
+diff --git a/include/refsi_hal.h b/include/refsi_hal.h
+index a2aaa02..34b3bc1 100644
+--- a/include/refsi_hal.h
++++ b/include/refsi_hal.h
+@@ -7,12 +7,15 @@
+ #include <string>
+ #include <vector>
+ 
++#include "common_devices.h"
+ #include "hal.h"
+ #include "hal_riscv.h"
+ #include "refsidrv/refsidrv.h"
+ 
+ using refsi_locker = std::lock_guard<std::recursive_mutex>;
+ 
++class refsi_command_buffer;
++
+ struct refsi_hal_kernel {
+   refsi_hal_kernel(hal::hal_addr_t symbol, std::string name)
+       : symbol(symbol), name(std::move(name)) {}
+@@ -68,9 +71,38 @@ class refsi_hal_device : public hal::hal_device_t {
+                  hal::hal_size_t size) override;
+ 
+  private:
++  bool createWindows();
++  bool createWindow(refsi_command_buffer &cb, uint32_t win_id, uint32_t mode,
++                    refsi_addr_t base, refsi_addr_t target, uint64_t scale,
++                    uint64_t size);
++
+   std::recursive_mutex &hal_lock;
+   hal::hal_device_info_t *info;
+   refsi_device_t device;
++
++  hal::hal_addr_t elf_mem_base = 0;
++  hal::hal_addr_t elf_mem_size = 0;
++  hal::hal_addr_t elf_mem_mapped_addr = 0;
++};
++
++class hal_mem_device : public MemoryDeviceBase {
++ public:
++  hal_mem_device(hal::hal_device_t *hal_device) : hal_device(hal_device) {}
++
++  /// @brief Return zero. Memory controllers are variable-sized devices.
++  size_t mem_size() const override { return 0; }
++
++  bool load(reg_t addr, size_t len, uint8_t *bytes, unit_id_t unit) override {
++    return hal_device->mem_read(bytes, addr, len);
++  }
++
++  bool store(reg_t addr, size_t len, const uint8_t *bytes,
++             unit_id_t unit) override {
++    return hal_device->mem_write(addr, bytes, len);
++  }
++
++ private:
++  hal::hal_device_t *hal_device;
+ };
+ 
+ #endif  // _HAL_REFSI_REFSI_HAL_H
+diff --git a/source/refsi_command_buffer.cpp b/source/refsi_command_buffer.cpp
+index a819c6a..b381ba3 100644
+--- a/source/refsi_command_buffer.cpp
++++ b/source/refsi_command_buffer.cpp
+@@ -32,3 +32,13 @@ void refsi_command_buffer::addWRITE_REG64(refsi_cmp_register_id reg,
+   chunks.push_back(refsiEncodeCMPCommand(CMP_WRITE_REG64, 1, reg));
+   chunks.push_back(value);
+ }
++
++void refsi_command_buffer::addRUN_KERNEL_SLICE(uint32_t max_harts,
++                                               uint64_t num_instances,
++                                               uint64_t slice_id) {
++  uint32_t inline_chunk = (max_harts & 0xff);
++  chunks.push_back(
++      refsiEncodeCMPCommand(CMP_RUN_KERNEL_SLICE, 2, inline_chunk));
++  chunks.push_back(num_instances);
++  chunks.push_back(slice_id);
++}
+diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
+index 4bb197a..f6ff7bc 100644
+--- a/source/refsi_hal.cpp
++++ b/source/refsi_hal.cpp
+@@ -9,6 +9,12 @@
+ #include "elf_loader.h"
+ #include "refsi_command_buffer.h"
+ 
++// Default memory area for storing kernel ELF binaries. When the RefSi device
++// does not have dedicated (TCIM) memory for storing kernel exeutables, a memory
++// window is set up to map this memory area to a reserved area in DMA.
++constexpr const uint64_t REFSI_ELF_BASE = 0x10000ull;
++constexpr const uint64_t REFSI_ELF_SIZE = (1 << 20) - REFSI_ELF_BASE;
++
+ refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
+                                    refsi_device_t device,
+                                    std::recursive_mutex &hal_lock)
+@@ -60,11 +66,21 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+                                    uint32_t num_args, uint32_t work_dim) {
+   refsi_locker locker(hal_lock);
+ 
++  ELFProgram *elf = (ELFProgram *)program;
+   refsi_hal_kernel *kernel_wrapper = (refsi_hal_kernel *)kernel;
+ 
++  // Load ELF into the RefSi device's memory.
++  hal_mem_device mem_if(this);
++  if (!elf->load(mem_if)) {
++    return false;
++  }
++
+   // Encode the command buffer.
+   refsi_command_buffer cb;
++  size_t num_instances = nd_range->global[0] / nd_range->local[0];
+   cb.addWRITE_REG64(CMP_REG_ENTRY_PT_FN, kernel_wrapper->symbol);
++  cb.addWRITE_REG64(CMP_REG_RETURN_ADDR, elf->find_symbol("kernel_exit"));
++  cb.addRUN_KERNEL_SLICE(1, num_instances, 0);
+   cb.addFINISH();
+ 
+   // Execute the command buffer.
+@@ -108,4 +124,61 @@ bool refsi_hal_device::mem_write(hal::hal_addr_t dst, const void *src,
+   return true;
+ }
+ 
+-bool refsi_hal_device::initialize() { return true; }
++bool refsi_hal_device::initialize() {
++  if (!createWindows()) {
++    return false;
++  }
++
++  return true;
++}
++
++bool refsi_hal_device::createWindows() {
++  refsi_command_buffer cb;
++
++  // Set up a memory window for ELF executables.
++  // Allocate 'ELF' memory in DRAM, to store kernel executables.
++  elf_mem_base = REFSI_ELF_BASE;
++  elf_mem_size = REFSI_ELF_SIZE;
++  if (elf_mem_mapped_addr) {
++    mem_free(elf_mem_mapped_addr);
++  }
++  elf_mem_mapped_addr = mem_alloc(elf_mem_size, 4096);
++  if (!elf_mem_mapped_addr) {
++    return false;
++  }
++  if (!createWindow(cb, 0 /* win_id */, CMP_WINDOW_MODE_SHARED, elf_mem_base,
++                    elf_mem_mapped_addr, 0, elf_mem_size)) {
++    return false;
++  }
++
++  cb.addFINISH();
++  return cb.run(*this) == refsi_success;
++}
++
++bool refsi_hal_device::createWindow(refsi_command_buffer &cb, uint32_t win_id,
++                                    uint32_t mode, refsi_addr_t base,
++                                    refsi_addr_t target, uint64_t scale,
++                                    uint64_t size) {
++  auto base_reg = (refsi_cmp_register_id)(CMP_REG_WINDOW_BASE0 + win_id);
++  auto target_reg = (refsi_cmp_register_id)(CMP_REG_WINDOW_TARGET0 + win_id);
++  auto mode_reg = (refsi_cmp_register_id)(CMP_REG_WINDOW_MODE0 + win_id);
++  auto scale_reg = (refsi_cmp_register_id)(CMP_REG_WINDOW_SCALE0 + win_id);
++
++  // Break down the scale into two factors, a and b.
++  if (scale > (1ull << 32)) {
++    return false;
++  }
++  uint64_t scale_a = (scale > 0) ? 1 : 0;
++  uint64_t scale_b = (scale > 0) ? scale - 1 : 0;
++
++  // Encode the mode register value.
++  uint64_t mode_val =
++      CMP_WINDOW_ACTIVE | (mode & 0x6) | ((size - 1) & 0xffffffff) << 32ull;
++
++  // Add register writes to the command buffer.
++  cb.addWRITE_REG64(base_reg, base);
++  cb.addWRITE_REG64(target_reg, target);
++  cb.addWRITE_REG64(scale_reg, (scale_a & 0x1f) | (scale_b << 32ull));
++  cb.addWRITE_REG64(mode_reg, mode_val);
++  return true;
++}

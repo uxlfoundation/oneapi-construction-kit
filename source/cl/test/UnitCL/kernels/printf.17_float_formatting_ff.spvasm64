@@ -1,0 +1,429 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 364
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+               OpExtension "SPV_KHR_no_integer_wrap_decoration"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %124 "float_formatting_ff" %__spirv_BuiltInGlobalInvocationId
+        %360 = OpString "kernel_arg_type.float_formatting_ff.int,float*,"
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpName %_str_1 ".str.1"
+               OpName %_str_2 ".str.2"
+               OpName %_str_3 ".str.3"
+               OpName %_str_4 ".str.4"
+               OpName %_str_5 ".str.5"
+               OpName %_str_6 ".str.6"
+               OpName %_str_7 ".str.7"
+               OpName %_str_8 ".str.8"
+               OpName %_str_9 ".str.9"
+               OpName %_str_10 ".str.10"
+               OpName %_str_11 ".str.11"
+               OpName %_str_12 ".str.12"
+               OpName %_str_13 ".str.13"
+               OpName %_str_14 ".str.14"
+               OpName %_str_15 ".str.15"
+               OpName %_str_16 ".str.16"
+               OpName %_str_17 ".str.17"
+               OpName %_str_18 ".str.18"
+               OpName %_str_19 ".str.19"
+               OpName %_str_20 ".str.20"
+               OpName %_str_21 ".str.21"
+               OpName %_str_22 ".str.22"
+               OpName %_str_23 ".str.23"
+               OpName %_str_24 ".str.24"
+               OpName %_str_25 ".str.25"
+               OpName %_str_26 ".str.26"
+               OpName %_str_27 ".str.27"
+               OpName %_str_28 ".str.28"
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpDecorate %361 Constant
+        %361 = OpDecorationGroup
+               OpDecorate %362 Alignment 1
+        %362 = OpDecorationGroup
+               OpDecorate %363 Alignment 4
+        %363 = OpDecorationGroup
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %137 Alignment 8
+               OpDecorate %359 NoSignedWrap
+               OpGroupDecorate %361 %_str %_str_1 %_str_2 %_str_3 %_str_4 %_str_5 %_str_6 %_str_7 %_str_8 %_str_9 %_str_10 %_str_11 %_str_12 %_str_13 %_str_14 %_str_15 %_str_16 %_str_17 %_str_18 %_str_19 %_str_20 %_str_21 %_str_22 %_str_23 %_str_24 %_str_25 %_str_26 %_str_27 %_str_28 %__spirv_BuiltInGlobalInvocationId
+               OpGroupDecorate %362 %_str %_str_1 %_str_2 %_str_3 %_str_4 %_str_5 %_str_6 %_str_7 %_str_8 %_str_9 %_str_10 %_str_11 %_str_12 %_str_13 %_str_14 %_str_15 %_str_16 %_str_17 %_str_18 %_str_19 %_str_20 %_str_21 %_str_22 %_str_23 %_str_24 %_str_25 %_str_26 %_str_27 %_str_28
+               OpGroupDecorate %363 %135 %138
+      %uchar = OpTypeInt 8 0
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+   %uchar_42 = OpConstant %uchar 42
+   %uchar_32 = OpConstant %uchar 32
+   %uchar_83 = OpConstant %uchar 83
+   %uchar_80 = OpConstant %uchar 80
+   %uchar_65 = OpConstant %uchar 65
+   %uchar_67 = OpConstant %uchar 67
+   %uchar_69 = OpConstant %uchar 69
+   %uchar_82 = OpConstant %uchar 82
+   %uchar_10 = OpConstant %uchar 10
+    %uchar_0 = OpConstant %uchar 0
+   %ulong_16 = OpConstant %ulong 16
+   %uchar_37 = OpConstant %uchar 37
+  %uchar_102 = OpConstant %uchar 102
+    %ulong_4 = OpConstant %ulong 4
+   %uchar_70 = OpConstant %uchar 70
+   %uchar_44 = OpConstant %uchar 44
+    %ulong_8 = OpConstant %ulong 8
+  %uchar_104 = OpConstant %uchar 104
+  %uchar_101 = OpConstant %uchar 101
+  %uchar_108 = OpConstant %uchar 108
+  %uchar_111 = OpConstant %uchar 111
+  %uchar_119 = OpConstant %uchar 119
+  %uchar_114 = OpConstant %uchar 114
+  %uchar_100 = OpConstant %uchar 100
+  %uchar_116 = OpConstant %uchar 116
+   %uchar_97 = OpConstant %uchar 97
+   %ulong_13 = OpConstant %ulong 13
+  %uchar_112 = OpConstant %uchar 112
+   %uchar_99 = OpConstant %uchar 99
+  %uchar_110 = OpConstant %uchar 110
+   %uchar_45 = OpConstant %uchar 45
+   %ulong_18 = OpConstant %ulong 18
+   %uchar_46 = OpConstant %uchar 46
+   %uchar_48 = OpConstant %uchar 48
+    %ulong_6 = OpConstant %ulong 6
+   %uchar_49 = OpConstant %uchar 49
+   %uchar_50 = OpConstant %uchar 50
+    %ulong_7 = OpConstant %ulong 7
+   %uchar_53 = OpConstant %uchar 53
+   %uchar_43 = OpConstant %uchar 43
+    %ulong_0 = OpConstant %ulong 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+%_arr_uchar_ulong_16 = OpTypeArray %uchar %ulong_16
+%_ptr_UniformConstant__arr_uchar_ulong_16 = OpTypePointer UniformConstant %_arr_uchar_ulong_16
+%_arr_uchar_ulong_4 = OpTypeArray %uchar %ulong_4
+%_ptr_UniformConstant__arr_uchar_ulong_4 = OpTypePointer UniformConstant %_arr_uchar_ulong_4
+%_arr_uchar_ulong_8 = OpTypeArray %uchar %ulong_8
+%_ptr_UniformConstant__arr_uchar_ulong_8 = OpTypePointer UniformConstant %_arr_uchar_ulong_8
+%_arr_uchar_ulong_13 = OpTypeArray %uchar %ulong_13
+%_ptr_UniformConstant__arr_uchar_ulong_13 = OpTypePointer UniformConstant %_arr_uchar_ulong_13
+%_arr_uchar_ulong_18 = OpTypeArray %uchar %ulong_18
+%_ptr_UniformConstant__arr_uchar_ulong_18 = OpTypePointer UniformConstant %_arr_uchar_ulong_18
+%_arr_uchar_ulong_6 = OpTypeArray %uchar %ulong_6
+%_ptr_UniformConstant__arr_uchar_ulong_6 = OpTypePointer UniformConstant %_arr_uchar_ulong_6
+%_arr_uchar_ulong_7 = OpTypeArray %uchar %ulong_7
+%_ptr_UniformConstant__arr_uchar_ulong_7 = OpTypePointer UniformConstant %_arr_uchar_ulong_7
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+        %123 = OpTypeFunction %void %uint %_ptr_CrossWorkgroup_float
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+       %bool = OpTypeBool
+%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
+         %16 = OpConstantComposite %_arr_uchar_ulong_16 %uchar_42 %uchar_42 %uchar_42 %uchar_32 %uchar_83 %uchar_80 %uchar_65 %uchar_67 %uchar_69 %uchar_82 %uchar_32 %uchar_42 %uchar_42 %uchar_42 %uchar_10 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_16 UniformConstant %16
+         %23 = OpConstantComposite %_arr_uchar_ulong_4 %uchar_37 %uchar_102 %uchar_10 %uchar_0
+     %_str_1 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_4 UniformConstant %23
+         %27 = OpConstantComposite %_arr_uchar_ulong_4 %uchar_37 %uchar_70 %uchar_10 %uchar_0
+     %_str_2 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_4 UniformConstant %27
+         %32 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_102 %uchar_44 %uchar_32 %uchar_37 %uchar_102 %uchar_10 %uchar_0
+     %_str_3 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %32
+         %35 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_70 %uchar_44 %uchar_32 %uchar_37 %uchar_70 %uchar_10 %uchar_0
+     %_str_4 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %35
+         %44 = OpConstantComposite %_arr_uchar_ulong_16 %uchar_37 %uchar_102 %uchar_32 %uchar_104 %uchar_101 %uchar_108 %uchar_108 %uchar_111 %uchar_32 %uchar_119 %uchar_111 %uchar_114 %uchar_108 %uchar_100 %uchar_10 %uchar_0
+     %_str_5 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_16 UniformConstant %44
+         %46 = OpConstantComposite %_arr_uchar_ulong_16 %uchar_37 %uchar_70 %uchar_32 %uchar_104 %uchar_101 %uchar_108 %uchar_108 %uchar_111 %uchar_32 %uchar_119 %uchar_111 %uchar_114 %uchar_108 %uchar_100 %uchar_10 %uchar_0
+     %_str_6 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_16 UniformConstant %46
+         %52 = OpConstantComposite %_arr_uchar_ulong_13 %uchar_37 %uchar_102 %uchar_32 %uchar_108 %uchar_101 %uchar_116 %uchar_116 %uchar_101 %uchar_114 %uchar_32 %uchar_97 %uchar_10 %uchar_0
+     %_str_7 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_13 UniformConstant %52
+         %55 = OpConstantComposite %_arr_uchar_ulong_13 %uchar_37 %uchar_70 %uchar_32 %uchar_108 %uchar_101 %uchar_116 %uchar_116 %uchar_101 %uchar_114 %uchar_32 %uchar_65 %uchar_10 %uchar_0
+     %_str_8 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_13 UniformConstant %55
+         %63 = OpConstantComposite %_arr_uchar_ulong_18 %uchar_37 %uchar_102 %uchar_32 %uchar_37 %uchar_37 %uchar_97 %uchar_32 %uchar_112 %uchar_101 %uchar_114 %uchar_99 %uchar_101 %uchar_110 %uchar_116 %uchar_45 %uchar_97 %uchar_10 %uchar_0
+     %_str_9 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_18 UniformConstant %63
+         %66 = OpConstantComposite %_arr_uchar_ulong_18 %uchar_37 %uchar_70 %uchar_32 %uchar_37 %uchar_37 %uchar_65 %uchar_32 %uchar_112 %uchar_101 %uchar_114 %uchar_99 %uchar_101 %uchar_110 %uchar_116 %uchar_45 %uchar_65 %uchar_10 %uchar_0
+    %_str_10 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_18 UniformConstant %66
+         %72 = OpConstantComposite %_arr_uchar_ulong_6 %uchar_37 %uchar_46 %uchar_48 %uchar_102 %uchar_10 %uchar_0
+    %_str_11 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_6 UniformConstant %72
+         %76 = OpConstantComposite %_arr_uchar_ulong_6 %uchar_37 %uchar_46 %uchar_49 %uchar_102 %uchar_10 %uchar_0
+    %_str_12 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_6 UniformConstant %76
+         %79 = OpConstantComposite %_arr_uchar_ulong_6 %uchar_37 %uchar_46 %uchar_50 %uchar_102 %uchar_10 %uchar_0
+    %_str_13 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_6 UniformConstant %79
+         %83 = OpConstantComposite %_arr_uchar_ulong_7 %uchar_37 %uchar_48 %uchar_46 %uchar_48 %uchar_102 %uchar_10 %uchar_0
+    %_str_14 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_7 UniformConstant %83
+         %86 = OpConstantComposite %_arr_uchar_ulong_7 %uchar_37 %uchar_48 %uchar_46 %uchar_49 %uchar_102 %uchar_10 %uchar_0
+    %_str_15 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_7 UniformConstant %86
+         %88 = OpConstantComposite %_arr_uchar_ulong_7 %uchar_37 %uchar_48 %uchar_46 %uchar_50 %uchar_102 %uchar_10 %uchar_0
+    %_str_16 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_7 UniformConstant %88
+         %91 = OpConstantComposite %_arr_uchar_ulong_7 %uchar_37 %uchar_53 %uchar_46 %uchar_48 %uchar_102 %uchar_10 %uchar_0
+    %_str_17 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_7 UniformConstant %91
+         %93 = OpConstantComposite %_arr_uchar_ulong_7 %uchar_37 %uchar_53 %uchar_46 %uchar_49 %uchar_102 %uchar_10 %uchar_0
+    %_str_18 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_7 UniformConstant %93
+         %95 = OpConstantComposite %_arr_uchar_ulong_7 %uchar_37 %uchar_53 %uchar_46 %uchar_50 %uchar_102 %uchar_10 %uchar_0
+    %_str_19 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_7 UniformConstant %95
+         %97 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_48 %uchar_53 %uchar_46 %uchar_48 %uchar_102 %uchar_10 %uchar_0
+    %_str_20 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %97
+         %99 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_48 %uchar_53 %uchar_46 %uchar_49 %uchar_102 %uchar_10 %uchar_0
+    %_str_21 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %99
+        %101 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_48 %uchar_53 %uchar_46 %uchar_50 %uchar_102 %uchar_10 %uchar_0
+    %_str_22 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %101
+        %103 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_45 %uchar_53 %uchar_46 %uchar_48 %uchar_102 %uchar_10 %uchar_0
+    %_str_23 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %103
+        %105 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_45 %uchar_53 %uchar_46 %uchar_49 %uchar_102 %uchar_10 %uchar_0
+    %_str_24 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %105
+        %107 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_45 %uchar_53 %uchar_46 %uchar_50 %uchar_102 %uchar_10 %uchar_0
+    %_str_25 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %107
+        %110 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_43 %uchar_53 %uchar_46 %uchar_48 %uchar_102 %uchar_10 %uchar_0
+    %_str_26 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %110
+        %112 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_43 %uchar_53 %uchar_46 %uchar_49 %uchar_102 %uchar_10 %uchar_0
+    %_str_27 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %112
+        %114 = OpConstantComposite %_arr_uchar_ulong_8 %uchar_37 %uchar_43 %uchar_53 %uchar_46 %uchar_50 %uchar_102 %uchar_10 %uchar_0
+    %_str_28 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_8 UniformConstant %114
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+        %124 = OpFunction %void DontInline %123
+        %125 = OpFunctionParameter %uint
+        %126 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+        %127 = OpLabel
+        %135 = OpVariable %_ptr_Function_uint Function
+        %137 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+        %138 = OpVariable %_ptr_Function_uint Function
+               OpStore %135 %125 Aligned 4
+               OpStore %137 %126 Aligned 8
+        %139 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+        %140 = OpCompositeExtract %ulong %139 0
+        %143 = OpIEqual %bool %ulong_0 %140
+        %146 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
+        %147 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_1 %uint_0 %uint_0
+        %148 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_2 %uint_0 %uint_0
+        %149 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_3 %uint_0 %uint_0
+        %150 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_4 %uint_0 %uint_0
+        %151 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_5 %uint_0 %uint_0
+        %152 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_6 %uint_0 %uint_0
+        %153 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_7 %uint_0 %uint_0
+        %154 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_8 %uint_0 %uint_0
+        %155 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_9 %uint_0 %uint_0
+        %156 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_10 %uint_0 %uint_0
+        %157 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_11 %uint_0 %uint_0
+        %158 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_12 %uint_0 %uint_0
+        %159 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_13 %uint_0 %uint_0
+        %160 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_14 %uint_0 %uint_0
+        %161 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_15 %uint_0 %uint_0
+        %162 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_16 %uint_0 %uint_0
+        %163 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_17 %uint_0 %uint_0
+        %164 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_18 %uint_0 %uint_0
+        %165 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_19 %uint_0 %uint_0
+        %166 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_20 %uint_0 %uint_0
+        %167 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_21 %uint_0 %uint_0
+        %168 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_22 %uint_0 %uint_0
+        %169 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_23 %uint_0 %uint_0
+        %170 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_24 %uint_0 %uint_0
+        %171 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_25 %uint_0 %uint_0
+        %172 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_26 %uint_0 %uint_0
+        %173 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_27 %uint_0 %uint_0
+        %174 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_28 %uint_0 %uint_0
+               OpBranchConditional %143 %128 %133
+        %128 = OpLabel
+               OpStore %138 %uint_0 Aligned 4
+               OpBranch %129
+        %129 = OpLabel
+        %175 = OpLoad %uint %138 Aligned 4
+        %176 = OpLoad %uint %135 Aligned 4
+        %177 = OpSLessThan %bool %175 %176
+               OpBranchConditional %177 %130 %132
+        %130 = OpLabel
+        %178 = OpExtInst %uint %1 printf %146
+        %179 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %180 = OpLoad %uint %138 Aligned 4
+        %181 = OpSConvert %ulong %180
+        %182 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %179 %181
+        %183 = OpLoad %float %182 Aligned 4
+        %184 = OpExtInst %uint %1 printf %147 %183
+        %185 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %186 = OpLoad %uint %138 Aligned 4
+        %187 = OpSConvert %ulong %186
+        %188 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %185 %187
+        %189 = OpLoad %float %188 Aligned 4
+        %190 = OpExtInst %uint %1 printf %148 %189
+        %191 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %192 = OpLoad %uint %138 Aligned 4
+        %193 = OpSConvert %ulong %192
+        %194 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %191 %193
+        %195 = OpLoad %float %194 Aligned 4
+        %196 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %197 = OpLoad %uint %138 Aligned 4
+        %198 = OpSConvert %ulong %197
+        %199 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %196 %198
+        %200 = OpLoad %float %199 Aligned 4
+        %201 = OpExtInst %uint %1 printf %149 %195 %200
+        %202 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %203 = OpLoad %uint %138 Aligned 4
+        %204 = OpSConvert %ulong %203
+        %205 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %202 %204
+        %206 = OpLoad %float %205 Aligned 4
+        %207 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %208 = OpLoad %uint %138 Aligned 4
+        %209 = OpSConvert %ulong %208
+        %210 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %207 %209
+        %211 = OpLoad %float %210 Aligned 4
+        %212 = OpExtInst %uint %1 printf %150 %206 %211
+        %213 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %214 = OpLoad %uint %138 Aligned 4
+        %215 = OpSConvert %ulong %214
+        %216 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %213 %215
+        %217 = OpLoad %float %216 Aligned 4
+        %218 = OpExtInst %uint %1 printf %151 %217
+        %219 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %220 = OpLoad %uint %138 Aligned 4
+        %221 = OpSConvert %ulong %220
+        %222 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %219 %221
+        %223 = OpLoad %float %222 Aligned 4
+        %224 = OpExtInst %uint %1 printf %152 %223
+        %225 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %226 = OpLoad %uint %138 Aligned 4
+        %227 = OpSConvert %ulong %226
+        %228 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %225 %227
+        %229 = OpLoad %float %228 Aligned 4
+        %230 = OpExtInst %uint %1 printf %153 %229
+        %231 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %232 = OpLoad %uint %138 Aligned 4
+        %233 = OpSConvert %ulong %232
+        %234 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %231 %233
+        %235 = OpLoad %float %234 Aligned 4
+        %236 = OpExtInst %uint %1 printf %154 %235
+        %237 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %238 = OpLoad %uint %138 Aligned 4
+        %239 = OpSConvert %ulong %238
+        %240 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %237 %239
+        %241 = OpLoad %float %240 Aligned 4
+        %242 = OpExtInst %uint %1 printf %155 %241
+        %243 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %244 = OpLoad %uint %138 Aligned 4
+        %245 = OpSConvert %ulong %244
+        %246 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %243 %245
+        %247 = OpLoad %float %246 Aligned 4
+        %248 = OpExtInst %uint %1 printf %156 %247
+        %249 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %250 = OpLoad %uint %138 Aligned 4
+        %251 = OpSConvert %ulong %250
+        %252 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %249 %251
+        %253 = OpLoad %float %252 Aligned 4
+        %254 = OpExtInst %uint %1 printf %157 %253
+        %255 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %256 = OpLoad %uint %138 Aligned 4
+        %257 = OpSConvert %ulong %256
+        %258 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %255 %257
+        %259 = OpLoad %float %258 Aligned 4
+        %260 = OpExtInst %uint %1 printf %158 %259
+        %261 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %262 = OpLoad %uint %138 Aligned 4
+        %263 = OpSConvert %ulong %262
+        %264 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %261 %263
+        %265 = OpLoad %float %264 Aligned 4
+        %266 = OpExtInst %uint %1 printf %159 %265
+        %267 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %268 = OpLoad %uint %138 Aligned 4
+        %269 = OpSConvert %ulong %268
+        %270 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %267 %269
+        %271 = OpLoad %float %270 Aligned 4
+        %272 = OpExtInst %uint %1 printf %160 %271
+        %273 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %274 = OpLoad %uint %138 Aligned 4
+        %275 = OpSConvert %ulong %274
+        %276 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %273 %275
+        %277 = OpLoad %float %276 Aligned 4
+        %278 = OpExtInst %uint %1 printf %161 %277
+        %279 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %280 = OpLoad %uint %138 Aligned 4
+        %281 = OpSConvert %ulong %280
+        %282 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %279 %281
+        %283 = OpLoad %float %282 Aligned 4
+        %284 = OpExtInst %uint %1 printf %162 %283
+        %285 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %286 = OpLoad %uint %138 Aligned 4
+        %287 = OpSConvert %ulong %286
+        %288 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %285 %287
+        %289 = OpLoad %float %288 Aligned 4
+        %290 = OpExtInst %uint %1 printf %163 %289
+        %291 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %292 = OpLoad %uint %138 Aligned 4
+        %293 = OpSConvert %ulong %292
+        %294 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %291 %293
+        %295 = OpLoad %float %294 Aligned 4
+        %296 = OpExtInst %uint %1 printf %164 %295
+        %297 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %298 = OpLoad %uint %138 Aligned 4
+        %299 = OpSConvert %ulong %298
+        %300 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %297 %299
+        %301 = OpLoad %float %300 Aligned 4
+        %302 = OpExtInst %uint %1 printf %165 %301
+        %303 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %304 = OpLoad %uint %138 Aligned 4
+        %305 = OpSConvert %ulong %304
+        %306 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %303 %305
+        %307 = OpLoad %float %306 Aligned 4
+        %308 = OpExtInst %uint %1 printf %166 %307
+        %309 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %310 = OpLoad %uint %138 Aligned 4
+        %311 = OpSConvert %ulong %310
+        %312 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %309 %311
+        %313 = OpLoad %float %312 Aligned 4
+        %314 = OpExtInst %uint %1 printf %167 %313
+        %315 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %316 = OpLoad %uint %138 Aligned 4
+        %317 = OpSConvert %ulong %316
+        %318 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %315 %317
+        %319 = OpLoad %float %318 Aligned 4
+        %320 = OpExtInst %uint %1 printf %168 %319
+        %321 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %322 = OpLoad %uint %138 Aligned 4
+        %323 = OpSConvert %ulong %322
+        %324 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %321 %323
+        %325 = OpLoad %float %324 Aligned 4
+        %326 = OpExtInst %uint %1 printf %169 %325
+        %327 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %328 = OpLoad %uint %138 Aligned 4
+        %329 = OpSConvert %ulong %328
+        %330 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %327 %329
+        %331 = OpLoad %float %330 Aligned 4
+        %332 = OpExtInst %uint %1 printf %170 %331
+        %333 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %334 = OpLoad %uint %138 Aligned 4
+        %335 = OpSConvert %ulong %334
+        %336 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %333 %335
+        %337 = OpLoad %float %336 Aligned 4
+        %338 = OpExtInst %uint %1 printf %171 %337
+        %339 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %340 = OpLoad %uint %138 Aligned 4
+        %341 = OpSConvert %ulong %340
+        %342 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %339 %341
+        %343 = OpLoad %float %342 Aligned 4
+        %344 = OpExtInst %uint %1 printf %172 %343
+        %345 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %346 = OpLoad %uint %138 Aligned 4
+        %347 = OpSConvert %ulong %346
+        %348 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %345 %347
+        %349 = OpLoad %float %348 Aligned 4
+        %350 = OpExtInst %uint %1 printf %173 %349
+        %351 = OpLoad %_ptr_CrossWorkgroup_float %137 Aligned 8
+        %352 = OpLoad %uint %138 Aligned 4
+        %353 = OpSConvert %ulong %352
+        %354 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %351 %353
+        %355 = OpLoad %float %354 Aligned 4
+        %356 = OpExtInst %uint %1 printf %174 %355
+               OpBranch %131
+        %131 = OpLabel
+        %357 = OpLoad %uint %138 Aligned 4
+        %359 = OpIAdd %uint %357 %uint_1
+               OpStore %138 %359 Aligned 4
+               OpBranch %129
+        %132 = OpLabel
+               OpBranch %133
+        %133 = OpLabel
+               OpReturn
+               OpFunctionEnd

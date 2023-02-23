@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4,4 -local 4,4 -enqueue syr2k_kernel -arg a,repeat(40,rand(0,1.0)) -arg b,repeat(40,rand(0,1.0)) -arg c,repeat(34,rand(0,1.0)) -compare c:%p/Inputs/syr2k_k_syr2k_kernel_out.txt -arg alpha,repeat(1,rand(0,1.0)) -arg beta,repeat(1,rand(0,1.0)) -arg ni,repeat(1,10) -arg nj,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/syr2k/syr2k.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: c - match

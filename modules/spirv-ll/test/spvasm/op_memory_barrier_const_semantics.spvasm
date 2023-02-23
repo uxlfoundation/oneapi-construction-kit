@@ -1,0 +1,27 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_memory_barrier_const_semantics.spv | %filecheck %s
+                OpCapability Addresses
+                OpCapability Kernel
+           %1 = OpExtInstImport "OpenCL.std"
+                OpMemoryModel Physical64 OpenCL
+                OpEntryPoint Kernel %5 "barrier_kernel"
+                OpSource OpenCL_C 300000
+
+        %uint = OpTypeInt 32 0
+        %bool = OpTypeBool
+        %void = OpTypeVoid
+           %4 = OpTypeFunction %void
+
+      %uint_3 = OpConstant %uint 3
+    %uint_258 = OpConstant %uint 258
+
+           %5 = OpFunction %void DontInline %4
+
+       %entry = OpLabel
+                OpMemoryBarrier %uint_3 %uint_258
+                OpReturn
+
+                OpFunctionEnd
+; CHECK: @barrier_kernel
+; CHECK-NEXT: call spir_func void @__mux_mem_barrier(i32 3, i32 258)

@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<interface><!--std="C89"-->
+  <comment>This is a comment</comment>
+  <comment>This
+is
+a
+multi line
+comment.</comment>
+
+  <guard form="include">DEMO_H_INCLUDED
+
+    <guard>__cplusplus<scope form="open">extern "C"</scope></guard>
+
+    <block>
+      <include>stddef.h
+      </include>
+      <include form="angle">stdint.h</include>
+      <include form="quote">myheader.h</include>
+    </block>
+
+    <define>TAG</define>
+    <define>PI<value>3.14</value></define>
+    <define>UNUSED<param>VARIABLE</param><value>(void)VARIABLE;</value></define>
+    <define>ASSERT<param>CONDITION</param><param>MESSAGE</param>
+      <value>if (CONDITION) {<!-- TODO: should this use <scope></scope> ? -->
+  fprintf(stderr, MESSAGE);
+  abort();
+}</value></define>
+
+    <struct>forward_decl_t</struct>
+    <struct>empty_t
+      <body></body>
+    </struct>
+    <struct>position_t
+      <scope>
+        <member>x
+          <type>float
+        </type></member>
+        <member>y<type>float</type></member>
+      </scope>
+    </struct>
+
+    <enum>positions
+      <scope>
+        <constant>CENTER</constant>
+        <constant>LEFT<value>-1</value></constant>
+        <constant>RIGHT<value>1</value></constant>
+      </scope>
+    </enum>
+    <enum>
+      <scope>
+        <constant>SUCCESS</constant>
+        <constant>FAILURE</constant>
+      </scope>
+    </enum>
+
+    <function>nop<return>void</return></function>
+    <function>foo<return>uint32_t</return>
+      <param>count<type>uint32_t</type></param>
+    </function>
+    <function>main<return>int</return>
+      <param>argc<type>int</type></param>
+      <param>argv<type>char **</type></param>
+    </function>
+
+    <scope>
+    </scope>
+
+    <scope>
+      <function>bar <return>void</return><scope>
+          <comment>TODO: Implement me!</comment>
+      </scope></function>
+    </scope>
+
+    <guard>__cplusplus<scope form="close">extern "C"</scope></guard>
+
+    <typedef>error_t<type>int32_t</type></typedef>
+    <typedef>forward<type>*<struct>forward_t</struct></type></typedef>
+    <typedef>position
+      <type>*
+        <struct>position_t<scope>
+            <member>x<type>float</type></member>
+            <member>y<type>float</type></member>
+          </scope>
+        </struct>
+      </type>
+    </typedef>
+
+    <union>combinator_t<scope>
+        <member>foo<type>uint32_t</type></member>
+        <member>bar<type>double</type></member>
+        <member>holder<struct>holder_t</struct></member>
+    </scope></union>
+
+  </guard>
+</interface>

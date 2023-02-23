@@ -1,0 +1,40 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float16 %p/op_quantize_to_f16_vec2.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float16
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %a "a"
+    %void = OpTypeVoid
+       %3 = OpTypeFunction %void
+   %float = OpTypeFloat 32
+    %vec2 = OpTypeVector %float 2
+ %floatPi = OpConstant %float 3.1415927410125732421875
+  %vec2Pi = OpConstantComposite %vec2 %floatPi %floatPi
+%ptr_vec2 = OpTypePointer Function %vec2
+    %main = OpFunction %void None %3
+       %5 = OpLabel
+       %a = OpVariable %ptr_vec2 Function %vec2Pi
+      %13 = OpLoad %vec2 %a
+      %14 = OpQuantizeToF16 %vec2 %13
+            OpStore %a %14
+            OpReturn
+            OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: define spir_kernel void @main()
+; CHECK: [[ARG:%[a-zA-Z0-9_]+]] = alloca <2 x float>
+; CHECK-GE15: store <2 x float> <float 0x400921FB60000000, float 0x400921FB60000000>, ptr [[ARG]]
+; CHECK-LT15: store <2 x float> <float 0x400921FB60000000, float 0x400921FB60000000>, <2 x float>* [[ARG]]
+; CHECK-GE15: [[LD_ARG:%[a-zA-Z0-9_]+]] = load <2 x float>, ptr [[ARG]]
+; CHECK-LT15: [[LD_ARG:%[a-zA-Z0-9_]+]] = load <2 x float>, <2 x float>* [[ARG]]
+; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func <2 x float> @_Z13quantizeToF16Dv2_f(<2 x float> [[LD_ARG]])
+; CHECK-GE15: store <2 x float> [[RES]], ptr [[ARG]]
+; CHECK-LT15: store <2 x float> [[RES]], <2 x float>* [[ARG]]
+; CHECK: ret void

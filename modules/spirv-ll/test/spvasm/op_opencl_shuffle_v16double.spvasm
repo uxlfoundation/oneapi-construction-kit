@@ -1,0 +1,36 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_opencl_shuffle_v16double.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                        OpCapability Float64
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %shuffle_v16double "shuffle_v16double"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+            %double_t = OpTypeFloat 64
+               %i64_t = OpTypeInt 64 0
+         %v16double_t = OpTypeVector %double_t 16
+            %v16i64_t = OpTypeVector %i64_t 16
+        %shuffle_fn_t = OpTypeFunction %void_t
+            %double_3 = OpConstant %double_t 3
+               %i64_4 = OpConstant %i64_t 4
+         %v16double_3 = OpConstantComposite %v16double_t %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3 %double_3
+            %v16i64_4 = OpConstantComposite %v16i64_t %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4 %i64_4
+
+; All functions
+   %shuffle_v16double = OpFunction %void_t None %shuffle_fn_t
+; CHECK: define spir_kernel void @shuffle_v16double()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16double_t %1 shuffle %v16double_3 %v16i64_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x double> @_Z7shuffleDv16_dDv16_m(<16 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, <16 x i64> <i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

@@ -1,0 +1,57 @@
+/// @brief __abacus_mul24(a , b) + c.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// mad24 returns __abacus_mul24(a, b) + c.
+///
+/// Standards compliant implementation of OpenCL 1.2 mad24.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mad24.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mad24(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mad24.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @param[in] z A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mad24(abacus_@generate_type@ x, abacus_@generate_type@ y, abacus_@generate_type@ z) {
+  return __abacus_mad24(x, y, z);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Multiply 24-bit integer values a and b.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 mul24.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/mul24.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mul24(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_mul24.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API mul24(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_mul24(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

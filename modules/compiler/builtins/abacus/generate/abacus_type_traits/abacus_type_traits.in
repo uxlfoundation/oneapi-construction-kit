@@ -1,0 +1,36 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// @generate_autogen@
+
+/// @file
+///
+/// Abacus type traits.
+///
+/// @copyright Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef __ABACUS_TYPE_TRAITS__
+#define __ABACUS_TYPE_TRAITS__
+
+#ifndef __ABACUS_ABACUS_CONFIG__
+#include <abacus/abacus_config.h>
+#endif
+
+#if defined(__cplusplus)
+// we use a 'fake' abacus_void* type for unencodeable types.
+typedef void abacus_void;
+typedef void abacus_void2;
+typedef void abacus_void3;
+typedef void abacus_void4;
+typedef void abacus_void8;
+typedef void abacus_void16;
+
+template<typename T> struct TypeTraits;
+
+template <typename T, typename E = typename TypeTraits<T>::ElementType>
+struct FPShape;
+
+template<typename T, unsigned ELEMENTS> struct MakeType;
+
+@generate_input_definitions@
+#endif
+
+#endif  //__ABACUS_TYPE_TRAITS__

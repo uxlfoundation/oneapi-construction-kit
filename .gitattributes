@@ -1,0 +1,9 @@
+.gitattributes export-ignore
+.gitignore export-ignore
+.gitmodules export-ignore
+.editorconfig export-ignore
+.ycm_extra_conf.py export-ignore
+*.bc binary diff=llvm-bc
+*.bc32 binary diff=llvm-bc
+*.bc64 binary diff=llvm-bc
+*.cl gitlab-language=c

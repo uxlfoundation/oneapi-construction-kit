@@ -1,0 +1,24 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef UNITCL_DEVICE_H
+#define UNITCL_DEVICE_H
+
+#include "Common.h"
+
+#include "CL/cl.h"
+
+namespace UCL {
+inline bool isDevice_IntelNeo(cl_device_id device) {
+  return isDevice(device, "Intel(R) Gen9 HD Graphics NEO", CL_DEVICE_TYPE_GPU);
+}
+
+inline bool isDevice_Oclgrind(cl_device_id device) {
+  return isDevice(device, "Oclgrind Simulator", CL_DEVICE_TYPE_CPU);
+}
+
+// Begin auto-generated boilerplate
+@device_check_boilerplate@
+// End auto-generated boilerplate
+};  // namespace UCL
+
+#endif  // UNITCL_DEVICE_H

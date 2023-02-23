@@ -1,0 +1,102 @@
+# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+"""Python configuration file for lit."""
+
+import os, re
+from platform import machine, system
+from subprocess import check_output
+
+import lit.formats
+
+# Name of the test suite
+config.name = 'spirv-ll lit test suite'
+
+# File extensions for testing.
+config.suffixes = ['.comp', '.spvasm']
+
+# The test format used to interpret tests.
+config.test_format = lit.formats.ShTest(execute_external=False)
+
+# Paths to utilities. Check at runtime if environmental variables have been set
+# with paths to helper tools. This is useful when testing on jenkins where the
+# executables may have been built on a different physical machine.
+tool_paths = {
+    '%spirv-ll': os.environ.get('LIT_SPIRV-LL', r'@SPIRV_LL@'),
+    '%filecheck': os.environ.get('LIT_FILECHECK', r'@FILECHECK@'),
+    '%opt': os.environ.get('LIT_OPT', r'@OPT@'),
+}
+
+if 'arm' in '@TRIPLE@' or 'arm' in machine():
+    config.available_features.add('arm')
+else:
+    config.available_features.add('WorkingFrem')
+
+config.substitutions.append(('%LLVMVER', '@LLVM_VERSION_MAJOR@'))
+
+if not @SPIRV_LIT_EXPERIMENTAL@:
+    config.available_features.add('ExperimentalDisabled')
+
+# TODO(CA-3968): Revert when fixed.
+if not @CMAKE_CROSSCOMPILING@:
+    config.available_features.add('NotCrossCompiling')
+
+# The root path where tests are located.
+config.test_source_root = '@TEST_PATH@'
+config.test_exec_root = '@INPUT_FILES@'
+
+
+def exe_exists(exe_file):
+    '''Determines if executable exists.
+
+    Arguments:
+        exe_file (string): name of executable to find
+
+    Returns:
+        Returns ``True`` if ``exe_file`` is an executable, ``False`` otherwise.
+    '''
+    for path in os.environ['PATH'].split(os.pathsep):
+        path = path.strip('"')
+        exe_path = os.path.join(path, exe_file)
+
+        if os.path.isfile(exe_path) and os.access(exe_path, os.X_OK):
+            return True
+
+    return False
+
+
+def is_native_exe(path):
+    """Determines if an executable is native."""
+    # We currently do not support cross compilation and emulated testing on
+    # windows meaning on windows builds everything is native.
+    if 'Windows' == system():
+        return True
+    output = str(check_output(['file', path]))
+    # If the BuildID hash happens to end up having '386' in it then it can
+    # cause a false match below, so just blank out any BuildID.
+    cleaned = re.sub("BuildID\[[\w\s]*\]=[A-Fa-f0-9]*, ","", output)
+    if 'x86' in machine() or '386' in machine():
+        if 'x86' in cleaned or '386' in cleaned:
+            return True
+        return False
+    return True
+
+
+# Check we can find helper tools, otherwise raise an exception to prevent any
+# tests running.
+for key, path in tool_paths.items():
+    if not exe_exists(path):
+        lit_config.fatal('Could not find {0} in path {1}'.format(key, path))
+    if is_native_exe(path):
+        config.substitutions.append((key, path))
+    elif 'emulator' in lit_config.params:
+        config.substitutions.append(
+            (key, '%s %s' % (lit_config.params['emulator'], path)))
+    else:
+        lit_config.fatal(
+            '%s is not a native exectuable and no emulator provided' % path)
+
+config.substitutions.append((
+    '%pp-llvm-ver', '%s %s' % (
+        sys.executable,
+        os.path.join('@PROJECT_SOURCE_DIR@', 'scripts', 'testing', 'pp-llvm-ver.py')
+    ))
+)

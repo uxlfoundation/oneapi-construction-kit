@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %7 "float_memcpy"
+               OpSource OpenCL_C 102000
+               OpName %in "in"
+               OpName %out "out"
+               OpName %size "size"
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+      %uchar = OpTypeInt 8 0
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+          %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_float %uint
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+          %7 = OpFunction %void None %6
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_float
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_float
+       %size = OpFunctionParameter %uint
+         %11 = OpLabel
+         %13 = OpConvertPtrToU %ulong %out
+         %16 = OpConvertUToPtr %_ptr_Function_uchar %13
+         %17 = OpConvertPtrToU %ulong %in
+         %18 = OpConvertUToPtr %_ptr_Function_uchar %17
+               OpCopyMemorySized %16 %18 %size Aligned 1
+               OpReturn
+               OpFunctionEnd

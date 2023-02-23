@@ -1,0 +1,52 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 31
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %8 "mad_conversions"
+         %29 = OpString "kernel_arg_type.mad_conversions.char,int,float,float*,"
+               OpSource OpenCL_C 102000
+               OpDecorate %30 Alignment 4
+         %30 = OpDecorationGroup
+               OpDecorate %9 FuncParamAttr Sext
+               OpDecorate %15 Alignment 1
+               OpGroupDecorate %30 %17 %19 %21
+      %uchar = OpTypeInt 8 0
+       %uint = OpTypeInt 32 0
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+          %7 = OpTypeFunction %void %uchar %uint %float %_ptr_CrossWorkgroup_float
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Function_float = OpTypePointer Function %float
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+          %8 = OpFunction %void DontInline %7
+          %9 = OpFunctionParameter %uchar
+         %10 = OpFunctionParameter %uint
+         %11 = OpFunctionParameter %float
+         %12 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %13 = OpLabel
+         %15 = OpVariable %_ptr_Function_uchar Function
+         %17 = OpVariable %_ptr_Function_uint Function
+         %19 = OpVariable %_ptr_Function_float Function
+         %21 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+               OpStore %15 %9 Aligned 1
+               OpStore %17 %10 Aligned 4
+               OpStore %19 %11 Aligned 4
+               OpStore %21 %12 Aligned 4
+         %22 = OpLoad %uchar %15 Aligned 1
+         %23 = OpConvertSToF %float %22
+         %24 = OpLoad %float %19 Aligned 4
+         %25 = OpLoad %uint %17 Aligned 4
+         %26 = OpConvertSToF %float %25
+         %27 = OpExtInst %float %1 mad %23 %24 %26
+         %28 = OpLoad %_ptr_CrossWorkgroup_float %21 Aligned 4
+               OpStore %28 %27 Aligned 4
+               OpReturn
+               OpFunctionEnd

@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_shuffle_v2i8.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int8
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_shuffle_v2i8 "s_shuffle_v2i8"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %ui8_t = OpTypeInt 8 0
+                %i8_t = OpTypeInt 8 1
+             %v2ui8_t = OpTypeVector %ui8_t 2
+              %v2i8_t = OpTypeVector %i8_t 2
+      %s_shuffle_fn_t = OpTypeFunction %void_t
+                %i8_3 = OpConstant %i8_t 3
+               %ui8_4 = OpConstant %ui8_t 4
+              %v2i8_3 = OpConstantComposite %v2i8_t %i8_3 %i8_3
+             %v2ui8_4 = OpConstantComposite %v2ui8_t %ui8_4 %ui8_4
+
+; All functions
+      %s_shuffle_v2i8 = OpFunction %void_t None %s_shuffle_fn_t
+; CHECK: define spir_kernel void @s_shuffle_v2i8()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2i8_t %1 shuffle %v2i8_3 %v2ui8_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i8> @_Z7shuffleDv2_cDv2_h(<2 x i8> <i8 3, i8 3>, <2 x i8> <i8 4, i8 4>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

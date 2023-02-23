@@ -1,0 +1,27 @@
+diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
+index 3a22b6f..9fdacd7 100644
+--- a/source/refsi_hal.cpp
++++ b/source/refsi_hal.cpp
+@@ -154,13 +154,20 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+ 
+   // Encode the command buffer.
+   refsi_command_buffer cb;
+-  size_t num_instances = exec.wg.num_groups[0];
+   cb.addWRITE_REG64(CMP_REG_ENTRY_PT_FN, kernel_wrapper->symbol);
+   cb.addWRITE_REG64(CMP_REG_RETURN_ADDR, elf->find_symbol("kernel_exit"));
+   cb.addWRITE_REG64(CMP_REG_KUB_DESC, kub_desc);
+   cb.addWRITE_REG64(CMP_REG_KARGS_INFO, kargs_info);
+   cb.addWRITE_REG64(CMP_REG_TSD_INFO, tsd_info);
+-  cb.addRUN_KERNEL_SLICE(0, num_instances, 0);
++  uint32_t max_harts = 0;
++  uint64_t num_instances = exec.wg.num_groups[0];
++  uint64_t num_slices = 0;
++  num_slices = (work_dim == 2) ? exec.wg.num_groups[1] : 1;
++  num_slices = (work_dim == 3) ? exec.wg.num_groups[1] * exec.wg.num_groups[2]
++                               : num_slices;
++  for (uint64_t i = 0; i < num_slices; i++) {
++    cb.addRUN_KERNEL_SLICE(max_harts, num_instances, i);
++  }
+   cb.addFINISH();
+ 
+   // Execute the command buffer.

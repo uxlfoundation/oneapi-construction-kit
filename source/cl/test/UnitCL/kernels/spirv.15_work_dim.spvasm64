@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %2 "work_dim" %work_dim_var
+               OpSource OpenCL_C 102000
+               OpName %work_dim_var "work_dim_var"
+               OpName %out "out"
+               OpName %entry "entry"
+               OpDecorate %10 FuncParamAttr NoCapture
+         %10 = OpDecorationGroup
+               OpDecorate %work_dim_var BuiltIn WorkDim
+               OpGroupDecorate %10 %out
+       %uint = OpTypeInt 32 0
+%_ptr_UniformConstant_uint = OpTypePointer UniformConstant %uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+         %17 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+      %idx_0 = OpConstant %uint 0
+	 %work_dim_var = OpVariable %_ptr_UniformConstant_uint UniformConstant
+          %2 = OpFunction %void None %17
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+%work_dim_load = OpLoad %uint %work_dim_var
+%work_dim_store = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %out %idx_0
+               OpStore %work_dim_store %work_dim_load
+               OpReturn
+               OpFunctionEnd

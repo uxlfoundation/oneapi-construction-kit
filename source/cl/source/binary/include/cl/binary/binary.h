@@ -1,0 +1,125 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+#ifndef CL_BINARY_BINARY_H_INCLUDED
+#define CL_BINARY_BINARY_H_INCLUDED
+
+#include <CL/cl.h>
+#include <builtins/printf.h>
+#include <cargo/array_view.h>
+#include <cargo/dynamic_array.h>
+#include <cargo/optional.h>
+#include <cargo/small_vector.h>
+#include <cargo/string_view.h>
+#include <cl/binary/kernel_info.h>
+#include <cl/binary/program_info.h>
+#include <cl/macros.h>
+#include <compiler/context.h>
+#include <compiler/module.h>
+#include <compiler/target.h>
+#include <metadata/metadata.h>
+#include <mux/mux.hpp>
+
+#include <functional>
+#include <mutex>
+#include <unordered_map>
+
+namespace cl {
+namespace binary {
+/// @brief Metadata block names used for OpenCL metadata
+constexpr char OCL_MD_EXECUTABLE_BLOCK[] = "OpenCL_executable";
+constexpr char OCL_MD_IS_EXECUTABLE_BLOCK[] = "OpenCL_is_executable";
+constexpr char OCL_MD_PRINTF_INFO_BLOCK[] = "OpenCL_printf_info";
+constexpr char OCL_MD_PROGRAM_INFO_BLOCK[] = "OpenCL_program_info";
+
+/// @brief Userdata used when reading metadata from a serialized program.
+struct OpenCLReadUserdata {
+  cargo::array_view<const uint8_t> binary;
+};
+
+/// @brief Userdata used when serializing an OpenCL program.
+struct OpenCLWriteUserdata {
+  cargo::dynamic_array<uint8_t> *binary_buffer;
+  cargo::array_view<const uint8_t> mux_executable;
+  bool is_executable;
+  compiler::Module *compiler_module;
+};
+
+/// @brief Serialize an OpenCL program into a binary with metadata.
+///
+/// @param[in, out] binary A buffer into which the binary will be serialized.
+/// @param[in] mux_binary The mux executable to be contained within the OpenCL
+/// binary.
+/// @param[in] printf_calls Printf descriptor list returned by the compiler.
+/// @param[in] program_info Program information returned by the compiler.
+/// @param[in] kernel_arg_info If building with -cl-kernel-arg-info (if argument
+/// metadata is stored).
+/// @param[in] compiler_module An optional pointer to the compiler module, used
+/// to get the mux executable for non-executable kernels.
+///
+/// @return true if the binary was serialized successfully, false
+bool serializeBinary(
+    cargo::dynamic_array<uint8_t> &binary,
+    const cargo::array_view<const uint8_t> mux_binary,
+    const std::vector<builtins::printf::descriptor> &printf_calls,
+    const cl::binary::ProgramInfo &program_info, bool kernel_arg_info,
+    compiler::Module *compiler_module);
+
+/// @brief Deserializes an OpenCL program binary.
+///
+/// @param[in] binary Binary buffer of the binary.
+/// @param[out] printf_calls Printf descriptor list returned by the compiler.
+/// @param[out] program_info Program information returned by the compiler.
+/// @param[out] executable The executable contained within the OpenCL binary.
+/// @param[out] is_executable If the program is executable.
+///
+/// @return true if the binary was deserialized successfully, false
+bool deserializeBinary(cargo::array_view<const uint8_t> binary,
+                       std::vector<builtins::printf::descriptor> &printf_calls,
+                       cl::binary::ProgramInfo &program_info,
+                       cargo::dynamic_array<uint8_t> &executable,
+                       bool &is_executable);
+
+/// @brief Get OpenCL Metadata Write Hooks.
+///
+/// @return md_hooks
+md_hooks getOpenCLMetadataWriteHooks();
+
+/// @brief Get the OpenCL Metadata Read Hooks.
+///
+/// @return md_hooks
+md_hooks getOpenCLMetadataReadHooks();
+
+/// @brief Returns a compiler::KernelInfoCallback which will populate a CL
+/// ProgramInfo object.
+///
+/// @param[in,out] program_info CL ProgramInfo object to populate with the
+/// KernelInfoCallback.
+///
+/// @return A callback which will populate program_info when finalizing a
+/// compiler module.
+compiler::KernelInfoCallback populateProgramInfoCallback(
+    ProgramInfo &program_info);
+
+/// @brief Detects the OpenCL device profile string from a given Mux device.
+///
+/// @param compiler_available A flag determining whether a compiler is
+/// available.
+/// @param device Mux device to query.
+///
+/// @return "FULL_PROFILE" if the device supports the OpenCL specification, or
+/// "EMBEDDED_PROFILE" if the device supports the OpenCL embedded profile. If
+/// CA_CL_FORCE_PROFILE_STRING is set when configuring CMake, then that string
+/// will be returned instead.
+cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
+                                          mux_device_info_t device);
+
+/// @brief Determine OpenCL builtins capabilities from Mux device.
+///
+/// @param device_info Mux device info.
+///
+/// @return Builtin capabilities to pass to `compiler::Target::init`.
+uint32_t detectBuiltinCapabilities(mux_device_info_t device_info);
+
+}  // namespace binary
+}  // namespace cl
+#endif  // CL_BINARY_BINARY_H_INCLUDED

@@ -1,0 +1,32 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_nan_v16float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Vector16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %nan_v16float "nan_v16float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %uint_t = OpTypeInt 32 0
+             %float_t = OpTypeFloat 32
+           %v16uint_t = OpTypeVector %uint_t 16
+          %v16float_t = OpTypeVector %float_t 16
+            %nan_fn_t = OpTypeFunction %void_t
+              %uint_3 = OpConstant %uint_t 3
+           %v16uint_3 = OpConstantComposite %v16uint_t %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3 %uint_3
+
+; All functions
+        %nan_v16float = OpFunction %void_t None %nan_fn_t
+; CHECK: define spir_kernel void @nan_v16float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v16float_t %1 nan %v16uint_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z3nanDv16_j(<16 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

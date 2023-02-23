@@ -1,0 +1,9 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue normalize_weights_kernel -arg weights,repeat(20,rand(0,1.0)) -compare weights:%p/Inputs/particle_double_k_normalize_weights_kernel_out.txt -arg Nparticles,repeat(1,10) -arg partial_sums,repeat(1,rand(0,1.0)) -arg CDF,repeat(20,rand(0,1.0)) -compare CDF:%p/Inputs/particle_double_k_normalize_weights_kernel_out.txt -arg u,repeat(4,rand(0,1.0)) -compare u:%p/Inputs/particle_double_k_normalize_weights_kernel_out.txt -arg seed,repeat(4,randint(0,255)) -compare seed:%p/Inputs/particle_double_k_normalize_weights_kernel_out.txt %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/particle_double.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: weights - match
+CHECK-DAG: CDF - match
+CHECK-DAG: u - match
+CHECK-DAG: seed - match

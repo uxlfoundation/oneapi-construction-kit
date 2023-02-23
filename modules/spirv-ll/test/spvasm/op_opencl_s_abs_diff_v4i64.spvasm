@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_abs_diff_v4i64.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int64
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %s_abs_diff_v4i64 "s_abs_diff_v4i64"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+              %ui64_t = OpTypeInt 64 0
+               %i64_t = OpTypeInt 64 1
+            %v4ui64_t = OpTypeVector %ui64_t 4
+             %v4i64_t = OpTypeVector %i64_t 4
+     %s_abs_diff_fn_t = OpTypeFunction %void_t
+               %i64_2 = OpConstant %i64_t 2
+               %i64_5 = OpConstant %i64_t 5
+             %v4i64_2 = OpConstantComposite %v4i64_t %i64_2 %i64_2 %i64_2 %i64_2
+             %v4i64_5 = OpConstantComposite %v4i64_t %i64_5 %i64_5 %i64_5 %i64_5
+
+; All functions
+    %s_abs_diff_v4i64 = OpFunction %void_t None %s_abs_diff_fn_t
+; CHECK: define spir_kernel void @s_abs_diff_v4i64()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v4ui64_t %1 s_abs_diff %v4i64_2 %v4i64_5
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i64> @_Z8abs_diffDv4_lS_(<4 x i64> <i64 2, i64 2, i64 2, i64 2>, <4 x i64> <i64 5, i64 5, i64 5, i64 5>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

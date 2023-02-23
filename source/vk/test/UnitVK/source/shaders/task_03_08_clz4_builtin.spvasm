@@ -1,0 +1,60 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Codeplay; 0
+; Bound: 34        
+; Schema: 0
+	OpCapability Shader
+	OpCapability VariablePointers
+	OpExtension "SPV_KHR_storage_buffer_storage_class"
+	OpExtension "SPV_KHR_variable_pointers"
+%1 = 	OpExtInstImport "GLSL.std.450"
+	OpMemoryModel Logical GLSL450
+	OpEntryPoint GLCompute %25 "clz4_builtin" %17
+	OpSource OpenCL_C 120
+	OpDecorate %18 SpecId 0
+	OpDecorate %19 SpecId 1
+	OpDecorate %20 SpecId 2
+	OpDecorate %5 ArrayStride 16
+	OpMemberDecorate %6 0 Offset 0
+	OpDecorate %6 Block
+	OpDecorate %17 BuiltIn GlobalInvocationId
+	OpDecorate %21 BuiltIn WorkgroupSize
+	OpDecorate %23 DescriptorSet 0
+	OpDecorate %23 Binding 0
+	OpDecorate %24 DescriptorSet 0
+	OpDecorate %24 Binding 1
+%2 = 	OpTypeInt 32 0
+%3 = 	OpTypeVector %2 4
+%4 = 	OpTypePointer StorageBuffer %3
+%5 = 	OpTypeRuntimeArray %3
+%6 = 	OpTypeStruct %5
+%7 = 	OpTypePointer StorageBuffer %6
+%8 = 	OpTypeVoid
+%9 = 	OpTypeFunction %8
+%10 = 	OpTypeVector %2 3
+%11 = 	OpTypePointer Input %10
+%12 = 	OpTypePointer Input %2
+%13 = 	OpTypePointer Private %10
+%14 = 	OpConstant %2 0
+%15 = 	OpConstant %2 31
+%16 = 	OpConstantComposite %3 %15 %15 %15 %15
+%17 = 	OpVariable %11 Input
+%18 = 	OpSpecConstant %2 1
+%19 = 	OpSpecConstant %2 1
+%20 = 	OpSpecConstant %2 1
+%21 = 	OpSpecConstantComposite %10 %18 %19 %20
+%22 = 	OpVariable %13 Private %21
+%23 = 	OpVariable %7 StorageBuffer
+%24 = 	OpVariable %7 StorageBuffer
+%25 = 	OpFunction %8 None %9
+%26 = 	OpLabel
+%27 = 	OpAccessChain %12 %17 %14
+%28 = 	OpLoad %2 %27
+%29 = 	OpAccessChain %4 %23 %14 %28
+%30 = 	OpLoad %3 %29
+%31 = 	OpExtInst %3 %1 FindUMsb %30
+%32 = 	OpISub %3 %16 %31
+%33 = 	OpAccessChain %4 %24 %14 %28
+	OpStore %33 %32
+	OpReturn
+	OpFunctionEnd

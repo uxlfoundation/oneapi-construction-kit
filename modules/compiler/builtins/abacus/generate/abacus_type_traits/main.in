@@ -1,0 +1,18 @@
+@type_guard_start@
+template <> struct TypeTraits<abacus_@type@@vector_size@> {
+  typedef abacus_@type@ ElementType;
+  @small_guard_start@typedef abacus_@smaller_type@@vector_size@ SmallerType;@small_guard_end@
+  @large_guard_start@typedef abacus_@larger_type@@vector_size@ LargerType;@large_guard_end@
+  typedef abacus_@signed_type@@vector_size@ SignedType;
+  typedef abacus_@unsigned_type@@vector_size@ UnsignedType;
+  static const bool is_signed = @is_signed_type@;
+  static const bool is_int = @is_int_type@;
+  static const unsigned num_elements = @num_elements@;
+  static abacus_@type@@vector_size@ min() { return abacus_@type@(@min_value@); }
+  static abacus_@type@@vector_size@ max() { return abacus_@type@(@max_value@); }
+};
+
+template<> struct MakeType<abacus_@type@, @num_elements@> {
+  typedef abacus_@type@@vector_size@ type;
+};
+@type_guard_end@

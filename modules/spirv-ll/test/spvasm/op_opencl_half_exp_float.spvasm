@@ -1,0 +1,27 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_half_exp_float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %half_exp_float "half_exp_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+       %half_exp_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.0
+
+; All functions
+      %half_exp_float = OpFunction %void_t None %half_exp_fn_t
+; CHECK: define spir_kernel void @half_exp_float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 half_exp %float_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z8half_expf(float 1.000000e+00)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

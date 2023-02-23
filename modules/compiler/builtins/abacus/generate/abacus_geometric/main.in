@@ -1,0 +1,179 @@
+/// @brief Dot product.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+///
+/// Dot product of @a x and @a y.
+///
+/// Standards compliant implementation of OpenCL 1.2 dot.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/dot.html
+abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_dot(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_dot.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+inline abacus_@generate_scalar_type@ ABACUS_API dot(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_dot(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Vector distance.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+///
+/// This is calculated as length(x - y).
+///
+/// Standards compliant implementation of OpenCL 1.2 distance.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/distance.html
+abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_distance(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_distance.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+inline abacus_@generate_scalar_type@ ABACUS_API distance(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_distance(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Vector length.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 length.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/length.html
+abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_length(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_length.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+inline abacus_@generate_scalar_type@ ABACUS_API length(abacus_@generate_type@ x) {
+  return __abacus_length(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Vector in the same direction as x but with a length of 1.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 normalize.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/normalize.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_normalize(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+/// @brief Wrapper for __abacus_normalize.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API normalize(abacus_@generate_type@ x) {
+  return __abacus_normalize(x);
+}
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Vector distance.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+///
+/// This is calculated as fast_length(x - y).
+///
+/// Standards compliant implementation of OpenCL 1.2 fast_distance.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fast_distance.html
+abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_fast_distance(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fast_distance.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+inline abacus_@generate_scalar_type@ ABACUS_API fast_distance(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_fast_distance(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Vector length.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fast_length.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fast_length.html
+abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_fast_length(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fast_length.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_scalar_type@.
+inline abacus_@generate_scalar_type@ ABACUS_API fast_length(abacus_@generate_type@ x) {
+  return __abacus_fast_length(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief Vector in the same direction as x but with a length of 1.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+///
+/// Standards compliant implementation of OpenCL 1.2 fast_normalize.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/fast_normalize.html
+abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fast_normalize(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_fast_normalize.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_@generate_type@.
+inline abacus_@generate_type@ ABACUS_API fast_normalize(abacus_@generate_type@ x) {
+  return __abacus_fast_normalize(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

@@ -1,0 +1,83 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_opencl_vstore_halfn_64bit.spv -o %t
+; RUN: %filecheck < %t %t.pp
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Vector16
+               OpCapability Float16Buffer
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %7 "foo"
+               OpSource OpenCL_C 102000
+               OpName %in "in"
+               OpName %loc "loc"
+               OpName %entry "entry"
+      %ulong = OpTypeInt 64 0
+    %ulong_0 = OpConstant %ulong 0
+       %void = OpTypeVoid
+       %half = OpTypeFloat 16
+%_ptr_CrossWorkgroup_half = OpTypePointer CrossWorkgroup %half
+%_ptr_Workgroup_half = OpTypePointer Workgroup %half
+          %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_half %_ptr_Workgroup_half
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+    %v3float = OpTypeVector %float 3
+    %v4float = OpTypeVector %float 4
+    %v8float = OpTypeVector %float 8
+   %v16float = OpTypeVector %float 16
+    %float_1 = OpConstant %float 1
+    %float_2 = OpConstant %float 2
+         %18 = OpConstantComposite %v2float %float_2 %float_2
+    %float_3 = OpConstant %float 3
+         %22 = OpConstantComposite %v3float %float_3 %float_3 %float_3
+    %float_4 = OpConstant %float 4
+         %26 = OpConstantComposite %v4float %float_4 %float_4 %float_4 %float_4
+    %float_8 = OpConstant %float 8
+         %30 = OpConstantComposite %v8float %float_8 %float_8 %float_8 %float_8 %float_8 %float_8 %float_8 %float_8
+   %float_16 = OpConstant %float 16
+         %34 = OpConstantComposite %v16float %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16 %float_16
+          %7 = OpFunction %void None %6
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_half
+        %loc = OpFunctionParameter %_ptr_Workgroup_half
+      %entry = OpLabel
+         %15 = OpExtInst %void %1 vstore_half %float_1 %ulong_0 %in
+; CHECK-GE15: call spir_func void @_Z11vstore_halffmPU3AS1Dh(float 1.000000e+00, i64 0, ptr addrspace(1) %in)
+; CHECK-LT15: call spir_func void @_Z11vstore_halffmPU3AS1Dh(float 1.000000e+00, i64 0, half addrspace(1)* %in)
+         %19 = OpExtInst %void %1 vstore_halfn %18 %ulong_0 %in
+; CHECK-GE15: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK-LT15: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, half addrspace(1)* %in)
+         %23 = OpExtInst %void %1 vstore_halfn %22 %ulong_0 %in
+; CHECK-GE15: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS1Dh(<3 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK-LT15: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS1Dh(<3 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, i64 0, half addrspace(1)* %in)
+         %27 = OpExtInst %void %1 vstore_halfn %26 %ulong_0 %in
+; CHECK-GE15: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS1Dh(<4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK-LT15: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS1Dh(<4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, i64 0, half addrspace(1)* %in)
+         %31 = OpExtInst %void %1 vstore_halfn %30 %ulong_0 %in
+; CHECK-GE15: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK-LT15: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, half addrspace(1)* %in)
+         %35 = OpExtInst %void %1 vstore_halfn %34 %ulong_0 %in
+; CHECK-GE15: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(1) %in)
+; CHECK-LT15: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, half addrspace(1)* %in)
+         %36 = OpExtInst %void %1 vstore_half %float_1 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z11vstore_halffmPU3AS3Dh(float 1.000000e+00, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z11vstore_halffmPU3AS3Dh(float 1.000000e+00, i64 0, half addrspace(3)* %loc)
+         %37 = OpExtInst %void %1 vstore_halfn %18 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, half addrspace(3)* %loc)
+         %38 = OpExtInst %void %1 vstore_halfn %22 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS3Dh(<3 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS3Dh(<3 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, i64 0, half addrspace(3)* %loc)
+         %39 = OpExtInst %void %1 vstore_halfn %26 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS3Dh(<4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS3Dh(<4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, i64 0, half addrspace(3)* %loc)
+         %40 = OpExtInst %void %1 vstore_halfn %30 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS3Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS3Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, half addrspace(3)* %loc)
+         %41 = OpExtInst %void %1 vstore_halfn %34 %ulong_0 %loc
+; CHECK-GE15: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS3Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
+; CHECK-LT15: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS3Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, half addrspace(3)* %loc)
+               OpReturn
+               OpFunctionEnd

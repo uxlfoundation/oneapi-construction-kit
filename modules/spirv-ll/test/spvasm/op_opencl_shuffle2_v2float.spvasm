@@ -1,0 +1,35 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_shuffle2_v2float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %shuffle2_v2float "shuffle2_v2float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+               %i32_t = OpTypeInt 32 0
+           %v2float_t = OpTypeVector %float_t 2
+             %v2i32_t = OpTypeVector %i32_t 2
+       %shuffle2_fn_t = OpTypeFunction %void_t
+             %float_3 = OpConstant %float_t 3
+             %float_4 = OpConstant %float_t 4
+               %i32_5 = OpConstant %i32_t 5
+           %v2float_3 = OpConstantComposite %v2float_t %float_3 %float_3
+           %v2float_4 = OpConstantComposite %v2float_t %float_4 %float_4
+             %v2i32_5 = OpConstantComposite %v2i32_t %i32_5 %i32_5
+
+; All functions
+    %shuffle2_v2float = OpFunction %void_t None %shuffle2_fn_t
+; CHECK: define spir_kernel void @shuffle2_v2float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v2float_t %1 shuffle2 %v2float_3 %v2float_4 %v2i32_5
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z8shuffle2Dv2_fS_Dv2_j(<2 x float> <float 3.000000e+00, float 3.000000e+00>, <2 x float> <float 4.000000e+00, float 4.000000e+00>, <2 x i32> <i32 5, i32 5>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

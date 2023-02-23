@@ -1,0 +1,4 @@
+# vim: ft=yaml
+---
+CompileFlags:
+  Add: [-Wdocumentation]

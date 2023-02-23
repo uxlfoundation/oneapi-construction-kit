@@ -1,0 +1,4 @@
+Compiler,compiler/test_compiler features_macro
+Conversions,conversions/test_conversions
+Half Ops,half/test_half vstore_half_rtp
+Math,math_brute_force/test_bruteforce

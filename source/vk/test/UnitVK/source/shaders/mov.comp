@@ -1,0 +1,14 @@
+#version 450
+
+layout(set=0, binding=0) buffer block_a {
+    int test_in[];
+};
+
+layout(set=0, binding=1) buffer block_b {
+    int test_out[];
+};
+
+void main(){
+    uint id = gl_GlobalInvocationID.z;
+    test_out[id] = test_in[id];
+}

@@ -1,0 +1,31 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_remainder_v3float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %remainder_v3float "remainder_v3float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v3float_t = OpTypeVector %float_t 3
+      %remainder_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.5
+             %float_2 = OpConstant %float_t 2
+           %v3float_1 = OpConstantComposite %v3float_t %float_1 %float_1 %float_1
+           %v3float_2 = OpConstantComposite %v3float_t %float_2 %float_2 %float_2
+
+; All functions
+   %remainder_v3float = OpFunction %void_t None %remainder_fn_t
+; CHECK: define spir_kernel void @remainder_v3float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %v3float_t %1 remainder %v3float_2 %v3float_1
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z9remainderDv3_fS_(<3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <3 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

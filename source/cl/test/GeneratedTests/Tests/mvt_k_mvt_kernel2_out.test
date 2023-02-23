@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue mvt_kernel2 -arg a,repeat(94,rand(0,1.0)) -arg x2,repeat(4,rand(0,1.0)) -compare x2:%p/Inputs/mvt_k_mvt_kernel2_out.txt -arg y2,repeat(10,rand(0,1.0)) -arg n,repeat(1,10) %p/Inputs/KernelsCL/kernels/PerfCL/polybench/linear-algebra/kernels/mvt/mvt.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: x2 - match

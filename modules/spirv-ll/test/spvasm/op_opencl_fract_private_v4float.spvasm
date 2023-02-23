@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_fract_private_v4float.spv -o %t
+; RUN: %filecheck < %t %t.pp
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %fract_v4float "fract_v4float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+             %float_t = OpTypeFloat 32
+           %v4float_t = OpTypeVector %float_t 4
+       %v4float_ptr_t = OpTypePointer Function %v4float_t
+          %fract_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.4
+           %v4float_1 = OpConstantComposite %v4float_t %float_1 %float_1 %float_1 %float_1
+
+; All functions
+       %fract_v4float = OpFunction %void_t None %fract_fn_t
+; CHECK: define spir_kernel void @fract_v4float()
+                   %2 = OpLabel
+                   %3 = OpVariable %v4float_ptr_t Function
+; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca <4 x float>
+                   %4 = OpExtInst %v4float_t %1 fract %v4float_1 %3
+; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
+; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, <4 x float>* [[ptr]])
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

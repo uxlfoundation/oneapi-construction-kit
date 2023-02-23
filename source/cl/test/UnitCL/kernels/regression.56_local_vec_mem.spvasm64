@@ -1,0 +1,56 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 36
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %8 "local_vec_mem"
+         %34 = OpString "kernel_arg_type.local_vec_mem.float*,float4*,float*,"
+               OpSource OpenCL_C 102000
+               OpDecorate %35 Alignment 8
+         %35 = OpDecorationGroup
+               OpGroupDecorate %35 %14 %16 %17
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+    %ulong_0 = OpConstant %ulong 0
+     %uint_2 = OpConstant %uint 2
+   %uint_272 = OpConstant %uint 272
+       %void = OpTypeVoid
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+    %v4float = OpTypeVector %float 4
+%_ptr_Workgroup_v4float = OpTypePointer Workgroup %v4float
+          %7 = OpTypeFunction %void %_ptr_CrossWorkgroup_float %_ptr_Workgroup_v4float %_ptr_CrossWorkgroup_float
+%_ptr_Function__ptr_CrossWorkgroup_float = OpTypePointer Function %_ptr_CrossWorkgroup_float
+%_ptr_Function__ptr_Workgroup_v4float = OpTypePointer Function %_ptr_Workgroup_v4float
+          %8 = OpFunction %void DontInline %7
+          %9 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %10 = OpFunctionParameter %_ptr_Workgroup_v4float
+         %11 = OpFunctionParameter %_ptr_CrossWorkgroup_float
+         %12 = OpLabel
+         %14 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+         %16 = OpVariable %_ptr_Function__ptr_Workgroup_v4float Function
+         %17 = OpVariable %_ptr_Function__ptr_CrossWorkgroup_float Function
+               OpStore %14 %9 Aligned 8
+               OpStore %16 %10 Aligned 8
+               OpStore %17 %11 Aligned 8
+         %18 = OpLoad %_ptr_CrossWorkgroup_float %17 Aligned 8
+         %19 = OpLoad %float %18 Aligned 4
+         %20 = OpLoad %_ptr_Workgroup_v4float %16 Aligned 8
+         %23 = OpInBoundsPtrAccessChain %_ptr_Workgroup_v4float %20 %ulong_0
+         %24 = OpLoad %v4float %23 Aligned 16
+         %25 = OpCompositeInsert %v4float %19 %24 0
+               OpStore %23 %25 Aligned 16
+               OpControlBarrier %uint_2 %uint_2 %uint_272
+         %29 = OpLoad %_ptr_Workgroup_v4float %16 Aligned 8
+         %30 = OpInBoundsPtrAccessChain %_ptr_Workgroup_v4float %29 %ulong_0
+         %31 = OpLoad %v4float %30 Aligned 16
+         %32 = OpCompositeExtract %float %31 0
+         %33 = OpLoad %_ptr_CrossWorkgroup_float %14 Aligned 8
+               OpStore %33 %32 Aligned 4
+               OpReturn
+               OpFunctionEnd

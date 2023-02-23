@@ -1,0 +1,28 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+// RUN: %spirv-ll -a Vulkan %p/op_glsl_Tanh_vec4.spv -o %t
+// RUN: %filecheck < %t %t.pp
+
+#version 450
+
+layout (std430, set=0, binding=0) buffer inA {
+  vec4 arg0;
+};
+
+layout (std430, set=0, binding=1) buffer outR {
+  vec4 res;
+};
+
+void main() {
+  res = tanh(arg0);
+}
+
+// CHECK: ; ModuleID = '{{.*}}'
+// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x float>, <4 x float> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x float> @_Z4tanhDv4_f(<4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+// CHECK-GE15: store <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK-LT15: store <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x float> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: ret void
+// CHECK: declare spir_func <4 x float> @_Z4tanhDv4_f(<4 x float>)

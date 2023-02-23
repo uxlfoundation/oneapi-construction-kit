@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_mad_hi_i8.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int8
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_mad_hi_i8 "u_mad_hi_i8"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+                %i8_t = OpTypeInt 8 0
+       %u_mad_hi_fn_t = OpTypeFunction %void_t
+                %i8_2 = OpConstant %i8_t 2
+                %i8_3 = OpConstant %i8_t 3
+                %i8_4 = OpConstant %i8_t 4
+
+; All functions
+         %u_mad_hi_i8 = OpFunction %void_t None %u_mad_hi_fn_t
+; CHECK: define spir_kernel void @u_mad_hi_i8()
+                   %2 = OpLabel
+                   %3 = OpExtInst %i8_t %1 u_mad_hi %i8_2 %i8_3 %i8_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i8 @_Z6mad_hihhh(i8 zeroext 2, i8 zeroext 3, i8 zeroext 4)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

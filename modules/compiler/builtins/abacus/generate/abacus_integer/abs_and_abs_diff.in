@@ -1,0 +1,109 @@
+/// @brief |x|
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// The absolute value of x.
+///
+/// Standards compliant implementation of OpenCL 1.2 abs.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/abs.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs(abacus_@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_abs.
+/// @param[in] x A abacus_@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API abs(abacus_@generate_type@ x) {
+  return __abacus_abs(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief x
+/// @param[in] x A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// The absolute value of x (which is x since x is an unsigned type).
+///
+/// Standards compliant implementation of OpenCL 1.2 abs.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/abs.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs(abacus_u@generate_type@ x);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_abs.
+/// @param[in] x A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API abs(abacus_u@generate_type@ x) {
+  return __abacus_abs(x);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief |x - y| without modulo overflow.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// The absolute value of x - y, without module overflow.
+///
+/// Standards compliant implementation of OpenCL 1.2 abs_diff.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/abs.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs_diff(abacus_@generate_type@ x, abacus_@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_abs_diff.
+/// @param[in] x A abacus_@generate_type@.
+/// @param[in] y A abacus_@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API abs_diff(abacus_@generate_type@ x, abacus_@generate_type@ y) {
+  return __abacus_abs_diff(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+/// @brief |x - y| without modulo overflow.
+/// @param[in] x A abacus_u@generate_type@.
+/// @param[in] y A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+///
+/// The absolute value of x - y, without module overflow.
+///
+/// Standards compliant implementation of OpenCL 1.2 abs_diff.
+///
+/// @see https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/abs.html
+abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs_diff(abacus_u@generate_type@ x, abacus_u@generate_type@ y);
+
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+namespace abacus {
+#endif
+#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+/// @brief Wrapper for __abacus_abs_diff.
+/// @param[in] x A abacus_u@generate_type@.
+/// @param[in] y A abacus_u@generate_type@.
+/// @return      A abacus_u@generate_type@.
+inline abacus_u@generate_type@ ABACUS_API abs_diff(abacus_u@generate_type@ x, abacus_u@generate_type@ y) {
+  return __abacus_abs_diff(x, y);
+}
+#endif
+#if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
+}
+#endif
+
+

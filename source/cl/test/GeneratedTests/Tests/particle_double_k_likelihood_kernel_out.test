@@ -1,0 +1,13 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue likelihood_kernel -arg arrayX,repeat(4,rand(0,1.0)) -compare arrayX:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -arg arrayY,repeat(4,rand(0,1.0)) -compare arrayY:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -arg xj,repeat(4,rand(0,1.0)) -arg yj,repeat(4,rand(0,1.0)) -arg ind,repeat(50,randint(0,255)) -compare ind:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -arg objxy,repeat(20,randint(0,255)) -arg likelihood,repeat(4,rand(0,1.0)) -compare likelihood:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -arg I,repeat(1,randint(0,255)) -arg weights,repeat(4,rand(0,1.0)) -compare weights:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -arg Nparticles,repeat(1,randint(0,255)) -arg countOnes,repeat(1,10) -arg max_size,repeat(1,randint(0,255)) -arg k,repeat(1,randint(0,255)) -arg IszY,repeat(1,randint(0,255)) -arg Nfr,repeat(1,randint(0,255)) -arg seed,repeat(4,randint(0,255)) -compare seed:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -compare partial_sums:%p/Inputs/particle_double_k_likelihood_kernel_out.txt -arg partial_sums,repeat(1,73) -arg buffer,repeat(4,rand(0,1.0)) -compare buffer:%p/Inputs/particle_double_k_likelihood_kernel_out.txt %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/particle_double.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: arrayX - match
+CHECK-DAG: arrayY - match
+CHECK-DAG: ind - match
+CHECK-DAG: likelihood - match
+CHECK-DAG: weights - match
+CHECK-DAG: seed - match
+CHECK-DAG: partial_sums - match
+CHECK-DAG: buffer - match

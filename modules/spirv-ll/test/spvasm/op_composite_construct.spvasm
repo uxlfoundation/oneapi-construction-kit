@@ -1,0 +1,38 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_composite_construct.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %res "res"
+    %void = OpTypeVoid
+       %5 = OpTypeFunction %void
+     %int = OpTypeInt 32 0
+       %9 = OpConstant %int 3
+   %v2int = OpTypeVector %int 2
+  %struct = OpTypeStruct %v2int %int %int
+%ptr_struct = OpTypePointer Function %struct
+      %10 = OpConstant %int 42
+      %11 = OpConstantComposite %v2int %10 %9
+    %main = OpFunction %void None %5
+      %12 = OpLabel
+     %res = OpVariable %ptr_struct Function
+      %13 = OpCompositeConstruct %struct %11 %9 %10
+            OpStore %res %13
+            OpReturn
+            OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: [[STRUCT:%[a-zA-Z0-9_]+]] = type { <2 x i32>, i32, i32 }
+; CHECK: define spir_kernel void @main() {
+; CHECK: [[VAR:%[a-zA-Z0-9_]+]] = alloca [[STRUCT]]
+; CHECK-GE15: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, ptr [[VAR]]
+; CHECK-LT15: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, [[STRUCT]]* [[VAR]]
+; CHECK: ret void

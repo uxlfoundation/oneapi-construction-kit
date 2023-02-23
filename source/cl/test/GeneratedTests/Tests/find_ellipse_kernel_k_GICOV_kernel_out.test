@@ -1,0 +1,6 @@
+// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+RUN: %oclc -execute -ulp-error 128 -char-error 1 -global 4 -local 4 -enqueue GICOV_kernel -arg grad_m,repeat(1,10) -arg grad_x,repeat(246,rand(0,1.0)) -arg grad_y,repeat(246,rand(0,1.0)) -arg c_sin_angle,repeat(150,rand(0,1.0)) -arg c_cos_angle,repeat(150,rand(0,1.0)) -arg c_tX,repeat(2550,randint(0,255)) -arg c_tY,repeat(2550,randint(0,255)) -compare gicov:%p/Inputs/find_ellipse_kernel_k_GICOV_kernel_out.txt -arg gicov,repeat(246,73) -arg width,repeat(1,10) -arg height,repeat(1,randint(0,255)) %p/Inputs/KernelsCL/kernels/PerfCL/rodinia_3.1/find_ellipse_kernel.cl > %t
+RUN: %filecheck < %t %s
+
+CHECK-DAG: gicov - match

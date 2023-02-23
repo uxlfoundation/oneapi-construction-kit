@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_s_select_float.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %select_float "select_float"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i32_t = OpTypeInt 32 1
+             %float_t = OpTypeFloat 32
+         %select_fn_t = OpTypeFunction %void_t
+             %float_1 = OpConstant %float_t 1.0
+             %float_2 = OpConstant %float_t 2.0
+               %i32_3 = OpConstant %i32_t 3
+
+; All functions
+        %select_float = OpFunction %void_t None %select_fn_t
+; CHECK: define spir_kernel void @select_float()
+                   %2 = OpLabel
+                   %3 = OpExtInst %float_t %1 select %float_1 %float_2 %i32_3
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6selectffi(float 1.000000e+00, float 2.000000e+00, i32 3)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }

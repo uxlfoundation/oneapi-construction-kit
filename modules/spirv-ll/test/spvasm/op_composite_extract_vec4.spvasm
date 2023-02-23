@@ -1,0 +1,45 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_composite_extract_vec4.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Shader
+            OpCapability Float64
+            OpCapability Int64
+       %1 = OpExtInstImport "GLSL.std.450"
+            OpMemoryModel Logical GLSL450
+            OpEntryPoint GLCompute %main "main"
+            OpExecutionMode %main LocalSize 1 1 1
+            OpSource GLSL 450
+            OpName %main "main"
+            OpName %const "const"
+               OpName %a "a"
+               OpName %res "res"
+       %void = OpTypeVoid
+          %2 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+    %ptr_int = OpTypePointer Function %int
+        %vec = OpTypeVector %int 4
+    %ptr_vec = OpTypePointer Function %vec
+      %const = OpConstant %int -42
+          %7 = OpConstantComposite %vec %const %const %const %const 
+       %main = OpFunction %void None %2
+          %9 = OpLabel
+          %a = OpVariable %ptr_vec Function
+        %res = OpVariable %ptr_int Function
+               OpStore %a %7
+         %10 = OpLoad %vec %a
+         %11 = OpCompositeExtract %int %10 1
+               OpStore %res %11
+               OpReturn
+               OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x i32>
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
+; CHECK-GE15: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, <4 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x i32>, <4 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractelement <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i64 1
+; CHECK-GE15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK-LT15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

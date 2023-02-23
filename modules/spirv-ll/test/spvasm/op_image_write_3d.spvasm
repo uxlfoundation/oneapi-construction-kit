@@ -1,0 +1,44 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c StorageImageWriteWithoutFormat %p/op_image_write_3d.spv -o %t
+; RUN: %filecheck < %t %t.pp
+; CHECK: ; ModuleID = '{{.*}}'
+                            OpCapability Kernel
+                            OpCapability Addresses
+                            OpCapability ImageBasic
+                            OpCapability StorageImageWriteWithoutFormat
+                            OpMemoryModel Physical64 OpenCL
+                            OpEntryPoint Kernel %image3d "image3d"
+                            OpName %image "image"
+
+; All types, variables and constants
+                  %void_t = OpTypeVoid
+                  %uint_t = OpTypeInt 32 0
+                 %float_t = OpTypeFloat 32
+            %image3d_t = OpTypeImage %void_t 3D 0 0 0 0 Unknown WriteOnly
+        %image_write_fn_t = OpTypeFunction %void_t %image3d_t
+               %v4float_t = OpTypeVector %float_t 4
+                %v4uint_t = OpTypeVector %uint_t 4
+                  %uint_1 = OpConstant %uint_t 1
+                 %float_1 = OpConstant %float_t 1
+                %v4uint_1 = OpConstantComposite %v4uint_t %uint_1 %uint_1 %uint_1 %uint_1
+               %v4float_1 = OpConstantComposite %v4float_t %float_1 %float_1 %float_1 %float_1
+
+; All functions
+                 %image3d = OpFunction %void_t None %image_write_fn_t
+                   %image = OpFunctionParameter %image3d_t
+; CHECK-LT15: %opencl.image3d_t = type opaque
+; CHECK-GE15: define spir_kernel void @image3d(ptr addrspace(1) %image)
+; CHECK-LT15: define spir_kernel void @image3d(%opencl.image3d_t addrspace(1)* %image)
+                       %1 = OpLabel
+                            OpImageWrite %image %v4uint_1 %v4float_1
+; CHECK-GE15: call spir_func void @_Z12write_imagef11ocl_image3dDv4_iDv4_f(ptr addrspace(1) %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK-LT15: call spir_func void @_Z12write_imagef11ocl_image3dDv4_iDv4_f(%opencl.image3d_t addrspace(1)* %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+                            OpImageWrite %image %v4uint_1 %v4uint_1
+; CHECK-GE15: call spir_func void @_Z13write_imageui11ocl_image3dDv4_iDv4_j(ptr addrspace(1) %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK-LT15: call spir_func void @_Z13write_imageui11ocl_image3dDv4_iDv4_j(%opencl.image3d_t addrspace(1)* %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+                            OpReturn
+; CHECK: ret void
+                            OpFunctionEnd
+; CHECK: }

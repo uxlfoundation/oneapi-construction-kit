@@ -1,0 +1,71 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Codeplay; 0
+; Bound: 38        
+; Schema: 0
+	OpCapability Shader
+	OpCapability VariablePointers
+	OpExtension "SPV_KHR_storage_buffer_storage_class"
+	OpExtension "SPV_KHR_variable_pointers"
+	OpMemoryModel Logical GLSL450
+	OpEntryPoint GLCompute %24 "mul_fma" %13
+	OpSource OpenCL_C 120
+	OpDecorate %14 SpecId 0
+	OpDecorate %15 SpecId 1
+	OpDecorate %16 SpecId 2
+	OpDecorate %3 ArrayStride 4
+	OpMemberDecorate %4 0 Offset 0
+	OpDecorate %4 Block
+	OpDecorate %13 BuiltIn GlobalInvocationId
+	OpDecorate %17 BuiltIn WorkgroupSize
+	OpDecorate %19 DescriptorSet 0
+	OpDecorate %19 Binding 0
+	OpDecorate %20 DescriptorSet 0
+	OpDecorate %20 Binding 1
+	OpDecorate %21 DescriptorSet 0
+	OpDecorate %21 Binding 2
+	OpDecorate %22 DescriptorSet 0
+	OpDecorate %22 Binding 3
+	OpDecorate %23 DescriptorSet 0
+	OpDecorate %23 Binding 4
+%1 = 	OpTypeInt 32 0
+%2 = 	OpTypePointer StorageBuffer %1
+%3 = 	OpTypeRuntimeArray %1
+%4 = 	OpTypeStruct %3
+%5 = 	OpTypePointer StorageBuffer %4
+%6 = 	OpTypeVoid
+%7 = 	OpTypeFunction %6
+%8 = 	OpTypeVector %1 3
+%9 = 	OpTypePointer Input %8
+%10 = 	OpTypePointer Input %1
+%11 = 	OpTypePointer Private %8
+%12 = 	OpConstant %1 0
+%13 = 	OpVariable %9 Input
+%14 = 	OpSpecConstant %1 1
+%15 = 	OpSpecConstant %1 1
+%16 = 	OpSpecConstant %1 1
+%17 = 	OpSpecConstantComposite %8 %14 %15 %16
+%18 = 	OpVariable %11 Private %17
+%19 = 	OpVariable %5 StorageBuffer
+%20 = 	OpVariable %5 StorageBuffer
+%21 = 	OpVariable %5 StorageBuffer
+%22 = 	OpVariable %5 StorageBuffer
+%23 = 	OpVariable %5 StorageBuffer
+%24 = 	OpFunction %6 None %7
+%25 = 	OpLabel
+%26 = 	OpAccessChain %10 %13 %12
+%27 = 	OpLoad %1 %26
+%28 = 	OpAccessChain %2 %19 %12 %27
+%29 = 	OpLoad %1 %28
+%30 = 	OpAccessChain %2 %20 %12 %27
+%31 = 	OpLoad %1 %30
+%32 = 	OpAccessChain %2 %21 %12 %27
+%33 = 	OpLoad %1 %32
+%34 = 	OpIMul %1 %31 %29
+%35 = 	OpAccessChain %2 %22 %12 %27
+	OpStore %35 %34
+%36 = 	OpIAdd %1 %34 %33
+%37 = 	OpAccessChain %2 %23 %12 %27
+	OpStore %37 %36
+	OpReturn
+	OpFunctionEnd

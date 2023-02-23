@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_upsample_i32.spv -o %t
+; RUN: %filecheck < %t %s
+                        OpCapability Kernel
+                        OpCapability Addresses
+                        OpCapability Int16
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %u_upsample_i32 "u_upsample_i32"
+                        OpSource OpenCL_C 102000
+
+; All types, variables and constants
+              %void_t = OpTypeVoid
+               %i16_t = OpTypeInt 16 0
+               %i32_t = OpTypeInt 32 0
+     %u_upsample_fn_t = OpTypeFunction %void_t
+               %i16_3 = OpConstant %i16_t 3
+               %i16_4 = OpConstant %i16_t 4
+
+; All functions
+      %u_upsample_i32 = OpFunction %void_t None %u_upsample_fn_t
+; CHECK: define spir_kernel void @u_upsample_i32()
+                   %2 = OpLabel
+                   %3 = OpExtInst %i32_t %1 u_upsample %i16_3 %i16_4
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z8upsamplett(i16 zeroext 3, i16 zeroext 4)
+                        OpReturn
+; CHECK: ret void
+                        OpFunctionEnd
+; CHECK: }
