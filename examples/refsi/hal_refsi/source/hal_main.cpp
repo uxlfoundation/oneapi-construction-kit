@@ -156,7 +156,15 @@ public:
     hal_device_info.preferred_vector_width = 1;
     hal_device_info.supports_fp16 = false;
     hal_device_info.supports_doubles = false;
+#if defined(HAL_REFSI_MODE_WG)
     hal_device_info.max_workgroup_size = 1024;
+#elif defined(HAL_REFSI_MODE_WI)
+    // Executing one work-item per hart limits the maximum work-group size to
+    // the number of harts.
+    hal_device_info.max_workgroup_size = REFSI_SIM_MAX_HARTS;
+#else
+#error Either HAL_REFSI_MODE_WG or HAL_REFSI_MODE_WI needs to be defined.
+#endif
     hal_device_info.is_little_endian = true;
     hal_device_info.linker_script =
         std::string(hal_refsi_linker_script, hal_refsi_linker_script_size);

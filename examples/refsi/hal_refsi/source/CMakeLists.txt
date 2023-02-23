@@ -14,6 +14,7 @@ add_library(hal_refsi SHARED
 
 target_compile_definitions(hal_refsi PUBLIC -DBUILD_HAL_DLL)
 target_compile_definitions(hal_refsi PUBLIC -DNUM_HARTS_FOR_CA_MODE=${NUM_HARTS_FOR_CA_MODE})
+target_compile_definitions(hal_refsi PRIVATE -DREFSI_SIM_MAX_HARTS=${REFSIDRV_SIM_MAX_HARTS})
 if(HAL_REFSI_SOC STREQUAL "M1")
   target_compile_definitions(hal_refsi PUBLIC -DHAL_REFSI_TARGET_M1 -DHAL_REFSI_MODE_WG=1)
 elseif(HAL_REFSI_SOC STREQUAL "G1")

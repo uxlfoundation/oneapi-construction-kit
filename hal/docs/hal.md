@@ -378,10 +378,20 @@ hal_arg_t arg = {
   .pod_data = <POD data on host>,
 };
 ```
-Some targets, such as the default RISC-V target will place local data on the
-stack and the kernel ABI is expected to give it information to the function in
-order to size it.
 
+The HAL and the target form a contract over the kernel ABI and how parameters
+are passed to kernels. It is the responsibility of each component to adhere to
+the contract.
+
+This contract commonly resembles an ABI agnostic to any particular kernel
+signature in which arguments are "packed" into a buffer, a pointer to which is
+passed to the kernel via an agreed-upon register. Some arguments may be packed
+directly whereas some targets may agree to pass arguments indirectly. For
+example, the default RISC-V target will not pass local buffer arguments as
+direct pointers to the kernel: these buffers are instead allocated internally
+on the kernels' stack, and the kernel ABI is expected to pass the local
+buffer's *size* as an argument in order to correctly size the allocation at
+runtime.
 
 -----
 ## Target Info
@@ -450,7 +460,9 @@ reusable elements:
 ----
 ## HAL Kernel ABI used in the current RISC-V MUX
 
-The current RISC-V target specifies a specific ABI for calling the kernel. As this target will be used as a template for others, it is likely a similar ABI will be used there, so is defined here:
+The current RISC-V target specifies a specific ABI for calling the kernel. As
+this target will be used as a template for others, it is likely a similar ABI
+will be used there, so is defined here:
 
 ```cpp
 void kernel(void *args, const hal_sched_info_??_t *sched);
@@ -465,7 +477,6 @@ Kernels compiled by the RISC-V MUX target will adhere to the following:
 
 The RISC-V MUX target will compile a kernel according to this ABI and the HAL
 will execute it accordingly forming a contract between the two code areas.
-
 
 ----
 ## Schedule Structure
@@ -528,7 +539,6 @@ execution, as an argument is required, it will be read from the argument pack.
 We chose to do this to simplify the loading process for a small increase in
 complexity of the compilation process, however by now this method has been tried
 and tested.
-
 
 ----
 ## Local Variables

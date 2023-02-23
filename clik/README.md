@@ -6,7 +6,7 @@ clik is a simple compute library that demonstrates how offloading code to an acc
 
 clik can be used as an introduction to how offloading to an accelerator works, but also as scaffolding when adding support for a new device in ComputeAorta. It has been designed to be as simple as possible, so that it is easy to understand and troubleshoot. Several basic examples are included, covering essential functions such as creating buffers, data transfers, executing kernels, work-group barriers and local memory. When these examples all run successfully, clik's role as scaffolding is complete. However, it is also possible to add new examples as needed.
 
-clik kernels are written in C and can be compiled using a stand-alone compiler such as GCC. This means that compared to more advance compute libraries a compiler back-end does not need to be integrated into the compute library. As a result, bringing up a new target can be faster due to being able to develop the runtime part of the device code before needing to integrate a compiler.
+clik kernels are written in C and can be compiled using a stand-alone compiler such as GCC. This means that compared to more advanced compute libraries a compiler back-end does not need to be integrated into the compute library. As a result, bringing up a new target can be faster due to being able to develop the runtime part of the device code before needing to integrate a compiler.
 
 The concept of HAL, a library that abstracts the interface to a device, is central to clik. This framework has been designed with the idea that multiple devices can be targeted using the same simple API and examples. In addition, a HAL that has been developed using clik can then be integrated in ComputeAorta. The source code for the HAL does not need to be rewritten for ComputeAorta, instead it can seamlessly be loaded by a generic ComputeMux target.
 
@@ -136,7 +136,7 @@ In order to switch HALs, an option such as `-DCLIK_HAL_NAME=refsi_tutorial` can 
     Hello from clik_sync! tid=6, lid=0, gid=6
     Hello from clik_sync! tid=7, lid=0, gid=7
 
-The name of the HAL to load can also be specified at run time using the `CA_HAL_DEVICE` environment variable. However, bear in mind that example kernels will not be recompiled for that HAL device, resulting in erors when running examples that execute kernels:
+The name of the HAL to load can also be specified at run time using the `CA_HAL_DEVICE` environment variable. However, bear in mind that example kernels will not be recompiled for that HAL device, resulting in errors when running examples that execute kernels:
 
     $ CA_HAL_DEVICE=cpu bin/hello
     Using device 'CPU'

@@ -2,6 +2,7 @@
 
 #include "refsi_hal.h"
 
+#include <cassert>
 #include <string>
 
 #include "device/device_if.h"
@@ -145,6 +146,13 @@ static uint64_t round_up_pot(uint64_t v) {
   return v;
 }
 
+// Returns the next integer that is greater than or equal to value and is a
+// multiple of align. align must be non-zero.
+static uint64_t align_to(uint64_t v, uint64_t align) {
+  assert(align != 0u && "align can't be 0.");
+  return (v + align - 1) / align * align;
+}
+
 uint32_t refsi_hal_device::get_word_size() const {
   switch (machine) {
     default:
@@ -178,6 +186,12 @@ bool refsi_hal_device::pack_args(std::vector<uint8_t> &packed_data,
           if (thread_mode == REFSI_THREAD_MODE_WG) {
             pack_word_arg(packed_data, arg.size);
           } else {
+            // Align the start of the local memory buffer to a correctly
+            // aligned address for the pointee type, to satisfy OpenCL-like
+            // programming models. Since we don't know the pointee type, we
+            // assume the max alignment supported by these programming models:
+            // sizeof(long16) -> 128 bytes.
+            local_mem_start = align_to(local_mem_start, 128);
             pack_word_arg(packed_data, local_mem_start);
             local_mem_start += arg.size;
             if (local_mem_start > local_mem_end) {
@@ -189,9 +203,9 @@ bool refsi_hal_device::pack_args(std::vector<uint8_t> &packed_data,
         }
         break;
       case hal::hal_arg_value:
-        align = (thread_mode == REFSI_THREAD_MODE_WG)
-                    ? round_up_pot(arg.size)
-                    : arg.size;
+        // Unconditionally align packed argument values to the next power of
+        // two. This contract must be met by any client of the HAL.
+        align = round_up_pot(arg.size);
         pack_arg(packed_data, arg.pod_data, arg.size, align);
         break;
     }
@@ -204,8 +218,7 @@ void refsi_hal_device::pack_arg(std::vector<uint8_t> &packed_data,
   if (!align) {
     align = size;
   }
-  size_t offset = packed_data.size();
-  offset = (offset + align - 1) / align * align;
+  size_t offset = align_to(packed_data.size(), align);
   size_t new_size = offset + size;
   packed_data.resize(new_size, 0);
   memcpy(&packed_data[offset], value, size);
