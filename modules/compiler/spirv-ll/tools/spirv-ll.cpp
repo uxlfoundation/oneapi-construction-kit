@@ -283,7 +283,6 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
           spv::CapabilityLiteralSampler,
           spv::CapabilitySampled1D,
           spv::CapabilitySampledBuffer,
-          spv::CapabilityKernelAttributesINTEL,
       });
     }
     deviceInfo.extInstImports.push_back("OpenCL.std");

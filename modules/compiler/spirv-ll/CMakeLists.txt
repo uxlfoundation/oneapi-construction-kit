@@ -48,14 +48,11 @@ add_ca_library(spirv-ll STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/opcodes.cpp)
 
-# Import upstream SPIR-V and LLVM headers as system headers so that the
-# compiler knows to ignore warnings for them.
 target_include_directories(spirv-ll PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/source)
 target_include_directories(spirv-ll SYSTEM PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/external/SPIRV-Headers/include
-  ${LLVM_INCLUDE_DIR})
+  ${spirv-headers_SOURCE_DIR}/include ${LLVM_INCLUDE_DIR})
 target_link_libraries(spirv-ll PUBLIC cargo multi_llvm LLVMCore LLVMBitWriter)
 
 if(${CA_ENABLE_SPIRV_LL_EXPERIMENTAL})

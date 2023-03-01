@@ -19,7 +19,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
 if(CA_RUNTIME_COMPILER_ENABLED)
   # multi_llvm must be before all other modules that want to use it.
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/multi_llvm)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/spirv-ll)
 endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
@@ -27,6 +26,22 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 if(CA_RUNTIME_COMPILER_ENABLED)
   add_ca_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vecz)
 endif()
+
+# Fetch the official SPIR-V headers. These are required by some up our public
+# compiler headers, which are also included by mux, so this must take place
+# before including both mux and compiler modules.
+include(FetchContent)
+FetchContent_Declare(
+  SPIRV-Headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+  GIT_TAG        sdk-1.3.239.0
+)
+FetchContent_MakeAvailable(SPIRV-Headers)
+
+if(NOT spirv-headers_POPULATED)
+  message(FATAL_ERROR "No SPIRV-Headers found.")
+endif()
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mux)
 # compiler/builtins requires capabilities from ComputeMux targets.
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/compiler)

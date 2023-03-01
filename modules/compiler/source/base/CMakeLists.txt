@@ -67,7 +67,7 @@ target_include_directories(compiler-base PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/modules/compiler/include)
 target_include_directories(compiler-base SYSTEM PUBLIC
-  ${PROJECT_SOURCE_DIR}/modules/spirv-ll/external/SPIRV-Headers/include)
+  ${spirv-headers_SOURCE_DIR}/include)
 
 # Enable OpenCL 3.0 compiler features if 3.0 is specified in the CMake command
 # line.

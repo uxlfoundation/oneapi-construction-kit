@@ -29,7 +29,7 @@ target_include_directories(compiler-loader PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/modules/compiler/include)
 target_include_directories(compiler-loader SYSTEM PUBLIC
-  ${PROJECT_SOURCE_DIR}/modules/spirv-ll/external/SPIRV-Headers/include)
+  ${spirv-headers_SOURCE_DIR}/include)
 target_link_libraries(compiler-loader PUBLIC mux cargo)
 target_compile_definitions(compiler-loader PRIVATE
   $<$<BOOL:${CA_COMPILER_ENABLE_DYNAMIC_LOADER}>:

@@ -13,6 +13,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
   add_subdirectory(utils)
   add_subdirectory(riscv)
   add_subdirectory(tools)
+  add_subdirectory(spirv-ll)
   set(COMPILER_CONFIG_SOURCE ${PROJECT_BINARY_DIR}/modules/compiler/source/config.cpp)
 
   set(COMPILER_HEADERS
@@ -33,7 +34,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/include
     ${CMAKE_CURRENT_SOURCE_DIR}/library/include
     SYSTEM PUBLIC
-    ${PROJECT_SOURCE_DIR}/modules/spirv-ll/external/SPIRV-Headers/include)
+    ${spirv-headers_SOURCE_DIR}/include)
   target_link_libraries(compiler-static
     PUBLIC builtins PRIVATE compiler-base mux-utils)
 
