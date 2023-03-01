@@ -1475,9 +1475,15 @@ cargo::optional<Error> Builder::create<OpSpecConstantOp>(
       break;
     }
     case spv::OpGenericCastToPtr: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreatePointerCast(val, result_type);
       break;
     }
     case spv::OpPtrCastToGeneric: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreatePointerCast(val, result_type);
       break;
     }
     case spv::OpBitcast: {

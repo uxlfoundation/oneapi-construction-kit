@@ -319,48 +319,66 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
     llvm::GlobalVariable *builtinGlobal, spv::BuiltIn kind) {
   llvm::SmallVector<llvm::User *, 4> Deletes;
   llvm::SmallVector<llvm::User *, 4> Uses;
-  for (auto UI = builtinGlobal->user_begin(), UE = builtinGlobal->user_end();
-       UI != UE; ++UI) {
-    llvm::Instruction *useInst = llvm::cast<llvm::Instruction>(*UI);
-    if (auto ASCast = dyn_cast<llvm::AddrSpaceCastInst>(*UI)) {
-      useInst = llvm::cast<llvm::Instruction>(*ASCast->user_begin());
-      Deletes.push_back(ASCast);
+  llvm::SmallVector<llvm::User *, 4> Worklist(builtinGlobal->users());
+
+  while (!Worklist.empty()) {
+    auto *UI = Worklist.pop_back_val();
+
+    // We may have addrspacecast constant expressions
+    if (auto *CE = dyn_cast<llvm::ConstantExpr>(UI)) {
+      if (CE->getOpcode() != llvm::Instruction::AddrSpaceCast) {
+        // If we have a different kind of constant expression something funky is
+        // going on and we should stick to the relative safety of an init block
+        // for this one.
+        return false;
+      }
+      Deletes.push_back(CE);
+      Worklist.append(CE->user_begin(), CE->user_end());
+      continue;
     }
-    if (llvm::isa<llvm::LoadInst>(useInst)) {
+
+    if (auto *const ASCast = dyn_cast<llvm::AddrSpaceCastInst>(UI)) {
+      Deletes.push_back(ASCast);
+      Worklist.append(ASCast->user_begin(), ASCast->user_end());
+      continue;
+    }
+
+    if (llvm::isa<llvm::LoadInst>(UI)) {
+      Deletes.push_back(UI);
       if (!builtinGlobal->getValueType()->isVectorTy()) {
-        Uses.push_back(useInst);
-        Deletes.push_back(useInst);
+        Uses.push_back(UI);
         continue;
       }
-      for (auto LDUI = useInst->user_begin(), LDUE = useInst->user_end();
-           LDUI != LDUE; ++LDUI) {
+      for (auto *const LDUI : UI->users()) {
         // If we find that this module is trying to use a builtin variable as a
         // vector (i.e. not just extracting one element at a time after loading)
         // we can't replace all its uses with calls to the builtin function.
-        if (!isa<llvm::ExtractElementInst>(*LDUI)) {
+        if (!isa<llvm::ExtractElementInst>(LDUI)) {
           return false;
         }
-        Uses.push_back(*LDUI);
-        Deletes.push_back(*LDUI);
+        Uses.push_back(LDUI);
+        Deletes.push_back(LDUI);
       }
-      Deletes.push_back(useInst);
-    } else if (llvm::isa<llvm::GetElementPtrInst>(useInst)) {
-      for (auto GEPUI = useInst->user_begin(), GEPUE = useInst->user_end();
-           GEPUI != GEPUE; ++GEPUI) {
+      continue;
+    }
+
+    if (llvm::isa<llvm::GetElementPtrInst>(UI)) {
+      Deletes.push_back(UI);
+      for (auto *const GEPUI : UI->users()) {
         // Again, if this access isn't a simple GEP->load scenario give up on
         // this optimization.
-        if (!llvm::isa<llvm::LoadInst>(*GEPUI)) {
+        if (!llvm::isa<llvm::LoadInst>(GEPUI)) {
           return false;
         }
-        Uses.push_back(*GEPUI);
-        Deletes.push_back(*GEPUI);
+        Uses.push_back(GEPUI);
+        Deletes.push_back(GEPUI);
       }
-      Deletes.push_back(useInst);
-    } else {
-      // If we have neither of the above cases something funky is going on and
-      // we should stick to the relative safety of an init block for this one.
-      return false;
+      continue;
     }
+
+    // If we have neither of the above cases something funky is going on and
+    // we should stick to the relative safety of an init block for this one.
+    return false;
   }
 
   // If we've gotten this far we can replace all uses of this builtin global
@@ -389,13 +407,13 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
     llvm::SmallVector<llvm::Value *, 1> arg;
     llvm::Value *index = nullptr;
     llvm::Instruction *useInst = llvm::cast<llvm::Instruction>(use);
-    if (auto EEI = dyn_cast<llvm::ExtractElementInst>(use)) {
+    if (auto *EEI = dyn_cast<llvm::ExtractElementInst>(use)) {
       index = EEI->getIndexOperand();
-    } else if (auto LDI = dyn_cast<llvm::LoadInst>(use)) {
+    } else if (auto *LDI = dyn_cast<llvm::LoadInst>(use)) {
       // In the case of a GEP->load the dim arg to our work item function is
       // the last index provided to the GEP instruction. If we aren't loading
       // a GEP then this must be a call to get_work_dim() - so there is no arg.
-      if (auto GEP =
+      if (auto *GEP =
               dyn_cast<llvm::GetElementPtrInst>(LDI->getPointerOperand())) {
         index = *(GEP->idx_end() - 1);
       }
@@ -424,8 +442,16 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
     workItemCall->takeName(useInst);
     useInst->replaceAllUsesWith(workItemCall);
   }
-  for (auto &d : Deletes) {
-    llvm::cast<llvm::Instruction>(d)->eraseFromParent();
+
+  while (!Deletes.empty()) {
+    auto *UI = Deletes.pop_back_val();
+    if (auto *const CE = llvm::dyn_cast<llvm::ConstantExpr>(UI)) {
+      assert(CE->use_empty());
+      CE->destroyConstant();
+    } else {
+      assert(UI->use_empty());
+      llvm::cast<llvm::Instruction>(UI)->eraseFromParent();
+    }
   }
 
   builtinGlobal->eraseFromParent();

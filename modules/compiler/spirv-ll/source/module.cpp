@@ -584,7 +584,7 @@ void spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
       if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
         AddressSpace = 0;
       } else {
-        llvm_unreachable("unsupported StorageClassGeneric");
+        AddressSpace = 4;
       }
     } break;
     default:

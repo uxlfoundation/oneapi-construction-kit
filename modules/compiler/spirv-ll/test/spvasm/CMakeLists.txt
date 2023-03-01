@@ -2320,6 +2320,9 @@ set(SPVASM_FILES
   opencl_max_byte_offset.spvasm
   prioritize_function_names.spvasm
   op_expect_assume.spvasm
+  op_generic_pointer.spvasm
+  op_generic_pointer_builtin.spvasm
+  op_spec_constant_generic_pointer.spvasm
   )
 
 if(TARGET spirv::spirv-as)

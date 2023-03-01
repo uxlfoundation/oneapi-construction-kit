@@ -1,0 +1,54 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c GenericPointer %p/op_spec_constant_generic_pointer.spv | %filecheck %t.pp
+
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability GenericPointer
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %20 "entry_pt"
+
+       %void = OpTypeVoid
+      %ulong = OpTypeInt 64 0
+        %_ptr_ulong = OpTypePointer CrossWorkgroup %ulong
+        %_ptr_Generic_ulong = OpTypePointer Generic %ulong
+
+        %_ptr_ptr_ulong = OpTypePointer Private %_ptr_ulong
+        %_ptr_ptr_Generic_ulong = OpTypePointer Private %_ptr_Generic_ulong
+
+    %ulong_0 = OpConstant %ulong 0
+    %ulong_1 = OpConstant %ulong 1
+
+         %x = OpConstantNull %_ptr_ulong
+         %y = OpConstantNull %_ptr_Generic_ulong
+
+         %11 = OpSpecConstantOp %_ptr_ulong GenericCastToPtr %y
+         %12 = OpSpecConstantOp %_ptr_Generic_ulong PtrCastToGeneric %x
+
+         %19 = OpTypeFunction %void
+         %20 = OpFunction %void None %19
+      %entry = OpLabel
+
+; CHECK-GE15: [[GPTRPTR:%.*]] = alloca ptr addrspace(4)
+; CHECK-LT15: [[GPTRPTR:%.*]] = alloca i64 addrspace(4)*
+ %_arg_g_ptr = OpVariable %_ptr_ptr_Generic_ulong Function
+
+; CHECK-GE15: [[PTRPTR:%.*]] = alloca ptr addrspace(1)
+; CHECK-LT15: [[PTRPTR:%.*]] = alloca i64 addrspace(1)*
+   %_arg_ptr = OpVariable %_ptr_ptr_ulong Function
+
+          %val = OpIAdd %uint %ulong_0 %ulong_1
+
+; CHECK-GE15: store ptr addrspace(1) addrspacecast (ptr addrspace(4) null to ptr addrspace(1)), ptr [[PTRPTR]]
+; CHECK-LT15: store i64 addrspace(1)* addrspacecast (i64 addrspace(4)* null to i64 addrspace(1)*), i64 addrspace(1)** [[PTRPTR]]
+               OpStore %_arg_ptr %11 Aligned 4
+
+; CHECK-GE15: store ptr addrspace(4) addrspacecast (ptr addrspace(1) null to ptr addrspace(4)), ptr [[GPTRPTR]]
+; CHECK-LT15: store i64 addrspace(4)* addrspacecast (i64 addrspace(1)* null to i64 addrspace(4)*), i64 addrspace(4)** [[GPTRPTR]]
+               OpStore %_arg_g_ptr %12 Aligned 4
+
+               OpReturn
+               OpFunctionEnd

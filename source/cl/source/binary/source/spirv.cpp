@@ -95,6 +95,11 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
       return cargo::make_unexpected(result);
     }
   }
+  if (device_info->supports_generic_address_space) {
+    if ((result = spvCapabilities.push_back(spv::CapabilityGenericPointer))) {
+      return cargo::make_unexpected(result);
+    }
+  }
   for (const std::string &extension : supported_extensions) {
     if ((result = spvDeviceInfo.extensions.push_back(extension))) {
       return cargo::make_unexpected(result);
