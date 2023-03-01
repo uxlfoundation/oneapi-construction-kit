@@ -271,6 +271,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         spv::CapabilityVector16,
         spv::CapabilityVector16,
         spv::CapabilityKernelAttributesINTEL,
+        spv::CapabilityExpectAssumeKHR,
     });
     if (enableAll) {
       // Add the optional OpenCL capabilities if this flag was set.
@@ -440,6 +441,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
                   spv::CapabilitySubgroupBufferBlockIOINTEL)
             .Case("SubgroupImageBlockIOINTEL",
                   spv::CapabilitySubgroupImageBlockIOINTEL)
+            .Case("ExpectAssumeKHR", spv::CapabilityExpectAssumeKHR)
             .Default(static_cast<spv::Capability>(0));
     if (capability == 0) {
       std::cerr << "error: unknown capability: " << cargo::as<std::string>(cap)
@@ -456,6 +458,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         "SPV_KHR_storage_buffer_storage_class",
         "SPV_KHR_variable_pointers",
         "SPV_KHR_vulkan_memory_model",
+        "SPV_KHR_expect_assume",
     });
   } else {
     for (auto extension : extensions) {

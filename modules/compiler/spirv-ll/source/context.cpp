@@ -1083,6 +1083,12 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
       case spv::OpImageSparseRead:
         error = builder.create<OpImageSparseRead>(op);
         break;
+      case spv::OpAssumeTrueKHR:
+        error = builder.create<OpAssumeTrueKHR>(op);
+        break;
+      case spv::OpExpectKHR:
+        error = builder.create<OpExpectKHR>(op);
+        break;
     }
     if (error) {
       return cargo::make_unexpected(std::move(error.value()));

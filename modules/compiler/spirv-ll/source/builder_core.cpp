@@ -6779,4 +6779,37 @@ cargo::optional<Error> Builder::create<OpImageSparseRead>(
   return cargo::nullopt;
 }
 
+template <>
+cargo::optional<Error> Builder::create<OpAssumeTrueKHR>(
+    const OpAssumeTrueKHR *op) {
+  auto condition = module.getValue(op->Condition());
+  SPIRV_LL_ASSERT_PTR(condition);
+
+  IRBuilder.CreateAssumption(condition);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpExpectKHR>(const OpExpectKHR *op) {
+  llvm::Type *type = module.getType(op->IdResultType());
+  SPIRV_LL_ASSERT_PTR(type);
+
+  auto value = module.getValue(op->Value());
+  SPIRV_LL_ASSERT_PTR(value);
+  auto expectedValue = module.getValue(op->ExpectedValue());
+  SPIRV_LL_ASSERT_PTR(expectedValue);
+
+  SPIRV_LL_ASSERT(type == value->getType(),
+                  "The type of the Value operand must match the Result Type.");
+
+  SPIRV_LL_ASSERT(value->getType() == expectedValue->getType(),
+                  "The type of the ExpectedValue operand must match the type "
+                  "of the Value operand.");
+
+  module.addID(op->IdResult(), op,
+               IRBuilder.CreateIntrinsic(llvm::Intrinsic::expect, type,
+                                         {value, expectedValue}));
+  return cargo::nullopt;
+}
+
 }  // namespace spirv_ll

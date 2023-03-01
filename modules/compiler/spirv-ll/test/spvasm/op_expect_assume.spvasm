@@ -1,0 +1,30 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 -e SPV_KHR_expect_assume %p/op_expect_assume.spv | %filecheck %s
+
+            OpCapability Kernel
+            OpCapability Addresses
+            OpCapability Int64
+            OpCapability ExpectAssumeKHR
+            OpExtension "SPV_KHR_expect_assume"
+            OpMemoryModel Physical64 OpenCL
+            OpEntryPoint Kernel %do_expect_assume "assume"
+            OpName %do_expect_assume "assume"
+            OpName %a "a"
+    %void = OpTypeVoid
+    %uint = OpTypeInt 32 0
+    %bool = OpTypeBool
+       %3 = OpTypeFunction %void %uint
+  %uint_0 = OpConstant %uint 0
+  %do_expect_assume = OpFunction %void None %3
+       %a = OpFunctionParameter %uint
+       %5 = OpLabel
+       %c = OpIEqual %bool %a %uint_0
+            OpAssumeTrueKHR %c
+     %exp = OpExpectKHR %uint %a %uint_0
+            OpReturn
+            OpFunctionEnd
+
+; CHECK: [[COND:%.*]] = icmp eq i32 %a, 0
+; CHECK: call void @llvm.assume(i1 [[COND]])
+; CHECK: call i32 @llvm.expect.i32(i32 %a, i32 0)

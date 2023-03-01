@@ -2319,6 +2319,7 @@ set(SPVASM_FILES
   op_opencl_call_byval_arg.spvasm
   opencl_max_byte_offset.spvasm
   prioritize_function_names.spvasm
+  op_expect_assume.spvasm
   )
 
 if(TARGET spirv::spirv-as)

@@ -3339,6 +3339,19 @@ class ExtInst<DATA, OFFSET, P, MODE> : public OpExtInst {
     return static_cast<spv::FPRoundingMode>(getValueAtOffset(8));
   }
 };
+class OpAssumeTrueKHR : public OpCode {
+ public:
+  OpAssumeTrueKHR(OpCode const &other) : OpCode(other, spv::OpAssumeTrueKHR) {}
+  spv::Id Condition() const;
+  static const spv::Op ClassCode = spv::OpAssumeTrueKHR;
+};
+class OpExpectKHR : public OpResult {
+ public:
+  OpExpectKHR(OpCode const &other) : OpResult(other, spv::OpExpectKHR) {}
+  spv::Id Value() const;
+  spv::Id ExpectedValue() const;
+  static const spv::Op ClassCode = spv::OpExpectKHR;
+};
 
 namespace OpenCLstd {
 using Acos = ExtInst<X>;

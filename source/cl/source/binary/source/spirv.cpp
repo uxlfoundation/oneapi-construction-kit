@@ -16,13 +16,14 @@ namespace binary {
 // all core targets. See CA-3067.
 // TODO(CA-3067): Remove SPIRV_LL_EXPERIMENTAL when we have a proper mechanism
 // for extending spirv-ll.
-const std::array<const std::string, 3> supported_extensions = {
+const std::array<const std::string, 4> supported_extensions = {
     {
         "SPV_KHR_no_integer_wrap_decoration",
 #ifdef SPIRV_LL_EXPERIMENTAL
         "SPV_codeplay_usm_generic_storage_class",
 #endif
         "SPV_INTEL_kernel_attributes",
+        "SPV_KHR_expect_assume",
     },
 };
 
@@ -31,54 +32,66 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
   compiler::spirv::DeviceInfo spvDeviceInfo;
   cargo::result result = cargo::result::success;
 
+  auto &spvCapabilities = spvDeviceInfo.capabilities;
+
+  // A set of capabilities shared between the OpenCL profiles we support.
+  static std::array<spv::Capability, 10> sharedCapabilities = {
+      spv::CapabilityAddresses,
+      spv::CapabilityFloat16Buffer,
+      spv::CapabilityGroups,
+      spv::CapabilityInt8,
+      spv::CapabilityInt16,
+      spv::CapabilityKernel,
+      spv::CapabilityLinkage,
+      spv::CapabilityVector16,
+      spv::CapabilityKernelAttributesINTEL,
+      spv::CapabilityExpectAssumeKHR,
+  };
+
   if (profile == "FULL_PROFILE") {
-    if ((result = spvDeviceInfo.capabilities.assign(
-             {spv::CapabilityAddresses, spv::CapabilityFloat16Buffer,
-              spv::CapabilityGroups, spv::CapabilityInt64, spv::CapabilityInt16,
-              spv::CapabilityInt8, spv::CapabilityKernel,
-              spv::CapabilityLinkage, spv::CapabilityVector16,
-              spv::CapabilityKernelAttributesINTEL}))) {
+    auto error_or = spvCapabilities.insert(spvCapabilities.end(),
+                                           sharedCapabilities.begin(),
+                                           sharedCapabilities.end());
+    if (!error_or) {
+      return cargo::make_unexpected(error_or.error());
+    }
+    if ((result = spvCapabilities.push_back(spv::CapabilityInt64))) {
       return cargo::make_unexpected(result);
     }
   } else if (profile == "EMBEDDED_PROFILE") {
-    if ((result = spvDeviceInfo.capabilities.assign(
-             {spv::CapabilityAddresses, spv::CapabilityFloat16Buffer,
-              spv::CapabilityGroups, spv::CapabilityInt16, spv::CapabilityInt8,
-              spv::CapabilityKernel, spv::CapabilityLinkage,
-              spv::CapabilityVector16,
-              spv::CapabilityKernelAttributesINTEL}))) {
-      return cargo::make_unexpected(result);
+    auto error_or = spvCapabilities.insert(spvCapabilities.end(),
+                                           sharedCapabilities.begin(),
+                                           sharedCapabilities.end());
+    if (!error_or) {
+      return cargo::make_unexpected(error_or.error());
     }
     if (device_info->integer_capabilities & mux_integer_capabilities_64bit) {
-      if ((result =
-               spvDeviceInfo.capabilities.push_back(spv::CapabilityInt64))) {
+      if ((result = spvCapabilities.push_back(spv::CapabilityInt64))) {
         return cargo::make_unexpected(result);
       }
     }
   }
   if (device_info->image_support) {
-    auto error_or = spvDeviceInfo.capabilities.insert(
-        spvDeviceInfo.capabilities.end(), {
-                                              spv::CapabilityImageBasic,
-                                              spv::CapabilityLiteralSampler,
-                                              spv::CapabilitySampled1D,
-                                              spv::CapabilityImage1D,
-                                              spv::CapabilitySampledBuffer,
-                                              spv::CapabilityImageBuffer,
-                                          });
+    auto error_or = spvCapabilities.insert(spvCapabilities.end(),
+                                           {
+                                               spv::CapabilityImageBasic,
+                                               spv::CapabilityLiteralSampler,
+                                               spv::CapabilitySampled1D,
+                                               spv::CapabilityImage1D,
+                                               spv::CapabilitySampledBuffer,
+                                               spv::CapabilityImageBuffer,
+                                           });
     if (!error_or) {
       return cargo::make_unexpected(error_or.error());
     }
   }
   if (device_info->half_capabilities) {
-    if ((result =
-             spvDeviceInfo.capabilities.push_back(spv::CapabilityFloat16))) {
+    if ((result = spvCapabilities.push_back(spv::CapabilityFloat16))) {
       return cargo::make_unexpected(result);
     }
   }
   if (device_info->double_capabilities) {
-    if ((result =
-             spvDeviceInfo.capabilities.push_back(spv::CapabilityFloat64))) {
+    if ((result = spvCapabilities.push_back(spv::CapabilityFloat64))) {
       return cargo::make_unexpected(result);
     }
   }

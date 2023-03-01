@@ -4,6 +4,7 @@ Feature additions:
 * `spirv-ll` now generates calls to ComputeMux synchronization builtins for
   `OpControlBarrier` (`__mux_work_group_barrier` and `__mux_sub_group_barrier`)
   and `OpMemoryBarrier` (`__mux_mem_barrier`).
+* `spirv-ll` now supports the `SPV_KHR_expect_assume` extension.
 
 Upgrade guidance:
 

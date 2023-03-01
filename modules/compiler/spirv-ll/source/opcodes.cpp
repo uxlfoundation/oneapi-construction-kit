@@ -2116,6 +2116,11 @@ spv::Id OpSubgroupReadInvocationKHR::Index() const {
   return getValueAtOffset(4);
 }
 
+spv::Id OpAssumeTrueKHR::Condition() const { return getValueAtOffset(1); }
+
+spv::Id OpExpectKHR::Value() const { return getValueAtOffset(3); }
+spv::Id OpExpectKHR::ExpectedValue() const { return getValueAtOffset(4); }
+
 spv::Id OpenCLstd::Printf::format() const { return getValueAtOffset(5); }
 
 llvm::SmallVector<spv::Id, 8> OpenCLstd::Printf::AdditionalArguments() const {
