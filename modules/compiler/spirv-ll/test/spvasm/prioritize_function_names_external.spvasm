@@ -1,0 +1,61 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/prioritize_function_names_external.spv | %filecheck %s
+
+; Tests imported and exported functions are not incorrectly re-named
+
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %18 "external_linkage"
+               OpExecutionMode %18 ContractionOff
+               OpSource OpenCL_C 102000
+               OpName %imported_func "imported_func"
+               OpName %x "x"
+               OpName %entry "entry"
+               OpName %func_1 "func_1"
+               OpName %x_0 "x"
+               OpName %entry_0 "entry"
+               OpName %external_linkage "external_linkage"
+               OpName %entry_1 "entry"
+               OpDecorate %imported_func LinkageAttributes "imported_func" Import
+               OpDecorate %func LinkageAttributes "func" Export
+               OpDecorate %external_linkage LinkageAttributes "external_linkage" Export
+       %uint = OpTypeInt 32 0
+     %uint_1 = OpConstant %uint 1
+       %void = OpTypeVoid
+          %4 = OpTypeFunction %void %uint
+         %13 = OpTypeFunction %void
+%imported_func = OpFunction %void None %4
+          %6 = OpFunctionParameter %uint
+               OpFunctionEnd
+       %func = OpFunction %void Pure %4
+          %x = OpFunctionParameter %uint
+      %entry = OpLabel
+               OpReturn
+               OpFunctionEnd
+     %func_1 = OpFunction %void Pure %4
+        %x_0 = OpFunctionParameter %uint
+    %entry_0 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%external_linkage = OpFunction %void None %13
+    %entry_1 = OpLabel
+         %17 = OpFunctionCall %void %imported_func %uint_1
+               OpReturn
+               OpFunctionEnd
+         %18 = OpFunction %void None %13
+         %19 = OpLabel
+         %20 = OpFunctionCall %void %external_linkage
+               OpReturn
+               OpFunctionEnd
+
+; CHECK: declare spir_func void @imported_func{{([^)]+)}}
+; CHECK: define spir_func void @func{{([^)]+)}}
+; CHECK: define private spir_func void @func_1{{([^)]+)}}
+; CHECK: define spir_func void @external_linkage.1{{([^)]+)}}
+; CHECK: call spir_func void @imported_func{{([^)]+)}}
+; CHECK: define spir_kernel void @external_linkage{{([^)]+)}}
+; CHECK: call spir_func void @external_linkage.1{{([^)]+)}}

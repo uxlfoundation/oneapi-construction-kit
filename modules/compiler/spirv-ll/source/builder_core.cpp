@@ -1893,17 +1893,21 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
         break;
     }
   } else {
-    // Pass the function name normally if it's externally linked as we don't
-    // need to alter it's name in the LLVM module. Otherwise for normal
-    // functions with a defined body we need to pass an empty name to ensure
-    // kernel entry points get priority to claim the name (if a function and
-    // entry point have the same name). The function name then gets re-set when
-    // the module is processed in spirv_ll::Context::translate() using the
-    // Values map.
+    // Some naming edge cases like functions with similar names in different
+    // namespaces (OpName, OpDecorate Linkage Attributes and OpEntryPoint)
+    // aren't handled correctly and can be incorrectly re-named in the LLVM
+    // module. Below is a hack to resolve this by de-prioritizing the OpName (by
+    // passing a blank name) and adding it to the module Values map if it's an
+    // External function. The function name is reset in
+    // spirv_ll::Context::translate() using the Values map. A backlog JIRA has
+    // been created (CA-4796) to investigate a more thorough fix to naming
+    // similarly named functions from different namespaces.
 
-    if (linkage != llvm::Function::LinkageTypes::ExternalLinkage) {
-      name = "";
+    if (linkage == llvm::Function::LinkageTypes::ExternalLinkage) {
+      module.addName(op->IdResult(), name);
     }
+
+    name.clear();
 
     function = llvm::Function::Create(function_type, linkage, name,
                                       module.llvmModule.get());
