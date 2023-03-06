@@ -138,10 +138,11 @@ a set of OpenCL and SYCL built-in functions which have no implementation (i.e.
 their body is empty). In order for DMA to function properly these functions need
 to be replaced with functions that control the target's DMA functionality.
 
-This is done by adding a compiler pass, `RefSiReplaceMuxDmaPass`, to the
-RISC-V's pass pipeline. When this pass is run, it replaces the ComputeMux
-equivalent of OpenCL and SYCL DMA built-in functions with RefSi DMA built-in
-functions:
+This is done by overriding the default behaviour of the ComputeMux
+`DefineMuxDmaPass` by providing a custom `BuiltinInfo` instance, through which
+the builtins are defined. The virtual `DefineMuxDmaPass::defineMuxBuiltin`
+function is overloaded to provide the ComputeMux functions with RefSi DMA
+built-in definitions:
 
 * `__mux_dma_(read|write)_1D` is replaced with `_refsi_dma_start_seq_(read|write)`
 * `__mux_dma_(read|write)_2D` is replaced with `_refsi_dma_start_2d_(read|write)`

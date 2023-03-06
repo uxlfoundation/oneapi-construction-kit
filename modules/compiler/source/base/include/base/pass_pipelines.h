@@ -10,7 +10,6 @@
 #define BASE_PASS_PIPELINES_H_INCLUDED
 
 #include <compiler/module.h>
-#include <compiler/utils/replace_mux_dma_pass.h>
 #include <llvm/IR/CallingConv.h>
 #include <llvm/IR/PassManager.h>
 
@@ -44,12 +43,6 @@ struct BasePassPipelineTuner {
   /// @brief The desired target calling convention, used to configure the
   /// FixupCallingConvention pass.
   llvm::CallingConv::ID calling_convention = llvm::CallingConv::C;
-
-  /// @brief A configurable hook for targets to replace the mux DMA builtins in
-  /// a custom fashion. The default adds the ReplaceMuxDmaPass.
-  addPassFunc addDMAReplacementPasses = [](llvm::ModulePassManager &PM) {
-    PM.addPass(compiler::utils::ReplaceMuxDmaPass());
-  };
 };
 
 /// @brief Adds passes which are both required and recommended for use before

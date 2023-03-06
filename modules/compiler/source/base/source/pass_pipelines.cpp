@@ -5,6 +5,7 @@
 #include <compiler/utils/add_scheduling_parameters_pass.h>
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
+#include <compiler/utils/define_mux_dma_pass.h>
 #include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
@@ -58,7 +59,7 @@ void addLateBuiltinsPasses(ModulePassManager &PM,
 
   PM.addPass(compiler::utils::MaterializeAbsentWorkItemBuiltinsPass());
 
-  tuner.addDMAReplacementPasses(PM);
+  PM.addPass(compiler::utils::DefineMuxDmaPass());
 
   PM.addPass(compiler::utils::ReplaceMuxMathDeclsPass(
       tuner.options.unsafe_math_optimizations));

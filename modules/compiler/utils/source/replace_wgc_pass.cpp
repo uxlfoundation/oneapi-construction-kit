@@ -548,7 +548,9 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   if (NeedsIdentityFix) {
     auto *const Identity =
         compiler::utils::getIdentityVal(WGC.recurKind, WGC.type);
-    auto *const IsZero = compiler::utils::isThreadZero(EntryBB, BI);
+    auto *const getLocalIDFn =
+        BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalId, M);
+    auto *const IsZero = compiler::utils::isThreadZero(EntryBB, *getLocalIDFn);
     auto *const FixedResult = Builder.CreateSelect(IsZero, Identity, Result);
     Builder.CreateRet(FixedResult);
   } else {

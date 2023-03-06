@@ -11,13 +11,14 @@ endif()
 
 if(CA_RUNTIME_COMPILER_ENABLED)
   set(REFSI_M1_SOURCES
-      ${CMAKE_CURRENT_SOURCE_DIR}/source/refsi_replace_mux_dma_pass.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/source/refsi_wrapper_pass.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/source/refsi_mux_builtin_info.cpp
       ${CMAKE_CURRENT_SOURCE_DIR}/source/refsi_pass_machinery.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/source/refsi_wrapper_pass.cpp
       ${CMAKE_CURRENT_SOURCE_DIR}/source/info.cpp
       ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/refsi_m1/refsi_wrapper_pass.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/refsi_m1/refsi_mux_builtin_info.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/refsi_m1/refsi_pass_machinery.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/refsi_m1/refsi_wrapper_pass.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/refsi_m1/info.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/refsi_m1/module.h
   )

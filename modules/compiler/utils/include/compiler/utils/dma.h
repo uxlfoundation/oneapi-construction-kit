@@ -23,7 +23,7 @@ class Value;
 namespace compiler {
 namespace utils {
 
-class BuiltinInfo;
+class BIMuxInfoConcept;
 
 /// @addtogroup utils
 /// @{
@@ -34,24 +34,21 @@ class BuiltinInfo;
 /// @param[in] x The local id in the x dimension to compare against.
 /// @param[in] y The local id in the y dimension to compare against.
 /// @param[in] z The local id in the z dimension to compare against.
-/// @param[in] BI BuiltinInfo used to get/declare a builtin to get the local
-/// work-item ID
+/// @param[in] GetLocalIDFn Function used to get the local work-item ID
 ///
 /// @return A true Value if the local ID equals that passed via the index
 /// arguments, false otherwise.
 llvm::Value *isThreadEQ(llvm::BasicBlock *bb, unsigned x, unsigned y,
-                        unsigned z, compiler::utils::BuiltinInfo &BI);
+                        unsigned z, llvm::Function &GetLocalIDFn);
 
 /// @brief Helper function to check if the local ID of the current thread is {0,
 /// 0, 0}.
 ///
 /// @param[in] bb Basic block to generate the check in.
-/// @param[in] BI BuiltinInfo used to get/declare a builtin to get the local
-/// work-item ID
+/// @param[in] GetLocalIDFn Function used to get the local work-item ID
 ///
 /// @return A true Value if the local ID is {0, 0, 0} / false otherwise.
-llvm::Value *isThreadZero(llvm::BasicBlock *bb,
-                          compiler::utils::BuiltinInfo &BI);
+llvm::Value *isThreadZero(llvm::BasicBlock *bb, llvm::Function &GetLocalIDFn);
 
 /// @brief Insert 'thread-checking' logic in the entry block, so that control
 /// branches to the 'true' block when the current work-item in the first in the
@@ -61,11 +58,10 @@ llvm::Value *isThreadZero(llvm::BasicBlock *bb,
 /// @param[in] entryBlock Block to insert the 'thread-checking' logic
 /// @param[in] trueBlock Block to execute only on the first work-item
 /// @param[in] falseBlock Block to execute on all other work-items
-/// @param[in] BI BuiltinInfo used to get/declare a builtin to get the local
-/// work-item ID
+/// @param[in] GetLocalIDFn Function used to get the local work-item ID
 void buildThreadCheck(llvm::BasicBlock *entryBlock, llvm::BasicBlock *trueBlock,
                       llvm::BasicBlock *falseBlock,
-                      compiler::utils::BuiltinInfo &BI);
+                      llvm::Function &GetLocalIDFn);
 
 /// @brief Gets or creates the __mux_dma_event_t type.
 ///

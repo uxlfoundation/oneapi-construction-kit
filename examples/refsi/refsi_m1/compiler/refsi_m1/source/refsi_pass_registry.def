@@ -7,7 +7,6 @@
 #define MODULE_PASS(NAME, CREATE_PASS)
 #endif
 
-MODULE_PASS("refsi-replace-mux-dma", refsi_m1::RefSiM1ReplaceMuxDmaPass())
 MODULE_PASS("refsi-wrapper", refsi_m1::RefSiM1WrapperPass())
 
 #undef MODULE_PASS

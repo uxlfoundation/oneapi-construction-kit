@@ -1,9 +1,11 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 #include <compiler/utils/builtin_info.h>
+#include <compiler/utils/dma.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
+#include <multi_llvm/opaque_pointers.h>
 
 using namespace llvm;
 
@@ -455,6 +457,210 @@ Function *BIMuxInfoConcept::defineMemBarrier(Function &F, unsigned,
   return &F;
 }
 
+static BasicBlock *copy1D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
+                          Value *SrcPtr, Value *NumBytes) {
+  Type *const I8Ty = IntegerType::get(M.getContext(), 8);
+
+  assert(SrcPtr->getType()->isPointerTy() &&
+         multi_llvm::isOpaqueOrPointeeTypeMatches(
+             cast<PointerType>(SrcPtr->getType()), I8Ty) &&
+         "Mux DMA builtins are always byte-accessed");
+  assert(DstPtr->getType()->isPointerTy() &&
+         multi_llvm::isOpaqueOrPointeeTypeMatches(
+             cast<PointerType>(DstPtr->getType()), I8Ty) &&
+         "Mux DMA builtins are always byte-accessed");
+
+  Value *DmaIVs[] = {SrcPtr, DstPtr};
+
+  // This is a simple loop copy a byte at a time from SrcPtr to DstPtr.
+  BasicBlock *ExitBB = compiler::utils::createLoop(
+      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumBytes, DmaIVs,
+      compiler::utils::CreateLoopOpts{},
+      [&](BasicBlock *BB, Value *X, ArrayRef<Value *> IVsCurr,
+          MutableArrayRef<Value *> IVsNext) {
+        IRBuilder<> B(BB);
+        Value *const CurrentDmaSrcPtr1DPhi = IVsCurr[0];
+        Value *const CurrentDmaDstPtr1DPhi = IVsCurr[1];
+        Value *load = B.CreateLoad(I8Ty, CurrentDmaSrcPtr1DPhi);
+        B.CreateStore(load, CurrentDmaDstPtr1DPhi);
+        IVsNext[0] = B.CreateGEP(I8Ty, CurrentDmaSrcPtr1DPhi,
+                                 ConstantInt::get(X->getType(), 1));
+        IVsNext[1] = B.CreateGEP(I8Ty, CurrentDmaDstPtr1DPhi,
+                                 ConstantInt::get(X->getType(), 1));
+        return BB;
+      });
+
+  return ExitBB;
+}
+
+static BasicBlock *copy2D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
+                          Value *SrcPtr, Value *LineSizeBytes,
+                          Value *LineStrideDst, Value *LineStrideSrc,
+                          Value *NumLines) {
+  Type *const I8Ty = IntegerType::get(M.getContext(), 8);
+
+  assert(SrcPtr->getType()->isPointerTy() &&
+         multi_llvm::isOpaqueOrPointeeTypeMatches(
+             cast<PointerType>(SrcPtr->getType()), I8Ty) &&
+         "Mux DMA builtins are always byte-accessed");
+  assert(DstPtr->getType()->isPointerTy() &&
+         multi_llvm::isOpaqueOrPointeeTypeMatches(
+             cast<PointerType>(DstPtr->getType()), I8Ty) &&
+         "Mux DMA builtins are always byte-accessed");
+
+  Value *DmaIVs[] = {SrcPtr, DstPtr};
+
+  // This is a loop over the range of lines, calling a 1D copy on each line
+  BasicBlock *ExitBB = compiler::utils::createLoop(
+      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumLines, DmaIVs,
+      compiler::utils::CreateLoopOpts{},
+      [&](BasicBlock *block, Value *, ArrayRef<Value *> IVsCurr,
+          MutableArrayRef<Value *> IVsNext) {
+        IRBuilder<> loopIr(block);
+        Value *CurrentDmaSrcPtrPhi = IVsCurr[0];
+        Value *CurrentDmaDstPtrPhi = IVsCurr[1];
+
+        IVsNext[0] = loopIr.CreateGEP(I8Ty, CurrentDmaSrcPtrPhi, LineStrideSrc);
+        IVsNext[1] = loopIr.CreateGEP(I8Ty, CurrentDmaDstPtrPhi, LineStrideDst);
+        return copy1D(M, *block, CurrentDmaDstPtrPhi, CurrentDmaSrcPtrPhi,
+                      LineSizeBytes);
+      });
+
+  return ExitBB;
+}
+
+Function *BIMuxInfoConcept::defineDMA1D(Function &F) {
+  Argument *const ArgDstPtr = F.getArg(0);
+  Argument *const ArgSrcPtr = F.getArg(1);
+  Argument *const ArgWidth = F.getArg(2);
+  Argument *const ArgEvent = F.getArg(3);
+
+  auto &M = *F.getParent();
+  auto &Ctx = F.getContext();
+  auto *const ExitBB = BasicBlock::Create(Ctx, "exit", &F);
+  auto *const LoopEntryBB = BasicBlock::Create(Ctx, "loop_entry", &F, ExitBB);
+  auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F, LoopEntryBB);
+
+  auto *const GetLocalIDFn = getOrDeclareMuxBuiltin(eMuxBuiltinGetLocalId, M);
+  compiler::utils::buildThreadCheck(EntryBB, LoopEntryBB, ExitBB,
+                                    *GetLocalIDFn);
+
+  BasicBlock *const LoopExitBB =
+      copy1D(M, *LoopEntryBB, ArgDstPtr, ArgSrcPtr, ArgWidth);
+  IRBuilder<> LoopIRB(LoopExitBB);
+  LoopIRB.CreateBr(ExitBB);
+
+  IRBuilder<> ExitIRB(ExitBB);
+  ExitIRB.CreateRet(ArgEvent);
+
+  return &F;
+}
+
+Function *BIMuxInfoConcept::defineDMA2D(Function &F) {
+  Argument *const ArgDstPtr = F.getArg(0);
+  Argument *const ArcSrcPtr = F.getArg(1);
+  Argument *const ArgWidth = F.getArg(2);
+  Argument *const ArgDstStride = F.getArg(3);
+  Argument *const ArgSrcStride = F.getArg(4);
+  Argument *const ArgNumLines = F.getArg(5);
+  Argument *const ArgEvent = F.getArg(6);
+
+  auto &M = *F.getParent();
+  auto &Ctx = F.getContext();
+  auto *const ExitBB = BasicBlock::Create(Ctx, "exit", &F);
+  auto *const LoopEntryBB = BasicBlock::Create(Ctx, "loop_entry", &F, ExitBB);
+  auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F, LoopEntryBB);
+
+  auto *const GetLocalIDFn = getOrDeclareMuxBuiltin(eMuxBuiltinGetLocalId, M);
+  compiler::utils::buildThreadCheck(EntryBB, LoopEntryBB, ExitBB,
+                                    *GetLocalIDFn);
+
+  // Create a loop around 1D DMA memcpy, adding strides each time.
+  BasicBlock *const LoopExitBB =
+      copy2D(M, *LoopEntryBB, ArgDstPtr, ArcSrcPtr, ArgWidth, ArgDstStride,
+             ArgSrcStride, ArgNumLines);
+
+  IRBuilder<> LoopIRB(LoopExitBB);
+  LoopIRB.CreateBr(ExitBB);
+
+  IRBuilder<> ExitIRB(ExitBB);
+  ExitIRB.CreateRet(ArgEvent);
+
+  return &F;
+}
+
+Function *BIMuxInfoConcept::defineDMA3D(Function &F) {
+  Argument *const ArgDstPtr = F.getArg(0);
+  Argument *const ArgSrcPtr = F.getArg(1);
+  Argument *const ArgLineSize = F.getArg(2);
+  Argument *const ArgDstLineStride = F.getArg(3);
+  Argument *const ArgSrcLineStride = F.getArg(4);
+  Argument *const ArgNumLinesPerPlane = F.getArg(5);
+  Argument *const ArgDstPlaneStride = F.getArg(6);
+  Argument *const ArgSrcPlaneStride = F.getArg(7);
+  Argument *const ArgNumPlanes = F.getArg(8);
+  Argument *const ArgEvent = F.getArg(9);
+
+  auto &M = *F.getParent();
+  auto &Ctx = F.getContext();
+  Type *const I8Ty = IntegerType::get(Ctx, 8);
+
+  auto *const ExitBB = BasicBlock::Create(Ctx, "exit", &F);
+  auto *const LoopEntryBB = BasicBlock::Create(Ctx, "loop_entry", &F, ExitBB);
+  auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F, LoopEntryBB);
+
+  auto *const GetLocalIDFn = getOrDeclareMuxBuiltin(eMuxBuiltinGetLocalId, M);
+  compiler::utils::buildThreadCheck(EntryBB, LoopEntryBB, ExitBB,
+                                    *GetLocalIDFn);
+
+  assert(ArgSrcPtr->getType()->isPointerTy() &&
+         multi_llvm::isOpaqueOrPointeeTypeMatches(
+             cast<PointerType>(ArgSrcPtr->getType()), I8Ty) &&
+         "Mux DMA builtins are always byte-accessed");
+  assert(ArgDstPtr->getType()->isPointerTy() &&
+         multi_llvm::isOpaqueOrPointeeTypeMatches(
+             cast<PointerType>(ArgDstPtr->getType()), I8Ty) &&
+         "Mux DMA builtins are always byte-accessed");
+
+  Value *DmaIVs[] = {ArgSrcPtr, ArgDstPtr};
+
+  // Create a loop around 1D DMA memcpy, adding stride, local width each time.
+  BasicBlock *LoopExitBB = compiler::utils::createLoop(
+      LoopEntryBB, nullptr, ConstantInt::get(getSizeType(M), 0), ArgNumPlanes,
+      DmaIVs, compiler::utils::CreateLoopOpts{},
+      [&](BasicBlock *BB, Value *, ArrayRef<Value *> IVsCurr,
+          MutableArrayRef<Value *> IVsNext) {
+        IRBuilder<> loopIr(BB);
+        Value *CurrentDmaPlaneSrcPtrPhi = IVsCurr[0];
+        Value *CurrentDmaPlaneDstPtrPhi = IVsCurr[1];
+
+        IVsNext[0] =
+            loopIr.CreateGEP(I8Ty, CurrentDmaPlaneSrcPtrPhi, ArgSrcPlaneStride);
+        IVsNext[1] =
+            loopIr.CreateGEP(I8Ty, CurrentDmaPlaneDstPtrPhi, ArgDstPlaneStride);
+
+        return copy2D(M, *BB, CurrentDmaPlaneDstPtrPhi,
+                      CurrentDmaPlaneSrcPtrPhi, ArgLineSize, ArgDstLineStride,
+                      ArgSrcLineStride, ArgNumLinesPerPlane);
+      });
+
+  IRBuilder<> LoopExitIRB(LoopExitBB);
+  LoopExitIRB.CreateBr(ExitBB);
+
+  IRBuilder<> ExitIRB(ExitBB);
+  ExitIRB.CreateRet(ArgEvent);
+
+  return &F;
+}
+
+Function *BIMuxInfoConcept::defineDMAWait(Function &F) {
+  // By default this function is a simple return-void.
+  IRBuilder<> B(BasicBlock::Create(F.getContext(), "entry", &F));
+  B.CreateRetVoid();
+
+  return &F;
+}
+
 Function *BIMuxInfoConcept::defineMuxBuiltin(BuiltinID ID, Module &M) {
   assert(BuiltinInfo::isMuxBuiltinID(ID) && "Only handling mux builtins");
   Function *F = M.getFunction(BuiltinInfo::getMuxBuiltinName(ID));
@@ -486,6 +692,17 @@ Function *BIMuxInfoConcept::defineMuxBuiltin(BuiltinID ID, Module &M) {
     case eMuxBuiltinSubGroupBarrier:
     case eMuxBuiltinWorkGroupBarrier:
       return defineMemBarrier(*F, 1, 2);
+    case eMuxBuiltinDMARead1D:
+    case eMuxBuiltinDMAWrite1D:
+      return defineDMA1D(*F);
+    case eMuxBuiltinDMARead2D:
+    case eMuxBuiltinDMAWrite2D:
+      return defineDMA2D(*F);
+    case eMuxBuiltinDMARead3D:
+    case eMuxBuiltinDMAWrite3D:
+      return defineDMA3D(*F);
+    case eMuxBuiltinDMAWait:
+      return defineDMAWait(*F);
   }
 
   if (auto *const NewF = defineLocalWorkItemBuiltin(*this, ID, M)) {

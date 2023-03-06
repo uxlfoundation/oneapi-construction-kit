@@ -5,7 +5,6 @@
 #include <llvm/Passes/PassBuilder.h>
 #include <multi_llvm/optional_helper.h>
 #include <refsi_m1/refsi_pass_machinery.h>
-#include <refsi_m1/refsi_replace_mux_dma_pass.h>
 #include <refsi_m1/refsi_wrapper_pass.h>
 #include <vecz/pass.h>
 

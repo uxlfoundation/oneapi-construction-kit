@@ -17,8 +17,8 @@
 #include <llvm/Target/TargetMachine.h>
 #include <metadata/handler/vectorize_info_metadata.h>
 #include <refsi_m1/module.h>
+#include <refsi_m1/refsi_mux_builtin_info.h>
 #include <refsi_m1/refsi_pass_machinery.h>
-#include <refsi_m1/refsi_replace_mux_dma_pass.h>
 #include <refsi_m1/refsi_wrapper_pass.h>
 #include <refsi_m1/target.h>
 #include <riscv/ir_to_builtins_pass.h>
@@ -41,6 +41,7 @@ RefSiM1Module::createPassMachinery() {
 
   auto Callback = [Builtins](const llvm::Module &) {
     return compiler::utils::BuiltinInfo(
+        std::make_unique<RefSiM1BIMuxInfo>(),
         compiler::utils::createCLBuiltinInfo(Builtins));
   };
   return multi_llvm::make_unique<RefSiM1PassMachinery>(
@@ -54,13 +55,6 @@ void RefSiM1Module::addFinalKernelPasses(llvm::ModulePassManager &PM) {
   if (hal_name.ends_with("Tutorial")) {
     PM.addPass(refsi_m1::RefSiM1WrapperPass());
   }
-}
-
-void RefSiM1Module::modifyTuner(compiler::BasePassPipelineTuner &tuner) {
-  cargo::string_view hal_name(getTarget().riscv_hal_device_info->target_name);
-  tuner.addDMAReplacementPasses = [](llvm::ModulePassManager &PM) {
-    PM.addPass(RefSiM1ReplaceMuxDmaPass());
-  };
 }
 
 llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
@@ -89,7 +83,6 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
   compiler::BasePassPipelineTuner tuner(options);
 
   cargo::string_view hal_name(getTarget().riscv_hal_device_info->target_name);
-  modifyTuner(tuner);
 
   llvm::ModulePassManager PM;
 

@@ -137,7 +137,7 @@ extension is enabled, then the additional functions
 ``async_work_group_copy_2D2D`` and ``async_work_group_copy_3D3D`` are also
 defined in terms of these builtins. A Mux target **should** implement the async
 ``__mux`` builtins in terms of hardware-specific DMA functionality. If a target
-cannot support hardware DMA then it can make use of the ``ReplaceMuxDmaPass``
+cannot support hardware DMA then it can make use of the ``DefineMuxDmaPass``
 which provides a naive synchronous software implementation of the ``__mux``
 builtins.
 

@@ -406,6 +406,14 @@ class BuiltinInfo {
            ID == eMuxBuiltinWorkGroupBarrier;
   }
 
+  /// @brief Returns true if the given ID is a ComputeMux DMA builtin ID.
+  static bool isMuxDmaBuiltinID(BuiltinID ID) {
+    return ID == eMuxBuiltinDMAWait || ID == eMuxBuiltinDMARead1D ||
+           ID == eMuxBuiltinDMARead2D || ID == eMuxBuiltinDMARead3D ||
+           ID == eMuxBuiltinDMAWrite1D || ID == eMuxBuiltinDMAWrite2D ||
+           ID == eMuxBuiltinDMAWrite3D;
+  }
+
   /// @brief Maps a ComputeMux builtin ID to its function name.
   static llvm::StringRef getMuxBuiltinName(BuiltinID ID);
 
@@ -610,6 +618,37 @@ class BIMuxInfoConcept {
   llvm::Function *defineGetEnqueuedLocalSize(llvm::Module &M);
   llvm::Function *defineMemBarrier(llvm::Function &F, unsigned ScopeIdx,
                                    unsigned SemanticsIdx);
+  /// @brief Provides a default implementation for `__mux_dma_read_1D` and
+  /// `__mux_dma_write_1D`.
+  ///
+  /// These routines are not intended to be efficient for a
+  /// particular architecture and are really a placeholder for customers until
+  /// they are ready to define these functions with DMA calls. They are
+  /// essentially a memcpy.
+  llvm::Function *defineDMA1D(llvm::Function &F);
+  /// @brief Provides a default implementation for `__mux_dma_read_2D`
+  /// and `__mux_dma_write_2D`.
+  ///
+  /// These routines are not intended to be efficient for a
+  /// particular architecture and are really a placeholder for customers until
+  /// they are ready to define these functions with DMA calls. They are
+  /// essentially a memcpy.
+  llvm::Function *defineDMA2D(llvm::Function &F);
+  /// @brief Provides a default implementation for `__mux_dma_read_3D`
+  /// and `__mux_dma_write_3D`.
+  ///
+  /// These routines are not intended to be efficient for a
+  /// particular architecture and are really a placeholder for customers until
+  /// they are ready to define these functions with DMA calls. They are
+  /// essentially a memcpy.
+  llvm::Function *defineDMA3D(llvm::Function &F);
+  /// @brief Provides a default implementation for `__mux_dma_wait`.
+  ///
+  /// This routine is not intended to be efficient for a
+  /// particular architecture and are really a placeholder for customers until
+  /// they are ready to define these functions with DMA calls. This
+  /// implementation does nothing and simply returns.
+  llvm::Function *defineDMAWait(llvm::Function &F);
 };
 
 /// @brief An interface class that provides language-specific information and

@@ -18,6 +18,7 @@ MODULE_PASS("align-module-structs", compiler::utils::AlignModuleStructsPass())
 MODULE_PASS("check-ext-funcs", compiler::CheckForExtFuncsPass())
 MODULE_PASS("compute-local-memory-usage", compiler::utils::ComputeLocalMemoryUsagePass())
 MODULE_PASS("define-mux-builtins", compiler::utils::DefineMuxBuiltinsPass())
+MODULE_PASS("define-mux-dma", compiler::utils::DefineMuxDmaPass())
 MODULE_PASS("degenerate-sub-groups", compiler::utils::DegenerateSubGroupPass())
 MODULE_PASS("missing-builtins",
             compiler::utils::MaterializeAbsentWorkItemBuiltinsPass())
@@ -30,7 +31,6 @@ MODULE_PASS("replace-c11-atomic-funcs",
             compiler::utils::ReplaceC11AtomicFuncsPass())
 MODULE_PASS("replace-wgc", compiler::utils::ReplaceWGCPass())
 
-MODULE_PASS("replace-mux-dma", compiler::utils::ReplaceMuxDmaPass())
 MODULE_PASS("replace-module-scope-vars",
             compiler::utils::ReplaceLocalModuleScopeVariablesPass())
 

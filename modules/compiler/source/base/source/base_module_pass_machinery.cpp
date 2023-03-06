@@ -21,6 +21,7 @@
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
+#include <compiler/utils/define_mux_dma_pass.h>
 #include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/encode_builtin_range_metadata_pass.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
@@ -45,7 +46,6 @@
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
 #include <compiler/utils/replace_mem_intrinsics_pass.h>
-#include <compiler/utils/replace_mux_dma_pass.h>
 #include <compiler/utils/replace_mux_math_decls_pass.h>
 #include <compiler/utils/replace_wgc_pass.h>
 #include <compiler/utils/simple_callback_pass.h>

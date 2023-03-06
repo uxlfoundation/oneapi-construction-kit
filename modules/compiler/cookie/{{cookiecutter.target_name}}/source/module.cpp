@@ -285,7 +285,6 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}Module::getLate
 
   compiler::BasePassPipelineTuner tuner(options);
 
-  // Add replacement dma passes here if needed using tuner.addDMAReplacementPasses =
   llvm::ModulePassManager PM;
 
   PM.addPass(compiler::utils::TransferKernelMetadataPass());

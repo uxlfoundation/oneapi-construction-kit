@@ -1,7 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %muxc --device "%riscv_device" %s --passes refsi-replace-mux-dma,verify -S | %filecheck %t
+; RUN: %muxc --device "%riscv_device" %s --passes define-mux-dma,verify -S | %filecheck %t
 
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
 target triple = "riscv64-unknown-unknown-elf"

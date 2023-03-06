@@ -19,7 +19,6 @@
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
-#include <compiler/utils/replace_mux_dma_pass.h>
 #include <host/add_entry_hook_pass.h>
 #include <host/add_floating_point_control_pass.h>
 #include <host/disable_neon_attribute_pass.h>

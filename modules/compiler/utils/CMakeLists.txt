@@ -13,6 +13,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/cl_builtin_info.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/compute_local_memory_usage_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/define_mux_builtins_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/define_mux_dma_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/degenerate_sub_group_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/device_info.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/dma.h
@@ -48,7 +49,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_c11_atomic_funcs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_local_module_scope_variables_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mem_intrinsics_pass.h  
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mux_dma_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mux_math_decls_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_wgc_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/scheduling.h
@@ -64,6 +64,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/cl_builtin_info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/compute_local_memory_usage_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/define_mux_builtins_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/define_mux_dma_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/degenerate_sub_group_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/dma.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/dxil_builtin_info.cpp
@@ -97,7 +98,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_c11_atomic_funcs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_local_module_scope_variables_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mem_intrinsics_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_dma_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_math_decls_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_wgc_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/scheduling.cpp
