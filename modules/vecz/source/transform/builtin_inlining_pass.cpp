@@ -86,9 +86,9 @@ static Value *emitBuiltinMemSet(Function *F, IRBuilder<> &B,
   const auto &MSI = cast<MemSetInst>(CB);
 
   // Note that once LLVM 8.0 is deprecated we can use actual alignment classes
-  unsigned Alignment = MSI->getDestAlignment();
-  unsigned Int64Alignment = DL.getABITypeAlignment(B.getInt64Ty());
-  if (Alignment < std::max(Int64Alignment, 8u)) {
+  Align Alignment = MSI->getDestAlign().valueOrOne();
+  Align Int64Alignment = DL.getABITypeAlign(B.getInt64Ty());
+  if (Alignment < std::max(Int64Alignment, Align(8u))) {
     return nullptr;
   }
 
@@ -160,8 +160,8 @@ static Value *emitBuiltinMemSet(Function *F, IRBuilder<> &B,
 
     // Set alignments for store to be minimum of that from
     // the instruction and what is required for 8 byte stores
-    unsigned StoreAlign = byte == 0 ? Alignment : std::min(8u, Alignment);
-    MS->setAlignment(llvm::MaybeAlign(StoreAlign).valueOrOne());
+    Align StoreAlign = byte == 0 ? Alignment : std::min(Align(8u), Alignment);
+    MS->setAlignment(StoreAlign);
   }
   // ...and then we fill in the remaining with 8bit stores.
   for (; byte < Bytes; byte += 1) {
@@ -180,16 +180,15 @@ static Value *emitBuiltinMemCpy(Function *F, IRBuilder<> &B,
   auto &DL = F->getParent()->getDataLayout();
 
   const auto &MSI = cast<MemCpyInst>(CB);
-  // Note that once LLVM 8.0 is deprecated we can use actual alignment classes
-  unsigned DestAlignment = MSI->getDestAlignment();
-  unsigned SourceAlignment = MSI->getSourceAlignment();
-  unsigned Int64Alignment = DL.getABITypeAlignment(B.getInt64Ty());
+  Align DestAlignment = MSI->getDestAlign().valueOrOne();
+  Align SourceAlignment = MSI->getSourceAlign().valueOrOne();
+  Align Int64Alignment = DL.getABITypeAlign(B.getInt64Ty());
 
-  if (DestAlignment < std::max(Int64Alignment, 8u)) {
+  if (DestAlignment < std::max(Int64Alignment, Align(8u))) {
     return nullptr;
   }
 
-  if (SourceAlignment < std::max(Int64Alignment, 8u)) {
+  if (SourceAlignment < std::max(Int64Alignment, Align(8u))) {
     return nullptr;
   }
 
@@ -249,12 +248,12 @@ static Value *emitBuiltinMemCpy(Function *F, IRBuilder<> &B,
 
     // Set alignments for stores and loads to be minimum of that from
     // the instruction and what is required for 8 byte load/stores
-    unsigned StoreAlign =
-        byte == 0 ? DestAlignment : std::min(8u, DestAlignment);
-    MC->setAlignment(llvm::MaybeAlign(StoreAlign).valueOrOne());
-    unsigned LoadAlign =
-        byte == 0 ? DestAlignment : std::min(8u, SourceAlignment);
-    LoadValue->setAlignment(llvm::MaybeAlign(LoadAlign).valueOrOne());
+    Align StoreAlign =
+        byte == 0 ? DestAlignment : std::min(Align(8u), DestAlignment);
+    MC->setAlignment(StoreAlign);
+    Align LoadAlign =
+        byte == 0 ? DestAlignment : std::min(Align(8u), SourceAlignment);
+    LoadValue->setAlignment(LoadAlign);
   }
   // ...and then we fill in the remaining with 8bit stores.
   for (; byte < Length; byte += 1) {

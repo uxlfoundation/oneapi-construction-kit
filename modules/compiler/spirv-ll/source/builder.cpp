@@ -49,7 +49,7 @@ llvm::DIType *spirv_ll::Builder::getDIType(llvm::Type *type) {
   const llvm::DataLayout &datalayout =
       IRBuilder.GetInsertBlock()->getModule()->getDataLayout();
 
-  uint32_t align = datalayout.getABITypeAlignment(type);
+  uint32_t align = datalayout.getABITypeAlign(type).value();
 
   uint64_t size = datalayout.getTypeAllocSizeInBits(type);
 

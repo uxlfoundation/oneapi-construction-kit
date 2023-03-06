@@ -78,7 +78,7 @@ PreservedAnalyses SquashSmallVectorsPass::run(Function &F,
             DL.fitsInLegalInteger(numBits)) {
           auto const align = load->getAlign();
           auto *const intTy = IntegerType::get(context, numBits);
-          if (DL.getABITypeAlignment(intTy) > align.value()) {
+          if (DL.getABITypeAlign(intTy) > align) {
             // The alignment of this type is too strict to convert
             continue;
           }
@@ -122,7 +122,7 @@ PreservedAnalyses SquashSmallVectorsPass::run(Function &F,
             DL.fitsInLegalInteger(numBits)) {
           auto const align = store->getAlign();
           auto *const intTy = IntegerType::get(context, numBits);
-          if (DL.getABITypeAlignment(intTy) > align.value()) {
+          if (DL.getABITypeAlign(intTy) > align) {
             // The alignment of this type is too strict to convert
             continue;
           }
