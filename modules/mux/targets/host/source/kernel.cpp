@@ -185,10 +185,16 @@ mux_result_t host::kernel_s::getKernelVariantForWGSize(
       continue;
     }
 
-    if (v.pref_work_width > best_variant->pref_work_width &&
-        local_size_x >= v.pref_work_width &&
-        (local_size_x % v.pref_work_width == 0 ||
-         local_size_x % best_variant->pref_work_width != 0)) {
+    if (v.pref_work_width == best_variant->pref_work_width) {
+      // If two variants have the same preferred work width, choose the one
+      // that doesn't use degenerate subgroups, if available.
+      if (best_variant->sub_group_size == 0 && v.sub_group_size != 0) {
+        best_variant = &v;
+      }
+    } else if (v.pref_work_width > best_variant->pref_work_width &&
+               local_size_x >= v.pref_work_width &&
+               (local_size_x % v.pref_work_width == 0 ||
+                local_size_x % best_variant->pref_work_width != 0)) {
       // Choose the new variant if it executes more work-items optimally and
       // either:
       // * the new variant's preferred width is a good fit, or

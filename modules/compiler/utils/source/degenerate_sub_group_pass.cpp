@@ -11,6 +11,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/degenerate_sub_group_pass.h>
+#include <compiler/utils/device_info.h>
 #include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/mangling.h>
 #include <compiler/utils/metadata.h>
@@ -23,8 +24,10 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/Transforms/Utils/Cloning.h>
+#include <llvm/Transforms/Utils/ValueMapper.h>
+#include <multi_llvm/optional_helper.h>
 
-#include <map>
 #include <set>
 
 using namespace llvm;
@@ -264,21 +267,183 @@ void replaceSubGroupWorkItemBuiltinCalls(
 
 PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     Module &M, ModuleAnalysisManager &AM) {
-  auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
-  // Find all the sub-group builtin calls in the module.
-  // Need to do this up front because we are about to insert and remove
-  // instructions, which will invalidate iterators.
+  SmallVector<Function *, 8> kernels;
+  SmallPtrSet<Function *, 8> degenerateKernels;
+  SmallPtrSet<Function *, 8> kernelsToClone;
+  for (auto &F : M) {
+    if (isKernelEntryPt(F)) {
+      kernels.push_back(&F);
+
+      auto const local_sizes = compiler::utils::getLocalSizeMetadata(F);
+      if (!local_sizes) {
+        // If we don't know the local size at compile time, we can't guarantee
+        // safety of non-degenerate subgroups, so we clone the kernel and defer
+        // the decision to the runtime.
+        kernelsToClone.insert(&F);
+      } else {
+        // Otherwise we can check for compatibility with the work group size.
+        // If the local size is a power of two, OR a multiple of the maximum
+        // vectorization width, we don't need degenerate subgroups. Otherwise,
+        // we probably do.
+        //
+        // Note that this is a conservative approach that doesn't take into
+        // account vectorization failures or more involved SIMD width decisions.
+        // Degenerate subgroups are ALWAYS safe, so we only want to choose
+        // non-degenerate sub-groups when we KNOW they will be safe. Thus it
+        // may be the case that the vectorizer can choose a narrower width to
+        // avoid the need for degenerate sub-groups, but we can't rely on it,
+        // therefore if the local size is not a power of two, we only go by the
+        // maximum width supported by the device. TODO DDK-75
+        uint32_t const local_size = local_sizes ? (*local_sizes)[0] : 0;
+        if (!isPowerOf2_32(local_size)) {
+          auto const &DI =
+              AM.getResult<compiler::utils::DeviceInfoAnalysis>(*F.getParent());
+          auto const max_work_width = DI.max_work_width;
+          if (local_size % max_work_width != 0) {
+            // Flag the presence of degenerate sub-groups in this kernel.
+            // There might not be any sub-group builtins, in which case it's
+            // academic.
+            setHasDegenerateSubgroups(F);
+            degenerateKernels.insert(&F);
+          }
+        }
+      }
+    }
+  }
+
+  // In order to handle multiple kernels, some of which may require degenerate
+  // subgroups, and some which may not, we traverse the Call Graph in both
+  // directions:
+  //
+  //  * We need to know which kernels and functions, directly or indirectly,
+  //    make use of subgroup functions, so we start at the subgroup calls and
+  //    trace through call instructions down to the kernels.
+  //  * We need to know which functions, directly or indirectly, are used by
+  //    kernels that do and do not use degenerate subgroups, so we trace through
+  //    call instructions from the kernels up to the leaves.
+  //
+  // We need to clone all functions that are used by both degenerate and
+  // non-degenerate subgroup kernels, but only where those functions directly
+  // or indirectly make use of subgroups; otherwise, they can be shared by both
+  // kinds of kernel.
+  SmallVector<Function *, 8> worklist;
+  for (auto &F : M) {
+    for (auto &BB : F) {
+      for (auto &I : BB) {
+        if (auto *CI = dyn_cast<CallInst>(&I)) {
+          if (isSubGroupFunction(CI) || isSubGroupWorkItemFunction(CI)) {
+            worklist.push_back(&F);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // If there were no sub-group builtin calls we are done, exit early and
+  // preserve all analysis since we didn't touch the module.
+  if (worklist.empty()) {
+    for (auto *const K : kernels) {
+      // Set the attribute on every kernel that doesn't use any subgroups at
+      // all, so the vectorizer knows it can vectorize them however it likes.
+      setHasDegenerateSubgroups(*K);
+    }
+    return PreservedAnalyses::all();
+  }
+
+  // Collect all functions that contain subgroup calls, including calls to
+  // other functions in the module that contain subgroup calls.
+  SmallPtrSet<Function *, 8> usesSubgroups(worklist.begin(), worklist.end());
+  while (!worklist.empty()) {
+    auto *const work = worklist.pop_back_val();
+    for (auto *const U : work->users()) {
+      if (auto *const CI = dyn_cast<CallInst>(U)) {
+        auto *const P = CI->getFunction();
+        if (usesSubgroups.insert(P).second) {
+          worklist.push_back(P);
+        }
+      }
+    }
+  }
+
+  // Categorise the kernels as users of degenerate and/or non-degenerate
+  // sub-groups. These are the roots of the call graph traversal that is done
+  // afterwards.
+  //
+  // Note that kernels marked as using degenerate subgroups that don't actually
+  // call any subgroup functions (directly or indirectly) don't need to be
+  // collected here.
+  SmallVector<Function *, 8> nonDegenerateUsers;
+  for (auto *const K : kernels) {
+    bool const subgroups = usesSubgroups.contains(K);
+    if (!subgroups) {
+      // Set the attribute on every kernel that doesn't use any subgroups at
+      // all, so the vectorizer knows it can vectorize them however it likes.
+      setHasDegenerateSubgroups(*K);
+
+      // No need to clone kernels that don't use any subgroup functions.
+      kernelsToClone.erase(K);
+    }
+
+    if (kernelsToClone.contains(K)) {
+      // Kernels that are to be cloned count as both degenerate and
+      // non-degenerate subgroup users.
+      worklist.push_back(K);
+      nonDegenerateUsers.push_back(K);
+      degenerateKernels.insert(K);
+    } else if (!subgroups || degenerateKernels.contains(K)) {
+      worklist.push_back(K);
+    } else {
+      nonDegenerateUsers.push_back(K);
+    }
+  }
+
+  // Traverse the call graph to collect all functions that get called (directly
+  // or indirectly) by degenerate-subgroup using kernels.
+  SmallPtrSet<Function *, 8> usedByDegenerate;
+  while (!worklist.empty()) {
+    auto *const work = worklist.pop_back_val();
+    for (auto &BB : *work) {
+      for (auto &I : BB) {
+        if (auto *const CI = dyn_cast<CallInst>(&I)) {
+          auto *const callee = CI->getCalledFunction();
+          if (callee && !callee->empty() && usesSubgroups.contains(callee) &&
+              usedByDegenerate.insert(callee).second) {
+            worklist.push_back(callee);
+          }
+        }
+      }
+    }
+  }
+
+  // Traverse the call graph to collect all functions that get called (directly
+  // or indirectly) by non-degenerate-subgroup using kernels.
+  worklist.assign(nonDegenerateUsers.begin(), nonDegenerateUsers.end());
+  SmallPtrSet<Function *, 8> usedByNonDegenerate;
+  while (!worklist.empty()) {
+    auto *const work = worklist.pop_back_val();
+    for (auto &BB : *work) {
+      for (auto &I : BB) {
+        if (auto *const CI = dyn_cast<CallInst>(&I)) {
+          auto *const callee = CI->getCalledFunction();
+          if (callee && !callee->empty() && usesSubgroups.contains(callee) &&
+              usedByNonDegenerate.insert(callee).second) {
+            worklist.push_back(callee);
+          }
+        }
+      }
+    }
+  }
+
+  // The cloned functions are used by the non-degenerate subgroup kernels, so
+  // that we can collect subgroup builtin calls first and replace them in their
+  // original homes.
   SmallVector<CallInst *, 32> SubGroupFunctionCalls;
   SmallVector<CallInst *, 32> SubGroupWorkItemFunctionCalls;
-
-  for (auto &F : M) {
-    if (isKernel(F)) {
-      // Flag the presence of degenerate sub-groups in this kernel.
-      // There might not be any sub-group builtins, in which case it's academic,
-      // but the user has requested them.
-      setHasDegenerateSubgroups(F);
-    }
-    for (auto &BB : F) {
+  worklist.assign(degenerateKernels.begin(), degenerateKernels.end());
+  worklist.append(usedByDegenerate.begin(), usedByDegenerate.end());
+  for (auto *const F : worklist) {
+    for (auto &BB : *F) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
           if (isSubGroupFunction(CI)) {
@@ -291,13 +456,85 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     }
   }
 
-  // If there were no sub-group builtin calls we are done, exit early and
-  // preserve all analysis since we didn't touch the module.
-  if (SubGroupFunctionCalls.empty() && SubGroupWorkItemFunctionCalls.empty()) {
-    return PreservedAnalyses::all();
+  // Clone all functions used by both degenerate and non-degenerate subgroup
+  // kernels
+  SmallVector<Function *, 8> functionsToClone(kernelsToClone.begin(),
+                                              kernelsToClone.end());
+  for (auto &F : M) {
+    if (!F.empty() && usedByDegenerate.contains(&F) &&
+        usedByNonDegenerate.contains(&F)) {
+      functionsToClone.push_back(&F);
+    }
   }
 
-  // Otherwise replace the sub-group function builtin calls with work-group
+  ValueMap<Function *, Function *> OldToNewFnMap;
+  for (auto *const F : functionsToClone) {
+    // Create our new function, using the linkage from the old one
+    // Note - we don't have to copy attributes or metadata over, as
+    // CloneFunctionInto does that for us.
+    auto *const NewF =
+        Function::Create(F->getFunctionType(), F->getLinkage(), "", &M);
+    NewF->setCallingConv(F->getCallingConv());
+    NewF->takeName(F);
+    F->setName(Twine(NewF->getName(), ".degenerate-subgroups"));
+
+    // Scrub any old subprogram - CloneFunctionInto will create a new one for us
+    if (auto *const SP = F->getSubprogram()) {
+      NewF->setSubprogram(nullptr);
+    }
+
+    // Map all original function arguments to the new function arguments
+    ValueToValueMapTy VMap;
+    for (auto it : zip(F->args(), NewF->args())) {
+      auto *const OldA = &std::get<0>(it);
+      auto *const NewA = &std::get<1>(it);
+      VMap[OldA] = NewA;
+      NewA->setName(OldA->getName());
+    }
+
+    auto const ChangeType = CloneFunctionChangeType::LocalChangesOnly;
+    SmallVector<ReturnInst *, 1> Returns;
+    CloneFunctionInto(NewF, F, VMap, ChangeType, Returns);
+
+    // If we just cloned a kernel, the original now has degenerate subgroups.
+    if (isKernel(*F)) {
+      setHasDegenerateSubgroups(*F);
+    }
+
+    // The original function is now the degenerate user, so replace it in the
+    // list, if present.
+    auto const found =
+        std::find(nonDegenerateUsers.begin(), nonDegenerateUsers.end(), F);
+    if (found != nonDegenerateUsers.end()) {
+      *found = NewF;
+    } else {
+      nonDegenerateUsers.push_back(NewF);
+    }
+    OldToNewFnMap[F] = NewF;
+  }
+
+  // Remap all calls to degenerate subgroup functions from non-degenerate
+  // kernels/functions to their new non-degenerate equivalents.
+  for (auto *F : nonDegenerateUsers) {
+    for (auto &BB : *F) {
+      for (auto &I : BB) {
+        auto *CB = dyn_cast<CallBase>(&I);
+        if (!CB) {
+          continue;
+        }
+        if (auto *const NewF = OldToNewFnMap.lookup(CB->getCalledFunction())) {
+          if (CB->getOpcode() != Instruction::Call) {
+            llvm_unreachable("Unhandled CallBase sub-class");
+          }
+          CB->setCalledFunction(NewF);
+        }
+      }
+    }
+  }
+
+  auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
+
+  // Replace the sub-group function builtin calls with work-group
   // builtin calls.
   replaceSubGroupBuiltinCalls(SubGroupFunctionCalls, BI);
 

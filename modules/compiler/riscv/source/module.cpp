@@ -272,8 +272,9 @@ llvm::ModulePassManager RiscvModule::getLateTargetPasses(
     PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
   }
 
-  // TODON'T temporary fix to get subgroup tests passing while we refactor
-  // subgroup support. CA-4712 CA-4679
+  // When degenerate sub-groups are enabled here, any kernel that uses sub-group
+  // functions will be cloned to give a version using degenerate sub-groups and
+  // a version using non-degenerate sub-groups, for selection by the runtime.
   tuner.degenerate_sub_groups = true;
   addPreVeczPasses(PM, tuner);
 

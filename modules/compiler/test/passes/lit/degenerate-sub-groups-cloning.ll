@@ -1,0 +1,37 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+; RUN: %muxc --passes degenerate-sub-groups,verify -S %s | %filecheck %s
+
+; Check that the DegenerateSubGroupPass correctly clones a kernel to create
+; a degenerate and a non-degenerate subgroup version, and replaces sub-group
+; builtins with work-group collective calls in the degenerate version.
+
+target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
+target triple = "spir64-unknown-unknown"
+
+define spir_func i32 @sub_group_reduce_add_test(i32 %x) #0 {
+entry:
+  %call = call spir_func i32 @_Z20sub_group_reduce_addi(i32 %x)
+  ret i32 %call
+}
+
+declare spir_func i32 @_Z20sub_group_reduce_addi(i32)
+
+attributes #0 = { "mux-kernel"="entry-point" }
+
+; CHECK-LABEL: define spir_func i32 @sub_group_reduce_add_test.degenerate-subgroups
+; CHECK: (i32 [[Y:%.*]]) #[[ATTR0:[0-9]+]]
+; CHECK: entry:
+; CHECK: [[RESULT:%.*]] = call spir_func i32 @_Z21work_group_reduce_addi(i32 [[Y]])
+; CHECK: ret i32 [[RESULT]]
+; CHECK: }
+
+; CHECK-LABEL: define spir_func i32 @sub_group_reduce_add_test
+; CHECK: (i32 [[X:%.*]]) #[[ATTR1:[0-9]+]]
+; CHECK: entry:
+; CHECK: [[RESULT:%.*]] = call spir_func i32 @_Z20sub_group_reduce_addi(i32 [[X]])
+; CHECK: ret i32 [[RESULT]]
+; CHECK: }
+
+; CHECK-DAG: declare spir_func i32 @_Z21work_group_reduce_addi(i32)
+; CHECK-DAG: attributes #[[ATTR0]] = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
+; CHECK-DAG: attributes #[[ATTR1]] = { "mux-kernel"="entry-point" }
