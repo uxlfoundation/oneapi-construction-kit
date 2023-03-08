@@ -678,23 +678,6 @@ class Module : public ModuleHeader {
     return getResultType(opCode);
   }
 
-  /// @brief Associates a signedness with an ID.
-  ///
-  /// @param id The ID which is signed. The LLVM type corresponding to the ID
-  /// must be an integer.
-  /// @param signedness The Signedness of the number, as defined in the SPIRV
-  /// spec for the OpTypeInt instruction.
-  void setSignedness(spv::Id id, uint32_t signedness);
-
-  /// @brief Returns the signedness associated with an ID.
-  ///
-  /// @param id The ID to lookup signedness. The ID must be equal to the result
-  /// of an OpTypeInt instruction.
-  ///
-  /// @return The signedness associated with the ID, or -1 if the ID could not
-  /// be found.
-  uint32_t getSignedness(spv::Id id) const;
-
   /// @brief Add forward pointer to the module.
   ///
   /// @param id ID of the forward pointer.
@@ -1075,8 +1058,6 @@ class Module : public ModuleHeader {
   llvm::MapVector<spv::Id, TypePair> Types;
   /// @brief Map of function IDs to SPIR-V Types IDs
   llvm::DenseMap<spv::Id, llvm::SmallVector<spv::Id, 3>> ParamTypeIDs;
-  /// @brief Association of signedness to SpirV TypeInt IDs.
-  llvm::DenseMap<spv::Id, uint32_t> signednessMap;
   /// @brief List of IDs that correspond to forward declared pointer types.
   llvm::SmallSet<spv::Id, 4> ForwardPointers;
   /// @brief Map incomplete (contains forward pointer) struct and missing types.

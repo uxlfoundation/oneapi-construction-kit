@@ -32,9 +32,6 @@ namespace spirv_ll {
 /// @brief Type used to pass around the list of builtin IDs used by a function
 using BuiltinIDList = llvm::SmallVector<spv::Id, 2>;
 
-/// @brief Bitmask enum for type qualifiers.
-enum TypeQualifier { NONE = 0, CONST = 0x1, VOLATILE = 0x2 };
-
 class Builder;
 
 class OpenCLBuilder {
@@ -48,13 +45,24 @@ class OpenCLBuilder {
 
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
   ///
+  /// @tparam T The OpenCL extended instruction class template to create.
+  /// @param opc The OpCode object to translate.
+  ///
+  /// @return Returns an optional where `cargo::nullopt` represents success,
+  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  template <typename T>
+  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+
+  /// @brief Create a vector OpenCL extended instruction transformation to LLVM
+  /// IR.
+  ///
   /// @tparam inst The OpenCL extended instruction to create.
   /// @param opc The OpCode object to translate.
   ///
   /// @return Returns an optional where `cargo::nullopt` represents success,
   /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
   template <OpenCLLIB::Entrypoints inst>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  cargo::optional<spirv_ll::Error> createVec(OpExtInst const &opc);
 
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
   ///
@@ -161,6 +169,50 @@ class GroupAsyncCopiesBuilder {
   spirv_ll::Builder &builder;
   /// @brief Reference to the spirv_ll::Module being translated.
   spirv_ll::Module &module;
+};
+
+struct MangleInfo {
+  enum class ForceSignInfo {
+    None,
+    // Override the type's sign with a signed integer. Only valid on integer
+    // scalar or integer vector types.
+    ForceSigned,
+    // Override the type's sign with an unsigned integer. Only valid on
+    // integer scalar or integer vector types.
+    ForceUnsigned,
+  };
+
+  /// @brief Bitmask enum for type qualifiers.
+  enum TypeQualifier : uint8_t { NONE = 0, CONST = 0x1, VOLATILE = 0x2 };
+
+  MangleInfo(spv::Id id) : id(id) {}
+
+  MangleInfo(spv::Id id, ForceSignInfo fSign) : id(id), forceSign(fSign) {}
+
+  MangleInfo(spv::Id id, uint8_t typeQuals) : id(id), typeQuals(typeQuals) {}
+
+  MangleInfo(spv::Id id, ForceSignInfo fSign, uint8_t typeQuals)
+      : id(id), typeQuals(typeQuals), forceSign(fSign) {}
+
+  /// @brief Constructs a force-signed type
+  static MangleInfo getSigned(spv::Id id) {
+    return MangleInfo(id, ForceSignInfo::ForceSigned);
+  }
+  /// @brief Constructs a force-unsigned type
+  static MangleInfo getUnsigned(spv::Id id) {
+    return MangleInfo(id, ForceSignInfo::ForceUnsigned);
+  }
+
+  /// @brief Returns the desired signedness of this type.
+  bool getSignedness(const Module &module) const;
+
+  /// @brief The result id or result type's id.
+  spv::Id id;
+  /// @brief Qualifiers to mangle in with this type (if it's a pointer).
+  uint8_t typeQuals = TypeQualifier::NONE;
+  /// @brief Signedness override, applicable on integer scalar or integer
+  /// vector types.
+  ForceSignInfo forceSign = ForceSignInfo::None;
 };
 
 /// @brief Class used for generating the LLVM IR from the SPIR-V IR
@@ -310,16 +362,14 @@ class Builder {
   /// @param retTy Builtin function return type.
   /// @param retOp The ID of the return type opcode.
   /// @param args List of the builtin function parameter values.
-  /// @param ids List of the builtin function parameter SPIR-V ID's.
-  /// @param typeQualifiers Optional list of `TypeQualifier` to be applied to
+  /// @param mangleInfo List of the builtin function parameter mangling infos.
   /// @param convergent True if the called builtin is convergent
   /// `args`.
   ///
   /// @return Returns a pointer to a call instruction instance.
   llvm::CallInst *createMangledBuiltinCall(
-      llvm::StringRef name, llvm::Type *retTy, llvm::Optional<spv::Id> retOp,
-      llvm::ArrayRef<llvm::Value *> args, llvm::ArrayRef<spv::Id> ids,
-      llvm::ArrayRef<TypeQualifier> typeQualifiers = {},
+      llvm::StringRef name, llvm::Type *retTy, MangleInfo retOp,
+      llvm::ArrayRef<llvm::Value *> args, llvm::ArrayRef<MangleInfo> mangleInfo,
       bool convergent = false);
 
   /// @brief Helper function for constructing calls to conversion builtins.
@@ -327,19 +377,17 @@ class Builder {
   /// Generates the appropriate function call to convert `value` into `retTy`.
   ///
   /// @param value Argument to pass to the conversion builtin.
-  /// @param valueId SPIR-V ID of `value`.
+  /// @param argMangleInfo SPIR-V ID of `value`.
   /// @param retTy Type that `value` will be converted into.
-  /// @param retTyId SPIR-V ID of `retTy`.
+  /// @param retMangleInfo SPIR-V ID of `retTy`.
   /// @param resultId Result ID of the conversion, for checking decorations.
   /// @param saturated Whether we already know this is a saturated conversion.
   ///
   /// @return Returns a pointer to a call instruction instance.
-  llvm::CallInst *createConversionBuiltinCall(llvm::Value *value,
-                                              llvm::ArrayRef<spv::Id> valueId,
-                                              llvm::Type *retTy,
-                                              llvm::Optional<spv::Id> retTyId,
-                                              spv::Id resultId,
-                                              bool saturated = false);
+  llvm::CallInst *createConversionBuiltinCall(
+      llvm::Value *value, llvm::ArrayRef<MangleInfo> argMangleInfo,
+      llvm::Type *retTy, MangleInfo retMangleInfo, spv::Id resultId,
+      bool saturated = false);
 
   /// @brief Creates a call to an image access builtin.
   ///
@@ -351,14 +399,15 @@ class Builder {
   /// @param retTy Builtin function return type.
   /// @param retOp The ID of the return type opcode.
   /// @param args List of the builtin function parameter values.
-  /// @param ids List of the builtin function parameter SPIR-V ID's.
+  /// @param argMangleInfo List of the builtin function parameter SPIR-V ID's.
   /// @param pixelTypeOp OpCode object representing the type of the pixel being
   /// accessed.
   ///
   /// @return Returns a pointer to a call instruction instance.
   llvm::CallInst *createImageAccessBuiltinCall(
-      std::string name, llvm::Type *retTy, llvm::Optional<spv::Id> retOp,
-      llvm::ArrayRef<llvm::Value *> args, llvm::ArrayRef<spv::Id> ids,
+      std::string name, llvm::Type *retTy, MangleInfo retMangleInfo,
+      llvm::ArrayRef<llvm::Value *> args,
+      llvm::ArrayRef<MangleInfo> argMangleInfo,
       const spirv_ll::OpTypeVector *pixelTypeOp);
 
   /// @brief Creates a call to a vector load/store builtin.
@@ -368,16 +417,22 @@ class Builder {
   /// @param retTy Return type of the builtin.
   /// @param retOp SPIR-V ID of the return type.
   /// @param args List of arguments to pass to the builtin.
-  /// @param ids List of SPIR-V IDs of the `Value`s in `args`.
+  /// @param argMangleInfo List of SPIR-V IDs of the `Value`s in `args`.
   /// @param mode Rounding mode that adds a function name suffix for some calls.
-  /// @param typeQualifiers Optional list of `TypeQualifier` to be applied to
-  /// `args`.
   llvm::CallInst *createVectorDataBuiltinCall(
       std::string name, llvm::Type *dataType, llvm::Type *retTy,
-      llvm::Optional<spv::Id> retOp, llvm::ArrayRef<llvm::Value *> args,
-      llvm::ArrayRef<spv::Id> ids,
-      llvm::Optional<spv::FPRoundingMode> mode = llvm::NoneType(),
-      llvm::ArrayRef<TypeQualifier> typeQualifiers = {});
+      MangleInfo retmangleInfo, llvm::ArrayRef<llvm::Value *> args,
+      llvm::ArrayRef<MangleInfo> argMangleInfo,
+      llvm::Optional<spv::FPRoundingMode> mode = llvm::NoneType());
+
+  /// @brief Creates a call to an OpenCL builtin.
+  ///
+  /// @param opcode The OpenCL builtin function to call.
+  /// @param resultType Result type of the call.
+  /// @param params Array of parameters to pass to the call.
+  llvm::Value *createOCLBuiltinCall(OpenCLLIB::Entrypoints opcode,
+                                    spv::Id resultType,
+                                    llvm::ArrayRef<spv::Id> params);
 
   /// @brief Get the name of an integer type.
   ///
@@ -480,16 +535,16 @@ class Builder {
   ///
   /// @return Returns a string containing the mangled pointer prefix.
   std::string getMangledPointerPrefix(
-      llvm::Type *ty, TypeQualifier qualifier = TypeQualifier::NONE) {
+      llvm::Type *ty, uint8_t qualifier = MangleInfo::TypeQualifier::NONE) {
     SPIRV_LL_ASSERT(ty->isPointerTy(), "mangler: not a pointer type");
     std::string mangled = "P";
     if (auto addrspace = ty->getPointerAddressSpace()) {
       mangled += "U3AS" + std::to_string(addrspace);
     }
-    if (qualifier & VOLATILE) {
+    if (qualifier & MangleInfo::VOLATILE) {
       mangled += "V";
     }
-    if (qualifier & CONST) {
+    if (qualifier & MangleInfo::CONST) {
       mangled += "K";
     }
     return mangled;
@@ -648,14 +703,11 @@ class Builder {
   /// @param name Name of the function.
   /// @param args List of argument values.
   /// @param ids List of argument SPIR-V ID's.
-  /// @param typeQualifiers Optional list of `TypeQualifier` to be applied to
-  /// `args`.
   ///
   /// @return Returns a string containing the mangled function name.
-  std::string getMangledFunctionName(
-      std::string name, llvm::ArrayRef<llvm::Value *> args,
-      llvm::ArrayRef<spv::Id> ids,
-      llvm::ArrayRef<TypeQualifier> typeQualifiers = {});
+  std::string getMangledFunctionName(std::string name,
+                                     llvm::ArrayRef<llvm::Value *> args,
+                                     llvm::ArrayRef<MangleInfo> argMangleInfo);
 
   /// @brief State to maintain a list of substitutable mangled types.
   struct SubstitutableType {
@@ -664,7 +716,7 @@ class Builder {
     /// @brief The argument index of the substitutable type.
     std::size_t index;
     /// @brief The opcode of the substitutable type.
-    const OpType *op;
+    llvm::Optional<MangleInfo> mangleInfo;
   };
 
   /// @brief Checks if function parameter can be substituted.
@@ -677,19 +729,18 @@ class Builder {
   /// nullptr if the function parameter can not be substituted.
   const SubstitutableType *substitutableArg(
       llvm::Type *ty, const llvm::ArrayRef<SubstitutableType> &subTys,
-      const OpType *op);
+      llvm::Optional<MangleInfo> mangleInfo);
 
   /// @brief Generate the mangled name for a function parameter type.
   ///
   /// @param ty Function parameter type.
   /// @param op SPIR-V type of the function paramater.
   /// @param subTys List of substitutable types previously defined.
-  /// @param qualifier Bitmask specifying type qualifiers (const, volatile)
   ///
   /// @return Returns a string containing the mangled name.
-  std::string getMangledTypeName(llvm::Type *ty, const OpType *op,
-                                 llvm::ArrayRef<SubstitutableType> subTys,
-                                 TypeQualifier qualifier);
+  std::string getMangledTypeName(llvm::Type *ty,
+                                 llvm::Optional<MangleInfo> mangleInfo,
+                                 llvm::ArrayRef<SubstitutableType> subTys);
 
   /// @brief Creates a declaration for a builtin function inside of the current
   /// module and returns a pointer to the created function declaration

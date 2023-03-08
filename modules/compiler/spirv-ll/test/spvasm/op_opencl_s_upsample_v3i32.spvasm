@@ -27,7 +27,7 @@
 ; CHECK: define spir_kernel void @s_upsample_v3i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v3i32_t %1 s_upsample %v3i16_3 %v3ui16_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z8upsampleDv3_sS_(<3 x i16> <i16 3, i16 3, i16 3>, <3 x i16> <i16 4, i16 4, i16 4>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z8upsampleDv3_sDv3_t(<3 x i16> <i16 3, i16 3, i16 3>, <3 x i16> <i16 4, i16 4, i16 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

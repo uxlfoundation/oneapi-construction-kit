@@ -221,13 +221,13 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
       // Store the initializer in the builtin variable
       IRBuilder.CreateStore(initVal, builtinVal);
     } break;
-    case spv::BuiltInNumWorkgroups:       // size_t get_num_groups(uint)
-    case spv::BuiltInWorkgroupSize:       // size_t get_local_size(uint)
-    case spv::BuiltInWorkgroupId:         // size_t get_group_id(uint)
-    case spv::BuiltInLocalInvocationId:   // size_t get_local_id(uint)
-    case spv::BuiltInGlobalInvocationId:  // size_t get_global_id(uint)
-    case spv::BuiltInGlobalSize:          // size_t get_global_size(uint)
-    case spv::BuiltInGlobalOffset:        // size_t get_global_offset(uint)
+    case spv::BuiltInNumWorkgroups:            // size_t get_num_groups(uint)
+    case spv::BuiltInWorkgroupSize:            // size_t get_local_size(uint)
+    case spv::BuiltInWorkgroupId:              // size_t get_group_id(uint)
+    case spv::BuiltInLocalInvocationId:        // size_t get_local_id(uint)
+    case spv::BuiltInGlobalInvocationId:       // size_t get_global_id(uint)
+    case spv::BuiltInGlobalSize:               // size_t get_global_size(uint)
+    case spv::BuiltInGlobalOffset:             // size_t get_global_offset(uint)
     case spv::BuiltInEnqueuedWorkgroupSize: {  // size_t
                                                // get_enqueued_local_size(uint)
       auto *builtinVal =
@@ -614,28 +614,19 @@ llvm::CallInst *spirv_ll::Builder::createBuiltinCall(
 }
 
 llvm::CallInst *spirv_ll::Builder::createConversionBuiltinCall(
-    llvm::Value *value, llvm::ArrayRef<spv::Id> valueId, llvm::Type *retTy,
-    llvm::Optional<spv::Id> retTyId, spv::Id resultId, bool saturated) {
+    llvm::Value *value, llvm::ArrayRef<MangleInfo> argMangleInfo,
+    llvm::Type *retTy, MangleInfo retMangleInfo, spv::Id resultId,
+    bool saturated) {
   std::string builtin = "convert_";
 
   llvm::Type *scalarType = retTy;
-  spv::Id scalarTypeId = multi_llvm::value_or(retTyId, 0);
 
   if (retTy->isVectorTy()) {
     scalarType = multi_llvm::getVectorElementType(retTy);
-    if (retTyId.hasValue()) {
-      const OpTypeVector *vectorTypeOp =
-          module.get<OpTypeVector>(retTyId.getValue());
-      scalarTypeId = vectorTypeOp->ComponentType();
-    }
   }
 
   if (scalarType->isIntegerTy()) {
-    // Assume signed unless explicitly told otherwise.
-    uint32_t signedness = 1;
-    if (scalarTypeId) {
-      signedness = module.getSignedness(scalarTypeId);
-    }
+    uint32_t signedness = retMangleInfo.getSignedness(module);
     builtin += getIntTypeName(scalarType, signedness);
   } else {
     builtin += getFPTypeName(scalarType);
@@ -659,18 +650,20 @@ llvm::CallInst *spirv_ll::Builder::createConversionBuiltinCall(
                                  spv::CapabilityStorageUniform16,
                                  spv::CapabilityStoragePushConstant16,
                                  spv::CapabilityStorageInputOutput16})) {
-    if (auto roundingMode =
-            module.getFirstDecoration(resultId, spv::DecorationFPRoundingMode)) {
+    if (auto roundingMode = module.getFirstDecoration(
+            resultId, spv::DecorationFPRoundingMode)) {
       builtin += getFPRoundingModeSuffix(roundingMode->getValueAtOffset(3));
     }
   }
 
-  return createMangledBuiltinCall(builtin, retTy, retTyId, value, valueId);
+  return createMangledBuiltinCall(builtin, retTy, retMangleInfo, value,
+                                  argMangleInfo);
 }
 
 llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
-    std::string name, llvm::Type *retTy, llvm::Optional<spv::Id> retOp,
-    llvm::ArrayRef<llvm::Value *> args, llvm::ArrayRef<spv::Id> ids,
+    std::string name, llvm::Type *retTy, MangleInfo retMangleInfo,
+    llvm::ArrayRef<llvm::Value *> args,
+    llvm::ArrayRef<MangleInfo> argMangleInfo,
     const spirv_ll::OpTypeVector *pixelTypeOp) {
   llvm::Type *pixelElementType = module.getType(pixelTypeOp->ComponentType());
   if (pixelElementType->isIntegerTy()) {
@@ -694,22 +687,23 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
   // To match the OpenCL builtin signatures we need to force the Coordinate
   // arguments to be signed, this is done by passing a null ID (0) so that
   // instead of looking up signedness of the ID the mangler assumes signed.
-  llvm::SmallVector<spv::Id, 4> newIDs;
+  llvm::SmallVector<MangleInfo, 4> newArgMangleInfo(argMangleInfo.begin(),
+                                                    argMangleInfo.end());
   if (name.find("write_") != std::string::npos) {
-    newIDs = {ids[0], 0, ids[2]};
+    newArgMangleInfo[1].forceSign = MangleInfo::ForceSignInfo::ForceSigned;
   } else if (name.find("read_") != std::string::npos) {
-    newIDs.append(ids.begin(), ids.end());
-    newIDs.back() = 0;
+    newArgMangleInfo.back().forceSign = MangleInfo::ForceSignInfo::ForceSigned;
   }
 
-  return createMangledBuiltinCall(name, retTy, retOp, args, newIDs);
+  return createMangledBuiltinCall(name, retTy, retMangleInfo, args,
+                                  newArgMangleInfo);
 }
 
 llvm::CallInst *spirv_ll::Builder::createVectorDataBuiltinCall(
     std::string name, llvm::Type *dataType, llvm::Type *retTy,
-    llvm::Optional<spv::Id> retOp, llvm::ArrayRef<llvm::Value *> args,
-    llvm::ArrayRef<spv::Id> ids, llvm::Optional<spv::FPRoundingMode> mode,
-    llvm::ArrayRef<TypeQualifier> typeQualifiers) {
+    MangleInfo retMangleInfo, llvm::ArrayRef<llvm::Value *> args,
+    llvm::ArrayRef<MangleInfo> argMangleInfo,
+    llvm::Optional<spv::FPRoundingMode> mode) {
   if (dataType->isVectorTy()) {
     name += std::to_string(multi_llvm::getVectorNumElements(dataType));
   }
@@ -717,17 +711,278 @@ llvm::CallInst *spirv_ll::Builder::createVectorDataBuiltinCall(
     name += getFPRoundingModeSuffix(mode.getValue());
   }
 
-  return createMangledBuiltinCall(name, retTy, retOp, args, ids,
-                                  typeQualifiers);
+  return createMangledBuiltinCall(name, retTy, retMangleInfo, args,
+                                  argMangleInfo);
+}
+
+llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
+    OpenCLLIB::Entrypoints opcode, spv::Id resTyId,
+    llvm::ArrayRef<spv::Id> args) {
+  llvm::Type *resultType = module.getType(resTyId);
+  SPIRV_LL_ASSERT_PTR(resultType);
+
+  llvm::SmallVector<llvm::Value *, 4> argVals;
+  llvm::transform(args, std::back_inserter(argVals),
+                  [&](const spv::Id id) { return module.getValue(id); });
+  SPIRV_LL_ASSERT(
+      llvm::all_of(argVals, [](const llvm::Value *v) { return v != nullptr; }),
+      "Can't call with a null value");
+
+  llvm::SmallVector<MangleInfo, 4> argInfo;
+  llvm::transform(args, std::back_inserter(argInfo),
+                  [&](const spv::Id id) { return MangleInfo(id); });
+
+  llvm::StringRef fnName;
+  switch (opcode) {
+#define _OCL_OP(LIB, OP) \
+  case LIB:              \
+    fnName = #OP;        \
+    break;
+    _OCL_OP(OpenCLLIB::Acos, acos)
+    _OCL_OP(OpenCLLIB::Acosh, acosh)
+    _OCL_OP(OpenCLLIB::Acospi, acospi)
+    _OCL_OP(OpenCLLIB::Asin, asin)
+    _OCL_OP(OpenCLLIB::Asinh, asinh)
+    _OCL_OP(OpenCLLIB::Asinpi, asinpi)
+    _OCL_OP(OpenCLLIB::Atan, atan)
+    _OCL_OP(OpenCLLIB::Atan2, atan2)
+    _OCL_OP(OpenCLLIB::Atanh, atanh)
+    _OCL_OP(OpenCLLIB::Atanpi, atanpi)
+    _OCL_OP(OpenCLLIB::Atan2pi, atan2pi)
+    _OCL_OP(OpenCLLIB::Cbrt, cbrt)
+    _OCL_OP(OpenCLLIB::Ceil, ceil)
+    _OCL_OP(OpenCLLIB::Copysign, copysign)
+    _OCL_OP(OpenCLLIB::Cos, cos)
+    _OCL_OP(OpenCLLIB::Cosh, cosh)
+    _OCL_OP(OpenCLLIB::Cospi, cospi)
+    _OCL_OP(OpenCLLIB::Erfc, erfc)
+    _OCL_OP(OpenCLLIB::Erf, erf)
+    _OCL_OP(OpenCLLIB::Exp, exp)
+    _OCL_OP(OpenCLLIB::Exp2, exp2)
+    _OCL_OP(OpenCLLIB::Exp10, exp10)
+    _OCL_OP(OpenCLLIB::Expm1, expm1)
+    _OCL_OP(OpenCLLIB::Fabs, fabs)
+    _OCL_OP(OpenCLLIB::Fdim, fdim)
+    _OCL_OP(OpenCLLIB::Floor, floor)
+    _OCL_OP(OpenCLLIB::Fma, fma)
+    _OCL_OP(OpenCLLIB::Fmax, fmax)
+    _OCL_OP(OpenCLLIB::Fmin, fmin)
+    _OCL_OP(OpenCLLIB::Fmod, fmod)
+    _OCL_OP(OpenCLLIB::Fract, fract)
+    _OCL_OP(OpenCLLIB::Frexp, frexp)
+    _OCL_OP(OpenCLLIB::Hypot, hypot)
+    _OCL_OP(OpenCLLIB::Ilogb, ilogb)
+    _OCL_OP(OpenCLLIB::Ldexp, ldexp)
+    _OCL_OP(OpenCLLIB::Lgamma, lgamma)
+    _OCL_OP(OpenCLLIB::Lgamma_r, lgamma_r)
+    _OCL_OP(OpenCLLIB::Log, log)
+    _OCL_OP(OpenCLLIB::Log2, log2)
+    _OCL_OP(OpenCLLIB::Log10, log10)
+    _OCL_OP(OpenCLLIB::Log1p, log1p)
+    _OCL_OP(OpenCLLIB::Logb, logb)
+    _OCL_OP(OpenCLLIB::Mad, mad)
+    _OCL_OP(OpenCLLIB::Maxmag, maxmag)
+    _OCL_OP(OpenCLLIB::Minmag, minmag)
+    _OCL_OP(OpenCLLIB::Modf, modf)
+    _OCL_OP(OpenCLLIB::Nan, nan)
+    _OCL_OP(OpenCLLIB::Nextafter, nextafter)
+    _OCL_OP(OpenCLLIB::Pow, pow)
+    _OCL_OP(OpenCLLIB::Pown, pown)
+    _OCL_OP(OpenCLLIB::Powr, powr)
+    _OCL_OP(OpenCLLIB::Remainder, remainder)
+    _OCL_OP(OpenCLLIB::Remquo, remquo)
+    _OCL_OP(OpenCLLIB::Rint, rint)
+    _OCL_OP(OpenCLLIB::Rootn, rootn)
+    _OCL_OP(OpenCLLIB::Round, round)
+    _OCL_OP(OpenCLLIB::Rsqrt, rsqrt)
+    _OCL_OP(OpenCLLIB::Sin, sin)
+    _OCL_OP(OpenCLLIB::Sincos, sincos)
+    _OCL_OP(OpenCLLIB::Sinh, sinh)
+    _OCL_OP(OpenCLLIB::Sinpi, sinpi)
+    _OCL_OP(OpenCLLIB::Sqrt, sqrt)
+    _OCL_OP(OpenCLLIB::Tan, tan)
+    _OCL_OP(OpenCLLIB::Tanh, tanh)
+    _OCL_OP(OpenCLLIB::Tanpi, tanpi)
+    _OCL_OP(OpenCLLIB::Tgamma, tgamma)
+    _OCL_OP(OpenCLLIB::Trunc, trunc)
+    _OCL_OP(OpenCLLIB::Half_cos, half_cos)
+    _OCL_OP(OpenCLLIB::Half_divide, half_divide)
+    _OCL_OP(OpenCLLIB::Half_exp, half_exp)
+    _OCL_OP(OpenCLLIB::Half_exp2, half_exp2)
+    _OCL_OP(OpenCLLIB::Half_exp10, half_exp10)
+    _OCL_OP(OpenCLLIB::Half_log, half_log)
+    _OCL_OP(OpenCLLIB::Half_log2, half_log2)
+    _OCL_OP(OpenCLLIB::Half_log10, half_log10)
+    _OCL_OP(OpenCLLIB::Half_powr, half_powr)
+    _OCL_OP(OpenCLLIB::Half_recip, half_recip)
+    _OCL_OP(OpenCLLIB::Half_rsqrt, half_rsqrt)
+    _OCL_OP(OpenCLLIB::Half_sin, half_sin)
+    _OCL_OP(OpenCLLIB::Half_sqrt, half_sqrt)
+    _OCL_OP(OpenCLLIB::Half_tan, half_tan)
+    _OCL_OP(OpenCLLIB::Native_cos, native_cos)
+    _OCL_OP(OpenCLLIB::Native_divide, native_divide)
+    _OCL_OP(OpenCLLIB::Native_exp, native_exp)
+    _OCL_OP(OpenCLLIB::Native_exp2, native_exp2)
+    _OCL_OP(OpenCLLIB::Native_exp10, native_exp10)
+    _OCL_OP(OpenCLLIB::Native_log, native_log)
+    _OCL_OP(OpenCLLIB::Native_log2, native_log2)
+    _OCL_OP(OpenCLLIB::Native_log10, native_log10)
+    _OCL_OP(OpenCLLIB::Native_powr, native_powr)
+    _OCL_OP(OpenCLLIB::Native_recip, native_recip)
+    _OCL_OP(OpenCLLIB::Native_rsqrt, native_rsqrt)
+    _OCL_OP(OpenCLLIB::Native_sin, native_sin)
+    _OCL_OP(OpenCLLIB::Native_sqrt, native_sqrt)
+    _OCL_OP(OpenCLLIB::Native_tan, native_tan)
+    _OCL_OP(OpenCLLIB::SAbs, abs)
+    _OCL_OP(OpenCLLIB::UAbs, abs)
+    _OCL_OP(OpenCLLIB::SAbs_diff, abs_diff)
+    _OCL_OP(OpenCLLIB::UAbs_diff, abs_diff)
+    _OCL_OP(OpenCLLIB::SAdd_sat, add_sat)
+    _OCL_OP(OpenCLLIB::UAdd_sat, add_sat)
+    _OCL_OP(OpenCLLIB::SHadd, hadd)
+    _OCL_OP(OpenCLLIB::UHadd, hadd)
+    _OCL_OP(OpenCLLIB::SRhadd, rhadd)
+    _OCL_OP(OpenCLLIB::URhadd, rhadd)
+    _OCL_OP(OpenCLLIB::SClamp, clamp)
+    _OCL_OP(OpenCLLIB::UClamp, clamp)
+    _OCL_OP(OpenCLLIB::FClamp, clamp)
+    _OCL_OP(OpenCLLIB::Clz, clz)
+    _OCL_OP(OpenCLLIB::Ctz, ctz)
+    _OCL_OP(OpenCLLIB::SMad_hi, mad_hi)
+    _OCL_OP(OpenCLLIB::UMad_hi, mad_hi)
+    _OCL_OP(OpenCLLIB::SMad_sat, mad_sat)
+    _OCL_OP(OpenCLLIB::UMad_sat, mad_sat)
+    _OCL_OP(OpenCLLIB::SMax, max)
+    _OCL_OP(OpenCLLIB::UMax, max)
+    _OCL_OP(OpenCLLIB::FMax_common, max)
+    _OCL_OP(OpenCLLIB::SMin, min)
+    _OCL_OP(OpenCLLIB::UMin, min)
+    _OCL_OP(OpenCLLIB::FMin_common, min)
+    _OCL_OP(OpenCLLIB::SMul_hi, mul_hi)
+    _OCL_OP(OpenCLLIB::UMul_hi, mul_hi)
+    _OCL_OP(OpenCLLIB::Rotate, rotate)
+    _OCL_OP(OpenCLLIB::SSub_sat, sub_sat)
+    _OCL_OP(OpenCLLIB::USub_sat, sub_sat)
+    _OCL_OP(OpenCLLIB::S_Upsample, upsample)
+    _OCL_OP(OpenCLLIB::U_Upsample, upsample)
+    _OCL_OP(OpenCLLIB::Popcount, popcount)
+    _OCL_OP(OpenCLLIB::SMad24, mad24)
+    _OCL_OP(OpenCLLIB::UMad24, mad24)
+    _OCL_OP(OpenCLLIB::SMul24, mul24)
+    _OCL_OP(OpenCLLIB::UMul24, mul24)
+    _OCL_OP(OpenCLLIB::Degrees, degrees)
+    _OCL_OP(OpenCLLIB::Mix, mix)
+    _OCL_OP(OpenCLLIB::Radians, radians)
+    _OCL_OP(OpenCLLIB::Step, step)
+    _OCL_OP(OpenCLLIB::Smoothstep, smoothstep)
+    _OCL_OP(OpenCLLIB::Sign, sign)
+    _OCL_OP(OpenCLLIB::Cross, cross)
+    _OCL_OP(OpenCLLIB::Distance, distance)
+    _OCL_OP(OpenCLLIB::Length, length)
+    _OCL_OP(OpenCLLIB::Normalize, normalize)
+    _OCL_OP(OpenCLLIB::Fast_distance, fast_distance)
+    _OCL_OP(OpenCLLIB::Fast_length, fast_length)
+    _OCL_OP(OpenCLLIB::Fast_normalize, fast_normalize)
+    _OCL_OP(OpenCLLIB::Bitselect, bitselect)
+    _OCL_OP(OpenCLLIB::Select, select)
+    _OCL_OP(OpenCLLIB::Shuffle, shuffle)
+    _OCL_OP(OpenCLLIB::Shuffle2, shuffle2)
+    _OCL_OP(OpenCLLIB::Prefetch, prefetch)
+#undef _OCL_OP
+    default:
+      SPIRV_LL_ABORT("Unhandled OpenCL builtin");
+      break;
+  }
+
+  MangleInfo resMangleInfo = resTyId;
+
+  // Some builtins have constraints on their operands
+  switch (opcode) {
+    default:
+      break;
+    case OpenCLLIB::Frexp:
+    case OpenCLLIB::Ldexp:
+    case OpenCLLIB::Lgamma_r:
+    case OpenCLLIB::Pown:
+    case OpenCLLIB::Remquo:
+    case OpenCLLIB::Rootn:
+      // int* and intN* pointer operands are signed
+      argInfo.back().forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+      break;
+    case OpenCLLIB::SAdd_sat:
+    case OpenCLLIB::SHadd:
+    case OpenCLLIB::SClamp:
+    case OpenCLLIB::SMad_hi:
+    case OpenCLLIB::SMad_sat:
+    case OpenCLLIB::SMax:
+    case OpenCLLIB::SMin:
+    case OpenCLLIB::SMul_hi:
+    case OpenCLLIB::SSub_sat:
+    case OpenCLLIB::SMul24:
+      resMangleInfo = MangleInfo::getSigned(resTyId);
+      for (auto &arg : argInfo) {
+        arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+      }
+      break;
+    case OpenCLLIB::SAbs:
+    case OpenCLLIB::SAbs_diff:
+      // Both abs and abs_diff always have an unsigned return type
+      resMangleInfo = MangleInfo::getUnsigned(resTyId);
+      for (auto &arg : argInfo) {
+        arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+      }
+      break;
+    case OpenCLLIB::S_Upsample:
+      resMangleInfo = MangleInfo::getSigned(resTyId);
+      argInfo[0].forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+      argInfo[1].forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
+      break;
+    case OpenCLLIB::Prefetch:
+      argInfo[0].typeQuals = MangleInfo::CONST;
+      break;
+    case OpenCLLIB::UAbs:
+    case OpenCLLIB::UAbs_diff:
+    case OpenCLLIB::UAdd_sat:
+    case OpenCLLIB::UHadd:
+    case OpenCLLIB::URhadd:
+    case OpenCLLIB::UClamp:
+    case OpenCLLIB::UMad_hi:
+    case OpenCLLIB::UMad_sat:
+    case OpenCLLIB::UMax:
+    case OpenCLLIB::UMin:
+    case OpenCLLIB::UMul_hi:
+    case OpenCLLIB::USub_sat:
+    case OpenCLLIB::U_Upsample:
+    case OpenCLLIB::UMad24:
+    case OpenCLLIB::UMul24:
+      resMangleInfo = MangleInfo::getUnsigned(resTyId);
+      for (auto &arg : argInfo) {
+        arg.forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
+      }
+      break;
+  }
+
+  return createMangledBuiltinCall(fnName, resultType, resMangleInfo, argVals,
+                                  argInfo);
 }
 
 llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
-    llvm::StringRef name, llvm::Type *retTy, llvm::Optional<spv::Id> retOp,
-    llvm::ArrayRef<llvm::Value *> args, llvm::ArrayRef<spv::Id> ops,
-    llvm::ArrayRef<TypeQualifier> typeQualifiers, bool convergent) {
+    llvm::StringRef name, llvm::Type *retTy, MangleInfo retMangleInfo,
+    llvm::ArrayRef<llvm::Value *> args,
+    llvm::ArrayRef<MangleInfo> argMangleInfo, bool convergent) {
+  // Transform the MangleInfo from value-based IDs to type-based IDs. Take a
+  // copy first!
+  llvm::SmallVector<MangleInfo> argTyMangleInfo(argMangleInfo.begin(),
+                                                argMangleInfo.end());
+  llvm::for_each(argTyMangleInfo, [&](MangleInfo &info) {
+    if (info.id) {
+      // Transform the value id to its id.
+      info.id = module.getResultType(info.id)->IdResult();
+    }
+  });
   auto mangledBuiltInCall = createBuiltinCall(
-      getMangledFunctionName(name.str(), args, ops, typeQualifiers), retTy,
-      args, convergent);
+      getMangledFunctionName(name.str(), args, argTyMangleInfo), retTy, args,
+      convergent);
   auto calledFunction = mangledBuiltInCall->getCalledFunction();
   SPIRV_LL_ASSERT(nullptr != calledFunction, "Could not find function");
 
@@ -741,12 +996,9 @@ llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
       // assume signed here and below because a subset of OpenCL builtins treat
       // their parameters as signed, but creating a signed int type isn't
       // allowed by the OpenCL SPIR-V environment spec.
-      llvm::Attribute::AttrKind attribute = llvm::Attribute::AttrKind::SExt;
-      if (retOp.hasValue()) {
-        if (!module.get<OpTypeInt>(retOp.getValue())->Signedness()) {
-          attribute = llvm::Attribute::AttrKind::ZExt;
-        }
-      }
+      llvm::Attribute::AttrKind attribute =
+          retMangleInfo.getSignedness(module) ? llvm::Attribute::AttrKind::SExt
+                                              : llvm::Attribute::AttrKind::ZExt;
       mangledBuiltInCall->addRetAttr(attribute);
       calledFunction->addRetAttr(attribute);
     }
@@ -763,11 +1015,10 @@ llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
       if (bitWidth == 8 || bitWidth == 16) {
         // Assume signed unless an OpCode was provided that says otherwise.
         llvm::Attribute::AttrKind attribute = llvm::Attribute::AttrKind::SExt;
-        if (!ops.empty() && ops[index] != 0) {
-          if (!cast<OpTypeInt>(module.getResultType(ops[index]))
-                   ->Signedness()) {
-            attribute = llvm::Attribute::AttrKind::ZExt;
-          }
+        if (!argTyMangleInfo.empty()) {
+          attribute = argTyMangleInfo[index].getSignedness(module)
+                          ? llvm::Attribute::AttrKind::SExt
+                          : llvm::Attribute::AttrKind::ZExt;
         }
         mangledBuiltInCall->addParamAttr(index, attribute);
         calledFunction->addParamAttr(index, attribute);
@@ -780,7 +1031,7 @@ llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
 
 std::string spirv_ll::Builder::getMangledFunctionName(
     std::string name, llvm::ArrayRef<llvm::Value *> args,
-    llvm::ArrayRef<spv::Id> ids, llvm::ArrayRef<TypeQualifier> typeQualifiers) {
+    llvm::ArrayRef<MangleInfo> argMangleInfo) {
   // prefix the length of the function name
   name = applyMangledLength(name);
 
@@ -791,45 +1042,38 @@ std::string spirv_ll::Builder::getMangledFunctionName(
   for (size_t index = 0; index < args.size(); index++) {
     auto argTy = args[index]->getType();
 
-    const OpType *opTypeArg = nullptr;
-    if (!ids.empty() && ids[index] != 0) {
-      // get the opcode to take part in name mangling
-      opTypeArg = module.getResultType(ids[index]);
-    }
-
-    TypeQualifier qualifier = NONE;
-
-    if (!typeQualifiers.empty()) {
-      qualifier = typeQualifiers[index];
+    llvm::Optional<MangleInfo> mangleInfo;
+    if (!argMangleInfo.empty()) {
+      mangleInfo = argMangleInfo[index];
     }
 
     // append the mangled argument type name
-    name += getMangledTypeName(argTy, opTypeArg, subTys, qualifier);
+    name += getMangledTypeName(argTy, mangleInfo, subTys);
 
     if (isSubstitutableArgType(argTy)) {
-      // argument type is substitutable, add it to the substitutable list
-      subTys.push_back({argTy, index, opTypeArg});
+      // argument type is substitutable: add it to the substitutable list
+      subTys.push_back({argTy, index, mangleInfo});
       // FIXME: We can't substitute pointer types unless we have IDs
-      if (argTy->isPointerTy() && opTypeArg) {
-        auto *argResultTy = opTypeArg;
+      if (argTy->isPointerTy() && mangleInfo && mangleInfo->id) {
         llvm::Type *pointeeTy = nullptr;
-        if (argResultTy->isPointerType()) {
-          pointeeTy = module.getType(argResultTy->getTypePointer()->Type());
-        } else if (argResultTy->isImageType() || argResultTy->isEventType()) {
-          pointeeTy = module.getInternalStructType(argResultTy->IdResult());
+        auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
+        if (spvPtrTy->isPointerType()) {
+          pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
+        } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType()) {
+          pointeeTy = module.getInternalStructType(spvPtrTy->IdResult());
         }
         SPIRV_LL_ASSERT_PTR(pointeeTy);
         if (!pointeeTy->isIntegerTy() && !pointeeTy->isFloatingPointTy()) {
-          const OpType *opTypeElement = nullptr;
           // attempt to get the OpCode object for our element type, this is
           // basically so we can check signedness if element type is a vector of
           // ints
-          if (opTypeArg && opTypeArg->isPointerType()) {
-            opTypeElement =
-                module.get<OpType>(opTypeArg->getTypePointer()->Type());
-            SPIRV_LL_ASSERT_PTR(opTypeElement);
+          llvm::Optional<MangleInfo> pointeeMangleInfo;
+          if (spvPtrTy->isPointerType()) {
+            pointeeMangleInfo = *mangleInfo;
+            pointeeMangleInfo->typeQuals = 0;
+            pointeeMangleInfo->id = spvPtrTy->getTypePointer()->Type();
           }
-          subTys.push_back({pointeeTy, index, opTypeElement});
+          subTys.push_back({pointeeTy, index, pointeeMangleInfo});
         }
       }
     }
@@ -840,39 +1084,37 @@ std::string spirv_ll::Builder::getMangledFunctionName(
 
 const spirv_ll::Builder::SubstitutableType *spirv_ll::Builder::substitutableArg(
     llvm::Type *ty, const llvm::ArrayRef<SubstitutableType> &subTys,
-    const OpType *op) {
+    llvm::Optional<MangleInfo> mangleInfo) {
   for (const SubstitutableType &subTy : subTys) {
     if (ty != subTy.ty) {
       continue;
-    } else {
-      // if the types are vectors, makes sure that both are signed/unsigned
-      if (ty->isVectorTy() &&
-          multi_llvm::getVectorElementType(ty)->isIntegerTy() && op) {
-        uint32_t tySignedness =
-            module.getSignedness(op->getTypeVector()->ComponentType());
-        uint32_t subTySignedness = 1;
-        if (subTy.op) {
-          subTySignedness =
-              module.getSignedness(subTy.op->getTypeVector()->ComponentType());
-        }
-        if (tySignedness != subTySignedness) {
-          // if the vectors signs are different they should be
-          // mangled separately and not substituted with the "S[index]_"
-          continue;
-        }
-      }
-      // if there is a match return the substitutable so that its *index* can be
-      // used for the mangling string
-      return &subTy;
     }
+
+    // if the types are vectors, makes sure that both are signed/unsigned
+    if (mangleInfo && ty->isVectorTy() &&
+        multi_llvm::getVectorElementType(ty)->isIntegerTy()) {
+      bool tySignedness = mangleInfo->getSignedness(module);
+      uint32_t subTySignedness = 1;
+      if (subTy.mangleInfo) {
+        subTySignedness = subTy.mangleInfo->getSignedness(module);
+      }
+      if (tySignedness != subTySignedness) {
+        // if the vectors signs are different they should be
+        // mangled separately and not substituted with the "S[index]_"
+        continue;
+      }
+    }
+    // if there is a match return the substitutable so that its *index* can be
+    // used for the mangling string
+    return &subTy;
   }
   return nullptr;
 }
 
 std::string spirv_ll::Builder::getMangledTypeName(
-    llvm::Type *ty, const OpType *op, llvm::ArrayRef<SubstitutableType> subTys,
-    TypeQualifier qualifier) {
-  auto subTyArg = substitutableArg(ty, subTys, op);
+    llvm::Type *ty, llvm::Optional<MangleInfo> mangleInfo,
+    llvm::ArrayRef<SubstitutableType> subTys) {
+  auto subTyArg = substitutableArg(ty, subTys, mangleInfo);
   if (subTyArg != nullptr) {
     // substitutable argument type has appeared before so, find its index
     if (0 == subTyArg->index) {
@@ -885,31 +1127,33 @@ std::string spirv_ll::Builder::getMangledTypeName(
   } else if (ty->isFloatingPointTy()) {
     return getMangledFPName(ty);
   } else if (ty->isIntegerTy()) {
-    // assume signed integer when no opcode is provided
-    uint32_t signedness = 2;
-    if (op) {
-      if (spv::OpTypeInt == op->code) {
-        signedness = op->getTypeInt()->Signedness();
-      } else if (spv::OpTypeBool == op->code) {
+    llvm::Optional<bool> signedness;
+    if (mangleInfo && mangleInfo->id) {
+      auto *const spvTy = module.get<OpType>(mangleInfo->id);
+      if (spvTy->isBoolType()) {
         return "i";
-      } else if (spv::OpTypeSampler == op->code) {
+      } else if (spvTy->isSamplerType()) {
         return "11ocl_sampler";
-      } else if (spv::OpTypeVector == op->code) {
-        signedness = module.getSignedness(op->getTypeVector()->ComponentType());
       } else {
-        llvm_unreachable("unhandled interger op type!");
+        signedness = mangleInfo->getSignedness(module);
       }
     }
-    return getMangledIntName(ty, signedness != 0);
+    // Assume signed integer when no opcode is provided
+    return getMangledIntName(ty, multi_llvm::value_or(signedness, true));
   } else if (ty->isVectorTy()) {
-    auto componentTypeOp =
-        op ? module.get<OpType>(op->getTypeVector()->ComponentType()) : nullptr;
+    llvm::Optional<MangleInfo> componentMangleInfo;
+    if (mangleInfo) {
+      componentMangleInfo = *mangleInfo;
+      componentMangleInfo->id =
+          module.get<OpType>(mangleInfo->id)->getTypeVector()->ComponentType();
+    }
     auto elementTy = multi_llvm::getVectorElementType(ty);
     return getMangledVecPrefix(ty) +
-           getMangledTypeName(elementTy, componentTypeOp, subTys, NONE);
+           getMangledTypeName(elementTy, componentMangleInfo, subTys);
   } else if (ty->isPointerTy()) {
-    SPIRV_LL_ASSERT(op, "Must supply OpType to mangle pointer arguments");
-    if (auto *structTy = module.getInternalStructType(op->IdResult())) {
+    SPIRV_LL_ASSERT(mangleInfo,
+                    "Must supply OpType to mangle pointer arguments");
+    if (auto *structTy = module.getInternalStructType(mangleInfo->id)) {
       auto structName = structTy->getStructName();
       if (structName.contains("image1d_t")) {
         return "11ocl_image1d";
@@ -934,17 +1178,28 @@ std::string spirv_ll::Builder::getMangledTypeName(
         std::abort();
       }
     } else {
-      SPIRV_LL_ASSERT(op->isPointerType(), "Parameter is not a pointer");
-      auto *const elementTy = module.getType(op->getTypePointer()->Type());
-      std::string mangled = getMangledPointerPrefix(ty, qualifier);
-      auto typeOp = module.get<OpType>(op->getTypePointer()->Type());
-      return mangled + getMangledTypeName(elementTy, typeOp, subTys, NONE);
+      SPIRV_LL_ASSERT(
+          mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
+          "Parameter is not a pointer");
+
+      auto const spvPointeeTy =
+          module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
+      auto *const elementTy = module.getType(spvPointeeTy);
+      std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
+      auto pointeeMangleInfo = *mangleInfo;
+      pointeeMangleInfo.typeQuals = 0;
+      pointeeMangleInfo.id = spvPointeeTy;
+      return mangled + getMangledTypeName(elementTy, pointeeMangleInfo, subTys);
     }
   } else if (ty->isArrayTy()) {
-    auto elementTypeOp =
-        op ? module.get<OpType>(op->getTypeArray()->ElementType()) : nullptr;
-    return "P" + getMangledTypeName(ty->getArrayElementType(), elementTypeOp,
-                                    subTys, NONE);
+    llvm::Optional<MangleInfo> eltMangleInfo;
+    if (mangleInfo) {
+      eltMangleInfo = *mangleInfo;
+      eltMangleInfo->id =
+          module.get<OpType>(mangleInfo->id)->getTypeArray()->ElementType();
+    }
+    return "P" +
+           getMangledTypeName(ty->getArrayElementType(), eltMangleInfo, subTys);
   }
   llvm_unreachable("mangler: unsupported argument type");
 }
@@ -1151,4 +1406,33 @@ llvm::Type *spirv_ll::Builder::getRelationalReturnType(llvm::Value *operand) {
   } else {
     return IRBuilder.getInt32Ty();
   }
+}
+
+bool spirv_ll::MangleInfo::getSignedness(const spirv_ll::Module &module) const {
+  if (!id) {
+    return true;
+  }
+  llvm::Optional<bool> tySignedness;
+  auto *const spvTy = module.get<OpType>(id);
+  if (spvTy->isIntType()) {
+    tySignedness = spvTy->getTypeInt()->Signedness();
+  } else if (spvTy->isVectorType()) {
+    auto *const spvVecEltTy =
+        module.get<OpType>(spvTy->getTypeVector()->ComponentType());
+    if (spvVecEltTy->isIntType()) {
+      tySignedness = spvVecEltTy->getTypeInt()->Signedness();
+    }
+  }
+  switch (forceSign) {
+    default:
+      break;
+    case ForceSignInfo::ForceSigned:
+      tySignedness = true;
+      break;
+    case ForceSignInfo::ForceUnsigned:
+      tySignedness = false;
+      break;
+  }
+  // The default is signed
+  return multi_llvm::value_or(tySignedness, true);
 }

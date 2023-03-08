@@ -99,7 +99,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
-      "abs", retType, llvm::NoneType(), {x}, {});
+      "abs", retType, MangleInfo::getSigned(op->IdResultType()), {x}, {});
 
   module.addID(op->IdResult(), op, result);
 
@@ -163,7 +163,8 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
 
   // create the call:
   llvm::Value *result = builder.createMangledBuiltinCall(
-      "clamp", retType, llvm::NoneType(), {x, minus1, plus1}, {});
+      "clamp", retType, MangleInfo::getSigned(op->IdResultType()),
+      {x, minus1, plus1}, {});
 
   module.addID(op->IdResult(), op, result);
 
@@ -1580,7 +1581,8 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(OpExtInst const &opc) {
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
-      "findMSB", retType, llvm::NoneType(), {value}, {});
+      "findMSB", retType, MangleInfo::getSigned(op->IdResultType()), {value},
+      {});
 
   module.addID(op->IdResult(), op, result);
 

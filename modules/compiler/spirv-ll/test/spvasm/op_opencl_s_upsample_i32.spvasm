@@ -23,7 +23,7 @@
 ; CHECK: define spir_kernel void @s_upsample_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %i32_t %1 s_upsample %i16_3 %ui16_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z8upsampless(i16 signext 3, i16 signext 4)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z8upsamplest(i16 signext 3, i16 zeroext 4)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

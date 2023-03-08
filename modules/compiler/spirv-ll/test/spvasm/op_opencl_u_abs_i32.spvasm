@@ -11,15 +11,19 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %i32_t = OpTypeInt 32 0
+               %u32_t = OpTypeInt 32 0
+               %i32_t = OpTypeInt 32 1
           %u_abs_fn_t = OpTypeFunction %void_t
-               %i32_2 = OpConstant %i32_t 2
+               %u32_2 = OpConstant %u32_t 2
+               %i32_2 = OpConstant %u32_t 2
 
 ; All functions
            %u_abs_i32 = OpFunction %void_t None %u_abs_fn_t
 ; CHECK: define spir_kernel void @u_abs_i32()
                    %2 = OpLabel
-                   %3 = OpExtInst %i32_t %1 u_abs %i32_2
+                   %3 = OpExtInst %u32_t %1 u_abs %u32_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z3absj(i32 2)
+                   %4 = OpExtInst %u32_t %1 u_abs %i32_2
 ; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z3absj(i32 2)
                         OpReturn
 ; CHECK: ret void

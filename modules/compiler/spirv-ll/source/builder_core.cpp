@@ -365,7 +365,6 @@ cargo::optional<Error> Builder::create<OpTypeBool>(const OpTypeBool *op) {
 template <>
 cargo::optional<Error> Builder::create<OpTypeInt>(const OpTypeInt *op) {
   module.addID(op->IdResult(), op, IRBuilder.getIntNTy(op->Width()));
-  module.setSignedness(op->IdResult(), op->Signedness());
   return cargo::nullopt;
 }
 
@@ -3406,7 +3405,7 @@ cargo::optional<Error> Builder::create<OpImageWrite>(const OpImageWrite *op) {
   auto pixelTypeID = module.get<OpResult>(op->Texel())->IdResultType();
   auto pixelTypeOp = module.get<OpTypeVector>(pixelTypeID);
   createImageAccessBuiltinCall(
-      "write_image", voidTy, llvm::None, {image, coord, texel},
+      "write_image", voidTy, MangleInfo(0), {image, coord, texel},
       {op->Image(), op->Coordinate(), op->Texel()}, pixelTypeOp);
 
   return cargo::nullopt;
@@ -3428,9 +3427,9 @@ cargo::optional<Error> Builder::create<OpImageQueryFormat>(
   llvm::Value *image = module.getValue(op->Image());
   SPIRV_LL_ASSERT_PTR(image);
 
-  llvm::Value *result =
-      createMangledBuiltinCall("get_image_channel_data_type", resultType,
-                               op->IdResultType(), {image}, {op->Image()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "get_image_channel_data_type", resultType, MangleInfo(op->IdResultType()),
+      {image}, {op->Image()});
 
   module.addID(op->IdResult(), op, result);
   return cargo::nullopt;
@@ -3445,9 +3444,9 @@ cargo::optional<Error> Builder::create<OpImageQueryOrder>(
   llvm::Value *image = module.getValue(op->Image());
   SPIRV_LL_ASSERT_PTR(image);
 
-  llvm::Value *result =
-      createMangledBuiltinCall("get_image_channel_order", resultType,
-                               op->IdResultType(), {image}, {op->Image()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "get_image_channel_order", resultType, MangleInfo(op->IdResultType()),
+      {image}, {op->Image()});
 
   module.addID(op->IdResult(), op, result);
   return cargo::nullopt;
@@ -3480,8 +3479,9 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     } else {
       sizeTType = IRBuilder.getInt32Ty();
     }
-    llvm::Value *imageArraySize = createMangledBuiltinCall(
-        "get_image_array_size", sizeTType, llvm::None, {image}, {op->Image()});
+    llvm::Value *imageArraySize =
+        createMangledBuiltinCall("get_image_array_size", sizeTType,
+                                 MangleInfo(0), {image}, {op->Image()});
 
     if (returnScalarType != sizeTType) {
       imageArraySize =
@@ -3496,7 +3496,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
 
   llvm::Value *resultWidth =
       createMangledBuiltinCall("get_image_width", IRBuilder.getInt32Ty(),
-                               llvm::None, {image}, {op->Image()});
+                               MangleInfo(0), {image}, {op->Image()});
 
   if (returnScalarType != IRBuilder.getInt32Ty()) {
     resultWidth = IRBuilder.CreateZExtOrTrunc(resultWidth, returnScalarType);
@@ -3512,7 +3512,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
   if (imageTypeName.contains("2d") || imageTypeName.contains("3d")) {
     llvm::Value *resultHeight =
         createMangledBuiltinCall("get_image_height", IRBuilder.getInt32Ty(),
-                                 llvm::None, {image}, {op->Image()});
+                                 MangleInfo(0), {image}, {op->Image()});
 
     if (returnScalarType != IRBuilder.getInt32Ty()) {
       resultHeight =
@@ -3525,7 +3525,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     if (imageTypeName.contains("3d")) {
       llvm::Value *resultDepth =
           createMangledBuiltinCall("get_image_depth", IRBuilder.getInt32Ty(),
-                                   llvm::None, {image}, {op->Image()});
+                                   MangleInfo(0), {image}, {op->Image()});
 
       if (returnScalarType != IRBuilder.getInt32Ty()) {
         resultDepth =
@@ -3580,9 +3580,10 @@ cargo::optional<Error> Builder::create<OpConvertFToU>(const OpConvertFToU *op) {
   auto value = module.getValue(op->FloatValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, op->FloatValue(), retTy,
-                                           op->IdResultType(), op->IdResult()));
+  module.addID(
+      op->IdResult(), op,
+      createConversionBuiltinCall(value, MangleInfo(op->FloatValue()), retTy,
+                                  op->IdResultType(), op->IdResult()));
 
   return cargo::nullopt;
 }
@@ -3595,11 +3596,11 @@ cargo::optional<Error> Builder::create<OpConvertFToS>(const OpConvertFToS *op) {
   auto value = module.getValue(op->FloatValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  // In this instruction result type is always signed so don't pass its ID for
-  // signedness lookup.
+  // In this instruction, the result type is always signed.
   module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, op->FloatValue(), retTy,
-                                           llvm::NoneType(), op->IdResult()));
+               createConversionBuiltinCall(
+                   value, MangleInfo(op->FloatValue()), retTy,
+                   MangleInfo::getSigned(op->IdResultType()), op->IdResult()));
   return cargo::nullopt;
 }
 
@@ -3611,7 +3612,7 @@ cargo::optional<Error> Builder::create<OpConvertSToF>(const OpConvertSToF *op) {
   auto value = module.getValue(op->SignedValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  // In this instruction value is always signed so don't pass its ID for
+  // In this instruction, the value is always signed so don't pass its ID for
   // signedness lookup.
   module.addID(op->IdResult(), op,
                createConversionBuiltinCall(value, {}, retTy, op->IdResultType(),
@@ -3627,9 +3628,10 @@ cargo::optional<Error> Builder::create<OpConvertUToF>(const OpConvertUToF *op) {
   auto value = module.getValue(op->UnsignedValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, op->UnsignedValue(), retTy,
-                                           op->IdResultType(), op->IdResult()));
+  module.addID(
+      op->IdResult(), op,
+      createConversionBuiltinCall(value, MangleInfo(op->UnsignedValue()), retTy,
+                                  op->IdResultType(), op->IdResult()));
   return cargo::nullopt;
 }
 
@@ -3641,9 +3643,10 @@ cargo::optional<Error> Builder::create<OpUConvert>(const OpUConvert *op) {
   auto value = module.getValue(op->UnsignedValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, op->UnsignedValue(), retTy,
-                                           op->IdResultType(), op->IdResult()));
+  module.addID(
+      op->IdResult(), op,
+      createConversionBuiltinCall(value, MangleInfo(op->UnsignedValue()), retTy,
+                                  op->IdResultType(), op->IdResult()));
   return cargo::nullopt;
 }
 
@@ -3658,8 +3661,11 @@ cargo::optional<Error> Builder::create<OpSConvert>(const OpSConvert *op) {
   // In this instruction value and the return type are always signed so don't
   // pass their IDs for signedness lookup.
   module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, {}, retTy, llvm::NoneType(),
-                                           op->IdResult()));
+               createConversionBuiltinCall(
+                   value, {}, retTy,
+                   MangleInfo(op->IdResultType(),
+                              MangleInfo::ForceSignInfo::ForceSigned),
+                   op->IdResult()));
   return cargo::nullopt;
 }
 
@@ -3672,7 +3678,7 @@ cargo::optional<Error> Builder::create<OpFConvert>(const OpFConvert *op) {
   SPIRV_LL_ASSERT_PTR(type);
 
   module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, {}, type, llvm::NoneType(),
+               createConversionBuiltinCall(value, {}, type, op->IdResult(),
                                            op->IdResult()));
   return cargo::nullopt;
 }
@@ -3689,7 +3695,7 @@ cargo::optional<Error> Builder::create<OpQuantizeToF16>(
   module.addID(
       op->IdResult(), op,
       createMangledBuiltinCall("quantizeToF16", type, op->IdResultType(), {val},
-                               op->Value()));
+                               MangleInfo(op->Value())));
   return cargo::nullopt;
 }
 
@@ -3742,9 +3748,10 @@ cargo::optional<Error> Builder::create<OpSatConvertUToS>(
 
   // In this instruction result type is always signed so don't pass its ID for
   // signedness lookup.
-  auto result =
-      createConversionBuiltinCall(value, op->UnsignedValue(), retTy,
-                                  llvm::NoneType(), op->IdResult(), true);
+  auto result = createConversionBuiltinCall(
+      value, MangleInfo(op->UnsignedValue()), retTy,
+      MangleInfo(op->IdResultType(), MangleInfo::ForceSignInfo::ForceSigned),
+      op->IdResult(), true);
 
   module.addID(op->IdResult(), op, result);
   return cargo::nullopt;
@@ -4352,7 +4359,8 @@ cargo::optional<Error> Builder::create<OpAny>(const OpAny *op) {
   llvm::Value *extVector = IRBuilder.CreateSExt(vector, extVectorType);
 
   llvm::Value *result = createMangledBuiltinCall(
-      "any", IRBuilder.getInt32Ty(), llvm::None, {extVector}, {op->Vector()});
+      "any", IRBuilder.getInt32Ty(), MangleInfo::getSigned(op->IdResultType()),
+      {extVector}, {op->Vector()});
 
   llvm::Value *truncResult = IRBuilder.CreateTrunc(result, type);
 
@@ -4377,7 +4385,8 @@ cargo::optional<Error> Builder::create<OpAll>(const OpAll *op) {
   llvm::Value *extVector = IRBuilder.CreateSExt(vector, extVectorType);
 
   llvm::Value *result = createMangledBuiltinCall(
-      "all", IRBuilder.getInt32Ty(), llvm::None, {extVector}, {op->Vector()});
+      "all", IRBuilder.getInt32Ty(), MangleInfo::getSigned(op->IdResultType()),
+      {extVector}, {op->Vector()});
 
   llvm::Value *truncResult = IRBuilder.CreateTrunc(result, type);
 
@@ -4395,8 +4404,9 @@ cargo::optional<Error> Builder::create<OpIsNan>(const OpIsNan *op) {
 
   llvm::Type *resultType = getRelationalReturnType(x);
 
-  llvm::Value *result =
-      createMangledBuiltinCall("isnan", resultType, llvm::None, {x}, {op->x()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "isnan", resultType, MangleInfo::getSigned(op->IdResultType()), {x},
+      {op->x()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4414,8 +4424,9 @@ cargo::optional<Error> Builder::create<OpIsInf>(const OpIsInf *op) {
 
   llvm::Type *resultType = getRelationalReturnType(x);
 
-  llvm::Value *result =
-      createMangledBuiltinCall("isinf", resultType, llvm::None, {x}, {op->x()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "isinf", resultType, MangleInfo::getSigned(op->IdResultType()), {x},
+      {op->x()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4433,8 +4444,9 @@ cargo::optional<Error> Builder::create<OpIsFinite>(const OpIsFinite *op) {
 
   llvm::Type *resultType = getRelationalReturnType(x);
 
-  llvm::Value *result = createMangledBuiltinCall("isfinite", resultType,
-                                                 llvm::None, {x}, {op->x()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "isfinite", resultType, MangleInfo::getSigned(op->IdResultType()), {x},
+      {op->x()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4452,8 +4464,9 @@ cargo::optional<Error> Builder::create<OpIsNormal>(const OpIsNormal *op) {
 
   llvm::Type *resultType = getRelationalReturnType(x);
 
-  llvm::Value *result = createMangledBuiltinCall("isnormal", resultType,
-                                                 llvm::None, {x}, {op->x()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "isnormal", resultType, MangleInfo::getSigned(op->IdResultType()), {x},
+      {op->x()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4471,8 +4484,9 @@ cargo::optional<Error> Builder::create<OpSignBitSet>(const OpSignBitSet *op) {
 
   llvm::Type *resultType = getRelationalReturnType(x);
 
-  llvm::Value *result = createMangledBuiltinCall("signbit", resultType,
-                                                 llvm::None, {x}, {op->x()});
+  llvm::Value *result = createMangledBuiltinCall(
+      "signbit", resultType, MangleInfo::getSigned(op->IdResultType()), {x},
+      {op->x()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4495,7 +4509,8 @@ cargo::optional<Error> Builder::create<OpLessOrGreater>(
   llvm::Type *resultType = getRelationalReturnType(x);
 
   llvm::Value *result = createMangledBuiltinCall(
-      "islessgreater", resultType, llvm::None, {x, y}, {op->x(), op->y()});
+      "islessgreater", resultType, MangleInfo::getSigned(op->IdResultType()),
+      {x, y}, {op->x(), op->y()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4517,7 +4532,8 @@ cargo::optional<Error> Builder::create<OpOrdered>(const OpOrdered *op) {
   llvm::Type *resultType = getRelationalReturnType(x);
 
   llvm::Value *result = createMangledBuiltinCall(
-      "isordered", resultType, llvm::None, {x, y}, {op->x(), op->y()});
+      "isordered", resultType, MangleInfo::getSigned(op->IdResultType()),
+      {x, y}, {op->x(), op->y()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -4539,7 +4555,8 @@ cargo::optional<Error> Builder::create<OpUnordered>(const OpUnordered *op) {
   llvm::Type *resultType = getRelationalReturnType(x);
 
   llvm::Value *result = createMangledBuiltinCall(
-      "isunordered", resultType, llvm::None, {x, y}, {op->x(), op->y()});
+      "isunordered", resultType, MangleInfo::getSigned(op->IdResultType()),
+      {x, y}, {op->x(), op->y()});
 
   result = IRBuilder.CreateTrunc(result, type);
 
@@ -5425,8 +5442,8 @@ cargo::optional<Error> Builder::create<OpAtomicLoad>(const OpAtomicLoad *op) {
       op->IdResult(), op,
       createMangledBuiltinCall("atomic_load_explicit", retTy,
                                op->IdResultType(), {pointer, semantics, scope},
-                               {op->Pointer(), op->Semantics(), op->Scope()},
-                               {VOLATILE, NONE, NONE}));
+                               {MangleInfo(op->Pointer(), MangleInfo::VOLATILE),
+                                op->Semantics(), op->Scope()}));
   return cargo::nullopt;
 }
 
@@ -5444,11 +5461,10 @@ cargo::optional<Error> Builder::create<OpAtomicStore>(const OpAtomicStore *op) {
   auto value = module.getValue(op->Value());
   SPIRV_LL_ASSERT_PTR(value);
 
-  createMangledBuiltinCall(
-      "atomic_store_explicit", IRBuilder.getVoidTy(), spv::OpTypeVoid,
-      {pointer, value, semantics, scope},
-      {op->Pointer(), op->Value(), op->Semantics(), op->Scope()},
-      {VOLATILE, NONE, NONE, NONE});
+  createMangledBuiltinCall("atomic_store_explicit", IRBuilder.getVoidTy(),
+                           spv::OpTypeVoid, {pointer, value, semantics, scope},
+                           {MangleInfo(op->Pointer(), MangleInfo::VOLATILE),
+                            op->Value(), op->Semantics(), op->Scope()});
   return cargo::nullopt;
 }
 
@@ -5492,8 +5508,8 @@ cargo::optional<Error> Builder::create<OpAtomicCompareExchange>(
       op->IdResult(), op,
       createMangledBuiltinCall("atomic_cmpxchg", retTy, op->IdResultType(),
                                {pointer, cmp, value},
-                               {op->Pointer(), op->Comparator(), op->Value()},
-                               {VOLATILE, NONE, NONE}));
+                               {MangleInfo(op->Pointer(), MangleInfo::VOLATILE),
+                                op->Comparator(), op->Value()}));
   return cargo::nullopt;
 }
 
@@ -5515,8 +5531,9 @@ cargo::optional<Error> Builder::create<OpAtomicIIncrement>(
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(op->IdResult(), op,
-               createMangledBuiltinCall("atomic_inc", retTy, op->IdResultType(),
-                                        pointer, op->Pointer(), VOLATILE));
+               createMangledBuiltinCall(
+                   "atomic_inc", retTy, op->IdResultType(), pointer,
+                   MangleInfo(op->Pointer(), MangleInfo::VOLATILE)));
   return cargo::nullopt;
 }
 
@@ -5530,8 +5547,9 @@ cargo::optional<Error> Builder::create<OpAtomicIDecrement>(
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(op->IdResult(), op,
-               createMangledBuiltinCall("atomic_dec", retTy, op->IdResultType(),
-                                        pointer, op->Pointer(), VOLATILE));
+               createMangledBuiltinCall(
+                   "atomic_dec", retTy, op->IdResultType(), pointer,
+                   MangleInfo(op->Pointer(), MangleInfo::VOLATILE)));
   return cargo::nullopt;
 }
 
@@ -5560,8 +5578,7 @@ void Builder::generateBinaryAtomic(const OpResult *op, spv::Id pointerID,
   std::string mangled_value_type =
       value_type->isIntegerTy()
           ? getMangledIntName(value_type, args_are_signed)
-          : getMangledTypeName(value_type, module.getResultType(valueID), {},
-                               NONE);
+          : getMangledTypeName(value_type, MangleInfo(valueID), {});
   std::string mangled_name = applyMangledLength(function);
   // We know that binary atomic operations have two arguments: a pointer, and an
   // int of the same type.
@@ -5917,13 +5934,14 @@ cargo::optional<Error> Builder::create<OpGroupAsyncCopy>(
   llvm::Value *event = module.getValue(op->Event());
   SPIRV_LL_ASSERT_PTR(event);
 
-  module.addID(op->IdResult(), op,
-               createMangledBuiltinCall(
-                   "async_work_group_strided_copy", eventTy, op->IdResultType(),
-                   {dst, src, numElements, stride, event},
-                   {op->Destination(), op->Source(), op->NumElements(),
-                    op->Stride(), op->Event()},
-                   {NONE, CONST, NONE, NONE, NONE}, /*convergent*/ true));
+  module.addID(
+      op->IdResult(), op,
+      createMangledBuiltinCall(
+          "async_work_group_strided_copy", eventTy, op->IdResultType(),
+          {dst, src, numElements, stride, event},
+          {op->Destination(), MangleInfo(op->Source(), MangleInfo::CONST),
+           op->NumElements(), op->Stride(), op->Event()},
+          /*convergent*/ true));
   return cargo::nullopt;
 }
 
@@ -6028,13 +6046,13 @@ void Builder::generateReduction(const T *op, const std::string &opName) {
     IRBuilder.SetInsertPoint(workGroup);
     llvm::Value *workGroupResult = createMangledBuiltinCall(
         "work_group_" + operationName + "_" + opName, xArg->getType(),
-        op->IdResultType(), xArg, op->X(), {}, /* convergent */ true);
+        op->IdResultType(), xArg, MangleInfo(op->X()), /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(subGroup);
     llvm::Value *subGroupResult = createMangledBuiltinCall(
         "sub_group_" + operationName + "_" + opName, xArg->getType(),
-        op->IdResultType(), xArg, op->X(), {}, /* convergent */ true);
+        op->IdResultType(), xArg, MangleInfo(op->X()), /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(exit);
@@ -6131,13 +6149,13 @@ void Builder::generatePredicate(const T *op, const std::string &opName) {
     IRBuilder.SetInsertPoint(workGroup);
     llvm::Value *workGroupResult = createMangledBuiltinCall(
         "work_group_" + opName, IRBuilder.getInt32Ty(), op->IdResultType(),
-        predicateArg, op->Predicate(), {}, /* convergent */ true);
+        predicateArg, MangleInfo(op->Predicate()), /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(subGroup);
     llvm::Value *subGroupResult = createMangledBuiltinCall(
         "sub_group_" + opName, IRBuilder.getInt32Ty(), op->IdResultType(),
-        predicateArg, op->Predicate(), {}, /* convergent */ true);
+        predicateArg, MangleInfo(op->Predicate()), /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(exit);
@@ -6292,7 +6310,7 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     // then the local ID has to be scalar, so we rely on the producer not to do
     // this.
     llvm::SmallVector<llvm::Value *, 2> args{valueArg};
-    llvm::SmallVector<spv::Id, 2> argIds{op->Value()};
+    llvm::SmallVector<MangleInfo, 2> argIds{op->Value()};
     if (const auto *const vectorTy =
             dyn_cast<multi_llvm::FixedVectorType>(localIdArg->getType())) {
       const auto elementCount = vectorTy->getNumElements();
@@ -6314,7 +6332,7 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     // cast here.
     llvm::Value *subGroupResult = createMangledBuiltinCall(
         "sub_group_broadcast", valueArg->getType(), op->IdResultType(), args,
-        argIds, {}, /* convergent */ true);
+        argIds, /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(workGroup);
@@ -6329,7 +6347,7 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     }
     llvm::Value *workGroupResult = createMangledBuiltinCall(
         "work_group_broadcast", valueArg->getType(), op->IdResultType(), args,
-        argIds, {}, /* convergent */ true);
+        argIds, /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(exit);
@@ -6757,8 +6775,8 @@ cargo::optional<Error> Builder::create<OpAtomicFlagTestAndSet>(
       op->IdResult(), op,
       createMangledBuiltinCall("atomic_flag_test_and_set_explicit", retTy,
                                op->IdResultType(), {pointer, semantics, scope},
-                               {op->Pointer(), op->Semantics(), op->Scope()},
-                               {VOLATILE, NONE, NONE}));
+                               {MangleInfo(op->Pointer(), MangleInfo::VOLATILE),
+                                op->Semantics(), op->Scope()}));
   return cargo::nullopt;
 }
 
@@ -6776,8 +6794,8 @@ cargo::optional<Error> Builder::create<OpAtomicFlagClear>(
 
   createMangledBuiltinCall("atomic_flag_clear_explicit", IRBuilder.getVoidTy(),
                            spv::OpTypeVoid, {pointer, semantics, scope},
-                           {op->Pointer(), op->Semantics(), op->Scope()},
-                           {VOLATILE, NONE, NONE});
+                           {MangleInfo(op->Pointer(), MangleInfo::VOLATILE),
+                            op->Semantics(), op->Scope()});
   return cargo::nullopt;
 }
 

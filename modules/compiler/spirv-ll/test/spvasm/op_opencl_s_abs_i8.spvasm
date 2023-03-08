@@ -12,6 +12,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
+                %i8_t = OpTypeInt 8 1
                %ui8_t = OpTypeInt 8 0
           %s_abs_fn_t = OpTypeFunction %void_t
 ; This constant is the unsigned decimal representation of the two's compliment for -2.
@@ -22,7 +23,9 @@
 ; CHECK: define spir_kernel void @s_abs_i8()
                    %2 = OpLabel
                    %3 = OpExtInst %ui8_t %1 s_abs %ui8_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func signext i8 @_Z3absc(i8 signext -2)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i8 @_Z3absc(i8 signext -2)
+                   %4 = OpExtInst %i8_t %1 s_abs %ui8_2
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i8 @_Z3absc(i8 signext -2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

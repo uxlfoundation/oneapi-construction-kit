@@ -481,16 +481,6 @@ llvm::Type *spirv_ll::Module::getType(spv::Id id) const {
   return Types.lookup(id).Type;
 }
 
-void spirv_ll::Module::setSignedness(spv::Id id, uint32_t signedness) {
-  signednessMap.insert({id, signedness});
-}
-
-uint32_t spirv_ll::Module::getSignedness(spv::Id id) const {
-  auto found = signednessMap.find(id);
-  SPIRV_LL_ASSERT(found != signednessMap.end(), "Bad signedness lookup!");
-  return found->getSecond();
-}
-
 void spirv_ll::Module::addForwardPointer(spv::Id id) {
   ForwardPointers.insert(id);
 }
