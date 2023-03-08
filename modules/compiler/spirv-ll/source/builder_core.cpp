@@ -1914,6 +1914,20 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
   SPIRV_LL_ASSERT_PTR(function);
 
+  // If we've created a forward reference version of this function, we can now
+  // replace all of its uses with the concrete function, and mark the forward
+  // reference as resolved.
+  if (auto *fwd_ref_fn = module.getForwardFnRef(op->IdResult())) {
+    llvm::for_each(fwd_ref_fn->users(), [CC](llvm::User *user) {
+      if (auto *const ci = llvm::dyn_cast<llvm::CallInst>(user)) {
+        ci->setCallingConv(CC);
+      }
+    });
+    fwd_ref_fn->replaceAllUsesWith(function);
+    fwd_ref_fn->eraseFromParent();
+    module.resolveForwardFnRef(op->IdResult());
+  }
+
   function->setCallingConv(CC);
   setCurrentFunction(function);
 
@@ -2235,13 +2249,44 @@ static inline llvm::Attribute getTypedAttr(llvm::LLVMContext &c,
 template <>
 cargo::optional<Error> Builder::create<OpFunctionCall>(
     const OpFunctionCall *op) {
-  llvm::Function *callee =
-      cast<llvm::Function>(module.getValue(op->Function()));
+  llvm::Function *callee;
+  const unsigned n_args = op->wordCount() - 4;
+
+  if (auto *const fn = module.getValue(op->Function())) {
+    callee = cast<llvm::Function>(module.getValue(op->Function()));
+  } else {
+    // If we haven't seen this function before (i.e., a forward reference),
+    // create a call to an internal dummy function which we'll fix up during
+    // the creation of the OpFunction, later on.
+    llvm::SmallVector<llvm::Type *, 4> paramTypes;
+    // First we must construct the called function's type. As per the SPIR-V
+    // spec:
+    //   Note: A forward call is possible because there is no missing type
+    //   information: Result Type must match the Return Type of the function,
+    //   and the calling argument types must match the formal parameter types.
+    llvm::Type *resultType = module.getType(op->IdResultType());
+    for (unsigned i = 0; i < n_args; ++i) {
+      auto *const spv_ty = module.getResultType(op->Arguments()[i]);
+      SPIRV_LL_ASSERT_PTR(spv_ty);
+      auto *const llvm_ty = module.getType(spv_ty->IdResult());
+      SPIRV_LL_ASSERT_PTR(llvm_ty);
+      paramTypes.push_back(llvm_ty);
+    }
+    auto *const functionType =
+        llvm::FunctionType::get(resultType, paramTypes, /*isVarArg*/ false);
+    // Generate a special dummy name here, so that the 'real' function's name
+    // isn't taken when it comes to creating it.
+    std::string dummyFnName =
+        "__spirv.ll.forwardref." + module.getName(op->Function());
+    callee = cast<llvm::Function>(
+        module.llvmModule->getOrInsertFunction(dummyFnName, functionType)
+            .getCallee());
+    module.addForwardFnRef(op->Function(), callee);
+  }
   SPIRV_LL_ASSERT_PTR(callee);
 
   llvm::SmallVector<llvm::Value *, 4> args;
 
-  const unsigned n_args = op->wordCount() - 4;
   for (unsigned i = 0; i < n_args; ++i) {
     llvm::Value *arg = module.getValue(op->Arguments()[i]);
 

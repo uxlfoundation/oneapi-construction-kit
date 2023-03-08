@@ -2324,6 +2324,7 @@ set(SPVASM_FILES
   op_spec_constant_generic_pointer.spvasm
   prioritize_function_names.spvasm
   prioritize_function_names_external.spvasm
+  op_function_call_regression.spvasm
   )
 
 if(TARGET spirv::spirv-as)

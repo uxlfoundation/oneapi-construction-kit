@@ -1,0 +1,49 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; Checks that function calls to forward-referenced functions correctly
+; behaves as expected. There was a bug where resolving calls to function forward
+; references was leaving behind invalid instructions.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_function_call_regression.spv | %filecheck %s
+
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpSource OpenCL_CPP 100000
+
+               OpName %bar "bar"
+               OpName %main "main"
+               OpName %foo "foo"
+
+       %void = OpTypeVoid
+      %ulong = OpTypeInt 64 0
+
+    %ulong_0 = OpConstant %ulong 0
+    %ulong_1 = OpConstant %ulong 1
+
+        %main_fn_ty = OpTypeFunction %void
+        %foo_fn_ty = OpTypeFunction %void %ulong
+        %bar_fn_ty = OpTypeFunction %ulong %ulong
+
+%main = OpFunction %void None %main_fn_ty
+    %entry_4 = OpLabel
+; CHECK: [[TMP:%.*]] = call spir_func i64 @bar(i64 0)
+      %call0 = OpFunctionCall %ulong %bar %ulong_0
+; CHECK: call spir_func void @foo(i64 [[TMP]])
+        %272 = OpFunctionCall %void %foo %call0
+               OpReturn
+               OpFunctionEnd
+
+
+%foo = OpFunction %void None %foo_fn_ty
+  %0 = OpFunctionParameter %ulong
+   %entry_11 = OpLabel
+               OpReturn
+               OpFunctionEnd
+
+
+%bar = OpFunction %ulong None %bar_fn_ty
+  %1 = OpFunctionParameter %ulong
+    %entry_5 = OpLabel
+               OpReturnValue %1
+               OpFunctionEnd

@@ -493,6 +493,34 @@ void spirv_ll::Module::removeForwardPointer(spv::Id id) {
   ForwardPointers.erase(id);
 }
 
+void spirv_ll::Module::addForwardFnRef(spv::Id id, llvm::Function *fn) {
+  auto res = ForwardFnRefs.try_emplace(id, fn);
+  // If we didn't insert a new forward ref, check that we're not trying to
+  // associate a different function with the existing one.
+  if (!res.second) {
+    SPIRV_LL_ASSERT(res.first->second == fn,
+                    "Overwriting existing function forward reference");
+  }
+}
+
+llvm::Function *spirv_ll::Module::getForwardFnRef(spv::Id id) const {
+  auto found = ForwardFnRefs.find(id);
+  if (found == ForwardFnRefs.end()) {
+    return nullptr;
+  }
+  return found->getSecond();
+}
+
+void spirv_ll::Module::resolveForwardFnRef(spv::Id id) {
+  // Don't actually remove it, but track it as being zero. If we try and add
+  // another forward reference to the same function, we'll know that something
+  // is wrong.
+  auto found = ForwardFnRefs.find(id);
+  if (found != ForwardFnRefs.end()) {
+    found->second = nullptr;
+  }
+}
+
 void spirv_ll::Module::addIncompleteStruct(
     const OpTypeStruct *struct_type,
     const llvm::SmallVector<spv::Id, 2> &missing_types) {

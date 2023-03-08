@@ -132,18 +132,14 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   // have been generated
   llvm::SmallVector<OpIRLocTy, 8> Phis;
 
-  // Store function calls and resolve them at the end of the module
-  using InstIRLocTy = std::pair<OpCode, llvm::Instruction *>;
-  llvm::SmallVector<InstIRLocTy, 8> FunctionCalls;
-
   for (auto op : module) {
     cargo::optional<Error> error;
     switch (op.code) {
-      default
-          :  // Unsupported opcodes are ignored.
+      default:
+        // Unsupported opcodes are ignored.
 #ifndef NDEBUG
-             // Only abort on unsupported opcodes in assert builds to help catch
-        // possible bugs or missing features, however if we are consuming
+        // Only abort on unsupported opcodes in assert builds to help
+        // catch possible bugs or missing features. However if we are consuming
         // SPIR-V which contains unsupported opcodes intentionally by the user
         // with the intent that the SPIR-V consumer simply ignores them, as is
         // allowed by the SPIR-V spec, then this abort should be removed.
@@ -337,29 +333,9 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         Phis.clear();
         IPStack.pop_back();
         break;
-      case spv::OpFunctionCall: {
-        OpFunctionCall opfc = static_cast<OpFunctionCall &>(op);
-        if (!module.getValue(opfc.Function())) {
-          llvm::Type *resultType = module.getType(opfc.IdResultType());
-          llvm::FunctionType *functionType =
-              llvm::FunctionType::get(resultType, false);
-          // TODO: mangle dummy function names when we have a mangler
-          llvm::Function *dummyFunction =
-              module.llvmModule->getFunction(module.getName(opfc.Function()));
-          if (!dummyFunction) {
-            dummyFunction = llvm::Function::Create(
-                functionType, llvm::GlobalValue::ExternalWeakLinkage,
-                module.getName(opfc.Function()), module.llvmModule.get());
-          }
-          llvm::CallInst *dummyCall = llvm::CallInst::Create(dummyFunction);
-          builder.getIRBuilder().Insert(dummyCall);
-          module.addID(opfc.IdResult(), &op, dummyCall);
-          FunctionCalls.push_back(std::make_pair(op, dummyCall));
-        } else {
-          error = builder.create<OpFunctionCall>(opfc);
-        }
+      case spv::OpFunctionCall:
+        error = builder.create<OpFunctionCall>(op);
         break;
-      }
       case spv::OpVariable:
         error = builder.create<OpVariable>(op);
         break;
@@ -1092,28 +1068,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     }
     if (error) {
       return cargo::make_unexpected(std::move(error.value()));
-    }
-  }
-
-  // resolve function calls
-  for (auto fc : FunctionCalls) {
-    builder.getIRBuilder().SetInsertPoint(fc.second);
-    builder.create<OpFunctionCall>(*cast<OpFunctionCall>(&fc.first));
-    // since we just set insert point with an Instruction, the new instruction
-    // will be the one previous to our dummy instruction
-    llvm::Instruction *call =
-        builder.getIRBuilder().GetInsertBlock()->getInstList().getPrevNode(
-            *fc.second);
-
-    llvm::CallInst *dummyCall = llvm::cast<llvm::CallInst>(fc.second);
-    llvm::Function *dummyFunction = dummyCall->getCalledFunction();
-    SPIRV_LL_ASSERT(nullptr != dummyFunction, "Could not find function");
-
-    dummyCall->replaceAllUsesWith(call);
-    dummyCall->eraseFromParent();
-
-    if (dummyFunction->getNumUses() == 0) {
-      dummyFunction->eraseFromParent();
     }
   }
 

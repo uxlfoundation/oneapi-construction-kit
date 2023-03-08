@@ -12,3 +12,8 @@ Upgrade guidance:
 
 * The `modules/spirv-ll` module has been moved to `modules/compiler/spirv-ll`.
 * The external `SPIRV-Headers` has been bumped to `sdk-1.3.239.0`.
+
+Bug fixes:
+
+* A bug was fixed in handling function calls to function forward references,
+  which was previously generating invalid LLVM IR.

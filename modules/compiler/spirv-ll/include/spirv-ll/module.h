@@ -695,6 +695,23 @@ class Module : public ModuleHeader {
   /// @param id ID of the forward pointer.
   void removeForwardPointer(spv::Id id);
 
+  /// @brief Log a forward reference to a function, to be resolved later.
+  ///
+  /// @param id ID of the forward function reference.
+  /// @param fn the forward-declared function.
+  void addForwardFnRef(spv::Id id, llvm::Function *fn);
+
+  /// @brief Retrieve a forward reference to a function.
+  ///
+  /// @param id ID of the forward function reference.
+  /// @return The function, or nullptr if no forward reference was made to this.
+  llvm::Function *getForwardFnRef(spv::Id id) const;
+
+  /// @brief Resolve a forward function reference.
+  ///
+  /// @param id ID of the forward function reference.
+  void resolveForwardFnRef(spv::Id id);
+
   /// @brief Add an incomplete struct and its missing type IDs to the module.
   ///
   /// @param struct_type OpCode object that created the incomplete struct.
@@ -1060,6 +1077,8 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, llvm::SmallVector<spv::Id, 3>> ParamTypeIDs;
   /// @brief List of IDs that correspond to forward declared pointer types.
   llvm::SmallSet<spv::Id, 4> ForwardPointers;
+  /// @brief Map of function IDs to forward-declared functions.
+  llvm::DenseMap<spv::Id, llvm::Function *> ForwardFnRefs;
   /// @brief Map incomplete (contains forward pointer) struct and missing types.
   llvm::DenseMap<const OpTypeStruct *, llvm::SmallVector<spv::Id, 2>>
       IncompleteStructs;
