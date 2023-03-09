@@ -6,11 +6,12 @@ this project was delivered.
 The source/cl/external/OpenCL-Headers folder (Khronos OpenCL headers), if
 present, is held under its own licensing terms.
 
-The source/cl/external/OpenCL-ICD-Loader folder (Khronos OpenCL ICD loader), if
-present, is held under its own licensing terms.
+The OpenCL ICD Loader (https://github.com/KhronosGroup/OpenCL-ICD-Loader) may be
+fetched under the build directory and is held under its own licensing terms.
 
-The source/cl/test/OpenCL-CTS folder (Khronos OpenCL CTS), if present, is held
-under its own licensing terms.
+The OpenCL Intercept Layer (https://github.com/intel/opencl-intercept-layer.git)
+may be fetched under the build directory and is held under its own licensing
+terms.
 
 The source/vk/external/Khronos folder (Khronos Vulkan headers), if present, is
 held under its own licensing terms.
@@ -40,3 +41,17 @@ doc/_static/images/opencl/copyrights-ccby.txt)
 The modules/compiler/targets/riscv/runtimelib/source/external if present
 contains some code from musl, which is licensed under an MIT license - see
 modules/compiler/targets/riscv/runtimelib/source/external/COPYRIGHT.
+
+The clik folder if present includes examples/option_parser from the riscv-isa-sim
+project which has its own freely distributable license terms (see
+clik/examples/option_parser/LICENSE for details).
+
+The examples/refsi/hal_refsi/external/refsidrv folder if present fetches a modified version
+of the riscv-isa-sim project which is under its own its own freely distributable
+license terms.
+
+The examples/refsi/hal_refsi/source/loader folder contain files derived from the
+riscv-isa-sim project and can be identified by the presence of a 'See
+LICENSE.spike for license details.' comment at the top of the relevant files.
+These files are held under their own licensing terms,
+examples/refsi/hal_refsi/source/loader/LICENSE.spike.
