@@ -193,7 +193,8 @@ The following build options can also be useful:
 
 ``CA_RISCV_DEMO_MODE``
   Is a bool (defaulted to false), which can be used to set environment variables
-  for debug purposes to demonstrate the execution of a kernel on RISC-V.
+  for debug purposes to demonstrate the execution of a kernel on RISC-V. Note
+  for a `Refsi M1` example build this will be CA_RISCV_M1_DEMO_MODE.
 
 .. note::
   ICD support is optional.

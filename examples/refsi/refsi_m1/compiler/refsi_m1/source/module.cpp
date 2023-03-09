@@ -74,7 +74,7 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
     std::string env_name_dump_asm = env_debug_prefix + "_DUMP_ASM";
     if (getenv(env_name_dump_asm.c_str())) {
       std::string name = compiler::BaseModule::getTargetSnapshotName(
-          "refsi-m1", riscv::RISCV_SNAPSHOT_BACKEND);
+          "riscv", riscv::RISCV_SNAPSHOT_BACKEND);
       addInternalSnapshot(name.c_str());
     }
   }
@@ -90,7 +90,7 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
 
   // Reuse riscv snapshot names
   compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "refsi-m1", riscv::RISCV_SNAPSHOT_INPUT, snapshots);
+      PM, "riscv", riscv::RISCV_SNAPSHOT_INPUT, snapshots);
 
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceMemIntrinsicsPass()));
@@ -123,7 +123,7 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
   PM.addPass(vecz::RunVeczPass());
 
   compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "refsi-m1", riscv::RISCV_SNAPSHOT_VECTORIZED, snapshots);
+      PM, "riscv", riscv::RISCV_SNAPSHOT_VECTORIZED, snapshots);
 
   addLateBuiltinsPasses(PM, tuner);
 
@@ -133,7 +133,7 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
   PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
 
   compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "refsi-m1", riscv::RISCV_SNAPSHOT_BARRIER, snapshots);
+      PM, "riscv", riscv::RISCV_SNAPSHOT_BARRIER, snapshots);
 
   compiler::addPrepareWorkGroupSchedulingPasses(PM);
 
@@ -154,12 +154,12 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
   addLLVMDefaultPerModulePipeline(PM, pass_mach.getPB(), options);
 
   compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "refsi-m1", riscv::RISCV_SNAPSHOT_SCHEDULED, snapshots);
+      PM, "riscv", riscv::RISCV_SNAPSHOT_SCHEDULED, snapshots);
 
   // With all passes scheduled, add a snapshot to view the assembly/object
   // file, if requested.
   if (auto snapshot = compiler::BaseModule::shouldTakeTargetSnapshot(
-          "refsi-m1", riscv::RISCV_SNAPSHOT_BACKEND, snapshots)) {
+          "riscv", riscv::RISCV_SNAPSHOT_BACKEND, snapshots)) {
     PM.addPass(compiler::utils::SimpleCallbackPass(
         [snapshot, TM = pass_mach.getTM(), this](llvm::Module &m) {
           takeBackendSnapshot(&m, TM, *snapshot);
