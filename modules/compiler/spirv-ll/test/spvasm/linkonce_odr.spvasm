@@ -1,0 +1,44 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/linkonce_odr.spv -e SPV_KHR_linkonce_odr | %filecheck %s
+
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpExtension "SPV_KHR_linkonce_odr"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpSource OpenCL_C 102000
+               OpDecorate %gv LinkageAttributes "gv" LinkOnceODR
+               OpDecorate %foo LinkageAttributes "foo" Import
+               OpDecorate %bar LinkageAttributes "bar" LinkOnceODR
+
+               OpName %gv "gv"
+               OpName %foo "foo"
+               OpName %bar "bar"
+               OpName %y "y"
+
+       %void = OpTypeVoid
+       %uint = OpTypeInt 32 0
+
+  %uint_zero = OpConstant %uint 0
+
+    %func_ty = OpTypeFunction %void %uint
+
+      %gv_ty = OpTypePointer CrossWorkgroup %uint
+
+; CHECK: @gv = linkonce_odr addrspace(1) global i32 0
+         %gv = OpVariable %gv_ty CrossWorkgroup %uint_zero
+
+; CHECK: declare spir_func void @foo(i32)
+        %foo = OpFunction %void None %func_ty
+          %x = OpFunctionParameter %uint
+               OpFunctionEnd
+
+; CHECK: define linkonce_odr spir_func void @bar(i32 %y)
+       %bar  = OpFunction %void None %func_ty
+          %y = OpFunctionParameter %uint
+          %0 = OpLabel
+          %c = OpFunctionCall %void %foo %y
+               OpReturn
+               OpFunctionEnd

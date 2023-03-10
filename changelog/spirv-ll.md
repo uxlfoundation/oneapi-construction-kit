@@ -7,6 +7,7 @@ Feature additions:
 * `spirv-ll` now supports the `SPV_KHR_expect_assume` extension.
 * `spirv-ll` now supports the `GenericPointer` storage class, targeting address
   space 4.
+* `spirv-ll` now supports the `SPV_KHR_linkonce_odr` extension.
 
 Upgrade guidance:
 

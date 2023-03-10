@@ -1607,6 +1607,20 @@ llvm::Type *getBufferSizeTy(llvm::LLVMContext &ctx) {
 }
 }  // namespace
 
+static llvm::Optional<std::pair<uint32_t, const char *>> getLinkage(
+    Module &module, spv::Id id) {
+  if (auto decoration =
+          module.getFirstDecoration(id, spv::DecorationLinkageAttributes)) {
+    // the actual linkage enum comes after a string literal, but it's the
+    // last operand so just work backwards from the end
+    auto linkageOffset = decoration->wordCount() - 1;
+    return std::make_pair(
+        decoration->getValueAtOffset(linkageOffset),
+        spirv_ll::cast<const OpDecorate>(decoration)->getDecorationString());
+  }
+  return llvm::None;
+}
+
 template <>
 cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
   // get function type
@@ -1624,18 +1638,20 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
   if (op->FunctionControl() & spv::FunctionControlInlineMask) {
     linkage = llvm::Function::LinkageTypes::LinkOnceODRLinkage;
-  } else if (auto linkageDecoration = module.getFirstDecoration(
-                 op->IdResult(), spv::DecorationLinkageAttributes)) {
-    // the actual linkage enum comes after a string literal, but it's the last
-    // operand so just work backwards from the end
-    auto linkageOffset = linkageDecoration->wordCount() - 1;
-    uint32_t linkageType = linkageDecoration->getValueAtOffset(linkageOffset);
-    if (linkageType == spv::LinkageTypeImport ||
-        linkageType == spv::LinkageTypeExport) {
-      linkage = llvm::Function::LinkageTypes::ExternalLinkage;
+  } else if (auto linkageInfo = getLinkage(module, op->IdResult())) {
+    if (linkageInfo->first == spv::LinkageTypeImport ||
+        linkageInfo->first == spv::LinkageTypeExport ||
+        linkageInfo->first == spv::LinkageTypeLinkOnceODR) {
+      if (linkageInfo->first == spv::LinkageTypeLinkOnceODR) {
+        SPIRV_LL_ASSERT(
+            module.isExtensionEnabled("SPV_KHR_linkonce_odr"),
+            "SPV_KHR_linkonce_odr must be enabled to use LinkOnceODRLinkage");
+        linkage = llvm::Function::LinkageTypes::LinkOnceODRLinkage;
+      } else {
+        linkage = llvm::Function::LinkageTypes::ExternalLinkage;
+      }
       // always use the linkage name when we have one
-      name = spirv_ll::cast<const OpDecorate>(linkageDecoration)
-                 ->getDecorationString();
+      name = linkageInfo->second;
     }
   }
 
@@ -2597,6 +2613,23 @@ cargo::optional<Error> Builder::create<OpVariable>(const OpVariable *op) {
       default:
         SPIRV_LL_ASSERT_PTR(value);
         break;
+    }
+  }
+
+  // OpVariables can be given linkage, but we only allow LinkOnceODR to update
+  // the linkage we've already given.
+  if (auto global_val = llvm::dyn_cast<llvm::GlobalVariable>(value)) {
+    auto *const entrypt = module.getEntryPoint(op->IdResult());
+    // Kernel entry points must always have External linkage.
+    if (!entrypt || entrypt->ExecutionModel() != spv::ExecutionModelKernel) {
+      if (auto linkage = getLinkage(module, op->IdResult())) {
+        if (linkage->first == spv::LinkageTypeLinkOnceODR) {
+          SPIRV_LL_ASSERT(
+              module.isExtensionEnabled("SPV_KHR_linkonce_odr"),
+              "SPV_KHR_linkonce_odr must be enabled to use LinkOnceODRLinkage");
+          global_val->setLinkage(llvm::GlobalVariable::LinkOnceODRLinkage);
+        }
+      }
     }
   }
 

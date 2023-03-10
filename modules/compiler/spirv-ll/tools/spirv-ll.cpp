@@ -459,6 +459,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         "SPV_KHR_variable_pointers",
         "SPV_KHR_vulkan_memory_model",
         "SPV_KHR_expect_assume",
+        "SPV_KHR_linkonce_odr",
     });
   } else {
     for (auto extension : extensions) {
