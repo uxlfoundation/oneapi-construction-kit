@@ -135,11 +135,11 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   for (auto op : module) {
     cargo::optional<Error> error;
     switch (op.code) {
-      default:
         // Unsupported opcodes are ignored.
+      default:
 #ifndef NDEBUG
-        // Only abort on unsupported opcodes in assert builds to help
-        // catch possible bugs or missing features. However if we are consuming
+        // Only abort on unsupported opcodes in assert builds to help catch
+        // possible bugs or missing features, however if we are consuming
         // SPIR-V which contains unsupported opcodes intentionally by the user
         // with the intent that the SPIR-V consumer simply ignores them, as is
         // allowed by the SPIR-V spec, then this abort should be removed.

@@ -206,7 +206,7 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
   switch (builtin) {
     case spv::BuiltInSubgroupId:                 // uint get_sub_group_id()
     case spv::BuiltInSubgroupSize:               // uint get_sub_group_size()
-    case spv::BuiltInSubgroupLocalInvocationId:  // uint get_sub_group_local_id()
+    case spv::BuiltInSubgroupLocalInvocationId:  // uint get_sub_group_local_id
     case spv::BuiltInWorkDim: {                  // uint get_work_dim()
       auto builtinVal =
           IRBuilder.CreateAlloca(builtinType, dataLayout.getAllocaAddrSpace());

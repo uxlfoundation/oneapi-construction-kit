@@ -1,16 +1,15 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 #include <cargo/argument_parser.h>
-#include <spirv-ll/builder.h>
-#include <spirv-ll/context.h>
-#include <spirv-ll/module.h>
-
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/raw_ostream.h>
+#include <spirv-ll/builder.h>
+#include <spirv-ll/context.h>
+#include <spirv-ll/module.h>
 
 #include <fstream>
 #include <iostream>
@@ -328,7 +327,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
     } else if (bits == "64") {
       deviceInfo.addressBits = 64;
     } else {
-      deviceInfo.addressBits = sizeof(void*) * 8;
+      deviceInfo.addressBits = sizeof(void *) * 8;
     }
   } else {
     llvm_unreachable("Illegal API");

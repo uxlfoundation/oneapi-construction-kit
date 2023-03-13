@@ -5,7 +5,7 @@
 #include <spirv-ll/opcodes.h>
 
 namespace {
-spv::Op getOpCode(const uint32_t* data, bool endianSwap) {
+spv::Op getOpCode(const uint32_t *data, bool endianSwap) {
   return static_cast<spv::Op>(endianSwap
                                   ? cargo::byte_swap(*data) & spv::OpCodeMask
                                   : *data & spv::OpCodeMask);
@@ -13,23 +13,23 @@ spv::Op getOpCode(const uint32_t* data, bool endianSwap) {
 }  // namespace
 
 namespace spirv_ll {
-OpCode::OpCode(const iterator& iter)
+OpCode::OpCode(const iterator &iter)
     : code(getOpCode(iter.word, iter.endianSwap)),
       data(iter.word),
       endianSwap(iter.endianSwap) {}
 
-OpCode::OpCode(const OpCode& other, spv::Op code)
+OpCode::OpCode(const OpCode &other, spv::Op code)
     : code(code), data(other.data), endianSwap(other.endianSwap) {}
 
 uint16_t OpCode::wordCount() const {
   return endianSwap ? cargo::byte_swap(*data) >> spv::WordCountShift
-                     : *data >> spv::WordCountShift;
+                    : *data >> spv::WordCountShift;
 }
 
 uint16_t OpCode::opCode() const {
   // TODO: Is this even required now the constructor takes care of this?
   return endianSwap ? cargo::byte_swap(*data) & spv::OpCodeMask
-                     : *data & spv::OpCodeMask;
+                    : *data & spv::OpCodeMask;
 }
 
 uint32_t OpCode::getValueAtOffset(int offset) const {
@@ -327,7 +327,7 @@ spv::Decoration OpDecorateBase::getDecoration() const {
 }
 
 llvm::StringRef OpSourceContinued::ContinuedSource() const {
-  return reinterpret_cast<char const*>(data + 1);
+  return reinterpret_cast<char const *>(data + 1);
 }
 
 spv::SourceLanguage OpSource::SourceLanguage() const {
@@ -339,17 +339,17 @@ uint32_t OpSource::Version() const { return getValueAtOffset(2); }
 spv::Id OpSource::File() const { return getValueAtOffset(3); }
 
 llvm::StringRef OpSource::Source() const {
-  return reinterpret_cast<char const*>(data + 4);
+  return reinterpret_cast<char const *>(data + 4);
 }
 
 llvm::StringRef OpSourceExtension::Extension() const {
-  return reinterpret_cast<char const*>(data + 1);
+  return reinterpret_cast<char const *>(data + 1);
 }
 
 spv::Id OpName::Target() const { return getValueAtOffset(1); }
 
 llvm::StringRef OpName::Name() const {
-  return reinterpret_cast<char const*>(data + 2);
+  return reinterpret_cast<char const *>(data + 2);
 }
 
 spv::Id OpMemberName::Type() const { return getValueAtOffset(1); }
@@ -357,13 +357,13 @@ spv::Id OpMemberName::Type() const { return getValueAtOffset(1); }
 uint32_t OpMemberName::Member() const { return getValueAtOffset(2); }
 
 llvm::StringRef OpMemberName::Name() const {
-  return reinterpret_cast<char const*>(data + 3);
+  return reinterpret_cast<char const *>(data + 3);
 }
 
 spv::Id OpString::IdResult() const { return getValueAtOffset(1); }
 
 llvm::StringRef OpString::String() const {
-  return reinterpret_cast<char const*>(data + 2);
+  return reinterpret_cast<char const *>(data + 2);
 }
 
 spv::Id OpLine::File() const { return getValueAtOffset(1); }
@@ -373,13 +373,13 @@ uint32_t OpLine::Line() const { return getValueAtOffset(2); }
 uint32_t OpLine::Column() const { return getValueAtOffset(3); }
 
 llvm::StringRef OpExtension::Name() const {
-  return reinterpret_cast<char const*>(data + 1);
+  return reinterpret_cast<char const *>(data + 1);
 }
 
 spv::Id OpExtInstImport::IdResult() const { return getValueAtOffset(1); }
 
 llvm::StringRef OpExtInstImport::Name() const {
-  return reinterpret_cast<char const*>(data + 2);
+  return reinterpret_cast<char const *>(data + 2);
 }
 
 spv::Id OpExtInst::Set() const { return getValueAtOffset(3); }
@@ -409,7 +409,7 @@ spv::ExecutionModel OpEntryPoint::ExecutionModel() const {
 spv::Id OpEntryPoint::EntryPoint() const { return getValueAtOffset(2); }
 
 llvm::StringRef OpEntryPoint::Name() const {
-  return reinterpret_cast<char const*>(data + 3);
+  return reinterpret_cast<char const *>(data + 3);
 }
 
 llvm::SmallVector<spv::Id, 8> OpEntryPoint::Interface() const {
@@ -486,7 +486,7 @@ llvm::SmallVector<spv::Id, 8> OpTypeStruct::MemberTypes() const {
 }
 
 llvm::StringRef OpTypeOpaque::Name() const {
-  return reinterpret_cast<char const*>(data + 2);
+  return reinterpret_cast<char const *>(data + 2);
 }
 
 uint32_t OpTypePointer::StorageClass() const {
@@ -671,8 +671,8 @@ spv::Decoration OpDecorate::Decoration() const {
   return static_cast<spv::Decoration>(getValueAtOffset(2));
 }
 
-const char* OpDecorate::getDecorationString() const {
-  return reinterpret_cast<const char*>(data + 3);
+const char *OpDecorate::getDecorationString() const {
+  return reinterpret_cast<const char *>(data + 3);
 }
 
 spv::Id OpMemberDecorate::StructureType() const { return getValueAtOffset(1); }

@@ -7,15 +7,13 @@
 #ifndef SPIRV_LL_SPV_CONTEXT_H_INCLUDED
 #define SPIRV_LL_SPV_CONTEXT_H_INCLUDED
 
-#include <spirv/unified1/spirv.hpp>
-
 #include <cargo/expected.h>
 #include <cargo/optional.h>
-#include <spirv-ll/assert.h>
-
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
+#include <spirv-ll/assert.h>
+#include <spirv/unified1/spirv.hpp>
 
 #include <string>
 #include <type_traits>
@@ -59,9 +57,9 @@ struct Error {
 
 /// @brief Enumeration of constant types which can be specialized.
 enum class SpecializationType : uint8_t {
-  BOOL,    ///< OpTypeBool specialization constant.
-  INT,     ///< OpTypeInt specialization constant.
-  FLOAT,   ///< OpTypeFloat specialization constant.
+  BOOL,   ///< OpTypeBool specialization constant.
+  INT,    ///< OpTypeInt specialization constant.
+  FLOAT,  ///< OpTypeFloat specialization constant.
 };
 
 /// @brief Description of a constant which can be specialized.
