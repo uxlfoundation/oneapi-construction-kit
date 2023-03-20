@@ -64,7 +64,7 @@ endif()
 ca_option(CA_LLVM_INSTALL_DIR STRING
   "LLVM install directory" "")
 ca_option(CA_ENABLE_API STRING
-  "Semi-colon separated list of APIs to enable, empty enables all" "")
+  "Semi-colon separated list of APIs to enable, empty enables cl and vk" "cl;vk")
 ca_option(CA_ENABLE_TESTS BOOL
   "Enable building tests" ON)
 ca_option(CA_ENABLE_EXAMPLES BOOL

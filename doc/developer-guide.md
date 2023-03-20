@@ -293,7 +293,7 @@ The builtin CMake options used when invoking CMake on the command line.
 - `CA_ENABLE_API`: Semi-colon separated list of APIs to enable. Valid values
   are `cl` for OpenCL, and `vk` for Vulkan. Enabling an API when an optional
   component is not present dependent on license agreement will result in a CMake
-  error.
+  error. The default is `cl;vk`.
 - `CA_BUILD_32_BITS`: Enable compiling in 32-bit mode on Linux, this requires
   to have the proper 32-bit toolchain installed. When used in combination with
   an external LLVM, the external LLVM also needs to be built in 32-bit mode.
