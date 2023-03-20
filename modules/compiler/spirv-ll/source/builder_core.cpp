@@ -5707,6 +5707,30 @@ cargo::optional<Error> Builder::create<OpAtomicUMax>(const OpAtomicUMax *op) {
 }
 
 template <>
+cargo::optional<Error> Builder::create<OpAtomicFAddEXT>(
+    const OpAtomicFAddEXT *op) {
+  generateBinaryAtomic(op, op->Pointer(), op->Value(),
+                       "atomic_fetch_add_explicit", true);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpAtomicFMinEXT>(
+    const OpAtomicFMinEXT *op) {
+  generateBinaryAtomic(op, op->Pointer(), op->Value(),
+                       "atomic_fetch_min_explicit", true);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpAtomicFMaxEXT>(
+    const OpAtomicFMaxEXT *op) {
+  generateBinaryAtomic(op, op->Pointer(), op->Value(),
+                       "atomic_fetch_max_explicit", true);
+  return cargo::nullopt;
+}
+
+template <>
 cargo::optional<Error> Builder::create<OpAtomicAnd>(const OpAtomicAnd *op) {
   const auto retOp = op->IdResultType();
   const auto is_signed = module.get<OpTypeInt>(retOp)->Signedness();

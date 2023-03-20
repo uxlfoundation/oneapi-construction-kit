@@ -16,13 +16,15 @@ namespace binary {
 // all core targets. See CA-3067.
 // TODO(CA-3067): Remove SPIRV_LL_EXPERIMENTAL when we have a proper mechanism
 // for extending spirv-ll.
-const std::array<const std::string, 6> supported_extensions = {
+const std::array<const std::string, 8> supported_extensions = {
     {
         "SPV_KHR_no_integer_wrap_decoration",
 #ifdef SPIRV_LL_EXPERIMENTAL
         "SPV_codeplay_usm_generic_storage_class",
 #endif
         "SPV_INTEL_kernel_attributes",
+        "SPV_EXT_shader_atomic_float_add",
+        "SPV_EXT_shader_atomic_float_min_max",
         "SPV_KHR_expect_assume",
         "SPV_KHR_linkonce_odr",
         "SPV_KHR_uniform_group_instructions",
@@ -93,9 +95,25 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
       return cargo::make_unexpected(result);
     }
   }
+  if (device_info->float_capabilities) {
+    auto error_or = spvCapabilities.insert(
+        spvCapabilities.end(), {
+                                   spv::CapabilityAtomicFloat32AddEXT,
+                                   spv::CapabilityAtomicFloat32MinMaxEXT,
+                               });
+    if (!error_or) {
+      return cargo::make_unexpected(error_or.error());
+    }
+  }
   if (device_info->double_capabilities) {
-    if ((result = spvCapabilities.push_back(spv::CapabilityFloat64))) {
-      return cargo::make_unexpected(result);
+    auto error_or = spvCapabilities.insert(
+        spvCapabilities.end(), {
+                                   spv::CapabilityFloat64,
+                                   spv::CapabilityAtomicFloat64AddEXT,
+                                   spv::CapabilityAtomicFloat64MinMaxEXT,
+                               });
+    if (!error_or) {
+      return cargo::make_unexpected(error_or.error());
     }
   }
   if (device_info->supports_generic_address_space) {

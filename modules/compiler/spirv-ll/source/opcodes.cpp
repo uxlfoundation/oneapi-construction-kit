@@ -105,6 +105,9 @@ bool OpCode::hasResult() const {
     case spv::OpAtomicSMin:
     case spv::OpAtomicUMax:
     case spv::OpAtomicUMin:
+    case spv::OpAtomicFAddEXT:
+    case spv::OpAtomicFMaxEXT:
+    case spv::OpAtomicFMinEXT:
     case spv::OpAtomicXor:
     case spv::OpBitCount:
     case spv::OpBitFieldInsert:
@@ -1425,6 +1428,30 @@ spv::Id OpAtomicUMax::Scope() const { return getValueAtOffset(4); }
 spv::Id OpAtomicUMax::Semantics() const { return getValueAtOffset(5); }
 
 spv::Id OpAtomicUMax::Value() const { return getValueAtOffset(6); }
+
+spv::Id OpAtomicFAddEXT::Pointer() const { return getValueAtOffset(3); }
+
+spv::Id OpAtomicFAddEXT::Scope() const { return getValueAtOffset(4); }
+
+spv::Id OpAtomicFAddEXT::Semantics() const { return getValueAtOffset(5); }
+
+spv::Id OpAtomicFAddEXT::Value() const { return getValueAtOffset(6); }
+
+spv::Id OpAtomicFMinEXT::Pointer() const { return getValueAtOffset(3); }
+
+spv::Id OpAtomicFMinEXT::Scope() const { return getValueAtOffset(4); }
+
+spv::Id OpAtomicFMinEXT::Semantics() const { return getValueAtOffset(5); }
+
+spv::Id OpAtomicFMinEXT::Value() const { return getValueAtOffset(6); }
+
+spv::Id OpAtomicFMaxEXT::Pointer() const { return getValueAtOffset(3); }
+
+spv::Id OpAtomicFMaxEXT::Scope() const { return getValueAtOffset(4); }
+
+spv::Id OpAtomicFMaxEXT::Semantics() const { return getValueAtOffset(5); }
+
+spv::Id OpAtomicFMaxEXT::Value() const { return getValueAtOffset(6); }
 
 spv::Id OpAtomicAnd::Pointer() const { return getValueAtOffset(3); }
 

@@ -2190,6 +2190,39 @@ class OpAtomicUMax : public OpResult {
   static const spv::Op ClassCode = spv::OpAtomicUMax;
 };
 
+class OpAtomicFAddEXT : public OpResult {
+ public:
+  OpAtomicFAddEXT(OpCode const &other)
+      : OpResult(other, spv::OpAtomicFAddEXT) {}
+  spv::Id Pointer() const;
+  spv::Id Scope() const;
+  spv::Id Semantics() const;
+  spv::Id Value() const;
+  static const spv::Op ClassCode = spv::OpAtomicFAddEXT;
+};
+
+class OpAtomicFMinEXT : public OpResult {
+ public:
+  OpAtomicFMinEXT(OpCode const &other)
+      : OpResult(other, spv::OpAtomicFMinEXT) {}
+  spv::Id Pointer() const;
+  spv::Id Scope() const;
+  spv::Id Semantics() const;
+  spv::Id Value() const;
+  static const spv::Op ClassCode = spv::OpAtomicFMinEXT;
+};
+
+class OpAtomicFMaxEXT : public OpResult {
+ public:
+  OpAtomicFMaxEXT(OpCode const &other)
+      : OpResult(other, spv::OpAtomicFMaxEXT) {}
+  spv::Id Pointer() const;
+  spv::Id Scope() const;
+  spv::Id Semantics() const;
+  spv::Id Value() const;
+  static const spv::Op ClassCode = spv::OpAtomicFMaxEXT;
+};
+
 class OpAtomicAnd : public OpResult {
  public:
   OpAtomicAnd(OpCode const &other) : OpResult(other, spv::OpAtomicAnd) {}

@@ -443,6 +443,12 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
             .Case("ExpectAssumeKHR", spv::CapabilityExpectAssumeKHR)
             .Case("GroupUniformArithmeticKHR",
                   spv::CapabilityGroupUniformArithmeticKHR)
+            .Case("AtomicFloat32AddEXT", spv::CapabilityAtomicFloat32AddEXT)
+            .Case("AtomicFloat64AddEXT", spv::CapabilityAtomicFloat64AddEXT)
+            .Case("AtomicFloat32MinMaxEXT",
+                  spv::CapabilityAtomicFloat32MinMaxEXT)
+            .Case("AtomicFloat64MinMaxEXT",
+                  spv::CapabilityAtomicFloat64MinMaxEXT)
             .Default(static_cast<spv::Capability>(0));
     if (capability == 0) {
       std::cerr << "error: unknown capability: " << cargo::as<std::string>(cap)

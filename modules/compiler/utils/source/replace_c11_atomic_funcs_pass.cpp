@@ -232,14 +232,24 @@ void replaceFetchKey(CallInst *C11FetchKey) {
       BuiltinName.find("atomic_fetch_") + std::strlen("atomic_fetch_");
   auto KeyEndIndex = BuiltinName.find('_', KeyStartIndex);
   auto Key = BuiltinName.substr(KeyStartIndex, KeyEndIndex - KeyStartIndex);
-  AtomicRMWInst::BinOp KeyOpCode{StringSwitch<AtomicRMWInst::BinOp>(Key)
-                                     .Case("add", AtomicRMWInst::Add)
-                                     .Case("sub", AtomicRMWInst::Sub)
-                                     .Case("or", AtomicRMWInst::Or)
-                                     .Case("xor", AtomicRMWInst::Xor)
-                                     .Case("and", AtomicRMWInst::And)
-                                     .Case("min", AtomicRMWInst::Min)
-                                     .Case("max", AtomicRMWInst::Max)};
+
+  bool const IsFloat = C11FetchKey->getType()->isFloatTy();
+  AtomicRMWInst::BinOp KeyOpCode {
+    IsFloat ? StringSwitch<AtomicRMWInst::BinOp>(Key)
+                  .Case("add", AtomicRMWInst::FAdd)
+#if LLVM_VERSION_MAJOR >= 15
+                  .Case("min", AtomicRMWInst::FMin)
+                  .Case("max", AtomicRMWInst::FMax)
+#endif
+            : StringSwitch<AtomicRMWInst::BinOp>(Key)
+                  .Case("add", AtomicRMWInst::Add)
+                  .Case("sub", AtomicRMWInst::Sub)
+                  .Case("or", AtomicRMWInst::Or)
+                  .Case("xor", AtomicRMWInst::Xor)
+                  .Case("and", AtomicRMWInst::And)
+                  .Case("min", AtomicRMWInst::Min)
+                  .Case("max", AtomicRMWInst::Max)
+  };
 
   // We need to make sure we distinguish between signed and unsigned integer
   // comparisons for min and max since they are different operations in

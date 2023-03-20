@@ -840,6 +840,15 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
       case spv::OpAtomicUMax:
         error = builder.create<OpAtomicUMax>(op);
         break;
+      case spv::OpAtomicFAddEXT:
+        error = builder.create<OpAtomicFAddEXT>(op);
+        break;
+      case spv::OpAtomicFMinEXT:
+        error = builder.create<OpAtomicFMinEXT>(op);
+        break;
+      case spv::OpAtomicFMaxEXT:
+        error = builder.create<OpAtomicFMaxEXT>(op);
+        break;
       case spv::OpAtomicAnd:
         error = builder.create<OpAtomicAnd>(op);
         break;

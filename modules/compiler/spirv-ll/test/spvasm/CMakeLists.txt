@@ -37,6 +37,12 @@ set(SPVASM_FILES
   op_atomic_or_global.spvasm
   op_atomic_or_global_signed.spvasm
   op_atomic_or_local.spvasm
+  op_atomic_double_add_global.spvasm
+  op_atomic_double_max_global.spvasm
+  op_atomic_double_min_global.spvasm
+  op_atomic_float_add_global.spvasm
+  op_atomic_float_max_global.spvasm
+  op_atomic_float_min_global.spvasm
   op_atomic_s_max_global.spvasm
   op_atomic_s_min_global.spvasm
   op_atomic_u_max_function.spvasm
