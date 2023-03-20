@@ -54,6 +54,30 @@ const StringSet<> DeferredBuiltins = {
     "sub_group_scan_inclusive_add",
     "sub_group_scan_inclusive_min",
     "sub_group_scan_inclusive_max",
+
+    "sub_group_reduce_mul",
+    "sub_group_reduce_and",
+    "sub_group_reduce_or",
+    "sub_group_reduce_xor",
+    "sub_group_reduce_logical_and",
+    "sub_group_reduce_logical_or",
+    "sub_group_reduce_logical_xor",
+
+    "sub_group_scan_exclusive_mul",
+    "sub_group_scan_exclusive_and",
+    "sub_group_scan_exclusive_or",
+    "sub_group_scan_exclusive_xor",
+    "sub_group_scan_exclusive_logical_and",
+    "sub_group_scan_exclusive_logical_or",
+    "sub_group_scan_exclusive_logical_xor",
+
+    "sub_group_scan_inclusive_mul",
+    "sub_group_scan_inclusive_and",
+    "sub_group_scan_inclusive_or",
+    "sub_group_scan_inclusive_xor",
+    "sub_group_scan_inclusive_logical_and",
+    "sub_group_scan_inclusive_logical_or",
+    "sub_group_scan_inclusive_logical_xor",
 };
 
 bool isDeferredBuiltin(Function &F) {

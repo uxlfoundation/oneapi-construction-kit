@@ -6505,6 +6505,63 @@ cargo::optional<Error> Builder::create<OpGroupSMax>(const OpGroupSMax *op) {
   return cargo::nullopt;
 }
 
+// SPV_KHR_uniform_group_instructions
+template <>
+cargo::optional<Error> Builder::create<OpGroupIMulKHR>(
+    const OpGroupIMulKHR *op) {
+  generateReduction(op, "mul");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupFMulKHR>(
+    const OpGroupFMulKHR *op) {
+  generateReduction(op, "mul");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupBitwiseAndKHR>(
+    const OpGroupBitwiseAndKHR *op) {
+  generateReduction(op, "and");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupBitwiseOrKHR>(
+    const OpGroupBitwiseOrKHR *op) {
+  generateReduction(op, "or");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupBitwiseXorKHR>(
+    const OpGroupBitwiseXorKHR *op) {
+  generateReduction(op, "xor");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupLogicalAndKHR>(
+    const OpGroupLogicalAndKHR *op) {
+  generateReduction(op, "logical_and");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupLogicalOrKHR>(
+    const OpGroupLogicalOrKHR *op) {
+  generateReduction(op, "logical_or");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGroupLogicalXorKHR>(
+    const OpGroupLogicalXorKHR *op) {
+  generateReduction(op, "logical_xor");
+  return cargo::nullopt;
+}
+
 template <>
 cargo::optional<Error> Builder::create<OpReadPipe>(const OpReadPipe *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V

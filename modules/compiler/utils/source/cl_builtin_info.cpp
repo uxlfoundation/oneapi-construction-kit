@@ -262,6 +262,49 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
   /// @brief OpenCL builtin 'sub_group_scan_exclusive_max'.
   eCLBuiltinSubgroupScanMaxExclusive,
 
+  /// @brief OpenCL builtin 'sub_group_reduce_mul'.
+  eCLBuiltinSubgroupReduceMul,
+  /// @brief OpenCL builtin 'sub_group_reduce_and'.
+  eCLBuiltinSubgroupReduceAnd,
+  /// @brief OpenCL builtin 'sub_group_reduce_or'.
+  eCLBuiltinSubgroupReduceOr,
+  /// @brief OpenCL builtin 'sub_group_reduce_xor'.
+  eCLBuiltinSubgroupReduceXor,
+  /// @brief OpenCL builtin 'sub_group_reduce_logical_and'.
+  eCLBuiltinSubgroupReduceLogicalAnd,
+  /// @brief OpenCL builtin 'sub_group_reduce_logical_or'.
+  eCLBuiltinSubgroupReduceLogicalOr,
+  /// @brief OpenCL builtin 'sub_group_reduce_logical_xor'.
+  eCLBuiltinSubgroupReduceLogicalXor,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_mul'.
+  eCLBuiltinSubgroupScanMulInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_mul'.
+  eCLBuiltinSubgroupScanMulExclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_and'.
+  eCLBuiltinSubgroupScanAndInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_and'.
+  eCLBuiltinSubgroupScanAndExclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_or'.
+  eCLBuiltinSubgroupScanOrInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_or'.
+  eCLBuiltinSubgroupScanOrExclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_xor'.
+  eCLBuiltinSubgroupScanXorInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_xor'.
+  eCLBuiltinSubgroupScanXorExclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_logical_and'.
+  eCLBuiltinSubgroupScanLogicalAndInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_logical_and'.
+  eCLBuiltinSubgroupScanLogicalAndExclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_logical_or'.
+  eCLBuiltinSubgroupScanLogicalOrInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_logical_or'.
+  eCLBuiltinSubgroupScanLogicalOrExclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_inclusive_logical_xor'.
+  eCLBuiltinSubgroupScanLogicalXorInclusive,
+  /// @brief OpenCL builtin 'sub_group_scan_exclusive_logical_xor'.
+  eCLBuiltinSubgroupScanLogicalXorExclusive,
+
   // GLSL builtin functions
   eCLBuiltinCodeplayFindLSB,
   eCLBuiltinCodeplayFindMSB,
@@ -522,6 +565,34 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinSubgroupScanMinExclusive, "sub_group_scan_exclusive_min"},
     {eCLBuiltinSubgroupScanMaxInclusive, "sub_group_scan_inclusive_max"},
     {eCLBuiltinSubgroupScanMaxExclusive, "sub_group_scan_exclusive_max"},
+    /// Provided by SPV_KHR_uniform_group_instructions.
+    {eCLBuiltinSubgroupReduceMul, "sub_group_reduce_mul"},
+    {eCLBuiltinSubgroupReduceAnd, "sub_group_reduce_and"},
+    {eCLBuiltinSubgroupReduceOr, "sub_group_reduce_or"},
+    {eCLBuiltinSubgroupReduceXor, "sub_group_reduce_xor"},
+    {eCLBuiltinSubgroupReduceLogicalAnd, "sub_group_reduce_logical_and"},
+    {eCLBuiltinSubgroupReduceLogicalOr, "sub_group_reduce_logical_or"},
+    {eCLBuiltinSubgroupReduceLogicalXor, "sub_group_reduce_logical_xor"},
+    {eCLBuiltinSubgroupScanMulInclusive, "sub_group_scan_inclusive_mul"},
+    {eCLBuiltinSubgroupScanMulExclusive, "sub_group_scan_exclusive_mul"},
+    {eCLBuiltinSubgroupScanAndInclusive, "sub_group_scan_inclusive_and"},
+    {eCLBuiltinSubgroupScanAndExclusive, "sub_group_scan_exclusive_and"},
+    {eCLBuiltinSubgroupScanOrInclusive, "sub_group_scan_inclusive_or"},
+    {eCLBuiltinSubgroupScanOrExclusive, "sub_group_scan_exclusive_or"},
+    {eCLBuiltinSubgroupScanXorInclusive, "sub_group_scan_inclusive_xor"},
+    {eCLBuiltinSubgroupScanXorExclusive, "sub_group_scan_exclusive_xor"},
+    {eCLBuiltinSubgroupScanLogicalAndInclusive,
+     "sub_group_scan_inclusive_logical_and"},
+    {eCLBuiltinSubgroupScanLogicalAndExclusive,
+     "sub_group_scan_exclusive_logical_and"},
+    {eCLBuiltinSubgroupScanLogicalOrInclusive,
+     "sub_group_scan_inclusive_logical_or"},
+    {eCLBuiltinSubgroupScanLogicalOrExclusive,
+     "sub_group_scan_exclusive_logical_or"},
+    {eCLBuiltinSubgroupScanLogicalXorInclusive,
+     "sub_group_scan_inclusive_logical_xor"},
+    {eCLBuiltinSubgroupScanLogicalXorExclusive,
+     "sub_group_scan_exclusive_logical_xor"},
 
     // GLSL builtin functions
     {eCLBuiltinCodeplayFaceForward, "codeplay_face_forward"},
@@ -1212,6 +1283,21 @@ BuiltinSubgroupReduceKind CLBuiltinInfo::getBuiltinSubgroupReductionKind(
       return eBuiltinSubgroupReduceMin;
     case eCLBuiltinSubgroupReduceMax:
       return eBuiltinSubgroupReduceMax;
+      // Subgroup reductions provided by SPV_KHR_uniform_group_instructions.
+    case eCLBuiltinSubgroupReduceMul:
+      return eBuiltinSubgroupReduceMul;
+    case eCLBuiltinSubgroupReduceAnd:
+      return eBuiltinSubgroupReduceAnd;
+    case eCLBuiltinSubgroupReduceOr:
+      return eBuiltinSubgroupReduceOr;
+    case eCLBuiltinSubgroupReduceXor:
+      return eBuiltinSubgroupReduceXor;
+    case eCLBuiltinSubgroupReduceLogicalAnd:
+      return eBuiltinSubgroupReduceLogicalAnd;
+    case eCLBuiltinSubgroupReduceLogicalOr:
+      return eBuiltinSubgroupReduceLogicalOr;
+    case eCLBuiltinSubgroupReduceLogicalXor:
+      return eBuiltinSubgroupReduceLogicalXor;
   }
 }
 
@@ -1232,6 +1318,35 @@ BuiltinSubgroupScanKind CLBuiltinInfo::getBuiltinSubgroupScanKind(
       return eBuiltinSubgroupScanMaxIncl;
     case eCLBuiltinSubgroupScanMaxExclusive:
       return eBuiltinSubgroupScanMaxExcl;
+      // Subgroup scans provided by SPV_KHR_uniform_group_instructions.
+    case eCLBuiltinSubgroupScanMulInclusive:
+      return eBuiltinSubgroupScanMulIncl;
+    case eCLBuiltinSubgroupScanMulExclusive:
+      return eBuiltinSubgroupScanMulExcl;
+    case eCLBuiltinSubgroupScanAndInclusive:
+      return eBuiltinSubgroupScanAndIncl;
+    case eCLBuiltinSubgroupScanAndExclusive:
+      return eBuiltinSubgroupScanAndExcl;
+    case eCLBuiltinSubgroupScanOrInclusive:
+      return eBuiltinSubgroupScanOrIncl;
+    case eCLBuiltinSubgroupScanOrExclusive:
+      return eBuiltinSubgroupScanOrExcl;
+    case eCLBuiltinSubgroupScanXorInclusive:
+      return eBuiltinSubgroupScanXorIncl;
+    case eCLBuiltinSubgroupScanXorExclusive:
+      return eBuiltinSubgroupScanXorExcl;
+    case eCLBuiltinSubgroupScanLogicalAndInclusive:
+      return eBuiltinSubgroupScanLogicalAndIncl;
+    case eCLBuiltinSubgroupScanLogicalAndExclusive:
+      return eBuiltinSubgroupScanLogicalAndExcl;
+    case eCLBuiltinSubgroupScanLogicalOrInclusive:
+      return eBuiltinSubgroupScanLogicalOrIncl;
+    case eCLBuiltinSubgroupScanLogicalOrExclusive:
+      return eBuiltinSubgroupScanLogicalOrExcl;
+    case eCLBuiltinSubgroupScanLogicalXorInclusive:
+      return eBuiltinSubgroupScanLogicalXorIncl;
+    case eCLBuiltinSubgroupScanLogicalXorExclusive:
+      return eBuiltinSubgroupScanLogicalXorExcl;
   }
 }
 

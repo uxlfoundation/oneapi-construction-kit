@@ -76,6 +76,10 @@ struct GroupCollective {
   /// @brief The type the group operation is applied to. Will always be the
   /// type of the first argument of `func`.
   llvm::Type *type = nullptr;
+  /// @brief True if the operation is logical, rather than bitwise.
+  bool isLogical = false;
+  /// @brief Returns true for Any/All type collective operations.
+  bool isAnyAll() const { return op == Op::Any || op == Op::All; }
 };
 
 /// @brief Helper function to parse a group collective operation.

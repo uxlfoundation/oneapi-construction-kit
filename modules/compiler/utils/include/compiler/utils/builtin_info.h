@@ -250,6 +250,34 @@ enum BuiltinSubgroupReduceKind : int32_t {
   eBuiltinSubgroupReduceMin,
   /// @brief sub_group_reduce_max
   eBuiltinSubgroupReduceMax,
+  /// @brief sub_group_reduce_mul
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceMul,
+  /// @brief sub_group_reduce_and
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceAnd,
+  /// @brief sub_group_reduce_or
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceOr,
+  /// @brief sub_group_reduce_xor
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceXor,
+  /// @brief sub_group_reduce_logical_and
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceLogicalAnd,
+  /// @brief sub_group_reduce_logical_or
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceLogicalOr,
+  /// @brief sub_group_reduce_logical_xor
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupReduceLogicalXor,
 };
 
 /// @brief Describes the kind of subgroup scan corresponding to a builtin.
@@ -268,6 +296,62 @@ enum BuiltinSubgroupScanKind : int32_t {
   eBuiltinSubgroupScanMaxIncl,
   /// @brief sub_group_scan_max_exclusive
   eBuiltinSubgroupScanMaxExcl,
+  /// @brief sub_group_scan_mul_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanMulIncl,
+  /// @brief sub_group_scan_mul_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanMulExcl,
+  /// @brief sub_group_scan_and_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanAndIncl,
+  /// @brief sub_group_scan_and_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanAndExcl,
+  /// @brief sub_group_scan_or_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanOrIncl,
+  /// @brief sub_group_scan_or_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanOrExcl,
+  /// @brief sub_group_scan_xor_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanXorIncl,
+  /// @brief sub_group_scan_xor_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanXorExcl,
+  /// @brief sub_group_scan_logical_and_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanLogicalAndIncl,
+  /// @brief sub_group_scan_logical_and_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanLogicalAndExcl,
+  /// @brief sub_group_scan_logical_or_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanLogicalOrIncl,
+  /// @brief sub_group_scan_logical_or_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanLogicalOrExcl,
+  /// @brief sub_group_scan_logical_xor_inclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanLogicalXorIncl,
+  /// @brief sub_group_scan_logical_xor_exclusive
+  ///
+  /// Provided by SPV_KHR_uniform_group_instructions.
+  eBuiltinSubgroupScanLogicalXorExcl,
 };
 
 class BIMuxInfoConcept;

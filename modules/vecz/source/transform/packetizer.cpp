@@ -1098,6 +1098,8 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
 
   bool isSignedInt = false;
   bool const isFP = argTy->isFPOrFPVectorTy();
+  bool const isBool = argTy->isIntOrIntVectorTy(/*BitWidth*/ 1);
+  (void)isBool;
 
   // Determine whether this is a signed or unsigned integer min/max reduction.
   if (!isFP &&
@@ -1140,6 +1142,34 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
       recurK = isFP ? multi_llvm::RecurKind::FMax
                     : (isSignedInt ? multi_llvm::RecurKind::SMax
                                    : multi_llvm::RecurKind::UMax);
+      break;
+    // SPV_KHR_uniform_group_instructions
+    case compiler::utils::eBuiltinSubgroupReduceMul:
+      recurK = isFP ? multi_llvm::RecurKind::FMul : multi_llvm::RecurKind::Mul;
+      break;
+    case compiler::utils::eBuiltinSubgroupReduceAnd:
+      assert(!isFP && "Invalid subgroup reduction");
+      recurK = multi_llvm::RecurKind::And;
+      break;
+    case compiler::utils::eBuiltinSubgroupReduceOr:
+      assert(!isFP && "Invalid subgroup reduction");
+      recurK = multi_llvm::RecurKind::Or;
+      break;
+    case compiler::utils::eBuiltinSubgroupReduceXor:
+      assert(!isFP && "Invalid subgroup reduction");
+      recurK = multi_llvm::RecurKind::Xor;
+      break;
+    case compiler::utils::eBuiltinSubgroupReduceLogicalAnd:
+      assert(isBool && "Invalid subgroup reduction");
+      recurK = multi_llvm::RecurKind::And;
+      break;
+    case compiler::utils::eBuiltinSubgroupReduceLogicalOr:
+      assert(isBool && "Invalid subgroup reduction");
+      recurK = multi_llvm::RecurKind::Or;
+      break;
+    case compiler::utils::eBuiltinSubgroupReduceLogicalXor:
+      assert(isBool && "Invalid subgroup reduction");
+      recurK = multi_llvm::RecurKind::Xor;
       break;
   }
 
@@ -1672,6 +1702,43 @@ ValuePacket Packetizer::Impl::packetizeSubgroupScan(
     case compiler::utils::eBuiltinSubgroupScanMaxIncl:
       op = "max";
       optIsSignedInt = isSignedArg0();
+      break;
+      /// Scans provided by SPV_KHR_uniform_group_instructions.
+    case compiler::utils::eBuiltinSubgroupScanMulExcl:
+      isInclusive = false;
+      LLVM_FALLTHROUGH;
+    case compiler::utils::eBuiltinSubgroupScanMulIncl:
+      op = "mul";
+      break;
+    case compiler::utils::eBuiltinSubgroupScanAndExcl:
+    case compiler::utils::eBuiltinSubgroupScanLogicalAndExcl:
+      isInclusive = false;
+      LLVM_FALLTHROUGH;
+    case compiler::utils::eBuiltinSubgroupScanAndIncl:
+    case compiler::utils::eBuiltinSubgroupScanLogicalAndIncl:
+      // Since we only support logical and on boolean types, we can re-use the
+      // regular bitwise and builtin.
+      op = "and";
+      break;
+    case compiler::utils::eBuiltinSubgroupScanOrExcl:
+    case compiler::utils::eBuiltinSubgroupScanLogicalOrExcl:
+      isInclusive = false;
+      LLVM_FALLTHROUGH;
+    case compiler::utils::eBuiltinSubgroupScanOrIncl:
+    case compiler::utils::eBuiltinSubgroupScanLogicalOrIncl:
+      // Since we only support logical or on boolean types, we can re-use the
+      // regular bitwise or builtin.
+      op = "or";
+      break;
+    case compiler::utils::eBuiltinSubgroupScanXorExcl:
+    case compiler::utils::eBuiltinSubgroupScanLogicalXorExcl:
+      isInclusive = false;
+      LLVM_FALLTHROUGH;
+    case compiler::utils::eBuiltinSubgroupScanXorIncl:
+    case compiler::utils::eBuiltinSubgroupScanLogicalXorIncl:
+      // Since we only support logical xor on boolean types, we can re-use the
+      // regular bitwise xor builtin.
+      op = "xor";
       break;
   }
 

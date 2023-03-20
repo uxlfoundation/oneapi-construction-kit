@@ -20,6 +20,7 @@ static llvm::Constant *getNeutralIdentityHelper(multi_llvm::RecurKind Kind,
       return ConstantInt::getAllOnesValue(Ty);
     case multi_llvm::RecurKind::Or:
     case multi_llvm::RecurKind::Add:
+    case multi_llvm::RecurKind::Xor:
       return ConstantInt::getNullValue(Ty);
     case multi_llvm::RecurKind::SMin:
       return ConstantInt::get(
@@ -43,6 +44,10 @@ static llvm::Constant *getNeutralIdentityHelper(multi_llvm::RecurKind Kind,
     case multi_llvm::RecurKind::FMax:
       return UseNaN ? ConstantFP::getQNaN(Ty, /*Negative*/ true)
                     : ConstantFP::getInfinity(Ty, /*Negative*/ true);
+    case multi_llvm::RecurKind::Mul:
+      return ConstantInt::get(Ty, 1);
+    case multi_llvm::RecurKind::FMul:
+      return ConstantFP::get(Ty, 1.0);
   }
 }
 
@@ -105,6 +110,9 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
              collective.op == GroupCollective::Op::ScanExclusive ||
              collective.op == GroupCollective::Op::ScanInclusive) {
     StringRef OpKind;
+    if (L.Consume("logical_")) {
+      collective.isLogical = true;
+    }
     if (L.ConsumeAlpha(OpKind)) {
       auto isSignedInt = [](char c) {
         return c == 'c' || c == 's' || c == 'i' || c == 'l';
@@ -131,6 +139,12 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
                                             ? multi_llvm::RecurKind::UMax
                                             : multi_llvm::RecurKind::SMax)
                                      : multi_llvm::RecurKind::FMax)
+              .StartsWith("mul", isInt(manglingChar)
+                                     ? multi_llvm::RecurKind::Mul
+                                     : multi_llvm::RecurKind::FMul)
+              .StartsWith("and", multi_llvm::RecurKind::And)
+              .StartsWith("or", multi_llvm::RecurKind::Or)
+              .StartsWith("xor", multi_llvm::RecurKind::Xor)
               .Default(multi_llvm::RecurKind::None);
     } else {
       collective.recurKind = multi_llvm::RecurKind::None;

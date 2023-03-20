@@ -1074,6 +1074,20 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArg(cl_kernel kernel,
       break;
     }
 
+    case compiler::ArgumentKind::INT1:
+      // Quick and dirty
+      kernel->saved_args[arg_index] =
+          _cl_kernel::argument(*arg_type, arg_value, arg_size);
+      break;
+
+    case compiler::ArgumentKind::INT1_2:
+    case compiler::ArgumentKind::INT1_3:
+    case compiler::ArgumentKind::INT1_4:
+    case compiler::ArgumentKind::INT1_8:
+    case compiler::ArgumentKind::INT1_16:
+      // It is not valid to pass bool vectors to kernels.
+      return CL_INVALID_KERNEL_ARGS;
+
 #define CASE_VALUE_TYPE(arg_type, type)                              \
   case arg_type: {                                                   \
     OCL_CHECK(sizeof(type) != arg_size, return CL_INVALID_ARG_SIZE); \

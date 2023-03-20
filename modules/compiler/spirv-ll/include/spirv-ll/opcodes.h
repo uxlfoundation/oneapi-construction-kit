@@ -2377,76 +2377,95 @@ class OpGroupBroadcast : public OpResult {
   static const spv::Op ClassCode = spv::OpGroupBroadcast;
 };
 
-class OpGroupIAdd : public OpResult {
+template <enum spv::Op opcode>
+class OpGroupOperation : public OpResult {
  public:
-  OpGroupIAdd(OpCode const &other) : OpResult(other, spv::OpGroupIAdd) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupIAdd;
+  OpGroupOperation(OpCode const &other) : OpResult(other, opcode) {}
+  spv::Id Execution() const { return getValueAtOffset(3); }
+  spv::GroupOperation Operation() const {
+    return static_cast<spv::GroupOperation>(getValueAtOffset(4));
+  }
+  spv::Id X() const { return getValueAtOffset(5); }
+  static const spv::Op ClassCode = opcode;
 };
 
-class OpGroupFAdd : public OpResult {
+class OpGroupIAdd : public OpGroupOperation<spv::OpGroupIAdd> {
  public:
-  OpGroupFAdd(OpCode const &other) : OpResult(other, spv::OpGroupFAdd) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupFAdd;
+  OpGroupIAdd(OpCode const &other) : OpGroupOperation(other) {}
+};
+class OpGroupFAdd : public OpGroupOperation<spv::OpGroupFAdd> {
+ public:
+  OpGroupFAdd(OpCode const &other) : OpGroupOperation(other) {}
 };
 
-class OpGroupFMin : public OpResult {
+class OpGroupFMin : public OpGroupOperation<spv::OpGroupFMin> {
  public:
-  OpGroupFMin(OpCode const &other) : OpResult(other, spv::OpGroupFMin) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupFMin;
+  OpGroupFMin(OpCode const &other) : OpGroupOperation(other) {}
+};
+class OpGroupUMin : public OpGroupOperation<spv::OpGroupUMin> {
+ public:
+  OpGroupUMin(OpCode const &other) : OpGroupOperation(other) {}
+};
+class OpGroupSMin : public OpGroupOperation<spv::OpGroupSMin> {
+ public:
+  OpGroupSMin(OpCode const &other) : OpGroupOperation(other) {}
 };
 
-class OpGroupUMin : public OpResult {
+class OpGroupFMax : public OpGroupOperation<spv::OpGroupFMax> {
  public:
-  OpGroupUMin(OpCode const &other) : OpResult(other, spv::OpGroupUMin) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupUMin;
+  OpGroupFMax(OpCode const &other) : OpGroupOperation(other) {}
+};
+class OpGroupUMax : public OpGroupOperation<spv::OpGroupUMax> {
+ public:
+  OpGroupUMax(OpCode const &other) : OpGroupOperation(other) {}
+};
+class OpGroupSMax : public OpGroupOperation<spv::OpGroupSMax> {
+ public:
+  OpGroupSMax(OpCode const &other) : OpGroupOperation(other) {}
 };
 
-class OpGroupSMin : public OpResult {
+class OpGroupIMulKHR : public OpGroupOperation<spv::OpGroupIMulKHR> {
  public:
-  OpGroupSMin(OpCode const &other) : OpResult(other, spv::OpGroupSMin) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupSMin;
+  OpGroupIMulKHR(OpCode const &other) : OpGroupOperation(other) {}
 };
 
-class OpGroupFMax : public OpResult {
+class OpGroupFMulKHR : public OpGroupOperation<spv::OpGroupFMulKHR> {
  public:
-  OpGroupFMax(OpCode const &other) : OpResult(other, spv::OpGroupFMax) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupFMax;
+  OpGroupFMulKHR(OpCode const &other) : OpGroupOperation(other) {}
 };
 
-class OpGroupUMax : public OpResult {
+class OpGroupBitwiseAndKHR
+    : public OpGroupOperation<spv::OpGroupBitwiseAndKHR> {
  public:
-  OpGroupUMax(OpCode const &other) : OpResult(other, spv::OpGroupUMax) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupUMax;
+  OpGroupBitwiseAndKHR(OpCode const &other) : OpGroupOperation(other) {}
 };
 
-class OpGroupSMax : public OpResult {
+class OpGroupBitwiseOrKHR : public OpGroupOperation<spv::OpGroupBitwiseOrKHR> {
  public:
-  OpGroupSMax(OpCode const &other) : OpResult(other, spv::OpGroupSMax) {}
-  spv::Id Execution() const;
-  spv::GroupOperation Operation() const;
-  spv::Id X() const;
-  static const spv::Op ClassCode = spv::OpGroupSMax;
+  OpGroupBitwiseOrKHR(OpCode const &other) : OpGroupOperation(other) {}
+};
+
+class OpGroupBitwiseXorKHR
+    : public OpGroupOperation<spv::OpGroupBitwiseXorKHR> {
+ public:
+  OpGroupBitwiseXorKHR(OpCode const &other) : OpGroupOperation(other) {}
+};
+
+class OpGroupLogicalAndKHR
+    : public OpGroupOperation<spv::OpGroupLogicalAndKHR> {
+ public:
+  OpGroupLogicalAndKHR(OpCode const &other) : OpGroupOperation(other) {}
+};
+
+class OpGroupLogicalOrKHR : public OpGroupOperation<spv::OpGroupLogicalOrKHR> {
+ public:
+  OpGroupLogicalOrKHR(OpCode const &other) : OpGroupOperation(other) {}
+};
+
+class OpGroupLogicalXorKHR
+    : public OpGroupOperation<spv::OpGroupLogicalXorKHR> {
+ public:
+  OpGroupLogicalXorKHR(OpCode const &other) : OpGroupOperation(other) {}
 };
 
 class OpReadPipe : public OpResult {

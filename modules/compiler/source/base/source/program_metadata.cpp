@@ -48,6 +48,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
   switch (num_elements) {
     case 1:
       switch (element_width) {
+        case 1:
+          return {ArgumentKind::INT1};
         case 8:
           return {ArgumentKind::INT8};
         case 16:

@@ -392,6 +392,18 @@ Optional<std::tuple<bool, multi_llvm::RecurKind, bool>> isSubgroupScan(
         opKind = multi_llvm::RecurKind::UMin;
       } else if (OpKind == "umax") {
         opKind = multi_llvm::RecurKind::UMax;
+      } else if (OpKind == "mul") {
+        opKind =
+            isInt ? multi_llvm::RecurKind::Mul : multi_llvm::RecurKind::FMul;
+      } else if (OpKind == "and") {
+        opKind = multi_llvm::RecurKind::And;
+        assert(isInt && "unexpected internal scan builtin");
+      } else if (OpKind == "or") {
+        opKind = multi_llvm::RecurKind::Or;
+        assert(isInt && "unexpected internal scan builtin");
+      } else if (OpKind == "xor") {
+        opKind = multi_llvm::RecurKind::Xor;
+        assert(isInt && "unexpected internal scan builtin");
       } else {
         return None;
       }

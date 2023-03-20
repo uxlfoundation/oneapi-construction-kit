@@ -924,6 +924,30 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
       case spv::OpGroupSMax:
         error = builder.create<OpGroupSMax>(op);
         break;
+      case spv::OpGroupIMulKHR:
+        error = builder.create<OpGroupIMulKHR>(op);
+        break;
+      case spv::OpGroupFMulKHR:
+        error = builder.create<OpGroupFMulKHR>(op);
+        break;
+      case spv::OpGroupBitwiseAndKHR:
+        error = builder.create<OpGroupBitwiseAndKHR>(op);
+        break;
+      case spv::OpGroupBitwiseOrKHR:
+        error = builder.create<OpGroupBitwiseOrKHR>(op);
+        break;
+      case spv::OpGroupBitwiseXorKHR:
+        error = builder.create<OpGroupBitwiseXorKHR>(op);
+        break;
+      case spv::OpGroupLogicalAndKHR:
+        error = builder.create<OpGroupLogicalAndKHR>(op);
+        break;
+      case spv::OpGroupLogicalOrKHR:
+        error = builder.create<OpGroupLogicalOrKHR>(op);
+        break;
+      case spv::OpGroupLogicalXorKHR:
+        error = builder.create<OpGroupLogicalXorKHR>(op);
+        break;
       case spv::OpReadPipe:
         error = builder.create<OpReadPipe>(op);
         break;

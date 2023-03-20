@@ -54,19 +54,29 @@ CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
 
 /// @brief Helper function to create subgroup reduction calls.
 Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
-                               multi_llvm::RecurKind Kind) {
+                               const compiler::utils::GroupCollective &WGC) {
   StringRef name;
   compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
-  switch (Kind) {
+  switch (WGC.recurKind) {
     default:
       return nullptr;
     case multi_llvm::RecurKind::And:
-      name = "sub_group_all";
-      Q = compiler::utils::eTypeQualSignedInt;
+      if (WGC.isAnyAll()) {
+        name = "sub_group_all";
+        Q = compiler::utils::eTypeQualSignedInt;
+      } else {
+        name = !WGC.isLogical ? "sub_group_reduce_and"
+                              : "sub_group_reduce_logical_and";
+      }
       break;
     case multi_llvm::RecurKind::Or:
-      name = "sub_group_any";
-      Q = compiler::utils::eTypeQualSignedInt;
+      if (WGC.isAnyAll()) {
+        name = "sub_group_any";
+        Q = compiler::utils::eTypeQualSignedInt;
+      } else {
+        name = !WGC.isLogical ? "sub_group_reduce_or"
+                              : "sub_group_reduce_logical_or";
+      }
       break;
     case multi_llvm::RecurKind::FAdd:
     case multi_llvm::RecurKind::Add:
@@ -87,6 +97,15 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
     case multi_llvm::RecurKind::SMax:
       name = "sub_group_reduce_max";
       Q = compiler::utils::eTypeQualSignedInt;
+      break;
+      // SPV_KHR_uniform_group_instructions
+    case multi_llvm::RecurKind::Mul:
+    case multi_llvm::RecurKind::FMul:
+      name = "sub_group_reduce_mul";
+      break;
+    case multi_llvm::RecurKind::Xor:
+      name = !WGC.isLogical ? "sub_group_reduce_xor"
+                            : "sub_group_reduce_logical_xor";
       break;
   }
 
@@ -110,7 +129,8 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
 }
 
 Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
-                          multi_llvm::RecurKind Kind, bool IsInclusive) {
+                          multi_llvm::RecurKind Kind, bool IsInclusive,
+                          bool IsLogical) {
   StringRef name;
   compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
   switch (Kind) {
@@ -136,6 +156,38 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
     case multi_llvm::RecurKind::FMax:
       name = IsInclusive ? StringRef("sub_group_scan_inclusive_max")
                          : StringRef("sub_group_scan_exclusive_max");
+      break;
+    case multi_llvm::RecurKind::Mul:
+    case multi_llvm::RecurKind::FMul:
+      name = IsInclusive ? StringRef("sub_group_scan_inclusive_mul")
+                         : StringRef("sub_group_scan_exclusive_mul");
+      break;
+    case multi_llvm::RecurKind::And:
+      if (!IsLogical) {
+        name = IsInclusive ? StringRef("sub_group_scan_inclusive_and")
+                           : StringRef("sub_group_scan_exclusive_and");
+      } else {
+        name = IsInclusive ? StringRef("sub_group_scan_inclusive_logical_and")
+                           : StringRef("sub_group_scan_exclusive_logical_and");
+      }
+      break;
+    case multi_llvm::RecurKind::Or:
+      if (!IsLogical) {
+        name = IsInclusive ? StringRef("sub_group_scan_inclusive_or")
+                           : StringRef("sub_group_scan_exclusive_or");
+      } else {
+        name = IsInclusive ? StringRef("sub_group_scan_inclusive_logical_or")
+                           : StringRef("sub_group_scan_exclusive_logical_or");
+      }
+      break;
+    case multi_llvm::RecurKind::Xor:
+      if (!IsLogical) {
+        name = IsInclusive ? StringRef("sub_group_scan_inclusive_xor")
+                           : StringRef("sub_group_scan_exclusive_xor");
+      } else {
+        name = IsInclusive ? StringRef("sub_group_scan_inclusive_logical_xor")
+                           : StringRef("sub_group_scan_exclusive_logical_xor");
+      }
       break;
   }
 
@@ -231,13 +283,14 @@ Function *getOrCreateGetSubGroupLocalID(Module &M) {
 ///
 /// @return The result of the operation.
 Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
-                   llvm::Value *Operand, multi_llvm::RecurKind Kind) {
+                   llvm::Value *Operand, multi_llvm::RecurKind Kind,
+                   bool IsAnyAll) {
   /// The semantics of bitwise "and" don't quite match the semantics of "all"
   /// (bitwise and isn't equivalent to logical and in a boolean context e.g.
   /// 01 & 10 = 00 but both 1 (01) and 2 (10) would be considered "true"), so
   /// for the sub_group_all reduction we need to work around this by emitting a
   /// few extra instructions.
-  if (Kind == multi_llvm::RecurKind::And) {
+  if (IsAnyAll && Kind == multi_llvm::RecurKind::And) {
     auto *const IntType = Operand->getType();
     Value *Cmp = Builder.CreateICmpNE(Operand, ConstantInt::get(IntType, 0));
     Cmp = Builder.CreateIntCast(Cmp, IntType, /* isSigned */ true);
@@ -303,8 +356,8 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
   // implementation does not involve memory access. This way, when it gets
   // vectorized, only the scalar result will need to be in the barrier struct,
   // not its vectorized operand.
-  auto *const SubReduce =
-      createSubgroupReduction(Builder, Operand, WGC.recurKind);
+  auto *const SubReduce = createSubgroupReduction(Builder, Operand, WGC);
+  assert(SubReduce && "Invalid subgroup reduce");
 
   // We need three barriers:
   // The barrier after the store ensures that the initialization is complete
@@ -322,8 +375,8 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
   // Read-modify-write the accumulator.
   auto *const CurrentVal =
       Builder.CreateLoad(ReductionType, Accumulator, "current.val");
-  auto *const NextVal =
-      createBinOp(Builder, CurrentVal, SubReduce, WGC.recurKind);
+  auto *const NextVal = createBinOp(Builder, CurrentVal, SubReduce,
+                                    WGC.recurKind, WGC.isAnyAll());
   Builder.CreateStore(NextVal, Accumulator);
 
   // Barrier, then read result and exit.
@@ -464,6 +517,7 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   auto *const ReductionType{Operand->getType()};
   auto *const ReductionNeutralValue{
       compiler::utils::getNeutralVal(WGC.recurKind, WGC.type)};
+  assert(ReductionNeutralValue && "Invalid neutral value");
   auto &M = *F.getParent();
   auto *const Accumulator =
       new GlobalVariable{M,
@@ -499,8 +553,9 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
       Builder.CreateLoad(ReductionType, Accumulator, "current.val");
 
   // Perform the subgroup scan operation and add it to the accumulator.
-  auto *SubScan =
-      createSubgroupScan(Builder, Operand, WGC.recurKind, IsInclusive);
+  auto *SubScan = createSubgroupScan(Builder, Operand, WGC.recurKind,
+                                     IsInclusive, WGC.isLogical);
+  assert(SubScan && "Invalid subgroup scan");
 
   bool const NeedsIdentityFix =
       !IsInclusive && (WGC.recurKind == multi_llvm::RecurKind::FAdd ||
@@ -521,7 +576,8 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
     SubScan = Builder.CreateSelect(IsZero, ReductionNeutralValue, SubScan);
   }
 
-  auto *const Result = createBinOp(Builder, CurrentVal, SubScan, WGC.recurKind);
+  auto *const Result =
+      createBinOp(Builder, CurrentVal, SubScan, WGC.recurKind, WGC.isAnyAll());
 
   // Update the accumulator with the last element of the subgroup scan
   auto *const LastElement = Builder.CreateNUWSub(
@@ -535,10 +591,11 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   if (!IsInclusive) {
     auto *const LastSrcValue =
         createSubgroupBroadcast(Builder, Operand, LastElement, "wgc_sg_tail");
-    SubReduce = createBinOp(Builder, LastValue, LastSrcValue, WGC.recurKind);
+    SubReduce = createBinOp(Builder, LastValue, LastSrcValue, WGC.recurKind,
+                            WGC.isAnyAll());
   }
-  auto *const NextVal =
-      createBinOp(Builder, CurrentVal, SubReduce, WGC.recurKind);
+  auto *const NextVal = createBinOp(Builder, CurrentVal, SubReduce,
+                                    WGC.recurKind, WGC.isAnyAll());
   Builder.CreateStore(NextVal, Accumulator);
 
   // A third barrier ensures that if there are two or more scans, they can't get
