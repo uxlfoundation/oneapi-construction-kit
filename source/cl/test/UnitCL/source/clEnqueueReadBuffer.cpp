@@ -113,6 +113,50 @@ TEST_F(clEnqueueReadBufferTest, WithNDRangeInBetween) {
   EXPECT_SUCCESS(clReleaseProgram(program));
 }
 
+TEST_F(clEnqueueReadBufferTest, WithNDRangeInBetweenTwoQueues) {
+  if (!getDeviceCompilerAvailable()) {
+    GTEST_SKIP();
+  }
+  cl_int errorcode;
+  const char *source =
+      "void kernel foo(global int * a, global int * b) {a[get_global_id(0)] = "
+      "b[get_global_id(0)];}";
+  cl_program program =
+      clCreateProgramWithSource(context, 1, &source, nullptr, &errorcode);
+  ASSERT_TRUE(program);
+  ASSERT_SUCCESS(errorcode);
+  EXPECT_SUCCESS(
+      clBuildProgram(program, 0, nullptr, nullptr, nullptr, nullptr));
+  cl_kernel kernel = clCreateKernel(program, "foo", &errorcode);
+  EXPECT_TRUE(kernel);
+  EXPECT_SUCCESS(errorcode);
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&outMem));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&inMem));
+
+  const size_t global_size = SIZE;
+  cl_command_queue command_queue_b =
+      clCreateCommandQueue(context, device, 0, &errorcode);
+
+  EXPECT_SUCCESS(errorcode);
+
+  EXPECT_SUCCESS(clEnqueueNDRangeKernel(command_queue_b, kernel, 1, nullptr,
+                                        &global_size, nullptr, 1, &writeEvent,
+                                        &ndRangeEvent));
+
+  EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, outMem, CL_FALSE, 0,
+                                     INT_SIZE, outBuffer, 1, &ndRangeEvent,
+                                     &readEvent));
+  EXPECT_SUCCESS(clWaitForEvents(1, &readEvent));
+
+  for (cl_uint i = 0; i < SIZE; i++) {
+    EXPECT_EQ(inBuffer[i], outBuffer[i]);
+  }
+
+  EXPECT_SUCCESS(clReleaseKernel(kernel));
+  EXPECT_SUCCESS(clReleaseProgram(program));
+  EXPECT_SUCCESS(clReleaseCommandQueue(command_queue_b));
+}
+
 TEST_F(clEnqueueReadBufferTest, Blocking) {
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0, INT_SIZE,
                                      outBuffer, 1, &writeEvent, nullptr));
