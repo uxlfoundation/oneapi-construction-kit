@@ -157,34 +157,11 @@ HostKernel::querySubGroupSizeForLocalSize(size_t local_size_x,
 
 cargo::expected<std::array<size_t, 3>, compiler::Result>
 HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
-  // Look to see if we have any optimized kernels with sub-groups we can choose.
-  size_t degenerate_size = 0;
-  for (auto const &opt : optimized_kernel_map) {
-    auto const sub_group_size = opt.second.binary_kernel->sub_group_size;
-    if (sub_group_size == 0) {
-      degenerate_size = std::max(degenerate_size, opt.first[0]);
-      continue;
-    }
-
-    auto const total_size = opt.first[0] * opt.first[1] * opt.first[2];
-    auto const local_size = sub_group_count * sub_group_size;
-    if (local_size <= total_size) {
-      return {{local_size, 1, 1}};
-    }
-  }
-
-  // There was a degenerate subgroups kernel in there somewhere, so use that if
-  // possible.
-  if (degenerate_size != 0) {
-    if (sub_group_count == 1) {
-      return {{degenerate_size, 1, 1}};
-    }
-  }
-
-  // Otherwise, we try to compile something and see what we get
+  // Try to compile something and see what subgroup size we get
   auto const &info = *target.getCompilerInfo()->device_info;
-  size_t const local_size_x = info.max_work_group_size_x;
-  auto optimized_kernel = lookupOrCreateOptimizedKernel({local_size_x, 1, 1});
+  size_t const max_local_size_x = info.max_work_group_size_x;
+  auto optimized_kernel =
+      lookupOrCreateOptimizedKernel({max_local_size_x, 1, 1});
   if (!optimized_kernel) {
     return cargo::make_unexpected(optimized_kernel.error());
   }
@@ -193,12 +170,12 @@ HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
   // sub-group size.
   auto const sub_group_size = optimized_kernel->binary_kernel->sub_group_size;
   if (sub_group_size == 0) {
-    // FIXME: For a single sub-group, we know we can satisfy that with a
-    // work-group of 1,1,1. For any other sub-group count, we should ensure that
-    // the work-group size we report comes back through the deferred kernel's
-    // sub-group count when it comes to compiling it. See CA-4784.
+    // FIXME: For degenerate sub-groups, the local size could be anything up to
+    // the maximum local size. For any other sub-group count, we should ensure
+    // that the work-group size we report comes back through the deferred
+    // kernel's sub-group count when it comes to compiling it. See CA-4784.
     if (sub_group_count == 1) {
-      return {{local_size_x, 1, 1}};
+      return {{max_local_size_x, 1, 1}};
     } else {
       // If we asked for anything other than a single subgroup, but we have got
       // degenerate subgroups, then we are in some amount of trouble.
@@ -207,7 +184,11 @@ HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
   }
 
   auto const local_size = sub_group_count * sub_group_size;
-  return {{local_size, 1, 1}};
+  if (local_size <= max_local_size_x) {
+    return {{local_size, 1, 1}};
+  }
+
+  return {{0, 0, 0}};
 };
 
 cargo::expected<size_t, compiler::Result> HostKernel::queryMaxSubGroupCount() {
