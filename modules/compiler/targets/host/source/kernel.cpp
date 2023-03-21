@@ -316,6 +316,15 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
       tracer::TraceGuard<tracer::Impl> traceGuard("MCJIT");
       target.engine->addModule(std::move(optimized_module));
       target.engine->finalizeObject();
+      if (target.engine->hasError()) {
+        if (auto callback = target.getNotifyCallbackFn()) {
+          callback(target.engine->getErrorMessage().c_str(), /*data*/ nullptr,
+                   /*data_size*/ 0);
+        }
+        target.engine->clearErrorMessage();
+        return cargo::make_unexpected(
+            compiler::Result::FINALIZE_PROGRAM_FAILURE);
+      }
     }
 
     const uint64_t hook = target.engine->getFunctionAddress(unique_name.str());
