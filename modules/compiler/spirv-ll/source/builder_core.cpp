@@ -3702,10 +3702,9 @@ cargo::optional<Error> Builder::create<OpUConvert>(const OpUConvert *op) {
   auto value = module.getValue(op->UnsignedValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  module.addID(
-      op->IdResult(), op,
-      createConversionBuiltinCall(value, MangleInfo(op->UnsignedValue()), retTy,
-                                  op->IdResultType(), op->IdResult()));
+  auto *const result = IRBuilder.CreateZExtOrTrunc(value, retTy);
+
+  module.addID(op->IdResult(), op, result);
   return cargo::nullopt;
 }
 
@@ -3717,14 +3716,9 @@ cargo::optional<Error> Builder::create<OpSConvert>(const OpSConvert *op) {
   llvm::Value *value = module.getValue(op->SignedValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  // In this instruction value and the return type are always signed so don't
-  // pass their IDs for signedness lookup.
-  module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(
-                   value, {}, retTy,
-                   MangleInfo(op->IdResultType(),
-                              MangleInfo::ForceSignInfo::ForceSigned),
-                   op->IdResult()));
+  auto *const result = IRBuilder.CreateSExtOrTrunc(value, retTy);
+
+  module.addID(op->IdResult(), op, result);
   return cargo::nullopt;
 }
 

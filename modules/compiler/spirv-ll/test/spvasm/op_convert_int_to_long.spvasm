@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_convert_int_to_long.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_convert_int_to_long.spv | %filecheck %s
             OpCapability Shader
             OpCapability Float64
             OpCapability Int64
@@ -32,13 +30,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i64
-; CHECK-GE15: store i32 -42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store i32 -42, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i64 @_Z12convert_longi(i32 %2)
-; CHECK-GE15: store i64 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store i64 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i64* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{%.*}} = alloca i32
+; CHECK: {{%.*}} = alloca i64
+; CHECK: store i32 -42, {{(ptr|i32\*)}} {{%.*}}
+; CHECK: {{%.*}} = load i32, {{(ptr|i32\*)}} {{%.*}}
+; CHECK: {{%.*}} = sext i32 %2 to i64
+; CHECK: store i64 {{%.*}}, {{(ptr|i64\*)}} {{%.*}}
 ; CHECK: ret void
