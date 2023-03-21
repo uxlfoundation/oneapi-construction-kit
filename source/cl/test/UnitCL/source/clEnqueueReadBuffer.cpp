@@ -113,7 +113,9 @@ TEST_F(clEnqueueReadBufferTest, WithNDRangeInBetween) {
   EXPECT_SUCCESS(clReleaseProgram(program));
 }
 
-TEST_F(clEnqueueReadBufferTest, WithNDRangeInBetweenTwoQueues) {
+// Disabled until we can get a fix for non-user events between two queues
+// See DDK-87
+TEST_F(clEnqueueReadBufferTest, DISABLED_WithNDRangeInBetweenTwoQueues) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }

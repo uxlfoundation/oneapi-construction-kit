@@ -385,23 +385,6 @@ _cl_command_queue::getCommandBuffer(
                          event](mux_command_buffer_t command_buffer)
       -> cargo::expected<mux_command_buffer_t, cl_int> {
     auto &dispatch = pending_dispatches[command_buffer];
-    // If there are any non-user events across queues wait for them to complete
-    // TODO: Ideally we would pipe them through, and flush the event's queue as
-    // needed when we flush our queue. This would lead to better performance.
-    // Also there may be possibilities of lock up if the dependent queue is
-    // waiting on a user event. This can have issues with lifetimes of aspects
-    // such as semaphores, and releasing of queues so for now we wait here for
-    // the event to complete - see DDK-87
-    for (auto wait_event : event_wait_list) {
-      if (!cl::isUserEvent(wait_event) && wait_event->queue != this) {
-        context->notify(
-            "Warning : Cross queue non-user event dependency requiring flush "
-            "and wait on event",
-            event, sizeof(event));
-        wait_event->queue->flush();
-        wait_event->queue->waitForEvents(1, &wait_event);
-      }
-    }
     if (auto error = dispatch.addWaitEvents(event_wait_list)) {
       return cargo::make_unexpected(error);
     }
