@@ -8,279 +8,6 @@
 
 namespace spirv_ll {
 
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vloadn>(OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vloadn>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  auto result = builder.createVectorDataBuiltinCall(
-      "vload", resultType, resultType, op->IdResultType(), {offset, p},
-      {op->offset(), MangleInfo(op->p(), MangleInfo::CONST)});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstoren>(OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstoren>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstore", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vload_half>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vload_half>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vload_half", resultType, resultType, op->IdResultType(), {offset, p},
-      {op->offset(), MangleInfo(op->p(), MangleInfo::CONST)});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vload_halfn>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vload_halfn>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vload_half", resultType, resultType, op->IdResultType(), {offset, p},
-      {op->offset(), MangleInfo(op->p(), MangleInfo::CONST)});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstore_half>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstore_half>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstore_half", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()});
-  SPIRV_LL_ASSERT_PTR(result);
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstore_half_r>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstore_half_r>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstore_half", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()}, op->mode());
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstore_halfn>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstore_halfn>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstore_half", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstore_halfn_r>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstore_halfn_r>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstore_half", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()}, op->mode());
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vloada_halfn>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vloada_halfn>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vloada_half", resultType, resultType, op->IdResultType(), {offset, p},
-      {op->offset(), MangleInfo(op->p(), MangleInfo::CONST)});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstorea_halfn>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstorea_halfn>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstorea_half", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()});
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
-template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::OpenCLBuilder::createVec<OpenCLLIB::Vstorea_halfn_r>(
-    OpExtInst const &opc) {
-  auto *op = module.create<OpenCLstd::Vstorea_halfn_r>(opc);
-
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
-  llvm::Value *data = module.getValue(op->data());
-  SPIRV_LL_ASSERT_PTR(data);
-
-  llvm::Value *offset = module.getValue(op->offset());
-  SPIRV_LL_ASSERT_PTR(offset);
-
-  llvm::Value *p = module.getValue(op->p());
-  SPIRV_LL_ASSERT_PTR(p);
-
-  llvm::Value *result = builder.createVectorDataBuiltinCall(
-      "vstorea_half", data->getType(), resultType, op->IdResultType(),
-      {data, offset, p}, {op->data(), op->offset(), op->p()}, op->mode());
-
-  module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
-}
-
 static cargo::optional<spirv_ll::Error> createPrintf(OpExtInst const &opc,
                                                      Module &module,
                                                      Builder &builder) {
@@ -666,13 +393,64 @@ spirv_ll::OpenCLBuilder::create<ExtInst<PTR, NUM_ELEMENTS>>(
   return cargo::nullopt;
 }
 
+template <>
+cargo::optional<spirv_ll::Error>
+spirv_ll::OpenCLBuilder::create<ExtInst<OFFSET, P>>(OpExtInst const &opc) {
+  auto *op = module.create<ExtInst<OFFSET, P, N>>(opc);
+
+  auto *const result = builder.createOCLBuiltinCall(
+      static_cast<OpenCLLIB::Entrypoints>(opc.Instruction()),
+      op->IdResultType(), {op->offset(), op->p()});
+
+  module.addID(op->IdResult(), op, result);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<spirv_ll::Error>
+spirv_ll::OpenCLBuilder::create<ExtInst<OFFSET, P, N>>(OpExtInst const &opc) {
+  auto *op = module.create<ExtInst<OFFSET, P, N>>(opc);
+
+  auto *const result = builder.createOCLBuiltinCall(
+      static_cast<OpenCLLIB::Entrypoints>(opc.Instruction()),
+      op->IdResultType(), {op->offset(), op->p(), op->n()});
+
+  module.addID(op->IdResult(), op, result);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<spirv_ll::Error>
+spirv_ll::OpenCLBuilder::create<ExtInst<DATA, OFFSET, P>>(
+    OpExtInst const &opc) {
+  auto *op = module.create<ExtInst<DATA, OFFSET, P>>(opc);
+
+  auto *const result = builder.createOCLBuiltinCall(
+      static_cast<OpenCLLIB::Entrypoints>(opc.Instruction()),
+      op->IdResultType(), {op->data(), op->offset(), op->p()});
+
+  module.addID(op->IdResult(), op, result);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<spirv_ll::Error>
+spirv_ll::OpenCLBuilder::create<ExtInst<DATA, OFFSET, P, MODE>>(
+    OpExtInst const &opc) {
+  auto *op = module.create<ExtInst<DATA, OFFSET, P, MODE>>(opc);
+
+  auto *const result = builder.createOCLBuiltinCall(
+      static_cast<OpenCLLIB::Entrypoints>(opc.Instruction()),
+      op->IdResultType(),
+      {op->data(), op->offset(), op->p(), static_cast<spv::Id>(op->mode())});
+
+  module.addID(op->IdResult(), op, result);
+  return cargo::nullopt;
+}
+
 #define CASE(Opcode, ExtInst) \
   case Opcode:                \
     return create<ExtInst>(opc);
-
-#define VEC_CASE(ExtInst) \
-  case ExtInst:           \
-    return createVec<ExtInst>(opc);
 
 cargo::optional<spirv_ll::Error> spirv_ll::OpenCLBuilder::create(
     OpExtInst const &opc) {
@@ -827,18 +605,17 @@ cargo::optional<spirv_ll::Error> spirv_ll::OpenCLBuilder::create(
     CASE(OpenCLLIB::Shuffle, OpenCLstd::Shuffle)
     CASE(OpenCLLIB::Shuffle2, OpenCLstd::Shuffle2)
     CASE(OpenCLLIB::Prefetch, OpenCLstd::Prefetch)
-
-    VEC_CASE(OpenCLLIB::Entrypoints::Vloadn)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstoren)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vload_half)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vload_halfn)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstore_half)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstore_half_r)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstore_halfn)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstore_halfn_r)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vloada_halfn)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstorea_halfn)
-    VEC_CASE(OpenCLLIB::Entrypoints::Vstorea_halfn_r)
+    CASE(OpenCLLIB::Vloadn, OpenCLstd::Vloadn)
+    CASE(OpenCLLIB::Vload_half, OpenCLstd::Vload_half)
+    CASE(OpenCLLIB::Vload_halfn, OpenCLstd::Vload_halfn)
+    CASE(OpenCLLIB::Vloada_halfn, OpenCLstd::Vloada_halfn)
+    CASE(OpenCLLIB::Vstoren, OpenCLstd::Vstoren)
+    CASE(OpenCLLIB::Vstore_half, OpenCLstd::Vstore_half)
+    CASE(OpenCLLIB::Vstore_halfn, OpenCLstd::Vstore_halfn)
+    CASE(OpenCLLIB::Vstorea_halfn, OpenCLstd::Vstorea_halfn)
+    CASE(OpenCLLIB::Vstore_half_r, OpenCLstd::Vstore_half_r)
+    CASE(OpenCLLIB::Vstore_halfn_r, OpenCLstd::Vstore_halfn_r)
+    CASE(OpenCLLIB::Vstorea_halfn_r, OpenCLstd::Vstorea_halfn_r)
 
     case OpenCLLIB::Entrypoints::Printf:
       return createPrintf(opc, module, builder);
@@ -850,6 +627,5 @@ cargo::optional<spirv_ll::Error> spirv_ll::OpenCLBuilder::create(
 }
 
 #undef CASE
-#undef VEC_CASE
 
 }  // namespace spirv_ll

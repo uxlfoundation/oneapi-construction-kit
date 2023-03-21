@@ -699,22 +699,6 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
                                   newArgMangleInfo);
 }
 
-llvm::CallInst *spirv_ll::Builder::createVectorDataBuiltinCall(
-    std::string name, llvm::Type *dataType, llvm::Type *retTy,
-    MangleInfo retMangleInfo, llvm::ArrayRef<llvm::Value *> args,
-    llvm::ArrayRef<MangleInfo> argMangleInfo,
-    llvm::Optional<spv::FPRoundingMode> mode) {
-  if (dataType->isVectorTy()) {
-    name += std::to_string(multi_llvm::getVectorNumElements(dataType));
-  }
-  if (mode.hasValue()) {
-    name += getFPRoundingModeSuffix(mode.getValue());
-  }
-
-  return createMangledBuiltinCall(name, retTy, retMangleInfo, args,
-                                  argMangleInfo);
-}
-
 llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     OpenCLLIB::Entrypoints opcode, spv::Id resTyId,
     llvm::ArrayRef<spv::Id> args) {
@@ -724,15 +708,12 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
   llvm::SmallVector<llvm::Value *, 4> argVals;
   llvm::transform(args, std::back_inserter(argVals),
                   [&](const spv::Id id) { return module.getValue(id); });
-  SPIRV_LL_ASSERT(
-      llvm::all_of(argVals, [](const llvm::Value *v) { return v != nullptr; }),
-      "Can't call with a null value");
 
   llvm::SmallVector<MangleInfo, 4> argInfo;
   llvm::transform(args, std::back_inserter(argInfo),
                   [&](const spv::Id id) { return MangleInfo(id); });
 
-  llvm::StringRef fnName;
+  std::string fnName;
   switch (opcode) {
 #define _OCL_OP(LIB, OP) \
   case LIB:              \
@@ -888,6 +869,17 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     _OCL_OP(OpenCLLIB::Shuffle, shuffle)
     _OCL_OP(OpenCLLIB::Shuffle2, shuffle2)
     _OCL_OP(OpenCLLIB::Prefetch, prefetch)
+    _OCL_OP(OpenCLLIB::Vloadn, vload)
+    _OCL_OP(OpenCLLIB::Vload_half, vload_half)
+    _OCL_OP(OpenCLLIB::Vload_halfn, vload_half)
+    _OCL_OP(OpenCLLIB::Vloada_halfn, vloada_half)
+    _OCL_OP(OpenCLLIB::Vstoren, vstore)
+    _OCL_OP(OpenCLLIB::Vstore_half, vstore_half)
+    _OCL_OP(OpenCLLIB::Vstore_halfn, vstore_half)
+    _OCL_OP(OpenCLLIB::Vstorea_halfn, vstorea_half)
+    _OCL_OP(OpenCLLIB::Vstore_half_r, vstore_half)
+    _OCL_OP(OpenCLLIB::Vstore_halfn_r, vstore_half)
+    _OCL_OP(OpenCLLIB::Vstorea_halfn_r, vstorea_half)
 #undef _OCL_OP
     default:
       SPIRV_LL_ABORT("Unhandled OpenCL builtin");
@@ -960,7 +952,56 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
         arg.forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
       }
       break;
+    case OpenCLLIB::Vloadn:
+    case OpenCLLIB::Vload_half:
+    case OpenCLLIB::Vload_halfn:
+    case OpenCLLIB::Vloada_halfn:
+      argInfo[1].typeQuals = MangleInfo::CONST;
+      break;
   }
+
+  //  The vstore and vload builtins variously change the builtin name. Handle
+  //  those here.
+  switch (opcode) {
+    default:
+      break;
+    case OpenCLLIB::Vloadn:
+    case OpenCLLIB::Vload_halfn:
+    case OpenCLLIB::Vloada_halfn:
+      // The last argument is 'N' - the vector width. This is a literal integer
+      // in the binary format, which is passed to us as a spv::Id!
+      argVals.pop_back();
+      fnName += std::to_string(argInfo.pop_back_val().id);
+      break;
+    case OpenCLLIB::Vstoren:
+    case OpenCLLIB::Vstore_half:
+    case OpenCLLIB::Vstore_halfn:
+    case OpenCLLIB::Vstorea_halfn:
+      // The first operand has the data type
+      if (argVals[0]->getType()->isVectorTy()) {
+        fnName += std::to_string(
+            multi_llvm::getVectorNumElements(argVals[0]->getType()));
+      }
+      break;
+    case OpenCLLIB::Vstore_half_r:
+    case OpenCLLIB::Vstore_halfn_r:
+    case OpenCLLIB::Vstorea_halfn_r:
+      // The first operand has the data type
+      if (argVals[0]->getType()->isVectorTy()) {
+        fnName += std::to_string(
+            multi_llvm::getVectorNumElements(argVals[0]->getType()));
+      }
+      // The last operand is the rounding mode; pop that off and mangle it into
+      // the name. The mode is a spv::Id which is actually a literal of enum
+      // type spv::FPRoundingMode.
+      argVals.pop_back();
+      fnName += getFPRoundingModeSuffix(argInfo.pop_back_val().id);
+      break;
+  }
+
+  SPIRV_LL_ASSERT(
+      llvm::all_of(argVals, [](const llvm::Value *v) { return v != nullptr; }),
+      "Can't call with a null value");
 
   return createMangledBuiltinCall(fnName, resultType, resMangleInfo, argVals,
                                   argInfo);

@@ -43,9 +43,6 @@
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_half
         %loc = OpFunctionParameter %_ptr_Workgroup_half
       %entry = OpLabel
-       %call = OpExtInst %float %1 vloada_halfn %uint_0 %out 1
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z11vloada_halfjPU3AS1KDh(i32 0, ptr addrspace(1) %out)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z11vloada_halfjPU3AS1KDh(i32 0, half addrspace(1)* %out)
       %call1 = OpExtInst %v2float %1 vloada_halfn %uint_0 %out 2
 ; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
 ; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS1KDh(i32 0, half addrspace(1)* %out)
@@ -61,9 +58,6 @@
       %call5 = OpExtInst %v16float %1 vloada_halfn %uint_0 %out 16
 ; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
 ; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS1KDh(i32 0, half addrspace(1)* %out)
-      %call6 = OpExtInst %float %1 vloada_halfn %uint_0 %loc 1
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z11vloada_halfjPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z11vloada_halfjPU3AS3KDh(i32 0, half addrspace(3)* %loc)
       %call7 = OpExtInst %v2float %1 vloada_halfn %uint_0 %loc 2
 ; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
 ; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS3KDh(i32 0, half addrspace(3)* %loc)

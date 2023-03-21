@@ -425,21 +425,6 @@ class Builder {
       llvm::ArrayRef<MangleInfo> argMangleInfo,
       const spirv_ll::OpTypeVector *pixelTypeOp);
 
-  /// @brief Creates a call to a vector load/store builtin.
-  ///
-  /// @param name The base name of the builtin to be called e.g. "vload_half".
-  /// @param dataType Type of the data being loaded or stored.
-  /// @param retTy Return type of the builtin.
-  /// @param retOp SPIR-V ID of the return type.
-  /// @param args List of arguments to pass to the builtin.
-  /// @param argMangleInfo List of SPIR-V IDs of the `Value`s in `args`.
-  /// @param mode Rounding mode that adds a function name suffix for some calls.
-  llvm::CallInst *createVectorDataBuiltinCall(
-      std::string name, llvm::Type *dataType, llvm::Type *retTy,
-      MangleInfo retmangleInfo, llvm::ArrayRef<llvm::Value *> args,
-      llvm::ArrayRef<MangleInfo> argMangleInfo,
-      llvm::Optional<spv::FPRoundingMode> mode = llvm::NoneType());
-
   /// @brief Creates a call to an OpenCL builtin.
   ///
   /// @param opcode The OpenCL builtin function to call.
