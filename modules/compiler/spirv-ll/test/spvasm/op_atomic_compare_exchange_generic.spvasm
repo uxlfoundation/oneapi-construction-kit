@@ -1,0 +1,34 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_atomic_compare_exchange_local.spv -o %t
+; RUN: %filecheck < %t %t.pp
+            OpCapability Kernel
+            OpCapability Addresses
+            OpCapability Float64
+            OpCapability Int64
+            OpMemoryModel Physical64 OpenCL
+            OpEntryPoint Kernel %atomic "atomic"
+            OpName %atomic "atomic"
+            OpName %a "a"
+    %void = OpTypeVoid
+    %uint = OpTypeInt 32 0
+%_ptr_Generic_uint = OpTypePointer Generic %uint
+       %3 = OpTypeFunction %void %_ptr_Generic_uint
+       %9 = OpConstant %uint 424
+  %uint_1 = OpConstant %uint 1
+  %uint_0 = OpConstant %uint 0
+  %atomic = OpFunction %void None %3
+       %a = OpFunctionParameter %_ptr_Generic_uint
+       %5 = OpLabel
+%original = OpAtomicCompareExchange %uint %a %uint_1 %uint_0 %uint_0 %9 %uint_1
+            OpReturn
+            OpFunctionEnd
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK-GE15: define spir_kernel void @atomic(ptr addrspace(3) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-LT15: define spir_kernel void @atomic(i32 addrspace(3)* [[IN:%[a-zA-Z0-9_]+]])
+; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z14atomic_cmpxchgPU3AS3Vjjj(ptr addrspace(3) [[IN]], i32 1, i32 424)
+; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z14atomic_cmpxchgPU3AS3Vjjj(i32 addrspace(3)* [[IN]], i32 1, i32 424)
+; CHECK: ret void
+; CHECK-GE15: declare spir_func i32 @_Z14atomic_cmpxchgPU3AS3Vjjj(ptr addrspace(3), i32, i32)
+; CHECK-LT15: declare spir_func i32 @_Z14atomic_cmpxchgPU3AS3Vjjj(i32 addrspace(3)*, i32, i32)

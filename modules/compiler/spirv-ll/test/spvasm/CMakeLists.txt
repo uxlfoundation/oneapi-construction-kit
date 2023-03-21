@@ -5,14 +5,17 @@ set(SPVASM_FILES
   ext_variable_pointers_op_variable.spvasm
   ext_variable_pointers_function_call.spvasm
   op_atomic_and_function.spvasm
+  op_atomic_and_generic.spvasm
   op_atomic_and_global.spvasm
   op_atomic_and_global_signed.spvasm
   op_atomic_and_local.spvasm
   op_atomic_compare_exchange_function.spvasm
+  op_atomic_compare_exchange_generic.spvasm
   op_atomic_compare_exchange_global.spvasm
   op_atomic_compare_exchange_global_signed.spvasm
   op_atomic_compare_exchange_local.spvasm
   op_atomic_exchange_function.spvasm
+  op_atomic_exchange_generic.spvasm
   op_atomic_exchange_global.spvasm
   op_atomic_exchange_global_float.spvasm
   op_atomic_exchange_global_signed.spvasm
