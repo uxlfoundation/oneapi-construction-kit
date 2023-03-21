@@ -2058,26 +2058,7 @@ std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
       name = "bool";
     } else {
       auto opTypeInt = spirv_ll::cast<OpTypeInt>(op);
-      if (0 == opTypeInt->Signedness()) {
-        name = "u";
-      }
-      switch (ty->getIntegerBitWidth()) {
-        case 1:
-          name += "bool";
-          break;
-        case 8:
-          name += "char";
-          break;
-        case 16:
-          name += "short";
-          break;
-        case 32:
-          name += "int";
-          break;
-        case 64:
-          name += "long";
-          break;
-      }
+      name = getIntTypeName(ty, 0 != opTypeInt->Signedness());
     }
   } else if (ty->isHalfTy()) {
     name = "half";

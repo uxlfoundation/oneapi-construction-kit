@@ -1,0 +1,43 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %spirv-ll -a OpenCL -b 64 %p/intel_arbitrary_precision_integers.spv -e SPV_INTEL_arbitrary_precision_integers -c ArbitraryPrecisionIntegersINTEL | %filecheck %s
+
+            OpCapability Kernel
+            OpCapability Addresses
+            OpCapability ArbitraryPrecisionIntegersINTEL
+            OpMemoryModel Physical64 OpenCL
+            OpEntryPoint Kernel %kernel "kernel"
+            OpName %kernel "kernel"
+            OpName %a "a"
+            OpName %x "x"
+            OpName %p "p"
+            OpName %l "l"
+            OpName %y "y"
+    %void = OpTypeVoid
+     %u40 = OpTypeInt 40 0
+ %ptr_u40 = OpTypePointer Function %u40
+
+       %3 = OpTypeFunction %void %u40 %ptr_u40
+
+; CHECK: define spir_kernel void @kernel(i40 %x, {{(ptr|i40\*)}} %p)
+  %kernel = OpFunction %void None %3
+       %x = OpFunctionParameter %u40
+       %p = OpFunctionParameter %ptr_u40
+
+       %4 = OpLabel
+; CHECK: %a = alloca i40, align 8
+       %a = OpVariable %ptr_u40 Function
+; CHECK: store i40 %x, {{(ptr|i40\*)}} %a, align 8
+            OpStore %a %x
+; OpName doesn't do anything here...
+; CHECK: [[L:%.*]] = load i40, {{(ptr|i40\*)}} %a, align 8
+       %l = OpLoad %u40 %a
+; ... nor here
+; CHECK: [[Y:%.*]] = add i40 [[L]], %x
+       %y = OpIAdd %u40 %l %x
+; CHECK: store i40 [[Y]], {{(ptr|i40\*)}} %p, align 8
+            OpStore %p %y
+            OpReturn
+            OpFunctionEnd
+
+; CHECK: !{!"uint40_t", !"uint40_t*"}

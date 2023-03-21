@@ -16,7 +16,7 @@ namespace binary {
 // all core targets. See CA-3067.
 // TODO(CA-3067): Remove SPIRV_LL_EXPERIMENTAL when we have a proper mechanism
 // for extending spirv-ll.
-const std::array<const std::string, 8> supported_extensions = {
+const std::array<const std::string, 9> supported_extensions = {
     {
         "SPV_KHR_no_integer_wrap_decoration",
 #ifdef SPIRV_LL_EXPERIMENTAL
@@ -28,6 +28,7 @@ const std::array<const std::string, 8> supported_extensions = {
         "SPV_KHR_expect_assume",
         "SPV_KHR_linkonce_odr",
         "SPV_KHR_uniform_group_instructions",
+        "SPV_INTEL_arbitrary_precision_integers",
     },
 };
 
@@ -39,7 +40,7 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
   auto &spvCapabilities = spvDeviceInfo.capabilities;
 
   // A set of capabilities shared between the OpenCL profiles we support.
-  static std::array<spv::Capability, 11> sharedCapabilities = {
+  static std::array<spv::Capability, 12> sharedCapabilities = {
       spv::CapabilityAddresses,
       spv::CapabilityFloat16Buffer,
       spv::CapabilityGroups,
@@ -51,6 +52,7 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
       spv::CapabilityKernelAttributesINTEL,
       spv::CapabilityExpectAssumeKHR,
       spv::CapabilityGroupUniformArithmeticKHR,
+      spv::CapabilityArbitraryPrecisionIntegersINTEL,
   };
 
   if (profile == "FULL_PROFILE") {

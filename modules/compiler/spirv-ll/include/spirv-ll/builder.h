@@ -215,6 +215,21 @@ struct MangleInfo {
   ForceSignInfo forceSign = ForceSignInfo::None;
 };
 
+/// @brief Get the name of an integer type.
+///
+/// @param ty The `llvm::Type` representing the integer.
+/// @param isSigned Flag to specify the signedness of the integer.
+///
+/// @return Returns a string containing the integer type name.
+std::string getIntTypeName(llvm::Type *ty, bool isSigned);
+
+/// @brief Get the name of a floating point type.
+///
+/// @param ty The `llvm::Type` representing the floating point.
+///
+/// @return Returns a string containing the floating point type name.
+std::string getFPTypeName(llvm::Type *ty);
+
 /// @brief Class used for generating the LLVM IR from the SPIR-V IR
 ///
 /// This class holds the SpvContext, the IRBuilder, and the LLVM Module
@@ -433,68 +448,6 @@ class Builder {
   llvm::Value *createOCLBuiltinCall(OpenCLLIB::Entrypoints opcode,
                                     spv::Id resultType,
                                     llvm::ArrayRef<spv::Id> params);
-
-  /// @brief Get the name of an integer type.
-  ///
-  /// @param ty The `llvm::Type` representing the integer.
-  /// @param isSigned Flag to specify the signedness of the integer.
-  ///
-  /// @return Returns a string containing the integer type name.
-  std::string getIntTypeName(llvm::Type *ty, bool isSigned) {
-    auto elemTy = ty->isVectorTy() ? multi_llvm::getVectorElementType(ty) : ty;
-    SPIRV_LL_ASSERT(elemTy->isIntegerTy(), "not an integer type");
-    std::string name;
-    switch (elemTy->getIntegerBitWidth()) {
-      case 8:
-        name = isSigned ? "char" : "uchar";
-        break;
-      case 16:
-        name = isSigned ? "short" : "ushort";
-        break;
-      case 32:
-        name = isSigned ? "int" : "uint";
-        break;
-      case 64:
-        name = isSigned ? "long" : "ulong";
-        break;
-      default:
-        llvm_unreachable("unsupported integer bit width");
-    }
-    if (ty->isVectorTy()) {
-      const uint32_t numElements = multi_llvm::getVectorNumElements(ty);
-      name += std::to_string(numElements);
-    }
-    return name;
-  }
-
-  /// @brief Get the name of a floating point type.
-  ///
-  /// @param ty The `llvm::Type` representing the floating point.
-  ///
-  /// @return Returns a string containing the floating point type name.
-  std::string getFPTypeName(llvm::Type *ty) {
-    auto elemTy = ty->isVectorTy() ? multi_llvm::getVectorElementType(ty) : ty;
-    SPIRV_LL_ASSERT(elemTy->isFloatingPointTy(), "not a floating point type");
-    std::string name;
-    switch (elemTy->getScalarSizeInBits()) {
-      case 16:
-        name = "half";
-        break;
-      case 32:
-        name = "float";
-        break;
-      case 64:
-        name = "double";
-        break;
-      default:
-        llvm_unreachable("unsupported floating point bit width");
-    }
-    if (ty->isVectorTy()) {
-      const uint32_t numElements = multi_llvm::getVectorNumElements(ty);
-      name += std::to_string(numElements);
-    }
-    return name;
-  }
 
   /// @brief Get rounding mode suffix for a conversion function.
   ///

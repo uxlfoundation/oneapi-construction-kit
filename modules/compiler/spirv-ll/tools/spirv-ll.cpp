@@ -449,6 +449,8 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
                   spv::CapabilityAtomicFloat32MinMaxEXT)
             .Case("AtomicFloat64MinMaxEXT",
                   spv::CapabilityAtomicFloat64MinMaxEXT)
+            .Case("ArbitraryPrecisionIntegersINTEL",
+                  spv::CapabilityArbitraryPrecisionIntegersINTEL)
             .Default(static_cast<spv::Capability>(0));
     if (capability == 0) {
       std::cerr << "error: unknown capability: " << cargo::as<std::string>(cap)

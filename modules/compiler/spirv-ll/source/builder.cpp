@@ -1436,3 +1436,59 @@ bool spirv_ll::MangleInfo::getSignedness(const spirv_ll::Module &module) const {
   // The default is signed
   return multi_llvm::value_or(tySignedness, true);
 }
+
+std::string spirv_ll::getIntTypeName(llvm::Type *ty, bool isSigned) {
+  auto elemTy = ty->isVectorTy() ? multi_llvm::getVectorElementType(ty) : ty;
+  SPIRV_LL_ASSERT(elemTy->isIntegerTy(), "not an integer type");
+  std::string name;
+  switch (elemTy->getIntegerBitWidth()) {
+    case 1:
+      name = isSigned ? "bool" : "ubool";
+      break;
+    case 8:
+      name = isSigned ? "char" : "uchar";
+      break;
+    case 16:
+      name = isSigned ? "short" : "ushort";
+      break;
+    case 32:
+      name = isSigned ? "int" : "uint";
+      break;
+    case 64:
+      name = isSigned ? "long" : "ulong";
+      break;
+    default:
+      // Arbitrary precision integer
+      name = (isSigned ? "" : "u") + std::string("int") +
+             std::to_string(elemTy->getIntegerBitWidth()) + "_t";
+  }
+  if (ty->isVectorTy()) {
+    const uint32_t numElements = multi_llvm::getVectorNumElements(ty);
+    name += std::to_string(numElements);
+  }
+  return name;
+}
+
+std::string spirv_ll::getFPTypeName(llvm::Type *ty) {
+  auto elemTy = ty->isVectorTy() ? multi_llvm::getVectorElementType(ty) : ty;
+  SPIRV_LL_ASSERT(elemTy->isFloatingPointTy(), "not a floating point type");
+  std::string name;
+  switch (elemTy->getScalarSizeInBits()) {
+    case 16:
+      name = "half";
+      break;
+    case 32:
+      name = "float";
+      break;
+    case 64:
+      name = "double";
+      break;
+    default:
+      llvm_unreachable("unsupported floating point bit width");
+  }
+  if (ty->isVectorTy()) {
+    const uint32_t numElements = multi_llvm::getVectorNumElements(ty);
+    name += std::to_string(numElements);
+  }
+  return name;
+}

@@ -2332,6 +2332,7 @@ set(SPVASM_FILES
   prioritize_function_names_external.spvasm
   op_function_call_regression.spvasm
   linkonce_odr.spvasm
+  intel_arbitrary_precision_integers.spvasm
   )
 
 if(TARGET spirv::spirv-as)
