@@ -28,7 +28,11 @@ def copy_file_replace_riscv(src_dir, src_file, dst_dir, dst_file=None):
             line = line.replace('RISCV',
                                 '{{cookiecutter.target_name}}'.upper())
             line = line.replace('RISC-V',
-                                '{{cookiecutter.target_name}}'.upper())                                
+                                '{{cookiecutter.target_name}}'.upper())
+            if "Copyright (C) Codeplay Software" in line:
+                line = ("/// Copyright (C) Codeplay Software Limited. All Rights Reserved.\n")
+                if "{{cookiecutter.copyright_name}}" != "":
+                    line += ("/// Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights\n/// Reserved.\n")
             fout.write(line)
         #close input and output files
         fin.close()

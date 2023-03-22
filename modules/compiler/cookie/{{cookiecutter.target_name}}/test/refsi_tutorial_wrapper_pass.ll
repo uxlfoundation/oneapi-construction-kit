@@ -1,4 +1,8 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+; Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+; Reserved.
+{% endif -%}
 
 ; RUN: %muxc --device "RefSi M1 Tutorial" %s --passes refsi-wrapper,verify -S | %filecheck %s
 

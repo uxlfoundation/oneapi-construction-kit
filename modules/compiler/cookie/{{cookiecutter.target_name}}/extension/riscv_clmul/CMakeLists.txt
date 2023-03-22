@@ -1,4 +1,8 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+# Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+# Reserved.
+{% endif -%}
 
 add_ca_cl_compiler_extension(riscv-clmul
 EXTENSIONS riscv_clmul

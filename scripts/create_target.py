@@ -35,9 +35,10 @@ Optional overrides:
         "bit_width"                 : 32 or 64 bits.
         "capabilities_fp16"         : true if has fp16 capability else false.
         "capabilities_fp64"         : true if has fp64 capability else false.
-        "feature"                   : A list of features (normally tutorials) to enable as a ';' seperated string
+        "feature"                   : A list of features (normally tutorials) to enable as a ';' separated string
                                       Tutorials can be part finished e.g. clmul_1 or just clmul
                                       Current list is "replace_mem", "refsi_wrapper_pass" and "clmul"
+        "copyright_name"            : Optional copyright to be added to generated files
 
 This assumes that under ComputeAorta there are cookie directories under
 modules/compiler and modules/mux These should relate directly to target

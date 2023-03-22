@@ -1,4 +1,8 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+# Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+# Reserved.
+{% endif -%}
 
 project({{cookiecutter.target_name}})
 cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)

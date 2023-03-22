@@ -1,4 +1,8 @@
-// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+/// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+/// Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+/// Reserved.
+{% endif -%}
 
 #ifndef {{cookiecutter.target_name_capitals}}_INFO_H
 #define {{cookiecutter.target_name_capitals}}_INFO_H

@@ -1,4 +1,8 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+# Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+# Reserved.
+{% endif -%}
 
 ca_option(CA_{{cookiecutter.target_name_capitals}}_ENABLED BOOL "Enable {{cookiecutter.target_name}} mux target" OFF)
 if(NOT ${CA_{{cookiecutter.target_name_capitals}}_ENABLED})

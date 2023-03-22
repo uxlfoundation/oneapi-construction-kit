@@ -1,4 +1,8 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+# Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+# Reserved.
+{% endif -%}
 
 # If the {{cookiecutter.target_name}} target is disabled, then the compiler should be too.
 if(NOT TARGET {{cookiecutter.target_name}})

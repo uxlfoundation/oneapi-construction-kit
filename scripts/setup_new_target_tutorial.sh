@@ -11,7 +11,7 @@ external_dir=$PWD
 do_clean=0
 do_overwrite_tutorial=0
 
-while getopts ":s:e:f:co" opt; do
+while getopts ":s:c:e:f:do" opt; do
   case ${opt} in
     s )
       run_script=$OPTARG
@@ -24,12 +24,17 @@ while getopts ":s:e:f:co" opt; do
       feature_enable_name="feature"
       feature_enable_val="$OPTARG"
       ;;
-    c )
+    d )
       do_clean=1
       ;;
+    c )
+      copyright_enable="--override"
+      copyright_enable_name="copyright_name"
+      copyright_enable_val="$OPTARG"
+      ;;      
     o )
       do_overwrite_tutorial=1
-      ;;      
+      ;;
     \? )
       echo "Invalid Option: -$OPTARG" 1>&2
       exit 1
@@ -43,15 +48,16 @@ done
 shift $((OPTIND -1))  
 if [[ $# -ne 1 ]]; 
 then
-     echo "usage:  [-s <tutorial_point>] [-e <external_dir] [-c] [-o] <dir_ComputeAorta>"
+     echo "usage:  [-s <tutorial_point>] [-e <external_dir] [-f <feature_element>] [-c <copyright_name][-d] [-o] <dir_ComputeAorta>"
      echo "  note:"
      echo "    -s will run the create_target.py script"
      echo "       <tutorial_point> must be one of 'start' or 'end'"
      echo "       'start' will fail most tests"
      echo "    -e refers to the external directory we wish to produce our own code in (defaults to $PWD)"
-     echo "    -c removes directories before creating"
+     echo "    -d removes directories before creating"
      echo "    -o overwrites the tutorial only"
      echo "    -f allows overriding of \"feature\" elements"
+     echo "    -c adds copyright_name to copyrights"
      exit 1
 fi
 if [[ $run_script == "start" ]]
@@ -91,7 +97,8 @@ then
     $ddk_dir/scripts/create_target.py $ddk_dir \
       $ddk_dir/scripts/new_target_templates/$json_file \
          --external-dir $external_dir $overwrite \
-         $feature_enable $feature_enable_name $feature_enable_val
+         $feature_enable $feature_enable_name $feature_enable_val \
+         $copyright_enable $copyright_enable_name $copyright_enable_val
   if [[ $do_overwrite_tutorial -eq 0 ]]
   then
     cp -r $ddk_dir/examples/hals/hal_refsi_tutorial hal_refsi_tutorial
@@ -104,7 +111,7 @@ then
     git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
     git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
     git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch 
-    cd -
+    cd ..
     ln -s $ddk_dir/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
   fi
 fi

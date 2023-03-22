@@ -1,4 +1,8 @@
-// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+/// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+/// Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+/// Reserved.
+{% endif -%}
 
 // This is a simplified version of LLVMs llvm/lib/Passes/PassRegistry.def. It
 // outlines all {{cookiecutter.target_name}} specific passes.

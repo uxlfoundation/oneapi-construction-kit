@@ -1,4 +1,8 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
+{% if cookiecutter.copyright_name != "" -%}
+# Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
+# Reserved.
+{% endif -%}
 
 find_package(Lit)
 if(NOT Lit_FOUND)
