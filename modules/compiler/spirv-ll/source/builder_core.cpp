@@ -4411,9 +4411,15 @@ cargo::optional<Error> Builder::create<OpAny>(const OpAny *op) {
 
   llvm::Value *extVector = IRBuilder.CreateSExt(vector, extVectorType);
 
-  llvm::Value *result = createMangledBuiltinCall(
-      "any", IRBuilder.getInt32Ty(), MangleInfo::getSigned(op->IdResultType()),
-      {extVector}, {op->Vector()});
+  // The OpenCL version of 'any' takes an int type vector.
+  // Custom mangle the builtin we're calling, so we mangle the arguments as a
+  // vector of i32s. Ideally our mangling APIs would be able to handle this.
+  std::string mangledTy =
+      getMangledVecPrefix(extVectorType) +
+      getMangledIntName(IRBuilder.getInt32Ty(), /*isSigned*/ true);
+
+  llvm::Value *result = createBuiltinCall(applyMangledLength("any") + mangledTy,
+                                          IRBuilder.getInt32Ty(), {extVector});
 
   llvm::Value *truncResult = IRBuilder.CreateTrunc(result, type);
 
@@ -4429,7 +4435,6 @@ cargo::optional<Error> Builder::create<OpAll>(const OpAll *op) {
   llvm::Value *vector = module.getValue(op->Vector());
   SPIRV_LL_ASSERT_PTR(vector);
 
-  // the OpenCL version of all takes an int type vector
   const uint32_t num_elements =
       multi_llvm::getVectorNumElements(vector->getType());
   auto *extVectorType =
@@ -4437,9 +4442,15 @@ cargo::optional<Error> Builder::create<OpAll>(const OpAll *op) {
 
   llvm::Value *extVector = IRBuilder.CreateSExt(vector, extVectorType);
 
-  llvm::Value *result = createMangledBuiltinCall(
-      "all", IRBuilder.getInt32Ty(), MangleInfo::getSigned(op->IdResultType()),
-      {extVector}, {op->Vector()});
+  // The OpenCL version of 'all' takes an int type vector.
+  // Custom mangle the builtin we're calling, so we mangle the arguments as a
+  // vector of i32s. Ideally our mangling APIs would be able to handle this.
+  std::string mangledTy =
+      getMangledVecPrefix(extVectorType) +
+      getMangledIntName(IRBuilder.getInt32Ty(), /*isSigned*/ true);
+
+  llvm::Value *result = createBuiltinCall(applyMangledLength("all") + mangledTy,
+                                          IRBuilder.getInt32Ty(), {extVector});
 
   llvm::Value *truncResult = IRBuilder.CreateTrunc(result, type);
 
@@ -6224,15 +6235,18 @@ void Builder::generatePredicate(const T *op, const std::string &opName) {
     IRBuilder.CreateCondBr(scopeCmp, workGroup, subGroup);
 
     IRBuilder.SetInsertPoint(workGroup);
-    llvm::Value *workGroupResult = createMangledBuiltinCall(
-        "work_group_" + opName, IRBuilder.getInt32Ty(), op->IdResultType(),
-        predicateArg, MangleInfo(op->Predicate()), /* convergent */ true);
+    // The OpenCL version of these builtins take an int/i32 type, not a boolean
+    // type. Custom mangle the builtin we're calling. Ideally our mangling APIs
+    // would be able to handle this.
+    llvm::Value *workGroupResult = createBuiltinCall(
+        applyMangledLength("work_group_" + opName) + "i",
+        IRBuilder.getInt32Ty(), predicateArg, /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(subGroup);
-    llvm::Value *subGroupResult = createMangledBuiltinCall(
-        "sub_group_" + opName, IRBuilder.getInt32Ty(), op->IdResultType(),
-        predicateArg, MangleInfo(op->Predicate()), /* convergent */ true);
+    llvm::Value *subGroupResult = createBuiltinCall(
+        applyMangledLength("sub_group_" + opName) + "i", IRBuilder.getInt32Ty(),
+        predicateArg, /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(exit);
@@ -6407,9 +6421,21 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     IRBuilder.SetInsertPoint(subGroup);
     // sub_group_broadcast takes uint as its local ID argument, so no need to
     // cast here.
-    llvm::Value *subGroupResult = createMangledBuiltinCall(
-        "sub_group_broadcast", valueArg->getType(), op->IdResultType(), args,
-        argIds, /* convergent */ true);
+    llvm::Value *subGroupResult;
+    if (isBoolean) {
+      // With booleans, we need to mangle the function as 'int' but we only
+      // have mangle info for 'bool'. Do custom mangling to account for this.
+      // Ideally our mangling APIs would be flexible enough to account for
+      // this.
+      subGroupResult =
+          createBuiltinCall(applyMangledLength("sub_group_broadcast") + "ij",
+                            valueArg->getType(), args,
+                            /* convergent */ true);
+    } else {
+      subGroupResult = createMangledBuiltinCall(
+          "sub_group_broadcast", valueArg->getType(), op->IdResultType(), args,
+          argIds, /* convergent */ true);
+    }
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(workGroup);
@@ -6422,9 +6448,22 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     for (unsigned i = 1; i < args.size(); ++i) {
       args[i] = IRBuilder.CreateIntCast(args[i], sizeTy, /* isSigned */ false);
     }
-    llvm::Value *workGroupResult = createMangledBuiltinCall(
-        "work_group_broadcast", valueArg->getType(), op->IdResultType(), args,
-        argIds, /* convergent */ true);
+    llvm::Value *workGroupResult;
+    if (isBoolean) {
+      // With booleans, we need to mangle the function as 'int/size_t' but we
+      // only have mangle info for the 'bool' parameter. Do custom mangling to
+      // account for this. Ideally our mangling APIs would be flexible enough to
+      // account for this.
+      workGroupResult =
+          createBuiltinCall(applyMangledLength("work_group_broadcast") + "i" +
+                                getIntTypeName(sizeTy, /*isSigned*/ false),
+                            valueArg->getType(), args,
+                            /* convergent */ true);
+    } else {
+      workGroupResult = createMangledBuiltinCall(
+          "work_group_broadcast", valueArg->getType(), op->IdResultType(), args,
+          argIds, /* convergent */ true);
+    }
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(exit);

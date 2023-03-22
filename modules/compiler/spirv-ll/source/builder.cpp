@@ -1172,7 +1172,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
     if (mangleInfo && mangleInfo->id) {
       auto *const spvTy = module.get<OpType>(mangleInfo->id);
       if (spvTy->isBoolType()) {
-        return "i";
+        return "b";
       } else if (spvTy->isSamplerType()) {
         return "11ocl_sampler";
       } else {

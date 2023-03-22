@@ -20,3 +20,4 @@ Bug fixes:
 
 * A bug was fixed in handling function calls to function forward references,
   which was previously generating invalid LLVM IR.
+* `spirv-ll` will now correctly mangle boolean types.
