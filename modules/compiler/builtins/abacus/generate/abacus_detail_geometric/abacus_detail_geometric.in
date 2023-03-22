@@ -183,22 +183,36 @@ typename TypeTraits<T>::ElementType distance(const T& x, const T& y) {
 }
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
-struct fast_length_helper {
+struct fast_length_typed_helper {
   static typename TypeTraits<T>::ElementType _(const T& p) {
     return __abacus_sqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T>
-struct fast_length_helper<T, abacus_float> {
+struct fast_length_typed_helper<T, abacus_float> {
   static typename TypeTraits<T>::ElementType _(const T& p) {
     return __abacus_half_sqrt(geometric::dot<T>(p, p));
   }
 };
 
+template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
+struct fast_length_untyped_helper {
+  static typename TypeTraits<T>::ElementType _(const T& x) {
+    return fast_length_typed_helper<T>::_(x);
+  }
+};
+
+template <typename T>
+struct fast_length_untyped_helper<T, true> {
+  static typename TypeTraits<T>::ElementType _(const T x) {
+    return __abacus_fabs(x);
+  }
+};
+
 template <typename T>
 typename TypeTraits<T>::ElementType fast_length(const T& p) {
-  return fast_length_helper<T>::_(p);
+  return fast_length_untyped_helper<T>::_(p);
 }
 
 template <typename T>

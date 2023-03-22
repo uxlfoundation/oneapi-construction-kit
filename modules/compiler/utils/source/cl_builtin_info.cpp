@@ -1623,6 +1623,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineLength(IRBuilder<> &B,
   if (SrcVecType) {
     SrcType = SrcVecType->getElementType();
   }
+
   TypeQualifiers SrcQuals;
   SmallVector<Type *, 4> Tys;
   SmallVector<TypeQualifiers, 4> Quals;
@@ -1643,16 +1644,23 @@ Value *CLBuiltinInfo::emitBuiltinInlineLength(IRBuilder<> &B,
   if (!M) {
     return nullptr;
   }
-  std::string SqrtName = Mangler.mangleName("sqrt", Tys, Quals);
-  Function *Sqrt = materializeBuiltin(SqrtName, M);
-  if (!Sqrt) {
-    return nullptr;
-  }
+
   std::string FabsName = Mangler.mangleName("fabs", Tys, Quals);
   Function *Fabs = materializeBuiltin(FabsName, M);
   if (!Fabs) {
     return nullptr;
   }
+  if (!SrcVecType) {
+    // The "length" of a scalar is just the absolute value.
+    return CreateBuiltinCall(B, Fabs, Src0, "scalar_length");
+  }
+
+  std::string SqrtName = Mangler.mangleName("sqrt", Tys, Quals);
+  Function *Sqrt = materializeBuiltin(SqrtName, M);
+  if (!Sqrt) {
+    return nullptr;
+  }
+
   std::string IsInfName = Mangler.mangleName("isinf", Tys, Quals);
   Function *IsInf = materializeBuiltin(IsInfName, M);
   if (!IsInf) {
@@ -1712,6 +1720,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineNormalize(IRBuilder<> &B,
   if (SrcVecType) {
     SrcType = SrcVecType->getElementType();
   }
+
   TypeQualifiers SrcQuals;
   SmallVector<Type *, 4> Tys;
   SmallVector<TypeQualifiers, 4> Quals;
@@ -1732,6 +1741,18 @@ Value *CLBuiltinInfo::emitBuiltinInlineNormalize(IRBuilder<> &B,
   if (!M) {
     return nullptr;
   }
+
+  if (!SrcVecType) {
+    // A normalized scalar is either 1.0 or -1.0, unless the input was NaN, or
+    // in other words, just the sign.
+    std::string SignName = Mangler.mangleName("sign", Tys, Quals);
+    Function *Sign = materializeBuiltin(SignName, M);
+    if (!Sign) {
+      return nullptr;
+    }
+    return CreateBuiltinCall(B, Sign, Src0, "scalar_normalize");
+  }
+
   std::string RSqrtName = Mangler.mangleName("rsqrt", Tys, Quals);
   Function *RSqrt = materializeBuiltin(RSqrtName, M);
   if (!RSqrt) {
