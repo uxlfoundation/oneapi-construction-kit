@@ -2153,7 +2153,8 @@ cargo::optional<Error> Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
         if (argTyName.empty()) {
           auto argTyOp = module.get<OpTypePointer>(
               opTypeFunction->ParameterTypes()[arg_index]);
-          auto *pointeeTy = module.getType(argTyOp->getTypePointer()->Type());
+          auto pointeeTyID = argTyOp->getTypePointer()->Type();
+          auto *pointeeTy = module.getType(pointeeTyID);
           if (pointeeTy->isVectorTy()) {
             argTyName = getVectorTypeNames(module, pointeeTy, argBaseTyName);
           } else if (auto *structTy =
@@ -2161,6 +2162,13 @@ cargo::optional<Error> Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
             argTyName = structTy->getStructName().str();
             std::replace(argTyName.begin(), argTyName.end(), '.', ' ');
             argTyName += '*';
+          } else if (auto *structTy =
+                         module.getInternalStructType(pointeeTyID)) {
+            auto structName = structTy->getStructName();
+            structName.consume_front("opencl.");
+            argTyName = structName.str();
+            argTyName += '*';
+            argBaseTyName = argTyName;
           } else {
             // Since void* types should still be represented as such in the
             // metadata (and not as i8*, which is what their llvm::Type is), we
@@ -6042,8 +6050,15 @@ cargo::optional<Error> Builder::create<OpGroupWaitEvents>(
   llvm::Value *eventsList = module.getValue(op->EventsList());
   SPIRV_LL_ASSERT_PTR(eventsList);
 
-  createBuiltinCall("_Z17wait_group_eventsiP9ocl_event", IRBuilder.getVoidTy(),
-                    {numEvents, eventsList}, /*convergent*/ true);
+  SPIRV_LL_ASSERT(eventsList->getType()->isPointerTy(),
+                  "Events List must be pointer to OpTypeEvent");
+  unsigned AS = eventsList->getType()->getPointerAddressSpace();
+  SPIRV_LL_ASSERT(AS == 0 || AS == 4, "Only expecting address space 0 or 4");
+
+  createBuiltinCall(AS == 0 ? "_Z17wait_group_eventsiP9ocl_event"
+                            : "_Z17wait_group_eventsiPU3AS49ocl_event",
+                    IRBuilder.getVoidTy(), {numEvents, eventsList},
+                    /*convergent*/ true);
   return cargo::nullopt;
 }
 

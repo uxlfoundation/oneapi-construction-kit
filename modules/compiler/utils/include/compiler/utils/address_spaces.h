@@ -16,6 +16,7 @@ enum AddressSpace {
   Global = 1,
   Constant = 2,
   Local = 3,
+  Generic = 4,
 };
 }  // namespace utils
 }  // namespace compiler

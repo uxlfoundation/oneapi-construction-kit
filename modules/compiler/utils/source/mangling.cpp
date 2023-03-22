@@ -427,13 +427,13 @@ bool NameMangler::demangleOpenCLBuiltinType(Lexer &L, Type *&Ty) {
     return false;
   }
 
-  auto *OpenCLType = multi_llvm::getStructTypeByName(*M, Name);
-  if (OpenCLType) {
+  if (auto *const OpenCLType = multi_llvm::getStructTypeByName(*M, Name)) {
     Ty = OpenCLType;
-    return true;
+  } else {
+    Ty = llvm::StructType::create(M->getContext(), Name);
   }
 
-  return false;
+  return true;
 }
 
 struct PointerASQuals {

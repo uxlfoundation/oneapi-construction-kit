@@ -185,6 +185,7 @@ set(SPVASM_FILES
   op_group_s_min.spvasm
   op_group_u_max.spvasm
   op_group_u_min.spvasm
+  op_group_wait_events.spvasm
   op_i_add_carry.spvasm
   op_i_add_nsw.spvasm
   op_i_add_nuw.spvasm

@@ -340,21 +340,30 @@ Function *getOrCreateMuxWait(Module *Module) {
 /// builtin to define a body for.
 void defineWaitGroupEvents(Function &WaitGroupEvents) {
   const auto Module = WaitGroupEvents.getParent();
-  auto *MuxWait = getOrCreateMuxWait(Module);
+  auto *const MuxWait = getOrCreateMuxWait(Module);
 
   auto &Context = WaitGroupEvents.getContext();
-  auto *EntryBB = BasicBlock::Create(Context, "Entry", &WaitGroupEvents);
+  auto *const EntryBB = BasicBlock::Create(Context, "entry", &WaitGroupEvents);
 
-  auto *Count = &*WaitGroupEvents.arg_begin();
-  auto *Events = &*(WaitGroupEvents.arg_begin() + 1);
+  auto *const Count = WaitGroupEvents.getArg(0);
+  auto *const Events = WaitGroupEvents.getArg(1);
+
+  assert(Events->getType()->isPointerTy() &&
+         (Events->getType()->getPointerAddressSpace() ==
+              compiler::utils::AddressSpace::Private ||
+          Events->getType()->getPointerAddressSpace() ==
+              compiler::utils::AddressSpace::Generic) &&
+         "Pointer to event must be in address space 0 or 4.");
 
   auto *MuxEventTypePtrPtr = PointerType::getUnqual(PointerType::getUnqual(
       compiler::utils::getOrCreateMuxDMAEventType(*Module)));
 
   IRBuilder<> EntryBBBuilder(EntryBB);
   // Cast the OpenCL C event_t* into a __mux_dma_event_t*.
-  auto *MuxEvents =
-      EntryBBBuilder.CreateBitCast(Events, MuxEventTypePtrPtr, "mux.events");
+  // Note that this casts away address spaces, but we only expect unqualified
+  // or generic-qualified address spaces (see assert above).
+  auto *MuxEvents = EntryBBBuilder.CreatePointerBitCastOrAddrSpaceCast(
+      Events, MuxEventTypePtrPtr, "mux.events");
   EntryBBBuilder.CreateCall(MuxWait, {Count, MuxEvents})
       ->setCallingConv(MuxWait->getCallingConv());
   EntryBBBuilder.CreateRetVoid();
