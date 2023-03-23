@@ -1930,20 +1930,6 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
   SPIRV_LL_ASSERT_PTR(function);
 
-  // If we've created a forward reference version of this function, we can now
-  // replace all of its uses with the concrete function, and mark the forward
-  // reference as resolved.
-  if (auto *fwd_ref_fn = module.getForwardFnRef(op->IdResult())) {
-    llvm::for_each(fwd_ref_fn->users(), [CC](llvm::User *user) {
-      if (auto *const ci = llvm::dyn_cast<llvm::CallInst>(user)) {
-        ci->setCallingConv(CC);
-      }
-    });
-    fwd_ref_fn->replaceAllUsesWith(function);
-    fwd_ref_fn->eraseFromParent();
-    module.resolveForwardFnRef(op->IdResult());
-  }
-
   function->setCallingConv(CC);
   setCurrentFunction(function);
 
@@ -2235,6 +2221,21 @@ cargo::optional<Error> Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
         llvm::MDNode::get(*context.llvmContext, argTypeQuals));
     function->setMetadata("kernel_arg_name",
                           llvm::MDNode::get(*context.llvmContext, argNames));
+  }
+
+  // If we've created a forward reference version of this function, we can now
+  // replace all of its uses with the concrete function, and mark the forward
+  // reference as resolved.
+  if (auto *fwd_ref_fn = module.getForwardFnRef(opFunction->IdResult())) {
+    llvm::for_each(fwd_ref_fn->users(), [function](llvm::User *user) {
+      if (auto *const ci = llvm::dyn_cast<llvm::CallInst>(user)) {
+        ci->setAttributes(function->getAttributes());
+        ci->setCallingConv(function->getCallingConv());
+      }
+    });
+    fwd_ref_fn->replaceAllUsesWith(function);
+    fwd_ref_fn->eraseFromParent();
+    module.resolveForwardFnRef(opFunction->IdResult());
   }
 
   setCurrentFunction(nullptr);

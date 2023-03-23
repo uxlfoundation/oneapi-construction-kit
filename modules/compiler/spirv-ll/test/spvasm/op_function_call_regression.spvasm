@@ -11,32 +11,44 @@
                OpMemoryModel Physical64 OpenCL
                OpSource OpenCL_CPP 100000
 
+               OpDecorate %ptr FuncParamAttr ByVal
+
                OpName %bar "bar"
                OpName %main "main"
                OpName %foo "foo"
+               OpName %a "a"
 
        %void = OpTypeVoid
       %ulong = OpTypeInt 64 0
+
+     %ptr_ty = OpTypePointer Function %ulong
 
     %ulong_0 = OpConstant %ulong 0
     %ulong_1 = OpConstant %ulong 1
 
         %main_fn_ty = OpTypeFunction %void
-        %foo_fn_ty = OpTypeFunction %void %ulong
+        %foo_fn_ty = OpTypeFunction %void %ulong %ptr_ty
         %bar_fn_ty = OpTypeFunction %ulong %ulong
 
 %main = OpFunction %void None %main_fn_ty
     %entry_4 = OpLabel
 ; CHECK: [[TMP:%.*]] = call spir_func i64 @bar(i64 0)
       %call0 = OpFunctionCall %ulong %bar %ulong_0
-; CHECK: call spir_func void @foo(i64 [[TMP]])
-        %272 = OpFunctionCall %void %foo %call0
+; CHECK: %a = alloca i64, align 8
+          %a = OpVariable %ptr_ty Function
+; CHECK: store i64 1, {{(ptr|i64\*)}} %a
+               OpStore %a %ulong_1 Aligned 8
+; Check we also apply call-site attributes to this function
+; CHECK: call spir_func void @foo(i64 [[TMP]], {{(ptr|i64\*)}} byval(i64) %a)
+        %272 = OpFunctionCall %void %foo %call0 %a
                OpReturn
                OpFunctionEnd
 
 
+; CHECK: define private spir_func void @foo(i64 {{%.*}}, {{(ptr|i64\*)}} byval(i64) {{%.*}}) {
 %foo = OpFunction %void None %foo_fn_ty
   %0 = OpFunctionParameter %ulong
+%ptr = OpFunctionParameter %ptr_ty
    %entry_11 = OpLabel
                OpReturn
                OpFunctionEnd
