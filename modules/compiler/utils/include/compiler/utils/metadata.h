@@ -6,6 +6,7 @@
 #include <llvm/ADT/Optional.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/Metadata.h>
+#include <multi_llvm/optional_helper.h>
 
 #include "vectorization_factor.h"
 
@@ -76,7 +77,7 @@ bool parseOrigToVeczFnLinkMetadata(
 /// @return On success, a pair containing a pointer to the original kernel
 /// function and the vectorization factor used as the key. The original
 /// function may be null. On decoding failure, llvm::None.
-llvm::Optional<LinkMetadataResult> parseVeczToOrigFnLinkMetadata(
+multi_llvm::Optional<LinkMetadataResult> parseVeczToOrigFnLinkMetadata(
     llvm::Function &f);
 
 /// @brief Drops "base" vectorization metadata from a function, if present.
@@ -126,7 +127,7 @@ void dropVeczDerivedMetadata(llvm::Function &f);
 ///   !Tail = { i32 tKnownMin, i32 tIsScalable, i32 simdDimIdx, i32 tIsVP }
 void encodeWrapperFnMetadata(llvm::Function &f,
                              const VectorizationInfo &mainInfo,
-                             llvm::Optional<VectorizationInfo> tailInfo);
+                             multi_llvm::Optional<VectorizationInfo> tailInfo);
 
 /// @brief Decodes the metadata describing a wrapped kernel's loop structure.
 ///
@@ -135,7 +136,8 @@ void encodeWrapperFnMetadata(llvm::Function &f,
 /// @return On success, a pair containing the VectorizationInfo for the main
 /// loop(s) and the (optional) VectorizationInfo info for the tail loop(s). On
 /// decoding failure, llvm::None.
-llvm::Optional<std::pair<VectorizationInfo, llvm::Optional<VectorizationInfo>>>
+multi_llvm::Optional<
+    std::pair<VectorizationInfo, multi_llvm::Optional<VectorizationInfo>>>
 parseWrapperFnMetadata(llvm::Function &f);
 
 /// @brief Copies function metadata from one function to another.
@@ -158,7 +160,7 @@ void encodeLocalSizeMetadata(llvm::Function &f,
 ///
 /// @param[in] f Function from which to decode the metadata
 /// @returns The local size array if presernt, else `llvm::None`
-llvm::Optional<std::array<uint64_t, 3>> getLocalSizeMetadata(
+multi_llvm::Optional<std::array<uint64_t, 3>> getLocalSizeMetadata(
     const llvm::Function &f);
 
 /// @brief Drops all !mux_scheduled_fn metadata from a function.
@@ -186,8 +188,8 @@ llvm::NamedMDNode *getSchedulingParameterModuleMetadata(const llvm::Module &m);
 /// scheduling parameters.
 ///
 /// It uses !mux_scheduled_fn metadata for this check.
-llvm::Optional<unsigned> isSchedulingParameter(const llvm::Function &f,
-                                               unsigned idx);
+multi_llvm::Optional<unsigned> isSchedulingParameter(const llvm::Function &f,
+                                                     unsigned idx);
 
 /// @brief Extracts the required work group size from a kernel's function
 /// metadata.
@@ -195,7 +197,7 @@ llvm::Optional<unsigned> isSchedulingParameter(const llvm::Function &f,
 /// @param[in] f Kernel for extraction.
 ///
 /// @return The work group size or llvm::None if there is no such metadata.
-llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
+multi_llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
     const llvm::Function &f);
 
 /// @brief Extracts the required work group size from an opencl.kernels subnode,
@@ -205,7 +207,7 @@ llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
 /// @param[in] node Kernel's subnode for extraction.
 ///
 /// @return The work group size or llvm::None if there is no such metadata.
-llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
+multi_llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
     const llvm::MDNode &node);
 
 /// @brief Extracts the maximum work dimension from a kernel's function
@@ -215,7 +217,7 @@ llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
 ///
 /// @return The maximum work dimension or llvm::None if there is no such
 /// metadata.
-llvm::Optional<uint32_t> parseMaxWorkDimMetadata(const llvm::Function &f);
+multi_llvm::Optional<uint32_t> parseMaxWorkDimMetadata(const llvm::Function &f);
 
 /// @brief Describes the state of vectorization on a function/loop.
 struct KernelInfo {
@@ -223,7 +225,7 @@ struct KernelInfo {
   /// @brief The function name
   std::string Name;
   /// @brief The required work-group size. Optional.
-  llvm::Optional<std::array<uint64_t, 3>> ReqdWGSize;
+  multi_llvm::Optional<std::array<uint64_t, 3>> ReqdWGSize;
 };
 
 /// @brief Helper function to populate a list of kernels and associated

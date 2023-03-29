@@ -121,9 +121,9 @@ Expected<StringRef> parseMakeFunctionNameUniquePassOptions(StringRef Params) {
 }
 
 template <size_t N>
-static ErrorOr<std::array<Optional<uint64_t>, N>> parseIntList(
+static ErrorOr<std::array<multi_llvm::Optional<uint64_t>, N>> parseIntList(
     StringRef OptionVal, bool AllowNegative = false) {
-  std::array<Optional<uint64_t>, N> Arr;
+  std::array<multi_llvm::Optional<uint64_t>, N> Arr;
   for (unsigned i = 0; i < N; i++) {
     int64_t Res;
     StringRef Val;
@@ -144,7 +144,7 @@ static ErrorOr<std::array<Optional<uint64_t>, N>> parseIntList(
   if (!OptionVal.empty()) {
     return std::errc::argument_list_too_long;
   }
-  return Arr;
+  return std::array<multi_llvm::Optional<uint64_t>, 3U>(Arr);
 }
 
 constexpr const char LocalSizesOptName[] = "max-local-sizes=";
@@ -158,7 +158,7 @@ parseEncodeBuiltinRangeMetadataPassOptions(StringRef Params) {
     std::tie(ParamName, Params) = Params.split(';');
 
     StringRef OptName;
-    std::array<llvm::Optional<uint64_t>, 3> *SizesPtr = nullptr;
+    std::array<multi_llvm::Optional<uint64_t>, 3> *SizesPtr = nullptr;
     if (ParamName.consume_front(LocalSizesOptName)) {
       OptName = LocalSizesOptName;
       SizesPtr = &Opts.MaxLocalSizes;

@@ -203,7 +203,8 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
           structType, packedArgPtr,
           {ir.getInt32(0), ir.getInt32(argMapping.PackedStructFieldIdx)});
       auto &dl = M.getDataLayout();
-      uint32_t alignmentNeeded = IsPacked ? 1 : dl.getABITypeAlignment(type);
+      uint32_t alignmentNeeded =
+          IsPacked ? 1 : dl.getABITypeAlign(type).value();
       auto llvmAlignment = Align(alignmentNeeded);
 
       if (PassLocalBuffersBySize && isArgLocalBuffer(type)) {

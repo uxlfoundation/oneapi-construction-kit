@@ -7,6 +7,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
 #include <multi_llvm/opaque_pointers.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include "analysis/instantiation_analysis.h"
@@ -443,7 +444,7 @@ Argument *MemOpDesc::getOperand(Function *F, int OpIdx) const {
   return F->getArg(OpIdx);
 }
 
-Optional<MemOpDesc> MemOpDesc::analyzeMemOpFunction(Function &F) {
+multi_llvm::Optional<MemOpDesc> MemOpDesc::analyzeMemOpFunction(Function &F) {
   if (auto Op = MemOpDesc::analyzeMaskedMemOp(F)) {
     return Op;
   }
@@ -459,27 +460,27 @@ Optional<MemOpDesc> MemOpDesc::analyzeMemOpFunction(Function &F) {
   if (auto Op = MemOpDesc::analyzeMaskedScatterGatherMemOp(F)) {
     return Op;
   }
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<MemOpDesc> MemOpDesc::analyzeMaskedMemOp(Function &F) {
+multi_llvm::Optional<MemOpDesc> MemOpDesc::analyzeMaskedMemOp(Function &F) {
   StringRef MangledName = F.getName();
   compiler::utils::Lexer L(MangledName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
-    return None;
+    return multi_llvm::None;
   }
 
   MemOpDesc Desc;
   if (L.Consume("masked_store")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     Desc.IsVLOp = L.Consume("vp_");
     if (F.arg_size() != 3 + (unsigned)Desc.IsVLOp) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -498,14 +499,14 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedMemOp(Function &F) {
 
   if (L.Consume("masked_load")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     Desc.IsVLOp = L.Consume("vp_");
     if (F.arg_size() != 2 + (unsigned)Desc.IsVLOp) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -520,23 +521,24 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedMemOp(Function &F) {
     Desc.AccessKind = MemOpAccessKind::Masked;
     return Desc;
   }
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<MemOpDesc> MemOpDesc::analyzeInterleavedMemOp(Function &F) {
+multi_llvm::Optional<MemOpDesc> MemOpDesc::analyzeInterleavedMemOp(
+    Function &F) {
   StringRef MangledName = F.getName();
   compiler::utils::Lexer L(MangledName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
-    return None;
+    return multi_llvm::None;
   }
   MemOpDesc Desc;
   int ConstantStride{};
   if (L.Consume("interleaved_store")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     if (L.ConsumeSignedInteger(ConstantStride)) {
       VECZ_ERROR_IF(F.arg_size() != 2,
@@ -549,10 +551,10 @@ Optional<MemOpDesc> MemOpDesc::analyzeInterleavedMemOp(Function &F) {
       std::advance(ArgIt, 2);
       Desc.Stride = &*ArgIt;
     } else {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -568,10 +570,10 @@ Optional<MemOpDesc> MemOpDesc::analyzeInterleavedMemOp(Function &F) {
 
   if (L.Consume("interleaved_load")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     if (L.ConsumeSignedInteger(ConstantStride)) {
       VECZ_ERROR_IF(F.arg_size() != 1,
@@ -584,10 +586,10 @@ Optional<MemOpDesc> MemOpDesc::analyzeInterleavedMemOp(Function &F) {
       std::advance(ArgIt, 1);
       Desc.Stride = &*ArgIt;
     } else {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -600,22 +602,23 @@ Optional<MemOpDesc> MemOpDesc::analyzeInterleavedMemOp(Function &F) {
     return Desc;
   }
 
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<MemOpDesc> MemOpDesc::analyzeMaskedInterleavedMemOp(Function &F) {
+multi_llvm::Optional<MemOpDesc> MemOpDesc::analyzeMaskedInterleavedMemOp(
+    Function &F) {
   StringRef MangledName = F.getName();
   compiler::utils::Lexer L(MangledName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
-    return None;
+    return multi_llvm::None;
   }
   MemOpDesc Desc;
   if (L.Consume("masked_interleaved_store")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     Desc.IsVLOp = L.Consume("vp_");
     // KLOCWORK "UNINIT.STACK.MUST" possible false positive
@@ -624,21 +627,21 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedInterleavedMemOp(Function &F) {
     int ConstantStride;
     if (L.ConsumeSignedInteger(ConstantStride)) {
       if (F.arg_size() != 3 + (unsigned)Desc.IsVLOp) {
-        return None;
+        return multi_llvm::None;
       }
       Desc.Stride = ConstantInt::get(getSizeTy(*F.getParent()), ConstantStride);
     } else if (L.Consume("V")) {
       if (F.arg_size() != 4 + (unsigned)Desc.IsVLOp) {
-        return None;
+        return multi_llvm::None;
       }
       auto ArgIt = F.arg_begin();
       std::advance(ArgIt, 3 + Desc.IsVLOp);
       Desc.Stride = &*ArgIt;
     } else {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -656,10 +659,10 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedInterleavedMemOp(Function &F) {
   }
   if (L.Consume("masked_interleaved_load")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     Desc.IsVLOp = L.Consume("vp_");
     // KLOCWORK "UNINIT.STACK.MUST" possible false positive
@@ -668,21 +671,21 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedInterleavedMemOp(Function &F) {
     int ConstantStride;
     if (L.ConsumeSignedInteger(ConstantStride)) {
       if (F.arg_size() != 2 + (unsigned)Desc.IsVLOp) {
-        return None;
+        return multi_llvm::None;
       }
       Desc.Stride = ConstantInt::get(getSizeTy(*F.getParent()), ConstantStride);
     } else if (L.Consume("V")) {
       if (F.arg_size() != 3 + (unsigned)Desc.IsVLOp) {
-        return None;
+        return multi_llvm::None;
       }
       auto ArgIt = F.arg_begin();
       std::advance(ArgIt, 2 + Desc.IsVLOp);
       Desc.Stride = &*ArgIt;
     } else {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -698,25 +701,26 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedInterleavedMemOp(Function &F) {
     return Desc;
   }
 
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<MemOpDesc> MemOpDesc::analyzeScatterGatherMemOp(Function &F) {
+multi_llvm::Optional<MemOpDesc> MemOpDesc::analyzeScatterGatherMemOp(
+    Function &F) {
   StringRef MangledName = F.getName();
   compiler::utils::Lexer L(MangledName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
-    return None;
+    return multi_llvm::None;
   }
   MemOpDesc Desc;
   if (L.Consume("scatter_store")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     if (F.arg_size() != 2) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -732,13 +736,13 @@ Optional<MemOpDesc> MemOpDesc::analyzeScatterGatherMemOp(Function &F) {
 
   if (L.Consume("gather_load")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     if (F.arg_size() != 1) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -751,27 +755,28 @@ Optional<MemOpDesc> MemOpDesc::analyzeScatterGatherMemOp(Function &F) {
     return Desc;
   }
 
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<MemOpDesc> MemOpDesc::analyzeMaskedScatterGatherMemOp(Function &F) {
+multi_llvm::Optional<MemOpDesc> MemOpDesc::analyzeMaskedScatterGatherMemOp(
+    Function &F) {
   StringRef MangledName = F.getName();
   compiler::utils::Lexer L(MangledName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
-    return None;
+    return multi_llvm::None;
   }
 
   MemOpDesc Desc;
   if (L.Consume("masked_scatter_store")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     Desc.IsVLOp = L.Consume("vp_");
     if (F.arg_size() != 3 + (unsigned)Desc.IsVLOp) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -790,14 +795,14 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedScatterGatherMemOp(Function &F) {
 
   if (L.Consume("masked_gather_load")) {
     if (!L.ConsumeInteger(Desc.Alignment)) {
-      return None;
+      return multi_llvm::None;
     }
     if (!L.Consume("_")) {
-      return None;
+      return multi_llvm::None;
     }
     Desc.IsVLOp = L.Consume("vp_");
     if (F.arg_size() != 2 + (unsigned)Desc.IsVLOp) {
-      return None;
+      return multi_llvm::None;
     }
 
     Function::arg_iterator Arg = F.arg_begin();
@@ -813,12 +818,12 @@ Optional<MemOpDesc> MemOpDesc::analyzeMaskedScatterGatherMemOp(Function &F) {
     return Desc;
   }
 
-  return None;
+  return multi_llvm::None;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Optional<MemOp> MemOp::get(llvm::Instruction *I) {
+multi_llvm::Optional<MemOp> MemOp::get(llvm::Instruction *I) {
   if (LoadInst *LI = dyn_cast<LoadInst>(I)) {
     MemOpDesc Desc;
     Desc.Kind = MemOpKind::LoadInstruction;
@@ -847,18 +852,19 @@ Optional<MemOp> MemOp::get(llvm::Instruction *I) {
       }
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<MemOp> MemOp::get(llvm::CallInst *CI, MemOpAccessKind AccessKind) {
+multi_llvm::Optional<MemOp> MemOp::get(llvm::CallInst *CI,
+                                       MemOpAccessKind AccessKind) {
   if (!CI->getCalledFunction()) {
-    return None;
+    return multi_llvm::None;
   }
-  Optional<MemOpDesc> Desc;
+  multi_llvm::Optional<MemOpDesc> Desc;
   if (Function *Caller = CI->getCalledFunction()) {
     switch (AccessKind) {
       default:
-        return None;
+        return multi_llvm::None;
       case MemOpAccessKind::Masked:
         Desc = MemOpDesc::analyzeMaskedMemOp(*Caller);
         break;
@@ -877,7 +883,7 @@ Optional<MemOp> MemOp::get(llvm::CallInst *CI, MemOpAccessKind AccessKind) {
     }
   }
   if (!Desc) {
-    return None;
+    return multi_llvm::None;
   }
   return MemOp(CI, *Desc);
 }

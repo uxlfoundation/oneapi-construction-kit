@@ -24,6 +24,7 @@
 #include <compiler/module.h>
 #include <compiler/utils/pass_machinery.h>
 #include <llvm/IR/PassManager.h>
+#include <multi_llvm/optional_helper.h>
 #include <mux/mux.hpp>
 
 #include <mutex>
@@ -552,8 +553,8 @@ class BaseModule : public Module {
   /// @param[in] late_passes Module pass manager populated with late passes.
   void runOpenCLFrontendPipeline(
       const clang::CodeGenOptions &codeGenOpts,
-      llvm::Optional<llvm::ModulePassManager> early_passes = llvm::None,
-      llvm::Optional<llvm::ModulePassManager> late_passes = llvm::None);
+      llvm::Optional<llvm::ModulePassManager> early_passes = multi_llvm::None,
+      llvm::Optional<llvm::ModulePassManager> late_passes = multi_llvm::None);
 
   /// @brief LLVM module produced by the `Module::finalize` method.
   std::unique_ptr<llvm::Module> finalized_llvm_module;

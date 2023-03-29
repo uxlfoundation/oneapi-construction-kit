@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <multi_llvm/optional_helper.h>
 
 #include <string>
 
@@ -374,7 +375,8 @@ class MemOpDesc {
   ///
   /// @return A MemOpDesc if the given function is a memory operation.
   /// llvm::None otherwise.
-  static llvm::Optional<MemOpDesc> analyzeMemOpFunction(llvm::Function &F);
+  static multi_llvm::Optional<MemOpDesc> analyzeMemOpFunction(
+      llvm::Function &F);
 
   /// @brief Determine whether the given function is a masked memory operation.
   /// If that's the case, the descriptor is populated and returned.
@@ -383,7 +385,7 @@ class MemOpDesc {
   ///
   /// @return A MemOpDesc if the given function is a masked memory operation.
   /// llvm::None otherwise.
-  static llvm::Optional<MemOpDesc> analyzeMaskedMemOp(llvm::Function &F);
+  static multi_llvm::Optional<MemOpDesc> analyzeMaskedMemOp(llvm::Function &F);
 
   /// @brief Determine whether the given function is an interleaved memory
   /// operation or not. If that's the case, the descriptor is populated and
@@ -393,7 +395,8 @@ class MemOpDesc {
   ///
   /// @return A MemOpDesc if the given function is an interleaved memory
   /// operation. llvm::None otherwise.
-  static llvm::Optional<MemOpDesc> analyzeInterleavedMemOp(llvm::Function &F);
+  static multi_llvm::Optional<MemOpDesc> analyzeInterleavedMemOp(
+      llvm::Function &F);
 
   /// @brief Determine whether the given function is a masked interleaved memory
   /// operation or not. If that's the case, the descriptor is populated and
@@ -403,7 +406,7 @@ class MemOpDesc {
   ///
   /// @return A MemOpDesc if the given function is a masked interleaved memory
   /// operation. llvm::None otherwise.
-  static llvm::Optional<MemOpDesc> analyzeMaskedInterleavedMemOp(
+  static multi_llvm::Optional<MemOpDesc> analyzeMaskedInterleavedMemOp(
       llvm::Function &F);
 
   /// @brief Determine whether the given function is a scatter/gather memory
@@ -414,7 +417,8 @@ class MemOpDesc {
   ///
   /// @return A MemOpDesc if the given function is a scatter/gather operation.
   /// llvm::None otherwise.
-  static llvm::Optional<MemOpDesc> analyzeScatterGatherMemOp(llvm::Function &F);
+  static multi_llvm::Optional<MemOpDesc> analyzeScatterGatherMemOp(
+      llvm::Function &F);
 
   /// @brief Determine whether the given function is a scatter/gather memory
   /// operation or not. If that's the case, the descriptor is populated and
@@ -424,7 +428,7 @@ class MemOpDesc {
   ///
   /// @return A MemOpDesc if the given function is a masked scatter/gather
   /// operation. llvm::None otherwise.
-  static llvm::Optional<MemOpDesc> analyzeMaskedScatterGatherMemOp(
+  static multi_llvm::Optional<MemOpDesc> analyzeMaskedScatterGatherMemOp(
       llvm::Function &F);
 
   /// @brief Determine whether the operation is a load or not.
@@ -477,14 +481,14 @@ struct MemOp {
   MemOp(llvm::Instruction *I, const MemOpDesc &Desc);
   /// @brief Create a memory operation from an instruction.
   /// @param[in] I Instruction that may be a memory operation.
-  static llvm::Optional<MemOp> get(llvm::Instruction *I);
+  static multi_llvm::Optional<MemOp> get(llvm::Instruction *I);
   /// @brief Create a memory operation from an instruction and an existing
   /// memory operation descriptor.
   ///
   /// @param[in] CI Memory builtin call instruction.
   /// @param[in] AccessKind the kind of access to consider
-  static llvm::Optional<MemOp> get(llvm::CallInst *CI,
-                                   MemOpAccessKind AccessKind);
+  static multi_llvm::Optional<MemOp> get(llvm::CallInst *CI,
+                                         MemOpAccessKind AccessKind);
 
   /// @brief Access the memory operation descriptor.
   const MemOpDesc &getDesc() const { return Desc; }

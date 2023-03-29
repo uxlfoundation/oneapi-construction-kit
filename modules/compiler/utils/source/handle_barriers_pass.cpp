@@ -915,8 +915,9 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
   bool const emitTail = barrierTail != nullptr;
 
   auto mainInfo = barrierMain.getVFInfo();
-  auto tailInfo = emitTail ? barrierTail->getVFInfo()
-                           : llvm::Optional<VectorizationInfo>(None);
+  auto tailInfo =
+      emitTail ? barrierTail->getVFInfo()
+               : multi_llvm::Optional<VectorizationInfo>(multi_llvm::None);
 
   auto const workItemDim0 = 0;
   auto const workItemDim1 = 1;
@@ -959,8 +960,7 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
     localSizeDim[1] = entryIR.getIntN(8 * sizeTyBytes, (*wgs)[1]);
     localSizeDim[2] = entryIR.getIntN(8 * sizeTyBytes, (*wgs)[2]);
   } else {
-    uint32_t max_work_dim =
-        multi_llvm::value_or(parseMaxWorkDimMetadata(refF), 3);
+    uint32_t max_work_dim = parseMaxWorkDimMetadata(refF).value_or(3);
 
     // Fill out a default local size of 1x1x1.
     std::fill(std::begin(localSizeDim), std::end(localSizeDim),
@@ -1261,7 +1261,7 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
                               /*isVectorPredicated*/ false};
       }
     }
-    tailInfo = None;
+    tailInfo = multi_llvm::None;
   }
 
   encodeWrapperFnMetadata(*new_wrapper, mainInfo, tailInfo);
@@ -1285,7 +1285,8 @@ struct BarrierWrapperInfo {
   compiler::utils::VectorizationInfo MainInfo;
   // Optional information about the 'tail' kernel
   Function *TailF = nullptr;
-  llvm::Optional<compiler::utils::VectorizationInfo> TailInfo = None;
+  llvm::Optional<compiler::utils::VectorizationInfo> TailInfo =
+      multi_llvm::None;
 };
 
 PreservedAnalyses compiler::utils::HandleBarriersPass::run(

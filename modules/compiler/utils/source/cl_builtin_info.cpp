@@ -1354,18 +1354,19 @@ BuiltinSubgroupScanKind CLBuiltinInfo::getBuiltinSubgroupScanKind(
 /// (assumed builtin) Function is known to possess the given qualifier.
 /// @return true if the parameter is known to have the qualifier, false if not,
 /// and None on error.
-static Optional<bool> paramHasTypeQual(const Function &F, unsigned ParamIdx,
-                                       TypeQualifier Q) {
+static multi_llvm::Optional<bool> paramHasTypeQual(const Function &F,
+                                                   unsigned ParamIdx,
+                                                   TypeQualifier Q) {
   // Demangle the function name to get the type qualifiers.
   SmallVector<Type *, 2> Types;
   SmallVector<TypeQualifiers, 2> Quals;
   NameMangler Mangler(&F.getContext());
   if (Mangler.demangleName(F.getName(), Types, Quals).empty()) {
-    return None;
+    return multi_llvm::None;
   }
 
   if (ParamIdx >= Quals.size()) {
-    return None;
+    return multi_llvm::None;
   }
 
   auto &Qual = Quals[ParamIdx];
@@ -1403,9 +1404,9 @@ Value *CLBuiltinInfo::emitBuiltinInline(Function *F, IRBuilder<> &B,
         // 6.12.3 Integer Functions
       case eCLBuiltinAddSat:
       case eCLBuiltinSubSat: {
-        Optional<bool> IsParamSignedOrNone =
+        multi_llvm::Optional<bool> IsParamSignedOrNone =
             paramHasTypeQual(*F, 0, eTypeQualSignedInt);
-        if (!IsParamSignedOrNone.hasValue()) {
+        if (!IsParamSignedOrNone.has_value()) {
           return nullptr;
         }
         bool IsSigned = *IsParamSignedOrNone;
@@ -2523,23 +2524,23 @@ Value *CLBuiltinInfo::emitBuiltinInlinePrintf(BuiltinID, IRBuilder<> &B,
   return CreateBuiltinCall(B, Printf, Args);
 }
 
-Optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
-    CallInst &CI, std::array<Optional<uint64_t>, 3> MaxLocalSizes,
-    std::array<Optional<uint64_t>, 3> MaxGlobalSizes) const {
+multi_llvm::Optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
+    CallInst &CI, std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
+    std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const {
   auto *F = CI.getCalledFunction();
   if (!F || !F->hasName() || !CI.getType()->isIntegerTy()) {
-    return None;
+    return multi_llvm::None;
   }
 
   BuiltinID BuiltinID = identifyBuiltin(*F);
 
   auto Bits = CI.getType()->getIntegerBitWidth();
   // Assume we're indexing the global sizes array.
-  std::array<Optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
+  std::array<multi_llvm::Optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
 
   switch (BuiltinID) {
     default:
-      return None;
+      return multi_llvm::None;
     case eCLBuiltinGetWorkDim:
       return ConstantRange::getNonEmpty(APInt(Bits, 1), APInt(Bits, 4));
     case eCLBuiltinGetLocalId:
@@ -2550,11 +2551,11 @@ Optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
     case eCLBuiltinGetGlobalSize: {
       auto *DimIdx = CI.getOperand(0);
       if (!isa<ConstantInt>(DimIdx)) {
-        return None;
+        return multi_llvm::None;
       }
       uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
       if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
-        return None;
+        return multi_llvm::None;
       }
       // ID builtins range from [0,size) and size builtins from [1,size]. Thus
       // offset the range by 1 at each low/high end when returning the range
@@ -2594,14 +2595,14 @@ enum : uint32_t {
   memory_order_seq_cst = 4,
 };
 
-static Optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
+static multi_llvm::Optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
   // Grab the 'flags' parameter.
   if (auto *const Flags = dyn_cast<ConstantInt>(P)) {
     // cl_mem_fence_flags is a bitfield and can be 0 or a combination of
     // CLK_(GLOBAL|LOCAL|IMAGE)_MEM_FENCE values ORed together.
     switch (Flags->getZExtValue()) {
       case 0:
-        return None;
+        return multi_llvm::None;
       case CLK_LOCAL_MEM_FENCE:
         return BIMuxInfoConcept::MemSemanticsWorkGroupMemory;
       case CLK_GLOBAL_MEM_FENCE:
@@ -2611,10 +2612,10 @@ static Optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
                 BIMuxInfoConcept::MemSemanticsCrossWorkGroupMemory);
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 
-static Optional<unsigned> parseMemoryScopeParam(Value *const P) {
+static multi_llvm::Optional<unsigned> parseMemoryScopeParam(Value *const P) {
   if (auto *const Scope = dyn_cast<ConstantInt>(P)) {
     switch (Scope->getZExtValue()) {
       case memory_scope_work_item:
@@ -2632,10 +2633,10 @@ static Optional<unsigned> parseMemoryScopeParam(Value *const P) {
         return BIMuxInfoConcept::MemScopeCrossDevice;
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 
-static Optional<unsigned> parseMemoryOrderParam(Value *const P) {
+static multi_llvm::Optional<unsigned> parseMemoryOrderParam(Value *const P) {
   if (auto *const Order = dyn_cast<ConstantInt>(P)) {
     switch (Order->getZExtValue()) {
       case memory_order_relaxed:
@@ -2650,7 +2651,7 @@ static Optional<unsigned> parseMemoryOrderParam(Value *const P) {
         return BIMuxInfoConcept::MemSemanticsSequentiallyConsistent;
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 
 CallInst *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
@@ -2690,7 +2691,7 @@ CallInst *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
 
       unsigned SemanticsVal =
           DefaultMemOrder |
-          multi_llvm::value_or(parseMemFenceFlagsParam(CI.getOperand(0)), 0);
+          parseMemFenceFlagsParam(CI.getOperand(0)).value_or(0);
 
       auto *const CtrlBarrier =
           BIMuxImpl.getOrDeclareMuxBuiltin(CtrlBarrierID, M);
@@ -2705,10 +2706,10 @@ CallInst *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
     }
     case eCLBuiltinAtomicWorkItemFence:
       // atomic_work_item_fence has two parameters which we can parse.
-      DefaultMemOrder = multi_llvm::value_or(
-          parseMemoryOrderParam(CI.getOperand(1)), DefaultMemOrder);
-      DefaultMemScope = multi_llvm::value_or(
-          parseMemoryScopeParam(CI.getOperand(2)), DefaultMemScope);
+      DefaultMemOrder =
+          parseMemoryOrderParam(CI.getOperand(1)).value_or(DefaultMemOrder);
+      DefaultMemScope =
+          parseMemoryScopeParam(CI.getOperand(2)).value_or(DefaultMemScope);
       LLVM_FALLTHROUGH;
     case eCLBuiltinMemFence:
     case eCLBuiltinReadMemFence:
@@ -2724,7 +2725,7 @@ CallInst *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
       }
       unsigned SemanticsVal =
           DefaultMemOrder |
-          multi_llvm::value_or(parseMemFenceFlagsParam(CI.getOperand(0)), 0);
+          parseMemFenceFlagsParam(CI.getOperand(0)).value_or(0);
       auto *const MemBarrier =
           BIMuxImpl.getOrDeclareMuxBuiltin(eMuxBuiltinMemBarrier, M);
       auto *const Scope = ConstantInt::get(I32Ty, DefaultMemScope);

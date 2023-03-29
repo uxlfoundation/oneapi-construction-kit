@@ -7,6 +7,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/ADT/StringSwitch.h>
+#include <multi_llvm/optional_helper.h>
 
 using namespace llvm;
 
@@ -348,13 +349,13 @@ Value *BuiltinInfo::emitBuiltinInline(Function *Builtin, IRBuilder<> &B,
   return nullptr;
 }
 
-llvm::Optional<llvm::ConstantRange> BuiltinInfo::getBuiltinRange(
-    CallInst &CI, std::array<llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-    std::array<llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const {
+multi_llvm::Optional<llvm::ConstantRange> BuiltinInfo::getBuiltinRange(
+    CallInst &CI, std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
+    std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const {
   if (LangImpl) {
     return LangImpl->getBuiltinRange(CI, MaxLocalSizes, MaxGlobalSizes);
   }
-  return llvm::None;
+  return multi_llvm::None;
 }
 
 CallInst *BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(CallInst &CI) {

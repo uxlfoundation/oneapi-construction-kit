@@ -12,6 +12,7 @@
 #include <compiler/module.h>
 #include <llvm/IR/CallingConv.h>
 #include <llvm/IR/PassManager.h>
+#include <multi_llvm/optional_helper.h>
 
 namespace llvm {
 class Module;
@@ -89,7 +90,8 @@ Result emitCodeGenFile(llvm::Module &M, llvm::TargetMachine *TM,
                        bool create_assembly = false);
 
 void encodeVectorizationMode(llvm::Function &, VectorizationMode);
-llvm::Optional<VectorizationMode> getVectorizationMode(const llvm::Function &);
+multi_llvm::Optional<VectorizationMode> getVectorizationMode(
+    const llvm::Function &);
 
 }  // namespace compiler
 

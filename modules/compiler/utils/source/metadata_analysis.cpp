@@ -21,7 +21,7 @@ Printable printGenericMD(const handler::GenericMetadata &MD) {
 
 GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
     Function &Fn, FunctionAnalysisManager &) {
-  auto local_memory_usage = multi_llvm::value_or(getLocalMemoryUsage(Fn), 0);
+  auto local_memory_usage = getLocalMemoryUsage(Fn).value_or(0);
   auto kernel_name = Fn.getName().str();
   auto source_name = getOrigFnNameOrFnName(Fn).str();
 

@@ -700,7 +700,7 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
     // Need to ensure that alloc alignment or preferred alignment is kept
     // in the new struct so pad as necessary.
     unsigned size = dl.getTypeAllocSize(member_ty_fixed);
-    alignment = std::max(dl.getPrefTypeAlignment(member_ty),
+    alignment = std::max(dl.getPrefTypeAlign(member_ty).value(),
                          static_cast<AlignIntTy>(alignment));
     max_live_var_alignment = std::max(alignment, max_live_var_alignment);
 

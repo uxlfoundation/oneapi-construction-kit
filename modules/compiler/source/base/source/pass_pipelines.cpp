@@ -23,6 +23,7 @@
 #include <llvm/Transforms/IPO/GlobalOpt.h>
 #include <llvm/Transforms/IPO/Inliner.h>
 #include <llvm/Transforms/IPO/Internalize.h>
+#include <multi_llvm/optional_helper.h>
 
 using namespace llvm;
 
@@ -137,17 +138,18 @@ void encodeVectorizationMode(llvm::Function &F, VectorizationMode mode) {
   }
 }
 
-llvm::Optional<VectorizationMode> getVectorizationMode(
+multi_llvm::Optional<VectorizationMode> getVectorizationMode(
     const llvm::Function &F) {
   llvm::Attribute Attr = F.getFnAttribute("vecz-mode");
   if (Attr.isValid()) {
-    return StringSwitch<Optional<VectorizationMode>>(Attr.getValueAsString())
+    return StringSwitch<multi_llvm::Optional<VectorizationMode>>(
+               Attr.getValueAsString())
         .Case("auto", VectorizationMode::AUTO)
         .Case("always", VectorizationMode::ALWAYS)
         .Case("never", VectorizationMode::NEVER)
-        .Default(llvm::None);
+        .Default(multi_llvm::None);
   }
-  return None;
+  return multi_llvm::None;
 }
 
 }  // namespace compiler

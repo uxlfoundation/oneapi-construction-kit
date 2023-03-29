@@ -4,6 +4,7 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
+#include <multi_llvm/optional_helper.h>
 
 using namespace llvm;
 
@@ -25,9 +26,10 @@ static MDTuple *encodeVectorizationInfo(const VectorizationInfo &info,
            ConstantInt::get(i32Ty, info.IsVectorPredicated))});
 }
 
-static Optional<VectorizationInfo> extractVectorizationInfo(MDTuple *md) {
+static multi_llvm::Optional<VectorizationInfo> extractVectorizationInfo(
+    MDTuple *md) {
   if (md->getNumOperands() != 4) {
-    return None;
+    return multi_llvm::None;
   }
   auto *const widthMD = mdconst::extract<ConstantInt>(md->getOperand(0));
   auto *const isScalableMD = mdconst::extract<ConstantInt>(md->getOperand(1));
@@ -44,14 +46,15 @@ static Optional<VectorizationInfo> extractVectorizationInfo(MDTuple *md) {
   return info;
 };
 
-static Optional<LinkMetadataResult> parseVectorLinkMD(MDNode *mdnode) {
+static multi_llvm::Optional<LinkMetadataResult> parseVectorLinkMD(
+    MDNode *mdnode) {
   if (auto info =
           extractVectorizationInfo(dyn_cast<MDTuple>(mdnode->getOperand(0)))) {
     // The Function may well be null.
     Function *vecFn = mdconst::extract_or_null<Function>(mdnode->getOperand(1));
     return LinkMetadataResult(vecFn, *info);
   }
-  return None;
+  return multi_llvm::None;
 }
 
 void encodeVectorizationFailedMetadata(Function &f,
@@ -101,10 +104,11 @@ bool parseOrigToVeczFnLinkMetadata(Function &f,
   return parseVectorizedFunctionLinkMetadata(f, "codeplay_ca_vecz.base", VFs);
 }
 
-Optional<LinkMetadataResult> parseVeczToOrigFnLinkMetadata(Function &f) {
+multi_llvm::Optional<LinkMetadataResult> parseVeczToOrigFnLinkMetadata(
+    Function &f) {
   auto *mdnode = f.getMetadata("codeplay_ca_vecz.derived");
   if (!mdnode) {
-    return None;
+    return multi_llvm::None;
   }
   return parseVectorLinkMD(mdnode);
 }
@@ -118,7 +122,7 @@ void dropVeczDerivedMetadata(Function &f) {
 }
 
 void encodeWrapperFnMetadata(Function &f, const VectorizationInfo &mainInfo,
-                             Optional<VectorizationInfo> tailInfo) {
+                             multi_llvm::Optional<VectorizationInfo> tailInfo) {
   MDTuple *tailInfoMD = nullptr;
   auto *mainInfoMD = encodeVectorizationInfo(mainInfo, f.getContext());
 
@@ -130,25 +134,26 @@ void encodeWrapperFnMetadata(Function &f, const VectorizationInfo &mainInfo,
                 MDTuple::get(f.getContext(), {mainInfoMD, tailInfoMD}));
 }
 
-Optional<std::pair<VectorizationInfo, Optional<VectorizationInfo>>>
+multi_llvm::Optional<
+    std::pair<VectorizationInfo, multi_llvm::Optional<VectorizationInfo>>>
 parseWrapperFnMetadata(Function &f) {
   auto *const mdnode = f.getMetadata("codeplay_ca_wrapper");
   if (!mdnode || mdnode->getNumOperands() != 2) {
-    return None;
+    return multi_llvm::None;
   }
 
   auto *const mainTuple = dyn_cast_or_null<MDTuple>(mdnode->getOperand(0));
   if (!mainTuple) {
-    return None;
+    return multi_llvm::None;
   }
 
   VectorizationInfo mainInfo;
-  Optional<VectorizationInfo> tailInfo;
+  multi_llvm::Optional<VectorizationInfo> tailInfo;
 
   if (auto info = extractVectorizationInfo(mainTuple)) {
     mainInfo = *info;
   } else {
-    return None;
+    return multi_llvm::None;
   }
 
   if (auto *const tailTuple =
@@ -191,14 +196,15 @@ void encodeLocalSizeMetadata(Function &f, const std::array<uint64_t, 3> &size) {
   f.setMetadata(ReqdWGSizeMD, mdTuple);
 }
 
-Optional<std::array<uint64_t, 3>> getLocalSizeMetadata(const Function &f) {
+multi_llvm::Optional<std::array<uint64_t, 3>> getLocalSizeMetadata(
+    const Function &f) {
   if (auto *md = f.getMetadata(ReqdWGSizeMD)) {
     return std::array<uint64_t, 3>{
         mdconst::extract<ConstantInt>(md->getOperand(0))->getZExtValue(),
         mdconst::extract<ConstantInt>(md->getOperand(1))->getZExtValue(),
         mdconst::extract<ConstantInt>(md->getOperand(2))->getZExtValue()};
   }
-  return None;
+  return multi_llvm::None;
 }
 
 static constexpr const char *MuxScheduledFnMD = "mux_scheduled_fn";
@@ -247,7 +253,8 @@ NamedMDNode *getSchedulingParameterModuleMetadata(const Module &m) {
   return m.getNamedMetadata(MuxSchedulingParamsMD);
 }
 
-Optional<unsigned> isSchedulingParameter(const Function &f, unsigned idx) {
+multi_llvm::Optional<unsigned> isSchedulingParameter(const Function &f,
+                                                     unsigned idx) {
   if (auto *md = f.getMetadata(MuxScheduledFnMD)) {
     for (const auto &op : enumerate(md->operands())) {
       auto paramIdx = mdconst::extract<ConstantInt>(op.value())->getSExtValue();
@@ -256,11 +263,12 @@ Optional<unsigned> isSchedulingParameter(const Function &f, unsigned idx) {
       }
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 
 // Uses the format of a metadata node directly applied to a function.
-Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(const Function &f) {
+multi_llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
+    const Function &f) {
   if (auto mdnode = f.getMetadata(ReqdWGSizeMD)) {
     auto *const op0 = mdconst::extract<ConstantInt>(mdnode->getOperand(0));
     auto *const op1 = mdconst::extract<ConstantInt>(mdnode->getOperand(1));
@@ -272,11 +280,12 @@ Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(const Function &f) {
         {op0->getZExtValue(), op1->getZExtValue(), op2->getZExtValue()}};
     return wgs;
   }
-  return None;
+  return multi_llvm::None;
 }
 
 // Uses the format of a metadata node that's a part of the opencl.kernels node.
-Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(const MDNode &node) {
+multi_llvm::Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(
+    const MDNode &node) {
   for (uint32_t i = 1; i < node.getNumOperands(); ++i) {
     MDNode *const subNode = cast<MDNode>(node.getOperand(i));
     MDString *const operandName = cast<MDString>(subNode->getOperand(0));
@@ -291,16 +300,16 @@ Optional<std::array<uint64_t, 3>> parseRequiredWGSMetadata(const MDNode &node) {
       return wgs;
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 
-Optional<uint32_t> parseMaxWorkDimMetadata(const Function &f) {
+multi_llvm::Optional<uint32_t> parseMaxWorkDimMetadata(const Function &f) {
   if (auto *mdnode = f.getMetadata("max_work_dim")) {
     auto *op0 = mdconst::extract<ConstantInt>(mdnode->getOperand(0));
     return op0->getZExtValue();
   }
 
-  return None;
+  return multi_llvm::None;
 }
 
 void populateKernelList(Module &m, SmallVectorImpl<KernelInfo> &results) {

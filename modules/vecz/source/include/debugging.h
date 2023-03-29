@@ -18,6 +18,7 @@
 #include <llvm/IR/PassManager.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
+#include <multi_llvm/optional_helper.h>
 
 #include <cstdlib>
 #include <memory>
@@ -49,8 +50,8 @@ struct VeczFailResult {
   }
   /// @brief For functions that return an llvm::Optional
   template <typename T>
-  operator llvm::Optional<T>() const {
-    return llvm::None;
+  operator multi_llvm::Optional<T>() const {
+    return multi_llvm::None;
   }
 };
 
@@ -175,7 +176,8 @@ void emitVeczRemarkMissed(const llvm::Function *F, llvm::StringRef Msg);
 /// @param[in] F The function in which we are currently working
 /// @param[in] V The value (can be `nullptr`) to be included in the message
 /// @param[in] Msg The main remark message text
-void emitVeczRemark(const llvm::Function *F, const llvm::Value *V, llvm::StringRef Msg);
+void emitVeczRemark(const llvm::Function *F, const llvm::Value *V,
+                    llvm::StringRef Msg);
 /// @brief Emit a Remark message
 ///
 /// @param[in] F The function in which we are currently working

@@ -10,6 +10,7 @@
 #define COMPILER_UTILS_DEVICE_INFO_H_INCLUDED
 
 #include <llvm/IR/PassManager.h>
+#include <multi_llvm/optional_helper.h>
 
 namespace compiler {
 namespace utils {
@@ -93,7 +94,7 @@ class DeviceInfoAnalysis : public llvm::AnalysisInfoMixin<DeviceInfoAnalysis> {
 
  private:
   /// @brief Optional device information
-  llvm::Optional<Result> Info;
+  multi_llvm::Optional<Result> Info;
 
   /// @brief Unique pass identifier.
   static llvm::AnalysisKey Key;

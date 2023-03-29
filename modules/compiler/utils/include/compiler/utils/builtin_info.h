@@ -14,6 +14,8 @@
 #include <llvm/IR/ConstantRange.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/PassManager.h>
+#include <multi_llvm/multi_llvm.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 
 namespace compiler {
@@ -449,9 +451,10 @@ class BuiltinInfo {
   /// the 3 dimensions that this target supports.
   /// @param[in] MaxGlobalSizes The maximum global work-group sizes in each of
   /// the 3 dimensions that this target supports.
-  llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &CI, std::array<llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-      std::array<llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const;
+  multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &CI,
+      std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
+      std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const;
 
   /// @brief Remaps a call instruction to a call calling a mux synchronization
   /// builtin.
@@ -771,10 +774,10 @@ class BILangInfoConcept {
       llvm::Function *Builtin, llvm::IRBuilder<> &B,
       llvm::ArrayRef<llvm::Value *> Args) = 0;
   /// @see BuiltinInfo::getBuiltinRange
-  virtual llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &, std::array<llvm::Optional<uint64_t>, 3>,
-      std::array<llvm::Optional<uint64_t>, 3>) const {
-    return llvm::None;
+  virtual multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &, std::array<multi_llvm::Optional<uint64_t>, 3>,
+      std::array<multi_llvm::Optional<uint64_t>, 3>) const {
+    return multi_llvm::None;
   }
   /// @see BuiltinInfo::requiresMapToMuxSyncBuiltin
   virtual bool requiresMapToMuxSyncBuiltin(BuiltinID) const { return false; }

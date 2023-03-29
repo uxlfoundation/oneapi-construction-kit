@@ -11,6 +11,7 @@
 
 #include <llvm/ADT/Optional.h>
 #include <multi_llvm/multi_llvm.h>
+#include <multi_llvm/optional_helper.h>
 
 namespace llvm {
 class Constant;
@@ -92,7 +93,7 @@ struct GroupCollective {
 /// @return Optional value which may be populated with a GroupCollective
 /// instance. If `f` is a sub-group function or work-group collective a value
 /// will be returned otherwise return value will be empty.
-llvm::Optional<GroupCollective> isGroupCollective(llvm::Function *f);
+multi_llvm::Optional<GroupCollective> isGroupCollective(llvm::Function *f);
 }  // namespace utils
 }  // namespace compiler
 

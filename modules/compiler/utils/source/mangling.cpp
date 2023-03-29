@@ -8,6 +8,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/opaque_pointers.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cstring>
@@ -446,7 +447,7 @@ static Optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
 
   // Parse the optional pointer qualifier.
   if (L.Current() < 0) {
-    return None;
+    return multi_llvm::None;
   }
 
   // Parse the optional address space qualifier.
@@ -455,7 +456,7 @@ static Optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
 
   if (L.Consume("U3AS")) {
     if (!L.ConsumeInteger(AddressSpace)) {
-      return None;
+      return multi_llvm::None;
     }
     DemangledAS = true;
   }
@@ -478,7 +479,7 @@ static Optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
   }
 
   if (!DemangledAS && L.Consume("U3AS") && !L.ConsumeInteger(AddressSpace)) {
-    return None;
+    return multi_llvm::None;
   }
 
   return PointerASQuals{AddressSpace, PointerQual};

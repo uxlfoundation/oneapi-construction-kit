@@ -14,6 +14,7 @@
 #include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/opaque_pointers.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>

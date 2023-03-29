@@ -6,6 +6,7 @@
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <multi_llvm/optional_helper.h>
 
 #include "multi_llvm/multi_llvm.h"
 
@@ -63,7 +64,7 @@ llvm::Constant *compiler::utils::getIdentityVal(multi_llvm::RecurKind Kind,
                                   true);
 }
 
-llvm::Optional<compiler::utils::GroupCollective>
+multi_llvm::Optional<compiler::utils::GroupCollective>
 compiler::utils::isGroupCollective(llvm::Function *f) {
   Lexer L(f->getName());
 
@@ -71,7 +72,7 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
   L.Consume("_Z");
   unsigned int _;
   if (!L.ConsumeInteger(_)) {
-    return llvm::None;
+    return multi_llvm::None;
   }
   GroupCollective collective{};
 
@@ -81,7 +82,7 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
   } else if (L.Consume("sub_group_")) {
     collective.scope = GroupCollective::Scope::SubGroup;
   } else {
-    return llvm::None;
+    return multi_llvm::None;
   }
 
   // Then the operation type.
@@ -98,7 +99,7 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
   } else if (L.Consume("broadcast")) {
     collective.op = GroupCollective::Op::Broadcast;
   } else {
-    return llvm::None;
+    return multi_llvm::None;
   }
 
   // Then the recurrence kind.

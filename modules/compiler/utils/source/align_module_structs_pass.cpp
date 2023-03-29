@@ -556,7 +556,7 @@ void compiler::utils::AlignModuleStructsPass::generateNewStructType(
       // Calculate OpenCL alignment using LLVM data layout APIs. Depending on
       // target this may require some coercion to meet OpenCL requirements.
       const DataLayout &dl = module.getDataLayout();
-      unsigned int alignment = dl.getPrefTypeAlignment(memberType);
+      unsigned int alignment = dl.getPrefTypeAlign(memberType).value();
 
       // The preferred alignment of vector types can be less than the OpenCL
       // specified alignment, which is the size of the data type.

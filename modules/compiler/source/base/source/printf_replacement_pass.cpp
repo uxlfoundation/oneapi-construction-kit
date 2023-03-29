@@ -17,6 +17,7 @@
 #include <llvm/Support/FormatVariadic.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/opaque_pointers.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -359,7 +360,7 @@ Optional<std::string> getPointerToStringAsString(Value *op) {
   }
 
   if (!var || !var->hasInitializer()) {
-    return None;
+    return multi_llvm::None;
   }
 
   Constant *const string_const = var->getInitializer();
@@ -368,7 +369,7 @@ Optional<std::string> getPointerToStringAsString(Value *op) {
     return array_string->getAsString().str();
   }
 
-  return None;
+  return multi_llvm::None;
 }
 
 /// @brief A small wrapper function around IRBuilder<>::CreateCall that

@@ -24,6 +24,7 @@
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/opaque_pointers.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <memory>
@@ -1656,13 +1657,13 @@ ValuePacket Packetizer::Impl::packetizeSubgroupScan(
   // operations. The value 'None' here represents an operation where the sign
   // of the operands is unimportant, such as floating-point operations, or
   // integer addition.
-  Optional<bool> optIsSignedInt;
+  multi_llvm::Optional<bool> optIsSignedInt;
   bool isInt = Tys[0]->isIntOrIntVectorTy();
 
   // Determine whether this is a signed or unsigned integer min/max scan.
   const auto isSignedArg0 = [isInt, fnName, &mangler]() -> Optional<bool> {
     if (!isInt) {
-      return None;
+      return multi_llvm::None;
     }
     // Demangle the function name to get the type qualifiers.
     SmallVector<Type *, 2> types;
@@ -1752,7 +1753,7 @@ ValuePacket Packetizer::Impl::packetizeSubgroupScan(
 
   O << VectorizationContext::InternalBuiltinPrefix << "sub_group_scan_"
     << (isInclusive ? "inclusive" : "exclusive") << "_"
-    << (optIsSignedInt.hasValue() ? (*optIsSignedInt ? "s" : "u") : "") << op
+    << (optIsSignedInt.has_value() ? (*optIsSignedInt ? "s" : "u") : "") << op
     << (VP ? "_vp" : "") << "_";
 
   compiler::utils::TypeQualifiers VecQuals(

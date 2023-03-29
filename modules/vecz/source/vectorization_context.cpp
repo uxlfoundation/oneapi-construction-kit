@@ -360,14 +360,14 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
 }
 
 namespace {
-Optional<std::tuple<bool, multi_llvm::RecurKind, bool>> isSubgroupScan(
-    StringRef fnName, Type *const ty) {
+multi_llvm::Optional<std::tuple<bool, multi_llvm::RecurKind, bool>>
+isSubgroupScan(StringRef fnName, Type *const ty) {
   compiler::utils::Lexer L(fnName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
-    return None;
+    return multi_llvm::None;
   }
   if (!L.Consume("sub_group_scan_")) {
-    return None;
+    return multi_llvm::None;
   }
   bool isInt = ty->isIntOrIntVectorTy();
   bool isInclusive = L.Consume("inclusive_");
@@ -405,13 +405,13 @@ Optional<std::tuple<bool, multi_llvm::RecurKind, bool>> isSubgroupScan(
         opKind = multi_llvm::RecurKind::Xor;
         assert(isInt && "unexpected internal scan builtin");
       } else {
-        return None;
+        return multi_llvm::None;
       }
       bool isVP = L.Consume("_vp");
       return std::make_tuple(isInclusive, opKind, isVP);
     }
   }
-  return None;
+  return multi_llvm::None;
 }
 };  // namespace
 
@@ -419,7 +419,8 @@ bool VectorizationContext::defineInternalBuiltin(Function *F) {
   assert(F->isDeclaration() && "builtin is already defined");
 
   // Handle masked memory loads and stores.
-  if (Optional<MemOpDesc> Desc = MemOpDesc::analyzeMemOpFunction(*F)) {
+  if (multi_llvm::Optional<MemOpDesc> Desc =
+          MemOpDesc::analyzeMemOpFunction(*F)) {
     if (Desc->isMaskedMemOp()) {
       return emitMaskedMemOpBody(*F, *Desc);
     }

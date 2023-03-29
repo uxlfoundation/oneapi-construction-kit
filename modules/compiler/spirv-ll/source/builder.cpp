@@ -1168,7 +1168,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
   } else if (ty->isFloatingPointTy()) {
     return getMangledFPName(ty);
   } else if (ty->isIntegerTy()) {
-    llvm::Optional<bool> signedness;
+    multi_llvm::Optional<bool> signedness;
     if (mangleInfo && mangleInfo->id) {
       auto *const spvTy = module.get<OpType>(mangleInfo->id);
       if (spvTy->isBoolType()) {
@@ -1180,7 +1180,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
       }
     }
     // Assume signed integer when no opcode is provided
-    return getMangledIntName(ty, multi_llvm::value_or(signedness, true));
+    return getMangledIntName(ty, signedness.value_or(true));
   } else if (ty->isVectorTy()) {
     llvm::Optional<MangleInfo> componentMangleInfo;
     if (mangleInfo) {
@@ -1453,7 +1453,7 @@ bool spirv_ll::MangleInfo::getSignedness(const spirv_ll::Module &module) const {
   if (!id) {
     return true;
   }
-  llvm::Optional<bool> tySignedness;
+  multi_llvm::Optional<bool> tySignedness;
   auto *const spvTy = module.get<OpType>(id);
   if (spvTy->isIntType()) {
     tySignedness = spvTy->getTypeInt()->Signedness();
@@ -1475,7 +1475,7 @@ bool spirv_ll::MangleInfo::getSignedness(const spirv_ll::Module &module) const {
       break;
   }
   // The default is signed
-  return multi_llvm::value_or(tySignedness, true);
+  return tySignedness.value_or(true);
 }
 
 std::string spirv_ll::getIntTypeName(llvm::Type *ty, bool isSigned) {
