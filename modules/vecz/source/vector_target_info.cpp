@@ -1275,9 +1275,8 @@ bool TargetInfo::interleaveVectors(IRBuilder<> &B,
 unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
                                        const ArrayRef<const Value *> vals,
                                        unsigned width) const {
-  unsigned MaxVecRegBitWidth =
-      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector)
-          .getFixedSize();
+  unsigned MaxVecRegBitWidth = multi_llvm::getFixedValue(
+      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector));
 
   unsigned NumVecRegs =
       TTI.getNumberOfRegisters(TTI.getRegisterClassForType(true));
@@ -1300,9 +1299,8 @@ unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
 
 unsigned TargetInfo::getVectorWidthForType(const llvm::TargetTransformInfo &TTI,
                                            const llvm::Type &Ty) const {
-  unsigned MaxVecRegBitWidth =
-      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector)
-          .getFixedSize();
+  unsigned MaxVecRegBitWidth = multi_llvm::getFixedValue(
+      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector));
 
   if (MaxVecRegBitWidth == 0) {
     return 0;

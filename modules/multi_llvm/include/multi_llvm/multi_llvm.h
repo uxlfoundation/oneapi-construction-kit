@@ -67,6 +67,24 @@ inline llvm::DILocation *getDILocation(unsigned Line, unsigned Column,
                                InlinedAt, /*ImplicitCode*/ false);
 }
 
+template <typename T>
+inline typename std::remove_reference_t<T>::ScalarTy getFixedValue(T &&V) {
+#if LLVM_VERSION_MAJOR >= 16
+  return V.getFixedValue();
+#else
+  return V.getFixedSize();
+#endif
+}
+
+template <typename T>
+inline typename std::remove_reference_t<T>::ScalarTy getKnownMinValue(T &&M) {
+#if LLVM_VERSION_MAJOR >= 16
+  return M.getKnownMinValue();
+#else
+  return M.getKnownMinSize();
+#endif
+}
+
 using RecurKind = llvm::RecurKind;
 
 /// @brief Create a binary operation corresponding to the given

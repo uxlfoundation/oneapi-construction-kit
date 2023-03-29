@@ -1435,10 +1435,10 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
           // If it's an alloca we can widen, we can just change the size
           llvm::TypeSize const allocSize =
               Ctx.dataLayout()->getTypeAllocSize(alloca->getAllocatedType());
-          auto const lifeSize =
-              allocSize.isScalable() || SimdWidth.isScalable()
-                  ? -1
-                  : allocSize.getKnownMinSize() * SimdWidth.getKnownMinValue();
+          auto const lifeSize = allocSize.isScalable() || SimdWidth.isScalable()
+                                    ? -1
+                                    : multi_llvm::getKnownMinValue(allocSize) *
+                                          SimdWidth.getKnownMinValue();
           CI->setOperand(
               0, ConstantInt::get(CI->getOperand(0)->getType(), lifeSize));
           results.push_back(CI);
@@ -2100,7 +2100,8 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     // alignment, but may be overaligned. After vectorization it can't be
     // larger than the pointee element type.
     unsigned alignment = op.getAlignment();
-    unsigned sizeInBits = dataTy->getPrimitiveSizeInBits().getKnownMinSize();
+    unsigned sizeInBits =
+        multi_llvm::getKnownMinValue(dataTy->getPrimitiveSizeInBits());
     alignment = std::min(alignment, std::max(sizeInBits, 8u) / 8u);
 
     // Regular load or store.

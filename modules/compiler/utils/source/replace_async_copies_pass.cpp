@@ -146,7 +146,7 @@ void defineAsyncWorkGroupCopy(Function &AsyncWorkGroupCopy, Type *DataTy,
   const DataLayout &DataLayout =
       AsyncWorkGroupCopy.getParent()->getDataLayout();
   auto ElementTypeWidthInBytes =
-      DataLayout.getTypeAllocSize(DataTy).getFixedSize();
+      multi_llvm::getFixedValue(DataLayout.getTypeAllocSize(DataTy));
   auto *ElementSize =
       ConstantInt::get(NumElements->getType(), ElementTypeWidthInBytes);
 

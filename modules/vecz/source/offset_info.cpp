@@ -22,7 +22,7 @@ using namespace llvm;
 
 namespace {
 inline uint64_t SizeOrZero(TypeSize &&T) {
-  return T.isScalable() ? 0 : T.getFixedSize();
+  return T.isScalable() ? 0 : multi_llvm::getFixedValue(T);
 }
 
 uint8_t highbit(const uint32_t x) {
