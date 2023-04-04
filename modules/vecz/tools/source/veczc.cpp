@@ -119,26 +119,7 @@ static llvm::TargetMachine *initLLVMTarget(llvm::StringRef triple_string,
     ::exit(1);
   }
   llvm::PassRegistry &registry = *llvm::PassRegistry::getPassRegistry();
-  llvm::initializeCore(registry);
-  llvm::initializeScalarOpts(registry);
-  llvm::initializeCodeGen(registry);
-  llvm::initializeIPO(registry);
-  llvm::initializeAnalysis(registry);
-  llvm::initializeAggressiveInstCombine(registry);
-  llvm::initializeLoopStrengthReducePass(registry);
-  llvm::initializeLowerIntrinsicsPass(registry);
-#if LLVM_VERSION_LESS(15, 0)
-  llvm::initializeEntryExitInstrumenterPass(registry);
-  llvm::initializePostInlineEntryExitInstrumenterPass(registry);
-#endif
-  llvm::initializeUnreachableBlockElimLegacyPassPass(registry);
-  llvm::initializeConstantHoistingLegacyPassPass(registry);
-  llvm::initializeInstructionCombiningPassPass(registry);
-
-  llvm::initializeScalarizeMaskedMemIntrinLegacyPassPass(registry);
-  llvm::initializeExpandReductionsPass(registry);
-  llvm::initializeHardwareLoopsPass(registry);
-  llvm::initializeTransformUtils(registry);
+  llvm::initializeAlwaysInlinerLegacyPassPass(registry);
   return target->createTargetMachine(triple.getTriple(), cpu_model,
                                      target_features, opts,
                                      llvm::Reloc::Model::Static);
