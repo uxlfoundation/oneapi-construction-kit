@@ -719,9 +719,8 @@ void Scalarizer::scalarizeDI(Instruction *Original, const SimdPacket *Packet,
         // aggregate variable, our vector, which is fragmented across multiple
         // values. First argument takes the offset of the piece, and the second
         // takes the piece size.
-        auto DIExpr = DIExpression::createFragmentExpression(
-                          DIB.createExpression(), lane * bitSize, bitSize)
-                          .getValue();
+        auto DIExpr = *DIExpression::createFragmentExpression(
+            DIB.createExpression(), lane * bitSize, bitSize);
         DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc, Original);
         VectorElements.insert(LaneVal);
       }
