@@ -2,6 +2,7 @@
 #ifndef MULTI_LLVM_MULTI_LLVM_H_INCLUDED
 #define MULTI_LLVM_MULTI_LLVM_H_INCLUDED
 
+#include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/Analysis/IVDescriptors.h>
@@ -30,6 +31,24 @@ using std::make_unique;
 using IDFCalculator = llvm::IDFCalculator<false>;
 
 using llvm::isa_and_nonnull;
+
+template <typename T>
+llvm::ArrayRef<T> ArrayRef(T *data, size_t size) {
+#if LLVM_VERSION_MAJOR >= 16
+  return llvm::ArrayRef<T>(data, size);
+#else
+  return llvm::makeArrayRef<T>(data, size);
+#endif
+}
+
+template <typename T>
+llvm::ArrayRef<T> ArrayRef(llvm::SmallVectorImpl<T> &data) {
+#if LLVM_VERSION_MAJOR >= 16
+  return llvm::ArrayRef<T>(data.data(), data.size());
+#else
+  return llvm::makeArrayRef<T>(data.data(), data.size());
+#endif
+}
 
 struct InlineResult {
   llvm::InlineResult result;

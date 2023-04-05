@@ -5,6 +5,7 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/Support/Casting.h>
 #include <metadata/metadata.h>
+#include <multi_llvm/multi_llvm.h>
 
 namespace compiler {
 namespace utils {
@@ -34,13 +35,13 @@ md_hooks getElfMetadataWriteHooks() {
       auto *MDTy =
           llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), Data.size());
       auto *MDInit = llvm::ConstantDataArray::get(
-          Ctx, llvm::makeArrayRef(Data.data(), Data.size()));
+          Ctx, multi_llvm::ArrayRef(Data.data(), Data.size()));
 
       GlobalMD = llvm::dyn_cast_or_null<llvm::GlobalVariable>(
           M->getOrInsertGlobal(globalName, MDTy));
       GlobalMD->setInitializer(MDInit);
     } else {
-      auto MDDataArr = llvm::makeArrayRef((uint8_t *)src, n);
+      auto MDDataArr = multi_llvm::ArrayRef((uint8_t *)src, n);
       auto *MDTy =
           llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), MDDataArr.size());
       auto *MDInit = llvm::ConstantDataArray::get(Ctx, MDDataArr);

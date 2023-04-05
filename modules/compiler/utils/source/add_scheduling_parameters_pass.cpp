@@ -11,6 +11,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
+#include <multi_llvm/multi_llvm.h>
 
 #define DEBUG_TYPE "add-sched-params"
 
@@ -213,7 +214,8 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
           SmallVector<Value *, 8> NewArgs(CB->args());
           // Append all of our scheduling parameters to the old list of
           // parameters.
-          append_range(NewArgs, makeArrayRef(FArgs).take_back(NumSchedParams));
+          append_range(NewArgs,
+                       multi_llvm::ArrayRef(FArgs).take_back(NumSchedParams));
 
           auto *NewCB = CallInst::Create(NewF, NewArgs, "", CB);
           NewCB->takeName(CB);
