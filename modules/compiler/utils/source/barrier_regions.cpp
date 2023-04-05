@@ -21,6 +21,7 @@
 #include <llvm/Transforms/Utils/LCSSA.h>
 #include <llvm/Transforms/Utils/Local.h>
 #include <multi_llvm/creation_apis_helper.h>
+#include <multi_llvm/multi_llvm.h>
 
 using namespace llvm;
 
@@ -422,7 +423,7 @@ Function *compiler::utils::Barrier::GenerateFakeKernel(
     if (region.barrier_blocks.count(bb)) {
       ReturnInst::Create(context, nullptr, new_bb);
     } else {
-      new_bb->getInstList().push_back(bb->getTerminator()->clone());
+      multi_llvm::insertAtEnd(new_bb, bb->getTerminator()->clone());
     }
     vmap[bb] = new_bb;
     bbmap[bb] = new_bb;
@@ -1275,7 +1276,7 @@ BasicBlock *compiler::utils::Barrier::CloneBasicBlock(
 
     Instruction *new_inst = i.clone();
     if (i.hasName()) new_inst->setName(i.getName() + name_suffix);
-    new_bb->getInstList().push_back(new_inst);
+    multi_llvm::insertAtEnd(new_bb, new_inst);
 
     // Record live variables' defs which are in current kernel.
     if (whole_live_variables_set_.count(&i)) {

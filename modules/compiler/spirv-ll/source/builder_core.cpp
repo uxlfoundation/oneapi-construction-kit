@@ -184,10 +184,10 @@ cargo::optional<Error> Builder::create<OpLine>(const OpLine *op) {
 
   // if there aren't any instructions in the basic block yet just go from the
   // start
-  if (IRBuilder.GetInsertBlock()->getInstList().empty()) {
-    iter = IRBuilder.GetInsertBlock()->getInstList().begin();
+  if (IRBuilder.GetInsertBlock()->empty()) {
+    iter = IRBuilder.GetInsertBlock()->begin();
   } else {
-    iter = IRBuilder.GetInsertBlock()->getInstList().back().getIterator();
+    iter = IRBuilder.GetInsertBlock()->back().getIterator();
   }
 
   llvm::DILocation *loc =
@@ -205,9 +205,9 @@ void Builder::checkEndOpLineRange(bool is_branch) {
     llvm::BasicBlock::iterator end_iter;
 
     if (is_branch) {
-      end_iter = IRBuilder.GetInsertBlock()->getInstList().end();
+      end_iter = IRBuilder.GetInsertBlock()->end();
     } else {
-      end_iter = IRBuilder.GetInsertBlock()->getInstList().back().getIterator();
+      end_iter = IRBuilder.GetInsertBlock()->back().getIterator();
     }
 
     auto range = std::make_pair(begin_iter, end_iter);
@@ -1619,7 +1619,7 @@ static llvm::Optional<std::pair<uint32_t, const char *>> getLinkage(
         decoration->getValueAtOffset(linkageOffset),
         spirv_ll::cast<const OpDecorate>(decoration)->getDecorationString());
   }
-  return llvm::None;
+  return multi_llvm::None;
 }
 
 template <>
@@ -5845,7 +5845,7 @@ cargo::optional<Error> Builder::create<OpLabel>(const OpLabel *op) {
   // If this was the first basic block in a function check for and add any spec
   // constant instructions that may have been deferred, and deal with any
   // interface blocks that need to be loaded/stored.
-  if (current_function->getBasicBlockList().size() == 1) {
+  if (current_function->size() == 1) {
     if (module.hasCapability(spv::CapabilityShader)) {
       handleGlobalParameters();
     }

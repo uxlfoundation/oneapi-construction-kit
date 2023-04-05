@@ -7,6 +7,7 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/Analysis/IVDescriptors.h>
 #include <llvm/Analysis/IteratedDominanceFrontier.h>
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DebugInfo.h>
 #include <llvm/IR/GlobalObject.h>
 #include <llvm/IR/IRBuilder.h>
@@ -84,6 +85,14 @@ inline llvm::DILocation *getDILocation(unsigned Line, unsigned Column,
   if (!Scope) return llvm::DebugLoc();
   return llvm::DILocation::get(Scope->getContext(), Line, Column, Scope,
                                InlinedAt, /*ImplicitCode*/ false);
+}
+
+inline void insertAtEnd(llvm::BasicBlock *bb, llvm::Instruction *newInst) {
+#if LLVM_VERSION_MAJOR >= 16
+  newInst->insertInto(bb, bb->end());
+#else
+  bb->getInstList().push_back(newInst);
+#endif
 }
 
 template <typename T>

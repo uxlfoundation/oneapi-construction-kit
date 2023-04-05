@@ -3,6 +3,7 @@
 #include <compiler/utils/pass_machinery.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Analysis/AliasAnalysis.h>
+#include <multi_llvm/optional_helper.h>
 
 using namespace llvm;
 
@@ -63,7 +64,7 @@ PassMachinery::PassMachinery(TargetMachine *TM, bool VerifyEach,
 PassMachinery::~PassMachinery() {}
 
 void PassMachinery::initializeStart(PipelineTuningOptions PTO) {
-  Optional<PGOOptions> PGOOpt;
+  multi_llvm::Optional<PGOOptions> PGOOpt;
   PB = PassBuilder(TM, PTO, PGOOpt, &PIC);
 }
 

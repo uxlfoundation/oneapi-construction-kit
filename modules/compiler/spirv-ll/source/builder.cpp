@@ -131,8 +131,7 @@ void spirv_ll::Builder::addDebugInfoToModule() {
     auto range_pair = op_line_info.second;
 
     range_pair.first++;
-    if (range_pair.second !=
-        range_pair.first->getParent()->getInstList().end()) {
+    if (range_pair.second != range_pair.first->getParent()->end()) {
       range_pair.second++;
     }
 
@@ -509,12 +508,11 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
 
     // Finally insert the basic block wherever it is needed.
     for (auto &user_function : user_functions) {
-      llvm::BasicBlock *start_of_func =
-          &user_function.first->getBasicBlockList().front();
+      llvm::BasicBlock *start_of_func = &user_function.first->front();
 
       llvm::BasicBlock *builtin_init_bb = llvm::BasicBlock::Create(
           *context.llvmContext, "init_builtin_var", user_function.first,
-          &user_function.first->getBasicBlockList().front());
+          &user_function.first->front());
 
       generateBuiltinInitBlock(builtin, varTy, builtin_init_bb);
 
@@ -524,7 +522,7 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
       // This alloca instruction is what we will replace uses of the global in
       // this function with.
       llvm::AllocaInst *new_builtin_var =
-          llvm::cast<llvm::AllocaInst>(&builtin_init_bb->getInstList().front());
+          llvm::cast<llvm::AllocaInst>(&builtin_init_bb->front());
 
       // We have to move all the Allocas from the original entry block to the
       // start of the new entry block, for certain passes to work properly.
@@ -1349,7 +1347,7 @@ void spirv_ll::Builder::generateSpecConstantOps() {
   llvm::BasicBlock *oldBasicBlock = IRBuilder.GetInsertBlock();
   auto oldInsertPoint = IRBuilder.GetInsertPoint();
 
-  llvm::BasicBlock *firstBasicBlock = &function->getBasicBlockList().front();
+  llvm::BasicBlock *firstBasicBlock = &function->front();
 
   // Create a new basic block at the very start of the function for the spec
   // constant instructions to be generated in.
