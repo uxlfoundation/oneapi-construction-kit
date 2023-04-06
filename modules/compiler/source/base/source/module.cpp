@@ -103,12 +103,12 @@ namespace {
 // changed around; not a big deal, just a few ugly ifdefs
 inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
     llvm::PassBuilder &PB, llvm::OptimizationLevel OL,
-    llvm::Optional<llvm::ModulePassManager> EP) {
+    multi_llvm::Optional<llvm::ModulePassManager> EP) {
   assert(OL != llvm::OptimizationLevel::O0);
-  if (EP.hasValue()) {
+  if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
         [&EP](llvm::ModulePassManager &MPM, llvm::OptimizationLevel) {
-          MPM.addPass(std::move(EP.getValue()));
+          MPM.addPass(std::move(EP.value()));
         });
   }
   PB.registerPipelineStartEPCallback(
@@ -120,11 +120,11 @@ inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
 }
 
 inline llvm::ModulePassManager buildO0DefaultPipeline(
-    llvm::PassBuilder &PB, llvm::Optional<llvm::ModulePassManager> EP) {
-  if (EP.hasValue()) {
+    llvm::PassBuilder &PB, multi_llvm::Optional<llvm::ModulePassManager> EP) {
+  if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
         [&EP](llvm::ModulePassManager &MPM, llvm::OptimizationLevel) {
-          MPM.addPass(std::move(EP.getValue()));
+          MPM.addPass(std::move(EP.value()));
         });
   }
   return PB.buildO0DefaultPipeline(llvm::OptimizationLevel::O0);
@@ -132,7 +132,7 @@ inline llvm::ModulePassManager buildO0DefaultPipeline(
 
 inline llvm::ModulePassManager buildPipeline(
     llvm::PassBuilder &PB, clang::CodeGenOptions Opts,
-    llvm::Optional<llvm::ModulePassManager> EP) {
+    multi_llvm::Optional<llvm::ModulePassManager> EP) {
   return Opts.OptimizationLevel == 0
              ? buildO0DefaultPipeline(PB, std::move(EP))
              : buildPerModuleDefaultPipeline(PB, llvm::OptimizationLevel::O3,
@@ -152,8 +152,8 @@ inline llvm::ModulePassManager buildPipeline(
 void runFrontendPipeline(
     compiler::BaseModule &base_module, llvm::Module &module,
     const clang::CodeGenOptions &CGO,
-    llvm::Optional<llvm::ModulePassManager> EP = llvm::None,
-    llvm::Optional<llvm::ModulePassManager> LP = llvm::None) {
+    multi_llvm::Optional<llvm::ModulePassManager> EP = multi_llvm::None,
+    multi_llvm::Optional<llvm::ModulePassManager> LP = multi_llvm::None) {
   llvm::PipelineTuningOptions PTO;
   PTO.LoopUnrolling = CGO.UnrollLoops;
   auto PassMach = base_module.createPassMachinery();
@@ -163,8 +163,8 @@ void runFrontendPipeline(
   llvm::ModulePassManager MPM =
       buildPipeline(PassMach->getPB(), CGO, std::move(EP));
 
-  if (LP.hasValue()) {
-    MPM.addPass(std::move(LP.getValue()));
+  if (LP.has_value()) {
+    MPM.addPass(std::move(LP.value()));
   }
   MPM.run(module, PassMach->getMAM());
 }
@@ -1123,7 +1123,9 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) {
   lang_opts.AllowRecip =
       options.unsafe_math_optimizations;  // Spec does not mandate this.
 
+#if LLVM_VERSION_LESS(16, 0)
   lang_opts.HalfArgsAndReturns = lang_opts.NativeHalfArgsAndReturns;
+#endif
 
   // Override the C99 inline semantics to accommodate for more OpenCL C
   // programs in the wild.
@@ -1462,15 +1464,15 @@ Result BaseModule::executeOpenCLAction(clang::CompilerInstance &instance,
 
 void BaseModule::runOpenCLFrontendPipeline(
     const clang::CodeGenOptions &codeGenOpts,
-    llvm::Optional<llvm::ModulePassManager> early_passes,
-    llvm::Optional<llvm::ModulePassManager> late_passes) {
+    multi_llvm::Optional<llvm::ModulePassManager> early_passes,
+    multi_llvm::Optional<llvm::ModulePassManager> late_passes) {
 #if CL_TARGET_OPENCL_VERSION == 120
   // OpenCL 3.0 introduced stricter ULP requirements for relaxed math.
   // FastMathPass inserts calls to fast_* and native_* functions. Depending on
   // the device, these may not have ULP guarantees at all, so the pass is only
   // valid under 1.2.
   if (options.fast_math) {
-    if (late_passes.hasValue()) {
+    if (late_passes.has_value()) {
       late_passes->addPass(FastMathPass());
     } else {
       late_passes = llvm::ModulePassManager();
@@ -2236,24 +2238,24 @@ void BaseModule::initializePassMachineryForFrontend(
 
   switch (CGO.getVecLib()) {
     case clang::CodeGenOptions::Accelerate:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::Accelerate);
+      multi_llvm::addVectorizableFunctionsFromVecLib(
+          TLII, llvm::TargetLibraryInfoImpl::Accelerate, TT);
       break;
     case clang::CodeGenOptions::SVML:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::SVML);
+      multi_llvm::addVectorizableFunctionsFromVecLib(
+          TLII, llvm::TargetLibraryInfoImpl::SVML, TT);
       break;
     case clang::CodeGenOptions::MASSV:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::MASSV);
+      multi_llvm::addVectorizableFunctionsFromVecLib(
+          TLII, llvm::TargetLibraryInfoImpl::MASSV, TT);
       break;
     case clang::CodeGenOptions::LIBMVEC:
       switch (TT.getArch()) {
         default:
           break;
         case llvm::Triple::x86_64:
-          TLII.addVectorizableFunctionsFromVecLib(
-              llvm::TargetLibraryInfoImpl::LIBMVEC_X86);
+          multi_llvm::addVectorizableFunctionsFromVecLib(
+              TLII, llvm::TargetLibraryInfoImpl::LIBMVEC_X86, TT);
           break;
       }
       break;

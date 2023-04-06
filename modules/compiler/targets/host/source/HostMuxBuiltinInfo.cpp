@@ -79,7 +79,7 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
     WIInfo.PassedExternally = false;
 
     auto AB = AttrBuilder(Ctx, DefaultAttrs);
-    AB.addAlignmentAttr(DL.getABITypeAlignment(WIInfoS));
+    AB.addAlignmentAttr(DL.getABITypeAlign(WIInfoS));
     AB.addDereferenceableAttr(DL.getTypeAllocSize(WIInfoS));
     WIInfo.ParamAttrs = AttributeSet::get(Ctx, AB);
   }
@@ -95,7 +95,7 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
     SchedInfo.PassedExternally = true;
 
     auto AB = AttrBuilder(Ctx, DefaultAttrs);
-    AB.addAlignmentAttr(DL.getABITypeAlignment(SchedInfoS));
+    AB.addAlignmentAttr(DL.getABITypeAlign(SchedInfoS));
     AB.addDereferenceableAttr(DL.getTypeAllocSize(SchedInfoS));
     SchedInfo.ParamAttrs = AttributeSet::get(Ctx, AB);
   }
@@ -111,7 +111,7 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
     WGInfo.PassedExternally = false;
 
     auto AB = AttrBuilder(Ctx, DefaultAttrs);
-    AB.addAlignmentAttr(DL.getABITypeAlignment(WGInfoS));
+    AB.addAlignmentAttr(DL.getABITypeAlign(WGInfoS));
     AB.addDereferenceableAttr(DL.getTypeAllocSize(WGInfoS));
     WGInfo.ParamAttrs = AttributeSet::get(Ctx, AB);
   }

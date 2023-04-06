@@ -5,8 +5,10 @@
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/IVDescriptors.h>
 #include <llvm/Analysis/IteratedDominanceFrontier.h>
+#include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DebugInfo.h>
 #include <llvm/IR/GlobalObject.h>
@@ -274,6 +276,16 @@ inline llvm::Value *getPoisonOrUndef(llvm::Type *ty) {
   return llvm::PoisonValue::get(ty);
 }
 
+inline void addVectorizableFunctionsFromVecLib(
+    llvm::TargetLibraryInfoImpl &TLII,
+    llvm::TargetLibraryInfoImpl::VectorLibrary VecLib, llvm::Triple TT) {
+#if LLVM_VERSION_MAJOR >= 16
+  TLII.addVectorizableFunctionsFromVecLib(VecLib, TT);
+#else
+  (void)TT;
+  TLII.addVectorizableFunctionsFromVecLib(VecLib);
+#endif
+}
 }  // namespace multi_llvm
 
 #endif  // MULTI_LLVM_MULTI_LLVM_H_INCLUDED

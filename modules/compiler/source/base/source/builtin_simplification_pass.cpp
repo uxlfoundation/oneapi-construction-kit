@@ -11,6 +11,7 @@
 #include <abacus/abacus_extra.h>
 #include <abacus/abacus_math.h>
 
+#include <cmath>
 #include <map>
 
 using namespace llvm;

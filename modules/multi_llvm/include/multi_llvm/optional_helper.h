@@ -29,6 +29,10 @@ class Optional : public llvm::Optional<T> {
     llvm::Optional<T>::operator=(y);
     return *this;
   }
+  Optional &operator=(T &&y) {
+    llvm::Optional<T>::operator=(std::forward<T>(y));
+    return *this;
+  }
 
   constexpr Optional(llvm::Optional<T> &&value)
       : llvm::Optional<T>(std::move(value)) {}

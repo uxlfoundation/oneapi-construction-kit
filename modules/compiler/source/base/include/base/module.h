@@ -553,8 +553,10 @@ class BaseModule : public Module {
   /// @param[in] late_passes Module pass manager populated with late passes.
   void runOpenCLFrontendPipeline(
       const clang::CodeGenOptions &codeGenOpts,
-      llvm::Optional<llvm::ModulePassManager> early_passes = multi_llvm::None,
-      llvm::Optional<llvm::ModulePassManager> late_passes = multi_llvm::None);
+      multi_llvm::Optional<llvm::ModulePassManager> early_passes =
+          multi_llvm::None,
+      multi_llvm::Optional<llvm::ModulePassManager> late_passes =
+          multi_llvm::None);
 
   /// @brief LLVM module produced by the `Module::finalize` method.
   std::unique_ptr<llvm::Module> finalized_llvm_module;

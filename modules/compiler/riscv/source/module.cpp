@@ -388,24 +388,24 @@ void RiscvModule::initializePassMachineryForFrontend(
 
   switch (CGO.getVecLib()) {
     case clang::CodeGenOptions::Accelerate:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::Accelerate);
+      multi_llvm::addVectorizableFunctionsFromVecLib(
+          TLII, llvm::TargetLibraryInfoImpl::Accelerate, TT);
       break;
     case clang::CodeGenOptions::SVML:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::SVML);
+      multi_llvm::addVectorizableFunctionsFromVecLib(
+          TLII, llvm::TargetLibraryInfoImpl::SVML, TT);
       break;
     case clang::CodeGenOptions::MASSV:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::MASSV);
+      multi_llvm::addVectorizableFunctionsFromVecLib(
+          TLII, llvm::TargetLibraryInfoImpl::MASSV, TT);
       break;
     case clang::CodeGenOptions::LIBMVEC:
       switch (TT.getArch()) {
         default:
           break;
         case llvm::Triple::x86_64:
-          TLII.addVectorizableFunctionsFromVecLib(
-              llvm::TargetLibraryInfoImpl::LIBMVEC_X86);
+          multi_llvm::addVectorizableFunctionsFromVecLib(
+              TLII, llvm::TargetLibraryInfoImpl::LIBMVEC_X86, TT);
           break;
       }
       break;
