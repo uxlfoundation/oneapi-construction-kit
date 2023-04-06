@@ -2060,16 +2060,63 @@ std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
   return name;
 }
 
-std::string getVectorTypeNames(spirv_ll::Module &module, const llvm::Type *ty,
-                               std::string &argType) {
-  SPIRV_LL_ASSERT(ty->getTypeID() == multi_llvm::FixedVectorTyID,
-                  "Failed to determine vector type name of a non-vector");
-  auto elemTy = multi_llvm::getVectorElementType(ty);
-  auto opElem = module.get<OpCode>(elemTy);
-  auto name = getScalarTypeName(elemTy, opElem);
-  auto numElements = std::to_string(multi_llvm::getVectorNumElements(ty));
-  argType = name + numElements;
-  return name + " __attribute__((ext_vector_type(" + numElements + ")))";
+std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
+                                  spv::Id argTyID, bool isBaseTyName) {
+  multi_llvm::Optional<std::string> argBaseTy;
+  if (argTy->isPointerTy()) {
+    // Check for special built-in types, which are found as pointers to
+    // special struct types.
+    if (auto *const structTy = module.getInternalStructType(argTyID)) {
+      auto structName = structTy->getStructName();
+      if (!structName.consume_front("opencl.")) {
+        SPIRV_LL_ABORT(
+            "found an internal struct type that doesn't begin with 'opencl.'");
+      }
+      return structName.str();
+    } else {
+      // If we haven't found a known pointer, keep trying.
+      auto argTyOp = module.get<OpTypePointer>(argTyID);
+      auto pointeeTyID = argTyOp->getTypePointer()->Type();
+      auto *pointeeTy = module.getType(pointeeTyID);
+
+      return retrieveArgTyMetadata(module, pointeeTy, pointeeTyID,
+                                   isBaseTyName) +
+             '*';
+    }
+  }
+  if (argTy->isArrayTy()) {
+    // We give up on arrays for simplicity: they can't be specified as
+    // parameters to OpenCL C kernels anyway. This also matches
+    // SPIRV-LLVM-Translator's behaviour.
+    return "array";
+  }
+  if (argTy->isVectorTy()) {
+    auto *const elemTy = multi_llvm::getVectorElementType(argTy);
+    auto const opElem = module.get<OpCode>(elemTy);
+    auto const name = getScalarTypeName(elemTy, opElem);
+    auto const numElements =
+        std::to_string(multi_llvm::getVectorNumElements(argTy));
+    return isBaseTyName
+               ? name + " __attribute__((ext_vector_type(" + numElements + ")))"
+               : name + numElements;
+  }
+  if (argTy->isStructTy()) {
+    std::string structName = argTy->getStructName().str();
+    std::replace(structName.begin(), structName.end(), '.', ' ');
+    return structName;
+  }
+  if (argTy->isIntegerTy()) {
+    // if the arg is an integer it might actually be a sampler, while spir
+    // wants samplers to be i32 the metadata must still identify them as
+    // samplers for CL
+    if (module.getSampler() == argTyID) {
+      return "sampler_t";
+    }
+    auto argTyOp = module.get<OpType>(argTy);
+    return getScalarTypeName(argTy, argTyOp);
+  }
+  auto argOp = module.get<OpCode>(argTy);
+  return getScalarTypeName(argTy, argOp);
 }
 }  // namespace
 
@@ -2092,103 +2139,45 @@ cargo::optional<Error> Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
     llvm::SmallVector<llvm::Metadata *, 8> argTypeQuals;
     llvm::SmallVector<llvm::Metadata *, 8> argNames;
 
-    uint32_t arg_index = 0;
     for (const llvm::Argument &arg : function->args()) {
-      uint32_t argAddrSpace = 0;
-      std::string argAccessQual = "none";
-      std::string argTyName;
-      std::string argBaseTyName;
-      std::string argTyQualName;
-
       llvm::Type *argTy = arg.getType();
-      if (argTy->isPointerTy()) {
-        const unsigned argno = arg.getArgNo();
-        auto argTyOr = module.getParamTypeID(opTypeFunction->IdResult(), argno);
-        if (!argTyOr.has_value()) {
-          return Error("failed to lookup pointer type for formal parameter");
-        }
-        const spv::Id typeID = argTyOr.value();
-        argAddrSpace = argTy->getPointerAddressSpace();
-        if (auto *structTy = module.getInternalStructType(typeID)) {
-          auto structName = structTy->getStructName();
-          if (structName.startswith("opencl.image")) {
-            structName.consume_front("opencl.");
-            argTyName = structName.str();
-            argBaseTyName = argTyName;
-            auto opTypeImage = module.get<OpTypeImage>(typeID);
-            if (opTypeImage->wordCount() > 9) {
-              switch (opTypeImage->AccessQualifier()) {
-                case spv::AccessQualifierReadOnly:
-                  argAccessQual = "read_only";
-                  break;
-                case spv::AccessQualifierWriteOnly:
-                  argAccessQual = "write_only";
-                  break;
-                case spv::AccessQualifierReadWrite:
-                  argAccessQual = "read_write";
-                  break;
-                default:
-                  llvm_unreachable("invalid OpTypeImage Access Qualifier");
-              }
-            } else {
-              argAccessQual = "read_write";
-            }
-          }
-        }
+      const unsigned argNo = arg.getArgNo();
+      auto argTyOr = module.getParamTypeID(opTypeFunction->IdResult(), argNo);
+      if (!argTyOr.has_value()) {
+        return Error("failed to lookup pointer type for formal parameter");
+      }
+      const spv::Id typeID = argTyOr.value();
 
-        // If we haven't found a known pointer, keep trying.
-        if (argTyName.empty()) {
-          auto argTyOp = module.get<OpTypePointer>(
-              opTypeFunction->ParameterTypes()[arg_index]);
-          auto pointeeTyID = argTyOp->getTypePointer()->Type();
-          auto *pointeeTy = module.getType(pointeeTyID);
-          if (pointeeTy->isVectorTy()) {
-            argTyName = getVectorTypeNames(module, pointeeTy, argBaseTyName);
-          } else if (auto *structTy =
-                         llvm::dyn_cast<llvm::StructType>(pointeeTy)) {
-            argTyName = structTy->getStructName().str();
-            std::replace(argTyName.begin(), argTyName.end(), '.', ' ');
-            argTyName += '*';
-          } else if (auto *structTy =
-                         module.getInternalStructType(pointeeTyID)) {
-            auto structName = structTy->getStructName();
-            structName.consume_front("opencl.");
-            argTyName = structName.str();
-            argTyName += '*';
-            argBaseTyName = argTyName;
-          } else {
-            // Since void* types should still be represented as such in the
-            // metadata (and not as i8*, which is what their llvm::Type is), we
-            // need to drill down to the original OpType instruction for the arg
-            // here.
-            auto argTyElemOp = module.get<OpType>(argTyOp->Type());
-            argTyName = getScalarTypeName(pointeeTy, argTyElemOp);
-            argTyName += '*';
-            argBaseTyName = argTyName;
+      std::string argTyName =
+          retrieveArgTyMetadata(module, argTy, typeID, /*isBaseTyName*/ false);
+      std::string argBaseTyName =
+          retrieveArgTyMetadata(module, argTy, typeID, /*isBaseTyName*/ true);
+
+      // Address space
+      uint32_t argAddrSpace =
+          argTy->isPointerTy() ? argTy->getPointerAddressSpace() : 0;
+      // We don't set this field.
+      std::string argTyQualName = "";
+      // Set access qualifiers
+      std::string argAccessQual = "none";
+      if (module.get<OpType>(typeID)->isImageType()) {
+        argAccessQual = "read_write";
+        auto *const opTypeImage = module.get<OpType>(typeID)->getTypeImage();
+        if (opTypeImage->wordCount() > 9) {
+          switch (opTypeImage->AccessQualifier()) {
+            case spv::AccessQualifierReadOnly:
+              argAccessQual = "read_only";
+              break;
+            case spv::AccessQualifierWriteOnly:
+              argAccessQual = "write_only";
+              break;
+            case spv::AccessQualifierReadWrite:
+              argAccessQual = "read_write";
+              break;
+            default:
+              llvm_unreachable("invalid OpTypeImage Access Qualifier");
           }
         }
-      } else if (argTy->isVectorTy()) {
-        argTyName = getVectorTypeNames(module, argTy, argBaseTyName);
-      } else if (argTy->isStructTy()) {
-        argTyName = argTy->getStructName().str();
-        std::replace(argTyName.begin(), argTyName.end(), '.', ' ');
-      } else if (argTy->isIntegerTy()) {
-        // if the arg is an integer it might actually be a sampler, while spir
-        // wants samplers to be i32 the metadata must still identify them as
-        // samplers for CL
-        if (module.getSampler() ==
-            opTypeFunction->ParameterTypes()[arg_index]) {
-          argTyName = "sampler_t";
-          argBaseTyName = argTyName;
-        } else {
-          auto argTyOp = module.get<OpType>(argTy);
-          argTyName = getScalarTypeName(argTy, argTyOp);
-          argBaseTyName = argTyName;
-        }
-      } else {
-        auto argOp = module.get<OpCode>(argTy);
-        argTyName = getScalarTypeName(argTy, argOp);
-        argBaseTyName = argTyName;
       }
 
       argAddrSpaces.push_back(
@@ -2202,8 +2191,6 @@ cargo::optional<Error> Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
           llvm::MDString::get(*context.llvmContext, argTyQualName));
       argNames.push_back(
           llvm::MDString::get(*context.llvmContext, arg.getName()));
-
-      ++arg_index;
     }
 
     function->setMetadata(

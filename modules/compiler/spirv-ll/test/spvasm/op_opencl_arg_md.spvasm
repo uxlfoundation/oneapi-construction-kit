@@ -1,0 +1,58 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_arg_md.spv | %filecheck %t.pp
+
+                        OpCapability Kernel
+                        OpCapability Addresses
+                   %1 = OpExtInstImport "OpenCL.std"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %my_kernel "my_kernel"
+
+                        OpName %arg1 "a"
+                        OpName %arg2 "b"
+                        OpName %arg3 "c"
+                        OpName %arg4 "d"
+                        OpName %arg5 "e"
+
+                                  %void = OpTypeVoid
+                                 %ulong = OpTypeInt 64 0
+                               %ulong_3 = OpConstant %ulong 3
+                    %_arr_ulong_ulong_3 = OpTypeArray %ulong %ulong_3
+                        %class_my_array = OpTypeStruct %_arr_ulong_ulong_3
+                      %_ptr_arr_ulong_3 = OpTypePointer CrossWorkgroup %_arr_ulong_ulong_3
+                %_arr_ptr_ulong_ulong_3 = OpTypeArray %_ptr_arr_ulong_3 %ulong_3
+                             %sampler_t = OpTypeSampler
+               %ptr_Workgroup_sampler_t = OpTypePointer Workgroup %sampler_t
+                             %image2d_t = OpTypeImage %void 2D 0 0 0 0 Unknown ReadOnly
+                         %ptr_image2d_t = OpTypePointer CrossWorkgroup %image2d_t
+
+
+                                 %fn_ty = OpTypeFunction %void %_ptr_arr_ulong_3 %_arr_ptr_ulong_ulong_3 %ptr_Workgroup_sampler_t %image2d_t %ptr_image2d_t
+
+   %my_kernel = OpFunction %void None %fn_ty
+        %arg1 = OpFunctionParameter %_ptr_arr_ulong_3
+        %arg2 = OpFunctionParameter %_arr_ptr_ulong_ulong_3
+        %arg3 = OpFunctionParameter %ptr_Workgroup_sampler_t
+        %arg4 = OpFunctionParameter %image2d_t
+        %arg5 = OpFunctionParameter %ptr_image2d_t
+           %2 = OpLabel
+                OpReturn
+                OpFunctionEnd
+
+; CHECK-LT15: define spir_kernel void @my_kernel([3 x i64] addrspace(1)* %a,
+; CHECK-LT15-SAME:                               [3 x [3 x i64] addrspace(1)*] %b, i32 addrspace(3)* %c,
+; CHECK-LT15-SAME:                               %opencl.image2d_t addrspace(1)* %d,
+; CHECK-LT15-SAME:                               %opencl.image2d_t addrspace(1)* addrspace(1)* %e)
+
+; CHECK-GE15: define spir_kernel void @my_kernel(ptr addrspace(1) %a,
+; CHECK-GE15-SAME:                              [3 x ptr addrspace(1)] %b, ptr addrspace(3) %c,
+; CHECK-GE15-SAME:                              ptr addrspace(1) %d, ptr addrspace(1) %e)
+
+; CHECK-SAME: !kernel_arg_addr_space !0 !kernel_arg_access_qual !1 !kernel_arg_type !2 !kernel_arg_base_type !2 !kernel_arg_type_qual !3 !kernel_arg_name !4 {
+
+; CHECK: !0 = !{i32 1, i32 0, i32 3, i32 1, i32 1}
+; CHECK: !1 = !{!"none", !"none", !"none", !"read_only", !"none"}
+; CHECK: !2 = !{!"array*", !"array", !"sampler_t*", !"image2d_t", !"image2d_t*"}
+; CHECK: !3 = !{!"", !"", !"", !"", !""}
+; CHECK: !4 = !{!"a", !"b", !"c", !"d", !"e"}

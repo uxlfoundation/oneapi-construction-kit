@@ -2337,6 +2337,7 @@ set(SPVASM_FILES
   op_function_call_regression.spvasm
   linkonce_odr.spvasm
   intel_arbitrary_precision_integers.spvasm
+  op_opencl_arg_md.spvasm
   )
 
 if(TARGET spirv::spirv-as)
