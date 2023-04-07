@@ -16,6 +16,12 @@ ur_kernel_handle_t_::~ur_kernel_handle_t_() {
     muxDestroyKernel(mux_device, mux_kernel,
                      program->context->platform->mux_allocator_info);
   }
+
+  for (const auto &argument : arguments) {
+    if (argument.value.data) {
+      delete[] argument.value.data;
+    }
+  }
 }
 
 cargo::expected<ur_kernel_handle_t, ur_result_t> ur_kernel_handle_t_::create(

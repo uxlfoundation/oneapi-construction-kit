@@ -40,7 +40,6 @@ VectorizationUnit::VectorizationUnit(Function &F, ElementCount Width,
       SimdDimIdx(Dimension),
       FnFlags(eFunctionNoFlag) {
   // Gather information about the function's arguments.
-  unsigned i = 0;
   for (Argument &Arg : F.args()) {
     VectorizerTargetArgument TargetArg;
     TargetArg.OldArg = &Arg;
@@ -49,7 +48,6 @@ VectorizationUnit::VectorizationUnit(Function &F, ElementCount Width,
     TargetArg.PointerRetPointeeTy = nullptr;
     TargetArg.Placeholder = nullptr;
     Arguments.push_back(TargetArg);
-    i++;
   }
 
   // Set the desired SIMD width and try to look up the vectorized function.

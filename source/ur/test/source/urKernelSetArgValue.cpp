@@ -341,8 +341,8 @@ TEST_P(urKernelSetArgValueTest, StoreArgValueInBufferTest) {
                                        &event));
 
   char p = 0;
-  EXPECT_SUCCESS(urEnqueueMemBufferRead(queue, buffer, true, 0, size, &p, 0,
-                                        nullptr, nullptr));
+  EXPECT_SUCCESS(urEnqueueMemBufferRead(queue, buffer, true, 0, sizeof(p), &p,
+                                        0, nullptr, nullptr));
 
   EXPECT_EQ(c, p);
 }

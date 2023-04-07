@@ -49,7 +49,7 @@ struct kernel_data_t {
 struct ur_kernel_handle_t_ : ur::base {
   struct argument_data_t {
     struct {
-      void *data;
+      char *data;
       size_t size;
     } value;
     ur_mem_handle_t mem_handle;
