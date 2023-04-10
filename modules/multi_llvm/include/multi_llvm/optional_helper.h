@@ -12,7 +12,7 @@ namespace multi_llvm {
 #if (LLVM_VERSION_MAJOR >= 16)
 template <typename T>
 using Optional = std::optional<T>;
-auto None = std::nullopt;
+static constexpr std::nullopt_t None = std::nullopt;
 #else
 using llvm::None;
 using llvm::NoneType;
