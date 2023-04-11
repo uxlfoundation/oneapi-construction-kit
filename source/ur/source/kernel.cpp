@@ -49,9 +49,12 @@ cargo::expected<ur_kernel_handle_t, ur_result_t> ur_kernel_handle_t_::create(
   }
 
   // Create vector for arranging values
-  const auto num_arguments =
-      kernel->program->program_info.getKernel(kernel_name)->num_arguments;
-  if (cargo::success != kernel->arguments.alloc(num_arguments)) {
+  const auto kernel_data = kernel->program->getKernelData(kernel_name);
+  if (!kernel_data) {
+    return cargo::make_unexpected(kernel_data.error());
+  }
+  if (cargo::success !=
+      kernel->arguments.alloc(kernel_data.value().num_arguments)) {
     return cargo::make_unexpected(UR_RESULT_ERROR_OUT_OF_HOST_MEMORY);
   }
 
@@ -112,23 +115,6 @@ UR_APIEXPORT ur_result_t UR_APICALL urKernelSetArgMemObj(
   return UR_RESULT_SUCCESS;
 }
 
-namespace {
-size_t findKernelIndex(ur_kernel_handle_t hKernel) {
-  size_t index = 0;
-  for (index = 0;
-       index < hKernel->program->program_info.kernel_descriptions.size();
-       index++) {
-    if (hKernel->kernel_name ==
-        hKernel->program->program_info.kernel_descriptions[index].name) {
-      return index;
-    }
-  }
-
-  assert(index == 0);
-  return index;
-}
-}  // namespace
-
 UR_APIEXPORT ur_result_t UR_APICALL
 urKernelSetArgValue(ur_kernel_handle_t hKernel, uint32_t argIndex,
                     size_t argSize, const void *pArgValue) {
@@ -155,11 +141,14 @@ urKernelSetArgValue(ur_kernel_handle_t hKernel, uint32_t argIndex,
     return UR_RESULT_ERROR_INVALID_KERNEL_ARGUMENT_INDEX;
   }
 
-  const auto kernel_index = findKernelIndex(hKernel);
-  const auto argument_kind =
-      hKernel->program->program_info.kernel_descriptions[kernel_index]
-          .argument_types[argIndex]
-          .kind;
+  const auto kernel_data =
+      hKernel->program->getKernelData(hKernel->kernel_name);
+
+  if (!kernel_data) {
+    return kernel_data.error();
+  }
+
+  const auto argument_kind = kernel_data.value().argument_types[argIndex].kind;
 
   switch (argument_kind) {
 #define CASE_VALUE_TYPE(arg_type, type)                                       \

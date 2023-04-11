@@ -32,18 +32,16 @@ TEST_P(urKernelCreateTest, InvalidNullPointerKernel) {
 using urKernelCreateMultiDeviceTest = uur::MultiDeviceContextTest;
 
 TEST_F(urKernelCreateMultiDeviceTest, urKernelCreateTest) {
-  ur_module_handle_t module = nullptr;
   const auto kernel_source = uur::Environment::instance->LoadSource("foo", 0);
-  ASSERT_SUCCESS(kernel_source.status);
-  ASSERT_SUCCESS(urModuleCreate(context, kernel_source.source,
-                                kernel_source.source_length, "", nullptr,
-                                nullptr, &module));
   ur_program_handle_t program = nullptr;
-  EXPECT_SUCCESS(urProgramCreate(context, 1, &module, nullptr, &program));
+  ASSERT_SUCCESS(urProgramCreateWithIL(context, kernel_source.source,
+                                       kernel_source.source_length, nullptr,
+                                       &program));
+  ASSERT_SUCCESS(urProgramBuild(context, program, nullptr));
+
   ur_kernel_handle_t kernel = nullptr;
   EXPECT_SUCCESS(urKernelCreate(program, kernel_source.kernel_name, &kernel));
 
   EXPECT_SUCCESS(urKernelRelease(kernel));
   EXPECT_SUCCESS(urProgramRelease(program));
-  EXPECT_SUCCESS(urModuleRelease(module));
 }

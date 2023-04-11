@@ -23,7 +23,6 @@ add_ca_executable(UnitUR
   source/urEnqueueMemBufferWriteRect.cpp
   source/urEnqueueMemUnmap.cpp
   source/urEnqueueUSMMemcpy.cpp
-  source/urEnqueueUSMMemset.cpp
   source/urEventWait.cpp
   source/urInit.cpp
   source/urKernelCreate.cpp
@@ -32,17 +31,16 @@ add_ca_executable(UnitUR
   source/urKernelSetArgMemObj.cpp
   source/urKernelSetArgValue.cpp
   source/urMemBufferCreate.cpp
-  source/urMemFree.cpp
   source/urMemRetain.cpp
   source/urMemRelease.cpp
-  source/urModuleCreate.cpp
-  source/urModuleRetain.cpp
-  source/urModuleRelease.cpp
   source/urPlatformGet.cpp
   source/urPlatformGetInfo.cpp
-  source/urProgramCreate.cpp
-  source/urProgramRetain.cpp
+  source/urProgramBuild.cpp
+  source/urProgramCompile.cpp
+  source/urProgramCreateWithIL.cpp
+  source/urProgramLink.cpp
   source/urProgramRelease.cpp
+  source/urProgramRetain.cpp
   source/urQueueCreate.cpp
   source/urQueueFinish.cpp
   source/urQueueFlush.cpp
@@ -50,6 +48,7 @@ add_ca_executable(UnitUR
   source/urQueueRelease.cpp
   source/urTearDown.cpp
   source/urUSMDeviceAlloc.cpp
+  source/urUSMFree.cpp
   source/urUSMHostAlloc.cpp)
 
 target_include_directories(UnitUR PRIVATE include)

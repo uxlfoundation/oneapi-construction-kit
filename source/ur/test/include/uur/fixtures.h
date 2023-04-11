@@ -99,7 +99,7 @@ namespace uur {
 struct ContextTest : DeviceTest {
   void SetUp() override {
     UUR_RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
-    ASSERT_SUCCESS(urContextCreate(1, &device, &context));
+    ASSERT_SUCCESS(urContextCreate(1, &device, nullptr, &context));
   }
 
   void TearDown() override {
@@ -114,7 +114,7 @@ template <typename T>
 struct ContextTestWithParam : DeviceTestWithParam<T> {
   void SetUp() override {
     UUR_RETURN_ON_FATAL_FAILURE(DeviceTestWithParam<T>::SetUp());
-    ASSERT_SUCCESS(urContextCreate(1, &this->device, &context));
+    ASSERT_SUCCESS(urContextCreate(1, &this->device, nullptr, &context));
   }
 
   void TearDown() override {
@@ -175,93 +175,64 @@ struct MultiQueueTest : ContextTest {
   ur_queue_handle_t queue2 = nullptr;
 };
 
-struct ModuleTest : QueueTest {
+struct ProgramTest : QueueTest {
   void SetUp() override {
     UUR_RETURN_ON_FATAL_FAILURE(QueueTest::SetUp());
     const auto kernel_source =
         uur::Environment::instance->LoadSource("foo", this->GetParam());
     ASSERT_SUCCESS(kernel_source.status);
-    ASSERT_SUCCESS(urModuleCreate(context, kernel_source.source,
-                                  kernel_source.source_length, "", nullptr,
-                                  nullptr, &module));
-    ASSERT_NE(nullptr, module);
+
+    ASSERT_SUCCESS(urProgramCreateWithIL(context, kernel_source.source,
+                                         kernel_source.source_length, nullptr,
+                                         &program));
+    ASSERT_NE(nullptr, program);
+
+    ASSERT_SUCCESS(urProgramBuild(context, program, nullptr));
   }
 
   void TearDown() override {
-    if (module) {
-      EXPECT_SUCCESS(urModuleRelease(module));
+    if (program) {
+      EXPECT_SUCCESS(urProgramRelease(program));
     }
-    QueueTest::TearDown();
   }
 
-  ur_module_handle_t module = nullptr;
+  ur_program_handle_t program = nullptr;
 };
 
-struct MultiModuleTest : QueueTest {
+struct MultiProgramTest : QueueTest {
   void SetUp() override {
     UUR_RETURN_ON_FATAL_FAILURE(QueueTest::SetUp());
     const auto kernel_source1 =
         uur::Environment::instance->LoadSource("foo", this->GetParam());
     ASSERT_SUCCESS(kernel_source1.status);
-    ASSERT_SUCCESS(urModuleCreate(context, kernel_source1.source,
-                                  kernel_source1.source_length, "", nullptr,
-                                  nullptr, &module1));
+    ASSERT_SUCCESS(urProgramCreateWithIL(context, kernel_source1.source,
+                                         kernel_source1.source_length, nullptr,
+                                         &program1));
     const auto kernel_source2 =
         uur::Environment::instance->LoadSource("goo", this->GetParam());
     ASSERT_SUCCESS(kernel_source2.status);
-    ASSERT_SUCCESS(urModuleCreate(context, kernel_source2.source,
-                                  kernel_source2.source_length, "", nullptr,
-                                  nullptr, &module2));
-    ASSERT_NE(nullptr, module1);
-    ASSERT_NE(nullptr, module2);
+    ASSERT_SUCCESS(urProgramCreateWithIL(context, kernel_source2.source,
+                                         kernel_source2.source_length, nullptr,
+                                         &program2));
+    ASSERT_NE(nullptr, program1);
+    ASSERT_NE(nullptr, program2);
+
+    ASSERT_SUCCESS(urProgramBuild(context, program1, nullptr));
+    ASSERT_SUCCESS(urProgramBuild(context, program2, nullptr));
   }
 
   void TearDown() override {
-    if (module1) {
-      EXPECT_SUCCESS(urModuleRelease(module1));
+    if (program1) {
+      EXPECT_SUCCESS(urProgramRelease(program1));
     }
-    if (module2) {
-      EXPECT_SUCCESS(urModuleRelease(module2));
+    if (program2) {
+      EXPECT_SUCCESS(urProgramRelease(program2));
     }
     QueueTest::TearDown();
   }
 
-  ur_module_handle_t module1 = nullptr;
-  ur_module_handle_t module2 = nullptr;
-};
-
-struct ProgramTest : ModuleTest {
-  void SetUp() override {
-    UUR_RETURN_ON_FATAL_FAILURE(ModuleTest::SetUp());
-    ASSERT_SUCCESS(urProgramCreate(context, 1, &module, nullptr, &program));
-    ASSERT_NE(nullptr, program);
-  }
-
-  void TearDown() override {
-    if (program) {
-      EXPECT_SUCCESS(urProgramRelease(program));
-    }
-    ModuleTest::TearDown();
-  }
-  ur_program_handle_t program = nullptr;
-};
-
-struct MultiModuleProgramTest : MultiModuleTest {
-  void SetUp() override {
-    UUR_RETURN_ON_FATAL_FAILURE(MultiModuleTest::SetUp());
-    std::vector<ur_module_handle_t> modules = {module1, module2};
-    ASSERT_SUCCESS(urProgramCreate(context, modules.size(), modules.data(),
-                                   nullptr, &program));
-    ASSERT_NE(nullptr, program);
-  }
-
-  void TearDown() override {
-    if (program) {
-      EXPECT_SUCCESS(urProgramRelease(program));
-    }
-    MultiModuleTest::TearDown();
-  }
-  ur_program_handle_t program = nullptr;
+  ur_program_handle_t program1 = nullptr;
+  ur_program_handle_t program2 = nullptr;
 };
 
 struct KernelTest : ProgramTest {
@@ -280,11 +251,11 @@ struct KernelTest : ProgramTest {
   ur_kernel_handle_t kernel = nullptr;
 };
 
-struct MultiKernelTest : MultiModuleProgramTest {
+struct MultiKernelTest : MultiProgramTest {
   void SetUp() override {
-    UUR_RETURN_ON_FATAL_FAILURE(MultiModuleProgramTest::SetUp());
-    ASSERT_SUCCESS(urKernelCreate(program, "foo", &kernel1));
-    ASSERT_SUCCESS(urKernelCreate(program, "goo", &kernel2));
+    UUR_RETURN_ON_FATAL_FAILURE(MultiProgramTest::SetUp());
+    ASSERT_SUCCESS(urKernelCreate(program1, "foo", &kernel1));
+    ASSERT_SUCCESS(urKernelCreate(program2, "goo", &kernel2));
     ASSERT_NE(nullptr, kernel1);
     ASSERT_NE(nullptr, kernel2);
   }
@@ -296,8 +267,9 @@ struct MultiKernelTest : MultiModuleProgramTest {
     if (kernel2) {
       EXPECT_SUCCESS(urKernelRelease(kernel2));
     }
-    MultiModuleProgramTest::TearDown();
+    MultiProgramTest::TearDown();
   }
+
   ur_kernel_handle_t kernel1 = nullptr;
   ur_kernel_handle_t kernel2 = nullptr;
 };
@@ -309,7 +281,8 @@ struct MultiDeviceContextTest : PlatformTest {
     if (devices.size() <= 1) {
       GTEST_SKIP();
     }
-    ASSERT_SUCCESS(urContextCreate(devices.size(), devices.data(), &context));
+    ASSERT_SUCCESS(
+        urContextCreate(devices.size(), devices.data(), nullptr, &context));
   }
 
   void TearDown() override {

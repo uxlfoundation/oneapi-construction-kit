@@ -237,12 +237,10 @@ struct urKernelSetArgValueTest : uur::QueueTest {
                                   "floating_point", "signed_char",
                                   "vector_char4",   "vector_char4_buffer"};
 
-    ASSERT_SUCCESS(urModuleCreate(context, source, source_size, "", nullptr,
-                                  nullptr, &module));
-    ASSERT_NE(nullptr, module);
-
-    ASSERT_SUCCESS(urProgramCreate(context, 1, &module, nullptr, &program));
+    ASSERT_SUCCESS(
+        urProgramCreateWithIL(context, source, source_size, nullptr, &program));
     ASSERT_NE(nullptr, program);
+    ASSERT_SUCCESS(urProgramBuild(context, program, nullptr));
 
     for (size_t i = 0; i < kernels.size(); i++) {
       ASSERT_SUCCESS(urKernelCreate(program, kernel_names[i], &kernels[i]));
@@ -268,13 +266,9 @@ struct urKernelSetArgValueTest : uur::QueueTest {
     if (program) {
       EXPECT_SUCCESS(urProgramRelease(program));
     }
-    if (module) {
-      EXPECT_SUCCESS(urModuleRelease(module));
-    }
     uur::ContextTest::TearDown();
   }
 
-  ur_module_handle_t module = nullptr;
   ur_program_handle_t program = nullptr;
   std::array<ur_kernel_handle_t, 6> kernels;
   ur_mem_handle_t buffer;

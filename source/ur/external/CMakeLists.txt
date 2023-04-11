@@ -5,7 +5,7 @@ include(FetchContent)
 FetchContent_Declare(
   UNIFIED_RUNTIME
   GIT_REPOSITORY https://github.com/oneapi-src/unified-runtime.git
-  GIT_TAG        6066cbb6a68feb377f2e031c706c9e123612d90a
+  GIT_TAG        b2946f1f0b64641a0393b9d119fb022ccf26bc74
 )
 
 # Fetch unified runtime from github. This also sets unified_runtime_SOURCE_DIR

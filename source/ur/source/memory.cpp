@@ -199,9 +199,12 @@ UR_APIEXPORT ur_result_t UR_APICALL urMemRelease(ur_mem_handle_t hMem) {
 }
 
 UR_APIEXPORT ur_result_t UR_APICALL urUSMHostAlloc(ur_context_handle_t hContext,
-                                                   ur_usm_mem_flags_t *pUSMFlag,
+                                                   ur_usm_desc_t *pUSMDesc,
+                                                   ur_usm_pool_handle_t pool,
                                                    size_t size, uint32_t align,
                                                    void **pptr) {
+  // TODO: handle pool
+  (void)pool;
   if (!hContext) {
     return UR_RESULT_ERROR_INVALID_NULL_HANDLE;
   }
@@ -214,7 +217,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMHostAlloc(ur_context_handle_t hContext,
     return UR_RESULT_ERROR_INVALID_CONTEXT;
   }
 
-  if (!pptr || !pUSMFlag) {
+  if (!pptr) {
     return UR_RESULT_ERROR_INVALID_NULL_POINTER;
   }
 
@@ -222,9 +225,14 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMHostAlloc(ur_context_handle_t hContext,
     return UR_RESULT_ERROR_INVALID_USM_SIZE;
   }
 
+  ur_usm_mem_flags_t flags = 0;
+  if (pUSMDesc) {
+    flags = pUSMDesc->flags;
+  }
+
   std::lock_guard<std::mutex> lock_guard(hContext->mutex);
-  auto host_allocation = std::make_unique<ur::host_allocation_info>(
-      hContext, pUSMFlag, size, align);
+  auto host_allocation =
+      std::make_unique<ur::host_allocation_info>(hContext, flags, size, align);
   if (host_allocation->allocate()) {
     return UR_RESULT_ERROR_OUT_OF_HOST_MEMORY;
   }
@@ -236,7 +244,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMHostAlloc(ur_context_handle_t hContext,
   return UR_RESULT_SUCCESS;
 }
 
-UR_APIEXPORT ur_result_t UR_APICALL urMemFree(ur_context_handle_t hContext,
+UR_APIEXPORT ur_result_t UR_APICALL urUSMFree(ur_context_handle_t hContext,
                                               void *ptr) {
   if (!hContext) {
     return UR_RESULT_ERROR_INVALID_NULL_HANDLE;
@@ -263,9 +271,12 @@ UR_APIEXPORT ur_result_t UR_APICALL urMemFree(ur_context_handle_t hContext,
   return UR_RESULT_SUCCESS;
 }
 
-UR_APIEXPORT ur_result_t UR_APICALL urUSMDeviceAlloc(
-    ur_context_handle_t hContext, ur_device_handle_t device,
-    ur_usm_mem_flags_t *pUSMFlag, size_t size, uint32_t align, void **pptr) {
+UR_APIEXPORT ur_result_t UR_APICALL
+urUSMDeviceAlloc(ur_context_handle_t hContext, ur_device_handle_t device,
+                 ur_usm_desc_t *pUSMDesc, ur_usm_pool_handle_t pool,
+                 size_t size, uint32_t align, void **pptr) {
+  // TODO: handle pool
+  (void)pool;
   if (!hContext) {
     return UR_RESULT_ERROR_INVALID_NULL_HANDLE;
   }
@@ -287,7 +298,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMDeviceAlloc(
     return UR_RESULT_ERROR_INVALID_CONTEXT;
   }
 
-  if (!pptr || !pUSMFlag) {
+  if (!pptr) {
     return UR_RESULT_ERROR_INVALID_NULL_POINTER;
   }
 
@@ -295,9 +306,14 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMDeviceAlloc(
     return UR_RESULT_ERROR_INVALID_USM_SIZE;
   }
 
+  ur_usm_mem_flags_t flags = 0;
+  if (pUSMDesc) {
+    flags = pUSMDesc->flags;
+  }
+
   std::lock_guard<std::mutex> lock_guard(hContext->mutex);
   auto device_allocation = std::make_unique<ur::device_allocation_info>(
-      hContext, device, pUSMFlag, size, align);
+      hContext, device, flags, size, align);
   if (device_allocation->allocate()) {
     return UR_RESULT_ERROR_OUT_OF_HOST_MEMORY;
   }

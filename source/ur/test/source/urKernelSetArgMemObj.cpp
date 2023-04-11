@@ -50,12 +50,10 @@ struct urKernelSetArgMemObjTest : uur::ContextTest {
     const size_t source_size = sizeof(source) / sizeof(source[0]);
     const char *kernel_name = "argument_test";
 
-    ASSERT_SUCCESS(urModuleCreate(context, source, source_size, "", nullptr,
-                                  nullptr, &module));
-    ASSERT_NE(nullptr, module);
-
-    ASSERT_SUCCESS(urProgramCreate(context, 1, &module, nullptr, &program));
+    ASSERT_SUCCESS(
+        urProgramCreateWithIL(context, source, source_size, nullptr, &program));
     ASSERT_NE(nullptr, program);
+    ASSERT_SUCCESS(urProgramBuild(context, program, nullptr));
 
     ASSERT_SUCCESS(urKernelCreate(program, kernel_name, &kernel));
     ASSERT_NE(nullptr, kernel);
@@ -79,13 +77,9 @@ struct urKernelSetArgMemObjTest : uur::ContextTest {
     if (program) {
       EXPECT_SUCCESS(urProgramRelease(program));
     }
-    if (module) {
-      EXPECT_SUCCESS(urModuleRelease(module));
-    }
     uur::ContextTest::TearDown();
   }
 
-  ur_module_handle_t module = nullptr;
   ur_program_handle_t program = nullptr;
   ur_kernel_handle_t kernel = nullptr;
   std::array<ur_mem_handle_t, 3> buffers;

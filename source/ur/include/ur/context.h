@@ -28,14 +28,13 @@ struct allocation_info {
   /// @brief constructor
   ///
   /// @param[in] context Context the allocation will belong to.
-  /// @param[in] pUSMFlag Flags to guide allocation behavior.
+  /// @param[in] USMFlag Flags to guide allocation behavior.
   /// @param[in] size Bytes to allocate.
   /// @param[in] alignment Minimum alignment of allocation.
-  allocation_info(ur_context_handle_t context,
-                  const ur_usm_mem_flags_t *pUSMFlag, size_t size,
-                  uint32_t alignment)
+  allocation_info(ur_context_handle_t context, const ur_usm_mem_flags_t USMFlag,
+                  size_t size, uint32_t alignment)
       : context(context),
-        flags(*pUSMFlag),
+        flags(USMFlag),
         size(size),
         align(alignment),
         base_ptr(nullptr) {
@@ -86,11 +85,11 @@ struct host_allocation_info final : public allocation_info {
   /// @brief constructor
   ///
   /// @param[in] context Context the allocation will belong to.
-  /// @param[in] pUSMFlag Flags to guide allocation behavior
+  /// @param[in] USMFlag Flags to guide allocation behavior
   /// @param[in] size Bytes to allocate.
   /// @param[in] alignment Minimum alignment of allocation.
   host_allocation_info(ur_context_handle_t context,
-                       const ur_usm_mem_flags_t *pUSMFlag, size_t size,
+                       const ur_usm_mem_flags_t USMFlag, size_t size,
                        uint32_t alignment);
 
   /// @brief Allocates host memory for the USM allocation
@@ -125,11 +124,11 @@ struct device_allocation_info final : public allocation_info {
   ///
   /// @param[in] context Context the allocation will belong to.
   /// @param[in] device Device for the allocation
-  /// @param[in] pUSMFlag Flags to guide allocation behavior
+  /// @param[in] USMFlag Flags to guide allocation behavior
   /// @param[in] size Bytes to allocate.
   /// @param[in] alignment Minimum alignment of allocation.
   device_allocation_info(ur_context_handle_t context, ur_device_handle_t device,
-                         ur_usm_mem_flags_t *pUSMFlag, size_t size,
+                         ur_usm_mem_flags_t USMFlag, size_t size,
                          uint32_t alignment);
 
   /// @brief Allocates device memory for the USM allocation
@@ -179,7 +178,7 @@ struct ur_context_handle_t_ : ur::base {
   /// @return A context object or an error code if something went wrong.
   static cargo::expected<ur_context_handle_t, ur_result_t> create(
       ur_platform_handle_t platform,
-      cargo::array_view<ur_device_handle_t> devices);
+      cargo::array_view<const ur_device_handle_t> devices);
 
   /// @brief Retrieve unique index associated to a device in the context.
   ///

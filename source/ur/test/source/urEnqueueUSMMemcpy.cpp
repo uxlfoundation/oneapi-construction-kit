@@ -14,11 +14,10 @@ TEST_P(urEnqueueUSMMemcpyTest, Success) {
   ur_event_handle_t event = nullptr;
   if (host_usm) {  // Only test host USM if device supports it
     int *host_dst = nullptr, *host_src = nullptr;
-    ur_usm_mem_flags_t flags = 0;
-    ASSERT_SUCCESS(urUSMHostAlloc(context, &flags, sizeof(int), 0,
+    ASSERT_SUCCESS(urUSMHostAlloc(context, nullptr, nullptr, sizeof(int), 0,
                                   reinterpret_cast<void **>(&host_dst)));
 
-    ASSERT_SUCCESS(urUSMHostAlloc(context, &flags, sizeof(int), 0,
+    ASSERT_SUCCESS(urUSMHostAlloc(context, nullptr, nullptr, sizeof(int), 0,
                                   reinterpret_cast<void **>(&host_src)));
     *host_src = 42;
     *host_dst = 0;
@@ -28,21 +27,23 @@ TEST_P(urEnqueueUSMMemcpyTest, Success) {
     ASSERT_SUCCESS(urEventWait(1, &event));
     EXPECT_SUCCESS(urEventRelease(event));
     ASSERT_EQ(*host_dst, *host_src);
-    ASSERT_SUCCESS(urMemFree(context, host_dst));
-    ASSERT_SUCCESS(urMemFree(context, host_src));
+    ASSERT_SUCCESS(urUSMFree(context, host_dst));
+    ASSERT_SUCCESS(urUSMFree(context, host_src));
   }
   int *device_dst = nullptr, *device_src = nullptr;
-  ur_usm_mem_flags_t flags = 0;
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&device_dst)));
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&device_src)));
 
   // Fill the allocations with different values first
-  ASSERT_SUCCESS(urEnqueueUSMMemset(queue, device_dst, 0, sizeof(int), 0,
-                                    nullptr, nullptr));
-  ASSERT_SUCCESS(urEnqueueUSMMemset(queue, device_src, 1, sizeof(int), 0,
-                                    nullptr, &event));
+  int zero_val = 0, one_val = 1;
+  ASSERT_SUCCESS(urEnqueueUSMFill(queue, device_dst, sizeof(zero_val),
+                                  &zero_val, sizeof(int), 0, nullptr, nullptr));
+  ASSERT_SUCCESS(urEnqueueUSMFill(queue, device_src, sizeof(one_val), &one_val,
+                                  sizeof(int), 0, nullptr, &event));
   EXPECT_SUCCESS(urQueueFlush(queue));
   ASSERT_SUCCESS(urEventWait(1, &event));
   EXPECT_SUCCESS(urEventRelease(event));
@@ -55,31 +56,32 @@ TEST_P(urEnqueueUSMMemcpyTest, Success) {
 
   ASSERT_EQ(*device_dst, *device_src);
 
-  ASSERT_SUCCESS(urMemFree(context, device_dst));
-  ASSERT_SUCCESS(urMemFree(context, device_src));
+  ASSERT_SUCCESS(urUSMFree(context, device_dst));
+  ASSERT_SUCCESS(urUSMFree(context, device_src));
 }
 
 TEST_P(urEnqueueUSMMemcpyTest, InvalidNullQueueHandle) {
   int *dst = nullptr, *src = nullptr;
-  ur_usm_mem_flags_t flags = 0;
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&dst)));
 
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&src)));
 
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_HANDLE,
                    urEnqueueUSMMemcpy(nullptr, false, dst, src, sizeof(int), 0,
                                       nullptr, nullptr));
-  ASSERT_SUCCESS(urMemFree(context, dst));
-  ASSERT_SUCCESS(urMemFree(context, src));
+  ASSERT_SUCCESS(urUSMFree(context, dst));
+  ASSERT_SUCCESS(urUSMFree(context, src));
 }
 
 TEST_P(urEnqueueUSMMemcpyTest, InvalidNullPtr) {
   // We need a valid pointer to check the params separately.
   int *valid_ptr = nullptr;
-  ur_usm_mem_flags_t flags = 0;
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&valid_ptr)));
 
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
@@ -89,30 +91,31 @@ TEST_P(urEnqueueUSMMemcpyTest, InvalidNullPtr) {
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
                    urEnqueueUSMMemcpy(queue, false, nullptr, valid_ptr,
                                       sizeof(int), 0, nullptr, nullptr));
-  ASSERT_SUCCESS(urMemFree(context, valid_ptr));
+  ASSERT_SUCCESS(urUSMFree(context, valid_ptr));
 }
 
 TEST_P(urEnqueueUSMMemcpyTest, InvalidNullPtrEventWaitList) {
   int *dst = nullptr, *src = nullptr;
-  ur_usm_mem_flags_t flags = 0;
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&dst)));
 
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&src)));
 
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_HANDLE,
                    urEnqueueUSMMemcpy(queue, false, dst, src, sizeof(int), 1,
                                       nullptr, nullptr));
-  ASSERT_SUCCESS(urMemFree(context, dst));
-  ASSERT_SUCCESS(urMemFree(context, src));
+  ASSERT_SUCCESS(urUSMFree(context, dst));
+  ASSERT_SUCCESS(urUSMFree(context, src));
 }
 
 TEST_P(urEnqueueUSMMemcpyTest, InvalidMemObject) {
   // We need a valid pointer to check the params separately.
   int *valid_ptr = nullptr;
-  ur_usm_mem_flags_t flags = 0;
-  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMDeviceAlloc(context, device, nullptr, nullptr,
+                                  sizeof(int), 0,
                                   reinterpret_cast<void **>(&valid_ptr)));
 
   // Random pointer which is not a usm allocation
@@ -125,5 +128,5 @@ TEST_P(urEnqueueUSMMemcpyTest, InvalidMemObject) {
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_MEM_OBJECT,
                    urEnqueueUSMMemcpy(queue, false, valid_ptr, bad_ptr,
                                       sizeof(int), 0, nullptr, nullptr));
-  ASSERT_SUCCESS(urMemFree(context, valid_ptr));
+  ASSERT_SUCCESS(urUSMFree(context, valid_ptr));
 }

@@ -54,12 +54,11 @@ UR_DLLEXPORT ur_result_t urGetEnqueueProcAddrTable(
   pDdiTable->pfnMemImageRead = nullptr;
   pDdiTable->pfnMemImageWrite = nullptr;
   pDdiTable->pfnMemUnmap = urEnqueueMemUnmap;
+  pDdiTable->pfnUSMFill = urEnqueueUSMFill;
   pDdiTable->pfnUSMFill2D = nullptr;
   pDdiTable->pfnUSMMemAdvise = nullptr;
   pDdiTable->pfnUSMMemcpy2D = nullptr;
   pDdiTable->pfnUSMMemcpy = urEnqueueUSMMemcpy;
-  pDdiTable->pfnUSMMemset2D = nullptr;
-  pDdiTable->pfnUSMMemset = urEnqueueUSMMemset;
   pDdiTable->pfnUSMPrefetch = nullptr;
   return UR_RESULT_SUCCESS;
 }
@@ -100,6 +99,7 @@ UR_DLLEXPORT ur_result_t urGetKernelProcAddrTable(
   pDdiTable->pfnSetArgSampler = nullptr;
   pDdiTable->pfnSetArgValue = nullptr;
   pDdiTable->pfnSetExecInfo = nullptr;
+  pDdiTable->pfnSetSpecializationConstants = nullptr;
 
   return UR_RESULT_SUCCESS;
 }
@@ -113,28 +113,13 @@ UR_DLLEXPORT ur_result_t urGetMemProcAddrTable(ur_api_version_t version,
   pDdiTable->pfnBufferCreate = urMemBufferCreate;
   pDdiTable->pfnBufferPartition = nullptr;
   pDdiTable->pfnCreateWithNativeHandle = nullptr;
-  pDdiTable->pfnFree = urMemFree;
   pDdiTable->pfnGetInfo = nullptr;
-  pDdiTable->pfnGetMemAllocInfo = nullptr;
   pDdiTable->pfnGetNativeHandle = nullptr;
   pDdiTable->pfnImageCreate = nullptr;
   pDdiTable->pfnImageGetInfo = nullptr;
   pDdiTable->pfnRelease = urMemRelease;
   pDdiTable->pfnRetain = urMemRetain;
 
-  return UR_RESULT_SUCCESS;
-}
-
-UR_DLLEXPORT ur_result_t urGetModuleProcAddrTable(
-    ur_api_version_t version, ur_module_dditable_t *pDdiTable) {
-  if (UR_API_VERSION_CURRENT < version) {
-    return UR_RESULT_ERROR_UNSUPPORTED_VERSION;
-  }
-  pDdiTable->pfnCreate = urModuleCreate;
-  pDdiTable->pfnCreateWithNativeHandle = nullptr;
-  pDdiTable->pfnGetNativeHandle = nullptr;
-  pDdiTable->pfnRelease = urModuleRelease;
-  pDdiTable->pfnRetain = urModuleRetain;
   return UR_RESULT_SUCCESS;
 }
 
@@ -156,7 +141,10 @@ UR_DLLEXPORT ur_result_t urGetProgramProcAddrTable(
   if (UR_API_VERSION_CURRENT < version) {
     return UR_RESULT_ERROR_UNSUPPORTED_VERSION;
   }
-  pDdiTable->pfnCreate = urProgramCreate;
+  pDdiTable->pfnCreateWithIL = urProgramCreateWithIL;
+  pDdiTable->pfnBuild = urProgramBuild;
+  pDdiTable->pfnCompile = urProgramCompile;
+  pDdiTable->pfnLink = urProgramLink;
   pDdiTable->pfnCreateWithBinary = nullptr;
   pDdiTable->pfnCreateWithNativeHandle = nullptr;
   pDdiTable->pfnGetBuildInfo = nullptr;
@@ -165,7 +153,7 @@ UR_DLLEXPORT ur_result_t urGetProgramProcAddrTable(
   pDdiTable->pfnGetNativeHandle = nullptr;
   pDdiTable->pfnRelease = urProgramRelease;
   pDdiTable->pfnRetain = urProgramRetain;
-  pDdiTable->pfnSetSpecializationConstant = nullptr;
+  pDdiTable->pfnSetSpecializationConstants = nullptr;
 
   return UR_RESULT_SUCCESS;
 }
@@ -200,6 +188,8 @@ UR_DLLEXPORT ur_result_t urGetUSMProcAddrTable(ur_api_version_t version,
     return UR_RESULT_ERROR_UNSUPPORTED_VERSION;
   }
   pDdiTable->pfnDeviceAlloc = urUSMDeviceAlloc;
+  pDdiTable->pfnFree = urUSMFree;
+  pDdiTable->pfnGetMemAllocInfo = nullptr;
   pDdiTable->pfnHostAlloc = urUSMHostAlloc;
   pDdiTable->pfnSharedAlloc = nullptr;
 

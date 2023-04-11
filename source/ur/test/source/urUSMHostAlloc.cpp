@@ -15,23 +15,24 @@ TEST_P(urUSMHostAllocTest, Success) {
   }
 
   int *ptr{nullptr};
-  ur_usm_mem_flags_t flags;
-  ASSERT_SUCCESS(urUSMHostAlloc(context, &flags, sizeof(int), 0,
+  ASSERT_SUCCESS(urUSMHostAlloc(context, nullptr, nullptr, sizeof(int), 0,
                                 reinterpret_cast<void **>(&ptr)));
   ASSERT_NE(ptr, nullptr);
 
   // Set 0
+  int zero_val = 0;
   ur_event_handle_t event = nullptr;
-  ASSERT_SUCCESS(
-      urEnqueueUSMMemset(queue, ptr, 0, sizeof(int), 0, nullptr, &event));
+  ASSERT_SUCCESS(urEnqueueUSMFill(queue, ptr, sizeof(zero_val), &zero_val,
+                                  sizeof(int), 0, nullptr, &event));
   EXPECT_SUCCESS(urQueueFlush(queue));
   ASSERT_SUCCESS(urEventWait(1, &event));
   EXPECT_SUCCESS(urEventRelease(event));
   ASSERT_EQ(*ptr, 0);
 
   // Set 1, in all bytes of int
-  ASSERT_SUCCESS(
-      urEnqueueUSMMemset(queue, ptr, 1, sizeof(int), 0, nullptr, &event));
+  char one_val = 1;
+  ASSERT_SUCCESS(urEnqueueUSMFill(queue, ptr, sizeof(one_val), &one_val,
+                                  sizeof(int), 0, nullptr, &event));
   EXPECT_SUCCESS(urQueueFlush(queue));
   ASSERT_SUCCESS(urEventWait(1, &event));
   EXPECT_SUCCESS(urEventRelease(event));
@@ -40,24 +41,18 @@ TEST_P(urUSMHostAllocTest, Success) {
   std::memset(&set_data, 1, sizeof(int));
   ASSERT_EQ(*ptr, set_data);
 
-  ASSERT_SUCCESS(urMemFree(context, ptr));
+  ASSERT_SUCCESS(urUSMFree(context, ptr));
 }
 
 TEST_P(urUSMHostAllocTest, InvalidNullHandleContext) {
-  ur_usm_mem_flags_t flags;
   void *ptr{nullptr};
-  ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_HANDLE,
-                   urUSMHostAlloc(nullptr, &flags, sizeof(int), 0, &ptr));
-}
-
-TEST_P(urUSMHostAllocTest, InvalidNullPtrFlags) {
-  void *ptr{nullptr};
-  ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
-                   urUSMHostAlloc(context, nullptr, sizeof(int), 0, &ptr));
+  ASSERT_EQ_RESULT(
+      UR_RESULT_ERROR_INVALID_NULL_HANDLE,
+      urUSMHostAlloc(nullptr, nullptr, nullptr, sizeof(int), 0, &ptr));
 }
 
 TEST_P(urUSMHostAllocTest, InvalidNullPtrResult) {
-  ur_usm_mem_flags_t flags;
-  ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
-                   urUSMHostAlloc(context, &flags, sizeof(int), 0, nullptr));
+  ASSERT_EQ_RESULT(
+      UR_RESULT_ERROR_INVALID_NULL_POINTER,
+      urUSMHostAlloc(context, nullptr, nullptr, sizeof(int), 0, nullptr));
 }

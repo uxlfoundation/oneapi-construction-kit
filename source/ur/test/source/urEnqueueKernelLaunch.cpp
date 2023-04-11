@@ -138,12 +138,10 @@ TEST_F(urEnqueueKernelLaunchMultiDeviceTest, KernelReadDifferentQueues) {
       0x3e, 0x00, 0x05, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00,
       0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0xfd, 0x00, 0x01, 0x00,
       0x38, 0x00, 0x01, 0x00};
-  ur_module_handle_t module = nullptr;
-  ASSERT_SUCCESS(urModuleCreate(context, source, sizeof(source), "", nullptr,
-                                nullptr, &module));
-
   ur_program_handle_t program = nullptr;
-  EXPECT_SUCCESS(urProgramCreate(context, 1, &module, nullptr, &program));
+  EXPECT_SUCCESS(urProgramCreateWithIL(context, source, sizeof(source), nullptr,
+                                       &program));
+  EXPECT_SUCCESS(urProgramBuild(context, program, nullptr));
 
   ur_kernel_handle_t kernel = nullptr;
   EXPECT_SUCCESS(urKernelCreate(program, "foo", &kernel));
@@ -173,5 +171,4 @@ TEST_F(urEnqueueKernelLaunchMultiDeviceTest, KernelReadDifferentQueues) {
 
   EXPECT_SUCCESS(urKernelRelease(kernel));
   EXPECT_SUCCESS(urProgramRelease(program));
-  EXPECT_SUCCESS(urModuleRelease(module));
 }

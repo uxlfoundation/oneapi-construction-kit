@@ -1153,15 +1153,15 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueEventsWaitWithBarrier(
   return UR_RESULT_SUCCESS;
 }
 
-UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMMemset(
-    ur_queue_handle_t hQueue, void *ptr, int8_t byteValue, size_t count,
-    uint32_t numEventsInWaitList, const ur_event_handle_t *eventWaitList,
-    ur_event_handle_t *phEvent) {
+UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMFill(
+    ur_queue_handle_t hQueue, void *ptr, size_t patternSize,
+    const void *pPattern, size_t size, uint32_t numEventsInWaitList,
+    const ur_event_handle_t *eventWaitList, ur_event_handle_t *phEvent) {
   if (!hQueue) {
     return UR_RESULT_ERROR_INVALID_NULL_HANDLE;
   }
 
-  if (!ptr) {
+  if (!ptr || !pPattern) {
     return UR_RESULT_ERROR_INVALID_NULL_POINTER;
   }
 
@@ -1199,9 +1199,9 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMMemset(
       return command_buffer_or_err.error();
     }
 
-    if (auto error = muxCommandFillBuffer(
-            *command_buffer_or_err, mux_buffer, offset, count, &byteValue,
-            sizeof(byteValue), 0, nullptr, nullptr)) {
+    if (auto error = muxCommandFillBuffer(*command_buffer_or_err, mux_buffer,
+                                          offset, size, pPattern, patternSize,
+                                          0, nullptr, nullptr)) {
       return ur::resultFromMux(error);
     }
   }

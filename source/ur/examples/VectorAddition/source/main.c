@@ -359,18 +359,17 @@ int main(const int argc, const char **argv) {
   /* Create context */
   ur_context_handle_t context;
   IS_UR_SUCCESS(
-      urContextCreate(/* num_devices */ 1, &selected_device, &context));
+      urContextCreate(/* num_devices */ 1, &selected_device, NULL, &context));
   printf(" * Created context\n");
 
-  /* Create module */
-  ur_module_handle_t module;
-  IS_UR_SUCCESS(urModuleCreate(context, kernel_source, kernel_source_length, "",
-                               NULL, NULL, &module));
-
-  /* Create program */
+  /* Create and build program */
   ur_program_handle_t program;
-  IS_UR_SUCCESS(urProgramCreate(context, 1, &module, NULL, &program));
+  IS_UR_SUCCESS(urProgramCreateWithIL(context, kernel_source,
+                                      kernel_source_length, NULL, &program));
   printf(" * Created program\n");
+
+  IS_UR_SUCCESS(urProgramBuild(context, program, NULL));
+  printf(" * Built program\n");
 
   /* Create buffers */
   ur_mem_handle_t src1_buffer;
@@ -452,7 +451,6 @@ int main(const int argc, const char **argv) {
   IS_UR_SUCCESS(urMemRelease(src2_buffer));
   IS_UR_SUCCESS(urMemRelease(dst_buffer));
   IS_UR_SUCCESS(urProgramRelease(program));
-  IS_UR_SUCCESS(urModuleRelease(module));
   IS_UR_SUCCESS(urContextRelease(context));
   printf(" * Released all created Unified Runtime objects\n");
 

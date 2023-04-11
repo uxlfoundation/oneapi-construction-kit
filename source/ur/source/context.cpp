@@ -8,10 +8,10 @@
 #include "ur/device.h"
 #include "ur/platform.h"
 
-ur::host_allocation_info::host_allocation_info(
-    ur_context_handle_t context, const ur_usm_mem_flags_t *pUSMFlag,
-    size_t size, uint32_t alignment)
-    : ur::allocation_info(context, pUSMFlag, size, alignment) {
+ur::host_allocation_info::host_allocation_info(ur_context_handle_t context,
+                                               const ur_usm_mem_flags_t USMFlag,
+                                               size_t size, uint32_t alignment)
+    : ur::allocation_info(context, USMFlag, size, alignment) {
   uint32_t max_align = 0;
   for (auto device : context->devices) {
     const auto device_align = device->mux_device->info->buffer_alignment;
@@ -99,9 +99,9 @@ ur::host_allocation_info::~host_allocation_info() {
 
 ur::device_allocation_info::device_allocation_info(ur_context_handle_t context,
                                                    ur_device_handle_t device,
-                                                   ur_usm_mem_flags_t *pUSMProp,
+                                                   ur_usm_mem_flags_t USMProp,
                                                    size_t size, uint32_t align)
-    : ur::allocation_info(context, pUSMProp, size, align), device(device) {}
+    : ur::allocation_info(context, USMProp, size, align), device(device) {}
 
 ur_result_t ur::device_allocation_info::allocate() {
   // It should be power of 2
@@ -172,7 +172,7 @@ ur::device_allocation_info::~device_allocation_info() {
 
 cargo::expected<ur_context_handle_t, ur_result_t> ur_context_handle_t_::create(
     ur_platform_handle_t platform,
-    cargo::array_view<ur_device_handle_t> devices) {
+    cargo::array_view<const ur_device_handle_t> devices) {
   auto context = std::make_unique<ur_context_handle_t_>(platform);
   if (!context) {
     return cargo::make_unexpected(UR_RESULT_ERROR_OUT_OF_HOST_MEMORY);
@@ -202,8 +202,10 @@ ur::allocation_info *ur_context_handle_t_::findUSMAllocation(
 }
 
 UR_APIEXPORT ur_result_t UR_APICALL
-urContextCreate(uint32_t DeviceCount, ur_device_handle_t *phDevices,
+urContextCreate(uint32_t DeviceCount, const ur_device_handle_t *phDevices,
+                const ur_context_properties_t *pProperties,
                 ur_context_handle_t *phContext) {
+  (void)pProperties;
   if (!phDevices || !phContext) {
     return UR_RESULT_ERROR_INVALID_NULL_POINTER;
   }

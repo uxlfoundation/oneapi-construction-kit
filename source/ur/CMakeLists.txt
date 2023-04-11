@@ -17,7 +17,6 @@ add_ca_library(UR SHARED
   include/ur/event.h source/event.cpp
   include/ur/kernel.h source/kernel.cpp
   include/ur/memory.h source/memory.cpp
-  include/ur/module.h source/module.cpp
   include/ur/platform.h source/platform.cpp
   include/ur/program.h source/program.cpp
   include/ur/queue.h source/queue.cpp
