@@ -5,6 +5,7 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/riscv-isa-sim/CMakeLists.txt)
 else()
   include(FetchContent)
 
+  # Use upstream github for riscv-isa-sim, but with some local changes to support refsi
   FetchContent_Declare(
     riscv-isa-sim
     GIT_REPOSITORY https://github.com/riscv-software-src/riscv-isa-sim.git
