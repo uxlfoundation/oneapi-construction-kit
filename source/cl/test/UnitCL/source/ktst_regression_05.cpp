@@ -117,5 +117,51 @@ TEST_P(Execution, Regression_106_Varying_LCSSA_Phi) {
   RunGeneric1D(16);
 }
 
+// Test that structs maintain their user-facing ABI sizes. This bug showed up
+// in the compiler, which was excessively padding structs. This meant that the
+// generated LLVM code had incorrect GEP indexings and were over-stepping
+// kernel arguments which were set correctly by the driver according to the
+// user ABI.
+TEST_P(ExecutionOpenCLC, Regression_107_Byval_Struct_Align) {
+  struct my_innermost_struct {
+    cl_char a;
+  };
+  struct my_innermost_struct_holder {
+    my_innermost_struct s;
+  };
+  struct my_innermost_struct_holder_holder {
+    my_innermost_struct_holder s;
+  };
+  struct my_struct_tuple {
+    my_innermost_struct_holder_holder s;
+    my_innermost_struct t;
+  };
+  struct my_struct {
+    my_innermost_struct_holder_holder s;
+    my_struct_tuple t;
+  };
+  my_struct s1 = {{{{2}}}, {{{5}}, {2}}};
+  my_struct s2 = {{{{4}}}, {{{6}}, {5}}};
+  cl_int v = 7;
+  cl_int w = 9;
+
+  kts::Reference1D<cl_int> refOutS1 = [&s1, v, w](size_t) {
+    return s1.t.t.a + v + w;
+  };
+  kts::Reference1D<cl_int> refOutS2 = [&s2, v, w](size_t) {
+    return s2.t.s.s.s.a + v + w;
+  };
+
+  static constexpr int TestN = 16;
+
+  AddPrimitive(s1);
+  AddPrimitive(v);
+  AddOutputBuffer(TestN, refOutS1);
+  AddPrimitive(s2);
+  AddPrimitive(w);
+  AddOutputBuffer(TestN, refOutS2);
+  RunGeneric1D(TestN);
+}
+
 // Do not add tests beyond Regression_125* here, or the file may become too
 // large to link. Instead, start a new ktst_regression_${NN}.cpp file.

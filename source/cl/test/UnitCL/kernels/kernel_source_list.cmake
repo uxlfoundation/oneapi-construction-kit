@@ -378,6 +378,7 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.104_async_work_group_copy_int3.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.105_alloca_boscc_confuser.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.106_varying_lcssa_phi.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/regression.107_byval_struct_align.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv.01_copy.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv.02_async_copy.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv.03_test_atomic_add.cl

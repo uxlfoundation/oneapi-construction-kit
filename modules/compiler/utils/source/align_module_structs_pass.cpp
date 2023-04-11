@@ -540,66 +540,86 @@ PreservedAnalyses compiler::utils::AlignModuleStructsPass::run(
   return PA;
 }
 
+static constexpr const char SPIR32DLStart[] = "e-p:32:32:32-";
+static constexpr const char SPIR64DLStart[] = "e-p:64:64:64-";
+// The shared common suffix across both SPIR data layouts. This was taken
+// directly from the SPIR 1.2 specification. It's a little verbose as most of
+// the vector specifiers are identical to LLVM's defaults, but being explicit
+// is probably safest here.
+static constexpr const char SPIRDLSuffix[] =
+    "i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v16:16:16-"
+    "v24:32:32-v32:32:32-v48:64:64-v64:64:64-v96:128:128-v128:128:128-v192:256:"
+    "256-v256:256:256-v512:512:512-v1024:1024:1024";
+
 void compiler::utils::AlignModuleStructsPass::generateNewStructType(
-    StructType *unpadded, const Module &module) {
-  DenseMap<unsigned int, unsigned int> indexMap;
+    StructType *unpadded, const Module &M) {
+  LLVMContext &Ctx = M.getContext();
   SmallVector<Type *, 8> structElementTypes;
-  // Byte offset in struct of current member
-  unsigned int offset = 0;
-  // Index of member in unpadded struct
-  unsigned int origIndex = 0;
-  for (Type *memberType : unpadded->elements()) {
+  DenseMap<unsigned int, unsigned int> indexMap;
+  // Calculate OpenCL alignment using LLVM data layout APIs. Depending on
+  // target this may require some coercion to meet OpenCL requirements.
+  const DataLayout &DL = M.getDataLayout();
+  // This is a bit of intuitition about which SPIR ABI we were originally
+  // compiling for. Since we don't support compiling for architectures with a
+  // different pointer size to that for which the IR was originally produced,
+  // we can infer it from the current data layout.
+  assert((DL.getPointerSizeInBits() == 32 || DL.getPointerSizeInBits() == 64) &&
+         "Only support compilation for 32-bit or 64-bit targets");
+  DataLayout SPIRDL(std::string(DL.getPointerSizeInBits() == 32
+                                    ? SPIR32DLStart
+                                    : SPIR64DLStart) +
+                    SPIRDLSuffix);
+
+  bool changed = false;
+  uint64_t cumulativePadding = 0;
+  auto *const thisLayout = DL.getStructLayout(unpadded);
+
+  for (unsigned i = 0, e = unpadded->getNumElements(); i != e; i++) {
+    Type *const memberType = unpadded->getElementType(i);
     // Packed structs can contain members which are structs we've padded,
     // so we still need to replace their members in this function, but don't
     // do the padding here.
     if (!unpadded->isPacked()) {
-      // Calculate OpenCL alignment using LLVM data layout APIs. Depending on
-      // target this may require some coercion to meet OpenCL requirements.
-      const DataLayout &dl = module.getDataLayout();
-      unsigned int alignment = dl.getPrefTypeAlign(memberType).value();
+      uint64_t thisDLEltOffset =
+          thisLayout->getElementOffset(i) + cumulativePadding;
 
-      // The preferred alignment of vector types can be less than the OpenCL
-      // specified alignment, which is the size of the data type.
-      if (memberType->isVectorTy() &&
-          dl.getTypeStoreSize(memberType) > alignment) {
-        alignment = dl.getTypeStoreSize(memberType);
-      }
+      const Align reqdTyAlign = SPIRDL.getABITypeAlign(memberType);
 
-      // Check if member is already aligned
-      const unsigned int remainder = offset % alignment;
-      if (0 != remainder) {
+      if (!isAligned(reqdTyAlign, thisDLEltOffset)) {
         // Calculate number of padding bytes
-        const unsigned int padding = alignment - remainder;
+        const unsigned int reqdPadding =
+            offsetToAlignment(thisDLEltOffset, reqdTyAlign);
 
         // Use a byte array to pad struct rather than trying to create an
         // arbitrary intNTy, since this may not be supported by the backend.
-        auto *padByteType = Type::getInt8Ty(unpadded->getContext());
-        auto *padByteArrayType = ArrayType::get(padByteType, padding);
-        structElementTypes.push_back(padByteArrayType);
+        auto *const padByteType = Type::getInt8Ty(Ctx);
+        auto *const padByteArrayType = ArrayType::get(padByteType, reqdPadding);
 
-        // Bump offset by padding size
-        offset += padding;
+        changed = true;
+        cumulativePadding += reqdPadding;
+        structElementTypes.push_back(padByteArrayType);
       }
     }
 
     // Record mapping of index of member with new index
-    indexMap.insert({origIndex, structElementTypes.size()});
+    indexMap.insert({i, structElementTypes.size()});
 
     // Add a padded type to struct if appropriate
-    Type *updatedMember = getNewType(memberType, originalStructMap);
-    Type *paddedType = updatedMember ? updatedMember : memberType;
+    Type *const updatedMemberType = getNewType(memberType, originalStructMap);
+    Type *const paddedType = updatedMemberType ? updatedMemberType : memberType;
+    changed |= updatedMemberType != nullptr;
     structElementTypes.push_back(paddedType);
+  }
 
-    // Add member size to offset. Can use the size of the old member type,
-    // since padding shouldn't affect the overall struct size.
-    offset += module.getDataLayout().getTypeAllocSize(memberType);
-    ++origIndex;
+  // If there's nothing in this type that needs padding or aligning, we don't
+  // need to generate a new struct type.
+  if (!changed) {
+    return;
   }
 
   // Create an opaque struct type and wrap all the details we've computed
   // into a ReplacementStructDetails object
-  auto *paddedStructTy =
-      StructType::create(module.getContext(), unpadded->getName());
+  auto *const paddedStructTy = StructType::create(Ctx, unpadded->getName());
   ReplacementStructSP structSP(new ReplacementStructDetails(
       paddedStructTy, indexMap, structElementTypes));
   if (structSP) {
