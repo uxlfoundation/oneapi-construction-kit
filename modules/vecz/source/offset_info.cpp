@@ -275,18 +275,25 @@ OffsetInfo &OffsetInfo::analyze(Value *Offset, StrideAnalysisResult &SAR) {
       // LCSSA Phi, just go right through it..
       return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
     } else if (NumIncoming == 2) {
-      if (auto *BOp = dyn_cast<BinaryOperator>(Phi->getIncomingValue(1))) {
-        auto Opcode = BOp->getOpcode();
-        // If it's a simple loop iterator, the stride can be analyzed from the
-        // initial value.
-        if ((Opcode == Instruction::Add || Opcode == Instruction::Sub) &&
-            BOp->getOperand(0) == Offset &&
-            !SAR.UVR.isVarying(BOp->getOperand(1))) {
-          return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
-        } else if (Opcode == Instruction::Add && BOp->getOperand(1) == Offset &&
-                   !SAR.UVR.isVarying(BOp->getOperand(0))) {
-          return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
+      auto identifyIncrement = [&](Value *incoming) -> bool {
+        if (auto *BOp = dyn_cast<BinaryOperator>(incoming)) {
+          auto Opcode = BOp->getOpcode();
+          // If it's a simple loop iterator, the stride can be analyzed from the
+          // initial value.
+          return ((Opcode == Instruction::Add || Opcode == Instruction::Sub) &&
+                  BOp->getOperand(0) == Phi &&
+                  !SAR.UVR.isVarying(BOp->getOperand(1))) ||
+                 (Opcode == Instruction::Add && BOp->getOperand(1) == Phi &&
+                  !SAR.UVR.isVarying(BOp->getOperand(0)));
         }
+        return false;
+      };
+
+      // Try the PHI node's incoming values both ways round.
+      if (identifyIncrement(Phi->getIncomingValue(1))) {
+        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
+      } else if (identifyIncrement(Phi->getIncomingValue(0))) {
+        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(1)));
       }
     }
     return setMayDiverge();
@@ -394,6 +401,18 @@ OffsetInfo &OffsetInfo::analyzePtr(Value *Address, StrideAnalysisResult &SAR) {
           }
         }
         return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
+      }
+    } else if (auto *const GEP =
+                   dyn_cast<GetElementPtrInst>(Phi->getIncomingValue(0))) {
+      // If it's a simple loop iterator, the stride can be analyzed from the
+      // initial value.
+      if (GEP->getPointerOperand() == Phi) {
+        for (auto const &index : GEP->indices()) {
+          if (SAR.UVR.isVarying(index.get())) {
+            return setMayDiverge();
+          }
+        }
+        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(1)));
       }
     }
 
@@ -544,7 +563,22 @@ OffsetInfo &OffsetInfo::manifest(IRBuilder<> &B, StrideAnalysisResult &SAR) {
     } else if (auto *const CVal = Phi->hasConstantValue()) {
       SrcVal = CVal;
     } else if (NumIncoming == 2) {
-      SrcVal = Phi->getIncomingValue(0);
+      auto identifyIncrement = [&](Value *incoming) -> bool {
+        if (auto *BOp = dyn_cast<BinaryOperator>(incoming)) {
+          // If this consumes the Phi node, we have found the increment.
+          return BOp->getOperand(0) == Phi || BOp->getOperand(1) == Phi;
+        } else if (auto *GEP = dyn_cast<GetElementPtrInst>(incoming)) {
+          return GEP->getPointerOperand() == Phi;
+        }
+        return false;
+      };
+
+      // Try the PHI node's incoming values both ways round.
+      if (identifyIncrement(Phi->getIncomingValue(1))) {
+        SrcVal = Phi->getIncomingValue(0);
+      } else if (identifyIncrement(Phi->getIncomingValue(0))) {
+        SrcVal = Phi->getIncomingValue(1);
+      }
     }
     assert(SrcVal && "Unexpected Phi node during stride manifestation");
     return copyStrideFrom(SAR.manifest(B, SrcVal));
