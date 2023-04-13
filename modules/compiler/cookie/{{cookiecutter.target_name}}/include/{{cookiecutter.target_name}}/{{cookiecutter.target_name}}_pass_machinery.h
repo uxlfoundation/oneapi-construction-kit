@@ -16,7 +16,7 @@ namespace {{cookiecutter.target_name}} {
 /// by various passes as we run through the passes.
 class {{cookiecutter.target_name.capitalize()}}PassMachinery : public compiler::BaseModulePassMachinery {
  public:
-  {{cookiecutter.target_name.capitalize()}}PassMachinery(llvm::TargetMachine * TM,
+  {{cookiecutter.target_name.capitalize()}}PassMachinery(llvm::LLVMContext &Ctx,llvm::TargetMachine * TM,
                 const compiler::utils::DeviceInfo &Info,
                 compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
                 bool verifyEach, compiler::utils::DebugLogging debugLogLevel,

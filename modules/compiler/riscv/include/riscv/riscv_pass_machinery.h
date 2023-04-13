@@ -13,7 +13,8 @@ namespace riscv {
 class RiscvPassMachinery : public compiler::BaseModulePassMachinery {
  public:
   RiscvPassMachinery(
-      llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
+      llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+      const compiler::utils::DeviceInfo &Info,
       compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses);

@@ -62,9 +62,11 @@ using namespace llvm;
 using namespace vecz;
 
 VeczPassMachinery::VeczPassMachinery(
-    llvm::TargetMachine *TM, VectorizationContext &Ctx, bool verifyEach,
+    llvm::LLVMContext &llvmCtx, llvm::TargetMachine *TM,
+    VectorizationContext &Ctx, bool verifyEach,
     compiler::utils::DebugLogging debugLogLevel)
-    : compiler::utils::PassMachinery(TM, verifyEach, debugLogLevel), Ctx(Ctx) {}
+    : compiler::utils::PassMachinery(llvmCtx, TM, verifyEach, debugLogLevel),
+      Ctx(Ctx) {}
 
 void VeczPassMachinery::registerPasses() {
   // Register standard passes

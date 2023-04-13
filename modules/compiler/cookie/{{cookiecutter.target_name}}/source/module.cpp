@@ -416,8 +416,9 @@ std::unique_ptr<compiler::utils::PassMachinery> {{cookiecutter.target_name.capit
     return compiler::utils::BuiltinInfo(compiler::utils::createCLBuiltinInfo(Builtins));
 {% endif -%}
   };
+  llvm::LLVMContext &Ctx = Builtins->getContext();
   return multi_llvm::make_unique<{{cookiecutter.target_name.capitalize()}}PassMachinery>(
-      TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
+      Ctx, TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
       BaseContext.getLLVMDebugLoggingLevel(),
       BaseContext.isLLVMTimePassesEnabled());
 }

@@ -31,7 +31,8 @@ enum class DebugLogging { None, Normal, Verbose, Quiet };
 /// components required to set up a new-style LLVM pass manager.
 class PassMachinery {
  public:
-  PassMachinery(llvm::TargetMachine *TM, bool VerifyEach = false,
+  PassMachinery(llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+                bool VerifyEach = false,
                 DebugLogging debugLogLevel = DebugLogging::None);
 
   virtual ~PassMachinery();
@@ -108,6 +109,8 @@ class PassMachinery {
   /// @brief Helper to build and parse pass pipelines.
   llvm::PassBuilder PB;
 };
+
+#define CTX_UNUSED(x) ((void)(x))
 
 /// Helper functions for pass printing.
 

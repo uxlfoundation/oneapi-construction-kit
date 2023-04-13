@@ -11,11 +11,12 @@
 #include <vecz/pass.h>
 
 riscv::RiscvPassMachinery::RiscvPassMachinery(
-    llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
+    llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+    const compiler::utils::DeviceInfo &Info,
     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
     bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
     bool timePasses)
-    : compiler::BaseModulePassMachinery(TM, Info, BICallback, verifyEach,
+    : compiler::BaseModulePassMachinery(Ctx, TM, Info, BICallback, verifyEach,
                                         debugLogLevel, timePasses) {}
 
 // Process vecz flags based off build options and environment variables

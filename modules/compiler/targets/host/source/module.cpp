@@ -266,7 +266,8 @@ HostModule::createPassMachinery() {
         compiler::utils::createCLBuiltinInfo(BI));
   };
   return multi_llvm::make_unique<host::HostPassMachinery>(
-      TM, Info, Callback, target.getContext().isLLVMVerifyEachEnabled(),
+      target.getContext().llvm_context, TM, Info, Callback,
+      target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),
       target.getContext().isLLVMTimePassesEnabled());
 }

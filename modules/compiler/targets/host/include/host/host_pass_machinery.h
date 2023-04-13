@@ -17,12 +17,12 @@ namespace host {
 
 class HostPassMachinery final : public compiler::BaseModulePassMachinery {
  public:
-  HostPassMachinery(llvm::TargetMachine *TM,
+  HostPassMachinery(llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
                     const compiler::utils::DeviceInfo &Info,
                     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
                     bool verifyEach, compiler::utils::DebugLogging debugLogging,
                     bool timePasses)
-      : compiler::BaseModulePassMachinery(TM, Info, BICallback, verifyEach,
+      : compiler::BaseModulePassMachinery(Ctx, TM, Info, BICallback, verifyEach,
                                           debugLogging, timePasses) {}
   ~HostPassMachinery() = default;
   void addClassToPassNames() override;

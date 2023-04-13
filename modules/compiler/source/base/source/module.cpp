@@ -77,6 +77,7 @@
 #include <llvm/Transforms/Vectorize/LoopVectorize.h>
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
+#include <multi_llvm/optional_helper.h>
 #include <mux/mux.hpp>
 #include <spirv-ll/module.h>
 
@@ -2209,12 +2210,11 @@ void BaseModule::populateOpenCLOpts(clang::CompilerInstance &instance) {
     supportOpenCLOpt(instance, opt);
   }
 }
-
 std::unique_ptr<compiler::utils::PassMachinery>
 BaseModule::createPassMachinery() {
   return std::make_unique<BaseModulePassMachinery>(
-      /*TM*/ nullptr, /*Info*/ llvm::None, /*BICallback*/ nullptr,
-      target.getContext().isLLVMVerifyEachEnabled(),
+      llvm_module->getContext(), /*TM*/ nullptr, /*Info*/ multi_llvm::None,
+      /*BICallback*/ nullptr, target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),
       target.getContext().isLLVMTimePassesEnabled());
 }

@@ -174,8 +174,9 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
 
     auto &BaseCtx =
         *static_cast<compiler::BaseContext *>(CompilerContext.get());
+    llvm::LLVMContext &Ctx = BaseCtx.llvm_context;
     PassMach = multi_llvm::make_unique<compiler::BaseModulePassMachinery>(
-        /*TM*/ nullptr, Info, /*BICallback*/ nullptr,
+        Ctx, /*TM*/ nullptr, Info, /*BICallback*/ nullptr,
         BaseCtx.isLLVMVerifyEachEnabled(), BaseCtx.getLLVMDebugLoggingLevel(),
         BaseCtx.isLLVMTimePassesEnabled());
   }

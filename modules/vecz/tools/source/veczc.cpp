@@ -364,7 +364,7 @@ int main(const int argc, const char *const argv[]) {
     module->setDataLayout(tm->createDataLayout());
   }
 
-  compiler::utils::PassMachinery passMach(tm.get());
+  compiler::utils::PassMachinery passMach(context, tm.get());
 
   auto TICallback = [&](const llvm::Module &) {
     return vecz::createTargetInfoFromTargetMachine(tm.get());

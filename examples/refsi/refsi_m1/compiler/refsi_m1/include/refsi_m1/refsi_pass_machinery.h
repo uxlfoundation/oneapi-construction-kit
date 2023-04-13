@@ -13,7 +13,8 @@ namespace refsi_m1 {
 class RefSiM1PassMachinery : public riscv::RiscvPassMachinery {
  public:
   RefSiM1PassMachinery(
-      llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
+      llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+      const compiler::utils::DeviceInfo &Info,
       compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses);

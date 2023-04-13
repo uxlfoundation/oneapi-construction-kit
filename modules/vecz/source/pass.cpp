@@ -75,7 +75,7 @@ PreservedAnalyses RunVeczPass::run(Module &M, ModuleAnalysisManager &MAM) {
   auto &builtin_info = MAM.getResult<compiler::utils::BuiltinInfoAnalysis>(M);
 
   VectorizationContext Ctx(M, *target_info, builtin_info);
-  VeczPassMachinery Mach(target_info->getTargetMachine(), Ctx,
+  VeczPassMachinery Mach(M.getContext(), target_info->getTargetMachine(), Ctx,
                          /*verifyEach*/ false,
                          DebugVeczPipeline
                              ? compiler::utils::DebugLogging::Normal

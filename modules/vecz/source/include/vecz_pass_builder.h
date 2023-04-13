@@ -32,8 +32,8 @@ class VeczPassMachinery final : public compiler::utils::PassMachinery {
   /// @param[in] ctx the vectorization context object for the module.
   /// @param[in] verifyEach true if each pass should be verified
   /// @param[in] debugLogLevel debug logging verbosity.
-  VeczPassMachinery(llvm::TargetMachine *TM, VectorizationContext &ctx,
-                    bool verifyEach,
+  VeczPassMachinery(llvm::LLVMContext &llvmCtx, llvm::TargetMachine *TM,
+                    VectorizationContext &ctx, bool verifyEach,
                     compiler::utils::DebugLogging debugLogLevel =
                         compiler::utils::DebugLogging::None);
 

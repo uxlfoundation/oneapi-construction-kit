@@ -50,15 +50,21 @@ static cl::opt<DebugLogging> DebugPM(
 static cl::opt<bool> VerifyEach("verify-each",
                                 cl::desc("Verify after each transform"));
 
-PassMachinery::PassMachinery(TargetMachine *TM, bool VerifyEach,
-                             DebugLogging debugLogLevel)
+PassMachinery::PassMachinery(LLVMContext &Ctx, TargetMachine *TM,
+                             bool VerifyEach, DebugLogging debugLogLevel)
     : TM(TM) {
   llvm::PrintPassOptions PrintPassOpts;
   PrintPassOpts.Verbose = DebugPM == DebugLogging::Verbose;
   PrintPassOpts.SkipAnalyses = DebugPM == DebugLogging::Quiet;
   PrintPassOpts.Indent = debugLogLevel != DebugLogging::None;
+#if LLVM_VERSION_MAJOR >= 16
+  SI = std::make_unique<StandardInstrumentations>(
+      Ctx, debugLogLevel != DebugLogging::None, VerifyEach, PrintPassOpts);
+#else
+  CTX_UNUSED(Ctx);
   SI = std::make_unique<StandardInstrumentations>(
       debugLogLevel != DebugLogging::None, VerifyEach, PrintPassOpts);
+#endif
 }
 
 PassMachinery::~PassMachinery() {}

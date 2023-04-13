@@ -241,7 +241,8 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
           compiler::utils::createCLBuiltinInfo(target.getBuiltins()));
     };
     auto deviceInfo = compiler::initDeviceInfoFromMux(device_info);
-    HostPassMachinery pass_mach(TM, deviceInfo, builtinInfoCallback,
+    HostPassMachinery pass_mach(module->getContext(), TM, deviceInfo,
+                                builtinInfoCallback,
                                 target.getContext().isLLVMVerifyEachEnabled(),
                                 target.getContext().getLLVMDebugLoggingLevel(),
                                 target.getContext().isLLVMTimePassesEnabled());

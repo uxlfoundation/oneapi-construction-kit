@@ -27,11 +27,12 @@ namespace compiler {
 class BaseModulePassMachinery : public compiler::utils::PassMachinery {
  public:
   BaseModulePassMachinery(
-      llvm::TargetMachine *TM, llvm::Optional<compiler::utils::DeviceInfo> Info,
+      llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+      llvm::Optional<compiler::utils::DeviceInfo> Info,
       compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses)
-      : compiler::utils::PassMachinery(TM, verifyEach, debugLogging),
+      : compiler::utils::PassMachinery(Ctx, TM, verifyEach, debugLogging),
         TimePasses(timePasses),
         Info(Info),
         BICallback(BICallback) {}
