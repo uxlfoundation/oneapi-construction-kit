@@ -216,7 +216,8 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
     }
   }
 
-  std::lock_guard<std::mutex> lock(command_queue->mutex);
+  std::lock_guard<std::mutex> lock(
+      command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer =
       command_queue->getCommandBuffer(event_wait_list, return_event);
@@ -418,7 +419,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
                 return CL_INVALID_VALUE);
       OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
       if (param_value) {
-        auto* value = static_cast<cl_mem_properties*>(param_value);
+        auto *value = static_cast<cl_mem_properties *>(param_value);
         std::copy(memobj->properties.begin(), memobj->properties.end(), value);
       }
     } break;
@@ -491,7 +492,8 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
     it->second.is_active = false;
   }
 
-  std::lock_guard<std::mutex> lock(command_queue->mutex);
+  std::lock_guard<std::mutex> lock(
+      command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);

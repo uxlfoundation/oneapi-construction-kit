@@ -9,6 +9,7 @@
 #include <cl/mux.h>
 #include <cl/platform.h>
 #include <cl/program.h>
+#include <cl/semaphore.h>
 #include <cl/validate.h>
 #include <extension/extension.h>
 #include <tracer/tracer.h>
@@ -27,14 +28,14 @@ _cl_command_queue::_cl_command_queue(cl_context context, cl_device_id device,
           cl::validate::IsInBitSet(properties, CL_QUEUE_PROFILING_ENABLE)
               ? utils::timestampNanoSeconds()
               : 0),
-      mutex(),
       mux_queue(mux_queue),
       counter_queries(nullptr),
       pending_command_buffers(),
       pending_dispatches(),
       running_command_buffers(),
       finish_state(),
-      cached_command_buffers() {
+      cached_command_buffers(),
+      in_flush(false) {
   cl::retainInternal(context);
   cl::retainInternal(device);
 }
@@ -42,10 +43,13 @@ _cl_command_queue::_cl_command_queue(cl_context context, cl_device_id device,
 _cl_command_queue::~_cl_command_queue() {
   muxWaitAll(mux_queue);
 
-  cleanupCompletedCommandBuffers();
-
+  {
+    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    cleanupCompletedCommandBuffers();
+  }
+  // Release any completed signal semaphores
   for (auto semaphore : completed_signal_semaphores) {
-    muxDestroySemaphore(device->mux_device, semaphore, device->mux_allocator);
+    releaseSemaphore(semaphore);
   }
 
   for (auto pair : fences) {
@@ -190,13 +194,24 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
 }
 
 cl_int _cl_command_queue::flush() {
+  if (in_flush) {
+    return CL_SUCCESS;
+  }
+  in_flush = true;
+
+  // Use a raii_wrapper to ensure in_flush is set to false on exit
+  struct raii_wrapper {
+    raii_wrapper(bool &in_flush) : in_flush(in_flush){};
+    ~raii_wrapper() { in_flush = false; }
+    bool &in_flush;
+  };
+  raii_wrapper wrapper(in_flush);
+
   if (auto error = cleanupCompletedCommandBuffers()) {
     return error;
   }
 
   {
-    std::lock_guard<std::mutex> lock(mutex);
-
     if (!pending_dispatches.empty()) {
       cargo::small_vector<mux_command_buffer_t, 16> command_buffers;
       if (command_buffers.reserve(pending_command_buffers.size())) {
@@ -208,6 +223,15 @@ cl_int _cl_command_queue::flush() {
         auto &dispatch = pending_dispatches[command_buffer];
         if (std::none_of(dispatch.wait_events.begin(),
                          dispatch.wait_events.end(), cl::isUserEvent)) {
+          for (auto &wait_event : dispatch.wait_events) {
+            // Force a flush if from a different queue
+            if (CL_COMMAND_USER != wait_event->command_type &&
+                wait_event->command_status != CL_COMPLETE) {
+              if (wait_event->queue != this) {
+                wait_event->queue->flush();
+              }
+            }
+          }
           if (command_buffers.push_back(command_buffer)) {
             return CL_OUT_OF_RESOURCES;
           }
@@ -229,12 +253,15 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     events[i]->wait();
   }
+  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+
   return CL_SUCCESS == cleanupCompletedCommandBuffers()
              ? CL_SUCCESS
              : CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
 }
 
 cl_int _cl_command_queue::getEventStatus(cl_event event) {
+  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
   cl_int error = cleanupCompletedCommandBuffers();
   OCL_UNUSED(error);
   assert(CL_SUCCESS == error);
@@ -244,8 +271,6 @@ cl_int _cl_command_queue::getEventStatus(cl_event event) {
 cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
   // Check to see if there are any command buffers ready to be cleaned up.
   while (true) {
-    std::lock_guard<std::mutex> lock(mutex);
-
     if (running_command_buffers.empty()) {
       // There are no running command buffers so we can stop processing.
       break;
@@ -281,6 +306,11 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
 
     // The command buffer has completed so stop tracking it then destroy it.
     auto completed = std::move(running_command_buffers.front());
+    // Any completed buffers that have wait semaphores should be cleaned
+    // up
+    for (auto &s : completed.wait_semaphores) {
+      releaseSemaphore(s);
+    }
     running_command_buffers.pop_front();
 
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
@@ -308,6 +338,7 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
       auto found = std::find(wait_semaphores.begin(), wait_semaphores.end(),
                              completed.signal_semaphore);
       if (found != wait_semaphores.end()) {
+        releaseSemaphore(*found);
         wait_semaphores.erase(found);
       }
     }
@@ -318,7 +349,7 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
     }
 
     // Get list of all wait_semaphores from running dispatches.
-    cargo::small_vector<mux_semaphore_t, 64> running_wait_semaphores;
+    cargo::small_vector<mux_shared_semaphore, 64> running_wait_semaphores;
     for (auto &running : running_command_buffers) {
       if (!running_wait_semaphores.insert(running_wait_semaphores.end(),
                                           running.wait_semaphores.begin(),
@@ -331,42 +362,33 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
                                               running_wait_semaphores.end()),
                                   running_wait_semaphores.end());
 
-    // Iterate over completed signal semaphores and destroy those which are no
-    // longer being waited upon by running dispatches.
-    auto isWaitedUpon =
-        [&running_wait_semaphores](mux_semaphore_t signal_semaphore) {
-          return std::find(running_wait_semaphores.begin(),
-                           running_wait_semaphores.end(),
-                           signal_semaphore) != running_wait_semaphores.end();
-        };
+    // Iterate over completed signal semaphores and release them.
+
     // Store destroyed semaphores for later processing.
-    cargo::small_vector<mux_semaphore_t, 16> destroyed_semaphores;
+    cargo::small_vector<mux_shared_semaphore, 16> released_semaphores;
     for (auto signal_semaphore : completed_signal_semaphores) {
-      if (isWaitedUpon(signal_semaphore)) {
-        continue;
-      }
-      // Destroy the semaphore now that nothing depends on it.
-      if (auto error = destroySemaphore(signal_semaphore)) {
+      // Release the semaphore now that nothing depends on it.
+      if (auto error = releaseSemaphore(signal_semaphore)) {
         return error;
       }
       // Append to the list of destroyed semaphores to be removed from
       // completed signal semaphores list.
-      if (destroyed_semaphores.push_back(signal_semaphore)) {
+      if (released_semaphores.push_back(signal_semaphore)) {
         return CL_OUT_OF_HOST_MEMORY;
       }
     }
 
     // Move destroyed semaphores to the back, then erase them.
-    auto first_destroyed_semaphore = std::stable_partition(
+    auto first_released_semaphore = std::stable_partition(
         completed_signal_semaphores.begin(), completed_signal_semaphores.end(),
-        [&destroyed_semaphores](mux_semaphore_t semaphore) {
-          // When semaphore is not in destroyed_semaphores return true which
+        [&released_semaphores](mux_shared_semaphore semaphore) {
+          // When semaphore is not in released_semaphores return true which
           // moves it to the front, otherwise move it to the back.
-          return std::find(destroyed_semaphores.begin(),
-                           destroyed_semaphores.end(),
-                           semaphore) == destroyed_semaphores.end();
+          return std::find(released_semaphores.begin(),
+                           released_semaphores.end(),
+                           semaphore) == released_semaphores.end();
         });
-    completed_signal_semaphores.erase(first_destroyed_semaphore,
+    completed_signal_semaphores.erase(first_released_semaphore,
                                       completed_signal_semaphores.end());
   }
 
@@ -447,7 +469,7 @@ _cl_command_queue::getCommandBufferPending(
     cargo::array_view<const cl_event> event_wait_list) {
   // Utility function object adds wait semaphores to a pending dispatch.
   struct add_wait {
-    add_wait(cargo::array_view<mux_semaphore_t> semaphores,
+    add_wait(cargo::array_view<mux_shared_semaphore> semaphores,
              std::unordered_map<mux_command_buffer_t, dispatch_state_t>
                  &pending_dispatches)
         : semaphores(semaphores), pending_dispatches(pending_dispatches) {}
@@ -456,6 +478,8 @@ _cl_command_queue::getCommandBufferPending(
         mux_command_buffer_t command_buffer) {
       if (!semaphores.empty()) {
         auto &dispatch = pending_dispatches[command_buffer];
+        auto wait_sems_size = dispatch.wait_semaphores.size();
+
         // Insert the wait semaphores into the list.
         if (!dispatch.wait_semaphores.insert(dispatch.wait_semaphores.end(),
                                              semaphores.begin(),
@@ -471,11 +495,18 @@ _cl_command_queue::getCommandBufferPending(
             return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
           }
         }
+
+        // After duplicate remove, retain any semaphores we have genuinely added
+        auto current_sems_size = dispatch.wait_semaphores.size();
+        for (unsigned int index = wait_sems_size; index < current_sems_size;
+             index++) {
+          dispatch.wait_semaphores[index]->retain();
+        }
       }
       return command_buffer;
     }
 
-    cargo::array_view<mux_semaphore_t> semaphores;
+    cargo::array_view<mux_shared_semaphore> semaphores;
     std::unordered_map<mux_command_buffer_t, dispatch_state_t>
         &pending_dispatches;
   };
@@ -533,6 +564,25 @@ _cl_command_queue::getCommandBufferPending(
         }
       }
     }
+
+    // Check the pending dispatches of the wait event's queue if it is
+    // different from this one
+    if (wait_event->queue != this &&
+        CL_COMMAND_USER != wait_event->command_type) {
+      for (auto &pending : wait_event->queue->pending_dispatches) {
+        auto &dispatch = pending.second;
+        // Check if any signal events are the wait event and add them to
+        // dependent_dispatches.
+        if (std::any_of(dispatch.signal_events.begin(),
+                        dispatch.signal_events.end(), isWaitEvent)) {
+          can_append_last_dispatch = false;
+
+          if (dependent_dispatches.push_back(&pending)) {
+            return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+          }
+        }
+      }
+    }
   }
 
   // Remove duplicates from dependent_dispatches.
@@ -551,7 +601,7 @@ _cl_command_queue::getCommandBufferPending(
   }
 
   // Storage for wait semaphores to set on a pending command buffer.
-  cargo::small_vector<mux_semaphore_t, 8> semaphores;
+  cargo::small_vector<mux_shared_semaphore, 8> semaphores;
 
   // There are one or more dependent dispatches we must create a new command
   // group and wait on the their signal semaphores.
@@ -650,13 +700,10 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
     };
 
     // Prepare the dispatch.
-    mux_semaphore_t *wait_semaphores = dispatch.wait_semaphores.empty()
-                                           ? nullptr
-                                           : dispatch.wait_semaphores.data();
     mux_semaphore_t *signal_semaphores = nullptr;
     uint32_t signal_semaphores_length = 0;
     if (dispatch.signal_semaphore) {
-      signal_semaphores = &dispatch.signal_semaphore;
+      signal_semaphores = &(dispatch.signal_semaphore->semaphore);
       signal_semaphores_length = 1;
     }
 
@@ -666,8 +713,17 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
     }
 
     // Actually dispatch the command buffer.
+    cargo::small_vector<mux_semaphore_t, 8> wait_semaphores_storage;
+    for (auto s : dispatch.wait_semaphores) {
+      if (wait_semaphores_storage.push_back(s->get())) {
+        return CL_OUT_OF_RESOURCES;
+      }
+    }
+
     if (auto error = muxDispatch(
-            mux_queue, command_buffer, fence, wait_semaphores,
+            mux_queue, command_buffer, fence,
+            wait_semaphores_storage.empty() ? nullptr
+                                            : wait_semaphores_storage.data(),
             dispatch.wait_semaphores.size(), signal_semaphores,
             signal_semaphores_length, dispatchComplete, &finished)) {
       finished.clear(command_buffer, error, /* locked */ true);
@@ -686,17 +742,15 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
 }
 
 cl_int _cl_command_queue::dispatchPending(cl_event user_event) {
-  {
-    std::lock_guard<std::mutex> lock(mutex);
+  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
-    // Remove the user event from all pending dispatches wait event lists.
-    for (auto &pending : pending_dispatches) {
-      auto &dispatch = pending.second;
-      auto found = std::find(dispatch.wait_events.begin(),
-                             dispatch.wait_events.end(), user_event);
-      if (dispatch.wait_events.end() != found) {
-        dispatch.wait_events.erase(found);
-      }
+  // Remove the user event from all pending dispatches wait event lists.
+  for (auto &pending : pending_dispatches) {
+    auto &dispatch = pending.second;
+    auto found = std::find(dispatch.wait_events.begin(),
+                           dispatch.wait_events.end(), user_event);
+    if (dispatch.wait_events.end() != found) {
+      dispatch.wait_events.erase(found);
     }
   }
 
@@ -745,7 +799,7 @@ cl_int _cl_command_queue::removeFromPending(
 
 cl_int _cl_command_queue::dropDispatchesPending(
     cl_event user_event, cl_int event_command_exec_status) {
-  std::lock_guard<std::mutex> lock(mutex);
+  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   cargo::small_vector<mux_command_buffer_t, 16> command_buffers;
 
@@ -762,8 +816,8 @@ cl_int _cl_command_queue::dropDispatchesPending(
                     [](std::function<void()> &callback) { callback(); });
       dispatch.callbacks.clear();
 
-      // Destroy the signal semaphore if it exists.
-      if (auto error = destroySemaphore(dispatch.signal_semaphore)) {
+      // Release the signal semaphore if it exists.
+      if (auto error = releaseSemaphore(dispatch.signal_semaphore)) {
         return error;
       }
       dispatch.signal_semaphore = nullptr;
@@ -856,17 +910,27 @@ cl_int _cl_command_queue::destroyCommandBuffer(
   return CL_SUCCESS;
 }
 
-cargo::expected<mux_semaphore_t, cl_int> _cl_command_queue::createSemaphore() {
-  mux_semaphore_t semaphore;
+cargo::expected<mux_shared_semaphore, cl_int>
+_cl_command_queue::createSemaphore() {
+  mux_semaphore_t mux_semaphore;
   if (mux_success != muxCreateSemaphore(device->mux_device,
-                                        device->mux_allocator, &semaphore)) {
+                                        device->mux_allocator,
+                                        &mux_semaphore)) {
     return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
   }
-  return semaphore;
+  auto sem = _mux_shared_semaphore::create(device, mux_semaphore);
+  if (!sem) {
+    return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
+  }
+
+  return sem;
 }
 
-cl_int _cl_command_queue::destroySemaphore(mux_semaphore_t semaphore) {
-  muxDestroySemaphore(device->mux_device, semaphore, device->mux_allocator);
+cl_int _cl_command_queue::releaseSemaphore(mux_shared_semaphore semaphore) {
+  bool should_destroy = semaphore->release();
+  if (should_destroy) {
+    delete semaphore;
+  }
   return CL_SUCCESS;
 }
 
@@ -890,8 +954,9 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
       return CL_OUT_OF_RESOURCES;
     }
     for (auto wait_event : event_wait_list) {
-      if (cl::isUserEvent(wait_event) &&
-          wait_event->command_status != CL_COMPLETE) {
+      // Push any events that are not completed on wait list
+      // including non-user ones
+      if (wait_event->command_status != CL_COMPLETE) {
         if (wait_events.push_back(wait_event)) {
           return CL_OUT_OF_RESOURCES;
         }
@@ -947,7 +1012,8 @@ void _cl_command_queue::finish_state_t::clear(
   if (locked) {
     command_queue->finish_state.erase(command_buffer);
   } else {
-    std::lock_guard<std::mutex> lock(command_queue->mutex);
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
     command_queue->finish_state.erase(command_buffer);
   }
 }
@@ -984,9 +1050,15 @@ CL_API_ENTRY cl_int CL_API_CALL
 cl::ReleaseCommandQueue(cl_command_queue command_queue) {
   tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandQueue");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
-  // releasing a command queue causes an implicit flush
-  if (auto error = command_queue->flush()) {
-    return error;
+
+  {
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
+
+    // releasing a command queue causes an implicit flush
+    if (auto error = command_queue->flush()) {
+      return error;
+    }
   }
   return cl::releaseExternal(command_queue);
 }
@@ -1066,7 +1138,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(command_queue->mutex);
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
 
     // barriers are implicit in in-order queues, could mostly be a no-op
     // (especially if we don't have a return event!)
@@ -1097,7 +1170,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(command_queue->mutex);
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, *event);
@@ -1138,6 +1212,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
 CL_API_ENTRY cl_int CL_API_CALL cl::Flush(cl_command_queue command_queue) {
   tracer::TraceGuard<tracer::OpenCL> guard("clFlush");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
+  std::lock_guard<std::mutex> lock(
+      command_queue->context->getCommandQueueMutex());
   return command_queue->flush();
 }
 
@@ -1152,21 +1228,34 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
   cl::release_guard<cl_event> event_release_guard(*new_event,
                                                   cl::ref_count_type::EXTERNAL);
 
-  command_queue->flush();
+  {
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
+    command_queue->flush();
+  }
 
   if (mux_success != muxWaitAll(command_queue->mux_queue)) {
     event_release_guard->complete(CL_OUT_OF_RESOURCES);
     return CL_OUT_OF_RESOURCES;
   }
 
-  if (CL_SUCCESS != command_queue->cleanupCompletedCommandBuffers()) {
-    event_release_guard->complete(CL_OUT_OF_RESOURCES);
-    return CL_OUT_OF_RESOURCES;
+  {
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
+    if (CL_SUCCESS != command_queue->cleanupCompletedCommandBuffers()) {
+      event_release_guard->complete(CL_OUT_OF_RESOURCES);
+      return CL_OUT_OF_RESOURCES;
+    }
   }
 
   event_release_guard->complete();
 
-  const cl_int result = command_queue->flush();
+  cl_int result;
+  {
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
+    result = command_queue->flush();
+  }
 
   if (CL_SUCCESS != result) {
     return result;
@@ -1197,7 +1286,8 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(command_queue->mutex);
+    std::lock_guard<std::mutex> lock(
+        command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer({}, *event);
     if (!mux_command_buffer) {
@@ -1213,7 +1303,7 @@ CARGO_NODISCARD cl_int _cl_command_queue::enqueueCommandBuffer(
     cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *return_event) {
   // Lock both queue and command-buffer
-  std::lock_guard<std::mutex> lock_queue(mutex);
+  std::lock_guard<std::mutex> lock_queue(context->getCommandQueueMutex());
   std::lock_guard<std::mutex> lock_command_buffer(command_buffer->mutex);
 
   // Create the signal event if caller asks for it.
@@ -1278,6 +1368,8 @@ CARGO_NODISCARD cl_int _cl_command_queue::enqueueCommandBuffer(
     if (pending_dispatches[mux_command_buffer].wait_semaphores.push_back(
             signal_semaphore)) {
       return CL_OUT_OF_RESOURCES;
+    } else {
+      signal_semaphore->retain();
     }
   }
 
@@ -1333,8 +1425,10 @@ CARGO_NODISCARD cl_int _cl_command_queue::enqueueCommandBuffer(
   for (auto &running_command_buffer : running_command_buffers) {
     if (pending_dispatches[mux_command_buffer].wait_semaphores.push_back(
             running_command_buffer.signal_semaphore)) {
-      destroySemaphore(*semaphore);
+      releaseSemaphore(*semaphore);
       return CL_OUT_OF_HOST_MEMORY;
+    } else {
+      running_command_buffer.signal_semaphore->retain();
     }
   }
 

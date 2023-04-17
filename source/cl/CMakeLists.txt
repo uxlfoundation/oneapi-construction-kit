@@ -120,6 +120,7 @@ set(CL_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/platform.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/program.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/sampler.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/semaphore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/validate.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/base.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/buffer.cpp
@@ -134,6 +135,7 @@ set(CL_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/platform.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/program.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/semaphore.cpp  
   ${CMAKE_CURRENT_SOURCE_DIR}/source/sampler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/validate.cpp)
 

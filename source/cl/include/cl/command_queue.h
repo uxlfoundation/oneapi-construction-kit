@@ -15,6 +15,7 @@
 #include <cargo/ring_buffer.h>
 #include <cargo/small_vector.h>
 #include <cl/base.h>
+#include <cl/semaphore.h>
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
 #include <extension/khr_command_buffer.h>
 #endif
@@ -68,6 +69,8 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
 
   /// @brief Flush the command queue.
   ///
+  /// @note This member function is not thread-safe, callers **must** hold a
+  /// lock on `_cl_command_queue->mutex` when calling it.
   /// @return Returns an OpenCL error code.
   /// @retval `CL_SUCCESS` if there are no failures.
   /// @retval `CL_OUT_OF_RESOURCES` if destroying a resource fails.
@@ -93,8 +96,8 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
 
   /// @brief Cleanup completed command buffers and signal semaphores.
   ///
-  /// @note Callers of this function **must not** hold a lock on
-  /// `_cl_command_queue::mutex` when calling it.
+  /// @note This member function is not thread-safe, callers **must** hold a
+  /// lock on `_cl_command_queue->mutex` when calling it.
   ///
   /// Implements a cleanup algorithm which checks for command buffer dispatch
   /// completion, when a completed dispatch is found; the command buffer is
@@ -172,10 +175,9 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   ///
   /// @return Returns `CL_SUCCESS` if successful otherwise an appropriate OpenCL
   /// error code.
-  CARGO_NODISCARD cl_int
-  enqueueCommandBuffer(cl_command_buffer_khr command_buffer,
-                       cl_uint num_events_in_wait_list,
-                       const cl_event *event_wait_list, cl_event *return_event);
+  CARGO_NODISCARD cl_int enqueueCommandBuffer(
+      cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
+      const cl_event *event_wait_list, cl_event *return_event);
 
 #endif
 
@@ -195,8 +197,6 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
 
   /// @brief Command queue profiling epoch time.
   cl_ulong profiling_start;
-  /// @brief Mutex to ensure safe multithreaded access.
-  std::mutex mutex;
   /// @brief Mux queue to execute work on.
   mux_queue_t mux_queue;
   /// @brief Mux query pool for storing performance counter results.
@@ -339,19 +339,20 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// @brief Create or get a cached semaphore.
   ///
   /// @note This member function is not thread-safe, callers **must** hold a
-  /// lock on `_cl_command_queue->mutex` when calling it.
+  /// lock on `context->getCommandQueueMutex()` when calling it.
   ///
   /// @return Returns the expected semaphore or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_semaphore_t, cl_int> createSemaphore();
+  CARGO_NODISCARD cargo::expected<mux_shared_semaphore, cl_int>
+  createSemaphore();
 
-  /// @brief Cache or destroy mux semaphore.
+  /// @brief Drop ref count on  mux semaphore and delete if zero
   ///
   /// @note This member function is not thread-safe, callers **must** hold a
-  /// lock on `_cl_command_queue->mutex` when calling it.
+  /// lock on `context->getCommandQueueMutex()` when calling it.
   ///
   /// @param semaphore a mux semaphore.
   /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
-  cl_int destroySemaphore(mux_semaphore_t semaphore);
+  cl_int releaseSemaphore(mux_shared_semaphore semaphore);
 
   /// @brief Completion callback for user events.
   ///
@@ -391,9 +392,9 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
     cargo::small_vector<cl_event, 8> signal_events;
 
     /// @brief List of semaphores this dispatch must wait for.
-    cargo::small_vector<mux_semaphore_t, 8> wait_semaphores;
+    cargo::small_vector<mux_shared_semaphore, 8> wait_semaphores;
     /// @brief The semaphore which signals this dispatch is complete.
-    mux_semaphore_t signal_semaphore;
+    mux_shared_semaphore signal_semaphore;
 
     /// @brief List of callbacks to invoke on completion.
     cargo::small_vector<std::function<void()>, 8> callbacks;
@@ -422,9 +423,9 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
     /// @brief The command buffer which is currently running.
     mux_command_buffer_t command_buffer;
     /// @brief The list of semaphores this dispatch is waiting for.
-    cargo::small_vector<mux_semaphore_t, 8> wait_semaphores;
+    cargo::small_vector<mux_shared_semaphore, 8> wait_semaphores;
     /// @brief The semaphore which signals this dispatch is complete.
-    mux_semaphore_t signal_semaphore;
+    mux_shared_semaphore signal_semaphore;
     /// @brief Flag specifying if the command buffer is associated with a
     /// _cl_command_buffer_khr object.
     bool is_user_command_buffer;
@@ -485,7 +486,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
 
   /// @brief List of completed signal semaphores which are still being waited
   /// on by running dispatches.
-  cargo::small_vector<mux_semaphore_t, 32> completed_signal_semaphores;
+  cargo::small_vector<mux_shared_semaphore, 32> completed_signal_semaphores;
 
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
   /// @brief A map of mux_command_buffer_t to their associated
@@ -493,6 +494,12 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   std::unordered_map<mux_command_buffer_t, cl_command_buffer_khr>
       user_command_buffers;
 #endif
+
+  /// true if we are currently in flush() on this command queue
+  /// This helps us avoid an infinite loop on flushing, as we can
+  /// call flushes on other command queues if there is a cross
+  /// queue event dependency.
+  bool in_flush;
 };
 
 /// @}

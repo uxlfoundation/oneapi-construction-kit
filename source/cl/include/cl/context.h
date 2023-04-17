@@ -201,6 +201,7 @@ struct _cl_context final : public cl::base<_cl_context> {
   cargo::small_vector<std::unique_ptr<extension::usm::allocation_info>, 1>
       usm_allocations;
 #endif
+  std::mutex &getCommandQueueMutex() { return command_queue_mutex; }
 
  private:
   /// @brief Default constructor, made private to enforce use of `create`.
@@ -215,6 +216,8 @@ struct _cl_context final : public cl::base<_cl_context> {
   std::unique_ptr<compiler::Context> compiler_context;
   /// @brief A mutex that guards the compiler_targets map.
   std::mutex compiler_targets_mutex;
+  /// @brief A mutex that guards any command queues.
+  std::mutex command_queue_mutex;
   /// @brief Map of OpenCL devices to compiler targets.
   std::unordered_map<cl_device_id, std::unique_ptr<compiler::Target>>
       compiler_targets;

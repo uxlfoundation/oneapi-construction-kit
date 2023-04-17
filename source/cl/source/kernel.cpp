@@ -240,7 +240,8 @@ cl_int PushExecuteKernel(
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &local_work_size,
     const cl_uint num_events_in_wait_list,
     const cl_event *const event_wait_list, cl_event return_event) {
-  std::lock_guard<std::mutex> lock(command_queue->mutex);
+  std::lock_guard<std::mutex> lock(
+      command_queue->context->getCommandQueueMutex());
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
   if (!mux_command_buffer) {

@@ -219,6 +219,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::WaitForEvents(cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     // if the event belonged to a queue
     if (nullptr != event_list[i]->queue) {
+      std::lock_guard<std::mutex> lock(
+          event_list[i]->queue->context->getCommandQueueMutex());
       cl_int result = event_list[i]->queue->flush();
 
       if (CL_SUCCESS != result) {

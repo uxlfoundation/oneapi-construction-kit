@@ -113,9 +113,10 @@ TEST_F(clEnqueueReadBufferTest, WithNDRangeInBetween) {
   EXPECT_SUCCESS(clReleaseProgram(program));
 }
 
-// Disabled until we can get a fix for non-user events between two queues
-// See DDK-87
-TEST_F(clEnqueueReadBufferTest, DISABLED_WithNDRangeInBetweenTwoQueues) {
+// Test that doing the read and enqueue on two different queues
+// using non-user events to synchronize works
+// Identical to WithNDRangeInBetween test except for the queue change
+TEST_F(clEnqueueReadBufferTest, WithNDRangeInBetweenTwoQueues) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }
