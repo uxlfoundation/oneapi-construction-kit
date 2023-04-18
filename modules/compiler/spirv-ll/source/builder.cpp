@@ -901,6 +901,7 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
       break;
     case OpenCLLIB::SAdd_sat:
     case OpenCLLIB::SHadd:
+    case OpenCLLIB::SRhadd:
     case OpenCLLIB::SClamp:
     case OpenCLLIB::SMad_hi:
     case OpenCLLIB::SMad_sat:
