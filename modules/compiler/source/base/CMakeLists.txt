@@ -38,7 +38,7 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/mem_to_reg_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/pass_pipelines.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/printf_replacement_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/base/set_barrier_convergent_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/base/set_convergent_attr_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/software_division_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/spir_fixup_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/program_metadata.h
@@ -56,7 +56,7 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mem_to_reg_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pass_pipelines.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/printf_replacement_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/set_barrier_convergent_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/set_convergent_attr_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/software_division_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/spir_fixup_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/program_metadata.cpp

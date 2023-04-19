@@ -38,7 +38,7 @@ MODULE_PASS("builtin-simplify", compiler::BuiltinSimplificationPass())
 MODULE_PASS("image-arg-subst", compiler::ImageArgumentSubstitutionPass())
 MODULE_PASS("fast-math", compiler::FastMathPass())
 MODULE_PASS("replace-printf", compiler::PrintfReplacementPass())
-MODULE_PASS("set-barrier-convergent", compiler::SetBarrierConvergentPass())
+MODULE_PASS("set-convergent-attr", compiler::SetConvergentAttrPass())
 MODULE_PASS("spir-fixup", compiler::spir::SpirFixupPass())
 MODULE_PASS("transfer-kernel-metadata",
             compiler::utils::TransferKernelMetadataPass())

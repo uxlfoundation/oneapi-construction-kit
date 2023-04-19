@@ -236,13 +236,82 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
   /// @brief OpenCL builtin 'printf'.
   eCLBuiltinPrintf,
 
+  // 6.15.16 Work-group Collective Functions
+  /// @brief OpenCL builtin 'work_group_all'.
+  eCLBuiltinWorkgroupAll,
+  /// @brief OpenCL builtin 'work_group_any'.
+  eCLBuiltinWorkgroupAny,
+  /// @brief OpenCL builtin 'work_group_broadcast'.
+  eCLBuiltinWorkgroupBroadcast,
+  /// @brief OpenCL builtin 'work_group_reduce_add'.
+  eCLBuiltinWorkgroupReduceAdd,
+  /// @brief OpenCL builtin 'work_group_reduce_min'.
+  eCLBuiltinWorkgroupReduceMin,
+  /// @brief OpenCL builtin 'work_group_reduce_max'.
+  eCLBuiltinWorkgroupReduceMax,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_add'.
+  eCLBuiltinWorkgroupScanAddInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_add'.
+  eCLBuiltinWorkgroupScanAddExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_min'.
+  eCLBuiltinWorkgroupScanMinInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_min'.
+  eCLBuiltinWorkgroupScanMinExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_max'.
+  eCLBuiltinWorkgroupScanMaxInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_max'.
+  eCLBuiltinWorkgroupScanMaxExclusive,
+
+  /// @brief OpenCL builtin 'work_group_reduce_mul'.
+  eCLBuiltinWorkgroupReduceMul,
+  /// @brief OpenCL builtin 'work_group_reduce_and'.
+  eCLBuiltinWorkgroupReduceAnd,
+  /// @brief OpenCL builtin 'work_group_reduce_or'.
+  eCLBuiltinWorkgroupReduceOr,
+  /// @brief OpenCL builtin 'work_group_reduce_xor'.
+  eCLBuiltinWorkgroupReduceXor,
+  /// @brief OpenCL builtin 'work_group_reduce_logical_and'.
+  eCLBuiltinWorkgroupReduceLogicalAnd,
+  /// @brief OpenCL builtin 'work_group_reduce_logical_or'.
+  eCLBuiltinWorkgroupReduceLogicalOr,
+  /// @brief OpenCL builtin 'work_group_reduce_logical_xor'.
+  eCLBuiltinWorkgroupReduceLogicalXor,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_mul'.
+  eCLBuiltinWorkgroupScanMulInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_mul'.
+  eCLBuiltinWorkgroupScanMulExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_and'.
+  eCLBuiltinWorkgroupScanAndInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_and'.
+  eCLBuiltinWorkgroupScanAndExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_or'.
+  eCLBuiltinWorkgroupScanOrInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_or'.
+  eCLBuiltinWorkgroupScanOrExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_xor'.
+  eCLBuiltinWorkgroupScanXorInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_xor'.
+  eCLBuiltinWorkgroupScanXorExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_logical_and'.
+  eCLBuiltinWorkgroupScanLogicalAndInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_logical_and'.
+  eCLBuiltinWorkgroupScanLogicalAndExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_logical_or'.
+  eCLBuiltinWorkgroupScanLogicalOrInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_logical_or'.
+  eCLBuiltinWorkgroupScanLogicalOrExclusive,
+  /// @brief OpenCL builtin 'work_group_scan_inclusive_logical_xor'.
+  eCLBuiltinWorkgroupScanLogicalXorInclusive,
+  /// @brief OpenCL builtin 'work_group_scan_exclusive_logical_xor'.
+  eCLBuiltinWorkgroupScanLogicalXorExclusive,
+
   // 6.15.19 Subgroup Collective Functions
   /// @brief OpenCL builtin 'sub_group_all'.
   eCLBuiltinSubgroupAll,
   /// @brief OpenCL builtin 'sub_group_any'.
   eCLBuiltinSubgroupAny,
   /// @brief OpenCL builtin 'sub_group_broadcast'.
-  eCLBuiltinGetSubgroupBroadcast,
+  eCLBuiltinSubgroupBroadcast,
   /// @brief OpenCL builtin 'sub_group_reduce_add'.
   eCLBuiltinSubgroupReduceAdd,
   /// @brief OpenCL builtin 'sub_group_reduce_min'.
@@ -552,10 +621,53 @@ static const CLBuiltinEntry Builtins[] = {
     // 6.12.13 printf
     {eCLBuiltinPrintf, "printf"},
 
+    // 6.15.16 Work-group Collective Functions
+    {eCLBuiltinWorkgroupAll, "work_group_all"},
+    {eCLBuiltinWorkgroupAny, "work_group_any"},
+    {eCLBuiltinWorkgroupBroadcast, "work_group_broadcast"},
+    {eCLBuiltinWorkgroupReduceAdd, "work_group_reduce_add"},
+    {eCLBuiltinWorkgroupReduceMin, "work_group_reduce_min"},
+    {eCLBuiltinWorkgroupReduceMax, "work_group_reduce_max"},
+    {eCLBuiltinWorkgroupScanAddInclusive, "work_group_scan_inclusive_add"},
+    {eCLBuiltinWorkgroupScanAddExclusive, "work_group_scan_exclusive_add"},
+    {eCLBuiltinWorkgroupScanMinInclusive, "work_group_scan_inclusive_min"},
+    {eCLBuiltinWorkgroupScanMinExclusive, "work_group_scan_exclusive_min"},
+    {eCLBuiltinWorkgroupScanMaxInclusive, "work_group_scan_inclusive_max"},
+    {eCLBuiltinWorkgroupScanMaxExclusive, "work_group_scan_exclusive_max"},
+
+    /// Provided by SPV_KHR_uniform_group_instructions.
+    {eCLBuiltinWorkgroupReduceMul, "work_group_reduce_mul"},
+    {eCLBuiltinWorkgroupReduceAnd, "work_group_reduce_and"},
+    {eCLBuiltinWorkgroupReduceOr, "work_group_reduce_or"},
+    {eCLBuiltinWorkgroupReduceXor, "work_group_reduce_xor"},
+    {eCLBuiltinWorkgroupReduceLogicalAnd, "work_group_reduce_logical_and"},
+    {eCLBuiltinWorkgroupReduceLogicalOr, "work_group_reduce_logical_or"},
+    {eCLBuiltinWorkgroupReduceLogicalXor, "work_group_reduce_logical_xor"},
+    {eCLBuiltinWorkgroupScanMulInclusive, "work_group_scan_inclusive_mul"},
+    {eCLBuiltinWorkgroupScanMulExclusive, "work_group_scan_exclusive_mul"},
+    {eCLBuiltinWorkgroupScanAndInclusive, "work_group_scan_inclusive_and"},
+    {eCLBuiltinWorkgroupScanAndExclusive, "work_group_scan_exclusive_and"},
+    {eCLBuiltinWorkgroupScanOrInclusive, "work_group_scan_inclusive_or"},
+    {eCLBuiltinWorkgroupScanOrExclusive, "work_group_scan_exclusive_or"},
+    {eCLBuiltinWorkgroupScanXorInclusive, "work_group_scan_inclusive_xor"},
+    {eCLBuiltinWorkgroupScanXorExclusive, "work_group_scan_exclusive_xor"},
+    {eCLBuiltinWorkgroupScanLogicalAndInclusive,
+     "work_group_scan_inclusive_logical_and"},
+    {eCLBuiltinWorkgroupScanLogicalAndExclusive,
+     "work_group_scan_exclusive_logical_and"},
+    {eCLBuiltinWorkgroupScanLogicalOrInclusive,
+     "work_group_scan_inclusive_logical_or"},
+    {eCLBuiltinWorkgroupScanLogicalOrExclusive,
+     "work_group_scan_exclusive_logical_or"},
+    {eCLBuiltinWorkgroupScanLogicalXorInclusive,
+     "work_group_scan_inclusive_logical_xor"},
+    {eCLBuiltinWorkgroupScanLogicalXorExclusive,
+     "work_group_scan_exclusive_logical_xor"},
+
     // 6.15.19 Subgroup Collective Functions
     {eCLBuiltinSubgroupAll, "sub_group_all"},
     {eCLBuiltinSubgroupAny, "sub_group_any"},
-    {eCLBuiltinGetSubgroupBroadcast, "sub_group_broadcast"},
+    {eCLBuiltinSubgroupBroadcast, "sub_group_broadcast"},
     {eCLBuiltinSubgroupReduceAdd, "sub_group_reduce_add"},
     {eCLBuiltinSubgroupReduceMin, "sub_group_reduce_min"},
     {eCLBuiltinSubgroupReduceMax, "sub_group_reduce_max"},
@@ -656,7 +768,7 @@ BuiltinID CLBuiltinInfo::getSubgroupLocalIdBuiltin() const {
 }
 
 BuiltinID CLBuiltinInfo::getSubgroupBroadcastBuiltin() const {
-  return eCLBuiltinGetSubgroupBroadcast;
+  return eCLBuiltinSubgroupBroadcast;
 }
 
 Module *CLBuiltinInfo::getBuiltinsModule() {
@@ -826,7 +938,7 @@ BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &B,
     case eCLBuiltinSubgroupReduceAdd:
     case eCLBuiltinSubgroupReduceMax:
     case eCLBuiltinSubgroupReduceMin:
-    case eCLBuiltinGetSubgroupBroadcast:
+    case eCLBuiltinSubgroupBroadcast:
       return eBuiltinUniformityAlways;
   }
 
@@ -844,11 +956,16 @@ BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &B,
 Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
   BuiltinID ID = identifyBuiltin(Callee);
 
+  bool IsConvergent = false;
   unsigned Properties = eBuiltinPropertyNone;
   switch (ID) {
     default:
+      // Assume convergence on unknown builtins.
+      IsConvergent = true;
       break;
     case eBuiltinUnknown: {
+      // Assume convergence on unknown builtins.
+      IsConvergent = true;
       // If we know that this is an OpenCL builtin, but we don't have any
       // special information about it, we can determine if it has side effects
       // or not by its return type and its paramaters. This depends on being
@@ -870,6 +987,7 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
                                    : eBuiltinPropertyNoSideEffects;
     } break;
     case eCLBuiltinBarrier:
+      IsConvergent = true;
       Properties |= eBuiltinPropertyExecutionFlow;
       Properties |= eBuiltinPropertySideEffects;
       Properties |= eBuiltinPropertyMapToMuxSyncBuiltin;
@@ -887,6 +1005,9 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinAsyncWorkGroupCopy:
     case eCLBuiltinAsyncWorkGroupStridedCopy:
     case eCLBuiltinWaitGroupEvents:
+      // Our implementation of these builtins uses thread checks against
+      // specific work-item IDs, so they are convergent.
+      IsConvergent = true;
       Properties |= eBuiltinPropertyNoSideEffects;
       break;
     case eCLBuiltinAtomicAdd:
@@ -1026,9 +1147,85 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
       break;
     case eCLBuiltinWorkGroupBarrier:
     case eCLBuiltinSubGroupBarrier:
+      IsConvergent = true;
+      LLVM_FALLTHROUGH;
     case eCLBuiltinAtomicWorkItemFence:
       Properties |= eBuiltinPropertyMapToMuxSyncBuiltin;
       break;
+      // Subgroup collectives
+    case eCLBuiltinSubgroupAll:
+    case eCLBuiltinSubgroupAny:
+    case eCLBuiltinSubgroupBroadcast:
+    case eCLBuiltinSubgroupReduceAdd:
+    case eCLBuiltinSubgroupReduceMin:
+    case eCLBuiltinSubgroupReduceMax:
+    case eCLBuiltinSubgroupScanAddInclusive:
+    case eCLBuiltinSubgroupScanAddExclusive:
+    case eCLBuiltinSubgroupScanMinInclusive:
+    case eCLBuiltinSubgroupScanMinExclusive:
+    case eCLBuiltinSubgroupScanMaxInclusive:
+    case eCLBuiltinSubgroupScanMaxExclusive:
+    case eCLBuiltinSubgroupReduceMul:
+    case eCLBuiltinSubgroupReduceAnd:
+    case eCLBuiltinSubgroupReduceOr:
+    case eCLBuiltinSubgroupReduceXor:
+    case eCLBuiltinSubgroupReduceLogicalAnd:
+    case eCLBuiltinSubgroupReduceLogicalOr:
+    case eCLBuiltinSubgroupReduceLogicalXor:
+    case eCLBuiltinSubgroupScanMulInclusive:
+    case eCLBuiltinSubgroupScanMulExclusive:
+    case eCLBuiltinSubgroupScanAndInclusive:
+    case eCLBuiltinSubgroupScanAndExclusive:
+    case eCLBuiltinSubgroupScanOrInclusive:
+    case eCLBuiltinSubgroupScanOrExclusive:
+    case eCLBuiltinSubgroupScanXorInclusive:
+    case eCLBuiltinSubgroupScanXorExclusive:
+    case eCLBuiltinSubgroupScanLogicalAndInclusive:
+    case eCLBuiltinSubgroupScanLogicalAndExclusive:
+    case eCLBuiltinSubgroupScanLogicalOrInclusive:
+    case eCLBuiltinSubgroupScanLogicalOrExclusive:
+    case eCLBuiltinSubgroupScanLogicalXorInclusive:
+    case eCLBuiltinSubgroupScanLogicalXorExclusive:
+      // Work-group collectives
+    case eCLBuiltinWorkgroupAll:
+    case eCLBuiltinWorkgroupAny:
+    case eCLBuiltinWorkgroupBroadcast:
+    case eCLBuiltinWorkgroupReduceAdd:
+    case eCLBuiltinWorkgroupReduceMin:
+    case eCLBuiltinWorkgroupReduceMax:
+    case eCLBuiltinWorkgroupScanAddInclusive:
+    case eCLBuiltinWorkgroupScanAddExclusive:
+    case eCLBuiltinWorkgroupScanMinInclusive:
+    case eCLBuiltinWorkgroupScanMinExclusive:
+    case eCLBuiltinWorkgroupScanMaxInclusive:
+    case eCLBuiltinWorkgroupScanMaxExclusive:
+    case eCLBuiltinWorkgroupReduceMul:
+    case eCLBuiltinWorkgroupReduceAnd:
+    case eCLBuiltinWorkgroupReduceOr:
+    case eCLBuiltinWorkgroupReduceXor:
+    case eCLBuiltinWorkgroupReduceLogicalAnd:
+    case eCLBuiltinWorkgroupReduceLogicalOr:
+    case eCLBuiltinWorkgroupReduceLogicalXor:
+    case eCLBuiltinWorkgroupScanMulInclusive:
+    case eCLBuiltinWorkgroupScanMulExclusive:
+    case eCLBuiltinWorkgroupScanAndInclusive:
+    case eCLBuiltinWorkgroupScanAndExclusive:
+    case eCLBuiltinWorkgroupScanOrInclusive:
+    case eCLBuiltinWorkgroupScanOrExclusive:
+    case eCLBuiltinWorkgroupScanXorInclusive:
+    case eCLBuiltinWorkgroupScanXorExclusive:
+    case eCLBuiltinWorkgroupScanLogicalAndInclusive:
+    case eCLBuiltinWorkgroupScanLogicalAndExclusive:
+    case eCLBuiltinWorkgroupScanLogicalOrInclusive:
+    case eCLBuiltinWorkgroupScanLogicalOrExclusive:
+    case eCLBuiltinWorkgroupScanLogicalXorInclusive:
+    case eCLBuiltinWorkgroupScanLogicalXorExclusive:
+      IsConvergent = true;
+      break;
+  }
+
+  if (!IsConvergent) {
+    Properties |= eBuiltinPropertyKnownNonConvergent;
   }
 
   return Builtin{Callee, ID, (BuiltinProperties)Properties};

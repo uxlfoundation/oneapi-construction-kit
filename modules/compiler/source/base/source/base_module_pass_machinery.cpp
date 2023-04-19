@@ -11,7 +11,7 @@
 #include <base/mem_to_reg_pass.h>
 #include <base/pass_pipelines.h>
 #include <base/printf_replacement_pass.h>
-#include <base/set_barrier_convergent_pass.h>
+#include <base/set_convergent_attr_pass.h>
 #include <base/software_division_pass.h>
 #include <base/spir_fixup_pass.h>
 #include <compiler/utils/add_kernel_wrapper_pass.h>

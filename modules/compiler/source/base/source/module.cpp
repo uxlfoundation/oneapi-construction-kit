@@ -14,7 +14,7 @@
 #include <base/pass_pipelines.h>
 #include <base/printf_replacement_pass.h>
 #include <base/program_metadata.h>
-#include <base/set_barrier_convergent_pass.h>
+#include <base/set_convergent_attr_pass.h>
 #include <base/software_division_pass.h>
 #include <base/spir_fixup_pass.h>
 #include <builtins/bakery.h>
@@ -770,6 +770,7 @@ llvm::ModulePassManager BaseModule::getEarlyOpenCLCPasses() {
 #if CL_TARGET_OPENCL_VERSION >= 300
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(StripFastMathAttrs()));
 #endif
+  pm.addPass(compiler::SetConvergentAttrPass());
   return pm;
 }
 
@@ -789,7 +790,7 @@ llvm::ModulePassManager BaseModule::getEarlySPIRPasses() {
       llvm::createModuleToFunctionPassAdaptor(compiler::BitShiftFixupPass()));
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::SoftwareDivisionPass()));
-  pm.addPass(compiler::SetBarrierConvergentPass());
+  pm.addPass(compiler::SetConvergentAttrPass());
   return pm;
 }
 
@@ -1098,7 +1099,7 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) {
   // e531750c6cf9a it's a compiler option, which defaults to true.
   // Assuming that all function are convergent is unnecessarily conservative
   // and we already fixup those that *should be* convergent in our
-  // implementation in `compiler::SetBarrierConvergentPass`, so we can disable
+  // implementation in `compiler::SetConvergentAttrPass`, so we can disable
   // this pessimization
   lang_opts.ConvergentFunctions = false;
 

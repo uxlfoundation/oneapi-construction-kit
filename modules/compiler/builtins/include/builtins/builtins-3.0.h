@@ -783,94 +783,94 @@ uint __CL_WORK_ITEM_ATTRIBUTES get_enqueued_num_sub_groups(void);
 uint __CL_WORK_ITEM_ATTRIBUTES get_sub_group_id(void);
 uint __CL_WORK_ITEM_ATTRIBUTES get_sub_group_local_id(void);
 
-int __CL_BUILTIN_ATTRIBUTES sub_group_all(int predicate);
-int __CL_BUILTIN_ATTRIBUTES sub_group_any(int predicate);
+int __CL_BARRIER_ATTRIBUTES sub_group_all(int predicate);
+int __CL_BARRIER_ATTRIBUTES sub_group_any(int predicate);
 
-int __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(int x, uint sub_group_local_id);
-int __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(int x);
-int __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_broadcast(int x, uint sub_group_local_id);
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(int x);
 
-uint __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(uint x,
+uint __CL_BARRIER_ATTRIBUTES sub_group_broadcast(uint x,
                                                  uint sub_group_local_id);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(uint x);
-uint __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(uint x);
 
-long __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(long x,
+long __CL_BARRIER_ATTRIBUTES sub_group_broadcast(long x,
                                                  uint sub_group_local_id);
-long __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(long x);
-long __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(long x);
 
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(ulong x,
+ulong __CL_BARRIER_ATTRIBUTES sub_group_broadcast(ulong x,
                                                   uint sub_group_local_id);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(ulong x);
-ulong __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(ulong x);
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(half x,
+half __CL_BARRIER_ATTRIBUTES sub_group_broadcast(half x,
                                                  uint sub_group_local_id);
-half __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(half x);
-half __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(half x);
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-float __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(float x,
+float __CL_BARRIER_ATTRIBUTES sub_group_broadcast(float x,
                                                   uint sub_group_local_id);
-float __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(float x);
-float __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(float x);
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double __CL_BUILTIN_ATTRIBUTES sub_group_broadcast(double x,
+double __CL_BARRIER_ATTRIBUTES sub_group_broadcast(double x,
                                                    uint sub_group_local_id);
-double __CL_BUILTIN_ATTRIBUTES sub_group_reduce_add(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_reduce_min(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_reduce_max(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_add(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_min(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_scan_exclusive_max(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_add(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_min(double x);
-double __CL_BUILTIN_ATTRIBUTES sub_group_scan_inclusive_max(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_reduce_min(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_reduce_max(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_add(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_min(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(double x);
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 void __CL_BARRIER_ATTRIBUTES sub_group_barrier(cl_mem_fence_flags flags);

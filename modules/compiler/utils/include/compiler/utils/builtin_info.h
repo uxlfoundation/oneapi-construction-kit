@@ -140,8 +140,13 @@ enum BuiltinProperties : int32_t {
   /// rematerializable builtins are removed from the live variable structure,
   /// and are re-inserted into each barrier region that requires their results.
   eBuiltinPropertyRematerializable = (1 << 14),
-  /// @brief woof
+  /// @brief The builtin should be mapped to a mux synchronization builtin.
+  ///
+  /// This mapping takes place in BuiltiInfo::mapSyncBuiltinToMuxSyncBuiltin.
   eBuiltinPropertyMapToMuxSyncBuiltin = (1 << 15),
+  /// @brief The builtin is known not be be convergent, i.e., it does not
+  /// depend on any other work-item in any way.
+  eBuiltinPropertyKnownNonConvergent = (1 << 16),
 };
 
 /// @brief struct to hold information about a builtin function

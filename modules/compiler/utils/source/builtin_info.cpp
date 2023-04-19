@@ -214,7 +214,8 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
     return Builtin{F, ID, eBuiltinPropertyNone};
   }
 
-  auto Properties = eBuiltinPropertyNone;
+  bool IsConvergent = false;
+  unsigned Properties = eBuiltinPropertyNone;
   switch (ID) {
     default:
       break;
@@ -223,8 +224,8 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
       break;
     case eMuxBuiltinSubGroupBarrier:
     case eMuxBuiltinWorkGroupBarrier:
-      Properties = (BuiltinProperties)(eBuiltinPropertyExecutionFlow |
-                                       eBuiltinPropertySideEffects);
+      IsConvergent = true;
+      Properties = eBuiltinPropertyExecutionFlow | eBuiltinPropertySideEffects;
       break;
     case eMuxBuiltinDMARead1D:
     case eMuxBuiltinDMARead2D:
@@ -233,6 +234,9 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
     case eMuxBuiltinDMAWrite2D:
     case eMuxBuiltinDMAWrite3D:
     case eMuxBuiltinDMAWait:
+      // Our DMA builtins, by default, rely on thread checks against specific
+      // work-item IDs, so they must be convergent.
+      IsConvergent = true;
       Properties = eBuiltinPropertyNoSideEffects;
       break;
     case eMuxBuiltinGetWorkDim:
@@ -244,13 +248,11 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
     case eMuxBuiltinGetGlobalLinearId:
     case eMuxBuiltinGetLocalLinearId:
     case eMuxBuiltinGetGlobalId:
-      Properties = (BuiltinProperties)(eBuiltinPropertyWorkItem |
-                                       eBuiltinPropertyRematerializable);
+      Properties = eBuiltinPropertyWorkItem | eBuiltinPropertyRematerializable;
       break;
     case eMuxBuiltinGetLocalId:
-      Properties = (BuiltinProperties)(eBuiltinPropertyWorkItem |
-                                       eBuiltinPropertyLocalID |
-                                       eBuiltinPropertyRematerializable);
+      Properties = eBuiltinPropertyWorkItem | eBuiltinPropertyLocalID |
+                   eBuiltinPropertyRematerializable;
       break;
     case eMuxBuiltinIsFTZ:
     case eMuxBuiltinIsEmbeddedProfile:
@@ -258,7 +260,10 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
       Properties = eBuiltinPropertyNoSideEffects;
       break;
   }
-  return Builtin{F, ID, Properties};
+  if (!IsConvergent) {
+    Properties |= eBuiltinPropertyKnownNonConvergent;
+  }
+  return Builtin{F, ID, (BuiltinProperties)Properties};
 }
 
 BuiltinCall BuiltinInfo::analyzeBuiltinCall(CallInst const &CI,

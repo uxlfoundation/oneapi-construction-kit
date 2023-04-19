@@ -340,23 +340,20 @@ The pass is implemented by iterating over all the instructions looking for any
 it's a ``llvm::FPTruncInst`` then we can replace all uses of the ``fptrunc`` with
 the first operand of ``fpext`` and delete both the ``fptrunc`` and ``fpext``.
 
-Set Barrier ``convergent``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Set ``convergent`` Attr
+^^^^^^^^^^^^^^^^^^^^^^^
 
-In clang the ``convergent`` attribute can be set on a function to indicate to the
-optimizer that the function relies on cross work item semantics.  For OpenCL we
-need this attribute to be set on the barrier function, since it's used to
-control the scheduling of threads.  Recent versions of clang will proactively
-set barrier functions in OpenCL-C kernels as ``convergent``, but we also set the
-attribute implicitly in the builtins header out of an abundance of caution.
-For SPIR and SPIR-V kernels, we need to run the module pass
-``SetBarrierConvergentPass`` before any optimizations.
+In clang the ``convergent`` attribute can be set on a function to indicate to
+the optimizer that the function relies on cross work item semantics.  For
+OpenCL we need this attribute to be set on the barrier function, for example,
+since it's used to control the scheduling of threads.  Recent versions of clang
+will proactively set such functions in OpenCL-C kernels as ``convergent``, but
+we also set the attribute implicitly in the builtins header out of an abundance
+of caution.
 
 This pass iterates over all the functions in the module, including declarations
 requiring the pass to be a module pass instead of a function pass. If the
-function inspected is the barrier function declaration, identified by its
-mangled name, then we assign the ``llvm::Attribute::Convergent`` attribute to it.
-However when we encounter a function with a body, then all the instructions are
-iterated over looking for calls to the barrier function. Since function calls
-have separate attributes to the called function if a barrier call is seen we
-also set ``llvm::Attribute::Convergent`` on that call instruction.
+function inspected may be convergent, identified by the compiler's
+``BuiltinInfo`` analysis, then we assign the ``llvm::Attribute::Convergent``
+attribute to it. When the pass encounters a convergent function, all functions
+calling that function are transitively marked convergent.
