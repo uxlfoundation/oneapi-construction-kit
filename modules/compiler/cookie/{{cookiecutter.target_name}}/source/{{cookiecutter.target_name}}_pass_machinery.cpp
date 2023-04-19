@@ -69,7 +69,7 @@ llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
         vecz_options.choices.enable(
             vecz::VectorizationChoices::eVectorPredication);
       } else {
-        return llvm::None;
+        return multi_llvm::None;
       }
     }
   }
@@ -96,7 +96,7 @@ bool {{cookiecutter.target_name.capitalize()}}VeczPassOpts(
     return false;
   }
   llvm::Optional<vecz::VeczPassOptions> vecz_options = processVeczFlags();
-  if (!vecz_options.hasValue()) {
+  if (!vecz_options.has_value()) {
     return false;
   }
   vecz_options->vecz_auto = vecz_mode == compiler::VectorizationMode::AUTO;

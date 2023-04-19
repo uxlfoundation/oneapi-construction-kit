@@ -2,6 +2,7 @@
 
 #include <cargo/string_algorithm.h>
 #include <compiler/utils/lld_linker.h>
+#include <lld/Common/CommonLinkerContext.h>
 #include <lld/Common/Driver.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/MemoryBuffer.h>
