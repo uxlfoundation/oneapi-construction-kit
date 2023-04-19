@@ -164,8 +164,7 @@ VectorizationResult VectorizationContext::getVectorizedFunction(
   }
 
   auto simdWidth = factor.getFixedValue();
-  if (auto *vecTy =
-          dyn_cast<multi_llvm::FixedVectorType>(callee.getReturnType())) {
+  if (auto *vecTy = dyn_cast<FixedVectorType>(callee.getReturnType())) {
     auto const Builtin = BI.analyzeBuiltin(callee);
     Function *scalarEquiv = builtins().getScalarEquivalent(Builtin, &Module);
     if (!scalarEquiv) {
@@ -777,8 +776,7 @@ Function *VectorizationContext::getInternalVectorEquivalent(
     return nullptr;
   }
   if (auto Desc = MemOpDesc::analyzeMaskedMemOp(*ScalarFn)) {
-    auto *NewDataTy =
-        multi_llvm::FixedVectorType::get(Desc->getDataType(), SimdWidth);
+    auto *NewDataTy = FixedVectorType::get(Desc->getDataType(), SimdWidth);
     return getOrCreateMaskedMemOpFn(
         *this, NewDataTy, cast<PointerType>(Desc->getPointerType()),
         Desc->getAlignment(), Desc->isLoad(), Desc->isVLOp());

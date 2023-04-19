@@ -1258,7 +1258,7 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   for (unsigned i = 0; i < BuiltinArgTypes.size(); i++) {
     Type *OldTy = BuiltinArgTypes[i];
     TypeQualifiers OldQuals = BuiltinArgQuals[i];
-    if (isa<multi_llvm::FixedVectorType>(OldTy)) {
+    if (isa<FixedVectorType>(OldTy)) {
       return nullptr;
     }
     PointerType *OldPtrTy = dyn_cast<PointerType>(OldTy);
@@ -1271,11 +1271,10 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
             OldPointeeTy && OldPointeeTy == PtrRetPointeeTy &&
             multi_llvm::isOpaqueOrPointeeTypeMatches(OldPtrTy, OldPointeeTy) &&
             "Demangling inconsistency");
-        if (!multi_llvm::FixedVectorType::isValidElementType(PtrRetPointeeTy)) {
+        if (!FixedVectorType::isValidElementType(PtrRetPointeeTy)) {
           return nullptr;
         }
-        Type *NewEleTy =
-            multi_llvm::FixedVectorType::get(PtrRetPointeeTy, Width);
+        Type *NewEleTy = FixedVectorType::get(PtrRetPointeeTy, Width);
         Type *NewType = PointerType::get(NewEleTy, OldPtrTy->getAddressSpace());
         TypeQualifiers NewQuals;
         TypeQualifiers EleQuals = OldQuals;
@@ -1290,11 +1289,11 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
       }
     }
 
-    if (!multi_llvm::FixedVectorType::isValidElementType(OldTy)) {
+    if (!FixedVectorType::isValidElementType(OldTy)) {
       return nullptr;
     }
     TypeQualifiers NewQuals;
-    Type *NewType = multi_llvm::FixedVectorType::get(OldTy, Width);
+    Type *NewType = FixedVectorType::get(OldTy, Width);
     NewQuals.push_back(eTypeQualNone);  // Vector qualifier
     NewQuals.push_back(OldQuals);       // Element qualifier
 
@@ -1334,8 +1333,7 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   Function *VectorBuiltin = materializeBuiltin(EquivName, M);
   if (VectorBuiltin) {
     Type *RetTy = B.function.getReturnType();
-    auto *VecRetTy =
-        dyn_cast<multi_llvm::FixedVectorType>(VectorBuiltin->getReturnType());
+    auto *VecRetTy = dyn_cast<FixedVectorType>(VectorBuiltin->getReturnType());
     if (!VecRetTy || (VecRetTy->getElementType() != RetTy) ||
         (VecRetTy->getNumElements() != Width)) {
       VectorBuiltin = nullptr;
@@ -1352,8 +1350,7 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
   }
 
   // Check the return type.
-  auto *VecRetTy =
-      dyn_cast<multi_llvm::FixedVectorType>(B.function.getReturnType());
+  auto *VecRetTy = dyn_cast<FixedVectorType>(B.function.getReturnType());
   if (!VecRetTy) {
     return nullptr;
   }
@@ -1378,7 +1375,7 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
   for (unsigned i = 0; i < BuiltinArgTypes.size(); i++) {
     Type *OldTy = BuiltinArgTypes[i];
     TypeQualifiers OldQuals = BuiltinArgQuals[i];
-    if (auto *OldVecTy = dyn_cast<multi_llvm::FixedVectorType>(OldTy)) {
+    if (auto *OldVecTy = dyn_cast<FixedVectorType>(OldTy)) {
       if (OldVecTy->getNumElements() != Width) {
         return nullptr;
       }
@@ -1398,7 +1395,7 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
             OldPointeeTy && OldPointeeTy == PtrRetPointeeTy &&
             multi_llvm::isOpaqueOrPointeeTypeMatches(OldPtrTy, OldPointeeTy) &&
             "Demangling inconsistency");
-        auto *OldVecTy = cast<multi_llvm::FixedVectorType>(PtrRetPointeeTy);
+        auto *OldVecTy = cast<FixedVectorType>(PtrRetPointeeTy);
         Type *NewTy = PointerType::get(OldVecTy->getElementType(),
                                        OldPtrTy->getAddressSpace());
         TypeQualifiers NewQuals = OldQuals;
@@ -1751,7 +1748,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineDot(IRBuilder<> &B,
   }
   Value *Src0 = Args[0];
   Value *Src1 = Args[1];
-  auto *SrcVecTy = dyn_cast<multi_llvm::FixedVectorType>(Src0->getType());
+  auto *SrcVecTy = dyn_cast<FixedVectorType>(Src0->getType());
   if (SrcVecTy) {
     Value *LHS0 = B.CreateExtractElement(Src0, B.getInt32(0), "lhs");
     Value *RHS0 = B.CreateExtractElement(Src1, B.getInt32(0), "rhs");
@@ -1774,7 +1771,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineCross(IRBuilder<> &B,
   }
   Value *Src0 = Args[0];
   Value *Src1 = Args[1];
-  auto *RetTy = dyn_cast<multi_llvm::FixedVectorType>(Src0->getType());
+  auto *RetTy = dyn_cast<FixedVectorType>(Src0->getType());
   if (!RetTy) {
     return nullptr;
   }
@@ -1817,7 +1814,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineLength(IRBuilder<> &B,
 
   NameMangler Mangler(&B.getContext());
   Type *SrcType = Src0->getType();
-  auto *SrcVecType = dyn_cast<multi_llvm::FixedVectorType>(SrcType);
+  auto *SrcVecType = dyn_cast<FixedVectorType>(SrcType);
   if (SrcVecType) {
     SrcType = SrcVecType->getElementType();
   }
@@ -1914,7 +1911,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineNormalize(IRBuilder<> &B,
 
   NameMangler Mangler(&B.getContext());
   Type *SrcType = Src0->getType();
-  auto *SrcVecType = dyn_cast<multi_llvm::FixedVectorType>(SrcType);
+  auto *SrcVecType = dyn_cast<FixedVectorType>(SrcType);
   if (SrcVecType) {
     SrcType = SrcVecType->getElementType();
   }
@@ -1983,7 +1980,7 @@ static Value *emitAllAnyReduction(IRBuilder<> &B, ArrayRef<Value *> Args,
 
   // Reduce the MSB of all vector lanes.
   Value *ReducedVal = nullptr;
-  auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(Arg0->getType());
+  auto *VecTy = dyn_cast<FixedVectorType>(Arg0->getType());
   if (VecTy) {
     ReducedVal = B.CreateExtractElement(Arg0, B.getInt32(0));
     for (unsigned i = 1; i < VecTy->getNumElements(); i++) {
@@ -2020,7 +2017,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineSelect(Function *F, IRBuilder<> &B,
   Value *TrueVal = Args[1];
   Value *Cond = Args[2];
   Type *RetTy = F->getReturnType();
-  auto *VecRetTy = dyn_cast<multi_llvm::FixedVectorType>(RetTy);
+  auto *VecRetTy = dyn_cast<FixedVectorType>(RetTy);
   Type *CondEleTy = Cond->getType()->getScalarType();
   unsigned CondEleBits = CondEleTy->getPrimitiveSizeInBits();
   if (VecRetTy) {
@@ -2032,7 +2029,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineSelect(Function *F, IRBuilder<> &B,
     Value *TrueValRaw = TrueVal;
     Value *FalseValRaw = FalseVal;
     if (VecRetTy->getElementType()->isFloatingPointTy()) {
-      auto *RawType = multi_llvm::FixedVectorType::getInteger(VecRetTy);
+      auto *RawType = FixedVectorType::getInteger(VecRetTy);
       TrueValRaw = B.CreateBitCast(TrueVal, RawType);
       FalseValRaw = B.CreateBitCast(FalseVal, RawType);
     }
@@ -2098,8 +2095,8 @@ Value *CLBuiltinInfo::emitBuiltinInlineAs(Function *F, llvm::IRBuilder<> &B,
   Value *Src = Args[0];
   Type *SrcTy = Src->getType();
   Type *DstTy = F->getReturnType();
-  auto *SrcVecTy = dyn_cast<multi_llvm::FixedVectorType>(SrcTy);
-  auto *DstVecTy = dyn_cast<multi_llvm::FixedVectorType>(DstTy);
+  auto *SrcVecTy = dyn_cast<FixedVectorType>(SrcTy);
+  auto *DstVecTy = dyn_cast<FixedVectorType>(DstTy);
   Type *SrcEleTy = SrcVecTy ? SrcVecTy->getElementType() : nullptr;
   Type *DstEleTy = DstVecTy ? DstVecTy->getElementType() : nullptr;
   unsigned SrcEleBits = SrcEleTy ? SrcEleTy->getPrimitiveSizeInBits() : 0;
@@ -2224,8 +2221,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineVLoad(Function *F, unsigned Width,
   (void)F;
 
   Type *RetTy = F->getReturnType();
-  assert(isa<multi_llvm::FixedVectorType>(RetTy) &&
-         "vloadN must return a vector type");
+  assert(isa<FixedVectorType>(RetTy) && "vloadN must return a vector type");
   Type *EltTy = RetTy->getScalarType();
 
   Value *Ptr = Args[1];
@@ -2233,7 +2229,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineVLoad(Function *F, unsigned Width,
   if (!PtrTy) {
     return nullptr;
   }
-  auto *DataTy = multi_llvm::FixedVectorType::get(EltTy, Width);
+  auto *DataTy = FixedVectorType::get(EltTy, Width);
   Value *Data = UndefValue::get(DataTy);
 
   // Emit the base pointer.
@@ -2283,7 +2279,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineVStore(Function *F, unsigned Width,
   (void)F;
 
   Value *Data = Args[0];
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(Data->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(Data->getType());
   if (!VecDataTy || (VecDataTy->getNumElements() != Width)) {
     return nullptr;
   }
@@ -2521,10 +2517,10 @@ Value *CLBuiltinInfo::emitBuiltinInlineRelationalsWithTwoArguments(
     ResultEleTy = B.getIntNTy(Src0->getType()->getScalarSizeInBits());
   }
   Value *Result = nullptr;
-  auto *SrcVecTy = dyn_cast<multi_llvm::FixedVectorType>(Src0->getType());
+  auto *SrcVecTy = dyn_cast<FixedVectorType>(Src0->getType());
   if (SrcVecTy) {
-    auto *ResultVecTy = multi_llvm::FixedVectorType::get(
-        ResultEleTy, SrcVecTy->getNumElements());
+    auto *ResultVecTy =
+        FixedVectorType::get(ResultEleTy, SrcVecTy->getNumElements());
     Result = B.CreateSExt(Cmp, ResultVecTy, "relational");
   } else {
     Result = B.CreateZExt(Cmp, ResultEleTy, "relational");
@@ -2585,8 +2581,8 @@ Value *CLBuiltinInfo::emitBuiltinInlineRelationalsWithOneArgument(
 
   // For the vector versions, we need to create vector types and values
   if (isVectorTy) {
-    SignedTy = multi_llvm::FixedVectorType::get(SignedTy, Width);
-    ReturnTy = multi_llvm::FixedVectorType::get(ReturnTy, Width);
+    SignedTy = FixedVectorType::get(SignedTy, Width);
+    ReturnTy = FixedVectorType::get(ReturnTy, Width);
     auto const EC = ElementCount::getFixed(Width);
     ExponentMask = ConstantVector::getSplat(EC, ExponentMask);
     MantissaMask = ConstantVector::getSplat(EC, MantissaMask);
@@ -2668,7 +2664,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineShuffle(BuiltinID BuiltinID,
 
   // Get the mask and the mask type.
   Value *Mask = Args[isShuffle2 ? 2 : 1];
-  auto MaskVecTy = cast<multi_llvm::FixedVectorType>(Mask->getType());
+  auto MaskVecTy = cast<FixedVectorType>(Mask->getType());
   IntegerType *MaskTy = cast<IntegerType>(MaskVecTy->getElementType());
   const int MaskWidth = MaskVecTy->getNumElements();
 
@@ -2681,7 +2677,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineShuffle(BuiltinID BuiltinID,
   // we should only take the ilogb(2N-1)+1 least significant bits from each mask
   // element into consideration, where N the number of elements in the vector
   // according to vec_step.
-  auto ShuffleTy = cast<multi_llvm::FixedVectorType>(Args[0]->getType());
+  auto ShuffleTy = cast<FixedVectorType>(Args[0]->getType());
   const int Width = ShuffleTy->getNumElements();
   // Vectors for size 3 are not supported by the shuffle builtin.
   assert(Width != 3 && "Invalid vector width of 3!");
@@ -2696,8 +2692,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineShuffle(BuiltinID BuiltinID,
   // Mask the mask.
   Value *MaskedMask = B.CreateAnd(Mask, BitMaskV, "mask");
   MaskedMask = B.CreateIntCast(
-      MaskedMask, multi_llvm::FixedVectorType::get(B.getInt32Ty(), MaskWidth),
-      false);
+      MaskedMask, FixedVectorType::get(B.getInt32Ty(), MaskWidth), false);
 
   // Create the shufflevector instruction.
   Value *Arg1 = (isShuffle2 ? Args[1] : UndefValue::get(ShuffleTy));

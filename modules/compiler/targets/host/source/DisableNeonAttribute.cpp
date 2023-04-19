@@ -46,10 +46,8 @@ PreservedAnalyses host::DisableNeonAttributePass::run(Module &M,
           }
 
           // Check the cast has vector operand types and is i64 -> float
-          auto *vecDstType =
-              dyn_cast<multi_llvm::FixedVectorType>(cast->getDestTy());
-          auto *vecSrcType =
-              dyn_cast<multi_llvm::FixedVectorType>(cast->getSrcTy());
+          auto *vecDstType = dyn_cast<FixedVectorType>(cast->getDestTy());
+          auto *vecSrcType = dyn_cast<FixedVectorType>(cast->getSrcTy());
           if (vecDstType && vecDstType->getElementType()->isFloatTy() &&
               vecSrcType && vecSrcType->getElementType()->isIntegerTy(64)) {
             return disableNEONAttr(M);

@@ -152,11 +152,9 @@ Value *createOptimalShuffle(IRBuilder<> &B, Value *srcA, Value *srcB,
     auto *const shuffleAsrc = shuffleA ? shuffleA->getOperand(0) : srcA;
     auto *const shuffleBsrc = shuffleB ? shuffleB->getOperand(0) : srcB;
     auto const srcASize =
-        cast<multi_llvm::FixedVectorType>(shuffleAsrc->getType())
-            ->getNumElements();
+        cast<FixedVectorType>(shuffleAsrc->getType())->getNumElements();
     auto const srcBSize =
-        cast<multi_llvm::FixedVectorType>(shuffleBsrc->getType())
-            ->getNumElements();
+        cast<FixedVectorType>(shuffleBsrc->getType())->getNumElements();
     if (srcASize == srcBSize) {
       Constant *srcMaskA = nullptr;
       Constant *srcMaskB = nullptr;
@@ -213,8 +211,7 @@ bool createSubSplats(const vecz::TargetInfo &TI, IRBuilder<> &B,
     return val != nullptr;
   }
 
-  auto *const vecTy =
-      dyn_cast<multi_llvm::FixedVectorType>(srcs.front()->getType());
+  auto *const vecTy = dyn_cast<FixedVectorType>(srcs.front()->getType());
 
   if (!vecTy) {
     return false;
@@ -310,9 +307,8 @@ Value *Packetizer::Result::getAsValue() const {
 
   auto name = scalar->getName();
 
-  if (multi_llvm::FixedVectorType::isValidElementType(eleTy)) {
-    Value *gather =
-        UndefValue::get(multi_llvm::FixedVectorType::get(eleTy, packet.size()));
+  if (FixedVectorType::isValidElementType(eleTy)) {
+    Value *gather = UndefValue::get(FixedVectorType::get(eleTy, packet.size()));
 
     IRBuilder<> B(buildAfter(packet.back(), packetizer.F));
     for (unsigned i = 0; i < packet.size(); i++) {
@@ -323,7 +319,7 @@ Value *Packetizer::Result::getAsValue() const {
   } else if (eleTy->isVectorTy()) {
     // Gathering an instantiated vector by concatenating all the lanes
     auto parts = narrow(2);
-    auto *vecTy = cast<multi_llvm::FixedVectorType>(parts.front()->getType());
+    auto *vecTy = cast<FixedVectorType>(parts.front()->getType());
     unsigned fullWidth = vecTy->getNumElements() * 2;
 
     SmallVector<int, 16> mask;
@@ -378,10 +374,8 @@ PacketRange Packetizer::Result::getAsPacket(unsigned width) const {
   auto packet = createPacket(width);
 
   Value *vec = info->vector;
-  if (auto *const vecTy =
-          dyn_cast<multi_llvm::FixedVectorType>(vec->getType())) {
-    assert(isa<multi_llvm::FixedVectorType>(vecTy) &&
-           "Must be a fixed vector type here!");
+  if (auto *const vecTy = dyn_cast<FixedVectorType>(vec->getType())) {
+    assert(isa<FixedVectorType>(vecTy) && "Must be a fixed vector type here!");
     unsigned scalarWidth = vecTy->getNumElements() / width;
     if (scalarWidth > 1) {
       auto *const undef = UndefValue::get(vec->getType());
@@ -452,8 +446,7 @@ PacketRange Packetizer::Result::getRange(unsigned width) const {
 PacketRange Packetizer::Result::widen(unsigned width) const {
   const auto numInstances = info->numInstances;
   const auto parts = getRange(numInstances);
-  auto *const vecTy =
-      dyn_cast<multi_llvm::FixedVectorType>(parts.front()->getType());
+  auto *const vecTy = dyn_cast<FixedVectorType>(parts.front()->getType());
   assert(vecTy && "Expected a fixed vector type");
 
   auto packet = createPacket(width);
@@ -504,12 +497,12 @@ PacketRange Packetizer::Result::narrow(unsigned width) const {
 
   auto packet = createPacket(width);
   auto *const ty = parts.front()->getType();
-  auto *const vecTy = dyn_cast<multi_llvm::FixedVectorType>(ty);
+  auto *const vecTy = dyn_cast<FixedVectorType>(ty);
   if (!vecTy) {
     // Build vectors out of pairs of scalar values
     const auto name = scalar->getName();
     IRBuilder<> B(buildAfter(parts.back(), packetizer.F));
-    Value *undef = UndefValue::get(multi_llvm::FixedVectorType::get(ty, 2));
+    Value *undef = UndefValue::get(FixedVectorType::get(ty, 2));
     for (size_t i = 0, pairIdx = 0; i < width; ++i, pairIdx += 2) {
       Value *in = B.CreateInsertElement(undef, parts[pairIdx], B.getInt32(0),
                                         Twine(name, ".gather"));
@@ -617,7 +610,7 @@ const Packetizer::Result &Packetizer::Result::broadcast(unsigned width) const {
     IRBuilder<> B(buildAfter(scalar, F));
     result = createScalableBroadcastOfFixedVector(TI, B, scalar, factor);
   } else if (ty->isVectorTy()) {
-    auto *const vecTy = cast<multi_llvm::FixedVectorType>(ty);
+    auto *const vecTy = cast<FixedVectorType>(ty);
     unsigned scalarWidth = vecTy->getNumElements();
 
     unsigned simdWidth = factor.getFixedValue();

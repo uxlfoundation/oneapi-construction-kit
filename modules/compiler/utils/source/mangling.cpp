@@ -143,7 +143,7 @@ bool NameMangler::isTypeBuiltin(Type *Ty, TypeQualifiers &Quals) {
     case Type::StructTyID:
     case Type::ArrayTyID:
     case Type::PointerTyID:
-    case multi_llvm::FixedVectorTyID:
+    case Type::FixedVectorTyID:
       return false;
     case Type::VoidTyID:
     case Type::HalfTyID:
@@ -231,7 +231,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
     O << "u" << tmp.size() << tmp;
     return true;
   } else if (Ty->isVectorTy()) {
-    auto *VecTy = cast<multi_llvm::FixedVectorType>(Ty);
+    auto *VecTy = cast<FixedVectorType>(Ty);
     O << "Dv" << VecTy->getNumElements() << "_";
     return mangleType(O, VecTy->getElementType(), Quals, PrevTys, PrevQuals);
   } else if (Ty->isPointerTy()) {
@@ -513,7 +513,7 @@ bool NameMangler::demangleType(Lexer &L, Type *&Ty, Type **PointerEltTy,
     if (!demangleType(L, ElementType, nullptr, Quals, CtxTypes, CtxQuals)) {
       return false;
     }
-    Ty = multi_llvm::FixedVectorType::get(ElementType, NumElements);
+    Ty = FixedVectorType::get(ElementType, NumElements);
     return true;
   }
 

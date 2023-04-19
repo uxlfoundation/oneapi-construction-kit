@@ -1120,7 +1120,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(OpExtInst const &opc) {
 
   llvm::Type *expTy = builder.getIRBuilder().getInt32Ty();
   if (x->getType()->isVectorTy()) {
-    expTy = multi_llvm::FixedVectorType::get(
+    expTy = llvm::FixedVectorType::get(
         expTy, multi_llvm::getVectorNumElements(x->getType()));
   }
   llvm::Value *exp = builder.getIRBuilder().CreateAlloca(expTy);

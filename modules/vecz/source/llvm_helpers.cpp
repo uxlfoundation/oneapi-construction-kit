@@ -16,19 +16,19 @@ using namespace llvm;
 /// @param[in] V Value to analyze.
 ///
 /// @return Vector type of V or null.
-multi_llvm::FixedVectorType *vecz::getVectorType(Value *V) {
+FixedVectorType *vecz::getVectorType(Value *V) {
   if (StoreInst *Store = dyn_cast<StoreInst>(V)) {
     auto *VO = Store->getValueOperand();
     assert(VO && "Could not get value operand");
-    return dyn_cast<multi_llvm::FixedVectorType>(VO->getType());
+    return dyn_cast<FixedVectorType>(VO->getType());
   } else if (CallInst *Call = dyn_cast<CallInst>(V)) {
     if (auto MaskedOp = MemOp::get(Call, MemOpAccessKind::Masked)) {
       if (MaskedOp->isMaskedMemOp() && MaskedOp->isStore()) {
-        return dyn_cast<multi_llvm::FixedVectorType>(MaskedOp->getDataType());
+        return dyn_cast<FixedVectorType>(MaskedOp->getDataType());
       }
     }
   }
-  return dyn_cast<multi_llvm::FixedVectorType>(V->getType());
+  return dyn_cast<FixedVectorType>(V->getType());
 }
 
 /// @brief Get the default value for a type.

@@ -114,14 +114,14 @@ void collectStatistics(VectorizationUnit &VU, Function *Scalar,
       return false;
     }
     // Instructions that return a vector
-    if (isa<multi_llvm::FixedVectorType>(Ty)) {
+    if (isa<FixedVectorType>(Ty)) {
       return true;
     }
     // Store instructions that store a vector value
     if (StoreInst *SI = dyn_cast<StoreInst>(&I)) {
       auto *ValOp = SI->getValueOperand();
       assert(ValOp && "Could not get value operand");
-      return isa<multi_llvm::FixedVectorType>(ValOp->getType());
+      return isa<FixedVectorType>(ValOp->getType());
     }
     // Internal builtins that work on vectors. This is relevant for stores only,
     // as loads return a vector type and will be caught earlier on.
@@ -134,8 +134,7 @@ void collectStatistics(VectorizationUnit &VU, Function *Scalar,
         }
         // Masked loads are handled earlier on as they return a vector type.
         // We need to check if masked stores are storing vectors or not.
-        if (Op->isStore() &&
-            isa<multi_llvm::FixedVectorType>(Op->getDataType())) {
+        if (Op->isStore() && isa<FixedVectorType>(Op->getDataType())) {
           return true;
         }
       }
@@ -152,7 +151,7 @@ void collectStatistics(VectorizationUnit &VU, Function *Scalar,
       ScalarLoadStores += (isa<LoadInst>(I) || isa<StoreInst>(I));
       ScalarVectorInsts += isVectorInst(I);
       // Find out how wide is the widest vector used in the scalar kernel
-      if (auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(I.getType())) {
+      if (auto *VecTy = dyn_cast<FixedVectorType>(I.getType())) {
         if (VecTy->getNumElements() > MaxScalarVectorWidth) {
           MaxScalarVectorWidth = VecTy->getNumElements();
         }

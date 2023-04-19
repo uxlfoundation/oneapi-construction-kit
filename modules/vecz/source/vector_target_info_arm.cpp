@@ -126,7 +126,7 @@ bool TargetInfoArm::canOptimizeInterleavedGroupImpl(const Instruction &val,
     return false;
   }
 
-  auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(dataType);
+  auto *VecTy = dyn_cast<FixedVectorType>(dataType);
   if (!VecTy) {
     return false;
   }
@@ -192,11 +192,11 @@ bool TargetInfoArm::optimizeInterleavedGroup(IRBuilder<> &B,
 
   // canOptimizeInterleavedGroup() performs several checks, including valid
   // Kind and Op0 types. Thus, these casts are safe.
-  multi_llvm::FixedVectorType *VecTy = nullptr;
+  FixedVectorType *VecTy = nullptr;
   if (kind == eInterleavedStore) {
-    VecTy = cast<multi_llvm::FixedVectorType>(Op0->getOperand(0)->getType());
+    VecTy = cast<FixedVectorType>(Op0->getOperand(0)->getType());
   } else {  // eInterleavedLoad
-    VecTy = cast<multi_llvm::FixedVectorType>(Op0->getType());
+    VecTy = cast<FixedVectorType>(Op0->getType());
   }
 
   Type *EleTy = VecTy->getElementType();
@@ -294,7 +294,7 @@ bool TargetInfoAArch64::canOptimizeInterleavedGroupImpl(
     return false;
   }
 
-  auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(dataType);
+  auto *VecTy = dyn_cast<FixedVectorType>(dataType);
   if (!VecTy) {
     return false;
   }
@@ -358,11 +358,11 @@ bool TargetInfoAArch64::optimizeInterleavedGroup(
 
   // canOptimizeInterleavedGroup() performs several checks, including valid
   // Kind and Op0 types. Thus, these casts are safe.
-  multi_llvm::FixedVectorType *VecTy = nullptr;
+  FixedVectorType *VecTy = nullptr;
   if (kind == eInterleavedStore) {
-    VecTy = cast<multi_llvm::FixedVectorType>(Op0->getOperand(0)->getType());
+    VecTy = cast<FixedVectorType>(Op0->getOperand(0)->getType());
   } else {  // eInterleavedLoad
-    VecTy = cast<multi_llvm::FixedVectorType>(Op0->getType());
+    VecTy = cast<FixedVectorType>(Op0->getType());
   }
 
   Function *IntrFn = Intrinsic::getDeclaration(

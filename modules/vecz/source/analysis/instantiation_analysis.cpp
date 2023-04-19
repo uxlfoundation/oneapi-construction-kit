@@ -19,7 +19,7 @@ using namespace llvm;
 namespace {
 bool analyzeType(Type *Ty) {
   return !Ty->isVoidTy() && !Ty->isVectorTy() &&
-         !multi_llvm::FixedVectorType::isValidElementType(Ty);
+         !FixedVectorType::isValidElementType(Ty);
 }
 
 bool analyzeMemOp(MemOp &Op) {

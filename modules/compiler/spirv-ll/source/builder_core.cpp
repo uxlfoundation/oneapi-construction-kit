@@ -387,9 +387,8 @@ cargo::optional<Error> Builder::create<OpTypeVector>(const OpTypeVector *op) {
 
   SPIRV_LL_ASSERT_PTR(componentType);
 
-  module.addID(
-      op->IdResult(), op,
-      multi_llvm::FixedVectorType::get(componentType, op->ComponentCount()));
+  module.addID(op->IdResult(), op,
+               llvm::FixedVectorType::get(componentType, op->ComponentCount()));
   return cargo::nullopt;
 }
 
@@ -820,8 +819,8 @@ cargo::optional<Error> Builder::create<OpConstantNull>(
     case llvm::Type::TypeID::ArrayTyID:
       constant = llvm::ConstantAggregateZero::get(type);
       break;
-    case multi_llvm::FixedVectorTyID: {
-      auto *vecTy = llvm::cast<multi_llvm::FixedVectorType>(type);
+    case llvm::Type::FixedVectorTyID: {
+      auto *vecTy = llvm::cast<llvm::FixedVectorType>(type);
       llvm::Constant *element = nullptr;
       if (vecTy->getElementType()->isIntegerTy()) {
         element = llvm::ConstantInt::get(vecTy->getElementType(), 0);
@@ -1034,7 +1033,7 @@ cargo::optional<Error> Builder::create<OpSpecConstantComposite>(
   llvm::Constant *spec_constant_composite = nullptr;
 
   switch (type->getTypeID()) {
-    case multi_llvm::FixedVectorTyID:
+    case llvm::Type::FixedVectorTyID:
       spec_constant_composite = llvm::ConstantVector::get(constituents);
       break;
     case llvm::Type::ArrayTyID:
@@ -1825,36 +1824,36 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
               llvm::Type *vecTypeHint = nullptr;
               switch (dataType) {
                 case 0:  // 8-bit integer value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::IntegerType::get(*context.llvmContext, 8),
                       numElements);
                   break;
                 case 1:  // 16-bit integer value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::IntegerType::get(*context.llvmContext, 16),
                       numElements);
                   break;
                 case 2:  // 32-bit integer value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::IntegerType::get(*context.llvmContext, 32),
                       numElements);
                   break;
                 case 3:  // 64-bit integer value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::IntegerType::get(*context.llvmContext, 64),
                       numElements);
                   break;
                 case 4:  // 16-bit float value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::Type::getHalfTy(*context.llvmContext), numElements);
                   break;
                 case 5:  // 32-bit float value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::Type::getFloatTy(*context.llvmContext),
                       numElements);
                   break;
                 case 6:  // 64-bit float value
-                  vecTypeHint = multi_llvm::FixedVectorType::get(
+                  vecTypeHint = llvm::FixedVectorType::get(
                       llvm::Type::getDoubleTy(*context.llvmContext),
                       numElements);
                   break;
@@ -3180,7 +3179,7 @@ cargo::optional<Error> Builder::create<OpCompositeConstruct>(
 
   int insertIndex = 0;
 
-  if (type->getTypeID() == multi_llvm::FixedVectorTyID) {
+  if (type->getTypeID() == llvm::Type::FixedVectorTyID) {
     llvm::Value *vec = llvm::UndefValue::get(type);
 
     for (auto c : constituents) {
@@ -3248,7 +3247,7 @@ cargo::optional<Error> Builder::create<OpCompositeInsert>(
   llvm::Value *object = module.getValue(op->Object());
   SPIRV_LL_ASSERT_PTR(object);
 
-  if (composite->getType()->getTypeID() == multi_llvm::FixedVectorTyID) {
+  if (composite->getType()->getTypeID() == llvm::Type::FixedVectorTyID) {
     uint32_t index = op->getValueAtOffset(5);
 
     llvm::Value *new_vec =
@@ -4140,8 +4139,8 @@ cargo::optional<Error> Builder::create<OpVectorTimesScalar>(
   llvm::Value *vectorValue = module.getValue(op->Vector());
   SPIRV_LL_ASSERT_PTR(vectorValue);
 
-  auto vectorType = llvm::dyn_cast<multi_llvm::FixedVectorType>(
-      module.getType(op->IdResultType()));
+  auto vectorType =
+      llvm::dyn_cast<llvm::FixedVectorType>(module.getType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(vectorType);
 
   llvm::Value *splatVector =
@@ -4404,7 +4403,7 @@ cargo::optional<Error> Builder::create<OpAny>(const OpAny *op) {
   const uint32_t num_elements =
       multi_llvm::getVectorNumElements(vector->getType());
   auto *extVectorType =
-      multi_llvm::FixedVectorType::get(IRBuilder.getInt32Ty(), num_elements);
+      llvm::FixedVectorType::get(IRBuilder.getInt32Ty(), num_elements);
 
   llvm::Value *extVector = IRBuilder.CreateSExt(vector, extVectorType);
 
@@ -4435,7 +4434,7 @@ cargo::optional<Error> Builder::create<OpAll>(const OpAll *op) {
   const uint32_t num_elements =
       multi_llvm::getVectorNumElements(vector->getType());
   auto *extVectorType =
-      multi_llvm::FixedVectorType::get(IRBuilder.getInt32Ty(), num_elements);
+      llvm::FixedVectorType::get(IRBuilder.getInt32Ty(), num_elements);
 
   llvm::Value *extVector = IRBuilder.CreateSExt(vector, extVectorType);
 
@@ -6315,16 +6314,15 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
   auto *const localIdType = localId->getType();
   auto dimensions = 1;
   if (auto *const localIdVecType =
-          llvm::dyn_cast<multi_llvm::FixedVectorType>(localIdType)) {
+          llvm::dyn_cast<llvm::FixedVectorType>(localIdType)) {
     dimensions = localIdVecType->getNumElements();
     SPIRV_LL_ASSERT(1 < dimensions && dimensions <= 3,
                     "Invalid number of elements in local ID vector argument");
   }
-  SPIRV_LL_ASSERT((1 == dimensions)
-                      ? localIdType->isIntegerTy()
-                      : cast<multi_llvm::FixedVectorType>(localIdType)
-                            ->getElementType()
-                            ->isIntegerTy(),
+  SPIRV_LL_ASSERT((1 == dimensions) ? localIdType->isIntegerTy()
+                                    : cast<llvm::FixedVectorType>(localIdType)
+                                          ->getElementType()
+                                          ->isIntegerTy(),
                   "LocalId operand is not integer type or vector of integers");
 
   // Look up the wrapper function for the broadcast.
@@ -6345,9 +6343,9 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
   auto *const i32Ty =
       llvm::IntegerType::getInt32Ty(*module.context.llvmContext);
   auto *const localIdArgType =
-      (dimensions == 1) ? cast<llvm::Type>(i32Ty)
-                        : cast<llvm::Type>(multi_llvm::FixedVectorType::get(
-                              i32Ty, dimensions));
+      (dimensions == 1)
+          ? cast<llvm::Type>(i32Ty)
+          : cast<llvm::Type>(llvm::FixedVectorType::get(i32Ty, dimensions));
 
   // If it doesn't exist we need to create it.
   if (!broadcastWrapper) {
@@ -6407,7 +6405,7 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     llvm::SmallVector<llvm::Value *, 2> args{valueArg};
     llvm::SmallVector<MangleInfo, 2> argIds{op->Value()};
     if (const auto *const vectorTy =
-            dyn_cast<multi_llvm::FixedVectorType>(localIdArg->getType())) {
+            dyn_cast<llvm::FixedVectorType>(localIdArg->getType())) {
       const auto elementCount = vectorTy->getNumElements();
       for (unsigned element = 0; element < elementCount; ++element) {
         args.push_back(IRBuilder.CreateExtractElement(localIdArg, element));

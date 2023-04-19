@@ -1217,7 +1217,7 @@ bool ControlFlowConversionState::Impl::tryApplyMaskToMemOp(
   VECZ_FAIL_IF(!memOp.isLoad() && !memOp.isStore());
   auto *I = memOp.getInstr();
   VECZ_FAIL_IF(!I);
-  auto *dataVecTy = dyn_cast<multi_llvm::FixedVectorType>(memOp.getDataType());
+  auto *dataVecTy = dyn_cast<FixedVectorType>(memOp.getDataType());
   const unsigned dataWidth = dataVecTy ? dataVecTy->getNumElements() : 1;
   Value *wideMask = mask;
   if (dataWidth > 1) {

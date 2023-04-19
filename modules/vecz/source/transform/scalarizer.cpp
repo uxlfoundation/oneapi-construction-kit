@@ -85,7 +85,7 @@ Value *Scalarizer::getGather(Value *V) {
     return V;
   }
 
-  auto *VecTy = cast<multi_llvm::FixedVectorType>(V->getType());
+  auto *VecTy = cast<FixedVectorType>(V->getType());
   unsigned SimdWidth = VecTy->getNumElements();
 
   SimdPacket *P = getPacket(V, SimdWidth, false);
@@ -386,7 +386,7 @@ Value *Scalarizer::scalarizeReduceIntrinsic(IntrinsicInst *Intrin) {
 
   // In the SimdPacket we use a mask that is stored as a uint64_t. Due to
   // that, there is a limit on the vector size that Vecz can handle.
-  auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(Vec->getType());
+  auto *VecTy = dyn_cast<FixedVectorType>(Vec->getType());
   VECZ_FAIL_IF(!VecTy);
   const uint32_t SimdWidth = VecTy->getNumElements();
   VECZ_ERROR_IF(SimdWidth > MAX_SIMD_WIDTH, "The SIMD width is too large");
@@ -428,7 +428,7 @@ Value *Scalarizer::scalarizeOperandsExtractElement(ExtractElementInst *Extr) {
   if (!ConstantExtractIndex) {
     // Index of extractElementInst is not a constant
     // Scalarize the original vector for all lanes.
-    auto *Vec = dyn_cast<multi_llvm::FixedVectorType>(OrigVec->getType());
+    auto *Vec = dyn_cast<FixedVectorType>(OrigVec->getType());
     const unsigned VecWidth = Vec ? Vec->getNumElements() : 0;
     PM.enableAll(VecWidth);
     OrigVecPacket = scalarize(OrigVec, PM);
@@ -460,7 +460,7 @@ Value *Scalarizer::scalarizeOperandsExtractElement(ExtractElementInst *Extr) {
 }
 
 Value *Scalarizer::scalarizeOperandsBitCast(BitCastInst *BC) {
-  auto *VecSrcTy = dyn_cast<multi_llvm::FixedVectorType>(BC->getSrcTy());
+  auto *VecSrcTy = dyn_cast<FixedVectorType>(BC->getSrcTy());
   VECZ_FAIL_IF(!VecSrcTy);
   unsigned SimdWidth = VecSrcTy->getNumElements();
   PacketMask PM;
@@ -600,8 +600,7 @@ SimdPacket *Scalarizer::extractLanes(llvm::Value *V, PacketMask PM) {
   SimdPacket *P = getPacket(V, SimdWidth);
 
   if (Constant *CVec = dyn_cast<Constant>(V)) {
-    assert(isa<multi_llvm::FixedVectorType>(CVec->getType()) &&
-           "Invalid constant type!");
+    assert(isa<FixedVectorType>(CVec->getType()) && "Invalid constant type!");
     SimdPacket *P = getPacket(CVec, SimdWidth);
     for (unsigned i = 0; i < SimdWidth; i++) {
       if (!PM.isEnabled(i) || P->at(i)) {
@@ -743,7 +742,7 @@ SimdPacket *Scalarizer::assignScalar(SimdPacket *P, Value *V) {
 SimdPacket *Scalarizer::scalarizeLoad(LoadInst *Load, PacketMask PM) {
   Value *VecPtr = Load->getPointerOperand();
   PointerType *VecPtrTy = cast<PointerType>(VecPtr->getType());
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(Load->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(Load->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
 
@@ -828,8 +827,8 @@ SimdPacket *Scalarizer::scalarizeStore(StoreInst *Store, PacketMask PM) {
   Value *VecPtr = Store->getPointerOperand();
   assert(VecPtr && "Could not get pointer operand from Store");
   PointerType *VecPtrTy = cast<PointerType>(VecPtr->getType());
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(
-      Store->getValueOperand()->getType());
+  auto *VecDataTy =
+      dyn_cast<FixedVectorType>(Store->getValueOperand()->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   Type *ScalarEleTy = VecDataTy->getElementType();
@@ -918,7 +917,7 @@ SimdPacket *Scalarizer::scalarizeBinaryOp(BinaryOperator *BinOp,
                                           PacketMask PM) {
   IRBuilder<> B(BinOp);
   Value *LHS = BinOp->getOperand(0);
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(LHS->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(LHS->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   SimdPacket *LHSPacket = scalarize(LHS, PM);
@@ -946,7 +945,7 @@ SimdPacket *Scalarizer::scalarizeBinaryOp(BinaryOperator *BinOp,
 SimdPacket *Scalarizer::scalarizeFreeze(FreezeInst *FreezeI, PacketMask PM) {
   IRBuilder<> B(FreezeI);
   Value *Src = FreezeI->getOperand(0);
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(Src->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(Src->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   SimdPacket *SrcPacket = scalarize(Src, PM);
@@ -967,7 +966,7 @@ SimdPacket *Scalarizer::scalarizeFreeze(FreezeInst *FreezeI, PacketMask PM) {
 SimdPacket *Scalarizer::scalarizeUnaryOp(UnaryOperator *UnOp, PacketMask PM) {
   IRBuilder<> B(UnOp);
   Value *Src = UnOp->getOperand(0);
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(Src->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(Src->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   SimdPacket *SrcPacket = scalarize(Src, PM);
@@ -1011,10 +1010,10 @@ SimdPacket *Scalarizer::scalarizeCast(CastInst *CastI, PacketMask PM) {
   // Scalarize the source value.
   IRBuilder<> B(CastI);
   Value *Src = CastI->getOperand(0);
-  auto *VecSrcTy = dyn_cast<multi_llvm::FixedVectorType>(Src->getType());
+  auto *VecSrcTy = dyn_cast<FixedVectorType>(Src->getType());
   VECZ_FAIL_IF(!VecSrcTy);
   unsigned SimdWidth = VecSrcTy->getNumElements();
-  auto *VecDstTy = dyn_cast<multi_llvm::FixedVectorType>(CastI->getType());
+  auto *VecDstTy = dyn_cast<FixedVectorType>(CastI->getType());
   VECZ_STAT_FAIL_IF(!VecDstTy || (VecDstTy->getNumElements() != SimdWidth),
                     VeczScalarizeFailCast);
   SimdPacket *SrcPacket = scalarize(Src, PM);
@@ -1039,8 +1038,8 @@ SimdPacket *Scalarizer::scalarizeBitCast(BitCastInst *BC, PacketMask PM) {
   IRBuilder<> B(BC);
   Type *SrcTy = BC->getSrcTy();
   Value *Src = BC->getOperand(0);
-  auto *VecSrcTy = dyn_cast<multi_llvm::FixedVectorType>(SrcTy);
-  auto *VecDstTy = dyn_cast<multi_llvm::FixedVectorType>(BC->getDestTy());
+  auto *VecSrcTy = dyn_cast<FixedVectorType>(SrcTy);
+  auto *VecDstTy = dyn_cast<FixedVectorType>(BC->getDestTy());
   VECZ_FAIL_IF(!VecDstTy);
   unsigned SimdWidth = VecDstTy->getNumElements();
   bool Vec3Src = VecSrcTy && (VecSrcTy->getNumElements() == 3);
@@ -1105,7 +1104,7 @@ SimdPacket *Scalarizer::scalarizeBitCast(BitCastInst *BC, PacketMask PM) {
 SimdPacket *Scalarizer::scalarizeICmp(ICmpInst *ICmp, PacketMask PM) {
   IRBuilder<> B(ICmp);
   Value *LHS = ICmp->getOperand(0);
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(ICmp->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(ICmp->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   SimdPacket *LHSPacket = scalarize(LHS, PM);
@@ -1128,7 +1127,7 @@ SimdPacket *Scalarizer::scalarizeICmp(ICmpInst *ICmp, PacketMask PM) {
 SimdPacket *Scalarizer::scalarizeFCmp(FCmpInst *FCmp, PacketMask PM) {
   IRBuilder<> B(FCmp);
   Value *LHS = FCmp->getOperand(0);
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(FCmp->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(FCmp->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   SimdPacket *LHSPacket = scalarize(LHS, PM);
@@ -1157,7 +1156,7 @@ SimdPacket *Scalarizer::scalarizeSelect(SelectInst *Select, PacketMask PM) {
     VECZ_FAIL_IF(!CondPacket);
   }
   Value *TrueVal = Select->getTrueValue();
-  auto *VecDataTy = dyn_cast<multi_llvm::FixedVectorType>(Select->getType());
+  auto *VecDataTy = dyn_cast<FixedVectorType>(Select->getType());
   VECZ_FAIL_IF(!VecDataTy);
   unsigned SimdWidth = VecDataTy->getNumElements();
   SimdPacket *TruePacket = scalarize(TrueVal, PM);
@@ -1320,7 +1319,7 @@ SimdPacket *Scalarizer::scalarizeCall(CallInst *CI, PacketMask PM) {
         // Handle 'pointer return' arguments. The old type was Vector*, the new
         // type is Scalar*. To accommodate the different we need to have
         // individual offsets, one for each 'element pointer'.
-        auto *OldVecTy = cast<multi_llvm::FixedVectorType>(PtrRetPointeeTy);
+        auto *OldVecTy = cast<FixedVectorType>(PtrRetPointeeTy);
         VECZ_STAT_FAIL_IF(OldVecTy->getNumElements() != SimdWidth,
                           VeczScalarizeFailBuiltin);
         Type *NewTy = PointerType::get(OldVecTy->getElementType(),
@@ -1387,13 +1386,13 @@ SimdPacket *Scalarizer::scalarizeCall(CallInst *CI, PacketMask PM) {
 
 SimdPacket *Scalarizer::scalarizeShuffleVector(ShuffleVectorInst *Shuffle,
                                                PacketMask PM) {
-  auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(Shuffle->getType());
+  auto *VecTy = dyn_cast<FixedVectorType>(Shuffle->getType());
   VECZ_FAIL_IF(!VecTy);
   Value *LHS = Shuffle->getOperand(0);
   Value *RHS = Shuffle->getOperand(1);
   assert(LHS && "Could not get operand 0");
   assert(RHS && "Could not get operand 1");
-  auto *LHSVecTy = dyn_cast<multi_llvm::FixedVectorType>(LHS->getType());
+  auto *LHSVecTy = dyn_cast<FixedVectorType>(LHS->getType());
   VECZ_FAIL_IF(!LHSVecTy);
   unsigned SrcWidth = LHSVecTy->getNumElements();
   unsigned DstWidth = VecTy->getNumElements();
@@ -1460,7 +1459,7 @@ SimdPacket *Scalarizer::scalarizeInsertElement(InsertElementInst *Insert,
   Value *Index = Insert->getOperand(2);
   assert(Index && "Could not get operand 2 of Insert");
   const ConstantInt *CIndex = dyn_cast<ConstantInt>(Index);
-  const auto *VecTy = cast<multi_llvm::FixedVectorType>(Vec->getType());
+  const auto *VecTy = cast<FixedVectorType>(Vec->getType());
   const unsigned IndexInt = CIndex ? CIndex->getZExtValue() : 0;
   const unsigned SimdWidth = VecTy->getNumElements();
 
@@ -1502,7 +1501,7 @@ SimdPacket *Scalarizer::scalarizeInsertElement(InsertElementInst *Insert,
 }
 
 SimdPacket *Scalarizer::scalarizeGEP(GetElementPtrInst *GEP, PacketMask PM) {
-  auto *const vecDataTy = dyn_cast<multi_llvm::FixedVectorType>(GEP->getType());
+  auto *const vecDataTy = dyn_cast<FixedVectorType>(GEP->getType());
   VECZ_FAIL_IF(!vecDataTy);
   unsigned simdWidth = vecDataTy->getNumElements();
 
@@ -1560,7 +1559,7 @@ SimdPacket *Scalarizer::scalarizeGEP(GetElementPtrInst *GEP, PacketMask PM) {
 }
 
 SimdPacket *Scalarizer::scalarizePHI(PHINode *Phi, PacketMask PM) {
-  auto *PhiTy = cast<multi_llvm::FixedVectorType>(Phi->getType());
+  auto *PhiTy = cast<FixedVectorType>(Phi->getType());
   const unsigned Width = PhiTy->getNumElements();
   const unsigned NumIncoming = Phi->getNumIncomingValues();
   SmallVector<SimdPacket *, 2> Incoming;

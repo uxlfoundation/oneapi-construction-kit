@@ -299,8 +299,7 @@ Function *BuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
     }
 
     // Check the return type.
-    auto *VecRetTy =
-        dyn_cast<multi_llvm::FixedVectorType>(B.function.getReturnType());
+    auto *VecRetTy = dyn_cast<FixedVectorType>(B.function.getReturnType());
     if (!VecRetTy) {
       return nullptr;
     }

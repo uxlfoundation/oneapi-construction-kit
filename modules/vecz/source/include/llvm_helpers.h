@@ -21,7 +21,7 @@ namespace vecz {
 /// @param[in] V Value to analyze.
 ///
 /// @return Vector type of V or null.
-multi_llvm::FixedVectorType *getVectorType(llvm::Value *V);
+llvm::FixedVectorType *getVectorType(llvm::Value *V);
 
 /// @brief Get the default value for a type.
 ///

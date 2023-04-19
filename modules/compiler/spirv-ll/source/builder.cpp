@@ -81,7 +81,7 @@ llvm::DIType *spirv_ll::Builder::getDIType(llvm::Type *type) {
             0, size, align, llvm::DINode::FlagZero, nullptr,
             DIBuilder.getOrCreateArray(element_types));
       }
-      case multi_llvm::FixedVectorTyID: {
+      case llvm::Type::FixedVectorTyID: {
         llvm::DIType *elem_type =
             getDIType(multi_llvm::getVectorElementType(type));
 
@@ -1273,7 +1273,7 @@ void spirv_ll::Builder::checkMemberDecorations(
       case llvm::Type::ArrayTyID:
         nextType = traversed.back()->getArrayElementType();
         break;
-      case multi_llvm::FixedVectorTyID:
+      case llvm::Type::FixedVectorTyID:
         nextType = multi_llvm::getVectorElementType(traversed.back());
         break;
       case llvm::Type::PointerTyID: {
@@ -1439,8 +1439,8 @@ llvm::Type *spirv_ll::Builder::getRelationalReturnType(llvm::Value *operand) {
   // If the operand is a vector the result of the builtin will be a vector of
   // ints of the same size as the operand's scalar type, e.g. double2 will
   // return long2. Otherwise the return type is always an int32.
-  if (operand->getType()->getTypeID() == multi_llvm::FixedVectorTyID) {
-    return multi_llvm::FixedVectorType::get(
+  if (operand->getType()->getTypeID() == llvm::Type::FixedVectorTyID) {
+    return llvm::FixedVectorType::get(
         IRBuilder.getIntNTy(operand->getType()->getScalarSizeInBits()),
         multi_llvm::getVectorNumElements(operand->getType()));
   } else {

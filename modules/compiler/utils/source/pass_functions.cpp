@@ -188,13 +188,13 @@ void replaceConstantExpressionWithInstruction(llvm::Constant *const constant) {
       // ShuffleVector to duplicate the value across the vector.
       auto numEls = constantVec->getNumOperands();
       llvm::Value *undef = llvm::UndefValue::get(
-          multi_llvm::FixedVectorType::get(splatVal->getType(), numEls));
+          llvm::FixedVectorType::get(splatVal->getType(), numEls));
       llvm::Type *i32Ty = llvm::Type::getInt32Ty(constant->getContext());
       auto insert = llvm::InsertElementInst::Create(
           undef, splatVal, llvm::ConstantInt::get(i32Ty, 0));
       insert->insertBefore(useFunc->getEntryBlock().getFirstNonPHI());
       llvm::Value *zeros = llvm::ConstantAggregateZero::get(
-          multi_llvm::FixedVectorType::get(i32Ty, numEls));
+          llvm::FixedVectorType::get(i32Ty, numEls));
       newInst = new llvm::ShuffleVectorInst(insert, undef, zeros);
       newInst->insertAfter(insert);
     }

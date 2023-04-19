@@ -237,7 +237,7 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
   }
 
   // Handle vector types.
-  if (auto *VecTy = llvm::dyn_cast<multi_llvm::FixedVectorType>(Ty)) {
+  if (auto *VecTy = llvm::dyn_cast<llvm::FixedVectorType>(Ty)) {
     const uint32_t NumEle = VecTy->getNumElements();
 
     llvm::Type *EleTy = VecTy->getElementType();

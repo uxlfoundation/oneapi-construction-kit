@@ -41,16 +41,10 @@ static constexpr const auto vector_reduce_umin =
     llvm::Intrinsic::vector_reduce_umin;
 }  // namespace Intrinsic
 
-// LLVM 11 separates the generalization of scalable and fixed vectors
-// into individual classes that inherit VectorType but have differences
-// in construction, and querying of the underlying elements information.
-using FixedVectorType = llvm::FixedVectorType;
-static constexpr const auto FixedVectorTyID = llvm::Type::FixedVectorTyID;
-
 // LLVM 11 removes CompositeType and SequentialType classes, so this
 // is just a helper method to check for CA supported sequential types
 static inline bool isSequentialType(llvm::Type::TypeID TyID) {
-  return TyID == llvm::Type::ArrayTyID || TyID == FixedVectorTyID ||
+  return TyID == llvm::Type::ArrayTyID || TyID == llvm::Type::FixedVectorTyID ||
          TyID == llvm::Type::ScalableVectorTyID;
 }
 
@@ -68,12 +62,18 @@ inline llvm::Type *getVectorElementType(const llvm::Type *ty) {
 }
 
 inline unsigned getVectorNumElements(llvm::Type *ty) {
-  assert(ty->getTypeID() == FixedVectorTyID && "Not a fixed vector type");
-  return llvm::cast<FixedVectorType>(ty)->getElementCount().getFixedValue();
+  assert(ty->getTypeID() == llvm::Type::FixedVectorTyID &&
+         "Not a fixed vector type");
+  return llvm::cast<llvm::FixedVectorType>(ty)
+      ->getElementCount()
+      .getFixedValue();
 }
 inline unsigned getVectorNumElements(const llvm::Type *ty) {
-  assert(ty->getTypeID() == FixedVectorTyID && "Not a fixed vector type");
-  return llvm::cast<FixedVectorType>(ty)->getElementCount().getFixedValue();
+  assert(ty->getTypeID() == llvm::Type::FixedVectorTyID &&
+         "Not a fixed vector type");
+  return llvm::cast<llvm::FixedVectorType>(ty)
+      ->getElementCount()
+      .getFixedValue();
 }
 
 inline llvm::ElementCount getVectorElementCount(llvm::Type *ty) {

@@ -71,7 +71,7 @@ namespace {
 // Returns a type equivalent to the input type plus padding.
 // This converts a <3 x Ty> into a <4 x Ty>, leaving other types unchanged.
 Type *getPaddedType(Type *Ty) {
-  if (auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(Ty)) {
+  if (auto *VecTy = dyn_cast<FixedVectorType>(Ty)) {
     if (VecTy->getNumElements() == 3) {
       return VectorType::get(VecTy->getElementType(),
                              ElementCount::getFixed(4));
@@ -83,7 +83,7 @@ Type *getPaddedType(Type *Ty) {
 Type *getWideType(Type *Ty, ElementCount Factor) {
   unsigned Elts = 1;
   if (Ty->isVectorTy()) {
-    auto *VecTy = cast<multi_llvm::FixedVectorType>(Ty);
+    auto *VecTy = cast<FixedVectorType>(Ty);
     Elts = VecTy->getNumElements();
     Ty = VecTy->getElementType();
   }
@@ -952,7 +952,7 @@ unsigned Packetizer::Impl::getPacketWidthForType(Type *ty,
 
   unsigned elts = 1;
   if (ty->isVectorTy()) {
-    auto *vecTy = cast<multi_llvm::FixedVectorType>(ty);
+    auto *vecTy = cast<FixedVectorType>(ty);
     elts = vecTy->getNumElements();
   }
 
@@ -1563,7 +1563,7 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
     PACK_FAIL_IF(TargetArg.kind == VectorizationResult::Arg::POINTER_RETURN);
   }
 
-  auto *const vecTy = dyn_cast<multi_llvm::FixedVectorType>(ty);
+  auto *const vecTy = dyn_cast<FixedVectorType>(ty);
   unsigned const scalarWidth = vecTy ? vecTy->getNumElements() : 1;
   unsigned i = 0;
   SmallVector<SmallVector<Value *, 16>, 4> opPackets;
@@ -1830,7 +1830,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     return results;
   }
 
-  if (auto *const vecTy = dyn_cast<multi_llvm::FixedVectorType>(dataTy)) {
+  if (auto *const vecTy = dyn_cast<FixedVectorType>(dataTy)) {
     auto const elts = vecTy->getNumElements();
     if (elts & (elts - 1)) {
       // If the data type is a vector with number of elements not a power of 2,
@@ -1863,7 +1863,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
   auto *const data = op.getDataOperand();
   auto *const stride = SAR.buildMemoryStride(B, ptr, dataTy);
 
-  auto *const vecPtrTy = dyn_cast<multi_llvm::FixedVectorType>(dataTy);
+  auto *const vecPtrTy = dyn_cast<FixedVectorType>(dataTy);
 
   // If we're vector-predicating a vector access, scale the vector length up by
   // the original number of vector elements.
@@ -1954,7 +1954,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
         }
       }
 
-      auto *const newPtrTy = multi_llvm::FixedVectorType::get(
+      auto *const newPtrTy = FixedVectorType::get(
           PointerType::get(scalarTy, scalarPtrTy->getPointerAddressSpace()),
           simdWidth);
 
@@ -2103,7 +2103,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
 
       // If the original instruction was a vector but the mask was a scalar i1,
       // we have to broadcast the mask elements across the data vector.
-      auto *const vecTy = dyn_cast<multi_llvm::FixedVectorType>(dataTy);
+      auto *const vecTy = dyn_cast<FixedVectorType>(dataTy);
       if (vecTy && !isVectorMask) {
         PACK_FAIL_IF(factor.isScalable());
         unsigned simdWidth = factor.getFixedValue();
@@ -2517,8 +2517,7 @@ ValuePacket Packetizer::Impl::packetizeSelect(SelectInst *Select) {
     // and its packet members are widened, we have to sub-broadcast it across
     // the lanes of the original vector.
     if (!isVectorSelect && vecC.front()->getType()->isVectorTy()) {
-      if (auto *vecTy =
-              dyn_cast<multi_llvm::FixedVectorType>(Select->getType())) {
+      if (auto *vecTy = dyn_cast<FixedVectorType>(Select->getType())) {
         PACK_FAIL_IF(!createSubSplats(Ctx.targetInfo(), B, vecC,
                                       vecTy->getNumElements()));
       }
@@ -2677,7 +2676,7 @@ Value *Packetizer::Impl::vectorizeCall(CallInst *CI) {
     }
 
     // Make sure the type is correct for vector arguments.
-    auto VectorTy = dyn_cast<multi_llvm::FixedVectorType>(TargetArg.type);
+    auto VectorTy = dyn_cast<FixedVectorType>(TargetArg.type);
     VECZ_STAT_FAIL_IF(!VectorTy || VectorTy->getElementType() != ScalarTy,
                       VeczPacketizeFailType);
 
@@ -2928,8 +2927,7 @@ ValuePacket Packetizer::Impl::packetizeInsertElement(
     res.getPacketValues(packetWidth, Elts);
     PACK_FAIL_IF(Elts.empty());
 
-    const auto *VecTy =
-        cast<multi_llvm::FixedVectorType>(Intos.front()->getType());
+    const auto *VecTy = cast<FixedVectorType>(Intos.front()->getType());
     const unsigned VecWidth = VecTy->getNumElements();
     PACK_FAIL_IF(VecWidth == ScalarWidth);
     {

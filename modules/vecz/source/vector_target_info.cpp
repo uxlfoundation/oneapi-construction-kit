@@ -1049,7 +1049,7 @@ bool TargetInfo::canOptimizeInterleavedGroup(const Instruction &val,
       DataType = val.getType();
     }
     VECZ_FAIL_IF(!DataType);
-    VECZ_FAIL_IF(!isa<multi_llvm::FixedVectorType>(DataType));
+    VECZ_FAIL_IF(!isa<FixedVectorType>(DataType));
     return true;
   }
   return false;
@@ -1076,11 +1076,11 @@ bool TargetInfo::optimizeInterleavedGroup(IRBuilder<> &B,
 
   // canOptimizeInterleavedGroup() performs several checks, including valid
   // Kind and Op0 types. Thus, these casts are safe.
-  multi_llvm::FixedVectorType *VecTy = nullptr;
+  FixedVectorType *VecTy = nullptr;
   if (Kind == eInterleavedStore || Kind == eMaskedInterleavedStore) {
-    VecTy = cast<multi_llvm::FixedVectorType>(Op0->getOperand(0)->getType());
+    VecTy = cast<FixedVectorType>(Op0->getOperand(0)->getType());
   } else {  // eInterleavedLoad || eMaskedInterleavedLoad
-    VecTy = cast<multi_llvm::FixedVectorType>(Op0->getType());
+    VecTy = cast<FixedVectorType>(Op0->getType());
   }
 
   auto VecWidth = multi_llvm::getVectorElementCount(VecTy);
@@ -1165,7 +1165,7 @@ bool TargetInfo::interleaveVectors(IRBuilder<> &B,
   if (Stride == 0) {
     return true;
   }
-  auto *VecTy = dyn_cast<multi_llvm::FixedVectorType>(Vectors[0]->getType());
+  auto *VecTy = dyn_cast<FixedVectorType>(Vectors[0]->getType());
   VECZ_FAIL_IF(!VecTy);
   if (Stride == 1) {
     return true;
@@ -1174,7 +1174,7 @@ bool TargetInfo::interleaveVectors(IRBuilder<> &B,
   VECZ_FAIL_IF(Width < Stride);
   VECZ_FAIL_IF((Width % Stride) != 0);
   for (unsigned i = 1; i < Stride; i++) {
-    auto *VecTyN = dyn_cast<multi_llvm::FixedVectorType>(Vectors[i]->getType());
+    auto *VecTyN = dyn_cast<FixedVectorType>(Vectors[i]->getType());
     VECZ_FAIL_IF(!VecTyN || (VecTyN != VecTy));
   }
 

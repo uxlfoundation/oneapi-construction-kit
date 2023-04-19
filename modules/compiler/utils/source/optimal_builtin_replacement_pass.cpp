@@ -98,7 +98,7 @@ Value *OptimalBuiltinReplacementPass::replaceAbacusMulhi(
 
   Type *UpTy = B.getIntNTy(BitWidth * 2);
   if (VecWidth != 1) {
-    UpTy = multi_llvm::FixedVectorType::get(UpTy, VecWidth);
+    UpTy = FixedVectorType::get(UpTy, VecWidth);
   }
 
   bool SrcIsSigned = false;
