@@ -66,14 +66,15 @@ llvm::Constant *compiler::utils::getIdentityVal(multi_llvm::RecurKind Kind,
 
 multi_llvm::Optional<compiler::utils::GroupCollective>
 compiler::utils::isGroupCollective(llvm::Function *f) {
-  Lexer L(f->getName());
+  compiler::utils::NameMangler Mangler(&f->getContext(), f->getParent());
+  SmallVector<Type *, 4> ArgumentTypes;
+  SmallVector<compiler::utils::TypeQualifiers, 4> Qualifiers;
 
-  // Consume the _Z[0-9]+
-  L.Consume("_Z");
-  unsigned int _;
-  if (!L.ConsumeInteger(_)) {
-    return multi_llvm::None;
-  }
+  const auto DemangledName = std::string(
+      Mangler.demangleName(f->getName(), ArgumentTypes, Qualifiers));
+
+  Lexer L(DemangledName);
+
   GroupCollective collective{};
 
   // Parse the scope.
@@ -110,47 +111,61 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
   } else if (collective.op == GroupCollective::Op::Reduction ||
              collective.op == GroupCollective::Op::ScanExclusive ||
              collective.op == GroupCollective::Op::ScanInclusive) {
-    StringRef OpKind;
     if (L.Consume("logical_")) {
       collective.isLogical = true;
     }
-    if (L.ConsumeAlpha(OpKind)) {
-      auto isSignedInt = [](char c) {
-        return c == 'c' || c == 's' || c == 'i' || c == 'l';
-      };
-      auto isUnsignedSignedInt = [](char c) {
-        return c == 'h' || c == 't' || c == 'j' || c == 'm';
-      };
-      auto isInt = [&](char c) {
-        return isUnsignedSignedInt(c) || isSignedInt(c);
-      };
-      const auto manglingChar = OpKind.back();
-      collective.recurKind =
-          StringSwitch<multi_llvm::RecurKind>(OpKind)
-              .StartsWith("add", isInt(manglingChar)
-                                     ? multi_llvm::RecurKind::Add
-                                     : multi_llvm::RecurKind::FAdd)
-              .StartsWith("min", isInt(manglingChar)
-                                     ? (isUnsignedSignedInt(manglingChar)
-                                            ? multi_llvm::RecurKind::UMin
-                                            : multi_llvm::RecurKind::SMin)
-                                     : multi_llvm::RecurKind::FMin)
-              .StartsWith("max", isInt(manglingChar)
-                                     ? (isUnsignedSignedInt(manglingChar)
-                                            ? multi_llvm::RecurKind::UMax
-                                            : multi_llvm::RecurKind::SMax)
-                                     : multi_llvm::RecurKind::FMax)
-              .StartsWith("mul", isInt(manglingChar)
-                                     ? multi_llvm::RecurKind::Mul
-                                     : multi_llvm::RecurKind::FMul)
-              .StartsWith("and", multi_llvm::RecurKind::And)
-              .StartsWith("or", multi_llvm::RecurKind::Or)
-              .StartsWith("xor", multi_llvm::RecurKind::Xor)
-              .Default(multi_llvm::RecurKind::None);
-    } else {
-      collective.recurKind = multi_llvm::RecurKind::None;
+
+    assert(Qualifiers.size() == 1 && ArgumentTypes.size() == 1 &&
+           "Unknown collective builtin");
+    auto &Qual = Qualifiers[0];
+
+    bool isSignedInt = false;
+    while (!isSignedInt && Qual.getCount()) {
+      isSignedInt |= Qual.pop_front() == compiler::utils::eTypeQualSignedInt;
+    }
+
+    bool isInt = ArgumentTypes[0]->isIntegerTy();
+    bool isFP = ArgumentTypes[0]->isFloatingPointTy();
+    // It's not impossible that someone tries to smuggle us a group collective
+    // with an unexpected type, so bail out here.
+    if (!isInt && !isFP) {
+      return multi_llvm::None;
+    }
+
+    StringRef OpKind;
+    if (!L.ConsumeAlpha(OpKind)) {
+      return multi_llvm::None;
+    }
+
+    collective.recurKind =
+        StringSwitch<multi_llvm::RecurKind>(OpKind)
+            .Case("add", isInt ? multi_llvm::RecurKind::Add
+                               : multi_llvm::RecurKind::FAdd)
+
+            .Case("min", isInt ? (isSignedInt ? multi_llvm::RecurKind::SMin
+                                              : multi_llvm::RecurKind::UMin)
+                               : multi_llvm::RecurKind::FMin)
+            .Case("max", isInt ? (isSignedInt ? multi_llvm::RecurKind::SMax
+                                              : multi_llvm::RecurKind::UMax)
+                               : multi_llvm::RecurKind::FMax)
+            .Case("mul", isInt ? multi_llvm::RecurKind::Mul
+                               : multi_llvm::RecurKind::FMul)
+            .Case("and", multi_llvm::RecurKind::And)
+            .Case("or", multi_llvm::RecurKind::Or)
+            .Case("xor", multi_llvm::RecurKind::Xor)
+            .Default(multi_llvm::RecurKind::None);
+
+    if (collective.recurKind == multi_llvm::RecurKind::None) {
+      return multi_llvm::None;
     }
   }
+
+  // If we've trailing characters left, we're not a recognized collective
+  // function.
+  if (L.Left() != 0) {
+    return multi_llvm::None;
+  }
+
   collective.func = f;
   collective.type = f->getArg(0)->getType();
   return collective;

@@ -93,5 +93,8 @@ declare spir_func i32 @_Z20work_group_broadcastij(i32 %x, i64 %id)
 ; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
 ; CHECK: ret i32 [[RESULT]]
 
+; CHECK: define spir_func half @_Z29work_group_scan_exclusive_addDh(half [[PARAM:%.*]])
+declare spir_func half @_Z29work_group_scan_exclusive_addDh(half %x)
+
 ; CHECK-DAG: attributes [[SCHEDULE_ONCE]] = { "mux-barrier-schedule"="once" }
 ; CHECK-DAG: attributes [[SCHEDULE_LINEAR]] = { "mux-barrier-schedule"="linear" }
