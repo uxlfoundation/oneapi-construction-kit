@@ -5,7 +5,6 @@
 #include <compiler/utils/cl_builtin_info.h>
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Instructions.h>
-#include <multi_llvm/multi_llvm.h>
 
 #include <unordered_set>
 
@@ -226,10 +225,10 @@ Heuristics::BrClauseKind Heuristics::shouldVectorizeVisitCmp(
   BrClauseKind vectorize = BrClauseKind::None;
   // The CmpInst may involve two CallInst, or it may involve only one but
   // we don't know on which side it may be.
-  if (multi_llvm::isa_and_nonnull<const CallInst>(LHS)) {
+  if (llvm::isa_and_nonnull<const CallInst>(LHS)) {
     vectorize = shouldVectorizeVisitCmpOperands(RHS, pred);
   }
-  if (multi_llvm::isa_and_nonnull<const CallInst>(RHS)) {
+  if (llvm::isa_and_nonnull<const CallInst>(RHS)) {
     BrClauseKind RHSStatus = shouldVectorizeVisitCmpOperands(LHS, pred);
     // This should never happen but in case it does, we want to "void" the
     // result and vectorize!

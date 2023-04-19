@@ -19,8 +19,8 @@ std::unique_ptr<compiler::Target> RefSiG1Info::createTarget(
   if (!context) {
     return nullptr;
   }
-  return multi_llvm::make_unique<RefSiG1Target>(this, riscv_hal_device_info,
-                                                context, callback);
+  return std::make_unique<RefSiG1Target>(this, riscv_hal_device_info, context,
+                                         callback);
 }
 
 }  // namespace refsi_g1_wi

@@ -74,7 +74,7 @@ unsigned calculateBlockCost(const BasicBlock &BB,
       break;
     }
 
-    multi_llvm::InstructionCost inst_cost =
+    InstructionCost inst_cost =
         TTI.getInstructionCost(&I, TargetTransformInfo::TCK_RecipThroughput);
 
     // When a vector instruction is encountered, we multiply by the vector
@@ -86,7 +86,7 @@ unsigned calculateBlockCost(const BasicBlock &BB,
       inst_cost *= multi_llvm::getVectorNumElements(I.getType());
     }
 
-    cost += multi_llvm::getInstructionCostValue(inst_cost);
+    cost += *inst_cost.getValue();
   }
   return cost;
 }
@@ -107,8 +107,7 @@ unsigned calculateBoolReductionCost(LLVMContext &context, Module *module,
   auto *F = Function::Create(new_fty, Function::InternalLinkage, "tmp", module);
   auto *BB = BasicBlock::Create(context, "reduce", F);
   IRBuilder<> B(BB);
-  multi_llvm::createSimpleTargetReduction(B, &TTI, &*F->arg_begin(),
-                                          multi_llvm::RecurKind::And);
+  createSimpleTargetReduction(B, &TTI, &*F->arg_begin(), RecurKind::And);
   unsigned cost = calculateBlockCost(*BB, TTI);
 
   // We don't really need that function in the module anymore because it's
@@ -269,7 +268,7 @@ PreservedAnalyses PreLinearizePass::run(Function &F,
       unsigned min_cost = new_succs.empty() ? ~0 : 0;
 
       // The total cost of executing every successor sequentially
-      multi_llvm::InstructionCost total_cost = 0;
+      InstructionCost total_cost = 0;
 
       for (auto *succ : hoistable) {
         unsigned block_cost = calculateBlockCost(*succ, TTI);
@@ -288,7 +287,7 @@ PreservedAnalyses PreLinearizePass::run(Function &F,
       // removed if we hoist the contents. We will only execute one successor
       // so assume the first successor's branch is representative.
       auto *succ_term = hoistable.front()->getTerminator();
-      multi_llvm::InstructionCost branch_cost =
+      InstructionCost branch_cost =
           TTI.getInstructionCost(succ_term,
                                  TargetTransformInfo::TCK_RecipThroughput) +
           TTI.getInstructionCost(succ_term, TargetTransformInfo::TCK_Latency);

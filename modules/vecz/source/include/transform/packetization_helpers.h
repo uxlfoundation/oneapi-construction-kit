@@ -85,8 +85,7 @@ bool createSubSplats(const vecz::TargetInfo &TI, llvm::IRBuilder<> &B,
 /// @param[in] VL The vector length
 /// @param[in] Kind The kind of reduction to sanitize for
 llvm::Value *sanitizeVPReductionInput(llvm::IRBuilder<> &B, llvm::Value *Val,
-                                      llvm::Value *VL,
-                                      multi_llvm::RecurKind Kind);
+                                      llvm::Value *VL, llvm::RecurKind Kind);
 
 /// @brief Utility function to obtain an indices vector to be used in a gather
 /// operation.

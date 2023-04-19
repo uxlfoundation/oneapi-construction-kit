@@ -238,7 +238,7 @@ bool createSubSplats(const vecz::TargetInfo &TI, IRBuilder<> &B,
 }
 
 Value *sanitizeVPReductionInput(IRBuilder<> &B, Value *Val, Value *VL,
-                                multi_llvm::RecurKind Kind) {
+                                RecurKind Kind) {
   Type *const ValTy = Val->getType();
   ElementCount const EC = multi_llvm::getVectorElementCount(ValTy);
   Value *const VLSplat = multi_llvm::createVectorSplat(B, EC, VL);

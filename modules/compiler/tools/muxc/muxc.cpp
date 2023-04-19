@@ -175,7 +175,7 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
     auto &BaseCtx =
         *static_cast<compiler::BaseContext *>(CompilerContext.get());
     llvm::LLVMContext &Ctx = BaseCtx.llvm_context;
-    PassMach = multi_llvm::make_unique<compiler::BaseModulePassMachinery>(
+    PassMach = std::make_unique<compiler::BaseModulePassMachinery>(
         Ctx, /*TM*/ nullptr, Info, /*BICallback*/ nullptr,
         BaseCtx.isLLVMVerifyEachEnabled(), BaseCtx.getLLVMDebugLoggingLevel(),
         BaseCtx.isLLVMTimePassesEnabled());
@@ -220,8 +220,8 @@ result driver::runPipeline(compiler::utils::PassMachinery *PassMach) {
   if (WriteTextual) {
     OpenFlags |= llvm::sys::fs::OF_Text;
   }
-  auto Out = multi_llvm::make_unique<llvm::ToolOutputFile>(OutputFilename, EC,
-                                                           OpenFlags);
+  auto Out =
+      std::make_unique<llvm::ToolOutputFile>(OutputFilename, EC, OpenFlags);
   if (EC || !Out) {
     llvm::errs() << EC.message() << '\n';
     return result::failure;

@@ -55,7 +55,7 @@ compiler::Result {{cookiecutter.target_name.capitalize()}}Target::initWithBuilti
 
 std::unique_ptr<compiler::Module> {{cookiecutter.target_name.capitalize()}}Target::createModule(uint32_t &num_errors,
                                                        std::string &log) {
-  return multi_llvm::make_unique<{{cookiecutter.target_name.capitalize()}}Module>(
+  return std::make_unique<{{cookiecutter.target_name.capitalize()}}Module>(
       *this, static_cast<compiler::BaseContext &>(context), num_errors, log);
 }
 }  // namespace {{cookiecutter.target_name}}

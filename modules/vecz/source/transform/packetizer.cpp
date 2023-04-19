@@ -773,8 +773,7 @@ Value *Packetizer::Impl::reduceBranchCond(Value *cond, Instruction *terminator,
     }
   }
 
-  multi_llvm::RecurKind kind =
-      allOf ? multi_llvm::RecurKind::And : multi_llvm::RecurKind::Or;
+  RecurKind kind = allOf ? RecurKind::And : RecurKind::Or;
 
   // VP reduction intrinsics didn't make it into LLVM 13 so we have to make do
   // by pre-sanitizing the input such that elements past VL get the identity
@@ -786,10 +785,7 @@ Value *Packetizer::Impl::reduceBranchCond(Value *cond, Instruction *terminator,
     VECZ_FAIL_IF(!f);
   }
 
-  Value *anyOfOrAllOfMask =
-      multi_llvm::createSimpleTargetReduction(B, &TTI, f, kind);
-
-  return anyOfOrAllOfMask;
+  return createSimpleTargetReduction(B, &TTI, f, kind);
 }
 
 Packetizer::Result Packetizer::Impl::assign(Value *Scalar, Value *Vectorized) {
@@ -842,7 +838,7 @@ Packetizer::Result Packetizer::Impl::packetize(Value *V) {
       // a divergence reduction so it will need reducing manually here.
       if (newCond->getType()->isVectorTy()) {
         IRBuilder<> B(Branch);
-        multi_llvm::RecurKind kind = multi_llvm::RecurKind::Or;
+        RecurKind kind = RecurKind::Or;
         // Sanitize VP reduction inputs, if required.
         if (VL) {
           newCond = sanitizeVPReductionInput(B, newCond, VL, kind);
@@ -850,8 +846,7 @@ Packetizer::Result Packetizer::Impl::packetize(Value *V) {
             return Packetizer::Result(*this);
           }
         }
-        newCond =
-            multi_llvm::createSimpleTargetReduction(B, &TTI, newCond, kind);
+        newCond = createSimpleTargetReduction(B, &TTI, newCond, kind);
       }
 
       Branch->setCondition(newCond);
@@ -1119,58 +1114,56 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
     }
   }
 
-  multi_llvm::RecurKind recurK;
+  RecurKind recurK;
   switch (subgroupReduceKind) {
     default:
       emitVeczRemarkMissed(&F, nullptr, "Unimplemented subgroup reduction");
       VECZ_FAIL();
       break;
     case compiler::utils::eBuiltinSubgroupAll:
-      recurK = multi_llvm::RecurKind::And;
+      recurK = RecurKind::And;
       break;
     case compiler::utils::eBuiltinSubgroupAny:
-      recurK = multi_llvm::RecurKind::Or;
+      recurK = RecurKind::Or;
       break;
     case compiler::utils::eBuiltinSubgroupReduceAdd:
-      recurK = isFP ? multi_llvm::RecurKind::FAdd : multi_llvm::RecurKind::Add;
+      recurK = isFP ? RecurKind::FAdd : RecurKind::Add;
       break;
     case compiler::utils::eBuiltinSubgroupReduceMin:
-      recurK = isFP ? multi_llvm::RecurKind::FMin
-                    : (isSignedInt ? multi_llvm::RecurKind::SMin
-                                   : multi_llvm::RecurKind::UMin);
+      recurK = isFP ? RecurKind::FMin
+                    : (isSignedInt ? RecurKind::SMin : RecurKind::UMin);
       break;
     case compiler::utils::eBuiltinSubgroupReduceMax:
-      recurK = isFP ? multi_llvm::RecurKind::FMax
-                    : (isSignedInt ? multi_llvm::RecurKind::SMax
-                                   : multi_llvm::RecurKind::UMax);
+      recurK = isFP ? RecurKind::FMax
+                    : (isSignedInt ? RecurKind::SMax : RecurKind::UMax);
       break;
     // SPV_KHR_uniform_group_instructions
     case compiler::utils::eBuiltinSubgroupReduceMul:
-      recurK = isFP ? multi_llvm::RecurKind::FMul : multi_llvm::RecurKind::Mul;
+      recurK = isFP ? RecurKind::FMul : RecurKind::Mul;
       break;
     case compiler::utils::eBuiltinSubgroupReduceAnd:
       assert(!isFP && "Invalid subgroup reduction");
-      recurK = multi_llvm::RecurKind::And;
+      recurK = RecurKind::And;
       break;
     case compiler::utils::eBuiltinSubgroupReduceOr:
       assert(!isFP && "Invalid subgroup reduction");
-      recurK = multi_llvm::RecurKind::Or;
+      recurK = RecurKind::Or;
       break;
     case compiler::utils::eBuiltinSubgroupReduceXor:
       assert(!isFP && "Invalid subgroup reduction");
-      recurK = multi_llvm::RecurKind::Xor;
+      recurK = RecurKind::Xor;
       break;
     case compiler::utils::eBuiltinSubgroupReduceLogicalAnd:
       assert(isBool && "Invalid subgroup reduction");
-      recurK = multi_llvm::RecurKind::And;
+      recurK = RecurKind::And;
       break;
     case compiler::utils::eBuiltinSubgroupReduceLogicalOr:
       assert(isBool && "Invalid subgroup reduction");
-      recurK = multi_llvm::RecurKind::Or;
+      recurK = RecurKind::Or;
       break;
     case compiler::utils::eBuiltinSubgroupReduceLogicalXor:
       assert(isBool && "Invalid subgroup reduction");
-      recurK = multi_llvm::RecurKind::Xor;
+      recurK = RecurKind::Xor;
       break;
   }
 
@@ -1220,8 +1213,7 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
   }
 
   // Reduce to a scalar.
-  Value *v = multi_llvm::createSimpleTargetReduction(B, &TTI, opPackets.front(),
-                                                     recurK);
+  Value *v = createSimpleTargetReduction(B, &TTI, opPackets.front(), recurK);
 
   IC.deleteInstructionLater(CI);
 
@@ -1323,13 +1315,12 @@ Value *Packetizer::Impl::packetizeMaskVarying(Instruction *I) {
 
     // Sanitize any vector-predicated inputs.
     if (VL) {
-      vecMask =
-          sanitizeVPReductionInput(B, vecMask, VL, multi_llvm::RecurKind::Or);
+      vecMask = sanitizeVPReductionInput(B, vecMask, VL, RecurKind::Or);
       VECZ_FAIL_IF(!vecMask);
     }
 
-    Value *anyOfMask = multi_llvm::createSimpleTargetReduction(
-        B, &TTI, vecMask, multi_llvm::RecurKind::Or);
+    Value *anyOfMask =
+        createSimpleTargetReduction(B, &TTI, vecMask, RecurKind::Or);
     anyOfMask->setName("any_of_mask");
 
     if (isVector) {

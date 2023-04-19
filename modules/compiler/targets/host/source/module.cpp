@@ -265,7 +265,7 @@ HostModule::createPassMachinery() {
         std::make_unique<HostBIMuxInfo>(),
         compiler::utils::createCLBuiltinInfo(BI));
   };
-  return multi_llvm::make_unique<host::HostPassMachinery>(
+  return std::make_unique<host::HostPassMachinery>(
       target.getContext().llvm_context, TM, Info, Callback,
       target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),

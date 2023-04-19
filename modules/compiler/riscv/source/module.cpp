@@ -365,7 +365,7 @@ RiscvModule::createPassMachinery() {
   };
 
   llvm::LLVMContext &Ctx = Builtins->getContext();
-  return multi_llvm::make_unique<riscv::RiscvPassMachinery>(
+  return std::make_unique<riscv::RiscvPassMachinery>(
       Ctx, TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
       BaseContext.getLLVMDebugLoggingLevel(),
       BaseContext.isLLVMTimePassesEnabled());

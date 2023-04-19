@@ -60,7 +60,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
   switch (WGC.recurKind) {
     default:
       return nullptr;
-    case multi_llvm::RecurKind::And:
+    case RecurKind::And:
       if (WGC.isAnyAll()) {
         name = "sub_group_all";
         Q = compiler::utils::eTypeQualSignedInt;
@@ -69,7 +69,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
                               : "sub_group_reduce_logical_and";
       }
       break;
-    case multi_llvm::RecurKind::Or:
+    case RecurKind::Or:
       if (WGC.isAnyAll()) {
         name = "sub_group_any";
         Q = compiler::utils::eTypeQualSignedInt;
@@ -78,32 +78,32 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
                               : "sub_group_reduce_logical_or";
       }
       break;
-    case multi_llvm::RecurKind::FAdd:
-    case multi_llvm::RecurKind::Add:
+    case RecurKind::FAdd:
+    case RecurKind::Add:
       name = "sub_group_reduce_add";
       break;
-    case multi_llvm::RecurKind::FMin:
-    case multi_llvm::RecurKind::UMin:
+    case RecurKind::FMin:
+    case RecurKind::UMin:
       name = "sub_group_reduce_min";
       break;
-    case multi_llvm::RecurKind::SMin:
+    case RecurKind::SMin:
       name = "sub_group_reduce_min";
       Q = compiler::utils::eTypeQualSignedInt;
       break;
-    case multi_llvm::RecurKind::FMax:
-    case multi_llvm::RecurKind::UMax:
+    case RecurKind::FMax:
+    case RecurKind::UMax:
       name = "sub_group_reduce_max";
       break;
-    case multi_llvm::RecurKind::SMax:
+    case RecurKind::SMax:
       name = "sub_group_reduce_max";
       Q = compiler::utils::eTypeQualSignedInt;
       break;
       // SPV_KHR_uniform_group_instructions
-    case multi_llvm::RecurKind::Mul:
-    case multi_llvm::RecurKind::FMul:
+    case RecurKind::Mul:
+    case RecurKind::FMul:
       name = "sub_group_reduce_mul";
       break;
-    case multi_llvm::RecurKind::Xor:
+    case RecurKind::Xor:
       name = !WGC.isLogical ? "sub_group_reduce_xor"
                             : "sub_group_reduce_logical_xor";
       break;
@@ -129,40 +129,39 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
 }
 
 Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
-                          multi_llvm::RecurKind Kind, bool IsInclusive,
-                          bool IsLogical) {
+                          RecurKind Kind, bool IsInclusive, bool IsLogical) {
   StringRef name;
   compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
   switch (Kind) {
     default:
       return nullptr;
-    case multi_llvm::RecurKind::FAdd:
-    case multi_llvm::RecurKind::Add:
+    case RecurKind::FAdd:
+    case RecurKind::Add:
       name = IsInclusive ? StringRef("sub_group_scan_inclusive_add")
                          : StringRef("sub_group_scan_exclusive_add");
       break;
-    case multi_llvm::RecurKind::SMin:
+    case RecurKind::SMin:
       Q = compiler::utils::eTypeQualSignedInt;
       LLVM_FALLTHROUGH;
-    case multi_llvm::RecurKind::UMin:
-    case multi_llvm::RecurKind::FMin:
+    case RecurKind::UMin:
+    case RecurKind::FMin:
       name = IsInclusive ? StringRef("sub_group_scan_inclusive_min")
                          : StringRef("sub_group_scan_exclusive_min");
       break;
-    case multi_llvm::RecurKind::SMax:
+    case RecurKind::SMax:
       Q = compiler::utils::eTypeQualSignedInt;
       LLVM_FALLTHROUGH;
-    case multi_llvm::RecurKind::UMax:
-    case multi_llvm::RecurKind::FMax:
+    case RecurKind::UMax:
+    case RecurKind::FMax:
       name = IsInclusive ? StringRef("sub_group_scan_inclusive_max")
                          : StringRef("sub_group_scan_exclusive_max");
       break;
-    case multi_llvm::RecurKind::Mul:
-    case multi_llvm::RecurKind::FMul:
+    case RecurKind::Mul:
+    case RecurKind::FMul:
       name = IsInclusive ? StringRef("sub_group_scan_inclusive_mul")
                          : StringRef("sub_group_scan_exclusive_mul");
       break;
-    case multi_llvm::RecurKind::And:
+    case RecurKind::And:
       if (!IsLogical) {
         name = IsInclusive ? StringRef("sub_group_scan_inclusive_and")
                            : StringRef("sub_group_scan_exclusive_and");
@@ -171,7 +170,7 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
                            : StringRef("sub_group_scan_exclusive_logical_and");
       }
       break;
-    case multi_llvm::RecurKind::Or:
+    case RecurKind::Or:
       if (!IsLogical) {
         name = IsInclusive ? StringRef("sub_group_scan_inclusive_or")
                            : StringRef("sub_group_scan_exclusive_or");
@@ -180,7 +179,7 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
                            : StringRef("sub_group_scan_exclusive_logical_or");
       }
       break;
-    case multi_llvm::RecurKind::Xor:
+    case RecurKind::Xor:
       if (!IsLogical) {
         name = IsInclusive ? StringRef("sub_group_scan_inclusive_xor")
                            : StringRef("sub_group_scan_exclusive_xor");
@@ -283,14 +282,13 @@ Function *getOrCreateGetSubGroupLocalID(Module &M) {
 ///
 /// @return The result of the operation.
 Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
-                   llvm::Value *Operand, multi_llvm::RecurKind Kind,
-                   bool IsAnyAll) {
+                   llvm::Value *Operand, RecurKind Kind, bool IsAnyAll) {
   /// The semantics of bitwise "and" don't quite match the semantics of "all"
   /// (bitwise and isn't equivalent to logical and in a boolean context e.g.
   /// 01 & 10 = 00 but both 1 (01) and 2 (10) would be considered "true"), so
   /// for the sub_group_all reduction we need to work around this by emitting a
   /// few extra instructions.
-  if (IsAnyAll && Kind == multi_llvm::RecurKind::And) {
+  if (IsAnyAll && Kind == RecurKind::And) {
     auto *const IntType = Operand->getType();
     Value *Cmp = Builder.CreateICmpNE(Operand, ConstantInt::get(IntType, 0));
     Cmp = Builder.CreateIntCast(Cmp, IntType, /* isSigned */ true);
@@ -558,9 +556,9 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   assert(SubScan && "Invalid subgroup scan");
 
   bool const NeedsIdentityFix =
-      !IsInclusive && (WGC.recurKind == multi_llvm::RecurKind::FAdd ||
-                       WGC.recurKind == multi_llvm::RecurKind::FMin ||
-                       WGC.recurKind == multi_llvm::RecurKind::FMax);
+      !IsInclusive &&
+      (WGC.recurKind == RecurKind::FAdd || WGC.recurKind == RecurKind::FMin ||
+       WGC.recurKind == RecurKind::FMax);
 
   // For FMin/FMax, we need to fix up the identity element on the zeroth
   // subgroup ID, because it will be +/-INFINITY, but we need it to be NaN.

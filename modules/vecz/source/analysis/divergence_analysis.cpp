@@ -93,7 +93,7 @@ LoopTag &DivergenceResult::getOrCreateTag(Loop *L) {
   assert(L && "Trying to get or create the tag of a null loop");
   auto &tag = LMap[L];
   if (!tag) {
-    tag = multi_llvm::make_unique<LoopTag>();
+    tag = std::make_unique<LoopTag>();
     tag->loop = L;
   }
   return *tag;

@@ -245,10 +245,9 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
     // if the function isn't an intrinsic or a declaration
     if (!Callee->isIntrinsic() && !Callee->isDeclaration()) {
       auto NewCallee = cast<Function>(ValueMap[Callee]);
-      auto Changes =
-          NewCallee->getParent() != Callee->getParent()
-              ? multi_llvm::CloneFunctionChangeType::DifferentModule
-              : multi_llvm::CloneFunctionChangeType::LocalChangesOnly;
+      auto Changes = NewCallee->getParent() != Callee->getParent()
+                         ? CloneFunctionChangeType::DifferentModule
+                         : CloneFunctionChangeType::LocalChangesOnly;
       multi_llvm::CloneFunctionInto(NewCallee, Callee, ValueMap, Changes,
                                     Returns, "", nullptr, StructMap,
                                     &GVMaterializer);

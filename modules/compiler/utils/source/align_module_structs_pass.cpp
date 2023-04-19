@@ -297,13 +297,13 @@ Function *cloneFunctionUpdatingTypes(Function &func,
 
   const bool moduleLevelChanges =
       compiler::utils::funcContainsDebugMetadata(func, valMap);
-  multi_llvm::CloneFunctionChangeType changes;
+  CloneFunctionChangeType changes;
   if (func.getParent() != newFunc->getParent()) {
-    changes = multi_llvm::CloneFunctionChangeType::DifferentModule;
+    changes = CloneFunctionChangeType::DifferentModule;
   } else if (moduleLevelChanges) {
-    changes = multi_llvm::CloneFunctionChangeType::GlobalChanges;
+    changes = CloneFunctionChangeType::GlobalChanges;
   } else {
-    changes = multi_llvm::CloneFunctionChangeType::LocalChangesOnly;
+    changes = CloneFunctionChangeType::LocalChangesOnly;
   }
   multi_llvm::CloneFunctionInto(newFunc, &func, valMap, changes, returns, "",
                                 nullptr, &structMapper);

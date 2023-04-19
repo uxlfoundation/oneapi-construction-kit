@@ -11,55 +11,52 @@
 #include "multi_llvm/multi_llvm.h"
 
 using namespace llvm;
-static llvm::Constant *getNeutralIdentityHelper(multi_llvm::RecurKind Kind,
-                                                Type *Ty, bool UseNaN,
-                                                bool UseFZero) {
+static llvm::Constant *getNeutralIdentityHelper(RecurKind Kind, Type *Ty,
+                                                bool UseNaN, bool UseFZero) {
   switch (Kind) {
     default:
       return nullptr;
-    case multi_llvm::RecurKind::And:
+    case RecurKind::And:
       return ConstantInt::getAllOnesValue(Ty);
-    case multi_llvm::RecurKind::Or:
-    case multi_llvm::RecurKind::Add:
-    case multi_llvm::RecurKind::Xor:
+    case RecurKind::Or:
+    case RecurKind::Add:
+    case RecurKind::Xor:
       return ConstantInt::getNullValue(Ty);
-    case multi_llvm::RecurKind::SMin:
+    case RecurKind::SMin:
       return ConstantInt::get(
           Ty, APInt::getSignedMaxValue(Ty->getScalarSizeInBits()));
-    case multi_llvm::RecurKind::SMax:
+    case RecurKind::SMax:
       return ConstantInt::get(
           Ty, APInt::getSignedMinValue(Ty->getScalarSizeInBits()));
-    case multi_llvm::RecurKind::UMin:
+    case RecurKind::UMin:
       return ConstantInt::get(Ty,
                               APInt::getMaxValue(Ty->getScalarSizeInBits()));
-    case multi_llvm::RecurKind::UMax:
+    case RecurKind::UMax:
       return ConstantInt::get(Ty,
                               APInt::getMinValue(Ty->getScalarSizeInBits()));
-    case multi_llvm::RecurKind::FAdd:
+    case RecurKind::FAdd:
       // -0.0 + 0.0 = 0.0 meaning -0.0 (not 0.0) is the neutral value for floats
       // under addition.
       return UseFZero ? ConstantFP::get(Ty, 0.0) : ConstantFP::get(Ty, -0.0);
-    case multi_llvm::RecurKind::FMin:
+    case RecurKind::FMin:
       return UseNaN ? ConstantFP::getQNaN(Ty, /*Negative*/ false)
                     : ConstantFP::getInfinity(Ty, /*Negative*/ false);
-    case multi_llvm::RecurKind::FMax:
+    case RecurKind::FMax:
       return UseNaN ? ConstantFP::getQNaN(Ty, /*Negative*/ true)
                     : ConstantFP::getInfinity(Ty, /*Negative*/ true);
-    case multi_llvm::RecurKind::Mul:
+    case RecurKind::Mul:
       return ConstantInt::get(Ty, 1);
-    case multi_llvm::RecurKind::FMul:
+    case RecurKind::FMul:
       return ConstantFP::get(Ty, 1.0);
   }
 }
 
-llvm::Constant *compiler::utils::getNeutralVal(multi_llvm::RecurKind Kind,
-                                               Type *Ty) {
+llvm::Constant *compiler::utils::getNeutralVal(RecurKind Kind, Type *Ty) {
   return getNeutralIdentityHelper(Kind, Ty, /*UseNaN*/ true,
                                   /*UseFZero*/ false);
 }
 
-llvm::Constant *compiler::utils::getIdentityVal(multi_llvm::RecurKind Kind,
-                                                Type *Ty) {
+llvm::Constant *compiler::utils::getIdentityVal(RecurKind Kind, Type *Ty) {
   return getNeutralIdentityHelper(Kind, Ty, /*UseNaN*/ false, /*UseFZero*/
                                   true);
 }
@@ -105,9 +102,9 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
 
   // Then the recurrence kind.
   if (collective.op == GroupCollective::Op::All) {
-    collective.recurKind = multi_llvm::RecurKind::And;
+    collective.recurKind = RecurKind::And;
   } else if (collective.op == GroupCollective::Op::Any) {
-    collective.recurKind = multi_llvm::RecurKind::Or;
+    collective.recurKind = RecurKind::Or;
   } else if (collective.op == GroupCollective::Op::Reduction ||
              collective.op == GroupCollective::Op::ScanExclusive ||
              collective.op == GroupCollective::Op::ScanInclusive) {
@@ -138,24 +135,22 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
     }
 
     collective.recurKind =
-        StringSwitch<multi_llvm::RecurKind>(OpKind)
-            .Case("add", isInt ? multi_llvm::RecurKind::Add
-                               : multi_llvm::RecurKind::FAdd)
+        StringSwitch<RecurKind>(OpKind)
+            .Case("add", isInt ? RecurKind::Add : RecurKind::FAdd)
 
-            .Case("min", isInt ? (isSignedInt ? multi_llvm::RecurKind::SMin
-                                              : multi_llvm::RecurKind::UMin)
-                               : multi_llvm::RecurKind::FMin)
-            .Case("max", isInt ? (isSignedInt ? multi_llvm::RecurKind::SMax
-                                              : multi_llvm::RecurKind::UMax)
-                               : multi_llvm::RecurKind::FMax)
-            .Case("mul", isInt ? multi_llvm::RecurKind::Mul
-                               : multi_llvm::RecurKind::FMul)
-            .Case("and", multi_llvm::RecurKind::And)
-            .Case("or", multi_llvm::RecurKind::Or)
-            .Case("xor", multi_llvm::RecurKind::Xor)
-            .Default(multi_llvm::RecurKind::None);
+            .Case("min", isInt
+                             ? (isSignedInt ? RecurKind::SMin : RecurKind::UMin)
+                             : RecurKind::FMin)
+            .Case("max", isInt
+                             ? (isSignedInt ? RecurKind::SMax : RecurKind::UMax)
+                             : RecurKind::FMax)
+            .Case("mul", isInt ? RecurKind::Mul : RecurKind::FMul)
+            .Case("and", RecurKind::And)
+            .Case("or", RecurKind::Or)
+            .Case("xor", RecurKind::Xor)
+            .Default(RecurKind::None);
 
-    if (collective.recurKind == multi_llvm::RecurKind::None) {
+    if (collective.recurKind == RecurKind::None) {
       return multi_llvm::None;
     }
   }

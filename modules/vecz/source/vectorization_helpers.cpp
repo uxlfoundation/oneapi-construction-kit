@@ -162,9 +162,8 @@ Function *cloneFunctionToVector(VectorizationUnit const &VU) {
   // of llvm > 12 we need to be a bit more careful with that value as there is
   // more nuance introduced in 22a52dfddc with requisite assertions
   const bool moduleChanges = VectorizedFn->getParent() != ScalarFn->getParent();
-  auto cloneMode = moduleChanges
-                       ? multi_llvm::CloneFunctionChangeType::DifferentModule
-                       : multi_llvm::CloneFunctionChangeType::LocalChangesOnly;
+  auto cloneMode = moduleChanges ? CloneFunctionChangeType::DifferentModule
+                                 : CloneFunctionChangeType::LocalChangesOnly;
   multi_llvm::CloneFunctionInto(VectorizedFn, ScalarFn, ValueMap, cloneMode,
                                 Returns);
 

@@ -31,7 +31,7 @@ namespace utils {
 /// operations.
 ///
 /// @return The neutral value, or nullptr if unhandled.
-llvm::Constant *getNeutralVal(multi_llvm::RecurKind Kind, llvm::Type *Ty);
+llvm::Constant *getNeutralVal(llvm::RecurKind Kind, llvm::Type *Ty);
 
 /// @brief Utility function for retrieving the identity value of a
 /// reduction/scan operation. The identity value is one that is expected to be
@@ -47,7 +47,7 @@ llvm::Constant *getNeutralVal(multi_llvm::RecurKind Kind, llvm::Type *Ty);
 /// operations.
 ///
 /// @return The neutral value, or nullptr if unhandled.
-llvm::Constant *getIdentityVal(multi_llvm::RecurKind Kind, llvm::Type *Ty);
+llvm::Constant *getIdentityVal(llvm::RecurKind Kind, llvm::Type *Ty);
 
 /// @brief Represents a work-group or sub-group collective operation.
 struct GroupCollective {
@@ -71,7 +71,7 @@ struct GroupCollective {
   Scope scope = Scope::None;
   /// @brief The llvm recurrence operation this can be mapped to. For broadcasts
   /// this will be None.
-  multi_llvm::RecurKind recurKind = multi_llvm::RecurKind::None;
+  llvm::RecurKind recurKind = llvm::RecurKind::None;
   /// @brief The llvm function body for this group collective instance.
   llvm::Function *func = nullptr;
   /// @brief The type the group operation is applied to. Will always be the

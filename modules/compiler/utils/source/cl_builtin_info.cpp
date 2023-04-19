@@ -3032,10 +3032,9 @@ Function *CLBuiltinLoader::materializeBuiltin(StringRef BuiltinName,
     }
     Function *NewCallee = cast<Function>(ValueMap[Callee]);
     assert(DestM);
-    const auto CloneType =
-        DestM == Callee->getParent()
-            ? multi_llvm::CloneFunctionChangeType::LocalChangesOnly
-            : multi_llvm::CloneFunctionChangeType::DifferentModule;
+    const auto CloneType = DestM == Callee->getParent()
+                               ? CloneFunctionChangeType::LocalChangesOnly
+                               : CloneFunctionChangeType::DifferentModule;
     multi_llvm::CloneFunctionInto(NewCallee, Callee, ValueMap, CloneType,
                                   Returns, "", nullptr, nullptr, &Materializer);
     Returns.clear();

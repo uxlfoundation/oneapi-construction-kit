@@ -15,7 +15,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 #include <llvm/Support/FormatVariadic.h>
-#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/opaque_pointers.h>
 #include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
@@ -694,10 +693,10 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
 
   // offset for the printf call, we create this call now but will re-write it
   // later when we know how much we need to add
-  auto call_offset = multi_llvm::CreateAtomicRMW(
-      ir, AtomicRMWInst::Add,
+  auto call_offset = ir.CreateAtomicRMW(
+      AtomicRMWInst::Add,
       ir.CreatePointerCast(buffer, ir.getInt32Ty()->getPointerTo(1)),
-      ir.getInt32(0), ordering);
+      ir.getInt32(0), MaybeAlign(), ordering, SyncScope::System);
 
   // store block
   ir.SetInsertPoint(store_block);
@@ -745,10 +744,10 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
 
   // rewrite the atomic add with the amount of data the store block wants to
   // store
-  auto correct_add = multi_llvm::CreateAtomicRMW(
-      ir, AtomicRMWInst::Add,
+  auto correct_add = ir.CreateAtomicRMW(
+      AtomicRMWInst::Add,
       ir.CreatePointerCast(buffer, ir.getInt32Ty()->getPointerTo(1)),
-      ir.getInt32(offset), ordering);
+      ir.getInt32(offset), MaybeAlign(), ordering, SyncScope::System);
   call_offset->replaceAllUsesWith(correct_add);
 
   // delete the old call
@@ -772,10 +771,9 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   //
   auto *cast = ir.CreatePointerCast(buffer, ir.getInt32Ty()->getPointerTo(1));
 
-  multi_llvm::CreateAtomicRMW(
-      ir, AtomicRMWInst::Add,
-      ir.CreateGEP(ir.getInt32Ty(), cast, ir.getInt32(1)), ir.getInt32(offset),
-      ordering);
+  ir.CreateAtomicRMW(
+      AtomicRMWInst::Add, ir.CreateGEP(ir.getInt32Ty(), cast, ir.getInt32(1)),
+      ir.getInt32(offset), MaybeAlign(), ordering, SyncScope::System);
 
   // return -1
   ir.CreateRet(ir.getInt32(-1));

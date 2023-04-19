@@ -22,7 +22,7 @@ class RefSiG1Target final : public riscv::RiscvTarget {
   /// @see BaseTarget::createModule
   std::unique_ptr<compiler::Module> createModule(uint32_t &num_errors,
                                                  std::string &log) override {
-    return multi_llvm::make_unique<RefSiG1Module>(
+    return std::make_unique<RefSiG1Module>(
         *this, static_cast<compiler::BaseContext &>(context), num_errors, log);
   }
 };

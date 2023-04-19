@@ -34,8 +34,8 @@ std::unique_ptr<compiler::Target> RiscvInfo::createTarget(
   if (!context) {
     return nullptr;
   }
-  return multi_llvm::make_unique<riscv::RiscvTarget>(
-      this, riscv_hal_device_info, context, callback);
+  return std::make_unique<riscv::RiscvTarget>(this, riscv_hal_device_info,
+                                              context, callback);
 }
 
 }  // namespace riscv

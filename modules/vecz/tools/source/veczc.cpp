@@ -348,8 +348,8 @@ int main(const int argc, const char *const argv[]) {
   if (WriteTextual) {
     OpenFlags |= llvm::sys::fs::OF_Text;
   }
-  auto Out = multi_llvm::make_unique<llvm::ToolOutputFile>(OutputFilename, EC,
-                                                           OpenFlags);
+  auto Out =
+      std::make_unique<llvm::ToolOutputFile>(OutputFilename, EC, OpenFlags);
   if (EC || !Out) {
     llvm::errs() << EC.message() << '\n';
     return 1;

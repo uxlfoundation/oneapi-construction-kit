@@ -19,8 +19,8 @@ std::unique_ptr<compiler::Target> RefSiM1Info::createTarget(
   if (!context) {
     return nullptr;
   }
-  return multi_llvm::make_unique<RefSiM1Target>(this, riscv_hal_device_info,
-                                                context, callback);
+  return std::make_unique<RefSiM1Target>(this, riscv_hal_device_info, context,
+                                         callback);
 }
 
 }  // namespace refsi_m1

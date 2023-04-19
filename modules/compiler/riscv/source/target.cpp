@@ -140,7 +140,7 @@ compiler::Result RiscvTarget::initWithBuiltins(
 
 std::unique_ptr<compiler::Module> RiscvTarget::createModule(
     uint32_t &num_errors, std::string &log) {
-  return multi_llvm::make_unique<RiscvModule>(
+  return std::make_unique<RiscvModule>(
       *this, static_cast<compiler::BaseContext &>(context), num_errors, log);
 }
 }  // namespace riscv

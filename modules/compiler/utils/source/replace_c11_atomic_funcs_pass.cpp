@@ -21,7 +21,6 @@
 #include <llvm/Pass.h>
 #include <llvm/Support/Debug.h>
 #include <multi_llvm/llvm_version.h>
-#include <multi_llvm/multi_llvm.h>
 
 // For debug output when --debug-only=replace_c11_atomics
 #define DEBUG_TYPE "replace_c11_atomics"
@@ -120,8 +119,9 @@ void replaceExchange(CallInst *C11Exchange) {
   auto *Desired = C11Exchange->getOperand(1);
 
   IRBuilder<> Builder{C11Exchange};
-  auto *AtomicExchange = multi_llvm::CreateAtomicRMW(
-      Builder, AtomicRMWInst::Xchg, Object, Desired, AtomicOrdering::Monotonic);
+  auto *AtomicExchange = Builder.CreateAtomicRMW(
+      AtomicRMWInst::Xchg, Object, Desired, MaybeAlign(),
+      AtomicOrdering::Monotonic, SyncScope::System);
   debugOutput(C11Exchange, AtomicExchange);
   // Update and remove the original call.
   C11Exchange->replaceAllUsesWith(AtomicExchange);
@@ -167,9 +167,9 @@ void implementCompareExchange(Function *C11CompareExchangeFunc, bool IsWeak) {
 
   IRBuilder<> EntryBBBuilder{EntryBB};
   auto *LoadExpected = EntryBBBuilder.CreateLoad(Desired->getType(), Expected);
-  auto *AtomicCompareExchange = multi_llvm::CreateAtomicCmpXchg(
-      EntryBBBuilder, Object, LoadExpected, Desired, AtomicOrdering::Monotonic,
-      AtomicOrdering::Monotonic);
+  auto *AtomicCompareExchange = EntryBBBuilder.CreateAtomicCmpXchg(
+      Object, LoadExpected, Desired, MaybeAlign(), AtomicOrdering::Monotonic,
+      AtomicOrdering::Monotonic, SyncScope::System);
   // The default semantics are strong.
   AtomicCompareExchange->setWeak(IsWeak);
   auto *Success = EntryBBBuilder.CreateExtractValue(AtomicCompareExchange, 1);
@@ -269,8 +269,9 @@ void replaceFetchKey(CallInst *C11FetchKey) {
   }
 
   IRBuilder<> Builder{C11FetchKey};
-  auto *AtomicFetchKey = multi_llvm::CreateAtomicRMW(
-      Builder, KeyOpCode, Object, Operand, AtomicOrdering::Monotonic);
+  auto *AtomicFetchKey =
+      Builder.CreateAtomicRMW(KeyOpCode, Object, Operand, MaybeAlign(),
+                              AtomicOrdering::Monotonic, SyncScope::System);
   debugOutput(C11FetchKey, AtomicFetchKey);
   // Update and remove the original call.
   C11FetchKey->replaceAllUsesWith(AtomicFetchKey);
@@ -290,9 +291,9 @@ void replaceFlagTestAndSet(CallInst *C11FlagTestAndSet) {
   // OpenCL spec 6.15.12.6:
   // The atomic_flag type must be implemented as a 32-bit integer
   auto *TrueValue = Builder.getInt32(1);
-  auto *AtomicFlagTestAndSet =
-      multi_llvm::CreateAtomicRMW(Builder, AtomicRMWInst::Xchg, Object,
-                                  TrueValue, AtomicOrdering::Monotonic);
+  auto *AtomicFlagTestAndSet = Builder.CreateAtomicRMW(
+      AtomicRMWInst::Xchg, Object, TrueValue, MaybeAlign(),
+      AtomicOrdering::Monotonic, SyncScope::System);
   auto *CastedResult = Builder.CreateIntCast(
       AtomicFlagTestAndSet, Type::getInt1Ty(C11FlagTestAndSet->getContext()),
       false);
@@ -316,9 +317,9 @@ void replaceFlagClear(CallInst *C11FlagClear) {
   // OpenCL spec 6.15.12.6:
   // The atomic_flag type must be implemented as a 32-bit integer
   auto *FalseValue = Builder.getInt32(0);
-  auto *AtomicFlagTestAndSet =
-      multi_llvm::CreateAtomicRMW(Builder, AtomicRMWInst::Xchg, Object,
-                                  FalseValue, AtomicOrdering::Monotonic);
+  auto *AtomicFlagTestAndSet = Builder.CreateAtomicRMW(
+      AtomicRMWInst::Xchg, Object, FalseValue, MaybeAlign(),
+      AtomicOrdering::Monotonic, SyncScope::System);
   debugOutput(C11FlagClear, AtomicFlagTestAndSet);
 
   // Update and remove original call.

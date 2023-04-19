@@ -202,9 +202,9 @@ bool RunOnInstruction(CallInst &call) {
 
     if (3 == call.arg_size()) {
       // only atomic_cmpxchg needs a different instruction kind
-      value = multi_llvm::CreateAtomicCmpXchg(
-          builder, call.getArgOperand(0), call.getArgOperand(1),
-          call.getArgOperand(2), ordering, ordering);
+      value = builder.CreateAtomicCmpXchg(
+          call.getArgOperand(0), call.getArgOperand(1), call.getArgOperand(2),
+          MaybeAlign(), ordering, ordering, SyncScope::System);
       value = builder.CreateExtractValue(value, 0);
     } else {
       auto op0 = call.getArgOperand(0);
@@ -221,7 +221,8 @@ bool RunOnInstruction(CallInst &call) {
         op1 = builder.CreateBitCast(op1, builder.getInt32Ty());
       }
 
-      value = multi_llvm::CreateAtomicRMW(builder, Kind, op0, op1, ordering);
+      value = builder.CreateAtomicRMW(Kind, op0, op1, MaybeAlign(), ordering,
+                                      SyncScope::System);
 
       if (call.getType()->isFloatTy()) {
         value = builder.CreateBitCast(value, call.getType());

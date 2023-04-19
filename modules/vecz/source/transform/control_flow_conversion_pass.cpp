@@ -500,13 +500,13 @@ bool ControlFlowConversionState::Impl::convertToDataFlow() {
     ROSCC.run(F);
   }
 
-  RC = multi_llvm::make_unique<Reachability>(*DT, *PDT, *LI);
+  RC = std::make_unique<Reachability>(*DT, *PDT, *LI);
 
   // We do this after ROSCC, because it may have modified the CFG.
   DR = &AM.getResult<DivergenceAnalysis>(F);
 
   if (VU.choices().linearizeBOSCC()) {
-    BOSCC = multi_llvm::make_unique<BOSCCGadget>(*this);
+    BOSCC = std::make_unique<BOSCCGadget>(*this);
     if (!BOSCC->duplicateUniformRegions()) {
       emitVeczRemarkMissed(&F, VU.scalarFunction(),
                            "Could not duplicate uniform regions for");

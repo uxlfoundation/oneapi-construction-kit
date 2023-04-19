@@ -74,7 +74,7 @@ VectorizationUnit *VectorizationContext::createVectorizationUnit(
     llvm::Function &F, ElementCount VF, unsigned Dimension,
     const VectorizationChoices &Ch) {
   KernelUnits.push_back(
-      multi_llvm::make_unique<VectorizationUnit>(F, VF, Dimension, *this, Ch));
+      std::make_unique<VectorizationUnit>(F, VF, Dimension, *this, Ch));
   return KernelUnits.back().get();
 }
 
@@ -360,8 +360,8 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
 }
 
 namespace {
-multi_llvm::Optional<std::tuple<bool, multi_llvm::RecurKind, bool>>
-isSubgroupScan(StringRef fnName, Type *const ty) {
+multi_llvm::Optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
+    StringRef fnName, Type *const ty) {
   compiler::utils::Lexer L(fnName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
     return multi_llvm::None;
@@ -374,35 +374,33 @@ isSubgroupScan(StringRef fnName, Type *const ty) {
   if (isInclusive || L.Consume("exclusive_")) {
     StringRef OpKind;
     if (L.ConsumeAlpha(OpKind)) {
-      multi_llvm::RecurKind opKind;
+      RecurKind opKind;
       if (OpKind == "add") {
-        opKind =
-            isInt ? multi_llvm::RecurKind::Add : multi_llvm::RecurKind::FAdd;
+        opKind = isInt ? RecurKind::Add : RecurKind::FAdd;
       } else if (OpKind == "min") {
         assert(!isInt && "unexpected internal scan builtin");
-        opKind = multi_llvm::RecurKind::FMin;
+        opKind = RecurKind::FMin;
       } else if (OpKind == "max") {
         assert(!isInt && "unexpected internal scan builtin");
-        opKind = multi_llvm::RecurKind::FMax;
+        opKind = RecurKind::FMax;
       } else if (OpKind == "smin") {
-        opKind = multi_llvm::RecurKind::SMin;
+        opKind = RecurKind::SMin;
       } else if (OpKind == "smax") {
-        opKind = multi_llvm::RecurKind::SMax;
+        opKind = RecurKind::SMax;
       } else if (OpKind == "umin") {
-        opKind = multi_llvm::RecurKind::UMin;
+        opKind = RecurKind::UMin;
       } else if (OpKind == "umax") {
-        opKind = multi_llvm::RecurKind::UMax;
+        opKind = RecurKind::UMax;
       } else if (OpKind == "mul") {
-        opKind =
-            isInt ? multi_llvm::RecurKind::Mul : multi_llvm::RecurKind::FMul;
+        opKind = isInt ? RecurKind::Mul : RecurKind::FMul;
       } else if (OpKind == "and") {
-        opKind = multi_llvm::RecurKind::And;
+        opKind = RecurKind::And;
         assert(isInt && "unexpected internal scan builtin");
       } else if (OpKind == "or") {
-        opKind = multi_llvm::RecurKind::Or;
+        opKind = RecurKind::Or;
         assert(isInt && "unexpected internal scan builtin");
       } else if (OpKind == "xor") {
-        opKind = multi_llvm::RecurKind::Xor;
+        opKind = RecurKind::Xor;
         assert(isInt && "unexpected internal scan builtin");
       } else {
         return multi_llvm::None;
@@ -449,7 +447,7 @@ bool VectorizationContext::defineInternalBuiltin(Function *F) {
   // Handle subgroup scan operations.
   if (auto scanInfo = isSubgroupScan(F->getName(), F->getReturnType())) {
     bool isInclusive = std::get<0>(*scanInfo);
-    multi_llvm::RecurKind opKind = std::get<1>(*scanInfo);
+    RecurKind opKind = std::get<1>(*scanInfo);
     bool isVP = std::get<2>(*scanInfo);
     return emitSubgroupScanBody(*F, isInclusive, opKind, isVP);
   }
@@ -602,7 +600,7 @@ bool VectorizationContext::emitMaskedScatterGatherMemOpBody(
 // Note: This method is not optimal for fixed-length code, but serves as a way
 // of producing scalable- and fixed-length vector code equivalently.
 bool VectorizationContext::emitSubgroupScanBody(Function &F, bool IsInclusive,
-                                                multi_llvm::RecurKind OpKind,
+                                                RecurKind OpKind,
                                                 bool IsVP) const {
   LLVMContext &Ctx = F.getContext();
 

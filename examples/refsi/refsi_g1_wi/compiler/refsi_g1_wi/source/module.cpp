@@ -45,7 +45,7 @@ RefSiG1Module::createPassMachinery() {
         compiler::utils::createCLBuiltinInfo(Builtins));
   };
   llvm::LLVMContext &Ctx = Builtins->getContext();
-  return multi_llvm::make_unique<RefSiG1PassMachinery>(
+  return std::make_unique<RefSiG1PassMachinery>(
       Ctx, TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
       BaseContext.getLLVMDebugLoggingLevel(),
       BaseContext.isLLVMTimePassesEnabled());

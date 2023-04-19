@@ -43,7 +43,7 @@ std::unique_ptr<compiler::Target> {{cookiecutter.target_name.capitalize()}}Info:
     return nullptr;
   }
 
-  return multi_llvm::make_unique<{{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Target>(
+  return std::make_unique<{{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Target>(
       this, context, callback);
 }
 

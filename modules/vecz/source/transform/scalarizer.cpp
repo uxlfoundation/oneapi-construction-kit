@@ -63,7 +63,7 @@ SimdPacket *Scalarizer::getPacket(const Value *V, unsigned Width, bool Create) {
   }
 
   if (Create) {
-    auto *P = (packets[V] = multi_llvm::make_unique<SimdPacket>()).get();
+    auto *P = (packets[V] = std::make_unique<SimdPacket>()).get();
     P->resize(Width);
     return P;
   } else {

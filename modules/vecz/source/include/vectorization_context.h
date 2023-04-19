@@ -237,11 +237,11 @@ class VectorizationContext {
   /// @param[in] IsInclusive whether the scan should be inclusive (on true) or
   /// exclusive (on false).
   /// @param[in] OpKind the kind of scan to emit. Note: not all values of
-  /// multi_llvm::RecurKind are supported scan operations.
+  /// llvm::RecurKind are supported scan operations.
   /// @param[in] IsVP whether the scan is vector-predicated.
   /// @returns true on success, false otherwise
   bool emitSubgroupScanBody(llvm::Function &F, bool IsInclusive,
-                            multi_llvm::RecurKind OpKind, bool IsVP) const;
+                            llvm::RecurKind OpKind, bool IsVP) const;
 
   /// @brief Helper for non-vectorization tasks.
   TargetInfo &VTI;

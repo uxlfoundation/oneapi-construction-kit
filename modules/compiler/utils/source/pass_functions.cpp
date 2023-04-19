@@ -319,13 +319,12 @@ bool cloneFunctionsAddArg(
                "assumed newFunc has an associated module");
         const bool hasDbgMetadata = funcContainsDebugMetadata(func, vmap);
         const bool differentModules = newFunc->getParent() != func.getParent();
-        auto changeType =
-            differentModules
-                ? multi_llvm::CloneFunctionChangeType::DifferentModule
-                : multi_llvm::CloneFunctionChangeType::LocalChangesOnly;
+        auto changeType = differentModules
+                              ? llvm::CloneFunctionChangeType::DifferentModule
+                              : llvm::CloneFunctionChangeType::LocalChangesOnly;
         if (hasDbgMetadata) {
-          changeType = std::max(
-              changeType, multi_llvm::CloneFunctionChangeType::GlobalChanges);
+          changeType = std::max(changeType,
+                                llvm::CloneFunctionChangeType::GlobalChanges);
         }
         multi_llvm::CloneFunctionInto(newFunc, &func, vmap, changeType,
                                       returns);
