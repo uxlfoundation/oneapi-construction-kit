@@ -669,6 +669,9 @@ bool ControlFlowConversionState::Impl::createEntryMasks(BasicBlock &BB) {
           PHINode::Create(maskTy, 2, BB.getName() + ".entry_mask", &BB.front());
       PHI->addIncoming(MaskInfos[preheader].exitMasks[&BB], preheader);
       maskInfo.entryMask = PHI;
+      LLVM_DEBUG(dbgs() << "Loop divergent loop header " << BB.getName()
+                        << ": entry mask: " << *maskInfo.entryMask << "\n");
+
     } else {
       maskInfo.entryMask =
           copyEntryMask(MaskInfos[preheader].exitMasks[&BB], BB);
@@ -685,6 +688,8 @@ bool ControlFlowConversionState::Impl::createEntryMasks(BasicBlock &BB) {
     BasicBlock *DomBB = IDom->getBlock();
     if (DR->getTag(DomBB).loop == LTag && PDT->dominates(&BB, DomBB)) {
       maskInfo.entryMask = copyEntryMask(MaskInfos[DomBB].entryMask, BB);
+      LLVM_DEBUG(dbgs() << "Copied-via-domination " << BB.getName()
+                        << ": entry mask: " << *maskInfo.entryMask << "\n");
       return true;
     }
     IDom = IDom->getIDom();
@@ -696,6 +701,8 @@ bool ControlFlowConversionState::Impl::createEntryMasks(BasicBlock &BB) {
     for (auto it = pred_begin(&BB); it != pred_end(&BB); ++it) {
       if (it == pred_begin(&BB)) {
         maskInfo.entryMask = copyEntryMask(MaskInfos[*it].exitMasks[&BB], BB);
+        LLVM_DEBUG(dbgs() << "Blend block " << BB.getName()
+                          << ": entry mask: " << *maskInfo.entryMask << "\n");
       } else {
         Instruction *insertBefore =
             cast<Instruction>(maskInfo.entryMask)->getNextNode();
@@ -2235,6 +2242,8 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
     BasicBlock *BB = BBTag.BB;
     lin.beginBlock(BB);
 
+    LLVM_DEBUG(dbgs() << "BB " << BB->getName() << ":\n");
+
     // Retrieve the rewire list for 'BB'.
     SmallPtrSet<BasicBlock *, 8> availableTargets;
     {
@@ -2250,7 +2259,7 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
         // Loop latches must have their branch retained.
         (BBTag.loop && BBTag.loop->latch == BB)) {
       // If 'BB' ends in a uniform branch.
-      LLVM_DEBUG(dbgs() << "Uniform branch: " << BB->getName() << ":\n");
+      LLVM_DEBUG(dbgs() << "  uniform branch\n");
 
       // Keep track of what blocks we have targeted in case we have a deferred
       // block that is a current successor (which could lead in choosing the
@@ -2284,7 +2293,7 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
         lin.push(next);
         targeted.insert(next);
 
-        LLVM_DEBUG(dbgs() << "\tSuccessor " << lin.currentSize() - 1 << ": "
+        LLVM_DEBUG(dbgs() << "\tsuccessor " << lin.currentSize() - 1 << ": "
                           << next->getName() << "\n");
 
         // Virtually remove backedges.
@@ -2304,7 +2313,7 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
         }
       }
     } else {
-      LLVM_DEBUG(dbgs() << "Divergent branch: " << BB->getName() << ":\n");
+      LLVM_DEBUG(dbgs() << "  divergent branch\n");
 
       for (BasicBlock *succ : successors(BB)) {
         availableTargets.insert(succ);
@@ -2314,6 +2323,11 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
       for (BasicBlock *deferred : availableTargets) {
         size_t const deferredIndex = DR->getTagIndex(deferred);
         if (nextIndex == ~size_t(0) || nextIndex > deferredIndex) {
+          LLVM_DEBUG(dbgs()
+                     << (nextIndex == ~size_t(0)
+                             ? "\tchoosing successor: "
+                             : "\tpreferring instead successor: ")
+                     << DR->getBlockTag(deferredIndex).BB->getName() << "\n");
           nextIndex = deferredIndex;
         }
       }
@@ -2331,7 +2345,7 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
         BranchInst::Create(next, BB);
       }
 
-      LLVM_DEBUG(dbgs() << "\tSuccessor 0: " << next->getName() << "\n");
+      LLVM_DEBUG(dbgs() << "\tsuccessor 0: " << next->getName() << "\n");
 
       // Virtually remove backedges.
       if (!BBTag.isLoopBackEdge(next)) {
@@ -2350,15 +2364,22 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
     // Remove the deferrals that involved 'BB'.
     removeDeferrals(BB, deferrals);
 
-#ifndef NDEBUG
-    LLVM_DEBUG(dbgs() << "Deferral list:\n");
-    for (const auto &pair : deferrals) {
-      for (BasicBlock *deferred : pair.second) {
-        LLVM_DEBUG(dbgs() << "\t(" << pair.first->getName() << ", "
-                          << deferred->getName() << ")\n");
-      }
-    }
-#endif
+    // clang-format off
+    LLVM_DEBUG(
+        dbgs() << "  deferral list:";
+        if (deferrals.empty()) {
+          dbgs() << " (empty)\n";
+        } else {
+          dbgs() << "\n";
+          for (const auto &pair : deferrals) {
+            for (BasicBlock *deferred : pair.second) {
+              LLVM_DEBUG(dbgs() << "\t(" << pair.first->getName() << ", "
+                                << deferred->getName() << ")\n");
+            }
+          }
+        }
+    );
+    // clang-format on
   }
 
   // There shouldn't remain any deferral edges.
@@ -2735,16 +2756,18 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
       }
     }
 
-#ifndef NDEBUG
-    LLVM_DEBUG(dbgs() << "\t\t\tWorklist: [");
-    if (!queue.empty()) {
-      LLVM_DEBUG(dbgs() << DR->getBlockTag(*queue.begin()).BB->getName());
-      for (auto it = std::next(queue.begin()); it != queue.end(); ++it) {
-        LLVM_DEBUG(dbgs() << ", " << DR->getBlockTag(*it).BB->getName());
-      }
-      LLVM_DEBUG(dbgs() << "]\n");
-    }
-#endif
+    // clang-format off
+    LLVM_DEBUG(
+        dbgs() << "\t\t\tWorklist: [";
+        if (!queue.empty()) {
+          dbgs() << DR->getBlockTag(*queue.begin()).BB->getName();
+          for (auto it = std::next(queue.begin()); it != queue.end(); ++it) {
+            dbgs() << ", " << DR->getBlockTag(*it).BB->getName();
+          }
+          dbgs() << "]\n";
+        }
+    );
+    // clang-format on
   };
 
   DenseMap<Instruction *, SmallDenseMap<BasicBlock *, Value *, 2>> blendMap;
