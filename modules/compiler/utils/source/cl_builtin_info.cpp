@@ -3030,8 +3030,8 @@ Function *CLBuiltinLoader::materializeBuiltin(StringRef BuiltinName,
     const auto CloneType = DestM == Callee->getParent()
                                ? CloneFunctionChangeType::LocalChangesOnly
                                : CloneFunctionChangeType::DifferentModule;
-    multi_llvm::CloneFunctionInto(NewCallee, Callee, ValueMap, CloneType,
-                                  Returns, "", nullptr, nullptr, &Materializer);
+    CloneFunctionInto(NewCallee, Callee, ValueMap, CloneType, Returns, "",
+                      nullptr, nullptr, &Materializer);
     Returns.clear();
   }
 

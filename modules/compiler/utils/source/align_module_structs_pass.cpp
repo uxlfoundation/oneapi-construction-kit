@@ -305,8 +305,8 @@ Function *cloneFunctionUpdatingTypes(Function &func,
   } else {
     changes = CloneFunctionChangeType::LocalChangesOnly;
   }
-  multi_llvm::CloneFunctionInto(newFunc, &func, valMap, changes, returns, "",
-                                nullptr, &structMapper);
+  CloneFunctionInto(newFunc, &func, valMap, changes, returns, "", nullptr,
+                    &structMapper);
 
   // update the kernel metadata
   if (auto *namedMetaData =

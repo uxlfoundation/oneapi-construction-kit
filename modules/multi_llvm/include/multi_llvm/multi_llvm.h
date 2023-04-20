@@ -142,28 +142,6 @@ inline llvm::Value *createBinOpForRecurKind(llvm::IRBuilder<> &B,
   return B.CreateBinaryIntrinsic(intrOpc, lhs, rhs);
 }
 
-inline void CloneFunctionInto(
-    llvm::Function *NewFunc, const llvm::Function *OldFunc,
-    llvm::ValueToValueMapTy &VMap, llvm::CloneFunctionChangeType Changes,
-    llvm::SmallVectorImpl<llvm::ReturnInst *> &Returns,
-    const char *NameSuffix = "", llvm::ClonedCodeInfo *CodeInfo = nullptr,
-    llvm::ValueMapTypeRemapper *TypeMapper = nullptr,
-    llvm::ValueMaterializer *Materializer = nullptr) {
-  llvm::CloneFunctionInto(NewFunc, OldFunc, VMap, Changes, Returns, NameSuffix,
-                          CodeInfo, TypeMapper, Materializer);
-  // FIXME This works around a bug introduced in llvm@22a52dfdd
-  // Remove this once https://reviews.llvm.org/D99334 is merged and generally
-  // available
-  if (auto *M = NewFunc->getParent()) {
-    if (auto *NMD = M->getNamedMetadata("llvm.dbg.cu")) {
-      if (!NMD->getNumOperands() &&
-          !OldFunc->getParent()->getNamedMetadata("llvm.dbg.cu")) {
-        NMD->eraseFromParent();
-      }
-    }
-  }
-}
-
 inline void addVectorizableFunctionsFromVecLib(
     llvm::TargetLibraryInfoImpl &TLII,
     llvm::TargetLibraryInfoImpl::VectorLibrary VecLib, llvm::Triple TT) {

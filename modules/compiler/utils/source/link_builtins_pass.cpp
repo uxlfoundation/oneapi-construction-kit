@@ -248,9 +248,8 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
       auto Changes = NewCallee->getParent() != Callee->getParent()
                          ? CloneFunctionChangeType::DifferentModule
                          : CloneFunctionChangeType::LocalChangesOnly;
-      multi_llvm::CloneFunctionInto(NewCallee, Callee, ValueMap, Changes,
-                                    Returns, "", nullptr, StructMap,
-                                    &GVMaterializer);
+      CloneFunctionInto(NewCallee, Callee, ValueMap, Changes, Returns, "",
+                        nullptr, StructMap, &GVMaterializer);
       Returns.clear();
     }
   }

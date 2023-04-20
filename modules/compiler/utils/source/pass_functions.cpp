@@ -326,8 +326,7 @@ bool cloneFunctionsAddArg(
           changeType = std::max(changeType,
                                 llvm::CloneFunctionChangeType::GlobalChanges);
         }
-        multi_llvm::CloneFunctionInto(newFunc, &func, vmap, changeType,
-                                      returns);
+        CloneFunctionInto(newFunc, &func, vmap, changeType, returns);
       }
 
       // Add in the new parameter attributes here, because CloneFunctionInto

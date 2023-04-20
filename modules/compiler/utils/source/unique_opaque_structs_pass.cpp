@@ -211,10 +211,9 @@ static void replaceRemappedTypeRefs(
     }
 
     SmallVector<ReturnInst *, 4> Returns;
-    multi_llvm::CloneFunctionInto(NewFunc, OldFunc, ValueMap,
-                                  CloneFunctionChangeType::GlobalChanges,
-                                  Returns, "",
-                                  /* CodeInfo */ nullptr, &StructTypeRemapper);
+    CloneFunctionInto(NewFunc, OldFunc, ValueMap,
+                      CloneFunctionChangeType::GlobalChanges, Returns, "",
+                      /* CodeInfo */ nullptr, &StructTypeRemapper);
     Returns.clear();
 
     // It's possible we still have references to the old types in our new

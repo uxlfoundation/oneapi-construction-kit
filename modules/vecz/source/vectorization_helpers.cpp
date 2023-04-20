@@ -164,8 +164,7 @@ Function *cloneFunctionToVector(VectorizationUnit const &VU) {
   const bool moduleChanges = VectorizedFn->getParent() != ScalarFn->getParent();
   auto cloneMode = moduleChanges ? CloneFunctionChangeType::DifferentModule
                                  : CloneFunctionChangeType::LocalChangesOnly;
-  multi_llvm::CloneFunctionInto(VectorizedFn, ScalarFn, ValueMap, cloneMode,
-                                Returns);
+  CloneFunctionInto(VectorizedFn, ScalarFn, ValueMap, cloneMode, Returns);
 
   // Remove unwanted return value attributes.
   if (VectorizedFn->getReturnType()->isVectorTy()) {
