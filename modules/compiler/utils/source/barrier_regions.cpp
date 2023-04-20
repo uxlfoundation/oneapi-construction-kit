@@ -1037,8 +1037,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       if (v) {
         if (!isa<AllocaInst>(live)) {
           // If live variable is not allocainst, insert load.
-          v = multi_llvm::newLoadInst(live->getType(), v,
-                                      Twine(live->getName(), name), insert);
+          v = new LoadInst(live->getType(), v, Twine(live->getName(), name),
+                           insert);
         }
         mapped = v;
         return v;

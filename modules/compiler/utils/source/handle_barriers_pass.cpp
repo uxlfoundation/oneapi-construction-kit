@@ -116,7 +116,7 @@ Instruction *IRPrintf(const std::string format, Module &module, Value *v,
         module, array_type, true, GlobalValue::PrivateLinkage, 0, ".str",
         nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, false);
   }
-  str->setAlignment(multi_llvm::MaybeAlign(1));
+  str->setAlignment(MaybeAlign(1));
 
   Constant *const_array = ConstantDataArray::getString(context, format, true);
   SmallVector<Constant *, 16> indices;
@@ -1166,8 +1166,7 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
         auto *const bb_id = ConstantInt::get(index_type, successors[0]);
         auto *const br_block =
             BasicBlock::Create(context, "barrier.branch", new_wrapper);
-        auto *const ld_next_id =
-            multi_llvm::newLoadInst(index_type, nextID, "", br_block);
+        auto *const ld_next_id = new LoadInst(index_type, nextID, "", br_block);
         auto *const cmp_id =
             new ICmpInst(*br_block, CmpInst::ICMP_EQ, ld_next_id, bb_id);
         BranchInst::Create(bbs[successors[0]], bbs[successors[1]], cmp_id,
@@ -1179,7 +1178,7 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
         auto *const switch_body =
             BasicBlock::Create(context, "barrier.switch", new_wrapper);
         LoadInst *const ld_next_id =
-            multi_llvm::newLoadInst(index_type, nextID, "", switch_body);
+            new LoadInst(index_type, nextID, "", switch_body);
         SwitchInst *const sw = SwitchInst::Create(
             ld_next_id, bbs[successors[0]], num_succ, switch_body);
         for (auto const i : successors) {
