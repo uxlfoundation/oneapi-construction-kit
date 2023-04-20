@@ -556,6 +556,10 @@ Result moduleToProgramInfo(KernelInfoCallback callback,
                            llvm::Module *const module,
                            bool store_argument_metadata) {
   llvm::NamedMDNode *const node = module->getNamedMetadata("opencl.kernels");
+  // Having no kernels isn't a failure.
+  if (!node) {
+    return Result::SUCCESS;
+  }
   auto num_kernels = node->getNumOperands();
   if (num_kernels) {
     for (uint32_t i = 0, s = num_kernels; i < s; i++) {
