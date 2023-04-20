@@ -262,7 +262,7 @@ llvm::Intrinsic::RISCVIntrinsics getSlideUpIntrinsic(llvm::Type *vs2Ty) {
 
   Intrinsic::RISCVIntrinsics Opc;
   auto *vecTy = multi_llvm::getVectorElementType(vs2Ty);
-  if (vecTy->isFloatTy()) {
+  if (vecTy->isFloatingPointTy()) {
     Opc = Intrinsic::RISCVIntrinsics::riscv_vfslide1up;
   } else {
     Opc = Intrinsic::RISCVIntrinsics::riscv_vslide1up;

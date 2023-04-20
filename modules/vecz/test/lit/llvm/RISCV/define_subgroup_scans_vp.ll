@@ -21,6 +21,7 @@ define spir_kernel void @dummy(i32 addrspace(2)* %in, i32 addrspace(1)* %out) {
   %k = call <vscale x 4 x float> @__vecz_b_sub_group_scan_inclusive_max_vp_u5nxv4fj(<vscale x 4 x float> zeroinitializer, i32 0)
   %l = call <vscale x 4 x float> @__vecz_b_sub_group_scan_exclusive_min_vp_u5nxv4fj(<vscale x 4 x float> zeroinitializer, i32 0)
   %m = call <vscale x 4 x float> @__vecz_b_sub_group_scan_exclusive_max_vp_u5nxv4fj(<vscale x 4 x float> zeroinitializer, i32 0)
+  %n = call <vscale x 4 x double> @__vecz_b_sub_group_scan_exclusive_min_vp_u5nxv4dj(<vscale x 4 x double> zeroinitializer, i32 0)
   ret void
 }
 
@@ -160,3 +161,10 @@ declare <vscale x 4 x float> @__vecz_b_sub_group_scan_exclusive_max_vp_u5nxv4fj(
 ; CHECK: loop:
 ; CHECK:   %[[VEC:.+]] = phi <vscale x 4 x float> [ %0, %entry ],
 ; CHECK:   %{{.+}} = call <vscale x 4 x float> @llvm.maxnum.nxv4f32(<vscale x 4 x float> %[[VEC]], <vscale x 4 x float> %{{.+}})
+
+declare <vscale x 4 x double> @__vecz_b_sub_group_scan_exclusive_min_vp_u5nxv4dj(<vscale x 4 x double>, i32)
+; CHECK-LABEL: define <vscale x 4 x double> @__vecz_b_sub_group_scan_exclusive_min_vp_u5nxv4dj(<vscale x 4 x double>{{.*}}, i32{{.*}})
+; CHECK: loop:
+; CHECK:   %[[VEC:.+]] = phi <vscale x 4 x double> [ %0, %entry ],
+; CHECK:   %{{.+}} = call <vscale x 4 x double> @llvm.minnum.nxv4f64(<vscale x 4 x double> %[[VEC]], <vscale x 4 x double> %{{.+}})
+; CHECK:   call <vscale x 4 x double> @llvm.riscv.vfslide1up.nxv4f64.f64.i64({{(<vscale x 4 x double> undef, )?}}<vscale x 4 x double> %{{.+}}, double 0x7FF0000000000000, i64 %{{.+}})
