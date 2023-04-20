@@ -145,8 +145,6 @@ static bool isLegalKernelVariant(const mux::hal::kernel_variant_s &variant,
 mux_result_t kernel_s::getKernelVariantForWGSize(
     size_t local_size_x, size_t local_size_y, size_t local_size_z,
     mux::hal::kernel_variant_s *out_variant_data) {
-  (void)local_size_y;
-  (void)local_size_z;
   mux::hal::kernel_variant_s *best_variant = nullptr;
   for (auto &v : variant_data) {
     // If the local size isn't a multiple of the minimum work width, we must
@@ -267,5 +265,5 @@ mux_result_t riscvQueryLocalSizeForSubGroupCount(mux_kernel_t kernel,
                                                  size_t *out_local_size_y,
                                                  size_t *out_local_size_z) {
   return static_cast<riscv::kernel_s *>(kernel)->getLocalSizeForSubGroupCount(
-      sub_group_count, out_local_size_x, out_local_size_y, out_local_size_y);
+      sub_group_count, out_local_size_x, out_local_size_y, out_local_size_z);
 }

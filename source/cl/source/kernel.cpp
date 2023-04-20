@@ -559,7 +559,7 @@ MuxKernelWrapper::getLocalSizeForSubGroupCount(size_t sub_group_count) const {
     std::array<size_t, 3> local_size;
     const auto error = muxQueryLocalSizeForSubGroupCount(
         precompiled_kernel, sub_group_count, &local_size[0], &local_size[1],
-        &local_size[1]);
+        &local_size[2]);
     if (error) {
       return cargo::make_unexpected(cl::getErrorFrom(error));
     }
