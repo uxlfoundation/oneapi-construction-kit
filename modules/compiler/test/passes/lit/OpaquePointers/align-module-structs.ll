@@ -5,12 +5,12 @@
 target triple = "spir64-unknown-unknown"
 
 ; Note: this custom(!) datalayout has preferred ABI alignments:
-;   i8    - 64 bits
+;   i16   - 64 bits
 ;   i32   - 64 bits
 ;   i64   - 128 bits
 ;   v4i32 - 64 bits
 ; We use these to trigger the struct alignment pass
-target datalayout = "e-p:64:64:64-m:e-i8:64-i32:64-i64:128-v128:64"
+target datalayout = "e-p:64:64:64-m:e-i16:64-i32:64-i64:128-v128:64"
 
 ; We don't need to update this struct with padding:
 ;   i32 is aligned to 4 bytes and is stored as 8 bytes as per our DL
@@ -18,28 +18,28 @@ target datalayout = "e-p:64:64:64-m:e-i8:64-i32:64-i64:128-v128:64"
 ; CHECK-DAG: %structTyA = type { i32, i64, [4 x float] }
 ; CHECK-DAG: %structTyB = type { ptr, ptr }
 ; We need to update this struct with padding:
-;   i8    is aligned to 1 byte and is stored as 8 as per our DL
-;   i16   is aligned to 8 bytes and is stored as 2 as per our DL
-;   i8    is aligned to 8 bytes and is stored as 8 as per our DL
+;   i16   is aligned to 8 bytes and is stored as 8 as per our DL
+;   i8    is aligned to 8 bytes and is stored as 1 as per our DL
+;   i16   is aligned to 8 bytes and is stored as 8 as per our DL
 ;   v4i32 is aligned to 8 bytes, and is stored as 16 as per its type size.
 ;           It must be aligned to 16 bytes as per SPIR DL -> insert 8 bytes.
 ;   v4i32 is aligned to 16 bytes given the previous elt
-; CHECK-DAG: [[STyC:%structTyC.*]] = type { i8, i16, i8, [8 x i8], <4 x i32>, <4 x i32> }
+; CHECK-DAG: [[STyC:%structTyC.*]] = type { i16, i8, i16, [8 x i8], <4 x i32>, <4 x i32> }
 ; We need to update this struct with padding:
-;   i8    is aligned to 1 byte and is stored as 8 as per our DL
-;   i16   is aligned to 8 bytes and is stored as 2 as per our DL
-;   i8    is aligned to 8 bytes and is stored as 8 as per our DL
+;   i16   is aligned to 8 bytes and is stored as 8 as per our DL
+;   i8    is aligned to 8 bytes and is stored as 1 as per our DL
+;   i16   is aligned to 8 bytes and is stored as 8 as per our DL
 ;   v4i32 is aligned to 8 bytes, and is stored as 16 as per its type size.
 ;           It must be aligned to 16 bytes as per SPIR DL -> insert 8 bytes.
-;   i8 is aligned to 8 bytes and is stored as 8 as per our DL
+;   i16   is aligned to 8 bytes and is stored as 8 as per our DL
 ;   v4i32 is aligned to 8 bytes, and is stored as 16 as per its type size.
 ;           It must be aligned to 16 bytes as per SPIR DL -> insert 8 bytes.
-; CHECK-DAG: [[STyD:%structTyD.*]] = type { i8, i16, i8, [8 x i8], <4 x i32>, i8, [8 x i8], <4 x i32> }
+; CHECK-DAG: [[STyD:%structTyD.*]] = type { i16, i8, i16, [8 x i8], <4 x i32>, i16, [8 x i8], <4 x i32> }
 
 %structTyA = type { i32, i64, [4 x float] }
 %structTyB = type { i32*, i64* }
-%structTyC = type { i8, i16, i8, <4 x i32>, <4 x i32> }
-%structTyD = type { i8, i16, i8, <4 x i32>, i8, <4 x i32> }
+%structTyC = type { i16, i8, i16, <4 x i32>, <4 x i32> }
+%structTyD = type { i16, i8, i16, <4 x i32>, i16, <4 x i32> }
 
 ; CHECK: @glob.1 = internal addrspace(3) global [[STyC]] undef
 @glob = internal addrspace(3) global %structTyC undef
