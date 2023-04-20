@@ -9,13 +9,6 @@
 
 namespace multi_llvm {
 
-// LLVM 11 removes CompositeType and SequentialType classes, so this
-// is just a helper method to check for CA supported sequential types
-static inline bool isSequentialType(llvm::Type::TypeID TyID) {
-  return TyID == llvm::Type::ArrayTyID || TyID == llvm::Type::FixedVectorTyID ||
-         TyID == llvm::Type::ScalableVectorTyID;
-}
-
 // The functions defined below are common functions to allow us to generically
 // get VectorType information from a base Type class, due to either deprecation
 // or removal of these in LLVM 11 (result of scalable/fixed vectors separation)
