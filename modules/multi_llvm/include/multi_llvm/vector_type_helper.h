@@ -5,7 +5,6 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Type.h>
 #include <llvm/Support/TypeSize.h>
-#include <multi_llvm/llvm_version.h>
 
 namespace multi_llvm {
 
@@ -42,6 +41,14 @@ inline llvm::ElementCount getVectorElementCount(llvm::Type *ty) {
 }
 inline llvm::ElementCount getVectorElementCount(const llvm::Type *ty) {
   return llvm::cast<llvm::VectorType>(ty)->getElementCount();
+}
+
+inline unsigned getVectorKnownMinNumElements(llvm::Type *ty) {
+  return getVectorElementCount(ty).getKnownMinValue();
+}
+
+inline unsigned getVectorKnownMinNumElements(const llvm::Type *ty) {
+  return getVectorElementCount(ty).getKnownMinValue();
 }
 }  // namespace multi_llvm
 

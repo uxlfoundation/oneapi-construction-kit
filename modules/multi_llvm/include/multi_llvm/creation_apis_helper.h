@@ -8,7 +8,6 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/TypeSize.h>
-#include <multi_llvm/llvm_version.h>
 #include <multi_llvm/vector_type_helper.h>
 
 namespace multi_llvm {
