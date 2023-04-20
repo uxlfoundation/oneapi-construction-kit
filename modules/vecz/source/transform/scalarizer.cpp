@@ -323,16 +323,16 @@ Value *Scalarizer::scalarizeReduceIntrinsic(IntrinsicInst *Intrin) {
     default:
       isHandled = false;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_and:
+    case Intrinsic::vector_reduce_and:
       BinOpcode = Instruction::And;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_or:
+    case Intrinsic::vector_reduce_or:
       BinOpcode = Instruction::Or;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_xor:
+    case Intrinsic::vector_reduce_xor:
       BinOpcode = Instruction::Xor;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_add:
+    case Intrinsic::vector_reduce_add:
       // TODO: Need to handle FP reduce_add (Instruction::FAdd)
       if (!Intrin->getType()->isFloatTy()) {
         BinOpcode = Instruction::Add;
@@ -340,7 +340,7 @@ Value *Scalarizer::scalarizeReduceIntrinsic(IntrinsicInst *Intrin) {
         isHandled = false;
       }
       break;
-    case multi_llvm::Intrinsic::vector_reduce_mul:
+    case Intrinsic::vector_reduce_mul:
       // TODO: Need to handle FP reduce_mul (Instruction::FMul)
       if (!Intrin->getType()->isFloatTy()) {
         BinOpcode = Instruction::Mul;
@@ -348,23 +348,23 @@ Value *Scalarizer::scalarizeReduceIntrinsic(IntrinsicInst *Intrin) {
         isHandled = false;
       }
       break;
-    case multi_llvm::Intrinsic::vector_reduce_fadd:
+    case Intrinsic::vector_reduce_fadd:
       // TODO: Need to handle FP reduce_add
       isHandled = false;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_fmul:
+    case Intrinsic::vector_reduce_fmul:
       // TODO: Need to handle FP reduce_mul
       isHandled = false;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_fmax:
-    case multi_llvm::Intrinsic::vector_reduce_smax:
-    case multi_llvm::Intrinsic::vector_reduce_umax:
+    case Intrinsic::vector_reduce_fmax:
+    case Intrinsic::vector_reduce_smax:
+    case Intrinsic::vector_reduce_umax:
       // TODO: Need to handle Int (signed/unsigned) Max and FP Max
       isHandled = false;
       break;
-    case multi_llvm::Intrinsic::vector_reduce_fmin:
-    case multi_llvm::Intrinsic::vector_reduce_smin:
-    case multi_llvm::Intrinsic::vector_reduce_umin:
+    case Intrinsic::vector_reduce_fmin:
+    case Intrinsic::vector_reduce_smin:
+    case Intrinsic::vector_reduce_umin:
       // TODO: Need to handle Int (signed/unsigned) Min and FP Min
       isHandled = false;
       break;

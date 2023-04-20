@@ -3,43 +3,11 @@
 #define MULTI_LLVM_VECTOR_TYPE_HELPER_H_INCLUDED
 
 #include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/Type.h>
 #include <llvm/Support/TypeSize.h>
 #include <multi_llvm/llvm_version.h>
 
 namespace multi_llvm {
-
-// Vector Reduce Intrinsics IDs differentiate between LLVM versions. LLVM 12
-// now promotes them as first-class residents and drops the experimental bit.
-namespace Intrinsic {
-static constexpr const auto vector_reduce_and =
-    llvm::Intrinsic::vector_reduce_and;
-static constexpr const auto vector_reduce_or =
-    llvm::Intrinsic::vector_reduce_or;
-static constexpr const auto vector_reduce_xor =
-    llvm::Intrinsic::vector_reduce_xor;
-static constexpr const auto vector_reduce_add =
-    llvm::Intrinsic::vector_reduce_add;
-static constexpr const auto vector_reduce_mul =
-    llvm::Intrinsic::vector_reduce_mul;
-static constexpr const auto vector_reduce_fadd =
-    llvm::Intrinsic::vector_reduce_fadd;
-static constexpr const auto vector_reduce_fmul =
-    llvm::Intrinsic::vector_reduce_fmul;
-static constexpr const auto vector_reduce_fmax =
-    llvm::Intrinsic::vector_reduce_fmax;
-static constexpr const auto vector_reduce_smax =
-    llvm::Intrinsic::vector_reduce_smax;
-static constexpr const auto vector_reduce_umax =
-    llvm::Intrinsic::vector_reduce_umax;
-static constexpr const auto vector_reduce_fmin =
-    llvm::Intrinsic::vector_reduce_fmin;
-static constexpr const auto vector_reduce_smin =
-    llvm::Intrinsic::vector_reduce_smin;
-static constexpr const auto vector_reduce_umin =
-    llvm::Intrinsic::vector_reduce_umin;
-}  // namespace Intrinsic
 
 // LLVM 11 removes CompositeType and SequentialType classes, so this
 // is just a helper method to check for CA supported sequential types
