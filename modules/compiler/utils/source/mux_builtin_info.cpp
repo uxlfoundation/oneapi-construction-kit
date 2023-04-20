@@ -5,7 +5,12 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
+#include <multi_llvm/llvm_version.h>
 #include <multi_llvm/opaque_pointers.h>
+
+#if LLVM_VERSION_GREATER_EQUAL(16, 0)
+#include <llvm/Support/ModRef.h>
+#endif
 
 using namespace llvm;
 
@@ -791,7 +796,11 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M) {
                   ? Int32Ty
                   : SizeTy;
       // All of our mux getters are readonly - they may never write data
+#if LLVM_VERSION_GREATER_EQUAL(16, 0)
+      AB.addMemoryAttr(MemoryEffects::readOnly());
+#else
       AB.addAttribute(Attribute::ReadOnly);
+#endif
       break;
     }
     // Ranked Setters

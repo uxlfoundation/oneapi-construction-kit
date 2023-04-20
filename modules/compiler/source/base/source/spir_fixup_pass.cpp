@@ -54,18 +54,26 @@ static bool markNoUnwind(llvm::Function &F) {
 
 static bool markReadOnly(llvm::Function &func) {
   // replace readnone with readonly for work_item_funcs
-  if (!func.hasFnAttribute(llvm::Attribute::ReadNone) ||
+  if (!func.doesNotAccessMemory() ||
       work_item_funcs.count(func.getName()) == 0) {
     return false;
   }
+#if LLVM_VERSION_LESS(16, 0)
   func.removeFnAttr(llvm::Attribute::ReadNone);
-  func.addFnAttr(llvm::Attribute::ReadOnly);
+#else
+  func.removeFnAttr(llvm::Attribute::Memory);
+#endif
+  func.setOnlyReadsMemory();
   for (auto *user : func.users()) {
     if (auto *CI = llvm::dyn_cast<llvm::CallInst>(user)) {
-      if (CI->hasFnAttr(llvm::Attribute::ReadNone)) {
+      if (CI->doesNotAccessMemory()) {
+#if LLVM_VERSION_LESS(16, 0)
         CI->removeFnAttr(llvm::Attribute::ReadNone);
+#else
+        CI->removeFnAttr(llvm::Attribute::Memory);
+#endif
       }
-      CI->addFnAttr(llvm::Attribute::ReadOnly);
+      CI->setOnlyReadsMemory();
     }
   }
   return true;

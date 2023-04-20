@@ -128,8 +128,7 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
 
     Intrinsic::ID IntrID = (Intrinsic::ID)F.getIntrinsicID();
     AttributeList AS = Intrinsic::getAttributes(F.getContext(), IntrID);
-    bool NoSideEffect =
-        AS.hasFnAttr(Attribute::ReadNone) || AS.hasFnAttr(Attribute::ReadOnly);
+    bool NoSideEffect = F.onlyReadsMemory();
     bool SafeIntrinsic = false;
     switch (IntrID) {
       default:
