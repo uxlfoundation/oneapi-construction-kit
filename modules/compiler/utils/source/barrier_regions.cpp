@@ -692,7 +692,7 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
     // For a scalable vector, we need the size of the equivalent fixed vector
     // based on its known minimum size.
     auto member_ty_fixed = member_ty;
-    if (multi_llvm::isScalableVectorTy(member_ty)) {
+    if (isa<ScalableVectorType>(member_ty)) {
       auto *const eltTy = multi_llvm::getVectorElementType(member_ty);
       auto n = multi_llvm::getVectorElementCount(member_ty).getKnownMinValue();
       member_ty_fixed = VectorType::get(eltTy, ElementCount::getFixed(n));
@@ -718,7 +718,7 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
   // Deal with non-scalable members first
   unsigned offset = 0;
   for (auto &member : barrier_members) {
-    if (multi_llvm::isScalableVectorTy(member.type)) {
+    if (isa<ScalableVectorType>(member.type)) {
       continue;
     }
 
@@ -747,7 +747,7 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
   SmallVector<Type *, 128> field_tys_scalable;
   offset = 0;
   for (auto &member : barrier_members) {
-    if (!multi_llvm::isScalableVectorTy(member.type)) {
+    if (!isa<ScalableVectorType>(member.type)) {
       continue;
     }
 
@@ -967,7 +967,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
         data_ty = AI->getAllocatedType();
       }
 
-      if (!multi_llvm::isScalableVectorTy(data_ty)) {
+      if (!isa<ScalableVectorType>(data_ty)) {
         auto field_it = barrier.live_variable_index_map_.find(live);
         if (field_it == barrier.live_variable_index_map_.end()) {
           return nullptr;

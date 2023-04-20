@@ -115,7 +115,7 @@ PreservedAnalyses SimplifyMaskedMemOpsPass::run(Function &F,
             // theoretically possible to perform but without scalable-vector
             // builtins we can't test it; leave any theoretical scalable-vector
             // maksed mem operation unoptimized.
-            if (multi_llvm::isScalableVectorTy(DataTy)) {
+            if (isa<ScalableVectorType>(DataTy)) {
               continue;
             }
             Load = VTI.createLoad(B, CI->getType(), Ptr, B.getInt64(1));
@@ -130,7 +130,7 @@ PreservedAnalyses SimplifyMaskedMemOpsPass::run(Function &F,
             // theoretically possible to perform but without scalable-vector
             // builtins we can't test it; leave any theoretical scalable-vector
             // maksed mem operation unoptimized.
-            if (multi_llvm::isScalableVectorTy(DataTy)) {
+            if (isa<ScalableVectorType>(DataTy)) {
               continue;
             }
             VTI.createStore(B, Data, Ptr, B.getInt64(1),

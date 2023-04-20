@@ -901,7 +901,7 @@ TargetInfo::VPMemOpLegality TargetInfo::checkMemOpLegality(
     Type *Ty, unsigned Alignment) const {
   assert(Ty->isVectorTy() && "Expected a vector type");
   bool const isMaskLegal =
-      !(multi_llvm::isScalableVectorTy(Ty) && TM_) ||
+      !(isa<ScalableVectorType>(Ty) && TM_) ||
       Checker(TM_->getTargetTransformInfo(*F), Ty, Alignment);
   // Assuming a pointer bit width of 64
   bool isVPLegal = isMaskLegal && isVPVectorLegal(*F, Ty);

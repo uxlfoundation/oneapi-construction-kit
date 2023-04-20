@@ -32,7 +32,7 @@ bool IRToBuiltinReplacementPass::replaceInstruction(Module &module,
             ((ins.getNumOperands() == 2) &&
              (ins.getOperand(0)->getType() == ins.getOperand(1)->getType())) &&
             "Mangler not good enough for this instruction");
-        assert(!multi_llvm::isScalableVectorTy(ins.getType()));
+        assert(!isa<ScalableVectorType>(ins.getType()));
         Type *scalarType = ins.getOperand(0)->getType()->getScalarType();
         assert((scalarType->isFloatTy() || scalarType->isDoubleTy()) &&
                "Mangler not good enough for this instruction");

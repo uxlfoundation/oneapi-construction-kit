@@ -219,7 +219,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
   if (SimpleName) {
     O << SimpleName;
     return true;
-  } else if (multi_llvm::isScalableVectorTy(Ty)) {
+  } else if (isa<ScalableVectorType>(Ty)) {
     std::string tmp;
     raw_string_ostream Otmp(tmp);
     auto *VecTy = cast<llvm::VectorType>(Ty);

@@ -33,7 +33,7 @@ inline Type *getWideType(Type *ty, ElementCount factor) {
   if (!ty->isVectorTy()) {
     return VectorType::get(ty, factor);
   }
-  bool const isScalable = multi_llvm::isScalableVectorTy(ty);
+  bool const isScalable = isa<ScalableVectorType>(ty);
   assert((!factor.isScalable() || !isScalable) &&
          "Can't widen a scalable vector by a scalable amount");
   auto *vecTy = cast<llvm::VectorType>(ty);
@@ -201,7 +201,7 @@ Value *createOptimalShuffle(IRBuilder<> &B, Value *srcA, Value *srcB,
 bool createSubSplats(const vecz::TargetInfo &TI, IRBuilder<> &B,
                      SmallVectorImpl<Value *> &srcs, unsigned subWidth) {
   // Scalable sub-splats must be handled specially.
-  if (multi_llvm::isScalableVectorTy(srcs.front()->getType())) {
+  if (isa<ScalableVectorType>(srcs.front()->getType())) {
     if (srcs.size() != 1) {
       return false;
     }

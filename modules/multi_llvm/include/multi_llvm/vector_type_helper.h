@@ -51,13 +51,6 @@ inline unsigned getVectorKnownMinNumElements(llvm::Type *ty) {
 inline unsigned getVectorKnownMinNumElements(const llvm::Type *ty) {
   return getVectorElementCount(ty).getKnownMinValue();
 }
-
-inline bool isScalableVectorTy(llvm::Type *ty) {
-  return llvm::isa<llvm::ScalableVectorType>(ty);
-}
-inline bool isScalableVectorTy(const llvm::Type *ty) {
-  return llvm::isa<llvm::ScalableVectorType>(ty);
-}
 }  // namespace multi_llvm
 
 #endif  // MULTI_LLVM_VECTOR_TYPE_HELPER_H_INCLUDED
