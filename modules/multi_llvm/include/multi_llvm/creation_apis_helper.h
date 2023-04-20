@@ -13,27 +13,6 @@
 
 namespace multi_llvm {
 
-// LLVM 11 updates the CallInst constructors and creation APIs to consistently
-// accept a return-type argument. The constructors are private, so we only
-// handle the differences in the public Creation APIs for CallInst.
-
-static inline llvm::CallInst *createCallInst(llvm::Value *Callee,
-                                             llvm::FunctionType *FTy,
-                                             llvm::ArrayRef<llvm::Value *> Args,
-                                             const llvm::Twine &NameStr,
-                                             llvm::BasicBlock *InsertAtEnd) {
-  return llvm::CallInst::Create(llvm::FunctionCallee(FTy, Callee), Args,
-                                NameStr, InsertAtEnd);
-}
-
-inline llvm::CallInst *createCall(llvm::IRBuilder<> &Builder, llvm::Value *Func,
-                                  llvm::FunctionType *FTy,
-                                  llvm::ArrayRef<llvm::Value *> Args,
-                                  const llvm::Twine &Name = "",
-                                  llvm::MDNode *FPMathTag = nullptr) {
-  return Builder.CreateCall(FTy, Func, Args, Name, FPMathTag);
-}
-
 inline llvm::Value *createVectorSplat(llvm::IRBuilder<> &Builder,
                                       llvm::ElementCount EC, llvm::Value *V,
                                       const llvm::Twine &Name = "") {

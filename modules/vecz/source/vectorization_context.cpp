@@ -296,8 +296,8 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
     BasicBlock *immTrue =
         BasicBlock::Create(ctx, "active.imm.1", newFunction, mergeBlock);
     CIArgs[firstImmArg] = ConstantInt::getTrue(ctx);
-    CallInst *c0 = multi_llvm::createCallInst(CI->getCalledOperand(), FTy,
-                                              CIArgs, "", immTrue);
+    CallInst *c0 =
+        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", immTrue);
     c0->setCallingConv(cc);
     c0->setAttributes(callAttrs);
     BranchInst::Create(mergeBlock, immTrue);
@@ -307,8 +307,8 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
     BasicBlock *immFalse =
         BasicBlock::Create(ctx, "active.imm.0", newFunction, mergeBlock);
 
-    CallInst *c1 = multi_llvm::createCallInst(CI->getCalledOperand(), FTy,
-                                              CIArgs, "", immFalse);
+    CallInst *c1 =
+        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", immFalse);
     c1->setCallingConv(cc);
     c1->setAttributes(callAttrs);
     BranchInst::Create(mergeBlock, immFalse);
@@ -326,8 +326,8 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
   } else {
     // We are using the called Value instead of F because it might contain
     // a bitcast or something, which makes the function types different.
-    CallInst *c = multi_llvm::createCallInst(CI->getCalledOperand(), FTy,
-                                             CIArgs, "", activeBlock);
+    CallInst *c =
+        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", activeBlock);
     c->setCallingConv(cc);
     c->setAttributes(callAttrs);
     PhiOperands.push_back({c, activeBlock});

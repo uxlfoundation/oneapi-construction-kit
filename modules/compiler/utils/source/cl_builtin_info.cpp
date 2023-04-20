@@ -481,8 +481,8 @@ CLBuiltinInfo::~CLBuiltinInfo() = default;
 static CallInst *CreateBuiltinCall(IRBuilder<> &B, Function *Builtin,
                                    ArrayRef<Value *> Args,
                                    Twine const &NameStr = "") {
-  CallInst *CI = multi_llvm::createCall(B, Builtin, Builtin->getFunctionType(),
-                                        Args, NameStr);
+  CallInst *CI =
+      B.CreateCall(Builtin->getFunctionType(), Builtin, Args, NameStr);
   CI->setCallingConv(Builtin->getCallingConv());
   return CI;
 }

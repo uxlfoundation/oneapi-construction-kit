@@ -2286,8 +2286,7 @@ cargo::optional<Error> Builder::create<OpFunctionCall>(
     SPIRV_LL_ASSERT_PTR(arg);
     args.push_back(arg);
   }
-  auto call = multi_llvm::createCall(IRBuilder, callee,
-                                     callee->getFunctionType(), args);
+  auto call = IRBuilder.CreateCall(callee->getFunctionType(), callee, args);
   call->setCallingConv(llvm::cast<llvm::Function>(callee)->getCallingConv());
 
   // For each parameter we need to check whether to mirror any attributes on

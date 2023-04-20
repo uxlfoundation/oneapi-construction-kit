@@ -13,9 +13,6 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
-#include <multi_llvm/creation_apis_helper.h>
-#include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/vector_type_helper.h>
 
 #include <memory>
 
@@ -171,8 +168,8 @@ PacketRange InstantiationPass::instantiateCall(CallInst *CI) {
       for (unsigned i = 0; i < CI->arg_size(); i++) {
         Ops.push_back(OpPackets[i][j]);
       }
-      auto *NewCI = multi_llvm::createCall(
-          B, CI->getCalledOperand(), CI->getFunctionType(), Ops, CI->getName());
+      auto *NewCI = B.CreateCall(CI->getFunctionType(), CI->getCalledOperand(),
+                                 Ops, CI->getName());
       NewCI->setCallingConv(CI->getCallingConv());
       NewCI->setAttributes(CI->getAttributes());
       P[j] = NewCI;

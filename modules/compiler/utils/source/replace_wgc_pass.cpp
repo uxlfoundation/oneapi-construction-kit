@@ -46,9 +46,9 @@ CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
   auto *Semantics = Builder.getInt32(
       compiler::utils::BIMuxInfoConcept::MemSemanticsSequentiallyConsistent |
       compiler::utils::BIMuxInfoConcept::MemSemanticsWorkGroupMemory);
-  auto *const BarrierCall = multi_llvm::createCallInst(
-      Barrier, Barrier->getFunctionType(), {ID, Scope, Semantics}, "",
-      Builder.GetInsertBlock());
+  auto *const BarrierCall =
+      CallInst::Create(Barrier->getFunctionType(), Barrier,
+                       {ID, Scope, Semantics}, "", Builder.GetInsertBlock());
   return BarrierCall;
 }
 
