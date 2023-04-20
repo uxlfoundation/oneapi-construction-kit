@@ -44,11 +44,11 @@
 
 // We want to ensure that 1,S still produces the same "add" name
 // 1S: <__vecz_nxv1_add.mux-kernel-wrapper>
-// 1S: vsetvli {{[as][0-9]*}}, zero, e32, mf2, ta, mu
+// 1S: vsetvli {{[as][0-9]*}}, zero, e32, mf2, ta, {{(mu|ma)}}
 
 // We want to ensure that 1,S,V still produces the same "add" name
 // 1S_V: <__vecz_nxv1_add.mux-kernel-wrapper>
-// 1S_V: vsetvli {{[as][0-9]*}}, zero, e32, mf2, ta, mu
+// 1S_V: vsetvli {{[as][0-9]*}}, zero, e32, mf2, ta, {{(mu|ma)}}
 
 __kernel void add(__global int *in1, __global int *in2, __global int *out) {
   size_t tid = get_global_id(0);
