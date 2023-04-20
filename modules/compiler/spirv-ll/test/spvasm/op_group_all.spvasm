@@ -2,7 +2,7 @@
 
 ; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
 ; RUN: %spirv-ll -a OpenCL -b 64 %p/op_group_all.spv -o %t
-; RUN: %opt -S --always-inline %t -o - | %filecheck -- %t.pp
+; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %t.pp
 
                               OpCapability Addresses
                               OpCapability Kernel

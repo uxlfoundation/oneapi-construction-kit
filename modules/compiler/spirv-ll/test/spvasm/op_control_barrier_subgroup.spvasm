@@ -1,7 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; RUN: %spirv-ll -a OpenCL -b 64 %p/op_control_barrier_subgroup.spv -o %t
-; RUN: %opt -S --always-inline %t -o - | %filecheck -- %s
+; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %s
                OpCapability Addresses
                OpCapability Kernel
           %1 = OpExtInstImport "OpenCL.std"
