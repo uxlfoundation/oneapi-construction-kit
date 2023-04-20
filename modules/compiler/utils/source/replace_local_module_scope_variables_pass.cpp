@@ -245,13 +245,16 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
   if (const auto NMD = M.getNamedMetadata("llvm.dbg.cu")) {
     DIBuilder DIB(M, /*AllowUnresolved*/ false);
 
-    // Find module compilation unit
-    DICompileUnit *CU = cast<DICompileUnit>(NMD->getOperand(0));
+    for (auto *CUOp : NMD->operands()) {
+      // Find module compilation unit
+      DICompileUnit *CU = cast<DICompileUnit>(CUOp);
 
-    // Check if there are any debug info global variables, as the DMA
-    // pass can create global variables without debug metadata attached.
-    auto DIGlobalVariables = CU->getGlobalVariables();
-    if (DIGlobalVariables.size()) {
+      // Check if there are any debug info global variables, as the DMA
+      // pass can create global variables without debug metadata attached.
+      auto DIGlobalVariables = CU->getGlobalVariables();
+      if (DIGlobalVariables.empty()) {
+        continue;
+      }
       // Updated list of global debug info variables so that it no longer
       // contains entries we will later replace with DILocalVariable metadata
       SmallVector<Metadata *, 2> CU_DIExprs;
