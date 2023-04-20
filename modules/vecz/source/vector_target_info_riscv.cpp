@@ -221,7 +221,8 @@ llvm::Value *getIntrinsicVL(llvm::IRBuilderBase &B, llvm::Value *VL,
 
   // Else create a 'default' VL which covers the entire scalable vector.
   return B.CreateVScale(
-      B.getIntN(XLenTyWidth, multi_llvm::getVectorKnownMinNumElements(wideTy)),
+      B.getIntN(XLenTyWidth,
+                cast<VectorType>(wideTy)->getElementCount().getKnownMinValue()),
       N);
 }
 

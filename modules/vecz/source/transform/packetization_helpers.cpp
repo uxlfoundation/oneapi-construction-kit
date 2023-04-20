@@ -37,7 +37,7 @@ inline Type *getWideType(Type *ty, ElementCount factor) {
   assert((!factor.isScalable() || !isScalable) &&
          "Can't widen a scalable vector by a scalable amount");
   auto *vecTy = cast<llvm::VectorType>(ty);
-  unsigned elts = multi_llvm::getVectorKnownMinNumElements(vecTy);
+  unsigned elts = vecTy->getElementCount().getKnownMinValue();
   // If we're widening a scalable type then set the fixed factor to scalable
   // here.
   if (isScalable && !factor.isScalable()) {
