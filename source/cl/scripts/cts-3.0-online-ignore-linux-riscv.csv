@@ -1289,20 +1289,6 @@ SVM,SVM/test_svm svm_pointer_passing
 SVM,SVM/test_svm svm_enqueue_api
 SVM,SVM/test_svm svm_migrate
 
-Workgroups,workgroups/test_workgroups work_group_all
-Workgroups,workgroups/test_workgroups work_group_any
-Workgroups,workgroups/test_workgroups work_group_reduce_add
-Workgroups,workgroups/test_workgroups work_group_reduce_min
-Workgroups,workgroups/test_workgroups work_group_reduce_max
-Workgroups,workgroups/test_workgroups work_group_scan_inclusive_add
-Workgroups,workgroups/test_workgroups work_group_scan_inclusive_min
-Workgroups,workgroups/test_workgroups work_group_scan_inclusive_max
-Workgroups,workgroups/test_workgroups work_group_scan_exclusive_add
-Workgroups,workgroups/test_workgroups work_group_scan_exclusive_min
-Workgroups,workgroups/test_workgroups work_group_scan_exclusive_max
-Workgroups,workgroups/test_workgroups work_group_broadcast_1D
-Workgroups,workgroups/test_workgroups work_group_broadcast_2D
-Workgroups,workgroups/test_workgroups work_group_broadcast_3D
 Device timer,device_timer/test_device_timer timer_resolution_queries
 Device timer,device_timer/test_device_timer device_and_host_timers
 SPIRV new,spirv_new/test_spirv_new ext_cl_khr_spirv_no_integer_wrap_decoration_fadd_int
@@ -1321,21 +1307,7 @@ Mipmaps (Kernel),images/kernel_read_write/test_image_streams test_mipmaps CL_FIL
 Mipmaps (clCopyImage),images/clCopyImage/test_cl_copy_images
 Mipmaps (clReadWriteImage),images/clReadWriteImage/test_cl_read_write_images test_mipmaps
 
-Subgroups,subgroups/test_subgroups sub_group_info_ext
-Subgroups,subgroups/test_subgroups sub_group_info_core
-Subgroups,subgroups/test_subgroups work_item_functions_ext
-Subgroups,subgroups/test_subgroups work_item_functions_core
-Subgroups,subgroups/test_subgroups barrier_functions_ext
-Subgroups,subgroups/test_subgroups barrier_functions_core
-Subgroups,subgroups/test_subgroups ifp_ext
-Subgroups,subgroups/test_subgroups ifp_core
-
 # TODO(CA-4540): Fix cl12/api/test_api/sub_group_dispatch.
 API,api/test_api sub_group_dispatch
 # TODO(CA-3562): Re-enable (or remove) this test when it has been fixed.
 SPIR (cl_khr_spir),spir/test_spir kernel_attributes no-unzip
-# TODO(CA-4255)
-Subgroups,subgroups/test_subgroups work_group_functions_ext
-# TODO(CA-4255)
-Subgroups,subgroups/test_subgroups work_group_functions_core
-Subgroups,subgroups/test_subgroups subgroup_functions_core
