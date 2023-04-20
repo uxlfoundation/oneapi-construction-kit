@@ -2071,10 +2071,10 @@ Value *CLBuiltinInfo::emitBuiltinInlineAsLLVMBinaryIntrinsic(
     auto VectorEC =
         multi_llvm::getVectorElementCount(LHSTy->isVectorTy() ? LHSTy : RHSTy);
     if (!LHS->getType()->isVectorTy()) {
-      LHS = multi_llvm::createVectorSplat(B, VectorEC, LHS);
+      LHS = B.CreateVectorSplat(VectorEC, LHS);
     }
     if (!RHS->getType()->isVectorTy()) {
-      RHS = multi_llvm::createVectorSplat(B, VectorEC, RHS);
+      RHS = B.CreateVectorSplat(VectorEC, RHS);
     }
   }
   return B.CreateBinaryIntrinsic(ID, LHS, RHS);

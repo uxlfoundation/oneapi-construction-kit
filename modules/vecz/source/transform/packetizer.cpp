@@ -1324,8 +1324,8 @@ Value *Packetizer::Impl::packetizeMaskVarying(Instruction *I) {
     anyOfMask->setName("any_of_mask");
 
     if (isVector) {
-      anyOfMask = multi_llvm::createVectorSplat(
-          B, multi_llvm::getVectorElementCount(desc.getDataType()), anyOfMask);
+      anyOfMask = B.CreateVectorSplat(
+          multi_llvm::getVectorElementCount(desc.getDataType()), anyOfMask);
     }
 
     memop->setMaskOperand(anyOfMask);
@@ -1935,7 +1935,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
       // Modulo the indices 0,1,2,.. with the original vector type, producing,
       // e.g., for the above: <0,1,2,3,0,1,2,3>
       auto *const subVecEltsSplat =
-          multi_llvm::createVectorSplat(B, wideEC, B.getInt32(scalarWidth));
+          B.CreateVectorSplat(wideEC, B.getInt32(scalarWidth));
       idxVector = B.CreateURem(idxVector, subVecEltsSplat);
       // Index into the pointer vector with the offsets, e.g.,:
       // <A, A+1, A+2, A+3, B, B+1, B+2, B+3>
@@ -2716,7 +2716,7 @@ Value *Packetizer::Impl::vectorizeWorkGroupCall(
   // get_global_id with other ranks is uniform.
 
   // Broadcast the builtin's return value.
-  Value *Splat = multi_llvm::createVectorSplat(B, SimdWidth, CI);
+  Value *Splat = B.CreateVectorSplat(SimdWidth, CI);
 
   // Add an index sequence [0, 1, 2, ...] to the value unless uniform.
   auto const Uniformity = Builtin.uniformity;

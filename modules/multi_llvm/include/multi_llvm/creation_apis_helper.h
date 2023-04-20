@@ -13,12 +13,6 @@
 
 namespace multi_llvm {
 
-inline llvm::Value *createVectorSplat(llvm::IRBuilder<> &Builder,
-                                      llvm::ElementCount EC, llvm::Value *V,
-                                      const llvm::Twine &Name = "") {
-  return Builder.CreateVectorSplat(EC, V, Name);
-}
-
 inline llvm::Value *createAllTrueMask(llvm::IRBuilder<> &B,
                                       llvm::ElementCount EC) {
   return llvm::ConstantInt::getTrue(llvm::VectorType::get(B.getInt1Ty(), EC));

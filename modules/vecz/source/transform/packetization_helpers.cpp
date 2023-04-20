@@ -238,7 +238,7 @@ Value *sanitizeVPReductionInput(IRBuilder<> &B, Value *Val, Value *VL,
                                 RecurKind Kind) {
   Type *const ValTy = Val->getType();
   ElementCount const EC = multi_llvm::getVectorElementCount(ValTy);
-  Value *const VLSplat = multi_llvm::createVectorSplat(B, EC, VL);
+  Value *const VLSplat = B.CreateVectorSplat(EC, VL);
   Value *const IdxVec = multi_llvm::createIndexSequence(
       B, VectorType::get(VL->getType(), EC), EC);
   Value *const ActiveMask = B.CreateICmp(CmpInst::ICMP_ULT, IdxVec, VLSplat);
@@ -253,8 +253,8 @@ Value *getGatherIndicesVector(IRBuilder<> &B, Value *Indices, Type *Ty,
   auto const EltCount = multi_llvm::getVectorElementCount(Ty);
   auto *const ElTy = multi_llvm::getVectorElementType(Ty);
 
-  auto *const FixedVecEltsSplat = multi_llvm::createVectorSplat(
-      B, EltCount, ConstantInt::get(ElTy, FixedVecElts));
+  auto *const FixedVecEltsSplat =
+      B.CreateVectorSplat(EltCount, ConstantInt::get(ElTy, FixedVecElts));
   auto *const StepsMul = B.CreateMul(Steps, FixedVecEltsSplat);
   return B.CreateAdd(StepsMul, Indices, N);
 }
@@ -561,8 +561,7 @@ Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
   // above as it generates more canonical code, e.g., a splat of 0 becomes
   // zeroinitializer rather than a insertelement/shufflevector sequence.
   if (const auto *const splat = getSplatValue(subvec)) {
-    return multi_llvm::createVectorSplat(B, wideEltCount,
-                                         const_cast<Value *>(splat));
+    return B.CreateVectorSplat(wideEltCount, const_cast<Value *>(splat));
   }
 
   // Compiler support for masked.gather on i1 vectors is lacking, so emit this
@@ -630,7 +629,7 @@ const Packetizer::Result &Packetizer::Result::broadcast(unsigned width) const {
     result = ConstantVector::getSplat(factor, C);
   } else {
     IRBuilder<> B(buildAfter(scalar, packetizer.F));
-    result = multi_llvm::createVectorSplat(B, factor, scalar);
+    result = B.CreateVectorSplat(factor, scalar);
   }
 
   if (!result) {

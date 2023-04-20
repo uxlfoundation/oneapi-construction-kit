@@ -323,7 +323,7 @@ llvm::Value *TargetInfoRISCV::createScalableExtractElement(
   // If the index is uniform, it may not be a vector. We need one for the
   // intrinsic, so splat it here.
   if (!isIdxVector) {
-    index = multi_llvm::createVectorSplat(B, resEC, index);
+    index = B.CreateVectorSplat(resEC, index);
   }
 
   // Construct the indices such that each packetized index (still indexing into
@@ -499,7 +499,7 @@ llvm::Value *TargetInfoRISCV::createScalableInsertElement(
   // If the index is uniform, it may not be a vector. We need one for the
   // intrinsic, so splat it here.
   if (!indexIsVector) {
-    index = multi_llvm::createVectorSplat(B, intoEC, index);
+    index = B.CreateVectorSplat(intoEC, index);
   } else {
     index = createInnerScalableBroadcast(B, index, VL, fixedAmt);
   }

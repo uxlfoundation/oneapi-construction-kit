@@ -400,7 +400,7 @@ Value *TargetInfo::createInterleavedLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
                                          Value *Stride, Value *EVL,
                                          unsigned Alignment) const {
   auto EC = multi_llvm::getVectorElementCount(Ty);
-  auto *const Mask = multi_llvm::createVectorSplat(B, EC, B.getTrue());
+  auto *const Mask = B.CreateVectorSplat(EC, B.getTrue());
   return createMaskedInterleavedLoad(B, Ty, Ptr, Mask, Stride, EVL, Alignment);
 }
 
@@ -408,7 +408,7 @@ Value *TargetInfo::createInterleavedStore(IRBuilder<> &B, Value *Data,
                                           Value *Ptr, Value *Stride, Value *EVL,
                                           unsigned Alignment) const {
   auto EC = multi_llvm::getVectorElementCount(Data->getType());
-  auto *const Mask = multi_llvm::createVectorSplat(B, EC, B.getTrue());
+  auto *const Mask = B.CreateVectorSplat(EC, B.getTrue());
   return createMaskedInterleavedStore(B, Data, Ptr, Mask, Stride, EVL,
                                       Alignment);
 }
@@ -423,9 +423,8 @@ Value *TargetInfo::createMaskedInterleavedLoad(IRBuilder<> &B, Type *Ty,
       cast<PointerType>(Ptr->getType()), Ty->getScalarType()));
 
   auto EC = multi_llvm::getVectorElementCount(Ty);
-  Value *BroadcastAddr =
-      multi_llvm::createVectorSplat(B, EC, Ptr, "BroadcastAddr");
-  Value *StrideSplat = multi_llvm::createVectorSplat(B, EC, Stride);
+  Value *BroadcastAddr = B.CreateVectorSplat(EC, Ptr, "BroadcastAddr");
+  Value *StrideSplat = B.CreateVectorSplat(EC, Stride);
 
   Value *IndicesVector =
       multi_llvm::createIndexSequence(B, StrideSplat->getType(), EC);
@@ -447,9 +446,8 @@ Value *TargetInfo::createMaskedInterleavedStore(IRBuilder<> &B, Value *Data,
   assert(multi_llvm::isOpaqueOrPointeeTypeMatches(
       cast<PointerType>(Ptr->getType()), Data->getType()->getScalarType()));
   auto EC = multi_llvm::getVectorElementCount(Data->getType());
-  Value *BroadcastAddr =
-      multi_llvm::createVectorSplat(B, EC, Ptr, "BroadcastAddr");
-  Value *StrideSplat = multi_llvm::createVectorSplat(B, EC, Stride);
+  Value *BroadcastAddr = B.CreateVectorSplat(EC, Ptr, "BroadcastAddr");
+  Value *StrideSplat = B.CreateVectorSplat(EC, Stride);
 
   Value *IndicesVector =
       multi_llvm::createIndexSequence(B, StrideSplat->getType(), EC);
@@ -465,14 +463,14 @@ Value *TargetInfo::createMaskedInterleavedStore(IRBuilder<> &B, Value *Data,
 Value *TargetInfo::createGatherLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
                                     Value *EVL, unsigned Alignment) const {
   auto EC = multi_llvm::getVectorElementCount(Ty);
-  auto *const Mask = multi_llvm::createVectorSplat(B, EC, B.getTrue());
+  auto *const Mask = B.CreateVectorSplat(EC, B.getTrue());
   return createMaskedGatherLoad(B, Ty, Ptr, Mask, EVL, Alignment);
 }
 
 Value *TargetInfo::createScatterStore(IRBuilder<> &B, Value *Data, Value *Ptr,
                                       Value *EVL, unsigned Alignment) const {
   auto EC = multi_llvm::getVectorElementCount(Data->getType());
-  auto *const Mask = multi_llvm::createVectorSplat(B, EC, B.getTrue());
+  auto *const Mask = B.CreateVectorSplat(EC, B.getTrue());
   return createMaskedScatterStore(B, Data, Ptr, Mask, EVL, Alignment);
 }
 
@@ -780,8 +778,7 @@ Value *TargetInfo::createScalableBroadcast(IRBuilder<> &B, Value *vector,
   auto *const gep =
       B.CreateInBoundsGEP(eltTy, bcastalloc, stepsRem, "vec.alloc");
   auto *const boolTrue = ConstantInt::getTrue(B.getContext());
-  auto *const mask =
-      multi_llvm::createVectorSplat(B, wideEltCount, boolTrue, "truemask");
+  auto *const mask = B.CreateVectorSplat(wideEltCount, boolTrue, "truemask");
   // Set the alignment to that of vector element type.
   auto alignment = MaybeAlign(eltTy->getScalarSizeInBits() / 8).valueOrOne();
   return B.CreateMaskedGather(wideTy, gep, alignment, mask,
@@ -804,9 +801,8 @@ Value *TargetInfo::createBroadcastIndexVector(IRBuilder<> &B, Type *ty,
     fixedAmt = factorMinVal;
     Opc = BinaryOperator::UDiv;
   }
-  auto *const vectorEltsSplat = multi_llvm::createVectorSplat(
-      B, tyEC,
-      ConstantInt::get(multi_llvm::getVectorElementType(ty), fixedAmt));
+  auto *const vectorEltsSplat = B.CreateVectorSplat(
+      tyEC, ConstantInt::get(multi_llvm::getVectorElementType(ty), fixedAmt));
   return B.CreateBinOp(Opc, steps, vectorEltsSplat, N);
 }
 
@@ -871,8 +867,8 @@ Value *TargetInfo::createScalableInsertElement(IRBuilder<> &B,
     auto narrowEltCount = multi_llvm::getVectorElementCount(eltTy);
 
     auto *steps = B.CreateStepVector(index->getType(), "idx0");
-    auto *const fixedVecEltsSplat = multi_llvm::createVectorSplat(
-        B, narrowEltCount,
+    auto *const fixedVecEltsSplat = B.CreateVectorSplat(
+        narrowEltCount,
         ConstantInt::get(index->getType()->getScalarType(), fixedVecElts));
     auto *const stepsMul = B.CreateMul(steps, fixedVecEltsSplat, "idx.scale");
     index = B.CreateAdd(stepsMul, index, "idx");
@@ -997,7 +993,7 @@ llvm::Value *TargetInfo::createVectorShuffle(llvm::IRBuilder<> &B,
     auto *const step = B.CreateStepVector(IndexTy);
     gatherMask = B.CreateICmpULT(step, B.CreateVectorSplat(EC, evl));
   } else {
-    gatherMask = multi_llvm::createVectorSplat(B, eltCount, B.getTrue());
+    gatherMask = B.CreateVectorSplat(eltCount, B.getTrue());
   }
 
   return B.CreateMaskedGather(dstTy, gep, alignment, gatherMask,
