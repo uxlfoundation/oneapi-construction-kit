@@ -96,8 +96,7 @@ unsigned calculateBlockCost(const BasicBlock &BB,
 unsigned calculateBoolReductionCost(LLVMContext &context, Module *module,
                                     const TargetTransformInfo &TTI,
                                     llvm::ElementCount width) {
-  Type *cond_ty =
-      FixedVectorType::get(Type::getInt1Ty(context), width.getFixedValue());
+  Type *cond_ty = VectorType::get(Type::getInt1Ty(context), width);
 
   FunctionType *new_fty =
       FunctionType::get(Type::getVoidTy(context), {cond_ty}, false);
