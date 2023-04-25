@@ -880,13 +880,6 @@ TEST_P(HalfMathBuiltins, Precision_31_Half_Nan) {
   }
   const unsigned vec_width = getParam();
 
-// TODO: CA-1477 Asserts in Aarch64 LLVM backend
-#if defined(__aarch64__)
-  if (2 == vec_width) {
-    GTEST_SKIP();
-  }
-#endif
-
   auto env = ucl::Environment::instance;
   const ucl::MathMode math_mode = env->math_mode;
   const size_t N = HalfInputSizes::getInputSize(math_mode);
