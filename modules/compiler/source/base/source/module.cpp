@@ -1547,8 +1547,14 @@ Result BaseModule::compileOpenCLC(
   clang::EmitLLVMOnlyAction action(&context.llvm_context);
 
   // Prepare the action for processing kernelFile
-  if (!action.BeginSourceFile(instance, kernelFile)) {
-    return Result::COMPILE_PROGRAM_FAILURE;
+  {
+    // BeginSourceFile accesses LLVM global variables: LLVMTimePassesEnabled
+    // and LLVMTimePassesPerRun.
+    std::lock_guard<std::mutex> globalLock(
+        compiler::utils::getLLVMGlobalMutex());
+    if (!action.BeginSourceFile(instance, kernelFile)) {
+      return Result::COMPILE_PROGRAM_FAILURE;
+    }
   }
 
   loadBuiltinsPCH(instance);

@@ -316,6 +316,8 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     {
       tracer::TraceGuard<tracer::Impl> traceGuard("MCJIT");
       target.engine->addModule(std::move(optimized_module));
+      std::lock_guard<std::mutex> globalLock(
+          compiler::utils::getLLVMGlobalMutex());
       target.engine->finalizeObject();
       if (target.engine->hasError()) {
         if (auto callback = target.getNotifyCallbackFn()) {
