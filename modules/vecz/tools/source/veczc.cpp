@@ -32,7 +32,6 @@
 
 #include <string>
 
-#include "dxil_bitcode.h"
 #include "multi_llvm/multi_llvm.h"
 #include "vecz/pass.h"
 #include "vecz/vecz_target_info.h"
@@ -281,7 +280,6 @@ int main(const int argc, const char *const argv[]) {
       llvm::parseIRFile(InputFilename, err, context);
 
   if (!module) {
-    // Try to load a DXIL binary.
     auto errorOrInputFile =
         llvm::MemoryBuffer::getFileOrSTDIN(InputFilename.getValue());
 
@@ -292,26 +290,10 @@ int main(const int argc, const char *const argv[]) {
       return 1;
     }
 
-    auto inputFile = std::move(errorOrInputFile.get());
-
-    auto bufferStart =
-        reinterpret_cast<const unsigned char *>(inputFile->getBufferStart());
-    auto bufferEnd =
-        reinterpret_cast<const unsigned char *>(inputFile->getBufferEnd());
-
-    if (isDXILBitcode(bufferStart, bufferEnd)) {
-      module = parseDXILModule(*inputFile, context);
-
-      if (!module) {
-        llvm::errs() << "Error: DXIL bitcode file was malformed\n";
-        return 1;
-      }
-    } else {
-      llvm::errs() << "Error: bitcode file was malformed\n";
-      err.print("veczc", llvm::errs(),
-                llvm::sys::Process::StandardErrHasColors());
-      return 1;
-    }
+    llvm::errs() << "Error: bitcode file was malformed\n";
+    err.print("veczc", llvm::errs(),
+              llvm::sys::Process::StandardErrHasColors());
+    return 1;
   }
 
   KernelOptMap kernelOpts;

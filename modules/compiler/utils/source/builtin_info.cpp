@@ -2,7 +2,6 @@
 
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/cl_builtin_info.h>
-#include <compiler/utils/dxil_builtin_info.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
@@ -17,10 +16,7 @@ namespace utils {
 AnalysisKey BuiltinInfoAnalysis::Key;
 
 BuiltinInfoAnalysis::BuiltinInfoAnalysis()
-    : BICallback([](const Module &M) -> BuiltinInfo {
-        if (M.getTargetTriple() == "dxil-ms-dx") {
-          return BuiltinInfo(std::make_unique<DXILBuiltinInfo>());
-        }
+    : BICallback([](const Module &) -> BuiltinInfo {
         return BuiltinInfo(std::make_unique<CLBuiltinInfo>(nullptr));
       }) {}
 

@@ -9,14 +9,7 @@ the kernel compilation process. This is done by providing the
 `-cl-wfv={always|auto}` option before running any OpenCL program.
 
 Vecz ships with a standalone tool called `veczc`. This tool will consume LLVM IR
-- in bitcode or textual format - or a
-[DXIL](https://github.com/Microsoft/DirectXShaderCompiler/blob/master/docs/DXIL.rst)
-binary, producing vectorized output.
-
-Vecz additionally ships with a standalone tool called `dx2llvm`. This tool will
-consume a
-[DXIL](https://github.com/Microsoft/DirectXShaderCompiler/blob/master/docs/DXIL.rst)
-binary, producing an equivalent LLVM bitcode file.
+- in bitcode or textual format, producing vectorized output.
 
 ## Design ideas
 
@@ -32,7 +25,7 @@ Vecz relies on certain other classes and functions provided by
 `compiler::utils`.  The `BuiltinInfo` interface is used to ascertain certain
 properties of OpenCL builtin functions such as whether a particular function
 has a vector equivalent, or whether it is a work item ID query. Specific
-implementations of the interface are provided for OpenCL and for DXIL.
+implementations of the interface are provided for OpenCL.
 
 Before running vecz, it is recommended to run the
 `compiler::utils::OptimalBuiltinReplacementPass`. This replaces certain builtin
@@ -1267,8 +1260,8 @@ vectorization failures. The remarks can be enabled by passing the
 ## veczc - the VECZ Compiler
 
 The command line tool veczc is a standalone compiler that is used to vectorize
-LLVM bitcode binary files or DXIL binary files. Its main use is in our vecz
-LIT-based testing (see modules/vecz/test).
+LLVM bitcode binary files. Its main use is in our vecz LIT-based testing (see
+modules/vecz/test).
 
 It has the following arguments:
 
@@ -1313,28 +1306,12 @@ It supports bitcode files with the following target triples:
 
 * `spir-unknown-unknown` 32-bit SPIR binaries
 * `spir64-unknown-unknown` 64-bit SPIR binaries
-* `dxil-ms-dx` DXIL binaries
 
 Because veczc doesn't load all of the builtins prior to vectorization,
 declarations of scalar or vector versions of any builtins used in the input file
 must be present, otherwise scalarization or packetization will not be able to
 materialize the scalarized/vectorized builtin calls and veczc will fail with an
 error message.
-
-## dx2llvm - the DXIL to LLVM bitcode translator
-
-The command line tool dx2llvm is a standalone tool that is used to translate
-DXIL binary files to LLVM bitcode. The resulting LLVM bitcode file can then be
-modified as needed, and then passed to veczc to be vectorized as a DXIL module.
-
-To translate a DXIL binary file, run
-
-```
-./bin/dx2llvm <in-dxil.bc> -o <out-llvm.bc>
-```
-
-Translation will fail if the input file is not a valid DXIL bitcode file or if
-the LLVM module contained within is not valid.
 
 ## References
 

@@ -182,14 +182,6 @@ Value *OptimalBuiltinReplacementPass::replaceBuiltinWithInlineIR(
   assert(Callee);
   StringRef BaseName = mangler.demangleName(Callee->getName(), Types, Quals);
 
-  // FIXME: We'd ideally check here whether BaseName is empty (failure) but
-  // some builtins *do* fail: * DXIL builtins aren't demangleable with this
-  // mangler.
-  // * CA-3852 prevents demangling of builtins like vload.
-  // if (BaseName.empty()) {
-  //   return nullptr;
-  // }
-
   for (const auto &replace_fn : replacements) {
     if (replace_fn) {
       if (auto *V = replace_fn(CB, BaseName, Types, Quals)) {
@@ -212,15 +204,12 @@ PreservedAnalyses OptimalBuiltinReplacementPass::run(LazyCallGraph::SCC &C,
     return PreservedAnalyses::all();
   }
   Module &M = *C.begin()->getFunction().getParent();
-  const auto &Triple = M.getTargetTriple();
+
   // Check that at least one node in this graph is a kernel.
-  // DXIL doesn't have identifiable kernels. This is somewhat hacky.
-  if (Triple != "dxil-ms-dx") {
-    if (none_of(C, [](const LazyCallGraph::Node &N) {
-          return N.getFunction().getCallingConv() == CallingConv::SPIR_KERNEL;
-        })) {
-      return PreservedAnalyses::all();
-    }
+  if (none_of(C, [](const LazyCallGraph::Node &N) {
+        return N.getFunction().getCallingConv() == CallingConv::SPIR_KERNEL;
+      })) {
+    return PreservedAnalyses::all();
   }
 
   const auto &MAMProxy = AM.getResult<ModuleAnalysisManagerCGSCCProxy>(C, CG);

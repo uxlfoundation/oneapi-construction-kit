@@ -17,7 +17,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/degenerate_sub_group_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/device_info.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/dma.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/dxil_builtin_info.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_builtin_range_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_kernel_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/fixup_calling_convention_pass.h
@@ -67,7 +66,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/define_mux_dma_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/degenerate_sub_group_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/dma.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/dxil_builtin_info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_builtin_range_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_kernel_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fixup_calling_convention_pass.cpp

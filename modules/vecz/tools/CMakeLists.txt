@@ -11,11 +11,3 @@ llvm_map_components_to_libnames(llvm_libs all ${LLVM_TARGETS_TO_BUILD})
 list(REMOVE_ITEM llvm_libs LTO OptRemarks)
 target_link_libraries(veczc PUBLIC vecz multi_llvm compiler-utils ${llvm_libs})
 install(TARGETS veczc RUNTIME DESTINATION bin COMPONENT VECZ)
-
-add_ca_executable(dx2llvm ${CMAKE_CURRENT_SOURCE_DIR}/source/dx2llvm.cpp)
-target_compile_options(dx2llvm PRIVATE ${VECZ_COMPILE_OPTIONS})
-target_compile_definitions(dx2llvm PRIVATE ${VECZ_COMPILE_DEFINITIONS})
-target_include_directories(dx2llvm PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(dx2llvm PUBLIC vecz
-  LLVMBitReader LLVMBitWriter LLVMCore)
-install(TARGETS dx2llvm RUNTIME DESTINATION bin COMPONENT VECZ)
