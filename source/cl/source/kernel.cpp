@@ -1611,7 +1611,6 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
   if (error) {
     return error;
   }
-  cl::Finish(command_queue);
 
   return CL_SUCCESS;
 }
