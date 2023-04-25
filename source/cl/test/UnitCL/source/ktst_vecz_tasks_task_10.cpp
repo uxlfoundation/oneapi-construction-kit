@@ -11,12 +11,7 @@
 
 using namespace kts::ucl;
 
-#if defined(__aarch64__)
-// CA-1462: This test has an LLVM 7.0 AArch64 "Cannot select" failure.
-TEST_P(Execution, DISABLED_Task_10_01_Shuffle_Constant) {
-#else
 TEST_P(Execution, Task_10_01_Shuffle_Constant) {
-#endif
   // TODO: CA-2214: Remove when fixed upstream
   if (UCL::isDevice_Oclgrind(this->device) ||
       UCL::isDevice_IntelNeo(this->device)) {
