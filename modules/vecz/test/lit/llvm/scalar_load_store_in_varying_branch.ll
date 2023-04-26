@@ -33,7 +33,7 @@ merge:
 
 ; CHECK: define spir_kernel void @__vecz_v4_test
 ; CHECK: %[[BITCAST:[0-9]+]] = bitcast <4 x i1> %cmp3 to i4
-; CHECK: %[[MASK:[0-9]+]] = icmp ne i4 %[[BITCAST]], 0
+; CHECK: %[[MASK:.+]] = icmp ne i4 %[[BITCAST]], 0
 ; CHECK-GE15: %single_load{{[0-9]*}} = call i32 @__vecz_b_masked_load4_ju3ptrU3AS1b(ptr addrspace(1) %in, i1 %[[MASK]])
 ; CHECK-GE15: %multi_load = load i32, ptr addrspace(1) %in
 ; CHECK-LT15: %single_load{{[0-9]*}} = call i32 @__vecz_b_masked_load4_jPU3AS1jb(i32 addrspace(1)* %in, i1 %[[MASK]])

@@ -54,6 +54,6 @@ declare spir_func i64 @_Z12get_group_idj(i32)
 ; CHECK-GE15: define <vscale x 4 x i32> @__vecz_b_masked_load4_u5nxv4ju3ptrU3AS2u5nxv4b(ptr addrspace(2){{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
 ; CHECK-LT15: define <vscale x 4 x i32> @__vecz_b_masked_load4_u5nxv4jPU3AS2u5nxv4ju5nxv4b(<vscale x 4 x i32> addrspace(2)*{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
 ; CHECK: entry:
-; CHECK-GE15: %2 = call <vscale x 4 x i32> @llvm.masked.load.nxv4i32.p2(ptr addrspace(2) %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> undef)
+; CHECK-GE15: %2 = call <vscale x 4 x i32> @llvm.masked.load.nxv4i32.p2(ptr addrspace(2) %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> {{undef|poison}})
 ; CHECK-LT15: %2 = call <vscale x 4 x i32> @llvm.masked.load.nxv4i32.p2nxv4i32(<vscale x 4 x i32> addrspace(2)* %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> undef)
 ; CHECK: ret <vscale x 4 x i32> %2

@@ -107,7 +107,10 @@ entry:
 ; EE-UNI-VEC: [[T5:%.*]] = add <vscale x 4 x i64> [[T4]], [[STEP]]
 ; EE-UNI-VEC: [[MOD:%.*]] = and <vscale x 4 x i64> [[T5]], shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> {{(undef|poison)}}, i64 3, {{(i32|i64)}} 0), <vscale x 4 x i64> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; EE-UNI-VEC: [[T6:%.*]] = shl <vscale x 4 x i64> [[STEP]], shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> {{(undef|poison)}}, i64 2, {{(i32|i64)}} 0), <vscale x 4 x i64> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; EE-UNI-VEC: [[T7:%.*]] = add <vscale x 4 x i64> [[T6]], [[MOD]]
+
+; LLVM 16 deduces add/or equivalence and uses `or` instead.
+; EE-UNI-VEC: [[T7:%.*]] = {{add|or}} <vscale x 4 x i64> [[T6]], [[MOD]]
+
 ; EE-UNI-VEC-GE15: [[T8:%.*]] = getelementptr inbounds float, ptr {{%.*}}, <vscale x 4 x i64> [[T7]]
 ; EE-UNI-VEC-LT15: [[T8:%.*]] = getelementptr inbounds float, float* {{%.*}}, <vscale x 4 x i64> [[T7]]
 ; EE-UNI-VEC-GE15: [[T9:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x ptr> [[T8]])
@@ -122,13 +125,13 @@ entry:
 ; EE-INDICES-LT15: [[T1:%.*]] = bitcast i32 addrspace(1)* [[T0]] to <vscale x 4 x i32> addrspace(1)*
 ; EE-INDICES-GE15: [[T2:%.*]] = load <vscale x 4 x i32>, ptr addrspace(1) [[T0]], align 4
 ; EE-INDICES-LT15: [[T2:%.*]] = load <vscale x 4 x i32>, <vscale x 4 x i32> addrspace(1)* [[T1]], align 4
-; EE-INDICES: [[T3:%.*]] = and <vscale x 4 x i32> [[T2]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 3, i32 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
+; EE-INDICES: [[T3:%.*]] = and <vscale x 4 x i32> [[T2]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 3, {{i32|i64}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; EE-INDICES-GE15: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
 ; EE-INDICES-LT15: store <vscale x 16 x float> {{.*}}, <vscale x 16 x float>* [[ALLOC]], align 64
 ; EE-INDICES-LT15: [[BCAST:%.*]] = getelementptr inbounds <vscale x 16 x float>, <vscale x 16 x float>* [[ALLOC]], i64 0, i64 0
 ; EE-INDICES: [[STEP:%.*]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
-; EE-INDICES: [[T4:%.*]] = shl <vscale x 4 x i32> [[STEP]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, i32 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; EE-INDICES: [[T5:%.*]] = add <vscale x 4 x i32> [[T4]], [[T3]]
+; EE-INDICES: [[T4:%.*]] = shl <vscale x 4 x i32> [[STEP]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{i32|i64}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
+; EE-INDICES: [[T5:%.*]] = {{add|or}} <vscale x 4 x i32> [[T4]], [[T3]]
 ; EE-INDICES: [[IDX:%.*]] = sext <vscale x 4 x i32> [[T5]] to <vscale x 4 x i64>
 ; EE-INDICES-GE15: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], <vscale x 4 x i64> [[IDX]]
 ; EE-INDICES-LT15: [[ADDR:%.*]] = getelementptr inbounds float, float* [[BCAST]], <vscale x 4 x i64> [[IDX]]

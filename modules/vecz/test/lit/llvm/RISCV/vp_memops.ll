@@ -92,7 +92,7 @@ ret:
 ; CHECK-LOAD-16-NEXT: [[TMPSPLAT:%.*]] = shufflevector <vscale x 16 x i32> [[TMPSPLATINSERT]], <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer
 ; CHECK-LOAD-16-NEXT: [[TMP5:%.*]] = icmp ult <vscale x 16 x i32> [[TMP4]], [[TMPSPLAT]]
 ; CHECK-LOAD-16-NEXT: [[TMP6:%.*]] = select <vscale x 16 x i1> [[TMP1]], <vscale x 16 x i1> [[TMP5]], <vscale x 16 x i1> zeroinitializer
-; CHECK-LOAD-16-NEXT-GE15: [[TMP7:%.*]] = call <vscale x 16 x i32> @llvm.masked.load.nxv16i32.p1(ptr addrspace(1) [[TMP0]], i32 4, <vscale x 16 x i1> [[TMP6]], <vscale x 16 x i32> undef)
+; CHECK-LOAD-16-NEXT-GE15: [[TMP7:%.*]] = call <vscale x 16 x i32> @llvm.masked.load.nxv16i32.p1(ptr addrspace(1) [[TMP0]], i32 4, <vscale x 16 x i1> [[TMP6]], <vscale x 16 x i32> {{undef|poison}})
 ; CHECK-LOAD-16-NEXT-LT15: [[TMP7:%.*]] = call <vscale x 16 x i32> @llvm.masked.load.nxv16i32.p1nxv16i32(<vscale x 16 x i32> addrspace(1)* [[TMP0]], i32 4, <vscale x 16 x i1> [[TMP6]], <vscale x 16 x i32> undef)
 ; CHECK-LOAD-16-NEXT: ret <vscale x 16 x i32> [[TMP7]]
 

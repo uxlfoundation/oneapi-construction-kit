@@ -124,7 +124,10 @@ entry:
 ; EE-UNI-VEC-NEXT:    [[I1:%.*]] = and <vscale x 4 x i32> [[T]], trunc (<vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> {{(undef|poison)}}, i64 3, {{(i32|i64)}} 0), <vscale x 4 x i64> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer) to <vscale x 4 x i32>)
 ; EE-UNI-VEC-NEXT:    [[IDX02:%.*]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
 ; EE-UNI-VEC-NEXT:    [[IDXSCALE:%.*]] = shl <vscale x 4 x i32> [[IDX02]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; EE-UNI-VEC-NEXT:    [[VS1:%.*]] = add <vscale x 4 x i32> [[IDXSCALE]], [[I1]]
+
+; LLVM 16 deduces add/or equivalence and uses `or` instead.
+; EE-UNI-VEC-NEXT:    [[VS1:%.*]] = {{add|or}} <vscale x 4 x i32> [[IDXSCALE]], [[I1]]
+
 ; EE-UNI-VEC-NEXT:    [[T4:%.*]] = call <vscale x 16 x i32> @llvm.{{(experimental.)?}}vector.insert.nxv16i32.nxv4i32(<vscale x 16 x i32> poison, <vscale x 4 x i32> [[VS1]], i64 0)
 ; EE-UNI-VEC-NEXT-GE15:    [[T5:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T4]], i64 [[T3]])
 ; EE-UNI-VEC-NEXT-LT15:    [[T5:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T4]], i64 [[T3]])
@@ -135,7 +138,7 @@ entry:
 ; EE-INDICES-NEXT:    [[T4:%.*]] = shl i64 [[XLEN]], 2
 ; EE-INDICES-NEXT:    [[IDX0:%.*]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
 ; EE-INDICES-NEXT:    [[IDXSCALE:%.*]] = shl <vscale x 4 x i32> [[IDX0]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; EE-INDICES-NEXT:    [[VS1:%.*]] = add <vscale x 4 x i32> [[IDXSCALE]], [[I1:%.*]]
+; EE-INDICES-NEXT:    [[VS1:%.*]] = {{add|or}} <vscale x 4 x i32> [[IDXSCALE]], [[I1:%.*]]
 ; EE-INDICES-NEXT:    [[T5:%.*]] = call <vscale x 16 x i32> @llvm.{{(experimental.)?}}vector.insert.nxv16i32.nxv4i32(<vscale x 16 x i32> poison, <vscale x 4 x i32> [[VS1]], i64 0)
 ; EE-INDICES-NEXT-GE15:    [[T6:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T3:%.*]], <vscale x 16 x i32> [[T5]], i64 [[T4]])
 ; EE-INDICES-NEXT-LT15:    [[T6:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> [[T3:%.*]], <vscale x 16 x i32> [[T5]], i64 [[T4]])
@@ -150,7 +153,7 @@ entry:
 ; EE-BOOL-NEXT:  [[T9:%.*]] = and <vscale x 4 x i16> [[T8]], trunc (<vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> {{(undef|poison)}}, i64 3, {{(i32|i64)}} 0), <vscale x 4 x i64> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer) to <vscale x 4 x i16>)
 ; EE-BOOL-NEXT:  [[T10:%.*]] = call <vscale x 4 x i16> @llvm.experimental.stepvector.nxv4i16()
 ; EE-BOOL-NEXT:  [[T11:%.*]] = shl <vscale x 4 x i16> [[T10]], shufflevector (<vscale x 4 x i16> insertelement (<vscale x 4 x i16> {{(undef|poison)}}, i16 2, {{(i32|i64)}} 0), <vscale x 4 x i16> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; EE-BOOL-NEXT:  [[VS1:%.*]] = add <vscale x 4 x i16> [[T11]], [[T9]]
+; EE-BOOL-NEXT:  [[VS1:%.*]] = {{add|or}} <vscale x 4 x i16> [[T11]], [[T9]]
 ; EE-BOOL-NEXT:  [[T12:%.*]] = call <vscale x 16 x i16> @llvm.{{(experimental.)?}}vector.insert.nxv16i16.nxv4i16(<vscale x 16 x i16> poison, <vscale x 4 x i16> [[VS1]], i64 0)
 ; EE-BOOL-NEXT-GE15:  [[T13:%.*]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> undef, <vscale x 16 x i8> [[T6]], <vscale x 16 x i16> [[T12]], i64 [[T7]])
 ; EE-BOOL-NEXT-LT15:  [[T13:%.*]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> [[T6]], <vscale x 16 x i16> [[T12]], i64 [[T7]])

@@ -93,7 +93,10 @@ entry:
 ; IE-INDICES-LT15: [[T0:%.*]] = getelementptr inbounds <vscale x 16 x float>, <vscale x 16 x float>* %0, i64 0, i64 0
 ; IE-INDICES: [[T1:%.*]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
 ; IE-INDICES: [[T2:%.*]] = shl <vscale x 4 x i32> [[T1]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; IE-INDICES: [[T3:%.*]] = add <vscale x 4 x i32> [[T2]], {{%.*}}
+
+; LLVM 16 deduces add/or equivalence and uses `or` instead.
+; IE-INDICES: [[T3:%.*]] = {{add|or}} <vscale x 4 x i32> [[T2]], {{%.*}}
+
 ; IE-INDICES: [[T4:%.*]] = sext <vscale x 4 x i32> [[T3]] to <vscale x 4 x i64>
 ; IE-INDICES-GE15: [[ADDR:%.*]] = getelementptr inbounds float, ptr %0, <vscale x 4 x i64> [[T4]]
 ; IE-INDICES-LT15: [[ADDR:%.*]] = getelementptr inbounds float, float* [[T0]], <vscale x 4 x i64> [[T4]]
