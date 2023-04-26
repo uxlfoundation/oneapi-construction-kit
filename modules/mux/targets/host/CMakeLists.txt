@@ -156,11 +156,9 @@ else()
 endif()
 
 if(CA_ENABLE_HOST_IMAGE_SUPPORT)
-  if(CA_CL_STANDARD STREQUAL "3.0")
-    message(FATAL_ERROR "ComputeAorta only supports images "
-                        "in OpenCL-1.2. Disable image support with the "
-                        "CA_ENABLE_HOST_IMAGE_SUPPORT cmake option.")
-  endif()
+  message(WARNING "ComputeAorta supports images in a way that is conformant "
+                  "only to OpenCL 1.2. Support for other versions 3.0 is "
+                  "known not to be conformant.")
   target_link_libraries(host PUBLIC image_library_host)
   target_compile_definitions(host PRIVATE HOST_IMAGE_SUPPORT)
 endif()

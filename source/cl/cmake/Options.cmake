@@ -53,11 +53,10 @@ ca_option(CA_CL_PUBLIC_LINK_LIBRARIES STRING
 
   A string CMake option to set the OpenCL standard version to use.
   ComputeAorta targets OpenCL-1.2 and OpenCL-3.0, this option **must** be
-  ``"1.2"`` or ``"3.0"``. If :cmake:variable:`CA_CL_STANDARD` is ``"3.0"``
-  then :cmake:variable:`CA_CL_ENABLE_HOST_IMAGE_SUPPORT` **must** be disabled.
+  ``"1.2"`` or ``"3.0"``.
 
   Default value
-    ``"1.2"``
+    ``"3.0"``
 #]=======================================================================]
 ca_option(CA_CL_STANDARD STRING
         "OpenCL standard version to build (1.2 or 3.0)" "3.0")
