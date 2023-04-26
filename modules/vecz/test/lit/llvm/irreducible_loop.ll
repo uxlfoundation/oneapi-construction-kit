@@ -1,6 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %veczc -k irreducible_loop -S < %s | %filecheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: %veczc -k irreducible_loop -S < %s | %filecheck %t
 
 ; ModuleID = 'Unknown buffer'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -39,11 +40,15 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK: irr.guard.outer:                                  ; preds = %irr.guard.pure_exit, %entry
 ; CHECK:   br label %irr.guard
 
-; CHECK: irr.guard.pure_exit:                              ; preds = %irr.guard
-; CHECK:   br i1 %{{.+}}, label %do.end, label %irr.guard.outer
+; LLVM 16 re-orders the Basic Blocks, without any change to the CFG.
+; CHECK-LE15: irr.guard.pure_exit:                              ; preds = %irr.guard
+; CHECK-LE15:   br i1 %{{.+}}, label %do.end, label %irr.guard.outer
 
 ; CHECK: do.end:                                           ; preds = %irr.guard.pure_exit
 ; CHECK:   ret void
 
 ; CHECK: irr.guard:                                        ; preds = %irr.guard, %irr.guard.outer
 ; CHECK:   br i1 %{{.+}}, label %irr.guard.pure_exit, label %irr.guard
+
+; CHECK-GT15: irr.guard.pure_exit:                              ; preds = %irr.guard
+; CHECK-GT15:   br i1 %{{.+}}, label %do.end, label %irr.guard.outer

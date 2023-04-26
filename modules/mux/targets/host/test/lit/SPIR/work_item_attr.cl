@@ -12,38 +12,33 @@
 //       -o work_item_attr.bc64
 //          work_item_attr.cl
 
-// RUN: %oclc %p/Inputs/work_item_attr%spir_extension -cl-options '-x spir -spir-std=1.2' -stage spir > %t
-// RUN: %filecheck < %t %s
+// RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+// RUN: %oclc %p/Inputs/work_item_attr%spir_extension -cl-options '-x spir -spir-std=1.2' -stage spir | %filecheck %t
 //
-// each of the get_*() functions should be preceded by a readonly
+// each of the get_*() functions should have the readonly attribute
+// (or LLVM 16+ equivalent) and not the readnone attribute.
 //
-// CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z15get_global_sizej
+// CHECK: declare spir_func {{.*}} @_Z15get_global_sizej(i32) local_unnamed_addr #[[ATTR:[0-9]+]]
 //
-// CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z13get_global_idj
+// CHECK: declare spir_func {{.*}} @_Z13get_global_idj(i32) local_unnamed_addr #[[ATTR]]
 //
-// CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z17get_global_offsetj
+// CHECK: declare spir_func {{.*}} @_Z17get_global_offsetj(i32) local_unnamed_addr #[[ATTR]]
 //
 // CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z14get_local_sizej
+// CHECK: declare spir_func {{.*}} @_Z14get_local_sizej(i32) local_unnamed_addr #[[ATTR]]
 //
 // CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z12get_local_idj
+// CHECK: declare spir_func {{.*}} @_Z12get_local_idj(i32) local_unnamed_addr #[[ATTR]]
 //
 // CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z14get_num_groupsj
+// CHECK: declare spir_func {{.*}} @_Z14get_num_groupsj(i32) local_unnamed_addr #[[ATTR]]
 //
 // CHECK-NOT: readnone
-// CHECK: readonly
-// CHECK-NEXT: _Z12get_group_idj
+// CHECK: declare spir_func {{.*}} @_Z12get_group_idj(i32) local_unnamed_addr #[[ATTR]]
+//
+// CHECK-NOT: attributes #[[ATTR]] = { {{([^ ]+ )*}}readnone{{( [^ ]+)*}} }
+// CHECK-LT16: attributes #[[ATTR]] = { {{([^ ]+ )*}}readonly{{( [^ ]+)*}} }
+// CHECK-GE16: attributes #[[ATTR]] = { {{([^ ]+ )*}}memory(read){{( [^ ]+)*}} }
 
 kernel void k(__global size_t* out) {
   out[0] = get_global_size(0);
