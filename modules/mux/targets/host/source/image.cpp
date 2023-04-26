@@ -63,7 +63,7 @@ inline cl_image_desc getImageDesc(mux_image_type_e type, uint32_t width,
   size_t rowPitch = static_cast<size_t>(row_size);
   size_t slicePitch = static_cast<size_t>(slice_size);
   return {imageType, width,      height, depth, array_layers,
-          rowPitch,  slicePitch, 0,      0,     nullptr};
+          rowPitch,  slicePitch, 0,      0,     {/*nullptr*/}};
 }
 }  // namespace
 #endif
