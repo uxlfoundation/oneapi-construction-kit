@@ -6,10 +6,11 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Operator.h>
-#include <multi_llvm/llvm_version.h>
+
+using namespace llvm;
 
 namespace {
-const llvm::StringMap<const char *> slowToFast = {
+const StringMap<const char *> slowToFast = {
     // geometric builtins
     {"_Z6lengthf", "_Z11fast_lengthf"},
     {"_Z6lengthDv2_f", "_Z11fast_lengthDv2_f"},
@@ -111,13 +112,13 @@ const llvm::StringMap<const char *> slowToFast = {
     {"_Z3tanDv16_f", "_Z10native_tanDv16_f"},
 };
 
-bool markFPOperatorsFast(llvm::Module &module) {
+bool markFPOperatorsFast(Module &M) {
   bool modified = false;
 
-  for (auto &function : module.functions()) {
+  for (auto &function : M.functions()) {
     for (auto &basicBlock : function) {
       for (auto &instruction : basicBlock) {
-        if (llvm::isa<llvm::FPMathOperator>(instruction)) {
+        if (isa<FPMathOperator>(instruction)) {
           instruction.setFast(true);
           modified = true;
         }
@@ -127,15 +128,15 @@ bool markFPOperatorsFast(llvm::Module &module) {
   return modified;
 }
 
-bool replaceFastMathCalls(llvm::Module &module) {
+bool replaceFastMathCalls(Module &M) {
   // A list of call instructions and the name with which we'll be replacing them
-  llvm::SmallVector<std::pair<llvm::CallInst *, const char *>, 8> replacements;
+  SmallVector<std::pair<CallInst *, const char *>, 8> replacements;
 
-  for (auto &function : module.functions()) {
+  for (auto &function : M.functions()) {
     for (auto &basicBlock : function) {
       for (auto &instruction : basicBlock) {
         // get the call instruction (or null)
-        if (auto ci = llvm::dyn_cast<llvm::CallInst>(&instruction)) {
+        if (auto ci = dyn_cast<CallInst>(&instruction)) {
           const auto func = ci->getCalledFunction();
           assert(func && "builtin calls cannot be indirect");
           const auto name = func->getName();
@@ -159,24 +160,23 @@ bool replaceFastMathCalls(llvm::Module &module) {
     // look up the corresponding fast version of the function
     // and if the fast version isn't in the module (it wasn't called
     // explicitly) then we need to add it to the module
-    auto newFunc = module.getFunction(newFuncName);
+    auto newFunc = M.getFunction(newFuncName);
 
     if (!newFunc) {
-      newFunc = llvm::Function::Create(ciFunction->getFunctionType(),
-                                       ciFunction->getLinkage(), newFuncName,
-                                       &module);
+      newFunc = Function::Create(ciFunction->getFunctionType(),
+                                 ciFunction->getLinkage(), newFuncName, &M);
 
       newFunc->setCallingConv(ciFunction->getCallingConv());
     }
-    llvm::SmallVector<llvm::OperandBundleDef, 0> bundles;
+    SmallVector<OperandBundleDef, 0> bundles;
     ci->getOperandBundlesAsDefs(bundles);
 
-    llvm::SmallVector<llvm::Value *, 8> args;
+    SmallVector<Value *, 8> args;
     for (auto &arg : ci->args()) {
       args.push_back(arg);
     }
 
-    auto newCi = llvm::CallInst::Create(newFunc, args, bundles, "", ci);
+    auto newCi = CallInst::Create(newFunc, args, bundles, "", ci);
     newCi->takeName(ci);
     newCi->setCallingConv(ci->getCallingConv());
     ci->replaceAllUsesWith(newCi);
@@ -187,15 +187,14 @@ bool replaceFastMathCalls(llvm::Module &module) {
 }  // namespace
 
 namespace compiler {
-llvm::PreservedAnalyses FastMathPass::run(llvm::Module &module,
-                                          llvm::ModuleAnalysisManager &) {
-  auto preserved = llvm::PreservedAnalyses::all();
-  if (markFPOperatorsFast(module)) {
-    preserved.abandon<llvm::InlineAdvisorAnalysis>();
+PreservedAnalyses FastMathPass::run(Module &M, ModuleAnalysisManager &) {
+  auto preserved = PreservedAnalyses::all();
+  if (markFPOperatorsFast(M)) {
+    preserved.abandon<InlineAdvisorAnalysis>();
   }
-  if (replaceFastMathCalls(module)) {
-    preserved.abandon<llvm::InlineAdvisorAnalysis>();
-    preserved.abandon<llvm::CallGraphAnalysis>();
+  if (replaceFastMathCalls(M)) {
+    preserved.abandon<InlineAdvisorAnalysis>();
+    preserved.abandon<CallGraphAnalysis>();
   }
   return preserved;
 }
