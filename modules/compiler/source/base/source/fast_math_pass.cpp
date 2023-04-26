@@ -1,5 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 #include <base/fast_math_pass.h>
+#include <compiler/utils/metadata.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/Analysis/InlineAdvisor.h>
@@ -189,6 +190,14 @@ bool replaceFastMathCalls(Module &M) {
 namespace compiler {
 PreservedAnalyses FastMathPass::run(Module &M, ModuleAnalysisManager &) {
   auto preserved = PreservedAnalyses::all();
+  auto version = compiler::utils::getOpenCLVersion(M);
+  // OpenCL 3.0 introduced stricter ULP requirements for relaxed math.
+  // This pass inserts calls to fast_* and native_* functions. Depending on the
+  // device, these may not have ULP guarantees at all, so the pass is only
+  // valid under 1.2.
+  if (version >= compiler::utils::OpenCLC30) {
+    return preserved;
+  }
   if (markFPOperatorsFast(M)) {
     preserved.abandon<InlineAdvisorAnalysis>();
   }

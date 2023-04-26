@@ -834,7 +834,6 @@ Result BaseModule::compileSPIR(std::string &output_options) {
   createOpenCLKernelsMetadata();
 
   // Parse compiler options set when SPIR was generated
-  bool addFastMath = false;
   if (auto *namedMetaData =
           llvm_module->getNamedMetadata("opencl.compiler.options")) {
     for (auto mdNode : namedMetaData->operands()) {
@@ -850,13 +849,7 @@ Result BaseModule::compileSPIR(std::string &output_options) {
               "option since it's not supported by device. But proceeding "
               "with compilation.\n";
         } else if (flag.equals("-cl-fast-relaxed-math")) {
-#if CL_TARGET_OPENCL_VERSION == 120
-          // OpenCL 3.0 introduced stricter ULP requirements for relaxed math.
-          // FastMathPass inserts calls to fast_* and native_* functions.
-          // Depending on the device, these may not have ULP guarantees at all,
-          // so the pass is only valid under 1.2.
-          addFastMath = true;
-#endif
+          options.fast_math = true;
         } else {
           if (flag.equals("-cl-kernel-arg-info")) {
             options.kernel_arg_info = true;
@@ -866,10 +859,6 @@ Result BaseModule::compileSPIR(std::string &output_options) {
       }
     }
   }
-
-  // TODO: CA-4377 Remove this setting and clean up the above code once
-  // compiler options are unified.
-  options.fast_math = addFastMath;
 
   // Now run a generic optimization pipeline based on the one clang normally
   // runs during codegen.
@@ -1499,11 +1488,6 @@ void BaseModule::runOpenCLFrontendPipeline(
     const clang::CodeGenOptions &codeGenOpts,
     multi_llvm::Optional<llvm::ModulePassManager> early_passes,
     multi_llvm::Optional<llvm::ModulePassManager> late_passes) {
-#if CL_TARGET_OPENCL_VERSION == 120
-  // OpenCL 3.0 introduced stricter ULP requirements for relaxed math.
-  // FastMathPass inserts calls to fast_* and native_* functions. Depending on
-  // the device, these may not have ULP guarantees at all, so the pass is only
-  // valid under 1.2.
   if (options.fast_math) {
     if (late_passes.has_value()) {
       late_passes->addPass(FastMathPass());
@@ -1512,7 +1496,6 @@ void BaseModule::runOpenCLFrontendPipeline(
       late_passes->addPass(FastMathPass());
     }
   }
-#endif
 
   runFrontendPipeline(*this, *llvm_module, codeGenOpts, std::move(early_passes),
                       std::move(late_passes));
