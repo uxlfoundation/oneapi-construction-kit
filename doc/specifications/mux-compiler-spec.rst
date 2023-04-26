@@ -1223,6 +1223,11 @@ accessing, setting, or updating each piece of metadata.
    * - Name
      - Fields
      - Description
+   * - ``!opencl.ocl.version``
+     - A single operand, itself containing !{i32, i32}
+     - The major/minor OpenCL C version that this module is compatible with. If
+       unset the compiler assumes 1.2. The compiler will infer different
+       semantics and supported builtin functions depending on this metadata.
    * - ``!mux-scheduling-params``
      - string, string, ...
      - A list of scheduling parameter names used by this target. Emitted into
