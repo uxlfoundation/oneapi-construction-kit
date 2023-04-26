@@ -774,22 +774,51 @@ llvm::ModulePassManager BaseModule::getEarlyOpenCLCPasses() {
   return pm;
 }
 
-llvm::ModulePassManager BaseModule::getEarlySPIRPasses() {
+llvm::ModulePassManager BaseModule::getEarlySPIRPasses(bool is_spirv) {
   // Run the various fixup passes needed to make sure the IR we've got is spec
-  // conformant. The spir fixup pass must be run first, among other minor fixes
-  // it makes sure the calling convention is correct on all functions in the
-  // kernel, which avoids warnings from the verification passes later on. The
-  // bit shift and software division passes manually fix cases which in C would
-  // be UB but which the CL spec has different rules for. The barrier
-  // convergent pass sets the convergent attribute on all barrier declarations
-  // and calls to ensure that LLVM optimizers do not illegally change barrier
-  // use.
+  // conformant.
   llvm::ModulePassManager pm;
+  // Set the opencl.ocl.version metadata if not already set:
+  // * In SPIR this is usually set by the producer and should match the -cl-std
+  //   option used when generating it. Furthermore, if the user specifies a
+  //   -cl-std other than this version at clBuildProgram time, the behaviour is
+  //   implementation defined. Regardless, if it's not set, assume that it was
+  //   generated with the default version of -cl-std, which as per the
+  //   specification is the highest 1.x version we support.
+  // * In SPIR-V this is not set (by spirv-ll) and conveys the best-matching
+  //   version of OpenCL C for which we translate SPIR-V binaries. This covers
+  //   not just how we translate ops from the OpenCL Extended Instruction Set,
+  //   but also for core concepts like the generic address space and sub-group
+  //   ops.
+  pm.addPass(compiler::utils::SimpleCallbackPass([is_spirv](llvm::Module &m) {
+    if (!m.getNamedMetadata("opencl.ocl.version")) {
+      auto *const ocl_ver = m.getOrInsertNamedMetadata("opencl.ocl.version");
+      unsigned major = is_spirv ? 3 : 1;
+      unsigned minor = is_spirv ? 0 : 2;
+      llvm::Metadata *values[2] = {
+          llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(
+              llvm::Type::getInt32Ty(m.getContext()), major)),
+          llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(
+              llvm::Type::getInt32Ty(m.getContext()), minor))};
+
+      ocl_ver->addOperand(llvm::MDTuple::get(m.getContext(), values));
+    }
+  }));
+  // The spir fixup pass must be run now. Among other minor fixes, it makes
+  // sure the calling convention is correct on all functions in the kernel,
+  // which avoids warnings from the verification passes later on.
   pm.addPass(compiler::spir::SpirFixupPass());
-  pm.addPass(
-      llvm::createModuleToFunctionPassAdaptor(compiler::BitShiftFixupPass()));
-  pm.addPass(llvm::createModuleToFunctionPassAdaptor(
-      compiler::SoftwareDivisionPass()));
+  {
+    // The BitShiftFixupPass and SoftwareDivisionPass manually fix cases
+    // which in C would be UB but which the CL spec has different rules for.
+    llvm::FunctionPassManager fpm;
+    fpm.addPass(compiler::BitShiftFixupPass());
+    fpm.addPass(compiler::SoftwareDivisionPass());
+    pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
+  }
+  // The SetConvergentAttrPass sets the convergent attribute on all barrier and
+  // other functions to ensure that LLVM optimizers do not illegally change
+  // their use.
   pm.addPass(compiler::SetConvergentAttrPass());
   return pm;
 }
@@ -845,7 +874,8 @@ Result BaseModule::compileSPIR(std::string &output_options) {
   // runs during codegen.
   clang::CodeGenOptions codeGenOpts;
   populateCodeGenOpts(codeGenOpts);
-  runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRPasses());
+  runOpenCLFrontendPipeline(codeGenOpts,
+                            getEarlySPIRPasses(/*is_spirv*/ false));
 
   state = ModuleState::COMPILED_OBJECT;
 
@@ -918,7 +948,7 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
   // from SPIR-V, see CA-3820.
   clang::CodeGenOptions codeGenOpts;
   populateCodeGenOpts(codeGenOpts);
-  runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRPasses());
+  runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRPasses(/*is_spirv*/ true));
 
   state = ModuleState::COMPILED_OBJECT;
 

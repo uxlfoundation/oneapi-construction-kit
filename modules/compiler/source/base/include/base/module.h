@@ -503,8 +503,10 @@ class BaseModule : public Module {
   /// @brief Create a module pass manager populated with early passes required
   /// for SPIR and SPIR-V compilation.
   ///
+  /// @param[in] is_spirv True if SPIR-V-specific passes, false if SPIR 1.2.
+  ///
   /// @return LLVM module pass manager populated with early passes.
-  llvm::ModulePassManager getEarlySPIRPasses();
+  llvm::ModulePassManager getEarlySPIRPasses(bool is_spirv);
 
   /// @brief Set up a clang compiler instance with default settings required for
   /// OpenCL, including language options and SPIR target triple.
