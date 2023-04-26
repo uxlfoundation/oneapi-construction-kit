@@ -738,12 +738,16 @@ bool BaseModule::loadSPIR(cargo::array_view<const std::uint8_t> buffer) {
   }
 }
 
-#if CL_TARGET_OPENCL_VERSION >= 300
 class StripFastMathAttrs final
     : public llvm::PassInfoMixin<StripFastMathAttrs> {
  public:
   llvm::PreservedAnalyses run(llvm::Function &F,
                               llvm::FunctionAnalysisManager &) {
+    auto version = compiler::utils::getOpenCLVersion(*F.getParent());
+    // This is only required for compatibility with OpenCL 3.0 semantics.
+    if (version < compiler::utils::OpenCLC30) {
+      return llvm::PreservedAnalyses::all();
+    }
     bool Changed = false;
     for (auto &BB : F) {
       for (auto &I : BB) {
@@ -761,15 +765,12 @@ class StripFastMathAttrs final
   // This pass is not an optimization
   static bool isRequired() { return true; }
 };
-#endif
 
 llvm::ModulePassManager BaseModule::getEarlyOpenCLCPasses() {
   // Run the software division pass required for OpenCL C.
   llvm::ModulePassManager pm;
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(SoftwareDivisionPass()));
-#if CL_TARGET_OPENCL_VERSION >= 300
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(StripFastMathAttrs()));
-#endif
   pm.addPass(compiler::SetConvergentAttrPass());
   return pm;
 }

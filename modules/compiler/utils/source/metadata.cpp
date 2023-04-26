@@ -11,6 +11,22 @@ using namespace llvm;
 namespace compiler {
 namespace utils {
 
+uint32_t getOpenCLVersion(llvm::Module &m) {
+  if (auto *const md = m.getNamedMetadata("opencl.ocl.version")) {
+    if (md->getNumOperands() == 1) {
+      auto *const op = md->getOperand(0);
+      if (op->getNumOperands() == 2) {
+        auto const major =
+            mdconst::extract<ConstantInt>(op->getOperand(0))->getZExtValue();
+        auto const minor =
+            mdconst::extract<ConstantInt>(op->getOperand(1))->getZExtValue();
+        return (major * 100 + minor) * 1000;
+      }
+    }
+  }
+  return OpenCLC12;
+}
+
 static constexpr const char *ReqdWGSizeMD = "reqd_work_group_size";
 
 static MDTuple *encodeVectorizationInfo(const VectorizationInfo &info,

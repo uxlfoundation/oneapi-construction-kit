@@ -18,6 +18,23 @@ class Module;
 namespace compiler {
 namespace utils {
 
+/// @brief OpenCL C standard to target.
+enum OpenCLCVer {
+  /// @brief OpenCL C 1.1
+  OpenCLC11 = (1 * 100 + 1) * 1000,
+  /// @brief OpenCL C 1.2
+  OpenCLC12 = (1 * 100 + 2) * 1000,
+  /// @brief OpenCL C 2.0
+  OpenCLC20 = (2 * 100 + 0) * 1000,
+  /// @brief OpenCL C 3.0
+  OpenCLC30 = (3 * 100 + 0) * 1000,
+};
+
+/// @brief Returns the OpenCL version, encoded as (Major*100 + Minor)*1000.
+///
+/// If the Module does not contain any information, then OpenCLC12 is returned.
+uint32_t getOpenCLVersion(llvm::Module &m);
+
 /// @brief Describes the state of vectorization on a function/loop.
 struct VectorizationInfo {
   /// @brief The VectorizationFactor. A scalar value if unvectorized.
