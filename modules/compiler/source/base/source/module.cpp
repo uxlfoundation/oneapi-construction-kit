@@ -1786,9 +1786,7 @@ Result BaseModule::finalize(
         }
       }));
 
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   pm.addPass(compiler::utils::ReplaceC11AtomicFuncsPass());
-#endif
   pm.addPass(compiler::utils::ReplaceBarriersPass());
 
   if (options.prevec_mode != compiler::PreVectorizationMode::NONE) {

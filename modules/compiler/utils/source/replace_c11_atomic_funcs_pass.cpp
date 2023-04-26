@@ -7,6 +7,7 @@
 /// @copyright
 /// Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
 #include <llvm/ADT/Statistic.h>
 #include <llvm/ADT/StringRef.h>
@@ -398,11 +399,18 @@ bool runOnFunction(llvm::Function &Function) {
 ///
 /// Overrides llvm::ModulePass::runOnModule().
 ///
-/// @param[in,out] module - The module provided to the pass.
+/// @param[in,out] M - The module provided to the pass.
 ///
 /// @return Return whether or not the pass changed anything.
 PreservedAnalyses compiler::utils::ReplaceC11AtomicFuncsPass::run(
     Module &M, ModuleAnalysisManager &) {
+  // Only run this pass for OpenCL 2.0+ modules.
+  // FIXME: This would be better off inside BuiltinInfo, and combined with the
+  // regular ReplaceAtomicFuncsPass.
+  auto version = getOpenCLVersion(M);
+  if (version < OpenCLC20) {
+    return PreservedAnalyses::all();
+  }
   auto Changed{false};
   for (auto &Function : M) {
     // First see if the function is one of the special cases. Any builtin that
