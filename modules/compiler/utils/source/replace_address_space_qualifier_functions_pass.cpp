@@ -1,5 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/IRBuilder.h>
@@ -25,6 +26,13 @@ Value *replaceAddressSpaceQualifierFunction(CallBase &call, StringRef name) {
 PreservedAnalyses
 compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass::run(
     Function &F, FunctionAnalysisManager &) {
+  // Only run this pass on modules compatible with OpenCL 2.0 and above.
+  // FIXME: These should be left up to the target to implement, like mux
+  // builtins.
+  auto Version = getOpenCLVersion(*F.getParent());
+  if (Version < OpenCLC20) {
+    return PreservedAnalyses::all();
+  }
   bool Changed = false;
 
   for (BasicBlock &BB : F) {

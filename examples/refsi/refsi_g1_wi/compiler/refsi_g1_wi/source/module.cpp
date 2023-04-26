@@ -98,10 +98,8 @@ llvm::ModulePassManager RefSiG1Module::getLateTargetPasses(
   PM.addPass(compiler::utils::AlignModuleStructsPass());
 
   // Handle the generic address space
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));
-#endif
 
   PM.addPass(riscv::IRToBuiltinReplacementPass());
 
