@@ -639,6 +639,12 @@ void emitWorkGroupCollectiveBody(const compiler::utils::GroupCollective &WGC,
 
 PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
     Module &M, ModuleAnalysisManager &AM) {
+  // Only run this pass on OpenCL 2.0+ modules.
+  auto Version = getOpenCLVersion(M);
+  if (Version < OpenCLC20) {
+    return PreservedAnalyses::all();
+  }
+
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
   // This pass may insert new builtins into the module e.g. local barriers, so
   // we need to create a work-list before doing any work to avoid invalidating

@@ -43,9 +43,7 @@ void addPreVeczPasses(ModulePassManager &PM,
   // We need to use the software implementation of the work-group collective
   // builtins. Because ReplaceWGCPass may introduce barrier calls it needs to be
   // run before PrepareBarriersPass.
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   PM.addPass(compiler::utils::ReplaceWGCPass());
-#endif
 
   // We have to inline all functions containing barriers before running vecz,
   // because the barriers in both the scalar and vector kernels need to be

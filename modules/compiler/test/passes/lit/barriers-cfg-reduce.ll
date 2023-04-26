@@ -32,4 +32,7 @@ entry:
 
 attributes #0 = { "mux-kernel"="entry-point" }
 
+!opencl.ocl.version = !{!1}
+
 !0 = !{i32 64, i32 64, i32 64}
+!1 = !{i32 3, i32 0}

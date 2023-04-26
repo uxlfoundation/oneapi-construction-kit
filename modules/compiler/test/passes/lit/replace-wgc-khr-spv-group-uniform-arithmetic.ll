@@ -113,3 +113,6 @@ declare spir_func half @_Z21work_group_reduce_mulDh(half %x)
 
 ; CHECK-DAG: attributes [[SCHEDULE_ONCE]] = { "mux-barrier-schedule"="once" }
 ; CHECK-DAG: attributes [[SCHEDULE_LINEAR]] = { "mux-barrier-schedule"="linear" }
+
+!opencl.ocl.version = !{!0}
+!0 = !{i32 3, i32 0}
