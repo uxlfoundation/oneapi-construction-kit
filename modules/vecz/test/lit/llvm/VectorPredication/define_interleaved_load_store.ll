@@ -44,12 +44,12 @@ declare <4 x double> @llvm.fmuladd.v4f64(<4 x double>, <4 x double>, <4 x double
 ; CHECK-GE15: define <vscale x 4 x double> @__vecz_b_masked_interleaved_load8_vp_4_u5nxv4du3ptrU3AS1u5nxv4bj(ptr addrspace(1){{( %0)?}}, <vscale x 4 x i1>{{( %1)?}}, i32{{( %2)?}}) {
 ; CHECK-LT15: define <vscale x 4 x double> @__vecz_b_masked_interleaved_load8_vp_4_u5nxv4dPU3AS1du5nxv4bj(double addrspace(1)*{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}}, i32{{( %2)?}}) {
 ; CHECK: entry:
-; CHECK-GE15:   %BroadcastAddr.splatinsert = insertelement <vscale x 4 x ptr addrspace(1)> poison, ptr addrspace(1) %0, i32 0
+; CHECK-GE15:   %BroadcastAddr.splatinsert = insertelement <vscale x 4 x ptr addrspace(1)> poison, ptr addrspace(1) %0, {{i32|i64}} 0
 ; CHECK-LT15:   %BroadcastAddr.splatinsert = insertelement <vscale x 4 x double addrspace(1)*> poison, double addrspace(1)* %0, i32 0
 ; CHECK-GE15:   %BroadcastAddr.splat = shufflevector <vscale x 4 x ptr addrspace(1)> %BroadcastAddr.splatinsert, <vscale x 4 x ptr addrspace(1)> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK-LT15:   %BroadcastAddr.splat = shufflevector <vscale x 4 x double addrspace(1)*> %BroadcastAddr.splatinsert, <vscale x 4 x double addrspace(1)*> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %3 = call <vscale x 4 x i64> @llvm.experimental.stepvector.nxv4i64()
-; CHECK:   %4 = mul <vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> poison, i64 4, i32 0), <vscale x 4 x i64> poison, <vscale x 4 x i32> zeroinitializer), %3
+; CHECK:   %4 = mul <vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> poison, i64 4, {{i32|i64}} 0), <vscale x 4 x i64> poison, <vscale x 4 x i32> zeroinitializer), %3
 ; CHECK-GE15:   %5 = getelementptr double, <vscale x 4 x ptr addrspace(1)> %BroadcastAddr.splat, <vscale x 4 x i64> %4
 ; CHECK-LT15:   %5 = getelementptr double, <vscale x 4 x double addrspace(1)*> %BroadcastAddr.splat, <vscale x 4 x i64> %4
 ; CHECK-GE15:   %6 = call <vscale x 4 x double> @llvm.vp.gather.nxv4f64.nxv4p1(<vscale x 4 x ptr addrspace(1)> %5, <vscale x 4 x i1> %1, i32 %2)
@@ -63,12 +63,12 @@ declare <4 x double> @llvm.fmuladd.v4f64(<4 x double>, <4 x double>, <4 x double
 ; CHECK-GE15: define void @__vecz_b_masked_interleaved_store8_vp_4_u5nxv4du3ptrU3AS1u5nxv4bj(<vscale x 4 x double>{{( %0)?}}, ptr addrspace(1){{( %1)?}}, <vscale x 4 x i1>{{( %2)?}}, i32{{( %3)?}})
 ; CHECK-LT15: define void @__vecz_b_masked_interleaved_store8_vp_4_u5nxv4dPU3AS1du5nxv4bj(<vscale x 4 x double>{{( %0)?}}, double addrspace(1)*{{( %1)?}}, <vscale x 4 x i1>{{( %2)?}}, i32{{( %3)?}})
 ; CHECK: entry:
-; CHECK-GE15:  %BroadcastAddr.splatinsert = insertelement <vscale x 4 x ptr addrspace(1)> poison, ptr addrspace(1) %1, i32 0
+; CHECK-GE15:  %BroadcastAddr.splatinsert = insertelement <vscale x 4 x ptr addrspace(1)> poison, ptr addrspace(1) %1, {{i32|i64}} 0
 ; CHECK-LT15:  %BroadcastAddr.splatinsert = insertelement <vscale x 4 x double addrspace(1)*> poison, double addrspace(1)* %1, i32 0
 ; CHECK-GE15:  %BroadcastAddr.splat = shufflevector <vscale x 4 x ptr addrspace(1)> %BroadcastAddr.splatinsert, <vscale x 4 x ptr addrspace(1)> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK-LT15:  %BroadcastAddr.splat = shufflevector <vscale x 4 x double addrspace(1)*> %BroadcastAddr.splatinsert, <vscale x 4 x double addrspace(1)*> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:  %4 = call <vscale x 4 x i64> @llvm.experimental.stepvector.nxv4i64()
-; CHECK:  %5 = mul <vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> poison, i64 4, i32 0), <vscale x 4 x i64> poison, <vscale x 4 x i32> zeroinitializer), %4
+; CHECK:  %5 = mul <vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> poison, i64 4, {{i32|i64}} 0), <vscale x 4 x i64> poison, <vscale x 4 x i32> zeroinitializer), %4
 ; CHECK-GE15:  %6 = getelementptr double, <vscale x 4 x ptr addrspace(1)> %BroadcastAddr.splat, <vscale x 4 x i64> %5
 ; CHECK-LT15:  %6 = getelementptr double, <vscale x 4 x double addrspace(1)*> %BroadcastAddr.splat, <vscale x 4 x i64> %5
 ; CHECK-GE15:  call void @llvm.vp.scatter.nxv4f64.nxv4p1(<vscale x 4 x double> %0, <vscale x 4 x ptr addrspace(1)> %6, <vscale x 4 x i1> %2, i32 %3)

@@ -61,7 +61,7 @@ attributes #3 = { nobuiltin nounwind }
 ; CHECK-GE15: define void @__vecz_b_interleaved_store8_4_Dv4_du3ptrU3AS1(<4 x double>{{( %0)?}}, ptr addrspace(1){{( %1)?}})
 ; CHECK-LT15: define void @__vecz_b_interleaved_store8_4_Dv4_dPU3AS1d(<4 x double>{{( %0)?}}, double addrspace(1)*{{( %1)?}})
 ; CHECK: entry:
-; CHECK-GE15: %BroadcastAddr.splatinsert = insertelement <4 x ptr addrspace(1)> {{poison|undef}}, ptr addrspace(1) %1, i32 0
+; CHECK-GE15: %BroadcastAddr.splatinsert = insertelement <4 x ptr addrspace(1)> {{poison|undef}}, ptr addrspace(1) %1, {{i32|i64}} 0
 ; CHECK-LT15: %BroadcastAddr.splatinsert = insertelement <4 x double addrspace(1)*> {{poison|undef}}, double addrspace(1)* %1, i32 0
 ; CHECK-GE15: %BroadcastAddr.splat = shufflevector <4 x ptr addrspace(1)> %BroadcastAddr.splatinsert, <4 x ptr addrspace(1)> {{poison|undef}}, <4 x i32> zeroinitializer
 ; CHECK-LT15: %BroadcastAddr.splat = shufflevector <4 x double addrspace(1)*> %BroadcastAddr.splatinsert, <4 x double addrspace(1)*> {{poison|undef}}, <4 x i32> zeroinitializer

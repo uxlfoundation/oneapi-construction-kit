@@ -35,7 +35,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_inclusive_add_u5nxv4j(<vscal
 ; CHECK:   %[[IV:.+]] = phi i32 [ 1, %entry ], [ %[[N2:.+]], %loop ]
 ; CHECK:   %[[VEC:.+]] = phi <vscale x 4 x i32> [ %0, %entry ], [ %[[NEWVEC:.+]], %loop ]
 ; CHECK:   %[[MASKPHI:.+]] = phi <vscale x 4 x i32> [ %[[STEP]], %entry ], [ %[[NEWMASK:.+]], %loop ]
-; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], i32 0
+; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], {{i32|i64}} 0
 ; CHECK:   %[[N_SPLAT:.+]] = shufflevector <vscale x 4 x i32> %[[N_INS]], <vscale x 4 x i32> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %[[MASK:.+]] = xor <vscale x 4 x i32> %[[MASKPHI]], %[[N_SPLAT]]
 
@@ -68,7 +68,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_exclusive_add_u5nxv4j(<vscal
 ; CHECK:   %[[IV:.+]] = phi i32 [ 1, %entry ], [ %[[N2:.+]], %loop ]
 ; CHECK:   %[[VEC:.+]] = phi <vscale x 4 x i32> [ %0, %entry ], [ %[[NEWVEC:.+]], %loop ]
 ; CHECK:   %[[MASKPHI:.+]] = phi <vscale x 4 x i32> [ %[[STEP]], %entry ], [ %[[NEWMASK:.+]], %loop ]
-; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], i32 0
+; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], {{i32|i64}} 0
 ; CHECK:   %[[N_SPLAT:.+]] = shufflevector <vscale x 4 x i32> %[[N_INS]], <vscale x 4 x i32> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %[[MASK:.+]] = xor <vscale x 4 x i32> %[[MASKPHI]], %[[N_SPLAT]]
 

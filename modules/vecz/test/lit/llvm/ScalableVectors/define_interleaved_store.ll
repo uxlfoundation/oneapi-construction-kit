@@ -44,14 +44,14 @@ declare <4 x double> @llvm.fmuladd.v4f64(<4 x double>, <4 x double>, <4 x double
 ; CHECK-GE15: define void @__vecz_b_interleaved_store8_4_u5nxv4du3ptrU3AS1(<vscale x 4 x double>{{( %0)?}}, ptr addrspace(1){{( %1)?}})
 ; CHECK-LT15: define void @__vecz_b_interleaved_store8_4_u5nxv4dPU3AS1d(<vscale x 4 x double>{{( %0)?}}, double addrspace(1)*{{( %1)?}})
 ; CHECK: entry:
-; CHECK-GE15: %BroadcastAddr.splatinsert = insertelement <vscale x 4 x ptr addrspace(1)> {{poison|undef}}, ptr addrspace(1) %1, i32 0
+; CHECK-GE15: %BroadcastAddr.splatinsert = insertelement <vscale x 4 x ptr addrspace(1)> {{poison|undef}}, ptr addrspace(1) %1, {{i32|i64}} 0
 ; CHECK-LT15: %BroadcastAddr.splatinsert = insertelement <vscale x 4 x double addrspace(1)*> {{poison|undef}}, double addrspace(1)* %1, i32 0
 ; CHECK-GE15: %BroadcastAddr.splat = shufflevector <vscale x 4 x ptr addrspace(1)> %BroadcastAddr.splatinsert, <vscale x 4 x ptr addrspace(1)> {{poison|undef}}, <vscale x 4 x i32> zeroinitializer
 ; CHECK-LT15: %BroadcastAddr.splat = shufflevector <vscale x 4 x double addrspace(1)*> %BroadcastAddr.splatinsert, <vscale x 4 x double addrspace(1)*> {{poison|undef}}, <vscale x 4 x i32> zeroinitializer
 ; CHECK: %2 = call <vscale x 4 x i64> @llvm.experimental.stepvector.nxv4i64()
-; CHECK: %3 = mul <vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> poison, i64 4, i32 0), <vscale x 4 x i64> poison, <vscale x 4 x i32> zeroinitializer), %2
+; CHECK: %3 = mul <vscale x 4 x i64> shufflevector (<vscale x 4 x i64> insertelement (<vscale x 4 x i64> poison, i64 4, {{i32|i64}} 0), <vscale x 4 x i64> poison, <vscale x 4 x i32> zeroinitializer), %2
 ; CHECK-GE15: %4 = getelementptr double, <vscale x 4 x ptr addrspace(1)> %BroadcastAddr.splat, <vscale x 4 x i64> %3
 ; CHECK-LT15: %4 = getelementptr double, <vscale x 4 x double addrspace(1)*> %BroadcastAddr.splat, <vscale x 4 x i64> %3
-; CHECK-GE15: call void @llvm.masked.scatter.nxv4f64.nxv4p1(<vscale x 4 x double> %0, <vscale x 4 x ptr addrspace(1)> %4, i32{{( immarg)?}} 8, <vscale x 4 x i1> shufflevector (<vscale x 4 x i1> insertelement (<vscale x 4 x i1> poison, i1 true, i32 0), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer))
-; CHECK-LT15: call void @llvm.masked.scatter.nxv4f64.nxv4p1f64(<vscale x 4 x double> %0, <vscale x 4 x double addrspace(1)*> %4, i32{{( immarg)?}} 8, <vscale x 4 x i1> shufflevector (<vscale x 4 x i1> insertelement (<vscale x 4 x i1> poison, i1 true, i32 0), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer))
+; CHECK-GE15: call void @llvm.masked.scatter.nxv4f64.nxv4p1(<vscale x 4 x double> %0, <vscale x 4 x ptr addrspace(1)> %4, i32{{( immarg)?}} 8, <vscale x 4 x i1> shufflevector (<vscale x 4 x i1> insertelement (<vscale x 4 x i1> poison, i1 true, {{i32|i64}} 0), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer))
+; CHECK-LT15: call void @llvm.masked.scatter.nxv4f64.nxv4p1f64(<vscale x 4 x double> %0, <vscale x 4 x double addrspace(1)*> %4, i32{{( immarg)?}} 8, <vscale x 4 x i1> shufflevector (<vscale x 4 x i1> insertelement (<vscale x 4 x i1> poison, i1 true, {{i32|i64}} 0), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer))
 ; CHECK: ret void

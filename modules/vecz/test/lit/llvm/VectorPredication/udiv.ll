@@ -31,8 +31,8 @@ entry:
 ; CHECK: [[T1:%.*]] = shl i64 [[T0]], 1
 ; CHECK: [[T2:%.*]] = call i64 @llvm.umin.i64(i64 [[WREM]], i64 [[T1]])
 ; CHECK: [[VL:%.*]] = trunc i64 [[T2]] to i32
-; CHECK-GE15: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, i32 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
-; CHECK-LT15: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0nxv2i32(<vscale x 2 x i32>* {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, i32 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
+; CHECK-GE15: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, (i32|i64) 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
+; CHECK-LT15: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0nxv2i32(<vscale x 2 x i32>* {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, (i32|i64) 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
 ; CHECK-GE15: [[RHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK]], i32 [[VL]])
 ; CHECK-LT15: [[RHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0nxv2i32(<vscale x 2 x i32>* {{%.*}}, [[TRUEMASK]], i32 [[VL]])
 ; CHECK: [[ADD:%.*]] = call <vscale x 2 x i32> @llvm.vp.udiv.nxv2i32(<vscale x 2 x i32> [[LHS]], <vscale x 2 x i32> [[RHS]], [[TRUEMASK]], i32 [[VL]])

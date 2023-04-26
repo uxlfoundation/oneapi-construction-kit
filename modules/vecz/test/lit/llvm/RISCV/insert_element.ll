@@ -92,8 +92,8 @@ entry:
 ; IE-NEXT:    [[SPLAT2:%.*]] = shufflevector <vscale x 16 x i32> [[SPLATINSERT1]], <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer
 ; IE-NEXT:    [[ELTS:%.*]] = call <vscale x 16 x float> @llvm.{{(experimental.)?}}vector.insert.nxv16f32.nxv4f32(<vscale x 16 x float> poison, <vscale x 4 x float> [[SPLAT]], i64 0)
 ; IE-NEXT:    [[STEP:%.*]] = call <vscale x 16 x i32> @llvm.experimental.stepvector.nxv16i32()
-; IE-NEXT:    [[INNER:%.*]] = and <vscale x 16 x i32> [[STEP]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 3, i32 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
-; IE-NEXT:    [[OUTER:%.*]] = lshr <vscale x 16 x i32> [[STEP]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 2, i32 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
+; IE-NEXT:    [[INNER:%.*]] = and <vscale x 16 x i32> [[STEP]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 3, {{i32|i64}} 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
+; IE-NEXT:    [[OUTER:%.*]] = lshr <vscale x 16 x i32> [[STEP]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 2, {{i32|i64}} 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
 ; IE-NEXT:    [[VM:%.*]] = icmp eq <vscale x 16 x i32> [[SPLAT2]], [[INNER]]
 ; IE-NEXT:    [[TMP8:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.mask.nxv16f32.i64(<vscale x 16 x float> [[TMP1:%.*]], <vscale x 16 x float> [[ELTS]], <vscale x 16 x i32> [[OUTER]], <vscale x 16 x i1> [[VM]], i64 [[TMP2]]{{(, i64 1)?}})
 
@@ -112,7 +112,7 @@ entry:
 ; IE-INDICES-NEXT-GE15:    [[TMP9:%.*]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> undef, <vscale x 16 x i32> [[VS2:%.*]], <vscale x 16 x i32> [[IDX1]], i64 [[TMP5]])
 ; IE-INDICES-NEXT-LT15:    [[TMP9:%.*]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> [[VS2:%.*]], <vscale x 16 x i32> [[IDX1]], i64 [[TMP5]])
 ; IE-INDICES-NEXT:    [[VS25:%.*]] = call <vscale x 16 x float> @llvm.{{(experimental.)?}}vector.insert.nxv16f32.nxv4f32(<vscale x 16 x float> poison, <vscale x 4 x float> [[FIDX2]], i64 0)
-; IE-INDICES-NEXT:    [[INNER:%.*]] = and <vscale x 16 x i32> [[IDX0]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 3, i32 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
+; IE-INDICES-NEXT:    [[INNER:%.*]] = and <vscale x 16 x i32> [[IDX0]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 3, {{i32|i64}} 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
 ; IE-INDICES-NEXT:    [[VM:%.*]] = icmp eq <vscale x 16 x i32> [[TMP9]], [[INNER]]
 ; IE-INDICES-NEXT:    [[TMP11:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.mask.nxv16f32.i64(<vscale x 16 x float> [[TMP4:%.*]], <vscale x 16 x float> [[VS25]], <vscale x 16 x i32> [[IDX1]], <vscale x 16 x i1> [[VM]], i64 [[TMP5]]{{(, i64 1)?}})
 

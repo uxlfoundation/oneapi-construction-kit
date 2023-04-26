@@ -34,7 +34,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_inclusive_add_vp_u5nxv4jj(<v
 ; CHECK:   %[[IV:.+]] = phi i32 [ 1, %entry ], [ %[[N2:.+]], %loop ]
 ; CHECK:   %[[VEC:.+]] = phi <vscale x 4 x i32> [ %0, %entry ], [ %[[NEWVEC:.+]], %loop ]
 ; CHECK:   %[[MASKPHI:.+]] = phi <vscale x 4 x i32> [ %[[STEP]], %entry ], [ %[[NEWMASK:.+]], %loop ]
-; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], i32 0
+; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], {{i32|i64}} 0
 ; CHECK:   %[[N_SPLAT:.+]] = shufflevector <vscale x 4 x i32> %[[N_INS]], <vscale x 4 x i32> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %[[MASK:.+]] = xor <vscale x 4 x i32> %[[MASKPHI]], %[[N_SPLAT]]
 
@@ -43,7 +43,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_inclusive_add_vp_u5nxv4jj(<v
 ;------- there will be a bitcast here if pointers are typed
 ; CHECK:   %[[INDEX:.+]] = getelementptr inbounds i32, [[PTRTY:(i32\*)|ptr]] %{{.+}}, <vscale x 4 x i32> %[[MASK]]
 ; CHECK:   %[[VLSTEP:.+]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
-; CHECK:   %[[VLINS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %1, i32 0
+; CHECK:   %[[VLINS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %1, {{i32|i64}} 0
 ; CHECK:   %[[VLSPLAT:.+]] = shufflevector <vscale x 4 x i32> %[[VLINS]], <vscale x 4 x i32> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %[[VLMASK:.+]] = icmp ult <vscale x 4 x i32> %3, %[[VLSPLAT]]
 ; CHECK:   %[[SHUFFLE:.+]] = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p0{{(i32)?}}(<vscale x 4 x [[PTRTY]]> %[[INDEX]], i32 4, <vscale x 4 x i1> %[[VLMASK]], <vscale x 4 x i32> undef)
@@ -71,7 +71,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_exclusive_add_vp_u5nxv4jj(<v
 ; CHECK:   %[[IV:.+]] = phi i32 [ 1, %entry ], [ %[[N2:.+]], %loop ]
 ; CHECK:   %[[VEC:.+]] = phi <vscale x 4 x i32> [ %0, %entry ], [ %[[NEWVEC:.+]], %loop ]
 ; CHECK:   %[[MASKPHI:.+]] = phi <vscale x 4 x i32> [ %[[STEP]], %entry ], [ %[[NEWMASK:.+]], %loop ]
-; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], i32 0
+; CHECK:   %[[N_INS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %[[IV]], {{i32|i64}} 0
 ; CHECK:   %[[N_SPLAT:.+]] = shufflevector <vscale x 4 x i32> %[[N_INS]], <vscale x 4 x i32> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %[[MASK:.+]] = xor <vscale x 4 x i32> %[[MASKPHI]], %[[N_SPLAT]]
 
@@ -80,7 +80,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_exclusive_add_vp_u5nxv4jj(<v
 ;------- there will be a bitcast here if pointers are typed
 ; CHECK:   %[[INDEX:.+]] = getelementptr inbounds i32, [[PTRTY:(i32\*)|ptr]] %{{.+}}, <vscale x 4 x i32> %[[MASK]]
 ; CHECK:   %[[VLSTEP:.+]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
-; CHECK:   %[[VLINS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %1, i32 0
+; CHECK:   %[[VLINS:.+]] = insertelement <vscale x 4 x i32> poison, i32 %1, {{i32|i64}} 0
 ; CHECK:   %[[VLSPLAT:.+]] = shufflevector <vscale x 4 x i32> %[[VLINS]], <vscale x 4 x i32> poison, <vscale x 4 x i32> zeroinitializer
 ; CHECK:   %[[VLMASK:.+]] = icmp ult <vscale x 4 x i32> %3, %[[VLSPLAT]]
 ; CHECK:   %[[SHUFFLE:.+]] = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p0{{(i32)?}}(<vscale x 4 x [[PTRTY]]> %[[INDEX]], i32 4, <vscale x 4 x i1> %[[VLMASK]], <vscale x 4 x i32> undef)
@@ -98,7 +98,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_exclusive_add_vp_u5nxv4jj(<v
 
 ;------- target-dependent slide-up code:
 ; CHECK:   %[[SLIDE:.+]] = call <vscale x 4 x i32> @llvm.experimental.vector.splice.nxv4i32(<vscale x 4 x i32> undef, <vscale x 4 x i32> %[[SCAN]], i32 -1)
-; CHECK:   %[[RESULT:.+]] = insertelement <vscale x 4 x i32> %[[SLIDE]], i32 0, i64 0
+; CHECK:   %[[RESULT:.+]] = insertelement <vscale x 4 x i32> %[[SLIDE]], i32 0, {{i32|i64}} 0
 
 ; CHECK:   ret <vscale x 4 x i32> %[[RESULT]]
 ; CHECK: }

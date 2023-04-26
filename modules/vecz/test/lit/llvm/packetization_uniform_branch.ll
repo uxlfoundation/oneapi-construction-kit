@@ -72,7 +72,7 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK-GE15: define spir_kernel void @__vecz_v4_test_uniform_branch(i32 %a, ptr %b)
 ; CHECK-LT15: define spir_kernel void @__vecz_v4_test_uniform_branch(i32 %a, i32* %b)
 ; CHECK: %call = call spir_func i64 @_Z13get_global_idj(i32 0)
-; CHECK: %[[SPLATINSERT:.+]] = insertelement <4 x i64> {{poison|undef}}, i64 %call, i32 0
+; CHECK: %[[SPLATINSERT:.+]] = insertelement <4 x i64> {{poison|undef}}, i64 %call, {{i32|i64}} 0
 ; CHECK: %[[SPLAT:.+]] = shufflevector <4 x i64> %[[SPLATINSERT]], <4 x i64> {{poison|undef}}, <4 x i32> zeroinitializer
 ; CHECK: %[[GID:.+]] = add <4 x i64> %[[SPLAT]], <i64 0, i64 1, i64 2, i64 3>
 ; CHECK: %cmp = icmp eq i32 %a, 42
