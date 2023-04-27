@@ -1,6 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// TODO: Enable offline, spir and spir-v testing (see CA-4062).
-// REQUIRES: parameters
+// CLC OPTIONS: -cl-std=CL3.0
 kernel void sub_group_reduce_min_float(global float *in, global size_t *out_a,
                                        global float *out_b) {
   const size_t glid = get_global_linear_id();

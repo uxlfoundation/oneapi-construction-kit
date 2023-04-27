@@ -1,6 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// TODO: Enable offline, spir and spir-v testing (see CA-4062).
-// REQUIRES: parameters
+// CLC OPTIONS: -cl-std=CL3.0
 kernel void get_sub_group_size(global uint *out) {
   out[get_global_linear_id()] = get_sub_group_size();
 }

@@ -60,7 +60,7 @@ struct LocalSizes {
 
 // Base class that makes the necessary checks for the existence of sub-groups in
 // the OpenCL implementation.
-// TODO: Enable offline, spir and spir-v testing (see CA-4062).
+// TODO: Enable spir and spir-v testing (see CA-4062).
 class SubGroupTest : public kts::ucl::ExecutionWithParam<LocalSizes> {
  protected:
   void SetUp() override {
@@ -2364,7 +2364,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Float) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(
-    SubGroupTest, testing::Values(kts::ucl::OPENCL_C),
+    SubGroupTest, testing::Values(kts::ucl::OPENCL_C, kts::ucl::OFFLINE),
     testing::Values(LocalSizes(64, 1, 1), LocalSizes(8, 8, 1),
                     LocalSizes(4, 4, 4),
                     // Local size of 1 on X-dimension won't vectorize

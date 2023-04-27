@@ -1,6 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// TODO: Enable offline, spir and spir-v testing (see CA-4062).
-// REQUIRES: parameters
+// CLC OPTIONS: -cl-std=CL3.0
 kernel void sub_group_scan_exclusive_min_int(global int *in,
                                              global uint2 *out_a,
                                              global int *out_b) {
