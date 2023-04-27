@@ -1,9 +1,5 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-if(CA_CL_STANDARD AND CA_CL_STANDARD VERSION_GREATER 1.2)
-  set(CLC_CL_STD_30 ON)
-endif()
-
 add_ca_executable(clc
   ${CMAKE_CURRENT_SOURCE_DIR}/clc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/clc.cpp
@@ -13,8 +9,7 @@ target_compile_options(clc PRIVATE
 target_compile_definitions(clc PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
   CLC_VERSION="${PROJECT_VERSION}"
-  CLC_LLVM_VERSION="${LLVM_PACKAGE_VERSION}"
-  CLC_CL_STD_30=$<BOOL:${CLC_CL_STD_30}>)
+  CLC_LLVM_VERSION="${LLVM_PACKAGE_VERSION}")
 target_include_directories(clc PUBLIC
   ${PROJECT_SOURCE_DIR}/source/cl/source/compiler/include)
 target_link_libraries(clc PRIVATE CL-binary compiler-static builtins cargo)

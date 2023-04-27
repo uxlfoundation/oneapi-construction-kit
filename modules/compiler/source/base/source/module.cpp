@@ -686,9 +686,7 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
       llvm::StringSwitch<Standard>(cargo::as<llvm::StringRef>(cl_std))
           .Case("CL1.1", Standard::OpenCLC11)
           .Case("CL1.2", Standard::OpenCLC12)
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
           .Case("CL3.0", Standard::OpenCLC30)
-#endif
           .Default(options.standard);
 
   if (options.fast_math) {
@@ -1025,6 +1023,8 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   // defines set by the build system.
   if (!device_info->image_support) {
     addMacroUndef("__IMAGE_SUPPORT__");
+    addMacroUndef("__opencl_c_images");
+    addMacroUndef("__opencl_c_3d_image_writes");
   }
 
   // Clang blindly sets the highest CL_VERSION that it supports (2.0), so
@@ -1055,7 +1055,6 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   addOpenCLOpt("-cl_khr_int64_extended_atomics");
   addMacroUndef("cl_khr_int64_extended_atomics");
 
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   if (options.standard == Standard::OpenCLC30) {
     // work-group collective functions are an optional feature in OpenCL 3.0.
     if (device_info->supports_work_group_collectives) {
@@ -1081,9 +1080,6 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   addMacroUndef("__opencl_c_device_enqueue");
   addMacroUndef("__opencl_c_pipes");
   addMacroUndef("__opencl_c_read_write_images");
-  addMacroUndef("__opencl_c_images");
-  addMacroUndef("__opencl_c_3d_image_writes");
-#endif
 }  // namespace compiler
 
 clang::LangStandard::Kind BaseModule::setClangOpenCLStandard(
@@ -1095,11 +1091,9 @@ clang::LangStandard::Kind BaseModule::setClangOpenCLStandard(
     case Standard::OpenCLC12:
       lang_opts.OpenCLVersion = 120;
       return clang::LangStandard::lang_opencl12;
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
     case Standard::OpenCLC30:
       lang_opts.OpenCLVersion = 300;
       return clang::LangStandard::lang_opencl30;
-#endif
     default:
       llvm_unreachable("clang language standard not initialised");
   }
@@ -1153,11 +1147,9 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) {
   // programs in the wild.
   lang_opts.GNUInline = true;
 
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   lang_opts.OpenCLGenericAddressSpace =
       (options.standard == Standard::OpenCLC30) &&
       device_info->supports_generic_address_space;
-#endif
 }
 
 std::string BaseModule::debugDumpKernelSource(
@@ -1362,7 +1354,6 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
     instance.getSourceManager().overrideFileContents(entry, std::move(buffer));
   };
 
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   if (options.standard >= Standard::OpenCLC30) {
     const auto &source = builtins::get_api_30_src_file();
     const std::string name = "builtins-3.0.h";
@@ -1370,7 +1361,6 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
     // Add the forced header to the list of includes
     pp_opts.Includes.push_back(name);
   }
-#endif
 
   // Load optional force-include header
   auto device_header =

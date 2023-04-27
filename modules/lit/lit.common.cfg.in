@@ -82,20 +82,6 @@ config.ca_host_bits = 64 if (
     ('@CA_BUILD_32_BITS@' != 'ON' or '@CMAKE_CL_64@' == '1')
 ) else 32
 
-cl_std = '@CA_CL_STANDARD@'
-
-if cl_std:
-    config.ca_opencl_std = tuple(map(int, cl_std.split('.')))
-
-    if config.ca_opencl_std[0] == 1:
-        config.available_features.add('cl-std-1.x')
-    if config.ca_opencl_std == (1,2):
-        config.available_features.add('cl-std-1.2')
-    if config.ca_opencl_std == (3,0):
-        config.available_features.add('cl-std-3.0')
-    if config.ca_opencl_std[0] == 3:
-        config.available_features.add('cl-std-3.x')
-
 
 def is_native_exe(path):
     """Determines if an executable is native."""

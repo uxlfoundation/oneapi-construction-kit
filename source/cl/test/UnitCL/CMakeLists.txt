@@ -195,6 +195,36 @@ add_ca_cl_executable(UnitCL
   source/ktst_vecz_tasks_task_15.cpp
   source/ktst_vload_vstore.cpp
 
+  # 3.0 tests
+  source/C11Atomics.cpp
+  source/FeatureMacros.cpp
+  source/clCloneKernel.cpp
+  source/clCreateBufferWithProperties.cpp
+  source/clCreateCommandQueueWithProperties.cpp
+  source/clCreatePipe.cpp
+  source/clCreateProgramWithIL.cpp
+  source/clEnqueueSVMFree.cpp
+  source/clEnqueueSVMMap.cpp
+  source/clEnqueueSVMMemFill.cpp
+  source/clEnqueueSVMMemcpy.cpp
+  source/clEnqueueSVMMigrateMem.cpp
+  source/clEnqueueSVMUnmap.cpp
+  source/clGetDeviceAndHostTimer.cpp
+  source/clGetHostTimer.cpp
+  source/clGetKernelSubGroupInfo.cpp
+  source/clGetPipeInfo.cpp
+  source/clSVMAlloc.cpp
+  source/clSVMFree.cpp
+  source/clSetContextDestructorCallback.cpp
+  source/clSetDefaultDeviceCommandQueue.cpp
+  source/clSetKernelArgSVMPointer.cpp
+  source/clSetKernelExecInfo.cpp
+  source/clSetProgramReleaseCallback.cpp
+  source/clSetProgramSpecializationConstant.cpp
+  source/ctz.cpp
+  source/sub_groups.cpp
+  source/work_group_collective_functions.cpp
+
   # Extension tests
   include/cl_codeplay_kernel_exec_info.h
   include/cl_codeplay_wfv.h
@@ -267,38 +297,6 @@ if(${OCL_EXTENSION_cl_khr_extended_async_copies})
     source/cl_khr_extended_async_copies/extended_async.cpp)
 endif()
 #cl_khr_extended_async_copies
-
-if(CA_CL_STANDARD_INTERNAL EQUAL 300 OR CA_CL_STANDARD_INTERNAL GREATER 300)
-  target_ca_sources(UnitCL PRIVATE
-    source/C11Atomics.cpp
-    source/FeatureMacros.cpp
-    source/clCloneKernel.cpp
-    source/clCreateBufferWithProperties.cpp
-    source/clCreateCommandQueueWithProperties.cpp
-    source/clCreatePipe.cpp
-    source/clCreateProgramWithIL.cpp
-    source/clEnqueueSVMFree.cpp
-    source/clEnqueueSVMMap.cpp
-    source/clEnqueueSVMMemFill.cpp
-    source/clEnqueueSVMMemcpy.cpp
-    source/clEnqueueSVMMigrateMem.cpp
-    source/clEnqueueSVMUnmap.cpp
-    source/clGetDeviceAndHostTimer.cpp
-    source/clGetHostTimer.cpp
-    source/clGetKernelSubGroupInfo.cpp
-    source/clGetPipeInfo.cpp
-    source/clSVMAlloc.cpp
-    source/clSVMFree.cpp
-    source/clSetContextDestructorCallback.cpp
-    source/clSetDefaultDeviceCommandQueue.cpp
-    source/clSetKernelArgSVMPointer.cpp
-    source/clSetKernelExecInfo.cpp
-    source/clSetProgramReleaseCallback.cpp
-    source/clSetProgramSpecializationConstant.cpp
-    source/ctz.cpp
-    source/sub_groups.cpp
-    source/work_group_collective_functions.cpp)
-endif()
 
 target_include_directories(UnitCL PRIVATE
   include ${CMAKE_CURRENT_BINARY_DIR}/include)

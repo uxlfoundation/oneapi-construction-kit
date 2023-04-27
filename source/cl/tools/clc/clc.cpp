@@ -142,11 +142,7 @@ driver::driver()
       context(nullptr),
       module(nullptr) {}
 
-#if CLC_CL_STD_30
 #define CL_STD_CHOICES "{CL1.1,CL1.2,CL3.0}\n                        "
-#else
-#define CL_STD_CHOICES "{CL1.1,CL1.2} "
-#endif
 
 const char *CLC_USAGE =
     R"(usage: %s [options] [--] [<input>]

@@ -49,19 +49,6 @@ ca_option(CA_CL_PUBLIC_LINK_LIBRARIES STRING
         "Set additional libraries that CL should link against" "")
 
 #[=======================================================================[.rst:
-.. cmake:variable:: CA_CL_STANDARD
-
-  A string CMake option to set the OpenCL standard version to use.
-  ComputeAorta targets OpenCL-1.2 and OpenCL-3.0, this option **must** be
-  ``"1.2"`` or ``"3.0"``.
-
-  Default value
-    ``"3.0"``
-#]=======================================================================]
-ca_option(CA_CL_STANDARD STRING
-        "OpenCL standard version to build (1.2 or 3.0)" "3.0")
-
-#[=======================================================================[.rst:
 .. cmake:variable:: CA_CL_ENABLE_ICD_LOADER
 
   A boolean CMake option to enable building with the
@@ -206,7 +193,7 @@ ca_option(CA_CL_CTS_ENABLE_CHECK BOOL "Enable check-cl-cts testing" ON)
 #]=======================================================================]
 ca_option(CA_CL_TEST_STATIC_LIB BOOL
   "Perform unit and lit testing with the static CL library." OFF)
-if(CA_CL_TEST_STATIC_LIB AND CA_CL_STANDARD STREQUAL "3.0")
+if(CA_CL_TEST_STATIC_LIB)
   message(WARNING
     "Testing with the static lib has known issues with CL 3.0, see CA-3650.")
 endif()

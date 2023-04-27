@@ -163,15 +163,10 @@ llvm::ModulePassManager hostGetKernelPasses(
   // with removing fences. In OpenCL 3.0 the memory model is better defined, and
   // just removing fences could result in incorrect behavior for valid 3.0
   // OpenCL applications.
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   if (options.standard != compiler::Standard::OpenCLC30) {
     PM.addPass(llvm::createModuleToFunctionPassAdaptor(
         compiler::utils::RemoveFencesPass()));
   }
-#else
-  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
-      compiler::utils::RemoveFencesPass()));
-#endif
 
   PM.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
 

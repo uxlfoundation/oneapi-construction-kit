@@ -41,8 +41,6 @@ if(${OCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch})
     ${CMAKE_CURRENT_SOURCE_DIR}/include/common.h)
 endif()
 
-if(CA_CL_STANDARD VERSION_GREATER_EQUAL 3.0)
-  add_ca_cl_example(clSubGroups
-    ${CMAKE_CURRENT_SOURCE_DIR}/SubGroups/source/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/common.h)
-endif()
+add_ca_cl_example(clSubGroups
+  ${CMAKE_CURRENT_SOURCE_DIR}/SubGroups/source/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/common.h)

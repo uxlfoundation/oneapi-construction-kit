@@ -1,16 +1,5 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-# Some features of the compiler library are conditionally enabled or disabled at
-# compile time depending on the CL version. As CA_CL_STANDARD is added as an
-# option in source/cl/CMakelists.txt, it may not actually be defined yet,
-# especially in a "no CL" build configuration. Therefore, we default it to 1.2.
-set(CA_CL_STANDARD_INTERNAL 1.2)
-if(CA_CL_STANDARD)
-    set(CA_CL_STANDARD_INTERNAL ${CA_CL_STANDARD})
-endif()
-string(REPLACE "." "" CA_CL_STANDARD_INTERNAL ${CA_CL_STANDARD_INTERNAL})
-string(APPEND CA_CL_STANDARD_INTERNAL "0")
-
 # If coverage is enabled we add the modules so that the XML file can be
 # generated automatically.
 if(CA_ENABLE_COVERAGE)
@@ -69,36 +58,22 @@ target_include_directories(compiler-base PUBLIC
 target_include_directories(compiler-base SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include)
 
-# Enable OpenCL 3.0 compiler features if 3.0 is specified in the CMake command
-# line.
-if(CA_CL_STANDARD VERSION_EQUAL "3.0")
-  target_compile_definitions(compiler-base PUBLIC CA_COMPILER_ENABLE_CL_VERSION_3_0)
-endif()
-
 target_link_libraries(compiler-base PUBLIC
   builtins cargo mux spirv-ll compiler-utils vecz
   clangCodeGen LLVMCodeGen LLVMCoroutines LLVMCoverage LLVMLTO)
 
 target_compile_definitions(compiler-base PRIVATE
-  $<$<VERSION_EQUAL:${CA_CL_STANDARD},3.0
-  >:ABACUS_ENABLE_OPENCL_3_0_BUILTINS>
-  # CL_TARGET_OPENCL_VERSION is only used to change the behaviour of the
-  # compiler implementation, so therefore is kept PRIVATE.
-  CL_TARGET_OPENCL_VERSION=${CA_CL_STANDARD_INTERNAL}
   # Abacus builtins are only included as part of the .cpp files, so these
   # defines can also be kept PRIVATE.
   ABACUS_ENABLE_OPENCL_1_2_BUILTINS
-  $<$<EQUAL:${CA_CL_STANDARD_INTERNAL},300>:ABACUS_ENABLE_OPENCL_3_0_BUILTINS>)
+  ABACUS_ENABLE_OPENCL_3_0_BUILTINS)
 
 set(CA_COMPILER_LLVM_VERSION "${LLVM_PACKAGE_VERSION}")
 if(NOT ${BUILD_TYPE_UPPER} MATCHES "RELEASE")
   string(APPEND CA_COMPILER_LLVM_VERSION " (${LLVM_BUILD_TYPE})")
 endif()
 target_compile_definitions(compiler-base PUBLIC
-  CA_COMPILER_LLVM_VERSION=\"${CA_COMPILER_LLVM_VERSION}\"
-  # This modifies the interface by advertising OpenCL C 3 support in the header,
-  # therefore it's a PUBLIC definition.
-  $<$<EQUAL:${CA_CL_STANDARD_INTERNAL},300>:CA_COMPILER_ENABLE_CL_VERSION_3_0>)
+  CA_COMPILER_LLVM_VERSION=\"${CA_COMPILER_LLVM_VERSION}\")
 
 # Compiler passes in this module include abacus headers, so ensure they are
 # generated before this module starts to build.

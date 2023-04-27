@@ -1,6 +1,5 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; REQUIRES: cl-std-3.x
 ; RUN: %muxc --device "%default_device" --passes "link-builtins<early>,verify" -S %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"

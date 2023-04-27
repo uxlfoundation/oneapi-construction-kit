@@ -33,10 +33,8 @@ enum class Standard {
   OpenCLC11,
   /// @brief Target OpenCL C 1.2
   OpenCLC12,
-#if defined(CA_COMPILER_ENABLE_CL_VERSION_3_0)
   /// @brief Target OpenCL C 3.0
   OpenCLC30,
-#endif
 };
 
 namespace SnapshotStage {

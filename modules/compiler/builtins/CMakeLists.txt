@@ -189,10 +189,8 @@ macro(build_builtins triple bits fp64 fp16)
   # to allow non-dummy files can be built.
   remove_dummy_file(
     ${CMAKE_CURRENT_BINARY_DIR}/builtins_cl${bits}${cap_suf}.bc)
-  if(CA_CL_STANDARD AND CA_CL_STANDARD VERSION_GREATER 1.2)
-    remove_dummy_file(
-      ${CMAKE_CURRENT_BINARY_DIR}/builtins_30_cl${bits}${cap_suf}.bc)
-  endif()
+  remove_dummy_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/builtins_30_cl${bits}${cap_suf}.bc)
   remove_dummy_file(
     ${CMAKE_CURRENT_BINARY_DIR}/builtins_cxx${bits}${cap_suf}.bc)
   if(CA_ENABLE_HOST_IMAGE_SUPPORT)
@@ -224,19 +222,16 @@ macro(build_builtins triple bits fp64 fp16)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/clbuiltins.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/image_library_integration.h)
 
-  if(CA_CL_STANDARD AND (CA_CL_STANDARD VERSION_GREATER 3.0 OR
-    CA_CL_STANDARD VERSION_EQUAL 3.0))
-    # Build OpenCL C 3.0 builtins
-    build_cl_bc_cmd(TRIPLE ${triple}
-      INPUT ${CMAKE_CURRENT_SOURCE_DIR}/source/builtins-3.0.cl
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtins_30_cl${bits}${cap_suf}.bc
-      STD CL3.0 EXTRA_OPTS ${BUILTINS_EXTRA_OPTIONS}
-      DEPENDENCIES
-      abacus_generate ${ABACUS_GENERATED_FILES}
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/clbuiltins-3.0.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins-3.0.h)
-  endif()
+  # Build OpenCL C 3.0 builtins
+  build_cl_bc_cmd(TRIPLE ${triple}
+    INPUT ${CMAKE_CURRENT_SOURCE_DIR}/source/builtins-3.0.cl
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/builtins_30_cl${bits}${cap_suf}.bc
+    STD CL3.0 EXTRA_OPTS ${BUILTINS_EXTRA_OPTIONS}
+    DEPENDENCIES
+    abacus_generate ${ABACUS_GENERATED_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/clbuiltins-3.0.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins-3.0.h)
 
   # Build C++ builtins
   build_cxx_bc_cmd(TRIPLE ${triple}
@@ -403,6 +398,7 @@ set(CA_ALL_BC_PCH_PREFIXES
 # Header prefixes like BC/PCH file prefixes
 set(builtins_h_prefixes
   "builtins"
+  "builtins_30"
   ${CA_FORCE_HEADERS_PREFIXES})
 
 # Header files can be in many places, so need to store a path corresponding to
@@ -410,14 +406,8 @@ set(builtins_h_prefixes
 # GenerateRCFile uses *null_terminated files in the build directory.
 set(CA_ALL_BUILTINS_H_PATHS
   "${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins-3.0.h"
   ${CA_FORCE_HEADERS_PATHS})
-
-if(CA_CL_STANDARD AND (CA_CL_STANDARD VERSION_GREATER 3.0 OR
-    CA_CL_STANDARD VERSION_EQUAL 3.0))
-  list(APPEND builtins_h_prefixes "builtins_30")
-  list(APPEND CA_ALL_BUILTINS_H_PATHS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins-3.0.h")
-endif()
 
 # Must be set in the internal cache since as it is used outside of this
 # CMakeLists.txt file by add_builtins_rc_file().
@@ -617,10 +607,7 @@ target_compile_options(builtins PRIVATE
     -Wno-unused-command-line-argument
   >)
 
-if(CA_CL_STANDARD AND (CA_CL_STANDARD VERSION_GREATER 3.0 OR
-   CA_CL_STANDARD VERSION_EQUAL 3.0))
-  target_compile_definitions(builtins PRIVATE CL_VERSION_3_0)
-endif()
+target_compile_definitions(builtins PRIVATE CL_VERSION_3_0)
 
 target_link_libraries(builtins PUBLIC cargo abacus_static image_library_host)
 

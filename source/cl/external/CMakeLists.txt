@@ -126,9 +126,9 @@ if(CA_CL_ENABLE_ICD_LOADER)
     set_ca_target_output_directory(OpenCL)
 
   endif()
-# Many of our test programs still use older, deprecated API entry points even
-# when compiled as OpenCL 3.0 programs, so disable deprecation warnings.
-if(CA_CL_STANDARD_INTERNAL GREATER 300 OR CA_CL_STANDARD_INTERNAL EQUAL 300)
+
+  # Many of our test programs still use older, deprecated API entry points even
+  # when compiled as OpenCL 3.0 programs, so disable deprecation warnings.
   if(CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set_target_properties(OpenCL PROPERTIES INTERFACE_COMPILE_OPTIONS
       /wd4996)
@@ -136,7 +136,7 @@ if(CA_CL_STANDARD_INTERNAL GREATER 300 OR CA_CL_STANDARD_INTERNAL EQUAL 300)
     set_target_properties(OpenCL PROPERTIES INTERFACE_COMPILE_OPTIONS
       -Wno-deprecated-declarations)
   endif()
-endif()
+
 elseif(CA_CL_ENABLE_INTERCEPT_LAYER)
   message(FATAL_ERROR "\
 CA_CL_ENABLE_INTERCEPT_LAYER is ON but CA_CL_ENABLE_ICD_LOADER is OFF, to use

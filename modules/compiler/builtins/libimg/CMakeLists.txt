@@ -78,20 +78,6 @@ target_include_directories(image_library_host SYSTEM PUBLIC
 target_compile_options(image_library_host
   PRIVATE ${CA_COMPILE_OPTIONS})
 
-# Convert the version into a string that is easier to work with.
-# TODO CA-600: This is code duplication of similar parsing done
-# in source/cl/CMakelists.txt. The limimg library should be API
-# agnostic, once this is fixed the CL_TARGET_OPENCL_VERSION
-# definition can be removed, fixing the code duplication.
-# We also need to check that the CA_CL_STANDARD is actually defined
-# since it is added as an option in source/cl/CMakelists.txt but this
-# file won't see that unless the user defined it on the commandline.
-set(CA_CL_STANDARD_INTERNAL 1.2)
-if(CA_CL_STANDARD)
-  set(CA_CL_STANDARD_INTERNAL ${CA_CL_STANDARD})
-endif()
-string(REPLACE "." "" CA_CL_STANDARD_INTERNAL ${CA_CL_STANDARD_INTERNAL})
-string(APPEND CA_CL_STANDARD_INTERNAL "0")
 target_compile_definitions(image_library_host
   PUBLIC CL_TARGET_OPENCL_VERSION=${CA_CL_STANDARD_INTERNAL}
   PRIVATE ${CA_COMPILE_DEFINITIONS})

@@ -20,7 +20,7 @@ if("${CA_CL_PLATFORM_VERSION}" STREQUAL "")
   # We support OpenCL (1.2|3.0), we don't print this here since we append more
   # information for non-release builds.
   string(CONCAT CA_CL_PLATFORM_VERSION_STRING
-    "OpenCL ${CA_CL_STANDARD} ComputeAorta ${PROJECT_VERSION} "
+    "OpenCL ${CA_CL_PLATFORM_VERSION_MAJOR}.${CA_CL_PLATFORM_VERSION_MINOR} ComputeAorta ${PROJECT_VERSION} "
     "${CMAKE_SYSTEM_NAME} ${CA_HOST_ARCH}")
   set(CA_CL_PLATFORM_VERSION ${CA_CL_PLATFORM_VERSION_STRING})
   # Version strings for non-release builds will have their build type and
@@ -29,17 +29,6 @@ if("${CA_CL_PLATFORM_VERSION}" STREQUAL "")
   if(NOT ${BUILD_TYPE_UPPER} MATCHES "RELEASE")
     string(APPEND CA_CL_PLATFORM_VERSION
       " (${CMAKE_BUILD_TYPE}, ${CA_GIT_COMMIT})")
-  endif()
-  # Construct numeric minor and major versions.
-  if(CA_CL_STANDARD STREQUAL "1.2")
-    set(CA_CL_PLATFORM_VERSION_MAJOR 1)
-    set(CA_CL_PLATFORM_VERSION_MINOR 2)
-  elseif(CA_CL_STANDARD STREQUAL "3.0")
-    set(CA_CL_PLATFORM_VERSION_MAJOR 3)
-    set(CA_CL_PLATFORM_VERSION_MINOR 0)
-  else()
-    message(FATAL_ERROR "Unhandled CA_CL_STANDARD variable: "
-      ${CA_CL_STANDARD})
   endif()
 endif()
 message(STATUS "OpenCL platform version: ${CA_CL_PLATFORM_VERSION}")
@@ -72,7 +61,7 @@ message(STATUS "OpenCL driver version: ${CA_CL_DRIVER_VERSION}")
 if("${CA_CL_DEVICE_VERSION}" STREQUAL "")
   # The device version is OpenCL (1.2|3.0) based, we don't print this here
   # since the LLVM version is appended below.
-  set(CA_CL_DEVICE_VERSION "OpenCL ${CA_CL_STANDARD} ")
+  set(CA_CL_DEVICE_VERSION "OpenCL ${CA_CL_PLATFORM_VERSION_MAJOR}.${CA_CL_PLATFORM_VERSION_MINOR} ")
   string(APPEND CA_CL_DEVICE_VERSION "ComputeAorta ${PROJECT_VERSION}")
 endif()
 message(STATUS "OpenCL device version: ${CA_CL_DEVICE_VERSION}")
@@ -137,14 +126,10 @@ set(CL_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/program.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/semaphore.cpp  
   ${CMAKE_CURRENT_SOURCE_DIR}/source/sampler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/validate.cpp)
-
-if(CA_CL_STANDARD_INTERNAL STREQUAL "300")
-  list(APPEND CL_SOURCE_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/opencl-3.0.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/opencl-3.0.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/exports-3.0.cpp)
-endif()
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/validate.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cl/opencl-3.0.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/opencl-3.0.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/exports-3.0.cpp)
 
 add_ca_library(CL SHARED
   ${CL_SOURCE_FILES} $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>)
@@ -218,10 +203,6 @@ elseif(CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # OPENCL_LIBRARY_NAME name we use CMake to configure these files before use.
   set(CA_CL_LIBRARY_DEF_FILE "export-windows.def")
   set(ExportLibraryName ${CA_CL_LIBRARY_NAME})
-  # We can only expose the 3.0 symbols if they exist.
-  if(CA_CL_STANDARD_INTERNAL LESS 300)
-    set(IS_300 "; ")
-  endif()
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/source/${CA_CL_LIBRARY_DEF_FILE}.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/source/${CA_CL_LIBRARY_DEF_FILE})
@@ -248,11 +229,10 @@ foreach(CL_lib CL CL-static)
 
   # clCreateCommandQueue and clCreateSampler were deprecated in OpenCL-3.0.
   target_compile_options(${CL_lib} PUBLIC
-    $<$<STREQUAL:${CA_CL_STANDARD_INTERNAL},300>:
-      $<$<CXX_COMPILER_ID:MSVC>:/wd4996>
-      $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
-        -Wno-deprecated-declarations>
-    >)
+    $<$<CXX_COMPILER_ID:MSVC>:/wd4996>
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
+      -Wno-deprecated-declarations>
+  )
 
   target_include_directories(${CL_lib} SYSTEM PUBLIC ${CL_INCLUDE_DIR})
   target_include_directories(${CL_lib} PUBLIC ${CA_CL_EXTENSION_INCLUDE_DIRS}

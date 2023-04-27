@@ -68,8 +68,6 @@ target_include_directories(compiler-host PUBLIC
     ${CMAKE_SOURCE_DIR}/modules/mux/include)
 
 target_compile_definitions(compiler-host PUBLIC
-  # Enable OpenCL 3.0 compiler features if 3.0 is enabled.
-  $<$<VERSION_EQUAL:${CA_CL_STANDARD},3.0>:CA_COMPILER_ENABLE_CL_VERSION_3_0>
   $<$<TARGET_EXISTS:resources-host>:CA_ENABLE_HOST_BUILTINS>)
 
 if(TARGET builtins-host)

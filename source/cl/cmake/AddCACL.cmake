@@ -23,17 +23,6 @@ To use this module with :cmake:command:`add_ca_example_subdirectory`:
   include(${ComputeAorta_SOURCE_DIR}/source/cl/cmake/AddCACL.cmake)
 #]=======================================================================]
 
-set(CA_CL_SUPPORTED_STANDARDS "1.2" "3.0")
-if(NOT CA_CL_STANDARD IN_LIST CA_CL_SUPPORTED_STANDARDS)
-  message(FATAL_ERROR "OpenCL-${CA_CL_STANDARD} not supported "
-    "ComputeAorta only implements OpenCL-1.2 and OpenCL-3.0. Please "
-    "set CA_CL_STANDARD to 1.2 or 3.0)")
-else()
-  # Convert the version into a string that is easier to work with.
-  string(REPLACE "." "" CA_CL_STANDARD_INTERNAL ${CA_CL_STANDARD})
-  string(APPEND CA_CL_STANDARD_INTERNAL "0")
-endif()
-
 #[=======================================================================[.rst:
 .. cmake:variable:: CA_CL_COMPILE_DEFINITIONS
 
