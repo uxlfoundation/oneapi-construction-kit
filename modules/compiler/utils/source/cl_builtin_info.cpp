@@ -1,6 +1,7 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 #include <compiler/utils/cl_builtin_info.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/ADT/Triple.h>
@@ -491,7 +492,9 @@ struct CLBuiltinEntry {
   /// @brief Identifier for the builtin function.
   BuiltinID ID;
   /// @brief OpenCL name of the builtin function.
-  const char *opencl_name;
+  const char *OpenCLFnName;
+  /// @brief Minimum OpenCL version that supports this builtin.
+  uint32_t MinVer = OpenCLC10;
 };
 
 /// @brief Information about known OpenCL builtins.
@@ -529,9 +532,9 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinGetLocalSize, "get_local_size"},
     {eCLBuiltinGetNumGroups, "get_num_groups"},
     {eCLBuiltinGetGlobalId, "get_global_id"},
-    {eCLBuiltinGetLocalLinearId, "get_local_linear_id"},
-    {eCLBuiltinGetGlobalLinearId, "get_global_linear_id"},
-    {eCLBuiltinGetSubgroupLocalId, "get_sub_group_local_id"},
+    {eCLBuiltinGetLocalLinearId, "get_local_linear_id", OpenCLC20},
+    {eCLBuiltinGetGlobalLinearId, "get_global_linear_id", OpenCLC20},
+    {eCLBuiltinGetSubgroupLocalId, "get_sub_group_local_id", OpenCLC30},
 
     // 6.12.2 Math Functions
     {eCLBuiltinFMax, "fmax"},
@@ -581,9 +584,9 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinMemFence, "mem_fence"},
     {eCLBuiltinReadMemFence, "read_mem_fence"},
     {eCLBuiltinWriteMemFence, "write_mem_fence"},
-    {eCLBuiltinAtomicWorkItemFence, "atomic_work_item_fence"},
-    {eCLBuiltinSubGroupBarrier, "sub_group_barrier"},
-    {eCLBuiltinWorkGroupBarrier, "work_group_barrier"},
+    {eCLBuiltinAtomicWorkItemFence, "atomic_work_item_fence", OpenCLC20},
+    {eCLBuiltinSubGroupBarrier, "sub_group_barrier", OpenCLC30},
+    {eCLBuiltinWorkGroupBarrier, "work_group_barrier", OpenCLC20},
 
     // 6.12.10 Async Copies and Prefetch Functions
     {eCLBuiltinAsyncWorkGroupCopy, "async_work_group_copy"},
@@ -622,89 +625,123 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinPrintf, "printf"},
 
     // 6.15.16 Work-group Collective Functions
-    {eCLBuiltinWorkgroupAll, "work_group_all"},
-    {eCLBuiltinWorkgroupAny, "work_group_any"},
-    {eCLBuiltinWorkgroupBroadcast, "work_group_broadcast"},
-    {eCLBuiltinWorkgroupReduceAdd, "work_group_reduce_add"},
-    {eCLBuiltinWorkgroupReduceMin, "work_group_reduce_min"},
-    {eCLBuiltinWorkgroupReduceMax, "work_group_reduce_max"},
-    {eCLBuiltinWorkgroupScanAddInclusive, "work_group_scan_inclusive_add"},
-    {eCLBuiltinWorkgroupScanAddExclusive, "work_group_scan_exclusive_add"},
-    {eCLBuiltinWorkgroupScanMinInclusive, "work_group_scan_inclusive_min"},
-    {eCLBuiltinWorkgroupScanMinExclusive, "work_group_scan_exclusive_min"},
-    {eCLBuiltinWorkgroupScanMaxInclusive, "work_group_scan_inclusive_max"},
-    {eCLBuiltinWorkgroupScanMaxExclusive, "work_group_scan_exclusive_max"},
+    {eCLBuiltinWorkgroupAll, "work_group_all", OpenCLC20},
+    {eCLBuiltinWorkgroupAny, "work_group_any", OpenCLC20},
+    {eCLBuiltinWorkgroupBroadcast, "work_group_broadcast", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceAdd, "work_group_reduce_add", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceMin, "work_group_reduce_min", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceMax, "work_group_reduce_max", OpenCLC20},
+    {eCLBuiltinWorkgroupScanAddInclusive, "work_group_scan_inclusive_add",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanAddExclusive, "work_group_scan_exclusive_add",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanMinInclusive, "work_group_scan_inclusive_min",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanMinExclusive, "work_group_scan_exclusive_min",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanMaxInclusive, "work_group_scan_inclusive_max",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanMaxExclusive, "work_group_scan_exclusive_max",
+     OpenCLC20},
 
     /// Provided by SPV_KHR_uniform_group_instructions.
-    {eCLBuiltinWorkgroupReduceMul, "work_group_reduce_mul"},
-    {eCLBuiltinWorkgroupReduceAnd, "work_group_reduce_and"},
-    {eCLBuiltinWorkgroupReduceOr, "work_group_reduce_or"},
-    {eCLBuiltinWorkgroupReduceXor, "work_group_reduce_xor"},
-    {eCLBuiltinWorkgroupReduceLogicalAnd, "work_group_reduce_logical_and"},
-    {eCLBuiltinWorkgroupReduceLogicalOr, "work_group_reduce_logical_or"},
-    {eCLBuiltinWorkgroupReduceLogicalXor, "work_group_reduce_logical_xor"},
-    {eCLBuiltinWorkgroupScanMulInclusive, "work_group_scan_inclusive_mul"},
-    {eCLBuiltinWorkgroupScanMulExclusive, "work_group_scan_exclusive_mul"},
-    {eCLBuiltinWorkgroupScanAndInclusive, "work_group_scan_inclusive_and"},
-    {eCLBuiltinWorkgroupScanAndExclusive, "work_group_scan_exclusive_and"},
-    {eCLBuiltinWorkgroupScanOrInclusive, "work_group_scan_inclusive_or"},
-    {eCLBuiltinWorkgroupScanOrExclusive, "work_group_scan_exclusive_or"},
-    {eCLBuiltinWorkgroupScanXorInclusive, "work_group_scan_inclusive_xor"},
-    {eCLBuiltinWorkgroupScanXorExclusive, "work_group_scan_exclusive_xor"},
+    {eCLBuiltinWorkgroupReduceMul, "work_group_reduce_mul", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceAnd, "work_group_reduce_and", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceOr, "work_group_reduce_or", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceXor, "work_group_reduce_xor", OpenCLC20},
+    {eCLBuiltinWorkgroupReduceLogicalAnd, "work_group_reduce_logical_and",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupReduceLogicalOr, "work_group_reduce_logical_or",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupReduceLogicalXor, "work_group_reduce_logical_xor",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanMulInclusive, "work_group_scan_inclusive_mul",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanMulExclusive, "work_group_scan_exclusive_mul",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanAndInclusive, "work_group_scan_inclusive_and",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanAndExclusive, "work_group_scan_exclusive_and",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanOrInclusive, "work_group_scan_inclusive_or",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanOrExclusive, "work_group_scan_exclusive_or",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanXorInclusive, "work_group_scan_inclusive_xor",
+     OpenCLC20},
+    {eCLBuiltinWorkgroupScanXorExclusive, "work_group_scan_exclusive_xor",
+     OpenCLC20},
     {eCLBuiltinWorkgroupScanLogicalAndInclusive,
-     "work_group_scan_inclusive_logical_and"},
+     "work_group_scan_inclusive_logical_and", OpenCLC20},
     {eCLBuiltinWorkgroupScanLogicalAndExclusive,
-     "work_group_scan_exclusive_logical_and"},
+     "work_group_scan_exclusive_logical_and", OpenCLC20},
     {eCLBuiltinWorkgroupScanLogicalOrInclusive,
-     "work_group_scan_inclusive_logical_or"},
+     "work_group_scan_inclusive_logical_or", OpenCLC20},
     {eCLBuiltinWorkgroupScanLogicalOrExclusive,
-     "work_group_scan_exclusive_logical_or"},
+     "work_group_scan_exclusive_logical_or", OpenCLC20},
     {eCLBuiltinWorkgroupScanLogicalXorInclusive,
-     "work_group_scan_inclusive_logical_xor"},
+     "work_group_scan_inclusive_logical_xor", OpenCLC20},
     {eCLBuiltinWorkgroupScanLogicalXorExclusive,
-     "work_group_scan_exclusive_logical_xor"},
+     "work_group_scan_exclusive_logical_xor", OpenCLC20},
 
     // 6.15.19 Subgroup Collective Functions
-    {eCLBuiltinSubgroupAll, "sub_group_all"},
-    {eCLBuiltinSubgroupAny, "sub_group_any"},
-    {eCLBuiltinSubgroupBroadcast, "sub_group_broadcast"},
-    {eCLBuiltinSubgroupReduceAdd, "sub_group_reduce_add"},
-    {eCLBuiltinSubgroupReduceMin, "sub_group_reduce_min"},
-    {eCLBuiltinSubgroupReduceMax, "sub_group_reduce_max"},
-    {eCLBuiltinSubgroupScanAddInclusive, "sub_group_scan_inclusive_add"},
-    {eCLBuiltinSubgroupScanAddExclusive, "sub_group_scan_exclusive_add"},
-    {eCLBuiltinSubgroupScanMinInclusive, "sub_group_scan_inclusive_min"},
-    {eCLBuiltinSubgroupScanMinExclusive, "sub_group_scan_exclusive_min"},
-    {eCLBuiltinSubgroupScanMaxInclusive, "sub_group_scan_inclusive_max"},
-    {eCLBuiltinSubgroupScanMaxExclusive, "sub_group_scan_exclusive_max"},
+    {eCLBuiltinSubgroupAll, "sub_group_all", OpenCLC30},
+    {eCLBuiltinSubgroupAny, "sub_group_any", OpenCLC30},
+    {eCLBuiltinSubgroupBroadcast, "sub_group_broadcast", OpenCLC30},
+    {eCLBuiltinSubgroupReduceAdd, "sub_group_reduce_add", OpenCLC30},
+    {eCLBuiltinSubgroupReduceMin, "sub_group_reduce_min", OpenCLC30},
+    {eCLBuiltinSubgroupReduceMax, "sub_group_reduce_max", OpenCLC30},
+    {eCLBuiltinSubgroupScanAddInclusive, "sub_group_scan_inclusive_add",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanAddExclusive, "sub_group_scan_exclusive_add",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanMinInclusive, "sub_group_scan_inclusive_min",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanMinExclusive, "sub_group_scan_exclusive_min",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanMaxInclusive, "sub_group_scan_inclusive_max",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanMaxExclusive, "sub_group_scan_exclusive_max",
+     OpenCLC30},
     /// Provided by SPV_KHR_uniform_group_instructions.
-    {eCLBuiltinSubgroupReduceMul, "sub_group_reduce_mul"},
-    {eCLBuiltinSubgroupReduceAnd, "sub_group_reduce_and"},
-    {eCLBuiltinSubgroupReduceOr, "sub_group_reduce_or"},
-    {eCLBuiltinSubgroupReduceXor, "sub_group_reduce_xor"},
-    {eCLBuiltinSubgroupReduceLogicalAnd, "sub_group_reduce_logical_and"},
-    {eCLBuiltinSubgroupReduceLogicalOr, "sub_group_reduce_logical_or"},
-    {eCLBuiltinSubgroupReduceLogicalXor, "sub_group_reduce_logical_xor"},
-    {eCLBuiltinSubgroupScanMulInclusive, "sub_group_scan_inclusive_mul"},
-    {eCLBuiltinSubgroupScanMulExclusive, "sub_group_scan_exclusive_mul"},
-    {eCLBuiltinSubgroupScanAndInclusive, "sub_group_scan_inclusive_and"},
-    {eCLBuiltinSubgroupScanAndExclusive, "sub_group_scan_exclusive_and"},
-    {eCLBuiltinSubgroupScanOrInclusive, "sub_group_scan_inclusive_or"},
-    {eCLBuiltinSubgroupScanOrExclusive, "sub_group_scan_exclusive_or"},
-    {eCLBuiltinSubgroupScanXorInclusive, "sub_group_scan_inclusive_xor"},
-    {eCLBuiltinSubgroupScanXorExclusive, "sub_group_scan_exclusive_xor"},
+    {eCLBuiltinSubgroupReduceMul, "sub_group_reduce_mul", OpenCLC30},
+    {eCLBuiltinSubgroupReduceAnd, "sub_group_reduce_and", OpenCLC30},
+    {eCLBuiltinSubgroupReduceOr, "sub_group_reduce_or", OpenCLC30},
+    {eCLBuiltinSubgroupReduceXor, "sub_group_reduce_xor", OpenCLC30},
+    {eCLBuiltinSubgroupReduceLogicalAnd, "sub_group_reduce_logical_and",
+     OpenCLC30},
+    {eCLBuiltinSubgroupReduceLogicalOr, "sub_group_reduce_logical_or",
+     OpenCLC30},
+    {eCLBuiltinSubgroupReduceLogicalXor, "sub_group_reduce_logical_xor",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanMulInclusive, "sub_group_scan_inclusive_mul",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanMulExclusive, "sub_group_scan_exclusive_mul",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanAndInclusive, "sub_group_scan_inclusive_and",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanAndExclusive, "sub_group_scan_exclusive_and",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanOrInclusive, "sub_group_scan_inclusive_or",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanOrExclusive, "sub_group_scan_exclusive_or",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanXorInclusive, "sub_group_scan_inclusive_xor",
+     OpenCLC30},
+    {eCLBuiltinSubgroupScanXorExclusive, "sub_group_scan_exclusive_xor",
+     OpenCLC30},
     {eCLBuiltinSubgroupScanLogicalAndInclusive,
-     "sub_group_scan_inclusive_logical_and"},
+     "sub_group_scan_inclusive_logical_and", OpenCLC30},
     {eCLBuiltinSubgroupScanLogicalAndExclusive,
-     "sub_group_scan_exclusive_logical_and"},
+     "sub_group_scan_exclusive_logical_and", OpenCLC30},
     {eCLBuiltinSubgroupScanLogicalOrInclusive,
-     "sub_group_scan_inclusive_logical_or"},
+     "sub_group_scan_inclusive_logical_or", OpenCLC30},
     {eCLBuiltinSubgroupScanLogicalOrExclusive,
-     "sub_group_scan_exclusive_logical_or"},
+     "sub_group_scan_exclusive_logical_or", OpenCLC30},
     {eCLBuiltinSubgroupScanLogicalXorInclusive,
-     "sub_group_scan_inclusive_logical_xor"},
+     "sub_group_scan_inclusive_logical_xor", OpenCLC30},
     {eCLBuiltinSubgroupScanLogicalXorExclusive,
-     "sub_group_scan_exclusive_logical_xor"},
+     "sub_group_scan_exclusive_logical_xor", OpenCLC30},
 
     // GLSL builtin functions
     {eCLBuiltinCodeplayFaceForward, "codeplay_face_forward"},
@@ -804,9 +841,10 @@ BuiltinID CLBuiltinInfo::identifyBuiltin(Function const &F) const {
   NameMangler Mangler(nullptr);
   StringRef const Name = F.getName();
   const CLBuiltinEntry *entry = Builtins;
+  auto const Version = getOpenCLVersion(*F.getParent());
   StringRef DemangledName = Mangler.demangleName(Name);
   while (entry->ID != eBuiltinInvalid) {
-    if (DemangledName.equals(entry->opencl_name)) {
+    if (Version >= entry->MinVer && DemangledName.equals(entry->OpenCLFnName)) {
       return entry->ID;
     }
     entry++;
@@ -871,7 +909,7 @@ llvm::StringRef CLBuiltinInfo::getBuiltinName(BuiltinID ID) const {
   const CLBuiltinEntry *entry = Builtins;
   while (entry->ID != eBuiltinInvalid) {
     if (ID == entry->ID) {
-      return entry->opencl_name;
+      return entry->OpenCLFnName;
     }
     entry++;
   }

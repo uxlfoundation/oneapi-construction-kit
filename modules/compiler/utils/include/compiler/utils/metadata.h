@@ -20,6 +20,8 @@ namespace utils {
 
 /// @brief OpenCL C standard to target.
 enum OpenCLCVer {
+  /// @brief OpenCL C 1.0
+  OpenCLC10 = (1 * 100 + 0) * 1000,
   /// @brief OpenCL C 1.1
   OpenCLC11 = (1 * 100 + 1) * 1000,
   /// @brief OpenCL C 1.2
@@ -33,7 +35,7 @@ enum OpenCLCVer {
 /// @brief Returns the OpenCL version, encoded as (Major*100 + Minor)*1000.
 ///
 /// If the Module does not contain any information, then OpenCLC12 is returned.
-uint32_t getOpenCLVersion(llvm::Module &m);
+uint32_t getOpenCLVersion(const llvm::Module &m);
 
 /// @brief Describes the state of vectorization on a function/loop.
 struct VectorizationInfo {

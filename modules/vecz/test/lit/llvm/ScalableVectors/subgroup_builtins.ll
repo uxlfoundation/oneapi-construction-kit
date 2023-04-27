@@ -55,3 +55,7 @@ define spir_kernel void @sub_group_broadcast(i32 addrspace(1)* %in, i32 addrspac
 ; CHECK-GE15: store <vscale x 4 x i32> [[SPLAT]], ptr addrspace(1)
 ; CHECK-LT15: store <vscale x 4 x i32> [[SPLAT]], <vscale x 4 x i32> addrspace(1)*
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}

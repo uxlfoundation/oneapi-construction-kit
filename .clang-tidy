@@ -33,6 +33,8 @@
 #   * cert-dcl21-cpp - Makes copies of iterators const for no benefit.
 #   * clang-analyzer-cplusplus.NewDeleteLeaks - Seems to result in many false
 #     positives in compiler code that uses FooInst::Create.
+#   * clang-analyzer-optin.performance.Padding - Would result in lots of noise
+#     if rearranging tables, creating diffs harder to review.
 #   * hicpp-named-parameter, readability-named-parameter - Insists on
 #     parameter names being present as a comment, which just adds noise.
 #   * misc-misplaced-const - Incompatible with using OpenCL types in our code,
@@ -204,6 +206,7 @@ Checks: "bugprone-*,\
          clang-analyzer-*,\
          -clang-analyzer-cplusplus.NewDelete,\
          -clang-analyzer-cplusplus.NewDeleteLeaks,\
+         -clang-analyzer-optin.performance.Padding,\
          *googletest*,\
          -google-readability-avoid-underscore-in-googletest-name,\
          concurrency-*,\

@@ -74,3 +74,7 @@ entry:
   store i32 %call7, i32 addrspace(1)* %arrayidx9, align 4
   ret void
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}

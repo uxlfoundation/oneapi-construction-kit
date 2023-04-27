@@ -155,3 +155,7 @@ entry:
   store i32 %2, ptr addrspace(1) %arrayidx2, align 4
   ret void
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}

@@ -258,3 +258,7 @@ entry:
 ; CHECK-GE15: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
 ; CHECK-LT15: store float [[R]], float addrspace(1)* {{%.*}}, align 4
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}

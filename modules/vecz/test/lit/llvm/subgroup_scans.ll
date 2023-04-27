@@ -1,6 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %veczc -w 4 -S -vecz-passes=packetizer < %s | %filecheck %s
+; RUN: sed 's/VERSION/i32 1, i32 2/g' %s | %veczc -w 4 -S -vecz-passes=packetizer | %filecheck %s --check-prefixes CHECK,CHECK-12
+; RUN: sed 's/VERSION/i32 3, i32 0/g' %s | %veczc -w 4 -S -vecz-passes=packetizer | %filecheck %s --check-prefixes CHECK,CHECK-30
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -28,7 +29,14 @@ entry:
   store i32 %call1, i32 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_add_i32(
-; CHECK: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_add_Dv4_j(<4 x i32> %{{.*}})
+; CHECK-30: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_add_Dv4_j(<4 x i32> %{{.*}})
+; Obviously this codegen doesn't make sense for a real sub-group scan, but in
+; CL1.2 this isn't identified as one. Check instead that the call has been instantiated.
+; CHECK-12: %{{.*}} = call spir_func i32 @_Z28sub_group_scan_inclusive_addi(i32 %{{.*}})
+; CHECK-12: %{{.*}} = call spir_func i32 @_Z28sub_group_scan_inclusive_addi(i32 %{{.*}})
+; CHECK-12: %{{.*}} = call spir_func i32 @_Z28sub_group_scan_inclusive_addi(i32 %{{.*}})
+; CHECK-12: %{{.*}} = call spir_func i32 @_Z28sub_group_scan_inclusive_addi(i32 %{{.*}})
+
 }
 
 define spir_kernel void @reduce_scan_incl_add_i64(i64 addrspace(1)* %in, i64 addrspace(1)* %out) {
@@ -41,7 +49,7 @@ entry:
   store i64 %call1, i64 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_add_i64(
-; CHECK: call <4 x i64> @__vecz_b_sub_group_scan_inclusive_add_Dv4_m(<4 x i64> %{{.*}})
+; CHECK-30: call <4 x i64> @__vecz_b_sub_group_scan_inclusive_add_Dv4_m(<4 x i64> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_add_f32(float addrspace(1)* %in, float addrspace(1)* %out) {
@@ -54,7 +62,7 @@ entry:
   store float %call1, float addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_add_f32(
-; CHECK: call <4 x float> @__vecz_b_sub_group_scan_inclusive_add_Dv4_f(<4 x float> %{{.*}})
+; CHECK-30: call <4 x float> @__vecz_b_sub_group_scan_inclusive_add_Dv4_f(<4 x float> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_smin_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -67,7 +75,7 @@ entry:
   store i32 %call1, i32 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_smin_i32(
-; CHECK: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_smin_Dv4_i(<4 x i32> %{{.*}})
+; CHECK-30: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_smin_Dv4_i(<4 x i32> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_umin_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -80,7 +88,7 @@ entry:
   store i32 %call1, i32 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_umin_i32(
-; CHECK: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_umin_Dv4_j(<4 x i32> %{{.*}})
+; CHECK-30: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_umin_Dv4_j(<4 x i32> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_smax_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -93,7 +101,7 @@ entry:
   store i32 %call1, i32 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_smax_i32(
-; CHECK: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_smax_Dv4_i(<4 x i32> %{{.*}})
+; CHECK-30: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_smax_Dv4_i(<4 x i32> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_umax_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -106,7 +114,7 @@ entry:
   store i32 %call1, i32 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_umax_i32(
-; CHECK: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_umax_Dv4_j(<4 x i32> %{{.*}})
+; CHECK-30: call <4 x i32> @__vecz_b_sub_group_scan_inclusive_umax_Dv4_j(<4 x i32> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_fmin_f32(float addrspace(1)* %in, float addrspace(1)* %out) {
@@ -119,7 +127,7 @@ entry:
   store float %call1, float addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_fmin_f32(
-; CHECK: call <4 x float> @__vecz_b_sub_group_scan_inclusive_min_Dv4_f(<4 x float> %{{.*}})
+; CHECK-30: call <4 x float> @__vecz_b_sub_group_scan_inclusive_min_Dv4_f(<4 x float> %{{.*}})
 }
 
 define spir_kernel void @reduce_scan_incl_fmax_f32(float addrspace(1)* %in, float addrspace(1)* %out) {
@@ -132,5 +140,9 @@ entry:
   store float %call1, float addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_scan_incl_fmax_f32(
-; CHECK: call <4 x float> @__vecz_b_sub_group_scan_inclusive_max_Dv4_f(<4 x float> %{{.*}})
+; CHECK-30: call <4 x float> @__vecz_b_sub_group_scan_inclusive_max_Dv4_f(<4 x float> %{{.*}})
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{VERSION}
