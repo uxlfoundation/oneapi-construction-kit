@@ -90,3 +90,14 @@ add_ca_library(riscvrt STATIC
   ${CMAKE_CURRENT_BINARY_DIR}/riscvlib64.h
   ${CMAKE_CURRENT_BINARY_DIR}/riscvlib32.h
   ${CMAKE_CURRENT_BINARY_DIR}/source/bakery.cpp)
+
+# Add extra dependencies to any clang-tidy checks, so that the required headers
+# are auto-generated.
+if(COMMAND add_ca_tidy)
+  if(TARGET tidy-riscvrt)
+    set_property(TARGET tidy-riscvrt APPEND PROPERTY SOURCES
+                ${CMAKE_CURRENT_BINARY_DIR}/riscvlib32.h
+                ${CMAKE_CURRENT_BINARY_DIR}/riscvlib64.h)
+    add_dependencies(tidy-riscvrt riscvgenheader32 riscvgenheader64)
+  endif()
+endif()
