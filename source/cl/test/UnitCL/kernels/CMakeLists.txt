@@ -110,13 +110,9 @@ endif()
 if(CA_EXTERNAL_LLVM_SPIRV)
   execute_process(COMMAND ${CA_EXTERNAL_LLVM_SPIRV} --version
     OUTPUT_VARIABLE llvmSpirvVersion)
-  if(NOT "${llvmSpirvVersion}" MATCHES "8.0")
-    message(FATAL_ERROR "CA_EXTERNAL_LLVM_SPIRV must be version 8.0.")
-  endif()
-  if(NOT LLVM_VERSION_MAJOR EQUAL 8)
-    message(FATAL_ERROR
-      "CA_LLVM_INSTALL_DIR is version ${LLVM_PACKAGE_VERSION} but must be "
-      "version 8.0 when CA_EXTERNAL_LLVM_SPIRV is set.")
+  string(REGEX MATCH "LLVM version ([0-9]+).([0-9]+).([0-9]+)" MVAR "${llvmSpirvVersion}")
+  if(NOT CMAKE_MATCH_1 EQUAL LLVM_VERSION_MAJOR)
+    message(FATAL_ERROR "CA_EXTERNAL_LLVM_SPIRV must have same version as ${LLVM_VERSION_MAJOR}")
   endif()
   add_ca_executable_import(llvm-spirv "${CA_EXTERNAL_LLVM_SPIRV}")
 
