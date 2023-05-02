@@ -1,6 +1,6 @@
 .. graphviz::
   :align: center
-  :caption: Compilation flow for ``regenerate-spir-spirv`` target (right-click, ``View Image`` for full size)
+  :caption: Compilation flow for ``regenerate-spir``/``regenerate-spirv`` targets (right-click, ``View Image`` for full size)
 
   digraph {
     fontname=Lato

@@ -11,8 +11,8 @@ during ComputeAorta build-time and used to test offline kernel support in
 When compilation to SPIR-V is not required for any reason, then the script
 creates stub files to enable dependency tracking and automatic rebuilding when
 kernel sources change. This script is called as part of the
-``regenerate-spir-spirv`` target. The expected use case is that this script
-will be wrapped in a custom command.
+``regenerate-spirv`` target. The expected use case is that this script will be
+wrapped in a custom command.
 
 .. warn::
   This script must be run from the ComputeAorta root directory (i.e., with

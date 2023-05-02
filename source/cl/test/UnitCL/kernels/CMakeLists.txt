@@ -121,8 +121,9 @@ if(CA_EXTERNAL_LLVM_SPIRV)
   add_ca_executable_import(llvm-spirv "${CA_EXTERNAL_LLVM_SPIRV}")
 
   # spirv-dis is required for generating the spvasm files that we check in to
-  # the repository. This tool is only used with the `regenerate-spir-spirv`
-  # target when creating the spir and spirv files associated with each kernel.
+  # the repository. This tool is only used with the `regenerate-spir` and
+  # `regenerate-spirv` targets when creating the spir and spirv files
+  # associated with each kernel.
   find_package(SpirvTools COMPONENTS spirv-dis)
   if(NOT TARGET spirv::spirv-dis)
     message(WARNING "spirv-dis not found: spvasm will not be generated")
@@ -220,7 +221,8 @@ endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/share/kernels_offline)
 set(outputs)
-set(ir_outputs)
+set(ir_spir_outputs)
+set(ir_spirv_outputs)
 
 foreach(target ${MUX_TARGET_LIBRARIES})
   # Skip building any kernels for the cross target, the cross target
@@ -350,7 +352,7 @@ foreach(target ${MUX_TARGET_LIBRARIES})
 
       # Set up commands to generate SPIR and SPIR-V files from .cl files.
       # These files are built in the source (not build) directory, and only as
-      # part of the regenerate-spir-spirv target.
+      # part of the regenerate-spir and regenerate-spirv targets.
       if(NOT "${kernel_ext}" STREQUAL ".cl")
         # No more work to be done for .bc{32|64} and .spvasm{32|64} files
         continue()
@@ -380,7 +382,7 @@ foreach(target ${MUX_TARGET_LIBRARIES})
             ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/ExtractReqsOpts.cmake
           WORKING_DIRECTORY ${ComputeAorta_SOURCE_DIR}
           COMMENT "Building SPIR ${kernel_name}.bc{32|64}")
-        list(APPEND ir_outputs ${spir32_output} ${spir64_output})
+        list(APPEND ir_spir_outputs ${spir32_output} ${spir64_output})
       endif()
 
       # Compile kernels to .spvasm{32|64}
@@ -410,18 +412,22 @@ foreach(target ${MUX_TARGET_LIBRARIES})
             ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/ExtractReqsOpts.cmake
           WORKING_DIRECTORY ${ComputeAorta_SOURCE_DIR}
           COMMENT "Building SPIR-V ${kernel_name}.spvasm{32|64}")
-        list(APPEND ir_outputs ${spvasm32_output} ${spvasm64_output})
+        list(APPEND ir_spirv_outputs ${spvasm32_output} ${spvasm64_output})
       endif()
     endforeach()
   endforeach()
 endforeach()
 
-# To regenerate the SPIR and SPIR-V files we need to have Clang, llvm-spirv
-# and the opencl_spirh headers.
-if((CA_EXTERNAL_KHRONOS_CLANG AND CA_EXTERNAL_OPENCL_SPIRH)
-  AND CA_EXTERNAL_LLVM_SPIRV)
-  add_custom_target(regenerate-spir-spirv DEPENDS ${ir_outputs})
+# To regenerate the SPIR files we need to have Clang and the opencl_spirh
+# headers.
+if (CA_EXTERNAL_KHRONOS_CLANG AND CA_EXTERNAL_OPENCL_SPIRH)
+  add_custom_target(regenerate-spir DEPENDS ${ir_spir_outputs})
 endif()
+# To regenerate the SPIR-V files we need to have llvm-spirv
+if (CA_EXTERNAL_LLVM_SPIRV)
+  add_custom_target(regenerate-spirv DEPENDS ${ir_spirv_outputs})
+endif()
+
 add_custom_target(UnitCL-offline-execution-kernels DEPENDS ${outputs})
 add_dependencies(UnitCL UnitCL-offline-execution-kernels)
 

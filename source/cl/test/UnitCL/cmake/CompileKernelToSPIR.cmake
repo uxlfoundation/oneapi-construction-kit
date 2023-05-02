@@ -9,9 +9,9 @@ script builds both 32-bit SPIR and 64-bit SPIR files (``.bc32``, ``.bc64``).
 
 When compilation to SPIR is not required for any reason, then the script
 creates stub files to enable dependency tracking and automatic rebuilding when
-kernel sources change. This script is called as part of the
-``regenerate-spir-spirv`` target. The expected use case is that this script
-will be wrapped in a custom command.
+kernel sources change. This script is called as part of the ``regenerate-spir``
+target. The expected use case is that this script will be wrapped in a custom
+command.
 
 .. warn::
   This script must be run from the ComputeAorta root directory (i.e., with
