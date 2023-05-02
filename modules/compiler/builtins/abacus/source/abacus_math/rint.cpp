@@ -43,7 +43,7 @@ static T rint_helper_vector(const T x) {
                 "Function should only be used for vector types");
   typedef typename TypeTraits<T>::SignedType SignedType;
   const T zero(0.0);
-  const T half(0.5);
+  const T onehalf(0.5);
   const T one(1.0);
 
   const T xAbs = __abacus_fabs(x);
@@ -53,8 +53,8 @@ static T rint_helper_vector(const T x) {
 
   T r = __abacus_select(
       xTrunc, xTrunc + one,
-      (diff > half) |
-          ((diff == half) & ((SignedType)1 == (xTruncated & (SignedType)1))));
+      (diff > onehalf) | ((diff == onehalf) &
+                          ((SignedType)1 == (xTruncated & (SignedType)1))));
 
   r = __abacus_copysign(r, x);
 
