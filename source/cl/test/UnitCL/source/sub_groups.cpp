@@ -2364,7 +2364,9 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Float) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(
-    SubGroupTest, testing::Values(kts::ucl::OPENCL_C, kts::ucl::OFFLINE),
+    SubGroupTest,
+    testing::Values(kts::ucl::OPENCL_C, kts::ucl::OFFLINE, kts::ucl::SPIRV,
+                    kts::ucl::OFFLINESPIRV),
     testing::Values(LocalSizes(64, 1, 1), LocalSizes(8, 8, 1),
                     LocalSizes(4, 4, 4),
                     // Local size of 1 on X-dimension won't vectorize

@@ -1,0 +1,58 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 22
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %18 "get_max_sub_group_size_builtin" %__spirv_BuiltInSubgroupMaxSize %__spirv_BuiltInGlobalLinearId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInSubgroupMaxSize "__spirv_BuiltInSubgroupMaxSize"
+               OpName %__spirv_BuiltInGlobalLinearId "__spirv_BuiltInGlobalLinearId"
+               OpName %get_max_sub_group_size_builtin "get_max_sub_group_size_builtin"
+               OpName %out "out"
+               OpName %entry "entry"
+               OpName %out_addr "out.addr"
+               OpName %call "call"
+               OpName %call1 "call1"
+               OpName %arrayidx "arrayidx"
+               OpName %out_0 "out"
+               OpDecorate %__spirv_BuiltInSubgroupMaxSize LinkageAttributes "__spirv_BuiltInSubgroupMaxSize" Import
+               OpDecorate %__spirv_BuiltInSubgroupMaxSize Constant
+               OpDecorate %__spirv_BuiltInSubgroupMaxSize BuiltIn SubgroupMaxSize
+               OpDecorate %__spirv_BuiltInGlobalLinearId LinkageAttributes "__spirv_BuiltInGlobalLinearId" Import
+               OpDecorate %__spirv_BuiltInGlobalLinearId Constant
+               OpDecorate %__spirv_BuiltInGlobalLinearId BuiltIn GlobalLinearId
+               OpDecorate %get_max_sub_group_size_builtin LinkageAttributes "get_max_sub_group_size_builtin" Export
+               OpDecorate %out Alignment 4
+               OpDecorate %out_addr Alignment 4
+               OpDecorate %out_0 Alignment 4
+       %uint = OpTypeInt 32 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %8 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%__spirv_BuiltInSubgroupMaxSize = OpVariable %_ptr_Input_uint Input
+%__spirv_BuiltInGlobalLinearId = OpVariable %_ptr_Input_uint Input
+%get_max_sub_group_size_builtin = OpFunction %void DontInline %8
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+   %out_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+               OpStore %out_addr %out Aligned 4
+       %call = OpLoad %uint %__spirv_BuiltInSubgroupMaxSize Aligned 4
+         %15 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 4
+      %call1 = OpLoad %uint %__spirv_BuiltInGlobalLinearId Aligned 4
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %15 %call1
+               OpStore %arrayidx %call Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %18 = OpFunction %void DontInline %8
+      %out_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %20 = OpLabel
+         %21 = OpFunctionCall %void %get_max_sub_group_size_builtin %out_0
+               OpReturn
+               OpFunctionEnd
