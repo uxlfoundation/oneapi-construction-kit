@@ -1,5 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// CLC OPTIONS: -cl-std=CL3.0
+// CL_STD: 3.0
 kernel void sub_group_scan_exclusive_min_float(global float *in,
                                                global uint2 *out_a,
                                                global float *out_b) {

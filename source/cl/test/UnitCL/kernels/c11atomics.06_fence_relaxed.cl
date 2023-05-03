@@ -1,5 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// CLC OPTIONS: -cl-std=CL3.0
+// CL_STD: 3.0
 __kernel void fence_relaxed(__global int* in, __global int* out,
                             __global int* tmp) {
   uint gid = get_global_id(0);

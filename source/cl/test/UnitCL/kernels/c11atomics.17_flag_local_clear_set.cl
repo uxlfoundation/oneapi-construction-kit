@@ -1,5 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// CLC OPTIONS: -cl-std=CL3.0
+// CL_STD: 3.0
 __kernel void flag_local_clear_set(__global int *out_buffer,
                                    volatile __local atomic_flag *local_buffer) {
   uint gid = get_global_id(0);

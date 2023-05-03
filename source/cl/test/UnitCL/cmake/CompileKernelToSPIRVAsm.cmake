@@ -104,6 +104,8 @@ set(spvasm64_output "${input_dir}/${kernel_name}.spvasm64")
 set(REQUIREMENTS_LIST "")
 # List of compile definitions
 set(DEFS_LIST "")
+# Required OpenCL C version
+set(SPIRV_CL_STD "")
 # List of clang spir-v compilation options
 set(SPIRV_OPTIONS_LIST "")
 
@@ -111,8 +113,14 @@ extract_reqs_opts(
   INPUT_FILE ${INPUT_FILE}
   REQS_VAR REQUIREMENTS_LIST
   DEFS_VAR DEFS_LIST
+  CL_STD_VAR SPIRV_CL_STD
   SPIRV_OPTS_VAR SPIRV_OPTIONS_LIST
 )
+
+# Assume a default of CL1.2.
+if(NOT SPIRV_CL_STD)
+  set(SPIRV_CL_STD "1.2")
+endif()
 
 # Skip when `nospirv`
 list(FIND REQUIREMENTS_LIST "nospirv" idx)
@@ -146,7 +154,8 @@ endif()
 
 # Compile to .bc32
 execute_process(
-  COMMAND ${CLANG_PATH} -c -emit-llvm -target spir-unknown-unknown -cl-std=CL1.2
+  COMMAND ${CLANG_PATH} -c -emit-llvm -target spir-unknown-unknown
+    -cl-std=CL${SPIRV_CL_STD}
     -Xclang -finclude-default-header
     ${DEFS_LIST} ${SPIRV_OPTIONS_LIST}
     -O0 -Werror
@@ -160,7 +169,8 @@ if(NOT clang_result EQUAL 0)
     "${DEFS_LIST} ${SPIRV_OPTIONS_LIST}")
   message(FATAL_ERROR
     "clang failed with status '${clang_result}':
-    ${CLANG_PATH} -c -emit-llvm -target spir-unknown-unknown -cl-std=CL1.2
+    ${CLANG_PATH} -c -emit-llvm -target spir-unknown-unknown
+      -cl-std=CL${SPIRV_CL_STD}
       -Xclang -finclude-default-header
       ${PRINTABLE_OPTIONS_LIST}
       -O0 -Werror
@@ -203,7 +213,8 @@ file(REMOVE ${spirv32_output} ${temp_bc32})
 # Compile to .bc64
 execute_process(
   COMMAND ${CLANG_PATH} -c -emit-llvm -target spir64-unknown-unknown
-    -cl-std=CL1.2 -Xclang -finclude-default-header
+    -cl-std=CL${SPIRV_CL_STD}
+    -Xclang -finclude-default-header
     ${DEFS_LIST} ${SPIRV_OPTIONS_LIST}
     -O0 -Werror
     -o ${temp_bc64}
@@ -216,7 +227,8 @@ if(NOT clang_result EQUAL 0)
     "${DEFS_LIST} ${SPIRV_OPTIONS_LIST}")
   message(FATAL_ERROR
     "clang failed with status '${clang_result}':
-    ${CLANG_PATH} -c -emit-llvm -target spir64-unknown-unknown -cl-std=CL1.2
+    ${CLANG_PATH} -c -emit-llvm -target spir64-unknown-unknown
+      -cl-std=CL${SPIRV_CL_STD}
       -Xclang -finclude-default-header
       ${PRINTABLE_OPTIONS_LIST}
       -O0 -Werror

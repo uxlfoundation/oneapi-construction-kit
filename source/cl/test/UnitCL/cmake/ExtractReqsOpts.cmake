@@ -20,6 +20,9 @@ Arguments:
   * ``DEFS_VAR`` - The name of a variable in parent scope that will be
     populated with a ``;``-separated list of compile definition options
     extracted from the input file (optional).
+  * ``CL_STD_VAR`` - The name of a variable in parent scope that will be
+    populated with the OpenCL C standard required to compile the input file
+    (optional).
   * ``CLC_OPTS_VAR`` - The name of a variable in parent scope that will be
     populated with a ``;``-separated list of CLC compilation options extracted
     from the input file (optional).
@@ -36,6 +39,7 @@ Example:
     INPUT_FILE <filename>
     REQS_VAR <requirements list variable>
     [DEFS_VAR <definitions list variable>]
+    [CL_STD_VAR <opencl c standard variable>]
     [CLC_OPTS_VAR <clc options list variable>]
     [SPIR_OPTS_VAR <clang spir options list variable>]
     [SPIRV_OPTS_VAR <clang spir-v options list variable>]
@@ -46,6 +50,7 @@ function(extract_reqs_opts)
     INPUT_FILE
     REQS_VAR
     DEFS_VAR
+    CL_STD_VAR
     CLC_OPTS_VAR
     SPIR_OPTS_VAR
     SPIRV_OPTS_VAR
@@ -100,6 +105,7 @@ function(extract_reqs_opts)
   # Individual options must be semicolon-separated due to CMake's space
   # escaping behavior
   set(DEFINITIONS_REGEX "^ *// *DEFINITIONS: *(.*)$")
+  set(CL_STD_REGEX "^ *// *CL_STD: ([0-9]+.[0-9]+)$")
   set(CLC_OPTIONS_REGEX "^ *// *CLC +OPTIONS: *(.*)$")
   set(SPIR_OPTIONS_REGEX "^ *// *SPIR +OPTIONS: *(.*)$")
   set(SPIRV_OPTIONS_REGEX "^ *// *SPIRV +OPTIONS: *(.*)$")
@@ -126,6 +132,13 @@ function(extract_reqs_opts)
       "${REQS_OPTS_INPUT_FILE}"
       "${DEFINITIONS_REGEX}"
       ${REQS_OPTS_DEFS_VAR}
+    )
+  endif()
+  if(DEFINED REQS_OPTS_CL_STD_VAR)
+    extract_options_line_from_file(
+      "${REQS_OPTS_INPUT_FILE}"
+      "${CL_STD_REGEX}"
+      ${REQS_OPTS_CL_STD_VAR}
     )
   endif()
   if(DEFINED REQS_OPTS_CLC_OPTS_VAR)

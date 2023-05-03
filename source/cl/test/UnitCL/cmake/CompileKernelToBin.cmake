@@ -125,6 +125,8 @@ endif()
 set(REQUIREMENTS_LIST "")
 # List of compile definitions
 set(DEFS_LIST "")
+# Required OpenCL C version
+set(CLC_CL_STD "")
 # List of clc compilation options
 set(CLC_OPTIONS_LIST "")
 
@@ -141,8 +143,14 @@ if(NOT INPUT_CL_FILE STREQUAL "")
     INPUT_FILE ${INPUT_CL_FILE}
     REQS_VAR REQUIREMENTS_LIST
     DEFS_VAR DEFS_LIST
+    CL_STD_VAR CLC_CL_STD
     CLC_OPTS_VAR CLC_OPTIONS_LIST
   )
+endif()
+
+  # Assume a default of CL1.2.
+if(NOT CLC_CL_STD)
+  set(CLC_CL_STD "1.2")
 endif()
 
 # Set the default requirements for the kernels
@@ -201,6 +209,7 @@ execute_process(
   COMMAND ${CLC_EXECUTABLE}
     -d ${DEVICE_NAME}
     -cl-kernel-arg-info
+    -cl-std=CL${CLC_CL_STD}
     ${CLC_OPTIONS_LIST}
     ${DEFS_LIST}
     -o ${OUTPUT_FILE} -- ${INPUT_FILE}
@@ -216,6 +225,7 @@ if(NOT clc_result EQUAL 0)
     ${CLC_EXECUTABLE}
       -d '${DEVICE_NAME}'
       -cl-kernel-arg-info
+      -cl-std=CL${CLC_CL_STD}
       ${CLC_OPTIONS_LIST}
       ${DEFS_LIST}
       -o '${OUTPUT_FILE}'

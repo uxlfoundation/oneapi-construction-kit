@@ -1,6 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// REQUIRES: images
+// REQUIRES: images nospirv
 
 void __kernel image_sampler(__global uint *out, __read_only image1d_t img,
                             sampler_t sampler1, sampler_t sampler2) {

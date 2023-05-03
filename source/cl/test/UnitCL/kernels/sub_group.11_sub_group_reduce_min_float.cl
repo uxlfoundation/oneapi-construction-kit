@@ -1,5 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// CLC OPTIONS: -cl-std=CL3.0
+// CL_STD: 3.0
 kernel void sub_group_reduce_min_float(global float *in, global size_t *out_a,
                                        global float *out_b) {
   const size_t glid = get_global_linear_id();

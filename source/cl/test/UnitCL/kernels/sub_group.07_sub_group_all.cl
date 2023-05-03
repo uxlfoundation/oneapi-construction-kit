@@ -1,5 +1,5 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
-// CLC OPTIONS: -cl-std=CL3.0
+// CL_STD: 3.0
 kernel void sub_group_all(global int *in, global size_t *out_a,
                           global int *out_b) {
   const size_t glid = get_global_linear_id();

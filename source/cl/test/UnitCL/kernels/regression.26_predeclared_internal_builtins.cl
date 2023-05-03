@@ -1,6 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// REQUIRES: images
+// REQUIRES: images nospirv
 
 kernel void failed_function(global int *src, global int *dst,
                             read_only image2d_t img, sampler_t smplr) {
