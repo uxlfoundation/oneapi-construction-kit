@@ -123,7 +123,7 @@ class SubGroupTest : public kts::ucl::ExecutionWithParam<LocalSizes> {
   }
 };
 
-TEST_P(SubGroupTest, Sub_Group_01_Get_Sub_Group_Size) {
+TEST_P(SubGroupTest, Sub_Group_01_Get_Sub_Group_Size_Builtin) {
   // The OpenCL spec says:
   //
   // All sub-groups must be the same size, while the last
@@ -156,7 +156,7 @@ TEST_P(SubGroupTest, Sub_Group_01_Get_Sub_Group_Size) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_02_Get_Max_Sub_Group_Size) {
+TEST_P(SubGroupTest, Sub_Group_02_Get_Max_Sub_Group_Size_Builtin) {
   // The OpenCL spec says:
   //
   // This value will be invariant for a given set of dispatch dimensions and a
@@ -177,7 +177,7 @@ TEST_P(SubGroupTest, Sub_Group_02_Get_Max_Sub_Group_Size) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_03_Get_Num_Sub_Groups) {
+TEST_P(SubGroupTest, Sub_Group_03_Get_Num_Sub_Groups_Builtin) {
   // Note: This does not currently test non-uniform work-groups.
   auto local_sizes = getParam();
   const auto sub_group_count =
@@ -192,7 +192,7 @@ TEST_P(SubGroupTest, Sub_Group_03_Get_Num_Sub_Groups) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_04_Get_Enqueued_Num_Sub_Groups) {
+TEST_P(SubGroupTest, Sub_Group_04_Get_Enqueued_Num_Sub_Groups_Builtin) {
   auto local_sizes = getParam();
   const auto sub_group_count =
       getSubGroupCount(local_sizes.x(), local_sizes.y(), local_sizes.z());
@@ -206,7 +206,7 @@ TEST_P(SubGroupTest, Sub_Group_04_Get_Enqueued_Num_Sub_Groups) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_05_Get_Sub_Group_Id) {
+TEST_P(SubGroupTest, Sub_Group_05_Get_Sub_Group_Id_Builtin) {
   // Note: This testing could also be more rigourous. The implemenation is free
   // to map work-items to sub-groups however it pleases, but there are some
   // restrictions, e.g. the there should be sub-group size instances of each
@@ -226,7 +226,7 @@ TEST_P(SubGroupTest, Sub_Group_05_Get_Sub_Group_Id) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_06_Get_Sub_Group_Local_Id) {
+TEST_P(SubGroupTest, Sub_Group_06_Get_Sub_Group_Local_Id_Builtin) {
   // Note: Similarly here. The local ID of each sub-group element must be unique
   // within a sub-group, here we only test it is in the correct range.
   // We also aren't testing that for the case that there is a non-uniform
@@ -246,7 +246,7 @@ TEST_P(SubGroupTest, Sub_Group_06_Get_Sub_Group_Local_Id) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_07_Sub_Group_All) {
+TEST_P(SubGroupTest, Sub_Group_07_Sub_Group_All_Builtin) {
   auto local_sizes = getParam();
   size_t global_sizes[]{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
   const auto global_size = global_sizes[0] * global_sizes[1] * global_sizes[2];
@@ -306,7 +306,7 @@ TEST_P(SubGroupTest, Sub_Group_07_Sub_Group_All) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-TEST_P(SubGroupTest, Sub_Group_08_Sub_Group_Any) {
+TEST_P(SubGroupTest, Sub_Group_08_Sub_Group_Any_Builtin) {
   auto local_sizes = getParam();
   size_t global_sizes[]{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
   const auto global_size = global_sizes[0] * global_sizes[1] * global_sizes[2];
