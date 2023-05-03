@@ -1,0 +1,64 @@
+; Copyright (C) Codeplay Software Limited. All Rights Reserved.
+
+; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_group_wrapper_clash.spv -o %t
+; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %t.pp
+
+                                OpCapability Addresses
+                                OpCapability Kernel
+                                OpCapability Groups
+
+                                OpMemoryModel Physical64 OpenCL
+
+                                OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction_fn"
+
+                     %void_ty = OpTypeVoid
+                    %uint_ty  = OpTypeInt 32 0
+                    %fp32_ty  = OpTypeFloat 32
+  %ptr_CrossWorkgroup_uint_ty = OpTypePointer CrossWorkgroup %uint_ty
+  %ptr_CrossWorkgroup_fp32_ty = OpTypePointer CrossWorkgroup %fp32_ty
+                 %fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty %ptr_CrossWorkgroup_uint_ty %ptr_CrossWorkgroup_fp32_ty
+
+             %sub_group_scope = OpConstant %uint_ty 3
+
+                                OpName %a "a"
+                                OpName %b "b"
+                                OpName %c "c"
+
+; CHECK-GE15: define spir_kernel void @sub_group_reduction_fn(ptr addrspace(1) %a, ptr addrspace(1) %b, ptr addrspace(1) %c)
+; CHECK-LT15: define spir_kernel void @sub_group_reduction_fn(i32 addrspace(1)* %a, i32 addrspace(1)* %b, float addrspace(1)* %c)
+     %sub_group_reduction_fcn = OpFunction %void_ty None %fcn_ty
+                           %a = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
+                           %b = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
+                           %c = OpFunctionParameter %ptr_CrossWorkgroup_fp32_ty
+                       %entry = OpLabel
+
+; CHECK-GE15: [[A:%.*]] = load i32, ptr addrspace(1) %a, align 4
+; CHECK-GE15: [[B:%.*]] = load i32, ptr addrspace(1) %b, align 4
+; CHECK-GE15: [[C:%.*]] = load float, ptr addrspace(1) %c, align 4
+; CHECK-LT15: [[A:%.*]] = load i32, i32 addrspace(1)* %a, align 4
+; CHECK-LT15: [[B:%.*]] = load i32, i32 addrspace(1)* %b, align 4
+; CHECK-LT15: [[C:%.*]] = load float, float addrspace(1)* %c, align 4
+                       %a_val = OpLoad %uint_ty %a Aligned 4
+                       %b_val = OpLoad %uint_ty %b Aligned 4
+                       %c_val = OpLoad %fp32_ty %c Aligned 4
+
+; CHECK: [[RESA:%.*]] = call spir_func i32 @_Z20sub_group_reduce_minj(i32 [[A]])
+%uint_sub_group_reduction_res = OpGroupUMin %uint_ty %sub_group_scope Reduce %a_val
+; CHECK: [[RESB:%.*]] = call spir_func i32 @_Z20sub_group_reduce_mini(i32 [[B]])
+%sint_sub_group_reduction_res = OpGroupSMin %uint_ty %sub_group_scope Reduce %b_val
+; CHECK: [[RESC:%.*]] = call spir_func float @_Z20sub_group_reduce_minf(float [[C]])
+%fp32_sub_group_reduction_res = OpGroupFMin %fp32_ty %sub_group_scope Reduce %c_val
+
+; CHECK-GE15: store i32 [[RESA]], ptr addrspace(1) %a, align 4
+; CHECK-GE15: store i32 [[RESB]], ptr addrspace(1) %b, align 4
+; CHECK-GE15: store float [[RESC]], ptr addrspace(1) %c, align 4
+; CHECK-LT15: store i32 [[RESA]], i32 addrspace(1)* %a, align 4
+; CHECK-LT15: store i32 [[RESB]], i32 addrspace(1)* %b, align 4
+; CHECK-LT15: store float [[RESC]], float addrspace(1)* %c, align 4
+                                OpStore %a %uint_sub_group_reduction_res Aligned 4
+                                OpStore %b %sint_sub_group_reduction_res Aligned 4
+                                OpStore %c %fp32_sub_group_reduction_res Aligned 4
+; CHECK: ret void
+                                OpReturn
+                                OpFunctionEnd

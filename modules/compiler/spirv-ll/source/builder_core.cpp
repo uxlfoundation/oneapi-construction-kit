@@ -6050,7 +6050,8 @@ cargo::optional<Error> Builder::create<OpGroupWaitEvents>(
 }
 
 template <typename T>
-void Builder::generateReduction(const T *op, const std::string &opName) {
+void Builder::generateReduction(const T *op, const std::string &opName,
+                                MangleInfo::ForceSignInfo signInfo) {
   auto retTy = module.getType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
@@ -6088,8 +6089,17 @@ void Builder::generateReduction(const T *op, const std::string &opName) {
   // etc. is constant we don't pass this as an arugment to the wrapper. Hence we
   // look up the wrapper function based on the operation type and the type
   // operated on.
+  // Add in any required mangle information before we cache the reduction
+  // wrapper. This is important for distinguishing between smin/smax, for
+  // example.
+  std::string cacheName =
+      (signInfo == MangleInfo::ForceSignInfo::ForceSigned
+           ? "s"
+           : (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned ? "u"
+                                                                   : "")) +
+      opName;
   auto *&reductionWrapper =
-      module.reductionWrapperMap[operation][opName]
+      module.reductionWrapperMap[operation][cacheName]
                                 [module.getResultType(op->X())];
 
   // If it doesn't exist we need to create it.
@@ -6136,13 +6146,15 @@ void Builder::generateReduction(const T *op, const std::string &opName) {
     IRBuilder.SetInsertPoint(workGroup);
     llvm::Value *workGroupResult = createMangledBuiltinCall(
         "work_group_" + operationName + "_" + opName, xArg->getType(),
-        op->IdResultType(), xArg, MangleInfo(op->X()), /* convergent */ true);
+        op->IdResultType(), xArg, MangleInfo(op->X(), signInfo),
+        /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(subGroup);
     llvm::Value *subGroupResult = createMangledBuiltinCall(
         "sub_group_" + operationName + "_" + opName, xArg->getType(),
-        op->IdResultType(), xArg, MangleInfo(op->X()), /* convergent */ true);
+        op->IdResultType(), xArg, MangleInfo(op->X(), signInfo),
+        /* convergent */ true);
     IRBuilder.CreateBr(exit);
 
     IRBuilder.SetInsertPoint(exit);
@@ -6516,13 +6528,13 @@ cargo::optional<Error> Builder::create<OpGroupFMin>(const OpGroupFMin *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpGroupUMin>(const OpGroupUMin *op) {
-  generateReduction(op, "min");
+  generateReduction(op, "min", MangleInfo::ForceSignInfo::ForceUnsigned);
   return cargo::nullopt;
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpGroupSMin>(const OpGroupSMin *op) {
-  generateReduction(op, "min");
+  generateReduction(op, "min", MangleInfo::ForceSignInfo::ForceSigned);
   return cargo::nullopt;
 }
 
@@ -6534,13 +6546,13 @@ cargo::optional<Error> Builder::create<OpGroupFMax>(const OpGroupFMax *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpGroupUMax>(const OpGroupUMax *op) {
-  generateReduction(op, "max");
+  generateReduction(op, "max", MangleInfo::ForceSignInfo::ForceUnsigned);
   return cargo::nullopt;
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpGroupSMax>(const OpGroupSMax *op) {
-  generateReduction(op, "max");
+  generateReduction(op, "max", MangleInfo::ForceSignInfo::ForceSigned);
   return cargo::nullopt;
 }
 

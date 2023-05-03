@@ -21,3 +21,6 @@ Bug fixes:
 * A bug was fixed in handling function calls to function forward references,
   which was previously generating invalid LLVM IR.
 * `spirv-ll` will now correctly mangle boolean types.
+* A bug was fixed where the incorrect group reduction operation would be called
+  if the sign of the input integer type did not match the sign of the group
+  operation.

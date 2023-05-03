@@ -724,7 +724,9 @@ class Builder {
   /// @param op The SPIR-V op to generate LLVM IR for.
   /// @param name The name of the op e.g. add for OpGroupIAdd.
   template <typename T>
-  void generateReduction(const T *op, const std::string &name);
+  void generateReduction(
+      const T *op, const std::string &name,
+      MangleInfo::ForceSignInfo signInfo = MangleInfo::ForceSignInfo::None);
 
   /// @brief Helper function for handling OpGroup(Any|All) operations.
   ///
