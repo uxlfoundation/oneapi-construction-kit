@@ -611,14 +611,14 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.76_compare_exchange_weak_local_global_single.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.77_compare_exchange_weak_local_local_single.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.78_compare_exchange_weak_local_private_single.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.01_get_sub_group_size.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.02_get_max_sub_group_size.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.03_get_num_sub_groups.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.04_get_enqueued_num_sub_groups.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.05_get_sub_group_id.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.06_get_sub_group_local_id.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.07_sub_group_all.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.08_sub_group_any.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.01_get_sub_group_size_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.02_get_max_sub_group_size_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.03_get_num_sub_groups_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.04_get_enqueued_num_sub_groups_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.05_get_sub_group_id_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.06_get_sub_group_local_id_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.07_sub_group_all_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.08_sub_group_any_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.09_sub_group_broadcast_int.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.09_sub_group_broadcast_uint.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.09_sub_group_broadcast_float.cl

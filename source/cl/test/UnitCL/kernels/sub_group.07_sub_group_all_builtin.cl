@@ -1,7 +1,7 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 // CL_STD: 3.0
-kernel void sub_group_all(global int *in, global size_t *out_a,
-                          global int *out_b) {
+kernel void sub_group_all_builtin(global int *in, global size_t *out_a,
+                                  global int *out_b) {
   const size_t glid = get_global_linear_id();
   const size_t sgid =
       get_sub_group_id() +
