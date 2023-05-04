@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
 ; RUN: %spirv-ll -a OpenCL -b 64 %p/op_group_broadcast.spv -o %t
-; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %t.pp
+; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %s
 
                                OpCapability Addresses
                                OpCapability Kernel
@@ -43,50 +42,42 @@
                                OpName %bool_broadcast_in "a"
 
 ; CHCK-LABEL: sub_group_uint_broadcast
-; CHECK-GE15: define spir_kernel void @sub_group_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-LT15: define spir_kernel void @sub_group_uint_broadcast(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @sub_group_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
 %sub_group_uint_broadcast_fcn = OpFunction %void_ty None %uint_fcn_ty
            %uint_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
            %uint_broadcast_bb = OpLabel
-; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
-; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
           %uint_broadcast_val = OpLoad %uint_ty %uint_broadcast_in Aligned 4
 ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z19sub_group_broadcastjj(i32 [[VAL]], i32 0)
           %uint_broadcast_res = OpGroupBroadcast %uint_ty %sub_group_scope %uint_broadcast_val %zero
-; CHECK-GE15: store i32 [[RES]], ptr addrspace(1) [[IN]]
-; CHECK-LT15: store i32 [[RES]], i32 addrspace(1)* [[IN]]
+; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
                                 OpStore %uint_broadcast_in %uint_broadcast_res Aligned 4
 ; CHECK: ret void
                                 OpReturn
                                 OpFunctionEnd
 
 ; CHCK-LABEL: work_group_uint_broadcast
-; CHECK-GE15: define spir_kernel void @work_group_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-LT15: define spir_kernel void @work_group_uint_broadcast(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @work_group_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
 %work_group_uint_broadcast_fcn = OpFunction %void_ty None %uint_fcn_ty
  %uint_work_group_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
  %uint_work_group_broadcast_bb = OpLabel
-; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
-; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
 %uint_work_group_broadcast_val = OpLoad %uint_ty %uint_work_group_broadcast_in Aligned 4
 ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20work_group_broadcastjm(i32 [[VAL]], i64 0)
 %uint_work_group_broadcast_res = OpGroupBroadcast %uint_ty %work_group_scope %uint_work_group_broadcast_val %zero
-; CHECK-GE15: store i32 [[RES]], ptr addrspace(1) [[IN]]
-; CHECK-LT15: store i32 [[RES]], i32 addrspace(1)* [[IN]]
+; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
                                  OpStore %uint_work_group_broadcast_in %uint_work_group_broadcast_res Aligned 4
 ; CHECK: ret void
                                  OpReturn
                                  OpFunctionEnd
 
 ; CHCK-LABEL: variable_scope_uint_broadcast
-; CHECK-GE15: define spir_kernel void @variable_scope_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]], i32 %{{[0-9a-zA-Z_]+}})
-; CHECK-LT15: define spir_kernel void @variable_scope_uint_broadcast(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]], i32 %{{[0-9a-zA-Z_]+}})
+; CHECK: define spir_kernel void @variable_scope_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]], i32 %{{[0-9a-zA-Z_]+}})
 %variable_scope_uint_broadcast_fcn = OpFunction %void_ty None %uint_uint_fcn_ty
  %uint_variable_scope_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
                             %scope = OpFunctionParameter %uint_ty
  %uint_variable_scope_broadcast_bb = OpLabel
-; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
-; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
 %uint_variable_scope_broadcast_val = OpLoad %uint_ty %uint_variable_scope_broadcast_in Aligned 4
 ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20work_group_broadcastjm(i32 [[VAL]], i64 0)
 ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z19sub_group_broadcastjj(i32 [[VAL]], i32 0)
@@ -97,18 +88,15 @@
                                      OpFunctionEnd
 
 ; CHCK-LABEL: int_broadcast
-; CHECK-GE15: define spir_kernel void @int_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-LT15: define spir_kernel void @int_broadcast(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @int_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
           %int_broadcast_fcn = OpFunction %void_ty None %int_fcn_ty
            %int_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_int_ty
            %int_broadcast_bb = OpLabel
-; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
-; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load i32, i32 addrspace(1)* [[IN]], align 4
+; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
           %int_broadcast_val = OpLoad %int_ty %int_broadcast_in Aligned 4
 ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z19sub_group_broadcastij(i32 [[VAL]], i32 0)
           %int_broadcast_res = OpGroupBroadcast %int_ty %sub_group_scope %int_broadcast_val %zero
-; CHECK-GE15: store i32 [[RES]], ptr addrspace(1) [[IN]]
-; CHECK-LT15: store i32 [[RES]], i32 addrspace(1)* [[IN]]
+; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
                                OpStore %int_broadcast_in %int_broadcast_res Aligned 4
 ; CHECK: ret void
                                OpReturn
@@ -117,18 +105,15 @@
 ; CHECK: declare spir_func i32 @_Z19sub_group_broadcastij(i32, i32)
 
 ; CHCK-LABEL: float_broadcast
-; CHECK-GE15: define spir_kernel void @float_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-LT15: define spir_kernel void @float_broadcast(float addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @float_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
         %float_broadcast_fcn = OpFunction %void_ty None %float_fcn_ty
          %float_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_float_ty
          %float_broadcast_bb = OpLabel
-; CHECK-GE15: [[VAL:%[a-zA-Z0-9_]+]] = load float, ptr addrspace(1) [[IN]], align 4
-; CHECK-LT15: [[VAL:%[a-zA-Z0-9_]+]] = load float, float addrspace(1)* [[IN]], align 4
+; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load float, ptr addrspace(1) [[IN]], align 4
         %float_broadcast_val = OpLoad %float_ty %float_broadcast_in Aligned 4
 ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func float @_Z19sub_group_broadcastfj(float [[VAL]], i32 0)
         %float_broadcast_res = OpGroupBroadcast %float_ty %sub_group_scope %float_broadcast_val %zero
-; CHECK-GE15: store float [[RES]], ptr addrspace(1) [[IN]]
-; CHECK-LT15: store float [[RES]], float addrspace(1)* [[IN]]
+; CHECK: store float [[RES]], ptr addrspace(1) [[IN]]
                                OpStore %float_broadcast_in %float_broadcast_res Aligned 4
 ; CHECK: ret void
                                OpReturn
@@ -137,20 +122,17 @@
 ; CHECK: declare spir_func float @_Z19sub_group_broadcastfj(float, i32)
 
 ; CHCK-LABEL: bool_broadcast
-; CHECK-GE15: define spir_kernel void @bool_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-LT15: define spir_kernel void @bool_broadcast(i1 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @bool_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
          %bool_broadcast_fcn = OpFunction %void_ty None %bool_fcn_ty
           %bool_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_bool_ty
           %bool_broadcast_bb = OpLabel
-; CHECK-GE15: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, ptr addrspace(1) [[IN]], align 4
-; CHECK-LT15: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, i1 addrspace(1)* [[IN]], align 4
+; CHECK: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, ptr addrspace(1) [[IN]], align 4
          %bool_broadcast_val = OpLoad %bool_ty %bool_broadcast_in Aligned 4
 ; CHECK: [[VALI32:%[a-zA-Z0-9_]+]] = sext i1 [[VALI1]] to i32
 ; CHECK: [[RESI32:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z19sub_group_broadcastij(i32 [[VALI32]], i32 0)
          %bool_broadcast_res = OpGroupBroadcast %bool_ty %sub_group_scope %bool_broadcast_val %zero
 ; CHECK: [[RESI1:%[a-zA-Z0-9]+]] = trunc i32 [[RESI32]] to i1
-; CHECK-GE15: store i1 [[RESI1]], ptr addrspace(1) [[IN]]
-; CHECK-LT15: store i1 [[RESI1]], i1 addrspace(1)* [[IN]]
+; CHECK: store i1 [[RESI1]], ptr addrspace(1) [[IN]]
                                OpStore %bool_broadcast_in %bool_broadcast_res Aligned 4
 ; CHECK: ret void
                                OpReturn

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_float_vectors -vecz-simd-width=4 -vecz-double-support=false -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k test_float_vectors -vecz-simd-width=4 -vecz-double-support=false -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -80,12 +79,8 @@ declare extern_weak spir_func i32 @printf(i8 addrspace(2)*, ...)
 ; CHECK: %[[V11:[0-9]+]] = extractelement <4 x float> %{{.+}}, {{(i32|i64)}} 1
 ; CHECK: %[[V12:[0-9]+]] = extractelement <4 x float> %{{.+}}, {{(i32|i64)}} 2
 ; CHECK: %[[V13:[0-9]+]] = extractelement <4 x float> %{{.+}}, {{(i32|i64)}} 3
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V5]], float %[[V10]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([13 x i8], [13 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), float %[[V5]], float %[[V10]])
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V6]], float %[[V11]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([13 x i8], [13 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), float %[[V6]], float %[[V11]])
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V7]], float %[[V12]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([13 x i8], [13 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), float %[[V7]], float %[[V12]])
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V8]], float %[[V13]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([13 x i8], [13 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), float %[[V8]], float %[[V13]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V5]], float %[[V10]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V6]], float %[[V11]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V7]], float %[[V12]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], float %[[V8]], float %[[V13]])
 ; CHECK: ret void

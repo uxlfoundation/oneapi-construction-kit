@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k func_10 -vecz-passes="function(mem2reg),vecz-mem2reg" -S < %s | %filecheck %t
+; RUN: %veczc -k func_10 -vecz-passes="function(mem2reg),vecz-mem2reg" -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -56,5 +55,4 @@ attributes #1 = { argmemonly nounwind }
 ; CHECK-NOT: alloca
 
 ; Check if the store using the alloca is still here
-; CHECK-GE15:  store i64 %.cast, ptr %l_462, align 8
-; CHECK-LT15:  store i64 %.cast, i64* %l_462, align 8
+; CHECK:  store i64 %.cast, ptr %l_462, align 8

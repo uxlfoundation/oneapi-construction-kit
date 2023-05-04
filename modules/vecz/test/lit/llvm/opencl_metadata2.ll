@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k second_test -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k second_test -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -53,14 +52,11 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK: !llvm.ident = !{![[MD14:[0-9]+]]}
 
 ; Check the actual metadata
-; CHECK-GE15: ![[MD6]] = !{ptr @second_test, ![[MD7:[0-9]+]], ![[MD8:[0-9]+]], ![[MD9:[0-9]+]], ![[MD10:[0-9]+]], ![[MD11:[0-9]+]]}
-; CHECK-LT15: ![[MD6]] = !{void (i32, i32)* @second_test, ![[MD7:[0-9]+]], ![[MD8:[0-9]+]], ![[MD9:[0-9]+]], ![[MD10:[0-9]+]], ![[MD11:[0-9]+]]}
+; CHECK: ![[MD6]] = !{ptr @second_test, ![[MD7:[0-9]+]], ![[MD8:[0-9]+]], ![[MD9:[0-9]+]], ![[MD10:[0-9]+]], ![[MD11:[0-9]+]]}
 ; CHECK: ![[MD7]] = !{!"kernel_arg_addr_space", i32 0, i32 0}
 ; CHECK: ![[MD8]] = !{!"kernel_arg_access_qual", !"none", !"none"}
 ; CHECK: ![[MD9]] = !{!"kernel_arg_type", !"int", !"int"}
 ; CHECK: ![[MD10]] = !{!"kernel_arg_base_type", !"int", !"int"}
 ; CHECK: ![[MD11]] = !{!"kernel_arg_type_qual", !"", !""}
-; CHECK-GE15: ![[MD12]] = !{ptr @__vecz_v4_second_test, ![[MD7]], ![[MD8]], ![[MD9]], ![[MD10]], ![[MD11]]}
-; CHECK-LT15: ![[MD12]] = !{void (i32, i32)* @__vecz_v4_second_test, ![[MD7]], ![[MD8]], ![[MD9]], ![[MD10]], ![[MD11]]}
-; CHECK-GE15: ![[MD13]] = !{ptr @test, i32 16, i32 1, i32 1, i1 true}
-; CHECK-LT15: ![[MD13]] = !{void (i32 addrspace(2)*, i32 addrspace(1)*, i8 addrspace(2)*, double)* @test, i32 16, i32 1, i32 1, i1 true}
+; CHECK: ![[MD12]] = !{ptr @__vecz_v4_second_test, ![[MD7]], ![[MD8]], ![[MD9]], ![[MD10]], ![[MD11]]}
+; CHECK: ![[MD13]] = !{ptr @test, i32 16, i32 1, i32 1, i1 true}

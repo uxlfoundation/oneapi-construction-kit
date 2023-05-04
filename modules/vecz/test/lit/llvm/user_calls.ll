@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k entry -w 2 -vecz-handle-declaration-only-calls -vecz-passes=cfg-convert,packetizer -S < %s | %filecheck %t
+; RUN: %veczc -k entry -w 2 -vecz-handle-declaration-only-calls -vecz-passes=cfg-convert,packetizer -S < %s | %filecheck %s
 
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v16:16:16-v24:32:32-v32:32:32-v48:64:64-v64:64:64-v96:128:128-v128:128:128-v192:256:256-v256:256:256-v512:512:512-v1024:1024:1024"
 target triple = "spir64-unknown-unknown"
@@ -63,10 +62,8 @@ declare i64 @_Z12get_local_idj(i32)
 ; Check that we didn't mask the mem_fence call
 ; CHECK: call spir_func void @_Z9mem_fencej(i32 1)
 ; Check that we instantiated functionA without a mask
-; CHECK-GE15: call void @functionA(ptr {{.+}}, i1 %ib)
-; CHECK-LT15: call void @functionA(i64* {{.+}}, i1 %ib)
-; CHECK-GE15: call void @functionA(ptr {{.+}}, i1 %ib)
-; CHECK-LT15: call void @functionA(i64* {{.+}}, i1 %ib)
+; CHECK: call void @functionA(ptr {{.+}}, i1 %ib)
+; CHECK: call void @functionA(ptr {{.+}}, i1 %ib)
 
 ; Get the condition -- Also works as a sanity check for this test
 ; CHECK: [[COND:%cond.*]] = icmp eq <[[WIDTH]] x i64>
@@ -74,36 +71,28 @@ declare i64 @_Z12get_local_idj(i32)
 ; Check if we instatiated functionB with a mask
 ; CHECK: [[COND1:%[0-9]+]] = extractelement <[[WIDTH]] x i1> [[COND]], {{(i32|i64)}} 0
 ; CHECK: [[COND2:%[0-9]+]] = extractelement <[[WIDTH]] x i1> [[COND]], {{(i32|i64)}} 1
-; CHECK-GE15: {{.+}} = call i64 @__vecz_b_masked_functionB(ptr {{(nonnull )?}}{{%[0-9]+}}, i64 {{%[0-9]+}}, i32 16, i1 false, i1 [[COND1]])
-; CHECK-LT15: {{.+}} = call i64 @__vecz_b_masked_functionB(i64* {{(nonnull )?}}{{%[0-9]+}}, i64 {{%[0-9]+}}, i32 16, i1 false, i1 [[COND1]])
-; CHECK-GE15: {{.+}} = call i64 @__vecz_b_masked_functionB(ptr {{(nonnull )?}}{{%[0-9]+}}, i64 {{%[0-9]+}}, i32 16, i1 false, i1 [[COND2]])
-; CHECK-LT15: {{.+}} = call i64 @__vecz_b_masked_functionB(i64* {{(nonnull )?}}{{%[0-9]+}}, i64 {{%[0-9]+}}, i32 16, i1 false, i1 [[COND2]])
-; CHECK-GE15: call spir_func i32 @__vecz_b_masked_printf_u3ptrU3AS2mb(ptr addrspace(2) @.str.1, i64 {{%[0-9]+}}, i1 [[COND1]])
-; CHECK-LT15: call spir_func i32 @__vecz_b_masked_printf_PU3AS2hmb(i8 addrspace(2)* getelementptr inbounds ([10 x i8], [10 x i8] addrspace(2)* @.str.1, i64 0, i64 0), i64 {{%[0-9]+}}, i1 [[COND1]])
-; CHECK-GE15: call spir_func i32 @__vecz_b_masked_printf_u3ptrU3AS2mb(ptr addrspace(2) @.str.1, i64 {{%[0-9]+}}, i1 [[COND2]])
-; CHECK-LT15: call spir_func i32 @__vecz_b_masked_printf_PU3AS2hmb(i8 addrspace(2)* getelementptr inbounds ([10 x i8], [10 x i8] addrspace(2)* @.str.1, i64 0, i64 0), i64 {{%[0-9]+}}, i1 [[COND2]])
+; CHECK: {{.+}} = call i64 @__vecz_b_masked_functionB(ptr {{(nonnull )?}}{{%[0-9]+}}, i64 {{%[0-9]+}}, i32 16, i1 false, i1 [[COND1]])
+; CHECK: {{.+}} = call i64 @__vecz_b_masked_functionB(ptr {{(nonnull )?}}{{%[0-9]+}}, i64 {{%[0-9]+}}, i32 16, i1 false, i1 [[COND2]])
+; CHECK: call spir_func i32 @__vecz_b_masked_printf_u3ptrU3AS2mb(ptr addrspace(2) @.str.1, i64 {{%[0-9]+}}, i1 [[COND1]])
+; CHECK: call spir_func i32 @__vecz_b_masked_printf_u3ptrU3AS2mb(ptr addrspace(2) @.str.1, i64 {{%[0-9]+}}, i1 [[COND2]])
 
 ; The following checks check the generated functionB masked function
-; CHECK-GE15: define private i64 @__vecz_b_masked_functionB(ptr{{( %0)?}}, i64{{( %1)?}}, i32{{( %2)?}}, i1{{( %3)?}}, i1{{( %4)?}}) {
-; CHECK-LT15: define private i64 @__vecz_b_masked_functionB(i64*{{( %0)?}}, i64{{( %1)?}}, i32{{( %2)?}}, i1{{( %3)?}}, i1{{( %4)?}}) {
+; CHECK: define private i64 @__vecz_b_masked_functionB(ptr{{( %0)?}}, i64{{( %1)?}}, i32{{( %2)?}}, i1{{( %3)?}}, i1{{( %4)?}}) {
 ; CHECK: entry:
 ; CHECK: br i1 %4, label %active, label %exit
 ; CHECK: active:
-; CHECK-GE15: [[RES:%[0-9]+]] = call i64 @functionB(ptr {{(nonnull )?}}%0, i64 %1, i32 %2, i1 %3)
-; CHECK-LT15: [[RES:%[0-9]+]] = call i64 @functionB(i64* {{(nonnull )?}}%0, i64 %1, i32 %2, i1 %3)
+; CHECK: [[RES:%[0-9]+]] = call i64 @functionB(ptr {{(nonnull )?}}%0, i64 %1, i32 %2, i1 %3)
 ; CHECK: br label %exit
 ; CHECK: exit:
 ; CHECK: [[RET:%[0-9]+]] = phi i64 [ [[RES]], %active ], [ 0, %entry ]
 ; CHECK: ret i64 [[RET]]
 
 ; The following checks check the generated printf masked function
-; CHECK-GE15: define private spir_func i32 @__vecz_b_masked_printf_u3ptrU3AS2mb(ptr addrspace(2){{( %0)?}}, i64{{( %1)?}}, i1{{( %2)?}}) {
-; CHECK-LT15: define private spir_func i32 @__vecz_b_masked_printf_PU3AS2hmb(i8 addrspace(2)*{{( %0)?}}, i64{{( %1)?}}, i1{{( %2)?}}) {
+; CHECK: define private spir_func i32 @__vecz_b_masked_printf_u3ptrU3AS2mb(ptr addrspace(2){{( %0)?}}, i64{{( %1)?}}, i1{{( %2)?}}) {
 ; CHECK: entry:
 ; CHECK: br i1 %2, label %active, label %exit
 ; CHECK: active:
-; CHECK-GE15: [[RES:%[0-9]+]] = call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) %0, i64 %1)
-; CHECK-LT15: [[RES:%[0-9]+]] = call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* %0, i64 %1)
+; CHECK: [[RES:%[0-9]+]] = call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) %0, i64 %1)
 ; CHECK: br label %exit
 ; CHECK: exit:
 ; CHECK: [[RET:%[0-9]+]] = phi i32 [ [[RES]], %active ], [ 0, %entry ]

@@ -1,9 +1,7 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 // REQUIRES: arm
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fmod_dvec4.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fmod_dvec4.spv | %filecheck %s
 
 // CHECK: ; ModuleID = '{{.*}}'
 #version 450
@@ -14,20 +12,15 @@ void main() {
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <4 x double>
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <4 x double>
   dvec4 x = dvec4(-42.42, -42.42, -42.42, -42.42);
-// CHECK-GE15:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, <4 x double>* {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
   dvec4 y = dvec4(-42.42, -42.42, -42.42, -42.42);
-// CHECK-GE15:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, <4 x double>* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15:  [[X:%[a-zA-Z0-9_]+]] = load <4 x double>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  [[X:%[a-zA-Z0-9_]+]] = load <4 x double>, <4 x double>* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15:  [[Y:%[a-zA-Z0-9_]+]] = load <4 x double>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  [[Y:%[a-zA-Z0-9_]+]] = load <4 x double>, <4 x double>* {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  [[X:%[a-zA-Z0-9_]+]] = load <4 x double>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  [[Y:%[a-zA-Z0-9_]+]] = load <4 x double>, ptr {{%[a-zA-Z0-9_]+}}
   dvec4 res = mod(x, y);
 // CHECK:  [[MOD:%[a-zA-Z0-9_]+]] = call spir_func <4 x double> @_Z4fmodDv4_dS_(<4 x double> [[X]], <4 x double> [[Y]])
 // CHECK:  [[RES:%[a-zA-Z0-9_]+]] = call spir_func <4 x double> @_Z8copysignDv4_dS_(<4 x double> [[MOD]], <4 x double> [[Y]])
-// CHECK-GE15:  store <4 x double> [[RES]], ptr %res
-// CHECK-LT15:  store <4 x double> [[RES]], <4 x double>* %res
+// CHECK:  store <4 x double> [[RES]], ptr %res
 // CHECK:  ret void
 }
 

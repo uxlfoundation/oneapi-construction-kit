@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes barriers-pass,verify -S %s -opaque-pointers | %filecheck %s
+; RUN: %muxc --passes barriers-pass,verify -S %s  | %filecheck %s
 
 ; This test checks the validity of a set of main/tail loops in conjunction with
 ; the 'linear' work-item order. The sub-group IVs must be carefully managed

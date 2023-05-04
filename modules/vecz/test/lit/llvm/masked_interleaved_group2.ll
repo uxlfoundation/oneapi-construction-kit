@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k mask -vecz-simd-width=16 -S -vecz-choices=TargetIndependentPacketization < %s | %filecheck %t
+; RUN: %veczc -k mask -vecz-simd-width=16 -S -vecz-choices=TargetIndependentPacketization < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 source_filename = "kernel.opencl"
@@ -81,10 +80,8 @@ attributes #2 = { convergent nobuiltin nounwind readonly }
 ; CHECK: %interleave{{.*}} = shufflevector <16 x i1>
 
 ; The loads are masked loads:
-; CHECK-GE15: call <16 x i8> @llvm.masked.load.v16i8.p1(ptr
-; CHECK-LT15: call <16 x i8> @llvm.masked.load.v16i8.p1v16i8(<16 x i8>
-; CHECK-GE15: call <16 x i8> @llvm.masked.load.v16i8.p1(ptr
-; CHECK-LT15: call <16 x i8> @llvm.masked.load.v16i8.p1v16i8(<16 x i8>
+; CHECK: call <16 x i8> @llvm.masked.load.v16i8.p1(ptr
+; CHECK: call <16 x i8> @llvm.masked.load.v16i8.p1(ptr
 
 ; The loaded data gets deinterleaved:
 ; CHECK: %deinterleave{{.*}} = shufflevector <16 x i8>
@@ -99,10 +96,8 @@ attributes #2 = { convergent nobuiltin nounwind readonly }
 ; CHECK: %interleave{{.*}} = shufflevector <16 x i1>
 
 ; The stores are masked stores:
-; CHECK-GE15: call void @llvm.masked.store.v16i8.p1(<16 x i8>
-; CHECK-LT15: call void @llvm.masked.store.v16i8.p1v16i8(<16 x i8>
-; CHECK-GE15: call void @llvm.masked.store.v16i8.p1(<16 x i8>
-; CHECK-LT15: call void @llvm.masked.store.v16i8.p1v16i8(<16 x i8>
+; CHECK: call void @llvm.masked.store.v16i8.p1(<16 x i8>
+; CHECK: call void @llvm.masked.store.v16i8.p1(<16 x i8>
 
 ; Definitely no unmasked stores:
 ; CHECK-NOT: store <16 x i8>

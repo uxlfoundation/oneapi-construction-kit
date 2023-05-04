@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-passes=builtin-inlining -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-passes=builtin-inlining -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -34,30 +33,21 @@ define spir_func i32 @opt_Z7isequalff(float, float) {
   ret i32 zeroinitializer
 }
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_test(float %a, float %b, ptr %c)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_test(float %a, float %b, i32* %c)
+; CHECK: define spir_kernel void @__vecz_v4_test(float %a, float %b, ptr %c)
 ; CHECK: entry:
 ; CHECK: %gid = call spir_func i64 @_Z13get_global_idj(i32 0)
 ; CHECK: %relational = fcmp ogt float %a, %b
 ; CHECK: %relational[[R1:[0-9]+]] = zext i1 %relational to i32
-; CHECK-GE15: %c0 = getelementptr i32, ptr %c, i64 %gid
-; CHECK-LT15: %c0 = getelementptr i32, i32* %c, i64 %gid
-; CHECK-GE15: store i32 %relational[[R1]], ptr %c0, align 4
-; CHECK-LT15: store i32 %relational[[R1]], i32* %c0, align 4
+; CHECK: %c0 = getelementptr i32, ptr %c, i64 %gid
+; CHECK: store i32 %relational[[R1]], ptr %c0, align 4
 ; CHECK: %relational[[R2:[0-9]+]] = fcmp olt float %a, %b
 ; CHECK: %relational[[R3:[0-9]+]] = zext i1 %relational[[R2:[0-9]+]] to i32
-; CHECK-GE15: %c1 = getelementptr i32, ptr %c0, {{(i32|i64)}} 1
-; CHECK-LT15: %c1 = getelementptr i32, i32* %c0, {{(i32|i64)}} 1
-; CHECK-GE15: store i32 %relational[[R3:[0-9]+]], ptr %c1, align 4
-; CHECK-LT15: store i32 %relational[[R3:[0-9]+]], i32* %c1, align 4
+; CHECK: %c1 = getelementptr i32, ptr %c0, {{(i32|i64)}} 1
+; CHECK: store i32 %relational[[R3:[0-9]+]], ptr %c1, align 4
 ; CHECK: %relational[[R4:[0-9]+]] = fcmp oeq float %a, %b
 ; CHECK: %relational[[R5:[0-9]+]] = zext i1 %relational[[R4:[0-9]+]] to i32
-; CHECK-GE15: %c2 = getelementptr i32, ptr %c0, {{(i32|i64)}} 2
-; CHECK-LT15: %c2 = getelementptr i32, i32* %c0, {{(i32|i64)}} 2
-; CHECK-GE15: store i32 %relational[[R5:[0-9]+]], ptr %c2, align 4
-; CHECK-LT15: store i32 %relational[[R5:[0-9]+]], i32* %c2, align 4
-; CHECK-GE15: %c3 = getelementptr i32, ptr %c0, {{(i32|i64)}} 3
-; CHECK-LT15: %c3 = getelementptr i32, i32* %c0, {{(i32|i64)}} 3
-; CHECK-GE15: store i32 0, ptr %c3, align 4
-; CHECK-LT15: store i32 0, i32* %c3, align 4
+; CHECK: %c2 = getelementptr i32, ptr %c0, {{(i32|i64)}} 2
+; CHECK: store i32 %relational[[R5:[0-9]+]], ptr %c2, align 4
+; CHECK: %c3 = getelementptr i32, ptr %c0, {{(i32|i64)}} 3
+; CHECK: store i32 0, ptr %c3, align 4
 ; CHECK: ret void

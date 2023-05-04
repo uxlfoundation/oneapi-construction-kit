@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k atomic_rmw -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k atomic_rmw -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -61,12 +60,8 @@ entry:
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; CHECK: define spir_kernel void @__vecz_v4_atomic_rmw
-; CHECK-GE15: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
-; CHECK-LT15: atomicrmw add i32 addrspace(1)* %counter2, i32 1 seq_cst
-; CHECK-GE15: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
-; CHECK-LT15: atomicrmw add i32 addrspace(1)* %counter2, i32 1 seq_cst
-; CHECK-GE15: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
-; CHECK-LT15: atomicrmw add i32 addrspace(1)* %counter2, i32 1 seq_cst
-; CHECK-GE15: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
-; CHECK-LT15: atomicrmw add i32 addrspace(1)* %counter2, i32 1 seq_cst
+; CHECK: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
+; CHECK: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
+; CHECK: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
+; CHECK: atomicrmw add ptr addrspace(1) %counter2, i32 1 seq_cst
 ; CHECK: ret void

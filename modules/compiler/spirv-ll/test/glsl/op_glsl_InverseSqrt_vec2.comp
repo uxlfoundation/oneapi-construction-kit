@@ -1,8 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan %p/op_glsl_InverseSqrt_vec2.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan %p/op_glsl_InverseSqrt_vec2.spv | %filecheck %s
 
 #version 450
 
@@ -19,10 +17,8 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, <2 x float> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <2 x float> @_Z5rsqrtDv2_f(<2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK-GE15: store <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: store <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <2 x float> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: store <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: ret void
 // CHECK: declare spir_func <2 x float> @_Z5rsqrtDv2_f(<2 x float>)

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_calls -vecz-passes=packetizer -vecz-simd-width=8 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k test_calls -vecz-passes=packetizer -vecz-simd-width=8 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -25,29 +24,20 @@ entry:
 
 declare <4x float> @llvm.fmuladd.v4f32(<4 x float>, <4 x float>, <4 x float>)
 
-; CHECK-GE15: define spir_kernel void @__vecz_v8_test_calls(ptr %pa, ptr %pb, ptr %pc, ptr %pd)
-; CHECK-LT15: define spir_kernel void @__vecz_v8_test_calls(<4 x float>* %pa, <4 x float>* %pb, <4 x float>* %pc, <4 x float>* %pd)
+; CHECK: define spir_kernel void @__vecz_v8_test_calls(ptr %pa, ptr %pb, ptr %pc, ptr %pd)
 ; CHECK: entry:
 
 ; It checks that the fmuladd intrinsic of <4 x float> gets widened by a factor of 8,
 ; to produce a PAIR of <16 x float>s.
-; CHECK-GE15: %[[LDA0:.+]] = load <16 x float>, ptr %{{.+}}, align 4
-; CHECK-LT15: %[[LDA0:.+]] = load <16 x float>, <16 x float>* %{{.+}}, align 4
-; CHECK-GE15: %[[LDA1:.+]] = load <16 x float>, ptr %{{.+}}, align 4
-; CHECK-LT15: %[[LDA1:.+]] = load <16 x float>, <16 x float>* %{{.+}}, align 4
-; CHECK-GE15: %[[LDB0:.+]] = load <16 x float>, ptr %{{.+}}, align 4
-; CHECK-LT15: %[[LDB0:.+]] = load <16 x float>, <16 x float>* %{{.+}}, align 4
-; CHECK-GE15: %[[LDB1:.+]] = load <16 x float>, ptr %{{.+}}, align 4
-; CHECK-LT15: %[[LDB1:.+]] = load <16 x float>, <16 x float>* %{{.+}}, align 4
-; CHECK-GE15: %[[LDC0:.+]] = load <16 x float>, ptr %{{.+}}, align 4
-; CHECK-LT15: %[[LDC0:.+]] = load <16 x float>, <16 x float>* %{{.+}}, align 4
-; CHECK-GE15: %[[LDC1:.+]] = load <16 x float>, ptr %{{.+}}, align 4
-; CHECK-LT15: %[[LDC1:.+]] = load <16 x float>, <16 x float>* %{{.+}}, align 4
+; CHECK: %[[LDA0:.+]] = load <16 x float>, ptr %{{.+}}, align 4
+; CHECK: %[[LDA1:.+]] = load <16 x float>, ptr %{{.+}}, align 4
+; CHECK: %[[LDB0:.+]] = load <16 x float>, ptr %{{.+}}, align 4
+; CHECK: %[[LDB1:.+]] = load <16 x float>, ptr %{{.+}}, align 4
+; CHECK: %[[LDC0:.+]] = load <16 x float>, ptr %{{.+}}, align 4
+; CHECK: %[[LDC1:.+]] = load <16 x float>, ptr %{{.+}}, align 4
 ; CHECK: %[[FMA0:.+]] = call <16 x float> @llvm.fmuladd.v16f32(<16 x float> %[[LDA0]], <16 x float> %[[LDB0]], <16 x float> %[[LDC0]])
 ; CHECK: %[[FMA1:.+]] = call <16 x float> @llvm.fmuladd.v16f32(<16 x float> %[[LDA1]], <16 x float> %[[LDB1]], <16 x float> %[[LDC1]])
-; CHECK-GE15: store <16 x float> %[[FMA0]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <16 x float> %[[FMA0]], <16 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <16 x float> %[[FMA1]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <16 x float> %[[FMA1]], <16 x float>* %{{.+}}, align 16
+; CHECK: store <16 x float> %[[FMA0]], ptr %{{.+}}, align 16
+; CHECK: store <16 x float> %[[FMA1]], ptr %{{.+}}, align 16
 
 ; CHECK: ret void

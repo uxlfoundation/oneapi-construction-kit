@@ -1,7 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll --spec-constants %p/spec_constants.spv -o %t
-// RUN: %filecheck < %t %s
+// RUN: %spirv-ll --spec-constants %p/spec_constants.spv | %filecheck %s
 
 #version 450
 

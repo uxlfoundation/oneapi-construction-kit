@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses %p/op_opencl_vloada_halfn_32bit.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses %p/op_opencl_vloada_halfn_32bit.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Vector16
@@ -44,34 +42,24 @@
         %loc = OpFunctionParameter %_ptr_Workgroup_half
       %entry = OpLabel
       %call1 = OpExtInst %v2float %1 vloada_halfn %uint_0 %out 2
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS1KDh(i32 0, half addrspace(1)* %out)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
       %call2 = OpExtInst %v3float %1 vloada_halfn %uint_0 %out 3
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z12vloada_half3jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z12vloada_half3jPU3AS1KDh(i32 0, half addrspace(1)* %out)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z12vloada_half3jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
       %call3 = OpExtInst %v4float %1 vloada_halfn %uint_0 %out 4
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z12vloada_half4jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z12vloada_half4jPU3AS1KDh(i32 0, half addrspace(1)* %out)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z12vloada_half4jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
       %call4 = OpExtInst %v8float %1 vloada_halfn %uint_0 %out 8
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z12vloada_half8jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z12vloada_half8jPU3AS1KDh(i32 0, half addrspace(1)* %out)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z12vloada_half8jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
       %call5 = OpExtInst %v16float %1 vloada_halfn %uint_0 %out 16
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS1KDh(i32 0, half addrspace(1)* %out)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS1KDh(i32 0, ptr addrspace(1) %out)
       %call7 = OpExtInst %v2float %1 vloada_halfn %uint_0 %loc 2
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS3KDh(i32 0, half addrspace(3)* %loc)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z12vloada_half2jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
       %call8 = OpExtInst %v3float %1 vloada_halfn %uint_0 %loc 3
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z12vloada_half3jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z12vloada_half3jPU3AS3KDh(i32 0, half addrspace(3)* %loc)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z12vloada_half3jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
       %call9 = OpExtInst %v4float %1 vloada_halfn %uint_0 %loc 4
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z12vloada_half4jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z12vloada_half4jPU3AS3KDh(i32 0, half addrspace(3)* %loc)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z12vloada_half4jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
      %call10 = OpExtInst %v8float %1 vloada_halfn %uint_0 %loc 8
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z12vloada_half8jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z12vloada_half8jPU3AS3KDh(i32 0, half addrspace(3)* %loc)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z12vloada_half8jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
      %call11 = OpExtInst %v16float %1 vloada_halfn %uint_0 %loc 16
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS3KDh(i32 0, half addrspace(3)* %loc)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z13vloada_half16jPU3AS3KDh(i32 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

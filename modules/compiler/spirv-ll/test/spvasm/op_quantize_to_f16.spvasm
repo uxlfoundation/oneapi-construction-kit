@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float16 %p/op_quantize_to_f16.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float16 %p/op_quantize_to_f16.spv | %filecheck %s
             OpCapability Shader
             OpCapability Float16
        %1 = OpExtInstImport "GLSL.std.450"
@@ -28,12 +26,9 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
 ; CHECK: [[ARG:%[a-zA-Z0-9_]+]] = alloca float
-; CHECK-GE15: store float 0x400921FB60000000, ptr [[ARG]]
-; CHECK-LT15: store float 0x400921FB60000000, float* [[ARG]]
-; CHECK-GE15: [[LD_ARG:%[a-zA-Z0-9_]+]] = load float, ptr [[ARG]]
-; CHECK-LT15: [[LD_ARG:%[a-zA-Z0-9_]+]] = load float, float* [[ARG]]
+; CHECK: store float 0x400921FB60000000, ptr [[ARG]]
+; CHECK: [[LD_ARG:%[a-zA-Z0-9_]+]] = load float, ptr [[ARG]]
 ; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func float @_Z13quantizeToF16f(float [[LD_ARG]])
-; CHECK-GE15: store float [[RES]], ptr [[ARG]]
-; CHECK-LT15: store float [[RES]], float* [[ARG]]
+; CHECK: store float [[RES]], ptr [[ARG]]
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z13quantizeToF16f(float)

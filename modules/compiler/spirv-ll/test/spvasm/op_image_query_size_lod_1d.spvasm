@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D %p/op_image_query_size_lod_1d.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D %p/op_image_query_size_lod_1d.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability Sampled1D
@@ -21,13 +19,10 @@
 ; All functions
              %image1d = OpFunction %void_t None %query_size_fn_t
                %image = OpFunctionParameter %image1d_t
-; CHECK-LT15: %opencl.image1d_t = type opaque
-; CHECK-GE15: define spir_kernel void @image1d(ptr addrspace(1) %image)
-; CHECK-LT15: define spir_kernel void @image1d(%opencl.image1d_t addrspace(1)* %image)
+; CHECK: define spir_kernel void @image1d(ptr addrspace(1) %image)
                    %1 = OpLabel
                    %2 = OpImageQuerySizeLod %int_t %image %int_1
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z15get_image_width11ocl_image1d(ptr addrspace(1) %image)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z15get_image_width11ocl_image1d(%opencl.image1d_t addrspace(1)* %image)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z15get_image_width11ocl_image1d(ptr addrspace(1) %image)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

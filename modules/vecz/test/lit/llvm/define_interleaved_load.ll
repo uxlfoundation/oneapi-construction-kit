@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -41,14 +40,9 @@ declare spir_func void @_Z7barrierj(i32)
 declare <4 x double> @llvm.fmuladd.v4f64(<4 x double>, <4 x double>, <4 x double>)
 
 ; Test if the interleaved load is defined correctly
-; CHECK-GE15: define <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1(ptr addrspace(1){{( %0)?}})
-; CHECK-LT15: define <4 x double> @__vecz_b_interleaved_load8_4_Dv4_dPU3AS1d(double addrspace(1)*{{( %0)?}})
-; CHECK-GE15: %BroadcastAddr.splatinsert = insertelement <4 x ptr addrspace(1)> {{poison|undef}}, ptr addrspace(1) %0, {{i32|i64}} 0
-; CHECK-LT15: %BroadcastAddr.splatinsert = insertelement <4 x double addrspace(1)*> {{poison|undef}}, double addrspace(1)* %0, i32 0
-; CHECK-GE15: %BroadcastAddr.splat = shufflevector <4 x ptr addrspace(1)> %BroadcastAddr.splatinsert, <4 x ptr addrspace(1)> {{poison|undef}}, <4 x i32> zeroinitializer
-; CHECK-LT15: %BroadcastAddr.splat = shufflevector <4 x double addrspace(1)*> %BroadcastAddr.splatinsert, <4 x double addrspace(1)*> {{poison|undef}}, <4 x i32> zeroinitializer
-; CHECK-GE15: %[[TMP1:.*]] = getelementptr double, <4 x ptr addrspace(1)> %BroadcastAddr.splat, <4 x i64> <i64 0, i64 4, i64 8, i64 12>
-; CHECK-LT15: %[[TMP1:.*]] = getelementptr double, <4 x double addrspace(1)*> %BroadcastAddr.splat, <4 x i64> <i64 0, i64 4, i64 8, i64 12>
-; CHECK-GE15: %[[TMP2:.*]] = call <4 x double> @llvm.masked.gather.v4f64.v4p1(<4 x ptr addrspace(1)> %[[TMP1]], i32{{( immarg)?}} 8, <4 x i1> <i1 true, i1 true, i1 true, i1 true>, <4 x double> undef)
-; CHECK-LT15: %[[TMP2:.*]] = call <4 x double> @llvm.masked.gather.v4f64.v4p1f64(<4 x double addrspace(1)*> %[[TMP1]], i32{{( immarg)?}} 8, <4 x i1> <i1 true, i1 true, i1 true, i1 true>, <4 x double> undef)
+; CHECK: define <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1(ptr addrspace(1){{( %0)?}})
+; CHECK: %BroadcastAddr.splatinsert = insertelement <4 x ptr addrspace(1)> {{poison|undef}}, ptr addrspace(1) %0, {{i32|i64}} 0
+; CHECK: %BroadcastAddr.splat = shufflevector <4 x ptr addrspace(1)> %BroadcastAddr.splatinsert, <4 x ptr addrspace(1)> {{poison|undef}}, <4 x i32> zeroinitializer
+; CHECK: %[[TMP1:.*]] = getelementptr double, <4 x ptr addrspace(1)> %BroadcastAddr.splat, <4 x i64> <i64 0, i64 4, i64 8, i64 12>
+; CHECK: %[[TMP2:.*]] = call <4 x double> @llvm.masked.gather.v4f64.v4p1(<4 x ptr addrspace(1)> %[[TMP1]], i32{{( immarg)?}} 8, <4 x i1> <i1 true, i1 true, i1 true, i1 true>, <4 x double> undef)
 ; CHECK: ret <4 x double> %[[TMP2]]

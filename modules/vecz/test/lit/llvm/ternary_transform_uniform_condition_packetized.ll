@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_ternary -vecz-passes=ternary-transform,packetizer -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_ternary -vecz-passes=ternary-transform,packetizer -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -27,11 +26,7 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; uniform and the two strides are equal, and that the result is a contiguous
 ; vector store.
 
-; CHECK-GE15: %[[SELECT:.+]] = select i1 %cond, ptr %c0, ptr %c1
-; CHECK-LT15: %[[SELECT:.+]] = select i1 %cond, i64* %c0, i64* %c1
-; CHECK-GE15: %[[BASE:.+]] = getelementptr i64, ptr %[[SELECT]], i64 0
-; CHECK-LT15: %[[BASE:.+]] = getelementptr i64, i64* %[[SELECT]], i64 0
-; CHECK-GE15: store <4 x i64> <i64 1, i64 1, i64 1, i64 1>, ptr %[[BASE]], align 4
-; CHECK-LT15: %[[ADDR:.+]] = bitcast i64* %[[BASE]] to <4 x i64>*
-; CHECK-LT15: store <4 x i64> <i64 1, i64 1, i64 1, i64 1>, <4 x i64>* %[[ADDR]], align 4
+; CHECK: %[[SELECT:.+]] = select i1 %cond, ptr %c0, ptr %c1
+; CHECK: %[[BASE:.+]] = getelementptr i64, ptr %[[SELECT]], i64 0
+; CHECK: store <4 x i64> <i64 1, i64 1, i64 1, i64 1>, ptr %[[BASE]], align 4
 ; CHECK: ret void

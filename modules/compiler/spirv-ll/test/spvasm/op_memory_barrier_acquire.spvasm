@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan %p/op_memory_barrier_acquire.spv -o %t
-; RUN: %filecheck < %t %s
+; RUN: %spirv-ll -a Vulkan %p/op_memory_barrier_acquire.spv | %filecheck %s
                OpCapability Shader
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main"

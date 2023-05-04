@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_copy_memory_float.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_copy_memory_float.spv | %filecheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                OpCapability Shader
                OpCapability Float64
@@ -29,15 +27,11 @@
           %b = OpVariable %ptr_float Function
 ; CHECK: %b = alloca float
                OpStore %a %14
-; CHECK-GE15: store float 0x404535C280000000, ptr %a
-; CHECK-LT15: store float 0x404535C280000000, float* %a
-; CHECK-LT15: [[b:%[a-zA-Z0-9]+]] = bitcast float* %b to i8*
-; CHECK-LT15: [[a:%[a-zA-Z0-9]+]] = bitcast float* %a to i8*
+; CHECK: store float 0x404535C280000000, ptr %a
                OpCopyMemory %b %a
 ; The alignment argument is no longer emitted in LLVM 7, so it's optional {{   below  }}
 ; The bitcasted alloca arguments are required strong alignment in LLVM 11, so included optional alignment string
-; CHECK-GE15: call void @llvm.memcpy.p0.p0.i64(ptr{{( align [0-9])?}} %b, ptr{{( align [0-9])?}} %a, i64 4{{(, i32 0)?}}, i1 false)
-; CHECK-LT15: call void @llvm.memcpy.p0i8.p0i8.i64(i8*{{( align [0-9])?}} [[b]], i8*{{( align [0-9])?}} [[a]], i64 4{{(, i32 0)?}}, i1 false)
+; CHECK: call void @llvm.memcpy.p0.p0.i64(ptr{{( align [0-9])?}} %b, ptr{{( align [0-9])?}} %a, i64 4{{(, i32 0)?}}, i1 false)
                OpReturn
 ; CHECK: ret void
                OpFunctionEnd

@@ -4,8 +4,7 @@
 ; intrinsics across all lanes even when scalarization masks disable some
 ; of the lanes. This occurs when we scalarize insertelement instructions.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k unaligned_load -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k unaligned_load -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -125,7 +124,5 @@ attributes #3 = { nobuiltin }
 
 ; CHECK: define spir_kernel void @__vecz_v4_unaligned_load
 ; CHECK: %tmp = alloca <16 x i32>, align 16
-; CHECK-GE15: %[[TMP_LD:.+]] = call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr(ptr nonnull %tmp)
-; CHECK-LT15: %[[GEP:.+]] = getelementptr inbounds <16 x i32>, <16 x i32>* %tmp, i64 0, i64 0, !dbg !{{[0-9]+}}
-; CHECK-LT15: %[[TMP_LD:.+]] = call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_jPj(i32* nonnull %[[GEP]])
+; CHECK: %[[TMP_LD:.+]] = call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr(ptr nonnull %tmp)
 ; CHECK: call void @llvm.dbg.value(metadata <4 x i32> %[[TMP_LD]], metadata !{{[0-9]+}}, metadata !DIExpression()), !dbg !{{[0-9]+}}

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -w 4 -vecz-choices=VectorPredication -S < %s | %filecheck %t
+; RUN: %veczc -w 4 -vecz-choices=VectorPredication -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -42,8 +41,7 @@ entry:
 ; CHECK: [[T3:%.*]] = bitcast <4 x i1> [[I]] to i4
 ; CHECK: [[R:%.*]] = icmp eq i4 [[T3]], -1
 ; CHECK: [[EXT:%.*]] = sext i1 [[R]] to i32
-; CHECK-GE15: store i32 [[EXT]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[EXT]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[EXT]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_any_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -66,8 +64,7 @@ entry:
 ; CHECK: [[T3:%.*]] = bitcast <4 x i1> [[I]] to i4
 ; CHECK: [[R:%.*]] = icmp ne i4 [[T3]], 0
 ; CHECK: [[EXT:%.*]] = sext i1 [[R]] to i32
-; CHECK-GE15: store i32 [[EXT]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[EXT]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[EXT]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_add_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -87,8 +84,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x i32> {{%.*}}, <4 x i32> zeroinitializer
 ; CHECK: [[R:%.*]] = call i32 @llvm.vector.reduce.add.v4i32(<4 x i32> [[I]])
-; CHECK-GE15: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[R]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_add_i64(i64 addrspace(1)* %in, i64 addrspace(1)* %out) {
@@ -108,8 +104,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x i64> {{%.*}}, <4 x i64> zeroinitializer
 ; CHECK: [[R:%.*]] = call i64 @llvm.vector.reduce.add.v4i64(<4 x i64> [[I]])
-; CHECK-GE15: store i64 [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i64 [[R]], i64 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i64 [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_add_f32(float addrspace(1)* %in, float addrspace(1)* %out) {
@@ -129,8 +124,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x float> {{%.*}}, <4 x float> <float -0.000000e+00, float -0.000000e+00,
 ; CHECK: [[R:%.*]] = call float @llvm.vector.reduce.fadd.v4f32(float -0.000000e+00, <4 x float> [[I]])
-; CHECK-GE15: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store float [[R]], float addrspace(1)* {{%.*}}, align 4
+; CHECK: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_smin_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -150,8 +144,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x i32> {{%.*}}, <4 x i32> <i32 2147483647, i32 2147483647, 
 ; CHECK: [[R:%.*]] = call i32 @llvm.vector.reduce.smin.v4i32(<4 x i32> [[I]])
-; CHECK-GE15: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[R]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_umin_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -171,8 +164,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x i32> {{%.*}}, <4 x i32> <i32 -1, i32 -1, i32 -1, i32 -1>
 ; CHECK: [[R:%.*]] = call i32 @llvm.vector.reduce.umin.v4i32(<4 x i32> [[I]])
-; CHECK-GE15: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[R]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_smax_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -192,8 +184,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x i32> {{%.*}}, <4 x i32> <i32 -2147483648, i32 -2147483648, 
 ; CHECK: [[R:%.*]] = call i32 @llvm.vector.reduce.smax.v4i32(<4 x i32> [[I]])
-; CHECK-GE15: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[R]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_umax_i32(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -213,8 +204,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x i32> {{%.*}}, <4 x i32> zeroinitializer
 ; CHECK: [[R:%.*]] = call i32 @llvm.vector.reduce.umax.v4i32(<4 x i32> [[I]])
-; CHECK-GE15: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store i32 [[R]], i32 addrspace(1)* {{%.*}}, align 4
+; CHECK: store i32 [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_fmin_f32(float addrspace(1)* %in, float addrspace(1)* %out) {
@@ -234,8 +224,7 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x float> {{%.*}}, <4 x float> <float 0x7FF8000000000000, float 0x7FF8000000000000,
 ; CHECK: [[R:%.*]] = call float @llvm.vector.reduce.fmin.v4f32(<4 x float> [[I]])
-; CHECK-GE15: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store float [[R]], float addrspace(1)* {{%.*}}, align 4
+; CHECK: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
 
 define spir_kernel void @reduce_fmax_f32(float addrspace(1)* %in, float addrspace(1)* %out) {
@@ -255,6 +244,5 @@ entry:
 ; CHECK: [[C:%.*]] = icmp ugt <4 x i32> [[S]], <i32 0, i32 1, i32 2, i32 3>
 ; CHECK: [[I:%.*]] = select <4 x i1> [[C]], <4 x float> {{%.*}}, <4 x float> <float 0xFFF8000000000000, float 0xFFF8000000000000,
 ; CHECK: [[R:%.*]] = call float @llvm.vector.reduce.fmax.v4f32(<4 x float> [[I]])
-; CHECK-GE15: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: store float [[R]], float addrspace(1)* {{%.*}}, align 4
+; CHECK: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
 }

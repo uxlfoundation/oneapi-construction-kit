@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k dont_mask_workitem_builtins -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k dont_mask_workitem_builtins -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -51,9 +50,7 @@ declare spir_func i64 @_Z14get_local_sizej(i32)
 declare spir_func i64 @_Z12get_group_idj(i32)
 
 ; Test if the masked load is defined correctly
-; CHECK-GE15: define <vscale x 4 x i32> @__vecz_b_masked_load4_u5nxv4ju3ptrU3AS2u5nxv4b(ptr addrspace(2){{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
-; CHECK-LT15: define <vscale x 4 x i32> @__vecz_b_masked_load4_u5nxv4jPU3AS2u5nxv4ju5nxv4b(<vscale x 4 x i32> addrspace(2)*{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
+; CHECK: define <vscale x 4 x i32> @__vecz_b_masked_load4_u5nxv4ju3ptrU3AS2u5nxv4b(ptr addrspace(2){{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
 ; CHECK: entry:
-; CHECK-GE15: %2 = call <vscale x 4 x i32> @llvm.masked.load.nxv4i32.p2(ptr addrspace(2) %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> {{undef|poison}})
-; CHECK-LT15: %2 = call <vscale x 4 x i32> @llvm.masked.load.nxv4i32.p2nxv4i32(<vscale x 4 x i32> addrspace(2)* %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> undef)
+; CHECK: %2 = call <vscale x 4 x i32> @llvm.masked.load.nxv4i32.p2(ptr addrspace(2) %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> {{undef|poison}})
 ; CHECK: ret <vscale x 4 x i32> %2

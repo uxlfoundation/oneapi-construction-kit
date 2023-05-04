@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k f -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k f -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -47,8 +46,7 @@ attributes #2 = { nounwind readnone }
 attributes #3 = { nobuiltin nounwind }
 
 ; Test if the interleaved load is NOT defined
-; CHECK-NOT-GE15: define <4 x double> @__vecz_b_interleaved_load4_Dv4_du3ptrU3AS1(ptr addrspace(1){{( %0)?}})
-; CHECK-NOT-LT15: define <4 x double> @__vecz_b_interleaved_load4_Dv4_dPU3AS1d(double addrspace(1)*{{( %0)?}})
+; CHECK-NOT: define <4 x double> @__vecz_b_interleaved_load4_Dv4_du3ptrU3AS1(ptr addrspace(1){{( %0)?}})
 
 ; Wide load instead
 ; CHECK: load <16 x double>

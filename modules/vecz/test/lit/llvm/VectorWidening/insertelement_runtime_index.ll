@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k runtime_index -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k runtime_index -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -25,10 +24,8 @@ entry:
 
 ; CHECK: define spir_kernel void @__vecz_v4_runtime_index
 
-; CHECK-GE15: %[[INTO:.+]]  = load <16 x i32>, ptr %arrayidx, align 4
-; CHECK-LT15: %[[INTO:.+]]  = load <16 x i32>, <16 x i32>* %0, align 4
-; CHECK-GE15: %[[LD:.+]] = load <4 x i32>, ptr
-; CHECK-LT15: %[[LD:.+]] = load <4 x i32>, <4 x i32>*
+; CHECK: %[[INTO:.+]]  = load <16 x i32>, ptr %arrayidx, align 4
+; CHECK: %[[LD:.+]] = load <4 x i32>, ptr
 ; CHECK: %[[ADD:.+]] = add <4 x i32> %[[LD]], <i32 0, i32 4, i32 8, i32 12>
 
 ; The inserts got widened

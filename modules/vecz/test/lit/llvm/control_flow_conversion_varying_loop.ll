@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_varying_loop -vecz-passes=cfg-convert -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_varying_loop -vecz-passes=cfg-convert -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -147,8 +146,7 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; changed here as well. We do need them though, to make sure that we are
 ; checking for the correct stuff. Since we don't have any duplicate names, they
 ; should all be deterministic.
-; CHECK-GE15: define spir_kernel void @__vecz_v4_test_varying_loop(i32 %a, ptr %b)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_test_varying_loop(i32 %a, i32* %b)
+; CHECK: define spir_kernel void @__vecz_v4_test_varying_loop(i32 %a, ptr %b)
 ; CHECK: br label %for.cond
 
 ; CHECK: for.cond:
@@ -162,8 +160,7 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK: br label %for.body
 
 ; CHECK: for.body:
-; CHECK-GE15: call void @__vecz_b_masked_store4_ju3ptrb(i32 %add, ptr %arrayidx, i1 %for.body.exit_mask)
-; CHECK-LT15: call void @__vecz_b_masked_store4_jPjb(i32 %add, i32* %arrayidx, i1 %for.body.exit_mask)
+; CHECK: call void @__vecz_b_masked_store4_ju3ptrb(i32 %add, ptr %arrayidx, i1 %for.body.exit_mask)
 ; CHECK: %[[EXIT_MASK_ANY:.+]] = call i1 @__vecz_b_divergence_any(i1 %for.body.exit_mask)
 ; CHECK: br i1 %[[EXIT_MASK_ANY]], label %for.cond, label %for.cond.pure_exit
 

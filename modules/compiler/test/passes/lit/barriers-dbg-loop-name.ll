@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %muxc --passes "barriers-pass<debug>,verify" -S %s | %filecheck %t
+; RUN: %muxc --passes "barriers-pass<debug>,verify" -S %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
@@ -48,8 +47,7 @@ entry:
 }
 
 ; the regexes in the following line match extra attributes that clang-level optimizations might add
-; CHECK-GE15: void @test_args(ptr addrspace(1) %in1, ptr addrspace(1) %in2, i32 %in3, ptr addrspace(3) %in4, ptr addrspace(2) %in5, ptr addrspace(1) %in6, ptr addrspace(1) %in7, ptr addrspace(1) %in8, ptr addrspace(1) %in9, ptr addrspace(1) %out)
-; CHECK-LT15: void @test_args(i32 addrspace(1)* %in1, <2 x float> addrspace(1)* %in2, i32 %in3, float addrspace(3)* %in4, i32 addrspace(2)* %in5, i32 addrspace(1)* %in6, <2 x i32> addrspace(1)* %in7, <3 x i32> addrspace(1)* %in8, <4 x i32> addrspace(1)* %in9, i32 addrspace(1)* %out)
+; CHECK: void @test_args(ptr addrspace(1) %in1, ptr addrspace(1) %in2, i32 %in3, ptr addrspace(3) %in4, ptr addrspace(2) %in5, ptr addrspace(1) %in6, ptr addrspace(1) %in7, ptr addrspace(1) %in8, ptr addrspace(1) %in9, ptr addrspace(1) %out)
 
 ; CHECK: loopIR:
 ; CHECK: br label %loopIR2

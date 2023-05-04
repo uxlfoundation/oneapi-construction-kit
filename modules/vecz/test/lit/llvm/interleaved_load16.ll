@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k load16 -vecz-simd-width 4 -S < %s | %filecheck %t
+; RUN: %veczc -k load16 -vecz-simd-width 4 -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 source_filename = "kernel.opencl"
@@ -61,10 +60,8 @@ attributes #2 = { convergent nobuiltin nounwind readonly }
 ; CHECK: define spir_kernel void @__vecz_v4_load16
 
 ; There should be exactly 2 interleaved loads in the code
-; CHECK-GE15: call <4 x i8> @__vecz_b_interleaved_load1_2_Dv4_hu3ptrU3AS1
-; CHECK-LT15: call <4 x i8> @__vecz_b_interleaved_load1_2_Dv4_hPU3AS1h
-; CHECK-GE15: call <4 x i8> @__vecz_b_interleaved_load1_2_Dv4_hu3ptrU3AS1
-; CHECK-LT15: call <4 x i8> @__vecz_b_interleaved_load1_2_Dv4_hPU3AS1h
+; CHECK: call <4 x i8> @__vecz_b_interleaved_load1_2_Dv4_hu3ptrU3AS1
+; CHECK: call <4 x i8> @__vecz_b_interleaved_load1_2_Dv4_hu3ptrU3AS1
 
 ; There shouldn't be any more interleaved loads or stores left
 ; CHECK-NOT: call <4 x i8> @__vecz_b_interleaved_load

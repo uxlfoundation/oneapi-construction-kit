@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_atomic_u_min_global.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_atomic_u_min_global.spv | %filecheck %s
             OpCapability Kernel
             OpCapability Addresses
             OpCapability Float64
@@ -25,10 +23,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK-GE15: define spir_kernel void @atomic(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-LT15: define spir_kernel void @atomic(i32 addrspace(1)* [[IN:%[a-zA-Z0-9_]+]])
-; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_minPU3AS1Vjj(ptr addrspace(1) [[IN]], i32 424)
-; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_minPU3AS1Vjj(i32 addrspace(1)* [[IN]], i32 424)
+; CHECK: define spir_kernel void @atomic(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_minPU3AS1Vjj(ptr addrspace(1) [[IN]], i32 424)
 ; CHECK: ret void
-; CHECK-GE15: declare spir_func i32 @_Z10atomic_minPU3AS1Vjj(ptr addrspace(1), i32)
-; CHECK-LT15: declare spir_func i32 @_Z10atomic_minPU3AS1Vjj(i32 addrspace(1)*, i32)
+; CHECK: declare spir_func i32 @_Z10atomic_minPU3AS1Vjj(ptr addrspace(1), i32)

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k codegen_2 -vecz-simd-width 16 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k codegen_2 -vecz-simd-width 16 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -72,7 +71,5 @@ declare spir_func i64 @_Z13get_global_idj(i32) local_unnamed_addr
 
 ; It checks that the PHI node did not prevent the interleave factor from being determined
 ; CHECK: define spir_kernel void @__vecz_v16_codegen_2
-; CHECK-NOT-GE15: call <16 x i32> @__vecz_b_masked_gather_load4_4_Dv16_jDv16_u3ptrU3AS1Dv16_b
-; CHECK-NOT-LT15: call <16 x i32> @__vecz_b_masked_gather_load4_4_Dv16_jDv16_PU3AS1jDv16_b
-; CHECK-GE15: call <16 x i32> @__vecz_b_masked_interleaved_load4_V_Dv16_ju3ptrU3AS1Dv16_b
-; CHECK-LT15: call <16 x i32> @__vecz_b_masked_interleaved_load4_V_Dv16_jPU3AS1jDv16_b
+; CHECK-NOT: call <16 x i32> @__vecz_b_masked_gather_load4_4_Dv16_jDv16_u3ptrU3AS1Dv16_b
+; CHECK: call <16 x i32> @__vecz_b_masked_interleaved_load4_V_Dv16_ju3ptrU3AS1Dv16_b

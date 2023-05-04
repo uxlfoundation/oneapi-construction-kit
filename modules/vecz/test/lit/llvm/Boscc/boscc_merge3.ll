@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k boscc_merge3 -vecz-passes="function(instcombine,simplifycfg),mergereturn,vecz-loop-rotate,function(loop(indvars)),cfg-convert,cleanup-divergence" -vecz-choices=LinearizeBOSCC -S < %s | %filecheck %t
+; RUN: %veczc -k boscc_merge3 -vecz-passes="function(instcombine,simplifycfg),mergereturn,vecz-loop-rotate,function(loop(indvars)),cfg-convert,cleanup-divergence" -vecz-choices=LinearizeBOSCC -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 source_filename = "Unknown buffer"
@@ -97,8 +96,7 @@ attributes #0 = { nounwind readnone }
 ; CHECK: br label %if.then4
 
 ; CHECK: if.then4:
-; CHECK-GE15: %gep1.boscc_blend = phi ptr addrspace(1) [ %gep1.uniform, %if.else3.uniform.boscc_indir ], [ %gep1, %if.else3 ]
-; CHECK-LT15: %gep1.boscc_blend = phi float addrspace(1)* [ %gep1.uniform, %if.else3.uniform.boscc_indir ], [ %gep1, %if.else3 ]
+; CHECK: %gep1.boscc_blend = phi ptr addrspace(1) [ %gep1.uniform, %if.else3.uniform.boscc_indir ], [ %gep1, %if.else3 ]
 ; CHECK: br label %if.end2
 
 ; CHECK: if.end2:
@@ -106,8 +104,7 @@ attributes #0 = { nounwind readnone }
 ; Check we have correctly blended the instruction during the BOSCC connection
 ; rather than while repairing the SSA form.
 ; CHECK-NOT: %gep1.boscc_blend.merge{{.*}} = phi
-; CHECK-GE15: %gep1.boscc_blend{{[0-9]*}} = phi ptr addrspace(1) [ %gep1.boscc_blend{{[0-9]*}}, %if.then4 ], [ %gep1, %if.then3 ]
-; CHECK-LT15: %gep1.boscc_blend{{[0-9]*}} = phi float addrspace(1)* [ %gep1.boscc_blend{{[0-9]*}}, %if.then4 ], [ %gep1, %if.then3 ]
+; CHECK: %gep1.boscc_blend{{[0-9]*}} = phi ptr addrspace(1) [ %gep1.boscc_blend{{[0-9]*}}, %if.then4 ], [ %gep1, %if.then3 ]
 ; CHECK: br label %if.end1
 
 ; CHECK: if.end1:
@@ -115,6 +112,5 @@ attributes #0 = { nounwind readnone }
 ; Check we have correctly blended the instruction during the BOSCC connection
 ; rather than while repairing the SSA form.
 ; CHECK-NOT: %gep1.boscc_blend.merge{{.*}} = phi
-; CHECK-GE15: %gep1.boscc_blend{{[0-9]*}} = phi ptr addrspace(1) [ %gep1.boscc_blend{{[0-9]*}}, %if.end2 ], [ %gep1, %if.then1 ]
-; CHECK-LT15: %gep1.boscc_blend{{[0-9]*}} = phi float addrspace(1)* [ %gep1.boscc_blend{{[0-9]*}}, %if.end2 ], [ %gep1, %if.then1 ]
+; CHECK: %gep1.boscc_blend{{[0-9]*}} = phi ptr addrspace(1) [ %gep1.boscc_blend{{[0-9]*}}, %if.end2 ], [ %gep1, %if.then1 ]
 ; CHECK: br label %end

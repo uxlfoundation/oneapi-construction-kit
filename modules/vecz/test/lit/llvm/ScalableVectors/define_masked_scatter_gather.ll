@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -65,17 +64,13 @@ if.end:                                           ; preds = %if.else, %if.then
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; Test if the masked scatter store is defined correctly
-; CHECK-GE15: define void @__vecz_b_masked_scatter_store4_u5nxv4ju14nxv4u3ptrU3AS1u5nxv4b(<vscale x 4 x i32>{{( %0)?}}, <vscale x 4 x ptr addrspace(1)>{{( %1)?}}, <vscale x 4 x i1>{{( %2)?}})
-; CHECK-LT15: define void @__vecz_b_masked_scatter_store4_u5nxv4ju11nxv4PU3AS1ju5nxv4b(<vscale x 4 x i32>{{( %0)?}}, <vscale x 4 x i32 addrspace(1)*>{{( %1)?}}, <vscale x 4 x i1>{{( %2)?}})
+; CHECK: define void @__vecz_b_masked_scatter_store4_u5nxv4ju14nxv4u3ptrU3AS1u5nxv4b(<vscale x 4 x i32>{{( %0)?}}, <vscale x 4 x ptr addrspace(1)>{{( %1)?}}, <vscale x 4 x i1>{{( %2)?}})
 ; CHECK: entry:
-; CHECK-GE15: call void @llvm.masked.scatter.nxv4i32.nxv4p1(<vscale x 4 x i32> %0, <vscale x 4 x ptr addrspace(1)> %1, i32{{( immarg)?}} 4, <vscale x 4 x i1> %2)
-; CHECK-LT15: call void @llvm.masked.scatter.nxv4i32.nxv4p1i32(<vscale x 4 x i32> %0, <vscale x 4 x i32 addrspace(1)*> %1, i32{{( immarg)?}} 4, <vscale x 4 x i1> %2)
+; CHECK: call void @llvm.masked.scatter.nxv4i32.nxv4p1(<vscale x 4 x i32> %0, <vscale x 4 x ptr addrspace(1)> %1, i32{{( immarg)?}} 4, <vscale x 4 x i1> %2)
 ; CHECK: ret void
 
 ; Test if the masked gather load is defined correctly
-; CHECK-GE15: define <vscale x 4 x i32> @__vecz_b_masked_gather_load4_u5nxv4ju14nxv4u3ptrU3AS1u5nxv4b(<vscale x 4 x ptr addrspace(1)>{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
-; CHECK-LT15: define <vscale x 4 x i32> @__vecz_b_masked_gather_load4_u5nxv4ju11nxv4PU3AS1ju5nxv4b(<vscale x 4 x i32 addrspace(1)*>{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
+; CHECK: define <vscale x 4 x i32> @__vecz_b_masked_gather_load4_u5nxv4ju14nxv4u3ptrU3AS1u5nxv4b(<vscale x 4 x ptr addrspace(1)>{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
 ; CHECK: entry:
-; CHECK-GE15: %2 = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p1(<vscale x 4 x ptr addrspace(1)> %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> undef)
-; CHECK-LT15: %2 = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p1i32(<vscale x 4 x i32 addrspace(1)*> %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> undef)
+; CHECK: %2 = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p1(<vscale x 4 x ptr addrspace(1)> %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> undef)
 ; CHECK: ret <vscale x 4 x i32> %2

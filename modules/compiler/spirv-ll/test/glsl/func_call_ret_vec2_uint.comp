@@ -1,8 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan %p/func_call_ret_vec2_uint.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan %p/func_call_ret_vec2_uint.spv | %filecheck %s
 
 #version 450
 
@@ -19,13 +17,10 @@ void main() {
 // CHECK: define spir_kernel void @main() {
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <2 x i32>
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <2 x i32> @{{("func_call_ret_vec2_uint.+")}}()
-// CHECK-GE15: store <2 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: store <2 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <2 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: store <2 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: ret void
 // CHECK: define private spir_func <2 x i32> @{{("func_call_ret_vec2_uint.+")}}()
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <2 x i32>
-// CHECK-GE15: store <2 x i32> <i32 42, i32 42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: store <2 x i32> <i32 42, i32 42>, <2 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x i32>, <2 x i32>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: store <2 x i32> <i32 42, i32 42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: ret <2 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

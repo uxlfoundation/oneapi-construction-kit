@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k constant_index -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k constant_index -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -22,12 +21,10 @@ entry:
 ; CHECK: define spir_kernel void @__vecz_v4_constant_index
 
 ; A single wide load
-; CHECK-GE15: %[[INTO:.+]] = load <16 x i32>, ptr %
-; CHECK-LT15: %[[INTO:.+]] = load <16 x i32>, <16 x i32>* %
+; CHECK: %[[INTO:.+]] = load <16 x i32>, ptr %
 
 ; No interleaved loads
-; CHECK-NOT-GE15: call <4 x i32> @__vecz_b_interleaved_load4_Dv4_ju3ptr
-; CHECK-NOT-LT15: call <4 x i32> @__vecz_b_interleaved_load4_Dv4_jPj
+; CHECK-NOT: call <4 x i32> @__vecz_b_interleaved_load4_Dv4_ju3ptr
 
 ; Insert constant elements into the widened vector:
 ; CHECK: %[[INS0:.+]] = insertelement <16 x i32> %[[INTO]], i32 42, i32 2

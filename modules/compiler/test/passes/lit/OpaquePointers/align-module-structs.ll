@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes align-module-structs,verify -S %s %flag | %filecheck %s
+; RUN: %muxc --passes align-module-structs,verify -S %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 

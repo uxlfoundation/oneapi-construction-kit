@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_uniform_if -vecz-passes=cfg-convert -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_uniform_if -vecz-passes=cfg-convert -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -143,16 +142,13 @@ for.end14:                                        ; preds = %for.cond
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; This tests a uniform if statement that shouldn't be touched by the CFC pass
-; CHECK-GE15: define spir_kernel void @__vecz_v4_test_uniform_if(i32 %a, ptr %b)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_test_uniform_if(i32 %a, i32* %b)
+; CHECK: define spir_kernel void @__vecz_v4_test_uniform_if(i32 %a, ptr %b)
 ; CHECK: br i1 %cmp, label %if.then, label %if.else
 
 ; CHECK: if.then:
-; CHECK-GE15: store i32 11, ptr %arrayidx, align 4
-; CHECK-LT15: store i32 11, i32* %arrayidx, align 4
+; CHECK: store i32 11, ptr %arrayidx, align 4
 
 ; CHECK: if.else:
-; CHECK-GE15: store i32 13, ptr %arrayidx1, align 4
-; CHECK-LT15: store i32 13, i32* %arrayidx1, align 4
+; CHECK: store i32 13, ptr %arrayidx1, align 4
 
 ; CHECK: ret void

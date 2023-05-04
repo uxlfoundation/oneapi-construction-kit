@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_composite_construct.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_composite_construct.spv | %filecheck %s
             OpCapability Shader
             OpCapability Float64
             OpCapability Int64
@@ -33,6 +31,5 @@
 ; CHECK: [[STRUCT:%[a-zA-Z0-9_]+]] = type { <2 x i32>, i32, i32 }
 ; CHECK: define spir_kernel void @main() {
 ; CHECK: [[VAR:%[a-zA-Z0-9_]+]] = alloca [[STRUCT]]
-; CHECK-GE15: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, ptr [[VAR]]
-; CHECK-LT15: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, [[STRUCT]]* [[VAR]]
+; CHECK: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, ptr [[VAR]]
 ; CHECK: ret void

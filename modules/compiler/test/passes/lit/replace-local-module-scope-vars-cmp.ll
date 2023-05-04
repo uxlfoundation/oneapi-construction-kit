@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes replace-module-scope-vars -opaque-pointers -S %s | %filecheck %s
+; RUN: %muxc --passes replace-module-scope-vars  -S %s | %filecheck %s
 
 ; It checks that a comparison using a global doesn't crash the
 ; ReplaceLocalModuleScopeVariablesPass

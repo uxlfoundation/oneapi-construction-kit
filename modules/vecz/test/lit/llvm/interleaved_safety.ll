@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k f -vecz-simd-width 4 -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k f -vecz-simd-width 4 -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -62,25 +61,18 @@ attributes #3 = { nobuiltin nounwind }
 ; CHECK: call spir_func i64 @_Z13get_global_idj(i32 0)
 
 ; There should be exactly 4 interleaved loads and one store in the code
-; CHECK-GE15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
-; CHECK-LT15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_dPU3AS1d
-; CHECK-GE15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
-; CHECK-LT15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_dPU3AS1d
+; CHECK: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
+; CHECK: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
 
 ; And in between them there should be a barrier call
 ; CHECK: call spir_func void @_Z7barrierj
-; CHECK-GE15: call void @__vecz_b_interleaved_store8_4_Dv4_du3ptrU3AS1(<4 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>
-; CHECK-LT15: call void @__vecz_b_interleaved_store8_4_Dv4_dPU3AS1d(<4 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>
-; CHECK-GE15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
-; CHECK-LT15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_dPU3AS1d
-; CHECK-GE15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
-; CHECK-LT15: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_dPU3AS1d
+; CHECK: call void @__vecz_b_interleaved_store8_4_Dv4_du3ptrU3AS1(<4 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>
+; CHECK: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
+; CHECK: call <4 x double> @__vecz_b_interleaved_load8_4_Dv4_du3ptrU3AS1
 
 ; There shouldn't be any more interleaved loads or stores left
-; CHECK-NOT-GE15: call <4 x double> @__vecz_b_interleaved_load4_Dv4_du3ptrU3AS1
-; CHECK-NOT-LT15: call <4 x double> @__vecz_b_interleaved_load4_Dv4_dPU3AS1d
-; CHECK-NOT-GE15: call void @__vecz_b_interleaved_store8_4_Dv4_du3ptrU3AS1(<4 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>
-; CHECK-NOT-LT15: call void @__vecz_b_interleaved_store8_4_Dv4_dPU3AS1d(<4 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>
+; CHECK-NOT: call <4 x double> @__vecz_b_interleaved_load4_Dv4_du3ptrU3AS1
+; CHECK-NOT: call void @__vecz_b_interleaved_store8_4_Dv4_du3ptrU3AS1(<4 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>
 
 ; There should be some sufflevector instructions after the simplification
 ; CHECK: shufflevector

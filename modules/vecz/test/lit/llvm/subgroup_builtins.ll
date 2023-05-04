@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-simd-width=4 -S < %s | %filecheck %t 
+; RUN: %veczc -vecz-simd-width=4 -S < %s | %filecheck %s 
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -21,8 +20,7 @@ define spir_kernel void @get_sub_group_size(i32 addrspace(1)* %in, i32 addrspace
   store i32 %call2, i32 addrspace(1)* %arrayidx, align 4
   ret void
 ; CHECK-LABEL: define spir_kernel void @__vecz_v4_get_sub_group_size(
-; CHECK-GE15: store i32 4, ptr addrspace(1) {{.*}}
-; CHECK-LT15: store i32 4, i32 addrspace(1)* {{.*}}
+; CHECK: store i32 4, ptr addrspace(1) {{.*}}
 }
 
 define spir_kernel void @get_sub_group_local_id(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -31,9 +29,7 @@ define spir_kernel void @get_sub_group_local_id(i32 addrspace(1)* %in, i32 addrs
   store i32 %call, i32 addrspace(1)* %arrayidx, align 4
   ret void
 ; CHECK-LABEL: define spir_kernel void @__vecz_v4_get_sub_group_local_id(
-; CHECK-GE15: store <4 x i32> <i32 0, i32 1, i32 2, i32 3>, ptr addrspace(1) %out
-; CHECK-LT15: [[ADDR:%.*]] = bitcast i32 addrspace(1)* %out to <4 x i32> addrspace(1)*
-; CHECK-LT15: store <4 x i32> <i32 0, i32 1, i32 2, i32 3>, <4 x i32> addrspace(1)* [[ADDR]]
+; CHECK: store <4 x i32> <i32 0, i32 1, i32 2, i32 3>, ptr addrspace(1) %out
 }
 
 define spir_kernel void @sub_group_broadcast(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
@@ -45,11 +41,9 @@ define spir_kernel void @sub_group_broadcast(i32 addrspace(1)* %in, i32 addrspac
   store i32 %broadcast, i32 addrspace(1)* %arrayidx2, align 4
   ret void
 ; CHECK-LABEL: define spir_kernel void @__vecz_v4_sub_group_broadcast(
-; CHECK-GE15: [[LD:%.*]] = load <4 x i32>, ptr addrspace(1) {{%.*}}, align 4
-; CHECK-LT15: [[LD:%.*]] = load <4 x i32>, <4 x i32> addrspace(1)* {{%.*}}, align 4
+; CHECK: [[LD:%.*]] = load <4 x i32>, ptr addrspace(1) {{%.*}}, align 4
 ; CHECK: [[SPLAT:%.*]] = shufflevector <4 x i32> [[LD]], <4 x i32> {{(undef|poison)}}, <4 x i32> zeroinitializer
-; CHECK-GE15: store <4 x i32> [[SPLAT]], ptr addrspace(1)
-; CHECK-LT15: store <4 x i32> [[SPLAT]], <4 x i32> addrspace(1)*
+; CHECK: store <4 x i32> [[SPLAT]], ptr addrspace(1)
 }
 
 ; This used to crash as packetizing get_sub_group_local_id produces a Constant, which we weren't expecting.

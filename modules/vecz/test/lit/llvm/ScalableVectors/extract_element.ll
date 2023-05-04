@@ -1,12 +1,11 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k extract_element -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE
-; RUN: %veczc -k extract_element_uniform -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-UNI
-; RUN: %veczc -k extract_element_uniform_vec -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-UNI-VEC
-; RUN: %veczc -k extract_element_varying_indices -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-INDICES
-; RUN: %veczc -k extract_element_bool -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-BOOL
+; RUN: %veczc -k extract_element -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE
+; RUN: %veczc -k extract_element_uniform -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-UNI
+; RUN: %veczc -k extract_element_uniform_vec -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-UNI-VEC
+; RUN: %veczc -k extract_element_varying_indices -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-INDICES
+; RUN: %veczc -k extract_element_bool -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-BOOL
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -80,13 +79,10 @@ entry:
 
 ; EE-LABEL: @__vecz_nxv4_extract_element(
 ; EE: [[ALLOC:%.*]] = alloca <vscale x 16 x float>, align 64
-; EE-GE15: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
-; EE-LT15: store <vscale x 16 x float> {{.*}}, <vscale x 16 x float>* [[ALLOC]], align 64
+; EE: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
 ; EE: [[IDX:%.*]] = sext i32 %idx to i64
-; EE-GE15: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], i64 [[IDX]]
-; EE-LT15: [[ADDR:%.*]] = getelementptr inbounds <vscale x 16 x float>, <vscale x 16 x float>* [[ALLOC]], i64 0, i64 [[IDX]]
-; EE-GE15: [[GATHER:%.*]] = call <vscale x 4 x float> @__vecz_b_interleaved_load4_4_u5nxv4fu3ptr(ptr nonnull [[ADDR]])
-; EE-LT15: [[GATHER:%.*]] = call <vscale x 4 x float> @__vecz_b_interleaved_load4_4_u5nxv4fPf(float* nonnull [[ADDR]])
+; EE: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], i64 [[IDX]]
+; EE: [[GATHER:%.*]] = call <vscale x 4 x float> @__vecz_b_interleaved_load4_4_u5nxv4fu3ptr(ptr nonnull [[ADDR]])
 
 ; Both the vector and index are uniform, so check we're not unnecessarily packetizing 
 
@@ -94,8 +90,7 @@ entry:
 ; EE-UNI: [[T0:%.*]] = extractelement <4 x float> %in, i32 %idx
 ; EE-UNI: [[T1:%.*]] = insertelement <vscale x 4 x float> poison, float [[T0]], {{(i32|i64)}} 0
 ; EE-UNI: [[T2:%.*]] = shufflevector <vscale x 4 x float> [[T1]], <vscale x 4 x float> poison, <vscale x 4 x i32> zeroinitializer
-; EE-UNI-GE15: store <vscale x 4 x float> [[T2]], ptr addrspace(1) {{%.*}}, align 4
-; EE-UNI-LT15: store <vscale x 4 x float> [[T2]], <vscale x 4 x float> addrspace(1)* {{%.*}}, align 4
+; EE-UNI: store <vscale x 4 x float> [[T2]], ptr addrspace(1) {{%.*}}, align 4
 
 ; The vector is uniform and the index is varying, so we must broadcast the vector
 ; FIXME: Do we really need to broadcast? Can we mod the indices with the original vector length?
@@ -111,37 +106,26 @@ entry:
 ; LLVM 16 deduces add/or equivalence and uses `or` instead.
 ; EE-UNI-VEC: [[T7:%.*]] = {{add|or}} <vscale x 4 x i64> [[T6]], [[MOD]]
 
-; EE-UNI-VEC-GE15: [[T8:%.*]] = getelementptr inbounds float, ptr {{%.*}}, <vscale x 4 x i64> [[T7]]
-; EE-UNI-VEC-LT15: [[T8:%.*]] = getelementptr inbounds float, float* {{%.*}}, <vscale x 4 x i64> [[T7]]
-; EE-UNI-VEC-GE15: [[T9:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x ptr> [[T8]])
-; EE-UNI-VEC-LT15: [[T9:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu6nxv4Pf(<vscale x 4 x float*> [[T8]])
-; EE-UNI-VEC-GE15: store <vscale x 4 x float> [[T9]], ptr addrspace(1) {{%.*}}, align 4
-; EE-UNI-VEC-LT15: store <vscale x 4 x float> [[T9]], <vscale x 4 x float> addrspace(1)* {{%.*}}, align 4
+; EE-UNI-VEC: [[T8:%.*]] = getelementptr inbounds float, ptr {{%.*}}, <vscale x 4 x i64> [[T7]]
+; EE-UNI-VEC: [[T9:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x ptr> [[T8]])
+; EE-UNI-VEC: store <vscale x 4 x float> [[T9]], ptr addrspace(1) {{%.*}}, align 4
 
 ; EE-INDICES-LABEL: @__vecz_nxv4_extract_element_varying_indices(
 ; EE-INDICES: [[ALLOC:%.*]] = alloca <vscale x 16 x float>, align 64
-; EE-INDICES-GE15: [[T0:%.*]] = getelementptr inbounds i32, ptr addrspace(1) %idxs, i64 %call
-; EE-INDICES-LT15: [[T0:%.*]] = getelementptr inbounds i32, i32 addrspace(1)* %idxs, i64 %call
-; EE-INDICES-LT15: [[T1:%.*]] = bitcast i32 addrspace(1)* [[T0]] to <vscale x 4 x i32> addrspace(1)*
-; EE-INDICES-GE15: [[T2:%.*]] = load <vscale x 4 x i32>, ptr addrspace(1) [[T0]], align 4
-; EE-INDICES-LT15: [[T2:%.*]] = load <vscale x 4 x i32>, <vscale x 4 x i32> addrspace(1)* [[T1]], align 4
+; EE-INDICES: [[T0:%.*]] = getelementptr inbounds i32, ptr addrspace(1) %idxs, i64 %call
+; EE-INDICES: [[T2:%.*]] = load <vscale x 4 x i32>, ptr addrspace(1) [[T0]], align 4
 ; EE-INDICES: [[T3:%.*]] = and <vscale x 4 x i32> [[T2]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 3, {{i32|i64}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
-; EE-INDICES-GE15: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
-; EE-INDICES-LT15: store <vscale x 16 x float> {{.*}}, <vscale x 16 x float>* [[ALLOC]], align 64
-; EE-INDICES-LT15: [[BCAST:%.*]] = getelementptr inbounds <vscale x 16 x float>, <vscale x 16 x float>* [[ALLOC]], i64 0, i64 0
+; EE-INDICES: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
 ; EE-INDICES: [[STEP:%.*]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
 ; EE-INDICES: [[T4:%.*]] = shl <vscale x 4 x i32> [[STEP]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{i32|i64}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; EE-INDICES: [[T5:%.*]] = {{add|or}} <vscale x 4 x i32> [[T4]], [[T3]]
 ; EE-INDICES: [[IDX:%.*]] = sext <vscale x 4 x i32> [[T5]] to <vscale x 4 x i64>
-; EE-INDICES-GE15: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], <vscale x 4 x i64> [[IDX]]
-; EE-INDICES-LT15: [[ADDR:%.*]] = getelementptr inbounds float, float* [[BCAST]], <vscale x 4 x i64> [[IDX]]
-; EE-INDICES-GE15: [[GATHER:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x ptr> [[ADDR]])
-; EE-INDICES-LT15: [[GATHER:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu6nxv4Pf(<vscale x 4 x float*> [[ADDR]])
+; EE-INDICES: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], <vscale x 4 x i64> [[IDX]]
+; EE-INDICES: [[GATHER:%.*]] = call <vscale x 4 x float> @__vecz_b_gather_load4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x ptr> [[ADDR]])
 
 ; Check we promote from i1 to i8 before doing our memops
 ; EE-BOOL-LABEL: @__vecz_nxv4_extract_element_bool(
 ; EE-BOOL: [[T0:%.*]] = sext <vscale x 16 x i1> {{%.*}} to <vscale x 16 x i8>
 ; EE-BOOL: store <vscale x 16 x i8> {{.*}}
-; EE-BOOL-GE15: [[T1:%.*]] = call <vscale x 4 x i8> @__vecz_b_gather_load1_u5nxv4hu9nxv4u3ptr(<vscale x 4 x ptr> {{%.*}}
-; EE-BOOL-LT15: [[T1:%.*]] = call <vscale x 4 x i8> @__vecz_b_gather_load1_u5nxv4hu6nxv4Ph(<vscale x 4 x i8*> {{%.*}}
+; EE-BOOL: [[T1:%.*]] = call <vscale x 4 x i8> @__vecz_b_gather_load1_u5nxv4hu9nxv4u3ptr(<vscale x 4 x ptr> {{%.*}}
 ; EE-BOOL: [[T2:%.*]] = trunc <vscale x 4 x i8> [[T1]] to <vscale x 4 x i1>

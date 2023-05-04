@@ -3,7 +3,7 @@
 ; FIXME: The AddEntryHookPass crashes if the host platform doesn't match the
 ; DataLayout's pointer size. See CA-4604.
 ; REQUIRES: codegen_x86_64
-; RUN: %muxc --device "%default_device" --passes add-sched-params,add-entry-hook,verify -S %s -opaque-pointers | %filecheck %s
+; RUN: %muxc --device "%default_device" --passes add-sched-params,add-entry-hook,verify -S %s  | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

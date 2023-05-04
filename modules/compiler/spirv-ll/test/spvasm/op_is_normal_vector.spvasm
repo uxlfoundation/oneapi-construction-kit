@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -c Kernel -c Float64 -b 64 %p/op_is_normal_vector.spv -o %t
-; RUN: %filecheck < %t %s
+; RUN: %spirv-ll -a OpenCL -c Kernel -c Float64 -b 64 %p/op_is_normal_vector.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Float64

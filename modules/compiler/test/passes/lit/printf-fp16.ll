@@ -4,9 +4,9 @@
 ; capabilities.
 
 ; RUN: %muxc --passes replace-printf,verify -S %s \
-; RUN:   --device-fp64-capabilities=false -opaque-pointers | %filecheck %s --check-prefixes CHECK,EXT2FP32
+; RUN:   --device-fp64-capabilities=false  | %filecheck %s --check-prefixes CHECK,EXT2FP32
 ; RUN: %muxc --passes replace-printf,verify -S %s \
-; RUN:   --device-fp64-capabilities=true -opaque-pointers | %filecheck %s --check-prefixes CHECK,EXT2FP64
+; RUN:   --device-fp64-capabilities=true  | %filecheck %s --check-prefixes CHECK,EXT2FP64
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

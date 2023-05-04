@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k convert4 -vecz-simd-width=2 -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k convert4 -vecz-simd-width=2 -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 source_filename = "kernel.opencl"
@@ -45,5 +44,4 @@ declare spir_func <2 x float> @_Z14convert_float2Dv2_l(<2 x i64>) local_unnamed_
 ; CHECK: call spir_func <2 x float> @_Z14convert_float2Dv2_l
 ; CHECK: call spir_func <2 x float> @_Z14convert_float2Dv2_l
 ; CHECK-NOT: call spir_func <2 x float> @_Z14convert_float2Dv2_l
-; CHECK-GE15: call void @__vecz_b_interleaved_store4_4_Dv2_fu3ptrU3AS1(<2 x float>
-; CHECK-LT15: call void @__vecz_b_interleaved_store4_4_Dv2_fPU3AS1f(<2 x float>
+; CHECK: call void @__vecz_b_interleaved_store4_4_Dv2_fu3ptrU3AS1(<2 x float>

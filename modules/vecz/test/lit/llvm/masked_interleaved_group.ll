@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k mask -vecz-simd-width=16 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k mask -vecz-simd-width=16 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 source_filename = "kernel.opencl"
@@ -78,10 +77,8 @@ attributes #2 = { convergent nobuiltin nounwind readonly }
 ; CHECK: %interleave{{.*}} = shufflevector <16 x i1>
 
 ; The stores are masked stores:
-; CHECK-GE15: call void @llvm.masked.store.v16i8.p1(<16 x i8>
-; CHECK-LT15: call void @llvm.masked.store.v16i8.p1v16i8(<16 x i8>
-; CHECK-GE15: call void @llvm.masked.store.v16i8.p1(<16 x i8>
-; CHECK-LT15: call void @llvm.masked.store.v16i8.p1v16i8(<16 x i8>
+; CHECK: call void @llvm.masked.store.v16i8.p1(<16 x i8>
+; CHECK: call void @llvm.masked.store.v16i8.p1(<16 x i8>
 
 ; Definitely no unmasked stores:
 ; CHECK-NOT: store <16 x i8>

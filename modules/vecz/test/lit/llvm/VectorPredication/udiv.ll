@@ -2,8 +2,7 @@
 
 ; REQUIRES: llvm-13+
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k udiv -vecz-scalable -vecz-simd-width=2 -vecz-choices=VectorPredication -S < %s | %filecheck %t
+; RUN: %veczc -k udiv -vecz-scalable -vecz-simd-width=2 -vecz-choices=VectorPredication -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -31,10 +30,7 @@ entry:
 ; CHECK: [[T1:%.*]] = shl i64 [[T0]], 1
 ; CHECK: [[T2:%.*]] = call i64 @llvm.umin.i64(i64 [[WREM]], i64 [[T1]])
 ; CHECK: [[VL:%.*]] = trunc i64 [[T2]] to i32
-; CHECK-GE15: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, (i32|i64) 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
-; CHECK-LT15: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0nxv2i32(<vscale x 2 x i32>* {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, (i32|i64) 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
-; CHECK-GE15: [[RHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK]], i32 [[VL]])
-; CHECK-LT15: [[RHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0nxv2i32(<vscale x 2 x i32>* {{%.*}}, [[TRUEMASK]], i32 [[VL]])
+; CHECK: [[LHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK:<vscale x 2 x i1> shufflevector \(<vscale x 2 x i1> insertelement \(<vscale x 2 x i1> (undef|poison), i1 true, (i32|i64) 0\), <vscale x 2 x i1> (undef|poison), <vscale x 2 x i32> zeroinitializer\)]], i32 [[VL]])
+; CHECK: [[RHS:%.*]] = call <vscale x 2 x i32> @llvm.vp.load.nxv2i32.p0(ptr {{%.*}}, [[TRUEMASK]], i32 [[VL]])
 ; CHECK: [[ADD:%.*]] = call <vscale x 2 x i32> @llvm.vp.udiv.nxv2i32(<vscale x 2 x i32> [[LHS]], <vscale x 2 x i32> [[RHS]], [[TRUEMASK]], i32 [[VL]])
-; CHECK-GE15: call void @llvm.vp.store.nxv2i32.p0(<vscale x 2 x i32> [[ADD]], ptr {{%.*}}, [[TRUEMASK]], i32 [[VL]])
-; CHECK-LT15: call void @llvm.vp.store.nxv2i32.p0nxv2i32(<vscale x 2 x i32> [[ADD]], <vscale x 2 x i32>* {{%.*}}, [[TRUEMASK]], i32 [[VL]])
+; CHECK: call void @llvm.vp.store.nxv2i32.p0(<vscale x 2 x i32> [[ADD]], ptr {{%.*}}, [[TRUEMASK]], i32 [[VL]])

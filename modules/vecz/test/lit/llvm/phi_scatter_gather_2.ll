@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k phi_memory -S < %s | %filecheck %t
+; RUN: %veczc -k phi_memory -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -44,5 +43,4 @@ attributes #2 = { nobuiltin nounwind }
 ;
 ; CHECK: void @__vecz_v4_phi_memory
 ; CHECK: %[[LD:.+]] = load <4 x i32>
-; CHECK-GE15: call void @__vecz_b_scatter_store4_Dv4_jDv4_u3ptrU3AS1(<4 x i32> %[[LD]]
-; CHECK-LT15: call void @__vecz_b_scatter_store4_Dv4_jDv4_PU3AS1j(<4 x i32> %[[LD]]
+; CHECK: call void @__vecz_b_scatter_store4_Dv4_jDv4_u3ptrU3AS1(<4 x i32> %[[LD]]

@@ -1,7 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll -a Vulkan %p/op_fdiv_two_mat4x4_float_operands.spv -o %t
-// RUN: %filecheck < %t %s
+// RUN: %spirv-ll -a Vulkan %p/op_fdiv_two_mat4x4_float_operands.spv | %filecheck %s
 
 #version 450
 

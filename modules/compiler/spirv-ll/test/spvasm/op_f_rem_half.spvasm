@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_f_rem_half.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_f_rem_half.spv | %filecheck %s
                OpCapability Kernel
                OpCapability Float16
                OpCapability Int64
@@ -37,15 +35,10 @@
 ; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
 ; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
 ; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
-; CHECK-GE15: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK-LT15: store half 0xH514D, half* {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK-GE15: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK-LT15: store half 0xH514D, half* {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK-GE15: [[a:%[a-zA-Z0-9_]+]] = load half, ptr %a
-; CHECK-LT15: [[a:%[a-zA-Z0-9_]+]] = load half, half* %a
-; CHECK-GE15: [[b:%[a-zA-Z0-9_]+]] = load half, ptr %b
-; CHECK-LT15: [[b:%[a-zA-Z0-9_]+]] = load half, half* %b
+; CHECK: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK: [[a:%[a-zA-Z0-9_]+]] = load half, ptr %a
+; CHECK: [[b:%[a-zA-Z0-9_]+]] = load half, ptr %b
 ; CHECK: [[mod:%[a-zA-Z0-9_]+]] = call spir_func half @_Z4fmodDhDh(half [[a]], half [[b]])
-; CHECK-GE15: store half [[mod]], ptr {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK-LT15: store half [[mod]], half* {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK: store half [[mod]], ptr {{[%@][-a-zA-Z$._0-9]+}}
 ; CHECK: ret void

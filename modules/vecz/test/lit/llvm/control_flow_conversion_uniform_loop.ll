@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_uniform_loop -vecz-passes=cfg-convert -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_uniform_loop -vecz-passes=cfg-convert -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -143,8 +142,7 @@ for.end14:                                        ; preds = %for.cond
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; This tests for a uniform loop that should remain untouched by the CFC pass
-; CHECK-GE15: define spir_kernel void @__vecz_v4_test_uniform_loop(i32 %a, ptr %b)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_test_uniform_loop(i32 %a, i32* %b)
+; CHECK: define spir_kernel void @__vecz_v4_test_uniform_loop(i32 %a, ptr %b)
 ; CHECK: br label %for.cond
 
 ; CHECK: for.cond:
@@ -155,10 +153,8 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK: for.body:
 ; CHECK: %add = add nsw i32 %storemerge, %a
 ; CHECK: %idxprom = sext i32 %add2 to i64
-; CHECK-GE15: %arrayidx = getelementptr inbounds i32, ptr %b, i64 %idxprom
-; CHECK-LT15: %arrayidx = getelementptr inbounds i32, i32* %b, i64 %idxprom
-; CHECK-GE15: store i32 %add, ptr %arrayidx, align 4
-; CHECK-LT15: store i32 %add, i32* %arrayidx, align 4
+; CHECK: %arrayidx = getelementptr inbounds i32, ptr %b, i64 %idxprom
+; CHECK: store i32 %add, ptr %arrayidx, align 4
 ; CHECK: %inc = add nsw i32 %storemerge, 1
 ; CHECK: br label %for.cond
 

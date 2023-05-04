@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-passes=cfg-convert,define-builtins -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -vecz-passes=cfg-convert,define-builtins -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -28,12 +27,10 @@ if.else:
 
 if.end:
   ret void
-; CHECK-GE15:     define void @__vecz_b_masked_store4_u3ptru3ptrb(ptr [[A:%.*]], ptr [[B:%.*]], i1 [[MASK:%.*]]) {
-; CHECK-LT15:     define void @__vecz_b_masked_store4_PjPPjb(i32* [[A:%.*]], i32** [[B:%.*]], i1 [[MASK:%.*]]) {
+; CHECK:     define void @__vecz_b_masked_store4_u3ptru3ptrb(ptr [[A:%.*]], ptr [[B:%.*]], i1 [[MASK:%.*]]) {
 ; CHECK:       br i1 [[MASK]], label %[[IF:.*]], label %[[EXIT:.*]]
 ; CHECK:     [[IF]]:
-; CHECK-NEXT-GE15:  store ptr [[A]], ptr [[B]], align 4
-; CHECK-NEXT-LT15:  store i32* [[A]], i32** [[B]], align 4
+; CHECK-NEXT:  store ptr [[A]], ptr [[B]], align 4
 ; CHECK-NEXT:  br label %[[EXIT]]
 ; CHECK:     [[EXIT]]:
 ; CHECK-NEXT:  ret void
@@ -59,11 +56,4 @@ if.else:
 
 if.end:
   ret void
-; CHECK-LT15:     define void @__vecz_b_masked_store4_PPjPPPjb(i32** [[A:%.*]], i32*** [[B:%.*]], i1 [[MASK:%.*]]) {
-; CHECK-LT15:       br i1 [[MASK]], label %[[IF:.*]], label %[[EXIT:.*]]
-; CHECK-LT15:     [[IF]]:
-; CHECK-NEXT-LT15:  store i32** [[A]], i32*** [[B]], align 4
-; CHECK-NEXT-LT15:  br label %[[EXIT]]
-; CHECK-LT15:     [[EXIT]]:
-; CHECK-NEXT-LT15:  ret void
 }

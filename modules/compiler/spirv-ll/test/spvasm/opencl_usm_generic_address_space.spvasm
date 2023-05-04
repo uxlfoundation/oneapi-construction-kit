@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -e SPV_codeplay_usm_generic_storage_class -b 64 %p/opencl_usm_generic_address_space.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -e SPV_codeplay_usm_generic_storage_class -b 64 %p/opencl_usm_generic_address_space.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Linkage
                OpCapability Kernel
@@ -39,8 +37,7 @@
 ; of variable are covered: we have global and local OpFunctionParameters, a
 ; function scope OpVariable and a couple of OpVariables that represent work item
 ; builtins.
-; CHECK-GE15: define spir_kernel void @test(ptr{{( %[a-zA-Z0-9]+)?}}, ptr{{( %[a-zA-Z0-9]+)?}}, ptr{{( %[a-zA-Z0-9]+)?}})
-; CHECK-LT15: define spir_kernel void @test(i32*{{( %[a-zA-Z0-9]+)?}}, i32*{{( %[a-zA-Z0-9]+)?}}, i32*{{( %[a-zA-Z0-9]+)?}})
+; CHECK: define spir_kernel void @test(ptr{{( %[a-zA-Z0-9]+)?}}, ptr{{( %[a-zA-Z0-9]+)?}}, ptr{{( %[a-zA-Z0-9]+)?}})
          %11 = OpFunction %void DontInline %10
         %src = OpFunctionParameter %_ptr_Generic_uint
         %dst = OpFunctionParameter %_ptr_Generic_uint
@@ -73,8 +70,7 @@
          %51 = OpLoad %uint %index Aligned 4
    %idxprom7 = OpSConvert %ulong %51
 ; Finally check the end result of the kernel is what we expect
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = getelementptr inbounds i32, ptr {{%[a-zA-Z0-9]+}}, i64 {{%[a-zA-Z0-9]+}}
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = getelementptr inbounds i32, i32* {{%[a-zA-Z0-9]+}}, i64 {{%[a-zA-Z0-9]+}}
+; CHECK: {{%[a-zA-Z0-9]+}} = getelementptr inbounds i32, ptr {{%[a-zA-Z0-9]+}}, i64 {{%[a-zA-Z0-9]+}}
   %arrayidx8 = OpInBoundsPtrAccessChain %_ptr_Generic_uint %dst %idxprom7
 ; store i32 {{%[a-zA-Z0-9]+}}, i32* {{%[a-zA-Z0-9]+}}, align 4
                OpStore %arrayidx8 %49 Aligned 4

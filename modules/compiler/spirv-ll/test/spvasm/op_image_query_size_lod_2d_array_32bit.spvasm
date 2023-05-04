@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 32 -c SampledBuffer %p/op_image_query_size_lod_2d_array_32bit.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 32 -c SampledBuffer %p/op_image_query_size_lod_2d_array_32bit.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability SampledBuffer
@@ -22,19 +20,14 @@
 ; All functions
        %image2d_array = OpFunction %void_t None %query_size_fn_t
                %image = OpFunctionParameter %image2d_array_t
-; CHECK-LT15: %opencl.image2d_array_t = type opaque
-; CHECK-GE15: define spir_kernel void @image2d_array(ptr addrspace(1) %image)
-; CHECK-LT15: define spir_kernel void @image2d_array(%opencl.image2d_array_t addrspace(1)* %image)
+; CHECK: define spir_kernel void @image2d_array(ptr addrspace(1) %image)
                    %1 = OpLabel
                    %2 = OpImageQuerySizeLod %v3int_t %image %int_1
-; CHECK-GE15: [[size_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20get_image_array_size16ocl_image2darray(ptr addrspace(1) %image)
-; CHECK-LT15: [[size_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20get_image_array_size16ocl_image2darray(%opencl.image2d_array_t addrspace(1)* %image)
+; CHECK: [[size_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20get_image_array_size16ocl_image2darray(ptr addrspace(1) %image)
 ; CHECK: [[v3int_idx_2:%[a-zA-Z0-9]+]] = insertelement <3 x i32> undef, i32 [[size_result]], i32 2
-; CHECK-GE15: [[width_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z15get_image_width16ocl_image2darray(ptr addrspace(1) %image)
-; CHECK-LT15: [[width_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z15get_image_width16ocl_image2darray(%opencl.image2d_array_t addrspace(1)* %image)
+; CHECK: [[width_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z15get_image_width16ocl_image2darray(ptr addrspace(1) %image)
 ; CHECK: [[v3int_idx_0:%[a-zA-Z0-9]+]] = insertelement <3 x i32> [[v3int_idx_2]], i32 [[width_result]], i32 0
-; CHECK-GE15: [[height_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z16get_image_height16ocl_image2darray(ptr addrspace(1) %image)
-; CHECK-LT15: [[height_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z16get_image_height16ocl_image2darray(%opencl.image2d_array_t addrspace(1)* %image)
+; CHECK: [[height_result:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z16get_image_height16ocl_image2darray(ptr addrspace(1) %image)
 ; CHECK: {{%[a-zA-Z0-9_]+}} = insertelement <3 x i32> [[v3int_idx_0]], i32 [[height_result]], i32 1
                         OpReturn
 ; CHECK: ret void

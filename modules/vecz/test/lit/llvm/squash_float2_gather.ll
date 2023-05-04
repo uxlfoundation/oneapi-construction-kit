@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k squash -vecz-passes="squash-small-vecs,packetizer" -S < %s | %filecheck %t
+; RUN: %veczc -k squash -vecz-passes="squash-small-vecs,packetizer" -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -31,22 +30,13 @@ attributes #2 = { nobuiltin nounwind }
 ;
 ; CHECK: void @__vecz_v4_squash
 ; CHECK:  %[[GID:.+]] = call spir_func i64 @_Z13get_global_idj(i64 0) #[[ATTRS:[0-9]+]]
-; CHECK-GE15:  %[[IDX_PTR:.+]] = getelementptr inbounds i64, ptr addrspace(1) %idx, i64 %[[GID]]
-; CHECK-LT15:  %[[IDX_PTR:.+]] = getelementptr inbounds i64, i64 addrspace(1)* %idx, i64 %[[GID]]
-; CHECK-GE15:  %[[WIDE_LOAD:.+]] = load <4 x i64>, ptr addrspace(1) %[[IDX_PTR]], align 8
-; CHECK-LT15:  %[[WIDEN:.+]] = bitcast i64 addrspace(1)* %[[IDX_PTR]] to <4 x i64> addrspace(1)*
-; CHECK-LT15:  %[[WIDE_LOAD:.+]] = load <4 x i64>, <4 x i64> addrspace(1)* %[[WIDEN]], align 8
-; CHECK-GE15:  %[[DATA_PTR:.+]] = getelementptr inbounds <2 x float>, ptr addrspace(1) %data, <4 x i64> %[[WIDE_LOAD]]
-; CHECK-LT15:  %[[DATA_PTR:.+]] = getelementptr inbounds <2 x float>, <2 x float> addrspace(1)* %data, <4 x i64> %[[WIDE_LOAD]]
-; CHECK-GE15:  %[[GATHER:.+]] = call <4 x i64> @__vecz_b_gather_load8_Dv4_mDv4_u3ptrU3AS1(<4 x ptr addrspace(1)> %[[DATA_PTR]])
-; CHECK-LT15:  %[[SQUASH:.+]] = bitcast <4 x <2 x float> addrspace(1)*> %[[DATA_PTR]] to <4 x i64 addrspace(1)*>
-; CHECK-LT15:  %[[GATHER:.+]] = call <4 x i64> @__vecz_b_gather_load8_Dv4_mDv4_PU3AS1m(<4 x i64 addrspace(1)*> %[[SQUASH]])
+; CHECK:  %[[IDX_PTR:.+]] = getelementptr inbounds i64, ptr addrspace(1) %idx, i64 %[[GID]]
+; CHECK:  %[[WIDE_LOAD:.+]] = load <4 x i64>, ptr addrspace(1) %[[IDX_PTR]], align 8
+; CHECK:  %[[DATA_PTR:.+]] = getelementptr inbounds <2 x float>, ptr addrspace(1) %data, <4 x i64> %[[WIDE_LOAD]]
+; CHECK:  %[[GATHER:.+]] = call <4 x i64> @__vecz_b_gather_load8_Dv4_mDv4_u3ptrU3AS1(<4 x ptr addrspace(1)> %[[DATA_PTR]])
 ; CHECK:  %[[UNSQUASH:.+]] = bitcast <4 x i64> %[[GATHER]] to <8 x float>
-; CHECK-GE15:  %[[OUTPUT_PTR:.+]] = getelementptr inbounds <2 x float>, ptr addrspace(1) %output, i64 %[[GID]]
-; CHECK-LT15:  %[[OUTPUT_PTR:.+]] = getelementptr inbounds <2 x float>, <2 x float> addrspace(1)* %output, i64 %[[GID]]
-; CHECK-GE15:  store <8 x float> %[[UNSQUASH]], ptr addrspace(1) %[[OUTPUT_PTR]], align 8
-; CHECK-LT15:  %[[WIDEN2:.+]] = bitcast <2 x float> addrspace(1)* %[[OUTPUT_PTR]] to <8 x float> addrspace(1)*
-; CHECK-LT15:  store <8 x float> %[[UNSQUASH]], <8 x float> addrspace(1)* %[[WIDEN2]], align 8
+; CHECK:  %[[OUTPUT_PTR:.+]] = getelementptr inbounds <2 x float>, ptr addrspace(1) %output, i64 %[[GID]]
+; CHECK:  store <8 x float> %[[UNSQUASH]], ptr addrspace(1) %[[OUTPUT_PTR]], align 8
 ; CHECK:  ret void
 
 ; CHECK: attributes #[[ATTRS]] = { nobuiltin nounwind }

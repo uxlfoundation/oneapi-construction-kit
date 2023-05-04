@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_float -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_float -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -68,12 +67,8 @@ attributes #2 = { nobuiltin nounwind }
 ; CHECK: %[[V3:[0-9]+]] = extractelement <4 x double> %[[CONV2]], {{(i32|i64)}} 1
 ; CHECK: %[[V4:[0-9]+]] = extractelement <4 x double> %[[CONV2]], {{(i32|i64)}} 2
 ; CHECK: %[[V5:[0-9]+]] = extractelement <4 x double> %[[CONV2]], {{(i32|i64)}} 3
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V2]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([7 x i8], [7 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), double %[[V2]])
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V3]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([7 x i8], [7 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), double %[[V3]])
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V4]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([7 x i8], [7 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), double %[[V4]])
-; CHECK-GE15: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V5]])
-; CHECK-LT15: call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([7 x i8], [7 x i8] addrspace(2)* @[[STR]], i64 0, i64 0), double %[[V5]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V2]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V3]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V4]])
+; CHECK: call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @[[STR]], double %[[V5]])
 ; CHECK: ret void

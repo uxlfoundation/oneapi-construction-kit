@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_type_sampler.spv -o %t
-; RUN: %filecheck < %t %s
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_type_sampler.spv | %filecheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                         OpCapability Kernel
                         OpCapability Addresses

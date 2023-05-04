@@ -4,8 +4,7 @@
 ; Specifically that the scalarization pass doesn't destroy DI
 ; intrinsics attached to the vector instructions it scalarizes.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k mul2 -vecz-passes="scalarize,function(mem2reg)" -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k mul2 -vecz-passes="scalarize,function(mem2reg)" -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -130,16 +129,13 @@ attributes #3 = { nobuiltin }
 ; CHECK: call void @llvm.dbg.value(metadata i64 %call, metadata [[DI_TID:![0-9]+]], metadata [[EXPR]]
 ; CHECK-SAME: !dbg [[TID_LOC:![0-9]+]]
 
-; CHECK-GE15: call void @llvm.dbg.declare(metadata ptr %a, metadata [[DI_A:![0-9]+]], metadata [[EXPR]]
-; CHECK-LT15: call void @llvm.dbg.declare(metadata <2 x i32>* %a, metadata [[DI_A:![0-9]+]], metadata [[EXPR]]
+; CHECK: call void @llvm.dbg.declare(metadata ptr %a, metadata [[DI_A:![0-9]+]], metadata [[EXPR]]
 ; CHECK-SAME:!dbg [[A_LOC:![0-9]+]]
 
-; CHECK-GE15: call void @llvm.dbg.declare(metadata ptr %b, metadata [[DI_B:![0-9]+]], metadata [[EXPR]]
-; CHECK-LT15: call void @llvm.dbg.declare(metadata <2 x i32>* %b, metadata [[DI_B:![0-9]+]], metadata [[EXPR]]
+; CHECK: call void @llvm.dbg.declare(metadata ptr %b, metadata [[DI_B:![0-9]+]], metadata [[EXPR]]
 ; CHECK-SAME:!dbg [[B_LOC:![0-9]+]]
 
-; CHECK-GE15: call void @llvm.dbg.declare(metadata ptr %tmp, metadata [[DI_TMP:![0-9]+]], metadata [[EXPR]]
-; CHECK-LT15: call void @llvm.dbg.declare(metadata <2 x i32>* %tmp, metadata [[DI_TMP:![0-9]+]], metadata [[EXPR]]
+; CHECK: call void @llvm.dbg.declare(metadata ptr %tmp, metadata [[DI_TMP:![0-9]+]], metadata [[EXPR]]
 ; CHECK-SAME:!dbg [[TMP_LOC:![0-9]+]]
 
 ; Debug info metadata entries

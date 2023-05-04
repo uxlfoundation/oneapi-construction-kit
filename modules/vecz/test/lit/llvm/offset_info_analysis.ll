@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k offset_info_analysis -vecz-passes=packetizer -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k offset_info_analysis -vecz-passes=packetizer -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -34,10 +33,8 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; This test checks that a 'xor' as a binop operand does correctly get analyzed.
 ; and masked properly
 ; CHECK: define spir_kernel void @__vecz_v4_offset_info_analysis
-; CHECK-GE15: load <4 x i8>, ptr addrspace(1)
-; CHECK-LT15: load <4 x i8>, <4 x i8> addrspace(1)*
-; CHECK-NOT-GE15: call <4 x i8> @__vecz_b_gather_load_Dv4_hDv4_u3ptrU3AS1
-; CHECK-NOT-LT15: call <4 x i8> @__vecz_b_gather_load_Dv4_hDv4_PU3AS1h
+; CHECK: load <4 x i8>, ptr addrspace(1)
+; CHECK-NOT: call <4 x i8> @__vecz_b_gather_load_Dv4_hDv4_u3ptrU3AS1
 ; CHECK: ret void
 
 ; Check the gather load definition is not generated.

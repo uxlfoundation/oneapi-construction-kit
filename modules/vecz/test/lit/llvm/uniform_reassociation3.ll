@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k uniform_reassociation -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k uniform_reassociation -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -43,5 +42,4 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; Ensure the two varyings are added together directly
 ; CHECK: %[[REASSOC:.+]] = add <4 x i32> %[[VARYING1]], %[[VARYING2]]
 ; CHECK: %[[VVU:.+]] = add <4 x i32> %{{.*}}, %[[SPLAT]]
-; CHECK-GE15: store <4 x i32> %[[VVU]], ptr addrspace(1) %{{.+}}
-; CHECK-LT15: store <4 x i32> %[[VVU]], <4 x i32> addrspace(1)* %{{.+}}
+; CHECK: store <4 x i32> %[[VVU]], ptr addrspace(1) %{{.+}}

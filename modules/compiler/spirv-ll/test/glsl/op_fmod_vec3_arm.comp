@@ -1,9 +1,7 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 // REQUIRES: arm
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan %p/op_fmod_vec3.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan %p/op_fmod_vec3.spv | %filecheck %s
 
 // CHECK: ; ModuleID = '{{.*}}'
 #version 450
@@ -14,20 +12,15 @@ void main() {
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x float>
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x float>
   vec3 x = vec3(42.42, 42.42, 42.42);
-// CHECK-GE15:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, <3 x float>* {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%[a-zA-Z0-9_]+}}
   vec3 y = vec3(42.42, 42.42, 42.42);
-// CHECK-GE15:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, <3 x float>* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15:  [[X:%[a-zA-Z0-9_]+]] = load <3 x float>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  [[X:%[a-zA-Z0-9_]+]] = load <3 x float>, <3 x float>* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15:  [[Y:%[a-zA-Z0-9_]+]] = load <3 x float>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  [[Y:%[a-zA-Z0-9_]+]] = load <3 x float>, <3 x float>* {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  [[X:%[a-zA-Z0-9_]+]] = load <3 x float>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  [[Y:%[a-zA-Z0-9_]+]] = load <3 x float>, ptr {{%[a-zA-Z0-9_]+}}
   vec3 res = mod(x, y);
 // CHECK:  [[MOD:%[a-zA-Z0-9_]+]] = call spir_func <3 x float> @_Z4fmodDv3_fS_(<3 x float> [[X]], <3 x float> [[Y]])
 // CHECK:  [[RES:%[a-zA-Z0-9_]+]] = call spir_func <3 x float> @_Z8copysignDv3_fS_(<3 x float> [[MOD]], <3 x float> [[Y]])
-// CHECK-GE15:  store <3 x float> [[RES]], ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15:  store <3 x float> [[RES]], <3 x float>* {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x float> [[RES]], ptr {{%[a-zA-Z0-9_]+}}
 // CHECK:  ret void
 }
 

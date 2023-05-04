@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k noreduce -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k noreduce -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -138,11 +137,9 @@ if.end:                                           ; preds = %entry, %if.then
 ; explicitly set. Currently, this means that the uniform values should not be
 ; packetized.
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_noreduce(ptr addrspace(3) %in, ptr addrspace(3) %out)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_noreduce(i32 addrspace(3)* %in, i32 addrspace(3)* %out)
+; CHECK: define spir_kernel void @__vecz_v4_noreduce(ptr addrspace(3) %in, ptr addrspace(3) %out)
 ; CHECK: icmp ugt i64
-; CHECK-GE15: and i32{{.*}}, 3
-; CHECK-LT15: urem i32 3
+; CHECK: and i32{{.*}}, 3
 ; CHECK: icmp eq i32
 ; CHECK: shl i32
 ; CHECK: ret void

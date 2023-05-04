@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -e SPV_KHR_no_integer_wrap_decoration %p/op_i_sub_nuw.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -e SPV_KHR_no_integer_wrap_decoration %p/op_i_sub_nuw.spv | %filecheck %s
                OpCapability Shader
                OpExtension "SPV_KHR_no_integer_wrap_decoration"
           %1 = OpExtInstImport "GLSL.std.450"
@@ -39,15 +37,10 @@
 ; CHECK: define spir_kernel void @main()
 ; CHECK: [[A:%[a-zA-Z0-9_]+]] = alloca i32
 ; CHECK: [[B:%[a-zA-Z0-9_]+]] = alloca i32
-; CHECK-GE15: store i32 42, ptr [[A]]
-; CHECK-LT15: store i32 42, i32* [[A]]
-; CHECK-GE15: store i32 42, ptr [[B]]
-; CHECK-LT15: store i32 42, i32* [[B]]
-; CHECK-GE15: [[AVAL:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
-; CHECK-LT15: [[AVAL:%[a-zA-Z0-9_]+]] = load i32, i32* [[A]]
-; CHECK-GE15: [[BVAL:%[a-zA-Z0-9_]+]] = load i32, ptr [[B]]
-; CHECK-LT15: [[BVAL:%[a-zA-Z0-9_]+]] = load i32, i32* [[B]]
+; CHECK: store i32 42, ptr [[A]]
+; CHECK: store i32 42, ptr [[B]]
+; CHECK: [[AVAL:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
+; CHECK: [[BVAL:%[a-zA-Z0-9_]+]] = load i32, ptr [[B]]
 ; CHECK: [[RES:%[a-zA-Z0-9_]+]] = sub nuw i32 [[AVAL]], [[BVAL]]
-; CHECK-GE15: store i32 [[RES]], ptr [[A]]
-; CHECK-LT15: store i32 [[RES]], i32* [[A]]
+; CHECK: store i32 [[RES]], ptr [[A]]
 ; CHECK: ret void

@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes replace-wgc,verify -S %s -opaque-pointers | %filecheck %s
+; RUN: %muxc --passes replace-wgc,verify -S %s  | %filecheck %s
 
 ; Check that the replace-wgc correctly defines the work-group collective functions
 

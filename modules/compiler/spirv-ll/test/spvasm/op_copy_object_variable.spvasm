@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL %p/op_copy_object_variable.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL %p/op_copy_object_variable.spv | %filecheck %s
 ; This tests for a potential bug where copying a pointer object simply makes
 ; the same pointer available through a new ID, which would make storing to it
 ; overwrite the original.
@@ -40,22 +38,15 @@
 ; CHECK: define spir_kernel void @main()
 ; CHECK: [[X:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
 ; CHECK: [[Y:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, float* [[X]]
-; CHECK-GE15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr [[Y]]
-; CHECK-LT15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float* [[Y]]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
+; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr [[Y]]
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-; CHECK-GE15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
-; CHECK-LT15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float* [[X]]
-; CHECK-GE15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[Y]]
-; CHECK-LT15: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float* [[Y]]
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, float* [[X]]
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[Y]]
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, float* [[Y]]
+; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
+; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[Y]]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[Y]]
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z13islessgreaterff(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = trunc i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i1
-; CHECK-GE15: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i1* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z13islessgreaterff(float, float)

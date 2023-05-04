@@ -1,8 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan %p/op_glsl_UnpackUnorm4x8_uint.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan %p/op_glsl_UnpackUnorm4x8_uint.spv | %filecheck %s
 
 // CHECK: ; ModuleID = '{{.*}}'
 #version 450
@@ -16,11 +14,9 @@ layout (std430, set=0, binding=1) buffer outR {
 };
 
 void main() {
-// define spir_kernel void @main([[inA-GE15:%[a-zA-Z0-9]+]] addrspace(1)*{{( %0)?}}, [[outR:%[a-zA-Z0-9]+]] addrspace(1)*{{( %1)?}}, ptr addrspace(1){{( %2)?}}) {
-// define spir_kernel void @main([[inA-LT15:%[a-zA-Z0-9]+]] addrspace(1)*{{( %0)?}}, [[outR:%[a-zA-Z0-9]+]] addrspace(1)*{{( %1)?}}, i32 addrspace(1)*{{( %2)?}}) {
+// define spir_kernel void @main([[inA:%[a-zA-Z0-9]+]] addrspace(1)*{{( %0)?}}, [[outR:%[a-zA-Z0-9]+]] addrspace(1)*{{( %1)?}}, ptr addrspace(1){{( %2)?}}) {
 //   [[arg0:%[a-zA-Z0-9]+]] = getelementptr [[inA]], [[inA]] addrspace(1)* [[inA]], i32 0, i32 0
-//   [[arg0value-GE15:%[a-zA-Z0-9]+]] = load i32, ptr addrspace(1) [[arg0]]
-//   [[arg0value-LT15:%[a-zA-Z0-9]+]] = load i32, i32 addrspace(1)* [[arg0]]
+//   [[arg0value:%[a-zA-Z0-9]+]] = load i32, ptr addrspace(1) [[arg0]]
   res = unpackUnorm4x8(arg0);
 //   [[call:%[a-zA-Z0-9]+]] = call spir_func <4 x float> @_Z14unpackUnorm4x8j(i32 [[arg0value]])
 //   [[res:%[a-zA-Z0-9]+]] = getelementptr [[outR]], [[outR]] addrspace(1)* [[outR]], i32 0, i32 0

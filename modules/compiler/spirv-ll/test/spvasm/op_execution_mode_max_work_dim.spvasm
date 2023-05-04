@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: spirv-as-v2020
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_execution_mode_max_work_dim.spv -o %t
-; RUN: %filecheck < %t %s
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_execution_mode_max_work_dim.spv | %filecheck %s
 
                   OpCapability Kernel
                   OpCapability Addresses

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k memop_loop_dep -vecz-passes=scalarize -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k memop_loop_dep -vecz-passes=scalarize -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-s128"
@@ -64,15 +63,13 @@ for.end:                                          ; preds = %for.cond.for.end_cr
 
 ; Make sure Scalarization doesn't create any redundant bitcasts
 ; CHECK-NOT: bitcast
-; CHECK-GE15: getelementptr i32, ptr addrspace(1) %{{.+}}, i32 0
-; CHECK-LT15: getelementptr i32, i32 addrspace(1)* %{{.+}}, i32 0
+; CHECK: getelementptr i32, ptr addrspace(1) %{{.+}}, i32 0
 ; CHECK-NOT: bitcast
 ; CHECK: load i32
 ; CHECK-NOT: bitcast
 
 ; Make sure there is no duplicate GEP that gets the 0-indexed element from the vector
-; CHECK-NOT-GE15: getelementptr i32, ptr addrspace(1) %{{.+}}, i32 0
-; CHECK-NOT-LT15: getelementptr i32, i32 addrspace(1)* %{{.+}}, i32 0
+; CHECK-NOT: getelementptr i32, ptr addrspace(1) %{{.+}}, i32 0
 ; CHECK-NOT: bitcast
 ; CHECK: load i32
 ; CHECK-NOT: bitcast

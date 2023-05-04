@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_frexp_private_v16float.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_frexp_private_v16float.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability Vector16
@@ -29,8 +27,7 @@
                    %3 = OpVariable %v16int_ptr_t Function
 ; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca <16 x i32>
                    %4 = OpExtInst %v16float_t %1 frexp %v16float_1 %3
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z5frexpDv16_fPDv16_i(<16 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z5frexpDv16_fPDv16_i(<16 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, <16 x i32>* [[ptr]])
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z5frexpDv16_fPDv16_i(<16 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

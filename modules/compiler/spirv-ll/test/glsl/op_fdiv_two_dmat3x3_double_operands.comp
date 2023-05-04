@@ -1,7 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fdiv_two_dmat3x3_double_operands.spv -o %t
-// RUN: %filecheck < %t %s
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fdiv_two_dmat3x3_double_operands.spv | %filecheck %s
 
 #version 450
 

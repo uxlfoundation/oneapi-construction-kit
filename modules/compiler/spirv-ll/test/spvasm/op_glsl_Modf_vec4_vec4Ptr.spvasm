@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_Modf_vec4_vec4Ptr.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_Modf_vec4_vec4Ptr.spv | %filecheck %s
                          OpCapability Shader
                          OpCapability Float64
         %1             = OpExtInstImport "GLSL.std.450"
@@ -54,12 +52,8 @@
                          OpReturn
                          OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x float>, <4 x float> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x float> @_Z4modfDv4_fPU3AS1S_(<4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x float> @_Z4modfDv4_fPU3AS1S_(<4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x float> addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK-GE15: store <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x float> addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x float> @_Z4modfDv4_fPU3AS1S_(<4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK: store <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void
-; CHECK-GE15: declare spir_func <4 x float> @_Z4modfDv4_fPU3AS1S_(<4 x float>, ptr addrspace(1))
-; CHECK-LT15: declare spir_func <4 x float> @_Z4modfDv4_fPU3AS1S_(<4 x float>, <4 x float> addrspace(1)*)
+; CHECK: declare spir_func <4 x float> @_Z4modfDv4_fPU3AS1S_(<4 x float>, ptr addrspace(1))

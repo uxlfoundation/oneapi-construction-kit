@@ -2,8 +2,7 @@
 
 ; REQUIRES: arm
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k short3_char3_codegen -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k short3_char3_codegen -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 target datalayout = "e-m:e-p:32:32-i64:64-v128:64:128-a:0:32-n32-S64"
@@ -49,5 +48,4 @@ attributes #3 = { nobuiltin nounwind }
 !5 = !{!"", !""}
 
 ; Assert call to neon intrinsic exists
-; CHECK-GE15: call void @llvm.arm.neon.vst3.p1.v4i16
-; CHECK-LT15: call void @llvm.arm.neon.vst3.p1i16.v4i16
+; CHECK: call void @llvm.arm.neon.vst3.p1.v4i16

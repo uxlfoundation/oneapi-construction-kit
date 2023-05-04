@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k priv -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k priv -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -49,6 +48,5 @@ attributes #2 = { nobuiltin }
 
 
 ; Test if the masked store is defined correctly
-; CHECK-GE15: call void @__vecz_b_masked_scatter_store4_Dv4_jDv4_u3ptrU3AS3Dv4_b
-; CHECK-LT15: call void @__vecz_b_masked_scatter_store4_Dv4_jDv4_PU3AS3jDv4_b
+; CHECK: call void @__vecz_b_masked_scatter_store4_Dv4_jDv4_u3ptrU3AS3Dv4_b
 ; CHECK: ret void

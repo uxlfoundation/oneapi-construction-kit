@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_spec_constant_op_fmod_double.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_spec_constant_op_fmod_double.spv | %filecheck %s
             OpCapability Shader
             OpCapability Float64
             OpCapability Int64
@@ -35,8 +33,7 @@
 ; CHECK: [[SPEC:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
 ; CHECK: br label {{%[a-zA-Z0-9_]+}}
 ; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca double
-; CHECK-GE15: store double [[SPEC]], ptr [[RES]]
-; CHECK-LT15: store double [[SPEC]], double* [[RES]]
+; CHECK: store double [[SPEC]], ptr [[RES]]
 ; CHECK: ret void
 ; CHECK: declare spir_func double @_Z4fmoddd(double, double)
 ; CHECK: declare spir_func double @_Z8copysigndd(double, double)

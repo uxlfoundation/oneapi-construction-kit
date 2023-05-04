@@ -1,12 +1,11 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k insert_element -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE
-; RUN: %veczc -k insert_element_uniform -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE-UNI
-; RUN: %veczc -k insert_element_varying_indices -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE-INDICES
+; RUN: %veczc -k insert_element -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE
+; RUN: %veczc -k insert_element_uniform -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE-UNI
+; RUN: %veczc -k insert_element_varying_indices -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE-INDICES
 ; RUN: %not %veczc -k insert_element_illegal -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s
-; RUN: %veczc -k insert_element_bool -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE-BOOL
+; RUN: %veczc -k insert_element_bool -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE-BOOL
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -109,8 +108,7 @@ entry:
 ; IE-INDICES-NEXT:    [[VS2:%.*]] = call <vscale x 16 x i32> @llvm.{{(experimental.)?}}vector.insert.nxv16i32.nxv4i32(<vscale x 16 x i32> poison, <vscale x 4 x i32> {{%.*}}, i64 0)
 ; IE-INDICES:         [[IDX0:%.*]] = call <vscale x 16 x i32> @llvm.experimental.stepvector.nxv16i32()
 ; IE-INDICES-NEXT:    [[IDX1:%.*]] = lshr <vscale x 16 x i32> [[IDX0]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 16 x i32> {{(undef|poison)}}, <vscale x 16 x i32> zeroinitializer)
-; IE-INDICES-NEXT-GE15:    [[TMP9:%.*]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> undef, <vscale x 16 x i32> [[VS2:%.*]], <vscale x 16 x i32> [[IDX1]], i64 [[TMP5]])
-; IE-INDICES-NEXT-LT15:    [[TMP9:%.*]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> [[VS2:%.*]], <vscale x 16 x i32> [[IDX1]], i64 [[TMP5]])
+; IE-INDICES-NEXT:    [[TMP9:%.*]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> undef, <vscale x 16 x i32> [[VS2:%.*]], <vscale x 16 x i32> [[IDX1]], i64 [[TMP5]])
 ; IE-INDICES-NEXT:    [[VS25:%.*]] = call <vscale x 16 x float> @llvm.{{(experimental.)?}}vector.insert.nxv16f32.nxv4f32(<vscale x 16 x float> poison, <vscale x 4 x float> [[FIDX2]], i64 0)
 ; IE-INDICES-NEXT:    [[INNER:%.*]] = and <vscale x 16 x i32> [[IDX0]], shufflevector (<vscale x 16 x i32> insertelement (<vscale x 16 x i32> poison, i32 3, {{i32|i64}} 0), <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer)
 ; IE-INDICES-NEXT:    [[VM:%.*]] = icmp eq <vscale x 16 x i32> [[TMP9]], [[INNER]]

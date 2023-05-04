@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_opencl_memset_zero.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_opencl_memset_zero.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Int64
@@ -28,8 +26,7 @@
 %_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
          %22 = OpConstantNull %_arr_uchar_ulong_64
          %24 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_64 UniformConstant %22
-; CHECK-GE15: define spir_kernel void @memset_zero(ptr addrspace(1) %out)
-; CHECK-LT15: define spir_kernel void @memset_zero(i32 addrspace(1)* %out)
+; CHECK: define spir_kernel void @memset_zero(ptr addrspace(1) %out)
           %6 = OpFunction %void None %5
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
       %entry = OpLabel
@@ -37,7 +34,6 @@
          %19 = OpConvertUToPtr %_ptr_Function_uchar %16
          %26 = OpBitcast %_ptr_UniformConstant_uchar %24
                OpCopyMemorySized %19 %26 %ulong_256 Aligned 1
-; CHECK-GE15: call void @llvm.memset.p0.i64(ptr align 1 {{%[a-zA-Z0-9]+}}, i8 0, i64 256, i1 false)
-; CHECK-LT15: call void @llvm.memset.p0i8.i64(i8* align 1 {{%[a-zA-Z0-9]+}}, i8 0, i64 256, i1 false)
+; CHECK: call void @llvm.memset.p0.i64(ptr align 1 {{%[a-zA-Z0-9]+}}, i8 0, i64 256, i1 false)
                OpReturn
                OpFunctionEnd

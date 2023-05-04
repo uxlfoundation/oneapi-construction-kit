@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k multiple_dimensions_0 -vecz-simd-width 4 -S < %s | %filecheck %t
+; RUN: %veczc -k multiple_dimensions_0 -vecz-simd-width 4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 source_filename = "kernel.opencl"
@@ -62,5 +61,4 @@ attributes #3 = { convergent nobuiltin nounwind readonly }
 ; CHECK: %[[CALL1:.+]] = call spir_func i64 @_Z15get_global_sizej(i32 1)
 ; CHECK: %[[CALL2:.+]] = call spir_func i64 @_Z15get_global_sizej(i32 2)
 ; CHECK: %[[NEWMUL:.+]] = mul i64 %[[CALL1]], %[[CALL2]]
-; CHECK-GE15: call void @__vecz_b_interleaved_store4_V_Dv4_ju3ptrU3AS1({{.+}} %[[NEWMUL]])
-; CHECK-LT15: call void @__vecz_b_interleaved_store4_V_Dv4_jPU3AS1j({{.+}} %[[NEWMUL]])
+; CHECK: call void @__vecz_b_interleaved_store4_V_Dv4_ju3ptrU3AS1({{.+}} %[[NEWMUL]])
