@@ -52,6 +52,9 @@ _cl_event::_cl_event(cl_context context, cl_command_queue queue,
       queue(queue),
       command_type(type),
       command_status(CL_QUEUED) {
+  if (queue) {
+    cl::retainInternal(queue);
+  }
   cl::retainInternal(context);
 }
 
@@ -60,6 +63,9 @@ _cl_event::~_cl_event() {
   if (profiling.mux_queue && profiling.duration_queries) {
     muxDestroyQueryPool(profiling.mux_queue, profiling.duration_queries,
                         profiling.mux_allocator);
+  }
+  if (queue) {
+    cl::releaseInternal(queue);
   }
   cl::releaseInternal(context);
 }

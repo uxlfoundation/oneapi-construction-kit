@@ -750,6 +750,7 @@ cl_int _cl_command_queue::dispatchPending(cl_event user_event) {
     auto found = std::find(dispatch.wait_events.begin(),
                            dispatch.wait_events.end(), user_event);
     if (dispatch.wait_events.end() != found) {
+      cl::releaseInternal(*found);
       dispatch.wait_events.erase(found);
     }
   }
@@ -957,6 +958,7 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
       // Push any events that are not completed on wait list
       // including non-user ones
       if (wait_event->command_status != CL_COMPLETE) {
+        cl::retainInternal(wait_event);
         if (wait_events.push_back(wait_event)) {
           return CL_OUT_OF_RESOURCES;
         }
@@ -1051,7 +1053,12 @@ cl::ReleaseCommandQueue(cl_command_queue command_queue) {
   tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandQueue");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
-  {
+  // If we are on the last ref count external and there is still an internal
+  // refcount, then flush and wait for events.
+  if (command_queue->refCountExternal() == 1 &&
+      command_queue->refCountInternal()) {
+    command_queue->finish();
+  } else {
     std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
@@ -1217,6 +1224,25 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Flush(cl_command_queue command_queue) {
   return command_queue->flush();
 }
 
+cl_int _cl_command_queue::finish() {
+  {
+    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    flush();
+  }
+
+  if (mux_success != muxWaitAll(mux_queue)) {
+    return CL_OUT_OF_RESOURCES;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    if (CL_SUCCESS != cleanupCompletedCommandBuffers()) {
+      return CL_OUT_OF_RESOURCES;
+    }
+  }
+  return CL_SUCCESS;
+}
+
 CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
   tracer::TraceGuard<tracer::OpenCL> guard("clFinish");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
@@ -1227,25 +1253,10 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
   }
   cl::release_guard<cl_event> event_release_guard(*new_event,
                                                   cl::ref_count_type::EXTERNAL);
-
-  {
-    std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
-    command_queue->flush();
-  }
-
-  if (mux_success != muxWaitAll(command_queue->mux_queue)) {
+  auto finish_result = command_queue->finish();
+  if (CL_SUCCESS != finish_result) {
     event_release_guard->complete(CL_OUT_OF_RESOURCES);
-    return CL_OUT_OF_RESOURCES;
-  }
-
-  {
-    std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
-    if (CL_SUCCESS != command_queue->cleanupCompletedCommandBuffers()) {
-      event_release_guard->complete(CL_OUT_OF_RESOURCES);
-      return CL_OUT_OF_RESOURCES;
-    }
+    return finish_result;
   }
 
   event_release_guard->complete();

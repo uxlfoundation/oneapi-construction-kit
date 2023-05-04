@@ -155,6 +155,12 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   registerDispatchCallback(mux_command_buffer_t command_buffer, cl_event event,
                            std::function<void()> callback);
 
+  /// @brief Flush and wait for any outstanding events
+  ///
+  ///
+  /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
+  cl_int finish();
+
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
   /// @brief Enqueue a command group from a cl_command_buffer_khr.
   ///

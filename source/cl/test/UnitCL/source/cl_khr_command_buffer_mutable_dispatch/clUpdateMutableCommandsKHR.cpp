@@ -181,6 +181,10 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidSimulataneousUse) {
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 0, &dispatch_config};
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, clUpdateMutableCommandsKHR(
                                               command_buffer, &mutable_config));
+
+  // We need to complete the user event to avoid any possible hangs.
+  ASSERT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));
+
   EXPECT_SUCCESS(clReleaseEvent(user_event));
 }
 
