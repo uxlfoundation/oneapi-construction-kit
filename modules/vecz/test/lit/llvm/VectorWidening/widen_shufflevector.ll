@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k widen_shufflevector -vecz-simd-width=2 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k widen_shufflevector -vecz-simd-width=2 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -23,11 +22,8 @@ entry:
 }
 
 ; CHECK: define spir_kernel void @__vecz_v2_widen_shufflevector
-; CHECK-GE15: %[[LDA:.+]] = load <4 x float>, ptr addrspace(1) %
-; CHECK-LT15: %[[LDA:.+]] = load <4 x float>, <4 x float> addrspace(1)* %
-; CHECK-GE15: %[[LDB:.+]] = load <4 x float>, ptr addrspace(1) %
-; CHECK-LT15: %[[LDB:.+]] = load <4 x float>, <4 x float> addrspace(1)* %
+; CHECK: %[[LDA:.+]] = load <4 x float>, ptr addrspace(1) %
+; CHECK: %[[LDB:.+]] = load <4 x float>, ptr addrspace(1) %
 ; CHECK: %[[SHF:.+]] = shufflevector <4 x float> %[[LDA]], <4 x float> %[[LDB]], <8 x i32> <i32 0, i32 5, i32 1, i32 4, i32 2, i32 7, i32 3, i32 6>
-; CHECK-GE15: store <8 x float> %[[SHF]], ptr addrspace(1) %
-; CHECK-LT15: store <8 x float> %[[SHF]], <8 x float> addrspace(1)* %
+; CHECK: store <8 x float> %[[SHF]], ptr addrspace(1) %
 ; CHECK: ret void

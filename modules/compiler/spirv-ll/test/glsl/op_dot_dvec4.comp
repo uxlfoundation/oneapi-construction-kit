@@ -1,8 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_dot_dvec4.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_dot_dvec4.spv | %filecheck %s
 
 #version 450
 
@@ -16,14 +14,10 @@ void main() {
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x double>
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x double>
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK-GE15: store <4 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: store <4 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, <4 x double>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-GE15: store <4 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: store <4 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, <4 x double>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, <4 x double>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, <4 x double>* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: store <4 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: store <4 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func double @_Z3dotDv4_dS_(<4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
 // CHECK: ret void
 // CHECK: declare spir_func double @_Z3dotDv4_dS_(<4 x double>, <4 x double>)

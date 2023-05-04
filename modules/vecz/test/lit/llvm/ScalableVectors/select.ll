@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -39,21 +38,16 @@ entry:
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; CHECK: define spir_kernel void @__vecz_nxv4_select_scalar_scalar
-; CHECK-GE15: [[lhs:%[0-9a-z]+]] = load <vscale x 4 x i32>, ptr
-; CHECK-LT15: [[lhs:%[0-9a-z]+]] = load <vscale x 4 x i32>, <vscale x 4 x i32>*
-; CHECK-GE15: [[rhs:%[0-9a-z]+]] = load <vscale x 4 x i32>, ptr
-; CHECK-LT15: [[rhs:%[0-9a-z]+]] = load <vscale x 4 x i32>, <vscale x 4 x i32>*
+; CHECK: [[lhs:%[0-9a-z]+]] = load <vscale x 4 x i32>, ptr
+; CHECK: [[rhs:%[0-9a-z]+]] = load <vscale x 4 x i32>, ptr
 ; CHECK: [[cmp:%[0-9a-z]+]] = icmp slt <vscale x 4 x i32> [[lhs]], [[rhs]]
 ; CHECK: [[sel:%[0-9a-z]+]] = select <vscale x 4 x i1> [[cmp]], <vscale x 4 x i32> [[rhs]], <vscale x 4 x i32> shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 4, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; CHECK: store <vscale x 4 x i32> [[sel]],
 
 ; CHECK: define spir_kernel void @__vecz_nxv4_select_vector_vector
-; CHECK-GE15: [[x:%[0-9a-z]+]] = load <vscale x 8 x i32>, ptr
-; CHECK-LT15: [[x:%[0-9a-z]+]] = load <vscale x 8 x i32>, <vscale x 8 x i32>*
-; CHECK-GE15: [[y:%[0-9a-z]+]] = load <vscale x 8 x i32>, ptr
-; CHECK-LT15: [[y:%[0-9a-z]+]] = load <vscale x 8 x i32>, <vscale x 8 x i32>*
-; CHECK-GE15: [[z:%[0-9a-z]+]] = load <vscale x 8 x i32>, ptr
-; CHECK-LT15: [[z:%[0-9a-z]+]] = load <vscale x 8 x i32>, <vscale x 8 x i32>*
+; CHECK: [[x:%[0-9a-z]+]] = load <vscale x 8 x i32>, ptr
+; CHECK: [[y:%[0-9a-z]+]] = load <vscale x 8 x i32>, ptr
+; CHECK: [[z:%[0-9a-z]+]] = load <vscale x 8 x i32>, ptr
 ; CHECK: [[cmp:%[0-9a-z]+]] = icmp slt <vscale x 8 x i32> [[x]], [[y]]
 ; CHECK: [[sel:%[0-9a-z]+]] = select <vscale x 8 x i1> [[cmp]], <vscale x 8 x i32> [[z]], <vscale x 8 x i32> shufflevector (<vscale x 8 x i32> insertelement (<vscale x 8 x i32> {{(undef|poison)}}, i32 4, {{(i32|i64)}} 0), <vscale x 8 x i32> {{(undef|poison)}}, <vscale x 8 x i32> zeroinitializer)
 ; CHECK: store <vscale x 8 x i32> [[sel]],

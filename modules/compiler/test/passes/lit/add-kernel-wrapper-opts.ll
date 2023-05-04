@@ -1,15 +1,15 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes add-kernel-wrapper,verify -S %s -opaque-pointers \
+; RUN: %muxc --passes add-kernel-wrapper,verify -S %s  \
 ; RUN:   | %filecheck %s --check-prefixes PACKED,LOCALS-BY-SIZE
-; RUN: %muxc --passes "add-kernel-wrapper<packed>,verify" -S %s -opaque-pointers \
+; RUN: %muxc --passes "add-kernel-wrapper<packed>,verify" -S %s  \
 ; RUN:   | %filecheck %s --check-prefixes PACKED,LOCALS-BY-SIZE
-; RUN: %muxc --passes "add-kernel-wrapper<unpacked>,verify" -S %s -opaque-pointers \
+; RUN: %muxc --passes "add-kernel-wrapper<unpacked>,verify" -S %s  \
 ; RUN:   | %filecheck %s --check-prefixes UNPACKED,LOCALS-BY-SIZE
 
-; RUN: %muxc --passes "add-kernel-wrapper<local-buffers-by-size>,verify" -S %s -opaque-pointers \
+; RUN: %muxc --passes "add-kernel-wrapper<local-buffers-by-size>,verify" -S %s  \
 ; RUN:   | %filecheck %s --check-prefix LOCALS-BY-SIZE
-; RUN: %muxc --passes "add-kernel-wrapper<local-buffers-by-ptr>,verify" -S %s -opaque-pointers \
+; RUN: %muxc --passes "add-kernel-wrapper<local-buffers-by-ptr>,verify" -S %s  \
 ; RUN:   | %filecheck %s --check-prefix LOCALS-BY-PTR
 
 target triple = "spir64-unknown-unknown"

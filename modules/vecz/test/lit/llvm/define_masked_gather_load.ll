@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k masked_gather -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k masked_gather -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -64,9 +63,7 @@ if.end:                                           ; preds = %if.else, %if.then
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; Test if the masked gather load is defined correctly
-; CHECK-GE15: define <4 x i32> @__vecz_b_masked_gather_load4_Dv4_jDv4_u3ptrU3AS1Dv4_b(<4 x ptr addrspace(1)>{{( %0)?}}, <4 x i1>{{( %1)?}})
-; CHECK-LT15: define <4 x i32> @__vecz_b_masked_gather_load4_Dv4_jDv4_PU3AS1jDv4_b(<4 x i32 addrspace(1)*>{{( %0)?}}, <4 x i1>{{( %1)?}})
+; CHECK: define <4 x i32> @__vecz_b_masked_gather_load4_Dv4_jDv4_u3ptrU3AS1Dv4_b(<4 x ptr addrspace(1)>{{( %0)?}}, <4 x i1>{{( %1)?}})
 ; CHECK: entry:
-; CHECK-GE15: %2 = call <4 x i32> @llvm.masked.gather.v4i32.v4p1(<4 x ptr addrspace(1)> %0, i32{{( immarg)?}} 4, <4 x i1> %1, <4 x i32> undef)
-; CHECK-LT15: %2 = call <4 x i32> @llvm.masked.gather.v4i32.v4p1i32(<4 x i32 addrspace(1)*> %0, i32{{( immarg)?}} 4, <4 x i1> %1, <4 x i32> undef)
+; CHECK: %2 = call <4 x i32> @llvm.masked.gather.v4i32.v4p1(<4 x ptr addrspace(1)> %0, i32{{( immarg)?}} 4, <4 x i1> %1, <4 x i32> undef)
 ; CHECK: ret <4 x i32> %2

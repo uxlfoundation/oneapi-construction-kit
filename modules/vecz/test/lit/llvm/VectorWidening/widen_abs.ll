@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-12+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -34,36 +33,22 @@ entry:
   ret void
 }
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_absff(ptr %pa, ptr %pb)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_absff(i32* %pa, i32* %pb)
+; CHECK: define spir_kernel void @__vecz_v4_absff(ptr %pa, ptr %pb)
 ; CHECK: entry:
 ; CHECK: %idx = call spir_func i64 @_Z13get_global_idj(i32 0)
-; CHECK-GE15: %a = getelementptr i32, ptr %pa, i64 %idx
-; CHECK-LT15: %a = getelementptr i32, i32* %pa, i64 %idx
-; CHECK-GE15: %b = getelementptr i32, ptr %pb, i64 %idx
-; CHECK-LT15: %b = getelementptr i32, i32* %pb, i64 %idx
-; CHECK-LT15: %0 = bitcast i32* %a to <4 x i32>*
-; CHECK-GE15: %[[T0:.*]] = load <4 x i32>, ptr %a, align 4
-; CHECK-LT15: %[[T0:.*]] = load <4 x i32>, <4 x i32>* %0, align 4
+; CHECK: %a = getelementptr i32, ptr %pa, i64 %idx
+; CHECK: %b = getelementptr i32, ptr %pb, i64 %idx
+; CHECK: %[[T0:.*]] = load <4 x i32>, ptr %a, align 4
 ; CHECK: %[[RES1:.+]] = call <4 x i32> @llvm.abs.v4i32(<4 x i32> %[[T0]], i1 true)
-; CHECK-GE15: store <4 x i32> %[[RES1]], ptr %b, align 4
-; CHECK-LT15: %2 = bitcast i32* %b to <4 x i32>*
-; CHECK-LT15: store <4 x i32> %[[RES1]], <4 x i32>* %2, align 4
+; CHECK: store <4 x i32> %[[RES1]], ptr %b, align 4
 ; CHECK: ret void
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_absvf(ptr %pa, ptr %pb)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_absvf(<2 x i32>* %pa, <2 x i32>* %pb)
+; CHECK: define spir_kernel void @__vecz_v4_absvf(ptr %pa, ptr %pb)
 ; CHECK: entry:
 ; CHECK: %idx = call spir_func i64 @_Z13get_global_idj(i32 0)
-; CHECK-GE15: %a = getelementptr <2 x i32>, ptr %pa, i64 %idx
-; CHECK-LT15: %a = getelementptr <2 x i32>, <2 x i32>* %pa, i64 %idx
-; CHECK-GE15: %b = getelementptr <2 x i32>, ptr %pb, i64 %idx
-; CHECK-LT15: %b = getelementptr <2 x i32>, <2 x i32>* %pb, i64 %idx
-; CHECK-LT15: %0 = bitcast <2 x i32>* %a to <8 x i32>*
-; CHECK-GE15: %[[T0:.*]] = load <8 x i32>, ptr %a, align 4
-; CHECK-LT15: %[[T0:.*]] = load <8 x i32>, <8 x i32>* %0, align 4
+; CHECK: %a = getelementptr <2 x i32>, ptr %pa, i64 %idx
+; CHECK: %b = getelementptr <2 x i32>, ptr %pb, i64 %idx
+; CHECK: %[[T0:.*]] = load <8 x i32>, ptr %a, align 4
 ; CHECK: %[[RES2:.+]] = call <8 x i32> @llvm.abs.v8i32(<8 x i32> %[[T0]], i1 true)
-; CHECK-LT15: %2 = bitcast <2 x i32>* %b to <8 x i32>*
-; CHECK-GE15: store <8 x i32> %[[RES2]], ptr %b, align 8
-; CHECK-LT15: store <8 x i32> %[[RES2]], <8 x i32>* %2, align 8
+; CHECK: store <8 x i32> %[[RES2]], ptr %b, align 8
 ; CHECK: ret void

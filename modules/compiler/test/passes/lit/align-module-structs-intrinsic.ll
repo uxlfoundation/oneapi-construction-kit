@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %muxc --passes align-module-structs,verify -S %s | %filecheck %t
+; RUN: %muxc --passes align-module-structs,verify -S %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 
@@ -15,10 +14,8 @@ target datalayout = "e-p:64:64:64-m:e-i32:32-i64:32"
 ; occurrance - we correctly preserve the fact that the intrinsic is an
 ; intrinsic. This is actually done via an internal assertion, but this test
 ; case covers that.
-; CHECK-LT15: %structTyA.0 = type { i32, [4 x i8], i64 }
 
-; CHECK-GE15: declare ptr @llvm.preserve.struct.access.index.p0.p0(ptr, i32 immarg, i32 immarg)
-; CHECK-LT15: declare i32* @llvm.preserve.struct.access.index.p0i32.p0s_structTyAs(%structTyA.0*, i32, i32)
+; CHECK: declare ptr @llvm.preserve.struct.access.index.p0.p0(ptr, i32 immarg, i32 immarg)
 
 %structTyA = type { i32, i64 }
 

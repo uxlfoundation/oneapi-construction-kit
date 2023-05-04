@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k vecz_scalar_gather_load -vecz-passes="function(simplifycfg),mergereturn,vecz-loop-rotate,cfg-convert,cleanup-divergence" -S < %s | %filecheck %t
+; RUN: %veczc -k vecz_scalar_gather_load -vecz-passes="function(simplifycfg),mergereturn,vecz-loop-rotate,cfg-convert,cleanup-divergence" -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 source_filename = "kernel.opencl"
@@ -83,19 +82,15 @@ for.end:                                        ; preds = %for.cond
 ; CHECK: if.then1:
 ; CHECK: %[[IND:.+]] = phi i32
 ; CHECK: %[[ZIND:.+]] = zext i32 %[[IND]] to i64
-; CHECK-GE15: %[[GEP1:.+]] = getelementptr inbounds i32, ptr addrspace(1) %row_indices, i64 %[[ZIND]]
-; CHECK-LT15: %[[GEP1:.+]] = getelementptr inbounds i32, i32 addrspace(1)* %row_indices, i64 %[[ZIND]]
-; CHECK-GE15: %{{.+}} = load i32, ptr addrspace(1) %[[GEP1]]
-; CHECK-LT15: %{{.+}} = load i32, i32 addrspace(1)* %[[GEP1]]
+; CHECK: %[[GEP1:.+]] = getelementptr inbounds i32, ptr addrspace(1) %row_indices, i64 %[[ZIND]]
+; CHECK: %{{.+}} = load i32, ptr addrspace(1) %[[GEP1]]
 
 ; This load depends only on other uniform loads
 ; CHECK: if.then2:
 ; CHECK-NOT: declare float @__vecz_b_masked_gather_load4_
 ; CHECK-NOT: declare float @__vecz_b_masked_load4_
-; CHECK-GE15: %[[GEP2:.+]] = getelementptr inbounds float, ptr addrspace(1) %result
-; CHECK-LT15: %[[GEP2:.+]] = getelementptr inbounds float, float addrspace(1)* %result
-; CHECK-GE15: %{{.+}} = load float, ptr addrspace(1) %[[GEP2]]
-; CHECK-LT15: %{{.+}} = load float, float addrspace(1)* %[[GEP2]]
+; CHECK: %[[GEP2:.+]] = getelementptr inbounds float, ptr addrspace(1) %result
+; CHECK: %{{.+}} = load float, ptr addrspace(1) %[[GEP2]]
 
 ; The store instruction is definitely in a divergent path, however, so needs a mask.
 ; CHECK: if.then3:

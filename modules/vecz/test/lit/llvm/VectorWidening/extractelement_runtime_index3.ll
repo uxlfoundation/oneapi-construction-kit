@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k extract_runtime_index -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k extract_runtime_index -vecz-simd-width=4 -vecz-passes=packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -23,10 +22,8 @@ entry:
 }
 
 ; CHECK: define spir_kernel void @__vecz_v4_extract_runtime_index
-; CHECK-GE15: %[[SRC:.+]] = load <16 x float>, ptr addrspace(1) %
-; CHECK-LT15: %[[SRC:.+]] = load <16 x float>, <16 x float> addrspace(1)* %
-; CHECK-GE15: %[[IDX:.+]] = load <4 x i32>, ptr addrspace(1) %
-; CHECK-LT15: %[[IDX:.+]] = load <4 x i32>, <4 x i32> addrspace(1)* %
+; CHECK: %[[SRC:.+]] = load <16 x float>, ptr addrspace(1) %
+; CHECK: %[[IDX:.+]] = load <4 x i32>, ptr addrspace(1) %
 
 ; No splitting of the widened source vector
 ; CHECK-NOT: shufflevector
@@ -47,6 +44,5 @@ entry:
 ; CHECK: %[[IND3:.+]] = extractelement <4 x i32> %[[ADD]], i32 3
 ; CHECK: %[[EXT3:.+]] = extractelement <16 x float> %[[SRC]], i32 %[[IND3]]
 ; CHECK: %[[INS3:.+]] = insertelement <4 x float> %[[INS2]], float %[[EXT3]], i32 3
-; CHECK-GE15: store <4 x float> %[[INS3]], ptr addrspace(1) %{{.+}}
-; CHECK-LT15: store <4 x float> %[[INS3]], <4 x float> addrspace(1)* %{{.+}}
+; CHECK: store <4 x float> %[[INS3]], ptr addrspace(1) %{{.+}}
 ; CHECK: ret void

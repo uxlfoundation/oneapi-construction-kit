@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_group_async_copy_int.spv -o %t
-; RUN: %filecheck < %t %t.pp             
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_group_async_copy_int.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Int64
@@ -38,19 +36,11 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK-LT15: %opencl.event_t = type opaque
-; CHECK-GE15: define spir_kernel void @async_copy(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size)
-; CHECK-LT15: define spir_kernel void @async_copy(i32 addrspace(1)* %in, i32 addrspace(3)* %out, i64 %size)
-; CHECK-GE15: [[EVENT_VAR:%[a-zA-Z0-9_]+]] = alloca ptr
-; CHECK-LT15: [[EVENT_VAR:%[a-zA-Z0-9_]+]] = alloca %opencl.event_t*
-; CHECK-GE15: [[EVENT:%[a-zA-Z0-9_]+]] = call spir_func ptr @_Z29async_work_group_strided_copyPU3AS1jPU3AS3Kjmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, ptr null)
-; CHECK-LT15: [[EVENT:%[a-zA-Z0-9_]+]] = call spir_func %opencl.event_t* @_Z29async_work_group_strided_copyPU3AS1jPU3AS3Kjmm9ocl_event(i32 addrspace(1)* %in, i32 addrspace(3)* %out, i64 %size, i64 1, %opencl.event_t* null)
-; CHECK-GE15: store ptr [[EVENT]], ptr [[EVENT_VAR]]
-; CHECK-LT15: store %opencl.event_t* [[EVENT]], %opencl.event_t** [[EVENT_VAR]]
-; CHECK-GE15: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, ptr [[EVENT_VAR]])
-; CHECK-LT15: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, %opencl.event_t** [[EVENT_VAR]])
+; CHECK: define spir_kernel void @async_copy(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size)
+; CHECK: [[EVENT_VAR:%[a-zA-Z0-9_]+]] = alloca ptr
+; CHECK: [[EVENT:%[a-zA-Z0-9_]+]] = call spir_func ptr @_Z29async_work_group_strided_copyPU3AS1jPU3AS3Kjmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, ptr null)
+; CHECK: store ptr [[EVENT]], ptr [[EVENT_VAR]]
+; CHECK: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, ptr [[EVENT_VAR]])
 ; CHECK: ret void
-; CHECK-GE15: declare spir_func ptr @_Z29async_work_group_strided_copyPU3AS1jPU3AS3Kjmm9ocl_event(ptr addrspace(1), ptr addrspace(3), i64, i64, ptr)
-; CHECK-LT15: declare spir_func %opencl.event_t* @_Z29async_work_group_strided_copyPU3AS1jPU3AS3Kjmm9ocl_event(i32 addrspace(1)*, i32 addrspace(3)*, i64, i64, %opencl.event_t*)
-; CHECK-GE15: declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, ptr)
-; CHECK-LT15: declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, %opencl.event_t**)
+; CHECK: declare spir_func ptr @_Z29async_work_group_strided_copyPU3AS1jPU3AS3Kjmm9ocl_event(ptr addrspace(1), ptr addrspace(3), i64, i64, ptr)
+; CHECK: declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, ptr)

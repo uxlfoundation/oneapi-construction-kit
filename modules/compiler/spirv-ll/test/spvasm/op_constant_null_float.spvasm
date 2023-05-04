@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_constant_null_float.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_constant_null_float.spv | %filecheck %s
             OpCapability Shader
             OpCapability Float64
             OpCapability Int64
@@ -27,6 +25,5 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-; CHECK-GE15: store float 0.000000e+00, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store float 0.000000e+00, float* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: store float 0.000000e+00, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void

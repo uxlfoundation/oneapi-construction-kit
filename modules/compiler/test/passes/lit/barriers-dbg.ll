@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %muxc --passes "barriers-pass<debug>,verify" -S %s | %filecheck %t
+; RUN: %muxc --passes "barriers-pass<debug>,verify" -S %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
@@ -103,8 +102,7 @@ if.end:                                           ; preds = %if.then, %entry
 ; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
 ;
 ; Assert the DI entry is attached to the correct function
-; CHECK-GE15: void @barrier_test.mux-barrier-wrapper(ptr addrspace(1) %input, ptr addrspace(1) %output) {{.*}} !dbg [[DI_SUBPROGRAM:![0-9]+]]
-; CHECK-LT15: void @barrier_test.mux-barrier-wrapper(i32 addrspace(1)* %input, i32 addrspace(1)* %output) {{.*}} !dbg [[DI_SUBPROGRAM:![0-9]+]]
+; CHECK: void @barrier_test.mux-barrier-wrapper(ptr addrspace(1) %input, ptr addrspace(1) %output) {{.*}} !dbg [[DI_SUBPROGRAM:![0-9]+]]
 ;
 ; Array of live_variables structs, one for each work-item in a work-group
 ; CHECK: %live_variables{{.*}} = alloca %barrier_test_live_mem_info, {{(i64|i32)}} {{%.*}}, align {{(8|4)}}

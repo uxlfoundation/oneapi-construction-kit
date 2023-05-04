@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %muxc --passes replace-wgc,verify -S %s | %filecheck %t
+; RUN: %muxc --passes replace-wgc,verify -S %s | %filecheck %s
 
 ; Check that the replace-wgc correctly defines the work-group collective functions
 
@@ -83,13 +82,11 @@ declare spir_func i32 @_Z20work_group_broadcastij(i32 %x, i64 %id)
 ; CHECK: call i64 @_Z12get_local_idj(i32 0)
 
 ; CHECK-LABEL: broadcast:
-; CHECK-GE15: store i32 [[PARAM]], ptr addrspace(3) @_Z20work_group_broadcastij.accumulator
-; CHECK-LT15: store i32 [[PARAM]], i32 addrspace(3)* @_Z20work_group_broadcastij.accumulator
+; CHECK: store i32 [[PARAM]], ptr addrspace(3) @_Z20work_group_broadcastij.accumulator
 
 ; CHECK-LABEL: exit:
 ; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
-; CHECK-GE15: [[RESULT:%.*]] = load i32, ptr addrspace(3) @_Z20work_group_broadcastij.accumulator
-; CHECK-LT15: [[RESULT:%.*]] = load i32, i32 addrspace(3)* @_Z20work_group_broadcastij.accumulator
+; CHECK: [[RESULT:%.*]] = load i32, ptr addrspace(3) @_Z20work_group_broadcastij.accumulator
 ; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
 ; CHECK: ret i32 [[RESULT]]
 

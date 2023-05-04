@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k fmin_vector_scalar -vecz-simd-width=4 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k fmin_vector_scalar -vecz-simd-width=4 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -37,19 +36,15 @@ entry:
 }
 
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_fmin_vector_scalar(ptr %pa, ptr %pb, ptr %pd)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_fmin_vector_scalar(<4 x float>* %pa, float* %pb, <4 x float>* %pd)
+; CHECK: define spir_kernel void @__vecz_v4_fmin_vector_scalar(ptr %pa, ptr %pb, ptr %pd)
 ; CHECK: entry:
 
 ; It checks that the fmin builtin gets widened by a factor of 4, while its
 ; scalar operand is sub-splatted to the required <16 x float>.
-; CHECK-GE15: %[[LDA:.+]] = load <16 x float>, ptr %{{.+}}
-; CHECK-LT15: %[[LDA:.+]] = load <16 x float>, <16 x float>* %{{.+}}
-; CHECK-GE15: %[[LDB:.+]] = load <4 x float>, ptr %{{.+}}
-; CHECK-LT15: %[[LDB:.+]] = load <4 x float>, <4 x float>* %{{.+}}
+; CHECK: %[[LDA:.+]] = load <16 x float>, ptr %{{.+}}
+; CHECK: %[[LDB:.+]] = load <4 x float>, ptr %{{.+}}
 ; CHECK: %[[SPL:.+]] = shufflevector <4 x float> %[[LDB]], <4 x float> undef, <16 x i32> <i32 0, i32 0, i32 0, i32 0, i32 1, i32 1, i32 1, i32 1, i32 2, i32 2, i32 2, i32 2, i32 3, i32 3, i32 3, i32 3>
 ; CHECK: %[[RES:.+]] = call <16 x float> @llvm.minnum.v16f32(<16 x float> %[[LDA]], <16 x float> %[[SPL]])
-; CHECK-GE15: store <16 x float> %[[RES]], ptr %{{.+}}
-; CHECK-LT15: store <16 x float> %[[RES]], <16 x float>* %{{.+}}
+; CHECK: store <16 x float> %[[RES]], ptr %{{.+}}
 
 ; CHECK: ret void

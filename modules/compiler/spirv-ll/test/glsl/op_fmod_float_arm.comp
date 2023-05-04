@@ -1,9 +1,7 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 // REQUIRES: arm
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan %p/op_fmod_float.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan %p/op_fmod_float.spv | %filecheck %s
 
 #version 450
 
@@ -18,17 +16,12 @@ void main() {
 // CHECK: {{%[a-zA-Z0-9_]+}} = alloca float
 // CHECK: {{%[a-zA-Z0-9_]+}} = alloca float
 // CHECK: {{%[a-zA-Z0-9_]+}} = alloca float
-// CHECK-GE15: store float 0x404535C280000000, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15: store float 0x404535C280000000, float* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15: store float 0x404535C280000000, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15: store float 0x404535C280000000, float* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load float, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load float, float* {{%[a-zA-Z0-9_]+}}
-// CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load float, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load float, float* {{%[a-zA-Z0-9_]+}}
+// CHECK: store float 0x404535C280000000, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK: store float 0x404535C280000000, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK: {{%[a-zA-Z0-9_]+}} = load float, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK: {{%[a-zA-Z0-9_]+}} = load float, ptr {{%[a-zA-Z0-9_]+}}
 // CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func float @_Z4fmodff(float {{%[a-zA-Z0-9_]+}}, float {{%[a-zA-Z0-9_]+}})
 // CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func float @_Z8copysignff(float {{%[a-zA-Z0-9_]+}}, float {{%[a-zA-Z0-9_]+}})
-// CHECK-GE15: store float {{%[a-zA-Z0-9_]+}}, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15: store float {{%[a-zA-Z0-9_]+}}, float* {{%[a-zA-Z0-9_]+}}
+// CHECK: store float {{%[a-zA-Z0-9_]+}}, ptr {{%[a-zA-Z0-9_]+}}
 // CHECK: ret void
 // CHECK: declare spir_func float @_Z8copysignff(float, float)

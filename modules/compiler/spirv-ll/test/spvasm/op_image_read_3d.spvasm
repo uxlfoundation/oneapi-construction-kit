@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c Sampled1D %p/op_image_read_3d.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c Sampled1D %p/op_image_read_3d.spv | %filecheck %s
                 OpCapability Kernel
                 OpCapability Addresses
                 OpCapability ImageBasic
@@ -17,21 +15,17 @@
      %uint4_t = OpTypeVector %uint_t 4
     %float4_t = OpTypeVector %float_t 4
 %image3d_t = OpTypeImage %void_t 3D 0 0 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image3d_t = type opaque
        %foo_t = OpTypeFunction %void_t %image3d_t
        %int_1 = OpConstant %uint_t 1
       %int4_1 = OpConstantComposite %uint4_t %int_1 %int_1 %int_1 %int_1
      %image3d = OpFunction %void_t None %foo_t
        %image = OpFunctionParameter %image3d_t
-; CHECK-GE15: define spir_kernel void @image3d(ptr addrspace(1) %image)
-; CHECK-LT15: define spir_kernel void @image3d(%opencl.image3d_t addrspace(1)* %image)
+; CHECK: define spir_kernel void @image3d(ptr addrspace(1) %image)
            %1 = OpLabel
            %3 = OpImageRead %uint4_t %image %int4_1
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image3dDv4_i(ptr addrspace(1) %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image3dDv4_i(%opencl.image3d_t addrspace(1)* %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image3dDv4_i(ptr addrspace(1) %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
            %4 = OpImageRead %float4_t %image %int4_1
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image3dDv4_i(ptr addrspace(1) %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image3dDv4_i(%opencl.image3d_t addrspace(1)* %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image3dDv4_i(ptr addrspace(1) %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
                 OpReturn
 ; CHECK: ret void
                 OpFunctionEnd

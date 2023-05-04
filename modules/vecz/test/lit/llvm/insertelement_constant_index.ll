@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k constant_index -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k constant_index -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -22,14 +21,10 @@ entry:
 ; CHECK: define spir_kernel void @__vecz_v4_constant_index
 
 ; We should only have 3 loads since one of the elements will be replaced
-; CHECK-GE15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
-; CHECK-LT15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_jPj
-; CHECK-GE15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
-; CHECK-LT15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_jPj
-; CHECK-GE15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
-; CHECK-LT15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_jPj
-; CHECK-NOT-GE15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
-; CHECK-NOT-LT15: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_jPj
+; CHECK: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
+; CHECK: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
+; CHECK: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
+; CHECK-NOT: call <4 x i32> @__vecz_b_interleaved_load4_4_Dv4_ju3ptr
 
 ; We should have four stores, one of which would use the constant given
 ; CHECK: store <4 x i32>

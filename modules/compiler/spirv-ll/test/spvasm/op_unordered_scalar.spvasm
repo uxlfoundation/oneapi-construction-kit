@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -c Kernel -b 64 %p/op_unordered_scalar.spv -o %t
-; RUN: %filecheck < %t %s
+; RUN: %spirv-ll -a OpenCL -c Kernel -b 64 %p/op_unordered_scalar.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
           %1 = OpExtInstImport "OpenCL.std"

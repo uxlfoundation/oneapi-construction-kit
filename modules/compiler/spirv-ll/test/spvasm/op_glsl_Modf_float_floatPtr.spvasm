@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_Modf_float_floatPtr.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_Modf_float_floatPtr.spv | %filecheck %s
                          OpCapability Shader
                          OpCapability Float64
         %1             = OpExtInstImport "GLSL.std.450"
@@ -52,12 +50,8 @@
      OpReturn
      OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, float addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float @_Z4modffPU3AS1f(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float @_Z4modffPU3AS1f(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK-GE15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float addrspace({{[0-9]}})* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float @_Z4modffPU3AS1f(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void
-; CHECK-GE15: declare spir_func float @_Z4modffPU3AS1f(float, ptr addrspace(1))
-; CHECK-LT15: declare spir_func float @_Z4modffPU3AS1f(float, float addrspace(1)*)
+; CHECK: declare spir_func float @_Z4modffPU3AS1f(float, ptr addrspace(1))

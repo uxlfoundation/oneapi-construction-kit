@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width 4 -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width 4 -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 source_filename = "kernel.opencl"
@@ -68,20 +67,15 @@ attributes #6 = { convergent nobuiltin nounwind }
 ; store to fail.
 ; CHECK: define spir_kernel void @__vecz_v4_test
 
-; CHECK-GE15: %[[C0:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
-; CHECK-LT15: %[[C0:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, half* nonnull %{{.+}})
-; CHECK-GE15: %[[C1:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
-; CHECK-LT15: %[[C1:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, half* nonnull %{{.+}})
-; CHECK-GE15: %[[C2:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
-; CHECK-LT15: %[[C2:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, half* nonnull %{{.+}})
-; CHECK-GE15: %[[C3:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
-; CHECK-LT15: %[[C3:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, half* nonnull %{{.+}})
+; CHECK: %[[C0:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
+; CHECK: %[[C1:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
+; CHECK: %[[C2:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
+; CHECK: %[[C3:.+]] = call spir_func float @_Z11vloada_halfmPKDh(i64 0, ptr nonnull %{{.+}})
 ; CHECK: %[[G0:.+]] = insertelement <4 x float> undef, float %[[C0]], {{(i32|i64)}} 0
 ; CHECK: %[[G1:.+]] = insertelement <4 x float> %[[G0]], float %[[C1]], {{(i32|i64)}} 1
 ; CHECK: %[[G2:.+]] = insertelement <4 x float> %[[G1]], float %[[C2]], {{(i32|i64)}} 2
 ; CHECK: %[[G3:.+]] = insertelement <4 x float> %[[G2]], float %[[C3]], {{(i32|i64)}} 3
-; CHECK-GE15: store <4 x float> %[[G3]], ptr addrspace(1) %{{.+}}
-; CHECK-LT15: store <4 x float> %[[G3]], <4 x float> addrspace(1)* %{{.+}}
+; CHECK: store <4 x float> %[[G3]], ptr addrspace(1) %{{.+}}
 ; CHECK-NOT: store float
 
 ; CHECK: ret void

@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/debug_info.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/debug_info.spv | %filecheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                OpCapability Shader
                OpCapability Float64
@@ -32,18 +30,15 @@
           %a = OpVariable %_ptr_Function_bool Function
 ; CHECK: %a = alloca i1{{(, align [0-9])?}}, !dbg [[aLocation:![0-9]+]]
                OpStore %a %9
-; CHECK-GE15: store i1 false, ptr %a{{(, align [0-9])?}}, !dbg [[aLocation]]
-; CHECK-LT15: store i1 false, i1* %a{{(, align [0-9])?}}, !dbg [[aLocation]]
+; CHECK: store i1 false, ptr %a{{(, align [0-9])?}}, !dbg [[aLocation]]
                OpLine %file 7 3
           %b = OpVariable %_ptr_Function_int Function
 ; CHECK: %b = alloca i32{{(, align [0-9])?}}, !dbg [[bLocation:![0-9]+]]
                OpStore %b %13
-; CHECK-GE15: store i32 42, ptr %b{{(, align [0-9])?}}, !dbg [[bLocation]]
-; CHECK-LT15: store i32 42, i32* %b{{(, align [0-9])?}}, !dbg [[bLocation]]
+; CHECK: store i32 42, ptr %b{{(, align [0-9])?}}, !dbg [[bLocation]]
                OpLine %file 8 3
          %14 = OpLoad %bool %a
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, i1* %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
                OpSelectionMerge %16 None
                OpBranchConditional %14 %15 %16
 ; CHECK: br i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, !dbg [[ifConditionLocation]]
@@ -51,13 +46,11 @@
 ; CHECK: {{[0-9]+:}}
                OpLine %file 8 3
          %17 = OpLoad %int %b
-; CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
-; CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, i32* %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
          %18 = OpIAdd %int %17 %13
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 42, !dbg [[ifTrueBlockLocation]]
                OpStore %b %18
-; CHECK-GE15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation]]
-; CHECK-LT15: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32* %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation]]
+; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation]]
                OpLine %file 9 5
                OpBranch %16
 ; CHECK: br label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, !dbg [[ifJoinLocation:![0-9]+]]

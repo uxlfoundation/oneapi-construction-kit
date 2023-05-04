@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes replace-module-scope-vars,verify -S %s -opaque-pointers
+; RUN: %muxc --passes replace-module-scope-vars,verify -S %s 
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-12+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k partial_linearization22 -vecz-passes="function(lowerswitch),vecz-loop-rotate,indvars,cfg-convert" -S < %s | %filecheck %t
+; RUN: %veczc -k partial_linearization22 -vecz-passes="function(lowerswitch),vecz-loop-rotate,indvars,cfg-convert" -S < %s | %filecheck %s
 
 ; The CFG of the following kernel is:
 ;
@@ -236,11 +235,7 @@ attributes #2 = { convergent nobuiltin nounwind readonly }
 ; CHECK: [[FORBODY]]:
 ; CHECK: br label %[[FORCOND]]
 
-; CHECK-LT15: [[NEWDEFAULT:.+]]:
-; CHECK-LT15: br label %[[NEWDEFAULTELSE:.+]]
 
-; CHECK-LT15: [[NEWDEFAULTELSE]]
-; CHECK-LT15: br label %[[GLOOPEXIT]]
 
 ; CHECK: [[HLOOPEXIT]]:
 ; CHECK: br label %[[H:.+]]
@@ -249,8 +244,7 @@ attributes #2 = { convergent nobuiltin nounwind readonly }
 ; CHECK: br label %[[HLOOPEXIT1ELSE:.+]]
 
 ; CHECK: [[HLOOPEXIT1ELSE]]:
-; CHECK-GE15: br label %[[GLOOPEXIT]]
-; CHECK-LT15: br label %[[NEWDEFAULT]]
+; CHECK: br label %[[GLOOPEXIT]]
 
 ;; CHECK: [[H]]:
 ;; CHECK: ret void

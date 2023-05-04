@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %veczc -w 4 -vecz-choices=VectorPredication -S < %s -opaque-pointers | %filecheck %s
+; RUN: %veczc -w 4 -vecz-choices=VectorPredication -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

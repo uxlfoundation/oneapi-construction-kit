@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_arg_md.spv | %filecheck %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_arg_md.spv | %filecheck %s
 
                         OpCapability Kernel
                         OpCapability Addresses
@@ -40,14 +39,10 @@
                 OpReturn
                 OpFunctionEnd
 
-; CHECK-LT15: define spir_kernel void @my_kernel([3 x i64] addrspace(1)* %a,
-; CHECK-LT15-SAME:                               [3 x [3 x i64] addrspace(1)*] %b, i32 addrspace(3)* %c,
-; CHECK-LT15-SAME:                               %opencl.image2d_t addrspace(1)* %d,
-; CHECK-LT15-SAME:                               %opencl.image2d_t addrspace(1)* addrspace(1)* %e)
 
-; CHECK-GE15: define spir_kernel void @my_kernel(ptr addrspace(1) %a,
-; CHECK-GE15-SAME:                              [3 x ptr addrspace(1)] %b, ptr addrspace(3) %c,
-; CHECK-GE15-SAME:                              ptr addrspace(1) %d, ptr addrspace(1) %e)
+; CHECK: define spir_kernel void @my_kernel(ptr addrspace(1) %a,
+; CHECK-SAME:                              [3 x ptr addrspace(1)] %b, ptr addrspace(3) %c,
+; CHECK-SAME:                              ptr addrspace(1) %d, ptr addrspace(1) %e)
 
 ; CHECK-SAME: !kernel_arg_addr_space !0 !kernel_arg_access_qual !1 !kernel_arg_type !2 !kernel_arg_base_type !2 !kernel_arg_type_qual !3 !kernel_arg_name !4 {
 

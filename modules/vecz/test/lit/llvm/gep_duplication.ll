@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -S < %s --opaque-pointers | %filecheck %t
+; RUN: %veczc -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -58,9 +57,5 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; CHECK: spir_kernel void @__vecz_v{{[0-9]+}}_gep_duplication
 ; CHECK: entry:
-; CHECK-GE15: getelementptr inbounds [2 x i32], ptr %myStruct, i{{32|64}} 0, i{{32|64}} 1
-; CHECK-GE15-NOT: getelementptr {{.*}}%myStruct
-; CHECK-LT15: getelementptr inbounds %struct.testStruct{{(\.[0-9])?}}, ptr %myStruct, i{{32|64}} 0, i{{32|64}} 0, i{{32|64}} 0
-; CHECK-LT15: getelementptr inbounds %struct.testStruct{{(\.[0-9])?}}, ptr %myStruct, i{{32|64}} 0, i{{32|64}} 0, i{{32|64}} 1
-; CHECK-LT15-NOT: getelementptr inbounds %struct.testStruct{{(\.[0-9])?}}, ptr %myStruct, i{{32|64}} 0, i{{32|64}} 0, i{{32|64}} 0
-; CHECK-LT15-NOT: getelementptr inbounds %struct.testStruct{{(\.[0-9])?}}, ptr %myStruct, i{{32|64}} 0, i{{32|64}} 0, i{{32|64}} 1
+; CHECK: getelementptr inbounds [2 x i32], ptr %myStruct, i{{32|64}} 0, i{{32|64}} 1
+; CHECK-NOT: getelementptr {{.*}}%myStruct

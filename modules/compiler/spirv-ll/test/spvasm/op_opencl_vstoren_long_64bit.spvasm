@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_opencl_vstoren_long_64bit.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses %p/op_opencl_vstoren_long_64bit.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Vector16
@@ -49,25 +47,15 @@
          %34 = OpExtInst %void %1 vstoren %22 %ulong_0 %loc
          %35 = OpExtInst %void %1 vstoren %26 %ulong_0 %loc
          %36 = OpExtInst %void %1 vstoren %30 %ulong_0 %loc
-; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_mmPU3AS1m(<2 x i64> <i64 2, i64 2>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_mmPU3AS1m(<2 x i64> <i64 2, i64 2>, i64 0, i64 addrspace(1)* %out)
-; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_mmPU3AS1m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_mmPU3AS1m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, i64 addrspace(1)* %out)
-; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_mmPU3AS1m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_mmPU3AS1m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, i64 addrspace(1)* %out)
-; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_mmPU3AS1m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_mmPU3AS1m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, i64 addrspace(1)* %out)
-; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_mmPU3AS1m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_mmPU3AS1m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, i64 addrspace(1)* %out)
-; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_mmPU3AS3m(<2 x i64> <i64 2, i64 2>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_mmPU3AS3m(<2 x i64> <i64 2, i64 2>, i64 0, i64 addrspace(3)* %loc)
-; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_mmPU3AS3m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_mmPU3AS3m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, i64 addrspace(3)* %loc)
-; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_mmPU3AS3m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_mmPU3AS3m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, i64 addrspace(3)* %loc)
-; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_mmPU3AS3m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_mmPU3AS3m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, i64 addrspace(3)* %loc)
-; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_mmPU3AS3m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_mmPU3AS3m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, i64 addrspace(3)* %loc)
+; CHECK: call spir_func void @_Z7vstore2Dv2_mmPU3AS1m(<2 x i64> <i64 2, i64 2>, i64 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore3Dv3_mmPU3AS1m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore4Dv4_mmPU3AS1m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore8Dv8_mmPU3AS1m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z8vstore16Dv16_mmPU3AS1m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore2Dv2_mmPU3AS3m(<2 x i64> <i64 2, i64 2>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore3Dv3_mmPU3AS3m(<3 x i64> <i64 3, i64 3, i64 3>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore4Dv4_mmPU3AS3m(<4 x i64> <i64 4, i64 4, i64 4, i64 4>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore8Dv8_mmPU3AS3m(<8 x i64> <i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8, i64 8>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z8vstore16Dv16_mmPU3AS3m(<16 x i64> <i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16, i64 16>, i64 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

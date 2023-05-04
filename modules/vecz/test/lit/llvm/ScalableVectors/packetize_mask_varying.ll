@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k mask_varying -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k mask_varying -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -32,14 +31,10 @@ if.end:
 ; make any difference whether it's a zext or sext, but LLVM 16 prefers zext.
 ; CHECK: [[idx2:%.*]] = {{s|z}}ext <vscale x 16 x i32> [[idx1]] to <vscale x 16 x i64>
 
-; CHECK-GE15: [[t1:%.*]] = getelementptr inbounds i8, ptr {{.*}}, <vscale x 16 x i64> [[idx2]]
-; CHECK-LT15: [[t1:%.*]] = getelementptr inbounds i8, i8* {{.*}}, <vscale x 16 x i64> [[idx2]]
-; CHECK-GE15: [[t2:%.*]] = call <vscale x 16 x i8> @llvm.masked.gather.nxv16i8.nxv16p0(<vscale x 16 x ptr> [[t1]],
-; CHECK-LT15: [[t2:%.*]] = call <vscale x 16 x i8> @llvm.masked.gather.nxv16i8.nxv16p0i8(<vscale x 16 x i8*> [[t1]],
+; CHECK: [[t1:%.*]] = getelementptr inbounds i8, ptr {{.*}}, <vscale x 16 x i64> [[idx2]]
+; CHECK: [[t2:%.*]] = call <vscale x 16 x i8> @llvm.masked.gather.nxv16i8.nxv16p0(<vscale x 16 x ptr> [[t1]],
 ; CHECK: [[splat:%.*]] = trunc <vscale x 16 x i8> [[t2]] to <vscale x 16 x i1>
-; CHECK-GE15: call void @__vecz_b_masked_store16_u6nxv16ju3ptru6nxv16b(<vscale x 16 x i32> {{.*}}, ptr %arrayidxz, <vscale x 16 x i1> [[splat]])
-; CHECK-LT15: [[t3:%.*]] = bitcast <4 x i32>* %arrayidxz to <vscale x 16 x i32>*
-; CHECK-LT15: call void @__vecz_b_masked_store16_u6nxv16jPu6nxv16ju6nxv16b(<vscale x 16 x i32> {{.*}}, <vscale x 16 x i32>* [[t3]], <vscale x 16 x i1> [[splat]])
+; CHECK: call void @__vecz_b_masked_store16_u6nxv16ju3ptru6nxv16b(<vscale x 16 x i32> {{.*}}, ptr %arrayidxz, <vscale x 16 x i1> [[splat]])
 
 }
 

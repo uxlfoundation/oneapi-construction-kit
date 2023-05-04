@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k k_controlflow_loop_if -S < %s | %filecheck %t
+; RUN: %veczc -k k_controlflow_loop_if -S < %s | %filecheck %s
 
 ; ModuleID = 'test.cl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -50,7 +49,5 @@ attributes #2 = { nobuiltin nounwind }
 ; CHECK: tail call i64 @get_global_id(i32 0)
 
 ; The vectorized loads and stores
-; CHECK-GE15: load <4 x i32>, ptr %arrayidx, align 4
-; CHECK-LT15: load <4 x i32>, <4 x i32>* %0, align 4
-; CHECK-GE15: store <4 x i32> %0, ptr %arrayidx2, align 4
-; CHECK-LT15: store <4 x i32> %1, <4 x i32>* %2, align 4
+; CHECK: load <4 x i32>, ptr %arrayidx, align 4
+; CHECK: store <4 x i32> %0, ptr %arrayidx2, align 4

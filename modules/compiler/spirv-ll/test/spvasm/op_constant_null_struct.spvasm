@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_constant_null_struct.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/op_constant_null_struct.spv | %filecheck %s
             OpCapability Shader
             OpCapability Float64
             OpCapability Int64
@@ -29,6 +27,5 @@
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { i32 }
 ; CHECK: define spir_kernel void @main()
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-GE15: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} zeroinitializer, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK-LT15: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} zeroinitializer, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} zeroinitializer, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void

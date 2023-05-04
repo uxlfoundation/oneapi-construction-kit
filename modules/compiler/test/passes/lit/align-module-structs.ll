@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %muxc --passes align-module-structs,verify -S %s | %filecheck %t
+; RUN: %muxc --passes align-module-structs,verify -S %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 
@@ -17,8 +16,7 @@ target datalayout = "e-p:64:64:64-m:e-i16:64-i32:64-i64:128-v128:64"
 ;   i32 is aligned to 4 bytes and is stored as 8 bytes as per our DL
 ;   i64 is aligned to 8 bytes (see above)
 ; CHECK-DAG: %structTyA = type { i32, i64, [4 x float] }
-; CHECK-GE15-DAG: %structTyB = type { ptr, ptr }
-; CHECK-LT15-DAG: %structTyB = type { i32*, i64* }
+; CHECK-DAG: %structTyB = type { ptr, ptr }
 ; We need to update this struct with padding:
 ;   i16   is aligned to 2 bytes and is stored as 8 as per our DL
 ;   i8    is aligned to 8 bytes and is stored as 1 as per our DL

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan %p/op_memory_barrier_variable_semantics.spv | %filecheck %t.pp
+; RUN: %spirv-ll -a Vulkan %p/op_memory_barrier_variable_semantics.spv | %filecheck %s
                OpCapability Shader
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main"
@@ -22,8 +21,6 @@
                OpMemoryBarrier %uint_2 %9
                OpReturn
                OpFunctionEnd
-; CHECK-GE15: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
-; CHECK-LT15: define spir_kernel void @main(i32 addrspace(1)*{{( %0)?}}, i32 addrspace(1)*{{( %1)?}})
-; CHECK-GE15: [[SEMANTICS:%[a-zA-Z0-9]+]] = load i32, ptr addrspace(1) {{%[a-zA-Z0-9_]+}}
-; CHECK-LT15: [[SEMANTICS:%[a-zA-Z0-9]+]] = load i32, i32 addrspace(1)* {{%[a-zA-Z0-9_]+}}
+; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
+; CHECK: [[SEMANTICS:%[a-zA-Z0-9]+]] = load i32, ptr addrspace(1) {{%[a-zA-Z0-9_]+}}
 ; CHECK: call spir_func void @__mux_mem_barrier(i32 2, i32 [[SEMANTICS]])

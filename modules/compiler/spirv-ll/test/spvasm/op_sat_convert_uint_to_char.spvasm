@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_sat_convert_uint_to_char.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_sat_convert_uint_to_char.spv | %filecheck %s
 
                 OpCapability Kernel
                 OpCapability Addresses
@@ -29,16 +27,13 @@
            %b = OpVariable %ptr_char Function
 ; CHECK: [[b:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca i8
                 OpStore %a %const_1024
-; CHECK-GE15: store i32 1024, ptr [[a]]
-; CHECK-LT15: store i32 1024, i32* [[a]]
+; CHECK: store i32 1024, ptr [[a]]
        %a_val = OpLoad %int %a
-; CHECK-GE15: [[a_val:%[0-9]+]] = load i32, ptr [[a]]
-; CHECK-LT15: [[a_val:%[0-9]+]] = load i32, i32* [[a]]
+; CHECK: [[a_val:%[0-9]+]] = load i32, ptr [[a]]
        %b_val = OpSatConvertUToS %char %a_val
 ; CHECK: [[b_val:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = call spir_func signext i8 @_Z16convert_char_satj(i32 [[a_val]])
                 OpStore %b %b_val
-; CHECK-GE15: store i8 [[b_val]], ptr [[b]]
-; CHECK-LT15: store i8 [[b_val]], i8* [[b]]
+; CHECK: store i8 [[b_val]], ptr [[b]]
                 OpReturn
                 OpFunctionEnd
 ; CHECK: ret void

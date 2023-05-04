@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_fract_private_float.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_fract_private_float.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"
@@ -24,8 +22,7 @@
                    %3 = OpVariable %float_ptr_t Function
 ; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca float
                    %4 = OpExtInst %float_t %1 fract %float_1 %3
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, float* [[ptr]])
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

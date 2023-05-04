@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --device "%default_device" --passes add-entry-hook,verify -S %s -opaque-pointers | %filecheck %s
+; RUN: %muxc --device "%default_device" --passes add-entry-hook,verify -S %s  | %filecheck %s
 
 target triple = "spir32-unknown-unknown"
 target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"

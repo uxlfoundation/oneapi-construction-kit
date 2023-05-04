@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan %p/op_atomic_i_decrement_signed_local.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan %p/op_atomic_i_decrement_signed_local.spv | %filecheck %s
                OpCapability Shader
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %1 "test"
@@ -23,8 +21,6 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: @0 = internal addrspace(3) global i32 0
 ; CHECK: define spir_kernel void @test() {
-; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_decPU3AS3Vi(ptr addrspace(3) @0)
-; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_decPU3AS3Vi(i32 addrspace(3)* @0)
+; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_decPU3AS3Vi(ptr addrspace(3) @0)
 ; CHECK: ret void
-; CHECK-GE15: declare spir_func i32 @_Z10atomic_decPU3AS3Vi(ptr addrspace(3))
-; CHECK-LT15: declare spir_func i32 @_Z10atomic_decPU3AS3Vi(i32 addrspace(3)*)
+; CHECK: declare spir_func i32 @_Z10atomic_decPU3AS3Vi(ptr addrspace(3))

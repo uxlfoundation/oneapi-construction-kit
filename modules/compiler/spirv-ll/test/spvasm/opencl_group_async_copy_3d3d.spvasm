@@ -1,9 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: spirv-as-v2020
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/opencl_group_async_copy_3d3d.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/opencl_group_async_copy_3d3d.spv | %filecheck %s
 
                         OpCapability Addresses
                         OpCapability Linkage
@@ -28,7 +26,6 @@
 
            %int64Zero = OpConstant %int64T 0
         %sizeofInt32T = OpConstant %int64T 4    ; sizeof(int)
-; CHECK-LT15: %opencl.event_t = type opaque
            %nullEvent = OpConstantNull %eventT
             %int32One = OpConstant %int32T 1
             %int32Two = OpConstant %int32T 2
@@ -38,26 +35,19 @@
            %numPlanes = OpConstant %int64T 2
            %planeArea = OpConstant %int64T 32   ; %lineLength * %numLines
 
-; CHECK-GE15: define spir_kernel void @test(ptr addrspace(1) [[in:%[a-zA-Z0-9]+]], ptr addrspace(3) [[scratch:%[a-zA-Z0-9]+]], ptr addrspace(1) [[out:%[a-zA-Z0-9]+]])
-; CHECK-LT15: define spir_kernel void @test(i32 addrspace(1)* [[in:%[a-zA-Z0-9]+]], i32 addrspace(3)* [[scratch:%[a-zA-Z0-9]+]], i32 addrspace(1)* [[out:%[a-zA-Z0-9]+]])
+; CHECK: define spir_kernel void @test(ptr addrspace(1) [[in:%[a-zA-Z0-9]+]], ptr addrspace(3) [[scratch:%[a-zA-Z0-9]+]], ptr addrspace(1) [[out:%[a-zA-Z0-9]+]])
               %testFn = OpFunction %voidT DontInline %testFnT
                   %in = OpFunctionParameter %intGlobalPtrT
              %scratch = OpFunctionParameter %intLocalPtrT
                  %out = OpFunctionParameter %intGlobalPtrT
                %entry = OpLabel
 
-; CHECK-LT15: [[inScratchPtr:%[a-zA-Z0-9]+]] = bitcast i32 addrspace(3)* [[scratch]] to i8 addrspace(3)*
-; CHECK-LT15: [[inPtr:%[a-zA-Z0-9]+]] = bitcast i32 addrspace(1)* [[in]] to i8 addrspace(1)*
 
-; CHECK-GE15: [[inEvent:%[a-zA-Z0-9]+]] = call spir_func ptr @_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, ptr null)
-; CHECK-LT15: [[inEvent:%[a-zA-Z0-9]+]] = call spir_func %opencl.event_t* @_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event(i8 addrspace(3)* [[inScratchPtr]], i64 0, i8 addrspace(1)* [[inPtr]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, %opencl.event_t* null)
+; CHECK: [[inEvent:%[a-zA-Z0-9]+]] = call spir_func ptr @_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, ptr null)
              %inEvent = OpExtInst %eventT %groupAsyncCopies 2 %scratch %int64Zero %in %int64Zero %sizeofInt32T %numBytesPerLine %numLines %numPlanes %lineLength %planeArea %lineLength %planeArea %nullEvent
 
-; CHECK-LT15: [[outPtr:%[a-zA-Z0-9]+]] = bitcast i32 addrspace(1)* [[out]] to i8 addrspace(1)*
-; CHECK-LT15: [[outScratchPtr:%[a-zA-Z0-9]+]] = bitcast i32 addrspace(3)* [[scratch]] to i8 addrspace(3)*
 
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func ptr @_Z26async_work_group_copy_3D3DPU3AS1vmPU3AS3Kvmmmmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, ptr [[inEvent]])
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func %opencl.event_t* @_Z26async_work_group_copy_3D3DPU3AS1vmPU3AS3Kvmmmmmmmmm9ocl_event(i8 addrspace(1)* [[outPtr]], i64 0, i8 addrspace(3)* [[outScratchPtr]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, %opencl.event_t* [[inEvent]])
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func ptr @_Z26async_work_group_copy_3D3DPU3AS1vmPU3AS3Kvmmmmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, ptr [[inEvent]])
             %outEvent = OpExtInst %eventT %groupAsyncCopies 2 %out %int64Zero %scratch %int64Zero %sizeofInt32T %numBytesPerLine %numLines %numPlanes %lineLength %planeArea %lineLength %planeArea %inEvent
 
                         OpReturn

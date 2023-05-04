@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan %p/op_atomic_i_increment_unsigned_global.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan %p/op_atomic_i_increment_unsigned_global.spv | %filecheck %s
                OpCapability Shader
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %1 "test"
@@ -22,10 +20,7 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK-GE15: define spir_kernel void @test(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) {
-; CHECK-LT15: define spir_kernel void @test(i32 addrspace(1)*{{( %0)?}}, i32 addrspace(1)*{{( %1)?}}) {
-; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1) {{%[a-zA-Z0-9_]+}})
-; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_incPU3AS1Vj(i32 addrspace(1)* {{%[a-zA-Z0-9_]+}})
+; CHECK: define spir_kernel void @test(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) {
+; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1) {{%[a-zA-Z0-9_]+}})
 ; CHECK: ret void
-; CHECK-GE15: declare spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1))
-; CHECK-LT15: declare spir_func i32 @_Z10atomic_incPU3AS1Vj(i32 addrspace(1)*)
+; CHECK: declare spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1))

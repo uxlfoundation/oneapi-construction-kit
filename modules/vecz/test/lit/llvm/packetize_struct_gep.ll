@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -29,7 +28,5 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; Check if we can packetize GEPs on structs
 ; Note that we only need to packetize the non-uniform operands..
 ; CHECK: define spir_kernel void @__vecz_v4_test
-; CHECK-GE15: getelementptr inbounds %struct.T, ptr addrspace(1) %{{.+}}, <4 x i64> %{{.+}}, i32 2
-; CHECK-LT15: getelementptr inbounds %struct.T, %struct.T addrspace(1)* %{{.+}}, <4 x i64> %{{.+}}, i32 2
-; CHECK-GE15: getelementptr inbounds %struct.T, ptr addrspace(1) %{{.+}}, <4 x i64> %{{.+}}, i32 2
-; CHECK-LT15: getelementptr inbounds %struct.T, %struct.T addrspace(1)* %{{.+}}, <4 x i64> %{{.+}}, i32 2
+; CHECK: getelementptr inbounds %struct.T, ptr addrspace(1) %{{.+}}, <4 x i64> %{{.+}}, i32 2
+; CHECK: getelementptr inbounds %struct.T, ptr addrspace(1) %{{.+}}, <4 x i64> %{{.+}}, i32 2

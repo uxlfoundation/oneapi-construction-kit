@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k splat -vecz-simd-width=4 -vecz-passes=scalarize -vecz-choices=FullScalarization -S < %s | %filecheck %t
+; RUN: %veczc -k splat -vecz-simd-width=4 -vecz-passes=scalarize -vecz-choices=FullScalarization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"

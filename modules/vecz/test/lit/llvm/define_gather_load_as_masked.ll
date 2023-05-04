@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -25,8 +24,6 @@ entry:
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; Test if the scatter store is defined correctly
-; CHECK-GE15: define <4 x i64> @__vecz_b_gather_load4_Dv4_mDv4_u3ptr(<4 x ptr>{{( %0)?}}) {
-; CHECK-LT15: define <4 x i64> @__vecz_b_gather_load4_Dv4_mDv4_Pm(<4 x i64*>{{( %0)?}}) {
-; CHECK-GE15: call <4 x i64> @llvm.masked.gather.v4i64.v4p0(<4 x ptr> %0, i32{{( immarg)?}} 4, <4 x i1> <i1 true, i1 true, i1 true, i1 true>, <4 x i64> undef)
-; CHECK-LT15: call <4 x i64> @llvm.masked.gather.v4i64.v4p0i64(<4 x i64*> %0, i32{{( immarg)?}} 4, <4 x i1> <i1 true, i1 true, i1 true, i1 true>, <4 x i64> undef)
+; CHECK: define <4 x i64> @__vecz_b_gather_load4_Dv4_mDv4_u3ptr(<4 x ptr>{{( %0)?}}) {
+; CHECK: call <4 x i64> @llvm.masked.gather.v4i64.v4p0(<4 x ptr> %0, i32{{( immarg)?}} 4, <4 x i1> <i1 true, i1 true, i1 true, i1 true>, <4 x i64> undef)
 ; CHECK: ret <4 x i64>

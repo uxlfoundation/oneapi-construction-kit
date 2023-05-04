@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D -c LiteralSampler %p/op_constant_sampler_2d_array.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D -c LiteralSampler %p/op_constant_sampler_2d_array.spv | %filecheck %s
                       OpCapability Kernel
                       OpCapability Addresses
                       OpCapability Sampled1D
@@ -29,23 +27,17 @@
 
   %constant_sampler = OpFunction %void_t None %sampler_fn_t
           %in_image = OpFunctionParameter %image2d_array_ro_t
-; CHECK-LT15: %opencl.image2d_array_t = type opaque
-; CHECK-GE15: define spir_kernel void @constant_sampler(ptr addrspace(1) %in_image)
-; CHECK-LT15: define spir_kernel void @constant_sampler(%opencl.image2d_array_t addrspace(1)* %in_image)
+; CHECK: define spir_kernel void @constant_sampler(ptr addrspace(1) %in_image)
                  %1 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %const_sampler
                  %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v4float_1 None
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_f(ptr addrspace(1) %in_image, i32 16, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_f(%opencl.image2d_array_t addrspace(1)* %in_image, i32 16, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_f(ptr addrspace(1) %in_image, i32 16, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
                  %3 = OpImageSampleExplicitLod %v4float_t %sampled_image %v4int_1 None
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_i(ptr addrspace(1) %in_image, i32 16, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_i(%opencl.image2d_array_t addrspace(1)* %in_image, i32 16, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_i(ptr addrspace(1) %in_image, i32 16, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
                  %6 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v4float_1 None
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_f(ptr addrspace(1) %in_image, i32 16, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_f(%opencl.image2d_array_t addrspace(1)* %in_image, i32 16, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_f(ptr addrspace(1) %in_image, i32 16, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
                  %7 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v4int_1 None
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_i(ptr addrspace(1) %in_image, i32 16, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_i(%opencl.image2d_array_t addrspace(1)* %in_image, i32 16, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_i(ptr addrspace(1) %in_image, i32 16, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
                       OpReturn
 ; CHECK: ret void
                       OpFunctionEnd

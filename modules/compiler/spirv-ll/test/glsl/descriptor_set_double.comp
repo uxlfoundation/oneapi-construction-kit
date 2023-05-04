@@ -1,8 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/descriptor_set_double.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/descriptor_set_double.spv | %filecheck %s
 
 #version 450
 
@@ -17,10 +15,7 @@ void main() {
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { double }
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
-// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
-// CHECK-GE15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, double addrspace(1)* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fcmp oeq double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}
-// CHECK-GE15: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK-LT15: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i1* {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

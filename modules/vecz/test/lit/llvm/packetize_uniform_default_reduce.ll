@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k reduce -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k reduce -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -138,8 +137,7 @@ if.end:                                           ; preds = %entry, %if.then
 ; explicitly set. Currently, this means that the uniform values should not be
 ; packetized.
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_reduce(ptr addrspace(3) %in, ptr addrspace(3) %out)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_reduce(i32 addrspace(3)* %in, i32 addrspace(3)* %out)
+; CHECK: define spir_kernel void @__vecz_v4_reduce(ptr addrspace(3) %in, ptr addrspace(3) %out)
 ; CHECK: insertelement <4 x i64> {{poison|undef}}, i64
 ; CHECK: shufflevector <4 x i64>
 ; CHECK: %[[LOCAL_SIZE:[^ ]+]] = call spir_func i64 @_Z14get_local_sizej(i32 0)
@@ -148,7 +146,6 @@ if.end:                                           ; preds = %entry, %if.then
 ; CHECK: phi i32
 ; CHECK: mul i32 %{{.+}}, 3
 ; CHECK: icmp eq <4 x i64> %{{.+}}, zeroinitializer
-; CHECK-GE15: call void @__vecz_b_masked_store4_Dv4_ju3ptrU3AS3Dv4_b(<4 x i32> <i32 5, i32 5, i32 5, i32 5>
-; CHECK-LT15: call void @__vecz_b_masked_store4_Dv4_jPU3AS3Dv4_jDv4_b(<4 x i32> <i32 5, i32 5, i32 5, i32 5>
+; CHECK: call void @__vecz_b_masked_store4_Dv4_ju3ptrU3AS3Dv4_b(<4 x i32> <i32 5, i32 5, i32 5, i32 5>
 ; CHECK: shl i32 %{{.+}}, 1
 ; CHECK: ret void

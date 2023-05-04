@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k fadd -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k fadd -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -20,10 +19,8 @@ entry:
 }
 
 ; CHECK: define spir_kernel void @__vecz_nxv4_fadd
-; CHECK-GE15: load <vscale x 4 x float>, ptr
-; CHECK-LT15: load <vscale x 4 x float>, <vscale x 4 x float>*
-; CHECK-GE15: load <vscale x 4 x float>, ptr
-; CHECK-LT15: load <vscale x 4 x float>, <vscale x 4 x float>*
+; CHECK: load <vscale x 4 x float>, ptr
+; CHECK: load <vscale x 4 x float>, ptr
 ; CHECK: fadd <vscale x 4 x float>
 ; CHECK: store <vscale x 4 x float>
 declare spir_func i64 @_Z13get_global_idj(i32)

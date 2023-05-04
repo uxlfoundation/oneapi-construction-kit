@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc --vecz-passes=interleave-combine-loads -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc --vecz-passes=interleave-combine-loads -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -33,14 +32,9 @@ entry:
 }
 
 ; CHECK: __vecz_v4_interleaved_load_4(
-; CHECK-LT15:  [[TMP0:%.*]] = bitcast i32 addrspace(1)* [[PTR:%.*]] to <4 x i32> addrspace(1)*
-; CHECK-GE15:  [[TMP1:%.*]] = load <4 x i32>, ptr addrspace(1) [[PTR:%.*]], align 4
-; CHECK-LT15:  [[TMP1:%.*]] = load <4 x i32>, <4 x i32> addrspace(1)* [[TMP0]], align 4
-; CHECK-GE15:  [[TMP2:%.*]] = getelementptr i32, ptr addrspace(1) [[PTR]], i32 4
-; CHECK-LT15:  [[TMP2:%.*]] = getelementptr i32, i32 addrspace(1)* [[PTR]], i32 4
-; CHECK-LT15:  [[TMP3:%.*]] = bitcast i32 addrspace(1)* [[TMP2]] to <4 x i32> addrspace(1)*
-; CHECK-GE15:  [[TMP4:%.*]] = load <4 x i32>, ptr addrspace(1) [[TMP2]], align 4
-; CHECK-LT15:  [[TMP4:%.*]] = load <4 x i32>, <4 x i32> addrspace(1)* [[TMP3]], align 4
+; CHECK:  [[TMP1:%.*]] = load <4 x i32>, ptr addrspace(1) [[PTR:%.*]], align 4
+; CHECK:  [[TMP2:%.*]] = getelementptr i32, ptr addrspace(1) [[PTR]], i32 4
+; CHECK:  [[TMP4:%.*]] = load <4 x i32>, ptr addrspace(1) [[TMP2]], align 4
 ; CHECK:  %deinterleave = shufflevector <4 x i32> [[TMP1]], <4 x i32> [[TMP4]], <4 x i32> <i32 0, i32 2, i32 4, i32 6>
 ; CHECK:  %deinterleave1 = shufflevector <4 x i32> [[TMP1]], <4 x i32> [[TMP4]], <4 x i32> <i32 1, i32 3, i32 5, i32 7>
 ; CHECK:  %sub1 = sub nsw <4 x i32> %deinterleave1, %deinterleave

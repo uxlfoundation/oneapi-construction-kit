@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -vecz-passes=packetizer -S < %s | %filecheck %t
+; RUN: %veczc -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -vecz-passes=packetizer -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -29,8 +28,7 @@ declare spir_func i64 @_Z13get_global_idj(i32) #1
 ; CHECK:  %[[DATA:.+]] = load <vscale x 16 x i32>, {{(<vscale x 16 x i32> addrspace\(1\)\*)|(ptr addrspace\(1\))}} %{{.*}}
 ; CHECK:  %[[DATA_i1:.+]] = icmp ne <vscale x 16 x i32> %[[DATA]], zeroinitializer
 ; CHECK:  %[[DATA_i8:.+]] = zext <vscale x 16 x i1> %[[DATA_i1]] to <vscale x 16 x i8>
-; CHECK-LT15:  %[[GATHER:.+]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> %[[DATA_i8]], <vscale x 16 x i16> %{{.+}}, i64 %{{.+}})
-; CHECK-GE15:  %[[GATHER:.+]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> undef, <vscale x 16 x i8> %[[DATA_i8]], <vscale x 16 x i16> %{{.+}}, i64 %{{.+}})
+; CHECK:  %[[GATHER:.+]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> undef, <vscale x 16 x i8> %[[DATA_i8]], <vscale x 16 x i16> %{{.+}}, i64 %{{.+}})
 ; CHECK:  %[[GATHER_i1:.+]] = trunc <vscale x 16 x i8> %[[GATHER]] to <vscale x 16 x i1>
 ; CHECK:  %[[RESULT:.+]] = sext <vscale x 16 x i1> %[[GATHER_i1]] to <vscale x 16 x i32>
 ; CHECK:  store <vscale x 16 x i32> %[[RESULT]]

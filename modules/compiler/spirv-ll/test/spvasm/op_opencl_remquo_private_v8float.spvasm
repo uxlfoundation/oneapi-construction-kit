@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_remquo_private_v8float.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_remquo_private_v8float.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability Vector16
@@ -31,8 +29,7 @@
                    %3 = OpVariable %v8int_ptr_t Function
 ; CHECK: [[quo:%[a-zA-Z0-9]+]] = alloca <8 x i32>
                    %4 = OpExtInst %v8float_t %1 remquo %v8float_2 %v8float_1 %3
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z6remquoDv8_fS_PDv8_i(<8 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <8 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z6remquoDv8_fS_PDv8_i(<8 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <8 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, <8 x i32>* [[quo]])
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z6remquoDv8_fS_PDv8_i(<8 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <8 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

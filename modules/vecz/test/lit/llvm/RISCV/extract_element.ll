@@ -1,13 +1,12 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k extract_element -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE
+; RUN: %veczc -k extract_element -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE
 ; RUN: %not %veczc -k extract_element_ilegal -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s
-; RUN: %veczc -k extract_element_uniform -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-UNI
-; RUN: %veczc -k extract_element_uniform_vec -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-UNI-VEC
-; RUN: %veczc -k extract_element_varying_indices -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-INDICES
-; RUN: %veczc -k extract_element_bool -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=EE-BOOL
+; RUN: %veczc -k extract_element_uniform -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-UNI
+; RUN: %veczc -k extract_element_uniform_vec -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-UNI-VEC
+; RUN: %veczc -k extract_element_varying_indices -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-INDICES
+; RUN: %veczc -k extract_element_bool -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=EE-BOOL
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -101,8 +100,7 @@ entry:
 ; EE-NEXT:    [[IDXSCALE:%.*]] = shl <vscale x 4 x i32> [[IDX0]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; EE-NEXT:    [[VS1:%.*]] = add <vscale x 4 x i32> [[IDXSCALE]], [[SPLAT]]
 ; EE-NEXT:    [[T3:%.*]] = call <vscale x 16 x i32> @llvm.{{(experimental.)?}}vector.insert.nxv16i32.nxv4i32(<vscale x 16 x i32> poison, <vscale x 4 x i32> [[VS1]], i64 0)
-; EE-NEXT-GE15:    [[T4:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T3]], i64 [[TMP2]])
-; EE-NEXT-LT15:    [[T4:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T3]], i64 [[TMP2]])
+; EE-NEXT:    [[T4:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T3]], i64 [[TMP2]])
 ; EE-NEXT:    [[T5:%.*]] = call <vscale x 4 x float> @llvm.{{(experimental.)?}}vector.extract.nxv4f32.nxv16f32(<vscale x 16 x float> [[T4]], i64 0)
 
 ; Both the vector and index are uniform, so check we're not unnecessarily packetizing 
@@ -111,8 +109,7 @@ entry:
 ; EE-UNI: [[T0:%.*]] = extractelement <4 x float> %in, i32 %idx
 ; EE-UNI: [[T1:%.*]] = insertelement <vscale x 4 x float> poison, float [[T0]], {{(i32|i64)}} 0
 ; EE-UNI: [[T2:%.*]] = shufflevector <vscale x 4 x float> [[T1]], <vscale x 4 x float> poison, <vscale x 4 x i32> zeroinitializer
-; EE-UNI-GE15: store <vscale x 4 x float> [[T2]], ptr addrspace(1) {{%.*}}, align 4
-; EE-UNI-LT15: store <vscale x 4 x float> [[T2]], <vscale x 4 x float> addrspace(1)* {{%.*}}, align 4
+; EE-UNI: store <vscale x 4 x float> [[T2]], ptr addrspace(1) {{%.*}}, align 4
 
 ; The vector is uniform and the index is varying, so we must broadcast the vector
 ; FIXME: Do we really need to broadcast? Can we mod the indices with the original vector length?
@@ -129,8 +126,7 @@ entry:
 ; EE-UNI-VEC-NEXT:    [[VS1:%.*]] = {{add|or}} <vscale x 4 x i32> [[IDXSCALE]], [[I1]]
 
 ; EE-UNI-VEC-NEXT:    [[T4:%.*]] = call <vscale x 16 x i32> @llvm.{{(experimental.)?}}vector.insert.nxv16i32.nxv4i32(<vscale x 16 x i32> poison, <vscale x 4 x i32> [[VS1]], i64 0)
-; EE-UNI-VEC-NEXT-GE15:    [[T5:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T4]], i64 [[T3]])
-; EE-UNI-VEC-NEXT-LT15:    [[T5:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T4]], i64 [[T3]])
+; EE-UNI-VEC-NEXT:    [[T5:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T1:%.*]], <vscale x 16 x i32> [[T4]], i64 [[T3]])
 ; EE-UNI-VEC-NEXT:    [[T6:%.*]] = call <vscale x 4 x float> @llvm.{{(experimental.)?}}vector.extract.nxv4f32.nxv16f32(<vscale x 16 x float> [[T5]], i64 0)
 
 ; EE-INDICES-LABEL: @__vecz_nxv4_extract_element_varying_indices(
@@ -140,8 +136,7 @@ entry:
 ; EE-INDICES-NEXT:    [[IDXSCALE:%.*]] = shl <vscale x 4 x i32> [[IDX0]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; EE-INDICES-NEXT:    [[VS1:%.*]] = {{add|or}} <vscale x 4 x i32> [[IDXSCALE]], [[I1:%.*]]
 ; EE-INDICES-NEXT:    [[T5:%.*]] = call <vscale x 16 x i32> @llvm.{{(experimental.)?}}vector.insert.nxv16i32.nxv4i32(<vscale x 16 x i32> poison, <vscale x 4 x i32> [[VS1]], i64 0)
-; EE-INDICES-NEXT-GE15:    [[T6:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T3:%.*]], <vscale x 16 x i32> [[T5]], i64 [[T4]])
-; EE-INDICES-NEXT-LT15:    [[T6:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> [[T3:%.*]], <vscale x 16 x i32> [[T5]], i64 [[T4]])
+; EE-INDICES-NEXT:    [[T6:%.*]] = call <vscale x 16 x float> @llvm.riscv.vrgather.vv.nxv16f32.i64(<vscale x 16 x float> undef, <vscale x 16 x float> [[T3:%.*]], <vscale x 16 x i32> [[T5]], i64 [[T4]])
 ; EE-INDICES-NEXT:    [[T7:%.*]] = call <vscale x 4 x float> @llvm.{{(experimental.)?}}vector.extract.nxv4f32.nxv16f32(<vscale x 16 x float> [[T6]], i64 0)
 
 ; Check we promote from i1 to i8 before doing our memops and use vrgatherei16.
@@ -155,7 +150,6 @@ entry:
 ; EE-BOOL-NEXT:  [[T11:%.*]] = shl <vscale x 4 x i16> [[T10]], shufflevector (<vscale x 4 x i16> insertelement (<vscale x 4 x i16> {{(undef|poison)}}, i16 2, {{(i32|i64)}} 0), <vscale x 4 x i16> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 ; EE-BOOL-NEXT:  [[VS1:%.*]] = {{add|or}} <vscale x 4 x i16> [[T11]], [[T9]]
 ; EE-BOOL-NEXT:  [[T12:%.*]] = call <vscale x 16 x i16> @llvm.{{(experimental.)?}}vector.insert.nxv16i16.nxv4i16(<vscale x 16 x i16> poison, <vscale x 4 x i16> [[VS1]], i64 0)
-; EE-BOOL-NEXT-GE15:  [[T13:%.*]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> undef, <vscale x 16 x i8> [[T6]], <vscale x 16 x i16> [[T12]], i64 [[T7]])
-; EE-BOOL-NEXT-LT15:  [[T13:%.*]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> [[T6]], <vscale x 16 x i16> [[T12]], i64 [[T7]])
+; EE-BOOL-NEXT:  [[T13:%.*]] = call <vscale x 16 x i8> @llvm.riscv.vrgatherei16.vv.nxv16i8.i64(<vscale x 16 x i8> undef, <vscale x 16 x i8> [[T6]], <vscale x 16 x i16> [[T12]], i64 [[T7]])
 ; EE-BOOL-NEXT:  [[T14:%.*]] = call <vscale x 4 x i8> @llvm.{{(experimental.)?}}vector.extract.nxv4i8.nxv16i8(<vscale x 16 x i8> [[T13]], i64 0)
 ; EE-BOOL-NEXT:  [[T15:%.*]] = trunc <vscale x 4 x i8> [[T14]] to <vscale x 4 x i1>

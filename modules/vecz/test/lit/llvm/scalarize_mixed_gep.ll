@@ -1,6 +1,5 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k bar -vecz-simd-width=4 -S -o - %s | %filecheck %t
+; RUN: %veczc -k bar -vecz-simd-width=4 -S -o - %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -29,7 +28,5 @@ define void @bar(i64** %ptrptrs, i64 %val) {
 ; gets scalarized/re-packetized correctly
 
 ; CHECK: define void @__vecz_v4_bar
-; CHECK-GE15: %[[ADDR:.+]] = getelementptr inbounds i64, <4 x ptr> %{{.+}}, i64 2
-; CHECK-LT15: %[[ADDR:.+]] = getelementptr inbounds i64, <4 x i64*> %{{.+}}, i64 2
-; CHECK-GE15: call void @__vecz_b_scatter_store8_Dv4_mDv4_u3ptr(<4 x i64> %.splat{{.*}}, <4 x ptr> %[[ADDR]])
-; CHECK-LT15: call void @__vecz_b_scatter_store8_Dv4_mDv4_Pm(<4 x i64> %.splat{{.*}}, <4 x i64*> %[[ADDR]])
+; CHECK: %[[ADDR:.+]] = getelementptr inbounds i64, <4 x ptr> %{{.+}}, i64 2
+; CHECK: call void @__vecz_b_scatter_store8_Dv4_mDv4_u3ptr(<4 x i64> %.splat{{.*}}, <4 x ptr> %[[ADDR]])

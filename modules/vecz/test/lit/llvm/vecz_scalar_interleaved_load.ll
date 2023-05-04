@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k vecz_scalar_interleaved_load -vecz-passes=cfg-convert,packetizer -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k vecz_scalar_interleaved_load -vecz-passes=cfg-convert,packetizer -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 source_filename = "Unknown buffer"
@@ -67,5 +66,4 @@ attributes #0 = { nounwind readnone }
 ; load is in fact generated (although correctly, in this case)
 
 ; CHECK: spir_kernel void @__vecz_v4_vecz_scalar_interleaved_load
-; CHECK-GE15: declare float @__vecz_b_masked_load4_fu3ptrU3AS1b
-; CHECK-LT15: declare float @__vecz_b_masked_load4_fPU3AS1fb
+; CHECK: declare float @__vecz_b_masked_load4_fu3ptrU3AS1b

@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c Sampled1D %p/op_image.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c Sampled1D %p/op_image.spv | %filecheck %s
                 OpCapability Kernel
                 OpCapability Addresses
                 OpCapability ImageBasic
@@ -31,12 +29,8 @@
            %4 = OpImageRead %float4_t %get_image %int_0
                 OpReturn
                 OpFunctionEnd
-; CHECK-LT15: %opencl.image1d_t = type opaque
-; CHECK-GE15: define spir_kernel void @image1d(ptr addrspace(1) %image, i32{{( %0)?}})
-; CHECK-LT15: define spir_kernel void @image1d(%opencl.image1d_t addrspace(1)* %image, i32{{( %0)?}})
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1di(ptr addrspace(1) %image, i32 0)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1di(%opencl.image1d_t addrspace(1)* %image, i32 0)
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1di(ptr addrspace(1) %image, i32 0)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1di(%opencl.image1d_t addrspace(1)* %image, i32 0)
+; CHECK: define spir_kernel void @image1d(ptr addrspace(1) %image, i32{{( %0)?}})
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1di(ptr addrspace(1) %image, i32 0)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1di(ptr addrspace(1) %image, i32 0)
 ; CHECK: ret void
 ; CHECK: }

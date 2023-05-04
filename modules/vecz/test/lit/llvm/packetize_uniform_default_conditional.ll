@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k conditional -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k conditional -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -138,10 +137,8 @@ if.end:                                           ; preds = %entry, %if.then
 ; explicitly set. Currently, this means that the uniform values should not be
 ; packetized.
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_conditional(ptr addrspace(1) %in, ptr addrspace(1) %out)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_conditional(i32 addrspace(1)* %in, i32 addrspace(1)* %out)
-; CHECK-GE15: load i32, ptr
-; CHECK-LT15: load i32, i32
+; CHECK: define spir_kernel void @__vecz_v4_conditional(ptr addrspace(1) %in, ptr addrspace(1) %out)
+; CHECK: load i32, ptr
 ; CHECK: insertelement <4 x i32> {{poison|undef}}
 ; CHECK: shufflevector <4 x i32>
 ; CHECK: store <4 x i32>

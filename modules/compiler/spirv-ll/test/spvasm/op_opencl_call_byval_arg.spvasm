@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses -c Linkage %p/op_opencl_call_byval_arg.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 32 -c Addresses -c Linkage %p/op_opencl_call_byval_arg.spv | %filecheck %s
 
                OpCapability Addresses
                OpCapability Linkage
@@ -93,5 +91,4 @@
                OpFunctionEnd
 
         ; CHECK-LABEL: define spir_kernel void @struct_helper_func
-        ; CHECK-GE15:  call spir_func i64 @byval_helper(ptr byval{{(\(%struct.testStruct\))?}} %x)
-        ; CHECK-LT15:  call spir_func i64 @byval_helper(%struct.testStruct* byval{{(\(%struct.testStruct\))?}} %x)
+        ; CHECK:  call spir_func i64 @byval_helper(ptr byval{{(\(%struct.testStruct\))?}} %x)

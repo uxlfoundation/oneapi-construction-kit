@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k memop_loop_dep -vecz-simd-width=4 -vecz-passes=builtin-inlining,packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k memop_loop_dep -vecz-simd-width=4 -vecz-passes=builtin-inlining,packetizer -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-s128"
@@ -49,11 +48,9 @@ declare spir_func void @_Z7vstore4Dv4_imPU3AS1i(<4 x i32>, i64, i32 addrspace(1)
 
 ; Vector widening results in a single load
 ; CHECK: load <16 x i32>
-; CHECK-NOT-GE15: call {{.*}}i32 @__vecz_b_interleaved_load4_ju3ptrU3AS1
-; CHECK-NOT-LT15: call {{.*}}i32 @__vecz_b_interleaved_load4_jPU3AS1j
+; CHECK-NOT: call {{.*}}i32 @__vecz_b_interleaved_load4_ju3ptrU3AS1
 
 ; CHECK: ret void
 
 ; Check if the declaration is missing as well
-; CHECK-NOT-GE15: @__vecz_b_interleaved_load4_ju3ptrU3AS1
-; CHECK-NOT-LT15: @__vecz_b_interleaved_load4_jPU3AS1j
+; CHECK-NOT: @__vecz_b_interleaved_load4_ju3ptrU3AS1

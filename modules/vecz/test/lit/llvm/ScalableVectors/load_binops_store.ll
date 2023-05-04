@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k load_binops_store -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k load_binops_store -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -25,10 +24,8 @@ entry:
 }
 
 ; CHECK: define spir_kernel void @__vecz_nxv4_load_binops_store
-; CHECK-GE15: load <vscale x 4 x i32>, ptr
-; CHECK-LT15: load <vscale x 4 x i32>, <vscale x 4 x i32>*
-; CHECK-GE15: load <vscale x 4 x i32>, ptr
-; CHECK-LT15: load <vscale x 4 x i32>, <vscale x 4 x i32>*
+; CHECK: load <vscale x 4 x i32>, ptr
+; CHECK: load <vscale x 4 x i32>, ptr
 ; CHECK: add <vscale x 4 x i32>
 ; CHECK: mul <vscale x 4 x i32>
 ; CHECK: ashr <vscale x 4 x i32>

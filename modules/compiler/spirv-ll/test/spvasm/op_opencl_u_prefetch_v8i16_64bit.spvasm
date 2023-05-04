@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_prefetch_v8i16_64bit.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_u_prefetch_v8i16_64bit.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability Vector16
@@ -26,12 +24,10 @@
 ; All functions
     %u_prefetch_v8i16 = OpFunction %void_t None %u_prefetch_fn_t
               %in_ptr = OpFunctionParameter %v8i16_ptr_t
-; CHECK-GE15: define spir_kernel void @u_prefetch_v8i16(ptr addrspace(1) %in_ptr)
-; CHECK-LT15: define spir_kernel void @u_prefetch_v8i16(<8 x i16> addrspace(1)* %in_ptr)
+; CHECK: define spir_kernel void @u_prefetch_v8i16(ptr addrspace(1) %in_ptr)
                    %2 = OpLabel
                    %3 = OpExtInst %void_t %1 prefetch %in_ptr %i64_1
-; CHECK-GE15: call spir_func void @_Z8prefetchPU3AS1KDv8_tm(ptr addrspace(1) %in_ptr, i64 2)
-; CHECK-LT15: call spir_func void @_Z8prefetchPU3AS1KDv8_tm(<8 x i16> addrspace(1)* %in_ptr, i64 2)
+; CHECK: call spir_func void @_Z8prefetchPU3AS1KDv8_tm(ptr addrspace(1) %in_ptr, i64 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

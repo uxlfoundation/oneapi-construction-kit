@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_frexp_global_v2float.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_frexp_global_v2float.spv | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"
@@ -25,12 +23,10 @@
 ; All functions
        %frexp_v2float = OpFunction %void_t None %frexp_fn_t
               %in_ptr = OpFunctionParameter %v2int_ptr_t
-; CHECK-GE15: define spir_kernel void @frexp_v2float(ptr addrspace(1) %in_ptr)
-; CHECK-LT15: define spir_kernel void @frexp_v2float(<2 x i32> addrspace(1)* %in_ptr)
+; CHECK: define spir_kernel void @frexp_v2float(ptr addrspace(1) %in_ptr)
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 frexp %v2float_1 %in_ptr
-; CHECK-GE15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z5frexpDv2_fPU3AS1Dv2_i(<2 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr addrspace(1) %in_ptr)
-; CHECK-LT15: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z5frexpDv2_fPU3AS1Dv2_i(<2 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000>, <2 x i32> addrspace(1)* %in_ptr)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z5frexpDv2_fPU3AS1Dv2_i(<2 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr addrspace(1) %in_ptr)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

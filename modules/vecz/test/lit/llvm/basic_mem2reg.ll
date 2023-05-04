@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-passes="function(mem2reg),vecz-mem2reg" -vecz-simd-width=4 -vecz-handle-declaration-only-calls -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-passes="function(mem2reg),vecz-mem2reg" -vecz-simd-width=4 -vecz-handle-declaration-only-calls -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -33,29 +32,19 @@ entry:
 declare spir_func i64 @_Z13get_global_idj(i32)
 declare spir_func i32 @foo(i32*)
 
-; CHECK-GE15: define spir_kernel void @__vecz_v4_test(i32 %a, i32 %b, ptr %c, float %rf)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_test(i32 %a, i32 %b, i32* %c, float %rf)
+; CHECK: define spir_kernel void @__vecz_v4_test(i32 %a, i32 %b, ptr %c, float %rf)
 ; CHECK: entry:
 ; CHECK: %e = alloca i32
 ; CHECK: %gid = call spir_func i64 @_Z13get_global_idj(i32 0)
 ; CHECK: %sum = add i32 %a, %b
-; CHECK-GE15: store i32 %sum, ptr %e
-; CHECK-LT15: store i32 %sum, i32* %e
-; CHECK-GE15: %call = call spir_func i32 @foo(ptr{{.*}} %e)
-; CHECK-LT15: %call = call spir_func i32 @foo(i32*{{.*}} %e)
-; CHECK-GE15: %e.load = load i32, ptr %e
-; CHECK-LT15: %e.load = load i32, i32* %e
-; CHECK-GE15: %c0 = getelementptr i32, ptr %c, i64 %gid
-; CHECK-LT15: %c0 = getelementptr i32, i32* %c, i64 %gid
-; CHECK-GE15: store i32 %sum, ptr %c0
-; CHECK-LT15: store i32 %sum, i32* %c0
-; CHECK-GE15: %c1 = getelementptr i32, ptr %c0, i64 1
-; CHECK-LT15: %c1 = getelementptr i32, i32* %c0, i64 1
-; CHECK-GE15: store i32 %e.load, ptr %c1
-; CHECK-LT15: store i32 %e.load, i32* %c1
+; CHECK: store i32 %sum, ptr %e
+; CHECK: %call = call spir_func i32 @foo(ptr{{.*}} %e)
+; CHECK: %e.load = load i32, ptr %e
+; CHECK: %c0 = getelementptr i32, ptr %c, i64 %gid
+; CHECK: store i32 %sum, ptr %c0
+; CHECK: %c1 = getelementptr i32, ptr %c0, i64 1
+; CHECK: store i32 %e.load, ptr %c1
 ; CHECK: %0 = bitcast float %rf to i32
-; CHECK-GE15: %c2 = getelementptr i32, ptr %c1, i64 2
-; CHECK-LT15: %c2 = getelementptr i32, i32* %c1, i64 2
-; CHECK-GE15: store i32 %0, ptr %c2, align 4
-; CHECK-LT15: store i32 %0, i32* %c2, align 4
+; CHECK: %c2 = getelementptr i32, ptr %c1, i64 2
+; CHECK: store i32 %0, ptr %c2, align 4
 ; CHECK: ret void

@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %veczc -w 4 -S -vecz-passes=packetizer -vecz-choices=VectorPredication < %s -opaque-pointers | %filecheck %s
+; RUN: %veczc -w 4 -S -vecz-passes=packetizer -vecz-choices=VectorPredication < %s | %filecheck %s
 
 ; Tests the use of the VectorPredication choice. However, note that this option
 ; currently makes no difference on fixed length vectors.

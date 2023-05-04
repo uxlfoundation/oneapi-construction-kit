@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -38,8 +37,7 @@ declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, %opencl.event_t**
 ; CHECK: define spir_kernel void @__vecz_v4_test
 
 ; Check if we have one and exactly one call to async_workgroup copy
-; CHECK-GE15: call spir_func ptr @_Z21async_work_group_copyPU3AS1iPKU3AS3im9ocl_event
-; CHECK-LT15: call spir_func %opencl.event_t* @_Z21async_work_group_copyPU3AS1iPKU3AS3im9ocl_event
+; CHECK: call spir_func ptr @_Z21async_work_group_copyPU3AS1iPKU3AS3im9ocl_event
 ; CHECK-NOT: async_workgroup_copy
 
 ; Check if we have one and exactly one call to wait_group_events

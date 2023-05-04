@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width=4 -vecz-passes=cfg-convert,packetizer -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width=4 -vecz-passes=cfg-convert,packetizer -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -62,7 +61,5 @@ declare spir_func i32 @foo(i32, i32 addrspace(1)*)
 ; CHECK: call spir_func i32 @__vecz_b_masked_foo(
 ; CHECK: ret void
 
-; CHECK-GE15: define private spir_func i32 @__vecz_b_masked_foo(i32{{( %0)?}}, ptr{{( %1)?}}, i1{{( %2)?}}
-; CHECK-LT15: define private spir_func i32 @__vecz_b_masked_foo(i32{{( %0)?}}, i32*{{( %1)?}}, i1{{( %2)?}}
-; CHECK-GE15: call spir_func i32 @foo(i32 %0, ptr %1)
-; CHECK-LT15: call spir_func i32 bitcast (i32 (i32, i32 addrspace(1)*)* @foo to i32 (i32, i32*)*)(i32 %0, i32* %1)
+; CHECK: define private spir_func i32 @__vecz_b_masked_foo(i32{{( %0)?}}, ptr{{( %1)?}}, i1{{( %2)?}}
+; CHECK: call spir_func i32 @foo(i32 %0, ptr %1)

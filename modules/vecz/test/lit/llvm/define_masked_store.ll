@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k dont_mask_workitem_builtins -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k dont_mask_workitem_builtins -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -71,9 +70,7 @@ attributes #6 = { nounwind }
 
 
 ; Test if the masked store is defined correctly
-; CHECK-GE15: define void @__vecz_b_masked_store4_Dv4_ju3ptrU3AS1Dv4_b(<4 x i32>{{( %0)?}}, ptr addrspace(1){{( %1)?}}, <4 x i1>{{( %2)?}})
-; CHECK-LT15: define void @__vecz_b_masked_store4_Dv4_jPU3AS1Dv4_jDv4_b(<4 x i32>{{( %0)?}}, <4 x i32> addrspace(1)*{{( %1)?}}, <4 x i1>{{( %2)?}})
+; CHECK: define void @__vecz_b_masked_store4_Dv4_ju3ptrU3AS1Dv4_b(<4 x i32>{{( %0)?}}, ptr addrspace(1){{( %1)?}}, <4 x i1>{{( %2)?}})
 ; CHECK: entry:
-; CHECK-GE15: call void @llvm.masked.store.v4i32.p1(<4 x i32> %0, ptr addrspace(1) %1, i32 4, <4 x i1> %2)
-; CHECK-LT15: call void @llvm.masked.store.v4i32.p1v4i32(<4 x i32> %0, <4 x i32> addrspace(1)* %1, i32 4, <4 x i1> %2)
+; CHECK: call void @llvm.masked.store.v4i32.p1(<4 x i32> %0, ptr addrspace(1) %1, i32 4, <4 x i1> %2)
 ; CHECK: ret void

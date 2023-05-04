@@ -1,8 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -vecz-passes=packetizer -S < %s | %filecheck %t
+; RUN: %veczc -vecz-target-triple="riscv64-unknown-unknown" -vecz-scalable -vecz-simd-width=4 -vecz-passes=packetizer -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -24,10 +23,8 @@ declare spir_func i64 @_Z13get_global_idj(i32) #1
 ; CHECK: define spir_kernel void @__vecz_nxv4_f({{.*}}) {{.*}} {
 ; CHECK: entry:
 ; CHECK:  %[[DATA:.+]] = load <vscale x 16 x i32>, {{(<vscale x 16 x i32> addrspace\(1\)\*)|(ptr addrspace\(1\))}} %{{.*}}
-; CHECK-LT15:  %[[GATHER:.+]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> %[[DATA]], <vscale x 16 x i32> %{{.+}}, i64 %{{.+}})
-; CHECK-GE15:  %[[GATHER:.+]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> undef, <vscale x 16 x i32> %[[DATA]], <vscale x 16 x i32> %{{.+}}, i64 %{{.+}})
-; CHECK-LT15:  %[[EXTRACT:.+]] = call <vscale x 8 x i32> @llvm.experimental.vector.extract.nxv8i32.nxv16i32(<vscale x 16 x i32> %[[GATHER]], i64 0)
-; CHECK-GE15:  %[[EXTRACT:.+]] = call <vscale x 8 x i32> @llvm.vector.extract.nxv8i32.nxv16i32(<vscale x 16 x i32> %[[GATHER]], i64 0)
+; CHECK:  %[[GATHER:.+]] = call <vscale x 16 x i32> @llvm.riscv.vrgather.vv.nxv16i32.i64(<vscale x 16 x i32> undef, <vscale x 16 x i32> %[[DATA]], <vscale x 16 x i32> %{{.+}}, i64 %{{.+}})
+; CHECK:  %[[EXTRACT:.+]] = call <vscale x 8 x i32> @llvm.vector.extract.nxv8i32.nxv16i32(<vscale x 16 x i32> %[[GATHER]], i64 0)
 ; CHECK:  store <vscale x 8 x i32> %[[EXTRACT]]
 ; CHECK:  ret void
 ; CHECK: }

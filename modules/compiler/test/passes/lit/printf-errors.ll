@@ -1,7 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; Unconditionally use opaque pointers to keep the IR simpler
-; RUN: %muxc --passes replace-printf,verify -S %s -opaque-pointers 2>&1 | %filecheck %s
+; RUN: %muxc --passes replace-printf,verify -S %s  2>&1 | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

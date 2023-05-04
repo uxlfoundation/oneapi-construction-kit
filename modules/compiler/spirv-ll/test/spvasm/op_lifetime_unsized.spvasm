@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_lifetime_unsized.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_lifetime_unsized.spv | %filecheck %s
             OpCapability Kernel
             OpCapability Addresses
             OpCapability Float64
@@ -31,21 +29,12 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @lifetime()
 ; CHECK: [[PTR:%[a-zA-Z0-9_]+]] = alloca i32
-; CHECK-GE15: store i32 0, ptr [[PTR]]
-; CHECK-LT15: store i32 0, i32* [[PTR]]
-; CHECK-LT15: %1 = bitcast i32* [[PTR]] to i8*
+; CHECK: store i32 0, ptr [[PTR]]
 ; LLVM 4.0 doesn't need to add the address space as it assumes 0
-; CHECK-GE15: call void @llvm.lifetime.start{{(.p0)?}}(i64 -1, ptr [[PTR]])
-; CHECK-LT15: call void @llvm.lifetime.start{{(.p0i8)?}}(i64 -1, i8* %1)
-; CHECK-GE15: store i32 1, ptr [[PTR]]
-; CHECK-LT15: store i32 1, i32* [[PTR]]
-; CHECK-LT15: %2 = bitcast i32* [[PTR]] to i8*
-; CHECK-GE15: call void @llvm.lifetime.end{{(.p0)?}}(i64 -1, ptr [[PTR]])
-; CHECK-LT15: call void @llvm.lifetime.end{{(.p0i8)?}}(i64 -1, i8* %2)
-; CHECK-GE15: store i32 424, ptr [[PTR]]
-; CHECK-LT15: store i32 424, i32* [[PTR]]
+; CHECK: call void @llvm.lifetime.start{{(.p0)?}}(i64 -1, ptr [[PTR]])
+; CHECK: store i32 1, ptr [[PTR]]
+; CHECK: call void @llvm.lifetime.end{{(.p0)?}}(i64 -1, ptr [[PTR]])
+; CHECK: store i32 424, ptr [[PTR]]
 ; CHECK: ret void
-; CHECK-GE15: declare void @llvm.lifetime.start{{(.p0)?}}(i64{{.*}}, ptr nocapture)
-; CHECK-LT15: declare void @llvm.lifetime.start{{(.p0i8)?}}(i64{{.*}}, i8* nocapture)
-; CHECK-GE15: declare void @llvm.lifetime.end{{(.p0)?}}(i64{{.*}}, ptr nocapture)
-; CHECK-LT15: declare void @llvm.lifetime.end{{(.p0i8)?}}(i64{{.*}}, i8* nocapture)
+; CHECK: declare void @llvm.lifetime.start{{(.p0)?}}(i64{{.*}}, ptr nocapture)
+; CHECK: declare void @llvm.lifetime.end{{(.p0)?}}(i64{{.*}}, ptr nocapture)

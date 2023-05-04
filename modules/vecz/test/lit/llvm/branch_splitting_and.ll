@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k split_branch -vecz-simd-width=4 -vecz-passes=uniform-reassoc -S < %s | %filecheck %t
+; RUN: %veczc -k split_branch -vecz-simd-width=4 -vecz-passes=uniform-reassoc -S < %s | %filecheck %s
 
 ; ModuleID = 'Unknown buffer'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -54,5 +53,4 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; CHECK: if.end:
 ; CHECK: %[[RESULT:.+]] = phi i32 [ %inc, %if.then ], [ %varying, %entry.cond_split ], [ %varying, %entry ]
-; CHECK-GE15: store i32 %[[RESULT]], ptr addrspace(1) %{{.+}}
-; CHECK-LT15: store i32 %[[RESULT]], i32 addrspace(1)* %{{.+}}
+; CHECK: store i32 %[[RESULT]], ptr addrspace(1) %{{.+}}

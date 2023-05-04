@@ -2,8 +2,7 @@
 
 ; Check VECZ debug info for inlined DILocation metadata nodes
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k functions_one -vecz-passes=builtin-inlining -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k functions_one -vecz-passes=builtin-inlining -vecz-simd-width=4 -S < %s | %filecheck %s
 
 ; ModuleID = '/tmp/inlined_function.ll'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -115,10 +114,8 @@ attributes #4 = { nobuiltin }
 ; CHECK: define spir_kernel void @__vecz_v4_functions_one
 ; CHECK-SAME: !dbg [[KERN_DI:![0-9]+]]
 
-; CHECK-GE15: %[[LOAD1:[0-9]+]] = load i32, ptr addrspace(1) %{{.*}}, align 4
-; CHECK-LT15: %[[LOAD1:[0-9]+]] = load i32, i32 addrspace(1)* %{{.*}}, align 4
-; CHECK-GE15: %[[LOAD2:[0-9]+]] = load i32, ptr addrspace(1) %{{.*}}, align 4
-; CHECK-LT15: %[[LOAD2:[0-9]+]] = load i32, i32 addrspace(1)* %{{.*}}, align 4
+; CHECK: %[[LOAD1:[0-9]+]] = load i32, ptr addrspace(1) %{{.*}}, align 4
+; CHECK: %[[LOAD2:[0-9]+]] = load i32, ptr addrspace(1) %{{.*}}, align 4
 ; CHECK: call void @llvm.dbg.value(metadata i32 %[[LOAD1]], metadata !{{[0-9]+}}, metadata !DIExpression()), !dbg [[DI_LOC1:![0-9]+]]
 ; CHECK: call void @llvm.dbg.value(metadata i32 %[[LOAD2]], metadata !{{[0-9]+}}, metadata !DIExpression()), !dbg [[DI_LOC1]]
 ; CHECK: %{{.*}} = mul nsw i32 %[[LOAD1]], %[[LOAD2]], !dbg [[DI_LOC2:![0-9]+]]

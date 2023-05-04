@@ -1,8 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_convert_dvec2_to_ivec2.spv -o %t
-// RUN: %filecheck < %t %t.pp
+// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_convert_dvec2_to_ivec2.spv | %filecheck %s
 
 #version 450
 
@@ -15,11 +13,8 @@ void main() {
 // CHECK: define spir_kernel void @main() {
 // CHECK: [[FROM:%[a-zA-Z0-9_]+]] = alloca <2 x double>
 // CHECK: [[TO:%[a-zA-Z0-9_]+]] = alloca <2 x i32>
-// CHECK-GE15: store <2 x double> <double -4.242000e+01, double -4.242000e+01>, ptr [[FROM]]
-// CHECK-LT15: store <2 x double> <double -4.242000e+01, double -4.242000e+01>, <2 x double>* [[FROM]]
-// CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load <2 x double>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load <2 x double>, <2 x double>* {{%[a-zA-Z0-9_]+}}
+// CHECK: store <2 x double> <double -4.242000e+01, double -4.242000e+01>, ptr [[FROM]]
+// CHECK: {{%[a-zA-Z0-9_]+}} = load <2 x double>, ptr {{%[a-zA-Z0-9_]+}}
 // CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func <2 x i32> @_Z12convert_int2Dv2_d(<2 x double> {{%[a-zA-Z0-9_]+}})
-// CHECK-GE15: store <2 x i32> [[RES]], ptr [[TO]]
-// CHECK-LT15: store <2 x i32> [[RES]], <2 x i32>* [[TO]]
+// CHECK: store <2 x i32> [[RES]], ptr [[TO]]
 // CHECK: ret void

@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_calls -vecz-passes=packetizer -vecz-simd-width=8 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %t
+; RUN: %veczc -k test_calls -vecz-passes=packetizer -vecz-simd-width=8 -vecz-choices=TargetIndependentPacketization -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -26,8 +25,7 @@ entry:
 
 declare <4x float> @llvm.fmuladd.v4f32(<4 x float>, <4 x float>, <4 x float>)
 
-; CHECK-GE15: define spir_kernel void @__vecz_v8_test_calls(ptr %pa, ptr %pb, ptr %pc, ptr %pd)
-; CHECK-LT15: define spir_kernel void @__vecz_v8_test_calls(<4 x float>* %pa, <4 x float>* %pb, <4 x float>* %pc, <4 x float>* %pd)
+; CHECK: define spir_kernel void @__vecz_v8_test_calls(ptr %pa, ptr %pb, ptr %pc, ptr %pd)
 ; CHECK: entry:
 
 ; It checks that the fmuladd intrinsic of <4 x float> gets widened by a factor of 8,
@@ -67,21 +65,13 @@ declare <4x float> @llvm.fmuladd.v4f32(<4 x float>, <4 x float>, <4 x float>)
 ; CHECK: %[[RES5:.+]] = shufflevector <16 x float> %[[FMA1]], <16 x float> undef, <4 x i32> <i32 4, i32 5, i32 6, i32 7>
 ; CHECK: %[[RES6:.+]] = shufflevector <16 x float> %[[FMA1]], <16 x float> undef, <4 x i32> <i32 8, i32 9, i32 10, i32 11>
 ; CHECK: %[[RES7:.+]] = shufflevector <16 x float> %[[FMA1]], <16 x float> undef, <4 x i32> <i32 12, i32 13, i32 14, i32 15>
-; CHECK-GE15: store <4 x float> %[[RES0]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES0]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES1]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES1]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES2]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES2]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES3]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES3]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES4]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES4]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES5]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES5]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES6]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES6]], <4 x float>* %{{.+}}, align 16
-; CHECK-GE15: store <4 x float> %[[RES7]], ptr %{{.+}}, align 16
-; CHECK-LT15: store <4 x float> %[[RES7]], <4 x float>* %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES0]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES1]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES2]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES3]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES4]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES5]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES6]], ptr %{{.+}}, align 16
+; CHECK: store <4 x float> %[[RES7]], ptr %{{.+}}, align 16
 
 ; CHECK: ret void

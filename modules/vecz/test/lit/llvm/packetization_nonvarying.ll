@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_nonvarying_loadstore -vecz-passes=packetizer -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_nonvarying_loadstore -vecz-passes=packetizer -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -68,23 +67,13 @@ define spir_func void @test_nonvarying_loadstore(i32* %a, i32* %b, i32* %c) {
 declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; This test checks if a simple kernel is vectorized without any masks
-; CHECK-GE15: define spir_func void @__vecz_v4_test_nonvarying_loadstore(ptr %a, ptr %b, ptr %c)
-; CHECK-LT15: define spir_func void @__vecz_v4_test_nonvarying_loadstore(i32* %a, i32* %b, i32* %c)
+; CHECK: define spir_func void @__vecz_v4_test_nonvarying_loadstore(ptr %a, ptr %b, ptr %c)
 ; CHECK: %index = call spir_func i64 @_Z13get_global_idj(i32 0)
-; CHECK-GE15: %a.i = getelementptr i32, ptr %a, i64 %index
-; CHECK-LT15: %a.i = getelementptr i32, i32* %a, i64 %index
-; CHECK-GE15: %b.i = getelementptr i32, ptr %b, i64 %index
-; CHECK-LT15: %b.i = getelementptr i32, i32* %b, i64 %index
-; CHECK-GE15: %c.i = getelementptr i32, ptr %c, i64 %index
-; CHECK-LT15: %c.i = getelementptr i32, i32* %c, i64 %index
-; CHECK-GE15: %[[LAV:.+]] = load <4 x i32>, ptr %a.i{{(, align 4)?}}
-; CHECK-LT15: %[[AV:.+]] = bitcast i32* %a.i to <4 x i32>*
-; CHECK-LT15: %[[LAV:.+]] = load <4 x i32>, <4 x i32>* %[[AV]]{{(, align 4)?}}
-; CHECK-GE15: %[[LBV:.+]] = load <4 x i32>, ptr %b.i{{(, align 4)?}}
-; CHECK-LT15: %[[BV:.+]] = bitcast i32* %b.i to <4 x i32>*
-; CHECK-LT15: %[[LBV:.+]] = load <4 x i32>, <4 x i32>* %[[BV]]{{(, align 4)?}}
+; CHECK: %a.i = getelementptr i32, ptr %a, i64 %index
+; CHECK: %b.i = getelementptr i32, ptr %b, i64 %index
+; CHECK: %c.i = getelementptr i32, ptr %c, i64 %index
+; CHECK: %[[LAV:.+]] = load <4 x i32>, ptr %a.i{{(, align 4)?}}
+; CHECK: %[[LBV:.+]] = load <4 x i32>, ptr %b.i{{(, align 4)?}}
 ; CHECK: %[[ADD1:.+]] = add <4 x i32> %[[LAV]], %[[LBV]]
-; CHECK-GE15: store <4 x i32> %[[ADD1]], ptr %c.i{{(, align 4)?}}
-; CHECK-LT15: %[[CV:.+]] = bitcast i32* %c.i to <4 x i32>*
-; CHECK-LT15: store <4 x i32> %[[ADD1]], <4 x i32>* %[[CV]]{{(, align 4)?}}
+; CHECK: store <4 x i32> %[[ADD1]], ptr %c.i{{(, align 4)?}}
 ; CHECK: ret void

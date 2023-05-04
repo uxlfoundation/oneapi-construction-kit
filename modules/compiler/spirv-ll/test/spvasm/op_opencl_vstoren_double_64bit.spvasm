@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses -c Float64 %p/op_opencl_vstoren_double_64bit.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Addresses -c Float64 %p/op_opencl_vstoren_double_64bit.spv | %filecheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Vector16
@@ -42,34 +40,24 @@
         %loc = OpFunctionParameter %_ptr_Workgroup_double
       %entry = OpLabel
          %16 = OpExtInst %void %1 vstoren %13 %ulong_0 %out
-; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_dmPU3AS1d(<2 x double> <double 2.000000e+00, double 2.000000e+00>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_dmPU3AS1d(<2 x double> <double 2.000000e+00, double 2.000000e+00>, i64 0, double addrspace(1)* %out)
+; CHECK: call spir_func void @_Z7vstore2Dv2_dmPU3AS1d(<2 x double> <double 2.000000e+00, double 2.000000e+00>, i64 0, ptr addrspace(1) %out)
          %20 = OpExtInst %void %1 vstoren %19 %ulong_0 %out
-; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_dmPU3AS1d(<3 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_dmPU3AS1d(<3 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, i64 0, double addrspace(1)* %out)
+; CHECK: call spir_func void @_Z7vstore3Dv3_dmPU3AS1d(<3 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, i64 0, ptr addrspace(1) %out)
          %24 = OpExtInst %void %1 vstoren %23 %ulong_0 %out
-; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_dmPU3AS1d(<4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_dmPU3AS1d(<4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, i64 0, double addrspace(1)* %out)
+; CHECK: call spir_func void @_Z7vstore4Dv4_dmPU3AS1d(<4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, i64 0, ptr addrspace(1) %out)
          %28 = OpExtInst %void %1 vstoren %27 %ulong_0 %out
-; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_dmPU3AS1d(<8 x double> <double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_dmPU3AS1d(<8 x double> <double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00>, i64 0, double addrspace(1)* %out)
+; CHECK: call spir_func void @_Z7vstore8Dv8_dmPU3AS1d(<8 x double> <double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00>, i64 0, ptr addrspace(1) %out)
          %32 = OpExtInst %void %1 vstoren %31 %ulong_0 %out
-; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_dmPU3AS1d(<16 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>, i64 0, ptr addrspace(1) %out)
-; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_dmPU3AS1d(<16 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>, i64 0, double addrspace(1)* %out)
+; CHECK: call spir_func void @_Z8vstore16Dv16_dmPU3AS1d(<16 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>, i64 0, ptr addrspace(1) %out)
          %33 = OpExtInst %void %1 vstoren %13 %ulong_0 %loc
-; CHECK-GE15: call spir_func void @_Z7vstore2Dv2_dmPU3AS3d(<2 x double> <double 2.000000e+00, double 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore2Dv2_dmPU3AS3d(<2 x double> <double 2.000000e+00, double 2.000000e+00>, i64 0, double addrspace(3)* %loc)
+; CHECK: call spir_func void @_Z7vstore2Dv2_dmPU3AS3d(<2 x double> <double 2.000000e+00, double 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %34 = OpExtInst %void %1 vstoren %19 %ulong_0 %loc
-; CHECK-GE15: call spir_func void @_Z7vstore3Dv3_dmPU3AS3d(<3 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore3Dv3_dmPU3AS3d(<3 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, i64 0, double addrspace(3)* %loc)
+; CHECK: call spir_func void @_Z7vstore3Dv3_dmPU3AS3d(<3 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %35 = OpExtInst %void %1 vstoren %23 %ulong_0 %loc
-; CHECK-GE15: call spir_func void @_Z7vstore4Dv4_dmPU3AS3d(<4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore4Dv4_dmPU3AS3d(<4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, i64 0, double addrspace(3)* %loc)
+; CHECK: call spir_func void @_Z7vstore4Dv4_dmPU3AS3d(<4 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %36 = OpExtInst %void %1 vstoren %27 %ulong_0 %loc
-; CHECK-GE15: call spir_func void @_Z7vstore8Dv8_dmPU3AS3d(<8 x double> <double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z7vstore8Dv8_dmPU3AS3d(<8 x double> <double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00>, i64 0, double addrspace(3)* %loc)
+; CHECK: call spir_func void @_Z7vstore8Dv8_dmPU3AS3d(<8 x double> <double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00, double 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %37 = OpExtInst %void %1 vstoren %31 %ulong_0 %loc
-; CHECK-GE15: call spir_func void @_Z8vstore16Dv16_dmPU3AS3d(<16 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
-; CHECK-LT15: call spir_func void @_Z8vstore16Dv16_dmPU3AS3d(<16 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>, i64 0, double addrspace(3)* %loc)
+; CHECK: call spir_func void @_Z8vstore16Dv16_dmPU3AS3d(<16 x double> <double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01, double 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

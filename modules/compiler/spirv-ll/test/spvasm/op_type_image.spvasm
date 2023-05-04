@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D -c SampledBuffer %p/op_type_image.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Sampled1D -c SampledBuffer %p/op_type_image.spv | %filecheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                         OpCapability Kernel
                         OpCapability Addresses
@@ -18,17 +16,11 @@
                         OpSource OpenCL_C 120
                 %void = OpTypeVoid
         %image1d_t = OpTypeImage %void 1D 0 0 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image1d_t = type opaque
   %image1d_array_t = OpTypeImage %void 1D 0 1 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image1d_buffer_t = type opaque
  %image1d_buffer_t = OpTypeImage %void Buffer 0 0 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image1d_array_t = type opaque
         %image2d_t = OpTypeImage %void 2D 0 0 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image2d_t = type opaque
   %image2d_array_t = OpTypeImage %void 2D 0 1 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image2d_array_t = type opaque
         %image3d_t = OpTypeImage %void 3D 0 0 0 0 Unknown ReadOnly
-; CHECK-LT15: %opencl.image3d_t = type opaque
         %image1d_fn_t = OpTypeFunction %void %image1d_t %image1d_t
  %image1d_buffer_fn_t = OpTypeFunction %void %image1d_buffer_t %image1d_buffer_t
   %image1d_array_fn_t = OpTypeFunction %void %image1d_array_t %image1d_array_t

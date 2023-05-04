@@ -3,8 +3,7 @@
 ; Check that debug info is preserved in the vectorized kernel.
 ; Specifically that the packetization pass creates vector types
 ; in the DI for the variables.
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k add -S < %s | %filecheck %t
+; RUN: %veczc -k add -S < %s | %filecheck %s
 
 ; ModuleID = 'kernel.opencl'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -106,16 +105,13 @@ attributes #3 = { nobuiltin }
 ; CHECK: @__vecz_v[[WIDTH:[0-9]+]]_add({{.*}} !dbg [[VECZ_SUBPROG:![0-9]+]]
 
 ; Check that intrinsics for user variable locations are still present
-; CHECK-GE15: call void @llvm.dbg.value(metadata ptr addrspace(1) %in1, metadata [[DI_IN1:![0-9]+]], metadata [[EXPR:!DIExpression()]]
-; CHECK-LT15: call void @llvm.dbg.value(metadata i32 addrspace(1)* %in1, metadata [[DI_IN1:![0-9]+]], metadata [[EXPR:!DIExpression()]]
+; CHECK: call void @llvm.dbg.value(metadata ptr addrspace(1) %in1, metadata [[DI_IN1:![0-9]+]], metadata [[EXPR:!DIExpression()]]
 ; CHECK-SAME: !dbg [[PARAM_LOC:![0-9]+]]
 
-; CHECK-GE15: call void @llvm.dbg.value(metadata ptr addrspace(1) %in2, metadata [[DI_IN2:![0-9]+]], metadata [[EXPR]]
-; CHECK-LT15: call void @llvm.dbg.value(metadata i32 addrspace(1)* %in2, metadata [[DI_IN2:![0-9]+]], metadata [[EXPR]]
+; CHECK: call void @llvm.dbg.value(metadata ptr addrspace(1) %in2, metadata [[DI_IN2:![0-9]+]], metadata [[EXPR]]
 ; CHECK-SAME: !dbg [[PARAM_LOC]]
 
-; CHECK-GE15: call void @llvm.dbg.value(metadata ptr addrspace(1) %out, metadata [[DI_OUT:![0-9]+]], metadata [[EXPR]]
-; CHECK-LT15: call void @llvm.dbg.value(metadata i32 addrspace(1)* %out, metadata [[DI_OUT:![0-9]+]], metadata [[EXPR]]
+; CHECK: call void @llvm.dbg.value(metadata ptr addrspace(1) %out, metadata [[DI_OUT:![0-9]+]], metadata [[EXPR]]
 ; CHECK-SAME: !dbg [[PARAM_LOC]]
 
 ; CHECK: call void @llvm.dbg.value(metadata i64 %call, metadata [[DI_TID:![0-9]+]], metadata [[EXPR]]

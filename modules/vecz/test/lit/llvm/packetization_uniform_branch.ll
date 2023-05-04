@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test_uniform_branch -vecz-passes=packetizer -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test_uniform_branch -vecz-passes=packetizer -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -69,8 +68,7 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 
 ; This test checks if the if blocks are vectorized without masks and if the phi
 ; node is also vectorized properly
-; CHECK-GE15: define spir_kernel void @__vecz_v4_test_uniform_branch(i32 %a, ptr %b)
-; CHECK-LT15: define spir_kernel void @__vecz_v4_test_uniform_branch(i32 %a, i32* %b)
+; CHECK: define spir_kernel void @__vecz_v4_test_uniform_branch(i32 %a, ptr %b)
 ; CHECK: %call = call spir_func i64 @_Z13get_global_idj(i32 0)
 ; CHECK: %[[SPLATINSERT:.+]] = insertelement <4 x i64> {{poison|undef}}, i64 %call, {{i32|i64}} 0
 ; CHECK: %[[SPLAT:.+]] = shufflevector <4 x i64> %[[SPLATINSERT]], <4 x i64> {{poison|undef}}, <4 x i32> zeroinitializer
@@ -79,20 +77,15 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK: br i1 %cmp, label %if.then, label %if.else
 
 ; CHECK: if.then:
-; CHECK-GE15: %[[GEP1:.+]] = getelementptr inbounds i32, ptr %b, <4 x i64>
-; CHECK-LT15: %[[GEP1:.+]] = getelementptr inbounds i32, i32* %b, <4 x i64>
-; CHECK-GE15: store <4 x i32> <i32 11, i32 11, i32 11, i32 11>, ptr %{{.+}}, align 4
-; CHECK-LT15: store <4 x i32> <i32 11, i32 11, i32 11, i32 11>, <4 x i32>* %{{.+}}, align 4
+; CHECK: %[[GEP1:.+]] = getelementptr inbounds i32, ptr %b, <4 x i64>
+; CHECK: store <4 x i32> <i32 11, i32 11, i32 11, i32 11>, ptr %{{.+}}, align 4
 ; CHECK: br label %if.end
 
 ; CHECK: if.else:
-; CHECK-GE15: %[[GEP2:.+]] = getelementptr inbounds i32, ptr %b, <4 x i64>
-; CHECK-LT15: %[[GEP2:.+]] = getelementptr inbounds i32, i32* %b, <4 x i64>
-; CHECK-GE15: store <4 x i32> <i32 13, i32 13, i32 13, i32 13>, ptr %{{.+}}, align 4
-; CHECK-LT15: store <4 x i32> <i32 13, i32 13, i32 13, i32 13>, <4 x i32>* %{{.+}}, align 4
+; CHECK: %[[GEP2:.+]] = getelementptr inbounds i32, ptr %b, <4 x i64>
+; CHECK: store <4 x i32> <i32 13, i32 13, i32 13, i32 13>, ptr %{{.+}}, align 4
 ; CHECK: br label %if.end
 
 ; CHECK: if.end:
-; CHECK-GE15: %[[PTR:.+]] = phi <4 x ptr> [ %[[GEP1]], %if.then ], [ %[[GEP2]], %if.else ]
-; CHECK-LT15: %[[PTR:.+]] = phi <4 x i32*> [ %[[GEP1]], %if.then ], [ %[[GEP2]], %if.else ]
+; CHECK: %[[PTR:.+]] = phi <4 x ptr> [ %[[GEP1]], %if.then ], [ %[[GEP2]], %if.else ]
 ; CHECK: ret void

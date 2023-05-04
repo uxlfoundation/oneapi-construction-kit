@@ -1,11 +1,10 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: llvm-13+
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k insert_element -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE
-; RUN: %veczc -k insert_element_uniform -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE-UNI
-; RUN: %veczc -k insert_element_varying_indices -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE-INDICES
-; RUN: %veczc -k insert_element_bool -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %t --check-prefix=IE-BOOL
+; RUN: %veczc -k insert_element -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE
+; RUN: %veczc -k insert_element_uniform -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE-UNI
+; RUN: %veczc -k insert_element_varying_indices -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE-INDICES
+; RUN: %veczc -k insert_element_bool -vecz-scalable -vecz-simd-width=4 -S < %s | %filecheck %s --check-prefix=IE-BOOL
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -70,15 +69,11 @@ entry:
 ; IE: [[ALLOC:%.*]] = alloca <vscale x 16 x float>, align 64
 ; IE: [[VAL0:%.*]] = insertelement <vscale x 4 x float> poison, float %val, {{(i32|i64)}} 0
 ; IE: [[VAL1:%.*]] = shufflevector <vscale x 4 x float> [[VAL0]], <vscale x 4 x float> poison, <vscale x 4 x i32> zeroinitializer
-; IE-GE15: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
-; IE-LT15: store <vscale x 16 x float> {{.*}}, <vscale x 16 x float>* [[ALLOC]], align 64
+; IE: store <vscale x 16 x float> {{.*}}, ptr [[ALLOC]], align 64
 ; IE: [[IDX:%.*]] = sext i32 %idx to i64
-; IE-GE15: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], i64 [[IDX]]
-; IE-LT15: [[ADDR:%.*]] = getelementptr inbounds <vscale x 16 x float>, <vscale x 16 x float>* [[ALLOC]], i64 0, i64 [[IDX]]
-; IE-GE15: call void @__vecz_b_interleaved_store4_4_u5nxv4fu3ptr(<vscale x 4 x float> [[VAL1]], ptr nonnull [[ADDR]])
-; IE-LT15: call void @__vecz_b_interleaved_store4_4_u5nxv4fPf(<vscale x 4 x float> [[VAL1]], float* nonnull [[ADDR]])
-; IE-GE15: = load <vscale x 16 x float>, ptr [[ALLOC]], align 64
-; IE-LT15: = load <vscale x 16 x float>, <vscale x 16 x float>* [[ALLOC]], align 64
+; IE: [[ADDR:%.*]] = getelementptr inbounds float, ptr [[ALLOC]], i64 [[IDX]]
+; IE: call void @__vecz_b_interleaved_store4_4_u5nxv4fu3ptr(<vscale x 4 x float> [[VAL1]], ptr nonnull [[ADDR]])
+; IE: = load <vscale x 16 x float>, ptr [[ALLOC]], align 64
 
 ; Both the vector and index are uniform, so check we're not unnecessarily packetizing
 
@@ -88,9 +83,7 @@ entry:
 ; IE-INDICES-LABEL: @__vecz_nxv4_insert_element_varying_indices(
 ; IE-INDICES: [[ALLOC:%.*]] = alloca <vscale x 16 x float>, align 64
 ; IE-INDICES: [[VAL:%.*]] = uitofp <vscale x 4 x i64> {{%.*}} to <vscale x 4 x float>
-; IE-INDICES-GE15: store <vscale x 16 x float> {{%.*}}, ptr [[ALLOC]], align 64
-; IE-INDICES-LT15: store <vscale x 16 x float> {{%.*}}, <vscale x 16 x float>* [[ALLOC]], align 64
-; IE-INDICES-LT15: [[T0:%.*]] = getelementptr inbounds <vscale x 16 x float>, <vscale x 16 x float>* %0, i64 0, i64 0
+; IE-INDICES: store <vscale x 16 x float> {{%.*}}, ptr [[ALLOC]], align 64
 ; IE-INDICES: [[T1:%.*]] = call <vscale x 4 x i32> @llvm.experimental.stepvector.nxv4i32()
 ; IE-INDICES: [[T2:%.*]] = shl <vscale x 4 x i32> [[T1]], shufflevector (<vscale x 4 x i32> insertelement (<vscale x 4 x i32> {{(undef|poison)}}, i32 2, {{(i32|i64)}} 0), <vscale x 4 x i32> {{(undef|poison)}}, <vscale x 4 x i32> zeroinitializer)
 
@@ -98,23 +91,17 @@ entry:
 ; IE-INDICES: [[T3:%.*]] = {{add|or}} <vscale x 4 x i32> [[T2]], {{%.*}}
 
 ; IE-INDICES: [[T4:%.*]] = sext <vscale x 4 x i32> [[T3]] to <vscale x 4 x i64>
-; IE-INDICES-GE15: [[ADDR:%.*]] = getelementptr inbounds float, ptr %0, <vscale x 4 x i64> [[T4]]
-; IE-INDICES-LT15: [[ADDR:%.*]] = getelementptr inbounds float, float* [[T0]], <vscale x 4 x i64> [[T4]]
-; IE-INDICES-GE15: call void @__vecz_b_scatter_store4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x float> [[VAL]], <vscale x 4 x ptr> [[ADDR]])
-; IE-INDICES-LT15: call void @__vecz_b_scatter_store4_u5nxv4fu6nxv4Pf(<vscale x 4 x float> [[VAL]], <vscale x 4 x float*> [[ADDR]])
-; IE-INDICES-GE15: = load <vscale x 16 x float>, ptr [[ALLOC]], align 64
-; IE-INDICES-LT15: = load <vscale x 16 x float>, <vscale x 16 x float>* [[ALLOC]], align 64
+; IE-INDICES: [[ADDR:%.*]] = getelementptr inbounds float, ptr %0, <vscale x 4 x i64> [[T4]]
+; IE-INDICES: call void @__vecz_b_scatter_store4_u5nxv4fu9nxv4u3ptr(<vscale x 4 x float> [[VAL]], <vscale x 4 x ptr> [[ADDR]])
+; IE-INDICES: = load <vscale x 16 x float>, ptr [[ALLOC]], align 64
 
 ; Check we promote from i1 to i8 before doing our memops
 ; IE-BOOL-LABEL: @__vecz_nxv4_insert_element_bool(
 ; IE-BOOL: [[ALLOC:%.*]] = alloca <vscale x 16 x i8>, align 16
 ; IE-BOOL-DAG: [[T0:%.*]] = sext <vscale x 4 x i1> {{%.*}} to <vscale x 4 x i8>
 ; IE-BOOL-DAG: [[T1:%.*]] = sext <vscale x 16 x i1> {{%.*}} to <vscale x 16 x i8>
-; IE-BOOL-GE15: store <vscale x 16 x i8> [[T1]], ptr [[ALLOC]], align 16
-; IE-BOOL-LT15: store <vscale x 16 x i8> [[T1]], <vscale x 16 x i8>* [[ALLOC]], align 16
-; IE-BOOL-GE15: call void @__vecz_b_scatter_store1_u5nxv4hu9nxv4u3ptr(<vscale x 4 x i8> [[T0]], <vscale x 4 x ptr> {{%.*}})
-; IE-BOOL-LT15: call void @__vecz_b_scatter_store1_u5nxv4hu6nxv4Ph(<vscale x 4 x i8> [[T0]], <vscale x 4 x i8*> {{%.*}})
-; IE-BOOL-GE15: [[T2:%.*]] = load <vscale x 16 x i8>, ptr [[ALLOC]], align 16
-; IE-BOOL-LT15: [[T2:%.*]] = load <vscale x 16 x i8>, <vscale x 16 x i8>* [[ALLOC]], align 16
+; IE-BOOL: store <vscale x 16 x i8> [[T1]], ptr [[ALLOC]], align 16
+; IE-BOOL: call void @__vecz_b_scatter_store1_u5nxv4hu9nxv4u3ptr(<vscale x 4 x i8> [[T0]], <vscale x 4 x ptr> {{%.*}})
+; IE-BOOL: [[T2:%.*]] = load <vscale x 16 x i8>, ptr [[ALLOC]], align 16
 ; IE-BOOL: [[T3:%.*]] = trunc <vscale x 16 x i8> [[T2]] to <vscale x 16 x i1>
 

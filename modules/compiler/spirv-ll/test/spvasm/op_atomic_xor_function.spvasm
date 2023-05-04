@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_atomic_xor_function.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_atomic_xor_function.spv | %filecheck %s
             OpCapability Kernel
             OpCapability Addresses
             OpCapability Float64
@@ -27,8 +25,6 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @atomic()
 ; CHECK: [[PTR:%[a-zA-Z0-9_]+]] = alloca i32
-; CHECK-GE15: store i32 424, ptr [[PTR]]
-; CHECK-LT15: store i32 424, i32* [[PTR]]
-; CHECK-GE15: {{%[a-zA-Z0-9_]+}} = load i32, ptr [[PTR]]
-; CHECK-LT15: {{%[a-zA-Z0-9_]+}} = load i32, i32* [[PTR]]
+; CHECK: store i32 424, ptr [[PTR]]
+; CHECK: {{%[a-zA-Z0-9_]+}} = load i32, ptr [[PTR]]
 ; CHECK: ret void

@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %veczc -vecz-passes=cfg-convert,define-builtins -vecz-simd-width=4 %flag -S < %s | %filecheck %s
+; RUN: %veczc -vecz-passes=cfg-convert,define-builtins -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"

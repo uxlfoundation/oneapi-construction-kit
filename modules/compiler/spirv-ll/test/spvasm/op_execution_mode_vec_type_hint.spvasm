@@ -2,8 +2,7 @@
 
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_execution_mode_vec_type_hint.spv -o %t
-; RUN: %filecheck < %t %s
+; RUN: %spirv-ll -a OpenCL -b 64 %p/op_execution_mode_vec_type_hint.spv | %filecheck %s
 
                   OpCapability Kernel
                   OpCapability Addresses

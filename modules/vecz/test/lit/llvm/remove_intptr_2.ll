@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -S < %s | %filecheck %t
+; RUN: %veczc -S < %s | %filecheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -24,9 +23,6 @@ declare spir_func i64 @_Z13get_global_idj(i32)
 ; CHECK: spir_kernel void @__vecz_v4_remove_intptr
 ; CHECK-NOT: ptrtoint
 ; CHECK-NOT: inttoptr
-; CHECK-GE15: %remove_intptr = getelementptr i8, ptr addrspace(1) %in
-; CHECK-GE15: %[[LOAD:.+]] = load <4 x i32>, ptr addrspace(1) %remove_intptr, align 4
-; CHECK-LT15: %remove_intptr = getelementptr i8, i8 addrspace(1)* %in
-; CHECK-LT15: %[[BCAST:.+]] = bitcast i8 addrspace(1)* %remove_intptr to <4 x i32> addrspace(1)*
-; CHECK-LT15: %[[LOAD:.+]] = load <4 x i32>, <4 x i32> addrspace(1)* %[[BCAST]], align 4
+; CHECK: %remove_intptr = getelementptr i8, ptr addrspace(1) %in
+; CHECK: %[[LOAD:.+]] = load <4 x i32>, ptr addrspace(1) %remove_intptr, align 4
 ; CHECK: store <4 x i32> %[[LOAD]]

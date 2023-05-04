@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width=4 -vecz-passes=cfg-convert,packetizer -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width=4 -vecz-passes=cfg-convert,packetizer -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -45,14 +44,10 @@ declare extern_weak spir_func i32 @printf(i8 addrspace(2)*, ...)
 ; CHECK: define spir_kernel void @__vecz_v4_test
 
 ; Check if the divergent block is masked correctly
-; CHECK-GE15: @__vecz_b_masked_printf_u3ptrU3AS2b
-; CHECK-LT15: @__vecz_b_masked_printf_PU3AS2hb
-; CHECK-GE15: @__vecz_b_masked_printf_u3ptrU3AS2b
-; CHECK-LT15: @__vecz_b_masked_printf_PU3AS2hb
-; CHECK-GE15: @__vecz_b_masked_printf_u3ptrU3AS2b
-; CHECK-LT15: @__vecz_b_masked_printf_PU3AS2hb
-; CHECK-GE15: @__vecz_b_masked_printf_u3ptrU3AS2b
-; CHECK-LT15: @__vecz_b_masked_printf_PU3AS2hb
+; CHECK: @__vecz_b_masked_printf_u3ptrU3AS2b
+; CHECK: @__vecz_b_masked_printf_u3ptrU3AS2b
+; CHECK: @__vecz_b_masked_printf_u3ptrU3AS2b
+; CHECK: @__vecz_b_masked_printf_u3ptrU3AS2b
 
 ; Check if the exit block is not masked
 ; CHECK: load <4 x i32>

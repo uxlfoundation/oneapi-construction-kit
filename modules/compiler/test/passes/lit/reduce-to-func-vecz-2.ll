@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %muxc --passes "reduce-to-func<names=A2B_KeepA:A2B_KeepB_Dep:B2A_KeepA_Dep:B2A_KeepB>,verify" -S %s -opaque-pointers \
+; RUN: %muxc --passes "reduce-to-func<names=A2B_KeepA:A2B_KeepB_Dep:B2A_KeepA_Dep:B2A_KeepB>,verify" -S %s  \
 ; RUN:   | %filecheck %s
 
 ; This test checks a series of one-way vectorization links, ensuring that we

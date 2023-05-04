@@ -1,8 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t.pp < %s --llvm-ver %LLVMVER
-; RUN: %spirv-ll -a Vulkan -c Int16 %p/op_switch_short.spv -o %t
-; RUN: %filecheck < %t %t.pp
+; RUN: %spirv-ll -a Vulkan -c Int16 %p/op_switch_short.spv | %filecheck %s
                OpCapability Shader
                OpCapability Int16
           %1 = OpExtInstImport "GLSL.std.450"
@@ -47,23 +45,17 @@
 ; CHECK: define spir_kernel void @main()
 ; CHECK: [[COND:%[a-zA-Z0-9_]+]] = alloca i16
 ; CHECK: [[A:%[a-zA-Z0-9_]+]] = alloca i32
-; CHECK-GE15: store i16 42, ptr [[COND]]
-; CHECK-LT15: store i16 42, i16* [[COND]]
-; CHECK-GE15: [[LD_COND:%[a-zA-Z0-9_]+]] = load i16, ptr [[COND]]
-; CHECK-LT15: [[LD_COND:%[a-zA-Z0-9_]+]] = load i16, i16* [[COND]]
+; CHECK: store i16 42, ptr [[COND]]
+; CHECK: [[LD_COND:%[a-zA-Z0-9_]+]] = load i16, ptr [[COND]]
 ; CHECK: switch i16 [[LD_COND]], label %[[DEFAULT:[0-9]]] [
 ; CHECK: i16 42, label %[[CASE:[0-9]]]
 ; CHECK: [[DEFAULT]]:
-; CHECK-GE15: store i32 24, ptr [[A]]
-; CHECK-LT15: store i32 24, i32* [[A]]
+; CHECK: store i32 24, ptr [[A]]
 ; CHECK: br label [[END:%[a-zA-Z0-9_]+]]
 ; CHECK: [[CASE]]:
-; CHECK-GE15: store i32 42, ptr [[A]]
-; CHECK-LT15: store i32 42, i32* [[A]]
+; CHECK: store i32 42, ptr [[A]]
 ; CHECK: br label [[END]]
-; CHECK-GE15: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
-; CHECK-LT15: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, i32* [[A]]
+; CHECK: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
 ; CHECK: [[XOR_A:%[a-zA-Z0-9_]+]] = xor i32 [[LD_A]], 42
-; CHECK-GE15: store i32 [[XOR_A]], ptr {{%[a-zA-Z0-9_]+}}
-; CHECK-LT15: store i32 [[XOR_A]], i32* {{%[a-zA-Z0-9_]+}}
+; CHECK: store i32 [[XOR_A]], ptr {{%[a-zA-Z0-9_]+}}
 ; CHECK ret void

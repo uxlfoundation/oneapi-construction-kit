@@ -1,7 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %t
+; RUN: %veczc -k test -vecz-simd-width=4 -S < %s | %filecheck %s
 
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
@@ -64,9 +63,7 @@ declare void @llvm.memset.p0i8.i32(i8*,i8,i32,i32,i1)
 ; CHECK: define spir_kernel void @__vecz_v4_test
 
 ; Check if the struct creation has been instantiated
-; CHECK-LT15: %[[V1:[0-9]+]] = bitcast i32* %oup to <4 x i32>*
-; CHECK-GE15: %[[V2:[0-9]+]] = load <4 x i32>, ptr %oup, align 4
-; CHECK-LT15: %[[V2:[0-9]+]] = load <4 x i32>, <4 x i32>* %[[V1]], align 4
+; CHECK: %[[V2:[0-9]+]] = load <4 x i32>, ptr %oup, align 4
 ; CHECK: %[[V3:[0-9]+]] = extractelement <4 x i32> %[[V2]], {{(i32|i64)}} 0
 ; CHECK: %[[V4:[0-9]+]] = extractelement <4 x i32> %[[V2]], {{(i32|i64)}} 1
 ; CHECK: %[[V5:[0-9]+]] = extractelement <4 x i32> %[[V2]], {{(i32|i64)}} 2
@@ -90,9 +87,7 @@ declare void @llvm.memset.p0i8.i32(i8*,i8,i32,i32,i1)
 ; CHECK: zext <4 x i32>
 ; CHECK: icmp ugt <4 x i64>
 ; CHECK: and <4 x i1>
-; CHECK-GE15: %[[L423:.+]] = call <4 x i32> @__vecz_b_masked_load4_Dv4_ju3ptrDv4_b(ptr %{{.*}}, <4 x i1>
-; CHECK-LT15: %[[L423:.+]] = call <4 x i32> @__vecz_b_masked_load4_Dv4_jPDv4_jDv4_b(<4 x i32>* %{{.*}}, <4 x i1>
-; CHECK-GE15: call void @__vecz_b_masked_store4_Dv4_ju3ptrDv4_b(<4 x i32> %[[L423]], ptr{{( nonnull)? %.*}}, <4 x i1>
-; CHECK-LT15: call void @__vecz_b_masked_store4_Dv4_jPDv4_jDv4_b(<4 x i32> %[[L423]], <4 x i32>*{{( nonnull)? %.*}}, <4 x i1>
+; CHECK: %[[L423:.+]] = call <4 x i32> @__vecz_b_masked_load4_Dv4_ju3ptrDv4_b(ptr %{{.*}}, <4 x i1>
+; CHECK: call void @__vecz_b_masked_store4_Dv4_ju3ptrDv4_b(<4 x i32> %[[L423]], ptr{{( nonnull)? %.*}}, <4 x i1>
 
 ; CHECK: ret void
