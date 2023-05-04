@@ -60,7 +60,6 @@ struct LocalSizes {
 
 // Base class that makes the necessary checks for the existence of sub-groups in
 // the OpenCL implementation.
-// TODO: Enable spir and spir-v testing (see CA-4062).
 class SubGroupTest : public kts::ucl::ExecutionWithParam<LocalSizes> {
  protected:
   void SetUp() override {
@@ -69,6 +68,11 @@ class SubGroupTest : public kts::ucl::ExecutionWithParam<LocalSizes> {
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
       GTEST_SKIP();
     }
+
+    // Some of these tests run small local sizes, which we don't vectorize.
+    // This is too coarse-grained, as there are some NDRanges which we can
+    // vectorize.
+    fail_if_not_vectorized_ = false;
 
     // clGetDeviceInfo may return 0, indicating that the device does not support
     // subgroups.
@@ -2370,15 +2374,13 @@ UCL_EXECUTION_TEST_SUITE_P(
     testing::Values(LocalSizes(64, 1, 1), LocalSizes(8, 8, 1),
                     LocalSizes(4, 4, 4),
                     // Local size of 1 on X-dimension won't vectorize
-                    // LocalSizes(1, 64, 1),
-                    // LocalSizes(1, 1, 64),
+                    LocalSizes(1, 64, 1), LocalSizes(1, 1, 64),
                     // Edge case that local size is prime, in this case there is
                     // either 1 sub-group (sub-group == work-group), or local
                     // size sub-groups (sub-group == work-item) or one sub-group
                     // of size local size % sub group size.
-                    LocalSizes(67, 1, 1)
-                    // 2D edge case. See CA-3959
-                    // LocalSizes(67, 3, 1),
-                    // 3D edge case. See CA-3959
-                    // LocalSizes(67, 2, 3)
-                    ));
+                    LocalSizes(67, 1, 1),
+                    // 2D edge case.
+                    LocalSizes(67, 3, 1),
+                    // 3D edge case.
+                    LocalSizes(67, 2, 3)));
