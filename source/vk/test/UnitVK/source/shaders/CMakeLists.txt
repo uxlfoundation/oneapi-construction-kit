@@ -1,4 +1,18 @@
-# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+# Copyright (C) Codeplay Software Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+# Exceptions; you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 include(Bin2H)
 include(GLSL)
@@ -37,7 +51,21 @@ set(UVK_SHADER_CODE_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/ShaderCode.cpp)
 # Write ShaderCode.h which enumerates all shader names and provides the
 # getShader() function which can be called to fetch a particular shader binary.
 file(WRITE ${UVK_SHADER_CODE_HEADER}
-  "// Copyright (C) Codeplay Software Limited. All Rights Reserved.\n"
+  "// Copyright (C) Codeplay Software Limited\n"
+  "//\n"
+  "// Licensed under the Apache License, Version 2.0 (the \"License\") with LLVM\n"
+  "// Exceptions; you may not use this file except in compliance with the License.\n"
+  "// You may obtain a copy of the License at\n"
+  "//\n"
+  "//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt\n"
+  "//\n"
+  "// Unless required by applicable law or agreed to in writing, software\n"
+  "// distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n"
+  "// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the\n"
+  "// License for the specific language governing permissions and limitations\n"
+  "// under the License.\n"
+  "//\n"
+  "// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception\n"
   "\n"
   "#ifndef UNITVK_SHADER_SOURCE_H_INCLUDED\n"
   "#define UNITVK_SHADER_SOURCE_H_INCLUDED\n"
@@ -72,7 +100,21 @@ file(APPEND ${UVK_SHADER_CODE_HEADER}
 # the getShader() function defined in ShaderCode.h to return the specified
 # shader binary.
 file(WRITE ${UVK_SHADER_CODE_SOURCE}
-  "// Copyright (C) Codeplay Software Limited. All Rights Reserved.\n"
+  "// Copyright (C) Codeplay Software Limited\n"
+  "//\n"
+  "// Licensed under the Apache License, Version 2.0 (the \"License\") with LLVM\n"
+  "// Exceptions; you may not use this file except in compliance with the License.\n"
+  "// You may obtain a copy of the License at\n"
+  "//\n"
+  "//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt\n"
+  "//\n"
+  "// Unless required by applicable law or agreed to in writing, software\n"
+  "// distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n"
+  "// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the\n"
+  "// License for the specific language governing permissions and limitations\n"
+  "// under the License.\n"
+  "//\n"
+  "// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception\n"
   "\n"
   "#include \"ShaderCode.h\"\n")
 foreach(name ${UVK_SHADER_NAMES})
