@@ -706,17 +706,6 @@ _cl_kernel::argument::argument(cl::binary::ArgumentType type, cl_mem mem)
     : type(type),
       memory_buffer(mem),
       stype(_cl_kernel::argument::storage_type::memory_buffer) {
-#ifdef SPIRV_LL_EXPERIMENTAL
-  OCL_ASSERT((compiler::ArgumentKind::POINTER == type.kind &&
-              type.address_space != cl::binary::AddressSpace::LOCAL) ||
-                 compiler::ArgumentKind::IMAGE2D == type.kind ||
-                 compiler::ArgumentKind::IMAGE3D == type.kind ||
-                 compiler::ArgumentKind::IMAGE2D_ARRAY == type.kind ||
-                 compiler::ArgumentKind::IMAGE1D == type.kind ||
-                 compiler::ArgumentKind::IMAGE1D_ARRAY == type.kind ||
-                 compiler::ArgumentKind::IMAGE1D_BUFFER == type.kind,
-             "Trying to create a memory argument with a non-memory type.");
-#else
   OCL_ASSERT((compiler::ArgumentKind::POINTER == type.kind &&
               (type.address_space == cl::binary::AddressSpace::GLOBAL ||
                type.address_space == cl::binary::AddressSpace::CONSTANT)) ||
@@ -727,7 +716,6 @@ _cl_kernel::argument::argument(cl::binary::ArgumentType type, cl_mem mem)
                  compiler::ArgumentKind::IMAGE1D_ARRAY == type.kind ||
                  compiler::ArgumentKind::IMAGE1D_BUFFER == type.kind,
              "Trying to create a memory argument with a non-memory type.");
-#endif
 }
 
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
@@ -738,23 +726,10 @@ _cl_kernel::argument::argument(cl::binary::ArgumentType type,
   OCL_ASSERT(compiler::ArgumentKind::POINTER == type.kind,
              "Trying to create a USM allocation argument on a type other than "
              "a pointer.");
-#ifdef SPIRV_LL_EXPERIMENTAL
-  // Our SPV_codeplay_usm_generic_storage_class SPIR-V extension lets pointer
-  // types omit address address space information, whereupon we default the
-  // address space to 0 when converting to LLVM IR. This address space matches
-  // PRIVATE which can only otherwise occur when the argument type has kind
-  // `compliler::ArgumentKind::STRUCTBYVAL`. Since GLOBAL and CONSTANT address
-  // spaces are permitted by the OpenCL runtime extension spec, the only
-  // remaining address space to forbid is LOCAL when this extension is enabled.
-  OCL_ASSERT(type.address_space != cl::binary::AddressSpace::LOCAL,
-             "Trying to create a USM allocation argument from pointer type "
-             "with local address space.");
-#else
   OCL_ASSERT(type.address_space == cl::binary::AddressSpace::GLOBAL ||
                  type.address_space == cl::binary::AddressSpace::CONSTANT,
              "Trying to create a USM allocation argument from pointer type "
              "without global or constant address space.");
-#endif
 
   usm.usm_ptr = usm_alloc;
   usm.offset = offset;

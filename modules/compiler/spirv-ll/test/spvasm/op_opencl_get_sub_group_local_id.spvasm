@@ -1,9 +1,5 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; If spirv-ll was built in experimental mode it will generate a non-standard
-; translation for this builtin. TODO: CA-3067 replace experimental mode with
-; proper SPIR-V extension mechanism.
-; REQUIRES: ExperimentalDisabled
 ; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_get_sub_group_local_id.spv | %filecheck %s
                                  OpCapability Addresses
                                  OpCapability Kernel

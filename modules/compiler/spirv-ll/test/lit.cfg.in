@@ -32,9 +32,6 @@ else:
 
 config.substitutions.append(('%LLVMVER', '@LLVM_VERSION_MAJOR@'))
 
-if not @SPIRV_LIT_EXPERIMENTAL@:
-    config.available_features.add('ExperimentalDisabled')
-
 # TODO(CA-3968): Revert when fixed.
 if not @CMAKE_CROSSCOMPILING@:
     config.available_features.add('NotCrossCompiling')

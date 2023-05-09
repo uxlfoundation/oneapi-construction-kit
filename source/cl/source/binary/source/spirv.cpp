@@ -14,14 +14,9 @@ namespace binary {
 // TODO: add a proper mechanism for extending spirv-ll and reporting extension
 // support. We don't actually support the generic storage class extension on
 // all core targets. See CA-3067.
-// TODO(CA-3067): Remove SPIRV_LL_EXPERIMENTAL when we have a proper mechanism
-// for extending spirv-ll.
-const std::array<const std::string, 9> supported_extensions = {
+const std::array<const std::string, 8> supported_extensions = {
     {
         "SPV_KHR_no_integer_wrap_decoration",
-#ifdef SPIRV_LL_EXPERIMENTAL
-        "SPV_codeplay_usm_generic_storage_class",
-#endif
         "SPV_INTEL_kernel_attributes",
         "SPV_EXT_shader_atomic_float_add",
         "SPV_EXT_shader_atomic_float_min_max",

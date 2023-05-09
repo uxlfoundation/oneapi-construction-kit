@@ -205,11 +205,7 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
       return {ArgumentKind::SAMPLER};
     } else {
       auto addressSpace = PtrTy->getAddressSpace();
-#ifdef SPIRV_LL_EXPERIMENTAL
-      if (arg->hasByValAttr() && addressSpace == 0) {
-#else
       if (addressSpace == 0) {
-#endif
         return {ArgumentKind::STRUCTBYVAL};
       }
       if (arg->hasAttribute(llvm::Attribute::Dereferenceable)) {

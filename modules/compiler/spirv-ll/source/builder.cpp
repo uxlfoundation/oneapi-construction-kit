@@ -176,14 +176,7 @@ llvm::StringRef getBuiltinName(uint32_t builtin) {
     case spv::BuiltInNumEnqueuedSubgroups:
       return "_Z27get_enqueued_num_sub_groupsv";
     case spv::BuiltInSubgroupLocalInvocationId:
-#ifdef SPIRV_LL_EXPERIMENTAL
-      // This is not the standard translation for SubgroupLocalInvocationId, the
-      // ifdef here should be replaced with a proper extension mechanism. See
-      // CA-3067.
-      return "_Z21get_sub_group_item_idv";
-#else
       return "_Z22get_sub_group_local_idv";
-#endif
     case spv::BuiltInGlobalLinearId:
       return "_Z20get_global_linear_idv";
     case spv::BuiltInLocalInvocationIndex:
