@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %p/ext_variable_pointers_op_variable.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %spv_file_s | %filecheck %s
 ; tests that variable pointers (pointer to pointer type) can be created and that
 ; they can be produced from an OpConstantNull in accordance with the spec
             OpCapability Shader

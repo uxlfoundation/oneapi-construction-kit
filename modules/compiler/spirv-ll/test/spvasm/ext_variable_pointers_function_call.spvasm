@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan -c VariablePointersStorageBuffer %p/ext_variable_pointers_function_call.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan -c VariablePointersStorageBuffer %spv_file_s | %filecheck %s
 ; tests that variable pointers work correctly with functions, that they can be
 ; passed as arguments and returned
                OpCapability Shader

@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 32 %p/op_opencl_u_prefetch_v4i32_32bit.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 32 %spv_file_s | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"

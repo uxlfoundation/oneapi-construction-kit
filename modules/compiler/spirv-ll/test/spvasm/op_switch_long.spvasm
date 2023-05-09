@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan -c Int64 %p/op_switch_long.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan -c Int64 %spv_file_s | %filecheck %s
                OpCapability Shader
                OpCapability Int64
           %1 = OpExtInstImport "GLSL.std.450"

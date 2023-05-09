@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 -c GenericPointer %p/op_spec_constant_generic_pointer.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 -c GenericPointer %spv_file_s | %filecheck %s
 
                OpCapability Addresses
                OpCapability Linkage

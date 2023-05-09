@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan %p/op_control_barrier_release.spv -o %t
+; RUN: %spirv-ll -a Vulkan %spv_file_s -o %t
 ; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %s
                OpCapability Shader
           %1 = OpExtInstImport "GLSL.std.450"

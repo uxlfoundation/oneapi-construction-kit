@@ -7,7 +7,7 @@
 ;
 ; with glslang version 7.10.2984
 
-; RUN: %spirv-ll -a Vulkan %p/op_glsl_Barrier.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan %spv_file_s | %filecheck %s
 
 ; SPIR-V
 ; Version: 1.0

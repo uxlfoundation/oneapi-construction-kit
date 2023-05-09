@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c StorageImageWriteWithoutFormat %p/op_image_write_2d.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c StorageImageWriteWithoutFormat %spv_file_s | %filecheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                             OpCapability Kernel
                             OpCapability Addresses

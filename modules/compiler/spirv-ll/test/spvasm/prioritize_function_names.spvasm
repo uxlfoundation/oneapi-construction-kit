@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/prioritize_function_names.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s | %filecheck %s
 
 ; Ensure entry point functions get priority on assignment of their names when there are normal functions with the same name
 

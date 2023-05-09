@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_opencl_ilogb_v3float.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s | %filecheck %s
                         OpCapability Kernel
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"

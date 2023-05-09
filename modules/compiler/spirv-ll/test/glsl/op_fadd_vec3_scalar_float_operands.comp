@@ -1,6 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll -a Vulkan %p/op_fadd_vec3_scalar_float_operands.spv | %filecheck %s
+// RUN: %spirv-ll -a Vulkan %spv_file_s | %filecheck %s
 
 #version 450
 

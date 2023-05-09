@@ -1,6 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_fcmp_oge_two_double_operands.spv | %filecheck %s
+// RUN: %spirv-ll -a Vulkan -c Float64 %spv_file_s | %filecheck %s
 
 #version 450
 

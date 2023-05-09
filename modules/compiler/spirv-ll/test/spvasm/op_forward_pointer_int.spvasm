@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan -c Addresses -c Float64 -c Int64 %p/op_forward_pointer_int.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan -c Addresses -c Float64 -c Int64 %spv_file_s | %filecheck %s
             OpCapability Addresses
             OpCapability Shader
             OpCapability Float64

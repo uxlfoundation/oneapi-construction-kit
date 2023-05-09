@@ -1,7 +1,7 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 ; REQUIRES: spirv-as-v2020
-; RUN: %spirv-ll -a OpenCL -b 64 %p/opencl_group_async_copy_3d3d.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s | %filecheck %s
 
                         OpCapability Addresses
                         OpCapability Linkage

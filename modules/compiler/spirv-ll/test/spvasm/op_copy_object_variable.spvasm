@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL %p/op_copy_object_variable.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL %spv_file_s | %filecheck %s
 ; This tests for a potential bug where copying a pointer object simply makes
 ; the same pointer available through a new ID, which would make storing to it
 ; overwrite the original.

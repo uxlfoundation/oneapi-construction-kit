@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c Sampled1D %p/op_image.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 -c ImageBasic -c Sampled1D %spv_file_s | %filecheck %s
                 OpCapability Kernel
                 OpCapability Addresses
                 OpCapability ImageBasic

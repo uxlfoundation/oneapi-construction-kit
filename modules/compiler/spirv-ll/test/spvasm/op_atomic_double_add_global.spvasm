@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan %p/op_atomic_double_add_global.spv -e SPV_EXT_shader_atomic_float_add -c Float64 -c AtomicFloat64AddEXT | %filecheck %s
+; RUN: %spirv-ll -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_add -c Float64 -c AtomicFloat64AddEXT | %filecheck %s
             OpExtension "SPV_EXT_shader_atomic_float_add"
             OpCapability Shader
             OpCapability AtomicFloat64AddEXT
