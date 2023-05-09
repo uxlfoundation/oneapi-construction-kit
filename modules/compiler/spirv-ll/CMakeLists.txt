@@ -1,8 +1,5 @@
 # Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-ca_option(CA_ENABLE_SPIRV_LL_EXPERIMENTAL BOOL
-  "Enable experimental changes to spirv-ll." OFF)
-
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   # Support standalone spirv-ll build for ComputeCpp.
   cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)
@@ -54,10 +51,6 @@ target_include_directories(spirv-ll PUBLIC
 target_include_directories(spirv-ll SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include ${LLVM_INCLUDE_DIR})
 target_link_libraries(spirv-ll PUBLIC cargo multi_llvm LLVMCore LLVMBitWriter)
-
-if(${CA_ENABLE_SPIRV_LL_EXPERIMENTAL})
-  target_compile_definitions(spirv-ll PUBLIC SPIRV_LL_EXPERIMENTAL)
-endif()
 
 add_subdirectory(tools)
 if(CA_ENABLE_TESTS)

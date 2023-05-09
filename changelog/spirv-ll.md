@@ -15,6 +15,8 @@ Upgrade guidance:
 
 * The `modules/spirv-ll` module has been moved to `modules/compiler/spirv-ll`.
 * The external `SPIRV-Headers` has been bumped to `sdk-1.3.239.0`.
+* The support for "experimental" features (via
+  `CA_ENABLE_SPIRV_LL_EXPERIMENTAL` was removed)
 
 Bug fixes:
 

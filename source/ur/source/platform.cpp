@@ -13,11 +13,9 @@
 // machinery or figure out how it should be different for UR.
 static cargo::expected<compiler::spirv::DeviceInfo, cargo::result>
 getSPIRVDeviceInfo(mux_device_info_t device_info) {
-  static const std::array<const std::string, 2> supported_extensions = {
-      {"SPV_KHR_no_integer_wrap_decoration",
-#ifdef SPIRV_LL_EXPERIMENTAL
-       "SPV_codeplay_usm_generic_storage_class"
-#endif
+  static const std::array<const std::string, 1> supported_extensions = {
+      {
+          "SPV_KHR_no_integer_wrap_decoration",
       },
   };
 

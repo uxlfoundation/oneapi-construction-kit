@@ -457,21 +457,9 @@ cl_int clSetKernelArgMemPointerINTEL(cl_kernel kernel, cl_uint arg_index,
   OCL_CHECK(arg_type->kind != compiler::ArgumentKind::POINTER,
             return CL_INVALID_ARG_VALUE);
 
-#ifdef SPIRV_LL_EXPERIMENTAL
-  // Our SPV_codeplay_usm_generic_storage_class SPIR-V extension lets pointer
-  // types omit address address space information, whereupon we default the
-  // address space to 0 when converting to LLVM IR. This address space matches
-  // PRIVATE which can only otherwise occur when the argument type has kind
-  // `compliler::ArgumentKind::STRUCTBYVAL`. Since GLOBAL and CONSTANT address
-  // spaces are permitted by the OpenCL runtime extension spec, the only
-  // remaining address space to forbid is LOCAL when this extension is enabled.
-  OCL_CHECK(arg_type->address_space == compiler::AddressSpace::LOCAL,
-            return CL_INVALID_ARG_VALUE);
-#else
   OCL_CHECK(!(arg_type->address_space == compiler::AddressSpace::GLOBAL ||
               arg_type->address_space == compiler::AddressSpace::CONSTANT),
             return CL_INVALID_ARG_VALUE);
-#endif
   if (arg_value) {
     const cl_context context = kernel->program->context;
 

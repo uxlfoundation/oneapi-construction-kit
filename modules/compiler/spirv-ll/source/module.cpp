@@ -591,13 +591,6 @@ void spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
       // local
       AddressSpace = 3;
       break;
-// TODO: replace spirv-ll experimental with proper extension mechanism CA-3067
-#ifdef SPIRV_LL_EXPERIMENTAL
-    // See CA-2954
-    case 5952:
-      AddressSpace = 9;
-      break;
-#endif
     case spv::StorageClassGeneric: {
       if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
         AddressSpace = 0;

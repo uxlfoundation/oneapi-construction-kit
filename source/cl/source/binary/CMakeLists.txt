@@ -20,11 +20,3 @@ target_include_directories(CL-binary PUBLIC
 
 target_link_libraries(CL-binary PUBLIC
   builtins cargo compiler-loader mux utils)
-
-# spirv-ll defines the CA_ENABLE_SPIRV_LL_EXPERIMENTAL CMake option, so spirv-ll
-# should be included with add_subdirectory before this file.
-# TODO(CA-3067): Remove SPIRV_LL_EXPERIMENTAL when we have a proper mechanism
-# for extending spirv-ll.
-if(${CA_ENABLE_SPIRV_LL_EXPERIMENTAL})
-  target_compile_definitions(CL-binary PUBLIC SPIRV_LL_EXPERIMENTAL)
-endif()
