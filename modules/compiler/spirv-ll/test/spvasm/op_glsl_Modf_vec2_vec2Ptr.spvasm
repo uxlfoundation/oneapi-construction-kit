@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan -c Float64 %p/op_glsl_Modf_vec2_vec2Ptr.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan -c Float64 %spv_file_s | %filecheck %s
                          OpCapability Shader
                          OpCapability Float64
         %1             = OpExtInstImport "GLSL.std.450"

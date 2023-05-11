@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 -E %p/op_f_mod_half.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 -E %spv_file_s | %filecheck %s
                OpCapability Kernel
                OpCapability Float16
                OpCapability Int64

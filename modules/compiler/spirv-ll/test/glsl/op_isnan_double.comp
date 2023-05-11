@@ -1,6 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll -a Vulkan -c Float64 %p/op_isinf_double.spv | %filecheck %s
+// RUN: %spirv-ll -a Vulkan -c Float64 %spv_file_s | %filecheck %s
 
 #version 450
 
@@ -14,8 +14,8 @@ void main(){
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
 // CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z5isinfd(double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z5isnand(double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = trunc i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i1
 // CHECK: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 // CHECK: ret void
-// CHECK: declare spir_func i32 @_Z5isinfd(double)
+// CHECK: declare spir_func i32 @_Z5isnand(double)

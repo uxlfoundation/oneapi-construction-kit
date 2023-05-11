@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 32 %p/op_memory_barrier_seq_consistent.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 32 %spv_file_s | %filecheck %s
                OpCapability Kernel
                OpCapability Addresses
                OpMemoryModel Physical32 OpenCL

@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL %p/op_copy_object_constant.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL %spv_file_s | %filecheck %s
 ; This is a smoke test to check that OpCopyObject propagates values correctly
                OpCapability Kernel
                OpEntryPoint GLCompute %main "main"

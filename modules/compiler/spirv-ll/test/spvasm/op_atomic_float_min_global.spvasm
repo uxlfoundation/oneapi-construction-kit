@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan %p/op_atomic_float_min_global.spv -e SPV_EXT_shader_atomic_float_min_max -c AtomicFloat32MinMaxEXT | %filecheck %s
+; RUN: %spirv-ll -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_min_max -c AtomicFloat32MinMaxEXT | %filecheck %s
             OpExtension "SPV_EXT_shader_atomic_float_min_max"
             OpCapability Shader
             OpCapability AtomicFloat32MinMaxEXT

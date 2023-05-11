@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_group_s_max.spv -o %t
+; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s -o %t
 ; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %s
 
                               OpCapability Addresses

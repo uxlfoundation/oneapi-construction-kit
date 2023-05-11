@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan -c Float16 %p/op_quantize_to_f16_vec2.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan -c Float16 %spv_file_s | %filecheck %s
             OpCapability Shader
             OpCapability Float16
        %1 = OpExtInstImport "GLSL.std.450"

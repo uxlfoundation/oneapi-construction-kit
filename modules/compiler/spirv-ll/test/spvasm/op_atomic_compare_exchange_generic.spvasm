@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %p/op_atomic_compare_exchange_local.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 -c Float64 %spv_file_s | %filecheck %s
             OpCapability Kernel
             OpCapability Addresses
             OpCapability Float64
@@ -23,7 +23,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @atomic(ptr addrspace(3) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z14atomic_cmpxchgPU3AS3Vjjj(ptr addrspace(3) [[IN]], i32 1, i32 424)
+; CHECK: define spir_kernel void @atomic(ptr addrspace(4) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z14atomic_cmpxchgPU3AS4Vjjj(ptr addrspace(4) [[IN]], i32 1, i32 424)
 ; CHECK: ret void
-; CHECK: declare spir_func i32 @_Z14atomic_cmpxchgPU3AS3Vjjj(ptr addrspace(3), i32, i32)
+; CHECK: declare spir_func i32 @_Z14atomic_cmpxchgPU3AS4Vjjj(ptr addrspace(4), i32, i32)

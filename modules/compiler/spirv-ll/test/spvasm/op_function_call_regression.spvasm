@@ -4,7 +4,7 @@
 ; behaves as expected. There was a bug where resolving calls to function forward
 ; references was leaving behind invalid instructions.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/op_function_call_regression.spv | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s | %filecheck %s
 
                OpCapability Kernel
           %1 = OpExtInstImport "OpenCL.std"

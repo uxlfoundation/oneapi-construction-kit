@@ -28,31 +28,19 @@ endif()
 # Create the test/test inputs directories and set the relevent variables
 set(INPUTS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
-# The run.py script is a helper script to easily execute the spirv-ll lit
-# tests manually without being required to pass additional arguments to lit.
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/run.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/run.py @ONLY)
-
-# Generate the main lit.cfg file, since we need to find the paths to various
-# executables the lit tests depend on and this can only be done using generator
-# expressions, we must configure the file at build time.
-add_ca_configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg.in
-  ${CMAKE_CURRENT_BINARY_DIR}/lit.cfg
-  DEFINED TEST_PATH=${TEST_PATH}
-  PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+add_ca_configure_lit_site_cfg(
+  ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
+  ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
+  MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg"
+  DEFINED
   SPIRV_LL=$<TARGET_FILE:spirv-ll-tool>
-  FILECHECK=$<TARGET_FILE:LLVM::FileCheck>
   OPT=$<TARGET_FILE:LLVM::opt>
-  TRIPLE=${TRIPLE}
-  LLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR}
-  # TODO(CA-3968): Revert when fixed.
-  CMAKE_CROSSCOMPILING=$<BOOL:${CMAKE_CROSSCOMPILING}>
-  DEPENDS spirv-ll-tool LLVM::FileCheck LLVM::opt)
+  TRIPLE=${TRIPLE})
 
 add_subdirectory(glsl)
 add_subdirectory(spvasm)
 
 add_ca_lit_testsuite(spirv-ll
   ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm ${CMAKE_CURRENT_BINARY_DIR}/lit.cfg)
+  DEPENDS ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
+          ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)

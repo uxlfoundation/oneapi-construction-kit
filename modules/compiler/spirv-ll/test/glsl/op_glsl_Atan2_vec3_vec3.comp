@@ -1,6 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-// RUN: %spirv-ll -a Vulkan %p/op_glsl_Atan2_vec3_vec3.spv | %filecheck %s
+// RUN: %spirv-ll -a Vulkan %spv_file_s | %filecheck %s
 
 #version 450
 

@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a OpenCL -b 64 %p/linkonce_odr.spv -e SPV_KHR_linkonce_odr | %filecheck %s
+; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s -e SPV_KHR_linkonce_odr | %filecheck %s
 
                OpCapability Addresses
                OpCapability Linkage

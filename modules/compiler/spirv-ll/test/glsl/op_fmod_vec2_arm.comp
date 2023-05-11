@@ -1,7 +1,7 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
 // REQUIRES: arm
-// RUN: %spirv-ll -a Vulkan %p/op_fmod_vec2.spv | %filecheck %s
+// RUN: %spirv-ll -a Vulkan %spv_file_s | %filecheck %s
 
 // CHECK: ; ModuleID = '{{.*}}'
 #version 450

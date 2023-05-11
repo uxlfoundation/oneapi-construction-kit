@@ -1,6 +1,6 @@
 ; Copyright (C) Codeplay Software Limited. All Rights Reserved.
 
-; RUN: %spirv-ll -a Vulkan %p/op_control_barrier_variable_semantics.spv | %filecheck %s
+; RUN: %spirv-ll -a Vulkan %spv_file_s | %filecheck %s
                OpCapability Shader
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
