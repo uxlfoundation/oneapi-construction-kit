@@ -134,3 +134,7 @@ entry:
 ; CHECK-LABEL: @__vecz_nxv4_vp_reduce_scan_incl_fmax_f32(
 ; CHECK: call <vscale x 4 x float> @__vecz_b_sub_group_scan_inclusive_max_vp_u5nxv4fj(<vscale x 4 x float> %{{.*}}, i32 %{{.+}})
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}

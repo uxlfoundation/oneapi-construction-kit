@@ -246,3 +246,7 @@ entry:
 ; CHECK: [[R:%.*]] = call float @llvm.vector.reduce.fmax.v4f32(<4 x float> [[I]])
 ; CHECK: store float [[R]], ptr addrspace(1) {{%.*}}, align 4
 }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}

@@ -11,7 +11,7 @@ using namespace llvm;
 namespace compiler {
 namespace utils {
 
-uint32_t getOpenCLVersion(llvm::Module &m) {
+uint32_t getOpenCLVersion(const llvm::Module &m) {
   if (auto *const md = m.getNamedMetadata("opencl.ocl.version")) {
     if (md->getNumOperands() == 1) {
       auto *const op = md->getOperand(0);
