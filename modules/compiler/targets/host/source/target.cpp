@@ -111,7 +111,7 @@ compiler::Result HostTarget::initWithBuiltins(
              "ARM cross-compile only supports Linux");
       // For cross compiled ARM builds, we can't rely on sys::getProcessTriple
       // to determine our target. Instead, we set it to a known working triple.
-      module->setTargetTriple("armv7-linux-gnueabihf-elf");
+      module->setTargetTriple("armv7-unknown-linux-gnueabihf-elf");
       break;
     case host::arch::AARCH64:
       assert(host::os::LINUX == host_device_info.os &&

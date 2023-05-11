@@ -6,7 +6,7 @@
 ; RUN:   | %filecheck --check-prefix FTZ %s
 
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "armv7-linux-gnueabihf-elf"
+target triple = "armv7-unknown-linux-gnueabihf-elf"
 
 ; FTZ: define internal spir_kernel void @add(ptr addrspace(1) readonly %in1, ptr addrspace(1) readonly %in2, ptr addrspace(1) %out) [[ATTRS:#[0-9]+]] !test [[MD:\![0-9]+]] {
 

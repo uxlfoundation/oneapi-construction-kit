@@ -6,7 +6,7 @@
 
 ; ModuleID = 'Unknown buffer'
 target datalayout = "e-m:e-p:32:32-i64:64-v128:64:128-a:0:32-n32-S64"
-target triple = "armv7-linux-gnueabihf"
+target triple = "armv7-unknown-linux-gnueabihf"
 
 ; Function Attrs: nounwind
 define spir_kernel void @short3_char3_codegen(i8 addrspace(1)* %src, i16 addrspace(1)* %dest) #0 !kernel_arg_addr_space !2 !kernel_arg_access_qual !3 !kernel_arg_type !4 !kernel_arg_base_type !4 !kernel_arg_type_qual !5 {
