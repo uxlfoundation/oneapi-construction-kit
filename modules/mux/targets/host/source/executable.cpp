@@ -149,6 +149,10 @@ static std::pair<std::string, uint64_t> relocs[] = {
     {"__fixdfdi", reinterpret_cast<uint64_t>(&__fixdfdi)},
     {"__floatdidf", reinterpret_cast<uint64_t>(&__floatdidf)},
     {"__floatdisf", reinterpret_cast<uint64_t>(&__floatdisf)},
+    // fminf and fmaxf are both used by the Arm32 backend when expanding
+    // floating-point min/max reductions.
+    {"fminf", reinterpret_cast<uint64_t>(&fminf)},
+    {"fmaxf", reinterpret_cast<uint64_t>(&fmaxf)},
 #endif  // defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
 };
 }  // namespace
