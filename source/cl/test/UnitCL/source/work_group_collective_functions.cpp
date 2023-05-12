@@ -1,4 +1,6 @@
 // Copyright (C) Codeplay Software Limited. All Rights Reserved.
+#include <cargo/optional.h>
+
 #include <algorithm>
 #include <limits>
 
@@ -68,7 +70,135 @@ TEST_F(ContextTest, WorkGroupCollectiveFunctionsFeatureMacroTest) {
   EXPECT_SUCCESS(clReleaseProgram(feature_macro_undefined_program));
 }
 
-struct WorkGroupCollectiveFunctionsTest : public kts::ucl::BaseExecution {
+// Denotes a work-group size used to execute tests.
+struct NDRange {
+  NDRange(size_t _x, size_t _y, size_t _z) {
+    array[0] = _x;
+    array[1] = _y;
+    array[2] = _z;
+  }
+
+  size_t array[3];
+
+  size_t x() const { return array[0]; }
+  size_t y() const { return array[1]; }
+  size_t z() const { return array[2]; }
+
+  // An implicit conversion to a size_t* allows idiomatic usage like
+  // local_sizes[0], or being passed to RunGenericND.
+  operator size_t *() { return &array[0]; }
+  operator const size_t *() const { return &array[0]; }
+};
+
+inline std::string to_string(const NDRange &ndrange) {
+  return std::to_string(ndrange.x()) + 'x' + std::to_string(ndrange.y()) + 'x' +
+         std::to_string(ndrange.z());
+}
+
+static std::array<size_t, 3> globalLinearIdToGlobalId(size_t global_linear_id,
+                                                      size_t global_size_x,
+                                                      size_t global_size_y) {
+  const auto x = global_linear_id % global_size_x;
+  const auto y = ((global_linear_id - x) / global_size_x) % global_size_y;
+  const auto z = (global_linear_id - x - global_size_x * y) /
+                 (global_size_x * global_size_y);
+  return {x, y, z};
+}
+
+static size_t globalIdToGlobalLinearId(std::array<size_t, 3> global_ids,
+                                       size_t global_size_x,
+                                       size_t global_size_y) {
+  return global_ids[0] + global_size_x * global_ids[1] +
+         global_size_x * global_size_y * global_ids[2];
+}
+
+struct ReductionRange {
+  size_t x_start, x_end;
+  size_t y_start, y_end;
+  size_t z_start, z_end;
+};
+
+static ReductionRange getReductionRange(size_t global_linear_id,
+                                        const size_t *global_sizes,
+                                        const size_t *local_sizes) {
+  const auto global_range = globalLinearIdToGlobalId(
+      global_linear_id, global_sizes[0], global_sizes[1]);
+  const auto x_start = (global_range[0] / local_sizes[0]) * local_sizes[0];
+  const auto x_end = x_start + local_sizes[0];
+  const auto y_start = (global_range[1] / local_sizes[1]) * local_sizes[1];
+  const auto y_end = y_start + local_sizes[1];
+  const auto z_start = (global_range[2] / local_sizes[2]) * local_sizes[2];
+  const auto z_end = z_start + local_sizes[2];
+  return {x_start, x_end, y_start, y_end, z_start, z_end};
+}
+
+using WGCAnyAllParams = std::tuple<NDRange, cargo::optional<int>>;
+
+struct WorkGroupCollectiveAnyAll
+    : public kts::ucl::ExecutionWithParam<WGCAnyAllParams> {
+  static std::string getParamName(
+      const testing::TestParamInfo<
+          std::tuple<kts::ucl::SourceType, WGCAnyAllParams>> &info) {
+    const auto source_ty = std::get<0>(info.param);
+    const auto &params = std::get<1>(info.param);
+    const auto &ndrange = std::get<0>(params);
+    const auto &input_data_val = std::get<1>(params);
+    return to_string(source_ty) + '_' + to_string(ndrange) + '_' +
+           (input_data_val ? "all" + std::to_string(*input_data_val)
+                           : "random") +
+           '_' + std::to_string(info.index);
+  }
+  template <bool IsAll>
+  void doTest() {
+    const auto &params = std::get<1>(GetParam());
+    const auto &local_sizes = std::get<0>(params);
+    const auto input_data_val = std::get<1>(params);
+
+    NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
+    const auto global_size =
+        global_sizes[0] * global_sizes[1] * global_sizes[2];
+    std::vector<cl_int> input_data(global_size);
+
+    kts::Reference1D<cl_uint> input_ref = [&input_data](size_t id) {
+      return input_data[id];
+    };
+
+    kts::Reference1D<cl_int> output_ref =
+        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
+                                                   cl_int result) {
+          cl_int expected = IsAll ? 1 : 0;
+          const auto range =
+              getReductionRange(global_linear_id, global_sizes, local_sizes);
+
+          for (auto x = range.x_start; x < range.x_end; ++x) {
+            for (auto y = range.y_start; y < range.y_end; ++y) {
+              for (auto z = range.z_start; z < range.z_end; ++z) {
+                const auto linear_id = globalIdToGlobalLinearId(
+                    {x, y, z}, global_sizes[0], global_sizes[1]);
+                if (IsAll) {
+                  expected &= !!input_data[linear_id];
+                } else {
+                  expected |= !!input_data[linear_id];
+                }
+              }
+            }
+          }
+          return !!result == !!expected;
+        };
+
+    // AssignRandomDataSentinel is a special value to these tests, indicating
+    // that the buffer should be filled with random data.
+    if (input_data_val) {
+      ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
+    } else {
+      input_data.assign(global_size, *input_data_val);
+    }
+
+    AddInputBuffer(global_size, input_ref);
+    AddOutputBuffer(global_size, output_ref);
+    RunGenericND(3, global_sizes, local_sizes);
+  }
+
  protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(kts::ucl::BaseExecution::SetUp());
@@ -96,42 +226,53 @@ struct WorkGroupCollectiveFunctionsTest : public kts::ucl::BaseExecution {
   }
 };
 
-static std::array<size_t, 3> globalLinearIdToGlobalId(size_t global_linear_id,
-                                                      size_t global_size_x,
-                                                      size_t global_size_y) {
-  const auto x = global_linear_id % global_size_x;
-  const auto y = ((global_linear_id - x) / global_size_x) % global_size_y;
-  const auto z = (global_linear_id - x - global_size_x * y) /
-                 (global_size_x * global_size_y);
-  return {x, y, z};
+TEST_P(WorkGroupCollectiveAnyAll, Work_Group_Collective_Functions_01_All) {
+  doTest</*IsAll*/ true>();
 }
 
-static size_t globalIdToGlobalLinearId(std::array<size_t, 3> global_ids,
-                                       size_t global_size_x,
-                                       size_t global_size_y) {
-  return global_ids[0] + global_size_x * global_ids[1] +
-         global_size_x * global_size_y * global_ids[2];
+TEST_P(WorkGroupCollectiveAnyAll, Work_Group_Collective_Functions_02_Any) {
+  doTest</*IsAll*/ false>();
 }
 
-struct ReductionRange {
-  size_t x_start, x_end;
-  size_t y_start, y_end;
-  size_t z_start, z_end;
+using WGCParams = NDRange;
+
+struct WorkGroupCollectiveFunctionsTest
+    : public kts::ucl::ExecutionWithParam<WGCParams> {
+  static std::string getParamName(
+      const testing::TestParamInfo<std::tuple<kts::ucl::SourceType, WGCParams>>
+          &info) {
+    const auto source_ty = std::get<0>(info.param);
+    const auto &ndrange = std::get<1>(info.param);
+    return to_string(source_ty) + '_' + to_string(ndrange) + '_' +
+           std::to_string(info.index);
+  }
+
+ protected:
+  void SetUp() override {
+    UCL_RETURN_ON_FATAL_FAILURE(kts::ucl::BaseExecution::SetUp());
+    // Work-group collectives are a 3.0 feature.
+    if (!UCL::isDeviceVersionAtLeast({3, 0}) ||
+        !UCL::hasCompilerSupport(device)) {
+      GTEST_SKIP();
+    }
+
+    // Some of these tests run small local sizes, which we don't vectorize.
+    // This is too coarse-grained, as there are some NDRanges which we can
+    // vectorize.
+    fail_if_not_vectorized_ = false;
+
+    cl_bool supports_work_group_collectives = CL_FALSE;
+    ASSERT_SUCCESS(clGetDeviceInfo(
+        device, CL_DEVICE_WORK_GROUP_COLLECTIVE_FUNCTIONS_SUPPORT,
+        sizeof(cl_bool), &supports_work_group_collectives, nullptr));
+
+    if (CL_FALSE == supports_work_group_collectives) {
+      GTEST_SKIP();
+    }
+
+    AddBuildOption("-cl-std=CL3.0");
+  }
 };
-
-static ReductionRange getReductionRange(
-    size_t global_linear_id, const std::array<size_t, 3> &global_sizes,
-    const std::array<size_t, 3> &local_sizes) {
-  const auto global_range = globalLinearIdToGlobalId(
-      global_linear_id, global_sizes[0], global_sizes[1]);
-  const auto x_start = (global_range[0] / local_sizes[0]) * local_sizes[0];
-  const auto x_end = x_start + local_sizes[0];
-  const auto y_start = (global_range[1] / local_sizes[1]) * local_sizes[1];
-  const auto y_end = y_start + local_sizes[1];
-  const auto z_start = (global_range[2] / local_sizes[2]) * local_sizes[2];
-  const auto z_end = z_start + local_sizes[2];
-  return {x_start, x_end, y_start, y_end, z_start, z_end};
-}
 
 struct ScanRange {
   size_t x_work_group_start, x_end, x_work_group_end;
@@ -140,9 +281,8 @@ struct ScanRange {
 };
 
 static ScanRange getScanRange(size_t global_linear_id,
-                              const std::array<size_t, 3> &global_sizes,
-                              const std::array<size_t, 3> &local_sizes,
-                              bool is_inclusive) {
+                              const size_t global_sizes[3],
+                              const size_t local_sizes[3], bool is_inclusive) {
   const auto global_range = globalLinearIdToGlobalId(
       global_linear_id, global_sizes[0], global_sizes[1]);
   const auto x_work_group_start =
@@ -162,167 +302,19 @@ static ScanRange getScanRange(size_t global_linear_id,
           z_work_group_start, z_end};
 }
 
-TEST_F(WorkGroupCollectiveFunctionsTest,
-       Work_Group_Collective_Functions_01_All) {
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_int> input_data(global_size);
-    std::vector<cl_int> output_data(global_size);
-
-    kts::Reference1D<cl_uint> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_int> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_int result) {
-          cl_int expected = 1;
-          const auto range =
-              getReductionRange(global_linear_id, global_sizes, local_sizes);
-
-          for (auto x = range.x_start; x < range.x_end; ++x) {
-            for (auto y = range.y_start; y < range.y_end; ++y) {
-              for (auto z = range.z_start; z < range.z_end; ++z) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected &= !!input_data[linear_id];
-              }
-            }
-          }
-          return !!result == !!expected;
-        };
-
-    // First an input of all false.
-    input_data.assign(global_size, 0);
-    AddInputBuffer(global_size, input_ref);
-    AddOutputBuffer(global_size, output_ref);
-    RunGenericND(3, global_sizes.data(), local_sizes.data());
-
-    // Then an input of all true.
-    input_data.assign(global_size, 42);
-    AddInputBuffer(global_size, input_ref);
-    AddOutputBuffer(global_size, output_ref);
-    RunGenericND(3, global_sizes.data(), local_sizes.data());
-
-    // Then a mix.
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    AddInputBuffer(global_size, input_ref);
-    AddOutputBuffer(global_size, output_ref);
-    RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
-}
-
-TEST_F(WorkGroupCollectiveFunctionsTest,
-       Work_Group_Collective_Functions_02_Any) {
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-    std::vector<cl_int> input_data(global_size);
-
-    kts::Reference1D<cl_uint> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_int> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_int result) {
-          cl_int expected = 0;
-          const auto range =
-              getReductionRange(global_linear_id, global_sizes, local_sizes);
-
-          for (auto x = range.x_start; x < range.x_end; ++x) {
-            for (auto y = range.y_start; y < range.y_end; ++y) {
-              for (auto z = range.z_start; z < range.z_end; ++z) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected |= !!input_data[linear_id];
-              }
-            }
-          }
-          return !!result == !!expected;
-        };
-
-    // First an input of all false.
-    input_data.assign(global_size, 0);
-    AddInputBuffer(global_size, input_ref);
-    AddOutputBuffer(global_size, output_ref);
-    RunGenericND(3, global_sizes.data(), local_sizes.data());
-
-    // Then an input of all true.
-    input_data.assign(global_size, 42);
-    AddInputBuffer(global_size, input_ref);
-    AddOutputBuffer(global_size, output_ref);
-    RunGenericND(3, global_sizes.data(), local_sizes.data());
-
-    // Then a mix.
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    AddInputBuffer(global_size, input_ref);
-    AddOutputBuffer(global_size, output_ref);
-    RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
-}
-
-template <typename T>
-struct WorkGroupCollectiveFunctionsTypeParameterizedTest
+struct WorkGroupCollectiveBroadcast1D
     : public WorkGroupCollectiveFunctionsTest {
- protected:
-  void SetUp() override {
-    UCL_RETURN_ON_FATAL_FAILURE(WorkGroupCollectiveFunctionsTest::SetUp());
-
-    const auto clc_type_name = T::source_name();
-    AddMacro("TYPE", clc_type_name);
-    ASSERT_TRUE(BuildProgram());
-  }
-};
-TYPED_TEST_SUITE_P(WorkGroupCollectiveFunctionsTypeParameterizedTest);
-
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_03_Broadcast_1D) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
+  template <typename T>
+  void doBroadcast1DTest() {
+    const auto &local_sizes = std::get<1>(GetParam());
+    NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
     const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto work_group_size =
-        local_sizes[0] * local_sizes[1] * local_sizes[2];
-    const size_t work_group_count = global_sizes[0] / local_sizes[0] *
-                                    global_sizes[1] / local_sizes[1] *
-                                    global_sizes[2] / local_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
+        global_sizes.x() * global_sizes.y() * global_sizes.z();
+    std::vector<T> input_data(global_size);
+    const auto local_size_x = local_sizes.x();
     std::vector<size_t> broadcast_ids(local_size_x);
 
-    kts::Reference1D<cl_type> input_ref_a = [&input_data](size_t id) {
+    kts::Reference1D<T> input_ref_a = [&input_data](size_t id) {
       return input_data[id];
     };
 
@@ -330,14 +322,21 @@ TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
       return broadcast_ids[id];
     };
 
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &work_group_size, &local_size_x, &broadcast_ids](
-            size_t global_linear_id, cl_type value) {
-          const auto work_group_linear_id = global_linear_id / work_group_size;
-          const auto broadcast_id = work_group_linear_id * local_size_x +
-                                    broadcast_ids[work_group_linear_id];
-          return value == input_data[broadcast_id];
-        };
+    const auto work_group_size =
+        local_sizes.x() * local_sizes.y() * local_sizes.z();
+
+    const size_t work_group_count = global_sizes.x() / local_sizes.x() *
+                                    global_sizes.y() / local_sizes.y() *
+                                    global_sizes.z() / local_sizes.z();
+
+    kts::Reference1D<T> output_ref = [&input_data, &work_group_size,
+                                      local_size_x, &broadcast_ids](
+                                         size_t global_linear_id, T value) {
+      const auto work_group_linear_id = global_linear_id / work_group_size;
+      const auto broadcast_id = work_group_linear_id * local_size_x +
+                                broadcast_ids[work_group_linear_id];
+      return value == input_data[broadcast_id];
+    };
 
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
     ucl::Environment::instance->GetInputGenerator().GenerateData<size_t>(
@@ -346,33 +345,46 @@ TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
     this->AddInputBuffer(global_size, input_ref_a);
     this->AddInputBuffer(work_group_count, input_ref_b);
     this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
+    this->RunGenericND(3, global_sizes, local_sizes);
+  }
+};
 
-  runTestCase(64, 1, 1);
-  runTestCase(67, 1, 1);
+TEST_P(WorkGroupCollectiveBroadcast1D,
+       Work_Group_Collective_Functions_03_Broadcast_1D_Int) {
+  doBroadcast1DTest<cl_int>();
+}
+TEST_P(WorkGroupCollectiveBroadcast1D,
+       Work_Group_Collective_Functions_03_Broadcast_1D_Uint) {
+  doBroadcast1DTest<cl_uint>();
+}
+TEST_P(WorkGroupCollectiveBroadcast1D,
+       Work_Group_Collective_Functions_03_Broadcast_1D_Long) {
+  doBroadcast1DTest<cl_long>();
+}
+TEST_P(WorkGroupCollectiveBroadcast1D,
+       Work_Group_Collective_Functions_03_Broadcast_1D_Ulong) {
+  doBroadcast1DTest<cl_ulong>();
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_04_Broadcast_2D) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
+struct WorkGroupCollectiveBroadcast2D
+    : public WorkGroupCollectiveFunctionsTest {
+  template <typename T>
+  void doBroadcast2DTest() {
+    const auto &local_sizes = std::get<1>(GetParam());
+    NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
     const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const size_t work_group_count = global_sizes[0] / local_sizes[0] *
-                                    global_sizes[1] / local_sizes[1] *
-                                    global_sizes[2] / local_sizes[2];
+        global_sizes.x() * global_sizes.y() * global_sizes.z();
+    const size_t work_group_count = global_sizes.x() / local_sizes.x() *
+                                    global_sizes.y() / local_sizes.y() *
+                                    global_sizes.z() / local_sizes.z();
 
-    std::vector<cl_type> input_data(global_size);
+    std::vector<T> input_data(global_size);
+    const auto local_size_x = local_sizes.x();
+    const auto local_size_y = local_sizes.y();
     std::vector<size_t> broadcast_x_ids(work_group_count);
     std::vector<size_t> broadcast_y_ids(work_group_count);
 
-    kts::Reference1D<cl_type> input_ref_a = [&input_data](size_t id) {
+    kts::Reference1D<T> input_ref_a = [&input_data](size_t id) {
       return input_data[id];
     };
 
@@ -384,11 +396,10 @@ TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
       return broadcast_pair;
     };
 
-    kts::Reference1D<cl_type> output_ref = [&input_data, &global_sizes,
-                                            &local_size_x, &local_size_y,
-                                            &broadcast_x_ids, &broadcast_y_ids](
-                                               size_t global_linear_id,
-                                               cl_type value) {
+    kts::Reference1D<T> output_ref = [&input_data, &global_sizes, &local_size_x,
+                                      &local_size_y, &broadcast_x_ids,
+                                      &broadcast_y_ids](size_t global_linear_id,
+                                                        T value) {
       const auto global_ids = globalLinearIdToGlobalId(
           global_linear_id, global_sizes[0], global_sizes[1]);
 
@@ -420,36 +431,49 @@ TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
     this->AddInputBuffer(global_size, input_ref_a);
     this->AddInputBuffer(work_group_count, input_ref_b);
     this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
+    this->RunGenericND(3, global_sizes, local_sizes);
+  }
+};
 
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
+TEST_P(WorkGroupCollectiveBroadcast2D,
+       Work_Group_Collective_Functions_04_Broadcast_2D_Int) {
+  doBroadcast2DTest<cl_int>();
+}
+TEST_P(WorkGroupCollectiveBroadcast2D,
+       Work_Group_Collective_Functions_04_Broadcast_2D_Uint) {
+  doBroadcast2DTest<cl_uint>();
+}
+TEST_P(WorkGroupCollectiveBroadcast2D,
+       Work_Group_Collective_Functions_04_Broadcast_2D_Long) {
+  doBroadcast2DTest<cl_long>();
+}
+TEST_P(WorkGroupCollectiveBroadcast2D,
+       Work_Group_Collective_Functions_04_Broadcast_2D_Ulong) {
+  doBroadcast2DTest<cl_ulong>();
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_05_Broadcast_3D) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
+struct WorkGroupCollectiveBroadcast3D
+    : public WorkGroupCollectiveFunctionsTest {
+  template <typename T>
+  void doBroadcast3DTest() {
+    const auto &local_sizes = std::get<1>(GetParam());
+    NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
+
     const auto global_size =
         global_sizes[0] * global_sizes[1] * global_sizes[2];
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const size_t work_group_count = global_sizes[0] / local_sizes[0] *
-                                    global_sizes[1] / local_sizes[1] *
-                                    global_sizes[2] / local_sizes[2];
+    const size_t work_group_count = global_sizes.x() / local_sizes.x() *
+                                    global_sizes.y() / local_sizes.y() *
+                                    global_sizes.z() / local_sizes.z();
 
-    std::vector<cl_type> input_data(global_size);
+    std::vector<T> input_data(global_size);
+    const auto local_size_x = local_sizes.x();
+    const auto local_size_y = local_sizes.y();
+    const auto local_size_z = local_sizes.z();
     std::vector<size_t> broadcast_x_ids(work_group_count);
     std::vector<size_t> broadcast_y_ids(work_group_count);
     std::vector<size_t> broadcast_z_ids(work_group_count);
 
-    kts::Reference1D<cl_type> input_ref_a = [&input_data](size_t id) {
+    kts::Reference1D<T> input_ref_a = [&input_data](size_t id) {
       return input_data[id];
     };
 
@@ -462,38 +486,38 @@ TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
           return broadcast_triple;
         };
 
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_size_x, &local_size_y,
-         &local_size_z, &broadcast_x_ids, &broadcast_y_ids,
-         &broadcast_z_ids](size_t global_linear_id, cl_type value) {
-          const auto global_ids = globalLinearIdToGlobalId(
-              global_linear_id, global_sizes[0], global_sizes[1]);
+    kts::Reference1D<T> output_ref = [&input_data, &global_sizes, &local_size_x,
+                                      &local_size_y, &local_size_z,
+                                      &broadcast_x_ids, &broadcast_y_ids,
+                                      &broadcast_z_ids](size_t global_linear_id,
+                                                        T value) {
+      const auto global_ids = globalLinearIdToGlobalId(
+          global_linear_id, global_sizes[0], global_sizes[1]);
 
-          const auto work_group_id_x = global_ids[0] / local_size_x;
-          const auto work_group_id_y = global_ids[1] / local_size_y;
-          const auto work_group_id_z = global_ids[2] / local_size_z;
+      const auto work_group_id_x = global_ids[0] / local_size_x;
+      const auto work_group_id_y = global_ids[1] / local_size_y;
+      const auto work_group_id_z = global_ids[2] / local_size_z;
 
-          const auto work_group_linear_id =
-              work_group_id_x +
-              work_group_id_y * global_sizes[0] / local_size_x +
-              work_group_id_z * global_sizes[0] / local_size_x *
-                  global_sizes[1] / local_size_y;
+      const auto work_group_linear_id =
+          work_group_id_x + work_group_id_y * global_sizes[0] / local_size_x +
+          work_group_id_z * global_sizes[0] / local_size_x * global_sizes[1] /
+              local_size_y;
 
-          const auto broadcast_x_id = local_size_x * work_group_id_x +
-                                      broadcast_x_ids[work_group_linear_id];
+      const auto broadcast_x_id = local_size_x * work_group_id_x +
+                                  broadcast_x_ids[work_group_linear_id];
 
-          const auto broadcast_y_id = local_size_y * work_group_id_y +
-                                      broadcast_y_ids[work_group_linear_id];
+      const auto broadcast_y_id = local_size_y * work_group_id_y +
+                                  broadcast_y_ids[work_group_linear_id];
 
-          const auto broadcast_z_id = local_size_z * work_group_id_z +
-                                      broadcast_z_ids[work_group_linear_id];
+      const auto broadcast_z_id = local_size_z * work_group_id_z +
+                                  broadcast_z_ids[work_group_linear_id];
 
-          const auto broadcast_linear_id = globalIdToGlobalLinearId(
-              {broadcast_x_id, broadcast_y_id, broadcast_z_id}, global_sizes[0],
-              global_sizes[1]);
+      const auto broadcast_linear_id = globalIdToGlobalLinearId(
+          {broadcast_x_id, broadcast_y_id, broadcast_z_id}, global_sizes[0],
+          global_sizes[1]);
 
-          return value == input_data[broadcast_linear_id];
-        };
+      return value == input_data[broadcast_linear_id];
+    };
 
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
     ucl::Environment::instance->GetInputGenerator().GenerateData<size_t>(
@@ -504,569 +528,374 @@ TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
     this->AddInputBuffer(global_size, input_ref_a);
     this->AddInputBuffer(work_group_count, input_ref_b);
     this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
+    this->RunGenericND(3, global_sizes, local_sizes);
+  }
+};
 
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+TEST_P(WorkGroupCollectiveBroadcast3D,
+       Work_Group_Collective_Functions_05_Broadcast_3D_Int) {
+  doBroadcast3DTest<cl_int>();
+}
+TEST_P(WorkGroupCollectiveBroadcast3D,
+       Work_Group_Collective_Functions_05_Broadcast_3D_Uint) {
+  doBroadcast3DTest<cl_uint>();
+}
+TEST_P(WorkGroupCollectiveBroadcast3D,
+       Work_Group_Collective_Functions_05_Broadcast_3D_Long) {
+  doBroadcast3DTest<cl_long>();
+}
+TEST_P(WorkGroupCollectiveBroadcast3D,
+       Work_Group_Collective_Functions_05_Broadcast_3D_Ulong) {
+  doBroadcast3DTest<cl_ulong>();
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_06_Reduce_Add) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
+struct WorkGroupCollectiveScanReductionTestBase
+    : public WorkGroupCollectiveFunctionsTest {
+  template <typename T, bool ClampInputs = false>
+  void doReductionTest(
+      const std::function<bool(size_t, T, const std::vector<T> &input_data,
+                               const NDRange &global_sizes,
+                               const NDRange &local_sizes)> &output_ref_fn) {
+    const auto &local_sizes = std::get<1>(GetParam());
+    NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
+
     const auto global_size =
         global_sizes[0] * global_sizes[1] * global_sizes[2];
 
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
+    std::vector<T> input_data(global_size);
+    std::vector<T> output_data(global_size);
 
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
+    kts::Reference1D<T> input_ref = [&input_data](size_t id) {
       return input_data[id];
     };
 
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = 0;
-          const auto range =
-              getReductionRange(global_linear_id, global_sizes, local_sizes);
-
-          for (auto x = range.x_start; x < range.x_end; ++x) {
-            for (auto y = range.y_start; y < range.y_end; ++y) {
-              for (auto z = range.z_start; z < range.z_end; ++z) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected += input_data[linear_id];
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    const auto work_group_size = local_size_x * local_size_y * local_size_z;
-    const auto min = std::numeric_limits<cl_type>::min() /
-                     static_cast<cl_type>(work_group_size);
-    const auto max = std::numeric_limits<cl_type>::max() /
-                     static_cast<cl_type>(work_group_size);
-    ucl::Environment::instance->GetInputGenerator().GenerateData<cl_type>(
-        input_data, min, max);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
-}
-
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_07_Reduce_Min) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 1, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
+    kts::Reference1D<T> output_ref = [&input_data, &global_sizes, &local_sizes,
+                                      &output_ref_fn](size_t global_linear_id,
+                                                      T result) {
+      return output_ref_fn(global_linear_id, result, input_data, global_sizes,
+                           local_sizes);
     };
 
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = std::numeric_limits<cl_type>::max();
-          const auto range =
-              getReductionRange(global_linear_id, global_sizes, local_sizes);
-
-          for (auto x = range.x_start; x < range.x_end; ++x) {
-            for (auto y = range.y_start; y < range.y_end; ++y) {
-              for (auto z = range.z_start; z < range.z_end; ++z) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected = std::min(expected, input_data[linear_id]);
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
+    if (!ClampInputs) {
+      ucl::Environment::instance->GetInputGenerator().GenerateData<T>(
+          input_data);
+    } else {
+      const auto work_group_size =
+          local_sizes.x() * local_sizes.y() * local_sizes.z();
+      const auto min =
+          std::numeric_limits<T>::min() / static_cast<T>(work_group_size);
+      const auto max =
+          std::numeric_limits<T>::max() / static_cast<T>(work_group_size);
+      ucl::Environment::instance->GetInputGenerator().GenerateData<T>(
+          input_data, min, max);
+    }
     this->AddInputBuffer(global_size, input_ref);
     this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
+    this->RunGenericND(3, global_sizes, local_sizes);
+  }
+};
 
-  runTestCase(3, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+using WorkGroupCollectiveReductions = WorkGroupCollectiveScanReductionTestBase;
+
+template <typename T>
+bool reduceBinOpRefFn(size_t global_linear_id, T result,
+                      const std::vector<T> &input_data,
+                      const NDRange &global_sizes, const NDRange &local_sizes,
+                      T initial_val, const std::function<T(T, T)> &reduce_fn) {
+  T expected = initial_val;
+  const auto range = getReductionRange(global_linear_id, global_sizes.array,
+                                       local_sizes.array);
+
+  for (auto x = range.x_start; x < range.x_end; ++x) {
+    for (auto y = range.y_start; y < range.y_end; ++y) {
+      for (auto z = range.z_start; z < range.z_end; ++z) {
+        const auto linear_id = globalIdToGlobalLinearId(
+            {x, y, z}, global_sizes[0], global_sizes[1]);
+        expected = reduce_fn(expected, input_data[linear_id]);
+      }
+    }
+  }
+  return result == expected;
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_08_Reduce_Max) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = std::numeric_limits<cl_type>::min();
-          const auto range =
-              getReductionRange(global_linear_id, global_sizes, local_sizes);
-
-          for (auto x = range.x_start; x < range.x_end; ++x) {
-            for (auto y = range.y_start; y < range.y_end; ++y) {
-              for (auto z = range.z_start; z < range.z_end; ++z) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected = std::max(expected, input_data[linear_id]);
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+template <typename T>
+bool reduceAddRefFn(size_t global_linear_id, T result,
+                    const std::vector<T> &input_data,
+                    const NDRange &global_sizes, const NDRange &local_sizes) {
+  const std::function<T(T, T)> &reduce_fn = [](T a, T b) { return a + b; };
+  return reduceBinOpRefFn(global_linear_id, result, input_data, global_sizes,
+                          local_sizes, T{0}, reduce_fn);
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_09_Scan_Exclusive_Add) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = 0;
-          const auto range =
-              getScanRange(global_linear_id, global_sizes, local_sizes,
-                           /* is_inclusive */ false);
-
-          for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
-            const auto y_finish =
-                (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
-            for (auto y = range.y_work_group_start; y < y_finish; ++y) {
-              const auto x_finish =
-                  ((y == range.y_end - 1) && (z == range.z_end - 1))
-                      ? range.x_end
-                      : range.x_work_group_end;
-              for (auto x = range.x_work_group_start; x < x_finish; ++x) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected += input_data[linear_id];
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    const auto work_group_size = local_size_x * local_size_y * local_size_z;
-    const auto min = std::numeric_limits<cl_type>::min() /
-                     static_cast<cl_type>(work_group_size);
-    const auto max = std::numeric_limits<cl_type>::max() /
-                     static_cast<cl_type>(work_group_size);
-    ucl::Environment::instance->GetInputGenerator().GenerateData<cl_type>(
-        input_data, min, max);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_06_Reduce_Add_Int) {
+  doReductionTest<cl_int, true>(reduceAddRefFn<cl_int>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_06_Reduce_Add_Uint) {
+  doReductionTest<cl_uint, true>(reduceAddRefFn<cl_uint>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_06_Reduce_Add_Long) {
+  doReductionTest<cl_long, true>(reduceAddRefFn<cl_long>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_06_Reduce_Add_Ulong) {
+  doReductionTest<cl_ulong, true>(reduceAddRefFn<cl_ulong>);
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_10_Scan_Exclusive_Min) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = std::numeric_limits<cl_type>::max();
-          const auto range =
-              getScanRange(global_linear_id, global_sizes, local_sizes,
-                           /* is_inclusive */ false);
-
-          for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
-            const auto y_finish =
-                (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
-            for (auto y = range.y_work_group_start; y < y_finish; ++y) {
-              const auto x_finish =
-                  ((y == range.y_end - 1) && (z == range.z_end - 1))
-                      ? range.x_end
-                      : range.x_work_group_end;
-              for (auto x = range.x_work_group_start; x < x_finish; ++x) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected = std::min(expected, input_data[linear_id]);
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
+template <typename T>
+bool reduceMinRefFn(size_t global_linear_id, T result,
+                    const std::vector<T> &input_data,
+                    const NDRange &global_sizes, const NDRange &local_sizes) {
+  const std::function<T(T, T)> &reduce_fn = [](T a, T b) {
+    return std::min(a, b);
   };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
+  return reduceBinOpRefFn(global_linear_id, result, input_data, global_sizes,
+                          local_sizes, std::numeric_limits<T>::max(),
+                          reduce_fn);
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_11_Scan_Exclusive_Max) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = std::numeric_limits<cl_type>::min();
-          const auto range =
-              getScanRange(global_linear_id, global_sizes, local_sizes,
-                           /* is_inclusive */ false);
-
-          for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
-            const auto y_finish =
-                (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
-            for (auto y = range.y_work_group_start; y < y_finish; ++y) {
-              const auto x_finish =
-                  ((y == range.y_end - 1) && (z == range.z_end - 1))
-                      ? range.x_end
-                      : range.x_work_group_end;
-              for (auto x = range.x_work_group_start; x < x_finish; ++x) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected = std::max(expected, input_data[linear_id]);
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_07_Reduce_Min_Int) {
+  doReductionTest<cl_int>(reduceMinRefFn<cl_int>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_07_Reduce_Min_Uint) {
+  doReductionTest<cl_uint>(reduceMinRefFn<cl_uint>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_07_Reduce_Min_Long) {
+  doReductionTest<cl_long>(reduceMinRefFn<cl_long>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_07_Reduce_Min_Ulong) {
+  doReductionTest<cl_ulong>(reduceMinRefFn<cl_ulong>);
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_12_Scan_Inclusive_Add) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = 0;
-          const auto range =
-              getScanRange(global_linear_id, global_sizes, local_sizes,
-                           /* is_inclusive */ true);
-
-          for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
-            const auto y_finish =
-                (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
-            for (auto y = range.y_work_group_start; y < y_finish; ++y) {
-              const auto x_finish =
-                  ((y == range.y_end - 1) && (z == range.z_end - 1))
-                      ? range.x_end
-                      : range.x_work_group_end;
-              for (auto x = range.x_work_group_start; x < x_finish; ++x) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected += input_data[linear_id];
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    const auto work_group_size = local_size_x * local_size_y * local_size_z;
-    const auto min = std::numeric_limits<cl_type>::min() /
-                     static_cast<cl_type>(work_group_size);
-    const auto max = std::numeric_limits<cl_type>::max() /
-                     static_cast<cl_type>(work_group_size);
-    ucl::Environment::instance->GetInputGenerator().GenerateData<cl_type>(
-        input_data, min, max);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
+template <typename T>
+bool reduceMaxRefFn(size_t global_linear_id, T result,
+                    const std::vector<T> &input_data,
+                    const NDRange &global_sizes, const NDRange &local_sizes) {
+  const std::function<T(T, T)> &reduce_fn = [](T a, T b) {
+    return std::max(a, b);
   };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+  return reduceBinOpRefFn(global_linear_id, result, input_data, global_sizes,
+                          local_sizes, std::numeric_limits<T>::min(),
+                          reduce_fn);
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_13_Scan_Inclusive_Min) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
-
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
-
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
-
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = std::numeric_limits<cl_type>::max();
-          const auto range =
-              getScanRange(global_linear_id, global_sizes, local_sizes,
-                           /* is_inclusive */ true);
-
-          for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
-            const auto y_finish =
-                (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
-            for (auto y = range.y_work_group_start; y < y_finish; ++y) {
-              const auto x_finish =
-                  ((y == range.y_end - 1) && (z == range.z_end - 1))
-                      ? range.x_end
-                      : range.x_work_group_end;
-              for (auto x = range.x_work_group_start; x < x_finish; ++x) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected = std::min(expected, input_data[linear_id]);
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_08_Reduce_Max_Int) {
+  doReductionTest<cl_int>(reduceMaxRefFn<cl_int>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_08_Reduce_Max_Uint) {
+  doReductionTest<cl_uint>(reduceMaxRefFn<cl_uint>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_08_Reduce_Max_Long) {
+  doReductionTest<cl_long>(reduceMaxRefFn<cl_long>);
+}
+TEST_P(WorkGroupCollectiveReductions,
+       Work_Group_Collective_Functions_08_Reduce_Max_Ulong) {
+  doReductionTest<cl_ulong>(reduceMaxRefFn<cl_ulong>);
 }
 
-TYPED_TEST_P(WorkGroupCollectiveFunctionsTypeParameterizedTest,
-             Work_Group_Collective_Functions_14_Scan_Inclusive_Max) {
-  using cl_type = typename TypeParam::cl_type;
-  auto runTestCase = [this](size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z) {
-    const std::array<size_t, 3> global_sizes{local_size_x * 4, local_size_y,
-                                             local_size_z};
-    const std::array<size_t, 3> local_sizes{local_size_x, local_size_y,
-                                            local_size_z};
-    const auto global_size =
-        global_sizes[0] * global_sizes[1] * global_sizes[2];
+using WorkGroupCollectiveScans = WorkGroupCollectiveScanReductionTestBase;
 
-    std::vector<cl_type> input_data(global_size);
-    std::vector<cl_type> output_data(global_size);
+template <typename T, bool IsInclusive>
+bool scanBinOpRefFn(size_t global_linear_id, T result,
+                    const std::vector<T> &input_data,
+                    const NDRange &global_sizes, const NDRange &local_sizes,
+                    T initial_val, const std::function<T(T, T)> &scan_fn) {
+  T expected = initial_val;
 
-    kts::Reference1D<cl_type> input_ref = [&input_data](size_t id) {
-      return input_data[id];
-    };
+  const auto range =
+      getScanRange(global_linear_id, global_sizes, local_sizes, IsInclusive);
 
-    kts::Reference1D<cl_type> output_ref =
-        [&input_data, &global_sizes, &local_sizes](size_t global_linear_id,
-                                                   cl_type result) {
-          cl_type expected = std::numeric_limits<cl_type>::min();
-          const auto range =
-              getScanRange(global_linear_id, global_sizes, local_sizes,
-                           /* is_inclusive */ true);
-
-          for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
-            const auto y_finish =
-                (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
-            for (auto y = range.y_work_group_start; y < y_finish; ++y) {
-              const auto x_finish =
-                  ((y == range.y_end - 1) && (z == range.z_end - 1))
-                      ? range.x_end
-                      : range.x_work_group_end;
-              for (auto x = range.x_work_group_start; x < x_finish; ++x) {
-                const auto linear_id = globalIdToGlobalLinearId(
-                    {x, y, z}, global_sizes[0], global_sizes[1]);
-                expected = std::max(expected, input_data[linear_id]);
-              }
-            }
-          }
-          return result == expected;
-        };
-
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    this->AddInputBuffer(global_size, input_ref);
-    this->AddOutputBuffer(global_size, output_ref);
-    this->RunGenericND(3, global_sizes.data(), local_sizes.data());
-  };
-
-  runTestCase(64, 1, 1);
-  runTestCase(1, 64, 1);
-  runTestCase(1, 1, 64);
-  runTestCase(67, 1, 1);
-  runTestCase(67, 5, 1);
-  runTestCase(67, 2, 3);
+  for (auto z = range.z_work_group_start; z < range.z_end; ++z) {
+    const auto y_finish =
+        (z == range.z_end - 1) ? range.y_end : range.y_work_group_end;
+    for (auto y = range.y_work_group_start; y < y_finish; ++y) {
+      const auto x_finish = ((y == range.y_end - 1) && (z == range.z_end - 1))
+                                ? range.x_end
+                                : range.x_work_group_end;
+      for (auto x = range.x_work_group_start; x < x_finish; ++x) {
+        const auto linear_id = globalIdToGlobalLinearId(
+            {x, y, z}, global_sizes[0], global_sizes[1]);
+        expected = scan_fn(expected, input_data[linear_id]);
+      }
+    }
+  }
+  return result == expected;
 }
 
-REGISTER_TYPED_TEST_CASE_P(
-    WorkGroupCollectiveFunctionsTypeParameterizedTest,
-    Work_Group_Collective_Functions_03_Broadcast_1D,
-    Work_Group_Collective_Functions_04_Broadcast_2D,
-    Work_Group_Collective_Functions_05_Broadcast_3D,
-    Work_Group_Collective_Functions_06_Reduce_Add,
-    Work_Group_Collective_Functions_07_Reduce_Min,
-    Work_Group_Collective_Functions_08_Reduce_Max,
-    Work_Group_Collective_Functions_09_Scan_Exclusive_Add,
-    Work_Group_Collective_Functions_10_Scan_Exclusive_Min,
-    Work_Group_Collective_Functions_11_Scan_Exclusive_Max,
-    Work_Group_Collective_Functions_12_Scan_Inclusive_Add,
-    Work_Group_Collective_Functions_13_Scan_Inclusive_Min,
-    Work_Group_Collective_Functions_14_Scan_Inclusive_Max);
+template <typename T, bool IsInclusive>
+bool scanAddRefFn(size_t global_linear_id, T result,
+                  const std::vector<T> &input_data, const NDRange &global_sizes,
+                  const NDRange &local_sizes) {
+  const std::function<T(T, T)> &scan_fn = [](T a, T b) { return a + b; };
+  return scanBinOpRefFn<T, IsInclusive>(global_linear_id, result, input_data,
+                                        global_sizes, local_sizes, T{0},
+                                        scan_fn);
+}
 
-#if !defined(__clang_analyzer__)
-// TODO: Enable testing for the floating point types (see CA-4558)
-using ScalarTypes =
-    testing::Types<ucl::Int, ucl::UInt, ucl::Long,
-                   ucl::ULong /*, ucl::Float, ucl::Double, ucl::Half */>;
-#else
-using ScalarTypes = testing::Types<ucl::Int>;
-#endif
-// Reduce the number of types to test if running clang analyzer (or
-// clang-tidy), they'll all result in basically the same code but it takes a
-// long time to analyze all of them.
-INSTANTIATE_TYPED_TEST_CASE_P(ScalarTypes,
-                              WorkGroupCollectiveFunctionsTypeParameterizedTest,
-                              ScalarTypes);
+template <typename T, bool IsInclusive>
+bool scanMinRefFn(size_t global_linear_id, T result,
+                  const std::vector<T> &input_data, const NDRange &global_sizes,
+                  const NDRange &local_sizes) {
+  const std::function<T(T, T)> &scan_fn = [](T a, T b) {
+    return std::min(a, b);
+  };
+  return scanBinOpRefFn<T, IsInclusive>(global_linear_id, result, input_data,
+                                        global_sizes, local_sizes,
+                                        std::numeric_limits<T>::max(), scan_fn);
+}
+
+template <typename T, bool IsInclusive>
+bool scanMaxRefFn(size_t global_linear_id, T result,
+                  const std::vector<T> &input_data, const NDRange &global_sizes,
+                  const NDRange &local_sizes) {
+  const std::function<T(T, T)> &scan_fn = [](T a, T b) {
+    return std::max(a, b);
+  };
+  return scanBinOpRefFn<T, IsInclusive>(global_linear_id, result, input_data,
+                                        global_sizes, local_sizes,
+                                        std::numeric_limits<T>::min(), scan_fn);
+}
+
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_09_Scan_Exclusive_Add_Int) {
+  doReductionTest<cl_int, true>(scanAddRefFn<cl_int, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_09_Scan_Exclusive_Add_UInt) {
+  doReductionTest<cl_uint, true>(scanAddRefFn<cl_uint, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_09_Scan_Exclusive_Add_Long) {
+  doReductionTest<cl_long, true>(scanAddRefFn<cl_long, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_09_Scan_Exclusive_Add_Ulong) {
+  doReductionTest<cl_ulong, true>(scanAddRefFn<cl_ulong, false>);
+}
+
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_10_Scan_Exclusive_Min_Int) {
+  doReductionTest<cl_int>(scanMinRefFn<cl_int, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_10_Scan_Exclusive_Min_Uint) {
+  doReductionTest<cl_uint>(scanMinRefFn<cl_uint, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_10_Scan_Exclusive_Min_Long) {
+  doReductionTest<cl_long>(scanMinRefFn<cl_long, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_10_Scan_Exclusive_Min_Ulong) {
+  doReductionTest<cl_ulong>(scanMinRefFn<cl_ulong, false>);
+}
+
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_11_Scan_Exclusive_Max_Int) {
+  doReductionTest<cl_int>(scanMaxRefFn<cl_int, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_11_Scan_Exclusive_Max_Uint) {
+  doReductionTest<cl_uint>(scanMaxRefFn<cl_uint, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_11_Scan_Exclusive_Max_Long) {
+  doReductionTest<cl_long>(scanMaxRefFn<cl_long, false>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_11_Scan_Exclusive_Max_Ulong) {
+  doReductionTest<cl_ulong>(scanMaxRefFn<cl_ulong, false>);
+}
+
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_12_Scan_Inclusive_Add_Int) {
+  doReductionTest<cl_int, true>(scanAddRefFn<cl_int, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_12_Scan_Inclusive_Add_Uint) {
+  doReductionTest<cl_uint, true>(scanAddRefFn<cl_uint, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_12_Scan_Inclusive_Add_Long) {
+  doReductionTest<cl_long, true>(scanAddRefFn<cl_long, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_12_Scan_Inclusive_Add_Ulong) {
+  doReductionTest<cl_ulong, true>(scanAddRefFn<cl_ulong, true>);
+}
+
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_13_Scan_Inclusive_Min_Int) {
+  doReductionTest<cl_int>(scanMinRefFn<cl_int, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_13_Scan_Inclusive_Min_Uint) {
+  doReductionTest<cl_uint>(scanMinRefFn<cl_uint, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_13_Scan_Inclusive_Min_Long) {
+  doReductionTest<cl_long>(scanMinRefFn<cl_long, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_13_Scan_Inclusive_Min_Ulong) {
+  doReductionTest<cl_ulong>(scanMinRefFn<cl_ulong, true>);
+}
+
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_14_Scan_Inclusive_Max_Int) {
+  doReductionTest<cl_int>(scanMaxRefFn<cl_int, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_14_Scan_Inclusive_Max_Uint) {
+  doReductionTest<cl_uint>(scanMaxRefFn<cl_uint, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_14_Scan_Inclusive_Max_Long) {
+  doReductionTest<cl_long>(scanMaxRefFn<cl_long, true>);
+}
+TEST_P(WorkGroupCollectiveScans,
+       Work_Group_Collective_Functions_14_Scan_Inclusive_Max_Ulong) {
+  doReductionTest<cl_ulong>(scanMaxRefFn<cl_ulong, true>);
+}
+
+static const NDRange local_sizes[] = {
+    NDRange{64u, 1u, 1u}, NDRange{1u, 64u, 1u}, NDRange{1u, 1u, 64u},
+    NDRange{67u, 1u, 1u}, NDRange{67u, 5u, 1u}, NDRange{67u, 2u, 3u},
+};
+
+UCL_EXECUTION_TEST_SUITE_P(
+    WorkGroupCollectiveAnyAll, testing::Values(kts::ucl::OPENCL_C),
+    // Test any/all on all-false, all-true, and random values
+    testing::Combine(testing::ValuesIn(local_sizes),
+                     testing::Values(0, 42, cargo::nullopt)));
+
+UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveBroadcast1D,
+                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::Values(NDRange{64u, 1u, 1u},
+                                           NDRange{67u, 1u, 1u}));
+
+UCL_EXECUTION_TEST_SUITE_P(
+    WorkGroupCollectiveBroadcast2D, testing::Values(kts::ucl::OPENCL_C),
+    testing::Values(NDRange{64u, 1u, 1u}, NDRange{1u, 64u, 1u},
+                    NDRange{67u, 1u, 1u}, NDRange{67u, 5u, 1u}));
+
+UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveBroadcast3D,
+                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(local_sizes));
+
+UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveScans,
+                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(local_sizes));
+
+UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveReductions,
+                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(local_sizes));
