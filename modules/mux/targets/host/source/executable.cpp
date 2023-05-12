@@ -48,6 +48,9 @@ extern void __umoddi3();
 #endif
 
 #if defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
+// Arm uses these to do 64-bit integer division and modulo.
+extern void __aeabi_ldivmod();
+extern void __aeabi_uldivmod();
 // Arm builds use these functions to convert between floats and longs
 extern void __fixdfdi();
 extern void __floatdidf();
@@ -146,9 +149,18 @@ static std::pair<std::string, uint64_t> relocs[] = {
 #endif  // defined(UTILS_SYSTEM_X86) && defined(UTILS_SYSTEM_32_BIT)
 
 #if defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
+    // EABI combined div/mod helpers.
+    {"__aeabi_ldivmod", reinterpret_cast<uint64_t>(&__aeabi_ldivmod)},
+    {"__aeabi_uldivmod", reinterpret_cast<uint64_t>(&__aeabi_uldivmod)},
+    // __fixdfdi and its EABI equivalent convert double to long.
     {"__fixdfdi", reinterpret_cast<uint64_t>(&__fixdfdi)},
+    {"__aeabi_d2lz", reinterpret_cast<uint64_t>(&__fixdfdi)},
+    // __floatdidf and its EABI equivalent convert long to double.
     {"__floatdidf", reinterpret_cast<uint64_t>(&__floatdidf)},
+    {"__aeabi_l2d", reinterpret_cast<uint64_t>(&__floatdidf)},
+    // __floatdisf and its EABI equivalent convert long to float.
     {"__floatdisf", reinterpret_cast<uint64_t>(&__floatdisf)},
+    {"__aeabi_l2f", reinterpret_cast<uint64_t>(&__floatdisf)},
     // fminf and fmaxf are both used by the Arm32 backend when expanding
     // floating-point min/max reductions.
     {"fminf", reinterpret_cast<uint64_t>(&fminf)},
