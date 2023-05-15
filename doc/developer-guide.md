@@ -7,9 +7,7 @@ contains a list of [supported
 versions](overview/compiler/supported-llvm-versions.rst).
 
 LLVM and Clang need to be built and installed separately. The ComputeAorta build
-then uses this installation as a dependency. We maintain a repository that
-tracks known good versions (`ca-llvm`) of LLVM which should simplify tracking
-upstream. Its use is discussed below.
+then uses this installation as a dependency.
 
 ## Directory layout
 
@@ -47,60 +45,14 @@ Current directory layout:
   runner, performance analysis scripts, scripts to help with building, and
   scripts used in continuous integration.
 
-## Work flow
-
-The ComputeAorta work flow is organized around two long running git branches
-and merge requests.
+## Branches
 
 The two long running branches are:
 
-* `master`: This branch is only used for release, you probably don't need to
-  touch it.
-* `develop`: This is the main branch for on-going development. Almost without
-  exception changes to this branch should only be done through merge requests.
+* `main`: This branch is merged to on a successful nightly run and should not be merged into directly.
+* `develop`: This is the main branch for on-going development.
 
 > No force pushes are allowed on these two branches.
-
-### Creating merge requests
-
-To work on ComputeAorta, create a new feature branch based on `develop` with a
-name that reflects the feature being implemented. Please try to avoid long
-running feature branch with unrelated, or big changes as they are hard to
-review.
-
-Once your feature is ready, submit a merge request from your branch to
-`develop`. You can then inform the team that your work is ready for review.
-
-If you want initial review or Jenkins testing for a feature branch, you can
-create a merge request with a title starting with `[WIP]`, this will disable
-the merge button, until you rename removing `[WIP]`.
-
-Also make sure that your merge request can be cleanly merged (this is obvious
-in the review interface) and if it can't, `rebase` your feature branch onto
-develop (`git rebase develop` from your branch) and fix any conflicts. You can
-then update your branch by force pushing it (`git push --force-with-lease
-<remote> <branch>`).
-
-Prefer the `--force-with-lease` option to the `--force` options when updating a
-branch, what this does is that it first checks that your local
-`<remote>/<branch>` actually matches the remote branch, and cancels the force
-push if this is not the case. So for example if someone pushed to the branch
-while you were rebasing, the force push will fail and you won't overwrite what
-was pushed. This is a lot safer than simply using `--force`. Please make sure
-that your git version is configured to use the simple push strategy when force
-pushing something, especially if you don't specify the name of the remote and
-the name of the branch: `git config --global push.default simple`. Otherwise you
-might end up force pushing branches that you didn't intend to force push. It's a
-good rule of thumb to always specify explicitly the remote and the branch when
-force pushing something.
-
-### Merging merge requests
-
-A merge request should only be merged after it has been successfully built and
-tested in all configurations by the gitlab-ci merge request tester (this will
-start automatically when you create your merge request) and have recieved a
-minimum of two reviews from other team members, ideally team members who are
-knowledgable in the related areas of the codebase.
 
 ## Coding style
 
@@ -429,108 +381,6 @@ The builtin CMake options used when invoking CMake on the command line.
 ## Compiling
 
 ### Compiling LLVM
-
-ComputeAorta maintains a Git repository which tracks all currently supported
-LLVM versions using submodules called `ca-llvm`, if you access to this
-repository follow the [`ca-llvm` guide](#compiling-llvm-from-ca-llvm), otherwise
-please follow the [LLVM upstream guide](#compiling-llvm-from-upstream).
-
-In order to reduce the size and compilation time of LLVM builds the
-`LLVM_TARGETS_TO_BUILD` CMake variable is used to enable only the supported
-`X86`, `ARM`, and `AArch64` back ends.
-
-#### Compiling LLVM from `ca-llvm`
-
-The `ca-llvm` repository contains submodules for all currently supported
-versions of LLVM and Clang, these can be found in subdirectories which have the
-same name as the LLVM release branches they point to. The subdirectory names the
-form `release_<major_version><minor_version>` or `develop`, which points to the
-most recent supported commit. The primary reason for structure is to allow
-developers to easily test multiple versions of LLVM side-by-side and to track
-the supported versions in a single place.
-
-##### Compiling LLVM from `ca-llvm` on Linux
-
-The `$LLVMBranch` variable is used in the examples below refers to the
-subdirectory containing the desired LLVM release to compile. Either replace
-`$LLVMBranch` in the example commands or export the environment variable set to
-the desired name.
-
-To configure an LLVM build run the command below from the root of the `ca-llvm`
-repository.
-
-```sh
-cmake . -GNinja \
-  -Bbuild-x86_64/$LLVMBranch \
-  -DCA_LLVM_BRANCH=$LLVMBranch \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=$PWD/build-x86_64/$LLVMBranch/install \
-  -DLLVM_TARGETS_TO_BUILD='X86;ARM;AArch64'
-```
-
-Now the build directory is configured, build the `install` target.
-
-```sh
-ninja -C build-x86_64/$LLVMBranch install
-```
-
-##### Compiling LLVM from `ca-llvm` on Windows
-
-On Windows ComputeAorta supports both the Ninja and Visual Studio CMake
-generators. Ninja produces a build faster due to parallelization but it
-requires first manually running the toolchain specific `vcvarsall.bat` script.
-
-The location of `vcvarsall.bat` on the system differs depending on the version
-of Visual Studio installed. ComputeAorta provides a utility batch script
-`scripts/setup-vcvars.bat` which locates and invokes `vcvarsall.bat` across all
-supported Visual Studio versions.
-
-Executing this script as below will setup the toolchain for a `x86_64` build,
-where the variable `CA_PROJECT` is the location of the ComputeAorta source. The
-Ninja CMake generator can now be used, but `setup-vars.batch` will still have
-to be run in every new terminal session where `ninja` is executed.
-
-```console
-$ %CA_PROJECT%\scripts\setup-vcvars.bat
-**********************************************************************
-** Visual Studio 2019 Developer Command Prompt v16.1.6
-** Copyright (c) 2019 Microsoft Corporation
-**********************************************************************
-[vcvarsall.bat] Environment initialized for: 'x64'
-```
-
-To avoid repeating the `vcvarsall.bat` setup, and provide distinction from the
-Linux instructions, the following Windows build examples will use Visual Studio
-generators.
-
-To configure an LLVM build run the command below from the root of the `ca-llvm`
-repository. The `LLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN` variable is needed when
-building LLVM version 8.0 or later on Visual Studio toolchains prior to MSVC
-version 19.1.
-
-```bat
-cmake . -G"Visual Studio 15 2017 Win64" ^
-  -Bbuild-x86_64\%LLVMBRANCH% ^
-  -DCA_LLVM_BRANCH=%LLVMBRANCH% ^
-  -DCMAKE_BUILD_TYPE=Release ^
-  -DCMAKE_INSTALL_PREFIX=%CD%\build-x86_64\%LLVMBRANCH%\install ^
-  -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64" ^
-  -DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=ON
-```
-
-> Note that using the Ninja generator, `-GNinja`, on Windows may be preferable
-> for improve compilation times.
-
-Now the build directory is configured, build the `install` target. This can be
-done by opening the `ca-llvm.sln` solution in Visual Studio and building the
-`install` target for the Release configuration via the GUI. Alternatively we
-can build on the command line using CMake as shown below.
-
-```bat
-cmake --build %CD%\build-x86_64\%LLVMBranch% --target install --config Release
-```
-
-#### Compiling LLVM from Upstream
 
 ComputeAorta requires an [LLVM](https://github.com/llvm/llvm-project) install
 that includes the `clang` project. First clone the LLVM repository.
