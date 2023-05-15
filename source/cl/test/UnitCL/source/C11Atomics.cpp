@@ -1149,12 +1149,12 @@ class StrongLocalSingle : public C11AtomicTestBase {
 
     // Pick a random index in each work-group to hold the correct
     // expected value.
-    std::vector<size_t> success_indicies(work_group_count, 0);
+    std::vector<size_t> success_indices(work_group_count, 0);
     ucl::Environment::instance->GetInputGenerator().GenerateIntData<size_t>(
-        success_indicies, 0, kts::localN - 1);
-    // Calculate the global id of these indicies
-    for (unsigned i = 0; i < success_indicies.size(); ++i) {
-      success_indicies[i] += i * kts::localN;
+        success_indices, 0, kts::localN - 1);
+    // Calculate the global id of these indices
+    for (unsigned i = 0; i < success_indices.size(); ++i) {
+      success_indices[i] += i * kts::localN;
     }
 
     // We still need N expected values, there will be exactly one correct value
@@ -1176,45 +1176,44 @@ class StrongLocalSingle : public C11AtomicTestBase {
                           std::end(all_values));
 
     kts::Reference1D<T> initializer_reference =
-        [expected_values, success_indicies](size_t index) {
-          return expected_values[success_indicies[index]];
+        [expected_values, success_indices](size_t index) {
+          return expected_values[success_indices[index]];
         };
 
     kts::Reference1D<T> output_reference = [desired_values,
-                                            success_indicies](size_t index) {
-      return desired_values[success_indicies[index]];
+                                            success_indices](size_t index) {
+      return desired_values[success_indices[index]];
     };
 
     kts::Reference1D<T> expected_in_reference =
         [expected_values](size_t index) { return expected_values[index]; };
 
-    kts::Reference1D<T> expected_output_reference = [success_indicies,
-                                                     expected_values,
-                                                     desired_values](
-                                                        size_t index, T value) {
-      // Expected output will contain its original value if at a success index
-      // otherwise it will contain the value stored in the atomic which will
-      // be either the initial value if the sucessful thread hasn't executed
-      // the exchange yet, or the desired value of the success index if it
-      // has.
-      const size_t work_group = index / kts::localN;
-      const size_t success_index_of_workgroup = success_indicies[work_group];
-      if (index == success_index_of_workgroup) {
-        return value == expected_values[index];
-      }
+    kts::Reference1D<T> expected_output_reference =
+        [success_indices, expected_values, desired_values](size_t index,
+                                                           T value) {
+          // Expected output will contain its original value if at a success
+          // index otherwise it will contain the value stored in the atomic
+          // which will be either the initial value if the sucessful thread
+          // hasn't executed the exchange yet, or the desired value of the
+          // success index if it has.
+          const size_t work_group = index / kts::localN;
+          const size_t success_index_of_workgroup = success_indices[work_group];
+          if (index == success_index_of_workgroup) {
+            return value == expected_values[index];
+          }
 
-      return value == expected_values[success_index_of_workgroup] ||
-             value == desired_values[success_index_of_workgroup];
-    };
+          return value == expected_values[success_index_of_workgroup] ||
+                 value == desired_values[success_index_of_workgroup];
+        };
     kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    kts::Reference1D<cl_int> bool_output_reference = [success_indicies](
-                                                         size_t index) {
-      const size_t work_group = index / kts::localN;
-      const size_t success_index_of_workgroup = success_indicies[work_group];
-      return index == success_index_of_workgroup;
-    };
+    kts::Reference1D<cl_int> bool_output_reference =
+        [success_indices](size_t index) {
+          const size_t work_group = index / kts::localN;
+          const size_t success_index_of_workgroup = success_indices[work_group];
+          return index == success_index_of_workgroup;
+        };
     // Set up the buffers.
     AddInOutBuffer(kts::N / kts::localN, initializer_reference,
                    output_reference);
@@ -1280,9 +1279,9 @@ class Weak : public C11AtomicTestBase {
       // input.
       return (index % 2) ? expected_value : !expected_value;
     };
-    std::vector<size_t> failed_comparison_indicies;
+    std::vector<size_t> failed_comparison_indices;
     kts::Reference1D<T> output_reference = [input_data, desired_data,
-                                            &failed_comparison_indicies](
+                                            &failed_comparison_indices](
                                                size_t index, T value) {
       // Weak compare-exchange operations may fail spuriously, returning 0
       // when the contents of memory in expected and the atomic are equal,
@@ -1297,7 +1296,7 @@ class Weak : public C11AtomicTestBase {
         }
         // If not the memory shouldn't have been updated and we need to
         // record which exchanges didn't succeed.
-        failed_comparison_indicies.push_back(index);
+        failed_comparison_indices.push_back(index);
       }
       // Failure index and we need to check the memory wasn't updated.
       return value == input_data[index];
@@ -1305,13 +1304,13 @@ class Weak : public C11AtomicTestBase {
     kts::Reference1D<T> desired_reference = [desired_data](size_t index) {
       return desired_data[index];
     };
-    kts::Reference1D<cl_int> bool_reference = [&failed_comparison_indicies](
+    kts::Reference1D<cl_int> bool_reference = [&failed_comparison_indices](
                                                   size_t index, cl_int value) {
       // Check if we are at success index that didn't fail.
       if ((index % 2) &&
-          std::find(std::begin(failed_comparison_indicies),
-                    std::end(failed_comparison_indicies),
-                    index) == std::end(failed_comparison_indicies)) {
+          std::find(std::begin(failed_comparison_indices),
+                    std::end(failed_comparison_indices),
+                    index) == std::end(failed_comparison_indices)) {
         return value == true;
       }
 
@@ -1488,16 +1487,16 @@ class WeakLocalSingle : public C11AtomicTestBase {
  public:
   template <typename T>
   void doTest(bool local_local = false) {
-    std::vector<size_t> success_indicies(kts::N / kts::localN, 0);
+    std::vector<size_t> success_indices(kts::N / kts::localN, 0);
     std::vector<bool> weak_exchanges_failed(kts::N / kts::localN, false);
     // Set up references.
     // Pick a random index in each work-group to hold the correct
     // expected value.
     ucl::Environment::instance->GetInputGenerator().GenerateIntData<size_t>(
-        success_indicies, 0, kts::localN - 1);
-    // Calculate the global id of these indicies
-    for (unsigned i = 0; i < success_indicies.size(); ++i) {
-      success_indicies[i] += i * kts::localN;
+        success_indices, 0, kts::localN - 1);
+    // Calculate the global id of these indices
+    for (unsigned i = 0; i < success_indices.size(); ++i) {
+      success_indices[i] += i * kts::localN;
     }
 
     // We still need N expected values, there will be exactly one correct
@@ -1518,50 +1517,48 @@ class WeakLocalSingle : public C11AtomicTestBase {
                           std::end(all_values));
 
     kts::Reference1D<T> initializer_reference =
-        [&expected_values, &success_indicies](size_t index) {
-          return expected_values[success_indicies[index]];
+        [&expected_values, &success_indices](size_t index) {
+          return expected_values[success_indices[index]];
         };
 
     kts::Reference1D<T> output_reference =
-        [&success_indicies, &weak_exchanges_failed, &expected_values,
+        [&success_indices, &weak_exchanges_failed, &expected_values,
          &desired_values](size_t index, T value) {
           // Weak compare-exchange operations may fail spuriously, returning 0
           // when the contents of memory in expected and the atomic are equal,
           // it may return zero and store back to expected the same memory
           // contents that were originally there.
-          if (value == expected_values[success_indicies[index]]) {
+          if (value == expected_values[success_indices[index]]) {
             weak_exchanges_failed[index / kts::localN] = true;
             return true;
           }
 
-          return value == desired_values[success_indicies[index]];
+          return value == desired_values[success_indices[index]];
         };
 
     kts::Reference1D<T> expected_in_reference =
         [&expected_values](size_t index) { return expected_values[index]; };
 
-    kts::Reference1D<T> expected_output_reference = [&expected_values,
-                                                     &desired_values,
-                                                     &success_indicies](
-                                                        size_t index, T value) {
-      // Expected output will contain its original value if at a success
-      // index otherwise it will contain the value stored in the atomic
-      // which will be either the initial value if the sucessful thread
-      // hasn't executed the exchange yet, or the desired value of the
-      // success index if it has.
-      const size_t work_group = index / kts::localN;
-      const size_t success_index_of_workgroup = success_indicies[work_group];
-      return value == expected_values[success_index_of_workgroup] ||
-             value == desired_values[success_index_of_workgroup];
-    };
+    kts::Reference1D<T> expected_output_reference =
+        [&expected_values, &desired_values, &success_indices](size_t index,
+                                                              T value) {
+          // Expected output will contain its original value if at a success
+          // index otherwise it will contain the value stored in the atomic
+          // which will be either the initial value if the sucessful thread
+          // hasn't executed the exchange yet, or the desired value of the
+          // success index if it has.
+          const size_t work_group = index / kts::localN;
+          const size_t success_index_of_workgroup = success_indices[work_group];
+          return value == expected_values[success_index_of_workgroup] ||
+                 value == desired_values[success_index_of_workgroup];
+        };
     kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
     kts::Reference1D<T> bool_output_reference =
-        [&success_indicies, &weak_exchanges_failed](size_t index) {
+        [&success_indices, &weak_exchanges_failed](size_t index) {
           const size_t work_group = index / kts::localN;
-          const size_t success_index_of_workgroup =
-              success_indicies[work_group];
+          const size_t success_index_of_workgroup = success_indices[work_group];
           return (index == success_index_of_workgroup) &&
                  !weak_exchanges_failed[work_group];
         };
