@@ -27,6 +27,7 @@ TEST_F(clReleaseCommandQueueTest, Default) {
 // Based on the cts test test_api queue_flush_on_release
 TEST_F(clReleaseCommandQueueTest, TestEventFlush) {
   if (!UCL::hasCompilerSupport(device)) {
+    EXPECT_SUCCESS(clReleaseCommandQueue(queue));
     GTEST_SKIP();
   }
 
@@ -66,5 +67,6 @@ TEST_F(clReleaseCommandQueueTest, TestEventFlush) {
     std::this_thread::sleep_for(std::chrono::microseconds(100 * 1000));
   }
 
+  clReleaseEvent(event);
   EXPECT_TRUE(status == CL_COMPLETE);
 }

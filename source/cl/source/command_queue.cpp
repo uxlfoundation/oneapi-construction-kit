@@ -684,6 +684,9 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
       signal_event->submitted();
     }
 
+    for (auto &w : dispatch.wait_events) {
+      cl::releaseInternal(w);
+    }
     // All wait_events are no longer required past this point.
     dispatch.wait_events.clear();
 
@@ -829,8 +832,15 @@ cl_int _cl_command_queue::dropDispatchesPending(
         cl::releaseInternal(signal_event);
       }
       dispatch.signal_events.clear();
+      for (auto &w : dispatch.wait_events) {
+        cl::releaseInternal(w);
+      }
       dispatch.wait_events.clear();
 
+      for (auto &s : dispatch.wait_semaphores) {
+        releaseSemaphore(s);
+      }
+      dispatch.wait_semaphores.clear();
       // Add command buffer to removal list.
       if (command_buffers.push_back(command_buffer)) {
         return CL_OUT_OF_RESOURCES;
