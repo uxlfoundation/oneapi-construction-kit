@@ -872,30 +872,34 @@ static const NDRange local_sizes[] = {
     NDRange{67u, 1u, 1u}, NDRange{67u, 5u, 1u}, NDRange{67u, 2u, 3u},
 };
 
+static const kts::ucl::SourceType source_types[] = {
+    kts::ucl::OPENCL_C, kts::ucl::OFFLINE, kts::ucl::SPIRV,
+    kts::ucl::OFFLINESPIRV};
+
 UCL_EXECUTION_TEST_SUITE_P(
-    WorkGroupCollectiveAnyAll, testing::Values(kts::ucl::OPENCL_C),
+    WorkGroupCollectiveAnyAll, testing::ValuesIn(source_types),
     // Test any/all on all-false, all-true, and random values
     testing::Combine(testing::ValuesIn(local_sizes),
                      testing::Values(0, 42, cargo::nullopt)));
 
 UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveBroadcast1D,
-                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(source_types),
                            testing::Values(NDRange{64u, 1u, 1u},
                                            NDRange{67u, 1u, 1u}));
 
 UCL_EXECUTION_TEST_SUITE_P(
-    WorkGroupCollectiveBroadcast2D, testing::Values(kts::ucl::OPENCL_C),
+    WorkGroupCollectiveBroadcast2D, testing::ValuesIn(source_types),
     testing::Values(NDRange{64u, 1u, 1u}, NDRange{1u, 64u, 1u},
                     NDRange{67u, 1u, 1u}, NDRange{67u, 5u, 1u}));
 
 UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveBroadcast3D,
-                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(source_types),
                            testing::ValuesIn(local_sizes));
 
 UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveScans,
-                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(source_types),
                            testing::ValuesIn(local_sizes));
 
 UCL_EXECUTION_TEST_SUITE_P(WorkGroupCollectiveReductions,
-                           testing::Values(kts::ucl::OPENCL_C),
+                           testing::ValuesIn(source_types),
                            testing::ValuesIn(local_sizes));
