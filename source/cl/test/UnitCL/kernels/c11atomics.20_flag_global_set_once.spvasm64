@@ -1,0 +1,94 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 43
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability GenericPointer
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %38 "flag_global_set_once" %__spirv_BuiltInGlobalInvocationId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %flag_global_set_once "flag_global_set_once"
+               OpName %flag_buffer "flag_buffer"
+               OpName %output_buffer "output_buffer"
+               OpName %entry "entry"
+               OpName %flag_buffer_addr "flag_buffer.addr"
+               OpName %output_buffer_addr "output_buffer.addr"
+               OpName %gid "gid"
+               OpName %call "call"
+               OpName %conv "conv"
+               OpName %idx_ext "idx.ext"
+               OpName %add_ptr "add.ptr"
+               OpName %add_ptr_ascast "add.ptr.ascast"
+               OpName %call1 "call1"
+               OpName %conv2 "conv2"
+               OpName %idxprom "idxprom"
+               OpName %arrayidx "arrayidx"
+               OpName %flag_buffer_0 "flag_buffer"
+               OpName %output_buffer_0 "output_buffer"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %flag_global_set_once LinkageAttributes "flag_global_set_once" Export
+               OpDecorate %flag_buffer Alignment 4
+               OpDecorate %output_buffer Alignment 4
+               OpDecorate %flag_buffer_addr Alignment 8
+               OpDecorate %output_buffer_addr Alignment 8
+               OpDecorate %gid Alignment 4
+               OpDecorate %flag_buffer_0 Alignment 4
+               OpDecorate %output_buffer_0 Alignment 4
+               OpDecorate %flag_buffer_0 Volatile
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Generic_uint = OpTypePointer Generic %uint
+       %bool = OpTypeBool
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%flag_global_set_once = OpFunction %void DontInline %9
+%flag_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+%flag_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+%output_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+        %gid = OpVariable %_ptr_Function_uint Function
+               OpStore %flag_buffer_addr %flag_buffer Aligned 8
+               OpStore %output_buffer_addr %output_buffer Aligned 8
+         %19 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId Aligned 32
+       %call = OpCompositeExtract %ulong %19 0
+       %conv = OpUConvert %uint %call
+               OpStore %gid %conv Aligned 4
+         %22 = OpLoad %_ptr_CrossWorkgroup_uint %flag_buffer_addr Aligned 8
+         %23 = OpLoad %uint %gid Aligned 4
+    %idx_ext = OpUConvert %ulong %23
+    %add_ptr = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %22 %idx_ext
+%add_ptr_ascast = OpPtrCastToGeneric %_ptr_Generic_uint %add_ptr
+      %call1 = OpAtomicFlagTestAndSet %bool %add_ptr_ascast %uint_4 %uint_0
+      %conv2 = OpSelect %uint %call1 %uint_1 %uint_0
+         %34 = OpLoad %_ptr_CrossWorkgroup_uint %output_buffer_addr Aligned 8
+         %35 = OpLoad %uint %gid Aligned 4
+    %idxprom = OpUConvert %ulong %35
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %34 %idxprom
+               OpStore %arrayidx %conv2 Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %38 = OpFunction %void DontInline %9
+%flag_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %41 = OpLabel
+         %42 = OpFunctionCall %void %flag_global_set_once %flag_buffer_0 %output_buffer_0
+               OpReturn
+               OpFunctionEnd

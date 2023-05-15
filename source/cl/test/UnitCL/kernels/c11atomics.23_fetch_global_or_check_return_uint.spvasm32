@@ -1,0 +1,82 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 36
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability GenericPointer
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %31 "fetch_global_or_check_return_uint" %__spirv_BuiltInGlobalInvocationId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %fetch_global_or_check_return_uint "fetch_global_or_check_return_uint"
+               OpName %input_buffer "input_buffer"
+               OpName %output_buffer "output_buffer"
+               OpName %entry "entry"
+               OpName %input_buffer_addr "input_buffer.addr"
+               OpName %output_buffer_addr "output_buffer.addr"
+               OpName %gid "gid"
+               OpName %call "call"
+               OpName %add_ptr "add.ptr"
+               OpName %add_ptr_ascast "add.ptr.ascast"
+               OpName %call1 "call1"
+               OpName %arrayidx "arrayidx"
+               OpName %input_buffer_0 "input_buffer"
+               OpName %output_buffer_0 "output_buffer"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %fetch_global_or_check_return_uint LinkageAttributes "fetch_global_or_check_return_uint" Export
+               OpDecorate %input_buffer Alignment 4
+               OpDecorate %output_buffer Alignment 4
+               OpDecorate %input_buffer_addr Alignment 4
+               OpDecorate %output_buffer_addr Alignment 4
+               OpDecorate %gid Alignment 4
+               OpDecorate %input_buffer_0 Alignment 4
+               OpDecorate %output_buffer_0 Alignment 4
+               OpDecorate %input_buffer_0 Volatile
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %8 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Generic_uint = OpTypePointer Generic %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+%fetch_global_or_check_return_uint = OpFunction %void DontInline %8
+%input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+%input_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+%output_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+        %gid = OpVariable %_ptr_Function_uint Function
+               OpStore %input_buffer_addr %input_buffer Aligned 4
+               OpStore %output_buffer_addr %output_buffer Aligned 4
+         %18 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId Aligned 16
+       %call = OpCompositeExtract %uint %18 0
+               OpStore %gid %call Aligned 4
+         %20 = OpLoad %_ptr_CrossWorkgroup_uint %input_buffer_addr Aligned 4
+         %21 = OpLoad %uint %gid Aligned 4
+    %add_ptr = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %20 %21
+%add_ptr_ascast = OpPtrCastToGeneric %_ptr_Generic_uint %add_ptr
+      %call1 = OpAtomicOr %uint %add_ptr_ascast %uint_4 %uint_0 %uint_0
+         %28 = OpLoad %_ptr_CrossWorkgroup_uint %output_buffer_addr Aligned 4
+         %29 = OpLoad %uint %gid Aligned 4
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %28 %29
+               OpStore %arrayidx %call1 Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %31 = OpFunction %void DontInline %8
+%input_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %34 = OpLabel
+         %35 = OpFunctionCall %void %fetch_global_or_check_return_uint %input_buffer_0 %output_buffer_0
+               OpReturn
+               OpFunctionEnd
