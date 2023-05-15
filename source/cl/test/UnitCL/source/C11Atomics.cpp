@@ -10,97 +10,66 @@
 
 using namespace kts::ucl;
 
-// The supported atomic types.
-using AtomicTypes = testing::Types<ucl::Int, ucl::UInt, ucl::Float>;
+static const kts::ucl::SourceType source_types[] = {kts::ucl::OPENCL_C};
 
-template <typename T>
-class InitTest : public BaseExecution {};
+class C11AtomicTestBase : public kts::ucl::Execution {
+ public:
+  void SetUp() override {
+    UCL_RETURN_ON_FATAL_FAILURE(BaseExecution::SetUp());
+    // The C11 atomic were introduced in 2.0 however here we only test
+    // the minimum required subset for 3.0.
+    if (!UCL::isDeviceVersionAtLeast({3, 0})) {
+      GTEST_SKIP();
+    }
 
-TYPED_TEST_SUITE_P(InitTest);
-
-TYPED_TEST_P(InitTest, C11Atomics_01_Init_Global) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
+    this->AddBuildOption("-cl-std=CL3.0");
   }
+};
 
-  using cl_type = typename TypeParam::cl_type;
+class InitTest : public C11AtomicTestBase {
+ public:
+  template <typename T>
+  void doTest(bool local = false) {
+    // Generate the random input.
+    std::vector<T> input_data(kts::N, T{});
+    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
 
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
+    // Set up references.
+    kts::Reference1D<T> random_reference = [&input_data](size_t index) {
+      return input_data[index];
+    };
 
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
+    // Set up the buffers.
+    AddInputBuffer(kts::N, random_reference);
+    AddOutputBuffer(kts::N, random_reference);
+    if (local) {
+      AddLocalBuffer(kts::N);
+    }
 
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
+    // Run the test.
+    RunGeneric1D(kts::N);
+  }
+};
 
-  // Set up the buffers.
-  this->AddInputBuffer(kts::N, random_reference);
-  this->AddOutputBuffer(kts::N, random_reference);
+TEST_P(InitTest, C11Atomics_01_Init_Global_Int) { doTest<cl_int>(); }
+TEST_P(InitTest, C11Atomics_01_Init_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(InitTest, C11Atomics_01_Init_Global_Float) { doTest<cl_float>(); }
 
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(InitTest, C11Atomics_02_Init_Local_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(InitTest, C11Atomics_02_Init_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(InitTest, C11Atomics_02_Init_Local_Float) {
+  doTest<cl_float>(/*local*/ true);
 }
 
-TYPED_TEST_P(InitTest, C11Atomics_02_Init_Local) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
+UCL_EXECUTION_TEST_SUITE(InitTest, testing::ValuesIn(source_types));
 
-  using cl_type = typename TypeParam::cl_type;
+class FenceTest : public C11AtomicTestBase {};
 
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  this->AddInputBuffer(kts::N, random_reference);
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
-}
-
-REGISTER_TYPED_TEST_SUITE_P(InitTest, C11Atomics_01_Init_Global,
-                            C11Atomics_02_Init_Local);
-
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicTypes, InitTest, AtomicTypes);
-
-class FenceTest : public BaseExecution {};
-
-TEST_F(FenceTest, C11Atomics_03_Fence_Acquire_Release) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  this->AddBuildOption("-cl-std=CL3.0");
-
+TEST_P(FenceTest, C11Atomics_03_Fence_Acquire_Release) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   kts::Reference1D<cl_int> zero_reference = [](size_t) { return cl_int{0}; };
@@ -111,15 +80,7 @@ TEST_F(FenceTest, C11Atomics_03_Fence_Acquire_Release) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FenceTest, C11Atomics_04_Fence_Acquire) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  this->AddBuildOption("-cl-std=CL3.0");
-
+TEST_P(FenceTest, C11Atomics_04_Fence_Acquire) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   kts::Reference1D<cl_int> zero_reference = [](size_t) { return cl_int{0}; };
@@ -130,15 +91,7 @@ TEST_F(FenceTest, C11Atomics_04_Fence_Acquire) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FenceTest, C11Atomics_05_Fence_Release) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  this->AddBuildOption("-cl-std=CL3.0");
-
+TEST_P(FenceTest, C11Atomics_05_Fence_Release) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   kts::Reference1D<cl_int> zero_reference = [](size_t) { return cl_int{0}; };
@@ -149,13 +102,7 @@ TEST_F(FenceTest, C11Atomics_05_Fence_Release) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FenceTest, C11Atomics_06_Fence_Relaxed) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
+TEST_P(FenceTest, C11Atomics_06_Fence_Relaxed) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   kts::Reference1D<cl_int> zero_reference = [](size_t) { return cl_int{0}; };
@@ -168,15 +115,7 @@ TEST_F(FenceTest, C11Atomics_06_Fence_Relaxed) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FenceTest, C11Atomics_07_Fence_Global) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  this->AddBuildOption("-cl-std=CL3.0");
-
+TEST_P(FenceTest, C11Atomics_07_Fence_Global) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   kts::Reference1D<cl_int> zero_reference = [](size_t) { return cl_int{0}; };
@@ -187,15 +126,7 @@ TEST_F(FenceTest, C11Atomics_07_Fence_Global) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FenceTest, C11Atomics_08_Fence_Local) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  this->AddBuildOption("-cl-std=CL3.0");
-
+TEST_P(FenceTest, C11Atomics_08_Fence_Local) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   this->AddOutputBuffer(kts::N, kts::Ref_Identity);
@@ -205,258 +136,118 @@ TEST_F(FenceTest, C11Atomics_08_Fence_Local) {
   this->RunGeneric1D(kts::N, kts::localN);
 }
 
-template <typename T>
-class StoreTest : public BaseExecution {};
+UCL_EXECUTION_TEST_SUITE(FenceTest, testing::ValuesIn(source_types));
 
-TYPED_TEST_SUITE_P(StoreTest);
+class LoadStoreTest : public C11AtomicTestBase {
+ public:
+  template <typename T>
+  void doTest(bool local = false) {
+    // Generate the random input.
+    std::vector<T> input_data(kts::N, T{});
+    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
 
-TYPED_TEST_P(StoreTest, C11Atomics_09_Store_Local) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
+    kts::Reference1D<T> random_reference = [&input_data](size_t index) {
+      return input_data[index];
+    };
+
+    // Set up the buffers.
+    AddInputBuffer(kts::N, random_reference);
+    AddOutputBuffer(kts::N, random_reference);
+    if (local) {
+      AddLocalBuffer(kts::N);
+    }
+
+    // Run the test.
+    RunGeneric1D(kts::N);
   }
+};
 
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  this->AddInputBuffer(kts::N, random_reference);
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Float) {
+  doTest<cl_float>(/*local*/ true);
 }
 
-TYPED_TEST_P(StoreTest, C11Atomics_10_Store_Global) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
+TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Int) { doTest<cl_int>(); }
+TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Float) { doTest<cl_float>(); }
 
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  this->AddInputBuffer(kts::N, random_reference);
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Float) {
+  doTest<cl_float>(/*local*/ true);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(StoreTest, C11Atomics_09_Store_Local,
-                            C11Atomics_10_Store_Global);
+TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Int) { doTest<cl_int>(); }
+TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Float) { doTest<cl_float>(); }
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicTypes, StoreTest, AtomicTypes);
+UCL_EXECUTION_TEST_SUITE(LoadStoreTest, testing::ValuesIn(source_types));
 
-template <typename T>
-class LoadTest : public BaseExecution {};
+class ExchangeTest : public C11AtomicTestBase {
+ public:
+  template <typename T>
+  void doTest(bool local = false) {
+    // Generate the random input.
+    std::vector<T> initializer_data(kts::N, T{});
+    ucl::Environment::instance->GetInputGenerator().GenerateData(
+        initializer_data);
 
-TYPED_TEST_SUITE_P(LoadTest);
+    std::vector<T> desired_data(kts::N, T{});
+    ucl::Environment::instance->GetInputGenerator().GenerateData(desired_data);
 
-TYPED_TEST_P(LoadTest, C11Atomics_11_Load_Local) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
+    kts::Reference1D<T> initializer_reference =
+        [&initializer_data](size_t index) { return initializer_data[index]; };
+
+    kts::Reference1D<T> desired_reference = [&desired_data](size_t index) {
+      return desired_data[index];
+    };
+
+    // Set up the buffers.
+    // The initial values of the atomics are the input.
+    // The desired values exchanged into the atomics are the expected output.
+    AddInOutBuffer(kts::N, initializer_reference, desired_reference);
+    // The desired values exchanged into the atomics are the input.
+    AddInputBuffer(kts::N, desired_reference);
+    // The initial atomic values exchanged out of the atomics are the expected
+    // output.
+    AddOutputBuffer(kts::N, initializer_reference);
+    if (local) {
+      AddLocalBuffer(kts::N);
+    }
+
+    // Run the test.
+    RunGeneric1D(kts::N);
   }
+};
 
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  this->AddInputBuffer(kts::N, random_reference);
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Float) {
+  doTest<cl_float>(/*local*/ true);
 }
 
-TYPED_TEST_P(LoadTest, C11Atomics_12_Load_Global) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  this->AddInputBuffer(kts::N, random_reference);
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Int) { doTest<cl_int>(); }
+TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Float) {
+  doTest<cl_float>();
 }
 
-REGISTER_TYPED_TEST_SUITE_P(LoadTest, C11Atomics_11_Load_Local,
-                            C11Atomics_12_Load_Global);
+UCL_EXECUTION_TEST_SUITE(ExchangeTest, testing::ValuesIn(source_types));
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicTypes, LoadTest, AtomicTypes);
-
-template <typename T>
-class ExchangeTest : public BaseExecution {};
-
-TYPED_TEST_SUITE_P(ExchangeTest);
-
-TYPED_TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> initializer_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(
-      initializer_data);
-
-  std::vector<cl_type> desired_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(desired_data);
-
-  kts::Reference1D<cl_type> initializer_reference =
-      [&initializer_data](size_t index) { return initializer_data[index]; };
-
-  kts::Reference1D<cl_type> desired_reference = [&desired_data](size_t index) {
-    return desired_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the input.
-  // The desired values exchanged into the atomics are the expected output.
-  this->AddInOutBuffer(kts::N, initializer_reference, desired_reference);
-  // The desired values exchanged into the atomics are the input.
-  this->AddInputBuffer(kts::N, desired_reference);
-  // The initial atomic values exchanged out of the atomics are the expected
-  // output.
-  this->AddOutputBuffer(kts::N, initializer_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
-}
-
-TYPED_TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global) {
-  // The C11 atomic were introduced in 2.0 however here we only test
-  // the minimum required subset for 3.0.
-  if (!UCL::isDeviceVersionAtLeast({3, 0})) {
-    GTEST_SKIP();
-  }
-
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> initializer_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(
-      initializer_data);
-
-  std::vector<cl_type> desired_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(desired_data);
-
-  kts::Reference1D<cl_type> initializer_reference =
-      [&initializer_data](size_t index) { return initializer_data[index]; };
-
-  kts::Reference1D<cl_type> desired_reference = [&desired_data](size_t index) {
-    return desired_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the input.
-  // The desired values exchanged into the atomics are the expected output.
-  this->AddInOutBuffer(kts::N, initializer_reference, desired_reference);
-  // The desired values exchanged into the atomics are the input.
-  this->AddInputBuffer(kts::N, desired_reference);
-  // The initial atomic values exchanged out of the atomics are the expected
-  // output.
-  this->AddOutputBuffer(kts::N, initializer_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
-}
-
-REGISTER_TYPED_TEST_SUITE_P(ExchangeTest, C11Atomics_13_Exchange_Local,
-                            C11Atomics_14_Exchange_Global);
-
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicTypes, ExchangeTest, AtomicTypes);
-
-class FlagTest : public BaseExecution {
+class FlagTest : public kts::ucl::Execution {
  protected:
   static const kts::Reference1D<cl_int> false_reference;
   static const kts::Reference1D<cl_int> true_reference;
@@ -469,7 +260,7 @@ const kts::Reference1D<cl_int> FlagTest::true_reference = [](size_t) {
   return CL_TRUE;
 };
 
-TEST_F(FlagTest, C11Atomics_17_Flag_Local_Clear_Set) {
+TEST_P(FlagTest, C11Atomics_17_Flag_Local_Clear_Set) {
   // The C11 atomic were introduced in 2.0 however here we only test
   // the minimum required subset for 3.0.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -488,7 +279,7 @@ TEST_F(FlagTest, C11Atomics_17_Flag_Local_Clear_Set) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
+TEST_P(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
   // The C11 atomic were introduced in 2.0 however here we only test
   // the minimum required subset for 3.0.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -507,7 +298,7 @@ TEST_F(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FlagTest, C11Atomics_19_Flag_Global_Clear) {
+TEST_P(FlagTest, C11Atomics_19_Flag_Global_Clear) {
   // The C11 atomic were introduced in 2.0 however here we only test
   // the minimum required subset for 3.0.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -525,7 +316,7 @@ TEST_F(FlagTest, C11Atomics_19_Flag_Global_Clear) {
   this->RunGeneric1D(kts::N);
 }
 
-TEST_F(FlagTest, C11Atomics_20_Flag_Global_Set_Once) {
+TEST_P(FlagTest, C11Atomics_20_Flag_Global_Set_Once) {
   // The C11 atomic were introduced in 2.0 however here we only test
   // the minimum required subset for 3.0.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -544,984 +335,479 @@ TEST_F(FlagTest, C11Atomics_20_Flag_Global_Set_Once) {
   this->RunGeneric1D(kts::N);
 }
 
-using AtomicIntegerTypes = testing::Types<ucl::Int, ucl::UInt>;
+UCL_EXECUTION_TEST_SUITE(FlagTest, testing::ValuesIn(source_types));
 
-template <typename T>
-class FetchTest : public BaseExecution {
+class FetchTest : public C11AtomicTestBase {
  protected:
-  void SetUp() override {
-    UCL_RETURN_ON_FATAL_FAILURE(BaseExecution::SetUp());
-    // The C11 atomic were introduced in 2.0 however here we only test
-    // the minimum required subset for 3.0.
-    if (!UCL::isDeviceVersionAtLeast({3, 0}) ||
-        !UCL::hasCompilerSupport(device)) {
-      GTEST_SKIP();
+  template <typename T>
+  void doCheckReturnTest(bool local = false) {
+    // Generate the random input.
+    std::vector<T> input_data(kts::N, T{});
+    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
+
+    kts::Reference1D<T> random_reference = [&input_data](size_t index) {
+      return input_data[index];
+    };
+
+    // Set up the buffers.
+    // The initial values of the atomics are the random input.
+    AddInputBuffer(kts::N, random_reference);
+    // The expected output values are the initial values loaded atomically.
+    AddOutputBuffer(kts::N, random_reference);
+    if (local) {
+      AddLocalBuffer(kts::N);
     }
+
+    // Run the test.
+    RunGeneric1D(kts::N);
+  }
+
+  template <typename T>
+  void doTest(
+      const std::function<T(size_t, const std::vector<T> &)> &init_ref_fn,
+      const std::function<T(size_t, const std::vector<T> &)> &op_ref_fn,
+      bool clamp = false) {
+    // Generate the random input.
+    std::vector<T> input_data(kts::N, T{});
+    if (!clamp) {
+      ucl::Environment::instance->GetInputGenerator().GenerateIntData(
+          input_data);
+    } else {
+      // We need to be careful we don't overflow, so limit the min and max
+      // values.
+      const T min = std::numeric_limits<T>::min() / static_cast<T>(kts::N);
+      const T max = std::numeric_limits<T>::max() / static_cast<T>(kts::N);
+      ucl::Environment::instance->GetInputGenerator().GenerateIntData(
+          input_data, min, max);
+    }
+    kts::Reference1D<T> random_reference = [&input_data](size_t index) {
+      return input_data[index];
+    };
+
+    kts::Reference1D<T> init_reference = [&input_data,
+                                          &init_ref_fn](size_t index) {
+      return init_ref_fn(index, input_data);
+    };
+    kts::Reference1D<T> op_reference = [&input_data, &op_ref_fn](size_t index) {
+      return op_ref_fn(index, input_data);
+    };
+
+    // Set up the buffers.
+    // The initial values, and the expected output values
+    AddInOutBuffer(1, init_reference, op_reference);
+    // The input values to be summed.
+    AddInputBuffer(kts::N, random_reference);
+
+    // Run the test.
+    RunGeneric1D(kts::N);
+  }
+
+  template <typename T>
+  void doLocalTest(
+      const std::function<T(size_t, const std::vector<T> &)> &init_ref_fn,
+      const std::function<T(size_t, const std::vector<T> &)> &op_ref_fn,
+      bool clamp = false) {
+    // This test makes use of control flow in the kernel. Control flow
+    // conversion is not supported for atomics so we need to make sure this
+    // isn't registered as a failure when the vectorizer fails. See CA-3294.
+    fail_if_not_vectorized_ = false;
+
+    // Generate the random input.
+    std::vector<T> input_data(kts::N, T{});
+    if (!clamp) {
+      ucl::Environment::instance->GetInputGenerator().GenerateIntData(
+          input_data);
+    } else {
+      // We need to be careful we don't overflow, so limit the min and max
+      // values.
+      const T min = std::numeric_limits<T>::min() / static_cast<T>(kts::N);
+      const T max = std::numeric_limits<T>::max() / static_cast<T>(kts::N);
+      ucl::Environment::instance->GetInputGenerator().GenerateIntData(
+          input_data, min, max);
+    }
+
+    kts::Reference1D<T> random_reference = [&input_data](size_t index) {
+      return input_data[index];
+    };
+    kts::Reference1D<T> op_reference = [&input_data, &op_ref_fn](size_t index) {
+      return op_ref_fn(index, input_data);
+    };
+
+    // Set up the buffers.
+    // The input is a random set of on and off bits.
+    AddInputBuffer(kts::N, random_reference);
+    // The expected output for each work-group is all the input bits in the
+    // work-group and'd together.
+    AddOutputBuffer(kts::N / kts::localN, op_reference);
+
+    // Optional third buffer for initial data
+    if (init_ref_fn) {
+      kts::Reference1D<T> init_reference = [&input_data,
+                                            &init_ref_fn](size_t index) {
+        return init_ref_fn(index, input_data);
+      };
+      AddInputBuffer(kts::N / kts::localN, init_reference);
+    }
+
+    AddLocalBuffer(kts::N / kts::localN);
+
+    // Run the test.
+    RunGeneric1D(kts::N, kts::localN);
   }
 };
 
-TYPED_TEST_SUITE_P(FetchTest);
-
-TYPED_TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+template <typename T>
+T zeroReference(size_t, const std::vector<T> &) {
+  return T{0};
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+template <typename T>
+T firstEltReference(size_t, const std::vector<T> &input) {
+  return input[0];
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return_Int) {
+  doCheckReturnTest<cl_int>();
+}
+TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>();
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return) {
-  using cl_type = typename TypeParam::cl_type;
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up the buffers.
-  // The initial values of the atomics are the random input.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output values are the initial values loaded atomically.
-  this->AddOutputBuffer(kts::N, random_reference);
-  this->AddLocalBuffer(kts::N);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  // We need to be careful we don't overflow, so limit the min and max values.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  const cl_type min =
-      std::numeric_limits<cl_type>::min() / static_cast<cl_type>(kts::N);
-  const cl_type max =
-      std::numeric_limits<cl_type>::max() / static_cast<cl_type>(kts::N);
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data,
-                                                                  min, max);
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-  kts::Reference1D<cl_type> zero_reference = [](size_t) { return cl_type{0}; };
-  kts::Reference1D<cl_type> accumulate_reference = [&input_data](size_t) {
-    return std::accumulate(std::begin(input_data), std::end(input_data),
-                           cl_type{0});
-  };
-
-  // Set up the buffers.
-  // The initial atomic value is zero.
-  // The expected output is the sum of the values in all threads.
-  this->AddInOutBuffer(1, zero_reference, accumulate_reference);
-  // The input values to be summed.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add) {
-  using cl_type = typename TypeParam::cl_type;
+TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return_Int) {
+  doCheckReturnTest<cl_int>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return_Uint) {
+  doCheckReturnTest<cl_uint>(/*local*/ true);
+}
 
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  // We need to be careful we don't overflow, so limit the min and max values.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  const cl_type min =
-      std::numeric_limits<cl_type>::min() / static_cast<cl_type>(kts::N);
-  const cl_type max =
-      std::numeric_limits<cl_type>::max() / static_cast<cl_type>(kts::N);
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data,
-                                                                  min, max);
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Int) {
+  const auto accumulate_ref = [](size_t, const std::vector<cl_int> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_int{0});
   };
+  doTest<cl_int>(zeroReference<cl_int>, accumulate_ref, /*clamp*/ true);
+}
+TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Uint) {
+  const auto accumulate_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_uint{0});
+  };
+  doTest<cl_uint>(zeroReference<cl_uint>, accumulate_ref, /*clamp*/ true);
+}
 
-  kts::Reference1D<cl_type> zero_reference = [](size_t) { return cl_type{0}; };
-  kts::Reference1D<cl_type> accumulate_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Int) {
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = start + kts::localN;
-    return std::accumulate(start, end, cl_type{0});
+    return std::accumulate(start, end, cl_int{0});
   };
-
-  // Set up the buffers.
-  // The input values to be summed.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output is the sum of the elements in each work group.
-  this->AddOutputBuffer(kts::N / kts::localN, accumulate_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_int>(nullptr, accumulate_ref, /*clamp*/ true);
 }
-
-TYPED_TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  // We need to be careful we don't overflow, so limit the min and max values.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  const cl_type min =
-      std::numeric_limits<cl_type>::min() / static_cast<cl_type>(kts::N);
-  const cl_type max =
-      std::numeric_limits<cl_type>::max() / static_cast<cl_type>(kts::N);
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data,
-                                                                  min, max);
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-  kts::Reference1D<cl_type> zero_reference = [](size_t) { return cl_type{0}; };
-  kts::Reference1D<cl_type> accumulate_reference = [&input_data](size_t) {
-    return std::accumulate(std::begin(input_data), std::end(input_data),
-                           cl_type{0});
-  };
-
-  // Set up the buffers.
-  // The input is the sum of all the random values.
-  // The expected output is subtracting all the random values from their sum
-  // i.e. 0.
-  this->AddInOutBuffer(1, accumulate_reference, zero_reference);
-  // The input is the random values.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  // We need to be careful we don't overflow, so limit the min and max values.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  const cl_type min =
-      std::numeric_limits<cl_type>::min() / static_cast<cl_type>(kts::N);
-  const cl_type max =
-      std::numeric_limits<cl_type>::max() / static_cast<cl_type>(kts::N);
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data,
-                                                                  min, max);
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-  kts::Reference1D<cl_type> accumulate_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Uint) {
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = start + kts::localN;
-    return std::accumulate(start, end, cl_type{0});
+    return std::accumulate(start, end, cl_uint{0});
   };
-  kts::Reference1D<cl_type> zero_reference = [](size_t) { return cl_type{0}; };
-
-  // Set up the buffers.
-  // The input is the random values.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The output for each work-group is all of it's elements subracted from their
-  // sum i.e. 0.
-  this->AddOutputBuffer(kts::N / kts::localN, zero_reference);
-  // The input for each work-group is the sum of the work-groups elements.
-  this->AddInputBuffer(kts::N / kts::localN, accumulate_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_uint>(nullptr, accumulate_ref, /*clamp*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Int) {
+  const auto accumulate_ref = [](size_t, const std::vector<cl_int> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_int{0});
   };
-  kts::Reference1D<cl_type> or_reference = [&input_data](size_t) {
-    return std::accumulate(std::next(std::begin(input_data), 1),
-                           std::end(input_data), input_data[0],
-                           [](cl_type lhs, cl_type rhs) { return lhs | rhs; });
+  doTest<cl_int>(accumulate_ref, zeroReference<cl_int>, /*clamp*/ true);
+}
+TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Uint) {
+  const auto accumulate_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_uint{0});
   };
-  kts::Reference1D<cl_type> intiailizer_reference = [&input_data](size_t) {
-    return input_data[0];
-  };
-
-  // Set up the buffers.
-  // The input is the first element.
-  // The expected output is all the input bits or'd together.
-  this->AddInOutBuffer(1, intiailizer_reference, or_reference);
-  // The input is a random set of on and off bits.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doTest<cl_uint>(accumulate_ref, zeroReference<cl_uint>, /*clamp*/ true);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Int) {
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = start + kts::localN;
+    return std::accumulate(start, end, cl_int{0});
   };
-  kts::Reference1D<cl_type> or_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+  doLocalTest<cl_int>(accumulate_ref, zeroReference<cl_int>, /*clamp*/ true);
+}
+TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Uint) {
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = start + kts::localN;
+    return std::accumulate(start, end, cl_uint{0});
+  };
+  doLocalTest<cl_uint>(accumulate_ref, zeroReference<cl_uint>, /*clamp*/ true);
+}
+
+TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Int) {
+  const auto or_ref = [](size_t, const std::vector<cl_int> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_int lhs, cl_int rhs) { return lhs | rhs; });
+  };
+  doTest<cl_int>(firstEltReference<cl_int>, or_ref);
+}
+TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Uint) {
+  const auto or_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_uint lhs, cl_uint rhs) { return lhs | rhs; });
+  };
+  doTest<cl_uint>(firstEltReference<cl_uint>, or_ref);
+}
+
+TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Int) {
+  const auto or_ref = [](size_t index, const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = std::next(start, kts::localN);
     return std::accumulate(std::next(start), end, *start,
-                           [](cl_type lhs, cl_type rhs) { return lhs | rhs; });
+                           [](cl_int lhs, cl_int rhs) { return lhs | rhs; });
   };
-
-  // Set up the buffers.
-  // The input is a random set of on and off bits.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output for each work-group is all the input bits in the
-  // work-group or'd together.
-  this->AddOutputBuffer(kts::N / kts::localN, or_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_int>(nullptr, or_ref);
 }
-
-TYPED_TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-  kts::Reference1D<cl_type> xor_reference = [&input_data](size_t) {
-    return std::accumulate(std::next(std::begin(input_data), 1),
-                           std::end(input_data), input_data[0],
-                           [](cl_type lhs, cl_type rhs) { return lhs ^ rhs; });
-  };
-  kts::Reference1D<cl_type> intiailizer_reference = [&input_data](size_t) {
-    return input_data[0];
-  };
-
-  // Set up the buffers.
-  // The input is the first element (this is because xor isn't idempotent).
-  // The expected output is all the input bits xor'd together.
-  this->AddInOutBuffer(1, intiailizer_reference, xor_reference);
-  // The input is a random set of on and off bits.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-  kts::Reference1D<cl_type> xor_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Uint) {
+  const auto or_ref = [](size_t index, const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = std::next(start, kts::localN);
     return std::accumulate(std::next(start), end, *start,
-                           [](cl_type lhs, cl_type rhs) { return lhs ^ rhs; });
+                           [](cl_uint lhs, cl_uint rhs) { return lhs | rhs; });
   };
-
-  // Set up the buffers.
-  // The input is a random set of on and off bits.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output for each work-group is all the input bits in the
-  // work-group xor'd together.
-  this->AddOutputBuffer(kts::N / kts::localN, xor_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_uint>(nullptr, or_ref);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-  kts::Reference1D<cl_type> and_reference = [&input_data](size_t) {
-    return std::accumulate(std::next(std::begin(input_data), 1),
-                           std::end(input_data), input_data[0],
-                           [](cl_type lhs, cl_type rhs) { return lhs & rhs; });
-  };
-  kts::Reference1D<cl_type> intiailizer_reference = [&input_data](size_t) {
-    return input_data[0];
-  };
-
-  // Set up the buffers.
-  // The input is the first element.
-  // The expected output is all the input bits and'd together.
-  this->AddInOutBuffer(1, intiailizer_reference, and_reference);
-  // The input is a random set of on and off bits.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And) {
-  using cl_type = typename TypeParam::cl_type;
-
+TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Int) {
   // This test makes use of control flow in the kernel. Control flow conversion
   // is not supported for atomics so we need to make sure this isn't registered
   // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+  fail_if_not_vectorized_ = false;
+  const auto xor_ref = [](size_t, const std::vector<cl_int> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_int lhs, cl_int rhs) { return lhs ^ rhs; });
   };
-  kts::Reference1D<cl_type> and_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+
+  doTest<cl_int>(firstEltReference<cl_int>, xor_ref);
+}
+TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Uint) {
+  // This test makes use of control flow in the kernel. Control flow conversion
+  // is not supported for atomics so we need to make sure this isn't registered
+  // as a failure when the vectorizer fails. See CA-3294.
+  fail_if_not_vectorized_ = false;
+  const auto xor_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_uint lhs, cl_uint rhs) { return lhs ^ rhs; });
+  };
+  doTest<cl_uint>(firstEltReference<cl_uint>, xor_ref);
+}
+
+TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Int) {
+  const auto xor_ref = [](size_t index, const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = std::next(start, kts::localN);
     return std::accumulate(std::next(start), end, *start,
-                           [](cl_type lhs, cl_type rhs) { return lhs & rhs; });
+                           [](cl_int lhs, cl_int rhs) { return lhs ^ rhs; });
   };
-
-  // Set up the buffers.
-  // The input is a random set of on and off bits.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output for each work-group is all the input bits in the
-  // work-group and'd together.
-  this->AddOutputBuffer(kts::N / kts::localN, and_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_int>(nullptr, xor_ref);
+}
+TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Uint) {
+  const auto xor_ref = [](size_t index, const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(std::next(start), end, *start,
+                           [](cl_uint lhs, cl_uint rhs) { return lhs ^ rhs; });
+  };
+  doLocalTest<cl_uint>(nullptr, xor_ref);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Int) {
+  const auto and_ref = [](size_t, const std::vector<cl_int> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_int lhs, cl_int rhs) { return lhs & rhs; });
   };
-  kts::Reference1D<cl_type> min_reference = [&input_data](size_t) {
-    return *std::min_element(std::begin(input_data), std::end(input_data));
+  doTest<cl_int>(firstEltReference<cl_int>, and_ref);
+}
+TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Uint) {
+  const auto and_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_uint lhs, cl_uint rhs) { return lhs & rhs; });
   };
-  kts::Reference1D<cl_type> intiailizer_reference = [&input_data](size_t) {
-    return input_data[0];
-  };
-
-  // Set up the buffers.
-  // The input is the first element.
-  // The expected output is the minimum value of all elements.
-  this->AddInOutBuffer(1, intiailizer_reference, min_reference);
-  // The input is a set of random values.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+  doTest<cl_uint>(firstEltReference<cl_uint>, and_ref);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Int) {
+  const auto and_ref = [](size_t index, const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(std::next(start), end, *start,
+                           [](cl_int lhs, cl_int rhs) { return lhs & rhs; });
   };
+  doLocalTest<cl_int>(nullptr, and_ref);
+}
+TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Uint) {
+  const auto and_ref = [](size_t index, const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(std::next(start), end, *start,
+                           [](cl_uint lhs, cl_uint rhs) { return lhs & rhs; });
+  };
+  doLocalTest<cl_uint>(nullptr, and_ref);
+}
 
-  // Set up references.
-  kts::Reference1D<cl_type> min_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Int) {
+  const auto min_ref = [](size_t, const std::vector<cl_int> &input) {
+    return *std::min_element(std::begin(input), std::end(input));
+  };
+  doTest<cl_int>(firstEltReference<cl_int>, min_ref);
+}
+TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Uint) {
+  const auto min_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return *std::min_element(std::begin(input), std::end(input));
+  };
+  doTest<cl_uint>(firstEltReference<cl_uint>, min_ref);
+}
+
+TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Int) {
+  const auto min_ref = [](size_t index, const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = std::next(start, kts::localN);
     return *std::min_element(start, end);
   };
-
-  // Set up the buffers.
-  // The input is a set of random values.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output for each work-group is the minimum of all elements in
-  // that work-group.
-  this->AddOutputBuffer(kts::N / kts::localN, min_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_int>(nullptr, min_ref);
+}
+TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Uint) {
+  const auto min_ref = [](size_t index, const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return *std::min_element(start, end);
+  };
+  doLocalTest<cl_uint>(nullptr, min_ref);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-
-  // Set up references.
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
+TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Int) {
+  const auto max_ref = [](size_t, const std::vector<cl_int> &input) {
+    return *std::max_element(std::begin(input), std::end(input));
   };
-  kts::Reference1D<cl_type> max_reference = [&input_data](size_t) {
-    return *std::max_element(std::begin(input_data), std::end(input_data));
+  doTest<cl_int>(firstEltReference<cl_int>, max_ref);
+}
+TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Uint) {
+  const auto max_ref = [](size_t, const std::vector<cl_uint> &input) {
+    return *std::max_element(std::begin(input), std::end(input));
   };
-  kts::Reference1D<cl_type> intiailizer_reference = [&input_data](size_t) {
-    return input_data[0];
-  };
-
-  // Set up the buffers.
-  // The input is the first element.
-  // The expected output is the maximum value of all elements.
-  this->AddInOutBuffer(1, intiailizer_reference, max_reference);
-  // The input is a set of random values.
-  this->AddInputBuffer(kts::N, random_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+  doTest<cl_uint>(firstEltReference<cl_uint>, max_ref);
 }
 
-TYPED_TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-
-  // Generate the random input.
-  std::vector<cl_type> input_data(kts::N, cl_type{});
-  ucl::Environment::instance->GetInputGenerator().GenerateIntData(input_data);
-  kts::Reference1D<cl_type> random_reference = [&input_data](size_t index) {
-    return input_data[index];
-  };
-
-  // Set up references.
-  kts::Reference1D<cl_type> max_reference = [&input_data](size_t index) {
-    auto start = std::next(std::begin(input_data), index * kts::localN);
+TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Int) {
+  const auto max_ref = [](size_t index, const std::vector<cl_int> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
     auto end = std::next(start, kts::localN);
     return *std::max_element(start, end);
   };
-
-  // Set up the buffers.
-  // The input is a set of random values.
-  this->AddInputBuffer(kts::N, random_reference);
-  // The expected output for each work-group is the maximum of all elements in
-  // that work-group.
-  this->AddOutputBuffer(kts::N / kts::localN, max_reference);
-  this->AddLocalBuffer(kts::N / kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+  doLocalTest<cl_int>(nullptr, max_ref);
 }
+TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Uint) {
+  const auto max_ref = [](size_t index, const std::vector<cl_uint> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return *std::max_element(start, end);
+  };
+  doLocalTest<cl_uint>(nullptr, max_ref);
+}
+
+UCL_EXECUTION_TEST_SUITE(FetchTest, testing::ValuesIn(source_types));
+
+using TruthTableInputs = std::pair<unsigned, unsigned>;
 
 // The following tests check the entire domain {{0, 1} x {0, 1}} for the logical
 // operations. That is, it checks that for the atomic fetch logic operations the
@@ -1530,282 +816,9 @@ TYPED_TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max) {
 // | 0 1   ^ 0 1   & 0 1
 // 0 0 1   0 0 1   0 0 0
 // 1 1 1   1 1 0   1 0 1
-TYPED_TEST_P(FetchTest, C11Atomics_49_Fetch_Global_Or_Truth_Table) {
-  using cl_type = typename TypeParam::cl_type;
-
-  const std::array<std::pair<cl_type, cl_type>, 4> domain = {
-      std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 0),
-      std::make_pair(1, 1)};
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-  for (const auto &input : domain) {
-    // Set up references.
-    kts::Reference1D<cl_type> initializer_reference = [&input](size_t) {
-      return input.first;
-    };
-    kts::Reference1D<cl_type> input_reference = [&input](size_t) {
-      return input.second;
-    };
-    kts::Reference1D<cl_type> output_reference = [&input](size_t) {
-      return input.first | input.second;
-    };
-
-    // Set up the buffers.
-    // Input is the first element.
-    // Expected output is the result of the binary operation with the second
-    // element.
-    this->AddInOutBuffer(1, initializer_reference, output_reference);
-    // Input is the second element.
-    this->AddInputBuffer(1, input_reference);
-
-    // Run the test.
-    this->RunGeneric1D(1);
-  }
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table) {
-  using cl_type = typename TypeParam::cl_type;
-
-  const std::array<std::pair<cl_type, cl_type>, 4> domain = {
-      std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 0),
-      std::make_pair(1, 1)};
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-  for (const auto &input : domain) {
-    // Set up references.
-    kts::Reference1D<cl_type> initializer_reference = [&input](size_t) {
-      return input.first;
-    };
-    kts::Reference1D<cl_type> input_reference = [&input](size_t) {
-      return input.second;
-    };
-    kts::Reference1D<cl_type> output_reference = [&input](size_t) {
-      return input.first ^ input.second;
-    };
-
-    // Set up the buffers.
-    // Input is the first element.
-    // Expected output is the result of the binary operation with the second
-    // element.
-    this->AddInOutBuffer(1, initializer_reference, output_reference);
-    // Input is the second element.
-    this->AddInputBuffer(1, input_reference);
-
-    // Run the test.
-    this->RunGeneric1D(1);
-  }
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_51_Fetch_Global_And_Truth_Table) {
-  using cl_type = typename TypeParam::cl_type;
-
-  const std::array<std::pair<cl_type, cl_type>, 4> domain = {
-      std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 0),
-      std::make_pair(1, 1)};
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-  for (const auto &input : domain) {
-    // Set up references.
-    kts::Reference1D<cl_type> initializer_reference = [&input](size_t) {
-      return input.first;
-    };
-    kts::Reference1D<cl_type> input_reference = [&input](size_t) {
-      return input.second;
-    };
-    kts::Reference1D<cl_type> output_reference = [&input](size_t) {
-      return input.first & input.second;
-    };
-
-    // Set up the buffers.
-    // Input is the first element.
-    // Expected output is the result of the binary operation with the second
-    // element.
-    this->AddInOutBuffer(1, initializer_reference, output_reference);
-    // Input is the second element.
-    this->AddInputBuffer(1, input_reference);
-
-    // Run the test.
-    this->RunGeneric1D(1);
-  }
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_52_Fetch_Local_Or_Truth_Table) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  std::array<std::string, 3> keys = {"or", "xor", "and"};
-  const std::array<std::pair<cl_type, cl_type>, 4> domain = {
-      std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 0),
-      std::make_pair(1, 1)};
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-  for (const auto &input : domain) {
-    // Set up references.
-    kts::Reference1D<cl_type> input_reference = [&input](size_t index) {
-      return index == 0 ? input.first : input.second;
-    };
-    kts::Reference1D<cl_type> output_reference = [&input](size_t) {
-      return input.first | input.second;
-    };
-
-    // Set up the buffers.
-    // Input is the two elements for the binary operation.
-    this->AddInputBuffer(2, input_reference);
-    // Expected output is the result of the binary operation.
-    this->AddOutputBuffer(1, output_reference);
-    this->AddLocalBuffer(2);
-
-    // Run the test.
-    this->RunGeneric1D(2);
-  }
-}
-
-TYPED_TEST_P(FetchTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  std::array<std::string, 3> keys = {"or", "xor", "and"};
-  const std::array<std::pair<cl_type, cl_type>, 4> domain = {
-      std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 0),
-      std::make_pair(1, 1)};
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-  for (const auto &input : domain) {
-    // Set up references.
-    kts::Reference1D<cl_type> input_reference = [&input](size_t index) {
-      return index == 0 ? input.first : input.second;
-    };
-    kts::Reference1D<cl_type> output_reference = [&input](size_t) {
-      return input.first ^ input.second;
-    };
-
-    // Set up the buffers.
-    // Input is the two elements for the binary operation.
-    this->AddInputBuffer(2, input_reference);
-    // Expected output is the result of the binary operation.
-    this->AddOutputBuffer(1, output_reference);
-    this->AddLocalBuffer(2);
-
-    // Run the test.
-    this->RunGeneric1D(2);
-  }
-}
-
-// See the Global variant of this test for an explanation of what it tests.
-TYPED_TEST_P(FetchTest, C11Atomics_54_Fetch_Local_And_Truth_Table) {
-  using cl_type = typename TypeParam::cl_type;
-
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  this->fail_if_not_vectorized_ = false;
-
-  std::array<std::string, 3> keys = {"or", "xor", "and"};
-  const std::array<std::pair<cl_type, cl_type>, 4> domain = {
-      std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 0),
-      std::make_pair(1, 1)};
-
-  // Patch up the types in the kernel source.
-  const std::string type = TypeParam::source_name();
-  const std::string atomic_type = "atomic_" + type;
-  this->AddMacro("TYPE", type);
-  this->AddMacro("ATOMIC_TYPE", atomic_type);
-  this->AddBuildOption("-cl-std=CL3.0");
-  ASSERT_TRUE(this->BuildProgram());
-  for (const auto &input : domain) {
-    // Set up references.
-    kts::Reference1D<cl_type> input_reference = [&input](size_t index) {
-      return index == 0 ? input.first : input.second;
-    };
-    kts::Reference1D<cl_type> output_reference = [&input](size_t) {
-      return input.first & input.second;
-    };
-
-    // Set up the buffers.
-    // Input is the two elements for the binary operation.
-    this->AddInputBuffer(2, input_reference);
-    // Expected output is the result of the binary operation.
-    this->AddOutputBuffer(1, output_reference);
-    this->AddLocalBuffer(2);
-
-    // Run the test.
-    this->RunGeneric1D(2);
-  }
-}
-
-REGISTER_TYPED_TEST_SUITE_P(
-    FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return,
-    C11Atomics_22_Fetch_Global_Sub_Check_Return,
-    C11Atomics_23_Fetch_Global_Or_Check_Return,
-    C11Atomics_24_Fetch_Global_Xor_Check_Return,
-    C11Atomics_25_Fetch_Global_And_Check_Return,
-    C11Atomics_26_Fetch_Global_Min_Check_Return,
-    C11Atomics_27_Fetch_Global_Max_Check_Return,
-    C11Atomics_28_Fetch_Local_Add_Check_Return,
-    C11Atomics_29_Fetch_Local_Sub_Check_Return,
-    C11Atomics_30_Fetch_Local_Or_Check_Return,
-    C11Atomics_31_Fetch_Local_Xor_Check_Return,
-    C11Atomics_32_Fetch_Local_And_Check_Return,
-    C11Atomics_33_Fetch_Local_Min_Check_Return,
-    C11Atomics_34_Fetch_Local_Max_Check_Return, C11Atomics_35_Fetch_Global_Add,
-    C11Atomics_36_Fetch_Local_Add, C11Atomics_37_Fetch_Global_Sub,
-    C11Atomics_38_Fetch_Local_Sub, C11Atomics_39_Fetch_Global_Or,
-    C11Atomics_40_Fetch_Local_Or, C11Atomics_41_Fetch_Global_Xor,
-    C11Atomics_42_Fetch_Local_Xor, C11Atomics_43_Fetch_Global_And,
-    C11Atomics_44_Fetch_Local_And, C11Atomics_45_Fetch_Global_Min,
-    C11Atomics_46_Fetch_Local_Min, C11Atomics_47_Fetch_Global_Max,
-    C11Atomics_48_Fetch_Local_Max, C11Atomics_49_Fetch_Global_Or_Truth_Table,
-    C11Atomics_50_Fetch_Global_Xor_Truth_Table,
-    C11Atomics_51_Fetch_Global_And_Truth_Table,
-    C11Atomics_52_Fetch_Local_Or_Truth_Table,
-    C11Atomics_53_Fetch_Local_Xor_Truth_Table,
-    C11Atomics_54_Fetch_Local_And_Truth_Table);
-
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, FetchTest,
-                               AtomicIntegerTypes);
-
-template <typename T>
-class CompareExchangeTest : public BaseExecution {
+class FetchTruthTableTest
+    : public kts::ucl::ExecutionWithParam<TruthTableInputs> {
  public:
-  using cl_type = typename T::cl_type;
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(BaseExecution::SetUp());
     // The C11 atomic were introduced in 2.0 however here we only test
@@ -1814,256 +827,321 @@ class CompareExchangeTest : public BaseExecution {
       GTEST_SKIP();
     }
 
-    // Patch up the types in the kernel source.
-    const std::string type = T::source_name();
-    const std::string atomic_type = "atomic_" + type;
-    this->AddMacro("TYPE", type);
-    this->AddMacro("ATOMIC_TYPE", atomic_type);
     this->AddBuildOption("-cl-std=CL3.0");
+
+    // This test makes use of control flow in the kernel or very small local
+    // sizes. Control flow conversion is not supported for atomics so we need
+    // to make sure this isn't registered as a failure when the vectorizer
+    // fails. See CA-3294.
+    this->fail_if_not_vectorized_ = false;
+  }
+
+  template <typename T>
+  void doTest(const std::function<T(T, T)> &ref_fn) {
+    const auto &inputs = std::get<1>(GetParam());
+    // Set up references.
+    kts::Reference1D<T> initializer_reference = [&inputs](size_t) {
+      return inputs.first;
+    };
+    kts::Reference1D<T> input_reference = [&inputs](size_t) {
+      return inputs.second;
+    };
+    kts::Reference1D<T> output_reference = [&inputs, &ref_fn](size_t) {
+      return ref_fn(inputs.first, inputs.second);
+    };
+
+    // Set up the buffers.
+    // Input is the first element.
+    // Expected output is the result of the binary operation with the second
+    // element.
+    this->AddInOutBuffer(1, initializer_reference, output_reference);
+    // Input is the second element.
+    this->AddInputBuffer(1, input_reference);
+
+    // Run the test.
+    this->RunGeneric1D(1);
+  }
+
+  template <typename T>
+  void doLocalTest(const std::function<T(T, T)> &ref_fn) {
+    const auto &inputs = std::get<1>(GetParam());
+    // Set up references.
+    kts::Reference1D<T> input_reference = [&inputs](size_t index) {
+      return index == 0 ? inputs.first : inputs.second;
+    };
+    kts::Reference1D<T> output_reference = [&inputs, &ref_fn](size_t) {
+      return ref_fn(inputs.first, inputs.second);
+    };
+
+    // Set up the buffers.
+    // Input is the two elements for the binary operation.
+    this->AddInputBuffer(2, input_reference);
+    // Expected output is the result of the binary operation.
+    this->AddOutputBuffer(1, output_reference);
+    this->AddLocalBuffer(2);
+
+    // Run the test.
+    this->RunGeneric1D(2);
   }
 };
 
-template <typename T>
-class Strong : public CompareExchangeTest<T> {
+TEST_P(FetchTruthTableTest, C11Atomics_49_Fetch_Global_Or_Truth_Table_Int) {
+  const auto or_ref = [](cl_int A, cl_int B) { return A | B; };
+  doTest<cl_int>(or_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_49_Fetch_Global_Or_Truth_Table_Uint) {
+  const auto or_ref = [](cl_uint A, cl_uint B) { return A | B; };
+  doTest<cl_uint>(or_ref);
+}
+
+TEST_P(FetchTruthTableTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table_Int) {
+  const auto xor_ref = [](cl_int A, cl_int B) { return A ^ B; };
+  doTest<cl_int>(xor_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table_Uint) {
+  const auto xor_ref = [](cl_uint A, cl_uint B) { return A ^ B; };
+  doTest<cl_uint>(xor_ref);
+}
+
+TEST_P(FetchTruthTableTest, C11Atomics_51_Fetch_Global_And_Truth_Table_Int) {
+  const auto and_ref = [](cl_int A, cl_int B) { return A & B; };
+  doTest<cl_int>(and_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_51_Fetch_Global_And_Truth_Table_Uint) {
+  const auto and_ref = [](cl_uint A, cl_uint B) { return A & B; };
+  doTest<cl_uint>(and_ref);
+}
+
+TEST_P(FetchTruthTableTest, C11Atomics_52_Fetch_Local_Or_Truth_Table_Int) {
+  const auto or_ref = [](cl_int A, cl_int B) { return A | B; };
+  doLocalTest<cl_int>(or_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_52_Fetch_Local_Or_Truth_Table_Uint) {
+  const auto or_ref = [](cl_uint A, cl_uint B) { return A | B; };
+  doLocalTest<cl_uint>(or_ref);
+}
+
+TEST_P(FetchTruthTableTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table_Int) {
+  const auto xor_ref = [](cl_int A, cl_int B) { return A ^ B; };
+  doLocalTest<cl_int>(xor_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table_Uint) {
+  const auto xor_ref = [](cl_uint A, cl_uint B) { return A ^ B; };
+  doLocalTest<cl_uint>(xor_ref);
+}
+
+TEST_P(FetchTruthTableTest, C11Atomics_54_Fetch_Local_And_Truth_Table_Int) {
+  const auto and_ref = [](cl_int A, cl_int B) { return A & B; };
+  doLocalTest<cl_int>(and_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_54_Fetch_Local_And_Truth_Table_Uint) {
+  const auto and_ref = [](cl_uint A, cl_uint B) { return A & B; };
+  doLocalTest<cl_uint>(and_ref);
+}
+
+static const TruthTableInputs truth_table_domain[] = {
+    {0, 0}, {0, 1}, {1, 0}, {1, 1}};
+
+UCL_EXECUTION_TEST_SUITE(
+    FetchTruthTableTest,
+    testing::Combine(testing::ValuesIn(source_types),
+                     testing::ValuesIn(truth_table_domain)));
+
+class Strong : public C11AtomicTestBase {
  public:
-  using cl_type = typename T::cl_type;
-  Strong() {
+  template <typename T>
+  void doTest(bool local = false, bool local_local = false) {
     // Generate the random input.
-    std::vector<cl_type> input_data(kts::N, cl_type{});
+    std::vector<T> input_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    std::vector<cl_type> desired_data(kts::N, cl_type{});
+    std::vector<T> desired_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(desired_data);
 
     // Set up references.
-    random_reference = [input_data](size_t index) { return input_data[index]; };
-    expected_in_reference = [input_data](size_t index) {
+    kts::Reference1D<T> random_reference = [input_data](size_t index) {
+      return input_data[index];
+    };
+    kts::Reference1D<T> expected_in_reference = [input_data](size_t index) {
       auto expected_value = input_data[index];
       // This ensures every other expected value matches the value in
       // the input.
       return (index % 2) ? expected_value : !expected_value;
     };
-    output_reference = [input_data, desired_data](size_t index) {
+    kts::Reference1D<T> output_reference = [input_data,
+                                            desired_data](size_t index) {
       return (index % 2) ? desired_data[index] : input_data[index];
     };
-    desired_reference = [desired_data](size_t index) {
+    kts::Reference1D<T> desired_reference = [desired_data](size_t index) {
       return desired_data[index];
     };
-    bool_reference = [](size_t index) { return index % 2; };
-  }
+    kts::Reference1D<cl_int> bool_reference = [](size_t index) {
+      return index % 2;
+    };
 
-  kts::Reference1D<cl_type> random_reference;
-  kts::Reference1D<cl_type> expected_in_reference;
-  kts::Reference1D<cl_type> output_reference;
-  kts::Reference1D<cl_type> desired_reference;
-  kts::Reference1D<cl_int> bool_reference;
+    // Set up the buffers.
+    AddInOutBuffer(kts::N, random_reference, output_reference);
+    AddInOutBuffer(kts::N, expected_in_reference, random_reference);
+    AddInputBuffer(kts::N, desired_reference);
+    AddOutputBuffer(kts::N, bool_reference);
+
+    if (!local) {
+      RunGeneric1D(kts::N);
+    } else {
+      AddLocalBuffer(kts::localN);
+      if (local_local) {
+        AddLocalBuffer(kts::localN);
+      }
+      RunGeneric1D(kts::N, kts::localN);
+    }
+  }
 };
 
-TYPED_TEST_SUITE_P(CompareExchangeTest);
-TYPED_TEST_SUITE_P(Strong);
-
-TYPED_TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global_Int) {
+  doTest<cl_int>();
+}
+TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private_Int) {
+  doTest<cl_int>();
+}
+TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local_Int) {
+  doTest<cl_int>(/*local*/ true, /*local_local*/ true);
+}
+TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true, /*local_ulocal*/ true);
 }
 
-TYPED_TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(
-    Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global,
-    C11Atomics_56_Compare_Exchange_Strong_Global_Local,
-    C11Atomics_57_Compare_Exchange_Strong_Global_Private,
-    C11Atomics_58_Compare_Exchange_Strong_Local_Global,
-    C11Atomics_59_Compare_Exchange_Strong_Local_Local,
-    C11Atomics_60_Compare_Exchange_Strong_Local_Private);
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, Strong, AtomicIntegerTypes);
+UCL_EXECUTION_TEST_SUITE(Strong, testing::ValuesIn(source_types));
 
-template <typename T>
-class StrongGlobalSingle : public CompareExchangeTest<T> {
+class StrongGlobalSingle : public C11AtomicTestBase {
  public:
-  using cl_type = typename T::cl_type;
-  StrongGlobalSingle() {
+  template <typename T>
+  void doTest(bool local = false) {
     // Set up references.
     size_t success_index =
-        ucl::Environment::instance->GetInputGenerator().GenerateInt<cl_type>(
+        ucl::Environment::instance->GetInputGenerator().GenerateInt<T>(
             0, kts::N - 1);
 
     // We need the expected values to be unique, otherwise we won't be able to
     // determine which thread updates the atomic.
-    // We also require the intersection of the expected and desired values to be
-    // empty otherwise subsequent threads could update the atomic. The fastest
-    // way to do this is to generate a buffer of unqique values of size 2 *
-    // kts::N, then just split it evenly between the two.
-    std::vector<cl_type> expected_values(kts::N, cl_type{});
-    std::vector<cl_type> desired_values(kts::N, cl_type{});
-    std::vector<cl_type> all_values(
-        expected_values.size() + desired_values.size(), cl_type{});
+    // We also require the intersection of the expected and desired values to
+    // be empty otherwise subsequent threads could update the atomic. The
+    // fastest way to do this is to generate a buffer of unqique values of size
+    // 2 * kts::N, then just split it evenly between the two.
+    std::vector<T> expected_values(kts::N, T{});
+    std::vector<T> desired_values(kts::N, T{});
+    std::vector<T> all_values(expected_values.size() + desired_values.size(),
+                              T{});
 
-    ucl::Environment::instance->GetInputGenerator()
-        .GenerateUniqueIntData<cl_type>(all_values);
+    ucl::Environment::instance->GetInputGenerator().GenerateUniqueIntData<T>(
+        all_values);
     expected_values.assign(std::begin(all_values),
                            std::next(std::begin(all_values), kts::N));
     desired_values.assign(std::next(std::begin(all_values), kts::N),
                           std::end(all_values));
 
-    initializer_reference = [success_index, expected_values](size_t) {
+    kts::Reference1D<T> initializer_reference = [success_index,
+                                                 expected_values](size_t) {
       return expected_values[success_index];
     };
-    output_reference = [success_index, desired_values](size_t) {
+    kts::Reference1D<T> output_reference = [success_index,
+                                            desired_values](size_t) {
       return desired_values[success_index];
     };
-    expected_in_reference = [expected_values](size_t index) {
-      return expected_values[index];
-    };
-    expected_output_reference = [success_index, expected_values,
-                                 desired_values](size_t index, cl_type value) {
-      if (index == success_index) {
-        return value == expected_values[index];
-      }
+    kts::Reference1D<T> expected_in_reference =
+        [expected_values](size_t index) { return expected_values[index]; };
+    kts::Reference1D<T> expected_output_reference =
+        [success_index, expected_values, desired_values](size_t index,
+                                                         T value) {
+          if (index == success_index) {
+            return value == expected_values[index];
+          }
 
-      return value == expected_values[success_index] ||
-             value == desired_values[success_index];
-    };
-    desired_reference = [desired_values](size_t index) {
+          return value == expected_values[success_index] ||
+                 value == desired_values[success_index];
+        };
+    kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    bool_output_reference = [success_index](size_t index) {
-      return index == success_index;
-    };
+    kts::Reference1D<cl_int> bool_output_reference =
+        [success_index](size_t index) { return index == success_index; };
+
+    // Set up the buffers.
+    AddInOutBuffer(1, initializer_reference, output_reference);
+    AddInOutBuffer(kts::N, expected_in_reference, expected_output_reference);
+    AddInputBuffer(kts::N, desired_reference);
+    AddOutputBuffer(kts::N, bool_output_reference);
+    if (!local) {
+      RunGeneric1D(kts::N);
+    } else {
+      AddLocalBuffer(kts::localN);
+
+      // Run the test.
+      RunGeneric1D(kts::N, kts::localN);
+    }
   }
-
-  kts::Reference1D<cl_type> initializer_reference;
-  kts::Reference1D<cl_type> output_reference;
-  kts::Reference1D<cl_type> expected_in_reference;
-  kts::Reference1D<cl_type> expected_output_reference;
-  kts::Reference1D<cl_type> desired_reference;
-  kts::Reference1D<cl_int> bool_output_reference;
 };
-TYPED_TEST_SUITE_P(StrongGlobalSingle);
 
-TYPED_TEST_P(StrongGlobalSingle,
-             C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(1, this->initializer_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(StrongGlobalSingle,
+       C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(StrongGlobalSingle,
+       C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(StrongGlobalSingle,
-             C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(1, this->initializer_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(StrongGlobalSingle,
+       C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(StrongGlobalSingle,
+       C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(StrongGlobalSingle,
-             C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(1, this->initializer_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(StrongGlobalSingle,
+       C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(StrongGlobalSingle,
+       C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-REGISTER_TYPED_TEST_SUITE_P(
-    StrongGlobalSingle,
-    C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single,
-    C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single,
-    C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single);
+UCL_EXECUTION_TEST_SUITE(StrongGlobalSingle, testing::ValuesIn(source_types));
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, StrongGlobalSingle,
-                               AtomicIntegerTypes);
-
-template <typename T>
-class StrongLocalSingle : public CompareExchangeTest<T> {
+class StrongLocalSingle : public C11AtomicTestBase {
  public:
-  using cl_type = typename T::cl_type;
-  StrongLocalSingle() {
+  template <typename T>
+  void doTest(bool local_local = false) {
     // Set up references.
     const size_t work_group_count = kts::N / kts::localN;
 
@@ -2083,10 +1161,10 @@ class StrongLocalSingle : public CompareExchangeTest<T> {
     // intersection with its expected values. The easiest way to do this is to
     // just generate 2 * kts::N uniqueue values and divide them between the two
     // buffers.
-    std::vector<cl_type> expected_values(kts::N, cl_type{});
-    std::vector<cl_type> desired_values(kts::N, cl_type{});
-    std::vector<cl_type> all_values(
-        expected_values.size() + desired_values.size(), cl_type{});
+    std::vector<T> expected_values(kts::N, T{});
+    std::vector<T> desired_values(kts::N, T{});
+    std::vector<T> all_values(expected_values.size() + desired_values.size(),
+                              T{});
 
     ucl::Environment::instance->GetInputGenerator().GenerateUniqueIntData(
         all_values);
@@ -2095,20 +1173,23 @@ class StrongLocalSingle : public CompareExchangeTest<T> {
     desired_values.assign(std::next(std::begin(all_values), kts::N),
                           std::end(all_values));
 
-    initializer_reference = [expected_values, success_indicies](size_t index) {
-      return expected_values[success_indicies[index]];
-    };
+    kts::Reference1D<T> initializer_reference =
+        [expected_values, success_indicies](size_t index) {
+          return expected_values[success_indicies[index]];
+        };
 
-    output_reference = [desired_values, success_indicies](size_t index) {
+    kts::Reference1D<T> output_reference = [desired_values,
+                                            success_indicies](size_t index) {
       return desired_values[success_indicies[index]];
     };
 
-    expected_in_reference = [expected_values](size_t index) {
-      return expected_values[index];
-    };
+    kts::Reference1D<T> expected_in_reference =
+        [expected_values](size_t index) { return expected_values[index]; };
 
-    expected_output_reference = [success_indicies, expected_values,
-                                 desired_values](size_t index, cl_type value) {
+    kts::Reference1D<T> expected_output_reference = [success_indicies,
+                                                     expected_values,
+                                                     desired_values](
+                                                        size_t index, T value) {
       // Expected output will contain its original value if at a success index
       // otherwise it will contain the value stored in the atomic which will
       // be either the initial value if the sucessful thread hasn't executed
@@ -2123,102 +1204,84 @@ class StrongLocalSingle : public CompareExchangeTest<T> {
       return value == expected_values[success_index_of_workgroup] ||
              value == desired_values[success_index_of_workgroup];
     };
-    desired_reference = [desired_values](size_t index) {
+    kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    bool_output_reference = [success_indicies](size_t index) {
+    kts::Reference1D<cl_int> bool_output_reference = [success_indicies](
+                                                         size_t index) {
       const size_t work_group = index / kts::localN;
       const size_t success_index_of_workgroup = success_indicies[work_group];
       return index == success_index_of_workgroup;
     };
-  }
+    // Set up the buffers.
+    AddInOutBuffer(kts::N / kts::localN, initializer_reference,
+                   output_reference);
+    AddInOutBuffer(kts::N, expected_in_reference, expected_output_reference);
+    AddInputBuffer(kts::N, desired_reference);
+    AddOutputBuffer(kts::N, bool_output_reference);
+    AddLocalBuffer(1);
+    if (local_local) {
+      AddLocalBuffer(kts::localN);
+    }
 
-  kts::Reference1D<cl_type> initializer_reference;
-  kts::Reference1D<cl_type> output_reference;
-  kts::Reference1D<cl_type> expected_in_reference;
-  kts::Reference1D<cl_type> expected_output_reference;
-  kts::Reference1D<cl_type> desired_reference;
-  kts::Reference1D<cl_int> bool_output_reference;
+    // Run the test.
+    RunGeneric1D(kts::N, kts::localN);
+  }
 };
 
-TYPED_TEST_SUITE_P(StrongLocalSingle);
-
-TYPED_TEST_P(StrongLocalSingle,
-             C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N / kts::localN, this->initializer_reference,
-                       this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(1);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(StrongLocalSingle,
+       C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(StrongLocalSingle,
+       C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(StrongLocalSingle,
-             C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N / kts::localN, this->initializer_reference,
-                       this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(1);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(StrongLocalSingle,
+       C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single_Int) {
+  doTest<cl_int>(/*local_local*/ true);
+}
+TEST_P(StrongLocalSingle,
+       C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single_Uint) {
+  doTest<cl_uint>(/*local_local*/ true);
 }
 
-TYPED_TEST_P(StrongLocalSingle,
-             C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N / kts::localN, this->initializer_reference,
-                       this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(1);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(StrongLocalSingle,
+       C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(StrongLocalSingle,
+       C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-REGISTER_TYPED_TEST_SUITE_P(
-    StrongLocalSingle,
-    C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single,
-    C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single,
-    C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single);
+UCL_EXECUTION_TEST_SUITE(StrongLocalSingle, testing::ValuesIn(source_types));
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, StrongLocalSingle,
-                               AtomicIntegerTypes);
-
-template <typename T>
-class Weak : public CompareExchangeTest<T> {
+class Weak : public C11AtomicTestBase {
  public:
-  using cl_type = typename T::cl_type;
-  Weak() : failed_comparison_indicies{} {
+  template <typename T>
+  void doTest(bool local = false, bool local_local = false) {
     // Generate the random input.
-    std::vector<cl_type> input_data(kts::N, cl_type{});
+    std::vector<T> input_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
-    std::vector<cl_type> desired_data(kts::N, cl_type{});
+    std::vector<T> desired_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(desired_data);
 
     // Set up references.
-    random_reference = [input_data](size_t index) { return input_data[index]; };
-    expected_in_reference = [input_data](size_t index) {
+    kts::Reference1D<T> random_reference = [input_data](size_t index) {
+      return input_data[index];
+    };
+    kts::Reference1D<T> expected_in_reference = [input_data](size_t index) {
       auto expected_value = input_data[index];
       // This ensures every other expected value matches the value in the
       // input.
       return (index % 2) ? expected_value : !expected_value;
     };
-    output_reference = [input_data, desired_data, this](size_t index,
-                                                        cl_type value) {
+    std::vector<size_t> failed_comparison_indicies;
+    kts::Reference1D<T> output_reference = [input_data, desired_data,
+                                            &failed_comparison_indicies](
+                                               size_t index, T value) {
       // Weak compare-exchange operations may fail spuriously, returning 0
       // when the contents of memory in expected and the atomic are equal,
       // it may return zero and store back to expected the same memory
@@ -2237,10 +1300,11 @@ class Weak : public CompareExchangeTest<T> {
       // Failure index and we need to check the memory wasn't updated.
       return value == input_data[index];
     };
-    desired_reference = [desired_data](size_t index) {
+    kts::Reference1D<T> desired_reference = [desired_data](size_t index) {
       return desired_data[index];
     };
-    bool_reference = [this](size_t index, cl_int value) {
+    kts::Reference1D<cl_int> bool_reference = [&failed_comparison_indicies](
+                                                  size_t index, cl_int value) {
       // Check if we are at success index that didn't fail.
       if ((index % 2) &&
           std::find(std::begin(failed_comparison_indicies),
@@ -2253,113 +1317,76 @@ class Weak : public CompareExchangeTest<T> {
       // failed.
       return value == false;
     };
-  }
 
-  std::vector<size_t> failed_comparison_indicies;
-  kts::Reference1D<cl_type> random_reference;
-  kts::Reference1D<cl_type> expected_in_reference;
-  kts::Reference1D<cl_type> output_reference;
-  kts::Reference1D<cl_type> desired_reference;
-  kts::Reference1D<cl_int> bool_reference;
+    // Set up the buffers.
+    AddInOutBuffer(kts::N, random_reference, output_reference);
+    AddInOutBuffer(kts::N, expected_in_reference, random_reference);
+    AddInputBuffer(kts::N, desired_reference);
+    AddOutputBuffer(kts::N, bool_reference);
+    if (!local) {
+      RunGeneric1D(kts::N);
+    } else {
+      AddLocalBuffer(kts::localN);
+      if (local_local) {
+        AddLocalBuffer(kts::localN);
+      }
+      RunGeneric1D(kts::N, kts::localN);
+    }
+  }
 };
 
-TYPED_TEST_SUITE_P(Weak);
-
-TYPED_TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global_Int) {
+  doTest<cl_int>();
+}
+TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private_Int) {
+  doTest<cl_int>();
+}
+TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local_Int) {
+  doTest<cl_int>(/*local*/ true, /*local_local*/ true);
+}
+TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local_Uint) {
+  doTest<cl_uint>(/*local*/ true, /*local_ulocal*/ true);
 }
 
-TYPED_TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N, this->random_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->random_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-REGISTER_TYPED_TEST_SUITE_P(Weak,
-                            C11Atomics_67_Compare_Exchange_Weak_Global_Global,
-                            C11Atomics_68_Compare_Exchange_Weak_Global_Local,
-                            C11Atomics_69_Compare_Exchange_Weak_Global_Private,
-                            C11Atomics_70_Compare_Exchange_Weak_Local_Global,
-                            C11Atomics_71_Compare_Exchange_Weak_Local_Local,
-                            C11Atomics_72_Compare_Exchange_Weak_Local_Private);
+UCL_EXECUTION_TEST_SUITE(Weak, testing::ValuesIn(source_types));
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, Weak, AtomicIntegerTypes);
-
-template <typename T>
-class WeakGlobalSingle : public CompareExchangeTest<T> {
+class WeakGlobalSingle : public C11AtomicTestBase {
  public:
-  using cl_type = typename T::cl_type;
-  WeakGlobalSingle() : weak_exchange_failed(false) {
+  template <typename T>
+  void doTest(bool local = false) {
+    bool weak_exchange_failed = false;
     // Set up references.
     size_t success_index =
-        ucl::Environment::instance->GetInputGenerator().GenerateInt<cl_type>(
+        ucl::Environment::instance->GetInputGenerator().GenerateInt<T>(
             0, kts::N - 1);
 
     // We need the expected values to be unique, otherwise we won't be
@@ -2368,116 +1395,99 @@ class WeakGlobalSingle : public CompareExchangeTest<T> {
     // otherwise subsequent threads could update the atomic. The fastest
     // way to do this is to generate a buffer of unqique values of size 2
     // * kts::N, then just split it evenly between the two.
-    std::vector<cl_type> expected_values(kts::N, cl_type{});
-    std::vector<cl_type> desired_values(kts::N, cl_type{});
-    std::vector<cl_type> all_values(
-        expected_values.size() + desired_values.size(), cl_type{});
+    std::vector<T> expected_values(kts::N, T{});
+    std::vector<T> desired_values(kts::N, T{});
+    std::vector<T> all_values(expected_values.size() + desired_values.size(),
+                              T{});
 
-    ucl::Environment::instance->GetInputGenerator()
-        .GenerateUniqueIntData<cl_type>(all_values);
+    ucl::Environment::instance->GetInputGenerator().GenerateUniqueIntData<T>(
+        all_values);
     expected_values.assign(std::begin(all_values),
                            std::next(std::begin(all_values), kts::N));
     desired_values.assign(std::next(std::begin(all_values), kts::N),
                           std::end(all_values));
 
-    initializer_reference = [success_index, expected_values](size_t) {
+    kts::Reference1D<T> initializer_reference = [success_index,
+                                                 expected_values](size_t) {
       return expected_values[success_index];
     };
-    output_reference = [success_index, desired_values, this, expected_values](
-                           size_t, cl_type value) {
-      // Weak compare-exchange operations may fail spuriously,
-      // returning 0 when the contents of memory in expected and the
-      // atomic are equal, it may return zero and store back to
-      // expected the same memory contents that were originally there.
-      if (value == expected_values[success_index]) {
-        weak_exchange_failed = true;
-        return true;
-      }
-      return value == desired_values[success_index];
-    };
-    expected_in_reference = [expected_values](size_t index) {
-      return expected_values[index];
-    };
-    expected_output_reference = [success_index, expected_values,
-                                 desired_values](size_t, cl_type value) {
-      return value == expected_values[success_index] ||
-             value == desired_values[success_index];
-    };
-    desired_reference = [desired_values](size_t index) {
+    kts::Reference1D<T> output_reference =
+        [&expected_values, &desired_values, success_index,
+         &weak_exchange_failed](size_t, T value) {
+          // Weak compare-exchange operations may fail spuriously,
+          // returning 0 when the contents of memory in expected and the
+          // atomic are equal, it may return zero and store back to
+          // expected the same memory contents that were originally there.
+          if (value == expected_values[success_index]) {
+            weak_exchange_failed = true;
+            return true;
+          }
+          return value == desired_values[success_index];
+        };
+    kts::Reference1D<T> expected_in_reference =
+        [expected_values](size_t index) { return expected_values[index]; };
+    kts::Reference1D<T> expected_output_reference =
+        [success_index, expected_values, desired_values](size_t, T value) {
+          return value == expected_values[success_index] ||
+                 value == desired_values[success_index];
+        };
+    kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    bool_output_reference = [success_index, this](size_t index) {
-      return index == success_index && !weak_exchange_failed;
-    };
-  }
+    kts::Reference1D<T> bool_output_reference =
+        [success_index, weak_exchange_failed](size_t index) {
+          return index == success_index && !weak_exchange_failed;
+        };
 
-  bool weak_exchange_failed;
-  kts::Reference1D<cl_type> initializer_reference;
-  kts::Reference1D<cl_type> output_reference;
-  kts::Reference1D<cl_type> expected_in_reference;
-  kts::Reference1D<cl_type> expected_output_reference;
-  kts::Reference1D<cl_type> desired_reference;
-  kts::Reference1D<cl_int> bool_output_reference;
+    // Set up the buffers.
+    AddInOutBuffer(1, initializer_reference, output_reference);
+    AddInOutBuffer(kts::N, expected_in_reference, expected_output_reference);
+    AddInputBuffer(kts::N, desired_reference);
+    AddOutputBuffer(kts::N, bool_output_reference);
+    if (!local) {
+      RunGeneric1D(kts::N);
+    } else {
+      AddLocalBuffer(kts::localN);
+      RunGeneric1D(kts::N, kts::localN);
+    }
+  }
 };
 
-TYPED_TEST_SUITE_P(WeakGlobalSingle);
-
-TYPED_TEST_P(WeakGlobalSingle,
-             C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(1, this->initializer_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(WeakGlobalSingle,
+       C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(WeakGlobalSingle,
+       C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(WeakGlobalSingle,
-             C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(1, this->initializer_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(WeakGlobalSingle,
+       C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single_Int) {
+  doTest<cl_int>(/*local*/ true);
+}
+TEST_P(WeakGlobalSingle,
+       C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single_Uint) {
+  doTest<cl_uint>(/*local*/ true);
 }
 
-TYPED_TEST_P(WeakGlobalSingle,
-             C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(1, this->initializer_reference, this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N);
+TEST_P(WeakGlobalSingle,
+       C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(WeakGlobalSingle,
+       C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-REGISTER_TYPED_TEST_SUITE_P(
-    WeakGlobalSingle, C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single,
-    C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single,
-    C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single);
+UCL_EXECUTION_TEST_SUITE(WeakGlobalSingle, testing::ValuesIn(source_types));
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, WeakGlobalSingle,
-                               AtomicIntegerTypes);
-
-template <typename T>
-class WeakLocalSingle : public CompareExchangeTest<T> {
-  using cl_type = typename T::cl_type;
-
+class WeakLocalSingle : public C11AtomicTestBase {
  public:
-  WeakLocalSingle()
-      : success_indicies(kts::N / kts::localN, 0),
-        weak_exchanges_failed(kts::N / kts::localN, false) {
+  template <typename T>
+  void doTest(bool local_local = false) {
+    std::vector<size_t> success_indicies(kts::N / kts::localN, 0);
+    std::vector<bool> weak_exchanges_failed(kts::N / kts::localN, false);
     // Set up references.
     // Pick a random index in each work-group to hold the correct
     // expected value.
@@ -2493,10 +1503,10 @@ class WeakLocalSingle : public CompareExchangeTest<T> {
     // work-group has an empty intersection with its expected values. The
     // easiest way to do this is to just generate 2 * kts::N uniqueue values
     // and divide them between the two buffers.
-    std::vector<cl_type> expected_values(kts::N, cl_type{});
-    std::vector<cl_type> desired_values(kts::N, cl_type{});
-    std::vector<cl_type> all_values(
-        expected_values.size() + desired_values.size(), cl_type{});
+    std::vector<T> expected_values(kts::N, T{});
+    std::vector<T> desired_values(kts::N, T{});
+    std::vector<T> all_values(expected_values.size() + desired_values.size(),
+                              T{});
 
     ucl::Environment::instance->GetInputGenerator().GenerateUniqueIntData(
         all_values);
@@ -2505,30 +1515,33 @@ class WeakLocalSingle : public CompareExchangeTest<T> {
     desired_values.assign(std::next(std::begin(all_values), kts::N),
                           std::end(all_values));
 
-    initializer_reference = [expected_values, this](size_t index) {
-      return expected_values[success_indicies[index]];
-    };
+    kts::Reference1D<T> initializer_reference =
+        [&expected_values, &success_indicies](size_t index) {
+          return expected_values[success_indicies[index]];
+        };
 
-    output_reference = [desired_values, this, expected_values](size_t index,
-                                                               cl_type value) {
-      // Weak compare-exchange operations may fail spuriously, returning 0
-      // when the contents of memory in expected and the atomic are equal,
-      // it may return zero and store back to expected the same memory
-      // contents that were originally there.
-      if (value == expected_values[success_indicies[index]]) {
-        weak_exchanges_failed[index / kts::localN] = true;
-        return true;
-      }
+    kts::Reference1D<T> output_reference =
+        [&success_indicies, &weak_exchanges_failed, &expected_values,
+         &desired_values](size_t index, T value) {
+          // Weak compare-exchange operations may fail spuriously, returning 0
+          // when the contents of memory in expected and the atomic are equal,
+          // it may return zero and store back to expected the same memory
+          // contents that were originally there.
+          if (value == expected_values[success_indicies[index]]) {
+            weak_exchanges_failed[index / kts::localN] = true;
+            return true;
+          }
 
-      return value == desired_values[success_indicies[index]];
-    };
+          return value == desired_values[success_indicies[index]];
+        };
 
-    expected_in_reference = [expected_values](size_t index) {
-      return expected_values[index];
-    };
+    kts::Reference1D<T> expected_in_reference =
+        [&expected_values](size_t index) { return expected_values[index]; };
 
-    expected_output_reference = [this, expected_values, desired_values](
-                                    size_t index, cl_type value) {
+    kts::Reference1D<T> expected_output_reference = [&expected_values,
+                                                     &desired_values,
+                                                     &success_indicies](
+                                                        size_t index, T value) {
       // Expected output will contain its original value if at a success
       // index otherwise it will contain the value stored in the atomic
       // which will be either the initial value if the sucessful thread
@@ -2539,79 +1552,60 @@ class WeakLocalSingle : public CompareExchangeTest<T> {
       return value == expected_values[success_index_of_workgroup] ||
              value == desired_values[success_index_of_workgroup];
     };
-    desired_reference = [desired_values](size_t index) {
+    kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    bool_output_reference = [this](size_t index) {
-      const size_t work_group = index / kts::localN;
-      const size_t success_index_of_workgroup = success_indicies[work_group];
-      return (index == success_index_of_workgroup) &&
-             !weak_exchanges_failed[work_group];
-    };
-  }
+    kts::Reference1D<T> bool_output_reference =
+        [&success_indicies, &weak_exchanges_failed](size_t index) {
+          const size_t work_group = index / kts::localN;
+          const size_t success_index_of_workgroup =
+              success_indicies[work_group];
+          return (index == success_index_of_workgroup) &&
+                 !weak_exchanges_failed[work_group];
+        };
+    // Set up the buffers.
+    AddInOutBuffer(kts::N / kts::localN, initializer_reference,
+                   output_reference);
+    AddInOutBuffer(kts::N, expected_in_reference, expected_output_reference);
+    AddInputBuffer(kts::N, desired_reference);
+    AddOutputBuffer(kts::N, bool_output_reference);
+    AddLocalBuffer(1);
+    if (local_local) {
+      AddLocalBuffer(kts::localN);
+    }
 
-  std::vector<size_t> success_indicies;
-  std::vector<bool> weak_exchanges_failed;
-  kts::Reference1D<cl_type> initializer_reference;
-  kts::Reference1D<cl_type> output_reference;
-  kts::Reference1D<cl_type> expected_in_reference;
-  kts::Reference1D<cl_type> expected_output_reference;
-  kts::Reference1D<cl_type> desired_reference;
-  kts::Reference1D<cl_int> bool_output_reference;
+    // Run the test.
+    RunGeneric1D(kts::N, kts::localN);
+  }
 };
 
 TYPED_TEST_SUITE_P(WeakLocalSingle);
 
-TYPED_TEST_P(WeakLocalSingle,
-             C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N / kts::localN, this->initializer_reference,
-                       this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(1);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(WeakLocalSingle,
+       C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(WeakLocalSingle,
+       C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-TYPED_TEST_P(WeakLocalSingle,
-             C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N / kts::localN, this->initializer_reference,
-                       this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(1);
-  this->AddLocalBuffer(kts::localN);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(WeakLocalSingle,
+       C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single_Int) {
+  doTest<cl_int>(/*local_local*/ true);
+}
+TEST_P(WeakLocalSingle,
+       C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single_Uint) {
+  doTest<cl_uint>(/*local_local*/ true);
 }
 
-TYPED_TEST_P(WeakLocalSingle,
-             C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single) {
-  // Set up the buffers.
-  this->AddInOutBuffer(kts::N / kts::localN, this->initializer_reference,
-                       this->output_reference);
-  this->AddInOutBuffer(kts::N, this->expected_in_reference,
-                       this->expected_output_reference);
-  this->AddInputBuffer(kts::N, this->desired_reference);
-  this->AddOutputBuffer(kts::N, this->bool_output_reference);
-  this->AddLocalBuffer(1);
-
-  // Run the test.
-  this->RunGeneric1D(kts::N, kts::localN);
+TEST_P(WeakLocalSingle,
+       C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single_Int) {
+  doTest<cl_int>();
+}
+TEST_P(WeakLocalSingle,
+       C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single_Uint) {
+  doTest<cl_uint>();
 }
 
-REGISTER_TYPED_TEST_SUITE_P(
-    WeakLocalSingle, C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single,
-    C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single,
-    C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single);
-
-INSTANTIATE_TYPED_TEST_SUITE_P(AtomicIntegerTypes, WeakLocalSingle,
-                               AtomicIntegerTypes);
+UCL_EXECUTION_TEST_SUITE(WeakLocalSingle, testing::ValuesIn(source_types));
