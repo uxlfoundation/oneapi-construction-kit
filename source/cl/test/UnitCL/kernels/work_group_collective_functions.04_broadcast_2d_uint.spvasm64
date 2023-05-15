@@ -1,0 +1,143 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 69
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Groups
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %63 "broadcast_2d_uint" %__spirv_BuiltInGlobalLinearId %__spirv_BuiltInWorkgroupId %__spirv_BuiltInNumWorkgroups
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalLinearId "__spirv_BuiltInGlobalLinearId"
+               OpName %__spirv_BuiltInWorkgroupId "__spirv_BuiltInWorkgroupId"
+               OpName %__spirv_BuiltInNumWorkgroups "__spirv_BuiltInNumWorkgroups"
+               OpName %broadcast_2d_uint "broadcast_2d_uint"
+               OpName %in "in"
+               OpName %idx "idx"
+               OpName %out "out"
+               OpName %entry "entry"
+               OpName %in_addr "in.addr"
+               OpName %idx_addr "idx.addr"
+               OpName %out_addr "out.addr"
+               OpName %glid "glid"
+               OpName %wgid "wgid"
+               OpName %call "call"
+               OpName %call1 "call1"
+               OpName %call2 "call2"
+               OpName %call3 "call3"
+               OpName %mul "mul"
+               OpName %add "add"
+               OpName %arrayidx "arrayidx"
+               OpName %arrayidx4 "arrayidx4"
+               OpName %conv "conv"
+               OpName %arrayidx5 "arrayidx5"
+               OpName %conv6 "conv6"
+               OpName %_splatinsert ".splatinsert"
+               OpName %_splat ".splat"
+               OpName %call7 "call7"
+               OpName %arrayidx8 "arrayidx8"
+               OpName %in_0 "in"
+               OpName %idx_0 "idx"
+               OpName %out_0 "out"
+               OpDecorate %__spirv_BuiltInGlobalLinearId LinkageAttributes "__spirv_BuiltInGlobalLinearId" Import
+               OpDecorate %__spirv_BuiltInGlobalLinearId Constant
+               OpDecorate %__spirv_BuiltInGlobalLinearId BuiltIn GlobalLinearId
+               OpDecorate %__spirv_BuiltInWorkgroupId LinkageAttributes "__spirv_BuiltInWorkgroupId" Import
+               OpDecorate %__spirv_BuiltInWorkgroupId Constant
+               OpDecorate %__spirv_BuiltInWorkgroupId BuiltIn WorkgroupId
+               OpDecorate %__spirv_BuiltInNumWorkgroups LinkageAttributes "__spirv_BuiltInNumWorkgroups" Import
+               OpDecorate %__spirv_BuiltInNumWorkgroups Constant
+               OpDecorate %__spirv_BuiltInNumWorkgroups BuiltIn NumWorkgroups
+               OpDecorate %broadcast_2d_uint LinkageAttributes "broadcast_2d_uint" Export
+               OpDecorate %in Alignment 4
+               OpDecorate %idx Alignment 8
+               OpDecorate %out Alignment 4
+               OpDecorate %in_addr Alignment 8
+               OpDecorate %idx_addr Alignment 8
+               OpDecorate %out_addr Alignment 8
+               OpDecorate %glid Alignment 8
+               OpDecorate %wgid Alignment 8
+               OpDecorate %in_0 Alignment 4
+               OpDecorate %idx_0 Alignment 8
+               OpDecorate %out_0 Alignment 4
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_2 = OpConstant %uint 2
+%_ptr_Input_ulong = OpTypePointer Input %ulong
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+     %v2uint = OpTypeVector %uint 2
+%_ptr_CrossWorkgroup_v2uint = OpTypePointer CrossWorkgroup %v2uint
+         %14 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_v2uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_v2uint = OpTypePointer Function %_ptr_CrossWorkgroup_v2uint
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+    %v2ulong = OpTypeVector %ulong 2
+%__spirv_BuiltInGlobalLinearId = OpVariable %_ptr_Input_ulong Input
+%__spirv_BuiltInWorkgroupId = OpVariable %_ptr_Input_v3ulong Input
+%__spirv_BuiltInNumWorkgroups = OpVariable %_ptr_Input_v3ulong Input
+         %54 = OpUndef %v2ulong
+%broadcast_2d_uint = OpFunction %void DontInline %14
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+        %idx = OpFunctionParameter %_ptr_CrossWorkgroup_v2uint
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+    %in_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+   %idx_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_v2uint Function
+   %out_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+       %glid = OpVariable %_ptr_Function_ulong Function
+       %wgid = OpVariable %_ptr_Function_ulong Function
+               OpStore %in_addr %in Aligned 8
+               OpStore %idx_addr %idx Aligned 8
+               OpStore %out_addr %out Aligned 8
+       %call = OpLoad %ulong %__spirv_BuiltInGlobalLinearId Aligned 8
+               OpStore %glid %call Aligned 8
+         %29 = OpLoad %v3ulong %__spirv_BuiltInWorkgroupId Aligned 32
+      %call1 = OpCompositeExtract %ulong %29 0
+         %31 = OpLoad %v3ulong %__spirv_BuiltInNumWorkgroups Aligned 32
+      %call2 = OpCompositeExtract %ulong %31 0
+         %33 = OpLoad %v3ulong %__spirv_BuiltInWorkgroupId Aligned 32
+      %call3 = OpCompositeExtract %ulong %33 1
+        %mul = OpIMul %ulong %call2 %call3
+        %add = OpIAdd %ulong %call1 %mul
+               OpStore %wgid %add Aligned 8
+         %37 = OpLoad %_ptr_CrossWorkgroup_uint %in_addr Aligned 8
+         %38 = OpLoad %ulong %glid Aligned 8
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %37 %38
+         %40 = OpLoad %uint %arrayidx Aligned 4
+         %41 = OpLoad %_ptr_CrossWorkgroup_v2uint %idx_addr Aligned 8
+         %42 = OpLoad %ulong %wgid Aligned 8
+  %arrayidx4 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2uint %41 %42
+         %44 = OpLoad %v2uint %arrayidx4 Aligned 8
+         %45 = OpCompositeExtract %uint %44 0
+       %conv = OpUConvert %ulong %45
+         %47 = OpLoad %_ptr_CrossWorkgroup_v2uint %idx_addr Aligned 8
+         %48 = OpLoad %ulong %wgid Aligned 8
+  %arrayidx5 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_v2uint %47 %48
+         %50 = OpLoad %v2uint %arrayidx5 Aligned 8
+         %51 = OpCompositeExtract %uint %50 1
+      %conv6 = OpUConvert %ulong %51
+%_splatinsert = OpCompositeInsert %v2ulong %conv %54 0
+     %_splat = OpVectorShuffle %v2ulong %_splatinsert %54 0 0
+         %57 = OpCompositeInsert %v2ulong %conv6 %_splat 1
+      %call7 = OpGroupBroadcast %uint %uint_2 %40 %57
+         %60 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+         %61 = OpLoad %ulong %glid Aligned 8
+  %arrayidx8 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %60 %61
+               OpStore %arrayidx8 %call7 Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %63 = OpFunction %void DontInline %14
+       %in_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %idx_0 = OpFunctionParameter %_ptr_CrossWorkgroup_v2uint
+      %out_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %67 = OpLabel
+         %68 = OpFunctionCall %void %broadcast_2d_uint %in_0 %idx_0 %out_0
+               OpReturn
+               OpFunctionEnd
