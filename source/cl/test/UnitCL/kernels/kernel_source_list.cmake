@@ -651,18 +651,54 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.18_sub_group_scan_inclusive_max_float.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.01_all.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.02_any.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.03_broadcast_1d.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.04_broadcast_2d.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.05_broadcast_3d.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.06_reduce_add.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.07_reduce_min.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.08_reduce_max.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.09_scan_exclusive_add.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.10_scan_exclusive_min.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.11_scan_exclusive_max.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.12_scan_inclusive_add.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.13_scan_inclusive_min.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.14_scan_inclusive_max.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.03_broadcast_1d_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.03_broadcast_1d_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.03_broadcast_1d_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.03_broadcast_1d_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.04_broadcast_2d_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.04_broadcast_2d_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.04_broadcast_2d_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.04_broadcast_2d_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.05_broadcast_3d_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.05_broadcast_3d_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.05_broadcast_3d_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.05_broadcast_3d_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.06_reduce_add_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.06_reduce_add_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.06_reduce_add_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.06_reduce_add_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.07_reduce_min_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.07_reduce_min_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.07_reduce_min_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.07_reduce_min_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.08_reduce_max_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.08_reduce_max_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.08_reduce_max_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.08_reduce_max_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.09_scan_exclusive_add_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.09_scan_exclusive_add_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.09_scan_exclusive_add_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.09_scan_exclusive_add_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.10_scan_exclusive_min_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.10_scan_exclusive_min_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.10_scan_exclusive_min_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.10_scan_exclusive_min_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.11_scan_exclusive_max_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.11_scan_exclusive_max_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.11_scan_exclusive_max_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.11_scan_exclusive_max_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.12_scan_inclusive_add_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.12_scan_inclusive_add_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.12_scan_inclusive_add_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.12_scan_inclusive_add_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.13_scan_inclusive_min_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.13_scan_inclusive_min_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.13_scan_inclusive_min_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.13_scan_inclusive_min_ulong.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.14_scan_inclusive_max_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.14_scan_inclusive_max_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.14_scan_inclusive_max_long.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/work_group_collective_functions.14_scan_inclusive_max_ulong.cl
   )
 
 if(${OCL_EXTENSION_cl_khr_extended_async_copies})
