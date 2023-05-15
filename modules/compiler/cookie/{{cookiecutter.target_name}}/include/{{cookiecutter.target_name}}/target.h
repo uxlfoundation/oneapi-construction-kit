@@ -37,7 +37,7 @@ constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_SCHEDULED[] 
 constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_BACKEND[] = "backend";
 
 /// @brief Compiler target class.
-class {{cookiecutter.target_name.capitalize()}}Target final : public compiler::BaseTarget {
+class {{cookiecutter.target_name.capitalize()}}Target final : public compiler::BaseAOTTarget {
  public:
   {{cookiecutter.target_name.capitalize()}}Target(const compiler::Info *compiler_info, compiler::Context *context,
                 compiler::NotifyCallbackFn callback);

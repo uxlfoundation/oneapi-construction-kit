@@ -28,10 +28,10 @@ BaseTarget::BaseTarget(const compiler::Info *compiler_info,
                        compiler::Context *context, NotifyCallbackFn callback)
     : compiler_info(compiler_info),
       context(*static_cast<BaseContext *>(context)),
-      callback{callback} {
-  // Force enable opaque pointers.
-  llvm_context.setOpaquePointers(true);
+      callback{callback} {}
 
+Result BaseTarget::init(uint32_t builtins_capabilities) {
+  getLLVMContext().setOpaquePointers(true);
   if (callback) {
     auto diag_handler_callback_thunk = [](const llvm::DiagnosticInfo &DI,
                                           void *user_data) {
@@ -56,9 +56,7 @@ BaseTarget::BaseTarget(const compiler::Info *compiler_info,
     getLLVMContext().setDiagnosticHandlerCallBack(
         diag_handler_callback_thunk, notify_callback_fn_as_user_data);
   }
-}
 
-Result BaseTarget::init(uint32_t builtins_capabilities) {
   const auto valid_capabilities_bitmask =
       BuiltinsCapabilities::CAPS_DEFAULT | BuiltinsCapabilities::CAPS_32BIT |
       BuiltinsCapabilities::CAPS_FP64 | BuiltinsCapabilities::CAPS_FP16;
@@ -166,11 +164,15 @@ std::vector<const char *> BaseTarget::getTargetSnapshotStages() const {
   return snapshots;
 }
 
-/// @brief Returns the (non-null) LLVMContext.
-llvm::LLVMContext &BaseTarget::getLLVMContext() { return llvm_context; }
+BaseAOTTarget::BaseAOTTarget(const compiler::Info *compiler_info,
+                             compiler::Context *context,
+                             NotifyCallbackFn callback)
+    : BaseTarget(compiler_info, context, callback) {}
 
-/// @brief Returns the (non-null) LLVMContext.
-const llvm::LLVMContext &BaseTarget::getLLVMContext() const {
+llvm::LLVMContext &BaseAOTTarget::getLLVMContext() { return llvm_context; }
+
+const llvm::LLVMContext &BaseAOTTarget::getLLVMContext() const {
   return llvm_context;
 }
+
 }  // namespace compiler

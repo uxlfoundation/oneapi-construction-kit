@@ -140,7 +140,7 @@ HostModule::hostCompileObject(HostTarget &target,
   }
 
   auto binaryOrError =
-      emitBinary(cloned_module.get(), target.engine->getTargetMachine());
+      emitBinary(cloned_module.get(), target.target_machine.get());
 
   if (!binaryOrError.has_value()) {
     return cargo::make_unexpected(binaryOrError.error());
@@ -271,7 +271,7 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
 
 std::unique_ptr<compiler::utils::PassMachinery>
 HostModule::createPassMachinery() {
-  auto *TM = static_cast<HostTarget &>(target).engine->getTargetMachine();
+  auto *TM = static_cast<HostTarget &>(target).target_machine.get();
   auto Info =
       compiler::initDeviceInfoFromMux(target.getCompilerInfo()->device_info);
   auto Callback = [BI = target.getBuiltins()](const llvm::Module &) {
@@ -288,7 +288,7 @@ HostModule::createPassMachinery() {
 
 void initializePassMachineryForFinalize(
     compiler::utils::PassMachinery &passMach, const HostTarget &target) {
-  auto *TM = target.engine->getTargetMachine();
+  auto *TM = target.target_machine.get();
 
   passMach.initializeStart();
   if (TM) {
@@ -305,7 +305,7 @@ void initializePassMachineryForFinalize(
   // to adding the pass. Trying to add a TargetLibraryInfoWrapper analysis with
   // disabled functions later will have no affect, due to the analysis already
   // being registered with the pass manager.
-  auto Triple = target.engine->getTargetMachine()->getTargetTriple();
+  auto Triple = target.target_machine->getTargetTriple();
   auto LibraryInfo = llvm::TargetLibraryInfoImpl(Triple);
   LibraryInfo.disableAllFunctions();
   passMach.getFAM().registerPass(

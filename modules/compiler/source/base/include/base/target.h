@@ -48,7 +48,7 @@ class BaseTarget : public Target {
 
   compiler::BaseContext &getContext() const { return context; };
 
-  llvm::Module *getBuiltins() const { return builtins.get(); };
+  virtual llvm::Module *getBuiltins() const = 0;
 
   /// @see Target::listSnapshotStages
   compiler::Result listSnapshotStages(uint32_t count, const char **out_stages,
@@ -61,9 +61,9 @@ class BaseTarget : public Target {
   NotifyCallbackFn getNotifyCallbackFn() const { return callback; }
 
   /// @brief Returns the (non-null) LLVMContext.
-  llvm::LLVMContext &getLLVMContext();
+  virtual llvm::LLVMContext &getLLVMContext() = 0;
   /// @brief Returns the (non-null) LLVMContext.
-  const llvm::LLVMContext &getLLVMContext() const;
+  virtual const llvm::LLVMContext &getLLVMContext() const = 0;
 
  protected:
   /// @brief Initialize the compiler target after loading the builtins module.
@@ -78,17 +78,9 @@ class BaseTarget : public Target {
 
   const compiler::Info *compiler_info;
 
-  /// @brief LLVM context.
-  llvm::LLVMContext llvm_context;
-
   /// @brief Context to use during initialization, and to pass to modules
   /// created with this target.
   compiler::BaseContext &context;
-
-  /// @brief LLVM Module containing implementations of the builtin functions
-  /// this target provides. May be null for compiler targets without external
-  /// builtin libraries.
-  std::unique_ptr<llvm::Module> builtins;
 
   /// @brief A list of additional target snapshots defined by derived
   /// implementations.
@@ -96,6 +88,33 @@ class BaseTarget : public Target {
 
   NotifyCallbackFn callback;
 };
+
+/// @brief A utility class for an ahead-of-time compilation target.
+///
+/// This target owns the LLVMContext and dependent LLVM resources like the
+/// builtins module, if used.
+class BaseAOTTarget : public BaseTarget {
+ public:
+  BaseAOTTarget(const compiler::Info *compiler_info, compiler::Context *context,
+                NotifyCallbackFn callback);
+  /// @see BaseTarget::getLLVMContext
+  virtual llvm::LLVMContext &getLLVMContext() override;
+  /// @see BaseTarget::getLLVMContext
+  virtual const llvm::LLVMContext &getLLVMContext() const override;
+
+  /// @see BaseTarget::getBuiltins
+  llvm::Module *getBuiltins() const override { return builtins.get(); };
+
+ protected:
+  /// @brief LLVM context.
+  llvm::LLVMContext llvm_context;
+
+  /// @brief LLVM Module containing implementations of the builtin functions
+  /// this target provides. May be null for compiler targets without external
+  /// builtin libraries.
+  std::unique_ptr<llvm::Module> builtins;
+};
+
 }  // namespace compiler
 
 #endif  // COMPILER_BASE_TARGET_H

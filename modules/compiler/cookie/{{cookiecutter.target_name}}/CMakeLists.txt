@@ -62,7 +62,7 @@ endif()
     compiler-utils
     compiler-linker-utils
     LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-    LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
+    LLVMVectorize LLVMipo multi_llvm)
   
   add_mux_compiler_target(compiler-{{cookiecutter.target_name}}
     COMPILER_INFO {{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Info::get

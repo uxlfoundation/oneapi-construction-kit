@@ -88,7 +88,7 @@ RiscvTarget::RiscvTarget(const compiler::Info *compiler_info,
                          const hal_device_info_riscv_t *hal_device_info,
                          compiler::Context *context,
                          compiler::NotifyCallbackFn callback)
-    : BaseTarget(compiler_info, context, callback) {
+    : BaseAOTTarget(compiler_info, context, callback) {
   env_debug_prefix = "CA_RISCV";
   available_snapshots = {
       compiler::BaseModule::getTargetSnapshotName("riscv",

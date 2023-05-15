@@ -53,7 +53,7 @@ if (LLVMRISCVCODEGEN)
       hal_common      
       compiler-linker-utils
       LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-      LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
+      LLVMVectorize LLVMipo multi_llvm)
 
     target_link_libraries(compiler-riscv-utils PUBLIC riscvrt)
   endif()

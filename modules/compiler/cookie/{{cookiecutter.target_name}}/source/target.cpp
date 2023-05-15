@@ -32,7 +32,7 @@ namespace {{cookiecutter.target_name}} {
 {{cookiecutter.target_name.capitalize()}}Target::{{cookiecutter.target_name.capitalize()}}Target(const compiler::Info *compiler_info,
                              compiler::Context *context,
                              compiler::NotifyCallbackFn callback)
-    : BaseTarget(compiler_info, context, callback) {
+    : BaseAOTTarget(compiler_info, context, callback) {
   env_debug_prefix = "CA_{{cookiecutter.target_name_capitals}}";
   available_snapshots = {
       compiler::BaseModule::getTargetSnapshotName("{{cookiecutter.target_name}}",

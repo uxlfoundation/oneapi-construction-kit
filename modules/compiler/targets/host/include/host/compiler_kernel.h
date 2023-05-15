@@ -26,6 +26,7 @@
 #include <host/utils/jit_kernel.h>
 
 #include <map>
+#include <unordered_set>
 
 #include "base/module.h"
 
@@ -99,6 +100,9 @@ class HostKernel : public compiler::BaseKernel {
   /// By an "optimized module" we mean a copy of this kernel's LLVM module which
   /// has had passes that optimize for a specific local size run on it.
   std::map<std::array<size_t, 3>, OptimizedKernel> optimized_kernel_map;
+
+  /// @brief A set of JITDylibs created to manage JIT resources for kernels.
+  std::unordered_set<std::string> kernel_jit_dylibs;
 
   /// @brief Target object that created the module this kernel is derived from.
   HostTarget &target;

@@ -91,7 +91,7 @@ endif()
 target_link_libraries(compiler-host PUBLIC
   compiler-base host-utils host
   LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-  LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
+  LLVMOrcShared LLVMOrcJIT LLVMVectorize LLVMipo multi_llvm)
 
 if(TARGET LLVMARMCodeGen)
   # link with LLVM if it was built with the ARM target
