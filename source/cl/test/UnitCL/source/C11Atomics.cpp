@@ -10,7 +10,9 @@
 
 using namespace kts::ucl;
 
-static const kts::ucl::SourceType source_types[] = {kts::ucl::OPENCL_C};
+static const kts::ucl::SourceType source_types[] = {
+    kts::ucl::OPENCL_C, kts::ucl::OFFLINE, kts::ucl::SPIRV,
+    kts::ucl::OFFLINESPIRV};
 
 class C11AtomicTestBase : public kts::ucl::Execution {
  public:
