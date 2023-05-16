@@ -67,6 +67,8 @@ TEST_F(clReleaseCommandQueueTest, TestEventFlush) {
     std::this_thread::sleep_for(std::chrono::microseconds(100 * 1000));
   }
 
-  clReleaseEvent(event);
+  ASSERT_SUCCESS(clReleaseEvent(event));
+  ASSERT_SUCCESS(clReleaseKernel(kernel));
+  ASSERT_SUCCESS(clReleaseProgram(program));
   EXPECT_TRUE(status == CL_COMPLETE);
 }
