@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <string>
 
 #if defined(__linux__)
 #include <fcntl.h>

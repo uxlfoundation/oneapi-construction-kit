@@ -2094,3 +2094,15 @@ index 00000000..1ce57171
 +target_link_libraries(spike riscv-sim fesvr dl)
 +
 +target_link_libraries(spike-dasm riscv-sim fesvr dl)
+diff --git a/fesvr/device.h b/fesvr/device.h
+index 1387b745..639b8374 100644
+--- a/fesvr/device.h
++++ b/fesvr/device.h
+@@ -6,6 +6,7 @@
+ #include <cstring>
+ #include <string>
+ #include <functional>
++#include <cstdint>
+
+ class memif_t;
+
