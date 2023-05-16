@@ -30,6 +30,8 @@ if(COMMAND add_ca_tidy)
   endif()
 endif()
 
+set_property(TARGET abacus_static PROPERTY CXX_STANDARD 11)
+
 target_include_directories(abacus_static PUBLIC
   ${CMAKE_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../include)
@@ -37,7 +39,6 @@ target_compile_options(abacus_static
   PUBLIC
   $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:QCC>>:
     $<$<COMPILE_LANGUAGE:CXX>:
-      -std=c++11        # Enable C++11
       -fno-rtti         # Disable runtime type information
     >
     $<$<BOOL:${UNIX}>:
