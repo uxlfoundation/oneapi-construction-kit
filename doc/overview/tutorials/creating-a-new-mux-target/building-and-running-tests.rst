@@ -27,7 +27,7 @@ Firstly we set up the `CMake` directive.
 
     $ mkdir build
     $ export LLVM_INSTALL_DIR=<your_llvm_install_dir>
-    $ export CA_DDK_PATH=<your_ddk_install_dir>    
+    $ export ONEAPI_CON_KIT_PATH=<your_oneapi_construction_kit_dir>    
     $ cmake -GNinja -DCA_MUX_TARGETS_TO_ENABLE="refsi_tutorial" \
         -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_ENABLE_API=cl \
         -DCMAKE_BUILD_TYPE=Debug \
@@ -35,7 +35,7 @@ Firstly we set up the `CMake` directive.
         -DCA_ENABLE_DEBUG_SUPPORT=ON \
         -DCA_ENABLE_OFFLINE_LIBRARIES=OFF -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
         -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF \
-        -DCA_EXTERNAL_DDK_DIR=$CA_DDK_PATH \
+        -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$ONEAPI_CON_KIT_PATH \
         -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=<path to target hal> \
         -Bbuild .
 

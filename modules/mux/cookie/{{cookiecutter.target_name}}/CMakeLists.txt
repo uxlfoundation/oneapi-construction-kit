@@ -9,9 +9,9 @@ if(NOT ${CA_{{cookiecutter.target_name_capitals}}_ENABLED})
   return()
 endif()
 
-if (DEFINED CA_EXTERNAL_CPU_HAL_DIR)
+if (DEFINED CA_EXTERNAL_{{cookiecutter.target_name_capitals}}_HAL_DIR)
   # Get the name of only the final part of the directory
-  get_filename_component(EXTERNAL_HAL_NAME ${CA_EXTERNAL_CPU_HAL_DIR} NAME)
+  get_filename_component(EXTERNAL_HAL_NAME ${CA_EXTERNAL_{{cookiecutter.target_name_capitals}}_HAL_DIR} NAME)
   # Remove the hal component
   string(REPLACE "hal_" "" EXTERNAL_HAL_NAME ${EXTERNAL_HAL_NAME} )
   # Set this as the default HAL Name
