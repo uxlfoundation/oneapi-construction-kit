@@ -80,9 +80,9 @@ struct aligned_allocator {
   }
 
   aligned_allocator(){};
-  template <class U, size_t A = alignof(U)>
+  template <class U>
   struct rebind {
-    typedef aligned_allocator<U, A> other;
+    using other = aligned_allocator<U, Align>;
   };
 };
 
