@@ -1,0 +1,84 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 38
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability GenericPointer
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %33 "fetch_global_and_int" %__spirv_BuiltInGlobalInvocationId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %fetch_global_and_int "fetch_global_and_int"
+               OpName %total "total"
+               OpName %input_buffer "input_buffer"
+               OpName %entry "entry"
+               OpName %total_addr "total.addr"
+               OpName %input_buffer_addr "input_buffer.addr"
+               OpName %gid "gid"
+               OpName %call "call"
+               OpName %conv "conv"
+               OpName %idxprom "idxprom"
+               OpName %arrayidx "arrayidx"
+               OpName %call1 "call1"
+               OpName %total_0 "total"
+               OpName %input_buffer_0 "input_buffer"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %fetch_global_and_int LinkageAttributes "fetch_global_and_int" Export
+               OpDecorate %total Alignment 4
+               OpDecorate %input_buffer Alignment 4
+               OpDecorate %total_addr Alignment 8
+               OpDecorate %input_buffer_addr Alignment 8
+               OpDecorate %gid Alignment 4
+               OpDecorate %total_0 Alignment 4
+               OpDecorate %input_buffer_0 Alignment 4
+               OpDecorate %total_0 Volatile
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Generic_uint = OpTypePointer Generic %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%fetch_global_and_int = OpFunction %void DontInline %9
+      %total = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+ %total_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+%input_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+        %gid = OpVariable %_ptr_Function_uint Function
+               OpStore %total_addr %total Aligned 8
+               OpStore %input_buffer_addr %input_buffer Aligned 8
+         %19 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId Aligned 32
+       %call = OpCompositeExtract %ulong %19 0
+       %conv = OpUConvert %uint %call
+               OpStore %gid %conv Aligned 4
+         %22 = OpLoad %_ptr_CrossWorkgroup_uint %total_addr Aligned 8
+         %24 = OpPtrCastToGeneric %_ptr_Generic_uint %22
+         %25 = OpLoad %_ptr_CrossWorkgroup_uint %input_buffer_addr Aligned 8
+         %26 = OpLoad %uint %gid Aligned 4
+    %idxprom = OpUConvert %ulong %26
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %25 %idxprom
+         %29 = OpLoad %uint %arrayidx Aligned 4
+      %call1 = OpAtomicAnd %uint %24 %uint_4 %uint_0 %29
+               OpReturn
+               OpFunctionEnd
+         %33 = OpFunction %void DontInline %9
+    %total_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%input_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %36 = OpLabel
+         %37 = OpFunctionCall %void %fetch_global_and_int %total_0 %input_buffer_0
+               OpReturn
+               OpFunctionEnd

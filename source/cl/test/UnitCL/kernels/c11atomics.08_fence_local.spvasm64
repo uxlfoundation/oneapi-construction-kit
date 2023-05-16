@@ -1,0 +1,125 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 57
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %51 "fence_local" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
+               OpName %fence_local "fence_local"
+               OpName %in "in"
+               OpName %out "out"
+               OpName %tmp "tmp"
+               OpName %entry "entry"
+               OpName %in_addr "in.addr"
+               OpName %out_addr "out.addr"
+               OpName %tmp_addr "tmp.addr"
+               OpName %gid "gid"
+               OpName %lid "lid"
+               OpName %call "call"
+               OpName %conv "conv"
+               OpName %call1 "call1"
+               OpName %conv2 "conv2"
+               OpName %idxprom "idxprom"
+               OpName %arrayidx "arrayidx"
+               OpName %idxprom3 "idxprom3"
+               OpName %arrayidx4 "arrayidx4"
+               OpName %idxprom5 "idxprom5"
+               OpName %arrayidx6 "arrayidx6"
+               OpName %idxprom7 "idxprom7"
+               OpName %arrayidx8 "arrayidx8"
+               OpName %in_0 "in"
+               OpName %out_0 "out"
+               OpName %tmp_0 "tmp"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
+               OpDecorate %__spirv_BuiltInLocalInvocationId Constant
+               OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
+               OpDecorate %fence_local LinkageAttributes "fence_local" Export
+               OpDecorate %in Alignment 4
+               OpDecorate %out Alignment 4
+               OpDecorate %tmp Alignment 4
+               OpDecorate %in_addr Alignment 8
+               OpDecorate %out_addr Alignment 8
+               OpDecorate %tmp_addr Alignment 8
+               OpDecorate %gid Alignment 4
+               OpDecorate %lid Alignment 4
+               OpDecorate %in_0 Alignment 4
+               OpDecorate %out_0 Alignment 4
+               OpDecorate %tmp_0 Alignment 4
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+   %uint_256 = OpConstant %uint 256
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+         %11 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint %_ptr_Workgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_Workgroup_uint = OpTypePointer Function %_ptr_Workgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%fence_local = OpFunction %void DontInline %11
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+        %tmp = OpFunctionParameter %_ptr_Workgroup_uint
+      %entry = OpLabel
+    %in_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+   %out_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+   %tmp_addr = OpVariable %_ptr_Function__ptr_Workgroup_uint Function
+        %gid = OpVariable %_ptr_Function_uint Function
+        %lid = OpVariable %_ptr_Function_uint Function
+               OpStore %in_addr %in Aligned 8
+               OpStore %out_addr %out Aligned 8
+               OpStore %tmp_addr %tmp Aligned 8
+         %25 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId Aligned 32
+       %call = OpCompositeExtract %ulong %25 0
+       %conv = OpUConvert %uint %call
+               OpStore %gid %conv Aligned 4
+         %28 = OpLoad %v3ulong %__spirv_BuiltInLocalInvocationId Aligned 32
+      %call1 = OpCompositeExtract %ulong %28 0
+      %conv2 = OpUConvert %uint %call1
+               OpStore %lid %conv2 Aligned 4
+         %31 = OpLoad %_ptr_CrossWorkgroup_uint %in_addr Aligned 8
+         %32 = OpLoad %uint %gid Aligned 4
+    %idxprom = OpUConvert %ulong %32
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %31 %idxprom
+         %35 = OpLoad %uint %arrayidx Aligned 4
+         %36 = OpLoad %_ptr_Workgroup_uint %tmp_addr Aligned 8
+         %37 = OpLoad %uint %lid Aligned 4
+   %idxprom3 = OpUConvert %ulong %37
+  %arrayidx4 = OpInBoundsPtrAccessChain %_ptr_Workgroup_uint %36 %idxprom3
+               OpStore %arrayidx4 %35 Aligned 4
+               OpMemoryBarrier %uint_4 %uint_256
+         %42 = OpLoad %_ptr_Workgroup_uint %tmp_addr Aligned 8
+         %43 = OpLoad %uint %lid Aligned 4
+   %idxprom5 = OpUConvert %ulong %43
+  %arrayidx6 = OpInBoundsPtrAccessChain %_ptr_Workgroup_uint %42 %idxprom5
+         %46 = OpLoad %uint %arrayidx6 Aligned 4
+         %47 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+         %48 = OpLoad %uint %gid Aligned 4
+   %idxprom7 = OpUConvert %ulong %48
+  %arrayidx8 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %47 %idxprom7
+               OpStore %arrayidx8 %46 Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %51 = OpFunction %void DontInline %11
+       %in_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %out_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %tmp_0 = OpFunctionParameter %_ptr_Workgroup_uint
+         %55 = OpLabel
+         %56 = OpFunctionCall %void %fence_local %in_0 %out_0 %tmp_0
+               OpReturn
+               OpFunctionEnd
