@@ -46,17 +46,20 @@ class driver {
   /// @return Returns a `muxc::result`.
   result setupContext();
 
+  /// @brief Converts the input file to an IR module.
+  llvm::Expected<std::unique_ptr<llvm::Module>> convertInputToIR();
+
   /// @brief Create the pass machinery
   ///
   /// @return Returns a `PassMachinery` in a `unique_ptr`.
   std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery();
 
   /// @brief Run the pass pipeline provided
-  ///
-  /// @return Returns a `muxc::result`.
-  result runPipeline(compiler::utils::PassMachinery *);
+  llvm::Error runPipeline(llvm::Module &, compiler::utils::PassMachinery &);
 
  private:
+  uint32_t ModuleNumErrors = 0;
+  std::string ModuleLog;
   /// @brief Selected compiler.
   const compiler::Info *CompilerInfo;
   /// @brief Compiler context to drive compilation.
@@ -71,8 +74,9 @@ class driver {
 
   /// @brief Find the desired `compiler::Info` from `device_name_substring`.
   ///
-  /// @return Returns a `muxc::result`.
-  result findDevice();
+  /// @return Returns the compiler::Info matching the device, or an Error on
+  /// failure.
+  llvm::Expected<const compiler::Info *> findDevice();
 };
 
 }  // namespace muxc
