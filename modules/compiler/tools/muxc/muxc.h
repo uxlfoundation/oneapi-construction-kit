@@ -50,7 +50,7 @@ class driver {
   /// @brief Compiler target to drive compilation.
   std::unique_ptr<compiler::Target> CompilerTarget;
   /// @brief Compiler module being compiled.
-  std::unique_ptr<compiler::Module> Module;
+  std::unique_ptr<compiler::Module> CompilerModule;
 
   /// @brief Find the desired `compiler::Info` from `device_name_substring`.
   ///

@@ -11,49 +11,44 @@
 #include <llvm/Support/Error.h>
 #include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/ToolOutputFile.h>
-#include <multi_llvm/multi_llvm.h>
+
+using namespace llvm;
 
 // Additional arguments beyond standard llvm command options
-static llvm::cl::opt<std::string> InputFilename(
-    "input", llvm::cl::Positional, llvm::cl::desc("<input .bc or .ll file>"),
-    llvm::cl::init("-"));
+static cl::opt<std::string> InputFilename("input", cl::Positional,
+                                          cl::desc("<input .bc or .ll file>"),
+                                          cl::init("-"));
 
-static llvm::cl::opt<std::string> PipelineText(
-    "passes", llvm::cl::desc("pipeline to run, passes separated by ','"),
-    llvm::cl::init(""));
+static cl::opt<std::string> PipelineText(
+    "passes", cl::desc("pipeline to run, passes separated by ','"),
+    cl::init(""));
 
-static llvm::cl::opt<std::string> OutputFilename(
-    "o", llvm::cl::desc("Override output filename (default stdout)"),
-    llvm::cl::value_desc("filename"), llvm::cl::init("-"));
+static cl::opt<std::string> OutputFilename(
+    "o", cl::desc("Override output filename (default stdout)"),
+    cl::value_desc("filename"), cl::init("-"));
 
-static llvm::cl::opt<bool> ListDevices("list-devices",
-                                       llvm::cl::desc("list devices"),
-                                       llvm::cl::value_desc("list-devices"));
+static cl::opt<bool> ListDevices("list-devices", cl::desc("list devices"),
+                                 cl::value_desc("list-devices"));
 
-static llvm::cl::opt<bool, false> WriteTextual(
-    "S", llvm::cl::desc("Write module as text"));
+static cl::opt<bool, false> WriteTextual("S", cl::desc("Write module as text"));
 
-static llvm::cl::opt<std::string> DeviceName("device",
-                                             llvm::cl::desc("select device"),
-                                             llvm::cl::value_desc("name"));
+static cl::opt<std::string> DeviceName("device", cl::desc("select device"),
+                                       cl::value_desc("name"));
 
-static llvm::cl::opt<bool> PrintPasses(
+static cl::opt<bool> PrintPasses(
     "print-passes",
-    llvm::cl::desc("Print available passes that can be specified in "
-                   "--passes=foo and exit (not including LLVM ones)"));
+    cl::desc("Print available passes that can be specified in "
+             "--passes=foo and exit (not including LLVM ones)"));
 
-static llvm::cl::opt<bool> HalfCap(
+static cl::opt<bool> HalfCap(
     "device-fp16-capabilities",
-    llvm::cl::desc("Enable/Disable device fp16 capabilities"),
-    llvm::cl::init(true));
-static llvm::cl::opt<bool> FloatCap(
+    cl::desc("Enable/Disable device fp16 capabilities"), cl::init(true));
+static cl::opt<bool> FloatCap(
     "device-fp32-capabilities",
-    llvm::cl::desc("Enable/Disable device fp32 capabilities"),
-    llvm::cl::init(true));
-static llvm::cl::opt<bool> DoubleCap(
+    cl::desc("Enable/Disable device fp32 capabilities"), cl::init(true));
+static cl::opt<bool> DoubleCap(
     "device-fp64-capabilities",
-    llvm::cl::desc("Enable/Disable device fp64 capabilities"),
-    llvm::cl::init(true));
+    cl::desc("Enable/Disable device fp64 capabilities"), cl::init(true));
 
 int main(int argc, char **argv) {
   muxc::driver driver;
@@ -72,7 +67,7 @@ int main(int argc, char **argv) {
   }
 
   if (PrintPasses) {
-    PassMach->printPassNames(llvm::errs());
+    PassMach->printPassNames(errs());
     return 0;
   }
 
@@ -117,10 +112,10 @@ uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
 driver::driver()
     : CompilerInfo(nullptr),
       CompilerContext(compiler::createContext()),
-      Module(nullptr) {}
+      CompilerModule(nullptr) {}
 
 void driver::parseArguments(int argc, char **argv) {
-  llvm::cl::ParseCommandLineOptions(argc, argv);
+  cl::ParseCommandLineOptions(argc, argv);
 
   if (ListDevices) {
     for (auto compiler : compiler::compilers()) {
@@ -152,8 +147,8 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
   std::string ModuleLog{};
 
   if (CompilerTarget) {
-    Module = CompilerTarget->createModule(ModuleNumErrors, ModuleLog);
-    if (!Module || ModuleNumErrors) {
+    CompilerModule = CompilerTarget->createModule(ModuleNumErrors, ModuleLog);
+    if (!CompilerModule || ModuleNumErrors) {
       std::fprintf(stderr, "Error: Could not create compiler module :\n%s\n",
                    ModuleLog.c_str());
       return {};
@@ -162,7 +157,8 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
 
   std::unique_ptr<compiler::utils::PassMachinery> PassMach;
   if (CompilerTarget) {
-    auto *const BaseModule = static_cast<compiler::BaseModule *>(Module.get());
+    auto *const BaseModule =
+        static_cast<compiler::BaseModule *>(CompilerModule.get());
     PassMach = BaseModule->createPassMachinery();
   } else {
     compiler::utils::DeviceInfo Info(
@@ -174,7 +170,7 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
 
     auto &BaseCtx =
         *static_cast<compiler::BaseContext *>(CompilerContext.get());
-    llvm::LLVMContext &Ctx = BaseCtx.llvm_context;
+    LLVMContext &Ctx = BaseCtx.llvm_context;
     PassMach = std::make_unique<compiler::BaseModulePassMachinery>(
         Ctx, /*TM*/ nullptr, Info, /*BICallback*/ nullptr,
         BaseCtx.isLLVMVerifyEachEnabled(), BaseCtx.getLLVMDebugLoggingLevel(),
@@ -191,39 +187,37 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
 }
 
 result driver::runPipeline(compiler::utils::PassMachinery *PassMach) {
-  llvm::LLVMContext Context;
+  LLVMContext Context;
 #if LLVM_VERSION_GREATER_EQUAL(15, 0)
   Context.setOpaquePointers(true);
 #endif
-  llvm::ModulePassManager pm;
+  ModulePassManager pm;
   if (auto Err = PassMach->getPB().parsePassPipeline(pm, PipelineText)) {
-    llvm::errs() << llvm::formatv("Error: Parse of {0} failed : {1}\n",
-                                  PipelineText, llvm::toString(std::move(Err)));
+    errs() << formatv("Error: Parse of {0} failed : {1}\n", PipelineText,
+                      toString(std::move(Err)));
     return result::failure;
   }
 
-  llvm::SMDiagnostic Err;
+  SMDiagnostic Err;
 
   auto &ContextChoice =
       static_cast<compiler::BaseContext *>(CompilerContext.get())->llvm_context;
 
-  std::unique_ptr<llvm::Module> Mod =
-      llvm::parseIRFile(InputFilename, Err, ContextChoice);
+  std::unique_ptr<Module> Mod = parseIRFile(InputFilename, Err, ContextChoice);
 
   if (!Mod) {
-    Err.print(InputFilename.c_str(), llvm::errs());
+    Err.print(InputFilename.c_str(), errs());
     return result::failure;
   }
   // Open the output file.
   std::error_code EC;
-  llvm::sys::fs::OpenFlags OpenFlags = llvm::sys::fs::OF_None;
+  sys::fs::OpenFlags OpenFlags = sys::fs::OF_None;
   if (WriteTextual) {
-    OpenFlags |= llvm::sys::fs::OF_Text;
+    OpenFlags |= sys::fs::OF_Text;
   }
-  auto Out =
-      std::make_unique<llvm::ToolOutputFile>(OutputFilename, EC, OpenFlags);
+  auto Out = std::make_unique<ToolOutputFile>(OutputFilename, EC, OpenFlags);
   if (EC || !Out) {
-    llvm::errs() << EC.message() << '\n';
+    errs() << EC.message() << '\n';
     return result::failure;
   }
 
@@ -231,7 +225,7 @@ result driver::runPipeline(compiler::utils::PassMachinery *PassMach) {
   if (WriteTextual) {
     Out->os() << *Mod.get();
   } else {
-    llvm::WriteBitcodeToFile(*Mod.get(), Out->os());
+    WriteBitcodeToFile(*Mod.get(), Out->os());
   }
   Out->keep();
 
