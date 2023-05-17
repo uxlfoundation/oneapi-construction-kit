@@ -6,14 +6,20 @@
 #include <llvm/ADT/None.h>
 #include <llvm/ADT/Optional.h>
 
+#if (LLVM_VERSION_MAJOR >= 16)
 #include <optional>
+#endif
 
 namespace multi_llvm {
+
 #if (LLVM_VERSION_MAJOR >= 16)
+
 template <typename T>
 using Optional = std::optional<T>;
 static constexpr std::nullopt_t None = std::nullopt;
+
 #else
+
 using llvm::None;
 using llvm::NoneType;
 template <typename T>
