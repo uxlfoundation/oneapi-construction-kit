@@ -8,12 +8,12 @@ The *RefSi* target is a RISC-V target which uses a command processor to run a
 kernel with any given parameters across different instances and slices. These
 parameters will all be indentical for each kernel execution.
 
-First of all we need an empty directory ``refsi_tutorial``. We also assume that the ``DDK`` containing
-``ComputeAorta`` exists at ``$CA_DDK_PATH`` commands:
+First of all we need an empty directory ``refsi_tutorial``. We also assume that
+the ``OneAPI Construction Kit`` exists at ``$ONEAPI_CON_KIT_PATH`` commands:
 
 .. code:: bash
 
-  export CA_DDK_PATH=<path_to_ddk>
+  export ONEAPI_CON_KIT_PATH=<path_to_construction_kit>
   mkdir refsi_tutorial
   cd refsi_tutorial
 
@@ -35,7 +35,7 @@ Create a ``refsi.json`` file like this:
      "scalable_vector": "true"
    }
 
-This can also be found under ``ComputeAorta_DDK/ComputeAorta/scripts/new_target_templates/refsi.json``.
+This can also be found under ``$ONEAPI_CON_KIT_PATH/scripts/new_target_templates/refsi.json``.
 
 The `JSON` attribute-value pairs are explained in the table below: 
 
@@ -66,19 +66,18 @@ The `JSON` attribute-value pairs are explained in the table below:
      - This is options to be passed through to the llvm backend that need to be
        set. In this case we are telling the backend that vlen is 512.
  
-Now we will run the script inside the ComputeAorta directory: 
+Now we will run the script inside the ``OneAPI Construction Kit`` directory: 
 
 .. code:: console
 
     $ cd refsi_tutorial
-    $ $CA_DDK_PATH/ComputeAorta/scripts/create_target.py $CA_DDK_PATH/ComputeAorta \
-       $CA_DDK_PATH/ComputeAorta/scripts/new_target_templates/refsi.json \
+    $ $ONEAPI_CON_KIT_PATH/scripts/create_target.py $ONEAPI_CON_KIT_PATH \
+       $ONEAPI_CON_KIT_PATH/scripts/new_target_templates/refsi.json \
        --external-dir $PWD
 
-The first parameter is the path to the top level of `ComputeAorta` inside the
-DDK. The second parameter is the `json` file discussed previously. The third
-parameter is the external directory which `ComputeAorta` will require for
-building the new target.
+The first parameter is the path to the ``OneAPI Construction Kit``. The second 
+parameter is the `json` file discussed previously. The third parameter is the
+external directory which `ComputeAorta` will require for building the new target.
 
 This creates subdirectories ``mux/refsi_tutorial`` and ``compiler/refsi_tutorial``,
 named after the `target_name` field. It also creates a ``CMakeLists.txt`` which
@@ -107,10 +106,11 @@ The generated `CMakeLists.txt` is very simple and will look something like this:
   set(CA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR
     "${CMAKE_CURRENT_SOURCE_DIR}/hal_refsi_tutorial" CACHE STRING "External ComputeAorta HAL")
 
-  set(CA_EXTERNAL_DDK_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/ComputeAorta_DDK" CACHE STRING "External ComputeAorta DDK")
+  set(CA_EXTERNAL_ONEAPI_CON_KIT_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External OneAPI Construction Kit")
 
-  add_subdirectory(${CA_EXTERNAL_DDK_DIR}/ComputeAorta ${CMAKE_CURRENT_BINARY_DIR}/ComputeAorta)
+  add_subdirectory(${CA_EXTERNAL_ONEAPI_CON_KIT_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/ComputeAorta)
 
 The ``CA_EXTERNAL_MUX_TARGET_DIRS`` and ``CA_EXTERNAL_MUX_COMPILER_DIRS`` are
 used to tell ComputeAorta where to look for for the per target code, both for
@@ -121,8 +121,7 @@ should match the target name.
 target. This can be changed to wherever you have stored the final
 `hal_refsi_tutorial`, but defaults to within the current top level directory.
 
-``CA_EXTERNAL_DDK_DIR`` is used to indicate where the `DDK` directory is. This
-should contain `ComputeAorta`.
+``CA_EXTERNAL_ONEAPI_KIT_DIR`` is used to indicate where the `OneAPI construction kit` directory is.
 
 
 Both of these variables can be overridden on the `cmake` line.

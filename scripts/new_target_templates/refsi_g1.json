@@ -1,0 +1,11 @@
+{
+  "target_name": "refsi_g1",
+  "llvm_name": "RISCV",
+  "llvm_cpu": "'generic-rv64'",
+  "llvm_features": "'+m,+f,+a,+d,+c,+v,+zbc,+zvl128b'",
+  "llvm_triple": "'riscv64-unknown-elf'",
+  "vlen" : "128",
+  "link" : "true",
+  "scalable_vector": "true",
+  "feature": "replace_mem"
+}
