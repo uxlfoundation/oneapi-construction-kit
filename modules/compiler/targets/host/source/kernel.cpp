@@ -139,11 +139,11 @@ HostKernel::createSpecializedKernel(
   }
 
   cargo::dynamic_array<uint8_t> binary_out;
-  if (binary_out.alloc(host::getSizeForJITKernel())) {
+  if (binary_out.alloc(host::utils::getSizeForJITKernel())) {
     return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
   }
-  host::serializeJITKernel(optimized_kernel->binary_kernel.get(),
-                           binary_out.data());
+  host::utils::serializeJITKernel(optimized_kernel->binary_kernel.get(),
+                                  binary_out.data());
   return {std::move(binary_out)};
 }
 
@@ -350,9 +350,10 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     uint32_t pref_width = fn_metadata.pref_work_item_factor.getFixedValue();
     uint32_t sub_group_size = fn_metadata.sub_group_size.getFixedValue();
 
-    std::unique_ptr<host::jit_kernel_s> jit_kernel(new host::jit_kernel_s{
-        name, hook, static_cast<uint32_t>(fn_metadata.local_memory_usage),
-        min_width, pref_width, sub_group_size});
+    std::unique_ptr<host::utils::jit_kernel_s> jit_kernel(
+        new host::utils::jit_kernel_s{
+            name, hook, static_cast<uint32_t>(fn_metadata.local_memory_usage),
+            min_width, pref_width, sub_group_size});
     optimized_kernel_map.emplace(
         local_size,
         OptimizedKernel{optimized_module_ptr, std::move(jit_kernel)});

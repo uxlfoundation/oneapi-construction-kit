@@ -88,9 +88,6 @@ endif()
 ca_option(CA_HOST_ENABLE_PAPI_COUNTERS BOOL
   "Enable PAPI counter based queries in host." OFF)
 
-# Host common library (shared by host and the host compiler).
-add_subdirectory(common)
-
 # If the online coverage is enabled we add the modules so that the XML file
 # can be generated automatically.
 if(${CA_ENABLE_COVERAGE} AND ${CA_RUNTIME_COMPILER_ENABLED})
@@ -140,7 +137,7 @@ target_compile_definitions(host PUBLIC
 target_compile_options(host PRIVATE
   $<$<BOOL:${UNIX}>:-Wno-unused-parameter>)
 target_link_libraries(host PUBLIC
-  cargo host-common host-utils loader mux-headers mux-utils tracer md_handler
+  cargo host-utils loader mux-headers mux-utils tracer md_handler
   utils  # TODO: remove this dependency
   Threads::Threads)
 

@@ -15,7 +15,9 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 set(HOST_UTILS_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/host/utils/jit_kernel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/utils/relocations.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/jit_kernel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/relocations.cpp)
 
 add_ca_library(host-utils STATIC ${HOST_UTILS_SOURCES})
@@ -23,3 +25,5 @@ add_ca_library(host-utils STATIC ${HOST_UTILS_SOURCES})
 target_include_directories(host-utils PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/modules/utils/include)
+
+target_link_libraries(host-utils PUBLIC cargo)

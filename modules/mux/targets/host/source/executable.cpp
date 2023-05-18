@@ -15,11 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <cargo/string_algorithm.h>
-#include <host/common/jit_kernel.h>
 #include <host/device.h>
 #include <host/executable.h>
 #include <host/host.h>
 #include <host/metadata_hooks.h>
+#include <host/utils/jit_kernel.h>
 #include <host/utils/relocations.h>
 #include <loader/relocations.h>
 #include <mux/utils/allocator.h>
@@ -28,7 +28,8 @@
 #include <memory>
 #include <new>
 
-host::executable_s::executable_s(mux_device_t device, jit_kernel_s kernel,
+host::executable_s::executable_s(mux_device_t device,
+                                 utils::jit_kernel_s kernel,
                                  mux::allocator allocator)
     : jit_kernel_name(kernel.name),
       elf_contents(allocator),
@@ -58,9 +59,9 @@ mux_result_t hostCreateExecutable(mux_device_t device, const void *binary,
   mux::allocator allocator(allocator_info);
 
   // If we're passing through a JIT compiled kernel.
-  if (host::isJITKernel(binary, binary_length)) {
-    cargo::optional<host::jit_kernel_s> jit_kernel =
-        host::deserializeJITKernel(binary, binary_length);
+  if (host::utils::isJITKernel(binary, binary_length)) {
+    cargo::optional<host::utils::jit_kernel_s> jit_kernel =
+        host::utils::deserializeJITKernel(binary, binary_length);
     if (!jit_kernel) {
       return mux_error_invalid_binary;
     }
