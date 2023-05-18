@@ -140,7 +140,7 @@ target_compile_definitions(host PUBLIC
 target_compile_options(host PRIVATE
   $<$<BOOL:${UNIX}>:-Wno-unused-parameter>)
 target_link_libraries(host PUBLIC
-  cargo host-common loader mux-headers mux-utils tracer md_handler
+  cargo host-common host-utils loader mux-headers mux-utils tracer md_handler
   utils  # TODO: remove this dependency
   Threads::Threads)
 
