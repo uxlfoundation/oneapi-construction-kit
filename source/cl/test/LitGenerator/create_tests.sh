@@ -1,5 +1,19 @@
 #!/bin/bash
-# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+# Copyright (C) Codeplay Software Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+# Exceptions; you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 REPEAT_COUNT="1"
 VERBOSE=false
@@ -204,7 +218,21 @@ while read line; do
     fi
     lit=$LIT_DEST_DIR/Tests/${namestrip%.*}.test
     COUNTER=$((COUNTER+1))
-    echo "// Copyright (C) Codeplay Software Limited. All Rights Reserved." > $lit
+    echo "// Copyright (C) Codeplay Software Limited" > $lit
+    echo "//" >> $lit
+    echo "// Licensed under the Apache License, Version 2.0 (the \"License\") with LLVM" >> $lit
+    echo "// Exceptions; you may not use this file except in compliance with the License." >> $lit
+    echo "// You may obtain a copy of the License at" >> $lit
+    echo "//" >> $lit
+    echo "//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt" >> $lit
+    echo "//" >> $lit
+    echo "// Unless required by applicable law or agreed to in writing, software" >> $lit
+    echo "// distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT" >> $lit
+    echo "// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the" >> $lit
+    echo "// License for the specific language governing permissions and limitations" >> $lit
+    echo "// under the License." >> $lit
+    echo "//" >> $lit
+    echo "// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception" >> $lit
     echo "" >> $lit
     echo "RUN: %oclc "$oclc_args" > %t" >> $lit
     echo "RUN: %filecheck < %t %s" >> $lit

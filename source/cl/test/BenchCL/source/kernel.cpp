@@ -1,4 +1,18 @@
-// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// Copyright (C) Codeplay Software Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+// Exceptions; you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <BenchCL/error.h>
 #include <BenchCL/environment.h>
@@ -103,6 +117,7 @@ void KernelCreateFirstKernelInSource(benchmark::State& state) {
   const std::string name = "func" + std::to_string(0);
 
   for (auto _ : state) {
+    (void)_;
     cl_kernel kernel = clCreateKernel(cd.program, name.c_str(), nullptr);
 
     ASSERT_EQ_ERRCODE(CL_SUCCESS, clReleaseKernel(kernel));
@@ -122,6 +137,7 @@ void KernelCreateLastKernelInSource(benchmark::State& state) {
   const std::string name = "func" + std::to_string(state.range(0) - 1);
 
   for (auto _ : state) {
+    (void)_;
     cl_kernel kernel = clCreateKernel(cd.program, name.c_str(), nullptr);
 
     ASSERT_EQ_ERRCODE(CL_SUCCESS, clReleaseKernel(kernel));
@@ -138,6 +154,7 @@ void KernelCreateWithRequiredWorkGroupSize(benchmark::State& state) {
   const std::string name = "func";
 
   for (auto _ : state) {
+    (void)_;
     cl_kernel kernel = clCreateKernel(cd.program, name.c_str(), nullptr);
 
     ASSERT_EQ_ERRCODE(CL_SUCCESS, clReleaseKernel(kernel));
@@ -166,6 +183,7 @@ void KernelEnqueueEmpty(benchmark::State& state) {
   ASSERT_EQ_ERRCODE(CL_SUCCESS, clFinish(queue));
 
   for (auto _ : state) {
+    (void)_;
     namespace chrono = std::chrono;
     auto start = chrono::high_resolution_clock::now();
 
@@ -255,6 +273,7 @@ void KernelTiledEnqueue(benchmark::State& state) {
   ASSERT_EQ_ERRCODE(CL_SUCCESS, clFinish(qu));
 
   for (auto _ : state) {
+    (void)_;
     namespace chrono = std::chrono;
     auto start = chrono::high_resolution_clock::now();
 
@@ -310,6 +329,7 @@ void KernelCreateEmptyKernelFromSource(benchmark::State& state) {
   ASSERT_EQ_ERRCODE(CL_SUCCESS, success);
 
   for (auto _ : state) {
+    (void)_;
     cl_kernel kernel = clCreateKernel(cd.program, name.c_str(), &success);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, success);
 
@@ -534,6 +554,7 @@ void KernelCreateEmptyKernelFromBinary(benchmark::State& state) {
   ASSERT_EQ_ERRCODE(CL_SUCCESS, success);
 
   for (auto _ : state) {
+    (void)_;
     cl_kernel kernel = clCreateKernel(cd.program, name.c_str(), &success);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, success);
 

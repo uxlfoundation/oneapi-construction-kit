@@ -1,4 +1,18 @@
-// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// Copyright (C) Codeplay Software Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+// Exceptions; you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <common.h>
 
@@ -8,7 +22,7 @@ static cl_platform_id selectedPlatform = nullptr;
 
 cl_platform_id getPlatform() { return selectedPlatform; }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
 
   // Get OpenCL platforms.
@@ -54,19 +68,11 @@ int main(int argc, char** argv) {
     if (arg.find("-h") != std::string::npos ||
         arg.find("--help") != std::string::npos) {
       std::printf(R"(
-MultiDevice (version %s) - additional information:
-
-License:
-
-  Copyright (C) Codeplay Software Limited. All Rights Reserved.
-
-  Distribution of this binary without prior consent from Codeplay Software
-  Limited is strictly forbidden.
-
-MultiDevice Options:
+MultiDevice (version %s) - Options:
   --opencl-platform=<name>
       The CL_PLATFORM_NAME of the platform to be tested.
-)", CA_VERSION);
+)",
+                  CA_VERSION);
       return 0;
     } else if (arg.find("--opencl-platform=") != std::string::npos) {
       std::string platformName(arg.begin() + 1 + arg.find('='), arg.end());
@@ -95,7 +101,7 @@ MultiDevice Options:
           stderr,
           "error: multiple OpenCL platforms, use --opencl-platform=<name>\n");
       std::fprintf(stderr, "choose for the following:\n");
-      for (const auto& platformName : platformNames) {
+      for (const auto &platformName : platformNames) {
         std::fprintf(stderr, "* %s\n", platformName.c_str());
       }
     }

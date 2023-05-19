@@ -1,4 +1,18 @@
-// Copyright (C) Codeplay Software Limited. All Rights Reserved.
+// Copyright (C) Codeplay Software Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+// Exceptions; you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+//
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <BenchCL/error.h>
 #include <BenchCL/environment.h>
@@ -72,6 +86,7 @@ void SingleThreadOneQueueNoDependencies(benchmark::State& state) {
   CreateData cd;
 
   for (auto _ : state) {
+    (void)_;
     for (unsigned i = 0; i < state.range(0); i++) {
       size_t size = CreateData::BUFFER_LENGTH;
       clEnqueueNDRangeKernel(cd.queue, cd.kernel, 1, nullptr, &size, nullptr, 0,
@@ -89,6 +104,7 @@ void SingleThreadOneQueue(benchmark::State& state) {
   CreateData cd;
 
   for (auto _ : state) {
+    (void)_;
     const size_t size = CreateData::BUFFER_LENGTH;
 
     cl_event event;
@@ -113,6 +129,7 @@ void MultiThreadOneQueueNoDependencies(benchmark::State& state) {
   CreateData cd;
 
   for (auto _ : state) {
+    (void)_;
     for (unsigned i = 0; i < state.range(0); i++) {
       size_t size = CreateData::BUFFER_LENGTH;
       clEnqueueNDRangeKernel(cd.queue, cd.kernel, 1, nullptr, &size, nullptr, 0,
@@ -135,6 +152,7 @@ void MultiThreadOneQueue(benchmark::State& state) {
   CreateData cd;
 
   for (auto _ : state) {
+    (void)_;
     const size_t size = CreateData::BUFFER_LENGTH;
 
     cl_event event;
@@ -172,6 +190,7 @@ void MultiThreadMultiQueueNoDependencies(benchmark::State& state) {
   }
 
   for (auto _ : state) {
+    (void)_;
     for (unsigned i = 0; i < state.range(0); i++) {
       size_t size = CreateData::BUFFER_LENGTH;
       clEnqueueNDRangeKernel(queue, cd.kernel, 1, nullptr, &size, nullptr, 0,
@@ -206,6 +225,7 @@ void MultiThreadMultiQueue(benchmark::State& state) {
   }
 
   for (auto _ : state) {
+    (void)_;
     const size_t size = CreateData::BUFFER_LENGTH;
 
     cl_event event;

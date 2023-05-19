@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 
-# Copyright (C) Codeplay Software Limited. All Rights Reserved.
+# Copyright (C) Codeplay Software Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+# Exceptions; you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 """Generate a header containing all the types and built-in functions in GLSL"""
 
 import argparse
@@ -29,9 +43,22 @@ FUNCTIONS = []
 
 def header(out_file):
     """Write the copyright stuff and include guards"""
-    out_file.write(
-        "// Copyright (C) Codeplay Software Limited. All Rights Reserved.\n\n"
-    )
+    out_file.write("// Copyright (C) Codeplay Software Limited\n")
+    out_file.write("//\n")
+    out_file.write("// Licensed under the Apache License, Version 2.0 (the \"License\") with LLVM\n")
+    out_file.write("// Exceptions; you may not use this file except in compliance with the License.\n")
+    out_file.write("// You may obtain a copy of the License at\n")
+    out_file.write("//\n")
+    out_file.write("//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt\n")
+    out_file.write("//\n")
+    out_file.write("// Unless required by applicable law or agreed to in writing, software\n")
+    out_file.write("// distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n")
+    out_file.write("// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the\n")
+    out_file.write("// License for the specific language governing permissions and limitations\n")
+    out_file.write("// under the License.\n")
+    out_file.write("//\n")
+    out_file.write("// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception\n")
+    out_file.write("\n")
     out_file.write("#ifndef GL_BUILTINS_H_INCLUDED\n")
     out_file.write("#define GL_BUILTINS_H_INCLUDED\n\n")
     out_file.write("#include <cstdint>\n\n")
