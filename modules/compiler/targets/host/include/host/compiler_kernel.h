@@ -23,7 +23,7 @@
 
 #include <base/kernel.h>
 #include <compiler/module.h>
-#include <host/common/jit_kernel.h>
+#include <host/utils/jit_kernel.h>
 
 #include <map>
 
@@ -46,7 +46,7 @@ struct OptimizedKernel {
 
   /// @brief The JIT kernel metadata, stored in a unique_ptr to guarantee
   /// pointer stability.
-  std::unique_ptr<::host::jit_kernel_s> binary_kernel;
+  std::unique_ptr<::host::utils::jit_kernel_s> binary_kernel;
 };
 
 class HostKernel : public compiler::BaseKernel {

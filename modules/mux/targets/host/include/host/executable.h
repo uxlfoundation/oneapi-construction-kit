@@ -24,7 +24,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "host/common/jit_kernel.h"
+#include "host/utils/jit_kernel.h"
 #include "loader/elf.h"
 #include "loader/mapper.h"
 #include "mux/mux.h"
@@ -68,7 +68,7 @@ struct executable_s final : public mux_executable_s {
   /// @param[in] device Mux device.
   /// @param[in] jit_kernel The single JIT binary kernel to be stored in this
   /// executable.
-  executable_s(mux_device_t device, jit_kernel_s jit_kernel,
+  executable_s(mux_device_t device, utils::jit_kernel_s jit_kernel,
                mux::allocator allocator);
 
   /// @brief Create an executable from a pre-compiled binary.

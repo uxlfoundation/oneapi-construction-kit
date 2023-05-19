@@ -31,3 +31,6 @@ target_link_libraries(utils PRIVATE cargo)
 list(APPEND MODULES_LIBRARIES utils)
 set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
   CACHE INTERNAL "List of module libraries.")
+
+# Add any target-specific utils libraries
+add_subdirectory(targets)

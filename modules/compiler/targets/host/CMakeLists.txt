@@ -89,7 +89,7 @@ if(TARGET builtins-host)
 endif()
 
 target_link_libraries(compiler-host PUBLIC
-  compiler-base host-common host
+  compiler-base host-utils host
   LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
   LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
 

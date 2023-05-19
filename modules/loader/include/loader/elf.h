@@ -538,7 +538,7 @@ struct ElfMap {
   /// @brief A mapping for a callback under a symbol name.
   struct Callback {
     /// @brief Name of the symbol.
-    cargo::string_view name;
+    std::string name;
     /// @brief Address it is mapped to.
     uint64_t target_address;
   };
@@ -565,7 +565,8 @@ struct ElfMap {
   /// are present outside of the ELF file.
   CARGO_NODISCARD inline cargo::result addCallback(cargo::string_view name,
                                                    uint64_t target_address) {
-    return callbacks.push_back({name, target_address});
+    return callbacks.push_back(
+        {std::string{name.data(), name.size()}, target_address});
   }
 
   /// @brief Gets the address where the section with a given index is mapped in

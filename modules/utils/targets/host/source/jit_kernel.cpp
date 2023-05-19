@@ -14,13 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <host/common/jit_kernel.h>
+#include <host/utils/jit_kernel.h>
 
 // This can be anything, as long as it does not overlap the first byte from the
 // ELF header.
 const uint8_t magic_byte = 0xcd;
 
 namespace host {
+namespace utils {
+
 bool isJITKernel(const void *binary, uint64_t binary_length) {
   if (binary_length != getSizeForJITKernel()) {
     return false;
@@ -59,4 +61,6 @@ void serializeJITKernel(const jit_kernel_s *jit_kernel, uint8_t *buffer) {
   std::copy_n(reinterpret_cast<const uint8_t *>(&jit_kernel),
               sizeof(const jit_kernel_s *), buffer);
 }
+
+}  // namespace utils
 }  // namespace host
