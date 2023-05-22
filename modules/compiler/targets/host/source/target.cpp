@@ -61,7 +61,7 @@ compiler::Result HostTarget::initWithBuiltins(
       std::make_unique<compiler::utils::MemoryBuffer>(
           rc::host::host_x86_64_unknown_unknown_bc.data(),
           rc::host::host_x86_64_unknown_unknown_bc.size()),
-      context.llvm_context);
+      getLLVMContext());
   if (!loadedModule) {
     return compiler::Result::FAILURE;
   }
@@ -110,8 +110,7 @@ compiler::Result HostTarget::initWithBuiltins(
 
   // We need this module to init our EngineBuilder, which in turn is used to
   // create our TargetMachine.
-  std::unique_ptr<llvm::Module> module(
-      new llvm::Module("", context.llvm_context));
+  std::unique_ptr<llvm::Module> module(new llvm::Module("", getLLVMContext()));
   if (nullptr == module) {
     return compiler::Result::FAILURE;
   }

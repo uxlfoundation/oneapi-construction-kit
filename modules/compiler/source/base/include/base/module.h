@@ -266,13 +266,14 @@ class BaseModule : public Module {
         BaseModule &base_module,
         DiagnosticHandler::DiagnosticFilterTy filter_fn = nullptr)
         : base_module(base_module),
-          old_handler(base_module.context.llvm_context.getDiagnosticHandler()) {
-      base_module.context.llvm_context.setDiagnosticHandler(
+          old_handler(
+              base_module.target.getLLVMContext().getDiagnosticHandler()) {
+      base_module.target.getLLVMContext().setDiagnosticHandler(
           std::make_unique<DiagnosticHandler>(base_module, filter_fn));
     }
     ~ScopedDiagnosticHandler() {
       // Reinstate the old diagnostic handler
-      base_module.context.llvm_context.setDiagnosticHandler(
+      base_module.target.getLLVMContext().setDiagnosticHandler(
           std::move(old_handler));
     }
     BaseModule &base_module;

@@ -60,6 +60,11 @@ class BaseTarget : public Target {
 
   NotifyCallbackFn getNotifyCallbackFn() const { return callback; }
 
+  /// @brief Returns the (non-null) LLVMContext.
+  llvm::LLVMContext &getLLVMContext();
+  /// @brief Returns the (non-null) LLVMContext.
+  const llvm::LLVMContext &getLLVMContext() const;
+
  protected:
   /// @brief Initialize the compiler target after loading the builtins module.
   ///
@@ -72,6 +77,9 @@ class BaseTarget : public Target {
   virtual Result initWithBuiltins(std::unique_ptr<llvm::Module> builtins) = 0;
 
   const compiler::Info *compiler_info;
+
+  /// @brief LLVM context.
+  llvm::LLVMContext llvm_context;
 
   /// @brief Context to use during initialization, and to pass to modules
   /// created with this target.

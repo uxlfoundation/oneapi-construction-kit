@@ -29,6 +29,9 @@ BaseTarget::BaseTarget(const compiler::Info *compiler_info,
     : compiler_info(compiler_info),
       context(*static_cast<BaseContext *>(context)),
       callback{callback} {
+  // Force enable opaque pointers.
+  llvm_context.setOpaquePointers(true);
+
   if (callback) {
     auto diag_handler_callback_thunk = [](const llvm::DiagnosticInfo &DI,
                                           void *user_data) {
@@ -50,7 +53,7 @@ BaseTarget::BaseTarget(const compiler::Info *compiler_info,
     };
     void *notify_callback_fn_as_user_data =
         static_cast<void *>(&this->callback);
-    this->context.llvm_context.setDiagnosticHandlerCallBack(
+    getLLVMContext().setDiagnosticHandlerCallBack(
         diag_handler_callback_thunk, notify_callback_fn_as_user_data);
   }
 }
@@ -81,7 +84,7 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
     auto error_or_builtins_module = llvm::getOwningLazyBitcodeModule(
         std::make_unique<compiler::utils::MemoryBuffer>(builtins_file.data(),
                                                         builtins_file.size()),
-        context.llvm_context);
+        getLLVMContext());
     if (!error_or_builtins_module) {
       return Result::FAILURE;
     }
@@ -163,4 +166,11 @@ std::vector<const char *> BaseTarget::getTargetSnapshotStages() const {
   return snapshots;
 }
 
+/// @brief Returns the (non-null) LLVMContext.
+llvm::LLVMContext &BaseTarget::getLLVMContext() { return llvm_context; }
+
+/// @brief Returns the (non-null) LLVMContext.
+const llvm::LLVMContext &BaseTarget::getLLVMContext() const {
+  return llvm_context;
+}
 }  // namespace compiler

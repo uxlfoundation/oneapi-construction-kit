@@ -280,7 +280,7 @@ HostModule::createPassMachinery() {
         compiler::utils::createCLBuiltinInfo(BI));
   };
   return std::make_unique<host::HostPassMachinery>(
-      target.getContext().llvm_context, TM, Info, Callback,
+      target.getLLVMContext(), TM, Info, Callback,
       target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),
       target.getContext().isLLVMTimePassesEnabled());

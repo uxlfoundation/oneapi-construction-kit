@@ -735,7 +735,7 @@ bool BaseModule::loadSPIR(cargo::array_view<const std::uint8_t> buffer) {
   DeserializeMemoryBuffer memoryBuffer(
       {reinterpret_cast<const char *>(buffer.data()), buffer.size()});
   auto errorOrModule = llvm::parseBitcodeFile(memoryBuffer.getMemBufferRef(),
-                                              context.llvm_context);
+                                              target.getLLVMContext());
 
   if (errorOrModule) {
     llvm_module = std::move(errorOrModule.get());
@@ -893,7 +893,7 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
   spirv::ModuleInfo module_info;
 
   {
-    spirv_ll::Context spvContext(&context.llvm_context);
+    spirv_ll::Context spvContext(&target.getLLVMContext());
 
     // Convert SPIR-V inputs to SPIRV-LL data structures.
     spirv_ll::DeviceInfo spirv_ll_device_info;
@@ -1562,7 +1562,7 @@ Result BaseModule::compileOpenCLC(
   // Now we're actually going to start doing work, so need to lock LLVMContext.
   std::lock_guard<compiler::BaseContext> guard(context);
 
-  clang::EmitLLVMOnlyAction action(&context.llvm_context);
+  clang::EmitLLVMOnlyAction action(&target.getLLVMContext());
 
   // Prepare the action for processing kernelFile
   {
@@ -1616,7 +1616,7 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
     module = llvm::CloneModule(*this->llvm_module);
   } else {
     module = std::unique_ptr<llvm::Module>(
-        new llvm::Module("::ca_module_id", context.llvm_context));
+        new llvm::Module("::ca_module_id", target.getLLVMContext()));
   }
 
   for (auto input_module_interface : input_modules) {
@@ -1626,7 +1626,7 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
     // preserve the source module during linking, and a program can be linked
     // multiple times.
     const llvm::Module *m = input_module->llvm_module.get();
-    if (&context.llvm_context != &m->getContext()) {
+    if (&target.getLLVMContext() != &m->getContext()) {
       CPL_ABORT(
           "BaseModule::link. Error linking program: Cannot clone "
           "with incompatible contexts.");
@@ -1736,7 +1736,7 @@ Result BaseModule::finalize(
   // Further on we will be cloning the module, this will not work with
   // mismatching contexts.
   const llvm::Module *m = llvm_module.get();
-  if (&context.llvm_context != &m->getContext()) {
+  if (&target.getLLVMContext() != &m->getContext()) {
     CPL_ABORT(
         "BaseModule::finalize. Error finalizing program: Cannot "
         "clone with incompatible contexts.");
@@ -2032,7 +2032,7 @@ bool BaseModule::deserialize(cargo::array_view<const std::uint8_t> buffer) {
       llvm::StringRef(reinterpret_cast<const char *>(buffer_read_ptr),
                       buffer.size() - header_size));
   auto errorOrModule(llvm::parseBitcodeFile(memoryBuffer.getMemBufferRef(),
-                                            context.llvm_context));
+                                            target.getLLVMContext()));
 
   if (errorOrModule) {
     llvm_module = std::move(errorOrModule.get());
