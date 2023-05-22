@@ -34,13 +34,7 @@ set(CMAKE_C_STANDARD 99)              # Enable C99 mode
 set(CMAKE_C_STANDARD_REQUIRED ON)     # Require C99 support
 set(CMAKE_C_EXTENSIONS OFF)           # Disable C language extensions
 
-# CXX standard adapts to LLVM version.
-if(CA_RUNTIME_COMPILER_ENABLED AND
-    ((LLVM_VERSION_MAJOR EQUAL 16) OR (LLVM_VERSION_MAJOR GREATER 16)))
-  set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode
-else()
-  set(CMAKE_CXX_STANDARD 14)            # Enable C++14 mode
-endif()
+set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode
 message(STATUS "ComputeAorta using C++${CMAKE_CXX_STANDARD}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)   # Require explicit C++XX support
 set(CMAKE_CXX_EXTENSIONS OFF)         # Disable C++ language extensions
