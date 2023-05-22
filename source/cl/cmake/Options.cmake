@@ -174,28 +174,6 @@ ca_option(CA_CL_ENABLE_GENERATEDTESTS_CHECK BOOL
         "Enable check-GeneratedTests target" OFF)
 
 #[=======================================================================[.rst:
-.. cmake:variable:: CA_CL_CTS_ENABLE_WARNINGS
-
-  A boolean CMake option to enable CTS compiler warnings.
-
-  Default value
-    ``OFF``
-#]=======================================================================]
-if(EXISTS ${PROJECT_SOURCE_DIR}/source/cl/test/OpenCL-CTS/test_conformance/CMakeLists.txt)
-    ca_option(CA_CL_CTS_ENABLE_WARNINGS BOOL "Enable CTS compiler warnings" OFF)
-endif()
-
-#[=======================================================================[.rst:
-.. cmake:variable:: CA_CL_CTS_ENABLE_CHECK
-
-  A boolean CMake option to enable CTS checke target.
-
-  Default value
-    ``ON``
-#]=======================================================================]
-ca_option(CA_CL_CTS_ENABLE_CHECK BOOL "Enable check-cl-cts testing" ON)
-
-#[=======================================================================[.rst:
 .. cmake:variable:: CA_CL_TEST_STATIC_LIB
 
   A boolean CMake option to enable testing with the static CL target. This
