@@ -3,6 +3,7 @@
 # oneAPI Construction Kit
 
 The oneAPI Construction Kit is a framework to provide implementations of open standards, such as OpenCL and Vulkan, for a wide range of devices. The oneAPI Construction Kit can be used to build with oneAPI Toolkit. The oneAPI Toolkit includes support for various open standards, such as OpenMP, SYCL, and DPC++. DPC++ is based on the SYCL programming model, which allows to write single-source C++ code that can target both CPUs and GPUs. To get more information on oneAPI, please visit https://www.intel.com/content/www/us/en/developer/tools/oneapi/overview.html.
+**The oneAPI Construction Kit is not an OpenCL or Level Zero or Vulkan implementation itself.**
 
 For more information about building, implementing and maintaining the oneAPI Construction Kit please take the time to read the [developer guide](doc/developer-guide.md) and the other documentation in the
 `doc` directory.
