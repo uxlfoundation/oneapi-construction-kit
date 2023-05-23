@@ -27,6 +27,7 @@ helped make this a success.
 * Luke Drummond
 * Martin Morrison-Grant
 * Marya Sharf
+* Neil Henning
 * Nicolas Miller
 * Omar Ahmed
 * Ori Sky Farrell
