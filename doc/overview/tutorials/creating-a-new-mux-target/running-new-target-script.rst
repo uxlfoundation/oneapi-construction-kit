@@ -9,7 +9,7 @@ kernel with any given parameters across different instances and slices. These
 parameters will all be indentical for each kernel execution.
 
 First of all we need an empty directory ``refsi_tutorial``. We also assume that
-the ``OneAPI Construction Kit`` exists at ``$ONEAPI_CON_KIT_PATH`` commands:
+the ``oneAPI Construction Kit`` exists at ``$ONEAPI_CON_KIT_PATH`` commands:
 
 .. code:: bash
 
@@ -66,7 +66,7 @@ The `JSON` attribute-value pairs are explained in the table below:
      - This is options to be passed through to the llvm backend that need to be
        set. In this case we are telling the backend that vlen is 512.
  
-Now we will run the script inside the ``OneAPI Construction Kit`` directory: 
+Now we will run the script inside the ``oneAPI Construction Kit`` directory:
 
 .. code:: console
 
@@ -75,7 +75,7 @@ Now we will run the script inside the ``OneAPI Construction Kit`` directory:
        $ONEAPI_CON_KIT_PATH/scripts/new_target_templates/refsi.json \
        --external-dir $PWD
 
-The first parameter is the path to the ``OneAPI Construction Kit``. The second 
+The first parameter is the path to the ``oneAPI Construction Kit``. The second
 parameter is the `json` file discussed previously. The third parameter is the
 external directory which `ComputeAorta` will require for building the new target.
 
@@ -107,7 +107,7 @@ The generated `CMakeLists.txt` is very simple and will look something like this:
     "${CMAKE_CURRENT_SOURCE_DIR}/hal_refsi_tutorial" CACHE STRING "External ComputeAorta HAL")
 
   set(CA_EXTERNAL_ONEAPI_CON_KIT_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External OneAPI Construction Kit")
+    "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External oneAPI Construction Kit")
 
   add_subdirectory(${CA_EXTERNAL_ONEAPI_CON_KIT_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/ComputeAorta)
@@ -121,7 +121,7 @@ should match the target name.
 target. This can be changed to wherever you have stored the final
 `hal_refsi_tutorial`, but defaults to within the current top level directory.
 
-``CA_EXTERNAL_ONEAPI_KIT_DIR`` is used to indicate where the `OneAPI construction kit` directory is.
+``CA_EXTERNAL_ONEAPI_KIT_DIR`` is used to indicate where the `oneAPI construction kit` directory is.
 
 
 Both of these variables can be overridden on the `cmake` line.
