@@ -27,7 +27,6 @@
 #include <host/host_pass_machinery.h>
 #include <host/module.h>
 #include <host/passes.h>
-#include <host/perf_support.h>
 #include <host/target.h>
 #include <host/utils/relocations.h>
 #include <llvm/ADT/Statistic.h>
