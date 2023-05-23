@@ -1,9 +1,8 @@
-Driver Development Kit
-======================
+oneAPI Construction Kit
+=======================
 
-ComputeAorta can be thought of as a Driver Development Kit (DDK). A suite of
-software enabling developers to easily expose the performance of their hardware
-though open standards.
+oneAPI Construction Kit is a suite of software enabling developers to easily expose
+the performance of their hardware though open standards.
 
 .. todo::
   CA-3718: Things to help when implementing Mux, but not CL/VK, such
@@ -14,10 +13,10 @@ though open standards.
 Abacus
 ------
 
-Abacus is ComputeAorta's kernel library implementing the builtins required for
-compute languages, including all the `math functions`_ required by OpenCL.
-Abacus implements half, float, and double floating-point functions to the high
-precision requirements needed for conformance. It provides specialized
+Abacus is oneAPI Construction Kit's kernel library implementing the builtins
+required for compute languages, including all the `math functions`_ required by
+OpenCL. Abacus implements half, float, and double floating-point functions to the
+high precision requirements needed for conformance. It provides specialized
 implementations for both scalar and vector data types, allowing optimized
 algorithms to be used for vector architectures.
 

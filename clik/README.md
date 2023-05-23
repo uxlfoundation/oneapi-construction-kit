@@ -4,11 +4,11 @@
 
 clik is a simple compute library that demonstrates how offloading code to an accelerator works. Multiple devices can be supported through 'HALs', which are libraries handling tasks such as memory allocation, data transfers and kernel execution on the device. A reference HAL that targets the system's CPU is included with clik. New HALs targeting different devices can easily be created and used through the same framework.
 
-clik can be used as an introduction to how offloading to an accelerator works, but also as scaffolding when adding support for a new device in ComputeAorta. It has been designed to be as simple as possible, so that it is easy to understand and troubleshoot. Several basic examples are included, covering essential functions such as creating buffers, data transfers, executing kernels, work-group barriers and local memory. When these examples all run successfully, clik's role as scaffolding is complete. However, it is also possible to add new examples as needed.
+clik can be used as an introduction to how offloading to an accelerator works, but also as scaffolding when adding support for a new device in oneAPI Construction Kit. It has been designed to be as simple as possible, so that it is easy to understand and troubleshoot. Several basic examples are included, covering essential functions such as creating buffers, data transfers, executing kernels, work-group barriers and local memory. When these examples all run successfully, clik's role as scaffolding is complete. However, it is also possible to add new examples as needed.
 
 clik kernels are written in C and can be compiled using a stand-alone compiler such as GCC. This means that compared to more advanced compute libraries a compiler back-end does not need to be integrated into the compute library. As a result, bringing up a new target can be faster due to being able to develop the runtime part of the device code before needing to integrate a compiler.
 
-The concept of HAL, a library that abstracts the interface to a device, is central to clik. This framework has been designed with the idea that multiple devices can be targeted using the same simple API and examples. In addition, a HAL that has been developed using clik can then be integrated in ComputeAorta. The source code for the HAL does not need to be rewritten for ComputeAorta, instead it can seamlessly be loaded by a generic ComputeMux target.
+The concept of HAL, a library that abstracts the interface to a device, is central to clik. This framework has been designed with the idea that multiple devices can be targeted using the same simple API and examples. In addition, a HAL that has been developed using clik can then be integrated in oneAPI Construction Kit. The source code for the HAL does not need to be rewritten for oneAPI Construction Kit, instead it can seamlessly be loaded by a generic ComputeMux target.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ Common 'build' packages are required to be installed on the system. On Ubuntu, t
 clik needs the base HAL to build. This is not necessarily contained within a
 clik. This is defaulted to look in clik/external, then the directory above
 and then look using the cmake variable CLIK_HAL_DIR. By default as part of the
-DDK it will be in the directory above clik.
+oneAPI Construction Kit, it will be in the directory above clik.
 
 ## Build instructions
 
@@ -37,8 +37,8 @@ Once this is done, the clik runtime, reference HAL and examples can be built:
 ComputeMux examples can optionally be built by passing additional options to CMake:
 
     -DCLIK_BUILD_MUX_EXAMPLES=TRUE \
-    -DCLIK_MUX_INCLUDE_DIR=path/to/ComputeAorta/modules/core/include \
-    -DCLIK_MUX_LIBRARY_PATH=path/to/ComputeAorta/build/debug/lib/libcore.so
+    -DCLIK_MUX_INCLUDE_DIR=path/to/oneapi-construction-kit/include \
+    -DCLIK_MUX_LIBRARY_PATH=path/to/oneapi-construction-kit/build/debug/lib/libcore.so
 
 ## Running tests
 

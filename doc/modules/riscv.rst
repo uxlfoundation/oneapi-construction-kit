@@ -24,7 +24,7 @@ The ``riscv`` target uses a common utility ``riscv`` compiler library which can 
 used or derived from for different targets. 
 
 The RISC-V target can also be built with just the compiler aspect changed. This
-is shown with `M1` under ``examples/refsi/refsi_m1`` of the ComputeAorta DDK.
+is shown with `M1` under ``examples/refsi/refsi_m1`` of the oneAPI Construction Kit.
 
 HAL
 ---
@@ -67,7 +67,7 @@ ELF file for this particular processor configuration. At no other point does any
 of the target reference anything specific about RISC-V.
 
 2. ``hal_device_info_t`` is expected to give a lot of information which can be
-used to populate ComputeAorta's device information. This is not specific to
+used to populate oneAPI Construction Kit's device information. This is not specific to
 RISC-V. This includes information such as global memory size, address size etc.
 
 3. ``specialized kernel`` is used to process the incoming arguments and create a
@@ -111,7 +111,7 @@ kernel function.
 
 .. seealso::
   For more information on this struct see the documentation in the HAL
-  repository of ComputeAorta.
+  repository of oneAPI Construction Kit.
 
 The standard RISC-V ABI is used currently, regardless of any HAL choices.
 
@@ -119,7 +119,7 @@ RISC-V Device
 -------------
 
 The information reported by a RISC-V device can vary depending on the build
-configuration of ComputeAorta. See the
+configuration of oneAPI Construction Kit. See the
 :ref:`developer-guide:Computeaorta Cmake Options` for details on the effects of
 RISC-V specific CMake options.
 
@@ -188,7 +188,7 @@ The following build options can also be useful:
 ``CA_HAL_LOCK_DEVICE_NAME``
   Is a bool (defaulted to true), which can be used to allow loading of a
   different HAL to the default at runtime, as described in the dynamic loading
-  documentation in the ComputeAorta HAL repository.
+  documentation in the oneAPI Construction Kit HAL repository.
 
 
 ``CA_RISCV_DEMO_MODE``
@@ -210,7 +210,7 @@ The following environment variables are currently supported:
 ``CA_HAL_DEVICE``
   Allows overriding of the HAL to be used at runtime. Only
   supported if built with ``-DCA_HAL_LOCK_DEVICE_NAME=OFF`` - see
-  the dynamic loading documentation in the ComputeAorta HAL repository for more
+  the dynamic loading documentation in the oneAPI Construction Kit HAL repository for more
   information.
 
 ``CA_RISCV_EARLY_LINK_BUILTINS``
@@ -260,7 +260,7 @@ and printing that state to the console. This can be done for example using
     %MuxWorkGroupInfo = type { [3 x i64], [3 x i64], [3 x i64], [3 x i64], i32 }
     ...
 
-This feature is only available when ComputeAorta is built with either the
+This feature is only available when oneAPI Construction Kit is built with either the
 `CA_ENABLE_DEBUG_SUPPORT` option or the `CA_RISCV_DEMO_MODE` option enabled in
 CMake.
 

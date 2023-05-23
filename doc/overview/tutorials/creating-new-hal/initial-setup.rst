@@ -4,32 +4,33 @@ Initial Setup
 Checking Out the Source
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The following elements of the ComputeAorta DDK will need to be used as part of
-the creation of the RefSi HAL:
+The following elements of the oneAPI Construction Kit will need to be used as part
+of the creation of the RefSi HAL:
  
 * clik: contains the clik runtime libraries as well as a small test suite. This
-  is under the top level of the DDK.
+  is under the top level of the oneAPI Construction Kit.
 * hal_refsi_tutorial: contains the skeleton for the RefSi HAL we will create in
   this tutorial. This is under ``examples/hals/hal_refsi_tutorial``.
 * refsidrv: contains a driver that controls a virtual RefSi device. This is under
   ``modules/mux/external/refsidrv``.
-* hal: contains headers needed to interface with a HAL. At top level of the DDK.
+* hal: contains headers needed to interface with a HAL. At top level of the oneAPI
+  Construction Kit.
 * riscv-isa-sim: contains the Spike RISC-V simulator, used to simulate the
   RISC-V accelerator cores contained in the RefSi device. Stored under
   ``refsidrv/external``.
 
-Some directories will need to be copied from the ``DDK`` : ``hal_refsi_tutorial``
-and ``refsidrv``. The remainder of this tutorial will assume that the environment
-variable ``DDK`` has been set to the base of the ``DDK``. Setup and the copy can be
-done as follows:
+Some directories will need to be copied from the ``oneapi-construction-kit`` :
+``hal_refsi_tutorial`` and ``refsidrv``. The remainder of this tutorial will
+assume that the environment variable ``OCK`` has been set to the base of the
+``oneAPI Construction Kit``. Setup and the copy can be done as follows:
 
 .. code:: console
 
     $ mkdir refsi_tutorial_part1
     $ cd refsi_tutorial_part1
-    $ export DDK=<path_to_ddk>
-    $ cp $DDK/examples/hal/hal_refsi_tutorial .
-    $ cp $DDK/modules/mux/external/refsidrv hal_refsi_tutorial/external
+    $ export OCK=<path_to_oneapi-construction-kit>
+    $ cp $OCK/examples/hal/hal_refsi_tutorial .
+    $ cp $OCK/modules/mux/external/refsidrv hal_refsi_tutorial/external
 
 The resulting source code layout from running the above commands is the following:
 
@@ -54,9 +55,9 @@ For other Linux systems, you'll need to set the CMake variable,
 pointing to it's build directory. However, if ``RISCV_GNU_TOOLCHAIN_DIR`` is not
 set it will be default to ``/usr/``.
 
-Since ComputeAorta is most often built against a LLVM and Clang toolchain, it
-may be convenient to use the same toolchain to build the parts of the HAL that
-need to be cross-compiled. In order to do so, simply set ``RISCV_TOOLCHAIN_DIR``
+Since the oneAPI Construction Kit is most often built against a LLVM and Clang toolchain,
+it may be convenient to use the same toolchain to build the parts of the HAL
+that need to be cross-compiled. In order to do so, simply set ``RISCV_TOOLCHAIN_DIR``
 to the value of the ``CA_LLVM_INSTALL_DIR`` CMake variable.
 
 A RISC-V triple toolchain or GNU RISC-V triple toolchain can be specified to
@@ -128,7 +129,7 @@ set up correctly. This can be done with the following commands:
     $ cd path/to/refsi_tutorial_part1
     $ mkdir build
     $ cd build
-    $ cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCLIK_HAL_NAME=refsi_tutorial -DCLIK_EXTERNAL_HAL_DIR=$PWD/../hal_refsi_tutorial $DDK/clik
+    $ cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCLIK_HAL_NAME=refsi_tutorial -DCLIK_EXTERNAL_HAL_DIR=$PWD/../hal_refsi_tutorial $OCK/clik
       ...
       -- Found HAL: cpu
       -- Found HAL: refsi_tutorial
@@ -139,7 +140,9 @@ set up correctly. This can be done with the following commands:
       ...
       [305/305] Linking CXX shared library lib/libhal_refsi_tutorial.so
 
-The ``cmake`` command above requires several options to be set in order to build the RefSi HAL alongside clik and to ensure clik examples target the appropriate work scheduling mode:
+The ``cmake`` command above requires several options to be set in order to build the
+RefSi HAL alongside clik and to ensure clik examples target the appropriate work
+scheduling mode:
 
 * Setting ``CMAKE_BUILD_TYPE`` to ``Debug`` instructs CMake to build libraries and
   executables in debug mode. This is not required but improves the debugging
