@@ -17,11 +17,11 @@ and external components.
 This section provides the minimum system requirements for building the oneAPI Construction Kit on Ubuntu 20.04. For Windows platform dependencies and build instructions please refer to the [developer guide](doc/developer-guide.md).
 
 ### Platform Dependencies
-* `GCC <https://gcc.gnu.org/>`_
-* `Git`_
-* `CMake`_ 3.16+
-* `Python`_ 3.6.9+
-* `Visual Studio <https://www.visualstudio.com/>`_ 2017 or 2019 (for Windows)
+* [GCC](https://gcc.gnu.org/)
+* [Git](https://git-scm.com/)
+* [CMake](https://cmake.org/) 3.16+
+* [Python](https://www.python.org/) 3.6.9+
+* [Visual Studio](https://www.visualstudio.com/) 2017 or 2019 (for Windows)
 
 To install the dependencies on Ubuntu, open the terminal and run:
 ```sh
@@ -30,9 +30,9 @@ To install the dependencies on Ubuntu, open the terminal and run:
 ```
 
 ### Recommended packages
-* `Ninja`_
-* `clang-format`_ 9
-* `lit`_
+* [Ninja](https://ninja-build.org/)
+* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) 9
+* [lit](https://llvm.org/docs/CommandGuide/lit.html)
 
 To install the recommended packages, run:
 ```sh
