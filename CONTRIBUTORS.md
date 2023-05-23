@@ -1,6 +1,6 @@
-# Contributors to OneAPI Construction Kit
+# Contributors to oneAPI Construction Kit
 
-There have been many contributors to the OneAPI Construction Kit over many years,
+There have been many contributors to the oneAPI Construction Kit over many years,
 most of which was when it was known as ComputeAorta. The following is not a
 definitive list, and is in alphabetical order rather than priority order.
 Contributors not listed here may be added on request. Thanks to all those who

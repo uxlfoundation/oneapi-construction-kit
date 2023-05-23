@@ -30,7 +30,7 @@ set(CA_EXTERNAL_{{cookiecutter.target_name_capitals}}_HAL_DIR
    "${CMAKE_CURRENT_SOURCE_DIR}/hal_{{cookiecutter.target_name}}" CACHE STRING "External ComputeAorta HAL")
 
 set(CA_EXTERNAL_ONEAPI_CON_KIT_DIR
-   "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External OneAPI Construction Kit")
+   "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External oneAPI Construction Kit")
 
 add_subdirectory(${CA_EXTERNAL_ONEAPI_CON_KIT_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}/ComputeAorta)
