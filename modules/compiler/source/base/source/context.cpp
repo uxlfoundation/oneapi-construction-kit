@@ -17,7 +17,6 @@
 #include <base/context.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/IR/LLVMContext.h>
-#include <multi_llvm/llvm_version.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 
@@ -28,10 +27,6 @@
 
 namespace compiler {
 BaseContext::BaseContext() {
-#if LLVM_VERSION_GREATER_EQUAL(15, 0)
-  llvm_context.setOpaquePointers(true);
-#endif
-
 #if !defined(NDEBUG) || defined(CA_ENABLE_LLVM_OPTIONS_IN_RELEASE)
   static std::once_flag parseEnvironmentOptionsFlag;
   std::call_once(parseEnvironmentOptionsFlag, [this]() {
@@ -110,9 +105,9 @@ BaseContext::getSpecializableConstants(cargo::array_view<const uint32_t> code) {
   return {std::move(constants_map)};
 }
 
-void BaseContext::lock() { llvm_mutex.lock(); }
+void BaseContext::lock() { base_context_mutex.lock(); }
 
-bool BaseContext::try_lock() { return llvm_mutex.try_lock(); }
+bool BaseContext::try_lock() { return base_context_mutex.try_lock(); }
 
-void BaseContext::unlock() { llvm_mutex.unlock(); }
+void BaseContext::unlock() { base_context_mutex.unlock(); }
 }  // namespace compiler

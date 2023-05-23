@@ -159,6 +159,7 @@ result driver::setupContext() {
 std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
   uint32_t ModuleNumErrors = 0;
   std::string ModuleLog{};
+  std::unique_ptr<compiler::utils::PassMachinery> PassMach;
 
   if (CompilerTarget) {
     CompilerModule = CompilerTarget->createModule(ModuleNumErrors, ModuleLog);
@@ -167,10 +168,6 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
                    ModuleLog.c_str());
       return {};
     }
-  }
-
-  std::unique_ptr<compiler::utils::PassMachinery> PassMach;
-  if (CompilerTarget) {
     auto *const BaseModule =
         static_cast<compiler::BaseModule *>(CompilerModule.get());
     PassMach = BaseModule->createPassMachinery();
@@ -182,11 +179,11 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
                   : 0,
         64);
 
+    LLVMCtx = std::make_unique<LLVMContext>();
     auto &BaseCtx =
         *static_cast<compiler::BaseContext *>(CompilerContext.get());
-    LLVMContext &Ctx = BaseCtx.llvm_context;
     PassMach = std::make_unique<compiler::BaseModulePassMachinery>(
-        Ctx, /*TM*/ nullptr, Info, /*BICallback*/ nullptr,
+        *LLVMCtx, /*TM*/ nullptr, Info, /*BICallback*/ nullptr,
         BaseCtx.isLLVMVerifyEachEnabled(), BaseCtx.getLLVMDebugLoggingLevel(),
         BaseCtx.isLLVMTimePassesEnabled());
   }
@@ -201,10 +198,6 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
 }
 
 result driver::runPipeline(compiler::utils::PassMachinery *PassMach) {
-  LLVMContext Context;
-#if LLVM_VERSION_GREATER_EQUAL(15, 0)
-  Context.setOpaquePointers(true);
-#endif
   ModulePassManager pm;
   if (auto Err = PassMach->getPB().parsePassPipeline(pm, PipelineText)) {
     errs() << formatv("Error: Parse of {0} failed : {1}\n", PipelineText,
@@ -214,10 +207,14 @@ result driver::runPipeline(compiler::utils::PassMachinery *PassMach) {
 
   SMDiagnostic Err;
 
-  auto &ContextChoice =
-      static_cast<compiler::BaseContext *>(CompilerContext.get())->llvm_context;
+  auto &LLVMContextToUse =
+      CompilerTarget ? static_cast<compiler::BaseTarget *>(CompilerTarget.get())
+                           ->getLLVMContext()
+                     : *LLVMCtx;
+  LLVMContextToUse.setOpaquePointers(true);
 
-  std::unique_ptr<Module> Mod = parseIRFile(InputFilename, Err, ContextChoice);
+  std::unique_ptr<Module> Mod =
+      parseIRFile(InputFilename, Err, LLVMContextToUse);
 
   if (!Mod) {
     Err.print(InputFilename.c_str(), errs());

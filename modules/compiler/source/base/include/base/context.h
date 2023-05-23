@@ -18,14 +18,10 @@
 #define COMPILER_BASE_CONTEXT_H_INCLUDED
 
 #include <cargo/array_view.h>
-#include <cargo/string_view.h>
 #include <compiler/context.h>
 #include <compiler/utils/pass_machinery.h>
 #include <mux/mux.h>
-// LLVMContext lives inside a unique_ptr, so we need the header here
-#include <llvm/IR/LLVMContext.h>
 
-#include <memory>
 #include <mutex>
 
 namespace compiler {
@@ -87,9 +83,6 @@ class BaseContext : public Context {
   /// Forwards to `std::mutex::unlock`.
   void unlock() override;
 
-  /// @brief LLVM context.
-  llvm::LLVMContext llvm_context;
-
   bool isLLVMVerifyEachEnabled() const { return llvm_verify_each; }
 
   bool isLLVMTimePassesEnabled() const { return llvm_time_passes; }
@@ -99,8 +92,8 @@ class BaseContext : public Context {
   }
 
  private:
-  /// @brief Mutex for accessing the LLVMContext.
-  std::mutex llvm_mutex;
+  /// @brief Mutex for accessing the BaseContext.
+  std::mutex base_context_mutex;
 
   /// @brief True if compiler passes should be individually verified.
   ///

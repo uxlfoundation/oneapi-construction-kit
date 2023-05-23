@@ -63,6 +63,9 @@ class driver {
   std::unique_ptr<compiler::Context> CompilerContext;
   /// @brief Compiler target to drive compilation.
   std::unique_ptr<compiler::Target> CompilerTarget;
+  /// @brief LLVM context. Used unless CompilerTarget is set, in which case we
+  /// use its LLVMContext.
+  std::unique_ptr<llvm::LLVMContext> LLVMCtx;
   /// @brief Compiler module being compiled.
   std::unique_ptr<compiler::Module> CompilerModule;
 
