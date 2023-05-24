@@ -28,13 +28,19 @@ Current directory layout:
 * `modules`: Contains shared _modules_ used in the implementation of the open
   standards in `source`. For details on the _modules_ layout in the [modules
   documentation](modules.md). Currently we have the following modules:
-  * `builtins`: Module providing the OpenCL C builtins, math library (abacus)
-    and the image library (libimg) are part of this module.
   * `modules/cargo`: Generic module containing the implementations of
     containers.
-  * `modules/core`: Definition of the Core API.
-  * `modules/core/source/host`: Host implementation of a Core target.
-  * `modules/compiler/vecz`: Module containing the Vectorizer.
+  * `modules/compiler`: Module providing the main compilation infrastructure, which
+    in turn contains the following parts:
+    * `builtins`: Module providing the OpenCL C builtins, math library (abacus)
+      and the image library (libimg) are part of this module.
+    * `cookie` contains template files for generating target implementations.
+    * `targets` contains target-specific compilation pipeline infrastructure,
+      including the `host` device implementation.
+    * `tools` contains the `muxc` executable.
+    * `utils` contains various common code for transforming IR and metadata.
+    * `vecz`: contains the Vectorizer.
+  * `modules/mux`: Definition of the Mux API.
 * `doc`: Contains documentation in a structure matching the `source` and
   `modules` directory trees.
 * `cmake`: Hold various utility CMake scripts.
@@ -272,7 +278,7 @@ The builtin CMake options used when invoking CMake on the command line.
 - `CA_HOST_ENABLE_BUILTIN_KERNEL`: This option enables builtin kernel support
   within the host target. By default, it is set to `OFF`. If enabled this will
   report that host supports builtin kernels and will also enable two test
-  kernels that are used by UnitCore and UnitCL to verify functionality.
+  kernels that are used by UnitMux and UnitCL to verify functionality.
 - `CA_HOST_ENABLE_FP64`: This option determines whether host is built with or
   without double support. By default, it is only enabled on non-Windows
   platforms.

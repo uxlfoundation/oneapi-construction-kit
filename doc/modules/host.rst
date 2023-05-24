@@ -61,7 +61,7 @@ Compilation Options
 
 On builds where both ``CA_ENABLE_DEBUG_SUPPORT`` is set and a compiler is
 available the host device reports the following custom build options for the
-``compilation_options`` member of ``core_device_info_s``.
+``compilation_options`` member of ``mux_device_info_s``.
 
 .. code:: console
 
@@ -77,7 +77,7 @@ These are provided to test the mechanism for reporting and setting device
 specific build options. The only effect they have on kernel compilation is
 being propagated as program metadata, to assist testing so we can check options
 have been correctly parsed. LLVM metadata node ``host.build_options`` is set to a
-string matching the contents of ``core_executable_options_s::device_options``.
+string matching the contents of ``compiler::Options::device_args``.
 
 ### Performance Counters
 
@@ -290,25 +290,3 @@ Disabling Neon is needed to fix a failing CTS conversions test from `[u]long` to
 `float`. Where the AArch64 Neon backend does the conversion in two stages, `i64`
 to `double` then `double` to `float`. Losing precision because of incorrect
 rounding in the intermediate value.
-
-Early Vectorization Passes
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-These passes are activated in host when the `core_executable_flags_prevec_loop`
-and `core_executable_flags_prevec_slp` bits are set in `core_executable_flags_e`
-(corresponding to the `-cl-vec={none|loop|slp|all}` command line options). These
-options activate sequences of standard LLVM passes that attempt to vectorize the
-kernel for a single work item. The vectorization passes used are Loop
-Vectorization, SLP Vectorization, and Load/Store Vectorization. Some basic
-simplification passes are also applied (Loop Rotation, Instruction Combine, CFG
-Simplification and Dead Code Removal). Loop Rotation was found necessary for
-Loop Vectorization to work as expected. Loop Rotation can also generate
-redundant code in the case that the number of iterations is known at compile
-time to be a multiple of the vector width, and the CFG Simplification is able to
-clean it up. Load/Store vectorization is applied if either of Loop or SLP
-options are selected.
-
-These passes are currently not very useful if VECZ is activated, since VECZ will
-scalarize any vectors produced by these passes before performing its own
-packetization procedure. The LLVM passes use information from the Target Machine
-to choose an appropriate vector width, so this is not specifiable by the user.

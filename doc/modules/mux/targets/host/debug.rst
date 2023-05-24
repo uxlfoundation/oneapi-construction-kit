@@ -22,7 +22,7 @@ to provide non-standard implementations of these functions to aid debugging.
   bugs it is invaluable.
 
 The addresses of library functions are stored in ``relocs`` in
-``modules/core/source/host/source/executable.cpp``. In Debug builds, calls to
+``modules/mux/targets/host/source/executable.cpp``. In Debug builds, calls to
 ``memcpy()`` and ``memset()`` are intercepted by default and directed to
 ``dbg_memcpy()`` and ``dbg_memset()``. The debug versions of these functions
 perform rudimentary out-of-bounds access checks.
@@ -49,7 +49,7 @@ How to: Intercept a Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The replacement standard library functions are in an anonymous namespace in
-``modules/core/source/host/source/executable.cpp``. Simply add the new function
+``modules/mux/targets/host/source/executable.cpp``. Simply add the new function
 to this namespace, and then add the function's name and address to
 ``relocs``.
 
@@ -90,8 +90,8 @@ existing kernels, because existing kernels do not request those relocations. If
 a relocation is requested that does not exist in ``relocs``, then the ELF
 loader will report and error.
 
-On Arm32, the ``Host`` finalizer
-(``modules/core/source/host/source/finalizer.cpp``) enables various hardware
+On Arm32, the ``Host`` target
+(``modules/compiler/targets/host/source/target.cpp``) enables various hardware
 math features (e.g., ``features.push_back("+hwdiv");``). If these features are
 not enabled, then LLVM will emit calls to library functions instead, and these
 calls will then need to be added to ``relocs`` in the same way as

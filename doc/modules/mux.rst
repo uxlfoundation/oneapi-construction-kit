@@ -5,7 +5,6 @@ ComputeMux
    :maxdepth: 1
 
    Change Log <mux/changes>
-   Migrating from Core <mux/migrating-from-core>
    Compiler <mux/compiler>
    CMake <mux/cmake>
    Bumping the Specification Version <mux/bumping-the-spec>

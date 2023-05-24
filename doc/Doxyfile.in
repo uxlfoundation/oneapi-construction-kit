@@ -903,9 +903,8 @@ RECURSIVE              = YES
 EXCLUDE                = @ComputeAorta_SOURCE_DIR@/source/cl/external \
                          @ComputeAorta_SOURCE_DIR@/source/cl/test \
                          @ComputeAorta_SOURCE_DIR@/source/vk \
-                         @ComputeAorta_SOURCE_DIR@/modules/core/source/profile \
                          @ComputeAorta_SOURCE_DIR@/modules/spirv-ll/external \
-                         @ComputeAorta_SOURCE_DIR@/modules/core/source/riscv/external
+                         @ComputeAorta_SOURCE_DIR@/modules/mux/targets/riscv/external
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

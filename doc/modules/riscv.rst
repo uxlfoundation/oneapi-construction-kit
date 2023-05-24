@@ -60,9 +60,9 @@ interface to the arguments for each kernel function see
  Is a base class which is not RISC-V specific, and there is a RISC-V specific
  one which is derived from this. The HAL is used in the following way:
 
-1. ``riscv_hal_device_info_t`` provides information about the type of RISC-V
+1. ``hal_device_info_riscv_t`` provides information about the type of RISC-V
 processor. This includes extensions and ABI information. This information is
-used in ``modules/core/riscv/source/finalizer.cpp`` to help it build a linked
+used in ``modules/mux/targets/riscv/source/kernel.cpp`` to help it build a linked
 ELF file for this particular processor configuration. At no other point does any
 of the target reference anything specific about RISC-V.
 

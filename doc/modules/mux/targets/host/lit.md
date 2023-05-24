@@ -2,7 +2,7 @@
 
 A test suite based around LLVM's lit tool for executing tests and summarizing
 their results. Focusing on testing compiler output for OpenCL kernels built
-through the `oclc` frontend or through LLVM's `opt` for our host core target.
+through the `oclc` frontend or through LLVM's `opt` for our host Mux target.
 
 ## Writing tests
 

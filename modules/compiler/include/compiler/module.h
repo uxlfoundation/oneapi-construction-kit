@@ -153,9 +153,11 @@ struct Options {
   std::vector<std::string> include_dirs;
   /// @brief Semi-colon separated list of device specific options
   ///
-  /// Each option is a comma separated pair of `argument,value` where the
-  /// value is optional if the argument is a flag. Should match syntax of
-  /// `mux_executable_options_s::device_options`.
+  /// Each option takes the form of a comma separated pair of syntax
+  /// `argument,value`. Where `argument` is the name of the option and `value`
+  /// is an optional value associated with the argument, and may be empty.
+  ///
+  /// Example valid options string `--opt1,val1;--opt2;--opt3,val3`.
   std::string device_args;
   /// @brief OpenCL standard to target.
   Standard standard;
