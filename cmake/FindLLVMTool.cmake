@@ -105,6 +105,9 @@ foreach(component ${LLVMTool_FIND_COMPONENTS} ${LLVMTool_FIND_REQUIRED})
   if(LLVMTool_${component}_EXECUTABLE STREQUAL
       LLVMTool_${component}_EXECUTABLE-NOTFOUND)
     # Display help when components are not found and QUIET is not set.
+    if(DEFINED LLVMTool_FIND_QUIETLY)
+      continue()
+    endif()
     if(${component} STREQUAL FileCheck)
       message(WARNING "FileCheck was not found, LLVM does not install "
         "FileCheck  by default, you must specify -DLLVM_INSTALL_UTILS=ON "

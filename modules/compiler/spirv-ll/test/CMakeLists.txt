@@ -13,29 +13,24 @@
 # under the License.
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+set(SUITE spirv-ll)
 
 find_package(Lit)
 if(NOT Lit_FOUND)
-  message(WARNING "spirv-ll lit tests disabled: lit not found "
+  message(WARNING "${SUITE} lit tests disabled: lit not found "
     "Please install https://pypi.python.org/pypi/lit")
   return()
 endif()
 
 find_package(LLVMTool COMPONENTS opt)
 if(NOT TARGET LLVM::opt)
-  message(WARNING "spirv-ll lit tests disabled: opt not found")
-  return()
-endif()
-
-find_package(LLVMTool COMPONENTS FileCheck)
-if(NOT TARGET LLVM::FileCheck)
-  message(WARNING "spirv-ll lit tests disabled: FileCheck not found")
+  message(WARNING "${SUITE} lit tests disabled: opt not found")
   return()
 endif()
 
 find_package(SpirvTools COMPONENTS spirv-as)
 if(NOT TARGET spirv::spirv-as)
-  message(WARNING "spirv-ll some lit tests unsupported: spirv-as not found")
+  message(WARNING "${SUITE} some lit tests unsupported: spirv-as not found")
   return()
 endif()
 
@@ -43,6 +38,7 @@ endif()
 set(INPUTS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 add_ca_configure_lit_site_cfg(
+  ${SUITE}
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
   MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg"
@@ -54,7 +50,9 @@ add_ca_configure_lit_site_cfg(
 add_subdirectory(glsl)
 add_subdirectory(spvasm)
 
-add_ca_lit_testsuite(spirv-ll
-  ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
-          ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
+if(TARGET ${SUITE}-lit)
+  add_ca_lit_testsuite(${SUITE}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
+            ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
+endif()

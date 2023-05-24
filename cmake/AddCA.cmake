@@ -1214,12 +1214,17 @@ set(CA_FORCE_HEADERS_PATHS "" CACHE INTERNAL
   common variables that any Lit instance is likely to need, and custom
   variables can be passed in.
 
+  On success, a custom target called ``name``-lit will be created. This
+  function may fail if certain required key LLVM tool components are not found,
+  in which case the custom target will not have been created.
+
   .. note::
 
     Copied and stripped down from LLVM's ``configure_lit_site_cfg``, found in
     AddLLVM.cmake.
 
   Arguments:
+    * ``name`` - The name of the test suite.
     * ``site_in`` - The input path to the lit.site.cfg.in-like file
     * ``site_out`` - The output path to the generated lit.site.cfg file
 
@@ -1236,8 +1241,16 @@ set(CA_FORCE_HEADERS_PATHS "" CACHE INTERNAL
       possible to move a build directory containing lit.cfg.py files from one
       machine to another.
 #]=======================================================================]
-function(add_ca_configure_lit_site_cfg site_in site_out)
+function(add_ca_configure_lit_site_cfg name site_in site_out)
   cmake_parse_arguments(ARG "" "" "MAIN_CONFIG;DEFINED;PATHS" ${ARGN})
+
+  # If we've already warned the user about missing LLVM tools, just bail now.
+  # This keeps verbose warnings from find_package to a minimum, while still
+  # informing the user about what's going on.
+  if (DEFINED CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING})
+    message(WARNING "${name}-lit disabled, $CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING}")
+    return()
+  endif()
 
   if("${ARG_MAIN_CONFIG}" STREQUAL "")
     get_filename_component(INPUT_DIR ${site_in} DIRECTORY)
@@ -1249,9 +1262,26 @@ function(add_ca_configure_lit_site_cfg site_in site_out)
   # `cmake_parse_arguments(PARSE_ARGV, ...)` were used.
   string(REPLACE ";" "," TARGETS_TO_BUILD "${LLVM_TARGETS_TO_BUILD}")
 
+  set(CA_LIT_REQD_LLVM_TOOLS llc llvm-profdata llvm-cov llvm-as llvm-dis FileCheck not)
+
   # Make sure that LLVM executable paths needed have been found.
-  find_package(LLVMTool QUIET COMPONENTS
-    llc llvm-profdata llvm-cov llvm-as llvm-dis FileCheck not)
+  find_package(LLVMTool COMPONENTS ${CA_LIT_REQD_LLVM_TOOLS})
+
+  # If any of the required tools haven't been found, we bail; this is quite
+  # coarse-grained.
+  if(NOT LLVMTool_FOUND)
+    if (NOT DEFINED CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING})
+      set(MISSING_COMPONENTS "not found:")
+      foreach(component ${CA_LIT_REQD_LLVM_TOOLS})
+        if(NOT TARGET LLVM::${component})
+          string(APPEND MISSING_COMPONENTS " ${component}")
+        endif()
+      endforeach()
+      set(CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING "${MISSING_COMPONENTS}" CACHE INTERNAL "")
+      message(WARNING "${name}-lit disabled, $CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING}")
+    endif()
+    return()
+  endif()
 
   string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
@@ -1292,6 +1322,8 @@ function(add_ca_configure_lit_site_cfg site_in site_out)
     list(APPEND CA_LIT_CONFIG_FILES "${ARG_MAIN_CONFIG}" "${site_out}")
     set_property(GLOBAL PROPERTY CA_LIT_CONFIG_FILES ${CA_LIT_CONFIG_FILES})
   endif()
+
+  add_custom_target(${name}-lit DEPENDS ${site_out})
 endfunction()
 
 #[=======================================================================[.rst:
