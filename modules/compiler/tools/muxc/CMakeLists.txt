@@ -32,7 +32,7 @@ target_include_directories(muxc SYSTEM PUBLIC ${LLVM_INCLUDE_DIR})
 target_include_directories(muxc PUBLIC
   ${PROJECT_SOURCE_DIR}/modules/compiler/source/base/include
   ${PROJECT_SOURCE_DIR}/source/cl/source/compiler/include
-  ${PROJECT_SOURCE_DIR}/modules/multi_llvm/include)
+  ${PROJECT_SOURCE_DIR}/modules/compiler/multi_llvm/include)
 target_link_libraries(muxc PRIVATE
   compiler-static mux builtins cargo LLVMBitWriter LLVMIRReader)
 target_resources(muxc NAMESPACES ${BUILTINS_NAMESPACES})

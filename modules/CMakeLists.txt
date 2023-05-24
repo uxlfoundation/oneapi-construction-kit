@@ -30,10 +30,6 @@ set(MODULES_LIBRARIES # No default value
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
-if(CA_RUNTIME_COMPILER_ENABLED)
-  # multi_llvm must be before all other modules that want to use it.
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/multi_llvm)
-endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 
