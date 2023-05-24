@@ -32,7 +32,7 @@ constexpr const char RISCV_SNAPSHOT_SCHEDULED[] = "scheduled";
 constexpr const char RISCV_SNAPSHOT_BACKEND[] = "backend";
 
 /// @brief Compiler target class.
-class RiscvTarget : public compiler::BaseTarget {
+class RiscvTarget : public compiler::BaseAOTTarget {
  public:
   RiscvTarget(const compiler::Info *compiler_info,
               const hal_device_info_riscv_t *hal_device_info,

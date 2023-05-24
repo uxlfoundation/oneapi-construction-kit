@@ -55,7 +55,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     refsidrv
     compiler-base
     LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-    LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
+    LLVMVectorize LLVMipo multi_llvm)
 
    add_mux_compiler_target(compiler-refsi-g1-wi
      COMPILER_INFO refsi_g1_wi::RefSiG1Info::get

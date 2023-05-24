@@ -52,12 +52,10 @@ set(HOST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/host_pass_machinery.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/module.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/passes.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/host/perf_support.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/target.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/info.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kernel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/passes.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/perf_support.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/AddEntryHook.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/AddFloatingPointControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/DisableNeonAttribute.cpp
@@ -91,7 +89,7 @@ endif()
 target_link_libraries(compiler-host PUBLIC
   compiler-base host-utils host
   LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-  LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
+  LLVMOrcShared LLVMOrcJIT LLVMVectorize LLVMipo multi_llvm)
 
 if(TARGET LLVMARMCodeGen)
   # link with LLVM if it was built with the ARM target

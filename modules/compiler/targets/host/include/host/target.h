@@ -21,9 +21,13 @@
 #include <base/target.h>
 #include <compiler/module.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/Orc/LLJIT.h>
+#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
+#include <llvm/Target/TargetMachine.h>
 #include <mux/mux.h>
 
 #include <map>
+#include <memory>
 
 namespace llvm {
 class Module;
@@ -50,8 +54,22 @@ class HostTarget : public compiler::BaseTarget {
   std::unique_ptr<compiler::Module> createModule(uint32_t &num_errors,
                                                  std::string &log) override;
 
-  /// @brief An execution engine that is used to generate kernels at runtime.
-  std::shared_ptr<llvm::ExecutionEngine> engine;
+  /// @see BaseTarget::getLLVMContext
+  llvm::LLVMContext &getLLVMContext() override;
+  /// @see BaseTarget::getLLVMContext
+  const llvm::LLVMContext &getLLVMContext() const override;
+
+  /// @see BaseTarget::getBuiltins
+  llvm::Module *getBuiltins() const override;
+
+  /// @brief LLVM context.
+  llvm::orc::ThreadSafeContext llvm_ts_context;
+
+  /// @brief The ORC JIT engine.
+  std::shared_ptr<llvm::orc::LLJIT> orc_engine;
+
+  /// @brief The llvm TargetMachine.
+  std::unique_ptr<llvm::TargetMachine> target_machine;
 
   /// @brief An atomic uint64_t to ensure unique identifiers are used.
   ///
@@ -60,6 +78,11 @@ class HostTarget : public compiler::BaseTarget {
   /// the kernel names, and incremented under the context's mutex lock such that
   /// no conflict should occur.
   uint64_t unique_identifier;
+
+  /// @brief LLVM Module containing implementations of the builtin functions
+  /// this target provides. May be null for compiler targets without external
+  /// builtin libraries.
+  std::unique_ptr<llvm::Module> builtins;
 
 #ifdef CA_ENABLE_HOST_BUILTINS
   std::unique_ptr<llvm::Module> builtins_host;

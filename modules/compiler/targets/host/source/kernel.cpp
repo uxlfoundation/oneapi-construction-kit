@@ -27,9 +27,12 @@
 #include <host/host_pass_machinery.h>
 #include <host/module.h>
 #include <host/passes.h>
-#include <host/perf_support.h>
 #include <host/target.h>
+#include <host/utils/relocations.h>
 #include <llvm/ADT/Statistic.h>
+#include <llvm/ExecutionEngine/JITSymbol.h>
+#include <llvm/ExecutionEngine/Orc/LLJIT.h>
+#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CrashRecoveryContext.h>
@@ -55,9 +58,12 @@ HostKernel::HostKernel(
       snapshots(snapshots) {}
 
 HostKernel::~HostKernel() {
-  if (target.engine) {
-    for (auto &entry : optimized_kernel_map) {
-      target.engine->removeModule(entry.second.optimized_module);
+  if (target.orc_engine) {
+    auto &es = target.orc_engine->getExecutionSession();
+    for (const auto &name : kernel_jit_dylibs) {
+      if (auto *jit = es.getJITDylibByName(name)) {
+        llvm::cantFail(es.removeJITDylib(*jit));
+      }
     }
   }
 }
@@ -248,7 +254,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
 
     // FIXME: Ideally we'd be able to call/reuse HostModule::createPassMachinery
     // but we only have access to the HostTarget
-    auto *const TM = target.engine->getTargetMachine();
+    auto *const TM = target.target_machine.get();
     auto builtinInfoCallback = [&](const llvm::Module &) {
       return compiler::utils::BuiltinInfo(
           std::make_unique<HostBIMuxInfo>(),
@@ -317,34 +323,74 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
       return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
     }
 
-#if defined(__linux__)
-    // Create Cache and register with MCJIT
-    host::PerfInterface jit_cache(unique_name_data);
-    if (jit_cache.is_enabled()) {
-      target.engine->setObjectCache(&jit_cache);
-    }
-    std::string module_id = module->getModuleIdentifier();
-#endif  // defined(__linux__)
-
+    // Note that we grab a handle to the module here, which we use to reference
+    // the module going forward. This is despite us passing ownership of the
+    // module off to the JITDylib. As long as the JITDylib outlives all uses of
+    // the optimized kernels, this should be okay; the JIT has the same lifetime
+    // as this HostKernel.
     llvm::Module *optimized_module_ptr = optimized_module.get();
+
+    // Create a unique JITDylib for this instance of the kernel, so that its
+    // symbols don't clash with any other kernel's symbols.
+    auto jd = target.orc_engine->createJITDylib(unique_name.str() + ".dylib");
+    if (auto err = jd.takeError()) {
+      if (auto callback = target.getNotifyCallbackFn()) {
+        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                 /*data_size*/ 0);
+      }
+      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
+    }
+    // Register this JITDylib so we can clear up its resources later.
+    kernel_jit_dylibs.insert(jd->getName());
+
+    llvm::orc::SymbolMap symbols;
+    llvm::orc::MangleAndInterner mangle(
+        target.orc_engine->getExecutionSession(),
+        target.orc_engine->getDataLayout());
+
+    for (const auto &reloc : host::utils::getRelocations()) {
+      symbols[mangle(reloc.first)] = llvm::JITEvaluatedSymbol(
+          reloc.second, llvm::JITSymbolFlags::Exported);
+    }
+
+    // Define our runtime library symbols required for the JIT to successfully
+    // link.
+    if (auto err = jd->define(llvm::orc::absoluteSymbols(std::move(symbols)))) {
+      if (auto callback = target.getNotifyCallbackFn()) {
+        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                 /*data_size*/ 0);
+      }
+      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
+    }
+
+    // Add the module.
+    if (auto err = target.orc_engine->addIRModule(
+            *jd, llvm::orc::ThreadSafeModule(std::move(optimized_module),
+                                             target.llvm_ts_context))) {
+      if (auto callback = target.getNotifyCallbackFn()) {
+        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                 /*data_size*/ 0);
+      }
+      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
+    }
+
+    // Retrieve the kernel address.
+    uint64_t hook;
     {
-      tracer::TraceGuard<tracer::Impl> traceGuard("MCJIT");
-      target.engine->addModule(std::move(optimized_module));
+      // Compiling the kernel may touch the global LLVM state
       std::lock_guard<std::mutex> globalLock(
           compiler::utils::getLLVMGlobalMutex());
-      target.engine->finalizeObject();
-      if (target.engine->hasError()) {
+      auto sym = target.orc_engine->lookup(*jd, unique_name.str());
+      if (auto err = sym.takeError()) {
         if (auto callback = target.getNotifyCallbackFn()) {
-          callback(target.engine->getErrorMessage().c_str(), /*data*/ nullptr,
+          callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                    /*data_size*/ 0);
         }
-        target.engine->clearErrorMessage();
         return cargo::make_unexpected(
             compiler::Result::FINALIZE_PROGRAM_FAILURE);
       }
+      hook = sym->getValue();
     }
-
-    const uint64_t hook = target.engine->getFunctionAddress(unique_name.str());
 
     uint32_t min_width = fn_metadata.min_work_item_factor.getFixedValue();
     uint32_t pref_width = fn_metadata.pref_work_item_factor.getFixedValue();

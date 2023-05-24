@@ -39,7 +39,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     compiler-riscv-utils
     compiler-linker-utils
     LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-    LLVMMCJIT LLVMVectorize LLVMipo multi_llvm)
+    LLVMVectorize LLVMipo multi_llvm)
 
   add_mux_compiler_target(compiler-riscv
      COMPILER_INFO riscv::getInfos
