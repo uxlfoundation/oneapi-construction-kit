@@ -46,8 +46,8 @@ Supporting muxc passes in targets
 virtual function in ``BaseModule``, ``createPassMachinery()``. The default for
 this in ``BaseModule`` creates a ``BaseModulePassMachinery``. This implements
 the parse and debug name support for the majority of utility passes that
-ComputeAorta provides. This method should always be overridden even if a
-``BaseModulePassMachinery`` is used so that a ``TargetMachine`` appropriate to
+the oneAPI Construction Kit provides. This method should always be overridden even
+if a ``BaseModulePassMachinery`` is used so that a ``TargetMachine`` appropriate to
 the target can be attached to the ``PassMachinery`` during creation.
 
 In order to extend for target specific passes, the virtual function

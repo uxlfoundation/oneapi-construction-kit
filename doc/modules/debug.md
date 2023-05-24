@@ -7,7 +7,7 @@ the `CA_ENABLE_DEBUG_SUPPORT` CMake option.
 ## Debug Pass Instrumentations
 
 The Debug module contains helper pass instrumentations to facilitate the
-debugging of ComputeAorta at runtime using environment variables.
+debugging of the oneAPI Construction Kit at runtime using environment variables.
 
 > Debug instrumentations require both `CA_ENABLE_DEBUG_SUPPORT=ON` and
 > `CA_RUNTIME_COMPILER_ENABLED=ON` in order to enable building the

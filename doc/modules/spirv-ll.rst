@@ -9,9 +9,9 @@ implemented using the static library.
 Standalone Mode
 ---------------
 
-The ``spirv-ll`` module can be built as part of the ComputeAorta CMake project
-or as a standalone CMake project. To build ``spirv-ll`` standalone use the
-following command from the ``modules/spirv-ll`` directory, where
+The ``spirv-ll`` module can be built as part of the oneAPI Construction Kit
+CMake project or as a standalone CMake project. To build ``spirv-ll`` standalone
+use the following command from the ``modules/spirv-ll`` directory, where
 ``$LLVMInstall`` is the path to your LLVM build install directory:
 ::
 

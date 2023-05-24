@@ -1,8 +1,8 @@
 # How OpenCL Concepts Are Mapped Onto ComputeMux
 
-This document aims to give a description of how the ComputeAorta implementation
-of [OpenCL 1.2][cl-12] maps down to our [ComputeMux Runtime][mux-spec] API and
-[ComputeMux Compiler][compiler].
+This document aims to give a description of how the oneAPI Construction Kit
+implementation of [OpenCL 1.2][cl-12] maps down to our
+[ComputeMux Runtime][mux-spec] API and [ComputeMux Compiler][compiler].
 
 ## Programs and Kernels
 
@@ -44,9 +44,9 @@ allocated to handle the `printf` calls from the kernel.
 
 When running the kernel, calls to `clEnqueueNDRangeKernel()` or
 `clEnqueueTask()` are made contingent on the desired work dimensions.
-ComputeAorta may still perform compilation late at these entry points before
-running if the `cl_program` was created from source, depending on how the Mux
-target is implemented.
+oneAPI Construction Kit may still perform compilation late at these entry
+points before running if the `cl_program` was created from source,
+depending on how the Mux target is implemented.
 
 ### Runtime Compilation
 
@@ -137,9 +137,9 @@ semaphores passed to `muxDispatch()`. Here semaphores can be waited on before
 the command buffer can begin execution, and set to signal once the command buffer
 has completed.
 
-In ComputeAorta each OpenCL command queue assigns a semaphore to each Mux
-command buffer, which - when it is dispatched will be signalled once it completes.
-Each command buffer also waits on the signal semaphore of most recently
+In the oneAPI Construction Kit each OpenCL command queue assigns a semaphore to
+each Mux command buffer, which - when it is dispatched will be signalled once it
+completes. Each command buffer also waits on the signal semaphore of most recently
 dispatched command buffer, if one exists - thereby chaining command buffers
 together in the same queue. The result is an in-order command queue. This is
 important because it means that if an earlier command buffer in the queue is

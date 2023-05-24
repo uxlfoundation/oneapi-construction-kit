@@ -2,16 +2,17 @@
 
 Device HALs are currently statically linked to the generic RISC-V Core target.
 The HAL can be switched at build time by selecting a device in CMake. This
-requires HAL implementers to have access to the ComputeAorta source and build it
-themselves. This document describes a mechanism for switching between device
-HALs at runtime, which will allow for binary releases of ComputeAorta.
+requires HAL implementers to have access to the oneAPI Construction Kit source
+and build it themselves. This document describes a mechanism for switching
+between device HALs at runtime, which will allow for binary releases of oneAPI
+Construction Kit.
 
 ## Building Device HALs
 
 Device HALs will keep their current API and be instantiated using the
 `hal::create_hal` entry point. They will be built as shared libraries, either
 in-tree or out-of-tree. They can be built independently, or as part of `clik` and
-`ComputeAorta`.
+`oneAPI Construction Kit`.
 
 ## Loading Device HALs
 
@@ -20,8 +21,8 @@ The generic Core target will load a device HAL at runtime using `dlopen`
 through a CMake variable (`CA_HAL_DEFAULT_DEVICE`) and passed as a compiler
 definition to the generic target. The name of the shared library to be loaded is
 `libhal_${DEVICE_NAME}.so` and it is expected to be in the same directory as
-ComputeAorta libraries containing the generic target (e.g. `libCL.so` and
-`libcore.so`). Please note that the name passed to `CA_HAL_DEFAULT_DEVICE`
+oneAPI Construction Kit libraries containing the generic target (e.g. `libCL.so`
+and `libcore.so`). Please note that the name passed to `CA_HAL_DEFAULT_DEVICE`
 should not include the `hal_` prefix, the `lib` prefix or `.so` (`.dll`)
 suffixes.
 

@@ -20,7 +20,8 @@ Compile a kernel to a file:
 clc -o clbin/kernel.bin src/kernel.cl
 ```
 
-Choose the ComputeAorta's OpenCL implementation on a multi-device system:
+Choose the oneAPI Construction Kit's OpenCL implementation on a
+multi-device system:
 
 ```bash
 clc -dn "host CPU" -o clbin/kernel.bin src/kernel.cl
@@ -111,11 +112,11 @@ optional SPIR extended arguments:
   -x spir               indicates the input is in SPIR format (added
                         automatically if SPIR input detected)
 
-optional ComputeAorta extended arguments:
+optional oneAPI Construction Kit extended arguments:
   --strip-binary-header strips the header containing argument and kernel count
                         information, leaving only the binary directly from the
                         target implementation WARNING: The output binary cannot
-                        be loaded by the ComputeAorta runtime again!
+                        be loaded by the oneAPI Construction Kit runtime again!
   -codeplay-soft-math   inhibit use of LLVM intrinsics for mathematical builtins
   -g                    enables generation of debug information, for best
                         results use in combination with -S
@@ -138,15 +139,15 @@ input/output. The default output path when only an input file was given is:
 
 `oclc` is a command-line tool that allows compiling OpenCL C kernels to LLVM IR
 (.ll) or assembly (.s). Its primary purpose is to provide insight into the
-operation of the compiler components of ComputeAorta, whether to aid debugging
-or the improve the quality of the generated code.
+operation of the compiler components of the oneAPI Construction Kit, whether to
+aid debugging or the improve the quality of the generated code.
 
 `oclc` may also be used to execute OpenCL kernels with specified parameters, and
 view parameter values post-execution.
 
 `oclc` requires an OpenCL 1.2 implementation that implements the
 `cl_codeplay_program_snapshot` extension. In practice this means a correctly
-configured version of ComputeAorta's OpenCL implementation.
+configured version of the oneAPI Construction Kit's OpenCL implementation.
 
 Codeplay's snapshot extension works by capturing kernels at specified stages in
 compilation. Then returning a dump of that capture, the snapshot, via a callback
@@ -162,8 +163,8 @@ with `-stage` now finds the first substring match from the list of possible
 snapshot stages.
 
 > Note that although this is an offline compile tool it hooks directly into the
-> ComputeAorta OpenCL library, and thus any environment variables that affect
-> the libraries behaviour will also affect `oclc`.
+> oneAPI Construction Kit OpenCL library, and thus any environment variables that
+> affect the libraries behaviour will also affect `oclc`.
 
 ### `oclc` Use-Cases
 

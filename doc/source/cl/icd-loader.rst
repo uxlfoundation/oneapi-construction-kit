@@ -1,18 +1,19 @@
 OpenCL ICD Loader
 =================
 
-ComputeAorta supports including the Khronos `OpenCL ICD Loader`_ in a build
-when the repository is present in the ``source/cl/external/OpenCL-ICD-Loader``
-directory. Internally this is a `Git Submodule`_ however cloning the official
-repository at this location in a source release should also work. Support is
-disabled by default but can be enabled when configuring the build.
+oneAPI Construction Kit supports including the Khronos `OpenCL ICD Loader`_ in
+a build when the repository is present in the
+``source/cl/external/OpenCL-ICD-Loader`` directory. Internally this is a
+`Git Submodule`_ however cloning the official repository at this location in a
+source release should also work. Support is disabled by default but can be
+enabled when configuring the build.
 
 .. warning::
    When the `OpenCL ICD Loader`_ is enabled and OpenCL drivers are installed on
    the system, failure to explicitly specify either :envvar:`OCL_ICD_FILENAMES`
    or :envvar:`OCL_ICD_VENDORS` when running a test suite or application will
    result in it using the system driver rather than a driver from the
-   ComputeAorta build.
+   oneAPI Construction Kit build.
 
 .. hint::
    Building the `OpenCL ICD Loader`_ can be enabled with the
@@ -36,9 +37,10 @@ implements the OpenCL API.
 
       $ OCL_ICD_FILENAMES=/path/to/libCL.so /path/to/UnitCL
 
-ComputeAorta also supports the creation of ``.icd`` files which are output to
-``<build>/share/OpenCL/vendors`` and can be read by the `OpenCL ICD Loader`_
-to populate the list of OpenCL drivers for an application to choose from.
+oneAPI Construction Kit also supports the creation of ``.icd`` files which
+are output to ``<build>/share/OpenCL/vendors`` and can be read by the
+`OpenCL ICD Loader`_ to populate the list of OpenCL drivers for an
+application to choose from.
 
 .. envvar:: OCL_ICD_VENDORS
 
@@ -53,9 +55,9 @@ to populate the list of OpenCL drivers for an application to choose from.
       $ OCL_ICD_VENDORS=/path/to/OpenCL/vendors /path/to/UnitCL
 
 .. note::
-   The ComputeAorta ``check`` target infrastructure automatically makes use of
-   the `OpenCL ICD Loader`_ when enabled, selecting the ``CL`` OpenCL driver by
-   specifying :envvar:`OCL_ICD_FILENAMES`.
+   The oneAPI Construction Kit ``check`` target infrastructure automatically
+   makes use of the `OpenCL ICD Loader`_ when enabled, selecting the ``CL``
+   OpenCL driver by specifying :envvar:`OCL_ICD_FILENAMES`.
 
 .. _OpenCL ICD Loader:
    https://github.com/KhronosGroup/OpenCL-ICD-Loader

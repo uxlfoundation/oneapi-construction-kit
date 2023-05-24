@@ -46,16 +46,16 @@ This specification describes a number of C++ classes with methods that a custome
 compiler must implement. Some entry points are pure virtual methods and are
 therefore mandatory, but others already have base implementations which must be
 called if the function is overridden by a customer compiler. Note that
-ComputeAorta does not use exceptions, and therefore there are no exception
-guarantee requirements.
+the oneAPI Construction Kit does not use exceptions, and therefore there are no
+exception guarantee requirements.
 
 Cargo
 -----
 
-Cargo is ComputeAorta's STL like container library used by a number of compiler
-API methods that conforms to stricter memory requirements than the C++ STL e.g.
-constructors do not allocate memory and exceptions are never thrown from any
-container.
+Cargo is the oneAPI Construction Kit's STL like container library used by a
+number of compiler API methods that conforms to stricter memory requirements
+than the C++ STL e.g. constructors do not allocate memory and exceptions are
+never thrown from any container.
 
 Context
 -------
@@ -210,8 +210,8 @@ matter, but it is named ``getCompilers`` in this example.
     void getCompilers(compiler::AddCompilerFn add_compiler);
 
 -  ``add_compiler`` - an object that overloads ``operator()`` which informs
-   ComputeAorta about a static instance of ``compiler:Info``. Used to register a
-   specific compiler configuration.
+   the oneAPI Construction Kit about a static instance of ``compiler:Info``.
+   Used to register a specific compiler configuration.
 
 One way of implementing this requirement is to add a static function to the
 ``compiler::Info`` object:
@@ -294,7 +294,7 @@ loading builtins.
         std::unique_ptr<llvm::Module> builtins);
 
 -  ``builtins`` - an LLVM module containing the embedded builtins provided by
-   ComputeAorta.
+   the oneAPI Construction Kit.
 
 .. rubric:: Return Value
 
@@ -1137,8 +1137,8 @@ following atomic instructions:
 .. _fence: https://llvm.org/docs/LangRef.html#fence-instruction
 
 A compiler **may** choose not to support these instructions depending on which
-open standards it wishes to enable through ComputeAorta. For example; support
-for the OpenCL C 3.0 standard requires support for these instructions.
+open standards it wishes to enable through the oneAPI Construction Kit. For example;
+support for the OpenCL C 3.0 standard requires support for these instructions.
 
 The atomic instructions listed above **shall not** have a `syncscope`_
 argument.

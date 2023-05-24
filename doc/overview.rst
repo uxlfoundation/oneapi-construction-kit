@@ -1,5 +1,5 @@
-ComputeAorta Overview
-=====================
+oneAPI Construction Kit Overview
+================================
 
 .. toctree::
    :maxdepth: 3

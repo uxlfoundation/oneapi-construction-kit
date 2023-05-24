@@ -1,9 +1,9 @@
 Scripts
 =======
 
-The ``<root>/scripts`` directory of ComptuteAorta contains utility scripts
-to aid with the building and testing of the project. All the scripts contain
-source documentation on their purpose and usage.
+The ``<root>/scripts`` directory of the oneAPI Construction Kit contains
+utility scripts to aid with the building and testing of the project. All
+the scripts contain source documentation on their purpose and usage.
 
 Scripts are primarily written in Python, and in some cases depend on our
 Python ``build_tools`` repository. Files written in other scripting languages,
@@ -22,16 +22,16 @@ automate our testing, so that there is a unified experience between developers
 and Jenkins continuous integration.
 
 .. seealso::
-  Consult the Jenkins section of the ComputeAorta Handbook for details on how
-  these scripts are used in our continuous integration setup.
+  Consult the Jenkins section of the oneAPI Construction Kit Handbook for
+  details on how these scripts are used in our continuous integration setup.
 
 Sanitizers
 ##########
 
-ComputeAorta supports building with `sanitizers`_ enabled, where the sanitizer
-settings can be configured at both compile-time and run-time. We provide the
-following files to allow our CMake build and test targets to define consistent
-settings.
+oneAPI Construction Kit supports building with `sanitizers`_ enabled, where
+the sanitizer settings can be configured at both compile-time and run-time.
+We provide the following files to allow our CMake build and test targets to
+define consistent settings.
 
 tsan_suppressions.txt
   A path to this file is set in the ``TSAN_OPTIONS="suppressions=..."``

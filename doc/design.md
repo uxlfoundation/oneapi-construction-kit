@@ -1,15 +1,16 @@
 # Design
 
-This document aims to provide an overview of the design of ComputeAorta. Its
-primary goal is to give developers a grounding in the project structure and a
-good idea of where specific components reside within the directory structure.
+This document aims to provide an overview of the design of the oneAPI
+Construction Kit. Its primary goal is to give developers a grounding in
+the project structure and a good idea of where specific components reside
+within the directory structure.
 
 ## Project Structure
 
-A common structure is used as much as possible throughout the ComputeAorta
-repository. Implementations of open standards, such as OpenCL and Vulkan, exist
-as subdirectories of the `source` directory and shared components, or modules,
-reside in the `modules` directory.
+A common structure is used as much as possible throughout the oneAPI
+Construction Kit repository. Implementations of open standards, such as
+OpenCL and Vulkan, exist as subdirectories of the `source` directory and
+shared components, or modules, reside in the `modules` directory.
 
 Throughout the repository the following layout is adhered to when applicable:
 
@@ -25,20 +26,20 @@ Throughout the repository the following layout is adhered to when applicable:
 
 ## Modules
 
-Many components of ComputeAorta are designed to be reused by multiple open
-standard implementations or externally. These components are referred to as
-modules and can be found in the `modules` directory. Modules follow the same
-directory layout as the root directory, described above, with the external
-interface being found in the header files located in the `include` directory and
-the implementation located in the `source` directory. Not all modules have test
-suites but those that are shared between projects within the ComputeAorta
-umbrella do.
+Many components of the oneAPI Construction Kit are designed to be reused by
+multiple open standard implementations or externally. These components are
+referred to as modules and can be found in the `modules` directory. Modules
+follow the same directory layout as the root directory, described above, with
+the external interface being found in the header files located in the `include`
+directory and the implementation located in the `source` directory. Not all
+modules have test suites but those that are shared between projects within the
+oneAPI Construction Kit umbrella do.
 
 ### Builtins
 
 OpenCL C specifies over 10000 builtin functions, which OpenCL C programs rely
-on. ComputeAorta defines builtin functions in the `builtins` module. The
-declarations of all the OpenCL C builtin functions can be found in
+on. oneAPI Construction Kit defines builtin functions in the `builtins` module.
+The declarations of all the OpenCL C builtin functions can be found in
 `include/builtins/builtins.h`, this includes both type and function
 declarations. Builtin function definitions are spread across multiple files;
 those implemented in plain OpenCL C can be found in `source/builtins.cl`;
@@ -66,11 +67,11 @@ functionality are provided by `libimg`.
 The builtin functions are compiled offline into LLVM bitcode (`.bc` files) using
 `clang`, *not* the platform compiler used to build the OpenCL drivers shared
 library. This matches the frontend used to compile OpenCL C source code in an
-application using ComputeAorta's OpenCL driver. These bitcode files are compiled
-into the OpenCL driver, on platforms which support linking binary blobs. This is
-performed by the linker (an `.rc` file on Windows and a small `.asm` file
-accessing the data section on Linux), while the fallback mechanism transforms
-the binary into a header file containing a `char` array.
+application using the oneAPI Construction Kit's OpenCL driver. These bitcode
+files are compiled into the OpenCL driver, on platforms which support linking
+binary blobs. This is performed by the linker (an `.rc` file on Windows and a
+small `.asm` file accessing the data section on Linux), while the fallback
+mechanism transforms the binary into a header file containing a `char` array.
 
 Compiling the builtins source code to LLVM bitcode is the key to being able to
 use multiple input languages, both OpenCL C and C++. The resulting bitcode files
@@ -81,9 +82,9 @@ OpenCL C conversion and type casting builtins.
 
 Additionally, the `include/builtins/builtins.h` header file is compiled into a
 (`.pch` file) pre-compiled header. This is done so that the frontend compiler in
-ComputeAorta does not have to compile the entire header file, which is over
-11000 lines long, each time an application invokes `clCompileProgram` or
-`clBuildProgram`. The pre-compiled header along with the bitcode files
+the oneAPI Construction Kit does not have to compile the entire header file,
+which is over 11000 lines long, each time an application invokes `clCompileProgram`
+or `clBuildProgram`. The pre-compiled header along with the bitcode files
 containing the definitions of the OpenCL C builtin functions are embedded into
 the OpenCL driver.
 
@@ -128,8 +129,8 @@ dedicated texture hardware.
 
 In order to build `libimg` it is necessary to supply a header called
 `image_library_integration.h` that defines the types and functions used by
-ComputeAorta, this filename is important as it is hard-coded into the `libimg`
-source files.
+the oneAPI Construction Kit, this filename is important as it is hard-coded into
+the `libimg` source files.
 
 ##### Shared
 
@@ -173,12 +174,12 @@ Replacement of the builtin is performed in the pass
 
 #### `printf`
 
-ComputeAorta's `printf` implementation works by adding an extra buffer argument
-to kernels and then replacing the calls to `printf` by code that loads the
-arguments of the `printf` call into the buffer. Internally the buffer argument
-is created and added to the kernel just before nd-range commands are executed,
-then just after the nd-range command has finished the buffer is read, its
-contents are unpacked and printed out using the host `printf`.
+The oneAPI Construction Kit's `printf` implementation works by adding an extra
+buffer argument to kernels and then replacing the calls to `printf` by code that
+loads the arguments of the `printf` call into the buffer. Internally the buffer
+argument is created and added to the kernel just before nd-range commands are
+executed, then just after the nd-range command has finished the buffer is read,
+its contents are unpacked and printed out using the host `printf`.
 
 ##### `printf` buffer
 
@@ -368,7 +369,7 @@ entry point, expected error codes of an entry point.
 The `host` module is an implementation of the `mux` and `compiler` APIs
 targeting the host system's CPU, this includes targets such as X86, Arm, and
 Aarch64. Documentation of the implementation detail of `host` can be found
-[here](modules/host.md). `host` is also shared with other ComputeAorta
+[here](modules/host.md). `host` is also shared with other oneAPI Construction Kit
 projects outside of OpenCL.
 
 Following the same file structure as `mux`, `host` lays out code on a per
@@ -389,14 +390,14 @@ For detailed information about the design and implementation of `VECZ` see its
 ### Cargo
 
 The `cargo` module contains a collection of Standard Template Library (STL) like
-containers that take into consideration the specific needs of ComputeAorta.
-ComputeAorta embeds LLVM within the driver and LLVM requires being built without
-exceptions. The constructors of containers like `std::vector` perform
-allocations from the free store and then immediately dereference them yet with
-exceptions disabled there is no error reporting mechanism for allocation
-failures. The containers in `cargo` aim to never allocate in a constructor, this
-allows an error to be returned from member functions which may perform an
-allocation.
+containers that take into consideration the specific needs of the oneAPI
+Construction Kit. The oneAPI Construction Kit embeds LLVM within the driver and
+LLVM requires being built without exceptions. The constructors of containers like
+`std::vector` perform allocations from the free store and then immediately
+dereference them yet with exceptions disabled there is no error reporting
+mechanism for allocation failures. The containers in `cargo` aim to never
+allocate in a constructor, this allows an error to be returned from member
+functions which may perform an allocation.
 
 The `cargo::small_vector` class template, inspired by `llvm::SmallVector`,
 provides a `std::vector` like container with a tunable size small buffer

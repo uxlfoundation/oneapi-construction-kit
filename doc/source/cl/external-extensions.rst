@@ -16,7 +16,7 @@ compiler extension.
 .. note::
    The external extension mechanism also allows for *platform* extensions in
    addition to *device* extensions. Platform extensions are used to extend the
-   entire ComputeAorta platform instead of just one :doc:`/modules/mux`
+   entire oneAPI Construction Kit platform instead of just one :doc:`/modules/mux`
    device, but are otherwise similar to device extensions. Platform extensions
    are beyond the scope of this documentation, since ComputeMux devices should
    generally not need to introduce platform extensions.
@@ -32,21 +32,21 @@ Tutorial 1: Confirm the Example Extension Works
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``cl_codeplay_set_threads`` extension to the :doc:`/modules/host` target is
-built by default along with ComputeAorta. An example program that calls the
-extension is also built. Test that it works, e.g., on a 64-bit x86 machine
+built by default along with the oneAPI Construction Kit. An example program that
+calls the extension is also built. Test that it works, e.g., on a 64-bit x86 machine
 with:
 
 .. code-block:: console
 
    $ <ca-build-dir>/bin/cl_ext_codeplay_example
    Available platforms are:
-     1. ComputeAorta
+     1. oneAPI Construction Kit
 
    Selected platform 1
 
    Running example on platform 1
    Available devices are:
-     1. ComputeAorta x86_64
+     1. oneAPI Construction Kit x86_64
 
    Selected device 1
 
@@ -54,9 +54,10 @@ with:
    Successfully called clSetNumThreadsCODEPLAY_ptr()
 
 If instead the output ends with the following then it is possible that
-ComputeAorta was configured with the extension disabled. Make sure that
-ComputeAorta is configured with ``-DOCL_EXTENSION_cl_codeplay_set_threads=ON``
-(the option defaults to ``ON``).
+the oneAPI Construction Kit was configured with the extension disabled.
+Make sure that the oneAPI Construction Kit is configured with
+``-DOCL_EXTENSION_cl_codeplay_set_threads=ON`` (the option defaults to
+``ON``).
 
 .. code-block:: console
 
@@ -116,8 +117,8 @@ all of this customer's extension. For ACME Corp. in might be called
 
 .. note::
    The extension header has a ``_host`` suffix to avoid a name conflict with
-   another extension header in ComputeAorta. In general, this will not be
-   required.
+   another extension header in the oneAPI Construction Kit. In general, this
+   will not be required.
 
 ``codeplay_set_threads.h`` and ``codeplay_set_threads.cpp`` are the header and
 source for one particular extension. A customer extension can contain any
@@ -174,8 +175,8 @@ In ``source/acme_coyote.cpp``:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In ``modules/mux/targets/host/CMakeLists.txt``, add the new extension
-directory. If the directory is located outside of the ComputeAorta tree, then
-``add_subdirectory()`` will need to specify a binary directory:
+directory. If the directory is located outside of the oneAPI Construction Kit
+tree, then ``add_subdirectory()`` will need to specify a binary directory:
 
 .. code-block:: cmake
 
@@ -185,7 +186,7 @@ directory. If the directory is located outside of the ComputeAorta tree, then
 5. Configure and build
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Reconfigure ComputeAorta. There is now a new CMake option,
+Reconfigure the oneAPI Construction Kit. There is now a new CMake option,
 ``-DOCL_EXTENSION_cl_acme_coyote``, which defaults to ``ON``. The new extension
 should be listed in the CMake output:
 
@@ -196,8 +197,8 @@ should be listed in the CMake output:
    -- OpenCL extension cl_acme_coyote: ENABLED
    ...
 
-Install ComputeAorta. ``<install_dir>/include/CL/`` should now contain
-``cl_ext_acme.h`` for developers to include in their programs.
+Install the oneAPI Construction Kit. ``<install_dir>/include/CL/`` should
+now contain ``cl_ext_acme.h`` for developers to include in their programs.
 
 6. Make a test program
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -224,28 +225,28 @@ appropriate location. Then update the files as follows:
   5. Calls the entry point. The name of the entry point should be updated.
 * Finally, add the test program's directory to ``host``'s CMake at
   ``modules/mux/targets/host/CMakeLists.txt``. If the directory is located
-  outside of the ComputeAorta tree, then ``add_subdirectory()`` will need to
-  specify a binary directory:
+  outside of the oneAPI Construction Kit tree, then ``add_subdirectory()``
+  will need to specify a binary directory:
 
 .. code-block:: cmake
 
    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/extension/example)
    add_subdirectory(${path_to_acme_example})  # Add this
 
-Reconfigure and build ComputeAorta. Then run the new test program, e.g., on a
-64-bit x86 machine with:
+Reconfigure and build the oneAPI Construction Kit. Then run the new test
+program, e.g., on a 64-bit x86 machine with:
 
 .. code-block:: console
 
    $ <ca-build-dir>/bin/cl_ext_acme_example
    Available platforms are:
-     1. ComputeAorta
+     1. oneAPI Construction Kit
 
    Selected platform 1
 
    Running example on platform 1
    Available devices are:
-     1. ComputeAorta x86_64
+     1. oneAPI Construction Kit x86_64
 
    Selected device 1
 
@@ -305,9 +306,9 @@ Extension Source
 ^^^^^^^^^^^^^^^^
 
 The extension sources (including any headers other than the single header in
-``CL``) are internal to the extensions, and are compiled into ComputeAorta.
-Developers writing OpenCL applications will not see these files. The only
-interface into the extension implementation is through the API header in
+``CL``) are internal to the extensions, and are compiled into the oneAPI
+Construction Kit. Developers writing OpenCL applications will not see these files.
+The only interface into the extension implementation is through the API header in
 ``CL``.
 
 Extension Entry Points
@@ -319,10 +320,10 @@ Extension Entry Points
    developer to ensure that a mismatch between extension and device is handled
    correctly**.
 
-ComputeAorta queries extensions' entry points to determine what they support.
-Consequently, a device extension must be able to correctly handle a situation
-where it's called with a different device. For example, OpenCL users use
-``clGetDeviceInfo()`` with either the ``CL_DEVICE_EXTENSIONS`` or the
+The oneAPI Construction Kit queries extensions' entry points to determine what
+they support. Consequently, a device extension must be able to correctly handle
+a situation where it's called with a different device. For example, OpenCL users
+use ``clGetDeviceInfo()`` with either the ``CL_DEVICE_EXTENSIONS`` or the
 ``CL_DEVICE_EXTENSIONS_WITH_VERSION`` parameter to determine which extensions a
 device supports. All extensions derive from the ``extension`` base class, and
 the base class provides the necessary functionality for reporting extension
@@ -336,7 +337,7 @@ extension.
 Extension CMake
 ^^^^^^^^^^^^^^^
 
-Extensions are integrated into the ComputeAorta build system using the
+Extensions are integrated into the oneAPI Construction Kit build system using the
 :cmake:command:`add_ca_cl_runtime_extension` and
 :cmake:command:`add_ca_cl_compiler_extension` CMake commands. These functions
 store the information required later in the build and is used in
@@ -368,4 +369,4 @@ Reference
 
 The :cmake:command:`add_ca_cl_runtime_extension` and
 :cmake:command:`add_ca_cl_compiler_extension` CMake commands should be used to
-integrate target extensions into the ComputeAorta build.
+integrate target extensions into the oneAPI Construction Kit build.

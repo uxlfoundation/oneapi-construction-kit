@@ -13,7 +13,7 @@ cl/tools
 cl/test
 ```
 
-The ComputeAorta implementation of the [OpenCL spec][opencl-1.2] provides
+The oneAPI Construction Kit implementation of the [OpenCL spec][opencl-1.2] provides
 definitions for its entry points which _must not_ be changed. In addition the
 [OpenCL][opencl-1.2] also defines the OpenCL object types, such as
 `_cl_platform_id`, which hold the state required to implement those objects.
@@ -43,10 +43,10 @@ a C++ virtual function table.
 
 ## Supported Features and Implementation Details
 
-Documentation on the OpenCL API supported by ComputeAorta and implementation
-details for effective use. The [API](../api-reference.html#cl-module)
+Documentation on the OpenCL API supported by the oneAPI Construction Kit and
+implementation details for effective use. The [API](../api-reference.html#cl-module)
 includes all standard, non-optional OpenCL 1.2 APIs and language features.
-ComputeAorta is also compatible with some [deprecated](#deprecated-entry-points)
+oneAPI Construction Kit is also compatible with some [deprecated](#deprecated-entry-points)
 OpenCL version 1.0 and 1.1 APIs, as well as those APIs defined in implemented
 [extensions](cl/extension.md).
 
@@ -66,8 +66,8 @@ data.
 
 Note that the use of half precision floating point scalar and vector types is
 optional, enabled using the [`cl_khr_fp16`][cl_khr_fp16] extension.
-ComputeAorta's doesn't currently support this as half is not implemented in our
-maths library. However the ComputeAorta CPU target does support
+oneAPI Construction Kit's doesn't currently support this as half is not
+implemented in our maths library. However the oneAPI Construction Kit CPU target does support
 [`cl_khr_fp64`][cl_khr_fp64], which is the double precision floating point
 extension. Use [`clGetDeviceInfo`][clGetDeviceInfo] for information about what
 floating point extensions are supported for your target device.
@@ -107,7 +107,7 @@ to be the same size as the `bool` in kernels.
 | `cl_float`_n_  | vector of _n_ 32-bit IEEE 754 floating point numbers |
 | `cl_double`_n_ | vector of _n_ 64-bit IEEE 754 floating point numbers |
 
-Built-in vector data types are supported by ComputeAorta even if the underlying
+Built-in vector data types are supported by the oneAPI Construction Kit even if the underlying
 compute device does not support any or all of the vector data types. Vector
 widths defined by the standard are 2, 3, 4, 8, and 16.
 
@@ -119,9 +119,9 @@ create OpenCL contexts using one or more devices.
 
 Use [clGetPlatformInfo][clGetPlatformInfo] to query the platform for information
 such as available extensions, and the name & version of the implementation.
-ComputeAorta typically will have platform name `ComputeAorta` and vendor name
-`Codeplay Software Ltd.` The version string will also contain both the version
-of ComputeAorta and the LLVM version built against.
+oneAPI Construction Kit typically will have platform name `ComputeAorta` and
+vendor name `Codeplay Software Ltd.` The version string will also contain both
+the version of the oneAPI Construction Kit and the LLVM version built against.
 
 ## Device Info
 
@@ -129,22 +129,22 @@ A device is a collection of compute units typically correspond to a GPU, a
 multi-core CPU, and other processors such as DSPs.
 
 To find the available devices on a platform use
-[clGetDeviceIDs][clGetDeviceIDs]. ComputeAorta should contain a host CPU device
+[clGetDeviceIDs][clGetDeviceIDs]. oneAPI Construction Kit should contain a host CPU device
 of type `CL_DEVICE_TYPE_CPU`, as well as optionally other accelerators. DSPs
 fall under devices type `CL_DEVICE_TYPE_ACCELERATOR`.
 
 All the information about a device can be queried with
 [clGetDeviceInfo][clGetDeviceInfo]. Including device specific extensions and
 information regarding memory size and work group limits. The `CL_DEVICE_NAME` of
-ComputeAorta's CPU device target will be `ComputeAorta ARCH`, where `ARCH` is
-replaced with the platform architecture, e.g., `x86_64`.
+oneAPI Construction Kit's CPU device target will be `ComputeAorta ARCH`, where
+`ARCH` is replaced with the platform architecture, e.g., `x86_64`.
 
 ### Profiles
 
 OpenCL devices can report supporting `"FULL_PROFILE"` or `"EMBEDDED_PROFILE"` by
 passing `CL_DEVICE_PROFILE` as the `param_name` to
-[clGetDeviceInfo][clGetDeviceInfo]. ComputeAorta detects which profile a device
-supports using the following table, as specified in [OpenCL 1.2][#opencl-1.2].
+[clGetDeviceInfo][clGetDeviceInfo]. oneAPI Construction Kit detects which profile
+a device supports using the following table, as specified in [OpenCL 1.2][#opencl-1.2].
 If any of these limits fall below the `"FULL_PROFILE"` value then the device
 will report support for `"EMBEDDED_PROFILE"`.
 
@@ -189,8 +189,8 @@ An OpenCL program consists of a set of kernels that are identified as functions
 declared with the `__kernel` qualifier in the program source. Each program
 object can represent program source or binary.
 
-ComputeAorta tends to delay final compilation until kernel run time, e.g.
-[clEnqueueNDRangeKernel][clEnqueueNDRange] , where all the scheduling
+oneAPI Construction Kit tends to delay final compilation until kernel run time,
+e.g. [clEnqueueNDRangeKernel][clEnqueueNDRange] , where all the scheduling
 information will be available. Therefore if a user runs the same kernel kernel
 twice with identical work loads and scheduling, the first run may suffer some
 initial latency from compilation.
@@ -205,8 +205,8 @@ cl_program clCreateProgramWithSource(cl_context context,
                                      cl_int *errcode_ret);
 ```
 
-Creates an OpenCL program object from OpenCL C source, ComputeAorta does no
-compilation at this stage.
+Creates an OpenCL program object from OpenCL C source, oneAPI Construction Kit
+does no compilation at this stage.
 
 ### [clCreateProgramWithBinary][clCreateProgramWithBinary]
 
@@ -220,11 +220,11 @@ cl_program clCreateProgramWithBinary(cl_context context,
                                      cl_int *errcode_ret);
 ```
 
-Create an OpenCL program object from a binary. Because ComputeAorta supports the
-[`cl_khr_spir`][cl_khr_spir] extension, this can also be a SPIR binary. If the
-binary is a SPIR binary, then the program **must** be compiled (with either
-`clBuildProgram()`, or `clCompileProgram()` and `clLinkProgram()`). If the
-binary is a pre-compiled binary, then it **may** be compiled again, but this
+Create an OpenCL program object from a binary. Because oneAPI Construction Kit
+supports the [`cl_khr_spir`][cl_khr_spir] extension, this can also be a SPIR
+binary. If the binary is a SPIR binary, then the program **must** be compiled
+(with either `clBuildProgram()`, or `clCompileProgram()` and `clLinkProgram()`).
+If the binary is a pre-compiled binary, then it **may** be compiled again, but this
 will have no effect.
 
 ### [clCreateProgramWithBuiltInKernels][clCreateProgramWithBuiltInKernels]
@@ -239,8 +239,8 @@ cl_program clCreateProgramWithBuiltInKernels(cl_context context,
 
 Create an OpenCL program object with built-in kernels. This is useful if you
 have a configurable, but not programmable, accelerator with predefined
-computations it is optimized for. ComputeAorta currently doesn't support any
-built-in kernels but this will change in the future.
+computations it is optimized for. oneAPI Construction Kit currently doesn't
+support any built-in kernels but this will change in the future.
 
 ### [clCompileProgram][clCompileProgram]
 
@@ -259,8 +259,8 @@ cl_int clCompileProgram(cl_program program,
                         void *user_data);
 ```
 
-Compile the program object. If the program was created from source ComputeAorta
-runs the clang compiler frontend at this point.
+Compile the program object. If the program was created from source oneAPI
+Construction Kit runs the clang compiler frontend at this point.
 
 ### [clLinkProgram][clLinkProgram]
 
@@ -280,9 +280,9 @@ cl_program clLinkProgram(cl_context context,
 ```
 
 Link one of more program objects. In the spec wording it mentions that this may
-create an executable, however in ComputeAorta we delay the creation of an
-executable until [`clEnqueueNDRangeKernel`][clEnqueueNDRange] for performance
-reasons. We do however link separate LLVM Modules together here.
+create an executable, however in oneAPI Construction Kit we delay the creation
+of an executable until [`clEnqueueNDRangeKernel`][clEnqueueNDRange] for
+performance reasons. We do however link separate LLVM Modules together here.
 
 ### [clBuildProgram][clBuildProgram]
 
@@ -316,7 +316,8 @@ cl_int clGetProgramInfo(cl_program program,
 Query the program object for information. One use of this is to retrieve
 compiled binaries which can we used in future to pass to
 [`clCreateProgramFromBinary`](#clcreateprogramwithbinary) to save compilation
-time. In this case ComputeAorta will return LLVM IR for the binary format.
+time. In this case oneAPI Construction Kit will return LLVM IR for the binary
+format.
 
 ### [clGetProgramBuildInfo][clGetProgramBuildInfo]
 
@@ -330,8 +331,8 @@ cl_int clGetProgramBuildInfo(cl_program program,
 ```
 
 Query the program for the latest build information. If compilation failed this
-function can be used to retrieve the error log, which ComputeAorta will output
-this as a LLVM diagnostic.
+function can be used to retrieve the error log, which oneAPI Construction Kit
+will output this as a LLVM diagnostic.
 
 ## Image Support
 
@@ -346,9 +347,9 @@ device. `CL_INVALID_OPERATION` will be returned as an error code from some of
 the image API functions if there are no devices in the context that support
 images. Types such as `image1d_t` and `sampler_t` will also be unavailable.
 
-The ComputeAorta CPU device target does support images, but these are emulated in
-software rather than hardware accelerated, so not performant. Other
-ComputeAorta platform devices may or may not support images.
+The oneAPI Construction Kit CPU device target does support images, but these
+are emulated in software rather than hardware accelerated, so not performant.
+Other oneAPI Construction Kit platform devices may or may not support images.
 
 ## Debugging OpenCL kernels
 
@@ -536,8 +537,8 @@ $2 = 0.833333313
 
 ## Deprecated Entry Points
 
-Deprecated OpenCL 1.0 and 1.1 functions which are implemented by ComputeAorta
-for conformance and backwards compatibility.
+Deprecated OpenCL 1.0 and 1.1 functions which are implemented by the oneAPI
+Construction Kit for conformance and backwards compatibility.
 
 ### [clGetExtensionFunctionAddress][clGetExtensionFunctionAddress]
 
@@ -587,7 +588,7 @@ cl_int clUnloadCompiler();
 
 Unload the compiler, deprecated in OpenCL 1.2. This is a hint from the
 application and does not guarantee that the compiler will actually be unloaded
-by the implementation. As this is just a hint ComputeAorta ignores it.
+by the implementation. As this is just a hint oneAPI Construction Kit ignores it.
 
 Replaced by [`clUnloadPlatformCompiler`][clUnloadPlatformCompiler].
 

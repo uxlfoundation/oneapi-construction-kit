@@ -28,8 +28,8 @@ src:/usr/include/c*/4.[78]/bits/*.h
 src:/usr/bin/../lib/gcc/*/4.[78]/../../../../include/c*/4.[78]/bits/*.h
 
 # The CTS tests have undefined behaviour, but that does not affect the
-# correctness of ComputeAorta, and fixing them means deviating further from
-# upstream CTS.  So blacklist the CTS.
+# correctness of the oneAPI Construction Kit, and fixing them means deviating
+# further from upstream CTS.  So blacklist the CTS.
 # Note that this path is relative to the build folder.
 src:../source/cl/test/OpenCL-CTS/test_*/*/*
 

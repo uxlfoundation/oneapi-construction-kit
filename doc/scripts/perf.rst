@@ -33,8 +33,8 @@ Positional Arguments
 ####################
 
 object-file(s)
-  A CSV list of all relevant object files that have been dumped by ComputeAorta
-  when 'perf events' have been recorded for a particular run.
+  A CSV list of all relevant object files that have been dumped by the oneAPI
+  Construction Kit when 'perf events' have been recorded for a particular run.
 
 map-file(s)
   A CSV list of all map files that have been dumped
@@ -52,12 +52,12 @@ The optional arguments are:
  list.
 
 ``-f``, ``--func=\<function-names\>``
-  A CSV of function names generated while JITing. Usually on host ComputeAorta
-  will JIT function names of the form ``__mux_host_%u``. Only names found in
-  the map-file can be annotated. If this option is not specified, then by
-  default, all functions found within perf-logs will be annotated and displayed
-  (Beware : potentially large). Multiple ``-f`` options on the command-line
-  will be merged to make one single CSV option list.
+  A CSV of function names generated while JITing. Usually on host oneAPI
+  Construction Kit will JIT function names of the form ``__mux_host_%u``. Only
+  names found in the map-file can be annotated. If this option is not specified,
+  then by   default, all functions found within perf-logs will be annotated and
+  displayed (Beware : potentially large). Multiple ``-f`` options on the
+  command-line will be merged to make one single CSV option list.
 
 ``-e``, ``--event=\<event-names\>``
   A CSV of event names that the user is interested in parsing. This option is

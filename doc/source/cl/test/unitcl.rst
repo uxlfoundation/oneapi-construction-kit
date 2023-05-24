@@ -205,8 +205,8 @@ Test provides:
 Default Test Variations
 -----------------------
 
-When running UnitCL via the ComputeAorta ``check-UnitCL*`` CMake targets,
-various compiler configurations will be run. For example, there is a
+When running UnitCL via the oneAPI Construction Kit ``check-UnitCL*`` CMake
+targets, various compiler configurations will be run. For example, there is a
 configuration that sets ``-cl-opt-disable`` (``check-UnitCL-opt-disable``), one
 that sets ``-cl-wfv=always`` (``check-UnitCL-vecz``), etc. Some of these
 variations may have no effect on some customer targets. E.g., if a ComputeMux
@@ -543,10 +543,10 @@ When ``UnitCL`` is running against an offline OpenCL driver i.e. no compiler is
 available, then tests which require a compiler are skipped. There are two
 methods of test an offline version of CL:
 
-* Build ComputeAorta with the CMake option
+* Build the oneAPI Construction Kit with the CMake option
   :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` set to ``OFF``.
 
-* Build ComputeAorta with the CMake options
+* Build the oneAPI Construction Kit with the CMake options
   :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` set to ``ON``, and
   :cmake:variable:`CA_COMPILER_ENABLE_DYNAMIC_LOADER` set to ``ON``, then set
   the environment variable :envvar:`CA_COMPILER_PATH` to the empty string to
@@ -610,8 +610,8 @@ Generating SPIR and SPIR-V
 IR execution tests --- ``SpirExecution``, ``SpirvExecution``,
 ``OfflineSpirExecution``, and ``OfflineSpirvExecution`` --- use SPIR and SPIR-V
 kernels. The IR kernels do not change often, so they are committed to the
-ComputeAorta repository. To ensure consistency, the IR kernels are always
-generated with exactly the same tools.
+oneAPI Construction Kit repository. To ensure consistency, the IR kernels are
+always generated with exactly the same tools.
 
 The `regenerate-spir and regenerate-spirv targets`_ are used to rebuild IR
 kernels. It is also possible to build individual IR kernels `manually <Manually

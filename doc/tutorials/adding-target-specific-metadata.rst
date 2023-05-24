@@ -4,8 +4,8 @@ Adding Target-Specific Metadata
 Targets often have specific ways of extracting the best performance
 and it is necessary to store metadata as part of the binary so that 
 knowledge from the compiler can be utilized at runtime. This tutorial 
-explains how targets can hook into the metadata mechanism in ComputeAorta
-and store custom metadata as part of the binary.
+explains how targets can hook into the metadata mechanism in the oneAPI
+Construction Kit and store custom metadata as part of the binary.
 
 Defining the metadata struct and handler
 ----------------------------------------
@@ -60,7 +60,7 @@ documentation :ref:`here <modules/metadata:metadata api>`.
       }
     };
 
-ComputeAorta itself already contains a similar specialization
+oneAPI Construction Kit itself already contains a similar specialization
 for storing vectorization information in the binary. For inspiration on
 how to implement the class you can refer to ``modules/metadata/include/metadata/handler/vectorize_info_metadata.h``
 and ``modules/metadata/source/metadata/handler/vectorize_info_metadata.cpp``.

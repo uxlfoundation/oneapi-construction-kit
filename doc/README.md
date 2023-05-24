@@ -1,9 +1,9 @@
 # Using Sphinx
 
-ComputeAorta uses the [Sphinx][sphinx] documentation generator, setup of the
-required tooling is performed during CMake configuration and output in the
-`<build>/doc` directory. To build the documentation, use the `doc_html` build
-target.
+oneAPI Construction Kit uses the [Sphinx][sphinx] documentation generator,
+setup of the required tooling is performed during CMake configuration and
+output in the`<build>/doc` directory. To build the documentation, use the
+`doc_html` build target.
 
 ## Sphinx Extensions
 
@@ -35,10 +35,10 @@ extension.
 
 ### Doxygen Integration
 
-The C and C++ header files in ComputeAorta are largely documented using
-[Doxygen][doxygen] comments. These are parsed by [Doxygen][doxygen] which is
-configured to output XML files in the `<build>/doc/xml` directory. To integrate
-this information into the generated documentation the [breathe][breathe]
+The C and C++ header files in the oneAPI Construction Kit are largely documented
+using [Doxygen][doxygen] comments. These are parsed by [Doxygen][doxygen] which
+is configured to output XML files in the `<build>/doc/xml` directory. To
+integrate this information into the generated documentation the [breathe][breathe]
 extension is used.
 
 [breathe][breathe] has it's drawbacks, the maintainers are not very active and

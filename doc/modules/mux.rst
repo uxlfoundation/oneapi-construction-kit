@@ -64,8 +64,8 @@ Runtime CMake Integration
 
 ComputeMux provides the CMake function ``add_mux_target`` which should be
 used in the target ``CMakeLists.txt``, this function performs a number
-of tasks required to integrate a target into the ComputeAorta build.
-These are:
+of tasks required to integrate a target into the oneAPI Construction Kit
+build. These are:
 
 -  Provide the CMake target for the static library containing the ComputeMux
    Runtime target.
@@ -84,7 +84,8 @@ These are:
      HEADER_DIR <include-dir-path>/<target> DEVICE_NAMES <name>)
 
 It is also possible specify the path to the ``clang-format`` executable
-to use to override the version required by ComputeAorta like this:
+to use to override the version required by the oneAPI Construction Kit
+like this:
 
 .. code:: cmake
 
@@ -133,8 +134,8 @@ Target-Specific Builtins Header
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ComputeMux Runtime targets will sometimes have target-specific intrinsics that
-must be declared in a header. ComputeAorta provides a CMake utility function to
-declare this header:
+must be declared in a header. oneAPI Construction Kit provides a CMake utility
+function to declare this header:
 
 .. code:: cmake
 
@@ -152,14 +153,15 @@ are built for the device.
    headers at kernel build time. It must exactly match the device’s
    ``device_name`` field.
 -  ``PATH`` is the path to the header. The header is only accessed at
-   ComputeAorta build time.
+   the oneAPI Construction Kit build time.
 
 ``add_ca_force_header()`` is intended to add *one device-specific*
 header. Adding additional force-included headers is not supported, and
 will result in CMake errors. Changing the input parameters to
-``add_ca_force_header()`` requires a clean rebuild of ComputeAorta.
-Changing the contents of the force-included header triggers a re-link of
-ComputeAorta; a clean rebuild is not required.
+``add_ca_force_header()`` requires a clean rebuild of the oneAPI
+Construction Kit. Changing the contents of the force-included header
+triggers a re-link of the oneAPI Construction Kit; a clean rebuild is
+not required.
 
 Mux devices are strongly encouraged to have an extension that indicates
 the presence of a device force-included header. The ``host`` device, if
@@ -263,8 +265,8 @@ Compiler CMake Integration
 
 ComputeMux provides the CMake function ``add_mux_compiler_target`` which should
 be used in the target ``CMakeLists.txt``, this function performs a number
-of tasks required to integrate a compiler target into the ComputeAorta build.
-These are:
+of tasks required to integrate a compiler target into the oneAPI Construction Kit
+build. These are:
 
 -  Provide the CMake target for the static library containing the ComputeMux
    Compiler target.

@@ -3,9 +3,9 @@ AddCA Module
 
 A tenet of modern CMake is to avoid setting compiler flags manually, as they
 won't work across all compilers and platforms unless guarded. Unfortunately due
-to the extensive range of toolchains which ComputeAorta supports utilizing
-bespoke compiler settings is unavoidable. We try to isolate all these platform
-specific configurations in the module ``cmake/AddCA.cmake`` using
+to the extensive range of toolchains which oneAPI Construction Kit supports
+utilizing bespoke compiler settings is unavoidable. We try to isolate all these
+platform specific configurations in the module ``cmake/AddCA.cmake`` using
 `generator expressions`_ to create variables for compiler options and
 definitions, set as :cmake:variable:`CA_COMPILE_OPTIONS` and
 :cmake:variable:`CA_COMPILE_DEFINITIONS` respectively.
@@ -21,8 +21,8 @@ These wrappers allow us to add the project wide compiler settings at a central
 location rather than scattered over the codebase, and to set target
 dependencies on any other targets which could be conditionally required to
 support our various
-:ref:`CA build options <developer-guide:Computeaorta Cmake Options>` for
-debugging and instrumentation.
+:ref:`CA build options <developer-guide:oneAPI Construction Kit Cmake Options>`
+for debugging and instrumentation.
 
 The :cmake-command:`target_compile_options` and
 :cmake-command:`target_compile_definitions` CMake commands are the preferred

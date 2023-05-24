@@ -16,9 +16,9 @@ Host Device
 -----------
 
 The information reported by a host device can vary depending on the build
-configuration of ComputeAorta. See the
-[Developers Guide](developer-guide.md#ComputeAorta-CMake-Options) for details on
-the effects of host specific CMake options.
+configuration of the oneAPI Construction Kit. See the
+[Developers Guide](developer-guide.md#oneapi-construction-kit-cmake-options) for
+details on the effects of host specific CMake options.
 
 Interesting Properties
 ^^^^^^^^^^^^^^^^^^^^^^

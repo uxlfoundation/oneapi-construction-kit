@@ -1,18 +1,18 @@
 Driver Requirements
 ===================
 
-ComputeAorta requirements for the hardware device driver used to implement a
-:ref:`Custom ComputeMux Runtime
+oneAPI Construction Kit requirements for the hardware device driver used to
+implement a :ref:`Custom ComputeMux Runtime
 <overview/introduction/architecture:custom runtime>`. Driver requirements are
 organized into the following categories:
 
 Must-Have
-  Driver requirements which are mandated by ComputeAorta.
+  Driver requirements which are mandated by the oneAPI Construction Kit.
 
 Should-Have
-  Possible to support ComputeAorta without this requirement, but may lead
-  to limited functionality, degraded performance, or additional complexity in
-  implementation.
+  Possible to support the oneAPI Construction Kit without this requirement,
+  but may lead to limited functionality, degraded performance, or additional
+  complexity in implementation.
 
 Nice-to-Have
   Will make the hardware easier to develop for, speeding up delivery time
@@ -105,9 +105,9 @@ Heterogeneous APIs add commands to a device specific queue, which can be
 asynchronously flushed so that the commands are executed on the device while
 the host application continues with other work. Commands could be executing
 kernels, or memory operations performed on buffers such as a fill or copy.
-ComputeAorta internally batches commands which can be executed together without
-external dependencies into groups sent to the ComputeMux Runtime, and then onto
-the driver.
+oneAPI Construction Kit internally batches commands which can be executed
+together without external dependencies into groups sent to the ComputeMux
+Runtime, and then onto the driver.
 
 Batches of commands without dependencies between them can be executed in
 parallel on different hardware units, as can the commands within a individual
@@ -117,7 +117,7 @@ implementation can schedule across multiple execution units on the device,
 without needing to copy data to and from host or return control to host between
 operations.
 
-Requirements of the driver to allow ComputeAorta to submit commands
+Requirements of the driver to allow the oneAPI Construction Kit to submit commands
 are the following:
 
 .. rubric:: Must-Have
@@ -135,9 +135,9 @@ are the following:
 .. rubric:: Should-Have
 
 * Asynchronous scheduling of commands to the device, so that busy-waiting is not
-  required and the driver informs ComputeAorta about completion. This driver
-  functionality is used to implement semaphore objects in the ComputeMux Runtime
-  API.
+  required and the driver informs the oneAPI Construction Kit about completion.
+  This driver functionality is used to implement semaphore objects in the
+  ComputeMux Runtime API.
 * Ability to specify an entry-point when launching executable code, removing
   start-up overhead when running an individual kernel from a binary containing
   multiple kernels.
@@ -174,8 +174,8 @@ are the following:
 Kernel Execution
 ~~~~~~~~~~~~~~~~
 
-Running a ComputeMux kernel typically involves ComputeAorta interacting with
-the device driver in the following steps:
+Running a ComputeMux kernel typically involves the oneAPI Construction Kit
+interacting with the device driver in the following steps:
 
 1) Loading and relocating the kernel instruction stream to the targeted device
    core.
@@ -203,8 +203,8 @@ the device driver in the following steps:
 Error Handling
 --------------
 
-Requirements of the device driver so that ComputeAorta can recover from a
-hardware failure without having to power cycle hardware.
+Requirements of the device driver so that the oneAPI Construction Kit can recover
+from a hardware failure without having to power cycle hardware.
 
 .. rubric:: Should-Have
 
@@ -231,7 +231,7 @@ resources are managed across the process instances.
   If OpenCL will be used on an RTOS, then the driver needs to be compatible with
   the intended RTOS, which may run all applications under a single process.
 
-ComputeAorta supports two possible models of multi-process enablement.
+oneAPI Construction Kit supports two possible models of multi-process enablement.
 
 Spatial Partitioning
   The device execution units are physically partitioned and different processes
@@ -261,15 +261,15 @@ and therefore which resources are available to it.
 Device Queries
 --------------
 
-ComputeAorta needs to report information about device resources to the final
-application user. For this purpose, ComputeAorta has the following requirements
-for queries that can be made to the driver.
+oneAPI Construction Kit needs to report information about device resources to the
+final application user. For this purpose, the oneAPI Construction Kit has the
+following requirements for queries that can be made to the driver.
 
 .. important::
   When only a single process may access the device the query values can be
   hard-coded and there are no requirements on the driver. However, for the
-  multi-process case where resources are shared, ComputeAorta will have to be
-  able to be query the device driver.
+  multi-process case where resources are shared, the oneAPI Construction Kit
+  will have to be able to be query the device driver.
 
 .. seealso::
   For the OpenCL API, queries are used to implement the function
@@ -323,8 +323,9 @@ containing the image data.
 Driver Delivery
 ---------------
 
-Requirements for integrating the device driver libraries into ComputeAorta and
-updating ComputeAorta to new releases of the driver.
+Requirements for integrating the device driver libraries into the oneAPI
+Construction Kit and updating the oneAPI Construction Kit to new releases
+of the driver.
 
 .. note::
    This section is only a requirement when Codeplay is integrating a customer
@@ -343,7 +344,7 @@ updating ComputeAorta to new releases of the driver.
 .. rubric:: Should-Have
 
 * A single set of unified libraries for all target platforms, hardware and
-  simulator, to avoid introducing complexity to ComputeAorta.
+  simulator, to avoid introducing complexity to the oneAPI Construction Kit.
 
   .. important::
     Failure to provide unified libraries can lead to the situation where the
