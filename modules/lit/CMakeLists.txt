@@ -36,15 +36,16 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/ca-lit.in
   ${CMAKE_CURRENT_BINARY_DIR}/ca-lit)
 
-# Provide common LIT utilities for test suites
-# FIXME: Only works for compiler targets since we require paths to LLVM tools.
-# Could we make this more flexible with optional LLVM tools?
-if(CA_RUNTIME_COMPILER_ENABLED)
-  add_ca_configure_lit_site_cfg(
-    ${CMAKE_CURRENT_SOURCE_DIR}/lit.common.cfg.in
-    ${CMAKE_CURRENT_BINARY_DIR}/lit.common.cfg
-    MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.common.cfg")
+set(SUITE ca-common)
 
-  add_custom_target(ca-common-lit ALL DEPENDS
+# Provide common LIT utilities for test suites
+add_ca_configure_lit_site_cfg(
+  ${SUITE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/lit.common.cfg.in
+  ${CMAKE_CURRENT_BINARY_DIR}/lit.common.cfg
+  MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.common.cfg")
+
+if(TARGET ${SUITE}-lit)
+  add_custom_target(${SUITE} ALL DEPENDS
     "${CMAKE_CURRENT_BINARY_DIR}/lit.common.cfg")
 endif()
