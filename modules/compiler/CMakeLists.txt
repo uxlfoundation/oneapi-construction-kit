@@ -28,6 +28,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
   add_subdirectory(riscv)
   add_subdirectory(tools)
   add_subdirectory(spirv-ll)
+  add_subdirectory(vecz)
   set(COMPILER_CONFIG_SOURCE ${PROJECT_BINARY_DIR}/modules/compiler/source/config.cpp)
 
   set(COMPILER_HEADERS

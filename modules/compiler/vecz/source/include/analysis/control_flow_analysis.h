@@ -14,8 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-/// @file modules/vecz/source/include/analysis/control_flow_analysis.h
-///
 /// @brief Analysis of control flow.
 
 #ifndef VECZ_ANALYSIS_CONTROL_FLOW_ANALYSIS_H_INCLUDED

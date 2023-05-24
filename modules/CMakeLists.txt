@@ -36,10 +36,6 @@ if(CA_RUNTIME_COMPILER_ENABLED)
 endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-# vecz must be before mux for it to use vecz.
-if(CA_RUNTIME_COMPILER_ENABLED)
-  add_ca_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vecz)
-endif()
 
 # Fetch the official SPIR-V headers. These are required by some up our public
 # compiler headers, which are also included by mux, so this must take place
