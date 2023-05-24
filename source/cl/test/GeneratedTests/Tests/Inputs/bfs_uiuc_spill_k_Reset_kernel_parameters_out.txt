@@ -1,5 +1,0 @@
-frontier_length,0
-g_mutex,0
-g_mutex2,0
-g_q_offsets,0
-g_q_size,0,73,73

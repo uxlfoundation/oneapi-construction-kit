@@ -163,17 +163,6 @@ ca_option(CA_CL_ENABLE_EXTENDED_CHECKS BOOL
         "Enable extended UnitCL testing" ON)
 
 #[=======================================================================[.rst:
-.. cmake:variable:: CA_CL_ENABLE_GENERATEDTESTS_CHECK
-
-  A boolean CMake option to enable the `check-GeneratedTests` target.
-
-  Default value
-    ``OFF``
-#]=======================================================================]
-ca_option(CA_CL_ENABLE_GENERATEDTESTS_CHECK BOOL
-        "Enable check-GeneratedTests target" OFF)
-
-#[=======================================================================[.rst:
 .. cmake:variable:: CA_CL_TEST_STATIC_LIB
 
   A boolean CMake option to enable testing with the static CL target. This

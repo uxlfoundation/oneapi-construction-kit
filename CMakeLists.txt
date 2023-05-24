@@ -317,7 +317,7 @@ function(add_to_group group)
 endfunction()
 
 add_to_group(ComputeAorta
-  cmakelint GeneratedTests host-lit lit-deps oclc OpenCLCTS
+  cmakelint host-lit lit-deps oclc OpenCLCTS
   UnitCL UnitCargo UnitCore UnitMux UnitCompiler UnitVK UnitMD FuzzCL
   clVectorAddition vkVectorAddition veczc UnitUR urVectorAddition)
 
