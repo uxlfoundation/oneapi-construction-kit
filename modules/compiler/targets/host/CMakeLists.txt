@@ -75,7 +75,7 @@ target_include_directories(compiler-host PUBLIC
     ${CMAKE_SOURCE_DIR}/modules/compiler/builtins/include
     ${CMAKE_SOURCE_DIR}/modules/utils/include
     ${CMAKE_SOURCE_DIR}/modules/debug/include
-    ${CMAKE_SOURCE_DIR}/modules/multi_llvm/include
+    ${CMAKE_SOURCE_DIR}/modules/compiler/multi_llvm/include
     ${CMAKE_SOURCE_DIR}/modules/mux/source/host/include
     ${CMAKE_SOURCE_DIR}/modules/mux/include)
 

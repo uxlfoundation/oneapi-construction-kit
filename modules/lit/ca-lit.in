@@ -9,7 +9,7 @@ directory.
 
 Usage:
 
-  ca-lit modules/vecz/test/lit/llvm/
+  ca-lit modules/compiler/vecz/test/lit/llvm/
 
 Note: this script was copied more-or-less directly from LLVM's
 llvm/utils/llvm-lit/llvm-lit.in

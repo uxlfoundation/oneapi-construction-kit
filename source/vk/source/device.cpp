@@ -17,7 +17,6 @@
 #include <builtins/bakery.h>
 #include <cargo/array_view.h>
 #include <cargo/string_view.h>
-#include <multi_llvm/llvm_version.h>
 #include <vk/device.h>
 #include <vk/instance.h>
 #include <vk/physical_device.h>

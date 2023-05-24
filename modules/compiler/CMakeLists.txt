@@ -22,12 +22,14 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     ca_umbrella_lit_testsuite_open(compiler)
   endif()
 
+  add_subdirectory(multi_llvm)
   add_subdirectory(source/base)
   add_subdirectory(targets)
   add_subdirectory(utils)
   add_subdirectory(riscv)
   add_subdirectory(tools)
   add_subdirectory(spirv-ll)
+  add_subdirectory(vecz)
   set(COMPILER_CONFIG_SOURCE ${PROJECT_BINARY_DIR}/modules/compiler/source/config.cpp)
 
   set(COMPILER_HEADERS

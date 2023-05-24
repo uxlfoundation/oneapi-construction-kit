@@ -34,7 +34,7 @@ Current directory layout:
     containers.
   * `modules/core`: Definition of the Core API.
   * `modules/core/source/host`: Host implementation of a Core target.
-  * `modules/vecz`: Module containing the Vectorizer.
+  * `modules/compiler/vecz`: Module containing the Vectorizer.
 * `doc`: Contains documentation in a structure matching the `source` and
   `modules` directory trees.
 * `cmake`: Hold various utility CMake scripts.

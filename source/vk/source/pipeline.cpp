@@ -19,7 +19,6 @@
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/raw_os_ostream.h>
-#include <multi_llvm/llvm_version.h>
 #include <vk/device.h>
 #include <vk/error.h>
 #include <vk/pipeline.h>

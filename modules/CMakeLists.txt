@@ -30,16 +30,8 @@ set(MODULES_LIBRARIES # No default value
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
-if(CA_RUNTIME_COMPILER_ENABLED)
-  # multi_llvm must be before all other modules that want to use it.
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/multi_llvm)
-endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
-# vecz must be before mux for it to use vecz.
-if(CA_RUNTIME_COMPILER_ENABLED)
-  add_ca_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vecz)
-endif()
 
 # Fetch the official SPIR-V headers. These are required by some up our public
 # compiler headers, which are also included by mux, so this must take place
