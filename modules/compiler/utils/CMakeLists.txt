@@ -151,11 +151,14 @@ if (LLDELF_LIB)
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
   # The lld libraries require all llvm targets that are built under llvm to
-  # link the Codegen and AsmParse
+  # link their Codegen and AsmParser libraries.
   set(lld_target_libs "")
   foreach(llvm_sub_target ${LLVM_TARGETS_TO_BUILD})
-    list(APPEND lld_target_libs "LLVM${llvm_sub_target}CodeGen")
-    list(APPEND lld_target_libs "LLVM${llvm_sub_target}AsmParser")
+    foreach(component CodeGen AsmParser)
+      if("LLVM${llvm_sub_target}${component}" IN_LIST LLVM_AVAILABLE_LIBS)
+        list(APPEND lld_target_libs "LLVM${llvm_sub_target}${component}")
+      endif()
+    endforeach()
   endforeach()
 
   target_link_libraries(compiler-linker-utils PUBLIC
