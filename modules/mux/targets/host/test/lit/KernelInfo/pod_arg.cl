@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc %s -cl-options '-cl-kernel-arg-info' -stage cl_snapshot_compilation_front_end | %filecheck %s
+// RUN: oclc %s -cl-options '-cl-kernel-arg-info' -stage cl_snapshot_compilation_front_end | FileCheck %s
 
 void kernel foo(const int a) {}
 

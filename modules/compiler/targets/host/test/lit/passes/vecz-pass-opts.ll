@@ -14,9 +14,9 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --device "%default_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 | %filecheck %s
-; RUN: env CODEPLAY_VECZ_CHOICES=LinearizeBOSCC,FullScalarization %muxc --device "%default_device" \
-; RUN:   --passes "print<vecz-pass-opts>" -S %s 2>&1 | %filecheck %s --check-prefix CHOICES
+; RUN: muxc --device "%default_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 | FileCheck %s
+; RUN: env CODEPLAY_VECZ_CHOICES=LinearizeBOSCC,FullScalarization muxc --device "%default_device" \
+; RUN:   --passes "print<vecz-pass-opts>" -S %s 2>&1 | FileCheck %s --check-prefix CHOICES
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

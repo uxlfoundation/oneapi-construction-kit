@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --print-passes 2>&1 | %filecheck %s
+; RUN: muxc --print-passes 2>&1 | FileCheck %s
 
 ; CHECK: Module passes:
 ; CHECK: add-sched-params

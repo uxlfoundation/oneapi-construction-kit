@@ -35,7 +35,7 @@ kernel void sampler_arg(global int4 *dst, read_only image2d_t img,
 
 // -cl-opt-disable needed to disable inlining and thus verify that the
 // spir_fixup pass is setting the correct calling convention
-// RUN: %oclc %p/Inputs/sampler_arg%spir_extension -cl-options '-cl-opt-disable -x spir -spir-std=1.2' -stage spir | %filecheck %s
+// RUN: oclc %p/Inputs/sampler_arg%spir_extension -cl-options '-cl-opt-disable -x spir -spir-std=1.2' -stage spir | FileCheck %s
 
 // Original function which has been wrapped and know should be unnamed with the SPIR_FUNC calling convention
 // CHECK: define spir_func void @0(ptr addrspace(1) %dst, ptr addrspace(1) %img, i32 %smplr)

@@ -16,8 +16,8 @@
 
 // REQUIRES: debug
 // RUN: env CA_LLVM_OPTIONS=-print-after=reduce-to-func \
-// RUN: %clc -d %host_ca_host_cl_device_name -n --dummy-host-option2 -- %s 2> %t
-// RUN: %filecheck < %t %s
+// RUN: clc -d %host_ca_host_cl_device_name -n --dummy-host-option2 -- %s 2> %t
+// RUN: FileCheck < %t %s
 
 __kernel void add(__global int* input1,
                   __global int* input2,

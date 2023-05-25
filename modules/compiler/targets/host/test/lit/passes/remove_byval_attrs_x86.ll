@@ -15,7 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; Run on any host device - it's the target we're compiling for that exhibits the bug
-; RUN: %muxc --device "%default_device" --passes "remove-byval-attrs" -S %s  | %filecheck %s
+; RUN: muxc --device "%default_device" --passes "remove-byval-attrs" -S %s  | FileCheck %s
 
 target triple = "x86_64-unknown-unknown-elf"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"

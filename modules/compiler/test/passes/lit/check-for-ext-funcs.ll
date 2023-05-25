@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %not %muxc --passes check-ext-funcs -S %s 2>&1 | %filecheck %s
+; RUN: not muxc --passes check-ext-funcs -S %s 2>&1 | FileCheck %s
 
 ; CHECK: error: Could not find a definition for external function 'foo'
 ; CHECK-NOT: error: Could not find a definition for external function 'bar'

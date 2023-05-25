@@ -17,8 +17,8 @@
 // Test Brief:
 // Check that cl.kernel metadata is preserved until the end of compilation.
 
-// RUN: %oclc %s -stage cl_snapshot_host_barrier -enqueue test_args > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc %s -stage cl_snapshot_host_barrier -enqueue test_args > %t
+// RUN: FileCheck < %t %s
 
 kernel void test_args(global int *in1,
                       global float2 *in2,

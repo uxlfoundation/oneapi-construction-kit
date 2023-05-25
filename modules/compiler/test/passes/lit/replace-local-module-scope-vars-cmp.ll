@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes replace-module-scope-vars  -S %s | %filecheck %s
+; RUN: muxc --passes replace-module-scope-vars  -S %s | FileCheck %s
 
 ; It checks that a comparison using a global doesn't crash the
 ; ReplaceLocalModuleScopeVariablesPass

@@ -18,8 +18,8 @@
 // Basic check for presence of DI entries for local variables, including
 // kernel parameters.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue getsquare > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue getsquare > %t
+// RUN: FileCheck < %t %s
 
 static __constant int count = 1;
 kernel void getsquare(global int *in,

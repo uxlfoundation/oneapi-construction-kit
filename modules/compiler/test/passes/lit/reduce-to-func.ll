@@ -14,11 +14,11 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes reduce-to-func,verify -S %s | %filecheck %s --check-prefix ALL
-; RUN: %muxc --passes "reduce-to-func<names=foo>",verify -S %s | %filecheck %s --check-prefix FOO
-; RUN: %muxc --passes "reduce-to-func<names=bar>",verify -S %s | %filecheck %s --check-prefix BAR
-; RUN: %muxc --passes "reduce-to-func<names=foo:bar>",verify -S %s | %filecheck %s --check-prefix ALL
-; RUN: %muxc --passes "reduce-to-func<names=baz>",verify -S %s | %filecheck %s --check-prefix BAZ
+; RUN: muxc --passes reduce-to-func,verify -S %s | FileCheck %s --check-prefix ALL
+; RUN: muxc --passes "reduce-to-func<names=foo>",verify -S %s | FileCheck %s --check-prefix FOO
+; RUN: muxc --passes "reduce-to-func<names=bar>",verify -S %s | FileCheck %s --check-prefix BAR
+; RUN: muxc --passes "reduce-to-func<names=foo:bar>",verify -S %s | FileCheck %s --check-prefix ALL
+; RUN: muxc --passes "reduce-to-func<names=baz>",verify -S %s | FileCheck %s --check-prefix BAZ
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

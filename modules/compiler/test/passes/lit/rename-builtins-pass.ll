@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes rename-builtins,verify -S %s | %filecheck %s
+; RUN: muxc --passes rename-builtins,verify -S %s | FileCheck %s
 
 ; Check that the rename-builtins pass correctly updates all __mux functions back to __core
 

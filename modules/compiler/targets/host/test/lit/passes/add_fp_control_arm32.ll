@@ -14,10 +14,10 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --device "%default_device" --passes add-fp-control,verify -S %s  \
-; RUN:   | %filecheck --check-prefix NOFTZ %s
-; RUN: %muxc --device "%default_device" --passes "add-fp-control<ftz>,verify" -S %s  \
-; RUN:   | %filecheck --check-prefix FTZ %s
+; RUN: muxc --device "%default_device" --passes add-fp-control,verify -S %s  \
+; RUN:   | FileCheck --check-prefix NOFTZ %s
+; RUN: muxc --device "%default_device" --passes "add-fp-control<ftz>,verify" -S %s  \
+; RUN:   | FileCheck --check-prefix FTZ %s
 
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "armv7-unknown-linux-gnueabihf-elf"

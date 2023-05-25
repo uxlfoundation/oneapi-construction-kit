@@ -20,8 +20,8 @@
 // API call the runtime has to create the source location. For the moment this
 // is filename 'kernel.opencl', with the directory oclc is being run from.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -enqueue getsquare -stage %stage > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -enqueue getsquare -stage %stage > %t
+// RUN: FileCheck < %t %s
 
 static __constant int count = 1;
 kernel void getsquare(global int *in,

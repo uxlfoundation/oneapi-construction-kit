@@ -14,10 +14,10 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --device "%default_device" --passes optimal-builtin-replace,verify -S %s \
-; RUN:   | %filecheck %s --check-prefix CHECK-NO-ANALYSIS
-; RUN: %muxc --device "%default_device" --passes "require<builtin-info>,optimal-builtin-replace,verify" -S %s \
-; RUN:   | %filecheck %s --check-prefix CHECK-ANALYSIS
+; RUN: muxc --device "%default_device" --passes optimal-builtin-replace,verify -S %s \
+; RUN:   | FileCheck %s --check-prefix CHECK-NO-ANALYSIS
+; RUN: muxc --device "%default_device" --passes "require<builtin-info>,optimal-builtin-replace,verify" -S %s \
+; RUN:   | FileCheck %s --check-prefix CHECK-ANALYSIS
 
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
 target triple = "x86_64-unknown-unknown-elf"

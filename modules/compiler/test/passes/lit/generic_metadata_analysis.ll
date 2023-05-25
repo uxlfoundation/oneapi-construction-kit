@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc %s --passes='print<generic-metadata>' -S 2>&1 | %filecheck %s
+; RUN: muxc %s --passes='print<generic-metadata>' -S 2>&1 | FileCheck %s
 
 ; CHECK: Cached generic metadata analysis:
 ; CHECK: Kernel Name: add

@@ -17,8 +17,8 @@
 // FIXME: DISABLED (See CA-1147)
 // UNSUPPORTED: true
 
-// RUN: %oclc -execute -enqueue vector_addition_scalar_int    -arg src1,repeat(3,{repeat(4,randint(-100,100))}) -arg src2,10,20,30,40 -arg scalar,{1},{2},{3} -global {32,1,1},{64,4,1},{128,4,1} -local {16,1,1},{32,2,1},{64,4,1} -print dst,4 -repeat-execution 3 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_scalar_int    -arg src1,repeat(3,{repeat(4,randint(-100,100))}) -arg src2,10,20,30,40 -arg scalar,{1},{2},{3} -global {32,1,1},{64,4,1},{128,4,1} -local {16,1,1},{32,2,1},{64,4,1} -print dst,4 -repeat-execution 3 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_scalar_int(int scalar, __global int *src1, __global int*src2,
  __global int *dst) {

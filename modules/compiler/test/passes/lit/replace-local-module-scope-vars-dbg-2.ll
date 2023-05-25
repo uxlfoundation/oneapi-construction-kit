@@ -21,7 +21,7 @@
 ; info entries should reference into that struct but retain the original
 ; function's scope.
 
-; RUN: %muxc --passes "replace-module-scope-vars,verify" -S %s | %filecheck %s
+; RUN: muxc --passes "replace-module-scope-vars,verify" -S %s | FileCheck %s
 
 ; TODO: It's not clear why @helper_kernel has one dbg.declare but @local_array
 ; has two. See CA-4534.

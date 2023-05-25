@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: debug
-// RUN: %not %clc -d %host_ca_host_cl_device_name -n --dummy-host-option --dummy-host-flag -- %s 2> %t
-// RUN: %filecheck < %t %s
+// RUN: not clc -d %host_ca_host_cl_device_name -n --dummy-host-option --dummy-host-flag -- %s 2> %t
+// RUN: FileCheck < %t %s
 
 // CHECK: error: failed to parse command line arguments.
 

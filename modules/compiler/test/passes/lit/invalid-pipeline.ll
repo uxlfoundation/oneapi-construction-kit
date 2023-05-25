@@ -14,6 +14,6 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %not %muxc --passes wibble -S %s 2>&1 | %filecheck %s
+; RUN: not muxc --passes wibble -S %s 2>&1 | FileCheck %s
 
 ; CHECK: Parse of wibble failed : unknown pass name 'wibble'

@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -execute -enqueue vector_addition_scalar_float -compare dst:%p/Inputs/compare-file-ulp.txt -arg src1,1,2,3.6000001,4 -arg "src2,range(0,3)" -arg scalar,2 -global 4 -local 4 -ulp-error 1 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_scalar_float -compare dst:%p/Inputs/compare-file-ulp.txt -arg src1,1,2,3.6000001,4 -arg "src2,range(0,3)" -arg scalar,2 -global 4 -local 4 -ulp-error 1 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_scalar_float(float scalar, __global float *src1, __global float*src2,
  __global float *dst) {

@@ -25,15 +25,15 @@
 // negative matches for DAG checks. Thus we need this rigmarole of multiple
 // independent FileCheck runs
 //
-// RUN: %oclc -stage cl_snapshot_compilation_front_end %s -o %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-FUNCTION,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-GGID,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-GGID-CALL,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-GLID,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-GLID-CALL,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-KERNEL,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-BARRIER,CHECK < %t.ll
-// RUN: %filecheck %s --check-prefixes=CHECK-BARRIER-CALL,CHECK < %t.ll
+// RUN: oclc -stage cl_snapshot_compilation_front_end %s -o %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-FUNCTION,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-GGID,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-GGID-CALL,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-GLID,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-GLID-CALL,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-KERNEL,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-BARRIER,CHECK < %t.ll
+// RUN: FileCheck %s --check-prefixes=CHECK-BARRIER-CALL,CHECK < %t.ll
 
 int __attribute__((noinline)) function(void) {
   return get_local_id(0) + 1;

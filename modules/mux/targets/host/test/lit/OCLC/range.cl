@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -execute -enqueue vector_addition_scalar_float    -arg src1,range(0,3) -arg src2,range(-0.666363,-0.666414,-0.000017) -arg scalar,2 -print dst,4 -print src1,4 -print src2,4 -global 4 -local 4 %s >& %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_scalar_float    -arg src1,range(0,3) -arg src2,range(-0.666363,-0.666414,-0.000017) -arg scalar,2 -print dst,4 -print src1,4 -print src2,4 -global 4 -local 4 %s >& %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_scalar_float(float scalar, __global float *src1, __global float*src2,
  __global float *dst) {

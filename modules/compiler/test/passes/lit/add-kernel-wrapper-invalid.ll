@@ -14,4 +14,4 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %not %muxc --passes "add-kernel-wrapper<invalid>" -S %s
+; RUN: not muxc --passes "add-kernel-wrapper<invalid>" -S %s

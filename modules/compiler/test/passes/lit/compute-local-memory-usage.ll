@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes compute-local-memory-usage,verify -S %s | %filecheck %s
+; RUN: muxc --passes compute-local-memory-usage,verify -S %s | FileCheck %s
 
 @a = internal addrspace(3) global i16 undef, align 2
 @b = internal addrspace(3) global [4 x float] undef, align 4

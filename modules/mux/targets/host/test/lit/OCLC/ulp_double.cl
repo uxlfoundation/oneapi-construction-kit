@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: fp64
-// RUN: %oclc -execute -enqueue vector_addition_scalar_double -compare dst,2,4,6.6,8 -arg src1,1,2,3.600000000000001,4 -arg "src2,range(0,3)" -arg scalar,1 %s -ulp-error 2 > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_scalar_double -compare dst,2,4,6.6,8 -arg src1,1,2,3.600000000000001,4 -arg "src2,range(0,3)" -arg scalar,1 %s -ulp-error 2 > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_scalar_double(double scalar, __global double *src1, __global double*src2,
  __global double *dst) {

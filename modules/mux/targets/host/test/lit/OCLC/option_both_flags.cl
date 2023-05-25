@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: debug
-// RUN: %oclc -cl-options "--dummy-host-flag --dummy-host-flag2" -enqueue add %s -stage cl_snapshot_host_scheduled > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options "--dummy-host-flag --dummy-host-flag2" -enqueue add %s -stage cl_snapshot_host_scheduled > %t
+// RUN: FileCheck < %t %s
 
 __kernel void add(__global int* input1,
                   __global int* input2,

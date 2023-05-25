@@ -17,13 +17,12 @@
 """Python configuration file for lit."""
 
 import os
+from lit.llvm.subst import ToolSubst
 
 config.test_exec_root = r"@CURRENT_BINARY_DIR@"
 
 # Paths to helper utilities
-config.tool_paths = {
-    'veczc': '@veczc_EXECUTABLE@',
-}
+config.tools = [ ToolSubst('veczc'), ]
 
 # Defer to the common lit configuration to set up the bulk of the config.
 common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',

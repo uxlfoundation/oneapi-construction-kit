@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -execute -enqueue vector_addition_vec_uchar8 -arg src1,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8 -arg src2,repeat(32,randint(0,15)) -arg vec,100,200,100,200,100,100,100,100 -print dst,32 -global 4 -local 4 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_vec_uchar8 -arg src1,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8 -arg src2,repeat(32,randint(0,15)) -arg vec,100,200,100,200,100,100,100,100 -print dst,32 -global 4 -local 4 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_vec_uchar8(uchar8 vec, __global uchar8 *src1, __global uchar8* src2,
  __global uchar8 *dst) {

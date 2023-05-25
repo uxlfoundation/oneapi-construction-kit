@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc %s -execute -enqueue sin_fold -ulp-error 4 \
+// RUN: oclc %s -execute -enqueue sin_fold -ulp-error 4 \
 // RUN: -compare scalar_out,0.8414709848078965 \
 // RUN: -compare vector_out,0.8414709848078965,0.9092974268256817 \
 // RUN: > %t
-// RUN: %filecheck < %t %s
+// RUN: FileCheck < %t %s
 
 void kernel sin_fold(global double* scalar_out,
                      global double2* vector_out) {

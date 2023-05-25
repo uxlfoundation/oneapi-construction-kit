@@ -19,8 +19,8 @@
 // source location of the kernel to the specified file path. This file is
 // created by the runtime if it does not already exist.
 
-// RUN: %oclc -cl-options '-g -S %T%separatorgenerated.cl' %s -enqueue getsquare -stage %stage > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -S %T%separatorgenerated.cl' %s -enqueue getsquare -stage %stage > %t
+// RUN: FileCheck < %t %s
 
 static __constant int count = 1;
 kernel void getsquare(global int *in,

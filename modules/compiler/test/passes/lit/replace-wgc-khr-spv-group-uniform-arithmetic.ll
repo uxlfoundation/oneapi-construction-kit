@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes replace-wgc,verify -S %s  | %filecheck %s
+; RUN: muxc --passes replace-wgc,verify -S %s  | FileCheck %s
 
 ; Check that the replace-wgc correctly defines the work-group collective functions
 

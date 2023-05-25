@@ -14,9 +14,9 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a OpenCL -b 64 -E %spv_file_s | %filecheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -E %spv_file_s | FileCheck %s
 
-; The point of this test is that it looks a lot like a memset to spirv-ll
+; The point of this test is that it looks a lot like a memset to spirv-ll-tool
 ; but the checks in OpCopyMemorySized should notice that our constant array
 ; isn't the same all the way through and generate a memcpy instead.
                OpCapability Addresses

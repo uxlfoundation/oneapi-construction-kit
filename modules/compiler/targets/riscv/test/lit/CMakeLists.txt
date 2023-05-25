@@ -21,22 +21,12 @@ if(NOT CA_ENABLE_API MATCHES "(^$|cl)")
   return()
 endif()
 
-# Find required LLVM tools.
-find_package(LLVMTool COMPONENTS llvm-objdump)
-if(NOT LLVMTool_FOUND)
-  message(WARNING "${SUITE}-lit disabled, not found: llvm-objdump")
-  return()
-endif()
-
 add_ca_configure_lit_site_cfg(
   ${SUITE}
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
   MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg"
   DEFINED
-  clc_EXECUTABLE=$<TARGET_FILE:clc>
-  muxc_EXECUTABLE=$<TARGET_FILE:muxc>  
-  llvm-objdump_EXECUTABLE=$<TARGET_FILE:LLVM::llvm-objdump>
   RISCV_HAL_NAME=${CA_HAL_NAME}
   RISCV_DEVICE_NAME=${CA_RISCV_DEVICE}
   RISCV_ISA_DESCRIPTION=${HAL_DESCRIPTION}

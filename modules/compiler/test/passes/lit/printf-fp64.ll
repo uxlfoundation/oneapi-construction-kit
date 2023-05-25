@@ -16,11 +16,11 @@
 
 ; Check that our printf replacement removes the need for double types, and that
 ; the combine-fpext-fptrunc pass later cleans them up.
-; RUN: %muxc --passes replace-printf,combine-fpext-fptrunc,verify -S %s \
-; RUN:   --device-fp64-capabilities=false  | %filecheck %s
+; RUN: muxc --passes replace-printf,combine-fpext-fptrunc,verify -S %s \
+; RUN:   --device-fp64-capabilities=false  | FileCheck %s
 ; Check that instcombine does the same thing (in this case, at least)
-; RUN: %muxc --passes replace-printf,instcombine,verify -S %s \
-; RUN:   --device-fp64-capabilities=false  | %filecheck %s
+; RUN: muxc --passes replace-printf,instcombine,verify -S %s \
+; RUN:   --device-fp64-capabilities=false  | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

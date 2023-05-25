@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes align-module-structs,verify -S %s | %filecheck %s
+; RUN: muxc --passes align-module-structs,verify -S %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
 

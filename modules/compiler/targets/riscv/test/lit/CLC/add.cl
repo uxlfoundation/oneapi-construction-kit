@@ -16,21 +16,21 @@
 
 // REQUIRES: riscv_rvv
 
-// RUN: %clc --device "%riscv_device" --strip-binary-header -o %t.o.novec %s -cl-wfv=never
-// RUN: %llvm-objdump --mattr=%vattr -d %t.o.novec > %t.novec
-// RUN: %filecheck --check-prefixes NOVEC < %t.novec %s
+// RUN: clc --device "%riscv_device" --strip-binary-header -o %t.o.novec %s -cl-wfv=never
+// RUN: llvm-objdump --mattr=%vattr -d %t.o.novec > %t.novec
+// RUN: FileCheck --check-prefixes NOVEC < %t.novec %s
 
-// RUN: env CA_RISCV_VF=4 %clc --device "%riscv_device" --strip-binary-header -o %t.o %s
-// RUN: %llvm-objdump --mattr=%vattr -d %t.o >  %t_v4
-// RUN: %filecheck --check-prefixes V4 < %t_v4 %s
+// RUN: env CA_RISCV_VF=4 clc --device "%riscv_device" --strip-binary-header -o %t.o %s
+// RUN: llvm-objdump --mattr=%vattr -d %t.o >  %t_v4
+// RUN: FileCheck --check-prefixes V4 < %t_v4 %s
 
-// RUN: env CA_RISCV_VF=1,S %clc --device "%riscv_device" --strip-binary-header -o %t.o %s
-// RUN: %llvm-objdump --mattr=%vattr -d %t.o > %t_1s
-// RUN: %filecheck --check-prefixes 1S < %t_1s %s
+// RUN: env CA_RISCV_VF=1,S clc --device "%riscv_device" --strip-binary-header -o %t.o %s
+// RUN: llvm-objdump --mattr=%vattr -d %t.o > %t_1s
+// RUN: FileCheck --check-prefixes 1S < %t_1s %s
 
-// RUN: env CA_RISCV_VF=1,S,V %clc --device "%riscv_device" --strip-binary-header -o %t.o %s
-// RUN: %llvm-objdump --mattr=%vattr -d %t.o > %t_1s_v
-// RUN: %filecheck --check-prefixes 1S_V < %t_1s_v %s
+// RUN: env CA_RISCV_VF=1,S,V clc --device "%riscv_device" --strip-binary-header -o %t.o %s
+// RUN: llvm-objdump --mattr=%vattr -d %t.o > %t_1s_v
+// RUN: FileCheck --check-prefixes 1S_V < %t_1s_v %s
 
 // Check that no vector flags will not produce a risc-v-v vsetvli instruction
 // Also check that it does not add more load word instruction than the two generated

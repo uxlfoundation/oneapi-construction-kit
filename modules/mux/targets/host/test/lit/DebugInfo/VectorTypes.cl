@@ -18,8 +18,8 @@
 // Check that using opencl vector types preserves debug info, and that these
 // types are faithfully represented in the DI.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue add3 > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue add3 > %t
+// RUN: FileCheck < %t %s
 
 kernel void add3(global int3 *in1,
                  global int3 *in2,

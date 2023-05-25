@@ -15,7 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; REQUIRES: codegen_x86
-; RUN: %muxc --device "%default_device" --passes link-builtins,verify -S %s | %filecheck %s
+; RUN: muxc --device "%default_device" --passes link-builtins,verify -S %s | FileCheck %s
 
 target triple = "spir32-unknown-unknown"
 target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"

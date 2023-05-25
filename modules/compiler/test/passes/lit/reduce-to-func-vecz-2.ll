@@ -14,8 +14,8 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes "reduce-to-func<names=A2B_KeepA:A2B_KeepB_Dep:B2A_KeepA_Dep:B2A_KeepB>,verify" -S %s  \
-; RUN:   | %filecheck %s
+; RUN: muxc --passes "reduce-to-func<names=A2B_KeepA:A2B_KeepB_Dep:B2A_KeepA_Dep:B2A_KeepB>,verify" -S %s  \
+; RUN:   | FileCheck %s
 
 ; This test checks a series of one-way vectorization links, ensuring that we
 ; don't need two-directional ones to maintain depenent kernels during

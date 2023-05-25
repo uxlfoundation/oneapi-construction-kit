@@ -19,8 +19,8 @@
 // Although these helper functions should be inlined, we need to ensure that
 // this process doesn't hinder the DI of the kernel.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue user_fn_identity > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue user_fn_identity > %t
+// RUN: FileCheck < %t %s
 
 int identity(int x)
 {

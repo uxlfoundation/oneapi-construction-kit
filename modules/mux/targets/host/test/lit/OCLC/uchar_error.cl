@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -execute -enqueue vector_addition_scalar_uchar -compare dst,3,4,8,9 -arg src1,1,2,3,4 -arg "src2,range(0,3)" -arg scalar,2 -global 4 -local 4 -char-error 1 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_scalar_uchar -compare dst,3,4,8,9 -arg src1,1,2,3,4 -arg "src2,range(0,3)" -arg scalar,2 -global 4 -local 4 -char-error 1 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_scalar_uchar(uchar scalar, __global uchar *src1, __global uchar*src2,
  __global uchar *dst) {

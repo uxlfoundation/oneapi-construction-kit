@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s -e SPV_INTEL_arbitrary_precision_integers -c ArbitraryPrecisionIntegersINTEL | %filecheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -e SPV_INTEL_arbitrary_precision_integers -c ArbitraryPrecisionIntegersINTEL | FileCheck %s
 
             OpCapability Kernel
             OpCapability Addresses

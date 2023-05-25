@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a Vulkan -c Float64 -c Int64 %spv_file_s | %filecheck %s
+; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                OpCapability Shader
                OpCapability Float64
@@ -24,7 +24,7 @@
                OpEntryPoint GLCompute %main "main"
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
-       %file = OpString "modules/spirv-ll/test/spvasm/debug_info.comp"
+       %file = OpString "modules/spirv-ll-tool/test/spvasm/debug_info.comp"
                OpName %main "main"
                OpName %a "a"
                OpName %b "b"
@@ -80,7 +80,7 @@
 ; CHECK: !llvm.ident = !{!{{[0-9]+}}}
 ;
 ; CHECK: [[CompileUnit]] = distinct !DICompileUnit(language: DW_LANG_OpenCL, file: [[File:![0-9]+]],{{( producer: "Codeplay SPIR-V  translator",)?}} isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug{{(, enums: ![0-9]+)?}}{{(, subprograms: ![0-9]+)?}})
-; CHECK: [[File]] = !DIFile(filename: "debug_info.comp", directory: "modules/spirv-ll/test/spvasm")
+; CHECK: [[File]] = !DIFile(filename: "debug_info.comp", directory: "modules/spirv-ll-tool/test/spvasm")
 ; CHECK: [[aLocation]] = !DILocation(line: 6, column: 3, scope: [[mainLexicalBlock:![0-9]+]])
 ; TODO The line and column for `mainLexicalBlock` are incorrect and instead
 ;      point to those for the variable `a`, adding an OpLine before `main`'s

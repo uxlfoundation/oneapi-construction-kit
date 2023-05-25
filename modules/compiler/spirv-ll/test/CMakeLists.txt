@@ -15,12 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE spirv-ll)
 
-find_package(LLVMTool COMPONENTS opt)
-if(NOT TARGET LLVM::opt)
-  message(WARNING "${SUITE} lit tests disabled: opt not found")
-  return()
-endif()
-
 find_package(SpirvTools COMPONENTS spirv-as)
 if(NOT TARGET spirv::spirv-as)
   message(WARNING "${SUITE} some lit tests unsupported: spirv-as not found")
@@ -46,8 +40,6 @@ add_ca_configure_lit_site_cfg(
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
   MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg"
   DEFINED
-  SPIRV_LL=$<TARGET_FILE:spirv-ll-tool>
-  OPT=$<TARGET_FILE:LLVM::opt>
   TRIPLE=${TRIPLE}
   GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED})
 
@@ -57,6 +49,6 @@ add_subdirectory(spvasm)
 if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
+    DEPENDS spirv-ll-tool ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
             ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
 endif()

@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes "add-kernel-wrapper<unpacked>,verify" -S %s | %filecheck %s
+; RUN: muxc --passes "add-kernel-wrapper<unpacked>,verify" -S %s | FileCheck %s
 
 ; Check that wrapped kernels are given 'alwaysinline' attributes, unless they
 ; have 'noinline' attributes.
