@@ -32,8 +32,3 @@ if(TARGET ${SUITE}-lit)
     TARGET refsi-m1
     DEPENDS ca-common-lit muxc ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
 endif()
-
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DESTINATION "share/${SUITE}" COMPONENT OCLTest)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DESTINATION "share/${SUITE}" COMPONENT OCLTest)

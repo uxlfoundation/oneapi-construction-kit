@@ -28,6 +28,3 @@ if(TARGET ${SUITE}-lit)
     ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ca-common-lit muxc ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
 endif()
-
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DESTINATION "share/${SUITE}" COMPONENT OCLTest)
