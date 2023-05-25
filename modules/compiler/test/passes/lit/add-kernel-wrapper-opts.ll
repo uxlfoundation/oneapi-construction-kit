@@ -14,17 +14,17 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes add-kernel-wrapper,verify -S %s  \
-; RUN:   | %filecheck %s --check-prefixes PACKED,LOCALS-BY-SIZE
-; RUN: %muxc --passes "add-kernel-wrapper<packed>,verify" -S %s  \
-; RUN:   | %filecheck %s --check-prefixes PACKED,LOCALS-BY-SIZE
-; RUN: %muxc --passes "add-kernel-wrapper<unpacked>,verify" -S %s  \
-; RUN:   | %filecheck %s --check-prefixes UNPACKED,LOCALS-BY-SIZE
+; RUN: muxc --passes add-kernel-wrapper,verify -S %s  \
+; RUN:   | FileCheck %s --check-prefixes PACKED,LOCALS-BY-SIZE
+; RUN: muxc --passes "add-kernel-wrapper<packed>,verify" -S %s  \
+; RUN:   | FileCheck %s --check-prefixes PACKED,LOCALS-BY-SIZE
+; RUN: muxc --passes "add-kernel-wrapper<unpacked>,verify" -S %s  \
+; RUN:   | FileCheck %s --check-prefixes UNPACKED,LOCALS-BY-SIZE
 
-; RUN: %muxc --passes "add-kernel-wrapper<local-buffers-by-size>,verify" -S %s  \
-; RUN:   | %filecheck %s --check-prefix LOCALS-BY-SIZE
-; RUN: %muxc --passes "add-kernel-wrapper<local-buffers-by-ptr>,verify" -S %s  \
-; RUN:   | %filecheck %s --check-prefix LOCALS-BY-PTR
+; RUN: muxc --passes "add-kernel-wrapper<local-buffers-by-size>,verify" -S %s  \
+; RUN:   | FileCheck %s --check-prefix LOCALS-BY-SIZE
+; RUN: muxc --passes "add-kernel-wrapper<local-buffers-by-ptr>,verify" -S %s  \
+; RUN:   | FileCheck %s --check-prefix LOCALS-BY-PTR
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

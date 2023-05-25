@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: generic-target
-// RUN: %oclc -cl-options "-cl-vec=slp" -enqueue slp_test -stage vectorized %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options "-cl-vec=slp" -enqueue slp_test -stage vectorized %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void slp_test(__global int *out, __global int *in1, __global int *in2) {
   int x = get_global_id(0) * 8;

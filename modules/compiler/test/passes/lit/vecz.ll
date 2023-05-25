@@ -16,7 +16,7 @@
 
 ; We can't do any meaningful vectorization with muxc right now, but we can test
 ; that pass runs and the required analyses can be registered.
-; RUN: %muxc --passes "require<vecz-pass-opts>,require<vecz-target-info>,run-vecz" -S %s
+; RUN: muxc --passes "require<vecz-pass-opts>,require<vecz-target-info>,run-vecz" -S %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

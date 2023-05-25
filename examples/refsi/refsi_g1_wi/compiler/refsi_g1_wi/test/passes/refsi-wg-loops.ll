@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --device "%riscv_device" %s --passes refsi-wg-loops,verify -S | %filecheck %s
+; RUN: muxc --device "%riscv_device" %s --passes refsi-wg-loops,verify -S | FileCheck %s
 
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
 target triple = "riscv64-unknown-unknown-elf"

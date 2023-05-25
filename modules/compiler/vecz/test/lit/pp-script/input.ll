@@ -1,7 +1,7 @@
-; RUN: %pp-llvm-ver --llvm-ver 8  < %s | %filecheck %s.check8
-; RUN: %pp-llvm-ver --llvm-ver 9  < %s | %filecheck %s.check9
-; RUN: %pp-llvm-ver --llvm-ver 10 < %s | %filecheck %s.check10
-; RUN: %pp-llvm-ver --llvm-ver 11 < %s | %filecheck %s.check11
+; RUN: %pp-llvm-ver --llvm-ver 8  < %s | FileCheck %s.check8
+; RUN: %pp-llvm-ver --llvm-ver 9  < %s | FileCheck %s.check9
+; RUN: %pp-llvm-ver --llvm-ver 10 < %s | FileCheck %s.check10
+; RUN: %pp-llvm-ver --llvm-ver 11 < %s | FileCheck %s.check11
 
 ; CHECK:                    x0x
 ; CHECK-LABEL:              x1x

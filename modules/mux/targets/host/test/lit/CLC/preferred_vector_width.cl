@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %clc -d %host_ca_host_cl_device_name -cl-kernel-arg-info -cl-wfv=always -cl-llvm-stats -n -- %s 2> %t
-// RUN: %filecheck < %t %s
+// RUN: clc -d %host_ca_host_cl_device_name -cl-kernel-arg-info -cl-wfv=always -cl-llvm-stats -n -- %s 2> %t
+// RUN: FileCheck < %t %s
 
 __attribute__((reqd_work_group_size(16, 1, 1)))
 __kernel void add(__global int* input1,

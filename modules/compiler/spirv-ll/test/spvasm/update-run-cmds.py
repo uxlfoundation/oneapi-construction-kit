@@ -3,16 +3,16 @@
 
 Finds all ``.spvasm`` files in this scripts directory, parses the OpCapability,
 OpExtension, and OpMemoryModel to determine the command line arguments to
-invoke ``spirv-ll-tool`. This information is then used to replace lines
+invoke ``spirv-ll-tool-tool`. This information is then used to replace lines
 starting with:
 
 ::
-    ; RUN: %spirv-ll
+    ; RUN: spirv-ll-tool
 
 With a fully formed command of the form:
 
 ::
-    ; RUN: %spirv-ll -a <api> [-b <bits>] [-c <cap>...] [-e <ext>...] %p<name>.spv -o %t
+    ; RUN: spirv-ll-tool -a <api> [-b <bits>] [-c <cap>...] [-e <ext>...] %p<name>.spv -o %t
 
 Then overwrites the ``.spvasm`` file with the updated ``RUN:`` command.
 """
@@ -65,7 +65,7 @@ def main():
         for line in lines:
             ln = line.strip()
             # Store the OpCapability used, strip those required by OpenCL or
-            # Vulkan as they are enabled by default by spirv-ll-tool.
+            # Vulkan as they are enabled by default by spirv-ll-tool-tool.
             if ln.startswith('OpCapability'):
                 capability = ln[len('OpCapability') + 1:].strip()
                 if capability == 'Kernel':
@@ -97,7 +97,7 @@ def main():
         for line in lines:
             # Rewrite the *.spvasm file with an updated RUN command.
             ln = line.strip()
-            if ln.startswith('; RUN: %spirv-ll'):
+            if ln.startswith('; RUN: spirv-ll-tool'):
                 run = run_command(api, address_bits, capabilities, extensions,
                                   path)
                 newlines.append(run)
@@ -117,7 +117,7 @@ def run_command(api, address_bits, capabilities, extensions, path):
     exts = ' ' + ' '.join(['-e %s' % ext
                            for ext in extensions]) if extensions else ''
     spvpath = '%p/{}.spv'.format(splitext(basename(path))[0])
-    run = '; RUN: %spirv-ll -a {api}{bits}{caps}{exts} {path} -o %t\n'
+    run = '; RUN: spirv-ll-tool -a {api}{bits}{caps}{exts} {path} -o %t\n'
     return run.format(api=api, bits=bits, caps=caps, exts=exts, path=spvpath)
 
 

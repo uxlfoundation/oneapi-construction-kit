@@ -18,8 +18,8 @@
 // Check that kernels with large numbers of arguments, of varying types,
 // preserve DI for all the parameters.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue test_args > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue test_args > %t
+// RUN: FileCheck < %t %s
 
 kernel void test_args(global int *in1,
                       global float2 *in2,

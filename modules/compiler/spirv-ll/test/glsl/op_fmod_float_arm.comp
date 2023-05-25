@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: arm
-// RUN: %spirv-ll -a Vulkan %spv_file_s | %filecheck %s
+// RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
 

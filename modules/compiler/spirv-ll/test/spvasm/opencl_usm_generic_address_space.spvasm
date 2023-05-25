@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a OpenCL -e SPV_codeplay_usm_generic_storage_class -b 64 %spv_file_s | %filecheck %s
+; RUN: spirv-ll-tool -a OpenCL -e SPV_codeplay_usm_generic_storage_class -b 64 %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Linkage
                OpCapability Kernel

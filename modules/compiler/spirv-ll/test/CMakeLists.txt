@@ -46,8 +46,6 @@ add_ca_configure_lit_site_cfg(
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
   MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg"
   DEFINED
-  SPIRV_LL=$<TARGET_FILE:spirv-ll-tool>
-  OPT=$<TARGET_FILE:LLVM::opt>
   TRIPLE=${TRIPLE}
   GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED})
 
@@ -57,6 +55,6 @@ add_subdirectory(spvasm)
 if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
+    DEPENDS spirv-ll-tool ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
             ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
 endif()

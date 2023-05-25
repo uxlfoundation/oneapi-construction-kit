@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -cl-options "-cl-opt-disable" -execute -enqueue vector_multiply_local -arg src,1,2,3,4,5,6,7,8,9,10 -arg tmp,40 -print dst,10 -global 10 -local 2 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options "-cl-opt-disable" -execute -enqueue vector_multiply_local -arg src,1,2,3,4,5,6,7,8,9,10 -arg tmp,40 -print dst,10 -global 10 -local 2 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_multiply_local(__global int *src, __local int *tmp, __global int *dst) {
     size_t gid = get_global_id(0);

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -cl-options '-cl-fast-relaxed-math' %s -stage cl_snapshot_compilation_front_end | %filecheck %s
+// RUN: oclc -cl-options '-cl-fast-relaxed-math' %s -stage cl_snapshot_compilation_front_end | FileCheck %s
 
 void kernel func_normalize_double(global double4* a) {
   *a = normalize(normalize(normalize(normalize(*a).xyz).xy).x);

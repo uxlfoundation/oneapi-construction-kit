@@ -18,8 +18,8 @@
 // Check that kernels which take C structs passed by value as parameters
 // preserve debug info, and that there is sufficient DI for the struct.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue byval_struct > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue byval_struct > %t
+// RUN: FileCheck < %t %s
 
 typedef struct _my_struct
 {

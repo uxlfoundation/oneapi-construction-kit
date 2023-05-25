@@ -14,4 +14,4 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %not %muxc --device "%default_device" --passes "add-fp-control<invalid>" -S %s
+; RUN: not muxc --device "%default_device" --passes "add-fp-control<invalid>" -S %s

@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_add -c Float64 -c AtomicFloat64AddEXT | %filecheck %s
+; RUN: spirv-ll-tool -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_add -c Float64 -c AtomicFloat64AddEXT | FileCheck %s
             OpExtension "SPV_EXT_shader_atomic_float_add"
             OpCapability Shader
             OpCapability AtomicFloat64AddEXT

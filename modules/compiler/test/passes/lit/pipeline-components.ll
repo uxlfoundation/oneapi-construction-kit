@@ -15,14 +15,14 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; REQUIRES: ca_llvm_options
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager %muxc --passes "mux-base<late-builtins>,verify" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefix LATE-BUILTINS
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager %muxc --passes "mux-base<prepare-wg-sched>,verify" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefix PREPARE-WG-SCHED
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager %muxc --passes "mux-base<wg-sched>,verify" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefixes PREPARE-WG-SCHED,WG-SCHED
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager %muxc --passes "mux-base<pre-vecz>,verify" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefix PRE-VECZ
+; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<late-builtins>,verify" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefix LATE-BUILTINS
+; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<prepare-wg-sched>,verify" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefix PREPARE-WG-SCHED
+; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<wg-sched>,verify" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefixes PREPARE-WG-SCHED,WG-SCHED
+; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<pre-vecz>,verify" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefix PRE-VECZ
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

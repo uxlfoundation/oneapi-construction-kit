@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc %s --passes='print<vectorize-metadata>' -S 2>&1 | %filecheck %s
+; RUN: muxc %s --passes='print<vectorize-metadata>' -S 2>&1 | FileCheck %s
 
 ; CHECK: Cached vectorize metadata analysis:
 ; CHECK-NEXT: Kernel Name: foo

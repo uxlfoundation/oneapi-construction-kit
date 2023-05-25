@@ -14,14 +14,14 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes "encode-builtin-range-metadata<max-local-sizes=8:1>,verify" -S %s \
-; RUN:   | %filecheck %s --check-prefixes RANGES,LOCAL-RANGES
-; RUN: %muxc --passes "encode-builtin-range-metadata<max-global-sizes=64;max-local-sizes=8:1>,verify" -S %s \
-; RUN:   | %filecheck %s --check-prefixes RANGES,GLOBAL-RANGES
-; RUN: %muxc --passes "function(instcombine)" -S %s \
-; RUN:   | %filecheck %s --check-prefix IC-NO-RANGES
-; RUN: %muxc --passes "encode-builtin-range-metadata<max-global-sizes=64;max-local-sizes=8:1>,function(instcombine,sccp)" -S %s \
-; RUN:   | %filecheck %s --check-prefix IC-RANGES
+; RUN: muxc --passes "encode-builtin-range-metadata<max-local-sizes=8:1>,verify" -S %s \
+; RUN:   | FileCheck %s --check-prefixes RANGES,LOCAL-RANGES
+; RUN: muxc --passes "encode-builtin-range-metadata<max-global-sizes=64;max-local-sizes=8:1>,verify" -S %s \
+; RUN:   | FileCheck %s --check-prefixes RANGES,GLOBAL-RANGES
+; RUN: muxc --passes "function(instcombine)" -S %s \
+; RUN:   | FileCheck %s --check-prefix IC-NO-RANGES
+; RUN: muxc --passes "encode-builtin-range-metadata<max-global-sizes=64;max-local-sizes=8:1>,function(instcombine,sccp)" -S %s \
+; RUN:   | FileCheck %s --check-prefix IC-RANGES
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

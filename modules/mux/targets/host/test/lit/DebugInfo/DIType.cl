@@ -17,8 +17,8 @@
 // Test Brief:
 // Basic check for presence of DI entries describing variable types.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -enqueue getsquare -stage %stage > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -enqueue getsquare -stage %stage > %t
+// RUN: FileCheck < %t %s
 
 static __constant int count = 1;
 kernel void getsquare(global int *in,

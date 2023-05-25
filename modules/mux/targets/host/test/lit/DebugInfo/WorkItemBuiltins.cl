@@ -20,8 +20,8 @@
 // hard to check the DI for. In the future however we may want
 // to call them in debugger expression evaluation.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue work_item_builtins > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue work_item_builtins > %t
+// RUN: FileCheck < %t %s
 
 kernel void work_item_builtins(global int *out)
 {

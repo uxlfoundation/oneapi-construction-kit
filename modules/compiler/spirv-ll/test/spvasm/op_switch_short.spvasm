@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a Vulkan -c Int16 %spv_file_s | %filecheck %s
+; RUN: spirv-ll-tool -a Vulkan -c Int16 %spv_file_s | FileCheck %s
                OpCapability Shader
                OpCapability Int16
           %1 = OpExtInstImport "GLSL.std.450"

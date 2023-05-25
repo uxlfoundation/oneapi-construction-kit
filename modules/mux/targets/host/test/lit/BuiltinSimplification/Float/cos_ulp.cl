@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc %s -execute -enqueue cos_fold -ulp-error 4 \
+// RUN: oclc %s -execute -enqueue cos_fold -ulp-error 4 \
 // RUN: -compare scalar_out,0.5403023058681398 \
 // RUN: -compare vector_out,0.5403023058681398,-0.39998531498835127 \
 // RUN: > %t
-// RUN: %filecheck < %t %s
+// RUN: FileCheck < %t %s
 
 void kernel cos_fold(global float* scalar_out,
                      global float2* vector_out) {

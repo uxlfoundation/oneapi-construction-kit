@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes missing-builtins,verify -S %s | %filecheck %s
+; RUN: muxc --passes missing-builtins,verify -S %s | FileCheck %s
 
 declare spir_func i64 @_Z19get_local_linear_idv()
 ; CHECK: define spir_func i64 @_Z19get_local_linear_idv() {

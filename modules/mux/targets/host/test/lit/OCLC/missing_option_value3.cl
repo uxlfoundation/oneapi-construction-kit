@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: debug
-// RUN: %not %oclc -cl-options "--dummy-host-option --dummy-host-flag --dummy-host-option 2 --dummy-host-flag2" %s 2> %t
-// RUN: %filecheck < %t %s
+// RUN: not oclc -cl-options "--dummy-host-option --dummy-host-flag --dummy-host-option 2 --dummy-host-flag2" %s 2> %t
+// RUN: FileCheck < %t %s
 
 // CHECK: Build program failed with error: CL_INVALID_BUILD_OPTIONS (-43)
 

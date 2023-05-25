@@ -20,6 +20,12 @@ import re
 from subprocess import check_output
 from platform import system, machine
 
+from lit.llvm.subst import ToolSubst, FindTool
+
+import lit.llvm
+lit.llvm.initialize(lit_config, config)
+from lit.llvm import llvm_config
+
 def if_enabled(config, if_true=True, if_false=False):
     return lit.util.pythonize_bool(config) and if_true or if_false
 
@@ -97,6 +103,50 @@ config.ca_host_bits = 64 if (
 ) else 32
 
 
+# Check we can find helper tools, otherwise raise an exception
+# to prevent any tests running.
+
+# We allow sites to define config.tools first, but don't require it.
+if 'tools' not in vars(config):
+    config.tools = []
+
+# Extend any site tool with our standard set of tools
+config.tools.extend([
+    ToolSubst('not'),
+    ToolSubst('FileCheck'),
+    ToolSubst('llc'),
+    ToolSubst('llvm-as'),
+    ToolSubst('llvm-dis'),
+])
+
+# Check at runtime if environmental variables have been set with paths to
+# helper tools. If so, set the 'command' flag, which tells lit to treat the
+# tool command as an exact path.
+for tool in config.tools:
+    env_var = os.environ.get(f'LIT_{tool.key.upper().replace("-", "_")}')
+    if env_var:
+        tool.command = env_var
+
+# The add_tool_substitutions functiom below requires us to have a
+# llvm_tools_dir set, so we set it to the most sensible choice of the tool
+# directories we search.
+config.llvm_tools_dir = '@CA_LLVM_TOOLS_DIR@'
+
+# Try and find each of these tools in the various tools directories or the
+# PATH, in that order. If found, they will be added as substitutions with the
+# full path to the tool. This allows us to support both in-tree builds and
+# standalone builds, where the tools may be externally defined.
+llvm_config.add_tool_substitutions(
+    config.tools,
+    ['@PROJECT_BINARY_DIR@/bin', '@CA_BUILTINS_TOOLS_DIR@',
+     config.llvm_tools_dir, os.environ.get('PATH', '')])
+
+def last_substitution_by_key(li, x):
+    for i in reversed(range(len(li))):
+      if li[i][0] == x:
+          return i
+    return -1
+
 def is_native_exe(path):
     """Determines if an executable is native."""
     # We currently do not support cross compilation and emulated testing on
@@ -113,41 +163,18 @@ def is_native_exe(path):
         return False
     return True
 
-
-# Check we can find helper tools, otherwise raise an exception
-# to prevent any tests running.
-
-# First, update provides tool paths with common lit tools
-config.tool_paths.update({
-    'not': '@not_EXECUTABLE@',
-    'filecheck': '@FileCheck_EXECUTABLE@',
-    'llc': '@llc_EXECUTABLE@',
-    'cov': '@llvm-cov_EXECUTABLE@',
-    'llvm-as': '@llvm-as_EXECUTABLE@',
-    'llvm-dis': '@llvm-dis_EXECUTABLE@',
-    'profdata': '@llvm-profdata_EXECUTABLE@',
-})
-
-# Check at runtime if environmental variables have been set
-# with paths to helper tools. This is useful when testing on
-# jenkins where the executables may have been built on a different
-# physical machine.
-config.tool_paths = {
-    key: os.environ.get(f'LIT_{key.upper()}', val)
-    for key, val in config.tool_paths.items()
-}
-
-for key, path in config.tool_paths.items():
-    if not lit.util.which(path):
-        lit_config.fatal(f'Could not find {key} in path {path}')
-    if is_native_exe(path):
-        config.substitutions.append(('%' + key, path))
-    elif 'emulator' in lit_config.params:
-        config.substitutions.append(
-            ('%' + key, '%s %s' % (lit_config.params['emulator'], path)))
-    else:
-        lit_config.fatal(
-            '%s is not a native exectuable and no emulator provided' % path)
+# Handle emulation of non-native tools by preprending any substitution with the
+# emulator command.
+for tool in config.tools:
+    if not tool.was_resolved:
+        continue
+    idx = last_substitution_by_key(config.substitutions, tool.regex)
+    if idx < 0:
+        continue
+    subst_key = config.substitutions[idx][0]
+    subst_path = config.substitutions[idx][1]
+    if 'emulator' in lit_config.params and not is_native_exe(subst_path):
+        config.substitutions[idx]= (subst_key, f'{lit_config.params["emulator"]} {subst_path}')
 
 config.substitutions += [
     ('%python', sys.executable),

@@ -14,8 +14,8 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes "encode-kernel-metadata<name=foo;local-sizes=4:8:16>,verify" -S %s | %filecheck %s
-; RUN: %not %muxc --passes "encode-kernel-metadata<name=foo;local-sizes=4:8>,verify" -S %s 2>&1 | %filecheck %s --check-prefix INVALID
+; RUN: muxc --passes "encode-kernel-metadata<name=foo;local-sizes=4:8:16>,verify" -S %s | FileCheck %s
+; RUN: not muxc --passes "encode-kernel-metadata<name=foo;local-sizes=4:8>,verify" -S %s 2>&1 | FileCheck %s --check-prefix INVALID
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

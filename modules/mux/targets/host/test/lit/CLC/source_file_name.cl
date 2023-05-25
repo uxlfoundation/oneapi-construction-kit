@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: rm -f %t
-// RUN: %clc -d %host_ca_host_cl_device_name -S%t -n -- %s
-// RUN: %filecheck < %t %s
+// RUN: clc -d %host_ca_host_cl_device_name -S%t -n -- %s
+// RUN: FileCheck < %t %s
 
 __kernel void nothing() {}
 

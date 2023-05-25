@@ -14,14 +14,14 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: env CA_RISCV_VF=8 %muxc --device "%riscv_device" --passes "run-vecz" -S %s \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-8
-; RUN: env CA_RISCV_VF=1,S %muxc --device "%riscv_device" --passes "run-vecz" -S %s \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-1S
-; RUN: env CA_RISCV_VF=1,S,VP %muxc --device "%riscv_device" --passes "run-vecz" -S %s \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-1S-VP
-; RUN: env CA_RISCV_VF=1,S,VVP %muxc --device "%riscv_device" --passes "run-vecz" -S %s \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-1S,CHECK-1S-VP
+; RUN: env CA_RISCV_VF=8 muxc --device "%riscv_device" --passes "run-vecz" -S %s \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-8
+; RUN: env CA_RISCV_VF=1,S muxc --device "%riscv_device" --passes "run-vecz" -S %s \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-1S
+; RUN: env CA_RISCV_VF=1,S,VP muxc --device "%riscv_device" --passes "run-vecz" -S %s \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-1S-VP
+; RUN: env CA_RISCV_VF=1,S,VVP muxc --device "%riscv_device" --passes "run-vecz" -S %s \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-1S,CHECK-1S-VP
 
 ; An easy shared positive check as a test with only one CHECK-NOT is invalid
 ; CHECK: target triple

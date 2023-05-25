@@ -22,8 +22,8 @@
 // in fact it also fails on "native" but the "native" feature was broken
 // see comment on above ticket.
 // XFAIL: *
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue local_array > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue local_array > %t
+// RUN: FileCheck < %t %s
 
 kernel void local_array(global int *in, global int *out) {
   size_t tid = get_global_id(0);

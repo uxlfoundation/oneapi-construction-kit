@@ -18,8 +18,8 @@
 // Basic check for presence of DI entries describing source line locations
 // of IR instructions.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue getsquare > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue getsquare > %t
+// RUN: FileCheck < %t %s
 
 static __constant int count = 1;
 kernel void getsquare(global int *in,

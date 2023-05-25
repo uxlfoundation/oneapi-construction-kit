@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: images
-// RUN: %oclc -execute -enqueue image2CopyInc -arg img,16,repeat(1024,randint(0,254)) -show dst,16,16 -global 16,16,1 -local 16,1,1 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue image2CopyInc -arg img,16,repeat(1024,randint(0,254)) -show dst,16,16 -global 16,16,1 -local 16,1,1 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void image2CopyInc(__read_only image2d_t img, __write_only image2d_t dst) {
 	size_t gid0 = get_global_id(0);

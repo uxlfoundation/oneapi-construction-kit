@@ -14,8 +14,8 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %spirv-ll -a OpenCL -b 64 %spv_file_s -o %t
-; RUN: %opt -S --passes=always-inline %t -o - | %filecheck -- %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -o %t
+; RUN: opt -S --passes=always-inline %t -o - | FileCheck -- %s
 
                               OpCapability Addresses
                               OpCapability Kernel

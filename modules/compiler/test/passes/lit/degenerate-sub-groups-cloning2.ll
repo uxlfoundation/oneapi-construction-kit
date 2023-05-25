@@ -13,7 +13,7 @@
 ; under the License.
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-; RUN: %muxc --passes degenerate-sub-groups,verify -S %s | %filecheck %s
+; RUN: muxc --passes degenerate-sub-groups,verify -S %s | FileCheck %s
 
 ; Check that the DegenerateSubGroupPass correctly clones a kernel to create
 ; a degenerate and a non-degenerate subgroup version, and replaces sub-group

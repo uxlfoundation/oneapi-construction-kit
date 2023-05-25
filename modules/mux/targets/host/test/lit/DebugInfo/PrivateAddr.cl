@@ -18,8 +18,8 @@
 // Check DI is preserved in the presence of kernel
 // variables allocating data in the __private address space.
 
-// RUN: %oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue private_array > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -cl-options '-g -cl-opt-disable' %s -stage %stage -enqueue private_array > %t
+// RUN: FileCheck < %t %s
 
 #define SIZE 16
 kernel void private_array(global int *in,

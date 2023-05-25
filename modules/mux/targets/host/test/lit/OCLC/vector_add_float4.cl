@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: %oclc -execute -enqueue vector_addition_vec_float4 -arg src1,1,2,3,4.63,1,2,3,4.26,7,10,41,4,0,8,7,6 -arg src2,10,20,30.5,90.0,7,7,7,7.0,7,4,41,4,90,510,4,-6 -arg vec,2,8,98,3 -print dst,16 -global 4 -local 4 %s > %t
-// RUN: %filecheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_vec_float4 -arg src1,1,2,3,4.63,1,2,3,4.26,7,10,41,4,0,8,7,6 -arg src2,10,20,30.5,90.0,7,7,7,7.0,7,4,41,4,90,510,4,-6 -arg vec,2,8,98,3 -print dst,16 -global 4 -local 4 %s > %t
+// RUN: FileCheck < %t %s
 
 __kernel void vector_addition_vec_float4(float4 vec, __global float4 *src1, __global float4* src2,
  __global float4 *dst) {

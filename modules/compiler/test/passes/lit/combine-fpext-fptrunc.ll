@@ -14,9 +14,9 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %muxc --passes "require<device-info>,combine-fpext-fptrunc,verify" -S %s | %filecheck %s --check-prefixes CHECK,DOUBLE
-; RUN: %muxc --passes "require<device-info>,combine-fpext-fptrunc,verify" --device-fp64-capabilities=false -S %s \
-; RUN:   | %filecheck %s --check-prefixes CHECK,NO-DOUBLE
+; RUN: muxc --passes "require<device-info>,combine-fpext-fptrunc,verify" -S %s | FileCheck %s --check-prefixes CHECK,DOUBLE
+; RUN: muxc --passes "require<device-info>,combine-fpext-fptrunc,verify" --device-fp64-capabilities=false -S %s \
+; RUN:   | FileCheck %s --check-prefixes CHECK,NO-DOUBLE
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

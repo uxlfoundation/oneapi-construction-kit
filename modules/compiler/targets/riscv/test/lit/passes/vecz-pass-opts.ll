@@ -14,14 +14,14 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: env CA_RISCV_VF=8 %muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-8
-; RUN: env CA_RISCV_VF=1,S %muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-1S
-; RUN: env CA_RISCV_VF=1,S,VP %muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-1S,CHECK-1S-VP
-; RUN: env CA_RISCV_VF=1,S,VVP %muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
-; RUN:   | %filecheck %s --check-prefixes CHECK,CHECK-1S,CHECK-1S-VVP
+; RUN: env CA_RISCV_VF=8 muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-8
+; RUN: env CA_RISCV_VF=1,S muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-1S
+; RUN: env CA_RISCV_VF=1,S,VP muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-1S,CHECK-1S-VP
+; RUN: env CA_RISCV_VF=1,S,VVP muxc --device "%riscv_device" --passes "print<vecz-pass-opts>" -S %s 2>&1 \
+; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-1S,CHECK-1S-VVP
 
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
 target triple = "riscv64-unknown-unknown-elf"

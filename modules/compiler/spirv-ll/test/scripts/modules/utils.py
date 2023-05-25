@@ -52,8 +52,8 @@ METADATA_ID = '!{{[0-9]+}}'
 
 # Useful formats.
 RUN_FORMAT = '''\
-RUN: %spirv-ll %p/{0}.spv > %t
-RUN: %filecheck < %t %s'''
+RUN: spirv-ll-tool %p/{0}.spv > %t
+RUN: FileCheck < %t %s'''
 
 # Dictionaries for operand types translation into LLVM-IR.
 CONSTANTS = {

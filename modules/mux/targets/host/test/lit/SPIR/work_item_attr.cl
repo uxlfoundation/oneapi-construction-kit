@@ -27,7 +27,7 @@
 //          work_item_attr.cl
 
 // RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-// RUN: %oclc %p/Inputs/work_item_attr%spir_extension -cl-options '-x spir -spir-std=1.2' -stage spir | %filecheck %t
+// RUN: oclc %p/Inputs/work_item_attr%spir_extension -cl-options '-x spir -spir-std=1.2' -stage spir | FileCheck %t
 //
 // each of the get_*() functions should have the readonly attribute
 // (or LLVM 16+ equivalent) and not the readnone attribute.
