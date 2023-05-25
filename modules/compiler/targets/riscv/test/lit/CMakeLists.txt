@@ -21,13 +21,6 @@ if(NOT CA_ENABLE_API MATCHES "(^$|cl)")
   return()
 endif()
 
-# Find required LLVM tools.
-find_package(LLVMTool COMPONENTS llvm-objdump)
-if(NOT LLVMTool_FOUND)
-  message(WARNING "${SUITE}-lit disabled, not found: llvm-objdump")
-  return()
-endif()
-
 add_ca_configure_lit_site_cfg(
   ${SUITE}
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in

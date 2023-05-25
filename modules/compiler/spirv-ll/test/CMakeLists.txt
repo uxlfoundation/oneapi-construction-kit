@@ -15,12 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE spirv-ll)
 
-find_package(LLVMTool COMPONENTS opt)
-if(NOT TARGET LLVM::opt)
-  message(WARNING "${SUITE} lit tests disabled: opt not found")
-  return()
-endif()
-
 find_package(SpirvTools COMPONENTS spirv-as)
 if(NOT TARGET spirv::spirv-as)
   message(WARNING "${SUITE} some lit tests unsupported: spirv-as not found")
