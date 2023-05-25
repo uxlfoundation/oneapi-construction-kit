@@ -55,8 +55,3 @@ if(TARGET ${SUITE}-lit)
     TARGET riscv
     DEPENDS ca-common-lit clc muxc "${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg")
 endif()
-
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DESTINATION "share/${SUITE}" COMPONENT OCLTest)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DESTINATION "share/${SUITE}" COMPONENT OCLTest)
