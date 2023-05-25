@@ -1355,6 +1355,13 @@ function(add_ca_lit_check target comment)
   cmake_parse_arguments(args "NOGLOBAL" "" "PARAMS;DEPENDS;ARGS" ${ARGN})
   set(CA_LIT_PATH "${PROJECT_BINARY_DIR}/modules/lit/ca-lit")
 
+  find_package(Lit)
+  if(NOT Lit_FOUND)
+    message(WARNING "${target}-lit tests will not be runnable: lit not found "
+      "Please install https://pypi.python.org/pypi/lit")
+    return()
+  endif()
+
   # The target name has an extra suffix
   string(APPEND target "-lit")
 

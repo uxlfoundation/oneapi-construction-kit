@@ -15,13 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE host-mux)
 
-find_package(Lit)
-if(NOT Lit_FOUND)
-  message(WARNING "${SUITE}-lit tests will not be runnable: lit not found "
-    "Please install https://pypi.python.org/pypi/lit")
-  return()
-endif()
-
 if(NOT CA_ENABLE_API MATCHES "(^$|cl)")
   message(WARNING "${SUITE}-lit disabled: requires CL API")
   return()

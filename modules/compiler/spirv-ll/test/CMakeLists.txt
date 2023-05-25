@@ -15,13 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE spirv-ll)
 
-find_package(Lit)
-if(NOT Lit_FOUND)
-  message(WARNING "${SUITE} lit tests disabled: lit not found "
-    "Please install https://pypi.python.org/pypi/lit")
-  return()
-endif()
-
 find_package(LLVMTool COMPONENTS opt)
 if(NOT TARGET LLVM::opt)
   message(WARNING "${SUITE} lit tests disabled: opt not found")
