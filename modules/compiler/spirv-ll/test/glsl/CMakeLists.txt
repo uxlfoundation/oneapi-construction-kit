@@ -785,16 +785,6 @@ if(obsoleteTests)
   file(REMOVE ${obsoleteTests})
 endif()
 
-find_program(glslangValidator_EXECUTABLE
-  NAMES glslangValidator PATHS ENV VULKAN_SDK PATH_SUFFIXES bin
-  CMAKE_FIND_ROOT_PATH_BOTH)
-if(glslangValidator_EXECUTABLE STREQUAL
-    glslangValidator_EXECUTABLE-NOTFOUND)
-  set(GLSL_UNSUPPORTED True)
-else()
-  set(GLSL_UNSUPPORTED False)
-endif()
-
 # Create custom commands to compile all the .comp files into .spv.
 foreach(glsl ${GLSL_FILES})
   get_filename_component(name ${glsl} NAME_WE)
@@ -821,10 +811,4 @@ foreach(glsl ${GLSL_FILES})
   list(APPEND LitTestFiles ${test})
 endforeach()
 
-add_ca_configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/lit.local.cfg.in
-  ${CMAKE_CURRENT_BINARY_DIR}/lit.local.cfg
-  DEFINED GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED})
-
-add_custom_target(spirv-ll-lit-glsl DEPENDS
-  ${CMAKE_CURRENT_BINARY_DIR}/lit.local.cfg ${LitTestFiles})
+add_custom_target(spirv-ll-lit-glsl DEPENDS ${LitTestFiles})
