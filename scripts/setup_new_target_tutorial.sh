@@ -16,9 +16,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-# This script creates a fake DDK from a ComputeAorta directory and
-# runs the create target script to produce an out of tree tutorial start
-# or end, ready for compiling.
+# This script creates a fake construction kit from a oneapi-construction-kit
+# directory and runs the create target script to produce an out of tree
+# tutorial start or end, ready for compiling.
 
 run_script="none"
 external_dir=$PWD
@@ -62,7 +62,7 @@ done
 shift $((OPTIND -1))  
 if [[ $# -ne 1 ]]; 
 then
-     echo "usage:  [-s <tutorial_point>] [-e <external_dir] [-f <feature_element>] [-c <copyright_name][-d] [-o] <dir_ComputeAorta>"
+     echo "usage:  [-s <tutorial_point>] [-e <external_dir] [-f <feature_element>] [-c <copyright_name][-d] [-o] <dir_oneapi-construction-kit>"
      echo "  note:"
      echo "    -s will run the create_target.py script"
      echo "       <tutorial_point> must be one of 'start' or 'end'"
@@ -86,7 +86,7 @@ then
   exit 1
 fi
 
-ddk_dir=$1
+ock_dir=$1
 
 if [[ $do_clean -eq 1 ]]
 then
@@ -100,7 +100,7 @@ fi
 
 # make the external directory
 mkdir -p $external_dir
-ddk_dir=`realpath $ddk_dir`
+ock_dir=`realpath $ock_dir`
 external_dir=`realpath $external_dir`
 
 cd $external_dir
@@ -108,24 +108,24 @@ cd $external_dir
 if [[ $run_script != "none" ]]
 then
     # Create the new target
-    $ddk_dir/scripts/create_target.py $ddk_dir \
-      $ddk_dir/scripts/new_target_templates/$json_file \
+    $ock_dir/scripts/create_target.py $ock_dir \
+      $ock_dir/scripts/new_target_templates/$json_file \
          --external-dir $external_dir $overwrite \
          $feature_enable $feature_enable_name $feature_enable_val \
          $copyright_enable $copyright_enable_name $copyright_enable_val
   if [[ $do_overwrite_tutorial -eq 0 ]]
   then
-    cp -r $ddk_dir/examples/hals/hal_refsi_tutorial hal_refsi_tutorial
+    cp -r $ock_dir/examples/hals/hal_refsi_tutorial hal_refsi_tutorial
     cd hal_refsi_tutorial
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step1.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step2.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step3.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step4.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub1.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
-    git apply $ddk_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch 
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step1.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step2.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step3.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step4.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub1.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
+    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch
     cd ..
-    ln -s $ddk_dir/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
+    ln -s $ock_dir/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
   fi
 fi

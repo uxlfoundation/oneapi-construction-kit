@@ -166,7 +166,7 @@ the IR after that pass:
 .. code:: console
 
   CA_LLVM_OPTIONS="-print-after=refsi-wrapper" \
-  ./build/ComputeAorta_DDK/ComputeAorta/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC 
+  ./build/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 
 we see the `IR` dumped after that pass, including the unchanged function:
 
@@ -486,7 +486,7 @@ Now all we need to do is call ``addKernelWrapper()`` from ``run()``.
     NewKernels.insert(NewFunction); 
 
  
-We now wish to build *UnitCL*, the ComputeAorta test suite.
+We now wish to build *UnitCL*, the oneAPI Construction Kit test suite.
 
 .. code:: console
 

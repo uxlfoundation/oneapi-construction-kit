@@ -1,22 +1,22 @@
-ComputeAorta Architecture
-=========================
+oneAPI Construction Kit Architecture
+====================================
 
-ComputeAorta accelerates software by mapping heterogeneous software to custom
+oneAPI Construction Kit accelerates software by mapping heterogeneous software to custom
 processor architectures. By enabling custom hardware, such as DSPs, to be
 exposed in open standard programming models, a wide range of existing
 applications are immediately made available for acceleration on the hardware.
-To achieve maximum performance from the architecture, ComputeAorta has been
+To achieve maximum performance from the architecture, oneAPI Construction Kit has been
 carefully designed for flexibility of implementation via its internal
 `ComputeMux`_ interfaces. Included is a robust toolkit of optimization
-utilities for both the compiler and runtime. Together ComputeAorta forms a
-:doc:`Driver Development Kit </overview/toolkit>` (DDK) to facilitate creation
+utilities for both the compiler and runtime. oneAPI Construction Kit
+:doc:`oneAPI Construction Kit </overview/toolkit>` facilitates the creation
 of driver code enabling compute APIs.
 
 .. seealso::
-   For more information about ComputeAorta see Codeplay's `IWOCL talk
-   <https://www.youtube.com/watch?v=enyvwRWJ7PA>`_.
+   For more information about oneAPI Construction Kit (previously known as ComputeAorta)
+   see Codeplay's `IWOCL talk <https://www.youtube.com/watch?v=enyvwRWJ7PA>`_.
 
-To achieve these goals ComputeAorta is organized in a modular fashion.
+To achieve these goals oneAPI Construction Kit is organized in a modular fashion.
 The :ref:`figure-architecture` depicts the main components.
 
 .. ca_arch.png was created from ca_arch.svg with Inkscape then exported to png
@@ -24,9 +24,9 @@ The :ref:`figure-architecture` depicts the main components.
 
 .. _figure-architecture:
 .. figure:: /_static/ca_arch.png
-  :alt: ComputeAorta Architecture
+  :alt: oneAPI Construction Kit Architecture
 
-  ComputeAorta Architecture Block Diagram
+  oneAPI Construction Kit Architecture Block Diagram
 
 ComputeMux
 ----------
@@ -34,14 +34,14 @@ ComputeMux
 ComputeMux enables hardware vendors to support high-performance open standards
 implementations at a lower cost of entry, in less time, and with higher
 quality than feasible when starting from scratch. ComputeMux also makes
-ComputeAorta highly extensible, as new compute APIs may be implemented on-top
+oneAPI Construction Kit highly extensible, as new compute APIs may be implemented on-top
 of ComputeMux without dealing directly with hardware.
 
-ComputeMux is a low-level component, the foundation, that enables ComputeAorta
+ComputeMux is a low-level component, the foundation, that enables oneAPI Construction Kit
 to support a wide variety of disparate hardware. To utilize hardware through
 ComputeMux, it is exposed as a target. Each target consists of an
 implementation of the `ComputeMux Runtime`_ API and of the `ComputeMux
-Compiler`_ API. The open standards provided by ComputeAorta are implemented in
+Compiler`_ API. The open standards provided by oneAPI Construction Kit are implemented in
 terms of these ComputeMux APIs.
 
 .. These APIs are separated to enable specialized teams to work on
@@ -59,7 +59,7 @@ rigorously tested code.
 
 .. seealso::
    :doc:`/overview/example-scenarios` shows how hardware specific features
-   can be made available to the user in ComputeAorta for writing high performance
+   can be made available to the user in oneAPI Construction Kit for writing high performance
    code.
 
 Now lets give some addition context to each component in the
@@ -130,7 +130,7 @@ ComputeMux Compiler
 ^^^^^^^^^^^^^^^^^^^
 
 The compiler component is used to compile kernel code into a form which can be
-executed on the device via ComputeMux Runtime. ComputeAorta invokes the
+executed on the device via ComputeMux Runtime. oneAPI Construction Kit invokes the
 ComputeMux Compiler API either through an offline compilation tool or from the
 relevant compute API entry-points.
 
@@ -188,7 +188,7 @@ Preparation and Optimizations
   and optimizations that a target can use.
 Whole Function Vectorizer
   An aggressive vectorization technique that is facilitated by the execution
-  models of the low level compute APIs support by ComputeAorta.
+  models of the low level compute APIs support by oneAPI Construction Kit.
 
 Linking
 """""""
@@ -217,7 +217,7 @@ on the custom device.
 OpenCL
 ------
 
-ComputeAorta provides OpenCL 1.2 or OpenCL 3.0 implemented in terms of
+oneAPI Construction Kit provides OpenCL 1.2 or OpenCL 3.0 implemented in terms of
 `ComputeMux Runtime`_ and `ComputeMux Compiler`_ APIs. We support the following
 OpenCL extensions:
 
@@ -242,9 +242,9 @@ OpenCL extensions:
 .. note::
    Integration of custom extensions for vendor hardware is supported.
 
-ComputeAorta's host implementation supports images and doubles in OpenCL 1.2.
+oneAPI Construction Kit's host implementation supports images and doubles in OpenCL 1.2.
 
-Of the `optional OpenCL 3.0 features`_ ComputeAorta's host implementation
+Of the `optional OpenCL 3.0 features`_ oneAPI Construction Kit's host implementation
 supports the `Intermediate Language Programs`_ feature and all `core features`_
 in OpenCL 3.0.
 
@@ -258,16 +258,16 @@ in OpenCL 3.0.
 SYCL
 ----
 
-ComputeAorta is designed to slot into a `SYCL`_ technology stack, as the
+oneAPI Construction Kit is designed to slot into a `SYCL`_ technology stack, as the
 :ref:`overview/introduction/architecture:OpenCL` and
 :ref:`overview/introduction/architecture:Vulkan` APIs exposed can be used as a
-`SYCL Backend`_, or ComputeAorta can be used as a Driver Development Kit to
-write an implementation of SYCL directly to a system or device.
+`SYCL Backend`_, or oneAPI Construction Kit can be used to write an implementation of 
+SYCL directly to a system or device.
 
-ComputeAorta has thoroughly tested integration with `ComputeCpp`_, Codeplay's
+oneAPI Construction Kit has thoroughly tested integration with `ComputeCpp`_, Codeplay's
 implementation of the `SYCL 1.2.1`_ and `SYCL 2020`_ specifications. This
-allows `SYCL`_ applications to be run through ComputeAorta, encouraging the
-development of OpenCL extensions and optimizations in ComputeAorta that are of
+allows `SYCL`_ applications to be run through oneAPI Construction Kit, encouraging the
+development of OpenCL extensions and optimizations in oneAPI Construction Kit that are of
 benefit to software using `SYCL`_.
 
 To learn more about ComputeCpp see the :doc:`ComputeCpp Overview
@@ -287,5 +287,5 @@ To learn more about ComputeCpp see the :doc:`ComputeCpp Overview
 Vulkan
 ------
 
-ComputeAorta provides a pre-conformant Vulkan driver implementing the compute
+oneAPI Construction Kit provides a pre-conformant Vulkan driver implementing the compute
 subset of Vulkan 1.0 functionality.
