@@ -15,13 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE spirv-ll)
 
-find_package(Lit)
-if(NOT Lit_FOUND)
-  message(WARNING "${SUITE} lit tests disabled: lit not found "
-    "Please install https://pypi.python.org/pypi/lit")
-  return()
-endif()
-
 find_package(LLVMTool COMPONENTS opt)
 if(NOT TARGET LLVM::opt)
   message(WARNING "${SUITE} lit tests disabled: opt not found")
@@ -32,6 +25,16 @@ find_package(SpirvTools COMPONENTS spirv-as)
 if(NOT TARGET spirv::spirv-as)
   message(WARNING "${SUITE} some lit tests unsupported: spirv-as not found")
   return()
+endif()
+
+find_program(glslangValidator_EXECUTABLE
+  NAMES glslangValidator PATHS ENV VULKAN_SDK PATH_SUFFIXES bin
+  CMAKE_FIND_ROOT_PATH_BOTH)
+if(glslangValidator_EXECUTABLE STREQUAL
+    glslangValidator_EXECUTABLE-NOTFOUND)
+  set(GLSL_UNSUPPORTED True)
+else()
+  set(GLSL_UNSUPPORTED False)
 endif()
 
 # Create the test/test inputs directories and set the relevent variables
@@ -45,7 +48,8 @@ add_ca_configure_lit_site_cfg(
   DEFINED
   SPIRV_LL=$<TARGET_FILE:spirv-ll-tool>
   OPT=$<TARGET_FILE:LLVM::opt>
-  TRIPLE=${TRIPLE})
+  TRIPLE=${TRIPLE}
+  GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED})
 
 add_subdirectory(glsl)
 add_subdirectory(spvasm)

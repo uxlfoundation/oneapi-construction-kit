@@ -30,6 +30,9 @@ if 'arm' in '@TRIPLE@' or 'arm' in machine():
 else:
     config.available_features.add('WorkingFrem')
 
+if @GLSL_UNSUPPORTED@:
+    config.available_features.add('no-glsl')
+
 # Defer to the common lit configuration to set up the bulk of the config.
 common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',
                                    'lit', 'lit.common.cfg')

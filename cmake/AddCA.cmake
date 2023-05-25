@@ -1247,8 +1247,10 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
   # If we've already warned the user about missing LLVM tools, just bail now.
   # This keeps verbose warnings from find_package to a minimum, while still
   # informing the user about what's going on.
-  if (DEFINED CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING})
-    message(WARNING "${name}-lit disabled, $CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING}")
+  get_property(WARNING_MSG_SET GLOBAL PROPERTY CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING SET)
+  if (${WARNING_MSG_SET})
+    get_property(WARNING_MSG GLOBAL PROPERTY CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING)
+    message(WARNING "${name}-lit disabled, ${WARNING_MSG}")
     return()
   endif()
 
@@ -1270,16 +1272,14 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
   # If any of the required tools haven't been found, we bail; this is quite
   # coarse-grained.
   if(NOT LLVMTool_FOUND)
-    if (NOT DEFINED CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING})
-      set(MISSING_COMPONENTS "not found:")
-      foreach(component ${CA_LIT_REQD_LLVM_TOOLS})
-        if(NOT TARGET LLVM::${component})
-          string(APPEND MISSING_COMPONENTS " ${component}")
-        endif()
-      endforeach()
-      set(CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING "${MISSING_COMPONENTS}" CACHE INTERNAL "")
-      message(WARNING "${name}-lit disabled, $CACHE{CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING}")
-    endif()
+    set(MISSING_COMPONENTS "not found:")
+    foreach(component ${CA_LIT_REQD_LLVM_TOOLS})
+      if(NOT TARGET LLVM::${component})
+        string(APPEND MISSING_COMPONENTS " ${component}")
+      endif()
+    endforeach()
+    message(WARNING "${name}-lit disabled, ${MISSING_COMPONENTS}")
+    set_property(GLOBAL PROPERTY CA_LIT_MISSING_REQD_LLVM_TOOLS_WARNING "${MISSING_COMPONENTS}")
     return()
   endif()
 
@@ -1354,6 +1354,13 @@ endfunction()
 function(add_ca_lit_check target comment)
   cmake_parse_arguments(args "NOGLOBAL" "" "PARAMS;DEPENDS;ARGS" ${ARGN})
   set(CA_LIT_PATH "${PROJECT_BINARY_DIR}/modules/lit/ca-lit")
+
+  find_package(Lit)
+  if(NOT Lit_FOUND)
+    message(WARNING "${target}-lit tests will not be runnable: lit not found "
+      "Please install https://pypi.python.org/pypi/lit")
+    return()
+  endif()
 
   # The target name has an extra suffix
   string(APPEND target "-lit")
