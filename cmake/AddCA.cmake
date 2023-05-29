@@ -1331,7 +1331,7 @@ function(add_ca_lit_check target comment)
   string(APPEND target "-lit")
 
   # We could probably offer more flexibility here
-  set(LIT_ARGS "${args_ARGS} -sv --xunit-xml-output=${PROJECT_BINARY_DIR}/${target}.xml")
+  set(LIT_ARGS "${args_ARGS} -sv --param skip_if_missing_tools=1 --xunit-xml-output=${PROJECT_BINARY_DIR}/${target}.xml")
 
   # Propagate on NOGLOBAL
   if ("${args_NOGLOBAL}")
@@ -1342,7 +1342,7 @@ function(add_ca_lit_check target comment)
 
   if(CMAKE_CROSSCOMPILING AND CMAKE_CROSSCOMPILING_EMULATOR)
     list(APPEND EXTRA_ARGN "NOEMULATE")
-    list(APPEND LIT_ARGS "-D" emulator="${CMAKE_CROSSCOMPILING_EMULATOR}")
+    list(APPEND LIT_ARGS "--param" emulator="${CMAKE_CROSSCOMPILING_EMULATOR}")
   endif()
 
   set(LIT_COMMAND "${PYTHON_EXECUTABLE};${CA_LIT_PATH}")
