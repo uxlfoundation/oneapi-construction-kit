@@ -33,6 +33,11 @@ else:
 
 if @GLSL_UNSUPPORTED@:
     config.available_features.add('no-glsl')
+if @SPVASM_UNSUPPORTED@:
+    config.available_features.add('no-spvasm')
+
+for year in range(2016, @SPIRV_AS_VERSION_YEAR@):
+    config.available_features.add('spirv-as-v' + str(year))
 
 # Defer to the common lit configuration to set up the bulk of the config.
 common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',

@@ -31,6 +31,24 @@ else()
   set(GLSL_UNSUPPORTED False)
 endif()
 
+if(TARGET spirv::spirv-as)
+  # Create custom commands to assemble .spvasm files in .spv.
+  set(SPVASM_UNSUPPORTED False)
+  # Get the found spirv-as version, takes the form: v<year>.<release>
+  execute_process(
+    COMMAND ${SpirvTools_spirv-as_EXECUTABLE} --version
+    OUTPUT_VARIABLE SpirvAsVersionOutput)
+  string(REGEX MATCH "v20[0-9][0-9].[0-9]+"
+    SpirvAsVersion ${SpirvAsVersionOutput})
+  string(REGEX MATCH "20[0-9][0-9]"
+    SpirvAsVersionYear ${SpirvAsVersion})
+  string(REGEX MATCH "[0-9]+$"
+    SpirvAsVersionRelease ${SpirvAsVersion})
+  message(STATUS "spirv-as: v${SpirvAsVersionYear}.${SpirvAsVersionRelease}")
+else()
+  set(SPVASM_UNSUPPORTED True)
+endif()
+
 # Create the test/test inputs directories and set the relevent variables
 set(INPUTS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
@@ -41,7 +59,9 @@ add_ca_configure_lit_site_cfg(
   MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.cfg"
   DEFINED
   TRIPLE=${TRIPLE}
-  GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED})
+  GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED}
+  SPVASM_UNSUPPORTED=${SPVASM_UNSUPPORTED}
+  SPIRV_AS_VERSION_YEAR=${SpirvAsVersionYear})
 
 add_subdirectory(glsl)
 add_subdirectory(spvasm)
@@ -49,6 +69,6 @@ add_subdirectory(spvasm)
 if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS spirv-ll-tool ca-common-lit spirv-ll-lit-glsl spirv-ll-lit-spvasm
+    DEPENDS spirv-ll-tool ca-common-lit spirv-ll-glsl-lit spirv-ll-spvasm-lit
             ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
 endif()

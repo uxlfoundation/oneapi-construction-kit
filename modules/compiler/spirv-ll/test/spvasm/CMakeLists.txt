@@ -2355,24 +2355,6 @@ set(SPVASM_FILES
   op_opencl_arg_md.spvasm
   )
 
-if(TARGET spirv::spirv-as)
-  # Create custom commands to assemble .spvasm files in .spv.
-  set(SPVASM_UNSUPPORTED False)
-  # Get the found spirv-as version, takes the form: v<year>.<release>
-  execute_process(
-    COMMAND ${SpirvTools_spirv-as_EXECUTABLE} --version
-    OUTPUT_VARIABLE SpirvAsVersionOutput)
-  string(REGEX MATCH "v20[0-9][0-9].[0-9]+"
-    SpirvAsVersion ${SpirvAsVersionOutput})
-  string(REGEX MATCH "20[0-9][0-9]"
-    SpirvAsVersionYear ${SpirvAsVersion})
-  string(REGEX MATCH "[0-9]+$"
-    SpirvAsVersionRelease ${SpirvAsVersion})
-  message(STATUS "spirv-as: v${SpirvAsVersionYear}.${SpirvAsVersionRelease}")
-else()
-  set(SPVASM_UNSUPPORTED True)
-endif()
-
 if(SpirvAsVersionYear GREATER 2019)
   list(APPEND SPVASM_FILES
     op_execution_mode_max_work_dim.spvasm
@@ -2413,11 +2395,4 @@ foreach(spvasm ${SPVASM_FILES})
   list(APPEND LitTestFiles ${test})
 endforeach()
 
-add_ca_configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/lit.local.cfg.in
-  ${CMAKE_CURRENT_BINARY_DIR}/lit.local.cfg
-  DEFINED SPVASM_UNSUPPORTED=${SPVASM_UNSUPPORTED}
-          SPIRV_AS_VERSION_YEAR=${SpirvAsVersionYear})
-
-add_custom_target(spirv-ll-lit-spvasm DEPENDS
-  ${CMAKE_CURRENT_BINARY_DIR}/lit.local.cfg ${LitTestFiles})
+add_custom_target(spirv-ll-spvasm-lit DEPENDS ${LitTestFiles})
