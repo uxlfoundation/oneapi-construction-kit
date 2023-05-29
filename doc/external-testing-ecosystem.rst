@@ -4,7 +4,7 @@ External Testing Ecosystem
 Usage
 -----
 
-* All scripts are known to build on Linux Ubuntu 18.04 and are not guaranteed to
+* All scripts are known to build on Linux Ubuntu 20.04 and are not guaranteed to
   work on ARM, and will not work on Windows since the scripts are bash files.
 
 * All testing scripts must be executed from the directory they live in.

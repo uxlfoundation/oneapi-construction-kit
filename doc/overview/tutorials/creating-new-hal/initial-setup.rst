@@ -47,8 +47,8 @@ Installing a RISC-V toolchain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A RISC-V toolchain or GNU RISC-V toolchain is required to build the RefSi HAL.
-When using Ubuntu 18.04 or Ubuntu 20.04 the toolchain can be simply installed
-using the Ubuntu package manager without additional CMake setup.
+When using Ubuntu 20.04 the toolchain can be simply installed using the Ubuntu
+package manager without additional CMake setup.
 
 For other Linux systems, you'll need to set the CMake variable,
 ``RISCV_TOOLCHAIN_DIR`` for clang and ``RISCV_GNU_TOOLCHAIN_DIR`` for GCC
@@ -68,15 +68,6 @@ configuring the ``RISCV_TOOLCHAIN_TRIPLE`` CMake variable for clang or
 ``RISCV_GNU_TOOLCHAIN_DIR`` for GCC.
 
 See 'Other Linux system' for an example.
-
-Ubuntu 18.04
-~~~~~~~~~~~~
-
-The following packages need to be installed:
-
-.. code:: console
-
-    $ sudo apt install gcc-8-riscv64-linux-gnu g++-8-riscv64-linux-gnu
 
 Ubuntu 20.04
 ~~~~~~~~~~~~

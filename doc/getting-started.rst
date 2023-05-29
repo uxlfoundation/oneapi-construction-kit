@@ -8,6 +8,7 @@ Each supported platform has a set of dependencies which are required in order to
 build ComputeAorta.
 
 * `Ubuntu 20.04`_
+* `Ubuntu 22.04`_
 * `Windows 10`_
 
 Once the platform dependencies have been installed please read the
@@ -98,6 +99,11 @@ Install the AArch64 toolchain.
 .. code-block:: console
 
    $ sudo apt install -y gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu
+
+Ubuntu 22.04
+------------
+
+Support for Ubuntu 22.04 is still experimental.
 
 Windows 10
 ----------
