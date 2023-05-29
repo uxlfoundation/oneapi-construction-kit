@@ -11,6 +11,17 @@ version increases mean backward compatible bug fixes have been applied.
    Versions prior to 1.0.0 may contain breaking changes in minor
    versions as the API is still under development.
 
+0.74.0
+------
+
+* Several ``compiler::BaseModule`` methods and fields have been reworked to
+  make compilation of OpenCL less stateful.
+  * The class-member lists of macro defs and OpenCL options have been removed,
+    and are set up and torn down on the fly when compiling OpenCL C.
+  * Several methods such as ``compiler::BaseModule::populatePPOpts`` are now
+    ``const``.
+  * ``compiler::BaseModule::executeOpenCLAction`` has been removed.
+
 0.73.0
 ------
 

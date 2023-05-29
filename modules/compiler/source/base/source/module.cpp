@@ -842,7 +842,7 @@ Result BaseModule::compileSPIR(std::string &output_options) {
     return Result::COMPILE_PROGRAM_FAILURE;
   }
 
-  createOpenCLKernelsMetadata();
+  createOpenCLKernelsMetadata(*llvm_module);
 
   // Parse compiler options set when SPIR was generated
   if (auto *namedMetaData =
@@ -942,7 +942,7 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
     llvm_module = std::move(spvModule.value().llvmModule);
   }
 
-  createOpenCLKernelsMetadata();
+  createOpenCLKernelsMetadata(*llvm_module);
 
   // Now run a generic optimization pipeline based on the one clang normally
   // runs during codegen. We need to run the spir fixup passes on IR generated
@@ -956,7 +956,7 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
   return {std::move(module_info)};
 }
 
-void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) {
+void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const {
   codeGenOpts.OptimizationLevel = options.opt_disable ? 0 : 3;
   codeGenOpts.StackRealignment = true;
   codeGenOpts.SimplifyLibCalls = false;
@@ -992,21 +992,22 @@ void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) {
 }
 
 void BaseModule::addDefaultOpenCLPreprocessorOpts(
-    cargo::string_view device_profile) {
+    cargo::string_view device_profile, MacroDefVec &macro_defs,
+    OpenCLOptVec &opencl_opts) const {
   mux_device_info_t device_info = target.getCompilerInfo()->device_info;
 
   // Clang seems to define this by default.
   if (!device_info->double_capabilities) {
-    addMacroUndef("__opencl_c_fp64");
+    addMacroUndef("__opencl_c_fp64", macro_defs);
   }
   if (device_info->image_support) {
-    addMacroDef("__opencl_c_images=1");
+    addMacroDef("__opencl_c_images=1", macro_defs);
   }
   if (options.fast_math) {
-    addMacroDef("__FAST_RELAXED_MATH__=1");
+    addMacroDef("__FAST_RELAXED_MATH__=1", macro_defs);
   }
   if (device_info->endianness == mux_endianness_little) {
-    addMacroDef("__ENDIAN_LITTLE__=1");
+    addMacroDef("__ENDIAN_LITTLE__=1", macro_defs);
   }
 
   // If supported add cles extensions which aren't covered by clang.
@@ -1014,20 +1015,20 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
       device_info->integer_capabilities & mux_integer_capabilities_64bit;
   if (!isDeviceProfileFull(device_profile)) {
     if (device_info->image2d_array_writes) {
-      addMacroDef("cles_khr_2d_image_array_writes=1");
+      addMacroDef("cles_khr_2d_image_array_writes=1", macro_defs);
     }
 
     if (deviceHasInt64Support) {
-      addMacroDef("cles_khr_int64=1");
+      addMacroDef("cles_khr_int64=1", macro_defs);
     }
   }
 
   if (deviceHasInt64Support) {
-    addMacroDef("__opencl_c_int64=1");
+    addMacroDef("__opencl_c_int64=1", macro_defs);
   }
 
   for (const auto &definition : options.definitions) {
-    addMacroDef(definition);
+    addMacroDef(definition, macro_defs);
   }
 
   // Although most option macros are not defined in the builtins library and
@@ -1035,46 +1036,46 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   // support because all the builtin functions etc are already covered by
   // defines set by the build system.
   if (!device_info->image_support) {
-    addMacroUndef("__IMAGE_SUPPORT__");
-    addMacroUndef("__opencl_c_images");
-    addMacroUndef("__opencl_c_3d_image_writes");
+    addMacroUndef("__IMAGE_SUPPORT__", macro_defs);
+    addMacroUndef("__opencl_c_images", macro_defs);
+    addMacroUndef("__opencl_c_3d_image_writes", macro_defs);
   }
 
   // Clang blindly sets the highest CL_VERSION that it supports (2.0), so
   // remove that macro.
-  addMacroUndef("CL_VERSION_2_0");
+  addMacroUndef("CL_VERSION_2_0", macro_defs);
 
   // Add defines for runtime extensions
   for (const auto &extension : options.runtime_extensions) {
-    addMacroDef(extension);
+    addMacroDef(extension, macro_defs);
   }
 
   // Enable compiler extensions and add defines
   for (const auto &extension : options.compiler_extensions) {
-    addOpenCLOpt(extension);
-    addMacroDef(extension);
+    addOpenCLOpt(extension, opencl_opts);
+    addMacroDef(extension, macro_defs);
   }
 
   // Disable half types unless supported by the device
   if (!device_info->half_capabilities) {
-    addOpenCLOpt("-cl_khr_fp16");
-    addMacroUndef("cl_khr_fp16");
+    addOpenCLOpt("-cl_khr_fp16", opencl_opts);
+    addMacroUndef("cl_khr_fp16", macro_defs);
   }
 
   // Disable `cl_khr_int64_base_atomics` and `cl_khr_int64_extended_atomics`
   // until we support them. (CA-518)
-  addOpenCLOpt("-cl_khr_int64_base_atomics");
-  addMacroUndef("cl_khr_int64_base_atomics");
-  addOpenCLOpt("-cl_khr_int64_extended_atomics");
-  addMacroUndef("cl_khr_int64_extended_atomics");
+  addOpenCLOpt("-cl_khr_int64_base_atomics", opencl_opts);
+  addMacroUndef("cl_khr_int64_base_atomics", macro_defs);
+  addOpenCLOpt("-cl_khr_int64_extended_atomics", opencl_opts);
+  addMacroUndef("cl_khr_int64_extended_atomics", macro_defs);
 
   if (options.standard == Standard::OpenCLC30) {
     // work-group collective functions are an optional feature in OpenCL 3.0.
     if (device_info->supports_work_group_collectives) {
-      addMacroDef("__opencl_c_work_group_collective_functions");
+      addMacroDef("__opencl_c_work_group_collective_functions", macro_defs);
     }
     if (device_info->max_sub_group_count) {
-      addMacroDef("__opencl_c_subgroups");
+      addMacroDef("__opencl_c_subgroups", macro_defs);
     }
   }
 
@@ -1084,19 +1085,19 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   // generic address space functions are an optional feature in OpenCL 3.0
   if (options.standard != Standard::OpenCLC30 ||
       !device_info->supports_generic_address_space) {
-    addMacroUndef("__opencl_c_generic_address_space");
+    addMacroUndef("__opencl_c_generic_address_space", macro_defs);
   }
 
-  addMacroUndef("__opencl_c_program_scope_global_variables");
-  addMacroUndef("__opencl_c_atomic_order_acq_rel");
-  addMacroUndef("__opencl_c_atomic_order_seq_cst");
-  addMacroUndef("__opencl_c_device_enqueue");
-  addMacroUndef("__opencl_c_pipes");
-  addMacroUndef("__opencl_c_read_write_images");
-}  // namespace compiler
+  addMacroUndef("__opencl_c_program_scope_global_variables", macro_defs);
+  addMacroUndef("__opencl_c_atomic_order_acq_rel", macro_defs);
+  addMacroUndef("__opencl_c_atomic_order_seq_cst", macro_defs);
+  addMacroUndef("__opencl_c_device_enqueue", macro_defs);
+  addMacroUndef("__opencl_c_pipes", macro_defs);
+  addMacroUndef("__opencl_c_read_write_images", macro_defs);
+}
 
 clang::LangStandard::Kind BaseModule::setClangOpenCLStandard(
-    clang::LangOptions &lang_opts) {
+    clang::LangOptions &lang_opts) const {
   switch (options.standard) {
     case Standard::OpenCLC11:
       lang_opts.OpenCLVersion = 110;
@@ -1112,7 +1113,7 @@ clang::LangStandard::Kind BaseModule::setClangOpenCLStandard(
   }
 }
 
-void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) {
+void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
   mux_device_info_t device_info = target.getCompilerInfo()->device_info;
 
   // Set Clang Language Options.
@@ -1331,7 +1332,7 @@ Result BaseModule::setOpenCLInstanceDefaults(
 
 clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
     clang::CompilerInstance &instance, llvm::StringRef source,
-    std::string kernel_file_name,
+    std::string kernel_file_name, const OpenCLOptVec &opencl_opts,
     cargo::array_view<compiler::InputHeader> input_headers) {
   mux_device_info_t device_info = target.getCompilerInfo()->device_info;
   auto &pp_opts = instance.getPreprocessorOpts();
@@ -1353,7 +1354,7 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
 
   // We add the supported OpenCL opts now as we need an existing target before
   // we can do so.
-  populateOpenCLOpts(instance);
+  populateOpenCLOpts(instance, opencl_opts);
 
   instance.createFileManager();
   instance.createSourceManager(instance.getFileManager());
@@ -1444,49 +1445,6 @@ void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance) {
   instance.getASTContext().setExternalSource(pchAST);
 }
 
-Result BaseModule::executeOpenCLAction(clang::CompilerInstance &instance,
-                                       clang::CodeGenAction &action) {
-  {
-    // At this point we have already locked the LLVMContext mutex for the
-    // current context we are operating on.  If, however, an OpenCL programmer
-    // uses multiple cl_context in parallel they can invoke multiple compiler
-    // instances in parallel.  This is generally safe, as each context is
-    // independent.  Unfortunately, Clang has some global option handling code
-    // that does not affect us, but is still run and causes multiple threads to
-    // write to a large global object at once (GlobalParser in LLVM).  On x86
-    // this did not seem to matter, on AArch64 it caused crashes due to double
-    // free's within a std::string's destructor.  So, we lock globally before
-    // asking Clang to process this source file.
-    std::lock_guard<std::mutex> guard(compiler::utils::getLLVMGlobalMutex());
-    if (action.Execute()) {
-      return Result::COMPILE_PROGRAM_FAILURE;
-    }
-    action.EndSourceFile();
-  }
-
-  clang::DiagnosticConsumer *const consumer =
-      instance.getDiagnostics().getClient();
-  consumer->finish();
-
-  num_errors = consumer->getNumErrors();
-  if (num_errors > 0) {
-    return Result::COMPILE_PROGRAM_FAILURE;
-  }
-
-  state = ModuleState::COMPILED_OBJECT;
-  llvm_module = action.takeModule();
-  if (!llvm_module) {
-    return Result::COMPILE_PROGRAM_FAILURE;
-  }
-
-  if (hasRecursiveKernels(llvm_module.get())) {
-    addBuildError("Recursive OpenCL kernels are not supported.");
-    return Result::COMPILE_PROGRAM_FAILURE;
-  }
-
-  return Result::SUCCESS;
-}
-
 void BaseModule::runOpenCLFrontendPipeline(
     const clang::CodeGenOptions &codeGenOpts,
     multi_llvm::Optional<llvm::ModulePassManager> early_passes,
@@ -1524,10 +1482,38 @@ Result BaseModule::compileOpenCLC(
     cargo::string_view device_profile, cargo::string_view source_sv,
     cargo::array_view<compiler::InputHeader> input_headers) {
   clang::CompilerInstance instance;
+
+  llvm_module = compileOpenCLCToIR(instance, device_profile, source_sv,
+                                   input_headers, &num_errors, &state);
+
+  if (!llvm_module) {
+    return compiler::Result::COMPILE_PROGRAM_FAILURE;
+  }
+
+  // Now run the passes we skipped by enabling the DisableLLVMPasses option
+  // earlier.
+  std::lock_guard<compiler::BaseContext> guard(context);
+  runOpenCLFrontendPipeline(instance.getCodeGenOpts(), getEarlyOpenCLCPasses());
+
+  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_FRONTEND)) {
+    takeSnapshot(*snapshot, llvm_module.get());
+  }
+
+  return compiler::Result::SUCCESS;
+}
+
+std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
+    clang::CompilerInstance &instance, cargo::string_view device_profile,
+    cargo::string_view source_sv,
+    cargo::array_view<compiler::InputHeader> input_headers,
+    uint32_t *num_errors, ModuleState *new_state) {
   llvm::StringRef source{source_sv.data(), source_sv.size()};
 
-  addDefaultOpenCLPreprocessorOpts(device_profile);
-  populatePPOpts(instance);
+  MacroDefVec macro_defs;
+  OpenCLOptVec opencl_opts;
+
+  addDefaultOpenCLPreprocessorOpts(device_profile, macro_defs, opencl_opts);
+  populatePPOpts(instance, macro_defs);
 
   // Populate our codegen options based on the compiler options we've got.
   auto &codeGenOpts = instance.getCodeGenOpts();
@@ -1535,7 +1521,7 @@ Result BaseModule::compileOpenCLC(
 
   auto result = setOpenCLInstanceDefaults(instance);
   if (result != Result::SUCCESS) {
-    return result;
+    return nullptr;
   }
 
   // TODO(CA-608): Allow developers to inject LLVM options for debugging at
@@ -1555,8 +1541,8 @@ Result BaseModule::compileOpenCLC(
       source, options.source_file.length() ? options.source_file : dbg_filename,
       codeGenOpts);
 
-  auto kernelFile =
-      prepareOpenCLInputFile(instance, source, kernel_file_name, input_headers);
+  auto kernelFile = prepareOpenCLInputFile(instance, source, kernel_file_name,
+                                           opencl_opts, input_headers);
 
   // Now we're actually going to start doing work, so need to lock LLVMContext.
   std::lock_guard<compiler::BaseContext> guard(context);
@@ -1570,28 +1556,59 @@ Result BaseModule::compileOpenCLC(
     std::lock_guard<std::mutex> globalLock(
         compiler::utils::getLLVMGlobalMutex());
     if (!action.BeginSourceFile(instance, kernelFile)) {
-      return Result::COMPILE_PROGRAM_FAILURE;
+      return nullptr;
     }
   }
 
   loadBuiltinsPCH(instance);
 
-  result = executeOpenCLAction(instance, action);
-  if (result != Result::SUCCESS) {
-    return result;
+  {
+    // At this point we have already locked the LLVMContext mutex for the
+    // current context we are operating on.  If, however, an OpenCL programmer
+    // uses multiple cl_context in parallel they can invoke multiple compiler
+    // instances in parallel.  This is generally safe, as each context is
+    // independent.  Unfortunately, Clang has some global option handling code
+    // that does not affect us, but is still run and causes multiple threads to
+    // write to a large global object at once (GlobalParser in LLVM).  On x86
+    // this did not seem to matter, on AArch64 it caused crashes due to double
+    // free's within a std::string's destructor.  So, we lock globally before
+    // asking Clang to process this source file.
+    std::lock_guard<std::mutex> guard(compiler::utils::getLLVMGlobalMutex());
+    if (action.Execute()) {
+      return nullptr;
+    }
+    action.EndSourceFile();
   }
 
-  createOpenCLKernelsMetadata();
+  clang::DiagnosticConsumer *const consumer =
+      instance.getDiagnostics().getClient();
+  consumer->finish();
 
-  // Now run the passes we skipped by enabling the DisableLLVMPasses option
-  // above.
-  runOpenCLFrontendPipeline(codeGenOpts, getEarlyOpenCLCPasses());
-
-  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_FRONTEND)) {
-    takeSnapshot(*snapshot, llvm_module.get());
+  uint32_t errs = consumer->getNumErrors();
+  if (num_errors) {
+    *num_errors = errs;
+  }
+  if (errs > 0) {
+    return nullptr;
   }
 
-  return Result::SUCCESS;
+  if (new_state) {
+    *new_state = ModuleState::COMPILED_OBJECT;
+  }
+  auto mod = action.takeModule();
+
+  if (!mod) {
+    return mod;
+  }
+
+  if (hasRecursiveKernels(mod.get())) {
+    addBuildError("Recursive OpenCL kernels are not supported.");
+    return nullptr;
+  }
+
+  createOpenCLKernelsMetadata(*mod);
+
+  return mod;
 }
 
 Result BaseModule::link(cargo::array_view<Module *> input_modules) {
@@ -2157,20 +2174,20 @@ void BaseModule::llvmFatalErrorHandler(void *user_data, const char *reason,
   base_module.addBuildError(OS.str());
 }
 
-void BaseModule::createOpenCLKernelsMetadata() {
+void BaseModule::createOpenCLKernelsMetadata(llvm::Module &mod) {
   const char *name = "opencl.kernels";
 
   // If the module is null, or the metadata we are looking for already exists,
   // bail out!
-  if (!llvm_module || llvm_module->getNamedMetadata(name)) {
+  if (mod.getNamedMetadata(name)) {
     return;
   }
 
   // LLVM doesn't fill out the opencl.kernels metadata anymore, so we need to
-  auto md = llvm_module->getOrInsertNamedMetadata(name);
-  llvm::LLVMContext &ctx = llvm_module->getContext();
+  auto md = mod.getOrInsertNamedMetadata(name);
+  llvm::LLVMContext &ctx = mod.getContext();
 
-  for (auto &function : llvm_module->functions()) {
+  for (auto &function : mod.functions()) {
     // If the function is a kernel (as denoted by the calling convention), and
     // only if the kernel is a definition (and thus has all the correct metadata
     // we can copy).
@@ -2212,7 +2229,8 @@ void BaseModule::createOpenCLKernelsMetadata() {
   }
 }
 
-void BaseModule::populatePPOpts(clang::CompilerInstance &instance) {
+void BaseModule::populatePPOpts(clang::CompilerInstance &instance,
+                                const MacroDefVec &macro_defs) const {
   auto &pp_opts = instance.getPreprocessorOpts();
   for (const auto &def : macro_defs) {
     switch (def.first) {
@@ -2226,11 +2244,13 @@ void BaseModule::populatePPOpts(clang::CompilerInstance &instance) {
   }
 }
 
-void BaseModule::populateOpenCLOpts(clang::CompilerInstance &instance) {
+void BaseModule::populateOpenCLOpts(clang::CompilerInstance &instance,
+                                    const OpenCLOptVec &opencl_opts) {
   for (const auto &opt : opencl_opts) {
     supportOpenCLOpt(instance, opt);
   }
 }
+
 std::unique_ptr<compiler::utils::PassMachinery>
 BaseModule::createPassMachinery() {
   return std::make_unique<BaseModulePassMachinery>(
