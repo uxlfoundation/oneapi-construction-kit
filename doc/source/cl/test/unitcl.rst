@@ -672,7 +672,7 @@ can be removed with
   # In UnitCL
   git clean -f source/cl/test/UnitCL/kernels/
   # In host, if present
-  git clean -f modules/core/source/host/test/UnitCL/kernels/
+  git clean -f modules/mux/targets/host/test/UnitCL/kernels/
 
 The following diagram shows how the ``regenerate-spir`` and
 ``regenerate-spirv`` targets work:

@@ -4,7 +4,7 @@
 
 `clc` is a command-line tool that allows compiling OpenCL C, SPIR and SPIR-V
 kernels to an implementation-defined binary format, it does not tie in to any
-particular core target implementation.
+particular Mux target implementation.
 
 ### `clc` Use-Cases
 
@@ -155,11 +155,11 @@ printing the snapshot to standard out if the format is textual (.ll or .s), or
 to a file for binary format (.bc or .o).
 
 The available snapshot stages can be queried through the extension interface.
-Communicating with Core to get possible stages from both the compiler module in
-ComputeAorta and from Core implementation partner code. As a result there is now
-no hard-coded list of snapshot stages in `oclc`, since the available stages
-change depending on target. Instead the stage the user sets with `-stage` now
-finds the first substring match from the list of possible snapshot stages.
+Communicating with the compiler module to get possible stages from the target.
+As a result there is now no hard-coded list of snapshot stages in `oclc`, since
+the available stages change depending on target. Instead the stage the user sets
+with `-stage` now finds the first substring match from the list of possible
+snapshot stages.
 
 > Note that although this is an offline compile tool it hooks directly into the
 > ComputeAorta OpenCL library, and thus any environment variables that affect
@@ -186,9 +186,9 @@ cl_snapshot_compilation_backend
 cl_snapshot_compilation_mc_final
 ```
 
-> Note: These are the stages available for the host Core target at time of
-> writing. Some of the later use-cases specify stages from the legacy X86 target
-> since it supports the vectorizer.
+> Note: These are the stages available for the Host target at time of writing.
+> Some of the later use-cases specify stages from the legacy X86 target since
+> it supports the vectorizer.
 
 Sometimes a snapshot stage may not be hit if it requires a kernel to be
 enqueued. To enqueue a kernel the `-enqueue` option can be used with a specified

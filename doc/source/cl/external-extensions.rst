@@ -95,7 +95,7 @@ To duplicate the example extension, follow these steps:
 1. Copy the extension directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Copy ``modules/core/source/host/extension/cl_ext_codeplay`` to an appropriate
+Copy ``modules/mux/targets/host/extension/cl_ext_codeplay`` to an appropriate
 location and rename it with a customer-specific name. For example, if the
 customer is ACME Corp. then the directory might be called ``cl_ext_acme``. This
 directory will contain the extension sources for the ACME hardware, which will
@@ -173,7 +173,7 @@ In ``source/acme_coyote.cpp``:
 4. Include the extension in Host CPU
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In ``modules/core/source/host/CMakeLists.txt``, add the new extension
+In ``modules/mux/targets/host/CMakeLists.txt``, add the new extension
 directory. If the directory is located outside of the ComputeAorta tree, then
 ``add_subdirectory()`` will need to specify a binary directory:
 
@@ -202,7 +202,7 @@ Install ComputeAorta. ``<install_dir>/include/CL/`` should now contain
 6. Make a test program
 ~~~~~~~~~~~~~~~~~~~~~~
 
-``modules/core/source/host/extension/example/`` contains a bare-bones example of
+``modules/mux/targets/host/extension/example/`` contains a bare-bones example of
 using the ``cl_codeplay_set_threads`` extension. Copy this directory to an
 appropriate location. Then update the files as follows:
 
@@ -223,7 +223,7 @@ appropriate location. Then update the files as follows:
      ``acme_coyote.cpp``.
   5. Calls the entry point. The name of the entry point should be updated.
 * Finally, add the test program's directory to ``host``'s CMake at
-  ``modules/core/source/host/CMakeLists.txt``. If the directory is located
+  ``modules/mux/targets/host/CMakeLists.txt``. If the directory is located
   outside of the ComputeAorta tree, then ``add_subdirectory()`` will need to
   specify a binary directory:
 

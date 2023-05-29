@@ -10,10 +10,9 @@ Here you will find documentation generated from ComputeAorta's source code.
 * [`builtins` module](#builtins-module)
   * [`abacus`](#abacus)
   * [`libimg`](#libimg)
-* [`core` module](#core-module)
+* [`mux` module](#mux-module)
   * [`compiler::utils`](#compilerutils)
-* [`host` core target](#host-core-target)
-* [`cross` core target](#cross-core-target)
+* [`host` mux target](#host-mux-target)
 * [`tracer` module](#tracer-module)
 
 * {ref}`genindex`
@@ -28,7 +27,7 @@ Here you will find documentation generated from ComputeAorta's source code.
 ### `compiler` module
 
 The OpenCL C frontend compiler and a set of LLVM passes to transform the
-generated LLVM IR before hand off to [core](#core-module) are contained in the
+generated LLVM IR before hand off to [mux](#mux-module) are contained in the
 [compiler module](#compiler-module).
 
 ```{eval-rst}
@@ -138,16 +137,16 @@ generated LLVM IR before hand off to [core](#core-module) are contained in the
 .. doxygengroup:: libimg
 ```
 
-## `core` module
+## `mux` module
 
 ```{eval-rst}
-.. doxygengroup:: core
+.. doxygengroup:: mux
     :members:
 ```
 
 ### `compiler::utils`
 
-A set of C++ utilities are provides along side [core](#core-module), whilst
+A set of C++ utilities are provides along side [mux](#mux-module), whilst
 it is not required to make use of them they prove useful when implementing and
 maintaining an implementation of the API for a specific device.
 
@@ -156,26 +155,11 @@ maintaining an implementation of the API for a specific device.
     :members:
 ```
 
-### `host` core target
+### `host` mux target
 
 ```{eval-rst}
 .. doxygengroup:: host
     :members:
-```
-
-### `cross` core target
-
-A [core](#core-module) target for offline and cross-compilation of kernels which
-does not support execution of kernels or other runtime commands. Whilst the
-entire set of core API entry points is defined all entry points will return
-`core_error_feature_unsupported` _except_ those listed here.
-
-```{eval-rst}
-.. doxygenfunction:: crossGetDeviceInfos
-.. doxygenfunction:: crossCreateFinalizer
-.. doxygenfunction:: crossDestroyFinalizer
-.. doxygenfunction:: crossCreateBinaryFromSource
-.. doxygenfunction:: crossDestroyBinary
 ```
 
 ## `tracer` module
