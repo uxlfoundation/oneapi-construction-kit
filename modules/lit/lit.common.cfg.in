@@ -180,8 +180,9 @@ for tool in config.tools:
         config.substitutions[idx]= (subst_key, f'{lit_config.params["emulator"]} {subst_path}')
 
 missing_tools = [tool.key for tool in config.tools if not tool.was_resolved]
+config.skip_if_missing_tools = lit_config.params.get("skip_if_missing_tools", None)
 
-if missing_tools:
+if missing_tools and lit.util.pythonize_bool(config.skip_if_missing_tools):
     lit_config.note(f'Skipping test suite: did not find {",".join(missing_tools)} in {search_dirs}')
     config.unsupported = True
 

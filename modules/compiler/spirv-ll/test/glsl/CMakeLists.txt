@@ -811,4 +811,4 @@ foreach(glsl ${GLSL_FILES})
   list(APPEND LitTestFiles ${test})
 endforeach()
 
-add_custom_target(spirv-ll-lit-glsl DEPENDS ${LitTestFiles})
+add_custom_target(spirv-ll-glsl-lit DEPENDS ${LitTestFiles})
