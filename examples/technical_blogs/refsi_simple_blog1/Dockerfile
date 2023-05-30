@@ -29,8 +29,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update -y && apt install -y build-essential git cmake libtinfo-dev python3 \
   ninja-build doxygen python3-pip
 RUN apt install -y wget spirv-tools libzstd-dev libtinfo5
-RUN pip3 install lit virtualenv cmakelint
-RUN pip install cookiecutter
+RUN pip3 install lit virtualenv cmakelint cookiecutter
 
 # Set the appropriate env variables
 ENV ONEAPI_CON_KIT_DIR=$BLOG_TOP_LEVEL/oneapi-construction-kit
