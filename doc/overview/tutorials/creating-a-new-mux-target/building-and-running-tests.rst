@@ -47,7 +47,7 @@ dependencies, including the oneAPI Construction Kit and the new target:
 
 .. code:: console
 
-    $ cd build
+    $ cd build/oneAPIConstructionKit
     $ ninja UnitCL
 
 We can do a quick test, using the environment variable `REFSI_DEBUG` for more information:
