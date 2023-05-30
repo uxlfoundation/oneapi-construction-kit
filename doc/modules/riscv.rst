@@ -220,16 +220,11 @@ The following environment variables are currently supported:
   this will default to true, otherwise false.
 
 ``CA_RISCV_DUMP_IR```
-  Used to dump the generated IR to stdout if set to 1. Demo mode or debug mode
-  only. By default the generated IR is taken at the "scheduled kernel" stage. 
-  A different snapshot stage can be be specified by passing its full name, e.g.
-  ``-DCA_RISCV_DUMP_IR=cl_snapshot_riscv_vectorized`` or by passing its short
-  name, e.g. ``-DCA_RISCV_DUMP_IR=vectorized``. Specifying multiple snapshot
-  stages separated by a comma (e.g. ``-DCA_RISCV_DUMP_IR=vectorized,scheduled``)
-  results in the IR being dumped at different points of the compilation process.
+  Used to dump the generated IR at the beginning of the "late target passes"
+  stage to stdout. Demo mode or debug mode only.
 
-  Additionally the following may be used by HALs to override their local setting,
-  although this is not mandatory.
+Additionally the following may be used by HALs to override their local setting,
+although this is not mandatory.
 
 ``CA_RISCV_VLEN_BITS_MIN``
   Sets the minimum reported minimum ``VLEN`` bits - see `Compilation`_. This may
@@ -240,85 +235,7 @@ The following environment variables are currently supported:
   Path to elf file for dumping built executable. Demo mode or debug mode only.
 
 ``CA_RISCV_DUMP_ASM``
-  If defined, output final assembly produced to stderr. Demo mode or debug mode only.
-
-Snapshots
----------
-
-Snapshots can be used to capture the state of compilation (e.g. LLVM IR module
-or assembly) in the RISC-V target at a given point in the compilation process
-and printing that state to the console. This can be done for example using
-`oclc`::
-
-    $ bin/oclc source.cl -cl-device "RefSi M1" -stage cl_snapshot_riscv_scheduled
-    ; ModuleID = 'Unknown buffer'
-    source_filename = "kernel.opencl"
-    target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
-    target triple = "riscv64-unknown-elf"
-
-    %MuxPackedArgs.foo = type { float addrspace(1)*, float addrspace(1)* }
-    %MuxWorkGroupInfo = type { [3 x i64], [3 x i64], [3 x i64], [3 x i64], i32 }
-    ...
-
-This feature is only available when oneAPI Construction Kit is built with either the
-`CA_ENABLE_DEBUG_SUPPORT` option or the `CA_RISCV_DEMO_MODE` option enabled in
-CMake.
-
-Dumping the IR at different points in the compilation process can also be done
-through the existing `CA_RISCV_DUMP_IR` environment variable::
-
-    $ CA_RISCV_DUMP_IR=cl_snapshot_riscv_scheduled bin/UnitCL --unitcl_device='RefSi M1' --unitcl_platform='Codeplay Software Ltd.' --gtest_filter='Execution.Task_01_02*'
-    Random numbers generated using std::mt19937 with seed 393664105
-    Note: Google Test filter = Execution.Task_01_02*
-    [==========] Running 1 test from 1 test suite.
-    [----------] Global test environment set-up.
-    [----------] 1 test from Execution
-    [ RUN      ] Execution.Task_01_02_Add
-    ; ModuleID = 'Unknown buffer'
-    source_filename = "kernel.opencl"
-    target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
-    target triple = "riscv64-unknown-elf"
-
-    ; Function Attrs: convergent nofree norecurse nounwind willreturn mustprogress
-    define dso_local spir_kernel void @add(i32 addrspace(1)* nocapture readonly %in1, i32 addrspace(1)* nocapture readonly %in2, i32 addrspace(1
-    )* nocapture %out) local_unnamed_addr #0 { 
-    ...
-
-Snapshots can be taken at different stages:
-
-* `cl_snapshot_riscv_input`: at the beginning of the target's LLVM IR compilation pipeline (i.e. IR received from Mux before any changes)
-* `cl_snapshot_riscv_scheduled`: at the end of the target's LLVM IR compilation pipeline. Same output as before when using `CA_RISCV_DUMP_IR=1`
-* `cl_snapshot_riscv_vectorized`: right after vecz has been executed (if enabled)
-* `cl_snapshot_riscv_barrier`: right after the barrier pass has been executed
-* `cl_snapshot_riscv_backend`: at the end of the RISC-V backend compilation (produces assembly). Same as using `CA_RISCV_DUMP_ASM=1`
-
-The list of available stages can be queried using `oclc -list`::
-
-    $ bin/oclc source.cl -cl-device "RefSi M1" -list
-    cl_snapshot_compilation_default
-    cl_snapshot_compilation_front_end
-    cl_snapshot_compilation_linking
-    cl_snapshot_compilation_simd_prepare
-    cl_snapshot_compilation_scalarized
-    cl_snapshot_compilation_linearized
-    cl_snapshot_compilation_simd_packetized
-    cl_snapshot_compilation_spir
-    cl_snapshot_compilation_builtins_materialized
-    cl_snapshot_riscv_input
-    cl_snapshot_riscv_vectorized
-    cl_snapshot_riscv_barrier
-    cl_snapshot_riscv_scheduled
-    cl_snapshot_riscv_backend
-
-More stages can be easily added to the `riscv` target and inserted at arbitrary
-points of the compilation done by the finalizer.
-
-Multiple snapshots can be taken when using `CA_RISCV_DUMP_IR` by passing a
-comma-separated list of snapshot stages::
-
-    $ CA_RISCV_DUMP_IR=vectorized,scheduled bin/UnitCL -unitcl_device='RefSi M1' --unitcl_platform='Codeplay Software Ltd.' --gtest_filter='Execution.Task_01_02*'
-    <IR dump after vectorization>
-    <IR dump before generating assembly>
+  If defined, output final assembly produced to stdout. Demo mode or debug mode only.
 
 RISC-V Binaries
 ---------------

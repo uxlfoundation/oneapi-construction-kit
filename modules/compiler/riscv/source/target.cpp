@@ -90,21 +90,6 @@ RiscvTarget::RiscvTarget(const compiler::Info *compiler_info,
                          compiler::NotifyCallbackFn callback)
     : BaseAOTTarget(compiler_info, context, callback) {
   env_debug_prefix = "CA_RISCV";
-  available_snapshots = {
-      compiler::BaseModule::getTargetSnapshotName("riscv",
-                                                  RISCV_SNAPSHOT_INPUT),
-      compiler::BaseModule::getTargetSnapshotName("riscv",
-                                                  RISCV_SNAPSHOT_VECTORIZED),
-      compiler::BaseModule::getTargetSnapshotName("riscv",
-                                                  RISCV_SNAPSHOT_BARRIER),
-      compiler::BaseModule::getTargetSnapshotName("riscv",
-                                                  RISCV_SNAPSHOT_SCHEDULED),
-      compiler::BaseModule::getTargetSnapshotName("riscv",
-                                                  RISCV_SNAPSHOT_BACKEND),
-  };
-  supported_target_snapshots.insert(supported_target_snapshots.begin(),
-                                    available_snapshots.begin(),
-                                    available_snapshots.end());
 
   static std::once_flag llvm_initialized;
   std::call_once(llvm_initialized, [&]() {

@@ -4,6 +4,7 @@
 
 Upgrade guidance:
 
+* Snapshots are no longer supported for `riscv`/`refsi` targets.
 * Each `compiler::BaseTarget` now owns its own `LLVMContext`, rather than the
   (shared) `compiler::BaseContext` owning it.
 * The `CoreWorkItemInfo`, `CoreWorkGroupInfo`, and `Core_schedule_info_s`

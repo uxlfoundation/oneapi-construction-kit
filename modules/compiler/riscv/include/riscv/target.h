@@ -25,12 +25,6 @@
 
 namespace riscv {
 
-constexpr const char RISCV_SNAPSHOT_INPUT[] = "input";
-constexpr const char RISCV_SNAPSHOT_VECTORIZED[] = "vectorized";
-constexpr const char RISCV_SNAPSHOT_BARRIER[] = "barrier";
-constexpr const char RISCV_SNAPSHOT_SCHEDULED[] = "scheduled";
-constexpr const char RISCV_SNAPSHOT_BACKEND[] = "backend";
-
 /// @brief Compiler target class.
 class RiscvTarget : public compiler::BaseAOTTarget {
  public:
@@ -63,8 +57,6 @@ class RiscvTarget : public compiler::BaseAOTTarget {
   size_t rt_lib_size = 0;
   /// @brief the HAL device info for riscv target
   const hal_device_info_riscv_t *riscv_hal_device_info;
-  /// @brief Target-configurable snapshot stage names
-  std::vector<std::string> available_snapshots;
 };
 }  // namespace riscv
 

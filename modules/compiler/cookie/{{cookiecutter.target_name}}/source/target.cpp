@@ -34,21 +34,6 @@ namespace {{cookiecutter.target_name}} {
                              compiler::NotifyCallbackFn callback)
     : BaseAOTTarget(compiler_info, context, callback) {
   env_debug_prefix = "CA_{{cookiecutter.target_name_capitals}}";
-  available_snapshots = {
-      compiler::BaseModule::getTargetSnapshotName("{{cookiecutter.target_name}}",
-                                                  {{cookiecutter.target_name_capitals}}_SNAPSHOT_INPUT),
-      compiler::BaseModule::getTargetSnapshotName("{{cookiecutter.target_name}}",
-                                                  {{cookiecutter.target_name_capitals}}_SNAPSHOT_VECTORIZED),
-      compiler::BaseModule::getTargetSnapshotName("{{cookiecutter.target_name}}",
-                                                  {{cookiecutter.target_name_capitals}}_SNAPSHOT_BARRIER),
-      compiler::BaseModule::getTargetSnapshotName("{{cookiecutter.target_name}}",
-                                                  {{cookiecutter.target_name_capitals}}_SNAPSHOT_SCHEDULED),
-      compiler::BaseModule::getTargetSnapshotName("{{cookiecutter.target_name}}",
-                                                  {{cookiecutter.target_name_capitals}}_SNAPSHOT_BACKEND),
-  };
-  supported_target_snapshots.insert(supported_target_snapshots.begin(),
-                                    available_snapshots.begin(),
-                                    available_snapshots.end());
   llvm_cpu = {{cookiecutter.llvm_cpu}};
   llvm_triple = {{cookiecutter.llvm_triple}};
   llvm_features = {{cookiecutter.llvm_features}};

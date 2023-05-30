@@ -30,12 +30,6 @@
 
 namespace {{cookiecutter.target_name}} {
 
-constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_INPUT[] = "input";
-constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_VECTORIZED[] = "vectorized";
-constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_BARRIER[] = "barrier";
-constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_SCHEDULED[] = "scheduled";
-constexpr const char {{cookiecutter.target_name_capitals}}_SNAPSHOT_BACKEND[] = "backend";
-
 /// @brief Compiler target class.
 class {{cookiecutter.target_name.capitalize()}}Target final : public compiler::BaseAOTTarget {
  public:
@@ -67,8 +61,6 @@ class {{cookiecutter.target_name.capitalize()}}Target final : public compiler::B
   size_t rt_lib_size = 0;
   /// @brief the HAL device info for the target
   const hal::hal_device_info_t *hal_device_info;
-  /// @brief Target-configurable snapshot stage names
-  std::vector<std::string> available_snapshots;
 };
 }  // namespace {{cookiecutter.target_name}}
 
