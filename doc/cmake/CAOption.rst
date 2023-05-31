@@ -6,7 +6,7 @@ CAOption Module
 Option Naming Conventions
 ##########################
 
-Current :ref:`developer-guide:Computeaorta Cmake Options` exposed by the project
+Current :ref:`developer-guide:oneAPI Construction Kit Cmake Options` exposed by the project
 are prefixed with '``CA_``' to differentiate them from CMake or third-party
 provided options. This convention should be followed when adding any new
 options to the project. For boolean type options in particular we also try to

@@ -92,7 +92,7 @@ endif()
 # the effect of enabling assertions if LLVM enabled them.
 if(LLVM_ENABLE_ASSERTIONS)
   message(STATUS
-    "ComputeAorta Enable assertions - inherited from LLVM")
+    "oneAPI Construction Kit Enable assertions - inherited from LLVM")
   # The build type is based upon the Release build type with the define NDEBUG
   # flag replaced by the undefine NDEBUG flag.
   foreach(BuildType ${BuildTypes})
@@ -114,7 +114,7 @@ else()
   # Without the llvm installation exposing that information there's nothing we
   # can do but hope
   message(STATUS
-    "ComputeAorta Disable assertions - inherited from LLVM")
+    "oneAPI Construction Kit Disable assertions - inherited from LLVM")
   foreach(BuildType ${BuildTypes})
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
         CMAKE_CXX_COMPILER_ID MATCHES "Clang")

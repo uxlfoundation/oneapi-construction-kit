@@ -38,7 +38,7 @@ if (LLVMRISCVCODEGEN)
 
     add_ca_library(compiler-riscv-utils STATIC ${RISCV_SOURCES})
 
-    ca_option(CA_RISCV_DEMO_MODE BOOL "Enable ComputeAorta RISC-V demo mode" ON)
+    ca_option(CA_RISCV_DEMO_MODE BOOL "Enable oneAPI Construction Kit RISC-V demo mode" ON)
     if(CA_RISCV_DEMO_MODE)
       target_compile_definitions(compiler-riscv-utils PRIVATE CA_RISCV_DEMO_MODE=$<BOOL:${CA_RISCV_DEMO_MODE}>)
     endif()
