@@ -4,494 +4,515 @@
 
 Upgrade guidance:
 
+* The project license has been changed to the Apache License version 2.0 with
+  LLVM Exceptions. See LICENSE.txt for the full license text.
+* Support for LLVM 14 was dropped.
 * Snapshots are no longer supported for `riscv`/`refsi` targets.
-* Each `compiler::BaseTarget` now owns its own `LLVMContext`, rather than the
-  (shared) `compiler::BaseContext` owning it.
-* The `CoreWorkItemInfo`, `CoreWorkGroupInfo`, and `Core_schedule_info_s`
-  structure types have been renamed, switching "Core" to "Mux".
-* The `CorePackedArgs` structure type has been renamed. It is now named as
-  `MuxPackedArgs.` followed by the name of the kernel whose parameters it
-  wraps. This guarantees a unique naming more often, as previously two kernels
-  with different signatures would both compete for the same structure name,
-  leading to `CorePackedArgs` and `CorePackedArgs.0`.
-* The kernel sub-group size is now communicated from the compiler to the mux
-  target through `handler::GenericMetadata` and
-  `handler::VectorizeInfoMetadata`.
-* The entry point to the `LLD` linker has been moved into a new
-  `compiler-linker-utils` library. Targets must opt-in to link against this
-  library.
-* The `compiler::utils::SimpleCallbackLegacyPass` has been removed.
 * Support for DXIL has been removed. This includes:
   * DXIL builtin info;
   * DXIL binary support in `veczc`;
   * The `dx2llvm` tool.
 * The `-cl-wi-order` command-line option has been removed. Work item ordering
   can no longer be user-specified.
-* The `compiler::utils::AddKernelWraperPass` now takes a set of options on
-  construction, wrapping up the previous `bool` parameter. The pass can now opt
-  in to packing kernel pointer parameters in the `local`/`Workgroup` address
-  space as pointers, rather than by `size_t` (representing the size).
+* The project is now universally built in C++17 mode.
+* An individual contributor license agreement has been added in the
+  CONTRIBUTING file.
+* A code of conduct has been added for how developers and users should interact
+  with the oneAPI Construction Kit project once it has been open-sourced.
 * Offline OpenCL kernels compiled with `clc` are now serialized with the metadata API 
   and stored using a different binary format. Thus, kernels compiled with a previous 
   version of `clc` will no longer work. You will need to recompile all your offline 
   kernels for them to be accepted by ComputeAorta.
-* `compiler::utils::createLoop` has been refactored to take options by a
-  structure. The `isVP` parameter has also been removed.
-* `multi_llvm/element_count_helper.h` has been removed. Please use the
-  equivalent LLVM functionality directly.
-* The `ReplaceMuxDmaPass` has been renamed to `DefineMuxDmaPass`. It now uses
-  `BuiltinInfo` and calls `defineMuxBuiltin` on all ComputeMux DMA functions.
-  Targets should override `BIMuxInfoConcept::defineMuxBuiltin` to customize the
-  lowering of mux DMA builtins.
-* ComputeMux runtimes now handle multiple compiler-generated variants of a
-  given kernel, selecting between them at runtime.
-* `mux_kernel_s::sub_group_size` has been removed.
-* A new mux entry point has been introduced: `muxQueryMaxNumSubGroups`.
-* The helper function `compiler::utils::IsBarrierName` has been removed. Use
-  `compiler::utils::BuiltinInfo::isMuxBarrierID` instead.
-* `compiler::utils::BarrierRegions` now queries the `BuiltinInfo` for what were
-  known as _movable work-item calls_. The
-  `BuiltinInfo::isRematerializableBuiltinID` API now handles this, allowing
-  targets to customize behaviour.
-* The class names for the `riscv` target and generated targets are now prefixed
-  with the target name capitalized e.g. RiscvTarget.
-* `BuiltinID` enums specific to OpenCL and DXIL have been hidden from the API,
-  and most functions accepting or returning BuiltinIDs now use the new `Builtin`
-  and `BuiltinCall` structs to hold all the required information. Changes:
-  * `BuiltinInfo::analyzeBuiltin()` now returns a `Builtin` struct containing
-    both the builtin properties and the builtin ID. Use of language-specific IDs
-    is discouraged outside of the implementations themselves. Mux builtin IDs
-    are still exposed.
-  * `BuiltinInfo::identifyBuiltin()` has been removed from the API. Use
-    `BuiltinInfo::analyzeBuiltin()` instead and obtain the ID from the `Builtin`
-    struct returned.
-  * `BuiltinInfo::isBuiltinUniform()` has been removed from the BuiltinInfo API
-    (although it is still present on the `BILangInfoConcept`). Use
-    `BuiltinInfo::analyzeBuiltinCall()` to get the uniformity instead.
-  * The following property queries have been removed and replaced by flags in
-    the `BuiltinProperties` enum:
-    * `BuiltinInfo::isBuiltinAtomic()` replaced by `eBuiltinPropertyAtomic`
-    * `BuiltinInfo::isRematerializableBuiltinID()` replaced by
-      `eBuiltinPropertyRematerializable`
-  * Functions formerly accepting a `BuiltinID` now accept a `Builtin const &`.
-  * The static functions `BuiltinInfo::getInvalidBuiltin()` and
-    `BuiltinInfo::getUnknownBuiltin()` have been removed. Implementations can use
-    the corresponding enums directly. In addition, the `Builtin` struct has
-    `isValid()` and `isUnknown()` member functions, for convenience.
-* Added the ``__mux_mem_barrier``, ``__mux_work_group_barrier``, and
-  ``__mux_sub_group_barrier`` builtins. They replace the older
-  ``__mux_global_barrier``, ``__mux_shared_local_barrier``, and
-  ``__mux_full_barrier`` builtins, which have been removed. See the
-  documentation for how the new builtins should be used.
-* The `create_target.py` script and associated `json` files have been updated to support
-  the "feature" element as a ';' separated list to show multiple end points for
-  tutorials. This has been updated to show end points for `clmul` tutorial and to add
-  lit test support for `refsi-wrapper-pass`. Also the need to escape some quotes in the
-  `json` file is no longer needed.  
-* Support for LLVM 14 was dropped.
-* Targets may need to provide their own version of the
-  `compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass` if different
-  address spaces are supported in hardware, if they wish to support the feature.
-* The `clmul` extension documention and new target creation has been moved to
-  the compiler module as it is a compiler extension. This should require no
-  changes by the user except to follow the updated instructions.
-* `hal_refsi` now rounds up local buffer arguments to 128 bytes.
-* `hal_refsi` now aligns pass-by-value kernel arguments to the next power of in
-  `WI` mode: not just in `WG` mode.
-* The project license has been changed to the Apache License version 2.0 with
-  LLVM Exceptions. See LICENSE.txt for the full license text.
-* The `compiler::utils` module has been updated to move all members under a
-  single namespace `compiler::utils`. Replace references to `core::utils`,
-  `::utils`, and `utils` in the context of this module, with `compiler::utils`.
-* The `compiler::utils` module header paths have been moved to
-  `compiler/utils`. Replace header includes of `<utils/*>` with
-  `<compiler/utils/*`, except for `<include/utils/system.h>`, which is not a
-  part of the `compiler::utils` module.
-* The build flag `-cl-wi-order` has been deprecated and is no longer tested.
-* UR has had a spec bump which includes many ABI breaking changes.
-* The `HandleBarriersPass` no longer sets `combined_vecz_scalar`,
-  `vecz_scalar_loop_induction`, or `vecz_wrapper_loop` metadata.
-* The unused `compiler::utils::mutateScalarPeelInductionStart` function has
-  been removed.
-* The vectorizer no longer sets `vecz_vector_predication` metadata on
-  vector-predicated kernels. This information is available through the
-  orig<->vecz link metadata.
-* All `compiler::utils::Pass*` compiler passes have been renamed to
-  `compiler::utils::*Pass`.
-* The `modules/spirv-ll` module has been moved to `modules/compiler/spirv-ll`.
-* The external `SPIRV-Headers` has been bumped to `sdk-1.3.239.0`.
-* The support for "experimental" features (via
-  `CA_ENABLE_SPIRV_LL_EXPERIMENTAL` was removed)
-* ComputeAorta will now build when enabling host image support and OpenCL 3.0,
-  but will warn that the image support is known non-conformant to 3.0.
+* The compiler is now always built in what was previously 3.0 mode.
+    * ComputeAorta will now build when enabling host image support and OpenCL
+      3.0, but will warn that the image support is known non-conformant to 3.0.
+* Compiler:
+    * Each `compiler::BaseTarget` now owns its own `LLVMContext`, rather than
+      the (shared) `compiler::BaseContext` owning it.
+    * The `compiler::utils` module has been updated to move all members under a
+      single namespace `compiler::utils`. Replace references to `core::utils`,
+      `::utils`, and `utils` in the context of this module, with
+      `compiler::utils`.
+    * The `CoreWorkItemInfo`, `CoreWorkGroupInfo`, and `Core_schedule_info_s`
+      structure types have been renamed, switching "Core" to "Mux".
+    * The `CorePackedArgs` structure type has been renamed. It is now named as
+      `MuxPackedArgs.` followed by the name of the kernel whose parameters it
+      wraps. This guarantees a unique naming more often, as previously two kernels
+      with different signatures would both compete for the same structure name,
+      leading to `CorePackedArgs` and `CorePackedArgs.0`.
+    * The kernel sub-group size is now communicated from the compiler to the mux
+      target through `handler::GenericMetadata` and
+      `handler::VectorizeInfoMetadata`.
+    * The `compiler::utils::SimpleCallbackLegacyPass` has been removed.
+    * The `compiler::utils::AddKernelWraperPass` now takes a set of options on
+      construction, wrapping up the previous `bool` parameter. The pass can now opt
+      in to packing kernel pointer parameters in the `local`/`Workgroup` address
+      space as pointers, rather than by `size_t` (representing the size).
+    * `compiler::utils::createLoop` has been refactored to take options by a
+      structure. The `isVP` parameter has also been removed.
+    * `multi_llvm/element_count_helper.h` has been removed. Please use the
+      equivalent LLVM functionality directly.
+    * The `ReplaceMuxDmaPass` has been renamed to `DefineMuxDmaPass`. It now uses
+      `BuiltinInfo` and calls `defineMuxBuiltin` on all ComputeMux DMA functions.
+      Targets should override `BIMuxInfoConcept::defineMuxBuiltin` to customize the
+      lowering of mux DMA builtins.
+    * ComputeMux runtimes now handle multiple compiler-generated variants of a
+      given kernel, selecting between them at runtime.
+    * The helper function `compiler::utils::IsBarrierName` has been removed. Use
+      `compiler::utils::BuiltinInfo::isMuxBarrierID` instead.
+    * `compiler::utils::BarrierRegions` now queries the `BuiltinInfo` for what were
+      known as _movable work-item calls_. The
+      `BuiltinInfo::isRematerializableBuiltinID` API now handles this, allowing
+      targets to customize behaviour.
+    * The class names for the `riscv` target and generated targets are now
+      prefixed with the target name capitalized e.g. RiscvTarget.
+    * The entry point to the `LLD` linker has been moved into a new
+      `compiler-linker-utils` library. Targets must opt-in to link against this
+      library.
+    * `BuiltinID` enums specific to OpenCL have been hidden from the API,
+      and most functions accepting or returning BuiltinIDs now use the new `Builtin`
+      and `BuiltinCall` structs to hold all the required information. Changes:
+        * `BuiltinInfo::analyzeBuiltin()` now returns a `Builtin` struct
+          containing both the builtin properties and the builtin ID. Use of
+          language-specific IDs is discouraged outside of the implementations
+          themselves. Mux builtin IDs are still exposed.
+        * `BuiltinInfo::identifyBuiltin()` has been removed from the API. Use
+          `BuiltinInfo::analyzeBuiltin()` instead and obtain the ID from the
+          `Builtin` struct returned.
+        * `BuiltinInfo::isBuiltinUniform()` has been removed from the
+          BuiltinInfo API (although it is still present on the
+          `BILangInfoConcept`). Use `BuiltinInfo::analyzeBuiltinCall()` to get
+          the uniformity instead.
+        * The following property queries have been removed and replaced by
+          flags in the `BuiltinProperties` enum:
+            * `BuiltinInfo::isBuiltinAtomic()` replaced by `eBuiltinPropertyAtomic`
+            * `BuiltinInfo::isRematerializableBuiltinID()` replaced by
+              `eBuiltinPropertyRematerializable`
+            * Functions formerly accepting a `BuiltinID` now accept a `Builtin
+              const &`.
+            * The static functions `BuiltinInfo::getInvalidBuiltin()` and
+              `BuiltinInfo::getUnknownBuiltin()` have been removed.
+              Implementations can use the corresponding enums directly. In
+              addition, the `Builtin` struct has `isValid()` and `isUnknown()`
+              member functions, for convenience.
+    * The unused `BuiltinInfo::emitInstanceID` function was removed.
+    * The vectorizer now calls `__mux_get_local_id` and `__mux_get_local_size`
+      when establishing the vector length in vector predication mode. This is
+      instead of deferring to the BuiltinInfo to create a local id or local
+      size.
+    * The unused `BuiltinInfo::emitLocalID` and `BuiltinInfo::emitLocalSize`
+      functions were removed.
+    * The `BuiltinInfo::getGlobalIdBuiltin` and
+      `BuiltinInfo::getLocalIdBuiltin` functions were removed as they were too
+      language-specific and the existance of one and only one corresponding
+      builtin.
+    * Targets may need to provide their own version of the
+      `compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass` if different
+      address spaces are supported in hardware, if they wish to support the
+      feature.
+    * The `HandleBarriersPass` no longer sets `combined_vecz_scalar`,
+      `vecz_scalar_loop_induction`, or `vecz_wrapper_loop` metadata.
+    * The unused `compiler::utils::mutateScalarPeelInductionStart` function has
+      been removed.
+    * The vectorizer no longer sets `vecz_vector_predication` metadata on
+      vector-predicated kernels. This information is available through the
+      orig<->vecz link metadata.
+    * All `compiler::utils::Pass*` compiler passes have been renamed to
+      `compiler::utils::*Pass`.
+    * The `compiler::utils` module header paths have been moved to
+      `compiler/utils`. Replace header includes of `<utils/*>` with
+      `<compiler/utils/*`, except for `<include/utils/system.h>`, which is not
+      a part of the `compiler::utils` module.
+    * More data is now reported from the compiler to the runtime via
+      `handler::VectorizeInfoMetadata`:
+        * `min_work_item_factor`
+        * `pref_work_item_factor`
+    * `check-passes-host-lit` has been renamed to `check-host-compiler-lit`.
+    * The `compiler::utils::SetBarrierConvergentPass` is now run when compiling
+      OpenCL C kernels and not just on SPIR/SPIRV modules.
+    * The `compiler::utils::SetBarrierConvergentPass` has been renamed
+      `SetConvergentAttrPass`.
+        * The `compiler::utils::SetConvergentAttrPass` now sets the
+          `convergent` attribute to any function not known to the `BuiltinInfo`
+          to be non-convergent. This property is bubbled up throuh the
+          call-graph so that callers of convergent functions are themselves
+          marked convergent.
+    * The `host` target now configures its scheduling parameters through a
+      derived `compiler::utils::BIMuxInfoConcept`. It configures three
+      scheduling parameters (found in the host target documentation). The
+      `host::AddEntryHookPass` no longer alters the kernel ABI and purely
+      performs work-group scheduling.
+    * The declarations of `sub_group_*` OpenCL builtins are now marked
+      convergent.
+    * The compiler no longer necessarily generates kernels which retain their
+      original names. The actual generated kernel name is conveyed through ELF
+      metadata along with the original name, so the runtime can map between
+      kernels and their generated forms.
+    * The `mux-orig-fn` function attribute now truly conveys the original
+      function name and should not change throughout the compiler. Its previous
+      use as the base name component which is used when generating new kernel
+      wrappers has been renamed as `mux-base-fn-name`.
+    * The `utils::AddWorkItemInfoStructPass`,
+      `utils::AddWorkGroupInfoStructPass`,
+      `utils::AddWorkItemFunctionsIfRequiredPass`,
+      `utils::ReplaceLocalWorkItemIdFunctionsPass` and
+      `utils::ReplaceNonLocalWorkItemFunctionsPass` have been removed. Use the
+      `utils::AddSchedulingParametersPass` and `utils::DefineMuxBuiltinsPass`
+      in their place.
+    * Many `multi_llvm` classes and methods which had no difference between
+      officially-supported LLVM versions have now been removed.
+    * Changes to BuiltinLoader class hierarchy:
+        * `compiler::utils::BuiltinLoader` is renamed to
+          `compiler::utils::CLBuiltinLoader`, and is now declared in
+          `modules/compiler/utils/cl_builtin_info.h`.
+        * `compiler::utils::SimpleLazyBuiltinLoader` is replaced with
+          `compiler::utils::SimpleCLBuiltinLoader`, and is now declared in
+          `modules/compiler/utils/cl_builtin_info.h`.
+        * `compiler::utils::createSimpleLazyCLBuiltinInfo` is renamed to
+          `compiler::utils::createCLBuiltinInfo`, and is now declared in
+          `modules/compiler/utils/cl_builtin_info.h`.
+        * `compiler::utils::LazyBuiltinLoader` has been removed. Use either
+          `compiler::utils::SimpleCLBuiltinLoader` or subclass
+          `compiler::utils::CLBuiltinLoader` directly instead.
+    * The compiler now checks the OpenCL version compatibility of a module at
+      runtime, as opposed to at build time. This is encoded as
+      `!opencl.ocl.version` metadata.
+    * `compiler::utils::CLBuiltinInfo` now only identifies builtins when the
+      module's OpenCL version is recent enough to support those builtins.
+    * `utils::populateSimpleWorkItemInfoLookupFunction`,
+      `utils::populateSimpleWorkGroupInfoLookupFunction` and
+      `utils::populateSimpleWorkItemInfoSetterFunction` have been removed and
+      replaced with the more generic `utils::populateStructSetterFunction` and
+      `utils::populateStructGetterFunction`. This is so targets can easily reuse
+      these functions to define builtins that may not necessarily use the
+      `MuxWorkItemInfoStruct` or `MuxWorkGroupInfoStruct` types.
+    * The dependency on `utils::AddWorkItemFunctionsIfRequiredPass` from
+      `utils::HandleBarriersPass` has been severed. The `HandleBarriersPass` now
+      unconditionally calls the helper builtins `__mux_set_local_id` and
+      `__mux_set_sub_group_id`. They will be optimized out by later passes if
+      unused.
+    * The undocumented, untested command-line option
+      `-vecz-inject-debug-printfs` was removed as it crashed the compiler when
+      used.
+* Mux:
+    * `mux_kernel_s::sub_group_size` has been removed.
+    * A new mux entry point has been introduced: `muxQueryMaxNumSubGroups`.
+    * Added the ``__mux_mem_barrier``, ``__mux_work_group_barrier``, and
+      ``__mux_sub_group_barrier`` builtins. They replace the older
+      ``__mux_global_barrier``, ``__mux_shared_local_barrier``, and
+      ``__mux_full_barrier`` builtins, which have been removed.
+    * The `__mux_get_kernel_width` and `__mux_set_kernel_width` builtins have
+      been removed, along with the `kernel_width` entry in the default
+      work-item scheduling structure.
+* Tutorials, examples, and new targets:
+    * The `create_target.py` script and associated `json` files have been updated to support
+      the "feature" element as a ';' separated list to show multiple end points for
+      tutorials. This has been updated to show end points for `clmul` tutorial and to add
+      lit test support for `refsi-wrapper-pass`. Also the need to escape some quotes in the
+      `json` file is no longer needed.
+    * The `clmul` extension documention and new target creation has been moved
+      to the compiler module as it is a compiler extension. This should require
+      no changes by the user except to follow the updated instructions.
+    * The `creating a new mux target` tutorial and associated scripts have been
+      updated to allow a hal to be placed externally to the target source code.
+      This is supported via an additional `cmake` variable
+      `CA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR`.
+    * The refsi M1 compiler target has been split off from the main refsi
+      target. The risc-v compiler target remains, but is only compatible with
+      the 'G' target, which is now the default. The 'M' target now exists under
+      examples/refsi/refsi_m1. Both compiler targets are now derived from a new
+      compiler riscv utils library. The M1 target can still be built by using
+      -DCA_EXTERNAL_MUX_COMPILER_DIRS=<ONEAPI_CON_KIT>/examples/refsi/refsi_m1/compiler/refsi_m1
+      and -DCA_MUX_COMPILERS_TO_ENABLE="refsi_m1"
+* hal_refsi:
+    * `hal_refsi` now rounds up local buffer arguments to 128 bytes.
+    * `hal_refsi` now aligns pass-by-value kernel arguments to the next power
+      of in `WI` mode: not just in `WG` mode.
+* SPIR-V:
+    * The external `SPIRV-Headers` has been bumped to `sdk-1.3.239.0`.
+    * The support for "experimental" features (via
+      `CA_ENABLE_SPIRV_LL_EXPERIMENTAL` was removed)
 * The submodule `source/cl/external/OpenCL-ICD-Loader` has been removed and
   replaced by cmake fetchcontent logic to fetch it from github. It can built as
   before, except that the registry setting for the ICD needs to be set on
   windows. The script icd-register.ps1 can be used for this, although
   administrator privileges will be required.
-* `multi_llvm/alignment_helper` has been removed. Please use the equivalent
-  LLVM functionality directly.
-* `check-passes-host-lit` has been renamed to `check-host-compiler-lit`.
-* The unused `BuiltinInfo::emitInstanceID` function was removed.
-* The vectorizer now calls `__mux_get_local_id` and `__mux_get_local_size` when
-  establishing the vector length in vector predication mode. This is instead of
-  deferring to the BuiltinInfo to create a local id or local size.
-  * The unused `BuiltinInfo::emitLocalID` and `BuiltinInfo::emitLocalSize`
-    functions were removed.
-* The `BuiltinInfo::getGlobalIdBuiltin` and `BuiltinInfo::getLocalIdBuiltin`
-  functions were removed as they were too language-specific and the existance
-  of one and only one corresponding builtin.
-* The `CA_DEBUG_SUPPORT_ENABLED` pre-processor define has been renamed
-  `CA_ENABLE_DEBUG_SUPPORT` to match the cmake variable.
-* `CA_DEBUG_PASSES_ENABLED` pre-processor define has been renamed
-  `CA_ENABLE_DEBUG_SUPPORT` to match the cmake variable.
-* A new cmake option - `CA_ENABLE_LLVM_OPTIONS_IN_RELEASE` - has been added to
-  provide support for parsing `CA_LLVM_OPTIONS` in release-mode builds.
-* All debug instrumentations have been removed. Use `CA_LLVM_OPTIONS` instead:
-  * `CA_PASS_PRINT=1` -> `CA_LLVM_OPTIONS=-debug-pass-manager`
-  * `CA_PASS_VERIFY=1` -> `CA_LLVM_OPTIONS=-verify-each`
-  * `CA_PASS_VERIFY_DUMP=1` -> `CA_LLVM_OPTIONS=-verify-each`
-  * `CA_PASS_PRE_DUMP=1` -> `CA_LLVM_OPTIONS=-print-before/-print-before-all`
-  * `CA_PASS_POST_DUMP=1` -> `CA_LLVM_OPTIONS=-print-after/-print-after-all`
-  * `CA_PASS_SCEV_PRE_DUMP=1` -> re-compile with
-    `llvm::ScalarEvolutionPrinterPass` added to the pipeline.
-  * `CA_PASS_SCEV_POST_DUMP=1` -> re-compile with
-    `llvm::ScalarEvolutionPrinterPass` added to the pipeline.
-* The project is now universally built in C++17 mode.
-* More data is now reported from the compiler to the runtime via
-  `handler::VectorizeInfoMetadata`:
-  * `min_work_item_factor`
-  * `pref_work_item_factor`
-* An individual contributor license agreement has been added in the
-  CONTRIBUTING file.
-* The `creating a new mux target` tutorial and associated scripts have been
-  updated to allow a hal to be placed externally to the target source code.
-  This is supported via an additional `cmake` variable `CA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR`.
-* The `compiler::utils::SetBarrierConvergentPass` is now run when compiling
-  OpenCL C kernels and not just on SPIR/SPIRV modules.
-* The `compiler::utils::SetBarrierConvergentPass` has been renamed
-  `SetConvergentAttrPass`.
-* The `compiler::utils::SetConvergentAttrPass` now sets the `convergent`
-  attribute to any function not known to the `BuiltinInfo` to be
-  non-convergent. This property is bubbled up throuh the call-graph so that
-  callers of convergent functions are themselves marked convergent.
-* The declarations of `sub_group_*` OpenCL builtins are now marked convergent.
-* The compiler no longer necessarily generates kernels which retain their
-  original names. The actual generated kernel name is conveyed through ELF
-  metadata along with the original name, so the runtime can map between kernels
-  and their generated forms.
-* The `mux-orig-fn` function attribute now truly conveys the original function
-  name and should not change throughout the compiler. Its previous use as the
-  base name component which is used when generating new kernel wrappers has
-  been renamed as `mux-base-fn-name`.
-* The `utils::AddWorkItemInfoStructPass`, `utils::AddWorkGroupInfoStructPass`,
-  `utils::AddWorkItemFunctionsIfRequiredPass`,
-  `utils::ReplaceLocalWorkItemIdFunctionsPass` and
-  `utils::ReplaceNonLocalWorkItemFunctionsPass` have been removed. Use the
-  `utils::AddSchedulingParametersPass` and
-  `utils::DefineMuxBuiltinsPass` in their place.
-* The `__mux_get_kernel_width` and `__mux_set_kernel_width` builtins have been
-  removed, along with the `kernel_width` entry in the default work-item
-  scheduling structure.
-* `multi_llvm.h` functions pertaining to Target Transform Info have been
-  removed. Please use the equivalent LLVM functionality directly.
-* A code of conduct has been added for how developers and users should interact
-  with the oneAPI Construction Kit project once it has been open-sourced.
+* Compiler Debug Support:
+    * The `CA_DEBUG_SUPPORT_ENABLED` pre-processor define has been renamed
+      `CA_ENABLE_DEBUG_SUPPORT` to match the cmake variable.
+    * `CA_DEBUG_PASSES_ENABLED` pre-processor define has been renamed
+      `CA_ENABLE_DEBUG_SUPPORT` to match the cmake variable.
+    * A new cmake option - `CA_ENABLE_LLVM_OPTIONS_IN_RELEASE` - has been added to
+      provide support for parsing `CA_LLVM_OPTIONS` in release-mode builds.
+    * All debug instrumentations have been removed. Use `CA_LLVM_OPTIONS` instead:
+        * `CA_PASS_PRINT=1` -> `CA_LLVM_OPTIONS=-debug-pass-manager`
+        * `CA_PASS_VERIFY=1` -> `CA_LLVM_OPTIONS=-verify-each`
+        * `CA_PASS_VERIFY_DUMP=1` -> `CA_LLVM_OPTIONS=-verify-each`
+        * `CA_PASS_PRE_DUMP=1` ->
+          `CA_LLVM_OPTIONS=-print-before/-print-before-all`
+        * `CA_PASS_POST_DUMP=1` ->
+          `CA_LLVM_OPTIONS=-print-after/-print-after-all`
+        * `CA_PASS_SCEV_PRE_DUMP=1` -> re-compile with
+          `llvm::ScalarEvolutionPrinterPass` added to the pipeline.
+        * `CA_PASS_SCEV_POST_DUMP=1` -> re-compile with
+          `llvm::ScalarEvolutionPrinterPass` added to the pipeline.
 * The submodule `source/cl/external/OpenCL-Intercept-Layer` has been removed and
-  replaced by cmake fetchcontent logic to fetch it from github. It can built
+  replaced by cmake FetchContent logic to fetch it from github. It can built
   as before.
-* The `host` target now configures its scheduling parameters through a derived
-  `compiler::utils::BIMuxInfoConcept`. It configures three scheduling
-  parameters (found in the host target documentation). The
-  `host::AddEntryHookPass` no longer alters the kernel ABI and purely performs
-  work-group scheduling.
-The undocumented, untested command-line option `-vecz-inject-debug-printfs` was
-removed as it crashed the compiler when used.
-* The unified runtime submodule has been removed and is now fetched if
-  CA_ENABLE_API includes `ur`. The default for CA_ENABLE_API is now `cl;vk`
-  rather than all APIs as unified runtime does not fully work across all targets.
+* Unified Runtime:
+    * UR has had a spec bump which includes many ABI breaking changes.
+    * The unified runtime submodule has been removed and is now fetched if
+      CA_ENABLE_API includes `ur`. The default for CA_ENABLE_API is now `cl;vk`
+      rather than all APIs as unified runtime does not fully work across all targets.
 * The `metadata` library's `VectorizeInfoMetadata` now represents the 'work
   width' as a single named structure -- `FixedOrScalableQuantity<uint64_t>`,
   rather than two disjoint values for the known and scalable parts.
-* Many `multi_llvm` classes and methods which had no difference between
-  officially-supported LLVM versions have now been removed.
-* Changes to BuiltinLoader class hierarchy:
-  * `compiler::utils::BuiltinLoader` is renamed to
-    `compiler::utils::CLBuiltinLoader`, and is now declared in
-    `modules/compiler/utils/cl_builtin_info.h`.
-  * `compiler::utils::SimpleLazyBuiltinLoader` is replaced with
-    `compiler::utils::SimpleCLBuiltinLoader`, and is now declared in
-    `modules/compiler/utils/cl_builtin_info.h`.
-  * `compiler::utils::createSimpleLazyCLBuiltinInfo` is renamed to
-    `compiler::utils::createCLBuiltinInfo`, and is now declared in
-    `modules/compiler/utils/cl_builtin_info.h`.
-  * `compiler::utils::LazyBuiltinLoader` has been removed. Use either
-    `compiler::utils::SimpleCLBuiltinLoader` or subclass
-    `compiler::utils::CLBuiltinLoader` directly instead.
-* The compiler is now always built in what was previously 3.0 mode.
-* The compiler now checks the OpenCL version compatibility of a module at
-  runtime, as opposed to at build time. This is encoded as
-  `!opencl.ocl.version` metadata.
-* `compiler::utils::CLBuiltinInfo` now only identifies builtins when the
-  module's OpenCL version is recent enough to support those builtins.
-* `utils::populateSimpleWorkItemInfoLookupFunction`,
-  `utils::populateSimpleWorkGroupInfoLookupFunction` and
-  `utils::populateSimpleWorkItemInfoSetterFunction` have been removed and
-  replaced with the more generic `utils::populateStructSetterFunction` and
-  `utils::populateStructGetterFunction`. This is so targets can easily reuse
-  these functions to define builtins that may not necessarily use the
-  `MuxWorkItemInfoStruct` or `MuxWorkGroupInfoStruct` types.
-* The dependency on `utils::AddWorkItemFunctionsIfRequiredPass` from
-  `utils::HandleBarriersPass` has been severed. The `HandleBarriersPass` now
-  unconditionally calls the helper builtins `__mux_set_local_id` and
-  `__mux_set_sub_group_id`. They will be optimized out by later passes if
-  unused.
-* Customers will need to take note of changes to the BuiltinInfo interface, if
-  they use it.
-* Support for supplying the `-cl-std` argument to `clc` in offline UnitCL
-  kernels has been moved from `CLC OPTIONS:` into a new `CL_STD:` requirement.
-  This allows it to be conveniently passed to the compiler invocation when
-  compiling SPIR-V kernels.
-* The refsi M1 compiler target has been split off from the main refsi target. The
- risc-v compiler target remains, but is only compatible with the 'G' target,
- which is now the default. The 'M' target now exists under
- examples/refsi/refsi_m1. Both compiler targets are now derived from a new
- compiler riscv utils library. The M1 target can still be built by using
- -DCA_EXTERNAL_MUX_COMPILER_DIRS=<ONEAPI_CON_KIT>/examples/refsi/refsi_m1/compiler/refsi_m1
- and -DCA_MUX_COMPILERS_TO_ENABLE="refsi_m1"
 
 Feature additions:
 
 * The `host` target now uses LLVM's `ORC`-based JIT to execute online kernels,
   rather than the older `MCJIT`.
+* Added basic support for the generic address space in OpenCL 3.0.
 * The `CA_HOST_TARGET_CPU` environment variable may be set to `"native"` at
   runtime to compiler and execute JIT kernels for the host system. The
   behaviour should be identical to that when the project is built with
   `-DCA_HOST_TARGET_CPU=native`.
-* Implement urEnqueueUSMMemcpy.
 * Introduce the ability to specialize builtin functions for specific targets.
   This is done using the `add_target_builtins()` CMake command and providing a
   list of source files which implement optimized versions of builtins for a
   target architecture. Targets can then access the embedded LLVM bitcode at
   runtime to make use of the optimized builtin functions.
-* Two new passes - `utils::AddSchedulingParametersPass` and
-  `utils::DefineMuxBuiltinsPass` - have been added to replace the old pass
-  framework of adding scheduling paramaters and replacing work-item builtins:
-  * `core::utils::AddWorkItemFunctionsIfRequiredPass`
-  * `core::utils::AddWorkItemInfoStructPass`
-  * `core::utils::ReplaceLocalWorkItemIdFuncsPass`
-  * `core::utils::AddWorkGroupInfoStructPass`
-  * `core::utils::ReplaceNonLocalWorkItemFuncsPass`
-  The two replacement passes utilize `utils::BuiltinInfo` APIs concerning
-  scheduling parameters (see `utils::BuiltinInfo::SchedParamInfo` and
-  associated methods) and for defining mux work-item builtins (see
-  `utils::BuiltinInfo::defineMuxBuiltin`)
-* Work Item Ordering support has been removed from the front end. Kernel
-  metadata/attributes and all supporting classes, structs and functions have
-  also been deleted.
-* created a mechanism for implementing degenerate subgroups selectively on some
-  kernels and not others. It will also clone kernels to produce two versions
-  (using degenerate and non-degenerate subgroups) when the local size is not
-  known at compile time.
-* LLVM Intrinsics are now handled directly by the main BuiltinInfo object,
-  instead of the language/target-dependent implementations, ensuring consistent
-  scalarization and vectorization/widening.
-* `lldLinkToBinary` now returns the linked object file (or error) by value,
-  rather than being passed to the function. Error messages have been added for
-  when the function fails.
-* Improved efficiency of reductions over subvector packets by reducing to a
-  single vector first and then reducing that to scalar, rather than the other
-  way round.
-* A new overload of `compiler::utils::createKernelWrapperFunction` has been
-  added to simplify the process of creating a wrapper with the same function
-  prototype as the old function.
-* Vecz is now able to vectorize shuffle vector instructions (without scalarizing
-  them first) when a scalable vectorization factor is requested.
-* The `riscv` and cookie-cutter targets now register the LLVM assembly parsers,
-  meaning they can use inline assembly if they wish.
-* Initial basic support for Generic Address Space in OpenCL 3.0.
-* More optimized Abacus sqrt(float) builtin function.
 * A target-specific `host-utils` library has been added to serve both `mux` and
   `compiler` modules. Any other target may add their own equivalent library in
   `modules/utils/target/<target-name>`.
-* The `host-common` library has been removed; its contents have been moved to
-  `host-utils`.
-* Implement the new compiler API for UR.
-* `urEnqueue*` functions no longer block unless explicitly told to.
-* `urEnqueue*` functions can now wait for an artbitrary list of events to
-  complete before starting execution.
-* Implement `urQueueFinish` and `urQueueFlush` entry points.
-* `spirv-ll-tool` now outputs to stdout when given `-o -`.
-* `spirv-ll` now generates calls to ComputeMux synchronization builtins for
-  `OpControlBarrier` (`__mux_work_group_barrier` and `__mux_sub_group_barrier`)
-  and `OpMemoryBarrier` (`__mux_mem_barrier`).
-* `spirv-ll` now supports the `SPV_KHR_expect_assume` extension.
-* `spirv-ll` now supports the `GenericPointer` storage class, targeting address
-  space 4.
-* `spirv-ll` now supports the `SPV_KHR_linkonce_odr` extension.
-* `spirv-ll` now supports the `SPV_KHR_uniform_group_instructions` extension.
-* `spirv-ll` now supports the `SPV_INTEL_arbitrary_precision_integers` extension.
-* Optimized Insert Element operations for scalable vectorization factors on
-  Risc-V.
-* New LIT check targets have been introduced:
-  * `check-host-lit` runs all mux/compiler lit tests for the `host` target
-  * `check-riscv-lit` runs all mux/compiler lit tests for the `riscv` target
-  * `check-mux-lit` runs all mux lit tests for all targets.
-  * `check-compiler-lit` runs all compiler tests for all targets.
-* The compiler can now handle overloads of `wait_group_events` taking pointers
-  to events in the generic address space. These can come from SPIR-V modules.
-* Vecz can now handle kernels featuring irreducible control flow, by running
-  the new Fix Irreducible pass.
-* A new utils pass `compiler::utils::ReplaceMemcpySetIntrinsicsPass` has been
-  created which will replace calls to intrinsics `llvm.memcpy.*`, `llvm.memset.*`
-  and `llvm.memmove.*` with calls to a generated equivalent loop. This pass has
-  now been added to the `riscv` target and conditionally to the cookie cutter
-  generated target, based off the `json` "feature" element `replace_mem`.
-  
+    * The `host-common` library has been removed; its contents have been moved
+      to `host-utils`.
 * Add prototype support for the oneAPI Unified Runtime API. This builds upon
   ComputeMux to enable another path of integration into the DPC++ SYCL runtime
   for ComputeAorta.
-* Implement SPIR-V extensions:
-  * SPV_EXT_shader_atomic_float_add
-  * SPV_EXT_shader_atomic_float_min_max
-* Vecz Stride Analysis can now determine stride linearity on simple loop-carried
-  PHI nodes regardless of which incoming value is the initial value and which
-  is the increment.
-* The copyright on files generated from create_target.py has been updated,
-  allowing a customer copyright to be added via the json field `copyright_name`.
-* The `clmul` add custom builtin extensions tutorial has been updated to use
-  a derived version of `CLBuiltinInfo` as this is a more correct method.
- * If the `HandleBarriersPass` finds a vector kernel and a vector-predicated
-   kernel with the same source, they are combined into one wrapper. The
-   vector-predicated kernel will not generate its own entry point, even if it
-   is marked as an entry point.
-* oneAPI Construction Kit has been extended to also include `clik` and examples
-  HALs such as `hal_refsi_tutorial`. The `hal` submodule has been moved to the
-  top level as a subtree so it can be shared with `clik`.
-* Added support to create_target to assume llvm_cpu, llvm_features and
-  llvm_triple are expressions by default and add support for putting ' at
-  beginning or end of the json field to signify ".
-* `utils::BuiltinInfo` can be used to get-or-declare mux work-item builtin
-  functions.
+    * Implement the new compiler API for UR.
+    * `urEnqueue*` functions no longer block unless explicitly told to.
+    * `urEnqueue*` functions can now wait for an artbitrary list of events to
+      complete before starting execution.
+    * Implement urEnqueueUSMMemcpy.
+    * Implement `urQueueFinish` and `urQueueFlush` entry points.
+* Compiler changes:
+    * Created a mechanism for implementing degenerate subgroups selectively on
+      some kernels and not others. It will also clone kernels to produce two
+      versions (using degenerate and non-degenerate subgroups) when the local
+      size is not known at compile time.
+    * More optimized Abacus sqrt(float) builtin function.
+    * A new overload of `compiler::utils::createKernelWrapperFunction` has been
+      added to simplify the process of creating a wrapper with the same
+      function prototype as the old function.
+    * A new utils pass `compiler::utils::ReplaceMemcpySetIntrinsicsPass` has
+      been created which will replace calls to intrinsics `llvm.memcpy.*`,
+      `llvm.memset.*` and `llvm.memmove.*` with calls to a generated equivalent
+      loop. This pass has now been added to the `riscv` target and
+      conditionally to the cookie cutter generated target, based off the `json`
+      "feature" element `replace_mem`.
+    * Two new passes - `utils::AddSchedulingParametersPass` and
+      `utils::DefineMuxBuiltinsPass` - have been added to replace the old pass
+      framework of adding scheduling paramaters and replacing work-item
+      builtins:
+        * `core::utils::AddWorkItemFunctionsIfRequiredPass`
+        * `core::utils::AddWorkItemInfoStructPass`
+        * `core::utils::ReplaceLocalWorkItemIdFuncsPass`
+        * `core::utils::AddWorkGroupInfoStructPass`
+        * `core::utils::ReplaceNonLocalWorkItemFuncsPass`
+      The two replacement passes utilize `utils::BuiltinInfo` APIs concerning
+      scheduling parameters (see `utils::BuiltinInfo::SchedParamInfo` and
+      associated methods) and for defining mux work-item builtins (see
+      `utils::BuiltinInfo::defineMuxBuiltin`)
+    * LLVM Intrinsics are now handled directly by the main BuiltinInfo object,
+      instead of the language/target-dependent implementations, ensuring
+      consistent scalarization and vectorization/widening.
+    * `lldLinkToBinary` now returns the linked object file (or error) by value,
+      rather than being passed to the function. Error messages have been added
+      for when the function fails.
+    * The `riscv` and cookie-cutter targets now register the LLVM assembly
+      parsers, meaning they can use inline assembly if they wish.
+    * If the `HandleBarriersPass` finds a vector kernel and a vector-predicated
+      kernel with the same source, they are combined into one wrapper. The
+      vector-predicated kernel will not generate its own entry point, even if
+      it is marked as an entry point.
+    * `utils::BuiltinInfo` can be used to get-or-declare mux work-item builtin
+      functions.
+* `SPIR-V` changes:
+    * `spirv-ll-tool` now outputs to stdout when given `-o -`.
+    * `spirv-ll` now generates calls to ComputeMux synchronization builtins for
+      `OpControlBarrier` (`__mux_work_group_barrier` and `__mux_sub_group_barrier`)
+      and `OpMemoryBarrier` (`__mux_mem_barrier`).
+    * `spirv-ll` now supports the `SPV_KHR_expect_assume` extension.
+    * `spirv-ll` now supports the `GenericPointer` storage class, targeting address
+      space 4.
+    * `spirv-ll` now supports the `SPV_KHR_linkonce_odr` extension.
+    * `spirv-ll` now supports the `SPV_KHR_uniform_group_instructions` extension.
+    * `spirv-ll` now supports the `SPV_INTEL_arbitrary_precision_integers` extension.
+    * Implement SPIR-V extensions:
+        * SPV_EXT_shader_atomic_float_add
+        * SPV_EXT_shader_atomic_float_min_max
+* New LIT check targets have been introduced:
+    * `check-host-lit` runs all mux/compiler lit tests for the `host` target
+    * `check-riscv-lit` runs all mux/compiler lit tests for the `riscv` target
+    * `check-mux-lit` runs all mux lit tests for all targets.
+    * `check-compiler-lit` runs all compiler tests for all targets.
+* `vecz` changes:
+    * Vecz can now handle kernels featuring irreducible control flow, by
+      running the new Fix Irreducible pass.
+    * Vecz Stride Analysis can now determine stride linearity on simple
+      loop-carried PHI nodes regardless of which incoming value is the initial
+      value and which is the increment.
+    * Vecz is now able to vectorize shuffle vector instructions (without
+      scalarizing them first) when a scalable vectorization factor is
+      requested.
+    * Improved efficiency of reductions over subvector packets by reducing to a
+      single vector first and then reducing that to scalar, rather than the
+      other way round.
+    * Optimized Insert Element operations for scalable vectorization factors on
+      RISC-V.
+* Tutorials, examples, and new targets:
+    * The copyright on files generated from create_target.py has been updated,
+      allowing a customer copyright to be added via the json field
+      `copyright_name`.
+    * The `clmul` add custom builtin extensions tutorial has been updated to
+      use a derived version of `CLBuiltinInfo` as this is a more correct
+      method.
+    * The oneAPI Construction Kit has been extended to also include `clik` and
+      examples HALs such as `hal_refsi_tutorial`. The `hal` submodule has been
+      moved to the top level as a subtree so it can be shared with `clik`.
+    * Added support to create_target to assume llvm_cpu, llvm_features and
+      llvm_triple are expressions by default and add support for putting ' at
+      beginning or end of the json field to signify ".
 
 Non-functional changes:
 
 * Vecz: Removed handling of builtin functions from the Vectorization Unit. The
   Vectorization Context is now directly responsible for returning everything
   required to vectorize a builtin.
-* Refactor of BuiltinInfo API to remove exposure of internal BuiltinIDs and
-  create a universal way to pass builtin information between BuiltinInfo
-  functions instead of having to use IDs in some places and function pointers
-  in others.
 * Updated HAL documentation to show requirements for use with `clik`.
-* The `modules/builtins` directory has been moved to
-  `modules/compiler/builtins`.
-* CLBuiltinInfo now assigns Builtin IDs for `VLoad`/`VStore` (including `_half`
-  variants), and also `select` and `as_` builtins, simplifying code and easing
-  maintenance.
-* The BuiltinInfo interface no longer has `emitBuiltinInline` that accepts a
-  BuiltinID. Use the version that accepts a Function pointer instead.
-* The Builtininfo interface no longer has `materializeBuiltin` function, since
-  this is only used internally by specific implementations.
-* riscv-isa-sim now fetches from github and applies a local patch to support
-  refsi features.
-* Simplified BuiltinLoader hierarchy and made it specific to CLBuiltinInfo.
-  CLBuiltinInfo can now be constructed directly from a Builtins module.
+* Code structure:
+    * The `modules/builtins` directory has been moved to
+      `modules/compiler/builtins`.
+    * The `modules/spirv-ll` module has been moved to
+      `modules/compiler/spirv-ll`.
+    * The `modules/vecz` module has been moved to `modules/compiler/vecz`.
+* riscv-isa-sim now fetches from Codeplay's github fork
 * Store degenerate subgroup information as function attribute.
-* BuiltinInfo interface changes:
-  * `BuiltinInfo::identifyBuiltin()` now takes a `llvm:Function` const
+* `BuiltinInfo` interface changes:
+    * `BuiltinInfo::identifyBuiltin()` now takes a `llvm:Function` const
     reference instead of a StringRef of the name.
-  * `BuiltinInfo::analyzeBuiltin()` now takes a `llvm::Function` const
-    reference instead of a const pointer.
-  * `BuiltinInfo::isArgumentVectorized()` has been removed.
-  * The above apply equally to CLBuiltinInfo and DXILBuiltinInfo.
+    * `BuiltinInfo::analyzeBuiltin()` now takes a `llvm::Function` const
+      reference instead of a const pointer.
+    * `BuiltinInfo::isArgumentVectorized()` has been removed.
+    * The BuiltinInfo interface no longer has `emitBuiltinInline` that accepts
+      a BuiltinID. Use the version that accepts a Function pointer instead.
+    * The Builtininfo interface no longer has `materializeBuiltin` function,
+      since this is only used internally by specific implementations.
+    * Refactor of BuiltinInfo API to remove exposure of internal BuiltinIDs and
+      create a universal way to pass builtin information between BuiltinInfo
+      functions instead of having to use IDs in some places and function
+      pointers in others.
+    * Simplified BuiltinLoader hierarchy and made it specific to CLBuiltinInfo.
+      CLBuiltinInfo can now be constructed directly from a Builtins module.
+    * CLBuiltinInfo now assigns Builtin IDs for `VLoad`/`VStore` (including
+      `_half` variants), and also `select` and `as_` builtins, simplifying code
+      and easing maintenance.
 
 Bug fixes:
 
-* Fix crash in Control Flow Conversion caused by presence of Switch
-  instructions, which are not handled.
-* The command line tool `veczc` now has a command line option that allows
-  vectorization to fail without returning an error state, for testing failures.
-* `sub_group_scan_exclusive_*` builtins are now correctly scalably-vectorized
-  for `half` and `double` types and no longer crash the compiler backend.
-* Use of generic address space in legacy atomics from SpirV-ll will no longer
-  result in a crash or linker error.
-* A couple of bugs were fixed in the `CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT`
-  sub-group APIs, which could return uninitialized data.
-* Linear work-item schedules, produced by certain work-group collective
-  builtins, no longer generate invalid IR when vectorized.
-* Local-address-space accumulator global variables are now generated with
-  `internal` linkage to fix potential unresolved symbols.
-* Work-group collective functions of `half` types no longer crash the compiler.
+* Fixed issue with non-user event dependencies across queues for OpenCL. This
+  is a fix for the following case:
+    Queue 1 : clEnqueueNDRange -> event_kernel
+    Queue 2 : clEnqueueReadBuffer <- wait event_kernel, -> event_read
+    clWaitForEvents(event_read)
+   This should all be internal and require no user changes.
 * Fix for clReleaseCommandQueue leaving event functions in a bad state. The fix
   involves retaining the command queue in the event and also adding an
   effective finish when clReleaseCommandQueue is called, when we have events
   waiting. Additionally wait events have to be retained until they are cleaned
   up once they are removed from the dispatch list. This fixes a number of
-  issues including CTS fail test_api/queue_flush_on_release,
+  issues including CTS fail `test_api/queue_flush_on_release`,
   and vexcl/events test.
+* The 32-bit arm host target now uses the hard-float ABI, which was incorrectly
+  being lost and set to the soft-float ABI.
+* A couple of bugs were fixed in the `CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT`
+  sub-group APIs, which could return uninitialized data.
 * A couple of data races on LLVM variables have been fixed.
 * Host Kernel compilation will now return an error state when finalization
   fails.
-* CL Builtins `length` and `fast_length` are now emitted as `fabs` for scalar
-  types; `normalize` and `fast_normalize` are emitted as `sign`.
-* When scalarizing a vector splat which is used by a non-scalarizable
-  instruction, the scalarizer no longer inserts multiple insert element
-  instructions to reconstruct the value, but restores the vector splat instead.
-  * Fixed the use of CA_MUX_COMPILERS_TO_ENABLE which could be used to choose
-    which compiler targets were enabled. CA_MUX_COMPILERS_TO_ENABLE can be used
-    to decide which compiler directories to be added. If
-    CA_MUX_COMPILERS_TO_ENABLE was passed in, the name of the library to be
-    added was taken from this variable rather than the actual name of the
-    library which would probably differ from the directory name. The logic is
-    changed so that the library name to be added is taken from
-    MUX_COMPILER_LIBRARIES, which was added to when the compiler target was
-    added using `add_mux_compiler_target`. This allows
-    CA_MUX_COMPILERS_TO_ENABLE to be used effectively to limit to one
-    compiler library or another.
-    CA_MUX_TARGETS_TO_ENABLE has been changed to use the same logic i.e. it only
-    enables the directory inclusion.
+* Fixed the use of `CA_MUX_COMPILERS_TO_ENABLE` which could be used to choose
+  which compiler targets were enabled. `CA_MUX_COMPILERS_TO_ENABLE` can be used
+  to decide which compiler directories to be added. If
+  `CA_MUX_COMPILERS_TO_ENABLE` was passed in, the name of the library to be added
+  was taken from this variable rather than the actual name of the library which
+  would probably differ from the directory name. The logic is changed so that
+  the library name to be added is taken from `MUX_COMPILER_LIBRARIES`, which was
+  added to when the compiler target was added using `add_mux_compiler_target`.
+  This allows `CA_MUX_COMPILERS_TO_ENABLE` to be used effectively to limit to one
+  compiler library or another. `CA_MUX_TARGETS_TO_ENABLE` has been changed to use
+  the same logic i.e. it only enables the directory inclusion.
 * The `riscv` and generated targets have been updated to store the
   `VectorizeInfoMetadata` directly, removing the dependency on the compiler,
-  allowing CA_RUNTIME_COMPILER_ENABLED to be used on risc-v and other targets.
-* The `ReplaceLocalModuleScopeVariablesPass` can handle global variables used
-  by comparison instructions.
-* The 32-bit arm host target now uses the hard-float ABI, which was incorrectly
-  being lost and set to the soft-float ABI.
+  allowing `CA_RUNTIME_COMPILER_ENABLED` to be used on risc-v and other targets.
 * Fixed an issue where a `cl_command_buffer_khr` could not be used by to two
   different `cl_command_queue`s simultaneously, this now behaves correctly.
-* The `compiler::utils::EncodeBuiltinRangeMetadataPass` no longer sets the
-  maximum global size based on the device's `max_concurrent_work_items` value,
-  which refers to the *local* size. The pass now accepts a 3D values of global
-  sizes, though those are not currently set by the compiler itself.
-* The `AlignModuleStructsPass` has been fixed so that it pads struct types more
-  closely matching the user-facing SPIR ABI. This also means it no longer pads
-  in cases where it previously unnecessarily did.
-* A bug was fixed in handling function calls to function forward references,
-  which was previously generating invalid LLVM IR.
-* `spirv-ll` will now correctly mangle boolean types.
-* A bug was fixed where the incorrect group reduction operation would be called
-  if the sign of the input integer type did not match the sign of the group
-  operation.
-* Vector-predicated kernels are now named with "vp" to avoid clashes with
-  identically-vectorized kernels without vector predication.
-* Spirv: Signed integer `rhadd` builtin now works properly.
+* `vecz`:
+    * Fix crash in Control Flow Conversion caused by presence of Switch
+      instructions, which are not handled.
+    * The command line tool `veczc` now has a command line option that allows
+      vectorization to fail without returning an error state, for testing
+      failures.
+    * When scalarizing a vector splat which is used by a non-scalarizable
+      instruction, the scalarizer no longer inserts multiple insert element
+      instructions to reconstruct the value, but restores the vector splat
+      instead.
+    * Vector-predicated kernels are now named with "vp" to avoid clashes with
+      identically-vectorized kernels without vector predication.
+    * `sub_group_scan_exclusive_*` builtins are now correctly
+      scalably-vectorized for `half` and `double` types and no longer crash the
+      compiler backend.
+    * Linear work-item schedules, produced by certain work-group collective
+      builtins, no longer generate invalid IR when vectorized.
+* Compiler passes:
+    * The `compiler::utils::AlignModuleStructsPass` has been fixed so that it
+      pads struct types more closely matching the user-facing SPIR ABI. This
+      also means it no longer pads in cases where it previously unnecessarily
+      did.
+    * The `compiler::utils::ReduceToFunctionPass` was fixed in the presence of
+      multiple vectorized forms of a kernel. It would previously crash if a
+      base function was linked to more than one vectorized form.
+    * The `compiler::utils::EncodeBuiltinRangeMetadataPass` no longer sets the
+      maximum global size based on the device's `max_concurrent_work_items`
+      value, which refers to the *local* size. The pass now accepts a 3D values
+      of global sizes, though those are not currently set by the compiler
+      itself.
+    * The `compiler::utils::ReplaceLocalModuleScopeVariablesPass` can handle
+      global variables used by comparison instructions.
+    * Local-address-space accumulator global variables are now generated with
+      `internal` linkage to fix potential unresolved symbols.
+    * Use of generic address space in legacy atomics from SpirV-ll will no
+      longer result in a crash or linker error.
+* `SPIR-V`:
+    * A bug was fixed in handling function calls to function forward
+      references, which was previously generating invalid LLVM IR.
+    * `spirv-ll` will now correctly mangle boolean types.
+    * A bug was fixed where the incorrect group reduction operation would be
+      called if the sign of the input integer type did not match the sign of
+      the group operation.
+    * Signed and unsigned integer OpenCL-Ext builtins now correctly mangle
+      their argument types based on the operation, not based on the integer
+      type.
 * Calling `printf` on half floating-point types now works correctly in all
   cases.
-* The `ReduceToFunctionPass` was fixed in the presence of multiple vectorized
-  forms of a kernel. It would previously crash if a base function was linked to
-  more than one vectorized form.
-* Fixed undefined behaviour in the implementation of trigonometric builtins that
-  only manifested in rare edge cases (when invoked with a constant argument).
+* Work-group collective functions of `half` types no longer crash the compiler.
+* Builtins:
+    * CL Builtins `length` and `fast_length` are now emitted as `fabs` for
+      scalar types; `normalize` and `fast_normalize` are emitted as `sign`.
+    * Fixed undefined behaviour in the implementation of trigonometric builtins
+      that only manifested in rare edge cases (when invoked with a constant
+      argument).
 * Fix a couple of minor memory issues in UnitUR.
-* Fixed issue with non-user event dependencies across queues for OpenCL. This is
-  a fix for the following case:
-    Queue 1 : clEnqueueNDRange -> event_kernel
-    Queue 2 : clEnqueueReadBuffer <- wait event_kernel, -> event_read
-    clWaitForEvents(event_read)
-   This should all be internal and require no user changes.
-* Use degenerate subgroups on RiscV as temporary workaround for failing subgroup
-  tests while the subgroup infrastructure is reworked.
 
 ## Version 1.75.0 - 2022-10-31
 
