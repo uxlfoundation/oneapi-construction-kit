@@ -285,30 +285,19 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}Module::getLate
 
   const auto &env_debug_prefix = getTarget().env_debug_prefix;
 
-#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_{{cookiecutter.target_name_capitals}}_DEMO_MODE)
-  if (!env_debug_prefix.empty()) {
-    std::string env_name_dump_ir = env_debug_prefix + "_DUMP_IR";
-    if (const char *dumpIR = getenv(env_name_dump_ir.c_str())) {
-      addIRSnapshotStages(dumpIR);
-    }
-    std::string env_name_dump_asm = env_debug_prefix + "_DUMP_ASM";
-    if (getenv(env_name_dump_asm.c_str())) {
-      std::string name = compiler::BaseModule::getTargetSnapshotName(
-          "{{cookiecutter.target_name}}",
-          {{cookiecutter.target_name}}::{{cookiecutter.target_name_capitals}}_SNAPSHOT_BACKEND);
-      addInternalSnapshot(name.c_str());
-    }
-  }
-#endif
-
   compiler::BasePassPipelineTuner tuner(options);
 
   llvm::ModulePassManager PM;
 
   PM.addPass(compiler::utils::TransferKernelMetadataPass());
 
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "{{cookiecutter.target_name}}", {{cookiecutter.target_name_capitals}}_SNAPSHOT_INPUT, snapshots);
+#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_{{cookiecutter.target_name_capitals}}_DEMO_MODE)
+  std::string dump_ir_env_name = env_debug_prefix + "_DUMP_IR";
+  if (!env_debug_prefix.empty() && std::getenv(dump_ir_env_name.c_str())) {
+    PM.addPass(compiler::utils::SimpleCallbackPass(
+        [](llvm::Module &m) { m.print(llvm::dbgs(), /*AAW*/ nullptr); }));
+  }
+#endif
 
   {% if "replace_mem"  in cookiecutter.feature.split(";") -%}
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
@@ -333,18 +322,12 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}Module::getLate
 
   PM.addPass(vecz::RunVeczPass());
 
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "{{cookiecutter.target_name}}", {{cookiecutter.target_name_capitals}}_SNAPSHOT_VECTORIZED, snapshots);
-
   addLateBuiltinsPasses(PM, tuner);
 
   compiler::utils::HandleBarriersOptions HBOpts;
   HBOpts.IsDebug = options.opt_disable;
   HBOpts.ForceNoTail = hasForceNoTail(env_debug_prefix);
   PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
-
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "{{cookiecutter.target_name}}", {{cookiecutter.target_name_capitals}}_SNAPSHOT_BARRIER, snapshots);
 
   compiler::addPrepareWorkGroupSchedulingPasses(PM);
 
@@ -367,18 +350,20 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}Module::getLate
 
   addLLVMDefaultPerModulePipeline(PM, pass_mach.getPB(), options);
 
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "{{cookiecutter.target_name}}", {{cookiecutter.target_name_capitals}}_SNAPSHOT_SCHEDULED, snapshots);
-
-  // With all passes scheduled, add a snapshot to view the assembly/object
+#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_RISCV_DEMO_MODE)
+  // With all passes scheduled, add a callback pass to view the assembly/object
   // file, if requested.
-  if (auto snapshot = compiler::BaseModule::shouldTakeTargetSnapshot(
-          "{{cookiecutter.target_name}}", {{cookiecutter.target_name_capitals}}_SNAPSHOT_BACKEND, snapshots)) {
+  std::string dump_asm_env_name = env_debug_prefix + "_DUMP_ASM";
+  if (!env_debug_prefix.empty() && std::getenv(dump_asm_env_name.c_str())) {
     PM.addPass(compiler::utils::SimpleCallbackPass(
-        [snapshot, TM = pass_mach.getTM(), this](llvm::Module &m) {
-          takeBackendSnapshot(&m, TM, *snapshot);
+        [TM = pass_mach.getTM()](llvm::Module &m) {
+          // Clone the module so we leave it in the same state after we compile.
+          auto cloned_m = llvm::CloneModule(m);
+          compiler::emitCodeGenFile(*cloned_m, TM, llvm::outs(),
+                                    /*create_assembly*/ true);
         }));
   }
+#endif
 
   return PM;
 }
@@ -514,109 +499,6 @@ void {{cookiecutter.target_name.capitalize()}}Module::initializePassMachineryFor
   pass_mach.getFAM().registerPass(
       [&LibraryInfo] { return llvm::TargetLibraryAnalysis(LibraryInfo); });
   pass_mach.initializeFinish();
-}
-
-// Snapshot Support
-
-static auto checkSnapshotAvailable(
-    const char *stage, const std::vector<std::string> &available_snapshots) {
-  return std::find_if(available_snapshots.begin(), available_snapshots.end(),
-                      [stage](const std::string &s) { return s == stage; });
-}
-
-static void printSnapshot(size_t snapshot_size, const char *snapshot_data,
-                          void *, void *) {
-  llvm::dbgs() << llvm::StringRef(snapshot_data, snapshot_size) << "\n";
-}
-
-void {{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Module::addInternalSnapshot(const char *stage) {
-  auto it = checkSnapshotAvailable(stage, getTarget().available_snapshots);
-  if (it == getTarget().available_snapshots.end()) {
-    return;
-  }
-  compiler::BaseModule::SnapshotDetails snapshot;
-  snapshot.format = compiler::SnapshotFormat::TEXT;
-  snapshot.stage = it->c_str();
-  snapshot.callback = printSnapshot;
-  snapshot.user_data = nullptr;
-
-  snapshots.push_back(snapshot);
-}
-
-bool {{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Module::getStagesFromDumpIRString(
-    std::vector<std::string> &stages, const char *dump_ir_string) {
-  if (!dump_ir_string || !strcmp(dump_ir_string, "") ||
-      !strcmp(dump_ir_string, "0")) {
-    return false;
-  }
-
-  // If just passed 1, add a default snapshot corresponding to the latest IR
-  // stage in the pipeline.
-  if (!strcmp(dump_ir_string, "1")) {
-    stages.push_back(compiler::BaseModule::getTargetSnapshotName(
-        "{{cookiecutter.target_name}}", {{cookiecutter.target_name}}::{{cookiecutter.target_name_capitals}}_SNAPSHOT_SCHEDULED));
-    return true;
-  }
-
-  // Try to parse a list of stages.
-  const char delimiter = ',';
-  size_t num_valid_stages = 0;
-  std::stringstream ss(dump_ir_string);
-  std::string stage_name;
-  while (std::getline(ss, stage_name, delimiter)) {
-    // Try a full match
-    auto it =
-        checkSnapshotAvailable(stage_name.c_str(), getTarget().available_snapshots);
-    if (it == getTarget().available_snapshots.end()) {
-      // Else try partial matches
-      const std::string prefixes[] = {
-          "cl_snapshot_compilation_",
-          "cl_snapshot_{{cookiecutter.target_name}}_"};
-      for (cargo::string_view prefix : prefixes) {
-        std::string full_name = std::string(prefix.data()) + stage_name;
-        it = checkSnapshotAvailable(full_name.c_str(),
-                                    getTarget().available_snapshots);
-        if (it != getTarget().available_snapshots.end()) {
-          break;
-        }
-      }
-
-      if (it != getTarget().available_snapshots.end()) {
-        stages.push_back(*it);
-        num_valid_stages++;
-      }
-    }
-  }
-
-  return num_valid_stages != 0;
-}
-
-bool {{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Module::addIRSnapshotStages(const char *stages_text) {
-  std::vector<std::string> stages;
-  if (getStagesFromDumpIRString(stages, stages_text)) {
-    for (const std::string &stage : stages) {
-      addInternalSnapshot(stage.c_str());
-    }
-    return true;
-  }
-  return false;
-}
-
-void {{cookiecutter.target_name}}::{{cookiecutter.target_name.capitalize()}}Module::takeBackendSnapshot(
-    llvm::Module *M, llvm::TargetMachine *TM,
-    const compiler::BaseModule::SnapshotDetails &snapshot) {
-  llvm::SmallVector<char, 1024> snapshot_data;
-  llvm::raw_svector_ostream stream(snapshot_data);
-
-  // Clone the module so we leave it in the same state after we compile.
-  auto clonedM = std::unique_ptr<llvm::Module>(llvm::CloneModule(*M));
-  bool emit_assembly = snapshot.format != compiler::SnapshotFormat::BINARY;
-  compiler::emitCodeGenFile(*clonedM, TM, stream, emit_assembly);
-
-  cargo::string_view suffix_str =
-      snapshot.format == compiler::SnapshotFormat::BINARY ? ".o" : ".s";
-  snapshot.callback(snapshot_data.size(), snapshot_data.data(),
-                    (void *)suffix_str.data(), snapshot.user_data);
 }
 
 }  // namespace {{cookiecutter.target_name}}

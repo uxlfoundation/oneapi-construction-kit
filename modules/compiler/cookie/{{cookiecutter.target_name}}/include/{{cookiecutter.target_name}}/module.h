@@ -80,39 +80,6 @@ class {{cookiecutter.target_name.capitalize()}}Module final : public compiler::B
 
   const {{cookiecutter.target_name.capitalize()}}Target &getTarget() const;
 
-  /// @brief Try to parse a string that specifies a list of stages to dump IR
-  /// for.
-  /// @param stages Vector to add parsed stage IDs to.
-  /// @param dump_ir_string String containing the stage names to parse.
-  /// @return Returns true if any stages were successfully parsed from the
-  /// string.
-  bool getStagesFromDumpIRString(std::vector<std::string> &stages,
-                                 const char *dump_ir_string);
-
-  /// @brief Add internal snapshots for all valid snapshot stages found in the
-  /// stages string.
-  /// @param stages Comma-separated string containing a list of snapshot stages.
-  /// @return true if the stages string was successfully parsed or false
-  /// otherwise.
-  bool addIRSnapshotStages(const char *stages);
-
-  /// @brief Add an 'internal' snapshot for the given stage, which is triggered
-  /// through an environment variable rather than a Mux API function.
-  ///
-  /// @param stage Compilation stage to take the snapshot at.
-  void addInternalSnapshot(const char *stage);
-
-  /// @brief Take a 'backend' snapshot of the module at the current point. This
-  /// compiles a clone of the module to assembly or an object file, depending
-  /// on the snapshot.
-  ///
-  /// @param M Module to snapshot.
-  /// @param TM TargetMachine to compile for
-  /// @param snapshot Information needed to take the snapshot.
-  void takeBackendSnapshot(
-      llvm::Module *M, llvm::TargetMachine *TM,
-      const compiler::BaseModule::SnapshotDetails &snapshot);
-
  private:
   cargo::dynamic_array<uint8_t> object_code;
 

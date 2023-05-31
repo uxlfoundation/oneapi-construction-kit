@@ -73,21 +73,6 @@ llvm::ModulePassManager RefSiG1Module::getLateTargetPasses(
 
   const auto &env_debug_prefix = getTarget().env_debug_prefix;
 
-#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_REFSI_G1_WI_DEMO_MODE)
-  if (!env_debug_prefix.empty()) {
-    std::string env_name_dump_ir = env_debug_prefix + "_DUMP_IR";
-    if (const char *dumpIR = getenv(env_name_dump_ir.c_str())) {
-      addIRSnapshotStages(dumpIR);
-    }
-    std::string env_name_dump_asm = env_debug_prefix + "_DUMP_ASM";
-    if (getenv(env_name_dump_asm.c_str())) {
-      std::string name = compiler::BaseModule::getTargetSnapshotName(
-          "riscv", riscv::RISCV_SNAPSHOT_BACKEND);
-      addInternalSnapshot(name.c_str());
-    }
-  }
-#endif
-
   compiler::BasePassPipelineTuner tuner(options);
 
   cargo::string_view hal_name(getTarget().riscv_hal_device_info->target_name);
@@ -96,9 +81,13 @@ llvm::ModulePassManager RefSiG1Module::getLateTargetPasses(
 
   PM.addPass(compiler::utils::TransferKernelMetadataPass());
 
-  // Reuse riscv snapshot names
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "riscv", riscv::RISCV_SNAPSHOT_INPUT, snapshots);
+#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_REFSI_G1_WI_DEMO_MODE)
+  std::string dump_ir_env_name = env_debug_prefix + "_DUMP_IR";
+  if (!env_debug_prefix.empty() && std::getenv(dump_ir_env_name.c_str())) {
+    PM.addPass(compiler::utils::SimpleCallbackPass(
+        [](llvm::Module &m) { m.print(llvm::dbgs(), /*AAW*/ nullptr); }));
+  }
+#endif
 
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceMemIntrinsicsPass()));
@@ -130,13 +119,7 @@ llvm::ModulePassManager RefSiG1Module::getLateTargetPasses(
 
   addPreVeczPasses(PM, tuner);
 
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "riscv", riscv::RISCV_SNAPSHOT_VECTORIZED, snapshots);
-
   addLateBuiltinsPasses(PM, tuner);
-
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "riscv", riscv::RISCV_SNAPSHOT_BARRIER, snapshots);
 
   PM.addPass(compiler::utils::AddSchedulingParametersPass());
 
@@ -156,18 +139,20 @@ llvm::ModulePassManager RefSiG1Module::getLateTargetPasses(
 
   addLLVMDefaultPerModulePipeline(PM, pass_mach.getPB(), options);
 
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "riscv", riscv::RISCV_SNAPSHOT_SCHEDULED, snapshots);
-
-  // With all passes scheduled, add a snapshot to view the assembly/object
+#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_REFSI_G1_WI_DEMO_MODE)
+  // With all passes scheduled, add a callback pass to view the assembly/object
   // file, if requested.
-  if (auto snapshot = compiler::BaseModule::shouldTakeTargetSnapshot(
-          "riscv", riscv::RISCV_SNAPSHOT_BACKEND, snapshots)) {
+  std::string dump_asm_env_name = env_debug_prefix + "_DUMP_ASM";
+  if (!env_debug_prefix.empty() && std::getenv(dump_asm_env_name.c_str())) {
     PM.addPass(compiler::utils::SimpleCallbackPass(
-        [snapshot, TM = pass_mach.getTM(), this](llvm::Module &m) {
-          takeBackendSnapshot(&m, TM, *snapshot);
+        [TM = pass_mach.getTM()](llvm::Module &m) {
+          // Clone the module so we leave it in the same state after we compile.
+          auto cloned_m = llvm::CloneModule(m);
+          compiler::emitCodeGenFile(*cloned_m, TM, llvm::outs(),
+                                    /*create_assembly*/ true);
         }));
   }
+#endif
 
   return PM;
 }
