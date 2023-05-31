@@ -31,7 +31,7 @@ get_property(REPORTED_HAL_DESCRIPTION GLOBAL
 if (REPORTED_HAL_DESCRIPTION)
   set(HAL_DESCRIPTION "${REPORTED_HAL_DESCRIPTION}")
 endif()
-message("-- ComputeAorta riscv HAL description: ${HAL_DESCRIPTION}")
+message("-- oneAPI Construction Kit riscv HAL description: ${HAL_DESCRIPTION}")
 
 # This is needed as cmake uses a known device name for calling clc for offline
 # kernels
@@ -101,7 +101,7 @@ target_compile_options(riscv PRIVATE
 target_link_libraries(riscv PUBLIC
   cargo loader mux-hal mux-headers mux-utils tracer md_handler)
 
-ca_option(CA_RISCV_DEMO_MODE BOOL "Enable ComputeAorta RISC-V debug mode" OFF)
+ca_option(CA_RISCV_DEMO_MODE BOOL "Enable oneAPI Construction Kit RISC-V debug mode" OFF)
 if(CA_RISCV_DEMO_MODE)
   target_compile_definitions(riscv PRIVATE CA_RISCV_DEMO_MODE=$<BOOL:${CA_RISCV_DEMO_MODE}>)
 endif()

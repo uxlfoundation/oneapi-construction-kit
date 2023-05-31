@@ -35,7 +35,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)     # Require C99 support
 set(CMAKE_C_EXTENSIONS OFF)           # Disable C language extensions
 
 set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode
-message(STATUS "ComputeAorta using C++${CMAKE_CXX_STANDARD}")
+message(STATUS "oneAPI Construction Kit using C++${CMAKE_CXX_STANDARD}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)   # Require explicit C++XX support
 set(CMAKE_CXX_EXTENSIONS OFF)         # Disable C++ language extensions
 

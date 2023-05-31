@@ -80,18 +80,18 @@ set(CA_LLVM_MAXIMUM_VERSION 16.0.4)
 string(REPLACE ";" "', '" CA_LLVM_VERSIONS_PRETTY "${CA_LLVM_VERSIONS}")
 if("${LLVM_PACKAGE_VERSION}" VERSION_LESS "${CA_LLVM_MINIMUM_VERSION}")
   message(FATAL_ERROR
-    "LLVM version '${LLVM_PACKAGE_VERSION}' is not supported. ComputeAorta "
+    "LLVM version '${LLVM_PACKAGE_VERSION}' is not supported. oneAPI Construction Kit "
     "supports released versions between: "
     "'${CA_LLVM_MINIMUM_VERSION}' and '${CA_LLVM_MAXIMUM_VERSION}'.")
 else()
   if("${LLVM_PACKAGE_VERSION}" VERSION_GREATER "${CA_LLVM_MAXIMUM_VERSION}")
     message(AUTHOR_WARNING
       "Build with LLVM version '${LLVM_PACKAGE_VERSION}' which is not "
-      "supported. ComputeAorta supports released versions between: "
+      "supported. oneAPI Construction Kit supports released versions between: "
       "'${CA_LLVM_MINIMUM_VERSION}' and '${CA_LLVM_MAXIMUM_VERSION}'.")
   endif()
 endif()
-message(STATUS "ComputeAorta using LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "oneAPI Construction Kit using LLVM ${LLVM_PACKAGE_VERSION}")
 
 # Stay consistent with LLVM's HandleLLVMOptions.cmake,
 # by making type 'off_t' size 64 bit so we can access > 2GB.

@@ -39,7 +39,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
 
   add_ca_library(compiler-refsi-g1-wi STATIC ${REFSI_G1_SOURCES})
 
-  ca_option(CA_REFSI_WI_G1_DEMO_MODE BOOL "Enable ComputeAorta REFSI G1 demo mode" ON)
+  ca_option(CA_REFSI_WI_G1_DEMO_MODE BOOL "Enable oneAPI Construction Kit REFSI G1 demo mode" ON)
   if(CA_REFSI_WI_G1_DEMO_MODE)
     target_compile_definitions(compiler-refsi-g1-wi PRIVATE CA_REFSI_WI_G1_DEMO_MODE=$<BOOL:${CA_REFSI_WI_G1_DEMO_MODE}>)
   endif()

@@ -22,7 +22,7 @@ project(ComputeAorta VERSION 2.0.0 LANGUAGES C CXX ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-  message(FATAL_ERROR "ComputeAorta does not support in-tree builds!")
+  message(FATAL_ERROR "oneAPI Construction Kit does not support in-tree builds!")
 endif()
 
 # GCC 4.8 is known to have bugs that cause test failures, we require at least
@@ -41,7 +41,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL Clang AND
     "Clang version ${CMAKE_CXX_COMPILER_VERSION} not supported")
 endif()
 
-# ComputeAorta minimum MSVC is 19.0 (2015).  Minimum to build LLVM-10 is 19.10
+# oneAPI Construction Kit minimum MSVC is 19.0 (2015).  Minimum to build LLVM-10 is 19.10
 # (MSVC 2017).
 if(CMAKE_CXX_COMPILER_ID STREQUAL MSVC AND
     CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
@@ -53,7 +53,7 @@ if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4) AND
     (CMAKE_SYSTEM_PROCESSOR STREQUAL x86 OR
         CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR
         CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64))
-  message(FATAL_ERROR "Windows 32 bit is no longer supported by ComputeAorta")
+  message(FATAL_ERROR "Windows 32 bit is no longer supported by oneAPI Construction Kit")
 endif()
 
 # Add cmake modules directory to the path.
@@ -65,14 +65,14 @@ include(CAOption)
 # Bring in various settings based on the host or target platform.
 include(CAPlatform)
 
-message(STATUS "ComputeAorta version: ${PROJECT_VERSION}")
+message(STATUS "oneAPI Construction Kit version: ${PROJECT_VERSION}")
 find_program(GIT_EXECUTABLE git${CA_HOST_EXECUTABLE_SUFFIX})
 if(NOT GIT_EXECUTABLE STREQUAL GIT_EXECUTABLE-NOTFOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE CA_GIT_COMMIT)
-  message(STATUS "ComputeAorta Git Commit: ${CA_GIT_COMMIT}")
+  message(STATUS "oneAPI Construction Kit Git Commit: ${CA_GIT_COMMIT}")
 endif()
 
 ca_option(CA_LLVM_INSTALL_DIR STRING
