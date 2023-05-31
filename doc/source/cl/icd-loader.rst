@@ -1,12 +1,9 @@
 OpenCL ICD Loader
 =================
 
-oneAPI Construction Kit supports including the Khronos `OpenCL ICD Loader`_ in
-a build when the repository is present in the
-``source/cl/external/OpenCL-ICD-Loader`` directory. Internally this is a
-`Git Submodule`_ however cloning the official repository at this location in a
-source release should also work. Support is disabled by default but can be
-enabled when configuring the build.
+oneAPI Construction Kit supports fetching and building the Khronos `OpenCL ICD Loader`_ 
+when the variable `CA_CL_ENABLE_ICD_LOADER` is set to `ON`. Support is disabled by default
+but can be enabled when configuring the build.
 
 .. warning::
    When the `OpenCL ICD Loader`_ is enabled and OpenCL drivers are installed on
@@ -16,9 +13,7 @@ enabled when configuring the build.
    oneAPI Construction Kit build.
 
 .. hint::
-   Building the `OpenCL ICD Loader`_ can be enabled with the
-   :cmake:variable:`CA_CL_ENABLE_ICD_LOADER` CMake option. Note that on
-   windows it will be necessary to set the registry setting to the built
+   Note that on windows it will be necessary to set the registry setting to the built
    `bin/CL.ll`. The `source/cl/tools/icd-register.ps1` can be used for this.
 
 .. _OpenCL ICD Loader: https://github.com/KhronosGroup/OpenCL-ICD-Loader
