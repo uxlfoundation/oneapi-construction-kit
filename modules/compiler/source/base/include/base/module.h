@@ -219,7 +219,7 @@ class BaseModule : public Module {
   /// @retval `Result::SUCCESS` when snapshot successfully set.
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::INVALID_VALUE` if an invalid argument was passed.
-  Result setSnapshotCallback(
+  [[deprecated]] Result setSnapshotCallback(
       const char *stage, compiler_snapshot_callback_t callback, void *user_data,
       SnapshotFormat format = SnapshotFormat::DEFAULT) override final;
 
@@ -281,7 +281,7 @@ class BaseModule : public Module {
   };
 
   /// @brief Helper class for compiler snapshots.
-  struct SnapshotDetails {
+  struct [[deprecated]] SnapshotDetails {
     const char *stage;
     compiler_snapshot_callback_t callback;
     SnapshotFormat format;
@@ -297,7 +297,7 @@ class BaseModule : public Module {
   /// @brief Helper method to aid in identifying snapshots.
   /// @param stage Snapshot stage to query for
   /// @param snapshots Array of currently enabled snapshots
-  static cargo::optional<SnapshotDetails> shouldTakeSnapshot(
+  [[deprecated]] static cargo::optional<SnapshotDetails> shouldTakeSnapshot(
       const char *stage, cargo::array_view<const SnapshotDetails> snapshots);
 
   /// @brief Helper method to aid in identifying target snapshots. The snapshot
@@ -307,9 +307,10 @@ class BaseModule : public Module {
   /// stage
   /// @param snapshot_stage_suffix Snapshot suffix
   /// @param snapshots Array of currently enabled snapshots
-  static cargo::optional<SnapshotDetails> shouldTakeTargetSnapshot(
-      const char *snapshot_target_name, const char *snapshot_stage_suffix,
-      cargo::array_view<const SnapshotDetails> snapshots);
+  [[deprecated]] static cargo::optional<SnapshotDetails>
+  shouldTakeTargetSnapshot(const char *snapshot_target_name,
+                           const char *snapshot_stage_suffix,
+                           cargo::array_view<const SnapshotDetails> snapshots);
 
   /// @brief Helper method to compute a target snapshot stage name
   /// The queried snapshot name is computed as the formatted string:
@@ -317,8 +318,8 @@ class BaseModule : public Module {
   /// @param snapshot_target_name Target-configurable component of snapshot
   /// stage
   /// @param snapshot_stage_suffix Snapshot suffix
-  static std::string getTargetSnapshotName(const char *snapshot_target_name,
-                                           const char *snapshot_stage_suffix);
+  [[deprecated]] static std::string getTargetSnapshotName(
+      const char *snapshot_target_name, const char *snapshot_stage_suffix);
 
   /// @brief Takes a snapshot of the parameterised module and invokes the
   /// snapshot callback with that data. Can be used by targets
@@ -326,8 +327,8 @@ class BaseModule : public Module {
   ///
   /// @param snapshot Snapshot details.
   /// @param module LLVM module to take a snapshot of.
-  static void takeSnapshot(const SnapshotDetails &snapshot,
-                           const llvm::Module *module);
+  [[deprecated]] static void takeSnapshot(const SnapshotDetails &snapshot,
+                                          const llvm::Module *module);
 
   /// @brief Adds a compiler::utils::SimpleCallbackPass pass that invokes
   /// BaseModule::takeSnaphot to the PassManager if the target snapshot is
@@ -337,7 +338,7 @@ class BaseModule : public Module {
   /// stage
   /// @param snapshot_stage_suffix Snapshot suffix
   /// @param snapshots Array of currently enabled snapshots
-  static void addSnapshotPassIfEnabled(
+  [[deprecated]] static void addSnapshotPassIfEnabled(
       llvm::ModulePassManager &pm, const char *snapshot_target_name,
       const char *snapshot_stage_suffix,
       cargo::array_view<const SnapshotDetails> snapshots);
@@ -370,7 +371,8 @@ class BaseModule : public Module {
   ///
   /// @return The snapshot details to take if the snapshot stages match, none
   /// otherwise.
-  cargo::optional<SnapshotDetails> shouldTakeSnapshot(const char *stage) const;
+  [[deprecated]] cargo::optional<SnapshotDetails> shouldTakeSnapshot(
+      const char *stage) const;
 
   /// @brief Add a diagnostic message to the log.
   ///
@@ -580,7 +582,7 @@ class BaseModule : public Module {
   compiler::BaseTarget &target;
 
   /// @brief Snapshot details for capturing state of module during compilation.
-  std::vector<SnapshotDetails> snapshots;
+  [[deprecated]] std::vector<SnapshotDetails> snapshots;
 
   /// @brief Compiler options populated by `Module::parseOptions` and passed to
   /// LLVM.

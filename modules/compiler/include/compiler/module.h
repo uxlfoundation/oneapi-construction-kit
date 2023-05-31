@@ -226,10 +226,9 @@ struct InputHeader {
 };
 
 /// @brief Snapshot callback handler.
-typedef void (*compiler_snapshot_callback_t)(size_t snapshot_size,
-                                             const char *snapshot_data,
-                                             void *callback_data,
-                                             void *user_data);
+[[deprecated]] typedef void (*compiler_snapshot_callback_t)(
+    size_t snapshot_size, const char *snapshot_data, void *callback_data,
+    void *user_data);
 
 /// @brief Argument types for serialization
 enum class ArgumentKind : uint32_t {
@@ -611,7 +610,7 @@ class Module {
   /// @retval `Result::SUCCESS` when snapshot successfully set.
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::INVALID_VALUE` if an invalid argument was passed.
-  virtual Result setSnapshotCallback(
+  [[deprecated]] virtual Result setSnapshotCallback(
       const char *stage, compiler_snapshot_callback_t callback, void *user_data,
       SnapshotFormat format = SnapshotFormat::DEFAULT) = 0;
 

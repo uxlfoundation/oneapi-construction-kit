@@ -327,6 +327,11 @@ BaseTarget::createModule
 BaseTarget::listSnapshotStages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. warning::
+
+   Snapshots are deprecated and will be removed in a future version of the
+   oneAPI Construction Kit.
+
 ``BaseTarget::listSnapshotStages`` lists all snapshot stages supported by
 this compiler target.
 

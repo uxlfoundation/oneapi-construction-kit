@@ -139,6 +139,7 @@ set(CA_COMPILE_OPTIONS
     $<$<STREQUAL:${CMAKE_SOURCE_DIR},${PROJECT_SOURCE_DIR}>:
       -Werror             # Enable warnings as errors when not a subproject
     >
+    -Wno-error=deprecated-declarations  # Disable: use of deprecated functions
 
     -Wall -Wextra         # Enable more warnings
     -Wno-variadic-macros  # Disable: warnings about variadic macros
@@ -242,7 +243,7 @@ set(CA_COMPILE_OPTIONS
     -wd4626   # Disable: assignment operator could not be generated because a
               # base class assignment operator is inaccessible or deleted
     -wd4820   # Disable: 'x' bytes of padding added after
-
+    -wd4996   # Disable: use of deprecated functions
     # Warnings disabled by LLVM, ComputeAorta includes LLVM headers so we use
     # the same set of warnings.
     -wd4141   # Disable: 'modifier' : used more than once.

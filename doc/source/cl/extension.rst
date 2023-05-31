@@ -164,6 +164,11 @@ to use this extension to support 1.2.
 Program Snapshot - ``cl_codeplay_program_snapshot``
 ---------------------------------------------------
 
+.. warning::
+
+   Snapshots are deprecated and will be removed in a future version of the
+   oneAPI Construction Kit.
+
 The :doc:`extension/cl_codeplay_program_snapshot` extension provides a snapshot
 mechanism allowing user code to capture program objects at different stages of
 compilation.
