@@ -25,11 +25,11 @@ on these two classes instead of the ancillary HAL structs and types.
 
 Once these classes have been implemented, the device HAL can be built as a
 stand-alone shared library that is ready to be consumed by a compute library
-such as clik or a ComputeAorta (through ComputeMux). The consumer library will
-typically have either a compile-time or run-time variable to select the name of
-the device HAL library to load. For clik, this is done through a CMake variable
-called ``CLIK_HAL_NAME`` and for the ComputeMux target described in the
-following tutorial, ``CA_HAL_NAME``.
+such as clik or an oneAPI Construction Kit (through ComputeMux). The consumer
+library will typically have either a compile-time or run-time variable to select
+the name of the device HAL library to load. For clik, this is done through a
+CMake variable called ``CLIK_HAL_NAME`` and for the ComputeMux target described
+in the following tutorial, ``CA_HAL_NAME``.
 
 .. note::
 

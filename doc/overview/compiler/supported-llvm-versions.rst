@@ -1,7 +1,7 @@
 Supported LLVM Versions
 =======================
 
-ComputeAorta depends on LLVM, Clang and LLD.
+oneAPI Construction Kit depends on LLVM, Clang and LLD.
 
 Host
 ----

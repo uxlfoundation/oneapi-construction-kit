@@ -2,10 +2,10 @@
 Cargo Module
 ************
 
-Cargo is ComputeAorta's STL like container library which conforms
-to stricter memory requirements than the C++ STL e.g. constructors
-do not allocate memory and exceptions are never thrown from any
-container.
+Cargo is the oneAPI Construction Kit's STL like container library which
+conforms to stricter memory requirements than the C++ STL e.g.
+constructors do not allocate memory and exceptions are never thrown
+from any container.
 
 CMake Options
 #############

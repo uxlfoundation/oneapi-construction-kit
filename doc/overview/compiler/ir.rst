@@ -537,24 +537,24 @@ Debug Info
 
 ComputeMux Compiler expects standard `LLVM IR debug metadata`_ to be used as the
 format for source debug information. The reusable passes provided by
-ComputeAorta to ComputeMux Compiler targets make a best-effort attempt to
+oneAPI Construction Kit to ComputeMux Compiler targets make a best-effort attempt to
 preserve debug info, but no guarantees are provided.
 
 .. tip::
   In OpenCL, the ``-cl-opt-disable`` `Compilation Option`_ can be used by
   developers to disable optimizations for a better debugging experience. The
-  default is optimizations are enabled. ComputeAorta uses this flag to skip
-  front-end compiler transformations used for performance, but places no
+  default is optimizations are enabled. oneAPI Construction Kit uses this flag to
+  skip front-end compiler transformations used for performance, but places no
   requirements on the ComputeMux Compiler implementation to act on the flag.
 
 LLVM debug information is designed to be agnostic regarding the final format and
-target debugger. ComputeAorta does nothing to compromise this, and it is at the
-discretion of the ComputeMux Compiler back-end to choose the most suitable output
-format for the target, e.g. DWARF, Stabs, etc.
+target debugger. oneAPI Construction Kit does nothing to compromise this, and it is
+at the discretion of the ComputeMux Compiler back-end to choose the most suitable
+output format for the target, e.g. DWARF, Stabs, etc.
 
-Debug information metadata is not used for any other purpose in ComputeAorta and
-**may** be discarded by a ComputeMux Compiler target without sacrificing either
-correctness or performance.
+Debug information metadata is not used for any other purpose in the oneAPI
+Construction Kit and **may** be discarded by a ComputeMux Compiler target without
+sacrificing either correctness or performance.
 
 In the future, the ComputeMux Compiler specification may define functions the
 target can optionally implement for the purposes of debugging. For example, with
@@ -562,7 +562,7 @@ target specific debugger hooks.
 
 .. note::
   OpenCL 1.2 does not provide a `Compilation Option`_ to developers to enable
-  debug information in the kernel. Instead, ComputeAorta provides the
+  debug information in the kernel. Instead, oneAPI Construction Kit provides the
   ``cl_codeplay_extra_build_options`` OpenCL extension which introduces the
   following options (amongst others) to aid debugging:
 
@@ -593,10 +593,10 @@ take advantage of the optimizations described below.
 Defining these builtins using platform specific DMA features enables optimized
 memory operations in any frameworks built on top of Mux.
 
-For targets unable to support hardware DMA ComputeAorta provides software
-implementations of the DMA builtins in the form of compiler passes that any
-target may use. Software implementations of the DMA builtins **may** have a
-performance overhead and any target that can provide platform optimized
+For targets unable to support hardware DMA oneAPI Construction Kit provides
+software implementations of the DMA builtins in the form of compiler passes
+that any target may use. Software implementations of the DMA builtins **may**
+have a performance overhead and any target that can provide platform optimized
 implementations of the builtins **should** do so.
 
 A full list of the DMA builtins along with their signatures and semantics can
@@ -619,13 +619,13 @@ implementation **must** handle see the
 :ref:`specifications/mux-compiler-spec:Atomics and Fences` section of the
 CompilerMux specification.
 
-The required set of instructions allows ComputeAorta to support the `OpenCL C
-atomic`_ and `OpenCL C fence`_ operations and the `SPIR-V atomic`_ and `SPIR-V
-barrier`_ operations. Synchronization on non-atomic memory access is defined
-by a *memory consistency model*. The memory consistency requirements made on
-the instruction listed in the Mux compiler spec enables ComputeAorta to support
-the higher level `OpenCL memory consistency model`_ and the `Vulkan memory
-model`_.
+The required set of instructions allows the oneAPI Construction Kit to support
+the `OpenCL C atomic`_ and `OpenCL C fence`_ operations and the `SPIR-V atomic`_
+and `SPIR-V barrier`_ operations. Synchronization on non-atomic memory access
+is defined by a *memory consistency model*. The memory consistency requirements
+made on the instruction listed in the Mux compiler spec enables the oneAPI
+Construction Kit to support the higher level `OpenCL memory consistency model`_
+and the `Vulkan memory model`_.
 
 .. _OpenCL C atomic:
    https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_C.html#atomic-functions

@@ -77,13 +77,14 @@ Now we will run the script inside the ``oneAPI Construction Kit`` directory:
 
 The first parameter is the path to the ``oneAPI Construction Kit``. The second
 parameter is the `json` file discussed previously. The third parameter is the
-external directory which `ComputeAorta` will require for building the new target.
+external directory which `oneAPI Construction Kit` will require for building the
+new target.
 
 This creates subdirectories ``mux/refsi_tutorial`` and ``compiler/refsi_tutorial``,
 named after the `target_name` field. It also creates a ``CMakeLists.txt`` which
-can be used to build ComputeAorta. After creating these new directories, we have
-a fully buildable target, ready for your ``HAL``. The ``mux`` side
-handles the runtime aspects and the default generated here assumes it is on the
+can be used to build the oneAPI Construction Kit. After creating these new
+directories, we have a fully buildable target, ready for your ``HAL``. The ``mux``
+side handles the runtime aspects and the default generated here assumes it is on the
 same architecure as the host we build on. The ``compiler`` side manages the
 compilation of kernels. It has a standard LLVM pipeline influenced by the `json`
 file, which is used to produce executable kernels.
@@ -104,18 +105,18 @@ The generated `CMakeLists.txt` is very simple and will look something like this:
     CACHE STRING "override" FORCE)
 
   set(CA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/hal_refsi_tutorial" CACHE STRING "External ComputeAorta HAL")
+    "${CMAKE_CURRENT_SOURCE_DIR}/hal_refsi_tutorial" CACHE STRING "External oneAPI Construction Kit HAL")
 
   set(CA_EXTERNAL_ONEAPI_CON_KIT_DIR
     "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External oneAPI Construction Kit")
 
   add_subdirectory(${CA_EXTERNAL_ONEAPI_CON_KIT_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/ComputeAorta)
+    ${CMAKE_CURRENT_BINARY_DIR}/oneapi-construction-kit)
 
 The ``CA_EXTERNAL_MUX_TARGET_DIRS`` and ``CA_EXTERNAL_MUX_COMPILER_DIRS`` are
-used to tell ComputeAorta where to look for for the per target code, both for
-``mux`` (the runtime) and ``compiler`` (the code generation). The directory name
-should match the target name.
+used to tell the oneAPI Construction Kit where to look for for the per target code,
+both for ``mux`` (the runtime) and ``compiler`` (the code generation). The
+directory name should match the target name.
 
 ``CA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR`` indicates where to look for the `HAL`
 target. This can be changed to wherever you have stored the final

@@ -1,10 +1,11 @@
 Supported Toolchains
 ====================
 
-ComputeAorta is written and compiled using C++11 with some C99. When linking
-against LLVM 10 or greater the project will be compiled in C++14 mode.
+oneAPI Construction Kit is written and compiled using C++11 with some C99.
+When linking against LLVM 10 or greater the project will be compiled in C++14
+mode.
 
-ComputeAorta is built and tested daily with the following toolchains:
+oneAPI Construction Kit is built and tested daily with the following toolchains:
 
 .. rubric:: Supported - tested daily
 

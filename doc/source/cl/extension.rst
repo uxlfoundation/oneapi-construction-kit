@@ -12,13 +12,13 @@ EXT
 
 Vendor
   Extension defined by a single vendor, but may be implemented by
-  other vendors, e.g ComputeAorta implements vendor extension
+  other vendors, e.g oneAPI Construction Kit implements vendor extension
   ``cl_intel_unified_shared_memory``.
 
-ComputeAorta implements several Codeplay vendor extensions, specified under
-the ``extension`` directory. When adding a new vendor extension the official
-OpenCL-Docs `cl_extension_template`_ should be used for reference, but written
-in RST rather than ASCIIdoc.
+oneAPI Construction Kit implements several Codeplay vendor extensions,
+specified under the ``extension`` directory. When adding a new vendor
+extension the official OpenCL-Docs `cl_extension_template`_ should be used
+for reference, but written in RST rather than ASCIIdoc.
 
 When defining new enum valus for an extension, if those enums will be used in
 existing entry-points, then they need to be unique to avoid conflicts with enums
@@ -176,8 +176,8 @@ passes, allowing the user to more effectively debug and tune their code.
 OpenCL API
 ##########
 
-ComputeAorta has implemented snapshots as an extension to OpenCL. If the
-extension is enabled, then `clGetDeviceInfo`_ queries for
+oneAPI Construction Kit has implemented snapshots as an extension to OpenCL. If
+the extension is enabled, then `clGetDeviceInfo`_ queries for
 ``CL_DEVICE_EXTENSIONS`` contain ``"cl_codeplay_program_snapshot"`` as a query
 value.
 
@@ -347,9 +347,9 @@ backported the entry point to 1.2 in extension ``cl_codeplay_kernel_exec_info``.
 Therefore to support the USM behaviour provided by ``clSetKernelExecInfo`` in a
 1.2 build the user can use ``clSetKernelExecInfoCODEPLAY`` with
 ``cl_codeplay_kernel_exec_info`` enabled. Alternatively an OpenCL version 3.0
-build of ComputeAorta can be used without our ``cl_codeplay_kernel_exec_info``
-extension, where the entry point is available as core to be optionally
-implemented.
+build of the oneAPI Construction Kit can be used without our
+``cl_codeplay_kernel_exec_info`` extension, where the entry point is available
+as core to be optionally implemented.
 
 The API and enum definitions for USM are part of ``CL/cl_ext.h`` in the
 external OpenCL-Headers repository.
@@ -391,7 +391,7 @@ keep using existing SPIR-V tools without needing to fork them to add support.
 Command-Buffers (Provisional) - ``cl_khr_command_buffer``
 ---------------------------------------------------------
 
-ComputeAorta implements version 0.9.1 of the provisional
+oneAPI Construction Kit implements version 0.9.1 of the provisional
 `cl_khr_command_buffer`_ extension.
 
 The simultaneous-use optional capability is supported, which allows the
@@ -405,7 +405,7 @@ associated with different devices, as well as the ability to modify a
 command-buffer recording in between replays.
 
 Our implementation currently has the following limitations which need resolved
-before the extension can be turned on by default in ComputeAorta:
+before the extension can be turned on by default in the oneAPI Construction Kit:
 
 * Event profiling is not implemented (see CA-3322).
 
@@ -415,7 +415,7 @@ before the extension can be turned on by default in ComputeAorta:
 Command Buffers: Mutable Dispatch - ``cl_khr_command_buffer_mutable_dispatch``
 ------------------------------------------------------------------------------
 
-ComputeAorta implements version 0.9.0 of the provisional
+oneAPI Construction Kit implements version 0.9.0 of the provisional
 `cl_khr_command_buffer_mutable_dispatch`_ extension.
 
 `cl_khr_command_buffer_mutable_dispatch`_  builds upon `cl_khr_command_buffer`_
@@ -428,7 +428,7 @@ command-buffer.
 Extended Async Copies - ``cl_khr_extended_async_copies``
 ---------------------------------------------------------
 
-ComputeAorta implements the `cl_khr_extended_async_copies`_ extension.
+oneAPI Construction Kit implements the `cl_khr_extended_async_copies`_ extension.
 
 This has a default implementation which does simple copies of memory. This can be
 replaced by a customer implementation where it can be accelerated.

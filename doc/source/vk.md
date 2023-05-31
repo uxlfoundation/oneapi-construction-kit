@@ -15,7 +15,8 @@ cover compute only implementations.
 ## Dependencies
 
 The [Vulkan SDK][vk-sdk] is the only required build dependency beyond those
-required for ComputeAorta as a whole. Ensure it is installed on your system.
+required for the oneAPI Construction Kit as a whole. Ensure it is installed on
+your system.
 
 > On Linux pre-built binaries for some tools are not supplied with the
 > tarball distribution or older Ubuntu packages of the [SDK][vk-sdk] and must be
@@ -39,8 +40,8 @@ Vulkan support is enabled when:
 
 As specified in [Appendix A][vk-spirv] of the [spec][vk-html] an implementation
 must consume [SPIR-V][spirv-reg] supporting the [GLSL extended instruction
-set][spirv-ext]. ComputeAorta uses [LLVM][llvm] so `spirv-ll` provides a
-[SPIR-V][spirv-reg] to [LLVM-IR][llvm-ir] translator to implement
+set][spirv-ext]. oneAPI Construction Kit uses [LLVM][llvm] so `spirv-ll`
+provides a [SPIR-V][spirv-reg] to [LLVM-IR][llvm-ir] translator to implement
 [SPIR-V][spirv-reg] consumption.
 
 ### Generation
@@ -61,8 +62,8 @@ following Python scripts:
   this every time a new set of extended instructions are added.
 
 > It is only required to use these generation scripts when the
-> [SPIR-V][spirv-reg] standard releases a new version which ComputeAorta must
-> support or if the `spirv-ll` API is to be changed.
+> [SPIR-V][spirv-reg] standard releases a new version which oneAPI Construction
+> Kit must support or if the `spirv-ll` API is to be changed.
 
 ## Optimization
 

@@ -1,11 +1,11 @@
 Mapping Custom IP Blocks To Builtin Kernels
 ===========================================
 
-ComputeAorta allows targeting arbitrary fixed-function hardware (sometimes
-called "IP blocks") through the use of builtin kernels. Rather than being
-compiled from source code and executed by a programmable core, a builtin kernel
-performs an operation implemented in hardware - for example, an accelerated
-matrix multiplication.
+oneAPI Construction Kit allows targeting arbitrary fixed-function hardware
+(sometimes called "IP blocks") through the use of builtin kernels. Rather than
+being compiled from source code and executed by a programmable core, a builtin
+kernel performs an operation implemented in hardware - for example, an
+accelerated matrix multiplication.
 
 Builtin kernels can be enqueued in the same way as programmable kernels, with
 the user setting arguments at runtime. Fixed-function hardware will typically
@@ -25,13 +25,13 @@ exposed as a different builtin kernel.
 
 A ComputeMux implementation **shall** provide the function prototypes of each
 builtin kernel. The types used in the function prototype **must** be valid
-OpenCL types.  ComputeAorta will then ensure these builtin functions can be
-enumerated through the `clGetDeviceInfo`_ function in the OpenCL API.
+OpenCL types.  oneAPI Construction Kit will then ensure these builtin functions
+can be enumerated through the `clGetDeviceInfo`_ function in the OpenCL API.
 
 A ComputeMux implementation **shall** provide an execution path for each
 builtin kernel. Typically this will be a call to a low-level device driver that
 can initiate the hardware operation with the arguments given to the kernel by
-the user. ComputeAorta provides these arguments to the ComputeMux
+the user. oneAPI Construction Kit provides these arguments to the ComputeMux
 implementation at runtime as part of the command buffer implementation.
 
 If a builtin kernel has pointer arguments (that is, it takes a pointer to

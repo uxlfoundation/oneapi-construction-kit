@@ -3,11 +3,11 @@
 ### Introduction
 
 The device hardware abstraction layer (HAL) is an API and specification to
-enable a ComputeAorta target to interface with a multitude of compute devices.
-A HAL separates a MUX target from the specifics of device interaction.
-By introducing this interface, one target can execute core without change on
-multiple devices.  New devices can also be brought up quickly as they only
-need to expose the HAL interface.
+enable an oneAPI Construction Kit target to interface with a multitude of
+compute devices. A HAL separates a MUX target from the specifics of device
+interaction. By introducing this interface, one target can execute core
+without change on multiple devices.  New devices can also be brought up
+quickly as they only need to expose the HAL interface.
 
 To form a working OpenCL implementation three elements are required:
 
@@ -23,8 +23,9 @@ isolation.
 
 ### Current state
 
-Currently only the RISC-V `ComputeAorta` target and `clik` support and use HAL
-implementations. The only public implementations of a HAL are:
+Currently only the RISC-V `oneAPI Construction Kit` target and `clik`
+support and use HAL implementations. The only public implementations of
+a HAL are:
  
 - RISC-V `RefSi` reference HAL and `Refsi tutorial` HAL
 - The `clik` cpu HAL

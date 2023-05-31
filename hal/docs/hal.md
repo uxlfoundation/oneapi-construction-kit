@@ -24,12 +24,13 @@ implementation.
 
 The HAL is implemented as a collection of interface classes, that will have a
 concrete implementation for each target. It serves to hide target specific
-interfacing details from ComputeAorta.
+interfacing details from the oneAPI Construction Kit.
 
 The goals of the HAL interface are as follows:
-- Hide all target interfacing details from the main RISC-V ComputeAorta target
+- Hide all target interfacing details from the main RISC-V oneAPI Construction
+  Kit target
 - Reduce the complexity involved in adding and supporting a new RISC-V
-  ComputeAorta target
+  oneAPI Construction Kit target
 - Be adaptable to a wide range of different targets, such as Simulators and
   Hardware
 - Have a base level which is very simple and over time add optional components.
@@ -396,7 +397,7 @@ runtime.
 -----
 ## Target Info
 
-ComputeAorta requires information about the target to guide the compilation and
+oneAPI Construction Kit requires information about the target to guide the compilation and
 execution process. For this purpose the HAL exposes a mechanism to query the
 target for information.
 
@@ -425,8 +426,9 @@ information.
 
 The rational behind this is to avoid multiple ISAs turning the `hal_device_info_t`
 struct into a "god" struct, while still allowing common information to be
-shared. If a ComputeAorta target needs to execute a target specific code-path
-the HAL can be downcast accordingly to access any target specific functionality.
+shared. If the oneAPI Construction Kit target needs to execute a target specific
+code-path the HAL can be downcast accordingly to access any target specific
+functionality.
 
 Currently only the RISC-V target has a `hal_device_info_t` subclass which can be
 found in the `hal_riscv.h` file.

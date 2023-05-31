@@ -221,10 +221,10 @@ in which case **all** tests need to be interesting for the testcase to be
 considered as interesting.
 
 1. Reference run: This test will run the OpenCL kernel against any OpenCL
-   implementations found in the system and it will compare the ComputeAorta one
-   with the rest of them. If there is a result mismatch then the test case is
-   considered interesting. This is the default test but it can be disabled with
-   the ``--no-references`` option.
+   implementations found in the system and it will compare the oneAPI
+   Construction Kit one with the rest of them. If there is a result mismatch
+   then the test case is considered interesting. This is the default test but
+   it can be disabled with the ``--no-references`` option.
 
 2. Vectorization: This test, enabled with the ``--check-if-vectorized`` option,
    checks if the vectorizer was able to vectorize the given kernel. You

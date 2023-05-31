@@ -68,14 +68,14 @@ approach, in OpenCL there is a ``cl_khr_command_buffer`` extension, in SYCL
 there are command group handlers and also multiple paths being examined in the
 ecosytem for expressing larger graphs.
 
-ComputeAorta's OpenCL implementation exploits OpenCL's execution model to
-dynamically build up a graph of command buffers. The OpenCL runtime code that
-ComputeAorta provides does not send a set of work to the ComputeMux
-implementation until either some blocking operation occurs, or the programmer
-explicitly flushes the OpenCL queue. This means that even OpenCL code that does
-not explicitly use command buffers is still benefiting when there is a control
-processor. This works well because the entire OpenCL interface is built around
-the idea of asynchronously enqueuing work.
+oneAPI Construction Kit's OpenCL implementation exploits OpenCL's execution
+model to dynamically build up a graph of command buffers. The OpenCL runtime
+code that the oneAPI Construction Kit provides does not send a set of work to
+the ComputeMux implementation until either some blocking operation occurs, or
+the programmer explicitly flushes the OpenCL queue. This means that even OpenCL
+code that does not explicitly use command buffers is still benefiting when there
+is a control processor. This works well because the entire OpenCL interface is
+built around the idea of asynchronously enqueuing work.
 
 For systems without control processors this same structure does not have any
 disadvantages, but still allows for re-ordering or combining commands if

@@ -43,7 +43,7 @@ of the `*` character only.
 
 
 The changelog files in this directory can then be compiled into a single changelog
-entry by making use of the `ComputeAorta/scripts/build_changelog.py` script.
+entry by making use of the `oneapi-construction-kit/scripts/build_changelog.py` script.
 
 The rational behind this process is that the author of an MR has more context
 and knowledge of their patch than anyone else, so they can write the most
@@ -58,9 +58,9 @@ directory are:
 ```console
 $ python build_changelog.py --delete -- release_version
 ```
-* `release_version` is the semantic ComputeAorta release version  and **must**
+* `release_version` is the semantic oneAPI Construction Kit release version  and **must**
   be of the form `Major.Minor.Patch`.
-* By default the script will run on this directory (`ComputeAorta/changelog`).
+* By default the script will run on this directory (`oneapi-construction-kit/changelog`).
   The developer may force the script to run on changelog entries in a
   directory of their choice by passing the `--input-dir /path/to/directory`
   option.

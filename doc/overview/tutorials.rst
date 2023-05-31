@@ -2,8 +2,8 @@ Tutorials
 =========
 
 This section includes tutorials to understand how to perform various aspects of
-ComputeAorta integration. It works through from target creation to adding bespoke
-hardware features.
+the oneAPI Construction Kit integration. It works through from target creation
+to adding bespoke hardware features.
 
 .. toctree::
    :maxdepth: 2

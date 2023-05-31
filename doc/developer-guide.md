@@ -2,12 +2,12 @@
 
 ## Supported Software
 
-ComputeAorta depends on LLVM and Clang. The compiler information section
-contains a list of [supported
+oneAPI Construction Kit depends on LLVM and Clang. The compiler information
+section contains a list of [supported
 versions](overview/compiler/supported-llvm-versions.rst).
 
-LLVM and Clang need to be built and installed separately. The ComputeAorta build
-then uses this installation as a dependency.
+LLVM and Clang need to be built and installed separately. The oneAPI Construction
+Kit build then uses this installation as a dependency.
 
 ## Directory layout
 
@@ -45,11 +45,11 @@ Current directory layout:
   `modules` directory trees.
 * `cmake`: Hold various utility CMake scripts.
 * `platform`: Holds CMake toolchains files for the various supported platforms,
-  as well as all the necessary information to build ComputeAorta for the
-  specific platforms.
-* `scripts`: Holds various scripts used by ComputeAorta, includes an OpenCL CTS
-  runner, performance analysis scripts, scripts to help with building, and
-  scripts used in continuous integration.
+  as well as all the necessary information to build the oneAPI Construction Kit
+  for the specific platforms.
+* `scripts`: Holds various scripts used by the oneAPI Construction Kit,
+  includes an OpenCL CTS runner, performance analysis scripts, scripts to help
+  with building, and scripts used in continuous integration.
 
 ## Branches
 
@@ -64,7 +64,7 @@ The two long running branches are:
 
 ### C++ Style
 
-All the C++ code in ComputeAorta should be formatted using
+All the C++ code in the oneAPI Construction Kit should be formatted using
 [`clang-format`][clang-format] version 9, and using the `.clang-format` file
 provided by the project (option: `-style=file`).
 
@@ -75,8 +75,8 @@ Header include guards should follow the convention of
 
 ### CMake Style
 
-All the CMake scripts in ComputeAorta should be free of [`cmakelint`][cmakelint]
-warnings when the following checks are disabled in the `.cmakelintrc`
+All the CMake scripts in the oneAPI Construction Kit should be free of
+[`cmakelint`][cmakelint] warnings when the following checks are disabled in the `.cmakelintrc`
 configuration file:
 
 [cmakelint]: https://pypi.org/project/cmakelint/
@@ -92,7 +92,7 @@ configuration file:
   the modules provided by CMake itself, the checks are disabled.
 
 To run `cmakelint` using the `.cmakelintrc` configuration file in the root of
-the ComputeAorta repository:
+the oneAPI Construction Kit repository:
 
 ```console
 $ cmakelint --config=.cmakelintrc <file> [<file>] ...
@@ -100,10 +100,10 @@ $ cmakelint --config=.cmakelintrc <file> [<file>] ...
 
 ### Python Style
 
-All the Python code in ComputeAorta *must* be formatted using [`yapf`][yapf] set
-to the [pep8][pep8] style (default). As with `clang-format` it's not perfect in
-all situations and occasionally does something baffling, but the consistency
-mostly keeps the holy warriors at bay.
+All the Python code in the oneAPI Construction Kit *must* be formatted using
+[`yapf`][yapf] set to the [pep8][pep8] style (default). As with `clang-format`
+it's not perfect in all situations and occasionally does something baffling,
+but the consistency mostly keeps the holy warriors at bay.
 
 You may also wish to run Python code run through the [pylint][pylint]
 (configured in `.pylintrc`) and [flake8][flake8] linters (configured in
@@ -128,15 +128,15 @@ issues and suggested solutions.
 The Khronos ICD allows multiple OpenCL implementations to coexist in the same
 system, these implementations will usually be exposed to the OpenCL user as
 individual `cl_platform_id`'s. To inform the system's OpenCL ICD where to find
-the ComputeAorta OpenCL driver it needs to be registered.
+the oneAPI Construction Kit OpenCL driver it needs to be registered.
 
 ### Linux Registration
 
 On Linux the ICD looks for all files with the `.icd` extension in the
-`/opt/OpenCL/vendors` directory. To register the ComputeAorta OpenCL driver
-issue the following command replacing `<install_dir>` with the path to the
-ComputeAorta install and `<bits>` bit width of the binary. The command will
-likely require root privileges.
+`/opt/OpenCL/vendors` directory. To register the oneAPI Construction Kit
+OpenCL driver issue the following command replacing `<install_dir>` with the
+path to the oneAPI Construction Kit install and `<bits>` bit width of the
+binary. The command will likely require root privileges.
 
 ```sh
 echo <install_dir>/lib/libCL.so > /etc/OpenCL/vendors/ComputeAortaCL<bits>.icd
@@ -144,21 +144,21 @@ echo <install_dir>/lib/libCL.so > /etc/OpenCL/vendors/ComputeAortaCL<bits>.icd
 
 ### Windows Registration
 
-For Windows the ICD inspects the registry so to register the ComputeAorta OpenCL
-driver a new registry entry must be added. Add a `REG_DWORD` value to the
-appropriate registry path.
+For Windows the ICD inspects the registry so to register the oneAPI Construction
+Kit OpenCL driver a new registry entry must be added. Add a `REG_DWORD` value
+to the appropriate registry path.
 
 *   32-bit - `HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Khronos\OpenCL\Vendors`
 *   64-bit - `HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenCL\Vendors`
 
-The `REG_DWORD` value's name should be the path to the ComputeAorta OpenCL
-driver and its data should be `0`.
+The `REG_DWORD` value's name should be the path to the oneAPI Construction Kit
+OpenCL driver and its data should be `0`.
 
 ### Android Registration
 
-To register the ComputeAorta OpenCL driver with the Android ICD follow the same
-instructions as Linux except that the directory containing the `.icd` file
-should be `/system/vendor/Khronos/OpenCL/vendors/`.
+To register the oneAPI Construction Kit OpenCL driver with the Android ICD
+follow the same instructions as Linux except that the directory containing the
+`.icd` file should be `/system/vendor/Khronos/OpenCL/vendors/`.
 
 ```sh
 echo <install_dir>/lib/libCL.so > /system/vendor/Khronos/OpenCL/vendors/ComputeAortaCL<bits>.icd
@@ -166,11 +166,11 @@ echo <install_dir>/lib/libCL.so > /system/vendor/Khronos/OpenCL/vendors/ComputeA
 
 ### Building ICD From Source
 
-In order to test the ComputeAorta OpenCL driver on systems which do not already
-have an installed ICD we must first build it from source. Due to the binary
-redistribution clause in the license ComputeAorta does not bundle the Khronos
-ICD, it is however open source and can be cloned then built from the public
-[GitHub](https://github.com/KhronosGroup/OpenCL-ICD-Loader) repository.
+In order to test the oneAPI Construction Kit OpenCL driver on systems which
+do not already have an installed ICD we must first build it from source. Due to
+the binary redistribution clause in the license oneAPI Construction Kit does not
+bundle the Khronos ICD, it is however open source and can be cloned then built
+from the public [GitHub](https://github.com/KhronosGroup/OpenCL-ICD-Loader) repository.
 
 The Khronos ICD does not provide the OpenCL headers files, those are also
 located on [GitHub](https://github.com/KhronosGroup/OpenCL-Headers).
@@ -194,9 +194,9 @@ Now you can follow the instructions on how to build the ICD as seen in the
 
 ## CMake
 
-Help regarding the CMake options and targets available in ComputeAorta when
-building the project. For advice on modifying the CMake code itself see our
-[CMake Development](cmake) documentation.
+Help regarding the CMake options and targets available in the oneAPI
+Construction Kit when building the project. For advice on modifying the CMake
+code itself see our [CMake Development](cmake) documentation.
 
 ### CMake Flags
 
@@ -227,10 +227,10 @@ The builtin CMake options used when invoking CMake on the command line.
   project, which defines variables that inform CMake where the compiler,
   assembler, linker, etc. for the target platform reside.
 
-#### ComputeAorta CMake Options
+#### oneAPI Construction Kit CMake Options
 
-- `CMAKE_BUILD_TYPE`: In addition to the defaults provided by CMake ComputeAorta
-  extends the builtin build types:
+- `CMAKE_BUILD_TYPE`: In addition to the defaults provided by CMake the oneAPI
+  Construction Kit extends the builtin build types:
   - `ReleaseAssert`: Enable assertions is a Release build.
 - `CA_USE_SANITIZER`: Enable support for dynamic analysis sanitizers:
   - `Address`: Enable [AddressSanitizer][asan] dynamic analysis for
@@ -243,8 +243,8 @@ The builtin CMake options used when invoking CMake on the command line.
   - `Address,Undefined`: Enable combined [AddressSanitizer][asan] and
     [UndefinedBehaviourSanitizer][ubsan] dynamic analysis.
   - `Fuzzer`: Enable [libFuzzer][libfuzzer] instrumentation.
-- `CA_LLVM_INSTALL_DIR`: Tells ComputeAorta to use the LLVM and Clang
-  installation that can be found at this prefix. The LLVM and Clang
+- `CA_LLVM_INSTALL_DIR`: Tells the oneAPI Construction Kit to use the LLVM
+  and Clang installation that can be found at this prefix. The LLVM and Clang
   installations must be development installations i.e. they must contain the
   relevant llvm headers and support tools, and their version must match
   a supported LLVM version.
@@ -258,8 +258,8 @@ The builtin CMake options used when invoking CMake on the command line.
 - `CA_EXTERNAL_BUILTINS_DIR` is used to specify the directory
   containing pre-generated builtins. This option is mandatory when cross
   compiling. It is usually set to the `modules/builtins` directory in the build
-  directory of a host ComputeAorta build, but can be set to another directory as
-  long as it contains generated builtins.
+  directory of a host oneAPI Construction Kit build, but can be set to another
+  directory as long as it contains generated builtins.
 - `CA_EXTERNAL_BUILTINS`: This option is used to specify whether or not builtins
   should be generated. If it is set to `OFF`, `CA_EXTERNAL_BUILTINS_DIR` must be
   provided to indicate which builtins to use instead. This option is set to `ON`
@@ -268,10 +268,10 @@ The builtin CMake options used when invoking CMake on the command line.
   to use in order the build the builtins, executables for the correct versions
   of `clang` and `llvm-link` must be found in this directory. This can also be
   used for cross-compile builds in which case the tools must work on the host.
-- `CA_RUNTIME_COMPILER_ENABLED`: This option determines whether ComputeAorta is
-  built with or without a runtime compiler (LLVM). It defaults to `ON`. Without
-  a runtime compiler, only pre-compiled binaries can be run, and ComputeAorta
-  implements an embedded profile.
+- `CA_RUNTIME_COMPILER_ENABLED`: This option determines whether the oneAPI
+  Construction Kit is built with or without a runtime compiler (LLVM). It
+  defaults to `ON`. Without a runtime compiler, only pre-compiled binaries can
+  be run, and the oneAPI Construction Kit implements an embedded profile.
 - `CA_CLANG_TIDY_FLAGS`: This option specifies a semi-colon separated list of
   additional flags which are passed to `clang-tidy` when invoking `tidy`
   targets.
@@ -294,11 +294,11 @@ The builtin CMake options used when invoking CMake on the command line.
   host CPU's, e.g. for Linux kernel cross-compile `arm`, `aarch64`, `x86`,
   `x86_64` may be specified, alternatively set to `all` to enable all backends
   which were built during the LLVM install.
-- `CMAKE_SKIP_RPATH`: On Linux ComputeAorta specifies a relative `RPATH` for all
-  targets when they are installed using `CMAKE_INSTALL_RPATH`, this ensures that
-  when the `install` target is invoked the user does not need to specify
-  `LD_LIBRARY_PATH` to correctly execute a test binary in order to use the
-  installed OpenCL or Vulkan library. Do disable this behaviour set
+- `CMAKE_SKIP_RPATH`: On Linux the oneAPI Construction Kit specifies a relative
+ `RPATH` for all targets when they are installed using `CMAKE_INSTALL_RPATH`,
+  this ensures that when the `install` target is invoked the user does not need
+  to specify `LD_LIBRARY_PATH` to correctly execute a test binary in order to
+  use the installed OpenCL or Vulkan library. Do disable this behaviour set
   `-DCMAKE_SKIP_RPATH=ON` when configuring CMake in build directory.
 - `CA_HOST_TARGET_CPU`: This option is used by host to optimize for performance
   on a given CPU. If set to "native" host will optimize for the CPU being used
@@ -310,11 +310,11 @@ The builtin CMake options used when invoking CMake on the command line.
   `llc --march=[your-arch] --mcpu=help`. Beware that if host is compiled with
   this option set, running it on a different CPU from the one specified (or the
   one compiled with if "native" was specified) isn't supported and bad things
-  may happen. When ComputeAorta is built in debug mode, the environment variable
-  `CA_HOST_TARGET_CPU` is also respected, which can help track down codegen
-  differences among different machine targets. The caveats above apply, and this
-  may result in an illegal instruction crash if your CPU doesn't support the
-  generated instructions.
+  may happen. When the oneAPI Construction Kit is built in debug mode, the
+  environment variable `CA_HOST_TARGET_CPU` is also respected, which can help
+  track down codegen differences among different machine targets. The caveats
+  above apply, and this may result in an illegal instruction crash if your CPU
+  doesn't support the generated instructions.
 - `CA_USE_SPLIT_DWARF`: When building with gcc, enable split dwarf debuginfo.
   This significantly reduces binary size (especially when static linkning) and
   speeds up the link step. Requires a non-ancient toolchain.
@@ -342,7 +342,7 @@ The builtin CMake options used when invoking CMake on the command line.
 * `clean`: Removes all build artifacts, useful if a file exists which is
   suspected of being invalid.
 
-#### ComputeAorta CMake Build Targets
+#### oneAPI Construction Kit CMake Build Targets
 
 * `ComputeAorta`: Build the OpenCL and Vulkan libraries, if present, and all
   their test suites.
@@ -354,7 +354,7 @@ The builtin CMake options used when invoking CMake on the command line.
   be used even if automatically building the builtins was disabled with
   `CA_EXTERNAL_BUILTINS`, although this target will fail in cross compile
   builds.
-* `doc_html`: Generates HTML documentation for the ComputeAorta project,
+* `doc_html`: Generates HTML documentation for the oneAPI Construction Kit project,
   currently this is only supported for OpenCL. Due to our dependency on the
   `breathe` package which has known memory leaks, building this target can take
   an excessive amount of time or fail with a python `MemoryError`. A workaround
@@ -369,7 +369,7 @@ The builtin CMake options used when invoking CMake on the command line.
   `add_ca_{library,exectuable}` commands which also add an individual
   `tidy-<target>` target per library or executable.
 
-##### ComputeAorta OpenCL CMake Build Targets
+##### oneAPI Construction Kit OpenCL CMake Build Targets
 
 * `CL`: Build only the OpenCL library, only available when OpenCL is enabled.
 * `UnitCL`: Build the UnitCL test suite, as well as the OpenCL library.
@@ -377,7 +377,7 @@ The builtin CMake options used when invoking CMake on the command line.
 * `check-cl`: Build and run various OpenCL test suites, primarily UnitCL and
   selected short running OpenCL CTS tests.
 
-##### ComputeAorta Vulkan CMake Build Targets
+##### oneAPI Construction Kit Vulkan CMake Build Targets
 
 * `VK`: Build only the Vulkan library, only available when Vulkan is enabled.
 * `UnitVK`: Build the UnitVK test suite, as well as the Vulkan library.
@@ -388,8 +388,8 @@ The builtin CMake options used when invoking CMake on the command line.
 
 ### Compiling LLVM
 
-ComputeAorta requires an [LLVM](https://github.com/llvm/llvm-project) install
-that includes the `clang` project. First clone the LLVM repository.
+oneAPI Construction Kit requires an [LLVM](https://github.com/llvm/llvm-project)
+install that includes the `clang` project. First clone the LLVM repository.
 
 ```sh
 git clone https://github.com/llvm/llvm-project.git --branch $LLVMBranch
@@ -449,14 +449,13 @@ cmake --build %CD%\build-x86_64 --target install --config Release
 
 #### Compiling LLVM-SPIRV
 
-`llvm-spirv` is used to translate bitcode binaries into SPIR-V binaries. As of
-this writing (2020-08-24), ComputeAorta uses `llvm-spirv` based on LLVM 8.0.
+`llvm-spirv` is used to translate bitcode binaries into SPIR-V binaries.
 
 The `SPIRV-LLMV-Translator` repository should be cloned into its own directory
 and **not** into LLVM's `projects` sub-directory. In principle, the translator
 can be cloned into the LLVM source tree and built as yet another LLVM
-sub-project. However, this currently causes a CMake conflict in ComputeAorta
-on the `llvm-spirv` executable.
+sub-project. However, this currently causes a CMake conflict in the oneAPI
+Construction Kit on the `llvm-spirv` executable.
 
 ```console
 git clone -b llvm_release_80 \
@@ -473,11 +472,8 @@ The executable `llvm-spirv` will be generated in the `build/tools/llvm-spirv/`
 directory.
 
 > NOTE: The LLVM release version and the `llvm-spirv` branch version must
-> match.
-
-> WARNING: The `llvm_release_80` branch of `SPIRV-LLVM-Translator` receives
-> occasional changes, which can affect the generated SPIR-V. ComputeAorta has
-> not yet settled on a single commit that should be used.
+> match. The vast majority of spir-v binaries have been translated using
+> `llvm-spirv` based on LLVM 8.0.
 
 #### Compiling Khronos Clang for SPIR
 
@@ -512,30 +508,30 @@ The SPIR-enabled `clang` will be in `khr_llvm/build/install/bin/`.
 +  ~AttributeList() {}
 ```
 
-### Compiling ComputeAorta
+### Compiling oneAPI Construction Kit
 
-Compiling ComputeAorta requires an LLVM install to link against and to use the
-tools as part of the build process when the runtime compiler is enabled, follow
-the [LLVM guide](#compiling-llvm) to build a suitable install. In the following
-examples the `$LLVMInstall` variable specifies the directory of the LLVM
-install. Alternatively, to compile ComputeAorta with the runtime compiler
-disabled follow the [without LLVM guide](#compiling-computeaorta-without-llvm).
+Compiling the oneAPI Construction Kit requires an LLVM install to link against
+and to use the tools as part of the build process when the runtime compiler is
+enabled, follow the [LLVM guide](#compiling-llvm) to build a suitable install.
+In the following examples the `$LLVMInstall` variable specifies the directory
+of the LLVM install. Alternatively, to compile the oneAPI Construction Kit with
+the runtime compiler disabled follow the [without LLVM guide](#compiling-the-oneapi-construction-kit-without-llvm).
 
 The examples provided should be sufficient to get up and running, for more fine
-grained control of how to compile ComputeAorta consult the list of
-[CMake options](#computeaorta-cmake-options).
+grained control of how to compile the oneAPI Construction Kit consult the list of
+[CMake options](#oneapi-construction-kit-cmake-options).
 
 ```{warning}
-ComputeAorta must use the same ``NDEBUG`` configuration as LLVM. For the most
-part this should be automatically detected, but if you pass custom `CXXFLAGS` to
-cmake, this cannot be properly detected and may cause ABI issues and subsequent
-crashes that are difficult to debug
+the oneAPI Construction Kit must use the same ``NDEBUG`` configuration as LLVM.
+For the most part this should be automatically detected, but if you pass custom
+`CXXFLAGS` to cmake, this cannot be properly detected and may cause ABI issues
+and subsequent crashes that are difficult to debug
 ```
 
-#### Compiling ComputeAorta on Linux
+#### Compiling oneAPI Construction Kit on Linux
 
-To configure a ComputeAorta build run the following command from the root of the
-ComputeAorta repository.
+To configure the oneAPI Construction Kit build run the following command from
+the root of the oneAPI Construction Kit repository.
 
 ```sh
 cmake . -GNinja \
@@ -551,21 +547,21 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-x86_64 install
 ```
 
-The `check` target will run ComputeAorta's test suites to ensure the build is
-working as expected.
+The `check` target will run the oneAPI Construction Kit's test suites to
+ensure the build is working as expected.
 
 ```sh
 ninja -C build-x86_64 check
 ```
 
-##### Compiling Debug ComputeAorta on Linux
+##### Compiling Debug oneAPI Construction Kit on Linux
 
-Non-Release build times of ComputeAorta can benefit from using a Release install
-of LLVM, this is because tools such as `clang`, `llvm-dis`, `FileCheck`, and
-others from a Non-Release LLVM install are used as part of the build. To enable
-faster build times set the `CA_BUILTINS_TOOLS_DIR` variable to point to a
-Release install of LLVM, here `$LLVMReleaseInstall` specifies the path to the
-root of the install.
+Non-Release build times of the oneAPI Construction Kit can benefit from using a
+Release install of LLVM, this is because tools such as `clang`, `llvm-dis`,
+`FileCheck`, and others from a Non-Release LLVM install are used as part of the
+build. To enable faster build times set the `CA_BUILTINS_TOOLS_DIR` variable to
+point to a Release install of LLVM, here `$LLVMReleaseInstall` specifies the path
+to the root of the install.
 
 ```sh
 cmake . -GNinja \
@@ -576,13 +572,13 @@ cmake . -GNinja \
   -DCA_BUILTINS_TOOLS_DIR=$LLVMReleaseInstall/bin
 ```
 
-Now the build directory is configured, you can build ComputeAorta and run the
-checks as above.
+Now the build directory is configured, you can build the oneAPI Construction Kit
+and run the dchecks as above.
 
-#### Compiling ComputeAorta on Windows
+#### Compiling oneAPI Construction Kit on Windows
 
-To configure a ComputeAorta build run the following command from the root of the
-ComputeAorta repository.
+To configure a oneAPI Construction Kit build run the following command from the
+root of the oneAPI Construction Kit repository.
 
 ```bat
 cmake . -G"Visual Studio 15 2017 Win64" ^
@@ -604,21 +600,21 @@ can build on the command line using CMake as shown below.
 cmake --build %CD%\build-x86_64 --target install --config Release
 ```
 
-The `check` target will run ComputeAorta's test suites to ensure the build is
-working as expected.
+The `check` target will run the oneAPI Construction Kit's test suites to ensure
+the build is working as expected.
 
 ```bat
 cmake --build %CD%\build-x86_64 --target check --config Release
 ```
 
-#### Compiling Debug ComputeAorta on Windows
+#### Compiling Debug oneAPI Construction Kit on Windows
 
-Non-Release build times of ComputeAorta can benefit from using a Release install
-of LLVM, this is because tools such as `clang`, `llvm-dis`, `FileCheck`, and
-others from a Non-Release LLVM install are used as part of the build. To enable
-faster build times set the `CA_BUILTINS_TOOLS_DIR` variable to point to a
-Release install of LLVM, here `%LLVMReleaseInstall%` specifies the path to the
-root of the install.
+Non-Release build times of the oneAPI Construction Kit can benefit from using a
+Release install of LLVM, this is because tools such as `clang`, `llvm-dis`,
+`FileCheck`, and others from a Non-Release LLVM install are used as part of the
+build. To enable faster build times set the `CA_BUILTINS_TOOLS_DIR` variable to
+point to a Release install of LLVM, here `%LLVMReleaseInstall%` specifies the
+path to the root of the install.
 
 ```bat
 cmake . -G"Visual Studio 15 2017 Win64" ^
@@ -632,8 +628,8 @@ cmake . -G"Visual Studio 15 2017 Win64" ^
 > Note that using the Ninja generator, `-GNinja`, on Windows may be preferable
 > for improve compilation times.
 
-Now the build directory is configured, you can build ComputeAorta and run the
-checks, changing the `--config` parameter to Debug.
+Now the build directory is configured, you can build the oneAPI Construction Kit
+and run the checks, changing the `--config` parameter to Debug.
 
 ```bat
 cmake --build %CD%\build-x86_64-Debug --target install --config Debug
@@ -643,21 +639,21 @@ cmake --build %CD%\build-x86_64-Debug --target install --config Debug
 cmake --build %CD%\build-x86_64-Debug --target check --config Debug
 ```
 
-### Compiling ComputeAorta without LLVM
+### Compiling the oneAPI Construction Kit without LLVM
 
-Compiling ComputeAorta without LLVM is also referred to as an offline-only
-configuration or disabling the runtime compiler. In this mode ComputeAorta does
-not include a JIT compiler for OpenCL, offline-only is currently not supported
-for Vulkan and is disabled in the configuration.
+Compiling the oneAPI Construction Kit without LLVM is also referred to as an
+offline-only configuration or disabling the runtime compiler. In this mode the
+oneAPI Construction Kit does not include a JIT compiler for OpenCL, offline-only
+is currently not supported for Vulkan and is disabled in the configuration.
 
-#### Compiling ComputeAorta without LLVM on Linux
+#### Compiling the oneAPI Construction Kit without LLVM on Linux
 
 The `clc` offline compiler, which includes LLVM, must be provided. To build
-`clc` follow the [guide](#compiling-computeaorta-on-linux) above, the
-`$ComputeAortaInstall` variable specifies the path to the root of this install.
+`clc` follow the [guide](#compiling-oneapi-construction-kit-on-linux) above, the
+`$ONEAPI_CON_KIT_INSTALL` variable specifies the path to the root of this install.
 
-To configure a ComputeAorta build without LLVM run following command from the
-root of the ComputeAorta repository.
+To configure the oneAPI Construction Kit build without LLVM run following command
+from the root of the oneAPI Construction Kit repository.
 
 ```sh
 cmake . -GNinja \
@@ -665,7 +661,7 @@ cmake . -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-offline/install \
   -DCA_RUNTIME_COMPILER_ENABLED=OFF \
-  -DCA_EXTERNAL_CLC=$ComputeAortaInstall/bin/clc \
+  -DCA_EXTERNAL_CLC=$ONEAPI_CON_KIT_INSTALL/bin/clc \
   -DCA_ENABLE_API=cl
 ```
 
@@ -675,14 +671,14 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-offline install
 ```
 
-#### Compiling ComputeAorta without LLVM on Windows
+#### Compiling oneAPI Construction Kit without LLVM on Windows
 
 The `clc` offline compiler, which includes LLVM, must be provided. The build
-`clc` follow the [guide](#compiling-computeaorta-on-windows) above, the
-`%ComputeAortaInstall%` variable specifies the path to the root of this install.
+`clc` follow the [guide](#compiling-the-oneapi-construction-kit-on-windows) above, the
+`%ONEAPI_CON_KIT_INSTALL%` variable specifies the path to the root of this install.
 
-The configure a ComputeAorta build without LLVM run the following command from
-the root of the ComputeAorta repository.
+The configure the oneAPI Construction Kit build without LLVM run the following
+command from the root of the oneAPI Construction Kit repository.
 
 ```bat
 cmake . -G"Visual Studio 15 2017 Win64" ^
@@ -690,7 +686,7 @@ cmake . -G"Visual Studio 15 2017 Win64" ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-offline\install ^
   -DCA_RUNTIME_COMPILER_ENABLED=OFF ^
-  -DCA_EXTERNAL_CLC=%ComputeAortaInstall%\bin\clc ^
+  -DCA_EXTERNAL_CLC=%ONEAPI_CON_KIT_INSTALL%\bin\clc ^
   -DCA_ENABLE_API=cl
 ```
 
@@ -703,11 +699,12 @@ can build on the command line using CMake as shown below.
 cmake --build %CD%\build-offline --target install --config Release
 ```
 
-#### Compiling ComputeAorta without LLVM on Windows using MinGW
+#### Compiling oneAPI Construction Kit without LLVM on Windows using MinGW
 
-MinGW can be used instead of Visual Studio to compile ComputeAorta. On Windows,
-only offline-only ComputeAorta can be built with MinGW, so the build is of
-limited practical value. The build is configured as follows:
+MinGW can be used instead of Visual Studio to compile the oneAPI Construction
+Kit. On Windows, only offline-only the oneAPI Construction Kit can be built
+with MinGW, so the build is of limited practical value. The build is configured
+as follows:
 
 ```bat
 cmake . -GNinja ^
@@ -735,8 +732,7 @@ cmake --build %CD%\build-offline --target install --config Release
 
 > Note: Cross-compilation is only supported on Linux.
 
-<<<<<<< HEAD
-## Cross-platform building LLVM and ComputeAorta for Linux
+## Cross-platform building LLVM and oneAPI Construction Kit for Linux
 =======
 All CMake cross-compilation configurations set `CMAKE_TOOLCHAIN_FILE` to inform
 CMake how to compile for the target architecture, this sets up various CMake
@@ -744,8 +740,8 @@ variables which specify the locations of executables such as the C and C++
 compilers, assembler, linker, target file system root, etc.
 
 The examples provided should be sufficient to get up and running, for more fine
-grained control of how to compile ComputeAorta consult the list of
-[CMake options](#computeaorta-cmake-options).
+grained control of how to compile the oneAPI Construction Kit consult the list of
+[CMake options](#oneapi-construction-kit-cmake-options).
 
 Cross-compilation requires -- in most cases -- both a native build of LLVM and
 a specialised build of of LLVM for the cross-compilation target. In this guide,
@@ -764,82 +760,11 @@ LLVMNativeInstall=${CMAKE_INSTALL_PREFIX}
 
 ### Cross-compiling LLVM
 
-ComputeAorta maintains a Git repository which tracks all currently supported
-LLVM versions using submodules called `ca-llvm`, if you access to this
-repository follow the [`ca-llvm` guide](#cross-compiling-llvm-from-ca-llvm),
-otherwise please follow the
-[LLVM upstream guide](#cross-compiling-llvm-from-upstream).
-
-#### Cross-compiling LLVM from `ca-llvm`
-
-Cross-compile LLVM depends on native binaries for the `llvm-tblgen` and
-`clang-tblgen` executables. For instructions on how to build them see the
-[LLVM guide](#compiling-llvm), this guide also explains the use of `$LLVMBranch`
-in the examples below.
->>>>>>> 143291c95e... Merge branch 'update-developer-guide' into 'develop'
-
-##### Cross-compiling LLVM for Arm from `ca-llvm`
-
-For cross-compilation targeting Arm only the `ARM` target back end is enabled.
-Run the following command to configure an LLVM build targeting Arm from the root
-of the repository.
-
-```sh
-cmake . -GNinja \
-  -Bbuild-arm/$LLVMBranch \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_TOOLCHAIN_FILE=$PWD/scripts/toolchains/arm-toolchain.cmake \
-  -DCMAKE_INSTALL_PREFIX=$PWD/build-arm/$LLVMBranch/install \
-  -DCA_LLVM_BRANCH=$LLVMBranch \
-  -DLLVM_TARGET_ARCH=ARM \
-  -DLLVM_TARGETS_TO_BUILD=ARM \
-  -DLLVM_HOST_TRIPLE=arm-unknown-linux-gnu \
-  -DLLVM_DEFAULT_TARGET_TRIPLE=arm-unknown-linux-gnu \
-  -DLLVM_ENABLE_ZLIB=OFF \
-  -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
-  -DCLANG_TABLEGEN=$LLVMNativeBuild/llvm/bin/clang-tblgen
-```
-
-Now the build directory is configured, build the `install` target.
-
-```sh
-ninja -C build-arm/$LLVMBranch install
-```
-
-##### Cross-compiling LLVM for AArch64 from `ca-llvm`
-
-For cross-compilation targeting AArch64 only the `AArch64` target back end is
-enabled. Run the following command to configure an LLVM build targeting Arm from
-the root of the repository.
-
-
-```sh
-cmake . -GNinja \
-  -Bbuild-aarch64/$LLVMBranch \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_TOOLCHAIN_FILE=$PWD/scripts/toolchains/aarch64-toolchain.cmake \
-  -DCMAKE_INSTALL_PREFIX=$PWD/build-aarch64/$LLVMBranch/install \
-  -DCA_LLVM_BRANCH=$LLVMBranch \
-  -DLLVM_TARGET_ARCH=AArch64 \
-  -DLLVM_TARGETS_TO_BUILD=AArch64 \
-  -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu \
-  -DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-unknown-linux-gnu \
-  -DLLVM_ENABLE_ZLIB=OFF \
-  -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
-  -DCLANG_TABLEGEN=$LLVMNativeBuild/llvm/bin/clang-tblgen
-```
-
-Now the build directory is configured, build the `install` target.
-
-```sh
-ninja -C build-aarch64/$LLVMBranch install
-```
-
 #### Cross-compiling LLVM from Upstream
 
-To cross-compile LLVM the appropriate CMake toolchain file from the ComputeAorta
-repository is required, the path to this will be specified by the `$CA_PROJECT`
-variable in the following examples.
+To cross-compile LLVM the appropriate CMake toolchain file from the oneAPI
+Construction Kit repository is required, the path to this will be specified
+by the `$ONEAPI_CON_KIT` variable in the following examples.
 
 ##### Cross-compiling LLVM for Arm from Upstream
 
@@ -851,7 +776,7 @@ of the repository.
 cmake . -GNinja \
   -Bbuild-arm \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_TOOLCHAIN_FILE=$CA_PROJECT/scripts/toolchains/arm-toolchain.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/scripts/toolchains/arm-toolchain.cmake \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-arm/install \
   -DLLVM_TARGET_ARCH=ARM \
   -DLLVM_TARGETS_TO_BUILD=ARM \
@@ -878,7 +803,7 @@ the root of the repository.
 cmake . -GNinja \
   -Bbuild-aarch64 \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_TOOLCHAIN_FILE=$CA_PROJECT/scripts/toolchains/aarch64-toolchain.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/scripts/toolchains/aarch64-toolchain.cmake \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-aarch64/install \
   -DLLVM_TARGET_ARCH=AArch64 \
   -DLLVM_TARGETS_TO_BUILD=AArch64 \
@@ -895,19 +820,19 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-aarch64 install
 ```
 
-### Cross-compiling ComputeAorta
+### Cross-compiling the oneAPI Construction Kit
 
-Cross-compiling ComputeAorta requires a LLVM install to link against, follow the
-[LLVM guide](#cross-compiling-llvm) to build a suitable install, the
-`$LLVMInstall` variable specifies the path to this install.
+Cross-compiling the oneAPI Construction Kit requires a LLVM install to link
+against, follow the [LLVM guide](#cross-compiling-llvm) to build a suitable
+install, the `$LLVMInstall` variable specifies the path to this install.
 
-ComputeAorta uses tools from an LLVM install during the build process. For a
-native x86_64 build no additional install is required, although build times can
-be [improved](#compiling-debug-computeaorta-on-linux) by doing so. For
-cross-compilation a native LLVM install is also required, the
+oneAPI Construction Kit uses tools from an LLVM install during the build
+process. For a native x86_64 build no additional install is required, although
+build times can be [improved](#compiling-debug-oneapi-construction-kit-on-linux)
+by doing so. For cross-compilation a native LLVM install is also required, the
 `$LLVMNativeInstall` variable specifies the path to this install.
 
-#### Cross-compiling ComputeAorta for Arm
+#### Cross-compiling the oneAPI Construction Kit for Arm
 
 Configure an Arm cross-compile build using the following command.
 
@@ -929,13 +854,14 @@ ninja -C build-arm install
 
 If `qemu-arm` is installed on the system `arm-toolchain.cmake` will
 automatically detect it and set the `CMAKE_CROSSCOMPILING_EMULATOR` variable,
-ComputeAorta uses this to enable emulated testing using the `check` target.
+the oneAPI Construction Kit uses this to enable emulated testing using the
+`check` target.
 
 ```sh
 ninja -C build-arm check
 ```
 
-#### Cross-compiling ComputeAorta for AArch64
+#### Cross-compiling the oneAPI Construction Kit for AArch64
 
 Configure an AArch64 cross-compile build using the following command.
 
@@ -957,62 +883,18 @@ ninja -C build-aarch64 install
 
 If `qemu-aarch64` is installed on the system `aarch64-toolchain.cmake` will
 automatically detect it and set the `CMAKE_CROSSCOMPILING_EMULATOR` variable,
-ComputeAorta uses this to enable emulated testing using the `check` target.
+the oneAPI Construction Kit uses this to enable emulated testing using the
+`check` target.
 
 ```sh
 ninja -C build-aarch64 check
 ```
 
-#### Cross-compiling ComputeAorta for AArch64 with the Yocto Poky Toolchain
+#### Cross-compiling the oneAPI Construction Kit for Windows with the MinGW toolchain
 
-The following describes building LLVM from the `ca-llvm` git repository and
-ComputeAorta with the Yocto Project (Linux) Poky toolchain for an Arm 64-bit
-(AArch64) platform.
-
-First build LLVM targeting AArch64 with "Poky". The Poky set up scripts create
-a CMake alias to automatically set the CMake option `CMAKE_TOOLCHAIN_FILE`.
-
-```sh
-source /path/to/poky/dir/environment-setup-aarch64-poky-linux
-source /path/to/poky/dir/sysroots/x86_64-pokysdk-linux/environment-setup.d/cmake.sh
-
-cmake . \
-  -Bbuild-poky \
-  -DCMAKE_INSTALL_PREFIX=$PWD/build-poky/install \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCA_LLVM_BRANCH=develop \
-  -DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-poky-linux \
-  -DLLVM_HOST_TRIPLE=aarch64-poky-linux \
-  -DLLVM_TARGET_ARCH=AArch64 \
-  -DLLVM_TARGETS_TO_BUILD=AArch64 \
-  -DLLVM_ENABLE_ZLIB=FALSE \
-  -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
-  -DCLANG_TABLEGEN=$LLVMNativeBuild/llvm/bin/clang-tblgen
-
-make -C build-poky install
-```
-
-And finally ComputeAorta, using the AArch64 Poky LLVM install:
-
-```sh
-source /path/to/poky/dir/environment-setup-aarch64-poky-linux
-source /path/to/poky/dir/sysroots/x86_64-pokysdk-linux/environment-setup.d/cmake.sh
-
-cmake . \
-  -Bbuild-poky \
-  -DCMAKE_INSTALL_PREFIX=$PWD/build-poky/install \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCA_LLVM_INSTALL_DIR=$LLVMInstall \
-  -DCA_BUILTINS_TOOLS_DIR=$LLVMNativeInstall/bin
-
-make -C build-poky install
-```
-
-#### Cross-compiling ComputeAorta for Windows with the MinGW toolchain
-
-ComputeAorta for Windows can be built on Linux using MinGW. This requires LLVM
-that has been built with MinGW. Note that offline-compiled kernels cannot be
-built, because there is no way to run the `clc` that is built.
+oneAPI Construction Kit for Windows can be built on Linux using MinGW. This
+requires LLVM that has been built with MinGW. Note that offline-compiled
+kernels cannot be built, because there is no way to run the `clc` that is built.
 
 ```console
 cmake -GNinja \
@@ -1041,8 +923,8 @@ cmake --build build-mingw --target ComputeAorta
   UnitCL also contains a series of kernel execution tests built to test the
   vectorizer as well as compilation stages. We add regression tests to UnitCL
   when we fix previously uncaught bugs and when we add new functionality to
-  ComputeAorta. See the [UnitCL documentation](source/cl/test/unitcl.md) for
-  more details on UnitCL.
+  the oneAPI Construction Kit. See the [UnitCL documentation](source/cl/test/unitcl.md)
+  for more details on UnitCL.
 * OpenCL CTS: We have our own runner for the OpenCL CTS, you can refer to its
   `scripts/testing/README.md` for how to use it.
 * CLSmith and C-Reduce: [CLSmith](https://github.com/ChrisLidbury/CLSmith) is a
@@ -1152,10 +1034,10 @@ gotchas:
    they are passed though the C preprocessor before testing them, since this
    will eliminate all the include directives.
 
-In the `scripts/testing/fuzzy_testing` directory of ComputeAorta there exists a
-script that will automatically apply the above methodologies to generate random
-kernels, test them for interestingness, and then try to reduce them with
-C-Reduce. More details can be found in its dedicated
+In the `scripts/testing/fuzzy_testing` directory of the oneAPI Construction Kit
+there exists a script that will automatically apply the above methodologies to
+generate random kernels, test them for interestingness, and then try to reduce
+them with C-Reduce. More details can be found in its dedicated
 `scripts/testing/fuzzy_testing/README.md` file.
 
 ## Providing extra options
@@ -1178,9 +1060,9 @@ options without having to modify the source.
 ## Debugging the LLVM compiler
 
 Developers can use a variety of methods to debug the running of LLVM compiler
-pipelines _without having to recompile ComputeAorta_. The following suggestions
-involve passing additional options via `CA_LLVM_OPTIONS` (detailed
-[above](#providing-extra-options)).
+pipelines _without having to recompile the oneAPI Construction Kit_. The
+following suggestions involve passing additional options via `CA_LLVM_OPTIONS`
+(detailed [above](#providing-extra-options)).
 
 ### -print-after-all (and -print-before-all)
 
@@ -1428,8 +1310,8 @@ understanding compile-time performance issues.
 ### Debugging passes with the `muxc` tool
 
 ``muxc`` is a tool, similar to ``opt``, which can be used to run compiler
-pipelines made of ComputeAorta utility passes or provided by the target. This
-is detailed [here](modules/compiler/tools/muxc.rst).
+pipelines made of the oneAPI Construction Kit utility passes or provided by
+the target. This is detailed [here](modules/compiler/tools/muxc.rst).
 
 ## Running with extra debug support
 
@@ -1452,9 +1334,9 @@ SET CA_OCL_DEBUG_PRINT_KERNELS=1
 ### Extracting Kernels From Tests
 
 It is possible to extract the source of a kernel being compiled into a file
-while running the ComputeAorta compiler. This is, for example, helpful for
-extracting kernels from failing test cases in a test suite. Setting the
-`CA_OCL_DEBUG_PRINT_KERNELS` environment variable to `1` will enable the
+while running the the oneAPI Construction Kit compiler. This is, for example,
+helpful for extracting kernels from failing test cases in a test suite. Setting
+the `CA_OCL_DEBUG_PRINT_KERNELS` environment variable to `1` will enable the
 feature.
 
 The kernels will be printed in unique files named `cl_program_ID.cl` the next
@@ -1591,16 +1473,16 @@ a hash collision in the cache, the cache can be cleared:
 ccache -C
 ```
 
-> Unfortunately it is not possible to cache all ComputeAorta build steps such as
-> building bitcode for the [builtins](modules/builtins.md) module, this is due
-> to `ccache` not being aware of the compiler flags passed to `clang` to
+> Unfortunately it is not possible to cache all the oneAPI Construction Kit build
+> steps such as building bitcode for the [builtins](modules/builtins.md) module,
+> this is due to `ccache` not being aware of the compiler flags passed to `clang` to
 > generate these outputs.
 
 ## Enhanced GDB Debugging
 
 ### Pretty Printers
 
-ComputeAorta makes use of many non-standard C++ types, such as those in
+oneAPI Construction Kit makes use of many non-standard C++ types, such as those in
 [cargo][cargo], which do not produce helpful output when used with the GDB
 [print][gdb-print] command in a debugging session. To aid in such situations
 [GDB][gdb] is extensible using the [Python API][gdb-python], this can be used to
@@ -1629,7 +1511,7 @@ You must do two things to get a trace. First build with the any of the following
 flags (or all of them) `-DCA_TRACE_CL=1`, `-DCA_TRACE_CORE=1`, and
 `-DCA_TRACE_IMPLEMENTATION=1`. The tracer flags can be set manually in
 `tracer.h` or built as part of CMake. Each flag will enable a trace for that
-layer of ComputeAorta.
+layer of the oneAPI Construction Kit.
 
 And second set the environment variable `CA_TRACE_FILE=/path/to/save/your.trace`
 E.g: `export CA_TRACE_FILE=/tmp/ca.trace`. Now when your run your application
@@ -1643,13 +1525,14 @@ tested value.
 
 ## Benchmarking driver performance with Flamegraphs
 
-1) Ensure that symbol information is retained when building ComputeAorta. This
-   can be done by passing the `-DCA_ENABLE_DEBUG_BACKTRACE=ON` CMake option. See
+1) Ensure that symbol information is retained when building the oneAPI
+   Construction Kit. This can be done by passing the
+   `-DCA_ENABLE_DEBUG_BACKTRACE=ON` CMake option. See
    `source/cl/CMakeLists.txt:180` for more information. Without this step, the
    `perf` report will not contain anything useful.
 
-2) Build ComputeAorta and the benchmark you'll be using to benchmark the driver
-   (for example, a benchmark from PerfCL).
+2) Build the oneAPI Construction Kit and the benchmark you'll be using to
+   benchmark the driver (for example, a benchmark from PerfCL).
 
 3) Clone the Flamegraphs repository: https://github.com/brendangregg/FlameGraph
 
@@ -1659,8 +1542,9 @@ tested value.
   `perf record -g --call-graph dwarf ./jacobi1D` (if running the `jacobi1D`
     benchmark from PerfCL)
 
-  Don't forget to ensure the ComputeAorta CL driver is being loaded correctly by
-  the ICD, or you use `OCL_ICD_FILENAMES` to override the CL driver:
+  Don't forget to ensure the the oneAPI Construction Kit CL driver is being
+  loaded correctly by the ICD, or you use `OCL_ICD_FILENAMES` to override the
+  CL driver:
 
   `export OCL_ICD_FILENAMES=<path-to-install>/lib/libCL.so`
 

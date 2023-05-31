@@ -159,10 +159,10 @@ passes a linting tool, and the linting tool might not allow ``strcpy()``.
 
 When a ``Requirement (3)`` guideline isn't followed, there must be a code
 comment explaining the reasons. Furthermore, the relevant product owner(s)
-(ComputeAorta and/or customer team(s)) must OK the change. There may be an
-extended discussion involved. The result of the discussion may very well be
-that the guideline must be followed and that an alternate solution must be
-found.
+(oneAPI Construction Kit and/or customer team(s)) must OK the change. There
+may be an extended discussion involved. The result of the discussion may very
+well be that the guideline must be followed and that an alternate solution
+must be found.
 
 .. _signoff3:
 .. rubric:: Sign-off
@@ -184,18 +184,19 @@ Business and/or legal reasons require doing things like this.
 ::
 
    Do not incorporate an open source library that uses a license that is
-   different from the open source licenses already used in ComputeAorta.
+   different from the open source licenses already used in the oneAPI
+   Construction Kit.
 
 .. _explanation4:
 .. rubric:: Explanation
 
 There might be an open source library that provides a useful feature. That
 library's license might be compatible with the closed-source nature of Vecz and
-ComputeAorta. However, if the license is not already on the list of open-source
-licenses used by ComputeAorta, then using the library would require adding the
-license to the list, which requires updating contracts with all existing
-customers. Updating contracts is not impossible, but it is non-trivial and has
-business and legal implications.
+the oneAPI Construction Kit. However, if the license is not already on the list
+of open-source licenses used by the oneAPI Construction Kit, then using the
+library would require adding the license to the list, which requires updating
+contracts with all existing customers. Updating contracts is not impossible, but
+it is non-trivial and has business and legal implications.
 
 .. _codereview4:
 .. rubric:: Code Review

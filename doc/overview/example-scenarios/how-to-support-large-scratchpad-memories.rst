@@ -80,9 +80,10 @@ While it might be easier for the user if dedicated memories are exposed using
 standard compute concepts that fit the OpenCL/SYCL model, hardware
 idiosyncrasies and features sometimes require a proprietary extension to the
 standard in order to fully take advantage of these hardware-specific features.
-With ComputeAorta this involves creating a new OpenCL extension, which could
-introduce new entry point functions to the OpenCL host as well as new builtin
-functions that can be called by OpenCL C kernels. Exposing hardware-specific
-functionality through builtin functions is described more in detail in the
+With the oneAPI Construction Kit this involves creating a new OpenCL extension,
+which could introduce new entry point functions to the OpenCL host as well as
+new builtin functions that can be called by OpenCL C kernels. Exposing
+hardware-specific functionality through builtin functions is described more in
+detail in the
 :doc:`/overview/example-scenarios/mapping-algorithms-to-vector-hardware`
 section.

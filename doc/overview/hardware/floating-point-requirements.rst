@@ -2,13 +2,13 @@ Floating-Point Requirements
 ===========================
 
 This section describes the floating-point requirements to support OpenCL though
-ComputeAorta for a new device.
+the oneAPI Construction Kit for a new device.
 
 .. important::
   Floating-point is not required to be natively implemented in hardware, support
   may be emulated to meet conformance. Fast-math mechanisms exposed to
-  developers by ComputeAorta allow high performance code to be written using the
-  precision that exists on hardware.
+  developers by the oneAPI Construction Kit allow high performance code to be
+  written using the precision that exists on hardware.
 
 OpenCL C mandates use of IEEE 754-2008 as the floating-point format to be
 `Numerically Compliant`_ for conformance, and therefore a device should
@@ -19,9 +19,9 @@ standard are denormal numbers and fused multiply-add.
 If hardware makes use of any IEEE-754 alternative floating-point formats such
 as `bfloat16`_ or `posit`_, then the
 :doc:`/overview/compiler/computemux-compiler` interface can be extended to
-support these as part of the work done by Codeplay. ComputeAorta would then
-expose these types to the user through language extensions, e.g. an OpenCL C
-extension.
+support these as part of the work done by Codeplay. oneAPI Construction Kit
+would then expose these types to the user through language extensions, e.g. an
+OpenCL C extension.
 
 .. _Numerically Compliant:
   https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_C.html#opencl-numerical-compliance
@@ -36,8 +36,8 @@ Floating Point Types
 OpenCL defines three different floating-point precision formats which can
 optionally be exposed to developers through
 :doc:`/overview/compiler/computemux-compiler`. These are not required
-internally, but if present in hardware then ComputeAorta will make them
-available.
+internally, but if present in hardware then the oneAPI Construction Kit will
+make them available.
 
 Half Precision
   16-bit floats, a format sometimes known as *fp16*. **Not required** for a
@@ -62,10 +62,11 @@ Compiler will handle vector datatypes in the way most applicable to the hardware
   floating-point library in :doc:`/overview/compiler/computemux-compiler`.
 
 .. note::
-  ComputeAorta tests all three of these IEEE-754 floating-point precisions for
-  OpenCL. As `cl_khr_fp16`_ is an OpenCL extension, the OpenCL
+  oneAPI Construction Kit tests all three of these IEEE-754 floating-point
+  precisions for OpenCL. As `cl_khr_fp16`_ is an OpenCL extension, the OpenCL
   `Conformance Test Suite`_ doesn't provide any conformance testing, instead
-  ComputeAorta contains its own comprehensive unit testing for the extension.
+  the oneAPI Construction Kit contains its own comprehensive unit testing for
+  the extension.
 
 .. _cl_khr_fp16:
   https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_Ext.html#cl_khr_fp16
@@ -140,10 +141,10 @@ performance programs to enable floating-point optimizations. In OpenCL, the
   ``__FAST_RELAXED_MATH__`` to be defined in the OpenCL program.
 
 All these options are passed through the
-:doc:`/overview/compiler/computemux-compiler` interface in ComputeAorta for a
-ComputeMux target to optimize as appropriate. It is also possible for
-ComputeAorta to provide new non-standard optimization options to the developer
-for enabling hardware specific optimizations.
+:doc:`/overview/compiler/computemux-compiler` interface in the oneAPI
+Construction Kit for a ComputeMux target to optimize as appropriate. It is also
+possible for the oneAPI Construction Kit to provide new non-standard optimization
+options to the developer for enabling hardware specific optimizations.
 
 .. _Optimization Options:
   https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#optimization-options
@@ -159,8 +160,8 @@ conformant, but this level of precision is **not** required for high performance
 code.
 
 Faster, but less accurate maths builtins are also available to the user in
-in OpenCL for writing high performance code. ComputeAorta uses these to expose
-the true hardware capabilities without any overhead for extra precision.
+in OpenCL for writing high performance code. oneAPI Construction Kit uses these
+to expose the true hardware capabilities without any overhead for extra precision.
 A developer can therefore choose the level of maths precision they need for
 their application, faster native precision or conformant high precision.
 
@@ -170,10 +171,10 @@ their application, faster native precision or conformant high precision.
   used by :doc:`/overview/compiler/computemux-compiler` for exposing
   high-performance device instructions.
 
-ComputeAorta provides the :ref:`overview/toolkit:Abacus` maths library
-which implements OpenCL `math functions`_ to specification required precision.
-This can be used as a software implementation of builtins where hardware isn't
-available or does not meet precision requirements.
+oneAPI Construction Kit provides the :ref:`overview/toolkit:Abacus` maths
+library which implements OpenCL `math functions`_ to specification required
+precision. This can be used as a software implementation of builtins where
+hardware isn't available or does not meet precision requirements.
 
 .. note::
   In SPIR-V the math functions are defined in `SPIR-V Extended Maths
@@ -278,12 +279,12 @@ and 64-bit floats using the ``mux_floating_point_capabilities_e`` bitfield.
   Support for denormal (aka subnormal) floating-point numbers.
 
   .. note::
-    The :ref:`overview/toolkit:Abacus` maths library in ComputeAorta supports
-    denormal numbers.
+    The :ref:`overview/toolkit:Abacus` maths library in the oneAPI Construction
+    Kit supports denormal numbers.
 
-ComputeAorta primarily uses these values to respond to user queries made in
-high-level languages, but the capabilities are also used to determine whether
-the device meets any criteria imposed by the high-level language.
+oneAPI Construction Kit primarily uses these values to respond to user queries
+made in high-level languages, but the capabilities are also used to determine
+whether the device meets any criteria imposed by the high-level language.
 
 Conformance Capabilities
 ~~~~~~~~~~~~~~~~~~~~~~~~

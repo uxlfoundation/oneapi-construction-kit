@@ -692,4 +692,4 @@ Extensions
 The extensions folder of CityRunner is designed to contain customer specific
 functionality. Python scripts will need to be placed here manually for imports
 to pick them up. This segregation prevents sensitive IP and implementation
-details leaking into ComputeAorta.
+details leaking into the oneAPI Construction Kit.

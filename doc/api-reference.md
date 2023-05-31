@@ -1,6 +1,7 @@
 # API Reference
 
-Here you will find documentation generated from ComputeAorta's source code.
+Here you will find documentation generated from the oneAPI Construction Kit's source
+code.
 
 * [`cl` module](#cl-module)
   * [`compiler` module](#compiler-module)

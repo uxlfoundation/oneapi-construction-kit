@@ -2,12 +2,12 @@ CMake Development
 =================
 
 `CMake <https://cmake.org/>`_ is the industry standard build tool for
-multi-platform C++ codebases used by ComputeAorta. This document covers best
-practices for CMake development and conventions within the project, but is not
-intended as a CMake tutorial.
+multi-platform C++ codebases used by the oneAPI Construction Kit. This document
+covers best practices for CMake development and conventions within the project,
+but is not intended as a CMake tutorial.
 
-ComputeAorta uses *modern* CMake, regarded as version 3.0 and later, with the
-minimum required version enforced in the root ``CMakeLists.txt`` by
+oneAPI Construction Kit uses *modern* CMake, regarded as version 3.0 and later,
+with the minimum required version enforced in the root ``CMakeLists.txt`` by
 `cmake_minimum_required`_.
 
 .. seealso::
@@ -23,7 +23,8 @@ CA Modules
 
 Modules are files containing CMake code named ``<modulename>.cmake``, which get
 loaded and run by ``CMakeLists.txt`` files using the `include`_ command.
-ComputeAorta provides the following modules to aid build system development.
+The oneAPI Construction Kit provides the following modules to aid build system
+development.
 
 .. toctree::
    :maxdepth: 2
@@ -62,10 +63,10 @@ and CMake looking for 64-bit libraries in the native path. Using a
 if the module sets `CMAKE_SYSTEM_NAME`_ as ours do, pruning the need for an
 extra user passed commandline option.
 
-ComputeAorta stores toolchain files in the root ``platform`` directory for all
-of the cross-compilation platforms the project supports. Our Arm Linux platform
-makes use of the `CMAKE_CROSSCOMPILING_EMULATOR`_ CMake feature with `QEMU`_ to
-emulate 64-bit and 32-bit Arm architectures as part of
+The oneAPI Construction Kit stores toolchain files in the root ``platform``
+directory for all of the cross-compilation platforms the project supports. Our
+Arm Linux platform makes use of the `CMAKE_CROSSCOMPILING_EMULATOR`_ CMake
+feature with `QEMU`_ to emulate 64-bit and 32-bit Arm architectures as part of
 ``platform/arm-linux/aarch64-toolchain.cmake`` and
 ``platform/arm-linux/arm-toolchain.cmake``. Utilizing an emulator allows us to
 run our check targets natively to verify cross-compiled builds, which although
@@ -108,10 +109,11 @@ versioning properties, a `VERSION`_ property for the build version and a
 ``major.minor``, where the major component is incremented on API breaking
 changes and minor for non-breaking API changes, e.g bug fixes. The `SOVERSION`_
 property can then be set as the major component of `VERSION`_. We default
-`VERSION`_ for both OpenCL and Vulkan to our ComputeAorta `PROJECT_VERSION`_,
-but provide the ``CA_CL_LIBRARY_VERSION`` option to override that behavior for
-OpenCL. We don't provide an equivalent CMake library version option for Vulkan
-as simulating the ICD loader is a use case that we have yet to encounter.
+`VERSION`_ for both OpenCL and Vulkan to our oneAPI Construction Kit
+`PROJECT_VERSION`_, but provide the ``CA_CL_LIBRARY_VERSION`` option to
+override that behavior for OpenCL. We don't provide an equivalent CMake
+library version option for Vulkan as simulating the ICD loader is a use
+case that we have yet to encounter.
 
 On Linux an OpenCL build with our default options will result in the following
 symbolic links being created to the fully qualified shared library.

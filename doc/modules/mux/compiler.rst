@@ -43,7 +43,7 @@ however each method additionally requires a ``compiler::Library`` object,
 created using ``compiler::loadLibrary``.
 
 The purpose of the loader is to provide a compiler interface that will be
-available when compiling ComputeAorta regardless of the value of
+available when compiling the oneAPI Construction Kit regardless of the value of
 :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED`, and regardless of whether the
 compiler is loaded at runtime or linked statically.
 
@@ -76,7 +76,7 @@ If :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` is set to ``OFF``, then
 ``compiler::loadLibrary`` will always return ``nullptr``, and therefore the compiler
 will be disabled.
 
-By default, ComputeAorta is configured with
+By default, the oneAPI Construction Kit is configured with
 :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` set to ``ON`` and
 :cmake:variable:`CA_COMPILER_ENABLE_DYNAMIC_LOADER` set to ``OFF``.
 

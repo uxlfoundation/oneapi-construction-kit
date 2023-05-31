@@ -1,10 +1,11 @@
 Compiler View
 =============
 
-ComputeAorta provides a compiler suite that can consume kernels written using
-open standards including OpenCL C, SPIR and SPIR-V. These compilers accept
-source code or IR provided by an application and compile it into an executable
-that is used by runtime APIs to execute work on custom processor architectures.
+oneAPI Construction Kit provides a compiler suite that can consume kernels
+written using open standards including OpenCL C, SPIR and SPIR-V. These compilers
+accept source code or IR provided by an application and compile it into an
+executable that is used by runtime APIs to execute work on custom processor
+architectures.
 
 The :doc:`/overview/compiler/computemux-compiler` is exposed as collection of
 C++ interfaces and a base implementation of those interfaces that are designed
@@ -26,7 +27,7 @@ OpenCL-C Consumption
 --------------------
 
 OpenCL C source code is passed to the ``compiler::Module::compileOpenCLC``
-method, which is implemented by ComputeAorta.
+method, which is implemented by the oneAPI Construction Kit.
 
 Clang, a component of LLVM, is used to parse the source code, generate LLVM IR
 and run initial optimization passes ready to pass to the backend. Clang fully
@@ -34,8 +35,8 @@ supports the OpenCL C 1.1 and 1.2 standards. Clang experimentally supports
 the OpenCL C 3.0 standard, and is currently only tested to work with LLVM 10
 after applying an internal patch.
 
-ComputeAorta also provides the headers for OpenCL C builtin functions to Clang
-as a pre-compiled header, which later get linked as part of
+oneAPI Construction Kit also provides the headers for OpenCL C builtin functions
+to Clang as a pre-compiled header, which later get linked as part of
 ``compiler::Module::finalize``.
 
 SPIR Consumption
@@ -43,7 +44,7 @@ SPIR Consumption
 
 SPIR binaries are passed to the ``compiler::Module::loadSPIR`` and
 ``compiler::Module::compileSPIR`` methods, which are implemented by
-ComputeAorta.
+the oneAPI Construction Kit.
 
 As SPIR binaries are serialized LLVM modules, ``loadSPIR`` deserializes
 the LLVM module. ``compileSPIR`` then runs a number of fixup passes and a
@@ -59,13 +60,13 @@ SPIR-V Consumption
 ------------------
 
 SPIR-V binaries are passed to the ``compiler::Module::compileSPIRV`` method,
-which is implemented by ComputeAorta.
+which is implemented by the oneAPI Construction Kit.
 
 SPIR-V is an intermediate representation for kernel programs used by Vulkan, and
 can also be passed to an OpenCL driver that is at least version 2.1, or has the
 ``cl_khr_il_program`` extension enabled.
 
-ComputeAorta comes with ``spirv-ll``, a static library that implements
+oneAPI Construction Kit comes with ``spirv-ll``, a static library that implements
 translation from binary SPIR-V modules to an ``llvm::Module``. ``spirv-ll``
 fully supports `SPIR-V 1.0 <https://www.khronos.org/registry/SPIR-V/specs/unified1/SPIRV.html>`_
 and a number of SPIR-V extensions:

@@ -3,11 +3,12 @@ OpenCL Intercept Layer
 
 The `OpenCL Intercept Layer`_ allows developers to do a number of things with
 existing OpenCL binary applications, largely focusing on working with OpenCL
-program objects. The primary use case in ComputeAorta is to enable testing of
-OpenCL drivers which do not contain a runtime compiler by applications but
-assume a runtime compiler is available, such as the `OpenCL Conformance Test
-Suite`_. For more information see `Injection Testing`_ below. The `OpenCL
-Intercept Layer`_ requires the use of the :doc:`/source/cl/icd-loader`.
+program objects. The primary use case in the oneAPI Construction Kit is to
+enable testing of OpenCL drivers which do not contain a runtime compiler by
+applications but assume a runtime compiler is available, such as the
+`OpenCL Conformance Test Suite`_. For more information see
+`Injection Testing`_ below. The `OpenCL Intercept Layer`_ requires the use
+of the :doc:`/source/cl/icd-loader`.
 
 .. _OpenCL Intercept Layer: https://github.com/intel/opencl-intercept-layer
 .. _OpenCL Conformance Test Suite: https://github.com/KhronosGroup/OpenCL-CTS
@@ -156,12 +157,13 @@ Prerequisites
 
 The required preparation for each step is as follows.
 
-* Step 1. requires ComputeAorta built with a runtime compiler, i.e. a build
-  configured with :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` set to ``ON``.
+* Step 1. requires the oneAPI Construction Kit built with a runtime compiler, i.e.
+  a build configured with :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` set to
+  ``ON``.
 * Step 2. requires the ``scripts/testing/inject-prepare-bins.py`` script.
-* Step 3. requires ComputeAorta built without a runtime compiler, i.e. a second
-  build configured with :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED` set to
-  ``OFF``.
+* Step 3. requires the oneAPI Construction Kit built without a runtime compiler,
+  i.e. a second build configured with :cmake:variable:`CA_RUNTIME_COMPILER_ENABLED`
+  set to ``OFF``.
 
 Dumping Program Binaries
 ++++++++++++++++++++++++
@@ -233,7 +235,7 @@ contains a runtime compiler enabled ``libCL.so`` and another prebuilt
 ``libCL.so``, :cmake:variable:`CMAKE_INSTALL_PREFIX` is set to
 ``$PWD/build-online/install`` and ``$PWD/build-offline/install`` respectively.
 Testing the `OpenCL CTS`_ using City Runner being invoked from the root of the
-ComputeAorta repository.
+oneAPI Construction Kit repository.
 
 Firstly, dump the program bianries using the runing compiler in the
 ``$build-online/install/lib/libCL.so`` driver.

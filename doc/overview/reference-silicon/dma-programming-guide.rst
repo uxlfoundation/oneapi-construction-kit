@@ -6,7 +6,7 @@ from kernels when executing them on RefSi M1 and wait for these operations
 to complete. DMA operations started this way transfer data between global and
 local memory. It is intended to be a reference implementation that can be used
 to understand how such a feature can be implemented and exposed through
-ComputeAorta.
+the oneAPI Construction Kit.
 
 One use case for Kernel DMA is to implement tiling of data stored in global
 buffers, using local memory as temporary storage for the data tiles. When DMA is

@@ -2,7 +2,7 @@ Metadata API
 ============
 
 This is a library that can be used by applications to read and write metadata to and from 
-a well-specified binary format. This is mainly used in ComputeAorta to store kernel and 
+a well-specified binary format. This is mainly used in the oneAPI Construction Kit to store kernel and
 runtime metadata for offline compiled kernels.
 
 Design

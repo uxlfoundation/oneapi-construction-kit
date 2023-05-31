@@ -22,7 +22,8 @@ Usage
   ``PROJECT``.patch
     Optional
     Only exists if the project is known to have failures unrelated to
-    ComputeAorta and that can be fixed/worked around with a patch.
+    the oneAPI Construction Kit and that can be fixed/worked around with
+    a patch.
 
 .. note::
    The jenkins job makes use of a docker container defined by
@@ -38,13 +39,13 @@ Ecosystem scripts that test CL rely on having an OpenCL ICD loader install
 present to link projects against, and the ``OCL_ICD_FILENAMES`` environment
 variable to be set correctly, for detailed documentation on setting this up see
 the :ref:`source/cl/icd-loader:OpenCL ICD Loader` page. The important thing is
-to make sure of is that invoking ``clinfo`` should list ComputeAorta as the
-first available implementation.
+to make sure of is that invoking ``clinfo`` should list oneAPI Construction Kit
+as the first available implementation.
 
 Ecosystem scripts that test VK rely on having a Vulkan ICD loader to be present,
 such as the ``vulkan-icd`` Ubuntu package, and the ``VK_ICD_FILENAMES``
 environment variable to be set to the location of ``vulkan/icd.d/VK.json`` in
-your ComputeAorta installation directory.
+your oneAPI Construction Kit installation directory.
 
 Once your environment is set up correctly for the ICD loader most projects can
 be tested simply by invoking the appropriate script:

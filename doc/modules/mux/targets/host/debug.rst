@@ -35,8 +35,8 @@ Tutorial: Inspecting a ``memcpy()`` Call
 
 ``memcpy()`` calls normally end up calling an optimized, vectorized
 implementation in libc. Even if you do manage to find debug symbols for it,
-good luck figuring out what's going on. In ComputeAorta Debug builds,
-offline-compiled kernels will call into ``dbg_memcpy()`` instead.
+good luck figuring out what's going on. In the oneAPI Construction Kit Debu
+builds, offline-compiled kernels will call into ``dbg_memcpy()`` instead.
 ``dbg_memcpy()`` can be inspected with GDB. For example:
 
 .. code-block:: console
@@ -70,19 +70,19 @@ Explanation
 
 Offline-compiled kernel binaries contain *relocations* at function call sites.
 A relocation is just a relative or absolute hardware jump instruction with a
-blank target address. When ComputeAorta loads the binary, it writes the address
-of the function into the jump instruction (after possibly doing some math on
-the address). This is why ``relocs`` stores function addresses as
-``uint64_t`` types --- the bytes of the address may just be written directly
-into a binary executable.
+blank target address. When the oneAPI Construction Kit loads the binary, it
+writes the address of the function into the jump instruction (after possibly
+doing some math onthe address). This is why ``relocs`` stores function
+addresses as ``uint64_t`` types --- the bytes of the address may just be written
+directly into a binary executable.
 
 .. warning::
   Since library function call interception happens on the binary level of a
   compiled kernel, **all** of the normal protections offered by compilers are
   gone. There is no function prototype checking. The compiler is not able to
   check that the target address you have provided is even a valid function
-  entry point. If somehow the OpenCL kernel and ComputeAorta use a different
-  calling convention, then you're on your own.
+  entry point. If somehow the OpenCL kernel and the oneAPI Construction Kit use
+  a different calling convention, then you're on your own.
 
 Relocations are requested by function name by the ELF file stored inside an
 offline-compiled kernel. Adding new entries into ``relocs`` will not affect
@@ -101,12 +101,13 @@ debugging math functions on Arm32.
 ``dbg_memcpy()`` attempts to read all the source memory before copying it. Both
 ``dbg_memcpy()`` and ``dbg_memset()`` attempt to zero out the destination
 memory before writing data to it. The reads and writes provide a rudimentary
-bounds checking; if either fails, then ComputeAorta will abort with a
-descriptive error.
+bounds checking; if either fails, then the oneAPI Construction Kit will abort
+with a descriptive error.
 
 .. warning::
   ``dbg_memcpy()`` and ``dbg_memset()`` can only catch out-of-bounds reads and
-  writes that access memory outside of ComputeAorta's address space. I.e.,
-  either function call must go horribly wrong before the illegal access is
+  writes that access memory outside of the oneAPI Construction Kit's address space.
+  I.e., either function call must go horribly wrong before the illegal access is
   caught. It is trivial for a kernel calling ``memcpy()`` to completely clobber
-  ComputeAorta's owned memory, and ``dbg_memcpy()`` cannot prevent that.
+  the oneAPI Construction Kit's owned memory, and ``dbg_memcpy()`` cannot prevent
+   that.

@@ -2,14 +2,15 @@ Coverage Module
 ===============
 
 .. seealso::
-  For more details on ComputeAorta code coverage see
+  For more details on the oneAPI Construction Kit code coverage see
   :doc:`/scripts/coverage`.
 
 .. cmake-module:: ../../cmake/Coverage.cmake
 
 .. note::
-  The root ComputeAorta ``CMakeLists.txt`` uses :cmake:command:`ca_option` to
-  create the variable ``CA_ENABLE_COVERAGE``. When set the functions
+  The root oneAPI Construction Kit ``CMakeLists.txt`` uses
+  :cmake:command:`ca_option` to create the variable
+  ``CA_ENABLE_COVERAGE``. When set the functions
   :cmake:command:`add_coverage_xml_input` and
   :cmake:command:`add_coverage_custom_xml` will be invoked by our CMake.
 

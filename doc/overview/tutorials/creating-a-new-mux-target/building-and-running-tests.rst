@@ -43,7 +43,7 @@ The ``CA_MUX_TARGETS_TO_ENABLE`` should match the ``target_name`` field from the
 `JSON` file.
 
 Now we build the ``UnitCL`` test target, which will also build all its
-dependencies, including ComputeAorta and the new target:
+dependencies, including the oneAPI Construction Kit and the new target:
 
 .. code:: console
 
