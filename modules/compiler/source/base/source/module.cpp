@@ -87,7 +87,6 @@
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/EntryExitInstrumenter.h>
 #include <llvm/Transforms/Vectorize.h>
-#include <llvm/Transforms/Vectorize/LoadStoreVectorizer.h>
 #include <llvm/Transforms/Vectorize/LoopVectorize.h>
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
@@ -1815,7 +1814,6 @@ Result BaseModule::finalize(
       fpm.addPass(llvm::InstCombinePass());
       fpm.addPass(llvm::SimplifyCFGPass());
     }
-    fpm.addPass(llvm::LoadStoreVectorizerPass());
 
     // SLP vectorization can leave a lot of unused GEPs lying around..
     fpm.addPass(llvm::DCEPass());
