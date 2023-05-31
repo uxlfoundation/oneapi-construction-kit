@@ -138,7 +138,7 @@ length without type promotion).
 .. note::
 
   Builtins must be given the `overloadable attribute
-  <https://releases.llvm.org/14.0.0/tools/clang/docs/AttributeReference.html#overloadable>`_
+  <https://releases.llvm.org/16.0.0/tools/clang/docs/AttributeReference.html#overloadable>`_
   as OpenCL functions are internally required to be mangled according to their
   type signatures.
 

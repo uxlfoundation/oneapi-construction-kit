@@ -99,7 +99,7 @@ ComputeMux compiler can legalize any unsupported types.
   approach for their target architecture.
 
   A brief overview of the instruction selection process is described `here
-  <https://releases.llvm.org/13.0.0/docs/CodeGenerator.html#selectiondag-instruction-selection-process>`_.
+  <https://releases.llvm.org/docs/CodeGenerator.html#selectiondag-instruction-selection-process>`_.
 
 Other types
 ~~~~~~~~~~~
