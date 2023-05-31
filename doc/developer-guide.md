@@ -128,18 +128,20 @@ issues and suggested solutions.
 The Khronos ICD allows multiple OpenCL implementations to coexist in the same
 system, these implementations will usually be exposed to the OpenCL user as
 individual `cl_platform_id`'s. To inform the system's OpenCL ICD where to find
-the oneAPI Construction Kit OpenCL driver it needs to be registered.
+the oneAPI Construction Kit OpenCL driver it needs to be registered. Note that we also
+support fetching and building an ICD within the toolkit through cmake options as described
+[here](/source/cl/icd-loader.rst).
 
 ### Linux Registration
 
 On Linux the ICD looks for all files with the `.icd` extension in the
-`/opt/OpenCL/vendors` directory. To register the oneAPI Construction Kit
+`/etc/OpenCL/vendors` directory. To register the oneAPI Construction Kit
 OpenCL driver issue the following command replacing `<install_dir>` with the
 path to the oneAPI Construction Kit install and `<bits>` bit width of the
 binary. The command will likely require root privileges.
 
 ```sh
-echo <install_dir>/lib/libCL.so > /etc/OpenCL/vendors/ComputeAortaCL<bits>.icd
+echo <install_dir>/lib/libCL.so > /etc/OpenCL/vendors/<any_name>.icd
 ```
 
 ### Windows Registration
@@ -161,7 +163,7 @@ follow the same instructions as Linux except that the directory containing the
 `.icd` file should be `/system/vendor/Khronos/OpenCL/vendors/`.
 
 ```sh
-echo <install_dir>/lib/libCL.so > /system/vendor/Khronos/OpenCL/vendors/ComputeAortaCL<bits>.icd
+echo <install_dir>/lib/libCL.so > /system/vendor/Khronos/OpenCL/vendors/<any_name>.icd
 ```
 
 ### Building ICD From Source
