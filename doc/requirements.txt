@@ -1,5 +1,5 @@
 # Documentation generator.
-sphinx==4.0.3
+sphinx==4.5.0
 # Markdown -> Sphinx extension.
 myst-parser==0.15.2
 linkify-it-py==1.0.2
