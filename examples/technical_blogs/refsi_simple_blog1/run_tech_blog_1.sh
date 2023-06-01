@@ -77,9 +77,9 @@ cmake -Bbuild \
 ninja -Cbuild
 
 # Run a simple UnitCL test
-./build/ComputeAorta/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
+./build/oneAPIConstructionKit/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 
-CA_HAL_DEBUG=1 ./build/ComputeAorta/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
+CA_HAL_DEBUG=1 ./build/oneAPIConstructionKit/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 
 # Build the SYCL vector add test
 $DPCPP_DIR/bin/clang++ -fsycl $ONEAPI_SAMPLES_DIR/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o build/simple_add

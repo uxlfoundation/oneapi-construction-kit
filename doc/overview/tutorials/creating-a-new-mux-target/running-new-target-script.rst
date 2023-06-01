@@ -111,7 +111,7 @@ The generated `CMakeLists.txt` is very simple and will look something like this:
     "${CMAKE_CURRENT_SOURCE_DIR}/ONEAPI_KIT" CACHE STRING "External oneAPI Construction Kit")
 
   add_subdirectory(${CA_EXTERNAL_ONEAPI_CON_KIT_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/oneapi-construction-kit)
+    ${CMAKE_CURRENT_BINARY_DIR}/oneAPIConstructionKit)
 
 The ``CA_EXTERNAL_MUX_TARGET_DIRS`` and ``CA_EXTERNAL_MUX_COMPILER_DIRS`` are
 used to tell the oneAPI Construction Kit where to look for for the per target code,
