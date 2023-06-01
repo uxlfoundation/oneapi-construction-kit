@@ -60,7 +60,6 @@ Larger multi-file projects requiring their own documentation.
 .. toctree::
    :maxdepth: 2
 
-   scripts/coverage
    scripts/city_runner
    scripts/fuzz
    scripts/perf
