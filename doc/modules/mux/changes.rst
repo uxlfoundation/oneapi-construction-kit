@@ -257,8 +257,7 @@ version increases mean backward compatible bug fixes have been applied.
 ------
 
 * Initial release of the ComputeMux specification. The changelog for the Core
-  specification has been duplicated here to preserve history. See
-  :doc:`migrating-from-core` for details on how Core maps to Mux.
+  specification has been duplicated here to preserve history.
 * Remove the ``corePushBarrier`` entry point, which was rendered obsolete when
   command groups were guaranteed to execute in order.
 

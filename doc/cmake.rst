@@ -41,7 +41,6 @@ development.
    cmake/ImportLLVM
    cmake/ReleaseAssert
    cmake/Sanitizers
-   cmake/Utils
    source/cl/cmake
    source/vk/cmake
    modules/mux/cmake

@@ -9,12 +9,8 @@ the `CA_ENABLE_DEBUG_SUPPORT` CMake option.
 The Debug module contains helper pass instrumentations to facilitate the
 debugging of the oneAPI Construction Kit at runtime using environment variables.
 
-> Debug instrumentations require both `CA_ENABLE_DEBUG_SUPPORT=ON` and
-> `CA_RUNTIME_COMPILER_ENABLED=ON` in order to enable building the
-> `debug-support` library.
-
 The list of available variables can be seen in the [developer
-guide](../developer-guide.md#llvm-pass-instrumentations).
+guide](../developer-guide.md#debugging-the-llvm-compiler).
 
 ## Debug Backtrace
 

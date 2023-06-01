@@ -484,15 +484,15 @@ Here is the full list of supported requirements for ``// REQUIRES:``:
   ``OfflineSpirExecution``, and ``OfflineSpirvExecution`` tests will not work
   for this kernel if this requirement is set.
 * ``nospir`` - Skip all SPIR generation steps for this kernel. This will only
-  have an effect if you are running the :ref:`regenerate-spir
-  target<regenerate-spir and regenerate-spirv targets>`.
-  ``SpirExecution`` and ``OfflineSpirExecution`` tests will not work for this
-  kernel if this requirement is set.
+  have an effect if you are running the
+  :ref:`regenerate-spir<regenerate-spir-spirv>` target. ``SpirExecution`` and
+  ``OfflineSpirExecution`` tests will not work for this kernel if this
+  requirement is set.
 * ``nospirv`` - Skip all SPIR-V generation steps for this kernel. This will
-  only have an effect if you are running the :ref:`regenerate-spirv
-  target<regenerate-spir and regenerate-spirv targets>`.
-  ``SpirvExecution`` and ``OfflineSpirvExecution`` tests will not work for this
-  kernel if this requirement is set.
+  only have an effect if you are running the
+  :ref:`regenerate-spirv<regenerate-spir-spirv>` target. ``SpirvExecution`` and
+  ``OfflineSpirvExecution`` tests will not work for this kernel if this
+  requirement is set.
 * ``double`` - If your kernel requires doubles (i.e., the ``cl_khr_fp64``
   extension), then CMake will only compile the kernel for targets with the
   ``fp64`` capability.
@@ -617,6 +617,8 @@ The `regenerate-spir and regenerate-spirv targets`_ are used to rebuild IR
 kernels. It is also possible to build individual IR kernels `manually <Manually
 generate SPIR or SPIR-V_>`_, but since the process is error-prone, committing
 manually generated IR kernels to the repository is discouraged.
+
+.. _regenerate-spir-spirv:
 
 ``regenerate-spir`` and ``regenerate-spirv`` Targets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

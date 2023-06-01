@@ -1,7 +1,3 @@
-
-
-----
-
 Welcome to oneAPI Construction Kit's documentation!
 ###################################################
 

@@ -9,6 +9,3 @@ circumstances.
     :maxdepth: 1
 
     test/unitcl
-    test/lit-generator
-    test/generated-tests
-    test/opencl-cts

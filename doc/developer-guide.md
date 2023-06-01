@@ -398,7 +398,7 @@ git clone https://github.com/llvm/llvm-project.git --branch $LLVMBranch
 cd llvm-project
 ```
 
-##### Compiling LLVM from Upstream on Linux
+#### Compiling LLVM from Upstream on Linux
 
 Configure the build directory with CMake, ensuring to enable the `clang`
 project using `LLVM_ENABLE_PROJECTS`. Run this command from the root of the
@@ -419,7 +419,7 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-x86_64 install
 ```
 
-##### Compiling LLVM from Upstream on Windows
+#### Compiling LLVM from Upstream on Windows
 
 Configure the build directory with CMake, ensuring to enable the `clang`
 project using `LLVM_ENABLE_PROJECTS`. Run this command from the root of the
@@ -449,7 +449,7 @@ can build on the command line using CMake as shown below.
 cmake --build %CD%\build-x86_64 --target install --config Release
 ```
 
-#### Compiling LLVM-SPIRV
+### Compiling LLVM-SPIRV
 
 `llvm-spirv` is used to translate bitcode binaries into SPIR-V binaries.
 
@@ -477,7 +477,7 @@ directory.
 > match. The vast majority of spir-v binaries have been translated using
 > `llvm-spirv` based on LLVM 8.0.
 
-#### Compiling Khronos Clang for SPIR
+### Compiling Khronos Clang for SPIR
 
 Khronos provides a version of `clang` based on LLVM 3.2 that is used to compile
 OpenCL kernels to SPIR. Since the version of LLVM is so old, SPIR `clang`
@@ -675,9 +675,10 @@ ninja -C build-offline install
 
 #### Compiling oneAPI Construction Kit without LLVM on Windows
 
-The `clc` offline compiler, which includes LLVM, must be provided. The build
-`clc` follow the [guide](#compiling-the-oneapi-construction-kit-on-windows) above, the
-`%ONEAPI_CON_KIT_INSTALL%` variable specifies the path to the root of this install.
+The `clc` offline compiler, which includes LLVM, must be provided. To build
+`clc` follow the [guide](#compiling-oneapi-construction-kit-on-windows) above,
+the `%ONEAPI_CON_KIT_INSTALL%` variable specifies the path to the root of this
+install.
 
 The configure the oneAPI Construction Kit build without LLVM run the following
 command from the root of the oneAPI Construction Kit repository.
@@ -735,7 +736,7 @@ cmake --build %CD%\build-offline --target install --config Release
 > Note: Cross-compilation is only supported on Linux.
 
 ## Cross-platform building LLVM and oneAPI Construction Kit for Linux
-=======
+
 All CMake cross-compilation configurations set `CMAKE_TOOLCHAIN_FILE` to inform
 CMake how to compile for the target architecture, this sets up various CMake
 variables which specify the locations of executables such as the C and C++

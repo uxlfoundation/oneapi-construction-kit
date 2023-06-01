@@ -234,7 +234,7 @@ specifies in `cl_mem_flags` are mapped to two enums `mux_allocation_type_e` and
 `mux_memory_property_e` which are passed to `muxAllocateMemory()`.
 
 [cl-12]: https://www.khronos.org/registry/cl/specs/opencl-1.2.pdf
-[mux-spec]: /modules/mux/runtime-spec.md
+[mux-spec]: /specifications/mux-runtime-spec.md
 [compiler]: /modules/mux/compiler.rst
 [spir-12]: https://www.khronos.org/registry/spir/specs/spir_spec-1.2.pdf
 [vk]: https://www.khronos.org/registry/vulkan/specs/1.1/pdf/vkspec.pdf
