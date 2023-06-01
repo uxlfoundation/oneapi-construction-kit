@@ -1,3 +1,3 @@
 # VECZ
 
-Documentation can be found [here](../../doc/modules/vecz.md).
+Documentation can be found [here](../../../doc/modules/vecz.rst).
