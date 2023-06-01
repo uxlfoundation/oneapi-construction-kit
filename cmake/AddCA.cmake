@@ -1456,23 +1456,35 @@ endfunction()
 
   For example, given:
 
-    ca_umbrella_lit_testsuite_open(all)
-      add_ca_lit_testsuite(foo)
-      ca_umbrella_lit_testsuite_open(compiler)
-        add_ca_lit_testsuite(bar)
-        add_ca_lit_testsuite(baz)
-        add_ca_lit_testsuite(special EXCLUDE_FROM_UMBRELLAS)
-      ca_umbrella_lit_testsuite_close(compiler)
-    ca_umbrella_lit_testsuite_close(all)
+  ``ca_umbrella_lit_testsuite_open(all)``
+
+  ``*  add_ca_lit_testsuite(foo)``
+
+  ``*  ca_umbrella_lit_testsuite_open(compiler)``
+
+  ``*  - add_ca_lit_testsuite(bar)``
+
+  ``*  - add_ca_lit_testsuite(baz)``
+
+  ``*  - add_ca_lit_testsuite(special EXCLUDE_FROM_UMBRELLAS)``
+
+  ``*  ca_umbrella_lit_testsuite_close(compiler)``
+
+  ``ca_umbrella_lit_testsuite_close(all)``
 
   Produces the following check targets, from most outermost to innermost:
 
-    check-all-lit:      foo, bar, baz
-    check-compiler-lit: bar, baz
-    check-foo-lit:      foo
-    check-bar-lit:      bar
-    check-baz-lit:      baz
-    check-special-lit:  special
+  ``check-all-lit:      foo, bar, baz``
+
+  ``check-compiler-lit: bar, baz``
+
+  ``check-foo-lit:      foo``
+
+  ``check-bar-lit:      bar``
+
+  ``check-baz-lit:      baz``
+
+  ``check-special-lit:  special``
 
 #]=======================================================================]
 

@@ -1,9 +1,9 @@
 Coverage Module
 ===============
 
-.. seealso::
-  For more details on the oneAPI Construction Kit code coverage see
-  :doc:`/scripts/coverage`.
+.. note::
+   Coverage support is deprecated and will be removed in a future version of
+   the oneAPI Construction Kit.
 
 .. cmake-module:: ../../cmake/Coverage.cmake
 
@@ -16,9 +16,6 @@ Coverage Module
 
 CoverageXMLInput Module
 #######################
-
-.. seealso::
-  XML format defined in :ref:`scripts/coverage:XML Input File Option`.
 
 ``CoverageXMLInput.cmake`` is used as part of the implementation of
 :command:`add_coverage_xml_input` from the `Coverage Module`_.

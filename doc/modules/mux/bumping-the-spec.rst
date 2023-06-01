@@ -18,8 +18,8 @@ Bumping the ComputeMux Specification Version
 5. Update ``doc/modules/mux/changes.rst``. The previous step will have
    generated an empty entry for the latest version.
 6. Update any other relevant documentation (e.g.,
-   ``doc/modules/mux/runtime-spec.rst`` and
-   ``doc/modules/mux/compiler-spec.rst``).
+   ``doc/specifications/mux-runtime-spec.rst`` and
+   ``doc/specifications/mux-compiler-spec.rst``).
 7. Create a merge request with all changes. Make sure to include the ComputeMux
    Runtime API XML, ``mux`` and all target headers, ``compiler``, and
    ``doc/modules/mux/changes.rst``.

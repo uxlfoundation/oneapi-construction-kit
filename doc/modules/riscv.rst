@@ -9,12 +9,6 @@ used to configure the target and act on commands such as enqueuing kernels and
 allocating and reading or writing to memory. The current version has only been
 tested with an x86_64 host CPU.
 
-As well as this it can currently be used as a template for further Mux
-targets, so a guide to porting it to another architecture will be given in
-`Guide to porting to another architecture`_. However over time there may
-be more specific RISC-V aspects added to it, which may limit its use as a
-template.
-
 The current in-tree targets are variants of Codeplay's reference
 architecture(RefSi). This comes in two variants `G` and `M1`. The `riscv` target
 matches `G` and has no need for anything architecture specific except for what is
@@ -120,8 +114,8 @@ RISC-V Device
 
 The information reported by a RISC-V device can vary depending on the build
 configuration of oneAPI Construction Kit. See the
-:ref:`developer-guide:Computeaorta Cmake Options` for details on the effects of
-RISC-V specific CMake options.
+:ref:`developer-guide:Cmake Options` for details on the effects of RISC-V
+specific CMake options.
 
 Build Options
 #############

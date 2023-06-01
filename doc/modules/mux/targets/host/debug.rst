@@ -110,4 +110,4 @@ with a descriptive error.
   I.e., either function call must go horribly wrong before the illegal access is
   caught. It is trivial for a kernel calling ``memcpy()`` to completely clobber
   the oneAPI Construction Kit's owned memory, and ``dbg_memcpy()`` cannot prevent
-   that.
+  that.
