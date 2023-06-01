@@ -1,0 +1,64 @@
+name: Bug
+description: Open a bug report
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this bug report. Please provide the following details so that we can resolve the issue in an efficient and appropriate manner.
+  - type: markdown
+    attributes:
+      value: |
+        By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
+  - type: markdown
+    attributes:
+      value: |
+        We ask that you check to see if a similar bug report has already been opened in [Issues](https://github.com/codeplaysoftware/oneapi-construction-kit/labels/bug).
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version(s) of the project are you using?
+      placeholder: 2.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What behaviour are you expecting?
+      description: Describe the behaviour you're expecting from the project, including any relevant compilation options, runtime flags, input/output values, etc.
+      placeholder: Describe the expected behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actual behaviour are you seeing?
+      description: Describe the actual behaviour you're seeing from the project, including any relevant crash logs, error logs, test failures, incorrect output values, etc.
+      placeholder: Describe the actual behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What steps are required to reproduce the bug?
+      description: Provide as much context as you can and describe the steps required to *reproduce* the bug, so that maintainers can recreate the issue.
+      placeholder: Describe the steps to reproduce the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: testcase
+    attributes:
+      label: Minimal test case
+      description: If possible, provide a minimal test case demonstrating the bug. This should be a self-contained submission of code that will reproduce the bug without any extraneous effects, making it easier for us to isolate where the problem is.
+      placeholder: Provide a minimal test case.
+    validations:
+      required: false
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else we should know?
+      description: If there's any other relevant information we should know that may help us in resolving your issue, please include it here.
+      placeholder: Detail any other relevant information.
+    validations:
+      required: false
