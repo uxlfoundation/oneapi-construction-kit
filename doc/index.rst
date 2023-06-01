@@ -27,7 +27,6 @@ time to read this documentation.
     source/cl
     source/vk
     modules
-    external-testing-ecosystem
     api-reference
     cmake
     scripts
