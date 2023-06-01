@@ -1,0 +1,32 @@
+name: Question
+description: Ask a question
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest in the project. Please provide the following details so that we can address your query in an efficient and appropriate manner.
+  - type: markdown
+    attributes:
+      value: |
+        By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
+  - type: markdown
+    attributes:
+      value: |
+        We ask that you check to see if a similar question or concern has been raised in [Issues](https://github.com/codeplaysoftware/oneapi-construction-kit/issues?q=label%3Aquestion). It may be that your question has already been previously answered.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version(s) of the project are you using?
+      placeholder: 2.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: What is your question or problem?
+      description: Describe your question or problem with as much context and detail as you can. If there's any relevant information we should know that may help us in assisting you, please include it here.
+      placeholder: Describe your question or problem.
+    validations:
+      required: true

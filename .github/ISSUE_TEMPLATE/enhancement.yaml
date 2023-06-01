@@ -1,0 +1,48 @@
+name: Enhancement
+description: Suggest an enhancement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to suggest an enhancement for the project. Please provide the following details so that we can fully understand and handle your suggestion in an efficient and appropriate manner.
+  - type: markdown
+    attributes:
+      value: |
+        By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
+  - type: markdown
+    attributes:
+      value: |
+        We ask that you check to see if a similar enhancement has already been suggested by someone else in [Issues](https://github.com/codeplaysoftware/oneapi-construction-kit/issues?q=label%3Aenhancement). It may be that your requested feature may be covered by another feature.
+  - type: textarea
+    id: overview
+    attributes:
+      label: Brief overview
+      description: Give a brief overview of what you are proposing to be added to the project. Please include any relevant details such as graphics, code snippets, etc, and describe why your suggested approach is required.
+      placeholder: Give a brief overview of the enhancement.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What behaviour are you expecting?
+      description: Describe the behaviour you'd like to see in the project, including any relevant compilation options, runtime flags, input/output values, etc.
+      placeholder: Describe the expected behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What current behaviour are you seeing?
+      description: Describe the current behaviour of the project and how it differs from the behaviour you're expecting to see.
+      placeholder: Describe the current behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else we should know?
+      description: If there's any other relevant information we should know that may help us in understanding and addressing your suggestion, please include it here.
+      placeholder: Detail any other relevant information.
+    validations:
+      required: false
