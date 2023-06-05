@@ -55,8 +55,8 @@ Current directory layout:
 
 The two long running branches are:
 
-* `main`: This branch is merged to on a successful nightly run and should not be merged into directly.
-* `develop`: This is the main branch for on-going development.
+* `stable`: This branch is merged to on a successful nightly run and should not be merged into directly.
+* `main`: This is the main branch for on-going development.
 
 > No force pushes are allowed on these two branches.
 
