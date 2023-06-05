@@ -16,7 +16,7 @@ and external components.
 >**_Note:_**
    oneAPI Construction Kit was previously referred to as ComputeAorta and referred to as acronym `CA`. As a result, references to ComputeAorta or CA may be present in some oneAPI Construction Kit's documentation and code.
 
-## Getting up and started with oneAPI Construction Kit
+## Get started with the oneAPI Construction Kit
 This section provides the minimum system requirements for building the oneAPI Construction Kit on Ubuntu 20.04. For Windows platform dependencies and build instructions please refer to the [developer guide](doc/developer-guide.md).
 
 ### Platform Dependencies
