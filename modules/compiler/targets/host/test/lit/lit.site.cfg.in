@@ -29,6 +29,9 @@ config.compiler_cross_aarch64 = '@COMPILER_CROSS_AArch64@'
 config.compiler_cross_x86 = '@COMPILER_CROSS_x86@'
 config.compiler_cross_arm = '@COMPILER_CROSS_Arm@'
 
+if lit.util.pythonize_bool('@CA_HOST_ENABLE_FP64@'):
+    config.available_features.add('fp64')
+
 # Defer to the common lit configuration to set up the bulk of the config.
 common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',
                                    'lit', 'lit.common.cfg')

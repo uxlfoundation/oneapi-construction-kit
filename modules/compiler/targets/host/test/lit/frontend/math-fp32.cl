@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: oclc -cl-options '-cl-fast-relaxed-math' %s -stage cl_snapshot_compilation_front_end | FileCheck %s
+// RUN: muxc -x cl --device "%default_device" -cl-options '-cl-fast-relaxed-math' -passes fast-math < %s | FileCheck %s
 
 #define helper(NAME) \
   void kernel func_##NAME(global float16* a) { \
