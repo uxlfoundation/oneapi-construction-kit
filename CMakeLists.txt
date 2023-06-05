@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
-project(ComputeAorta VERSION 2.0.0 LANGUAGES C CXX ASM)
+project(ComputeAorta VERSION 2.0.1 LANGUAGES C CXX ASM)
 
 # There's no situation where it's necessary to *not* generate this file and the
 # time difference to configure is about 0.1s
