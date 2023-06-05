@@ -37,6 +37,6 @@ add_ca_check(UnitCompiler GTEST
   CLEAN ${PROJECT_BINARY_DIR}/UnitCompiler.xml
   DEPENDS UnitCompiler)
 
-add_subdirectory(passes)
+add_subdirectory(lit)
 
 install(TARGETS UnitCompiler RUNTIME DESTINATION bin COMPONENT compiler)
