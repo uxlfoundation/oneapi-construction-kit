@@ -14,7 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: oclc %s -cl-options '-cl-kernel-arg-info' -stage cl_snapshot_compilation_front_end | FileCheck %s
+// It shouldn't matter which device we run this test on.
+// RUN: muxc --device-idx 0 -x cl -cl-options '-cl-kernel-arg-info' < %s | FileCheck %s
 
 void kernel foo(const int a) {}
 
