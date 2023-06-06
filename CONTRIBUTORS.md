@@ -32,6 +32,7 @@ helped make this a success.
 * Omar Ahmed
 * Ori Sky Farrell
 * Petr Vesely
+* Pierre-André Saulais
 * Ross Brunton
 * Ruyman Reyes
 * Verena Beckham
