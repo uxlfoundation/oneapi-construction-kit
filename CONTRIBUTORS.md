@@ -25,6 +25,7 @@ helped make this a success.
 * Jefferson le Quellec
 * Kenneth Benzie
 * Luke Drummond
+* Mark Miller
 * Martin Morrison-Grant
 * Marya Sharf
 * Neil Henning
