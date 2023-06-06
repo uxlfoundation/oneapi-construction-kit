@@ -23,6 +23,7 @@
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/CodeGen.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/ToolOutputFile.h>
@@ -48,7 +49,16 @@ static cl::opt<std::string> OutputFilename(
 static cl::opt<bool> ListDevices("list-devices", cl::desc("list devices"),
                                  cl::value_desc("list-devices"));
 
-static cl::opt<bool, false> WriteTextual("S", cl::desc("Write module as text"));
+static cl::opt<bool> WriteTextual(
+    "S", cl::desc("Write module as text. Deprecated: does nothing"),
+    cl::init(true));
+
+static cl::opt<CodeGenFileType> FileType(
+    "filetype", cl::init(CGFT_AssemblyFile), cl::desc("Choose a file type:"),
+    cl::values(clEnumValN(CGFT_AssemblyFile, "asm", "Emit a textual file"),
+               clEnumValN(CGFT_ObjectFile, "obj", "Emit a binary object file"),
+               clEnumValN(CGFT_Null, "null",
+                          "Emit nothing, for performance testing")));
 
 static cl::opt<int> DeviceIdx(
     "device-idx",
@@ -114,10 +124,14 @@ int main(int argc, char **argv) {
     }
   }
 
+  if (FileType == CGFT_Null) {
+    return 0;
+  }
+
   // Open the output file.
   std::error_code EC;
   sys::fs::OpenFlags OpenFlags = sys::fs::OF_None;
-  if (WriteTextual) {
+  if (FileType == CGFT_AssemblyFile) {
     OpenFlags |= sys::fs::OF_Text;
   }
   auto Out = std::make_unique<ToolOutputFile>(OutputFilename, EC, OpenFlags);
@@ -126,7 +140,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  if (WriteTextual) {
+  if (FileType == CGFT_AssemblyFile) {
     Out->os() << *M.get();
   } else {
     WriteBitcodeToFile(*M.get(), Out->os());
