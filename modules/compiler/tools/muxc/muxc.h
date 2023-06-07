@@ -31,28 +31,20 @@ enum result : int { success = 0, failure = 1 };
 class driver {
  public:
   /// @brief Default constructor.
-  driver();
+  driver() {}
 
   /// @brief Loads any arguments from command-line.
   void parseArguments(int argc, char **argv);
 
-  /// @brief Initializes the compiler context
-  ///
-  /// @return Returns a `muxc::result`.
-  result createContext();
-
-  /// @brief Initializes the right platform and device
-  ///
-  /// @return Returns a `muxc::result`.
-  result setupContext();
+  /// @brief Initializes all of the compiler components and LLVMContext
+  llvm::Error setupContext();
 
   /// @brief Converts the input file to an IR module.
   llvm::Expected<std::unique_ptr<llvm::Module>> convertInputToIR();
 
   /// @brief Create the pass machinery
-  ///
-  /// @return Returns a `PassMachinery` in a `unique_ptr`.
-  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery();
+  llvm::Expected<std::unique_ptr<compiler::utils::PassMachinery>>
+  createPassMachinery();
 
   /// @brief Run the pass pipeline provided
   llvm::Error runPipeline(llvm::Module &, compiler::utils::PassMachinery &);
