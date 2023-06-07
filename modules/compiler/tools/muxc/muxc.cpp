@@ -90,6 +90,11 @@ int main(int argc, char **argv) {
   muxc::driver driver;
   driver.parseArguments(argc, argv);
 
+  if (driver.createContext()) {
+    errs() << "Could not create compiler context\n";
+    return 1;
+  }
+
   // setupContext is only needed if we have a device
   if (!DeviceName.empty() || DeviceIdx >= 0) {
     if (driver.setupContext()) {
@@ -170,10 +175,10 @@ uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
   return caps;
 }
 
-driver::driver()
-    : CompilerInfo(nullptr),
-      CompilerContext(compiler::createContext()),
-      CompilerModule(nullptr) {}
+result driver::createContext() {
+  CompilerContext = compiler::createContext();
+  return CompilerContext ? result::success : result::failure;
+}
 
 void driver::parseArguments(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);

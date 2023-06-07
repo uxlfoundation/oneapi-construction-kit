@@ -15,13 +15,13 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; REQUIRES: ca_llvm_options
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<late-builtins>,verify" -S %s 2>&1 \
+; RUN: muxc --passes "mux-base<late-builtins>,verify" --debug-pass-manager %s 2>&1 \
 ; RUN:   | FileCheck %s --check-prefix LATE-BUILTINS
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<prepare-wg-sched>,verify" -S %s 2>&1 \
+; RUN: muxc --passes "mux-base<prepare-wg-sched>,verify" --debug-pass-manager %s 2>&1 \
 ; RUN:   | FileCheck %s --check-prefix PREPARE-WG-SCHED
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<wg-sched>,verify" -S %s 2>&1 \
+; RUN: muxc --passes "mux-base<wg-sched>,verify" --debug-pass-manager %s 2>&1 \
 ; RUN:   | FileCheck %s --check-prefixes PREPARE-WG-SCHED,WG-SCHED
-; RUN: env CA_LLVM_OPTIONS=-debug-pass-manager muxc --passes "mux-base<pre-vecz>,verify" -S %s 2>&1 \
+; RUN: muxc --passes "mux-base<pre-vecz>,verify" --debug-pass-manager %s 2>&1 \
 ; RUN:   | FileCheck %s --check-prefix PRE-VECZ
 
 target triple = "spir64-unknown-unknown"

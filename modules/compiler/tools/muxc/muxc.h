@@ -31,7 +31,7 @@ enum result : int { success = 0, failure = 1 };
 class driver {
  public:
   /// @brief Default constructor.
-  driver();
+  driver() {}
 
   /// @brief Loads any arguments from command-line.
   void parseArguments(int argc, char **argv);
