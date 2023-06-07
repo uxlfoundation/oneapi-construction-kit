@@ -90,37 +90,40 @@ int main(int argc, char **argv) {
   muxc::driver driver;
   driver.parseArguments(argc, argv);
 
-  if (driver.createContext()) {
-    errs() << "Could not create compiler context\n";
+  if (auto Err = driver.setupContext()) {
+    errs() << "Error setting up context: " << toString(std::move(Err)) << "\n";
     return 1;
   }
 
-  // setupContext is only needed if we have a device
-  if (!DeviceName.empty() || DeviceIdx >= 0) {
-    if (driver.setupContext()) {
+  std::unique_ptr<Module> M;
+  // If we're just going to print available passes, we don't need to handle any
+  // input.
+  if (!PrintPasses) {
+    auto MRes = driver.convertInputToIR();
+    if (auto Err = MRes.takeError()) {
+      errs() << "Error converting input to IR: " << toString(std::move(Err))
+             << "\n";
       return 1;
     }
+
+    assert(MRes.get() && "Could not load IR module");
+    M = std::move(*MRes);
   }
 
-  auto PassMach = driver.createPassMachinery();
-  if (!PassMach) {
+  auto PassMachRes = driver.createPassMachinery();
+  if (auto Err = PassMachRes.takeError()) {
+    errs() << toString(std::move(Err)) << "\n";
     return 1;
   }
+
+  std::unique_ptr<compiler::utils::PassMachinery> PassMach =
+      std::move(*PassMachRes);
 
   if (PrintPasses) {
     PassMach->printPassNames(errs());
     return 0;
   }
-
-  auto MRes = driver.convertInputToIR();
-  if (auto Err = MRes.takeError()) {
-    errs() << "Error converting input to IR: " << toString(std::move(Err))
-           << "\n";
-    return 1;
-  }
-
-  assert(MRes.get() && "Could not load IR module");
-  std::unique_ptr<Module> &M = *MRes;
+  assert(M && "Could not load IR module");
 
   if (!PipelineText.empty()) {
     if (auto Err = driver.runPipeline(*M, *PassMach)) {
@@ -175,11 +178,6 @@ uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
   return caps;
 }
 
-result driver::createContext() {
-  CompilerContext = compiler::createContext();
-  return CompilerContext ? result::success : result::failure;
-}
-
 void driver::parseArguments(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
@@ -191,34 +189,50 @@ void driver::parseArguments(int argc, char **argv) {
   }
 }
 
-result driver::setupContext() {
-  auto res = findDevice();
-  if (auto err = res.takeError()) {
-    errs() << toString(std::move(err)) << "\n";
-    return result::failure;
-  }
-  CompilerInfo = *res;
+Error driver::setupContext() {
+  CompilerContext = compiler::createContext();
   if (!CompilerContext) {
-    return result::failure;
+    return make_error<StringError>("Could not create compiler context",
+                                   inconvertibleErrorCode());
   }
+
+  // If the user hasn't asked for a device, we need a LLVMContext separate from
+  // the 'compiler' machinery.
+  if (DeviceName.empty() && DeviceIdx < 0) {
+    LLVMCtx = std::make_unique<LLVMContext>();
+    return Error::success();
+  }
+
+  auto InfoRes = findDevice();
+  if (auto Err = InfoRes.takeError()) {
+    return Err;
+  }
+
+  CompilerInfo = *InfoRes;
 
   CompilerTarget =
       CompilerInfo->createTarget(CompilerContext.get(), mux_message);
+
   if (!CompilerTarget ||
       CompilerTarget->init(detectBuiltinCapabilities(
           CompilerInfo->device_info)) != compiler::Result::SUCCESS) {
-    std::fprintf(stderr, "Error: Could not create compiler target\n");
-    return result::failure;
+    return make_error<StringError>("Could not create compiler target",
+                                   inconvertibleErrorCode());
   }
 
-  return result::success;
+  CompilerModule = CompilerTarget->createModule(ModuleNumErrors, ModuleLog);
+  if (!CompilerModule || ModuleNumErrors) {
+    return make_error<StringError>(
+        formatv("Could not create compiler module:\n{0}\n", ModuleLog),
+        inconvertibleErrorCode());
+  }
+
+  return Error::success();
 }
 
 static Expected<std::unique_ptr<Module>> parseIRFileToModule(LLVMContext &Ctx) {
   SMDiagnostic Err;
-  auto M = parseIRFile(InputFilename, Err, Ctx);
-
-  if (M) {
+  if (auto M = parseIRFile(InputFilename, Err, Ctx)) {
     return M;
   }
 
@@ -238,22 +252,24 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
   }
   StringRef IFN = InputFilename;
 
-  auto &LLVMContextToUse =
-      CompilerTarget ? static_cast<compiler::BaseTarget *>(CompilerTarget.get())
-                           ->getLLVMContext()
-                     : *LLVMCtx;
-  LLVMContextToUse.setOpaquePointers(true);
+  auto *LLVMContextToUse =
+      CompilerTarget
+          ? &static_cast<compiler::BaseTarget *>(CompilerTarget.get())
+                 ->getLLVMContext()
+          : LLVMCtx.get();
+  assert(LLVMContextToUse && "Missing LLVM Context");
+  LLVMContextToUse->setOpaquePointers(true);
 
   // Assume that .bc and .ll files are already IR unless told otherwise.
   if (InputLanguage == "ir" ||
       (InputLanguage.empty() &&
        (IFN.endswith(".bc") || IFN.endswith(".bc32") || IFN.endswith(".bc64") ||
         IFN.endswith(".ll")))) {
-    return parseIRFileToModule(LLVMContextToUse);
+    return parseIRFileToModule(*LLVMContextToUse);
   }
   // Assume that stdin is IR unless told otherwise
   if (InputLanguage.empty() && IFN == "-") {
-    return parseIRFileToModule(LLVMContextToUse);
+    return parseIRFileToModule(*LLVMContextToUse);
   }
   // Now we know we're in OpenCL mode; we need a known device.
   if (!CompilerModule) {
@@ -294,16 +310,11 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
   return M;
 }
 
-std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
+Expected<std::unique_ptr<compiler::utils::PassMachinery>>
+driver::createPassMachinery() {
   std::unique_ptr<compiler::utils::PassMachinery> PassMach;
 
   if (CompilerTarget) {
-    CompilerModule = CompilerTarget->createModule(ModuleNumErrors, ModuleLog);
-    if (!CompilerModule || ModuleNumErrors) {
-      std::fprintf(stderr, "Error: Could not create compiler module :\n%s\n",
-                   ModuleLog.c_str());
-      return {};
-    }
     auto *const BaseModule =
         static_cast<compiler::BaseModule *>(CompilerModule.get());
     PassMach = BaseModule->createPassMachinery();
@@ -315,7 +326,6 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
                   : 0,
         64);
 
-    LLVMCtx = std::make_unique<LLVMContext>();
     auto &BaseCtx =
         *static_cast<compiler::BaseContext *>(CompilerContext.get());
     PassMach = std::make_unique<compiler::BaseModulePassMachinery>(
@@ -323,12 +333,14 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
         BaseCtx.isLLVMVerifyEachEnabled(), BaseCtx.getLLVMDebugLoggingLevel(),
         BaseCtx.isLLVMTimePassesEnabled());
   }
-  if (PassMach) {
-    PassMach->initializeStart();
-    PassMach->initializeFinish();
-  } else {
-    std::fprintf(stderr, "Error: Unable to make PassMachinery\n");
+  if (!PassMach) {
+    return make_error<StringError>("Unable to create Passmachinery",
+                                   inconvertibleErrorCode());
   }
+
+  // Initialize the pass machinery.
+  PassMach->initializeStart();
+  PassMach->initializeFinish();
 
   return PassMach;
 }
