@@ -14,9 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// REQUIRES: generic-target
-// RUN: oclc -cl-options "-cl-vec=slp" -enqueue slp_test -stage vectorized %s > %t
-// RUN: FileCheck < %t %s
+// REQUIRES: generic-target, ca_llvm_options
+// RUN: env CA_LLVM_OPTIONS=-print-after=slp-vectorizer oclc -cl-options "-cl-vec=slp" -enqueue slp_test %s 2>&1 | FileCheck %s
 
 __kernel void slp_test(__global int *out, __global int *in1, __global int *in2) {
   int x = get_global_id(0) * 8;
@@ -40,7 +39,9 @@ __kernel void slp_test(__global int *out, __global int *in1, __global int *in2) 
   out[x + 7] = a7;
 }
 
-// it makes sure that the prevectorization option creates two vector adds
+// This test makes sure that the prevectorization option creates two vector
+// adds. It's basically checking that -cl-vec=slp gets makes the pass pipeline
+// run LLVM's SLP vectorizer, so this test is somewhat cumbersome.
 
 // CHECK: add nsw <4 x i32>
 // CHECK: add nsw <4 x i32>
