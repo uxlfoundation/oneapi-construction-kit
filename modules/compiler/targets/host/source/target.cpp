@@ -41,17 +41,7 @@ HostTarget::HostTarget(const HostInfo *compiler_info,
                        compiler::Context *context,
                        compiler::NotifyCallbackFn callback)
     : BaseTarget(compiler_info, context, callback),
-      llvm_ts_context(std::make_unique<llvm::LLVMContext>()) {
-  const char *target_name = "host";
-  supported_target_snapshots = {
-      compiler::BaseModule::getTargetSnapshotName(target_name,
-                                                  HOST_SNAPSHOT_VECTORIZED),
-      compiler::BaseModule::getTargetSnapshotName(target_name,
-                                                  HOST_SNAPSHOT_BARRIER),
-      compiler::BaseModule::getTargetSnapshotName(target_name,
-                                                  HOST_SNAPSHOT_SCHEDULED),
-  };
-}
+      llvm_ts_context(std::make_unique<llvm::LLVMContext>()) {}
 
 compiler::Result HostTarget::initWithBuiltins(
     std::unique_ptr<llvm::Module> builtins_module) {

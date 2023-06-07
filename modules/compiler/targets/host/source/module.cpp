@@ -142,7 +142,7 @@ HostModule::hostCompileObject(HostTarget &target,
   llvm::ModulePassManager pm;
   pm.addPass(compiler::utils::TransferKernelMetadataPass());
 
-  pm.addPass(host_pass_mach.getKernelFinalizationPasses(snapshots));
+  pm.addPass(host_pass_mach.getKernelFinalizationPasses());
   {
     // Using the CrashRecoveryContext and statistics touches LLVM's global
     // state.
@@ -258,8 +258,8 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
 
   assert(kernel_md.local_memory_usage <= SIZE_MAX);
   auto kernel = new HostKernel(
-      static_cast<HostTarget &>(target), getOptions(), snapshots,
-      kernel_module.release(), kernel_md.kernel_name, local_sizes,
+      static_cast<HostTarget &>(target), getOptions(), kernel_module.release(),
+      kernel_md.kernel_name, local_sizes,
       static_cast<size_t>(kernel_md.local_memory_usage));
   return kernel;
 }

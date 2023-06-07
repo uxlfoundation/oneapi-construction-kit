@@ -183,9 +183,7 @@ bool HostPassMachinery::handlePipelineElement(llvm::StringRef Name,
       unique_prefix = Name.str();
     }
 
-    // We don't support snapshots via pass pipeline elements; they're deprecated
-    // anyway.
-    PM.addPass(getKernelFinalizationPasses(/*snapshots*/ {}, unique_prefix));
+    PM.addPass(getKernelFinalizationPasses(unique_prefix));
     return true;
   }
 
@@ -226,7 +224,6 @@ llvm::ModulePassManager HostPassMachinery::getLateTargetPasses() {
 }
 
 llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
-    cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots,
     std::optional<std::string> unique_prefix) {
   llvm::ModulePassManager PM;
   compiler::BasePassPipelineTuner tuner(options);
@@ -253,9 +250,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
 
   PM.addPass(vecz::RunVeczPass());
 
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "host", HOST_SNAPSHOT_VECTORIZED, snapshots);
-
   addLateBuiltinsPasses(PM, tuner);
 
   compiler::utils::HandleBarriersOptions HBOpts;
@@ -266,9 +260,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
 #endif
 
   PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
-
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "host", HOST_SNAPSHOT_BARRIER, snapshots);
 
   PM.addPass(compiler::utils::AddSchedulingParametersPass());
 
@@ -333,9 +324,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   PM.addPass(compiler::utils::AddMetadataPass<
              compiler::utils::VectorizeMetadataAnalysis,
              handler::VectorizeInfoMetadataHandler>());
-
-  compiler::BaseModule::addSnapshotPassIfEnabled(
-      PM, "host", HOST_SNAPSHOT_SCHEDULED, snapshots);
 
   return PM;
 }

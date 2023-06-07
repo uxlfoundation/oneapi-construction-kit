@@ -36,10 +36,6 @@ class Module;
 namespace host {
 struct HostInfo;
 
-constexpr const char HOST_SNAPSHOT_VECTORIZED[] = "vectorized";
-constexpr const char HOST_SNAPSHOT_BARRIER[] = "barrier";
-constexpr const char HOST_SNAPSHOT_SCHEDULED[] = "scheduled";
-
 /// @brief Compiler target class.
 class HostTarget : public compiler::BaseTarget {
  public:

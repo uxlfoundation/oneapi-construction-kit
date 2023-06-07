@@ -44,17 +44,15 @@
 
 namespace host {
 
-HostKernel::HostKernel(
-    HostTarget &target, compiler::Options &build_options,
-    cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots,
-    llvm::Module *module, std::string name,
-    std::array<size_t, 3> preferred_local_sizes, size_t local_memory_used)
+HostKernel::HostKernel(HostTarget &target, compiler::Options &build_options,
+                       llvm::Module *module, std::string name,
+                       std::array<size_t, 3> preferred_local_sizes,
+                       size_t local_memory_used)
     : BaseKernel(name, preferred_local_sizes[0], preferred_local_sizes[1],
                  preferred_local_sizes[2], local_memory_used),
       module(module),
       target(target),
-      build_options(build_options),
-      snapshots(snapshots) {}
+      build_options(build_options) {}
 
 HostKernel::~HostKernel() {
   if (target.orc_engine) {
@@ -279,7 +277,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
                             static_cast<uint64_t>(local_size[2])};
     pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
 
-    pm.addPass(pass_mach.getKernelFinalizationPasses(snapshots, unique_name));
+    pm.addPass(pass_mach.getKernelFinalizationPasses(unique_name));
 
     {
       // Using the CrashRecoveryContext and statistics touches LLVM's global
