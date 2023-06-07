@@ -82,15 +82,12 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 
 oclc::Driver::Driver()
-    : snapshot_callback_hit(false),
-      execution_limit_(1),
+    : execution_limit_(1),
       execution_count_(0),
       platform_(nullptr),
       device_(nullptr),
       context_(nullptr),
       program_(nullptr),
-      request_snapshot_(nullptr),
-      request_snapshot_list_(nullptr),
       input_file_(),
       output_file_(),
       cl_device_name_(),
@@ -98,11 +95,6 @@ oclc::Driver::Driver()
       target_features_(),
       source_(),
       binary_(),
-      stage_(),
-      // Text is the default here because it is expected that oclc will mainly
-      // be used for compiler development, i.e. looking at the program at
-      // different stages of the compilation process.
-      format_(CL_PROGRAM_BINARY_FORMAT_TEXT_CODEPLAY),
       enqueue_kernel_(),
       kernel_arg_map_(),
       printed_argument_map_(),
@@ -115,9 +107,7 @@ oclc::Driver::Driver()
       ulp_tolerance_(0),
       work_dim_(2),
       char_tolerance_(0),
-      snapshot_required_(false),
       verbose_(false),
-      list_snap_stages_(false),
       execute_(false) {}
 
 oclc::Driver::~Driver() {
@@ -131,58 +121,6 @@ oclc::Driver::~Driver() {
   }
 }
 
-std::string oclc::Driver::GetOutputFileExtension() {
-  switch (format_) {
-    default:
-    case CL_PROGRAM_BINARY_FORMAT_DEFAULT_CODEPLAY:
-    case CL_PROGRAM_BINARY_FORMAT_BINARY_CODEPLAY:
-      if (IsOutputFileIR()) {
-        return ".bc";
-      } else if (IsOutputFileMC()) {
-        return ".o";
-      } else {
-        return ".bin";
-      }
-    case CL_PROGRAM_BINARY_FORMAT_TEXT_CODEPLAY:
-      if (IsOutputFileIR()) {
-        return ".ll";
-      } else if (IsOutputFileMC()) {
-        return ".s";
-      } else {
-        return ".txt";
-      }
-  }
-}
-
-bool oclc::Driver::IsOutputFileIR() {
-  if (!request_snapshot_) {
-    return false;
-  }
-
-  if ("cl_snapshot_compilation_default" == stage_ ||
-      "cl_snapshot_compilation_front_end" == stage_ ||
-      "cl_snapshot_compilation_simd_prepare" == stage_ ||
-      "cl_snapshot_compilation_spir" == stage_ ||
-      "cl_snapshot_compilation_builtins" == stage_ ||
-      "cl_snapshot_compilation_backend" == stage_) {
-    return true;
-  }
-
-  return false;
-}
-
-bool oclc::Driver::IsOutputFileMC() {
-  if (!request_snapshot_) {
-    return false;
-  }
-
-  if ("cl_snapshot_compilation_mc_final" == stage_) {
-    return true;
-  }
-
-  return false;
-}
-
 void oclc::Driver::PrintUsage(int argc, char **argv) {
   (void)argc;
 
@@ -191,16 +129,13 @@ void oclc::Driver::PrintUsage(int argc, char **argv) {
   fprintf(stderr, "\noptions:\n");
   fprintf(stderr,
           "-o <output_file>                                        Set the "
-          "output file to write the snapshot to.\n");
+          "output file to write the binary to.\n");
   fprintf(stderr,
           "-v                                                      Run oclc in "
           "verbose mode.\n");
   fprintf(stderr,
           "-format <output_format>                                 Set the "
           "output file format.\n");
-  fprintf(stderr,
-          "-stage <compilation_stage>                              Set the "
-          "compilation stage to take a snapshot at.\n");
   fprintf(stderr,
           "                                                        Matches the "
           "first occurrence of stage as a substring\n");
@@ -214,11 +149,8 @@ void oclc::Driver::PrintUsage(int argc, char **argv) {
           "-cl-device '<device name>'                              OpenCL "
           "device to use when compiling the kernel.\n");
   fprintf(stderr,
-          "-list                                                   List the "
-          "compilation stages oclc can take a snapshot at.\n");
-  fprintf(stderr,
           "-enqueue <kernel name>                                  Enqueues a "
-          "kernel to hit snapshots on work-group\n");
+          "kernel to enqueue on work-group\n");
   fprintf(stderr,
           "                                                        size "
           "specific transformations.\n");
@@ -404,20 +336,10 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
       output_file_ = arg_str;
     } else if (args.TakeKey("-v", failed)) {
       verbose_ = true;
-    } else if ((arg_str = args.TakeKeyValue("-stage", failed))) {
-      failed = (ParseCompilationStage(arg_str) == oclc::failure);
-      snapshot_required_ = true;
-      OCLC_CHECK(failed, "invalid compilation stage");
-    } else if ((arg_str = args.TakeKeyValue("-format", failed))) {
-      failed = (ParseFileFormat(arg_str) == oclc::failure);
-      OCLC_CHECK(failed, "invalid output format");
     } else if ((arg_str = args.TakeKeyValue("-cl-options", failed))) {
       cl_options_ = arg_str;
     } else if ((arg_str = args.TakeKeyValue("-cl-device", failed))) {
       cl_device_name_ = arg_str;
-    } else if (args.TakeKey("-list", failed)) {
-      list_snap_stages_ = true;
-      snapshot_required_ = true;
     } else if ((arg_str = args.TakeKeyValue("-enqueue", failed))) {
       enqueue_kernel_ = arg_str;
     } else if (args.TakeKey("-execute", failed)) {
@@ -502,60 +424,6 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
 
   input_file_ = positional_args[0];
   return oclc::success;
-}
-
-bool oclc::Driver::ParseFileFormat(const std::string &format) {
-  if (format == "binary") {
-    format_ = CL_PROGRAM_BINARY_FORMAT_BINARY_CODEPLAY;
-  } else if (format == "text") {
-    format_ = CL_PROGRAM_BINARY_FORMAT_TEXT_CODEPLAY;
-  } else {
-    // "default" is not a valid option here. This is because oclc's default is
-    // "text" while CL_PROGRAM_..._DEFAULT will usually mean "binary".
-    return oclc::failure;
-  }
-  return oclc::success;
-}
-
-bool oclc::Driver::ParseCompilationStage(const std::string &stage) {
-  if (stage.empty()) {
-    return oclc::failure;
-  }
-
-  stage_ = stage;
-  return oclc::success;
-}
-
-bool oclc::Driver::ValidateSnapshotStage() {
-  if (!request_snapshot_list_) {
-    return oclc::failure;
-  }
-
-  std::vector<const char *> stages;
-  cl_uint snapshot_stages = 0;
-  cl_int retcode =
-      request_snapshot_list_(program_, device_, nullptr, &snapshot_stages);
-  OCLC_CHECK_CL(retcode, "Failed to find number of snapshot stages\n");
-
-  stages.resize(snapshot_stages);
-  retcode = request_snapshot_list_(program_, device_, stages.data(),
-                                   &snapshot_stages);
-  OCLC_CHECK_CL(retcode, "Failed to retrieve list of snapshot stages\n");
-
-  bool stage_found = false;
-  for (std::string stage : stages) {
-    if (std::string::npos != stage.find(stage_)) {
-      stage_ = stage;  // set stage_ to full name of snapshot stage
-      stage_found = true;
-    }
-
-    // User wants to see a list of possible snapshot stages
-    if (list_snap_stages_) {
-      printf("%s\n", stage.c_str());
-    }
-  }
-
-  return stage_found ? oclc::success : oclc::failure;
 }
 
 bool oclc::Driver::VerifyGreaterThanZero(const std::vector<std::string> &vec) {
@@ -1269,22 +1137,6 @@ bool oclc::Driver::ParseArgumentPrintInfo(const char *rawArg) {
   return oclc::success;
 }
 
-// Callback handler for snapshot mechanism
-void oclc_snapshot_callback(size_t snapshot_size, const char *snapshot_data,
-                            void *callback_data, void *user_data) {
-  if (!snapshot_data || 0 == snapshot_size || !user_data) {
-    return;
-  }
-
-  oclc::Driver *driver = static_cast<oclc::Driver *>(user_data);
-  driver->snapshot_callback_hit = true;
-  std::string file_extension;
-  if (callback_data) {
-    file_extension = (const char *)callback_data;
-  }
-  driver->WriteToFile(snapshot_data, snapshot_size, file_extension);
-}
-
 bool oclc::Driver::InitCL() {
   cl_int err = CL_SUCCESS;
 
@@ -1378,30 +1230,6 @@ bool oclc::Driver::InitCL() {
       (clCreateProgramWithILKHR_fn)clGetExtensionFunctionAddressForPlatform(
           platform_, "clCreateProgramWithILKHR");
 
-  if (snapshot_required_) {
-    // Query for the compilation_stage extension.
-    request_snapshot_ = (clRequestProgramSnapshotCODEPLAY_fn)
-        clGetExtensionFunctionAddressForPlatform(
-            platform_, "clRequestProgramSnapshotCODEPLAY");
-    if (!request_snapshot_) {
-      fprintf(stderr,
-              "warning: the cl_codeplay_program_snapshot extension is not"
-              " supported by the OpenCL driver. Compilation stage and file"
-              " format cannot be honored.\n");
-    }
-
-    // Query for the compilation_stage extension.
-    request_snapshot_list_ = (clRequestProgramSnapshotListCODEPLAY_fn)
-        clGetExtensionFunctionAddressForPlatform(
-            platform_, "clRequestProgramSnapshotListCODEPLAY");
-    if (!request_snapshot_) {
-      fprintf(stderr,
-              "warning: the cl_codeplay_program_snapshot extension is not"
-              " supported by the OpenCL driver. Compilation stage and file"
-              " format cannot be honored.\n");
-    }
-  }
-
   return oclc::success;
 }
 
@@ -1452,7 +1280,7 @@ bool oclc::Driver::BuildProgram() {
     }
   }
 
-  // Build the program and request a snapshot.
+  // Build the program.
   cl_int err = CL_SUCCESS;
   if (source_file_type == SourceFileType::Spir) {
     const unsigned char *source_data = (const unsigned char *)source_.data();
@@ -1478,26 +1306,6 @@ bool oclc::Driver::BuildProgram() {
         clCreateProgramWithSource(context_, 1, &source_data, nullptr, &err);
   }
   OCLC_CHECK_CL(err, "Could not create OpenCL program");
-
-  if (snapshot_required_) {
-    // Check selected snapshot stage is valid
-    OCLC_CHECK(ValidateSnapshotStage() != oclc::success,
-               "Couldn't find specified snapshot stage");
-  } else {
-    request_snapshot_ = nullptr;
-  }
-
-  // Return here if the user just wanted to see a list of
-  // possible snapshot stages.
-  if (list_snap_stages_) {
-    return oclc::success;
-  }
-
-  if (request_snapshot_ && snapshot_required_) {
-    err = request_snapshot_(program_, device_, stage_.c_str(), format_,
-                            &oclc_snapshot_callback, this);
-    OCLC_CHECK_CL(err, "Requesting a program snapshot failed");
-  }
 
   // Build the program.
   AddBuildOptions();
@@ -1527,8 +1335,7 @@ bool oclc::Driver::BuildProgram() {
     }
   }
 
-  // If we're running the kernel, skip ahead. We can trust that any snapshot
-  // will get hit eventually.
+  // If we're running the kernel, skip ahead.
   if (!enqueue_kernel_.empty()) {
     return oclc::success;
   }
@@ -1537,36 +1344,15 @@ bool oclc::Driver::BuildProgram() {
   OCLC_CHECK(GetProgramBinary() != oclc::success,
              "Could not retrieve the binary using clGetProgramInfo");
 
-  // Query clGetProgramInfo() if our snapshot stage has not been hit to flush
-  // the binary and output it.
-  if (snapshot_callback_hit) {
-    return oclc::success;
-  }
-
-  fprintf(stderr,
-          "Snapshot stage not hit, retrieving final binary from "
-          "clGetProgramInfo\n");
-
-  // MC stage snapshot will be returned via clGetProgramInfo rather
-  // than the callback, in which case the binary could be ASM text.
-  if (!IsOutputFileMC()) {
-    format_ = CL_PROGRAM_BINARY_FORMAT_BINARY_CODEPLAY;
-  }
-  return WriteToFile(binary_.data(), binary_.size(), GetOutputFileExtension());
+  return WriteToFile(binary_.data(), binary_.size(), /*binary*/ true);
 }
 
 bool oclc::Driver::WriteToFile(const char *data, const size_t length,
-                               const std::string &extension) {
+                               bool binary) {
   bool ownsFount = false;
   FILE *fout = nullptr;
   if (output_file_.empty()) {
-    // Default to stdout if the output format is text and no output file was
-    // specified.
-    if (format_ == CL_PROGRAM_BINARY_FORMAT_TEXT_CODEPLAY) {
-      output_file_ = "-";
-    } else {
-      output_file_ = input_file_ + extension;
-    }
+    output_file_ = !binary ? "-" : input_file_ + ".bin";
   }
   if (output_file_ == "-") {
     fout = stdout;
@@ -2286,7 +2072,7 @@ bool oclc::Driver::EnqueueKernel() {
                                local_data, 0, nullptr, nullptr);
   } else {
     // Create a never-triggered user event to stop the kernel from ever running
-    // while still allowing the runtime to hit snapshot stages.
+    // while still running the compiler.
     cl_event user_event = clCreateUserEvent(context_, &err);
     OCLC_CHECK_CL(err, "Error creating user event");
 
@@ -2352,7 +2138,7 @@ bool oclc::Driver::EnqueueKernel() {
           kernelOutput += bufferString + "\n";
         }
       }
-      WriteToFile(kernelOutput.c_str(), kernelOutput.size(), "");
+      WriteToFile(kernelOutput.c_str(), kernelOutput.size());
     }
     // display the output from -print flags
     for (auto &printMap : printed_argument_map_) {
@@ -2393,7 +2179,7 @@ bool oclc::Driver::EnqueueKernel() {
               name + "," + scalarPair->second[kernelArgIndex][0] + "\n";
         }
       }
-      WriteToFile(kernelOutput.c_str(), kernelOutput.size(), "");
+      WriteToFile(kernelOutput.c_str(), kernelOutput.size());
     }
     for (auto &showMap : shown_image_map_) {
       output_file_ = showMap.first;
@@ -2429,7 +2215,7 @@ bool oclc::Driver::EnqueueKernel() {
           kernelOutput += "\n";
         }
       }
-      WriteToFile(kernelOutput.c_str(), kernelOutput.size(), "");
+      WriteToFile(kernelOutput.c_str(), kernelOutput.size());
     }
   }
 

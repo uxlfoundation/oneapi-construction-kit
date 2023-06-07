@@ -11,6 +11,11 @@ version increases mean backward compatible bug fixes have been applied.
    Versions prior to 1.0.0 may contain breaking changes in minor
    versions as the API is still under development.
 
+0.75.0
+------
+
+* Snapshots have been removed.
+
 0.74.0
 ------
 

@@ -110,8 +110,7 @@ Target
 
 The ``compiler::Target`` interface (``include/compiler/target.h``) represents a
 particular target device to generate machine code for. This object is also
-responsible for creating instances of ``compiler::Module`` (described below) and
-listing snapshot stages.
+responsible for creating instances of ``compiler::Module`` (described below).
 
 Module
 ^^^^^^

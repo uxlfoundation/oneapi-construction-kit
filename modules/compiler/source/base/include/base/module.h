@@ -230,23 +230,6 @@ class BaseModule : public Module {
   /// @return A boolean indicating whether deserialization was successful.
   bool deserialize(cargo::array_view<const std::uint8_t> buffer) override;
 
-  /// @brief Enables a snapshot callback to be triggered when a compilation
-  /// stage is reached.
-  ///
-  /// @param[in] stage Snapshot stage to trigger.
-  /// @param[in] callback Snapshot callback.
-  /// @param[in] user_data Snapshot callback user data.
-  /// @param[in] format Snapshot format to use. Defaults to
-  /// `SnapshotFormat::DEFAULT`.
-  ///
-  /// @return Return a status code.
-  /// @retval `Result::SUCCESS` when snapshot successfully set.
-  /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
-  /// @retval `Result::INVALID_VALUE` if an invalid argument was passed.
-  [[deprecated]] Result setSnapshotCallback(
-      const char *stage, compiler_snapshot_callback_t callback, void *user_data,
-      SnapshotFormat format = SnapshotFormat::DEFAULT) override final;
-
   /// @brief Returns the current state of the compiler module.
   ModuleState getState() const override final { return state; }
 
@@ -304,69 +287,6 @@ class BaseModule : public Module {
     std::unique_ptr<llvm::DiagnosticHandler> old_handler;
   };
 
-  /// @brief Helper class for compiler snapshots.
-  struct [[deprecated]] SnapshotDetails {
-    const char *stage;
-    compiler_snapshot_callback_t callback;
-    SnapshotFormat format;
-    void *user_data;
-
-    SnapshotDetails()
-        : stage(nullptr),
-          callback(nullptr),
-          format(SnapshotFormat::DEFAULT),
-          user_data(nullptr) {}
-  };
-
-  /// @brief Helper method to aid in identifying snapshots.
-  /// @param stage Snapshot stage to query for
-  /// @param snapshots Array of currently enabled snapshots
-  [[deprecated]] static cargo::optional<SnapshotDetails> shouldTakeSnapshot(
-      const char *stage, cargo::array_view<const SnapshotDetails> snapshots);
-
-  /// @brief Helper method to aid in identifying target snapshots. The snapshot
-  /// stage queried is computed by calling getTargetSnapshotName with the two
-  /// stage name parameters.
-  /// @param snapshot_target_name Target-configurable component of snapshot
-  /// stage
-  /// @param snapshot_stage_suffix Snapshot suffix
-  /// @param snapshots Array of currently enabled snapshots
-  [[deprecated]] static cargo::optional<SnapshotDetails>
-  shouldTakeTargetSnapshot(const char *snapshot_target_name,
-                           const char *snapshot_stage_suffix,
-                           cargo::array_view<const SnapshotDetails> snapshots);
-
-  /// @brief Helper method to compute a target snapshot stage name
-  /// The queried snapshot name is computed as the formatted string:
-  /// "cl_snapshot_{snapshot_target_name}_{snapshot_stage_suffix}"
-  /// @param snapshot_target_name Target-configurable component of snapshot
-  /// stage
-  /// @param snapshot_stage_suffix Snapshot suffix
-  [[deprecated]] static std::string getTargetSnapshotName(
-      const char *snapshot_target_name, const char *snapshot_stage_suffix);
-
-  /// @brief Takes a snapshot of the parameterised module and invokes the
-  /// snapshot callback with that data. Can be used by targets
-  /// to help take "standard" snapshots.
-  ///
-  /// @param snapshot Snapshot details.
-  /// @param module LLVM module to take a snapshot of.
-  [[deprecated]] static void takeSnapshot(const SnapshotDetails &snapshot,
-                                          const llvm::Module *module);
-
-  /// @brief Adds a compiler::utils::SimpleCallbackPass pass that invokes
-  /// BaseModule::takeSnaphot to the PassManager if the target snapshot is
-  /// enabled.
-  /// @param pm PassManager to add the snapshot pass to
-  /// @param snapshot_target_name Target-configurable component of snapshot
-  /// stage
-  /// @param snapshot_stage_suffix Snapshot suffix
-  /// @param snapshots Array of currently enabled snapshots
-  [[deprecated]] static void addSnapshotPassIfEnabled(
-      llvm::ModulePassManager &pm, const char *snapshot_target_name,
-      const char *snapshot_stage_suffix,
-      cargo::array_view<const SnapshotDetails> snapshots);
-
  protected:
   /// @brief Create a module pass manager populated with target-specific
   /// middle-end compiler passes.
@@ -387,16 +307,6 @@ class BaseModule : public Module {
   ///
   /// @return An object that represents a kernel contained within this module.
   virtual Kernel *createKernel(const std::string &name) = 0;
-
-  /// @brief Compares the parameterized compilation stage with the snapshot
-  /// stage the user has specified in member variable snapshot_stage.
-  ///
-  /// @param stage Compilation stage to compare against.
-  ///
-  /// @return The snapshot details to take if the snapshot stages match, none
-  /// otherwise.
-  [[deprecated]] cargo::optional<SnapshotDetails> shouldTakeSnapshot(
-      const char *stage) const;
 
   /// @brief Add a diagnostic message to the log.
   ///
@@ -611,9 +521,6 @@ class BaseModule : public Module {
 
   /// @brief Reference on the implementation of the `compiler::Target` class.
   compiler::BaseTarget &target;
-
-  /// @brief Snapshot details for capturing state of module during compilation.
-  [[deprecated]] std::vector<SnapshotDetails> snapshots;
 
   /// @brief Compiler options populated by `Module::parseOptions` and passed to
   /// LLVM.

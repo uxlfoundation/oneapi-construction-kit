@@ -145,61 +145,11 @@ aid debugging or the improve the quality of the generated code.
 `oclc` may also be used to execute OpenCL kernels with specified parameters, and
 view parameter values post-execution.
 
-`oclc` requires an OpenCL 1.2 implementation that implements the
-`cl_codeplay_program_snapshot` extension. In practice this means a correctly
-configured version of the oneAPI Construction Kit's OpenCL implementation.
-
-Codeplay's snapshot extension works by capturing kernels at specified stages in
-compilation. Then returning a dump of that capture, the snapshot, via a callback
-to user code. `oclc` contains such a callback which performs the task of
-printing the snapshot to standard out if the format is textual (.ll or .s), or
-to a file for binary format (.bc or .o).
-
-The available snapshot stages can be queried through the extension interface.
-Communicating with the compiler module to get possible stages from the target.
-As a result there is now no hard-coded list of snapshot stages in `oclc`, since
-the available stages change depending on target. Instead the stage the user sets
-with `-stage` now finds the first substring match from the list of possible
-snapshot stages.
-
 > Note that although this is an offline compile tool it hooks directly into the
 > oneAPI Construction Kit OpenCL library, and thus any environment variables that
 > affect the libraries behaviour will also affect `oclc`.
 
 ### `oclc` Use-Cases
-
-If you want to see the list of possible stages to set a snapshot at the `-list`
-flag should be used:
-
-```bash
-./oclc -list foo.cl
-cl_snapshot_compilation_default
-cl_snapshot_compilation_front_end
-cl_snapshot_compilation_linking
-cl_snapshot_compilation_simd_prepare
-cl_snapshot_compilation_scalarized
-cl_snapshot_compilation_linearized
-cl_snapshot_compilation_simd_packetized
-cl_snapshot_compilation_spir
-cl_snapshot_compilation_builtins_materialized
-cl_snapshot_compilation_barrier_expansion
-cl_snapshot_compilation_backend
-cl_snapshot_compilation_mc_final
-```
-
-> Note: These are the stages available for the Host target at time of writing.
-> Some of the later use-cases specify stages from the legacy X86 target since
-> it supports the vectorizer.
-
-Sometimes a snapshot stage may not be hit if it requires a kernel to be
-enqueued. To enqueue a kernel the `-enqueue` option can be used with a specified
-kernel name to enqueue it as a task (single work item). The kernel won't
-actually be run however, which is expected behaviour due to user events inside
-`oclc`:
-
-```bash
-oclc foo.cl -stage cl_snapshot_host_scheduled -enqueue my_kernel
-```
 
 To pass build flags through to the OpenCL compiler `-cl-options` can be used,
 this is particularly useful for enabling debug info:
@@ -223,12 +173,6 @@ are inlined or barriers are rewritten:
 # option is provided.
 ./oclc -cl-options "-cl-wfv=always" -stage packetized foo.cl > foo.ll
 ```
-
-> Note: Previously setting the stage to `simd` would match the
-> `cl_snapshot_compilation_simd_packetized` stage. However after the change
-> removing hard-coded stages from `oclc` `simd` now matches
-> `cl_snapshot_compilation_simd_prepare`, as it's the first stage with `simd` as
-> a substring.
 
 If you want to see the assembly output for the auto-detected CPU, with
 vectorization (and inlining of builtins, rewriting of barriers, and creation of
@@ -260,16 +204,11 @@ arguments should be specified at least once using one of the `-arg`, `-print`,
 Program options:
 
 ```
--o <output_file>                                        Set the output file to write the snapshot to.
+-o <output_file>                                        Set the output file.
 -v                                                      Run oclc in verbose mode.
 -format <output_format>                                 Set the output file format.
--stage <compilation_stage>                              Set the compilation stage to take a snapshot at.
-                                                        Matches the first occurrence of stage as a substring
-                                                        against options from '-list'.
 -cl-options 'options...'                                OpenCL options to use when compiling the kernel.
--list                                                   List the compilation stages oclc can take a snapshot at.
--enqueue <kernel name>                                  Enqueues a kernel to hit snapshots on work-group
-                                                        size specific transformations.
+-enqueue <kernel name>                                  Enqueues a kernel
 -execute                                                Executes the enqueued kernel.
 -seed <value>                                           Set the seed of the random number engine used in rand() calls.
                                                         The seed is set to a default value if this is not set.

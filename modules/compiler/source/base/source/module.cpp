@@ -1495,10 +1495,6 @@ Result BaseModule::compileOpenCLC(
   std::lock_guard<compiler::BaseContext> guard(context);
   runOpenCLFrontendPipeline(instance.getCodeGenOpts(), getEarlyOpenCLCPasses());
 
-  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_FRONTEND)) {
-    takeSnapshot(*snapshot, llvm_module.get());
-  }
-
   return compiler::Result::SUCCESS;
 }
 
@@ -1660,10 +1656,6 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
     }
   }
 
-  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_LINKING)) {
-    takeSnapshot(*snapshot, module.get());
-  }
-
   switch (state) {
     case ModuleState::COMPILED_OBJECT:
       this->llvm_module.reset();
@@ -1781,14 +1773,6 @@ Result BaseModule::finalize(
         }));
   }
 
-  // From this point on we operate on a cloned module.
-  // So member variable 'module' should be snapshoted now
-  // as it won't be transformed further.
-  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_DEFAULT)) {
-    pm.addPass(compiler::utils::SimpleCallbackPass(
-        [snapshot](llvm::Module &m) { takeSnapshot(*snapshot, &m); }));
-  }
-
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::SoftwareDivisionPass()));
   pm.addPass(compiler::ImageArgumentSubstitutionPass());
@@ -1865,20 +1849,10 @@ Result BaseModule::finalize(
     }
   }
 
-  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_SPIR)) {
-    pm.addPass(compiler::utils::SimpleCallbackPass(
-        [snapshot](llvm::Module &m) { takeSnapshot(*snapshot, &m); }));
-  }
-
   if (!options.opt_disable) {
     pm.addPass(llvm::GlobalDCEPass());
     pm.addPass(pass_mach->getPB().buildInlinerPipeline(
         llvm::OptimizationLevel::O3, llvm::ThinOrFullLTOPhase::None));
-  }
-
-  if (auto snapshot = shouldTakeSnapshot(SnapshotStage::COMPILE_BUILTINS)) {
-    pm.addPass(compiler::utils::SimpleCallbackPass(
-        [snapshot](llvm::Module &m) { takeSnapshot(*snapshot, &m); }));
   }
 
   pm.addPass(
@@ -2060,95 +2034,6 @@ bool BaseModule::deserialize(cargo::array_view<const std::uint8_t> buffer) {
     addBuildError(std::string("Failed to deserialize module: ") +
                   toString(errorOrModule.takeError()));
     return false;
-  }
-}
-
-Result BaseModule::setSnapshotCallback(const char *stage,
-                                       compiler_snapshot_callback_t callback,
-                                       void *user_data, SnapshotFormat format) {
-  if (!stage || !callback) {
-    return Result::INVALID_VALUE;
-  }
-
-  SnapshotDetails details;
-  details.stage = stage;
-  details.callback = callback;
-  details.user_data = user_data;
-  details.format = format;
-
-  snapshots.push_back(details);
-
-  return Result::SUCCESS;
-}
-
-cargo::optional<compiler::BaseModule::SnapshotDetails>
-BaseModule::shouldTakeSnapshot(
-    const char *stage, cargo::array_view<const SnapshotDetails> snapshots) {
-  auto it = std::find_if(snapshots.begin(), snapshots.end(),
-                         [stage](const SnapshotDetails &details) {
-                           return !strcmp(stage, details.stage);
-                         });
-  return it == snapshots.end() ? cargo::optional<SnapshotDetails>{} : *it;
-}
-
-std::string BaseModule::getTargetSnapshotName(const char *target_name,
-                                              const char *suffix) {
-  return std::string("cl_snapshot_") + target_name + "_" + suffix;
-}
-
-cargo::optional<compiler::BaseModule::SnapshotDetails>
-BaseModule::shouldTakeTargetSnapshot(
-    const char *snapshot_target_name, const char *snapshot_stage_suffix,
-    cargo::array_view<const SnapshotDetails> snapshots) {
-  std::string target_stage =
-      getTargetSnapshotName(snapshot_target_name, snapshot_stage_suffix);
-  return shouldTakeSnapshot(target_stage.c_str(), snapshots);
-}
-
-cargo::optional<compiler::BaseModule::SnapshotDetails>
-BaseModule::shouldTakeSnapshot(const char *stage) const {
-  return shouldTakeSnapshot(stage, snapshots);
-}
-
-void BaseModule::takeSnapshot(const SnapshotDetails &snapshot,
-                              const llvm::Module *module) {
-  std::string snapshot_str;
-  std::string snapshot_suffix;
-  if (!module) {
-    CPL_ABORT(
-        "BaseModule::takeSnapshot. Cannot serialize an LLVM "
-        "module that is null.");
-  }
-  llvm::raw_string_ostream stream(snapshot_str);
-  switch (snapshot.format) {
-    default:
-      CPL_ABORT("Unknown binary format");
-    case SnapshotFormat::DEFAULT:
-      CARGO_FALLTHROUGH;
-    case SnapshotFormat::TEXT:
-      module->print(stream, nullptr);
-      snapshot_suffix = ".ll";
-      break;
-    case SnapshotFormat::BINARY:
-      llvm::WriteBitcodeToFile(*module, stream);
-      snapshot_suffix = ".bc";
-      break;
-  }
-  stream.flush();
-  // Invoke the callback with our snapshot in snapshot_str
-  snapshot.callback(snapshot_str.size(), snapshot_str.c_str(),
-                    (void *)snapshot_suffix.c_str(), snapshot.user_data);
-}
-
-void BaseModule::addSnapshotPassIfEnabled(
-    llvm::ModulePassManager &PM, const char *snapshot_target_name,
-    const char *snapshot_stage_suffix,
-    cargo::array_view<const SnapshotDetails> snapshots) {
-  if (auto snapshot = compiler::BaseModule::shouldTakeTargetSnapshot(
-          snapshot_target_name, snapshot_stage_suffix, snapshots)) {
-    PM.addPass(compiler::utils::SimpleCallbackPass([snapshot](llvm::Module &m) {
-      compiler::BaseModule::takeSnapshot(*snapshot, &m);
-    }));
   }
 }
 

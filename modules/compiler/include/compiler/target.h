@@ -68,24 +68,6 @@ class Target {
   /// @retval `Result::FAILURE` if any other failure occurred.
   virtual Result init(uint32_t builtins_capabilities) = 0;
 
-  /// @brief List all the snapshot stages available.
-  ///
-  /// @param[in] count Element count of the `out_stages` array, must be
-  /// greater than zero if `out_stages` is not NULL and zero otherwise.
-  /// @param[out] out_stages Array of C strings to be populated with snapshot
-  /// names, may be NULL. Must have at least `count` elements.
-  /// @param[out] out_count Number of snapshot stages available, may be
-  /// NULL.
-  ///
-  /// @return Return a status code.
-  /// @retval `Result::SUCCESS` when initialization was successful.
-  /// @retval `Result::INVALID_VALUE` if `count` is 0, and `out_stages` is not
-  /// NULL.
-  /// @retval `Result::INVALID_VALUE` if `out_stages` is `nullptr`, and `count`
-  /// is not 0.
-  virtual Result listSnapshotStages(uint32_t count, const char **out_stages,
-                                    uint32_t *out_count) = 0;
-
   /// @brief Creates a compiler module targeting this compiler target.
   ///
   /// @param[in,out] num_errors Reference to a variable which will store the

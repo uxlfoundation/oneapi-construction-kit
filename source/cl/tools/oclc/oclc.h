@@ -128,8 +128,7 @@ std::map<cl_int, std::string> cl_error_code_to_name_map = {
     {-70, "CL_INVALID_DEVICE_QUEUE"},
 };
 
-/// @brief Drives the compilation of OpenCL kernels and the creation of program
-///        snapshots.
+/// @brief Drives the compilation and execution of OpenCL kernels
 class Driver {
  public:
   /// @brief Create a new instance of Driver.
@@ -147,16 +146,12 @@ class Driver {
   /// @brief Build the user's kernel.
   /// @return oclc::success or oclc::failure.
   bool BuildProgram();
-  /// @brief Save the program snapshot to a file.
+  /// @brief Save the program to a file.
   /// @return oclc::success or oclc::failure.
-  bool WriteToFile(const char *data, const size_t length,
-                   const std::string &extension);
-  /// @brief Try to enqueue a kernel so that snapshot stages
-  ///        only run when the kernel has a work-group size are hit.
+  bool WriteToFile(const char *data, const size_t length, bool binary = false);
+  /// @brief Try to enqueue a kernel
   /// @return oclc::success or oclc::failure.
   bool EnqueueKernel();
-  /// @brief Set to true inside the callback when invoked.
-  bool snapshot_callback_hit;
   /// @brief Number of times the kernel should be executed.
   size_t execution_limit_;
   /// @brief The current iteration of the kernel execution.
@@ -164,27 +159,13 @@ class Driver {
 
   // Methods:
  private:
-  /// @brief Try to determine the output file format from a string.
-  /// @return oclc::success or oclc::failure.
-  bool ParseFileFormat(const std::string &format);
-  /// @brief Try to determine the compilation stage from a string.
-  /// @return oclc::success or oclc::failure.
-  bool ParseCompilationStage(const std::string &stage);
-  /// @brief Retrieve the program's snapshot binary from the built program.
+  /// @brief Retrieve the program's binary from the built program.
   /// @return oclc::success or oclc::failure.
   bool GetProgramBinary();
-  /// @brief Return the file extension to use for the current compilation stage
-  ///        and file format.
-  std::string GetOutputFileExtension();
-  /// @brief Determine whether the output file will be a SPIR or LLVM IR file.
-  bool IsOutputFileIR();
   /// @brief Determine whether the output file will be a machine code file.
   bool IsOutputFileMC();
   /// @brief Add any required build options.
   void AddBuildOptions();
-  /// @brief Checks whether the selected snapshot stage is valid.
-  /// @return oclc::success or oclc::failure.
-  bool ValidateSnapshotStage();
   /// @brief Parses an argument to be supplied to an enqueued kernel.
   bool ParseKernelArgument(const char *rawArg);
   /// @brief Splits a list of comma-seperated values into a vector of
@@ -342,14 +323,10 @@ class Driver {
   /// @brief Extension function that allows OpenCL to compile kernels from IL
   /// (SPIR-V in practice).
   clCreateProgramWithILKHR_fn create_program_with_il_;
-  /// @brief Extension function that allows requesting program snapshots.
-  clRequestProgramSnapshotCODEPLAY_fn request_snapshot_;
-  /// @brief Extension function that lists available program snapshots.
-  clRequestProgramSnapshotListCODEPLAY_fn request_snapshot_list_;
 
   /// @brief Path to the user's kernel file.
   std::string input_file_;
-  /// @brief Path to the program snapshot to create.
+  /// @brief Path to the output file to create.
   std::string output_file_;
   /// @brief OpenCL options to use when building an OpenCL program.
   std::string cl_options_;
@@ -364,12 +341,8 @@ class Driver {
 
   /// @brief Source of the user's kernel file.
   std::string source_;
-  /// @brief Binary snapshot taken from the OpenCL program.
+  /// @brief Binary taken from the OpenCL program.
   std::string binary_;
-  /// @brief Compilation stage to use when taking program snapshots.
-  std::string stage_;
-  /// @brief File format to use when taking program snapshots.
-  cl_codeplay_program_binary_format format_;
   /// @brief Name of kernel to attempt to run.
   std::string enqueue_kernel_;
   /// @brief Map of arguments to the enqueued kernel, if it should be run.
@@ -404,12 +377,8 @@ class Driver {
 
   /// @brief Error tolerance for char comparisons.
   cl_uchar char_tolerance_;
-  /// @brief true if snapshot required
-  bool snapshot_required_;
   /// @brief Whether oclc should be verbose or not.
   bool verbose_;
-  /// @brief Whether oclc should print snapshot stages.
-  bool list_snap_stages_;
   /// @brief True if executing enqueued kernel.
   bool execute_;
 };
