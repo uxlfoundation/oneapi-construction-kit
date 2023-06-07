@@ -26,7 +26,6 @@
 #include <host/host_mux_builtin_info.h>
 #include <host/host_pass_machinery.h>
 #include <host/module.h>
-#include <host/passes.h>
 #include <host/target.h>
 #include <host/utils/relocations.h>
 #include <llvm/ADT/Statistic.h>
@@ -248,7 +247,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
                  "__mux_host_%" PRIu64, target.unique_identifier++) < 0) {
       return cargo::make_unexpected(compiler::Result::FAILURE);
     }
-    llvm::StringRef unique_name(unique_name_data);
+    std::string unique_name(unique_name_data);
 
     auto device_info = target.getCompilerInfo()->device_info;
 
@@ -266,6 +265,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
                                 target.getContext().isLLVMVerifyEachEnabled(),
                                 target.getContext().getLLVMDebugLoggingLevel(),
                                 target.getContext().isLLVMTimePassesEnabled());
+    pass_mach.setCompilerOptions(build_options);
     host::initializePassMachineryForFinalize(pass_mach, target);
 
     llvm::ModulePassManager pm;
@@ -279,8 +279,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
                             static_cast<uint64_t>(local_size[2])};
     pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
 
-    pm.addPass(hostGetKernelPasses(build_options, pass_mach.getPB(), snapshots,
-                                   unique_name));
+    pm.addPass(pass_mach.getKernelFinalizationPasses(snapshots, unique_name));
 
     {
       // Using the CrashRecoveryContext and statistics touches LLVM's global
@@ -305,7 +304,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     // Retrieve the vectorization width and amount of local memory used.
     auto default_work_width = FixedOrScalableQuantity<uint32_t>::getOne();
     handler::VectorizeInfoMetadata fn_metadata(
-        unique_name.str(), unique_name.str(),
+        unique_name, unique_name,
         /* local_memory_usage */ 0,
         /* sub_group_size */ FixedOrScalableQuantity<uint32_t>(),
         /* min_work_item_factor= */ default_work_width,
@@ -332,7 +331,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
 
     // Create a unique JITDylib for this instance of the kernel, so that its
     // symbols don't clash with any other kernel's symbols.
-    auto jd = target.orc_engine->createJITDylib(unique_name.str() + ".dylib");
+    auto jd = target.orc_engine->createJITDylib(unique_name + ".dylib");
     if (auto err = jd.takeError()) {
       if (auto callback = target.getNotifyCallbackFn()) {
         callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
@@ -380,7 +379,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
       // Compiling the kernel may touch the global LLVM state
       std::lock_guard<std::mutex> globalLock(
           compiler::utils::getLLVMGlobalMutex());
-      auto sym = target.orc_engine->lookup(*jd, unique_name.str());
+      auto sym = target.orc_engine->lookup(*jd, unique_name);
       if (auto err = sym.takeError()) {
         if (auto callback = target.getNotifyCallbackFn()) {
           callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,

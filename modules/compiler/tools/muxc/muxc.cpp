@@ -318,6 +318,9 @@ driver::createPassMachinery() {
     auto *const BaseModule =
         static_cast<compiler::BaseModule *>(CompilerModule.get());
     PassMach = BaseModule->createPassMachinery();
+    // Forward on any frontend options we've parsed
+    static_cast<compiler::BaseModulePassMachinery *>(PassMach.get())
+        ->setCompilerOptions(BaseModule->getOptions());
   } else {
     compiler::utils::DeviceInfo Info(
         HalfCap ? compiler::utils::device_floating_point_capabilities_full : 0,

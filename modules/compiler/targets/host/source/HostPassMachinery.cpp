@@ -19,18 +19,37 @@
 
 #include <base/pass_pipelines.h>
 #include <compiler/module.h>
+#include <compiler/utils/add_kernel_wrapper_pass.h>
+#include <compiler/utils/add_metadata_pass.h>
+#include <compiler/utils/add_scheduling_parameters_pass.h>
+#include <compiler/utils/align_module_structs_pass.h>
 #include <compiler/utils/attributes.h>
+#include <compiler/utils/compute_local_memory_usage_pass.h>
+#include <compiler/utils/define_mux_builtins_pass.h>
+#include <compiler/utils/handle_barriers_pass.h>
+#include <compiler/utils/make_function_name_unique_pass.h>
 #include <compiler/utils/metadata.h>
+#include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/pipeline_parse_helpers.h>
+#include <compiler/utils/remove_exceptions_pass.h>
+#include <compiler/utils/remove_fences_pass.h>
+#include <compiler/utils/remove_lifetime_intrinsics_pass.h>
+#include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
+#include <compiler/utils/replace_local_module_scope_variables_pass.h>
+#include <compiler/utils/simple_callback_pass.h>
+#include <compiler/utils/unique_opaque_structs_pass.h>
 #include <host/add_entry_hook_pass.h>
 #include <host/add_floating_point_control_pass.h>
 #include <host/disable_neon_attribute_pass.h>
 #include <host/host_pass_machinery.h>
 #include <host/remove_byval_attributes_pass.h>
+#include <host/target.h>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/Analysis/TargetTransformInfo.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Transforms/IPO/AlwaysInliner.h>
 #include <multi_llvm/optional_helper.h>
+#include <utils/system.h>
 #include <vecz/pass.h>
 
 namespace host {
@@ -147,6 +166,180 @@ void HostPassMachinery::registerPassCallbacks() {
       });
 }
 
+bool HostPassMachinery::handlePipelineElement(llvm::StringRef Name,
+                                              llvm::ModulePassManager &PM) {
+  if (Name.consume_front("host-late-passes")) {
+    PM.addPass(getLateTargetPasses());
+    return true;
+  }
+
+  if (Name.consume_front("host-kernel-passes")) {
+    std::optional<std::string> unique_prefix;
+    if (Name.consume_front("<")) {
+      if (!Name.consume_back(">")) {
+        llvm::errs() << "Invalid 'host-kernel-passes' parameterization\n";
+        return false;
+      }
+      unique_prefix = Name.str();
+    }
+
+    // We don't support snapshots via pass pipeline elements; they're deprecated
+    // anyway.
+    PM.addPass(getKernelFinalizationPasses(/*snapshots*/ {}, unique_prefix));
+    return true;
+  }
+
+  return false;
+}
+
+llvm::ModulePassManager HostPassMachinery::getLateTargetPasses() {
+  // We may have a situation where there were already opaque structs in the
+  // context associated with HostTarget which have the same name as those
+  // in the deserialized module. LLVM tries to resolve this name clash by
+  // introducing suffixes to the opaque structs in the deserialized module e.g.
+  // __mux_dma_event_t becomes __mux_dma_event_t.0. This is a problem since
+  // later passes may rely on the name __mux_dma_event_t to identify the type,
+  // so here we remap the structs.
+  llvm::ModulePassManager PM;
+  PM.addPass(compiler::utils::UniqueOpaqueStructsPass());
+  PM.addPass(compiler::utils::SimpleCallbackPass([](llvm::Module &m) {
+    // the llvm identifier is no longer needed by our host code
+    if (auto md = m.getNamedMetadata("llvm.ident")) {
+      md->dropAllReferences();
+      md->eraseFromParent();
+    }
+  }));
+#ifdef CA_ENABLE_DEBUG_SUPPORT
+  PM.addPass(compiler::utils::SimpleCallbackPass([&](llvm::Module &m) {
+    // Custom host options are set as module metadata as a testing aid
+    auto &ctx = m.getContext();
+    if (options.device_args.data()) {
+      if (auto md = m.getOrInsertNamedMetadata("host.build_options")) {
+        llvm::MDString *md_string =
+            llvm::MDString::get(ctx, options.device_args.data());
+        md->addOperand(llvm::MDNode::get(ctx, md_string));
+      }
+    }
+  }));
+#endif  // CA_ENABLE_DEBUG_SUPPORT
+  return PM;
+}
+
+llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
+    cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots,
+    std::optional<std::string> unique_prefix) {
+  llvm::ModulePassManager PM;
+  compiler::BasePassPipelineTuner tuner(options);
+
+  // On host we have degenerate sub-groups i.e. sub-group == work-group.
+  tuner.degenerate_sub_groups = true;
+
+  // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
+  PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
+                                       llvm::Module>());
+
+// Fix for alignment issues endemic on 32 bit ARM, but can also arise on 32 bit
+// X86. We want this pass to run early so it needs to process less instructions
+// and to avoid having to deal with the side effects of other passes.
+#if defined(UTILS_SYSTEM_32_BIT)
+  PM.addPass(compiler::utils::AlignModuleStructsPass());
+#endif
+
+  // Handle the generic address space
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));
+
+  addPreVeczPasses(PM, tuner);
+
+  PM.addPass(vecz::RunVeczPass());
+
+  compiler::BaseModule::addSnapshotPassIfEnabled(
+      PM, "host", HOST_SNAPSHOT_VECTORIZED, snapshots);
+
+  addLateBuiltinsPasses(PM, tuner);
+
+  compiler::utils::HandleBarriersOptions HBOpts;
+  // Barriers with opt disabled are broken on 32 bit for some llvm versions, see
+  // CA-3952.
+#if !defined(UTILS_SYSTEM_32_BIT)
+  HBOpts.IsDebug = options.opt_disable;
+#endif
+
+  PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
+
+  compiler::BaseModule::addSnapshotPassIfEnabled(
+      PM, "host", HOST_SNAPSHOT_BARRIER, snapshots);
+
+  PM.addPass(compiler::utils::AddSchedulingParametersPass());
+
+  // With scheduling parameters added, add our work-group loops
+  PM.addPass(AddEntryHookPass());
+  // Define mux builtins now, since AddEntryHookPass introduces more
+  PM.addPass(compiler::utils::DefineMuxBuiltinsPass());
+
+  compiler::utils::AddKernelWrapperPassOptions KWOpts;
+  KWOpts.IsPackedStruct = true;
+  PM.addPass(compiler::utils::AddKernelWrapperPass(KWOpts));
+
+  PM.addPass(compiler::utils::ReplaceLocalModuleScopeVariablesPass());
+
+  PM.addPass(AddFloatingPointControlPass(options.denorms_may_be_zero));
+
+  if (unique_prefix) {
+    PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+        compiler::utils::MakeFunctionNameUniquePass(*unique_prefix)));
+  }
+
+  // Functions with __attribute__ ((always_inline)) should
+  // be inlined even at -O0.
+  PM.addPass(llvm::AlwaysInlinerPass());
+
+  // Running this pass here is the "nuclear option", it would be better to
+  // ensure exception handling is never introduced in the first place, but
+  // it is not always plausible to do.
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::RemoveExceptionsPass()));
+
+  addLLVMDefaultPerModulePipeline(PM, PB, options);
+
+  // createDisableNeonAttributePass only does work on 64-bit ARM to fix a Neon
+  // correctness issue.
+  PM.addPass(DisableNeonAttributePass());
+
+  // Workaround an x86-64 codegen bug in LLVM.
+  PM.addPass(RemoveByValAttributesPass());
+
+  if (options.opt_disable) {
+    PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+        compiler::utils::RemoveLifetimeIntrinsicsPass()));
+  }
+
+  // ENORMOUS WARNING:
+  // Removing memory fences can result in invalid code or incorrect behaviour in
+  // general. This pass is a workaround for backends that do not yet support
+  // memory fences.  This is not required for any of the LLVM backends used by
+  // host, but the pass is used here to ensure that it is tested.
+  // The memory model on OpenCL 1.2 is so underspecified that we can get away
+  // with removing fences. In OpenCL 3.0 the memory model is better defined, and
+  // just removing fences could result in incorrect behavior for valid 3.0
+  // OpenCL applications.
+  if (options.standard != compiler::Standard::OpenCLC30) {
+    PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+        compiler::utils::RemoveFencesPass()));
+  }
+
+  PM.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
+
+  PM.addPass(compiler::utils::AddMetadataPass<
+             compiler::utils::VectorizeMetadataAnalysis,
+             handler::VectorizeInfoMetadataHandler>());
+
+  compiler::BaseModule::addSnapshotPassIfEnabled(
+      PM, "host", HOST_SNAPSHOT_SCHEDULED, snapshots);
+
+  return PM;
+}
+
 void HostPassMachinery::printPassNames(llvm::raw_ostream &OS) {
   BaseModulePassMachinery::printPassNames(OS);
   OS << "\nHost passes:\n\n";
@@ -163,6 +356,17 @@ void HostPassMachinery::printPassNames(llvm::raw_ostream &OS) {
 #define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
 #include "host_pass_registry.def"
+
+  OS << "\nHost pipelines:\n\n";
+
+  OS << "  host-late-passes\n";
+  OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
+  OS << "  host-kernel-passes\n";
+  OS << "  host-kernel-passes<unique-name>\n";
+  OS << "    Runs the kernel finalization pipeline (usually done online during "
+        "jitting or offline during Module::createBinary).\n"
+        "    Optionally takes 'unique-name', which schedules "
+        "MakeFunctionNameUniquePass with that name.\n";
 }
 
 }  // namespace host

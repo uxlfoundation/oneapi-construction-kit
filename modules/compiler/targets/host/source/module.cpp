@@ -36,14 +36,11 @@
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/pass_machinery.h>
 #include <compiler/utils/reduce_to_function_pass.h>
-#include <compiler/utils/simple_callback_pass.h>
-#include <compiler/utils/unique_opaque_structs_pass.h>
 #include <host/compiler_kernel.h>
 #include <host/device.h>
 #include <host/host_mux_builtin_info.h>
 #include <host/host_pass_machinery.h>
 #include <host/module.h>
-#include <host/passes.h>
 #include <host/target.h>
 #include <llvm-c/BitWriter.h>
 #include <llvm/ADT/STLExtras.h>
@@ -102,6 +99,27 @@ const HostTarget &HostModule::getHostTarget() const {
   return *static_cast<HostTarget *>(&target);
 }
 
+static cargo::expected<cargo::dynamic_array<uint8_t>, compiler::Result>
+emitBinary(llvm::Module *module, llvm::TargetMachine *target_machine) {
+  llvm::SmallVector<char, 1024> object_code_buffer;
+  llvm::raw_svector_ostream stream(object_code_buffer);
+
+  auto result = compiler::emitCodeGenFile(*module, target_machine, stream);
+  if (result != compiler::Result::SUCCESS) {
+    return cargo::make_unexpected(result);
+  }
+
+  cargo::dynamic_array<uint8_t> binary;
+  if (binary.alloc(object_code_buffer.size())) {
+    return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
+  }
+
+  std::copy(object_code_buffer.begin(), object_code_buffer.end(),
+            binary.begin());
+
+  return {std::move(binary)};
+}
+
 cargo::expected<cargo::dynamic_array<uint8_t>, compiler::Result>
 HostModule::hostCompileObject(HostTarget &target,
                               const compiler::Options &build_options,
@@ -113,12 +131,18 @@ HostModule::hostCompileObject(HostTarget &target,
   }
 
   auto pass_mach = createPassMachinery();
-  initializePassMachineryForFinalize(*pass_mach);
+  if (!pass_mach) {
+    return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
+  }
+  auto &host_pass_mach = static_cast<HostPassMachinery &>(*pass_mach);
+
+  host_pass_mach.setCompilerOptions(build_options);
+  initializePassMachineryForFinalize(host_pass_mach);
 
   llvm::ModulePassManager pm;
   pm.addPass(compiler::utils::TransferKernelMetadataPass());
 
-  pm.addPass(hostGetKernelPasses(build_options, pass_mach->getPB(), snapshots));
+  pm.addPass(host_pass_mach.getKernelFinalizationPasses(snapshots));
   {
     // Using the CrashRecoveryContext and statistics touches LLVM's global
     // state.
@@ -127,8 +151,8 @@ HostModule::hostCompileObject(HostTarget &target,
 
     llvm::CrashRecoveryContext CRC;
     llvm::CrashRecoveryContext::Enable();
-    bool crashed =
-        !CRC.RunSafely([&] { pm.run(*cloned_module, pass_mach->getMAM()); });
+    bool crashed = !CRC.RunSafely(
+        [&] { pm.run(*cloned_module, host_pass_mach.getMAM()); });
     llvm::CrashRecoveryContext::Disable();
     if (crashed) {
       return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
@@ -185,40 +209,11 @@ compiler::Result HostModule::createBinary(
 }
 
 llvm::ModulePassManager HostModule::getLateTargetPasses(
-    compiler::utils::PassMachinery &) {
+    compiler::utils::PassMachinery &pass_mach) {
   if (options.llvm_stats) {
     llvm::EnableStatistics();
   }
-  // We may have a situation where there were already opaque structs in the
-  // context associated with HostTarget which have the same name as those
-  // in the deserialized module. LLVM tries to resolve this name clash by
-  // introducing suffixes to the opaque structs in the deserialized module e.g.
-  // __mux_dma_event_t becomes __mux_dma_event_t.0. This is a problem since
-  // later passes may rely on the name __mux_dma_event_t to identify the type,
-  // so here we remap the structs.
-  llvm::ModulePassManager pm;
-  pm.addPass(compiler::utils::UniqueOpaqueStructsPass());
-  pm.addPass(compiler::utils::SimpleCallbackPass([](llvm::Module &m) {
-    // the llvm identifier is no longer needed by our host code
-    if (auto md = m.getNamedMetadata("llvm.ident")) {
-      md->dropAllReferences();
-      md->eraseFromParent();
-    }
-  }));
-#ifdef CA_ENABLE_DEBUG_SUPPORT
-  pm.addPass(compiler::utils::SimpleCallbackPass([&](llvm::Module &m) {
-    // Custom host options are set as module metadata as a testing aid
-    auto &ctx = m.getContext();
-    if (options.device_args.data()) {
-      if (auto md = m.getOrInsertNamedMetadata("host.build_options")) {
-        llvm::MDString *md_string =
-            llvm::MDString::get(ctx, options.device_args.data());
-        md->addOperand(llvm::MDNode::get(ctx, md_string));
-      }
-    }
-  }));
-#endif  // CA_ENABLE_DEBUG_SUPPORT
-  return pm;
+  return static_cast<HostPassMachinery &>(pass_mach).getLateTargetPasses();
 }
 
 compiler::Kernel *HostModule::createKernel(const std::string &name) {

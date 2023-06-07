@@ -7,6 +7,14 @@ Upgrade guidance:
 * The mux spec has been bumped to 0.74.0 to account for changes to
   `BaseModule`. This does not affect in-tree compiler targets.
 
+Feature additions:
+
+* `compiler::BaseModulePassMachinery` can now be given compiler options to
+  guide its decisions.
+* A new method - `compiler::BaseModulePassMachinery::handlePipelineElement` -
+  has been added to allow more customizable target-specific pipeline component
+  parsing.
+
 ## Version 2.0.0 - 2023-05-23
 
 Upgrade guidance:
