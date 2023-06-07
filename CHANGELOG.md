@@ -1,5 +1,12 @@
 # ComputeAorta Changes
 
+## Version 3.0.0
+
+Upgrade guidance:
+
+* The mux spec has been bumped to 0.74.0 to account for changes to
+  `BaseModule`. This does not affect in-tree compiler targets.
+
 ## Version 2.0.0 - 2023-05-23
 
 Upgrade guidance:

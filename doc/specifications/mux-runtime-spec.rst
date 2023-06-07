@@ -1,7 +1,7 @@
 ComputeMux Runtime Specification
 ================================
 
-   This is version 0.73.0 of the specification.
+   This is version 0.74.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,

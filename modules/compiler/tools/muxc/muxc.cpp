@@ -18,10 +18,12 @@
 
 #include <base/base_pass_machinery.h>
 #include <base/module.h>
+#include <clang/Frontend/CompilerInstance.h>
 #include <compiler/library.h>
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/CodeGen.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/ToolOutputFile.h>
@@ -32,6 +34,9 @@ using namespace llvm;
 static cl::opt<std::string> InputFilename("input", cl::Positional,
                                           cl::desc("<input .bc or .ll file>"),
                                           cl::init("-"));
+
+static cl::opt<std::string> InputLanguage(
+    "x", cl::desc("Input language ('cl' or 'ir')"));
 
 static cl::opt<std::string> PipelineText(
     "passes", cl::desc("pipeline to run, passes separated by ','"),
@@ -44,10 +49,27 @@ static cl::opt<std::string> OutputFilename(
 static cl::opt<bool> ListDevices("list-devices", cl::desc("list devices"),
                                  cl::value_desc("list-devices"));
 
-static cl::opt<bool, false> WriteTextual("S", cl::desc("Write module as text"));
+static cl::opt<bool> WriteTextual(
+    "S", cl::desc("Write module as text. Deprecated: does nothing"),
+    cl::init(true));
+
+static cl::opt<CodeGenFileType> FileType(
+    "filetype", cl::init(CGFT_AssemblyFile), cl::desc("Choose a file type:"),
+    cl::values(clEnumValN(CGFT_AssemblyFile, "asm", "Emit a textual file"),
+               clEnumValN(CGFT_ObjectFile, "obj", "Emit a binary object file"),
+               clEnumValN(CGFT_Null, "null",
+                          "Emit nothing, for performance testing")));
+
+static cl::opt<int> DeviceIdx(
+    "device-idx",
+    cl::desc("select device by index; see --list-devices for indices.\nTakes "
+             "precedence over --device"),
+    cl::value_desc("idx"), cl::init(-1));
 
 static cl::opt<std::string> DeviceName("device", cl::desc("select device"),
                                        cl::value_desc("name"));
+
+static cl::opt<std::string> CLOptions("cl-options", cl::desc("options"));
 
 static cl::opt<bool> PrintPasses(
     "print-passes",
@@ -69,7 +91,7 @@ int main(int argc, char **argv) {
   driver.parseArguments(argc, argv);
 
   // setupContext is only needed if we have a device
-  if (!DeviceName.empty()) {
+  if (!DeviceName.empty() || DeviceIdx >= 0) {
     if (driver.setupContext()) {
       return 1;
     }
@@ -85,9 +107,45 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  if (driver.runPipeline(PassMach.get())) {
+  auto MRes = driver.convertInputToIR();
+  if (auto Err = MRes.takeError()) {
+    errs() << "Error converting input to IR: " << toString(std::move(Err))
+           << "\n";
     return 1;
   }
+
+  assert(MRes.get() && "Could not load IR module");
+  std::unique_ptr<Module> &M = *MRes;
+
+  if (!PipelineText.empty()) {
+    if (auto Err = driver.runPipeline(*M, *PassMach)) {
+      errs() << toString(std::move(Err)) << "\n";
+      return 1;
+    }
+  }
+
+  if (FileType == CGFT_Null) {
+    return 0;
+  }
+
+  // Open the output file.
+  std::error_code EC;
+  sys::fs::OpenFlags OpenFlags = sys::fs::OF_None;
+  if (FileType == CGFT_AssemblyFile) {
+    OpenFlags |= sys::fs::OF_Text;
+  }
+  auto Out = std::make_unique<ToolOutputFile>(OutputFilename, EC, OpenFlags);
+  if (EC || !Out) {
+    errs() << EC.message() << '\n';
+    return 1;
+  }
+
+  if (FileType == CGFT_AssemblyFile) {
+    Out->os() << *M.get();
+  } else {
+    WriteBitcodeToFile(*M.get(), Out->os());
+  }
+  Out->keep();
 
   return 0;
 }
@@ -96,17 +154,6 @@ namespace muxc {
 
 void mux_message(const char *message, const void *, size_t) {
   std::fprintf(stderr, "%s\n", message);
-}
-
-bool matchSubstring(cargo::string_view big_string, cargo::string_view filter) {
-  return big_string.find(filter) != cargo::string_view::npos;
-}
-
-void printMuxCompilers(cargo::array_view<const compiler::Info *> compilers) {
-  for (unsigned int i = 0, n = compilers.size(); i < n; ++i) {
-    std::fprintf(stderr, "device %u: %s\n", i + 1,
-                 compilers[i]->device_info->device_name);
-  }
 }
 
 uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
@@ -140,7 +187,13 @@ void driver::parseArguments(int argc, char **argv) {
 }
 
 result driver::setupContext() {
-  if (findDevice() == result::failure || !CompilerContext) {
+  auto res = findDevice();
+  if (auto err = res.takeError()) {
+    errs() << toString(std::move(err)) << "\n";
+    return result::failure;
+  }
+  CompilerInfo = *res;
+  if (!CompilerContext) {
     return result::failure;
   }
 
@@ -156,9 +209,87 @@ result driver::setupContext() {
   return result::success;
 }
 
+static Expected<std::unique_ptr<Module>> parseIRFileToModule(LLVMContext &Ctx) {
+  SMDiagnostic Err;
+  auto M = parseIRFile(InputFilename, Err, Ctx);
+
+  if (M) {
+    return M;
+  }
+
+  std::string ErrMsg;
+  {
+    raw_string_ostream ErrMsgStream(ErrMsg);
+    Err.print(InputFilename.c_str(), ErrMsgStream);
+  }
+  return make_error<StringError>(std::move(ErrMsg), inconvertibleErrorCode());
+}
+
+Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
+  if (!InputLanguage.empty() && InputLanguage != "ir" &&
+      InputLanguage != "cl") {
+    return make_error<StringError>("input language must be '', 'ir' or 'cl'",
+                                   inconvertibleErrorCode());
+  }
+  StringRef IFN = InputFilename;
+
+  auto &LLVMContextToUse =
+      CompilerTarget ? static_cast<compiler::BaseTarget *>(CompilerTarget.get())
+                           ->getLLVMContext()
+                     : *LLVMCtx;
+  LLVMContextToUse.setOpaquePointers(true);
+
+  // Assume that .bc and .ll files are already IR unless told otherwise.
+  if (InputLanguage == "ir" ||
+      (InputLanguage.empty() &&
+       (IFN.endswith(".bc") || IFN.endswith(".bc32") || IFN.endswith(".bc64") ||
+        IFN.endswith(".ll")))) {
+    return parseIRFileToModule(LLVMContextToUse);
+  }
+  // Assume that stdin is IR unless told otherwise
+  if (InputLanguage.empty() && IFN == "-") {
+    return parseIRFileToModule(LLVMContextToUse);
+  }
+  // Now we know we're in OpenCL mode; we need a known device.
+  if (!CompilerModule) {
+    return make_error<StringError>("A device must be set to compile OpenCL C",
+                                   inconvertibleErrorCode());
+  }
+
+  // Parse any options
+  if (CompilerModule->parseOptions(CLOptions,
+                                   compiler::Options::Mode::COMPILE) !=
+      compiler::Result::SUCCESS) {
+    // mux_message should report any errors, so we return just a simple error
+    // message here.
+    return make_error<StringError>("OpenCL C options parsing error",
+                                   inconvertibleErrorCode());
+  }
+
+  ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
+      MemoryBuffer::getFileOrSTDIN(IFN, /*IsText=*/true);
+  if (std::error_code EC = FileOrErr.getError()) {
+    return make_error<StringError>("Could not open input file: " + EC.message(),
+                                   inconvertibleErrorCode());
+  }
+  auto SourceAsStr = FileOrErr.get()->getBuffer();
+  auto *const BaseModule =
+      static_cast<compiler::BaseModule *>(CompilerModule.get());
+  clang::CompilerInstance instance;
+  // We don't support profiles or headers
+  auto M = BaseModule->compileOpenCLCToIR(instance, "FULL_PROFILE", SourceAsStr,
+                                          /*input_headers*/ {});
+  if (!M) {
+    // mux_message should catch any compilation errors, so we return just a
+    // simple error message here.
+    return make_error<StringError>("OpenCL C compilation error",
+                                   inconvertibleErrorCode());
+  }
+
+  return M;
+}
+
 std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
-  uint32_t ModuleNumErrors = 0;
-  std::string ModuleLog{};
   std::unique_ptr<compiler::utils::PassMachinery> PassMach;
 
   if (CompilerTarget) {
@@ -197,85 +328,73 @@ std::unique_ptr<compiler::utils::PassMachinery> driver::createPassMachinery() {
   return PassMach;
 }
 
-result driver::runPipeline(compiler::utils::PassMachinery *PassMach) {
+Error driver::runPipeline(Module &M, compiler::utils::PassMachinery &PassMach) {
   ModulePassManager pm;
-  if (auto Err = PassMach->getPB().parsePassPipeline(pm, PipelineText)) {
-    errs() << formatv("Error: Parse of {0} failed : {1}\n", PipelineText,
-                      toString(std::move(Err)));
-    return result::failure;
+  if (auto Err = PassMach.getPB().parsePassPipeline(pm, PipelineText)) {
+    std::string Msg =
+        formatv("error: parse of pass pipeline '{0}' failed : {1}\n",
+                PipelineText, toString(std::move(Err)));
+    return make_error<StringError>(std::move(Msg), inconvertibleErrorCode());
   }
 
-  SMDiagnostic Err;
+  pm.run(M, PassMach.getMAM());
+  return Error::success();
+}
 
-  auto &LLVMContextToUse =
-      CompilerTarget ? static_cast<compiler::BaseTarget *>(CompilerTarget.get())
-                           ->getLLVMContext()
-                     : *LLVMCtx;
-  LLVMContextToUse.setOpaquePointers(true);
-
-  std::unique_ptr<Module> Mod =
-      parseIRFile(InputFilename, Err, LLVMContextToUse);
-
-  if (!Mod) {
-    Err.print(InputFilename.c_str(), errs());
-    return result::failure;
-  }
-  // Open the output file.
-  std::error_code EC;
-  sys::fs::OpenFlags OpenFlags = sys::fs::OF_None;
-  if (WriteTextual) {
-    OpenFlags |= sys::fs::OF_Text;
-  }
-  auto Out = std::make_unique<ToolOutputFile>(OutputFilename, EC, OpenFlags);
-  if (EC || !Out) {
-    errs() << EC.message() << '\n';
-    return result::failure;
-  }
-
-  pm.run(*Mod.get(), PassMach->getMAM());
-  if (WriteTextual) {
-    Out->os() << *Mod.get();
-  } else {
-    WriteBitcodeToFile(*Mod.get(), Out->os());
-  }
-  Out->keep();
-
-  return result::success;
-}  // namespace muxc
-
-result driver::findDevice() {
+Expected<const compiler::Info *> driver::findDevice() {
   auto compilers = compiler::compilers();
   if (compilers.empty()) {
-    std::fprintf(stderr, "Error: no compilers found\n");
-    return result::failure;
+    return make_error<StringError>("Error: no compilers found",
+                                   inconvertibleErrorCode());
   }
 
-  bool found = false;
+  auto printMuxCompilers =
+      [](cargo::array_view<const compiler::Info *> compilers) {
+        std::string device_list;
+        for (unsigned int i = 0, n = compilers.size(); i < n; ++i) {
+          device_list += formatv("device {0}: {1}\n", i,
+                                 compilers[i]->device_info->device_name);
+        }
+        return device_list;
+      };
+
+  // Device idx takes precedent.
+  if (DeviceIdx >= 0) {
+    if (static_cast<size_t>(DeviceIdx) >= compilers.size()) {
+      return make_error<StringError>(
+          formatv("Error: invalid device selection; out of bounds. Available "
+                  "devices:\n{0}",
+                  printMuxCompilers(compilers)),
+          inconvertibleErrorCode());
+    }
+    return compilers[DeviceIdx];
+  }
+
+  const compiler::Info *info = nullptr;
   for (auto compiler : compilers) {
     bool matches = true;
     matches &=
         (std::string(compiler->device_info->device_name).find(DeviceName) !=
          cargo::string_view::npos);
     if (matches) {
-      if (found) {
-        std::fprintf(stderr,
-                     "Error: Device selection ambiguous, available devices:\n");
-        printMuxCompilers(compilers);
-        return result::failure;
+      if (info) {
+        return make_error<StringError>(
+            formatv(
+                "Error: device selection ambiguous. Available devices:\n{0}",
+                printMuxCompilers(compilers)),
+            inconvertibleErrorCode());
       }
-      found = true;
-      CompilerInfo = compiler;
+      info = compiler;
     }
   }
-  if (!found) {
-    std::fprintf(
-        stderr,
-        "Error: No device matched the given substring, available devices:\n");
-    printMuxCompilers(compilers);
-    return result::failure;
+  if (!info) {
+    return make_error<StringError>(formatv("Error: no device matched the given "
+                                           "substring. Available devices:\n{0}",
+                                           printMuxCompilers(compilers)),
+                                   inconvertibleErrorCode());
   }
 
-  return result::success;
+  return info;
 }
 
 }  // namespace muxc

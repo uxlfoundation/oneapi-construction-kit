@@ -32,6 +32,7 @@
 #include <clang/CodeGen/CodeGenAction.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/TextDiagnosticPrinter.h>
+#include <clang/Serialization/PCHContainerOperations.h>
 #include <compiler/kernel.h>
 #include <compiler/module.h>
 #include <compiler/utils/pass_machinery.h>
@@ -55,6 +56,9 @@ class PassMachinery;
 class BaseModule : public Module {
  public:
   enum class MacroDefType { Def, Undef };
+
+  using OpenCLOptVec = std::vector<std::string>;
+  using MacroDefVec = std::vector<std::pair<MacroDefType, std::string>>;
 
   BaseModule(compiler::BaseTarget &target, compiler::BaseContext &context,
              uint32_t &num_errors, std::string &log);
@@ -151,6 +155,26 @@ class BaseModule : public Module {
   Result compileOpenCLC(
       cargo::string_view device_profile, cargo::string_view source,
       cargo::array_view<compiler::InputHeader> input_headers) override;
+
+  /// @brief Compile an OpenCL C program to an LLVM module.
+  ///
+  /// @param[in] instance clang CompilerInstance.
+  /// @param[in] device_profile Device profile string. Should be either
+  /// FULL_PROFILE or EMBEDDED_PROFILE.
+  /// @param[in] source OpenCL C source code string.
+  /// @param[in] input_headers List of headers to be included.
+  /// @param[out] num_errors If non null, is set to the number of errors
+  /// encountered by clang.
+  /// @param[out] new_state If non null, is set to the new state of the Module
+  /// after compilation. Note that this can be set even if the function returns
+  /// an error.
+  ///
+  /// @return Return the compiled LLVM module, or nullptr on failure.
+  std::unique_ptr<llvm::Module> compileOpenCLCToIR(
+      clang::CompilerInstance &instance, cargo::string_view device_profile,
+      cargo::string_view source,
+      cargo::array_view<compiler::InputHeader> input_headers,
+      uint32_t *num_errors = nullptr, ModuleState *new_state = nullptr);
 
   /// @brief Link a set of program binaries together into the current program.
   ///
@@ -398,14 +422,6 @@ class BaseModule : public Module {
   static void llvmFatalErrorHandler(void *user_data, const char *reason,
                                     bool gen_crash_diag);
 
-  /// @brief Add a macro definition to be added to the preprocessor options to
-  /// be used by clang.
-  ///
-  /// @param[in] macro Macro definition to be added.
-  inline void addMacroDef(const std::string &macro) {
-    macro_defs.emplace_back(MacroDefType::Def, macro);
-  }
-
   /// @brief A custom BaseModule diagnostic printer for logging front-end
   /// diagnostics.
   ///
@@ -437,15 +453,29 @@ class BaseModule : public Module {
   /// @brief Add a macro definition to be added to the preprocessor options to
   /// be used by clang.
   ///
+  /// @param[in] macro Macro definition to be added.
+  /// @param[in,out] macro_defs List of macro defs to be added to.
+  inline void addMacroDef(const std::string &macro,
+                          MacroDefVec &macro_defs) const {
+    macro_defs.emplace_back(MacroDefType::Def, macro);
+  }
+
+  /// @brief Add a macro definition to be added to the preprocessor options to
+  /// be used by clang.
+  ///
   /// @param[in] macro Macro definition to be added as an undef.
-  inline void addMacroUndef(const std::string &macro) {
+  /// @param[in,out] macro_defs List of macro defs to be added to.
+  inline void addMacroUndef(const std::string &macro,
+                            MacroDefVec &macro_defs) const {
     macro_defs.emplace_back(MacroDefType::Undef, macro);
   }
 
   /// @brief Add an OpenCL option to be added to the clang OpenCL options.
   ///
   /// @param[in] opt OpenCL option to be added to clang.
-  inline void addOpenCLOpt(const std::string &opt) {
+  /// @param[in,out] opencl_opts List of options to be added to.
+  inline void addOpenCLOpt(const std::string &opt,
+                           OpenCLOptVec &opencl_opts) const {
     opencl_opts.emplace_back(opt);
   }
 
@@ -453,7 +483,7 @@ class BaseModule : public Module {
   /// compiling OpenCL code.
   ///
   /// @param[in] codeGenOpts Clang codegen options to be populated.
-  void populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts);
+  void populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const;
 
   /// @brief Add default preprocessor options to the module, to be passed to
   /// clang on compile. This function currently populates the list of macro
@@ -461,13 +491,17 @@ class BaseModule : public Module {
   ///
   /// @param[in] device_profile Device profile string. Should be either
   /// FULL_PROFILE or EMBEDDED_PROFILE.
-  void addDefaultOpenCLPreprocessorOpts(cargo::string_view device_profile);
+  /// @param[in,out] macro_defs List of macro defs/undefs to populate.
+  /// @param[in,out] opencl_opts List of OpenCL options to populate
+  void addDefaultOpenCLPreprocessorOpts(cargo::string_view device_profile,
+                                        MacroDefVec &macro_defs,
+                                        OpenCLOptVec &opencl_opts) const;
 
   /// @brief Populate clang lang options with sensible defaults for OpenCL,
   /// based on the compiler::Options set on this module.
   ///
   /// @param[in] lang_opts Reference to clang lang options to be populated.
-  void setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts);
+  void setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const;
 
   /// @brief Set correct OpenCL version on a clang lang options object, as well
   /// as return the appropriate lang standard kind to be passed to calls to
@@ -476,19 +510,23 @@ class BaseModule : public Module {
   /// @param[in] lang_opts Reference to clang lang options to be modified.
   /// @return Clang language standard matching the OpenCL version in use.
   clang::LangStandard::Kind setClangOpenCLStandard(
-      clang::LangOptions &lang_opts);
+      clang::LangOptions &lang_opts) const;
 
   /// @brief Populate clang preprocessor options with the macro directives
   /// specified in macro_defs.
   ///
   /// @param[in] instance Clang instance.
-  void populatePPOpts(clang::CompilerInstance &instance);
+  /// @param[in,out] macro_defs List of macro defs/undefs to populate.
+  void populatePPOpts(clang::CompilerInstance &instance,
+                      const MacroDefVec &macro_defs) const;
 
   /// @brief Populate clang OpenCL options with the options specified in
   /// opencl_opts.
   ///
   /// @param[in] instance Clang instance.
-  void populateOpenCLOpts(clang::CompilerInstance &instance);
+  /// @param[in,out] opencl_opts List of OpenCL options to populate
+  void populateOpenCLOpts(clang::CompilerInstance &instance,
+                          const OpenCLOptVec &opencl_opts);
 
   /// @brief Dump kernel source code with macro definitions into a unique file.
   ///
@@ -539,11 +577,12 @@ class BaseModule : public Module {
   /// @param[in] source OpenCL source code.
   /// @param[in] kernel_file_name Kernel file name to be passed to clang and
   /// ultimately LLVM as the module name.
+  /// @param[in] opencl_opts List of OpenCL options to be set.
   /// @param[in] input_headers List of headers to be included.
   /// @return Clang frontend input file to be used for compilation.
   clang::FrontendInputFile prepareOpenCLInputFile(
       clang::CompilerInstance &instance, llvm::StringRef source,
-      std::string kernel_file_name,
+      std::string kernel_file_name, const OpenCLOptVec &opencl_opts,
       cargo::array_view<compiler::InputHeader> input_headers);
 
   /// @brief Load the precompiled OpenCL builtins header into the specified
@@ -552,14 +591,6 @@ class BaseModule : public Module {
   ///
   /// @param[in] instance Clang compiler instance.
   void loadBuiltinsPCH(clang::CompilerInstance &instance);
-
-  /// @brief Execute a clang OpenCL code gen action.
-  ///
-  /// @param[in] instance Clang compiler instance for diagnostics.
-  /// @param[in] action Clang code gen action to be executed.
-  /// @return Result of attempting to execute the clang action.
-  Result executeOpenCLAction(clang::CompilerInstance &instance,
-                             clang::CodeGenAction &action);
 
   /// @brief Run this module through the OpenCL frontend pipeline, optionally
   /// running early and late LLVM passes as part of this pipeline. A late fast
@@ -591,12 +622,6 @@ class BaseModule : public Module {
   /// @brief Reference on the context this module belongs to.
   compiler::BaseContext &context;
 
-  /// @brief Macro definitions to be added to clang preprocessor macro defs.
-  std::vector<std::pair<MacroDefType, std::string>> macro_defs;
-
-  /// @brief OpenCL options to be added to clang.
-  std::vector<std::string> opencl_opts;
-
  private:
   /// @brief Check if the opencl.kernels metadata exists in the binary's module,
   /// and create them if they don't.
@@ -607,7 +632,7 @@ class BaseModule : public Module {
   /// tag any functions.  This means that now any code that iterates or counts
   /// OpenCL kernels will know that there are none rather than segfaulting
   /// because there is no metadata.
-  void createOpenCLKernelsMetadata();
+  static void createOpenCLKernelsMetadata(llvm::Module &);
 
   ModuleState state;
 
