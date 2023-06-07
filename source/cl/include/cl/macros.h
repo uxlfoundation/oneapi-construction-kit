@@ -55,12 +55,24 @@
   }                                                                   \
   (void)0
 
+/// @brief Provides hints to the compiler about the likelihood of a condition
+/// returning true.
+///
+/// Can probably be replaced with [[likely]] and [[unlikely]] in C++20.
+#if defined(__GNUC__) || defined(__clang__)
+#define OCL_LIKELY(EXPR) __builtin_expect((bool)(EXPR), true)
+#define OCL_UNLIKELY(EXPR) __builtin_expect((bool)(EXPR), false)
+#else
+#define OCL_LIKELY(EXPR) (EXPR)
+#define OCL_UNLIKELY(EXPR) (EXPR)
+#endif
+
 /// @brief      OCL_CHECK is mainly used to perform OpenCL API parameter
 ///             validation checking.
 /// @param      CONDITION - A bool condition.
 /// @param      ACTION - The code to execute on bool condition being true.
 #define OCL_CHECK(CONDITION, ACTION) \
-  if (CONDITION) {                   \
+  if (OCL_UNLIKELY(CONDITION)) {     \
     ACTION;                          \
   }                                  \
   (void)0
