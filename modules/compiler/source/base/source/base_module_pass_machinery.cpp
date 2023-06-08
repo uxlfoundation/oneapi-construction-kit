@@ -81,6 +81,11 @@ namespace compiler {
 /// @addtogroup compiler
 /// @{
 
+void BaseModulePassMachinery::setCompilerOptions(
+    const compiler::Options &opts) {
+  options = opts;
+}
+
 void BaseModulePassMachinery::addClassToPassNames() {
 // Register compiler passes
 #define MODULE_PASS(NAME, CREATE_PASS) \
@@ -401,8 +406,8 @@ void BaseModulePassMachinery::registerPasses() {
 
 void BaseModulePassMachinery::registerPassCallbacks() {
   PB.registerPipelineParsingCallback(
-      [](StringRef Name, ModulePassManager &PM,
-         ArrayRef<PassBuilder::PipelineElement>) {
+      [this](StringRef Name, ModulePassManager &PM,
+             ArrayRef<PassBuilder::PipelineElement>) {
         // Add a custom callback for pre-defined pipeline components.
         if (Name.consume_front("mux-base")) {
           if (!Name.consume_front("<") || !Name.consume_back(">")) {
@@ -435,6 +440,12 @@ void BaseModulePassMachinery::registerPassCallbacks() {
           }
           return true;
         }
+
+        // Check if any derived classes can handle this pipeline element.
+        if (handlePipelineElement(Name, PM)) {
+          return true;
+        }
+
 #define MODULE_PASS(NAME, CREATE_PASS) \
   if (Name == NAME) {                  \
     PM.addPass(CREATE_PASS);           \

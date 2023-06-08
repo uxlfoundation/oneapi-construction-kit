@@ -1761,6 +1761,10 @@ Result BaseModule::finalize(
   auto pass_mach = createPassMachinery();
   initializePassMachineryForFinalize(*pass_mach);
 
+  // Forward on any compiler options required.
+  static_cast<compiler::BaseModulePassMachinery &>(*pass_mach)
+      .setCompilerOptions(options);
+
   llvm::ModulePassManager pm;
 
   // Compute the immutable DeviceInfoAnalysis so that cached retrievals work.

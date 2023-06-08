@@ -21,6 +21,9 @@
 #define HOST_PASSES_MACHINERY_H_INCLUDED
 
 #include <base/base_pass_machinery.h>
+#include <base/module.h>
+
+#include <optional>
 
 namespace llvm {
 class TargetMachine;
@@ -45,6 +48,25 @@ class HostPassMachinery final : public compiler::BaseModulePassMachinery {
   void registerPasses() override;
 
   void printPassNames(llvm::raw_ostream &) override;
+
+  bool handlePipelineElement(llvm::StringRef,
+                             llvm::ModulePassManager &AM) override;
+
+  /// @brief Returns an optimization pass pipeline to either all kernels in a
+  /// module, or a single kernel, removing all the other kernels.
+  ///
+  /// @param[in] snapshots A vector of `SnapshotDetails` objects containing
+  /// snapshot state.
+  /// @param[in] unique_prefix (Optional) prefix for the generated function
+  /// names to avoid linker conflicts.
+  /// @return Result ModulePassManager containing passes
+  llvm::ModulePassManager getKernelFinalizationPasses(
+      cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots,
+      std::optional<std::string> unique_prefix = std::nullopt);
+
+  /// @brief Returns an optimization pass pipeline correponding to
+  /// BaseModule::getLateTargetPasses.
+  llvm::ModulePassManager getLateTargetPasses();
 };
 
 }  // namespace host

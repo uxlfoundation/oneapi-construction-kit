@@ -51,11 +51,9 @@ set(HOST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/host_mux_builtin_info.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/host_pass_machinery.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/module.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/host/passes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/target.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/info.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kernel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/passes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/AddEntryHook.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/AddFloatingPointControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/DisableNeonAttribute.cpp

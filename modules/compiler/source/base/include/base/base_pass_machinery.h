@@ -22,6 +22,7 @@
 #ifndef BASE_PASS_MACHINERY_H_INCLUDED
 #define BASE_PASS_MACHINERY_H_INCLUDED
 
+#include <compiler/module.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/device_info.h>
 #include <compiler/utils/pass_machinery.h>
@@ -53,6 +54,21 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
   virtual void addClassToPassNames() override;
   virtual void registerPassCallbacks() override;
   virtual void printPassNames(llvm::raw_ostream &OS) override;
+
+  /// @brief Sets up compiler options on this machinery.
+  void setCompilerOptions(const compiler::Options &options);
+
+  /// @brief Provides derived classes with a way to hook in custom pipeline
+  /// elements.
+  /// @return true if the pipeline element was parsed and handled, false
+  /// otherwise.
+  virtual bool handlePipelineElement(llvm::StringRef,
+                                     llvm::ModulePassManager &) {
+    return false;
+  }
+
+ protected:
+  compiler::Options options;
 
  private:
   llvm::TimePassesHandler TimePasses;

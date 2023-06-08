@@ -59,6 +59,8 @@ config.llvm_enable_stats = (
 
 if if_enabled('@LLVM_ENABLE_ASSERTIONS@'):
     config.available_features.add('asserts')
+if if_enabled('@CA_ENABLE_DEBUG_SUPPORT@'):
+    config.available_features.add('debug')
 
 # Some lit tests may fail when cross-compiled, so add the native feature if not
 # cross-compiling.
