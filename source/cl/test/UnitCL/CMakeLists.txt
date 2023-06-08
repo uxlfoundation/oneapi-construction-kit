@@ -248,7 +248,6 @@ add_ca_cl_executable(UnitCL
   source/cl_codeplay_kernel_exec_info/clSetKernelExecInfoCODEPLAY.cpp
   source/cl_codeplay_kernel_exec_info/usm.cpp
   source/cl_codeplay_performance_counters/cl_codeplay_performance_counters.cpp
-  source/cl_codeplay_snapshot/cl_codeplay_snapshot.cpp
   source/cl_codeplay_wfv/wfv_binary.cpp
   source/cl_codeplay_wfv/wfv_build_options.cpp
   source/cl_codeplay_wfv/wfv_errors.cpp

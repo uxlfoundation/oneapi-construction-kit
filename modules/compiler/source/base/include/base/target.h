@@ -50,14 +50,6 @@ class BaseTarget : public Target {
 
   virtual llvm::Module *getBuiltins() const = 0;
 
-  /// @see Target::listSnapshotStages
-  compiler::Result listSnapshotStages(uint32_t count, const char **out_stages,
-                                      uint32_t *out_count) override;
-
-  /// @brief Provides derived targets with a way to supply additional "target"
-  /// snapshots in addition to those supported by BaseTarget itself.
-  std::vector<const char *> getTargetSnapshotStages() const;
-
   NotifyCallbackFn getNotifyCallbackFn() const { return callback; }
 
   /// @brief Returns the (non-null) LLVMContext.
@@ -81,10 +73,6 @@ class BaseTarget : public Target {
   /// @brief Context to use during initialization, and to pass to modules
   /// created with this target.
   compiler::BaseContext &context;
-
-  /// @brief A list of additional target snapshots defined by derived
-  /// implementations.
-  std::vector<std::string> supported_target_snapshots;
 
   NotifyCallbackFn callback;
 };

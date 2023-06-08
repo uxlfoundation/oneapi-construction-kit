@@ -46,7 +46,6 @@ be contiguous.
   extension/cl_codeplay_extra_build_options
   extension/cl_codeplay_kernel_exec_info
   extension/cl_codeplay_performance_counters
-  extension/cl_codeplay_program_snapshot
   extension/cl_codeplay_soft_math
   extension/cl_codeplay_wfv
   extension/cl_intel_unified_shared_memory
@@ -160,94 +159,6 @@ to use this extension to support 1.2.
 
 .. _clSetKernelExecInfo:
   https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#clSetKernelExecInfo
-
-Program Snapshot - ``cl_codeplay_program_snapshot``
----------------------------------------------------
-
-.. warning::
-
-   Snapshots are deprecated and will be removed in a future version of the
-   oneAPI Construction Kit.
-
-The :doc:`extension/cl_codeplay_program_snapshot` extension provides a snapshot
-mechanism allowing user code to capture program objects at different stages of
-compilation.
-
-The snapshot mechanism is the primary method of debugging compiler
-transformations. This is done by dumping the program object (taking a snapshot)
-at a specific stage of compilation in order to inspect the effects of compiler
-passes, allowing the user to more effectively debug and tune their code.
-
-OpenCL API
-##########
-
-oneAPI Construction Kit has implemented snapshots as an extension to OpenCL. If
-the extension is enabled, then `clGetDeviceInfo`_ queries for
-``CL_DEVICE_EXTENSIONS`` contain ``"cl_codeplay_program_snapshot"`` as a query
-value.
-
-Our two snapshot extension functions can be retrieved by querying
-`clGetExtensionFunctionAddressForPlatform`_ for their function name, returning a
-functor if the snapshot extension is supported or a NULL pointer otherwise.
-
-The header ``cl_ext_codeplay.h`` containing definitions for Codeplay vendor
-extensions declares the required types and functions for use by users.
-
-.. _clGetExtensionFunctionAddressForPlatform:
-  https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#clGetExtensionFunctionAddressForPlatform
-
-ComputeMux API
-##############
-
-The order of listed snapshots is sorted based on compilation order, where the
-first items displayed originate from the internal compiler module in ComputeMux.
-With the exception to the ordering of the first entry
-``cl_snapshot_compilation_default`` which returns a snapshot at the same stage
-as would be returned by ``clGetProgramInfo``. Afterwards the partner
-implementation snapshot stages are listed, as they are retrieved via
-``compiler::Target::listSnapshotStages``.
-
-Setting the snapshot itself in partner code is done via
-``compiler::Module::setSnapshotCallback``, which is invoked in OpenCL right
-before the call to ``compiler::Module::finalize``. Passing in the stage name C
-string and callback functor. It is an error to pass through a stage name which
-doesn't exist in the list returned by ``compiler::Target::listSnapshotStages``.
-But it is also valid for this list to be empty when the partner implementation
-does not define any snapshot stages at all.
-
-At most a single snapshot stage can be active at any given moment in time based
-on the last call to ``compiler::Module::setSnapshotCallback``.
-
-oclc
-####
-
-As a developer the easiest way to interact with the snapshot mechanism is via
-the `oclc` frontend for compiling OpenCL programs. See the `oclc`
-[README](tools.md) for more details.
-
-To see all the available snapshot stages for a particular program a developer
-can use the `-list` option:
-
-```sh
-oclc <path/to/cl/file> -list
-```
-
-Then to place a snapshot the developer must set it on a specific stage with
-`-stage`. `oclc` will then print the snapshot to `stdout` if the format is
-textual, or to a file if it's binary.
-
-```sh
-oclc <path/to/cl/file> -stage cl_snapshot_compilation_spir
-```
-
-Sometimes a snapshot stage may not be hit if it requires a kernel be enqueued.
-To enqueue a kernel in `oclc` the `-enqueue` option can be used with a specified
-kernel name to enqueue it as a task(single work item). The kernel won't actually
-be run however, which is expected behaviour due to user events inside `oclc`.
-
-```sh
-oclc <path/to/cl/file> -stage cl_snapshot_host_scheduled -enqueue <kernel name>
-```
 
 Performance Counter - ``cl_codeplay_performance_counters``
 ----------------------------------------------------------

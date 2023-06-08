@@ -53,7 +53,6 @@ struct OptimizedKernel {
 class HostKernel : public compiler::BaseKernel {
  public:
   HostKernel(HostTarget &target, compiler::Options &build_options,
-             cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots,
              llvm::Module *module, std::string name,
              std::array<size_t, 3> preferred_local_sizes,
              size_t local_memory_used);
@@ -109,9 +108,6 @@ class HostKernel : public compiler::BaseKernel {
 
   /// @brief Build options passed to the module this kernel was created from.
   compiler::Options &build_options;
-
-  /// @brief A reference to the snapshot state in the module.
-  cargo::array_view<compiler::BaseModule::SnapshotDetails> snapshots;
 };
 }  // namespace host
 

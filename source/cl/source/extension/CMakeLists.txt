@@ -46,7 +46,6 @@ endforeach()
 set(COMPILER_EXTENSIONS
   codeplay_extra_build_options
   codeplay_kernel_debug
-  codeplay_program_snapshot
   codeplay_wfv
   khr_extended_async_copies
   khr_il_program
@@ -178,11 +177,9 @@ foreach(tag ${CA_CL_RUNTIME_EXTENSION_TAGS})
 endforeach()
 
 set(EXTENSION_COMPILER_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/codeplay_program_snapshot.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_extended_async_copies.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_il_program.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_spir.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/codeplay_program_snapshot.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_extended_async_copies.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_il_program.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_spir.cpp)

@@ -49,40 +49,6 @@ enum class Standard {
   OpenCLC30,
 };
 
-namespace SnapshotStage {
-/// @brief The snapshot is taken at the same stage as the binary normally
-///        returned by clGetProgramInfo.
-constexpr const char COMPILE_DEFAULT[] = "cl_snapshot_compilation_default";
-/// @brief The snapshot is taken out of the front-end compilation stage.
-constexpr const char COMPILE_FRONTEND[] = "cl_snapshot_compilation_front_end";
-/// @brief The snapshot is taken after the linking stage(clLinkProgram).
-constexpr const char COMPILE_LINKING[] = "cl_snapshot_compilation_linking";
-/// @brief The snapshot is taken after SIMD preparation passes.
-constexpr const char COMPILE_SIMD_PREP[] =
-    "cl_snapshot_compilation_simd_prepare";
-/// @brief The snapshot is taken after CFG scalarization.
-constexpr const char COMPILE_SCALARIZED[] =
-    "cl_snapshot_compilation_scalarized";
-/// @brief The snapshot is taken after CFG linearization.
-constexpr const char COMPILE_LINEARIZED[] =
-    "cl_snapshot_compilation_linearized";
-/// @brief The snapshot is taken after any SIMD packetization.
-constexpr const char COMPILE_SIMD_PACKETIZED[] =
-    "cl_snapshot_compilation_simd_packetized";
-/// @brief The snapshot is taken before SPIR is turned into device IR
-constexpr const char COMPILE_SPIR[] = "cl_snapshot_compilation_spir";
-/// @brief The snapshot is taken after OpenCL builtins are materialized.
-constexpr const char COMPILE_BUILTINS[] =
-    "cl_snapshot_compilation_builtins_materialized";
-}  // namespace SnapshotStage
-
-/// @brief Output formats supported by snapshots
-enum class SnapshotFormat {
-  DEFAULT = 0,
-  TEXT,
-  BINARY,
-};
-
 /// @brief Early vectorization mode to apply.
 enum class PreVectorizationMode {
   NONE,
@@ -224,11 +190,6 @@ struct InputHeader {
   /// @brief The include name of the header.
   cargo::string_view name;
 };
-
-/// @brief Snapshot callback handler.
-[[deprecated]] typedef void (*compiler_snapshot_callback_t)(
-    size_t snapshot_size, const char *snapshot_data, void *callback_data,
-    void *user_data);
 
 /// @brief Argument types for serialization
 enum class ArgumentKind : uint32_t {
@@ -596,23 +557,6 @@ class Module {
   ///
   /// @return A boolean indicating whether deserialization was successful.
   virtual bool deserialize(cargo::array_view<const std::uint8_t> buffer) = 0;
-
-  /// @brief Enables a snapshot callback to be triggered when a compilation
-  /// stage is reached.
-  ///
-  /// @param[in] stage Snapshot stage to trigger.
-  /// @param[in] callback Snapshot callback.
-  /// @param[in] user_data Snapshot callback user data.
-  /// @param[in] format Snapshot format to use. Defaults to
-  /// `SnapshotFormat::DEFAULT`.
-  ///
-  /// @return Return a status code.
-  /// @retval `Result::SUCCESS` when snapshot successfully set.
-  /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
-  /// @retval `Result::INVALID_VALUE` if an invalid argument was passed.
-  [[deprecated]] virtual Result setSnapshotCallback(
-      const char *stage, compiler_snapshot_callback_t callback, void *user_data,
-      SnapshotFormat format = SnapshotFormat::DEFAULT) = 0;
 
   /// @brief Returns the current state of the compiler module.
   virtual ModuleState getState() const = 0;

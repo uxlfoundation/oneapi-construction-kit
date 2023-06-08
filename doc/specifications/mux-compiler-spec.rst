@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.74.0 of the specification.
+   This is version 0.75.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -253,10 +253,6 @@ library.
 
       virtual Result initWithBuiltins(std::unique_ptr<llvm::Module> builtins) = 0;
 
-      virtual Result listSnapshotStages(mux_device_t device, uint32_t count,
-                                        const char **out_stages,
-                                        uint32_t *out_count) = 0;
-
       virtual std::unique_ptr<compiler::Module> createModule(
           uint32_t &num_errors,
           std::string &log) = 0;
@@ -323,39 +319,6 @@ BaseTarget::createModule
 
 -  If there was an allocation failure, ``nullptr`` **must** be returned.
 -  Otherwise an instance of ``compiler::Module`` **should** be returned.
-
-BaseTarget::listSnapshotStages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-
-   Snapshots are deprecated and will be removed in a future version of the
-   oneAPI Construction Kit.
-
-``BaseTarget::listSnapshotStages`` lists all snapshot stages supported by
-this compiler target.
-
-.. code:: cpp
-
-    compiler::Result listSnapshotStages(
-        uint32_t count,
-        const char **out_stages,
-        uint32_t *out_count);
-
--  ``count`` - element count of the ``out_stages`` array.
--  ``out_stages`` - array of C strings to be populated with snapshot names, may
-   be ``nullptr``.
--  ``out_count`` - number of snapshot stages available.
-
-.. rubric:: Return Value
-
--  If there was an allocation failure, ``compiler::Result::OUT_OF_MEMORY``
-   **must** be returned.
--  If ``count`` is 0, and ``out_stages`` is not NULL,
-   ``compiler::Result::INVALID_VALUE`` **must** be returned.
--  If ``out_stages`` is ``nullptr``, and ``count`` is not 0,
-   ``compiler::Result::INVALID_VALUE`` **must** be returned.
--  Otherwise ``compiler::Result::SUCCESS`` **should** be returned.
 
 Module
 ------
@@ -434,9 +397,6 @@ that handle the back-end and code generation.
 
       virtual Kernel *createKernel(const std::string &name) = 0;
 
-      cargo::optional<SnapshotDetails> shouldTakeSnapshot(
-          const char *stage) const;
-
       void addDiagnostic(cargo::string_view message);
 
       void addBuildError(cargo::string_view message);
@@ -448,15 +408,6 @@ that handle the back-end and code generation.
       compiler::BaseContext &context;
 
       compiler::BaseTarget &target;
-
-      struct SnapshotDetails {
-        const char *stage;
-        compiler_snapshot_callback_t callback;
-        SnapshotFormat format;
-        void *user_data;
-      };
-
-      std::vector<SnapshotDetails> snapshot;
 
       compiler::Options options;
 

@@ -234,7 +234,6 @@ OpenCL extensions:
 - cl_codeplay_wfv
 - cl_codeplay_extra_build_options
 - cl_codeplay_kernel_exec_info
-- cl_codeplay_program_snapshot
 - cl_codeplay_performance_counters
 - cl_codeplay_soft_math
 - cl_intel_unified_shared_memory
