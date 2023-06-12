@@ -102,6 +102,13 @@ inline cl_int GetObjectDetailExtensionInfoSingleValue(
     T object, D detail, N param_name, const size_t param_value_size,
     void* param_value, size_t* param_value_size_ret, F get_info_fn);
 
+template <typename T, typename D, typename N, typename F>
+inline cl_int GetObjectDetailExtensionInfoSingleInputValue(
+    const size_t num_extensions, const extension::extension *const *extensions,
+    T object, D detail, N param_name, const size_t input_value_size,
+    const void *input_value, const size_t param_value_size, void *param_value,
+    size_t *param_value_size_ret, F get_info_fn);
+
 template <typename T, typename N, typename F>
 inline cl_int GetObjectExtensionInfoAggregatedCString(
     const size_t num_extensions, const extension::extension* const* extensions,
@@ -242,6 +249,85 @@ cl_int GetObjectDetailExtensionInfoSingleValue(
                               num_extensions - ext_idx - 1,
                               extensions + ext_idx + 1, object, detail,
                               param_name, 0, nullptr, nullptr, get_info_fn),
+        "More than one extension should not support the same info query, "
+        "otherwise results are order dependent which is confusing.");
+
+    // One extension supporting the info query or one error is enough to stop
+    // the search.
+    break;
+  }
+
+  return retcode;
+}
+
+/// @brief Query all passed in extensions via the get_info_fn functor/lambda
+/// until one accepts the query.
+///
+/// Query for details from OpenCL objects, e.g., applicable to the following
+/// info queries:
+/// * clGetKernelSubGroupInfo,
+///
+/// If no extension in extensions accepts the param_name query, then
+/// CL_INVALID_VALUE is returned.
+///
+/// @see OpenCL clGet...Info calls listed above for more in-detail explanations
+/// of param_name, param_value_size, param_value, param_value_size_ret, and
+/// possible return codes.
+///
+/// @tparam T Type of the OpenCL object, e.g., cl_platform.
+/// @tparam D Type of the detail info to query for.
+/// @tparam N Type of the param_name to query for.
+/// @tparam F Type of the function/functor/lambda to use for the
+///                  query.
+/// @param[in] num_extensions Number of extensions to query.
+/// @param[in] extensions Contiguous memory area containing num_extensions
+/// Extension pointers to query.
+/// @param[in] object OpenCL object to query.
+/// @param[in] detail Detail info to query for.
+/// @param[in] param_name Specific information to query for.
+/// @param[in] param_value_size Size of memory area pointed to by param_value.
+/// Can be 0 if param_value is nullptr.
+/// @param[out] param_value Memory area to store the query result in.
+/// @param[out] param_value_size_ret Points to memory area to store the
+/// minimally required param_value size in. Can be nullptr.
+/// @param[in] get_info_fn Function pointer, functor, or lambda which is called
+/// for every extension.
+///
+/// @return Returns CL_SUCCESS if an extension accepts the param_name query and
+/// the supplied argument values. CL_INVALID_VALUE if no extension accepts the
+/// param_name query. Other OpenCL error return code if an extension accepts
+/// param_name but the supplied argument values are wrong.
+template <typename T, typename D, typename N, typename F>
+cl_int GetObjectDetailExtensionInfoSingleInputValue(
+    const size_t num_extensions, const extension::extension *const *extensions,
+    T object, D detail, N param_name, const size_t input_value_size,
+    const void *input_value, const size_t param_value_size, void *param_value,
+    size_t *param_value_size_ret, F get_info_fn) {
+  cl_int retcode = CL_INVALID_VALUE;
+  size_t ext_idx = 0;
+  for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
+    cl_int supported_retcode =
+        get_info_fn(extensions[ext_idx], object, detail, param_name, 0, nullptr,
+                    0, nullptr, nullptr);
+    if (CL_SUCCESS != supported_retcode) {
+      // This extension does not support the info query, keep searching.
+      continue;
+    }
+
+    // Do query.
+    retcode = get_info_fn(extensions[ext_idx], object, detail, param_name,
+                          input_value_size, input_value, param_value_size,
+                          param_value, param_value_size_ret);
+
+    // More than one extension shouldn't support the same info query,
+    // otherwise results are order dependent which is confusing.
+    OCL_ASSERT(
+        CL_SUCCESS != retcode ||
+            CL_SUCCESS != GetObjectDetailExtensionInfoSingleInputValue(
+                              num_extensions - ext_idx - 1,
+                              extensions + ext_idx + 1, object, detail,
+                              param_name, 0, nullptr, 0, nullptr, nullptr,
+                              get_info_fn),
         "More than one extension should not support the same info query, "
         "otherwise results are order dependent which is confusing.");
 
@@ -653,6 +739,15 @@ cl_int extension::extension::GetKernelArgInfo(cl_kernel, cl_uint,
   return CL_INVALID_VALUE;
 }
 
+#if defined(CL_VERSION_3_0)
+cl_int extension::extension::GetKernelSubGroupInfo(cl_kernel, cl_device_id,
+                                                   cl_kernel_sub_group_info,
+                                                   size_t, const void *, size_t,
+                                                   void *, size_t *) const {
+  return CL_INVALID_VALUE;
+}
+#endif
+
 #if (defined(CL_VERSION_3_0) || \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
 cl_int extension::extension::SetKernelExecInfo(cl_kernel, cl_kernel_exec_info_codeplay,
@@ -953,6 +1048,28 @@ cl_int extension::GetKernelArgInfo(cl_kernel kernel, cl_uint arg_indx,
       param_name, param_value_size, param_value, param_value_size_ret,
       query_fn);
 }
+
+#if defined(CL_VERSION_3_0)
+cl_int extension::GetKernelSubGroupInfo(
+    cl_kernel kernel, cl_device_id device, cl_kernel_sub_group_info param_name,
+    size_t input_value_size, const void *input_value, size_t param_value_size,
+    void *param_value, size_t *param_value_size_ret) {
+  auto query_fn = [](const extension *extension, cl_kernel object,
+                     cl_device_id detail, cl_kernel_sub_group_info param_name,
+                     size_t input_value_size, const void *input_value,
+                     size_t param_value_size, void *param_value,
+                     size_t *param_value_size_ret) {
+    return extension->GetKernelSubGroupInfo(
+        object, detail, param_name, input_value_size, input_value,
+        param_value_size, param_value, param_value_size_ret);
+  };
+
+  return GetObjectDetailExtensionInfoSingleInputValue(
+      getExtensions().size(), getExtensions().data(), kernel, device,
+      param_name, input_value_size, input_value, param_value_size, param_value,
+      param_value_size_ret, query_fn);
+}
+#endif
 
 #if (defined(CL_VERSION_3_0) || \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))

@@ -364,6 +364,38 @@ class extension {
                                   size_t param_value_size, void *param_value,
                                   size_t *param_value_size_ret) const;
 
+#if defined(CL_VERSION_3_0)
+  /// @brief Query for kernel subgroup info.
+  ///
+  /// @see clGetKernelSubGroupInfo.
+  ///
+  /// @param[in] kernel OpenCL kernel to query.
+  /// @param[in] device Identifies device in device list associated with @p
+  /// kernel.
+  /// @param[in] input_value_size Size in bytes of memory pointed to by
+  /// input_value.
+  /// @param[in] input_value Pointer to memory where parameterization of query
+  /// is passed from.
+  /// @param[in] param_name Specific information to query for.
+  /// @param[in] param_value_size Size of memory area pointed to by param_value.
+  /// Can be 0 if param_value is nullptr.
+  /// @param[out] param_value Memory area to store the query result in.
+  /// @param[out] param_value_size_ret Points to memory area to store the
+  /// minimally required param_value size in. Can be nullptr.
+  ///
+  /// @return Returns CL_SUCCESS if the extension accepts the param_name query
+  /// and the supplied argument values. CL_INVALID_VALUE if the extension does
+  /// not accept the param_name query. Other OpenCL error return code if the
+  /// extension accepts param_name but the supplied argument values are wrong.
+  virtual cl_int GetKernelSubGroupInfo(cl_kernel kernel, cl_device_id device,
+                                       cl_kernel_sub_group_info param_name,
+                                       size_t input_value_size,
+                                       const void *input_value,
+                                       size_t param_value_size,
+                                       void *param_value,
+                                       size_t *param_value_size_ret) const;
+#endif
+
 #if (defined(CL_VERSION_3_0) || \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
   /// @brief Passes additional information other than argument values to a
@@ -648,6 +680,28 @@ cl_int SetKernelArg(cl_kernel kernel, cl_uint arg_index, size_t arg_size,
 cl_int GetKernelArgInfo(cl_kernel kernel, cl_uint arg_indx,
                         cl_kernel_arg_info param_name, size_t param_value_size,
                         void *param_value, size_t *param_value_size_ret);
+
+#if defined(CL_VERSION_3_0)
+/// @brief Aggregate all kernel sub group information.
+///
+/// @param kernel Kernel to query.
+/// @param device Device being targeted.
+/// @param param_name Parameter name to query.
+/// @param input_value_size Size in bytes of memory pointed to by
+/// input_value.
+/// @param input_value Pointer to memory where parameterization of query is
+/// passed from.
+/// @param param_value_size Size of `param_value` storage.
+/// @param param_value Storage for returned value.
+/// @param param_value_size_ret Required size of `param_value`.
+///
+/// @return Returns `CL_SUCCESS` or `CL_INVALID_VALUE`.
+cl_int GetKernelSubGroupInfo(cl_kernel kernel, cl_device_id device,
+                             cl_kernel_sub_group_info param_name,
+                             size_t input_value_size, const void *input_value,
+                             size_t param_value_size, void *param_value,
+                             size_t *param_value_size_ret);
+#endif
 
 #if (defined(CL_VERSION_3_0) || \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))

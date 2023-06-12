@@ -327,9 +327,6 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelSubGroupInfo(
   OCL_CHECK(0 == device->max_num_sub_groups, return CL_INVALID_OPERATION);
 
   switch (param_name) {
-    default: {
-      return CL_INVALID_VALUE;
-    }
     case CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE: {
       OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
                 return CL_INVALID_VALUE);
@@ -430,6 +427,11 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelSubGroupInfo(
       }
       OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
     } break;
+    default: {
+      return extension::GetKernelSubGroupInfo(
+          kernel, device, param_name, input_value_size, input_value,
+          param_value_size, param_value, param_value_size_ret);
+    }
   }
   return CL_SUCCESS;
 }
