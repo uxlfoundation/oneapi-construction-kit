@@ -43,7 +43,7 @@ class CTSTestRun(TestRunBase):
         stream = io.BytesIO(self.output)
         # Extended pass_single_pattern. See Redmine issue #6542.
         pass_single_pattern = re.compile(
-            b"^(PASSED .+\.|.+PASSED\.?|passed .+\.|.+passed\.?)$")
+            b"^(PASSED .+\.|.+PASSED\.?|passed .+\.|.+passed\.?)|All tests passed \(.*\)$")
         pass_pair_pattern = re.compile(b"^PASSED (\d+) of (\d+) tests\.$")
         fail_single_pattern = re.compile(b"^(FAILED .+\.|.+FAILED\.?)$")
         fail_pair_pattern = re.compile(b"^FAILED (\d+) of (\d+) tests\.$")

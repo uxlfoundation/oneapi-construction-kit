@@ -18,6 +18,7 @@ import copy
 import datetime
 import xml.etree.cElementTree as ET
 import re
+import shlex
 
 
 class TestExecutable(object):
@@ -165,7 +166,7 @@ class TestList(object):
                     arguments = []
                 else:
                     executable_name = argv[:executable_name_len]
-                    arguments = argv[executable_name_len + 1:].split(" ")
+                    arguments = shlex.split(argv[executable_name_len + 1:], False)
                 try:
                     executable = executables[executable_name]
                 except KeyError:
