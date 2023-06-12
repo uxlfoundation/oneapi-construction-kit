@@ -371,5 +371,21 @@ void populateKernelList(Module &m, SmallVectorImpl<KernelInfo> &results) {
   }
 }
 
+static constexpr const char *ReqdSGSizeMD = "intel_reqd_sub_group_size";
+
+void encodeReqdSubgroupSizeMetadata(Function &f, uint32_t size) {
+  auto *const i32Ty = Type::getInt32Ty(f.getContext());
+  auto *const mdTuple = MDTuple::get(
+      f.getContext(), ConstantAsMetadata::get(ConstantInt::get(i32Ty, size)));
+  f.setMetadata(ReqdSGSizeMD, mdTuple);
+}
+
+multi_llvm::Optional<uint32_t> getReqdSubgroupSize(const Function &f) {
+  if (auto *md = f.getMetadata(ReqdSGSizeMD)) {
+    return mdconst::extract<ConstantInt>(md->getOperand(0))->getZExtValue();
+  }
+  return multi_llvm::None;
+}
+
 }  // namespace utils
 }  // namespace compiler

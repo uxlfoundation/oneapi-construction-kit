@@ -41,15 +41,13 @@ cl_int extension::intel_required_subgroup_size::GetDeviceInfo(
 #endif
 
   if (CL_DEVICE_SUB_GROUP_SIZES_INTEL == param_name) {
-    // TODO: Query the device for the sizes it reports. This just sets the sizes
-    // to zero so we report nothing.
-    uint64_t num_sizes = 0;
+    // First check how many sub-group sizes the device reports.
+    uint64_t num_sizes = device->mux_device->info->num_sub_group_sizes;
     const size_t param_size = num_sizes * sizeof(size_t);
     OCL_CHECK(param_value && (param_value_size < param_size),
               return CL_INVALID_VALUE);
     if (param_value) {
-      std::vector<uint32_t> sg_sizes(num_sizes);
-      std::copy_n(sg_sizes.begin(), param_value_size / sizeof(size_t),
+      std::copy_n(device->mux_device->info->sub_group_sizes, num_sizes,
                   static_cast<size_t *>(param_value));
     }
     OCL_SET_IF_NOT_NULL(param_value_size_ret, param_size);
@@ -77,11 +75,9 @@ cl_int extension::intel_required_subgroup_size::GetKernelWorkGroupInfo(
     OCL_CHECK(param_value && param_value_size < sizeof(cl_ulong),
               return CL_INVALID_VALUE);
 
-    // We don't (currently) support this query, so return a garbage value. Note
-    // we can't return 0 as that would "indicate that compiler was able to
-    // compile the kernel to fit into the device’s register file without
-    // spilling registers to memory".
-    OCL_SET_IF_NOT_NULL((reinterpret_cast<cl_ulong *>(param_value)), -1);
+    OCL_ASSERT(kernel, "No kernel was provided");
+    OCL_SET_IF_NOT_NULL((reinterpret_cast<cl_ulong *>(param_value)),
+                        kernel->info->spill_mem_size_bytes);
     return CL_SUCCESS;
   }
 
@@ -106,8 +102,8 @@ cl_int extension::intel_required_subgroup_size::GetKernelSubGroupInfo(
               return CL_INVALID_VALUE);
 
     OCL_ASSERT(kernel, "No kernel was provided");
-    // TODO: Query the kernel for the attribute value it was given.
-    OCL_SET_IF_NOT_NULL((reinterpret_cast<size_t *>(param_value)), 0);
+    OCL_SET_IF_NOT_NULL((reinterpret_cast<size_t *>(param_value)),
+                        kernel->info->reqd_sub_group_size.value_or(0));
     return CL_SUCCESS;
   }
 

@@ -255,6 +255,7 @@ add_ca_cl_executable(UnitCL
   source/cl_codeplay_wfv/wfv_kernel_info.cpp
   source/cl_codeplay_wfv/wfv_status.cpp
   source/cl_codeplay_wfv/wfv_widths.cpp
+  source/cl_intel_required_subgroup_size/cl_intel_required_subgroup_size.cpp
   source/cl_intel_unified_shared_memory/usm_allocate.cpp
   source/cl_intel_unified_shared_memory/usm_capabilties.cpp
   source/cl_intel_unified_shared_memory/usm_enqueue.cpp

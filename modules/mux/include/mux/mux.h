@@ -37,7 +37,7 @@ extern "C" {
 /// @brief Mux major version number.
 #define MUX_MAJOR_VERSION 0
 /// @brief Mux minor version number.
-#define MUX_MINOR_VERSION 75
+#define MUX_MINOR_VERSION 76
 /// @brief Mux patch version number.
 #define MUX_PATCH_VERSION 0
 /// @brief Mux combined version number.
@@ -2370,6 +2370,12 @@ struct mux_device_info_s {
   /// @brief Boolean value indicating if the generic address space is supported
   /// by the device.
   bool supports_generic_address_space;
+  /// @brief The number of sub-group sizes supported by the device, pointed to
+  /// by sub_group_sizes.
+  size_t num_sub_group_sizes;
+  /// @brief List of sub-group sizes supported by the device, sized by
+  /// num_sub_group_sizes.
+  size_t *sub_group_sizes;
 };
 
 /// @brief Mux's device container.

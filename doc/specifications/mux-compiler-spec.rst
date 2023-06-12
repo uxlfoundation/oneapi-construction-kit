@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.75.0 of the specification.
+   This is version 0.76.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -1160,6 +1160,10 @@ pipeline:
        negative value (canonicalized as -1) indicates the function has no such
        parameter. Up to two additional custom parameter indices can be used by
        targets.
+   * - ``!intel_reqd_sub_group_size``
+     - i32
+     - Required sub-group size encoded as a 32-bit integer. If not present, no
+       required sub-group size is assumed.
 
 Users **should not** rely on the name, format, or operands of these metadata.
 Instead, utility functions are provided by the ``utils`` module to work with

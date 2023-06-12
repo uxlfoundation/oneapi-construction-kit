@@ -86,6 +86,11 @@ static cl::opt<bool> DoubleCap(
     "device-fp64-capabilities",
     cl::desc("Enable/Disable device fp64 capabilities"), cl::init(true));
 
+static cl::list<unsigned> SGSizes(
+    "device-sg-sizes",
+    cl::desc("Comma-separated list of supported sub-group sizes"),
+    cl::CommaSeparated);
+
 int main(int argc, char **argv) {
   muxc::driver driver;
   driver.parseArguments(argc, argv);
@@ -319,7 +324,11 @@ driver::createPassMachinery() {
         FloatCap ? compiler::utils::device_floating_point_capabilities_full : 0,
         DoubleCap ? compiler::utils::device_floating_point_capabilities_full
                   : 0,
-        64);
+        /*max_work_width*/ 64);
+
+    for (const auto S : SGSizes) {
+      Info.reqd_sub_group_sizes.push_back(S);
+    }
 
     auto &BaseCtx =
         *static_cast<compiler::BaseContext *>(CompilerContext.get());

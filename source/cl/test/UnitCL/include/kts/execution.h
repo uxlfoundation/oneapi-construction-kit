@@ -190,6 +190,13 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
 
   clGetKernelWFVInfoCODEPLAY_fn clGetKernelWFVInfoCODEPLAY = nullptr;
   clCreateProgramWithILKHR_fn clCreateProgramWithILKHR = nullptr;
+  /// @brief Controls whether to fail the test if BuildProgram fails.
+  ///
+  /// When set to true, BuildProgram will fail the test if any of the OpenCL
+  /// build APIs (clCreateProgramWithXXX, clBuildProgram, clCreateKernel) fail.
+  /// When set to false, BuildProgram will silently return false, leaving the
+  /// caller to handle the error.
+  bool fail_if_build_program_failed = true;
 };
 
 struct Execution : BaseExecution, testing::WithParamInterface<SourceType> {

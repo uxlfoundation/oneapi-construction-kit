@@ -94,7 +94,7 @@ function(extract_reqs_opts)
 
   # Check for unkown requirements
   set(known_requirements
-      "noclc" "nospir" "nospirv" "double" "half" "images" "parameters")
+      "noclc" "nospir" "nospirv" "double" "half" "images" "mayfail" "parameters")
   foreach(file_req ${CLC_FILE_REQUIREMENTS})
     set(req_found FALSE)
       foreach(known_req ${known_requirements})

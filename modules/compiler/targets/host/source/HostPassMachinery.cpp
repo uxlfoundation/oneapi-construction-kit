@@ -38,6 +38,7 @@
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/unique_opaque_structs_pass.h>
+#include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <host/add_entry_hook_pass.h>
 #include <host/add_floating_point_control_pass.h>
 #include <host/disable_neon_attribute_pass.h>
@@ -249,6 +250,9 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   addPreVeczPasses(PM, tuner);
 
   PM.addPass(vecz::RunVeczPass());
+
+  // Verify that any required sub-group size was met.
+  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
 
   addLateBuiltinsPasses(PM, tuner);
 

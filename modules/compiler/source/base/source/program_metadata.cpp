@@ -16,6 +16,7 @@
 
 #include <base/macros.h>
 #include <base/program_metadata.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/IR/Argument.h>
 #include <llvm/IR/Constants.h>
@@ -554,6 +555,10 @@ cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
   }
 
   populateAttributes(kernel_info, node);
+
+  if (auto sub_group_size = compiler::utils::getReqdSubgroupSize(*function)) {
+    kernel_info.reqd_sub_group_size = *sub_group_size;
+  }
 
   return kernel_info;
 }

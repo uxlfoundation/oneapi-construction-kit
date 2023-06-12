@@ -192,7 +192,7 @@ void encodeLocalSizeMetadata(llvm::Function &f,
 /// @brief Retrieves information about a function's local sizes via metadata.
 ///
 /// @param[in] f Function from which to decode the metadata
-/// @returns The local size array if presernt, else `llvm::None`
+/// @returns The local size array if present, else `llvm::None`
 multi_llvm::Optional<std::array<uint64_t, 3>> getLocalSizeMetadata(
     const llvm::Function &f);
 
@@ -269,6 +269,20 @@ struct KernelInfo {
 /// module.
 void populateKernelList(llvm::Module &m,
                         llvm::SmallVectorImpl<KernelInfo> &results);
+
+/// @brief Encodes information about a function's local work group size as
+/// metadata.
+///
+/// @param[in] f Function in which to encode the metadata.
+/// @param[in] size sub-group size information to encode.
+void encodeReqdSubgroupSizeMetadata(llvm::Function &f, uint32_t size);
+
+/// @brief Retrieves information about a function's required sub-group size via
+/// metadata.
+///
+/// @param[in] f Function from which to decode the metadata
+/// @returns The required sub-group size if present, else `llvm::None`
+multi_llvm::Optional<uint32_t> getReqdSubgroupSize(const llvm::Function &f);
 
 }  // namespace utils
 }  // namespace compiler

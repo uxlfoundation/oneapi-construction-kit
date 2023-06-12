@@ -88,16 +88,8 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
 ///
 /// FIXME: Ideally we wouldn't have any mux in the compiler library. See
 /// CA-4236.
-static inline compiler::utils::DeviceInfo initDeviceInfoFromMux(
-    mux_device_info_t device_info) {
-  if (!device_info) {
-    return compiler::utils::DeviceInfo{};
-  }
-
-  return compiler::utils::DeviceInfo(
-      device_info->half_capabilities, device_info->float_capabilities,
-      device_info->double_capabilities, device_info->max_work_width);
-}
+compiler::utils::DeviceInfo initDeviceInfoFromMux(
+    mux_device_info_t device_info);
 
 /// @}
 }  // namespace compiler

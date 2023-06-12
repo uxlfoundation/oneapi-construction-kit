@@ -11,6 +11,12 @@ version increases mean backward compatible bug fixes have been applied.
    Versions prior to 1.0.0 may contain breaking changes in minor
    versions as the API is still under development.
 
+0.76.0
+------
+
+* Added ``num_sub_group_sizes`` and ``sub_group_sizes`` to ``mux_device_info_s``.
+
+
 0.75.0
 ------
 

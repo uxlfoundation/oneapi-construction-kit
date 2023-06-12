@@ -27,6 +27,7 @@
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
 #include <compiler/utils/replace_mem_intrinsics_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
+#include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm/ADT/Statistic.h>
 #include <llvm/Target/TargetMachine.h>
 #include <metadata/handler/vectorize_info_metadata.h>
@@ -123,6 +124,9 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
   addPreVeczPasses(PM, tuner);
 
   PM.addPass(vecz::RunVeczPass());
+
+  // Verify that any required sub-group size was met.
+  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
 
   addLateBuiltinsPasses(PM, tuner);
 

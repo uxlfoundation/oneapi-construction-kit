@@ -348,6 +348,14 @@ struct KernelInfo {
   std::array<size_t, 3> getReqdWGSizeOrZero() const {
     return reqd_work_group_size.value_or(std::array<size_t, 3>{0, 0, 0});
   }
+
+  /// @brief The required sub-group size if it exists.
+  cargo::optional<size_t> reqd_sub_group_size;
+
+  /// @brief The amount of spill memory used by a kernel.
+  ///
+  /// Zero indicates that no spill memory was used, which is not safe to assume.
+  uint64_t spill_mem_size_bytes = (uint64_t)-1;
 };  // class KernelInfo
 
 /// @brief Class for managing program information.
