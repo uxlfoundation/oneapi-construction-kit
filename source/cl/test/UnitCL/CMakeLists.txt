@@ -74,6 +74,7 @@ add_ca_cl_executable(UnitCL
   include/kts/precision.h source/kts/precision.cpp
   include/kts/printf.h
   include/kts/relationals.h source/kts/relationals.cpp
+  include/kts/sub_group_helpers.h source/kts/sub_group_helpers.cpp
 
   # Core tests
   source/KernelArgumentTypes.cpp

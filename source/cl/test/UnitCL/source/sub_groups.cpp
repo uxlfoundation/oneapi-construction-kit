@@ -25,6 +25,7 @@
 #include "kts/arguments_shared.h"
 #include "kts/execution.h"
 #include "kts/precision.h"
+#include "kts/sub_group_helpers.h"
 #include "ucl/checks.h"
 
 using namespace kts::ucl;
@@ -384,30 +385,6 @@ TEST_P(SubGroupTest, Sub_Group_08_Sub_Group_Any_Builtin) {
   RunGenericND(3, global_sizes, local_sizes);
 }
 
-namespace {
-using GlobalIdSubGroupGlobalIdMap = std::vector<size_t>;
-using SubGroupGlobalIdGlobalIdsMap = std::vector<std::vector<size_t>>;
-
-bool mapSubGroupIds(
-    size_t global_id, cl_uint2 sub_group_info,
-    GlobalIdSubGroupGlobalIdMap &global_id_sub_group_global_id_map,
-    SubGroupGlobalIdGlobalIdsMap &sub_group_global_id_global_ids_map) {
-  auto sub_group_global_id = sub_group_info.x;
-  auto sub_group_local_id = sub_group_info.y;
-  if (sub_group_global_id >= sub_group_global_id_global_ids_map.size()) {
-    return false;
-  }
-  if (sub_group_local_id >=
-      sub_group_global_id_global_ids_map[sub_group_global_id].size()) {
-    return false;
-  }
-  sub_group_global_id_global_ids_map[sub_group_global_id][sub_group_local_id] =
-      global_id;
-  global_id_sub_group_global_id_map[global_id] = sub_group_global_id;
-  return true;
-}
-}  // namespace
-
 TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Uint) {
   auto local_sizes = getParam();
   size_t global_sizes[]{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
@@ -433,7 +410,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -446,7 +423,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -517,7 +494,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -530,7 +507,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -601,7 +578,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -614,7 +591,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1122,7 +1099,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1135,7 +1112,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1200,7 +1177,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1213,7 +1190,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1280,7 +1257,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1293,7 +1270,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1350,7 +1327,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1363,7 +1340,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1418,7 +1395,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1431,7 +1408,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1486,7 +1463,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1499,7 +1476,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1557,7 +1534,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1570,7 +1547,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1625,7 +1602,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1638,7 +1615,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1693,7 +1670,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1706,7 +1683,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1764,7 +1741,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1777,7 +1754,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1842,7 +1819,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1855,7 +1832,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1922,7 +1899,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -1935,7 +1912,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -1991,7 +1968,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -2004,7 +1981,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -2059,7 +2036,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -2072,7 +2049,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -2127,7 +2104,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -2140,7 +2117,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -2197,7 +2174,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Uint) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -2210,7 +2187,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Uint) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -2265,7 +2242,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Int) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -2278,7 +2255,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Int) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
@@ -2333,7 +2310,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Float) {
 
   // Maps the global id of each sub-group to the global ids of work-items in
   // that sub-group.
-  std::vector<std::vector<size_t>> sub_group_global_id_global_ids_map(
+  SubGroupGlobalIdGlobalIdsMap sub_group_global_id_global_ids_map(
       total_sub_group_count, {{}});
   for (unsigned sub_group = 0; sub_group < total_sub_group_count; ++sub_group) {
     // The last sub-group in each work-group could be smaller.
@@ -2346,7 +2323,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Float) {
 
   // Maps the global id of each work-item sub-group to the global ids of its
   // sub-group.
-  std::vector<size_t> global_id_sub_group_global_id_map(global_size, 0);
+  GlobalIdSubGroupGlobalIdMap global_id_sub_group_global_id_map(global_size, 0);
 
   kts::Reference1D<cl_uint2> output_ref_a =
       [&sub_group_global_id_global_ids_map, &global_id_sub_group_global_id_map](
