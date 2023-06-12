@@ -1,3 +1,3 @@
 # Abacus
 
-Documentation can be found [here](../../../doc/modules/compiler/builtins/abacus.md).
+Documentation can be found [here](../../../../doc/modules/builtins/abacus.md).
