@@ -253,11 +253,7 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   addLateBuiltinsPasses(PM, tuner);
 
   compiler::utils::HandleBarriersOptions HBOpts;
-  // Barriers with opt disabled are broken on 32 bit for some llvm versions, see
-  // CA-3952.
-#if !defined(UTILS_SYSTEM_32_BIT)
   HBOpts.IsDebug = options.opt_disable;
-#endif
 
   PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
 
