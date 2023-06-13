@@ -15,8 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <cargo/endian.h>
+#include <llvm/ADT/StringSwitch.h>
 #include <spirv-ll/module.h>
 #include <spirv-ll/opcodes.h>
+
+#include <unordered_map>
 
 namespace {
 spv::Op getOpCode(const uint32_t *data, bool endianSwap) {
@@ -2107,4 +2110,28 @@ llvm::SmallVector<spv::Id, 8> OpenCLstd::Printf::AdditionalArguments() const {
   }
   return additionalArguments;
 }
+
+std::string getCapabilityName(spv::Capability cap) {
+  // Note: this can't be a switch because there are multiple capability names
+  // with the same enum value. We must provide a full mapping from string to
+  // capability, so in the reverse direction we accept some clashes.
+  std::unordered_map<spv::Capability, const char *> capability_map = {
+#define CAPABILITY(ENUM, NAME) {ENUM, NAME},
+#include <spirv-ll/name_utils.inc>
+  };
+  const char *cap_name = "Unknown";
+  auto it = capability_map.find(cap);
+  if (it != capability_map.end()) {
+    cap_name = it->second;
+  }
+  return std::string(cap_name) + " (#" + std::to_string(cap) + ")";
+}
+
+std::optional<spv::Capability> getCapabilityFromString(const std::string &cap) {
+  return llvm::StringSwitch<spv::Capability>(llvm::StringRef(cap))
+#define CAPABILITY(ENUM, NAME) .Case(NAME, ENUM)
+#include <spirv-ll/name_utils.inc>
+      .Default(static_cast<spv::Capability>(0));
+}
+
 }  // namespace spirv_ll

@@ -27,6 +27,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
 #include <vector>
 
 int outputSpecConstants(spirv_ll::Context &spvContext,
@@ -347,131 +348,114 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
     llvm_unreachable("Illegal API");
   }
   for (auto cap : capabilities) {
-    // SPIR-V 1.0 list of capabilities.
-    auto capability =
-        llvm::StringSwitch<spv::Capability>(cargo::as<llvm::StringRef>(cap))
-            .Case("Matrix", spv::CapabilityMatrix)
-            .Case("Shader", spv::CapabilityShader)
-            .Case("Geometry", spv::CapabilityGeometry)
-            .Case("Tessellation", spv::CapabilityTessellation)
-            .Case("Addresses", spv::CapabilityAddresses)
-            .Case("Linkage", spv::CapabilityLinkage)
-            .Case("Kernel", spv::CapabilityKernel)
-            .Case("Vector16", spv::CapabilityVector16)
-            .Case("Float16Buffer", spv::CapabilityFloat16Buffer)
-            .Case("Float16", spv::CapabilityFloat16)
-            .Case("Float64", spv::CapabilityFloat64)
-            .Case("Int64", spv::CapabilityInt64)
-            .Case("Int64Atomics", spv::CapabilityInt64Atomics)
-            .Case("ImageBasic", spv::CapabilityImageBasic)
-            .Case("ImageReadWrite", spv::CapabilityImageReadWrite)
-            .Case("ImageMipmap", spv::CapabilityImageMipmap)
-            .Case("Pipes", spv::CapabilityPipes)
-            .Case("Groups", spv::CapabilityGroups)
-            .Case("DeviceEnqueue", spv::CapabilityDeviceEnqueue)
-            .Case("LiteralSampler", spv::CapabilityLiteralSampler)
-            .Case("AtomicStorage", spv::CapabilityAtomicStorage)
-            .Case("Int16", spv::CapabilityInt16)
-            .Case("TessellationPointSize", spv::CapabilityTessellationPointSize)
-            .Case("GeometryPointSize", spv::CapabilityGeometryPointSize)
-            .Case("ImageGatherExtended", spv::CapabilityImageGatherExtended)
-            .Case("StorageImageMultisample",
-                  spv::CapabilityStorageImageMultisample)
-            .Case("UniformBufferArrayDynamicIndexing",
-                  spv::CapabilityUniformBufferArrayDynamicIndexing)
-            .Case("SampledImageArrayDynamicIndexing",
-                  spv::CapabilitySampledImageArrayDynamicIndexing)
-            .Case("StorageBufferArrayDynamicIndexing",
-                  spv::CapabilityStorageBufferArrayDynamicIndexing)
-            .Case("StorageImageArrayDynamicIndexing",
-                  spv::CapabilityStorageImageArrayDynamicIndexing)
-            .Case("ClipDistance", spv::CapabilityClipDistance)
-            .Case("CullDistance", spv::CapabilityCullDistance)
-            .Case("ImageCubeArray", spv::CapabilityImageCubeArray)
-            .Case("SampleRateShading", spv::CapabilitySampleRateShading)
-            .Case("ImageRect", spv::CapabilityImageRect)
-            .Case("SampledRect", spv::CapabilitySampledRect)
-            .Case("GenericPointer", spv::CapabilityGenericPointer)
-            .Case("Int8", spv::CapabilityInt8)
-            .Case("InputAttachment", spv::CapabilityInputAttachment)
-            .Case("SparseResidency", spv::CapabilitySparseResidency)
-            .Case("MinLod", spv::CapabilityMinLod)
-            .Case("Sampled1D", spv::CapabilitySampled1D)
-            .Case("Image1D", spv::CapabilityImage1D)
-            .Case("SampledCubeArray", spv::CapabilitySampledCubeArray)
-            .Case("SampledBuffer", spv::CapabilitySampledBuffer)
-            .Case("ImageBuffer", spv::CapabilityImageBuffer)
-            .Case("ImageMSArray", spv::CapabilityImageMSArray)
-            .Case("StorageImageExtendedFormats",
-                  spv::CapabilityStorageImageExtendedFormats)
-            .Case("ImageQuery", spv::CapabilityImageQuery)
-            .Case("DerivativeControl", spv::CapabilityDerivativeControl)
-            .Case("InterpolationFunction", spv::CapabilityInterpolationFunction)
-            .Case("TransformFeedback", spv::CapabilityTransformFeedback)
-            .Case("GeometryStreams", spv::CapabilityGeometryStreams)
-            .Case("StorageImageReadWithoutFormat",
-                  spv::CapabilityStorageImageReadWithoutFormat)
-            .Case("StorageImageWriteWithoutFormat",
-                  spv::CapabilityStorageImageWriteWithoutFormat)
-            .Case("MultiViewport", spv::CapabilityMultiViewport)
-            .Case("SubgroupBallotKHR", spv::CapabilitySubgroupBallotKHR)
-            .Case("DrawParameters", spv::CapabilityDrawParameters)
-            .Case("SubgroupVoteKHR", spv::CapabilitySubgroupVoteKHR)
-            .Case("StorageBuffer16BitAccess",
-                  spv::CapabilityStorageBuffer16BitAccess)
-            .Case("StorageUniformBufferBlock16",
-                  spv::CapabilityStorageUniformBufferBlock16)
-            .Case("UniformAndStorageBuffer16BitAccess",
-                  spv::CapabilityUniformAndStorageBuffer16BitAccess)
-            .Case("StorageUniform16", spv::CapabilityStorageUniform16)
-            .Case("StoragePushConstant16", spv::CapabilityStoragePushConstant16)
-            .Case("StorageInputOutput16", spv::CapabilityStorageInputOutput16)
-            .Case("DeviceGroup", spv::CapabilityDeviceGroup)
-            .Case("MultiView", spv::CapabilityMultiView)
-            .Case("VariablePointersStorageBuffer",
-                  spv::CapabilityVariablePointersStorageBuffer)
-            .Case("VariablePointers", spv::CapabilityVariablePointers)
-            .Case("AtomicStorageOps", spv::CapabilityAtomicStorageOps)
-            .Case("SampleMaskPostDepthCoverage",
-                  spv::CapabilitySampleMaskPostDepthCoverage)
-            .Case("ImageGatherBiasLodAMD", spv::CapabilityImageGatherBiasLodAMD)
-            .Case("FragmentMaskAMD", spv::CapabilityFragmentMaskAMD)
-            .Case("StencilExportEXT", spv::CapabilityStencilExportEXT)
-            .Case("ImageReadWriteLodAMD", spv::CapabilityImageReadWriteLodAMD)
-            .Case("SampleMaskOverrideCoverageNV",
-                  spv::CapabilitySampleMaskOverrideCoverageNV)
-            .Case("GeometryShaderPassthroughNV",
-                  spv::CapabilityGeometryShaderPassthroughNV)
-            .Case("ShaderViewportIndexLayerEXT",
-                  spv::CapabilityShaderViewportIndexLayerEXT)
-            .Case("ShaderViewportIndexLayerNV",
-                  spv::CapabilityShaderViewportIndexLayerNV)
-            .Case("ShaderViewportMaskNV", spv::CapabilityShaderViewportMaskNV)
-            .Case("ShaderStereoViewNV", spv::CapabilityShaderStereoViewNV)
-            .Case("PerViewAttributesNV", spv::CapabilityPerViewAttributesNV)
-            .Case("SubgroupShuffleINTEL", spv::CapabilitySubgroupShuffleINTEL)
-            .Case("SubgroupBufferBlockIOINTEL",
-                  spv::CapabilitySubgroupBufferBlockIOINTEL)
-            .Case("SubgroupImageBlockIOINTEL",
-                  spv::CapabilitySubgroupImageBlockIOINTEL)
-            .Case("ExpectAssumeKHR", spv::CapabilityExpectAssumeKHR)
-            .Case("GroupUniformArithmeticKHR",
-                  spv::CapabilityGroupUniformArithmeticKHR)
-            .Case("AtomicFloat32AddEXT", spv::CapabilityAtomicFloat32AddEXT)
-            .Case("AtomicFloat64AddEXT", spv::CapabilityAtomicFloat64AddEXT)
-            .Case("AtomicFloat32MinMaxEXT",
-                  spv::CapabilityAtomicFloat32MinMaxEXT)
-            .Case("AtomicFloat64MinMaxEXT",
-                  spv::CapabilityAtomicFloat64MinMaxEXT)
-            .Case("ArbitraryPrecisionIntegersINTEL",
-                  spv::CapabilityArbitraryPrecisionIntegersINTEL)
-            .Default(static_cast<spv::Capability>(0));
-    if (capability == 0) {
+    if (auto capability = spirv_ll::getCapabilityFromString(cap.data())) {
+      // SPIR-V 1.0 list of capabilities.
+      static std::unordered_set<spv::Capability> supported_capabilities = {
+          spv::CapabilityMatrix,
+          spv::CapabilityShader,
+          spv::CapabilityGeometry,
+          spv::CapabilityTessellation,
+          spv::CapabilityAddresses,
+          spv::CapabilityLinkage,
+          spv::CapabilityKernel,
+          spv::CapabilityVector16,
+          spv::CapabilityFloat16Buffer,
+          spv::CapabilityFloat16,
+          spv::CapabilityFloat64,
+          spv::CapabilityInt64,
+          spv::CapabilityInt64Atomics,
+          spv::CapabilityImageBasic,
+          spv::CapabilityImageReadWrite,
+          spv::CapabilityImageMipmap,
+          spv::CapabilityPipes,
+          spv::CapabilityGroups,
+          spv::CapabilityDeviceEnqueue,
+          spv::CapabilityLiteralSampler,
+          spv::CapabilityAtomicStorage,
+          spv::CapabilityInt16,
+          spv::CapabilityTessellationPointSize,
+          spv::CapabilityGeometryPointSize,
+          spv::CapabilityImageGatherExtended,
+          spv::CapabilityStorageImageMultisample,
+          spv::CapabilityUniformBufferArrayDynamicIndexing,
+          spv::CapabilitySampledImageArrayDynamicIndexing,
+          spv::CapabilityStorageBufferArrayDynamicIndexing,
+          spv::CapabilityStorageImageArrayDynamicIndexing,
+          spv::CapabilityClipDistance,
+          spv::CapabilityCullDistance,
+          spv::CapabilityImageCubeArray,
+          spv::CapabilitySampleRateShading,
+          spv::CapabilityImageRect,
+          spv::CapabilitySampledRect,
+          spv::CapabilityGenericPointer,
+          spv::CapabilityInt8,
+          spv::CapabilityInputAttachment,
+          spv::CapabilitySparseResidency,
+          spv::CapabilityMinLod,
+          spv::CapabilitySampled1D,
+          spv::CapabilityImage1D,
+          spv::CapabilitySampledCubeArray,
+          spv::CapabilitySampledBuffer,
+          spv::CapabilityImageBuffer,
+          spv::CapabilityImageMSArray,
+          spv::CapabilityStorageImageExtendedFormats,
+          spv::CapabilityImageQuery,
+          spv::CapabilityDerivativeControl,
+          spv::CapabilityInterpolationFunction,
+          spv::CapabilityTransformFeedback,
+          spv::CapabilityGeometryStreams,
+          spv::CapabilityStorageImageReadWithoutFormat,
+          spv::CapabilityStorageImageWriteWithoutFormat,
+          spv::CapabilityMultiViewport,
+          spv::CapabilitySubgroupBallotKHR,
+          spv::CapabilityDrawParameters,
+          spv::CapabilitySubgroupVoteKHR,
+          spv::CapabilityStorageBuffer16BitAccess,
+          spv::CapabilityStorageUniformBufferBlock16,
+          spv::CapabilityUniformAndStorageBuffer16BitAccess,
+          spv::CapabilityStorageUniform16,
+          spv::CapabilityStoragePushConstant16,
+          spv::CapabilityStorageInputOutput16,
+          spv::CapabilityDeviceGroup,
+          spv::CapabilityMultiView,
+          spv::CapabilityVariablePointersStorageBuffer,
+          spv::CapabilityVariablePointers,
+          spv::CapabilityAtomicStorageOps,
+          spv::CapabilitySampleMaskPostDepthCoverage,
+          spv::CapabilityImageGatherBiasLodAMD,
+          spv::CapabilityFragmentMaskAMD,
+          spv::CapabilityStencilExportEXT,
+          spv::CapabilityImageReadWriteLodAMD,
+          spv::CapabilitySampleMaskOverrideCoverageNV,
+          spv::CapabilityGeometryShaderPassthroughNV,
+          spv::CapabilityShaderViewportIndexLayerEXT,
+          spv::CapabilityShaderViewportIndexLayerNV,
+          spv::CapabilityShaderViewportMaskNV,
+          spv::CapabilityShaderStereoViewNV,
+          spv::CapabilityPerViewAttributesNV,
+          spv::CapabilitySubgroupShuffleINTEL,
+          spv::CapabilitySubgroupBufferBlockIOINTEL,
+          spv::CapabilitySubgroupImageBlockIOINTEL,
+          spv::CapabilityExpectAssumeKHR,
+          spv::CapabilityGroupUniformArithmeticKHR,
+          spv::CapabilityAtomicFloat32AddEXT,
+          spv::CapabilityAtomicFloat64AddEXT,
+          spv::CapabilityAtomicFloat32MinMaxEXT,
+          spv::CapabilityAtomicFloat64MinMaxEXT,
+          spv::CapabilityArbitraryPrecisionIntegersINTEL};
+
+      if (supported_capabilities.count(*capability)) {
+        deviceInfo.capabilities.push_back(*capability);
+      } else {
+        std::cerr << "error: unsupported capability: "
+                  << cargo::as<std::string>(cap) << "\n";
+        std::exit(1);
+      }
+    } else {
       std::cerr << "error: unknown capability: " << cargo::as<std::string>(cap)
                 << "\n";
       std::exit(1);
     }
-    deviceInfo.capabilities.push_back(capability);
   }
   if (enableAll) {
     deviceInfo.extensions.append({

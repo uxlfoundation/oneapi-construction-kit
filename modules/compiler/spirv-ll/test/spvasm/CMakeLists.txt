@@ -2353,6 +2353,7 @@ set(SPVASM_FILES
   linkonce_odr.spvasm
   intel_arbitrary_precision_integers.spvasm
   op_opencl_arg_md.spvasm
+  unsupported_capability.spvasm
   )
 
 if(SpirvAsVersionYear GREATER 2019)
