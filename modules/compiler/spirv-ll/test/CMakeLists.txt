@@ -15,22 +15,18 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE spirv-ll)
 
-find_package(SpirvTools COMPONENTS spirv-as)
-if(NOT TARGET spirv::spirv-as)
-  message(WARNING "${SUITE} some lit tests unsupported: spirv-as not found")
-  return()
-endif()
-
 find_program(glslangValidator_EXECUTABLE
   NAMES glslangValidator PATHS ENV VULKAN_SDK PATH_SUFFIXES bin
   CMAKE_FIND_ROOT_PATH_BOTH)
 if(glslangValidator_EXECUTABLE STREQUAL
     glslangValidator_EXECUTABLE-NOTFOUND)
   set(GLSL_UNSUPPORTED True)
+  message(WARNING "${SUITE} glsl lit tests unsupported: glslangValidator not found")
 else()
   set(GLSL_UNSUPPORTED False)
 endif()
 
+find_package(SpirvTools COMPONENTS spirv-as)
 if(TARGET spirv::spirv-as)
   # Create custom commands to assemble .spvasm files in .spv.
   set(SPVASM_UNSUPPORTED False)
@@ -47,6 +43,7 @@ if(TARGET spirv::spirv-as)
   message(STATUS "spirv-as: v${SpirvAsVersionYear}.${SpirvAsVersionRelease}")
 else()
   set(SPVASM_UNSUPPORTED True)
+  message(WARNING "${SUITE} spvasm lit tests unsupported: spirv-as not found")
 endif()
 
 # Create the test/test inputs directories and set the relevent variables
