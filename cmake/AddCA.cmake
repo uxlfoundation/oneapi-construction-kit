@@ -196,6 +196,14 @@ set(CA_COMPILE_OPTIONS
         -Wno-ignored-attributes     # Disable: warn when an attribute is ignored
       >
       -Wno-psabi    # Disable: notes about ABI changes.
+      $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,9>>:
+        # Mimic LLVM: disable -Wredundant-move and -Wpessimizing-move on
+        # GCC>=9. GCC wants to remove std::move in code like "A
+        # foo(ConvertibleToA a) { return std::move(a); }", but this code does
+        # not compile (or uses the copy constructor instead) on older GCCs.
+        -Wno-redundant-move
+        -Wno-pessimizing-move
+      >
       $<$<AND:$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,10>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,12.3>>:
         # GCC has become awful complainy about passing the address of an
         # uninitialized variable to another function which performs the
