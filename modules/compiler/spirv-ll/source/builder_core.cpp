@@ -358,7 +358,7 @@ cargo::optional<Error> Builder::create<OpCapability>(const OpCapability *op) {
                    [&](spv::Capability deviceCapability) {
                      return capability == deviceCapability;
                    })) {
-    return Error{"OpCapability " + std::to_string(capability) +
+    return Error{"OpCapability " + getCapabilityName(capability) +
                  " not supported by device"};
   }
   module.enableCapability(capability);

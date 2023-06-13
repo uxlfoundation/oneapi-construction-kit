@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <optional>
 #include <type_traits>
 
 namespace spirv_ll {
@@ -3672,6 +3673,11 @@ using NMin = ExtInst<X, Y>;
 using NMax = ExtInst<X, Y>;
 using NClamp = ExtInst<X, MINVAL, MAXVAL>;
 };  // namespace GLSLstd450
+
+std::string getCapabilityName(spv::Capability cap);
+
+std::optional<spv::Capability> getCapabilityFromString(const std::string &cap);
+
 }  // namespace spirv_ll
 
 #endif  // SPIRV_OPCODES_H_INCLUDED
