@@ -24,7 +24,7 @@ configuration.
 
 * `GCC <https://gcc.gnu.org/>`_
 * `Git`_
-* `CMake`_ 3.4.3+
+* `CMake`_ 3.16+
 * `Python`_ 3.6.9+
 * `Vulkan SDK`_ 1.1.97+ or `SPIRV-Tools`_ v2019.2+ for OpenCL only
 
