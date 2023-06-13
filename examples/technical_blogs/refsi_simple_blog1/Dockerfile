@@ -28,7 +28,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Requirements
 RUN apt update -y && apt install -y build-essential git cmake libtinfo-dev python3 \
   ninja-build doxygen python3-pip
-RUN apt install -y wget spirv-tools libzstd-dev libtinfo5
+RUN apt install -y wget libzstd-dev libtinfo5
 RUN pip3 install lit virtualenv cmakelint cookiecutter
 
 # Set the appropriate env variables

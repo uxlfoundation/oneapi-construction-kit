@@ -18,18 +18,10 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/ExtractReqsOpts.cmake")
 find_package(SpirvTools COMPONENTS spirv-as)
 if(TARGET spirv::spirv-as)
   target_compile_definitions(UnitCL PRIVATE UNITCL_SPIRV_ENABLED)
-else()
-  if(OCL_EXTENSION_cl_khr_il_program)
-    message(FATAL_ERROR "SPIRV-Tools not found, UnitCL SPIR-V tests cannot run."
-                        " To run SPIR-V tests get SPIRV-Tools from here: "
-                        "https://github.com/KhronosGroup/SPIRV-Tools. "
-                        "Alternatively, configure with "
-                        "-DOCL_EXTENSION_cl_khr_il_program=OFF.")
-  else()
-    message(WARNING "SPIRV-Tools not found, UnitCL SPIR-V tests will not run. "
-                    "To run SPIR-V tests get SPIRV-Tools from here: "
-                    "https://github.com/KhronosGroup/SPIRV-Tools")
-  endif()
+elseif(CA_CL_ENABLE_OFFLINE_KERNEL_TESTS)
+  message(WARNING "SPIRV-Tools not found, offline UnitCL SPIR-V tests will not run. "
+                  "To run offline SPIR-V tests get SPIRV-Tools from here: "
+                  "https://github.com/KhronosGroup/SPIRV-Tools")
 endif()
 
 if(CMAKE_CROSSCOMPILING)

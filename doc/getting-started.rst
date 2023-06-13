@@ -24,9 +24,8 @@ configuration.
 
 * `GCC <https://gcc.gnu.org/>`_
 * `Git`_
-* `CMake`_ 3.4.3+
+* `CMake`_ 3.16+
 * `Python`_ 3.6.9+
-* `Vulkan SDK`_ 1.1.97+ or `SPIRV-Tools`_ v2019.2+ for OpenCL only
 
 .. code-block:: console
 
@@ -206,10 +205,12 @@ SPIRV-Tools
 -----------
 
 When OpenCL support is required but Vulkan support is not, `SPIRV-Tools`_
-**must** be installed on the system :envvar:`PATH`. Follow the build
-instructions, or install the pre-built binaries in the repository. It's harder
-to pin down versions of `SPIRV-Tools`_ since they don't do releases, but we
-should support any commit from after January 2019.
+**may** optionally be installed on the system :envvar:`PATH`. This is
+recommended to achieve good coverage of SPIR-V compilation paths.
+
+Follow the build instructions, or install the pre-built binaries in the
+repository. It's harder to pin down versions of `SPIRV-Tools`_ since they don't
+do releases, but we should support any commit from after January 2019.
 
 Ubuntu 20.04 users can install ``spirv-tools`` from the package repository:
 
