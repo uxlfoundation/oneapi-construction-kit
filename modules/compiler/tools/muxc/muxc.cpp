@@ -233,7 +233,7 @@ Error driver::setupContext() {
 static Expected<std::unique_ptr<Module>> parseIRFileToModule(LLVMContext &Ctx) {
   SMDiagnostic Err;
   if (auto M = parseIRFile(InputFilename, Err, Ctx)) {
-    return M;
+    return std::move(M);
   }
 
   std::string ErrMsg;
@@ -307,7 +307,7 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
                                    inconvertibleErrorCode());
   }
 
-  return M;
+  return std::move(M);
 }
 
 Expected<std::unique_ptr<compiler::utils::PassMachinery>>
@@ -345,7 +345,7 @@ driver::createPassMachinery() {
   PassMach->initializeStart();
   PassMach->initializeFinish();
 
-  return PassMach;
+  return std::move(PassMach);
 }
 
 Error driver::runPipeline(Module &M, compiler::utils::PassMachinery &PassMach) {
