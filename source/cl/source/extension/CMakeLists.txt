@@ -30,6 +30,7 @@ set(RUNTIME_EXTENSIONS
   codeplay_kernel_exec_info
   codeplay_performance_counters
   codeplay_soft_math
+  intel_required_subgroup_size
   intel_unified_shared_memory
   khr_command_buffer
   khr_command_buffer_mutable_dispatch
@@ -58,9 +59,11 @@ endforeach()
 # Create an individual option for each extension in the list.
 foreach(extension ${RUNTIME_EXTENSIONS} ${COMPILER_EXTENSIONS})
   if(${extension} STREQUAL "khr_command_buffer"
-    OR ${extension} STREQUAL "khr_command_buffer_mutable_dispatch")
+    OR ${extension} STREQUAL "khr_command_buffer_mutable_dispatch"
+    OR ${extension} STREQUAL "intel_required_subgroup_size")
     # TODO Enable `khr_command_buffer` and any layered extensions
     # by default once complete.
+    # TODO Enable `intel_required_subgroup_size` by default once complete.
     ca_option(OCL_EXTENSION_cl_${extension} BOOL
         "OpenCL extension cl_${extension}" OFF)
   else()
@@ -177,9 +180,11 @@ foreach(tag ${CA_CL_RUNTIME_EXTENSION_TAGS})
 endforeach()
 
 set(EXTENSION_COMPILER_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/intel_required_subgroup_size.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_extended_async_copies.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_il_program.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_spir.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/intel_required_subgroup_size.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_extended_async_copies.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_il_program.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_spir.cpp)
