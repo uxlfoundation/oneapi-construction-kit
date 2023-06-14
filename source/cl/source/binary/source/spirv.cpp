@@ -28,7 +28,7 @@ namespace binary {
 // TODO: add a proper mechanism for extending spirv-ll and reporting extension
 // support. We don't actually support the generic storage class extension on
 // all core targets. See CA-3067.
-const std::array<const std::string, 8> supported_extensions = {
+const std::array<const std::string, 9> supported_extensions = {
     {
         "SPV_KHR_no_integer_wrap_decoration",
         "SPV_INTEL_kernel_attributes",
@@ -38,6 +38,7 @@ const std::array<const std::string, 8> supported_extensions = {
         "SPV_KHR_linkonce_odr",
         "SPV_KHR_uniform_group_instructions",
         "SPV_INTEL_arbitrary_precision_integers",
+        "SPV_INTEL_optnone",
     },
 };
 
@@ -49,7 +50,7 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
   auto &spvCapabilities = spvDeviceInfo.capabilities;
 
   // A set of capabilities shared between the OpenCL profiles we support.
-  static std::array<spv::Capability, 12> sharedCapabilities = {
+  static std::array<spv::Capability, 13> sharedCapabilities = {
       spv::CapabilityAddresses,
       spv::CapabilityFloat16Buffer,
       spv::CapabilityGroups,
@@ -62,6 +63,7 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
       spv::CapabilityExpectAssumeKHR,
       spv::CapabilityGroupUniformArithmeticKHR,
       spv::CapabilityArbitraryPrecisionIntegersINTEL,
+      spv::CapabilityOptNoneINTEL,
   };
 
   if (profile == "FULL_PROFILE") {
