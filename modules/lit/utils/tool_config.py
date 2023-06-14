@@ -55,9 +55,9 @@ def add_ca_tool_substitutions(config, lit_config, llvm_config, tools):
 
     llvm_config.add_tool_substitutions(tools, config.tool_search_dirs)
 
-    # Handle emulation of non-native tools by preprending any substitution with the
-    # emulator command.
-    for tool in config.tools:
+    # Handle emulation of non-native tools by prepending any substitution with
+    # the emulator command.
+    for tool in tools:
         if not tool.was_resolved:
             continue
         idx = last_substitution_by_key(config.substitutions, tool.regex)
