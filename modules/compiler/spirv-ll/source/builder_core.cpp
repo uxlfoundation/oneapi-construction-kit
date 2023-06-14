@@ -1652,9 +1652,11 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
   if (op->FunctionControl() & spv::FunctionControlInlineMask) {
     linkage = llvm::Function::LinkageTypes::LinkOnceODRLinkage;
-    llvm::Function *llvmFunction = IRBuilder.GetInsertBlock()->getParent();
-    llvmFunction->addFnAttr(llvm::Attribute::OptimizeNone);
-    llvmFunction->addFnAttr(llvm::Attribute::NoInline);
+    if (module.isExtensionEnabled("SPV_INTEL_optnone")) {
+      llvm::Function *llvmFunction = IRBuilder.GetInsertBlock()->getParent();
+      llvmFunction->addFnAttr(llvm::Attribute::OptimizeNone);
+      llvmFunction->addFnAttr(llvm::Attribute::NoInline);
+    }
   } else if (auto linkageInfo = getLinkage(module, op->IdResult())) {
     if (linkageInfo->first == spv::LinkageTypeImport ||
         linkageInfo->first == spv::LinkageTypeExport ||
