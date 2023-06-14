@@ -66,6 +66,5 @@ add_subdirectory(spvasm)
 if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS spirv-ll-tool ca-common-lit spirv-ll-glsl-lit spirv-ll-spvasm-lit
-            ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg)
+    DEPENDS spirv-ll-tool spirv-ll-glsl-lit spirv-ll-spvasm-lit ${SUITE}-lit)
 endif()

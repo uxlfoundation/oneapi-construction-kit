@@ -1288,6 +1288,8 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
     CA_ENABLE_DEBUG_SUPPORT=${CA_ENABLE_DEBUG_SUPPORT}
     CA_BUILD_32_BITS=${CA_BUILD_32_BITS}
     CA_ENABLE_LLVM_OPTIONS_IN_RELEASE=${CA_ENABLE_LLVM_OPTIONS_IN_RELEASE}
+    CA_COMMON_LIT_SOURCE_PATH=${PROJECT_SOURCE_DIR}/modules/lit
+    CA_COMMON_LIT_BINARY_PATH=${PROJECT_BINARY_DIR}/modules/lit
     ${ARG_DEFINED})
 
   if (EXISTS "${ARG_MAIN_CONFIG}")
@@ -1297,7 +1299,7 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
     set_property(GLOBAL PROPERTY CA_LIT_CONFIG_FILES ${CA_LIT_CONFIG_FILES})
   endif()
 
-  add_custom_target(${name}-lit DEPENDS ${site_out})
+  add_custom_target(${name}-lit DEPENDS ${site_out} ca-common-lit)
 endfunction()
 
 #[=======================================================================[.rst:
