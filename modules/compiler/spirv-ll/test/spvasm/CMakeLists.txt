@@ -14,6 +14,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+# If we're not assembling anything offline, we can skip this early.
+if(NOT CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE)
+  add_custom_target(spirv-ll-spvasm-lit)
+  return()
+endif()
+
 set(SPVASM_FILES
   debug_info.spvasm
   ext_variable_pointers_op_variable.spvasm

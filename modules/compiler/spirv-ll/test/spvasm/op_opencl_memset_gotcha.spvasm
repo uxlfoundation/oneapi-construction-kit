@@ -14,6 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -E %spv_file_s | FileCheck %s
 
 ; The point of this test is that it looks a lot like a memset to spirv-ll-tool

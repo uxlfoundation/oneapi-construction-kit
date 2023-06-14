@@ -31,10 +31,24 @@ if 'arm' in '@TRIPLE@' or 'arm' in machine():
 else:
     config.available_features.add('WorkingFrem')
 
-if @GLSL_UNSUPPORTED@:
+# Whether the user configured at build-time to build everything offline.
+config.offline = lit.util.pythonize_bool('@CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE@')
+
+# The user can explicitly request either online or offline mode. The default is
+# neither.
+config.explicitly_online_offline = lit_config.params.get("spirv-ll-online", None)
+if config.explicitly_online_offline is not None:
+    config.explicitly_online_offline = lit.util.pythonize_bool(config.explicitly_online_offline)
+
+# If we've explicitly assembled the binaries offline but couldn't find the
+# tools, we know we can't run these tests, unless we're explicitly told to run
+# them online.
+if @GLSL_UNSUPPORTED@ and (config.offline and config.explicitly_online_offline != True):
     config.available_features.add('no-glsl')
-if @SPVASM_UNSUPPORTED@:
+    lit_config.note("Skipping glsl tests: in offline mode but GLSL wasn't found at build time")
+if @SPVASM_UNSUPPORTED@ and (config.offline and config.explicitly_online_offline != True):
     config.available_features.add('no-spvasm')
+    lit_config.note("Skipping spvasm tests: in offline mode but SPVASM wasn't found at build time")
 
 for year in range(2016, @SPIRV_AS_VERSION_YEAR@):
     config.available_features.add('spirv-as-v' + str(year))

@@ -17,6 +17,7 @@
 ; This just picks an unsupported capability at random to test the quality of
 ; the error message: if we do end up supporting it, we can change this test
 ; quite easily.
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: not spirv-ll-tool -a OpenCL -b 64 %spv_file_s 2>&1 | FileCheck %s
                           OpCapability MultiViewport
 

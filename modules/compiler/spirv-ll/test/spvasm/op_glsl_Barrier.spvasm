@@ -7,6 +7,7 @@
 ;
 ; with glslang version 7.10.2984
 
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 ; SPIR-V
