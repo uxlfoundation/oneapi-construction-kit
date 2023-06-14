@@ -27,9 +27,7 @@ class SpvllTestFormat(lit.formats.ShTest):
         super().__init__(execute_external)
 
     def execute(self, test, litConfig):
-        execPath = test.getExecPath()
-        execBaseName = os.path.basename(execPath)
-        fileName, _ = os.path.splitext(execBaseName)
+        fileName, _ = os.path.splitext(test.getExecPath())
         fileSub = ('%spv_file_s', f'{fileName}.spv')
         return lit.TestRunner.executeShTest(test, litConfig,
                                             self.execute_external,
