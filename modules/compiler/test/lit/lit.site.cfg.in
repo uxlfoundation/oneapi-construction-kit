@@ -24,8 +24,7 @@ config.test_exec_root = '@CURRENT_BINARY_DIR@'
 config.tools = [ ToolSubst('muxc'), ]
 
 # Defer to the common lit configuration to set up the bulk of the config.
-common_lit_cfg_path = os.path.join('@PROJECT_BINARY_DIR@', 'modules',
-                                   'lit', 'lit.common.cfg')
+common_lit_cfg_path = os.path.join('@CA_COMMON_LIT_BINARY_PATH@', 'lit.common.cfg')
 
 lit_config.load_config(config, common_lit_cfg_path)
 
