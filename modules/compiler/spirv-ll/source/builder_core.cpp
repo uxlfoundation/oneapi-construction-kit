@@ -2472,10 +2472,28 @@ cargo::optional<Error> Builder::create<OpVariable>(const OpVariable *op) {
         case spv::StorageClassFunction: {
           // Visible only within the declaring function of the current
           // invocation. Regular function memory.
-          value = IRBuilder.CreateAlloca(varTy);
-          value->setName(name);
-          if (initializer) {
-            IRBuilder.CreateStore(initializer, value);
+          if (IRBuilder.GetInsertBlock()) {
+            value = IRBuilder.CreateAlloca(varTy);
+            if (initializer) {
+              IRBuilder.CreateStore(initializer, value);
+            }
+            value->setName(name);
+          } else {
+            // If the IRBuilder isn't in a BasicBlock, we have no option but to
+            // create it as a Global. This seems to be at odds with the spec,
+            // and as such, should never happen. And yet, it does. SYCL-CTS
+            // seems to generate such code, and we don't want to segfault...
+            value = new llvm::GlobalVariable(
+                *module.llvmModule, varTy,
+                false,                               // isConstant
+                llvm::GlobalValue::ExternalLinkage,  // Linkage
+                initializer,                         // Initializer
+                name,                                // Name
+                nullptr,                             // InsertBefore
+                llvm::GlobalValue::NotThreadLocal,   // TLMode
+                0,                                   // AddressSpace
+                false                                // isExternallyInitialized
+            );
           }
         } break;
         case spv::StorageClassGeneric: {
