@@ -1299,7 +1299,7 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
     set_property(GLOBAL PROPERTY CA_LIT_CONFIG_FILES ${CA_LIT_CONFIG_FILES})
   endif()
 
-  add_custom_target(${name}-lit DEPENDS ${site_out})
+  add_custom_target(${name}-lit DEPENDS ${site_out} ca-common-lit)
 endfunction()
 
 #[=======================================================================[.rst:

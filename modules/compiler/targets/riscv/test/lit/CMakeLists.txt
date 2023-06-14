@@ -36,5 +36,5 @@ if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
     TARGET riscv
-    DEPENDS ca-common-lit clc muxc "${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg")
+    DEPENDS clc muxc ${SUITE}-lit)
 endif()

@@ -24,5 +24,5 @@ add_ca_configure_lit_site_cfg(
 if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ca-common-lit veczc ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg.py)
+    DEPENDS veczc ${SUITE}-lit)
 endif()
