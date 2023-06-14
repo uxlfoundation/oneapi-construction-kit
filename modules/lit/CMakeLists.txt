@@ -46,6 +46,8 @@ add_ca_configure_lit_site_cfg(
   MAIN_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/lit.common.cfg")
 
 if(TARGET ${SUITE}-lit)
-  add_custom_target(${SUITE} ALL DEPENDS
-    "${CMAKE_CURRENT_BINARY_DIR}/lit.common.cfg")
+  # Copy utilities into the binary directory
+  add_custom_command(TARGET ${SUITE}-lit
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
 endif()
