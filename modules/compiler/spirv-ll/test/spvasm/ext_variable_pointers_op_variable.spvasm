@@ -14,6 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; tests that variable pointers (pointer to pointer type) can be created and that
 ; they can be produced from an OpConstantNull in accordance with the spec
