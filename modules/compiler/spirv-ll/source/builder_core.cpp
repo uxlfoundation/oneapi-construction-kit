@@ -1948,9 +1948,8 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
     SPIRV_LL_ASSERT(
             module.hasCapability(spv::CapabilityOptNoneINTEL),
             "CapabilityOptNoneINTEL must be enabled.");
-    llvm::Function *llvmFunction = IRBuilder.GetInsertBlock()->getParent();
-    llvmFunction->addFnAttr(llvm::Attribute::OptimizeNone);
-    llvmFunction->addFnAttr(llvm::Attribute::NoInline);
+    function->addFnAttr(llvm::Attribute::OptimizeNone);
+    function->addFnAttr(llvm::Attribute::NoInline);
   }
 
   function->setCallingConv(CC);
