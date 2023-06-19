@@ -2354,6 +2354,7 @@ set(SPVASM_FILES
   intel_arbitrary_precision_integers.spvasm
   op_opencl_arg_md.spvasm
   unsupported_capability.spvasm
+  intel_opt_none.spvasm
   )
 
 if(SpirvAsVersionYear GREATER 2019)
