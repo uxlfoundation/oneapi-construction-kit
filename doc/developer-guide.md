@@ -1037,12 +1037,6 @@ gotchas:
    they are passed though the C preprocessor before testing them, since this
    will eliminate all the include directives.
 
-In the `scripts/testing/fuzzy_testing` directory of the oneAPI Construction Kit
-there exists a script that will automatically apply the above methodologies to
-generate random kernels, test them for interestingness, and then try to reduce
-them with C-Reduce. More details can be found in its dedicated
-`scripts/testing/fuzzy_testing/README.md` file.
-
 ## Providing extra options
 
 The following environment variables are mostly used for testing and trying out

@@ -61,5 +61,4 @@ Larger multi-file projects requiring their own documentation.
    :maxdepth: 2
 
    scripts/city_runner
-   scripts/fuzz
    scripts/perf
