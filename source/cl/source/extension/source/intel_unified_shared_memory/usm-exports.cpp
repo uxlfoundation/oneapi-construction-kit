@@ -462,7 +462,7 @@ cl_int clSetKernelArgMemPointerINTEL(cl_kernel kernel, cl_uint arg_index,
 
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
-  OCL_CHECK(arg_index >= kernel->info->num_arguments,
+  OCL_CHECK(arg_index >= kernel->info->getNumArguments(),
             return CL_INVALID_ARG_INDEX);
 
   auto arg_type = kernel->GetArgType(arg_index);

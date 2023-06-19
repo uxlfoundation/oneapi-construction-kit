@@ -325,9 +325,9 @@ struct ArgumentType {
 struct KernelInfo {
   /// @brief Struct representing basic kernel argument information.
   struct ArgumentInfo {
-    AddressSpace address_qual;
-    KernelArgAccess access_qual;
-    std::uint32_t type_qual;
+    AddressSpace address_qual = compiler::AddressSpace::PRIVATE;
+    KernelArgAccess access_qual = compiler::KernelArgAccess::NONE;
+    std::uint32_t type_qual = 0;
     std::string type_name;
     std::string name;
   };
@@ -339,7 +339,15 @@ struct KernelInfo {
   std::uint64_t private_mem_size;
 
   /// @brief Values of reqd_work_group_size attribute if it exists.
-  cargo::optional<std::array<size_t, 3>> work_group;
+  cargo::optional<std::array<size_t, 3>> reqd_work_group_size;
+
+  std::size_t getNumArguments() const { return argument_types.size(); }
+
+  /// @brief Returns the reqd_work_group_size if present, else an all-zeros
+  /// array.
+  std::array<size_t, 3> getReqdWGSizeOrZero() const {
+    return reqd_work_group_size.value_or(std::array<size_t, 3>{0, 0, 0});
+  }
 };  // class KernelInfo
 
 /// @brief Kernel info callback type.

@@ -907,7 +907,7 @@ bool _cl_program::finalize(cargo::array_view<const cl_device_id> devices) {
   return true;
 }
 
-cargo::optional<const cl::binary::KernelInfo *> _cl_program::getKernelInfo(
+cargo::optional<const compiler::KernelInfo *> _cl_program::getKernelInfo(
     cargo::string_view name) const {
   for (auto device : context->devices) {
     auto &device_program = programs.at(device);
@@ -922,7 +922,7 @@ cargo::optional<const cl::binary::KernelInfo *> _cl_program::getKernelInfo(
       OCL_ASSERT(device_program.program_info, "Program info was null!");
       auto &program_info = *device_program.program_info;
 
-      auto isRequestedKernel = [&](const cl::binary::KernelInfo &kernel_info) {
+      auto isRequestedKernel = [&](const compiler::KernelInfo &kernel_info) {
         if (device_program.type == cl::device_program_type::BUILTIN) {
           return name.find(kernel_info.name) != std::string::npos;
         }

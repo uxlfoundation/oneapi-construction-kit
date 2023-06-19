@@ -25,6 +25,7 @@
 #include <compiler/loader.h>
 #include <metadata/detail/md_ctx.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
@@ -49,56 +50,6 @@ auto md_init_unique(md_hooks *hooks, void *userdata) {
   };
   auto ctx = md_init(hooks, userdata);
   return std::unique_ptr<md_ctx_, decltype(deleter)>(ctx, std::move(deleter));
-}
-
-/// @brief Converts a kernel argument address space from the compiler library to
-/// an OpenCL argument address qualifier.
-cl_kernel_arg_address_qualifier convertKernelAddressQualifier(
-    compiler::AddressSpace address) {
-  switch (address) {
-    case compiler::AddressSpace::PRIVATE:
-      return CL_KERNEL_ARG_ADDRESS_PRIVATE;
-    case compiler::AddressSpace::GLOBAL:
-      return CL_KERNEL_ARG_ADDRESS_GLOBAL;
-    case compiler::AddressSpace::CONSTANT:
-      return CL_KERNEL_ARG_ADDRESS_CONSTANT;
-    case compiler::AddressSpace::LOCAL:
-      return CL_KERNEL_ARG_ADDRESS_LOCAL;
-  }
-  return 0;
-}
-
-/// @brief Converts a kernel argument access qualifier from the compiler library
-/// to an OpenCL argument access qualifier.
-cl_kernel_arg_access_qualifier convertKernelArgAccessQualifier(
-    compiler::KernelArgAccess access) {
-  switch (access) {
-    case compiler::KernelArgAccess::NONE:
-      return CL_KERNEL_ARG_ACCESS_NONE;
-    case compiler::KernelArgAccess::READ_ONLY:
-      return CL_KERNEL_ARG_ACCESS_READ_ONLY;
-    case compiler::KernelArgAccess::WRITE_ONLY:
-      return CL_KERNEL_ARG_ACCESS_WRITE_ONLY;
-    case compiler::KernelArgAccess::READ_WRITE:
-      return CL_KERNEL_ARG_ACCESS_READ_WRITE;
-  }
-  return 0;
-}
-
-/// @brief Converts a kernel argument type qualifier from the compiler library
-/// to an OpenCL argument type qualifier.
-cl_kernel_arg_type_qualifier convertKernelArgTypeQualifier(std::uint32_t type) {
-  cl_uint cl_arg_type = 0;
-  if (type & compiler::KernelArgType::CONST) {
-    cl_arg_type |= CL_KERNEL_ARG_TYPE_CONST;
-  }
-  if (type & compiler::KernelArgType::RESTRICT) {
-    cl_arg_type |= CL_KERNEL_ARG_TYPE_RESTRICT;
-  }
-  if (type & compiler::KernelArgType::VOLATILE) {
-    cl_arg_type |= CL_KERNEL_ARG_TYPE_VOLATILE;
-  }
-  return cl_arg_type;
 }
 
 bool serializeExecutable(OpenCLWriteUserdata *cl_userdata, md_ctx ctx) {
@@ -260,7 +211,7 @@ bool serializeProgramInfo(md_ctx ctx,
     }
 
     // number of arguments
-    const int n_args_idx = md_push_uint(stack, kernel.num_arguments);
+    const int n_args_idx = md_push_uint(stack, kernel.getNumArguments());
     if (MD_CHECK_ERR(n_args_idx)) {
       return false;
     }
@@ -284,11 +235,13 @@ bool serializeProgramInfo(md_ctx ctx,
     md_pop(stack);
 
     // Arg Info
-    const int kernel_arg_arr_idx = md_push_array(stack, kernel.num_arguments);
+    const int kernel_arg_arr_idx =
+        md_push_array(stack, kernel.getNumArguments());
     if (MD_CHECK_ERR(kernel_arg_arr_idx)) {
       return false;
     }
-    for (size_t arg_idx = 0; arg_idx < kernel.num_arguments; ++arg_idx) {
+    for (size_t arg_idx = 0, e = kernel.getNumArguments(); arg_idx < e;
+         ++arg_idx) {
       // argument kind
       const int arg_kind_idx = md_push_uint(
           stack, static_cast<uint64_t>(kernel.argument_types[arg_idx].kind));
@@ -329,7 +282,8 @@ bool serializeProgramInfo(md_ctx ctx,
         md_pop(stack);
 
         // access qualifier
-        const int access_qualifier = md_push_uint(stack, arg_info.access_qual);
+        const int access_qualifier =
+            md_push_uint(stack, static_cast<uint64_t>(arg_info.access_qual));
         if (MD_CHECK_ERR(access_qualifier)) {
           return false;
         }
@@ -387,7 +341,8 @@ bool serializeProgramInfo(md_ctx ctx,
       return false;
     }
     for (size_t i = 0; i < 3; ++i) {
-      const int work_size_idx = md_push_uint(stack, kernel.work_group[i]);
+      const int work_size_idx =
+          md_push_uint(stack, kernel.getReqdWGSizeOrZero()[i]);
       if (MD_CHECK_ERR(work_size_idx)) {
         return false;
       }
@@ -595,7 +550,6 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
     if (MD_CHECK_ERR(err)) {
       return false;
     }
-    kernelInfo->num_arguments = numArguments;
 
     // has full metadata?
     md_value full_metadata_v;
@@ -662,7 +616,7 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
         return false;
       }
       kernelInfo->argument_types[kernel_arg_idx].address_space =
-          static_cast<cl::binary::AddressSpace>(arg_addr_space);
+          static_cast<compiler::AddressSpace>(arg_addr_space);
       ++cur_arg_array_idx;
 
       if (hasArgMetadata) {
@@ -681,7 +635,7 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
           return false;
         }
         arg_info.address_qual =
-            static_cast<cl_kernel_arg_address_qualifier>(arg_address_qual);
+            static_cast<compiler::AddressSpace>(arg_address_qual);
         ++cur_arg_array_idx;
 
         // arg access qualifier
@@ -697,7 +651,7 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
           return false;
         }
         arg_info.access_qual =
-            static_cast<cl_kernel_arg_access_qualifier>(arg_access_qual);
+            static_cast<compiler::KernelArgAccess>(arg_access_qual);
         ++cur_arg_array_idx;
 
         // arg type qualifier
@@ -758,6 +712,7 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
     if (MD_CHECK_ERR(err)) {
       return false;
     }
+    std::array<size_t, 3> reqd_wg_size;
     for (size_t j = 0; j < 3; ++j) {
       md_value work_size_v;
       err = md_get_array_idx(work_size_arr_v, j, &work_size_v);
@@ -769,7 +724,11 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
       if (MD_CHECK_ERR(err)) {
         return false;
       }
-      kernelInfo->work_group[j] = work_size;
+      reqd_wg_size[j] = work_size;
+    }
+    if (!std::all_of(reqd_wg_size.begin(), reqd_wg_size.end(),
+                     [](size_t v) { return v == 0; })) {
+      kernelInfo->reqd_work_group_size = reqd_wg_size;
     }
 
     // kernel name
@@ -799,7 +758,6 @@ compiler::KernelInfoCallback populateProgramInfoCallback(
 
     kernel_info.name = compiler_kernel_info.name;
     kernel_info.attributes = compiler_kernel_info.attributes;
-    kernel_info.num_arguments = compiler_kernel_info.argument_types.size();
     kernel_info.private_mem_size = compiler_kernel_info.private_mem_size;
 
     (void)kernel_info.argument_types.alloc(
@@ -821,22 +779,16 @@ compiler::KernelInfoCallback populateProgramInfoCallback(
         const auto &compiler_arg_info =
             compiler_kernel_info.argument_info.value()[i];
         auto &arg_info = kernel_info.argument_info.value()[i];
-        arg_info.address_qual =
-            convertKernelAddressQualifier(compiler_arg_info.address_qual);
-        arg_info.access_qual =
-            convertKernelArgAccessQualifier(compiler_arg_info.access_qual);
-        arg_info.type_qual =
-            convertKernelArgTypeQualifier(compiler_arg_info.type_qual);
+        arg_info.address_qual = compiler_arg_info.address_qual;
+        arg_info.access_qual = compiler_arg_info.access_qual;
+        arg_info.type_qual = compiler_arg_info.type_qual;
         arg_info.type_name = compiler_arg_info.type_name;
         arg_info.name = compiler_arg_info.name;
       }
     }
 
-    if (compiler_kernel_info.work_group.has_value()) {
-      kernel_info.work_group = *compiler_kernel_info.work_group;
-    } else {
-      kernel_info.work_group.fill(0);
-    }
+    kernel_info.reqd_work_group_size =
+        compiler_kernel_info.reqd_work_group_size;
   };
 }
 

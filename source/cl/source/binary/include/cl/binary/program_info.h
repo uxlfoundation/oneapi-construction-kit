@@ -53,52 +53,53 @@ class ProgramInfo {
   /// @param[in] kernel_index Index into the list of kernel infos.
   ///
   /// @return Return kernel info if found, null otherwise.
-  KernelInfo *getKernel(size_t kernel_index);
+  compiler::KernelInfo *getKernel(size_t kernel_index);
 
   /// @brief Retrieve a kernel by index.
   ///
   /// @param[in] kernel_index Index into the list of kernel infos.
   ///
   /// @return Return kernel info if found, null otherwise.
-  const KernelInfo *getKernel(size_t kernel_index) const;
+  const compiler::KernelInfo *getKernel(size_t kernel_index) const;
 
   /// @brief Retrieve a kernel by name.
   ///
   /// @param[in] kernel_name Name of the kernel to search for.
   ///
   /// @return Return kernel info if found, null otherwise.
-  KernelInfo *getKernelByName(cargo::string_view kernel_name);
+  compiler::KernelInfo *getKernelByName(cargo::string_view kernel_name);
 
   /// @brief Retrieve a kernel by name.
   ///
   /// @param[in] kernel_name Name of the kernel to search for.
   ///
   /// @return Return kernel info if found, null otherwise.
-  const KernelInfo *getKernelByName(cargo::string_view kernel_name) const;
+  const compiler::KernelInfo *getKernelByName(
+      cargo::string_view kernel_name) const;
 
   /// @brief Retrieve the begin iterator.
   ///
   /// @return The beginning of the kernel info range.
-  KernelInfo *begin();
+  compiler::KernelInfo *begin();
 
   /// @brief Retrieve the begin iterator.
   ///
   /// @return The beginning of the kernel info range.
-  const KernelInfo *begin() const;
+  const compiler::KernelInfo *begin() const;
 
   /// @brief Retrieve the end iterator.
   ///
   /// @return Return the end iterator.
-  KernelInfo *end();
+  compiler::KernelInfo *end();
 
   /// @brief Retrieve the end iterator.
   ///
   /// @return Return the end iterator.
-  const KernelInfo *end() const;
+  const compiler::KernelInfo *end() const;
 
  private:
   /// @brief Kernel descriptions.
-  cargo::small_vector<KernelInfo, 8> kernel_descriptions;
+  cargo::small_vector<compiler::KernelInfo, 8> kernel_descriptions;
 };  // class ProgramInfo
 
 /// @brief Initialize information for all built-in kernels from their

@@ -232,14 +232,14 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     /// `compiler::ArgumentKind::POINTER` and `address_space` of
     /// `cl::binary::AddressSpace::LOCAL`.
     /// @param local_memory_size Size of the local memory buffer argument.
-    argument(cl::binary::ArgumentType arg_type, size_t local_memory_size);
+    argument(compiler::ArgumentType arg_type, size_t local_memory_size);
 
     /// @brief Constructor to create a sampler argument.
     ///
     /// @param arg_type Type of the kernel argument, must have `kind` of
     /// `compiler::ArgumentKind::SAMPLER`.
     /// @param sampler Sampler object.
-    argument(cl::binary::ArgumentType arg_type, const cl_sampler sampler);
+    argument(compiler::ArgumentType arg_type, const cl_sampler sampler);
 
     /// @brief Constructor to create a memory buffer argument.
     ///
@@ -249,7 +249,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     /// @param type Type of the kernel argument, must be a valid type to use
     /// with a memory buffer.
     /// @param mem Memory buffer object.
-    argument(cl::binary::ArgumentType type, cl_mem mem);
+    argument(compiler::ArgumentType type, cl_mem mem);
 
     /// @brief Constructor to create an argument passed by value.
     ///
@@ -260,8 +260,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     ///
     /// @param value Value of the parameter.
     /// @param value_size Size of the data.
-    argument(cl::binary::ArgumentType type, const void *value,
-             size_t value_size);
+    argument(compiler::ArgumentType type, const void *value, size_t value_size);
 
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
     /// @brief Constructor to create an USM allocation argument.
@@ -270,7 +269,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     /// with a USM allocation, i.e a global or constant pointer.
     /// @param usm_alloc USM allocation associated with parameter.
     /// @param offset Byte offset from the start of the USM allocation.
-    argument(cl::binary::ArgumentType type,
+    argument(compiler::ArgumentType type,
              extension::usm::allocation_info *usm_alloc, size_t offset);
 #endif
 
@@ -306,7 +305,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     ~argument();
 
     // @brief Type of the argument.
-    cl::binary::ArgumentType type;
+    compiler::ArgumentType type;
 
     union {
       size_t local_memory_size;
@@ -324,7 +323,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
 #endif
     };
 
-    using info = cl::binary::KernelInfo::ArgumentInfo;
+    using info = compiler::KernelInfo::ArgumentInfo;
 
     /// @brief Enum representing the possible storage types that can be used by
     /// the kernel argument. Each of these storage type match a single field of
@@ -353,7 +352,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   /// @param[in] name Name of the kernel in the program to create.
   /// @param[in] info Information from the compiler about the kernel.
   _cl_kernel(cl_program program, std::string name,
-             const cl::binary::KernelInfo *info);
+             const compiler::KernelInfo *info);
 
  public:
   /// @brief Deleted copy constructor.
@@ -374,7 +373,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   /// @return Returns a kernel object on success or an error code otherwise.
   /// @retval `CL_OUT_OF_HOST_MEMORY` if an allocation failure occured.
   static cargo::expected<cl_kernel, cl_int> create(
-      cl_program program, std::string name, const cl::binary::KernelInfo *info);
+      cl_program program, std::string name, const compiler::KernelInfo *info);
 
   /// @brief Clone this kernel.
   ///
@@ -400,7 +399,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   ///
   /// @return Return the argument type on success, CL_INVALID_ARG_INDEX
   /// otherwise.
-  cargo::expected<const cl::binary::ArgumentType &, cl_int> GetArgType(
+  cargo::expected<const compiler::ArgumentType &, cl_int> GetArgType(
       const cl_uint arg_index) const;
 
   /// @brief Set up the mux kernel execution options.
@@ -494,7 +493,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   /// @brief Name of the kernel.
   std::string name;
   /// @brief Pointer to kernel information.
-  const cl::binary::KernelInfo *info;
+  const compiler::KernelInfo *info;
   /// @brief Array of arguments.
   cargo::dynamic_array<argument> saved_args;
   /// @brief Array of argument information.

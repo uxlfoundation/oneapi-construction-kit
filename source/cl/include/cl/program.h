@@ -503,7 +503,7 @@ struct _cl_program final : public cl::base<_cl_program> {
   /// @param[in] name Name of the kernel to query.
   ///
   /// @return Returns the kernel description if there is one.
-  cargo::optional<const cl::binary::KernelInfo *> getKernelInfo(
+  cargo::optional<const compiler::KernelInfo *> getKernelInfo(
       cargo::string_view name) const;
 
   /// @brief Query the program for the number of kernels it contains.

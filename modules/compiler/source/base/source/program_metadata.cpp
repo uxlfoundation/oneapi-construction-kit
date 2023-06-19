@@ -288,16 +288,17 @@ void populateRequiredWGSAttribute(KernelInfo &kernel_info, llvm::MDNode *node) {
   llvm::ConstantInt *const operand3 =
       llvm::cast<llvm::ConstantInt>(vmdOp3->getValue());
   std::stringstream stream;
-  kernel_info.work_group.emplace();
-  (*kernel_info.work_group)[0] = *(operand1->getValue().getRawData());
-  (*kernel_info.work_group)[1] = *(operand2->getValue().getRawData());
-  (*kernel_info.work_group)[2] = *(operand3->getValue().getRawData());
+  kernel_info.reqd_work_group_size.emplace();
+  (*kernel_info.reqd_work_group_size)[0] = *(operand1->getValue().getRawData());
+  (*kernel_info.reqd_work_group_size)[1] = *(operand2->getValue().getRawData());
+  (*kernel_info.reqd_work_group_size)[2] = *(operand3->getValue().getRawData());
   if (!kernel_info.attributes.empty()) {
     stream << kernel_info.attributes << " ";
   }
-  stream << "reqd_work_group_size(" << kernel_info.work_group.value()[0] << ","
-         << kernel_info.work_group.value()[1] << ","
-         << kernel_info.work_group.value()[2] << ")";
+  stream << "reqd_work_group_size("
+         << kernel_info.reqd_work_group_size.value()[0] << ","
+         << kernel_info.reqd_work_group_size.value()[1] << ","
+         << kernel_info.reqd_work_group_size.value()[2] << ")";
   kernel_info.attributes.assign(stream.str());
 }
 

@@ -35,21 +35,22 @@ bool ProgramInfo::resizeFromNumKernels(int32_t numKernels) {
   return true;
 }
 
-KernelInfo *ProgramInfo::getKernel(size_t kernel_index) {
+compiler::KernelInfo *ProgramInfo::getKernel(size_t kernel_index) {
   if (kernel_index >= kernel_descriptions.size()) {
     return nullptr;
   }
   return &kernel_descriptions[kernel_index];
 }
 
-const KernelInfo *ProgramInfo::getKernel(size_t kernel_index) const {
+const compiler::KernelInfo *ProgramInfo::getKernel(size_t kernel_index) const {
   if (kernel_index >= kernel_descriptions.size()) {
     return nullptr;
   }
   return &kernel_descriptions[kernel_index];
 }
 
-KernelInfo *ProgramInfo::getKernelByName(cargo::string_view kernel_name) {
+compiler::KernelInfo *ProgramInfo::getKernelByName(
+    cargo::string_view kernel_name) {
   for (auto &desc : kernel_descriptions) {
     if (kernel_name == desc.name) {
       return &desc;
@@ -58,7 +59,7 @@ KernelInfo *ProgramInfo::getKernelByName(cargo::string_view kernel_name) {
   return nullptr;
 }
 
-const KernelInfo *ProgramInfo::getKernelByName(
+const compiler::KernelInfo *ProgramInfo::getKernelByName(
     cargo::string_view kernel_name) const {
   for (auto &desc : kernel_descriptions) {
     if (kernel_name == desc.name) {
@@ -68,15 +69,19 @@ const KernelInfo *ProgramInfo::getKernelByName(
   return nullptr;
 }
 
-KernelInfo *ProgramInfo::begin() { return kernel_descriptions.begin(); }
-
-const KernelInfo *ProgramInfo::begin() const {
+compiler::KernelInfo *ProgramInfo::begin() {
   return kernel_descriptions.begin();
 }
 
-KernelInfo *ProgramInfo::end() { return kernel_descriptions.end(); }
+const compiler::KernelInfo *ProgramInfo::begin() const {
+  return kernel_descriptions.begin();
+}
 
-const KernelInfo *ProgramInfo::end() const { return kernel_descriptions.end(); }
+compiler::KernelInfo *ProgramInfo::end() { return kernel_descriptions.end(); }
+
+const compiler::KernelInfo *ProgramInfo::end() const {
+  return kernel_descriptions.end();
+}
 
 cargo::optional<ProgramInfo> kernelDeclsToProgramInfo(
     const cargo::small_vector<std::string, 8> &decls, bool store_arg_metadata) {

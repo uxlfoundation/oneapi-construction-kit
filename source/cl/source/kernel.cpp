@@ -46,12 +46,12 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &global_size,
     mux_buffer_t printf_buffer,
     std::unique_ptr<mux_descriptor_info_t[]> &descriptors) {
-  const uint32_t num_arguments = info->num_arguments;
+  const size_t num_arguments = info->getNumArguments();
   const bool printf = nullptr != printf_buffer;
   descriptors = std::unique_ptr<mux_descriptor_info_t[]>(
       new mux_descriptor_info_t[printf ? num_arguments + 1 : num_arguments]);
 
-  for (uint32_t i = 0; i < num_arguments; i++) {
+  for (size_t i = 0; i < num_arguments; i++) {
     _cl_kernel::argument &arg = saved_args[i];
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
     if (arg.stype == _cl_kernel::argument::storage_type::usm) {
@@ -73,9 +73,9 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
         break;
       }
       case compiler::ArgumentKind::POINTER: {
-        if (arg.type.address_space == cl::binary::AddressSpace::GLOBAL ||
-            arg.type.address_space == cl::binary::AddressSpace::CONSTANT ||
-            arg.type.address_space == cl::binary::AddressSpace::PRIVATE) {
+        if (arg.type.address_space == compiler::AddressSpace::GLOBAL ||
+            arg.type.address_space == compiler::AddressSpace::CONSTANT ||
+            arg.type.address_space == compiler::AddressSpace::PRIVATE) {
           if (nullptr != arg.memory_buffer) {
             auto buffer = static_cast<cl_mem_buffer>(arg.memory_buffer);
             descriptors[i].type = mux_descriptor_info_type_buffer;
@@ -86,7 +86,7 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
             descriptors[i].type = mux_descriptor_info_type_null_buffer;
           }
           break;
-        } else if (arg.type.address_space == cl::binary::AddressSpace::LOCAL) {
+        } else if (arg.type.address_space == compiler::AddressSpace::LOCAL) {
           descriptors[i].type = mux_descriptor_info_type_shared_local_buffer;
           descriptors[i].shared_local_buffer_descriptor.size =
               arg.local_memory_size;
@@ -193,7 +193,7 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
 cl_int _cl_kernel::retainMems(cl_command_queue command_queue,
                               std::function<bool(cl_mem)> retain) {
   // Collect list of cl_mem's to retain.
-  for (uint32_t i = 0; i < info->num_arguments; i++) {
+  for (size_t i = 0, e = info->getNumArguments(); i < e; i++) {
     if (saved_args[i].stype ==
         _cl_kernel::argument::storage_type::memory_buffer) {
       auto mem = saved_args[i].memory_buffer;
@@ -370,7 +370,7 @@ cl_int PushExecuteKernel(
 
   // collect list of cl_mem's to retain and store in a list to release later
   std::vector<cl_mem> mems_to_release;
-  mems_to_release.reserve(kernel->info->num_arguments);
+  mems_to_release.reserve(kernel->info->getNumArguments());
   auto retain = [&mems_to_release](cl_mem mem) {
     cl::retainInternal(mem);
     mems_to_release.push_back(mem);
@@ -600,7 +600,7 @@ cargo::expected<size_t, cl_int> MuxKernelWrapper::getMaxNumSubGroups() const {
 }
 
 _cl_kernel::_cl_kernel(cl_program program, std::string name,
-                       const cl::binary::KernelInfo *info)
+                       const compiler::KernelInfo *info)
     : base<_cl_kernel>(cl::ref_count_type::EXTERNAL),
       program(program),
       name(name),
@@ -612,12 +612,12 @@ _cl_kernel::_cl_kernel(cl_program program, std::string name,
 _cl_kernel::~_cl_kernel() { cl::releaseInternal(program); }
 
 cargo::expected<cl_kernel, cl_int> _cl_kernel::create(
-    cl_program program, std::string name, const cl::binary::KernelInfo *info) {
+    cl_program program, std::string name, const compiler::KernelInfo *info) {
   std::unique_ptr<_cl_kernel> kernel{new _cl_kernel{program, name, info}};
   if (!kernel) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
   }
-  if (kernel->saved_args.alloc(info->num_arguments) != cargo::success) {
+  if (kernel->saved_args.alloc(info->getNumArguments()) != cargo::success) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
   }
   for (auto device : program->context->devices) {
@@ -636,7 +636,7 @@ cargo::expected<cl_kernel, cl_int> _cl_kernel::clone() const {
   if (!kernel) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
   }
-  if (kernel->saved_args.alloc(info->num_arguments) != cargo::success) {
+  if (kernel->saved_args.alloc(info->getNumArguments()) != cargo::success) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
   }
   std::copy(saved_args.begin(), saved_args.end(), kernel->saved_args.begin());
@@ -665,7 +665,7 @@ bool _cl_kernel::GetArgInfo() {
 
     // Note: We can't just use `this->info` here, as that instance of
     // `ProgramInfo` may not have `argument_info` populated.
-    const cl::binary::KernelInfo *info =
+    const compiler::KernelInfo *info =
         device_program.program_info->getKernelByName(name);
     if (nullptr == info) {
       continue;
@@ -675,11 +675,11 @@ bool _cl_kernel::GetArgInfo() {
     }
 
     auto &arg_info_storage = arg_info.emplace();
-    if (arg_info_storage.alloc(info->num_arguments) != cargo::success) {
+    if (arg_info_storage.alloc(info->getNumArguments()) != cargo::success) {
       arg_info.reset();
       continue;
     }
-    std::copy_n(info->argument_info->begin(), info->num_arguments,
+    std::copy_n(info->argument_info->begin(), info->getNumArguments(),
                 arg_info_storage.begin());
     return true;
   }
@@ -687,9 +687,9 @@ bool _cl_kernel::GetArgInfo() {
   return false;
 }
 
-cargo::expected<const cl::binary::ArgumentType &, cl_int>
-_cl_kernel::GetArgType(const cl_uint arg_index) const {
-  OCL_CHECK(arg_index >= info->num_arguments,
+cargo::expected<const compiler::ArgumentType &, cl_int> _cl_kernel::GetArgType(
+    const cl_uint arg_index) const {
+  OCL_CHECK(arg_index >= info->getNumArguments(),
             return cargo::make_unexpected(CL_INVALID_ARG_INDEX));
   return info->argument_types[arg_index];
 }
@@ -698,16 +698,16 @@ _cl_kernel::argument::argument()
     : type(compiler::ArgumentKind::UNKNOWN),
       stype(_cl_kernel::argument::storage_type::uninitialized) {}
 
-_cl_kernel::argument::argument(cl::binary::ArgumentType arg_type,
+_cl_kernel::argument::argument(compiler::ArgumentType arg_type,
                                size_t local_memory_size)
     : type(arg_type),
       local_memory_size(local_memory_size),
       stype(_cl_kernel::argument::storage_type::local_memory) {
-  OCL_ASSERT(arg_type.address_space >= cl::binary::AddressSpace::LOCAL,
+  OCL_ASSERT(arg_type.address_space >= compiler::AddressSpace::LOCAL,
              "Trying to create a local memory argument with the wrong type.");
 }
 
-_cl_kernel::argument::argument(cl::binary::ArgumentType arg_type,
+_cl_kernel::argument::argument(compiler::ArgumentType arg_type,
                                const cl_sampler sampler)
     : type(arg_type),
       sampler_value(sampler->sampler_value),
@@ -716,13 +716,13 @@ _cl_kernel::argument::argument(cl::binary::ArgumentType arg_type,
              "Trying to create a sampler argument with the wrong type.");
 }
 
-_cl_kernel::argument::argument(cl::binary::ArgumentType type, cl_mem mem)
+_cl_kernel::argument::argument(compiler::ArgumentType type, cl_mem mem)
     : type(type),
       memory_buffer(mem),
       stype(_cl_kernel::argument::storage_type::memory_buffer) {
   OCL_ASSERT((compiler::ArgumentKind::POINTER == type.kind &&
-              (type.address_space == cl::binary::AddressSpace::GLOBAL ||
-               type.address_space == cl::binary::AddressSpace::CONSTANT)) ||
+              (type.address_space == compiler::AddressSpace::GLOBAL ||
+               type.address_space == compiler::AddressSpace::CONSTANT)) ||
                  compiler::ArgumentKind::IMAGE2D == type.kind ||
                  compiler::ArgumentKind::IMAGE3D == type.kind ||
                  compiler::ArgumentKind::IMAGE2D_ARRAY == type.kind ||
@@ -733,15 +733,15 @@ _cl_kernel::argument::argument(cl::binary::ArgumentType type, cl_mem mem)
 }
 
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-_cl_kernel::argument::argument(cl::binary::ArgumentType type,
+_cl_kernel::argument::argument(compiler::ArgumentType type,
                                extension::usm::allocation_info *usm_alloc,
                                size_t offset)
     : type(type), stype(_cl_kernel::argument::storage_type::usm) {
   OCL_ASSERT(compiler::ArgumentKind::POINTER == type.kind,
              "Trying to create a USM allocation argument on a type other than "
              "a pointer.");
-  OCL_ASSERT(type.address_space == cl::binary::AddressSpace::GLOBAL ||
-                 type.address_space == cl::binary::AddressSpace::CONSTANT,
+  OCL_ASSERT(type.address_space == compiler::AddressSpace::GLOBAL ||
+                 type.address_space == compiler::AddressSpace::CONSTANT,
              "Trying to create a USM allocation argument from pointer type "
              "without global or constant address space.");
 
@@ -750,7 +750,7 @@ _cl_kernel::argument::argument(cl::binary::ArgumentType type,
 }
 #endif
 
-_cl_kernel::argument::argument(cl::binary::ArgumentType type, const void *data,
+_cl_kernel::argument::argument(compiler::ArgumentType type, const void *data,
                                size_t size)
     : type(type), stype(_cl_kernel::argument::storage_type::value) {
   value.size = size;
@@ -889,11 +889,9 @@ CL_API_ENTRY cl_kernel CL_API_CALL cl::CreateKernel(cl_program program,
           return nullptr;
         }
       }
-      if (0 != kernel.value()->info->work_group[0]) {
+      if (auto reqd_wg_size = kernel.value()->info->reqd_work_group_size) {
         auto result = device_kernel->precacheLocalSize(
-            kernel.value()->info->work_group[0],
-            kernel.value()->info->work_group[1],
-            kernel.value()->info->work_group[2]);
+            (*reqd_wg_size)[0], (*reqd_wg_size)[1], (*reqd_wg_size)[2]);
         if (compiler::Result::SUCCESS != result) {
           OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_PROGRAM_EXECUTABLE);
           return nullptr;
@@ -929,7 +927,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArg(cl_kernel kernel,
   tracer::TraceGuard<tracer::OpenCL> guard("clSetKernelArg");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
-  OCL_CHECK(arg_index >= kernel->info->num_arguments,
+  OCL_CHECK(arg_index >= kernel->info->getNumArguments(),
             return CL_INVALID_ARG_INDEX);
 
   auto arg_type = kernel->GetArgType(arg_index);
@@ -945,8 +943,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArg(cl_kernel kernel,
 
   switch (arg_type->kind) {
     case compiler::ArgumentKind::POINTER: {
-      if (arg_type->address_space == cl::binary::AddressSpace::GLOBAL ||
-          arg_type->address_space == cl::binary::AddressSpace::CONSTANT) {
+      if (arg_type->address_space == compiler::AddressSpace::GLOBAL ||
+          arg_type->address_space == compiler::AddressSpace::CONSTANT) {
         OCL_CHECK(sizeof(cl_mem) != arg_size, return CL_INVALID_ARG_SIZE);
 
         if (nullptr == arg_value ||
@@ -973,7 +971,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArg(cl_kernel kernel,
 #endif
           kernel->saved_args[arg_index] = _cl_kernel::argument(*arg_type, mem);
         }
-      } else if (arg_type->address_space == cl::binary::AddressSpace::LOCAL) {
+      } else if (arg_type->address_space == compiler::AddressSpace::LOCAL) {
         OCL_CHECK(nullptr != arg_value, return CL_INVALID_ARG_VALUE);
         OCL_CHECK(arg_size == 0, return CL_INVALID_ARG_SIZE);
 #ifdef CL_VERSION_3_0
@@ -1180,7 +1178,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelInfo(
       }
       break;
       KERNEL_INFO_CASE(CL_KERNEL_NUM_ARGS, sizeof(cl_uint), cl_uint *,
-                       kernel->info->num_arguments);
+                       kernel->info->getNumArguments());
       KERNEL_INFO_CASE(CL_KERNEL_REFERENCE_COUNT, sizeof(cl_uint), cl_uint *,
                        kernel->refCountExternal());
       KERNEL_INFO_CASE(CL_KERNEL_CONTEXT, sizeof(cl_context), cl_context *,
@@ -1215,13 +1213,63 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelInfo(
   return CL_SUCCESS;
 }
 
+/// @brief Converts a kernel argument address space from the compiler library to
+/// an OpenCL argument address qualifier.
+cl_kernel_arg_address_qualifier convertKernelAddressQualifier(
+    compiler::AddressSpace address) {
+  switch (address) {
+    case compiler::AddressSpace::PRIVATE:
+      return CL_KERNEL_ARG_ADDRESS_PRIVATE;
+    case compiler::AddressSpace::GLOBAL:
+      return CL_KERNEL_ARG_ADDRESS_GLOBAL;
+    case compiler::AddressSpace::CONSTANT:
+      return CL_KERNEL_ARG_ADDRESS_CONSTANT;
+    case compiler::AddressSpace::LOCAL:
+      return CL_KERNEL_ARG_ADDRESS_LOCAL;
+  }
+  return 0;
+}
+
+/// @brief Converts a kernel argument access qualifier from the compiler library
+/// to an OpenCL argument access qualifier.
+cl_kernel_arg_access_qualifier convertKernelArgAccessQualifier(
+    compiler::KernelArgAccess access) {
+  switch (access) {
+    case compiler::KernelArgAccess::NONE:
+      return CL_KERNEL_ARG_ACCESS_NONE;
+    case compiler::KernelArgAccess::READ_ONLY:
+      return CL_KERNEL_ARG_ACCESS_READ_ONLY;
+    case compiler::KernelArgAccess::WRITE_ONLY:
+      return CL_KERNEL_ARG_ACCESS_WRITE_ONLY;
+    case compiler::KernelArgAccess::READ_WRITE:
+      return CL_KERNEL_ARG_ACCESS_READ_WRITE;
+  }
+  return 0;
+}
+
+/// @brief Converts a kernel argument type qualifier from the compiler library
+/// to an OpenCL argument type qualifier.
+cl_kernel_arg_type_qualifier convertKernelArgTypeQualifier(std::uint32_t type) {
+  cl_uint cl_arg_type = 0;
+  if (type & compiler::KernelArgType::CONST) {
+    cl_arg_type |= CL_KERNEL_ARG_TYPE_CONST;
+  }
+  if (type & compiler::KernelArgType::RESTRICT) {
+    cl_arg_type |= CL_KERNEL_ARG_TYPE_RESTRICT;
+  }
+  if (type & compiler::KernelArgType::VOLATILE) {
+    cl_arg_type |= CL_KERNEL_ARG_TYPE_VOLATILE;
+  }
+  return cl_arg_type;
+}
+
 CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelArgInfo(
     cl_kernel kernel, cl_uint arg_indx, cl_kernel_arg_info param_name,
     size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelArgInfo");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
   OCL_CHECK(!kernel->GetArgInfo(), return CL_KERNEL_ARG_INFO_NOT_AVAILABLE);
-  OCL_CHECK(arg_indx > kernel->info->num_arguments,
+  OCL_CHECK(arg_indx > kernel->info->getNumArguments(),
             return CL_INVALID_ARG_INDEX);
   OCL_CHECK(param_value && param_value_size == 0, return CL_INVALID_VALUE);
 
@@ -1243,7 +1291,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelArgInfo(
       OCL_SET_IF_NOT_NULL(
           reinterpret_cast<cl_kernel_arg_address_qualifier *>(param_value),
 
-          kernel->arg_info.value()[arg_indx].address_qual);
+          convertKernelAddressQualifier(
+              kernel->arg_info.value()[arg_indx].address_qual));
       break;
     case CL_KERNEL_ARG_ACCESS_QUALIFIER:
       OCL_SET_IF_NOT_NULL(param_value_size_ret,
@@ -1253,7 +1302,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelArgInfo(
                 return CL_INVALID_VALUE);
       OCL_SET_IF_NOT_NULL(
           reinterpret_cast<cl_kernel_arg_access_qualifier *>(param_value),
-          kernel->arg_info.value()[arg_indx].access_qual);
+          convertKernelArgAccessQualifier(
+              kernel->arg_info.value()[arg_indx].access_qual));
       break;
     case CL_KERNEL_ARG_TYPE_NAME:
       OCL_SET_IF_NOT_NULL(
@@ -1277,7 +1327,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelArgInfo(
                 return CL_INVALID_VALUE);
       OCL_SET_IF_NOT_NULL(
           reinterpret_cast<cl_kernel_arg_type_qualifier *>(param_value),
-          kernel->arg_info.value()[arg_indx].type_qual);
+          convertKernelArgTypeQualifier(
+              kernel->arg_info.value()[arg_indx].type_qual));
       break;
     case CL_KERNEL_ARG_NAME:
       OCL_SET_IF_NOT_NULL(param_value_size_ret,
@@ -1344,7 +1395,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelWorkGroupInfo(
       OCL_CHECK(param_value && param_value_size < (sizeof(size_t) * 3),
                 return CL_INVALID_VALUE);
       if (param_value) {
-        memcpy(param_value, kernel->info->work_group.data(),
+        memcpy(param_value, kernel->info->getReqdWGSizeOrZero().data(),
                sizeof(size_t) * 3);
       }
     } break;
@@ -1388,18 +1439,18 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelWorkGroupInfo(
 cl_int _cl_kernel::checkReqdWorkGroupSize(cl_uint work_dim,
                                           const size_t *&local_work_size) {
   // Error check reqd_work_group_size attribute if present.
-  if (0 != info->work_group[0]) {
+  if (info->reqd_work_group_size.has_value()) {
     // If local_work_size was not set, but the kernel has a
     // reqd_work_group_size, just use the required size for the kernel.  Note
     // that the specification actually states that CL_INVALID_WORK_GROUP_SIZE
     // should be returned in this situation, but real world program do this and
     // there are obvious semantics to follow so we're generous here.
     if (!local_work_size) {
-      local_work_size = info->work_group.data();
+      local_work_size = info->reqd_work_group_size->data();
     }
 
     for (cl_uint i = 0; i < work_dim; ++i) {
-      OCL_CHECK((local_work_size[i] != info->work_group[i]),
+      OCL_CHECK((local_work_size[i] != (*info->reqd_work_group_size)[i]),
                 return CL_INVALID_WORK_GROUP_SIZE);
     }
   }
@@ -1484,7 +1535,7 @@ std::array<size_t, cl::max::WORK_ITEM_DIM> _cl_kernel::getDefaultLocalSize(
 }
 
 cl_int _cl_kernel::checkKernelArgs() {
-  for (uint32_t i = 0; i < info->num_arguments; i++) {
+  for (size_t i = 0, e = info->getNumArguments(); i < e; i++) {
     OCL_CHECK(compiler::ArgumentKind::UNKNOWN == saved_args[i].type.kind,
               return CL_INVALID_KERNEL_ARGS);
   }
@@ -1616,17 +1667,16 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueTask(cl_command_queue command_queue,
   OCL_CHECK(command_queue->context != kernel->program->context,
             return CL_INVALID_CONTEXT);
 
-  for (uint32_t i = 0; i < kernel->info->num_arguments; ++i) {
+  for (size_t i = 0, e = kernel->info->getNumArguments(); i < e; ++i) {
     OCL_CHECK(
         compiler::ArgumentKind::UNKNOWN == kernel->saved_args[i].type.kind,
         return CL_INVALID_KERNEL_ARGS);
   }
 
   // Error check reqd_work_group_size attribute if present
-  {
+  if (auto reqd_wg_size = kernel->info->reqd_work_group_size) {
     for (uint32_t i = 0; i < 3; ++i) {
-      OCL_CHECK(((0 != kernel->info->work_group[i]) &&
-                 (1 != kernel->info->work_group[i])),
+      OCL_CHECK(((0 != (*reqd_wg_size)[i]) && (1 != (*reqd_wg_size)[i])),
                 return CL_INVALID_WORK_GROUP_SIZE);
     }
   }
