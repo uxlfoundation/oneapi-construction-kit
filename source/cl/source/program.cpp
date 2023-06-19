@@ -153,11 +153,10 @@ bool cl::device_program::finalize(cl_device_id device) {
     }
   } else if (type == cl::device_program_type::COMPILER_MODULE) {
     // Finalise the module.
-    cl::binary::ProgramInfo program_info_to_populate;
+    compiler::ProgramInfo program_info_to_populate;
     if (compiler::Result::SUCCESS !=
-        compiler_module.module->finalize(
-            populateProgramInfoCallback(program_info_to_populate),
-            printf_calls)) {
+        compiler_module.module->finalize(&program_info_to_populate,
+                                         printf_calls)) {
       return false;
     }
     if (num_errors != 0) {
@@ -977,7 +976,7 @@ const char *_cl_program::getKernelNameByOffset(
                "OpenCL _cl_program. Error: not all kernels have been built "
                "into executables");
 
-    const cl::binary::ProgramInfo &program_info =
+    const compiler::ProgramInfo &program_info =
         device_program.program_info.value();
 
     OCL_ASSERT(kernel_index < program_info.getNumKernels(),
@@ -1543,7 +1542,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
           success = true;
           std::string name;
 
-          const cl::binary::ProgramInfo &program_info =
+          const compiler::ProgramInfo &program_info =
               *program->programs[device].program_info;
           for (size_t k = 0, e = program_info.getNumKernels(); k < e; k++) {
             OCL_ASSERT(nullptr != program_info.getKernel(k),

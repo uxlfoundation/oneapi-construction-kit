@@ -19,75 +19,10 @@
 namespace cl {
 namespace binary {
 
-ProgramInfo::ProgramInfo() : kernel_descriptions() {}
-
-bool ProgramInfo::addNewKernel() {
-  if (cargo::success != kernel_descriptions.emplace_back()) {
-    return false;
-  }
-  return true;
-}
-
-bool ProgramInfo::resizeFromNumKernels(int32_t numKernels) {
-  if (cargo::success != kernel_descriptions.resize(numKernels)) {
-    return false;
-  }
-  return true;
-}
-
-compiler::KernelInfo *ProgramInfo::getKernel(size_t kernel_index) {
-  if (kernel_index >= kernel_descriptions.size()) {
-    return nullptr;
-  }
-  return &kernel_descriptions[kernel_index];
-}
-
-const compiler::KernelInfo *ProgramInfo::getKernel(size_t kernel_index) const {
-  if (kernel_index >= kernel_descriptions.size()) {
-    return nullptr;
-  }
-  return &kernel_descriptions[kernel_index];
-}
-
-compiler::KernelInfo *ProgramInfo::getKernelByName(
-    cargo::string_view kernel_name) {
-  for (auto &desc : kernel_descriptions) {
-    if (kernel_name == desc.name) {
-      return &desc;
-    }
-  }
-  return nullptr;
-}
-
-const compiler::KernelInfo *ProgramInfo::getKernelByName(
-    cargo::string_view kernel_name) const {
-  for (auto &desc : kernel_descriptions) {
-    if (kernel_name == desc.name) {
-      return &desc;
-    }
-  }
-  return nullptr;
-}
-
-compiler::KernelInfo *ProgramInfo::begin() {
-  return kernel_descriptions.begin();
-}
-
-const compiler::KernelInfo *ProgramInfo::begin() const {
-  return kernel_descriptions.begin();
-}
-
-compiler::KernelInfo *ProgramInfo::end() { return kernel_descriptions.end(); }
-
-const compiler::KernelInfo *ProgramInfo::end() const {
-  return kernel_descriptions.end();
-}
-
-cargo::optional<ProgramInfo> kernelDeclsToProgramInfo(
+cargo::optional<compiler::ProgramInfo> kernelDeclsToProgramInfo(
     const cargo::small_vector<std::string, 8> &decls, bool store_arg_metadata) {
-  ProgramInfo program_info;
-  size_t num_kernels = decls.size();
-  if (!decls.empty()) {
+  compiler::ProgramInfo program_info;
+  if (size_t num_kernels = decls.size()) {
     if (!program_info.resizeFromNumKernels(num_kernels)) {
       return cargo::nullopt;
     }

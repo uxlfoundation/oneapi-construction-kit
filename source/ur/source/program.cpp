@@ -19,58 +19,6 @@
 #include "ur/context.h"
 #include "ur/platform.h"
 
-namespace ur {
-kernel_data_t *program_info_t::getKernel(size_t kernel_index) {
-  if (kernel_index >= kernel_descriptions.size()) {
-    return nullptr;
-  }
-  return &kernel_descriptions[kernel_index];
-}
-
-kernel_data_t *program_info_t::getKernel(cargo::string_view name) {
-  // Linear search :(
-  for (auto &i : kernel_descriptions) {
-    if (i.name == name) {
-      return &i;
-    }
-  }
-  return nullptr;
-}
-}  // namespace ur
-
-auto getKernelInfoCallBack(ur::program_info_t &program_info) {
-  return [&program_info](const compiler::KernelInfo &compiler_kernel_info) {
-    auto result = program_info.kernel_descriptions.emplace_back();
-    (void)result;
-    auto &kernel_info = *(program_info.kernel_descriptions.end() - 1);
-
-    kernel_info.name = compiler_kernel_info.name;
-    kernel_info.attributes = compiler_kernel_info.attributes;
-    kernel_info.num_arguments = compiler_kernel_info.argument_types.size();
-
-    (void)kernel_info.argument_types.alloc(
-        compiler_kernel_info.argument_types.size());
-    for (size_t i = 0; i < kernel_info.argument_types.size(); ++i) {
-      const auto &compiler_arg_type = compiler_kernel_info.argument_types[i];
-      auto &arg_type = kernel_info.argument_types[i];
-      arg_type.kind = compiler_arg_type.kind;
-    }
-
-    if (compiler_kernel_info.argument_info) {
-      kernel_info.argument_info.emplace();
-      (void)kernel_info.argument_info->resize(
-          compiler_kernel_info.argument_info->size());
-      for (size_t i = 0; i < kernel_info.argument_info->size(); ++i) {
-        const auto &compiler_arg_info =
-            compiler_kernel_info.argument_info.value()[i];
-        auto &arg_info = kernel_info.argument_info.value()[i];
-        arg_info.type_name = compiler_arg_info.type_name;
-        arg_info.name = compiler_arg_info.name;
-      }
-    }
-  };
-}
-
 ur_program_handle_t_::~ur_program_handle_t_() {
   for (const auto &device_program_pair : device_program_map) {
     const auto mux_executable = device_program_pair.second.mux_executable;
@@ -143,13 +91,13 @@ ur_result_t ur_program_handle_t_::compile() {
 ur_result_t ur_program_handle_t_::finalize() {
   for (auto &device_program_pair : device_program_map) {
     std::vector<builtins::printf::descriptor> printf_calls;
-    ur::program_info_t program_info_populate;
+    compiler::ProgramInfo program_info;
     if (compiler::Result::SUCCESS !=
-        device_program_pair.second.module->finalize(
-            getKernelInfoCallBack(program_info_populate), printf_calls)) {
+        device_program_pair.second.module->finalize(&program_info,
+                                                    printf_calls)) {
       return UR_RESULT_ERROR_PROGRAM_BUILD_FAILURE;
     }
-    device_program_pair.second.program_info = std::move(program_info_populate);
+    device_program_pair.second.program_info = std::move(program_info);
 
     // Assume for the time being we don't support deferred compilation.
     cargo::array_view<uint8_t> executable;
@@ -198,11 +146,10 @@ ur_result_t ur_program_handle_t_::link(
   }
   return UR_RESULT_SUCCESS;
 }
-cargo::expected<const ur::kernel_data_t &, ur_result_t>
+cargo::expected<const compiler::KernelInfo &, ur_result_t>
 ur_program_handle_t_::getKernelData(const cargo::string_view name) {
   for (const auto &program_info_pair : device_program_map) {
-    for (const auto &kernel_info :
-         program_info_pair.second.program_info.kernel_descriptions) {
+    for (const auto &kernel_info : program_info_pair.second.program_info) {
       if (kernel_info.name == name) {
         return kernel_info;
       }

@@ -68,7 +68,7 @@ cargo::expected<ur_kernel_handle_t, ur_result_t> ur_kernel_handle_t_::create(
     return cargo::make_unexpected(kernel_data.error());
   }
   if (cargo::success !=
-      kernel->arguments.alloc(kernel_data.value().num_arguments)) {
+      kernel->arguments.alloc(kernel_data.value().getNumArguments())) {
     return cargo::make_unexpected(UR_RESULT_ERROR_OUT_OF_HOST_MEMORY);
   }
 

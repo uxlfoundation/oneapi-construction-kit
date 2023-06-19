@@ -33,7 +33,7 @@ namespace compiler {
 
 /// @brief Initialize information for all kernels by scanning a LLVM module.
 ///
-/// @param[in] callback Callback to return kernel information.
+/// @param[in] program_info ProgramInfo instance to populate.
 /// @param[in] module The module to extract information from.
 /// @param[in] store_argument_metadata Whether to store additional argument
 /// metadata as required by -cl-kernel-arg-info.
@@ -43,7 +43,7 @@ namespace compiler {
 /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
 /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when there was a problem with the
 /// LLVM IR.
-Result moduleToProgramInfo(KernelInfoCallback callback,
+Result moduleToProgramInfo(ProgramInfo &program_info,
                            llvm::Module *const module,
                            bool store_argument_metadata);
 

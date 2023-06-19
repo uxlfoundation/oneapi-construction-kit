@@ -241,7 +241,7 @@ struct OpenCLCModuleTest : CompilerModuleTest {
                   KernelSource(), {}));
     std::vector<builtins::printf::descriptor> printf_calls;
     ASSERT_EQ(compiler::Result::SUCCESS,
-              module->finalize([](compiler::KernelInfo) {}, printf_calls));
+              module->finalize(nullptr, printf_calls));
   };
 
   /// @brief Virtual method to clean up any resources this fixture allocated.

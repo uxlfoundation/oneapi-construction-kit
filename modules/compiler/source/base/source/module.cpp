@@ -1723,7 +1723,7 @@ bool BaseModule::DiagnosticHandler::handleDiagnostics(
 }
 
 Result BaseModule::finalize(
-    KernelInfoCallback kernel_info_callback,
+    ProgramInfo *program_info,
     std::vector<builtins::printf::descriptor> &printf_calls) {
   // Lock the context, this is necessary due to analysis/pass managers being
   // owned by the LLVMContext and we are making heavy use of both below.
@@ -1875,9 +1875,9 @@ Result BaseModule::finalize(
   auto clone = std::unique_ptr<llvm::Module>(llvm::CloneModule(*m));
 
   // Generate program info.
-  if (kernel_info_callback) {
-    auto program_info_result = moduleToProgramInfo(
-        std::move(kernel_info_callback), clone.get(), options.kernel_arg_info);
+  if (program_info) {
+    auto program_info_result = moduleToProgramInfo(*program_info, clone.get(),
+                                                   options.kernel_arg_info);
     if (program_info_result != Result::SUCCESS) {
       return program_info_result;
     }

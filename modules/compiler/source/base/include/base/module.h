@@ -189,7 +189,7 @@ class BaseModule : public Module {
 
   /// @brief Generates a binary from the current program.
   ///
-  /// @param[out] kernel_info_callback Kernel info callback.
+  /// @param[out] program_info Optional ProgramInfo object to fill in.
   /// @param[out] printf_calls Output printf descriptor list.
   ///
   /// @return Return a status code.
@@ -198,7 +198,7 @@ class BaseModule : public Module {
   /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when finalization failed. See
   /// the error log for more information.
   Result finalize(
-      KernelInfoCallback kernel_info_callback,
+      ProgramInfo *program_info,
       std::vector<builtins::printf::descriptor> &printf_calls) override;
 
   /// @brief Returns an object that represents a kernel contained within this

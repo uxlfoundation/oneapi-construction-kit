@@ -280,7 +280,7 @@ struct device_program {
   std::string compiler_log;
 
   /// @brief Program information.
-  cargo::optional<binary::ProgramInfo> program_info;
+  cargo::optional<compiler::ProgramInfo> program_info;
 
   /// @brief Printf descriptor information.
   std::vector<builtins::printf::descriptor> printf_calls;

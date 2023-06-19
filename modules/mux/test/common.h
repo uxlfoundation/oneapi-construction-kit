@@ -353,7 +353,7 @@ struct DeviceCompilerTest : DeviceTest {
     };
 
     std::vector<builtins::printf::descriptor> printf_calls;
-    error = module->finalize([](compiler::KernelInfo) {}, printf_calls);
+    error = module->finalize(nullptr, printf_calls);
     if (compiler::Result::SUCCESS != error) {
       return error;
     }

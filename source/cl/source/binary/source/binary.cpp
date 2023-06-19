@@ -182,8 +182,7 @@ bool serializePrintfInfo(
   return true;
 }
 
-bool serializeProgramInfo(md_ctx ctx,
-                          const cl::binary::ProgramInfo &program_info,
+bool serializeProgramInfo(md_ctx ctx, const compiler::ProgramInfo &program_info,
                           bool has_kernel_arg_info) {
   md_stack stack = md_create_block(ctx, OCL_MD_PROGRAM_INFO_BLOCK);
   if (!stack) {
@@ -508,7 +507,7 @@ bool deserializeOpenCLPrintfCalls(
 }
 
 bool deserializeOpenCLProgramInfo(md_ctx ctx,
-                                  cl::binary::ProgramInfo &program_info) {
+                                  compiler::ProgramInfo &program_info) {
   md_stack stack = md_get_block(ctx, OCL_MD_PROGRAM_INFO_BLOCK);
   if (!stack) {
     return false;
@@ -750,48 +749,6 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
 }
 }  // namespace
 
-compiler::KernelInfoCallback populateProgramInfoCallback(
-    ProgramInfo &program_info) {
-  return [&program_info](const compiler::KernelInfo &compiler_kernel_info) {
-    program_info.addNewKernel();
-    auto &kernel_info = *(program_info.end() - 1);
-
-    kernel_info.name = compiler_kernel_info.name;
-    kernel_info.attributes = compiler_kernel_info.attributes;
-    kernel_info.private_mem_size = compiler_kernel_info.private_mem_size;
-
-    (void)kernel_info.argument_types.alloc(
-        compiler_kernel_info.argument_types.size());
-    for (size_t i = 0; i < kernel_info.argument_types.size(); ++i) {
-      const auto &compiler_arg_type = compiler_kernel_info.argument_types[i];
-      auto &arg_type = kernel_info.argument_types[i];
-      arg_type.kind = compiler_arg_type.kind;
-      arg_type.address_space = compiler_arg_type.address_space;
-      arg_type.vector_width = compiler_arg_type.vector_width;
-      arg_type.dereferenceable_bytes = compiler_arg_type.dereferenceable_bytes;
-    }
-
-    if (compiler_kernel_info.argument_info) {
-      kernel_info.argument_info.emplace();
-      (void)kernel_info.argument_info->resize(
-          compiler_kernel_info.argument_info->size());
-      for (size_t i = 0; i < kernel_info.argument_info->size(); ++i) {
-        const auto &compiler_arg_info =
-            compiler_kernel_info.argument_info.value()[i];
-        auto &arg_info = kernel_info.argument_info.value()[i];
-        arg_info.address_qual = compiler_arg_info.address_qual;
-        arg_info.access_qual = compiler_arg_info.access_qual;
-        arg_info.type_qual = compiler_arg_info.type_qual;
-        arg_info.type_name = compiler_arg_info.type_name;
-        arg_info.name = compiler_arg_info.name;
-      }
-    }
-
-    kernel_info.reqd_work_group_size =
-        compiler_kernel_info.reqd_work_group_size;
-  };
-}
-
 cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
                                           mux_device_info_t device) {
 #ifdef CA_CL_FORCE_PROFILE_STRING
@@ -847,7 +804,7 @@ bool serializeBinary(
     cargo::dynamic_array<uint8_t> &binary,
     const cargo::array_view<const uint8_t> mux_binary,
     const std::vector<builtins::printf::descriptor> &printf_calls,
-    const ProgramInfo &program_info, bool kernel_arg_info,
+    const compiler::ProgramInfo &program_info, bool kernel_arg_info,
     compiler::Module *compiler_module) {
   const bool is_executable = compiler_module == nullptr;
   OpenCLWriteUserdata cl_userdata{&binary, mux_binary, is_executable,
@@ -883,7 +840,7 @@ bool serializeBinary(
 
 bool deserializeBinary(cargo::array_view<const uint8_t> binary,
                        std::vector<builtins::printf::descriptor> &printf_calls,
-                       ProgramInfo &program_info,
+                       compiler::ProgramInfo &program_info,
                        cargo::dynamic_array<uint8_t> &executable,
                        bool &is_executable) {
   OpenCLReadUserdata cl_userdata{binary};

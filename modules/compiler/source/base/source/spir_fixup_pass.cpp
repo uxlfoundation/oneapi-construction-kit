@@ -190,14 +190,17 @@ llvm::PreservedAnalyses compiler::spir::SpirFixupPass::run(
     }
   }
 
+  // ProgramInfo reads the kernel metadata for the module
+  compiler::ProgramInfo program_info;
+  (void)moduleToProgramInfo(program_info, &module, true);
+
   // From version 4.0 onwards clang produces a sampler_t pointer parameter
   // for sampler arguments, but spir still mandates that this is an i32.
   // This causes issues from the run-time aspect which expects the
   // pointer. For this reason we create a new function if we have a
   // sampler parameter which takes the sampler_t pointer arguments,
   // converts them to i32 and then calls the original function.
-
-  auto process_kernel = [&module, &modifiedCFG](KernelInfo kernel_info) {
+  for (auto &kernel_info : program_info) {
     llvm::PointerType *samplerTypePtr = nullptr;
 
     // Check to see if any of the arguments are sampler
@@ -308,10 +311,7 @@ llvm::PreservedAnalyses compiler::spir::SpirFixupPass::run(
         }
       }
     }
-  };
-
-  // ProgramInfo reads the kernel metadata for the module
-  (void)moduleToProgramInfo(process_kernel, &module, true);
+  }
 
   // According to the spir spec available_externally is supposed to represent
   // C99 inline semantics. The closest thing llvm has natively is LinkOnce.

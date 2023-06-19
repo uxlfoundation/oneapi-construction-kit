@@ -6,6 +6,11 @@ Upgrade guidance:
 
 * The mux spec has been bumped to 0.74.0 to account for changes to
   `BaseModule`. This does not affect in-tree compiler targets.
+* `cl::binary::ProgramInfo` and `cl::binary::KernelInfo` have been removed and
+  replaced with equivalent structures in the `compiler` namespace.
+* `compiler::Module::finalize` no longer takes a callback to populate program
+  info - it now takes `compiler::ProgramInfo` by pointer and populates it
+  itself if passed a non-null address.
 
 Feature additions:
 

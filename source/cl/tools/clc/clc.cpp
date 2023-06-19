@@ -693,8 +693,7 @@ result driver::buildProgram() {
 
   // Linking not needed when a single program is built.
   if (compiler::Result::SUCCESS !=
-      module->finalize(cl::binary::populateProgramInfoCallback(program_info),
-                       printf_calls)) {
+      module->finalize(&program_info, printf_calls)) {
     if (!module_log.empty() && module_log.front() != '\0') {
       std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
                    module_log.data());
