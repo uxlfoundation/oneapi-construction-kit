@@ -160,10 +160,6 @@ int main(int argc, char **argv) {
 
 namespace muxc {
 
-void mux_message(const char *message, const void *, size_t) {
-  std::fprintf(stderr, "%s\n", message);
-}
-
 uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
   uint32_t caps = 0;
   if (device_info->address_capabilities & mux_address_capabilities_bits32) {
@@ -211,7 +207,7 @@ Error driver::setupContext() {
   CompilerInfo = *InfoRes;
 
   CompilerTarget =
-      CompilerInfo->createTarget(CompilerContext.get(), mux_message);
+      CompilerInfo->createTarget(CompilerContext.get(), /*callback*/ nullptr);
 
   if (!CompilerTarget ||
       CompilerTarget->init(detectBuiltinCapabilities(
@@ -281,8 +277,6 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
   if (CompilerModule->parseOptions(CLOptions,
                                    compiler::Options::Mode::COMPILE) !=
       compiler::Result::SUCCESS) {
-    // mux_message should report any errors, so we return just a simple error
-    // message here.
     return make_error<StringError>("OpenCL C options parsing error",
                                    inconvertibleErrorCode());
   }
@@ -301,8 +295,6 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
   auto M = BaseModule->compileOpenCLCToIR(instance, "FULL_PROFILE", SourceAsStr,
                                           /*input_headers*/ {});
   if (!M) {
-    // mux_message should catch any compilation errors, so we return just a
-    // simple error message here.
     return make_error<StringError>("OpenCL C compilation error",
                                    inconvertibleErrorCode());
   }
