@@ -1,0 +1,79 @@
+name: cache_llvm
+
+on:
+  push:
+    branches:
+      - main
+    path: .github/workflows/create_llvm.yml
+  workflow_dispatch:
+
+jobs:
+  create_llvm_cache:
+    strategy:
+      matrix:
+        version: [15, 16]
+        os: [ubuntu-22.04]
+        build_type: [Release, RelAssert]
+        include:
+          # We want to set flags related to particular matrix dimensions. To do this
+          # we need to create default values first, and then against particular matrix
+          # dimensions.
+          # Note that we need to use RelAssert as the cache key matching can match Release against ReleaseAssert
+          - os_flags:
+          - build_type_flags:
+          - build_type: RelAssert
+            build_type_flags: -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON
+          - build_type: Release
+            build_type_flags: -DCMAKE_BUILD_TYPE=Release
+    
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Cache llvm
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path:
+            llvm_install/**
+          key: llvm-${{ matrix.os }}-v${{ matrix.version }}-${{ matrix.build_type }}
+
+      - name: Checkout repo
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          repository: llvm/llvm-project
+          ref: release/${{matrix.version}}.x
+
+      - name: Install Ninja
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: llvm/actions/install-ninja@main
+
+      - name: Flags checker
+        if: steps.cache.outputs.cache-hit != 'true'
+        run:
+          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
+
+      - name: Run cmake
+        if: steps.cache.outputs.cache-hit != 'true'
+        run:
+          cmake llvm
+              -DLLVM_ENABLE_DIA_SDK=OFF
+              -DCMAKE_INSTALL_PREFIX=llvm_install
+              -DLLVM_ENABLE_ZLIB=FALSE
+              -DLLVM_ENABLE_Z3_SOLVER=FALSE
+              -DLLVM_ENABLE_PROJECTS="clang;lld"
+              -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64;RISCV"
+              -Bbuild
+              -GNinja
+              ${{ matrix.build_type_flags }}
+              ${{ matrix.os_flags}}
+
+      - name: Run build on llvm
+        if: steps.cache.outputs.cache-hit != 'true'
+        run:
+          cmake --build build --target install
+
+      - name: Copy lit tools
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cp build/bin/FileCheck* llvm_install/bin
+          cp build/bin/not* llvm_install/bin
