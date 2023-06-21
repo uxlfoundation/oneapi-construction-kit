@@ -150,8 +150,9 @@ TEST_P(cl_intel_required_subgroup_size_KernelTest, Ext_Reqd_Subgroup_01_Size8) {
   EXPECT_EQ(val_size, sizeof(mem_size));
 }
 
-static const kts::ucl::SourceType source_types[] = {kts::ucl::OPENCL_C,
-                                                    kts::ucl::OFFLINE};
+static const kts::ucl::SourceType source_types[] = {
+    kts::ucl::OPENCL_C, kts::ucl::OFFLINE, kts::ucl::SPIRV,
+    kts::ucl::OFFLINESPIRV};
 
 UCL_EXECUTION_TEST_SUITE(cl_intel_required_subgroup_size_KernelTest,
                          testing::ValuesIn(source_types));

@@ -1058,6 +1058,12 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
       case spv::OpBuildNDRange:
         error = builder.create<OpBuildNDRange>(op);
         break;
+      case spv::OpGetKernelLocalSizeForSubgroupCount:
+        error = builder.create<OpGetKernelLocalSizeForSubgroupCount>(op);
+        break;
+      case spv::OpGetKernelMaxNumSubgroups:
+        error = builder.create<OpGetKernelMaxNumSubgroups>(op);
+        break;
       case spv::OpImageSparseSampleImplicitLod:
         error = builder.create<OpImageSparseSampleImplicitLod>(op);
         break;

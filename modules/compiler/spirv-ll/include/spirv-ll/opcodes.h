@@ -2821,6 +2821,29 @@ class OpBuildNDRange : public OpResult {
   static const spv::Op ClassCode = spv::OpBuildNDRange;
 };
 
+class OpGetKernelLocalSizeForSubgroupCount : public OpResult {
+ public:
+  OpGetKernelLocalSizeForSubgroupCount(OpCode const &other)
+      : OpResult(other, spv::OpGetKernelLocalSizeForSubgroupCount) {}
+  spv::Id SubgroupCount() const;
+  spv::Id Invoke() const;
+  spv::Id Param() const;
+  spv::Id ParamSize() const;
+  spv::Id ParamAlign() const;
+  static const spv::Op ClassCode = spv::OpGetKernelLocalSizeForSubgroupCount;
+};
+
+class OpGetKernelMaxNumSubgroups : public OpResult {
+ public:
+  OpGetKernelMaxNumSubgroups(OpCode const &other)
+      : OpResult(other, spv::OpGetKernelMaxNumSubgroups) {}
+  spv::Id Invoke() const;
+  spv::Id Param() const;
+  spv::Id ParamSize() const;
+  spv::Id ParamAlign() const;
+  static const spv::Op ClassCode = spv::OpGetKernelMaxNumSubgroups;
+};
+
 class OpImageSparseSampleImplicitLod : public OpResult {
  public:
   OpImageSparseSampleImplicitLod(OpCode const &other)

@@ -2360,6 +2360,7 @@ set(SPVASM_FILES
   intel_arbitrary_precision_integers.spvasm
   op_opencl_arg_md.spvasm
   unsupported_capability.spvasm
+  op_get_kernel_preferred_work_group_size_multiple.spvasm
   )
 
 if(SpirvAsVersionYear GREATER 2019)
@@ -2374,16 +2375,43 @@ if (SpirvAsVersionYear GREATER_EQUAL 2022)
     intel_opt_none.spvasm)
 endif()
 
+# Test files that require SPIR-V v1.1
+# TODO: It might be more convenient to support a system like UnitCL where test
+# files declare their own requirements.
+set(SPVASM_V1_1_FILES
+  op_execution_mode_subgroup_size.spvasm
+  op_execution_mode_subgroups_per_workgroup.spvasm
+  op_get_default_queue.spvasm
+  op_get_kernel_max_num_subgroups.spvasm
+)
+
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.spvasm)
-foreach(testFile ${SPVASM_FILES})
+foreach(testFile ${SPVASM_FILES} ${SPVASM_V1_1_FILES})
   list(REMOVE_ITEM obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/${testFile})
 endforeach()
 if(obsoleteTests)
   file(REMOVE ${obsoleteTests})
 endif()
 
-foreach(spvasm ${SPVASM_FILES})
+# ca_assemble_spirv_ll_lit_test
+#
+# Assembles a .spvasm test file to a SPIR-V binary and registers it as a
+# dependency in the global CA_SPIRV_LL_SPVASM_TEST_FILES list.
+#
+# Arguments:
+#   * ``ARGN`` - SPIR-V assembly file to assemble.
+#
+# Keyword Arguments:
+#   * ``TGT_ENV`` - Version of SPIR-V to assemble to
+function(ca_assemble_spirv_ll_lit_test)
+  cmake_parse_arguments(args "" "TGT_ENV" "" ${ARGN})
+  if(NOT args_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Must pass spvasm file to assemble")
+  endif()
+
+  set(spvasm "${args_UNPARSED_ARGUMENTS}")
+
   get_filename_component(name ${spvasm} NAME_WE)
 
   set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm})
@@ -2393,11 +2421,13 @@ foreach(spvasm ${SPVASM_FILES})
     message(FATAL_ERROR "spirv-ll input spvasm does not exist: ${spvasm}")
   endif()
 
+  get_property(LitTestFiles GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES)
+
   if(SPVASM_UNSUPPORTED STREQUAL False)
     # Generate .spv from .spvasm source.
     file(RELATIVE_PATH spvOut ${CMAKE_BINARY_DIR} ${spv})
     add_custom_command(OUTPUT ${spv}
-      COMMAND spirv::spirv-as --target-env spv1.0 -o ${spv} ${spvasm}
+      COMMAND spirv::spirv-as --target-env ${args_TGT_ENV} -o ${spv} ${spvasm}
       DEPENDS spirv::spirv-as ${spvasm}
       COMMENT "Building SPIR-V ${spvOut}")
     list(APPEND LitTestFiles ${spv})
@@ -2405,6 +2435,18 @@ foreach(spvasm ${SPVASM_FILES})
 
   add_ca_copy_file(INPUT ${spvasm} OUTPUT ${test})
   list(APPEND LitTestFiles ${test})
+
+  set_property(GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES ${LitTestFiles})
+endfunction()
+
+foreach(spvasm ${SPVASM_FILES})
+  ca_assemble_spirv_ll_lit_test(${spvasm} TGT_ENV spv1.0)
 endforeach()
+
+foreach(spvasm ${SPVASM_V1_1_FILES})
+  ca_assemble_spirv_ll_lit_test(${spvasm} TGT_ENV spv1.1)
+endforeach()
+
+get_property(LitTestFiles GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES)
 
 add_custom_target(spirv-ll-spvasm-lit DEPENDS ${LitTestFiles})

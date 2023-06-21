@@ -136,6 +136,8 @@ bool OpCode::hasResult() const {
     case spv::OpBitwiseOr:
     case spv::OpBitwiseXor:
     case spv::OpBuildNDRange:
+    case spv::OpGetKernelLocalSizeForSubgroupCount:
+    case spv::OpGetKernelMaxNumSubgroups:
     case spv::OpCompositeConstruct:
     case spv::OpCompositeExtract:
     case spv::OpCompositeInsert:
@@ -1903,6 +1905,35 @@ spv::Id OpBuildNDRange::GlobalWorkSize() const { return getValueAtOffset(3); }
 spv::Id OpBuildNDRange::LocalWorkSize() const { return getValueAtOffset(4); }
 
 spv::Id OpBuildNDRange::GlobalWorkOffset() const { return getValueAtOffset(5); }
+
+spv::Id OpGetKernelLocalSizeForSubgroupCount::SubgroupCount() const {
+  return getValueAtOffset(3);
+}
+spv::Id OpGetKernelLocalSizeForSubgroupCount::Invoke() const {
+  return getValueAtOffset(4);
+}
+spv::Id OpGetKernelLocalSizeForSubgroupCount::Param() const {
+  return getValueAtOffset(5);
+}
+spv::Id OpGetKernelLocalSizeForSubgroupCount::ParamSize() const {
+  return getValueAtOffset(6);
+}
+spv::Id OpGetKernelLocalSizeForSubgroupCount::ParamAlign() const {
+  return getValueAtOffset(7);
+}
+
+spv::Id OpGetKernelMaxNumSubgroups::Invoke() const {
+  return getValueAtOffset(3);
+}
+spv::Id OpGetKernelMaxNumSubgroups::Param() const {
+  return getValueAtOffset(4);
+}
+spv::Id OpGetKernelMaxNumSubgroups::ParamSize() const {
+  return getValueAtOffset(5);
+}
+spv::Id OpGetKernelMaxNumSubgroups::ParamAlign() const {
+  return getValueAtOffset(6);
+}
 
 spv::Id OpImageSparseSampleImplicitLod::SampledImage() const {
   return getValueAtOffset(3);
