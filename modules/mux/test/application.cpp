@@ -103,7 +103,7 @@ struct muxApplication : public ::testing::Test {
                 compiler::Result::SUCCESS);
       std::vector<builtins::printf::descriptor> printf_calls;
       ASSERT_EQ(compiler::Result::SUCCESS,
-                module->finalize([](compiler::KernelInfo) {}, printf_calls));
+                module->finalize(nullptr, printf_calls));
       cargo::array_view<std::uint8_t> buffer;
       ASSERT_EQ(module->createBinary(buffer), compiler::Result::SUCCESS);
       mux_executable_t executable = nullptr;

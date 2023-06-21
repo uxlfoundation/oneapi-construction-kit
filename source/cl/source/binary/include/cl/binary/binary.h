@@ -75,7 +75,7 @@ bool serializeBinary(
     cargo::dynamic_array<uint8_t> &binary,
     const cargo::array_view<const uint8_t> mux_binary,
     const std::vector<builtins::printf::descriptor> &printf_calls,
-    const cl::binary::ProgramInfo &program_info, bool kernel_arg_info,
+    const compiler::ProgramInfo &program_info, bool kernel_arg_info,
     compiler::Module *compiler_module);
 
 /// @brief Deserializes an OpenCL program binary.
@@ -89,7 +89,7 @@ bool serializeBinary(
 /// @return true if the binary was deserialized successfully, false
 bool deserializeBinary(cargo::array_view<const uint8_t> binary,
                        std::vector<builtins::printf::descriptor> &printf_calls,
-                       cl::binary::ProgramInfo &program_info,
+                       compiler::ProgramInfo &program_info,
                        cargo::dynamic_array<uint8_t> &executable,
                        bool &is_executable);
 
@@ -102,17 +102,6 @@ md_hooks getOpenCLMetadataWriteHooks();
 ///
 /// @return md_hooks
 md_hooks getOpenCLMetadataReadHooks();
-
-/// @brief Returns a compiler::KernelInfoCallback which will populate a CL
-/// ProgramInfo object.
-///
-/// @param[in,out] program_info CL ProgramInfo object to populate with the
-/// KernelInfoCallback.
-///
-/// @return A callback which will populate program_info when finalizing a
-/// compiler module.
-compiler::KernelInfoCallback populateProgramInfoCallback(
-    ProgramInfo &program_info);
 
 /// @brief Detects the OpenCL device profile string from a given Mux device.
 ///

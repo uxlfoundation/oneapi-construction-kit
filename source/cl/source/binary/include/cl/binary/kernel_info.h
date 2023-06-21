@@ -23,44 +23,12 @@
 #include <cargo/small_vector.h>
 #include <cargo/string_view.h>
 #include <cl/binary/argument.h>
+#include <compiler/module.h>
 
 #include <string>
 
 namespace cl {
 namespace binary {
-
-/// @brief Class for storing kernel info.
-class KernelInfo {
- public:
-  /// @brief Default constructor.
-  KernelInfo();
-
-  /// @brief Struct representing basic kernel argument information.
-  struct ArgumentInfo final {
-    ArgumentInfo();
-
-    cl_kernel_arg_address_qualifier address_qual;
-    cl_kernel_arg_access_qualifier access_qual;
-    cl_kernel_arg_type_qualifier type_qual;
-    std::string type_name;
-    std::string name;
-  };  // struct ArgumentInfo
-
-  std::string name;
-  std::string attributes;
-  uint32_t num_arguments;
-  cargo::dynamic_array<ArgumentType> argument_types;
-  cargo::optional<cargo::small_vector<ArgumentInfo, 8>> argument_info;
-  uint64_t private_mem_size;
-
-  /// @brief Values of reqd_work_group_size attribute.
-  ///
-  /// @remark *** Attention ***
-  /// Work_group should only be set if reqd_work_group_size attribute is
-  /// specified! Code in clEnqueueNDRangeKernel and clEnqueueTask relies on this
-  /// assumption.
-  std::array<size_t, 3> work_group;
-};  // class KernelInfo
 
 /// @brief Extract kernel information from a declaration string.
 ///
@@ -87,7 +55,7 @@ class KernelInfo {
 /// metadata as required by -cl-kernel-arg-info.
 ///
 /// @return Return true if successful, false on allocation failures.
-bool kernelDeclStrToKernelInfo(KernelInfo &kernel_info,
+bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
                                const cargo::string_view decl,
                                bool store_arg_metadata);
 

@@ -86,7 +86,7 @@ class driver {
   /// @brief Printf calls descriptors generated during module finalization.
   std::vector<builtins::printf::descriptor> printf_calls;
   /// @brief Program information generated during module finalization.
-  cl::binary::ProgramInfo program_info;
+  compiler::ProgramInfo program_info;
   /// @brief Storage for the compiled binary.
   std::string generated_output_file;
   /// @brief Build log for the compiler Module

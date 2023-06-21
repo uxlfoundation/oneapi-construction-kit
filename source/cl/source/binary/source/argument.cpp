@@ -30,9 +30,9 @@
 namespace cl {
 namespace binary {
 
-ArgumentType getArgumentTypeFromParameterTypeString(
-    const cargo::string_view &str) {
-  ArgumentType type_info;
+std::pair<compiler::ArgumentType, std::string>
+getArgumentTypeFromParameterTypeString(const cargo::string_view &str) {
+  compiler::ArgumentType type_info;
 
   auto words_v = cargo::split(str, " ");
 
@@ -44,16 +44,17 @@ ArgumentType getArgumentTypeFromParameterTypeString(
   auto &type_str = words_v.back();
 
   // If the type is unsigned, store a 'u' in the type name
+  std::string type_name_str;
   if (type_str.starts_with('u')) {
-    type_info.type_name_str = 'u';
+    type_name_str = 'u';
     type_str.remove_prefix(1);  // Remove the 'u'
   } else if (words_v.size() >= 2 &&
              !(words_v.crend() - 2)->compare("unsigned")) {
-    type_info.type_name_str = 'u';
+    type_name_str = 'u';
   }
 
   // Store the rest of the type name including vector width (if present)
-  type_info.type_name_str += cargo::as<std::string>(type_str);
+  type_name_str += cargo::as<std::string>(type_str);
 
   // Check for vector widths
   static std::regex trailing_num_re(R"((\d+)$)", std::regex::optimize);
@@ -170,7 +171,6 @@ ArgumentType getArgumentTypeFromParameterTypeString(
       type_info.kind = compiler::ArgumentKind::INT64_16;
     }
   } else {  // "other" type or an error
-    type_info.is_other = true;
     if (!type_str.compare("image1d_array_t")) {
       type_info.kind = compiler::ArgumentKind::IMAGE1D_ARRAY;
     } else if (!type_str.compare("image1d_buffer_t")) {
@@ -191,7 +191,7 @@ ArgumentType getArgumentTypeFromParameterTypeString(
     }
   }
 
-  return type_info;
+  return std::make_pair(type_info, type_name_str);
 }
 
 }  // namespace binary

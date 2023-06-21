@@ -370,7 +370,7 @@ that handle the back-end and code generation.
       virtual Result link(cargo::array_view<Module *> input_modules);
 
       virtual Result finalize(
-          KernelInfoCallback kernel_info_callback,
+          ProgramInfo *kernel_info,
           std::vector<builtins::printf::descriptor> &printf_calls);
 
       virtual Kernel *getKernel(const std::string &name);

@@ -325,9 +325,9 @@ struct ArgumentType {
 struct KernelInfo {
   /// @brief Struct representing basic kernel argument information.
   struct ArgumentInfo {
-    AddressSpace address_qual;
-    KernelArgAccess access_qual;
-    std::uint32_t type_qual;
+    AddressSpace address_qual = compiler::AddressSpace::PRIVATE;
+    KernelArgAccess access_qual = compiler::KernelArgAccess::NONE;
+    std::uint32_t type_qual = 0;
     std::string type_name;
     std::string name;
   };
@@ -339,11 +339,120 @@ struct KernelInfo {
   std::uint64_t private_mem_size;
 
   /// @brief Values of reqd_work_group_size attribute if it exists.
-  cargo::optional<std::array<size_t, 3>> work_group;
+  cargo::optional<std::array<size_t, 3>> reqd_work_group_size;
+
+  std::size_t getNumArguments() const { return argument_types.size(); }
+
+  /// @brief Returns the reqd_work_group_size if present, else an all-zeros
+  /// array.
+  std::array<size_t, 3> getReqdWGSizeOrZero() const {
+    return reqd_work_group_size.value_or(std::array<size_t, 3>{0, 0, 0});
+  }
 };  // class KernelInfo
 
-/// @brief Kernel info callback type.
-using KernelInfoCallback = std::function<void(KernelInfo)>;
+/// @brief Class for managing program information.
+///
+/// Owns instances of KernelInfo (e.g., one per kernel in a module/program) and
+/// provides utilities for iterating over them.
+struct ProgramInfo {
+  /// @brief Add a single kernel info.
+  bool addNewKernel(KernelInfo &&info) {
+    if (cargo::success != kernel_descriptions.emplace_back(std::move(info))) {
+      return false;
+    }
+    return true;
+  }
+
+  /// @brief Initialize empty program information for a specified number of
+  /// kernels for later population.
+  ///
+  /// @param[in] numKernels Number of kernels to allocate space for.
+  bool resizeFromNumKernels(int32_t numKernels) {
+    if (cargo::success != kernel_descriptions.resize(numKernels)) {
+      return false;
+    }
+    return true;
+  }
+
+  inline size_t getNumKernels() const { return kernel_descriptions.size(); }
+
+  /// @brief Retrieve a kernel by index.
+  ///
+  /// @param[in] kernel_index Index into the list of kernel infos.
+  ///
+  /// @return Return kernel info if found, null otherwise.
+  KernelInfo *getKernel(size_t kernel_index) {
+    if (kernel_index >= kernel_descriptions.size()) {
+      return nullptr;
+    }
+    return &kernel_descriptions[kernel_index];
+  }
+
+  /// @brief Retrieve a kernel by index.
+  ///
+  /// @param[in] kernel_index Index into the list of kernel infos.
+  ///
+  /// @return Return kernel info if found, null otherwise.
+  const KernelInfo *getKernel(size_t kernel_index) const {
+    if (kernel_index >= kernel_descriptions.size()) {
+      return nullptr;
+    }
+    return &kernel_descriptions[kernel_index];
+  }
+
+  /// @brief Retrieve a kernel by name.
+  ///
+  /// @param[in] kernel_name Name of the kernel to search for.
+  ///
+  /// @return Return kernel info if found, null otherwise.
+  compiler::KernelInfo *getKernelByName(cargo::string_view kernel_name) {
+    for (auto &desc : kernel_descriptions) {
+      if (kernel_name == desc.name) {
+        return &desc;
+      }
+    }
+    return nullptr;
+  }
+
+  /// @brief Retrieve a kernel by name.
+  ///
+  /// @param[in] kernel_name Name of the kernel to search for.
+  ///
+  /// @return Return kernel info if found, null otherwise.
+  const compiler::KernelInfo *getKernelByName(
+      cargo::string_view kernel_name) const {
+    for (const auto &desc : kernel_descriptions) {
+      if (kernel_name == desc.name) {
+        return &desc;
+      }
+    }
+    return nullptr;
+  }
+
+  /// @brief Retrieve the begin iterator.
+  ///
+  /// @return The beginning of the kernel info range.
+  KernelInfo *begin() { return kernel_descriptions.begin(); }
+
+  /// @brief Retrieve the begin iterator.
+  ///
+  /// @return The beginning of the kernel info range.
+  const KernelInfo *begin() const { return kernel_descriptions.begin(); }
+
+  /// @brief Retrieve the end iterator.
+  ///
+  /// @return Return the end iterator.
+  KernelInfo *end() { return kernel_descriptions.end(); }
+
+  /// @brief Retrieve the end iterator.
+  ///
+  /// @return Return the end iterator.
+  const KernelInfo *end() const { return kernel_descriptions.end(); }
+
+ private:
+  /// @brief Kernel descriptions.
+  cargo::small_vector<KernelInfo, 8> kernel_descriptions;
+};
 
 namespace spirv {
 /// @brief Information about the target device to used during SPIR-V
@@ -505,7 +614,7 @@ class Module {
 
   /// @brief Generates a binary from the current program.
   ///
-  /// @param[out] kernel_info_callback Kernel info callback.
+  /// @param[out] program_info Optional ProgramInfo object to fill in.
   /// @param[out] printf_calls Output printf descriptor list.
   ///
   /// @return Return a status code.
@@ -514,7 +623,7 @@ class Module {
   /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when finalization failed. See
   /// the error log for more information.
   virtual Result finalize(
-      KernelInfoCallback kernel_info_callback,
+      ProgramInfo *program_info,
       std::vector<builtins::printf::descriptor> &printf_calls) = 0;
 
   /// @brief Creates a binary from the current module. This assumes that the

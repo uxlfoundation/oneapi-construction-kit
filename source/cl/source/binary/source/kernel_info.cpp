@@ -32,22 +32,8 @@
 
 namespace cl {
 namespace binary {
-KernelInfo::ArgumentInfo::ArgumentInfo()
-    : address_qual(CL_KERNEL_ARG_ADDRESS_PRIVATE),
-      access_qual(CL_KERNEL_ARG_ACCESS_NONE),
-      type_qual(0),
-      type_name(),
-      name() {}
 
-KernelInfo::KernelInfo()
-    : name(),
-      attributes(),
-      num_arguments(),
-      argument_types(),
-      argument_info(),
-      work_group() {}
-
-bool kernelDeclStrToKernelInfo(KernelInfo &kernel_info,
+bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
                                const cargo::string_view decl,
                                bool store_arg_metadata) {
   // Do some quick linting of the declaration string. See "Built-In Kernel
@@ -91,9 +77,7 @@ bool kernelDeclStrToKernelInfo(KernelInfo &kernel_info,
   // Create a vector, where each element is a string_view of one parameter
   auto params_str_v = cargo::split_all(params_str, ",");
 
-  kernel_info.num_arguments = params_str_v.size();
-  if (cargo::success !=
-      kernel_info.argument_types.alloc(kernel_info.num_arguments)) {
+  if (cargo::success != kernel_info.argument_types.alloc(params_str_v.size())) {
     return false;
   }
 
@@ -137,7 +121,7 @@ bool kernelDeclStrToKernelInfo(KernelInfo &kernel_info,
   for (size_t i = 0; i < params_str_v.size(); ++i) {
     auto &p = params_str_v[i];
     auto &arg_type = kernel_info.argument_types[i];
-    KernelInfo::ArgumentInfo arg_info;
+    compiler::KernelInfo::ArgumentInfo arg_info;
 
     p = cargo::trim(p, " ");
 
@@ -157,15 +141,15 @@ bool kernelDeclStrToKernelInfo(KernelInfo &kernel_info,
       cargo::string_view addr_qual = deque_word(p);
       // Search in reverse because we don't care about leading `__`
       if (cargo::string_view::npos != addr_qual.rfind("global")) {
-        arg_info.address_qual = CL_KERNEL_ARG_ADDRESS_GLOBAL;
-        arg_type = ArgumentType{AddressSpace::GLOBAL};
+        arg_info.address_qual = compiler::AddressSpace::GLOBAL;
+        arg_type = compiler::ArgumentType{compiler::AddressSpace::GLOBAL};
       } else if (cargo::string_view::npos != addr_qual.rfind("constant")) {
-        arg_info.address_qual = CL_KERNEL_ARG_ADDRESS_CONSTANT;
+        arg_info.address_qual = compiler::AddressSpace::CONSTANT;
         arg_info.type_qual |= CL_KERNEL_ARG_TYPE_CONST;
-        arg_type = ArgumentType{AddressSpace::CONSTANT};
+        arg_type = compiler::ArgumentType{compiler::AddressSpace::CONSTANT};
       } else if (cargo::string_view::npos != addr_qual.rfind("local")) {
-        arg_info.address_qual = CL_KERNEL_ARG_ADDRESS_LOCAL;
-        arg_type = ArgumentType{AddressSpace::LOCAL};
+        arg_info.address_qual = compiler::AddressSpace::LOCAL;
+        arg_type = compiler::ArgumentType{compiler::AddressSpace::LOCAL};
       } else {
         OCL_ASSERT(false, CA_CAT("Expected an address space qualifier in '" +
                                  cargo::as<std::string>(addr_qual) + "'"));
@@ -217,28 +201,39 @@ bool kernelDeclStrToKernelInfo(KernelInfo &kernel_info,
         }
       }
     } else {  // Not a pointer
-      arg_type = getArgumentTypeFromParameterTypeString(p);
+      const auto &info = getArgumentTypeFromParameterTypeString(p);
+      arg_type = info.first;
 
       if (store_arg_metadata) {
-        arg_info.type_name = std::move(arg_type.type_name_str);
-        if (arg_type.is_other) {
-          // Image types, but not sampler_t, default to the global address space
-          if (compiler::ArgumentKind::SAMPLER != arg_type.kind) {
-            arg_info.address_qual = CL_KERNEL_ARG_ADDRESS_GLOBAL;
-            // read_only is the default (section 6.6 of OpenCL 1.2 spec).
-            arg_info.access_qual = CL_KERNEL_ARG_ACCESS_READ_ONLY;
-          }
-          // The remaining string should be fairly short. See if it contains
-          // image access qualifiers.
-          if (cargo::string_view::npos != p.find("read_write")) {
-            arg_info.access_qual = CL_KERNEL_ARG_ACCESS_READ_WRITE;
-          } else if (cargo::string_view::npos != p.find("write_only")) {
-            arg_info.access_qual = CL_KERNEL_ARG_ACCESS_WRITE_ONLY;
-          }
-          // There could be additional error checking here for illegal words
-        } else {
-          // normal value type
-          // There could be additional error checking here for illegal words
+        arg_info.type_name = info.second;
+        switch (arg_type.kind) {
+          default:
+            // normal value type
+            // There could be additional error checking here for illegal words
+            break;
+          case compiler::ArgumentKind::SAMPLER:
+          case compiler::ArgumentKind::IMAGE1D:
+          case compiler::ArgumentKind::IMAGE1D_ARRAY:
+          case compiler::ArgumentKind::IMAGE1D_BUFFER:
+          case compiler::ArgumentKind::IMAGE2D:
+          case compiler::ArgumentKind::IMAGE2D_ARRAY:
+          case compiler::ArgumentKind::IMAGE3D:
+            // Image types, but not sampler_t, default to the global address
+            // space
+            if (compiler::ArgumentKind::SAMPLER != arg_type.kind) {
+              arg_info.address_qual = compiler::AddressSpace::GLOBAL;
+              // read_only is the default (section 6.6 of OpenCL 1.2 spec).
+              arg_info.access_qual = compiler::KernelArgAccess::READ_ONLY;
+            }
+            // The remaining string should be fairly short. See if it contains
+            // image access qualifiers.
+            if (cargo::string_view::npos != p.find("read_write")) {
+              arg_info.access_qual = compiler::KernelArgAccess::READ_WRITE;
+            } else if (cargo::string_view::npos != p.find("write_only")) {
+              arg_info.access_qual = compiler::KernelArgAccess::WRITE_ONLY;
+            }
+            // There could be additional error checking here for illegal words
+            break;
         }
       }
     }

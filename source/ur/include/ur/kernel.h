@@ -29,33 +29,6 @@
 #include "mux/mux.h"
 #include "ur/base.h"
 
-namespace ur {
-/// @brief Helper type representing kernel metadata.
-struct kernel_data_t {
-  /// @brief Helper type representing kernel argument information.
-  struct argument_info_t final {
-    /// @brief The type of the argument.
-    compiler::ArgumentKind kind;
-    /// @brief The string representation of the argument type.
-    std::string type_name;
-    /// @brief The name of the argument.
-    std::string name;
-  };
-
-  /// @brief Name of the kernel.
-  std::string name;
-  /// @brief Number of arguments to the kernel
-  uint32_t num_arguments;
-  /// @brief Attributes set on the kernel.
-  std::string attributes;
-  /// @brief The types of the arguments in the order they appear.
-  cargo::dynamic_array<argument_info_t> argument_types;
-  /// @brief Optional info about each argument.
-  cargo::optional<cargo::small_vector<argument_info_t, 8>> argument_info;
-};
-
-}  // namespace ur
-
 /// @brief Compute Mux specific implementation of the opaque
 /// ur_kernel_handle_t_ API object.
 struct ur_kernel_handle_t_ : ur::base {

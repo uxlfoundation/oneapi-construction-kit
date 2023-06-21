@@ -288,16 +288,17 @@ void populateRequiredWGSAttribute(KernelInfo &kernel_info, llvm::MDNode *node) {
   llvm::ConstantInt *const operand3 =
       llvm::cast<llvm::ConstantInt>(vmdOp3->getValue());
   std::stringstream stream;
-  kernel_info.work_group.emplace();
-  (*kernel_info.work_group)[0] = *(operand1->getValue().getRawData());
-  (*kernel_info.work_group)[1] = *(operand2->getValue().getRawData());
-  (*kernel_info.work_group)[2] = *(operand3->getValue().getRawData());
+  kernel_info.reqd_work_group_size.emplace();
+  (*kernel_info.reqd_work_group_size)[0] = *(operand1->getValue().getRawData());
+  (*kernel_info.reqd_work_group_size)[1] = *(operand2->getValue().getRawData());
+  (*kernel_info.reqd_work_group_size)[2] = *(operand3->getValue().getRawData());
   if (!kernel_info.attributes.empty()) {
     stream << kernel_info.attributes << " ";
   }
-  stream << "reqd_work_group_size(" << kernel_info.work_group.value()[0] << ","
-         << kernel_info.work_group.value()[1] << ","
-         << kernel_info.work_group.value()[2] << ")";
+  stream << "reqd_work_group_size("
+         << kernel_info.reqd_work_group_size.value()[0] << ","
+         << kernel_info.reqd_work_group_size.value()[1] << ","
+         << kernel_info.reqd_work_group_size.value()[2] << ")";
   kernel_info.attributes.assign(stream.str());
 }
 
@@ -399,26 +400,23 @@ void populateAttributes(KernelInfo &kernel_info, llvm::MDNode *node) {
 
 /// @brief Populates kernel information from its LLVM IR.
 ///
-/// @param[in] callback KernelInfo to populate.
 /// @param[in] function The kernel function.
 /// @param[in] node Kernel's subnode in the opencl.kernels metadata node.
 /// @param[in] storeArgumentMetadata Whether to store additional argument
 /// metadata as required by -cl-kernel-arg-info.
 ///
-/// @return Return a status code.
+/// @return Return a KernelInfo object, or on errro a status code.
 /// @retval `Result::SUCCESS` on success.
 /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
 /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when there was a problem with the
 /// LLVM IR.
-Result populateKernelInfoFromFunction(KernelInfoCallback callback,
-                                      llvm::Function *function,
-                                      llvm::MDNode *node,
-                                      bool storeArgumentMetadata) {
+cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
+    llvm::Function *function, llvm::MDNode *node, bool storeArgumentMetadata) {
   KernelInfo kernel_info;
   kernel_info.name = function->getName().str();
   if (cargo::success !=
       kernel_info.argument_types.alloc(function->arg_size())) {
-    return Result::OUT_OF_MEMORY;
+    return cargo::make_unexpected(Result::OUT_OF_MEMORY);
   }
 
   // Calculate the private memory size used by the kernel
@@ -443,7 +441,7 @@ Result populateKernelInfoFromFunction(KernelInfoCallback callback,
   }
 
   if (!kernel_arg_base_type_found) {
-    return Result::FINALIZE_PROGRAM_FAILURE;
+    return cargo::make_unexpected(Result::FINALIZE_PROGRAM_FAILURE);
   }
 
   // First operand contains kernel_arg_base_type.
@@ -474,7 +472,7 @@ Result populateKernelInfoFromFunction(KernelInfoCallback callback,
           if (kernel_info.argument_info->resize(mdNode->getNumOperands() - 1) !=
               cargo::success) {
             kernel_info.argument_info = cargo::nullopt;
-            return Result::OUT_OF_MEMORY;
+            return cargo::make_unexpected(Result::OUT_OF_MEMORY);
           }
         }
         KernelInfo::ArgumentInfo &info =
@@ -557,15 +555,13 @@ Result populateKernelInfoFromFunction(KernelInfoCallback callback,
 
   populateAttributes(kernel_info, node);
 
-  callback(std::move(kernel_info));
-  return Result::SUCCESS;
+  return kernel_info;
 }
 }  // namespace
 
-Result moduleToProgramInfo(KernelInfoCallback callback,
-                           llvm::Module *const module,
+Result moduleToProgramInfo(ProgramInfo &program_info, llvm::Module *const M,
                            bool store_argument_metadata) {
-  llvm::NamedMDNode *const node = module->getNamedMetadata("opencl.kernels");
+  llvm::NamedMDNode *const node = M->getNamedMetadata("opencl.kernels");
   // Having no kernels isn't a failure.
   if (!node) {
     return Result::SUCCESS;
@@ -579,10 +575,13 @@ Result moduleToProgramInfo(KernelInfoCallback callback,
       llvm::Function *const function =
           llvm::cast<llvm::Function>(vmd->getValue());
 
-      auto populate_kernel_info_result = populateKernelInfoFromFunction(
-          callback, function, subNode, store_argument_metadata);
-      if (populate_kernel_info_result != Result::SUCCESS) {
-        return populate_kernel_info_result;
+      auto kernel_info_result = populateKernelInfoFromFunction(
+          function, subNode, store_argument_metadata);
+      if (!kernel_info_result.has_value()) {
+        return kernel_info_result.error();
+      }
+      if (!program_info.addNewKernel(std::move(*kernel_info_result))) {
+        return Result::OUT_OF_MEMORY;
       }
     }
   }

@@ -137,7 +137,7 @@ struct CompileOptionsTest : CompilerModuleTest {
                   nop_clc_source, {}));
     std::vector<builtins::printf::descriptor> printf_calls{};
     ASSERT_EQ(compiler::Result::SUCCESS,
-              module->finalize([](compiler::KernelInfo) {}, printf_calls));
+              module->finalize(nullptr, printf_calls));
     cargo::array_view<std::uint8_t> buffer;
     ASSERT_EQ(compiler::Result::SUCCESS, module->createBinary(buffer));
   }
@@ -270,7 +270,7 @@ TEST_P(SerializeModuleTest, SerializeIntermediate) {
 
   std::vector<builtins::printf::descriptor> printf_calls;
   ASSERT_EQ(compiler::Result::SUCCESS,
-            cloned_module->finalize([](compiler::KernelInfo) {}, printf_calls));
+            cloned_module->finalize(nullptr, printf_calls));
   EXPECT_EQ(cloned_module->getState(), compiler::ModuleState::EXECUTABLE);
 }
 
@@ -314,14 +314,13 @@ TEST_P(SerializeModuleTest, SerializeLibraryThenLink) {
 
   std::vector<builtins::printf::descriptor> printf_calls;
   ASSERT_EQ(compiler::Result::SUCCESS,
-            cloned_module->finalize([](compiler::KernelInfo) {}, printf_calls));
+            cloned_module->finalize(nullptr, printf_calls));
   EXPECT_EQ(cloned_module->getState(), compiler::ModuleState::EXECUTABLE);
 }
 
 TEST_P(SerializeModuleTest, SerializeFinalized) {
   std::vector<builtins::printf::descriptor> printf_calls;
-  ASSERT_EQ(compiler::Result::SUCCESS,
-            module->finalize([](compiler::KernelInfo) {}, printf_calls));
+  ASSERT_EQ(compiler::Result::SUCCESS, module->finalize(nullptr, printf_calls));
 
   size_t size = module->size();
   ASSERT_GT(size, 0);
