@@ -795,6 +795,11 @@ if(${OCL_EXTENSION_cl_khr_extended_async_copies})
     ${CMAKE_CURRENT_SOURCE_DIR}/ext_async.02_simple_3d.cl)
 endif()
 
+if(${OCL_EXTENSION_cl_intel_required_subgroup_size})
+  list(APPEND KERNEL_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext_reqd_subgroup.01_size8.cl)
+endif()
+
 # TODO CA-1879: These kernels were originally written specifically for offline
 # testing, however, now all kernels can be made into offline tests so there may
 # be some redundancy here.

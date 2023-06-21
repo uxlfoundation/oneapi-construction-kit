@@ -56,6 +56,10 @@ MODULE_PASS("set-convergent-attr", compiler::SetConvergentAttrPass())
 MODULE_PASS("spir-fixup", compiler::spir::SpirFixupPass())
 MODULE_PASS("transfer-kernel-metadata",
             compiler::utils::TransferKernelMetadataPass())
+MODULE_PASS("verify-reqd-sub-group-legal",
+            compiler::utils::VerifyReqdSubGroupSizeLegalPass())
+MODULE_PASS("verify-reqd-sub-group-satisfied",
+            compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass())
 
 MODULE_PASS("unique-opaque-structs", compiler::utils::UniqueOpaqueStructsPass())
 

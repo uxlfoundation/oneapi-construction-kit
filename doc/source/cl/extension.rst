@@ -13,7 +13,7 @@ EXT
 Vendor
   Extension defined by a single vendor, but may be implemented by
   other vendors, e.g oneAPI Construction Kit implements vendor extension
-  ``cl_intel_unified_shared_memory``.
+  ``cl_intel_unified_shared_memory`` and ``cl_intel_required_subgroup_size``.
 
 oneAPI Construction Kit implements several Codeplay vendor extensions,
 specified under the ``extension`` directory. When adding a new vendor
@@ -49,6 +49,7 @@ be contiguous.
   extension/cl_codeplay_soft_math
   extension/cl_codeplay_wfv
   extension/cl_intel_unified_shared_memory
+  extension/cl_intel_required_subgroup_size
 
 OpenCL C 1.2 - ``khr_opencl_c_1_2``
 -----------------------------------
@@ -351,3 +352,21 @@ replaced by a customer implementation where it can be accelerated.
 
 .. _cl_khr_extended_async_copies:
   https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_Ext.html#cl_khr_extended_async_copies
+
+Required subgroup sizes for kernels - ``cl_intel_required_subgroup_size``
+-------------------------------------------------------------------------
+
+oneAPI Construction Kit implements the `cl_intel_required_subgroup_size`_
+extension.
+
+This has a default implementation which does not report any available subgroup
+sizes for any device. The compiler will report an error for any kernel given
+the ``intel_reqd_sub_group_size`` attribute with a size that is not reported by
+the device. There is currently no handling of the attribute if a target does
+report a set of sub-group sizes, as no in-tree target does so.
+
+Furthermore, all kernels report the same non-zero value for
+``CL_KERNEL_SPILL_MEM_SIZE_INTEL``.
+
+.. _cl_intel_required_subgroup_size:
+  https://registry.khronos.org/OpenCL/extensions/intel/cl_intel_required_subgroup_size.html

@@ -504,6 +504,8 @@ Here is the full list of supported requirements for ``// REQUIRES:``:
 * ``parameters`` - Currently tests that are parameterized using macros do not
   support any offline compilation (either to IR or to executable). This
   requirement disables all but the ``Execution`` test type.
+* ``mayfail`` - Indicates that ``clc`` may fail to compile this kernel. The
+  offline binaries are therefore optional.
 
 .. warning::
 

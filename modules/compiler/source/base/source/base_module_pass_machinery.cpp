@@ -64,6 +64,7 @@
 #include <compiler/utils/replace_wgc_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/unique_opaque_structs_pass.h>
+#include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/Support/FormatVariadic.h>
@@ -558,6 +559,23 @@ void BaseModulePassMachinery::printPassNames(raw_ostream &OS) {
   OS << "CGSCC passes:\n";
 #define CGSCC_PASS(NAME, CREATE_PASS) compiler::utils::printPassName(NAME, OS);
 #include "base_pass_registry.def"
+}
+
+compiler::utils::DeviceInfo initDeviceInfoFromMux(
+    mux_device_info_t device_info) {
+  if (!device_info) {
+    return compiler::utils::DeviceInfo{};
+  }
+
+  auto info = compiler::utils::DeviceInfo(
+      device_info->half_capabilities, device_info->float_capabilities,
+      device_info->double_capabilities, device_info->max_work_width);
+
+  for (size_t i = 0, e = device_info->num_sub_group_sizes; i != e; i++) {
+    info.reqd_sub_group_sizes.push_back(device_info->sub_group_sizes[i]);
+  }
+
+  return info;
 }
 
 }  // namespace compiler

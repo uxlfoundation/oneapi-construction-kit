@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
     <block>
       <define priority="high">${FUNCTION_PREFIX}_MAJOR_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} major version number.</brief></doxygen></define>
-      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>75</value>
+      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>76</value>
         <doxygen><brief>${Function_Prefix} minor version number.</brief></doxygen></define>
       <define priority="high">${FUNCTION_PREFIX}_PATCH_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} patch version number.</brief></doxygen></define>
@@ -2120,6 +2120,8 @@ For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_
         <member>max_hardware_counters<type>uint32_t</type><doxygen><brief>Maximum number of hardware counters that can be active at one time.</brief></doxygen></member>
         <member>supports_work_group_collectives<type>bool</type><doxygen><brief>Boolean value indicating if work-group collective functions are supported by the device.</brief></doxygen></member>
         <member>supports_generic_address_space<type>bool</type><doxygen><brief>Boolean value indicating if the generic address space is supported by the device.</brief></doxygen></member>
+        <member>num_sub_group_sizes<type>size_t</type><doxygen><brief>The number of sub-group sizes supported by the device, pointed to by sub_group_sizes.</brief></doxygen></member>
+        <member>sub_group_sizes<type>size_t*</type><doxygen><brief>List of sub-group sizes supported by the device, sized by num_sub_group_sizes.</brief></doxygen></member>
       </scope>
       <doxygen><brief>${Prefix}'s device information container.</brief>
         <detail>Holds details about a partner device, allowing the access to them without initializing that device.</detail>

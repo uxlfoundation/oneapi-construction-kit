@@ -357,6 +357,18 @@ bool serializeProgramInfo(md_ctx ctx, const compiler::ProgramInfo &program_info,
     }
     md_pop(stack);
 
+    // required sub-group size
+    const int reqd_sub_group_size_idx =
+        md_push_uint(stack, kernel.reqd_sub_group_size.value_or(0));
+    if (MD_CHECK_ERR(reqd_sub_group_size_idx)) {
+      return false;
+    }
+    err = md_array_append(stack, indv_kernel_idx, reqd_sub_group_size_idx);
+    if (MD_CHECK_ERR(err)) {
+      return false;
+    }
+    md_pop(stack);
+
     // kernel name
     const int kernel_name_idx = md_push_zstr(stack, kernel.name.c_str());
     if (MD_CHECK_ERR(kernel_name_idx)) {
@@ -730,9 +742,26 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
       kernelInfo->reqd_work_group_size = reqd_wg_size;
     }
 
+    // required sub-group size
+    md_value work_size_v;
+    err = md_get_array_idx(kernel_info_v, 4, &work_size_v);
+    if (MD_CHECK_ERR(err)) {
+      return false;
+    }
+
+    uint64_t reqd_sub_group_size;
+    err = md_get_uint(work_size_v, &reqd_sub_group_size);
+    if (MD_CHECK_ERR(err)) {
+      return false;
+    }
+
+    if (reqd_sub_group_size) {
+      kernelInfo->reqd_sub_group_size = reqd_sub_group_size;
+    }
+
     // kernel name
     md_value kernel_name_v;
-    err = md_get_array_idx(kernel_info_v, 4, &kernel_name_v);
+    err = md_get_array_idx(kernel_info_v, 5, &kernel_name_v);
     if (MD_CHECK_ERR(err)) {
       return false;
     }

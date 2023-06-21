@@ -77,6 +77,14 @@ struct DeviceInfo {
   uint32_t double_capabilities = 0;
   uint32_t max_work_width = 0;
 
+  /// @brief List of supported 'required' sub-group sizes reported by this
+  /// device.
+  ///
+  /// These are only the sub-group sizes that can be requested as 'required' for
+  /// a kernel; the compiler may produce a wide range of other sub-group sizes
+  /// on undecorated kernels, assuming sub-groups are supported by the device.
+  std::vector<uint32_t> reqd_sub_group_sizes;
+
   /// @brief Handle invalidation events from the new pass manager.
   ///
   /// @return false, as this analysis can never be invalidated.

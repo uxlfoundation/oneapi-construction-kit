@@ -54,6 +54,7 @@
 #include <compiler/utils/replace_barriers_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
+#include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm-c/BitWriter.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/Triple.h>
@@ -1772,6 +1773,8 @@ Result BaseModule::finalize(
           m.setTargetTriple(triple);
         }));
   }
+
+  pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());
 
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::SoftwareDivisionPass()));

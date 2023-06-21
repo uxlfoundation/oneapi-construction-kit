@@ -68,6 +68,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/simple_callback_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/unique_opaque_structs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/vectorization_factor.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/verify_reqd_sub_group_size_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/add_kernel_wrapper_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/add_scheduling_parameters_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/align_module_structs_pass.cpp
@@ -113,7 +114,8 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_math_decls_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_wgc_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/scheduling.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp)
 
 target_include_directories(compiler-utils PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include)

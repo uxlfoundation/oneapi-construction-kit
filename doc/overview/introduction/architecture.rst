@@ -237,6 +237,7 @@ OpenCL extensions:
 - cl_codeplay_performance_counters
 - cl_codeplay_soft_math
 - cl_intel_unified_shared_memory
+- cl_intel_required_subgroup_size
 
 .. note::
    Integration of custom extensions for vendor hardware is supported.

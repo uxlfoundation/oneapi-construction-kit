@@ -294,7 +294,9 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
     }
 
     if (CL_SUCCESS != err) {
-      Fail("Could not create OpenCL program.", err);
+      if (fail_if_build_program_failed) {
+        Fail("Could not create OpenCL program.", err);
+      }
       return false;
     }
 
@@ -337,7 +339,9 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
         return false;
       }
 
-      Fail("clBuildProgram failed. Build log:\n\n" + build_log);
+      if (fail_if_build_program_failed) {
+        Fail("clBuildProgram failed. Build log:\n\n" + build_log);
+      }
       return false;
     }
   }
@@ -346,7 +350,9 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
   if (!kernel_) {
     kernel_ = clCreateKernel(program_, kernel_name.c_str(), &err);
     if (CL_SUCCESS != err) {
-      Fail("Could not create OpenCL kernel '" + kernel_name + "'.");
+      if (fail_if_build_program_failed) {
+        Fail("Could not create OpenCL kernel '" + kernel_name + "'.");
+      }
       return false;
     }
   }

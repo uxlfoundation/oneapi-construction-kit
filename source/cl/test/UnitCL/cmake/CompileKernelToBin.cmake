@@ -171,6 +171,7 @@ endif()
 set(REQUIREMENT_FP64 OFF)
 set(REQUIREMENT_FP16 OFF)
 set(REQUIREMENT_IMAGES OFF)
+set(REQUIREMENT_MAYFAIL OFF)
 
 # At the moment, `clc` has no method to find out what dependencies a kernel has
 # and to skip compilation appropriately. We need to separate `double`, `half`
@@ -187,6 +188,8 @@ foreach(requirement ${REQUIREMENTS_LIST})
     set(REQUIREMENT_FP16 ON)
   elseif(requirement STREQUAL "images")
     set(REQUIREMENT_IMAGES ON)
+  elseif(requirement STREQUAL "mayfail")
+    set(REQUIREMENT_MAYFAIL ON)
   # TODO CA-1830: These kernels are used in parameter tests but use these
   # parameters as macros. This is difficult to compile with `clc` so we need to
   # work out a way to do so.
@@ -232,17 +235,22 @@ execute_process(
   ERROR_VARIABLE clc_error)
 
 if(NOT clc_result EQUAL 0)
-  # execute_process() doesn't print the failing command, so attempt to
-  # reconstruct it here
-  message(FATAL_ERROR
-    "clc failed with status '${clc_result}':
-    ${CLC_EXECUTABLE}
-      -d '${DEVICE_NAME}'
-      -cl-kernel-arg-info
-      -cl-std=CL${CLC_CL_STD}
-      ${CLC_OPTIONS_LIST}
-      ${DEFS_LIST}
-      -o '${OUTPUT_FILE}'
-      -- '${INPUT_FILE}'
-    ${clc_error}")
+  if(REQUIREMENT_MAYFAIL)
+    file(WRITE ${OUTPUT_FILE} "// clc could not compile optional 'mayfail' "
+         "requirement kernel for '${DEVICE_NAME}' - stderr:\n${clc_error}")
+  else()
+    # execute_process() doesn't print the failing command, so attempt to
+    # reconstruct it here
+    message(FATAL_ERROR
+      "clc failed with status '${clc_result}':
+      ${CLC_EXECUTABLE}
+        -d '${DEVICE_NAME}'
+        -cl-kernel-arg-info
+        -cl-std=CL${CLC_CL_STD}
+        ${CLC_OPTIONS_LIST}
+        ${DEFS_LIST}
+        -o '${OUTPUT_FILE}'
+        -- '${INPUT_FILE}'
+      ${clc_error}")
+  endif()
 endif()

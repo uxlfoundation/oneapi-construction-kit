@@ -24,6 +24,16 @@ TEST_P(Execution, Attribute_01_reqd_work_group_size) {
     GTEST_SKIP();
   }
 
+  constexpr size_t global_work_size[3] = {16, 8, 4};
+
+  size_t compile_work_group_size[3];
+  EXPECT_SUCCESS(clGetKernelWorkGroupInfo(
+      this->kernel_, this->device, CL_KERNEL_COMPILE_WORK_GROUP_SIZE,
+      sizeof(size_t) * 3, compile_work_group_size, nullptr));
+  EXPECT_EQ(global_work_size[0], compile_work_group_size[0]);
+  EXPECT_EQ(global_work_size[1], compile_work_group_size[1]);
+  EXPECT_EQ(global_work_size[2], compile_work_group_size[2]);
+
   cl_int error;
   constexpr size_t buffer_size = sizeof(cl_ulong) * 3;
   cl_mem buffer = clCreateBuffer(this->context, CL_MEM_WRITE_ONLY, buffer_size,
@@ -32,7 +42,6 @@ TEST_P(Execution, Attribute_01_reqd_work_group_size) {
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
                     clSetKernelArg(this->kernel_, 0, sizeof(buffer), &buffer));
 
-  constexpr size_t global_work_size[3] = {16, 8, 4};
   const auto max_work_items_sizes = this->getDeviceMaxWorkItemSizes();
   for (size_t i = 0; i < 3; i++) {
     if (global_work_size[i] > max_work_items_sizes[i]) {
@@ -73,9 +82,9 @@ TEST_P(Execution, Attribute_01_reqd_work_group_size) {
       clEnqueueReadBuffer(this->command_queue, buffer, CL_TRUE, 0, buffer_size,
                           reqd_work_group_size, 1, &ndRangeEvent, nullptr));
 
-  EXPECT_EQ(16u, reqd_work_group_size[0]);
-  EXPECT_EQ(8u, reqd_work_group_size[1]);
-  EXPECT_EQ(4u, reqd_work_group_size[2]);
+  EXPECT_EQ(global_work_size[0], reqd_work_group_size[0]);
+  EXPECT_EQ(global_work_size[1], reqd_work_group_size[1]);
+  EXPECT_EQ(global_work_size[2], reqd_work_group_size[2]);
 
   EXPECT_SUCCESS(clReleaseEvent(ndRangeEvent));
   ASSERT_SUCCESS(clReleaseMemObject(buffer));
