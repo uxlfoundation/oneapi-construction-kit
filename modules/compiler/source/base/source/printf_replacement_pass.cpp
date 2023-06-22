@@ -30,12 +30,12 @@
 #include <llvm/IR/Type.h>
 #include <llvm/Support/FormatVariadic.h>
 #include <multi_llvm/opaque_pointers.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include <iterator>
+#include <optional>
 
 #define PASS_NAME "replace-printf"
 
@@ -325,7 +325,7 @@ Error scalarizeAndCheckFormatString(const std::string &str,
   return Error::success();
 }
 
-Optional<std::string> getPointerToStringAsString(Value *op) {
+std::optional<std::string> getPointerToStringAsString(Value *op) {
   // Check whether the value is being passed directly as the GlobalVariable.
   // This is possible with opaque pointers so will eventually become the
   // default assumption.
@@ -373,7 +373,7 @@ Optional<std::string> getPointerToStringAsString(Value *op) {
   }
 
   if (!var || !var->hasInitializer()) {
-    return multi_llvm::None;
+    return std::nullopt;
   }
 
   Constant *const string_const = var->getInitializer();
@@ -382,7 +382,7 @@ Optional<std::string> getPointerToStringAsString(Value *op) {
     return array_string->getAsString().str();
   }
 
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
 /// @brief A small wrapper function around IRBuilder<>::CreateCall that
@@ -473,7 +473,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   OptimizationRemarkEmitter ORE(ci->getFunction());
 
   // get the format string
-  Optional<std::string> format_string =
+  std::optional<std::string> format_string =
       getPointerToStringAsString(ci->getArgOperand(0));
 
   if (!format_string) {

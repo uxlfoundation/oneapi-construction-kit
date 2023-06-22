@@ -44,7 +44,7 @@ namespace {{cookiecutter.target_name}} {
 
 // Process vecz flags based off build options and environment variables
 // return true if we want to vectorize
-llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
+multi_llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
   vecz::VeczPassOptions vecz_options;
   // The minimum number of elements to vectorize for. For a fixed-length VF,
   // this is the exact number of elements to vectorize by. For scalable VFs,
@@ -109,7 +109,7 @@ bool {{cookiecutter.target_name.capitalize()}}VeczPassOpts(
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
-  llvm::Optional<vecz::VeczPassOptions> vecz_options = processVeczFlags();
+  multi_llvm::Optional<vecz::VeczPassOptions> vecz_options = processVeczFlags();
   if (!vecz_options.has_value()) {
     return false;
   }

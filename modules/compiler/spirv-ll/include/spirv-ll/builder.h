@@ -19,11 +19,11 @@
 #ifndef SPIRV_LL_SPV_BUILDER_H_INCLUDED
 #define SPIRV_LL_SPV_BUILDER_H_INCLUDED
 
-#include <llvm/ADT/Optional.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/IRBuilder.h>
 #include <multi_llvm/multi_llvm.h>
+#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
@@ -666,7 +666,7 @@ class Builder {
     /// @brief The argument index of the substitutable type.
     std::size_t index;
     /// @brief The opcode of the substitutable type.
-    llvm::Optional<MangleInfo> mangleInfo;
+    multi_llvm::Optional<MangleInfo> mangleInfo;
   };
 
   /// @brief Checks if function parameter can be substituted.
@@ -679,7 +679,7 @@ class Builder {
   /// nullptr if the function parameter can not be substituted.
   const SubstitutableType *substitutableArg(
       llvm::Type *ty, const llvm::ArrayRef<SubstitutableType> &subTys,
-      llvm::Optional<MangleInfo> mangleInfo);
+      multi_llvm::Optional<MangleInfo> mangleInfo);
 
   /// @brief Generate the mangled name for a function parameter type.
   ///
@@ -689,7 +689,7 @@ class Builder {
   ///
   /// @return Returns a string containing the mangled name.
   std::string getMangledTypeName(llvm::Type *ty,
-                                 llvm::Optional<MangleInfo> mangleInfo,
+                                 multi_llvm::Optional<MangleInfo> mangleInfo,
                                  llvm::ArrayRef<SubstitutableType> subTys);
 
   /// @brief Creates a declaration for a builtin function inside of the current

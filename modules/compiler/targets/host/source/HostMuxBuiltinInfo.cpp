@@ -20,6 +20,8 @@
 #include <host/host_mux_builtin_info.h>
 #include <multi_llvm/multi_llvm.h>
 
+#include <optional>
+
 using namespace host;
 using namespace llvm;
 
@@ -148,8 +150,8 @@ Function *HostBIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
 
   bool HasRankArg = true;
   size_t DefaultVal = 0;
-  Optional<unsigned> ParamIdx;
-  Optional<unsigned> WGFieldIdx;
+  std::optional<unsigned> ParamIdx;
+  std::optional<unsigned> WGFieldIdx;
 
   switch (ID) {
     default:

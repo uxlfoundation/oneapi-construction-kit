@@ -41,7 +41,7 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
  public:
   BaseModulePassMachinery(
       llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
-      llvm::Optional<compiler::utils::DeviceInfo> Info,
+      multi_llvm::Optional<compiler::utils::DeviceInfo> Info,
       compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses)
@@ -75,7 +75,7 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
 
   /// @brief Device-specific information about the ComputeMux target being
   /// compiled for.
-  llvm::Optional<compiler::utils::DeviceInfo> Info;
+  multi_llvm::Optional<compiler::utils::DeviceInfo> Info;
 
   /// @brief An optional callback function that provides target-specific
   /// BuiltinInfo information to supply to the BuiltinInfoAnalysis analysis

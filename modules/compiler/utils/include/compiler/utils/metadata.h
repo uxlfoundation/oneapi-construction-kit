@@ -17,7 +17,6 @@
 #ifndef COMPILER_UTILS_METADATA_H_INCLUDED
 #define COMPILER_UTILS_METADATA_H_INCLUDED
 
-#include <llvm/ADT/Optional.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/Metadata.h>
 #include <multi_llvm/optional_helper.h>

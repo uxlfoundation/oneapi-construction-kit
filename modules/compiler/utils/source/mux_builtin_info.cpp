@@ -22,6 +22,8 @@
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/opaque_pointers.h>
 
+#include <optional>
+
 #if LLVM_VERSION_GREATER_EQUAL(16, 0)
 #include <llvm/Support/ModRef.h>
 #endif
@@ -44,7 +46,7 @@ static Function *defineLocalWorkItemBuiltin(BIMuxInfoConcept &BI, BuiltinID ID,
   // Simple 'local' work-item getters and setters.
   bool IsSetter = false;
   bool HasRankArg = false;
-  Optional<WorkItemInfoStructField::Type> WIFieldIdx;
+  std::optional<WorkItemInfoStructField::Type> WIFieldIdx;
   switch (ID) {
     default:
       return nullptr;
@@ -104,7 +106,7 @@ static Function *defineLocalWorkGroupBuiltin(BIMuxInfoConcept &BI, BuiltinID ID,
   // Simple work-group getters
   bool HasRankArg = true;
   size_t DefaultVal = 0;
-  Optional<WorkGroupInfoStructField::Type> WGFieldIdx;
+  std::optional<WorkGroupInfoStructField::Type> WGFieldIdx;
   switch (ID) {
     default:
       return nullptr;
