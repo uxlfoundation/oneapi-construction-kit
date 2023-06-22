@@ -621,12 +621,19 @@ cargo::optional<Error> Builder::create<OpTypeEvent>(const OpTypeEvent *op) {
   return cargo::nullopt;
 }
 
+static Error errorUnsupportedDeviceEnqueueOp(const std::string &opName) {
+  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
+  // environment spec section 3.1 for supported capabilities.
+  // It is, however, implicitly declared by SPIR-V 1.1 modules which declare the
+  // SubgroupDispatch capability for CL 3.0 devices supporting subgroups. This
+  // is highly dubious, and appears like a spec bug of some kind.
+  return Error(opName + " is not supported.");
+}
+
 template <>
 cargo::optional<Error> Builder::create<OpTypeDeviceEvent>(
     const OpTypeDeviceEvent *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpTypeDeviceEvent");
 }
 
 template <>
@@ -639,9 +646,7 @@ cargo::optional<Error> Builder::create<OpTypeReserveId>(
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeQueue>(const OpTypeQueue *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpTypeQueue");
 }
 
 template <>
@@ -1909,6 +1914,26 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
                                     {llvm::ConstantAsMetadata::get(
                                         IRBuilder.getInt32(maxDim))}));
             } break;
+            case spv::ExecutionModeSubgroupSize: {
+              uint32_t sgSize = executionMode->getValueAtOffset(3);
+              // Specify the required sub group size.
+              function->setMetadata(
+                  "intel_reqd_sub_group_size",
+                  llvm::MDNode::get(*context.llvmContext,
+                                    {llvm::ConstantAsMetadata::get(
+                                        IRBuilder.getInt32(sgSize))}));
+              break;
+            }
+            case spv::ExecutionModeSubgroupsPerWorkgroup:
+              // We declare we support SubgroupDispatch but really we only do so
+              // to handle SubgroupSize.
+              return Error(
+                  "Execution Mode SubgroupsPerWorkgroup is not supported.");
+            case spv::ExecutionModeSubgroupsPerWorkgroupId:
+              // We declare we support SubgroupDispatch but really we only do so
+              // to handle SubgroupSize.
+              return Error(
+                  "Execution Mode SubgroupsPerWorkgroupId is not supported.");
             default:
               break;
           }
@@ -6755,110 +6780,96 @@ cargo::optional<Error> Builder::create<OpGroupCommitWritePipe>(
 template <>
 cargo::optional<Error> Builder::create<OpEnqueueMarker>(
     const OpEnqueueMarker *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpEnqueueMarker");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpEnqueueKernel>(
     const OpEnqueueKernel *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpEnqueueKernel");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpGetKernelNDrangeSubGroupCount>(
     const OpGetKernelNDrangeSubGroupCount *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpGetKernelNDrangeSubGroupCount");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpGetKernelNDrangeMaxSubGroupSize>(
     const OpGetKernelNDrangeMaxSubGroupSize *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpGetKernelNDrangeMaxSubGroupSize");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpGetKernelWorkGroupSize>(
     const OpGetKernelWorkGroupSize *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpGetKernelWorkGroupSize");
 }
 
 template <>
 cargo::optional<Error>
 Builder::create<OpGetKernelPreferredWorkGroupSizeMultiple>(
     const OpGetKernelPreferredWorkGroupSizeMultiple *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp(
+      "OpGetKernelPreferredWorkGroupSizeMultiple");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpRetainEvent>(const OpRetainEvent *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpRetainEvent");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpReleaseEvent>(const OpReleaseEvent *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpReleaseEvent");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpCreateUserEvent>(
     const OpCreateUserEvent *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpCreateUserEvent");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpIsValidEvent>(const OpIsValidEvent *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpIsValidEvent");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpSetUserEventStatus>(
     const OpSetUserEventStatus *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpSetUserEventStatus");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpCaptureEventProfilingInfo>(
     const OpCaptureEventProfilingInfo *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpCaptureEventProfilingInfo");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpGetDefaultQueue>(
     const OpGetDefaultQueue *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpGetDefaultQueue");
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpBuildNDRange>(const OpBuildNDRange *) {
-  // Capability DeviceEnqueue isn't supported by CL 1.2, see OpenCL SPIR-V
-  // environment spec section 6.1 for supported capabilities.
-  return cargo::nullopt;
+  return errorUnsupportedDeviceEnqueueOp("OpBuildNDRange");
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGetKernelLocalSizeForSubgroupCount>(
+    const OpGetKernelLocalSizeForSubgroupCount *) {
+  return errorUnsupportedDeviceEnqueueOp(
+      "OpGetKernelLocalSizeForSubgroupCount");
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpGetKernelMaxNumSubgroups>(
+    const OpGetKernelMaxNumSubgroups *) {
+  return errorUnsupportedDeviceEnqueueOp("OpGetKernelMaxNumSubgroups");
 }
 
 template <>

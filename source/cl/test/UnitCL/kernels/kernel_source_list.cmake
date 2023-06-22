@@ -852,6 +852,12 @@ set(spirv_test
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm64
   )
 
+if(${OCL_EXTENSION_cl_intel_required_subgroup_size})
+  list(APPEND spirv_test
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext_reqd_subgroup.01_size8.spvasm32
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext_reqd_subgroup.01_size8.spvasm64)
+endif()
+
 # TODO(CA-3968): Revert when fixed.
 if(NOT CMAKE_CROSSCOMPILING)
   list(APPEND spirv_test

@@ -59,11 +59,9 @@ endforeach()
 # Create an individual option for each extension in the list.
 foreach(extension ${RUNTIME_EXTENSIONS} ${COMPILER_EXTENSIONS})
   if(${extension} STREQUAL "khr_command_buffer"
-    OR ${extension} STREQUAL "khr_command_buffer_mutable_dispatch"
-    OR ${extension} STREQUAL "intel_required_subgroup_size")
+    OR ${extension} STREQUAL "khr_command_buffer_mutable_dispatch")
     # TODO Enable `khr_command_buffer` and any layered extensions
     # by default once complete.
-    # TODO Enable `intel_required_subgroup_size` by default once complete.
     ca_option(OCL_EXTENSION_cl_${extension} BOOL
         "OpenCL extension cl_${extension}" OFF)
   else()

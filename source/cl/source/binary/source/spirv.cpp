@@ -134,6 +134,14 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
       return cargo::make_unexpected(result);
     }
   }
+  if (device_info->max_sub_group_count) {
+    // Note: This is something of a lie, as we don't support DeviceEnqueue,
+    // but we must support the 'SubgroupSize' ExecutionMode for SYCL 2020 and
+    // that is lumped in with SubgroupDispatch.
+    if ((result = spvCapabilities.push_back(spv::CapabilitySubgroupDispatch))) {
+      return cargo::make_unexpected(result);
+    }
+  }
   for (const std::string &extension : supported_extensions) {
     if ((result = spvDeviceInfo.extensions.push_back(extension))) {
       return cargo::make_unexpected(result);

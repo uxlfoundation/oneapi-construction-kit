@@ -351,7 +351,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
   for (auto cap : capabilities) {
     if (auto capability = spirv_ll::getCapabilityFromString(cap.data())) {
       // SPIR-V 1.0 list of capabilities.
-      static std::unordered_set<spv::Capability> supported_capabilities = {
+      static std::unordered_set<spv::Capability> supported_v1_0_capabilities = {
           spv::CapabilityMatrix,
           spv::CapabilityShader,
           spv::CapabilityGeometry,
@@ -446,7 +446,13 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
           spv::CapabilityArbitraryPrecisionIntegersINTEL,
           spv::CapabilityOptNoneINTEL};
 
-      if (supported_capabilities.count(*capability)) {
+      // SPIR-V 1.1 list of capabilities.
+      static std::unordered_set<spv::Capability> supported_v1_1_capabilities = {
+          spv::CapabilitySubgroupDispatch,
+      };
+
+      if (supported_v1_0_capabilities.count(*capability) ||
+          supported_v1_1_capabilities.count(*capability)) {
         deviceInfo.capabilities.push_back(*capability);
       } else {
         std::cerr << "error: unsupported capability: "
