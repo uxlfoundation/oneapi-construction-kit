@@ -9,6 +9,9 @@ name: Build documentation
 
 on:
  pull_request:
+  paths:
+    doc/**
+    .github/workflow/docs.yml
 
   # Allows you to run this workflow manually from the Actions tab
  workflow_dispatch:

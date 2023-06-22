@@ -1,0 +1,22 @@
+name: build-ock-m1
+description: Action to build the oneapi-construction-kit for default riscv m1 target
+
+inputs:
+  build_type:
+    description: 'build type (Release, ReleaseAssert)'
+    default: ReleaseAssert
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: build_ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_type: ${{ inputs.build_type }}
+        mux_targets_enable: riscv
+        mux_compilers_enable: refsi_m1
+        external_compiler_dirs: "${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1"
+        riscv_enabled: ON
+        enable_rvv_scalable_vecz_check: ON
+        enable_rvv_scalable_VP_vecz_check: ON
