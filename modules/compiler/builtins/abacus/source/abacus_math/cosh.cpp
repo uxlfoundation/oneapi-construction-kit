@@ -17,7 +17,6 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/exp_unsafe.h>
 
 namespace {

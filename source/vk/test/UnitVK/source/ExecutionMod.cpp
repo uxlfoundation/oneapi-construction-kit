@@ -160,7 +160,8 @@ TEST_F(op_glsl_Modf_vec4_vec4Ptr, ArgumentsPassedCorrectly) {
   auto result = RunWithArgs({3.14f, 0.01f, 2.68f, 1.10f});
   EXPECT_TRUE(
       glsl::fuzzyEq(result.fract, glsl::vec4Ty(0.14f, 0.01f, 0.68f, 0.10f)));
-  EXPECT_TRUE(glsl::fuzzyEq(result.whole, glsl::vec4Ty(3.0f, 0.0f, 2.0f, 1.0f)));
+  EXPECT_TRUE(
+      glsl::fuzzyEq(result.whole, glsl::vec4Ty(3.0f, 0.0f, 2.0f, 1.0f)));
 }
 
 TEST_F(op_glsl_Modf_dvec2_dvec2Ptr, ArgumentsPassedCorrectly) {
@@ -291,7 +292,8 @@ TEST_F(op_glsl_ModfStruct_vec4, ArgumentsPassedCorrectly) {
   auto result = RunWithArgs({3.14f, 0.01f, 2.68f, 1.10f});
   EXPECT_TRUE(
       glsl::fuzzyEq(result.fract, glsl::vec4Ty(0.14f, 0.01f, 0.68f, 0.10f)));
-  EXPECT_TRUE(glsl::fuzzyEq(result.whole, glsl::vec4Ty(3.0f, 0.0f, 2.0f, 1.0f)));
+  EXPECT_TRUE(
+      glsl::fuzzyEq(result.whole, glsl::vec4Ty(3.0f, 0.0f, 2.0f, 1.0f)));
 }
 
 TEST_F(op_glsl_ModfStruct_dvec2, ArgumentsPassedCorrectly) {

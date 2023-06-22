@@ -14,11 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <BenchCL/utils.h>
 #include <BenchCL/environment.h>
+#include <BenchCL/utils.h>
+
 #include <cassert>
-#include <vector>
 #include <string>
+#include <vector>
 
 #define CHECK(EXPR)        \
   err = EXPR;              \

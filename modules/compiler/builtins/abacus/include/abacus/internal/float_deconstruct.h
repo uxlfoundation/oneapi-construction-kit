@@ -22,7 +22,7 @@
 
 namespace {
 template <typename T, typename UInt = typename TypeTraits<T>::UnsignedType>
-inline UInt deconstruct_helper(T x, UInt* unBiasedExp) {
+inline UInt deconstruct_helper(T x, UInt *unBiasedExp) {
   using Shape = FPShape<T>;
 
   const UInt ix = abacus::detail::cast::as<UInt>(x);
@@ -43,93 +43,93 @@ namespace internal {
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 inline abacus_ushort float_deconstruct(abacus_half x,
-                                       abacus_ushort* unBiasedExp) {
+                                       abacus_ushort *unBiasedExp) {
   return deconstruct_helper<abacus_half>(x, unBiasedExp);
 }
 
 inline abacus_ushort2 float_deconstruct(abacus_half2 x,
-                                        abacus_ushort2* unBiasedExp) {
+                                        abacus_ushort2 *unBiasedExp) {
   return deconstruct_helper<abacus_half2>(x, unBiasedExp);
 }
 
 inline abacus_ushort3 float_deconstruct(abacus_half3 x,
-                                        abacus_ushort3* unBiasedExp) {
+                                        abacus_ushort3 *unBiasedExp) {
   return deconstruct_helper<abacus_half3>(x, unBiasedExp);
 }
 
 inline abacus_ushort4 float_deconstruct(abacus_half4 x,
-                                        abacus_ushort4* unBiasedExp) {
+                                        abacus_ushort4 *unBiasedExp) {
   return deconstruct_helper<abacus_half4>(x, unBiasedExp);
 }
 
 inline abacus_ushort8 float_deconstruct(abacus_half8 x,
-                                        abacus_ushort8* unBiasedExp) {
+                                        abacus_ushort8 *unBiasedExp) {
   return deconstruct_helper<abacus_half8>(x, unBiasedExp);
 }
 
 inline abacus_ushort16 float_deconstruct(abacus_half16 x,
-                                         abacus_ushort16* unBiasedExp) {
+                                         abacus_ushort16 *unBiasedExp) {
   return deconstruct_helper<abacus_half16>(x, unBiasedExp);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-inline abacus_uint float_deconstruct(abacus_float x, abacus_uint* unBiasedExp) {
+inline abacus_uint float_deconstruct(abacus_float x, abacus_uint *unBiasedExp) {
   return deconstruct_helper<abacus_float>(x, unBiasedExp);
 }
 
 inline abacus_uint2 float_deconstruct(abacus_float2 x,
-                                      abacus_uint2* unBiasedExp) {
+                                      abacus_uint2 *unBiasedExp) {
   return deconstruct_helper<abacus_float2>(x, unBiasedExp);
 }
 
 inline abacus_uint3 float_deconstruct(abacus_float3 x,
-                                      abacus_uint3* unBiasedExp) {
+                                      abacus_uint3 *unBiasedExp) {
   return deconstruct_helper<abacus_float3>(x, unBiasedExp);
 }
 
 inline abacus_uint4 float_deconstruct(abacus_float4 x,
-                                      abacus_uint4* unBiasedExp) {
+                                      abacus_uint4 *unBiasedExp) {
   return deconstruct_helper<abacus_float4>(x, unBiasedExp);
 }
 
 inline abacus_uint8 float_deconstruct(abacus_float8 x,
-                                      abacus_uint8* unBiasedExp) {
+                                      abacus_uint8 *unBiasedExp) {
   return deconstruct_helper<abacus_float8>(x, unBiasedExp);
 }
 
 inline abacus_uint16 float_deconstruct(abacus_float16 x,
-                                       abacus_uint16* unBiasedExp) {
+                                       abacus_uint16 *unBiasedExp) {
   return deconstruct_helper<abacus_float16>(x, unBiasedExp);
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 inline abacus_ulong float_deconstruct(abacus_double x,
-                                      abacus_ulong* unBiasedExp) {
+                                      abacus_ulong *unBiasedExp) {
   return deconstruct_helper<abacus_double>(x, unBiasedExp);
 }
 
 inline abacus_ulong2 float_deconstruct(abacus_double2 x,
-                                       abacus_ulong2* unBiasedExp) {
+                                       abacus_ulong2 *unBiasedExp) {
   return deconstruct_helper<abacus_double2>(x, unBiasedExp);
 }
 
 inline abacus_ulong3 float_deconstruct(abacus_double3 x,
-                                       abacus_ulong3* unBiasedExp) {
+                                       abacus_ulong3 *unBiasedExp) {
   return deconstruct_helper<abacus_double3>(x, unBiasedExp);
 }
 
 inline abacus_ulong4 float_deconstruct(abacus_double4 x,
-                                       abacus_ulong4* unBiasedExp) {
+                                       abacus_ulong4 *unBiasedExp) {
   return deconstruct_helper<abacus_double4>(x, unBiasedExp);
 }
 
 inline abacus_ulong8 float_deconstruct(abacus_double8 x,
-                                       abacus_ulong8* unBiasedExp) {
+                                       abacus_ulong8 *unBiasedExp) {
   return deconstruct_helper<abacus_double8>(x, unBiasedExp);
 }
 
 inline abacus_ulong16 float_deconstruct(abacus_double16 x,
-                                        abacus_ulong16* unBiasedExp) {
+                                        abacus_ulong16 *unBiasedExp) {
   return deconstruct_helper<abacus_double16>(x, unBiasedExp);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

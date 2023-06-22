@@ -27,7 +27,7 @@ namespace internal {
 
 // Returns true if the integer component of the floating point number is odd.
 template <typename T>
-inline typename TypeTraits<T>::SignedType is_odd(const T& x) {
+inline typename TypeTraits<T>::SignedType is_odd(const T &x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef FPShape<T> Shape;
 

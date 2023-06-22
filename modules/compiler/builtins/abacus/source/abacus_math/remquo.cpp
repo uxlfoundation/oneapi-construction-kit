@@ -18,7 +18,6 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/floating_point.h>
 #include <abacus/internal/fmod_unsafe.h>
 #include <abacus/internal/is_denorm.h>
@@ -269,7 +268,7 @@ struct helper<T, IntVecType, abacus_double> {
     return __abacus_select(result, (T)ABACUS_NAN, c3);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 T remquo_helper_vector(
@@ -285,79 +284,79 @@ T remquo_helper_vector(
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_remquo(abacus_half x, abacus_half m,
-                                       abacus_int* o) {
+                                       abacus_int *o) {
   return remquo_helper_scalar(x, m, o);
 }
 abacus_half2 ABACUS_API __abacus_remquo(abacus_half2 x, abacus_half2 m,
-                                        abacus_int2* o) {
+                                        abacus_int2 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_half3 ABACUS_API __abacus_remquo(abacus_half3 x, abacus_half3 m,
-                                        abacus_int3* o) {
+                                        abacus_int3 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_half4 ABACUS_API __abacus_remquo(abacus_half4 x, abacus_half4 m,
-                                        abacus_int4* o) {
+                                        abacus_int4 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_half8 ABACUS_API __abacus_remquo(abacus_half8 x, abacus_half8 m,
-                                        abacus_int8* o) {
+                                        abacus_int8 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_half16 ABACUS_API __abacus_remquo(abacus_half16 x, abacus_half16 m,
-                                         abacus_int16* o) {
+                                         abacus_int16 *o) {
   return remquo_helper_vector(x, m, o);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_remquo(abacus_float x, abacus_float m,
-                                        abacus_int* o) {
+                                        abacus_int *o) {
   return remquo_helper_scalar(x, m, o);
 }
 abacus_float2 ABACUS_API __abacus_remquo(abacus_float2 x, abacus_float2 m,
-                                         abacus_int2* o) {
+                                         abacus_int2 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_float3 ABACUS_API __abacus_remquo(abacus_float3 x, abacus_float3 m,
-                                         abacus_int3* o) {
+                                         abacus_int3 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_float4 ABACUS_API __abacus_remquo(abacus_float4 x, abacus_float4 m,
-                                         abacus_int4* o) {
+                                         abacus_int4 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_float8 ABACUS_API __abacus_remquo(abacus_float8 x, abacus_float8 m,
-                                         abacus_int8* o) {
+                                         abacus_int8 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_float16 ABACUS_API __abacus_remquo(abacus_float16 x, abacus_float16 m,
-                                          abacus_int16* o) {
+                                          abacus_int16 *o) {
   return remquo_helper_vector(x, m, o);
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 abacus_double ABACUS_API __abacus_remquo(abacus_double x, abacus_double m,
-                                         abacus_int* o) {
+                                         abacus_int *o) {
   return remquo_helper_scalar(x, m, o);
 }
 abacus_double2 ABACUS_API __abacus_remquo(abacus_double2 x, abacus_double2 m,
-                                          abacus_int2* o) {
+                                          abacus_int2 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_double3 ABACUS_API __abacus_remquo(abacus_double3 x, abacus_double3 m,
-                                          abacus_int3* o) {
+                                          abacus_int3 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_double4 ABACUS_API __abacus_remquo(abacus_double4 x, abacus_double4 m,
-                                          abacus_int4* o) {
+                                          abacus_int4 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_double8 ABACUS_API __abacus_remquo(abacus_double8 x, abacus_double8 m,
-                                          abacus_int8* o) {
+                                          abacus_int8 *o) {
   return remquo_helper_vector(x, m, o);
 }
 abacus_double16 ABACUS_API __abacus_remquo(abacus_double16 x, abacus_double16 m,
-                                           abacus_int16* o) {
+                                           abacus_int16 *o) {
   return remquo_helper_vector(x, m, o);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

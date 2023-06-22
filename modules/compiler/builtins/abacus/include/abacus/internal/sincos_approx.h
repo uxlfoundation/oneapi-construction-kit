@@ -58,7 +58,7 @@ struct sincos_approx_helper;
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <typename T>
 struct sincos_approx_helper<T, abacus_half> {
-  static T _(const T& x, T* out_cos) {
+  static T _(const T &x, T *out_cos) {
     using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
     const T xx = x * x;
@@ -79,7 +79,7 @@ struct sincos_approx_helper<T, abacus_half> {
 
 template <typename T>
 struct sincos_approx_helper<T, abacus_float> {
-  static T _(const T& x, T* out_cos) {
+  static T _(const T &x, T *out_cos) {
     const T xx = x * x;
     *out_cos = abacus::internal::horner_polynomial<T, 4>(xx, _sincos_coefc);
 
@@ -90,7 +90,7 @@ struct sincos_approx_helper<T, abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T>
 struct sincos_approx_helper<T, abacus_double> {
-  static T _(const T& x, T* out_cos) {
+  static T _(const T &x, T *out_cos) {
     const T xx = x * x;
     *out_cos = abacus::internal::horner_polynomial<T, 7>(xx, _sincos_coefcD);
 
@@ -100,7 +100,7 @@ struct sincos_approx_helper<T, abacus_double> {
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
-inline T sincos_approx(T x, T* out_cos) {
+inline T sincos_approx(T x, T *out_cos) {
   return sincos_approx_helper<T>::_(x, out_cos);
 }
 }  // namespace internal

@@ -40,7 +40,7 @@ namespace internal {
 ///
 /// @return Zero if @p x is not classified as an integer, non-zero otherwise.
 template <typename T>
-inline typename TypeTraits<T>::SignedType is_integer_quick(const T& x) {
+inline typename TypeTraits<T>::SignedType is_integer_quick(const T &x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef FPShape<T> Shape;
 

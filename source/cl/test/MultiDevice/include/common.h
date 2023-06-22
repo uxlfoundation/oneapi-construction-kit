@@ -29,7 +29,7 @@ class ErrcodeRetWrapper {
  public:
   ErrcodeRetWrapper(int errcode_ret) : errcode_ret_(errcode_ret) {}
 
-  const char* description_c_str() const {
+  const char *description_c_str() const {
 #define ERRCODE_RET_WRAPPER_CASE(ERRCODE) \
   case ERRCODE: {                         \
     return #ERRCODE;                      \
@@ -114,15 +114,15 @@ class ErrcodeRetWrapper {
 #undef ERRCODE_RET_WRAPPER_CASE
   }
 
-  bool operator==(const ErrcodeRetWrapper& other) const {
+  bool operator==(const ErrcodeRetWrapper &other) const {
     return errcode_ret_ == other.errcode_ret_;
   }
 
   int errcode_ret_;
 };
 
-inline std::ostream& operator<<(std::ostream& os,
-                                const ErrcodeRetWrapper& errcode_ret_wrapper) {
+inline std::ostream &operator<<(std::ostream &os,
+                                const ErrcodeRetWrapper &errcode_ret_wrapper) {
   return os << errcode_ret_wrapper.description_c_str();
 }
 

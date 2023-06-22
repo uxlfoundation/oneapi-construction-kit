@@ -14,9 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "common.h"
-#include <gtest/gtest.h>
 #include <cargo/error.h>
+#include <gtest/gtest.h>
+
+#include "common.h"
 
 TEST(error_or, construct_error) {
   cargo::error_or<int> eo(cargo::bad_alloc);

@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkResetFences
 
 class ResetFences : public uvk::DeviceTest {
-public:
+ public:
   ResetFences() : fence(VK_NULL_HANDLE) {}
 
   void SetUp() override {

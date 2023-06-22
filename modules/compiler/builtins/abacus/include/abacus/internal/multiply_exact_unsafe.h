@@ -39,7 +39,7 @@ struct Helper<T, abacus_ulong> {
 namespace abacus {
 namespace internal {
 template <typename T>
-inline T multiply_exact_unsafe(const T x, const T y, T* out_remainder) {
+inline T multiply_exact_unsafe(const T x, const T y, T *out_remainder) {
   // TODO
   //  If fma is available on hardware this is probably faster
   //  float multiply = x*y;

@@ -295,11 +295,11 @@ TEST(argument_parser, parse_args_argv) {
   ASSERT_EQ(cargo::success, parser.add_argument({"-o", out}));
 
   std::array<const char *, 5> args{{
-    "UnitCargo",  // executable name is ignored.
-    "-i",
-    "input",
-    "-o",
-    "output",
+      "UnitCargo",  // executable name is ignored.
+      "-i",
+      "input",
+      "-o",
+      "output",
   }};
 
   ASSERT_EQ(cargo::success, parser.parse_args(args.size(), args.data()));

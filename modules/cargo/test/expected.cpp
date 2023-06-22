@@ -280,14 +280,14 @@ TEST(expected, constructors) {
 
   {
     int i = 42;
-    cargo::expected<int&, int> e = i;
+    cargo::expected<int &, int> e = i;
     ASSERT_TRUE(bool(e));
     ASSERT_EQ(i, *e);
     ASSERT_EQ(std::addressof(i), std::addressof(*e));
   }
 
   {
-    cargo::expected<int&, int> e = cargo::make_unexpected(23);
+    cargo::expected<int &, int> e = cargo::make_unexpected(23);
     ASSERT_FALSE(bool(e));
     ASSERT_EQ(23, e.error());
   }

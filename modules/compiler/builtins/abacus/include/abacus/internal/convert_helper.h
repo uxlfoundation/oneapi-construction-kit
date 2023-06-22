@@ -29,7 +29,7 @@ namespace {
 
 template <typename T, typename U>
 struct BitsToKeepHelper {
-  static typename TypeTraits<T>::UnsignedType _(const T& t) {
+  static typename TypeTraits<T>::UnsignedType _(const T &t) {
     using UnsignedType = typename TypeTraits<T>::UnsignedType;
     const UnsignedType leadingZeros = __abacus_clz(__abacus_abs(t));
     return leadingZeros + FPShape<U>::Mantissa() + 1;
@@ -40,12 +40,12 @@ struct BitsToKeepHelper {
 // RTE rounding mode
 struct RTEHelper {
   template <typename T, typename U>
-  static T FloatingPointToInteger(const U& u) {
+  static T FloatingPointToInteger(const U &u) {
     return abacus::detail::cast::convert<T>(__abacus_rint(u));
   }
 
   template <typename T, typename U>
-  static T LargeIntegerToFloatingPoint(const U& u) {
+  static T LargeIntegerToFloatingPoint(const U &u) {
     return abacus::detail::cast::convert<T>(u);
   }
 
@@ -94,12 +94,12 @@ struct RTEHelper {
 // RTN rounding mode
 struct RTNHelper {
   template <typename T, typename U>
-  static T FloatingPointToInteger(const U& u) {
+  static T FloatingPointToInteger(const U &u) {
     return abacus::detail::cast::convert<T>(__abacus_floor(u));
   }
 
   template <typename T, typename U>
-  static T LargeIntegerToFloatingPoint(const U& u) {
+  static T LargeIntegerToFloatingPoint(const U &u) {
     using ElementType = typename TypeTraits<U>::ElementType;
     using UnsignedType = typename TypeTraits<U>::UnsignedType;
     const UnsignedType to_keep = BitsToKeepHelper<U, T>::_(u);
@@ -154,12 +154,12 @@ struct RTNHelper {
 // RTP rounding mode
 struct RTPHelper {
   template <typename T, typename U>
-  static T FloatingPointToInteger(const U& u) {
+  static T FloatingPointToInteger(const U &u) {
     return abacus::detail::cast::convert<T>(__abacus_ceil(u));
   }
 
   template <typename T, typename U>
-  static T LargeIntegerToFloatingPoint(const U& payload) {
+  static T LargeIntegerToFloatingPoint(const U &payload) {
     using ElementType = typename TypeTraits<U>::ElementType;
     using UnsignedType = typename TypeTraits<U>::UnsignedType;
     const UnsignedType to_keep = BitsToKeepHelper<U, T>::_(payload);
@@ -222,12 +222,12 @@ struct RTPHelper {
 // RTZ rounding mode
 struct RTZHelper {
   template <typename T, typename U>
-  static T FloatingPointToInteger(const U& u) {
+  static T FloatingPointToInteger(const U &u) {
     return abacus::detail::cast::convert<T>(__abacus_trunc(u));
   }
 
   template <typename T, typename U>
-  static T LargeIntegerToFloatingPoint(const U& payload) {
+  static T LargeIntegerToFloatingPoint(const U &payload) {
     using ElementType = typename TypeTraits<U>::ElementType;
     using UnsignedType = typename TypeTraits<U>::UnsignedType;
     const UnsignedType to_keep = BitsToKeepHelper<U, T>::_(payload);
@@ -429,7 +429,7 @@ inline T DownFloatConvertHelper(const U payload) {
 // for the default rounding mode there's nothing to do
 template <typename T, typename U>
 struct DefaultConvertHelper {
-  static T _(const U& u) { return abacus::detail::cast::convert<T>(u); }
+  static T _(const U &u) { return abacus::detail::cast::convert<T>(u); }
 };
 
 enum ToInt : bool {
@@ -454,31 +454,31 @@ template <typename T, typename U, typename H,
           Upscale = Upscale(sizeof(typename TypeTraits<T>::ElementType) >
                             sizeof(typename TypeTraits<U>::ElementType))>
 struct ConvertHelper {
-  static T _(const U& u) { return abacus::detail::cast::convert<T>(u); }
+  static T _(const U &u) { return abacus::detail::cast::convert<T>(u); }
 };
 
 // T -> T (floating points)
 template <typename T, typename H>
 struct ConvertHelper<T, T, H, NotToInt, NotFromInt, NotUpscale> {
-  static T _(const T& u) { return u; }
+  static T _(const T &u) { return u; }
 };
 
 // T -> T (integer type)
 template <typename T, typename H>
 struct ConvertHelper<T, T, H, IsToInt, IsFromInt, NotUpscale> {
-  static T _(const T& u) { return u; }
+  static T _(const T &u) { return u; }
 };
 
 // floating point n -> Integer type n
 template <typename T, typename U, typename H, Upscale B>
 struct ConvertHelper<T, U, H, IsToInt, NotFromInt, B> {
-  static T _(const U& u) { return H::template FloatingPointToInteger<T, U>(u); }
+  static T _(const U &u) { return H::template FloatingPointToInteger<T, U>(u); }
 };
 
 // larger integer type n -> floatn or doublen
 template <typename T, typename U, typename H>
 struct ConvertHelper<T, U, H, NotToInt, IsFromInt, NotUpscale> {
-  static T _(const U& payload) {
+  static T _(const U &payload) {
     return H::template LargeIntegerToFloatingPoint<T, U>(payload);
   }
 };
@@ -486,13 +486,13 @@ struct ConvertHelper<T, U, H, NotToInt, IsFromInt, NotUpscale> {
 // floatn -> doublen, halfn -> floatn
 template <typename T, typename U, typename H>
 struct ConvertHelper<T, U, H, NotToInt, NotFromInt, IsUpscale> {
-  static T _(const U& u) { return abacus::detail::cast::convert<T>(u); }
+  static T _(const U &u) { return abacus::detail::cast::convert<T>(u); }
 };
 
 // doublen -> floatn, floatn -> halfn
 template <typename T, typename U, typename H>
 struct ConvertHelper<T, U, H, NotToInt, NotFromInt, NotUpscale> {
-  static T _(const U& u) { return DownFloatConvertHelper<T, U, H>(u); }
+  static T _(const U &u) { return DownFloatConvertHelper<T, U, H>(u); }
 };
 
 enum ToSigned : bool {
@@ -513,7 +513,7 @@ struct SatIntHelper;
 // T unsigned, U unsigned
 template <typename T, typename U>
 struct SatIntHelper<T, U, NotToSigned, NotFromSigned> {
-  static U _(const U& u) {
+  static U _(const U &u) {
     using TElement = typename TypeTraits<T>::ElementType;
     using UElement = typename TypeTraits<U>::ElementType;
 
@@ -531,7 +531,7 @@ struct SatIntHelper<T, U, NotToSigned, NotFromSigned> {
 // T unsigned, U signed
 template <typename T, typename U>
 struct SatIntHelper<T, U, NotToSigned, IsFromSigned> {
-  static U _(const U& u) {
+  static U _(const U &u) {
     using TElement = typename TypeTraits<T>::ElementType;
     using UElement = typename TypeTraits<U>::ElementType;
 
@@ -554,7 +554,7 @@ struct SatIntHelper<T, U, NotToSigned, IsFromSigned> {
 // T signed, U unsigned
 template <typename T, typename U>
 struct SatIntHelper<T, U, IsToSigned, NotFromSigned> {
-  static U _(const U& u) {
+  static U _(const U &u) {
     using TElement = typename TypeTraits<T>::ElementType;
     using UElement = typename TypeTraits<U>::ElementType;
 
@@ -574,7 +574,7 @@ struct SatIntHelper<T, U, IsToSigned, NotFromSigned> {
 // T signed, U signed
 template <typename T, typename U>
 struct SatIntHelper<T, U, IsToSigned, IsFromSigned> {
-  static U _(const U& u) {
+  static U _(const U &u) {
     using TElement = typename TypeTraits<T>::ElementType;
     using UElement = typename TypeTraits<U>::ElementType;
 
@@ -602,27 +602,27 @@ struct convert_sat_choice;
 // T and U are integer types
 template <typename T, typename U, typename C, typename E, Upscale D>
 struct convert_sat_choice<T, U, C, E, IsFromInt, IsToInt, D> {
-  static T _(const U& u) { return C::_(SatIntHelper<T, U>::_(u)); }
+  static T _(const U &u) { return C::_(SatIntHelper<T, U>::_(u)); }
 };
 
 // T is a floating point type and U an integer type
 template <typename T, typename U, typename C, typename E, Upscale D>
 struct convert_sat_choice<T, U, C, E, IsFromInt, NotToInt, D> {
   // Assume that conversion to float from int does not saturate.
-  static T _(const U& u) { return C::_(u); }
+  static T _(const U &u) { return C::_(u); }
 };
 
 // U is floating point type, and T is a floating point type of larger precision
 template <typename T, typename U, typename C, typename E>
 struct convert_sat_choice<T, U, C, E, NotFromInt, NotToInt, IsUpscale> {
-  static T _(const U& u) { return C::_(u); }
+  static T _(const U &u) { return C::_(u); }
 };
 
 // U is floating point type, and T is a floating point type of the same or
 // lower precision
 template <typename T, typename U, typename C, typename E>
 struct convert_sat_choice<T, U, C, E, NotFromInt, NotToInt, NotUpscale> {
-  static T _(const U& u) {
+  static T _(const U &u) {
     using TSigned = typename TypeTraits<T>::SignedType;
     using TElement = typename TypeTraits<T>::ElementType;
 
@@ -647,7 +647,7 @@ struct convert_sat_choice<T, U, C, E, NotFromInt, NotToInt, NotUpscale> {
 // U is a floating point, T is an integer type
 template <typename T, typename U, typename C, typename E, Upscale D>
 struct convert_sat_choice<T, U, C, E, NotFromInt, IsToInt, D> {
-  static T _(const U& u) {
+  static T _(const U &u) {
     using TSigned = typename TypeTraits<T>::SignedType;
     using TElement = typename TypeTraits<T>::ElementType;
 
@@ -697,7 +697,7 @@ struct convert_sat_choice<T, U, C, E, NotFromInt, IsToInt, D> {
 template <typename T, typename U, typename C>
 struct convert_sat_choice<T, U, C, abacus_half, NotFromInt, IsToInt,
                           IsUpscale> {
-  static T _(const U& u) {
+  static T _(const U &u) {
     using TSigned = typename TypeTraits<T>::SignedType;
 
     T result = C::_(u);
@@ -731,53 +731,53 @@ struct convert_sat_choice<T, U, C, abacus_half, NotFromInt, IsToInt,
 
 // convert_*
 template <typename T, typename U>
-T convert(const U& u) {
+T convert(const U &u) {
   return DefaultConvertHelper<T, U>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rte(const U& u) {
+T convert_rte(const U &u) {
   return ConvertHelper<T, U, RTEHelper>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rtn(const U& u) {
+T convert_rtn(const U &u) {
   return ConvertHelper<T, U, RTNHelper>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rtz(const U& u) {
+T convert_rtz(const U &u) {
   return ConvertHelper<T, U, RTZHelper>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rtp(const U& u) {
+T convert_rtp(const U &u) {
   return ConvertHelper<T, U, RTPHelper>::_(u);
 }
 
 // convert_sat*
 template <typename T, typename U>
-T convert_sat(const U& u) {
+T convert_sat(const U &u) {
   return convert_sat_choice<T, U, DefaultConvertHelper<T, U>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rte(const U& u) {
+T convert_sat_rte(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTEHelper>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rtn(const U& u) {
+T convert_sat_rtn(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTNHelper>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rtz(const U& u) {
+T convert_sat_rtz(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTZHelper>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rtp(const U& u) {
+T convert_sat_rtp(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTPHelper>>::_(u);
 }
 }  // namespace

@@ -64,7 +64,7 @@ TEST_F(CreateDevice, DefaultAllocator) {
 
 TEST_F(CreateDevice, DISABLED_DefaultLayer) {
   // this is a deprecated feature
-  const char* layerName = "VK_LAYER_LUNARG_core_validation";
+  const char *layerName = "VK_LAYER_LUNARG_core_validation";
 
   // since enabled layers on device and instance must match, the instance
   // needs to be reinitialized with a layer enabled
@@ -133,7 +133,7 @@ TEST_F(CreateDevice, ErrorOutOfHostMemory) {
 // ignores any enabled layers passed here, extant or not
 TEST_F(CreateDevice, DISABLED_ErrorLayerNotPresent) {
   // try to enable a non-existant layer
-  const char* dummyLayerName = "not really a layer name";
+  const char *dummyLayerName = "not really a layer name";
 
   deviceCreateInfo.enabledLayerCount = 1;
   deviceCreateInfo.ppEnabledLayerNames = &dummyLayerName;
@@ -145,7 +145,7 @@ TEST_F(CreateDevice, DISABLED_ErrorLayerNotPresent) {
 
 TEST_F(CreateDevice, ErrorExtensionNotPresent) {
   // try to enable a non-existant extension
-  const char* dummyExtensionName = "not really an extension name";
+  const char *dummyExtensionName = "not really an extension name";
 
   deviceCreateInfo.enabledExtensionCount = 1;
   deviceCreateInfo.ppEnabledExtensionNames = &dummyExtensionName;

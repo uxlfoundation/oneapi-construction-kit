@@ -16,7 +16,6 @@
 
 #include <CL/cl.h>
 #include <CL/cl_ext.h>
-
 #include <cl/buffer.h>
 #include <cl/command_queue.h>
 #include <cl/config.h>
@@ -51,10 +50,10 @@ extension::khr_icd::khr_icd()
 cl_int extension::khr_icd::GetPlatformInfo(cl_platform_id platform,
                                            cl_platform_info param_name,
                                            size_t param_value_size,
-                                           void* param_value,
-                                           size_t* param_value_size_ret) const {
+                                           void *param_value,
+                                           size_t *param_value_size_ret) const {
   std::size_t value_size;
-  const void* value_pointer = nullptr;
+  const void *value_pointer = nullptr;
 
   switch (param_name) {
     case CL_PLATFORM_ICD_SUFFIX_KHR: {
@@ -311,19 +310,19 @@ const struct icd_dispatch_table_t {
 #undef OCL_ICD_NOT_IMPLEMENTED
 
 cl_int CL_API_CALL IcdGetPlatformIDsKHR(cl_uint num_entries,
-                                        cl_platform_id* platforms,
-                                        cl_uint* num_platforms) {
+                                        cl_platform_id *platforms,
+                                        cl_uint *num_platforms) {
   return cl::GetPlatformIDs(num_entries, platforms, num_platforms);
 }
 }  // namespace
 
 CL_API_ENTRY cl_int CL_API_CALL clIcdGetPlatformIDsKHR(
-    cl_uint num_entries, cl_platform_id* platforms, cl_uint* num_platforms) {
+    cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) {
   return IcdGetPlatformIDsKHR(num_entries, platforms, num_platforms);
 }
 
-void* extension::khr_icd::GetExtensionFunctionAddressForPlatform(
-    cl_platform_id platform, const char* func_name) const {
+void *extension::khr_icd::GetExtensionFunctionAddressForPlatform(
+    cl_platform_id platform, const char *func_name) const {
   OCL_UNUSED(platform);
 #ifndef OCL_EXTENSION_cl_khr_icd
   OCL_UNUSED(func_name);
@@ -335,6 +334,6 @@ void* extension::khr_icd::GetExtensionFunctionAddressForPlatform(
   return nullptr;
 }
 
-const void* extension::khr_icd::GetIcdDispatchTable() {
-  return reinterpret_cast<const void*>(&icd_dispatch_table);
+const void *extension::khr_icd::GetIcdDispatchTable() {
+  return reinterpret_cast<const void *>(&icd_dispatch_table);
 }

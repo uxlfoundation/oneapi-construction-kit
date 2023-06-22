@@ -37,7 +37,7 @@ queue_t::~queue_t() {
 
     muxDestroyCommandBuffer(mux_device, fence_command_buffer,
                             allocator.getMuxAllocator());
-    for (auto& command_buffer : fence_command_buffers) {
+    for (auto &command_buffer : fence_command_buffers) {
       muxDestroyCommandBuffer(mux_device, command_buffer,
                               allocator.getMuxAllocator());
     }
@@ -45,7 +45,7 @@ queue_t::~queue_t() {
 }
 
 void GetDeviceQueue(vk::device device, uint32_t queueFamilyIndex,
-                    uint32_t queueIndex, vk::queue* pQueue) {
+                    uint32_t queueIndex, vk::queue *pQueue) {
   if (queueFamilyIndex == 0 && queueIndex == 0) {
     *pQueue = (device->queue);
   }
@@ -146,7 +146,7 @@ static void cmd_group_complete_callback(mux_command_buffer_t, mux_result_t,
 }
 
 // Processes a single submit info
-static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
+static VkResult ProcessSubmitInfo(const VkSubmitInfo &submitInfo,
                                   const vk::queue queue) {
   std::lock_guard<std::mutex> lock(queue->mutex);
   // loop through this submit info's wait semaphores extracting the mux
@@ -214,7 +214,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
 
     wait_semaphore->queue = queue;
 
-    mux_semaphore_t* wait_semaphore_waits =
+    mux_semaphore_t *wait_semaphore_waits =
         wait_semaphore->wait_semaphores.empty()
             ? nullptr
             : wait_semaphore->wait_semaphores.data();
@@ -318,7 +318,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         }
       }
 
-      for (auto& barrier_info : commandBuffer->barrier_group_infos) {
+      for (auto &barrier_info : commandBuffer->barrier_group_infos) {
         if (barrier_info->dispatched &&
             mux_fence_not_ready ==
                 muxTryWait(queue->mux_queue, 0, barrier_info->fence)) {
@@ -372,7 +372,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
 
     // execute the recorded commands if they haven't been already
     if (!commandBuffer->main_dispatched) {
-      for (auto& command_info : commandBuffer->commands) {
+      for (auto &command_info : commandBuffer->commands) {
         ExecuteCommand(commandBuffer, command_info);
         if (commandBuffer->error != VK_SUCCESS) {
           return commandBuffer->error;
@@ -394,7 +394,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
       commandBuffer->commands.clear();
     }
 
-    vk::dispatch_callback_data_s* dispatch_callback_data =
+    vk::dispatch_callback_data_s *dispatch_callback_data =
         queue->allocator.create<vk::dispatch_callback_data_s>(
             VK_SYSTEM_ALLOCATION_SCOPE_OBJECT, queue, commandBuffer,
             commandBuffer->main_semaphore,
@@ -406,7 +406,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
     if (commandBuffer->main_command_buffer_stage_flags &
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT &&
         !queue->user_compute_waits.empty()) {
-      for (auto& semaphore : queue->user_compute_waits) {
+      for (auto &semaphore : queue->user_compute_waits) {
         if (main_wait_semaphores.push_back(semaphore)) {
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -417,7 +417,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
       if (commandBuffer->main_command_buffer_stage_flags &
               VK_PIPELINE_STAGE_TRANSFER_BIT &&
           !queue->user_transfer_waits.empty()) {
-        for (auto& semaphore : queue->user_transfer_waits) {
+        for (auto &semaphore : queue->user_transfer_waits) {
           if (std::find(main_wait_semaphores.begin(),
                         main_wait_semaphores.end(),
                         semaphore) == main_wait_semaphores.end()) {
@@ -430,7 +430,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
     } else if (commandBuffer->main_command_buffer_stage_flags &
                    VK_PIPELINE_STAGE_TRANSFER_BIT &&
                !queue->user_transfer_waits.empty()) {
-      for (auto& semaphore : queue->user_transfer_waits) {
+      for (auto &semaphore : queue->user_transfer_waits) {
         if (main_wait_semaphores.push_back(semaphore)) {
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -442,7 +442,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT ||
         commandBuffer->main_command_buffer_event_wait_flags &
             VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) {
-      for (auto& semaphore : queue->compute_waits) {
+      for (auto &semaphore : queue->compute_waits) {
         if (main_wait_semaphores.push_back(semaphore)) {
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -452,7 +452,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
           VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT) {
         // if we're looking in both lists for waits we need to ensure we don't
         // add the same semaphore twice
-        for (auto& semaphore : queue->transfer_waits) {
+        for (auto &semaphore : queue->transfer_waits) {
           if (std::find(main_wait_semaphores.begin(),
                         main_wait_semaphores.end(),
                         semaphore) == main_wait_semaphores.end()) {
@@ -465,14 +465,14 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
     }
     if (commandBuffer->main_command_buffer_event_wait_flags &
         VK_PIPELINE_STAGE_TRANSFER_BIT) {
-      for (auto& semaphore : queue->transfer_waits) {
+      for (auto &semaphore : queue->transfer_waits) {
         if (main_wait_semaphores.push_back(semaphore)) {
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
       }
     }
 
-    mux_semaphore_t* wait_semaphores =
+    mux_semaphore_t *wait_semaphores =
         main_wait_semaphores.empty() ? nullptr : main_wait_semaphores.data();
 
     // Finalize the command buffer before dispatch (consider if
@@ -509,9 +509,9 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
 
     // submit the barrier mux command buffers with wait semaphores appropriate
     // to their srcStage flags
-    for (auto& barrier_info : commandBuffer->barrier_group_infos) {
+    for (auto &barrier_info : commandBuffer->barrier_group_infos) {
       if (!barrier_info->dispatched) {
-        for (auto& command : barrier_info->commands) {
+        for (auto &command : barrier_info->commands) {
           // Pipeline barrier commands take immediate effect, so they should be
           // skipped here.
           if (command.type != command_type_pipeline_barrier) {
@@ -532,7 +532,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
       // first add user submitted wait semaphores according to their flags
       if (barrier_info->stage_flags & VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT &&
           !queue->user_compute_waits.empty()) {
-        for (auto& semaphore : queue->user_compute_waits) {
+        for (auto &semaphore : queue->user_compute_waits) {
           if (barrier_wait_semaphores.push_back(semaphore)) {
             return VK_ERROR_OUT_OF_HOST_MEMORY;
           }
@@ -542,7 +542,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         // extra care not to add the same semaphore twice
         if (barrier_info->stage_flags & VK_PIPELINE_STAGE_TRANSFER_BIT &&
             !queue->user_transfer_waits.empty()) {
-          for (auto& semaphore : queue->user_transfer_waits) {
+          for (auto &semaphore : queue->user_transfer_waits) {
             if (std::find(barrier_wait_semaphores.begin(),
                           barrier_wait_semaphores.end(),
                           semaphore) == barrier_wait_semaphores.end()) {
@@ -554,7 +554,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         }
       } else if (barrier_info->stage_flags & VK_PIPELINE_STAGE_TRANSFER_BIT &&
                  !queue->user_transfer_waits.empty()) {
-        for (auto& semaphore : queue->user_transfer_waits) {
+        for (auto &semaphore : queue->user_transfer_waits) {
           if (barrier_wait_semaphores.push_back(semaphore)) {
             return VK_ERROR_OUT_OF_HOST_MEMORY;
           }
@@ -569,7 +569,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         // don't need to check anything here as our list is empty and the
         // queue list should only contain unique entries
         if (!queue->compute_waits.empty()) {
-          for (auto& semaphore : queue->compute_waits) {
+          for (auto &semaphore : queue->compute_waits) {
             if (barrier_wait_semaphores.push_back(semaphore)) {
               return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
@@ -579,7 +579,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         // make sure we aren't getting any doubles
         if (barrier_info->src_mask & VK_PIPELINE_STAGE_TRANSFER_BIT ||
             barrier_info->src_mask & VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) {
-          for (auto& transfer_semaphore : queue->transfer_waits) {
+          for (auto &transfer_semaphore : queue->transfer_waits) {
             if (std::find(barrier_wait_semaphores.begin(),
                           barrier_wait_semaphores.end(), transfer_semaphore) ==
                 barrier_wait_semaphores.end()) {
@@ -593,7 +593,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         // if the src mask is only transfer we can just repeat the quick
         // method used above for transfer
         if (!queue->transfer_waits.empty()) {
-          for (auto& semaphore : queue->transfer_waits) {
+          for (auto &semaphore : queue->transfer_waits) {
             if (barrier_wait_semaphores.push_back(semaphore)) {
               return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
@@ -622,12 +622,12 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
         }
       }
 
-      vk::dispatch_callback_data_s* dispatch_callback_data =
+      vk::dispatch_callback_data_s *dispatch_callback_data =
           queue->allocator.create<vk::dispatch_callback_data_s>(
               VK_SYSTEM_ALLOCATION_SCOPE_OBJECT, queue, commandBuffer,
               barrier_info->semaphore, barrier_info->stage_flags);
 
-      mux_semaphore_t* wait_semaphores = barrier_wait_semaphores.empty()
+      mux_semaphore_t *wait_semaphores = barrier_wait_semaphores.empty()
                                              ? nullptr
                                              : barrier_wait_semaphores.data();
 
@@ -665,7 +665,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
     }
     // add semaphores signalled by mux command buffers waiting on events to the
     // user semaphore lists
-    for (auto& event_pair : commandBuffer->wait_events_semaphores) {
+    for (auto &event_pair : commandBuffer->wait_events_semaphores) {
       if (event_pair.flags & VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT ||
           event_pair.flags & VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) {
         queue->user_compute_waits.insert(event_pair.semaphore);
@@ -686,7 +686,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
     // all the semaphores still in the queue's wait lists, as these are all
     // the commands already submitted that are still in progress
     if (!queue->compute_waits.empty()) {
-      for (auto& semaphore : queue->compute_waits) {
+      for (auto &semaphore : queue->compute_waits) {
         if (signal_waits.push_back(semaphore)) {
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -694,7 +694,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
     }
 
     if (!queue->transfer_waits.empty()) {
-      for (auto& semaphore : queue->transfer_waits) {
+      for (auto &semaphore : queue->transfer_waits) {
         if (signal_waits.push_back(semaphore)) {
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
@@ -725,7 +725,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo& submitInfo,
 }
 
 VkResult QueueSubmit(vk::queue queue, uint32_t submitCount,
-                     const VkSubmitInfo* pSubmits, vk::fence fence) {
+                     const VkSubmitInfo *pSubmits, vk::fence fence) {
   vk::small_vector<mux_semaphore_t, 4> fence_semaphores(
       {queue->allocator.getCallbacks(), VK_SYSTEM_ALLOCATION_SCOPE_COMMAND});
 
@@ -746,7 +746,7 @@ VkResult QueueSubmit(vk::queue queue, uint32_t submitCount,
           return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
 
-        for (auto& group_info : command_buffer->barrier_group_infos) {
+        for (auto &group_info : command_buffer->barrier_group_infos) {
           if (fence_semaphores.push_back(group_info->semaphore)) {
             return VK_ERROR_OUT_OF_HOST_MEMORY;
           }
@@ -756,7 +756,7 @@ VkResult QueueSubmit(vk::queue queue, uint32_t submitCount,
   }
 
   if (fence) {
-    mux_semaphore_t* wait_semaphores =
+    mux_semaphore_t *wait_semaphores =
         fence_semaphores.empty() ? nullptr : fence_semaphores.data();
 
     uint32_t wait_semaphores_length =
@@ -782,7 +782,7 @@ dispatch_callback_data_s::dispatch_callback_data_s(
       stage_flags(stage_flags) {}
 
 VkResult QueueBindSparse(vk::queue queue, uint32_t bindInfoCount,
-                         const VkBindSparseInfo* pBindInfo, vk::fence fence) {
+                         const VkBindSparseInfo *pBindInfo, vk::fence fence) {
   (void)queue;
   (void)bindInfoCount;
   (void)pBindInfo;

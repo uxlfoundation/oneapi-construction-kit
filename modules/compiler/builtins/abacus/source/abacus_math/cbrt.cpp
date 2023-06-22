@@ -19,7 +19,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_misc.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/is_denorm.h>
 

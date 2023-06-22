@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <limits>
+
 #include "GLSLTestDefs.h"
 
 constexpr glsl::intTy I_MIN = std::numeric_limits<glsl::intTy>::min();
@@ -333,6 +334,6 @@ TEST_F(op_glsl_FindUMsb_uvec4, BasicCorrectnessTest) {
   // Expected results:
   //   FindUMsb(<68924, 2147483647, 0, 1>) = <16, 30, -1, 0>
 
-  auto result = RunWithArgs({68924, (uint32_t) I_MAX, 0, 1});
+  auto result = RunWithArgs({68924, (uint32_t)I_MAX, 0, 1});
   EXPECT_EQ(glsl::ivec4Ty(16, 30, -1, 0), result);
 }

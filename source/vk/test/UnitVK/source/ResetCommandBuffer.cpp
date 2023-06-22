@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkResetCommandBuffer
 
 class ResetCommandBuffer : public uvk::PipelineTest {
-public:
+ public:
   ResetCommandBuffer() {}
 
   virtual void SetUp() override {

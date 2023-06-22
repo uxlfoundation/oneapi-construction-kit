@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <limits>
+
 #include "GLSLTestDefs.h"
 
 constexpr float F_NAN = std::numeric_limits<float>::quiet_NaN();

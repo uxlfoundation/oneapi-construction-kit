@@ -16,7 +16,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/payne_hanek.h>
 #include <abacus/internal/sincos_approx.h>
 

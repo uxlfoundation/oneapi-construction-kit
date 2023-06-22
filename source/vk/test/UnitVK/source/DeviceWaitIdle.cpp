@@ -23,8 +23,9 @@ class DeviceWaitIdle : public uvk::RecordCommandBufferTest,
                        public uvk::DeviceMemoryTest {
  public:
   DeviceWaitIdle()
-      : BufferTest(64 * sizeof(uint32_t), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                                              VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+      : BufferTest(64 * sizeof(uint32_t),
+                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                       VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                    true),
         DeviceMemoryTest(true),
         queue(VK_NULL_HANDLE),

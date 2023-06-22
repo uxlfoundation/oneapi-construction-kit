@@ -36,7 +36,7 @@ typedef ulong ulong32 __attribute__((ext_vector_type(32)));
 typedef float float32 __attribute__((ext_vector_type(32)));
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 typedef double double32 __attribute__((ext_vector_type(32)));
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 struct TypeTraits;
@@ -478,7 +478,7 @@ struct TypeTraits<float> {
   typedef float ElementType;
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
   typedef double LargerType;
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
   typedef int SignedType;
   typedef uint UnsignedType;
 };
@@ -488,7 +488,7 @@ struct TypeTraits<float2> {
   typedef float ElementType;
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
   typedef double2 LargerType;
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
   typedef int2 SignedType;
   typedef uint2 UnsignedType;
 };
@@ -498,7 +498,7 @@ struct TypeTraits<float3> {
   typedef float ElementType;
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
   typedef double3 LargerType;
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
   typedef int3 SignedType;
   typedef uint3 UnsignedType;
 };
@@ -508,7 +508,7 @@ struct TypeTraits<float4> {
   typedef float ElementType;
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
   typedef double4 LargerType;
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
   typedef int4 SignedType;
   typedef uint4 UnsignedType;
 };
@@ -518,7 +518,7 @@ struct TypeTraits<float8> {
   typedef float ElementType;
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
   typedef double8 LargerType;
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
   typedef int8 SignedType;
   typedef uint8 UnsignedType;
 };
@@ -528,7 +528,7 @@ struct TypeTraits<float16> {
   typedef float ElementType;
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
   typedef double16 LargerType;
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
   typedef int16 SignedType;
   typedef uint16 UnsignedType;
 };
@@ -593,7 +593,7 @@ struct TypeTraits<double32> {
   typedef double ElementType;
   // no larger type allowed for our double type!
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 struct Bounds {
@@ -737,7 +737,7 @@ template <>
 struct GetNumElements<double3> {
   enum { Size = 3 };
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T, typename U>
 T select(const T a, const T b, const U c);
@@ -842,7 +842,7 @@ struct FPBits<double> {
   const static uint Exponent = 11;
   const static uint Sign = 1;
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 // Wrap code that is aware of the 'shape' of floating point numbers into one
 // place.
@@ -1364,6 +1364,6 @@ T quantizeToF16(const T payload) {
 }
 
 /// @}
-}
+}  // namespace ocl
 
 #endif  // OCL_CXXBUILTINS_H_INCLUDED

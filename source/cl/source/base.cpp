@@ -22,7 +22,7 @@ namespace {
 void destroyMemObject(cl_mem object) {
   switch (object->type) {
     case CL_MEM_OBJECT_BUFFER: {
-      delete static_cast<_cl_mem_buffer*>(object);
+      delete static_cast<_cl_mem_buffer *>(object);
       break;
     }
     case CL_MEM_OBJECT_IMAGE2D:
@@ -31,14 +31,14 @@ void destroyMemObject(cl_mem object) {
     case CL_MEM_OBJECT_IMAGE1D:
     case CL_MEM_OBJECT_IMAGE1D_ARRAY:
     case CL_MEM_OBJECT_IMAGE1D_BUFFER: {
-      delete static_cast<_cl_mem_image*>(object);
+      delete static_cast<_cl_mem_image *>(object);
       break;
     }
     default:
       OCL_ABORT("Unknown cl_mem type");
   }
 }
-}  // anonymous
+}  // namespace
 
 namespace cl {
 template <>
@@ -67,12 +67,12 @@ cl_int invalid<cl_mem>() {
 }
 
 template <>
-cl_int invalid<_cl_mem_buffer*>() {
+cl_int invalid<_cl_mem_buffer *>() {
   return CL_INVALID_MEM_OBJECT;
 }
 
 template <>
-cl_int invalid<_cl_mem_image*>() {
+cl_int invalid<_cl_mem_image *>() {
   return CL_INVALID_MEM_OBJECT;
 }
 
@@ -123,4 +123,4 @@ void releaseInternal<cl_mem>(cl_mem object) {
     destroyMemObject(object);
   }
 }
-}  // cl
+}  // namespace cl

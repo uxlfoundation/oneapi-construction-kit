@@ -194,7 +194,7 @@ TEST_F(ktst_sgemm_custom, BasicCorrectnessTest) {
 
   VkShaderModuleCreateInfo shaderCreateInfo = {};
   shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  shaderCreateInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.code);
+  shaderCreateInfo.pCode = reinterpret_cast<const uint32_t *>(shaderCode.code);
   shaderCreateInfo.codeSize = shaderCode.size;
 
   VkShaderModule shaderModule_;

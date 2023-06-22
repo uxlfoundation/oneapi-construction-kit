@@ -269,12 +269,12 @@ void GetPhysicalDeviceQueueFamilyProperties2(
     vk::physical_device physicalDevice, uint32_t *pQueueFamilyPropertyCount,
     VkQueueFamilyProperties2 *pQueueFamilyProperties) {
   (void)physicalDevice;
-  if (pQueueFamilyProperties){
+  if (pQueueFamilyProperties) {
     VkQueueFamilyProperties properties = {};
     properties.queueCount = 1;
     properties.queueFlags = VK_QUEUE_COMPUTE_BIT;
     pQueueFamilyProperties->queueFamilyProperties = properties;
-  } else{
+  } else {
     *pQueueFamilyPropertyCount = 1;
   }
 }

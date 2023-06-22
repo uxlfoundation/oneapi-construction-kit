@@ -20,10 +20,10 @@
 #include <ShaderCode.h>
 #include <gtest/gtest.h>
 #include <vulkan/vulkan.h>
-#include <array>
-#include <fstream>
 
+#include <array>
 #include <cstring>
+#include <fstream>
 
 namespace uvk {
 /// @brief A default custom allocator.
@@ -32,7 +32,7 @@ namespace uvk {
 /// structure, it contains function pointers to the allocation functions below.
 ///
 /// @return Return constant pointer to the default custom allocator.
-const VkAllocationCallbacks* defaultAllocator();
+const VkAllocationCallbacks *defaultAllocator();
 
 /// @brief A custom allocator which will always return nullptr
 ///
@@ -41,7 +41,7 @@ const VkAllocationCallbacks* defaultAllocator();
 /// of forcing VK_ERROR_OUT_OF_HOST_MEMORY
 ///
 /// @return Return constant pointer to the null allocator
-const VkAllocationCallbacks* nullAllocator();
+const VkAllocationCallbacks *nullAllocator();
 
 /// @brief A custom allocator which will only make one succesful allocation
 ///
@@ -50,7 +50,7 @@ const VkAllocationCallbacks* nullAllocator();
 /// with the same allocator
 ///
 /// @return Return constant pointer to the allocator
-const VkAllocationCallbacks* oneUseAllocator(bool* used);
+const VkAllocationCallbacks *oneUseAllocator(bool *used);
 
 /// @brief Default allocate memory function.
 ///
@@ -60,7 +60,7 @@ const VkAllocationCallbacks* oneUseAllocator(bool* used);
 /// @param allocationScope Lifetime scope of the requested allocation.
 ///
 /// @return Return void pointer to allocated memory, or null.
-void* VKAPI_CALL alloc(void* pUserData, size_t size, size_t alignment,
+void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
                        VkSystemAllocationScope allocationScope);
 
 /// @brief Default re-allocate memory function.
@@ -72,7 +72,7 @@ void* VKAPI_CALL alloc(void* pUserData, size_t size, size_t alignment,
 /// @param allocationScope Lifetime scope of the requested allocation.
 ///
 /// @return Return void pointer to re-allocated memory, or null.
-void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
+void *VKAPI_CALL realloc(void *pUserData, void *pOriginal, size_t size,
                          size_t alignment,
                          VkSystemAllocationScope allocationScope);
 
@@ -80,7 +80,7 @@ void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
 ///
 /// @param pUserData User data specified by the application.
 /// @param pMemory Previously allocated memory.
-void VKAPI_CALL free(void* pUserData, void* pMemory);
+void VKAPI_CALL free(void *pUserData, void *pMemory);
 
 /// @brief Default internal allocate memory notification function.
 ///
@@ -88,7 +88,7 @@ void VKAPI_CALL free(void* pUserData, void* pMemory);
 /// @param size Size in bytes of the internal allocation.
 /// @param allocationType Type of the internal allocation.
 /// @param allocationScope Lifetime scope of the internal allocation.
-void VKAPI_CALL allocNotify(void* pUserData, size_t size,
+void VKAPI_CALL allocNotify(void *pUserData, size_t size,
                             VkInternalAllocationType allocationType,
                             VkSystemAllocationScope allocationScope);
 
@@ -98,7 +98,7 @@ void VKAPI_CALL allocNotify(void* pUserData, size_t size,
 /// @param size Size in bytes of the internal free.
 /// @param allocationType Type of the internal free.
 /// @param allocationScope Lifetime scope of the internal free.
-void VKAPI_CALL freeNotify(void* pUserData, size_t size,
+void VKAPI_CALL freeNotify(void *pUserData, size_t size,
                            VkInternalAllocationType allocationType,
                            VkSystemAllocationScope allocationScope);
 
@@ -114,7 +114,7 @@ class Result {
 
   std::string description() const;
 
-  bool operator==(const Result& rhs) const {
+  bool operator==(const Result &rhs) const {
     return resultCode == rhs.resultCode;
   }
 
@@ -122,7 +122,7 @@ class Result {
 };
 
 /// @brief Operator for printing Result objects
-inline std::ostream& operator<<(std::ostream& os, Result result) {
+inline std::ostream &operator<<(std::ostream &os, Result result) {
   return os << result.description();
 }
 
@@ -169,7 +169,7 @@ class InstanceTest : public testing::Test {
   }
 
   virtual void SetUp() {
-    std::array<const char*, 5> validationLayers{
+    std::array<const char *, 5> validationLayers{
         {"VK_LAYER_GOOGLE_threading", "VK_LAYER_LUNARG_parameter_validation",
          "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_core_validation",
          "VK_LAYER_GOOGLE_unique_objects"}};
@@ -182,7 +182,7 @@ class InstanceTest : public testing::Test {
         VK_SUCCESS, vkEnumerateInstanceLayerProperties(&layerPropertyCount,
                                                        layerProperties.data()));
 
-    for (const char* layerName : validationLayers) {
+    for (const char *layerName : validationLayers) {
       for (VkLayerProperties properties : layerProperties) {
         if (strcmp(layerName, properties.layerName) == 0) {
           enabledLayerNames.push_back(layerName);
@@ -193,7 +193,7 @@ class InstanceTest : public testing::Test {
     instanceCreateInfo.ppEnabledLayerNames = enabledLayerNames.data();
     instanceCreateInfo.enabledLayerCount = enabledLayerNames.size();
 
-    std::array<const char*, 1> extensions{
+    std::array<const char *, 1> extensions{
         {"VK_KHR_get_physical_device_properties2"},
     };
 
@@ -207,7 +207,7 @@ class InstanceTest : public testing::Test {
                                      nullptr, &extensionPropertyCount,
                                      extensionProperties.data()));
 
-    for (const char* extensionNameCstr : extensions) {
+    for (const char *extensionNameCstr : extensions) {
       std::string extensionName(extensionNameCstr);
       for (VkExtensionProperties properties : extensionProperties) {
         if (extensionName == properties.extensionName) {
@@ -245,14 +245,14 @@ class InstanceTest : public testing::Test {
   /// @param extensionName Name of the extension to check for
   ///
   /// @return True if the extension was successfully enabled
-  bool isInstanceExtensionEnabled(const std::string& extensionName) {
+  bool isInstanceExtensionEnabled(const std::string &extensionName) {
     return std::find(enabledInstanceExtensionNames.begin(),
                      enabledInstanceExtensionNames.end(),
                      extensionName) != enabledInstanceExtensionNames.end();
   }
 
-  std::vector<const char*> enabledLayerNames;
-  std::vector<const char*> enabledInstanceExtensionNames;
+  std::vector<const char *> enabledLayerNames;
+  std::vector<const char *> enabledInstanceExtensionNames;
   VkApplicationInfo applicationInfo;
   VkInstanceCreateInfo instanceCreateInfo;
   VkInstance instance;
@@ -314,7 +314,7 @@ class DeviceTest : public PhysicalDeviceTest {
     queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
-    std::array<std::pair<const char*, bool*>, 2> deviceExtensions{
+    std::array<std::pair<const char *, bool *>, 2> deviceExtensions{
         {{"VK_KHR_storage_buffer_storage_class", &clspvSupported_},
          {"VK_KHR_variable_pointers", &clspvSupported_}}};
 
@@ -367,7 +367,7 @@ class DeviceTest : public PhysicalDeviceTest {
   }
 
   VkDevice device;
-  std::vector<const char*> enabledDeviceExtensionNames;
+  std::vector<const char *> enabledDeviceExtensionNames;
   VkPhysicalDeviceFeatures enabledFeatures;
 
  protected:
@@ -650,7 +650,7 @@ class DeviceMemoryTest : public virtual DeviceTest {
   /// @param offset Offset in bytes into the memory to start the mapping from
   /// @param size Size in bytes of the range to map
   /// @param host_pointer Host pointer to map the memory to
-  void mapMemory(VkDeviceSize offset, VkDeviceSize size, void** host_pointer) {
+  void mapMemory(VkDeviceSize offset, VkDeviceSize size, void **host_pointer) {
     ASSERT_EQ_RESULT(
         VK_SUCCESS, vkMapMemory(device, memory, offset, size, 0, host_pointer));
 
@@ -723,7 +723,7 @@ class RecordCommandBufferTest : public CommandPoolTest {
   }
 
   // Note: Needs to return void due to ASSERT_* macros.
-  void CreateAndRecordCommandBuffer(VkCommandBuffer* outCommandBuffer) {
+  void CreateAndRecordCommandBuffer(VkCommandBuffer *outCommandBuffer) {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandBufferCount = 1;
@@ -812,7 +812,8 @@ class PipelineTest : public RecordCommandBufferTest {
 
     VkShaderModuleCreateInfo shaderCreateInfo = {};
     shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    shaderCreateInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.code);
+    shaderCreateInfo.pCode =
+        reinterpret_cast<const uint32_t *>(shaderCode.code);
     shaderCreateInfo.codeSize = shaderCode.size;
 
     VkShaderModule shaderModule;
@@ -854,7 +855,7 @@ class PipelineTest : public RecordCommandBufferTest {
   bool pipelineLayoutProvided;
   VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
   VkPipelineLayout pipelineLayout;
-  VkSpecializationInfo* pSpecializationInfo;
+  VkSpecializationInfo *pSpecializationInfo;
   VkPipeline pipeline;
 };
 
@@ -1029,14 +1030,14 @@ class SimpleKernelTest : public uvk::PipelineTest,
   /// @param byteOffset The offset in bytes from the start of the buffer's
   /// memory mapped region
   template <typename T>
-  T* PtrToMappedData(BUFFER_ID buffer, size_t byteOffset) {
+  T *PtrToMappedData(BUFFER_ID buffer, size_t byteOffset) {
     // Byte must lie within the buffer:
     if (byteOffset >= bufferMemorySz) {
       return nullptr;
     }
-    char* charPtrToStart = reinterpret_cast<char*>(mappedMemoryRegion);
-    char* charPtrToData = &charPtrToStart[buffer * bufferMemorySz + byteOffset];
-    return reinterpret_cast<T*>(charPtrToData);
+    char *charPtrToStart = reinterpret_cast<char *>(mappedMemoryRegion);
+    char *charPtrToData = &charPtrToStart[buffer * bufferMemorySz + byteOffset];
+    return reinterpret_cast<T *>(charPtrToData);
   }
 
   /// @brief Returns a reference to data type T which is stored at the given
@@ -1050,17 +1051,17 @@ class SimpleKernelTest : public uvk::PipelineTest,
   /// @param byteOffset The offset in bytes from the start of the buffer's
   /// memory mapped region
   template <typename T>
-  T& RefToMappedData(BUFFER_ID buffer, size_t byteOffset) {
+  T &RefToMappedData(BUFFER_ID buffer, size_t byteOffset) {
     return *PtrToMappedData<T>(buffer, byteOffset);
   }
 
   /// @brief Returns a pointer to the mapped memory region for 1st buffer
-  void* PtrTo1stBufferData() { return mappedMemoryRegion; }
+  void *PtrTo1stBufferData() { return mappedMemoryRegion; }
 
   /// @brief Returns a pointer to the mapped memory region for 2nd buffer
-  void* PtrTo2ndBufferData() {
-    char* addr = &reinterpret_cast<char*>(mappedMemoryRegion)[bufferMemorySz];
-    return reinterpret_cast<void*>(addr);
+  void *PtrTo2ndBufferData() {
+    char *addr = &reinterpret_cast<char *>(mappedMemoryRegion)[bufferMemorySz];
+    return reinterpret_cast<void *>(addr);
   }
 
   /// @brief Flushes changes from host memory to device
@@ -1122,7 +1123,7 @@ class SimpleKernelTest : public uvk::PipelineTest,
   VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
   VkBuffer buffer2 = VK_NULL_HANDLE;
   VkQueue queue = VK_NULL_HANDLE;
-  void* mappedMemoryRegion;
+  void *mappedMemoryRegion;
   VkPhysicalDeviceFeatures deviceFeatures;
   bool isDoubleTest;
 };

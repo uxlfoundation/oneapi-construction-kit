@@ -56,23 +56,23 @@ struct ScalarType {
   using value_type = T;
 
   ScalarType() = default;
-  ScalarType(const ScalarType&) = default;
-  ScalarType(ScalarType&&) = default;
+  ScalarType(const ScalarType &) = default;
+  ScalarType(ScalarType &&) = default;
 
   /// @brief Construct with an OpenCL scalar type.
   ///
   /// @param[in] value Value to construct with.
-  ScalarType(const cl_type& value) : Value(value) {}
+  ScalarType(const cl_type &value) : Value(value) {}
 
-  ScalarType& operator=(const ScalarType&) = default;
-  ScalarType& operator=(ScalarType&&) = default;
+  ScalarType &operator=(const ScalarType &) = default;
+  ScalarType &operator=(ScalarType &&) = default;
 
   /// @brief Assign with an OpenCL scalar type.
   ///
   /// @param[in] value Value to assign with.
   ///
   /// @return Returns a reference to this object.
-  ScalarType& operator=(const cl_type& value) {
+  ScalarType &operator=(const cl_type &value) {
     new (this) ScalarType(value);
     return *this;
   }
@@ -80,12 +80,12 @@ struct ScalarType {
   /// @brief Access the OpenCL scalar storage.
   ///
   /// @return Returns a reference to OpenCL scalar.
-  cl_type& value() { return Value; }
+  cl_type &value() { return Value; }
 
   /// @brief Access the OpenCL scalar storage.
   ///
   /// @return Returns a `const` reference to OpenCL scalar.
-  const cl_type& value() const { return Value; }
+  const cl_type &value() const { return Value; }
 
   /// @brief Implicit conversion to the OpenCL scalar type.
   ///
@@ -119,8 +119,8 @@ struct ScalarType {
 ///
 /// @return Returns `true` if the values are equal, `false` otherwise.
 template <class T, class Tag>
-inline bool operator==(const ScalarType<T, Tag>& left,
-                       const ScalarType<T, Tag>& right) {
+inline bool operator==(const ScalarType<T, Tag> &left,
+                       const ScalarType<T, Tag> &right) {
   return left.value() == right.value();
 }
 
@@ -131,8 +131,8 @@ inline bool operator==(const ScalarType<T, Tag>& left,
 ///
 /// @return Returns `true` if the values are not equal, `false` otherwise.
 template <class T, class Tag>
-inline bool operator!=(const ScalarType<T, Tag>& left,
-                       const ScalarType<T, Tag>& right) {
+inline bool operator!=(const ScalarType<T, Tag> &left,
+                       const ScalarType<T, Tag> &right) {
   return left.value() != right.value();
 }
 
@@ -143,8 +143,8 @@ inline bool operator!=(const ScalarType<T, Tag>& left,
 ///
 /// @return Returns `true` if `left` is less than `right`, `false` otherwise.
 template <class T, class Tag>
-inline bool operator<(const ScalarType<T, Tag>& left,
-                      const ScalarType<T, Tag>& right) {
+inline bool operator<(const ScalarType<T, Tag> &left,
+                      const ScalarType<T, Tag> &right) {
   return left.value() < right.value();
 }
 
@@ -156,8 +156,8 @@ inline bool operator<(const ScalarType<T, Tag>& left,
 /// @return Returns `true` if `left` is less or equal to than `right`, `false`
 /// otherwise.
 template <class T, class Tag>
-inline bool operator<=(const ScalarType<T, Tag>& left,
-                       const ScalarType<T, Tag>& right) {
+inline bool operator<=(const ScalarType<T, Tag> &left,
+                       const ScalarType<T, Tag> &right) {
   return left.value() <= right.value();
 }
 
@@ -169,8 +169,8 @@ inline bool operator<=(const ScalarType<T, Tag>& left,
 /// @return Returns `true` if `left` is greater than `right`, `false`
 /// otherwise.
 template <class T, class Tag>
-inline bool operator>(const ScalarType<T, Tag>& left,
-                      const ScalarType<T, Tag>& right) {
+inline bool operator>(const ScalarType<T, Tag> &left,
+                      const ScalarType<T, Tag> &right) {
   return left.value() > right.value();
 }
 
@@ -182,8 +182,8 @@ inline bool operator>(const ScalarType<T, Tag>& left,
 /// @return Returns `true` if `left` is greater than or equal to than `right`,
 /// `false` otherwise.
 template <class T, class Tag>
-inline bool operator>=(const ScalarType<T, Tag>& left,
-                       const ScalarType<T, Tag>& right) {
+inline bool operator>=(const ScalarType<T, Tag> &left,
+                       const ScalarType<T, Tag> &right) {
   return left.value() >= right.value();
 }
 
@@ -212,16 +212,16 @@ struct VectorType {
   using cl_type = T;
   using value_type = typename std::remove_reference<decltype(
       std::declval<cl_type>().s[0])>::type;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using pointer = value_type*;
-  using const_pointer = const value_type*;
+  using reference = value_type &;
+  using const_reference = const value_type &;
+  using pointer = value_type *;
+  using const_pointer = const value_type *;
   using iterator = pointer;
   using const_iterator = const_pointer;
 
   VectorType() = default;
-  VectorType(const VectorType&) = default;
-  VectorType(VectorType&&) = default;
+  VectorType(const VectorType &) = default;
+  VectorType(VectorType &&) = default;
 
   /// @brief Construct with the same scalar value in all elements.
   ///
@@ -233,7 +233,7 @@ struct VectorType {
   /// @brief Construct from an OpenCL vector type.
   ///
   /// @param[in] vector OpenCL vector to copy construct from.
-  explicit VectorType(const cl_type& vector) : Vector(vector) {}
+  explicit VectorType(const cl_type &vector) : Vector(vector) {}
 
   /// @brief Construct from an initializer list of values.
   ///
@@ -251,15 +251,15 @@ struct VectorType {
     std::copy(std::begin(buffer), std::end(buffer), std::begin(*this));
   }
 
-  VectorType& operator=(const VectorType&) = default;
-  VectorType& operator=(VectorType&&) = default;
+  VectorType &operator=(const VectorType &) = default;
+  VectorType &operator=(VectorType &&) = default;
 
   /// @brief Assign with the same scalar value in all elements.
   ///
   /// @param[in] value Value to assign to all vector elements.
   ///
   /// @return Returns a reference to this object.
-  VectorType& operator=(const_reference value) {
+  VectorType &operator=(const_reference value) {
     new (this) VectorType(value);
     return *this;
   }
@@ -269,7 +269,7 @@ struct VectorType {
   /// @param[in] vector OpenCL vector to copy assign from.
   ///
   /// @return Returns a reference to this object.
-  VectorType& operator=(const cl_type& vector) {
+  VectorType &operator=(const cl_type &vector) {
     new (this) VectorType(vector);
     return *this;
   }
@@ -279,7 +279,7 @@ struct VectorType {
   /// @param[in] ilist List of values to copy assign from.
   ///
   /// @return Returns a reference to this object.
-  VectorType& operator=(std::initializer_list<value_type> ilist) {
+  VectorType &operator=(std::initializer_list<value_type> ilist) {
     new (this) VectorType(std::move(ilist));
     return *this;
   }
@@ -307,12 +307,12 @@ struct VectorType {
   /// @brief Access the OpenCL vector storage.
   ///
   /// @return Returns a reference to the OpenCL vector.
-  cl_type& value() { return Vector; }
+  cl_type &value() { return Vector; }
 
   /// @brief Access the OpenCL vector storage.
   ///
   /// @return Returns a `const` reference to the OpenCL vector.
-  const cl_type& value() const { return Vector; }
+  const cl_type &value() const { return Vector; }
 
   /// @brief Directly access the vector data.
   ///
@@ -416,8 +416,8 @@ struct PackedVector3Type : VectorType<T, 3, Tag> {
   using const_iterator = typename VectorType<T, 3, Tag>::const_iterator;
 
   PackedVector3Type() = default;
-  PackedVector3Type(const PackedVector3Type& other) = default;
-  PackedVector3Type(PackedVector3Type&& other) = default;
+  PackedVector3Type(const PackedVector3Type &other) = default;
+  PackedVector3Type(PackedVector3Type &&other) = default;
 
   /// @brief Construct with the same scalar value in all elements.
   ///
@@ -428,7 +428,7 @@ struct PackedVector3Type : VectorType<T, 3, Tag> {
   /// @brief Construct from an OpenCL vector type.
   ///
   /// @param[in] vector OpenCL vector to copy construct from.
-  explicit PackedVector3Type(const cl_type& vector)
+  explicit PackedVector3Type(const cl_type &vector)
       : VectorType<T, 3, Tag>(vector) {}
 
   /// @brief Construct from an initializer list of values.
@@ -437,15 +437,15 @@ struct PackedVector3Type : VectorType<T, 3, Tag> {
   PackedVector3Type(std::initializer_list<value_type> ilist)
       : VectorType<T, 3, Tag>(ilist) {}
 
-  PackedVector3Type& operator=(const PackedVector3Type& other) = default;
-  PackedVector3Type& operator=(PackedVector3Type&& other) = default;
+  PackedVector3Type &operator=(const PackedVector3Type &other) = default;
+  PackedVector3Type &operator=(PackedVector3Type &&other) = default;
 
   /// @brief Assign with the same scalar value in all elements.
   ///
   /// @param[in] value Value to assign to all vector elements.
   ///
   /// @return Returns a reference to this object.
-  PackedVector3Type& operator=(const_reference value) {
+  PackedVector3Type &operator=(const_reference value) {
     new (this) PackedVector3Type(value);
     return *this;
   }
@@ -455,7 +455,7 @@ struct PackedVector3Type : VectorType<T, 3, Tag> {
   /// @param[in] vector OpenCL vector to copy assign from.
   ///
   /// @return Returns a reference to this object.
-  PackedVector3Type& operator=(const cl_type& vector) {
+  PackedVector3Type &operator=(const cl_type &vector) {
     new (this) PackedVector3Type(vector);
     return *this;
   }
@@ -465,7 +465,7 @@ struct PackedVector3Type : VectorType<T, 3, Tag> {
   /// @param[in] ilist List of values to copy assign from.
   ///
   /// @return Returns a reference to this object.
-  PackedVector3Type& operator=(std::initializer_list<value_type> ilist) {
+  PackedVector3Type &operator=(std::initializer_list<value_type> ilist) {
     new (this) PackedVector3Type(std::move(ilist));
     return *this;
   }
@@ -478,8 +478,8 @@ struct PackedVector3Type : VectorType<T, 3, Tag> {
 ///
 /// @return Returns `true` if the values are equal, `false` otherwise.
 template <class T, size_t N, class Tag>
-inline bool operator==(const VectorType<T, N, Tag>& left,
-                       const VectorType<T, N, Tag>& right) {
+inline bool operator==(const VectorType<T, N, Tag> &left,
+                       const VectorType<T, N, Tag> &right) {
   return std::equal(left.begin(), left.end(), right.begin());
 }
 
@@ -490,8 +490,8 @@ inline bool operator==(const VectorType<T, N, Tag>& left,
 ///
 /// @return Returns `true` if the values are not equal, `false` otherwise.
 template <class T, size_t N, class Tag>
-inline bool operator!=(const VectorType<T, N, Tag>& left,
-                       const VectorType<T, N, Tag>& right) {
+inline bool operator!=(const VectorType<T, N, Tag> &left,
+                       const VectorType<T, N, Tag> &right) {
   return !std::equal(left.begin(), left.end(), right.begin());
 }
 
@@ -502,11 +502,11 @@ inline bool operator!=(const VectorType<T, N, Tag>& left,
 ///
 /// @return Returns `true` if `left` is less than `right`, `false` otherwise.
 template <class T, size_t N, class Tag>
-inline bool operator<(const VectorType<T, N, Tag>& left,
-                      const VectorType<T, N, Tag>& right) {
+inline bool operator<(const VectorType<T, N, Tag> &left,
+                      const VectorType<T, N, Tag> &right) {
   return std::lexicographical_compare(
       left.begin(), left.end(), right.begin(), right.end(),
-      [](const T& a, const T& b) -> bool { return a < b; });
+      [](const T &a, const T &b) -> bool { return a < b; });
 }
 
 /// @brief Less than or equal to comparison operator for VectorType.
@@ -517,11 +517,11 @@ inline bool operator<(const VectorType<T, N, Tag>& left,
 /// @return Returns `true` if `left` is less or equal to than `right`, `false`
 /// otherwise.
 template <class T, size_t N, class Tag>
-inline bool operator<=(const VectorType<T, N, Tag>& left,
-                       const VectorType<T, N, Tag>& right) {
+inline bool operator<=(const VectorType<T, N, Tag> &left,
+                       const VectorType<T, N, Tag> &right) {
   return std::lexicographical_compare(
       left.begin(), left.end(), right.begin(), right.end(),
-      [](const T& a, const T& b) -> bool { return a <= b; });
+      [](const T &a, const T &b) -> bool { return a <= b; });
 }
 
 /// @brief Greater than comparison operator for VectorType.
@@ -532,11 +532,11 @@ inline bool operator<=(const VectorType<T, N, Tag>& left,
 /// @return Returns `true` if `left` is greater than `right`, `false`
 /// otherwise.
 template <class T, size_t N, class Tag>
-inline bool operator>(const VectorType<T, N, Tag>& left,
-                      const VectorType<T, N, Tag>& right) {
+inline bool operator>(const VectorType<T, N, Tag> &left,
+                      const VectorType<T, N, Tag> &right) {
   return std::lexicographical_compare(
       left.begin(), left.end(), right.begin(), right.end(),
-      [](const T& a, const T& b) -> bool { return a > b; });
+      [](const T &a, const T &b) -> bool { return a > b; });
 }
 
 /// @brief Greater than or equal to comparison operator for VectorType.
@@ -547,11 +547,11 @@ inline bool operator>(const VectorType<T, N, Tag>& left,
 /// @return Returns `true` if `left` is greater or equal to than `right`,
 /// `false` otherwise.
 template <class T, size_t N, class Tag>
-inline bool operator>=(const VectorType<T, N, Tag>& left,
-                       const VectorType<T, N, Tag>& right) {
+inline bool operator>=(const VectorType<T, N, Tag> &left,
+                       const VectorType<T, N, Tag> &right) {
   return std::lexicographical_compare(
       left.begin(), left.end(), right.begin(), right.end(),
-      [](const T& a, const T& b) -> bool { return a >= b; });
+      [](const T &a, const T &b) -> bool { return a >= b; });
 }
 
 #define TYPES(NAME, TYPE)                                        \
@@ -585,8 +585,8 @@ TYPES(Double, cl_double);
 ///
 /// @return Returns a refernece to the output stream.
 template <class T, class Tag>
-inline std::ostream& operator<<(std::ostream& out,
-                                const ScalarType<T, Tag>& scalar) {
+inline std::ostream &operator<<(std::ostream &out,
+                                const ScalarType<T, Tag> &scalar) {
   out << scalar.value();
   return out;
 }
@@ -598,8 +598,8 @@ inline std::ostream& operator<<(std::ostream& out,
 ///
 /// @return Returns a refernece to the output stream.
 template <>
-inline std::ostream& operator<<(std::ostream& out,
-                                const ScalarType<Half, HalfTag>& scalar);
+inline std::ostream &operator<<(std::ostream &out,
+                                const ScalarType<Half, HalfTag> &scalar);
 
 /// @brief Output stream operator for VectorType.
 ///
@@ -608,8 +608,8 @@ inline std::ostream& operator<<(std::ostream& out,
 ///
 /// @return Returns a refernece to the output stream.
 template <class T, size_t N, class Tag>
-inline std::ostream& operator<<(std::ostream& out,
-                                const VectorType<T, N, Tag>& vector) {
+inline std::ostream &operator<<(std::ostream &out,
+                                const VectorType<T, N, Tag> &vector) {
   out << '{';
   for (size_t index = 0; index < vector.size() - 1; index++) {
     out << vector[index] << ", ";
@@ -625,8 +625,8 @@ inline std::ostream& operator<<(std::ostream& out,
 ///
 /// @return Returns a refernece to the output stream.
 template <class T, size_t N>
-inline std::ostream& operator<<(std::ostream& out,
-                                const VectorType<T, N, HalfTag>& vector) {
+inline std::ostream &operator<<(std::ostream &out,
+                                const VectorType<T, N, HalfTag> &vector) {
   out << '{';
   for (size_t index = 0; index < vector.size() - 1; index++) {
     out << Half(vector[index]) << ", ";

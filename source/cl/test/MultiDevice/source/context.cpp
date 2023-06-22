@@ -4,8 +4,7 @@ TEST_F(MultiDeviceContext, CreateCommandQueues) {
   cl_int error;
   std::vector<cl_command_queue> command_queues;
   for (auto device : devices) {
-    command_queues.push_back(
-        clCreateCommandQueue(context, device, 0, &error));
+    command_queues.push_back(clCreateCommandQueue(context, device, 0, &error));
     EXPECT_EQ(CL_SUCCESS, error);
   }
   for (auto command_queue : command_queues) {
@@ -67,7 +66,7 @@ TEST_F(MultiDeviceContext, CreateProgram) {
 }
 
 TEST_F(MultiDeviceContext, CreateKernel) {
-  if(!hasCompilerSupport()) {
+  if (!hasCompilerSupport()) {
     GTEST_SKIP();
   }
   const char *source = "kernel void foo() {}";

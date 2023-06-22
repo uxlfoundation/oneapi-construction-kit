@@ -17,8 +17,8 @@
 #ifndef BENCHCL_ENVIRONMENT_H_INCLUDED
 #define BENCHCL_ENVIRONMENT_H_INCLUDED
 
-#include <cargo/string_view.h>
 #include <CL/cl.h>
+#include <cargo/string_view.h>
 
 namespace benchcl {
 struct env {
@@ -30,10 +30,10 @@ struct env {
   cl_platform_id platform;
   cl_device_id device;
 
-  static env* get() { return instance; }
+  static env *get() { return instance; }
 
-  static env* instance;
+  static env *instance;
 };
 }  // namespace benchcl
 
-#endif // BENCHCL_ENVIRONMENT_H_INCLUDED
+#endif  // BENCHCL_ENVIRONMENT_H_INCLUDED

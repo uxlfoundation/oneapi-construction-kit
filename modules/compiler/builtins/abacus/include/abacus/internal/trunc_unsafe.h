@@ -25,7 +25,7 @@
 namespace abacus {
 namespace internal {
 template <typename T>
-inline typename TypeTraits<T>::SignedType trunc_unsafe(const T& x) {
+inline typename TypeTraits<T>::SignedType trunc_unsafe(const T &x) {
   return abacus::detail::cast::convert<typename TypeTraits<T>::SignedType>(x);
 }
 }  // namespace internal

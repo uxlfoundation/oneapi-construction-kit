@@ -22,12 +22,11 @@
 #define CL_BASE_H_INCLUDED
 
 #include <CL/cl.h>
+#include <cl/macros.h>
+#include <extension/config.h>
 
 #include <atomic>
 #include <string>
-
-#include <cl/macros.h>
-#include <extension/config.h>
 #ifdef OCL_EXTENSION_cl_khr_icd
 #include <extension/khr_icd.h>
 #endif
@@ -76,10 +75,10 @@ class base {
   ///
   /// @note Virtual functions are **not** allowed because they occupy the first
   /// bytes of the object and would displace the pointer to the dispatch table.
-  const void* icd_dispatch_table_ptr;
+  const void *icd_dispatch_table_ptr;
 
   /// @brief Pointer type of the inheriting object.
-  using object_type = T*;
+  using object_type = T *;
 
  public:
   /// @brief Construct and initialize internal or external reference count.
@@ -146,7 +145,7 @@ class base {
   ///
   /// @return Returns CL_SUCCESS, CL_INVALID_<OBJECT> if the external reference
   /// count is 0.
-  cl_int releaseExternal(bool& should_destroy) {
+  cl_int releaseExternal(bool &should_destroy) {
     cl_uint last_ref_count = ref_count_external;
     cl_uint next_ref_count;
     do {
@@ -201,7 +200,7 @@ class base {
   ///
   /// @param[out] should_destroy Returns true if the object can be destroyed,
   /// false otherwise.
-  void releaseInternal(bool& should_destroy) {
+  void releaseInternal(bool &should_destroy) {
     cl_uint last_ref_count = ref_count_internal;
     cl_uint next_ref_count;
     do {
@@ -269,7 +268,9 @@ class release_guard {
           releaseInternal(object);
           break;
         }
-        default: { OCL_ABORT("Unknown cl::ref_count_type!"); }
+        default: {
+          OCL_ABORT("Unknown cl::ref_count_type!");
+        }
       }
     }
   }
@@ -287,12 +288,12 @@ class release_guard {
   /// @brief Access the object.
   ///
   /// @return Returns a reference to the object.
-  object_type& get() { return object; }
+  object_type &get() { return object; }
 
   /// @brief Access the object.
   ///
   /// @return Returns a const reference to the object.
-  const object_type& get() const { return object; }
+  const object_type &get() const { return object; }
 
   /// @brief Dismiss the object from being released at scope exit.
   ///
@@ -409,6 +410,6 @@ template <>
 void releaseInternal<cl_mem>(cl_mem object);
 
 /// @}
-}  // cl
+}  // namespace cl
 
 #endif  // CL_BASE_H_INCLUDED

@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <UnitVK.h>
+
 #include <thread>
 
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkWaitForFences
@@ -153,13 +154,12 @@ TEST_F(WaitForFences, MaxTimeout) {
 }
 
 // second threads function for multithreaded tests
-static void thread2fn(WaitForFences* pTestFixture, const uint64_t timeout) {
+static void thread2fn(WaitForFences *pTestFixture, const uint64_t timeout) {
   VkFence waitFences[2];
   waitFences[0] = pTestFixture->fence1;
   waitFences[1] = pTestFixture->fence2;
-  ASSERT_EQ_RESULT(VK_SUCCESS,
-                   vkWaitForFences(pTestFixture->device, 2, waitFences, VK_TRUE,
-                                   timeout));
+  ASSERT_EQ_RESULT(VK_SUCCESS, vkWaitForFences(pTestFixture->device, 2,
+                                               waitFences, VK_TRUE, timeout));
 }
 
 TEST_F(WaitForFences, MultithreadedWait) {
@@ -222,4 +222,3 @@ TEST_F(WaitForFences, MultithreadedWaitAlreadyFinished) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 }
-

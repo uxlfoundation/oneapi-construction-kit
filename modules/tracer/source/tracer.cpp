@@ -73,7 +73,7 @@ struct TracerVirtualMemFileImpl {
 
     int requested_mb = 1024;
 
-    const char* mb_str = std::getenv("CA_TRACE_FILE_BUFFER_MB");
+    const char *mb_str = std::getenv("CA_TRACE_FILE_BUFFER_MB");
 
     if (nullptr != mb_str && std::strlen(mb_str)) {
       /* seems good to have a max, 75GB */
@@ -96,8 +96,8 @@ struct TracerVirtualMemFileImpl {
     }
     lseek64(f, 0, SEEK_SET);
 
-    void* mapping = mmap(0, bytes, PROT_WRITE, MAP_SHARED, f, 0);
-    map = static_cast<char*>(mapping);
+    void *mapping = mmap(0, bytes, PROT_WRITE, MAP_SHARED, f, 0);
+    map = static_cast<char *>(mapping);
     close(f);
 
     if (map == MAP_FAILED) {
@@ -111,7 +111,7 @@ struct TracerVirtualMemFileImpl {
     int consumed = std::snprintf(buf, sizeof(buf),
                                  "{\n\t\"otherData\":{},\n\t\"traceEvents\":[");
     writeToMemMap(buf, consumed);
-    std::memset((void*)buf, 0, sizeof(buf));
+    std::memset((void *)buf, 0, sizeof(buf));
 
     // Insert dummy value so we can ignore JSON's comma requirements.
     uint64_t end = tracer::getCurrentTimestamp();
@@ -129,7 +129,7 @@ struct TracerVirtualMemFileImpl {
 
   ~TracerVirtualMemFileImpl() {
     if (0 != map) {
-      const char* ending = "\n\t]\n}\n";
+      const char *ending = "\n\t]\n}\n";
 
       if (std::strlen(ending) + offset > max_offset) {
         fprintf(stderr,
@@ -142,7 +142,7 @@ struct TracerVirtualMemFileImpl {
       // Copy mem-mapped file into a proper file.
       // This reduces the footprint, and stops to some file issues, with editors
       // opening up empty and/or very large files.
-      FILE* file = fopen(export_file, "w");
+      FILE *file = fopen(export_file, "w");
 
       if (nullptr != file) {
         size_t idx = fwrite(map, sizeof(map[0]), offset.load(), file);
@@ -159,7 +159,7 @@ struct TracerVirtualMemFileImpl {
     }
   }
 
-  void doTrace(const char* name, const char* category, uint64_t start,
+  void doTrace(const char *name, const char *category, uint64_t start,
                uint64_t end) {
     // Buffer to keep stack allocated.
     char buf[256]{};
@@ -174,7 +174,7 @@ struct TracerVirtualMemFileImpl {
   }
 
  private:
-  void writeToMemMap(const char* buf, int size) {
+  void writeToMemMap(const char *buf, int size) {
     if (map == nullptr || size <= 0) {
       return;
     }
@@ -182,13 +182,13 @@ struct TracerVirtualMemFileImpl {
     uint64_t insert_pt = offset.fetch_add(size);
 
     if ((insert_pt + size) < max_offset) {
-      std::memcpy((void*)&map[insert_pt], (void*)buf, size);
+      std::memcpy((void *)&map[insert_pt], (void *)buf, size);
     }
   }
 
   uint64_t max_offset{0};
-  char* map{nullptr};
-  const char* export_file{nullptr};
+  char *map{nullptr};
+  const char *export_file{nullptr};
   std::string tmp_name{""};
   std::atomic<uint64_t> offset{0};
 };
@@ -201,7 +201,7 @@ struct TracerFileImpl {
   explicit TracerFileImpl() {
     uint64_t start = tracer::getCurrentTimestamp();
 
-    const char* env = std::getenv("CA_TRACE_FILE");
+    const char *env = std::getenv("CA_TRACE_FILE");
 
     // If we couldn't find an env variable for the user folder or the returned
     // value was an empty string, bail out.
@@ -245,7 +245,7 @@ struct TracerFileImpl {
     }
   }
 
-  void doTrace(const char* name, const char* category, uint64_t start,
+  void doTrace(const char *name, const char *category, uint64_t start,
                uint64_t end) {
     std::lock_guard<std::mutex> lock(mtx);
 
@@ -261,12 +261,12 @@ struct TracerFileImpl {
   }
 
   std::mutex mtx;
-  FILE* file{nullptr};
+  FILE *file{nullptr};
 };
 #elif defined(__APPLE__) || defined(__QNX__) || defined(__MCOS_POSIX__)
 // These platforms are known to be unsupported, and have a stub implementation.
 struct TracerVirtualMemFileImpl {
-  void doTrace(const char*, const char*, uint64_t, uint64_t) {}
+  void doTrace(const char *, const char *, uint64_t, uint64_t) {}
 };
 #endif
 
@@ -283,7 +283,7 @@ uint64_t tracer::getCurrentTimestamp() {
   return utils::timestampMicroSeconds();
 }
 
-void tracer::recordTrace(const char* name, const char* category, uint64_t start,
+void tracer::recordTrace(const char *name, const char *category, uint64_t start,
                          uint64_t end) {
   trace_impl.doTrace(name, category, start, end);
 }

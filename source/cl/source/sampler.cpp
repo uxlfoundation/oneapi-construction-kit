@@ -19,10 +19,9 @@
 #include <cl/sampler.h>
 #include <cl/validate.h>
 #include <libimg/host.h>
-#include <tracer/tracer.h>
-
 #include <stddef.h>
 #include <stdint.h>
+#include <tracer/tracer.h>
 
 _cl_sampler::_cl_sampler(cl_context context, cl_bool normalized_coords,
                          cl_addressing_mode addressing_mode,

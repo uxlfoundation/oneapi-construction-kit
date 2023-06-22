@@ -119,10 +119,9 @@ template <class Dest, class Src,
                       is_detected<detail::subscript_member_fn, Src>::value &&
                       is_detected<detail::subscript_member_fn, Dest>::value &&
                       is_detected<detail::ptr_len_constructor, Dest,
-                                  typename Src::const_pointer>::value  &&
+                                  typename Src::const_pointer>::value &&
                       has_value_type_convertible_to<typename Src::value_type,
-                                                    Dest>::value> * =
-              nullptr>
+                                                    Dest>::value> * = nullptr>
 Dest as(const Src &source) {
   static_assert(!std::is_reference<Dest>::value,
                 "cargo::as cannot convert to a reference");
@@ -151,7 +150,7 @@ template <class Dest, class Src,
                       is_detected<detail::iterator_constructor, Dest,
                                   typename Src::value_type *>::value &&
                       !is_detected<detail::ptr_len_constructor, Dest,
-                                  typename Src::const_pointer>::value  &&
+                                   typename Src::const_pointer>::value &&
                       has_value_type_convertible_to<typename Src::value_type,
                                                     Dest>::value> * = nullptr>
 Dest as(const Src &source) {

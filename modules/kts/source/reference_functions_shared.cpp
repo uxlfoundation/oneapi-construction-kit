@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "kts/reference_functions.h"
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+
+#include "kts/reference_functions.h"
 
 float kts::Ref_NegativeOffset(size_t x) { return x - 3.0f; }
 

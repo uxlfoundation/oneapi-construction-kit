@@ -17,9 +17,11 @@
 #include <UnitVK.h>
 
 class GetBufferMemoryRequirements : public uvk::DeviceTest {
-public:
+ public:
   GetBufferMemoryRequirements()
-      : queueFamilyIndex(0), bufferSize(64), bufferCreateInfo(),
+      : queueFamilyIndex(0),
+        bufferSize(64),
+        bufferCreateInfo(),
         buffer(VK_NULL_HANDLE) {}
 
   virtual void SetUp() override {

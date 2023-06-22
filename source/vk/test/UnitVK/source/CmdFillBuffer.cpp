@@ -23,8 +23,9 @@ class CmdFillBuffer : public uvk::RecordCommandBufferTest,
                       public uvk::DeviceMemoryTest {
  public:
   CmdFillBuffer()
-      : BufferTest(64, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                           VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+      : BufferTest(64,
+                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                       VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                    true),
         DeviceMemoryTest(true),
         submitInfo() {}
@@ -119,4 +120,3 @@ TEST_F(CmdFillBuffer, DefaultSecondaryCommandBuffer) {
   DeviceMemoryTest::unmapMemory();
   vkFreeCommandBuffers(device, commandPool, 1, &secondaryCommandBuffer);
 }
-

@@ -39,7 +39,7 @@ enum MemoryProtection : uint32_t {
 };
 
 /// @brief Get the required memory protection for an ELF section.
-MemoryProtection getSectionProtection(const ElfFile::Section& section);
+MemoryProtection getSectionProtection(const ElfFile::Section &section);
 
 /// @brief Get the size in bytes of an OS memory page.
 size_t getPageSize();
@@ -47,10 +47,10 @@ size_t getPageSize();
 /// @brief Wraps and owns a range of pages in virtual memory.
 struct PageRange {
   PageRange();
-  PageRange(const PageRange&) = delete;
-  PageRange(PageRange&&);
+  PageRange(const PageRange &) = delete;
+  PageRange(PageRange &&);
   ~PageRange();
-  PageRange& operator=(PageRange&&);
+  PageRange &operator=(PageRange &&);
 
   /// @brief Allocates OS pages for at least @p bytes bytes of storage.
   /// The pages are allocated with read+write permissions and guaranteed to be
@@ -68,8 +68,8 @@ struct PageRange {
   }
 
  private:
-  uint8_t* pages_begin;
-  uint8_t* pages_end;
+  uint8_t *pages_begin;
+  uint8_t *pages_end;
 };
 
 }  // namespace loader

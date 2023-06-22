@@ -99,7 +99,7 @@ DEF3(float)
   DEF(TYPE, long)    \
   DEF(TYPE, ulong)   \
   DEF(TYPE, double)
-#else // __CA_BUILTINS_DOUBLE_SUPPORT
+#else  // __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF4(TYPE)   \
   DEF(TYPE, char8)   \
   DEF(TYPE, uchar8)  \
@@ -111,8 +111,8 @@ DEF3(float)
   DEF(TYPE, float2)  \
   DEF(TYPE, long)    \
   DEF(TYPE, ulong)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#else // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#else   // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF4(TYPE)   \
   DEF(TYPE, char8)   \
@@ -125,7 +125,7 @@ DEF3(float)
   DEF(TYPE, long)    \
   DEF(TYPE, ulong)   \
   DEF(TYPE, double)
-#else // __CA_BUILTINS_DOUBLE_SUPPORT
+#else  // __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF4(TYPE)   \
   DEF(TYPE, char8)   \
   DEF(TYPE, uchar8)  \
@@ -136,8 +136,8 @@ DEF3(float)
   DEF(TYPE, float2)  \
   DEF(TYPE, long)    \
   DEF(TYPE, ulong)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 DEF4(char8)
 DEF4(uchar8)
@@ -153,7 +153,7 @@ DEF4(long)
 DEF4(ulong)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF4(double)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
@@ -169,7 +169,7 @@ DEF4(double)
   DEF(TYPE, long2)   \
   DEF(TYPE, ulong2)  \
   DEF(TYPE, double2)
-#else // __CA_BUILTINS_DOUBLE_SUPPORT
+#else  // __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF5(TYPE)   \
   DEF(TYPE, char16)  \
   DEF(TYPE, uchar16) \
@@ -181,8 +181,8 @@ DEF4(double)
   DEF(TYPE, float4)  \
   DEF(TYPE, long2)   \
   DEF(TYPE, ulong2)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#else // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#else   // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF5(TYPE)   \
   DEF(TYPE, char16)  \
@@ -195,7 +195,7 @@ DEF4(double)
   DEF(TYPE, long2)   \
   DEF(TYPE, ulong2)  \
   DEF(TYPE, double2)
-#else // __CA_BUILTINS_DOUBLE_SUPPORT
+#else  // __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF5(TYPE)   \
   DEF(TYPE, char16)  \
   DEF(TYPE, uchar16) \
@@ -206,8 +206,8 @@ DEF4(double)
   DEF(TYPE, float4)  \
   DEF(TYPE, long2)   \
   DEF(TYPE, ulong2)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 DEF5(char16)
 DEF5(uchar16)
@@ -223,7 +223,7 @@ DEF5(long2)
 DEF5(ulong2)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF5(double2)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
@@ -237,7 +237,7 @@ DEF5(double2)
   DEF(TYPE, long4)    \
   DEF(TYPE, ulong4)   \
   DEF(TYPE, double4)
-#else // __CA_BUILTINS_DOUBLE_SUPPORT
+#else  // __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF6(TYPE)    \
   DEF(TYPE, short16)  \
   DEF(TYPE, ushort16) \
@@ -247,8 +247,8 @@ DEF5(double2)
   DEF(TYPE, float8)   \
   DEF(TYPE, long4)    \
   DEF(TYPE, ulong4)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#else // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#else   // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF6(TYPE)    \
   DEF(TYPE, short16)  \
@@ -259,7 +259,7 @@ DEF5(double2)
   DEF(TYPE, long4)    \
   DEF(TYPE, ulong4)   \
   DEF(TYPE, double4)
-#else // __CA_BUILTINS_DOUBLE_SUPPORT
+#else  // __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF6(TYPE)    \
   DEF(TYPE, short16)  \
   DEF(TYPE, ushort16) \
@@ -268,8 +268,8 @@ DEF5(double2)
   DEF(TYPE, float8)   \
   DEF(TYPE, long4)    \
   DEF(TYPE, ulong4)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 DEF6(short16)
 DEF6(ushort16)
@@ -283,7 +283,7 @@ DEF6(long4)
 DEF6(ulong4)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF6(double4)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #define DEF7(TYPE)   \
@@ -300,7 +300,7 @@ DEF6(double4)
   DEF(TYPE, float16) \
   DEF(TYPE, long8)   \
   DEF(TYPE, ulong8)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 DEF7(int16)
 DEF7(uint16)
@@ -309,19 +309,19 @@ DEF7(long8)
 DEF7(ulong8)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF7(double8)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 DEF_BOTH_WAYS(long16, ulong16)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF_BOTH_WAYS(long16, double16)
 DEF_BOTH_WAYS(ulong16, double16)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 DEF(long16, long16)
 DEF(ulong16, ulong16)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF(double16, double16)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #define DEF8(TYPE)                   \
   DEF_BOTH_WAYS(TYPE##3, u##TYPE##3) \
@@ -347,4 +347,4 @@ DEF_BOTH_WAYS(float3, float4)
 DEF_BOTH_WAYS(double3, long3)
 DEF_BOTH_WAYS(double3, ulong3)
 DEF_BOTH_WAYS(double3, double4)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

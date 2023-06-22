@@ -19,7 +19,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/multiply_exact.h>
@@ -60,7 +59,7 @@ namespace internal {
 
 // Accurate natural log
 template <typename T>
-inline T log_extended_precision(const T& xMant, T* out_remainder) {
+inline T log_extended_precision(const T &xMant, T *out_remainder) {
   const T xMant1m = xMant - 1.0f;
   const T poly = abacus::internal::horner_polynomial<T, 26>(
       xMant1m, __codeplay_natural_log_extended_precision_coeffD);

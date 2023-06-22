@@ -42,22 +42,22 @@ class ring_buffer final {
  public:
   using value_type = T;
   using size_type = uint32_t;
-  using const_reference = const value_type&;
+  using const_reference = const value_type &;
 
   static_assert(1 < N, "N must be greater than one!");
   static_assert((0 == (N & (N - 1))), "N must be a power of two!");
   static_assert((N < std::numeric_limits<size_type>::max()),
                 "N must be less than std::numeric_limits<uint32_t>::max()!");
 
-  ring_buffer(const ring_buffer&) = delete;
-  ring_buffer& operator=(const ring_buffer& other) = delete;
+  ring_buffer(const ring_buffer &) = delete;
+  ring_buffer &operator=(const ring_buffer &other) = delete;
   ring_buffer() = default;
 
   /// @brief Add an item to the ring buffer.
   /// @param t The item to add.
   /// @return Returns `cargo::overflow` if ring buffer is full,
   /// `cargo::success` otherwise.
-  CARGO_NODISCARD cargo::result enqueue(value_type&& t) {
+  CARGO_NODISCARD cargo::result enqueue(value_type &&t) {
     // Check if our indices match (which means we're either empty or full)
     if (enqueue_index == dequeue_index) {
       if (empty) {
@@ -141,6 +141,6 @@ class ring_buffer final {
 };
 
 /// @}
-}  // cargo
+}  // namespace cargo
 
 #endif  // CARGO_RING_BUFFER_H_INCLUDED

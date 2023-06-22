@@ -21,7 +21,7 @@
 
 namespace vk {
 /// @copydoc ::vk::device_t
-typedef struct device_t* device;
+typedef struct device_t *device;
 
 /// @brief Stub of internal image_view type
 typedef struct image_view_t final {
@@ -29,8 +29,8 @@ typedef struct image_view_t final {
 
 /// @brief Stub of vkCreateImageView
 VkResult CreateImageView(vk::device device,
-                         const VkImageViewCreateInfo* pCreateInfo,
-                         vk::allocator allocator, vk::image_view* pView);
+                         const VkImageViewCreateInfo *pCreateInfo,
+                         vk::allocator allocator, vk::image_view *pView);
 
 /// @brief Stub of vkDestroyImageView
 void DestroyImageView(vk::device device, vk::image_view imageView,

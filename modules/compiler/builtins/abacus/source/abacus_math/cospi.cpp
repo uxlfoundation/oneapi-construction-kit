@@ -17,7 +17,6 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/is_odd.h>
 
@@ -84,7 +83,7 @@ struct helper<T, abacus_double> {
     return abacus::internal::horner_polynomial<T, 9>(x, polynomial);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 T cospi(const T x) {
@@ -139,4 +138,4 @@ abacus_double8 ABACUS_API __abacus_cospi(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_cospi(abacus_double16 x) {
   return cospi<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

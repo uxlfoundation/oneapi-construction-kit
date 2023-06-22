@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateDescriptorSetLayout
 
 class CreateDescriptorSetLayout : public uvk::DeviceTest {
-public:
+ public:
   CreateDescriptorSetLayout()
       : createInfo(), descriptorSetLayout(VK_NULL_HANDLE) {}
 
@@ -63,10 +63,10 @@ TEST_F(CreateDescriptorSetLayout, DefaultAllocator) {
 }
 
 TEST_F(CreateDescriptorSetLayout, ErrorOutOfHostMemory) {
-  ASSERT_EQ_RESULT(VK_ERROR_OUT_OF_HOST_MEMORY,
-                   vkCreateDescriptorSetLayout(device, &createInfo,
-                                               uvk::nullAllocator(),
-                                               &descriptorSetLayout));
+  ASSERT_EQ_RESULT(
+      VK_ERROR_OUT_OF_HOST_MEMORY,
+      vkCreateDescriptorSetLayout(device, &createInfo, uvk::nullAllocator(),
+                                  &descriptorSetLayout));
 }
 
 // VK_ERROR_OUT_OF_DEVICE_MEMORY

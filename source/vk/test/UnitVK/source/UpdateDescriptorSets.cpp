@@ -104,7 +104,7 @@ class UpdateDescriptorSets : public uvk::PipelineTest,
     vkBindBufferMemory(device, bufferA, memory, 0);
     vkBindBufferMemory(device, bufferB, memory, bufferBytes);
 
-    void* memPtr;
+    void *memPtr;
 
     DeviceMemoryTest::mapMemory(0, bufferBytes, &memPtr);
     std::memcpy(memPtr, testVals.data(), testVals.size() * sizeof(uint32_t));
@@ -175,11 +175,11 @@ TEST_F(UpdateDescriptorSets, Default) {
 
   // verify the descriptor sets were updated by checking that the test value has
   // moved from one buffer to the other when the kernel was run
-  void* memPtr;
+  void *memPtr;
   DeviceMemoryTest::mapMemory(bufferBytes, bufferBytes, &memPtr);
   for (uint32_t testValIndex = 0; testValIndex < numElements; testValIndex++) {
     ASSERT_EQ(testVals[testValIndex],
-              reinterpret_cast<uint32_t*>(memPtr)[testValIndex]);
+              reinterpret_cast<uint32_t *>(memPtr)[testValIndex]);
   }
   DeviceMemoryTest::unmapMemory();
 }
@@ -209,11 +209,11 @@ TEST_F(UpdateDescriptorSets, DefaultWriteOverflow) {
 
   // verify the descriptor sets were updated by checking that the test value has
   // moved from one buffer to the other when the kernel was run
-  void* memPtr;
+  void *memPtr;
   DeviceMemoryTest::mapMemory(bufferBytes, bufferBytes, &memPtr);
   for (uint32_t testValIndex = 0; testValIndex < numElements; testValIndex++) {
     ASSERT_EQ(testVals[testValIndex],
-              reinterpret_cast<uint32_t*>(memPtr)[testValIndex]);
+              reinterpret_cast<uint32_t *>(memPtr)[testValIndex]);
   }
   DeviceMemoryTest::unmapMemory();
 }
@@ -269,11 +269,11 @@ TEST_F(UpdateDescriptorSets, DefaultCopy) {
 
   // verify the descriptor sets were updated by checking that the test value has
   // moved from one buffer to the other when the kernel was run
-  void* memPtr;
+  void *memPtr;
   DeviceMemoryTest::mapMemory(bufferBytes, bufferBytes, &memPtr);
   for (uint32_t testValIndex = 0; testValIndex < numElements; testValIndex++) {
     ASSERT_EQ(testVals[testValIndex],
-              reinterpret_cast<uint32_t*>(memPtr)[testValIndex]);
+              reinterpret_cast<uint32_t *>(memPtr)[testValIndex]);
   }
   DeviceMemoryTest::unmapMemory();
 }
@@ -321,11 +321,11 @@ TEST_F(UpdateDescriptorSets, DefaultCopyOverflow) {
 
   // verify the descriptor sets were updated by checking that the test value has
   // moved from one buffer to the other when the kernel was run
-  void* memPtr;
+  void *memPtr;
   DeviceMemoryTest::mapMemory(bufferBytes, bufferBytes, &memPtr);
   for (uint32_t testValIndex = 0; testValIndex < numElements; testValIndex++) {
     ASSERT_EQ(testVals[testValIndex],
-              reinterpret_cast<uint32_t*>(memPtr)[testValIndex]);
+              reinterpret_cast<uint32_t *>(memPtr)[testValIndex]);
   }
   DeviceMemoryTest::unmapMemory();
 }
@@ -374,11 +374,11 @@ TEST_F(UpdateDescriptorSets, DefaultSecondaryCommandBuffer) {
 
   // verify the descriptor sets were updated by checking that the test value has
   // moved from one buffer to the other when the kernel was run
-  void* memPtr;
+  void *memPtr;
   DeviceMemoryTest::mapMemory(bufferBytes, bufferBytes, &memPtr);
   for (uint32_t testValIndex = 0; testValIndex < numElements; testValIndex++) {
     ASSERT_EQ(testVals[testValIndex],
-              reinterpret_cast<uint32_t*>(memPtr)[testValIndex]);
+              reinterpret_cast<uint32_t *>(memPtr)[testValIndex]);
   }
   DeviceMemoryTest::unmapMemory();
 

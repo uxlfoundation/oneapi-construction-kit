@@ -16,7 +16,7 @@
 
 /// @file
 ///
-/// @brief 
+/// @brief
 
 #ifndef CARGO_MEMORY_H_INCLUDED
 #define CARGO_MEMORY_H_INCLUDED

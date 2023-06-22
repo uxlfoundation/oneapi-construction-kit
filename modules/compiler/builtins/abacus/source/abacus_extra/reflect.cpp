@@ -51,4 +51,4 @@ abacus_double3 ABACUS_API __abacus_reflect(abacus_double3 i, abacus_double3 n) {
 abacus_double4 ABACUS_API __abacus_reflect(abacus_double4 i, abacus_double4 n) {
   return reflect<>(i, n);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

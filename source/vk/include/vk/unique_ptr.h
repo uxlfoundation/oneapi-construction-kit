@@ -31,7 +31,7 @@ struct deleter {
   /// @brief Constructor
   ///
   /// @param allocator The `vk::allocator` used to destroy the objects
-  deleter(const vk::allocator& allocator) : allocator(allocator) {}
+  deleter(const vk::allocator &allocator) : allocator(allocator) {}
 
   /// @brief Function call operator to destroy the given object
   ///
@@ -39,7 +39,7 @@ struct deleter {
   void operator()(T t) { allocator.destroy(t); }
 
   /// @brief Reference to the allocator used for destruction of objects
-  const vk::allocator& allocator;
+  const vk::allocator &allocator;
 };
 
 /// @brief Alias of `std::unique_ptr` for objects created with `vk::allocator`

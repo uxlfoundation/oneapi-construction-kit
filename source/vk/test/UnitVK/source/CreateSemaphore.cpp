@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateSemaphore
 
 class CreateSemaphore : public uvk::DeviceTest {
-public:
+ public:
   CreateSemaphore() : createInfo(), semaphore(VK_NULL_HANDLE) {}
 
   virtual void SetUp() override {

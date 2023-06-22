@@ -18,7 +18,6 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/lgamma_positive.h>
 
 namespace {

@@ -23,6 +23,7 @@
 
 #include <cargo/platform_defines.h>
 #include <cargo/type_traits.h>
+
 #include <cstdint>
 #include <iterator>
 
@@ -44,7 +45,7 @@ struct endianness_helper {
 #ifdef _MSC_VER  // ignore truncation warning to make this constexpr
 #pragma warning(disable : 4309)
 #endif
-  static constexpr uint8_t first = static_cast<const uint8_t&>(dword);
+  static constexpr uint8_t first = static_cast<const uint8_t &>(dword);
 #ifdef _MSC_VER
 #pragma warning(default : 4309)
 #endif
@@ -67,9 +68,9 @@ template <typename InputIterator>
 typename cargo::enable_if_t<
     std::is_same<cargo::remove_const_t<
                      typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     InputIterator>
-read_little_endian(uint8_t* v, InputIterator it) {
+read_little_endian(uint8_t *v, InputIterator it) {
   *v = *it++;
   return it;
 }
@@ -80,9 +81,9 @@ template <typename InputIterator>
 typename cargo::enable_if_t<
     std::is_same<cargo::remove_const_t<
                      typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     InputIterator>
-read_little_endian(uint16_t* v, InputIterator it) {
+read_little_endian(uint16_t *v, InputIterator it) {
   *v = *it++;
   *v |= *it++ << 8;
   return it;
@@ -94,9 +95,9 @@ template <typename InputIterator>
 typename cargo::enable_if_t<
     std::is_same<cargo::remove_const_t<
                      typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     InputIterator>
-read_little_endian(uint32_t* v, InputIterator it) {
+read_little_endian(uint32_t *v, InputIterator it) {
   *v = *it++;
   *v |= *it++ << 8;
   *v |= *it++ << 16;
@@ -110,9 +111,9 @@ template <typename InputIterator>
 typename cargo::enable_if_t<
     std::is_same<cargo::remove_const_t<
                      typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     InputIterator>
-read_little_endian(uint64_t* v, InputIterator it) {
+read_little_endian(uint64_t *v, InputIterator it) {
   *v = *it++;
   *v |= static_cast<uint64_t>(*it++) << 8;
   *v |= static_cast<uint64_t>(*it++) << 16;
@@ -130,9 +131,9 @@ template <typename Integer, typename InputIterator>
 typename cargo::enable_if_t<
     std::is_same<cargo::remove_const_t<
                      typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     InputIterator>
-read_big_endian(Integer* v, InputIterator it) {
+read_big_endian(Integer *v, InputIterator it) {
   // read from little-endian to native and swap to achieve the same effect as a
   // big-endian read with less code duplication
   typename std::remove_cv<Integer>::type le;
@@ -146,7 +147,7 @@ read_big_endian(Integer* v, InputIterator it) {
 template <typename OutputIterator>
 typename cargo::enable_if_t<
     std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     OutputIterator>
 write_little_endian(uint8_t v, OutputIterator it) {
   *it++ = v;
@@ -158,7 +159,7 @@ write_little_endian(uint8_t v, OutputIterator it) {
 template <typename OutputIterator>
 typename cargo::enable_if_t<
     std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     OutputIterator>
 write_little_endian(uint16_t v, OutputIterator it) {
   *it++ = v & 0xFF;
@@ -171,7 +172,7 @@ write_little_endian(uint16_t v, OutputIterator it) {
 template <typename OutputIterator>
 typename cargo::enable_if_t<
     std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     OutputIterator>
 write_little_endian(uint32_t v, OutputIterator it) {
   *it++ = v & 0xFF;
@@ -186,7 +187,7 @@ write_little_endian(uint32_t v, OutputIterator it) {
 template <typename OutputIterator>
 typename cargo::enable_if_t<
     std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     OutputIterator>
 write_little_endian(uint64_t v, OutputIterator it) {
   *it++ = v & 0xFF;
@@ -204,7 +205,7 @@ write_little_endian(uint64_t v, OutputIterator it) {
 template <typename Integer, typename OutputIterator>
 typename cargo::enable_if_t<
     std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t&>::value,
+                 uint8_t &>::value,
     OutputIterator>
 write_big_endian(Integer v, OutputIterator it) {
   // write swapped native to little-endian to achieve the same effect as a

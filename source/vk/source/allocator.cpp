@@ -14,10 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <stdio.h>
 #include <vk/allocator.h>
 #include <vk/error.h>
-
-#include <stdio.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -34,13 +33,13 @@
 namespace internal {
 inline size_t upScaleAlignment(size_t alignment) {
   if (1 == alignment) {
-    return sizeof(void*);
+    return sizeof(void *);
   }
 
   VK_ASSERT(0 == alignment % 2, "alignment must be a power of 2!");
 
   // Alignment must be a power of 2 and a multiple of sizeof(void*).
-  while (alignment % sizeof(void*)) {
+  while (alignment % sizeof(void *)) {
     // Implementation inspired by
     // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
     alignment |= alignment >> 1;
@@ -59,14 +58,14 @@ inline size_t upScaleAlignment(size_t alignment) {
   return alignment;
 }
 
-void* VKAPI_CALL alloc(void* pUserData, size_t size, size_t alignment,
+void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
                        VkSystemAllocationScope allocationScope) {
   // TODO: Use these to instrument how the driver allocates memory and for what
   // purpose it is used.
   (void)pUserData;
   (void)allocationScope;
 
-  void* pMemory = nullptr;
+  void *pMemory = nullptr;
   alignment = internal::upScaleAlignment(alignment);
 
 #ifdef _WIN32
@@ -82,7 +81,7 @@ void* VKAPI_CALL alloc(void* pUserData, size_t size, size_t alignment,
   return pMemory;
 }
 
-void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
+void *VKAPI_CALL realloc(void *pUserData, void *pOriginal, size_t size,
                          size_t alignment,
                          VkSystemAllocationScope allocationScope) {
   // TODO: Use these to instrument how the driver allocates memory and for what
@@ -90,7 +89,7 @@ void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
   (void)pUserData;
   (void)allocationScope;
 
-  void* pMemory = nullptr;
+  void *pMemory = nullptr;
 
 #ifdef _WIN32
   alignment = internal::upScaleAlignment(alignment);
@@ -109,7 +108,7 @@ void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
   return pMemory;
 }
 
-void VKAPI_CALL free(void* pUserData, void* pMemory) {
+void VKAPI_CALL free(void *pUserData, void *pMemory) {
   // TODO: Use this to instrument how the driver allocates memroy.
   (void)pUserData;
 
@@ -122,7 +121,7 @@ void VKAPI_CALL free(void* pUserData, void* pMemory) {
 #endif
 }
 
-void VKAPI_CALL internalAlloc(void* pUserData, size_t size,
+void VKAPI_CALL internalAlloc(void *pUserData, size_t size,
                               VkInternalAllocationType allocationType,
                               VkSystemAllocationScope allocationScope) {
   (void)pUserData;
@@ -131,7 +130,7 @@ void VKAPI_CALL internalAlloc(void* pUserData, size_t size,
   (void)allocationScope;
 }
 
-void VKAPI_CALL internalFree(void* pUserData, size_t size,
+void VKAPI_CALL internalFree(void *pUserData, size_t size,
                              VkInternalAllocationType allocationType,
                              VkSystemAllocationScope allocationScope) {
   (void)pUserData;
@@ -146,8 +145,8 @@ static VkAllocationCallbacks defaultAllocator = {
 }  // namespace internal
 
 namespace vk {
-const VkAllocationCallbacks* getDefaultAllocatorIfNull(
-    const VkAllocationCallbacks* pAllocator) {
+const VkAllocationCallbacks *getDefaultAllocatorIfNull(
+    const VkAllocationCallbacks *pAllocator) {
   if (pAllocator) {
     return pAllocator;
   }

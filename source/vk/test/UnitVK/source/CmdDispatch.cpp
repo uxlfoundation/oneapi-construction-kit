@@ -182,14 +182,14 @@ TEST_F(CmdDispatch, DefaultSpecializationConstant) {
                    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* memPtr;
+  void *memPtr;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &memPtr);
 
   // the test kernel adds a constant value to the spec constant to test for a
   // bug where specializing spec constants can overwrite other constants with
   // the same value as the spec constant's default value
-  ASSERT_EQ(specConstant + 24, *reinterpret_cast<uint32_t*>(memPtr));
+  ASSERT_EQ(specConstant + 24, *reinterpret_cast<uint32_t *>(memPtr));
 
   DeviceMemoryTest::unmapMemory();
 
@@ -266,7 +266,7 @@ TEST_F(CmdDispatch, DefaultRuntimeArray) {
 
   vkUpdateDescriptorSets(device, 1, &write, 0, nullptr);
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   uint32_t initialOutValue = 0;
 
@@ -299,7 +299,7 @@ TEST_F(CmdDispatch, DefaultRuntimeArray) {
 
   // we allocated enough additional space in the buffer for one additional
   // value, so this is what we expect the output to be
-  ASSERT_EQ(*static_cast<uint32_t*>(mappedMemory), 1u);
+  ASSERT_EQ(*static_cast<uint32_t *>(mappedMemory), 1u);
 
   DeviceMemoryTest::unmapMemory();
 
@@ -379,12 +379,12 @@ TEST_F(CmdDispatch, glNumWorkGroups) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
   for (int memIndex = 0; memIndex < 3; memIndex++) {
-    ASSERT_EQ(reinterpret_cast<uint32_t*>(mappedMemory)[memIndex],
+    ASSERT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[memIndex],
               numWorkGroups[memIndex]);
   }
 
@@ -460,7 +460,7 @@ TEST_F(CmdDispatch, glWorkGroupID) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
@@ -468,7 +468,7 @@ TEST_F(CmdDispatch, glWorkGroupID) {
     // since our global size is 8 and our local size (defined in the kernel) is
     // four, our first four IDs will be 0 and the last four will be 1
     uint32_t expected_id = mem_index < 4 ? 0 : 1;
-    ASSERT_EQ(reinterpret_cast<uint32_t*>(mappedMemory)[mem_index],
+    ASSERT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[mem_index],
               expected_id);
   }
 
@@ -544,7 +544,7 @@ TEST_F(CmdDispatch, glLocalInvocationID) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
@@ -552,7 +552,7 @@ TEST_F(CmdDispatch, glLocalInvocationID) {
     // since our global size is 8 and our local size (defined in the kernel) is
     // four, our output will be numbers 0-3 twice, once for each work group
     uint32_t expected_id = mem_index % 4;
-    ASSERT_EQ(reinterpret_cast<uint32_t*>(mappedMemory)[mem_index],
+    ASSERT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[mem_index],
               expected_id);
   }
 
@@ -628,13 +628,13 @@ TEST_F(CmdDispatch, glGlobalInvocationID) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
   for (uint32_t mem_index = 0; mem_index < 8; mem_index++) {
     // here we expect the output to be a list of zero to dispatch x dimension-1
-    ASSERT_EQ(reinterpret_cast<uint32_t*>(mappedMemory)[mem_index], mem_index);
+    ASSERT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[mem_index], mem_index);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -712,7 +712,7 @@ TEST_F(CmdDispatch, glLocalInvocationIndex) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
@@ -723,7 +723,7 @@ TEST_F(CmdDispatch, glLocalInvocationIndex) {
   for (int mem_y = 0; mem_y < height; mem_y++) {
     for (int mem_x = 0; mem_x < width; mem_x++) {
       int index = (mem_y * width) + mem_x;
-      EXPECT_EQ(reinterpret_cast<uint32_t*>(mappedMemory)[index], expected);
+      EXPECT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[index], expected);
       expected++;
     }
   }
@@ -735,4 +735,3 @@ TEST_F(CmdDispatch, glLocalInvocationIndex) {
   DescriptorPoolTest::TearDown();
   DescriptorSetLayoutTest::TearDown();
 }
-

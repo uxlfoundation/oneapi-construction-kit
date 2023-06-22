@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkAllocateCommandBuffers
 
 class AllocateCommandBuffers : public uvk::CommandPoolTest {
-public:
+ public:
   AllocateCommandBuffers() : allocateInfo(), commandBuffer(VK_NULL_HANDLE) {}
 
   virtual void SetUp() {

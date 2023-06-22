@@ -327,7 +327,7 @@ TEST(array_view, as_std_string) {
 TEST(array_view, as_cargo_array_view) {
   std::array<int, 6> a{12, 0, 15, 16, 14, 13};
   cargo::array_view<int> av(a);
-  //auto av2(cargo::as<cargo::array_view<int>>(av));
+  // auto av2(cargo::as<cargo::array_view<int>>(av));
   cargo::array_view<int> av2(av.data(), av.size());
   ASSERT_TRUE(av2[0] == 12 && av2[2] == 15 && av2[5] == 13);
   // av2 is still backed by a

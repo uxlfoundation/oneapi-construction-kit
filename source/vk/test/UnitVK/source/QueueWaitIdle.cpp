@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <UnitVK.h>
+
 #include <thread>
 
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkQueueWaitIdle
@@ -69,15 +70,16 @@ TEST_F(QueueWaitIdle, Default) {
 }
 
 TEST_F(QueueWaitIdle, MultithreadedSameQueue) {
-  ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
-  
+  ASSERT_EQ_RESULT(VK_SUCCESS,
+                   vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
+
   auto thread2func = [](VkQueue queue) {
     ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
   };
 
   // Start second thread
   std::thread thread2(thread2func, queue);
-  
+
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
   thread2.join();
 }

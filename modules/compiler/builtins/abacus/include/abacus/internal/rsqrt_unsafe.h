@@ -18,7 +18,6 @@
 #define __ABACUS_INTERNAL_RSQRT_UNSAFE_H__
 
 #include <abacus/abacus_config.h>
-
 #include <abacus/internal/rsqrt_initial_guess.h>
 
 namespace abacus {
@@ -27,7 +26,7 @@ namespace internal {
 // Need to keep this original function for compatibility,
 // gets called directly by some library functions.
 template <typename T>
-inline T rsqrt_unsafe(const T& x, unsigned newton_raphson_iterations) {
+inline T rsqrt_unsafe(const T &x, unsigned newton_raphson_iterations) {
   T result = rsqrt_initial_guess(x);
 
   // Newton-Raphson Method N times
@@ -42,7 +41,7 @@ inline T rsqrt_unsafe(const T& x, unsigned newton_raphson_iterations) {
 template <typename T>
 struct rsqrt_unsafe_helper {
   template <typename T2>
-  inline static T2 _(const T2& x) {
+  inline static T2 _(const T2 &x) {
     // N == 3 for float, N == 6 for double
     // Approximate 1/sqrt(x)
     const unsigned s = sizeof(typename TypeTraits<T2>::ElementType);
@@ -56,7 +55,7 @@ struct rsqrt_unsafe_helper {
 template <>
 struct rsqrt_unsafe_helper<abacus_half> {
   template <typename T>
-  inline static T _(const T& x) {
+  inline static T _(const T &x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
 
@@ -94,7 +93,7 @@ struct rsqrt_unsafe_helper<abacus_half> {
 #endif  //__CA_BUILTINS_HALF_SUPPORT
 
 template <typename T>
-inline T rsqrt_unsafe(const T& x) {
+inline T rsqrt_unsafe(const T &x) {
   typedef typename TypeTraits<T>::ElementType ElementType;
   return rsqrt_unsafe_helper<ElementType>::_(x);
 }

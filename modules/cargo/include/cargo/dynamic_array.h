@@ -50,12 +50,12 @@ class dynamic_array final {
   using allocator_type = A;
   using size_type = size_t;
   using difference_type = ptrdiff_t;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using pointer = value_type*;
-  using const_pointer = const value_type*;
-  using iterator = value_type*;
-  using const_iterator = const value_type*;
+  using reference = value_type &;
+  using const_reference = const value_type &;
+  using pointer = value_type *;
+  using const_pointer = const value_type *;
+  using iterator = value_type *;
+  using const_iterator = const value_type *;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -63,12 +63,12 @@ class dynamic_array final {
   dynamic_array(allocator_type allocator = allocator_type())
       : Allocator(allocator), Begin(nullptr), End(nullptr) {}
 
-  dynamic_array(const dynamic_array&) = delete;
+  dynamic_array(const dynamic_array &) = delete;
 
   /// @brief Move constructor.
   ///
   /// @param other Other dynamic array to steal the guts of.
-  dynamic_array(dynamic_array&& other)
+  dynamic_array(dynamic_array &&other)
       : Allocator(other.Allocator),
         // explicit namespace due to MSVC ADL finding std::exchange
         Begin(cargo::exchange(other.Begin, nullptr)),
@@ -106,7 +106,7 @@ class dynamic_array final {
   /// @param other Dynamic array object to be moved.
   ///
   /// @return Return reference to this dynamic array.
-  dynamic_array& operator=(dynamic_array&& other) {
+  dynamic_array &operator=(dynamic_array &&other) {
     if (this == &other) {
       return *this;
     }

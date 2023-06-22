@@ -122,9 +122,7 @@ class nullacator {
   /// @brief Allocate an uninitialized contiguous array of `value_type`.
   ///
   /// @return Returns a `nullptr`, always.
-  value_type *alloc(size_type = 1) {
-    return nullptr;
-  }
+  value_type *alloc(size_type = 1) { return nullptr; }
 
   /// @brief Free allocated memory.
   void free(value_type *) {}
@@ -174,6 +172,6 @@ class deleter {
 };
 
 /// @}
-}  // cargo
+}  // namespace cargo
 
 #endif  // CARGO_ALLOCATOR_H_INCLUDED

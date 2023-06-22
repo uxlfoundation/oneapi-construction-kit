@@ -33,6 +33,7 @@ struct copyable_t {
     return *this;
   }
   int get() const { return value; }
+
  private:
   int value;
 };

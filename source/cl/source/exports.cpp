@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <CL/cl.h>
-
 #include <cl/buffer.h>
 #include <cl/command_queue.h>
 #include <cl/context.h>
@@ -26,7 +25,6 @@
 #include <cl/platform.h>
 #include <cl/program.h>
 #include <cl/sampler.h>
-
 #include <tracer/tracer.h>
 
 CL_API_ENTRY cl_int CL_API_CALL clGetPlatformIDs(const cl_uint num_entries,

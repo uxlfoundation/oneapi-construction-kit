@@ -47,7 +47,7 @@ namespace {
 /// (defaults to 0).
 /// @return The index at which the specifier was found, or the index of the
 /// last character if no specifier was found.
-size_t FindNextSpecifier(const std::string& str, size_t pos = 0) {
+size_t FindNextSpecifier(const std::string &str, size_t pos = 0) {
   for (;;) {
     pos = str.find_first_of('%', (pos == 0) ? pos : pos + 1);
     if (std::string::npos == pos) {
@@ -74,8 +74,8 @@ size_t FindNextSpecifier(const std::string& str, size_t pos = 0) {
 ///
 /// @return Index of the first character not part of the specifier in the
 /// string.
-size_t ParseSpecifier(std::string str, size_t pos, size_t& w, size_t& p,
-                      bool& minus, bool& plus, bool& space, bool& alternate) {
+size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
+                      bool &minus, bool &plus, bool &space, bool &alternate) {
   size_t i = pos + 1;  // for the %
   minus = false;
   plus = false;
@@ -276,7 +276,7 @@ void PrintFloatingPoint(std::string partial, T d) {
 void builtins::printf::print(uint8_t *pack, size_t max_length,
                              const std::vector<descriptor> &printf_calls,
                              std::vector<uint32_t> &group_offsets) {
-  uint8_t* data;
+  uint8_t *data;
   const size_t num_groups = group_offsets.size();
   for (size_t i = 0; i < num_groups; ++i) {
     data = pack + i * max_length;
@@ -325,7 +325,7 @@ void builtins::printf::print(uint8_t *pack, size_t max_length,
       }
 
       // get the printf descriptor matching this printf call
-      const builtins::printf::descriptor& printf_desc = printf_calls[id];
+      const builtins::printf::descriptor &printf_desc = printf_calls[id];
 
       // if the call doesn't have any parameters just print the format string
       if (printf_desc.types.size() == 0) {

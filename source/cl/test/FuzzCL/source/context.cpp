@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <cmath>
-
 #include "FuzzCL/context.h"
+
+#include <cmath>
 
 void fuzzcl::fuzz_from_input(const uint8_t *data, size_t size,
                              const unsigned char **kernel_binaries,

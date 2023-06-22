@@ -17,10 +17,10 @@
 #ifndef FUZZCL_ARGUMENTS_H_INCLUDED
 #define FUZZCL_ARGUMENTS_H_INCLUDED
 
+#include <cargo/argument_parser.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <cargo/argument_parser.h>
 #include <fstream>
 #include <iostream>
 

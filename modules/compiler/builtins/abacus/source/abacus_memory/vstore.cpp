@@ -31,7 +31,7 @@ void vstore(const T data, const size_t offset, U p) {
 
 #define DEF_WITH_TYPE_AND_SIZE_AND_ADDRESS_SPACE(TYPE, SIZE, ADDRESS_SPACE) \
   void ABACUS_API __abacus_vstore##SIZE(TYPE##SIZE data, size_t offset,     \
-                                        TYPE ADDRESS_SPACE* x) {            \
+                                        TYPE ADDRESS_SPACE *x) {            \
     return vstore<>(data, offset, x);                                       \
   }
 

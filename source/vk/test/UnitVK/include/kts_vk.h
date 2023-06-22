@@ -18,9 +18,9 @@
 #define UNITVK_KTS_VK_H_INCLUDED
 
 #include <GLSLTestDefs.h>
-#include <unordered_map>
-
 #include <cargo/optional.h>
+
+#include <unordered_map>
 
 #include "kts/arguments_shared.h"
 #include "kts/execution_shared.h"
@@ -41,28 +41,28 @@ class Argument final : public ArgumentBase {
 
   ~Argument() = default;
 
-  const BufferDesc& GetBufferDesc() const { return buffer_desc_; }
-  void SetBufferDesc(const BufferDesc& new_desc) {
+  const BufferDesc &GetBufferDesc() const { return buffer_desc_; }
+  void SetBufferDesc(const BufferDesc &new_desc) {
     buffer_desc_ = new_desc;
     bufferStorageSize_ = new_desc.size_ * new_desc.streamer_->GetElementSize();
   }
 
-  Primitive* GetPrimitive() const { return primitive_.get(); }
-  void SetPrimitive(Primitive* new_prim) { primitive_.reset(new_prim); }
+  Primitive *GetPrimitive() const { return primitive_.get(); }
+  void SetPrimitive(Primitive *new_prim) { primitive_.reset(new_prim); }
 
-  const ImageDesc& GetImageDesc() const { return image_desc_; }
-  void SetImageDesc(const ImageDesc& new_image) { image_desc_ = new_image; }
+  const ImageDesc &GetImageDesc() const { return image_desc_; }
+  void SetImageDesc(const ImageDesc &new_image) { image_desc_ = new_image; }
 
-  const VkSamplerCreateInfo& GetSamplerDesc() const { return sampler_desc_; }
-  void SetSamplerDesc(const VkSamplerCreateInfo& new_image) {
+  const VkSamplerCreateInfo &GetSamplerDesc() const { return sampler_desc_; }
+  void SetSamplerDesc(const VkSamplerCreateInfo &new_image) {
     sampler_desc_ = new_image;
   }
 
-  virtual uint8_t* GetBufferStoragePtr() {
+  virtual uint8_t *GetBufferStoragePtr() {
     assert(bufferStoragePtr_);
     return bufferStoragePtr_;
   }
-  void SetBufferStoragePtr(uint8_t* ptr) { bufferStoragePtr_ = ptr; }
+  void SetBufferStoragePtr(uint8_t *ptr) { bufferStoragePtr_ = ptr; }
   virtual size_t GetBufferStorageSize() {
     assert(bufferStorageSize_);
     return bufferStorageSize_;
@@ -79,7 +79,7 @@ class Argument final : public ArgumentBase {
   BufferDesc buffer_desc_;
   // Primitive value if the argument is a primitive.
   std::unique_ptr<Primitive> primitive_;
-  uint8_t* bufferStoragePtr_;
+  uint8_t *bufferStoragePtr_;
   size_t bufferStorageSize_;
   // Used to generate the argument's image input combined with buffer_desc_
   ImageDesc image_desc_;
@@ -89,7 +89,7 @@ class Argument final : public ArgumentBase {
 
 class ArgumentList {
  public:
-  Argument* AddInputBuffer(const BufferDesc& desc) {
+  Argument *AddInputBuffer(const BufferDesc &desc) {
     std::unique_ptr<Argument> arg(new Argument(eInputBuffer, args_.size()));
     arg->SetBufferDesc(desc);
     auto *ptr = arg.get();
@@ -97,7 +97,7 @@ class ArgumentList {
     return ptr;
   }
 
-  Argument* AddOutputBuffer(const BufferDesc& desc) {
+  Argument *AddOutputBuffer(const BufferDesc &desc) {
     std::unique_ptr<Argument> arg(new Argument(eOutputBuffer, args_.size()));
     arg->SetBufferDesc(desc);
     auto *ptr = arg.get();
@@ -105,7 +105,7 @@ class ArgumentList {
     return ptr;
   }
 
-  Argument* AddPrimitive(Primitive* primitive) {
+  Argument *AddPrimitive(Primitive *primitive) {
     std::unique_ptr<Argument> arg(new Argument(ePrimitive, args_.size()));
     arg->SetPrimitive(primitive);
     auto *ptr = arg.get();
@@ -113,10 +113,10 @@ class ArgumentList {
     return ptr;
   }
 
-  Argument* AddInputImage(const VkImageCreateInfo imageInfo,
+  Argument *AddInputImage(const VkImageCreateInfo imageInfo,
                           const VkImageViewCreateInfo imageViewInfo,
                           const VkImageLayout imageLayout,
-                          const BufferDesc& desc) {
+                          const BufferDesc &desc) {
     std::unique_ptr<Argument> arg(new Argument(eInputImage, args_.size()));
     arg->SetBufferDesc(desc);
     arg->SetImageDesc({imageInfo, imageViewInfo, imageLayout});
@@ -125,11 +125,11 @@ class ArgumentList {
     return ptr;
   }
 
-  Argument* AddSampler(const VkImageCreateInfo imageInfo,
+  Argument *AddSampler(const VkImageCreateInfo imageInfo,
                        const VkImageViewCreateInfo imageViewInfo,
                        const VkImageLayout imageLayout,
                        const VkSamplerCreateInfo samplerInfo,
-                       const BufferDesc& desc) {
+                       const BufferDesc &desc) {
     std::unique_ptr<Argument> arg(new Argument(eSampledImage, args_.size()));
     arg->SetBufferDesc(desc);
     arg->SetImageDesc({imageInfo, imageViewInfo, imageLayout});
@@ -140,7 +140,7 @@ class ArgumentList {
   }
 
   size_t GetCount() const { return args_.size(); }
-  Argument* GetArg(unsigned index) { return args_[index].get(); }
+  Argument *GetArg(unsigned index) { return args_[index].get(); }
 
  private:
   std::vector<std::unique_ptr<Argument>> args_;
@@ -223,51 +223,51 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   GenericKernelTest()
       : ::uvk::RecordCommandBufferTest(), newArgs_(new ArgumentList()) {}
 
-  Argument* AddInputBuffer(BufferDesc&& desc) {
+  Argument *AddInputBuffer(BufferDesc &&desc) {
     return newArgs_->AddInputBuffer(desc);
   }
 
   template <typename T>
-  Argument* AddInputBuffer(size_t size, Reference1D<T> ref) {
+  Argument *AddInputBuffer(size_t size, Reference1D<T> ref) {
     return newArgs_->AddInputBuffer(BufferDesc(size, ref));
   }
 
-  Argument* AddInputBuffer(size_t size,
+  Argument *AddInputBuffer(size_t size,
                            std::shared_ptr<BufferStreamer> streamer) {
     return newArgs_->AddInputBuffer(BufferDesc(size, streamer));
   }
 
   template <typename T>
-  Argument* AddInputBuffer(size_t size, Reference1DPtr<T> ref) {
+  Argument *AddInputBuffer(size_t size, Reference1DPtr<T> ref) {
     return newArgs_->AddInputBuffer(BufferDesc(size, Reference1D<T>(ref)));
   }
 
-  Argument* AddOutputBuffer(BufferDesc&& desc) {
+  Argument *AddOutputBuffer(BufferDesc &&desc) {
     return newArgs_->AddOutputBuffer(desc);
   }
 
-  Argument* AddOutputBuffer(size_t size,
+  Argument *AddOutputBuffer(size_t size,
                             std::shared_ptr<BufferStreamer> streamer) {
     return newArgs_->AddOutputBuffer(BufferDesc(size, streamer));
   }
 
   template <typename T>
-  Argument* AddOutputBuffer(size_t size, Reference1D<T> ref) {
+  Argument *AddOutputBuffer(size_t size, Reference1D<T> ref) {
     return newArgs_->AddOutputBuffer(BufferDesc(size, ref));
   }
 
   template <typename T>
-  Argument* AddOutputBuffer(size_t size, Reference1DPtr<T> ref) {
+  Argument *AddOutputBuffer(size_t size, Reference1DPtr<T> ref) {
     return newArgs_->AddOutputBuffer(BufferDesc(size, Reference1D<T>(ref)));
   }
 
   template <typename T>
-  Argument* AddPrimitive(T value) {
+  Argument *AddPrimitive(T value) {
     return newArgs_->AddPrimitive(new BoxedPrimitive<T>(value));
   }
 
   template <typename T>
-  Argument* AddInputImage(VkImageCreateInfo imageInfo,
+  Argument *AddInputImage(VkImageCreateInfo imageInfo,
                           VkImageViewCreateInfo imageViewInfo,
                           VkImageLayout imageLayout, size_t size,
                           Reference1D<T> ref) {
@@ -276,7 +276,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   }
 
   template <typename T>
-  Argument* AddSampler(VkImageCreateInfo imageInfo,
+  Argument *AddSampler(VkImageCreateInfo imageInfo,
                        VkImageViewCreateInfo imageViewInfo,
                        VkImageLayout imageLayout,
                        VkSamplerCreateInfo samplerInfo, size_t size,
@@ -284,7 +284,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     return newArgs_->AddSampler(imageInfo, imageViewInfo, imageLayout,
                                 samplerInfo, BufferDesc(size, ref));
   }
-  void Fail(const std::string& message) {
+  void Fail(const std::string &message) {
     GTEST_NONFATAL_FAILURE_(message.c_str());
   }
 
@@ -395,15 +395,15 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     range.offset = 0;
 
-    for (auto& arg : resources) {
+    for (auto &arg : resources) {
       // Populate buffer
-      void* ptr = 0;
+      void *ptr = 0;
 
       // map the memory so that we can access buffers
       ASSERT_EQ_RESULT(VK_SUCCESS, vkMapMemory(device, arg.second->deviceMemory,
                                                0, VK_WHOLE_SIZE, 0, &ptr));
       assert(ptr);
-      arg.first->SetBufferStoragePtr((uint8_t*)ptr);
+      arg.first->SetBufferStoragePtr((uint8_t *)ptr);
 
       if (arg.first->GetKind() == eInputBuffer ||
           arg.first->GetKind() == eOutputBuffer ||
@@ -441,18 +441,18 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
       uniformBuffer = createBufferInfo(primitiveBufferSize,
                                        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, -1);
 
-      uint8_t* uniformPtr = nullptr;
+      uint8_t *uniformPtr = nullptr;
       // map the memory so that we can access buffers
       ASSERT_EQ_RESULT(VK_SUCCESS,
                        vkMapMemory(device, uniformBuffer->deviceMemory, 0,
-                                   VK_WHOLE_SIZE, 0, (void**)&uniformPtr));
+                                   VK_WHOLE_SIZE, 0, (void **)&uniformPtr));
       assert(uniformPtr != 0);
       descriptorSetLayoutBindings.push_back(
           {bindingCount, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
            VK_SHADER_STAGE_COMPUTE_BIT, nullptr});
       bindingCount++;
       size_t offset = 0;
-      for (Argument* arg : primitives) {
+      for (Argument *arg : primitives) {
         auto prim = arg->GetPrimitive();
         memcpy(uniformPtr + offset, prim->GetAddress(), prim->GetSize());
         offset += prim->GetSize();
@@ -480,12 +480,12 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     }
     imagesFilled = true;
     // Copy image data from staging buffer to image
-    for (auto& arg : resources) {
+    for (auto &arg : resources) {
       if (arg.first->GetKind() != eInputImage &&
           arg.first->GetKind() != eSampledImage) {
         continue;
       }
-      ImageInfo* imageInfo = (ImageInfo*)arg.second.get();
+      ImageInfo *imageInfo = (ImageInfo *)arg.second.get();
       VkImageSubresourceRange subresourceRange =
           arg.first->GetImageDesc().imageViewInfo.subresourceRange;
 
@@ -556,12 +556,12 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   ::uvk::ShaderCode getShaderCode() {
     if (shader == ::uvk::Shader::none) {
       std::string name, prefix;
-      const testing::UnitTest* test = testing::UnitTest::GetInstance();
+      const testing::UnitTest *test = testing::UnitTest::GetInstance();
       if (nullptr == test) {
         std::fprintf(stderr, "Could not get a reference to the current test.");
         std::abort();
       }
-      const testing::TestInfo* test_info = test->current_test_info();
+      const testing::TestInfo *test_info = test->current_test_info();
       if (nullptr == test_info) {
         std::fprintf(stderr,
                      "Could not get a reference to the current test info.");
@@ -584,7 +584,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
       VkShaderModuleCreateInfo shaderCreateInfo = {};
       shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
       shaderCreateInfo.pCode =
-          reinterpret_cast<const uint32_t*>(shaderCode.code);
+          reinterpret_cast<const uint32_t *>(shaderCode.code);
       shaderCreateInfo.codeSize = shaderCode.size;
 
       VkShaderModule shaderModule_;
@@ -611,7 +611,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
           local                      // pData
       };
 
-      const VkSpecializationInfo* specInfoPtr;
+      const VkSpecializationInfo *specInfoPtr;
       if (!local) {
         specInfoPtr = nullptr;
       } else {
@@ -714,13 +714,13 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
         if (resources[i].second->descriptorType ==
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
           writeDescriptorSet.pBufferInfo =
-              &((BufferInfo*)resources[i].second.get())->descriptorBufferInfo;
+              &((BufferInfo *)resources[i].second.get())->descriptorBufferInfo;
         } else if (resources[i].second->descriptorType ==
                        VK_DESCRIPTOR_TYPE_STORAGE_IMAGE ||
                    resources[i].second->descriptorType ==
                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
           writeDescriptorSet.pImageInfo =
-              &((ImageInfo*)resources[i].second.get())->descriptorImageInfo;
+              &((ImageInfo *)resources[i].second.get())->descriptorImageInfo;
         } else {
           assert(false && "descriptor type not supported");
         }
@@ -756,8 +756,8 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                       pipeline.value());
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                            pipelineLayout.value(), 0, 1, &descriptorSet.value(),
-                            0, 0);
+                            pipelineLayout.value(), 0, 1,
+                            &descriptorSet.value(), 0, 0);
 
     // Run secondary command buffer provided by the test if there is one.
     if (secondaryCommandBuffer.has_value()) {
@@ -771,7 +771,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     submitCommandBuffer();
 
     bool found_error = false;
-    for (auto& arg : resources) {
+    for (auto &arg : resources) {
       if (arg.first->GetKind() == eOutputBuffer && !found_error) {
         VkMappedMemoryRange range =
             get(mappingRanges, (int)arg.first->GetIndex());
@@ -780,14 +780,14 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
                          vkInvalidateMappedMemoryRanges(device, 1, &range));
 
         BufferDesc desc = arg.first->GetBufferDesc();
-        BufferStreamer* streamer = desc.streamer_.get();
+        BufferStreamer *streamer = desc.streamer_.get();
         std::vector<std::string> errors;
         if (streamer && !streamer->ValidateBuffer(*arg.first, desc, &errors)) {
           if (errors.size() > 0) {
             std::stringstream ss;
             ss << "Invalid data when validating buffer "
                << arg.first->GetIndex() << ":";
-            for (std::string& error : errors) {
+            for (std::string &error : errors) {
               ss << "\n" << error;
             }
             Fail(ss.str());
@@ -802,23 +802,24 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
       vkFreeMemory(device, arg.second->deviceMemory, nullptr);
 
       if (arg.second->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
-        vkDestroyBuffer(device, ((BufferInfo*)arg.second.get())->buf, nullptr);
+        vkDestroyBuffer(device, ((BufferInfo *)arg.second.get())->buf, nullptr);
       } else if (arg.second->descriptorType ==
                      VK_DESCRIPTOR_TYPE_STORAGE_IMAGE ||
                  arg.second->descriptorType ==
                      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-        ImageInfo* imageInfo = (ImageInfo*)arg.second.get();
+        ImageInfo *imageInfo = (ImageInfo *)arg.second.get();
 
         if (arg.second->descriptorType ==
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-          vkDestroySampler(device, ((SamplerInfo*)imageInfo)->sampler, nullptr);
+          vkDestroySampler(device, ((SamplerInfo *)imageInfo)->sampler,
+                           nullptr);
         }
 
         vkFreeMemory(device, imageInfo->imageMemory, nullptr);
         vkDestroyBuffer(device, imageInfo->buf, nullptr);
-        vkDestroyImageView(device, ((ImageInfo*)arg.second.get())->imageView,
+        vkDestroyImageView(device, ((ImageInfo *)arg.second.get())->imageView,
                            nullptr);
-        vkDestroyImage(device, ((ImageInfo*)arg.second.get())->image, nullptr);
+        vkDestroyImage(device, ((ImageInfo *)arg.second.get())->image, nullptr);
       } else {
         assert(false && "descriptor type not supported");
       }
@@ -849,8 +850,8 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   }
 
   // globalDims are the number of threads to be launched per dimension
-  void RunGenericND(uint32_t numDims, const size_t* globalDims,
-                    const size_t* localDims) {
+  void RunGenericND(uint32_t numDims, const size_t *globalDims,
+                    const size_t *localDims) {
     assert(numDims <= 3);
     uint32_t global[3], local[3];
     for (size_t i = 0; i < 3; i++) {
@@ -868,7 +869,9 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   void provideBuffer(size_t index, VkBuffer buffer) {
     buffers.insert({index, buffer});
   }
-  cargo::optional<VkBuffer> getBuffer(size_t index) { return lookup(buffers, index); }
+  cargo::optional<VkBuffer> getBuffer(size_t index) {
+    return lookup(buffers, index);
+  }
 
   void provideBufferMemory(size_t index, VkDeviceMemory memory) {
     bufferMemories.insert({index, memory});
@@ -887,7 +890,9 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   void provideImage(size_t index, VkImage image) {
     images.insert({index, image});
   }
-  cargo::optional<VkImage> getImage(size_t index) { return lookup(images, index); }
+  cargo::optional<VkImage> getImage(size_t index) {
+    return lookup(images, index);
+  }
 
   void provideImageView(size_t index, VkImageView imageView) {
     imageViews.insert({index, imageView});
@@ -899,7 +904,9 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   void provideSampler(size_t index, VkSampler sampler) {
     samplers.insert({index, sampler});
   }
-  cargo::optional<VkSampler> getSampler(size_t index) { return lookup(samplers, index); }
+  cargo::optional<VkSampler> getSampler(size_t index) {
+    return lookup(samplers, index);
+  }
 
   void providePreCopyImageBarrier(size_t index, VkImageMemoryBarrier barrier) {
     preCopyImageBarriers.insert({index, barrier});
@@ -939,9 +946,13 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   void providePipelineLayout(VkPipelineLayout layout) {
     pipelineLayout.emplace(layout);
   }
-  cargo::optional<VkPipelineLayout> getPipelineLayout() { return pipelineLayout; }
+  cargo::optional<VkPipelineLayout> getPipelineLayout() {
+    return pipelineLayout;
+  }
 
-  void provideShaderModule(VkShaderModule module) { shaderModule.emplace(module); }
+  void provideShaderModule(VkShaderModule module) {
+    shaderModule.emplace(module);
+  }
   cargo::optional<VkShaderModule> getShaderModule() { return shaderModule; }
 
   void providePipeline(VkPipeline pipeline_) { pipeline.emplace(pipeline_); }
@@ -950,7 +961,9 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   void provideDescriptorPool(VkDescriptorPool pool) {
     descriptorPool.emplace(pool);
   }
-  cargo::optional<VkDescriptorPool> getDescriptorPool() { return descriptorPool; }
+  cargo::optional<VkDescriptorPool> getDescriptorPool() {
+    return descriptorPool;
+  }
 
   void provideDescriptorSet(VkDescriptorSet set) { descriptorSet.emplace(set); }
   cargo::optional<VkDescriptorSet> getDescriptorSet() { return descriptorSet; }
@@ -1022,7 +1035,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
                        bufferDescriptorInfo));
   }
 
-  void fillImageInfo(ImageDesc imageDesc, size_t size, ImageInfo* imageInfo,
+  void fillImageInfo(ImageDesc imageDesc, size_t size, ImageInfo *imageInfo,
                      size_t index) {
     if (!lookup(buffers, (int)index).has_value()) {
       buffers.insert(
@@ -1197,7 +1210,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   }
 
   template <typename K, typename V>
-  cargo::optional<V> lookup(std::unordered_map<K, V>& map, K key) {
+  cargo::optional<V> lookup(std::unordered_map<K, V> &map, K key) {
     if (map.find(key) == map.end()) {
       return {};
     }
@@ -1205,7 +1218,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   }
 
   template <typename K, typename V>
-  V get(std::unordered_map<K, V>& map, K key) {
+  V get(std::unordered_map<K, V> &map, K key) {
     auto res = map.find(key);
     assert(res != map.end());
     return (*res).second;
@@ -1229,7 +1242,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     pipeline.reset();
     descriptorPool.reset();
     descriptorSet.reset();
-    
+
     descriptorSetUpdates.clear();
 
     args.reset(nullptr);
@@ -1247,8 +1260,8 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   uint32_t memoryTypeIndex;
   std::unique_ptr<ArgumentList> newArgs_;
   std::unique_ptr<ArgumentList> args;
-  std::vector<std::pair<Argument*, std::unique_ptr<ArgumentInfo>>> resources;
-  std::vector<Argument*> primitives;
+  std::vector<std::pair<Argument *, std::unique_ptr<ArgumentInfo>>> resources;
+  std::vector<Argument *> primitives;
   std::unique_ptr<BufferInfo> uniformBuffer;
   std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
@@ -1282,8 +1295,8 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
 };
 
 using Execution = kts::uvk::GenericKernelTest<::uvk::Shader::none>;
-}  // uvk
+}  // namespace uvk
 #include "kts_vk.hpp"
-}  // kts
+}  // namespace kts
 
 #endif  // UNITVK_KTS_VK_H_INCLUDED

@@ -69,8 +69,8 @@ enum riscv_mul_opcode {
 };
 
 class riscv_encoder {
-public:
-  const uint32_t * data() const { return insns.data(); }
+ public:
+  const uint32_t *data() const { return insns.data(); }
   size_t size() const { return insns.size() * sizeof(uint32_t); }
 
   uint32_t addADDI(unsigned rd, unsigned rs, uint32_t imm);
@@ -84,7 +84,7 @@ public:
   uint32_t addLW(unsigned rd, unsigned rs, uint32_t imm);
   uint32_t addSW(unsigned rs2, unsigned rs1, uint32_t imm);
 
-private:
+ private:
   std::vector<uint32_t> insns;
 };
 

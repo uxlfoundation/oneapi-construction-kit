@@ -19,8 +19,8 @@
 
 namespace vk {
 VkResult CreateSampler(vk::device device,
-                       const VkSamplerCreateInfo* pCreateInfo,
-                       vk::allocator allocator, vk::sampler* pSampler) {
+                       const VkSamplerCreateInfo *pCreateInfo,
+                       vk::allocator allocator, vk::sampler *pSampler) {
   (void)device;
   (void)pCreateInfo;
   (void)allocator;

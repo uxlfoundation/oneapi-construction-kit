@@ -17,7 +17,6 @@
 #include <CL/cl.h>
 #include <CL/cl_ext.h>
 #include <CL/cl_ext_codeplay.h>
-
 #include <extension/codeplay_kernel_exec_info.h>
 
 extension::codeplay_kernel_exec_info::codeplay_kernel_exec_info()
@@ -30,9 +29,9 @@ extension::codeplay_kernel_exec_info::codeplay_kernel_exec_info()
                     CA_CL_EXT_VERSION(0, 1, 0)) {
 }
 
-void* extension::codeplay_kernel_exec_info::
-    GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                           const char* func_name) const {
+void *
+extension::codeplay_kernel_exec_info::GetExtensionFunctionAddressForPlatform(
+    cl_platform_id platform, const char *func_name) const {
   OCL_UNUSED(platform);
 
 #ifndef OCL_EXTENSION_cl_codeplay_kernel_exec_info
@@ -40,7 +39,7 @@ void* extension::codeplay_kernel_exec_info::
   return nullptr;
 #else
   if (func_name && 0 == strcmp("clSetKernelExecInfoCODEPLAY", func_name)) {
-    return (void*)&clSetKernelExecInfoCODEPLAY;
+    return (void *)&clSetKernelExecInfoCODEPLAY;
   }
   return nullptr;
 #endif

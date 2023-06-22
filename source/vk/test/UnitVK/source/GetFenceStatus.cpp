@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkGetFenceStatus
 
 class GetFenceStatusTest : public uvk::DeviceTest {
-public:
+ public:
   GetFenceStatusTest() : fence(VK_NULL_HANDLE), createInfo() {}
 
   void SetUp() override {

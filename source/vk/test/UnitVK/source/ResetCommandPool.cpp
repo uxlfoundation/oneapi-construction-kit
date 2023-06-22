@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkResetCommandPool
 
 class ResetCommandPool : public uvk::PipelineTest {
-public:
+ public:
   ResetCommandPool() {}
 
   virtual void SetUp() override {

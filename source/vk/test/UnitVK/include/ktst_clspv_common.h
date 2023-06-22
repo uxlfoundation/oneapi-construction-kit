@@ -17,8 +17,8 @@
 #ifndef UNITVK_KTS_CLSPV_COMMON_H_INCLUDED
 #define UNITVK_KTS_CLSPV_COMMON_H_INCLUDED
 
-#include "kts_vk.h"
 #include "kts/reference_functions.h"
+#include "kts_vk.h"
 
 typedef uint16_t cl_ushort;
 
@@ -28,7 +28,8 @@ typedef glsl::intTy cl_int;
 static_assert(sizeof(glsl::ivec2Ty) == 8, "cl_int2 is a 2*32-bit wide");
 typedef glsl::ivec2Ty cl_int2;
 
-static_assert(sizeof(glsl::uintTy) == 4, "cl_uint is a 32-bit unsigned integer");
+static_assert(sizeof(glsl::uintTy) == 4,
+              "cl_uint is a 32-bit unsigned integer");
 typedef glsl::uintTy cl_uint;
 
 static_assert(sizeof(glsl::uvec4Ty) == 16, "cl_uint4 is 4*32-bit wide");

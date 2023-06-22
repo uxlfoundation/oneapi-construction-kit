@@ -104,4 +104,4 @@ DEF(abacus_double3);
 DEF(abacus_double4);
 DEF(abacus_double8);
 DEF(abacus_double16);
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

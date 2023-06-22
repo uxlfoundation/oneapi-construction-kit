@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "GLSLTestDefs.h"
-
 #include <cmath>
 #include <limits>
+
+#include "GLSLTestDefs.h"
 
 class op_glsl_Quantize_float
     : public GlslBuiltinTest<glsl::floatTy, glsl::floatTy> {

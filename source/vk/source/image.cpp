@@ -18,8 +18,8 @@
 #include <vk/image.h>
 
 namespace vk {
-VkResult CreateImage(vk::device device, const VkImageCreateInfo* pCreateInfo,
-                     vk::allocator allocator, vk::image* pImage) {
+VkResult CreateImage(vk::device device, const VkImageCreateInfo *pCreateInfo,
+                     vk::allocator allocator, vk::image *pImage) {
   (void)device;
   (void)pCreateInfo;
   (void)allocator;
@@ -35,15 +35,15 @@ void DestroyImage(vk::device device, vk::image image, vk::allocator allocator) {
 }
 
 void GetImageMemoryRequirements(vk::device device, vk::image image,
-                                VkMemoryRequirements* pMemoryRequirements) {
+                                VkMemoryRequirements *pMemoryRequirements) {
   (void)device;
   (void)image;
   (void)pMemoryRequirements;
 }
 
 void GetImageSparseMemoryRequirements(
-    vk::device device, vk::image image, uint32_t* pSparseMemoryAllocationCount,
-    VkSparseImageMemoryRequirements* pSparseMemoryRequirements) {
+    vk::device device, vk::image image, uint32_t *pSparseMemoryAllocationCount,
+    VkSparseImageMemoryRequirements *pSparseMemoryRequirements) {
   (void)device;
   (void)image;
   (void)pSparseMemoryAllocationCount;
@@ -51,8 +51,8 @@ void GetImageSparseMemoryRequirements(
 }
 
 void GetImageSubresourceLayout(vk::device device, vk::image image,
-                               const VkImageSubresource* pSubresource,
-                               VkSubresourceLayout* pLayout) {
+                               const VkImageSubresource *pSubresource,
+                               VkSubresourceLayout *pLayout) {
   (void)device;
   (void)image;
   (void)pSubresource;

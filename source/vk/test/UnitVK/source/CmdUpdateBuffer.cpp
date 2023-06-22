@@ -23,8 +23,9 @@ class CmdUpdateBuffer : public uvk::RecordCommandBufferTest,
                         public uvk::DeviceMemoryTest {
  public:
   CmdUpdateBuffer()
-      : BufferTest(0, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                          VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+      : BufferTest(0,
+                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                       VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                    true),
         DeviceMemoryTest(true),
         data(16, 32),

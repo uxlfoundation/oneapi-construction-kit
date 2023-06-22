@@ -26,8 +26,9 @@ class CmdPushConstants : public uvk::PipelineTest,
   CmdPushConstants()
       : PipelineTest(uvk::Shader::push_constant),
         DeviceMemoryTest(true),
-        BufferTest(sizeof(uint32_t), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                                         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        BufferTest(sizeof(uint32_t),
+                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                       VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                    true),
         DescriptorPoolTest(true),
         pushConstant(42),
@@ -135,11 +136,11 @@ TEST_F(CmdPushConstants, Default) {
                    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
-  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t*>(mappedMemory));
+  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t *>(mappedMemory));
 
   DeviceMemoryTest::unmapMemory();
 }
@@ -167,7 +168,7 @@ TEST_F(CmdPushConstants, MultipleCommandBuffers) {
   vkCmdDispatch(commandBuffer2, 1, 1, 1);
   ASSERT_EQ_RESULT(VK_SUCCESS, vkEndCommandBuffer(commandBuffer2));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   // Run first command buffer.
   ASSERT_EQ_RESULT(VK_SUCCESS,
@@ -176,7 +177,7 @@ TEST_F(CmdPushConstants, MultipleCommandBuffers) {
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
-  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t*>(mappedMemory));
+  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t *>(mappedMemory));
 
   DeviceMemoryTest::unmapMemory();
 
@@ -190,7 +191,7 @@ TEST_F(CmdPushConstants, MultipleCommandBuffers) {
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
-  ASSERT_EQ(pushConstant2, *reinterpret_cast<uint32_t*>(mappedMemory));
+  ASSERT_EQ(pushConstant2, *reinterpret_cast<uint32_t *>(mappedMemory));
 
   DeviceMemoryTest::unmapMemory();
 }
@@ -208,11 +209,11 @@ TEST_F(CmdPushConstants, DefaultPushConstantsBeforeBindings) {
                    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
-  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t*>(mappedMemory));
+  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t *>(mappedMemory));
 
   DeviceMemoryTest::unmapMemory();
 }
@@ -255,11 +256,11 @@ TEST_F(CmdPushConstants, DefaultSecondaryCommandBuffer) {
                    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
-  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t*>(mappedMemory));
+  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t *>(mappedMemory));
 
   DeviceMemoryTest::unmapMemory();
 
@@ -308,11 +309,11 @@ TEST_F(CmdPushConstants, DefaultBindUnusedDescriptorSet) {
                    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
-  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t*>(mappedMemory));
+  ASSERT_EQ(pushConstant, *reinterpret_cast<uint32_t *>(mappedMemory));
 
   DeviceMemoryTest::unmapMemory();
 }

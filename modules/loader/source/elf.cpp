@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #include <loader/elf.h>
+
 #include <algorithm>
 
 using loader::ElfFile;

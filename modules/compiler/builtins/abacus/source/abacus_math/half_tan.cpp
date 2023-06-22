@@ -18,7 +18,6 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/half_range_reduction.h>
 
 namespace {

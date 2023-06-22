@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#vkGetPhysicalDeviceFeatures
 
 class GetPhysicalDeviceFeatures : public uvk::PhysicalDeviceTest {
-public:
+ public:
   GetPhysicalDeviceFeatures() {}
 };
 

@@ -24,7 +24,7 @@
 namespace abacus {
 namespace internal {
 template <typename T, typename N>
-inline T ldexp_unsafe(const T& x, const N& n) {
+inline T ldexp_unsafe(const T &x, const N &n) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef FPShape<T> Shape;
 

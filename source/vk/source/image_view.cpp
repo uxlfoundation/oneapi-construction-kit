@@ -19,8 +19,8 @@
 
 namespace vk {
 VkResult CreateImageView(vk::device device,
-                         const VkImageViewCreateInfo* pCreateInfo,
-                         vk::allocator allocator, vk::image_view* pView) {
+                         const VkImageViewCreateInfo *pCreateInfo,
+                         vk::allocator allocator, vk::image_view *pView) {
   (void)device;
   (void)pCreateInfo;
   (void)allocator;

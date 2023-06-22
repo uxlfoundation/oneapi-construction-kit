@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkEndCommandBuffer
 
 class EndCommandBuffer : public uvk::RecordCommandBufferTest {
-public:
+ public:
   EndCommandBuffer() {}
 };
 
