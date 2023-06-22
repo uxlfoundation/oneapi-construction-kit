@@ -18,7 +18,6 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/StringSwitch.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Intrinsics.h>
@@ -31,6 +30,7 @@
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/opaque_pointers.h>
 #include <multi_llvm/optional_helper.h>
+#include <multi_llvm/triple.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cmath>

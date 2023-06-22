@@ -15,11 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <host/remove_byval_attributes_pass.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
+#include <multi_llvm/triple.h>
 #include <multi_llvm/vector_type_helper.h>
 
 using namespace llvm;
