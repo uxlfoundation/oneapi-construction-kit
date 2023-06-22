@@ -560,7 +560,7 @@ cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
     kernel_info.reqd_sub_group_size = *sub_group_size;
   }
 
-  return kernel_info;
+  return std::move(kernel_info);
 }
 }  // namespace
 
