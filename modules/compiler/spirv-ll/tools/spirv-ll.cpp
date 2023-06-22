@@ -286,6 +286,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         spv::CapabilityVector16,
         spv::CapabilityKernelAttributesINTEL,
         spv::CapabilityExpectAssumeKHR,
+        spv::CapabilityOptNoneINTEL,
     });
     if (enableAll) {
       // Add the optional OpenCL capabilities if this flag was set.
@@ -442,7 +443,8 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
           spv::CapabilityAtomicFloat64AddEXT,
           spv::CapabilityAtomicFloat32MinMaxEXT,
           spv::CapabilityAtomicFloat64MinMaxEXT,
-          spv::CapabilityArbitraryPrecisionIntegersINTEL};
+          spv::CapabilityArbitraryPrecisionIntegersINTEL,
+          spv::CapabilityOptNoneINTEL};
 
       if (supported_capabilities.count(*capability)) {
         deviceInfo.capabilities.push_back(*capability);
@@ -468,6 +470,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         "SPV_KHR_expect_assume",
         "SPV_KHR_linkonce_odr",
         "SPV_KHR_uniform_group_instructions",
+        "SPV_INTEL_optnone",
     });
   } else {
     for (auto extension : extensions) {

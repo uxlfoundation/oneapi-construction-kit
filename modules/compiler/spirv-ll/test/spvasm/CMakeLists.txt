@@ -2369,6 +2369,11 @@ if(SpirvAsVersionYear GREATER 2019)
     opencl_group_async_copy_3d3d.spvasm)
 endif()
 
+if (SpirvAsVersionYear GREATER_EQUAL 2022)
+  list(APPEND SPVASM_FILES
+    intel_opt_none.spvasm)
+endif()
+
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.spvasm)
 foreach(testFile ${SPVASM_FILES})

@@ -1944,6 +1944,13 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
   SPIRV_LL_ASSERT_PTR(function);
 
+  if (op->FunctionControl() & spv::FunctionControlOptNoneINTELMask) {
+    SPIRV_LL_ASSERT(module.hasCapability(spv::CapabilityOptNoneINTEL),
+                    "CapabilityOptNoneINTEL must be enabled.");
+    function->addFnAttr(llvm::Attribute::OptimizeNone);
+    function->addFnAttr(llvm::Attribute::NoInline);
+  }
+
   function->setCallingConv(CC);
   setCurrentFunction(function);
 
