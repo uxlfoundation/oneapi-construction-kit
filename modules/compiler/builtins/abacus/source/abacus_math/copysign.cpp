@@ -60,7 +60,7 @@ struct copysign_helper<T, abacus_double> {
     return __abacus_select(absX, -absX, signY);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 inline T copysign_(const T x, const T y) {
@@ -148,4 +148,4 @@ abacus_double16 ABACUS_API __abacus_copysign(abacus_double16 x,
                                              abacus_double16 y) {
   return copysign_(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

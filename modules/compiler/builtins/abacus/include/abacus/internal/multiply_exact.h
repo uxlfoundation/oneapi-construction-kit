@@ -25,7 +25,7 @@ namespace {
 template <typename E>
 struct multiply_exact_helper {
   template <typename T>
-  static void split(const T& x, T* x_hi, T* x_lo) {
+  static void split(const T &x, T *x_hi, T *x_lo) {
     typedef typename TypeTraits<E>::SignedType SignedType;
     typedef typename TypeTraits<E>::UnsignedType UnsignedType;
 
@@ -56,7 +56,7 @@ struct multiply_exact_helper {
 template <>
 struct multiply_exact_helper<abacus_half> {
   template <typename T>
-  static void split(const T& x, T* x_hi, T* x_lo) {
+  static void split(const T &x, T *x_hi, T *x_lo) {
     // Derived from the 'Handbook of Floating Point Arithmetic',
     // section 4.4 (page 132)
 
@@ -75,7 +75,7 @@ struct multiply_exact_helper<abacus_half> {
 template <>
 struct multiply_exact_helper<abacus_float> {
   template <typename T>
-  static void split(const T& x, T* x_hi, T* x_lo) {
+  static void split(const T &x, T *x_hi, T *x_lo) {
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
     // Implementing split using this bitmask method means we don't need to
     // scale large inputs before calling multiply_exact() to prevent the final
@@ -99,7 +99,7 @@ namespace internal {
 // See paper on error free transformation of the product of two floating point
 // numbers(https://doi.org/10.1007/BF01397083) where this algorithm taken from
 template <typename T>
-inline T multiply_exact(const T x, const T y, T* out_remainder) {
+inline T multiply_exact(const T x, const T y, T *out_remainder) {
   // TODO
   //  If fma is available on hardware this is probably faster
   //  float multiply = x*y;

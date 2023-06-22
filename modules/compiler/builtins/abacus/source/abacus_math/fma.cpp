@@ -20,7 +20,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/ldexp_unsafe.h>
 #include <abacus/internal/multiply_exact.h>

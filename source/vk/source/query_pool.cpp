@@ -19,8 +19,8 @@
 
 namespace vk {
 VkResult CreateQueryPool(vk::device device,
-                         const VkQueryPoolCreateInfo* pCreateInfo,
-                         vk::allocator allocator, vk::query_pool* pQueryPool) {
+                         const VkQueryPoolCreateInfo *pCreateInfo,
+                         vk::allocator allocator, vk::query_pool *pQueryPool) {
   (void)device;
   (void)pCreateInfo;
   (void)allocator;
@@ -38,7 +38,7 @@ void DestroyQueryPool(vk::device device, vk::query_pool queryPool,
 
 VkResult GetQueryPoolResults(vk::device device, vk::query_pool queryPool,
                              uint32_t firstQuery, uint32_t queryCount,
-                             size_t dataSize, void* pData, VkDeviceSize stride,
+                             size_t dataSize, void *pData, VkDeviceSize stride,
                              VkQueryResultFlags flags) {
   (void)device;
   (void)queryPool;

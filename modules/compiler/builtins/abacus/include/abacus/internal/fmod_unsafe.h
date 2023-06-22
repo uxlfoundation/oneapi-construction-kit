@@ -21,7 +21,6 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/float_construct.h>
 #include <abacus/internal/float_deconstruct.h>
 

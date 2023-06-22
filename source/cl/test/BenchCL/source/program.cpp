@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <BenchCL/error.h>
 #include <BenchCL/environment.h>
+#include <BenchCL/error.h>
 #include <CL/cl.h>
 #include <benchmark/benchmark.h>
+
 #include <string>
 
 namespace InputType {
@@ -40,13 +41,13 @@ struct CreateProgramData {
   ~CreateProgramData() { clReleaseContext(context); }
 
   template <InputType::Type TYPE>
-  std::vector<const char*> generate(unsigned s);
+  std::vector<const char *> generate(unsigned s);
 };
 
 template <>
-std::vector<const char*> CreateProgramData::generate<InputType::NOP>(
+std::vector<const char *> CreateProgramData::generate<InputType::NOP>(
     unsigned s) {
-  std::vector<const char*> data;
+  std::vector<const char *> data;
   for (unsigned i = 0; i < s; i++) {
     data.push_back("");
   }
@@ -54,9 +55,9 @@ std::vector<const char*> CreateProgramData::generate<InputType::NOP>(
 }
 
 template <>
-std::vector<const char*> CreateProgramData::generate<InputType::NOBUILTINS>(
+std::vector<const char *> CreateProgramData::generate<InputType::NOBUILTINS>(
     unsigned s) {
-  std::vector<const char*> data;
+  std::vector<const char *> data;
   data.push_back("void kernel foo(global int* o, global int* i) {\n");
   data.push_back("  const size_t id = get_global_id(0);\n");
   data.push_back("  o[id] = i[id];\n");
@@ -68,9 +69,9 @@ std::vector<const char*> CreateProgramData::generate<InputType::NOBUILTINS>(
 }
 
 template <>
-std::vector<const char*> CreateProgramData::generate<InputType::MATHBUILTINS>(
+std::vector<const char *> CreateProgramData::generate<InputType::MATHBUILTINS>(
     unsigned s) {
-  std::vector<const char*> data;
+  std::vector<const char *> data;
   data.push_back("void kernel foo(global float* o, global float* i) {\n");
   data.push_back("  const size_t id = get_global_id(0);\n");
   data.push_back("  o[id] = i[id];\n");
@@ -97,10 +98,10 @@ std::vector<const char*> CreateProgramData::generate<InputType::MATHBUILTINS>(
 }
 
 template <InputType::Type TYPE>
-static void CreateMultiStringProgram(benchmark::State& state) {
+static void CreateMultiStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   for (auto _ : state) {
     cl_program program = clCreateProgramWithSource(
@@ -111,10 +112,10 @@ static void CreateMultiStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void CompileMultiStringProgram(benchmark::State& state) {
+static void CompileMultiStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   cl_program program = clCreateProgramWithSource(cpd.context, data.size(),
                                                  data.data(), nullptr, nullptr);
@@ -128,10 +129,10 @@ static void CompileMultiStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void LinkMultiStringProgram(benchmark::State& state) {
+static void LinkMultiStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   cl_program program = clCreateProgramWithSource(cpd.context, data.size(),
                                                  data.data(), nullptr, nullptr);
@@ -151,10 +152,10 @@ static void LinkMultiStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void BuildMultiStringProgram(benchmark::State& state) {
+static void BuildMultiStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   cl_program program = clCreateProgramWithSource(cpd.context, data.size(),
                                                  data.data(), nullptr, nullptr);
@@ -167,18 +168,18 @@ static void BuildMultiStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void CreateSingleStringProgram(benchmark::State& state) {
+static void CreateSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
-  for (const char* str : data) {
+  for (const char *str : data) {
     flattened += str;
   }
 
-  const char* str = flattened.c_str();
+  const char *str = flattened.c_str();
 
   for (auto _ : state) {
     cl_program program =
@@ -189,18 +190,18 @@ static void CreateSingleStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void CompileSingleStringProgram(benchmark::State& state) {
+static void CompileSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
-  for (const char* str : data) {
+  for (const char *str : data) {
     flattened += str;
   }
 
-  const char* str = flattened.c_str();
+  const char *str = flattened.c_str();
 
   cl_program program =
       clCreateProgramWithSource(cpd.context, 1, &str, nullptr, nullptr);
@@ -214,18 +215,18 @@ static void CompileSingleStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void LinkSingleStringProgram(benchmark::State& state) {
+static void LinkSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
-  for (const char* str : data) {
+  for (const char *str : data) {
     flattened += str;
   }
 
-  const char* str = flattened.c_str();
+  const char *str = flattened.c_str();
 
   cl_program program =
       clCreateProgramWithSource(cpd.context, 1, &str, nullptr, nullptr);
@@ -245,18 +246,18 @@ static void LinkSingleStringProgram(benchmark::State& state) {
 }
 
 template <InputType::Type TYPE>
-static void BuildSingleStringProgram(benchmark::State& state) {
+static void BuildSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char*> data(cpd.generate<TYPE>(state.range(0)));
+  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
-  for (const char* str : data) {
+  for (const char *str : data) {
     flattened += str;
   }
 
-  const char* str = flattened.c_str();
+  const char *str = flattened.c_str();
 
   cl_program program =
       clCreateProgramWithSource(cpd.context, 1, &str, nullptr, nullptr);

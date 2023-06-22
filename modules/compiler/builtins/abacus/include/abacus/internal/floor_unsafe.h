@@ -27,7 +27,7 @@
 namespace abacus {
 namespace internal {
 template <typename T>
-inline typename TypeTraits<T>::SignedType floor_unsafe(const T& x) {
+inline typename TypeTraits<T>::SignedType floor_unsafe(const T &x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   SignedType truncated = abacus::detail::cast::convert<SignedType>(x);
   T diff = __abacus_fabs(x - abacus::detail::cast::convert<T>(truncated));

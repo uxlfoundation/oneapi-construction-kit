@@ -38,7 +38,7 @@ extension::codeplay_performance_counters::codeplay_performance_counters()
 
 cl_int extension::codeplay_performance_counters::GetDeviceInfo(
     cl_device_id device, cl_device_info param_name, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret) const {
+    void *param_value, size_t *param_value_size_ret) const {
   // Don't participate in info queries when the device does not support the
   // extension, this includes being inlcuded in `CL_DEVICE_EXTENSIONS`.
   if (!device->mux_device->info->query_counter_support) {
@@ -83,7 +83,7 @@ cl_int extension::codeplay_performance_counters::GetDeviceInfo(
       return CL_INVALID_VALUE;
     }
 
-    auto counters = static_cast<cl_performance_counter_codeplay*>(param_value);
+    auto counters = static_cast<cl_performance_counter_codeplay *>(param_value);
     for (uint32_t index = 0; index < count; index++) {
       counters[index].unit = mux_counters[index].unit;
       counters[index].storage = mux_counters[index].storage;
@@ -110,14 +110,14 @@ extension::codeplay_performance_counters::ApplyPropertyToCommandQueue(
             return CL_INVALID_QUEUE_PROPERTIES);
 
   auto config =
-      reinterpret_cast<cl_performance_counter_config_codeplay*>(value);
+      reinterpret_cast<cl_performance_counter_config_codeplay *>(value);
   if (config == nullptr || config->descs == nullptr) {
     return CL_INVALID_VALUE;
   }
 
   if (auto mux_error = muxCreateQueryPool(
           command_queue->mux_queue, mux_query_type_counter, config->count,
-          reinterpret_cast<mux_query_counter_config_t*>(config->descs),
+          reinterpret_cast<mux_query_counter_config_t *>(config->descs),
           command_queue->device->mux_allocator,
           &command_queue->counter_queries)) {
     cl::getErrorFrom(mux_error);
@@ -128,7 +128,7 @@ extension::codeplay_performance_counters::ApplyPropertyToCommandQueue(
 
 cl_int extension::codeplay_performance_counters::GetEventProfilingInfo(
     cl_event event, cl_profiling_info param_name, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret) const {
+    void *param_value, size_t *param_value_size_ret) const {
   if (param_name != CL_PROFILING_COMMAND_PERFORMANCE_COUNTERS_CODEPLAY) {
     return CL_INVALID_VALUE;
   }
@@ -151,7 +151,7 @@ cl_int extension::codeplay_performance_counters::GetEventProfilingInfo(
     if (auto mux_error = muxGetQueryPoolResults(
             event->queue->mux_queue, counter_queries, 0, counter_queries->count,
             sizeof(mux_query_counter_result_t) * counter_queries->count,
-            static_cast<mux_query_counter_result_t*>(param_value),
+            static_cast<mux_query_counter_result_t *>(param_value),
             sizeof(mux_query_counter_result_t))) {
       return cl::getErrorFrom(mux_error);
     }

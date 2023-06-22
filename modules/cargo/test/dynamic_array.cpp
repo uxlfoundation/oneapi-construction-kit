@@ -71,7 +71,7 @@ TEST(dynamic_array, access_at) {
   cargo::dynamic_array<int> d;
   ASSERT_EQ(cargo::success, d.alloc(16));
   int val = 42;
-  for (auto& item : d) {
+  for (auto &item : d) {
     item = val++;
   }
   for (size_t index = 0; index < d.size(); index++) {
@@ -88,10 +88,10 @@ TEST(dynamic_array, access_at_const) {
   cargo::dynamic_array<int> d;
   ASSERT_EQ(cargo::success, d.alloc(16));
   int val = 42;
-  for (auto& item : d) {
+  for (auto &item : d) {
     item = val++;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   for (size_t index = 0; index < r.size(); index++) {
     auto v = r.at(index);
     ASSERT_TRUE(bool(v));
@@ -109,7 +109,7 @@ TEST(dynamic_array, access_front) {
     d[index] = index;
   }
   ASSERT_EQ(0u, d.front());
-  cargo::dynamic_array<int>& r = d;
+  cargo::dynamic_array<int> &r = d;
   ASSERT_EQ(0u, r.front());
   ASSERT_EQ(r[0], r.front());
 }
@@ -120,7 +120,7 @@ TEST(dynamic_array, access_front_const) {
   for (size_t index = 0; index < d.size(); index++) {
     d[index] = index;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   ASSERT_EQ(0u, r.front());
   ASSERT_EQ(r[0], r.front());
 }
@@ -141,7 +141,7 @@ TEST(dynamic_array, access_back_const) {
   for (size_t index = 0; index < d.size(); index++) {
     d[index] = index;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   ASSERT_EQ(3u, r.back());
   ASSERT_EQ(r[3], r.back());
 }
@@ -167,7 +167,7 @@ TEST(dynamic_array, iterator_begin_const) {
   for (size_t index = 0; index < d.size(); index++) {
     d[index] = index;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   ASSERT_EQ(*r.data(), *r.begin());
 }
 
@@ -195,7 +195,7 @@ TEST(dynamic_array, iterator_rbegin_const) {
   for (size_t index = 0; index < d.size(); index++) {
     d[index] = index;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   ASSERT_EQ(r.back(), *r.rbegin());
 }
 
@@ -224,7 +224,7 @@ TEST(dynamic_array, iterator_end_const) {
   for (size_t index = 0; index < d.size(); index++) {
     d[index] = index;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   auto end = r.end();
   ASSERT_EQ(r.back(), *(--end));
 }
@@ -255,7 +255,7 @@ TEST(dynamic_array, iterator_rend_const) {
   for (size_t index = 0; index < d.size(); index++) {
     d[index] = index;
   }
-  const cargo::dynamic_array<int>& r = d;
+  const cargo::dynamic_array<int> &r = d;
   auto rend = r.rend();
   ASSERT_EQ(r.front(), *(--rend));
 }

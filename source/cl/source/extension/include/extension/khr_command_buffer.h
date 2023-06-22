@@ -162,7 +162,6 @@ struct _cl_command_buffer_khr final : public cl::base<_cl_command_buffer_khr> {
   /// @brief List of mux sync-points indexed by cl_sync_point_khr
   cargo::small_vector<mux_sync_point_t, 4> mux_sync_points;
 
-
   /// @brief Private constructor, use the `create()` function instead.
   ///
   /// By making the constructor private we can restrict creation of

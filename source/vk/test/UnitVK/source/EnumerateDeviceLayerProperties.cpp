@@ -25,9 +25,8 @@ class EnumerateDeviceLayerPropertiesTest : public uvk::PhysicalDeviceTest {
 TEST_F(EnumerateDeviceLayerPropertiesTest, Default) {
   uint32_t propertyCount;
 
-  ASSERT_EQ_RESULT(VK_SUCCESS,
-              vkEnumerateDeviceLayerProperties(physicalDevice, &propertyCount,
-                                               nullptr));
+  ASSERT_EQ_RESULT(VK_SUCCESS, vkEnumerateDeviceLayerProperties(
+                                   physicalDevice, &propertyCount, nullptr));
 }
 
 // VK_INCOMPLETE

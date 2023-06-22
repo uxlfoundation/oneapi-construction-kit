@@ -19,8 +19,8 @@
 
 #include <vector>
 
-#include "refsidrv/refsidrv.h"
 #include "refsi_hal.h"
+#include "refsidrv/refsidrv.h"
 
 class refsi_hal_device;
 
@@ -94,7 +94,7 @@ class refsi_command_buffer {
   /// @param locker Mutex for the HAL device.
   refsi_result run(refsi_hal_device &hal_device, refsi_locker &locker);
 
-private:
+ private:
   std::vector<uint64_t> chunks;
 };
 

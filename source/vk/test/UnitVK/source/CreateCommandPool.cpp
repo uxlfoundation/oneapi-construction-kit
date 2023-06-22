@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateCommandPool
 
 class CreateCommandPool : public uvk::DeviceTest {
-public:
+ public:
   CreateCommandPool() : createInfo(), commandPool() {}
 
   virtual void SetUp() {

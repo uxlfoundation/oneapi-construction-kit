@@ -16,7 +16,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/exp_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>

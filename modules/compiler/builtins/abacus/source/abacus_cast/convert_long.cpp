@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <abacus/abacus_cast.h>
-
 #include <abacus/internal/convert_helper.h>
 
 DEF(long);

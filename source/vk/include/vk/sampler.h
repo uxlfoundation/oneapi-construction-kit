@@ -21,7 +21,7 @@
 
 namespace vk {
 /// @copydoc ::vk::device_t
-typedef struct device_t* device;
+typedef struct device_t *device;
 
 /// @brief Stub of internal sampler type
 typedef struct sampler_t final {
@@ -29,8 +29,8 @@ typedef struct sampler_t final {
 
 /// @brief Stub of vkCreateSampler
 VkResult CreateSampler(vk::device device,
-                       const VkSamplerCreateInfo* pCreateInfo,
-                       vk::allocator allocator, vk::sampler* pSampler);
+                       const VkSamplerCreateInfo *pCreateInfo,
+                       vk::allocator allocator, vk::sampler *pSampler);
 
 /// @brief Stub of vkDestroySampler
 void DestroySampler(vk::device device, vk::sampler sampler,

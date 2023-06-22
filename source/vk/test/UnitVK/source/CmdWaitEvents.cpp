@@ -161,9 +161,7 @@ class CmdWaitEventsCommandBuffers : public CmdWaitEvents {
     CreateAndRecordCommandBuffer(&commandBuffer2);
   }
 
-  virtual void TearDown() override {
-    CmdWaitEvents::TearDown();
-  }
+  virtual void TearDown() override { CmdWaitEvents::TearDown(); }
 
   VkCommandBuffer commandBuffer2;
 };
@@ -207,13 +205,13 @@ TEST_F(CmdWaitEventsCommandBuffers, MultipleCommandBuffers) {
 
   ASSERT_EQ_RESULT(VK_EVENT_SET, vkGetEventStatus(device, event));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -256,13 +254,13 @@ TEST_F(CmdWaitEvents, SingleCommandBuffer) {
 
   ASSERT_EQ_RESULT(VK_EVENT_SET, vkGetEventStatus(device, event));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / 4; i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -312,13 +310,13 @@ TEST_F(CmdWaitEventsCommandBuffers, MultipleSubmissions) {
 
   ASSERT_EQ_RESULT(VK_EVENT_SET, vkGetEventStatus(device, event));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -377,13 +375,13 @@ TEST_F(CmdWaitEvents, MultipleWaits) {
 
   ASSERT_EQ_RESULT(VK_EVENT_SET, vkGetEventStatus(device, event));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
   DeviceMemoryTest::unmapMemory();
 }
@@ -424,13 +422,13 @@ TEST_F(CmdWaitEventsCommandBuffers, HostSet) {
 
   ASSERT_EQ_RESULT(VK_EVENT_SET, vkGetEventStatus(device, event));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(uint32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();

@@ -36,7 +36,7 @@ extension::khr_create_command_queue::khr_create_command_queue()
 
 CL_API_ENTRY cl_command_queue CL_API_CALL clCreateCommandQueueWithPropertiesKHR(
     cl_context context, cl_device_id device,
-    const cl_queue_properties_khr* properties, cl_int* errcode_ret) {
+    const cl_queue_properties_khr *properties, cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> trace(
       "clCreateCommandQueueWithPropertiesKHR");
 

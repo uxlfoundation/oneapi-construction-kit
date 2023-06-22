@@ -27,15 +27,15 @@ static uint32_t encodeI(unsigned opc, unsigned func3, unsigned rd, unsigned rs1,
 // Encode a S-type instruction.
 static uint32_t encodeS(unsigned opc, unsigned funct3, unsigned rs1,
                         unsigned rs2, unsigned imm) {
-  return opc | ((imm & 0x1f) << 7) | (funct3 << 12) | (rs1 << 15) | (rs2 << 20)
-      | (((imm & 0xfe0) >> 5) << 25);
+  return opc | ((imm & 0x1f) << 7) | (funct3 << 12) | (rs1 << 15) |
+         (rs2 << 20) | (((imm & 0xfe0) >> 5) << 25);
 }
 
 // Encode a R-type instruction.
 static uint32_t encodeR(unsigned opc, unsigned func3, unsigned func7,
                         unsigned rd, unsigned rs1, unsigned rs2) {
   return opc | (rd << 7) | (func3 << 12) | (rs1 << 15) | (rs2 << 20) |
-      (func7 << 25);
+         (func7 << 25);
 }
 
 uint32_t riscv_encoder::addADDI(unsigned rd, unsigned rs, uint32_t imm) {

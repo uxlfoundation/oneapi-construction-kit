@@ -19,7 +19,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/floor_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/ldexp_unsafe.h>
@@ -33,7 +32,7 @@ struct exp_unsafe_helper;
 template <typename T>
 struct exp_unsafe_helper<T, abacus_half> {
   typedef typename TypeTraits<T>::SignedType SignedType;
-  static T _(const T& x) {
+  static T _(const T &x) {
     // Find k for Cody & Waite range reduction algorithm
     const T ln2_rcp = 1.44238f16;  // 1.0 / ln(2);
     const T cody = x * ln2_rcp + 0.5f16;
@@ -70,7 +69,7 @@ struct exp_unsafe_helper<T, abacus_half> {
 
 template <typename T>
 struct exp_unsafe_helper<T, abacus_float> {
-  static T _(const T& x) {
+  static T _(const T &x) {
     const T codyWaite1 = 0.693359375f;
     const T codyWaite2 = -2.12194440e-4f;
     const T ln2rcp = 1.44269502162933349609375f;
@@ -97,7 +96,7 @@ struct exp_unsafe_helper<T, abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T>
 struct exp_unsafe_helper<T, abacus_double> {
-  static T _(const T& x) {
+  static T _(const T &x) {
     const T codyWaite1 = abacus::detail::cast::as<abacus_double>(
         (abacus_long)0x3FE62E42FEFA3800);
     const T codyWaite2 = abacus::detail::cast::as<abacus_double>(
@@ -132,10 +131,10 @@ struct exp_unsafe_helper<T, abacus_double> {
     return abacus::internal::ldexp_unsafe(result, k);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
-inline T exp_unsafe(const T& x) {
+inline T exp_unsafe(const T &x) {
   return exp_unsafe_helper<T>::_(x);
 }
 }  // namespace internal

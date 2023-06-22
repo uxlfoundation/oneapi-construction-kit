@@ -35,7 +35,7 @@ class MergePipelineCaches : public uvk::PipelineLayoutTest {
     vkCreatePipelineCache(device, &pipelineCacheCreateInfo, nullptr,
                           &dstPipelineCache);
 
-    for (VkPipelineCache& pipelineCache : srcPipelineCaches) {
+    for (VkPipelineCache &pipelineCache : srcPipelineCaches) {
       ASSERT_EQ_RESULT(VK_SUCCESS,
                        vkCreatePipelineCache(device, &pipelineCacheCreateInfo,
                                              nullptr, &pipelineCache));
@@ -49,7 +49,7 @@ class MergePipelineCaches : public uvk::PipelineLayoutTest {
     shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     shaderModuleCreateInfo.codeSize = shaderCode.size;
     shaderModuleCreateInfo.pCode =
-        reinterpret_cast<const uint32_t*>(shaderCode.code);
+        reinterpret_cast<const uint32_t *>(shaderCode.code);
 
     vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr,
                          &shaderModule);
@@ -68,7 +68,8 @@ class MergePipelineCaches : public uvk::PipelineLayoutTest {
 
     std::vector<VkPipeline> pipelines(srcCacheCount);
 
-    for (int pipelineIndex = 0; pipelineIndex < srcCacheCount; pipelineIndex++) {
+    for (int pipelineIndex = 0; pipelineIndex < srcCacheCount;
+         pipelineIndex++) {
       vkCreateComputePipelines(device, srcPipelineCaches[pipelineIndex], 1,
                                &computePipelineCreateInfo, nullptr,
                                &pipelines[pipelineIndex]);
@@ -80,7 +81,7 @@ class MergePipelineCaches : public uvk::PipelineLayoutTest {
 
   virtual void TearDown() override {
     vkDestroyPipelineCache(device, dstPipelineCache, nullptr);
-    for (VkPipelineCache& cache : srcPipelineCaches) {
+    for (VkPipelineCache &cache : srcPipelineCaches) {
       vkDestroyPipelineCache(device, cache, nullptr);
     }
 

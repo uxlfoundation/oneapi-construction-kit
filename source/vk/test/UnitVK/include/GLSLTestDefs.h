@@ -58,7 +58,7 @@ struct glsl_vec {
   }
   static_assert(N >= 2 && N <= 4, "vector can be only be of length 2, 3 or 4");
 
-  bool operator==(const glsl_vec<T, N>& rhs) const {
+  bool operator==(const glsl_vec<T, N> &rhs) const {
     bool ret = true;
     for (size_t i = 0; i < N; i++) {
       ret &= (data[i] == rhs.data[i]);
@@ -66,7 +66,7 @@ struct glsl_vec {
     return ret;
   }
 
-  bool operator!=(const glsl_vec<T, N>& rhs) const { return !operator==(rhs); }
+  bool operator!=(const glsl_vec<T, N> &rhs) const { return !operator==(rhs); }
 };
 
 template <typename T>
@@ -122,7 +122,7 @@ struct glsl_mat {
   /// @retval `false` At least one of the comparisons of all vectors returned
   /// false.
   template <Order ORHS>
-  bool operator==(const glsl_mat<T, Columns, Rows, ORHS>& rhs) {
+  bool operator==(const glsl_mat<T, Columns, Rows, ORHS> &rhs) {
     bool eq = true;
     int outer = (O == Order::ColumnMajor) ? Columns : Rows;
     int inner = (O == Order::ColumnMajor) ? Rows : Columns;
@@ -134,7 +134,7 @@ struct glsl_mat {
     return eq;
   }
 
-  bool operator==(const glsl_mat<T, Columns, Rows, O>& rhs) {
+  bool operator==(const glsl_mat<T, Columns, Rows, O> &rhs) {
     int arrSize = (O == Order::ColumnMajor) ? Columns : Rows;
     bool eq = true;
     for (int i = 0; i < arrSize; i++) {
@@ -154,7 +154,7 @@ struct glsl_mat {
   /// @retval `true` The comparison of the matrices returned false.
   /// @retval `false` The comparison of the matrices returned true.
   template <Order ORHS>
-  bool operator!=(const glsl_mat<T, Columns, Rows, ORHS>& rhs) const {
+  bool operator!=(const glsl_mat<T, Columns, Rows, ORHS> &rhs) const {
     return !operator==(rhs);
   }
 };
@@ -170,7 +170,7 @@ using glsl_mat4 = glsl_mat<T, 4, 4, O>;
 
 // Definition of operators for "nice" error messages:
 template <typename T, size_t N>
-std::ostream& operator<<(std::ostream& os, const glsl_vec<T, N>& bar) {
+std::ostream &operator<<(std::ostream &os, const glsl_vec<T, N> &bar) {
   os << "{ " << bar.data[0];
   for (size_t i = 1; i < N; i++) {
     os << ", " << bar.data[i];
@@ -196,13 +196,13 @@ std::ostream& operator<<(std::ostream& os, const glsl_vec<T, N>& bar) {
 ///
 /// @return os with the matrix being written to
 template <typename T, size_t Columns, size_t Rows, Order O>
-std::ostream& operator<<(std::ostream& os,
-                         const glsl_mat<T, Columns, Rows, O>& bar);
+std::ostream &operator<<(std::ostream &os,
+                         const glsl_mat<T, Columns, Rows, O> &bar);
 
 template <typename T, size_t Columns, size_t Rows>
-std::ostream& operator<<(
-    std::ostream& os,
-    const glsl_mat<T, Columns, Rows, Order::ColumnMajor>& bar) {
+std::ostream &operator<<(
+    std::ostream &os,
+    const glsl_mat<T, Columns, Rows, Order::ColumnMajor> &bar) {
   os << "{";
   for (size_t i = 0; i < Rows; i++) {
     os << "{ " << bar.data[0].data[i];
@@ -219,8 +219,8 @@ std::ostream& operator<<(
 }
 
 template <typename T, size_t Columns, size_t Rows>
-std::ostream& operator<<(
-    std::ostream& os, const glsl_mat<T, Columns, Rows, Order::RowMajor>& bar) {
+std::ostream &operator<<(
+    std::ostream &os, const glsl_mat<T, Columns, Rows, Order::RowMajor> &bar) {
   os << "{";
   for (size_t i = 0; i < Rows; i++) {
     os << bar.data[i];
@@ -244,7 +244,7 @@ inline bool fuzzyEq(const double a, const double b,
 }
 
 template <typename T, size_t N>
-inline bool fuzzyEq(const glsl_vec<T, N>& lhs, const glsl_vec<T, N>& rhs,
+inline bool fuzzyEq(const glsl_vec<T, N> &lhs, const glsl_vec<T, N> &rhs,
                     T max_error = static_cast<T>(0.001)) {
   bool eq = true;
   for (size_t i = 0; i < N; i++) {
@@ -278,8 +278,8 @@ inline bool fuzzyEq(const glsl_vec<T, N>& lhs, const glsl_vec<T, N>& rhs,
 /// @retval `false` At least one of the comparisons of all vectors returned
 /// false.
 template <typename T, size_t Columns, size_t Rows, Order OLHS, Order ORHS>
-inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, OLHS>& lhs,
-                    const glsl_mat<T, Columns, Rows, ORHS>& rhs,
+inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, OLHS> &lhs,
+                    const glsl_mat<T, Columns, Rows, ORHS> &rhs,
                     T max_error = static_cast<T>(0.001)) {
   bool eq = true;
   int outer = (OLHS == Order::ColumnMajor) ? Columns : Rows;
@@ -293,8 +293,8 @@ inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, OLHS>& lhs,
 }
 
 template <typename T, size_t Columns, size_t Rows, Order O>
-inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, O>& lhs,
-                    const glsl_mat<T, Columns, Rows, O>& rhs,
+inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, O> &lhs,
+                    const glsl_mat<T, Columns, Rows, O> &rhs,
                     T max_error = static_cast<T>(0.001)) {
   int arrSize = (O == Order::ColumnMajor) ? Columns : Rows;
   bool eq = true;
@@ -396,7 +396,7 @@ template <class T, class... Ts>
 struct has_double_type<T, Ts...>
     : std::conditional<is_double_type<T>::value, std::true_type,
                        has_double_type<Ts...>>::type {};
-}  // glsl
+}  // namespace glsl
 
 /// @brief Generic class used as base test fixture for all GLSL builtins
 ///

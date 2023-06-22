@@ -17,7 +17,6 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/is_denorm.h>
 #include <abacus/internal/is_integer_quick.h>
 
@@ -113,4 +112,4 @@ abacus_double3 __abacus_ceil(abacus_double3 x) { return ceil<>(x); }
 abacus_double4 __abacus_ceil(abacus_double4 x) { return ceil<>(x); }
 abacus_double8 __abacus_ceil(abacus_double8 x) { return ceil<>(x); }
 abacus_double16 __abacus_ceil(abacus_double16 x) { return ceil<>(x); }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

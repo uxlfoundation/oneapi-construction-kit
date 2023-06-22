@@ -16,7 +16,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/floor_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>
 
@@ -161,7 +160,7 @@ struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 T exp10(const T x) {
@@ -204,4 +203,4 @@ abacus_double8 ABACUS_API __abacus_exp10(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_exp10(abacus_double16 x) {
   return exp10<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

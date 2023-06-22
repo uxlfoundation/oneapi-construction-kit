@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <limits>
+
 #include "GLSLTestDefs.h"
 
 constexpr glsl::intTy I_MIN = std::numeric_limits<glsl::intTy>::min();
@@ -218,7 +219,6 @@ class op_glsl_SSign_ivec4
 
 TEST_F(op_glsl_SSign_ivec4, Smoke) { RunWithArgs({2, 2, 2, 2}); }
 
-
 // Tests that SSign is correctly implemented
 TEST_F(op_glsl_SSign_int, BasicCorrectnessTest) {
   // From Specification:
@@ -260,4 +260,3 @@ TEST_F(op_glsl_SSign_ivec4, BasicCorrectnessTest) {
   auto result = RunWithArgs({-100, -1, 0, 100});
   EXPECT_EQ(glsl::ivec4Ty(-1, -1, 0, 1), result);
 }
-

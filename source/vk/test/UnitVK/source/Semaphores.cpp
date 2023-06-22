@@ -85,13 +85,13 @@ class Semaphores : public uvk::PipelineTest,
     ASSERT_EQ_RESULT(VK_SUCCESS, vkBindBufferMemory(device, buffer2, memory,
                                                     alignedBufferSize));
 
-    void* mappedMemory;
+    void *mappedMemory;
 
     uint32_t data = 42;
 
     DeviceMemoryTest::mapMemory(0, bufferBytes, &mappedMemory);
 
-    int32_t* devicePtr = static_cast<int32_t*>(mappedMemory);
+    int32_t *devicePtr = static_cast<int32_t *>(mappedMemory);
     for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
       memcpy(devicePtr, &data, sizeof(uint32_t));
       devicePtr++;
@@ -202,13 +202,13 @@ TEST_F(Semaphores, Basic) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(25u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(25u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -256,13 +256,13 @@ TEST_F(Semaphores, TwoSemaphores) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(25u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(25u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -343,12 +343,12 @@ TEST_F(Semaphores, TwoCommandBuffers) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -357,7 +357,7 @@ TEST_F(Semaphores, TwoCommandBuffers) {
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -425,13 +425,13 @@ TEST_F(Semaphores, ThreeSubmits) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();

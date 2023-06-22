@@ -31,8 +31,7 @@ TEST_F(EnumerateInstanceLayerPropertiesTest, DISABLED_Default) {
   uint32_t propertyCount;
 
   ASSERT_EQ_RESULT(VK_SUCCESS,
-                   vkEnumerateInstanceLayerProperties(&propertyCount,
-                                                      nullptr));
+                   vkEnumerateInstanceLayerProperties(&propertyCount, nullptr));
 }
 
 // VK_INCOMPLETE

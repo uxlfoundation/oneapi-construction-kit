@@ -86,7 +86,7 @@ class InvalidateMappedMemoryRanges : public uvk::PipelineTest,
     VkPhysicalDeviceMemoryProperties memoryProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-    uint32_t memoryTypeIndex = 0xffffffff; // (should never be this many types)
+    uint32_t memoryTypeIndex = 0xffffffff;  // (should never be this many types)
 
     for (uint32_t k = 0; k < memoryProperties.memoryTypeCount; k++) {
       const VkMemoryType memoryType = memoryProperties.memoryTypes[k];
@@ -95,7 +95,7 @@ class InvalidateMappedMemoryRanges : public uvk::PipelineTest,
       if (memoryType.propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
         if (memoryTypeIndex == 0xffffffff) memoryTypeIndex = k;
         if (!(memoryType.propertyFlags &
-          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
+              VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
           memoryTypeIndex = k;
           using_non_coherent = 1;
           break;
@@ -183,10 +183,10 @@ class InvalidateMappedMemoryRanges : public uvk::PipelineTest,
 */
 TEST_F(InvalidateMappedMemoryRanges, Default) {
   // map all the memory to the host (i.e. our memory)
-  uint32_t* mapped_data;
+  uint32_t *mapped_data;
   ASSERT_EQ_RESULT(VK_SUCCESS,
                    vkMapMemory(device, memory, 0, bufferOutPhySize, 0,
-                               reinterpret_cast<void**>(&mapped_data)));
+                               reinterpret_cast<void **>(&mapped_data)));
 
   // submit the job
   VkSubmitInfo submitInfo = {};

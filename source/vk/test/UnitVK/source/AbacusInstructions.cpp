@@ -37,10 +37,10 @@ TEST_F(AbacusInstructions, OpAll) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
-  ASSERT_TRUE(reinterpret_cast<uint32_t*>(bufferMemory)[0]);
-  ASSERT_FALSE(reinterpret_cast<uint32_t*>(bufferMemory)[1]);
+  ASSERT_TRUE(reinterpret_cast<uint32_t *>(bufferMemory)[0]);
+  ASSERT_FALSE(reinterpret_cast<uint32_t *>(bufferMemory)[1]);
 }
 
 TEST_F(AbacusInstructions, OpAny) {
@@ -54,10 +54,10 @@ TEST_F(AbacusInstructions, OpAny) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
-  ASSERT_TRUE(reinterpret_cast<uint32_t*>(bufferMemory)[0]);
-  ASSERT_FALSE(reinterpret_cast<uint32_t*>(bufferMemory)[1]);
+  ASSERT_TRUE(reinterpret_cast<uint32_t *>(bufferMemory)[0]);
+  ASSERT_FALSE(reinterpret_cast<uint32_t *>(bufferMemory)[1]);
 }
 
 TEST_F(AbacusInstructions, OpBitCount) {
@@ -71,10 +71,10 @@ TEST_F(AbacusInstructions, OpBitCount) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
   // the test value we are passing into bitCount is 42, which contains 3 1s
-  ASSERT_EQ(reinterpret_cast<uint32_t*>(bufferMemory)[0], 3u);
+  ASSERT_EQ(reinterpret_cast<uint32_t *>(bufferMemory)[0], 3u);
 }
 
 TEST_F(AbacusInstructions, OpDot) {
@@ -88,11 +88,11 @@ TEST_F(AbacusInstructions, OpDot) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
   // the vectors we are dot()-ing are both (2.f, 2.f, 2.f), hence our result
   // should be 12.f
-  ASSERT_EQ(reinterpret_cast<float*>(bufferMemory)[0], 12.f);
+  ASSERT_EQ(reinterpret_cast<float *>(bufferMemory)[0], 12.f);
 }
 
 TEST_F(AbacusInstructions, OpFMod) {
@@ -106,9 +106,9 @@ TEST_F(AbacusInstructions, OpFMod) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
-  ASSERT_EQ(reinterpret_cast<float*>(bufferMemory)[0], 18.f);
+  ASSERT_EQ(reinterpret_cast<float *>(bufferMemory)[0], 18.f);
 }
 
 TEST_F(AbacusInstructions, OpIsInf) {
@@ -122,10 +122,10 @@ TEST_F(AbacusInstructions, OpIsInf) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
-  ASSERT_TRUE(reinterpret_cast<uint32_t*>(bufferMemory)[0]);
-  ASSERT_FALSE(reinterpret_cast<uint32_t*>(bufferMemory)[1]);
+  ASSERT_TRUE(reinterpret_cast<uint32_t *>(bufferMemory)[0]);
+  ASSERT_FALSE(reinterpret_cast<uint32_t *>(bufferMemory)[1]);
 }
 
 TEST_F(AbacusInstructions, OpIsNan) {
@@ -139,9 +139,9 @@ TEST_F(AbacusInstructions, OpIsNan) {
 
   FlushFromDevice();
 
-  void* bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
+  void *bufferMemory = SimpleKernelTest::PtrTo1stBufferData();
 
   // we are only testing the negative case here because even doing 0/0 is
   // technically implementation defined so not a guaranteed NaN
-  ASSERT_FALSE(reinterpret_cast<uint32_t*>(bufferMemory)[0]);
+  ASSERT_FALSE(reinterpret_cast<uint32_t *>(bufferMemory)[0]);
 }

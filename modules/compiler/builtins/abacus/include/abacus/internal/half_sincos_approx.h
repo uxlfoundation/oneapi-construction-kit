@@ -18,7 +18,6 @@
 #define __ABACUS_INTERNAL_HALF_SINCOS_APPROX_H__
 
 #include <abacus/abacus_config.h>
-
 #include <abacus/internal/horner_polynomial.h>
 
 static ABACUS_CONSTANT abacus_float _half_sincos_coefc[4] = {
@@ -29,7 +28,7 @@ static ABACUS_CONSTANT abacus_float _half_sincos_coefs[4] = {
 namespace abacus {
 namespace internal {
 template <typename T>
-inline T half_sincos_approx(const T& x, T* cosVal) {
+inline T half_sincos_approx(const T &x, T *cosVal) {
   // TODO since sin and cos both call this now it might be worth looking at
   // better ways to make it efficient, as I wrote it quite quickly
 

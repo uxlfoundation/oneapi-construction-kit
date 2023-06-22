@@ -26,11 +26,11 @@ class SharedExecution {
 
  protected:
   SharedExecution() : is_parameterized_(false) {}
-  void Fail(const std::string& message) {
+  void Fail(const std::string &message) {
     GTEST_NONFATAL_FAILURE_(message.c_str());
   }
 
-  void Fail(const std::string& message, int errorCode) {
+  void Fail(const std::string &message, int errorCode) {
     std::stringstream ss;
     ss << message << " (error: " << errorCode << ")";
     GTEST_NONFATAL_FAILURE_(ss.str().c_str());
@@ -102,14 +102,14 @@ class SharedExecution {
 namespace stdcompat {
 #ifdef __ANDROID__
 // Note: This function accepts double only as its argument
+using ::isnan;
 using ::nan;
 using ::nanf;
 using ::nanl;
-using ::isnan;
 #else
+using std::isnan;
 using std::nan;
 using std::nanf;
 using std::nanl;
-using std::isnan;
 #endif  // __ANDROID__
-}
+}  // namespace stdcompat

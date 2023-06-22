@@ -98,7 +98,6 @@ TEST_F(MutableCommandInfoTest, ReturnBufferSizeTooSmall) {
                         1, &param_value, nullptr));
 }
 
-
 TEST_F(MutableCommandInfoTest, MutableCommandCommandQueue) {
   size_t size;
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(

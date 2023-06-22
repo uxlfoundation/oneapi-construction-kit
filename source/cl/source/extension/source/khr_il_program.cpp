@@ -35,7 +35,7 @@ extension::khr_il_program::khr_il_program()
 
 cl_int extension::khr_il_program::GetDeviceInfo(
     cl_device_id device, cl_device_info param_name, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret) const {
+    void *param_value, size_t *param_value_size_ret) const {
 #if !defined(CL_VERSION_3_0)
   // This device property is unreachable in OpenCL 3.0 mode because the
   // CL_DEVICE_IL_VERSION enum has the same value, and is always processed
@@ -48,7 +48,7 @@ cl_int extension::khr_il_program::GetDeviceInfo(
     if (nullptr != param_value) {
       OCL_CHECK(param_value_size < il_version.size() + 1,
                 return CL_INVALID_VALUE);
-      std::strncpy(static_cast<char*>(param_value), il_version.data(),
+      std::strncpy(static_cast<char *>(param_value), il_version.data(),
                    il_version.size());
     }
     OCL_SET_IF_NOT_NULL(param_value_size_ret, il_version.size() + 1);
@@ -60,14 +60,14 @@ cl_int extension::khr_il_program::GetDeviceInfo(
                                   param_value, param_value_size_ret);
 }
 
-void* extension::khr_il_program::GetExtensionFunctionAddressForPlatform(
-    cl_platform_id, const char* func_name) const {
+void *extension::khr_il_program::GetExtensionFunctionAddressForPlatform(
+    cl_platform_id, const char *func_name) const {
 #ifndef OCL_EXTENSION_cl_khr_il_program
   OCL_UNUSED(func_name);
   return nullptr;
 #else
   if (0 == std::strcmp("clCreateProgramWithILKHR", func_name)) {
-    return reinterpret_cast<void*>(&clCreateProgramWithILKHR);
+    return reinterpret_cast<void *>(&clCreateProgramWithILKHR);
   }
   return nullptr;
 #endif
@@ -75,7 +75,7 @@ void* extension::khr_il_program::GetExtensionFunctionAddressForPlatform(
 
 cl_int extension::khr_il_program::GetProgramInfo(
     cl_program program, cl_program_info param_name, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret) const {
+    void *param_value, size_t *param_value_size_ret) const {
   switch (param_name) {
     case CL_PROGRAM_IL_KHR: {
       if (program->type == cl::program_type::SPIRV) {
@@ -85,7 +85,7 @@ cl_int extension::khr_il_program::GetProgramInfo(
         if (nullptr != param_value) {
           OCL_CHECK(param_value_size < size, return CL_INVALID_VALUE);
           std::copy(program->spirv.code.begin(), program->spirv.code.end(),
-                    static_cast<uint32_t*>(param_value));
+                    static_cast<uint32_t *>(param_value));
         }
         OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
       } else {
@@ -104,7 +104,7 @@ cl_int extension::khr_il_program::GetProgramInfo(
 }
 
 CL_API_ENTRY cl_program CL_API_CALL clCreateProgramWithILKHR(
-    cl_context context, const void* il, size_t length, cl_int* errcode_ret) {
+    cl_context context, const void *il, size_t length, cl_int *errcode_ret) {
   OCL_CHECK(nullptr == context,
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);

@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <CL/cl.h>
-
 #include <cl/config.h>
 #include <cl/device.h>
 #include <cl/macros.h>
@@ -33,10 +32,12 @@ extension::khr_opencl_c_1_2::khr_opencl_c_1_2()
 
 cl_int extension::khr_opencl_c_1_2::GetDeviceInfo(
     cl_device_id device, cl_device_info param_name, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret) const {
+    void *param_value, size_t *param_value_size_ret) const {
   OCL_CHECK(nullptr == device, return CL_INVALID_DEVICE);
   switch (param_name) {
-    default: { return CL_INVALID_VALUE; }
+    default: {
+      return CL_INVALID_VALUE;
+    }
     case CL_DEVICE_EXTENSIONS: {
       std::string extension_names;
       extension_names += "cl_khr_global_int32_base_atomics ";
@@ -74,7 +75,7 @@ cl_int extension::khr_opencl_c_1_2::GetDeviceInfo(
           return CL_INVALID_VALUE);
 
       if (param_value) {
-        std::strncpy((char*)param_value, extension_names.data(),
+        std::strncpy((char *)param_value, extension_names.data(),
                      extension_names.size());
       }
 

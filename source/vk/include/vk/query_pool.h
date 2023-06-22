@@ -21,7 +21,7 @@
 
 namespace vk {
 /// @copydoc ::vk::device_t
-typedef struct device_t* device;
+typedef struct device_t *device;
 
 /// @brief Stub of internal query_pool type
 typedef struct query_pool_t final {
@@ -29,8 +29,8 @@ typedef struct query_pool_t final {
 
 /// @brief Stub of vkCreateQueryPool
 VkResult CreateQueryPool(vk::device device,
-                         const VkQueryPoolCreateInfo* pCreateInfo,
-                         vk::allocator allocator, vk::query_pool* pQueryPool);
+                         const VkQueryPoolCreateInfo *pCreateInfo,
+                         vk::allocator allocator, vk::query_pool *pQueryPool);
 
 /// @brief Stub of vkDestroyQueryPool
 void DestroyQueryPool(vk::device device, vk::query_pool queryPool,
@@ -39,7 +39,7 @@ void DestroyQueryPool(vk::device device, vk::query_pool queryPool,
 /// @brief Stub of vkGetQueryPoolResults
 VkResult GetQueryPoolResults(vk::device device, vk::query_pool queryPool,
                              uint32_t firstQuery, uint32_t queryCount,
-                             size_t dataSize, void* pData, VkDeviceSize stride,
+                             size_t dataSize, void *pData, VkDeviceSize stride,
                              VkQueryResultFlags flags);
 }  // namespace vk
 

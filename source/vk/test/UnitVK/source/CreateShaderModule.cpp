@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateShaderModule
 
 class CreateShaderModule : public uvk::DeviceTest {
-public:
+ public:
   CreateShaderModule() : createInfo(), shaderModule(VK_NULL_HANDLE) {}
 
   virtual void SetUp() override {
@@ -48,9 +48,9 @@ TEST_F(CreateShaderModule, Default) {
 }
 
 TEST_F(CreateShaderModule, DefaultAllocator) {
-  ASSERT_EQ_RESULT(VK_SUCCESS, vkCreateShaderModule(device, &createInfo,
-                                                    uvk::defaultAllocator(),
-                                                    &shaderModule));
+  ASSERT_EQ_RESULT(
+      VK_SUCCESS, vkCreateShaderModule(device, &createInfo,
+                                       uvk::defaultAllocator(), &shaderModule));
   vkDestroyShaderModule(device, shaderModule, uvk::defaultAllocator());
   shaderModule = VK_NULL_HANDLE;
 }

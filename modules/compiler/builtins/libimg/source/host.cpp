@@ -34,7 +34,7 @@
 const uint64_t alignment_padding = sizeof(cl_float4) - 1u;
 
 static uint64_t HostImageAlignedImageSize(uint64_t header_size,
-                                        uint64_t raw_data_size) {
+                                          uint64_t raw_data_size) {
   return header_size + raw_data_size + alignment_padding;
 }
 
@@ -249,7 +249,9 @@ void libimg::HostSetImagePitches(const cl_image_format &image_format,
         slice_pitch = row_pitch * region[1];
         break;
       }
-      default: { IMG_UNREACHABLE("unknown or invalid image type."); }
+      default: {
+        IMG_UNREACHABLE("unknown or invalid image type.");
+      }
     }
   }
 
@@ -258,7 +260,7 @@ void libimg::HostSetImagePitches(const cl_image_format &image_format,
 }
 
 size_t libimg::HostGetImageStorageSize(const cl_image_format &image_format,
-                                         const cl_image_desc &image_desc) {
+                                       const cl_image_desc &image_desc) {
   const size_t pixel_size = libimg::HostGetPixelSize(image_format);
 
   size_t row_pitch = image_desc.image_row_pitch;
@@ -613,7 +615,7 @@ libimg::UInt4 ShuffleOrder(const libimg::UInt order, const libimg::UInt4 &in) {
     default:
       break;
   }
-  return in;
+    return in;
 }
 
 void libimg::HostFillImage(HostImage *image, const void *fill_color,

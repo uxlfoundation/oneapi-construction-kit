@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <BenchCL/error.h>
 #include <BenchCL/environment.h>
+#include <BenchCL/error.h>
 #include <CL/cl.h>
 #include <benchmark/benchmark.h>
+
 #include <string>
 #include <thread>
 
@@ -41,7 +42,7 @@ struct CreateData {
     context = clCreateContext(nullptr, 1, &device, nullptr, nullptr, &status);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
 
-    const char* str =
+    const char *str =
         "kernel void func(global int* o, global int* i) {\n"
         "  o[get_global_id(0)] = i[get_global_id(0)];\n"
         "}\n";
@@ -82,7 +83,7 @@ struct CreateData {
   }
 };
 
-void SingleThreadOneQueueNoDependencies(benchmark::State& state) {
+void SingleThreadOneQueueNoDependencies(benchmark::State &state) {
   CreateData cd;
 
   for (auto _ : state) {
@@ -100,7 +101,7 @@ void SingleThreadOneQueueNoDependencies(benchmark::State& state) {
 }
 BENCHMARK(SingleThreadOneQueueNoDependencies)->Arg(1)->Arg(256)->Arg(1024);
 
-void SingleThreadOneQueue(benchmark::State& state) {
+void SingleThreadOneQueue(benchmark::State &state) {
   CreateData cd;
 
   for (auto _ : state) {
@@ -125,7 +126,7 @@ void SingleThreadOneQueue(benchmark::State& state) {
 }
 BENCHMARK(SingleThreadOneQueue)->Arg(1)->Arg(256)->Arg(1024);
 
-void MultiThreadOneQueueNoDependencies(benchmark::State& state) {
+void MultiThreadOneQueueNoDependencies(benchmark::State &state) {
   CreateData cd;
 
   for (auto _ : state) {
@@ -139,8 +140,7 @@ void MultiThreadOneQueueNoDependencies(benchmark::State& state) {
     clFinish(cd.queue);
   }
 
-  state.SetItemsProcessed(std::thread::hardware_concurrency() *
-                          state.range(0));
+  state.SetItemsProcessed(std::thread::hardware_concurrency() * state.range(0));
 }
 BENCHMARK(MultiThreadOneQueueNoDependencies)
     ->Arg(1)
@@ -148,7 +148,7 @@ BENCHMARK(MultiThreadOneQueueNoDependencies)
     ->Arg(1024)
     ->Threads(std::thread::hardware_concurrency());
 
-void MultiThreadOneQueue(benchmark::State& state) {
+void MultiThreadOneQueue(benchmark::State &state) {
   CreateData cd;
 
   for (auto _ : state) {
@@ -169,8 +169,7 @@ void MultiThreadOneQueue(benchmark::State& state) {
     clReleaseEvent(event);
   }
 
-  state.SetItemsProcessed(std::thread::hardware_concurrency() *
-                          state.range(0));
+  state.SetItemsProcessed(std::thread::hardware_concurrency() * state.range(0));
 }
 BENCHMARK(MultiThreadOneQueue)
     ->Arg(1)
@@ -178,7 +177,7 @@ BENCHMARK(MultiThreadOneQueue)
     ->Arg(1024)
     ->Threads(std::thread::hardware_concurrency());
 
-void MultiThreadMultiQueueNoDependencies(benchmark::State& state) {
+void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
   CreateData cd;
 
   cl_command_queue queue;
@@ -204,8 +203,7 @@ void MultiThreadMultiQueueNoDependencies(benchmark::State& state) {
     clReleaseCommandQueue(queue);
   }
 
-  state.SetItemsProcessed(std::thread::hardware_concurrency() *
-                          state.range(0));
+  state.SetItemsProcessed(std::thread::hardware_concurrency() * state.range(0));
 }
 BENCHMARK(MultiThreadMultiQueueNoDependencies)
     ->Arg(1)
@@ -213,7 +211,7 @@ BENCHMARK(MultiThreadMultiQueueNoDependencies)
     ->Arg(1024)
     ->Threads(std::thread::hardware_concurrency());
 
-void MultiThreadMultiQueue(benchmark::State& state) {
+void MultiThreadMultiQueue(benchmark::State &state) {
   CreateData cd;
 
   cl_command_queue queue;
@@ -246,8 +244,7 @@ void MultiThreadMultiQueue(benchmark::State& state) {
     clReleaseCommandQueue(queue);
   }
 
-  state.SetItemsProcessed(std::thread::hardware_concurrency() *
-                          state.range(0));
+  state.SetItemsProcessed(std::thread::hardware_concurrency() * state.range(0));
 }
 BENCHMARK(MultiThreadMultiQueue)
     ->Arg(1)

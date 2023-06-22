@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <CL/cl_ext.h>
-
 #include <cl/config.h>
 #include <cl/context.h>
 #include <cl/device.h>

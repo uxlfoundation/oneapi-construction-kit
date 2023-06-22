@@ -80,7 +80,7 @@ class FlushMappedMemoryRanges : public uvk::PipelineTest,
     VkPhysicalDeviceMemoryProperties memoryProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-    uint32_t memoryTypeIndex = 0xffffffff; // (should never be this many types)
+    uint32_t memoryTypeIndex = 0xffffffff;  // (should never be this many types)
 
     for (uint32_t k = 0; k < memoryProperties.memoryTypeCount; k++) {
       const VkMemoryType memoryType = memoryProperties.memoryTypes[k];
@@ -89,7 +89,7 @@ class FlushMappedMemoryRanges : public uvk::PipelineTest,
       if (memoryType.propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
         if (memoryTypeIndex == 0xffffffff) memoryTypeIndex = k;
         if (!(memoryType.propertyFlags &
-          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
+              VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
           memoryTypeIndex = k;
           break;
         }
@@ -229,7 +229,7 @@ TEST_F(FlushMappedMemoryRanges, Default) {
   // Now need to write to memory and try using flush()
 
   // map all the memory to the host (i.e. our memory)
-  void* mappedMemory;
+  void *mappedMemory;
   ASSERT_EQ_RESULT(VK_SUCCESS, vkMapMemory(device, memory, 0, VK_WHOLE_SIZE, 0,
                                            &mappedMemory));
 
@@ -251,7 +251,7 @@ TEST_F(FlushMappedMemoryRanges, Default) {
   srand(std::time(NULL));
   for (uint32_t k = 0; k < bufferElements; k++) {
     uint32_t random_no = static_cast<uint32_t>(rand());
-    static_cast<uint32_t*>(mappedMemory)[k] = random_no;
+    static_cast<uint32_t *>(mappedMemory)[k] = random_no;
     testData.push_back(random_no);
   }
 
@@ -284,7 +284,7 @@ TEST_F(FlushMappedMemoryRanges, Default) {
   ASSERT_EQ_RESULT(VK_SUCCESS, vkInvalidateMappedMemoryRanges(
                                    device, 1, &flushMappedMemoryRange));
 
-  uint32_t* resultMemory = static_cast<uint32_t*>(mappedMemory) +
+  uint32_t *resultMemory = static_cast<uint32_t *>(mappedMemory) +
                            alignedBufferSize / sizeof(uint32_t);
 
   // validate results
@@ -295,7 +295,7 @@ TEST_F(FlushMappedMemoryRanges, Default) {
 
   for (uint32_t k = 0; k < bufferElements; k++) {
     // Check that the input buffer still has test data
-    ASSERT_EQ(static_cast<uint32_t*>(mappedMemory)[k], testData[k]);
+    ASSERT_EQ(static_cast<uint32_t *>(mappedMemory)[k], testData[k]);
   }
   // unmap the memory
   vkUnmapMemory(device, memory);

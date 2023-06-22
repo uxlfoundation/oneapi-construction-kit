@@ -51,9 +51,9 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
 #undef GET_EXTENSION_ADDRESS
   }
 
-  static void* getPointerOffset(void* ptr, size_t offset) {
-    cl_char* byte_ptr = reinterpret_cast<cl_char*>(ptr) + offset;
-    return reinterpret_cast<void*>(byte_ptr);
+  static void *getPointerOffset(void *ptr, size_t offset) {
+    cl_char *byte_ptr = reinterpret_cast<cl_char *>(ptr) + offset;
+    return reinterpret_cast<void *>(byte_ptr);
   }
 
   clHostMemAllocINTEL_fn clHostMemAllocINTEL = nullptr;

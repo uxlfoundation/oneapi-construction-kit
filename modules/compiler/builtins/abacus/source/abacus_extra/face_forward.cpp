@@ -64,4 +64,4 @@ abacus_double4 ABACUS_API __abacus_face_forward(abacus_double4 n,
                                                 abacus_double4 nref) {
   return face_forward<>(n, i, nref);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

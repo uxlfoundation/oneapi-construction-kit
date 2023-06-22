@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCmdBindPipeline
 
 class CmdBindPipeline : public uvk::PipelineTest {
-public:
+ public:
   CmdBindPipeline() : submitInfo() {}
 
   virtual void SetUp() override {

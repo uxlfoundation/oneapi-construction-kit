@@ -156,14 +156,14 @@ TEST_F(QueueSubmit, DefaultOneTimeSubmit) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, VK_WHOLE_SIZE, &mappedMemory);
 
   // if the second submit succeeded the 42s will have been overwritten with 24s
   for (uint32_t mem_index = 0; mem_index < bufferSize / sizeof(uint32_t);
        mem_index++) {
-    ASSERT_EQ(static_cast<uint32_t*>(mappedMemory)[mem_index],
+    ASSERT_EQ(static_cast<uint32_t *>(mappedMemory)[mem_index],
               secondSubmitFillValue);
   }
 
@@ -185,4 +185,3 @@ TEST_F(QueueSubmit, DefaultOneTimeSubmit) {
 // VK_ERROR_DEVICE_LOST
 // Is a possible return from this function, but is untestable
 // as the conditions it returns under cannot be safely replicated
-

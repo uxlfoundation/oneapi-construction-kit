@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <UnitVK.h>
-
 #include <stdio.h>
 #include <string.h>
 
@@ -30,12 +29,12 @@
 namespace uvk {
 size_t upScaleAlignment(size_t alignment) {
   if (1 == alignment) {
-    return sizeof(void*);
+    return sizeof(void *);
   }
 
   size_t scaledAlignment = alignment;
   if (1 == alignment) {
-    return sizeof(void*);
+    return sizeof(void *);
   }
 
 #ifdef _WIN32
@@ -43,7 +42,7 @@ size_t upScaleAlignment(size_t alignment) {
   while (scaledAlignment % alignment) {
 #elif defined(__linux__) || defined(__APPLE__)
   // Alignment must be a power of 2 and a multiple of sizeof(void*).
-  while (scaledAlignment % alignment || scaledAlignment % sizeof(void*)) {
+  while (scaledAlignment % alignment || scaledAlignment % sizeof(void *)) {
 #endif
     scaledAlignment |= scaledAlignment >> 1;
     scaledAlignment |= scaledAlignment >> 2;
@@ -59,14 +58,14 @@ size_t upScaleAlignment(size_t alignment) {
   return scaledAlignment;
 }  // namespace uvk
 
-void* VKAPI_CALL alloc(void* pUserData, size_t size, size_t alignment,
+void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
                        VkSystemAllocationScope allocationScope) {
   // TODO: Use these to intrument how the driver allocates memory and for what
   // purpose it is used.
   (void)pUserData;
   (void)allocationScope;
 
-  void* pMemory = nullptr;
+  void *pMemory = nullptr;
   alignment = uvk::upScaleAlignment(alignment);
 
 #ifdef _WIN32
@@ -81,7 +80,7 @@ void* VKAPI_CALL alloc(void* pUserData, size_t size, size_t alignment,
   return pMemory;
 }
 
-void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
+void *VKAPI_CALL realloc(void *pUserData, void *pOriginal, size_t size,
                          size_t alignment,
                          VkSystemAllocationScope allocationScope) {
   // TODO: Use these to intrument how the driver allocates memory and for what
@@ -89,7 +88,7 @@ void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
   (void)pUserData;
   (void)allocationScope;
 
-  void* pMemory = nullptr;
+  void *pMemory = nullptr;
 
 #ifdef _WIN32
   alignment = uvk::upScaleAlignment(alignment);
@@ -104,7 +103,7 @@ void* VKAPI_CALL realloc(void* pUserData, void* pOriginal, size_t size,
   return pMemory;
 }
 
-void VKAPI_CALL free(void* pUserData, void* pMemory) {
+void VKAPI_CALL free(void *pUserData, void *pMemory) {
   // TODO: Use this to instrument how the driver allocates memroy.
   (void)pUserData;
 
@@ -116,7 +115,7 @@ void VKAPI_CALL free(void* pUserData, void* pMemory) {
 #endif
 }
 
-void VKAPI_CALL allocNotify(void* pUserData, size_t size,
+void VKAPI_CALL allocNotify(void *pUserData, size_t size,
                             VkInternalAllocationType allocationType,
                             VkSystemAllocationScope allocationScope) {
   // TODO: Track driver internal allocations.
@@ -126,7 +125,7 @@ void VKAPI_CALL allocNotify(void* pUserData, size_t size,
   (void)allocationScope;
 }
 
-void VKAPI_CALL freeNotify(void* pUserData, size_t size,
+void VKAPI_CALL freeNotify(void *pUserData, size_t size,
                            VkInternalAllocationType allocationType,
                            VkSystemAllocationScope allocationScope) {
   // TODO: Track driver internal frees.
@@ -136,14 +135,14 @@ void VKAPI_CALL freeNotify(void* pUserData, size_t size,
   (void)allocationScope;
 }
 
-void* VKAPI_CALL oneUseAlloc(void* pUserData, size_t size, size_t alignment,
+void *VKAPI_CALL oneUseAlloc(void *pUserData, size_t size, size_t alignment,
                              VkSystemAllocationScope allocationScope) {
   // TODO: Use these to intrument how the driver allocates memory and for what
   // purpose it is used.
   (void)allocationScope;
 
-  bool* used = reinterpret_cast<bool*>(pUserData);
-  void* pMemory = nullptr;
+  bool *used = reinterpret_cast<bool *>(pUserData);
+  void *pMemory = nullptr;
 
   if (!*used) {
     alignment = uvk::upScaleAlignment(alignment);
@@ -167,31 +166,31 @@ static const VkAllocationCallbacks allocationCallbacks = {
     nullptr,    &uvk::alloc,       &uvk::realloc,
     &uvk::free, &uvk::allocNotify, &uvk::freeNotify};
 
-const VkAllocationCallbacks* defaultAllocator() {
+const VkAllocationCallbacks *defaultAllocator() {
   return &uvk::allocationCallbacks;
 }
 
 static const VkAllocationCallbacks nullAllocationCallBacks = {
     nullptr,
-    [](void*, size_t, size_t, VkSystemAllocationScope) -> void* {
+    [](void *, size_t, size_t, VkSystemAllocationScope) -> void * {
       return nullptr;
     },
-    [](void*, void*, size_t, size_t, VkSystemAllocationScope) -> void* {
+    [](void *, void *, size_t, size_t, VkSystemAllocationScope) -> void * {
       return nullptr;
     },
-    [](void*, void*) {},
-    [](void*, size_t, VkInternalAllocationType, VkSystemAllocationScope) {},
-    [](void*, size_t, VkInternalAllocationType, VkSystemAllocationScope) {}};
+    [](void *, void *) {},
+    [](void *, size_t, VkInternalAllocationType, VkSystemAllocationScope) {},
+    [](void *, size_t, VkInternalAllocationType, VkSystemAllocationScope) {}};
 
 static VkAllocationCallbacks oneUseAllocationCallbacks = {
     nullptr,    &uvk::oneUseAlloc, &uvk::realloc,
     &uvk::free, &uvk::allocNotify, &uvk::freeNotify};
 
-const VkAllocationCallbacks* nullAllocator() {
+const VkAllocationCallbacks *nullAllocator() {
   return &uvk::nullAllocationCallBacks;
 }
 
-const VkAllocationCallbacks* oneUseAllocator(bool* used) {
+const VkAllocationCallbacks *oneUseAllocator(bool *used) {
   oneUseAllocationCallbacks.pUserData = used;
   return &uvk::oneUseAllocationCallbacks;
 }

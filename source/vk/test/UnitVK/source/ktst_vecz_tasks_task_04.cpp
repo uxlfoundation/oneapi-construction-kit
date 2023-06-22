@@ -233,7 +233,7 @@ struct Validator<SampleBuffer> {
     s << " }";
   }
 };
-}
+}  // namespace kts
 
 TEST_F(Execution, Task_04_13_Struct_Offset) {
   if (clspvSupported_) {

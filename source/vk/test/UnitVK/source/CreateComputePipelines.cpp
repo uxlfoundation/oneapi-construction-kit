@@ -70,10 +70,10 @@ TEST_F(CreateComputePipelines, Default) {
 }
 
 TEST_F(CreateComputePipelines, DefaultAllocator) {
-  ASSERT_EQ_RESULT(VK_SUCCESS, vkCreateComputePipelines(device, VK_NULL_HANDLE,
-                                                        1, &pipelineCreateInfo,
-                                                        uvk::defaultAllocator(),
-                                                        &pipeline));
+  ASSERT_EQ_RESULT(
+      VK_SUCCESS,
+      vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo,
+                               uvk::defaultAllocator(), &pipeline));
   vkDestroyPipeline(device, pipeline, uvk::defaultAllocator());
   pipeline = VK_NULL_HANDLE;
 }
@@ -94,10 +94,10 @@ TEST_F(CreateComputePipelines, DefaultDerivativeBaseHandle) {
 
   VkPipeline derivedPipeline;
 
-  ASSERT_EQ_RESULT(VK_SUCCESS,
-                   vkCreateComputePipelines(device, VK_NULL_HANDLE, 1,
-                                            &derivativeCreateInfo, nullptr,
-                                            &derivedPipeline));
+  ASSERT_EQ_RESULT(
+      VK_SUCCESS,
+      vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &derivativeCreateInfo,
+                               nullptr, &derivedPipeline));
 
   vkDestroyPipeline(device, derivedPipeline, nullptr);
 }
@@ -116,9 +116,10 @@ TEST_F(CreateComputePipelines, DefaultDerivativeBaseIndex) {
                                                           derivativeCreateInfo};
   std::vector<VkPipeline> pipelines(2);
 
-  ASSERT_EQ_RESULT(VK_SUCCESS, vkCreateComputePipelines(device, VK_NULL_HANDLE,
-                                                        2, createInfos.data(),
-                                                        nullptr, pipelines.data()));
+  ASSERT_EQ_RESULT(
+      VK_SUCCESS,
+      vkCreateComputePipelines(device, VK_NULL_HANDLE, 2, createInfos.data(),
+                               nullptr, pipelines.data()));
 
   for (int pIndex = 0; pIndex < 2; pIndex++) {
     vkDestroyPipeline(device, pipelines[pIndex], nullptr);
@@ -194,10 +195,10 @@ TEST_F(CreateComputePipelines, DefaultPipelineCache) {
 }
 
 TEST_F(CreateComputePipelines, ErrorOutOfHostMemory) {
-  ASSERT_EQ_RESULT(VK_ERROR_OUT_OF_HOST_MEMORY,
-                   vkCreateComputePipelines(device, VK_NULL_HANDLE, 1,
-                                            &pipelineCreateInfo,
-                                            uvk::nullAllocator(), &pipeline));
+  ASSERT_EQ_RESULT(
+      VK_ERROR_OUT_OF_HOST_MEMORY,
+      vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo,
+                               uvk::nullAllocator(), &pipeline));
 }
 
 // VK_ERROR_OUT_OF_DEVICE_MEMORY

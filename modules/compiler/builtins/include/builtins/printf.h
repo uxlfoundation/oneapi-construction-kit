@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
 #include <string>
 #include <vector>
 
@@ -87,9 +88,9 @@ struct descriptor final {
 void print(uint8_t* data, size_t max_length,
            const std::vector<descriptor>& printf_calls,
            std::vector<uint32_t>& group_offets);
-}  // printf
+}  // namespace printf
 
 /// @}
-}  // builtins
+}  // namespace builtins
 
 #endif  // BUILTINS_PRINTF_H_INCLUDED

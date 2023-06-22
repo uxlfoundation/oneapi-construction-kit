@@ -101,7 +101,7 @@ void UnmapMemory(vk::device device, vk::device_memory device_memory);
 /// @param memoryRangeCount is the length of the pMemoryRanges array
 /// @param pMemoryRanges is a pointer to an array of VkMappedMemoryRange
 /// structures describing the memory ranges to
-///flush
+/// flush
 
 VkResult FlushMemoryMappedRanges(vk::device device, uint32_t memoryRangeCount,
                                  const VkMappedMemoryRange *pMemoryRanges);
@@ -112,7 +112,7 @@ VkResult FlushMemoryMappedRanges(vk::device device, uint32_t memoryRangeCount,
 /// @param memoryRangeCount is the length of the pMemoryRanges array
 /// @param pMemoryRanges is a pointer to an array of VkMappedMemoryRange
 /// structures describing the memory ranges to
-///invalidate
+/// invalidate
 VkResult InvalidateMemoryMappedRanges(vk::device device,
                                       uint32_t memoryRangeCount,
                                       const VkMappedMemoryRange *pMemoryRanges);

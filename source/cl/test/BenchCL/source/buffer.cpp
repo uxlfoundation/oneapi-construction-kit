@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <BenchCL/error.h>
 #include <BenchCL/environment.h>
+#include <BenchCL/error.h>
 #include <CL/cl.h>
 #include <benchmark/benchmark.h>
+
 #include <vector>
 
-void BufferReadRect(benchmark::State& state) {
-
+void BufferReadRect(benchmark::State &state) {
   auto device = benchcl::env::get()->device;
   auto status = CL_SUCCESS;
 
@@ -30,10 +30,10 @@ void BufferReadRect(benchmark::State& state) {
 
   auto qu = clCreateCommandQueue(ctx, device, 0, &status);
   ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
-  
+
   size_t arg_size = static_cast<size_t>(state.range(0));
   size_t count = arg_size * arg_size * arg_size;
-  
+
   auto buf_mem = std::vector<char>(count);
   auto host_mem = std::vector<char>(count);
 
@@ -55,12 +55,10 @@ void BufferReadRect(benchmark::State& state) {
 
     ASSERT_EQ_ERRCODE(CL_SUCCESS, clFinish(qu));
   }
-
 }
 BENCHMARK(BufferReadRect)->Arg(1)->Arg(256)->Arg(512);
 
-void BufferWriteRect(benchmark::State& state) {
-
+void BufferWriteRect(benchmark::State &state) {
   auto device = benchcl::env::get()->device;
   auto status = CL_SUCCESS;
 
@@ -72,7 +70,7 @@ void BufferWriteRect(benchmark::State& state) {
 
   size_t arg_size = static_cast<size_t>(state.range(0));
   size_t count = arg_size * arg_size * arg_size;
-  
+
   auto buf_mem = std::vector<char>(count);
   auto host_mem = std::vector<char>(count);
 
@@ -94,7 +92,5 @@ void BufferWriteRect(benchmark::State& state) {
 
     ASSERT_EQ_ERRCODE(CL_SUCCESS, clFinish(qu));
   }
-
 }
 BENCHMARK(BufferWriteRect)->Arg(1)->Arg(256)->Arg(512);
-

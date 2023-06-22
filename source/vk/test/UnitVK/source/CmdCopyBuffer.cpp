@@ -158,4 +158,3 @@ TEST_F(CmdCopyBuffer, DefaultSecondaryCommandBuffer) {
   DeviceMemoryTest::unmapMemory();
   vkFreeCommandBuffers(device, commandPool, 1, &secondaryCommandBuffer);
 }
-

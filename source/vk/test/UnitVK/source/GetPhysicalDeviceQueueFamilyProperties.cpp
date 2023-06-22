@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkGetPhysicalDeviceQueueFamilyProperties
 
 class GetPhysicalDeviceQueueFamilyProperties : public uvk::PhysicalDeviceTest {
-public:
+ public:
   GetPhysicalDeviceQueueFamilyProperties() {}
   std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 };

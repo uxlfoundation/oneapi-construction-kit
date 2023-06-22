@@ -84,13 +84,13 @@ class CmdPipelineBarrier : public uvk::PipelineTest,
     ASSERT_EQ_RESULT(VK_SUCCESS, vkBindBufferMemory(device, buffer2, memory,
                                                     alignedBufferSize));
 
-    void* mappedMemory;
+    void *mappedMemory;
 
     uint32_t data = 42;
 
     DeviceMemoryTest::mapMemory(0, bufferBytes, &mappedMemory);
 
-    int32_t* devicePtr = static_cast<int32_t*>(mappedMemory);
+    int32_t *devicePtr = static_cast<int32_t *>(mappedMemory);
     for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
       memcpy(devicePtr, &data, sizeof(uint32_t));
       devicePtr++;
@@ -182,7 +182,7 @@ TEST_F(CmdPipelineBarrier, DefaultSrcTransferDstCompute) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
@@ -190,7 +190,7 @@ TEST_F(CmdPipelineBarrier, DefaultSrcTransferDstCompute) {
   // if the dispatch was executed after the fill buffer this will be 42s
   // instead of 24s
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -227,7 +227,7 @@ TEST_F(CmdPipelineBarrier, DefaultSrcComputeDstTransfer) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
@@ -235,7 +235,7 @@ TEST_F(CmdPipelineBarrier, DefaultSrcComputeDstTransfer) {
   // if the fill buffer was executed after the dispatch this will be 24s
   // instead of 42s
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -274,14 +274,14 @@ TEST_F(CmdPipelineBarrier, DefaultSrcComputeDstCompute) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   // check the second dispatch was executed after the first dispatch
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -315,14 +315,14 @@ TEST_F(CmdPipelineBarrier, DefaultSrcTransferDstTransfer) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   // check that the second fill buffer command was executed after the first
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -386,7 +386,7 @@ TEST_F(CmdPipelineBarrier, DefaultSecondaryCommandBuffer) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
@@ -394,7 +394,7 @@ TEST_F(CmdPipelineBarrier, DefaultSecondaryCommandBuffer) {
   // if the dispatch was executed after the fill buffer this will be 42s
   // instead of 24s
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -408,7 +408,7 @@ TEST_F(CmdPipelineBarrier, AcrossPipelines) {
 
   VkShaderModuleCreateInfo shaderCreateInfo = {};
   shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  shaderCreateInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.code);
+  shaderCreateInfo.pCode = reinterpret_cast<const uint32_t *>(shaderCode.code);
   shaderCreateInfo.codeSize = shaderCode.size;
 
   VkShaderModule shaderModule;
@@ -468,13 +468,13 @@ TEST_F(CmdPipelineBarrier, AcrossPipelines) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, bufferBytes, &mappedMemory);
 
   // check the second dispatch was executed after the first dispatch
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -507,14 +507,14 @@ TEST_F(CmdPipelineBarrier, FillToCopy) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(alignedDeviceSize(bufferMemoryRequirements),
                               bufferBytes, &mappedMemory);
 
   // check that the copy was executed after the fills
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(24u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(24u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();
@@ -552,13 +552,13 @@ TEST_F(CmdPipelineBarrier, Stress) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  void* mappedMemory;
+  void *mappedMemory;
 
   DeviceMemoryTest::mapMemory(0, bufferBytes, &mappedMemory);
 
   // Check that all dispatches have been executed
   for (uint32_t i = 0; i < bufferBytes / sizeof(int32_t); i++) {
-    ASSERT_EQ(210u + 42u, reinterpret_cast<uint32_t*>(mappedMemory)[i]);
+    ASSERT_EQ(210u + 42u, reinterpret_cast<uint32_t *>(mappedMemory)[i]);
   }
 
   DeviceMemoryTest::unmapMemory();

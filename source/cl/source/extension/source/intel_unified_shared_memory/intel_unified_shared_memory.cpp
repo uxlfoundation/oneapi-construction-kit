@@ -26,7 +26,7 @@ namespace extension {
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
 namespace usm {
 cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
-    const cl_mem_properties_intel* properties) {
+    const cl_mem_properties_intel *properties) {
   cl_mem_alloc_flags_intel alloc_flags = 0;
   if (properties && properties[0] != 0) {
     auto current = properties;
@@ -72,11 +72,11 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
 #endif
 }
 
-allocation_info* findAllocation(const cl_context context, const void* ptr) {
+allocation_info *findAllocation(const cl_context context, const void *ptr) {
   // Lock context to ensure usm allocation iterators are valid
   std::lock_guard<std::mutex> context_guard(context->mutex);
 
-  auto ownsUsmPtr = [ptr](const std::unique_ptr<allocation_info>& usm_alloc) {
+  auto ownsUsmPtr = [ptr](const std::unique_ptr<allocation_info> &usm_alloc) {
     return usm_alloc->isOwnerOf(ptr);
   };
 
@@ -119,7 +119,7 @@ bool deviceSupportsHostAllocations(cl_device_id device) {
 
 cl_int createBlockingEventForKernel(cl_command_queue queue, cl_kernel kernel,
                                     const cl_command_type type,
-                                    cl_event& return_event) {
+                                    cl_event &return_event) {
   // For USM we keep a record of commands enqueued using USM allocations by
   // tracking the cl_events, this allows us to perform a blocking free by
   // waiting on there completion.
@@ -158,7 +158,7 @@ cl_int createBlockingEventForKernel(cl_command_queue queue, cl_kernel kernel,
     // Kernel may access any device USM alloc
     const bool device_flag_set = kernel->kernel_exec_info_usm_flags &
                                  kernel_exec_info_indirect_device_access;
-    for (auto& usm_alloc : context->usm_allocations) {
+    for (auto &usm_alloc : context->usm_allocations) {
       const bool host_alloc = nullptr == usm_alloc->getDevice();
 
       const bool is_indirect_alloc =
@@ -222,7 +222,7 @@ host_allocation_info::~host_allocation_info() {
 
 cargo::expected<std::unique_ptr<host_allocation_info>, cl_int>
 host_allocation_info::create(cl_context context,
-                             const cl_mem_properties_intel* properties,
+                             const cl_mem_properties_intel *properties,
                              size_t size, cl_uint alignment) {
   OCL_CHECK(size == 0, return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
 
@@ -350,7 +350,7 @@ device_allocation_info::~device_allocation_info() {
 
 cargo::expected<std::unique_ptr<device_allocation_info>, cl_int>
 device_allocation_info::create(cl_context context, cl_device_id device,
-                               const cl_mem_properties_intel* properties,
+                               const cl_mem_properties_intel *properties,
                                size_t size, cl_uint alignment) {
   OCL_CHECK(size == 0, return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
 
@@ -413,12 +413,13 @@ cl_int device_allocation_info::allocate(cl_uint alignment) {
   }
 
 #if INTPTR_MAX == INT64_MAX
-  base_ptr = reinterpret_cast<void*>(mux_memory->handle);
+  base_ptr = reinterpret_cast<void *>(mux_memory->handle);
 #elif INTPTR_MAX == INT32_MAX
   assert((device->mux_device->info->address_capabilities &
           mux_address_capabilities_bits32) != 0 &&
          "32-bit host with 64-bit device not supported");
-  base_ptr = reinterpret_cast<void*>(static_cast<uint32_t>(mux_memory->handle));
+  base_ptr =
+      reinterpret_cast<void *>(static_cast<uint32_t>(mux_memory->handle));
 #else
 #error Unsupported pointer size
 #endif
@@ -442,7 +443,7 @@ intel_unified_shared_memory::intel_unified_shared_memory()
 
 cl_int intel_unified_shared_memory::GetDeviceInfo(
     cl_device_id device, cl_device_info param_name, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret) const {
+    void *param_value, size_t *param_value_size_ret) const {
 #ifndef OCL_EXTENSION_cl_intel_unified_shared_memory
   return extension::GetDeviceInfo(device, param_name, param_value_size,
                                   param_value, param_value_size_ret);
@@ -484,7 +485,7 @@ cl_int intel_unified_shared_memory::GetDeviceInfo(
       sizeof(cl_device_unified_shared_memory_capabilities_intel);
   if (nullptr != param_value) {
     OCL_CHECK(param_value_size < type_size, return CL_INVALID_VALUE);
-    *static_cast<cl_device_unified_shared_memory_capabilities_intel*>(
+    *static_cast<cl_device_unified_shared_memory_capabilities_intel *>(
         param_value) = result;
   }
   OCL_SET_IF_NOT_NULL(param_value_size_ret, type_size);
@@ -502,13 +503,13 @@ cl_int intel_unified_shared_memory::SetKernelExecInfo(
     case CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL: {
       OCL_CHECK(!param_value, return CL_INVALID_VALUE);
       OCL_CHECK(
-          (param_value_size == 0) || (param_value_size % sizeof(void*) != 0),
+          (param_value_size == 0) || (param_value_size % sizeof(void *) != 0),
           return CL_INVALID_VALUE);
 
       // Set the _cl_kernel list of indirect USM allocations
-      void* const* usm_pointers = static_cast<void* const*>(param_value);
-      const size_t num_pointers = param_value_size / sizeof(void*);
-      auto& indirect_allocs = kernel->indirect_usm_allocs;
+      void *const *usm_pointers = static_cast<void *const *>(param_value);
+      const size_t num_pointers = param_value_size / sizeof(void *);
+      auto &indirect_allocs = kernel->indirect_usm_allocs;
       if (indirect_allocs.alloc(num_pointers) != cargo::success) {
         return CL_OUT_OF_HOST_MEMORY;
       }
@@ -526,7 +527,7 @@ cl_int intel_unified_shared_memory::SetKernelExecInfo(
     OCL_CHECK(!param_value, return CL_INVALID_VALUE);                        \
     OCL_CHECK(param_value_size != sizeof(cl_bool), return CL_INVALID_VALUE); \
                                                                              \
-    const cl_bool flag_set = *(static_cast<const cl_bool*>(param_value));    \
+    const cl_bool flag_set = *(static_cast<const cl_bool *>(param_value));   \
     if (flag_set) {                                                          \
       kernel->kernel_exec_info_usm_flags |= type;                            \
     } else {                                                                 \

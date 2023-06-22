@@ -33,7 +33,7 @@ T vload(const size_t offset, U p) {
 
 #define DEF_WITH_TYPE_AND_SIZE_AND_ADDRESS_SPACE(TYPE, SIZE, ADDRESS_SPACE) \
   TYPE##SIZE ABACUS_API __abacus_vload##SIZE(size_t offset,                 \
-                                             const TYPE ADDRESS_SPACE* x) { \
+                                             const TYPE ADDRESS_SPACE *x) { \
     return vload<TYPE##SIZE>(offset, x);                                    \
   }
 

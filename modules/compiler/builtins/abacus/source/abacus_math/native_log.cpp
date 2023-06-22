@@ -18,7 +18,6 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/frexp_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>
 

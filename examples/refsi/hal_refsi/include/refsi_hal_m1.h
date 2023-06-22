@@ -45,9 +45,9 @@ class refsi_m1_hal_device : public refsi_hal_device {
 
  private:
   bool createWindows(refsi_locker &locker);
-  bool createWindow(refsi_command_buffer &cb, uint32_t win_id,
-                    uint32_t mode, refsi_addr_t base, refsi_addr_t target,
-                    uint64_t scale, uint64_t size);
+  bool createWindow(refsi_command_buffer &cb, uint32_t win_id, uint32_t mode,
+                    refsi_addr_t base, refsi_addr_t target, uint64_t scale,
+                    uint64_t size);
   bool createROM(refsi_locker &locker);
   void encodeKernelExit(riscv_encoder &enc);
   void encodeLaunchKernel(riscv_encoder &enc, unsigned num_dims);
@@ -68,7 +68,7 @@ class refsi_m1_hal_device : public refsi_hal_device {
   hal::hal_addr_t tcdm_hart_base = 0;    // Base address of hart-private window.
   hal::hal_addr_t tcdm_hart_size = 0;    // Total size of hart-private TCDM.
   hal::hal_addr_t tcdm_hart_target = 0;  // Base address of hart-private TCDM.
-  hal::hal_addr_t tcdm_hart_size_per_hart = 0; // Size of hart-private TCDM.
+  hal::hal_addr_t tcdm_hart_size_per_hart = 0;  // Size of hart-private TCDM.
 };
 
 #endif  // _HAL_REFSI_REFSI_HAL_M1_H

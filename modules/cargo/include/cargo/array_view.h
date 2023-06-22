@@ -323,6 +323,6 @@ class array_view {
 };
 
 /// @}
-}  // cargo
+}  // namespace cargo
 
 #endif  // CARGO_ARRAY_VIEW_H_INCLUDED

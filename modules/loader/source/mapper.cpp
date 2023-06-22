@@ -31,7 +31,7 @@
 #endif
 
 loader::MemoryProtection loader::getSectionProtection(
-    const loader::ElfFile::Section& section) {
+    const loader::ElfFile::Section &section) {
   MemoryProtection mp = MEM_READABLE;
   if (section.flags() & ElfFields::SectionFlags::Type::WRITE) {
     mp = static_cast<MemoryProtection>(mp | MEM_WRITABLE);
@@ -65,13 +65,13 @@ size_t loader::getPageSize() {
 
 loader::PageRange::PageRange() : pages_begin(nullptr), pages_end(nullptr) {}
 
-loader::PageRange::PageRange(PageRange&& rhs)
+loader::PageRange::PageRange(PageRange &&rhs)
     : pages_begin(rhs.pages_begin), pages_end(rhs.pages_end) {
   rhs.pages_begin = nullptr;
   rhs.pages_end = nullptr;
 }
 
-loader::PageRange& loader::PageRange::operator=(loader::PageRange&& rhs) {
+loader::PageRange &loader::PageRange::operator=(loader::PageRange &&rhs) {
   if (this == &rhs) {
     return *this;
   }
@@ -87,7 +87,7 @@ loader::PageRange::~PageRange() {
   if (pages_end != nullptr) {
 #ifdef _WIN32
     // size must be zero, see MSDN docs for VirtualFree
-    if (VirtualFree(reinterpret_cast<void*>(pages_begin), 0, MEM_RELEASE) ==
+    if (VirtualFree(reinterpret_cast<void *>(pages_begin), 0, MEM_RELEASE) ==
         0) {
       CARGO_ASSERT(0, "Failed to deallocate memory of a PageRange");
     }
@@ -112,18 +112,18 @@ cargo::result loader::PageRange::allocate(size_t bytes) {
   // round up to whole pages
   bytes = page_count * getPageSize();
 #ifdef _WIN32
-  pages_begin = reinterpret_cast<uint8_t*>(
+  pages_begin = reinterpret_cast<uint8_t *>(
       VirtualAlloc(nullptr, bytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
   if (pages_begin == nullptr) {
     return cargo::bad_alloc;
   }
 #else
-  void* p = mmap(nullptr, bytes, PROT_READ | PROT_WRITE,
+  void *p = mmap(nullptr, bytes, PROT_READ | PROT_WRITE,
                  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   if (p == MAP_FAILED) {
     return cargo::bad_alloc;
   }
-  pages_begin = reinterpret_cast<uint8_t*>(p);
+  pages_begin = reinterpret_cast<uint8_t *>(p);
 #endif
   pages_end = pages_begin + bytes;
   return cargo::success;

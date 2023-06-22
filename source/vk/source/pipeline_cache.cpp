@@ -19,7 +19,7 @@
 #include <vk/type_traits.h>
 
 namespace vk {
-cached_shader& cached_shader::operator=(cached_shader&& other) {
+cached_shader &cached_shader::operator=(cached_shader &&other) {
   binary = std::move(other.binary);
   source_checksum = other.source_checksum;
   other.source_checksum = 0;
@@ -53,11 +53,11 @@ cargo::error_or<cached_shader> cached_shader::clone() const {
 #endif
 }
 
-bool cached_shader::operator==(const cached_shader& other) const {
+bool cached_shader::operator==(const cached_shader &other) const {
   return source_checksum == other.source_checksum;
 }
 
-bool cached_shader::operator==(const uint32_t& checksum) const {
+bool cached_shader::operator==(const uint32_t &checksum) const {
   return source_checksum == checksum;
 }
 
@@ -66,9 +66,9 @@ pipeline_cache_t::pipeline_cache_t(vk::allocator allocator)
           {allocator.getCallbacks(), VK_SYSTEM_ALLOCATION_SCOPE_OBJECT}) {}
 
 VkResult CreatePipelineCache(vk::device device,
-                             const VkPipelineCacheCreateInfo* pCreateInfo,
+                             const VkPipelineCacheCreateInfo *pCreateInfo,
                              vk::allocator allocator,
-                             vk::pipeline_cache* pPipelineCache) {
+                             vk::pipeline_cache *pPipelineCache) {
   vk::pipeline_cache pipeline_cache = allocator.create<pipeline_cache_t>(
       VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE, allocator);
 
@@ -78,10 +78,10 @@ VkResult CreatePipelineCache(vk::device device,
 
   if (pCreateInfo->initialDataSize) {
     size_t header_size =
-        static_cast<const uint32_t*>(pCreateInfo->pInitialData)[0];
+        static_cast<const uint32_t *>(pCreateInfo->pInitialData)[0];
 
-    const uint32_t* cache_header =
-        static_cast<const uint32_t*>(pCreateInfo->pInitialData);
+    const uint32_t *cache_header =
+        static_cast<const uint32_t *>(pCreateInfo->pInitialData);
 
     enum { HEADER_VERSION = 1, HEADER_VENDOR_ID = 2, HEADER_DEVICE_ID = 3 };
 
@@ -90,11 +90,12 @@ VkResult CreatePipelineCache(vk::device device,
             device->physical_device_properties.vendorID &&
         cache_header[HEADER_DEVICE_ID] ==
             device->physical_device_properties.deviceID) {
-      const uint8_t* initialData =
-          static_cast<const uint8_t*>(pCreateInfo->pInitialData) + header_size;
+      const uint8_t *initialData =
+          static_cast<const uint8_t *>(pCreateInfo->pInitialData) + header_size;
       size_t bytes_read = 0;
 
-      const size_t shader_count = *reinterpret_cast<const size_t*>(initialData);
+      const size_t shader_count =
+          *reinterpret_cast<const size_t *>(initialData);
       bytes_read += sizeof(size_t);
 
       for (size_t shader_index = 0; shader_index < shader_count;
@@ -156,7 +157,7 @@ VkResult CreatePipelineCache(vk::device device,
 
 VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
                              uint32_t srcCacheCount,
-                             const VkPipelineCache* pSrcCaches) {
+                             const VkPipelineCache *pSrcCaches) {
   vk::small_vector<vk::pipeline_cache, 2> src_caches(
       {device->allocator.getCallbacks(), VK_SYSTEM_ALLOCATION_SCOPE_COMMAND});
 
@@ -168,7 +169,7 @@ VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
   }
 
   for (uint32_t cacheIndex = 0; cacheIndex < srcCacheCount; cacheIndex++) {
-    for (cached_shader& cachedShader : src_caches[cacheIndex]->cache_entries) {
+    for (cached_shader &cachedShader : src_caches[cacheIndex]->cache_entries) {
       if (std::find(dstCache->cache_entries.begin(),
                     dstCache->cache_entries.end(),
                     cachedShader) == dstCache->cache_entries.end()) {
@@ -189,13 +190,13 @@ VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
 
 VkResult GetPipelineCacheData(vk::device device,
                               vk::pipeline_cache pipelineCache,
-                              size_t* pDataSize, void* pData) {
+                              size_t *pDataSize, void *pData) {
   uint32_t header_size = 16 + VK_UUID_SIZE;
 
   if (!pData) {
     size_t data_size = header_size;
 
-    for (const auto& cache_entry : pipelineCache->cache_entries) {
+    for (const auto &cache_entry : pipelineCache->cache_entries) {
       data_size += cache_entry.data_size;
     }
 
@@ -206,7 +207,7 @@ VkResult GetPipelineCacheData(vk::device device,
     return VK_SUCCESS;
   }
 
-  uint8_t* cache_buffer = reinterpret_cast<uint8_t*>(pData);
+  uint8_t *cache_buffer = reinterpret_cast<uint8_t *>(pData);
 
   uint32_t header[4] = {header_size, VK_PIPELINE_CACHE_HEADER_VERSION_ONE,
                         device->physical_device_properties.vendorID,
@@ -220,12 +221,12 @@ VkResult GetPipelineCacheData(vk::device device,
 
   size_t bytes_written = header_size;
 
-  size_t* shaders_written =
-      reinterpret_cast<size_t*>(cache_buffer + bytes_written);
+  size_t *shaders_written =
+      reinterpret_cast<size_t *>(cache_buffer + bytes_written);
   *shaders_written = 0;
   bytes_written += sizeof(size_t);
 
-  for (cached_shader& cachedShader : pipelineCache->cache_entries) {
+  for (cached_shader &cachedShader : pipelineCache->cache_entries) {
     // make sure we don't go over the allocation we've been given, only run this
     // check at the top of each iteration because the way they're implemented
     // means it would be pointless to copy half of a cached shader

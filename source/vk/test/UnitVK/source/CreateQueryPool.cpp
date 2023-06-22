@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateQueryPool
 
 class CreateQueryPool : public uvk::DeviceTest {
-public:
+ public:
   CreateQueryPool() : createInfo(), queryPool() {}
 
   virtual void SetUp() override {
@@ -28,7 +28,7 @@ public:
     createInfo.queryType = VK_QUERY_TYPE_PIPELINE_STATISTICS;
     createInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     createInfo.pipelineStatistics =
-                    VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT;
+        VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT;
   }
 
   virtual void TearDown() override {
@@ -44,8 +44,8 @@ public:
 };
 
 TEST_F(CreateQueryPool, DISABLED_Default) {
-  ASSERT_EQ_RESULT(VK_SUCCESS, vkCreateQueryPool(device, &createInfo, nullptr,
-                                                 &queryPool));
+  ASSERT_EQ_RESULT(VK_SUCCESS,
+                   vkCreateQueryPool(device, &createInfo, nullptr, &queryPool));
 }
 
 TEST_F(CreateQueryPool, DISABLED_DefaultAllocator) {
@@ -57,9 +57,9 @@ TEST_F(CreateQueryPool, DISABLED_DefaultAllocator) {
 }
 
 TEST_F(CreateQueryPool, DISABLED_ErrorOutOfHostMemory) {
-  ASSERT_EQ_RESULT(VK_ERROR_OUT_OF_HOST_MEMORY,
-                   vkCreateQueryPool(device, &createInfo,
-                                     uvk::nullAllocator(), &queryPool));
+  ASSERT_EQ_RESULT(
+      VK_ERROR_OUT_OF_HOST_MEMORY,
+      vkCreateQueryPool(device, &createInfo, uvk::nullAllocator(), &queryPool));
 }
 
 // VK_ERROR_OUT_OF_DEVICE_MEMORY

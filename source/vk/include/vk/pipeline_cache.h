@@ -30,7 +30,7 @@
 namespace vk {
 
 /// @copydoc ::vk::device_t
-typedef struct device_t* device;
+typedef struct device_t *device;
 
 /// @brief Struct representing pipeline cache entry
 struct cached_shader {
@@ -46,7 +46,7 @@ struct cached_shader {
   /// @brief Move constructor.
   ///
   /// @param other Other cached shader to move from.
-  cached_shader(cached_shader&& other)
+  cached_shader(cached_shader &&other)
       : data_size(other.data_size),
         source_checksum(other.source_checksum),
         workgroup_size(std::move(other.workgroup_size)),
@@ -58,7 +58,7 @@ struct cached_shader {
   /// @param other Other cached shader to moved from.
   ///
   /// @return Returns a reference to this cached shader.
-  cached_shader& operator=(cached_shader&& other);
+  cached_shader &operator=(cached_shader &&other);
 
   /// @brief Create a clone of this cached shader.
   ///
@@ -71,14 +71,14 @@ struct cached_shader {
   /// @param other Cache shader to compare.
   ///
   /// @return Returns true if checksum's match, false otherwise.
-  bool operator==(const cached_shader& other) const;
+  bool operator==(const cached_shader &other) const;
 
   /// @brief Check for equality with a checksum.
   ///
   /// @param checksum Checksum value to compare.
   ///
   /// @return Returns true if checksum's match, false, otherwise.
-  bool operator==(const uint32_t& checksum) const;
+  bool operator==(const uint32_t &checksum) const;
 
   /// @brief Total size in bytes of all the data encoded in this cache entry
   size_t data_size;
@@ -118,9 +118,9 @@ typedef struct pipeline_cache_t final : icd_t<pipeline_cache_t> {
 ///
 /// @return Vulkan result code
 VkResult CreatePipelineCache(vk::device device,
-                             const VkPipelineCacheCreateInfo* pCreateInfo,
+                             const VkPipelineCacheCreateInfo *pCreateInfo,
                              vk::allocator allocator,
-                             vk::pipeline_cache* pPipelineCache);
+                             vk::pipeline_cache *pPipelineCache);
 
 /// @brief Internal implementation of vkMergePipelineCaches
 ///
@@ -132,7 +132,7 @@ VkResult CreatePipelineCache(vk::device device,
 /// @retun Vulkan result code
 VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
                              uint32_t srcCacheCount,
-                             const VkPipelineCache* pSrcCaches);
+                             const VkPipelineCache *pSrcCaches);
 
 /// @brief Internal implementation of vkGetPipelineCache
 ///
@@ -144,7 +144,7 @@ VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
 /// @return Vulkan result code
 VkResult GetPipelineCacheData(vk::device device,
                               vk::pipeline_cache pipelineCache,
-                              size_t* pDataSize, void* pData);
+                              size_t *pDataSize, void *pData);
 
 /// @brief Internal implementation of vkDestroyPipelineCache
 ///

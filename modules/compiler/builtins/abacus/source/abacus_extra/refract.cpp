@@ -86,4 +86,4 @@ abacus_double4 ABACUS_API __abacus_refract(abacus_double4 i, abacus_double4 n,
                                            abacus_double eta) {
   return refract<>(i, n, eta);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

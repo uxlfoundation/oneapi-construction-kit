@@ -38,7 +38,7 @@
 // OpenCL-2.0 APIs
 CL_API_ENTRY cl_command_queue CL_API_CALL cl::CreateCommandQueueWithProperties(
     cl_context context, cl_device_id device,
-    const cl_queue_properties* properties, cl_int* errcode_ret) {
+    const cl_queue_properties *properties, cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard(
       "clCreateCommandQueueWithProperties");
 
@@ -60,8 +60,8 @@ CL_API_ENTRY cl_command_queue CL_API_CALL cl::CreateCommandQueueWithProperties(
 
 CL_API_ENTRY cl_mem CL_API_CALL
 cl::CreatePipe(cl_context context, cl_mem_flags flags, cl_uint pipe_packet_size,
-               cl_uint pipe_max_packets, const cl_pipe_properties* properties,
-               cl_int* errcode_ret) {
+               cl_uint pipe_max_packets, const cl_pipe_properties *properties,
+               cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clCreatePipe");
   // Optional in 3.0.
   (void)context;
@@ -76,8 +76,8 @@ cl::CreatePipe(cl_context context, cl_mem_flags flags, cl_uint pipe_packet_size,
 CL_API_ENTRY cl_int CL_API_CALL cl::GetPipeInfo(cl_mem pipe,
                                                 cl_pipe_info param_name,
                                                 size_t param_value_size,
-                                                void* param_value,
-                                                size_t* param_value_size_ret) {
+                                                void *param_value,
+                                                size_t *param_value_size_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clGetPipeInfo");
   // Optional in 3.0.
   (void)pipe;
@@ -88,7 +88,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetPipeInfo(cl_mem pipe,
   return CL_INVALID_MEM_OBJECT;
 }
 
-CL_API_ENTRY void* CL_API_CALL cl::SVMAlloc(cl_context context,
+CL_API_ENTRY void *CL_API_CALL cl::SVMAlloc(cl_context context,
                                             cl_svm_mem_flags flags, size_t size,
                                             cl_uint alignment) {
   tracer::TraceGuard<tracer::OpenCL> guard("clSVMAlloc");
@@ -101,7 +101,7 @@ CL_API_ENTRY void* CL_API_CALL cl::SVMAlloc(cl_context context,
 }
 
 CL_API_ENTRY void CL_API_CALL cl::SVMFree(cl_context context,
-                                          void* svm_pointer) {
+                                          void *svm_pointer) {
   tracer::TraceGuard<tracer::OpenCL> guard("clSVMFree");
   // Optional in 3.0.
   (void)context;
@@ -110,8 +110,8 @@ CL_API_ENTRY void CL_API_CALL cl::SVMFree(cl_context context,
 }
 
 CL_API_ENTRY cl_sampler CL_API_CALL cl::CreateSamplerWithProperties(
-    cl_context context, const cl_sampler_properties* sampler_properties,
-    cl_int* errcode_ret) {
+    cl_context context, const cl_sampler_properties *sampler_properties,
+    cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clCreateSamplerWithProperties");
   // TODO: Implement, see CA-2613.
   (void)context;
@@ -121,7 +121,7 @@ CL_API_ENTRY cl_sampler CL_API_CALL cl::CreateSamplerWithProperties(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArgSVMPointer(
-    cl_kernel kernel, cl_uint arg_index, const void* arg_value) {
+    cl_kernel kernel, cl_uint arg_index, const void *arg_value) {
   tracer::TraceGuard<tracer::OpenCL> guard("clSetKernelArgSVMPointer");
   // Optional in 3.0.
   (void)kernel;
@@ -132,7 +132,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArgSVMPointer(
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::SetKernelExecInfo(cl_kernel kernel, cl_kernel_exec_info param_name,
-                      size_t param_value_size, const void* param_value) {
+                      size_t param_value_size, const void *param_value) {
   tracer::TraceGuard<tracer::OpenCL> guard("clSetKernelExecInfo");
 
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
@@ -151,12 +151,12 @@ cl::SetKernelExecInfo(cl_kernel kernel, cl_kernel_exec_info param_name,
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMFree(
     cl_command_queue command_queue, cl_uint num_svm_pointers,
-    void* svm_pointers[],
-    void(CL_CALLBACK* pfn_free_func)(cl_command_queue queue,
+    void *svm_pointers[],
+    void(CL_CALLBACK *pfn_free_func)(cl_command_queue queue,
                                      cl_uint num_svm_pointers,
-                                     void* svm_pointers[], void* user_data),
-    void* user_data, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event) {
+                                     void *svm_pointers[], void *user_data),
+    void *user_data, cl_uint num_events_in_wait_list,
+    const cl_event *event_wait_list, cl_event *event) {
   tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueSVMFree");
   // Optional in 3.0.
   (void)command_queue;
@@ -171,9 +171,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMFree(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMemcpy(
-    cl_command_queue command_queue, cl_bool blocking_copy, void* dst_ptr,
-    const void* src_ptr, size_t size, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event) {
+    cl_command_queue command_queue, cl_bool blocking_copy, void *dst_ptr,
+    const void *src_ptr, size_t size, cl_uint num_events_in_wait_list,
+    const cl_event *event_wait_list, cl_event *event) {
   tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueSVMMemcpy");
   // Optional in 3.0.
   (void)command_queue;
@@ -188,9 +188,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMemcpy(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMemFill(
-    cl_command_queue command_queue, void* svm_ptr, const void* pattern,
+    cl_command_queue command_queue, void *svm_ptr, const void *pattern,
     size_t pattern_size, size_t size, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event) {
+    const cl_event *event_wait_list, cl_event *event) {
   tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueSVMMemFill");
   // Optional in 3.0.
   (void)command_queue;
@@ -206,8 +206,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMemFill(
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMap(
     cl_command_queue command_queue, cl_bool blocking_map, cl_map_flags flags,
-    void* svm_ptr, size_t size, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event) {
+    void *svm_ptr, size_t size, cl_uint num_events_in_wait_list,
+    const cl_event *event_wait_list, cl_event *event) {
   tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueSVMMap");
   // Optional in 3.0.
   (void)command_queue;
@@ -222,9 +222,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMap(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL
-cl::EnqueueSVMUnmap(cl_command_queue command_queue, void* svm_ptr,
+cl::EnqueueSVMUnmap(cl_command_queue command_queue, void *svm_ptr,
                     cl_uint num_events_in_wait_list,
-                    const cl_event* event_wait_list, cl_event* event) {
+                    const cl_event *event_wait_list, cl_event *event) {
   tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueSVMUnmap");
   // Optional in 3.0.
   (void)command_queue;
@@ -247,7 +247,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetDefaultDeviceCommandQueue(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceAndHostTimer(
-    cl_device_id device, cl_ulong* device_timestamp, cl_ulong* host_timestamp) {
+    cl_device_id device, cl_ulong *device_timestamp, cl_ulong *host_timestamp) {
   tracer::TraceGuard<tracer::OpenCL> guard("clGetDeviceAndHostTimer");
   // Optional in 3.0.
   (void)device;
@@ -257,7 +257,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceAndHostTimer(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::GetHostTimer(cl_device_id device,
-                                                 cl_ulong* host_timestamp) {
+                                                 cl_ulong *host_timestamp) {
   tracer::TraceGuard<tracer::OpenCL> guard("clGetHostTimer");
   // Optional in 3.0.
   (void)device;
@@ -266,7 +266,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetHostTimer(cl_device_id device,
 }
 
 CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithIL(
-    cl_context context, const void* il, size_t length, cl_int* errcode_ret) {
+    cl_context context, const void *il, size_t length, cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clCreateProgramWithIL");
   OCL_CHECK(nullptr == context,
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
@@ -291,7 +291,7 @@ CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithIL(
 }
 
 CL_API_ENTRY cl_kernel CL_API_CALL cl::CloneKernel(cl_kernel source_kernel,
-                                                   cl_int* errcode_ret) {
+                                                   cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clCloneKernel");
   if (!source_kernel) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_KERNEL);
@@ -438,9 +438,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelSubGroupInfo(
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMigrateMem(
     cl_command_queue command_queue, cl_uint num_svm_pointers,
-    const void** svm_pointers, const size_t* sizes,
+    const void **svm_pointers, const size_t *sizes,
     cl_mem_migration_flags flags, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event) {
+    const cl_event *event_wait_list, cl_event *event) {
   tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueSVMMigrateMem");
   // Optional in 3.0.
   (void)command_queue;
@@ -457,8 +457,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueSVMMigrateMem(
 // OpenCL-2.0 APIs
 CL_API_ENTRY cl_int CL_API_CALL cl::SetProgramReleaseCallback(
     cl_program program,
-    void(CL_CALLBACK* pfn_notify)(cl_program program, void* user_data),
-    void* user_data) {
+    void(CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
+    void *user_data) {
   tracer::TraceGuard<tracer::OpenCL> guard("clSetProgramReleaseCallback");
   // Optional in 3.0.
   (void)program;
@@ -469,7 +469,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetProgramReleaseCallback(
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::SetProgramSpecializationConstant(cl_program program, cl_uint spec_id,
-                                     size_t spec_size, const void* spec_value) {
+                                     size_t spec_size, const void *spec_value) {
   tracer::TraceGuard<tracer::OpenCL> guard(
       "clSetProgramSpecializationConstant");
 
@@ -493,8 +493,8 @@ cl::SetProgramSpecializationConstant(cl_program program, cl_uint spec_id,
 
 // OpenCL-3.0 APIs
 CL_API_ENTRY cl_mem CL_API_CALL cl::CreateBufferWithProperties(
-    cl_context context, const cl_mem_properties* properties, cl_mem_flags flags,
-    size_t size, void* host_ptr, cl_int* errcode_ret) {
+    cl_context context, const cl_mem_properties *properties, cl_mem_flags flags,
+    size_t size, void *host_ptr, cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clCreateBufferWithProperties");
 
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
@@ -536,9 +536,9 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateBufferWithProperties(
 }
 
 CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImageWithProperties(
-    cl_context context, const cl_mem_properties* properties, cl_mem_flags flags,
-    const cl_image_format* image_format, const cl_image_desc* image_desc,
-    void* host_ptr, cl_int* errcode_ret) {
+    cl_context context, const cl_mem_properties *properties, cl_mem_flags flags,
+    const cl_image_format *image_format, const cl_image_desc *image_desc,
+    void *host_ptr, cl_int *errcode_ret) {
   tracer::TraceGuard<tracer::OpenCL> guard("clCreateImageWithProperties");
   // TODO: Implement, see CA-2610.
   (void)context;
@@ -553,7 +553,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImageWithProperties(
 
 CL_API_ENTRY cl_int CL_API_CALL cl::SetContextDestructorCallback(
     cl_context context, cl::pfn_notify_context_destructor_t pfn_notify,
-    void* user_data) {
+    void *user_data) {
   if (!context) {
     return CL_INVALID_CONTEXT;
   }

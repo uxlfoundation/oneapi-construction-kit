@@ -85,7 +85,7 @@ struct helper<T, abacus_double> {
     return abacus::internal::horner_polynomial<T, 9>(x, polynomial);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 T sinpi(const T x) {
@@ -143,4 +143,4 @@ abacus_double8 ABACUS_API __abacus_sinpi(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_sinpi(abacus_double16 x) {
   return sinpi<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

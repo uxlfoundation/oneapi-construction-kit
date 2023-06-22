@@ -26,8 +26,8 @@
 namespace abacus {
 namespace internal {
 template <typename T>
-inline T half_range_reduction(const T& x,
-                              typename TypeTraits<T>::SignedType* out_octet) {
+inline T half_range_reduction(const T &x,
+                              typename TypeTraits<T>::SignedType *out_octet) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   T xAbs = __abacus_fabs(x);
 
@@ -68,8 +68,8 @@ inline T half_range_reduction(const T& x,
 // around it by casting the vec3 to a vec4 for the operation (see Redmine
 // #8082).
 #ifdef __OPENCL_VERSION__
-inline abacus_float3 half_range_reduction(const abacus_float3& x,
-                                          abacus_int3* out_octet) {
+inline abacus_float3 half_range_reduction(const abacus_float3 &x,
+                                          abacus_int3 *out_octet) {
   const abacus_float4 f = __abacus_as_float4(x);
   abacus_int4 out_octet4;
   const abacus_float4 r = half_range_reduction(f, &out_octet4);

@@ -19,15 +19,15 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreatePipelineLayout
 
 class CreatePipelineLayout : public uvk::DescriptorSetLayoutTest {
-public:
- CreatePipelineLayout() : createInfo(), pipelineLayout(VK_NULL_HANDLE) {}
+ public:
+  CreatePipelineLayout() : createInfo(), pipelineLayout(VK_NULL_HANDLE) {}
 
- virtual void SetUp() override {
-   RETURN_ON_FATAL_FAILURE(DescriptorSetLayoutTest::SetUp());
+  virtual void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(DescriptorSetLayoutTest::SetUp());
 
-   createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-   createInfo.setLayoutCount = 1;
-   createInfo.pSetLayouts = &descriptorSetLayout;
+    createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    createInfo.setLayoutCount = 1;
+    createInfo.pSetLayouts = &descriptorSetLayout;
   }
 
   virtual void TearDown() override {
@@ -71,10 +71,10 @@ TEST_F(CreatePipelineLayout, DefaultPushConstantRange) {
 }
 
 TEST_F(CreatePipelineLayout, ErrorOutOfHostMemory) {
-  ASSERT_EQ_RESULT(VK_ERROR_OUT_OF_HOST_MEMORY,
-                   vkCreatePipelineLayout(device, &createInfo,
-                                          uvk::nullAllocator(),
-                                          &pipelineLayout));
+  ASSERT_EQ_RESULT(
+      VK_ERROR_OUT_OF_HOST_MEMORY,
+      vkCreatePipelineLayout(device, &createInfo, uvk::nullAllocator(),
+                             &pipelineLayout));
 }
 
 // VK_ERROR_OUT_OF_DEVICE_MEMORY

@@ -1112,14 +1112,14 @@ mux_result_t hostCommandEndQuery(mux_command_buffer_t command_buffer,
 
   std::lock_guard<std::mutex> lock(host->mutex);
 
-  auto found = std::find_if(
-      host->commands.begin(), host->commands.end(),
-      [&](host::command_info_s &info) {
-        return info.type == host::command_type_begin_query &&
-               info.begin_query_command.pool == query_pool &&
-               info.begin_query_command.index == query_index &&
-               info.begin_query_command.count == query_count;
-      });
+  auto found =
+      std::find_if(host->commands.begin(), host->commands.end(),
+                   [&](host::command_info_s &info) {
+                     return info.type == host::command_type_begin_query &&
+                            info.begin_query_command.pool == query_pool &&
+                            info.begin_query_command.index == query_index &&
+                            info.begin_query_command.count == query_count;
+                   });
   if (found == host->commands.end()) {
     return mux_error_invalid_value;
   }

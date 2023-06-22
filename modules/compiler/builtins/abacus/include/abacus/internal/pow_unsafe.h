@@ -22,7 +22,6 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/floor_unsafe.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/ldexp_unsafe.h>
@@ -79,7 +78,7 @@ struct IntFloatPart {
 };
 
 template <typename T>
-IntFloatPart<T> reduction(const T& x) {
+IntFloatPart<T> reduction(const T &x) {
   IntFloatPart<T> result;
   result.int_part = abacus::internal::trunc_unsafe(x);
   result.float_part = x - abacus::detail::cast::convert<T>(result.int_part);
@@ -92,7 +91,7 @@ struct pow_unsafe_helper;
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <typename T>
 struct pow_unsafe_helper<T, abacus_half> {
-  static T _(const T& x, const T& y) {
+  static T _(const T &x, const T &y) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
     // Get a really precise log2(x) here
@@ -179,7 +178,6 @@ struct pow_unsafe_helper<T, abacus_half> {
     result =
         __abacus_select(result, 0.0f16, SignedType(overflow_check < -27.0f16));
 
-
     return result;
   }
 };
@@ -187,7 +185,7 @@ struct pow_unsafe_helper<T, abacus_half> {
 
 template <typename T>
 struct pow_unsafe_helper<T, abacus_float> {
-  static T _(const T& x, const T& y) {
+  static T _(const T &x, const T &y) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
 
@@ -263,7 +261,7 @@ struct pow_unsafe_helper<T, abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T>
 struct pow_unsafe_helper<T, abacus_double> {
-  static T _(const T& x, const T& y) {
+  static T _(const T &x, const T &y) {
     typedef typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
         IntVecType;
     typedef typename TypeTraits<T>::SignedType SignedType;
@@ -363,7 +361,7 @@ struct pow_unsafe_helper<T, abacus_double> {
 
 // Used for for x >= 0.0 via the identity pow(x, y) = exp2(y * log2(x))
 template <typename T>
-inline T pow_unsafe(const T& x, const T& y) {
+inline T pow_unsafe(const T &x, const T &y) {
   return pow_unsafe_helper<T>::_(x, y);
 }
 }  // namespace internal

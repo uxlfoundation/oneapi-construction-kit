@@ -113,4 +113,3 @@ TEST_F(DestroyNullHandle, DesciptorSet) {
 TEST_F(DestroyNullHandle, QueryPool) {
   vkDestroyQueryPool(device, VK_NULL_HANDLE, nullptr);
 }
-

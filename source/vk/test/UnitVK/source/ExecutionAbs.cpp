@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <limits>
+
 #include "GLSLTestDefs.h"
 
 constexpr glsl::intTy I_MIN = std::numeric_limits<glsl::intTy>::min();

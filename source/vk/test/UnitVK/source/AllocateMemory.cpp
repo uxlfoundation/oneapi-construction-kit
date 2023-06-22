@@ -59,9 +59,8 @@ TEST_F(AllocateMemory, DefaultDeviceLocal) {
   VkPhysicalDeviceMemoryProperties memoryProperties;
   vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-  for (memoryTypeIndex = 0;
-        memoryTypeIndex < memoryProperties.memoryTypeCount;
-        memoryTypeIndex++) {
+  for (memoryTypeIndex = 0; memoryTypeIndex < memoryProperties.memoryTypeCount;
+       memoryTypeIndex++) {
     if (VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &
         memoryProperties.memoryTypes[memoryTypeIndex].propertyFlags) {
       break;
@@ -79,9 +78,8 @@ TEST_F(AllocateMemory, DefaultAllocatorDeviceLocal) {
   VkPhysicalDeviceMemoryProperties memoryProperties;
   vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-  for (memoryTypeIndex = 0;
-        memoryTypeIndex < memoryProperties.memoryTypeCount;
-        memoryTypeIndex++) {
+  for (memoryTypeIndex = 0; memoryTypeIndex < memoryProperties.memoryTypeCount;
+       memoryTypeIndex++) {
     if (VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &
         memoryProperties.memoryTypes[memoryTypeIndex].propertyFlags) {
       break;

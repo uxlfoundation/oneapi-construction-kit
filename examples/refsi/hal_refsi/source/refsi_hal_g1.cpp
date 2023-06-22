@@ -16,8 +16,9 @@
 
 #include "refsi_hal_g1.h"
 
-#include <string>
 #include <time.h>
+
+#include <string>
 
 #include "arg_pack.h"
 #include "device/device_if.h"
@@ -34,15 +35,14 @@ constexpr const uint64_t REFSI_ELF_SIZE = (1 << 20) - REFSI_ELF_BASE;
 constexpr const uint64_t REFSI_MAX_HARTS = 64;
 
 static float time_diff_in_sec(timespec &start, timespec &end) {
-  return (float) (end.tv_sec - start.tv_sec) +
-      ((float) ((end.tv_nsec - start.tv_nsec) * 1e-6f)) * 1e-3f;
+  return (float)(end.tv_sec - start.tv_sec) +
+         ((float)((end.tv_nsec - start.tv_nsec) * 1e-6f)) * 1e-3f;
 }
 
 refsi_g1_hal_device::refsi_g1_hal_device(refsi_device_t device,
                                          riscv::hal_device_info_riscv_t *info,
                                          std::mutex &hal_lock)
     : refsi_hal_device(device, info, hal_lock) {
-
   local_ram_addr = REFSI_LOCAL_MEM_ADDRESS;
   local_ram_size = REFSI_LOCAL_MEM_END_ADDRESS - REFSI_LOCAL_MEM_ADDRESS;
 
@@ -183,7 +183,8 @@ bool refsi_g1_hal_device::kernel_exec(hal::hal_program_t program,
 
   // Determine how many harts should be used to execute the kernel.
   size_t num_harts = (thread_mode == REFSI_THREAD_MODE_WG)
-      ? NUM_HARTS_FOR_CA_MODE : work_group_size;
+                         ? NUM_HARTS_FOR_CA_MODE
+                         : work_group_size;
   if (num_harts > max_harts) {
     return false;
   }
@@ -249,8 +250,10 @@ bool refsi_g1_hal_device::kernel_exec(hal::hal_program_t program,
 
   if (hal_debug()) {
     clock_gettime(CLOCK_MONOTONIC, &end);
-    fprintf(stderr, "refsi_hal_device::kernel_exec finished in "
-            "%0.3f s\n", time_diff_in_sec(start, end));
+    fprintf(stderr,
+            "refsi_hal_device::kernel_exec finished in "
+            "%0.3f s\n",
+            time_diff_in_sec(start, end));
   }
 
   return result == refsi_success;

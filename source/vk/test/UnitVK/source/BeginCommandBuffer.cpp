@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkBeginCommandBuffer
 
 class BeginCommandBuffer : public uvk::CommandPoolTest {
-public:
+ public:
   BeginCommandBuffer() : commandBuffer(VK_NULL_HANDLE), beginInfo() {}
 
   virtual void SetUp() override {

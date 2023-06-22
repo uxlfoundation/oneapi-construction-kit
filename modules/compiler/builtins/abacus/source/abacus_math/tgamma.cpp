@@ -18,7 +18,6 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
-
 #include <abacus/internal/horner_polynomial.h>
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -60,8 +59,8 @@ namespace {
 // polynomial is slightly different.
 //
 // NOTE: This function is only defined for x >= 0.5
-abacus_half tgamma_poly(abacus_half x, abacus_half* exp_neg_x,
-                        abacus_half* pow_sqrt) {
+abacus_half tgamma_poly(abacus_half x, abacus_half *exp_neg_x,
+                        abacus_half *pow_sqrt) {
   *exp_neg_x = __abacus_exp(-x);
   *pow_sqrt = __abacus_powr(x, (x - 0.5f16) * 0.5f16);
 
@@ -120,8 +119,8 @@ abacus_half tgamma_poly(abacus_half x, abacus_half* exp_neg_x,
 // 'pow_sqrt' twice, as divisor in the / polynomial is slightly different.
 //
 // NOTE: This function is only defined for x > 0.
-abacus_half tgamma_positive(abacus_half x, abacus_half* exp_neg_x,
-                            abacus_half* pow_sqrt) {
+abacus_half tgamma_positive(abacus_half x, abacus_half *exp_neg_x,
+                            abacus_half *pow_sqrt) {
   // For x < 0.5, use the Gamma Difference Equation (T(x+1) = xT(x)) so we can
   // call tgamma_poly with a higher value of x.
   if (x < 0.5f16) {

@@ -107,4 +107,3 @@ void fenceSignalCallback(mux_queue_t, mux_command_buffer_t, void *user_data);
 }  // namespace vk
 
 #endif  // VK_FENCE_H_INCLUDED
-

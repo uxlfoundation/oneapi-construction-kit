@@ -73,7 +73,7 @@ typedef struct {
   /// @brief VK structure type enum that identifies the struct
   VkStructureType sType;
   /// @brief If not null this points to the next struct in the pNext chain
-  void* pNext;
+  void *pNext;
 } pnext_struct_header;
 
 /// @brief Internal implementation of vkEnumeratePhysicalDevices

@@ -15,17 +15,18 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "refsi_command_buffer.h"
-#include "refsi_hal.h"
+
 #include "device/dma_regs.h"
+#include "refsi_hal.h"
 
 refsi_result refsi_command_buffer::run(refsi_hal_device &hal_device,
                                        refsi_locker &locker) {
   // Write the command buffer to device memory.
   size_t cb_size = chunks.size() * sizeof(uint64_t);
-  hal::hal_addr_t cb_addr = hal_device.mem_alloc(cb_size, sizeof(uint64_t),
-                                                 locker);
-  if (!cb_addr || !hal_device.mem_write(cb_addr, chunks.data(), cb_size,
-                                        locker)) {
+  hal::hal_addr_t cb_addr =
+      hal_device.mem_alloc(cb_size, sizeof(uint64_t), locker);
+  if (!cb_addr ||
+      !hal_device.mem_write(cb_addr, chunks.data(), cb_size, locker)) {
     return refsi_failure;
   }
 
@@ -52,8 +53,8 @@ void refsi_command_buffer::addWRITE_REG64(refsi_cmp_register_id reg,
 
 void refsi_command_buffer::addSTORE_IMM64(refsi_addr_t dest_addr,
                                           uint64_t value) {
-  chunks.push_back(refsiEncodeCMPCommand(CMP_STORE_IMM64, 1,
-                                         (uint32_t)dest_addr));
+  chunks.push_back(
+      refsiEncodeCMPCommand(CMP_STORE_IMM64, 1, (uint32_t)dest_addr));
   chunks.push_back(value);
 }
 
@@ -91,12 +92,11 @@ void refsi_command_buffer::addRUN_INSTANCES(uint32_t max_harts,
                                             uint64_t num_instances,
                                             std::vector<uint64_t> &extra_args) {
   const uint32_t max_extra_args = 7;
-  uint32_t num_extra_args = std::min((uint32_t)extra_args.size(),
-                                     max_extra_args);
+  uint32_t num_extra_args =
+      std::min((uint32_t)extra_args.size(), max_extra_args);
   uint32_t inline_chunk = (max_harts & 0xff) | (num_extra_args << 8);
-  chunks.push_back(
-      refsiEncodeCMPCommand(CMP_RUN_INSTANCES, 1 + num_extra_args,
-                            inline_chunk));
+  chunks.push_back(refsiEncodeCMPCommand(CMP_RUN_INSTANCES, 1 + num_extra_args,
+                                         inline_chunk));
   chunks.push_back(num_instances);
   for (uint32_t i = 0; i < num_extra_args; i++) {
     chunks.push_back(extra_args[i]);

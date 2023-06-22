@@ -19,9 +19,10 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkAllocateDescriptorSets
 
 class AllocateDescriptorSets : public uvk::DescriptorPoolTest {
-public:
+ public:
   AllocateDescriptorSets()
-      : descriptorSetLayout(VK_NULL_HANDLE), allocInfo(),
+      : descriptorSetLayout(VK_NULL_HANDLE),
+        allocInfo(),
         descriptorSet(VK_NULL_HANDLE) {}
 
   virtual void SetUp() override {

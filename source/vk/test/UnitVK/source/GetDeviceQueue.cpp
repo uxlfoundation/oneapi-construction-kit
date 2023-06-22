@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkGetDeviceQueue
 
 class GetDeviceQueue : public uvk::DeviceTest {
-public:
+ public:
   GetDeviceQueue() : queue(VK_NULL_HANDLE) {}
   VkQueue queue;
 };

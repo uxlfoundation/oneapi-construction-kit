@@ -53,7 +53,7 @@ struct fabs_helper<T, abacus_double> {
     return abacus::detail::cast::as<T>(abs);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 inline T fabs_(const T x) {
@@ -99,4 +99,4 @@ abacus_double4 ABACUS_API __abacus_fabs(abacus_double4 x) { return fabs_(x); }
 abacus_double8 ABACUS_API __abacus_fabs(abacus_double8 x) { return fabs_(x); }
 
 abacus_double16 ABACUS_API __abacus_fabs(abacus_double16 x) { return fabs_(x); }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

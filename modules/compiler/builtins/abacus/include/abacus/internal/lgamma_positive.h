@@ -19,7 +19,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/horner_polynomial.h>
 
 namespace abacus {
@@ -130,7 +129,7 @@ inline abacus_half lgamma_positive(abacus_half x) {
 
   x -= _lgamma_translation_half[interval];
 
-  ABACUS_CONSTANT abacus_half* coef_ptr =
+  ABACUS_CONSTANT abacus_half *coef_ptr =
       __codeplay_lgamma_positive_coeff_half + interval * 8;
   abacus_half semi = abacus::internal::horner_polynomial(x, coef_ptr, 8);
 
@@ -162,7 +161,7 @@ inline abacus_float lgamma_positive(abacus_float x) {
 }
 
 template <typename T>
-inline T lgamma_positive(const T& x) {
+inline T lgamma_positive(const T &x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using UnsignedElementType = typename TypeTraits<UnsignedType>::ElementType;
@@ -199,7 +198,7 @@ inline T lgamma_positive(const T& x) {
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <typename T>
-inline T lgamma_positive_half(const T& x) {
+inline T lgamma_positive_half(const T &x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using UnsignedElementType = typename TypeTraits<UnsignedType>::ElementType;
@@ -231,25 +230,25 @@ inline T lgamma_positive_half(const T& x) {
 }
 
 template <>
-inline abacus_half2 lgamma_positive(const abacus_half2& x) {
+inline abacus_half2 lgamma_positive(const abacus_half2 &x) {
   return lgamma_positive_half(x);
 }
 
 template <>
-inline abacus_half3 lgamma_positive(const abacus_half3& x) {
+inline abacus_half3 lgamma_positive(const abacus_half3 &x) {
   return lgamma_positive_half(x);
 }
 
 template <>
-inline abacus_half4 lgamma_positive(const abacus_half4& x) {
+inline abacus_half4 lgamma_positive(const abacus_half4 &x) {
   return lgamma_positive_half(x);
 }
 template <>
-inline abacus_half8 lgamma_positive(const abacus_half8& x) {
+inline abacus_half8 lgamma_positive(const abacus_half8 &x) {
   return lgamma_positive_half(x);
 }
 template <>
-inline abacus_half16 lgamma_positive(const abacus_half16& x) {
+inline abacus_half16 lgamma_positive(const abacus_half16 &x) {
   return lgamma_positive_half(x);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT

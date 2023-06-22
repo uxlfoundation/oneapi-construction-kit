@@ -19,7 +19,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/is_integer_quick.h>
 
 namespace {

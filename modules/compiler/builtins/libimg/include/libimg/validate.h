@@ -24,8 +24,8 @@
 #include <CL/cl.h>
 
 #ifndef NDEBUG
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
 /// @brief Host side image validation API.
 ///
@@ -159,6 +159,6 @@ cl_int ValidateNoOverlap(const cl_image_desc& desc, const size_t src_origin[3],
                          const size_t dst_origin[3], const size_t region[3]);
 
 /// @}
-}  // libimg
+}  // namespace libimg
 
 #endif  // CODEPLAY_IMG_VALIDATE_H

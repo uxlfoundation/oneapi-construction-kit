@@ -14,12 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <cargo/small_vector.h>
+#include <gtest/gtest.h>
+
 #include <array>
 #include <string>
 #include <vector>
 
-#include <cargo/small_vector.h>
-#include <gtest/gtest.h>
 #include "common.h"
 
 TEST(small_vector, construct_default) {

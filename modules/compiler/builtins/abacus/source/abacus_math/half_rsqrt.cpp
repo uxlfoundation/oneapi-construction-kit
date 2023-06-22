@@ -20,7 +20,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/is_denorm.h>
 #include <abacus/internal/math_defines.h>
 #include <abacus/internal/rsqrt_unsafe.h>

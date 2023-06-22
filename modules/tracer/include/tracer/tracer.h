@@ -42,7 +42,7 @@ namespace tracer {
 ///   `%APPDATA%\\.ComputeAortaTracer\\*.trace`
 ///   * on Linux these are located at `$HOME/.ComputeAortaTracer/*.trace`
 /// * enjoy the tracing information produced!
-void recordTrace(const char* name, const char* cat, uint64_t start,
+void recordTrace(const char *name, const char *cat, uint64_t start,
                  uint64_t end);
 
 /// @return Returns the current time stamp in Microseconds.
@@ -68,18 +68,19 @@ uint64_t getCurrentTimestamp();
 #endif
 
 /// @brief Benchmark base class for the Bench object.
-template<bool enable>
+template <bool enable>
 struct BenchmarkCategory {
   constexpr static bool enabled = enable;
 };
 
-template<class T> inline const char *getCategoryName();
+template <class T>
+inline const char *getCategoryName();
 
 /// @brief Helper to generate the types and category names
 #define TRACER_GUARD_CATEGORY(type, enabled)                             \
   struct type : public BenchmarkCategory<static_cast<bool>(enabled)> {}; \
   template <>                                                            \
-  inline const char* getCategoryName<type>() {                           \
+  inline const char *getCategoryName<type>() {                           \
     return #type;                                                        \
   }
 
@@ -114,6 +115,6 @@ struct TraceGuard {
 };
 
 /// @}
-}  // tracer
+}  // namespace tracer
 
 #endif  // TRACER_H_INCLUDED

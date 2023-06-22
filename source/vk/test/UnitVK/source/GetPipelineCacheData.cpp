@@ -38,7 +38,7 @@ class GetPipelineCacheData : public uvk::PipelineLayoutTest {
     shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     shaderModuleCreateInfo.codeSize = shaderCode.size;
     shaderModuleCreateInfo.pCode =
-        reinterpret_cast<const uint32_t*>(shaderCode.code);
+        reinterpret_cast<const uint32_t *>(shaderCode.code);
 
     VkShaderModule shaderModule;
 

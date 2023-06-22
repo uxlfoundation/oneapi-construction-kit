@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateDescriptorPool
 
 class CreateDescriptorPool : public uvk::DeviceTest {
-public:
+ public:
   CreateDescriptorPool()
       : poolSize(), createInfo(), descriptorPool(VK_NULL_HANDLE) {}
 
@@ -63,10 +63,10 @@ TEST_F(CreateDescriptorPool, DefaultAllocator) {
 }
 
 TEST_F(CreateDescriptorPool, ErrorOutOfHostMemory) {
-  ASSERT_EQ_RESULT(VK_ERROR_OUT_OF_HOST_MEMORY,
-                   vkCreateDescriptorPool(device, &createInfo,
-                                          uvk::nullAllocator(),
-                                          &descriptorPool));
+  ASSERT_EQ_RESULT(
+      VK_ERROR_OUT_OF_HOST_MEMORY,
+      vkCreateDescriptorPool(device, &createInfo, uvk::nullAllocator(),
+                             &descriptorPool));
 }
 
 // VK_ERROR_OUT_OF_DEVICE_MEMORY

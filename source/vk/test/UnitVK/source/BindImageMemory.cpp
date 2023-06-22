@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkBindImageMemory
 
 class BindImageMemoryTest : public uvk::DeviceTest {
-public:
+ public:
   BindImageMemoryTest()
       : image(VK_NULL_HANDLE), deviceMemory(VK_NULL_HANDLE), allocateInfo() {}
 

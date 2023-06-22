@@ -18,6 +18,7 @@
 #define _HAL_REFSI_LOADER_LOADER_H
 
 #include <stdint.h>
+
 #include "device/device_if.h"
 
 // Retrieve a pointer to the current hart's execution context.

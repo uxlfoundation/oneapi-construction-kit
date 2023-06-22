@@ -19,7 +19,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/floor_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/ldexp_unsafe.h>

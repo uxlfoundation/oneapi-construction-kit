@@ -20,7 +20,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
@@ -170,8 +169,9 @@ struct helper<T, abacus_half> {
     const T approx_threshold_2 = -0.4f16;
 
     result =
-        __abacus_select(result, x * abacus::internal::horner_polynomial<T, 8>(
-                                        x, __codeplay_log1p_coeff_halfH1),
+        __abacus_select(result,
+                        x * abacus::internal::horner_polynomial<T, 8>(
+                                x, __codeplay_log1p_coeff_halfH1),
                         (approx_threshold_2 < x) && (x < approx_threshold_1));
 
     result = __abacus_select(result, __abacus_copysign(ABACUS_INFINITY, x),
@@ -307,15 +307,17 @@ struct helper<T, abacus_float> {
     const T approx_threshold_1 =
         __abacus_as_float(0x3f2610c3);  // 6.48693263530731201171875E-1
 
-    result = __abacus_select(result, abacus::internal::horner_polynomial<T, 10>(
-                                         x, __codeplay_log1p_coeff + 20),
+    result = __abacus_select(result,
+                             abacus::internal::horner_polynomial<T, 10>(
+                                 x, __codeplay_log1p_coeff + 20),
                              (x <= approx_threshold_1) & (x >= 0));
 
     const T approx_threshold_2 =
         __abacus_as_float(0xbec974cf);  //-3.934693038463592529296875E-1
 
-    result = __abacus_select(result, abacus::internal::horner_polynomial<T, 10>(
-                                         x, __codeplay_log1p_coeff + 10),
+    result = __abacus_select(result,
+                             abacus::internal::horner_polynomial<T, 10>(
+                                 x, __codeplay_log1p_coeff + 10),
                              (x < 0) & (x >= approx_threshold_2));
 
     result = __abacus_select(result, __abacus_copysign(ABACUS_INFINITY, x),
@@ -401,9 +403,10 @@ struct helper<T, abacus_double> {
         cond2);
 
     const SignedType cond3 = (x >= 1.0) & (x < 2.0);
-    result = __abacus_select(result, abacus::internal::horner_polynomial<T, 16>(
-                                         x - 1.0, polynomialD3),
-                             cond3);
+    result = __abacus_select(
+        result,
+        abacus::internal::horner_polynomial<T, 16>(x - 1.0, polynomialD3),
+        cond3);
 
     return result;
   }

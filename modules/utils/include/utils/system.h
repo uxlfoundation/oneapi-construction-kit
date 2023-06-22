@@ -62,6 +62,6 @@ uint64_t timestampMicroSeconds();
 uint64_t timestampNanoSeconds();
 
 /// @}
-}  // utils
+}  // namespace utils
 
 #endif  // UTILS_SYSTEM_H_INCLUDED

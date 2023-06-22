@@ -19,7 +19,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/horner_polynomial.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -62,7 +61,7 @@ struct log2_extended_precision_helper;
 
 template <typename T>
 struct log2_extended_precision_helper<T, abacus_float> {
-  static T _(const T& xMant, T* out_remainder) {
+  static T _(const T &xMant, T *out_remainder) {
     T xMAnt1m = xMant - 1.0f;
 
     T poly = abacus::internal::horner_polynomial<T, 16>(
@@ -92,7 +91,7 @@ struct log2_extended_precision_helper<T, abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T>
 struct log2_extended_precision_helper<T, abacus_double> {
-  static T _(const T& xMant, T* out_remainder) {
+  static T _(const T &xMant, T *out_remainder) {
     // Get the natural log, then convert it to log2
     T log_lo;
     const T log_hi = abacus::internal::log_extended_precision(xMant, &log_lo);
@@ -115,7 +114,7 @@ struct log2_extended_precision_helper<T, abacus_double> {
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
-inline T log2_extended_precision(const T& xMant, T* out_remainder) {
+inline T log2_extended_precision(const T &xMant, T *out_remainder) {
   return log2_extended_precision_helper<T>::_(xMant, out_remainder);
 }
 
@@ -130,7 +129,7 @@ inline T log2_extended_precision(const T& xMant, T* out_remainder) {
 // Unsafe differs from safe version in that ans_lo may be denormal, so should
 // be used on devices that support denormal numbers.
 template <typename T>
-T log2_extended_precision_half_unsafe(const T& x, T* ans_lo, T* xExp) {
+T log2_extended_precision_half_unsafe(const T &x, T *ans_lo, T *xExp) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using IntVecType =
@@ -204,7 +203,7 @@ T log2_extended_precision_half_unsafe(const T& x, T* ans_lo, T* xExp) {
 // Instead the returned ans_lo is a normalized mantissa with it's exponent
 // returned via `loExp`.
 template <typename T>
-T log2_extended_precision_half_safe(const T& x, T* ans_lo, T* hiExp, T* loExp) {
+T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using IntVecType =

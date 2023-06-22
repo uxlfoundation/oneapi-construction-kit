@@ -367,6 +367,6 @@ EnqueueFillBuffer(cl_command_queue command_queue, cl_mem buffer,
                   const cl_event *event_wait_list, cl_event *event);
 
 /// @}
-}  // cl
+}  // namespace cl
 
 #endif  // CL_BUFFER_H_INCLUDED

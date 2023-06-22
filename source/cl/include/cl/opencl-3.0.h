@@ -33,16 +33,16 @@ namespace cl {
 /// @param[in] num_svm_pointers Number of elements in @p svm_pointers.
 /// @param[in] svm_pointers list of SVM pointers to free.
 /// @param[in] user_data Pointer to user supplied data.
-using pfn_free_func_t = void(CL_CALLBACK*)(cl_command_queue queue,
-                                           cl_uint num_svm_pointers,
-                                           void* svm_pointers[],
-                                           void* user_data);
+using pfn_free_func_t = void(CL_CALLBACK *)(cl_command_queue queue,
+                                            cl_uint num_svm_pointers,
+                                            void *svm_pointers[],
+                                            void *user_data);
 
 /// @brief Program release callback function pointer definition.
 ///
 /// @param[in] program Program object passed to callback.
 /// @param[in] user_data Pointer to user supplied data.
-using pfn_notify_t = void(CL_CALLBACK*)(cl_program program, void* user_data);
+using pfn_notify_t = void(CL_CALLBACK *)(cl_program program, void *user_data);
 
 /// @brief Create an OpenCL command queue object.
 ///
@@ -57,7 +57,7 @@ using pfn_notify_t = void(CL_CALLBACK*)(cl_program program, void* user_data);
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clCreateBuffer.html
 CL_API_ENTRY cl_command_queue CL_API_CALL CreateCommandQueueWithProperties(
     cl_context context, cl_device_id device,
-    const cl_queue_properties* properties, cl_int* errcode_ret);
+    const cl_queue_properties *properties, cl_int *errcode_ret);
 
 /// @brief Create an OpenCL pipe memory object.
 ///
@@ -76,8 +76,8 @@ CL_API_ENTRY cl_mem CL_API_CALL CreatePipe(cl_context context,
                                            cl_mem_flags flags,
                                            cl_uint pipe_packet_size,
                                            cl_uint pipe_max_packets,
-                                           const cl_pipe_properties* properties,
-                                           cl_int* errcode_ret);
+                                           const cl_pipe_properties *properties,
+                                           cl_int *errcode_ret);
 
 /// @brief Query the pipe for information.
 ///
@@ -95,8 +95,8 @@ CL_API_ENTRY cl_mem CL_API_CALL CreatePipe(cl_context context,
 CL_API_ENTRY cl_int CL_API_CALL GetPipeInfo(cl_mem pipe,
                                             cl_pipe_info param_name,
                                             size_t param_value_size,
-                                            void* param_value,
-                                            size_t* param_value_size_ret);
+                                            void *param_value,
+                                            size_t *param_value_size_ret);
 
 /// @brief Allocate a shared virtual memory buffer.
 ///
@@ -110,7 +110,7 @@ CL_API_ENTRY cl_int CL_API_CALL GetPipeInfo(cl_mem pipe,
 ///
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clSVMAlloc.html
-CL_API_ENTRY void* CL_API_CALL SVMAlloc(cl_context context,
+CL_API_ENTRY void *CL_API_CALL SVMAlloc(cl_context context,
                                         cl_svm_mem_flags flags, size_t size,
                                         cl_uint alignment);
 
@@ -121,7 +121,7 @@ CL_API_ENTRY void* CL_API_CALL SVMAlloc(cl_context context,
 ///
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clSVMFree.html
-CL_API_ENTRY void CL_API_CALL SVMFree(cl_context context, void* svm_pointer);
+CL_API_ENTRY void CL_API_CALL SVMFree(cl_context context, void *svm_pointer);
 
 /// @brief Create a sampler object.
 ///
@@ -135,8 +135,8 @@ CL_API_ENTRY void CL_API_CALL SVMFree(cl_context context, void* svm_pointer);
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clCreateSamplerWithProperties.html
 CL_API_ENTRY cl_sampler CL_API_CALL CreateSamplerWithProperties(
-    cl_context context, const cl_sampler_properties* sampler_properties,
-    cl_int* errcode_ret);
+    cl_context context, const cl_sampler_properties *sampler_properties,
+    cl_int *errcode_ret);
 
 /// @brief Set an SVM argument on the kernel.
 ///
@@ -150,7 +150,7 @@ CL_API_ENTRY cl_sampler CL_API_CALL CreateSamplerWithProperties(
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clSetKernelArgSVMPointer.html
 CL_API_ENTRY cl_int CL_API_CALL SetKernelArgSVMPointer(cl_kernel kernel,
                                                        cl_uint arg_index,
-                                                       const void* arg_value);
+                                                       const void *arg_value);
 
 /// @brief Pass additional information other than argument values to kernel.
 ///
@@ -167,7 +167,7 @@ CL_API_ENTRY cl_int CL_API_CALL SetKernelArgSVMPointer(cl_kernel kernel,
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clSetKernelExecInfo.html
 CL_API_ENTRY cl_int CL_API_CALL
 SetKernelExecInfo(cl_kernel kernel, cl_kernel_exec_info param_name,
-                  size_t param_value_size, const void* param_value);
+                  size_t param_value_size, const void *param_value);
 
 /// @brief Enqueue command to free SVM buffer.
 ///
@@ -187,9 +187,9 @@ SetKernelExecInfo(cl_kernel kernel, cl_kernel_exec_info param_name,
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clEnqueueSVMFree.html
 CL_API_ENTRY cl_int CL_API_CALL
 EnqueueSVMFree(cl_command_queue command_queue, cl_uint num_svm_pointers,
-               void* svm_pointers[], cl::pfn_free_func_t pfn_free_func,
-               void* user_data, cl_uint num_events_in_wait_list,
-               const cl_event* event_wait_list, cl_event* event);
+               void *svm_pointers[], cl::pfn_free_func_t pfn_free_func,
+               void *user_data, cl_uint num_events_in_wait_list,
+               const cl_event *event_wait_list, cl_event *event);
 
 /// @brief Enqueue a command to perform a memcpy.
 ///
@@ -208,9 +208,9 @@ EnqueueSVMFree(cl_command_queue command_queue, cl_uint num_svm_pointers,
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clEnqueueSVMMemcpy.html
 CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMemcpy(
-    cl_command_queue command_queue, cl_bool blocking_copy, void* dst_ptr,
-    const void* src_ptr, size_t size, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event);
+    cl_command_queue command_queue, cl_bool blocking_copy, void *dst_ptr,
+    const void *src_ptr, size_t size, cl_uint num_events_in_wait_list,
+    const cl_event *event_wait_list, cl_event *event);
 
 /// @brief Enqueue a command to perform a memfill.
 ///
@@ -231,9 +231,9 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMemcpy(
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clEnqueueSVMMemFill.html
 CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMemFill(
-    cl_command_queue command_queue, void* svm_ptr, const void* pattern,
+    cl_command_queue command_queue, void *svm_ptr, const void *pattern,
     size_t pattern_size, size_t size, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event);
+    const cl_event *event_wait_list, cl_event *event);
 
 /// @brief Enqueue a command to map an SVM buffer.
 ///
@@ -255,10 +255,10 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMemFill(
 CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMap(cl_command_queue command_queue,
                                               cl_bool blocking_map,
                                               cl_map_flags map_flags,
-                                              void* svm_ptr, size_t size,
+                                              void *svm_ptr, size_t size,
                                               cl_uint num_events_in_wait_list,
-                                              const cl_event* event_wait_list,
-                                              cl_event* event);
+                                              const cl_event *event_wait_list,
+                                              cl_event *event);
 
 /// @brief Enqueue a command to unmap an SVM buffer.
 ///
@@ -274,10 +274,10 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMap(cl_command_queue command_queue,
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.0/docs/man/xhtml/clEnqueueSVMUnmap.html
 CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMUnmap(cl_command_queue command_queue,
-                                                void* svm_ptr,
+                                                void *svm_ptr,
                                                 cl_uint num_events_in_wait_list,
-                                                const cl_event* event_wait_list,
-                                                cl_event* event);
+                                                const cl_event *event_wait_list,
+                                                cl_event *event);
 
 /// @brief Replace default command queue on device.
 ///
@@ -305,7 +305,7 @@ CL_API_ENTRY cl_int CL_API_CALL SetDefaultDeviceCommandQueue(
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/clGetDeviceAndHostTimer.html
 CL_API_ENTRY cl_int CL_API_CALL GetDeviceAndHostTimer(
-    cl_device_id device, cl_ulong* device_timestamp, cl_ulong* host_timestamp);
+    cl_device_id device, cl_ulong *device_timestamp, cl_ulong *host_timestamp);
 
 /// @brief Query host clock.
 ///
@@ -318,7 +318,7 @@ CL_API_ENTRY cl_int CL_API_CALL GetDeviceAndHostTimer(
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/clGetHostTimer.html
 CL_API_ENTRY cl_int CL_API_CALL GetHostTimer(cl_device_id device,
-                                             cl_ulong* host_timestamp);
+                                             cl_ulong *host_timestamp);
 
 /// @brief Create program object with code in an IL.
 ///
@@ -332,9 +332,9 @@ CL_API_ENTRY cl_int CL_API_CALL GetHostTimer(cl_device_id device,
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/clCreateProgramWithIL.html
 CL_API_ENTRY cl_program CL_API_CALL CreateProgramWithIL(cl_context context,
-                                                        const void* il,
+                                                        const void *il,
                                                         size_t length,
-                                                        cl_int* errcode_ret);
+                                                        cl_int *errcode_ret);
 
 /// @brief Clone a kernel object.
 ///
@@ -346,7 +346,7 @@ CL_API_ENTRY cl_program CL_API_CALL CreateProgramWithIL(cl_context context,
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/clCloneKernel.html
 CL_API_ENTRY cl_kernel CL_API_CALL CloneKernel(cl_kernel source_kernel,
-                                               cl_int* errcode_ret);
+                                               cl_int *errcode_ret);
 
 /// @brief Query subgroup information about a kernel.
 ///
@@ -371,8 +371,8 @@ CL_API_ENTRY cl_kernel CL_API_CALL CloneKernel(cl_kernel source_kernel,
 /// http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/clGetKernelSubGroupInfo.html
 CL_API_ENTRY cl_int CL_API_CALL GetKernelSubGroupInfo(
     cl_kernel kernel, cl_device_id device, cl_kernel_sub_group_info param_name,
-    size_t input_value_size, const void* input_value, size_t param_value_size,
-    void* param_value, size_t* param_value_size_ret);
+    size_t input_value_size, const void *input_value, size_t param_value_size,
+    void *param_value, size_t *param_value_size_ret);
 
 /// @brief Enqueue command to indicate which device a set of ranges of SVM
 /// allocations should be associated with.
@@ -396,9 +396,9 @@ CL_API_ENTRY cl_int CL_API_CALL GetKernelSubGroupInfo(
 /// http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/clEnqueueSVMMigrateMem.html
 CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMigrateMem(
     cl_command_queue command_queue, cl_uint num_svm_pointers,
-    const void** svm_pointers, const size_t* sizes,
+    const void **svm_pointers, const size_t *sizes,
     cl_mem_migration_flags flags, cl_uint num_events_in_wait_list,
-    const cl_event* event_wait_list, cl_event* event);
+    const cl_event *event_wait_list, cl_event *event);
 
 /// @brief Register user callback function with a program object.
 ///
@@ -411,7 +411,7 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueSVMMigrateMem(
 /// @see
 /// http://www.khronos.org/registry/cl/sdk/2.2/docs/man/html/clSetProgramReleaseCallback.html
 CL_API_ENTRY cl_int CL_API_CALL SetProgramReleaseCallback(
-    cl_program program, pfn_notify_t pfn_notify, void* user_data);
+    cl_program program, pfn_notify_t pfn_notify, void *user_data);
 
 /// @brief Set the value of a specialization constant.
 ///
@@ -427,7 +427,7 @@ CL_API_ENTRY cl_int CL_API_CALL SetProgramReleaseCallback(
 /// http://www.khronos.org/registry/cl/sdk/2.2/docs/man/html/clSetProgramSpecializationConstant.html
 CL_API_ENTRY cl_int CL_API_CALL
 SetProgramSpecializationConstant(cl_program program, cl_uint spec_id,
-                                 size_t spec_size, const void* spec_value);
+                                 size_t spec_size, const void *spec_value);
 
 /// @brief Create an OpenCL buffer memory object.
 ///
@@ -444,8 +444,8 @@ SetProgramSpecializationConstant(cl_program program, cl_uint spec_id,
 /// @see
 /// https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#clCreateBufferWithProperties
 CL_API_ENTRY cl_mem CL_API_CALL CreateBufferWithProperties(
-    cl_context context, const cl_mem_properties* properties, cl_mem_flags flags,
-    size_t size, void* host_ptr, cl_int* errcode_ret);
+    cl_context context, const cl_mem_properties *properties, cl_mem_flags flags,
+    size_t size, void *host_ptr, cl_int *errcode_ret);
 
 /// @brief Create an OpenCL image memory object.
 ///
@@ -463,9 +463,9 @@ CL_API_ENTRY cl_mem CL_API_CALL CreateBufferWithProperties(
 /// @see
 /// https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#clCreateImageWithProperties
 CL_API_ENTRY cl_mem CL_API_CALL CreateImageWithProperties(
-    cl_context context, const cl_mem_properties* properties, cl_mem_flags flags,
-    const cl_image_format* image_format, const cl_image_desc* image_desc,
-    void* host_ptr, cl_int* errcode_ret);
+    cl_context context, const cl_mem_properties *properties, cl_mem_flags flags,
+    const cl_image_format *image_format, const cl_image_desc *image_desc,
+    void *host_ptr, cl_int *errcode_ret);
 
 /// @brief Set context destructor callback.
 ///
@@ -478,7 +478,7 @@ CL_API_ENTRY cl_mem CL_API_CALL CreateImageWithProperties(
 /// @see TODO when the spec is ratified and public.
 CL_API_ENTRY cl_int CL_API_CALL SetContextDestructorCallback(
     cl_context context, cl::pfn_notify_context_destructor_t pfn_notify,
-    void* user_data);
+    void *user_data);
 
 /// @}
 }  // namespace cl

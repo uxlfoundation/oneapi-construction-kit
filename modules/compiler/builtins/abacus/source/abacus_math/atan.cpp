@@ -61,7 +61,7 @@ T ABACUS_API atan(T x) {
   x = __abacus_select(x, (T)1.0f / x, recip_x);
 
   const T result = x * abacus::internal::horner_polynomial<T, 8>(
-                     x * x, __codeplay_atan_coeff);
+                           x * x, __codeplay_atan_coeff);
 
   return __abacus_select(result, __abacus_copysign(ABACUS_PI_2_F, x) - result,
                          recip_x);

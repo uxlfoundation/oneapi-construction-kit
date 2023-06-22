@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include "refsi_hal.h"
-#include "refsi_hal_m1.h"
-#include "refsi_hal_g1.h"
-#include "refsidrv/refsidrv.h"
-#include "linker_script.h"
-#include "hal_riscv_common.h"
-
 #include <mutex>
+
+#include "hal_riscv_common.h"
+#include "linker_script.h"
+#include "refsi_hal.h"
+#include "refsi_hal_g1.h"
+#include "refsi_hal_m1.h"
+#include "refsidrv/refsidrv.h"
 
 namespace {
 
@@ -44,7 +44,7 @@ bool queryMemRange(refsi_device_t device, refsi_memory_map_kind kind,
 }
 
 class refsi_hal : public hal::hal_t {
-protected:
+ protected:
   hal::hal_info_t hal_info;
   riscv::hal_device_info_riscv_t hal_device_info;
   std::mutex lock;
@@ -58,15 +58,15 @@ protected:
 #endif
   std::vector<hal::hal_counter_description_t> counter_description_data;
 
-public:
+ public:
   // return generic platform information
-  const hal::hal_info_t& get_info() override {
+  const hal::hal_info_t &get_info() override {
     refsi_locker locker(lock);
     return hal_info;
   }
 
   // return generic target information
-  const hal::hal_device_info_t * device_get_info(uint32_t index) override {
+  const hal::hal_device_info_t *device_get_info(uint32_t index) override {
     refsi_locker locker(lock);
     return initialized ? &hal_device_info : nullptr;
   }
@@ -83,15 +83,17 @@ public:
     }
     std::unique_ptr<refsi_hal_device> hal_device;
     switch (family) {
-    default:
-      refsiShutdownDevice(device);
-      return nullptr;
-    case REFSI_M:
-      hal_device.reset(new refsi_m1_hal_device(device, &hal_device_info, lock));
-      break;
-    case REFSI_G:
-      hal_device.reset(new refsi_g1_hal_device(device, &hal_device_info, lock));
-      break;
+      default:
+        refsiShutdownDevice(device);
+        return nullptr;
+      case REFSI_M:
+        hal_device.reset(
+            new refsi_m1_hal_device(device, &hal_device_info, lock));
+        break;
+      case REFSI_G:
+        hal_device.reset(
+            new refsi_g1_hal_device(device, &hal_device_info, lock));
+        break;
     }
     if (!hal_device->initialize(locker)) {
       return nullptr;
@@ -108,13 +110,13 @@ public:
 
   const char *get_target_name() const {
     switch (family) {
-    default:
-      return nullptr;
-    case REFSI_M:
-      return "RefSi M1";
-    case REFSI_G:
-      return hal_device_info.word_size == 32 ? "RefSi G1 RV32"
-                                             : "RefSi G1 RV64";
+      default:
+        return nullptr;
+      case REFSI_M:
+        return "RefSi M1";
+      case REFSI_G:
+        return hal_device_info.word_size == 32 ? "RefSi G1 RV32"
+                                               : "RefSi G1 RV64";
     }
   }
 
@@ -225,10 +227,10 @@ public:
     uint32_t num_values = num_total_harts;
 
     counter_description_data = {
-      {REFSI_PERF_CNTR_RETIRED_INSN, "retired_inst", "retired instructions",
-       "hart", num_values, hal::hal_counter_unit_generic, cfg_default},
-      {REFSI_PERF_CNTR_CYCLE, "cycles", "elapsed cycles", "hart", num_values,
-       hal::hal_counter_unit_cycles, cfg_default}};
+        {REFSI_PERF_CNTR_RETIRED_INSN, "retired_inst", "retired instructions",
+         "hart", num_values, hal::hal_counter_unit_generic, cfg_default},
+        {REFSI_PERF_CNTR_CYCLE, "cycles", "elapsed cycles", "hart", num_values,
+         hal::hal_counter_unit_cycles, cfg_default}};
 
     // These extra profiling counters slow down the sim a lot when enabled, so
     // we disable them unless the user has specified the max profiling level.
@@ -240,48 +242,48 @@ public:
     }
     if (profile_level > 2) {
       std::vector<hal::hal_counter_description_t> extra_counters = {
-        {REFSI_PERF_CNTR_INT_INSN, "int_inst", "integer instructions", "hart",
-         num_values, hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_FLOAT_INSN, "float_inst", "float instructions", "hart",
-         num_values, hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_BRANCH_INSN, "branches_inst", "branch instructions",
-         "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_INT_INSN, "int_inst", "integer instructions", "hart",
+           num_values, hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_FLOAT_INSN, "float_inst", "float instructions",
+           "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_BRANCH_INSN, "branches_inst", "branch instructions",
+           "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
 
-        {REFSI_PERF_CNTR_READ_INSN, "mem_read_inst", "read instructions",
-         "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_READ_BYTE_INSN, "mem_read_bytes_inst",
-         "read byte instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_READ_SHORT_INSN, "mem_read_short_inst",
-         "read short instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_READ_WORD_INSN, "mem_read_word_inst",
-         "read word instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_READ_DOUBLE_INSN, "mem_read_double_inst",
-         "read double instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_READ_QUAD_INSN, "mem_read_quad_inst",
-         "read quad instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_READ_INSN, "mem_read_inst", "read instructions",
+           "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_READ_BYTE_INSN, "mem_read_bytes_inst",
+           "read byte instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_READ_SHORT_INSN, "mem_read_short_inst",
+           "read short instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_READ_WORD_INSN, "mem_read_word_inst",
+           "read word instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_READ_DOUBLE_INSN, "mem_read_double_inst",
+           "read double instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_READ_QUAD_INSN, "mem_read_quad_inst",
+           "read quad instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
 
-        {REFSI_PERF_CNTR_WRITE_INSN, "mem_write_inst", "write instructions",
-         "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_WRITE_BYTE_INSN, "mem_write_bytes_inst",
-         "write byte instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_WRITE_SHORT_INSN, "mem_write_short_inst",
-         "write short instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_WRITE_WORD_INSN, "mem_write_word_inst",
-         "write word instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_WRITE_DOUBLE_INSN, "mem_write_double_inst",
-         "write double instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed},
-        {REFSI_PERF_CNTR_WRITE_QUAD_INSN, "mem_write_quad_inst",
-         "write quad instructions", "hart", num_values,
-         hal::hal_counter_unit_generic, cfg_detailed}};
+          {REFSI_PERF_CNTR_WRITE_INSN, "mem_write_inst", "write instructions",
+           "hart", num_values, hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_WRITE_BYTE_INSN, "mem_write_bytes_inst",
+           "write byte instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_WRITE_SHORT_INSN, "mem_write_short_inst",
+           "write short instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_WRITE_WORD_INSN, "mem_write_word_inst",
+           "write word instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_WRITE_DOUBLE_INSN, "mem_write_double_inst",
+           "write double instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed},
+          {REFSI_PERF_CNTR_WRITE_QUAD_INSN, "mem_write_quad_inst",
+           "write quad instructions", "hart", num_values,
+           hal::hal_counter_unit_generic, cfg_detailed}};
 
       counter_description_data.insert(std::end(counter_description_data),
                                       std::begin(extra_counters),
@@ -290,11 +292,15 @@ public:
 
     uint32_t host_prefix = REFSI_NUM_PERF_COUNTERS;
     counter_description_data.push_back(
-        {host_prefix + CTR_HOST_MEM_WRITE, "host_write", "direct memory write "
-         "access", "", 1, hal::hal_counter_unit_bytes, cfg_default});
+        {host_prefix + CTR_HOST_MEM_WRITE, "host_write",
+         "direct memory write "
+         "access",
+         "", 1, hal::hal_counter_unit_bytes, cfg_default});
     counter_description_data.push_back(
-        {host_prefix + CTR_HOST_MEM_READ, "host_read", "direct memory read "
-         "access", "", 1, hal::hal_counter_unit_bytes, cfg_default});
+        {host_prefix + CTR_HOST_MEM_READ, "host_read",
+         "direct memory read "
+         "access",
+         "", 1, hal::hal_counter_unit_bytes, cfg_default});
 
     hal_device_info.counter_descriptions = counter_description_data.data();
     hal_device_info.num_counters = counter_description_data.size();

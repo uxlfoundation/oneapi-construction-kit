@@ -19,7 +19,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/is_odd.h>
 #include <abacus/internal/lgamma_positive.h>
 
@@ -86,59 +85,59 @@ T lgamma_r(const T x,
 }  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-abacus_half ABACUS_API __abacus_lgamma_r(abacus_half x, abacus_int* out_sign) {
+abacus_half ABACUS_API __abacus_lgamma_r(abacus_half x, abacus_int *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_half2 ABACUS_API __abacus_lgamma_r(abacus_half2 x,
-                                          abacus_int2* out_sign) {
+                                          abacus_int2 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_half3 ABACUS_API __abacus_lgamma_r(abacus_half3 x,
-                                          abacus_int3* out_sign) {
+                                          abacus_int3 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_half4 ABACUS_API __abacus_lgamma_r(abacus_half4 x,
-                                          abacus_int4* out_sign) {
+                                          abacus_int4 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_half8 ABACUS_API __abacus_lgamma_r(abacus_half8 x,
-                                          abacus_int8* out_sign) {
+                                          abacus_int8 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_half16 ABACUS_API __abacus_lgamma_r(abacus_half16 x,
-                                           abacus_int16* out_sign) {
+                                           abacus_int16 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_lgamma_r(abacus_float x,
-                                          abacus_int* out_sign) {
+                                          abacus_int *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_float2 ABACUS_API __abacus_lgamma_r(abacus_float2 x,
-                                           abacus_int2* out_sign) {
+                                           abacus_int2 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_float3 ABACUS_API __abacus_lgamma_r(abacus_float3 x,
-                                           abacus_int3* out_sign) {
+                                           abacus_int3 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_float4 ABACUS_API __abacus_lgamma_r(abacus_float4 x,
-                                           abacus_int4* out_sign) {
+                                           abacus_int4 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_float8 ABACUS_API __abacus_lgamma_r(abacus_float8 x,
-                                           abacus_int8* out_sign) {
+                                           abacus_int8 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 abacus_float16 ABACUS_API __abacus_lgamma_r(abacus_float16 x,
-                                            abacus_int16* out_sign) {
+                                            abacus_int16 *out_sign) {
   return lgamma_r<>(x, out_sign);
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 abacus_double ABACUS_API __abacus_lgamma_r(abacus_double x,
-                                           abacus_int* out_sign) {
+                                           abacus_int *out_sign) {
   *out_sign = 0;
 
   if (__abacus_isnan(x)) {
@@ -192,20 +191,20 @@ T lgamma_r_splat(
 }  // namespace
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-abacus_double2 ABACUS_API __abacus_lgamma_r(abacus_double2 x, abacus_int2* o) {
+abacus_double2 ABACUS_API __abacus_lgamma_r(abacus_double2 x, abacus_int2 *o) {
   return lgamma_r_splat<>(x, o);
 }
-abacus_double3 ABACUS_API __abacus_lgamma_r(abacus_double3 x, abacus_int3* o) {
+abacus_double3 ABACUS_API __abacus_lgamma_r(abacus_double3 x, abacus_int3 *o) {
   return lgamma_r_splat<>(x, o);
 }
-abacus_double4 ABACUS_API __abacus_lgamma_r(abacus_double4 x, abacus_int4* o) {
+abacus_double4 ABACUS_API __abacus_lgamma_r(abacus_double4 x, abacus_int4 *o) {
   return lgamma_r_splat<>(x, o);
 }
-abacus_double8 ABACUS_API __abacus_lgamma_r(abacus_double8 x, abacus_int8* o) {
+abacus_double8 ABACUS_API __abacus_lgamma_r(abacus_double8 x, abacus_int8 *o) {
   return lgamma_r_splat<>(x, o);
 }
 abacus_double16 ABACUS_API __abacus_lgamma_r(abacus_double16 x,
-                                             abacus_int16* o) {
+                                             abacus_int16 *o) {
   return lgamma_r_splat<>(x, o);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

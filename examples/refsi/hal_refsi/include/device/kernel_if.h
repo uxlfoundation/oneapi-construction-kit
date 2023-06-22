@@ -38,14 +38,12 @@ uintptr_t start_dma(void *dst, const void *src, size_t size_in_bytes,
 void wait_dma(uintptr_t xfer_id, struct exec_state *state);
 
 // Retrieve a pointer to the current hart's execution context.
-inline exec_state_t * get_context(wg_info_t *wg) {
+inline exec_state_t *get_context(wg_info_t *wg) {
   exec_state_t *ctx = (exec_state_t *)wg->hal_extra;
   return ctx;
 }
 
-inline uint32_t get_work_dim(exec_state_t *e) {
-  return e->wg.num_dim;
-}
+inline uint32_t get_work_dim(exec_state_t *e) { return e->wg.num_dim; }
 
 inline uint32_t get_global_id(uint32_t rank, exec_state_t *e) {
   return (e->wg.group_id[rank] * e->wg.local_size[rank]) + e->local_id[rank] +
@@ -72,5 +70,4 @@ inline uint32_t get_global_size(uint32_t rank, exec_state_t *e) {
   return e->wg.local_size[rank] * e->wg.num_groups[rank];
 }
 
-#endif // _REFSIDRV_KERNEL_IF_H
-
+#endif  // _REFSIDRV_KERNEL_IF_H

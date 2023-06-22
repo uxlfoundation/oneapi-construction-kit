@@ -19,7 +19,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/horner_polynomial.h>
 
 static ABACUS_CONSTANT abacus_float __codeplay_half_log2_coeff[4] = {

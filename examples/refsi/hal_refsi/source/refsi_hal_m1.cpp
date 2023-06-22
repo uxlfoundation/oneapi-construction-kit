@@ -15,14 +15,14 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "refsi_hal_m1.h"
-#include "refsi_command_buffer.h"
 
 #include <string>
 
+#include "arg_pack.h"
 #include "device/device_if.h"
 #include "device/dma_regs.h"
 #include "elf_loader.h"
-#include "arg_pack.h"
+#include "refsi_command_buffer.h"
 #include "riscv_encoder.h"
 
 // Default memory area for storing kernel ELF binaries. When the RefSi device
@@ -35,7 +35,6 @@ refsi_m1_hal_device::refsi_m1_hal_device(refsi_device_t device,
                                          riscv::hal_device_info_riscv_t *info,
                                          std::mutex &hal_lock)
     : refsi_hal_device(device, info, hal_lock) {
-
   for (uint32_t i = 0; i < CTR_NUM_COUNTERS; i++) {
     host_counter_data.push_back({i, 1});
   }
@@ -149,8 +148,8 @@ bool refsi_m1_hal_device::createWindow(refsi_command_buffer &cb,
   uint64_t scale_b = (scale > 0) ? scale - 1 : 0;
 
   // Encode the mode register value.
-  uint64_t mode_val = CMP_WINDOW_ACTIVE | (mode & 0x6) |
-      ((size - 1) & 0xffffffff) << 32ull;
+  uint64_t mode_val =
+      CMP_WINDOW_ACTIVE | (mode & 0x6) | ((size - 1) & 0xffffffff) << 32ull;
 
   // Add register writes to the command buffer.
   cb.addWRITE_REG64(base_reg, base);
@@ -197,7 +196,7 @@ void refsi_m1_hal_device::encodeKernelExit(riscv_encoder &enc) {
 
 void refsi_m1_hal_device::encodeLaunchKernel(riscv_encoder &enc,
                                              unsigned num_dims) {
-  auto getRankOffset = [] (uint32_t offset, uint32_t rank) {
+  auto getRankOffset = [](uint32_t offset, uint32_t rank) {
     return offset + (rank * sizeof(uint64_t));
   };
 
@@ -266,7 +265,7 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   uint32_t max_harts = num_harts_per_core;
   wg.num_dim = work_dim;
   for (int i = 0; i < DIMS; i++) {
-    wg.local_size[i] =  nd_range->local[i];
+    wg.local_size[i] = nd_range->local[i];
     work_group_size *= wg.local_size[i];
     wg.num_groups[i] = (nd_range->global[i] / wg.local_size[i]);
     if ((wg.num_groups[i] * wg.local_size[i]) != nd_range->global[i]) {
@@ -279,7 +278,8 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   // Ensure that ELF segments will be loaded in a valid area of memory.
   hal::hal_addr_t text_end_addr = elf_mem_base + elf_mem_size;
   for (const elf_segment &segment : elf->get_segments()) {
-    if ((segment.address < elf_mem_base) || (segment.address >= text_end_addr)) {
+    if ((segment.address < elf_mem_base) ||
+        (segment.address >= text_end_addr)) {
       return false;
     }
     hal::hal_addr_t segment_end = segment.address + segment.memory_size;
@@ -339,8 +339,8 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   uint32_t counters_buffer_size = counters_set_size * 2;
   if (counters_enabled) {
     counters_io_addr = mem_map[PERF_COUNTERS].start_addr;
-    counters_buffer_addr = mem_alloc(counters_buffer_size, sizeof(uint64_t),
-                                     locker);
+    counters_buffer_addr =
+        mem_alloc(counters_buffer_size, sizeof(uint64_t), locker);
     if (!counters_buffer_addr) {
       return false;
     }
@@ -396,8 +396,8 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   uint64_t num_instances = wg.num_groups[0];
   uint64_t num_slices = 0;
   num_slices = (work_dim == 2) ? wg.num_groups[1] : 1;
-  num_slices = (work_dim == 3) ? wg.num_groups[1] * wg.num_groups[2]
-                               : num_slices;
+  num_slices =
+      (work_dim == 3) ? wg.num_groups[1] * wg.num_groups[2] : num_slices;
   for (uint64_t i = 0; i < num_slices; i++) {
     extra_args[0] = i;
     cb.addRUN_INSTANCES(max_harts, num_instances, extra_args);
@@ -414,7 +414,6 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   }
   cb.addFINISH();
 
-
   // Execute the command buffer.
   if (refsi_success != cb.run(*this, locker)) {
     return false;
@@ -423,9 +422,8 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   // Compute the difference between the 'before' and 'after' performance counter
   // values.
   if (counters_enabled) {
-    uint64_t *counters_before =
-        (uint64_t *)refsiGetMappedAddress(device, counters_buffer_addr,
-                                          counters_buffer_size);
+    uint64_t *counters_before = (uint64_t *)refsiGetMappedAddress(
+        device, counters_buffer_addr, counters_buffer_size);
     if (counters_before) {
       uint64_t *counters_after = &counters_before[num_counters * max_harts];
       for (uint32_t j = 0; j < max_harts; j++) {

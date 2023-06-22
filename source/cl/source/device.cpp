@@ -890,16 +890,13 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
         }
         if (device->mux_device->info->integer_capabilities &
             mux_integer_capabilities_64bit) {
-          copy_name_version("__opencl_c_int64",
-                            name_version_array++);
+          copy_name_version("__opencl_c_int64", name_version_array++);
         }
         if (device->mux_device->info->double_capabilities) {
-          copy_name_version("__opencl_c_fp64",
-                            name_version_array++);
+          copy_name_version("__opencl_c_fp64", name_version_array++);
         }
         if (device->mux_device->info->image_support) {
-          copy_name_version("__opencl_c_images",
-                            name_version_array++);
+          copy_name_version("__opencl_c_images", name_version_array++);
         }
       }
       OCL_SET_IF_NOT_NULL(param_value_size_ret, required_size_in_bytes);

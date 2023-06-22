@@ -46,9 +46,9 @@ static ABACUS_CONSTANT abacus_half _atan2piH[5] = {
 // * The first number is single precision, which can be split into two FP16
 // numbers: 0.318359375f16 and -4.491209e-5f16
 static ABACUS_CONSTANT abacus_half _atan2piH_ftz[3] = {
-    -0.00035929672f16,  // -4.491209e-05 x 8
-    -3.6907196044921875e-4f16 * 8.0f16, // -2.9526e-3
-    -0.10223388671875f16 * 8.0f16, // -0.81787
+    -0.00035929672f16,                   // -4.491209e-05 x 8
+    -3.6907196044921875e-4f16 * 8.0f16,  // -2.9526e-3
+    -0.10223388671875f16 * 8.0f16,       // -0.81787
 };
 
 template <typename T>

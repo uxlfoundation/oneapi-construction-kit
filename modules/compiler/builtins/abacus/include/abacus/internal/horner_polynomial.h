@@ -24,7 +24,7 @@ namespace abacus {
 namespace internal {
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 inline abacus_half horner_polynomial(const abacus_half x,
-                                     ABACUS_CONSTANT abacus_half* p_coef,
+                                     ABACUS_CONSTANT abacus_half *p_coef,
                                      int N) {
   abacus_half coef_sum = p_coef[N - 1];
 
@@ -37,7 +37,7 @@ inline abacus_half horner_polynomial(const abacus_half x,
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
 inline abacus_float horner_polynomial(const abacus_float x,
-                                      ABACUS_CONSTANT abacus_float* p_coef,
+                                      ABACUS_CONSTANT abacus_float *p_coef,
                                       int N) {
   abacus_float coef_sum = p_coef[N - 1];
 
@@ -50,7 +50,7 @@ inline abacus_float horner_polynomial(const abacus_float x,
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 inline abacus_double horner_polynomial(const abacus_double x,
-                                       ABACUS_CONSTANT abacus_double* p_coef,
+                                       ABACUS_CONSTANT abacus_double *p_coef,
                                        int N) {
   abacus_double coef_sum = p_coef[N - 1];
 
@@ -64,7 +64,7 @@ inline abacus_double horner_polynomial(const abacus_double x,
 
 template <typename T, unsigned int N>
 inline T horner_polynomial(
-    const T& x, const typename TypeTraits<T>::ElementType* coefficients) {
+    const T &x, const typename TypeTraits<T>::ElementType *coefficients) {
   T sum = coefficients[N - 1];
 
   for (unsigned int n = N - 1; n > 0; n--) {
@@ -76,8 +76,8 @@ inline T horner_polynomial(
 
 #ifdef __OPENCL_VERSION__
 template <typename T, unsigned int N>
-inline T horner_polynomial(const T& x, ABACUS_CONSTANT
-                           typename TypeTraits<T>::ElementType* coefficients) {
+inline T horner_polynomial(const T &x, ABACUS_CONSTANT
+                           typename TypeTraits<T>::ElementType *coefficients) {
   T sum = coefficients[N - 1];
 
   for (unsigned int n = N - 1; n > 0; n--) {

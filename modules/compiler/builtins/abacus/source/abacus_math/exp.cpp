@@ -17,7 +17,6 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/exp_unsafe.h>
 
 namespace {
@@ -81,7 +80,7 @@ struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 T exp(const T x) {
@@ -112,4 +111,4 @@ abacus_double3 ABACUS_API __abacus_exp(abacus_double3 x) { return exp<>(x); }
 abacus_double4 ABACUS_API __abacus_exp(abacus_double4 x) { return exp<>(x); }
 abacus_double8 ABACUS_API __abacus_exp(abacus_double8 x) { return exp<>(x); }
 abacus_double16 ABACUS_API __abacus_exp(abacus_double16 x) { return exp<>(x); }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

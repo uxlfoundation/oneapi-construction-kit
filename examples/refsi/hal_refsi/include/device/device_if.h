@@ -17,9 +17,9 @@
 #ifndef _REFSIDRV_DEVICE_IF_H
 #define _REFSIDRV_DEVICE_IF_H
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
 
 struct exec_state;
 
@@ -29,7 +29,7 @@ struct wg_info;
 typedef void *entry_point_fn;
 typedef int (*wi_kernel_fn)(const void *args, struct exec_state *state);
 typedef void (*wg_kernel_fn)(const void *args, struct wg_info *wg);
-typedef uint8_t* kernel_args_ptr;
+typedef uint8_t *kernel_args_ptr;
 #else
 typedef uint64_t entry_point_fn;
 typedef uint64_t wi_kernel_fn;
@@ -69,14 +69,14 @@ typedef struct exec_state {
 #define REFSI_MAGIC ('R' | ('e' << 8) | ('S' << 16) | ('i' << 24))
 
 // Retrieve the thread mode from RefSi flags.
-#define REFSI_FLAG_GET_THREAD_MODE(x) ((x) & 0x1)
+#define REFSI_FLAG_GET_THREAD_MODE(x) ((x)&0x1)
 
 // Launch the kernel using the work-item-per-thread mode.
-#define REFSI_THREAD_MODE_WI            0
+#define REFSI_THREAD_MODE_WI 0
 // Launch the kernel using the work-group-per-thread mode.
-#define REFSI_THREAD_MODE_WG            1
+#define REFSI_THREAD_MODE_WG 1
 
 // Needed to implement 'print'.
-int vprintm(const char* s, va_list vl);
+int vprintm(const char *s, va_list vl);
 
-#endif // _REFSIDRV_DEVICE_IF_H
+#endif  // _REFSIDRV_DEVICE_IF_H

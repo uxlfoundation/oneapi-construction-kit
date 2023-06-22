@@ -249,7 +249,7 @@ uint64_t HostGetImageAllocationSize(const cl_mem_flags flags,
 ///
 /// @return Size in bytes of required image storage.
 size_t HostGetImageStorageSize(const cl_image_format& image_format,
-                                 const cl_image_desc& image_desc);
+                               const cl_image_desc& image_desc);
 
 /// @brief Calculate the size in bytes of a single image pixel.
 ///

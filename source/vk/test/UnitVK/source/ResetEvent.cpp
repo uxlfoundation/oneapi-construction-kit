@@ -19,7 +19,7 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkResetEvent
 
 class ResetEvent : public uvk::DeviceTest {
-public:
+ public:
   ResetEvent() : createInfo(), event(VK_NULL_HANDLE) {}
 
   virtual void SetUp() override {

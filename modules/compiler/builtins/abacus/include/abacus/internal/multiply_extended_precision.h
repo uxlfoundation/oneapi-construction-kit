@@ -21,7 +21,6 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/multiply_exact.h>
 
@@ -31,7 +30,7 @@ template <typename T>
 inline T multiply_extended_precision(
     T input_hi, T input_lo, T xExp_abacus_float,
     typename TypeTraits<T>::SignedType n,
-    typename TypeTraits<T>::SignedType* floor_val) {
+    typename TypeTraits<T>::SignedType *floor_val) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   // this returns the mantissa and the floor value of n*(xExp + input_hi +

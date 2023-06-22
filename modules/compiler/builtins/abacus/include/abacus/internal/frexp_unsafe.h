@@ -20,14 +20,13 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/logb_unsafe.h>
 
 namespace abacus {
 namespace internal {
 
 template <typename T, typename N>
-inline T frexp_unsafe(const T& x, N* n) {
+inline T frexp_unsafe(const T &x, N *n) {
   using IntVecType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   using SignedType = typename TypeTraits<T>::SignedType;

@@ -57,7 +57,7 @@ TEST(optional, assignment) {
   ASSERT_EQ(*o1, 42);
 
   int i = 23;
-  cargo::optional<int&> o5;
+  cargo::optional<int &> o5;
   o5 = i;
 
   ASSERT_EQ(*o5, 23);
@@ -244,7 +244,7 @@ TEST(optional, constructors) {
   ASSERT_EQ(*o9, 42);
 
   int i = 42;
-  cargo::optional<int&> o10 = i;
+  cargo::optional<int &> o10 = i;
   ASSERT_EQ(*o10, 42);
 }
 
@@ -360,7 +360,7 @@ TEST(optional, map) {
   ASSERT_TRUE(!o37r);
 
   int i = 23;
-  const cargo::optional<int&> o38 = i;
+  const cargo::optional<int &> o38 = i;
   auto o38r = o38.map([](int &ir) {
     ir = 42;
     return ir;
@@ -478,7 +478,7 @@ TEST(optional, and_then) {
   ASSERT_TRUE(!o19r);
 
   int i = 23;
-  cargo::optional<int&> o20 = i;
+  cargo::optional<int &> o20 = i;
   auto o20r = o20.and_then([](int &i) -> cargo::optional<int &> {
     i = 42;
     return i;

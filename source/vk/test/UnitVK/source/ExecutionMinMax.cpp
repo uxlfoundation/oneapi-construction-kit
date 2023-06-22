@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <limits>
+
 #include "GLSLTestDefs.h"
 
 constexpr float F_NAN = std::numeric_limits<float>::quiet_NaN();
@@ -804,7 +805,8 @@ TEST_F(op_glsl_NMin_vec4_vec4, BasicCorrectnessTest) {
       RunWithArgs({0.0f, -0.99f, F_NAN, F_NAN}, {0.5f, 0.99f, 0.001f, F_NAN});
   EXPECT_TRUE(glsl::fuzzyEq(0.0f, result.data[0]) &&
               glsl::fuzzyEq(-0.99f, result.data[1]) &&
-              glsl::fuzzyEq(0.001f, result.data[2]) && std::isnan(result.data[3]));
+              glsl::fuzzyEq(0.001f, result.data[2]) &&
+              std::isnan(result.data[3]));
 }
 
 TEST_F(op_glsl_NMin_double_double, BasicCorrectnessTest) {
@@ -983,8 +985,10 @@ TEST_F(op_glsl_NMax_vec4_vec4, BasicCorrectnessTest) {
 
   auto result =
       RunWithArgs({0.0f, -0.99f, F_NAN, F_NAN}, {0.5f, 0.99f, 0.001f, F_NAN});
-  EXPECT_TRUE(glsl::fuzzyEq(0.5f, result.data[0]) && glsl::fuzzyEq(0.99f, result.data[1]) &&
-              glsl::fuzzyEq(0.001f, result.data[2]) && std::isnan(result.data[3]));
+  EXPECT_TRUE(glsl::fuzzyEq(0.5f, result.data[0]) &&
+              glsl::fuzzyEq(0.99f, result.data[1]) &&
+              glsl::fuzzyEq(0.001f, result.data[2]) &&
+              std::isnan(result.data[3]));
 }
 
 TEST_F(op_glsl_NMax_double_double, BasicCorrectnessTest) {

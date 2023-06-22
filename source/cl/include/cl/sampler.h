@@ -22,7 +22,6 @@
 #define CL_SAMPLER_H_INCLUDED
 
 #include <CL/cl.h>
-
 #include <cl/base.h>
 
 /// @addtogroup cl
@@ -115,6 +114,6 @@ CL_API_ENTRY cl_int CL_API_CALL GetSamplerInfo(cl_sampler sampler,
                                                size_t *param_value_size_ret);
 
 /// @}
-}  // cl
+}  // namespace cl
 
 #endif  // CL_SAMPLER_H_INCLUDED

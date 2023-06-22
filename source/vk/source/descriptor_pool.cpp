@@ -92,4 +92,4 @@ VkResult ResetDescriptorPool(vk::device device,
 
   return VK_SUCCESS;
 }
-}  // vk
+}  // namespace vk

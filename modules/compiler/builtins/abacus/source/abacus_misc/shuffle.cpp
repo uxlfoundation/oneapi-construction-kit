@@ -79,4 +79,4 @@ DEF(abacus_ulong);
 DEF(abacus_float);
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF(abacus_double);
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

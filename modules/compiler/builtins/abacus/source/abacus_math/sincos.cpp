@@ -16,7 +16,6 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
-
 #include <abacus/internal/payne_hanek.h>
 #include <abacus/internal/sincos_approx.h>
 
@@ -100,63 +99,63 @@ inline T sincos(const T x, T *out_cos) {
 }  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-abacus_half ABACUS_API __abacus_sincos(abacus_half x, abacus_half* o) {
+abacus_half ABACUS_API __abacus_sincos(abacus_half x, abacus_half *o) {
   return sincos<>(x, o);
 }
-abacus_half2 ABACUS_API __abacus_sincos(abacus_half2 x, abacus_half2* o) {
+abacus_half2 ABACUS_API __abacus_sincos(abacus_half2 x, abacus_half2 *o) {
   return sincos<>(x, o);
 }
-abacus_half3 ABACUS_API __abacus_sincos(abacus_half3 x, abacus_half3* o) {
+abacus_half3 ABACUS_API __abacus_sincos(abacus_half3 x, abacus_half3 *o) {
   return sincos<>(x, o);
 }
-abacus_half4 ABACUS_API __abacus_sincos(abacus_half4 x, abacus_half4* o) {
+abacus_half4 ABACUS_API __abacus_sincos(abacus_half4 x, abacus_half4 *o) {
   return sincos<>(x, o);
 }
-abacus_half8 ABACUS_API __abacus_sincos(abacus_half8 x, abacus_half8* o) {
+abacus_half8 ABACUS_API __abacus_sincos(abacus_half8 x, abacus_half8 *o) {
   return sincos<>(x, o);
 }
-abacus_half16 ABACUS_API __abacus_sincos(abacus_half16 x, abacus_half16* o) {
+abacus_half16 ABACUS_API __abacus_sincos(abacus_half16 x, abacus_half16 *o) {
   return sincos<>(x, o);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-abacus_float ABACUS_API __abacus_sincos(abacus_float x, abacus_float* o) {
+abacus_float ABACUS_API __abacus_sincos(abacus_float x, abacus_float *o) {
   return sincos<>(x, o);
 }
-abacus_float2 ABACUS_API __abacus_sincos(abacus_float2 x, abacus_float2* o) {
+abacus_float2 ABACUS_API __abacus_sincos(abacus_float2 x, abacus_float2 *o) {
   return sincos<>(x, o);
 }
-abacus_float3 ABACUS_API __abacus_sincos(abacus_float3 x, abacus_float3* o) {
+abacus_float3 ABACUS_API __abacus_sincos(abacus_float3 x, abacus_float3 *o) {
   return sincos<>(x, o);
 }
-abacus_float4 ABACUS_API __abacus_sincos(abacus_float4 x, abacus_float4* o) {
+abacus_float4 ABACUS_API __abacus_sincos(abacus_float4 x, abacus_float4 *o) {
   return sincos<>(x, o);
 }
-abacus_float8 ABACUS_API __abacus_sincos(abacus_float8 x, abacus_float8* o) {
+abacus_float8 ABACUS_API __abacus_sincos(abacus_float8 x, abacus_float8 *o) {
   return sincos<>(x, o);
 }
-abacus_float16 ABACUS_API __abacus_sincos(abacus_float16 x, abacus_float16* o) {
+abacus_float16 ABACUS_API __abacus_sincos(abacus_float16 x, abacus_float16 *o) {
   return sincos<>(x, o);
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-abacus_double ABACUS_API __abacus_sincos(abacus_double x, abacus_double* o) {
+abacus_double ABACUS_API __abacus_sincos(abacus_double x, abacus_double *o) {
   return sincos<>(x, o);
 }
-abacus_double2 ABACUS_API __abacus_sincos(abacus_double2 x, abacus_double2* o) {
+abacus_double2 ABACUS_API __abacus_sincos(abacus_double2 x, abacus_double2 *o) {
   return sincos<>(x, o);
 }
-abacus_double3 ABACUS_API __abacus_sincos(abacus_double3 x, abacus_double3* o) {
+abacus_double3 ABACUS_API __abacus_sincos(abacus_double3 x, abacus_double3 *o) {
   return sincos<>(x, o);
 }
-abacus_double4 ABACUS_API __abacus_sincos(abacus_double4 x, abacus_double4* o) {
+abacus_double4 ABACUS_API __abacus_sincos(abacus_double4 x, abacus_double4 *o) {
   return sincos<>(x, o);
 }
-abacus_double8 ABACUS_API __abacus_sincos(abacus_double8 x, abacus_double8* o) {
+abacus_double8 ABACUS_API __abacus_sincos(abacus_double8 x, abacus_double8 *o) {
   return sincos<>(x, o);
 }
 abacus_double16 ABACUS_API __abacus_sincos(abacus_double16 x,
-                                           abacus_double16* o) {
+                                           abacus_double16 *o) {
   return sincos<>(x, o);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

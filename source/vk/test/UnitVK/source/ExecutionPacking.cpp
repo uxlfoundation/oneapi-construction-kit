@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <limits>
+
 #include "GLSLTestDefs.h"
 
 constexpr float F_INF = std::numeric_limits<float>::infinity();
@@ -306,7 +307,8 @@ TEST_F(op_glsl_UnpackSnorm2x16_uint, BasicCorrectnessTest) {
 
   // Test for correct handling of positive and negative numbers
   auto result = RunWithArgs(0xCCCD3333);
-  ASSERT_TRUE(glsl::fuzzyEq(result, glsl::vec2Ty(0.40001f, -0.40001f))) << result;
+  ASSERT_TRUE(glsl::fuzzyEq(result, glsl::vec2Ty(0.40001f, -0.40001f)))
+      << result;
   // Test for correct handling of 0 and clamping of f = -32768
   result = RunWithArgs(0x00008000);
   ASSERT_TRUE(glsl::fuzzyEq(result, glsl::vec2Ty(-1.0f, 0.0f))) << result;

@@ -20,7 +20,6 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
-
 #include <abacus/internal/is_denorm.h>
 #include <abacus/internal/ldexp_unsafe.h>
 #include <abacus/internal/rsqrt_unsafe.h>
@@ -97,8 +96,9 @@ struct helper<T, abacus_float> {
     // processedX             (x * 2^24) + 2^-102 - 2^-102
     //                        (x * 2^24)
     T processedX = __abacus_select(
-        x, abacus::detail::cast::as<T>(xUint | hiddenBit) * 16777216.0f -
-               __abacus_as_float(0x0C800000),
+        x,
+        abacus::detail::cast::as<T>(xUint | hiddenBit) * 16777216.0f -
+            __abacus_as_float(0x0C800000),
         xSmall);
 
     // 0.0625                 2^-4

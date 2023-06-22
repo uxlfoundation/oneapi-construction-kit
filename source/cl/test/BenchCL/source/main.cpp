@@ -16,8 +16,8 @@
 
 #include <BenchCL/environment.h>
 #include <BenchCL/utils.h>
-#include <cargo/argument_parser.h>
 #include <benchmark/benchmark.h>
+#include <cargo/argument_parser.h>
 
 #define CHECK(RESULT) \
   if (RESULT) {       \
@@ -25,9 +25,9 @@
   }                   \
   (void)0
 
-benchcl::env* benchcl::env::instance = nullptr;
+benchcl::env *benchcl::env::instance = nullptr;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   cargo::argument_parser<1> parser(cargo::KEEP_UNRECOGNIZED);
   cargo::string_view device_name;
   CHECK(parser.add_argument({"--benchcl_device=", device_name}));
