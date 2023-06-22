@@ -27,7 +27,7 @@
 // defines from the abacus-${triple}${cap_suf}.bc target since currently
 // definitions from abacus_math.h are exposed through that file which is linked
 // as part of the bitcode linking.
-//#include <abacus/abacus_math.h>
+// #include <abacus/abacus_math.h>
 #include <abacus/abacus_cast.h>
 #include <abacus/abacus_memory.h>
 #include <abacus/abacus_misc.h>

@@ -61,7 +61,7 @@ typedef struct physical_device_t final : icd_t<physical_device_t> {
   /// @brief Struct containing information about variable pointers features.
   VkPhysicalDeviceVariablePointerFeatures features_variable_pointers;
 #endif
-} * physical_device;
+} *physical_device;
 
 /// @brief Struct containing the header for an extension struct
 ///

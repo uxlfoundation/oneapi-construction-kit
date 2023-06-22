@@ -57,7 +57,7 @@ typedef struct descriptor_binding_t final {
 
   /// @brief whether this binding will be used for dynamic resources
   bool dynamic;
-} * descriptor_binding;
+} *descriptor_binding;
 
 /// @brief internal descriptor set type
 typedef struct descriptor_set_t final {
@@ -72,7 +72,7 @@ typedef struct descriptor_set_t final {
 
   /// @brief The bindings in this descriptor set
   vk::small_vector<vk::descriptor_binding, 4> descriptor_bindings;
-} * descriptor_set;
+} *descriptor_set;
 
 /// @brief Internal implementation of vkAllocateDescriptorSets
 ///

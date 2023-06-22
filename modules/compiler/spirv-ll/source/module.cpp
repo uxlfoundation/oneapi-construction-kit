@@ -229,8 +229,8 @@ void spirv_ll::Module::addCompleteOpLineRange(
 }
 
 llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                              llvm::BasicBlock::iterator>>
-    &spirv_ll::Module::getOpLineRanges() {
+                                              llvm::BasicBlock::iterator>> &
+spirv_ll::Module::getOpLineRanges() {
   return OpLineRanges;
 }
 
@@ -715,8 +715,8 @@ cargo::optional<uint32_t> spirv_ll::Module::getSpecId(spv::Id id) const {
   return found->second;
 }
 
-const cargo::optional<const spirv_ll::SpecializationInfo &>
-    &spirv_ll::Module::getSpecInfo() {
+const cargo::optional<const spirv_ll::SpecializationInfo &> &
+spirv_ll::Module::getSpecInfo() {
   return specInfo;
 }
 
@@ -756,8 +756,8 @@ void spirv_ll::Module::deferSpecConstantOp(
   deferredSpecConstantOps.push_back(op);
 }
 
-const llvm::SmallVector<const spirv_ll::OpSpecConstantOp *, 2>
-    &spirv_ll::Module::getDeferredSpecConstants() {
+const llvm::SmallVector<const spirv_ll::OpSpecConstantOp *, 2> &
+spirv_ll::Module::getDeferredSpecConstants() {
   return deferredSpecConstantOps;
 }
 

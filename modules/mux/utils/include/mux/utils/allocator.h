@@ -108,7 +108,7 @@ class allocator final {
   ///
   /// @return Return an initialized object, or null.
   template <typename T, typename... Args, size_t Alignment = alignof(T)>
-  T *create(Args &&... args) {
+  T *create(Args &&...args) {
     void *object =
         mux_allocator.alloc(mux_allocator.user_data, sizeof(T), Alignment);
     if (!object) {
@@ -191,7 +191,7 @@ class cargo_allocator {
   /// @return A constructed `value_type` pointer on success, `nullptr`
   /// otherwise.
   template <class... Args>
-  value_type *create(Args &&... args) {
+  value_type *create(Args &&...args) {
     value_type *object = static_cast<value_type *>(alloc(1));
     new (object) value_type(std::forward<Args>(args)...);
     return object;

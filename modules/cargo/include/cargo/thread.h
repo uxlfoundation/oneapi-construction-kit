@@ -58,7 +58,7 @@ struct thread {
   /// @param function The callable to invoke in the thread of execution.
   /// @param args The variable parameter pack to pass to `function`.
   template <class Function, class... Args>
-  explicit thread(Function &&function, Args &&... args)
+  explicit thread(Function &&function, Args &&...args)
       : Thread{std::forward<Function>(function), std::forward<Args>(args)...} {}
 
   /// @brief Destructor.

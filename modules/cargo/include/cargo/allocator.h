@@ -88,7 +88,7 @@ class mallocator {
   /// @return A constructed `value_type` pointer on success, or `nullptr`
   /// otherwise.
   template <class... Args>
-  value_type *create(Args &&... args) {
+  value_type *create(Args &&...args) {
     value_type *object = static_cast<T *>(cargo::alloc(sizeof(T), alignof(T)));
     new (object) value_type(std::forward<Args>(args)...);
     return object;

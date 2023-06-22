@@ -47,7 +47,7 @@ typedef struct buffer_view_t final {
 
   /// @brief range in bytes, or VK_WHOLE_SIZE for the whole buffer
   size_t range;
-} * buffer_view;
+} *buffer_view;
 
 /// @brief Internal implementation of vkCreateBufferView
 ///

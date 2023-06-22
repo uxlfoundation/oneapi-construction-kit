@@ -123,7 +123,7 @@ typedef struct _cl_mem_buffer final : public _cl_mem {
   /// @brief Mux buffer objects, one per device in the parent `cl_context`.
   cargo::dynamic_array<mux_buffer_t> mux_buffers;
 
-} * cl_mem_buffer;
+} *cl_mem_buffer;
 
 /// @}
 

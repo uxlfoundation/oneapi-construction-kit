@@ -41,7 +41,7 @@ typedef struct buffer_t final {
 
   /// @brief specifies what usages are allowed for this buffer
   VkBufferUsageFlags usage;
-} * buffer;
+} *buffer;
 
 /// @brief Internal implementation of vkCreateBuffer
 ///

@@ -25,7 +25,7 @@ typedef struct device_t *device;
 
 /// @brief Stub of internal image type
 typedef struct image_t final {
-} * image;
+} *image;
 
 /// @brief Stub of vkCreateImage
 VkResult CreateImage(vk::device device, const VkImageCreateInfo *pCreateInfo,

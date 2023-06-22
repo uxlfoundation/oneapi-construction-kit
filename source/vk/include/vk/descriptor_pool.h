@@ -56,7 +56,7 @@ typedef struct descriptor_pool_t final {
 
   /// @brief list of all descriptor sets allocated from this pool
   vk::small_vector<vk::descriptor_set, 4> descriptor_sets;
-} * descriptor_pool;
+} *descriptor_pool;
 
 /// @brief internal implementation of vkCreateDescriptorPool
 ///

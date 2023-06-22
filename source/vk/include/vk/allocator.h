@@ -244,7 +244,7 @@ class cargo_allocator {
   /// @return Returns a pointer to the created object on success, null pointer
   /// otherwise.
   template <class... Args>
-  pointer create(Args &&... args) {
+  pointer create(Args &&...args) {
     auto object = this->alloc();
     if (object) {
       new (object) value_type(std::forward<Args>(args)...);

@@ -46,7 +46,7 @@ typedef struct wait_callback_data_s {
   /// @brief Constructor
   wait_callback_data_s(vk::allocator *allocator)
       : mutex(), condition_variable(), event_count(0), allocator(allocator) {}
-} * wait_callback_data;
+} *wait_callback_data;
 
 /// @brief internal implementation of VkEvent
 typedef struct event_t final {
@@ -68,7 +68,7 @@ typedef struct event_t final {
   /// @brief List of `wait_callback_data` structs representing the wait events
   /// commands that will wait on this event
   vk::small_vector<wait_callback_data, 2> wait_infos;
-} * event;
+} *event;
 
 /// @brief internal implementation of vkCreateEvent
 ///

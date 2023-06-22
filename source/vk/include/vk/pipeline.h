@@ -104,7 +104,7 @@ typedef struct pipeline_t final {
 
   ///@brief List of descriptor set/binding pairs used by the kernel
   vk::small_vector<spirv_ll::DescriptorBinding, 2> descriptor_bindings;
-} * pipeline;
+} *pipeline;
 
 /// @brief Internal implementation of vkCreateComputePipelines
 ///

@@ -48,7 +48,7 @@ typedef struct shader_module_t {
 
   /// @brief Checksum of the module binary, used to find pipeline cache entries
   const uint32_t module_checksum;
-} * shader_module;
+} *shader_module;
 
 /// @brief internal implementation of vkCreateShaderModule
 ///

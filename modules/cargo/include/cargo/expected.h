@@ -295,7 +295,7 @@ class expected
   template <
       class... Args,
       enable_if_t<std::is_constructible<T, Args &&...>::value> * = nullptr>
-  constexpr expected(in_place_t, Args &&... args)
+  constexpr expected(in_place_t, Args &&...args)
       : impl_base(in_place, std::forward<Args>(args)...),
         ctor_base(detail::default_constructor_tag{}) {}
 
@@ -308,7 +308,7 @@ class expected
   template <class U, class... Args,
             enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
                                               Args &&...>::value> * = nullptr>
-  constexpr expected(in_place_t, std::initializer_list<U> il, Args &&... args)
+  constexpr expected(in_place_t, std::initializer_list<U> il, Args &&...args)
       : impl_base(in_place, il, std::forward<Args>(args)...),
         ctor_base(detail::default_constructor_tag{}) {}
 
@@ -365,7 +365,7 @@ class expected
   template <
       class... Args,
       enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
-  constexpr explicit expected(unexpect_t, Args &&... args)
+  constexpr explicit expected(unexpect_t, Args &&...args)
       : impl_base(unexpect, std::forward<Args>(args)...),
         ctor_base(detail::default_constructor_tag{}) {}
 
@@ -379,7 +379,7 @@ class expected
             enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
                                               Args &&...>::value> * = nullptr>
   constexpr explicit expected(unexpect_t, std::initializer_list<U> il,
-                              Args &&... args)
+                              Args &&...args)
       : impl_base(unexpect, il, std::forward<Args>(args)...),
         ctor_base(detail::default_constructor_tag{}) {}
 
@@ -669,8 +669,8 @@ class expected
   /// `invoke(std::forward<F>(f), value())` is returned.
   /// @retval If `has_value()` is false, the returned value is empty.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) & -> decltype(
-      and_then_impl(*this, std::forward<F>(f))) {
+  CARGO_CXX14_CONSTEXPR auto and_then(
+      F &&f) & -> decltype(and_then_impl(*this, std::forward<F>(f))) {
     return and_then_impl(*this, std::forward<F>(f));
   }
 
@@ -688,8 +688,8 @@ class expected
   /// `invoke(std::forward<F>(f), value())` is returned.
   /// @retval If `has_value()` is false, the returned value is empty.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) && -> decltype(
-      and_then_impl(std::move(*this), std::forward<F>(f))) {
+  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) && -> decltype(and_then_impl(
+      std::move(*this), std::forward<F>(f))) {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -707,8 +707,8 @@ class expected
   /// `invoke(std::forward<F>(f), value())` is returned.
   /// @retval If `has_value()` is false, the returned value is empty.
   template <class F>
-  constexpr auto and_then(F &&f) const & -> decltype(
-      and_then_impl(*this, std::forward<F>(f))) {
+  constexpr auto and_then(
+      F &&f) const & -> decltype(and_then_impl(*this, std::forward<F>(f))) {
     return and_then_impl(*this, std::forward<F>(f));
   }
 
@@ -727,8 +727,8 @@ class expected
   /// `invoke(std::forward<F>(f), value())` is returned.
   /// @retval If `has_value()` is false, the returned value is empty.
   template <class F>
-  constexpr auto and_then(F &&f) const && -> decltype(
-      and_then_impl(std::move(*this), std::forward<F>(f))) {
+  constexpr auto and_then(F &&f) const && -> decltype(and_then_impl(
+      std::move(*this), std::forward<F>(f))) {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
 #endif
@@ -828,8 +828,8 @@ class expected
   /// returned.
   /// @retval If `has_value()` is false, the result is `*this`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) & -> decltype(
-      expected_map_impl(std::declval<expected &>(), std::declval<F &&>())) {
+  CARGO_CXX14_CONSTEXPR auto map(F &&f) & -> decltype(expected_map_impl(
+      std::declval<expected &>(), std::declval<F &&>())) {
     return expected_map_impl(*this, std::forward<F>(f));
   }
 
@@ -847,8 +847,8 @@ class expected
   /// returned.
   /// @retval If `has_value()` is false, the result is `*this`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) && -> decltype(
-      expected_map_impl(std::declval<expected &>(), std::declval<F &&>())) {
+  CARGO_CXX14_CONSTEXPR auto map(F &&f) && -> decltype(expected_map_impl(
+      std::declval<expected &>(), std::declval<F &&>())) {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -990,8 +990,8 @@ class expected
   /// `expected<T,U>` from
   /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) & -> decltype(
-      map_error_impl(std::declval<expected &>(), std::declval<F &&>())) {
+  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) & -> decltype(map_error_impl(
+      std::declval<expected &>(), std::declval<F &&>())) {
     return map_error_impl(*this, std::forward<F>(f));
   }
 
@@ -1010,8 +1010,8 @@ class expected
   /// `expected<T,U>` from
   /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) && -> decltype(
-      map_error_impl(std::declval<expected &&>(), std::declval<F &&>())) {
+  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) && -> decltype(map_error_impl(
+      std::declval<expected &&>(), std::declval<F &&>())) {
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -1030,8 +1030,8 @@ class expected
   /// `expected<T,U>` from
   /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
   template <class F>
-  constexpr auto map_error(F &&f) const & -> decltype(
-      map_error_impl(std::declval<const expected &>(), std::declval<F &&>())) {
+  constexpr auto map_error(F &&f) const & -> decltype(map_error_impl(
+      std::declval<const expected &>(), std::declval<F &&>())) {
     return map_error_impl(*this, std::forward<F>(f));
   }
 
@@ -1051,8 +1051,8 @@ class expected
   /// `expected<T,U>` from
   /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
   template <class F>
-  constexpr auto map_error(F &&f) const && -> decltype(
-      map_error_impl(std::declval<const expected &&>(), std::declval<F &&>())) {
+  constexpr auto map_error(F &&f) const && -> decltype(map_error_impl(
+      std::declval<const expected &&>(), std::declval<F &&>())) {
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
 #endif
@@ -1144,7 +1144,7 @@ class expected
   template <class... Args,
             enable_if_t<std::is_nothrow_constructible<T, Args &&...>::value> * =
                 nullptr>
-  void emplace(Args &&... args) {
+  void emplace(Args &&...args) {
     if (has_value()) {
       val() = T(std::forward<Args>(args)...);
     } else {
@@ -1161,7 +1161,7 @@ class expected
   template <class... Args,
             enable_if_t<!std::is_nothrow_constructible<T, Args &&...>::value>
                 * = nullptr>
-  void emplace(Args &&... args) {
+  void emplace(Args &&...args) {
     if (has_value()) {
       val() = T(std::forward<Args>(args)...);
     } else {
@@ -1180,7 +1180,7 @@ class expected
   template <class U, class... Args,
             enable_if_t<std::is_nothrow_constructible<
                 T, std::initializer_list<U> &, Args &&...>::value> * = nullptr>
-  void emplace(std::initializer_list<U> il, Args &&... args) {
+  void emplace(std::initializer_list<U> il, Args &&...args) {
     if (has_value()) {
       T t(il, std::forward<Args>(args)...);
       val() = std::move(t);
@@ -1200,7 +1200,7 @@ class expected
   template <class U, class... Args,
             enable_if_t<!std::is_nothrow_constructible<
                 T, std::initializer_list<U> &, Args &&...>::value> * = nullptr>
-  void emplace(std::initializer_list<U> il, Args &&... args) {
+  void emplace(std::initializer_list<U> il, Args &&...args) {
     if (has_value()) {
       T t(il, std::forward<Args>(args)...);
       val() = std::move(t);
@@ -1215,10 +1215,10 @@ class expected
   ///
   /// @param rhs The expected to swap with this.
   void swap(expected &rhs) noexcept(
-      std::is_nothrow_move_constructible<T>::value &&noexcept(
+      std::is_nothrow_move_constructible<T>::value && noexcept(
           swap(std::declval<T &>(), std::declval<T &>())) &&
-      std::is_nothrow_move_constructible<E>::value &&
-      noexcept(swap(std::declval<E &>(), std::declval<E &>()))) {
+      std::is_nothrow_move_constructible<E>::value && noexcept(
+          swap(std::declval<E &>(), std::declval<E &>()))) {
     if (has_value() && rhs.has_value()) {
       using std::swap;
       swap(val(), rhs.val());

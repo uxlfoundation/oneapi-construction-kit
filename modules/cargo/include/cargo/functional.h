@@ -42,7 +42,7 @@ namespace cargo {
 /// @return The result of calling `f` with the given arguments.
 template <typename Fn, typename... Args,
           enable_if_t<std::is_member_pointer<decay_t<Fn>>::value> * = nullptr>
-constexpr auto invoke(Fn &&f, Args &&... args) noexcept(
+constexpr auto invoke(Fn &&f, Args &&...args) noexcept(
     noexcept(std::mem_fn(f)(std::forward<Args>(args)...)))
     -> decltype(std::mem_fn(f)(std::forward<Args>(args)...)) {
   return std::mem_fn(f)(std::forward<Args>(args)...);
@@ -59,7 +59,7 @@ constexpr auto invoke(Fn &&f, Args &&... args) noexcept(
 /// @return The result of calling `f` with the given arguments.
 template <typename Fn, typename... Args,
           enable_if_t<!std::is_member_pointer<decay_t<Fn>>::value> * = nullptr>
-constexpr auto invoke(Fn &&f, Args &&... args) noexcept(
+constexpr auto invoke(Fn &&f, Args &&...args) noexcept(
     noexcept(std::forward<Fn>(f)(std::forward<Args>(args)...)))
     -> decltype(std::forward<Fn>(f)(std::forward<Args>(args)...)) {
   return std::forward<Fn>(f)(std::forward<Args>(args)...);

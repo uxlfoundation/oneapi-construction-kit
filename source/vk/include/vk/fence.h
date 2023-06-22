@@ -53,7 +53,7 @@ typedef struct fence_t final {
   mux_command_buffer_t command_buffer;
   /// @brief Mux fence object used for device -> host synchronization.
   mux_fence_t mux_fence;
-} * fence;
+} *fence;
 
 /// @brief Internal implementation of vkCreateFence
 ///
