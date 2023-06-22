@@ -8,7 +8,8 @@ name: Build documentation
 # order to satisfy our current cmake configurations e.g. spirv-tools
 
 on:
- pull_request:
+# temporarily disable for testing purposes
+#  pull_request:
 
   # Allows you to run this workflow manually from the Actions tab
  workflow_dispatch:

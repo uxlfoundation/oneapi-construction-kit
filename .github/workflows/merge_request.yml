@@ -1,0 +1,71 @@
+# Simple workflow for running merge request tests
+name: Merge Request tester
+
+on:
+ pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+ workflow_dispatch:
+
+jobs:
+  build_ca_host_x86_64:
+    runs-on: ubuntu-22.04
+
+    steps:
+
+      - name: Install prerequisites
+        run: |
+          pip install lit
+          sudo apt-get install -y spirv-tools
+
+      - name: Install Ninja
+        uses: llvm/actions/install-ninja@main
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: codeplaysoftware/oneapi-construction-kit  
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: 50M
+          key: sccache-build_ca_host_x86_64
+          variant: sccache
+
+      - name: load llvm
+        uses: actions/cache/restore@v3
+        with:
+          path: llvm_install/**
+          key: llvm-ubuntu-22.04-v16-RelAssert 
+          fail-on-cache-miss: true
+
+      - name: check directories for llvm
+        run:
+          find ${{github.workspace}}/llvm_install/lib/cmake
+
+      - name: cmake_ca
+        run:
+          cmake -GNinja
+                -Bbuild
+                -DCMAKE_C_COMPILER_LAUNCHER=sccache
+                -D CMAKE_CXX_COMPILER_LAUNCHER=sccache                
+                -DCA_MUX_TARGETS_TO_ENABLE="host"
+                -DCA_ENABLE_API=cl
+                -DCA_LLVM_INSTALL_DIR=${{github.workspace}}/llvm_install
+                -DCA_ENABLE_DEBUG_SUPPORT=ON
+                -DCMAKE_BUILD_TYPE=ReleaseAssert
+                -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF
+                -DCA_HOST_ENABLE_BUILTIN_KERNEL=ON   
+                -DCA_HOST_ENABLE_BUILTINS_EXTENSION=ON  
+                -DCA_HOST_ENABLE_FP16=OFF           
+                -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF
+                -DCA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=OFF
+                -DOCL_EXTENSION_cl_intel_unified_shared_memory=ON
+                -DOCL_EXTENSION_cl_khr_command_buffer=ON
+                -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON
+                -DCA_CL_ENABLE_ICD_LOADER=ON .
+
+      - name: build_ca
+        run:
+          cmake --build build --target check-ComputeAorta
