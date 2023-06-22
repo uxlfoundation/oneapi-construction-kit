@@ -44,7 +44,6 @@
 #include <host/target.h>
 #include <llvm-c/BitWriter.h>
 #include <llvm/ADT/STLExtras.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/Analysis/Passes.h>
 #include <llvm/Analysis/TargetTransformInfo.h>
@@ -54,6 +53,7 @@
 #include <llvm/Support/CrashRecoveryContext.h>
 #include <llvm/Transforms/IPO/GlobalDCE.h>
 #include <multi_llvm/optional_helper.h>
+#include <multi_llvm/triple.h>
 #include <mux/mux.hpp>
 
 #include <cstdint>

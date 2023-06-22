@@ -20,7 +20,6 @@
 #include <compiler/utils/optimal_builtin_replacement_pass.h>
 #include <llvm/ADT/PriorityWorklist.h>
 #include <llvm/ADT/STLExtras.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/CGSCCPassManager.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstIterator.h>
@@ -28,6 +27,7 @@
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/Intrinsics.h>
 #include <multi_llvm/creation_apis_helper.h>
+#include <multi_llvm/triple.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #define DEBUG_TYPE "ca-optimal-builtins"

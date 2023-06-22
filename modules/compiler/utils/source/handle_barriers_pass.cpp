@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <optional>
 
 using namespace llvm;
 
@@ -929,9 +930,8 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
   bool const emitTail = barrierTail != nullptr;
 
   auto mainInfo = barrierMain.getVFInfo();
-  auto tailInfo =
-      emitTail ? barrierTail->getVFInfo()
-               : multi_llvm::Optional<VectorizationInfo>(multi_llvm::None);
+  auto tailInfo = emitTail ? barrierTail->getVFInfo()
+                           : multi_llvm::Optional<VectorizationInfo>();
 
   auto const workItemDim0 = 0;
   auto const workItemDim1 = 1;
@@ -1298,8 +1298,7 @@ struct BarrierWrapperInfo {
   compiler::utils::VectorizationInfo MainInfo;
   // Optional information about the 'tail' kernel
   Function *TailF = nullptr;
-  llvm::Optional<compiler::utils::VectorizationInfo> TailInfo =
-      multi_llvm::None;
+  std::optional<compiler::utils::VectorizationInfo> TailInfo = std::nullopt;
 };
 
 PreservedAnalyses compiler::utils::HandleBarriersPass::run(
@@ -1367,7 +1366,7 @@ PreservedAnalyses compiler::utils::HandleBarriersPass::run(
       }
     }
 
-    Optional<size_t> LocalSizeInVecDim;
+    std::optional<size_t> LocalSizeInVecDim;
     if (auto WGS = parseRequiredWGSMetadata(F)) {
       LocalSizeInVecDim = (*WGS)[WorkItemDim0];
     }
@@ -1405,6 +1404,7 @@ PreservedAnalyses compiler::utils::HandleBarriersPass::run(
       makeWrapperFunction(MainBarrier, nullptr, P.BaseName, M, BI);
     } else {
       // Construct the tail barrier
+      assert(P.TailInfo && "Missing tail info");
       BarrierWithLiveVars TailBarrier(M, *P.TailF, *P.TailInfo, IsDebug);
       TailBarrier.Run(MAM);
 

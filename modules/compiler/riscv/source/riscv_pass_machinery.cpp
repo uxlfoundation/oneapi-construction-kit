@@ -36,7 +36,7 @@ riscv::RiscvPassMachinery::RiscvPassMachinery(
 // Process vecz flags based off build options and environment variables
 // return true if we want to vectorize
 llvm::SmallVector<vecz::VeczPassOptions> processVeczFlags(
-    llvm::Optional<compiler::VectorizationMode> vecz_mode) {
+    multi_llvm::Optional<compiler::VectorizationMode> vecz_mode) {
   llvm::SmallVector<vecz::VeczPassOptions> vecz_options_vec;
   vecz::VeczPassOptions vecz_opts;
   // The minimum number of elements to vectorize for. For a fixed-length VF,

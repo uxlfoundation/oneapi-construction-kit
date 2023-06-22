@@ -21,7 +21,6 @@
 #ifndef COMPILER_UTILS_ENCODE_BUILTIN_RANGE_METADATA_PASS_H_INCLUDED
 #define COMPILER_UTILS_ENCODE_BUILTIN_RANGE_METADATA_PASS_H_INCLUDED
 
-#include <llvm/ADT/Optional.h>
 #include <llvm/IR/PassManager.h>
 #include <multi_llvm/optional_helper.h>
 

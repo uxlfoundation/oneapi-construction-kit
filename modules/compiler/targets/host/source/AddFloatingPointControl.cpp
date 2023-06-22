@@ -18,13 +18,13 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <host/add_floating_point_control_pass.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InlineAsm.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IntrinsicsARM.h>
 #include <llvm/IR/IntrinsicsX86.h>
+#include <multi_llvm/triple.h>
 
 using namespace llvm;
 

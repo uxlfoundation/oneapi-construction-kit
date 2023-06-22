@@ -17,7 +17,6 @@
 #ifndef COMPILER_UTILS_ATTRIBUTES_H_INCLUDED
 #define COMPILER_UTILS_ATTRIBUTES_H_INCLUDED
 
-#include <llvm/ADT/Optional.h>
 #include <llvm/ADT/StringRef.h>
 #include <multi_llvm/optional_helper.h>
 

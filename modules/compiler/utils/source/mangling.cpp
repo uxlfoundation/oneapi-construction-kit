@@ -26,6 +26,7 @@
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cstring>
+#include <optional>
 
 namespace compiler {
 namespace utils {
@@ -456,12 +457,12 @@ struct PointerASQuals {
   TypeQualifier Qual;
 };
 
-static Optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
+static std::optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
   TypeQualifier PointerQual = eTypeQualNone;
 
   // Parse the optional pointer qualifier.
   if (L.Current() < 0) {
-    return multi_llvm::None;
+    return std::nullopt;
   }
 
   // Parse the optional address space qualifier.
@@ -470,7 +471,7 @@ static Optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
 
   if (L.Consume("U3AS")) {
     if (!L.ConsumeInteger(AddressSpace)) {
-      return multi_llvm::None;
+      return std::nullopt;
     }
     DemangledAS = true;
   }
@@ -493,7 +494,7 @@ static Optional<PointerASQuals> demanglePointerQuals(Lexer &L) {
   }
 
   if (!DemangledAS && L.Consume("U3AS") && !L.ConsumeInteger(AddressSpace)) {
-    return multi_llvm::None;
+    return std::nullopt;
   }
 
   return PointerASQuals{AddressSpace, PointerQual};

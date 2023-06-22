@@ -1626,7 +1626,7 @@ llvm::Type *getBufferSizeTy(llvm::LLVMContext &ctx) {
 }
 }  // namespace
 
-static llvm::Optional<std::pair<uint32_t, const char *>> getLinkage(
+static std::optional<std::pair<uint32_t, const char *>> getLinkage(
     Module &module, spv::Id id) {
   if (auto decoration =
           module.getFirstDecoration(id, spv::DecorationLinkageAttributes)) {
@@ -1637,7 +1637,7 @@ static llvm::Optional<std::pair<uint32_t, const char *>> getLinkage(
         decoration->getValueAtOffset(linkageOffset),
         spirv_ll::cast<const OpDecorate>(decoration)->getDecorationString());
   }
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
 template <>

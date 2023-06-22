@@ -21,7 +21,6 @@
 #ifndef COMPILER_UTILS_GROUP_COLLECTIVE_HELPERS_H_INCLUDED
 #define COMPILER_UTILS_GROUP_COLLECTIVE_HELPERS_H_INCLUDED
 
-#include <llvm/ADT/Optional.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/optional_helper.h>
 
