@@ -105,7 +105,11 @@ void PassMachinery::initializeFinish() {
   registerPassCallbacks();
 
   // Register pass instrumentation
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  SI->registerCallbacks(PIC, &MAM);
+#else
   SI->registerCallbacks(PIC, &FAM);
+#endif
 }
 
 void PassMachinery::buildDefaultAAPipeline() {
