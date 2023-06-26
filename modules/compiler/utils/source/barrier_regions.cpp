@@ -740,7 +740,11 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
 
     // Check if the alloca has a debug info source variable attached. If
     // so record this and the matching byte offset into the struct.
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    auto DbgIntrinsics = FindDbgDeclareUses(member.value);
+#else
     auto DbgIntrinsics = FindDbgAddrUses(member.value);
+#endif
     for (auto DII : DbgIntrinsics) {
       if (auto dbgDeclare = dyn_cast<DbgDeclareInst>(DII)) {
         debug_intrinsics_.push_back(std::make_pair(dbgDeclare, offset));
