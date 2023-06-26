@@ -26,8 +26,6 @@
 #include <llvm/IR/ValueMap.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
-#include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
 
 #include <cassert>
 
@@ -52,23 +50,13 @@ using StructReplacementMap =
 /// @return Alternative type if one could be found, null otherwise
 Type *getNewType(Type *type, const StructReplacementMap &map) {
   // Use recursion to build up new types for arrays and pointers.
-  if (PointerType *ptrTy = dyn_cast<PointerType>(type)) {
+  if (type->isPointerTy()) {
     // We can't remap pointer types, and it doesn't really make sense, assuming
     // pointer address spaces will never change, anyway.
-    if (ptrTy->isOpaque()) {
-      return nullptr;
-    }
-#if LLVM_VERSION_GREATER_EQUAL(15, 0)
-    assert(false && "Can only remap opaque pointers as of LLVM 15");
     return nullptr;
-#else
-    Type *newType = getNewType(ptrTy->getPointerElementType(), map);
-    if (!newType) {
-      return nullptr;
-    }
-    return PointerType::get(newType, ptrTy->getAddressSpace());
-#endif
-  } else if (ArrayType *arrTy = dyn_cast<ArrayType>(type)) {
+  }
+
+  if (ArrayType *arrTy = dyn_cast<ArrayType>(type)) {
     Type *newType = getNewType(arrTy->getElementType(), map);
     if (!newType) {
       return nullptr;

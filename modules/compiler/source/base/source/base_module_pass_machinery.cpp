@@ -302,8 +302,10 @@ std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"X86_64_SysV", CallingConv::X86_64_SysV},
     {"Win64", CallingConv::Win64},
     {"X86_VectorCall", CallingConv::X86_VectorCall},
+#if LLVM_VERSION_LESS(17, 0)
     {"HHVM", CallingConv::HHVM},
     {"HHVM_C", CallingConv::HHVM_C},
+#endif
     {"X86_INTR", CallingConv::X86_INTR},
     {"AVR_INTR", CallingConv::AVR_INTR},
     {"AVR_SIGNAL", CallingConv::AVR_SIGNAL},
@@ -320,9 +322,15 @@ std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"AMDGPU_ES", CallingConv::AMDGPU_ES},
     {"AArch64_VectorCall", CallingConv::AArch64_VectorCall},
     {"AArch64_SVE_VectorCall", CallingConv::AArch64_SVE_VectorCall},
+    {"WASM_EmscriptenInvoke", CallingConv::WASM_EmscriptenInvoke},
     {"AMDGPU_Gfx", CallingConv::AMDGPU_Gfx},
     {"M68k_INTR", CallingConv::M68k_INTR},
-    {"WASM_EmscriptenInvoke", CallingConv::WASM_EmscriptenInvoke},
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    {"AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0",
+     CallingConv::AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0},
+    {"AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2",
+     CallingConv::AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2},
+#endif
 };
 
 // For parseFixupCallingConventionPassOptions we check the param against

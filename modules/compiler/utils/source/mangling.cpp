@@ -257,21 +257,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
       manglePointerQuals(O, Qual, AddressSpace);
       return true;
     }
-#if LLVM_VERSION_GREATER_EQUAL(15, 0)
     return false;
-#else
-    // Catch builtin types which are technically a pointer to a struct but
-    // aren't seen that way from the perspective of mangling
-    if (const char *MangledBuiltinType =
-            mangleOpenCLBuiltinType(PtrTy->getPointerElementType())) {
-      O << MangledBuiltinType;
-      return true;
-    }
-    O << "P";
-    manglePointerQuals(O, Qual, AddressSpace);
-    return mangleType(O, PtrTy->getPointerElementType(), Quals, PrevTys,
-                      PrevQuals);
-#endif
   } else {
     return false;
   }

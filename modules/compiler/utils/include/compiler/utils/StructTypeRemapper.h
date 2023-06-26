@@ -26,10 +26,7 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
-
-#include "multi_llvm/multi_llvm.h"
-#include "multi_llvm/opaque_pointers.h"
-#include "multi_llvm/vector_type_helper.h"
+#include <multi_llvm/vector_type_helper.h>
 
 namespace compiler {
 namespace utils {
@@ -63,15 +60,8 @@ class StructTypeRemapper final : public llvm::ValueMapTypeRemapper {
       if (ptrType->isOpaque()) {
         return srcType;
       }
-#if LLVM_VERSION_GREATER_EQUAL(15, 0)
-      assert(ptrType->isOpaque() &&
-             "Can only remap opaque pointers as of LLVM 15");
+      assert(ptrType->isOpaque() && "Can only remap opaque pointers");
       return srcType;
-#else
-      auto *ptrElementType = ptrType->getPointerElementType();
-      auto addressSpace = ptrType->getAddressSpace();
-      return llvm::PointerType::get(remapType(ptrElementType), addressSpace);
-#endif
     } else if (auto *arrayType = llvm::dyn_cast<llvm::ArrayType>(srcType)) {
       auto *arrayElementType = arrayType->getElementType();
       auto numElements = arrayType->getNumElements();
