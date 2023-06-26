@@ -18,6 +18,8 @@
 #include <llvm/Analysis/TargetTransformInfo.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/Transforms/Utils/LowerMemIntrinsics.h>
+#include <multi_llvm/llvm_version.h>
+
 using namespace llvm;
 
 namespace compiler {
@@ -58,7 +60,11 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
         expandMemSetAsLoop(cast<MemSetInst>(CI));
         break;
       case Intrinsic::memmove:
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+        expandMemMoveAsLoop(cast<MemMoveInst>(CI), TTI);
+#else
         expandMemMoveAsLoop(cast<MemMoveInst>(CI));
+#endif
         break;
     }
     CI->eraseFromParent();
