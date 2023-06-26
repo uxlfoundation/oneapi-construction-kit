@@ -46,6 +46,7 @@
 #include <host/remove_byval_attributes_pass.h>
 #include <host/target.h>
 #include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/bit.h>
 #include <llvm/Analysis/TargetTransformInfo.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Transforms/IPO/AlwaysInliner.h>
@@ -103,7 +104,11 @@ bool hostVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
   // and dynamic work width must not exceed the device's maximum
   // work width, so cap it before we even attempt vectorization.
   // Only try to vectorize to widths of powers of two.
+#if LLVM_VERSION_GREATER_EQUAL(16, 0)
+  const uint32_t SIMDWidth = llvm::bit_floor(
+#else
   const uint32_t SIMDWidth = llvm::PowerOf2Floor(
+#endif
       local_size != 0 ? std::min(local_size, work_width) : work_width);
 
   vecz_options.factor =
