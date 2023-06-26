@@ -985,11 +985,15 @@ void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const {
 
   codeGenOpts.EmitOpenCLArgMetadata = options.kernel_arg_info;
   if (options.debug_info) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    codeGenOpts.setDebugInfo(llvm::codegenoptions::FullDebugInfo);
+#else
     codeGenOpts.setDebugInfo(clang::codegenoptions::FullDebugInfo);
+#endif
   }
-#if (LLVM_VERSION_MAJOR >= 15)
+#if LLVM_VERSION_LESS(17, 0)
   codeGenOpts.OpaquePointers = true;
-#endif  // LLVM_VERSION_MAJOR >= 15
+#endif
 }
 
 void BaseModule::addDefaultOpenCLPreprocessorOpts(
@@ -1319,13 +1323,8 @@ Result BaseModule::setOpenCLInstanceDefaults(
   clang::LangStandard::Kind standard = setClangOpenCLStandard(lang_opts);
 
   llvm::Triple triple(spir_triple);
-#if LLVM_VERSION_GREATER_EQUAL(15, 0)
   clang::LangOptions::setLangDefaults(lang_opts, OpenCLInputKind, triple,
                                       pp_opts.Includes, standard);
-#else
-  instance.getInvocation().setLangDefaults(lang_opts, OpenCLInputKind, triple,
-                                           pp_opts.Includes, standard);
-#endif
   setDefaultOpenCLLangOpts(lang_opts);
 
   return Result::SUCCESS;
