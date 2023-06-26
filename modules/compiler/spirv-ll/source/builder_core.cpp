@@ -2369,14 +2369,8 @@ cargo::optional<Error> Builder::create<OpFunctionCall>(
               i, llvm::Attribute::get(ctx, kind, callee->getParamByRefType(i)));
           break;
         case llvm::Attribute::StructRet:
-#if LLVM_VERSION_MAJOR >= 15
           call->addParamAttr(i, llvm::Attribute::get(
                                     ctx, kind, call->getParamStructRetType(i)));
-#else
-          call->addParamAttr(
-              i, llvm::Attribute::get(ctx, kind,
-                                      operand_ty->getPointerElementType()));
-#endif
           break;
         default:
           SPIRV_LL_ASSERT(!llvm::Attribute::isTypeAttrKind(kind),

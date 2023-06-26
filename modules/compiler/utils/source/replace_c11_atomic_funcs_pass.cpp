@@ -32,7 +32,6 @@
 #include <llvm/IR/Type.h>
 #include <llvm/Pass.h>
 #include <llvm/Support/Debug.h>
-#include <multi_llvm/llvm_version.h>
 
 // For debug output when --debug-only=replace_c11_atomics
 #define DEBUG_TYPE "replace_c11_atomics"
@@ -246,22 +245,19 @@ void replaceFetchKey(CallInst *C11FetchKey) {
   auto Key = BuiltinName.substr(KeyStartIndex, KeyEndIndex - KeyStartIndex);
 
   bool const IsFloat = C11FetchKey->getType()->isFloatTy();
-  AtomicRMWInst::BinOp KeyOpCode {
-    IsFloat ? StringSwitch<AtomicRMWInst::BinOp>(Key)
-                  .Case("add", AtomicRMWInst::FAdd)
-#if LLVM_VERSION_MAJOR >= 15
-                  .Case("min", AtomicRMWInst::FMin)
-                  .Case("max", AtomicRMWInst::FMax)
-#endif
-            : StringSwitch<AtomicRMWInst::BinOp>(Key)
-                  .Case("add", AtomicRMWInst::Add)
-                  .Case("sub", AtomicRMWInst::Sub)
-                  .Case("or", AtomicRMWInst::Or)
-                  .Case("xor", AtomicRMWInst::Xor)
-                  .Case("and", AtomicRMWInst::And)
-                  .Case("min", AtomicRMWInst::Min)
-                  .Case("max", AtomicRMWInst::Max)
-  };
+  AtomicRMWInst::BinOp KeyOpCode{IsFloat
+                                     ? StringSwitch<AtomicRMWInst::BinOp>(Key)
+                                           .Case("add", AtomicRMWInst::FAdd)
+                                           .Case("min", AtomicRMWInst::FMin)
+                                           .Case("max", AtomicRMWInst::FMax)
+                                     : StringSwitch<AtomicRMWInst::BinOp>(Key)
+                                           .Case("add", AtomicRMWInst::Add)
+                                           .Case("sub", AtomicRMWInst::Sub)
+                                           .Case("or", AtomicRMWInst::Or)
+                                           .Case("xor", AtomicRMWInst::Xor)
+                                           .Case("and", AtomicRMWInst::And)
+                                           .Case("min", AtomicRMWInst::Min)
+                                           .Case("max", AtomicRMWInst::Max)};
 
   // We need to make sure we distinguish between signed and unsigned integer
   // comparisons for min and max since they are different operations in
