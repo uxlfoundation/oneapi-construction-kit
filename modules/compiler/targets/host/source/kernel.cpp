@@ -346,8 +346,13 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         target.orc_engine->getDataLayout());
 
     for (const auto &reloc : host::utils::getRelocations()) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+      symbols[mangle(reloc.first)] = {llvm::orc::ExecutorAddr(reloc.second),
+                                      llvm::JITSymbolFlags::Exported};
+#else
       symbols[mangle(reloc.first)] = llvm::JITEvaluatedSymbol(
           reloc.second, llvm::JITSymbolFlags::Exported);
+#endif
     }
 
     // Define our runtime library symbols required for the JIT to successfully
