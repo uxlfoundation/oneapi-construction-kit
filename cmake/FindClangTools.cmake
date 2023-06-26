@@ -46,8 +46,8 @@ This modules adds the following variables:
 
 .. code:: cmake
 
-  # Discovers Version 9.0 of clang-format & clang-tidy
-  find_package(ClangTools 9 COMPONENTS clang-format clang-tidy)
+  # Discovers Version 16 of clang-format & clang-tidy
+  find_package(ClangTools 16 COMPONENTS clang-format clang-tidy)
 
 #]=======================================================================]
 
