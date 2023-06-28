@@ -7,6 +7,7 @@ Contributors not listed here may be added on request. Thanks to all those who
 helped make this a success.
 
 * Aaron Greig
+* Aidan Dodds
 * Alan Forbes
 * Alastair Murray
 * Alistair Low
@@ -14,6 +15,7 @@ helped make this a success.
 * Callum Fare
 * Carlos Gonzalez
 * Colin Davidson
+* David Avedissian
 * Erik Tomusk
 * Ewan Crawford
 * Fraser Cormack
@@ -21,6 +23,7 @@ helped make this a success.
 * Gordon Brown
 * Harald van Dijk
 * Illya Rudkin
+* Jack Frankland
 * Jakub Chlanda
 * Jefferson le Quellec
 * Kenneth Benzie
@@ -28,6 +31,7 @@ helped make this a success.
 * Mark Miller
 * Martin Morrison-Grant
 * Marya Sharf
+* Meenakshi Ravindran
 * Neil Henning
 * Nicolas Miller
 * Omar Ahmed
@@ -36,6 +40,7 @@ helped make this a success.
 * Pierre-André Saulais
 * Ross Brunton
 * Ruyman Reyes
+* Stephen McGroarty
 * Verena Beckham
 * Victor Lomuller
 * Victor Perez
