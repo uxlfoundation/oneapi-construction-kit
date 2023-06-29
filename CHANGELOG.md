@@ -4,8 +4,11 @@
 
 Upgrade guidance:
 
-* The mux spec has been bumped to 0.74.0 to account for changes to
-  `BaseModule`. This does not affect in-tree compiler targets.
+* The mux spec has been bumped:
+  * 0.74.0: to account for changes to `BaseModule`.
+  * 0.75.0: to remove code supporting `cl_codeplay_program_snapshot`.
+  * 0.76.0: to add code supporting `cl_intel_required_subgroup_size`.
+* The `cl_codeplay_program_snapshot` extension has been removed.
 * `cl::binary::ProgramInfo` and `cl::binary::KernelInfo` have been removed and
   replaced with equivalent structures in the `compiler` namespace.
 * `compiler::Module::finalize` no longer takes a callback to populate program
@@ -14,6 +17,13 @@ Upgrade guidance:
 
 Feature additions:
 
+* The `cl_intel_required_subgroup_size` OpenCL extension is now supported. Note
+  that no in-tree targets currently report any supported sub-group sizes so no
+  kernels compiled with a required sub-group size will successfully compile.
+* The SPIR-V `SubgroupSize` execution mode is now supported via the
+  `SubgroupDispatch` capability. Note that other aspects of this capability are
+  *not* supported.
+* The SPIR-V `OptNoneINTEL` capability is now supported.
 * `compiler::BaseModulePassMachinery` can now be given compiler options to
   guide its decisions.
 * A new method - `compiler::BaseModulePassMachinery::handlePipelineElement` -
