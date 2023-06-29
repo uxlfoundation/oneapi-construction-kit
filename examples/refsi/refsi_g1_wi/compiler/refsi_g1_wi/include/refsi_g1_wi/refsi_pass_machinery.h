@@ -33,6 +33,15 @@ class RefSiG1PassMachinery : public riscv::RiscvPassMachinery {
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses);
 
+  bool handlePipelineElement(llvm::StringRef,
+                             llvm::ModulePassManager &AM) override;
+
+  /// @brief Returns an optimization pass pipeline to run over all kernels in a
+  /// module. @see BaseModule::getLateTargetPasses.
+  ///
+  /// @return Result ModulePassManager containing passes
+  llvm::ModulePassManager getLateTargetPasses();
+
   void addClassToPassNames() override;
   void registerPassCallbacks() override;
   void printPassNames(llvm::raw_ostream &OS) override;
