@@ -23,12 +23,12 @@
 #include <vecz/pass.h>
 
 refsi_m1::RefSiM1PassMachinery::RefSiM1PassMachinery(
-    llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
-    const compiler::utils::DeviceInfo &Info,
+    const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
+    llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
     bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
     bool timePasses)
-    : riscv::RiscvPassMachinery(Ctx, TM, Info, BICallback, verifyEach,
+    : riscv::RiscvPassMachinery(target, Ctx, TM, Info, BICallback, verifyEach,
                                 debugLogLevel, timePasses) {}
 
 void refsi_m1::RefSiM1PassMachinery::addClassToPassNames() {

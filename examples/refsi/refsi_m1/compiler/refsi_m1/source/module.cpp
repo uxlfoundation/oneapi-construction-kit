@@ -61,7 +61,8 @@ RefSiM1Module::createPassMachinery() {
   };
   llvm::LLVMContext &Ctx = Builtins->getContext();
   return std::make_unique<RefSiM1PassMachinery>(
-      Ctx, TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
+      getTarget(), Ctx, TM, Info, Callback,
+      BaseContext.isLLVMVerifyEachEnabled(),
       BaseContext.getLLVMDebugLoggingLevel(),
       BaseContext.isLLVMTimePassesEnabled());
 }
@@ -82,6 +83,9 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
   const auto &env_debug_prefix = getTarget().env_debug_prefix;
 
   compiler::BasePassPipelineTuner tuner(options);
+  auto env_var_opts =
+      static_cast<RefSiM1PassMachinery &>(pass_mach).processOptimizationOptions(
+          env_debug_prefix, /* vecz_mode*/ {});
 
   cargo::string_view hal_name(getTarget().riscv_hal_device_info->target_name);
 
@@ -114,7 +118,7 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
 
   PM.addPass(riscv::IRToBuiltinReplacementPass());
 
-  if (isEarlyBuiltinLinkingEnabled(env_debug_prefix)) {
+  if (env_var_opts.early_link_builtins) {
     PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
   }
 
@@ -132,7 +136,7 @@ llvm::ModulePassManager RefSiM1Module::getLateTargetPasses(
 
   compiler::utils::HandleBarriersOptions HBOpts;
   HBOpts.IsDebug = options.opt_disable;
-  HBOpts.ForceNoTail = hasForceNoTail(env_debug_prefix);
+  HBOpts.ForceNoTail = env_var_opts.force_no_tail;
   PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
 
   compiler::addPrepareWorkGroupSchedulingPasses(PM);

@@ -80,20 +80,6 @@ class RiscvModule : public compiler::BaseModule {
 
   const riscv::RiscvTarget &getTarget() const;
 
-  /// @brief Legacy helper function based off env variables to decode whether to
-  /// force "no tail". Checks for comma separated 'V' in <env_debug_prefix>_VF
-  /// @param env_debug_prefix
-  /// @return true if found
-  bool hasForceNoTail(const std::string &env_debug_prefix);
-
-  /// @brief Legacy helper function based off env variables to decode whether to
-  /// early linking is enabled. Checks for comma separated 'S' in
-  /// <env_debug_prefix>_VF or <env_debug_prefix>_EARLY_LINK_BUILTINS being set
-  /// to non-zero.
-  /// @param env_debug_prefix
-  /// @return true if found
-  bool isEarlyBuiltinLinkingEnabled(const std::string &env_debug_prefix);
-
  private:
   cargo::dynamic_array<uint8_t> object_code;
 
