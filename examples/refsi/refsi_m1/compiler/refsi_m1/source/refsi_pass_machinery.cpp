@@ -37,7 +37,9 @@
 #include <riscv/ir_to_builtins_pass.h>
 #include <vecz/pass.h>
 
-refsi_m1::RefSiM1PassMachinery::RefSiM1PassMachinery(
+namespace refsi_m1 {
+
+RefSiM1PassMachinery::RefSiM1PassMachinery(
     const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
     llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
@@ -46,7 +48,7 @@ refsi_m1::RefSiM1PassMachinery::RefSiM1PassMachinery(
     : riscv::RiscvPassMachinery(target, Ctx, TM, Info, BICallback, verifyEach,
                                 debugLogLevel, timePasses) {}
 
-void refsi_m1::RefSiM1PassMachinery::addClassToPassNames() {
+void RefSiM1PassMachinery::addClassToPassNames() {
   RiscvPassMachinery::addClassToPassNames();
 // Register compiler passes
 #define MODULE_PASS(NAME, CREATE_PASS) \
@@ -54,7 +56,7 @@ void refsi_m1::RefSiM1PassMachinery::addClassToPassNames() {
 #include "refsi_pass_registry.def"
 }
 
-void refsi_m1::RefSiM1PassMachinery::registerPassCallbacks() {
+void RefSiM1PassMachinery::registerPassCallbacks() {
   RiscvPassMachinery::registerPassCallbacks();
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
@@ -69,8 +71,8 @@ void refsi_m1::RefSiM1PassMachinery::registerPassCallbacks() {
       });
 }
 
-bool refsi_m1::RefSiM1PassMachinery::handlePipelineElement(
-    llvm::StringRef Name, llvm::ModulePassManager &PM) {
+bool RefSiM1PassMachinery::handlePipelineElement(llvm::StringRef Name,
+                                                 llvm::ModulePassManager &PM) {
   if (Name.consume_front("refsi-m1-late-passes")) {
     PM.addPass(getLateTargetPasses());
     return true;
@@ -79,7 +81,7 @@ bool refsi_m1::RefSiM1PassMachinery::handlePipelineElement(
   return false;
 }
 
-llvm::ModulePassManager refsi_m1::RefSiM1PassMachinery::getLateTargetPasses() {
+llvm::ModulePassManager RefSiM1PassMachinery::getLateTargetPasses() {
   llvm::ModulePassManager PM;
 
   std::optional<std::string> env_debug_prefix;
@@ -151,7 +153,7 @@ llvm::ModulePassManager refsi_m1::RefSiM1PassMachinery::getLateTargetPasses() {
   // RefSi M1 specific kernel passes
   cargo::string_view hal_name(target.riscv_hal_device_info->target_name);
   if (hal_name.ends_with("Tutorial")) {
-    PM.addPass(refsi_m1::RefSiM1WrapperPass());
+    PM.addPass(RefSiM1WrapperPass());
   }
 
   PM.addPass(compiler::utils::AddMetadataPass<
@@ -177,7 +179,7 @@ llvm::ModulePassManager refsi_m1::RefSiM1PassMachinery::getLateTargetPasses() {
   return PM;
 }
 
-void refsi_m1::RefSiM1PassMachinery::printPassNames(llvm::raw_ostream &OS) {
+void RefSiM1PassMachinery::printPassNames(llvm::raw_ostream &OS) {
   riscv::RiscvPassMachinery::printPassNames(OS);
 
   OS << "\nriscv specific Target passes:\n\n";
@@ -190,3 +192,5 @@ void refsi_m1::RefSiM1PassMachinery::printPassNames(llvm::raw_ostream &OS) {
   OS << "  refsi-m1-late-passes\n";
   OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
 }
+
+}  // namespace refsi_m1

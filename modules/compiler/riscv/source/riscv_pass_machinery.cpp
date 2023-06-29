@@ -36,9 +36,11 @@
 #include <riscv/ir_to_builtins_pass.h>
 #include <riscv/riscv_pass_machinery.h>
 
-riscv::RiscvPassMachinery::RiscvPassMachinery(
-    const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
-    llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
+namespace riscv {
+
+RiscvPassMachinery::RiscvPassMachinery(
+    const RiscvTarget &target, llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+    const compiler::utils::DeviceInfo &Info,
     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
     bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
     bool timePasses)
@@ -48,8 +50,8 @@ riscv::RiscvPassMachinery::RiscvPassMachinery(
 
 // Process various compiler options based off compiler build options and common
 // environment variables
-riscv::RiscvPassMachinery::OptimizationOptions
-riscv::RiscvPassMachinery::processOptimizationOptions(
+RiscvPassMachinery::OptimizationOptions
+RiscvPassMachinery::processOptimizationOptions(
     std::optional<std::string> env_debug_prefix,
     std::optional<compiler::VectorizationMode> vecz_mode) {
   OptimizationOptions env_var_opts;
@@ -146,7 +148,7 @@ bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
-  auto env_var_opts = riscv::RiscvPassMachinery::processOptimizationOptions(
+  auto env_var_opts = RiscvPassMachinery::processOptimizationOptions(
       /*env_debug_prefix*/ {}, vecz_mode);
   if (env_var_opts.vecz_pass_opts.empty()) {
     return false;
@@ -155,7 +157,7 @@ bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
   return true;
 }
 
-void riscv::RiscvPassMachinery::addClassToPassNames() {
+void RiscvPassMachinery::addClassToPassNames() {
   BaseModulePassMachinery::addClassToPassNames();
 // Register compiler passes
 #define MODULE_PASS(NAME, CREATE_PASS) \
@@ -166,14 +168,14 @@ void riscv::RiscvPassMachinery::addClassToPassNames() {
 #include "riscv_pass_registry.def"
 }
 
-void riscv::RiscvPassMachinery::registerPasses() {
+void RiscvPassMachinery::registerPasses() {
 #define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   MAM.registerPass([&] { return CREATE_PASS; });
 #include "riscv_pass_registry.def"
   compiler::BaseModulePassMachinery::registerPasses();
 }
 
-llvm::ModulePassManager riscv::RiscvPassMachinery::getLateTargetPasses() {
+llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   llvm::ModulePassManager PM;
 
   std::optional<std::string> env_debug_prefix;
@@ -210,7 +212,7 @@ llvm::ModulePassManager riscv::RiscvPassMachinery::getLateTargetPasses() {
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));
 
-  PM.addPass(riscv::IRToBuiltinReplacementPass());
+  PM.addPass(IRToBuiltinReplacementPass());
 
   if (env_var_opts.early_link_builtins) {
     PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
@@ -266,7 +268,7 @@ llvm::ModulePassManager riscv::RiscvPassMachinery::getLateTargetPasses() {
   return PM;
 }
 
-void riscv::RiscvPassMachinery::registerPassCallbacks() {
+void RiscvPassMachinery::registerPassCallbacks() {
   BaseModulePassMachinery::registerPassCallbacks();
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
@@ -281,8 +283,8 @@ void riscv::RiscvPassMachinery::registerPassCallbacks() {
       });
 }
 
-bool riscv::RiscvPassMachinery::handlePipelineElement(
-    llvm::StringRef Name, llvm::ModulePassManager &PM) {
+bool RiscvPassMachinery::handlePipelineElement(llvm::StringRef Name,
+                                               llvm::ModulePassManager &PM) {
   if (Name.consume_front("riscv-late-passes")) {
     PM.addPass(getLateTargetPasses());
     return true;
@@ -291,7 +293,7 @@ bool riscv::RiscvPassMachinery::handlePipelineElement(
   return false;
 }
 
-void riscv::RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
+void RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
   BaseModulePassMachinery::printPassNames(OS);
 
   OS << "\nriscv specific Target passes:\n\n";
@@ -309,3 +311,5 @@ void riscv::RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
   OS << "  riscv-late-passes\n";
   OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
 }
+
+}  // namespace riscv

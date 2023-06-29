@@ -36,7 +36,9 @@
 #include <riscv/ir_to_builtins_pass.h>
 #include <vecz/pass.h>
 
-refsi_g1_wi::RefSiG1PassMachinery::RefSiG1PassMachinery(
+namespace refsi_g1_wi {
+
+RefSiG1PassMachinery::RefSiG1PassMachinery(
     const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
     llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
@@ -45,7 +47,7 @@ refsi_g1_wi::RefSiG1PassMachinery::RefSiG1PassMachinery(
     : riscv::RiscvPassMachinery(target, Ctx, TM, Info, BICallback, verifyEach,
                                 debugLogLevel, timePasses) {}
 
-void refsi_g1_wi::RefSiG1PassMachinery::addClassToPassNames() {
+void RefSiG1PassMachinery::addClassToPassNames() {
   RiscvPassMachinery::addClassToPassNames();
 // Register compiler passes
 #define MODULE_PASS(NAME, CREATE_PASS) \
@@ -53,7 +55,7 @@ void refsi_g1_wi::RefSiG1PassMachinery::addClassToPassNames() {
 #include "refsi_pass_registry.def"
 }
 
-void refsi_g1_wi::RefSiG1PassMachinery::registerPassCallbacks() {
+void RefSiG1PassMachinery::registerPassCallbacks() {
   RiscvPassMachinery::registerPassCallbacks();
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
@@ -68,8 +70,8 @@ void refsi_g1_wi::RefSiG1PassMachinery::registerPassCallbacks() {
       });
 }
 
-bool refsi_g1_wi::RefSiG1PassMachinery::handlePipelineElement(
-    llvm::StringRef Name, llvm::ModulePassManager &PM) {
+bool RefSiG1PassMachinery::handlePipelineElement(llvm::StringRef Name,
+                                                 llvm::ModulePassManager &PM) {
   if (Name.consume_front("refsi-g1-wi-late-passes")) {
     PM.addPass(getLateTargetPasses());
     return true;
@@ -78,8 +80,7 @@ bool refsi_g1_wi::RefSiG1PassMachinery::handlePipelineElement(
   return false;
 }
 
-llvm::ModulePassManager
-refsi_g1_wi::RefSiG1PassMachinery::getLateTargetPasses() {
+llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   llvm::ModulePassManager PM;
 
   std::optional<std::string> env_debug_prefix;
@@ -169,7 +170,7 @@ refsi_g1_wi::RefSiG1PassMachinery::getLateTargetPasses() {
   return PM;
 }
 
-void refsi_g1_wi::RefSiG1PassMachinery::printPassNames(llvm::raw_ostream &OS) {
+void RefSiG1PassMachinery::printPassNames(llvm::raw_ostream &OS) {
   riscv::RiscvPassMachinery::printPassNames(OS);
 
   OS << "\nriscv specific Target passes:\n\n";
@@ -182,3 +183,5 @@ void refsi_g1_wi::RefSiG1PassMachinery::printPassNames(llvm::raw_ostream &OS) {
   OS << "  refsi-g1-wi-late-passes\n";
   OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
 }
+
+}  // namespace refsi_g1_wi
