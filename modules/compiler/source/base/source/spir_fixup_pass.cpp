@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <base/macros.h>
 #include <base/program_metadata.h>
 #include <base/spir_fixup_pass.h>
 #include <llvm/ADT/DenseMap.h>
@@ -24,17 +23,17 @@
 #include <llvm/Analysis/MemoryDependenceAnalysis.h>
 #include <llvm/Analysis/ModuleSummaryAnalysis.h>
 #include <llvm/Analysis/ScalarEvolutionAliasAnalysis.h>
-#include <llvm/Config/llvm-config.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/MDBuilder.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Operator.h>
-#include <llvm/IR/PassManager.h>
 #include <multi_llvm/multi_llvm.h>
 
-static const llvm::SmallDenseSet<llvm::StringRef, 8> work_item_funcs{{
+using namespace llvm;
+
+static const SmallDenseSet<StringRef, 8> WorkItemFuncs{{
     "_Z15get_global_sizej",
     "_Z13get_global_idj",
     "_Z17get_global_offsetj",
@@ -44,47 +43,46 @@ static const llvm::SmallDenseSet<llvm::StringRef, 8> work_item_funcs{{
     "_Z12get_group_idj",
 }};
 
-static bool fixupCC(llvm::Function &func) {
-  if (!func.isIntrinsic()) {
+static bool fixupCC(Function &F) {
+  if (!F.isIntrinsic()) {
     return false;
   }
-  func.setCallingConv(llvm::CallingConv::C);
-  for (auto *user : func.users()) {
-    if (auto *callInst = llvm::dyn_cast<llvm::CallInst>(user)) {
-      callInst->setCallingConv(llvm::CallingConv::C);
+  F.setCallingConv(CallingConv::C);
+  for (User *U : F.users()) {
+    if (auto *CI = dyn_cast<CallInst>(U)) {
+      CI->setCallingConv(CallingConv::C);
     }
   }
   return true;
 }
 
-static bool markNoUnwind(llvm::Function &F) {
+static bool markNoUnwind(Function &F) {
   // we don't use exceptions
-  if (F.hasFnAttribute(llvm::Attribute::NoUnwind)) {
+  if (F.hasFnAttribute(Attribute::NoUnwind)) {
     return false;
   }
-  F.addFnAttr(llvm::Attribute::NoUnwind);
+  F.addFnAttr(Attribute::NoUnwind);
   return true;
 }
 
-static bool markReadOnly(llvm::Function &func) {
-  // replace readnone with readonly for work_item_funcs
-  if (!func.doesNotAccessMemory() ||
-      work_item_funcs.count(func.getName()) == 0) {
+static bool markReadOnly(Function &F) {
+  // replace readnone with readonly for WorkItemFuncs
+  if (!F.doesNotAccessMemory() || !WorkItemFuncs.contains(F.getName())) {
     return false;
   }
 #if LLVM_VERSION_LESS(16, 0)
-  func.removeFnAttr(llvm::Attribute::ReadNone);
+  F.removeFnAttr(Attribute::ReadNone);
 #else
-  func.removeFnAttr(llvm::Attribute::Memory);
+  F.removeFnAttr(Attribute::Memory);
 #endif
-  func.setOnlyReadsMemory();
-  for (auto *user : func.users()) {
-    if (auto *CI = llvm::dyn_cast<llvm::CallInst>(user)) {
+  F.setOnlyReadsMemory();
+  for (User *U : F.users()) {
+    if (auto *CI = dyn_cast<CallInst>(U)) {
       if (CI->doesNotAccessMemory()) {
 #if LLVM_VERSION_LESS(16, 0)
-        CI->removeFnAttr(llvm::Attribute::ReadNone);
+        CI->removeFnAttr(Attribute::ReadNone);
 #else
-        CI->removeFnAttr(llvm::Attribute::Memory);
+        CI->removeFnAttr(Attribute::Memory);
 #endif
       }
       CI->setOnlyReadsMemory();
@@ -93,106 +91,104 @@ static bool markReadOnly(llvm::Function &func) {
   return true;
 }
 
-static bool fixAtomic(llvm::Function &func) {
+static bool fixAtomic(Function &F) {
   // the SPIR kernels we get have the wrong signature for atomics (because
   // of mangling order bug between const & volatile address spaces), so we
   // need to fix them up
-  auto name = func.getName().str();
+  auto Name = F.getName().str();
 
-  bool modified = false;
-  auto fixup = [&name, &modified](const std::string &pattern, const char c) {
-    const size_t i = name.find(pattern);
-
+  bool Modified = false;
+  auto DoFixup = [&Name, &Modified](const std::string &Pattern, const char C) {
     // if we found the offending pattern
-    if (std::string::npos != i) {
-      modified = true;
+    if (const size_t Pos = Name.find(Pattern); Pos != std::string::npos) {
+      Modified = true;
       // get the address space char
-      const char as = name[i + pattern.size()];
+      const char ASChar = Name[Pos + Pattern.size()];
 
-      auto replacement = std::string("PU3AS");
-      replacement += as;
-      replacement += c;
+      auto Replacement = std::string("PU3AS");
+      Replacement += ASChar;
+      Replacement += C;
 
-      name.replace(i, replacement.size(), replacement);
+      Name.replace(Pos, Replacement.size(), Replacement);
     }
   };
 
   // fixup the broken const and volatile pointer patterns
-  fixup("PKU3AS", 'K');
-  fixup("PVU3AS", 'V');
-  func.setName(name);
-  return modified;
+  DoFixup("PKU3AS", 'K');
+  DoFixup("PVU3AS", 'V');
+  F.setName(Name);
+  return Modified;
 }
 
-llvm::PreservedAnalyses compiler::spir::SpirFixupPass::run(
-    llvm::Module &module, llvm::ModuleAnalysisManager &) {
-  bool modifiedCFG = false, modifiedSCEV = false, modifiedAttrs = false;
+PreservedAnalyses compiler::spir::SpirFixupPass::run(llvm::Module &M,
+                                                     ModuleAnalysisManager &) {
+  bool ModifiedCFG = false, ModifiedSCEV = false, ModifiedAttrs = false;
 
   // sometimes LLVM intrinsics will be passed with the incorrect calling
   // convention and SPIR functions may have incorrect attributes.
-  for (auto &func : module.functions()) {
-    modifiedCFG |= fixupCC(func);
-    modifiedAttrs |= markNoUnwind(func);
-    modifiedAttrs |= markReadOnly(func);
+  for (auto &F : M) {
+    ModifiedCFG |= fixupCC(F);
+    ModifiedAttrs |= markNoUnwind(F);
+    ModifiedAttrs |= markReadOnly(F);
   }
-  for (auto &func : module.functions()) {
-    modifiedCFG |= fixAtomic(func);
+  for (auto &F : M) {
+    ModifiedCFG |= fixAtomic(F);
   }
 
   // TODO CA-1212: Document why this is necessary and what is going on.
-  using MetadataReplacementMap = llvm::DenseMap<llvm::MDNode *, llvm::MDNode *>;
-  auto MDB = llvm::MDBuilder(module.getContext());
+  using MetadataReplacementMap = DenseMap<MDNode *, MDNode *>;
+  auto MDB = MDBuilder(M.getContext());
   MetadataReplacementMap MRM;
-  std::function<void(llvm::MDNode *, unsigned)> tbaaOperandPatternMatch =
-      [&tbaaOperandPatternMatch, &MDB, &MRM](llvm::MDNode *node, unsigned i) {
-        auto operand = llvm::cast<llvm::MDNode>(node->getOperand(i));
-        if (MRM.count(operand) > 0) {
-          node->replaceOperandWith(i, MRM.lookup(operand));
+  std::function<void(MDNode *, unsigned)> TBAAOperandPatternMatch =
+      [&TBAAOperandPatternMatch, &MDB, &MRM](MDNode *Node, unsigned i) {
+        auto MDOp = cast<MDNode>(Node->getOperand(i));
+        if (MRM.count(MDOp) > 0) {
+          Node->replaceOperandWith(i, MRM.lookup(MDOp));
           return;
         }
 
         // Note: It is actually possible for the 'old' form TBAA to have three
-        // operands here, where the last operand is the value '1' for constant.
+        // operands here, where the last MDOp is the value '1' for constant.
         // However, I don't know how to distinguish between that and
         // three-operand form noting a 1 byte offset.  It never happens in the
         // SPIR CTS, and it will never happen with ComputeCpp.
-        if (operand->getNumOperands() == 2) {
+        if (MDOp->getNumOperands() == 2) {
           // Recurse first so that the memoization works
-          tbaaOperandPatternMatch(operand, 1);
+          TBAAOperandPatternMatch(MDOp, 1);
 
-          llvm::MDNode *newOperand = MDB.createTBAAScalarTypeNode(
-              llvm::cast<llvm::MDString>(operand->getOperand(0))->getString(),
-              llvm::cast<llvm::MDNode>(operand->getOperand(1)), 0);
-          MRM.try_emplace(operand, newOperand);
-          node->replaceOperandWith(i, newOperand);
+          MDNode *newOperand = MDB.createTBAAScalarTypeNode(
+              cast<MDString>(MDOp->getOperand(0))->getString(),
+              cast<MDNode>(MDOp->getOperand(1)), 0);
+          MRM.try_emplace(MDOp, newOperand);
+          Node->replaceOperandWith(i, newOperand);
         }
       };
-  auto tbaaNodePatternMatch = [&tbaaOperandPatternMatch](llvm::MDNode *node) {
-    bool isStructPathTBAA = llvm::isa<llvm::MDNode>(node->getOperand(0)) &&
-                            node->getNumOperands() >= 3;
+  auto TBAANodePatternMatch = [&TBAAOperandPatternMatch](MDNode *node) {
+    bool isStructPathTBAA =
+        isa<MDNode>(node->getOperand(0)) && node->getNumOperands() >= 3;
     if (isStructPathTBAA) {
-      tbaaOperandPatternMatch(node, 0);
-      tbaaOperandPatternMatch(node, 1);
+      TBAAOperandPatternMatch(node, 0);
+      TBAAOperandPatternMatch(node, 1);
     }
   };
-  auto tbaaPatternMatch = [&tbaaNodePatternMatch](llvm::Instruction &I) {
+  auto TBAAPatternMatch = [&TBAANodePatternMatch](Instruction &I) {
     if (I.hasMetadata()) {
-      if (llvm::MDNode *MD = I.getMetadata(llvm::LLVMContext::MD_tbaa)) {
-        tbaaNodePatternMatch(MD);
+      if (MDNode *MD = I.getMetadata(LLVMContext::MD_tbaa)) {
+        TBAANodePatternMatch(MD);
       }
     }
   };
-  for (auto &F : module.functions()) {
+  for (auto &F : M.functions()) {
     for (auto &BB : F) {
       for (auto &I : BB) {
-        tbaaPatternMatch(I);
+        TBAAPatternMatch(I);
       }
     }
   }
 
   // ProgramInfo reads the kernel metadata for the module
-  compiler::ProgramInfo program_info;
-  (void)moduleToProgramInfo(program_info, &module, true);
+  compiler::ProgramInfo ProgramInfo;
+  (void)moduleToProgramInfo(ProgramInfo, &M, true);
 
   // From version 4.0 onwards clang produces a sampler_t pointer parameter
   // for sampler arguments, but spir still mandates that this is an i32.
@@ -200,97 +196,92 @@ llvm::PreservedAnalyses compiler::spir::SpirFixupPass::run(
   // pointer. For this reason we create a new function if we have a
   // sampler parameter which takes the sampler_t pointer arguments,
   // converts them to i32 and then calls the original function.
-  for (auto &kernel_info : program_info) {
-    llvm::PointerType *samplerTypePtr = nullptr;
+  for (auto &KernelInfo : ProgramInfo) {
+    PointerType *SamplerTypePtr = nullptr;
 
     // Check to see if any of the arguments are sampler
-    bool hasSamplerArg = std::any_of(
-        kernel_info.argument_types.cbegin(), kernel_info.argument_types.cend(),
-        [&](compiler::ArgumentType type) {
-          return type.kind == compiler::ArgumentKind::SAMPLER;
+    bool HasSamplerArg = std::any_of(
+        KernelInfo.argument_types.cbegin(), KernelInfo.argument_types.cend(),
+        [&](compiler::ArgumentType Type) {
+          return Type.kind == compiler::ArgumentKind::SAMPLER;
         });
 
-    if (hasSamplerArg) {
+    if (HasSamplerArg) {
+      const DataLayout &DL = M.getDataLayout();
       // Get the sampler struct and create a pointer to it if not already
       // done so
-      if (nullptr == samplerTypePtr) {
+      if (nullptr == SamplerTypePtr) {
         auto *samplerType =
-            multi_llvm::getStructTypeByName(module, "opencl.sampler_t");
+            multi_llvm::getStructTypeByName(M, "opencl.sampler_t");
 
         if (nullptr == samplerType) {
-          samplerType =
-              llvm::StructType::create(module.getContext(), "opencl.sampler_t");
+          samplerType = StructType::create(M.getContext(), "opencl.sampler_t");
         }
-        samplerTypePtr = llvm::PointerType::get(samplerType, 2);
+        SamplerTypePtr = PointerType::get(samplerType, 2);
       }
 
       // Create a duplicate function type, but with sampler struct
       // pointers where we previously had samplers as i32
-      if (llvm::Function *func = module.getFunction(kernel_info.name)) {
-        modifiedCFG = true;
-        auto *funcTy = func->getFunctionType();
-        unsigned numParams = funcTy->getNumParams();
-        llvm::SmallVector<llvm::Type *, 8> newParamTypes(numParams);
-        for (unsigned i = 0; i < numParams; i++) {
-          if (kernel_info.argument_types[i].kind ==
+      if (Function *F = M.getFunction(KernelInfo.name)) {
+        ModifiedCFG = true;
+        auto *FuncTy = F->getFunctionType();
+        unsigned NumParams = FuncTy->getNumParams();
+        SmallVector<Type *, 8> NewParamTypes(NumParams);
+        for (unsigned i = 0; i < NumParams; i++) {
+          if (KernelInfo.argument_types[i].kind ==
               compiler::ArgumentKind::SAMPLER) {
-            newParamTypes[i] = samplerTypePtr;
+            NewParamTypes[i] = SamplerTypePtr;
           } else {
-            newParamTypes[i] = funcTy->getParamType(i);
+            NewParamTypes[i] = FuncTy->getParamType(i);
           }
         }
-        auto newFuncTy = llvm::FunctionType::get(funcTy->getReturnType(),
-                                                 newParamTypes, false);
+        auto NewFuncTy = FunctionType::get(FuncTy->getReturnType(),
+                                           NewParamTypes, /*isVarArg*/ false);
 
         // create our new function, using the linkage from the old one
-        auto newFunc =
-            llvm::Function::Create(newFuncTy, func->getLinkage(), "", &module);
+        auto *NewF = Function::Create(NewFuncTy, F->getLinkage(), "", &M);
 
         // set the correct calling convention and copy attributes
-        newFunc->setCallingConv(func->getCallingConv());
-        newFunc->copyAttributesFrom(func);
+        NewF->setCallingConv(F->getCallingConv());
+        NewF->copyAttributesFrom(F);
 
-        // old func has been wrapped and shouldn't be classed as a kernel
-        func->setCallingConv(llvm::CallingConv::SPIR_FUNC);
+        // old F has been wrapped and shouldn't be classed as a kernel
+        F->setCallingConv(CallingConv::SPIR_FUNC);
 
         // propagate the calling conv update to any users
-        for (const auto &use : func->users()) {
-          if (llvm::CallInst *call = llvm::dyn_cast<llvm::CallInst>(use)) {
-            call->setCallingConv(func->getCallingConv());
+        for (User *U : F->users()) {
+          if (CallInst *CI = dyn_cast<CallInst>(U)) {
+            CI->setCallingConv(F->getCallingConv());
           }
         }
 
         // take the name of the old function
-        newFunc->takeName(func);
+        NewF->takeName(F);
 
-        if (auto entry = llvm::BasicBlock::Create(module.getContext(), "entry",
-                                                  newFunc)) {
-          llvm::IRBuilder<> ir(entry);
-          llvm::SmallVector<llvm::Value *, 8> argsv;
-          // set up the arguments for the original function, using the
-          // current arguments but casting and truncating any sampler ones
-          for (auto &arg : newFunc->args()) {
-            if (arg.getType() == samplerTypePtr) {
-              const llvm::DataLayout &dataLayout = module.getDataLayout();
-              auto ptrToInt = ir.CreatePtrToInt(
-                  &arg,
-                  llvm::IntegerType::get(module.getContext(),
-                                         dataLayout.getPointerSizeInBits(0)));
-              auto trunc = ir.CreateTrunc(ptrToInt, ir.getInt32Ty());
-              argsv.push_back(trunc);
-            } else {
-              argsv.push_back(&arg);
-            }
+        auto *EntryBB = BasicBlock::Create(M.getContext(), "EntryBB", NewF);
+        IRBuilder<> B(EntryBB);
+        SmallVector<Value *, 8> Args;
+        // set up the arguments for the original function, using the
+        // current arguments but casting and truncating any sampler ones
+        for (auto &Arg : NewF->args()) {
+          if (Arg.getType() == SamplerTypePtr) {
+            auto *PtrToInt = B.CreatePtrToInt(
+                &Arg, IntegerType::get(M.getContext(),
+                                       DL.getPointerSizeInBits(0)));
+            auto *Trunc = B.CreateTrunc(PtrToInt, B.getInt32Ty());
+            Args.push_back(Trunc);
+          } else {
+            Args.push_back(&Arg);
           }
-          llvm::ArrayRef<llvm::Value *> args(argsv);
-          auto call = ir.CreateCall(func, args);
-          call->setCallingConv(func->getCallingConv());
-          ir.CreateRetVoid();
         }
-        if (auto *namedMetaData = module.getNamedMetadata("opencl.kernels")) {
-          for (auto *md : namedMetaData->operands()) {
-            if (md && (md->getOperand(0) == llvm::ValueAsMetadata::get(func))) {
-              md->replaceOperandWith(0, llvm::ValueAsMetadata::get(newFunc));
+        auto *CI = B.CreateCall(F, Args);
+        CI->setCallingConv(F->getCallingConv());
+        B.CreateRetVoid();
+
+        if (auto *NamedMetaData = M.getNamedMetadata("opencl.kernels")) {
+          for (auto *MD : NamedMetaData->operands()) {
+            if (MD && MD->getOperand(0) == ValueAsMetadata::get(F)) {
+              MD->replaceOperandWith(0, ValueAsMetadata::get(NewF));
             }
           }
         }
@@ -301,12 +292,12 @@ llvm::PreservedAnalyses compiler::spir::SpirFixupPass::run(
       // `SPIR_KERNEL`. Otherwise the calling conventions will mismatch which is
       // considered an undefined behaviour and will be considered an illegal
       // instruction.
-      if (module.getFunction(kernel_info.name)->getCallingConv() ==
-          llvm::CallingConv::SPIR_KERNEL) {
-        for (auto user : module.getFunction(kernel_info.name)->users()) {
-          if (auto ci = llvm::dyn_cast<llvm::CallInst>(user)) {
-            modifiedCFG = true;
-            ci->setCallingConv(llvm::CallingConv::SPIR_KERNEL);
+      if (M.getFunction(KernelInfo.name)->getCallingConv() ==
+          CallingConv::SPIR_KERNEL) {
+        for (User *U : M.getFunction(KernelInfo.name)->users()) {
+          if (auto CI = dyn_cast<CallInst>(U)) {
+            ModifiedCFG = true;
+            CI->setCallingConv(CallingConv::SPIR_KERNEL);
           }
         }
       }
@@ -316,30 +307,31 @@ llvm::PreservedAnalyses compiler::spir::SpirFixupPass::run(
   // According to the spir spec available_externally is supposed to represent
   // C99 inline semantics. The closest thing llvm has natively is LinkOnce.
   // It doesn't quite give us the same behaviour, but it does assume a more
-  // definitive definition might exist outside the module, which is good enough
+  // definitive definition might exist outside the M, which is good enough
   // to not go catastrophically awry.
-  for (auto &global : module.globals()) {
-    if (global.getLinkage() == llvm::GlobalValue::AvailableExternallyLinkage) {
-      global.setLinkage(llvm::GlobalValue::LinkOnceAnyLinkage);
+  for (auto &G : M.globals()) {
+    if (G.getLinkage() == GlobalValue::AvailableExternallyLinkage) {
+      G.setLinkage(GlobalValue::LinkOnceAnyLinkage);
     }
   }
 
-  for (auto &func : module.functions()) {
-    if (func.getLinkage() == llvm::GlobalValue::AvailableExternallyLinkage) {
-      func.setLinkage(llvm::GlobalValue::LinkOnceAnyLinkage);
+  for (auto &F : M) {
+    if (F.getLinkage() == GlobalValue::AvailableExternallyLinkage) {
+      F.setLinkage(GlobalValue::LinkOnceAnyLinkage);
     }
   }
-  llvm::PreservedAnalyses pa;
-  if (!modifiedCFG) {
-    pa.preserveSet<llvm::CFGAnalyses>();
+
+  PreservedAnalyses PA;
+  if (!ModifiedCFG) {
+    PA.preserveSet<CFGAnalyses>();
   }
-  if (!modifiedSCEV) {
-    pa.preserve<llvm::ScalarEvolutionAnalysis>();
+  if (!ModifiedSCEV) {
+    PA.preserve<ScalarEvolutionAnalysis>();
   }
-  if (modifiedAttrs) {
-    pa.abandon<llvm::BasicAA>();
-    pa.abandon<llvm::ModuleSummaryIndexAnalysis>();
-    pa.abandon<llvm::MemoryDependenceAnalysis>();
+  if (ModifiedAttrs) {
+    PA.abandon<BasicAA>();
+    PA.abandon<ModuleSummaryIndexAnalysis>();
+    PA.abandon<MemoryDependenceAnalysis>();
   }
-  return pa;
+  return PA;
 }
