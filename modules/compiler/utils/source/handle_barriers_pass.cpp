@@ -1150,7 +1150,6 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
         // the barrier struct. We do this after creating the call because we
         // need an instruction to function as an insert point.
         if (!isa<Constant>(Ops[0]) || !isa<Constant>(Ops[1])) {
-          dbgs() << *Call << "\n";
           // We expect these values to be uniform so it should be safe to get
           // from the barrier struct at index zero. Barriers are convergent, so
           // there should be no chance that the value does not exist.
@@ -1166,7 +1165,7 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
           for (auto *const op : Ops) {
             if (!isa<Constant>(op)) {
               auto *const new_op =
-                  live_values.getReload(op, Call, "_load", true);
+                  live_values.getReload(op, Call, "_load", /*reuse*/ true);
               Call->setArgOperand(op_index, new_op);
             }
             ++op_index;

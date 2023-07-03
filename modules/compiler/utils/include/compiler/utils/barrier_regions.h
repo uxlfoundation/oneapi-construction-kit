@@ -174,6 +174,12 @@ class Barrier {
     llvm::Value *getGEP(const llvm::Value *live);
 
     /// @brief get a value reloaded from the barrier struct.
+    ///
+    /// @param[in] live the live value to retrieve from the barrier
+    /// @param[in] insert where to insert new instructions
+    /// @param[in] name a postfix to append to new value names
+    /// @param[in] reuse whether to generate the load for a given value only
+    /// once, returning the previously cached value on further requests.
     llvm::Value *getReload(llvm::Value *live, llvm::Instruction *insert,
                            const char *name, bool reuse = false);
   };

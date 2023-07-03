@@ -343,8 +343,7 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
     return mapped;
   }
 
-  Value *v = getGEP(live);
-  if (v) {
+  if (Value *v = getGEP(live)) {
     if (!isa<AllocaInst>(live)) {
       // If live variable is not allocainst, insert load.
       v = new LoadInst(live->getType(), v, Twine(live->getName(), name),
@@ -352,7 +351,9 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
     }
     mapped = v;
     return v;
-  } else if (auto *I = dyn_cast<Instruction>(live)) {
+  }
+
+  if (auto *I = dyn_cast<Instruction>(live)) {
     if (!reuse || !mapped) {
       auto *clone = I->clone();
       clone->setName(I->getName());
