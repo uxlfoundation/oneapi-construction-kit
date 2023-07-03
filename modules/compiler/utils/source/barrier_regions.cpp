@@ -264,6 +264,120 @@ void UpdateAndTrimPHINodeEdges(BasicBlock *BB, ValueToValueMapTy &vmap) {
 
 }  // namespace
 
+Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
+  auto gep_it = live_GEPs.find(live);
+  if (gep_it != live_GEPs.end()) {
+    return gep_it->second;
+  }
+
+  Value *gep;
+  Type *data_ty = live->getType();
+  if (auto *AI = dyn_cast<AllocaInst>(live)) {
+    data_ty = AI->getAllocatedType();
+  }
+
+  if (!isa<ScalableVectorType>(data_ty)) {
+    auto field_it = barrier.live_variable_index_map_.find(live);
+    if (field_it == barrier.live_variable_index_map_.end()) {
+      return nullptr;
+    }
+
+    LLVMContext &context = barrier.module_.getContext();
+    unsigned field_index = field_it->second;
+    Value *live_variable_info_idxs[2] = {
+        ConstantInt::get(Type::getInt32Ty(context), 0),
+        ConstantInt::get(Type::getInt32Ty(context), field_index)};
+
+    gep = GetElementPtrInst::Create(
+        barrier.live_var_mem_ty_, barrier_struct, live_variable_info_idxs,
+        Twine("live_gep_") + live->getName(), insert_point);
+  } else {
+    auto field_it = barrier.live_variable_scalables_map_.find(live);
+    if (field_it == barrier.live_variable_scalables_map_.end()) {
+      return nullptr;
+    }
+    unsigned const field_offset = field_it->second;
+    Value *scaled_offset = nullptr;
+
+    LLVMContext &context = barrier.module_.getContext();
+    IRBuilder<> B(insert_point);
+    if (field_offset != 0) {
+      if (!vscale) {
+        Type *size_type = B.getIntNTy(barrier.size_t_bytes * 8);
+        vscale = B.CreateIntrinsic(Intrinsic::vscale, size_type, {});
+      }
+      scaled_offset = B.CreateMul(
+          vscale, B.getIntN(barrier.size_t_bytes * 8, field_offset));
+    } else {
+      scaled_offset = ConstantInt::get(Type::getInt32Ty(context), 0);
+    }
+
+    Value *live_variable_info_idxs[3] = {
+        ConstantInt::get(Type::getInt32Ty(context), 0),
+        ConstantInt::get(Type::getInt32Ty(context),
+                         barrier.live_var_mem_scalables_index),
+        scaled_offset,
+    };
+
+    // Gep into the raw byte buffer
+    gep = B.CreateInBoundsGEP(barrier.live_var_mem_ty_, barrier_struct,
+                              live_variable_info_idxs,
+                              Twine("live_gep_scalable_") + live->getName());
+
+    // Cast the pointer to the scalable vector type
+    gep = B.CreatePointerCast(
+        gep,
+        PointerType::get(
+            data_ty,
+            cast<PointerType>(barrier_struct->getType())->getAddressSpace()));
+  }
+
+  live_GEPs.insert(std::make_pair(live, gep));
+  return gep;
+}
+
+Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
+    Value *live, Instruction *insert, const char *name, bool reuse) {
+  auto &mapped = reloads[live];
+  if (reuse && mapped) {
+    return mapped;
+  }
+
+  Value *v = getGEP(live);
+  if (v) {
+    if (!isa<AllocaInst>(live)) {
+      // If live variable is not allocainst, insert load.
+      v = new LoadInst(live->getType(), v, Twine(live->getName(), name),
+                       insert);
+    }
+    mapped = v;
+    return v;
+  } else if (auto *I = dyn_cast<Instruction>(live)) {
+    if (!reuse || !mapped) {
+      auto *clone = I->clone();
+      clone->setName(I->getName());
+      clone->insertBefore(insert);
+      if (insert_point == insert) {
+        insert_point = clone;
+      }
+      insert = clone;
+      mapped = clone;
+      I = clone;
+    } else {
+      return mapped;
+    }
+
+    for (auto op_it = I->op_begin(); op_it != I->op_end();) {
+      auto &op = *op_it++;
+      if (auto *op_inst = dyn_cast<Instruction>(op.get())) {
+        op.set(getReload(op_inst, insert, name, reuse));
+      }
+    }
+    return I;
+  }
+  return live;
+}
+
 void compiler::utils::Barrier::Run(llvm::ModuleAnalysisManager &mam) {
   bi_ = &mam.getResult<BuiltinInfoAnalysis>(module_);
   FindBarriers();
@@ -962,133 +1076,10 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   }
 
   // It puts all the GEPs at the start of the kernel, but only once
-  struct live_values_helper {
-    Barrier &barrier;
-    DenseMap<const Value *, Value *> live_GEPs;
-    DenseMap<const Value *, Value *> reloads;
-    Instruction *insert_point = nullptr;
-    Value *barrier_struct = nullptr;
-    Value *vscale = nullptr;
-
-    live_values_helper(Barrier &b, Instruction *i, Value *s)
-        : barrier(b), insert_point(i), barrier_struct(s) {}
-
-    Value *getGEP(const Value *live) {
-      auto gep_it = live_GEPs.find(live);
-      if (gep_it != live_GEPs.end()) {
-        return gep_it->second;
-      }
-
-      Value *gep;
-      Type *data_ty = live->getType();
-      if (auto *AI = dyn_cast<AllocaInst>(live)) {
-        data_ty = AI->getAllocatedType();
-      }
-
-      if (!isa<ScalableVectorType>(data_ty)) {
-        auto field_it = barrier.live_variable_index_map_.find(live);
-        if (field_it == barrier.live_variable_index_map_.end()) {
-          return nullptr;
-        }
-
-        LLVMContext &context = barrier.module_.getContext();
-        unsigned field_index = field_it->second;
-        Value *live_variable_info_idxs[2] = {
-            ConstantInt::get(Type::getInt32Ty(context), 0),
-            ConstantInt::get(Type::getInt32Ty(context), field_index)};
-
-        gep = GetElementPtrInst::Create(
-            barrier.live_var_mem_ty_, barrier_struct, live_variable_info_idxs,
-            Twine("live_gep_") + live->getName(), insert_point);
-      } else {
-        auto field_it = barrier.live_variable_scalables_map_.find(live);
-        if (field_it == barrier.live_variable_scalables_map_.end()) {
-          return nullptr;
-        }
-        unsigned const field_offset = field_it->second;
-        Value *scaled_offset = nullptr;
-
-        LLVMContext &context = barrier.module_.getContext();
-        IRBuilder<> B(insert_point);
-        if (field_offset != 0) {
-          if (!vscale) {
-            Type *size_type = B.getIntNTy(barrier.size_t_bytes * 8);
-            vscale = B.CreateIntrinsic(Intrinsic::vscale, size_type, {});
-          }
-          scaled_offset = B.CreateMul(
-              vscale, B.getIntN(barrier.size_t_bytes * 8, field_offset));
-        } else {
-          scaled_offset = ConstantInt::get(Type::getInt32Ty(context), 0);
-        }
-
-        Value *live_variable_info_idxs[3] = {
-            ConstantInt::get(Type::getInt32Ty(context), 0),
-            ConstantInt::get(Type::getInt32Ty(context),
-                             barrier.live_var_mem_scalables_index),
-            scaled_offset,
-        };
-
-        // Gep into the raw byte buffer
-        gep = B.CreateInBoundsGEP(
-            barrier.live_var_mem_ty_, barrier_struct, live_variable_info_idxs,
-            Twine("live_gep_scalable_") + live->getName());
-
-        // Cast the pointer to the scalable vector type
-        gep = B.CreatePointerCast(
-            gep, PointerType::get(data_ty,
-                                  cast<PointerType>(barrier_struct->getType())
-                                      ->getAddressSpace()));
-      }
-
-      live_GEPs.insert(std::make_pair(live, gep));
-      return gep;
-    }
-
-    Value *getReload(Value *live, Instruction *insert, const char *name,
-                     bool reuse = false) {
-      auto &mapped = reloads[live];
-      if (reuse && mapped) {
-        return mapped;
-      }
-
-      Value *v = getGEP(live);
-      if (v) {
-        if (!isa<AllocaInst>(live)) {
-          // If live variable is not allocainst, insert load.
-          v = new LoadInst(live->getType(), v, Twine(live->getName(), name),
-                           insert);
-        }
-        mapped = v;
-        return v;
-      } else if (auto *I = dyn_cast<Instruction>(live)) {
-        if (!reuse || !mapped) {
-          auto *clone = I->clone();
-          clone->setName(I->getName());
-          clone->insertBefore(insert);
-          if (insert_point == insert) {
-            insert_point = clone;
-          }
-          insert = clone;
-          mapped = clone;
-          I = clone;
-        } else {
-          return mapped;
-        }
-
-        for (auto op_it = I->op_begin(); op_it != I->op_end();) {
-          auto &op = *op_it++;
-          if (auto *op_inst = dyn_cast<Instruction>(op.get())) {
-            op.set(getReload(op_inst, insert, name, reuse));
-          }
-        }
-        return I;
-      }
-      return live;
-    }
-
-  } live_values(*this, insert_point,
-                hasBarrierStruct ? compiler::utils::getLastArgument(new_kernel)
-                                 : nullptr);
+  LiveValuesHelper live_values(
+      *this, insert_point,
+      hasBarrierStruct ? compiler::utils::getLastArgument(new_kernel)
+                       : nullptr);
 
   // Load live variables and map them.
   // These variables are defined in a different kernel, so we insert the

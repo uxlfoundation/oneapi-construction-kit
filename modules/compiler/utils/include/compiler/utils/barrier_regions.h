@@ -157,6 +157,27 @@ class Barrier {
   llvm::Function &getFunc() { return func_; }
   const llvm::Function &getFunc() const { return func_; }
 
+  /// @brief struct to help retrieval of values from the barrier struct
+  struct LiveValuesHelper {
+    Barrier &barrier;
+    llvm::DenseMap<const llvm::Value *, llvm::Value *> live_GEPs;
+    llvm::DenseMap<const llvm::Value *, llvm::Value *> reloads;
+    llvm::Instruction *insert_point = nullptr;
+    llvm::Value *barrier_struct = nullptr;
+    llvm::Value *vscale = nullptr;
+
+    LiveValuesHelper(Barrier &b, llvm::Instruction *i, llvm::Value *s)
+        : barrier(b), insert_point(i), barrier_struct(s) {}
+
+    /// @brief get a GEP instruction pointing to the given value in the barrier
+    /// struct.
+    llvm::Value *getGEP(const llvm::Value *live);
+
+    /// @brief get a value reloaded from the barrier struct.
+    llvm::Value *getReload(llvm::Value *live, llvm::Instruction *insert,
+                           const char *name, bool reuse = false);
+  };
+
  private:
   /// @brief The first is set for livein and the second is set for liveout
   using live_in_out_t =
