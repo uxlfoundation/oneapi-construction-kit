@@ -27,6 +27,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Metadata.h>
 #include <llvm/IR/Module.h>
+#include <multi_llvm/llvm_version.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/opcodes.h>
 #include <spirv/unified1/spirv.hpp>

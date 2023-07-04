@@ -15,7 +15,8 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %t
 ; CHECK: ; ModuleID = '{{.*}}'
                         OpCapability Kernel
                         OpCapability Addresses
@@ -27,7 +28,8 @@
           %sampler2_t = OpTypeSampler
         %sampler_fn_t = OpTypeFunction %void %sampler1_t %sampler2_t
         %sampler_type = OpFunction %void None %sampler_fn_t
-; CHECK: define spir_kernel void @sampler_type(ptr{{( %0)?}}, ptr{{( %1)?}}){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
+; CHECK-GE17: define spir_kernel void @sampler_type(target("spirv.Sampler") %0, target("spirv.Sampler") %1){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
+; CHECK-LT17: define spir_kernel void @sampler_type(ptr %0, ptr %1){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
   %sampler_type_enter = OpLabel
                         OpReturn
 ; CHECK: ret void

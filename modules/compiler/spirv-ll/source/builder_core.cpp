@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/target_extension_types.h>
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/BasicBlock.h>
@@ -479,6 +480,10 @@ cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  module.addID(op->IdResult(), op,
+               compiler::utils::tgtext::getSamplerTy(*context.llvmContext));
+#else
   llvm::StructType *sampler_struct;
   if (auto *s = multi_llvm::getStructTypeByName(*context.llvmContext,
                                                 "opencl.sampler_t")) {
@@ -492,6 +497,7 @@ cargo::optional<Error> Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
   // Register this structure type - we pass pointers around but occasionally
   // need to know the underlying type (e.g., for mangling)
   module.addInternalStructType(op->IdResult(), sampler_struct);
+#endif
   return cargo::nullopt;
 }
 
@@ -811,7 +817,8 @@ cargo::optional<Error> Builder::create<OpConstantSampler>(
                           normalizedCoords[op->Param()] |
                           filterModes[op->SamplerFilterMode()];
 
-  // Note that samplers should actually be pointers to opaque structure types.
+  // Note that samplers should actually be pointers to target extension types
+  // (or opaque structure types before LLVM 17).
   // We internally store constant samplers as their i32 initializers, then, in
   // the only place that can use them (OpSampledImage) we translate them to the
   // proper type via a builtin call.
@@ -2161,6 +2168,15 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     auto argTyOp = module.get<OpType>(argTy);
     return getScalarTypeName(argTy, argTyOp);
   }
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(argTy)) {
+    auto tyName = tgtExtTy->getName();
+    if (tyName == "spirv.Sampler") {
+      return "sampler_t";
+    }
+    SPIRV_LL_ABORT("Unknown Target Extension Type");
+  }
+#endif
   auto argOp = module.get<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
@@ -3366,9 +3382,14 @@ cargo::optional<Error> Builder::create<OpSampledImage>(
     auto *formalSamplerTy = module.getType(formalSamplerTyID);
     SPIRV_LL_ASSERT(sampler->getType() && sampler->getType()->isIntegerTy(32),
                     "Internal sampler error");
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    SPIRV_LL_ASSERT(formalSamplerTy && formalSamplerTy->isTargetExtTy(),
+                    "Internal sampler error");
+#else
     SPIRV_LL_ASSERT(
         formalSamplerTy && module.getInternalStructType(formalSamplerTyID),
         "Internal sampler error");
+#endif
     auto translate_func = module.llvmModule->getOrInsertFunction(
         SAMPLER_INIT_FN, formalSamplerTy, sampler->getType());
     sampler = IRBuilder.CreateCall(translate_func, sampler);

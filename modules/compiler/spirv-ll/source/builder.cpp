@@ -1242,6 +1242,13 @@ std::string spirv_ll::Builder::getMangledTypeName(
     }
     return "P" +
            getMangledTypeName(ty->getArrayElementType(), eltMangleInfo, subTys);
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  } else if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(ty)) {
+    auto tyName = tgtExtTy->getName();
+    if (tyName == "spirv.Sampler") {
+      return "11ocl_sampler";
+    }
+#endif
   }
   llvm_unreachable("mangler: unsupported argument type");
 }
