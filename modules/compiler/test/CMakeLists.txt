@@ -19,6 +19,7 @@ add_ca_executable(UnitCompiler
   ${CMAKE_CURRENT_SOURCE_DIR}/info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/kernel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/library.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mangling.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/module.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/target.cpp
   $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>)
@@ -28,7 +29,7 @@ target_include_directories(UnitCompiler PRIVATE
   ${PROJECT_SOURCE_DIR}/modules/compiler/include)
 
 target_link_libraries(UnitCompiler PRIVATE cargo
-  compiler-static mux ca_gtest_main)
+  compiler-static mux ca_gtest_main compiler-utils)
 
 target_resources(UnitCompiler NAMESPACES ${BUILTINS_NAMESPACES})
 

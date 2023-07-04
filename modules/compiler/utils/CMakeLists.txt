@@ -115,6 +115,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_math_decls_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_wgc_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/scheduling.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/target_extension_types.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp)
 

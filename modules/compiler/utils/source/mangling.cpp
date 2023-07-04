@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/mangling.h>
+#include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
@@ -230,8 +231,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
   }
 
   TypeQualifier Qual = Quals.pop_front();
-  const char *SimpleName = mangleSimpleType(Ty, Qual);
-  if (SimpleName) {
+  if (const char *SimpleName = mangleSimpleType(Ty, Qual)) {
     O << SimpleName;
     return true;
   } else if (isa<ScalableVectorType>(Ty)) {
@@ -258,6 +258,14 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
       return true;
     }
     return false;
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  } else if (Ty->isTargetExtTy()) {
+    if (auto Name = mangleBuiltinType(Ty)) {
+      O << *Name;
+      return true;
+    }
+    return false;
+#endif
   } else {
     return false;
   }
@@ -325,58 +333,76 @@ bool NameMangler::demangleSimpleType(Lexer &L, Type *&Ty, TypeQualifier &Qual) {
   return true;
 }
 
-const char *NameMangler::mangleOpenCLBuiltinType(Type *Ty) {
-  StructType *StructTy = dyn_cast<StructType>(Ty);
-  if (!StructTy || !StructTy->isOpaque()) {
-    // Builtin types are opaque structs
-    return nullptr;
-  }
-  StringRef Name = StructTy->getName();
+std::optional<std::string> NameMangler::mangleBuiltinType(Type *Ty) {
+  // With opaque pointers, before LLVM 17 we can't actually mangle OpenCL
+  // builtin types because our APIs don't expose the ability to mangle a pointer
+  // based on its element type.
+  // This is never a problem in the compiler as we don't generate such functions
+  // on the fly, but it is a weakness in the API. We could fix this, or wait it
+  // out until LLVM 17 becomes the minimum version, at which point target
+  // extension types save the day.
+#if LLVM_VERSION_LESS(17, 0)
+  (void)Ty;
+  return nullptr;
+#else
+  auto *const TgtTy = cast<TargetExtType>(Ty);
+  StringRef Name = TgtTy->getName();
 
-  //
-  // TODO: Avoid hard coded name. See redmine issue #8656 please.
-  //
-  const char *Out = nullptr;
-
-  if (Name == "opencl.image1d_t") {
-    Out = "11ocl_image1d";
-  } else if (Name == "opencl.image1d_array_t") {
-    Out = "16ocl_image1darray";
-  } else if (Name == "opencl.image1d_buffer_t") {
-    Out = "17ocl_image1dbuffer";
-  } else if (Name == "opencl.image2d_t") {
-    Out = "11ocl_image2d";
-  } else if (Name == "opencl.image2d_array_t") {
-    Out = "16ocl_image2darray";
-  } else if (Name == "opencl.image2d_depth_t") {
-    Out = "16ocl_image2ddepth";
-  } else if (Name == "opencl.image2d_array_depth_t") {
-    Out = "21ocl_image2darraydepth";
-  } else if (Name == "opencl.image2d_msaa_t") {
-    Out = "15ocl_image2dmsaa";
-  } else if (Name == "opencl.image2d_array_msaa_t") {
-    Out = "20ocl_image2darraymsaa";
-  } else if (Name == "opencl.image2d_msaa_depth_t") {
-    Out = "20ocl_image2dmsaadepth";
-  } else if (Name == "opencl.image2d_array_msaa_depth_t") {
-    Out = "35ocl_image2darraymsaadepth";
-  } else if (Name == "opencl.image3d_t") {
-    Out = "11ocl_image3d";
-  } else if (Name == "opencl_sampler_t") {
-    Out = "11ocl_sampler";
-  } else if (Name == "opencl.event_t") {
-    Out = "9ocl_event";
-  } else if (Name == "opencl.clk_event_t") {
-    Out = "12ocl_clkevent";
-  } else if (Name == "opencl.queue_t") {
-    Out = "9ocl_queue";
-  } else if (Name == "opencl.ndrange_t") {
-    Out = "11ocl_ndrange";
-  } else if (Name == "opencl.reserve_id_t") {
-    Out = "13ocl_reserveid";
+  if (Name == "spirv.Event") {
+    return "9ocl_event";
   }
 
-  return Out;
+  if (Name == "spirv.Sampler") {
+    return "11ocl_sampler";
+  }
+
+  if (Name != "spirv.Image") {
+    // FIXME: Some types don't have official target extension types.
+    // "opencl.clk_event_t" -> "12ocl_clkevent"
+    // "opencl.queue_t" -> "9ocl_queue"
+    // "opencl.ndrange_t" -> "11ocl_ndrange"
+    // "opencl.reserve_id_t" -> "13ocl_reserveid"
+    return std::nullopt;
+  }
+
+  auto Dim = TgtTy->getIntParameter(tgtext::ImageTyDimensionalityIdx);
+  auto Depth = TgtTy->getIntParameter(tgtext::ImageTyDepthIdx);
+  auto Arrayed = TgtTy->getIntParameter(tgtext::ImageTyArrayedIdx);
+  auto MS = TgtTy->getIntParameter(tgtext::ImageTyMSIdx);
+
+  std::string MangledName = "ocl_image";
+
+  switch (Dim) {
+    default:
+      return std::nullopt;
+    case tgtext::ImageDim1D:
+      MangledName += "1d";
+      break;
+    case tgtext::ImageDim2D:
+      MangledName += "2d";
+      break;
+    case tgtext::ImageDim3D:
+      MangledName += "3d";
+      break;
+    case tgtext::ImageDimBuffer:
+      MangledName += "1dbuffer";
+      break;
+  }
+
+  if (Arrayed == tgtext::ImageArrayed) {
+    MangledName += "array";
+  }
+
+  if (MS == tgtext::ImageMSMultiSampled) {
+    MangledName += "msaa";
+  }
+
+  if (Depth == tgtext::ImageDepth) {
+    MangledName += "depth";
+  }
+
+  return std::to_string(MangledName.size()) + MangledName;
+#endif
 }
 
 bool NameMangler::demangleOpenCLBuiltinType(Lexer &L, Type *&Ty) {
@@ -384,6 +410,49 @@ bool NameMangler::demangleOpenCLBuiltinType(Lexer &L, Type *&Ty) {
     Ty = IntegerType::getInt32Ty(*Context);
     return true;
   }
+
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  if (auto *TargetExtTy = [this, &L]() -> Type * {
+        if (L.Consume("11ocl_image1d")) {
+          return compiler::utils::tgtext::getImage1DTy(*Context);
+        } else if (L.Consume("16ocl_image1darray")) {
+          return compiler::utils::tgtext::getImage1DArrayTy(*Context);
+        } else if (L.Consume("17ocl_image1dbuffer")) {
+          return compiler::utils::tgtext::getImage1DBufferTy(*Context);
+        } else if (L.Consume("11ocl_image2d")) {
+          return compiler::utils::tgtext::getImage2DTy(*Context);
+        } else if (L.Consume("16ocl_image2darray")) {
+          return compiler::utils::tgtext::getImage2DArrayTy(*Context);
+        } else if (L.Consume("16ocl_image2ddepth")) {
+          return compiler::utils::tgtext::getImage2DTy(*Context, /*Depth*/ true,
+                                                       /*MS*/ false);
+        } else if (L.Consume("21ocl_image2darraydepth")) {
+          return compiler::utils::tgtext::getImage2DArrayTy(*Context);
+        } else if (L.Consume("15ocl_image2dmsaa")) {
+          return compiler::utils::tgtext::getImage2DTy(
+              *Context, /*Depth*/ false, /*MS*/ true);
+        } else if (L.Consume("20ocl_image2darraymsaa")) {
+          return compiler::utils::tgtext::getImage2DArrayTy(
+              *Context, /*Depth*/ false, /*MS*/ true);
+        } else if (L.Consume("20ocl_image2dmsaadepth")) {
+          return compiler::utils::tgtext::getImage2DTy(*Context, /*Depth*/ true,
+                                                       /*MS*/ true);
+        } else if (L.Consume("35ocl_image2darraymsaadepth")) {
+          return compiler::utils::tgtext::getImage2DArrayTy(
+              *Context, /*Depth*/ true, /*MS*/ true);
+        } else if (L.Consume("11ocl_image3d")) {
+          return compiler::utils::tgtext::getImage3DTy(*Context);
+        } else if (L.Consume("11ocl_sampler")) {
+          return compiler::utils::tgtext::getSamplerTy(*Context);
+        } else if (L.Consume("9ocl_event")) {
+          return compiler::utils::tgtext::getEventTy(*Context);
+        }
+        return nullptr;
+      }()) {
+    Ty = TargetExtTy;
+    return true;
+  }
+#endif
 
   StringRef Name;
   //

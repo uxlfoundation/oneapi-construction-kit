@@ -25,6 +25,8 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 
+#include <optional>
+
 namespace llvm {
 class LLVMContext;
 class Module;
@@ -322,12 +324,12 @@ class NameMangler final {
   /// @return Mangled name of the type or nullptr.
   const char *mangleSimpleType(llvm::Type *Ty, TypeQualifier Qual);
   /// @brief Try to mangle the given builtin type name. This only works for
-  /// opencl
+  /// 'spirv' target extension types (LLVM 17+).
   ///
   /// @param[in] Ty type to mangle.
   ///
-  /// @return string if builtin type could be mangled otherwise nullptr.
-  const char *mangleOpenCLBuiltinType(llvm::Type *Ty);
+  /// @return string if builtin type could be mangled otherwise empty string.
+  std::optional<std::string> mangleBuiltinType(llvm::Type *Ty);
   /// @brief Try to demangle the given type name. This only works for simple
   /// types that do not require string manipulation.
   ///

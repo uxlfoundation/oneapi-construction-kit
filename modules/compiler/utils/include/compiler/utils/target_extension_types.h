@@ -17,6 +17,11 @@
 #ifndef COMPILER_UTILS_TARGET_EXTENSION_TYPES_H_INCLUDED
 #define COMPILER_UTILS_TARGET_EXTENSION_TYPES_H_INCLUDED
 
+namespace llvm {
+class Type;
+class LLVMContext;
+}  // namespace llvm
+
 namespace compiler {
 namespace utils {
 namespace tgtext {
@@ -79,6 +84,58 @@ enum ImageTyAccessQualParam {
   ImageAccessQualWriteOnly,
   ImageAccessQualReadWrite,
 };
+
+/// @brief Returns the TargetExtType representing an 'event' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getEventTy(llvm::LLVMContext &Ctx);
+
+/// @brief Returns the TargetExtType representing an 'sampler' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getSamplerTy(llvm::LLVMContext &Ctx);
+
+/// @brief Returns the TargetExtType representing an 'image1d_t' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getImage1DTy(
+    llvm::LLVMContext &Ctx,
+    ImageTyAccessQualParam AccessQual = ImageAccessQualReadOnly);
+
+/// @brief Returns the TargetExtType representing an 'image1d_array_t' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getImage1DArrayTy(
+    llvm::LLVMContext &Ctx,
+    ImageTyAccessQualParam AccessQual = ImageAccessQualReadOnly);
+
+/// @brief Returns the TargetExtType representing an 'image1d_buffer_t' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getImage1DBufferTy(
+    llvm::LLVMContext &Ctx,
+    ImageTyAccessQualParam AccessQual = ImageAccessQualReadOnly);
+
+/// @brief Returns the TargetExtType representing an 'image2d_t' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getImage2DTy(
+    llvm::LLVMContext &Ctx, bool Depth = false, bool MS = false,
+    ImageTyAccessQualParam AccessQual = ImageAccessQualReadOnly);
+
+/// @brief Returns the TargetExtType representing an 'image2d_array_t' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getImage2DArrayTy(
+    llvm::LLVMContext &Ctx, bool Depth = false, bool MS = false,
+    ImageTyAccessQualParam AccessQual = ImageAccessQualReadOnly);
+
+/// @brief Returns the TargetExtType representing an 'image3d_t' type.
+///
+/// Note: Only intended for use LLVM 17+ - throws 'unreachable' otherwise.
+llvm::Type *getImage3DTy(
+    llvm::LLVMContext &Ctx,
+    ImageTyAccessQualParam AccessQual = ImageAccessQualReadOnly);
 
 }  // namespace tgtext
 }  // namespace utils
