@@ -1245,6 +1245,9 @@ std::string spirv_ll::Builder::getMangledTypeName(
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
   } else if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(ty)) {
     auto tyName = tgtExtTy->getName();
+    if (tyName == "spirv.Event") {
+      return "9ocl_event";
+    }
     if (tyName == "spirv.Sampler") {
       return "11ocl_sampler";
     }

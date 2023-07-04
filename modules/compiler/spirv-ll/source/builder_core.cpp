@@ -624,12 +624,17 @@ cargo::optional<Error> Builder::create<OpTypeFunction>(
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeEvent>(const OpTypeEvent *op) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  module.addID(op->IdResult(), op,
+               compiler::utils::tgtext::getEventTy(*context.llvmContext));
+#else
   auto event_struct =
       llvm::StructType::create(*context.llvmContext, "opencl.event_t");
   module.addID(op->IdResult(), op, llvm::PointerType::getUnqual(event_struct));
   // Register this structure type - we pass pointers around but occasionally
   // need to know the underlying type (e.g., for mangling)
   module.addInternalStructType(op->IdResult(), event_struct);
+#endif
   return cargo::nullopt;
 }
 
@@ -869,6 +874,15 @@ cargo::optional<Error> Builder::create<OpConstantNull>(
       constant =
           llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(type));
       break;
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    case llvm::Type::TypeID::TargetExtTyID:
+      // Only Events may be zero-initialized.
+      if (llvm::cast<llvm::TargetExtType>(type)->getName() == "spirv.Event") {
+        constant = llvm::ConstantTargetNone::get(
+            llvm::cast<llvm::TargetExtType>(type));
+      }
+      break;
+#endif
     default:
       llvm_unreachable("Unsupported type provided to OpConstantNull");
       // TODO: the opencl types: event, device event, reservation ID and queue
@@ -2171,6 +2185,9 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
   if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(argTy)) {
     auto tyName = tgtExtTy->getName();
+    if (tyName == "spirv.Event") {
+      return "event_t";
+    }
     if (tyName == "spirv.Sampler") {
       return "sampler_t";
     }
