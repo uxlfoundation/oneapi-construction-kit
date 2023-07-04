@@ -29,7 +29,6 @@
 
 namespace llvm {
 class LLVMContext;
-class Module;
 class Type;
 class raw_ostream;
 }  // namespace llvm
@@ -230,8 +229,7 @@ class NameMangler final {
   /// @brief Create a new name mangler.
   ///
   /// @param[in] context LLVM context to use.
-  /// @param[in] module LLVM module to use.
-  NameMangler(llvm::LLVMContext *context, llvm::Module *module = nullptr);
+  NameMangler(llvm::LLVMContext *context);
 
   /// @brief Determine the mangled name of a function.
   ///
@@ -311,8 +309,6 @@ class NameMangler final {
   ///
   /// @return Demangled name or original name if not mangled.
   llvm::StringRef demangleName(llvm::StringRef Name);
-
-  void setModule(llvm::Module *m) { M = m; };
 
  private:
   /// @brief Try to mangle the given qualified type. This only works for simple
@@ -405,8 +401,6 @@ class NameMangler final {
 
   /// @brief LLVM context used to access LLVM types.
   llvm::LLVMContext *Context;
-  /// @brief LLVM mdoule used to check existing LLVM named struct types.
-  llvm::Module *M;
 };
 }  // namespace utils
 }  // namespace compiler

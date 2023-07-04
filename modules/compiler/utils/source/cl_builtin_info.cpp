@@ -1293,7 +1293,7 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
 
   // Builtin functions have mangled names. If it's not mangled, there will be
   // no vector equivalent.
-  NameMangler Mangler(&B.function.getContext(), M);
+  NameMangler Mangler(&B.function.getContext());
   SmallVector<Type *, 4> BuiltinArgTypes, BuiltinPointeeTypes;
   SmallVector<TypeQualifiers, 4> BuiltinArgQuals;
   StringRef BuiltinName =

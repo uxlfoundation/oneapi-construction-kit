@@ -35,7 +35,8 @@ enum {
 
 StructType *HostBIMuxInfo::getMiniWGInfoStruct(Module &M) {
   static constexpr const char *HostStructName = "MiniWGInfo";
-  if (auto *ty = multi_llvm::getStructTypeByName(M, HostStructName)) {
+  if (auto *ty =
+          multi_llvm::getStructTypeByName(M.getContext(), HostStructName)) {
     return ty;
   }
 
@@ -52,7 +53,8 @@ StructType *HostBIMuxInfo::getMiniWGInfoStruct(Module &M) {
 
 StructType *HostBIMuxInfo::getScheduleInfoStruct(Module &M) {
   static constexpr const char *HostStructName = "Mux_schedule_info_s";
-  if (auto *ty = multi_llvm::getStructTypeByName(M, HostStructName)) {
+  if (auto *ty =
+          multi_llvm::getStructTypeByName(M.getContext(), HostStructName)) {
     return ty;
   }
   auto &Ctx = M.getContext();

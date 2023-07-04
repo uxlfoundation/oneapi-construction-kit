@@ -212,7 +212,7 @@ PreservedAnalyses compiler::spir::SpirFixupPass::run(llvm::Module &M,
       // done so
       if (nullptr == SamplerTypePtr) {
         auto *samplerType =
-            multi_llvm::getStructTypeByName(M, "opencl.sampler_t");
+            multi_llvm::getStructTypeByName(M.getContext(), "opencl.sampler_t");
 
         if (nullptr == samplerType) {
           samplerType = StructType::create(M.getContext(), "opencl.sampler_t");

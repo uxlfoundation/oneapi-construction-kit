@@ -28,7 +28,7 @@ using namespace refsi_g1_wi;
 
 StructType *RefSiG1BIMuxInfo::getExecStateStruct(Module &M) {
   static constexpr const char *StructName = "exec_state";
-  if (auto *ty = multi_llvm::getStructTypeByName(M, StructName)) {
+  if (auto *ty = multi_llvm::getStructTypeByName(M.getContext(), StructName)) {
     return ty;
   }
 

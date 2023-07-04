@@ -33,8 +33,7 @@ namespace compiler {
 namespace utils {
 using namespace llvm;
 
-NameMangler::NameMangler(LLVMContext *context, Module *module)
-    : Context(context), M(module) {}
+NameMangler::NameMangler(LLVMContext *context) : Context(context) {}
 
 std::string NameMangler::mangleName(StringRef Name, ArrayRef<Type *> Tys,
                                     ArrayRef<TypeQualifiers> Quals) {
@@ -498,10 +497,11 @@ bool NameMangler::demangleOpenCLBuiltinType(Lexer &L, Type *&Ty) {
     return false;
   }
 
-  if (auto *const OpenCLType = multi_llvm::getStructTypeByName(*M, Name)) {
+  if (auto *const OpenCLType =
+          multi_llvm::getStructTypeByName(*Context, Name)) {
     Ty = OpenCLType;
   } else {
-    Ty = llvm::StructType::create(M->getContext(), Name);
+    Ty = llvm::StructType::create(*Context, Name);
   }
 
   return true;

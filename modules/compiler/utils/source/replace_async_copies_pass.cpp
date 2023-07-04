@@ -392,8 +392,7 @@ void defineWaitGroupEvents(Function &WaitGroupEvents) {
 /// @retval True if @p Function is async builtin and is now defined.
 /// @retval False if @p Function was not async builtin.
 bool runOnFunction(Function &Function) {
-  compiler::utils::NameMangler Mangler(&Function.getContext(),
-                                       Function.getParent());
+  compiler::utils::NameMangler Mangler(&Function.getContext());
   // Parse the name part.
   StringRef DemangledName = Mangler.demangleName(Function.getName());
 

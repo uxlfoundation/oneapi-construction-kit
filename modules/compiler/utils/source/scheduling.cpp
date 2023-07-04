@@ -35,7 +35,7 @@ static constexpr const char *WorkGroupParamName = "MuxWorkGroupInfo";
 StructType *getWorkItemInfoStructTy(llvm::Module &M) {
   LLVMContext &ctx = M.getContext();
   // Check whether this struct has previously been defined.
-  if (auto *ty = multi_llvm::getStructTypeByName(M, WorkItemParamName)) {
+  if (auto *ty = multi_llvm::getStructTypeByName(ctx, WorkItemParamName)) {
     return ty;
   }
   auto *uint_type = Type::getInt32Ty(ctx);
@@ -56,7 +56,7 @@ StructType *getWorkItemInfoStructTy(llvm::Module &M) {
 StructType *getWorkGroupInfoStructTy(llvm::Module &M) {
   LLVMContext &ctx = M.getContext();
   // Check whether this struct has previously been defined.
-  if (auto *ty = multi_llvm::getStructTypeByName(M, WorkGroupParamName)) {
+  if (auto *ty = multi_llvm::getStructTypeByName(ctx, WorkGroupParamName)) {
     return ty;
   }
   auto *uint_type = Type::getInt32Ty(ctx);

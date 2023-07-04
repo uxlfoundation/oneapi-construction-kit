@@ -32,7 +32,7 @@
 using namespace compiler::utils;
 
 struct ManglingTest : ::testing::Test {
-  void SetUp() override { M = std::make_unique<llvm::Module>("ID", Context); }
+  void SetUp() override {}
 
   std::unique_ptr<llvm::Module> parseModule(llvm::StringRef Assembly) {
     llvm::SMDiagnostic Error;
@@ -47,7 +47,6 @@ struct ManglingTest : ::testing::Test {
   }
 
   llvm::LLVMContext Context;
-  std::unique_ptr<llvm::Module> M;
 };
 
 TEST_F(ManglingTest, MangleBuiltinTypes) {
@@ -61,7 +60,7 @@ TEST_F(ManglingTest, MangleBuiltinTypes) {
 #if LLVM_VERSION_LESS(17, 0)
   GTEST_SKIP();
 #else
-  NameMangler Mangler(&Context, M.get());
+  NameMangler Mangler(&Context);
 
   std::pair<llvm::Type *, const char *> TypesToMangle[] = {
       {tgtext::getEventTy(Context), "9ocl_event"},
@@ -103,7 +102,7 @@ TEST_F(ManglingTest, DemangleImage1DTy) {
   declare void @_Z4test11ocl_image1d(ptr %img)
   )");
 
-  NameMangler Mangler(&Context, M.get());
+  NameMangler Mangler(&Context);
 
   auto *F = M->getFunction("_Z4test11ocl_image1d");
   EXPECT_TRUE(F);

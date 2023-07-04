@@ -63,8 +63,8 @@ void buildThreadCheck(llvm::BasicBlock *entryBlock, llvm::BasicBlock *trueBlock,
 }
 
 llvm::StructType *getOrCreateMuxDMAEventType(llvm::Module &m) {
-  if (auto *eventType =
-          multi_llvm::getStructTypeByName(m, MuxBuiltins::dma_event_type)) {
+  if (auto *eventType = multi_llvm::getStructTypeByName(
+          m.getContext(), MuxBuiltins::dma_event_type)) {
     return eventType;
   }
 
