@@ -420,6 +420,44 @@ cargo::optional<Error> Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  llvm::Type *imageType = nullptr;
+  auto &ctx = *context.llvmContext;
+
+  switch (op->Dim()) {
+    default:
+      break;
+    case spv::Dim::Dim1D:
+      if (op->Arrayed() == 1) {
+        imageType = compiler::utils::tgtext::getImage1DArrayTy(ctx);
+      } else {
+        imageType = compiler::utils::tgtext::getImage1DTy(ctx);
+      }
+      break;
+    case spv::Dim::Dim2D:
+      if (op->Arrayed() == 1) {
+        imageType = compiler::utils::tgtext::getImage2DArrayTy(ctx);
+      } else {
+        imageType = compiler::utils::tgtext::getImage2DTy(ctx);
+      }
+      break;
+    case spv::Dim::Dim3D:
+      imageType = compiler::utils::tgtext::getImage3DTy(ctx);
+      break;
+    case spv::Dim::DimBuffer:
+      imageType = compiler::utils::tgtext::getImage1DBufferTy(ctx);
+      break;
+  }
+
+  if (!imageType) {
+    (void)fprintf(
+        stderr, "Unsupported type (Dim = %d) passed to 'create<OpTypeImage>'\n",
+        op->Dim());
+    std::abort();
+  }
+
+  module.addID(op->IdResult(), op, imageType);
+#else
   std::string imageTypeName = "opencl.";
 
   switch (op->Dim()) {
@@ -475,6 +513,7 @@ cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
   // Register this structure type - we pass pointers around but occasionally
   // need to know the underlying type (e.g., for mangling)
   module.addInternalStructType(op->IdResult(), structTy);
+#endif
   return cargo::nullopt;
 }
 
@@ -2191,6 +2230,25 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     if (tyName == "spirv.Sampler") {
       return "sampler_t";
     }
+    if (tyName == "spirv.Image") {
+      // TODO: This only covers the small range of images we support.
+      auto dim = tgtExtTy->getIntParameter(
+          compiler::utils::tgtext::ImageTyDimensionalityIdx);
+      auto arrayed =
+          tgtExtTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx);
+      switch (dim) {
+        default:
+          break;
+        case compiler::utils::tgtext::ImageDim1D:
+          return arrayed ? "image1d_array_t" : "image1d_t";
+        case compiler::utils::tgtext::ImageDim2D:
+          return arrayed ? "image2d_array_t" : "image2d_t";
+        case compiler::utils::tgtext::ImageDim3D:
+          return "image3d_t";
+        case compiler::utils::tgtext::ImageDimBuffer:
+          return "image1d_buffer_t";
+      }
+    }
     SPIRV_LL_ABORT("Unknown Target Extension Type");
   }
 #endif
@@ -3614,16 +3672,35 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
   llvm::Value *image = module.getValue(op->Image());
   SPIRV_LL_ASSERT_PTR(image);
 
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  SPIRV_LL_ASSERT(image->getType()->isTargetExtTy(), "Unknown image type");
+  auto *const imgTy = llvm::cast<llvm::TargetExtType>(image->getType());
+  bool isArray =
+      imgTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx) ==
+      compiler::utils::tgtext::ImageArrayed;
+  bool is2D = imgTy->getIntParameter(
+                  compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
+              compiler::utils::tgtext::ImageDim2D;
+  bool is3D = imgTy->getIntParameter(
+                  compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
+              compiler::utils::tgtext::ImageDim3D;
+#else
   auto opFunctionParameter = module.get<OpFunctionParameter>(op->Image());
+
   auto *imgTy =
       module.getInternalStructType(opFunctionParameter->IdResultType());
   SPIRV_LL_ASSERT(imgTy, "Unknown/untracked image type");
 
   llvm::StringRef imageTypeName = imgTy->getStructName();
 
+  bool isArray = imageTypeName.contains("array");
+  bool is2D = imageTypeName.contains("2d");
+  bool is3D = imageTypeName.contains("3d");
+#endif
+
   llvm::Value *result = llvm::UndefValue::get(returnType);
 
-  if (imageTypeName.contains("array")) {
+  if (isArray) {
     llvm::Type *sizeTType;
     if (module.getAddressingModel() == 64) {
       sizeTType = IRBuilder.getInt64Ty();
@@ -3660,7 +3737,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     result = resultWidth;
   }
 
-  if (imageTypeName.contains("2d") || imageTypeName.contains("3d")) {
+  if (is2D || is3D) {
     llvm::Value *resultHeight =
         createMangledBuiltinCall("get_image_height", IRBuilder.getInt32Ty(),
                                  MangleInfo(0), {image}, {op->Image()});
@@ -3673,7 +3750,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     result = IRBuilder.CreateInsertElement(result, resultHeight,
                                            IRBuilder.getInt32(1));
 
-    if (imageTypeName.contains("3d")) {
+    if (is3D) {
       llvm::Value *resultDepth =
           createMangledBuiltinCall("get_image_depth", IRBuilder.getInt32Ty(),
                                    MangleInfo(0), {image}, {op->Image()});

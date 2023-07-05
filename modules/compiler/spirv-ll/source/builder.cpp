@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/Support/type_traits.h>
 #include <multi_llvm/optional_helper.h>
@@ -1250,6 +1251,25 @@ std::string spirv_ll::Builder::getMangledTypeName(
     }
     if (tyName == "spirv.Sampler") {
       return "11ocl_sampler";
+    }
+    if (tyName == "spirv.Image") {
+      // TODO: This only covers the small range of images we support.
+      auto dim = tgtExtTy->getIntParameter(
+          compiler::utils::tgtext::ImageTyDimensionalityIdx);
+      auto arrayed =
+          tgtExtTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx);
+      switch (dim) {
+        default:
+          break;
+        case compiler::utils::tgtext::ImageDim1D:
+          return arrayed ? "16ocl_image1darray" : "11ocl_image1d";
+        case compiler::utils::tgtext::ImageDim2D:
+          return arrayed ? "16ocl_image2darray" : "11ocl_image2d";
+        case compiler::utils::tgtext::ImageDim3D:
+          return "11ocl_image3d";
+        case compiler::utils::tgtext::ImageDimBuffer:
+          return "17ocl_image1dbuffer";
+      }
     }
 #endif
   }

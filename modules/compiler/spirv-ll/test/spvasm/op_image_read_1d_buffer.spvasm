@@ -15,7 +15,8 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c Sampled1D %spv_file_s | FileCheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c Sampled1D %spv_file_s | FileCheck %t
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability ImageBasic
@@ -34,12 +35,13 @@
                %int_0 = OpConstant %uint_t 0
       %image1d_buffer = OpFunction %void_t None %foo_t
                %image = OpFunctionParameter %image1d_buffer_t
-; CHECK: define spir_kernel void @image1d_buffer(ptr addrspace(1) %image)
+; CHECK-GE17: define spir_kernel void @image1d_buffer([[TY:target\("spirv.Image", void, 5, 0, 0, 0, 0, 0, 0\)]] %image)
+; CHECK-LT17: define spir_kernel void @image1d_buffer([[TY:ptr addrspace\(1\)]] %image)
                    %1 = OpLabel
                    %3 = OpImageRead %uint4_t %image %int_0
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui17ocl_image1dbufferi(ptr addrspace(1) %image, i32 0)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui17ocl_image1dbufferi([[TY]] %image, i32 0)
                    %4 = OpImageRead %float4_t %image %int_0
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef17ocl_image1dbufferi(ptr addrspace(1) %image, i32 0)
+; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef17ocl_image1dbufferi([[TY]] %image, i32 0)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd
