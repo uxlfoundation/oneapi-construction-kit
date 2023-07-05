@@ -1064,7 +1064,6 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   if (CallInst *call_inst = dyn_cast<CallInst>(insert_point)) {
     Function *callee = call_inst->getCalledFunction();
-    dbgs() << *call_inst << "\n";
     assert(callee && "Could not get called function");
     auto const B = bi_->analyzeBuiltin(*callee);
     if (isMuxWGControlBarrierID(B.ID)) {
