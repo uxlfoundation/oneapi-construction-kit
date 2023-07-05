@@ -1128,6 +1128,10 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   // exists in the Module's Value map. See function creation in
   // Builder::create<OpFunction>(const OpFunction *op) in builder_core.cpp
   for (auto &function : module.llvmModule->functions()) {
+    // We don't use exceptions
+    if (!function.hasFnAttribute(llvm::Attribute::NoUnwind)) {
+      function.addFnAttr(llvm::Attribute::NoUnwind);
+    }
     if (function.getCallingConv() == llvm::CallingConv::SPIR_FUNC) {
       const std::string name = module.getName(&function);
       if (!name.empty()) {

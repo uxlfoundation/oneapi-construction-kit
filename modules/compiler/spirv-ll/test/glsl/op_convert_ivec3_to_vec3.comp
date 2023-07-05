@@ -25,7 +25,7 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: define spir_kernel void @main() {
+// CHECK: define spir_kernel void @main() #0 {
 // CHECK: [[FROM:%[a-zA-Z0-9_]+]] = alloca <3 x i32>
 // CHECK: [[TO:%[a-zA-Z0-9_]+]] = alloca <3 x float>
 // CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr [[FROM]]

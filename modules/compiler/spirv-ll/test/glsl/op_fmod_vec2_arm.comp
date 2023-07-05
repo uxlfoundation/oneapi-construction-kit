@@ -22,7 +22,7 @@
 #version 450
 
 void main() {
-// CHECK: define spir_kernel void @main() {
+// CHECK: define spir_kernel void @main() #0 {
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <2 x float>
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <2 x float>
 // CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <2 x float>
