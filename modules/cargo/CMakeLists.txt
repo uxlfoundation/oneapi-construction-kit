@@ -38,7 +38,7 @@ else()
   set(CARGO_HAS_PTHREAD_GETNAME_NP OFF)
 endif()
 
-add_ca_library(cargo STATIC
+set(CARGO_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/allocator.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/argument_parser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/array_view.h
@@ -69,8 +69,15 @@ add_ca_library(cargo STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/endian.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/statics.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/thread.cpp)
-target_include_directories(cargo PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(CA_NATIVE_CPU)
+  add_llvm_library(cargo ${CARGO_SRC})
+  target_include_directories(cargo PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+else()
+  add_ca_library(cargo STATIC ${CARGO_SRC})
+  target_include_directories(cargo PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
 
 ca_option(CA_ENABLE_CARGO_INSTRUMENTATION BOOL
   "Enable instrumentation of memory allocation in cargo" OFF)

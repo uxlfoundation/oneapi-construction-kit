@@ -14,12 +14,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
-project(ComputeAorta VERSION 4.0.0 LANGUAGES C CXX ASM)
-
-# There's no situation where it's necessary to *not* generate this file and the
-# time difference to configure is about 0.1s
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+  cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+  project(ComputeAorta VERSION 4.0.0 LANGUAGES C CXX ASM)
+  
+  # There's no situation where it's necessary to *not* generate this file and the
+  # time difference to configure is about 0.1s
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+else()
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+endif()
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "oneAPI Construction Kit does not support in-tree builds!")
@@ -155,6 +159,9 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
   endif()
 endforeach()
 
+if(CA_NATIVE_CPU)
+  set(CA_RUNTIME_COMPILER_ENABLED Off)
+endif()
 if(CA_RUNTIME_COMPILER_ENABLED)
   include(ImportLLVM)
 endif()
@@ -289,11 +296,17 @@ if(CA_ENABLE_TESTS)
   ca_umbrella_lit_testsuite_open(all)
 endif()
 
-add_subdirectory(hal)
-add_subdirectory(external)
-add_subdirectory(source)
-if(CA_ENABLE_DOCUMENTATION)
-  add_subdirectory(doc)
+# CA_NATIVE_CPU should be set when adding the construction kit as a 
+# subdirectory
+if(CA_NATIVE_CPU)
+  add_subdirectory(modules)
+else()
+  add_subdirectory(hal)
+  add_subdirectory(external)
+  add_subdirectory(source)
+  if(CA_ENABLE_DOCUMENTATION)
+    add_subdirectory(doc)
+  endif()
 endif()
 
 # Add the deferred add_ca_extension_subdirectory() entries until all
