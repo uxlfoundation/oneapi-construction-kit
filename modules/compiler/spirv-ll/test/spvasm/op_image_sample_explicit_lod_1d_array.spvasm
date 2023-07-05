@@ -46,17 +46,17 @@
      %image1d_array = OpFunction %void_t None %sampler_fn_t
         %in_sampler = OpFunctionParameter %sampler_t
           %in_image = OpFunctionParameter %image1d_array_t
-; CHECK: define spir_kernel void @image1d_array(i32 %in_sampler, ptr addrspace(1) %in_image)
+; CHECK: define spir_kernel void @image1d_array(ptr %in_sampler, ptr addrspace(1) %in_image)
                  %1 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
                  %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2float_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image1darray11ocl_samplerDv2_f(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image1darray11ocl_samplerDv2_f(ptr addrspace(1) %in_image, ptr %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
                  %3 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2int_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image1darray11ocl_samplerDv2_i(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x i32> <i32 1, i32 1>)
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image1darray11ocl_samplerDv2_i(ptr addrspace(1) %in_image, ptr %in_sampler, <2 x i32> <i32 1, i32 1>)
                  %6 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v2float_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image1darray11ocl_samplerDv2_f(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image1darray11ocl_samplerDv2_f(ptr addrspace(1) %in_image, ptr %in_sampler, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
                  %7 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v2int_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image1darray11ocl_samplerDv2_i(ptr addrspace(1) %in_image, i32 %in_sampler, <2 x i32> <i32 1, i32 1>)
+; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image1darray11ocl_samplerDv2_i(ptr addrspace(1) %in_image, ptr %in_sampler, <2 x i32> <i32 1, i32 1>)
                       OpReturn
 ; CHECK: ret void
                       OpFunctionEnd

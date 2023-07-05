@@ -42,17 +42,17 @@
            %image1d = OpFunction %void_t None %sampler_fn_t
         %in_sampler = OpFunctionParameter %sampler_t
           %in_image = OpFunctionParameter %image1d_t
-; CHECK: define spir_kernel void @image1d(i32 %in_sampler, ptr addrspace(1) %in_image)
+; CHECK: define spir_kernel void @image1d(ptr %in_sampler, ptr addrspace(1) %in_image)
                 %10 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
                 %11 = OpImageSampleExplicitLod %v4float_t %sampled_image %float_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_samplerf(ptr addrspace(1) %in_image, i32 %in_sampler, float 1.000000e+00)
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_samplerf(ptr addrspace(1) %in_image, ptr %in_sampler, float 1.000000e+00)
                 %12 = OpImageSampleExplicitLod %v4float_t %sampled_image %int_1 None 
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_sampleri(ptr addrspace(1) %in_image, i32 %in_sampler, i32 1)
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_sampleri(ptr addrspace(1) %in_image, ptr %in_sampler, i32 1)
                 %15 = OpImageSampleExplicitLod %v4uint_t %sampled_image %float_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(ptr addrspace(1) %in_image, i32 %in_sampler, float 1.000000e+00)
+; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(ptr addrspace(1) %in_image, ptr %in_sampler, float 1.000000e+00)
                 %16 = OpImageSampleExplicitLod %v4uint_t %sampled_image %int_1 None
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_sampleri(ptr addrspace(1) %in_image, i32 %in_sampler, i32 1)
+; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_sampleri(ptr addrspace(1) %in_image, ptr %in_sampler, i32 1)
                       OpReturn
 ; CHECK: ret void
                       OpFunctionEnd

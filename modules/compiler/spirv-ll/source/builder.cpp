@@ -587,7 +587,7 @@ llvm::Function *spirv_ll::Builder::declareBuiltinFunction(
   llvm::Function *func = llvm::Function::Create(
       ty, llvm::GlobalValue::LinkageTypes::ExternalLinkage, func_name,
       module.llvmModule.get());
-  if (func_name != "__translate_sampler_initializer") {
+  if (func_name != SAMPLER_INIT_FN) {
     func->setCallingConv(llvm::CallingConv::SPIR_FUNC);
   }
   if (convergent) {
@@ -612,7 +612,7 @@ llvm::CallInst *spirv_ll::Builder::createBuiltinCall(
         name.str(), llvm::FunctionType::get(retTy, argTys, false), convergent);
   }
   auto call = IRBuilder.CreateCall(function, args);
-  if (!name.equals("__translate_sampler_initializer")) {
+  if (!name.equals(SAMPLER_INIT_FN)) {
     call->setCallingConv(llvm::CallingConv::SPIR_FUNC);
   }
   return call;
@@ -1106,7 +1106,8 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
           pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
-        } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType()) {
+        } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
+                   spvPtrTy->isSamplerType()) {
           pointeeTy = module.getInternalStructType(spvPtrTy->IdResult());
         }
         SPIRV_LL_ASSERT_PTR(pointeeTy);

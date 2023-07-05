@@ -44,6 +44,9 @@ namespace spirv_ll {
 /// @brief Type used to pass around the list of builtin IDs used by a function
 using BuiltinIDList = llvm::SmallVector<spv::Id, 2>;
 
+static constexpr const char SAMPLER_INIT_FN[] =
+    "__translate_sampler_initializer";
+
 class Builder;
 
 class OpenCLBuilder {
