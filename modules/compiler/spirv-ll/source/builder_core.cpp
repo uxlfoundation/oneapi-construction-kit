@@ -2176,6 +2176,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
                                   spv::Id argTyID, bool isBaseTyName) {
   multi_llvm::Optional<std::string> argBaseTy;
   if (argTy->isPointerTy()) {
+#if LLVM_VERSION_LESS(17, 0)
     // Check for special built-in types, which are found as pointers to
     // special struct types.
     if (auto *const structTy = module.getInternalStructType(argTyID)) {
@@ -2185,16 +2186,15 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
             "found an internal struct type that doesn't begin with 'opencl.'");
       }
       return structName.str();
-    } else {
-      // If we haven't found a known pointer, keep trying.
-      auto argTyOp = module.get<OpTypePointer>(argTyID);
-      auto pointeeTyID = argTyOp->getTypePointer()->Type();
-      auto *pointeeTy = module.getType(pointeeTyID);
-
-      return retrieveArgTyMetadata(module, pointeeTy, pointeeTyID,
-                                   isBaseTyName) +
-             '*';
     }
+#endif
+    // If we haven't found a known pointer, keep trying.
+    auto argTyOp = module.get<OpTypePointer>(argTyID);
+    auto pointeeTyID = argTyOp->getTypePointer()->Type();
+    auto *pointeeTy = module.getType(pointeeTyID);
+
+    return retrieveArgTyMetadata(module, pointeeTy, pointeeTyID, isBaseTyName) +
+           '*';
   }
   if (argTy->isArrayTy()) {
     // We give up on arrays for simplicity: they can't be specified as

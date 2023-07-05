@@ -1101,9 +1101,11 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
           pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
+#if LLVM_VERSION_LESS(17, 0)
         } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
                    spvPtrTy->isSamplerType()) {
           pointeeTy = module.getInternalStructType(spvPtrTy->IdResult());
+#endif
         }
         SPIRV_LL_ASSERT_PTR(pointeeTy);
         if (!pointeeTy->isIntegerTy() && !pointeeTy->isFloatingPointTy()) {
@@ -1194,6 +1196,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
     return getMangledVecPrefix(ty) +
            getMangledTypeName(elementTy, componentMangleInfo, subTys);
   } else if (ty->isPointerTy()) {
+#if LLVM_VERSION_LESS(17, 0)
     SPIRV_LL_ASSERT(mangleInfo,
                     "Must supply OpType to mangle pointer arguments");
     if (auto *structTy = module.getInternalStructType(mangleInfo->id)) {
@@ -1220,20 +1223,20 @@ std::string spirv_ll::Builder::getMangledTypeName(
                      static_cast<int>(structName.size()), structName.data());
         std::abort();
       }
-    } else {
-      SPIRV_LL_ASSERT(
-          mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
-          "Parameter is not a pointer");
-
-      auto const spvPointeeTy =
-          module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
-      auto *const elementTy = module.getType(spvPointeeTy);
-      std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
-      auto pointeeMangleInfo = *mangleInfo;
-      pointeeMangleInfo.typeQuals = 0;
-      pointeeMangleInfo.id = spvPointeeTy;
-      return mangled + getMangledTypeName(elementTy, pointeeMangleInfo, subTys);
     }
+#endif
+    SPIRV_LL_ASSERT(
+        mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
+        "Parameter is not a pointer");
+
+    auto const spvPointeeTy =
+        module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
+    auto *const elementTy = module.getType(spvPointeeTy);
+    std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
+    auto pointeeMangleInfo = *mangleInfo;
+    pointeeMangleInfo.typeQuals = 0;
+    pointeeMangleInfo.id = spvPointeeTy;
+    return mangled + getMangledTypeName(elementTy, pointeeMangleInfo, subTys);
   } else if (ty->isArrayTy()) {
     multi_llvm::Optional<MangleInfo> eltMangleInfo;
     if (mangleInfo) {
