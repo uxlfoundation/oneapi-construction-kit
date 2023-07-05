@@ -432,14 +432,16 @@ void compiler::utils::Barrier::FindBarriers() {
       // Check call instructions for barrier.
       if (CallInst *call_inst = dyn_cast<CallInst>(&bi)) {
         Function *callee = call_inst->getCalledFunction();
-        auto const B = bi_->analyzeBuiltin(*callee);
-        if (callee != nullptr && isMuxWGControlBarrierID(B.ID)) {
-          unsigned id = ~0u;
-          auto *const id_param = call_inst->getOperand(0);
-          if (auto *const id_param_c = dyn_cast<ConstantInt>(id_param)) {
-            id = id_param_c->getZExtValue();
+        if (callee != nullptr) {
+          auto const B = bi_->analyzeBuiltin(*callee);
+          if (isMuxWGControlBarrierID(B.ID)) {
+            unsigned id = ~0u;
+            auto *const id_param = call_inst->getOperand(0);
+            if (auto *const id_param_c = dyn_cast<ConstantInt>(id_param)) {
+              id = id_param_c->getZExtValue();
+            }
+            orderedBarriers.emplace_back(id, call_inst);
           }
-          orderedBarriers.emplace_back(id, call_inst);
         }
       }
     }
@@ -1062,6 +1064,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   if (CallInst *call_inst = dyn_cast<CallInst>(insert_point)) {
     Function *callee = call_inst->getCalledFunction();
+    dbgs() << *call_inst << "\n";
     assert(callee && "Could not get called function");
     auto const B = bi_->analyzeBuiltin(*callee);
     if (isMuxWGControlBarrierID(B.ID)) {
