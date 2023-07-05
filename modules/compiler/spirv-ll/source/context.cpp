@@ -1124,6 +1124,9 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     }
   }
 
+  // replace all global builtin vars with function local versions
+  builder.replaceBuiltinGlobals();
+
   // Check non-entry-point functions with empty names and re-set the name if it
   // exists in the Module's Value map. See function creation in
   // Builder::create<OpFunction>(const OpFunction *op) in builder_core.cpp
@@ -1139,9 +1142,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
       }
     }
   }
-
-  // replace all global builtin vars with function local versions
-  builder.replaceBuiltinGlobals();
 
   // add any remaining metadata to llvm module
   builder.finalizeMetadata();

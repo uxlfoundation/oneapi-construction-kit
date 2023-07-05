@@ -151,6 +151,7 @@ set(SPVASM_FILES
   op_forward_pointer_long.spvasm
   op_forward_pointer_uint.spvasm
   op_function_call_import.spvasm
+  op_global_invocation_id.spvasm
   op_glsl_Barrier.spvasm
   op_glsl_FrexpStruct_double.spvasm
   op_glsl_FrexpStruct_dvec2.spvasm
