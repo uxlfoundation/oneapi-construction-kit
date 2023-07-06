@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/target_extension_types.h>
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/BasicBlock.h>
@@ -419,6 +420,44 @@ cargo::optional<Error> Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  llvm::Type *imageType = nullptr;
+  auto &ctx = *context.llvmContext;
+
+  switch (op->Dim()) {
+    default:
+      break;
+    case spv::Dim::Dim1D:
+      if (op->Arrayed() == 1) {
+        imageType = compiler::utils::tgtext::getImage1DArrayTy(ctx);
+      } else {
+        imageType = compiler::utils::tgtext::getImage1DTy(ctx);
+      }
+      break;
+    case spv::Dim::Dim2D:
+      if (op->Arrayed() == 1) {
+        imageType = compiler::utils::tgtext::getImage2DArrayTy(ctx);
+      } else {
+        imageType = compiler::utils::tgtext::getImage2DTy(ctx);
+      }
+      break;
+    case spv::Dim::Dim3D:
+      imageType = compiler::utils::tgtext::getImage3DTy(ctx);
+      break;
+    case spv::Dim::DimBuffer:
+      imageType = compiler::utils::tgtext::getImage1DBufferTy(ctx);
+      break;
+  }
+
+  if (!imageType) {
+    (void)fprintf(
+        stderr, "Unsupported type (Dim = %d) passed to 'create<OpTypeImage>'\n",
+        op->Dim());
+    std::abort();
+  }
+
+  module.addID(op->IdResult(), op, imageType);
+#else
   std::string imageTypeName = "opencl.";
 
   switch (op->Dim()) {
@@ -474,11 +513,16 @@ cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
   // Register this structure type - we pass pointers around but occasionally
   // need to know the underlying type (e.g., for mangling)
   module.addInternalStructType(op->IdResult(), structTy);
+#endif
   return cargo::nullopt;
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  module.addID(op->IdResult(), op,
+               compiler::utils::tgtext::getSamplerTy(*context.llvmContext));
+#else
   llvm::StructType *sampler_struct;
   if (auto *s = multi_llvm::getStructTypeByName(*context.llvmContext,
                                                 "opencl.sampler_t")) {
@@ -492,6 +536,7 @@ cargo::optional<Error> Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
   // Register this structure type - we pass pointers around but occasionally
   // need to know the underlying type (e.g., for mangling)
   module.addInternalStructType(op->IdResult(), sampler_struct);
+#endif
   return cargo::nullopt;
 }
 
@@ -618,12 +663,17 @@ cargo::optional<Error> Builder::create<OpTypeFunction>(
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeEvent>(const OpTypeEvent *op) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  module.addID(op->IdResult(), op,
+               compiler::utils::tgtext::getEventTy(*context.llvmContext));
+#else
   auto event_struct =
       llvm::StructType::create(*context.llvmContext, "opencl.event_t");
   module.addID(op->IdResult(), op, llvm::PointerType::getUnqual(event_struct));
   // Register this structure type - we pass pointers around but occasionally
   // need to know the underlying type (e.g., for mangling)
   module.addInternalStructType(op->IdResult(), event_struct);
+#endif
   return cargo::nullopt;
 }
 
@@ -811,7 +861,8 @@ cargo::optional<Error> Builder::create<OpConstantSampler>(
                           normalizedCoords[op->Param()] |
                           filterModes[op->SamplerFilterMode()];
 
-  // Note that samplers should actually be pointers to opaque structure types.
+  // Note that samplers should actually be pointers to target extension types
+  // (or opaque structure types before LLVM 17).
   // We internally store constant samplers as their i32 initializers, then, in
   // the only place that can use them (OpSampledImage) we translate them to the
   // proper type via a builtin call.
@@ -862,6 +913,15 @@ cargo::optional<Error> Builder::create<OpConstantNull>(
       constant =
           llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(type));
       break;
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    case llvm::Type::TypeID::TargetExtTyID:
+      // Only Events may be zero-initialized.
+      if (llvm::cast<llvm::TargetExtType>(type)->getName() == "spirv.Event") {
+        constant = llvm::ConstantTargetNone::get(
+            llvm::cast<llvm::TargetExtType>(type));
+      }
+      break;
+#endif
     default:
       llvm_unreachable("Unsupported type provided to OpConstantNull");
       // TODO: the opencl types: event, device event, reservation ID and queue
@@ -2116,6 +2176,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
                                   spv::Id argTyID, bool isBaseTyName) {
   multi_llvm::Optional<std::string> argBaseTy;
   if (argTy->isPointerTy()) {
+#if LLVM_VERSION_LESS(17, 0)
     // Check for special built-in types, which are found as pointers to
     // special struct types.
     if (auto *const structTy = module.getInternalStructType(argTyID)) {
@@ -2125,16 +2186,15 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
             "found an internal struct type that doesn't begin with 'opencl.'");
       }
       return structName.str();
-    } else {
-      // If we haven't found a known pointer, keep trying.
-      auto argTyOp = module.get<OpTypePointer>(argTyID);
-      auto pointeeTyID = argTyOp->getTypePointer()->Type();
-      auto *pointeeTy = module.getType(pointeeTyID);
-
-      return retrieveArgTyMetadata(module, pointeeTy, pointeeTyID,
-                                   isBaseTyName) +
-             '*';
     }
+#endif
+    // If we haven't found a known pointer, keep trying.
+    auto argTyOp = module.get<OpTypePointer>(argTyID);
+    auto pointeeTyID = argTyOp->getTypePointer()->Type();
+    auto *pointeeTy = module.getType(pointeeTyID);
+
+    return retrieveArgTyMetadata(module, pointeeTy, pointeeTyID, isBaseTyName) +
+           '*';
   }
   if (argTy->isArrayTy()) {
     // We give up on arrays for simplicity: they can't be specified as
@@ -2161,6 +2221,37 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     auto argTyOp = module.get<OpType>(argTy);
     return getScalarTypeName(argTy, argTyOp);
   }
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(argTy)) {
+    auto tyName = tgtExtTy->getName();
+    if (tyName == "spirv.Event") {
+      return "event_t";
+    }
+    if (tyName == "spirv.Sampler") {
+      return "sampler_t";
+    }
+    if (tyName == "spirv.Image") {
+      // TODO: This only covers the small range of images we support.
+      auto dim = tgtExtTy->getIntParameter(
+          compiler::utils::tgtext::ImageTyDimensionalityIdx);
+      auto arrayed =
+          tgtExtTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx);
+      switch (dim) {
+        default:
+          break;
+        case compiler::utils::tgtext::ImageDim1D:
+          return arrayed ? "image1d_array_t" : "image1d_t";
+        case compiler::utils::tgtext::ImageDim2D:
+          return arrayed ? "image2d_array_t" : "image2d_t";
+        case compiler::utils::tgtext::ImageDim3D:
+          return "image3d_t";
+        case compiler::utils::tgtext::ImageDimBuffer:
+          return "image1d_buffer_t";
+      }
+    }
+    SPIRV_LL_ABORT("Unknown Target Extension Type");
+  }
+#endif
   auto argOp = module.get<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
@@ -3366,9 +3457,14 @@ cargo::optional<Error> Builder::create<OpSampledImage>(
     auto *formalSamplerTy = module.getType(formalSamplerTyID);
     SPIRV_LL_ASSERT(sampler->getType() && sampler->getType()->isIntegerTy(32),
                     "Internal sampler error");
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    SPIRV_LL_ASSERT(formalSamplerTy && formalSamplerTy->isTargetExtTy(),
+                    "Internal sampler error");
+#else
     SPIRV_LL_ASSERT(
         formalSamplerTy && module.getInternalStructType(formalSamplerTyID),
         "Internal sampler error");
+#endif
     auto translate_func = module.llvmModule->getOrInsertFunction(
         SAMPLER_INIT_FN, formalSamplerTy, sampler->getType());
     sampler = IRBuilder.CreateCall(translate_func, sampler);
@@ -3576,16 +3672,35 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
   llvm::Value *image = module.getValue(op->Image());
   SPIRV_LL_ASSERT_PTR(image);
 
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  SPIRV_LL_ASSERT(image->getType()->isTargetExtTy(), "Unknown image type");
+  auto *const imgTy = llvm::cast<llvm::TargetExtType>(image->getType());
+  bool isArray =
+      imgTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx) ==
+      compiler::utils::tgtext::ImageArrayed;
+  bool is2D = imgTy->getIntParameter(
+                  compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
+              compiler::utils::tgtext::ImageDim2D;
+  bool is3D = imgTy->getIntParameter(
+                  compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
+              compiler::utils::tgtext::ImageDim3D;
+#else
   auto opFunctionParameter = module.get<OpFunctionParameter>(op->Image());
+
   auto *imgTy =
       module.getInternalStructType(opFunctionParameter->IdResultType());
   SPIRV_LL_ASSERT(imgTy, "Unknown/untracked image type");
 
   llvm::StringRef imageTypeName = imgTy->getStructName();
 
+  bool isArray = imageTypeName.contains("array");
+  bool is2D = imageTypeName.contains("2d");
+  bool is3D = imageTypeName.contains("3d");
+#endif
+
   llvm::Value *result = llvm::UndefValue::get(returnType);
 
-  if (imageTypeName.contains("array")) {
+  if (isArray) {
     llvm::Type *sizeTType;
     if (module.getAddressingModel() == 64) {
       sizeTType = IRBuilder.getInt64Ty();
@@ -3622,7 +3737,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     result = resultWidth;
   }
 
-  if (imageTypeName.contains("2d") || imageTypeName.contains("3d")) {
+  if (is2D || is3D) {
     llvm::Value *resultHeight =
         createMangledBuiltinCall("get_image_height", IRBuilder.getInt32Ty(),
                                  MangleInfo(0), {image}, {op->Image()});
@@ -3635,7 +3750,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     result = IRBuilder.CreateInsertElement(result, resultHeight,
                                            IRBuilder.getInt32(1));
 
-    if (imageTypeName.contains("3d")) {
+    if (is3D) {
       llvm::Value *resultDepth =
           createMangledBuiltinCall("get_image_depth", IRBuilder.getInt32Ty(),
                                    MangleInfo(0), {image}, {op->Image()});

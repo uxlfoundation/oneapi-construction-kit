@@ -162,6 +162,7 @@ const spirv_ll::OpExecutionMode *spirv_ll::Module::getExecutionMode(
   return nullptr;
 }
 
+#if LLVM_VERSION_LESS(17, 0)
 void spirv_ll::Module::addInternalStructType(spv::Id ty,
                                              llvm::StructType *structTy) {
   InternalStructureTypes[ty] = structTy;
@@ -174,6 +175,7 @@ llvm::StructType *spirv_ll::Module::getInternalStructType(spv::Id ty) const {
   }
   return nullptr;
 }
+#endif
 
 void spirv_ll::Module::setSourceLanguage(spv::SourceLanguage sourceLang) {
   sourceLanguage = sourceLang;

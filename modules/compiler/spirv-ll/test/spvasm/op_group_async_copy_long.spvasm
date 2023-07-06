@@ -15,7 +15,8 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c Addresses %spv_file_s | FileCheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Addresses %spv_file_s | FileCheck %t
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Int64
@@ -52,10 +53,12 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @async_copy(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size)
-; CHECK: [[EVENT_VAR:%[a-zA-Z0-9_]+]] = alloca ptr
-; CHECK: [[EVENT:%[a-zA-Z0-9_]+]] = call spir_func ptr @_Z29async_work_group_strided_copyPU3AS1mPU3AS3Kmmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, ptr null)
-; CHECK: store ptr [[EVENT]], ptr [[EVENT_VAR]]
+; CHECK-GE17: [[EVENT_VAR:%.*]] = alloca [[EVENT_TY:target\("spirv.Event"\)]]
+; CHECK-LT17: [[EVENT_VAR:%.*]] = alloca [[EVENT_TY:ptr]]
+; CHECK-GE17: [[EVENT:%.*]] = call spir_func [[EVENT_TY]] @_Z29async_work_group_strided_copyPU3AS1mPU3AS3Kmmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, [[EVENT_TY]] zeroinitializer)
+; CHECK-LT17: [[EVENT:%.*]] = call spir_func [[EVENT_TY]] @_Z29async_work_group_strided_copyPU3AS1mPU3AS3Kmmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, [[EVENT_TY]] null)
+; CHECK: store [[EVENT_TY]] [[EVENT]], ptr [[EVENT_VAR]]
 ; CHECK: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, ptr [[EVENT_VAR]])
 ; CHECK: ret void
-; CHECK: declare spir_func ptr @_Z29async_work_group_strided_copyPU3AS1mPU3AS3Kmmm9ocl_event(ptr addrspace(1), ptr addrspace(3), i64, i64, ptr)
+; CHECK: declare spir_func [[EVENT_TY]] @_Z29async_work_group_strided_copyPU3AS1mPU3AS3Kmmm9ocl_event(ptr addrspace(1), ptr addrspace(3), i64, i64, [[EVENT_TY]])
 ; CHECK: declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, ptr)

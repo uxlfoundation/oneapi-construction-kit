@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/Support/type_traits.h>
 #include <multi_llvm/optional_helper.h>
@@ -1100,9 +1101,11 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
           pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
+#if LLVM_VERSION_LESS(17, 0)
         } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
                    spvPtrTy->isSamplerType()) {
           pointeeTy = module.getInternalStructType(spvPtrTy->IdResult());
+#endif
         }
         SPIRV_LL_ASSERT_PTR(pointeeTy);
         if (!pointeeTy->isIntegerTy() && !pointeeTy->isFloatingPointTy()) {
@@ -1193,6 +1196,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
     return getMangledVecPrefix(ty) +
            getMangledTypeName(elementTy, componentMangleInfo, subTys);
   } else if (ty->isPointerTy()) {
+#if LLVM_VERSION_LESS(17, 0)
     SPIRV_LL_ASSERT(mangleInfo,
                     "Must supply OpType to mangle pointer arguments");
     if (auto *structTy = module.getInternalStructType(mangleInfo->id)) {
@@ -1219,20 +1223,20 @@ std::string spirv_ll::Builder::getMangledTypeName(
                      static_cast<int>(structName.size()), structName.data());
         std::abort();
       }
-    } else {
-      SPIRV_LL_ASSERT(
-          mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
-          "Parameter is not a pointer");
-
-      auto const spvPointeeTy =
-          module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
-      auto *const elementTy = module.getType(spvPointeeTy);
-      std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
-      auto pointeeMangleInfo = *mangleInfo;
-      pointeeMangleInfo.typeQuals = 0;
-      pointeeMangleInfo.id = spvPointeeTy;
-      return mangled + getMangledTypeName(elementTy, pointeeMangleInfo, subTys);
     }
+#endif
+    SPIRV_LL_ASSERT(
+        mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
+        "Parameter is not a pointer");
+
+    auto const spvPointeeTy =
+        module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
+    auto *const elementTy = module.getType(spvPointeeTy);
+    std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
+    auto pointeeMangleInfo = *mangleInfo;
+    pointeeMangleInfo.typeQuals = 0;
+    pointeeMangleInfo.id = spvPointeeTy;
+    return mangled + getMangledTypeName(elementTy, pointeeMangleInfo, subTys);
   } else if (ty->isArrayTy()) {
     multi_llvm::Optional<MangleInfo> eltMangleInfo;
     if (mangleInfo) {
@@ -1242,6 +1246,35 @@ std::string spirv_ll::Builder::getMangledTypeName(
     }
     return "P" +
            getMangledTypeName(ty->getArrayElementType(), eltMangleInfo, subTys);
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  } else if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(ty)) {
+    auto tyName = tgtExtTy->getName();
+    if (tyName == "spirv.Event") {
+      return "9ocl_event";
+    }
+    if (tyName == "spirv.Sampler") {
+      return "11ocl_sampler";
+    }
+    if (tyName == "spirv.Image") {
+      // TODO: This only covers the small range of images we support.
+      auto dim = tgtExtTy->getIntParameter(
+          compiler::utils::tgtext::ImageTyDimensionalityIdx);
+      auto arrayed =
+          tgtExtTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx);
+      switch (dim) {
+        default:
+          break;
+        case compiler::utils::tgtext::ImageDim1D:
+          return arrayed ? "16ocl_image1darray" : "11ocl_image1d";
+        case compiler::utils::tgtext::ImageDim2D:
+          return arrayed ? "16ocl_image2darray" : "11ocl_image2d";
+        case compiler::utils::tgtext::ImageDim3D:
+          return "11ocl_image3d";
+        case compiler::utils::tgtext::ImageDimBuffer:
+          return "17ocl_image1dbuffer";
+      }
+    }
+#endif
   }
   llvm_unreachable("mangler: unsupported argument type");
 }

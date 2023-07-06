@@ -64,7 +64,7 @@ target_include_directories(spirv-ll PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source)
 target_include_directories(spirv-ll SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include ${LLVM_INCLUDE_DIR})
-target_link_libraries(spirv-ll PUBLIC cargo multi_llvm LLVMCore LLVMBitWriter)
+target_link_libraries(spirv-ll PUBLIC cargo multi_llvm compiler-utils LLVMCore LLVMBitWriter)
 
 add_subdirectory(tools)
 if(CA_ENABLE_TESTS)

@@ -27,6 +27,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Metadata.h>
 #include <llvm/IR/Module.h>
+#include <multi_llvm/llvm_version.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/opcodes.h>
 #include <spirv/unified1/spirv.hpp>
@@ -317,6 +318,7 @@ class Module : public ModuleHeader {
   const OpExecutionMode *getExecutionMode(spv::Id entryPoint,
                                           spv::ExecutionMode mode) const;
 
+#if LLVM_VERSION_LESS(17, 0)
   /// @brief Register an ID as corresponding to an internal struct type. These
   /// are opaque types such as image and events for which we pass pointers
   /// to structs around. We need to log the underlying struct type separately
@@ -333,6 +335,7 @@ class Module : public ModuleHeader {
   ///
   /// @return Returns a pointer to the type if found, `nullptr` otherwise.
   llvm::StructType *getInternalStructType(spv::Id ty) const;
+#endif
 
   /// @brief Sets the internally stored source language enum.
   void setSourceLanguage(const spv::SourceLanguage sourceLang);
@@ -756,18 +759,6 @@ class Module : public ModuleHeader {
   /// @param type_id ID of the type that was defined.
   void updateIncompletePointer(spv::Id type_id);
 
-  /// @brief Store the ID of the declared sampler type.
-  ///
-  /// We don't need to worry about multiple sampler types being declared as
-  /// OpTypeSampler doens't take any arguments and duplicate type declarations
-  /// are illegal.
-  void setSampler(spv::Id sampler);
-
-  /// @brief Get the stored sampler type ID.
-  ///
-  /// @return ID of the stored sampler type.
-  spv::Id getSampler() const;
-
   /// @brief Add id, image and sampler to the module.
   ///
   /// @param[in] id The ID to add.
@@ -1016,9 +1007,11 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, llvm::SmallVector<const OpExecutionMode *, 2>>
       ExecutionModes;
 
+#if LLVM_VERSION_LESS(17, 0)
   /// @brief A map of ID's to internal opaque struct types. Currently only used
   /// for images and events.
   llvm::DenseMap<spv::Id, llvm::StructType *> InternalStructureTypes;
+#endif
 
   /// @brief Source language enum reported by OpSource.
   spv::SourceLanguage sourceLanguage;
@@ -1098,8 +1091,6 @@ class Module : public ModuleHeader {
       IncompleteStructs;
   /// @brief Map incomplete pointers and pointed to types.
   llvm::DenseMap<const OpTypePointer *, spv::Id> IncompletePointers;
-  /// @brief ID of the declared sampler type.
-  spv::Id SamplerID;
   /// @brief Map of IDs that correspond to sampled image structs.
   llvm::DenseMap<spv::Id, SampledImage> SampledImagesMap;
 
