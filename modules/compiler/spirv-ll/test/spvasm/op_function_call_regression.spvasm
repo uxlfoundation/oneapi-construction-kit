@@ -60,7 +60,7 @@
                OpFunctionEnd
 
 
-; CHECK: define private spir_func void @foo(i64 {{%.*}}, {{(ptr|i64\*)}} byval(i64) {{%.*}}) {
+; CHECK: define private spir_func void @foo(i64 {{%.*}}, {{(ptr|i64\*)}} byval(i64) {{%.*}}) #0 {
 %foo = OpFunction %void None %foo_fn_ty
   %0 = OpFunctionParameter %ulong
 %ptr = OpFunctionParameter %ptr_ty

@@ -25,7 +25,7 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: define spir_kernel void @main() {
+// CHECK: define spir_kernel void @main() #0 {
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
 // CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

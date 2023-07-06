@@ -159,47 +159,35 @@ void spirv_ll::Builder::addDebugInfoToModule() {
 }
 
 namespace {
+
+static llvm::DenseMap<uint32_t, llvm::StringRef> BuiltinFnNames = {
+    {spv::BuiltInNumWorkgroups, "_Z14get_num_groupsj"},
+    {spv::BuiltInWorkDim, "_Z12get_work_dimv"},
+    {spv::BuiltInWorkgroupSize, "_Z14get_local_sizej"},
+    {spv::BuiltInWorkgroupId, "_Z12get_group_idj"},
+    {spv::BuiltInLocalInvocationId, "_Z12get_local_idj"},
+    {spv::BuiltInGlobalInvocationId, "_Z13get_global_idj"},
+    {spv::BuiltInGlobalSize, "_Z15get_global_sizej"},
+    {spv::BuiltInGlobalOffset, "_Z17get_global_offsetj"},
+    {spv::BuiltInSubgroupId, "_Z16get_sub_group_idv"},
+    {spv::BuiltInSubgroupSize, "_Z18get_sub_group_sizev"},
+    {spv::BuiltInSubgroupMaxSize, "_Z22get_max_sub_group_sizev"},
+    {spv::BuiltInNumSubgroups, "_Z18get_num_sub_groupsv"},
+    {spv::BuiltInNumEnqueuedSubgroups, "_Z27get_enqueued_num_sub_groupsv"},
+    {spv::BuiltInSubgroupLocalInvocationId, "_Z22get_sub_group_local_idv"},
+    {spv::BuiltInGlobalLinearId, "_Z20get_global_linear_idv"},
+    {spv::BuiltInLocalInvocationIndex, "_Z19get_local_linear_idv"},
+    {spv::BuiltInEnqueuedWorkgroupSize, "_Z23get_enqueued_local_sizej"},
+};
+
 llvm::StringRef getBuiltinName(uint32_t builtin) {
   // Return the mangled names here as there will be no OpCode's to pass to
   // createMangledBuiltinCall for use in name mangling.
-  switch (builtin) {
-    case spv::BuiltInNumWorkgroups:
-      return "_Z14get_num_groupsj";
-    case spv::BuiltInWorkDim:
-      return "_Z12get_work_dimv";
-    case spv::BuiltInWorkgroupSize:
-      return "_Z14get_local_sizej";
-    case spv::BuiltInWorkgroupId:
-      return "_Z12get_group_idj";
-    case spv::BuiltInLocalInvocationId:
-      return "_Z12get_local_idj";
-    case spv::BuiltInGlobalInvocationId:
-      return "_Z13get_global_idj";
-    case spv::BuiltInGlobalSize:
-      return "_Z15get_global_sizej";
-    case spv::BuiltInGlobalOffset:
-      return "_Z17get_global_offsetj";
-    case spv::BuiltInSubgroupId:
-      return "_Z16get_sub_group_idv";
-    case spv::BuiltInSubgroupSize:
-      return "_Z18get_sub_group_sizev";
-    case spv::BuiltInSubgroupMaxSize:
-      return "_Z22get_max_sub_group_sizev";
-    case spv::BuiltInNumSubgroups:
-      return "_Z18get_num_sub_groupsv";
-    case spv::BuiltInNumEnqueuedSubgroups:
-      return "_Z27get_enqueued_num_sub_groupsv";
-    case spv::BuiltInSubgroupLocalInvocationId:
-      return "_Z22get_sub_group_local_idv";
-    case spv::BuiltInGlobalLinearId:
-      return "_Z20get_global_linear_idv";
-    case spv::BuiltInLocalInvocationIndex:
-      return "_Z19get_local_linear_idv";
-    case spv::BuiltInEnqueuedWorkgroupSize:
-      return "_Z23get_enqueued_local_sizej";
-    default:
-      llvm_unreachable("invalid work item builtin");
+  auto It = BuiltinFnNames.find(builtin);
+  if (It == BuiltinFnNames.end()) {
+    llvm_unreachable("invalid work item builtin");
   }
+  return It->getSecond();
 }
 }  // namespace
 
@@ -587,7 +575,7 @@ llvm::Function *spirv_ll::Builder::declareBuiltinFunction(
   llvm::Function *func = llvm::Function::Create(
       ty, llvm::GlobalValue::LinkageTypes::ExternalLinkage, func_name,
       module.llvmModule.get());
-  if (func_name != "__translate_sampler_initializer") {
+  if (func_name != SAMPLER_INIT_FN) {
     func->setCallingConv(llvm::CallingConv::SPIR_FUNC);
   }
   if (convergent) {
@@ -611,8 +599,14 @@ llvm::CallInst *spirv_ll::Builder::createBuiltinCall(
     function = declareBuiltinFunction(
         name.str(), llvm::FunctionType::get(retTy, argTys, false), convergent);
   }
-  auto call = IRBuilder.CreateCall(function, args);
-  if (!name.equals("__translate_sampler_initializer")) {
+  // Builtin functions also only read memory - set that attribute
+  if (llvm::find_if(BuiltinFnNames, [name](const auto &pair) {
+        return pair.getSecond() == name;
+      }) != BuiltinFnNames.end()) {
+    function->setOnlyReadsMemory();
+  }
+  auto *const call = IRBuilder.CreateCall(function, args);
+  if (!name.equals(SAMPLER_INIT_FN)) {
     call->setCallingConv(llvm::CallingConv::SPIR_FUNC);
   }
   return call;
@@ -1106,7 +1100,8 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
           pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
-        } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType()) {
+        } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
+                   spvPtrTy->isSamplerType()) {
           pointeeTy = module.getInternalStructType(spvPtrTy->IdResult());
         }
         SPIRV_LL_ASSERT_PTR(pointeeTy);

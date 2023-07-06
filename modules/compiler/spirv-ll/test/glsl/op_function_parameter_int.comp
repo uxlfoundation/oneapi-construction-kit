@@ -28,7 +28,7 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: define spir_kernel void @main() {
+// CHECK: define spir_kernel void @main() #0 {
 // CHECK: [[res:%[a-zA-Z0-9]+]] = alloca i1
 // CHECK: [[param:%[a-zA-Z0-9]+]] = alloca i32
 // CHECK: [[param1:%[a-zA-Z0-9]+]] = alloca i32
@@ -39,7 +39,7 @@ void main() {
 // CHECK: ret void
 // CHECK: }
 
-// CHECK: define private spir_func i1 @{{(foo|"foo\(.+")}}(ptr %a, ptr %b) {
+// CHECK: define private spir_func i1 @{{(foo|"foo\(.+")}}(ptr %a, ptr %b) #0 {
 // CHECK: [[a:%[a-zA-Z0-9]+]] = load i32, ptr %a
 // CHECK: [[b:%[a-zA-Z0-9]+]] = load i32, ptr %b
 // CHECK: [[ret:%[a-zA-Z0-9]+]] = icmp eq i32 [[a]], [[b]]

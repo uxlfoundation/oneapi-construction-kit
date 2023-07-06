@@ -32,6 +32,5 @@
       %entry = OpLabel
                OpReturn
                OpFunctionEnd
-; CHECK: Function Attrs: noinline optnone
 ; CHECK: define spir_kernel void @foo() [[ATTRS:#[0-9]]]
-; CHECK: attributes [[ATTRS]] = { noinline optnone }
+; CHECK: attributes [[ATTRS]] = { noinline nounwind optnone }

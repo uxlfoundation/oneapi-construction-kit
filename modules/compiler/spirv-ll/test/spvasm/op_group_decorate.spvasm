@@ -86,7 +86,7 @@
      %uint_0 = OpConstant %uint 0
       %int_0 = OpConstant %int 0
        %main = OpFunction %void None %3
-; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}, ptr addrspace(1){{( %2)?}}, ptr addrspace(1){{( %3)?}}, ptr addrspace(1){{( %4)?}}) {
+; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}, ptr addrspace(1){{( %2)?}}, ptr addrspace(1){{( %3)?}}, ptr addrspace(1){{( %4)?}}) #0 {
           %5 = OpLabel
          %id = OpVariable %_ptr_Function_uint Function
 ; CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32

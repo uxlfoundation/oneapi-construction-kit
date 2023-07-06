@@ -61,7 +61,7 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: [[STRUCT:%[a-zA-Z0-9_]+]] = type { i32, i32 }
-; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) {
+; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) #0 {
 ; CHECK: [[IN_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 0
 ; Check that the volatile decoration was correctly propagated to the result of the GEP
 ; CHECK: {{%[a-zA-Z0-9_]+}} = load volatile i32, ptr addrspace(1) [[IN_GEP]]

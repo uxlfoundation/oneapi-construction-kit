@@ -817,10 +817,12 @@ llvm::ModulePassManager BaseModule::getEarlySPIRPasses(bool is_spirv) {
       ocl_ver->addOperand(llvm::MDTuple::get(m.getContext(), values));
     }
   }));
-  // The spir fixup pass must be run now. Among other minor fixes, it makes
-  // sure the calling convention is correct on all functions in the kernel,
-  // which avoids warnings from the verification passes later on.
-  pm.addPass(compiler::spir::SpirFixupPass());
+  if (!is_spirv) {
+    // The spir fixup pass must be run now. Among other minor fixes, it makes
+    // sure the calling convention is correct on all functions in the kernel,
+    // which avoids warnings from the verification passes later on.
+    pm.addPass(compiler::spir::SpirFixupPass());
+  }
   {
     // The BitShiftFixupPass and SoftwareDivisionPass manually fix cases
     // which in C would be UB but which the CL spec has different rules for.
@@ -946,8 +948,9 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
   createOpenCLKernelsMetadata(*llvm_module);
 
   // Now run a generic optimization pipeline based on the one clang normally
-  // runs during codegen. We need to run the spir fixup passes on IR generated
-  // from SPIR-V, see CA-3820.
+  // runs during codegen.
+  // We also run some of the SPIR fixup passes on IR generated from SPIR-V and
+  // it's unclear if that's actually necessary: see DDK-278.
   clang::CodeGenOptions codeGenOpts;
   populateCodeGenOpts(codeGenOpts);
   runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRPasses(/*is_spirv*/ true));

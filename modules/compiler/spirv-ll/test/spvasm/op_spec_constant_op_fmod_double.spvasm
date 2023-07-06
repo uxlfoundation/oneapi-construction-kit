@@ -43,7 +43,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main() {
+; CHECK: define spir_kernel void @main() #0 {
 ; CHECK: [[MOD:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double -4.242000e+01)
 ; CHECK: [[SPEC:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
 ; CHECK: br label {{%[a-zA-Z0-9_]+}}

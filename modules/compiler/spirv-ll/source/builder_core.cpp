@@ -479,13 +479,19 @@ cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
-  // TODO: In SPIR 1.2 sampler_t is an i32, LLVM 6.0 changed the representation
-  // of sampler_t to an opaque struct, once we drop support for older versions
-  // of LLVM we should also switch to this representation.
-  module.addID(op->IdResult(), op, IRBuilder.getInt32Ty());
-  // Store the ID of the sampler type so we can check if an i32 is a sampler
-  // later.
-  module.setSampler(op->IdResult());
+  llvm::StructType *sampler_struct;
+  if (auto *s = multi_llvm::getStructTypeByName(*context.llvmContext,
+                                                "opencl.sampler_t")) {
+    sampler_struct = s;
+  } else {
+    sampler_struct =
+        llvm::StructType::create(*context.llvmContext, "opencl.sampler_t");
+  }
+  module.addID(op->IdResult(), op,
+               llvm::PointerType::getUnqual(sampler_struct));
+  // Register this structure type - we pass pointers around but occasionally
+  // need to know the underlying type (e.g., for mangling)
+  module.addInternalStructType(op->IdResult(), sampler_struct);
   return cargo::nullopt;
 }
 
@@ -784,9 +790,6 @@ cargo::optional<Error> Builder::create<OpConstantComposite>(
 template <>
 cargo::optional<Error> Builder::create<OpConstantSampler>(
     const OpConstantSampler *op) {
-  llvm::Type *resultType = module.getType(op->IdResultType());
-  SPIRV_LL_ASSERT_PTR(resultType);
-
   // Translate SPIR-V enums into values from SPIR 1.2 spec Table 4
   // https://www.khronos.org/registry/SPIR/specs/spir_spec-1.2.pdf
   static const uint32_t addressingModes[] = {
@@ -808,8 +811,12 @@ cargo::optional<Error> Builder::create<OpConstantSampler>(
                           normalizedCoords[op->Param()] |
                           filterModes[op->SamplerFilterMode()];
 
+  // Note that samplers should actually be pointers to opaque structure types.
+  // We internally store constant samplers as their i32 initializers, then, in
+  // the only place that can use them (OpSampledImage) we translate them to the
+  // proper type via a builtin call.
   llvm::Constant *constSampler =
-      llvm::ConstantInt::get(resultType, samplerValue);
+      llvm::ConstantInt::get(IRBuilder.getInt32Ty(), samplerValue);
   SPIRV_LL_ASSERT_PTR(constSampler);
 
   module.addID(op->IdResult(), op, constSampler);
@@ -2151,12 +2158,6 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     return structName;
   }
   if (argTy->isIntegerTy()) {
-    // if the arg is an integer it might actually be a sampler, while spir
-    // wants samplers to be i32 the metadata must still identify them as
-    // samplers for CL
-    if (module.getSampler() == argTyID) {
-      return "sampler_t";
-    }
     auto argTyOp = module.get<OpType>(argTy);
     return getScalarTypeName(argTy, argTyOp);
   }
@@ -3354,6 +3355,24 @@ cargo::optional<Error> Builder::create<OpSampledImage>(
 
   llvm::Value *sampler = module.getValue(op->Sampler());
   SPIRV_LL_ASSERT_PTR(sampler);
+
+  // If this is a OpConstantSampler, we've stored it as a constant i32.
+  // Translate it to a proper sampler type through clang's built-in
+  // __translate_sampler_initializer function.
+  if (llvm::isa<llvm::ConstantInt>(sampler)) {
+    auto *formalSamplerOpTy = module.getResultType(op->Sampler());
+    SPIRV_LL_ASSERT_PTR(formalSamplerOpTy);
+    auto formalSamplerTyID = formalSamplerOpTy->IdResult();
+    auto *formalSamplerTy = module.getType(formalSamplerTyID);
+    SPIRV_LL_ASSERT(sampler->getType() && sampler->getType()->isIntegerTy(32),
+                    "Internal sampler error");
+    SPIRV_LL_ASSERT(
+        formalSamplerTy && module.getInternalStructType(formalSamplerTyID),
+        "Internal sampler error");
+    auto translate_func = module.llvmModule->getOrInsertFunction(
+        SAMPLER_INIT_FN, formalSamplerTy, sampler->getType());
+    sampler = IRBuilder.CreateCall(translate_func, sampler);
+  }
 
   module.addSampledImage(op->IdResult(), image, sampler);
   return cargo::nullopt;

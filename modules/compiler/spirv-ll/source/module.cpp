@@ -64,7 +64,6 @@ spirv_ll::Module::Module(
       File(nullptr),
       CurrentOpLineRange(nullptr, llvm::BasicBlock::iterator()),
       LoopControl(),
-      SamplerID(0),
       specInfo(specInfo),
       PushConstantStructVariable(nullptr),
       PushConstantStructID{},
@@ -90,7 +89,6 @@ spirv_ll::Module::Module(spirv_ll::Context &context,
       File(nullptr),
       CurrentOpLineRange(nullptr, llvm::BasicBlock::iterator()),
       LoopControl(),
-      SamplerID(0),
       specInfo(),
       PushConstantStructVariable(nullptr),
       PushConstantStructID{},
@@ -647,10 +645,6 @@ void spirv_ll::Module::updateIncompletePointer(spv::Id type_id) {
     }
   }
 }
-
-void spirv_ll::Module::setSampler(spv::Id sampler) { SamplerID = sampler; }
-
-spv::Id spirv_ll::Module::getSampler() const { return SamplerID; }
 
 void spirv_ll::Module::addSampledImage(spv::Id id, llvm::Value *image,
                                        llvm::Value *sampler) {

@@ -29,7 +29,7 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: define spir_kernel void @main() {
+// CHECK: define spir_kernel void @main() #0 {
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x i1>
 // CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x i1> @{{("func_call_ret_vec4_bool.+")}}()
 // CHECK: store <4 x i1> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}

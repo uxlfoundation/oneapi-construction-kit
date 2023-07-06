@@ -44,7 +44,7 @@
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: [[STRUCT:%[a-zA-Z0-9_]+]] = type { <2 x i32>, i32, i32 }
-; CHECK: define spir_kernel void @main() {
+; CHECK: define spir_kernel void @main() #0 {
 ; CHECK: [[VAR:%[a-zA-Z0-9_]+]] = alloca [[STRUCT]]
 ; CHECK: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, ptr [[VAR]]
 ; CHECK: ret void
