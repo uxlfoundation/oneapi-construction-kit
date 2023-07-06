@@ -15,29 +15,46 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <base/pass_pipelines.h>
+#include <compiler/utils/add_kernel_wrapper_pass.h>
+#include <compiler/utils/add_metadata_pass.h>
+#include <compiler/utils/align_module_structs_pass.h>
 #include <compiler/utils/attributes.h>
+#include <compiler/utils/encode_kernel_metadata_pass.h>
+#include <compiler/utils/handle_barriers_pass.h>
+#include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/metadata.h>
+#include <compiler/utils/metadata_analysis.h>
+#include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
+#include <compiler/utils/replace_local_module_scope_variables_pass.h>
+#include <compiler/utils/replace_mem_intrinsics_pass.h>
+#include <compiler/utils/simple_callback_pass.h>
+#include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Passes/PassBuilder.h>
+#include <metadata/handler/vectorize_info_metadata.h>
 #include <multi_llvm/optional_helper.h>
 #include <riscv/ir_to_builtins_pass.h>
 #include <riscv/riscv_pass_machinery.h>
-#include <vecz/pass.h>
 
-riscv::RiscvPassMachinery::RiscvPassMachinery(
-    llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
+namespace riscv {
+
+RiscvPassMachinery::RiscvPassMachinery(
+    const RiscvTarget &target, llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
     const compiler::utils::DeviceInfo &Info,
     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
     bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
     bool timePasses)
     : compiler::BaseModulePassMachinery(Ctx, TM, Info, BICallback, verifyEach,
-                                        debugLogLevel, timePasses) {}
+                                        debugLogLevel, timePasses),
+      target(target) {}
 
-// Process vecz flags based off build options and environment variables
-// return true if we want to vectorize
-llvm::SmallVector<vecz::VeczPassOptions> processVeczFlags(
-    multi_llvm::Optional<compiler::VectorizationMode> vecz_mode) {
-  llvm::SmallVector<vecz::VeczPassOptions> vecz_options_vec;
+// Process various compiler options based off compiler build options and common
+// environment variables
+RiscvPassMachinery::OptimizationOptions
+RiscvPassMachinery::processOptimizationOptions(
+    std::optional<std::string> env_debug_prefix,
+    std::optional<compiler::VectorizationMode> vecz_mode) {
+  OptimizationOptions env_var_opts;
   vecz::VeczPassOptions vecz_opts;
   // The minimum number of elements to vectorize for. For a fixed-length VF,
   // this is the exact number of elements to vectorize by. For scalable VFs,
@@ -69,10 +86,16 @@ llvm::SmallVector<vecz::VeczPassOptions> processVeczFlags(
       if (r == "A" || r == "a") {
         vecz_opts.vecz_auto = true;
       } else if (r == "V" || r == "v") {
-        // 'V is no longer a vectorization choice but is legally found as part
-        // of this variable. See hasForceNoTail, below.
+        // Note: This is a legacy toggle for forcing vectorization with no
+        // scalar tail based on the "VF" environment variable. Ideally we'd be
+        // setting it on a per-function basis, and we'd also be setting the
+        // vectorization options themselves on a per-function basis. Until we've
+        // designed a new method, keep the legacy behaviour by re-parsing the
+        // "VF" environment variable and look for a "v/V" toggle.
+        env_var_opts.force_no_tail = true;
       } else if (r == "S" || r == "s") {
         vecz_opts.factor.setIsScalable(true);
+        env_var_opts.early_link_builtins = true;
       } else if (isdigit(r[0])) {
         vecz_opts.factor.setKnownMin(std::stoi(r.str()));
       } else if (r == "VP" || r == "vp") {
@@ -84,7 +107,8 @@ llvm::SmallVector<vecz::VeczPassOptions> processVeczFlags(
         // later.
         add_vvp = true;
       } else {
-        return {};
+        // An error - just stop processing the environment variable now.
+        break;
       }
     }
   }
@@ -98,13 +122,22 @@ llvm::SmallVector<vecz::VeczPassOptions> processVeczFlags(
     }
   }
 
-  vecz_options_vec.push_back(vecz_opts);
+  env_var_opts.vecz_pass_opts.push_back(vecz_opts);
   if (add_vvp) {
     vecz_opts.choices.enable(vecz::VectorizationChoices::eVectorPredication);
-    vecz_options_vec.push_back(vecz_opts);
+    env_var_opts.vecz_pass_opts.push_back(vecz_opts);
   }
 
-  return vecz_options_vec;
+  // Allow any decisions made on early linking builtins to be overridden
+  // with an env variable
+  if (env_debug_prefix) {
+    std::string env_name = *env_debug_prefix + "_EARLY_LINK_BUILTINS";
+    if (const char *early_link_builtins_env = getenv(env_name.c_str())) {
+      env_var_opts.early_link_builtins = atoi(early_link_builtins_env) != 0;
+    }
+  }
+
+  return env_var_opts;
 }
 
 bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
@@ -115,15 +148,16 @@ bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
-  auto vecz_options_vec = processVeczFlags(vecz_mode);
-  if (vecz_options_vec.empty()) {
+  auto env_var_opts = RiscvPassMachinery::processOptimizationOptions(
+      /*env_debug_prefix*/ {}, vecz_mode);
+  if (env_var_opts.vecz_pass_opts.empty()) {
     return false;
   }
-  PassOpts.assign(vecz_options_vec);
+  PassOpts.assign(env_var_opts.vecz_pass_opts);
   return true;
 }
 
-void riscv::RiscvPassMachinery::addClassToPassNames() {
+void RiscvPassMachinery::addClassToPassNames() {
   BaseModulePassMachinery::addClassToPassNames();
 // Register compiler passes
 #define MODULE_PASS(NAME, CREATE_PASS) \
@@ -134,14 +168,107 @@ void riscv::RiscvPassMachinery::addClassToPassNames() {
 #include "riscv_pass_registry.def"
 }
 
-void riscv::RiscvPassMachinery::registerPasses() {
+void RiscvPassMachinery::registerPasses() {
 #define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   MAM.registerPass([&] { return CREATE_PASS; });
 #include "riscv_pass_registry.def"
   compiler::BaseModulePassMachinery::registerPasses();
 }
 
-void riscv::RiscvPassMachinery::registerPassCallbacks() {
+llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
+  llvm::ModulePassManager PM;
+
+  std::optional<std::string> env_debug_prefix;
+#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_RISCV_DEMO_MODE)
+  env_debug_prefix = target.env_debug_prefix;
+#endif
+
+  compiler::BasePassPipelineTuner tuner(options);
+  auto env_var_opts =
+      processOptimizationOptions(env_debug_prefix, /* vecz_mode*/ {});
+
+  PM.addPass(compiler::utils::TransferKernelMetadataPass());
+
+  if (env_debug_prefix) {
+    std::string dump_ir_env_name = *env_debug_prefix + "_DUMP_IR";
+    if (std::getenv(dump_ir_env_name.c_str())) {
+      PM.addPass(compiler::utils::SimpleCallbackPass(
+          [](llvm::Module &m) { m.print(llvm::dbgs(), /*AAW*/ nullptr); }));
+    }
+  }
+
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ReplaceMemIntrinsicsPass()));
+
+  // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
+  PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
+                                       llvm::Module>());
+
+  // This potentially fixes up any structs to match the spir alignment
+  // before we change to the backend layout
+  PM.addPass(compiler::utils::AlignModuleStructsPass());
+
+  // Handle the generic address space
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));
+
+  PM.addPass(IRToBuiltinReplacementPass());
+
+  if (env_var_opts.early_link_builtins) {
+    PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
+  }
+
+  // When degenerate sub-groups are enabled here, any kernel that uses sub-group
+  // functions will be cloned to give a version using degenerate sub-groups and
+  // a version using non-degenerate sub-groups, for selection by the runtime.
+  tuner.degenerate_sub_groups = true;
+  addPreVeczPasses(PM, tuner);
+
+  PM.addPass(vecz::RunVeczPass());
+
+  // Verify that any required sub-group size was met.
+  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
+
+  addLateBuiltinsPasses(PM, tuner);
+
+  compiler::utils::HandleBarriersOptions HBOpts;
+  HBOpts.IsDebug = options.opt_disable;
+  HBOpts.ForceNoTail = env_var_opts.force_no_tail;
+  PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
+
+  compiler::addPrepareWorkGroupSchedulingPasses(PM);
+
+  compiler::utils::AddKernelWrapperPassOptions KWOpts;
+  // We don't bundle kernel arguments in a packed struct.
+  KWOpts.IsPackedStruct = false;
+  PM.addPass(compiler::utils::AddKernelWrapperPass(KWOpts));
+
+  PM.addPass(compiler::utils::ReplaceLocalModuleScopeVariablesPass());
+
+  PM.addPass(compiler::utils::AddMetadataPass<
+             compiler::utils::VectorizeMetadataAnalysis,
+             handler::VectorizeInfoMetadataHandler>());
+
+  addLLVMDefaultPerModulePipeline(PM, getPB(), options);
+
+  if (env_debug_prefix) {
+    // With all passes scheduled, add a callback pass to view the
+    // assembly/object file, if requested.
+    std::string dump_asm_env_name = *env_debug_prefix + "_DUMP_ASM";
+    if (std::getenv(dump_asm_env_name.c_str())) {
+      PM.addPass(compiler::utils::SimpleCallbackPass([this](llvm::Module &m) {
+        // Clone the module so we leave it in the same state after we compile.
+        auto cloned_m = llvm::CloneModule(m);
+        compiler::emitCodeGenFile(*cloned_m, TM, llvm::outs(),
+                                  /*create_assembly*/ true);
+      }));
+    }
+  }
+
+  return PM;
+}
+
+void RiscvPassMachinery::registerPassCallbacks() {
   BaseModulePassMachinery::registerPassCallbacks();
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
@@ -156,10 +283,20 @@ void riscv::RiscvPassMachinery::registerPassCallbacks() {
       });
 }
 
-void riscv::RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
+bool RiscvPassMachinery::handlePipelineElement(llvm::StringRef Name,
+                                               llvm::ModulePassManager &PM) {
+  if (Name.consume_front("riscv-late-passes")) {
+    PM.addPass(getLateTargetPasses());
+    return true;
+  }
+
+  return false;
+}
+
+void RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
   BaseModulePassMachinery::printPassNames(OS);
 
-  OS << "\nRisc-v specific Target passes:\n\n";
+  OS << "\nriscv specific Target passes:\n\n";
   OS << "Module passes:\n";
 #define MODULE_PASS(NAME, CREATE_PASS) compiler::utils::printPassName(NAME, OS);
 #include "riscv_pass_registry.def"
@@ -168,4 +305,11 @@ void riscv::RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
 #define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
 #include "riscv_pass_registry.def"
+
+  OS << "\nriscv pipelines:\n\n";
+
+  OS << "  riscv-late-passes\n";
+  OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
 }
+
+}  // namespace riscv

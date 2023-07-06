@@ -18,6 +18,10 @@
 #define RISCV_PASS_MACHINERY_H_INCLUDED
 
 #include <base/base_pass_machinery.h>
+#include <riscv/target.h>
+#include <vecz/pass.h>
+
+#include <optional>
 
 namespace riscv {
 
@@ -27,8 +31,8 @@ namespace riscv {
 class RiscvPassMachinery : public compiler::BaseModulePassMachinery {
  public:
   RiscvPassMachinery(
-      llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
-      const compiler::utils::DeviceInfo &Info,
+      const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
+      llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
       compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses);
@@ -40,6 +44,28 @@ class RiscvPassMachinery : public compiler::BaseModulePassMachinery {
   void registerPassCallbacks() override;
 
   void printPassNames(llvm::raw_ostream &OS) override;
+
+  bool handlePipelineElement(llvm::StringRef,
+                             llvm::ModulePassManager &AM) override;
+
+  /// @brief Returns an optimization pass pipeline to run over all kernels in a
+  /// module. @see BaseModule::getLateTargetPasses.
+  ///
+  /// @return Result ModulePassManager containing passes
+  llvm::ModulePassManager getLateTargetPasses();
+
+  struct OptimizationOptions {
+    llvm::SmallVector<vecz::VeczPassOptions> vecz_pass_opts;
+    bool force_no_tail = false;
+    bool early_link_builtins = false;
+  };
+
+  static OptimizationOptions processOptimizationOptions(
+      std::optional<std::string> env_debug_prefix,
+      std::optional<compiler::VectorizationMode> vecz_mode);
+
+ protected:
+  const riscv::RiscvTarget &target;
 };
 
 }  // namespace riscv

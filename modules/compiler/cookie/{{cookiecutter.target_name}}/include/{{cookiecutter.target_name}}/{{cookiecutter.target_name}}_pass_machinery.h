@@ -22,6 +22,7 @@
 #define {{cookiecutter.target_name_capitals}}_PASS_MACHINERY_H_INCLUDED
 
 #include <base/base_pass_machinery.h>
+#include <{{cookiecutter.target_name}}/target.h>
 
 namespace {{cookiecutter.target_name}} {
 
@@ -30,11 +31,12 @@ namespace {{cookiecutter.target_name}} {
 /// by various passes as we run through the passes.
 class {{cookiecutter.target_name.capitalize()}}PassMachinery : public compiler::BaseModulePassMachinery {
  public:
-  {{cookiecutter.target_name.capitalize()}}PassMachinery(llvm::LLVMContext &Ctx,llvm::TargetMachine * TM,
-                const compiler::utils::DeviceInfo &Info,
-                compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
-                bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
-                bool timePasses);
+  {{cookiecutter.target_name.capitalize()}}PassMachinery(
+      const {{cookiecutter.target_name.capitalize()}}Target &target, llvm::LLVMContext &Ctx,
+      llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
+      compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
+      bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
+      bool timePasses);
 
   void addClassToPassNames() override;
 
@@ -43,6 +45,18 @@ class {{cookiecutter.target_name.capitalize()}}PassMachinery : public compiler::
   void registerPassCallbacks() override;
 
   void printPassNames(llvm::raw_ostream &OS) override;
+
+  bool handlePipelineElement(llvm::StringRef,
+                             llvm::ModulePassManager &AM) override;
+
+  /// @brief Returns an optimization pass pipeline to run over all kernels in a
+  /// module. @see BaseModule::getLateTargetPasses.
+  ///
+  /// @return Result ModulePassManager containing passes
+  llvm::ModulePassManager getLateTargetPasses();
+
+ private:
+   const {{cookiecutter.target_name.capitalize()}}Target &target;
 };
 
 }  // namespace {{cookiecutter.target_name}}

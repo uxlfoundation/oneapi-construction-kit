@@ -39,14 +39,6 @@ class RefSiM1Module final : public riscv::RiscvModule {
   /// @see Module::getLateTargetPasses
   llvm::ModulePassManager getLateTargetPasses(
       compiler::utils::PassMachinery &pass_mach) override;
-
- private:
-  /// @brief Add any final kernel passes
-  /// @note This is run just before the AddMetadataPass
-  void addFinalKernelPasses(llvm::ModulePassManager &PM);
-
-  /// @brief Modify the tuner used for the compiler pipeline
-  void modifyTuner(compiler::BasePassPipelineTuner &tuner);
 };  // class RefSiM1Module
 }  // namespace refsi_m1
 

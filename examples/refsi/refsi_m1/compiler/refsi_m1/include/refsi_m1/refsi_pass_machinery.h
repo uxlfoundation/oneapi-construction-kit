@@ -27,8 +27,8 @@ namespace refsi_m1 {
 class RefSiM1PassMachinery : public riscv::RiscvPassMachinery {
  public:
   RefSiM1PassMachinery(
-      llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
-      const compiler::utils::DeviceInfo &Info,
+      const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
+      llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
       compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses);
@@ -36,6 +36,15 @@ class RefSiM1PassMachinery : public riscv::RiscvPassMachinery {
   void addClassToPassNames() override;
   void registerPassCallbacks() override;
   void printPassNames(llvm::raw_ostream &OS) override;
+
+  bool handlePipelineElement(llvm::StringRef,
+                             llvm::ModulePassManager &AM) override;
+
+  /// @brief Returns an optimization pass pipeline to run over all kernels in a
+  /// module. @see BaseModule::getLateTargetPasses.
+  ///
+  /// @return Result ModulePassManager containing passes
+  llvm::ModulePassManager getLateTargetPasses();
 };
 
 }  // namespace refsi_m1

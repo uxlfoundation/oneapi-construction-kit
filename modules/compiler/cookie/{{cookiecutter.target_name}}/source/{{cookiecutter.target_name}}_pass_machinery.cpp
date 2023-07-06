@@ -20,31 +20,59 @@
 
 
 #include <base/pass_pipelines.h>
+#include <compiler/utils/add_kernel_wrapper_pass.h>
+#include <compiler/utils/add_metadata_pass.h>
+#include <compiler/utils/align_module_structs_pass.h>
+#include <compiler/utils/attributes.h>
+#include <compiler/utils/encode_kernel_metadata_pass.h>
+#include <compiler/utils/handle_barriers_pass.h>
+#include <compiler/utils/link_builtins_pass.h>
+#include <compiler/utils/metadata.h>
+#include <compiler/utils/metadata_analysis.h>
+#include <compiler/utils/replace_local_module_scope_variables_pass.h>
+{% if "replace_mem"  in cookiecutter.feature.split(";") -%}
+#include <compiler/utils/replace_mem_intrinsics_pass.h>
+{% endif -%}
+#include <compiler/utils/simple_callback_pass.h>
+#include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Passes/PassBuilder.h>
+#include <metadata/handler/vectorize_info_metadata.h>
 #include <multi_llvm/optional_helper.h>
+#include <optional>
+#include <vecz/pass.h>
+// Add our pass machinery
 #include <{{cookiecutter.target_name}}/{{cookiecutter.target_name}}_pass_machinery.h>
 {% if "refsi_wrapper_pass"  in cookiecutter.feature.split(";") -%}
+// Add an additional wrapper pass for refsi
 #include <{{cookiecutter.target_name}}/refsi_wrapper_pass.h>
 {% endif -%}
-#include <compiler/utils/attributes.h>
-#include <compiler/utils/metadata.h>
-#include <vecz/pass.h>
 
 using namespace llvm;
 
 namespace {{cookiecutter.target_name}} {
-  {{cookiecutter.target_name.capitalize()}}PassMachinery::{{cookiecutter.target_name.capitalize()}}PassMachinery(
-      llvm::LLVMContext &Ctx, llvm::TargetMachine * TM, const compiler::utils::DeviceInfo &Info,
-      compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
-      bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
-      bool timePasses)
-      : compiler::BaseModulePassMachinery(Ctx, TM, Info, BICallback, verifyEach,
-                                          debugLogLevel, timePasses) {}
+
+{{cookiecutter.target_name.capitalize()}}PassMachinery::{{cookiecutter.target_name.capitalize()}}PassMachinery(
+    const {{cookiecutter.target_name.capitalize()}}Target &target, llvm::LLVMContext &Ctx,
+    llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
+    compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
+    bool verifyEach, compiler::utils::DebugLogging debugLogLevel,
+    bool timePasses)
+    : compiler::BaseModulePassMachinery(Ctx, TM, Info, BICallback, verifyEach,
+                                        debugLogLevel, timePasses),
+      target(target) {}
+
+struct OptimizationOptions {
+  std::optional<vecz::VeczPassOptions> vecz_pass_opts;
+  bool force_no_tail = false;
+  bool early_link_builtins = false;
+};
 
 // Process vecz flags based off build options and environment variables
 // return true if we want to vectorize
-multi_llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
+static OptimizationOptions processOptimizationOptions(
+    std::optional<std::string> env_debug_prefix) {
+  OptimizationOptions env_var_opts;
   vecz::VeczPassOptions vecz_options;
   // The minimum number of elements to vectorize for. For a fixed-length VF,
   // this is the exact number of elements to vectorize by. For scalable VFs,
@@ -52,8 +80,7 @@ multi_llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
   // compile time. Default is scalar, can be updated here.
   vecz_options.factor = compiler::utils::VectorizationFactor::getScalar();
 
-  vecz_options.choices.enable(
-      vecz::VectorizationChoices::eDivisionExceptions);
+  vecz_options.choices.enable(vecz::VectorizationChoices::eDivisionExceptions);
 
   // This is of the form of a comma separated set of fields
   // S     - use scalable vectorization
@@ -62,8 +89,8 @@ multi_llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
   // 1-64  - vectorization factor multiplier: the fixed amount itself, or the
   //         value that multiplies the scalable amount
   // VP    - produce a vector-predicated kernel
-  if (const auto *vecz_vf_flags_env =
-          std::getenv("CA_{{cookiecutter.target_name_capitals}}_VF")) {
+  bool found_error = false;
+  if (const auto *vecz_vf_flags_env = std::getenv("CA_{{cookiecutter.target_name_capitals}}_VF")) {
     // Set scalable to off and let users add it explicitly with 'S'.
     vecz_options.factor.setIsScalable(false);
     llvm::SmallVector<llvm::StringRef, 4> flags;
@@ -73,17 +100,24 @@ multi_llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
       if (r == "A" || r == "a") {
         vecz_options.vecz_auto = true;
       } else if (r == "V" || r == "v") {
-        // 'V is no longer a vectorization choice but is legally found as part
-        // of this variable. See hasForceNoTail, below.
+        // Note: This is a legacy toggle for forcing vectorization with no
+        // scalar tail based on the "VF" environment variable. Ideally we'd be
+        // setting it on a per-function basis, and we'd also be setting the
+        // vectorization options themselves on a per-function basis. Until we've
+        // designed a new method, keep the legacy behaviour by re-parsing the
+        // "VF" environment variable and look for a "v/V" toggle.
+        env_var_opts.force_no_tail = true;
       } else if (r == "S" || r == "s") {
         vecz_options.factor.setIsScalable(true);
+        env_var_opts.early_link_builtins = true;
       } else if (isdigit(r[0])) {
         vecz_options.factor.setKnownMin(std::stoi(r.str()));
       } else if (r == "VP" || r == "vp") {
         vecz_options.choices.enable(
             vecz::VectorizationChoices::eVectorPredication);
       } else {
-        return multi_llvm::None;
+        found_error = true;
+        break;
       }
     }
   }
@@ -97,7 +131,113 @@ multi_llvm::Optional<vecz::VeczPassOptions> processVeczFlags() {
     }
   }
 
-  return vecz_options;
+  // Allow any decisions made on early linking builtins to be overridden
+  // with an env variable
+  if (env_debug_prefix) {
+    std::string env_name = *env_debug_prefix + "_EARLY_LINK_BUILTINS";
+    if (const char *early_link_builtins_env = getenv(env_name.c_str())) {
+      env_var_opts.early_link_builtins = atoi(early_link_builtins_env) != 0;
+    }
+  }
+
+  if (!found_error) {
+    env_var_opts.vecz_pass_opts = std::move(vecz_options);
+  }
+
+  return env_var_opts;
+}
+
+llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}PassMachinery::getLateTargetPasses() {
+  llvm::ModulePassManager PM;
+
+  std::optional<std::string> env_debug_prefix;
+#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_{{cookiecutter.target_name_capitals}}_DEMO_MODE)
+  env_debug_prefix = target.env_debug_prefix;
+#endif
+
+  compiler::BasePassPipelineTuner tuner(options);
+  auto env_var_opts = processOptimizationOptions(env_debug_prefix);
+
+  PM.addPass(compiler::utils::TransferKernelMetadataPass());
+
+  if (env_debug_prefix) {
+    std::string dump_ir_env_name = *env_debug_prefix + "_DUMP_IR";
+    if (std::getenv(dump_ir_env_name.c_str())) {
+      PM.addPass(compiler::utils::SimpleCallbackPass(
+          [](llvm::Module &m) { m.print(llvm::dbgs(), /*AAW*/ nullptr); }));
+    }
+  }
+
+  {% if "replace_mem"  in cookiecutter.feature.split(";") -%}
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ReplaceMemIntrinsicsPass()));
+  {% endif -%} 
+
+  // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
+  PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
+                                       llvm::Module>());
+
+  // This potentially fixes up any structs to match the spir alignment
+  // before we change to the backend layout
+  PM.addPass(compiler::utils::AlignModuleStructsPass());
+
+  // Add builtin replacement passes here directly to PM if needed
+
+  if (env_var_opts.early_link_builtins) {
+    PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
+  }
+
+  addPreVeczPasses(PM, tuner);
+
+  PM.addPass(vecz::RunVeczPass());
+
+  // Verify that any required sub-group size was met.
+  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
+
+  addLateBuiltinsPasses(PM, tuner);
+
+  compiler::utils::HandleBarriersOptions HBOpts;
+  HBOpts.IsDebug = options.opt_disable;
+  HBOpts.ForceNoTail = env_var_opts.force_no_tail;
+  PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
+
+  compiler::addPrepareWorkGroupSchedulingPasses(PM);
+
+  compiler::utils::AddKernelWrapperPassOptions KWOpts;
+  // We don't bundle kernel arguments in a packed struct.
+  KWOpts.IsPackedStruct = false;
+  PM.addPass(compiler::utils::AddKernelWrapperPass(KWOpts));
+
+  PM.addPass(compiler::utils::ReplaceLocalModuleScopeVariablesPass());
+
+  // Add final passes here by adding directly to PM as needed
+{% if "refsi_wrapper_pass"  in cookiecutter.feature.split(";") -%}
+  // Add an additional wrapper pass for refsi
+  PM.addPass({{cookiecutter.target_name}}::RefSiM1WrapperPass());
+{% endif -%}
+
+  PM.addPass(compiler::utils::AddMetadataPass<
+             compiler::utils::VectorizeMetadataAnalysis,
+             handler::VectorizeInfoMetadataHandler>());
+
+  addLLVMDefaultPerModulePipeline(PM, getPB(), options);
+
+  if (env_debug_prefix) {
+    // With all passes scheduled, add a callback pass to view the
+    // assembly/object file, if requested.
+    std::string dump_asm_env_name = *env_debug_prefix + "_DUMP_ASM";
+    if (std::getenv(dump_asm_env_name.c_str())) {
+      PM.addPass(compiler::utils::SimpleCallbackPass([this](llvm::Module &m) {
+        // Clone the module so we leave it in the same state after we
+        // compile.
+        auto cloned_m = llvm::CloneModule(m);
+        compiler::emitCodeGenFile(*cloned_m, TM, llvm::outs(),
+                                  /*create_assembly*/ true);
+      }));
+    }
+  }
+
+  return PM;
 }
 
 bool {{cookiecutter.target_name.capitalize()}}VeczPassOpts(
@@ -109,13 +249,13 @@ bool {{cookiecutter.target_name.capitalize()}}VeczPassOpts(
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
-  multi_llvm::Optional<vecz::VeczPassOptions> vecz_options = processVeczFlags();
-  if (!vecz_options.has_value()) {
+  auto env_var_opts = processOptimizationOptions(/*env_debug_prefix*/ {});
+  if (!env_var_opts.vecz_pass_opts.has_value()) {
     return false;
   }
-  vecz_options->vecz_auto = vecz_mode == compiler::VectorizationMode::AUTO;
-  vecz_options->vec_dim_idx = 0;
-  PassOpts.push_back(*vecz_options);
+  env_var_opts.vecz_pass_opts->vecz_auto = vecz_mode == compiler::VectorizationMode::AUTO;
+  env_var_opts.vecz_pass_opts->vec_dim_idx = 0;
+  PassOpts.push_back(*env_var_opts.vecz_pass_opts);
   return true;
 }
 
@@ -145,6 +285,16 @@ void {{cookiecutter.target_name.capitalize()}}PassMachinery::registerPasses() {
   MAM.registerPass([&] { return CREATE_PASS; });
 #include "{{cookiecutter.target_name}}_pass_registry.def"
   compiler::BaseModulePassMachinery::registerPasses();
+}
+
+bool {{cookiecutter.target_name.capitalize()}}PassMachinery::handlePipelineElement(
+    llvm::StringRef Name, llvm::ModulePassManager &PM) {
+  if (Name.consume_front("{{cookiecutter.target_name}}-late-passes")) {
+    PM.addPass(getLateTargetPasses());
+    return true;
+  }
+
+  return false;
 }
 
 void {{cookiecutter.target_name.capitalize()}}PassMachinery::registerPassCallbacks() {
@@ -256,5 +406,11 @@ void {{cookiecutter.target_name.capitalize()}}PassMachinery::printPassNames(llvm
   OS << "CGSCC passes:\n";
 #define CGSCC_PASS(NAME, CREATE_PASS) utils::printPassName(NAME, OS);
 #include "{{cookiecutter.target_name}}_pass_registry.def"
+
+  OS << "\n{{cookiecutter.target_name}} pipelines:\n\n";
+
+  OS << "  {{cookiecutter.target_name}}-late-passes\n";
+  OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
 }
-}
+
+} // namespace {{cookiecutter.target_name}}
