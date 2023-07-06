@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - 'source/**'
-      - 'module/**'
+      - 'modules/**'
       - 'examples/**'
       - 'cmake/**'
       - 'hal/**'
