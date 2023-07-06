@@ -18,6 +18,7 @@
 #include <base/program_metadata.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
+#include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/Argument.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DebugInfoMetadata.h>
@@ -269,6 +270,57 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
         return createFloatingPointType(NumEle, 64);
     }
   }
+
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  if (auto *TgtTy = llvm::dyn_cast<llvm::TargetExtType>(Ty)) {
+    auto TyName = TgtTy->getName();
+    if (TyName == "spirv.Sampler") {
+      return {ArgumentKind::SAMPLER};
+    }
+
+    if (TyName == "spirv.Image") {
+      const auto type_name = metadata->getString();
+      auto Dim =
+          TgtTy->getIntParameter(utils::tgtext::ImageTyDimensionalityIdx);
+      bool Arrayed = TgtTy->getIntParameter(utils::tgtext::ImageTyArrayedIdx) ==
+                     utils::tgtext::ImageArrayed;
+      switch (Dim) {
+        default:
+          CPL_ABORT("Unknown spirv.Image target extension type");
+        case utils::tgtext::ImageDim1D:
+          if (!Arrayed) {
+            assert(isImageType(type_name, "image1d_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE1D};
+          } else {
+            assert(isImageType(type_name, "image1d_array_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE1D_ARRAY};
+          }
+        case utils::tgtext::ImageDim2D:
+          if (!Arrayed) {
+            assert(isImageType(type_name, "image2d_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE2D};
+          } else {
+            assert(isImageType(type_name, "image2d_array_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE2D_ARRAY};
+          }
+        case utils::tgtext::ImageDim3D:
+          assert(isImageType(type_name, "image3d_t") &&
+                 "Unexpected image type metadata");
+          return {ArgumentKind::IMAGE3D};
+        case utils::tgtext::ImageDimBuffer:
+          assert(isImageType(type_name, "image1d_buffer_t") &&
+                 "Unexpected image type metadata");
+          return {ArgumentKind::IMAGE1D_BUFFER};
+      }
+    }
+
+    CPL_ABORT("Unknown target extension type");
+  }
+#endif
 
   CPL_ABORT("Unknown argument type.");
 

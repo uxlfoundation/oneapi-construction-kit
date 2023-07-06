@@ -77,7 +77,7 @@ llvm::Constant *compiler::utils::getIdentityVal(RecurKind Kind, Type *Ty) {
 
 multi_llvm::Optional<compiler::utils::GroupCollective>
 compiler::utils::isGroupCollective(llvm::Function *f) {
-  compiler::utils::NameMangler Mangler(&f->getContext(), f->getParent());
+  compiler::utils::NameMangler Mangler(&f->getContext());
   SmallVector<Type *, 4> ArgumentTypes;
   SmallVector<compiler::utils::TypeQualifiers, 4> Qualifiers;
 

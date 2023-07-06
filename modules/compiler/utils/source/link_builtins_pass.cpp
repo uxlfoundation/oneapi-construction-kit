@@ -95,7 +95,7 @@ const StringSet<> DeferredBuiltins = {
 };
 
 bool isDeferredBuiltin(Function &F) {
-  compiler::utils::NameMangler Mangler(&F.getContext(), F.getParent());
+  compiler::utils::NameMangler Mangler(&F.getContext());
 
   SmallVector<Type *, 4> Types;
   SmallVector<compiler::utils::TypeQualifiers, 4> Quals;

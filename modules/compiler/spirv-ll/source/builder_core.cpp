@@ -455,7 +455,7 @@ cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
   // llvm::Context, creating a new StructType when one already exists with the
   // same name results in .1 being appended to the struct name causing issues.
   auto *namedTy =
-      multi_llvm::getStructTypeByName(*module.llvmModule, imageTypeName);
+      multi_llvm::getStructTypeByName(*context.llvmContext, imageTypeName);
   if (namedTy) {
     structTy = namedTy;
   } else {

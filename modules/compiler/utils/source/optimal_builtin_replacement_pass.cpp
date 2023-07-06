@@ -187,8 +187,7 @@ OptimalBuiltinReplacementPass::OptimalBuiltinReplacementPass() {
 Value *OptimalBuiltinReplacementPass::replaceBuiltinWithInlineIR(
     CallBase &CB) const {
   auto *M = CB.getModule();
-  LLVMContext &Ctx = M->getContext();
-  NameMangler mangler(&Ctx, M);
+  NameMangler mangler(&M->getContext());
 
   SmallVector<Type *, 4> Types;
   SmallVector<TypeQualifiers, 4> Quals;

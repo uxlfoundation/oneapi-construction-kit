@@ -78,7 +78,7 @@ std::string lookupWGBuiltin(StringRef SubgroupBuiltin, LLVMContext *Ctx,
     return compiler::utils::MuxBuiltins::work_group_barrier;
   }
 
-  compiler::utils::NameMangler Mangler(Ctx, M);
+  compiler::utils::NameMangler Mangler(Ctx);
   SmallVector<Type *, 4> ArgumentTypes;
   SmallVector<compiler::utils::TypeQualifiers, 4> Qualifiers;
 
