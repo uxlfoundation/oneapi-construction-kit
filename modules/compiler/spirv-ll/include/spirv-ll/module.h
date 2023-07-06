@@ -759,18 +759,6 @@ class Module : public ModuleHeader {
   /// @param type_id ID of the type that was defined.
   void updateIncompletePointer(spv::Id type_id);
 
-  /// @brief Store the ID of the declared sampler type.
-  ///
-  /// We don't need to worry about multiple sampler types being declared as
-  /// OpTypeSampler doens't take any arguments and duplicate type declarations
-  /// are illegal.
-  void setSampler(spv::Id sampler);
-
-  /// @brief Get the stored sampler type ID.
-  ///
-  /// @return ID of the stored sampler type.
-  spv::Id getSampler() const;
-
   /// @brief Add id, image and sampler to the module.
   ///
   /// @param[in] id The ID to add.
@@ -1103,8 +1091,6 @@ class Module : public ModuleHeader {
       IncompleteStructs;
   /// @brief Map incomplete pointers and pointed to types.
   llvm::DenseMap<const OpTypePointer *, spv::Id> IncompletePointers;
-  /// @brief ID of the declared sampler type.
-  spv::Id SamplerID;
   /// @brief Map of IDs that correspond to sampled image structs.
   llvm::DenseMap<spv::Id, SampledImage> SampledImagesMap;
 
