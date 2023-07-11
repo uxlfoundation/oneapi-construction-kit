@@ -1647,13 +1647,6 @@ cargo::optional<Error> Builder::create<OpSpecConstantOp>(
         indexes.push_back(index);
       }
 
-      // Check if we have an alignment decoration to propagate to the new
-      // pointer.
-      if (auto align = module.getFirstDecoration(
-              op->getValueAtOffset(firstArgIndex), spv::DecorationAlignment)) {
-        module.addDecoration(op->IdResult(), align);
-      }
-
       auto elementType = module.getType(pointerTy->getTypePointer()->Type());
       SPIRV_LL_ASSERT_PTR(elementType);
       if (elementType->isStructTy()) {
@@ -2970,12 +2963,6 @@ cargo::optional<Error> Builder::create<OpAccessChain>(const OpAccessChain *op) {
                                               module.getName(op->IdResult()),
                                               IRBuilder.GetInsertBlock());
 
-  // check if we have an alignment decoration to propagate to the new pointer
-  if (auto align =
-          module.getFirstDecoration(op->Base(), spv::DecorationAlignment)) {
-    module.addDecoration(op->IdResult(), align);
-  }
-
   if (basePointeeTy->isStructTy()) {
     checkMemberDecorations(basePointeeTy, indexes, op->IdResult());
   }
@@ -3006,11 +2993,6 @@ cargo::optional<Error> Builder::create<OpInBoundsAccessChain>(
       IRBuilder.GetInsertBlock());
   inst->setIsInBounds();
 
-  // check if we have an alignment decoration to propagate to the new pointer
-  if (auto align =
-          module.getFirstDecoration(op->Base(), spv::DecorationAlignment)) {
-    module.addDecoration(op->IdResult(), align);
-  }
 
   if (basePointeeTy->isStructTy()) {
     checkMemberDecorations(basePointeeTy, indexes, op->IdResult());
@@ -3043,12 +3025,6 @@ cargo::optional<Error> Builder::create<OpPtrAccessChain>(
   llvm::GetElementPtrInst *inst = llvm::GetElementPtrInst::Create(
       basePointeeTy, base, indexes, module.getName(op->IdResult()),
       IRBuilder.GetInsertBlock());
-
-  // check if we have an alignment decoration to propagate to the new pointer
-  if (auto align =
-          module.getFirstDecoration(op->Base(), spv::DecorationAlignment)) {
-    module.addDecoration(op->IdResult(), align);
-  }
 
   if (basePointeeTy->isStructTy()) {
     checkMemberDecorations(basePointeeTy, indexes, op->IdResult());
@@ -3167,12 +3143,6 @@ cargo::optional<Error> Builder::create<OpInBoundsPtrAccessChain>(
       basePointeeTy, base, indexes, module.getName(op->IdResult()),
       IRBuilder.GetInsertBlock());
   inst->setIsInBounds();
-
-  // check if we have an alignment decoration to propagate to the new pointer
-  if (auto align =
-          module.getFirstDecoration(op->Base(), spv::DecorationAlignment)) {
-    module.addDecoration(op->IdResult(), align);
-  }
 
   module.addID(op->IdResult(), op, inst);
   return cargo::nullopt;
