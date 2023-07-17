@@ -95,6 +95,77 @@ jobs:
         run:
           ninja -C build check-ock-UnitCL
 
+  # build and run clang-tidy
+  run_clang_tidy_changes:  
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 16
+          llvm_build_type: RelAssert
+
+      # installs clang-tidy
+      - name: setup-clang-tidy
+        run:
+          sudo apt-get install -y clang-tidy-12
+
+      # These need to match the configurations of build_pr_cache to use the cache effectively
+      - name: build initial config files
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: ReleaseAssert
+          host_image: ON
+          build_targets: build.ninja
+
+      # Make a good guess as to the generated targets we require.
+      #
+      # Here we compute the set difference between the output of the two
+      # temporary file descriptors using `awk`. Awk processes both files line by
+      # line, going through the first file, then the second file. The NR==FNR
+      # predicate executes its block only on the records of the first file,
+      # ensuring to call `next` (equivalent to `return`) to avoid running the
+      # second block on each line in the first file.
+      #
+      # The first input to `awk` lists all targets reported by ninja.
+      #
+      # The second input to awk collects all targets on which `tidy-` targets
+      # depend. This may include targets which are guarded by if() statements in
+      # CMake, hence why we need to compute a set difference with the targets that
+      # ninja reports.
+      - name: build actual targets needed
+        run:
+         ninja -C build
+          $(
+            awk -F':' 'NR==FNR { targets[$1] = 1; next } $1 in targets { print $1 }'
+              <(ninja -C build -t targets)
+              <(
+                find modules source -type f -name CMakeLists.txt -exec
+                awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}'
+                {} \+ | tr ' ' '\n'
+              )
+           )
+
+      - name: run clang-tidy
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          ./scripts/compute-dependants.py \
+            --exclude-filter='(/build/.*\.s$)|(.*/(external|cookie)/.*)' \
+            --build-dir="$PWD/build" \
+            `git diff --name-only --diff-filter=d \
+              HEAD..origin/${{ github.base_ref }} | \
+              grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
+            tee /dev/stderr | \
+            parallel --verbose -- clang-tidy-12 --quiet -p "$PWD/build/" "{}"
+          # ^ When updating the clang-tidy version, the version used by the cmake
+          # target should match updated c.f. the `tidy` target
+
   # run clang-format-diff on the repo
   run_clang_format:
 
