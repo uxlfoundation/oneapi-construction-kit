@@ -1,7 +1,5 @@
 # Simple workflow for building sccache for PR testing
 name: Run ock tests for PR testing
-# Note this will currently create a new sscache file and this must be manually pruned until such time as we have a job
-# for this.
 on:
   pull_request:
     paths:
@@ -12,6 +10,7 @@ on:
       - 'hal/**'
       - '.github/actions/do_build_ock/**'
       - '.github/actions/setup_ubuntu_build/**'
+      - '.github/workflows/run_pr_tests.yml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -87,3 +86,32 @@ jobs:
       - name: run riscv M1 UnitCL tests
         run:
           ninja -C build check-UnitCL
+
+  # run clang-format-diff on the repo
+  run_clang_format:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: setup-ubuntu-clang-format
+        run:
+          pip install clang-format==16.0.6
+
+      - name: run clang-format
+        run: |
+          # we've installed clang-format-16 in the docker via pip, which just installs it as clang-format,
+          # so just use clang-format-diff and -b clang-format directly
+          git fetch origin
+          git diff -U0 --no-color HEAD..origin/${{ github.base_ref }} | \
+            clang-format-diff.py -p1 -regex \
+            "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format \
+            > clang-format.diff
+          if [ `wc -l < clang-format.diff` = 0 ]; then
+            echo 'success: clang-format did not generate a diff'
+            exit 0
+          fi
+          cat clang-format.diff
+          exit 1
