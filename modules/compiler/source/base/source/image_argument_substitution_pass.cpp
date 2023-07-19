@@ -50,19 +50,17 @@ const std::map<std::string, std::string> funcToFuncMap = {{
 }  // namespace
 
 PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
-    Module &module, ModuleAnalysisManager &) {
+    Module &M, ModuleAnalysisManager &) {
   bool module_modified = false;
 
   // we need to detect if the new sampler function is there and replace it if so
   {
-    auto samplerInitFunc =
-        module.getFunction("__translate_sampler_initializer");
-
-    if (nullptr != samplerInitFunc) {
+    if (auto *const samplerInitFunc =
+            M.getFunction("__translate_sampler_initializer")) {
       module_modified = true;
 
       IRBuilder<> builder(
-          BasicBlock::Create(module.getContext(), "entry", samplerInitFunc));
+          BasicBlock::Create(M.getContext(), "entry", samplerInitFunc));
 
       auto arg = &*samplerInitFunc->arg_begin();
 
@@ -79,7 +77,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
 
   const char *imageName = "struct.Image";
 
-  for (auto structType : module.getIdentifiedStructTypes()) {
+  for (auto *const structType : M.getIdentifiedStructTypes()) {
     auto name = structType->getName();
 
     if (name.rtrim(".0123456789").equals(imageName)) {
@@ -88,37 +86,37 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
     }
   }
 
-  if (nullptr == imageType) {
-    imageType = StructType::create(module.getContext(), imageName);
+  if (!imageType) {
+    imageType = StructType::create(M.getContext(), imageName);
   }
 
   for (const auto &pair : funcToFuncMap) {
-    auto srcFunc = module.getFunction(pair.first);
+    auto *const srcFunc = M.getFunction(pair.first);
 
     // if we didn't find the image function, we skip this loop iteration (the
     // function simply wasn't used in our user's kernels)
-    if (nullptr == srcFunc) {
+    if (!srcFunc) {
       continue;
     }
 
     // we found the function, so we definitely are modifying the module!
     module_modified = true;
 
-    for (auto &use : srcFunc->uses()) {
-      auto call = dyn_cast<CallInst>(use.getUser());
+    for (Use &use : srcFunc->uses()) {
+      auto *const call = dyn_cast<CallInst>(use.getUser());
 
       assert(call && "User wasn't a call instruction!");
 
-      auto dstFunc = module.getFunction(pair.second);
+      auto *dstFunc = M.getFunction(pair.second);
 
       // if we haven't got a declaration for our replacement function, we need
       // to make one!
-      if (nullptr == dstFunc) {
+      if (!dstFunc) {
         SmallVector<Type *, 8> types;
 
         types.push_back(PointerType::getUnqual(imageType));
 
-        auto srcFuncType = srcFunc->getFunctionType();
+        auto *const srcFuncType = srcFunc->getFunctionType();
 
         // by default, we'll just pass through the remaining arguments
         unsigned i = 1;
@@ -128,7 +126,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
 
         // have we got a function that has a sampler in its argument list?
         if (std::string::npos != pair.first.find("sampler")) {
-          types.push_back(IntegerType::get(module.getContext(), 32));
+          types.push_back(IntegerType::get(M.getContext(), 32));
 
           // the sampler will always be the second argument in the list
           i = 2;
@@ -138,11 +136,11 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
           types.push_back(srcFuncType->getParamType(i));
         }
 
-        auto dstFuncType =
+        auto *const dstFuncType =
             FunctionType::get(srcFunc->getReturnType(), types, false);
 
         dstFunc = Function::Create(dstFuncType, srcFunc->getLinkage(),
-                                   pair.second, &module);
+                                   pair.second, &M);
         dstFunc->setCallingConv(srcFunc->getCallingConv());
       }
 
@@ -182,7 +180,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
         args.push_back(call->getArgOperand(i));
       }
 
-      auto ci = Builder.CreateCall(dstFunc, args);
+      auto *const ci = Builder.CreateCall(dstFunc, args);
       ci->setCallingConv(dstFunc->getCallingConv());
       call->replaceAllUsesWith(ci);
       toRemoves.push_back(call);
@@ -196,14 +194,9 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
 
   // and finally remove the functions we have replaced
   for (const auto &pair : funcToFuncMap) {
-    auto srcFunc = module.getFunction(pair.first);
-
-    // if we didn't find the image function, we skip this loop iteration
-    if (nullptr == srcFunc) {
-      continue;
+    if (auto *const srcFunc = M.getFunction(pair.first)) {
+      srcFunc->eraseFromParent();
     }
-
-    srcFunc->eraseFromParent();
   }
 
   return module_modified ? PreservedAnalyses::none() : PreservedAnalyses::all();
