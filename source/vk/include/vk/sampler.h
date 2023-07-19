@@ -25,7 +25,7 @@ typedef struct device_t *device;
 
 /// @brief Stub of internal sampler type
 typedef struct sampler_t final {
-} * sampler;
+} *sampler;
 
 /// @brief Stub of vkCreateSampler
 VkResult CreateSampler(vk::device device,

@@ -53,7 +53,7 @@ typedef struct command_pool_t final {
   /// @brief currently the allocator used to create the object, later this will
   /// be an allocator which is only capable of allocating from the pool
   vk::allocator allocator;
-} * command_pool;
+} *command_pool;
 
 /// @brief internal implementation of vkCreateCommandPool
 ///

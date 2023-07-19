@@ -113,7 +113,7 @@ struct optional_storage_base {
   constexpr optional_storage_base() : m_dummy(0), m_has_value(false) {}
 
   template <class... U>
-  constexpr optional_storage_base(in_place_t, U &&... u)
+  constexpr optional_storage_base(in_place_t, U &&...u)
       : m_value(std::forward<U>(u)...), m_has_value(true) {}
 
   ~optional_storage_base() {
@@ -137,7 +137,7 @@ struct optional_storage_base<T, true> {
   constexpr optional_storage_base() : m_dummy(0), m_has_value(false) {}
 
   template <class... U>
-  constexpr optional_storage_base(in_place_t, U &&... u)
+  constexpr optional_storage_base(in_place_t, U &&...u)
       : m_value(std::forward<U>(u)...), m_has_value(true) {}
 
   // No destructor, so this class is trivially destructible
@@ -162,7 +162,7 @@ struct optional_operations_base : optional_storage_base<T> {
   }
 
   template <class... Args>
-  void construct(Args &&... args) {
+  void construct(Args &&...args) {
     new (std::addressof(this->m_value)) T(std::forward<Args>(args)...);
     this->m_has_value = true;
   }

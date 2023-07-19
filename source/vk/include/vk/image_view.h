@@ -25,7 +25,7 @@ typedef struct device_t *device;
 
 /// @brief Stub of internal image_view type
 typedef struct image_view_t final {
-} * image_view;
+} *image_view;
 
 /// @brief Stub of vkCreateImageView
 VkResult CreateImageView(vk::device device,

@@ -87,7 +87,7 @@ typedef struct device_t final : icd_t<device_t> {
 
   /// @brief Information about the device used during SPIR-V consumption.
   const compiler::spirv::DeviceInfo spv_device_info;
-} * device;
+} *device;
 
 /// @brief The master list of device extensions this implementation implements
 static constexpr std::array<VkExtensionProperties, 3> device_extensions = {{

@@ -68,7 +68,7 @@ typedef struct _cl_mem_image final : public _cl_mem {
   cl_image_desc image_desc;
   /// @brief Mux image object.
   cargo::dynamic_array<mux_image_t> mux_images;
-} * cl_mem_image;
+} *cl_mem_image;
 
 /// @}
 

@@ -73,7 +73,7 @@ typedef struct dispatch_callback_data_s {
   dispatch_callback_data_s(vk::queue queue, vk::command_buffer commandBuffer,
                            mux_semaphore_t semaphore,
                            VkPipelineStageFlags stage_flags);
-} * dispatch_callback_data;
+} *dispatch_callback_data;
 
 /// @brief internal queue type
 typedef struct queue_t final : icd_t<queue_t> {
@@ -128,7 +128,7 @@ typedef struct queue_t final : icd_t<queue_t> {
   /// mux command buffer in progress and a mux command buffer that was never
   /// submitted
   bool fence_submitted;
-} * queue;
+} *queue;
 
 /// @brief internal implementation of vkGetDeviceQueue
 ///

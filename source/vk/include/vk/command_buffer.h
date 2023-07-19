@@ -366,7 +366,7 @@ typedef struct barrier_group_info_t {
   bool operator!=(const barrier_group_info_t &other) const {
     return !(*this == other);
   }
-} * barrier_group_info;
+} *barrier_group_info;
 
 /// @brief Semaphore/pipeline stage flags pair struct
 struct semaphore_flags_pair {
@@ -593,7 +593,7 @@ typedef struct command_buffer_t final : icd_t<command_buffer_t> {
   /// @brief Mutex used to lock during access to certain members that can be
   /// accessed from multiple threads
   std::mutex mutex;
-} * command_buffer;
+} *command_buffer;
 
 /// @brief Internal implementation of allocateCommandBuffers
 ///

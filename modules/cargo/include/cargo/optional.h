@@ -157,7 +157,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   template <class... Args>
   constexpr explicit optional(
       enable_if_t<std::is_constructible<T, Args...>::value, in_place_t>,
-      Args &&... args)
+      Args &&...args)
       : base(in_place, std::forward<Args>(args)...) {}
 
   /// @brief In-place construction.
@@ -168,7 +168,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
       enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
                                         Args &&...>::value,
                   in_place_t>,
-      std::initializer_list<U> il, Args &&... args) {
+      std::initializer_list<U> il, Args &&...args) {
     this->construct(il, std::forward<Args>(args)...);
   }
 
@@ -544,8 +544,8 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) & -> decltype(
-      optional_map_impl(std::declval<optional &>(), std::declval<F &&>())) {
+  CARGO_CXX14_CONSTEXPR auto map(F &&f) & -> decltype(optional_map_impl(
+      std::declval<optional &>(), std::declval<F &&>())) {
     return optional_map_impl(*this, std::forward<F>(f));
   }
 
@@ -559,8 +559,8 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) && -> decltype(
-      optional_map_impl(std::declval<optional &&>(), std::declval<F &&>())) {
+  CARGO_CXX14_CONSTEXPR auto map(F &&f) && -> decltype(optional_map_impl(
+      std::declval<optional &&>(), std::declval<F &&>())) {
     return optional_map_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -929,7 +929,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// @return The constructed value.
   template <class... Args>
-  T &emplace(Args &&... args) {
+  T &emplace(Args &&...args) {
     static_assert(std::is_constructible<T, Args &&...>::value,
                   "T must be constructible with Args");
     *this = nullopt;
@@ -948,7 +948,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   enable_if_t<
       std::is_constructible<T, std::initializer_list<U> &, Args &&...>::value,
       T &>
-  emplace(std::initializer_list<U> il, Args &&... args) {
+  emplace(std::initializer_list<U> il, Args &&...args) {
     *this = nullopt;
     this->construct(il, std::forward<Args>(args)...);
     return this->m_value;
@@ -1403,20 +1403,20 @@ inline constexpr optional<decay_t<T>> make_optional(T &&v) {
 
 /// @brief Creates an optional from `args`.
 template <class T, class... Args>
-inline constexpr optional<T> make_optional(Args &&... args) {
+inline constexpr optional<T> make_optional(Args &&...args) {
   return optional<T>(in_place, std::forward<Args>(args)...);
 }
 
 /// @brief Creates an optional from `il` and `args`.
 template <class T, class U, class... Args>
 inline constexpr optional<T> make_optional(std::initializer_list<U> il,
-                                           Args &&... args) {
+                                           Args &&...args) {
   return optional<T>(in_place, il, std::forward<Args>(args)...);
 }
 
 #ifdef CARGO_CXX17
 template <class T>
-optional(T)->optional<T>;
+optional(T) -> optional<T>;
 #endif
 
 /// @}

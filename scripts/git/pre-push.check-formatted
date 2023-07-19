@@ -46,7 +46,7 @@ do
         # Check for badly formatted commit
         git rev-list -n 1 $range | while read commit ; do
           echo checking "$commit" >&2
-          if [ -n "$(git show -U0 $commit | clang-format-diff-9 -p1 -regex \
+          if [ -n "$(git show -U0 $commit | clang-format-diff.py -p1 -regex \
             '^(?!(.+\/)*external\/).*\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$' \
             | awk '/^(---|\+\+\+)/ {gsub(/\(.* formatting\)$/, "")} { print }' \
             | tee /dev/stderr)" ]

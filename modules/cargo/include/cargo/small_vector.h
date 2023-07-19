@@ -624,7 +624,7 @@ class small_vector {
   /// `cargo::bad_alloc` on allocation failure.
   template <class... Args>
   CARGO_NODISCARD error_or<iterator> emplace(const_iterator pos,
-                                             Args &&... args) {
+                                             Args &&...args) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
     if (auto error = extend(1)) {
@@ -721,7 +721,7 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class... Args>
-  CARGO_NODISCARD cargo::result emplace_back(Args &&... args) {
+  CARGO_NODISCARD cargo::result emplace_back(Args &&...args) {
     if (auto error = extend(1)) {
       return error;
     }

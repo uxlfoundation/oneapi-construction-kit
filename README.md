@@ -34,13 +34,13 @@ To install the dependencies on Ubuntu, open the terminal and run:
 
 ### Recommended packages
 * [Ninja](https://ninja-build.org/)
-* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) 9
+* [clang-format](https://clang.llvm.org/docs/ClangFormat.html) 16
 * [lit](https://llvm.org/docs/CommandGuide/lit.html)
 
 To install the recommended packages, run:
 ```sh
-   $ sudo apt install -y ninja-build clang-format-9 doxygen python3-pip
-   $ sudo pip3 install lit virtualenv cmakelint
+   $ sudo apt install -y ninja-build doxygen python3-pip
+   $ sudo pip3 install lit virtualenv cmakelint clang-format==16.0.6
 ```
 
 ### Compiling oneAPI Construction Kit 

@@ -118,7 +118,7 @@ CARGO_CXX14_CONSTEXPR void swap(function_ref<R(Args...)> &lhs,
 
 #if __cplusplus >= 201703L
 template <typename R, typename... Args>
-function_ref(R (*)(Args...))->function_ref<R(Args...)>;
+function_ref(R (*)(Args...)) -> function_ref<R(Args...)>;
 
 // TODO, will require some kind of callable traits
 // template <typename F>

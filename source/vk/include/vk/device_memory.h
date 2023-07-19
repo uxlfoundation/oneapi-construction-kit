@@ -40,7 +40,7 @@ typedef struct device_memory_t final {
 
   /// @brief Mux memory
   mux_memory_t mux_memory;
-} * device_memory;
+} *device_memory;
 
 /// @brief Internal implementation of vkAllocatorMemory
 ///

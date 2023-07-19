@@ -25,7 +25,7 @@
 #
 #   cp scripts/git/pre-commit.check-formatted .git/hooks/pre-commit
 
-result=$(git-clang-format-9 --binary /usr/bin/clang-format-9 --diff)
+result=$(git-clang-format --binary /usr/bin/clang-format --diff)
 if [ "$result" == "no modified files to format" ] ||
    [ "$result" == "clang-format did not modify any files" ]
 then

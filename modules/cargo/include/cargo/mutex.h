@@ -135,8 +135,8 @@ struct CARGO_TS_SCOPED_CAPABILITY unique_lock {
   ///
   /// @param mutex The mutex object not to be locked.
   /// @param tag Tag to select locking strategy.
-  unique_lock(mutex_type &mutex,
-              std::defer_lock_t tag) noexcept CARGO_TS_EXCLUDES(mutex)
+  unique_lock(mutex_type &mutex, std::defer_lock_t tag) noexcept
+      CARGO_TS_EXCLUDES(mutex)
       : Lock{mutex, tag} {}
 
   /// @brief Construct with an already locked mutex.

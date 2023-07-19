@@ -45,7 +45,7 @@ typedef struct pipeline_layout_t final {
 
   /// @brief total size in bytes of the buffer needed for push constants
   uint32_t total_push_constant_size;
-} * pipeline_layout;
+} *pipeline_layout;
 
 /// @brief internal implementation of vkCreatePipelineLayout
 ///

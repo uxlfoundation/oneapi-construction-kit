@@ -412,8 +412,8 @@ class Module : public ModuleHeader {
   ///
   /// @return Reference to map of `DILocation`/iterator range pairs
   llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                                llvm::BasicBlock::iterator>>
-      &getOpLineRanges();
+                                                llvm::BasicBlock::iterator>> &
+  getOpLineRanges();
 
   /// @brief Get `DILocation`/iterator pair for current OpLine range
   ///
@@ -950,8 +950,8 @@ class Module : public ModuleHeader {
   void deferSpecConstantOp(const spirv_ll::OpSpecConstantOp *op);
 
   /// @brief Accessor for `deferredSpecConstantOps`.
-  const llvm::SmallVector<const OpSpecConstantOp *, 2>
-      &getDeferredSpecConstants();
+  const llvm::SmallVector<const OpSpecConstantOp *, 2> &
+  getDeferredSpecConstants();
 
   /// @brief Get a list of entry point arguments that need to have global scope.
   llvm::SmallVector<std::pair<spv::Id, llvm::GlobalVariable *>, 4>

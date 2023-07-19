@@ -205,9 +205,9 @@ that the review process goes smoothly.
   upcoming release. The format of changelog entries **must** match the template
   in [changelog/README.md](changelog/README.md). **Note:** If a changelog entry
   is required, a project maintainer will inform you on your pull request.
-* Run [clang-format-9](https://clang.llvm.org/docs/ClangFormat.html) on any new
-  or modified code. Our testing infrastructure requires code to be formatted
-  correctly, so doing this beforehand avoids potential delays.
+* Run [clang-format-16](https://clang.llvm.org/docs/ClangFormat.html) on any
+  new or modified code. Our testing infrastructure requires code to be
+  formatted correctly, so doing this beforehand avoids potential delays.
 * Feel free to add your name to the [list of contributors](CONTRIBUTORS.md).
   Contributor names must be sorted alphabetically.
 

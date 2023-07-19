@@ -85,7 +85,7 @@ typedef struct semaphore_t final {
 
   /// @brief Mutex used to control access to semaphore members
   std::mutex mutex;
-} * semaphore;
+} *semaphore;
 
 /// @brief internal implementation of vkCreateSemaphore
 ///

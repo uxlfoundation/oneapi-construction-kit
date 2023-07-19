@@ -36,7 +36,7 @@ typedef struct descriptor_set_layout_t final {
 
   /// @brief List of layout bindings
   vk::small_vector<VkDescriptorSetLayoutBinding, 4> layout_bindings;
-} * descriptor_set_layout;
+} *descriptor_set_layout;
 
 /// @brief Internal implementation of vkCreateDescriptorSetLayout
 ///

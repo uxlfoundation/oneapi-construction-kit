@@ -25,7 +25,7 @@ typedef struct device_t *device;
 
 /// @brief Stub of internal query_pool type
 typedef struct query_pool_t final {
-} * query_pool;
+} *query_pool;
 
 /// @brief Stub of vkCreateQueryPool
 VkResult CreateQueryPool(vk::device device,

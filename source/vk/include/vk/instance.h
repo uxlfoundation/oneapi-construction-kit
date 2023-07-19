@@ -56,7 +56,7 @@ typedef struct instance_t final : icd_t<instance_t> {
 
   /// @brief List of mux device pointers obtained at initialization
   vk::small_vector<vk::physical_device, 2> devices;
-} * instance;
+} *instance;
 
 /// @brief The master list of instance extensions this implementation implements
 static constexpr std::array<VkExtensionProperties, 1> instance_extensions = {{

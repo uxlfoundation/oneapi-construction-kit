@@ -107,7 +107,7 @@ typedef struct pipeline_cache_t final : icd_t<pipeline_cache_t> {
 
   /// @brief Mutex used for locking during access to `cache_entries`
   std::mutex mutex;
-} * pipeline_cache;
+} *pipeline_cache;
 
 /// @brief Internal implementation of vkCreatePipelineCache
 ///

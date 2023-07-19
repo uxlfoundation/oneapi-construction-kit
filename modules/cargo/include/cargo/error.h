@@ -132,7 +132,7 @@ class error_or {
             class = enable_if_t<
                 !(sizeof...(Args) == 0 &&
                   std::is_same<error_or, remove_reference_t<First>>::value)>>
-  error_or(First &&first, Args &&... args) : HasError(false) {
+  error_or(First &&first, Args &&...args) : HasError(false) {
     new (&ValueStorage) value_storage_type(std::forward<First>(first),
                                            std::forward<Args>(args)...);
   }
