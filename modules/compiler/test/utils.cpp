@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/attributes.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/AsmParser/Parser.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -118,4 +119,32 @@ TEST_F(CompilerUtilsTest, CreateKernelWrapper) {
     EXPECT_EQ(NewF->getName(), ExpNewName);
     CheckFns(F, NewF);
   }
+}
+
+TEST_F(CompilerUtilsTest, ReplaceFunctionInMetadata) {
+  auto M = parseModule(R"(
+  declare void @foo(i64 %a, i32 %b)
+  declare void @bar(i64 %a, i32 %b)
+
+  !opencl.kernels = !{!0}
+
+  !0 = !{ptr @foo, !1, !2, !3, !4, !5}
+  !1 = !{!"kernel_arg_addr_space", i32 0, i32 0}
+  !2 = !{!"kernel_arg_access_qual", !"none", !"none"}
+  !3 = !{!"kernel_arg_type", !"long", !"uint"}
+  !4 = !{!"kernel_arg_base_type", !"long", !"uint"}
+  !5 = !{!"kernel_arg_type_qual", !"", !""}
+  )");
+
+  auto *const Foo = M->getFunction("foo");
+  auto *const Bar = M->getFunction("bar");
+  ASSERT_TRUE(Foo && Bar);
+
+  replaceKernelInOpenCLKernelsMetadata(*Foo, *Bar, *M);
+
+  llvm::SmallVector<KernelInfo, 2> Kernels;
+  populateKernelList(*M, Kernels);
+
+  ASSERT_EQ(Kernels.size(), 1);
+  ASSERT_EQ(Kernels[0].Name, Bar->getName());
 }

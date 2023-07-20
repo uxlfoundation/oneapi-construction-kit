@@ -16,6 +16,7 @@
 
 #include <compiler/utils/align_module_structs_pass.h>
 #include <compiler/utils/attributes.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/DIBuilder.h>
@@ -311,14 +312,8 @@ Function *cloneFunctionUpdatingTypes(Function &func,
                     &structMapper);
 
   // update the kernel metadata
-  if (auto *namedMetaData =
-          func.getParent()->getNamedMetadata("opencl.kernels")) {
-    for (auto *md : namedMetaData->operands()) {
-      if (md && (md->getOperand(0) == ValueAsMetadata::get(&func))) {
-        md->replaceOperandWith(0, ValueAsMetadata::get(newFunc));
-      }
-    }
-  }
+  compiler::utils::replaceKernelInOpenCLKernelsMetadata(func, *newFunc,
+                                                        *func.getParent());
 
   // take kernel-specific data from the old function.
   compiler::utils::takeIsKernel(*newFunc, func);

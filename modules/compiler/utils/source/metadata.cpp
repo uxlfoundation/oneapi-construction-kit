@@ -371,6 +371,18 @@ void populateKernelList(Module &m, SmallVectorImpl<KernelInfo> &results) {
   }
 }
 
+void replaceKernelInOpenCLKernelsMetadata(Function &fromF, Function &toF,
+                                          Module &M) {
+  // update the kernel metadata
+  if (auto *const namedMD = M.getNamedMetadata("opencl.kernels")) {
+    for (auto *md : namedMD->operands()) {
+      if (md && md->getOperand(0) == ValueAsMetadata::get(&fromF)) {
+        md->replaceOperandWith(0, ValueAsMetadata::get(&toF));
+      }
+    }
+  }
+}
+
 static constexpr const char *ReqdSGSizeMD = "intel_reqd_sub_group_size";
 
 void encodeReqdSubgroupSizeMetadata(Function &f, uint32_t size) {
