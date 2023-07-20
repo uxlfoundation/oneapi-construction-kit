@@ -626,10 +626,17 @@ llvm::IntegerType *getSizeType(const llvm::Module &m) {
 }
 
 static llvm::Function *createKernelWrapperFunctionImpl(
-    llvm::Function &F, llvm::Function &NewFunction, llvm::StringRef Suffix) {
-  assert(!Suffix.empty() && "Suffix must not be empty");
-
+    llvm::Function &F, llvm::Function &NewFunction, llvm::StringRef Suffix,
+    llvm::StringRef OldSuffix) {
   auto baseName = getOrSetBaseFnName(NewFunction, F);
+
+  if (!OldSuffix.empty()) {
+    if (getBaseFnName(F).empty()) {
+      setBaseFnName(F, F.getName());
+    }
+    F.setName(F.getName() + OldSuffix);
+  }
+
   NewFunction.setName(baseName + Suffix);
 
   // we don't use exceptions
@@ -662,8 +669,8 @@ static llvm::Function *createKernelWrapperFunctionImpl(
 }
 
 llvm::Function *createKernelWrapperFunction(llvm::Function &F,
-                                            llvm::StringRef Suffix) {
-  assert(!Suffix.empty() && "Suffix must not be empty");
+                                            llvm::StringRef Suffix,
+                                            llvm::StringRef OldSuffix) {
   // Create our new function
   llvm::Function *const NewFunction = llvm::Function::Create(
       F.getFunctionType(), llvm::Function::ExternalLinkage, "", F.getParent());
@@ -676,13 +683,12 @@ llvm::Function *createKernelWrapperFunction(llvm::Function &F,
     std::get<0>(it).setName(std::get<1>(it).getName());
   }
 
-  return createKernelWrapperFunctionImpl(F, *NewFunction, Suffix);
+  return createKernelWrapperFunctionImpl(F, *NewFunction, Suffix, OldSuffix);
 }
 
 llvm::Function *createKernelWrapperFunction(
     llvm::Module &M, llvm::Function &F, llvm::ArrayRef<llvm::Type *> ArgTypes,
-    llvm::StringRef Suffix) {
-  assert(!Suffix.empty() && "Suffix must not be empty");
+    llvm::StringRef Suffix, llvm::StringRef OldSuffix) {
   llvm::FunctionType *NewFunctionType =
       llvm::FunctionType::get(F.getReturnType(), ArgTypes, false);
 
@@ -694,7 +700,7 @@ llvm::Function *createKernelWrapperFunction(
   // don't know what the parameter mapping is.
   copyFunctionAttrs(F, *NewFunction, 0);
 
-  return createKernelWrapperFunctionImpl(F, *NewFunction, Suffix);
+  return createKernelWrapperFunctionImpl(F, *NewFunction, Suffix, OldSuffix);
 }
 
 }  // namespace utils

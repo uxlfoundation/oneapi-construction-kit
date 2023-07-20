@@ -22,6 +22,7 @@ add_ca_executable(UnitCompiler
   ${CMAKE_CURRENT_SOURCE_DIR}/mangling.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/module.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/target.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp
   $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>)
 
 target_include_directories(UnitCompiler PRIVATE

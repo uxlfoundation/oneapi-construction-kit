@@ -237,7 +237,8 @@ llvm::IntegerType *getSizeType(const llvm::Module &m);
 /// @param M Containing module
 /// @param F Kernel function which is being replaced
 /// @param ArgTypes List of types to be used for the new function
-/// @param Suffix Non-empty string to which to append to the new function
+/// @param Suffix String to which to append to the new function
+/// @param OldSuffix String to which to append to the old function
 /// @note This takes the metadata and debug from the original function.
 ///       This is intended to be used for creating a function which replaces
 ///       the original function but calls the original.
@@ -255,19 +256,29 @@ llvm::IntegerType *getSizeType(const llvm::Module &m);
 ///         declare void @foo.wrapper()
 ///         declare void @baz.wrapper()
 ///
+///       With suffix '.new' and old suffix '.old', this function will produce:
+///
+///         declare void @foo.old()
+///         ; Function attrs "mux-base-fn-name"="baz"
+///         declare void @bar.old()
+///
+///         declare void @foo.new()
+///         declare void @baz.new()
+///
 ///       It is advised that the suffix begins with a character that may not
 ///       occur in the original source language, to avoid clashes with user
 ///       functions.
 llvm::Function *createKernelWrapperFunction(
     llvm::Module &M, llvm::Function &F, llvm::ArrayRef<llvm::Type *> ArgTypes,
-    llvm::StringRef Suffix);
+    llvm::StringRef Suffix, llvm::StringRef OldSuffix = "");
 
 /// @brief As above, but creating a wrapper with the exact function signature
 /// of @p F.
 ///
 /// Copies over all parameter names and attributes.
 llvm::Function *createKernelWrapperFunction(llvm::Function &F,
-                                            llvm::StringRef Suffix);
+                                            llvm::StringRef Suffix,
+                                            llvm::StringRef OldSuffix = "");
 
 /// @}
 }  // namespace utils
