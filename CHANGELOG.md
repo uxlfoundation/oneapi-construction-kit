@@ -2,6 +2,13 @@
 
 ## Version 4.0.0
 
+Upgrade guidance:
+
+* The `compiler::ImageArgumentSubstitutionPass` now replaces sampler typed
+  parameters in kernel functions with i32 parameters via a wrapper function.
+  The `host` target as a consequence now passes samplers to kernels as 32-bit
+  integer arguments, not as integer arguments disguised as pointer values.
+
 ## Version 3.0.0
 
 Upgrade guidance:

@@ -15,6 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <base/image_argument_substitution_pass.h>
+#include <compiler/utils/attributes.h>
+#include <compiler/utils/metadata.h>
+#include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
@@ -52,6 +55,109 @@ const std::map<std::string, std::string> funcToFuncMap = {{
 PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
     Module &M, ModuleAnalysisManager &) {
   bool module_modified = false;
+  auto &Ctx = M.getContext();
+
+  // First of all, adjust the ABIs of user-facing kernels by changing samplers
+  // (currently pointers) to i32-typed parameters. Use use !opencl.kernels
+  // metadata, as it's the only way to identify whether a pointer is in fact a
+  // sampler.
+  if (auto *KernelMD = M.getNamedMetadata("opencl.kernels")) {
+    for (auto *KernelOp : KernelMD->operands()) {
+      // We expect to find the kernel function as the first parameter, followed
+      // subsequently by argument information.
+      if (KernelOp->operands().empty()) {
+        continue;
+      }
+      auto *const KernelFVal =
+          cast_if_present<ValueAsMetadata>(KernelOp->getOperand(0))->getValue();
+      auto *const KernelF = cast_if_present<Function>(KernelFVal);
+      if (!KernelF || KernelF->arg_empty()) {
+        // We couldn't find the kernel function, or we could and we know it's
+        // not got any sampler parameters as it has no parameters.
+        continue;
+      }
+      ArrayRef<MDOperand> ArgBaseTys;
+      // Search for the kernel arguments' base types; we use this to identify
+      // sampler parameters (a pointer just looks like a pointer, otherwise).
+      for (auto &KernelArgOp : KernelOp->operands().drop_front()) {
+        if (const auto *KernelArgMDOp = dyn_cast<const MDNode>(KernelArgOp)) {
+          if (const MDString *KernelArgName =
+                  dyn_cast<const MDString>(KernelArgMDOp->getOperand(0))) {
+            if (KernelArgName->getString() == "kernel_arg_base_type") {
+              ArgBaseTys = KernelArgMDOp->operands().drop_front();
+              break;
+            }
+          }
+        }
+      }
+      // If we didn't find them, skip this kernel.
+      if (ArgBaseTys.empty()) {
+        continue;
+      }
+
+      assert(ArgBaseTys.size() == cast<Function>(KernelF)->arg_size());
+
+      SmallVector<Type *> KernelArgTys(
+          KernelF->getFunctionType()->getNumParams());
+      // Create the list of kernel parameters with all samplers replaced with
+      // i32 types.
+      transform(enumerate(KernelF->getFunctionType()->params()),
+                KernelArgTys.begin(),
+                [&Ctx, ArgBaseTys](const auto &P) -> Type * {
+                  const auto &MDOp = ArgBaseTys[P.index()];
+                  if (const auto *BaseTyName = dyn_cast<const MDString>(MDOp)) {
+                    if (BaseTyName->getString() == "sampler_t") {
+                      return IntegerType::getInt32Ty(Ctx);
+                    }
+                  }
+                  return P.value();
+                });
+      // If we've not found any samplers, skip to the next kernel
+      if (equal(KernelF->getFunctionType()->params(), KernelArgTys)) {
+        continue;
+      }
+
+      // At this point in the pipeline, we're not in a position to rename the
+      // kernel from what the user expects. Therefore we steal the old
+      // function's name, and rename that old function with a suffix.
+      // FIXME: We should be able to rename kernels as we wish at any point in
+      // the compilation pipeline.
+      auto *WrapperKernel = compiler::utils::createKernelWrapperFunction(
+          M, *KernelF, KernelArgTys, "", ".old");
+
+      IRBuilder<> B(BasicBlock::Create(Ctx, "entry", WrapperKernel));
+
+      SmallVector<Value *, 8> Args;
+      for (auto [OldArg, NewArg] :
+           zip(KernelF->args(), WrapperKernel->args())) {
+        // Copy parameter names across
+        NewArg.setName(OldArg.getName());
+        if (OldArg.getType() == NewArg.getType()) {
+          Args.push_back(&NewArg);
+        } else {
+          // Must be a sampler: simply cast the i32 to a pointer. This mirrors
+          // what we'll do down the line when changing the pointer back to an
+          // i32 via the opposite operation.
+          Args.push_back(B.CreateIntToPtr(&NewArg, OldArg.getType(),
+                                          NewArg.getName() + ".ptrcast"));
+        }
+      }
+
+      auto *const CI = B.CreateCall(KernelF, Args);
+
+      CI->setCallingConv(KernelF->getCallingConv());
+      // Copy over the attributes to the call site
+      CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(*KernelF));
+
+      B.CreateRetVoid();
+
+      // Update the kernel metadata
+      compiler::utils::replaceKernelInOpenCLKernelsMetadata(*KernelF,
+                                                            *WrapperKernel, M);
+
+      module_modified = true;
+    }
+  }
 
   // we need to detect if the new sampler function is there and replace it if so
   {
