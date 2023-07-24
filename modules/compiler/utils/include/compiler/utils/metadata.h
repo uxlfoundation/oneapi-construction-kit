@@ -269,6 +269,14 @@ struct KernelInfo {
 void populateKernelList(llvm::Module &m,
                         llvm::SmallVectorImpl<KernelInfo> &results);
 
+/// @brief Replaces instances of kernel fromF with toF in module-level
+/// !opencl.kernels metadata.
+/// @param fromF Function to replace with toF in metadata
+/// @param toF Function with which to replace references to fromF
+/// @param M Module in which to find the metadata
+void replaceKernelInOpenCLKernelsMetadata(llvm::Function &fromF,
+                                          llvm::Function &toF, llvm::Module &M);
+
 /// @brief Encodes information about a function's local work group size as
 /// metadata.
 ///
