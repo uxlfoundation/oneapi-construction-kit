@@ -61,6 +61,7 @@
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
 #include <compiler/utils/replace_mem_intrinsics_pass.h>
 #include <compiler/utils/replace_mux_math_decls_pass.h>
+#include <compiler/utils/replace_target_ext_tys_pass.h>
 #include <compiler/utils/replace_wgc_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/unique_opaque_structs_pass.h>
@@ -401,6 +402,26 @@ Expected<std::vector<llvm::StringRef>> parseReduceToFunctionPassOptions(
   }
 
   return Names;
+}
+
+Expected<compiler::utils::ReplaceTargetExtTysOptions>
+parseReplaceTargetExtTysPassOptions(StringRef Params) {
+  compiler::utils::ReplaceTargetExtTysOptions Opts;
+
+  while (!Params.empty()) {
+    StringRef ParamName;
+    std::tie(ParamName, Params) = Params.split(';');
+
+    if (ParamName == "no-images") {
+      Opts.ReplaceImages = false;
+    } else if (ParamName == "no-samplers") {
+      Opts.ReplaceSamplers = false;
+    } else if (ParamName == "no-events") {
+      Opts.ReplaceEvents = false;
+    }
+  }
+
+  return Opts;
 }
 
 void BaseModulePassMachinery::registerPasses() {

@@ -111,6 +111,14 @@ MODULE_PASS_WITH_PARAMS(
     parseReplaceMuxMathDeclsPassOptions, "fast")
 
 MODULE_PASS_WITH_PARAMS(
+    "replace-target-ext-tys", "compiler::utils::ReplaceTargetExtTysPass",
+    [](compiler::utils::ReplaceTargetExtTysOptions Options) {
+      return compiler::utils::ReplaceTargetExtTysPass(Options);
+    },
+    parseReplaceTargetExtTysPassOptions,
+    "no-images;no-samplers;no-events")
+
+MODULE_PASS_WITH_PARAMS(
     "fixup-calling-conv", "compiler::utils::FixupCallingConventionPass",
     [](llvm::CallingConv::ID Option) {
       return compiler::utils::FixupCallingConventionPass(Option);

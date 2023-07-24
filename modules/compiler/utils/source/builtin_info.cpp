@@ -405,6 +405,11 @@ bool BuiltinInfo::requiresSchedulingParameters(BuiltinID ID) {
   return MuxImpl->requiresSchedulingParameters(ID);
 }
 
+Type *BuiltinInfo::getRemappedTargetExtTy(Type *Ty) {
+  // Defer to mux for the scheduling parameters.
+  return MuxImpl->getRemappedTargetExtTy(Ty);
+}
+
 SmallVector<BuiltinInfo::SchedParamInfo, 4>
 BuiltinInfo::getMuxSchedulingParameters(Module &M) {
   // Defer to mux for the scheduling parameters.

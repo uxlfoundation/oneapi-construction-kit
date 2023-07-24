@@ -629,6 +629,22 @@ class BuiltinInfo {
   /// the AddSchedulingParametersPass.
   bool requiresSchedulingParameters(BuiltinID ID);
 
+  /// @brief Returns the remapped type for a target extension type
+  ///
+  /// This method is intended for target implementations to be able signal to
+  /// the DefineTargetExtTysPass how LLVM's target extension types should be
+  /// remapped across the module. There is a default implementation: see
+  /// BIMuxInfoConcept::getRemappedTargetExtTy
+  ///
+  /// This method is safe to call before LLVM 17 but will do nothing (there are
+  /// no target extension types before LLVM 17). Otherwise this method asserts
+  /// that the type is a target extension type.
+  ///
+  /// @param Ty The target extension type to remap
+  /// @return The remapped type, or nullptr if the type does not require
+  /// remapping
+  llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty);
+
   /// Handle the invalidation of this information.
   ///
   /// When used as a result of BuiltinInfoAnalysis this method will be called
@@ -691,6 +707,15 @@ class BIMuxInfoConcept {
   /// @brief Returns true if the mux builtin requires scheduling parameters to
   /// function.
   virtual bool requiresSchedulingParameters(BuiltinID);
+
+  /// @brief See BuiltinInfo::getRemappedTargetExtTy
+  ///
+  /// This method is overridable but the default implementation provides the
+  /// following mappings:
+  ///   * spirv.Event -> i32
+  ///   * spirv.Sampler -> i32
+  ///   * spirv.Image -> MuxImage* (regardless of image parameters)
+  virtual llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty);
 
   enum MemScope : uint32_t {
     MemScopeCrossDevice = 0,

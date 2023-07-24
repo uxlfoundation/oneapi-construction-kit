@@ -19,7 +19,9 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
+#include <compiler/utils/target_extension_types.h>
 #include <multi_llvm/llvm_version.h>
+#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/opaque_pointers.h>
 
 #include <optional>
@@ -766,6 +768,42 @@ bool BIMuxInfoConcept::requiresSchedulingParameters(BuiltinID ID) {
       // Work-item and work-group structs
       return true;
   }
+}
+
+Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
+#if LLVM_VERSION_LESS(17, 0)
+  (void)Ty;
+#else
+  // We only map target extension types
+  assert(Ty && Ty->isTargetExtTy() && "Only expecting target extension types");
+  auto &Ctx = Ty->getContext();
+  auto *TgtExtTy = cast<TargetExtType>(Ty);
+
+  // Samplers are replaced by default with i32s
+  if (TgtExtTy == compiler::utils::tgtext::getSamplerTy(Ctx)) {
+    return IntegerType::getInt32Ty(Ctx);
+  }
+
+  // Events are replaced by default with i32s
+  if (TgtExtTy == compiler::utils::tgtext::getEventTy(Ctx)) {
+    return IntegerType::getInt32Ty(Ctx);
+  }
+
+  // *All* images are replaced by default with a pointer in the default address
+  // space to the same structure type (i.e., regardless of image dimensions,
+  // etc.)
+  if (TgtExtTy->getName() == "spirv.Image") {
+    return PointerType::getUnqual([&Ctx]() {
+      const char *MuxImageTyName = "MuxImage";
+      if (auto *STy = multi_llvm::getStructTypeByName(Ctx, MuxImageTyName)) {
+        return STy;
+      }
+      return StructType::create(Ctx, MuxImageTyName);
+    }());
+  }
+
+#endif
+  return nullptr;
 }
 
 Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M) {
