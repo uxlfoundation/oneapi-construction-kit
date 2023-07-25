@@ -628,7 +628,9 @@ llvm::IntegerType *getSizeType(const llvm::Module &m) {
 static llvm::Function *createKernelWrapperFunctionImpl(
     llvm::Function &F, llvm::Function &NewFunction, llvm::StringRef Suffix,
     llvm::StringRef OldSuffix) {
-  auto baseName = getOrSetBaseFnName(NewFunction, F);
+  // Make sure we take a copy of the basename as we're going to change the
+  // original function's name from underneath the StringRef.
+  std::string baseName = getOrSetBaseFnName(NewFunction, F).str();
 
   if (!OldSuffix.empty()) {
     if (getBaseFnName(F).empty()) {
