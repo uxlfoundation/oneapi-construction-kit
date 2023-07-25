@@ -53,6 +53,7 @@
 #include <compiler/utils/replace_atomic_funcs_pass.h>
 #include <compiler/utils/replace_barriers_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
+#include <compiler/utils/replace_target_ext_tys_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm-c/BitWriter.h>
@@ -1777,6 +1778,11 @@ Result BaseModule::finalize(
   }
 
   pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());
+
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  compiler::utils::ReplaceTargetExtTysOptions RTETOpts;
+  pm.addPass(compiler::utils::ReplaceTargetExtTysPass(RTETOpts));
+#endif
 
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::SoftwareDivisionPass()));

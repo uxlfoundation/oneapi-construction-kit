@@ -22,7 +22,6 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
-#include <multi_llvm/multi_llvm.h>
 
 #include <map>
 
@@ -57,6 +56,9 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
   bool module_modified = false;
   auto &Ctx = M.getContext();
 
+  // On LLVM 17+, the target extension types corresponding to samplers should
+  // have already been replaced before this pass.
+#if LLVM_VERSION_LESS(17, 0)
   // First of all, adjust the ABIs of user-facing kernels by changing samplers
   // (currently pointers) to i32-typed parameters. Use use !opencl.kernels
   // metadata, as it's the only way to identify whether a pointer is in fact a
@@ -158,6 +160,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       module_modified = true;
     }
   }
+#endif
 
   // we need to detect if the new sampler function is there and replace it if so
   {
@@ -168,33 +171,33 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       IRBuilder<> builder(
           BasicBlock::Create(M.getContext(), "entry", samplerInitFunc));
 
-      auto arg = &*samplerInitFunc->arg_begin();
+      auto *arg = samplerInitFunc->getArg(0);
+      assert(arg->getType()->isIntegerTy(32) &&
+             "Expecting the sampler initializer to be i32");
 
+      // FIXME: The fact that we're defining the function here is inflexible -
+      // it relies on the underlying target type for samplers to have already
+      // been chosen.
+      // On LLVM 17+ this means we require the target extension type to have
+      // been replaced with an i32, and otherwise we expect the sampler to be a
+      // pointer that's reinterpretable to an i32 or to be i32 (only in
+      // SPIR 1.2). We should really leave this to the mux implementation,
+      // perhaps in DefineMuxBuiltinsPass.
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+      assert(samplerInitFunc->getReturnType()->isIntegerTy(32) &&
+             "Expecting samplers to already have been replaced with i32s");
+      builder.CreateRet(arg);
+#else
+      assert((samplerInitFunc->getReturnType()->isPointerTy() ||
+              samplerInitFunc->getReturnType()->isIntegerTy(32)) &&
+             "Expecting samplers to be pointers or i32s");
       builder.CreateRet(builder.CreateIntToPtr(
           arg, samplerInitFunc->getFunctionType()->getReturnType()));
+#endif
     }
   }
 
   SmallVector<Instruction *, 8> toRemoves;
-
-  // First we lookup the image type we are going to replace the opaque OpenCL
-  // image types with
-  StructType *imageType = nullptr;
-
-  const char *imageName = "struct.Image";
-
-  for (auto *const structType : M.getIdentifiedStructTypes()) {
-    auto name = structType->getName();
-
-    if (name.rtrim(".0123456789").equals(imageName)) {
-      imageType = structType;
-      break;
-    }
-  }
-
-  if (!imageType) {
-    imageType = StructType::create(M.getContext(), imageName);
-  }
 
   for (const auto &pair : funcToFuncMap) {
     auto *const srcFunc = M.getFunction(pair.first);
@@ -220,7 +223,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       if (!dstFunc) {
         SmallVector<Type *, 8> types;
 
-        types.push_back(PointerType::getUnqual(imageType));
+        types.push_back(PointerType::getUnqual(Ctx));
 
         auto *const srcFuncType = srcFunc->getFunctionType();
 
@@ -255,28 +258,36 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       IRBuilder<> Builder(call->getContext());
       Builder.SetInsertPoint(call->getParent(), call->getIterator());
 
-      // we are changing the opaque OpenCL image argument in arg 0 into our
-      // own image struct pointer type (the bitcast). Our Image struct pointer
-      // type is in the 0th address space, so we need to cast from the global
-      // address space the original type had (the addrspacecast)
-      args.push_back(Builder.CreateAddrSpaceCast(
-          Builder.CreateBitCast(
-              call->getArgOperand(0),
-              imageType->getPointerTo(
-                  call->getArgOperand(0)->getType()->getPointerAddressSpace())),
-          PointerType::getUnqual(imageType)));
+      // we are changing the incoming image argument in argument 0 into a type
+      // expected by our libimg builtins. These builtins expect the image as a
+      // pointer in the default address space to a struct type (specifically to
+      // mux_image_s, but an opaque pointer's an opaque pointer so we can't
+      // enforce that), so we need to cast away any address spaces.
+      assert(call->getArgOperand(0)->getType()->isPointerTy() &&
+             "Image must be a pointer (assumed to be to mux_image_s)");
+      args.push_back(Builder.CreateAddrSpaceCast(call->getArgOperand(0),
+                                                 PointerType::getUnqual(Ctx)));
 
       // by default, we'll just pass through the remaining arguments
       unsigned i = 1;
 
-      // we need to change our approach for handling samplers into libimg here
-      // too
-
       // have we got a function that has a sampler in its argument list?
       if (std::string::npos != pair.first.find("sampler")) {
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+        // See the comment about __translate_sampler_initializer above.
+        assert(call->getArgOperand(1)->getType()->isIntegerTy(32) &&
+               "Expecting samplers to already have been replaced with i32s");
+        args.push_back(call->getArgOperand(1));
+#else
+        // we need to change our approach for handling samplers into libimg here
+        // too
+        assert((call->getArgOperand(1)->getType()->isPointerTy() ||
+                call->getArgOperand(1)->getType()->isIntegerTy(32)) &&
+               "Expecting samplers to be pointers or i32");
         args.push_back(Builder.CreatePtrToInt(
             call->getArgOperand(1),
             dstFunc->getFunctionType()->getParamType(1)));
+#endif
 
         // the sampler will always be the second argument in the list
         i = 2;
