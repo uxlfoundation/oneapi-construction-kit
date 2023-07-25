@@ -63,6 +63,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_local_module_scope_variables_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mem_intrinsics_pass.h  
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mux_math_decls_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_target_ext_tys_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_wgc_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/scheduling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/simple_callback_pass.h
@@ -113,6 +114,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_local_module_scope_variables_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mem_intrinsics_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_math_decls_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_target_ext_tys_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_wgc_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/scheduling.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/target_extension_types.cpp
