@@ -62,10 +62,10 @@ llvm::StringRef getMuxDMAFunctionName(bool IsRead, unsigned Dims) {
 /// @param[in] IsRead Whether the declaration should be a read or a write.
 /// @param[in] Dims The dimensionality of the desired builtin.
 ///
-/// @return The __mux buitlin declaration.
+/// @return The __mux builtin declaration.
 Function *getOrCreateMuxDMA(Module *Module, bool IsRead, unsigned Dims = 1) {
   auto &Context = Module->getContext();
-  // Assume to begin with we are dmaing __global -> __lobal
+  // Assume to begin with we are dmaing __global -> __local
   auto DstPointerAS = compiler::utils::AddressSpace::Local;
   auto SrcPointerAS = compiler::utils::AddressSpace::Global;
   auto MuxDMAName = getMuxDMAFunctionName(IsRead, Dims);

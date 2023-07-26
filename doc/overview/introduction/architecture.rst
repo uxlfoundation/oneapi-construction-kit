@@ -196,7 +196,7 @@ Linking
 Linking of any libraries including:
 
 Builtins
-  Any execution model specific buitlins required by the compute kernel to be
+  Any execution model specific builtins required by the compute kernel to be
   executed.
 Math Library
   An in house performant math library supporting common math operations for
