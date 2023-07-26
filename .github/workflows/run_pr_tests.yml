@@ -11,6 +11,7 @@ on:
       - '.github/actions/do_build_ock/**'
       - '.github/actions/setup_ubuntu_build/**'
       - '.github/workflows/run_pr_tests.yml'
+      - 'CMakeLists.txt'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
