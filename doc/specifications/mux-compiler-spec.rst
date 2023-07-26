@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.76.0 of the specification.
+   This is version 0.77.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -1003,12 +1003,13 @@ and calls to any of the following ``__mux`` functions: ``__mux_isftz()``,
 
 The LLVM intermediate representation stored in
 ``compiler::BaseModule::finalized_llvm_module`` **may** contain declarations of
-the following type: ``__mux_dma_event_t``.
+the following type: ``__mux_dma_event_t``:
 
-* ``__mux_dma_event_t`` - Represents an event object that **may** be passed to
-  and **shall** be returned from the various ``__mux_dma`` builtins.
-  ``__mux_dma_event_t`` objects **may** be waited on by the
-  ``__mux_dma_wait`` builtin.
+* ``__mux_dma_event_t`` represents an event object and may be defined as *any*
+  type chosen by the Mux implementation, as long as it is consistently used
+  across the module at any given time. For example, it may be a structure type,
+  an a target extension type, an integer type, a pointer type, etc. This type
+  **may** change throughout the compilation process.
 
 A Mux implementation **shall** provide definitions for the above declarations.
 

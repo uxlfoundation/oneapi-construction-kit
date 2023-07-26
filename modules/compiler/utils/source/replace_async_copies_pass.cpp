@@ -63,7 +63,8 @@ llvm::StringRef getMuxDMAFunctionName(bool IsRead, unsigned Dims) {
 /// @param[in] Dims The dimensionality of the desired builtin.
 ///
 /// @return The __mux builtin declaration.
-Function *getOrCreateMuxDMA(Module *Module, bool IsRead, unsigned Dims = 1) {
+Function *getOrCreateMuxDMA(Module *Module, Type *EventTy, bool IsRead,
+                            unsigned Dims = 1) {
   auto &Context = Module->getContext();
   // Assume to begin with we are dmaing __global -> __local
   auto DstPointerAS = compiler::utils::AddressSpace::Local;
@@ -76,34 +77,29 @@ Function *getOrCreateMuxDMA(Module *Module, bool IsRead, unsigned Dims = 1) {
 
   FunctionType *MuxDMAType = nullptr;
 
-  PointerType *DstPointerType = Type::getInt8PtrTy(Context, DstPointerAS);
-  PointerType *SrcPointerType = Type::getInt8PtrTy(Context, SrcPointerAS);
+  PointerType *DstPointerType = PointerType::get(Context, DstPointerAS);
+  PointerType *SrcPointerType = PointerType::get(Context, SrcPointerAS);
 
   IntegerType *SizeType = compiler::utils::getSizeType(*Module);
-  StructType *MuxEventType =
-      compiler::utils::getOrCreateMuxDMAEventType(*Module);
-  PointerType *MuxEventTypePtr = PointerType::getUnqual(MuxEventType);
 
   if (Dims == 1) {
     MuxDMAType = FunctionType::get(
-        MuxEventTypePtr,
-        {DstPointerType, SrcPointerType, SizeType /*width*/, MuxEventTypePtr},
+        EventTy, {DstPointerType, SrcPointerType, SizeType /*width*/, EventTy},
         false);
   } else if (Dims == 2) {
     MuxDMAType = FunctionType::get(
-        MuxEventTypePtr,
+        EventTy,
         {DstPointerType, SrcPointerType, SizeType /*line_size*/,
          SizeType /* src_stride*/, SizeType /*dst stride*/,
-         SizeType /*num_lines*/, MuxEventTypePtr},
+         SizeType /*num_lines*/, EventTy},
         false);
   } else if (Dims == 3) {
     MuxDMAType = FunctionType::get(
-        MuxEventTypePtr,
+        EventTy,
         {DstPointerType, SrcPointerType, SizeType /*line_size*/,
          SizeType /*dst_line_stride*/, SizeType /*src_line stride*/,
          SizeType /*num_lines_per_plane*/, SizeType /*dst_plane_stride*/,
-         SizeType /*src_plane_stride*/, SizeType /*num_planes*/,
-         MuxEventTypePtr},
+         SizeType /*src_plane_stride*/, SizeType /*num_planes*/, EventTy},
         false);
   } else {
     return nullptr;
@@ -148,7 +144,8 @@ void defineAsyncWorkGroupCopy(Function &AsyncWorkGroupCopy, Type *DataTy,
   const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
                       compiler::utils::AddressSpace::Local;
   auto *Module = AsyncWorkGroupCopy.getParent();
-  auto *MuxDMA = getOrCreateMuxDMA(Module, IsRead, IsStrided ? 2 : 1);
+  auto *MuxDMA =
+      getOrCreateMuxDMA(Module, EventIn->getType(), IsRead, IsStrided ? 2 : 1);
 
   auto &Context = AsyncWorkGroupCopy.getContext();
   auto *BB = BasicBlock::Create(Context, "bb", &AsyncWorkGroupCopy);
@@ -169,21 +166,6 @@ void defineAsyncWorkGroupCopy(Function &AsyncWorkGroupCopy, Type *DataTy,
       IsStrided ? ElementSize
                 : BBBuilder.CreateMul(ElementSize, NumElements, "width.bytes");
 
-  // Cast the OpenCL C event_t* into a __mux_dma_event_t*.
-  auto *MuxEventPtrType = PointerType::getUnqual(
-      compiler::utils::getOrCreateMuxDMAEventType(*Module));
-  auto *MuxEventPtr =
-      BBBuilder.CreateBitCast(EventIn, MuxEventPtrType, "mux.in.event");
-
-  auto *MuxDstType = PointerType::get(IntegerType::getInt8Ty(Context),
-                                      Dst->getType()->getPointerAddressSpace());
-  auto *MuxSrcType = PointerType::get(IntegerType::getInt8Ty(Context),
-                                      Src->getType()->getPointerAddressSpace());
-  // Cast the src and destination into i8* so they can be passed to the type
-  // agnostic mux builtin.
-  auto *MuxDst = BBBuilder.CreateBitCast(Dst, MuxDstType, "mux.dst");
-  auto *MuxSrc = BBBuilder.CreateBitCast(Src, MuxSrcType, "mux.src");
-
   CallInst *ResultEvent = nullptr;
   if (IsStrided) {
     // The stride from async_work_group_strided_copy is in elements, but the
@@ -197,19 +179,17 @@ void defineAsyncWorkGroupCopy(Function &AsyncWorkGroupCopy, Type *DataTy,
     auto *DstStride = IsRead ? ElementSize : StrideInBytes;
     auto *SrcStride = IsRead ? StrideInBytes : ElementSize;
 
-    ResultEvent = BBBuilder.CreateCall(MuxDMA,
-                                       {MuxDst, MuxSrc, WidthInBytes, DstStride,
-                                        SrcStride, NumElements, MuxEventPtr},
-                                       "mux.out.event");
+    ResultEvent = BBBuilder.CreateCall(
+        MuxDMA,
+        {Dst, Src, WidthInBytes, DstStride, SrcStride, NumElements, EventIn},
+        "mux.out.event");
   } else {
     ResultEvent = BBBuilder.CreateCall(
-        MuxDMA, {MuxDst, MuxSrc, WidthInBytes, MuxEventPtr}, "mux.out.event");
+        MuxDMA, {Dst, Src, WidthInBytes, EventIn}, "mux.out.event");
   }
 
   ResultEvent->setCallingConv(MuxDMA->getCallingConv());
-  auto CLReturnEvent =
-      BBBuilder.CreateBitCast(ResultEvent, EventIn->getType(), "clc.out.event");
-  BBBuilder.CreateRet(CLReturnEvent);
+  BBBuilder.CreateRet(ResultEvent);
 }
 
 void defineAsyncWorkGroupCopy2D(Function &AsyncWorkGroupCopy) {
@@ -231,18 +211,12 @@ void defineAsyncWorkGroupCopy2D(Function &AsyncWorkGroupCopy) {
   const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
                       compiler::utils::AddressSpace::Local;
   auto *Module = AsyncWorkGroupCopy.getParent();
-  auto *MuxDMA = getOrCreateMuxDMA(Module, IsRead, 2);
+  auto *MuxDMA = getOrCreateMuxDMA(Module, EventIn->getType(), IsRead, 2);
 
   auto &Context = AsyncWorkGroupCopy.getContext();
   auto *BB = BasicBlock::Create(Context, "entry", &AsyncWorkGroupCopy);
 
   IRBuilder<> IR(BB);
-
-  // Cast the OpenCL C event_t* into a __mux_dma_event_t*.
-  auto *MuxEventPtrType = PointerType::getUnqual(
-      compiler::utils::getOrCreateMuxDMAEventType(*Module));
-  auto *MuxEventPtr =
-      IR.CreateBitCast(EventIn, MuxEventPtrType, "mux.in.event");
 
   auto *DstOffsetBytes = IR.CreateMul(DstOffset, NumBytesPerEl);
   auto *SrcOffsetBytes = IR.CreateMul(SrcOffset, NumBytesPerEl);
@@ -254,11 +228,9 @@ void defineAsyncWorkGroupCopy2D(Function &AsyncWorkGroupCopy) {
   auto *DstStrideBytes = IR.CreateMul(DstTotalLineLength, NumBytesPerEl);
   auto *MuxDMACall = IR.CreateCall(
       MuxDMA, {DstWithOffset, SrcWithOffset, LineSizeBytes, DstStrideBytes,
-               SrcStrideBytes, NumLines, MuxEventPtr});
+               SrcStrideBytes, NumLines, EventIn});
   MuxDMACall->setCallingConv(MuxDMA->getCallingConv());
-  auto *CLReturnEvent =
-      IR.CreateBitCast(MuxDMACall, EventIn->getType(), "clc.out.event");
-  IR.CreateRet(CLReturnEvent);
+  IR.CreateRet(MuxDMACall);
 }
 
 void defineAsyncWorkGroupCopy3D(Function &AsyncWorkGroupCopy) {
@@ -283,18 +255,12 @@ void defineAsyncWorkGroupCopy3D(Function &AsyncWorkGroupCopy) {
   const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
                       compiler::utils::AddressSpace::Local;
   auto *Module = AsyncWorkGroupCopy.getParent();
-  auto *MuxDMA = getOrCreateMuxDMA(Module, IsRead, 3);
+  auto *MuxDMA = getOrCreateMuxDMA(Module, EventIn->getType(), IsRead, 3);
 
   auto &Context = AsyncWorkGroupCopy.getContext();
   auto *BB = BasicBlock::Create(Context, "entry", &AsyncWorkGroupCopy);
 
   IRBuilder<> IR(BB);
-
-  // Cast the OpenCL C event_t* into a __mux_dma_event_t*.
-  auto *MuxEventPtrType = PointerType::getUnqual(
-      compiler::utils::getOrCreateMuxDMAEventType(*Module));
-  auto *MuxEventPtr =
-      IR.CreateBitCast(EventIn, MuxEventPtrType, "mux.in.event");
 
   auto *DstOffsetBytes = IR.CreateMul(DstOffset, NumBytesPerEl);
   auto *SrcOffsetBytes = IR.CreateMul(SrcOffset, NumBytesPerEl);
@@ -309,11 +275,9 @@ void defineAsyncWorkGroupCopy3D(Function &AsyncWorkGroupCopy) {
   auto *MuxDMACall = IR.CreateCall(
       MuxDMA, {DstWithOffset, SrcWithOffset, LineSizeBytes, DstLineStrideBytes,
                SrcLineStrideBytes, NumLines, DstPlaneStrideBytes,
-               SrcPlaneStrideBytes, NumPlanes, MuxEventPtr});
+               SrcPlaneStrideBytes, NumPlanes, EventIn});
   MuxDMACall->setCallingConv(MuxDMA->getCallingConv());
-  auto *CLReturnEvent =
-      IR.CreateBitCast(MuxDMACall, EventIn->getType(), "clc.out.event");
-  IR.CreateRet(CLReturnEvent);
+  IR.CreateRet(MuxDMACall);
 }
 
 /// @brief Get or create the __mux_dma_wait builtin.
@@ -327,10 +291,9 @@ void defineAsyncWorkGroupCopy3D(Function &AsyncWorkGroupCopy) {
 Function *getOrCreateMuxWait(Module *Module) {
   auto &Context = Module->getContext();
   auto *CountType = Type::getInt32Ty(Context);
-  auto *MuxEventTypePtrPtr = PointerType::getUnqual(PointerType::getUnqual(
-      compiler::utils::getOrCreateMuxDMAEventType(*Module)));
+  auto *EventPtrTy = PointerType::getUnqual(Context);
   auto *MuxWaitType = FunctionType::get(llvm::Type::getVoidTy(Context),
-                                        {CountType, MuxEventTypePtrPtr}, false);
+                                        {CountType, EventPtrTy}, false);
   auto *MuxWait = dyn_cast<Function>(
       Module
           ->getOrInsertFunction(compiler::utils::MuxBuiltins::dma_wait,
@@ -366,15 +329,12 @@ void defineWaitGroupEvents(Function &WaitGroupEvents) {
               compiler::utils::AddressSpace::Generic) &&
          "Pointer to event must be in address space 0 or 4.");
 
-  auto *MuxEventTypePtrPtr = PointerType::getUnqual(PointerType::getUnqual(
-      compiler::utils::getOrCreateMuxDMAEventType(*Module)));
-
   IRBuilder<> EntryBBBuilder(EntryBB);
-  // Cast the OpenCL C event_t* into a __mux_dma_event_t*.
+  // Cast the incoming event list to the default address space.
   // Note that this casts away address spaces, but we only expect unqualified
   // or generic-qualified address spaces (see assert above).
   auto *MuxEvents = EntryBBBuilder.CreatePointerBitCastOrAddrSpaceCast(
-      Events, MuxEventTypePtrPtr, "mux.events");
+      Events, PointerType::getUnqual(Context), "mux.events");
   EntryBBBuilder.CreateCall(MuxWait, {Count, MuxEvents})
       ->setCallingConv(MuxWait->getCallingConv());
   EntryBBBuilder.CreateRetVoid();
