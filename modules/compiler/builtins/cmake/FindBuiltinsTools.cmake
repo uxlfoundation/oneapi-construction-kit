@@ -119,12 +119,12 @@ function(find_builtins_tools tools_dir)
     string(REPLACE "svn" "" llvm_version ${LLVM_PACKAGE_VERSION})
     string(REGEX MATCH "clang version [0-9]+\\.[0-9]+\\.[0-9]"
       version_string ${version_string})
-    string(REPLACE "clang version" "" version_string ${version_string})
+    string(REPLACE "clang version " "" version_string ${version_string})
     if(NOT llvm_version VERSION_EQUAL version_string)
       message(FATAL_ERROR
               "Builtins: LLVM tool versions do not match\n"
-              "LLVM_PACKAGE_VERSION: ${llvm_version}\n"
-              "BUILTINS_COMPILER version: ${version_string}")
+              "LLVM_PACKAGE_VERSION: '${llvm_version}'\n"
+              "BUILTINS_COMPILER version: '${version_string}'")
     else()
       message(STATUS "Builtins: LLVM tool versions match")
     endif()
