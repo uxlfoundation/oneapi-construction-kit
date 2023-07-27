@@ -11,6 +11,12 @@ version increases mean backward compatible bug fixes have been applied.
    Versions prior to 1.0.0 may contain breaking changes in minor
    versions as the API is still under development.
 
+0.77.0
+------
+
+* The DMA builtins now permit any event type chosen by the target, as long as
+  they're consistent across the module.
+
 0.76.0
 ------
 

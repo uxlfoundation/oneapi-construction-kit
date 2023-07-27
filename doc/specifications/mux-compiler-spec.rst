@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.76.0 of the specification.
+   This is version 0.77.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -887,91 +887,92 @@ Example:
 Builtins
 --------
 
-The LLVM intermediate representation stored in
-``compiler::BaseModule::finalized_llvm_module`` **may** contain declarations
-and calls to any of the following ``__mux`` functions: ``__mux_isftz()``,
-``__mux_dma_read_1D()``, ``__mux_dma_read_2D()``, ``__mux_dma_read_3D()``,
-``__mux_dma_write_1D()``, ``__mux_dma_write_2D()``, ``__mux_dma_write_3D()``,
-``__mux_dma_wait()``, ``__mux_get_global_size()``,
-``__mux_get_global_id()``, ``__mux_get_global_offset()``,
-``__mux_get_local_size()``, ``__mux_get_local_id()``,
-``__mux_get_sub_group_id()``, ``__mux_get_num_groups()``,
-``__mux_get_num_sub_groups()``, ``__mux_get_max_sub_group_size()``,
-``__mux_get_group_id()``, ``__mux_get_work_dim()``,
-``__mux_mem_barrier()``, ``__mux_work_group_barrier()``,
-``__mux_sub_group_barrier()``, ``__mux_usefast()``,
-``__mux_isembeddedprofile()``, ``__mux_get_global_linear_id()``,
-``__mux_get_local_linear_id()`` or ``__mux_get_enqueued_local_size()``.
+The ComputeMux specification defines the following builtin functions. Any of
+these functions **may** be declared and/or called in the LLVM intermediate
+representation stored in ``compiler::BaseModule::finalized_llvm_module``.
 
-* ``bool __mux_isftz(void)`` - Returns whether the device flushes
+A Mux implementation **shall** provide definitions for these builtin functions.
+
+.. note::
+   In the list of functions below:
+
+   * ``size_t`` represents either ``i32`` or ``i64``, depending on the pointer
+     size in bytes of the target.
+   * ``__mux_dma_event_t`` represents an event object and may be defined as
+     *any* type chosen by the Mux implementation, as long as it is consistently
+     used across the module at any given time. For example, it may be a
+     structure type, an a target extension type, an integer type, a pointer
+     type, etc. This type **may** change throughout the compilation process.
+
+* ``i1 __mux_isftz()`` - Returns whether the device flushes
   floating-point values to 0.
-* ``bool __mux_usefast(void)`` - Returns whether we should use faster, but
+* ``i1 __mux_usefast()`` - Returns whether we should use faster, but
   less accurate, algorithms for maths builtins used in the LLVM module.
-* ``bool __mux_isembeddedprofile(void)`` - Returns whether the device
+* ``i1 __mux_isembeddedprofile()`` - Returns whether the device
   implements OpenCL 1.2 Embedded Profile.
-* ``size_t __mux_get_global_size(uint i);`` - Returns the number of global
-  invocations for the ``i``'th dimension.
-* ``size_t __mux_get_global_id(uint i);`` - Returns the unique global
-  invocation identifier for the ``i``'th dimension.
-* ``size_t __mux_get_global_offset(uint i);`` - Returns the global offset (in
-  invocations) for the ``i``'th dimension.
-* ``size_t __mux_get_local_size(uint i);`` - Returns the number of local
-  invocations within a work-group for the ``i``'th dimension.
-* ``size_t __mux_get_local_id(uint i);`` - Returns the unique local invocation
-  identifier for the ``i``'th dimension.
-* ``uint __mux_get_sub_group_id(void);`` - Returns the subgroup ID.
-* ``size_t __mux_get_num_groups(uint i);`` - Returns the number of work-groups
-  for the ``i``'th dimension.
-* ``uint __mux_get_num_sub_groups();`` - Returns the number of subgroups for
+* ``size_t __mux_get_global_size(i32 %i)`` - Returns the number of global
+  invocations for the ``%i``'th dimension.
+* ``size_t __mux_get_global_id(i32 %i)`` - Returns the unique global
+  invocation identifier for the ``%i``'th dimension.
+* ``size_t __mux_get_global_offset(i32 %i)`` - Returns the global offset (in
+  invocations) for the ``%i``'th dimension.
+* ``size_t __mux_get_local_size(i32 %i)`` - Returns the number of local
+  invocations within a work-group for the ``%i``'th dimension.
+* ``size_t __mux_get_local_id(i32 %i)`` - Returns the unique local invocation
+  identifier for the ``%i``'th dimension.
+* ``i32 __mux_get_sub_group_id()`` - Returns the subgroup ID.
+* ``size_t __mux_get_num_groups(i32 %i)`` - Returns the number of work-groups
+  for the ``%i``'th dimension.
+* ``i32 __mux_get_num_sub_groups()`` - Returns the number of subgroups for
   the current work-group.
-* ``uint __mux_get_max_sub_group_size();`` - Returns the maximum subgroup size
+* ``i32 __mux_get_max_sub_group_size()`` - Returns the maximum subgroup size
   in the current kernel.
-* ``size_t __mux_get_group_id(uint i);`` - Returns the unique work-group
-  identifier for the ``i``'th dimension.
-* ``uint __mux_get_work_dim(void);`` - Returns the number of dimensions in
+* ``size_t __mux_get_group_id(i32 %i)`` - Returns the unique work-group
+  identifier for the ``%i``'th dimension.
+* ``i32 __mux_get_work_dim()`` - Returns the number of dimensions in
   use.
-* ``__mux_dma_event_t __mux_dma_read_1D(_attribute((address_space(3)))``
-  ``uint8_t *dst, _attribute((address_space(1))) uint8_t *src, size_t width,``
-  ``__mux_dma_event_t event)`` - DMA 1D read from ``src`` to ``dst`` of
-  ``width`` bytes. May use ``event`` from previous DMA call. Returns event
-  used.
-* ``__mux_dma_event_t __mux_dma_read_2D(_attribute((address_space(3)))``
-  ``uint8_t *dst, _attribute((address_space(1))) uint8_t *src, size_t width,``
-  ``size_t dst_stride, size_t src_stride, size_t height __mux_dma_event_t event)``
-  - DMA 2D read from ``src`` to ``dst`` of ``width`` bytes and ``height`` rows,
-  with ``dst_stride`` bytes between dst rows and ``src_stride`` bytes between
-  src rows. May use ``event`` from previous DMA call. Returns event used.
-* ``__mux_dma_event_t __mux_dma_read_3D(_attribute((address_space(3)))``
-  ``uint8_t *dst, _attribute((address_space(1))) uint8_t *src, size_t width,``
-  ``size_t dst_line_stride, size_t src_line_stride, size_t height, size_t``
-  ``dst_plane_stride, size_t src_plane_stride, size_t depth, __mux_dma_event_t``
-  ``event)`` - DMA 3D read from ``src`` to ``dst`` of ``width`` bytes,
-  ``height`` rows, and ``depth`` planes, with ``dst_line_stride`` bytes between
-  dst rows, ``src_line_stride`` bytes between src rows, ``dst_plane_stride``
-  bytes between dst planes, and ``src_plane_stride`` between src planes. May use
-  ``event`` from previous DMA call. Returns event used.
-* ``__mux_dma_event_t __mux_dma_write_1D(_attribute((address_space(1)))``
-  ``uint8_t *dst, _attribute((address_space(3))) uint8_t *src, size_t width,``
-  ``__mux_dma_event_t event)`` - DMA 1D write from ``src`` to ``dst`` of
-  ``width`` bytes. May use ``event`` from previous DMA call. Returns event used.
-* ``__mux_dma_event_t __mux_dma_write_2D(_attribute((address_space(1)))``
-  ``uint8_t *dst, _attribute((address_space(1))) uint8_t *src, size_t width,``
-  ``size_t dst_stride, size_t src_stride, size_t height __mux_dma_event_t event)``
-  - DMA 2D write from ``src`` to ``dst`` of ``width`` bytes and ``height`` rows,
-  with ``dst_stride`` bytes between dst rows and ``src_stride`` bytes between
-  src rows. May use ``event`` from previous DMA call. Returns event used.
-* ``__mux_dma_event_t __mux_dma_write_3D(_attribute((address_space(3)))``
-  ``uint8_t *dst, _attribute((address_space(1))) uint8_t *src, size_t width,``
-  ``size_t dst_line_stride, size_t src_line_stride, size_t height, size_t``
-  ``dst_plane_stride, size_t src_plane_stride, size_t depth, __mux_dma_event_t``
-  ``event)`` - DMA 3D write from ``src`` to ``dst`` of ``width`` bytes,
-  ``height`` rows, and ``depth`` planes, with ``dst_line_stride`` bytes between
-  dst rows, ``src_line_stride`` bytes between src rows, ``dst_plane_stride``
-  bytes between dst planes, and ``src_plane_stride`` between src planes. May use
-  ``event`` from previous DMA call. Returns event used.
-* ``void __mux_dma_wait(uint num_events, __mux_dma_event_t*)`` - Wait on
+* ``__mux_dma_event_t __mux_dma_read_1D(ptr address_space(3) %dst,``
+  ``ptr address_space(1) %src, size_t %width, __mux_dma_event_t %event)`` - DMA
+  1D read from ``%src`` to ``%dst`` of ``%width`` bytes. May use ``%event``
+  from previous DMA call. Returns event used.
+* ``__mux_dma_event_t __mux_dma_read_2D(ptr address_space(3) %dst,``
+  ``ptr address_space(1) %src, size_t %width, size_t %dst_stride,``
+  ``size_t %src_stride, size_t %height __mux_dma_event_t %event)`` - DMA 2D
+  read from ``%src`` to ``%dst`` of ``%width`` bytes and ``%height`` rows, with
+  ``%dst_stride`` bytes between dst rows and ``%src_stride`` bytes between src
+  rows. May use ``%event`` from previous DMA call. Returns event used.
+* ``__mux_dma_event_t __mux_dma_read_3D(ptr address_space(3) %dst,``
+  ``ptr address_space(1) %src, size_t %width, size_t %dst_line_stride,``
+  ``size_t %src_line_stride, size_t %height, size_t %dst_plane_stride,``
+  ``size_t %src_plane_stride, size_t %depth, __mux_dma_event_t %event)`` - DMA
+  3D read from ``%src`` to ``%dst`` of ``%width`` bytes, ``%height`` rows, and
+  ``%depth`` planes, with ``%dst_line_stride`` bytes between dst rows,
+  ``%src_line_stride`` bytes between src rows, ``%dst_plane_stride`` bytes
+  between dst planes, and ``%src_plane_stride`` between src planes. May use
+  ``%event`` from previous DMA call. Returns event used.
+* ``__mux_dma_event_t __mux_dma_write_1D(ptr address_space(1) ptr %dst,``
+  ``ptr address_space(3) %src, size_t %width, __mux_dma_event_t %event)`` - DMA
+  1D write from ``%src`` to ``%dst`` of ``%width`` bytes. May use ``%event``
+  from previous DMA call. Returns event used.
+* ``__mux_dma_event_t __mux_dma_write_2D(ptr address_space(1) %dst,``
+  ``ptr address_space(1) %src, size_t %width, size_t %dst_stride,``
+  ``size_t %src_stride, size_t %height __mux_dma_event_t %event)`` - DMA 2D
+  write from ``%src`` to ``%dst`` of ``%width`` bytes and ``%height`` rows,
+  with ``%dst_stride`` bytes between dst rows and ``%src_stride`` bytes between
+  src rows. May use ``%event`` from previous DMA call. Returns event used.
+* ``__mux_dma_event_t __mux_dma_write_3D(ptr address_space(3) %dst,``
+  ``ptr address_space(1) %src, size_t %width, size_t %dst_line_stride,``
+  ``size_t %src_line_stride, size_t %height, size_t %dst_plane_stride,``
+  ``size_t %src_plane_stride, size_t %depth,
+  ``__mux_dma_event_t %event)`` - DMA 3D write from ``%src`` to ``%dst`` of
+  ``%width`` bytes, ``%height`` rows, and ``%depth`` planes, with
+  ``%dst_line_stride`` bytes between dst rows, ``%src_line_stride`` bytes
+  between src rows, ``%dst_plane_stride`` bytes between dst planes, and
+  ``src_plane_stride`` between src planes. May use ``%event`` from previous DMA
+  call. Returns event used.
+* ``void __mux_dma_wait(i32 %num_events, __mux_dma_event_t*)`` - Wait on
   events initiated by a DMA read or write.
-* ``size_t __mux_get_global_linear_id(void)`` - Returns a linear ID equivalent
+* ``size_t __mux_get_global_linear_id()`` - Returns a linear ID equivalent
   to ``(__mux_get_global_id(2) - __mux_get_global_offset(2)) *``
   ``__mux_get_global_size(1) * __mux_get_global_size(0) +``
   ``(__mux_get_global_id(1) - __mux_get_global_offset(1)) *``
@@ -979,11 +980,11 @@ and calls to any of the following ``__mux`` functions: ``__mux_isftz()``,
   ``__mux_get_global_offset(0))``.
 * ``size_t __mux_get_local_linear_id(void)`` - Returns a linear ID equivalent
   to ``__mux_get_local_id(2) * __mux_get_local_size(1) *``
-  ``__mux_get_local_size(0) + __mux_get_local_id(1) *
-  __mux_get_local_size(0)`` ``+ __mux_get_local_id(0)``.
-* ``size_t __mux_get_enqueued_local_size(uint i)`` - Returns the enqueued
+  ``__mux_get_local_size(0) + __mux_get_local_id(1) * __mux_get_local_size(0)``
+  ``+ __mux_get_local_id(0)``.
+* ``size_t __mux_get_enqueued_local_size(i32 i)`` - Returns the enqueued
   work-group size in the ``i``'th dimension, for uniform work-groups this is
-  equivalent to ``size_t __mux_get_local_size(uint i)``.
+  equivalent to ``size_t __mux_get_local_size(i32 %i)``.
 * ``void __mux_mem_barrier(i32 %scope, i32 %semantics)`` - Controls the order
   that memory accesses are observed (serves as a fence instruction). This
   control is only ensured for memory accesses issued by the invocation calling
@@ -1001,16 +1002,6 @@ and calls to any of the following ``__mux`` functions: ``__mux_isftz()``,
   as ``__mux_mem_barrier(i32 %scope, i32 %semantics)``. See `below
   <#memory-and-control-barriers>`__ for more information.
 
-The LLVM intermediate representation stored in
-``compiler::BaseModule::finalized_llvm_module`` **may** contain declarations of
-the following type: ``__mux_dma_event_t``.
-
-* ``__mux_dma_event_t`` - Represents an event object that **may** be passed to
-  and **shall** be returned from the various ``__mux_dma`` builtins.
-  ``__mux_dma_event_t`` objects **may** be waited on by the
-  ``__mux_dma_wait`` builtin.
-
-A Mux implementation **shall** provide definitions for the above declarations.
 
 Memory and Control Barriers
 ---------------------------

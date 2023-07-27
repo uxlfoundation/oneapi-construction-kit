@@ -106,7 +106,7 @@ std::string lookupWGBuiltin(StringRef SubgroupBuiltin, LLVMContext *Ctx,
 }
 
 /// @brief Helper for determining if a call instruction calls a sub-group
-/// work-item buitlin function.
+/// work-item builtin function.
 ///
 /// @param[in] CI Call instruction to query.
 ///
@@ -123,7 +123,7 @@ bool isSubGroupWorkItemFunction(CallInst *CI) {
 
 /// @brief Replaces sub-group builtin calls with their work-group equivalents.
 ///
-/// @param[in] SubGroupBuiltinCalls Buitlin calls to replace.
+/// @param[in] SubGroupBuiltinCalls Builtin calls to replace.
 void replaceSubGroupBuiltinCalls(
     const SmallVectorImpl<CallInst *> &SubGroupBuiltinCalls,
     compiler::utils::BuiltinInfo &BI) {

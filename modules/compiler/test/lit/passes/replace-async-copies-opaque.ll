@@ -76,7 +76,7 @@ declare spir_func void @_Z17wait_group_eventsiP9ocl_event(i32, ptr)
 ; CHECK:  ret void
 ; CHECK: }
 
-; Also test generic address spaces, which can some out or SPIR-V's OpGroupWaitEvents.
+; Also test generic address spaces, which can come out of SPIR-V's OpGroupWaitEvents.
 declare spir_func void @_Z17wait_group_eventsiPU3AS49ocl_event(i32 %n, ptr addrspace(4) %events)
 ; CHECK-LABEL: define spir_func void @_Z17wait_group_eventsiPU3AS49ocl_event(i32 %n, ptr addrspace(4) %events
 ; CHECK:  [[MUX:%.*]] = addrspacecast ptr addrspace(4) %events to ptr
