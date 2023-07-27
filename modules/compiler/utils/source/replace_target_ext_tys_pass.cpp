@@ -36,6 +36,40 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
         ReplaceEvents(ReplaceEvents) {}
 
   Type *remapType(Type *Ty) {
+    // Look up the cache in case we've seen this type before.
+    if (auto I = TyReplacementCache.find(Ty); I != TyReplacementCache.end()) {
+      return I->getSecond();
+    }
+
+    // Replace array types with remappable element types.
+    if (auto *const ArrayTy = dyn_cast<ArrayType>(Ty)) {
+      if (auto *NewTy = remapType(ArrayTy->getElementType()); Ty != NewTy) {
+        auto *const NewArrayTy =
+            ArrayType::get(NewTy, ArrayTy->getArrayNumElements());
+        TyReplacementCache[Ty] = NewArrayTy;
+        return NewArrayTy;
+      }
+    }
+
+    // Replace any struct types with remappable element types.
+    if (auto *const StructTy = dyn_cast<StructType>(Ty)) {
+      SmallVector<Type *> NewStructEltTys(StructTy->getNumElements());
+      transform(StructTy->elements(), NewStructEltTys.begin(),
+                [this](Type *EltTy) { return remapType(EltTy); });
+      // No change to be made to this struct
+      if (equal(StructTy->elements(), NewStructEltTys)) {
+        return Ty;
+      }
+      auto *const NewStructTy =
+          StructTy->hasName()
+              ? StructType::create(StructTy->getContext(), NewStructEltTys,
+                                   StructTy->getName(), StructTy->isPacked())
+              : StructType::get(StructTy->getContext(), NewStructEltTys,
+                                StructTy->isPacked());
+      TyReplacementCache[Ty] = NewStructTy;
+      return NewStructTy;
+    }
+
     // Don't replace this type if it's:
     // * not a TargetExtType
     // * an image and we don't want to replace images
@@ -46,10 +80,6 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
         (!ReplaceSamplers && TgtExtTy->getName() == "spirv.Sampler") ||
         (!ReplaceEvents && TgtExtTy->getName() == "spirv.Event")) {
       return Ty;
-    }
-    // Now look up the cache in case we've seen this type before.
-    if (auto I = TyReplacementCache.find(Ty); I != TyReplacementCache.end()) {
-      return I->getSecond();
     }
     // Check if the target wants to remap this type.
     if (auto *NewTy = BI.getRemappedTargetExtTy(Ty)) {
