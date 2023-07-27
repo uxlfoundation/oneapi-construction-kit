@@ -2,7 +2,7 @@ Compiler View
 =============
 
 oneAPI Construction Kit provides a compiler suite that can consume kernels
-written using open standards including OpenCL C, SPIR and SPIR-V. These compilers
+written using open standards including OpenCL C and SPIR-V. These compilers
 accept source code or IR provided by an application and compile it into an
 executable that is used by runtime APIs to execute work on custom processor
 architectures.
@@ -38,23 +38,6 @@ after applying an internal patch.
 oneAPI Construction Kit also provides the headers for OpenCL C builtin functions
 to Clang as a pre-compiled header, which later get linked as part of
 ``compiler::Module::finalize``.
-
-SPIR Consumption
-----------------
-
-SPIR binaries are passed to the ``compiler::Module::loadSPIR`` and
-``compiler::Module::compileSPIR`` methods, which are implemented by
-the oneAPI Construction Kit.
-
-As SPIR binaries are serialized LLVM modules, ``loadSPIR`` deserializes
-the LLVM module. ``compileSPIR`` then runs a number of fixup passes and a
-generic optimization pipeline based on the one Clang normally runs during
-code generation.
-
-``loadSPIR`` and ``compileSPIR`` expect a binary that follows the
-`SPIR 1.2 specification <https://www.khronos.org/registry/SPIR/specs/spir_spec-1.2.pdf>`_.
-Note that SPIR is only supported for legacy reasons, with SPIR-V being the way
-forwards.
 
 SPIR-V Consumption
 ------------------

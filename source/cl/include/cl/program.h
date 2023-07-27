@@ -44,8 +44,6 @@ enum class program_type : uint8_t {
   OPENCLC,  ///< A program created with clCreateProgramWithSource.
   BINARY,   ///< A program created with clCreateProgramWithBinary.
   LINK,     ///< A program created with clLinkProgram.
-  SPIR,     ///< A program created with clCreateProgramWithBinary when a SPIR
-            ///< binary was used.
   SPIRV,    ///< A program created with clCreateProgramWithILKHR when a SPIR-V
             ///< binary was used.
   BUILTIN,  ///< A program created with clCreateProgramWithBuiltInKernels.

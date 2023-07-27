@@ -16,7 +16,6 @@
 //
 // REQUIRES: double
 // CLC OPTIONS: -cl-fast-relaxed-math
-// SPIR OPTIONS: -cl-fast-relaxed-math
 // SPIRV OPTIONS: -cl-fast-relaxed-math
 
 // The purpose of this test is to exercise builtin functions that may be

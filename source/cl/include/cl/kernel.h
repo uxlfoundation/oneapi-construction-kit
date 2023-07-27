@@ -384,11 +384,6 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
 
   /// @brief Query the kernel meta data for argument information.
   ///
-  /// In SPIR all argument information is always present, except for the
-  /// argument name, which requires the kernel to be compiled with
-  /// "-cl-kernel-arg-info". Use the presence of the argument name to track
-  /// whether we can legally call clGetKernelArgInfo.
-  ///
   /// @return Return true if the kernel was compiled to a program and the kernel
   /// argument info could be retrieved, false otherwise.
   bool GetArgInfo();

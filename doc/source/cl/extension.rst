@@ -71,16 +71,6 @@ listed above are reported to the OpenCL application by extending the
 `clGetDeviceInfo`_ entry point. This extension does not provided any additional
 OpenCL API entry points.
 
-Standard Portable Intermediate Representation (SPIR) - ``cl_khr_spir``
-----------------------------------------------------------------------
-
-The `SPIR 1.2 specification`_ defines a binary representation of an OpenCL C
-program. The ``khr_spir`` extension extends OpenCL to allow creation of a
-``cl_program`` from a SPIR binary.
-
-.. _SPIR 1.2 specification:
-  https://www.khronos.org/registry/SPIR/specs/spir_spec-1.2.pdf
-
 Installable Client Driver (ICD) - ``cl_khr_icd``
 ------------------------------------------------
 

@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// SPIR OPTIONS: "-w"
 // SPIRV OPTIONS: "-w"
 
 __kernel void bit_shift(__global int *in, __global int *out) {

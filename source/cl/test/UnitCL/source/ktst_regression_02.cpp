@@ -921,7 +921,7 @@ kts::Reference1D<cl_uint> refOut = [](size_t x) {
 };
 }  // namespace Regression_48
 
-// TODO CA-1929: Fix OfflineExecution and OfflineSpirExecution
+// TODO CA-1929: Fix OfflineExecution
 TEST_P(ExecutionOnline, Regression_48_Image_Sampler) {
   if (!UCL::hasImageSupport(this->device)) {
     GTEST_SKIP();
@@ -937,9 +937,9 @@ TEST_P(ExecutionOnline, Regression_48_Image_Sampler) {
   RunGeneric1D(global_size);
 }
 
-// TODO CA-1929: Fix OfflineExecution and OfflineSpirExecution
+// TODO CA-1929: Fix OfflineExecution
 TEST_P(Execution, Regression_48_Image_Sampler_Kernel_Call_Kernel) {
-  if (!isSourceTypeIn({OPENCL_C, SPIR, SPIRV, OFFLINESPIRV}) ||
+  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINESPIRV}) ||
       !UCL::hasImageSupport(this->device)) {
     GTEST_SKIP();
   }
@@ -954,7 +954,7 @@ TEST_P(Execution, Regression_48_Image_Sampler_Kernel_Call_Kernel) {
   RunGeneric1D(global_size);
 }
 
-// TODO CA-1930: Generate Spir/Spirv/Offline
+// TODO CA-1930: Generate Spirv/Offline
 TEST_P(Execution, Regression_49_Local_Select) {
   if (!isSourceTypeIn({OPENCL_C})) {
     GTEST_SKIP();

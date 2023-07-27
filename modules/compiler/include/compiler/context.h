@@ -62,13 +62,6 @@ class Context {
   /// @brief Virtual destructor.
   virtual ~Context() = default;
 
-  /// @brief Checks if a binary stream is valid SPIR.
-  ///
-  /// @param binary View of the SPIR binary stream.
-  ///
-  /// @return Returns `true` if the stream is valid, `false` otherwise.
-  virtual bool isValidSPIR(cargo::array_view<const std::uint8_t> binary) = 0;
-
   /// @brief Checks if a binary stream is valid SPIR-V.
   ///
   /// @param code View of the SPIR-V binary stream.

@@ -16,11 +16,11 @@
 
 # `KERNEL_FILES` is the full list of kernels that we need for UnitCL testing.
 # For every `.cl` file you add here, our cmake will automatically check for
-# associated `.bc(32|64)` and `.spvasm(32|64)` of the same name. These files
-# will also be passed through to `clc` for Offline testing. If you are adding
-# new kernels add them to `KERNEL_NAMES` as normal. If they might not be
-# supported by `clc` these may be skipped by adding the name to the appropriate
-# list at the bottom of this file.
+# `.spvasm(32|64)` of the same name. These files will also be passed through to
+# `clc` for Offline testing. If you are adding new kernels add them to
+# `KERNEL_NAMES` as normal. If they might not be supported by `clc` these may
+# be skipped by adding the name to the appropriate list at the bottom of this
+# file.
 set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/attribute.01_reqd_work_group_size.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/barrier.01_barrier_in_function.cl
@@ -306,7 +306,6 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.52_nested_loop_using_kernel_arg.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.53_kernel_arg_phi.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.54_negative_comparison.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/regression.55_float_memcpy.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.56_local_vec_mem.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.57_attribute_aligned.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.58_nested_structs.cl
@@ -871,7 +870,7 @@ list(APPEND KERNEL_FILES ${spirv_test})
 # each file for corresponding spir and spirv variants. These will be returned
 # as whatever value is set in `OUTPUT_KERNEL_FILES` via CMakes `PARENT_SCOPE`
 # setting.
-function(add_spir_spirv INPUT_KERNEL_FILES OUTPUT_KERNEL_FILES)
+function(add_spirv INPUT_KERNEL_FILES OUTPUT_KERNEL_FILES)
   set(local_kernel_list ${${INPUT_KERNEL_FILES}})
   # For each of the kernels we have specified we need to check if there are
   # associated spir bc and spir-v asm files. If they exist we then append them to
@@ -884,24 +883,20 @@ function(add_spir_spirv INPUT_KERNEL_FILES OUTPUT_KERNEL_FILES)
     # Only process ".cl" files
     if(${KERNEL_EXT} MATCHES ".cl")
       # Create the names of the files.
-      set(spir32_kernel_name "${KERNEL_NAME}.bc32")
-      set(spir64_kernel_name "${KERNEL_NAME}.bc64")
       set(spvasm32_kernel_name "${KERNEL_NAME}.spvasm32")
       set(spvasm64_kernel_name "${KERNEL_NAME}.spvasm64")
 
-      set(spir_files_to_check)
+      set(spirv_files_to_check)
 
-      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spir32_kernel_name})
-      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spir64_kernel_name})
-      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spvasm32_kernel_name})
-      list(APPEND spir_files_to_check ${KERNEL_DIR}/${spvasm64_kernel_name})
+      list(APPEND spirv_files_to_check ${KERNEL_DIR}/${spvasm32_kernel_name})
+      list(APPEND spirv_files_to_check ${KERNEL_DIR}/${spvasm64_kernel_name})
 
       # Check if each of the files exists and, if it does, append it to the list
-      # of kernel files. This check *will* greedily pick up stub SPIR and
-      # SPIR-V files if the kernel directory hasn't been `git clean`-ed, and
-      # the stub files will be copied to the build directory. These copied stub
-      # files have no effects on testing.
-      foreach(FILE ${spir_files_to_check})
+      # of kernel files. This check *will* greedily pick up stub SPIR-V files
+      # if the kernel directory hasn't been `git clean`-ed, and the stub files
+      # will be copied to the build directory. These copied stub files have no
+      # effects on testing.
+      foreach(FILE ${spirv_files_to_check})
         if(EXISTS ${FILE})
           list(APPEND local_kernel_list ${FILE})
         endif()

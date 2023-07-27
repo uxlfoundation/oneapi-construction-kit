@@ -1,9 +1,9 @@
 ComputeMux Compiler
 ===================
 
-The ComputeMux Compiler is an OpenCL C, SPIR and SPIR-V compiler that consumes
-the source code or IL provided by an application and compiles it into an
-executable that can be loaded by the ComputeMux Runtime.
+The ComputeMux Compiler is an OpenCL C and SPIR-V compiler that consumes the
+source code or IL provided by an application and compiles it into an executable
+that can be loaded by the ComputeMux Runtime.
 
 The module aims to provide a boundary beyond which no LLVM type definitions pass
 in order to keep logical concerns separate.
@@ -151,13 +151,6 @@ The ``compiler::Module::compileSPIRV`` member function implements the SPIR-V
 frontend. First, the SPIR-V module is handed to ``spirv_ll::Context::translate``
 to turn it into a ``llvm::Module``, then some additional fixup passes are applied.
 
-Compile SPIR
-~~~~~~~~~~~~
-
-The ``compiler::Module::compileSPIRV`` member function is responsible for
-translating SPIR bitcode to an ``llvm::Module`` by running additional fixup
-passes.
-
 Link
 ~~~~
 
@@ -244,10 +237,10 @@ it replaces is deleted.
 Bit Shift Fixup
 ^^^^^^^^^^^^^^^
 
-LLVM IR does not define the results of oversized shift amounts, however SPIR
-does. As a result shift instructions need to be updated to perform a 'modulo N'
-by the shift amount prior to the shift operation itself, where N is the bit
-width of the value to shift.
+LLVM IR does not define the results of oversized shift amounts, however some
+high-level languages such as OpenCL C do. As a result shift instructions need
+to be updated to perform a 'modulo N' by the shift amount prior to the shift
+operation itself, where N is the bit width of the value to shift.
 
 ``BitShiftFixupPass`` implements this as a LLVM function pass iterating over all
 the function instructions looking for shifts. For each shift found the pass uses
@@ -255,10 +248,10 @@ the first operand to work out 'N' for the modulo based on the bit width of the
 operand type. If the shift amount from the second operand is less than N
 however, then we can skip the shift without inserting a modulo operation since
 the shift is not oversized. We can also skip shift instructions that already
-have the modulo applied, which can happen if the SPIR module was created by
-clang. Otherwise the pass creates a modulo by generating a 'logical and'
-instruction with operands ``N-1`` and the original shift amount, this masked value
-is then used to replace the second operand of the shift.
+have the modulo applied, which can happen if the module was created by clang.
+Otherwise the pass creates a modulo by generating a 'logical and' instruction
+with operands ``N-1`` and the original shift amount, this masked value is then
+used to replace the second operand of the shift.
 
 Software Division
 ^^^^^^^^^^^^^^^^^

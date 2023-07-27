@@ -18,9 +18,9 @@
 ///
 /// @brief Class BitShiftFixupPass interface.
 ///
-/// Shift instructions need to be updated: SPIR defines them to have defined
-/// results with oversized shift amounts but LLVM IR does not. 'modulo N'
-/// needs to be performed to the shift amount prior to the shift, where N is
+/// Shift instructions need to be updated: OpenCL C defines them to have
+/// defined results with oversized shift amounts but LLVM IR does not. 'modulo
+/// N' needs to be performed to the shift amount prior to the shift, where N is
 /// the bit width of the value to shift.
 
 #ifndef BASE_BIT_SHIFT_FIXUP_PASS_H_INCLUDED

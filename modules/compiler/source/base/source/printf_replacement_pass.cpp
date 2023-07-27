@@ -335,8 +335,8 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
       if (const_string->getOpcode() == Instruction::GetElementPtr) {
         var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
       } else if (const_string->getOpcode() == Instruction::IntToPtr) {
-        // SPIR generates a PtrToInt expression inside an IntToPtr expression,
-        // so therefore we need to unwrap it twice.
+        // Sometimes we see a PtrToInt expression inside an IntToPtr
+        // expression, so therefore we need to unwrap it twice.
         const_string = dyn_cast<ConstantExpr>(const_string->getOperand(0));
         if (const_string &&
             const_string->getOpcode() == Instruction::PtrToInt) {

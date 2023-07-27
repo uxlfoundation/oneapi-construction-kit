@@ -100,8 +100,8 @@ TEST_P(Execution, Offline_04_MultiKernel_WGS) {
   RunGeneric1D(N, 8);
 }
 
-// SPIR, SPIR-V, Offline SPIR and Offline SPIR-V tests are disabled as this is
-// testing build option only supported by the runtime compiler or clc.
+// SPIR-V and Offline SPIR-V tests are disabled as this is testing build option
+// only supported by the runtime compiler or clc.
 // TODO(CA-3992) Fix this test.
 TEST_P(Execution, DISABLED_Offline_04_MultiKernel_WGS_VecZ) {
   if (!isSourceTypeIn({OPENCL_C, OFFLINE}) ||

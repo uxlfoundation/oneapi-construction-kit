@@ -790,12 +790,8 @@ TEST_P(Execution, Regression_99_As_Double3_Inline) {
 }
 
 // Dividing an integer by zero may result in an unspecified value, but not an
-// exception or undefined behaviour. No SPIR version of this test because old
-// clang actually picks up the zero div and emits a compile error.
+// exception or undefined behaviour.
 TEST_P(Execution, Regression_100_Integer_Zero_Divide) {
-  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINE, OFFLINESPIRV})) {
-    GTEST_SKIP();
-  }
   AddInOutBuffer(kts::N, kts::Ref_A, kts::Ref_Identity);
   RunGeneric1D(kts::N);
 }

@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// SPIR OPTIONS: "-w"
 // SPIRV OPTIONS: "-w"
 
 kernel void extractelement_runtime_index(global int4* in, global int4* out,

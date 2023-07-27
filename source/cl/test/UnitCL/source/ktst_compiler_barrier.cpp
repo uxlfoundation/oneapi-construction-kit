@@ -24,7 +24,7 @@ TEST_P(Execution, Compiler_Barrier_01_Only_Barrier) { RunGeneric1D(kts::N); }
 
 TEST_P(Execution, Compiler_Barrier_02_Group_Divergent_Barriers) {
   const unsigned offset = 5;
-  // If `ARRAY_SIZE` changes from `16`, recompile SPIR and Offline kernels.
+  // If `ARRAY_SIZE` changes from `16`, recompile Offline kernels.
   const size_t ARRAY_SIZE = kts::N / kts::localN;
   kts::Reference1D<cl_int> refIn = [&](size_t x) {
     return (x == offset) ? 42 : 0;
@@ -98,7 +98,7 @@ UCL_EXECUTION_TEST_SUITE_P(
 
 TEST_P(Execution, Compiler_Barrier_04_Mutually_Exclusive_Barriers) {
   const size_t offset = 5;
-  // If `ARRAY_SIZE` changes from `16`, recompile SPIR and Offline kernels.
+  // If `ARRAY_SIZE` changes from `16`, recompile Offline kernels.
   const size_t ARRAY_SIZE = kts::N / kts::localN;
   kts::Reference1D<cl_int> refIn = [&](size_t x) {
     return (x == offset) ? 42 : 0;

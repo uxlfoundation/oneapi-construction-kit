@@ -108,8 +108,8 @@ device. For example, if the device does not support the ``cl_khr_fp16``
 extension, then test cases that use half precision floating point are skipped.
 When the device does not have a compiler (which may be the case for some
 devices that only support the embedded profile), then a large number of test
-cases will be skipped. Many test cases depend on kernels from source or SPIR,
-and these require a compiler.
+cases will be skipped. Many test cases depend on kernels from source, and these
+require a compiler.
 
 UnitCL Options
 --------------
@@ -260,12 +260,8 @@ UnitCL, each one exercising a different code path. The six test types are:
   executes it.
 * ``OfflineExecution`` - The driver executes a binary kernel that has
   previously been compiled using ``clc``.
-* ``SpirExecution`` - The driver compiles a SPIR version of the kernel to
-  binary and executes it.
 * ``SpirvExecution`` - The driver compiles a SPIR-V version of the kernel to
   binary and executes it.
-* ``OfflineSpirExecution`` - The driver executes a binary kernel that has
-  previously been compiled from SPIR using ``clc``.
 * ``OfflineSpirvExecution`` - The driver executes a binary kernel that has
   previously been compiled from SPIR-V using ``clc``.
 
@@ -288,8 +284,8 @@ as the OpenCL driver itself, even just building UnitCL partially tests the
 OpenCL implementation.
 
 The following sections provide more details on the process of writing execution
-tests and how UnitCL is built. See `Generating SPIR and SPIR-V`_ for creating
-SPIR and SPIR-V versions of the kernel.
+tests and how UnitCL is built. See `Generating SPIR-V`_ for creating SPIR-V
+versions of the kernel.
 
 Writing Kernel Execution Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -378,10 +374,6 @@ program to test:
 
       Loads an OpenCL C (``.cl``) source  file from disk.
 
-   .. cpp:enumerator:: SPIR
-
-      Loads a SPIR (``.bc32``/``.bc64``) file from disk.
-
    .. cpp:enumerator:: SPIRV
 
       Loads a SPIR-V (``.spv32``/``.spv64``) file from disk.
@@ -390,24 +382,20 @@ program to test:
 
       Loads a  pre-compiled ``.cl`` binary (``.bin``) file from disk.
 
-   .. cpp:enumerator:: OFFLINESPIR
-
-      Loads a pre-compiled ``.bc32``/``.bc64`` (``.bin``) file from disk.
-
    .. cpp:enumerator:: OFFLINESPIRV
 
       Loads a pre-compiled ``.spv32``/``.spv64`` (``.bin``) file from disk.
 
 Sometimes it may be necessary to skip one or more source types. For example, a
-test might trigger a known SPIR bug so the SPIR versions need to be skipped, or
-a test might only be valid when compiled just-in-time from OpenCL C. In these
-cases the :cpp:func:`kts::ucl::isSourceTypeIn()` utility function should be used
-to determine if a test should be skipped:
+test might trigger a known OFFLINE bug so the OFFLINE versions need to be
+skipped, or a test might only be valid when compiled just-in-time from OpenCL
+C. In these cases the :cpp:func:`kts::ucl::isSourceTypeIn()` utility function
+should be used to determine if a test should be skipped:
 
 .. code:: cpp
 
    TEST_P(Execution, Test) {
-     if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINE, OFFLINESPIRV}) {
+     if (!isSourceTypeIn({OPENCL_C, SPIRV}) {
        GTEST_SKIP();
      }
    }
@@ -418,8 +406,6 @@ to determine if a test should be skipped:
 
    * ``ExecutionOpenCLC`` - for :cpp:enumerator:`kts::ucl::SourceType::OPENCL_C`
      and :cpp:enumerator:`kts::ucl::SourceType::OFFLINE`
-   * ``ExecutionSPIR`` - for :cpp:enumerator:`kts::ucl::SourceType::SPIR` and
-     :cpp:enumerator:`kts::ucl::SourceType::OFFLINESPIR` source types
    * ``ExecutionSPIRV`` - for :cpp:enumerator:`kts::ucl::SourceType::SPIRV` and
      :cpp:enumerator:`kts::ucl::SourceType::OFFLINESPIRV` source types
 
@@ -454,17 +440,16 @@ instantiate the test suite.
    known when the offline versions of the kernel are compiled. If the macros are
    dynamically specific at runtime, the offline variables should be disabled.
 
-.. _SPIR: https://www.khronos.org/registry/spir
 .. _SPIRV: https://www.khronos.org/registry/spir-v/
 .. _OFFLINE: ../tools.html
 
 Offline Execution Testing through CLC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As part of our offline testing, the UnitCL build target will compile OpenCL-C,
-SPIR, and SPIR-V kernels through ``clc`` to produce output binaries that are
-later loaded by UnitCL. To control how these are handled, you can add the
-following comments to the OpenCL-C kernel. These are parsed by CMake.
+As part of our offline testing, the UnitCL build target will compile OpenCL-C
+and SPIR-V kernels through ``clc`` to produce output binaries that are later
+loaded by UnitCL. To control how these are handled, you can add the following
+comments to the OpenCL-C kernel. These are parsed by CMake.
 
 * ``// CLC OPTIONS:`` - A semicolon-separated list of values that are to be
   passed to ``clc`` as options. For example ``// CLC OPTIONS:
@@ -475,22 +460,17 @@ following comments to the OpenCL-C kernel. These are parsed by CMake.
 .. note::
 
   The options defined with ``CLC OPTIONS`` are also passed to clang as part of
-  the `regenerate-spir and regenerate-spirv targets`_.
+  the `regenerate-spirv target`_.
 
 Here is the full list of supported requirements for ``// REQUIRES:``:
 
 * ``noclc`` - Skip all ``clc`` steps for this kernel. Use this when you have a
-  kernel that is not supported by ``clc``. ``OfflineExecution``,
-  ``OfflineSpirExecution``, and ``OfflineSpirvExecution`` tests will not work
-  for this kernel if this requirement is set.
-* ``nospir`` - Skip all SPIR generation steps for this kernel. This will only
-  have an effect if you are running the
-  :ref:`regenerate-spir<regenerate-spir-spirv>` target. ``SpirExecution`` and
-  ``OfflineSpirExecution`` tests will not work for this kernel if this
+  kernel that is not supported by ``clc``. ``OfflineExecution`` and
+  ``OfflineSpirvExecution`` tests will not work for this kernel if this
   requirement is set.
 * ``nospirv`` - Skip all SPIR-V generation steps for this kernel. This will
   only have an effect if you are running the
-  :ref:`regenerate-spirv<regenerate-spir-spirv>` target. ``SpirvExecution`` and
+  :ref:`regenerate-spirv<regenerate-spirv>` target. ``SpirvExecution`` and
   ``OfflineSpirvExecution`` tests will not work for this kernel if this
   requirement is set.
 * ``double`` - If your kernel requires doubles (i.e., the ``cl_khr_fp64``
@@ -510,13 +490,13 @@ Here is the full list of supported requirements for ``// REQUIRES:``:
 .. warning::
 
   ``// REQUIRES:`` is used to disable build steps. It has no effect on which
-  tests UnitCL attempts to run. When ``noclc``, ``nospir``, or ``nospirv`` are
-  used, then the test (in C++) must set the corresponding
-  ``TEST_F_EXECUTION_OPTIONAL`` fields to ``KTSDISABLE`` so the test isn't
-  generated. For tests requiring doubles, halfs, or images, it is common for
-  the test (in C++) to conditionally skip itself if the target doesn't support
-  the feature. Otherwise, UnitCL will attempt to run the test, and the test
-  will fail due to a missing kernel file.
+  tests UnitCL attempts to run. When ``noclc`` or ``nospirv`` are used, then
+  the test (in C++) must set the corresponding ``TEST_F_EXECUTION_OPTIONAL``
+  fields to ``KTSDISABLE`` so the test isn't generated. For tests requiring
+  doubles, halfs, or images, it is common for the test (in C++) to
+  conditionally skip itself if the target doesn't support the feature.
+  Otherwise, UnitCL will attempt to run the test, and the test will fail due to
+  a missing kernel file.
 
 .. note::
 
@@ -535,8 +515,8 @@ file is a stub.
 When UnitCL is built, ``clc`` is called by the
 `UnitCL-offline-execution-kernels target`_.
 
-The SPIR and SPIR-V kernels passed to ``clc`` are generated by the
-`regenerate-spir and regenerate-spirv targets`_ , respectively.
+The SPIR-V kernels passed to ``clc`` are generated by the `regenerate-spirv
+target`_ .
 
 Running tests using an offline CL driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -569,7 +549,7 @@ available in a known location when UnitCL is run.
 .. note::
 
   ``copy-kernels`` copies stub kernels (stub files that were generated by the
-  `regenerate-spir and regenerate-spirv targets`_) for CMake dependency
+  `regenerate-spirv target`_) for CMake dependency
   tracking reasons. The ``install`` target contains logic to prevent stub
   kernels from being installed.
 
@@ -592,9 +572,8 @@ The following diagram shows how the ``copy-kernels`` target works:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``UnitCL-offline-execution-kernels`` CMake target is built as part of
-UnitCL. It wraps ``clc`` and compiles the kernels used by ``OfflineExecution``,
-``OfflineSpirExecution``, and ``OfflineSpirvExecution`` tests for each target
-device.
+UnitCL. It wraps ``clc`` and compiles the kernels used by ``OfflineExecution``
+and ``OfflineSpirvExecution`` tests for each target device.
 
 The following diagram shows how the ``UnitCL-offline-execution-kernels`` target
 works:
@@ -606,43 +585,34 @@ works:
 * The ``install`` target is separate from the
   ``UnitCL-offline-execution-kernels`` target, but it's shown for completeness.
 
-Generating SPIR and SPIR-V
---------------------------
+Generating SPIR-V
+-----------------
 
-IR execution tests --- ``SpirExecution``, ``SpirvExecution``,
-``OfflineSpirExecution``, and ``OfflineSpirvExecution`` --- use SPIR and SPIR-V
-kernels. The IR kernels do not change often, so they are committed to the
-oneAPI Construction Kit repository. To ensure consistency, the IR kernels are
-always generated with exactly the same tools.
+IR execution tests --- ``SpirvExecution`` and ``OfflineSpirvExecution`` --- use
+SPIR-V kernels. The IR kernels do not change often, so they are committed to
+the oneAPI Construction Kit repository. To ensure consistency, the IR kernels
+are always generated with exactly the same tools.
 
-The `regenerate-spir and regenerate-spirv targets`_ are used to rebuild IR
-kernels. It is also possible to build individual IR kernels `manually <Manually
-generate SPIR or SPIR-V_>`_, but since the process is error-prone, committing
-manually generated IR kernels to the repository is discouraged.
+The `regenerate-spirv target`_ is used to rebuild IR kernels. It is also
+possible to build individual IR kernels `manually <Manually generate
+SPIR-V_>`_, but since the process is error-prone, committing manually generated
+IR kernels to the repository is discouraged.
 
-.. _regenerate-spir-spirv:
+.. _regenerate-spirv:
 
-``regenerate-spir`` and ``regenerate-spirv`` Targets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``regenerate-spirv`` Target
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There are two custom targets - ``regenerate-spir`` and ``regenerate-spirv`` -
-which can be used for generating the appropriate SPIR BC and SPIR-V ASM files
-from all the kernels we have in UnitCL.
-
-To use the ``regenerate-spir`` target you will require
-Khronos' modified version of Clang and ``opencl_spir.h``.
+There is a custom target - ``regenerate-spirv`` - which can be used for
+generating the appropriate SPIR-V ASM files from all the kernels we have in
+UnitCL.
 
 To use the ``regenerate-spirv`` target you will require the ``llvm-spirv``
 tool.
 
-* `Khronos Clang`_ (See `Compiling Khronos Clang`_ for build instructions)
 * `llvm-spirv`_ (See `Compiling LLVM-SPIRV`_ for build instructions)
-* `opencl_spir.h`_
 
-.. _`Khronos Clang`: https://github.com/KhronosGroup/SPIR
 .. _`llvm-spirv`: https://github.com/KhronosGroup/SPIRV-LLVM-Translator/
-.. _`opencl_spir.h`: https://github.com/KhronosGroup/SPIR-Tools/blob/master/headers/opencl_spir.h
-.. _`Compiling Khronos Clang`: ../../../developer-guide.html#compiling-khronos-clang-for-spir
 .. _`Compiling LLVM-SPIRV`: ../../../developer-guide.html#compiling-llvm-spirv
 
 At the time of writing (2019-11-14), the ``llvm-spirv`` tool used to generate
@@ -651,25 +621,22 @@ SPIRV-LLVM.
 
 As part of your CMake command set the following values:
 
-* ``CA_EXTERNAL_KHRONOS_CLANG`` the absolute path to Khronos clang.
 * ``CA_EXTERNAL_LLVM_SPIRV`` the absolute path to the ``llvm-spirv``.
-* ``CA_EXTERNAL_OPENCL_SPIRH`` the absolute path to ``opencl_spir.h``.
 
-With these set, calling the ``regenerate-spir`` and ``regenerate-spirv``
-targets will build SPIR and SPIR-V for all the kernels, respectively.
+With these set, calling the ``regenerate-spirv`` target will build SPIR-V for
+all the kernels.
 
 .. note::
 
-  ``regenerate-spir`` and ``regenerate-spirv`` compile IR kernels into the
-  source directory, **not** the build directory. However, temporary files are
-  placed into the build directory (and later deleted).
+  ``regenerate-spirv`` compiles IR kernels into the source directory, **not**
+  the build directory. However, temporary files are placed into the build
+  directory (and later deleted).
 
-``regenerate-spir`` and ``regenerate-spirv`` will regenerate all binaries for
-all kernels, *even if those binaries are not required*. If a binary is not
-tracked by ``git``, then that is probably for a good reason. For example, tests
-for that binary might not yet exist. It is recommended not to add binaries to
-``git`` unless that is specifically what you intend to do. Untracked binaries
-can be removed with
+``regenerate-spirv`` will regenerate all binaries for all kernels, *even if
+those binaries are not required*. If a binary is not tracked by ``git``, then
+that is probably for a good reason. For example, tests for that binary might
+not yet exist. It is recommended not to add binaries to ``git`` unless that is
+specifically what you intend to do. Untracked binaries can be removed with
 
 .. code:: console
 
@@ -678,8 +645,7 @@ can be removed with
   # In host, if present
   git clean -f modules/mux/targets/host/test/UnitCL/kernels/
 
-The following diagram shows how the ``regenerate-spir`` and
-``regenerate-spirv`` targets work:
+The following diagram shows how the ``regenerate-spirv`` target works:
 
 .. include:: diagram-regenerate.rst
 
@@ -687,47 +653,12 @@ The following diagram shows how the ``regenerate-spir`` and
   ``${${MUX_TARGET}_UNITCL_KERNEL_FILES}`` list is populated.
 * All ``.cmake`` scripts are in ``UnitCL/cmake/``.
 
-Manually generate SPIR or SPIR-V
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Manually generate SPIR-V
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``regenerate-spir``/``regenerate-spirv`` targets are most useful for
-automating generation of all the kernels. However, sometimes you might prefer
-to generate these yourself by hand.
-
-.. _spir-gen:
-
-SPIR
-~~~~
-
-To generate binaries for the ``SpirExecution`` tests, use the Khronos' modified
-version of Clang. The Khronos repository has information on how to do this but
-a quick reference version of the command has been included here.
-
-.. code:: console
-
-  clang -cc1 -emit-llvm-bc -triple spir-unknown-unknown      \
-        -cl-spir-compile-options "<compile options>"         \
-        -include path/to/opencl_spir.h                       \
-        <compile options>                                    \
-        -O0 -Werror                                          \
-        -o kernel_name.bc32                                  \
-           kernel_name.cl
-  clang -cc1 -emit-llvm-bc -triple spir64-unknown-unknown    \
-        -cl-spir-compile-options "<compile options>"         \
-        -include path/to/opencl_spir.h                       \
-        <compile options>                                    \
-        -O0 -Werror                                          \
-        -o kernel_name.bc64                                  \
-           kernel_name.cl
-
-.. note::
-
-  ``-cl-spir-compile-options`` is used to embed the compile options into the
-  SPIR file as metadata but has no other effect. SPIR files that are checked
-  into the repository must have been built with this option.
-
-SPIR-V
-~~~~~~
+The ``regenerate-spirv`` target is most useful for automating generation of all
+the kernels. However, sometimes you might prefer to generate these yourself by
+hand.
 
 To generate SPIR-V binaries we use ``llvm-spirv``, which works on bitcode files
 similar to those generated above. Since ``llvm-spirv`` is derived from modern
@@ -748,14 +679,6 @@ different:
         <compile options>                                          \
         -o kernel_name.bc64                                        \
            kernel_name.cl
-
-.. warning::
-
-  The ``clang`` used here is different from the ``clang`` used to generate
-  :ref:`spir-gen` bitcode above. The output files are also different even
-  though they have the same name. (``regenerate-spir`` and ``regenerate-spirv``
-  place these temporary bitcode files in the build directory to avoid name
-  clashes.)
 
 This new bitcode file can then be translated into a SPIR-V binary with the
 following command:

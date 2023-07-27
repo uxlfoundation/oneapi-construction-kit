@@ -15,11 +15,11 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #[=======================================================================[.rst:
-A `Cmake script`_ for copying OpenCL-C, SPIR, and SPIR-V kernels to a
-ComputeAorta build directory. OpenCL-C and SPIR kernels are only copied, but
-SPIR-V kernels must also be assembled. However, if a SPIR-V assembly file is a
-stub file (i.e., it only exists for dependency tracking reasons), then it
-cannot be assembled. This script encapsulates all this logic.
+A `Cmake script`_ for copying OpenCL-C or SPIR-V kernels to a ComputeAorta
+build directory. OpenCL-C kernels are only copied, but SPIR-V kernels must also
+be assembled. However, if a SPIR-V assembly file is a stub file (i.e., it only
+exists for dependency tracking reasons), then it cannot be assembled. This
+script encapsulates all this logic.
 
 The following variables must be defined when this script is invoked (using
 ``-DOPTION_NAME=value``):

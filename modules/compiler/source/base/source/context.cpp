@@ -58,16 +58,6 @@ BaseContext::BaseContext() {
 
 BaseContext::~BaseContext() {}
 
-bool BaseContext::isValidSPIR(cargo::array_view<const std::uint8_t> binary) {
-  if (binary.size() < 4) {
-    // If there aren't four bytes in the string the magic number can't match.
-    return false;
-  }
-
-  return llvm::isRawBitcode(reinterpret_cast<const uint8_t *>(binary.begin()),
-                            reinterpret_cast<const uint8_t *>(binary.end()));
-}
-
 bool BaseContext::isValidSPIRV(cargo::array_view<const uint32_t> code) {
   if (code.size() < 1) {
     // Need at least one word in `code` to be able to check the magic number.

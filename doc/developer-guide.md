@@ -477,39 +477,6 @@ directory.
 > match. The vast majority of spir-v binaries have been translated using
 > `llvm-spirv` based on LLVM 8.0.
 
-### Compiling Khronos Clang for SPIR
-
-Khronos provides a version of `clang` based on LLVM 3.2 that is used to compile
-OpenCL kernels to SPIR. Since the version of LLVM is so old, SPIR `clang`
-cannot be built with the `ca-llvm` repo. Instead, follow these steps:
-
-```console
-git clone -b release_32 http://llvm.org/git/llvm.git khr_llvm
-cd khr_llvm/tools
-git clone https://github.com/KhronosGroup/SPIR clang
-cd ..
-mkdir build
-cd build
-cmake -GNinja -DCMAKE_INSTALL_PREFIX=${PWD}/install \
-  -DCMAKE_CXX_FLAGS='-Wno-error' ..
-ninja install
-```
-
-The SPIR-enabled `clang` will be in `khr_llvm/build/install/bin/`.
-
-> NOTE: `clang` can be tested with the `check-clang` build target. Some of the
-> tests are known to fail.
-
-> NOTE: `-Wno-error` is requried for GCC >= 7.
-
-> NOTE: `clang/include/clang/Sema/AttributeList.h` may need the following
-> change to work with GCC >= 7.
-
-```diff
--  ~AttributeList() LLVM_DELETED_FUNCTION;
-+  ~AttributeList() {}
-```
-
 ### Compiling oneAPI Construction Kit
 
 Compiling the oneAPI Construction Kit requires an LLVM install to link against

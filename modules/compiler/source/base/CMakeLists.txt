@@ -43,7 +43,6 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/printf_replacement_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/set_convergent_attr_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/software_division_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/base/spir_fixup_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/program_metadata.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/target.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/base_module_pass_machinery.cpp  
@@ -61,7 +60,6 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/printf_replacement_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/set_convergent_attr_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/software_division_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/spir_fixup_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/program_metadata.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/target.cpp)
 

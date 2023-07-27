@@ -351,10 +351,10 @@ bool cl::device_program::binaryDeserialize(
             mux_executable, {device->mux_device, device->mux_allocator}},
         std::move(binary));
   } else {
-    // Note that as we are handling SPIR deserialization above, this case is for
-    // handling the case where an OpenCL binary has been serialized after
-    // compilation, but before finalization (i.e. the internal LLVM module is
-    // in an intermediate state of compilation).
+    // Note that as we are handling binary deserialization above, this case is
+    // for handling the case where an OpenCL binary has been serialized after
+    // compilation, but before finalization (i.e. the internal LLVM module is in
+    // an intermediate state of compilation).
     if (device->compiler_available) {
       initializeAsCompilerModule(compiler_target);
       if (!compiler_module.module->deserialize(
@@ -602,7 +602,6 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
   }
   cl_int error = CL_SUCCESS;
-  bool is_spir_binary = false;
   for (cl_uint i = 0; i < num_devices; ++i) {
     auto setStatus = [&](cl_int error_code) {
       error = error_code;
@@ -629,27 +628,11 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
       compiler::Target *compiler_target =
           context->getCompilerTarget(device_list[i]);
 
-      // Check if we have a SPIR binary.
+      // Check if we have a SPIR 1.2 binary.
       uint8_t spir_magic[4] = {'B', 'C', 0xc0, 0xde};
       if (buffer.size() >= 4 && memcmp(buffer.data(), spir_magic, 4) == 0) {
-#ifdef OCL_EXTENSION_cl_khr_spir
-        if (device->compiler_available) {
-          is_spir_binary = true;
-          device_program.initializeAsCompilerModule(compiler_target);
-          if (!device_program.compiler_module.module->loadSPIR(buffer)) {
-            // Error message is already reported by loadSPIR if there's a
-            // failure.
-            setStatus(CL_INVALID_BINARY);
-          }
-        } else {
-          setStatus(CL_INVALID_BINARY);
-          device_program.reportError(
-              "Cannot load a SPIR binary without a compiler.");
-        }
-#else
         setStatus(CL_INVALID_BINARY);
-        device_program.reportError("SPIR binaries not supported.");
-#endif
+        device_program.reportError("SPIR 1.2 binaries not supported.");
         continue;
       }
 
@@ -666,8 +649,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
   if (error) {
     return cargo::make_unexpected(error);
   }
-  program->type =
-      is_spir_binary ? cl::program_type::SPIR : cl::program_type::BINARY;
+  program->type = cl::program_type::BINARY;
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
   // GCC <9 requires this redundant move, this branch of the #if can be
   // deleted once the minimum supported version of GCC is at least 9.
@@ -828,11 +810,6 @@ cl_int _cl_program::compile(
 
     compiler::Result error = compiler::Result::SUCCESS;
     switch (type) {
-#ifdef OCL_EXTENSION_cl_khr_spir
-      case cl::program_type::SPIR:
-        error = module.compileSPIR(device_program.options);
-        break;
-#endif
 #if defined(OCL_EXTENSION_cl_khr_il_program) || defined(CL_VERSION_3_0)
       case cl::program_type::SPIRV: {
         auto spirv_device_info =
@@ -1372,8 +1349,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::BuildProgram(
   for (auto device : devices) {
     OCL_CHECK(!program->hasDevice(device), return CL_INVALID_DEVICE);
     OCL_CHECK((program->type == cl::program_type::OPENCLC ||
-               program->type == cl::program_type::SPIRV ||
-               program->type == cl::program_type::SPIR) &&
+               program->type == cl::program_type::SPIRV) &&
                   !device->compiler_available,
               return CL_COMPILER_NOT_AVAILABLE);
     OCL_CHECK(program->programs[device].type == cl::device_program_type::NONE &&

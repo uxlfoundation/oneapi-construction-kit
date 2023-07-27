@@ -2,8 +2,8 @@
 
 ## `clc` OpenCL Offline Kernel Compiler
 
-`clc` is a command-line tool that allows compiling OpenCL C, SPIR and SPIR-V
-kernels to an implementation-defined binary format, it does not tie in to any
+`clc` is a command-line tool that allows compiling OpenCL C and SPIR-V kernels
+to an implementation-defined binary format, it does not tie in to any
 particular Mux target implementation.
 
 ### `clc` Use-Cases
@@ -45,7 +45,7 @@ clc --strip-binary-header -o kernel_target.bin src/kernel.cl
 Command-line usage:
 
 ```
-clc [options] [--] [file1.h file2.h inputfile.cl OR spirfile.bc OR spirvfile.spv]
+clc [options] [--] [file1.h file2.h inputfile.cl OR spirvfile.spv]
 ```
 
 The input files will be concatenated in the order specified and passed to
@@ -105,12 +105,6 @@ optional additional arguments:
   -cl-std={CL1.1,CL1.2} determine the OpenCL C language version to use
   -cl-kernel-arg-info   this option allows the compiler to store
                         information for clGetKernelArgInfo
-
-optional SPIR extended arguments:
-  -spir-std=1.2         chooses the version of SPIR standard to follow
-                        (defaults to 1.2 if SPIR input detected)
-  -x spir               indicates the input is in SPIR format (added
-                        automatically if SPIR input detected)
 
 optional oneAPI Construction Kit extended arguments:
   --strip-binary-header strips the header containing argument and kernel count
@@ -281,9 +275,3 @@ Available format types (for use with -format):
 text                         textual format such as LLVM IR or assembly
 binary                       binary format such as LLVM BC or ELF
 ```
-
-Note that the SPIR output in the above does not match the SPIR-1.2
-specification, as that requires LLVM IR output from LLVM 3.2. It should not be
-assumed that other OpenCL implementations will be able to consume this SPIR, if
-you want to do that use the [Khronos SPIR
-generator](https://github.com/KhronosGroup/SPIR).

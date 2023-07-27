@@ -49,8 +49,7 @@ void BasePrintfExecution::SetPrintfReference(size_t size,
 
 void BasePrintfExecution::RunPrintfND(cl_uint numDims, size_t *globalDims,
                                       size_t *localDims) {
-  if ((OPENCL_C == source_type || SPIR == source_type ||
-       SPIRV == source_type) &&
+  if ((OPENCL_C == source_type || SPIRV == source_type) &&
       !UCL::hasCompilerSupport(device)) {
     GTEST_SKIP();
   }
@@ -78,8 +77,7 @@ void BasePrintfExecution::RunPrintfNDConcurrent(cl_uint numDims,
                                                 size_t *globalDims,
                                                 size_t *localDims,
                                                 size_t expectedTotalPrintSize) {
-  if ((OPENCL_C == source_type || SPIR == source_type ||
-       SPIRV == source_type) &&
+  if ((OPENCL_C == source_type || SPIRV == source_type) &&
       !UCL::hasCompilerSupport(device)) {
     GTEST_SKIP();
   }
@@ -1693,13 +1691,11 @@ TEST_P(PrintfExecution, Printf_18_concurrent_printf) {
                               (size_t)stringPrinted.size() * kts::N);
 }
 
-// SPIR and OfflineSPIR are disabled for this test because SPIR tests can't
-// support halfs.
 TEST_P(PrintfExecution, Printf_19_Print_Halfs) {
-  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINE, OFFLINESPIRV}) ||
-      !UCL::hasHalfSupport(this->device)) {
+  if (!UCL::hasHalfSupport(this->device)) {
     GTEST_SKIP();
   }
+
   fail_if_not_vectorized_ = false;
   kts::Reference1D<cl_half> in_a = [](size_t) { return 0x5b9a; };
   kts::Reference1D<cl_half> in_b = [](size_t) { return 0xc6ce; };
@@ -1736,11 +1732,8 @@ TEST_P(PrintfExecution, Printf_21_Float_With_Double_Conversion) {
   this->RunPrintf1D(1);
 }
 
-// SPIR and OfflineSPIR are disabled for this test because SPIR tests can't
-// support halfs.
 TEST_P(PrintfExecution, Printf_22_Half_With_Double_Conversion) {
-  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINE, OFFLINESPIRV}) ||
-      !UCL::hasHalfSupport(this->device) ||
+  if (!UCL::hasHalfSupport(this->device) ||
       !UCL::hasDoubleSupport(this->device)) {
     GTEST_SKIP();
   }

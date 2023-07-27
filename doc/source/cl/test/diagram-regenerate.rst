@@ -1,6 +1,6 @@
 .. graphviz::
   :align: center
-  :caption: Compilation flow for ``regenerate-spir``/``regenerate-spirv`` targets (right-click, ``View Image`` for full size)
+  :caption: Compilation flow for the ``regenerate-spirv`` target (right-click, ``View Image`` for full size)
 
   digraph {
     fontname=Lato
@@ -12,7 +12,7 @@
       fillcolor="#f2daf2"
       color="#ccb8cc"
       penwidth=3
-      generated_kernels [label="Generated .bc32, .bc64 kernels\nGenerated .spvasm32, .spvasm64 kernels\n(kernels/)\n(<target>/kernels/)"
+      generated_kernels [label="Generated .spvasm32, .spvasm64 kernels\n(kernels/)\n(<target>/kernels/)"
                          style=filled
                          fillcolor="#fff8a6"
                          color="#d7d18c"
@@ -37,114 +37,6 @@
                penwidth=3]
 
     target_inputs -> filter_cl [ltail=cluster_target_kernels color="#6a7880" penwidth=3]
-
-    subgraph cluster_build_spir {
-      label="Script: CompileKernelToSPIR.cmake\n(kernels/CMakeLists.txt)"
-      style=filled
-      shape=box
-      fillcolor="#b8daec"
-      color="#97b9cc"
-      penwidth=3
-
-      input_file1 [label="${INPUT_FILE}"
-                   style=filled
-                   fillcolor="#f2daf2"
-                   color="#ccb8cc"
-                   penwidth=3]
-
-      reqs1 [label="${REQUIREMENTS_LIST}"
-             style=filled
-             fillcolor="#f2daf2"
-             color="#ccb8cc"
-             penwidth=3]
-
-      opts1 [label="${OPTIONS_LIST}"
-             style=filled
-             fillcolor="#f2daf2"
-             color="#ccb8cc"
-             penwidth=3]
-
-      check_skip1 [label="Must skip?"
-                   shape=diamond
-                   style=filled
-                   fillcolor="#72c2e3"
-                   color="#5a99b3"
-                   penwidth=3]
-
-      yes1 [label="Yes"
-            shape=circle
-            style=filled
-            fillcolor="#72c2e3"
-            color="#5a99b3"
-            penwidth=3]
-
-      no1 [label="No"
-           shape=circle
-           style=filled
-           fillcolor="#72c2e3"
-           color="#5a99b3"
-           penwidth=3]
-
-      make_bc_stub32 [label="Create .bc32 stub file"
-                      shape=box
-                      style=filled
-                      fillcolor="#72c2e3"
-                      color="#5a99b3"
-                      penwidth=3]
-
-      make_bc_stub64 [label="Create .bc64 stub file"
-                      shape=box
-                      style=filled
-                      fillcolor="#72c2e3"
-                      color="#5a99b3"
-                      penwidth=3]
-
-      khr_clang32 [label="Logic: Khronos clang\n(32-bit options)"
-                   shape=box
-                   style=filled
-                   fillcolor="#72c2e3"
-                   color="#5a99b3"
-                   penwidth=3]
-
-      khr_clang64 [label="Logic: Khronos clang\n(64-bit options)"
-                   shape=box
-                   style=filled
-                   fillcolor="#72c2e3"
-                   color="#5a99b3"
-                   penwidth=3]
-
-      // Invisible arrows to aid layout
-      input_file1 -> reqs1 [arrowhead=none weight=2 penwidth=0]
-      reqs1 -> opts1 [arrowhead=none weight=2 penwidth=0]
-
-      check_skip1 -> yes1 [color="#6a7880" penwidth=3]
-      check_skip1 -> no1 [color="#6a7880" penwidth=3]
-      yes1 -> make_bc_stub32 [color="#6a7880" penwidth=3]
-      yes1 -> make_bc_stub64 [color="#6a7880" penwidth=3]
-      opts1 -> khr_clang32 [color="#6a7880" penwidth=3]
-      no1 -> khr_clang32 [color="#6a7880" penwidth=3]
-      opts1 -> khr_clang64 [color="#6a7880" penwidth=3]
-      no1 -> khr_clang64 [color="#6a7880" penwidth=3]
-      reqs1 -> check_skip1 [color="#6a7880" penwidth=3]
-      input_file1 -> khr_clang32 [color="#6a7880" penwidth=3]
-      input_file1 -> khr_clang64 [color="#6a7880" penwidth=3]
-      input_file1 -> check_skip1 [penwidth=0 arrowhead=none]
-    }
-
-    bc32_kernel [label=".bc32 kernel\n(same dir as source .cl kernel)"
-                 style=filled fillcolor="#fff8a6"
-                 color="#d7d18c"
-                 penwidth=3]
-
-    bc64_kernel [label=".bc64 kernel\n(same dir as source .cl kernel)"
-                 style=filled fillcolor="#fff8a6"
-                 color="#d7d18c"
-                 penwidth=3]
-
-    khr_clang32 -> bc32_kernel [color="#6a7880" penwidth=3]
-    khr_clang64 -> bc64_kernel [color="#6a7880" penwidth=3]
-    make_bc_stub32 -> bc32_kernel [color="#6a7880" penwidth=3]
-    make_bc_stub64 -> bc64_kernel [color="#6a7880" penwidth=3]
 
     filter_cl -> input_file1 [ltail=cluster_target_kernels color="#6a7880" penwidth=3]
 

@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// SPIR OPTIONS: "-w"
 // SPIRV OPTIONS: "-w"
 
 __kernel void mem2reg_bitcast(__global int *result) {

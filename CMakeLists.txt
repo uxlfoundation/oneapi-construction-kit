@@ -115,12 +115,8 @@ ca_option(CA_EXTERNAL_CLC STRING
 ca_option(CA_GTEST_LAUNCHER STRING
   "Semi-color separated command for launching googletest suites" "")
 
-ca_option(CA_EXTERNAL_KHRONOS_CLANG STRING
-  "Location of external Khronos clang for building SPIR." "")
 ca_option(CA_EXTERNAL_LLVM_SPIRV STRING
   "Location of external llvm-spirv tool." "")
-ca_option(CA_EXTERNAL_OPENCL_SPIRH STRING
-  "Location of external opencl_spir.h file." "")
 
 ca_option_linux(CA_BUILD_32_BITS BOOL
   "Enable building 32 bit Linux binaries" OFF)

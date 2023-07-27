@@ -146,7 +146,7 @@ endif()
 
 # If the compilation of the kernel depends on test parameters then we have no
 # way to compile the test in all parameter combinations, so don't offline
-# compile, not generate SPIR nor SPIR-V.
+# compile, nor generate SPIR-V.
 list(FIND REQUIREMENTS_LIST "parameters" idx)
 if(NOT idx EQUAL -1)
   file(WRITE ${spvasm32_output} "// Skipped due to 'parameters' requirement")

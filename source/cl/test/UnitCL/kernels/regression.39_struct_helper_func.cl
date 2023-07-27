@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// SPIR OPTIONS: "-w"
 // SPIRV OPTIONS: "-w"
 
 typedef struct {
