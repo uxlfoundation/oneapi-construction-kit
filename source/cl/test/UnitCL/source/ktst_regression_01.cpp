@@ -31,8 +31,8 @@
 using namespace kts::ucl;
 
 TEST_P(Execution, Regression_01_Pointer_To_Long_Cast) {
-  // This test was compiled for SPIR, SPIRV and Offline with the value of 256.
-  // You will need to recompile these targets.
+  // This test was compiled for SPIRV and Offline with the value of 256. You
+  // will need to recompile these targets.
   ASSERT_TRUE(kts::N == 256);
   AddMacro("N", (unsigned int)kts::N);
   AddInputBuffer(kts::N, kts::Ref_Identity);
@@ -443,8 +443,6 @@ TEST_P(Execution, Regression_19_Memcpy_Optimization) {
   RunGeneric1D(kts::N);
 }
 
-// If you change any of these you must then regenerate the SPIR for
-// regression.20_group_barrier_{0,1,2,3}.cl with updated -D flags.
 #define GLOBAL_ITEMS_1D 8
 #define GLOBAL_ITEMS_2D 4
 #define GLOBAL_ITEMS_3D 2

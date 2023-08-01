@@ -229,7 +229,6 @@ OpenCL extensions:
 - cl_khr_local_int32_extended_atomics
 - cl_khr_byte_addressable_store
 - cl_khr_fp64
-- cl_khr_spir
 - cl_khr_icd
 - cl_codeplay_wfv
 - cl_codeplay_extra_build_options

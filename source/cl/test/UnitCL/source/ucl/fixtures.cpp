@@ -704,20 +704,6 @@ std::vector<uint8_t> ucl::DeviceTest::getDeviceBinaryFromFile(
   return File{name}.read<std::vector<uint8_t>>();
 }
 
-std::vector<uint8_t> ucl::DeviceTest::getDeviceSpirFromFile(
-    std::string name) const {
-  name = ucl::Environment::instance->GetKernelDirectory() + "/" + name;
-  switch (getDeviceAddressBits()) {
-    case 32:
-      name += ".bc32";
-      break;
-    case 64:
-      name += ".bc64";
-      break;
-  }
-  return File{name}.read<std::vector<uint8_t>>();
-}
-
 std::vector<uint32_t> ucl::DeviceTest::getDeviceSpirvFromFile(
     std::string name) const {
   name = ucl::Environment::instance->GetKernelDirectory() + "/" + name;

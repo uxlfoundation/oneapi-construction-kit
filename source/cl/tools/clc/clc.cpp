@@ -161,12 +161,12 @@ driver::driver()
 const char *CLC_USAGE =
     R"(usage: %s [options] [--] [<input>]
 
-An OpenCL C 1.2, SPIR 1.2 and SPIR-V 1.0 compiler to generate machine code for
-the specified OpenCL device, the resulting offline binaries can be passed to the
+An OpenCL C 1.2 and SPIR-V 1.0 compiler to generate machine code for the
+specified OpenCL device, the resulting offline binaries can be passed to the
 OpenCL driver to completely bypass online compilation stages at runtime.
 
 positional arguments:
-  <input>               the input file e.g. kernel.cl, spir.bc OR spirv.spv
+  <input>               the input file e.g. kernel.cl or spirv.spv
                         the default value "-" specifies input should be read
                         from standard input. Only one input file is accepted.
 
@@ -227,12 +227,6 @@ optional additional arguments:
   -cl-std=)" CL_STD_CHOICES R"(determine the OpenCL C language version to use
   -cl-kernel-arg-info   this option allows the compiler to store
                         information for clGetKernelArgInfo
-
-optional SPIR extended arguments:
-  -spir-std=1.2         chooses the version of SPIR standard to follow
-                        (defaults to 1.2 if SPIR input detected)
-  -x spir               indicates the input is in SPIR format (added
-                        automatically if SPIR input detected)
 
 optional ComputeAorta extended arguments:
   -codeplay-soft-math   inhibit use of LLVM intrinsics for mathematical builtins
@@ -573,17 +567,12 @@ result driver::buildProgram() {
   // But the null-terminator should not be the part of the passed string_view.
   auto source_as_string =
       cargo::string_view(source_vec.data(), source_vec.size() - 1);
-  auto source_as_array = cargo::array_view<const uint8_t>(
-      reinterpret_cast<const uint8_t *>(source_vec.data()),
-      source_vec.size() - 1);
   auto source_as_spirv = cargo::array_view<const uint32_t>(
       reinterpret_cast<const uint32_t *>(source_vec.data()),
       source_vec.size() / sizeof(uint32_t));
   input_type source_type = input_type::opencl_c;
   if (context->isValidSPIRV(source_as_spirv)) {
     source_type = input_type::spirv;
-  } else if (context->isValidSPIR(source_as_array)) {
-    source_type = input_type::spir;
   }
 
   if (verbose) {
@@ -591,9 +580,6 @@ result driver::buildProgram() {
     switch (source_type) {
       case input_type::spirv:
         source_type_name = "SPIR-V";
-        break;
-      case input_type::spir:
-        source_type_name = "SPIR";
         break;
       case input_type::opencl_c:
         CARGO_FALLTHROUGH;
@@ -603,26 +589,6 @@ result driver::buildProgram() {
     }
     std::fprintf(stderr, "info: Input file detected to be in %s format\n",
                  source_type_name);
-  }
-
-  if (source_type == input_type::spir) {
-    if (std::none_of(cl_build_args.begin(), cl_build_args.end(),
-                     [](cargo::string_view sv) { return sv == "-x"; })) {
-      cl_build_args.push_back("-x");
-      cl_build_args.push_back("spir");
-    }
-    if (std::none_of(cl_build_args.begin(), cl_build_args.end(),
-                     [](cargo::string_view sv) {
-                       return sv.starts_with("-spir-std=");
-                     })) {
-      cl_build_args.push_back("-spir-std=1.2");
-    }
-    module->loadSPIR(source_as_array);
-    if (module_num_errors > 0) {
-      std::fprintf(stderr, "error: Could not load given SPIR binary\n");
-      std::fprintf(stderr, "%s", module_log.c_str());
-      return result::failure;
-    }
   }
 
   std::vector<char> cl_options;
@@ -643,15 +609,6 @@ result driver::buildProgram() {
       cl::binary::detectMuxDeviceProfile(CL_TRUE, compiler_info->device_info);
   compiler::Result errcode = compiler::Result::SUCCESS;
   switch (source_type) {
-    case input_type::spir: {
-      std::string out_spir_options;
-      errcode = module->compileSPIR(out_spir_options);
-      if (verbose && !out_spir_options.empty()) {
-        std::fprintf(stderr, "info: Options embedded in SPIR metadata: %.*s\n",
-                     static_cast<int>(out_spir_options.size()),
-                     out_spir_options.data());
-      }
-    } break;
     case input_type::spirv: {
       auto spv_device_info = cl::binary::getSPIRVDeviceInfo(
           compiler_info->device_info, device_profile);

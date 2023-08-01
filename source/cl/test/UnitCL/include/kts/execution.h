@@ -36,10 +36,8 @@ class ArgumentList;
 
 enum SourceType {
   OPENCL_C,
-  SPIR,
   SPIRV,
   OFFLINE,
-  OFFLINESPIR,
   OFFLINESPIRV,
 };
 
@@ -47,14 +45,10 @@ inline std::string to_string(const SourceType &source_type) {
   switch (source_type) {
     case kts::ucl::SourceType::OPENCL_C:
       return "OpenCLC";
-    case kts::ucl::SourceType::SPIR:
-      return "SPIR";
     case kts::ucl::SourceType::SPIRV:
       return "SPIRV";
     case kts::ucl::SourceType::OFFLINE:
       return "OfflineOpenCLC";
-    case kts::ucl::SourceType::OFFLINESPIR:
-      return "OfflineSPIR";
     case kts::ucl::SourceType::OFFLINESPIRV:
       return "OfflineSPIRV";
     default:
@@ -62,9 +56,9 @@ inline std::string to_string(const SourceType &source_type) {
   }
 }
 
-const std::array<SourceType, 6> &getSourceTypes();
-const std::array<SourceType, 3> &getOnlineSourceTypes();
-const std::array<SourceType, 3> &getOfflineSourceTypes();
+const std::array<SourceType, 4> &getSourceTypes();
+const std::array<SourceType, 2> &getOnlineSourceTypes();
+const std::array<SourceType, 2> &getOfflineSourceTypes();
 
 // Represents the execution of a test.
 struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
@@ -212,7 +206,6 @@ struct Execution : BaseExecution, testing::WithParamInterface<SourceType> {
 };
 
 using ExecutionOpenCLC = Execution;
-using ExecutionSPIR = Execution;
 using ExecutionSPIRV = Execution;
 using ExecutionOnline = Execution;
 using ExecutionOffline = Execution;

@@ -554,26 +554,6 @@ class Module {
   virtual Result parseOptions(cargo::string_view input_options,
                               compiler::Options::Mode mode) = 0;
 
-  /// @brief Loads a SPIR program.
-  ///
-  /// @param[in] buffer Serialized SPIR binary to parse.
-  ///
-  /// @return True if loading the SPIR module was successful, false otherwise.
-  virtual bool loadSPIR(cargo::array_view<const std::uint8_t> buffer) = 0;
-
-  /// @brief Compiles a previously loaded SPIR program.
-  ///
-  /// @param[out] output_options The compilation options parsed from SPIR
-  /// metadata will be output here.
-  ///
-  /// @return Return a status code.
-  /// @retval `Result::SUCCESS` when compilation was successful.
-  /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
-  /// @retval `Result::INVALID_COMPILER_OPTIONS` when invalid options were set.
-  /// @retval `Result::COMPILE_PROGRAM_FAILURE` if `compileSPIR` was called
-  /// before `loadSPIR`.
-  virtual Result compileSPIR(std::string &output_options) = 0;
-
   /// @brief Compiles a SPIR-V program.
   ///
   /// @param[in] buffer View of the SPIR-V binary stream memory.

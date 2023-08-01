@@ -58,8 +58,7 @@ TEST_P(Execution, Regression_53_Kernel_arg_phi) {
   const size_t global_range[] = {col_dim, row_dim};
   const size_t local_range[] = {1, row_dim};
 
-  // If the value of columns changes from 45, recompile the SPIR and Offline
-  // tests
+  // If the value of columns changes from 45, recompile the Offline tests
   const size_t columns = 45;
   const size_t loops = columns / row_dim;
   const cl_int step = 16;
@@ -97,33 +96,11 @@ TEST_P(Execution, Regression_54_Negative_Comparison) {
   RunGeneric1D(4, 4);
 }
 
-// Regression_55_Float_Memcpy tests something that is not valid OpenCL so there
-// is no Execution variant available for this test.
-TEST_P(ExecutionSPIR, Regression_55_Float_Memcpy) {
-  // Whether or not the kernel will be vectorized at a global size of 1 is
-  // dependent on the target.
-  fail_if_not_vectorized_ = false;
-
-  if (!isSourceTypeIn({SPIR})) {
-    GTEST_SKIP();
-  }
-  kts::Reference1D<cl_float> refIn = [](size_t) { return 3.14f; };
-
-  kts::Reference1D<cl_float> refOut = [](size_t) { return 3.14f; };
-
-  // Enqueue single work-item
-  AddInputBuffer(1, refIn);
-  AddOutputBuffer(1, refOut);
-  const cl_int copy_size = sizeof(cl_float);
-  AddPrimitive(copy_size);
-  RunGeneric1D(1);
-}
-
-// Regression_55_Float_Memcpy tests something that is not valid OpenCL so there
-// is no Execution variant available for this test. Building the test requires
-// the legacy Khronos SPIR 3.2 generator, which is no longer standard for
-// building SPIR-V. As a result, the SPIR-V version of the test has a different
-// name and uses .spvasm{32|64} files built with legacy tools.
+// Spirv_Regression_55_Float_Memcpy tests something that is not valid OpenCL so
+// there is no Execution variant available for this test. Building the test
+// requires the legacy Khronos SPIR 3.2 generator, which is no longer standard
+// for building SPIR-V. As a result, the SPIR-V version of the test has a
+// different name and uses .spvasm{32|64} files built with legacy tools.
 TEST_P(ExecutionSPIRV, Spirv_Regression_55_Float_Memcpy) {
   // Whether or not the kernel will be vectorized at a global size of 1 is
   // dependent on the target.
@@ -258,7 +235,7 @@ TEST_P(Execution, Regression_58_Nested_Structs) {
   memset(&unused_struct, 0xAF, sizeof(unused_struct));
 
   const size_t num_threads = 2;
-  // If the work_per_thread changes from 2, recompile SPIR and Offline
+  // If the work_per_thread changes from 2, recompile Offline
   const size_t work_per_thread = 2;
 
   AddMacro("NUM_ELEMENTS", work_per_thread);
@@ -335,9 +312,9 @@ UCL_EXECUTION_TEST_SUITE_P(
                     GlobalRangeAndLocalRange(4, 3, 2, 1)));
 
 // Both Regression_61 and Regression_62 were added when tracking down an issue
-// involving barriers in SYCL programs, hence the presense of SPIR versions of
-// the test.  However, I was not able to reproduce the failures here, so these
-// tests have never been known to fail in this exact form.
+// involving barriers in SYCL programs, hence the presense of SPIR-V versions
+// of the test.  However, I was not able to reproduce the failures here, so
+// these tests have never been known to fail in this exact form.
 TEST_P(Execution, Regression_61_Sycl_Barrier) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
     bool odd = x % 2;
@@ -537,12 +514,6 @@ TEST_P(Execution,
   RunGeneric1D(global, read_local);
 }
 
-// This test exists because the Khronos SPIR generator will produce invalid
-// LLVM IR when a kernel calls another kernel (call site and function calling
-// conventions mismatch).  This also happens in
-// Regression_48_Image_Sampler_Kernel_Call_Kernel, but we happened to almost
-// entirely clean that up when the spir tidy pass rewrites the sampler types.
-// The SPIR variant of this test is the one checking the bug.
 TEST_P(Execution, Regression_70_Kernel_Call_Kernel) {
   AddOutputBuffer(kts::N, kts::Ref_Identity);
   AddInputBuffer(kts::N, kts::Ref_Identity);

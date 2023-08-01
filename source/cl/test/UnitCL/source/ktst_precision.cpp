@@ -107,10 +107,6 @@ T Remquo7BitRef(T x, T y, cl_int &quo_out) {
 }
 }  // namespace
 
-using ExecutionSpirSpirv = Execution;
-UCL_EXECUTION_TEST_SUITE(ExecutionSpirSpirv,
-                         testing::Values(SPIR, SPIRV, OFFLINESPIR,
-                                         OFFLINESPIRV));
 #ifdef __arm__
 // TODO: CA-2730
 TEST_P(Execution, DISABLED_Precision_01_Pow_Func) {
@@ -186,8 +182,8 @@ TEST_P(Execution, Precision_01_Pow_Func) {
 }
 
 // This test only works for Execution and OfflineExecution because of the nature
-// of it's divergent paths. As such SPIR, SPIR-V and OfflineSPIR variants here
-// are disabled and skipped.
+// of it's divergent paths. As such SPIR-V variants here are disabled and
+// skipped.
 TEST_P(ExecutionOpenCLC, Precision_17_Double_Constant) {
   // Whether or not the kernel will be vectorized at a global size of 1 is
   // dependent on the target.
@@ -278,13 +274,12 @@ TEST_P(DenormalsTest, Precision_02_Denorms) {
 UCL_EXECUTION_TEST_SUITE_P(DenormalsTest, testing::Values(OPENCL_C),
                            testing::Values(true, false));
 
-TEST_P(ExecutionSpirSpirv, Precision_02_Denorms) {
+TEST_P(ExecutionSPIRV, Precision_02_Denorms) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
   // Kernel multiplies the first two values together, and expects the third as
-  // the result. SPIR has `-cl-denorms-are-zero` set in opencl.compiler.options
-  // metadata
+  // the result.
   const std::array<std::tuple<cl_int, cl_int, cl_int>, 5> payload{
       {std::make_tuple(0x00400000, 0x3f000000, 0x00200000),
        std::make_tuple(0x00400000, 0x3e000000, 0x00080000),
@@ -2609,7 +2604,7 @@ TEST_P(Execution, Precision_85_Single_tgamma) {
   RunGeneric1D(N);
 }
 
-// CA-2637 - Offline and OfflineSpir 32-bit precision test mismatch
+// CA-2637 - Offline 32-bit precision test mismatch
 TEST_P(Execution, Precision_86_Single_lgamma) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
@@ -2636,11 +2631,11 @@ TEST_P(Execution, Precision_86_Single_lgamma) {
     defined(__MINGW64__)
 TEST_P(Execution, DISABLED_Precision_87_Single_sincos)
 #else
-// CA-2637 - Offline and OfflineSpir 32-bit precision test mismatch
+// CA-2637 - Offline 32-bit precision test mismatch
 TEST_P(Execution, Precision_87_Single_sincos)
 #endif
 {
-  if (!isSourceTypeIn({OPENCL_C, SPIR, SPIRV, OFFLINESPIRV})) {
+  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINESPIRV})) {
     GTEST_SKIP();
   }
   std::vector<cl_float> input(128);
@@ -2674,11 +2669,11 @@ TEST_P(Execution, Precision_87_Single_sincos)
     defined(__MINGW64__)
 TEST_P(Execution, DISABLED_Precision_87_Single_sincos_local)
 #else
-// CA-2637 - Offline and OfflineSpir 32-bit precision test mismatch
+// CA-2637 - Offline 32-bit precision test mismatch
 TEST_P(Execution, Precision_87_Single_sincos_local)
 #endif
 {
-  if (!isSourceTypeIn({OPENCL_C, SPIR, SPIRV, OFFLINESPIRV})) {
+  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINESPIRV})) {
     GTEST_SKIP();
   }
   std::vector<cl_float> input(128);
@@ -3048,7 +3043,7 @@ TEST_P(Execution, Precision_93_Divide_Relaxed) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  if (!isSourceTypeIn({OPENCL_C, SPIR, SPIRV, OFFLINE, OFFLINESPIR})) {
+  if (!isSourceTypeIn({OPENCL_C, SPIRV, OFFLINE})) {
     GTEST_SKIP();
   }
   // Fast math ULP requirements only apply after CL 2.0.

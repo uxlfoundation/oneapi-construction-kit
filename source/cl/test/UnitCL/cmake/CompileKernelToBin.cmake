@@ -144,8 +144,8 @@ set(CLC_CL_STD "")
 # List of clc compilation options
 set(CLC_OPTIONS_LIST "")
 
-# INPUT_FILE may be SPIR or SPIR-V, but there may still be relevant options in
-# the corresponding .cl file (if it exists).
+# INPUT_FILE may be SPIR-V, but there may still be relevant options in the
+# corresponding .cl file (if it exists).
 if(NOT INPUT_CL_FILE STREQUAL "")
   get_filename_component(input_cl_ext ${INPUT_CL_FILE} LAST_EXT)
   if(NOT input_cl_ext STREQUAL ".cl")

@@ -49,8 +49,7 @@ set(COMPILER_EXTENSIONS
   codeplay_kernel_debug
   codeplay_wfv
   khr_extended_async_copies
-  khr_il_program
-  khr_spir)
+  khr_il_program)
 # For each external compiler extension, all the extension names.
 foreach(tag ${CA_CL_COMPILER_EXTENSION_TAGS})
   list(APPEND COMPILER_EXTENSIONS ${${tag}_COMPILER_EXTENSIONS})
@@ -181,11 +180,9 @@ set(EXTENSION_COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/intel_required_subgroup_size.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_extended_async_copies.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_il_program.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/extension/khr_spir.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/intel_required_subgroup_size.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_extended_async_copies.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_il_program.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_spir.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/khr_il_program.cpp)
 foreach(tag ${CA_CL_COMPILER_EXTENSION_TAGS})
   list(APPEND EXTENSION_COMPILER_SOURCES ${${tag}_COMPILER_SOURCES})
 endforeach()

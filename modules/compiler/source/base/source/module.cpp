@@ -30,7 +30,6 @@
 #include <base/program_metadata.h>
 #include <base/set_convergent_attr_pass.h>
 #include <base/software_division_pass.h>
-#include <base/spir_fixup_pass.h>
 #include <builtins/bakery.h>
 #include <cargo/argument_parser.h>
 #include <cargo/small_vector.h>
@@ -473,16 +472,6 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
       return Result::OUT_OF_MEMORY;
     }
 
-    // OCL_EXTENSION_cl_khr_spir
-    std::array<cargo::string_view, 1> spir_std_choices = {{"1.2"}};
-    if (parser.add_argument({"-spir-std=", spir_std_choices, spir_std})) {
-      return Result::OUT_OF_MEMORY;
-    }
-    std::array<cargo::string_view, 1> x_choices = {{"spir"}};
-    if (parser.add_argument({"-x", x_choices, x})) {
-      return Result::OUT_OF_MEMORY;
-    }
-
     // OCL_EXTENSION_cl_codeplay_soft_math
     // TODO: This should be called -cl-codeplay-soft-math
     if (parser.add_argument({"-codeplay-soft-math", options.soft_math})) {
@@ -728,29 +717,6 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
   return Result::SUCCESS;
 }
 
-bool BaseModule::loadSPIR(cargo::array_view<const std::uint8_t> buffer) {
-  std::lock_guard<compiler::BaseContext> guard(context);
-
-  ScopedDiagnosticHandler handler(*this);
-
-  DeserializeMemoryBuffer memoryBuffer(
-      {reinterpret_cast<const char *>(buffer.data()), buffer.size()});
-  auto errorOrModule = llvm::parseBitcodeFile(memoryBuffer.getMemBufferRef(),
-                                              target.getLLVMContext());
-
-  if (errorOrModule) {
-    llvm_module = std::move(errorOrModule.get());
-    state = compiler::ModuleState::INTERMEDIATE;
-    return true;
-  } else {
-    // We don't do anything with the llvm::Error, but we need to take it so
-    // that the llvm::Expected knows that it was handled.
-    llvm::consumeError(errorOrModule.takeError());
-    num_errors = 1;
-    return false;
-  }
-}
-
 class StripFastMathAttrs final
     : public llvm::PassInfoMixin<StripFastMathAttrs> {
  public:
@@ -788,27 +754,20 @@ llvm::ModulePassManager BaseModule::getEarlyOpenCLCPasses() {
   return pm;
 }
 
-llvm::ModulePassManager BaseModule::getEarlySPIRPasses(bool is_spirv) {
+llvm::ModulePassManager BaseModule::getEarlySPIRVPasses() {
   // Run the various fixup passes needed to make sure the IR we've got is spec
   // conformant.
   llvm::ModulePassManager pm;
-  // Set the opencl.ocl.version metadata if not already set:
-  // * In SPIR this is usually set by the producer and should match the -cl-std
-  //   option used when generating it. Furthermore, if the user specifies a
-  //   -cl-std other than this version at clBuildProgram time, the behaviour is
-  //   implementation defined. Regardless, if it's not set, assume that it was
-  //   generated with the default version of -cl-std, which as per the
-  //   specification is the highest 1.x version we support.
-  // * In SPIR-V this is not set (by spirv-ll) and conveys the best-matching
-  //   version of OpenCL C for which we translate SPIR-V binaries. This covers
-  //   not just how we translate ops from the OpenCL Extended Instruction Set,
-  //   but also for core concepts like the generic address space and sub-group
-  //   ops.
-  pm.addPass(compiler::utils::SimpleCallbackPass([is_spirv](llvm::Module &m) {
+  // Set the opencl.ocl.version metadata if not already set. In SPIR-V this is
+  // not set (by spirv-ll) and conveys the best-matching version of OpenCL C
+  // for which we translate SPIR-V binaries. This covers not just how we
+  // translate ops from the OpenCL Extended Instruction Set, but also for core
+  // concepts like the generic address space and sub-group ops.
+  pm.addPass(compiler::utils::SimpleCallbackPass([](llvm::Module &m) {
     if (!m.getNamedMetadata("opencl.ocl.version")) {
       auto *const ocl_ver = m.getOrInsertNamedMetadata("opencl.ocl.version");
-      unsigned major = is_spirv ? 3 : 1;
-      unsigned minor = is_spirv ? 0 : 2;
+      unsigned major = 3;
+      unsigned minor = 0;
       llvm::Metadata *values[2] = {
           llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(
               llvm::Type::getInt32Ty(m.getContext()), major)),
@@ -818,12 +777,6 @@ llvm::ModulePassManager BaseModule::getEarlySPIRPasses(bool is_spirv) {
       ocl_ver->addOperand(llvm::MDTuple::get(m.getContext(), values));
     }
   }));
-  if (!is_spirv) {
-    // The spir fixup pass must be run now. Among other minor fixes, it makes
-    // sure the calling convention is correct on all functions in the kernel,
-    // which avoids warnings from the verification passes later on.
-    pm.addPass(compiler::spir::SpirFixupPass());
-  }
   {
     // The BitShiftFixupPass and SoftwareDivisionPass manually fix cases
     // which in C would be UB but which the CL spec has different rules for.
@@ -837,54 +790,6 @@ llvm::ModulePassManager BaseModule::getEarlySPIRPasses(bool is_spirv) {
   // their use.
   pm.addPass(compiler::SetConvergentAttrPass());
   return pm;
-}
-
-Result BaseModule::compileSPIR(std::string &output_options) {
-  std::lock_guard<compiler::BaseContext> guard(context);
-
-  if (!llvm_module) {
-    return Result::COMPILE_PROGRAM_FAILURE;
-  }
-
-  createOpenCLKernelsMetadata(*llvm_module);
-
-  // Parse compiler options set when SPIR was generated
-  if (auto *namedMetaData =
-          llvm_module->getNamedMetadata("opencl.compiler.options")) {
-    for (auto mdNode : namedMetaData->operands()) {
-      for (auto &mdString : mdNode->operands()) {
-        auto flag = llvm::cast<llvm::MDString>(mdString)->getString();
-        // Workaround for TensorFlow which specifies this flag regardless
-        // of whether it is supported by the device. A violation of the
-        // spec, but swallow it for now.
-        // TODO: CA-669 Change when we add support for this flag
-        if (flag.equals("-cl-fp32-correctly-rounded-divide-sqrt")) {
-          log =
-              "Ignoring -cl-fp32-correctly-rounded-divide-sqrt compile "
-              "option since it's not supported by device. But proceeding "
-              "with compilation.\n";
-        } else if (flag.equals("-cl-fast-relaxed-math")) {
-          options.fast_math = true;
-        } else {
-          if (flag.equals("-cl-kernel-arg-info")) {
-            options.kernel_arg_info = true;
-          }
-          output_options.append(flag.str()).append(" ");
-        }
-      }
-    }
-  }
-
-  // Now run a generic optimization pipeline based on the one clang normally
-  // runs during codegen.
-  clang::CodeGenOptions codeGenOpts;
-  populateCodeGenOpts(codeGenOpts);
-  runOpenCLFrontendPipeline(codeGenOpts,
-                            getEarlySPIRPasses(/*is_spirv*/ false));
-
-  state = ModuleState::COMPILED_OBJECT;
-
-  return Result::SUCCESS;
 }
 
 cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
@@ -950,11 +855,11 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
 
   // Now run a generic optimization pipeline based on the one clang normally
   // runs during codegen.
-  // We also run some of the SPIR fixup passes on IR generated from SPIR-V and
-  // it's unclear if that's actually necessary: see DDK-278.
+  // We also run some of the fixup passes on IR generated from SPIR-V and it's
+  // unclear if that's actually necessary: see DDK-278.
   clang::CodeGenOptions codeGenOpts;
   populateCodeGenOpts(codeGenOpts);
-  runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRPasses(/*is_spirv*/ true));
+  runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRVPasses());
 
   state = ModuleState::COMPILED_OBJECT;
 

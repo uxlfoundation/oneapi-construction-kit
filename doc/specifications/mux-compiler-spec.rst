@@ -70,8 +70,6 @@ be locked when the compiler is interacting with a specific instance of LLVM.
     namespace compiler {
     class Context {
     public:
-      bool isValidSPIR(cargo::array_view<const uint8_t> binary);
-
       bool isValidSPIRV(cargo::array_view<const uint32_t> code);
 
       cargo::expected<spirv::SpecializableConstantsMap, std::string>
@@ -327,9 +325,9 @@ A ``Module`` object is the top level container for a device program compiled
 from one of the supported source types. A Module **may** contain multiple entry
 points and **may** have one or more named kernels unless it is a library module.
 
-``Module`` is used to drive the compilation process, starting with the OpenCL C,
-SPIR or SPIR-V front-ends, optionally linking against other Modules, then
-applying further optimizations before passing it to the back-end.
+``Module`` is used to drive the compilation process, starting with the OpenCL C
+or SPIR-V front-ends, optionally linking against other Modules, then applying
+further optimizations before passing it to the back-end.
 
 ``BaseModule`` implements all of the front-end functionality, and it is left to
 the Mux target implementation to implement the remaining pure virtual methods
@@ -354,8 +352,6 @@ that handle the back-end and code generation.
 
      public:
       virtual void clear();
-
-      virtual Result compileSPIR(std::string &output_options);
 
       virtual cargo::expected<spirv::ModuleInfo, Result> compileSPIRV(
           cargo::array_view<const std::uint32_t> buffer,
@@ -446,9 +442,8 @@ for binary creation.
 The passes run by the default implementation are a mixture of LLVM middle-end
 optimizations and ComputeMux-specific passes that lower the incoming
 ``llvm_module`` from a higher-level form dependent on the original kernel
-source-language (e.g., being produced by ``BaseModule::compileOpenCLC``,
-``BaseModule::compileSPIRV``, or ``BaseModule::compileSPIR``) into a canonical
-"ComputeMux" form.
+source-language (e.g., being produced by ``BaseModule::compileOpenCLC`` or
+``BaseModule::compileSPIRV``) into a canonical "ComputeMux" form.
 
 .. note::
   Note that most of the lower-level target-specific passes are left to
@@ -497,10 +492,10 @@ BaseModule::initializePassMachineryForFrontend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``BaseModule::initializePassMachineryForFrontend`` sets up a ``PassMachinery``
-for use in the pipelines run by ``BaseModule::compileOpenCLC``,
-``BaseModule::compileSPIRV``, and ``BaseModule::compileSPIR``. A default
-implementation is provided, though targets may override this method to register
-custom analyses or tune the pipeline.
+for use in the pipelines run by ``BaseModule::compileOpenCLC`` and
+``BaseModule::compileSPIRV``. A default implementation is provided, though
+targets may override this method to register custom analyses or tune the
+pipeline.
 
 BaseModule::initializePassMachineryForFinalize
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

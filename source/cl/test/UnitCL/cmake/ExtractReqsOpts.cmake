@@ -40,9 +40,6 @@ Arguments:
   * ``CLC_OPTS_VAR`` - The name of a variable in parent scope that will be
     populated with a ``;``-separated list of CLC compilation options extracted
     from the input file (optional).
-  * ``SPIR_OPTS_VAR`` - The name of a variable in parent scope that will be
-    populated with a ``;``-separated list of Clang SPIR compilation options
-    extracted from the input file (optional).
   * ``SPIRV_OPTS_VAR`` - The name of a variable in parent scope that will be
     populated with a ``;``-separated list of Clang SPIR-V compilation options
     extracted from the input file (optional).
@@ -55,7 +52,6 @@ Example:
     [DEFS_VAR <definitions list variable>]
     [CL_STD_VAR <opencl c standard variable>]
     [CLC_OPTS_VAR <clc options list variable>]
-    [SPIR_OPTS_VAR <clang spir options list variable>]
     [SPIRV_OPTS_VAR <clang spir-v options list variable>]
   )
 #]=======================================================================]
@@ -66,7 +62,6 @@ function(extract_reqs_opts)
     DEFS_VAR
     CL_STD_VAR
     CLC_OPTS_VAR
-    SPIR_OPTS_VAR
     SPIRV_OPTS_VAR
   )
   cmake_parse_arguments(REQS_OPTS "" "${single_args}" "" ${ARGN})
@@ -94,7 +89,7 @@ function(extract_reqs_opts)
 
   # Check for unkown requirements
   set(known_requirements
-      "noclc" "nospir" "nospirv" "double" "half" "images" "mayfail" "parameters")
+      "noclc" "nospirv" "double" "half" "images" "mayfail" "parameters")
   foreach(file_req ${CLC_FILE_REQUIREMENTS})
     set(req_found FALSE)
       foreach(known_req ${known_requirements})
@@ -121,7 +116,6 @@ function(extract_reqs_opts)
   set(DEFINITIONS_REGEX "^ *// *DEFINITIONS: *(.*)$")
   set(CL_STD_REGEX "^ *// *CL_STD: ([0-9]+.[0-9]+)$")
   set(CLC_OPTIONS_REGEX "^ *// *CLC +OPTIONS: *(.*)$")
-  set(SPIR_OPTIONS_REGEX "^ *// *SPIR +OPTIONS: *(.*)$")
   set(SPIRV_OPTIONS_REGEX "^ *// *SPIRV +OPTIONS: *(.*)$")
 
   macro(extract_options_line_from_file INPUT_FILE OPTIONS_REGEX OPTIONS_STRING)
@@ -160,13 +154,6 @@ function(extract_reqs_opts)
       "${REQS_OPTS_INPUT_FILE}"
       "${CLC_OPTIONS_REGEX}"
       ${REQS_OPTS_CLC_OPTS_VAR}
-    )
-  endif()
-  if(DEFINED REQS_OPTS_SPIR_OPTS_VAR)
-    extract_options_line_from_file(
-      "${REQS_OPTS_INPUT_FILE}"
-      "${SPIR_OPTIONS_REGEX}"
-      ${REQS_OPTS_SPIR_OPTS_VAR}
     )
   endif()
   if(DEFINED REQS_OPTS_SPIRV_OPTS_VAR)

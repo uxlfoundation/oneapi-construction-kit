@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// SPIR, SPIR-V, and Offline SPIR tests are disabled as this is testing a build
-// option only supported by the runtime compiler or clc.
+// SPIR-V tests are disabled as this is testing a build option only supported
+// by the runtime compiler or clc.
 
-// REQUIRES: nospir; nospirv;
+// REQUIRES: nospirv;
 // CLC OPTIONS: -cl-wfv=always
 
 int perform_add(int a, int b) { return a + b; }

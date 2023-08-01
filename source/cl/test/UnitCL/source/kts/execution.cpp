@@ -31,18 +31,17 @@
 
 using namespace kts::ucl;
 
-const std::array<SourceType, 6> &kts::ucl::getSourceTypes() {
-  static std::array<SourceType, 6> source_types = {
-      {OPENCL_C, SPIR, SPIRV, OFFLINE, OFFLINESPIR, OFFLINESPIRV}};
+const std::array<SourceType, 4> &kts::ucl::getSourceTypes() {
+  static std::array<SourceType, 4> source_types = {
+      {OPENCL_C, SPIRV, OFFLINE, OFFLINESPIRV}};
   return source_types;
 }
-const std::array<SourceType, 3> &kts::ucl::getOnlineSourceTypes() {
-  static std::array<SourceType, 3> source_types = {{OPENCL_C, SPIR, SPIRV}};
+const std::array<SourceType, 2> &kts::ucl::getOnlineSourceTypes() {
+  static std::array<SourceType, 2> source_types = {{OPENCL_C, SPIRV}};
   return source_types;
 }
-const std::array<SourceType, 3> &kts::ucl::getOfflineSourceTypes() {
-  static std::array<SourceType, 3> source_types = {
-      {OFFLINE, OFFLINESPIR, OFFLINESPIRV}};
+const std::array<SourceType, 2> &kts::ucl::getOfflineSourceTypes() {
+  static std::array<SourceType, 2> source_types = {{OFFLINE, OFFLINESPIRV}};
   return source_types;
 }
 
@@ -52,7 +51,6 @@ UCL_EXECUTION_TEST_SUITE(ExecutionOnline,
 UCL_EXECUTION_TEST_SUITE(ExecutionOffline,
                          testing::ValuesIn(getOfflineSourceTypes()));
 UCL_EXECUTION_TEST_SUITE(ExecutionOpenCLC, testing::Values(OPENCL_C, OFFLINE))
-UCL_EXECUTION_TEST_SUITE(ExecutionSPIR, testing::Values(SPIR, OFFLINESPIR))
 UCL_EXECUTION_TEST_SUITE(ExecutionSPIRV, testing::Values(SPIRV, OFFLINESPIRV))
 
 kts::ucl::BaseExecution::BaseExecution()
@@ -82,11 +80,9 @@ void kts::ucl::BaseExecution::SetUp() {
   UCL_RETURN_ON_FATAL_FAILURE(::ucl::CommandQueueTest::SetUp());
   switch (source_type) {
     case OPENCL_C:
-    case SPIR:
     case SPIRV:
       break;
     case OFFLINE:
-    case OFFLINESPIR:
     case OFFLINESPIRV:
       fail_if_not_vectorized_ = false;
   }
@@ -142,14 +138,10 @@ std::string kts::ucl::BaseExecution::GetSourcePath(
     case OPENCL_C:
       ext = ".cl";
       break;
-    case SPIR:
-      ext = ".bc" + std::to_string(getDeviceAddressBits());
-      break;
     case SPIRV:
       ext = ".spv" + std::to_string(getDeviceAddressBits());
       break;
     case OFFLINE:
-    case OFFLINESPIR:
     case OFFLINESPIRV:
       path << "_offline";
       ext = ".bin";
@@ -182,7 +174,7 @@ bool kts::ucl::BaseExecution::BuildProgram() {
   // device they were compiled for. Previously the test name needed to start
   // with `offline`, now we can just check that the test_suite_name which will
   // be `OfflineExecution`.
-  if (isSourceTypeIn({OFFLINE, OFFLINESPIR, OFFLINESPIRV})) {
+  if (isSourceTypeIn({OFFLINE, OFFLINESPIRV})) {
     // Get the CL_DEVICE_NAME for the device being tested.
     size_t size;
     if (clGetDeviceInfo(device, CL_DEVICE_NAME, 0, nullptr, &size)) {
@@ -199,9 +191,7 @@ bool kts::ucl::BaseExecution::BuildProgram() {
 
     std::string sub_dir;
 
-    if (source_type == OFFLINESPIR) {
-      sub_dir = "spir";
-    } else if (source_type == OFFLINESPIRV) {
+    if (source_type == OFFLINESPIRV) {
       sub_dir = "spirv";
     }
 
@@ -216,9 +206,7 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
                                            std::string kernel_name) {
   cl_int err = CL_SUCCESS;
 
-  bool spir = source_type == SPIR;
-  bool offline = source_type == OFFLINE || source_type == OFFLINESPIR ||
-                 source_type == OFFLINESPIRV;
+  bool offline = source_type == OFFLINE || source_type == OFFLINESPIRV;
   bool spirv = source_type == SPIRV;
 
   // We take the default case if the source_type is anything other than SPIRV.
@@ -279,7 +267,7 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
   if (!program_) {
     const char *source_data = source_.data();
 
-    if (spir || offline) {
+    if (offline) {
       const size_t lengths = source_.size();
       program_ = clCreateProgramWithBinary(
           context, 1, &device, &lengths,
@@ -305,10 +293,6 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
       // Add macro definitions to the option string.
       for (MacroDef &macro : macros_) {
         options << "-D" << macro.first << "=" << macro.second << " ";
-      }
-
-      if (spir) {
-        options << "-x spir -spir-std=1.2 ";
       }
 
       // User options set from the command line

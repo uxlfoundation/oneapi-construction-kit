@@ -27,7 +27,6 @@
 #include <base/printf_replacement_pass.h>
 #include <base/set_convergent_attr_pass.h>
 #include <base/software_division_pass.h>
-#include <base/spir_fixup_pass.h>
 #include <compiler/utils/add_kernel_wrapper_pass.h>
 #include <compiler/utils/add_metadata_pass.h>
 #include <compiler/utils/add_scheduling_parameters_pass.h>

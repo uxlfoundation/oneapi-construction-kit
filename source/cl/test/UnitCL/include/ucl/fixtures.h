@@ -269,7 +269,6 @@ struct DeviceTest : PlatformTest {
 
   std::string getOpenCLCSourceFromFile(std::string filename) const;
   std::vector<uint8_t> getDeviceBinaryFromFile(std::string filename) const;
-  std::vector<uint8_t> getDeviceSpirFromFile(std::string filename) const;
   std::vector<uint32_t> getDeviceSpirvFromFile(std::string filename) const;
 };
 

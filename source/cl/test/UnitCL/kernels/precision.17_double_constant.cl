@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // This test is testing device-dependent OpenCL C behaviour, it doesnt make
-// sense in SPIR or SPIR-V form.
-// REQUIRES: nospir; nospirv;
+// sense in SPIR-V form.
+// REQUIRES: nospirv;
 
 __kernel void double_constant(__global float* out) {
   // 0x1.0p-126 is FLT_MIN (but without the f suffix)

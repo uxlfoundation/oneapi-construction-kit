@@ -1646,8 +1646,7 @@ SPIR,conformance_test_spir vec_step_double no-unzip
 SPIR,conformance_test_spir compile_and_link no-unzip
 SPIR,conformance_test_spir sampler_enumeration no-unzip
 SPIR,conformance_test_spir enum_values no-unzip
-# Re-enable (or remove) this test when it has been fixed (see CA-3562).
-# SPIR,conformance_test_spir kernel_attributes no-unzip
+SPIR,conformance_test_spir kernel_attributes no-unzip
 SPIR,conformance_test_spir binary_type no-unzip
 SPIRV,conformance_test_spirv_new op_loop_merge_branch_none
 SPIRV,conformance_test_spirv_new op_loop_merge_branch_unroll

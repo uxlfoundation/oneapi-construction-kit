@@ -37,82 +37,6 @@ else()
   set(CLC_TARGET clc)
 endif()
 
-if(CA_EXTERNAL_KHRONOS_CLANG)
-  # Check the version of the clang SPIR generator.
-  execute_process(COMMAND ${CA_EXTERNAL_KHRONOS_CLANG} --version
-    OUTPUT_VARIABLE clangSpirVersion)
-  if(NOT "${clangSpirVersion}" MATCHES "3.2")
-    message(FATAL_ERROR "CA_EXTERNAL_KHRONOS_CLANG must be version 3.2.")
-  endif()
-
-  # We need to check for expected output from the clang SPIR generator to avoid
-  # committing unnecessary changes when kernels are regenerated.
-  execute_process(
-    COMMAND ${CA_EXTERNAL_KHRONOS_CLANG} -cc1 -emit-llvm-bc
-      -triple spir-unknown-unknown -include ${CA_EXTERNAL_OPENCL_SPIRH}
-      -O0 -o ${CMAKE_CURRENT_BINARY_DIR}/spir-generator-check.bc
-      ${CMAKE_CURRENT_SOURCE_DIR}/spir-generator-check.cl
-    RESULT_VARIABLE spirGeneratorResult
-    OUTPUT_VARIABLE spirGeneratorError ERROR_VARIABLE spirGeneratorError)
-  if(NOT spirGeneratorResult EQUAL 0)
-    message(FATAL_ERROR "${spirGeneratorError}")
-  endif()
-
-  # Disassemble the SPIR bitcode file with llvm-dis.
-  find_package(LLVMTool QUIET COMPONENTS llvm-dis)
-  get_target_property(llvmDisPath LLVM::llvm-dis IMPORTED_LOCATION)
-  execute_process(
-    COMMAND ${LLVMTool_llvm-dis_EXECUTABLE}
-      ${CMAKE_CURRENT_BINARY_DIR}/spir-generator-check.bc
-    RESULT_VARIABLE llvmDisResult
-    OUTPUT_VARIABLE llvmDisError ERROR_VARIABLE llvmDisError)
-  if(NOT llvmDisResult EQUAL 0)
-    message(FATAL_ERROR "${llvmDisError}")
-  endif()
-
-  # Compare SPIR bitcode file content with the expected output.
-  file(READ
-    ${CMAKE_CURRENT_BINARY_DIR}/spir-generator-check.ll spirGeneratorCheck)
-  set(spirGeneratorCheckExpected "\
-; ModuleID = '${CMAKE_CURRENT_BINARY_DIR}/spir-generator-check.bc'
-source_filename = \"${CMAKE_CURRENT_BINARY_DIR}/spir-generator-check.bc\"
-target datalayout = \"e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v16:16:16-v24:32:32-v32:32:32-v48:64:64-v64:64:64-v96:128:128-v128:128:128-v192:256:256-v256:256:256-v512:512:512-v1024:1024:1024\"
-target triple = \"spir-unknown-unknown\"
-
-; Function Attrs: nounwind
-define spir_kernel void @spir_generator_check() #0 {
-entry:
-  ret void
-}
-
-attributes #0 = { nounwind }
-
-!opencl.kernels = !{!0}
-!opencl.enable.FP_CONTRACT = !{}
-!opencl.spir.version = !{!6}
-!opencl.ocl.version = !{!6}
-!opencl.used.extensions = !{!7}
-!opencl.used.optional.core.features = !{!7}
-!opencl.compiler.options = !{!7}
-
-!0 = !{void ()* @spir_generator_check, !1, !2, !3, !4, !5}
-!1 = !{!\"kernel_arg_addr_space\"}
-!2 = !{!\"kernel_arg_access_qual\"}
-!3 = !{!\"kernel_arg_type\"}
-!4 = !{!\"kernel_arg_type_qual\"}
-!5 = !{!\"kernel_arg_base_type\"}
-!6 = !{i32 1, i32 2}
-!7 = !{}
-")
-  if(NOT spirGeneratorCheckExpected STREQUAL spirGeneratorCheck)
-    message(FATAL_ERROR "CA_EXTERNAL_KHRONOS_CLANG generated unexpected \
-output, ensure the clang SPIR generator was compiled from \
-https://github.com/KhronosGroup/SPIR.git with LLVM_ENABLE_ASSERTIONS=ON.")
-  endif()
-
-  add_ca_executable_import(clang-spir "${CA_EXTERNAL_KHRONOS_CLANG}")
-endif()
-
 if(CA_EXTERNAL_LLVM_SPIRV)
   execute_process(COMMAND ${CA_EXTERNAL_LLVM_SPIRV} --version
     OUTPUT_VARIABLE llvmSpirvVersion)
@@ -150,12 +74,12 @@ foreach(NAME ${MUX_TARGET_LIBRARIES})
   list(APPEND ALL_KERNEL_FILES ${${NAME}_UNITCL_KERNEL_FILES})
   # Add the universal kernels to the target list
   list(APPEND ${NAME}_UNITCL_KERNEL_FILES ${KERNEL_FILES})
-  add_spir_spirv(${NAME}_UNITCL_KERNEL_FILES ${NAME}_UNITCL_KERNEL_FILES)
+  add_spirv(${NAME}_UNITCL_KERNEL_FILES ${NAME}_UNITCL_KERNEL_FILES)
 endforeach()
 
 # For the given list of kernels, check if they have spir or spirv variants and
 # report back a list containing all of them.
-add_spir_spirv(ALL_KERNEL_FILES ALL_KERNEL_FILES)
+add_spirv(ALL_KERNEL_FILES ALL_KERNEL_FILES)
 
 set(TARGET_KERNELS "")
 
@@ -274,11 +198,11 @@ foreach(target ${MUX_TARGET_LIBRARIES})
 
     # Create all commands to build kernels
     foreach(kernel ${${target}_UNITCL_KERNEL_FILES})
-      # This loop processes three types of kernels: OpenCL-C (.cl), SPIR
-      # (.bc32, .bc64), and SPIR-V assembly (.spvasm32, .spvasm64). A target
-      # is set up to compile each type of kernel down to a .bin executable.
-      # Targets are also set up to compile .cl files to SPIR and SPIR-V
-      # (provided the required dependencies are present).
+      # This loop processes three types of kernels: OpenCL-C (.cl) and SPIR-V
+      # assembly (.spvasm32, .spvasm64). A target is set up to compile each
+      # type of kernel down to a .bin executable. Targets are also set up to
+      # compile .cl files to SPIR-V (provided the required dependencies are
+      # present).
 
       # Split kernel name up: `d/a.b.c` => `d`, `a.b`, `.c`
       get_filename_component(kernel_dir ${kernel} DIRECTORY)
@@ -309,8 +233,8 @@ foreach(target ${MUX_TARGET_LIBRARIES})
       set(kernel_output_name "${kernel_name}.bin")
 
       # When passing IR and cl kernels to `clc` we generate a `.bin` file with
-      # the same name. To avoid conflicts we place all the spir binaries into
-      # the SPIR folder and SPIR-V binaries into the spirv folder.
+      # the same name. To avoid conflicts we place all the SPIR-V binaries into
+      # the spirv folder.
       if(${kernel_ext} MATCHES "\.spvasm(32|64)")
         set(output ${target_kernels_dir}/spirv/${kernel_output_name})
         # If we're compiling an offline SPIR-V kernel, we should depend on the
@@ -352,39 +276,12 @@ foreach(target ${MUX_TARGET_LIBRARIES})
 
       list(APPEND outputs ${output})
 
-      # Set up commands to generate SPIR and SPIR-V files from .cl files.
+      # Set up commands to generate SPIR-V files from .cl files.
       # These files are built in the source (not build) directory, and only as
       # part of the regenerate-spir and regenerate-spirv targets.
       if(NOT "${kernel_ext}" STREQUAL ".cl")
         # No more work to be done for .bc{32|64} and .spvasm{32|64} files
         continue()
-      endif()
-
-      # Compile kernels to .bc{32|64}
-      if(CA_EXTERNAL_KHRONOS_CLANG AND CA_EXTERNAL_OPENCL_SPIRH)
-        # SPIR output file names
-        set(spir32_kernel_name "${kernel_name}.bc32")
-        set(spir64_kernel_name "${kernel_name}.bc64")
-
-        # Some of the kernels may be for specific target platforms and might
-        # live in different directories. We prepend the directory so we now
-        # have the full output path for the file.
-        set(spir32_output ${kernel_dir}/${spir32_kernel_name})
-        set(spir64_output ${kernel_dir}/${spir64_kernel_name})
-
-        add_custom_command(
-          OUTPUT ${spir32_output} ${spir64_output}
-          COMMAND ${CMAKE_COMMAND}
-            -DINPUT_FILE=${kernel}
-            -DCA_EXTERNAL_KHRONOS_CLANG=${CA_EXTERNAL_KHRONOS_CLANG}
-            -DCA_EXTERNAL_OPENCL_SPIRH=${CA_EXTERNAL_OPENCL_SPIRH}
-            -P ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CompileKernelToSPIR.cmake
-          DEPENDS clang-spir ${kernel} ${CA_EXTERNAL_OPENCL_SPIRH}
-            ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CompileKernelToSPIR.cmake
-            ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/ExtractReqsOpts.cmake
-          WORKING_DIRECTORY ${ComputeAorta_SOURCE_DIR}
-          COMMENT "Building SPIR ${kernel_name}.bc{32|64}")
-        list(APPEND ir_spir_outputs ${spir32_output} ${spir64_output})
       endif()
 
       # Compile kernels to .spvasm{32|64}
@@ -420,11 +317,6 @@ foreach(target ${MUX_TARGET_LIBRARIES})
   endforeach()
 endforeach()
 
-# To regenerate the SPIR files we need to have Clang and the opencl_spirh
-# headers.
-if (CA_EXTERNAL_KHRONOS_CLANG AND CA_EXTERNAL_OPENCL_SPIRH)
-  add_custom_target(regenerate-spir DEPENDS ${ir_spir_outputs})
-endif()
 # To regenerate the SPIR-V files we need to have llvm-spirv
 if (CA_EXTERNAL_LLVM_SPIRV)
   add_custom_target(regenerate-spirv DEPENDS ${ir_spirv_outputs})

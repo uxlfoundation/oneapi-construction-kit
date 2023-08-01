@@ -24,13 +24,6 @@
         fillcolor="#fff8a6"
         color="#d7d18c"
         penwidth=3]
-      spir [
-        label="Module::compileSPIR"
-        style="filled"
-        shape=box
-        fillcolor="#fff8a6"
-        color="#d7d18c"
-        penwidth=3]
       spirv [
         label="Module::compileSPIRV"
         style="filled"
@@ -113,7 +106,6 @@
       }
 
         clc -> module_backend [lhead=cluster_module_finalize color="#6a7880" penwidth=3]
-        spir -> module_backend [lhead=cluster_module_finalize color="#6a7880" penwidth=3]
         spirv -> module_backend [lhead=cluster_module_finalize color="#6a7880" penwidth=3]
         passes_vecz -> module_create_binary [style=invis]
         passes_others -> module_create_kernel [style=invis]

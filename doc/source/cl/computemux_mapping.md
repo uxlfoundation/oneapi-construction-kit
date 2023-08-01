@@ -17,8 +17,7 @@ created from binaries on disk and are loaded directly by the OpenCL driver,
 known as offline programs.
 
 Runtime compilation in OpenCL starts with a `cl_program` that can be created
-either from OpenCL C source using `clCreateProgramWithSource()`; from the
-[SPIR][spir-12] binary format, via `clCreateProgramWithBinary()`; or from an
+either from OpenCL C source using `clCreateProgramWithSource()`; or from an
 intermediate representation, such as [SPIR-V][spirv], via
 `clCreateProgramWithIL()` or `clCreateProgramWithIRKHR()`. This `cl_program`
 should then be built with `clBuildProgram()`, or by invoking
@@ -53,7 +52,7 @@ depending on how the Mux target is implemented.
 The compilation process of a compiled `cl_program` is driven by the
 `compiler::Module` object. These are created during the call to
 `clBuildProgram()` and `clCompileProgram()`, which accept the source (either
-OpenCL C, SPIR or SPIR-V) and turn it into IR by calling one of the
+OpenCL C SPIR-V) and turn it into IR by calling one of the
 `compiler::Module::compile*` methods and/or `compiler::Module::link`, followed
 by `compiler::Module::finalize`. 
 

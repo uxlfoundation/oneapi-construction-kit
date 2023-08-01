@@ -53,7 +53,7 @@ TEST_P(Execution, Barrier_03_Barrier_Noinline) {
 
 TEST_P(Execution, Barrier_04_Barrier_Local_Mem) {
   const cl_int global = 64;
-  // If these change regenerate SPIR and SPIR-V
+  // If these change regenerate SPIR-V
   const cl_int read_local = 16;
   const cl_int read_local_id = 1;
   const cl_int global_id = 0;
@@ -62,8 +62,7 @@ TEST_P(Execution, Barrier_04_Barrier_Local_Mem) {
   AddOutputBuffer(
       1, kts::Reference1D<cl_int>([=](size_t) { return read_local_id; }));
 
-  // These macros will not affect SPIR, SPIR-V or
-  // OFFLINE tests
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("GLOBAL_ID", global_id);
   AddMacro("READ_LOCAL_ID", read_local_id);
   AddMacro("READ_LOCAL_SIZE", read_local);
@@ -73,7 +72,7 @@ TEST_P(Execution, Barrier_04_Barrier_Local_Mem) {
 
 TEST_P(Execution, Barrier_05_Barrier_In_Loop) {
   const cl_int global = 64;
-  // If these change regenerate SPIR and SPIR-V
+  // If these change regenerate SPIR-V
   const cl_int read_local = 16;
   const cl_int outer_loop_size = 1;
   const cl_int global_id = 0;
@@ -86,8 +85,7 @@ TEST_P(Execution, Barrier_05_Barrier_In_Loop) {
                     return total * outer_loop_size;
                   }));
 
-  // These macros will not affect SPIR, SPIR-V or
-  // OFFLINE tests
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("GLOBAL_ID", global_id);
   AddMacro("OUTER_LOOP_SIZE", outer_loop_size);
   AddMacro("READ_LOCAL_SIZE", read_local);
@@ -101,7 +99,7 @@ TEST_P(Execution, Barrier_06_Barrier_With_Ifs) {
   fail_if_not_vectorized_ = false;
 
   const cl_int global = 32;
-  // If these change regenerate SPIR and SPIR-V
+  // If these change regenerate SPIR-V
   const cl_int read_local = 4;
   const cl_int global_id = 1;
   const cl_int local_id = 0;
@@ -114,8 +112,7 @@ TEST_P(Execution, Barrier_06_Barrier_With_Ifs) {
                     return total * global;
                   }));
 
-  // These macros will not affect SPIR, SPIR-V or
-  // OFFLINE tests
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("GLOBAL_ID", global_id);
   AddMacro("LOCAL_ID", local_id);
   AddMacro("READ_LOCAL_SIZE", read_local);
@@ -125,7 +122,7 @@ TEST_P(Execution, Barrier_06_Barrier_With_Ifs) {
 
 TEST_P(Execution, Barrier_07_Barrier_In_Loop_2) {
   const cl_int global = 32;
-  // If these change regenerate SPIR and SPIR-V
+  // If these change regenerate SPIR-V
   const cl_int read_local = 4;
   const cl_int global_id = 1;
   const cl_int local_id = 0;
@@ -140,8 +137,7 @@ TEST_P(Execution, Barrier_07_Barrier_In_Loop_2) {
                     return total;
                   }));
 
-  // These macros will not affect SPIR, SPIR-V or
-  // OFFLINE tests
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("GLOBAL_ID", global_id);
   AddMacro("LOCAL_ID", local_id);
   AddMacro("READ_LOCAL_SIZE", read_local);
@@ -151,7 +147,7 @@ TEST_P(Execution, Barrier_07_Barrier_In_Loop_2) {
 
 TEST_P(Execution, Barrier_07_Barrier_In_Loop_3) {
   const cl_int global = 32;
-  // If these change regenerate SPIR and SPIR-V
+  // If these change regenerate SPIR-V
   const cl_int read_local = 4;
   const cl_int global_id = 1;
   const cl_int local_id = 0;
@@ -166,8 +162,7 @@ TEST_P(Execution, Barrier_07_Barrier_In_Loop_3) {
                     return total;
                   }));
 
-  // These macros will not affect SPIR, SPIR-V or
-  // OFFLINE tests
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("GLOBAL_ID", global_id);
   AddMacro("LOCAL_ID", local_id);
   AddMacro("READ_LOCAL_SIZE", read_local);
@@ -177,7 +172,7 @@ TEST_P(Execution, Barrier_07_Barrier_In_Loop_3) {
 
 TEST_P(Execution, Barrier_07_Barrier_In_Loop_4) {
   const cl_int global = 32;
-  // If these change regenerate SPIR and SPIR-V
+  // If these change regenerate SPIR-V
   const cl_int read_local = 4;
   const cl_int global_id = 1;
   const cl_int local_id = 0;
@@ -192,8 +187,7 @@ TEST_P(Execution, Barrier_07_Barrier_In_Loop_4) {
                     return total;
                   }));
 
-  // These macros will not affect SPIR, SPIR-V or
-  // OFFLINE tests
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("GLOBAL_ID", global_id);
   AddMacro("LOCAL_ID", local_id);
   AddMacro("READ_LOCAL_SIZE", read_local);
@@ -334,14 +328,13 @@ TEST_P(Execution, Barrier_12_Barrier_In_Sub_Function_Called_Twice) {
 TEST_P(Execution, Barrier_13_Barrier_Shift_loop) {
   const size_t block_size = 16;
   const size_t local_size =
-      block_size * block_size;  // If this changes regenerate SPIR and SPIR-V
+      block_size * block_size;  // If this changes regenerate SPIR-V
   const size_t global_size = block_size * local_size;
   const size_t global_range[] = {global_size, block_size};
   const size_t local_range[] = {local_size, 1};
 
-  const size_t blocks =
-      block_size * 2;  // If this changes regenerate SPIR and SPIR-V
-  // These macros will not affect SPIR, SPIR-V or OFFLINE tests
+  const size_t blocks = block_size * 2;  // If this changes regenerate SPIR-V
+  // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("BLOCK_COLS", blocks);
   AddMacro("BLOCK_ROWS", blocks);
   AddMacro("LOCAL_SIZE", local_size);

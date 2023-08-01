@@ -220,12 +220,8 @@ cl_program clCreateProgramWithBinary(cl_context context,
                                      cl_int *errcode_ret);
 ```
 
-Create an OpenCL program object from a binary. Because oneAPI Construction Kit
-supports the [`cl_khr_spir`][cl_khr_spir] extension, this can also be a SPIR
-binary. If the binary is a SPIR binary, then the program **must** be compiled
-(with either `clBuildProgram()`, or `clCompileProgram()` and `clLinkProgram()`).
-If the binary is a pre-compiled binary, then it **may** be compiled again, but this
-will have no effect.
+Create an OpenCL program object from a binary. If the binary is a pre-compiled
+binary, then it **may** be compiled again, but this will have no effect.
 
 ### [clCreateProgramWithBuiltInKernels][clCreateProgramWithBuiltInKernels]
 
@@ -637,7 +633,6 @@ Create a 3D image memory object, deprecated in OpenCL 1.2. Replaced by
 [clEnqueueNDRangeKernel]: https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueNDRangeKernel.html
 [clCreateProgramWithSource]: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clCreateProgramWithSource.html
 [clCreateProgramWithBinary]: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clCreateProgramWithBinary.html
-[cl_khr_spir]: https://www.khronos.org/registry/OpenCL/sdk/2.0/docs/man/xhtml/cl_khr_spir.html
 [clCreateProgramWithBuiltInKernels]: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clCreateProgramWithBuiltInKernels.html
 [clCompileProgram]: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clCompileProgram.html
 [clLinkProgram]: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clLinkProgram.html

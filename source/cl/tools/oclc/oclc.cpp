@@ -47,7 +47,7 @@ struct TypeConverter<cl_double> {
   using type = cl_long;
 };
 
-enum class SourceFileType { Spir, Spirv, OpenCL_C };
+enum class SourceFileType { Spirv, OpenCL_C };
 }  // namespace
 
 int main(int argc, char **argv) {
@@ -1274,7 +1274,7 @@ bool oclc::Driver::BuildProgram() {
                                      (char)0x07};
   if (source_.size() > 4) {
     if (0 == memcmp(source_.data(), spir_magic, sizeof(spir_magic))) {
-      source_file_type = SourceFileType::Spir;
+      OCLC_CHECK(true, "No support for SPIR 1.2");
     } else if (0 == memcmp(source_.data(), spirv_magic, sizeof(spirv_magic))) {
       source_file_type = SourceFileType::Spirv;
     }
@@ -1282,12 +1282,7 @@ bool oclc::Driver::BuildProgram() {
 
   // Build the program.
   cl_int err = CL_SUCCESS;
-  if (source_file_type == SourceFileType::Spir) {
-    const unsigned char *source_data = (const unsigned char *)source_.data();
-    const size_t source_size = source_.size();
-    program_ = clCreateProgramWithBinary(context_, 1, &device_, &source_size,
-                                         &source_data, nullptr, &err);
-  } else if (source_file_type == SourceFileType::Spirv) {
+  if (source_file_type == SourceFileType::Spirv) {
     const unsigned char *source_data = (const unsigned char *)source_.data();
     const size_t source_size = source_.size();
 

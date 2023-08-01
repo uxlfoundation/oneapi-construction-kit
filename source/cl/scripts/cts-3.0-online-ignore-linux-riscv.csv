@@ -1309,5 +1309,3 @@ Mipmaps (clReadWriteImage),images/clReadWriteImage/test_cl_read_write_images tes
 
 # TODO(CA-4540): Fix cl12/api/test_api/sub_group_dispatch.
 API,api/test_api sub_group_dispatch
-# TODO(CA-3562): Re-enable (or remove) this test when it has been fixed.
-SPIR (cl_khr_spir),spir/test_spir kernel_attributes no-unzip

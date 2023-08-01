@@ -4,6 +4,7 @@
 
 Upgrade guidance:
 
+* Support for SPIR 1.2 programs (`cl_khr_spir`) has been dropped.
 * The mux spec has been bumped:
   * 0.77.0: to loosen the requirements on the mux `event` type used by
     DMA builtins.
