@@ -204,12 +204,11 @@ set(CA_COMPILE_OPTIONS
         -Wno-redundant-move
         -Wno-pessimizing-move
       >
-      $<$<AND:$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,10>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,12.3>>:
+      $<$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,10>:
         # GCC has become awful complainy about passing the address of an
         # uninitialized variable to another function which performs the
-        # initialization itself
-        # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96564 is targeted for 11.4.
-        # If this update proves inadequate, update the above version
+        # initialization itself, reconsider disabling this warning if
+        # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96564 is addressed.
         -Wno-maybe-uninitialized
       >
     >
