@@ -826,6 +826,10 @@ BuiltinID CLBuiltinInfo::getSubgroupBroadcastBuiltin() const {
   return eCLBuiltinSubgroupBroadcast;
 }
 
+BuiltinID CLBuiltinInfo::getWorkgroupBroadcastBuiltin() const {
+  return eCLBuiltinWorkgroupBroadcast;
+}
+
 Module *CLBuiltinInfo::getBuiltinsModule() {
   if (!Loader) {
     return nullptr;
@@ -1250,6 +1254,13 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinSubgroupScanLogicalOrExclusive:
     case eCLBuiltinSubgroupScanLogicalXorInclusive:
     case eCLBuiltinSubgroupScanLogicalXorExclusive:
+      Properties |= eBuiltinPropertySubGroupOperation;
+      IsConvergent = true;
+      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
+      if (ID != eCLBuiltinSubgroupAll && ID != eCLBuiltinSubgroupAny) {
+        OverloadInfo.push_back(Callee.getArg(0)->getType());
+      }
+      break;
       // Work-group collectives
     case eCLBuiltinWorkgroupAll:
     case eCLBuiltinWorkgroupAny:
@@ -1284,10 +1295,10 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinWorkgroupScanLogicalOrExclusive:
     case eCLBuiltinWorkgroupScanLogicalXorInclusive:
     case eCLBuiltinWorkgroupScanLogicalXorExclusive:
+      Properties |= eBuiltinPropertyWorkGroupOperation;
       IsConvergent = true;
       Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
-      if (ID != eCLBuiltinWorkgroupAll && ID != eCLBuiltinWorkgroupAny &&
-          ID != eCLBuiltinSubgroupAll && ID != eCLBuiltinSubgroupAny) {
+      if (ID != eCLBuiltinWorkgroupAll && ID != eCLBuiltinWorkgroupAny) {
         OverloadInfo.push_back(Callee.getArg(0)->getType());
       }
       break;
@@ -1536,29 +1547,41 @@ BuiltinSubgroupReduceKind CLBuiltinInfo::getBuiltinSubgroupReductionKind(
   switch (B.ID) {
     default:
       return eBuiltinSubgroupReduceInvalid;
+    case eCLBuiltinWorkgroupAll:
     case eCLBuiltinSubgroupAll:
       return eBuiltinSubgroupAll;
+    case eCLBuiltinWorkgroupAny:
     case eCLBuiltinSubgroupAny:
       return eBuiltinSubgroupAny;
+    case eCLBuiltinWorkgroupReduceAdd:
     case eCLBuiltinSubgroupReduceAdd:
       return eBuiltinSubgroupReduceAdd;
+    case eCLBuiltinWorkgroupReduceMin:
     case eCLBuiltinSubgroupReduceMin:
       return eBuiltinSubgroupReduceMin;
+    case eCLBuiltinWorkgroupReduceMax:
     case eCLBuiltinSubgroupReduceMax:
       return eBuiltinSubgroupReduceMax;
       // Subgroup reductions provided by SPV_KHR_uniform_group_instructions.
+    case eCLBuiltinWorkgroupReduceMul:
     case eCLBuiltinSubgroupReduceMul:
       return eBuiltinSubgroupReduceMul;
+    case eCLBuiltinWorkgroupReduceAnd:
     case eCLBuiltinSubgroupReduceAnd:
       return eBuiltinSubgroupReduceAnd;
+    case eCLBuiltinWorkgroupReduceOr:
     case eCLBuiltinSubgroupReduceOr:
       return eBuiltinSubgroupReduceOr;
+    case eCLBuiltinWorkgroupReduceXor:
     case eCLBuiltinSubgroupReduceXor:
       return eBuiltinSubgroupReduceXor;
+    case eCLBuiltinWorkgroupReduceLogicalAnd:
     case eCLBuiltinSubgroupReduceLogicalAnd:
       return eBuiltinSubgroupReduceLogicalAnd;
+    case eCLBuiltinWorkgroupReduceLogicalOr:
     case eCLBuiltinSubgroupReduceLogicalOr:
       return eBuiltinSubgroupReduceLogicalOr;
+    case eCLBuiltinWorkgroupReduceLogicalXor:
     case eCLBuiltinSubgroupReduceLogicalXor:
       return eBuiltinSubgroupReduceLogicalXor;
   }

@@ -127,6 +127,8 @@ class CLBuiltinInfo : public BILangInfoConcept {
   BuiltinID getSubgroupLocalIdBuiltin() const override;
   /// @see BuiltinInfo::getSubgroupBroadcastBuiltin
   BuiltinID getSubgroupBroadcastBuiltin() const override;
+  /// @see BuiltinInfo::getSubgroupBroadcastBuiltin
+  BuiltinID getWorkgroupBroadcastBuiltin() const override;
 
  private:
   BuiltinID identifyBuiltin(llvm::Function const &) const;

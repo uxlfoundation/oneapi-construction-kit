@@ -587,6 +587,13 @@ BuiltinID BuiltinInfo::getSubgroupBroadcastBuiltin() const {
   return eBuiltinInvalid;
 }
 
+BuiltinID BuiltinInfo::getWorkgroupBroadcastBuiltin() const {
+  if (LangImpl) {
+    return LangImpl->getWorkgroupBroadcastBuiltin();
+  }
+  return eBuiltinInvalid;
+}
+
 bool BuiltinInfo::requiresSchedulingParameters(BuiltinID ID) {
   // Defer to mux for the scheduling parameters.
   return MuxImpl->requiresSchedulingParameters(ID);

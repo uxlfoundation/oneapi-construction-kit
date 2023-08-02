@@ -17,6 +17,7 @@
 #include <compiler/utils/metadata.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/InstrTypes.h>
 #include <llvm/IR/Module.h>
 #include <multi_llvm/optional_helper.h>
 
@@ -394,6 +395,23 @@ void encodeReqdSubgroupSizeMetadata(Function &f, uint32_t size) {
 
 multi_llvm::Optional<uint32_t> getReqdSubgroupSize(const Function &f) {
   if (auto *md = f.getMetadata(ReqdSGSizeMD)) {
+    return mdconst::extract<ConstantInt>(md->getOperand(0))->getZExtValue();
+  }
+  return multi_llvm::None;
+}
+
+static constexpr const char *BarrierIDMD = "mux_barrier_id";
+
+void encodeBarrierIDMetadata(llvm::CallBase &ci, uint32_t id) {
+  auto &context = ci.getFunction()->getContext();
+  auto *const i32Ty = Type::getInt32Ty(context);
+  auto *const mdTuple = MDTuple::get(
+      context, ConstantAsMetadata::get(ConstantInt::get(i32Ty, id)));
+  ci.setMetadata(BarrierIDMD, mdTuple);
+}
+
+multi_llvm::Optional<uint32_t> getBarrierID(const llvm::CallBase &ci) {
+  if (auto *md = ci.getMetadata(BarrierIDMD)) {
     return mdconst::extract<ConstantInt>(md->getOperand(0))->getZExtValue();
   }
   return multi_llvm::None;

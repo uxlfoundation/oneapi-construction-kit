@@ -16,6 +16,8 @@
 
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/builtin_info.h>
+#include <compiler/utils/group_collective_helpers.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/prepare_barriers_pass.h>
 #include <llvm/ADT/SmallPtrSet.h>
 #include <llvm/IR/Instructions.h>
@@ -26,6 +28,15 @@
 using namespace llvm;
 
 #define DEBUG_TYPE "ca-barriers"
+
+namespace {
+bool isWorkGroupCollective(Function &F) {
+  auto const Collective = compiler::utils::isGroupCollective(&F);
+  return (Collective &&
+          Collective->Scope ==
+              compiler::utils::GroupCollective::ScopeKind::WorkGroup);
+}
+}  // namespace
 
 PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
     Module &M, ModuleAnalysisManager &AM) {
@@ -42,7 +53,9 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
   for (Function &F : M) {
     auto const B = BI.analyzeBuiltin(F);
     // If the function is not a barrier.
-    if (!BI.isMuxControlBarrierID(B.ID)) {
+    // Maybe it is a work group collective, in which case we also give it a
+    // barrier ID, since it functions as one.
+    if (!BI.isMuxControlBarrierID(B.ID) && !isWorkGroupCollective(F)) {
       continue;
     }
 
@@ -110,9 +123,13 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
         // Check call instructions for barrier.
         if (auto *const CI = dyn_cast<CallInst>(&I)) {
           Function *Callee = CI->getCalledFunction();
-          if (Callee &&
-              BI.isMuxControlBarrierID(BI.analyzeBuiltin(*Callee).ID)) {
-            CI->setOperand(0, ConstantInt::get(I32Ty, ID++));
+          if (Callee) {
+            if (BI.isMuxControlBarrierID(BI.analyzeBuiltin(*Callee).ID)) {
+              CI->setOperand(0, ConstantInt::get(I32Ty, ID++));
+            } else if (isWorkGroupCollective(*Callee)) {
+              // If it's not a mux barrier, use metadata to store the ID.
+              encodeBarrierIDMetadata(*CI, ID++);
+            }
           }
         }
       }

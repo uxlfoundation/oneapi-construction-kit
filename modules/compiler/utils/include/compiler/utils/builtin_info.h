@@ -219,6 +219,10 @@ enum BuiltinProperties : int32_t {
   ///
   /// This mapping takes place in BuiltinInfo::mapSyncBuiltinToMuxGroupBuiltin.
   eBuiltinPropertyMapToMuxGroupBuiltin = (1 << 17),
+  /// @brief The builtin operates on a sub group
+  eBuiltinPropertySubGroupOperation = (1 << 18),
+  /// @brief The builtin operates on a work group
+  eBuiltinPropertyWorkGroupOperation = (1 << 19),
 };
 
 /// @brief struct to hold information about a builtin function
@@ -571,6 +575,12 @@ class BuiltinInfo {
   /// is none. This builtin should have a signature of `<scalar ty> <builtin
   /// name>(<scalar ty>, i32)`.
   BuiltinID getSubgroupBroadcastBuiltin() const;
+
+  /// @brief Get a builtin for a subgroup broadcast.
+  /// @return An identifier for the builtin, or the invalid builtin if there
+  /// is none. This builtin should have a signature of `<scalar ty> <builtin
+  /// name>(<scalar ty>, i32)`.
+  BuiltinID getWorkgroupBroadcastBuiltin() const;
 
   /// @brief Returns true if the given ID is a ComputeMux builtin ID.
   static bool isMuxBuiltinID(BuiltinID ID) {
@@ -973,6 +983,10 @@ class BILangInfoConcept {
   }
   /// @see BuiltinInfo::getSubgroupBroadcastBuiltin
   virtual BuiltinID getSubgroupBroadcastBuiltin() const {
+    return eBuiltinInvalid;
+  }
+  /// @see BuiltinInfo::getSubgroupBroadcastBuiltin
+  virtual BuiltinID getWorkgroupBroadcastBuiltin() const {
     return eBuiltinInvalid;
   }
 };

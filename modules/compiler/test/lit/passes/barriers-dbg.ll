@@ -91,11 +91,11 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; Test all the variables are loaded from the live vars struct, important to assert that there are no allocas left.
 ; Contains the 4 variables defined before the barrier and 'result' defined after, there is also a padding element in the struct.
-; CHECK-DAG: %live_gep_input.addr = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_output.addr = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_global_id = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_local_id = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_multiplied = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_input.addr = getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_output.addr = getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_global_id = getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_local_id = getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_multiplied = getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
 ;
 ; Call debug stub to signify entry to barrier
 ; CHECK: call void @__barrier_entry(i32 0), !dbg [[DI_LOC_B1:![0-9]+]]
@@ -109,11 +109,11 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; Load values in to kernel from live variable struct, don't need to load 'local_id' since it's not live any more
 ; These are all DAG checks because it doesn't really matter if the barrier exit stub comes before or after them.
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
 ;
 ; Assert the DI entry is attached to the correct function
 ; CHECK: void @barrier_test.mux-barrier-wrapper(ptr addrspace(1) %input, ptr addrspace(1) %output) {{.*}} !dbg [[DI_SUBPROGRAM:![0-9]+]]

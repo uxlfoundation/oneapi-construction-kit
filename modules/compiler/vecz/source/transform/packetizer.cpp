@@ -1084,6 +1084,16 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
   Function *callee = CI->getCalledFunction();
 
   auto const Builtin = BI.analyzeBuiltin(*callee);
+  auto const props = Builtin.properties;
+  bool isWorkGroup;
+  if (props & compiler::utils::eBuiltinPropertySubGroupOperation) {
+    isWorkGroup = false;
+  } else if (props & compiler::utils::eBuiltinPropertyWorkGroupOperation) {
+    isWorkGroup = true;
+  } else {
+    return nullptr;
+  }
+
   auto const subgroupReduceKind = BI.getBuiltinSubgroupReductionKind(Builtin);
 
   if (subgroupReduceKind == compiler::utils::eBuiltinSubgroupReduceInvalid) {
@@ -1091,7 +1101,7 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
   }
 
   SmallVector<Value *, 16> opPackets;
-  IRBuilder<> B(buildAfter(CI, F));
+  IRBuilder<> B(CI);
   auto *const argTy = CI->getArgOperand(0)->getType();
   auto packetWidth = getPacketWidthForType(argTy);
 
@@ -1229,8 +1239,6 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
   // Reduce to a scalar.
   Value *v = createSimpleTargetReduction(B, &TTI, opPackets.front(), recurK);
 
-  IC.deleteInstructionLater(CI);
-
   // For any/all reductions we have to get back from an i1 to the original
   // type.
   if (subgroupReduceKind == compiler::utils::eBuiltinSubgroupAll ||
@@ -1238,7 +1246,16 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
     v = B.CreateSExt(v, CI->getType());
   }
 
-  CI->replaceAllUsesWith(v);
+  if (isWorkGroup) {
+    // For a work group operation, we leave the origial reduction function and
+    // divert the subgroup reduction through it, giving us a work group
+    // reduction over subgroup reductions.
+    CI->setOperand(0, v);
+    v = CI;
+  } else {
+    IC.deleteInstructionLater(CI);
+    CI->replaceAllUsesWith(v);
+  }
 
   return v;
 }
@@ -1252,11 +1269,20 @@ Value *Packetizer::Impl::packetizeSubgroupBroadcast(Instruction *I) {
   Function *callee = CI->getCalledFunction();
   auto const Builtin = BI.analyzeBuiltin(*callee);
 
-  if (!Builtin.isValid() || Builtin.ID != BI.getSubgroupBroadcastBuiltin()) {
+  if (!Builtin.isValid()) {
     return nullptr;
   }
 
-  IRBuilder<> B(buildAfter(CI, F));
+  bool isWorkGroup;
+  if (Builtin.ID == BI.getSubgroupBroadcastBuiltin()) {
+    isWorkGroup = false;
+  } else if (Builtin.ID == BI.getWorkgroupBroadcastBuiltin()) {
+    isWorkGroup = true;
+  } else {
+    return nullptr;
+  }
+
+  IRBuilder<> B(CI);
 
   auto *const src = CI->getArgOperand(0);
 
@@ -1271,7 +1297,19 @@ Value *Packetizer::Impl::packetizeSubgroupBroadcast(Instruction *I) {
     return src;
   }
 
-  auto *const idx = CI->getArgOperand(1);
+  auto *idx = CI->getArgOperand(1);
+  if (isWorkGroup) {
+    // When it's a work group broadcast, we need to sanitize the input index so
+    // that it stays within the range of one subgroup.
+    auto *const minVal =
+        ConstantInt::get(idx->getType(), SimdWidth.getKnownMinValue());
+    Value *idxFactor = minVal;
+    if (SimdWidth.isScalable()) {
+      idxFactor = B.CreateVScale(minVal);
+    }
+    idx = B.CreateURem(idx, idxFactor);
+  }
+
   Value *val = nullptr;
   // Optimize the constant fixed-vector case, where we can choose the exact
   // subpacket to extract from directly.
@@ -1295,9 +1333,16 @@ Value *Packetizer::Impl::packetizeSubgroupBroadcast(Instruction *I) {
     val = B.CreateExtractElement(op.getAsValue(), idx);
   }
 
-  IC.deleteInstructionLater(CI);
-
-  CI->replaceAllUsesWith(val);
+  if (isWorkGroup) {
+    // For a work group operation, we leave the origial broadcast function and
+    // divert the subgroup reduction through it, giving us a work group
+    // reduction over subgroup reductions.
+    CI->setOperand(0, val);
+    val = CI;
+  } else {
+    IC.deleteInstructionLater(CI);
+    CI->replaceAllUsesWith(val);
+  }
 
   return val;
 }

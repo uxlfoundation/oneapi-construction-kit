@@ -24,6 +24,7 @@
 #include "vectorization_factor.h"
 
 namespace llvm {
+class CallBase;
 class Function;
 class Module;
 }  // namespace llvm
@@ -290,6 +291,19 @@ void encodeReqdSubgroupSizeMetadata(llvm::Function &f, uint32_t size);
 /// @param[in] f Function from which to decode the metadata
 /// @returns The required sub-group size if present, else `llvm::None`
 multi_llvm::Optional<uint32_t> getReqdSubgroupSize(const llvm::Function &f);
+
+/// @brief Encodes barrier ID metadata onto a function call that implicitly
+/// behaves as a barrier.
+///
+/// @param[in] ci the function call on which to encode the metadata.
+/// @param[in] id the barrier ID to encode.
+void encodeBarrierIDMetadata(llvm::CallBase &ci, uint32_t id);
+
+/// @brief Retrieves a function call's barrier ID, if present.
+///
+/// @param[in] ci the function call on which to encode the metadata.
+/// @returns The barrier ID if present, else `llvm::None`
+multi_llvm::Optional<uint32_t> getBarrierID(const llvm::CallBase &ci);
 
 }  // namespace utils
 }  // namespace compiler
