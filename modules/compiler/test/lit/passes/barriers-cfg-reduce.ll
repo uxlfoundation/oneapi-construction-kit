@@ -21,15 +21,23 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 ; makes sure the accumulator initialization is not inside a work-item loop
 
-; CHECK: i32 @reduction.mux-barrier-region.1(
-; CHECK: store i32 0, {{(i32 addrspace\(3\)\*)|(ptr addrspace\(3\))}} @__mux_work_group_reduce_add_i32.accumulator
-
 ; CHECK: void @reduction.mux-barrier-wrapper(
 ; CHECK-LABEL: sw.bb2:
-; CHECK: call void @__mux_mem_barrier(i32 2, i32 272)
-; CHECK: call i32 @reduction.mux-barrier-region.1(
+; CHECK: br label %[[REDUCE_LOOP:.+]]
 
-; CHECK: br label %sw.bb3
+; CHECK: [[REDUCE_LOOP]]:
+; CHECK:  %[[IDX:.+]] = phi i64 [ 0, %sw.bb2 ], [ %[[IDX_NEXT:.+]], %[[REDUCE_LOOP]] ]
+; CHECK:  %[[ACCUM:.+]] = phi i32 [ 0, %sw.bb2 ], [ %[[ACCUM_NEXT:.+]], %[[REDUCE_LOOP]] ]
+; CHECK:  %[[ITEM:.+]] = getelementptr inbounds %reduction_live_mem_info, {{ptr|.+\*}} %live_variables, i64 %[[IDX]]
+; CHECK:  %[[VAL:.+]] = getelementptr inbounds %reduction_live_mem_info, {{ptr|.+\*}} %[[ITEM]], i32 0, i32 0
+; CHECK:  %[[LD:.+]] = load i32, {{ptr|.+\*}} %[[VAL]], align 4
+; CHECK:  %[[ACCUM_NEXT]] = add i32 %[[ACCUM]], %[[LD]]
+; CHECK:  %[[IDX_NEXT]] = add i64 %[[IDX]], 1
+; CHECK:  %[[LOOP_COND:.+]] = icmp ult i64 %24, 262144
+; CHECK:  br i1 %[[LOOP_COND]], label %[[REDUCE_LOOP]], label %[[REDUCE_EXIT:[^,]+]]
+
+; CHECK: [[REDUCE_EXIT]]:
+; CHECK:  %reduce = phi i32 [ %23, %[[REDUCE_LOOP]] ]
 
 declare i64 @__mux_get_global_id(i32 %x)
 declare i32 @__mux_work_group_reduce_add_i32(i32 %id, i32 %x)

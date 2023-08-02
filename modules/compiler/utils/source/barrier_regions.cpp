@@ -16,6 +16,7 @@
 
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
+#include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/SetOperations.h>
@@ -45,8 +46,19 @@ using namespace llvm;
 namespace {
 using AlignIntTy = uint64_t;
 
-bool isMuxWGControlBarrierID(compiler::utils::BuiltinID ID) {
-  return ID == compiler::utils::eMuxBuiltinWorkGroupBarrier;
+/// @brief it retuns the instruction as a call instruction if and only if it is
+/// a work group collective call, and returns nulltpr otherwise.
+bool isWorkGroupCollectiveCall(Instruction *inst,
+                               compiler::utils::BuiltinInfo &bi) {
+  auto *const ci = dyn_cast_or_null<CallInst>(inst);
+  if (!ci) {
+    return false;
+  }
+
+  Function *callee = ci->getCalledFunction();
+  assert(callee && "could not get called function");
+  auto info = bi.isMuxGroupCollective(bi.analyzeBuiltin(*callee).ID);
+  return info && info->isWorkGroupScope();
 }
 
 /// @brief Builds a stub function containing only a void return instruction.
@@ -288,9 +300,9 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
         ConstantInt::get(Type::getInt32Ty(context), 0),
         ConstantInt::get(Type::getInt32Ty(context), field_index)};
 
-    gep = GetElementPtrInst::Create(
-        barrier.live_var_mem_ty_, barrier_struct, live_variable_info_idxs,
-        Twine("live_gep_") + live->getName(), insert_point);
+    gep = gepBuilder.CreateInBoundsGEP(barrier.live_var_mem_ty_, barrier_struct,
+                                       live_variable_info_idxs,
+                                       Twine("live_gep_") + live->getName());
   } else {
     auto field_it = barrier.live_variable_scalables_map_.find(live);
     if (field_it == barrier.live_variable_scalables_map_.end()) {
@@ -300,14 +312,13 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
     Value *scaled_offset = nullptr;
 
     LLVMContext &context = barrier.module_.getContext();
-    IRBuilder<> B(insert_point);
     if (field_offset != 0) {
       if (!vscale) {
-        Type *size_type = B.getIntNTy(barrier.size_t_bytes * 8);
-        vscale = B.CreateIntrinsic(Intrinsic::vscale, size_type, {});
+        Type *size_type = gepBuilder.getIntNTy(barrier.size_t_bytes * 8);
+        vscale = gepBuilder.CreateIntrinsic(Intrinsic::vscale, size_type, {});
       }
-      scaled_offset = B.CreateMul(
-          vscale, B.getIntN(barrier.size_t_bytes * 8, field_offset));
+      scaled_offset = gepBuilder.CreateMul(
+          vscale, gepBuilder.getIntN(barrier.size_t_bytes * 8, field_offset));
     } else {
       scaled_offset = ConstantInt::get(Type::getInt32Ty(context), 0);
     }
@@ -320,12 +331,12 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
     };
 
     // Gep into the raw byte buffer
-    gep = B.CreateInBoundsGEP(barrier.live_var_mem_ty_, barrier_struct,
-                              live_variable_info_idxs,
-                              Twine("live_gep_scalable_") + live->getName());
+    gep = gepBuilder.CreateInBoundsGEP(
+        barrier.live_var_mem_ty_, barrier_struct, live_variable_info_idxs,
+        Twine("live_gep_scalable_") + live->getName());
 
     // Cast the pointer to the scalable vector type
-    gep = B.CreatePointerCast(
+    gep = gepBuilder.CreatePointerCast(
         gep,
         PointerType::get(
             data_ty,
@@ -336,8 +347,10 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
   return gep;
 }
 
-Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
-    Value *live, Instruction *insert, const char *name, bool reuse) {
+Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
+                                                             IRBuilderBase &ir,
+                                                             const char *name,
+                                                             bool reuse) {
   auto &mapped = reloads[live];
   if (reuse && mapped) {
     return mapped;
@@ -346,8 +359,7 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
   if (Value *v = getGEP(live)) {
     if (!isa<AllocaInst>(live)) {
       // If live variable is not allocainst, insert load.
-      v = new LoadInst(live->getType(), v, Twine(live->getName(), name),
-                       insert);
+      v = ir.CreateLoad(live->getType(), v, Twine(live->getName(), name));
     }
     mapped = v;
     return v;
@@ -357,11 +369,11 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
     if (!reuse || !mapped) {
       auto *clone = I->clone();
       clone->setName(I->getName());
-      clone->insertBefore(insert);
-      if (insert_point == insert) {
-        insert_point = clone;
+      ir.Insert(clone);
+      if (gepBuilder.GetInsertPoint() == ir.GetInsertPoint()) {
+        gepBuilder.SetInsertPoint(clone);
       }
-      insert = clone;
+      ir.SetInsertPoint(clone);
       mapped = clone;
       I = clone;
     } else {
@@ -371,7 +383,8 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(
     for (auto op_it = I->op_begin(); op_it != I->op_end();) {
       auto &op = *op_it++;
       if (auto *op_inst = dyn_cast<Instruction>(op.get())) {
-        op.set(getReload(op_inst, insert, name, reuse));
+        ir.SetInsertPoint(I);
+        op.set(getReload(op_inst, ir, name, reuse));
       }
     }
     return I;
@@ -434,7 +447,7 @@ void compiler::utils::Barrier::FindBarriers() {
         Function *callee = call_inst->getCalledFunction();
         if (callee != nullptr) {
           auto const B = bi_->analyzeBuiltin(*callee);
-          if (isMuxWGControlBarrierID(B.ID)) {
+          if (BuiltinInfo::isMuxBuiltinWithBarrierID(B.ID)) {
             unsigned id = ~0u;
             auto *const id_param = call_inst->getOperand(0);
             if (auto *const id_param_c = dyn_cast<ConstantInt>(id_param)) {
@@ -942,6 +955,13 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
     new_func_params.push_back(arg.getType());
   }
 
+  // If we have a work group collective call, we need to create a new argument
+  // so that the result can be passed in.
+  bool const collective = isWorkGroupCollectiveCall(region.barrier_inst, *bi_);
+  if (collective) {
+    new_func_params.push_back(region.barrier_inst->getType());
+  }
+
   // Add live variables' parameter as last if there are any.
   bool const hasBarrierStruct = !whole_live_variables_set_.empty() &&
                                 region.schedule != BarrierSchedule::Once;
@@ -1061,15 +1081,13 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   BasicBlock *new_kernel_entry_block = &(new_kernel->getEntryBlock());
   Instruction *insert_point = new_kernel_entry_block->getFirstNonPHIOrDbg();
+  auto *const cloned_barrier_call =
+      region.barrier_inst ? insert_point : nullptr;
 
-  if (CallInst *call_inst = dyn_cast<CallInst>(insert_point)) {
-    Function *callee = call_inst->getCalledFunction();
-    assert(callee && "Could not get called function");
-    auto const B = bi_->analyzeBuiltin(*callee);
-    if (isMuxWGControlBarrierID(B.ID)) {
-      // skip over the barrier, if present
-      insert_point = insert_point->getNextNonDebugInstruction();
-    }
+  // If we have a work group collective call, we need to remap its result from
+  // the arguments list.
+  if (collective) {
+    vmap[insert_point] = &*(new_arg++);
   }
 
   // The entry kernel might have allocas in it that don't get removed,
@@ -1088,10 +1106,12 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   // These variables are defined in a different kernel, so we insert the
   // relevant load instructions in the entry block of the kernel.
   {
-    Instruction *new_insert = insert_point;
+    // Note that if our barrier is a work group collective, its operand will
+    // probably still get reloaded here, even though it's going to get deleted,
+    // so we hope that it gets optimized away later, in this case.
     for (const auto cur_live : region.uses_ext) {
-      vmap[cur_live] =
-          live_values.getReload(cur_live, new_insert, "_load", true);
+      IRBuilder<> insertIR(insert_point);
+      vmap[cur_live] = live_values.getReload(cur_live, insertIR, "_load", true);
     }
   }
 
@@ -1161,26 +1181,26 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
     b_iter++;
   }
 
-  // Remove barrier.
-  if (CallInst *call_inst = dyn_cast<CallInst>(insert_point)) {
-    Function *callee = call_inst->getCalledFunction();
-    assert(callee && "could not get called function");
-    auto B = bi_->analyzeBuiltin(*callee);
-    if (isMuxWGControlBarrierID(B.ID)) {
-      // When debugging insert a call to the exit debug stub at the insert
-      // point, this location is important since all the live variables will
-      // have been loaded by this point.
-      if (is_debug_) {
-        const unsigned barrier_id = barrier_id_map_[entry_point];
-        // Get call instruction invoking exit stub from map
-        CallInst *exit_caller = barrier_stub_call_map_[barrier_id].second;
-        exit_caller->insertAfter(call_inst);
-        // Use updated debug info scope since call_inst will have had
-        // this set by ModifyDebugInfoScopes()
-        exit_caller->setDebugLoc(call_inst->getDebugLoc());
-      }
-      call_inst->eraseFromParent();
+  // Remove barrier. We do this after creating stores so that if it's a work
+  // group collective, it will have been processed as normal above and written
+  // into the barrier struct where needed.
+  if (cloned_barrier_call) {
+    // When debugging insert a call to the exit debug stub at the insert
+    // point, this location is important since all the live variables will
+    // have been loaded by this point.
+    if (is_debug_) {
+      const unsigned barrier_id = barrier_id_map_[entry_point];
+      // Get call instruction invoking exit stub from map
+      CallInst *exit_caller = barrier_stub_call_map_[barrier_id].second;
+      exit_caller->insertAfter(cloned_barrier_call);
+      // Use updated debug info scope since call_inst will have had
+      // this set by ModifyDebugInfoScopes()
+      exit_caller->setDebugLoc(cloned_barrier_call->getDebugLoc());
     }
+    if (collective) {
+      cloned_barrier_call->replaceAllUsesWith(vmap[cloned_barrier_call]);
+    }
+    cloned_barrier_call->eraseFromParent();
   }
 
   // don't remap the first basicblock again..
@@ -1199,7 +1219,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   }
 
   // This needs resetting for the sake of any further new GEPs created
-  live_values.insert_point = new_kernel_entry_block->getFirstNonPHIOrDbg();
+  live_values.gepBuilder.SetInsertPoint(
+      new_kernel_entry_block->getFirstNonPHIOrDbg());
 
   // If there are definitions of live variable in this function, process it
   // here. As mentioned above regarding value stores, the user might want to
@@ -1244,7 +1265,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
         }
 
         if (load_insert) {
-          U.set(live_values.getReload(OldDef, load_insert, "_reload"));
+          IRBuilder<> loadIR(load_insert);
+          U.set(live_values.getReload(OldDef, loadIR, "_reload"));
         }
       }
     }

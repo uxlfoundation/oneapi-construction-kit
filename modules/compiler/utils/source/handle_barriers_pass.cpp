@@ -17,6 +17,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
+#include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/handle_barriers_pass.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/vectorization_factor.h>
@@ -59,6 +60,9 @@ class BarrierWithLiveVars : public Barrier {
   void setSize0(Value *v) { size0 = v; }
   Value *getSize0() const { return size0; }
 
+  void setTotalSize(Value *v) { totalSize = v; }
+  Value *getTotalSize() const { return totalSize; }
+
   Value *getStructSize() const { return structSize; }
   void setStructSize(Value *v) { structSize = v; }
 
@@ -82,6 +86,9 @@ class BarrierWithLiveVars : public Barrier {
 
   // The number of items along the primary dimension
   Value *size0 = nullptr;
+
+  // The total number of items
+  Value *totalSize = nullptr;
 
   /// @brief The size of the struct in bytes, if the barrier contains
   /// scalables
@@ -208,6 +215,43 @@ struct ScheduleGenerator {
 
   DILocation *wrapperDbgLoc = nullptr;
 
+  Value *createLinearLiveVarsPtr(
+      compiler::utils::BarrierWithLiveVars const &barrier, IRBuilder<> &ir,
+      Value *index) {
+    Value *const mem_space = barrier.getMemSpace();
+    if (!mem_space) {
+      return nullptr;
+    }
+
+    // Calculate the offset for where the live variables of the current
+    // work item (within the nested loops) are stored.
+    // Loop i,j,k  -->  ((i * dim1) + j) * size0 + k
+    // memory access pattern should not depend on the vectorization
+    // dimension
+
+    Value *live_var_ptr;
+    if (!barrier.getStructSize()) {
+      Value *const live_var_mem_idxs[] = {index};
+      live_var_ptr = ir.CreateInBoundsGEP(barrier.getLiveVarsType(), mem_space,
+                                          live_var_mem_idxs);
+    } else {
+      // index into the byte buffer
+      auto *const byteOffset = ir.CreateMul(index, barrier.getStructSize());
+      Value *const live_var_mem_idxs[] = {byteOffset};
+      live_var_ptr =
+          ir.CreateInBoundsGEP(ir.getInt8Ty(), mem_space, live_var_mem_idxs);
+
+      // cast to the live mem type
+      live_var_ptr = ir.CreatePointerCast(
+          live_var_ptr,
+          PointerType::get(
+              barrier.getLiveVarsType(),
+              cast<PointerType>(live_var_ptr->getType())->getAddressSpace()));
+    }
+
+    return live_var_ptr;
+  }
+
   Value *createLiveVarsPtr(compiler::utils::BarrierWithLiveVars const &barrier,
                            IRBuilder<> &ir, Value *dim_0, Value *dim_1,
                            Value *dim_2, Value *VF = nullptr) {
@@ -227,27 +271,7 @@ struct ScheduleGenerator {
     auto *const k_offset = VF ? ir.CreateUDiv(dim_0, VF) : dim_0;
     auto *const offset = ir.CreateAdd(j_offset, k_offset);
 
-    Value *live_var_ptr;
-    if (!barrier.getStructSize()) {
-      Value *const live_var_mem_idxs[] = {offset};
-      live_var_ptr = ir.CreateInBoundsGEP(barrier.getLiveVarsType(), mem_space,
-                                          live_var_mem_idxs);
-    } else {
-      // index into the byte buffer
-      auto *const byteOffset = ir.CreateMul(offset, barrier.getStructSize());
-      Value *const live_var_mem_idxs[] = {byteOffset};
-      live_var_ptr =
-          ir.CreateInBoundsGEP(ir.getInt8Ty(), mem_space, live_var_mem_idxs);
-
-      // cast to the live mem type
-      live_var_ptr = ir.CreatePointerCast(
-          live_var_ptr,
-          PointerType::get(
-              barrier.getLiveVarsType(),
-              cast<PointerType>(live_var_ptr->getType())->getAddressSpace()));
-    }
-
-    return live_var_ptr;
+    return createLinearLiveVarsPtr(barrier, ir, offset);
   }
 
   void recreateDebugIntrinsics(
@@ -287,8 +311,12 @@ struct ScheduleGenerator {
   void createWorkItemLoopBody(
       compiler::utils::BarrierWithLiveVars const &barrier, IRBuilder<> &ir,
       BasicBlock *block, unsigned i, Value *dim_0, Value *dim_1, Value *dim_2,
-      Value *VF = nullptr, Value *offset = nullptr) {
+      Value *accumulator = nullptr, Value *VF = nullptr,
+      Value *offset = nullptr) {
     auto new_kernel_args = args;
+    if (accumulator) {
+      new_kernel_args.push_back(accumulator);
+    }
 
     // If the work item ID is a nullptr we take it to mean this barrier region
     // doesn't need to use the barrier struct.
@@ -349,7 +377,257 @@ struct ScheduleGenerator {
 
   // Create loops to execute all the main work items, and then all the
   // left-over tail work items at the end.
+  std::pair<BasicBlock *, Value *> makeReductionLoop(
+      compiler::utils::BarrierWithLiveVars const &barrier,
+      compiler::utils::GroupCollective const &WGC, BasicBlock *block, Value *op,
+      Value *accumulator) {
+    auto *const accTy = accumulator->getType();
+    Function *const func = block->getParent();
+
+    // Subgroup induction variables
+    Value *subgroupIVs[] = {accumulator};
+    auto *const totalSize = barrier.getTotalSize();
+
+    compiler::utils::CreateLoopOpts inner_opts;
+    inner_opts.attemptUnroll = true;
+    inner_opts.disableVectorize = true;
+
+    BasicBlock *preheader = block;
+    BasicBlock *exitBlock = nullptr;
+    PHINode *resultPhi = nullptr;
+
+    auto *const zero = Constant::getNullValue(Type::getIntNTy(
+        context, 8 * compiler::utils::getSizeTypeBytes(module)));
+
+    if (auto *const loopLimitConst = dyn_cast<Constant>(totalSize)) {
+      if (loopLimitConst->isZeroValue()) {
+        // No iterations at all!
+        return {block, accumulator};
+      }
+      preheader = block;
+    } else {
+      preheader =
+          BasicBlock::Create(context, "ca_work_group_reduce_preheader", func);
+
+      exitBlock =
+          BasicBlock::Create(context, "ca_work_group_reduce_exit", func);
+      preheader->moveAfter(block);
+      exitBlock->moveAfter(preheader);
+
+      auto needLoop = new ICmpInst(*block, CmpInst::ICMP_NE, zero, totalSize);
+
+      BranchInst::Create(preheader, exitBlock, needLoop, block);
+
+      resultPhi = PHINode::Create(accTy, 2, "WGC_reduce", exitBlock);
+      resultPhi->addIncoming(accumulator, block);
+    }
+
+    BasicBlock *latchBlock = nullptr;
+
+    // linearly looping through the vectorized work items
+    exitBlock = compiler::utils::createLoop(
+        preheader, exitBlock, zero, totalSize, subgroupIVs, inner_opts,
+        [&](BasicBlock *block, Value *index, ArrayRef<Value *> ivs,
+            MutableArrayRef<Value *> ivsNext) -> BasicBlock * {
+          IRBuilder<> ir(block);
+          auto *const liveVars = createLinearLiveVarsPtr(barrier, ir, index);
+          compiler::utils::Barrier::LiveValuesHelper live_values(barrier, block,
+                                                                 liveVars);
+
+          IRBuilder<> ir_load(block);
+          auto *const itemOp =
+              live_values.getReload(op, ir_load, "_load", /*reuse*/ true);
+
+          // Do the reduction here..
+          accumulator = multi_llvm::createBinOpForRecurKind(ir, ivs[0], itemOp,
+                                                            WGC.Recurrence);
+          ivsNext[0] = accumulator;
+          latchBlock = block;
+
+          return block;
+        });
+
+    if (!resultPhi) {
+      resultPhi = PHINode::Create(accTy, 1, "WGC_reduce", exitBlock);
+    }
+    resultPhi->addIncoming(accumulator, latchBlock);
+    return {exitBlock, resultPhi};
+  }
+
+  void getUniformValues(BasicBlock *block,
+                        compiler::utils::BarrierWithLiveVars const &barrier,
+                        MutableArrayRef<Value *> values) {
+    auto *const zero = Constant::getNullValue(Type::getIntNTy(
+        context, 8 * compiler::utils::getSizeTypeBytes(module)));
+    IRBuilder<> ir(block);
+    auto *const barrier0 = ir.CreateInBoundsGEP(barrier.getLiveVarsType(),
+                                                barrier.getMemSpace(), {zero});
+    compiler::utils::Barrier::LiveValuesHelper live_values(barrier, block,
+                                                           barrier0);
+    for (auto &value : values) {
+      value = live_values.getReload(value, ir, "_load", true);
+    }
+  }
+
+  std::pair<BasicBlock *, Value *> makeReductionLoops(BasicBlock *block,
+                                                      unsigned barrierID) {
+    auto *const barrierCall = barrierMain.getBarrierCall(barrierID);
+    if (!barrierCall) {
+      return {block, nullptr};
+    }
+
+    auto *const groupCall = cast<CallInst>(barrierCall);
+    auto Builtin = BI.analyzeBuiltin(*groupCall->getCalledFunction());
+    auto Info = BI.isMuxGroupCollective(Builtin.ID);
+    if (!Info || !Info->isWorkGroupScope()) {
+      return {block, nullptr};
+    }
+
+    switch (Info->Op) {
+      case compiler::utils::GroupCollective::OpKind::Reduction:
+      case compiler::utils::GroupCollective::OpKind::All:
+      case compiler::utils::GroupCollective::OpKind::Any: {
+        auto *const ty = barrierCall->getType();
+        auto *const accumulator =
+            compiler::utils::getNeutralVal(Info->Recurrence, ty);
+        auto loop = makeReductionLoop(barrierMain, *Info, block,
+                                      groupCall->getOperand(1), accumulator);
+        if (barrierTail) {
+          auto *const groupTailInst = barrierTail->getBarrierCall(barrierID);
+          loop = makeReductionLoop(*barrierTail, *Info, loop.first,
+                                   groupTailInst->getOperand(1), loop.second);
+        }
+        if (groupCall->hasName()) {
+          loop.second->takeName(groupCall);
+        }
+        return loop;
+      }
+
+      case compiler::utils::GroupCollective::OpKind::Broadcast: {
+        // First we need to get the item ID values from the barrier struct.
+        // These should be uniform but they may still be variables. It should
+        // be safe to get them from the barrier struct at index zero.
+        auto *const zero = Constant::getNullValue(Type::getIntNTy(
+            context, 8 * compiler::utils::getSizeTypeBytes(module)));
+
+        Function *const func = block->getParent();
+        BasicBlock *mainUniformBlock = block;
+        BasicBlock *tailUniformBlock = nullptr;
+
+        auto *const totalSize = barrierMain.getTotalSize();
+        if (auto *const loopLimitConst = dyn_cast<Constant>(totalSize)) {
+          // If we know for a fact that the main struct has at least one item,
+          // we can just use that. Otherwise, we need to use the tail struct.
+          if (loopLimitConst->isZeroValue()) {
+            mainUniformBlock = nullptr;
+            if (barrierTail) {
+              tailUniformBlock = block;
+            }
+          }
+        } else if (barrierTail) {
+          // If we have a variable number of main items, it could be zero at
+          // runtime, so we need an alternative way to get the values.
+          mainUniformBlock =
+              BasicBlock::Create(context, "ca_main_uniform_load", func);
+          tailUniformBlock =
+              BasicBlock::Create(context, "ca_tail_uniform_load", func);
+
+          auto *const needTail =
+              new ICmpInst(*block, CmpInst::ICMP_EQ, totalSize, zero);
+          BranchInst::Create(tailUniformBlock, mainUniformBlock, needTail,
+                             block);
+        }
+
+        if (!mainUniformBlock && !tailUniformBlock) {
+          return {block, nullptr};
+        }
+
+        Value *idsMain[] = {zero, zero, zero};
+        Value *idsTail[] = {zero, zero, zero};
+        if (mainUniformBlock) {
+          idsMain[0] = groupCall->getOperand(2);
+          idsMain[1] = groupCall->getOperand(3);
+          idsMain[2] = groupCall->getOperand(4);
+          getUniformValues(mainUniformBlock, barrierMain, idsMain);
+        }
+
+        if (tailUniformBlock) {
+          auto *const barrierCall = barrierTail->getBarrierCall(barrierID);
+          assert(barrierCall &&
+                 "No corresponding work group broadcast in tail kernel");
+          auto *const groupCall = cast<CallInst>(barrierCall);
+          idsTail[0] = groupCall->getOperand(2);
+          idsTail[1] = groupCall->getOperand(3);
+          idsTail[2] = groupCall->getOperand(4);
+          getUniformValues(tailUniformBlock, *barrierTail, idsTail);
+        }
+
+        // If both barrier structs had to be used, we need to merge the result.
+        if (mainUniformBlock && tailUniformBlock) {
+          block = BasicBlock::Create(context, "ca_merge_uniform_load", func);
+          BranchInst::Create(block, tailUniformBlock);
+          BranchInst::Create(block, mainUniformBlock);
+
+          for (size_t i = 0; i != 3; ++i) {
+            auto *mergePhi = PHINode::Create(idsMain[i]->getType(), 2,
+                                             "uniform_merge", block);
+            mergePhi->addIncoming(idsMain[i], mainUniformBlock);
+            mergePhi->addIncoming(idsTail[i], tailUniformBlock);
+            idsMain[i] = mergePhi;
+          }
+        }
+
+        IRBuilder<> ir(block);
+        auto *const op = groupCall->getOperand(1);
+
+        // Compute the address of the value in the main barrier struct
+        auto *const VF = materializeVF(ir, barrierMain.getVFInfo().vf);
+        auto *const liveVars = createLiveVarsPtr(barrierMain, ir, idsMain[0],
+                                                 idsMain[1], idsMain[2], VF);
+        compiler::utils::Barrier::LiveValuesHelper live_values(barrierMain,
+                                                               block, liveVars);
+        auto *const GEPmain = live_values.getGEP(op);
+
+        if (barrierTail) {
+          // Compute the address of the value in the tail barrier struct
+          auto *const offsetDim0 = ir.CreateSub(idsMain[0], mainLoopLimit);
+          auto *const liveVarsTail = createLiveVarsPtr(
+              *barrierTail, ir, offsetDim0, idsMain[1], idsMain[2]);
+          compiler::utils::Barrier::LiveValuesHelper live_values(
+              *barrierTail, block, liveVarsTail);
+
+          auto *const opTail =
+              barrierTail->getBarrierCall(barrierID)->getOperand(1);
+          auto *const GEPtail = live_values.getGEP(opTail);
+
+          // Select the main GEP or the tail GEP to load from
+          auto *const cond = ir.CreateICmpUGE(idsMain[0], mainLoopLimit);
+
+          auto *const select = ir.CreateSelect(cond, GEPtail, GEPmain);
+
+          auto *const result = ir.CreateLoad(op->getType(), select);
+          result->takeName(groupCall);
+
+          return {block, result};
+        } else {
+          auto *const result = ir.CreateLoad(op->getType(), GEPmain);
+          result->takeName(groupCall);
+          return {block, result};
+        }
+      }
+      default:
+        break;
+    }
+    return {block, nullptr};
+  }
+
+  // Create loops to execute all the main work items, and then all the
+  // left-over tail work items at the end.
   BasicBlock *makeWorkItemLoops(BasicBlock *block, unsigned barrierID) {
+    auto const collective = makeReductionLoops(block, barrierID);
+    block = collective.first;
+    auto *const accum = collective.second;
+
     auto const sizeTyBytes = compiler::utils::getSizeTypeBytes(module);
     auto *const zero =
         Constant::getNullValue(Type::getIntNTy(context, 8 * sizeTyBytes));
@@ -450,7 +728,7 @@ struct ScheduleGenerator {
 
                         createWorkItemLoopBody(barrierMain, ir, block,
                                                barrierID, dim_0, dim_1, dim_2,
-                                               VF);
+                                               accum, VF);
 
                         nextSubgroupIV =
                             ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1));
@@ -562,9 +840,9 @@ struct ScheduleGenerator {
                                   set_subgroup_id->getCallingConv());
                         }
 
-                        createWorkItemLoopBody(*barrierTail, ir, block,
-                                               barrierID, dim_0, dim_1, dim_2,
-                                               /*VF*/ nullptr, mainLoopLimit);
+                        createWorkItemLoopBody(
+                            *barrierTail, ir, block, barrierID, dim_0, dim_1,
+                            dim_2, accum, /*VF*/ nullptr, mainLoopLimit);
 
                         nextSubgroupIV =
                             ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1));
@@ -590,6 +868,10 @@ struct ScheduleGenerator {
 
   // Create loops to execute all work items in local linear ID order.
   BasicBlock *makeLinearWorkItemLoops(BasicBlock *block, unsigned barrierID) {
+    auto const collective = makeReductionLoops(block, barrierID);
+    block = collective.first;
+    auto *const accum = collective.second;
+
     auto const sizeTyBytes = compiler::utils::getSizeTypeBytes(module);
     auto *const zero =
         Constant::getNullValue(Type::getIntNTy(context, 8 * sizeTyBytes));
@@ -710,7 +992,7 @@ struct ScheduleGenerator {
 
                         createWorkItemLoopBody(barrierMain, ir, block,
                                                barrierID, dim_0, dim_1, dim_2,
-                                               VF);
+                                               accum, VF);
 
                         nextSubgroupIV =
                             ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1),
@@ -786,7 +1068,7 @@ struct ScheduleGenerator {
                     }
 
                     createWorkItemLoopBody(*barrierTail, ir, tailPreheaderBB,
-                                           barrierID, zero, dim_1, dim_2,
+                                           barrierID, zero, dim_1, dim_2, accum,
                                            /*VF*/ nullptr, mainLoopLimit);
 
                     nextSubgroupIV = ir.CreateAdd(subgroupIVs0[0],
@@ -819,9 +1101,9 @@ struct ScheduleGenerator {
                                     set_subgroup_id->getCallingConv());
                           }
 
-                          createWorkItemLoopBody(*barrierTail, ir, block,
-                                                 barrierID, dim_0, dim_1, dim_2,
-                                                 /*VF*/ nullptr, mainLoopLimit);
+                          createWorkItemLoopBody(
+                              *barrierTail, ir, block, barrierID, dim_0, dim_1,
+                              dim_2, accum, /*VF*/ nullptr, mainLoopLimit);
 
                           nextSubgroupIV =
                               ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1),
@@ -868,7 +1150,7 @@ struct ScheduleGenerator {
     // "Once" scheduled barriers shouldn't need the local id set.
     IRBuilder<> ir(block);
     createWorkItemLoopBody(barrierTail ? *barrierTail : barrierMain, ir, block,
-                           barrierID, nullptr, nullptr, nullptr);
+                           barrierID, nullptr, nullptr, nullptr, nullptr);
     return block;
   }
 };
@@ -884,6 +1166,7 @@ void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
                          Value *const sizeX, StringRef name, bool isDebug) {
   barrier.setSize0(sizeX);
   Value *const live_var_size = B.CreateMul(sizeX, B.CreateMul(sizeY, sizeZ));
+  barrier.setTotalSize(live_var_size);
 
   AllocaInst *live_var_mem_space;
   auto const scalablesSize = barrier.getLiveVarMemSizeScalable();
@@ -1139,40 +1422,45 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
     } else {
       // Re-issue the barrier's memory fence before the work-item loops
       if (auto *const CI = barrierMain.getBarrierCall(i)) {
-        IRBuilder<> B(block);
-        auto *MemBarrier = BI.getOrDeclareMuxBuiltin(eMuxBuiltinMemBarrier, M);
-        assert(MemBarrier);
-        Value *Ops[2] = {CI->getOperand(1), CI->getOperand(2)};
+        auto *const callee = cast<CallInst>(CI)->getCalledFunction();
+        auto const builtin = BI.analyzeBuiltin(*callee);
+        if (builtin.ID == compiler::utils::eMuxBuiltinWorkGroupBarrier) {
+          IRBuilder<> B(block);
+          auto *MemBarrier =
+              BI.getOrDeclareMuxBuiltin(eMuxBuiltinMemBarrier, M);
+          assert(MemBarrier);
+          Value *Ops[2] = {CI->getOperand(1), CI->getOperand(2)};
 
-        auto *const Call = B.CreateCall(MemBarrier, Ops);
+          auto *const Call = B.CreateCall(MemBarrier, Ops);
 
-        // Patch up any operands that were non-constants by fetching them from
-        // the barrier struct. We do this after creating the call because we
-        // need an instruction to function as an insert point.
-        if (!isa<Constant>(Ops[0]) || !isa<Constant>(Ops[1])) {
-          // We expect these values to be uniform so it should be safe to get
-          // from the barrier struct at index zero. Barriers are convergent, so
-          // there should be no chance that the value does not exist.
-          auto *const zero =
-              Constant::getNullValue(Type::getIntNTy(context, 8 * sizeTyBytes));
-          IRBuilder<> ir(Call);
-          auto *const barrier0 = ir.CreateInBoundsGEP(
-              barrierMain.getLiveVarsType(), barrierMain.getMemSpace(), {zero});
+          // Patch up any operands that were non-constants by fetching them from
+          // the barrier struct. We do this after creating the call because we
+          // need an instruction to function as an insert point.
+          if (!isa<Constant>(Ops[0]) || !isa<Constant>(Ops[1])) {
+            // We expect these values to be uniform so it should be safe to get
+            // from the barrier struct at index zero. Barriers are convergent,
+            // so there should be no chance that the value does not exist.
+            auto *const zero = Constant::getNullValue(
+                Type::getIntNTy(context, 8 * sizeTyBytes));
+            IRBuilder<> ir(Call);
+            auto *const barrier0 =
+                ir.CreateInBoundsGEP(barrierMain.getLiveVarsType(),
+                                     barrierMain.getMemSpace(), {zero});
 
-          Barrier::LiveValuesHelper live_values(barrierMain, Call, barrier0);
+            Barrier::LiveValuesHelper live_values(barrierMain, Call, barrier0);
 
-          size_t op_index = 0;
-          for (auto *const op : Ops) {
-            if (!isa<Constant>(op)) {
-              auto *const new_op =
-                  live_values.getReload(op, Call, "_load", /*reuse*/ true);
-              Call->setArgOperand(op_index, new_op);
+            size_t op_index = 0;
+            for (auto *const op : Ops) {
+              if (!isa<Constant>(op)) {
+                auto *const new_op =
+                    live_values.getReload(op, ir, "_load", /*reuse*/ true);
+                Call->setArgOperand(op_index, new_op);
+              }
+              ++op_index;
             }
-            ++op_index;
           }
+          Call->setDebugLoc(wrapperDbgLoc);
         }
-
-        Call->setDebugLoc(wrapperDbgLoc);
       }
 
       auto *const exitBlock = [&]() {
