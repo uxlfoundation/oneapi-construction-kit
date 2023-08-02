@@ -1,4 +1,4 @@
-# Simple workflow for building sccache for PR testing
+# Simple workflow for running non-documentation PR testing
 name: Run ock tests for PR testing
 on:
   pull_request:
