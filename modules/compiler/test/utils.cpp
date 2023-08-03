@@ -17,11 +17,6 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
-#include <llvm/AsmParser/Parser.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/Support/SourceMgr.h>
 
 #include <cstdint>
 #include <cstring>
@@ -32,23 +27,7 @@
 
 using namespace compiler::utils;
 
-struct CompilerUtilsTest : ::testing::Test {
-  void SetUp() override {}
-
-  std::unique_ptr<llvm::Module> parseModule(llvm::StringRef Assembly) {
-    llvm::SMDiagnostic Error;
-    auto M = llvm::parseAssemblyString(Assembly, Error, Context);
-
-    std::string ErrMsg;
-    llvm::raw_string_ostream OS(ErrMsg);
-    Error.print("", OS);
-    EXPECT_TRUE(M) << OS.str();
-
-    return M;
-  }
-
-  llvm::LLVMContext Context;
-};
+using CompilerUtilsTest = CompilerLLVMModuleTest;
 
 TEST_F(CompilerUtilsTest, CreateKernelWrapper) {
   auto M = parseModule(R"(

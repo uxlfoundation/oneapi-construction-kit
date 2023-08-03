@@ -14,20 +14,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#ifndef REFSI_MUX_BUILTIN_INFO_H_INCLUDED
-#define REFSI_MUX_BUILTIN_INFO_H_INCLUDED
+/// @file
+///
+/// Replace group functions pass.
 
-#include <compiler/utils/builtin_info.h>
+#ifndef COMPILER_UTILS_REPLACE_GROUP_FUNCS_PASS_H_INCLUDED
+#define COMPILER_UTILS_REPLACE_GROUP_FUNCS_PASS_H_INCLUDED
 
-namespace refsi_m1 {
+#include <llvm/IR/PassManager.h>
 
-class RefSiM1BIMuxInfo : public compiler::utils::BIMuxInfoConcept {
+namespace compiler {
+namespace utils {
+
+/// @brief A pass that will replace calls to the group builtins with calls to
+/// the equivalent mux functions
+
+class ReplaceGroupFuncsPass final
+    : public llvm::PassInfoMixin<ReplaceGroupFuncsPass> {
  public:
-  llvm::Function *defineMuxBuiltin(
-      compiler::utils::BuiltinID ID, llvm::Module &M,
-      llvm::ArrayRef<llvm::Type *> OverloadInfo = {}) override;
+  llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
+}  // namespace utils
+}  // namespace compiler
 
-}  // namespace refsi_m1
-
-#endif  // REFSI_MUX_BUILTIN_INFO_H_INCLUDED
+#endif  // COMPILER_UTILS_REPLACE_GROUP_FUNCS_PASS_H_INCLUDED

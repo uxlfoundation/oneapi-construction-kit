@@ -57,8 +57,10 @@ StructType *RefSiG1BIMuxInfo::getExecStateStruct(Module &M) {
 }
 
 Function *RefSiG1BIMuxInfo::getOrDeclareMuxBuiltin(
-    compiler::utils::BuiltinID ID, Module &M) {
-  auto *F = compiler::utils::BIMuxInfoConcept::getOrDeclareMuxBuiltin(ID, M);
+    compiler::utils::BuiltinID ID, Module &M,
+    llvm::ArrayRef<llvm::Type *> OverloadInfo) {
+  auto *F = compiler::utils::BIMuxInfoConcept::getOrDeclareMuxBuiltin(
+      ID, M, OverloadInfo);
   if (!F) {
     return F;
   }
@@ -78,7 +80,8 @@ Function *RefSiG1BIMuxInfo::getOrDeclareMuxBuiltin(
 }
 
 Function *RefSiG1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
-                                             Module &M) {
+                                             Module &M,
+                                             ArrayRef<Type *> OverloadInfo) {
   assert(compiler::utils::BuiltinInfo::isMuxBuiltinID(ID) &&
          "Only handling mux builtins");
   Function *F =
@@ -213,7 +216,8 @@ Function *RefSiG1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
   }
 
   if (ID != compiler::utils::eMuxBuiltinGetLocalId) {
-    return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M);
+    return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M,
+                                                               OverloadInfo);
   }
 
   Optional<unsigned> ParamIdx;

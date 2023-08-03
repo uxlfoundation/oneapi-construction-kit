@@ -41,7 +41,8 @@ PreservedAnalyses compiler::utils::DefineMuxBuiltinsPass::run(
     // Define the builtin. If it declares any new dependent builtins, those
     // will be appended to the module's function list and so will be
     // encountered by later iterations.
-    if (BI.defineMuxBuiltin(BI.analyzeBuiltin(F).ID, M)) {
+    auto Builtin = BI.analyzeBuiltin(F);
+    if (BI.defineMuxBuiltin(Builtin.ID, M, Builtin.mux_overload_info)) {
       Changed = true;
     }
   }

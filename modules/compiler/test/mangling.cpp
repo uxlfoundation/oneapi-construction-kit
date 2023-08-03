@@ -16,11 +16,6 @@
 
 #include <compiler/utils/mangling.h>
 #include <compiler/utils/target_extension_types.h>
-#include <llvm/AsmParser/Parser.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/Support/SourceMgr.h>
 #include <multi_llvm/llvm_version.h>
 
 #include <cstdint>
@@ -31,23 +26,7 @@
 
 using namespace compiler::utils;
 
-struct ManglingTest : ::testing::Test {
-  void SetUp() override {}
-
-  std::unique_ptr<llvm::Module> parseModule(llvm::StringRef Assembly) {
-    llvm::SMDiagnostic Error;
-    auto M = llvm::parseAssemblyString(Assembly, Error, Context);
-
-    std::string ErrMsg;
-    llvm::raw_string_ostream OS(ErrMsg);
-    Error.print("", OS);
-    EXPECT_TRUE(M) << OS.str();
-
-    return M;
-  }
-
-  llvm::LLVMContext Context;
-};
+using ManglingTest = CompilerLLVMModuleTest;
 
 TEST_F(ManglingTest, MangleBuiltinTypes) {
   // With opaque pointers, before LLVM 17 we can't actually mangle OpenCL

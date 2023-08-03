@@ -273,3 +273,7 @@ declare spir_func void @__mux_sub_group_barrier(i32, i32, i32)
 attributes #0 = { "mux-kernel"="entry-point" }
 !0 = !{i32 13, i32 64, i32 64}
 ; CHECK: attributes #0 = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
+
+!opencl.ocl.version = !{!1}
+
+!1 = !{i32 3, i32 0}

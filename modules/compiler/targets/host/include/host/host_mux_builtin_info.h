@@ -46,8 +46,9 @@ class HostBIMuxInfo : public compiler::utils::BIMuxInfoConcept {
   llvm::SmallVector<compiler::utils::BuiltinInfo::SchedParamInfo, 4>
   getMuxSchedulingParameters(llvm::Module &M) override;
 
-  llvm::Function *defineMuxBuiltin(compiler::utils::BuiltinID ID,
-                                   llvm::Module &M) override;
+  llvm::Function *defineMuxBuiltin(
+      compiler::utils::BuiltinID ID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo) override;
 
   llvm::Value *initializeSchedulingParamForWrappedKernel(
       const compiler::utils::BuiltinInfo::SchedParamInfo &Info,

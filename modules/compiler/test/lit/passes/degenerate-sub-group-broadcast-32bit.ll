@@ -44,7 +44,11 @@ entry:
 }
 
 attributes #0 = { "mux-kernel"="entry-point" }
+
+!opencl.ocl.version = !{!1}
+
 !0 = !{i32 13, i32 64, i32 64}
+!1 = !{i32 3, i32 0}
 
 ; CHECK: declare spir_func i32 @_Z20work_group_broadcastijjj(i32, i32, i32, i32)
 declare spir_func i32 @_Z19sub_group_broadcastij(i32, i32)

@@ -63,8 +63,7 @@ llvm::Constant *getIdentityVal(llvm::RecurKind Kind, llvm::Type *Ty);
 /// @brief Represents a work-group or sub-group collective operation.
 struct GroupCollective {
   /// @brief The different operation types a group collective can represent.
-  enum class Op {
-    None,
+  enum class OpKind {
     All,
     Any,
     Reduction,
@@ -74,24 +73,24 @@ struct GroupCollective {
   };
 
   /// @brief The possible scopes of a group collective.
-  enum class Scope { None, WorkGroup, SubGroup };
+  enum class ScopeKind { WorkGroup, SubGroup, VectorGroup };
 
   /// @brief The operation type of the group collective.
-  Op op = Op::None;
+  OpKind Op = OpKind::All;
   /// @brief The scope of the group collective operation.
-  Scope scope = Scope::None;
+  ScopeKind Scope = ScopeKind::WorkGroup;
   /// @brief The llvm recurrence operation this can be mapped to. For broadcasts
   /// this will be None.
-  llvm::RecurKind recurKind = llvm::RecurKind::None;
+  llvm::RecurKind Recurrence = llvm::RecurKind::None;
   /// @brief The llvm function body for this group collective instance.
-  llvm::Function *func = nullptr;
+  llvm::Function *Func = nullptr;
   /// @brief The type the group operation is applied to. Will always be the
-  /// type of the first argument of `func`.
-  llvm::Type *type = nullptr;
+  /// type of the first argument of `Func`.
+  llvm::Type *Ty = nullptr;
   /// @brief True if the operation is logical, rather than bitwise.
-  bool isLogical = false;
+  bool IsLogical = false;
   /// @brief Returns true for Any/All type collective operations.
-  bool isAnyAll() const { return op == Op::Any || op == Op::All; }
+  bool isAnyAll() const { return Op == OpKind::Any || Op == OpKind::All; }
 };
 
 /// @brief Helper function to parse a group collective operation.

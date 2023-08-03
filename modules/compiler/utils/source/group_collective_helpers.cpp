@@ -90,40 +90,42 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
 
   // Parse the scope.
   if (L.Consume("work_group_")) {
-    collective.scope = GroupCollective::Scope::WorkGroup;
+    collective.Scope = GroupCollective::ScopeKind::WorkGroup;
   } else if (L.Consume("sub_group_")) {
-    collective.scope = GroupCollective::Scope::SubGroup;
+    collective.Scope = GroupCollective::ScopeKind::SubGroup;
+  } else if (L.Consume("vec_group_")) {
+    collective.Scope = GroupCollective::ScopeKind::VectorGroup;
   } else {
     return multi_llvm::None;
   }
 
   // Then the operation type.
   if (L.Consume("reduce_")) {
-    collective.op = GroupCollective::Op::Reduction;
+    collective.Op = GroupCollective::OpKind::Reduction;
   } else if (L.Consume("all")) {
-    collective.op = GroupCollective::Op::All;
+    collective.Op = GroupCollective::OpKind::All;
   } else if (L.Consume("any")) {
-    collective.op = GroupCollective::Op::Any;
+    collective.Op = GroupCollective::OpKind::Any;
   } else if (L.Consume("scan_exclusive_")) {
-    collective.op = GroupCollective::Op::ScanExclusive;
+    collective.Op = GroupCollective::OpKind::ScanExclusive;
   } else if (L.Consume("scan_inclusive_")) {
-    collective.op = GroupCollective::Op::ScanInclusive;
+    collective.Op = GroupCollective::OpKind::ScanInclusive;
   } else if (L.Consume("broadcast")) {
-    collective.op = GroupCollective::Op::Broadcast;
+    collective.Op = GroupCollective::OpKind::Broadcast;
   } else {
     return multi_llvm::None;
   }
 
   // Then the recurrence kind.
-  if (collective.op == GroupCollective::Op::All) {
-    collective.recurKind = RecurKind::And;
-  } else if (collective.op == GroupCollective::Op::Any) {
-    collective.recurKind = RecurKind::Or;
-  } else if (collective.op == GroupCollective::Op::Reduction ||
-             collective.op == GroupCollective::Op::ScanExclusive ||
-             collective.op == GroupCollective::Op::ScanInclusive) {
+  if (collective.Op == GroupCollective::OpKind::All) {
+    collective.Recurrence = RecurKind::And;
+  } else if (collective.Op == GroupCollective::OpKind::Any) {
+    collective.Recurrence = RecurKind::Or;
+  } else if (collective.Op == GroupCollective::OpKind::Reduction ||
+             collective.Op == GroupCollective::OpKind::ScanExclusive ||
+             collective.Op == GroupCollective::OpKind::ScanInclusive) {
     if (L.Consume("logical_")) {
-      collective.isLogical = true;
+      collective.IsLogical = true;
     }
 
     assert(Qualifiers.size() == 1 && ArgumentTypes.size() == 1 &&
@@ -148,7 +150,7 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
       return multi_llvm::None;
     }
 
-    collective.recurKind =
+    collective.Recurrence =
         StringSwitch<RecurKind>(OpKind)
             .Case("add", isInt ? RecurKind::Add : RecurKind::FAdd)
 
@@ -164,7 +166,7 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
             .Case("xor", RecurKind::Xor)
             .Default(RecurKind::None);
 
-    if (collective.recurKind == RecurKind::None) {
+    if (collective.Recurrence == RecurKind::None) {
       return multi_llvm::None;
     }
   }
@@ -175,7 +177,8 @@ compiler::utils::isGroupCollective(llvm::Function *f) {
     return multi_llvm::None;
   }
 
-  collective.func = f;
-  collective.type = f->getArg(0)->getType();
+  collective.Func = f;
+  collective.Ty = f->getArg(0)->getType();
+
   return collective;
 }

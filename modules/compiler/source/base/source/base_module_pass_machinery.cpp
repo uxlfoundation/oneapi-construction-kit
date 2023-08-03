@@ -57,6 +57,7 @@
 #include <compiler/utils/replace_atomic_funcs_pass.h>
 #include <compiler/utils/replace_barriers_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
+#include <compiler/utils/replace_group_funcs_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
 #include <compiler/utils/replace_mem_intrinsics_pass.h>
 #include <compiler/utils/replace_mux_math_decls_pass.h>

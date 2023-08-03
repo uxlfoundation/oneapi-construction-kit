@@ -116,8 +116,11 @@ class CLBuiltinInfo : public BILangInfoConcept {
       const override;
 
   /// @see BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin
-  llvm::CallInst *mapSyncBuiltinToMuxSyncBuiltin(llvm::CallInst &,
-                                                 BIMuxInfoConcept &) override;
+  llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(
+      llvm::CallInst &, BIMuxInfoConcept &) override;
+  /// @see BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin
+  llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(
+      llvm::CallInst &, BIMuxInfoConcept &) override;
   /// @see BuiltinInfo::getPrintfBuiltin
   BuiltinID getPrintfBuiltin() const override;
   /// @see BuiltinInfo::getSubgroupLocalIdBuiltin

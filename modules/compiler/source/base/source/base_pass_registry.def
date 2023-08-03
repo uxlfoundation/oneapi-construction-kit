@@ -43,6 +43,7 @@ MODULE_PASS("replace-atomic-funcs", compiler::utils::ReplaceAtomicFuncsPass())
 MODULE_PASS("replace-barriers", compiler::utils::ReplaceBarriersPass())
 MODULE_PASS("replace-c11-atomic-funcs",
             compiler::utils::ReplaceC11AtomicFuncsPass())
+MODULE_PASS("replace-group-funcs", compiler::utils::ReplaceGroupFuncsPass())
 MODULE_PASS("replace-wgc", compiler::utils::ReplaceWGCPass())
 
 MODULE_PASS("replace-module-scope-vars",

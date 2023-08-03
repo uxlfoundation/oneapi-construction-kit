@@ -42,11 +42,13 @@ class RefSiG1BIMuxInfo : public compiler::utils::BIMuxInfoConcept {
  public:
   static llvm::StructType *getExecStateStruct(llvm::Module &M);
 
-  llvm::Function *getOrDeclareMuxBuiltin(compiler::utils::BuiltinID ID,
-                                         llvm::Module &M) override;
+  llvm::Function *getOrDeclareMuxBuiltin(
+      compiler::utils::BuiltinID ID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo = {}) override;
 
-  llvm::Function *defineMuxBuiltin(compiler::utils::BuiltinID ID,
-                                   llvm::Module &M) override;
+  llvm::Function *defineMuxBuiltin(
+      compiler::utils::BuiltinID ID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo = {}) override;
 };
 
 }  // namespace refsi_g1_wi

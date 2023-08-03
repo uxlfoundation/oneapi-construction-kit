@@ -684,9 +684,10 @@ Function *BIMuxInfoConcept::defineDMAWait(Function &F) {
   return &F;
 }
 
-Function *BIMuxInfoConcept::defineMuxBuiltin(BuiltinID ID, Module &M) {
+Function *BIMuxInfoConcept::defineMuxBuiltin(BuiltinID ID, Module &M,
+                                             ArrayRef<Type *> OverloadInfo) {
   assert(BuiltinInfo::isMuxBuiltinID(ID) && "Only handling mux builtins");
-  Function *F = M.getFunction(BuiltinInfo::getMuxBuiltinName(ID));
+  Function *F = M.getFunction(BuiltinInfo::getMuxBuiltinName(ID, OverloadInfo));
   // FIXME: We'd ideally want to declare it here to reduce pass
   // inter-dependencies.
   assert(F && "Function should have been pre-declared");
@@ -806,24 +807,25 @@ Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
   return nullptr;
 }
 
-Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M) {
+Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
+    BuiltinID ID, Module &M, ArrayRef<Type *> OverloadInfo) {
   assert(BuiltinInfo::isMuxBuiltinID(ID) && "Only handling mux builtins");
-  auto FnName = BuiltinInfo::getMuxBuiltinName(ID);
+  auto FnName = BuiltinInfo::getMuxBuiltinName(ID, OverloadInfo);
   if (auto *const F = M.getFunction(FnName)) {
     return F;
   }
-  AttrBuilder AB(M.getContext());
+  auto &Ctx = M.getContext();
+  AttrBuilder AB(Ctx);
   auto *const SizeTy = getSizeType(M);
-  auto *const Int32Ty = Type::getInt32Ty(M.getContext());
-  auto *const VoidTy = Type::getVoidTy(M.getContext());
+  auto *const Int32Ty = Type::getInt32Ty(Ctx);
+  auto *const Int64Ty = Type::getInt64Ty(Ctx);
+  auto *const VoidTy = Type::getVoidTy(Ctx);
 
   Type *RetTy = nullptr;
   SmallVector<Type *, 4> ParamTys;
   SmallVector<std::string, 4> ParamNames;
 
   switch (ID) {
-    default:
-      return nullptr;
     // Ranked Getters
     case eMuxBuiltinGetLocalId:
     case eMuxBuiltinGetGlobalId:
@@ -840,13 +842,17 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M) {
     case eMuxBuiltinGetWorkDim:
     case eMuxBuiltinGetSubGroupId:
     case eMuxBuiltinGetNumSubGroups:
+    case eMuxBuiltinGetSubGroupSize:
     case eMuxBuiltinGetMaxSubGroupSize:
+    case eMuxBuiltinGetSubGroupLocalId:
     case eMuxBuiltinGetLocalLinearId:
     case eMuxBuiltinGetGlobalLinearId: {
       // Some builtins return uint, others return size_t
       RetTy = (ID == eMuxBuiltinGetWorkDim || ID == eMuxBuiltinGetSubGroupId ||
                ID == eMuxBuiltinGetNumSubGroups ||
-               ID == eMuxBuiltinGetMaxSubGroupSize)
+               ID == eMuxBuiltinGetSubGroupSize ||
+               ID == eMuxBuiltinGetMaxSubGroupSize ||
+               ID == eMuxBuiltinGetSubGroupLocalId)
                   ? Int32Ty
                   : SizeTy;
       // All of our mux getters are readonly - they may never write data
@@ -894,6 +900,38 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M) {
       AB.addAttribute(Attribute::Convergent);
       break;
     }
+    default:
+      // Group builtins are more easily found using this helper rather than
+      // explicitly enumerating each switch case.
+      if (auto Group = BuiltinInfo::isMuxGroupCollective(ID)) {
+        RetTy = OverloadInfo.front();
+        ParamTys.push_back(RetTy);
+        ParamNames.push_back("val");
+        AB.addAttribute(Attribute::Convergent);
+        // Broadcasts additionally add ID parameters
+        if (Group->Op == GroupCollective::OpKind::Broadcast) {
+          if (Group->Scope == GroupCollective::ScopeKind::SubGroup) {
+            ParamTys.push_back(Int32Ty);
+            ParamNames.push_back("lid");
+          } else {
+            ParamTys.push_back(Int64Ty);
+            ParamNames.push_back("lidx");
+            ParamTys.push_back(Int64Ty);
+            ParamNames.push_back("lidy");
+            ParamTys.push_back(Int64Ty);
+            ParamNames.push_back("lidz");
+          }
+        }
+        // All work-group operations have a 'barrier id' operand as their first
+        // parameter.
+        if (Group->Scope == GroupCollective::ScopeKind::WorkGroup) {
+          ParamTys.insert(ParamTys.begin(), Int32Ty);
+          ParamNames.insert(ParamNames.begin(), "id");
+        }
+      } else {
+        // Unknown mux builtin
+        return nullptr;
+      }
   }
 
   assert(RetTy);
@@ -922,7 +960,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M) {
 
   for (unsigned i = 0, e = ParamNames.size(); i != e; i++) {
     F->getArg(i)->setName(ParamNames[i]);
-    auto AB = AttrBuilder(M.getContext(), ParamAttrs[i]);
+    auto AB = AttrBuilder(Ctx, ParamAttrs[i]);
     F->getArg(i)->addAttrs(AB);
   }
 

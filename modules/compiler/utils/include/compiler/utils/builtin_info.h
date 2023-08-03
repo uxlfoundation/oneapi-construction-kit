@@ -21,6 +21,7 @@
 #ifndef COMPILER_UTILS_BUILTIN_INFO_H_INCLUDED
 #define COMPILER_UTILS_BUILTIN_INFO_H_INCLUDED
 
+#include <compiler/utils/group_collective_helpers.h>
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/ConstantRange.h>
@@ -70,10 +71,65 @@ enum BaseBuiltinID {
   eMuxBuiltinGetGlobalLinearId,
   eMuxBuiltinGetLocalLinearId,
   eMuxBuiltinGetEnqueuedLocalSize,
+  eMuxBuiltinGetSubGroupSize,
+  eMuxBuiltinGetSubGroupLocalId,
   // Synchronization builtins
   eMuxBuiltinMemBarrier,
   eMuxBuiltinSubGroupBarrier,
   eMuxBuiltinWorkGroupBarrier,
+#define GROUP_BUILTINS(SCOPE)                                                  \
+  eFirstMux##SCOPE##groupCollectiveBuiltin,                                    \
+      eMuxBuiltin##SCOPE##groupAll = eFirstMux##SCOPE##groupCollectiveBuiltin, \
+      eMuxBuiltin##SCOPE##groupAny, eMuxBuiltin##SCOPE##groupBroadcast,        \
+      eMuxBuiltin##SCOPE##groupReduceAdd, eMuxBuiltin##SCOPE##groupReduceFAdd, \
+      eMuxBuiltin##SCOPE##groupReduceSMin,                                     \
+      eMuxBuiltin##SCOPE##groupReduceUMin,                                     \
+      eMuxBuiltin##SCOPE##groupReduceFMin,                                     \
+      eMuxBuiltin##SCOPE##groupReduceSMax,                                     \
+      eMuxBuiltin##SCOPE##groupReduceUMax,                                     \
+      eMuxBuiltin##SCOPE##groupReduceFMax, eMuxBuiltin##SCOPE##groupReduceMul, \
+      eMuxBuiltin##SCOPE##groupReduceFMul, eMuxBuiltin##SCOPE##groupReduceAnd, \
+      eMuxBuiltin##SCOPE##groupReduceOr, eMuxBuiltin##SCOPE##groupReduceXor,   \
+      eMuxBuiltin##SCOPE##groupReduceLogicalAnd,                               \
+      eMuxBuiltin##SCOPE##groupReduceLogicalOr,                                \
+      eMuxBuiltin##SCOPE##groupReduceLogicalXor,                               \
+      eMuxBuiltin##SCOPE##groupScanAddInclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanFAddInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanAddExclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanFAddExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanSMinInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanUMinInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanFMinInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanSMinExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanUMinExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanFMinExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanSMaxInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanUMaxInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanFMaxInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanSMaxExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanUMaxExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanFMaxExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanMulInclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanFMulInclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanMulExclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanFMulExclusive,                              \
+      eMuxBuiltin##SCOPE##groupScanAndInclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanAndExclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanOrInclusive,                                \
+      eMuxBuiltin##SCOPE##groupScanOrExclusive,                                \
+      eMuxBuiltin##SCOPE##groupScanXorInclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanXorExclusive,                               \
+      eMuxBuiltin##SCOPE##groupScanLogicalAndInclusive,                        \
+      eMuxBuiltin##SCOPE##groupScanLogicalAndExclusive,                        \
+      eMuxBuiltin##SCOPE##groupScanLogicalOrInclusive,                         \
+      eMuxBuiltin##SCOPE##groupScanLogicalOrExclusive,                         \
+      eMuxBuiltin##SCOPE##groupScanLogicalXorInclusive,                        \
+      eLastMux##SCOPE##groupCollectiveBuiltin,                                 \
+      eMuxBuiltin##SCOPE##groupScanLogicalXorExclusive =                       \
+          eLastMux##SCOPE##groupCollectiveBuiltin
+  GROUP_BUILTINS(Work),
+  GROUP_BUILTINS(Sub),
+  GROUP_BUILTINS(Vec),
 
   // Marker - target builtins should start from here.
   eFirstTargetBuiltin,
@@ -154,11 +210,15 @@ enum BuiltinProperties : int32_t {
   eBuiltinPropertyRematerializable = (1 << 14),
   /// @brief The builtin should be mapped to a mux synchronization builtin.
   ///
-  /// This mapping takes place in BuiltiInfo::mapSyncBuiltinToMuxSyncBuiltin.
+  /// This mapping takes place in BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin.
   eBuiltinPropertyMapToMuxSyncBuiltin = (1 << 15),
   /// @brief The builtin is known not be be convergent, i.e., it does not
   /// depend on any other work-item in any way.
   eBuiltinPropertyKnownNonConvergent = (1 << 16),
+  /// @brief The builtin should be mapped to a mux group builtin.
+  ///
+  /// This mapping takes place in BuiltinInfo::mapSyncBuiltinToMuxGroupBuiltin.
+  eBuiltinPropertyMapToMuxGroupBuiltin = (1 << 17),
 };
 
 /// @brief struct to hold information about a builtin function
@@ -169,6 +229,9 @@ struct Builtin {
   BuiltinID const ID;
   /// @brief the Builtin Properties
   BuiltinProperties const properties;
+  /// @brief list of types used in overloading this builtin (only relevant for
+  /// overloadable mux builtins)
+  std::vector<llvm::Type *> mux_overload_info = {};
 
   /// @brief returns whether the builtin is valid
   bool isValid() const { return ID != eBuiltinInvalid; }
@@ -215,6 +278,8 @@ constexpr const char get_global_linear_id[] = "__mux_get_global_linear_id";
 constexpr const char get_local_linear_id[] = "__mux_get_local_linear_id";
 constexpr const char get_enqueued_local_size[] =
     "__mux_get_enqueued_local_size";
+constexpr const char get_sub_group_size[] = "__mux_get_sub_group_size";
+constexpr const char get_sub_group_local_id[] = "__mux_get_sub_group_local_id";
 
 // Barriers
 constexpr const char mem_barrier[] = "__mux_mem_barrier";
@@ -480,7 +545,15 @@ class BuiltinInfo {
   /// eBuiltinPropertyMapToMuxSyncBuiltin is set, the target must then remap
   /// the call to a new call to the correct mux builtin, remapping any
   /// arguments as required.
-  llvm::CallInst *mapSyncBuiltinToMuxSyncBuiltin(llvm::CallInst &CI);
+  llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(llvm::CallInst &CI);
+
+  /// @brief Remaps a call instruction to a call calling a mux group builtin.
+  ///
+  /// For a call to a builtin for which the property
+  /// eBuiltinPropertyMapToMuxGroupBuiltin is set, the target must then remap
+  /// the call to a new call to the correct mux builtin, remapping any
+  /// arguments as required.
+  llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(llvm::CallInst &CI);
 
   /// @brief Get a builtin for printf.
   /// @return An identifier for the builtin, or the invalid builtin if there
@@ -504,6 +577,15 @@ class BuiltinInfo {
     return ID > eBuiltinInvalid && ID < eFirstTargetBuiltin;
   }
 
+  /// @brief Returns true if the given ID is an overloadable ComputeMux builtin
+  /// ID.
+  ///
+  /// These builtins *require* extra overloading info when declaring or
+  /// defining.
+  static bool isOverloadableMuxBuiltinID(BuiltinID ID) {
+    return isMuxBuiltinID(ID) && isMuxGroupCollective(ID);
+  }
+
   /// @brief Returns true if the given ID is a ComputeMux barrier builtin ID.
   static bool isMuxControlBarrierID(BuiltinID ID) {
     return ID == eMuxBuiltinSubGroupBarrier ||
@@ -518,8 +600,43 @@ class BuiltinInfo {
            ID == eMuxBuiltinDMAWrite3D;
   }
 
+  /// @brief Gets information about a mux group operation builtin
+  ///
+  /// Note: Does not set the 'function' or 'type' members of the
+  /// GroupCollective.
+  ///
+  /// FIXME: This matches an equivalent function in group_collective_helpers.h
+  /// which runs on OpenCL builtins. Remove that once the transition to mux
+  /// builtins is complete.
+  static std::optional<GroupCollective> isMuxGroupCollective(BuiltinID ID);
+
   /// @brief Maps a ComputeMux builtin ID to its function name.
-  static llvm::StringRef getMuxBuiltinName(BuiltinID ID);
+  ///
+  /// @param OverloadInfo An array of types required to resolve certain
+  /// overloadable builtins, e.g., group builtins.
+  static std::string getMuxBuiltinName(
+      BuiltinID ID, llvm::ArrayRef<llvm::Type *> OverloadInfo = {});
+
+  /// @brief Mangles a type using the LLVM intrinsic scheme
+  ///
+  /// This is an extremely simple mangling scheme matching LLVM's intrinsic
+  /// mangling system. It is only designed to be used with a specific set of
+  /// types and is not a general-purpose mangler.
+  ///
+  /// * iXXX -> iXXX
+  /// * half -> f16
+  /// * float -> f32
+  /// * double -> f64
+  /// * <N x Ty> -> vNTy
+  /// * <vscale x N x Ty> -> nxvNTy
+  static std::string getMangledTypeStr(llvm::Type *Ty);
+
+  /// @brief Demangles a type using the LLVM intrinsic scheme - returns nullptr
+  /// if it was unable to demangle a type.
+  ///
+  /// @see getMangledTypeStr
+  static std::pair<llvm::Type *, llvm::StringRef> getDemangledTypeFromStr(
+      llvm::StringRef TyStr, llvm::LLVMContext &Ctx);
 
   /// @brief Defines the body of a ComputeMux builtin declaration
   ///
@@ -527,12 +644,20 @@ class BuiltinInfo {
   /// function name, it is left alone and returned.
   ///
   /// Will declare any builtins it requires as transitive dependencies.
-  llvm::Function *defineMuxBuiltin(BuiltinID, llvm::Module &M);
+  ///
+  /// @param OverloadInfo An array of types required to resolve certain
+  /// overloadable builtins, e.g., group builtins.
+  llvm::Function *defineMuxBuiltin(
+      BuiltinID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo = {});
 
   /// @brief Gets a ComputeMux builtin from the module, or declares it
   ///
-  /// Only work-item builtins are supported.
-  llvm::Function *getOrDeclareMuxBuiltin(BuiltinID, llvm::Module &M);
+  /// @param OverloadInfo An array of types required to resolve certain
+  /// overloadable builtins, e.g., group builtins.
+  llvm::Function *getOrDeclareMuxBuiltin(
+      BuiltinID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo = {});
 
   struct SchedParamInfo {
     /// @brief An identifier providing resolution for targets to identify
@@ -658,8 +783,10 @@ class BuiltinInfo {
  private:
   /// @brief Try to identify a builtin function.
   /// @param[in] F The function to identify.
-  /// @return Valid builtin ID if the name was identified.
-  BuiltinID identifyMuxBuiltin(llvm::Function const &F) const;
+  /// @return Valid builtin ID if the name was identified, as well as any types
+  /// required to overload the builtin ID.
+  std::pair<BuiltinID, std::vector<llvm::Type *>> identifyMuxBuiltin(
+      llvm::Function const &F) const;
 
   /// @brief Determine whether the given builtin function returns uniform values
   /// or not. An optional call instruction can be passed for more accuracy.
@@ -682,10 +809,14 @@ class BIMuxInfoConcept {
   virtual ~BIMuxInfoConcept() = default;
 
   /// @brief See BuiltinInfo::defineMuxBuiltin.
-  virtual llvm::Function *defineMuxBuiltin(BuiltinID, llvm::Module &M);
+  virtual llvm::Function *defineMuxBuiltin(
+      BuiltinID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo = {});
 
   /// @brief See BuiltinInfo::getOrDeclareMuxBuiltin.
-  virtual llvm::Function *getOrDeclareMuxBuiltin(BuiltinID, llvm::Module &M);
+  virtual llvm::Function *getOrDeclareMuxBuiltin(
+      BuiltinID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo = {});
 
   /// @brief See BuiltinInfo::getMuxSchedulingParameters
   virtual llvm::SmallVector<BuiltinInfo::SchedParamInfo, 4>
@@ -825,8 +956,13 @@ class BILangInfoConcept {
   virtual bool requiresMapToMuxSyncBuiltin(BuiltinID) const { return false; }
 
   /// @see BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin
-  virtual llvm::CallInst *mapSyncBuiltinToMuxSyncBuiltin(llvm::CallInst &,
-                                                         BIMuxInfoConcept &) {
+  virtual llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(
+      llvm::CallInst &, BIMuxInfoConcept &) {
+    return nullptr;
+  }
+  /// @see BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin
+  virtual llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(
+      llvm::CallInst &, BIMuxInfoConcept &) {
     return nullptr;
   }
   /// @see BuiltinInfo::getPrintfBuiltin

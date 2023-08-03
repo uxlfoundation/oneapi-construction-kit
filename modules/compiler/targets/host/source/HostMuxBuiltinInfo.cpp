@@ -138,7 +138,8 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
 }
 
 Function *HostBIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
-                                          Module &M) {
+                                          Module &M,
+                                          ArrayRef<Type *> OverloadInfo) {
   assert(compiler::utils::BuiltinInfo::isMuxBuiltinID(ID) &&
          "Only handling mux builtins");
   Function *F =
@@ -157,7 +158,8 @@ Function *HostBIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
 
   switch (ID) {
     default:
-      return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M);
+      return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M,
+                                                                 OverloadInfo);
     case compiler::utils::eMuxBuiltinGetLocalSize:
       ParamIdx = SchedParamIndices::SCHED;
       DefaultVal = 1;

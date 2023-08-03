@@ -16,6 +16,7 @@
 
 add_ca_executable(UnitCompiler
   ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/group_ops.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/kernel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/library.cpp
@@ -30,7 +31,7 @@ target_include_directories(UnitCompiler PRIVATE
   ${PROJECT_SOURCE_DIR}/modules/compiler/include)
 
 target_link_libraries(UnitCompiler PRIVATE cargo
-  compiler-static mux ca_gtest_main compiler-utils)
+  compiler-static mux ca_gtest_main compiler-base compiler-utils)
 
 target_resources(UnitCompiler NAMESPACES ${BUILTINS_NAMESPACES})
 
