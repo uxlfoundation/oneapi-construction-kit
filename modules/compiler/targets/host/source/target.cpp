@@ -21,7 +21,9 @@
 #include <llvm/ExecutionEngine/Orc/EPCEHFrameRegistrar.h>
 #include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
+#include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
 #include <llvm/ExecutionEngine/Orc/TargetProcess/RegisterEHFrames.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/IR/DiagnosticInfo.h>
 #include <llvm/IR/DiagnosticPrinter.h>
 #include <llvm/IR/LLVMContext.h>
@@ -199,25 +201,27 @@ compiler::Result HostTarget::initWithBuiltins(
 
   Builder.setJITTargetMachineBuilder(TMBuilder);
 
-  // On 64-bit non-Windows platforms, customize the JIT linking layer.
-  if (triple.isArch64Bit() && host_device_info.os != host::os::WINDOWS) {
-    Builder.setObjectLinkingLayerCreator(
-        [](llvm::orc::ExecutionSession &ES, const llvm::Triple &)
-            -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
-          auto ObjLinkingLayer =
-              std::make_unique<llvm::orc::ObjectLinkingLayer>(ES);
-          // Don't create a EPCEHFrameRegistrar like the default object
-          // linking layer does; the symbols aren't in our process's dylib,
-          // and it's not clear that we need it when we don't allow exceptions
-          // in kernels. Until that question's resolved, resort to the LLVM 16
-          // way of doing things: using InProcessEHFrameRegistrar.
-          ObjLinkingLayer->addPlugin(std::make_unique<
-                                     llvm::orc::EHFrameRegistrationPlugin>(
-              ES,
-              std::make_unique<llvm::jitlink::InProcessEHFrameRegistrar>()));
-          return std::move(ObjLinkingLayer);
-        });
-  }
+  // Customize the JIT linking layer to provide better profiler/debugger
+  // integration.
+  Builder.setObjectLinkingLayerCreator(
+      [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &)
+          -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+        auto GetMemMgr = []() {
+          return std::make_unique<llvm::SectionMemoryManager>();
+        };
+        auto ObjLinkingLayer =
+            std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(
+                ES, std::move(GetMemMgr));
+
+        // Register the event listener.
+        ObjLinkingLayer->registerJITEventListener(
+            *llvm::JITEventListener::createGDBRegistrationListener());
+
+        // Make sure the debug info sections aren't stripped.
+        ObjLinkingLayer->setProcessAllSections(true);
+
+        return std::move(ObjLinkingLayer);
+      });
 
   auto JIT = Builder.create();
   if (auto err = JIT.takeError()) {
