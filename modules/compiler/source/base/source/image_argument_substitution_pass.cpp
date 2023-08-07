@@ -130,20 +130,37 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       IRBuilder<> B(BasicBlock::Create(Ctx, "entry", WrapperKernel));
 
       SmallVector<Value *, 8> Args;
+      // Our wrapper hasn't been created with any parameter attributes, as the
+      // parameter types have changed. We must copy across all attributes from
+      // the non-sampler arguments to maintain program semantics.
+      AttributeList KernelAttrs = KernelF->getAttributes();
+      SmallVector<AttributeSet, 4> WrapperParamAttrs(KernelF->arg_size());
+
       for (auto [OldArg, NewArg] :
            zip(KernelF->args(), WrapperKernel->args())) {
         // Copy parameter names across
+        unsigned ArgIdx = Args.size();
         NewArg.setName(OldArg.getName());
         if (OldArg.getType() == NewArg.getType()) {
           Args.push_back(&NewArg);
+          WrapperParamAttrs[ArgIdx] = KernelAttrs.getParamAttrs(ArgIdx);
         } else {
           // Must be a sampler: simply cast the i32 to a pointer. This mirrors
           // what we'll do down the line when changing the pointer back to an
           // i32 via the opposite operation.
           Args.push_back(B.CreateIntToPtr(&NewArg, OldArg.getType(),
                                           NewArg.getName() + ".ptrcast"));
+          // Don't copy across any parameter attributes here, as this was a
+          // pointer and is now an i32.
+          WrapperParamAttrs[ArgIdx] = AttributeSet();
         }
       }
+
+      // Set our parameter attributes, but maintain the function/return
+      // attributes the wrapper has already received.
+      WrapperKernel->setAttributes(AttributeList::get(
+          KernelF->getContext(), WrapperKernel->getAttributes().getFnAttrs(),
+          WrapperKernel->getAttributes().getRetAttrs(), WrapperParamAttrs));
 
       auto *const CI = B.CreateCall(KernelF, Args);
 
