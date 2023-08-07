@@ -56,7 +56,7 @@ entry:
 }
 
 ; We've updated the old kernel to pass samplers as i32
-; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) %out, ptr addrspace(1) %img, i32 %sampler1, i32 %sampler2) [[NEW_ATTRS:#[0-9]+]] {
+; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, i32 %sampler1, i32 %sampler2) [[NEW_ATTRS:#[0-9]+]] {
 ; CHECK:   %sampler1.ptrcast = inttoptr i32 %sampler1 to ptr addrspace(2)
 ; CHECK:   %sampler2.ptrcast = inttoptr i32 %sampler2 to ptr addrspace(2)
 ; CHECK:   call spir_kernel void @image_sampler.old(
