@@ -811,6 +811,21 @@ int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(int x);
 int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(int x);
 int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(int x);
 
+// SPV_KHR_uniform_group_arithmetic
+
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_and(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_or(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_reduce_xor(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_and(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_or(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_xor(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_and(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_or(int x);
+int __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_xor(int x);
+
 uint __CL_BARRIER_ATTRIBUTES sub_group_broadcast(uint x,
                                                  uint sub_group_local_id);
 uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(uint x);
@@ -822,6 +837,21 @@ uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(uint x);
 uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(uint x);
 uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(uint x);
 uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(uint x);
+
+// SPV_KHR_uniform_group_arithmetic
+
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_and(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_or(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_reduce_xor(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_and(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_or(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_xor(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_and(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_or(uint x);
+uint __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_xor(uint x);
 
 long __CL_BARRIER_ATTRIBUTES sub_group_broadcast(long x,
                                                  uint sub_group_local_id);
@@ -835,6 +865,21 @@ long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(long x);
 long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(long x);
 long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(long x);
 
+// SPV_KHR_uniform_group_arithmetic
+
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_and(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_or(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_reduce_xor(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_and(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_or(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_xor(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_and(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_or(long x);
+long __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_xor(long x);
+
 ulong __CL_BARRIER_ATTRIBUTES sub_group_broadcast(ulong x,
                                                   uint sub_group_local_id);
 ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_add(ulong x);
@@ -846,6 +891,21 @@ ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(ulong x);
 ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(ulong x);
 ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(ulong x);
 ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(ulong x);
+
+// SPV_KHR_uniform_group_arithmetic
+
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_and(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_or(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_reduce_xor(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_and(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_or(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_xor(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_and(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_or(ulong x);
+ulong __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_xor(ulong x);
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 half __CL_BARRIER_ATTRIBUTES sub_group_broadcast(half x,
@@ -859,6 +919,12 @@ half __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(half x);
 half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(half x);
 half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(half x);
 half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(half x);
+
+// SPV_KHR_uniform_group_arithmetic
+
+half __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(half x);
+half __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(half x);
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
 float __CL_BARRIER_ATTRIBUTES sub_group_broadcast(float x,
@@ -873,6 +939,12 @@ float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(float x);
 float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(float x);
 float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(float x);
 
+// SPV_KHR_uniform_group_arithmetic
+
+float __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(float x);
+float __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(float x);
+
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 double __CL_BARRIER_ATTRIBUTES sub_group_broadcast(double x,
                                                    uint sub_group_local_id);
@@ -885,7 +957,34 @@ double __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_max(double x);
 double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_add(double x);
 double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_min(double x);
 double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_max(double x);
+
+// SPV_KHR_uniform_group_arithmetic
+
+double __CL_BARRIER_ATTRIBUTES sub_group_reduce_mul(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_mul(double x);
+double __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_mul(double x);
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+
+// SPV_KHR_uniform_group_arithmetic
+
+bool __CL_BARRIER_ATTRIBUTES sub_group_reduce_and(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_reduce_or(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_reduce_xor(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_reduce_logical_and(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_reduce_logical_or(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_reduce_logical_xor(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_and(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_or(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_xor(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_logical_and(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_logical_or(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_exclusive_logical_xor(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_and(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_or(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_xor(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_logical_and(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_logical_or(bool x);
+bool __CL_BARRIER_ATTRIBUTES sub_group_scan_inclusive_logical_xor(bool x);
 
 void __CL_BARRIER_ATTRIBUTES sub_group_barrier(cl_mem_fence_flags flags);
 void __CL_BARRIER_ATTRIBUTES sub_group_barrier(cl_mem_fence_flags flags,
