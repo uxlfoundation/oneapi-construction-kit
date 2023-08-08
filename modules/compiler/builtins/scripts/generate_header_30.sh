@@ -753,15 +753,19 @@ function output_for_type()
 
 scriptDir="$(cd $(dirname $0); pwd)"
 
-# This version of clang-format used must match the version specified in the
-# root CMakeLists.txt file, so scrape that.
-CLANG_FORMAT_VERSION="$(cat "$scriptDir"/../../../CMakeLists.txt \
+# This version of clang-format used is best if it matches the version specified
+# in the root CMakeLists.txt file, so scrape that.
+CLANG_FORMAT_VERSION="$(cat "$scriptDir"/../../../../CMakeLists.txt \
   | grep 'find_package(ClangTools' \
   | sed -e 's/.*ClangTools \([0-9\.]*\) COMPONENTS.*/\1/')"
 CLANG_FORMAT_LONG="clang-format-${CLANG_FORMAT_VERSION}"
 CLANG_FORMAT_SHORT="clang-format-${CLANG_FORMAT_VERSION%.[0-9]}"
 check_bin "$CLANG_FORMAT_LONG" && CLANG_FORMAT="$CLANG_FORMAT_LONG"
 check_bin "$CLANG_FORMAT_SHORT" && CLANG_FORMAT="$CLANG_FORMAT_SHORT"
+# As a last resort, accept any version of clang-format, which is better than
+# nothing. We generally don't let anything merge if it isn't formatted
+# correctly anyway.
+check_bin "clang-format" && CLANG_FORMAT="clang-format"
 check_bin "$CLANG_FORMAT" \
   && echo "Using ${CLANG_FORMAT}." \
   || echo "Could not find ${CLANG_FORMAT_LONG} or ${CLANG_FORMAT_SHORT}."
