@@ -375,7 +375,8 @@ void defineRefSiDmaWait(Function &F) {
 }
 
 Function *RefSiM1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
-                                             Module &M) {
+                                             Module &M,
+                                             ArrayRef<Type *> OverloadInfo) {
   assert(compiler::utils::BuiltinInfo::isMuxBuiltinID(ID) &&
          "Only handling mux builtins");
   auto FnName = compiler::utils::BuiltinInfo::getMuxBuiltinName(ID);
@@ -390,7 +391,8 @@ Function *RefSiM1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
 
   switch (ID) {
     default:
-      return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M);
+      return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M,
+                                                                 OverloadInfo);
     case compiler::utils::eMuxBuiltinDMARead1D:
     case compiler::utils::eMuxBuiltinDMAWrite1D:
       defineRefSiDma1D(*F, *this);

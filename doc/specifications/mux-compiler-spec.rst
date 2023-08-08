@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.77.0 of the specification.
+   This is version 0.78.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -922,6 +922,10 @@ A Mux implementation **shall** provide definitions for these builtin functions.
   the current work-group.
 * ``i32 __mux_get_max_sub_group_size()`` - Returns the maximum subgroup size
   in the current kernel.
+* ``i32 __mux_get_sub_group_size()`` - Returns the number of invocations in the
+  subgroup.
+* ``i32 __mux_get_sub_group_local_id()`` - Returns the unique invocation ID
+  within the current sub-group.
 * ``size_t __mux_get_group_id(i32 %i)`` - Returns the unique work-group
   identifier for the ``%i``'th dimension.
 * ``i32 __mux_get_work_dim()`` - Returns the number of dimensions in
@@ -996,6 +1000,114 @@ A Mux implementation **shall** provide definitions for these builtin functions.
   builtins may also atomically provide a memory barrier with the same semantics
   as ``__mux_mem_barrier(i32 %scope, i32 %semantics)``. See `below
   <#memory-and-control-barriers>`__ for more information.
+
+Group operation builtins
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+ComputeMux defines a variety of builtins to handle operations across a
+sub-group, work-group, or *vector group*.
+
+The builtin functions are overloadable and are mangled according to the type of
+operand they operate on.
+
+Each *work-group* operation takes as its first parameter a 32-bit integer
+barrier identifier (``i32 %id``). Note that if barriers are used to implement
+these operations, implementations **must** ensure uniqueness of these IDs
+themselves, e.g., by running the ``compiler::utils::PrepareBarriersPass``. The
+barrier identifier parameter is not mangled.
+
+.. note::
+
+   The sub-group and work-group builtins are all **uniform**, that is, the
+   behaviour is undefined unless all invocations in the group reach this point
+   of execution.
+
+   Future versions of ComputeMux **may** add **non-uniform** versions of these
+   builtins.
+
+The groups are defined as:
+
+* ``work-group`` - a group of invocations running together as part of an ND
+  range. These builtins **must** only take scalar values.
+* ``sub-group`` - a subset of invocations in a work-group which can synchronize
+  and share data efficiently. ComputeMux leaves the choice of sub-group size
+  and implementation to the target; ComputeMux only defines these builtins with
+  a "trivial" sub-group size of 1. These builtins **must** only take scalar
+  values.
+* ``vec-group`` - a software level group of invocations processing data in
+  parallel *on a single invocation*. This allows the compiler to simulate a
+  sub-group without any hardware sub-group support (e.g., through
+  vectorization). These builtins **may** take scalar *or vector* values. The
+  scalar versions of these builtins are essentially identical to the
+  corresponding ``sub-group`` builtins with a sub-group size of 1.
+
+
+``any``/``all`` builtins
+++++++++++++++++++++++++
+
+The ``any`` and ``all`` builtins return ``true`` if any/all of their operands
+are ``true`` and ``false`` otherwise.
+
+.. code:: llvm
+
+   i1 @__mux_sub_group_any_i1(i1 %x)
+   i1 @__mux_work_group_any_i1(i32 %id, i1 %x)
+   i1 @__mux_vec_group_any_v4i1(<4 x i1> %x)
+
+``broadcast`` builtins
+++++++++++++++++++++++
+
+The ``broadcast`` builtins broadcast the value corresponding to the local ID to
+the result of all invocations in the group. The sub-group version of this
+builtin takes an ``i32`` sub-group linear ID to identify the invocation to
+broadcast, and the work-group version take three ``size_t`` indices to locate
+the value to broadcast. Unused indices (e.g., in lower-dimension kernels)
+**must** be set to zero - this is the same value returned by
+``__mux_get_global_id`` for out-of-range dimensions.
+
+.. code:: llvm
+
+   i64 @__mux_sub_group_broadcast_i64(i64 %val, i32 %sg_lid)
+   i32 @__mux_work_group_broadcast_i32(i32 %id, i32 %val, i64 %lidx, i64 %lidy, i64 %lidz)
+   i64 @__mux_vec_group_broadcast_v2i64(<2 x i64> %val, i32 %vec_id)
+
+``reduce`` and ``scan`` builtins
+++++++++++++++++++++++++++++++++
+
+The ``reduce`` and ``scan`` builtins return the result of the group operation
+for all values of their parameters specified by invocations in the group.
+
+Scans may be either ``inclusive`` or ``exclusive``. Inclusive scans perform the
+operation over all invocations in the group. Exclusive scans perform the
+operation over the operation's identity value and all but the final invocation
+in the group.
+
+The group operation may be specified as one of:
+
+* ``add``/``fadd`` - integer/floating-point addition.
+* ``mul``/``fmul`` - integer/floating-point multiplication.
+* ``smin``/``umin``/``fmin`` - signed integer/unsigned integer/floating-point minimum.
+* ``smax``/``umax``/``fmax`` - signed integer/unsigned integer/floating-point maximum.
+* ``and``/``or``/``xor`` - bitwise ``and``/``or``/``xor``.
+* ``logical_and``/``logical_or``/``logical_xor`` - logical ``and``/``or``/``xor``.
+
+Examples:
+
+.. code:: llvm
+
+   i32 @__mux_sub_group_reduce_add_i32(i32 %val)
+   i32 @__mux_work_group_reduce_add_i32(i32 %id, i32 %val)
+   float @__mux_work_group_reduce_fadd_f32(i32 %id, float %val)
+
+   i32 @__mux_sub_group_scan_inclusive_mul_i32(i32 %val)
+   i32 @__mux_work_group_scan_inclusive_mul_i32(i32 %id, i32 %val)
+   float @__mux_work_group_scan_inclusive_fmul_f32(i32 %id, float %val)
+
+   i64 @__mux_sub_group_scan_exclusive_mul_i64(i64 %val)
+   i64 @__mux_work_group_scan_exclusive_mul_i64(i32 %id, i64 %val)
+   double @__mux_work_group_scan_exclusive_fmul_f64(i32 %id, double %val)
+
+   i64 @__mux_vec_group_scan_exclusive_mul_nxv1i64(<vscale x 1 x i64> %val)
 
 
 Memory and Control Barriers

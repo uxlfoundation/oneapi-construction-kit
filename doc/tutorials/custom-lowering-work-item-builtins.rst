@@ -123,10 +123,11 @@ The code for this example is as follows:
 .. code:: cpp
 
   class MyMuxImpl : public utils::BIMuxInfoConcept {
-    virtual llvm::Function *defineMuxBuiltin(utils::BuiltinID ID,
-                                             llvm::Module &M) override {
+    virtual llvm::Function *defineMuxBuiltin(
+        utils::BuiltinID ID, llvm::Module &M,
+        llvm::ArrayRef<llvm::Type *> OverloadInfo = {}) override {
       if (ID != utils::eMuxBuiltinGetLocalId) {
-        return BIMuxInfoConcept::defineMuxBuiltin(ID, M);
+        return BIMuxInfoConcept::defineMuxBuiltin(ID, M, OverloadInfo);
       }
       llvm::Function *F =
           M.getFunction(utils::BuiltinInfo::getMuxBuiltinName(ID));
@@ -390,8 +391,9 @@ data beyond the view of ComputeMux, e.g., in the driver or the HAL.
       return List;
     }
 
-    virtual llvm::Function *defineMuxBuiltin(utils::BuiltinID ID,
-                                             llvm::Module &M) override {
+    virtual llvm::Function *defineMuxBuiltin(
+        utils::BuiltinID ID, llvm::Module &M,
+        llvm::ArrayRef<llvm::Type *> OverloadInfo = {}) override {
       if (ID == utils::eMuxBuiltinGetLocalId) {
         llvm::Function *F =
             M.getFunction(utils::BuiltinInfo::getMuxBuiltinName(ID));
@@ -407,7 +409,7 @@ data beyond the view of ComputeMux, e.g., in the driver or the HAL.
         B.CreateRet(std::prev(F->arg_end()));
         return F;
       }
-      return BIMuxInfoConcept::defineMuxBuiltin(ID, M);
+      return BIMuxInfoConcept::defineMuxBuiltin(ID, M, OverloadInfo);
     }
   };
 

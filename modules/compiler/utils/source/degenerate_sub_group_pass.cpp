@@ -54,7 +54,7 @@ bool isSubGroupFunction(CallInst *CI) {
   auto *Fcn = CI->getCalledFunction();
   assert(Fcn && "virtual calls are not supported");
   if (auto GC = compiler::utils::isGroupCollective(Fcn)) {
-    return GC->scope == compiler::utils::GroupCollective::Scope::SubGroup;
+    return GC->Scope == compiler::utils::GroupCollective::ScopeKind::SubGroup;
   }
 
   return Fcn->getName() == compiler::utils::MuxBuiltins::sub_group_barrier;

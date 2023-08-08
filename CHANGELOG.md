@@ -8,6 +8,8 @@ Upgrade guidance:
 * The mux spec has been bumped:
   * 0.77.0: to loosen the requirements on the mux `event` type used by
     DMA builtins.
+  * 0.78.0: to introduce mux builtins for sub-group, work-group, and
+    vector-group operations.
 * The `compiler::ImageArgumentSubstitutionPass` now replaces sampler typed
   parameters in kernel functions with i32 parameters via a wrapper function.
   The `host` target as a consequence now passes samplers to kernels as 32-bit

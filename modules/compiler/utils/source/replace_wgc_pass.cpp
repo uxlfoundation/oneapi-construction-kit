@@ -68,7 +68,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
                                const compiler::utils::GroupCollective &WGC) {
   StringRef name;
   compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
-  switch (WGC.recurKind) {
+  switch (WGC.Recurrence) {
     default:
       return nullptr;
     case RecurKind::And:
@@ -76,7 +76,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
         name = "sub_group_all";
         Q = compiler::utils::eTypeQualSignedInt;
       } else {
-        name = !WGC.isLogical ? "sub_group_reduce_and"
+        name = !WGC.IsLogical ? "sub_group_reduce_and"
                               : "sub_group_reduce_logical_and";
       }
       break;
@@ -85,7 +85,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
         name = "sub_group_any";
         Q = compiler::utils::eTypeQualSignedInt;
       } else {
-        name = !WGC.isLogical ? "sub_group_reduce_or"
+        name = !WGC.IsLogical ? "sub_group_reduce_or"
                               : "sub_group_reduce_logical_or";
       }
       break;
@@ -115,7 +115,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
       name = "sub_group_reduce_mul";
       break;
     case RecurKind::Xor:
-      name = !WGC.isLogical ? "sub_group_reduce_xor"
+      name = !WGC.IsLogical ? "sub_group_reduce_xor"
                             : "sub_group_reduce_logical_xor";
       break;
   }
@@ -340,11 +340,11 @@ Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
 void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
                                 compiler::utils::BuiltinInfo &BI) {
   // Create a global variable to do the reduction on.
-  auto &F = *WGC.func;
+  auto &F = *WGC.Func;
   auto *const Operand = F.getArg(0);
   auto *const ReductionType{Operand->getType()};
   auto *const ReductionNeutralValue{
-      compiler::utils::getNeutralVal(WGC.recurKind, WGC.type)};
+      compiler::utils::getNeutralVal(WGC.Recurrence, WGC.Ty)};
   auto *const Accumulator =
       new GlobalVariable{*F.getParent(),
                          ReductionType,
@@ -385,7 +385,7 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
   auto *const CurrentVal =
       Builder.CreateLoad(ReductionType, Accumulator, "current.val");
   auto *const NextVal = createBinOp(Builder, CurrentVal, SubReduce,
-                                    WGC.recurKind, WGC.isAnyAll());
+                                    WGC.Recurrence, WGC.isAnyAll());
   Builder.CreateStore(NextVal, Accumulator);
 
   // Barrier, then read result and exit.
@@ -417,7 +417,7 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
 void emitWorkGroupBroadcastBody(const compiler::utils::GroupCollective &WGC,
                                 compiler::utils::BuiltinInfo &BI) {
   // First arg is always the value to broadcast.
-  auto &F = *WGC.func;
+  auto &F = *WGC.Func;
   auto *const ValueToBroadcast = F.getArg(0);
 
   // Create a global variable to do the broadcast through.
@@ -521,11 +521,11 @@ void emitWorkGroupBroadcastBody(const compiler::utils::GroupCollective &WGC,
 void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
                            compiler::utils::BuiltinInfo &BI) {
   // Create a global variable to do the scan on.
-  auto &F = *WGC.func;
+  auto &F = *WGC.Func;
   auto *const Operand = F.getArg(0);
   auto *const ReductionType{Operand->getType()};
   auto *const ReductionNeutralValue{
-      compiler::utils::getNeutralVal(WGC.recurKind, WGC.type)};
+      compiler::utils::getNeutralVal(WGC.Recurrence, WGC.Ty)};
   assert(ReductionNeutralValue && "Invalid neutral value");
   auto &M = *F.getParent();
   auto *const Accumulator =
@@ -562,14 +562,14 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
       Builder.CreateLoad(ReductionType, Accumulator, "current.val");
 
   // Perform the subgroup scan operation and add it to the accumulator.
-  auto *SubScan = createSubgroupScan(Builder, Operand, WGC.recurKind,
-                                     IsInclusive, WGC.isLogical);
+  auto *SubScan = createSubgroupScan(Builder, Operand, WGC.Recurrence,
+                                     IsInclusive, WGC.IsLogical);
   assert(SubScan && "Invalid subgroup scan");
 
   bool const NeedsIdentityFix =
       !IsInclusive &&
-      (WGC.recurKind == RecurKind::FAdd || WGC.recurKind == RecurKind::FMin ||
-       WGC.recurKind == RecurKind::FMax);
+      (WGC.Recurrence == RecurKind::FAdd || WGC.Recurrence == RecurKind::FMin ||
+       WGC.Recurrence == RecurKind::FMax);
 
   // For FMin/FMax, we need to fix up the identity element on the zeroth
   // subgroup ID, because it will be +/-INFINITY, but we need it to be NaN.
@@ -586,7 +586,7 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   }
 
   auto *const Result =
-      createBinOp(Builder, CurrentVal, SubScan, WGC.recurKind, WGC.isAnyAll());
+      createBinOp(Builder, CurrentVal, SubScan, WGC.Recurrence, WGC.isAnyAll());
 
   // Update the accumulator with the last element of the subgroup scan
   auto *const LastElement = Builder.CreateNUWSub(
@@ -600,11 +600,11 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   if (!IsInclusive) {
     auto *const LastSrcValue =
         createSubgroupBroadcast(Builder, Operand, LastElement, "wgc_sg_tail");
-    SubReduce = createBinOp(Builder, LastValue, LastSrcValue, WGC.recurKind,
+    SubReduce = createBinOp(Builder, LastValue, LastSrcValue, WGC.Recurrence,
                             WGC.isAnyAll());
   }
   auto *const NextVal = createBinOp(Builder, CurrentVal, SubReduce,
-                                    WGC.recurKind, WGC.isAnyAll());
+                                    WGC.Recurrence, WGC.isAnyAll());
   Builder.CreateStore(NextVal, Accumulator);
 
   // A third barrier ensures that if there are two or more scans, they can't get
@@ -613,7 +613,7 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
 
   if (NeedsIdentityFix) {
     auto *const Identity =
-        compiler::utils::getIdentityVal(WGC.recurKind, WGC.type);
+        compiler::utils::getIdentityVal(WGC.Recurrence, WGC.Ty);
     auto *const getLocalIDFn =
         BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalId, M);
     auto *const IsZero = compiler::utils::isThreadZero(EntryBB, *getLocalIDFn);
@@ -629,17 +629,17 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
 /// @param[in] WGC Work-group collective function to be defined.
 void emitWorkGroupCollectiveBody(const compiler::utils::GroupCollective &WGC,
                                  compiler::utils::BuiltinInfo &BI) {
-  switch (WGC.op) {
-    case compiler::utils::GroupCollective::Op::All:
-    case compiler::utils::GroupCollective::Op::Any:
-    case compiler::utils::GroupCollective::Op::Reduction:
+  switch (WGC.Op) {
+    case compiler::utils::GroupCollective::OpKind::All:
+    case compiler::utils::GroupCollective::OpKind::Any:
+    case compiler::utils::GroupCollective::OpKind::Reduction:
       emitWorkGroupReductionBody(WGC, BI);
       break;
-    case compiler::utils::GroupCollective::Op::Broadcast:
+    case compiler::utils::GroupCollective::OpKind::Broadcast:
       emitWorkGroupBroadcastBody(WGC, BI);
       break;
-    case compiler::utils::GroupCollective::Op::ScanExclusive:
-    case compiler::utils::GroupCollective::Op::ScanInclusive:
+    case compiler::utils::GroupCollective::OpKind::ScanExclusive:
+    case compiler::utils::GroupCollective::OpKind::ScanInclusive:
       emitWorkGroupScanBody(WGC, BI);
       break;
     default:
@@ -663,7 +663,7 @@ PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
   SmallVector<GroupCollective, 8> WGCollectives{};
   for (auto &F : M) {
     auto WGC = isGroupCollective(&F);
-    if (WGC && WGC->scope == GroupCollective::Scope::WorkGroup) {
+    if (WGC && WGC->Scope == GroupCollective::ScopeKind::WorkGroup) {
       WGCollectives.push_back(*WGC);
     }
   }

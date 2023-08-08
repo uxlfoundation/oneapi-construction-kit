@@ -57,6 +57,10 @@ entry:
 
 declare spir_func i32 @_Z20sub_group_reduce_addi(i32)
 
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}
+
 attributes #0 = { "mux-kernel"="entry-point" }
 
 ; CHECK: define spir_func i32 @clone_this.degenerate-subgroups(i32 [[X1:%.+]]) {

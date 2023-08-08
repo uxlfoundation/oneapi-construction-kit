@@ -60,6 +60,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_atomic_funcs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_barriers_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_c11_atomic_funcs_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_group_funcs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_local_module_scope_variables_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mem_intrinsics_pass.h  
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mux_math_decls_pass.h
@@ -111,6 +112,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_atomic_funcs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_c11_atomic_funcs_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_group_funcs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_local_module_scope_variables_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mem_intrinsics_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_math_decls_pass.cpp

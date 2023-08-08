@@ -28,6 +28,9 @@
 #include <compiler/module.h>
 #include <compiler/target.h>
 #include <gtest/gtest.h>
+#include <llvm/AsmParser/Parser.h>
+#include <llvm/IR/Module.h>
+#include <llvm/Support/SourceMgr.h>
 #include <mux/mux.h>
 #include <mux/utils/helpers.h>
 
@@ -322,6 +325,28 @@ static inline std::vector<const compiler::Info *> deferrableCompilers() {
   }
   return deferrable_compilers;
 }
+
+/// @brief Fixture for testing behavior of the compiler with LLVM modules.
+///
+/// Tests based on this fixture should test the behavior of
+/// LLVM-based APIs and transforms.
+struct CompilerLLVMModuleTest : ::testing::Test {
+  void SetUp() override {}
+
+  std::unique_ptr<llvm::Module> parseModule(llvm::StringRef Assembly) {
+    llvm::SMDiagnostic Error;
+    auto M = llvm::parseAssemblyString(Assembly, Error, Context);
+
+    std::string ErrMsg;
+    llvm::raw_string_ostream OS(ErrMsg);
+    Error.print("", OS);
+    EXPECT_TRUE(M) << OS.str();
+
+    return M;
+  }
+
+  llvm::LLVMContext Context;
+};
 
 /// @brief Macro for instantiating test fixture parameterized over all
 /// compiler targets available on the platform.

@@ -22,6 +22,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/Support/Compiler.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Transforms/Utils/Cloning.h>
@@ -116,6 +117,8 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
   eCLBuiltinGetGlobalLinearId,
   /// @brief OpenCL builtin 'get_sub_group_local_id' (OpenCL >= 3.0).
   eCLBuiltinGetSubgroupLocalId,
+  /// @brief OpenCL builtin 'get_sub_group_size' (OpenCL >= 3.0).
+  eCLBuiltinGetSubgroupSize,
 
   // 6.12.2 Math Functions
   /// @brief OpenCL builtin 'fmax'.
@@ -549,6 +552,7 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinGetLocalLinearId, "get_local_linear_id", OpenCLC20},
     {eCLBuiltinGetGlobalLinearId, "get_global_linear_id", OpenCLC20},
     {eCLBuiltinGetSubgroupLocalId, "get_sub_group_local_id", OpenCLC30},
+    {eCLBuiltinGetSubgroupSize, "get_sub_group_size", OpenCLC30},
 
     // 6.12.2 Math Functions
     {eCLBuiltinFMax, "fmax"},
@@ -1010,6 +1014,7 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
 
   bool IsConvergent = false;
   unsigned Properties = eBuiltinPropertyNone;
+  llvm::SmallVector<llvm::Type *, 2> OverloadInfo;
   switch (ID) {
     default:
       // Assume convergence on unknown builtins.
@@ -1085,10 +1090,14 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinGetGlobalId:
     case eCLBuiltinGetLocalSize:
     case eCLBuiltinGetLocalLinearId:
-    case eCLBuiltinGetSubgroupLocalId:
     case eCLBuiltinGetGlobalLinearId:
       Properties |= eBuiltinPropertyWorkItem;
       Properties |= eBuiltinPropertyRematerializable;
+      break;
+    case eCLBuiltinGetSubgroupLocalId:
+      Properties |= eBuiltinPropertyWorkItem;
+      Properties |= eBuiltinPropertyRematerializable;
+      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
       break;
     case eCLBuiltinGetLocalId:
       Properties |= eBuiltinPropertyWorkItem;
@@ -1204,6 +1213,9 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinAtomicWorkItemFence:
       Properties |= eBuiltinPropertyMapToMuxSyncBuiltin;
       break;
+    case eCLBuiltinGetSubgroupSize:
+      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
+      break;
       // Subgroup collectives
     case eCLBuiltinSubgroupAll:
     case eCLBuiltinSubgroupAny:
@@ -1273,6 +1285,11 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinWorkgroupScanLogicalXorInclusive:
     case eCLBuiltinWorkgroupScanLogicalXorExclusive:
       IsConvergent = true;
+      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
+      if (ID != eCLBuiltinWorkgroupAll && ID != eCLBuiltinWorkgroupAny &&
+          ID != eCLBuiltinSubgroupAll && ID != eCLBuiltinSubgroupAny) {
+        OverloadInfo.push_back(Callee.getArg(0)->getType());
+      }
       break;
   }
 
@@ -2898,7 +2915,7 @@ static multi_llvm::Optional<unsigned> parseMemoryOrderParam(Value *const P) {
   return multi_llvm::None;
 }
 
-CallInst *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
+Instruction *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
     CallInst &CI, BIMuxInfoConcept &BIMuxImpl) {
   auto &M = *CI.getModule();
   auto *const F = CI.getCalledFunction();
@@ -2980,6 +2997,461 @@ CallInst *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
       return NewCI;
     }
   }
+}
+
+Instruction *CLBuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(
+    CallInst &CI, BIMuxInfoConcept &BIMuxImpl) {
+  auto &M = *CI.getModule();
+  auto *const F = CI.getCalledFunction();
+  assert(F && "No calling function?");
+  auto const Builtin = analyzeBuiltin(*F);
+
+  if (Builtin.ID == eCLBuiltinGetSubgroupSize ||
+      Builtin.ID == eCLBuiltinGetSubgroupLocalId) {
+    BaseBuiltinID MuxBuiltinID = Builtin.ID == eCLBuiltinGetSubgroupSize
+                                     ? eMuxBuiltinGetSubGroupSize
+                                     : eMuxBuiltinGetSubGroupLocalId;
+    auto *const MuxBuiltinFn =
+        BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M);
+    auto *const NewCI =
+        CallInst::Create(MuxBuiltinFn, /*Args*/ {}, CI.getName(), &CI);
+    NewCI->setAttributes(MuxBuiltinFn->getAttributes());
+    return NewCI;
+  }
+
+  // Some ops need extra checking to determine their mux ID:
+  // * add/mul operations are split into integer/float
+  // * min/max operations are split into signed/unsigned/float
+  // So we set a 'base' builtin ID for these operations to the (unsigned)
+  // integer variant and do a checking step afterwards where we refine the
+  // builtin ID.
+  bool RecheckOpType = false;
+  BaseBuiltinID MuxBuiltinID = eBuiltinInvalid;
+  switch (Builtin.ID) {
+    default:
+      return nullptr;
+    case eCLBuiltinSubgroupAll:
+      MuxBuiltinID = eMuxBuiltinSubgroupAll;
+      break;
+    case eCLBuiltinSubgroupAny:
+      MuxBuiltinID = eMuxBuiltinSubgroupAny;
+      break;
+    case eCLBuiltinSubgroupBroadcast:
+      MuxBuiltinID = eMuxBuiltinSubgroupBroadcast;
+      break;
+    case eCLBuiltinSubgroupReduceAdd:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceAdd;
+      break;
+    case eCLBuiltinSubgroupReduceMin:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceUMin;
+      break;
+    case eCLBuiltinSubgroupReduceMax:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceUMax;
+      break;
+    case eCLBuiltinSubgroupReduceMul:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceMul;
+      break;
+    case eCLBuiltinSubgroupReduceAnd:
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceAnd;
+      break;
+    case eCLBuiltinSubgroupReduceOr:
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceOr;
+      break;
+    case eCLBuiltinSubgroupReduceXor:
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceXor;
+      break;
+    case eCLBuiltinSubgroupReduceLogicalAnd:
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceLogicalAnd;
+      break;
+    case eCLBuiltinSubgroupReduceLogicalOr:
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceLogicalOr;
+      break;
+    case eCLBuiltinSubgroupReduceLogicalXor:
+      MuxBuiltinID = eMuxBuiltinSubgroupReduceLogicalXor;
+      break;
+    case eCLBuiltinSubgroupScanAddInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanAddInclusive;
+      break;
+    case eCLBuiltinSubgroupScanAddExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanAddExclusive;
+      break;
+    case eCLBuiltinSubgroupScanMinInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanUMinInclusive;
+      break;
+    case eCLBuiltinSubgroupScanMinExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanUMinExclusive;
+      break;
+    case eCLBuiltinSubgroupScanMaxInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanUMaxInclusive;
+      break;
+    case eCLBuiltinSubgroupScanMaxExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanUMaxExclusive;
+      break;
+    case eCLBuiltinSubgroupScanMulInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanMulInclusive;
+      break;
+    case eCLBuiltinSubgroupScanMulExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinSubgroupScanMulExclusive;
+      break;
+    case eCLBuiltinSubgroupScanAndInclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanAndInclusive;
+      break;
+    case eCLBuiltinSubgroupScanAndExclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanAndExclusive;
+      break;
+    case eCLBuiltinSubgroupScanOrInclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanOrInclusive;
+      break;
+    case eCLBuiltinSubgroupScanOrExclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanOrExclusive;
+      break;
+    case eCLBuiltinSubgroupScanXorInclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanXorInclusive;
+      break;
+    case eCLBuiltinSubgroupScanXorExclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanXorExclusive;
+      break;
+    case eCLBuiltinSubgroupScanLogicalAndInclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanLogicalAndInclusive;
+      break;
+    case eCLBuiltinSubgroupScanLogicalAndExclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanLogicalAndExclusive;
+      break;
+    case eCLBuiltinSubgroupScanLogicalOrInclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanLogicalOrInclusive;
+      break;
+    case eCLBuiltinSubgroupScanLogicalOrExclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanLogicalOrExclusive;
+      break;
+    case eCLBuiltinSubgroupScanLogicalXorInclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanLogicalXorInclusive;
+      break;
+    case eCLBuiltinSubgroupScanLogicalXorExclusive:
+      MuxBuiltinID = eMuxBuiltinSubgroupScanLogicalXorExclusive;
+      break;
+    case eCLBuiltinWorkgroupAll:
+      MuxBuiltinID = eMuxBuiltinWorkgroupAll;
+      break;
+    case eCLBuiltinWorkgroupAny:
+      MuxBuiltinID = eMuxBuiltinWorkgroupAny;
+      break;
+    case eCLBuiltinWorkgroupBroadcast:
+      MuxBuiltinID = eMuxBuiltinWorkgroupBroadcast;
+      break;
+    case eCLBuiltinWorkgroupReduceAdd:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceAdd;
+      break;
+    case eCLBuiltinWorkgroupReduceMin:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceUMin;
+      break;
+    case eCLBuiltinWorkgroupReduceMax:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceUMax;
+      break;
+    case eCLBuiltinWorkgroupReduceMul:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceMul;
+      break;
+    case eCLBuiltinWorkgroupReduceAnd:
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceAnd;
+      break;
+    case eCLBuiltinWorkgroupReduceOr:
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceOr;
+      break;
+    case eCLBuiltinWorkgroupReduceXor:
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceXor;
+      break;
+    case eCLBuiltinWorkgroupReduceLogicalAnd:
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceLogicalAnd;
+      break;
+    case eCLBuiltinWorkgroupReduceLogicalOr:
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceLogicalOr;
+      break;
+    case eCLBuiltinWorkgroupReduceLogicalXor:
+      MuxBuiltinID = eMuxBuiltinWorkgroupReduceLogicalXor;
+      break;
+    case eCLBuiltinWorkgroupScanAddInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanAddInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanAddExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanAddExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanMinInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanUMinInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanMinExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanUMinExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanMaxInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanUMaxInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanMaxExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanUMaxExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanMulInclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanMulInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanMulExclusive:
+      RecheckOpType = true;
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanMulExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanAndInclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanAndInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanAndExclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanAndExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanOrInclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanOrInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanOrExclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanOrExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanXorInclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanXorInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanXorExclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanXorExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanLogicalAndInclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanLogicalAndInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanLogicalAndExclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanLogicalAndExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanLogicalOrInclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanLogicalOrInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanLogicalOrExclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanLogicalOrExclusive;
+      break;
+    case eCLBuiltinWorkgroupScanLogicalXorInclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanLogicalXorInclusive;
+      break;
+    case eCLBuiltinWorkgroupScanLogicalXorExclusive:
+      MuxBuiltinID = eMuxBuiltinWorkgroupScanLogicalXorExclusive;
+      break;
+  }
+
+  if (RecheckOpType) {
+    // We've assumed (unsigned) integer operations, but we may actually have
+    // signed integer, or floating point, operations. Refine the builtin ID to
+    // the correct 'overload' now.
+    compiler::utils::NameMangler Mangler(&F->getContext());
+    SmallVector<Type *, 4> ArgumentTypes;
+    SmallVector<compiler::utils::TypeQualifiers, 4> Qualifiers;
+
+    const auto DemangledName = std::string(
+        Mangler.demangleName(F->getName(), ArgumentTypes, Qualifiers));
+
+    assert(Qualifiers.size() == 1 && ArgumentTypes.size() == 1 &&
+           "Unknown collective builtin");
+    auto &Qual = Qualifiers[0];
+
+    bool IsSignedInt = false;
+    while (!IsSignedInt && Qual.getCount()) {
+      IsSignedInt |= Qual.pop_front() == compiler::utils::eTypeQualSignedInt;
+    }
+
+    bool IsFP = ArgumentTypes[0]->isFloatingPointTy();
+    switch (MuxBuiltinID) {
+      default:
+        llvm_unreachable("unknown group operation for which to check the type");
+      case eMuxBuiltinSubgroupReduceAdd:
+        MuxBuiltinID = IsFP ? eMuxBuiltinSubgroupReduceFAdd : MuxBuiltinID;
+        break;
+      case eMuxBuiltinSubgroupReduceMul:
+        MuxBuiltinID = IsFP ? eMuxBuiltinSubgroupReduceFMul : MuxBuiltinID;
+        break;
+      case eMuxBuiltinSubgroupReduceUMin:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinSubgroupReduceFMin
+                 : (IsSignedInt ? eMuxBuiltinSubgroupReduceSMin : MuxBuiltinID);
+        break;
+      case eMuxBuiltinSubgroupReduceUMax:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinSubgroupReduceFMax
+                 : (IsSignedInt ? eMuxBuiltinSubgroupReduceSMax : MuxBuiltinID);
+        break;
+      case eMuxBuiltinSubgroupScanAddInclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinSubgroupScanFAddInclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinSubgroupScanAddExclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinSubgroupScanFAddExclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinSubgroupScanMulInclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinSubgroupScanFMulInclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinSubgroupScanMulExclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinSubgroupScanFMulExclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinSubgroupScanUMinInclusive:
+        MuxBuiltinID = IsFP
+                           ? eMuxBuiltinSubgroupScanFMinInclusive
+                           : (IsSignedInt ? eMuxBuiltinSubgroupScanSMinInclusive
+                                          : MuxBuiltinID);
+        break;
+      case eMuxBuiltinSubgroupScanUMinExclusive:
+        MuxBuiltinID = IsFP
+                           ? eMuxBuiltinSubgroupScanFMinExclusive
+                           : (IsSignedInt ? eMuxBuiltinSubgroupScanSMinExclusive
+                                          : MuxBuiltinID);
+        break;
+      case eMuxBuiltinSubgroupScanUMaxInclusive:
+        MuxBuiltinID = IsFP
+                           ? eMuxBuiltinSubgroupScanFMaxInclusive
+                           : (IsSignedInt ? eMuxBuiltinSubgroupScanSMaxInclusive
+                                          : MuxBuiltinID);
+        break;
+      case eMuxBuiltinSubgroupScanUMaxExclusive:
+        MuxBuiltinID = IsFP
+                           ? eMuxBuiltinSubgroupScanFMaxExclusive
+                           : (IsSignedInt ? eMuxBuiltinSubgroupScanSMaxExclusive
+                                          : MuxBuiltinID);
+        break;
+      case eMuxBuiltinWorkgroupReduceAdd:
+        MuxBuiltinID = IsFP ? eMuxBuiltinWorkgroupReduceFAdd : MuxBuiltinID;
+        break;
+      case eMuxBuiltinWorkgroupReduceMul:
+        MuxBuiltinID = IsFP ? eMuxBuiltinWorkgroupReduceFMul : MuxBuiltinID;
+        break;
+      case eMuxBuiltinWorkgroupReduceUMin:
+        MuxBuiltinID = IsFP ? eMuxBuiltinWorkgroupReduceFMin
+                            : (IsSignedInt ? eMuxBuiltinWorkgroupReduceSMin
+                                           : MuxBuiltinID);
+        break;
+      case eMuxBuiltinWorkgroupReduceUMax:
+        MuxBuiltinID = IsFP ? eMuxBuiltinWorkgroupReduceFMax
+                            : (IsSignedInt ? eMuxBuiltinWorkgroupReduceSMax
+                                           : MuxBuiltinID);
+        break;
+      case eMuxBuiltinWorkgroupScanAddInclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFAddInclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinWorkgroupScanAddExclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFAddExclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinWorkgroupScanMulInclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFMulInclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinWorkgroupScanMulExclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFMulExclusive : MuxBuiltinID;
+        break;
+      case eMuxBuiltinWorkgroupScanUMinInclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFMinInclusive
+                 : (IsSignedInt ? eMuxBuiltinWorkgroupScanSMinInclusive
+                                : MuxBuiltinID);
+        break;
+      case eMuxBuiltinWorkgroupScanUMinExclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFMinExclusive
+                 : (IsSignedInt ? eMuxBuiltinWorkgroupScanSMinExclusive
+                                : MuxBuiltinID);
+        break;
+      case eMuxBuiltinWorkgroupScanUMaxInclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFMaxInclusive
+                 : (IsSignedInt ? eMuxBuiltinWorkgroupScanSMaxInclusive
+                                : MuxBuiltinID);
+        break;
+      case eMuxBuiltinWorkgroupScanUMaxExclusive:
+        MuxBuiltinID =
+            IsFP ? eMuxBuiltinWorkgroupScanFMaxExclusive
+                 : (IsSignedInt ? eMuxBuiltinWorkgroupScanSMaxExclusive
+                                : MuxBuiltinID);
+        break;
+    }
+  }
+
+  bool const IsAnyAll = MuxBuiltinID == eMuxBuiltinSubgroupAny ||
+                        MuxBuiltinID == eMuxBuiltinSubgroupAll ||
+                        MuxBuiltinID == eMuxBuiltinWorkgroupAny ||
+                        MuxBuiltinID == eMuxBuiltinWorkgroupAll;
+  SmallVector<Type *, 2> OverloadInfo;
+  if (!IsAnyAll) {
+    OverloadInfo.push_back(CI.getOperand(0)->getType());
+  } else {
+    OverloadInfo.push_back(IntegerType::getInt1Ty(M.getContext()));
+  }
+
+  auto *const MuxBuiltinFn =
+      BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M, OverloadInfo);
+
+  assert(MuxBuiltinFn && "Missing mux builtin");
+  auto *const I32Ty = Type::getInt32Ty(M.getContext());
+  auto *const I64Ty = Type::getInt64Ty(M.getContext());
+
+  SmallVector<Value *, 4> Args;
+  if (MuxBuiltinID >= eFirstMuxWorkgroupCollectiveBuiltin &&
+      MuxBuiltinID <= eLastMuxWorkgroupCollectiveBuiltin) {
+    // Work-group operations have a barrier ID first.
+    Args.push_back(ConstantInt::get(I32Ty, 0));
+  }
+  // Then the arg itself
+  // If it's an any/all operation, we must first reduce to i1 because that's how
+  // the mux builtins expect their arguments.
+  auto *Val = CI.getOperand(0);
+  if (!IsAnyAll) {
+    Args.push_back(Val);
+  } else {
+    assert(Val->getType()->isIntegerTy());
+    auto *NEZero =
+        ICmpInst::Create(Instruction::ICmp, ICmpInst::ICMP_NE, Val,
+                         ConstantInt::getNullValue(Val->getType()), "", &CI);
+    Args.push_back(NEZero);
+  }
+
+  if (MuxBuiltinID == eMuxBuiltinSubgroupBroadcast) {
+    // Pass on the ID parameter
+    Args.push_back(CI.getOperand(1));
+  }
+  if (MuxBuiltinID == eMuxBuiltinWorkgroupBroadcast) {
+    // The mux version always has three indices. Any missing ones are replaced
+    // with zeros
+    for (unsigned i = 0, e = CI.arg_size(); i != 3; i++) {
+      Args.push_back(1 + i < e ? CI.getOperand(1 + i)
+                               : ConstantInt::getNullValue(I64Ty));
+    }
+  }
+
+  auto *const NewCI = CallInst::Create(MuxBuiltinFn, Args, CI.getName(), &CI);
+  NewCI->setAttributes(MuxBuiltinFn->getAttributes());
+
+  if (!IsAnyAll) {
+    return NewCI;
+  }
+  // For any/all we need to recreate the original i32 return value.
+  return SExtInst::Create(Instruction::SExt, NewCI, CI.getType(), "sext", &CI);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
