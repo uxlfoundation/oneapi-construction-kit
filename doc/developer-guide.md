@@ -718,11 +718,8 @@ a specialised build of of LLVM for the cross-compilation target. In this guide,
 the following environment variables are assumed.
 
 ```sh
-# name of the release branch according to ca-llvm repository convention, e.g.
-LLVMBranch=release_100
-
-# or equivalent path for upstream LLVM build
-LLVMNativeBuild=/absolute/path/to/ca-llvm/build/${LLVMBranch}
+# path to upstream LLVM build
+LLVMNativeBuild=/absolute/path/to/native_llvm/build
 
 # usually equivalent to ${LLVMNativeBuild}/install
 LLVMNativeInstall=${CMAKE_INSTALL_PREFIX}
