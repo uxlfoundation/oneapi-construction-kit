@@ -3408,8 +3408,8 @@ Instruction *CLBuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(
       BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M, OverloadInfo);
 
   assert(MuxBuiltinFn && "Missing mux builtin");
+  auto *const SizeTy = getSizeType(M);
   auto *const I32Ty = Type::getInt32Ty(M.getContext());
-  auto *const I64Ty = Type::getInt64Ty(M.getContext());
 
   SmallVector<Value *, 4> Args;
   if (MuxBuiltinID >= eFirstMuxWorkgroupCollectiveBuiltin &&
@@ -3440,7 +3440,7 @@ Instruction *CLBuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(
     // with zeros
     for (unsigned i = 0, e = CI.arg_size(); i != 3; i++) {
       Args.push_back(1 + i < e ? CI.getOperand(1 + i)
-                               : ConstantInt::getNullValue(I64Ty));
+                               : ConstantInt::getNullValue(SizeTy));
     }
   }
 

@@ -818,7 +818,6 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
   AttrBuilder AB(Ctx);
   auto *const SizeTy = getSizeType(M);
   auto *const Int32Ty = Type::getInt32Ty(Ctx);
-  auto *const Int64Ty = Type::getInt64Ty(Ctx);
   auto *const VoidTy = Type::getVoidTy(Ctx);
 
   Type *RetTy = nullptr;
@@ -914,11 +913,11 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
             ParamTys.push_back(Int32Ty);
             ParamNames.push_back("lid");
           } else {
-            ParamTys.push_back(Int64Ty);
+            ParamTys.push_back(SizeTy);
             ParamNames.push_back("lidx");
-            ParamTys.push_back(Int64Ty);
+            ParamTys.push_back(SizeTy);
             ParamNames.push_back("lidy");
-            ParamTys.push_back(Int64Ty);
+            ParamTys.push_back(SizeTy);
             ParamNames.push_back("lidz");
           }
         }
