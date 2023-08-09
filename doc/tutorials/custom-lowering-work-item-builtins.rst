@@ -130,7 +130,7 @@ The code for this example is as follows:
         return BIMuxInfoConcept::defineMuxBuiltin(ID, M, OverloadInfo);
       }
       llvm::Function *F =
-          M.getFunction(utils::BuiltinInfo::getMuxBuiltinName(ID));
+          M.getFunction(utils::BuiltinInfo::getMuxBuiltinName(ID, OverloadInfo));
       // Set some useful function attributes
       setDefaultBuiltinAttributes(*F);
       F->setLinkage(llvm::GlobalValue::InternalLinkage);
@@ -396,7 +396,7 @@ data beyond the view of ComputeMux, e.g., in the driver or the HAL.
         llvm::ArrayRef<llvm::Type *> OverloadInfo = {}) override {
       if (ID == utils::eMuxBuiltinGetLocalId) {
         llvm::Function *F =
-            M.getFunction(utils::BuiltinInfo::getMuxBuiltinName(ID));
+            M.getFunction(utils::BuiltinInfo::getMuxBuiltinName(ID, OverloadInfo));
         // Set some useful function attributes
         setDefaultBuiltinAttributes(*F);
         // We additionally know that our function is readnone

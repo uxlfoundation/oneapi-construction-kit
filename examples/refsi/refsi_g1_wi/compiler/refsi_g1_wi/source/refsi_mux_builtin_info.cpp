@@ -84,8 +84,8 @@ Function *RefSiG1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
                                              ArrayRef<Type *> OverloadInfo) {
   assert(compiler::utils::BuiltinInfo::isMuxBuiltinID(ID) &&
          "Only handling mux builtins");
-  Function *F =
-      M.getFunction(compiler::utils::BuiltinInfo::getMuxBuiltinName(ID));
+  Function *F = M.getFunction(
+      compiler::utils::BuiltinInfo::getMuxBuiltinName(ID, OverloadInfo));
 
   // FIXME: We'd ideally want to declare it here to reduce pass
   // inter-dependencies.
