@@ -29,7 +29,7 @@
 
 #include <cstring>
 
-cargo::result cargo::thread::set_name(const std::string &name) noexcept {
+         cargo::result cargo::thread::set_name(const std::string &name) noexcept {
 #ifdef _WIN32
   constexpr size_t len = 1024;
   std::array<wchar_t, len> wname{};
