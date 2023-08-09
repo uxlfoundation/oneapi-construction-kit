@@ -85,6 +85,14 @@ struct GroupCollective {
   bool IsLogical = false;
   /// @brief Returns true for Any/All type collective operations.
   bool isAnyAll() const { return Op == OpKind::Any || Op == OpKind::All; }
+  /// @brief Returns true for inclusive/exclusive scan collective operations.
+  bool isScan() const {
+    return Op == OpKind::ScanExclusive || Op == OpKind::ScanInclusive;
+  }
+  /// @brief Returns true for sub-group collective operations.
+  bool isSubGroupScope() const { return Scope == ScopeKind::SubGroup; }
+  /// @brief Returns true for work-group collective operations.
+  bool isWorkGroupScope() const { return Scope == ScopeKind::WorkGroup; }
 };
 }  // namespace utils
 }  // namespace compiler

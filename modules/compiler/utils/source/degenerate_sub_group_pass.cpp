@@ -55,8 +55,7 @@ bool isSubGroupFunction(CallInst *CI, compiler::utils::BuiltinInfo &BI) {
   assert(Fcn && "virtual calls are not supported");
   auto Builtin = BI.analyzeBuiltin(*Fcn);
   if (auto GroupOp = BI.isMuxGroupCollective(Builtin.ID)) {
-    return GroupOp->Scope ==
-           compiler::utils::GroupCollective::ScopeKind::SubGroup;
+    return GroupOp->isSubGroupScope();
   }
 
   return Builtin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier;

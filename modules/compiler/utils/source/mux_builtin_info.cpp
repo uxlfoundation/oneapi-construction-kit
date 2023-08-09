@@ -157,7 +157,7 @@ static Function *defineLocalWorkGroupBuiltin(BIMuxInfoConcept &BI, BuiltinID ID,
 static Function *defineSubGroupGroupOpBuiltin(Function &F,
                                               GroupCollective GroupOp,
                                               ArrayRef<Type *> OverloadInfo) {
-  if (GroupOp.Scope != GroupCollective::ScopeKind::SubGroup) {
+  if (!GroupOp.isSubGroupScope()) {
     return nullptr;
   }
 
@@ -984,7 +984,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
         AB.addAttribute(Attribute::Convergent);
         // Broadcasts additionally add ID parameters
         if (Group->Op == GroupCollective::OpKind::Broadcast) {
-          if (Group->Scope == GroupCollective::ScopeKind::SubGroup) {
+          if (Group->isSubGroupScope()) {
             ParamTys.push_back(Int32Ty);
             ParamNames.push_back("lid");
           } else {
@@ -998,7 +998,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
         }
         // All work-group operations have a 'barrier id' operand as their first
         // parameter.
-        if (Group->Scope == GroupCollective::ScopeKind::WorkGroup) {
+        if (Group->isWorkGroupScope()) {
           ParamTys.insert(ParamTys.begin(), Int32Ty);
           ParamNames.insert(ParamNames.begin(), "id");
         }

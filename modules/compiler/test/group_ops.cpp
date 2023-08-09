@@ -62,7 +62,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
       std::string FnStr =
           LLVMTy + " @" + MangledFnName + "(" + LLVMTy + " " + ParamName.str();
       if (Collective.Op == GroupCollective::OpKind::Broadcast) {
-        if (Collective.Scope == GroupCollective::ScopeKind::SubGroup) {
+        if (Collective.isSubGroupScope()) {
           FnStr += ", i32 %sg_lid";
         } else {
           FnStr += ", i64 %lid_x, i64 %lid_y, i64 %lid_z";
