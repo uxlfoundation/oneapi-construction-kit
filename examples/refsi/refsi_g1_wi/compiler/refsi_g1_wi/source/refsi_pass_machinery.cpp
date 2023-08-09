@@ -120,7 +120,7 @@ llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   PM.addPass(riscv::IRToBuiltinReplacementPass());
 
   if (env_var_opts.early_link_builtins) {
-    PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
+    PM.addPass(compiler::utils::LinkBuiltinsPass());
   }
 
   // Bit nasty, but we must schedule a run of the DefineMuxDmaPass to define

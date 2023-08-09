@@ -50,59 +50,55 @@ namespace {
 /// @param[in] CI Call instruction to query.
 ///
 /// @return True if CI is a call to sub-group builtin, false otherwise.
-bool isSubGroupFunction(CallInst *CI) {
+bool isSubGroupFunction(CallInst *CI, compiler::utils::BuiltinInfo &BI) {
   auto *Fcn = CI->getCalledFunction();
   assert(Fcn && "virtual calls are not supported");
-  if (auto GC = compiler::utils::isGroupCollective(Fcn)) {
-    return GC->Scope == compiler::utils::GroupCollective::ScopeKind::SubGroup;
+  auto Builtin = BI.analyzeBuiltin(*Fcn);
+  if (auto GroupOp = BI.isMuxGroupCollective(Builtin.ID)) {
+    return GroupOp->Scope ==
+           compiler::utils::GroupCollective::ScopeKind::SubGroup;
   }
 
-  return Fcn->getName() == compiler::utils::MuxBuiltins::sub_group_barrier;
+  return Builtin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier;
 }
 
 /// @brief Helper for building the symbol name of the mangled work-group builtin
 /// corresponding to the sub-group builtin.
 ///
-/// @param[in] SubgroupBuiltin sub-group builtin to map to a work-group builtin.
-/// @param[in] Ctx Context used to create llvm objects against.
-/// @param[in] M in which these builtins are created.
-///
 /// @return The mangled work-group builtin corresponding to `SubgroupBuiltin`.
-std::string lookupWGBuiltin(StringRef SubgroupBuiltin, LLVMContext *Ctx,
-                            Module *M) {
+Function *lookupWGBuiltin(Function &SubgroupF, Module &M) {
   // We must handle the case where we're replacing a __mux_sub_group_barrier
   // with a __mux_work_group_barrier. Our 'demangleName' API works differently
   // with non-mangled builtin names and returns an empty string. Just work
   // around it specifically.
-  if (SubgroupBuiltin == compiler::utils::MuxBuiltins::sub_group_barrier) {
-    return compiler::utils::MuxBuiltins::work_group_barrier;
+  auto SubgroupFName = SubgroupF.getName();
+  auto SubgroupFTy = SubgroupF.getFunctionType();
+  if (SubgroupFName == compiler::utils::MuxBuiltins::sub_group_barrier) {
+    auto *WorkgroupF =
+        M.getOrInsertFunction(compiler::utils::MuxBuiltins::work_group_barrier,
+                              SubgroupFTy)
+            .getCallee();
+    return cast<Function>(WorkgroupF);
   }
 
-  compiler::utils::NameMangler Mangler(Ctx);
-  SmallVector<Type *, 4> ArgumentTypes;
-  SmallVector<compiler::utils::TypeQualifiers, 4> Qualifiers;
+  std::string WorkgroupFName = "__mux_work" + SubgroupFName.substr(9).str();
 
-  const auto DemangledName = std::string(
-      Mangler.demangleName(SubgroupBuiltin, ArgumentTypes, Qualifiers));
-
-  const auto WorkGroupBuiltinName = "work" + DemangledName.substr(3);
-  // We have to special case broadcast here since the sub-group version takes
-  // a single uint but we need to map this to the 3D work-group version which
-  // takes a size_t.
-  if (std::string::npos != WorkGroupBuiltinName.find("broadcast")) {
-    // Here we are mapping Tj -> Tmmm for any type T (assuming size_t is
-    // unsigned long). So first remap the existing type.
-    auto *const sizeTy = compiler::utils::getSizeType(*M);
-    ArgumentTypes.back() = sizeTy;
-
-    // Then we need to push back two more size_ts for the Y and Z arguments.
-    for (unsigned i = 0; i < 2; ++i) {
-      ArgumentTypes.push_back(sizeTy);
-      Qualifiers.push_back(compiler::utils::eTypeQualNone);
+  // Work-group builtins have an extra 'barrier id' as the first parameter.
+  SmallVector<Type *, 4> ArgTys;
+  ArgTys.push_back(IntegerType::getInt32Ty(M.getContext()));
+  ArgTys.push_back(SubgroupF.getArg(0)->getType());
+  // Work-group broadcasts unconditionally have three work-item ID parameters
+  // (x, y, z), whereas sub-group broadcasts just have one (sub-group ID).
+  if (SubgroupFName.contains("broadcast")) {
+    for (unsigned i = 0; i < 3; i++) {
+      ArgTys.push_back(compiler::utils::getSizeType(M));
     }
   }
-
-  return Mangler.mangleName(WorkGroupBuiltinName, ArgumentTypes, Qualifiers);
+  auto *WorkgroupFTy = FunctionType::get(SubgroupFTy->getReturnType(), ArgTys,
+                                         SubgroupFTy->isVarArg());
+  auto *WorkgroupF =
+      M.getOrInsertFunction(WorkgroupFName, WorkgroupFTy).getCallee();
+  return cast<Function>(WorkgroupF);
 }
 
 /// @brief Helper for determining if a call instruction calls a sub-group
@@ -114,9 +110,10 @@ std::string lookupWGBuiltin(StringRef SubgroupBuiltin, LLVMContext *Ctx,
 /// otherwise.
 bool isSubGroupWorkItemFunction(CallInst *CI) {
   static const std::set<StringRef> SubGroupWorkItemBuiltins{
-      "_Z18get_sub_group_sizev", "_Z22get_max_sub_group_sizev",
-      "_Z18get_num_sub_groupsv", "_Z27get_enqueued_num_sub_groupsv",
-      "_Z16get_sub_group_idv",   "_Z22get_sub_group_local_idv"};
+      "_Z18get_sub_group_sizev",  "_Z22get_max_sub_group_sizev",
+      "_Z18get_num_sub_groupsv",  "_Z27get_enqueued_num_sub_groupsv",
+      "_Z16get_sub_group_idv",    "_Z22get_sub_group_local_idv",
+      "__mux_get_sub_group_size", "__mux_get_sub_group_local_id"};
 
   return SubGroupWorkItemBuiltins.count(CI->getCalledFunction()->getName());
 }
@@ -134,17 +131,19 @@ void replaceSubGroupBuiltinCalls(
       // We can just forward the argument directly to the
       // work-group builtin for everything except broadcasts.
       SmallVector<Value *, 4> Args;
+      if (SubGroupBuiltin->getName() !=
+          compiler::utils::MuxBuiltins::sub_group_barrier) {
+        // Barrier ID
+        Args.push_back(
+            ConstantInt::get(IntegerType::get(M->getContext(), 32), 0));
+      }
       for (auto &arg : I->args()) {
         Args.push_back(arg);
       }
-      auto WorkGroupBuiltin = M->getOrInsertFunction(
-          lookupWGBuiltin(SubGroupBuiltin->getName(), &M->getContext(), M),
-          SubGroupBuiltin->getFunctionType());
-      auto *const WorkGroupBuiltinFcn =
-          cast<Function>(WorkGroupBuiltin.getCallee());
+      auto *const WorkGroupBuiltinFcn = lookupWGBuiltin(*SubGroupBuiltin, *M);
       WorkGroupBuiltinFcn->setCallingConv(SubGroupBuiltin->getCallingConv());
       WorkGroupBuiltinFcn->setConvergent();
-      auto *WGCI = CallInst::Create(WorkGroupBuiltin, Args, "", I);
+      auto *WGCI = CallInst::Create(WorkGroupBuiltinFcn, Args, "", I);
       WGCI->setCallingConv(I->getCallingConv());
       I->replaceAllUsesWith(WGCI);
       continue;
@@ -188,27 +187,19 @@ void replaceSubGroupBuiltinCalls(
             Builder.CreateAdd(X, Builder.CreateMul(Y, LocalSizeX))),
         Builder.CreateMul(LocalSizeX, LocalSizeY), "z");
 
-    auto *const ValueTy = Value->getType();
     auto *const SizeType = compiler::utils::getSizeType(*M);
-    auto *const WGBroadcastFcnTy =
-        FunctionType::get(SubGroupBuiltin->getReturnType(),
-                          {ValueTy, SizeType, SizeType, SizeType},
-                          /* isVarArg */ false);
-    const auto WorkGroupBroadcastName =
-        lookupWGBuiltin(SubGroupBuiltin->getName(), &M->getContext(), M);
-    auto WorkGroupBroadcast =
-        M->getOrInsertFunction(WorkGroupBroadcastName, WGBroadcastFcnTy);
-    auto *const WorkGroupBroadcastFcn =
-        cast<Function>(WorkGroupBroadcast.getCallee());
+    auto *const WorkGroupBroadcastFcn = lookupWGBuiltin(*SubGroupBuiltin, *M);
     WorkGroupBroadcastFcn->setCallingConv(SubGroupBuiltin->getCallingConv());
     WorkGroupBroadcastFcn->setNotConvergent();
     // Because sub_group_broadcast takes uint as its index argument but
     // work_group_broadcast takes size_t we potentially need cast here to the
     // native size_t.
+    auto *ID = Builder.getInt32(0);
     X = Builder.CreateIntCast(X, SizeType, /* isSigned */ false);
     Y = Builder.CreateIntCast(Y, SizeType, /* isSigned */ false);
     Z = Builder.CreateIntCast(Z, SizeType, /* isSigned */ false);
-    auto *const WGCI = Builder.CreateCall(WorkGroupBroadcast, {Value, X, Y, Z});
+    auto *const WGCI =
+        Builder.CreateCall(WorkGroupBroadcastFcn, {ID, Value, X, Y, Z});
     I->replaceAllUsesWith(WGCI);
   }
 }
@@ -223,9 +214,9 @@ void replaceSubGroupWorkItemBuiltinCalls(
     compiler::utils::BuiltinInfo &BI) {
   for (auto &Call : SubGroupBuiltinCalls) {
     const auto CalledFunctionName = Call->getCalledFunction()->getName();
-    // Handle get_sub_group_size & get_max_sub_group_size.
-    // The sub-group is the work-group, meaning the sub-group size is the total
-    // local size.
+    // Handle __mux_get_sub_group_size, get_sub_group_size &
+    // get_max_sub_group_size. The sub-group is the work-group, meaning the
+    // sub-group size is the total local size.
     if (CalledFunctionName.contains("sub_group_size")) {
       auto *const M = Call->getModule();
       IRBuilder<> Builder{Call};
@@ -256,8 +247,9 @@ void replaceSubGroupWorkItemBuiltinCalls(
       auto *const Zero = ConstantInt::get(Call->getType(), 0);
       Call->replaceAllUsesWith(Zero);
     } else if (CalledFunctionName.contains("get_sub_group_local_id")) {
-      // Handle get_sub_group_local_id. The sub-group local id is a unique
-      // local id of the work item, here we use get_local_linear_id.
+      // Handle __mux_get_sub_group_local_id and get_sub_group_local_id. The
+      // sub-group local id is a unique local id of the work item, here we use
+      // get_local_linear_id.
       auto *const M = Call->getModule();
       auto *const GetLocalLinearID = BI.getOrDeclareMuxBuiltin(
           compiler::utils::eMuxBuiltinGetLocalLinearId, *M);
@@ -281,6 +273,8 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   SmallVector<Function *, 8> kernels;
   SmallPtrSet<Function *, 8> degenerateKernels;
   SmallPtrSet<Function *, 8> kernelsToClone;
+  auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
+
   for (auto &F : M) {
     if (isKernelEntryPt(F)) {
       kernels.push_back(&F);
@@ -342,7 +336,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     for (auto &BB : F) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
-          if (isSubGroupFunction(CI) || isSubGroupWorkItemFunction(CI)) {
+          if (isSubGroupFunction(CI, BI) || isSubGroupWorkItemFunction(CI)) {
             worklist.push_back(&F);
             break;
           }
@@ -457,7 +451,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     for (auto &BB : *F) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
-          if (isSubGroupFunction(CI)) {
+          if (isSubGroupFunction(CI, BI)) {
             SubGroupFunctionCalls.push_back(CI);
           } else if (isSubGroupWorkItemFunction(CI)) {
             SubGroupWorkItemFunctionCalls.push_back(CI);
@@ -542,8 +536,6 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
       }
     }
   }
-
-  auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 
   // Replace the sub-group function builtin calls with work-group
   // builtin calls.

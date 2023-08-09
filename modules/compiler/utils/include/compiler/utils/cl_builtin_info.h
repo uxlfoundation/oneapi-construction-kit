@@ -99,12 +99,6 @@ class CLBuiltinInfo : public BILangInfoConcept {
   /// @see BuiltinInfo::getScalarEquivalent
   llvm::Function *getScalarEquivalent(Builtin const &B,
                                       llvm::Module *M) override;
-  /// @see BuiltinInfo::getBuiltinSubgroupReductionKind
-  BuiltinSubgroupReduceKind getBuiltinSubgroupReductionKind(
-      Builtin const &B) const override;
-  /// @see BuiltinInfo::getBuiltinSubgroupScanKind
-  BuiltinSubgroupScanKind getBuiltinSubgroupScanKind(
-      Builtin const &B) const override;
   /// @see BuiltinInfo::emitBuiltinInline
   llvm::Value *emitBuiltinInline(llvm::Function *Builtin, llvm::IRBuilder<> &B,
                                  llvm::ArrayRef<llvm::Value *> Args) override;
@@ -123,10 +117,6 @@ class CLBuiltinInfo : public BILangInfoConcept {
       llvm::CallInst &, BIMuxInfoConcept &) override;
   /// @see BuiltinInfo::getPrintfBuiltin
   BuiltinID getPrintfBuiltin() const override;
-  /// @see BuiltinInfo::getSubgroupLocalIdBuiltin
-  BuiltinID getSubgroupLocalIdBuiltin() const override;
-  /// @see BuiltinInfo::getSubgroupBroadcastBuiltin
-  BuiltinID getSubgroupBroadcastBuiltin() const override;
 
  private:
   BuiltinID identifyBuiltin(llvm::Function const &) const;

@@ -215,7 +215,7 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   PM.addPass(IRToBuiltinReplacementPass());
 
   if (env_var_opts.early_link_builtins) {
-    PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
+    PM.addPass(compiler::utils::LinkBuiltinsPass());
   }
 
   // When degenerate sub-groups are enabled here, any kernel that uses sub-group

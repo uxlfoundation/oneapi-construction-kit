@@ -47,62 +47,6 @@ using namespace llvm;
 
 namespace {
 
-// This is a list of sub-group builtins which vecz handles specially. Linking
-// builtins before vecz would result in them being inlined which would break
-// sub-groups. For example:
-//   int sub_group_all(int predicate) { return predicate; }
-// FIXME: Could these builtins be lowered to declare-only mux equivalents to
-// make them inline-safe at any stage? See CA-4679.
-const StringSet<> DeferredBuiltins = {
-    "get_sub_group_local_id",
-    "get_sub_group_size",
-    "sub_group_all",
-    "sub_group_any",
-    "sub_group_reduce_add",
-    "sub_group_reduce_min",
-    "sub_group_reduce_max",
-    "sub_group_broadcast",
-    "sub_group_scan_exclusive_add",
-    "sub_group_scan_exclusive_min",
-    "sub_group_scan_exclusive_max",
-    "sub_group_scan_inclusive_add",
-    "sub_group_scan_inclusive_min",
-    "sub_group_scan_inclusive_max",
-
-    "sub_group_reduce_mul",
-    "sub_group_reduce_and",
-    "sub_group_reduce_or",
-    "sub_group_reduce_xor",
-    "sub_group_reduce_logical_and",
-    "sub_group_reduce_logical_or",
-    "sub_group_reduce_logical_xor",
-
-    "sub_group_scan_exclusive_mul",
-    "sub_group_scan_exclusive_and",
-    "sub_group_scan_exclusive_or",
-    "sub_group_scan_exclusive_xor",
-    "sub_group_scan_exclusive_logical_and",
-    "sub_group_scan_exclusive_logical_or",
-    "sub_group_scan_exclusive_logical_xor",
-
-    "sub_group_scan_inclusive_mul",
-    "sub_group_scan_inclusive_and",
-    "sub_group_scan_inclusive_or",
-    "sub_group_scan_inclusive_xor",
-    "sub_group_scan_inclusive_logical_and",
-    "sub_group_scan_inclusive_logical_or",
-    "sub_group_scan_inclusive_logical_xor",
-};
-
-bool isDeferredBuiltin(Function &F) {
-  compiler::utils::NameMangler Mangler(&F.getContext());
-
-  SmallVector<Type *, 4> Types;
-  SmallVector<compiler::utils::TypeQualifiers, 4> Quals;
-  StringRef BaseName = Mangler.demangleName(F.getName(), Types, Quals);
-  return DeferredBuiltins.find(BaseName) != DeferredBuiltins.end();
-}
-
 class GlobalVarMaterializer final : public ValueMaterializer {
  public:
   GlobalVarMaterializer(Module &M) : M(M) {}
@@ -199,12 +143,7 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
         if (auto *const CI = dyn_cast<CallInst>(&I)) {
           // and the called function is known
           if (Function *Callee = CI->getCalledFunction()) {
-            // Only process the builtin if we are not doing early builtins
-            // or it's not one of the deferred ones
-            if (!EarlyLinking || !isDeferredBuiltin(*Callee)) {
-              // we need to clone the function
-              BuiltinFnDecls.push_back(Callee);
-            }
+            BuiltinFnDecls.push_back(Callee);
           }
         }
       }
@@ -292,12 +231,7 @@ PreservedAnalyses compiler::utils::LinkBuiltinsPass::run(
   for (auto &F : M.functions()) {
     auto BuiltinF = BuiltinsModule->getFunction(F.getName());
     if (F.isDeclaration() && nullptr != BuiltinF) {
-      // Only process the builtin if we are not doing early builtins
-      // or it's not one of the deferred ones
-      if (!EarlyLinking || !isDeferredBuiltin(*BuiltinF)) {
-        // we need to clone the function
-        BuiltinFnDecls.push_back(BuiltinF);
-      }
+      BuiltinFnDecls.push_back(BuiltinF);
     }
   }
 

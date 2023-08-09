@@ -184,7 +184,7 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}PassMachinery::
   // Add builtin replacement passes here directly to PM if needed
 
   if (env_var_opts.early_link_builtins) {
-    PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
+    PM.addPass(compiler::utils::LinkBuiltinsPass());
   }
 
   addPreVeczPasses(PM, tuner);

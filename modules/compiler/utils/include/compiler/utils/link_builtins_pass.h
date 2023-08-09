@@ -33,9 +33,7 @@ namespace utils {
 class LinkBuiltinsPass final : public llvm::PassInfoMixin<LinkBuiltinsPass> {
  public:
   ///
-  /// @param EarlyLinking Flag to indicate this is run before the vectorizer
-  /// (vecz) so should allow relevant builtins through, e.g., get_global_id.
-  LinkBuiltinsPass(bool EarlyLinking) : EarlyLinking(EarlyLinking) {}
+  LinkBuiltinsPass() {}
 
   llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &AM);
 
@@ -45,8 +43,6 @@ class LinkBuiltinsPass final : public llvm::PassInfoMixin<LinkBuiltinsPass> {
   void cloneBuiltins(llvm::Module &M, llvm::Module &BuiltinsModule,
                      llvm::SmallVectorImpl<llvm::Function *> &BuiltinFnDecls,
                      compiler::utils::StructTypeRemapper *StructMap);
-
-  bool EarlyLinking = false;
 };
 }  // namespace utils
 }  // namespace compiler

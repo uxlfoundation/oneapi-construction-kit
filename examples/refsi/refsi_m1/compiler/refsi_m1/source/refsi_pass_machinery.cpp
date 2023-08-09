@@ -121,7 +121,7 @@ llvm::ModulePassManager RefSiM1PassMachinery::getLateTargetPasses() {
   PM.addPass(riscv::IRToBuiltinReplacementPass());
 
   if (env_var_opts.early_link_builtins) {
-    PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ true));
+    PM.addPass(compiler::utils::LinkBuiltinsPass());
   }
 
   // TODON'T temporary fix to get subgroup tests passing while we refactor

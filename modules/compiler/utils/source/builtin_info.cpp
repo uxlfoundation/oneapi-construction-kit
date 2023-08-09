@@ -517,22 +517,6 @@ Function *BuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
   return nullptr;
 }
 
-BuiltinSubgroupReduceKind BuiltinInfo::getBuiltinSubgroupReductionKind(
-    Builtin const &B) const {
-  if (LangImpl) {
-    return LangImpl->getBuiltinSubgroupReductionKind(B);
-  }
-  return eBuiltinSubgroupReduceInvalid;
-}
-
-BuiltinSubgroupScanKind BuiltinInfo::getBuiltinSubgroupScanKind(
-    Builtin const &B) const {
-  if (LangImpl) {
-    return LangImpl->getBuiltinSubgroupScanKind(B);
-  }
-  return eBuiltinSubgroupScanInvalid;
-}
-
 Value *BuiltinInfo::emitBuiltinInline(Function *Builtin, IRBuilder<> &B,
                                       ArrayRef<Value *> Args) {
   if (LangImpl) {
@@ -569,20 +553,6 @@ Instruction *BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(CallInst &CI) {
 BuiltinID BuiltinInfo::getPrintfBuiltin() const {
   if (LangImpl) {
     return LangImpl->getPrintfBuiltin();
-  }
-  return eBuiltinInvalid;
-}
-
-BuiltinID BuiltinInfo::getSubgroupLocalIdBuiltin() const {
-  if (LangImpl) {
-    return LangImpl->getSubgroupLocalIdBuiltin();
-  }
-  return eBuiltinInvalid;
-}
-
-BuiltinID BuiltinInfo::getSubgroupBroadcastBuiltin() const {
-  if (LangImpl) {
-    return LangImpl->getSubgroupBroadcastBuiltin();
   }
   return eBuiltinInvalid;
 }

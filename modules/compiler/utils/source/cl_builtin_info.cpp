@@ -818,14 +818,6 @@ Function *CLBuiltinInfo::declareBuiltin(Module *M, BuiltinID ID, Type *RetTy,
 
 BuiltinID CLBuiltinInfo::getPrintfBuiltin() const { return eCLBuiltinPrintf; }
 
-BuiltinID CLBuiltinInfo::getSubgroupLocalIdBuiltin() const {
-  return eCLBuiltinGetSubgroupLocalId;
-}
-
-BuiltinID CLBuiltinInfo::getSubgroupBroadcastBuiltin() const {
-  return eCLBuiltinSubgroupBroadcast;
-}
-
 Module *CLBuiltinInfo::getBuiltinsModule() {
   if (!Loader) {
     return nullptr;
@@ -1529,88 +1521,6 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
     return nullptr;
   }
   return ScalarBuiltin;
-}
-
-BuiltinSubgroupReduceKind CLBuiltinInfo::getBuiltinSubgroupReductionKind(
-    Builtin const &B) const {
-  switch (B.ID) {
-    default:
-      return eBuiltinSubgroupReduceInvalid;
-    case eCLBuiltinSubgroupAll:
-      return eBuiltinSubgroupAll;
-    case eCLBuiltinSubgroupAny:
-      return eBuiltinSubgroupAny;
-    case eCLBuiltinSubgroupReduceAdd:
-      return eBuiltinSubgroupReduceAdd;
-    case eCLBuiltinSubgroupReduceMin:
-      return eBuiltinSubgroupReduceMin;
-    case eCLBuiltinSubgroupReduceMax:
-      return eBuiltinSubgroupReduceMax;
-      // Subgroup reductions provided by SPV_KHR_uniform_group_instructions.
-    case eCLBuiltinSubgroupReduceMul:
-      return eBuiltinSubgroupReduceMul;
-    case eCLBuiltinSubgroupReduceAnd:
-      return eBuiltinSubgroupReduceAnd;
-    case eCLBuiltinSubgroupReduceOr:
-      return eBuiltinSubgroupReduceOr;
-    case eCLBuiltinSubgroupReduceXor:
-      return eBuiltinSubgroupReduceXor;
-    case eCLBuiltinSubgroupReduceLogicalAnd:
-      return eBuiltinSubgroupReduceLogicalAnd;
-    case eCLBuiltinSubgroupReduceLogicalOr:
-      return eBuiltinSubgroupReduceLogicalOr;
-    case eCLBuiltinSubgroupReduceLogicalXor:
-      return eBuiltinSubgroupReduceLogicalXor;
-  }
-}
-
-BuiltinSubgroupScanKind CLBuiltinInfo::getBuiltinSubgroupScanKind(
-    Builtin const &B) const {
-  switch (B.ID) {
-    default:
-      return eBuiltinSubgroupScanInvalid;
-    case eCLBuiltinSubgroupScanAddInclusive:
-      return eBuiltinSubgroupScanAddIncl;
-    case eCLBuiltinSubgroupScanAddExclusive:
-      return eBuiltinSubgroupScanAddExcl;
-    case eCLBuiltinSubgroupScanMinInclusive:
-      return eBuiltinSubgroupScanMinIncl;
-    case eCLBuiltinSubgroupScanMinExclusive:
-      return eBuiltinSubgroupScanMinExcl;
-    case eCLBuiltinSubgroupScanMaxInclusive:
-      return eBuiltinSubgroupScanMaxIncl;
-    case eCLBuiltinSubgroupScanMaxExclusive:
-      return eBuiltinSubgroupScanMaxExcl;
-      // Subgroup scans provided by SPV_KHR_uniform_group_instructions.
-    case eCLBuiltinSubgroupScanMulInclusive:
-      return eBuiltinSubgroupScanMulIncl;
-    case eCLBuiltinSubgroupScanMulExclusive:
-      return eBuiltinSubgroupScanMulExcl;
-    case eCLBuiltinSubgroupScanAndInclusive:
-      return eBuiltinSubgroupScanAndIncl;
-    case eCLBuiltinSubgroupScanAndExclusive:
-      return eBuiltinSubgroupScanAndExcl;
-    case eCLBuiltinSubgroupScanOrInclusive:
-      return eBuiltinSubgroupScanOrIncl;
-    case eCLBuiltinSubgroupScanOrExclusive:
-      return eBuiltinSubgroupScanOrExcl;
-    case eCLBuiltinSubgroupScanXorInclusive:
-      return eBuiltinSubgroupScanXorIncl;
-    case eCLBuiltinSubgroupScanXorExclusive:
-      return eBuiltinSubgroupScanXorExcl;
-    case eCLBuiltinSubgroupScanLogicalAndInclusive:
-      return eBuiltinSubgroupScanLogicalAndIncl;
-    case eCLBuiltinSubgroupScanLogicalAndExclusive:
-      return eBuiltinSubgroupScanLogicalAndExcl;
-    case eCLBuiltinSubgroupScanLogicalOrInclusive:
-      return eBuiltinSubgroupScanLogicalOrIncl;
-    case eCLBuiltinSubgroupScanLogicalOrExclusive:
-      return eBuiltinSubgroupScanLogicalOrExcl;
-    case eCLBuiltinSubgroupScanLogicalXorInclusive:
-      return eBuiltinSubgroupScanLogicalXorIncl;
-    case eCLBuiltinSubgroupScanLogicalXorExclusive:
-      return eBuiltinSubgroupScanLogicalXorExcl;
-  }
 }
 
 /// @brief Returns whether the parameter corresponding to given index to the

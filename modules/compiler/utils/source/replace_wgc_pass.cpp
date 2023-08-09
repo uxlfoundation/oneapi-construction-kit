@@ -65,222 +65,187 @@ CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
 
 /// @brief Helper function to create subgroup reduction calls.
 Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
-                               const compiler::utils::GroupCollective &WGC) {
-  StringRef name;
-  compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
+                               const compiler::utils::GroupCollective &WGC,
+                               compiler::utils::BuiltinInfo &BI) {
+  using namespace compiler::utils;
+  BuiltinID ReductionID = eBuiltinInvalid;
   switch (WGC.Recurrence) {
     default:
       return nullptr;
     case RecurKind::And:
       if (WGC.isAnyAll()) {
-        name = "sub_group_all";
-        Q = compiler::utils::eTypeQualSignedInt;
+        ReductionID = eMuxBuiltinSubgroupAll;
       } else {
-        name = !WGC.IsLogical ? "sub_group_reduce_and"
-                              : "sub_group_reduce_logical_and";
+        ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceAnd
+                                     : eMuxBuiltinSubgroupReduceLogicalAnd;
       }
       break;
     case RecurKind::Or:
       if (WGC.isAnyAll()) {
-        name = "sub_group_any";
-        Q = compiler::utils::eTypeQualSignedInt;
+        ReductionID = eMuxBuiltinSubgroupAny;
       } else {
-        name = !WGC.IsLogical ? "sub_group_reduce_or"
-                              : "sub_group_reduce_logical_or";
+        ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceOr
+                                     : eMuxBuiltinSubgroupReduceLogicalOr;
       }
       break;
-    case RecurKind::FAdd:
     case RecurKind::Add:
-      name = "sub_group_reduce_add";
+      ReductionID = eMuxBuiltinSubgroupReduceAdd;
       break;
-    case RecurKind::FMin:
+    case RecurKind::FAdd:
+      ReductionID = eMuxBuiltinSubgroupReduceFAdd;
+      break;
     case RecurKind::UMin:
-      name = "sub_group_reduce_min";
+      ReductionID = eMuxBuiltinSubgroupReduceUMin;
       break;
     case RecurKind::SMin:
-      name = "sub_group_reduce_min";
-      Q = compiler::utils::eTypeQualSignedInt;
+      ReductionID = eMuxBuiltinSubgroupReduceSMin;
       break;
-    case RecurKind::FMax:
+    case RecurKind::FMin:
+      ReductionID = eMuxBuiltinSubgroupReduceFMin;
+      break;
     case RecurKind::UMax:
-      name = "sub_group_reduce_max";
+      ReductionID = eMuxBuiltinSubgroupReduceUMax;
       break;
     case RecurKind::SMax:
-      name = "sub_group_reduce_max";
-      Q = compiler::utils::eTypeQualSignedInt;
+      ReductionID = eMuxBuiltinSubgroupReduceSMax;
       break;
-      // SPV_KHR_uniform_group_instructions
+    case RecurKind::FMax:
+      ReductionID = eMuxBuiltinSubgroupReduceFMax;
+      break;
     case RecurKind::Mul:
+      ReductionID = eMuxBuiltinSubgroupReduceMul;
+      break;
     case RecurKind::FMul:
-      name = "sub_group_reduce_mul";
+      ReductionID = eMuxBuiltinSubgroupReduceFMul;
       break;
     case RecurKind::Xor:
-      name = !WGC.IsLogical ? "sub_group_reduce_xor"
-                            : "sub_group_reduce_logical_xor";
+      ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceXor
+                                   : eMuxBuiltinSubgroupReduceLogicalXor;
       break;
   }
+  assert(ReductionID != eBuiltinInvalid);
 
   auto *const Ty = Src->getType();
   auto *const M = Builder.GetInsertBlock()->getModule();
 
-  // Mangle the function name and look it up in the module.
-  compiler::utils::NameMangler Mangler(&M->getContext());
-  std::string MangledName = Mangler.mangleName(name, {Ty}, {Q});
-  Function *Builtin = M->getFunction(MangledName);
-
-  // Declare the builtin if necessary.
-  if (!Builtin) {
-    FunctionType *FT = FunctionType::get(Ty, {Ty}, false);
-    M->getOrInsertFunction(MangledName, FT);
-    Builtin = M->getFunction(MangledName);
-    Builtin->setCallingConv(CallingConv::SPIR_FUNC);
-  }
+  Function *Builtin = BI.getOrDeclareMuxBuiltin(ReductionID, *M, {Ty});
+  assert(Builtin && "Missing reduction builtin");
 
   return Builder.CreateCall(Builtin, {Src}, "wgc");
 }
 
 Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
-                          RecurKind Kind, bool IsInclusive, bool IsLogical) {
-  StringRef name;
-  compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
+                          RecurKind Kind, bool IsInclusive, bool IsLogical,
+                          compiler::utils::BuiltinInfo &BI) {
+  using namespace compiler::utils;
+  BuiltinID ScanBuiltinID = eBuiltinInvalid;
   switch (Kind) {
     default:
       return nullptr;
-    case RecurKind::FAdd:
     case RecurKind::Add:
-      name = IsInclusive ? StringRef("sub_group_scan_inclusive_add")
-                         : StringRef("sub_group_scan_exclusive_add");
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanAddInclusive
+                                  : eMuxBuiltinSubgroupScanAddExclusive;
+      break;
+    case RecurKind::FAdd:
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFAddInclusive
+                                  : eMuxBuiltinSubgroupScanFAddExclusive;
       break;
     case RecurKind::SMin:
-      Q = compiler::utils::eTypeQualSignedInt;
-      LLVM_FALLTHROUGH;
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanSMinInclusive
+                                  : eMuxBuiltinSubgroupScanSMinExclusive;
+      break;
     case RecurKind::UMin:
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanUMinInclusive
+                                  : eMuxBuiltinSubgroupScanUMinExclusive;
+      break;
     case RecurKind::FMin:
-      name = IsInclusive ? StringRef("sub_group_scan_inclusive_min")
-                         : StringRef("sub_group_scan_exclusive_min");
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMinInclusive
+                                  : eMuxBuiltinSubgroupScanFMinExclusive;
       break;
     case RecurKind::SMax:
-      Q = compiler::utils::eTypeQualSignedInt;
-      LLVM_FALLTHROUGH;
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanSMaxInclusive
+                                  : eMuxBuiltinSubgroupScanSMaxExclusive;
+      break;
     case RecurKind::UMax:
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanUMaxInclusive
+                                  : eMuxBuiltinSubgroupScanUMaxExclusive;
+      break;
     case RecurKind::FMax:
-      name = IsInclusive ? StringRef("sub_group_scan_inclusive_max")
-                         : StringRef("sub_group_scan_exclusive_max");
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMaxInclusive
+                                  : eMuxBuiltinSubgroupScanFMaxExclusive;
       break;
     case RecurKind::Mul:
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanMulInclusive
+                                  : eMuxBuiltinSubgroupScanMulExclusive;
+      break;
     case RecurKind::FMul:
-      name = IsInclusive ? StringRef("sub_group_scan_inclusive_mul")
-                         : StringRef("sub_group_scan_exclusive_mul");
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMulInclusive
+                                  : eMuxBuiltinSubgroupScanFMulExclusive;
       break;
     case RecurKind::And:
       if (!IsLogical) {
-        name = IsInclusive ? StringRef("sub_group_scan_inclusive_and")
-                           : StringRef("sub_group_scan_exclusive_and");
+        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanAndInclusive
+                                    : eMuxBuiltinSubgroupScanAndExclusive;
       } else {
-        name = IsInclusive ? StringRef("sub_group_scan_inclusive_logical_and")
-                           : StringRef("sub_group_scan_exclusive_logical_and");
+        ScanBuiltinID = IsInclusive
+                            ? eMuxBuiltinSubgroupScanLogicalAndInclusive
+                            : eMuxBuiltinSubgroupScanLogicalAndExclusive;
       }
       break;
     case RecurKind::Or:
       if (!IsLogical) {
-        name = IsInclusive ? StringRef("sub_group_scan_inclusive_or")
-                           : StringRef("sub_group_scan_exclusive_or");
+        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanOrInclusive
+                                    : eMuxBuiltinSubgroupScanOrExclusive;
       } else {
-        name = IsInclusive ? StringRef("sub_group_scan_inclusive_logical_or")
-                           : StringRef("sub_group_scan_exclusive_logical_or");
+        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanLogicalOrInclusive
+                                    : eMuxBuiltinSubgroupScanLogicalOrExclusive;
       }
       break;
     case RecurKind::Xor:
       if (!IsLogical) {
-        name = IsInclusive ? StringRef("sub_group_scan_inclusive_xor")
-                           : StringRef("sub_group_scan_exclusive_xor");
+        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanXorInclusive
+                                    : eMuxBuiltinSubgroupScanXorExclusive;
       } else {
-        name = IsInclusive ? StringRef("sub_group_scan_inclusive_logical_xor")
-                           : StringRef("sub_group_scan_exclusive_logical_xor");
+        ScanBuiltinID = IsInclusive
+                            ? eMuxBuiltinSubgroupScanLogicalXorInclusive
+                            : eMuxBuiltinSubgroupScanLogicalXorExclusive;
       }
       break;
   }
+  assert(ScanBuiltinID != eBuiltinInvalid);
 
   auto *const Ty = Src->getType();
   auto *const M = Builder.GetInsertBlock()->getModule();
 
-  // Mangle the function name and look it up in the module.
-  compiler::utils::NameMangler Mangler(&M->getContext());
-  std::string MangledName = Mangler.mangleName(name, {Ty}, {Q});
-  Function *Builtin = M->getFunction(MangledName);
-
-  // Declare the builtin if necessary.
-  if (!Builtin) {
-    FunctionType *FT = FunctionType::get(Ty, {Ty}, false);
-    M->getOrInsertFunction(MangledName, FT);
-    Builtin = M->getFunction(MangledName);
-    Builtin->setCallingConv(CallingConv::SPIR_FUNC);
-  }
+  Function *Builtin = BI.getOrDeclareMuxBuiltin(ScanBuiltinID, *M, {Ty});
+  assert(Builtin && "Missing scan builtin");
 
   return Builder.CreateCall(Builtin, {Src}, "wgc_scan");
 }
 
 /// @brief Helper function to create get subgroup size calls.
 Value *createGetSubgroupSize(IRBuilder<> &Builder,
+                             compiler::utils::BuiltinInfo &BI,
                              const Twine &Name = Twine()) {
   auto &M = *Builder.GetInsertBlock()->getModule();
-  auto *const Builtin = cast<Function>(
-      M.getOrInsertFunction(
-           "_Z18get_sub_group_sizev",
-           FunctionType::get(Builder.getInt32Ty(), /*isVarArg*/ false))
-          .getCallee());
-  assert(Builtin && "get_sub_group_size is not in module");
+  auto *const Builtin =
+      BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetSubGroupSize, M);
+  assert(Builtin && "__mux_get_sub_group_size is not in module");
 
-  Builtin->setCallingConv(CallingConv::SPIR_FUNC);
   return Builder.CreateCall(Builtin, {}, Name);
 }
 
 /// @brief Helper function to create subgroup broadcast calls.
 Value *createSubgroupBroadcast(IRBuilder<> &Builder, Value *Src, Value *ID,
+                               compiler::utils::BuiltinInfo &BI,
                                const Twine &Name = Twine()) {
-  StringRef BuiltinName = "sub_group_broadcast";
-  compiler::utils::TypeQualifier Q = compiler::utils::eTypeQualNone;
-
   auto *const Ty = Src->getType();
   auto *const M = Builder.GetInsertBlock()->getModule();
-  auto &Ctx = M->getContext();
 
-  auto *const Int32Ty = Type::getInt32Ty(Ctx);
-
-  // Mangle the function name and look it up in the module.
-  compiler::utils::NameMangler Mangler(&Ctx);
-  std::string MangledName = Mangler.mangleName(
-      BuiltinName, {Ty, Int32Ty}, {Q, compiler::utils::eTypeQualNone});
-  Function *Builtin = M->getFunction(MangledName);
-
-  // Declare the builtin if necessary.
-  if (!Builtin) {
-    FunctionType *FT = FunctionType::get(Ty, {Ty, Int32Ty}, false);
-    M->getOrInsertFunction(MangledName, FT);
-    Builtin = M->getFunction(MangledName);
-    Builtin->setCallingConv(CallingConv::SPIR_FUNC);
-  }
+  auto *Builtin = BI.getOrDeclareMuxBuiltin(
+      compiler::utils::eMuxBuiltinSubgroupBroadcast, *M, {Ty});
 
   return Builder.CreateCall(Builtin, {Src, ID}, Name);
-}
-
-/// @brief Helper function to get-or-create get_sub_group_local_id.
-///
-/// @param[in] M Module to create the function in.
-///
-/// @return The builtin.
-Function *getOrCreateGetSubGroupLocalID(Module &M) {
-  auto *const Int32Ty = Type::getInt32Ty(M.getContext());
-  auto *const GetSubGroupLocalIDTy =
-      FunctionType::get(Int32Ty, /*isVarArg*/ false);
-
-  auto *const GetSubGroupLocalID = cast<Function>(
-      M.getOrInsertFunction("_Z22get_sub_group_local_idv", GetSubGroupLocalIDTy)
-          .getCallee());
-
-  assert(GetSubGroupLocalID && "get_sub_group_local_id is not in module");
-  GetSubGroupLocalID->setCallingConv(CallingConv::SPIR_FUNC);
-  return GetSubGroupLocalID;
 }
 
 /// @brief Helper function to emit the binary op on the global accumulator
@@ -293,19 +258,7 @@ Function *getOrCreateGetSubGroupLocalID(Module &M) {
 ///
 /// @return The result of the operation.
 Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
-                   llvm::Value *Operand, RecurKind Kind, bool IsAnyAll) {
-  /// The semantics of bitwise "and" don't quite match the semantics of "all"
-  /// (bitwise and isn't equivalent to logical and in a boolean context e.g.
-  /// 01 & 10 = 00 but both 1 (01) and 2 (10) would be considered "true"), so
-  /// for the sub_group_all reduction we need to work around this by emitting a
-  /// few extra instructions.
-  if (IsAnyAll && Kind == RecurKind::And) {
-    auto *const IntType = Operand->getType();
-    Value *Cmp = Builder.CreateICmpNE(Operand, ConstantInt::get(IntType, 0));
-    Cmp = Builder.CreateIntCast(Cmp, IntType, /* isSigned */ true);
-    return Builder.CreateAnd(Cmp, CurrentVal);
-  }
-  // Otherwise we can just use a single binary op.
+                   llvm::Value *Operand, RecurKind Kind) {
   return multi_llvm::createBinOpForRecurKind(Builder, CurrentVal, Operand,
                                              Kind);
 }
@@ -337,14 +290,14 @@ Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
 ///  function also handles work_group_all and work_group_any since they are
 ///  essentially work_group_reduce_and work_group_reduce_or on the int type
 ///  only.
-void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
+void emitWorkGroupReductionBody(Function &F,
+                                const compiler::utils::GroupCollective &WGC,
                                 compiler::utils::BuiltinInfo &BI) {
   // Create a global variable to do the reduction on.
-  auto &F = *WGC.Func;
-  auto *const Operand = F.getArg(0);
+  auto *const Operand = F.getArg(1);
   auto *const ReductionType{Operand->getType()};
   auto *const ReductionNeutralValue{
-      compiler::utils::getNeutralVal(WGC.Recurrence, WGC.Ty)};
+      compiler::utils::getNeutralVal(WGC.Recurrence, ReductionType)};
   auto *const Accumulator =
       new GlobalVariable{*F.getParent(),
                          ReductionType,
@@ -365,7 +318,7 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
   // implementation does not involve memory access. This way, when it gets
   // vectorized, only the scalar result will need to be in the barrier struct,
   // not its vectorized operand.
-  auto *const SubReduce = createSubgroupReduction(Builder, Operand, WGC);
+  auto *const SubReduce = createSubgroupReduction(Builder, Operand, WGC, BI);
   assert(SubReduce && "Invalid subgroup reduce");
 
   // We need three barriers:
@@ -384,8 +337,8 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
   // Read-modify-write the accumulator.
   auto *const CurrentVal =
       Builder.CreateLoad(ReductionType, Accumulator, "current.val");
-  auto *const NextVal = createBinOp(Builder, CurrentVal, SubReduce,
-                                    WGC.Recurrence, WGC.isAnyAll());
+  auto *const NextVal =
+      createBinOp(Builder, CurrentVal, SubReduce, WGC.Recurrence);
   Builder.CreateStore(NextVal, Accumulator);
 
   // Barrier, then read result and exit.
@@ -414,11 +367,11 @@ void emitWorkGroupReductionBody(const compiler::utils::GroupCollective &WGC,
 ///   barrier(CLK_LOCAL_MEM_FENCE);
 ///   return result;
 /// }
-void emitWorkGroupBroadcastBody(const compiler::utils::GroupCollective &WGC,
+void emitWorkGroupBroadcastBody(Function &F,
+                                const compiler::utils::GroupCollective &,
                                 compiler::utils::BuiltinInfo &BI) {
   // First arg is always the value to broadcast.
-  auto &F = *WGC.Func;
-  auto *const ValueToBroadcast = F.getArg(0);
+  auto *const ValueToBroadcast = F.getArg(1);
 
   // Create a global variable to do the broadcast through.
   auto *const BroadcastType{ValueToBroadcast->getType()};
@@ -442,19 +395,15 @@ void emitWorkGroupBroadcastBody(const compiler::utils::GroupCollective &WGC,
   IRBuilder<> Builder{EntryBB};
 
   // Check if we are on the thread that needs to broadcast.
-  auto *const SizeType = compiler::utils::getSizeType(M);
-  auto *const Int32Type = llvm::Type::getInt32Ty(Ctx);
-  auto *GetLocalIDType = llvm::FunctionType::get(SizeType, Int32Type, false);
-
-  auto *const GetLocalID = llvm::dyn_cast<llvm::Function>(
-      M.getOrInsertFunction("_Z12get_local_idj", GetLocalIDType).getCallee());
+  auto *const GetLocalID =
+      BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalId, M);
   assert(GetLocalID && "get_local_id is not in module");
   GetLocalID->setCallingConv(llvm::CallingConv::SPIR_FUNC);
 
   Value *IsBroadcastingThread = ConstantInt::getTrue(Ctx);
-  for (unsigned i = 1; i < F.arg_size(); ++i) {
+  for (unsigned i = 2; i < F.arg_size(); ++i) {
     Value *LocalIDCall = Builder.CreateCall(
-        GetLocalID, ConstantInt::get(GetLocalID->getArg(0)->getType(), i - 1));
+        GetLocalID, ConstantInt::get(GetLocalID->getArg(0)->getType(), i - 2));
     LocalIDCall = Builder.CreateIntCast(LocalIDCall, F.getArg(i)->getType(),
                                         /* isSigned */ false);
     auto *LocalIDCmp = Builder.CreateICmpEQ(LocalIDCall, F.getArg(i));
@@ -518,14 +467,14 @@ void emitWorkGroupBroadcastBody(const compiler::utils::GroupCollective &WGC,
 /// result with +/INFINITY. There is a similar situation for FAdd, where the
 /// identity element is defined to be `0.0` but the true neutral value is
 /// `-0.0`.
-void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
+void emitWorkGroupScanBody(Function &F,
+                           const compiler::utils::GroupCollective &WGC,
                            compiler::utils::BuiltinInfo &BI) {
   // Create a global variable to do the scan on.
-  auto &F = *WGC.Func;
-  auto *const Operand = F.getArg(0);
+  auto *const Operand = F.getArg(1);
   auto *const ReductionType{Operand->getType()};
   auto *const ReductionNeutralValue{
-      compiler::utils::getNeutralVal(WGC.Recurrence, WGC.Ty)};
+      compiler::utils::getNeutralVal(WGC.Recurrence, ReductionType)};
   assert(ReductionNeutralValue && "Invalid neutral value");
   auto &M = *F.getParent();
   auto *const Accumulator =
@@ -563,7 +512,7 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
 
   // Perform the subgroup scan operation and add it to the accumulator.
   auto *SubScan = createSubgroupScan(Builder, Operand, WGC.Recurrence,
-                                     IsInclusive, WGC.IsLogical);
+                                     IsInclusive, WGC.IsLogical, BI);
   assert(SubScan && "Invalid subgroup scan");
 
   bool const NeedsIdentityFix =
@@ -576,7 +525,8 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   // Likewise for FAdd, the zeroth element is defined to be 0.0, but the true
   // neutral value is -0.0.
   if (NeedsIdentityFix) {
-    auto *const GetSubGroupLocalID = getOrCreateGetSubGroupLocalID(M);
+    auto *const GetSubGroupLocalID = BI.getOrDeclareMuxBuiltin(
+        compiler::utils::eMuxBuiltinGetSubGroupLocalId, M);
     auto *const SubGroupLocalID =
         Builder.CreateCall(GetSubGroupLocalID, {}, "subgroup.id");
     auto *const IsZero =
@@ -586,25 +536,24 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
   }
 
   auto *const Result =
-      createBinOp(Builder, CurrentVal, SubScan, WGC.Recurrence, WGC.isAnyAll());
+      createBinOp(Builder, CurrentVal, SubScan, WGC.Recurrence);
 
   // Update the accumulator with the last element of the subgroup scan
   auto *const LastElement = Builder.CreateNUWSub(
-      createGetSubgroupSize(Builder, "wgc_sg_size"), Builder.getInt32(1));
+      createGetSubgroupSize(Builder, BI, "wgc_sg_size"), Builder.getInt32(1));
   auto *const LastValue = createSubgroupBroadcast(Builder, SubScan, LastElement,
-                                                  "wgc_sg_scan_tail");
+                                                  BI, "wgc_sg_scan_tail");
   auto *SubReduce = LastValue;
 
   // If it's an exclusive scan, we have to add on the last element of the source
   // as well.
   if (!IsInclusive) {
-    auto *const LastSrcValue =
-        createSubgroupBroadcast(Builder, Operand, LastElement, "wgc_sg_tail");
-    SubReduce = createBinOp(Builder, LastValue, LastSrcValue, WGC.Recurrence,
-                            WGC.isAnyAll());
+    auto *const LastSrcValue = createSubgroupBroadcast(
+        Builder, Operand, LastElement, BI, "wgc_sg_tail");
+    SubReduce = createBinOp(Builder, LastValue, LastSrcValue, WGC.Recurrence);
   }
-  auto *const NextVal = createBinOp(Builder, CurrentVal, SubReduce,
-                                    WGC.Recurrence, WGC.isAnyAll());
+  auto *const NextVal =
+      createBinOp(Builder, CurrentVal, SubReduce, WGC.Recurrence);
   Builder.CreateStore(NextVal, Accumulator);
 
   // A third barrier ensures that if there are two or more scans, they can't get
@@ -613,7 +562,7 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
 
   if (NeedsIdentityFix) {
     auto *const Identity =
-        compiler::utils::getIdentityVal(WGC.Recurrence, WGC.Ty);
+        compiler::utils::getIdentityVal(WGC.Recurrence, Result->getType());
     auto *const getLocalIDFn =
         BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalId, M);
     auto *const IsZero = compiler::utils::isThreadZero(EntryBB, *getLocalIDFn);
@@ -627,20 +576,21 @@ void emitWorkGroupScanBody(const compiler::utils::GroupCollective &WGC,
 /// @brief Defines the work-group collective functions.
 ///
 /// @param[in] WGC Work-group collective function to be defined.
-void emitWorkGroupCollectiveBody(const compiler::utils::GroupCollective &WGC,
+void emitWorkGroupCollectiveBody(Function &F,
+                                 const compiler::utils::GroupCollective &WGC,
                                  compiler::utils::BuiltinInfo &BI) {
   switch (WGC.Op) {
     case compiler::utils::GroupCollective::OpKind::All:
     case compiler::utils::GroupCollective::OpKind::Any:
     case compiler::utils::GroupCollective::OpKind::Reduction:
-      emitWorkGroupReductionBody(WGC, BI);
+      emitWorkGroupReductionBody(F, WGC, BI);
       break;
     case compiler::utils::GroupCollective::OpKind::Broadcast:
-      emitWorkGroupBroadcastBody(WGC, BI);
+      emitWorkGroupBroadcastBody(F, WGC, BI);
       break;
     case compiler::utils::GroupCollective::OpKind::ScanExclusive:
     case compiler::utils::GroupCollective::OpKind::ScanInclusive:
-      emitWorkGroupScanBody(WGC, BI);
+      emitWorkGroupScanBody(F, WGC, BI);
       break;
     default:
       llvm_unreachable("unhandled work-group collective");
@@ -660,16 +610,17 @@ PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
   // This pass may insert new builtins into the module e.g. local barriers, so
   // we need to create a work-list before doing any work to avoid invalidating
   // iterators.
-  SmallVector<GroupCollective, 8> WGCollectives{};
+  SmallVector<std::pair<Function *, GroupCollective>, 8> WGCollectives{};
   for (auto &F : M) {
-    auto WGC = isGroupCollective(&F);
-    if (WGC && WGC->Scope == GroupCollective::ScopeKind::WorkGroup) {
-      WGCollectives.push_back(*WGC);
+    auto Builtin = BI.analyzeBuiltin(F);
+    if (auto WGC = BI.isMuxGroupCollective(Builtin.ID);
+        WGC && WGC->Scope == GroupCollective::ScopeKind::WorkGroup) {
+      WGCollectives.push_back({&F, *WGC});
     }
   }
 
-  for (auto const WGC : WGCollectives) {
-    emitWorkGroupCollectiveBody(WGC, BI);
+  for (auto [F, WGC] : WGCollectives) {
+    emitWorkGroupCollectiveBody(*F, WGC, BI);
   }
   return !WGCollectives.empty() ? PreservedAnalyses::none()
                                 : PreservedAnalyses::all();
