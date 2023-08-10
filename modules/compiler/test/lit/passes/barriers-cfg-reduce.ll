@@ -22,7 +22,7 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 ; makes sure the accumulator initialization is not inside a work-item loop
 
 ; CHECK: i32 @reduction.mux-barrier-region.1(
-; CHECK: store i32 0, {{(i32 addrspace\(3\)\*)|(ptr addrspace\(3\))}} @_Z21work_group_reduce_addi.accumulator
+; CHECK: store i32 0, {{(i32 addrspace\(3\)\*)|(ptr addrspace\(3\))}} @__mux_work_group_reduce_add_i32.accumulator
 
 ; CHECK: void @reduction.mux-barrier-wrapper(
 ; CHECK-LABEL: sw.bb2:
@@ -32,14 +32,14 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 ; CHECK: br label %sw.bb3
 
 declare spir_func i64 @_Z13get_global_idj(i32 %x)
-declare spir_func i32 @_Z21work_group_reduce_addi(i32 %x)
+declare spir_func i32 @__mux_work_group_reduce_add_i32(i32 %id, i32 %x)
 
 define internal void @reduction(i32 addrspace(1)* %d, i32 addrspace(1)* %a) #0 !reqd_work_group_size !0 {
 entry:
   %call = tail call i64 @_Z13get_global_idj(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %a, i64 %call
   %ld = load i32, i32 addrspace(1)* %arrayidx, align 4
-  %reduce = call i32 @_Z21work_group_reduce_addi(i32 %ld)
+  %reduce = call i32 @__mux_work_group_reduce_add_i32(i32 0, i32 %ld)
   store i32 %reduce, i32 addrspace(1)* %d, align 4
   ret void
 }

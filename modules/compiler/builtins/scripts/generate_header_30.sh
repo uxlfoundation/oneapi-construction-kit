@@ -10,11 +10,6 @@ addresses="$nonconstantaddresses constant"
 sizes="1 2 3 4 8 16"
 roundingmodes="rte rtz rtn rtp"
 
-declare -A min_val=( [int]="INT_MIN" [uint]="0" [long]="LONG_MIN" [ulong]="0" [half]="-INFINITY" [float]="-INFINITY" [double]="-INFINITY" )
-declare -A max_val=( [int]="INT_MAX" [uint]="UINT_MAX" [long]="LONG_MAX" [ulong]="ULONG_MAX" [half]="+INFINITY" [float]="+INFINITY" [double]="+INFINITY" )
-declare -A identity_val=( [int]="0" [uint]="0" [long]="0" [ulong]="0" [half]="0.0" [float]="0.0" [double]="0.0" [bool]="0" )
-declare -A one_val=( [int]="1" [uint]="1" [long]="1" [ulong]="1" [half]="1.0" [float]="1.0" [double]="1.0" [bool]="1" )
-
 # generated_output_type can be one of; header, cxx, cl
 generated_output_type=
 
@@ -474,28 +469,6 @@ function all_atomic()
   echo ""
 }
 
-function get_identity()
-{
-  local op=$1
-  local type=$2
-  if [[ "$op" == *_add || "$op" == *_or || "$op" == *_xor ]]
-  then
-    echo "${identity_val[$i]}"
-  elif [[ "$op" == *_min ]]
-  then
-    echo "${max_val[$i]}"
-  elif [[ "$op" == *_max ]]
-  then
-    echo "${min_val[$i]}"
-  elif [[ "$op" == *_mul ]]
-  then
-    echo "${one_val[$i]}"
-  elif [[ "$op" == *_and ]]
-  then
-    echo "~${identity_val[$i]}"
-  fi
-}
-
 function all_sub_group()
 {
   if [[ "header" == "$generated_output_type" ]]
@@ -512,10 +485,6 @@ function all_sub_group()
     echo ""
   elif [[ "cl" == "$generated_output_type" ]]
   then
-    echo "// Naive implementation of the sub-group builtins for the case that sub-group"
-    echo "// size is 1."
-    echo "uint __CL_WORK_ITEM_ATTRIBUTES get_sub_group_size(void) { return 1; }"
-    echo ""
     echo "uint __CL_WORK_ITEM_ATTRIBUTES get_max_sub_group_size(void) {"
     echo "  return __mux_get_max_sub_group_size();"
     echo "}"
@@ -532,81 +501,54 @@ function all_sub_group()
     echo "  return __mux_get_sub_group_id();"
     echo "}"
     echo ""
-    echo "uint __CL_WORK_ITEM_ATTRIBUTES get_sub_group_local_id(void) { return 0; }"
+  fi
+
+  if [[ "header" == "$generated_output_type" ]]
+  then
+    for i in int uint long ulong half float double
+    do
+      half_support_begin $i
+      double_support_begin $i
+
+      echo "$i __CL_BARRIER_ATTRIBUTES sub_group_broadcast($i x, uint sub_group_local_id);"
+
+      for op in reduce_add reduce_min reduce_max scan_exclusive_add scan_exclusive_min scan_exclusive_max scan_inclusive_add scan_inclusive_min scan_inclusive_max SPV_KHR_uniform_group_arithmetic reduce_mul reduce_and reduce_or reduce_xor scan_exclusive_mul scan_exclusive_and scan_exclusive_or scan_exclusive_xor scan_inclusive_mul scan_inclusive_and scan_inclusive_or scan_inclusive_xor
+      do
+        # A marker to output a comment
+        if [[ "SPV_KHR_uniform_group_arithmetic" == "$op" ]]
+        then
+          echo ""
+          echo "// SPV_KHR_uniform_group_arithmetic"
+          echo ""
+          continue
+        fi
+        if [[ "half" == "$i" || "float" == "$i" || "double" == "$i" ]]
+        then
+          if [[ "$op" == *_and || "$op" = *_or || "$op" == *_xor ]]
+          then
+            continue
+          fi
+        fi
+        echo "$i __CL_BARRIER_ATTRIBUTES sub_group_$op($i x);"
+      done
+      double_support_end $i
+      half_support_end $i
+      echo ""
+    done
+
+    # Bool-type sub-group builtins
     echo ""
-    echo "int __CL_BARRIER_ATTRIBUTES sub_group_all(int predicate) { return predicate; }"
+    echo "// SPV_KHR_uniform_group_arithmetic"
     echo ""
-    echo "int __CL_BARRIER_ATTRIBUTES sub_group_any(int predicate) { return predicate; }"
+    for op in reduce_and reduce_or reduce_xor reduce_logical_and reduce_logical_or reduce_logical_xor scan_exclusive_and scan_exclusive_or scan_exclusive_xor scan_exclusive_logical_and scan_exclusive_logical_or scan_exclusive_logical_xor scan_inclusive_and scan_inclusive_or scan_inclusive_xor scan_inclusive_logical_and scan_inclusive_logical_or scan_inclusive_logical_xor
+    do
+      i="bool"
+      echo "$i __CL_BARRIER_ATTRIBUTES sub_group_$op($i x);"
+    done
     echo ""
   fi
 
   local body=";"
-
-  for i in int uint long ulong half float double
-  do
-    half_support_begin $i
-    double_support_begin $i
-
-    if [[ "cl" == "$generated_output_type" ]]
-    then
-      body=" { (void)sub_group_local_id; return x; }"
-    fi
-    echo "$i __CL_BARRIER_ATTRIBUTES sub_group_broadcast($i x, uint sub_group_local_id)$body"
-
-    for op in reduce_add reduce_min reduce_max scan_exclusive_add scan_exclusive_min scan_exclusive_max scan_inclusive_add scan_inclusive_min scan_inclusive_max SPV_KHR_uniform_group_arithmetic reduce_mul reduce_and reduce_or reduce_xor scan_exclusive_mul scan_exclusive_and scan_exclusive_or scan_exclusive_xor scan_inclusive_mul scan_inclusive_and scan_inclusive_or scan_inclusive_xor
-    do
-      # A marker to output a comment
-      if [[ "SPV_KHR_uniform_group_arithmetic" == "$op" ]]
-      then
-        echo ""
-        echo "// SPV_KHR_uniform_group_arithmetic"
-        echo ""
-        continue
-      fi
-      if [[ "half" == "$i" || "float" == "$i" || "double" == "$i" ]]
-      then
-        if [[ "$op" == *_and || "$op" = *_or || "$op" == *_xor ]]
-        then
-          continue
-        fi
-      fi
-      if [[ "cl" == "$generated_output_type" ]]
-      then
-        echo ""
-        if [[ "$op" == scan_exclusive_* ]]
-        then
-          body=" { return $(get_identity $op $i); }"
-        else
-          body=" { return x; }"
-        fi
-      fi
-      echo "$i __CL_BARRIER_ATTRIBUTES sub_group_$op($i x)$body"
-    done
-    double_support_end $i
-    half_support_end $i
-    echo ""
-  done
-
-  # Bool-type sub-group builtins
-  echo ""
-  echo "// SPV_KHR_uniform_group_arithmetic"
-  echo ""
-  for op in reduce_and reduce_or reduce_xor reduce_logical_and reduce_logical_or reduce_logical_xor scan_exclusive_and scan_exclusive_or scan_exclusive_xor scan_exclusive_logical_and scan_exclusive_logical_or scan_exclusive_logical_xor scan_inclusive_and scan_inclusive_or scan_inclusive_xor scan_inclusive_logical_and scan_inclusive_logical_or scan_inclusive_logical_xor
-  do
-    i="bool"
-    if [[ "cl" == "$generated_output_type" ]]
-    then
-      echo ""
-      if [[ "$op" == scan_exclusive_* ]]
-      then
-        body=" { return $(get_identity $op $i); }"
-      else
-        body=" { return x; }"
-      fi
-    fi
-    echo "$i __CL_BARRIER_ATTRIBUTES sub_group_$op($i x)$body"
-  done
-  echo ""
 
   if [[ "cl" == "$generated_output_type" ]]
   then

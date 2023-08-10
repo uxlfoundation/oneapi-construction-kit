@@ -31,7 +31,7 @@ target triple = "spir64-unknown-unknown"
 
 define spir_func i32 @clone_this(i32 %x) {
 entry:
-  %call = call spir_func i32 @_Z20sub_group_reduce_addi(i32 %x)
+  %call = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 %x)
   ret i32 %call
 }
 
@@ -55,7 +55,7 @@ entry:
   ret i32 %call
 }
 
-declare spir_func i32 @_Z20sub_group_reduce_addi(i32)
+declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
 
 !opencl.ocl.version = !{!0}
 
@@ -65,7 +65,7 @@ attributes #0 = { "mux-kernel"="entry-point" }
 
 ; CHECK: define spir_func i32 @clone_this.degenerate-subgroups(i32 [[X1:%.+]]) {
 ; CHECK: entry:
-; CHECK:   [[R1:%.+]] = call spir_func i32 @_Z21work_group_reduce_addi(i32 [[X1]])
+; CHECK:   [[R1:%.+]] = call spir_func i32 @__mux_work_group_reduce_add_i32(i32 0, i32 [[X1]])
 ; CHECK:   ret i32 [[R1]]
 ; CHECK: }
 
@@ -99,10 +99,10 @@ attributes #0 = { "mux-kernel"="entry-point" }
 
 ; CHECK: define spir_func i32 @clone_this(i32 [[X6:%.+]]) {
 ; CHECK: entry:
-; CHECK:   [[R6:%.+]] = call spir_func i32 @_Z20sub_group_reduce_addi(i32 [[X6]])
+; CHECK:   [[R6:%.+]] = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 [[X6]])
 ; CHECK:   ret i32 [[R6]]
 ; CHECK: }
 
-; CHECK-DAG: declare spir_func i32 @_Z21work_group_reduce_addi(i32)
+; CHECK-DAG: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
 ; CHECK-DAG: attributes #[[ATTR0]] = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
 ; CHECK-DAG: attributes #[[ATTR1]] = { "mux-kernel"="entry-point" }

@@ -68,7 +68,7 @@ void addPreVeczPasses(ModulePassManager &PM,
 
 void addLateBuiltinsPasses(ModulePassManager &PM,
                            const BasePassPipelineTuner &tuner) {
-  PM.addPass(compiler::utils::LinkBuiltinsPass(/*EarlyLinking*/ false));
+  PM.addPass(compiler::utils::LinkBuiltinsPass());
 
   PM.addPass(compiler::utils::MaterializeAbsentWorkItemBuiltinsPass());
 

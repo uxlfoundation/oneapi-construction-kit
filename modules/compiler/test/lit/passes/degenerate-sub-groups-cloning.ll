@@ -24,11 +24,11 @@ target triple = "spir64-unknown-unknown"
 
 define spir_func i32 @sub_group_reduce_add_test(i32 %x) #0 {
 entry:
-  %call = call spir_func i32 @_Z20sub_group_reduce_addi(i32 %x)
+  %call = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 %x)
   ret i32 %call
 }
 
-declare spir_func i32 @_Z20sub_group_reduce_addi(i32)
+declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
 
 attributes #0 = { "mux-kernel"="entry-point" }
 
@@ -39,17 +39,17 @@ attributes #0 = { "mux-kernel"="entry-point" }
 ; CHECK-LABEL: define spir_func i32 @sub_group_reduce_add_test.degenerate-subgroups
 ; CHECK: (i32 [[Y:%.*]]) #[[ATTR0:[0-9]+]]
 ; CHECK: entry:
-; CHECK: [[RESULT:%.*]] = call spir_func i32 @_Z21work_group_reduce_addi(i32 [[Y]])
+; CHECK: [[RESULT:%.*]] = call spir_func i32 @__mux_work_group_reduce_add_i32(i32 0, i32 [[Y]])
 ; CHECK: ret i32 [[RESULT]]
 ; CHECK: }
 
 ; CHECK-LABEL: define spir_func i32 @sub_group_reduce_add_test
 ; CHECK: (i32 [[X:%.*]]) #[[ATTR1:[0-9]+]]
 ; CHECK: entry:
-; CHECK: [[RESULT:%.*]] = call spir_func i32 @_Z20sub_group_reduce_addi(i32 [[X]])
+; CHECK: [[RESULT:%.*]] = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 [[X]])
 ; CHECK: ret i32 [[RESULT]]
 ; CHECK: }
 
-; CHECK-DAG: declare spir_func i32 @_Z21work_group_reduce_addi(i32)
+; CHECK-DAG: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
 ; CHECK-DAG: attributes #[[ATTR0]] = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
 ; CHECK-DAG: attributes #[[ATTR1]] = { "mux-kernel"="entry-point" }

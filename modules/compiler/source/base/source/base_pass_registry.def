@@ -34,6 +34,8 @@ MODULE_PASS("compute-local-memory-usage", compiler::utils::ComputeLocalMemoryUsa
 MODULE_PASS("define-mux-builtins", compiler::utils::DefineMuxBuiltinsPass())
 MODULE_PASS("define-mux-dma", compiler::utils::DefineMuxDmaPass())
 MODULE_PASS("degenerate-sub-groups", compiler::utils::DegenerateSubGroupPass())
+MODULE_PASS("link-builtins", compiler::utils::LinkBuiltinsPass())
+
 MODULE_PASS("missing-builtins",
             compiler::utils::MaterializeAbsentWorkItemBuiltinsPass())
 MODULE_PASS("prepare-barriers", compiler::utils::PrepareBarriersPass())
@@ -95,13 +97,6 @@ MODULE_PASS_WITH_PARAMS(
     },
     parseEncodeKernelMetadataPassOptions,
     "name=N;local-sizes=X:Y:Z;")
-
-MODULE_PASS_WITH_PARAMS(
-    "link-builtins", "compiler::utils::LinkBuiltinsPass",
-    [](bool EarlyLinking) {
-      return compiler::utils::LinkBuiltinsPass(EarlyLinking);
-    },
-    parseLinkBuiltinsPassOptions, "early")
 
 MODULE_PASS_WITH_PARAMS(
     "replace-mux-math-decls", "compiler::utils::ReplaceMuxMathDeclsPass",

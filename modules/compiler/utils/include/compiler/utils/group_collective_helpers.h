@@ -21,8 +21,7 @@
 #ifndef COMPILER_UTILS_GROUP_COLLECTIVE_HELPERS_H_INCLUDED
 #define COMPILER_UTILS_GROUP_COLLECTIVE_HELPERS_H_INCLUDED
 
-#include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/optional_helper.h>
+#include <llvm/Analysis/IVDescriptors.h>
 
 namespace llvm {
 class Constant;
@@ -69,7 +68,7 @@ struct GroupCollective {
     Reduction,
     ScanInclusive,
     ScanExclusive,
-    Broadcast
+    Broadcast,
   };
 
   /// @brief The possible scopes of a group collective.
@@ -82,28 +81,19 @@ struct GroupCollective {
   /// @brief The llvm recurrence operation this can be mapped to. For broadcasts
   /// this will be None.
   llvm::RecurKind Recurrence = llvm::RecurKind::None;
-  /// @brief The llvm function body for this group collective instance.
-  llvm::Function *Func = nullptr;
-  /// @brief The type the group operation is applied to. Will always be the
-  /// type of the first argument of `Func`.
-  llvm::Type *Ty = nullptr;
   /// @brief True if the operation is logical, rather than bitwise.
   bool IsLogical = false;
   /// @brief Returns true for Any/All type collective operations.
   bool isAnyAll() const { return Op == OpKind::Any || Op == OpKind::All; }
+  /// @brief Returns true for inclusive/exclusive scan collective operations.
+  bool isScan() const {
+    return Op == OpKind::ScanExclusive || Op == OpKind::ScanInclusive;
+  }
+  /// @brief Returns true for sub-group collective operations.
+  bool isSubGroupScope() const { return Scope == ScopeKind::SubGroup; }
+  /// @brief Returns true for work-group collective operations.
+  bool isWorkGroupScope() const { return Scope == ScopeKind::WorkGroup; }
 };
-
-/// @brief Helper function to parse a group collective operation.
-///
-/// TODO: This function is similar to isSubgroupScan defined in
-/// `vectorization_context.cpp`, we should consider merging the two.
-///
-/// @param[in] f Function to parse.
-///
-/// @return Optional value which may be populated with a GroupCollective
-/// instance. If `f` is a sub-group function or work-group collective a value
-/// will be returned otherwise return value will be empty.
-multi_llvm::Optional<GroupCollective> isGroupCollective(llvm::Function *f);
 }  // namespace utils
 }  // namespace compiler
 

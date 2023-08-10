@@ -153,6 +153,44 @@ static Function *defineLocalWorkGroupBuiltin(BIMuxInfoConcept &BI, BuiltinID ID,
   return F;
 }
 
+// FIXME: Assumes a sub-group size of 1.
+static Function *defineSubGroupGroupOpBuiltin(Function &F,
+                                              GroupCollective GroupOp,
+                                              ArrayRef<Type *> OverloadInfo) {
+  if (!GroupOp.isSubGroupScope()) {
+    return nullptr;
+  }
+
+  auto *Arg = F.getArg(0);
+
+  IRBuilder<> B(BasicBlock::Create(F.getContext(), "entry", &F));
+
+  switch (GroupOp.Op) {
+    default:
+      llvm_unreachable("Unhandled group operation");
+    case GroupCollective::OpKind::Any:
+    case GroupCollective::OpKind::All:
+    case GroupCollective::OpKind::Broadcast:
+    case GroupCollective::OpKind::Reduction:
+    case GroupCollective::OpKind::ScanInclusive:
+      // In the trivial size=1 case, all of these operations just return the
+      // argument back again
+      B.CreateRet(Arg);
+      break;
+    case GroupCollective::OpKind::ScanExclusive: {
+      // In the trivial size=1 case, exclusive scans return the identity.
+      assert(!OverloadInfo.empty());
+      auto *const IdentityVal =
+          getIdentityVal(GroupOp.Recurrence, OverloadInfo[0]);
+      assert(IdentityVal && "Unable to deduce identity val");
+      B.CreateRet(IdentityVal);
+      break;
+    }
+  }
+
+  return &F;
+}
+
 static Value *createCallHelper(IRBuilder<> &B, Function &F,
                                ArrayRef<Value *> Args) {
   auto *const CI = B.CreateCall(&F, Args);
@@ -217,6 +255,32 @@ Function *BIMuxInfoConcept::defineGetGlobalId(Module &M) {
   // ... and return our result
   B.CreateRet(Ret);
   return F;
+}
+
+// FIXME: Assumes a sub-group size of 1.
+Function *BIMuxInfoConcept::defineGetSubGroupSize(Function &F) {
+  setDefaultBuiltinAttributes(F);
+  F.setLinkage(GlobalValue::InternalLinkage);
+
+  IRBuilder<> B(BasicBlock::Create(F.getContext(), "entry", &F));
+
+  assert(F.getReturnType() == B.getInt32Ty());
+  B.CreateRet(B.getInt32(1));
+
+  return &F;
+}
+
+// FIXME: Assumes a sub-group size of 1.
+Function *BIMuxInfoConcept::defineGetSubGroupLocalId(Function &F) {
+  setDefaultBuiltinAttributes(F);
+  F.setLinkage(GlobalValue::InternalLinkage);
+
+  IRBuilder<> B(BasicBlock::Create(F.getContext(), "entry", &F));
+
+  assert(F.getReturnType() == B.getInt32Ty());
+  B.CreateRet(B.getInt32(0));
+
+  return &F;
 }
 
 Function *BIMuxInfoConcept::defineGetGlobalSize(Module &M) {
@@ -727,6 +791,10 @@ Function *BIMuxInfoConcept::defineMuxBuiltin(BuiltinID ID, Module &M,
       return defineDMA3D(*F);
     case eMuxBuiltinDMAWait:
       return defineDMAWait(*F);
+    case eMuxBuiltinGetSubGroupSize:
+      return defineGetSubGroupSize(*F);
+    case eMuxBuiltinGetSubGroupLocalId:
+      return defineGetSubGroupLocalId(*F);
   }
 
   if (auto *const NewF = defineLocalWorkItemBuiltin(*this, ID, M)) {
@@ -735,6 +803,13 @@ Function *BIMuxInfoConcept::defineMuxBuiltin(BuiltinID ID, Module &M,
 
   if (auto *const NewF = defineLocalWorkGroupBuiltin(*this, ID, M)) {
     return NewF;
+  }
+
+  if (auto GroupOp = BuiltinInfo::isMuxGroupCollective(ID)) {
+    if (auto *const NewF =
+            defineSubGroupGroupOpBuiltin(*F, *GroupOp, OverloadInfo)) {
+      return NewF;
+    }
   }
 
   return nullptr;
@@ -818,7 +893,6 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
   AttrBuilder AB(Ctx);
   auto *const SizeTy = getSizeType(M);
   auto *const Int32Ty = Type::getInt32Ty(Ctx);
-  auto *const Int64Ty = Type::getInt64Ty(Ctx);
   auto *const VoidTy = Type::getVoidTy(Ctx);
 
   Type *RetTy = nullptr;
@@ -910,21 +984,21 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
         AB.addAttribute(Attribute::Convergent);
         // Broadcasts additionally add ID parameters
         if (Group->Op == GroupCollective::OpKind::Broadcast) {
-          if (Group->Scope == GroupCollective::ScopeKind::SubGroup) {
+          if (Group->isSubGroupScope()) {
             ParamTys.push_back(Int32Ty);
             ParamNames.push_back("lid");
           } else {
-            ParamTys.push_back(Int64Ty);
+            ParamTys.push_back(SizeTy);
             ParamNames.push_back("lidx");
-            ParamTys.push_back(Int64Ty);
+            ParamTys.push_back(SizeTy);
             ParamNames.push_back("lidy");
-            ParamTys.push_back(Int64Ty);
+            ParamTys.push_back(SizeTy);
             ParamNames.push_back("lidz");
           }
         }
         // All work-group operations have a 'barrier id' operand as their first
         // parameter.
-        if (Group->Scope == GroupCollective::ScopeKind::WorkGroup) {
+        if (Group->isWorkGroupScope()) {
           ParamTys.insert(ParamTys.begin(), Int32Ty);
           ParamNames.insert(ParamNames.begin(), "id");
         }

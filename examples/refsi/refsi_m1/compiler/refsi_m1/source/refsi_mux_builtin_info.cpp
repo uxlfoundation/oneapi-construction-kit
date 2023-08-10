@@ -16,6 +16,7 @@
 
 #include <compiler/utils/dma.h>
 #include <llvm/ADT/StringSwitch.h>
+#include <llvm/IR/Operator.h>
 #include <multi_llvm/opaque_pointers.h>
 #include <refsi_m1/refsi_mux_builtin_info.h>
 
@@ -379,7 +380,8 @@ Function *RefSiM1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
                                              ArrayRef<Type *> OverloadInfo) {
   assert(compiler::utils::BuiltinInfo::isMuxBuiltinID(ID) &&
          "Only handling mux builtins");
-  auto FnName = compiler::utils::BuiltinInfo::getMuxBuiltinName(ID);
+  auto FnName =
+      compiler::utils::BuiltinInfo::getMuxBuiltinName(ID, OverloadInfo);
   Function *F = M.getFunction(FnName);
 
   // FIXME: We'd ideally want to declare it here to reduce pass

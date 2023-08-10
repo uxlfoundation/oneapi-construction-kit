@@ -36,10 +36,10 @@ define spir_func i32 @sub_group_broadcast_test(i32 %val, i32 %lid) #0 !reqd_work
 ; CHECK-DAG: [[XADDYLSX:%.*]] = add i32 [[X]], [[YLSX]]
 ; CHECK-DAG: [[LIDSUBXADDYLSX:%.*]] = sub i32 [[LID]], [[XADDYLSX]]
 ; CHECK: [[Z:%.*]] = udiv i32 [[LIDSUBXADDYLSX]], [[LSXLSY]]
-; CHECK: [[RESULT:%.*]] = call i32 @_Z20work_group_broadcastijjj(i32 [[VAL]], i32 [[X]], i32 [[Y]], i32 [[Z]])
+; CHECK: [[RESULT:%.*]] = call i32 @__mux_work_group_broadcast_i32(i32 0, i32 [[VAL]], i32 [[X]], i32 [[Y]], i32 [[Z]])
 ; CHECK: ret i32 [[RESULT]]
 entry:
-  %call = call spir_func i32 @_Z19sub_group_broadcastij(i32 %val, i32 %lid)
+  %call = call spir_func i32 @__mux_sub_group_broadcast_i32(i32 %val, i32 %lid)
   ret i32 %call
 }
 
@@ -50,5 +50,5 @@ attributes #0 = { "mux-kernel"="entry-point" }
 !0 = !{i32 13, i32 64, i32 64}
 !1 = !{i32 3, i32 0}
 
-; CHECK: declare spir_func i32 @_Z20work_group_broadcastijjj(i32, i32, i32, i32)
-declare spir_func i32 @_Z19sub_group_broadcastij(i32, i32)
+; CHECK: declare spir_func i32 @__mux_work_group_broadcast_i32(i32, i32, i32, i32, i32)
+declare spir_func i32 @__mux_sub_group_broadcast_i32(i32, i32)

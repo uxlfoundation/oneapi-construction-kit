@@ -22,12 +22,13 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: %localVarTypes = type { i16, [6 x i8], ptr addrspace(3), i32 }
+; CHECK: %localVarTypes = type { i16, [6 x i8], ptr addrspace(3), i32, i1 }
 
 @a = internal addrspace(3) global i16 undef, align 2
 @b = internal addrspace(3) global [4 x float] undef, align 4
 @c = internal addrspace(3) global i32 addrspace(3)* undef
 @d = internal addrspace(3) global i32 undef
+@e = internal addrspace(3) global i1 undef
 
 ; CHECK: define internal spir_kernel void @add(ptr addrspace(1) %in, ptr addrspace(1) %out, ptr [[STRUCTPTR:%.*]]) #[[ATTRS:[0-9]+]]
 ; CHECK: [[GEP:%.*]] = getelementptr inbounds %localVarTypes, ptr [[STRUCTPTR]], i32 0, i32 0
@@ -50,6 +51,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 define spir_kernel void @add(i32 addrspace(1)* %in, i32 addrspace(1)* %out) #0 {
   %ld = load i16, i16 addrspace(3)* @a, align 2
   %val = cmpxchg i32 addrspace(3)* addrspace(3)* @c, i32 addrspace(3)* @d, i32 addrspace(3)* @d acq_rel monotonic
+  %ldi1 = load i1, i1 addrspace(3)* @e, align 1
   ret void
 }
 

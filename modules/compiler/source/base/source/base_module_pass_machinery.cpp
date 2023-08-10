@@ -264,11 +264,6 @@ parseEncodeKernelMetadataPassOptions(StringRef Params) {
   return Opts;
 }
 
-Expected<bool> parseLinkBuiltinsPassOptions(StringRef Params) {
-  return compiler::utils::parseSinglePassOption(Params, "early",
-                                                "LinkBuiltinsPass");
-}
-
 Expected<bool> parseReplaceMuxMathDeclsPassOptions(StringRef Params) {
   return compiler::utils::parseSinglePassOption(Params, "fast",
                                                 "ReplaceMuxMathDeclsPass");

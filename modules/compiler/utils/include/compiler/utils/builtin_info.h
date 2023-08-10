@@ -320,124 +320,6 @@ enum BuiltinMatFlags : int32_t {
   eBuiltinMatDefinition = (1 << 0)
 };
 
-/// @brief Describes the kind of subgroup reduction corresponding to a builtin.
-enum BuiltinSubgroupReduceKind : int32_t {
-  /// @brief Not a subgroup reduction
-  eBuiltinSubgroupReduceInvalid,
-  /// @brief sub_group_all
-  eBuiltinSubgroupAll,
-  /// @brief sub_group_any
-  eBuiltinSubgroupAny,
-  /// @brief sub_group_reduce_add
-  eBuiltinSubgroupReduceAdd,
-  /// @brief sub_group_reduce_min
-  eBuiltinSubgroupReduceMin,
-  /// @brief sub_group_reduce_max
-  eBuiltinSubgroupReduceMax,
-  /// @brief sub_group_reduce_mul
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceMul,
-  /// @brief sub_group_reduce_and
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceAnd,
-  /// @brief sub_group_reduce_or
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceOr,
-  /// @brief sub_group_reduce_xor
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceXor,
-  /// @brief sub_group_reduce_logical_and
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceLogicalAnd,
-  /// @brief sub_group_reduce_logical_or
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceLogicalOr,
-  /// @brief sub_group_reduce_logical_xor
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupReduceLogicalXor,
-};
-
-/// @brief Describes the kind of subgroup scan corresponding to a builtin.
-enum BuiltinSubgroupScanKind : int32_t {
-  /// @brief Not a subgroup reduction
-  eBuiltinSubgroupScanInvalid,
-  /// @brief sub_group_scan_add_inclusive
-  eBuiltinSubgroupScanAddIncl,
-  /// @brief sub_group_scan_add_exclusive
-  eBuiltinSubgroupScanAddExcl,
-  /// @brief sub_group_scan_min_inclusive
-  eBuiltinSubgroupScanMinIncl,
-  /// @brief sub_group_scan_min_exclusive
-  eBuiltinSubgroupScanMinExcl,
-  /// @brief sub_group_scan_max_inclusive
-  eBuiltinSubgroupScanMaxIncl,
-  /// @brief sub_group_scan_max_exclusive
-  eBuiltinSubgroupScanMaxExcl,
-  /// @brief sub_group_scan_mul_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanMulIncl,
-  /// @brief sub_group_scan_mul_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanMulExcl,
-  /// @brief sub_group_scan_and_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanAndIncl,
-  /// @brief sub_group_scan_and_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanAndExcl,
-  /// @brief sub_group_scan_or_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanOrIncl,
-  /// @brief sub_group_scan_or_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanOrExcl,
-  /// @brief sub_group_scan_xor_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanXorIncl,
-  /// @brief sub_group_scan_xor_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanXorExcl,
-  /// @brief sub_group_scan_logical_and_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanLogicalAndIncl,
-  /// @brief sub_group_scan_logical_and_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanLogicalAndExcl,
-  /// @brief sub_group_scan_logical_or_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanLogicalOrIncl,
-  /// @brief sub_group_scan_logical_or_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanLogicalOrExcl,
-  /// @brief sub_group_scan_logical_xor_inclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanLogicalXorIncl,
-  /// @brief sub_group_scan_logical_xor_exclusive
-  ///
-  /// Provided by SPV_KHR_uniform_group_instructions.
-  eBuiltinSubgroupScanLogicalXorExcl,
-};
-
 class BIMuxInfoConcept;
 class BILangInfoConcept;
 
@@ -502,23 +384,6 @@ class BuiltinInfo {
   /// @return Equivalent scalar builtin function on success.
   llvm::Function *getScalarEquivalent(Builtin const &B, llvm::Module *M);
 
-  /// @brief Determine the kind of subgroup reduction pertaining to the
-  /// specified builtin.
-  /// @param[in] B Builtin to query.
-  /// @return The BuiltinSubgroupReduceKind corresponding to the argument,
-  /// returning eBuiltinSubgroupReduceInvalid if the argument is not a
-  /// subgroup reduction.
-  BuiltinSubgroupReduceKind getBuiltinSubgroupReductionKind(
-      Builtin const &B) const;
-
-  /// @brief Determine the kind of subgroup scan pertaining to the specified
-  /// builtin.
-  /// @param[in] B Builtin to query.
-  /// @return The BuiltinSubgroupScanKind corresponding to the argument,
-  /// returning eBuiltinSubgroupScanInvalid if the argument is not a subgroup
-  /// reduction.
-  BuiltinSubgroupScanKind getBuiltinSubgroupScanKind(Builtin const &B) const;
-
   /// @brief Emit an inline implementation of the builtin function F.
   /// @param[in] Builtin Builtin function to emit an implementation for.
   /// @param[in] B Insertion point for the implementation.
@@ -561,17 +426,6 @@ class BuiltinInfo {
   /// type> <builtin name>(<char*>, ...)`.
   BuiltinID getPrintfBuiltin() const;
 
-  /// @brief Get a builtin for a subgroup per-lane identifier.
-  /// @return An identifier for the builtin, or the invalid builtin if there
-  /// is none. This builtin should have a signature of `i32 <builtin name>()`.
-  BuiltinID getSubgroupLocalIdBuiltin() const;
-
-  /// @brief Get a builtin for a subgroup broadcast.
-  /// @return An identifier for the builtin, or the invalid builtin if there
-  /// is none. This builtin should have a signature of `<scalar ty> <builtin
-  /// name>(<scalar ty>, i32)`.
-  BuiltinID getSubgroupBroadcastBuiltin() const;
-
   /// @brief Returns true if the given ID is a ComputeMux builtin ID.
   static bool isMuxBuiltinID(BuiltinID ID) {
     return ID > eBuiltinInvalid && ID < eFirstTargetBuiltin;
@@ -601,13 +455,6 @@ class BuiltinInfo {
   }
 
   /// @brief Gets information about a mux group operation builtin
-  ///
-  /// Note: Does not set the 'function' or 'type' members of the
-  /// GroupCollective.
-  ///
-  /// FIXME: This matches an equivalent function in group_collective_helpers.h
-  /// which runs on OpenCL builtins. Remove that once the transition to mux
-  /// builtins is complete.
   static std::optional<GroupCollective> isMuxGroupCollective(BuiltinID ID);
 
   /// @brief Maps a ComputeMux builtin ID to its function name.
@@ -878,6 +725,8 @@ class BIMuxInfoConcept {
   llvm::Function *defineGetEnqueuedLocalSize(llvm::Module &M);
   llvm::Function *defineMemBarrier(llvm::Function &F, unsigned ScopeIdx,
                                    unsigned SemanticsIdx);
+  llvm::Function *defineGetSubGroupSize(llvm::Function &F);
+  llvm::Function *defineGetSubGroupLocalId(llvm::Function &F);
   /// @brief Provides a default implementation for `__mux_dma_read_1D` and
   /// `__mux_dma_write_1D`.
   ///
@@ -932,16 +781,6 @@ class BILangInfoConcept {
   /// @see BuiltinInfo::getScalarEquivalent
   virtual llvm::Function *getScalarEquivalent(Builtin const &B,
                                               llvm::Module *M) = 0;
-  /// @see BuiltinInfo::getBuiltinSubgroupReductionKind
-  virtual BuiltinSubgroupReduceKind getBuiltinSubgroupReductionKind(
-      Builtin const &) const {
-    return eBuiltinSubgroupReduceInvalid;
-  }
-  /// @see BuiltinInfo::getBuiltinSubgroupScanKind
-  virtual BuiltinSubgroupScanKind getBuiltinSubgroupScanKind(
-      Builtin const &) const {
-    return eBuiltinSubgroupScanInvalid;
-  }
   /// @see BuiltinInfo::emitBuiltinInline
   virtual llvm::Value *emitBuiltinInline(
       llvm::Function *Builtin, llvm::IRBuilder<> &B,
@@ -967,14 +806,6 @@ class BILangInfoConcept {
   }
   /// @see BuiltinInfo::getPrintfBuiltin
   virtual BuiltinID getPrintfBuiltin() const = 0;
-  /// @see BuiltinInfo::getSubgroupLocalIdBuiltin
-  virtual BuiltinID getSubgroupLocalIdBuiltin() const {
-    return eBuiltinInvalid;
-  }
-  /// @see BuiltinInfo::getSubgroupBroadcastBuiltin
-  virtual BuiltinID getSubgroupBroadcastBuiltin() const {
-    return eBuiltinInvalid;
-  }
 };
 
 /// @brief Caches and returns the BuiltinInfo for a Module.

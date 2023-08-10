@@ -52,6 +52,7 @@
 #include <compiler/utils/replace_atomic_funcs_pass.h>
 #include <compiler/utils/replace_barriers_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
+#include <compiler/utils/replace_group_funcs_pass.h>
 #include <compiler/utils/replace_target_ext_tys_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
@@ -1712,6 +1713,7 @@ Result BaseModule::finalize(
 
   pm.addPass(compiler::utils::ReplaceC11AtomicFuncsPass());
   pm.addPass(compiler::utils::ReplaceBarriersPass());
+  pm.addPass(compiler::utils::ReplaceGroupFuncsPass());
 
   if (options.prevec_mode != compiler::PreVectorizationMode::NONE) {
     llvm::FunctionPassManager fpm;

@@ -84,9 +84,10 @@ AlignIntTy calculateTypeAlign(Type *type, const DataLayout &layout) {
     return layout.getPointerSize();
   }
 
-  // size of member in bytes
+  // size of member in bytes - at least 8 bits to avoid zero alignment on
+  // integer types smaller than i8.
   const unsigned int vectorSize =
-      (type->getScalarSizeInBits() * vectorWidth) / 8;
+      (std::max(type->getScalarSizeInBits(), 8u) * vectorWidth) / 8;
 
   return vectorSize;
 }
