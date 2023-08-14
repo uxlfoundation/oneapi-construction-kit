@@ -17,8 +17,8 @@
 #include <base/base_pass_machinery.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/cl_builtin_info.h>
+#include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/mangling.h>
-#include <compiler/utils/replace_group_funcs_pass.h>
 #include <llvm/ADT/SmallPtrSet.h>
 #include <llvm/IR/PassManager.h>
 #include <llvm/Support/Debug.h>
@@ -354,7 +354,7 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
   // This tests:
   // * auto-generates all possible OpenCL group builtins and calls them in a
   // single test function
-  // * runs the ReplaceGroupFuncsPass to replace calls to the mux builtins
+  // * runs the LowerToMuxBuiltinsPass to replace calls to the mux builtins
   // * tests a round-trip between identifying and declaring those mux builtins
   template <GroupCollective::ScopeKind GroupScope>
   void doTestBody() {
@@ -378,7 +378,7 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
     auto M = parseModule(ModuleStr);
 
     ModulePassManager PM;
-    PM.addPass(ReplaceGroupFuncsPass());
+    PM.addPass(LowerToMuxBuiltinsPass());
 
     PM.run(*M, PassMach->getMAM());
 

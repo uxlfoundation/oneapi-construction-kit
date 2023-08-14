@@ -107,12 +107,9 @@ class CLBuiltinInfo : public BILangInfoConcept {
       llvm::CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
       std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const override;
 
-  /// @see BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin
-  llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(
-      llvm::CallInst &, BIMuxInfoConcept &) override;
-  /// @see BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin
-  llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(
-      llvm::CallInst &, BIMuxInfoConcept &) override;
+  /// @see BuiltinInfo::lowerBuiltinToMuxBuiltin
+  llvm::Instruction *lowerBuiltinToMuxBuiltin(llvm::CallInst &,
+                                              BIMuxInfoConcept &) override;
   /// @see BuiltinInfo::getPrintfBuiltin
   BuiltinID getPrintfBuiltin() const override;
 
@@ -122,6 +119,10 @@ class CLBuiltinInfo : public BILangInfoConcept {
   llvm::Function *materializeBuiltin(
       llvm::StringRef BuiltinName, llvm::Module *DestM = nullptr,
       BuiltinMatFlags Flags = eBuiltinMatDefault);
+
+  llvm::Instruction *lowerGroupBuiltinToMuxBuiltin(llvm::CallInst &CI,
+                                                   BuiltinID ID,
+                                                   BIMuxInfoConcept &BIMuxImpl);
 
   llvm::Value *emitBuiltinInline(BuiltinID ID, llvm::IRBuilder<> &B,
                                  llvm::ArrayRef<llvm::Value *> Args);

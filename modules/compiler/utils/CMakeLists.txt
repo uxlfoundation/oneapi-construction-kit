@@ -38,6 +38,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/handle_barriers_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/link_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/llvm_global_mutex.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/lower_to_mux_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/make_function_name_unique_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/mangling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/materialize_absent_work_item_builtins_pass.h
@@ -58,9 +59,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_address_space_qualifier_functions_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_async_copies_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_atomic_funcs_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_barriers_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_c11_atomic_funcs_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_group_funcs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_local_module_scope_variables_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mem_intrinsics_pass.h  
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_mux_math_decls_pass.h
@@ -91,6 +90,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/handle_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/link_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/llvm_global_mutex.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lower_to_mux_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/make_function_name_unique_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mangling.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/materialize_absent_work_item_builtins_pass.cpp
@@ -110,9 +110,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_address_space_qualifier_functions_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_async_copies_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_atomic_funcs_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_c11_atomic_funcs_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_group_funcs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_local_module_scope_variables_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mem_intrinsics_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_mux_math_decls_pass.cpp

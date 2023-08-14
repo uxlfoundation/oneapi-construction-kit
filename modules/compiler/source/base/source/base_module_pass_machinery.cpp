@@ -41,6 +41,7 @@
 #include <compiler/utils/fixup_calling_convention_pass.h>
 #include <compiler/utils/handle_barriers_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
+#include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
 #include <compiler/utils/materialize_absent_work_item_builtins_pass.h>
 #include <compiler/utils/metadata_analysis.h>
@@ -55,9 +56,7 @@
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
 #include <compiler/utils/replace_async_copies_pass.h>
 #include <compiler/utils/replace_atomic_funcs_pass.h>
-#include <compiler/utils/replace_barriers_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
-#include <compiler/utils/replace_group_funcs_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
 #include <compiler/utils/replace_mem_intrinsics_pass.h>
 #include <compiler/utils/replace_mux_math_decls_pass.h>

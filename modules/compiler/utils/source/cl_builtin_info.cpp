@@ -1038,13 +1038,13 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
       IsConvergent = true;
       Properties |= eBuiltinPropertyExecutionFlow;
       Properties |= eBuiltinPropertySideEffects;
-      Properties |= eBuiltinPropertyMapToMuxSyncBuiltin;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinMemFence:
     case eCLBuiltinReadMemFence:
     case eCLBuiltinWriteMemFence:
       Properties |= eBuiltinPropertySupportsInstantiation;
-      Properties |= eBuiltinPropertyMapToMuxSyncBuiltin;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinPrintf:
       Properties |= eBuiltinPropertySideEffects;
@@ -1088,7 +1088,7 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinGetSubgroupLocalId:
       Properties |= eBuiltinPropertyWorkItem;
       Properties |= eBuiltinPropertyRematerializable;
-      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinGetLocalId:
       Properties |= eBuiltinPropertyWorkItem;
@@ -1202,10 +1202,10 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
       IsConvergent = true;
       LLVM_FALLTHROUGH;
     case eCLBuiltinAtomicWorkItemFence:
-      Properties |= eBuiltinPropertyMapToMuxSyncBuiltin;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinGetSubgroupSize:
-      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
       // Subgroup collectives
     case eCLBuiltinSubgroupAll:
@@ -1276,7 +1276,7 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinWorkgroupScanLogicalXorInclusive:
     case eCLBuiltinWorkgroupScanLogicalXorExclusive:
       IsConvergent = true;
-      Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
   }
 
@@ -2818,7 +2818,7 @@ static multi_llvm::Optional<unsigned> parseMemoryOrderParam(Value *const P) {
   return multi_llvm::None;
 }
 
-Instruction *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
+Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
     CallInst &CI, BIMuxInfoConcept &BIMuxImpl) {
   auto &M = *CI.getModule();
   auto *const F = CI.getCalledFunction();
@@ -2834,6 +2834,11 @@ Instruction *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
 
   switch (ID) {
     default:
+      // Sub-group and work-group builtins need lowering to their mux
+      // equivalents.
+      if (auto *const NewI = lowerGroupBuiltinToMuxBuiltin(CI, ID, BIMuxImpl)) {
+        return NewI;
+      }
       return nullptr;
     case eCLBuiltinSubGroupBarrier:
       CtrlBarrierID = eMuxBuiltinSubGroupBarrier;
@@ -2899,28 +2904,26 @@ Instruction *CLBuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(
       NewCI->setAttributes(MemBarrier->getAttributes());
       return NewCI;
     }
+    case eCLBuiltinGetSubgroupSize:
+    case eCLBuiltinGetSubgroupLocalId: {
+      BaseBuiltinID MuxBuiltinID = ID == eCLBuiltinGetSubgroupSize
+                                       ? eMuxBuiltinGetSubGroupSize
+                                       : eMuxBuiltinGetSubGroupLocalId;
+      auto *const MuxBuiltinFn =
+          BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M);
+      auto *const NewCI =
+          CallInst::Create(MuxBuiltinFn, /*Args*/ {}, CI.getName(), &CI);
+      NewCI->setAttributes(MuxBuiltinFn->getAttributes());
+      return NewCI;
+    }
   }
 }
 
-Instruction *CLBuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(
-    CallInst &CI, BIMuxInfoConcept &BIMuxImpl) {
+Instruction *CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(
+    CallInst &CI, BuiltinID ID, BIMuxInfoConcept &BIMuxImpl) {
   auto &M = *CI.getModule();
   auto *const F = CI.getCalledFunction();
   assert(F && "No calling function?");
-  auto const Builtin = analyzeBuiltin(*F);
-
-  if (Builtin.ID == eCLBuiltinGetSubgroupSize ||
-      Builtin.ID == eCLBuiltinGetSubgroupLocalId) {
-    BaseBuiltinID MuxBuiltinID = Builtin.ID == eCLBuiltinGetSubgroupSize
-                                     ? eMuxBuiltinGetSubGroupSize
-                                     : eMuxBuiltinGetSubGroupLocalId;
-    auto *const MuxBuiltinFn =
-        BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M);
-    auto *const NewCI =
-        CallInst::Create(MuxBuiltinFn, /*Args*/ {}, CI.getName(), &CI);
-    NewCI->setAttributes(MuxBuiltinFn->getAttributes());
-    return NewCI;
-  }
 
   // Some ops need extra checking to determine their mux ID:
   // * add/mul operations are split into integer/float
@@ -2930,7 +2933,7 @@ Instruction *CLBuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(
   // builtin ID.
   bool RecheckOpType = false;
   BaseBuiltinID MuxBuiltinID = eBuiltinInvalid;
-  switch (Builtin.ID) {
+  switch (ID) {
     default:
       return nullptr;
     case eCLBuiltinSubgroupAll:

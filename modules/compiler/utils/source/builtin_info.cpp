@@ -535,17 +535,9 @@ std::optional<llvm::ConstantRange> BuiltinInfo::getBuiltinRange(
   return std::nullopt;
 }
 
-Instruction *BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(CallInst &CI) {
+Instruction *BuiltinInfo::lowerBuiltinToMuxBuiltin(CallInst &CI) {
   if (LangImpl) {
-    return LangImpl->mapSyncBuiltinToMuxSyncBuiltin(CI, *MuxImpl);
-  }
-  // We shouldn't be mapping mux builtins to mux builtins, so we can stop here.
-  return nullptr;
-}
-
-Instruction *BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin(CallInst &CI) {
-  if (LangImpl) {
-    return LangImpl->mapGroupBuiltinToMuxGroupBuiltin(CI, *MuxImpl);
+    return LangImpl->lowerBuiltinToMuxBuiltin(CI, *MuxImpl);
   }
   // We shouldn't be mapping mux builtins to mux builtins, so we can stop here.
   return nullptr;
