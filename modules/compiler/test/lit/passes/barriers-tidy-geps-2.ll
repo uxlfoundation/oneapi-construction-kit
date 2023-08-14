@@ -25,12 +25,12 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 ; CHECK: i32 @tidy_barrier.mux-barrier-region.1
 
 ; makes sure the global id call got duplicated after the barrier
-; CHECK: call {{.*}}i64 @_Z13get_global_idj(i32 {{()?}}0)
+; CHECK: call {{.*}}i64 @__mux_get_global_id(i32 {{()?}}0)
 
 define void @tidy_barrier(i32 addrspace(1)* %in, i32 addrspace(1)* %out) #0 {
 entry:
-  %call = tail call i64 @_Z13get_global_idj(i32 0)
-  %call1 = tail call i64 @_Z13get_global_idj(i32 1)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
+  %call1 = tail call i64 @__mux_get_global_id(i32 1)
   %0 = shl i64 %call1, 32
   %idxprom = ashr exact i64 %0, 32
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %in, i64 %idxprom
@@ -44,12 +44,6 @@ entry:
   %mul = mul nsw i32 %3, %1
   store i32 %mul, i32 addrspace(1)* %add.ptr4, align 4
   ret void
-}
-
-define internal i64 @_Z13get_global_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_global_id(i32 %x)
-  ret i64 %call
 }
 
 declare void @__mux_work_group_barrier(i32, i32, i32)

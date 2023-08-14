@@ -41,7 +41,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK-DAG: warning: /tmp/printf.cl:11:0: the '*' width sub-specifier is not supported
 define spir_kernel void @do_printf(ptr addrspace(1) %a) {
 entry:
-  %id = call spir_func i64 @_Z13get_global_idj(i32 0)
+  %id = call i64 @__mux_get_global_id(i32 0)
   %c0 = call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @invalid_length_modifier_z, i64 zeroinitializer), !dbg !9
   %c1 = call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @vector_without_length, <2 x i32> zeroinitializer), !dbg !10
   %c2 = call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) @ran_off_end_1, i32 zeroinitializer), !dbg !11
@@ -54,7 +54,7 @@ entry:
   ret void
 }
 
-declare spir_func i64 @_Z13get_global_idj(i32)
+declare i64 @__mux_get_global_id(i32)
 
 declare spir_func i32 @printf(ptr addrspace(2), ...)
 

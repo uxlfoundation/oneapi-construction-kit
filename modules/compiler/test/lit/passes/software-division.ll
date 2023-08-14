@@ -24,7 +24,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK: [[SAFE:%.*]] = select i1 [[CMP]], i64 1, i64 %gid
 ; CHECK: udiv i64 %x.conv, [[SAFE]]
 define spir_kernel void @zero_udiv(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
-  %gid = tail call spir_func i64 @_Z13get_global_idj(i32 0)
+  %gid = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %in, i64 %gid
   %x = load i32, i32 addrspace(1)* %arrayidx, align 4
   %x.conv = sext i32 %x to i64
@@ -44,7 +44,7 @@ define spir_kernel void @zero_udiv(i32 addrspace(1)* %in, i32 addrspace(1)* %out
 ; CHECK: [[SAFE:%.*]] = select i1 [[CMP5]], i64 1, i64 %gid
 ; CHECK: sdiv i64 %x.conv, [[SAFE]]
 define spir_kernel void @zero_sdiv(i32 addrspace(1)* %in, i32 addrspace(1)* %out) {
-  %gid = tail call spir_func i64 @_Z13get_global_idj(i32 0)
+  %gid = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %in, i64 %gid
   %x = load i32, i32 addrspace(1)* %arrayidx, align 4
   %x.conv = sext i32 %x to i64
@@ -61,7 +61,7 @@ define spir_kernel void @zero_sdiv(i32 addrspace(1)* %in, i32 addrspace(1)* %out
 ; CHECK: [[SAFE:%.*]] = select i1 [[CMP]], i64 1, i64 %gid
 ; CHECK: udiv i64 %x.conv, [[SAFE]]
 define spir_kernel void @zero_udiv_optnone(i32 addrspace(1)* %in, i32 addrspace(1)* %out) optnone noinline {
-  %gid = tail call spir_func i64 @_Z13get_global_idj(i32 0)
+  %gid = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %in, i64 %gid
   %x = load i32, i32 addrspace(1)* %arrayidx, align 4
   %x.conv = sext i32 %x to i64
@@ -72,4 +72,4 @@ define spir_kernel void @zero_udiv_optnone(i32 addrspace(1)* %in, i32 addrspace(
   ret void
 }
 
-declare spir_func i64 @_Z13get_global_idj(i32)
+declare i64 @__mux_get_global_id(i32)

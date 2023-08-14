@@ -51,7 +51,7 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 define void @barrier_cfg_loop(i32 addrspace(1)* %d, i32 addrspace(1)* %a) #0 {
 entry:
-  %call = tail call i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   br label %for.body
 
 for.cond.cleanup:                                 ; preds = %for.body
@@ -71,12 +71,6 @@ for.body:                                         ; preds = %for.body, %entry
   %inc = add nuw nsw i64 %i.08, 1
   %cmp.not = icmp eq i64 %inc, 10
   br i1 %cmp.not, label %for.cond.cleanup, label %for.body
-}
-
-define internal i64 @_Z13get_global_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_global_id(i32 %x)
-  ret i64 %call
 }
 
 declare void @__mux_work_group_barrier(i32, i32, i32)

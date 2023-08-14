@@ -40,9 +40,9 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 define void @unordered_barriers(ptr addrspace(1) %srcptr, ptr addrspace(1) %dstptr) #0 {
 entry:
-  %call = tail call i64 @_Z12get_local_idj(i32 0) #6
+  %call = tail call i64 @__mux_get_local_id(i32 0) #6
   %conv = trunc i64 %call to i32
-  %call1 = tail call i64 @_Z13get_global_idj(i32 0)
+  %call1 = tail call i64 @__mux_get_global_id(i32 0)
   %0 = add nsw i32 %conv, -1
   %1 = icmp ult i32 %0, 32
   br i1 %1, label %if.then, label %if.end
@@ -74,10 +74,6 @@ if.end21:                                         ; preds = %if.then17, %if.end
   store float %total_sum.2, ptr addrspace(1) %arrayidx23, align 4
   ret void
 }
-
-declare i64 @_Z12get_local_idj(i32 %x)
-
-declare i64 @_Z13get_global_idj(i32 %x)
 
 declare void @__mux_work_group_barrier(i32, i32, i32)
 

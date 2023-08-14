@@ -29,16 +29,14 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 ; CHECK-DAG: shufflevector <[[N]] x i32> %{{.+}}, <[[N]] x i32> {{poison|undef}}, <[[N]] x i32> zeroinitializer
 
 ; makes sure the global id call got duplicated after the barrier
-; CHECK-DAG: call {{.*}}i{{32|64}} @_Z13get_global_idj(i{{32|64}}{{.*}} 0)
-
-declare i64 @_Z13get_global_idj(i32 %x)
+; CHECK-DAG: call {{.*}}i{{32|64}} @__mux_get_global_id(i{{32|64}}{{.*}} 0)
 
 declare void @__mux_work_group_barrier(i32, i32, i32) #2
 
 define void @tidy_barrier(ptr addrspace(1) %in, ptr addrspace(1) %out) #0 {
 entry:
-  %call = tail call i64 @_Z13get_global_idj(i32 0) #4
-  %call1 = tail call i64 @_Z13get_global_idj(i32 1) #4
+  %call = tail call i64 @__mux_get_global_id(i32 0) #4
+  %call1 = tail call i64 @__mux_get_global_id(i32 1) #4
   %arrayidx = getelementptr inbounds i32, ptr addrspace(1) %in, i64 %call1
   %0 = load i32, ptr addrspace(1) %arrayidx, align 4
   %.splatinsert = insertelement <16 x i32> poison, i32 %0, i64 0
