@@ -23,7 +23,6 @@
 #include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
-#include <compiler/utils/materialize_absent_work_item_builtins_pass.h>
 #include <compiler/utils/optimal_builtin_replacement_pass.h>
 #include <compiler/utils/prepare_barriers_pass.h>
 #include <compiler/utils/reduce_to_function_pass.h>
@@ -69,8 +68,6 @@ void addPreVeczPasses(ModulePassManager &PM,
 void addLateBuiltinsPasses(ModulePassManager &PM,
                            const BasePassPipelineTuner &tuner) {
   PM.addPass(compiler::utils::LinkBuiltinsPass());
-
-  PM.addPass(compiler::utils::MaterializeAbsentWorkItemBuiltinsPass());
 
   PM.addPass(compiler::utils::DefineMuxDmaPass());
 

@@ -37,8 +37,6 @@ MODULE_PASS("degenerate-sub-groups", compiler::utils::DegenerateSubGroupPass())
 MODULE_PASS("link-builtins", compiler::utils::LinkBuiltinsPass())
 MODULE_PASS("lower-to-mux-builtins", compiler::utils::LowerToMuxBuiltinsPass())
 
-MODULE_PASS("missing-builtins",
-            compiler::utils::MaterializeAbsentWorkItemBuiltinsPass())
 MODULE_PASS("prepare-barriers", compiler::utils::PrepareBarriersPass())
 MODULE_PASS("rename-builtins", compiler::utils::RenameBuiltinsPass())
 MODULE_PASS("replace-async-copies", compiler::utils::ReplaceAsyncCopiesPass())

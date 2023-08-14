@@ -33,7 +33,6 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; PRE-VECZ: Running pass: compiler::utils::PrepareBarriersPass
 
 ; LATE-BUILTINS: Running pass: compiler::utils::LinkBuiltinsPass
-; LATE-BUILTINS: Running pass: compiler::utils::MaterializeAbsentWorkItemBuiltinsPass
 ; LATE-BUILTINS: Running pass: compiler::utils::DefineMuxDmaPass
 ; LATE-BUILTINS: Running pass: compiler::utils::ReplaceMuxMathDeclsPass
 ; LATE-BUILTINS: Running pass: compiler::utils::OptimalBuiltinReplacementPass
