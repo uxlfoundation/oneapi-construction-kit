@@ -183,7 +183,7 @@ define spir_func i32 @get_max_sub_group_size_test() #0 !reqd_work_group_size !0 
 ; CHECK: [[RESULT:%.*]] = trunc i64 [[LOCALSIZE]] to i32
 ; CHECK: ret i32 [[RESULT]]
 entry:
-  %call = call spir_func i32 @_Z22get_max_sub_group_sizev()
+  %call = call spir_func i32 @__mux_get_max_sub_group_size()
   ret i32 %call
 }
 
@@ -192,16 +192,7 @@ define spir_func i32 @get_num_sub_groups_test() #0 !reqd_work_group_size !0 {
 ; CHECK-LABEL: entry:
 ; CHECK: ret i32 1
 entry:
-  %call = call spir_func i32 @_Z18get_num_sub_groupsv()
-  ret i32 %call
-}
-
-; CHECK: define spir_func i32 @get_enqueued_num_sub_groups_test()
-define spir_func i32 @get_enqueued_num_sub_groups_test() #0 !reqd_work_group_size !0 {
-; CHECK-LABEL: entry:
-; CHECK: ret i32 1
-entry:
-  %call = call spir_func i32 @_Z27get_enqueued_num_sub_groupsv()
+  %call = call spir_func i32 @__mux_get_num_sub_groups()
   ret i32 %call
 }
 
@@ -210,7 +201,7 @@ define spir_func i32 @get_sub_group_id_test() #0 !reqd_work_group_size !0 {
 ; CHECK-LABEL: entry:
 ; CHECK: ret i32 0
 entry:
-  %call = call spir_func i32 @_Z16get_sub_group_idv()
+  %call = call spir_func i32 @__mux_get_sub_group_id()
   ret i32 %call
 }
 
@@ -261,10 +252,9 @@ declare spir_func i32 @__mux_sub_group_scan_inclusive_smin_i32(i32)
 declare spir_func i32 @__mux_sub_group_scan_inclusive_smax_i32(i32)
 ; CHECK-DAG: declare spir_func i64 @__mux_get_local_size(i32)
 declare spir_func i32 @__mux_get_sub_group_size()
-declare spir_func i32 @_Z22get_max_sub_group_sizev()
-declare spir_func i32 @_Z18get_num_sub_groupsv()
-declare spir_func i32 @_Z27get_enqueued_num_sub_groupsv()
-declare spir_func i32 @_Z16get_sub_group_idv()
+declare spir_func i32 @__mux_get_max_sub_group_size()
+declare spir_func i32 @__mux_get_num_sub_groups()
+declare spir_func i32 @__mux_get_sub_group_id()
 ; CHECK-DAG: declare spir_func i64 @__mux_get_local_linear_id()
 declare spir_func i32 @__mux_get_sub_group_local_id()
 ; CHECK-DAG: declare spir_func void @__mux_work_group_barrier(i32, i32, i32)

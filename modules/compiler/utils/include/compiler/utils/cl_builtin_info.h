@@ -21,9 +21,8 @@
 #ifndef COMPILER_UTILS_CL_BUILTIN_INFO_H_INCLUDED
 #define COMPILER_UTILS_CL_BUILTIN_INFO_H_INCLUDED
 
+#include <compiler/utils/builtin_info.h>
 #include <compiler/utils/mangling.h>
-
-#include "builtin_info.h"
 
 namespace compiler {
 namespace utils {

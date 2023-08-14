@@ -119,29 +119,6 @@ function cxx_unsafe_end()
   [[ "cxx" != "$generated_output_type" ]] && force_cxx_unsafe_end
 }
 
-function all_work_item()
-{
-  echo "extern size_t __attribute__((pure)) __mux_get_local_linear_id(void);"
-  echo "extern size_t __attribute__((pure)) __mux_get_global_linear_id(void);"
-  echo "extern size_t __attribute__((pure)) __mux_get_enqueued_local_size(uint x);"
-  echo "extern uint __attribute__((pure)) __mux_get_sub_group_id(void);"
-  echo "extern uint __attribute__((pure)) __mux_get_num_sub_groups(void);"
-  echo "extern uint __attribute__((pure)) __mux_get_max_sub_group_size(void);"
-  echo ""
-  echo "size_t __CL_WORK_ITEM_ATTRIBUTES get_local_linear_id(void) {"
-  echo "  return __mux_get_local_linear_id();"
-  echo "}"
-  echo ""
-  echo "size_t __CL_WORK_ITEM_ATTRIBUTES get_global_linear_id(void) {"
-  echo "  return __mux_get_global_linear_id();"
-  echo "}"
-  echo ""
-  echo "size_t __CL_WORK_ITEM_ATTRIBUTES get_enqueued_local_size(uint x) {"
-  echo "  return __mux_get_enqueued_local_size(x);"
-  echo "}"
-  echo ""
-}
-
 function all_ctz()
 {
   echo "#if __OPENCL_C_VERSION__ >= 200"
@@ -483,24 +460,6 @@ function all_sub_group()
     echo "int __CL_BARRIER_ATTRIBUTES sub_group_all(int predicate);"
     echo "int __CL_BARRIER_ATTRIBUTES sub_group_any(int predicate);"
     echo ""
-  elif [[ "cl" == "$generated_output_type" ]]
-  then
-    echo "uint __CL_WORK_ITEM_ATTRIBUTES get_max_sub_group_size(void) {"
-    echo "  return __mux_get_max_sub_group_size();"
-    echo "}"
-    echo ""
-    echo "uint __CL_WORK_ITEM_ATTRIBUTES get_num_sub_groups(void) {"
-    echo "  return __mux_get_num_sub_groups();"
-    echo "}"
-    echo ""
-    echo "uint __CL_WORK_ITEM_ATTRIBUTES get_enqueued_num_sub_groups(void) {"
-    echo "  return get_num_sub_groups();"
-    echo "}"
-    echo ""
-    echo "uint __CL_WORK_ITEM_ATTRIBUTES get_sub_group_id(void) {"
-    echo "  return __mux_get_sub_group_id();"
-    echo "}"
-    echo ""
   fi
 
   if [[ "header" == "$generated_output_type" ]]
@@ -698,8 +657,6 @@ function output_for_type()
   echo -n "Generating: $1 $outputFile ... "
 
   header > "$outputFile"
-
-  [[ "cl" == "$generated_output_type" ]] && all_work_item >> "$outputFile"
 
   [[ "header" == "$generated_output_type" ]] && all_ctz >> "$outputFile"
 

@@ -107,6 +107,8 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
   eCLBuiltinGetLocalId,
   /// @brief OpenCL builtin 'get_local_size'.
   eCLBuiltinGetLocalSize,
+  /// @brief OpenCL builtin 'get_enqueued_local_size'.
+  eCLBuiltinGetEnqueuedLocalSize,
   /// @brief OpenCL builtin 'get_num_groups'.
   eCLBuiltinGetNumGroups,
   /// @brief OpenCL builtin 'get_global_id'.
@@ -119,6 +121,14 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
   eCLBuiltinGetSubgroupLocalId,
   /// @brief OpenCL builtin 'get_sub_group_size' (OpenCL >= 3.0).
   eCLBuiltinGetSubgroupSize,
+  /// @brief OpenCL builtin 'get_max_sub_group_size' (OpenCL >= 3.0).
+  eCLBuiltinGetMaxSubgroupSize,
+  /// @brief OpenCL builtin 'get_num_sub_groups' (OpenCL >= 3.0).
+  eCLBuiltinGetNumSubgroups,
+  /// @brief OpenCL builtin 'get_enqueued_num_sub_groups' (OpenCL >= 3.0).
+  eCLBuiltinGetEnqueuedNumSubgroups,
+  /// @brief OpenCL builtin 'get_sub_group_id' (OpenCL >= 3.0).
+  eCLBuiltinGetSubgroupId,
 
   // 6.12.2 Math Functions
   /// @brief OpenCL builtin 'fmax'.
@@ -547,12 +557,18 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinGetGlobalOffset, "get_global_offset"},
     {eCLBuiltinGetLocalId, "get_local_id"},
     {eCLBuiltinGetLocalSize, "get_local_size"},
+    {eCLBuiltinGetEnqueuedLocalSize, "get_enqueued_local_size"},
     {eCLBuiltinGetNumGroups, "get_num_groups"},
     {eCLBuiltinGetGlobalId, "get_global_id"},
     {eCLBuiltinGetLocalLinearId, "get_local_linear_id", OpenCLC20},
     {eCLBuiltinGetGlobalLinearId, "get_global_linear_id", OpenCLC20},
     {eCLBuiltinGetSubgroupLocalId, "get_sub_group_local_id", OpenCLC30},
     {eCLBuiltinGetSubgroupSize, "get_sub_group_size", OpenCLC30},
+    {eCLBuiltinGetMaxSubgroupSize, "get_max_sub_group_size", OpenCLC30},
+    {eCLBuiltinGetNumSubgroups, "get_num_sub_groups", OpenCLC30},
+    {eCLBuiltinGetEnqueuedNumSubgroups, "get_enqueued_num_sub_groups",
+     OpenCLC30},
+    {eCLBuiltinGetSubgroupId, "get_sub_group_id", OpenCLC30},
 
     // 6.12.2 Math Functions
     {eCLBuiltinFMax, "fmax"},
@@ -938,6 +954,7 @@ BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &B,
     case eCLBuiltinGetGlobalSize:
     case eCLBuiltinGetGlobalOffset:
     case eCLBuiltinGetLocalSize:
+    case eCLBuiltinGetEnqueuedLocalSize:
     case eCLBuiltinGetNumGroups:
       return eBuiltinUniformityAlways;
     case eCLBuiltinAsyncWorkGroupCopy:
@@ -1080,11 +1097,9 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinGetNumGroups:
     case eCLBuiltinGetGlobalId:
     case eCLBuiltinGetLocalSize:
+    case eCLBuiltinGetEnqueuedLocalSize:
     case eCLBuiltinGetLocalLinearId:
     case eCLBuiltinGetGlobalLinearId:
-      Properties |= eBuiltinPropertyWorkItem;
-      Properties |= eBuiltinPropertyRematerializable;
-      break;
     case eCLBuiltinGetSubgroupLocalId:
       Properties |= eBuiltinPropertyWorkItem;
       Properties |= eBuiltinPropertyRematerializable;
@@ -1094,6 +1109,7 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
       Properties |= eBuiltinPropertyWorkItem;
       Properties |= eBuiltinPropertyLocalID;
       Properties |= eBuiltinPropertyRematerializable;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinDot:
     case eCLBuiltinCross:
@@ -1205,6 +1221,10 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
       Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinGetSubgroupSize:
+    case eCLBuiltinGetMaxSubgroupSize:
+    case eCLBuiltinGetNumSubgroups:
+    case eCLBuiltinGetEnqueuedNumSubgroups:
+    case eCLBuiltinGetSubgroupId:
       Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
       // Subgroup collectives
@@ -2709,6 +2729,7 @@ std::optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
       return ConstantRange::getNonEmpty(APInt(Bits, 1), APInt(Bits, 4));
     case eCLBuiltinGetLocalId:
     case eCLBuiltinGetLocalSize:
+    case eCLBuiltinGetEnqueuedLocalSize:
       // Use the local sizes array, and fall through to common handling.
       SizesPtr = &MaxLocalSizes;
       LLVM_FALLTHROUGH;
@@ -2725,6 +2746,7 @@ std::optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
       // offset the range by 1 at each low/high end when returning the range
       // for a size builtin.
       int const SizeAdjust = BuiltinID == eCLBuiltinGetLocalSize ||
+                             BuiltinID == eCLBuiltinGetEnqueuedLocalSize ||
                              BuiltinID == eCLBuiltinGetGlobalSize;
       return ConstantRange::getNonEmpty(
           APInt(Bits, SizeAdjust),
@@ -2818,12 +2840,70 @@ static multi_llvm::Optional<unsigned> parseMemoryOrderParam(Value *const P) {
   return multi_llvm::None;
 }
 
+// This function returns a mux builtin ID for the corresponding CL builtin ID
+// when that lowering is straightforward and the function types of each builtin
+// are identical.
+static std::optional<BuiltinID> get1To1BuiltinLowering(BuiltinID CLBuiltinID) {
+  switch (CLBuiltinID) {
+    default:
+      return std::nullopt;
+    case eCLBuiltinGetWorkDim:
+      return eMuxBuiltinGetWorkDim;
+    case eCLBuiltinGetGroupId:
+      return eMuxBuiltinGetGroupId;
+    case eCLBuiltinGetGlobalSize:
+      return eMuxBuiltinGetGlobalSize;
+    case eCLBuiltinGetGlobalOffset:
+      return eMuxBuiltinGetGlobalOffset;
+    case eCLBuiltinGetLocalId:
+      return eMuxBuiltinGetLocalId;
+    case eCLBuiltinGetLocalSize:
+      return eMuxBuiltinGetLocalSize;
+    case eCLBuiltinGetEnqueuedLocalSize:
+      return eMuxBuiltinGetEnqueuedLocalSize;
+    case eCLBuiltinGetNumGroups:
+      return eMuxBuiltinGetNumGroups;
+    case eCLBuiltinGetGlobalId:
+      return eMuxBuiltinGetGlobalId;
+    case eCLBuiltinGetLocalLinearId:
+      return eMuxBuiltinGetLocalLinearId;
+    case eCLBuiltinGetGlobalLinearId:
+      return eMuxBuiltinGetGlobalLinearId;
+    case eCLBuiltinGetSubgroupSize:
+      return eMuxBuiltinGetSubGroupSize;
+    case eCLBuiltinGetMaxSubgroupSize:
+      return eMuxBuiltinGetMaxSubGroupSize;
+    case eCLBuiltinGetSubgroupLocalId:
+      return eMuxBuiltinGetSubGroupLocalId;
+    case eCLBuiltinGetNumSubgroups:
+      return eMuxBuiltinGetNumSubGroups;
+    case eCLBuiltinGetEnqueuedNumSubgroups:
+      // Note - this is mapping to the same builtin as
+      // eCLBuiltinGetNumSubgroups, as we don't currently support
+      // non-uniform work-group sizes.
+      return eMuxBuiltinGetNumSubGroups;
+    case eCLBuiltinGetSubgroupId:
+      return eMuxBuiltinGetSubGroupId;
+  }
+}
+
 Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
     CallInst &CI, BIMuxInfoConcept &BIMuxImpl) {
   auto &M = *CI.getModule();
   auto *const F = CI.getCalledFunction();
   assert(F && "No calling function?");
   auto const ID = identifyBuiltin(*F);
+
+  // Handle straightforward 1:1 mappings.
+  if (auto MuxID = get1To1BuiltinLowering(ID)) {
+    auto *const MuxBuiltinFn = BIMuxImpl.getOrDeclareMuxBuiltin(*MuxID, M);
+    assert(MuxBuiltinFn && "Could not get/declare mux builtin");
+    SmallVector<Value *> Args(CI.args());
+    auto *const NewCI = CallInst::Create(MuxBuiltinFn, Args, CI.getName(), &CI);
+    NewCI->takeName(&CI);
+    NewCI->setAttributes(MuxBuiltinFn->getAttributes());
+    return NewCI;
+  }
 
   auto *const I32Ty = Type::getInt32Ty(M.getContext());
 
@@ -2903,19 +2983,6 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
       auto *const NewCI =
           CallInst::Create(MemBarrier, {Scope, Semantics}, CI.getName(), &CI);
       NewCI->setAttributes(MemBarrier->getAttributes());
-      return NewCI;
-      NewCI->takeName(&CI);
-    }
-    case eCLBuiltinGetSubgroupSize:
-    case eCLBuiltinGetSubgroupLocalId: {
-      BaseBuiltinID MuxBuiltinID = ID == eCLBuiltinGetSubgroupSize
-                                       ? eMuxBuiltinGetSubGroupSize
-                                       : eMuxBuiltinGetSubGroupLocalId;
-      auto *const MuxBuiltinFn =
-          BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M);
-      auto *const NewCI =
-          CallInst::Create(MuxBuiltinFn, /*Args*/ {}, CI.getName(), &CI);
-      NewCI->setAttributes(MuxBuiltinFn->getAttributes());
       NewCI->takeName(&CI);
       return NewCI;
     }

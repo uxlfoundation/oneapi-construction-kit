@@ -26,41 +26,6 @@
 #include <abacus/abacus_integer.h>
 #undef ABACUS_ENABLE_OPENCL_3_0_BUILTINS
 
-extern size_t __attribute__((pure)) __mux_get_local_linear_id(void);
-extern size_t __attribute__((pure)) __mux_get_global_linear_id(void);
-extern size_t __attribute__((pure)) __mux_get_enqueued_local_size(uint x);
-extern uint __attribute__((pure)) __mux_get_sub_group_id(void);
-extern uint __attribute__((pure)) __mux_get_num_sub_groups(void);
-extern uint __attribute__((pure)) __mux_get_max_sub_group_size(void);
-
-size_t __CL_WORK_ITEM_ATTRIBUTES get_local_linear_id(void) {
-  return __mux_get_local_linear_id();
-}
-
-size_t __CL_WORK_ITEM_ATTRIBUTES get_global_linear_id(void) {
-  return __mux_get_global_linear_id();
-}
-
-size_t __CL_WORK_ITEM_ATTRIBUTES get_enqueued_local_size(uint x) {
-  return __mux_get_enqueued_local_size(x);
-}
-
-uint __CL_WORK_ITEM_ATTRIBUTES get_max_sub_group_size(void) {
-  return __mux_get_max_sub_group_size();
-}
-
-uint __CL_WORK_ITEM_ATTRIBUTES get_num_sub_groups(void) {
-  return __mux_get_num_sub_groups();
-}
-
-uint __CL_WORK_ITEM_ATTRIBUTES get_enqueued_num_sub_groups(void) {
-  return get_num_sub_groups();
-}
-
-uint __CL_WORK_ITEM_ATTRIBUTES get_sub_group_id(void) {
-  return __mux_get_sub_group_id();
-}
-
 void __CL_BARRIER_ATTRIBUTES sub_group_barrier(cl_mem_fence_flags flags) {
   (void)flags;
 }

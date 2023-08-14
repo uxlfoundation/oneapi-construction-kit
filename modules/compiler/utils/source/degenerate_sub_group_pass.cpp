@@ -195,14 +195,22 @@ Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
 ///
 /// @return True if CI is a call to sub-group work-item builtin, false
 /// otherwise.
-bool isSubGroupWorkItemFunction(CallInst *CI) {
-  static const std::set<StringRef> SubGroupWorkItemBuiltins{
-      "_Z18get_sub_group_sizev",  "_Z22get_max_sub_group_sizev",
-      "_Z18get_num_sub_groupsv",  "_Z27get_enqueued_num_sub_groupsv",
-      "_Z16get_sub_group_idv",    "_Z22get_sub_group_local_idv",
-      "__mux_get_sub_group_size", "__mux_get_sub_group_local_id"};
+bool isSubGroupWorkItemFunction(CallInst *CI,
+                                compiler::utils::BuiltinInfo &BI) {
+  auto *Fcn = CI->getCalledFunction();
+  assert(Fcn && "virtual calls are not supported");
+  auto SGBuiltin = BI.analyzeBuiltin(*Fcn);
 
-  return SubGroupWorkItemBuiltins.count(CI->getCalledFunction()->getName());
+  switch (SGBuiltin.ID) {
+    default:
+      return false;
+    case compiler::utils::eMuxBuiltinGetSubGroupSize:
+    case compiler::utils::eMuxBuiltinGetMaxSubGroupSize:
+    case compiler::utils::eMuxBuiltinGetNumSubGroups:
+    case compiler::utils::eMuxBuiltinGetSubGroupId:
+    case compiler::utils::eMuxBuiltinGetSubGroupLocalId:
+      return true;
+  }
 }
 
 /// @brief Replaces sub-group builtin calls with their work-group equivalents.
@@ -420,7 +428,8 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     for (auto &BB : F) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
-          if (isSubGroupFunction(CI, BI) || isSubGroupWorkItemFunction(CI)) {
+          if (isSubGroupFunction(CI, BI) ||
+              isSubGroupWorkItemFunction(CI, BI)) {
             worklist.push_back(&F);
             break;
           }
@@ -538,7 +547,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
         if (auto *CI = dyn_cast<CallInst>(&I)) {
           if (auto SGBuiltin = isSubGroupFunction(CI, BI)) {
             SubGroupFunctionCalls.push_back({CI, *SGBuiltin});
-          } else if (isSubGroupWorkItemFunction(CI)) {
+          } else if (isSubGroupWorkItemFunction(CI, BI)) {
             SubGroupWorkItemFunctionCalls.push_back(CI);
           }
         }
