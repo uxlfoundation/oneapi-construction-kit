@@ -2871,6 +2871,7 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
       auto *const NewCI = CallInst::Create(
           CtrlBarrier, {BarrierID, Scope, Semantics}, CI.getName(), &CI);
       NewCI->setAttributes(CtrlBarrier->getAttributes());
+      NewCI->takeName(&CI);
       return NewCI;
     }
     case eCLBuiltinAtomicWorkItemFence:
@@ -2903,6 +2904,7 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
           CallInst::Create(MemBarrier, {Scope, Semantics}, CI.getName(), &CI);
       NewCI->setAttributes(MemBarrier->getAttributes());
       return NewCI;
+      NewCI->takeName(&CI);
     }
     case eCLBuiltinGetSubgroupSize:
     case eCLBuiltinGetSubgroupLocalId: {
@@ -2914,6 +2916,7 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
       auto *const NewCI =
           CallInst::Create(MuxBuiltinFn, /*Args*/ {}, CI.getName(), &CI);
       NewCI->setAttributes(MuxBuiltinFn->getAttributes());
+      NewCI->takeName(&CI);
       return NewCI;
     }
   }
@@ -3351,6 +3354,7 @@ Instruction *CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(
   }
 
   auto *const NewCI = CallInst::Create(MuxBuiltinFn, Args, CI.getName(), &CI);
+  NewCI->takeName(&CI);
   NewCI->setAttributes(MuxBuiltinFn->getAttributes());
 
   if (!IsAnyAll) {
