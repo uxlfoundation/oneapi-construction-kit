@@ -22,16 +22,16 @@
 #define COMPILER_UTILS_ENCODE_BUILTIN_RANGE_METADATA_PASS_H_INCLUDED
 
 #include <llvm/IR/PassManager.h>
-#include <multi_llvm/optional_helper.h>
 
 #include <array>
+#include <optional>
 
 namespace compiler {
 namespace utils {
 
 struct EncodeBuiltinRangeMetadataOptions {
-  std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes;
-  std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes;
+  std::array<std::optional<uint64_t>, 3> MaxLocalSizes;
+  std::array<std::optional<uint64_t>, 3> MaxGlobalSizes;
 };
 
 struct EncodeBuiltinRangeMetadataPass
@@ -43,8 +43,8 @@ struct EncodeBuiltinRangeMetadataPass
   llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &AM);
 
  private:
-  std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes;
-  std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes;
+  std::array<std::optional<uint64_t>, 3> MaxLocalSizes;
+  std::array<std::optional<uint64_t>, 3> MaxGlobalSizes;
 };
 }  // namespace utils
 }  // namespace compiler

@@ -1127,5 +1127,49 @@ Value *BIMuxInfoConcept::initializeSchedulingParamForWrappedKernel(
                         /*ArraySize*/ nullptr, Info.ParamName);
 }
 
+std::optional<llvm::ConstantRange> BIMuxInfoConcept::getBuiltinRange(
+    llvm::CallInst &CI, BuiltinID ID,
+    std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+    std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const {
+  assert(CI.getCalledFunction() && CI.getType()->isIntegerTy() &&
+         "Unexpected builtin");
+
+  auto Bits = CI.getType()->getIntegerBitWidth();
+  // Assume we're indexing the global sizes array.
+  std::array<std::optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
+
+  switch (ID) {
+    default:
+      return std::nullopt;
+    case eMuxBuiltinGetWorkDim:
+      return ConstantRange::getNonEmpty(APInt(Bits, 1), APInt(Bits, 4));
+    case eMuxBuiltinGetLocalId:
+    case eMuxBuiltinGetLocalSize:
+    case eMuxBuiltinGetEnqueuedLocalSize:
+      // Use the local sizes array, and fall through to common handling.
+      SizesPtr = &MaxLocalSizes;
+      [[fallthrough]];
+    case eMuxBuiltinGetGlobalSize: {
+      auto *DimIdx = CI.getOperand(0);
+      if (!isa<ConstantInt>(DimIdx)) {
+        return std::nullopt;
+      }
+      uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
+      if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
+        return std::nullopt;
+      }
+      // ID builtins range [0,size) (exclusive), and size builtins [1,size]
+      // (inclusive). Thus offset the range by 1 at each low/high end when
+      // returning the range for a size builtin.
+      int const SizeAdjust = ID == eMuxBuiltinGetLocalSize ||
+                             ID == eMuxBuiltinGetEnqueuedLocalSize ||
+                             ID == eMuxBuiltinGetGlobalSize;
+      return ConstantRange::getNonEmpty(
+          APInt(Bits, SizeAdjust),
+          APInt(Bits, *(*SizesPtr)[DimVal] + SizeAdjust));
+    }
+  }
+}
+
 }  // namespace utils
 }  // namespace compiler

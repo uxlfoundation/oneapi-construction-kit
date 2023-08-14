@@ -103,11 +103,9 @@ class CLBuiltinInfo : public BILangInfoConcept {
   llvm::Value *emitBuiltinInline(llvm::Function *Builtin, llvm::IRBuilder<> &B,
                                  llvm::ArrayRef<llvm::Value *> Args) override;
   /// @see BuiltinInfo::getBuiltinRange
-  multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &CI,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes)
-      const override;
+  std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+      std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const override;
 
   /// @see BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin
   llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(

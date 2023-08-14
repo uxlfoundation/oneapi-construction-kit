@@ -2690,23 +2690,21 @@ Value *CLBuiltinInfo::emitBuiltinInlinePrintf(BuiltinID, IRBuilder<> &B,
   return CreateBuiltinCall(B, Printf, Args);
 }
 
-multi_llvm::Optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
-    CallInst &CI, std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-    std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const {
-  auto *F = CI.getCalledFunction();
-  if (!F || !F->hasName() || !CI.getType()->isIntegerTy()) {
-    return multi_llvm::None;
-  }
+std::optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
+    CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+    std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const {
+  assert(CI.getCalledFunction() && CI.getType()->isIntegerTy() &&
+         "Unexpected builtin");
 
-  BuiltinID BuiltinID = identifyBuiltin(*F);
+  BuiltinID BuiltinID = identifyBuiltin(*CI.getCalledFunction());
 
   auto Bits = CI.getType()->getIntegerBitWidth();
   // Assume we're indexing the global sizes array.
-  std::array<multi_llvm::Optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
+  std::array<std::optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
 
   switch (BuiltinID) {
     default:
-      return multi_llvm::None;
+      return std::nullopt;
     case eCLBuiltinGetWorkDim:
       return ConstantRange::getNonEmpty(APInt(Bits, 1), APInt(Bits, 4));
     case eCLBuiltinGetLocalId:
@@ -2717,11 +2715,11 @@ multi_llvm::Optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
     case eCLBuiltinGetGlobalSize: {
       auto *DimIdx = CI.getOperand(0);
       if (!isa<ConstantInt>(DimIdx)) {
-        return multi_llvm::None;
+        return std::nullopt;
       }
       uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
       if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
-        return multi_llvm::None;
+        return std::nullopt;
       }
       // ID builtins range from [0,size) and size builtins from [1,size]. Thus
       // offset the range by 1 at each low/high end when returning the range

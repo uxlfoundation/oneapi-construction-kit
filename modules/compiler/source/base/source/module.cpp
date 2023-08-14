@@ -91,6 +91,7 @@
 #include <llvm/Transforms/Vectorize/LoopVectorize.h>
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
+#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/optional_helper.h>
 #include <multi_llvm/triple.h>
 #include <mux/mux.hpp>

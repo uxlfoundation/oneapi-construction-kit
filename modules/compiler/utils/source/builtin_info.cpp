@@ -20,7 +20,6 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/ADT/StringSwitch.h>
-#include <multi_llvm/optional_helper.h>
 
 using namespace llvm;
 
@@ -513,13 +512,27 @@ Value *BuiltinInfo::emitBuiltinInline(Function *Builtin, IRBuilder<> &B,
   return nullptr;
 }
 
-multi_llvm::Optional<llvm::ConstantRange> BuiltinInfo::getBuiltinRange(
-    CallInst &CI, std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-    std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const {
+std::optional<llvm::ConstantRange> BuiltinInfo::getBuiltinRange(
+    CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+    std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const {
+  auto *F = CI.getCalledFunction();
+  // Ranges only apply to integer types, and ensure that there's a named
+  // function to analyze.
+  if (!F || !F->hasName() || !CI.getType()->isIntegerTy()) {
+    return std::nullopt;
+  }
+
+  // First, check mux builtins
+  if (auto [ID, _] = identifyMuxBuiltin(*F); isMuxBuiltinID(ID)) {
+    return MuxImpl->getBuiltinRange(CI, ID, MaxLocalSizes, MaxGlobalSizes);
+  }
+
+  // Next, ask the language builtin info
   if (LangImpl) {
     return LangImpl->getBuiltinRange(CI, MaxLocalSizes, MaxGlobalSizes);
   }
-  return multi_llvm::None;
+
+  return std::nullopt;
 }
 
 Instruction *BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin(CallInst &CI) {

@@ -27,9 +27,9 @@
 #include <llvm/IR/ConstantRange.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/PassManager.h>
-#include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
+
+#include <optional>
 
 namespace compiler {
 namespace utils {
@@ -398,10 +398,9 @@ class BuiltinInfo {
   /// the 3 dimensions that this target supports.
   /// @param[in] MaxGlobalSizes The maximum global work-group sizes in each of
   /// the 3 dimensions that this target supports.
-  multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &CI,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const;
+  std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+      std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const;
 
   /// @brief Remaps a call instruction to a call calling a mux synchronization
   /// builtin.
@@ -695,6 +694,11 @@ class BIMuxInfoConcept {
   ///   * spirv.Image -> MuxImage* (regardless of image parameters)
   virtual llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty);
 
+  /// @see BuiltinInfo::getBuiltinRange
+  virtual std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &, BuiltinID ID, std::array<std::optional<uint64_t>, 3>,
+      std::array<std::optional<uint64_t>, 3>) const;
+
   enum MemScope : uint32_t {
     MemScopeCrossDevice = 0,
     MemScopeDevice = 1,
@@ -786,10 +790,10 @@ class BILangInfoConcept {
       llvm::Function *Builtin, llvm::IRBuilder<> &B,
       llvm::ArrayRef<llvm::Value *> Args) = 0;
   /// @see BuiltinInfo::getBuiltinRange
-  virtual multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &, std::array<multi_llvm::Optional<uint64_t>, 3>,
-      std::array<multi_llvm::Optional<uint64_t>, 3>) const {
-    return multi_llvm::None;
+  virtual std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &, std::array<std::optional<uint64_t>, 3>,
+      std::array<std::optional<uint64_t>, 3>) const {
+    return std::nullopt;
   }
   /// @see BuiltinInfo::requiresMapToMuxSyncBuiltin
   virtual bool requiresMapToMuxSyncBuiltin(BuiltinID) const { return false; }

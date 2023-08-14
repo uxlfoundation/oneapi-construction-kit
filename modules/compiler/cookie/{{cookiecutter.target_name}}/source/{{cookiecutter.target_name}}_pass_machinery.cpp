@@ -37,6 +37,7 @@
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Passes/PassBuilder.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 #include <metadata/handler/vectorize_info_metadata.h>
 #include <multi_llvm/optional_helper.h>
 #include <optional>
