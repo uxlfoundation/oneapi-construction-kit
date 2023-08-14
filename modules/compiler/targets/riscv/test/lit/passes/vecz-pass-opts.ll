@@ -38,7 +38,7 @@ target triple = "riscv64-unknown-unknown-elf"
 
 define spir_kernel void @foo(i32 addrspace(1)* %a, i32 addrspace(1)* %z) #0 {
 entry:
-  %call = tail call spir_func i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %a, i64 %call
   %x = load i32, i32 addrspace(1)* %arrayidx, align 4
   %add = add nsw i32 %x, 4
@@ -51,7 +51,7 @@ entry:
 ; CHECK: Function 'bar' will not be vectorized
 define spir_kernel void @bar(i32 addrspace(1)* %a, i32 addrspace(1)* %z) #1 {
 entry:
-  %call = tail call spir_func i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %a, i64 %call
   %x = load i32, i32 addrspace(1)* %arrayidx, align 4
   %add = add nsw i32 %x, 4
@@ -60,7 +60,7 @@ entry:
   ret void
 }
 
-declare spir_func i64 @_Z13get_global_idj(i32)
+declare i64 @__mux_get_global_id(i32)
 
 attributes #0 = { "mux-kernel"="entry-point" }
 attributes #1 = { optnone noinline "mux-kernel"="entry-point" }

@@ -5,7 +5,7 @@ target triple = "spir64-unknown-unknown"
 
 define spir_kernel void @noduplicate(i32 addrspace(1)* %in1, i32 addrspace(1)* %out) {
 entry:
-  %tid = call spir_func i64 @_Z13get_global_idj(i32 0) #3
+  %tid = call i64 @__mux_get_global_id(i32 0) #3
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %in1, i64 %tid
   %i1 = load i32, i32 addrspace(1)* %arrayidx, align 16
   %dec = call i32 @llvm.loop.decrement.reg.i32(i32 %i1, i32 4)
@@ -14,7 +14,7 @@ entry:
   ret void
 }
 
-declare spir_func i64 @_Z13get_global_idj(i32)
+declare i64 @__mux_get_global_id(i32)
 declare i32 @llvm.loop.decrement.reg.i32(i32, i32)
 
 ;CHECK: Failed to vectorize function 'noduplicate'
