@@ -89,6 +89,10 @@ struct GroupCollective {
   bool isScan() const {
     return Op == OpKind::ScanExclusive || Op == OpKind::ScanInclusive;
   }
+  /// @brief Returns true for reduction collective operations.
+  bool isReduction() const { return Op == OpKind::Reduction; }
+  /// @brief Returns true for broadcast collective operations.
+  bool isBroadcast() const { return Op == OpKind::Broadcast; }
   /// @brief Returns true for sub-group collective operations.
   bool isSubGroupScope() const { return Scope == ScopeKind::SubGroup; }
   /// @brief Returns true for work-group collective operations.

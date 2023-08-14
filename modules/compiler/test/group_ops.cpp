@@ -61,7 +61,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
     std::string getLLVMFnString(StringRef ParamName = "%x") const {
       std::string FnStr =
           LLVMTy + " @" + MangledFnName + "(" + LLVMTy + " " + ParamName.str();
-      if (Collective.Op == GroupCollective::OpKind::Broadcast) {
+      if (Collective.isBroadcast()) {
         if (Collective.isSubGroupScope()) {
           FnStr += ", i32 %sg_lid";
         } else {

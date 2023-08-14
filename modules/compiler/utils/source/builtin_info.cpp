@@ -275,27 +275,15 @@ BuiltinUniformity BuiltinInfo::isBuiltinUniform(Builtin const &B,
       // not support vectorizing along y or z (see CA-2843).
       return SimdDimIdx ? eBuiltinUniformityNever
                         : eBuiltinUniformityInstanceID;
-    case eMuxBuiltinSubgroupAll:
-    case eMuxBuiltinSubgroupAny:
-    case eMuxBuiltinSubgroupBroadcast:
-    case eMuxBuiltinSubgroupReduceAdd:
-    case eMuxBuiltinSubgroupReduceFAdd:
-    case eMuxBuiltinSubgroupReduceMul:
-    case eMuxBuiltinSubgroupReduceFMul:
-    case eMuxBuiltinSubgroupReduceSMax:
-    case eMuxBuiltinSubgroupReduceUMax:
-    case eMuxBuiltinSubgroupReduceFMax:
-    case eMuxBuiltinSubgroupReduceSMin:
-    case eMuxBuiltinSubgroupReduceUMin:
-    case eMuxBuiltinSubgroupReduceFMin:
-    case eMuxBuiltinSubgroupReduceAnd:
-    case eMuxBuiltinSubgroupReduceOr:
-    case eMuxBuiltinSubgroupReduceXor:
-    case eMuxBuiltinSubgroupReduceLogicalAnd:
-    case eMuxBuiltinSubgroupReduceLogicalOr:
-    case eMuxBuiltinSubgroupReduceLogicalXor:
-      return eBuiltinUniformityAlways;
   }
+
+  // Reductions and broadcasts are always uniform
+  if (auto Info = isMuxGroupCollective(B.ID)) {
+    if (Info->isAnyAll() || Info->isReduction() || Info->isBroadcast()) {
+      return eBuiltinUniformityAlways;
+    }
+  }
+
   if (LangImpl) {
     return LangImpl->isBuiltinUniform(B, CI, SimdDimIdx);
   }
