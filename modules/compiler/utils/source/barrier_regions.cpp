@@ -369,6 +369,7 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
     if (!reuse || !mapped) {
       auto *clone = I->clone();
       clone->setName(I->getName());
+      clone->setDebugLoc(DebugLoc());
       ir.Insert(clone);
       if (gepBuilder.GetInsertPoint() == ir.GetInsertPoint()) {
         gepBuilder.SetInsertPoint(clone);
