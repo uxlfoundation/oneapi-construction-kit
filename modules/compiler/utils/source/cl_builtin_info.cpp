@@ -1006,7 +1006,6 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
 
   bool IsConvergent = false;
   unsigned Properties = eBuiltinPropertyNone;
-  llvm::SmallVector<llvm::Type *, 2> OverloadInfo;
   switch (ID) {
     default:
       // Assume convergence on unknown builtins.
@@ -1278,10 +1277,6 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinWorkgroupScanLogicalXorExclusive:
       IsConvergent = true;
       Properties |= eBuiltinPropertyMapToMuxGroupBuiltin;
-      if (ID != eCLBuiltinWorkgroupAll && ID != eCLBuiltinWorkgroupAny &&
-          ID != eCLBuiltinSubgroupAll && ID != eCLBuiltinSubgroupAny) {
-        OverloadInfo.push_back(Callee.getArg(0)->getType());
-      }
       break;
   }
 
