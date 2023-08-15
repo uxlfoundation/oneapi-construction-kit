@@ -56,7 +56,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_lifetime_intrinsics_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/rename_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_address_space_qualifier_functions_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_async_copies_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_atomic_funcs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_c11_atomic_funcs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_local_module_scope_variables_pass.h
@@ -106,7 +105,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_lifetime_intrinsics_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/rename_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_address_space_qualifier_functions_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_async_copies_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_atomic_funcs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_c11_atomic_funcs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_local_module_scope_variables_pass.cpp

@@ -23,13 +23,15 @@
 
 namespace compiler {
 namespace utils {
-enum AddressSpace {
+namespace AddressSpace {
+enum {
   Private = 0,
   Global = 1,
   Constant = 2,
   Local = 3,
   Generic = 4,
 };
+}
 }  // namespace utils
 }  // namespace compiler
 

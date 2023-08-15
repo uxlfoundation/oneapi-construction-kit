@@ -422,9 +422,7 @@ class BuiltinInfo {
   ///
   /// These builtins *require* extra overloading info when declaring or
   /// defining.
-  static bool isOverloadableMuxBuiltinID(BuiltinID ID) {
-    return isMuxBuiltinID(ID) && isMuxGroupCollective(ID);
-  }
+  static bool isOverloadableMuxBuiltinID(BuiltinID ID);
 
   /// @brief Returns true if the given ID is a ComputeMux barrier builtin ID.
   static bool isMuxControlBarrierID(BuiltinID ID) {

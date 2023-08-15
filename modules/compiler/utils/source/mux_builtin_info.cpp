@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/address_spaces.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/dma.h>
 #include <compiler/utils/metadata.h>
@@ -972,6 +973,100 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
       AB.addAttribute(Attribute::NoMerge);
       AB.addAttribute(Attribute::NoDuplicate);
       AB.addAttribute(Attribute::Convergent);
+      break;
+    }
+    case eMuxBuiltinDMAWait:
+      RetTy = VoidTy;
+      // Num events
+      ParamTys.push_back(Int32Ty);
+      ParamNames.push_back("num_events");
+      // The events list
+      ParamTys.push_back(PointerType::getUnqual(Ctx));
+      ParamNames.push_back("events");
+      AB.addAttribute(Attribute::Convergent);
+      break;
+    case eMuxBuiltinDMARead1D:
+    case eMuxBuiltinDMAWrite1D: {
+      // We need to be told the target event type to declare this builtin.
+      assert(!OverloadInfo.empty() && "Missing event type");
+      auto *const EventTy = OverloadInfo[0];
+      RetTy = EventTy;
+      bool IsRead = ID == eMuxBuiltinDMARead1D;
+
+      PointerType *const LocalPtrTy =
+          PointerType::get(Ctx, AddressSpace::Local);
+      PointerType *const GlobalPtrTy =
+          PointerType::get(Ctx, AddressSpace::Global);
+
+      ParamTys.push_back(IsRead ? LocalPtrTy : GlobalPtrTy);
+      ParamNames.push_back("dst");
+
+      ParamTys.push_back(IsRead ? GlobalPtrTy : LocalPtrTy);
+      ParamNames.push_back("src");
+
+      ParamTys.push_back(SizeTy);
+      ParamNames.push_back("num_bytes");
+
+      ParamTys.push_back(EventTy);
+      ParamNames.push_back("event");
+      break;
+    }
+    case eMuxBuiltinDMARead2D:
+    case eMuxBuiltinDMAWrite2D: {
+      // We need to be told the target event type to declare this builtin.
+      assert(!OverloadInfo.empty() && "Missing event type");
+      auto *const EventTy = OverloadInfo[0];
+      RetTy = EventTy;
+      bool IsRead = ID == eMuxBuiltinDMARead2D;
+
+      PointerType *const LocalPtrTy =
+          PointerType::get(Ctx, AddressSpace::Local);
+      PointerType *const GlobalPtrTy =
+          PointerType::get(Ctx, AddressSpace::Global);
+
+      ParamTys.push_back(IsRead ? LocalPtrTy : GlobalPtrTy);
+      ParamNames.push_back("dst");
+
+      ParamTys.push_back(IsRead ? GlobalPtrTy : LocalPtrTy);
+      ParamNames.push_back("src");
+
+      for (auto &P : {"num_bytes", "dst_stride", "src_stride", "height"}) {
+        ParamTys.push_back(SizeTy);
+        ParamNames.push_back(P);
+      }
+
+      ParamTys.push_back(EventTy);
+      ParamNames.push_back("event");
+      break;
+    }
+    case eMuxBuiltinDMARead3D:
+    case eMuxBuiltinDMAWrite3D: {
+      // We need to be told the target event type to declare this builtin.
+      assert(!OverloadInfo.empty() && "Missing event type");
+      auto *const EventTy = OverloadInfo[0];
+      RetTy = EventTy;
+      bool IsRead = ID == eMuxBuiltinDMARead3D;
+
+      PointerType *const LocalPtrTy =
+          PointerType::get(Ctx, AddressSpace::Local);
+      PointerType *const GlobalPtrTy =
+          PointerType::get(Ctx, AddressSpace::Global);
+
+      ParamTys.push_back(IsRead ? LocalPtrTy : GlobalPtrTy);
+      ParamNames.push_back("dst");
+
+      ParamTys.push_back(IsRead ? GlobalPtrTy : LocalPtrTy);
+      ParamNames.push_back("src");
+
+      for (auto &P :
+           {"num_bytes", "dst_line_stride", "src_line_stride", "height",
+            "dst_plane_stride", "src_plane_stride", "depth"}) {
+        ParamTys.push_back(SizeTy);
+        ParamNames.push_back(P);
+      }
+
+      ParamTys.push_back(EventTy);
+      ParamNames.push_back("event");
       break;
     }
     default:

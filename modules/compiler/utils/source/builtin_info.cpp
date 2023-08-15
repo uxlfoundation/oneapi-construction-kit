@@ -1064,5 +1064,22 @@ std::optional<GroupCollective> BuiltinInfo::isMuxGroupCollective(BuiltinID ID) {
   return Collective;
 }
 
+bool BuiltinInfo::isOverloadableMuxBuiltinID(BuiltinID ID) {
+  if (!isMuxBuiltinID(ID)) {
+    return false;
+  }
+  switch (ID) {
+    default:
+      return isMuxGroupCollective(ID).has_value();
+    case eMuxBuiltinDMARead1D:
+    case eMuxBuiltinDMAWrite1D:
+    case eMuxBuiltinDMARead2D:
+    case eMuxBuiltinDMAWrite2D:
+    case eMuxBuiltinDMARead3D:
+    case eMuxBuiltinDMAWrite3D:
+      return true;
+  }
+}
+
 }  // namespace utils
 }  // namespace compiler
