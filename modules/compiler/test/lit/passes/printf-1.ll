@@ -22,11 +22,11 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 @.str = private unnamed_addr addrspace(2) constant [10 x i8] c"id = %lu\0A\00", align 1
 
 ; CHECK-LABEL: define spir_kernel void @do_printf(
-; CHECK: %id = call spir_func i64 @_Z13get_global_idj(i32 0)
+; CHECK: %id = call i64 @__mux_get_global_id(i32 0)
 ; CHECK: = call spir_func i32 @0(ptr addrspace(1) %0, i64 %id)
 define spir_kernel void @do_printf(i32 addrspace(1)* %a) {
 entry:
-  %id = call spir_func i64 @_Z13get_global_idj(i32 0)
+  %id = call i64 @__mux_get_global_id(i32 0)
   %call1 = tail call spir_func i32 (i8 addrspace(2)*, ...) @printf(i8 addrspace(2)* getelementptr inbounds ([10 x i8], [10 x i8] addrspace(2)* @.str, i64 0, i64 0), i64 %id)
   ret void
 }
@@ -43,6 +43,6 @@ entry:
 ; CHECK: [[VAL_PTR:%.*]] = getelementptr i8, ptr addrspace(1) [[PTR]], i32 [[NEXT_IDX]]
 ; CHECK: store i64 %1, ptr addrspace(1) [[VAL_PTR]]
 
-declare spir_func i64 @_Z13get_global_idj(i32)
+declare i64 @__mux_get_global_id(i32)
 
 declare spir_func i32 @printf(i8 addrspace(2)*, ...)

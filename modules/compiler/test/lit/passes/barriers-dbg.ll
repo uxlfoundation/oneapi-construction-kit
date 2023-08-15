@@ -33,13 +33,13 @@ entry:
   store i32 addrspace(1)* %output, i32 addrspace(1)** %output.addr, align 8
   call void @llvm.dbg.declare(metadata i32 addrspace(1)** %output.addr, metadata !26, metadata !DIExpression(DW_OP_constu, 0, DW_OP_swap, DW_OP_xderef)), !dbg !25
   call void @llvm.dbg.declare(metadata i64* %global_id, metadata !27, metadata !DIExpression(DW_OP_constu, 0, DW_OP_swap, DW_OP_xderef)), !dbg !32
-  %call = call i64 @_Z13get_global_idj(i32 0) #5, !dbg !32, !range !33
+  %call = call i64 @__mux_get_global_id(i32 0) #5, !dbg !32, !range !33
   store i64 %call, i64* %global_id, align 8, !dbg !32
   call void @llvm.dbg.declare(metadata i64* %local_id, metadata !34, metadata !DIExpression(DW_OP_constu, 0, DW_OP_swap, DW_OP_xderef)), !dbg !35
-  %call1 = call i64 @_Z12get_local_idj(i32 0) #5, !dbg !35, !range !33
+  %call1 = call i64 @__mux_get_local_id(i32 0) #5, !dbg !35, !range !33
   store i64 %call1, i64* %local_id, align 8, !dbg !35
   %0 = load i64, i64* %global_id, align 8, !dbg !36
-  %call2 = call i64 @_Z15get_global_sizej(i32 0) #5, !dbg !36, !range !38
+  %call2 = call i64 @__mux_get_global_size(i32 0) #5, !dbg !36, !range !38
   %cmp = icmp ult i64 %0, %call2, !dbg !36
   br i1 %cmp, label %if.then, label %if.end, !dbg !39
 
@@ -181,27 +181,6 @@ if.end:                                           ; preds = %if.then, %entry
 
 ; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
-
-; Function Attrs: convergent mustprogress nofree norecurse nounwind readonly willreturn
-define internal i64 @_Z13get_global_idj(i32 %x) #2 {
-entry:
-  %call = tail call i64 @__mux_get_global_id(i32 %x) #6
-  ret i64 %call
-}
-
-; Function Attrs: convergent mustprogress nofree norecurse nounwind readonly willreturn
-define internal i64 @_Z12get_local_idj(i32 %x) #2 {
-entry:
-  %call = tail call i64 @__mux_get_local_id(i32 %x) #6
-  ret i64 %call
-}
-
-; Function Attrs: convergent mustprogress nofree norecurse nounwind readonly willreturn
-define internal i64 @_Z15get_global_sizej(i32 %x) #2 {
-entry:
-  %call = tail call i64 @__mux_get_global_size(i32 %x) #6
-  ret i64 %call
-}
 
 ; Function Attrs: convergent nounwind
 declare void @__mux_work_group_barrier(i32, i32, i32) #3

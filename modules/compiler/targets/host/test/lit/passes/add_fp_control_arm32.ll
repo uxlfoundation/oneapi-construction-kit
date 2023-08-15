@@ -42,7 +42,7 @@ target triple = "armv7-unknown-linux-gnueabihf-elf"
 
 define spir_kernel void @add(float addrspace(1)* readonly %in1, float addrspace(1)* readonly %in2, float addrspace(1)* %out) #0 !test !0 {
 entry:
-  %call = tail call spir_func i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds float, float addrspace(1)* %in1, i64 %call
   %0 = load float, float addrspace(1)* %arrayidx, align 4
   %arrayidx2 = getelementptr inbounds float, float addrspace(1)* %in2, i64 %call
@@ -53,7 +53,7 @@ entry:
   ret void
 }
 
-declare spir_func i64 @_Z13get_global_idj(i32 %x)
+declare i64 @__mux_get_global_id(i32 %x)
 
 attributes #0 = { "foo"="bar" "mux-kernel"="entry-point" "mux-base-fn-name"="baz" }
 

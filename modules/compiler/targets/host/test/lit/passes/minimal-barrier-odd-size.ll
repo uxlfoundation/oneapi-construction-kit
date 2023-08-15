@@ -27,13 +27,13 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 define spir_kernel void @minimal_barrier(i32 %min_0, i32 %min_1, i32 %stride, i32 %n0, i32 %n1, i32 %n2, ptr addrspace(1) %g, ptr addrspace(3) %shared) #0 !reqd_work_group_size !0 {
 entry:
-  %call = tail call spir_func i64 @_Z12get_group_idj(i32 1) #4
+  %call = tail call i64 @__mux_get_group_id(i32 1) #4
   %conv = trunc i64 %call to i32
-  %call1 = tail call spir_func i64 @_Z12get_group_idj(i32 0) #4
+  %call1 = tail call i64 @__mux_get_group_id(i32 0) #4
   %conv2 = trunc i64 %call1 to i32
-  %call3 = tail call spir_func i64 @_Z12get_local_idj(i32 1) #4
+  %call3 = tail call i64 @__mux_get_local_id(i32 1) #4
   %conv4 = trunc i64 %call3 to i32
-  %call5 = tail call spir_func i64 @_Z12get_local_idj(i32 0) #4
+  %call5 = tail call i64 @__mux_get_local_id(i32 0) #4
   %conv6 = trunc i64 %call5 to i32
   %mul = shl nsw i32 %conv, 3
   %add = add nsw i32 %mul, %min_1
@@ -41,7 +41,7 @@ entry:
   %mul8 = shl nsw i32 %conv2, 4
   %add9 = add nsw i32 %mul8, %min_0
   %call10 = tail call spir_func i32 @_Z3minii(i32 %add9, i32 %n1) #5
-  tail call spir_func void @__mux_work_group_barrier(i32 0, i32 1, i32 272)
+  tail call void @__mux_work_group_barrier(i32 0, i32 1, i32 272)
   %cmp = icmp eq i32 %conv4, 0
   %cmp12 = icmp ult i32 %conv6, 16
   %or.cond = select i1 %cmp, i1 %cmp12, i1 false
@@ -68,7 +68,7 @@ for.body:
   br i1 %exitcond.not, label %if.end, label %for.body
 
 if.end:
-  tail call spir_func void @__mux_work_group_barrier(i32 1, i32 1, i32 272)
+  tail call void @__mux_work_group_barrier(i32 1, i32 1, i32 272)
   br i1 %cmp12, label %if.then24, label %if.end35
 
 if.then24:
@@ -90,13 +90,13 @@ if.end35:
   ret void
 }
 
-declare spir_func i64 @_Z12get_group_idj(i32)
+declare i64 @__mux_get_group_id(i32)
 
-declare spir_func i64 @_Z12get_local_idj(i32)
+declare i64 @__mux_get_local_id(i32)
 
 declare spir_func i32 @_Z3minii(i32, i32)
 
-declare spir_func void @__mux_work_group_barrier(i32, i32, i32)
+declare void @__mux_work_group_barrier(i32, i32, i32)
 
 attributes #0 = { "mux-kernel"="entry-point" "vecz-mode"="auto" }
 

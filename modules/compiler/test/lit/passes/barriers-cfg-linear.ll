@@ -54,7 +54,7 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 define internal void @barrier_cfg_linear(i32 addrspace(1)* %d, i32 addrspace(1)* %a, i32 addrspace(1)* %b) !reqd_work_group_size !12 !codeplay_ca_vecz.base !14 {
 entry:
-  %call = tail call i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %a, i64 %call
   %0 = load i32, i32 addrspace(1)* %arrayidx, align 4
   %arrayidx1 = getelementptr inbounds i32, i32 addrspace(1)* %b, i64 %call
@@ -66,17 +66,11 @@ entry:
   ret void
 }
 
-define internal i64 @_Z13get_global_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_global_id(i32 %x)
-  ret i64 %call
-}
-
 declare void @__mux_work_group_barrier(i32, i32, i32)
 
 define void @__vecz_v16_barrier_cfg_linear(i32 addrspace(1)* %d, i32 addrspace(1)* %a, i32 addrspace(1)* %b) #0 !reqd_work_group_size !12 !codeplay_ca_vecz.derived !21 {
 entry:
-  %call = tail call i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %a, i64 %call
   %tmp.a = bitcast i32 addrspace(1)* %arrayidx to <16 x i32> addrspace(1)*
   %0 = load <16 x i32>, <16 x i32> addrspace(1)* %tmp.a, align 4

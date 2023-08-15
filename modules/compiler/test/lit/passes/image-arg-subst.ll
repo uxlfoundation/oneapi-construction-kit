@@ -25,10 +25,10 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK: define internal spir_kernel void @image_sampler.old(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) [[OLD_ATTRS:#[0-9]+]] {
 define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) #0 {
 entry:
-  %call = tail call spir_func i64 @_Z13get_global_idj(i32 0) #3
+  %call = tail call i64 @__mux_get_global_id(i32 0) #3
   %conv = trunc i64 %call to i32
   %conv1 = sitofp i32 %conv to float
-  %call2 = tail call spir_func i64 @_Z15get_global_sizej(i32 0) #3
+  %call2 = tail call i64 @__mux_get_global_size(i32 0) #3
   %conv3 = uitofp i64 %call2 to float
   %div = fmul float %conv3, 5.000000e-01
   %div4 = fdiv float %conv1, %div
@@ -65,9 +65,9 @@ entry:
 ; CHECK:   ret void
 ; CHECK: }
 
-declare spir_func i64 @_Z13get_global_idj(i32) #1
+declare i64 @__mux_get_global_id(i32) #1
 
-declare spir_func i64 @_Z15get_global_sizej(i32) #1
+declare i64 @__mux_get_global_size(i32) #1
 
 declare spir_func <4 x i32> @_Z12read_imageui14ocl_image1d_ro11ocl_samplerf(ptr addrspace(1), ptr addrspace(2), float) #2
 

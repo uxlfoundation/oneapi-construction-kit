@@ -25,18 +25,18 @@ target datalayout = "e-i64:64-p:32:32-v16:16-v24:32-v32:32-v48:64-v96:128-v192:2
 
 define void @minimal_barrier_2(i32 addrspace(1)* %output) #0 {
 if.end:
-  %call1 = tail call i32 @_Z12get_local_idj(i32 0)
+  %call1 = tail call i32 @__mux_get_local_id(i32 0)
   %arrayidx = getelementptr inbounds [4 x i32], [4 x i32] addrspace(3)* @minimal_barrier_2.cache, i32 0, i32 %call1
   br label %for.body9
 
 for.cond.cleanup:                                 ; preds = %if.then17, %for.cond.cleanup8
   %my_value.3 = phi i32 [ %4, %if.then17 ], [ %add13, %for.cond.cleanup8 ]
-  %call25 = tail call i32 @_Z13get_global_idj(i32 0)
+  %call25 = tail call i32 @__mux_get_global_id(i32 0)
   %cmp26 = icmp eq i32 %call25, 1
   br i1 %cmp26, label %if.then27, label %if.end29
 
 for.cond.cleanup8:                                ; preds = %for.body9
-  %call14 = tail call i32 @_Z12get_local_idj(i32 0)
+  %call14 = tail call i32 @__mux_get_local_id(i32 0)
   %cmp16 = icmp ugt i32 %call14, %call6
   br i1 %cmp16, label %if.then17, label %for.cond.cleanup
 
@@ -54,7 +54,7 @@ for.body9:                                        ; preds = %for.body9, %if.end
   %3 = load i32, i32 addrspace(3)* getelementptr inbounds ([4 x i32], [4 x i32] addrspace(3)* @minimal_barrier_2.cache, i32 0, i32 3), align 4
   %add13 = add nsw i32 %add12, %3
   %inc = add nuw nsw i32 %j.047, 1
-  %call6 = tail call i32 @_Z14get_local_sizej(i32 0)
+  %call6 = tail call i32 @__mux_get_local_size(i32 0)
   %cmp7 = icmp ult i32 %inc, %call6
   br i1 %cmp7, label %for.body9, label %for.cond.cleanup8
 
@@ -69,24 +69,6 @@ if.then27:                                        ; preds = %for.cond.cleanup
 
 if.end29:                                         ; preds = %if.then27, %for.cond.cleanup
   ret void
-}
-
-define internal i32 @_Z13get_global_idj(i32 %x) {
-entry:
-  %call = tail call i32 @__mux_get_global_id(i32 %x)
-  ret i32 %call
-}
-
-define internal i32 @_Z12get_local_idj(i32 %x) {
-entry:
-  %call = tail call i32 @__mux_get_local_id(i32 %x)
-  ret i32 %call
-}
-
-define internal i32 @_Z14get_local_sizej(i32 %x) {
-entry:
-  %call = tail call i32 @__mux_get_local_size(i32 %x)
-  ret i32 %call
 }
 
 declare void @__mux_work_group_barrier(i32, i32, i32)

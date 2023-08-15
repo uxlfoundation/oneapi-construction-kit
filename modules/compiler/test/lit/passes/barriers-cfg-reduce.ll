@@ -31,12 +31,12 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 ; CHECK: br label %sw.bb3
 
-declare spir_func i64 @_Z13get_global_idj(i32 %x)
-declare spir_func i32 @__mux_work_group_reduce_add_i32(i32 %id, i32 %x)
+declare i64 @__mux_get_global_id(i32 %x)
+declare i32 @__mux_work_group_reduce_add_i32(i32 %id, i32 %x)
 
 define internal void @reduction(i32 addrspace(1)* %d, i32 addrspace(1)* %a) #0 !reqd_work_group_size !0 {
 entry:
-  %call = tail call i64 @_Z13get_global_idj(i32 0)
+  %call = tail call i64 @__mux_get_global_id(i32 0)
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %a, i64 %call
   %ld = load i32, i32 addrspace(1)* %arrayidx, align 4
   %reduce = call i32 @__mux_work_group_reduce_add_i32(i32 0, i32 %ld)

@@ -23,13 +23,13 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 define void @minimal_barrier(i32 %min_0, i32 %min_1, i32 %stride, i32 %n0, i32 %n1, i32 %n2, i32 addrspace(1)* %g, i32 addrspace(3)* align 64 %shared) #0 {
 entry:
-  %call = tail call i64 @_Z12get_group_idj(i32 1)
+  %call = tail call i64 @__mux_get_group_id(i32 1)
   %conv = trunc i64 %call to i32
-  %call1 = tail call i64 @_Z12get_group_idj(i32 0)
+  %call1 = tail call i64 @__mux_get_group_id(i32 0)
   %conv2 = trunc i64 %call1 to i32
-  %call3 = tail call i64 @_Z12get_local_idj(i32 1)
+  %call3 = tail call i64 @__mux_get_local_id(i32 1)
   %conv4 = trunc i64 %call3 to i32
-  %call5 = tail call i64 @_Z12get_local_idj(i32 0)
+  %call5 = tail call i64 @__mux_get_local_id(i32 0)
   %conv6 = trunc i64 %call5 to i32
   %mul = shl nsw i32 %conv, 3
   %add = add nsw i32 %mul, %min_1
@@ -85,18 +85,6 @@ if.then24:                                        ; preds = %if.end
 
 if.end35:                                         ; preds = %if.then24, %if.end
   ret void
-}
-
-define internal i64 @_Z12get_group_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_group_id(i32 %x)
-  ret i64 %call
-}
-
-define internal i64 @_Z12get_local_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_local_id(i32 %x)
-  ret i64 %call
 }
 
 define internal i32 @_Z3minii(i32 %x, i32 %y) {

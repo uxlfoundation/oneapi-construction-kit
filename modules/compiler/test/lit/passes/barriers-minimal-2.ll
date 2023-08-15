@@ -25,9 +25,9 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 define void @minimal_barrier_2(i32 addrspace(1)* %output) #0 {
 entry:
-  %call1 = tail call i64 @_Z12get_local_idj(i32 0)
+  %call1 = tail call i64 @__mux_get_local_id(i32 0)
   %conv2 = trunc i64 %call1 to i32
-  %call457 = tail call i64 @_Z14get_local_sizej(i32 0)
+  %call457 = tail call i64 @__mux_get_local_size(i32 0)
   %cmp58.not = icmp eq i64 %call457, 0
   br i1 %cmp58.not, label %for.cond.cleanup, label %for.body.lr.ph
 
@@ -39,7 +39,7 @@ for.body.lr.ph:                                   ; preds = %entry
 
 for.cond.cleanup:                                 ; preds = %for.inc30, %entry
   %my_value.0.lcssa = phi i32 [ 0, %entry ], [ %my_value.3, %for.inc30 ]
-  %call36 = tail call i64 @_Z13get_global_idj(i32 0)
+  %call36 = tail call i64 @__mux_get_global_id(i32 0)
   %cmp37 = icmp eq i64 %call36, 1
   br i1 %cmp37, label %if.then39, label %if.end41
 
@@ -58,14 +58,14 @@ if.then:                                          ; preds = %for.body
 
 if.end:                                           ; preds = %if.then, %for.body
   %my_value.1 = phi i32 [ %0, %if.then ], [ %my_value.059, %for.body ]
-  %call1252 = tail call i64 @_Z14get_local_sizej(i32 0)
+  %call1252 = tail call i64 @__mux_get_local_size(i32 0)
   %cmp1353.not = icmp eq i64 %call1252, 0
   br i1 %cmp1353.not, label %for.cond.cleanup15, label %for.body16
 
 for.cond.cleanup15:                               ; preds = %for.body16, %if.end
   %my_value.2.lcssa = phi i32 [ %my_value.1, %if.end ], [ %add21, %for.body16 ]
   %call12.lcssa = phi i64 [ 0, %if.end ], [ %call12, %for.body16 ]
-  %call22 = tail call i64 @_Z12get_local_idj(i32 0)
+  %call22 = tail call i64 @__mux_get_local_id(i32 0)
   %cmp24 = icmp ugt i64 %call22, %call12.lcssa
   br i1 %cmp24, label %if.then26, label %for.inc30
 
@@ -84,7 +84,7 @@ for.body16:                                       ; preds = %for.body16, %if.end
   %add21 = add nsw i32 %add20, %4
   %inc = add i32 %j.055, 1
   %conv11 = zext i32 %inc to i64
-  %call12 = tail call i64 @_Z14get_local_sizej(i32 0)
+  %call12 = tail call i64 @__mux_get_local_size(i32 0)
   %cmp13 = icmp ugt i64 %call12, %conv11
   br i1 %cmp13, label %for.body16, label %for.cond.cleanup15
 
@@ -98,7 +98,7 @@ for.inc30:                                        ; preds = %if.then26, %for.con
   %6 = trunc i64 %call12.lcssa to i32
   %conv34 = add i32 %i.060, %6
   %conv3 = zext i32 %conv34 to i64
-  %call4 = tail call i64 @_Z14get_local_sizej(i32 0)
+  %call4 = tail call i64 @__mux_get_local_size(i32 0)
   %cmp = icmp ugt i64 %call4, %conv3
   br i1 %cmp, label %for.body, label %for.cond.cleanup
 
@@ -108,24 +108,6 @@ if.then39:                                        ; preds = %for.cond.cleanup
 
 if.end41:                                         ; preds = %if.then39, %for.cond.cleanup
   ret void
-}
-
-define internal i64 @_Z13get_global_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_global_id(i32 %x)
-  ret i64 %call
-}
-
-define internal i64 @_Z12get_local_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_local_id(i32 %x)
-  ret i64 %call
-}
-
-define internal i64 @_Z14get_local_sizej(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_local_size(i32 %x)
-  ret i64 %call
 }
 
 declare void @__mux_work_group_barrier(i32, i32, i32)

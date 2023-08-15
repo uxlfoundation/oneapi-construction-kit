@@ -22,12 +22,6 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 @barrier_bug.tmp = internal addrspace(3) global [1024 x float] undef, align 4
 
-define internal i64 @_Z12get_local_idj(i32 %x) {
-entry:
-  %call = tail call i64 @__mux_get_local_id(i32 %x) #4
-  ret i64 %call
-}
-
 define void @barrier_bug(float addrspace(1)* %data, i32 %n) #0 {
 entry:
   %cmp3.not = icmp eq i32 %n, 0
@@ -43,7 +37,7 @@ for.cond.cleanup:                                 ; preds = %wibble.exit, %entry
 
 for.body:                                         ; preds = %wibble.exit, %for.body.preheader
   %i.04 = phi i32 [ %add, %wibble.exit ], [ 0, %for.body.preheader ]
-  %call.i = tail call i64 @_Z12get_local_idj(i32 0) #5
+  %call.i = tail call i64 @__mux_get_local_id(i32 0) #5
   %conv.i = trunc i64 %call.i to i32
   %i.0.highbits35.i = lshr i32 %conv.i, %shl.mask.i
   %cmp36.i = icmp eq i32 %i.0.highbits35.i, 0

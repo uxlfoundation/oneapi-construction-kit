@@ -54,7 +54,7 @@ entry:
   call void @llvm.dbg.declare(metadata i32 addrspace(1)** %out.addr, metadata !63, metadata !DIExpression(DW_OP_constu, 0, DW_OP_swap, DW_OP_xderef)), !dbg !64
   %0 = load i32, i32* %in3.addr, align 4, !dbg !65
   %1 = load i32 addrspace(1)*, i32 addrspace(1)** %out.addr, align 8, !dbg !65
-  %call = call i64 @_Z13get_global_idj(i32 0) #4, !dbg !65, !range !66
+  %call = call i64 @__mux_get_global_id(i32 0) #4, !dbg !65, !range !66
   %arrayidx = getelementptr inbounds i32, i32 addrspace(1)* %1, i64 %call, !dbg !65
   store i32 %0, i32 addrspace(1)* %arrayidx, align 4, !dbg !65
   ret void, !dbg !67
@@ -73,13 +73,6 @@ entry:
 
 ; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
-
-; Function Attrs: convergent mustprogress nofree norecurse nounwind readonly willreturn
-define internal i64 @_Z13get_global_idj(i32 %x) #2 {
-entry:
-  %call = tail call i64 @__mux_get_global_id(i32 %x) #5
-  ret i64 %call
-}
 
 ; Function Attrs: convergent mustprogress nofree nounwind readonly willreturn
 declare i64 @__mux_get_global_id(i32 ) #3

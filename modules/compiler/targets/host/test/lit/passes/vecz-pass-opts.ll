@@ -27,7 +27,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK:   ]
 ; CHECK: }
 define spir_kernel void @foo(i32 addrspace(1)* %in) #0 !reqd_work_group_size !0 {
-  %gid = call spir_func i64 @_Z13get_global_idj(i32 0)
+  %gid = call i64 @__mux_get_global_id(i32 0)
   ret void
 }
 
@@ -46,7 +46,7 @@ define spir_kernel void @bar(i32 addrspace(1)* %in) #0 !reqd_work_group_size !1 
 ; CHECK:   ]
 ; CHECK: }
 define spir_kernel void @baz(i32 addrspace(1)* %in) #0 !reqd_work_group_size !2 {
-  %gid = call spir_func i64 @_Z13get_global_idj(i32 0)
+  %gid = call i64 @__mux_get_global_id(i32 0)
   ret void
 }
 
@@ -68,7 +68,7 @@ define spir_kernel void @whazz(i32 addrspace(1)* %in) #1 !reqd_work_group_size !
   ret void
 }
 
-declare spir_func i64 @_Z13get_global_idj(i32)
+declare i64 @__mux_get_global_id(i32)
 
 attributes #0 = { "mux-kernel"="entry-point" "vecz-mode"="auto" }
 attributes #1 = { "mux-kernel"="entry-point" "vecz-mode"="always" }
