@@ -46,13 +46,12 @@
 #include <compiler/limits.h>
 #include <compiler/utils/encode_builtin_range_metadata_pass.h>
 #include <compiler/utils/llvm_global_mutex.h>
+#include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_machinery.h>
 #include <compiler/utils/replace_async_copies_pass.h>
 #include <compiler/utils/replace_atomic_funcs_pass.h>
-#include <compiler/utils/replace_barriers_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
-#include <compiler/utils/replace_group_funcs_pass.h>
 #include <compiler/utils/replace_target_ext_tys_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
@@ -91,6 +90,7 @@
 #include <llvm/Transforms/Vectorize/LoopVectorize.h>
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
+#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/optional_helper.h>
 #include <multi_llvm/triple.h>
 #include <mux/mux.hpp>
@@ -1690,6 +1690,9 @@ Result BaseModule::finalize(
   pm.addPass(compiler::utils::ReplaceTargetExtTysPass(RTETOpts));
 #endif
 
+  // Lower all language-level builtins with corresponding mux builtins
+  pm.addPass(compiler::utils::LowerToMuxBuiltinsPass());
+
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::SoftwareDivisionPass()));
   pm.addPass(compiler::ImageArgumentSubstitutionPass());
@@ -1712,8 +1715,6 @@ Result BaseModule::finalize(
       }));
 
   pm.addPass(compiler::utils::ReplaceC11AtomicFuncsPass());
-  pm.addPass(compiler::utils::ReplaceBarriersPass());
-  pm.addPass(compiler::utils::ReplaceGroupFuncsPass());
 
   if (options.prevec_mode != compiler::PreVectorizationMode::NONE) {
     llvm::FunctionPassManager fpm;

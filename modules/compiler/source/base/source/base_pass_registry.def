@@ -35,6 +35,7 @@ MODULE_PASS("define-mux-builtins", compiler::utils::DefineMuxBuiltinsPass())
 MODULE_PASS("define-mux-dma", compiler::utils::DefineMuxDmaPass())
 MODULE_PASS("degenerate-sub-groups", compiler::utils::DegenerateSubGroupPass())
 MODULE_PASS("link-builtins", compiler::utils::LinkBuiltinsPass())
+MODULE_PASS("lower-to-mux-builtins", compiler::utils::LowerToMuxBuiltinsPass())
 
 MODULE_PASS("missing-builtins",
             compiler::utils::MaterializeAbsentWorkItemBuiltinsPass())
@@ -42,10 +43,8 @@ MODULE_PASS("prepare-barriers", compiler::utils::PrepareBarriersPass())
 MODULE_PASS("rename-builtins", compiler::utils::RenameBuiltinsPass())
 MODULE_PASS("replace-async-copies", compiler::utils::ReplaceAsyncCopiesPass())
 MODULE_PASS("replace-atomic-funcs", compiler::utils::ReplaceAtomicFuncsPass())
-MODULE_PASS("replace-barriers", compiler::utils::ReplaceBarriersPass())
 MODULE_PASS("replace-c11-atomic-funcs",
             compiler::utils::ReplaceC11AtomicFuncsPass())
-MODULE_PASS("replace-group-funcs", compiler::utils::ReplaceGroupFuncsPass())
 MODULE_PASS("replace-wgc", compiler::utils::ReplaceWGCPass())
 
 MODULE_PASS("replace-module-scope-vars",

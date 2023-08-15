@@ -21,9 +21,8 @@
 #ifndef COMPILER_UTILS_CL_BUILTIN_INFO_H_INCLUDED
 #define COMPILER_UTILS_CL_BUILTIN_INFO_H_INCLUDED
 
+#include <compiler/utils/builtin_info.h>
 #include <compiler/utils/mangling.h>
-
-#include "builtin_info.h"
 
 namespace compiler {
 namespace utils {
@@ -103,18 +102,13 @@ class CLBuiltinInfo : public BILangInfoConcept {
   llvm::Value *emitBuiltinInline(llvm::Function *Builtin, llvm::IRBuilder<> &B,
                                  llvm::ArrayRef<llvm::Value *> Args) override;
   /// @see BuiltinInfo::getBuiltinRange
-  multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &CI,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes)
-      const override;
+  std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+      std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const override;
 
-  /// @see BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin
-  llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(
-      llvm::CallInst &, BIMuxInfoConcept &) override;
-  /// @see BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin
-  llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(
-      llvm::CallInst &, BIMuxInfoConcept &) override;
+  /// @see BuiltinInfo::lowerBuiltinToMuxBuiltin
+  llvm::Instruction *lowerBuiltinToMuxBuiltin(llvm::CallInst &,
+                                              BIMuxInfoConcept &) override;
   /// @see BuiltinInfo::getPrintfBuiltin
   BuiltinID getPrintfBuiltin() const override;
 
@@ -124,6 +118,10 @@ class CLBuiltinInfo : public BILangInfoConcept {
   llvm::Function *materializeBuiltin(
       llvm::StringRef BuiltinName, llvm::Module *DestM = nullptr,
       BuiltinMatFlags Flags = eBuiltinMatDefault);
+
+  llvm::Instruction *lowerGroupBuiltinToMuxBuiltin(llvm::CallInst &CI,
+                                                   BuiltinID ID,
+                                                   BIMuxInfoConcept &BIMuxImpl);
 
   llvm::Value *emitBuiltinInline(BuiltinID ID, llvm::IRBuilder<> &B,
                                  llvm::ArrayRef<llvm::Value *> Args);

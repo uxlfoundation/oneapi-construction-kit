@@ -16,25 +16,24 @@
 
 /// @file
 ///
-/// Replace group functions pass.
+/// Lowers language builtins to mux builtins.
 
-#ifndef COMPILER_UTILS_REPLACE_GROUP_FUNCS_PASS_H_INCLUDED
-#define COMPILER_UTILS_REPLACE_GROUP_FUNCS_PASS_H_INCLUDED
+#ifndef COMPILER_UTILS_LOWER_TO_MUX_BUILTINS_PASS_H_INCLUDED
+#define COMPILER_UTILS_LOWER_TO_MUX_BUILTINS_PASS_H_INCLUDED
 
 #include <llvm/IR/PassManager.h>
 
 namespace compiler {
 namespace utils {
 
-/// @brief A pass that will replace calls to the group builtins with calls to
-/// the equivalent mux functions
+/// @brief A pass that lowers language builtins to mux builtins
 
-class ReplaceGroupFuncsPass final
-    : public llvm::PassInfoMixin<ReplaceGroupFuncsPass> {
+class LowerToMuxBuiltinsPass final
+    : public llvm::PassInfoMixin<LowerToMuxBuiltinsPass> {
  public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
 }  // namespace utils
 }  // namespace compiler
 
-#endif  // COMPILER_UTILS_REPLACE_GROUP_FUNCS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_LOWER_TO_MUX_BUILTINS_PASS_H_INCLUDED

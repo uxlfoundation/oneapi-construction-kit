@@ -15,18 +15,18 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/builtin_info.h>
-#include <compiler/utils/replace_group_funcs_pass.h>
+#include <compiler/utils/lower_to_mux_builtins_pass.h>
 
 using namespace llvm;
 
-PreservedAnalyses compiler::utils::ReplaceGroupFuncsPass::run(
+PreservedAnalyses compiler::utils::LowerToMuxBuiltinsPass::run(
     Module &M, ModuleAnalysisManager &AM) {
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 
   SmallVector<CallInst *, 8> Calls;
   for (auto &F : M.functions()) {
     auto B = BI.analyzeBuiltin(F);
-    if (B.properties & eBuiltinPropertyMapToMuxGroupBuiltin) {
+    if (B.properties & eBuiltinPropertyLowerToMuxBuiltin) {
       for (auto *U : F.users()) {
         if (auto *CI = dyn_cast<CallInst>(U)) {
           Calls.push_back(CI);
@@ -40,7 +40,7 @@ PreservedAnalyses compiler::utils::ReplaceGroupFuncsPass::run(
   }
 
   for (auto *CI : Calls) {
-    if (auto *const NewCI = BI.mapGroupBuiltinToMuxGroupBuiltin(*CI)) {
+    if (auto *const NewCI = BI.lowerBuiltinToMuxBuiltin(*CI)) {
       CI->replaceAllUsesWith(NewCI);
       CI->eraseFromParent();
     }

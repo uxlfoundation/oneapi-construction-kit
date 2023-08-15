@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <base/printf_replacement_pass.h>
+#include <compiler/utils/builtin_info.h>
 #include <compiler/utils/device_info.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/SmallPtrSet.h>
@@ -814,23 +815,17 @@ PreservedAnalyses compiler::PrintfReplacementPass::run(
     return PreservedAnalyses::all();
   }
 
+  auto &BI = AM.getResult<compiler::utils::BuiltinInfoAnalysis>(module);
   const auto &DI = AM.getResult<compiler::utils::DeviceInfoAnalysis>(module);
   // Set up the double support for this run of the pass
   double_support = DI.double_capabilities != 0;
 
-  // get the type of size_t on the device
-  Type *size_t_type = compiler::utils::getSizeType(module);
-
-  FunctionType *FuncTy = FunctionType::get(
-      size_t_type, Type::getInt32Ty(module.getContext()), false);
-  Function *get_group_id = dyn_cast<Function>(
-      module.getOrInsertFunction("_Z12get_group_idj", FuncTy).getCallee());
-  assert(get_group_id && "Could not get or insert _Z12get_group_idj");
-  get_group_id->setCallingConv(CallingConv::SPIR_FUNC);
-
-  Function *get_num_groups = cast<Function>(
-      module.getOrInsertFunction("_Z14get_num_groupsj", FuncTy).getCallee());
-  get_num_groups->setCallingConv(CallingConv::SPIR_FUNC);
+  Function *get_group_id =
+      BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetGroupId, module);
+  assert(get_group_id && "Could not get or insert __mux_get_group_id");
+  Function *get_num_groups = BI.getOrDeclareMuxBuiltin(
+      compiler::utils::eMuxBuiltinGetNumGroups, module);
+  assert(get_num_groups && "Could not get or insert __mux_get_num_groups");
 
   SmallVector<CallInst *, 32> callsToErase;
 

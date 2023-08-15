@@ -14,6 +14,8 @@ Upgrade guidance:
   parameters in kernel functions with i32 parameters via a wrapper function.
   The `host` target as a consequence now passes samplers to kernels as 32-bit
   integer arguments, not as integer arguments disguised as pointer values.
+* The `compiler::utils::ReplaceBarriersPass` has been replaced with the
+  `compiler::utils::LowerToMuxBuiltinsPass`.
 
 ## Version 3.0.0
 

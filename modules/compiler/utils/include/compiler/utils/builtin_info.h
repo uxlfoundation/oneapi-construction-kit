@@ -27,9 +27,9 @@
 #include <llvm/IR/ConstantRange.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/PassManager.h>
-#include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
+
+#include <optional>
 
 namespace compiler {
 namespace utils {
@@ -208,17 +208,13 @@ enum BuiltinProperties : int32_t {
   /// rematerializable builtins are removed from the live variable structure,
   /// and are re-inserted into each barrier region that requires their results.
   eBuiltinPropertyRematerializable = (1 << 14),
-  /// @brief The builtin should be mapped to a mux synchronization builtin.
+  /// @brief The builtin should be lowered to a mux builtin.
   ///
-  /// This mapping takes place in BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin.
-  eBuiltinPropertyMapToMuxSyncBuiltin = (1 << 15),
+  /// This mapping takes place in BuiltinInfo::lowerBuiltinToMuxBuiltin.
+  eBuiltinPropertyLowerToMuxBuiltin = (1 << 15),
   /// @brief The builtin is known not be be convergent, i.e., it does not
   /// depend on any other work-item in any way.
   eBuiltinPropertyKnownNonConvergent = (1 << 16),
-  /// @brief The builtin should be mapped to a mux group builtin.
-  ///
-  /// This mapping takes place in BuiltinInfo::mapSyncBuiltinToMuxGroupBuiltin.
-  eBuiltinPropertyMapToMuxGroupBuiltin = (1 << 17),
 };
 
 /// @brief struct to hold information about a builtin function
@@ -398,27 +394,17 @@ class BuiltinInfo {
   /// the 3 dimensions that this target supports.
   /// @param[in] MaxGlobalSizes The maximum global work-group sizes in each of
   /// the 3 dimensions that this target supports.
-  multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &CI,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxLocalSizes,
-      std::array<multi_llvm::Optional<uint64_t>, 3> MaxGlobalSizes) const;
+  std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
+      std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const;
 
-  /// @brief Remaps a call instruction to a call calling a mux synchronization
-  /// builtin.
+  /// @brief Lowers a call to a language-level builtin to an instruction
+  /// sequences calling a mux builtin.
   ///
   /// For a call to a builtin for which the property
-  /// eBuiltinPropertyMapToMuxSyncBuiltin is set, the target must then remap
-  /// the call to a new call to the correct mux builtin, remapping any
-  /// arguments as required.
-  llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(llvm::CallInst &CI);
-
-  /// @brief Remaps a call instruction to a call calling a mux group builtin.
-  ///
-  /// For a call to a builtin for which the property
-  /// eBuiltinPropertyMapToMuxGroupBuiltin is set, the target must then remap
-  /// the call to a new call to the correct mux builtin, remapping any
-  /// arguments as required.
-  llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(llvm::CallInst &CI);
+  /// eBuiltinPropertyLowerToMuxBuiltin is set, the target must then re-express
+  /// the call to a new sequence, usually involving mux builtins.
+  llvm::Instruction *lowerBuiltinToMuxBuiltin(llvm::CallInst &CI);
 
   /// @brief Get a builtin for printf.
   /// @return An identifier for the builtin, or the invalid builtin if there
@@ -695,6 +681,11 @@ class BIMuxInfoConcept {
   ///   * spirv.Image -> MuxImage* (regardless of image parameters)
   virtual llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty);
 
+  /// @see BuiltinInfo::getBuiltinRange
+  virtual std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &, BuiltinID ID, std::array<std::optional<uint64_t>, 3>,
+      std::array<std::optional<uint64_t>, 3>) const;
+
   enum MemScope : uint32_t {
     MemScopeCrossDevice = 0,
     MemScopeDevice = 1,
@@ -786,22 +777,15 @@ class BILangInfoConcept {
       llvm::Function *Builtin, llvm::IRBuilder<> &B,
       llvm::ArrayRef<llvm::Value *> Args) = 0;
   /// @see BuiltinInfo::getBuiltinRange
-  virtual multi_llvm::Optional<llvm::ConstantRange> getBuiltinRange(
-      llvm::CallInst &, std::array<multi_llvm::Optional<uint64_t>, 3>,
-      std::array<multi_llvm::Optional<uint64_t>, 3>) const {
-    return multi_llvm::None;
+  virtual std::optional<llvm::ConstantRange> getBuiltinRange(
+      llvm::CallInst &, std::array<std::optional<uint64_t>, 3>,
+      std::array<std::optional<uint64_t>, 3>) const {
+    return std::nullopt;
   }
-  /// @see BuiltinInfo::requiresMapToMuxSyncBuiltin
-  virtual bool requiresMapToMuxSyncBuiltin(BuiltinID) const { return false; }
 
-  /// @see BuiltinInfo::mapSyncBuiltinToMuxSyncBuiltin
-  virtual llvm::Instruction *mapSyncBuiltinToMuxSyncBuiltin(
-      llvm::CallInst &, BIMuxInfoConcept &) {
-    return nullptr;
-  }
-  /// @see BuiltinInfo::mapGroupBuiltinToMuxGroupBuiltin
-  virtual llvm::Instruction *mapGroupBuiltinToMuxGroupBuiltin(
-      llvm::CallInst &, BIMuxInfoConcept &) {
+  /// @see BuiltinInfo::lowerBuiltinToMuxBuiltin
+  virtual llvm::Instruction *lowerBuiltinToMuxBuiltin(llvm::CallInst &,
+                                                      BIMuxInfoConcept &) {
     return nullptr;
   }
   /// @see BuiltinInfo::getPrintfBuiltin
