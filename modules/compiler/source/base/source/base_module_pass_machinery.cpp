@@ -53,7 +53,6 @@
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/rename_builtins_pass.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
-#include <compiler/utils/replace_async_copies_pass.h>
 #include <compiler/utils/replace_atomic_funcs_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>

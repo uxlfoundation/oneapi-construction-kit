@@ -14,7 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/address_spaces.h>
+#include <compiler/utils/builtin_info.h>
 #include <compiler/utils/cl_builtin_info.h>
+#include <compiler/utils/mangling.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/StringSwitch.h>
@@ -231,6 +234,10 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
   eCLBuiltinAsyncWorkGroupStridedCopy,
   /// @brief OpenCL builtin 'wait_group_events'.
   eCLBuiltinWaitGroupEvents,
+  /// @brief OpenCL builtin 'async_work_group_copy_2D2D'.
+  eCLBuiltinAsyncWorkGroupCopy2D2D,
+  /// @brief OpenCL builtin 'async_work_group_copy_3D3D'.
+  eCLBuiltinAsyncWorkGroupCopy3D3D,
 
   // 6.12.11 Atomic Functions
   /// @brief OpenCL builtins 'atomic_add', 'atom_add'.
@@ -626,6 +633,8 @@ static const CLBuiltinEntry Builtins[] = {
     {eCLBuiltinAsyncWorkGroupCopy, "async_work_group_copy"},
     {eCLBuiltinAsyncWorkGroupStridedCopy, "async_work_group_strided_copy"},
     {eCLBuiltinWaitGroupEvents, "wait_group_events"},
+    {eCLBuiltinAsyncWorkGroupCopy2D2D, "async_work_group_copy_2D2D"},
+    {eCLBuiltinAsyncWorkGroupCopy3D3D, "async_work_group_copy_3D3D"},
 
     // 6.12.11 Atomic Functions
     {eCLBuiltinAtomicAdd, "atom_add"},
@@ -960,6 +969,8 @@ BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &B,
     case eCLBuiltinAsyncWorkGroupCopy:
     case eCLBuiltinAsyncWorkGroupStridedCopy:
     case eCLBuiltinWaitGroupEvents:
+    case eCLBuiltinAsyncWorkGroupCopy2D2D:
+    case eCLBuiltinAsyncWorkGroupCopy3D3D:
       // These builtins will always be uniform within the same workgroup, as
       // otherwise their behaviour is undefined. They might not be across
       // workgroups, but we do not vectorize across workgroups anyway.
@@ -1070,10 +1081,13 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
     case eCLBuiltinAsyncWorkGroupCopy:
     case eCLBuiltinAsyncWorkGroupStridedCopy:
     case eCLBuiltinWaitGroupEvents:
+    case eCLBuiltinAsyncWorkGroupCopy2D2D:
+    case eCLBuiltinAsyncWorkGroupCopy3D3D:
       // Our implementation of these builtins uses thread checks against
       // specific work-item IDs, so they are convergent.
       IsConvergent = true;
       Properties |= eBuiltinPropertyNoSideEffects;
+      Properties |= eBuiltinPropertyLowerToMuxBuiltin;
       break;
     case eCLBuiltinAtomicAdd:
     case eCLBuiltinAtomicSub:
@@ -2905,7 +2919,9 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
     return NewCI;
   }
 
-  auto *const I32Ty = Type::getInt32Ty(M.getContext());
+  IRBuilder<> B(&CI);
+  LLVMContext &Ctx = M.getContext();
+  auto *const I32Ty = Type::getInt32Ty(Ctx);
 
   auto CtrlBarrierID = eMuxBuiltinWorkGroupBarrier;
   unsigned DefaultMemScope = BIMuxInfoConcept::MemScopeWorkGroup;
@@ -2948,8 +2964,8 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
       auto *const BarrierID = ConstantInt::get(I32Ty, 0);
       auto *const Scope = ConstantInt::get(I32Ty, ScopeVal);
       auto *const Semantics = ConstantInt::get(I32Ty, SemanticsVal);
-      auto *const NewCI = CallInst::Create(
-          CtrlBarrier, {BarrierID, Scope, Semantics}, CI.getName(), &CI);
+      auto *const NewCI = B.CreateCall(
+          CtrlBarrier, {BarrierID, Scope, Semantics}, CI.getName());
       NewCI->setAttributes(CtrlBarrier->getAttributes());
       NewCI->takeName(&CI);
       return NewCI;
@@ -2981,8 +2997,34 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
       auto *const Scope = ConstantInt::get(I32Ty, DefaultMemScope);
       auto *const Semantics = ConstantInt::get(I32Ty, SemanticsVal);
       auto *const NewCI =
-          CallInst::Create(MemBarrier, {Scope, Semantics}, CI.getName(), &CI);
+          B.CreateCall(MemBarrier, {Scope, Semantics}, CI.getName());
       NewCI->setAttributes(MemBarrier->getAttributes());
+      NewCI->takeName(&CI);
+      return NewCI;
+    }
+    case eCLBuiltinAsyncWorkGroupCopy:
+    case eCLBuiltinAsyncWorkGroupStridedCopy:
+    case eCLBuiltinAsyncWorkGroupCopy2D2D:
+    case eCLBuiltinAsyncWorkGroupCopy3D3D:
+      return lowerAsyncBuiltinToMuxBuiltin(CI, ID, BIMuxImpl);
+    case eCLBuiltinWaitGroupEvents: {
+      auto *const MuxWait =
+          BIMuxImpl.getOrDeclareMuxBuiltin(eMuxBuiltinDMAWait, M);
+      assert(MuxWait && "Could not get/declare __mux_dma_wait");
+      auto *const Count = CI.getArgOperand(0);
+      auto *Events = CI.getArgOperand(1);
+
+      assert(Events->getType()->isPointerTy() &&
+             (Events->getType()->getPointerAddressSpace() ==
+                  compiler::utils::AddressSpace::Private ||
+              Events->getType()->getPointerAddressSpace() ==
+                  compiler::utils::AddressSpace::Generic) &&
+             "Pointer to event must be in address space 0 or 4.");
+
+      Events = B.CreatePointerBitCastOrAddrSpaceCast(
+          Events, PointerType::getUnqual(Ctx), "mux.events");
+      auto *const NewCI = B.CreateCall(MuxWait, {Count, Events}, CI.getName());
+      NewCI->setAttributes(MuxWait->getAttributes());
       NewCI->takeName(&CI);
       return NewCI;
     }
@@ -3429,6 +3471,183 @@ Instruction *CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(
   }
   // For any/all we need to recreate the original i32 return value.
   return SExtInst::Create(Instruction::SExt, NewCI, CI.getType(), "sext", &CI);
+}
+
+Instruction *CLBuiltinInfo::lowerAsyncBuiltinToMuxBuiltin(
+    CallInst &CI, BuiltinID ID, BIMuxInfoConcept &BIMuxImpl) {
+  assert((ID == eCLBuiltinAsyncWorkGroupCopy ||
+          ID == eCLBuiltinAsyncWorkGroupStridedCopy ||
+          ID == eCLBuiltinAsyncWorkGroupCopy2D2D ||
+          ID == eCLBuiltinAsyncWorkGroupCopy3D3D) &&
+         "Invalid ID");
+
+  IRBuilder<> B(&CI);
+  auto &M = *CI.getModule();
+  LLVMContext &Ctx = M.getContext();
+  const auto &DL = M.getDataLayout();
+
+  switch (ID) {
+    default:
+      llvm_unreachable("Unhandled builtin");
+    case eCLBuiltinAsyncWorkGroupCopy:
+    case eCLBuiltinAsyncWorkGroupStridedCopy: {
+      NameMangler Mangler(&Ctx);
+
+      // Do a full demangle to determing the pointer element type of the first
+      // argument.
+      SmallVector<Type *, 4> BuiltinArgTypes, BuiltinArgPointeeTypes;
+      SmallVector<compiler::utils::TypeQualifiers, 4> BuiltinArgQuals;
+
+      [[maybe_unused]] StringRef BuiltinName = Mangler.demangleName(
+          CI.getCalledFunction()->getName(), BuiltinArgTypes,
+          BuiltinArgPointeeTypes, BuiltinArgQuals);
+      assert(!BuiltinName.empty() && BuiltinArgTypes[0]->isPointerTy() &&
+             BuiltinArgPointeeTypes[0] && "Could not demangle async builtin");
+
+      auto *const DataTy = BuiltinArgPointeeTypes[0];
+      bool const IsStrided = ID == eCLBuiltinAsyncWorkGroupStridedCopy;
+
+      auto *const Dst = CI.getArgOperand(0);
+      auto *const Src = CI.getArgOperand(1);
+      auto *const NumElements = CI.getArgOperand(2);
+      auto *const EventIn = CI.getArgOperand(3 + IsStrided);
+
+      // Find out which way the DMA is going and declare the appropriate mux
+      // builtin.
+      const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
+                          compiler::utils::AddressSpace::Local;
+      auto const ElementTypeWidthInBytes =
+          DL.getTypeAllocSize(DataTy).getFixedValue();
+      auto *const ElementSize =
+          ConstantInt::get(NumElements->getType(), ElementTypeWidthInBytes);
+
+      auto *const WidthInBytes =
+          IsStrided ? ElementSize
+                    : B.CreateMul(ElementSize, NumElements, "width.bytes");
+
+      BuiltinID MuxBuiltinID =
+          IsRead ? (IsStrided ? eMuxBuiltinDMARead2D : eMuxBuiltinDMARead1D)
+                 : (IsStrided ? eMuxBuiltinDMAWrite2D : eMuxBuiltinDMAWrite1D);
+
+      auto *const MuxDMA =
+          BIMuxImpl.getOrDeclareMuxBuiltin(MuxBuiltinID, M, EventIn->getType());
+      assert(MuxDMA && "Could not get/declare mux dma read/write");
+
+      CallInst *NewCI = nullptr;
+      if (!IsStrided) {
+        NewCI = B.CreateCall(MuxDMA, {Dst, Src, WidthInBytes, EventIn},
+                             "mux.out.event");
+      } else {
+        // The stride from async_work_group_strided_copy is in elements, but the
+        // stride in the __mux builtins are in bytes so we need to scale the
+        // value.
+        auto *const Stride = CI.getArgOperand(3);
+        auto *const StrideInBytes =
+            B.CreateMul(ElementSize, Stride, "stride.bytes");
+
+        // For async_work_group_strided_copy, the stride only applies to the
+        // global memory, as we are doing scatters/gathers.
+        auto *const DstStride = IsRead ? ElementSize : StrideInBytes;
+        auto *const SrcStride = IsRead ? StrideInBytes : ElementSize;
+
+        NewCI = B.CreateCall(MuxDMA,
+                             {Dst, Src, WidthInBytes, DstStride, SrcStride,
+                              NumElements, EventIn},
+                             "mux.out.event");
+      }
+      NewCI->setAttributes(MuxDMA->getAttributes());
+      NewCI->takeName(&CI);
+      return NewCI;
+    }
+    case eCLBuiltinAsyncWorkGroupCopy2D2D: {
+      // Unpack the arguments for ease of access.
+      auto *const Dst = CI.getArgOperand(0);
+      auto *const DstOffset = CI.getArgOperand(1);
+      auto *const Src = CI.getArgOperand(2);
+      auto *const SrcOffset = CI.getArgOperand(3);
+      auto *const NumBytesPerEl = CI.getArgOperand(4);
+      auto *const NumElsPerLine = CI.getArgOperand(5);
+      auto *const NumLines = CI.getArgOperand(6);
+      auto *const SrcTotalLineLength = CI.getArgOperand(7);
+      auto *const DstTotalLineLength = CI.getArgOperand(8);
+      auto *const EventIn = CI.getArgOperand(9);
+
+      // Find out which way the DMA is going and declare the appropriate mux
+      // builtin.
+      const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
+                          compiler::utils::AddressSpace::Local;
+      auto *const MuxDMA = BIMuxImpl.getOrDeclareMuxBuiltin(
+          IsRead ? eMuxBuiltinDMARead2D : eMuxBuiltinDMAWrite2D, M,
+          EventIn->getType());
+      assert(MuxDMA && "Could not get/declare mux dma read/write");
+
+      auto *const DstOffsetBytes = B.CreateMul(DstOffset, NumBytesPerEl);
+      auto *const SrcOffsetBytes = B.CreateMul(SrcOffset, NumBytesPerEl);
+      auto *const LineSizeBytes = B.CreateMul(NumElsPerLine, NumBytesPerEl);
+      auto *const ByteTy = B.getInt8Ty();
+      auto *const DstWithOffset = B.CreateGEP(ByteTy, Dst, DstOffsetBytes);
+      auto *const SrcWithOffset = B.CreateGEP(ByteTy, Src, SrcOffsetBytes);
+      auto *const SrcStrideBytes =
+          B.CreateMul(SrcTotalLineLength, NumBytesPerEl);
+      auto *const DstStrideBytes =
+          B.CreateMul(DstTotalLineLength, NumBytesPerEl);
+      auto *const NewCI = B.CreateCall(
+          MuxDMA, {DstWithOffset, SrcWithOffset, LineSizeBytes, DstStrideBytes,
+                   SrcStrideBytes, NumLines, EventIn});
+      NewCI->setAttributes(MuxDMA->getAttributes());
+      NewCI->takeName(&CI);
+      return NewCI;
+    }
+    case eCLBuiltinAsyncWorkGroupCopy3D3D: {
+      auto *const Dst = CI.getArgOperand(0);
+      auto *const DstOffset = CI.getArgOperand(1);
+      auto *const Src = CI.getArgOperand(2);
+      auto *const SrcOffset = CI.getArgOperand(3);
+      auto *const NumBytesPerEl = CI.getArgOperand(4);
+      auto *const NumElsPerLine = CI.getArgOperand(5);
+      auto *const NumLines = CI.getArgOperand(6);
+      auto *const NumPlanes = CI.getArgOperand(7);
+      auto *const SrcTotalLineLength = CI.getArgOperand(8);
+      auto *const SrcTotalPlaneArea = CI.getArgOperand(9);
+      auto *const DstTotalLineLength = CI.getArgOperand(10);
+      auto *const DstTotalPlaneArea = CI.getArgOperand(11);
+      auto *const EventIn = CI.getArgOperand(12);
+
+      // Find out which way the DMA is going and declare the appropriate mux
+      // builtin.
+      const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
+                          compiler::utils::AddressSpace::Local;
+      auto *const MuxDMA = BIMuxImpl.getOrDeclareMuxBuiltin(
+          IsRead ? eMuxBuiltinDMARead3D : eMuxBuiltinDMAWrite3D, M,
+          EventIn->getType());
+      assert(MuxDMA && "Could not get/declare mux dma read/write");
+
+      auto *const DstOffsetBytes = B.CreateMul(DstOffset, NumBytesPerEl);
+      auto *const SrcOffsetBytes = B.CreateMul(SrcOffset, NumBytesPerEl);
+      auto *const LineSizeBytes = B.CreateMul(NumElsPerLine, NumBytesPerEl);
+      auto *const ByteTy = B.getInt8Ty();
+      auto *const DstWithOffset = B.CreateGEP(ByteTy, Dst, DstOffsetBytes);
+      auto *const SrcWithOffset = B.CreateGEP(ByteTy, Src, SrcOffsetBytes);
+      auto *const SrcLineStrideBytes =
+          B.CreateMul(SrcTotalLineLength, NumBytesPerEl);
+      auto *const DstLineStrideBytes =
+          B.CreateMul(DstTotalLineLength, NumBytesPerEl);
+      auto *const SrcPlaneStrideBytes =
+          B.CreateMul(SrcTotalPlaneArea, NumBytesPerEl);
+      auto *const DstPlaneStrideBytes =
+          B.CreateMul(DstTotalPlaneArea, NumBytesPerEl);
+      auto *const NewCI =
+          B.CreateCall(MuxDMA, {DstWithOffset, SrcWithOffset, LineSizeBytes,
+                                DstLineStrideBytes, SrcLineStrideBytes,
+                                NumLines, DstPlaneStrideBytes,
+                                SrcPlaneStrideBytes, NumPlanes, EventIn});
+      NewCI->setAttributes(MuxDMA->getAttributes());
+      NewCI->takeName(&CI);
+      return NewCI;
+    }
+  }
+
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

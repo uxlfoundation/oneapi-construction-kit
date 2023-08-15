@@ -122,6 +122,9 @@ class CLBuiltinInfo : public BILangInfoConcept {
   llvm::Instruction *lowerGroupBuiltinToMuxBuiltin(llvm::CallInst &CI,
                                                    BuiltinID ID,
                                                    BIMuxInfoConcept &BIMuxImpl);
+  llvm::Instruction *lowerAsyncBuiltinToMuxBuiltin(llvm::CallInst &CI,
+                                                   BuiltinID ID,
+                                                   BIMuxInfoConcept &BIMuxImpl);
 
   llvm::Value *emitBuiltinInline(BuiltinID ID, llvm::IRBuilder<> &B,
                                  llvm::ArrayRef<llvm::Value *> Args);

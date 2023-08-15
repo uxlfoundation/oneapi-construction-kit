@@ -39,7 +39,6 @@ MODULE_PASS("lower-to-mux-builtins", compiler::utils::LowerToMuxBuiltinsPass())
 
 MODULE_PASS("prepare-barriers", compiler::utils::PrepareBarriersPass())
 MODULE_PASS("rename-builtins", compiler::utils::RenameBuiltinsPass())
-MODULE_PASS("replace-async-copies", compiler::utils::ReplaceAsyncCopiesPass())
 MODULE_PASS("replace-atomic-funcs", compiler::utils::ReplaceAtomicFuncsPass())
 MODULE_PASS("replace-c11-atomic-funcs",
             compiler::utils::ReplaceC11AtomicFuncsPass())

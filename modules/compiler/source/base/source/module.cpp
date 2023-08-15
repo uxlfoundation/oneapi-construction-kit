@@ -49,7 +49,6 @@
 #include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_machinery.h>
-#include <compiler/utils/replace_async_copies_pass.h>
 #include <compiler/utils/replace_atomic_funcs_pass.h>
 #include <compiler/utils/replace_c11_atomic_funcs_pass.h>
 #include <compiler/utils/replace_target_ext_tys_pass.h>
@@ -1696,7 +1695,6 @@ Result BaseModule::finalize(
   pm.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::SoftwareDivisionPass()));
   pm.addPass(compiler::ImageArgumentSubstitutionPass());
-  pm.addPass(compiler::utils::ReplaceAsyncCopiesPass());
   pm.addPass(compiler::utils::ReplaceAtomicFuncsPass());
 
   compiler::utils::EncodeBuiltinRangeMetadataOptions Opts;
