@@ -43,7 +43,6 @@
 #include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
-#include <compiler/utils/materialize_absent_work_item_builtins_pass.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/optimal_builtin_replacement_pass.h>
 #include <compiler/utils/pipeline_parse_helpers.h>
