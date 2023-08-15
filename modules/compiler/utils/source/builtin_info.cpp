@@ -19,6 +19,7 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
+#include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/StringSwitch.h>
 
 using namespace llvm;

@@ -251,12 +251,12 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
   } else if (Ty->isPointerTy()) {
     PointerType *PtrTy = cast<PointerType>(Ty);
     unsigned AddressSpace = PtrTy->getAddressSpace();
-    if (PtrTy->isOpaque()) {
-      O << "u3ptr";
-      manglePointerQuals(O, Qual, AddressSpace);
-      return true;
-    }
-    return false;
+#if LLVM_VERSION_LESS(17, 0)
+    assert(PtrTy->isOpaque() && "No support for typed pointers past LLVM 15");
+#endif
+    O << "u3ptr";
+    manglePointerQuals(O, Qual, AddressSpace);
+    return true;
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
   } else if (Ty->isTargetExtTy()) {
     if (auto Name = mangleBuiltinType(Ty)) {
