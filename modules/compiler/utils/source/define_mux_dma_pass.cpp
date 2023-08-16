@@ -28,8 +28,8 @@ PreservedAnalyses compiler::utils::DefineMuxDmaPass::run(
 
   // Define all mux dma builtins
   for (auto &F : M.functions()) {
-    auto ID = BI.analyzeBuiltin(F).ID;
-    if (!BI.isMuxDmaBuiltinID(ID)) {
+    auto Builtin = BI.analyzeBuiltin(F);
+    if (!BI.isMuxDmaBuiltinID(Builtin.ID)) {
       continue;
     }
     LLVM_DEBUG(dbgs() << "  Defining mux DMA builtin: " << F.getName()
@@ -38,7 +38,7 @@ PreservedAnalyses compiler::utils::DefineMuxDmaPass::run(
     // Define the builtin. If it declares any new dependent builtins, those
     // will be appended to the module's function list and so will be
     // encountered by later iterations.
-    if (BI.defineMuxBuiltin(ID, M)) {
+    if (BI.defineMuxBuiltin(Builtin.ID, M, Builtin.mux_overload_info)) {
       Changed = true;
     }
   }
