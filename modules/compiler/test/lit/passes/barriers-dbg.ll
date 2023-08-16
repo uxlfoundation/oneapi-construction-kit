@@ -14,7 +14,8 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: muxc --passes "barriers-pass<debug>,verify" -S %s | FileCheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: muxc --passes "barriers-pass<debug>,verify" -S %s | FileCheck %t
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
@@ -91,11 +92,11 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; Test all the variables are loaded from the live vars struct, important to assert that there are no allocas left.
 ; Contains the 4 variables defined before the barrier and 'result' defined after, there is also a padding element in the struct.
-; CHECK-DAG: %live_gep_input.addr = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_output.addr = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_global_id = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_local_id = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: %live_gep_multiplied = getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_input.addr = getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_output.addr = getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_global_id = getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_local_id = getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: %live_gep_multiplied = getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
 ;
 ; Call debug stub to signify entry to barrier
 ; CHECK: call void @__barrier_entry(i32 0), !dbg [[DI_LOC_B1:![0-9]+]]
@@ -109,18 +110,18 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; Load values in to kernel from live variable struct, don't need to load 'local_id' since it's not live any more
 ; These are all DAG checks because it doesn't really matter if the barrier exit stub comes before or after them.
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
-; CHECK-DAG: getelementptr %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
+; CHECK-DAG: getelementptr %barrier_test_live_mem_info, ptr %2, i32 0, i32 {{[0-5]}}
 ;
 ; Assert the DI entry is attached to the correct function
 ; CHECK: void @barrier_test.mux-barrier-wrapper(ptr addrspace(1) %input, ptr addrspace(1) %output) {{.*}} !dbg [[DI_SUBPROGRAM:![0-9]+]]
 ;
 ; Array of live_variables structs, one for each work-item in a work-group
 ; CHECK: %live_variables{{.*}} = alloca %barrier_test_live_mem_info, {{(i64|i32)}} {{%.*}}, align {{(8|4)}}
-; CHECK: [[LIVE_VAR_GEP:%[0-9]+]] = getelementptr inbounds %barrier_test_live_mem_info, {{(ptr|%barrier_test_live_mem_info\*)}} %live_variables
+; CHECK: [[LIVE_VAR_GEP:%[0-9]+]] = getelementptr inbounds %barrier_test_live_mem_info, ptr %live_variables
 ;
 ; Check we have a debug intrinsic with the location of each source variable.
 ;
@@ -133,22 +134,28 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; The pass non-determinism also affects the placement of padding elements which
 ; further complicates the issue since this too impacts the offsets. See CA-119.
-; CHECK: call void @llvm.dbg.value(metadata {{(ptr|%barrier_test_live_mem_info\*)}} [[LIVE_VAR_GEP]]
+; CHECK-GE17: call void @llvm.dbg.value(metadata ptr undef
+; CHECK-LT17: call void @llvm.dbg.value(metadata ptr [[LIVE_VAR_GEP]]
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK: call void @llvm.dbg.value(metadata {{(ptr|%barrier_test_live_mem_info\*)}} [[LIVE_VAR_GEP]]
+; CHECK-GE17: call void @llvm.dbg.value(metadata ptr undef
+; CHECK-LT17: call void @llvm.dbg.value(metadata ptr [[LIVE_VAR_GEP]]
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK: call void @llvm.dbg.value(metadata {{(ptr|%barrier_test_live_mem_info\*)}} [[LIVE_VAR_GEP]]
+; CHECK-GE17: call void @llvm.dbg.value(metadata ptr undef
+; CHECK-LT17: call void @llvm.dbg.value(metadata ptr [[LIVE_VAR_GEP]]
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK: call void @llvm.dbg.value(metadata {{(ptr|%barrier_test_live_mem_info\*)}} [[LIVE_VAR_GEP]]
+; CHECK-GE17: call void @llvm.dbg.value(metadata ptr undef
+; CHECK-LT17: call void @llvm.dbg.value(metadata ptr [[LIVE_VAR_GEP]]
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK: call void @llvm.dbg.value(metadata {{(ptr|%barrier_test_live_mem_info\*)}} [[LIVE_VAR_GEP]]
+; CHECK-GE17: call void @llvm.dbg.value(metadata ptr undef
+; CHECK-LT17: call void @llvm.dbg.value(metadata ptr [[LIVE_VAR_GEP]]
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK: call void @llvm.dbg.value(metadata {{(ptr|%barrier_test_live_mem_info\*)}} [[LIVE_VAR_GEP]]
+; CHECK-GE17: call void @llvm.dbg.value(metadata ptr undef
+; CHECK-LT17: call void @llvm.dbg.value(metadata ptr [[LIVE_VAR_GEP]]
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
 ; Debug info for first kernel scope
