@@ -86,7 +86,23 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
           .Case(MuxBuiltins::mem_barrier, eMuxBuiltinMemBarrier)
           .Default(eBuiltinInvalid);
   if (ID != eBuiltinInvalid) {
-    return {ID, {}};
+    switch (ID) {
+      default:
+        return {ID, {}};
+      case eMuxBuiltinDMARead1D:
+      case eMuxBuiltinDMARead2D:
+      case eMuxBuiltinDMARead3D:
+      case eMuxBuiltinDMAWrite1D:
+      case eMuxBuiltinDMAWrite2D:
+      case eMuxBuiltinDMAWrite3D:
+        // Return the event type used by these builtins. The event type is
+        // required to declare/define these builtins, so return it here for
+        // the sake of completeness. The event type doesn't change the
+        // builtins' name (i.e., it's not mangled) as it's required to be
+        // consistent at any single snapshot of the module, though it may
+        // change through time.
+        return {ID, {F.getReturnType()}};
+    }
   }
 
   // Now check for group functions, which are a bit more involved as there's
@@ -381,6 +397,11 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
     }
     return Builtin{F, ID, eBuiltinPropertyNone};
   }
+
+  // Check that all overloadable builtins have returned some overloading
+  // information, for API consistency.
+  assert((!isOverloadableMuxBuiltinID(ID) || !OverloadInfo.empty()) &&
+         "Inconsistency in overloadable builtin APIs");
 
   bool IsConvergent = false;
   unsigned Properties = eBuiltinPropertyNone;
@@ -859,6 +880,11 @@ std::string BuiltinInfo::getMuxBuiltinName(BuiltinID ID,
 Function *BuiltinInfo::defineMuxBuiltin(BuiltinID ID, Module &M,
                                         ArrayRef<Type *> OverloadInfo) {
   assert(isMuxBuiltinID(ID) && "Only handling mux builtins");
+  // Check that all overloadable builtins have returned some overloading
+  // information, for API consistency.
+  assert((!isOverloadableMuxBuiltinID(ID) || !OverloadInfo.empty()) &&
+         "Inconsistency in overloadable builtin APIs");
+
   Function *F = M.getFunction(getMuxBuiltinName(ID, OverloadInfo));
   // FIXME: We'd ideally want to declare it here to reduce pass
   // inter-dependencies.
@@ -873,6 +899,10 @@ Function *BuiltinInfo::defineMuxBuiltin(BuiltinID ID, Module &M,
 Function *BuiltinInfo::getOrDeclareMuxBuiltin(BuiltinID ID, Module &M,
                                               ArrayRef<Type *> OverloadInfo) {
   assert(isMuxBuiltinID(ID) && "Only handling mux builtins");
+  // Check that all overloadable builtins have returned some overloading
+  // information, for API consistency.
+  assert((!isOverloadableMuxBuiltinID(ID) || !OverloadInfo.empty()) &&
+         "Inconsistency in overloadable builtin APIs");
   // Defer to the mux implementation to get/declare this builtin.
   return MuxImpl->getOrDeclareMuxBuiltin(ID, M, OverloadInfo);
 }
