@@ -168,7 +168,8 @@ PreservedAnalyses compiler::utils::ReplaceTargetExtTysPass::run(
     ToDelete.insert(&F);
   }
 
-  ValueMapper Mapper(VM, RF_IgnoreMissingLocals, &TyMapper);
+  ValueMapper Mapper(VM, RF_IgnoreMissingLocals | RF_ReuseAndMutateDistinctMDs,
+                     &TyMapper);
 
   // Keep the dead functions around for a bit longer so that we can auto-remap
   // their uses to their replacements.
