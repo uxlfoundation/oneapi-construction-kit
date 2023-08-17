@@ -919,12 +919,13 @@ cargo::optional<Error> Builder::create<OpConstantNull>(
       if (llvm::cast<llvm::TargetExtType>(type)->getName() == "spirv.Event") {
         constant = llvm::ConstantTargetNone::get(
             llvm::cast<llvm::TargetExtType>(type));
+        break;
       }
-      break;
+      [[fallthrough]];
 #endif
     default:
+      // TODO: the opencl types: device event, reservation ID and queue
       llvm_unreachable("Unsupported type provided to OpConstantNull");
-      // TODO: the opencl types: event, device event, reservation ID and queue
   }
   constant->setName(module.getName(op->IdResult()));
   module.addID(op->IdResult(), op, constant);
