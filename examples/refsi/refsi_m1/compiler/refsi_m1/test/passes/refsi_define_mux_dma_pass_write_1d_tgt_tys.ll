@@ -14,17 +14,16 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; UNSUPPORTED: llvm-17+
-; RUN: muxc --device "%riscv_device" %s --passes define-mux-dma,verify -S | FileCheck %s
+; REQUIRES: llvm-17+
+; RUN: muxc --device "%riscv_device" %s --passes replace-target-ext-tys,define-mux-dma,verify -S | FileCheck %s
 
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
 target triple = "riscv64-unknown-unknown-elf"
 
-%__mux_dma_event_t = type opaque
-declare spir_func %__mux_dma_event_t* @__mux_dma_write_1D(i8 addrspace(3)*, i8 addrspace(1)*, i64, %__mux_dma_event_t*)
+declare spir_func target("spirv.Event") @__mux_dma_write_1D(i8 addrspace(3)*, i8 addrspace(1)*, i64, target("spirv.Event"))
 
 
-; CHECK: define spir_func ptr @__refsi_dma_start_seq_write(ptr addrspace(3) [[argDstDmaPointer:%.*]], ptr addrspace(1) [[argSrcDmaPointer:%.*]], i64 [[argWidth:%.*]], ptr [[argEvent:%.*]]) #0 {
+; CHECK: define spir_func i32 @__refsi_dma_start_seq_write(ptr addrspace(3) [[argDstDmaPointer:%.*]], ptr addrspace(1) [[argSrcDmaPointer:%.*]], i64 [[argWidth:%.*]], i32 [[argEvent:%.*]]) #0 {
 ; CHECK:   [[argDstDmaInt:%.*]] = ptrtoint ptr addrspace(3) [[argDstDmaPointer]] to i64
 ; CHECK:   store volatile i64 [[argDstDmaInt]], ptr inttoptr (i64 536879136 to ptr), align 8
 ; CHECK:   [[argSrcDmaInt:%.*]] = ptrtoint ptr addrspace(1) [[argSrcDmaPointer]] to i64
@@ -32,5 +31,5 @@ declare spir_func %__mux_dma_event_t* @__mux_dma_write_1D(i8 addrspace(3)*, i8 a
 ; CHECK:   store volatile i64 [[argWidth]], ptr inttoptr (i64 536879144 to ptr), align 8
 ; CHECK:   store volatile i64 17, ptr inttoptr (i64 536879104 to ptr), align 8
 ; CHECK:   [[load:%.*]] = load volatile i64, ptr inttoptr (i64 536879112 to ptr), align 8
-; CHECK:   [[reinterpret:%.*]] = inttoptr i64 [[load]] to ptr
-; CHECK:   ret ptr [[reinterpret]]
+; CHECK:   [[trunc:%.*]] = trunc i64 [[load]] to i32
+; CHECK:   ret i32 [[trunc]]
