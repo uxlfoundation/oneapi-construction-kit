@@ -220,29 +220,26 @@ Function *RefSiG1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
                                                                OverloadInfo);
   }
 
-  Optional<unsigned> ParamIdx;
-  Optional<unsigned> WGFieldIdx;
+  unsigned ParamIdx = 1;
+  unsigned WGFieldIdx = ExecStateStruct::thread_id;
 
-  ParamIdx = 1;
-  WGFieldIdx = ExecStateStruct::thread_id;
-
-  assert(F && WGFieldIdx && ParamIdx);
+  assert(F);
 
   auto SchedParams = getFunctionSchedulingParameters(*F);
-  assert(SchedParams.size() > *ParamIdx && "Missing scheduling parameters");
+  assert(SchedParams.size() > ParamIdx && "Missing scheduling parameters");
 
   auto &Ctx = M.getContext();
   auto *const uint_type = Type::getInt32Ty(Ctx);
 
   auto *structTy = getExecStateStruct(M);
-  const auto &SchedParam = SchedParams[*ParamIdx];
+  const auto &SchedParam = SchedParams[ParamIdx];
 
   auto *const ty = F->getReturnType();
   IRBuilder<> ir(BasicBlock::Create(F->getContext(), "", F));
 
   Value *rank = F->getArg(0);
 
-  SmallVector<Value *, 3> gep_indices{ir.getInt32(0), ir.getInt32(*WGFieldIdx)};
+  SmallVector<Value *, 3> gep_indices{ir.getInt32(0), ir.getInt32(WGFieldIdx)};
   auto *const gep = ir.CreateGEP(structTy, SchedParam.ArgVal, gep_indices);
 
   Value *thread_id = ir.CreateLoad(uint_type, gep);
