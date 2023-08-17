@@ -279,7 +279,7 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
     }
 
     if (TyName == "spirv.Image") {
-      const auto type_name = metadata->getString();
+      [[maybe_unused]] const auto type_name = metadata->getString();
       auto Dim =
           TgtTy->getIntParameter(utils::tgtext::ImageTyDimensionalityIdx);
       bool Arrayed = TgtTy->getIntParameter(utils::tgtext::ImageTyArrayedIdx) ==
