@@ -589,10 +589,13 @@ struct ScheduleGenerator {
         auto *const GEPmain = live_values.getGEP(op);
 
         if (barrierTail) {
+          bool const VP = barrierTail->getVFInfo().IsVectorPredicated;
+
           // Compute the address of the value in the tail barrier struct
           auto *const offsetDim0 = ir.CreateSub(idsMain[0], mainLoopLimit);
-          auto *const liveVarsTail = createLiveVarsPtr(
-              *barrierTail, ir, offsetDim0, idsMain[1], idsMain[2]);
+          auto *const liveVarsTail =
+              createLiveVarsPtr(*barrierTail, ir, offsetDim0, idsMain[1],
+                                idsMain[2], VP ? VF : nullptr);
           compiler::utils::Barrier::LiveValuesHelper live_values(
               *barrierTail, block, liveVarsTail);
 
@@ -1368,9 +1371,18 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
   // Amazingly, it's possible for the tail kernel to have live vars in its
   // barriers, even when the main kernel does not.
   if (emitTail && barrierTail->hasLiveVars()) {
+    Value *size0 = peel;
+    if (barrierTail->getVFInfo().IsVectorPredicated) {
+      // If the tail is predicated, it will only have a single (vectorized) item
+      // along the X axis, or none.
+      auto *const hasLeftover = entryIR.CreateICmp(
+          CmpInst::ICMP_NE, peel, ConstantInt::get(peel->getType(), 0),
+          "tail.has.vp");
+      size0 = entryIR.CreateZExt(hasLeftover, peel->getType());
+    }
     setUpLiveVarsAlloca(*barrierTail, entryIR, VF, sizeTyBytes,
                         localSizeDim[workItemDim2], localSizeDim[workItemDim1],
-                        peel, "live_variables_peel", IsDebug);
+                        size0, "live_variables_peel", IsDebug);
   }
 
   // next means next barrier id. This variable is uninitialized to begin with,
