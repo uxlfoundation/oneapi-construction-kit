@@ -396,8 +396,8 @@ struct ScheduleGenerator {
     BasicBlock *exitBlock = nullptr;
     PHINode *resultPhi = nullptr;
 
-    auto *const zero = Constant::getNullValue(Type::getIntNTy(
-        context, 8 * compiler::utils::getSizeTypeBytes(module)));
+    auto *const zero =
+        Constant::getNullValue(compiler::utils::getSizeType(module));
 
     if (auto *const loopLimitConst = dyn_cast<Constant>(totalSize)) {
       if (loopLimitConst->isZeroValue()) {
@@ -457,8 +457,8 @@ struct ScheduleGenerator {
   void getUniformValues(BasicBlock *block,
                         compiler::utils::BarrierWithLiveVars const &barrier,
                         MutableArrayRef<Value *> values) {
-    auto *const zero = Constant::getNullValue(Type::getIntNTy(
-        context, 8 * compiler::utils::getSizeTypeBytes(module)));
+    auto *const zero =
+        Constant::getNullValue(compiler::utils::getSizeType(module));
     IRBuilder<> ir(block);
     auto *const barrier0 = ir.CreateInBoundsGEP(barrier.getLiveVarsType(),
                                                 barrier.getMemSpace(), {zero});
@@ -507,8 +507,8 @@ struct ScheduleGenerator {
         // First we need to get the item ID values from the barrier struct.
         // These should be uniform but they may still be variables. It should
         // be safe to get them from the barrier struct at index zero.
-        auto *const zero = Constant::getNullValue(Type::getIntNTy(
-            context, 8 * compiler::utils::getSizeTypeBytes(module)));
+        auto *const zero =
+            Constant::getNullValue(compiler::utils::getSizeType(module));
 
         Function *const func = block->getParent();
         BasicBlock *mainUniformBlock = block;
@@ -631,9 +631,8 @@ struct ScheduleGenerator {
     block = collective.first;
     auto *const accum = collective.second;
 
-    auto const sizeTyBytes = compiler::utils::getSizeTypeBytes(module);
     auto *const zero =
-        Constant::getNullValue(Type::getIntNTy(context, 8 * sizeTyBytes));
+        Constant::getNullValue(compiler::utils::getSizeType(module));
     auto *const i32Zero = Constant::getNullValue(i32Ty);
     auto *const func = block->getParent();
 
@@ -875,9 +874,8 @@ struct ScheduleGenerator {
     block = collective.first;
     auto *const accum = collective.second;
 
-    auto const sizeTyBytes = compiler::utils::getSizeTypeBytes(module);
     auto *const zero =
-        Constant::getNullValue(Type::getIntNTy(context, 8 * sizeTyBytes));
+        Constant::getNullValue(compiler::utils::getSizeType(module));
     auto *const i32Zero = Constant::getNullValue(i32Ty);
     auto *const func = block->getParent();
 
@@ -1452,8 +1450,8 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
             // We expect these values to be uniform so it should be safe to get
             // from the barrier struct at index zero. Barriers are convergent,
             // so there should be no chance that the value does not exist.
-            auto *const zero = Constant::getNullValue(
-                Type::getIntNTy(context, 8 * sizeTyBytes));
+            auto *const zero =
+                Constant::getNullValue(compiler::utils::getSizeType(M));
             IRBuilder<> ir(Call);
             auto *const barrier0 =
                 ir.CreateInBoundsGEP(barrierMain.getLiveVarsType(),

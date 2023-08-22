@@ -55,7 +55,9 @@ void addPreVeczPasses(ModulePassManager &PM,
 
   // We need to use the software implementation of the work-group collective
   // builtins. Because ReplaceWGCPass may introduce barrier calls it needs to be
-  // run before PrepareBarriersPass.
+  // run before PrepareBarriersPass. When using the Handle Barriers pass, we can
+  // run the Replace WGC pass in Scans Only mode, since the Handle Barriers pass
+  // has its own implementations of reductions and broadcasts.
   PM.addPass(compiler::utils::ReplaceWGCPass(tuner.handling_barriers));
 
   // We have to inline all functions containing barriers before running vecz,

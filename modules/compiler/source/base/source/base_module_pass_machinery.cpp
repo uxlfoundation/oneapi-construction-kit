@@ -266,6 +266,11 @@ Expected<bool> parseReplaceMuxMathDeclsPassOptions(StringRef Params) {
                                                 "ReplaceMuxMathDeclsPass");
 }
 
+Expected<bool> parseReplaceWGCPassOptions(StringRef Params) {
+  return compiler::utils::parseSinglePassOption(Params, "scans-only",
+                                                "ReplaceWGCPass");
+}
+
 // Lookup table for calling convention enums
 std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"C", CallingConv::C},

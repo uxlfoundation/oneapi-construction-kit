@@ -1151,7 +1151,7 @@ Value *Packetizer::Impl::packetizeSubgroupReduction(Instruction *I) {
       createSimpleTargetReduction(B, &TTI, opPackets.front(), Info->Recurrence);
 
   if (isWorkGroup) {
-    // For a work group operation, we leave the origial reduction function and
+    // For a work group operation, we leave the original reduction function and
     // divert the subgroup reduction through it, giving us a work group
     // reduction over subgroup reductions.
     CI->setOperand(argIdx, v);

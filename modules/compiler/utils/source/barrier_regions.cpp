@@ -46,8 +46,8 @@ using namespace llvm;
 namespace {
 using AlignIntTy = uint64_t;
 
-/// @brief it retuns the instruction as a call instruction if and only if it is
-/// a work group collective call, and returns nulltpr otherwise.
+/// @brief it returns true if and only if the instruction is a work group
+/// collective call, and returns false otherwise.
 bool isWorkGroupCollectiveCall(Instruction *inst,
                                compiler::utils::BuiltinInfo &bi) {
   auto *const ci = dyn_cast_or_null<CallInst>(inst);

@@ -237,10 +237,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   // On host we have degenerate sub-groups i.e. sub-group == work-group.
   tuner.degenerate_sub_groups = true;
 
-  // We run the handle barriers pass, which deals with work group reductions and
-  // broadcasts itself.
-  tuner.handling_barriers = true;
-
   // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
                                        llvm::Module>());

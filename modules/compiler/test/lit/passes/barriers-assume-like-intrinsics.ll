@@ -35,8 +35,8 @@ entry:
 ;   on the live mem info beforehand, such as the store to %live_gep_b (which is
 ;   inserted before where the lifetime.start would have been).
 ; CHECK: define internal i32 @lifetime.mux-barrier-region(
-; CHECK:      %live_gep_addr = getelementptr %lifetime_live_mem_info, ptr %2, i32 0, i32 0
-; CHECK-NEXT: %live_gep_b = getelementptr %lifetime_live_mem_info, ptr %2, i32 0, i32 1
+; CHECK:      %live_gep_addr = getelementptr inbounds %lifetime_live_mem_info, ptr %2, i32 0, i32 0
+; CHECK-NEXT: %live_gep_b = getelementptr inbounds %lifetime_live_mem_info, ptr %2, i32 0, i32 1
 ; CHECK-NEXT: %b = load i32, ptr addrspace(1) %0, align 4
 ; CHECK-NEXT: store i32 %b, ptr %live_gep_b, align 4
 ; CHECK-NEXT: store i32 4, ptr %live_gep_addr, align 4
