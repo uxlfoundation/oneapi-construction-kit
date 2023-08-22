@@ -17,6 +17,7 @@
 #include <compiler/utils/dma.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/Operator.h>
+#include <multi_llvm/llvm_version.h>
 #include <multi_llvm/opaque_pointers.h>
 #include <refsi_m1/refsi_mux_builtin_info.h>
 
@@ -179,8 +180,14 @@ static void startDmaTransfer3D(IRBuilder<> &B, Value *DstAddr, Value *SrcAddr,
 static void fetchAndReturnLastTransferID(IRBuilder<> &B, Function &F) {
   // Retrieve the transfer ID and convert it to an event.
   auto *XferId = readDmaReg(B, REFSI_REG_DMASTARTSEQ);
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+  assert(F.getReturnType()->isIntegerTy() &&
+         "Event target types should have been replaced with i32s");
+  B.CreateRet(B.CreateZExtOrTrunc(XferId, F.getReturnType()));
+#else
   auto *Event = B.CreateIntToPtr(XferId, F.getReturnType());
   B.CreateRet(Event);
+#endif
 }
 
 static void defineRefSiDma1D(Function &F,
@@ -338,6 +345,14 @@ void defineRefSiDmaWait(Function &F) {
     MaxXferIdPhi->addIncoming(Zero, EntryBB);
 
     // Retrieve the n-th event from the list.
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+    // On LLVM 17, the event target type has already been replaced with i32s,
+    // so that is our event list.
+    auto *EventTy = getTransferIDTy(Ctx);
+    auto *EventGep = BodyBuilder.CreateGEP(EventTy, EventList, LoopIVPhi);
+    auto *EventID = BodyBuilder.CreateLoad(EventTy, EventGep, "xfer_id");
+#else
+    // Otherwise we have a list of opaque pointer types.
     auto *CoreDMAEventTy =
         compiler::utils::getOrCreateMuxDMAEventType(*F.getParent());
     auto *EventPtrTy = CoreDMAEventTy->getPointerTo();
@@ -347,6 +362,8 @@ void defineRefSiDmaWait(Function &F) {
     auto *EventGep = BodyBuilder.CreateGEP(EventPtrTy, EventList, LoopIVPhi);
     auto *Event = BodyBuilder.CreateLoad(EventPtrTy, EventGep);
     auto *EventID = BodyBuilder.CreatePtrToInt(Event, XferIdTy, "xfer_id");
+#endif
+
     auto *NewIV = BodyBuilder.CreateAdd(LoopIVPhi, One, "new_iv");
 
     // Find the higher value between the current maximum and n-th event ID.
@@ -414,6 +431,9 @@ Function *RefSiM1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
 
   // Prevent the DMA builtin from being inlined, to make it clear from looking
   // at the kernel assembly how DMA is implemented.
+  if (F->hasFnAttribute(Attribute::AlwaysInline)) {
+    F->removeFnAttr(Attribute::AlwaysInline);
+  }
   F->addFnAttr(Attribute::NoInline);
   F->setName(getRefSiBuiltinName(FnName));
 

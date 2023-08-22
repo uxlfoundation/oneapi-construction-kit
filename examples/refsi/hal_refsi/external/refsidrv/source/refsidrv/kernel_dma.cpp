@@ -36,7 +36,7 @@ bool DMADevice::load(reg_t addr, size_t len, uint8_t *bytes,
     }
     break;
   case elf_machine::riscv_rv64:
-    if (len != sizeof(uint64_t)) {
+    if (len != sizeof(uint64_t) && len != sizeof(uint32_t)) {
       return false;
     }
     break;
