@@ -1095,7 +1095,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
     }
   }
 
-  SmallVector<AllocaInst *, 8> allocas_to_remove;
+  SmallVector<Instruction *, 8> allocas_and_intrinsics_to_remove;
 
   // Store only live variables that are defined in this kernel.
   //
@@ -1120,8 +1120,22 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       // Check to see if it is still an alloca after vmap. If not we may
       // have processed it before and no work needs doing as we are using
       // the live variable struct directly.
-      if ((alloca_inst = dyn_cast<AllocaInst>(vmap[alloca_inst]))) {
-        allocas_to_remove.push_back(alloca_inst);
+      if (auto *new_alloca_inst = dyn_cast<AllocaInst>(vmap[alloca_inst])) {
+        allocas_and_intrinsics_to_remove.push_back(new_alloca_inst);
+        // Also remove any assume-like intrinsics that are users of this
+        // alloca. These assumptions may not hold. For example, lifetime
+        // intrinsics are definitely dangerous, as by directly replacing their
+        // alloca operands with the address of the live variable struct, we are
+        // telling LLVM that *all* accesses of the live variable struct also
+        // start/end at that point, which is not true.
+        // Similarly, llvm.assume and llvm.experimental.noalias.scope.decl may
+        // hold for the alloca but not the live variables struct.
+        for (auto *const user : alloca_inst->users()) {
+          if (auto *const intrinsic = dyn_cast<IntrinsicInst>(user);
+              intrinsic && intrinsic->isAssumeLikeIntrinsic()) {
+            allocas_and_intrinsics_to_remove.push_back(intrinsic);
+          }
+        }
         // change the vmap to point to the GEP instead of the original alloca
         vmap[live_var] = live_values.getGEP(live_var);
       }
@@ -1178,9 +1192,10 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
     }
   }
 
-  // Remove any allocas that have been replaced by a GEP instruction
-  for (auto alloc : allocas_to_remove) {
-    alloc->eraseFromParent();
+  // Remove any allocas and their dependent intrinsics that have been replaced
+  // by a GEP instruction
+  for (auto *inst : allocas_and_intrinsics_to_remove) {
+    inst->eraseFromParent();
   }
 
   // This needs resetting for the sake of any further new GEPs created
