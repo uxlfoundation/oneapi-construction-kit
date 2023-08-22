@@ -39,7 +39,13 @@ namespace utils {
 /// target making use of that pass.
 class ReplaceWGCPass final : public llvm::PassInfoMixin<ReplaceWGCPass> {
  public:
+  ReplaceWGCPass(bool scansOnly = false) : scans_only(scansOnly) {}
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
+
+ private:
+  /// @brief when set to true, only work group collective scans will be
+  /// replaced.
+  bool scans_only = false;
 };
 }  // namespace utils
 }  // namespace compiler

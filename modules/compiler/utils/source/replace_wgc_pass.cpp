@@ -63,6 +63,77 @@ CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
   return BarrierCall;
 }
 
+/// @brief Helper function to create subgroup reduction calls.
+Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
+                               const compiler::utils::GroupCollective &WGC,
+                               compiler::utils::BuiltinInfo &BI) {
+  using namespace compiler::utils;
+  BuiltinID ReductionID = eBuiltinInvalid;
+  switch (WGC.Recurrence) {
+    default:
+      return nullptr;
+    case RecurKind::And:
+      if (WGC.isAnyAll()) {
+        ReductionID = eMuxBuiltinSubgroupAll;
+      } else {
+        ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceAnd
+                                     : eMuxBuiltinSubgroupReduceLogicalAnd;
+      }
+      break;
+    case RecurKind::Or:
+      if (WGC.isAnyAll()) {
+        ReductionID = eMuxBuiltinSubgroupAny;
+      } else {
+        ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceOr
+                                     : eMuxBuiltinSubgroupReduceLogicalOr;
+      }
+      break;
+    case RecurKind::Add:
+      ReductionID = eMuxBuiltinSubgroupReduceAdd;
+      break;
+    case RecurKind::FAdd:
+      ReductionID = eMuxBuiltinSubgroupReduceFAdd;
+      break;
+    case RecurKind::UMin:
+      ReductionID = eMuxBuiltinSubgroupReduceUMin;
+      break;
+    case RecurKind::SMin:
+      ReductionID = eMuxBuiltinSubgroupReduceSMin;
+      break;
+    case RecurKind::FMin:
+      ReductionID = eMuxBuiltinSubgroupReduceFMin;
+      break;
+    case RecurKind::UMax:
+      ReductionID = eMuxBuiltinSubgroupReduceUMax;
+      break;
+    case RecurKind::SMax:
+      ReductionID = eMuxBuiltinSubgroupReduceSMax;
+      break;
+    case RecurKind::FMax:
+      ReductionID = eMuxBuiltinSubgroupReduceFMax;
+      break;
+    case RecurKind::Mul:
+      ReductionID = eMuxBuiltinSubgroupReduceMul;
+      break;
+    case RecurKind::FMul:
+      ReductionID = eMuxBuiltinSubgroupReduceFMul;
+      break;
+    case RecurKind::Xor:
+      ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceXor
+                                   : eMuxBuiltinSubgroupReduceLogicalXor;
+      break;
+  }
+  assert(ReductionID != eBuiltinInvalid);
+
+  auto *const Ty = Src->getType();
+  auto *const M = Builder.GetInsertBlock()->getModule();
+
+  Function *Builtin = BI.getOrDeclareMuxBuiltin(ReductionID, *M, {Ty});
+  assert(Builtin && "Missing reduction builtin");
+
+  return Builder.CreateCall(Builtin, {Src}, "wgc");
+}
+
 Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
                           RecurKind Kind, bool IsInclusive, bool IsLogical,
                           compiler::utils::BuiltinInfo &BI) {
@@ -190,6 +261,171 @@ Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
                    llvm::Value *Operand, RecurKind Kind) {
   return multi_llvm::createBinOpForRecurKind(Builder, CurrentVal, Operand,
                                              Kind);
+}
+
+/// @brief Helper function to define the work-group collective reductions.
+///
+/// param[in] F work-group collective reduction to define, must be one of
+/// work_group_any, work_group_all, work_group_reduce_add,
+/// work_group_reduce_min, work_group_reduce_max
+///
+/// In terms of CL C this function defines a work-group reduction as follows:
+///
+/// local T accumulator;
+/// T work_group_reduce_<op>(T x) {
+///    reduce = sub_group_reduce_<op>(x);
+///
+///    barrier(CLK_LOCAL_MEM_FENCE); // BarrierSchedule = Once
+///    accumulator = I;
+///
+///    barrier(CLK_LOCAL_MEM_FENCE);
+///    accumulator += reduce;
+///
+///    barrier(CLK_LOCAL_MEM_FENCE);
+///    T result = accumulator;
+///    return result;
+/// }
+///
+///  where I is the neutral value for the operation <op> on type T. This
+///  function also handles work_group_all and work_group_any since they are
+///  essentially work_group_reduce_and work_group_reduce_or on the int type
+///  only.
+void emitWorkGroupReductionBody(Function &F,
+                                const compiler::utils::GroupCollective &WGC,
+                                compiler::utils::BuiltinInfo &BI) {
+  // Create a global variable to do the reduction on.
+  auto *const Operand = F.getArg(1);
+  auto *const ReductionType{Operand->getType()};
+  auto *const ReductionNeutralValue{
+      compiler::utils::getNeutralVal(WGC.Recurrence, ReductionType)};
+  auto *const Accumulator =
+      new GlobalVariable{*F.getParent(),
+                         ReductionType,
+                         /* isConstant */ false,
+                         GlobalVariable::LinkageTypes::InternalLinkage,
+                         UndefValue::get(ReductionType),
+                         F.getName() + ".accumulator",
+                         /* InsertBefore */ nullptr,
+                         GlobalVariable::ThreadLocalMode::NotThreadLocal,
+                         compiler::utils::AddressSpace::Local};
+
+  auto &Ctx = F.getContext();
+  auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F);
+
+  IRBuilder<> Builder{EntryBB};
+
+  // We can create the subgroup reduction *before* the barrier, since its
+  // implementation does not involve memory access. This way, when it gets
+  // vectorized, only the scalar result will need to be in the barrier struct,
+  // not its vectorized operand.
+  auto *const SubReduce = createSubgroupReduction(Builder, Operand, WGC, BI);
+  assert(SubReduce && "Invalid subgroup reduce");
+
+  // We need three barriers:
+  // The barrier after the store ensures that the initialization is complete
+  // before the accumulation begins. The barrer after the accumulation ensures
+  // that the result is complete for reloading afterwards. And this, the first
+  // barrier, ensures that if there are two (or more) calls to this function,
+  // multiple uses of the same accumulator cannot get tangled up.
+  compiler::utils::setBarrierSchedule(*createLocalBarrierCall(Builder, BI),
+                                      compiler::utils::BarrierSchedule::Once);
+
+  // Initialize the accumulator.
+  Builder.CreateStore(ReductionNeutralValue, Accumulator);
+  createLocalBarrierCall(Builder, BI);
+
+  // Read-modify-write the accumulator.
+  auto *const CurrentVal =
+      Builder.CreateLoad(ReductionType, Accumulator, "current.val");
+  auto *const NextVal =
+      createBinOp(Builder, CurrentVal, SubReduce, WGC.Recurrence);
+  Builder.CreateStore(NextVal, Accumulator);
+
+  // Barrier, then read result and exit.
+  createLocalBarrierCall(Builder, BI);
+  auto *const Result = Builder.CreateLoad(ReductionType, Accumulator);
+
+  Builder.CreateRet(Result);
+}
+
+/// @brief Helper function to define the work-group collective broadcasts.
+///
+/// param[in] F work-group collective broadcast to define, must be one of
+/// work_group_broadcast(x, local_id), work_group_broadcast(x, local_id_x,
+/// local_id_y) or work_group_broadcast(x, local_id_x, local_id_y, local_id_z).
+///
+/// In terms of CL C this function defines a work-group reduction as follows:
+///
+/// local T broadcast;
+/// T work_group_broadcast(T a, local_id {x, y z}) {
+///   if(get_local_id(0) == x && get_local_id(1) == y && get_local_id(2) == z) {
+///     broadcast = a;
+///   }
+///
+///   barrier(CLK_LOCAL_MEM_FENCE);
+///   T result = broadcast;
+///   barrier(CLK_LOCAL_MEM_FENCE);
+///   return result;
+/// }
+void emitWorkGroupBroadcastBody(Function &F,
+                                const compiler::utils::GroupCollective &,
+                                compiler::utils::BuiltinInfo &BI) {
+  // First arg is always the value to broadcast.
+  auto *const ValueToBroadcast = F.getArg(1);
+
+  // Create a global variable to do the broadcast through.
+  auto *const BroadcastType{ValueToBroadcast->getType()};
+  auto &M = *F.getParent();
+  auto *const Broadcast =
+      new GlobalVariable{M,
+                         BroadcastType,
+                         /* isConstant */ false,
+                         GlobalVariable::LinkageTypes::InternalLinkage,
+                         UndefValue::get(BroadcastType),
+                         F.getName() + ".accumulator",
+                         /* InsertBefore */ nullptr,
+                         GlobalVariable::ThreadLocalMode::NotThreadLocal,
+                         compiler::utils::AddressSpace::Local};
+
+  // Create the basic blocks the function will contain.
+  auto &Ctx = F.getContext();
+  auto *const ExitBB = BasicBlock::Create(Ctx, "exit", &F);
+  auto *const BroadcastBB = BasicBlock::Create(Ctx, "broadcast", &F, ExitBB);
+  auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F, BroadcastBB);
+  IRBuilder<> Builder{EntryBB};
+
+  // Check if we are on the thread that needs to broadcast.
+  auto *const GetLocalID =
+      BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalId, M);
+  assert(GetLocalID && "get_local_id is not in module");
+  GetLocalID->setCallingConv(llvm::CallingConv::SPIR_FUNC);
+
+  Value *IsBroadcastingThread = ConstantInt::getTrue(Ctx);
+  for (unsigned i = 2; i < F.arg_size(); ++i) {
+    Value *LocalIDCall = Builder.CreateCall(
+        GetLocalID, ConstantInt::get(GetLocalID->getArg(0)->getType(), i - 2));
+    LocalIDCall = Builder.CreateIntCast(LocalIDCall, F.getArg(i)->getType(),
+                                        /* isSigned */ false);
+    auto *LocalIDCmp = Builder.CreateICmpEQ(LocalIDCall, F.getArg(i));
+    IsBroadcastingThread = Builder.CreateAnd(IsBroadcastingThread, LocalIDCmp);
+  }
+  Builder.CreateCondBr(IsBroadcastingThread, BroadcastBB, ExitBB);
+
+  // Set up the broadcast.
+  Builder.SetInsertPoint(BroadcastBB);
+  Builder.CreateStore(ValueToBroadcast, Broadcast);
+  Builder.CreateBr(ExitBB);
+
+  // Now synchronize to ensure the broadcast is visible to all threads.
+  Builder.SetInsertPoint(ExitBB);
+  createLocalBarrierCall(Builder, BI);
+
+  // Load the result and synchronize a second time to ensure no eager threads
+  // update the local value before any work-item reads it.
+  auto *const Result =
+      Builder.CreateLoad(BroadcastType, Broadcast, "broadcast");
+  createLocalBarrierCall(Builder, BI);
+  Builder.CreateRet(Result);
 }
 
 /// @brief Helper function to define the work-group collective scans.
@@ -347,8 +583,10 @@ void emitWorkGroupCollectiveBody(Function &F,
     case compiler::utils::GroupCollective::OpKind::All:
     case compiler::utils::GroupCollective::OpKind::Any:
     case compiler::utils::GroupCollective::OpKind::Reduction:
+      emitWorkGroupReductionBody(F, WGC, BI);
+      break;
     case compiler::utils::GroupCollective::OpKind::Broadcast:
-      // Do nothing. These are dealt with by the Handle Barriers Pass.
+      emitWorkGroupBroadcastBody(F, WGC, BI);
       break;
     case compiler::utils::GroupCollective::OpKind::ScanExclusive:
     case compiler::utils::GroupCollective::OpKind::ScanInclusive:
@@ -377,6 +615,11 @@ PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
     auto Builtin = BI.analyzeBuiltin(F);
     if (auto WGC = BI.isMuxGroupCollective(Builtin.ID);
         WGC && WGC->isWorkGroupScope()) {
+      if (scans_only &&
+          WGC->Op != compiler::utils::GroupCollective::OpKind::ScanExclusive &&
+          WGC->Op != compiler::utils::GroupCollective::OpKind::ScanInclusive) {
+        continue;
+      }
       WGCollectives.push_back({&F, *WGC});
     }
   }

@@ -223,6 +223,11 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   // functions will be cloned to give a version using degenerate sub-groups and
   // a version using non-degenerate sub-groups, for selection by the runtime.
   tuner.degenerate_sub_groups = true;
+
+  // We run the handle barriers pass, which deals with work group reductions and
+  // broadcasts itself.
+  tuner.handling_barriers = true;
+
   addPreVeczPasses(PM, tuner);
 
   PM.addPass(vecz::RunVeczPass());
