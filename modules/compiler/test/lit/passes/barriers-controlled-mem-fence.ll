@@ -22,7 +22,7 @@
 
 ; CHECK-LABEL: sw.bb2:
 ; CHECK-NEXT: %[[GEP:.+]] = getelementptr inbounds %test_fence_live_mem_info, ptr %live_variables, i64 0
-; CHECK-NEXT: %live_gep_secret = getelementptr %test_fence_live_mem_info, ptr %[[GEP]], i32 0, i32 0
+; CHECK-NEXT: %live_gep_secret = getelementptr inbounds %test_fence_live_mem_info, ptr %[[GEP]], i32 0, i32 0
 ; CHECK-NEXT: %secret_load = load i32, ptr %live_gep_secret, align 4
 ; CHECK-NEXT: call void @__mux_mem_barrier(i32 %secret_load, i32 912)
 

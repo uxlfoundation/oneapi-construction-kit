@@ -41,8 +41,8 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
 
   for (Function &F : M) {
     auto const B = BI.analyzeBuiltin(F);
-    // If the function is not a barrier.
-    if (!BI.isMuxControlBarrierID(B.ID)) {
+    // If the function does not have a barrier id.
+    if (!BI.isMuxBuiltinWithBarrierID(B.ID)) {
       continue;
     }
 
@@ -111,7 +111,7 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
         if (auto *const CI = dyn_cast<CallInst>(&I)) {
           Function *Callee = CI->getCalledFunction();
           if (Callee &&
-              BI.isMuxControlBarrierID(BI.analyzeBuiltin(*Callee).ID)) {
+              BI.isMuxBuiltinWithBarrierID(BI.analyzeBuiltin(*Callee).ID)) {
             CI->setOperand(0, ConstantInt::get(I32Ty, ID++));
           }
         }

@@ -441,6 +441,16 @@ class BuiltinInfo {
   /// @brief Gets information about a mux group operation builtin
   static std::optional<GroupCollective> isMuxGroupCollective(BuiltinID ID);
 
+  /// @brief Returns true if the mux builtin has a barrier ID as its first
+  /// operand.
+  static bool isMuxBuiltinWithBarrierID(BuiltinID ID) {
+    if (isMuxControlBarrierID(ID)) {
+      return true;
+    }
+    auto Info = isMuxGroupCollective(ID);
+    return Info && Info->isWorkGroupScope();
+  }
+
   /// @brief Maps a ComputeMux builtin ID to its function name.
   ///
   /// @param OverloadInfo An array of types required to resolve certain

@@ -26,6 +26,7 @@
 #include <llvm/ADT/SetVector.h>
 #include <llvm/ADT/SmallPtrSet.h>
 #include <llvm/ADT/SmallVector.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/PassManager.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
 
@@ -159,15 +160,18 @@ class Barrier {
 
   /// @brief struct to help retrieval of values from the barrier struct
   struct LiveValuesHelper {
-    Barrier &barrier;
+    Barrier const &barrier;
     llvm::DenseMap<const llvm::Value *, llvm::Value *> live_GEPs;
     llvm::DenseMap<const llvm::Value *, llvm::Value *> reloads;
-    llvm::Instruction *insert_point = nullptr;
+    llvm::IRBuilder<> gepBuilder;
     llvm::Value *barrier_struct = nullptr;
     llvm::Value *vscale = nullptr;
 
-    LiveValuesHelper(Barrier &b, llvm::Instruction *i, llvm::Value *s)
-        : barrier(b), insert_point(i), barrier_struct(s) {}
+    LiveValuesHelper(Barrier const &b, llvm::Instruction *i, llvm::Value *s)
+        : barrier(b), gepBuilder(i), barrier_struct(s) {}
+
+    LiveValuesHelper(Barrier const &b, llvm::BasicBlock *bb, llvm::Value *s)
+        : barrier(b), gepBuilder(bb), barrier_struct(s) {}
 
     /// @brief get a GEP instruction pointing to the given value in the barrier
     /// struct.
@@ -176,11 +180,11 @@ class Barrier {
     /// @brief get a value reloaded from the barrier struct.
     ///
     /// @param[in] live the live value to retrieve from the barrier
-    /// @param[in] insert where to insert new instructions
+    /// @param[in] ir where to insert new instructions
     /// @param[in] name a postfix to append to new value names
     /// @param[in] reuse whether to generate the load for a given value only
     /// once, returning the previously cached value on further requests.
-    llvm::Value *getReload(llvm::Value *live, llvm::Instruction *insert,
+    llvm::Value *getReload(llvm::Value *live, llvm::IRBuilderBase &ir,
                            const char *name, bool reuse = false);
   };
 

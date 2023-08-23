@@ -131,6 +131,8 @@ llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   // addLateBuiltinsPasses, which isn't ideal.
   PM.addPass(compiler::utils::DefineMuxDmaPass());
 
+  // We don't run the barrier pass, make sure that's taken into account.
+  tuner.handling_barriers = false;
   addPreVeczPasses(PM, tuner);
 
   addLateBuiltinsPasses(PM, tuner);
