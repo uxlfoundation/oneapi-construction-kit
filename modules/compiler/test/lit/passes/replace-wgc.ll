@@ -21,14 +21,30 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
+; CHECK: @[[MINI_ACCUM:.+]] = internal addrspace(3) global i32 undef
 ; CHECK: @__mux_work_group_scan_inclusive_umax_i32.accumulator = internal addrspace(3) global i32 undef
 ; CHECK: @__mux_work_group_scan_exclusive_fadd_f32.accumulator = internal addrspace(3) global float undef
+; CHECK: @__mux_work_group_broadcast_i32.accumulator = internal addrspace(3) global i32 undef
+
+; CHECK: define spir_func i32 @__mux_work_group_reduce_smin_i32(i32 %id, i32 [[PARAM:%.*]])
+declare spir_func i32 @__mux_work_group_reduce_smin_i32(i32 %id, i32 %x)
+; CHECK-LABEL: entry:
+; CHECK: %[[SUBGROUP:.+]] = call i32 @__mux_sub_group_reduce_smin_i32(i32 %{{.+}})
+; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272) [[SCHEDULE_ONCE:#[0-9]+]]
+; CHECK: store i32 2147483647, [[PTR_i32:(i32 addrspace\(3\)\*)|(ptr addrspace\(3\))]] @[[MINI_ACCUM]]
+; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
+; CHECK: %[[CURRVAL:.+]] = load i32, [[PTR_i32]] @[[MINI_ACCUM]]
+; CHECK: %[[ACCUM:.*]] = call i32 @llvm.smin.i32(i32 %[[CURRVAL]], i32 %[[SUBGROUP]])
+; CHECK: store i32 %[[ACCUM]], [[PTR_i32]] @[[MINI_ACCUM]]
+; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
+; CHECK: %[[RESULT:.*]] = load i32, [[PTR_i32]] @[[MINI_ACCUM]]
+; CHECK: ret i32 %[[RESULT]]
 
 ; CHECK: define spir_func i32 @__mux_work_group_scan_inclusive_umax_i32(i32 %id, i32 [[PARAM:%.*]])
 declare spir_func i32 @__mux_work_group_scan_inclusive_umax_i32(i32 %id, i32 %x)
 ; CHECK-LABEL: entry:
-; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272) [[SCHEDULE_ONCE:#[0-9]+]]
-; CHECK: store i32 0, [[PTR_i32:.+]] @__mux_work_group_scan_inclusive_umax_i32.accumulator
+; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272) [[SCHEDULE_ONCE]]
+; CHECK: store i32 0, [[PTR_i32]] @__mux_work_group_scan_inclusive_umax_i32.accumulator
 ; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272) [[SCHEDULE_LINEAR:#[0-9]+]]
 ; CHECK: %[[CURRVAL:.+]] = load i32, [[PTR_i32]] @__mux_work_group_scan_inclusive_umax_i32.accumulator
 ; CHECK: %[[SCAN:.+]] = call i32 @__mux_sub_group_scan_inclusive_umax_i32(i32 %x)
@@ -72,6 +88,21 @@ declare spir_func float @__mux_work_group_scan_exclusive_fadd_f32(i32 %id, float
 ; CHECK: %[[CMPXYZ:.+]] = and i1 %[[CMPXY]], %[[CMPZ]]
 ; CHECK: %[[RESULT:.+]] = select i1 %[[CMPXYZ]], float 0.000000e+00, float %[[WGSCAN]]
 ; CHECK: ret float %[[RESULT]]
+
+
+; CHECK: define spir_func i32 @__mux_work_group_broadcast_i32(i32 %barrier_id, i32 [[PARAM:%.*]], i64 {{%.*}}, i64 {{%.*}}, i64 {{%.*}})
+declare spir_func i32 @__mux_work_group_broadcast_i32(i32 %barrier_id, i32 %x, i64 %idx, i64 %idy, i64 %idz)
+; CHECK-LABEL: entry:
+; CHECK: call i64 @__mux_get_local_id(i32 0)
+
+; CHECK-LABEL: broadcast:
+; CHECK: store i32 [[PARAM]], ptr addrspace(3) @__mux_work_group_broadcast_i32.accumulator
+
+; CHECK-LABEL: exit:
+; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
+; CHECK: [[RESULT:%.*]] = load i32, ptr addrspace(3) @__mux_work_group_broadcast_i32.accumulator
+; CHECK: call void @__mux_work_group_barrier(i32 0, i32 2, i32 272)
+; CHECK: ret i32 [[RESULT]]
 
 ; CHECK: define spir_func half @__mux_work_group_scan_exclusive_fadd_f16(i32 %id, half [[PARAM:%.*]])
 declare spir_func half @__mux_work_group_scan_exclusive_fadd_f16(i32 %id, half %x)
