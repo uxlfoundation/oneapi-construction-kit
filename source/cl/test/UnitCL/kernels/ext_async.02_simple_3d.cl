@@ -14,6 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// The LLVM compilers we use to build the SPIR-V tests don't have support for,
+// or aren't able to be told about, the extension that provides this builtin.
+// REQUIRES: nospirv
+
 __kernel void simple_3d(__local int *tmpA, __local int *tmpB,
                          __local int *tmpC, __global int *A, __global int *B,
                          __global int *C) {
