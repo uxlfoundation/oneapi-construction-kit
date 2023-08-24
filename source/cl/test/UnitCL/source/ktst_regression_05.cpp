@@ -177,5 +177,19 @@ TEST_P(ExecutionOpenCLC, Regression_107_Byval_Struct_Align) {
   RunGeneric1D(TestN);
 }
 
+TEST_P(Execution, Regression_108_AbsDiff_Int) {
+  // We won't vectorize if we know the local work-group size is only 1...
+  fail_if_not_vectorized_ = false;
+
+  kts::Reference1D<cl_int> refInA = [](size_t) { return 0x8c7f0aac; };
+  kts::Reference1D<cl_int> refInB = [](size_t) { return 0x1902f8c8; };
+  kts::Reference1D<cl_uint> refOut = [](size_t) { return 0x8c83ee1c; };
+
+  AddInputBuffer(1, refInA);
+  AddInputBuffer(1, refInB);
+  AddOutputBuffer(1, refOut);
+  RunGeneric1D(1);
+}
+
 // Do not add tests beyond Regression_125* here, or the file may become too
 // large to link. Instead, start a new ktst_regression_${NN}.cpp file.

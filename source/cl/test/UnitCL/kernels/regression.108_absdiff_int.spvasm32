@@ -1,0 +1,106 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 46
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %40 "absdiff_int" %__spirv_BuiltInGlobalInvocationId
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %absdiff_int "absdiff_int"
+               OpName %srcA "srcA"
+               OpName %srcB "srcB"
+               OpName %dst "dst"
+               OpName %entry "entry"
+               OpName %srcA_addr "srcA.addr"
+               OpName %srcB_addr "srcB.addr"
+               OpName %dst_addr "dst.addr"
+               OpName %tid "tid"
+               OpName %sA "sA"
+               OpName %sB "sB"
+               OpName %dstVal "dstVal"
+               OpName %call "call"
+               OpName %arrayidx "arrayidx"
+               OpName %arrayidx1 "arrayidx1"
+               OpName %call2 "call2"
+               OpName %arrayidx3 "arrayidx3"
+               OpName %srcA_0 "srcA"
+               OpName %srcB_0 "srcB"
+               OpName %dst_0 "dst"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %absdiff_int LinkageAttributes "absdiff_int" Export
+               OpDecorate %srcA Alignment 4
+               OpDecorate %srcB Alignment 4
+               OpDecorate %dst Alignment 4
+               OpDecorate %srcA_addr Alignment 4
+               OpDecorate %srcB_addr Alignment 4
+               OpDecorate %dst_addr Alignment 4
+               OpDecorate %tid Alignment 4
+               OpDecorate %sA Alignment 4
+               OpDecorate %sB Alignment 4
+               OpDecorate %dstVal Alignment 4
+               OpDecorate %srcA_0 Alignment 4
+               OpDecorate %srcB_0 Alignment 4
+               OpDecorate %dst_0 Alignment 4
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %8 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+%absdiff_int = OpFunction %void DontInline %8
+       %srcA = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+       %srcB = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+        %dst = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+  %srcA_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+  %srcB_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+   %dst_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+        %tid = OpVariable %_ptr_Function_uint Function
+         %sA = OpVariable %_ptr_Function_uint Function
+         %sB = OpVariable %_ptr_Function_uint Function
+     %dstVal = OpVariable %_ptr_Function_uint Function
+               OpStore %srcA_addr %srcA Aligned 4
+               OpStore %srcB_addr %srcB Aligned 4
+               OpStore %dst_addr %dst Aligned 4
+         %23 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId Aligned 16
+       %call = OpCompositeExtract %uint %23 0
+               OpStore %tid %call Aligned 4
+         %25 = OpLoad %_ptr_CrossWorkgroup_uint %srcA_addr Aligned 4
+         %26 = OpLoad %uint %tid Aligned 4
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %25 %26
+         %28 = OpLoad %uint %arrayidx Aligned 4
+               OpStore %sA %28 Aligned 4
+         %29 = OpLoad %_ptr_CrossWorkgroup_uint %srcB_addr Aligned 4
+         %30 = OpLoad %uint %tid Aligned 4
+  %arrayidx1 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %29 %30
+         %32 = OpLoad %uint %arrayidx1 Aligned 4
+               OpStore %sB %32 Aligned 4
+         %33 = OpLoad %uint %sA Aligned 4
+         %34 = OpLoad %uint %sB Aligned 4
+      %call2 = OpExtInst %uint %1 s_abs_diff %33 %34
+               OpStore %dstVal %call2 Aligned 4
+         %36 = OpLoad %uint %dstVal Aligned 4
+         %37 = OpLoad %_ptr_CrossWorkgroup_uint %dst_addr Aligned 4
+         %38 = OpLoad %uint %tid Aligned 4
+  %arrayidx3 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %37 %38
+               OpStore %arrayidx3 %36 Aligned 4
+               OpReturn
+               OpFunctionEnd
+         %40 = OpFunction %void DontInline %8
+     %srcA_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+     %srcB_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %dst_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+         %44 = OpLabel
+         %45 = OpFunctionCall %void %absdiff_int %srcA_0 %srcB_0 %dst_0
+               OpReturn
+               OpFunctionEnd
