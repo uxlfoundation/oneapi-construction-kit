@@ -55,7 +55,7 @@ inline abacus_u@generate_type@ ABACUS_API abs(abacus_u@generate_type@ x) {
 /// @param[in] y A abacus_@generate_type@.
 /// @return      A abacus_u@generate_type@.
 ///
-/// The absolute value of x - y, without module overflow.
+/// The absolute value of x - y, without modulo overflow.
 ///
 /// Standards compliant implementation of OpenCL 1.2 abs_diff.
 ///
@@ -83,7 +83,7 @@ inline abacus_u@generate_type@ ABACUS_API abs_diff(abacus_@generate_type@ x, aba
 /// @param[in] y A abacus_u@generate_type@.
 /// @return      A abacus_u@generate_type@.
 ///
-/// The absolute value of x - y, without module overflow.
+/// The absolute value of x - y, without modulo overflow.
 ///
 /// Standards compliant implementation of OpenCL 1.2 abs_diff.
 ///

@@ -63,8 +63,11 @@ template<typename T> inline typename TypeTraits<T>::UnsignedType abs(const T& x)
 
 template<typename T> typename TypeTraits<T>::UnsignedType abs_diff(
   const T& x, const T& y) {
-  const T lhs = y - x;
-  const T rhs = x - y;
+  typedef typename TypeTraits<T>::UnsignedType UnsignedType;
+  const UnsignedType ux = cast::as<UnsignedType>(x);
+  const UnsignedType uy = cast::as<UnsignedType>(y);
+  const UnsignedType lhs = uy - ux;
+  const UnsignedType rhs = ux - uy;
   const typename TypeTraits<T>::SignedType cond = x > y;
   return cast::as<typename TypeTraits<T>::UnsignedType>(
     relational::select(lhs, rhs, cond));
