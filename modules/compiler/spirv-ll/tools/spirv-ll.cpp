@@ -287,6 +287,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         spv::CapabilityKernelAttributesINTEL,
         spv::CapabilityExpectAssumeKHR,
         spv::CapabilityOptNoneINTEL,
+        spv::CapabilityMemoryAccessAliasingINTEL,
     });
     if (enableAll) {
       // Add the optional OpenCL capabilities if this flag was set.
@@ -444,7 +445,8 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
           spv::CapabilityAtomicFloat32MinMaxEXT,
           spv::CapabilityAtomicFloat64MinMaxEXT,
           spv::CapabilityArbitraryPrecisionIntegersINTEL,
-          spv::CapabilityOptNoneINTEL};
+          spv::CapabilityOptNoneINTEL,
+          spv::CapabilityMemoryAccessAliasingINTEL};
 
       // SPIR-V 1.1 list of capabilities.
       static std::unordered_set<spv::Capability> supported_v1_1_capabilities = {
@@ -477,6 +479,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         "SPV_KHR_linkonce_odr",
         "SPV_KHR_uniform_group_instructions",
         "SPV_INTEL_optnone",
+        "SPV_INTEL_memory_access_aliasing",
     });
   } else {
     for (auto extension : extensions) {
