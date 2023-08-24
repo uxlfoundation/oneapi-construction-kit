@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// SPIRV OPTIONS: -Wno-format
+
 kernel void print_vector(global int4* in, int flag) {
   size_t gid = get_global_id(0);
   if (gid < flag) {

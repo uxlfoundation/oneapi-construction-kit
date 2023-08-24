@@ -24,7 +24,7 @@
 // To work around this issue, we disable the fp64 extension to ensure that the
 // generated SPIR-V does not contain this implicit conversion.
 
-// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64
+// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64;-Wno-format
 
 __kernel void print_nan(void) {
   // single specifiers

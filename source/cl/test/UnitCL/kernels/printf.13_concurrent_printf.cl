@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// SPIRV OPTIONS: -Wno-format
+
 __kernel void concurrent_printf(void) {
   size_t i = get_global_id(0);
   if (0 == (i % 2)) {

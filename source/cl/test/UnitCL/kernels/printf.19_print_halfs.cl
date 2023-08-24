@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // REQUIRES: half
-// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64,+cl_khr_fp16
+// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64,+cl_khr_fp16;-Wno-format
 #pragma OPENCL EXTENSION cl_khr_fp16 : enable
 
 __kernel void print_halfs(__global half* a, __global half* b) {
