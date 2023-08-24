@@ -14,6 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// We only build these kernels for OpenCL. Note that if we did want to build
+// them for SPIR-V we'd have to ensure the right extensions are enabled for
+// upstream clang (half, double, etc)
+// REQUIRES: nospirv
+
 __kernel void type_${fulltype}(${fulltype} in_p,
                                global ${fulltype} *in_g,
                                constant ${fulltype} *in_c,

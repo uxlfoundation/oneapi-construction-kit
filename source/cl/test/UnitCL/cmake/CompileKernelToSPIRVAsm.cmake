@@ -171,8 +171,9 @@ execute_process(
   COMMAND ${CLANG_PATH} -c -emit-llvm -target spir-unknown-unknown
     -cl-std=CL${SPIRV_CL_STD}
     -Xclang -finclude-default-header
+    -Werror
     ${DEFS_LIST} ${SPIRV_OPTIONS_LIST}
-    -O0 -Werror
+    -O0
     -o ${temp_bc32}
     ${INPUT_FILE}
   RESULT_VARIABLE clang_result
@@ -186,8 +187,9 @@ if(NOT clang_result EQUAL 0)
     ${CLANG_PATH} -c -emit-llvm -target spir-unknown-unknown
       -cl-std=CL${SPIRV_CL_STD}
       -Xclang -finclude-default-header
+      -Werror
       ${PRINTABLE_OPTIONS_LIST}
-      -O0 -Werror
+      -O0
       -o ${temp_bc32}
       ${INPUT_FILE}
     ${clang_error}")
@@ -229,8 +231,9 @@ execute_process(
   COMMAND ${CLANG_PATH} -c -emit-llvm -target spir64-unknown-unknown
     -cl-std=CL${SPIRV_CL_STD}
     -Xclang -finclude-default-header
+    -Werror
     ${DEFS_LIST} ${SPIRV_OPTIONS_LIST}
-    -O0 -Werror
+    -O0
     -o ${temp_bc64}
     ${INPUT_FILE}
   RESULT_VARIABLE clang_result
@@ -244,8 +247,9 @@ if(NOT clang_result EQUAL 0)
     ${CLANG_PATH} -c -emit-llvm -target spir64-unknown-unknown
       -cl-std=CL${SPIRV_CL_STD}
       -Xclang -finclude-default-header
+      -Werror
       ${PRINTABLE_OPTIONS_LIST}
-      -O0 -Werror
+      -O0
       -o ${temp_bc64}
       ${INPUT_FILE}
     ${clang_error}")

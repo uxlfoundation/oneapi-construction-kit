@@ -24,7 +24,7 @@
 // To work around this issue, we disable the fp64 extension to ensure that the
 // generated SPIR-V does not contain this implicit conversion.
 
-// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64
+// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64;-Wno-format
 
 kernel void float_formatting_gg(int size, global float* in) {
   // We are only printing from one workitem to make sure the order remains

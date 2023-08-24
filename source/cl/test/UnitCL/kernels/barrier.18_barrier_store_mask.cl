@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// SPIRV OPTIONS: -Wno-pointer-to-int-cast
+
 __kernel void barrier_store_mask(int mask, __global int* output) {
   int global_id = get_global_id(0);
 

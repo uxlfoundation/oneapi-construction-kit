@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// SPIRV OPTIONS: -Wno-format
+
 __kernel void multiple_workgroups(void) {
   size_t i = get_local_id(0);
   if (i == 0) {

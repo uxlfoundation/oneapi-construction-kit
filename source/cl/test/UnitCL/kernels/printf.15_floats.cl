@@ -25,7 +25,7 @@
 // generated SPIR-V does not contain this implicit conversion.
 
 // DEFINITIONS: -DNUM_INPUTS=32
-// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64
+// SPIRV OPTIONS: -Xclang;-cl-ext=-cl_khr_fp64;-Wno-format
 
 #ifndef NUM_INPUTS
 #define NUM_INPUTS 1

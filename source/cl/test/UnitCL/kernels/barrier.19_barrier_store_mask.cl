@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// SPIRV OPTIONS: -Wno-pointer-to-int-cast
+
 struct struct_needs_32bit_align {
   char x;
   int y;
