@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: muxc --passes barriers-pass -S %s | FileCheck %s
+; RUN: muxc --passes barriers-pass,verify < %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
@@ -28,9 +28,9 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 ; CHECK: [[REDUCE_LOOP]]:
 ; CHECK:  %[[IDX:.+]] = phi i64 [ 0, %sw.bb2 ], [ %[[IDX_NEXT:.+]], %[[REDUCE_LOOP]] ]
 ; CHECK:  %[[ACCUM:.+]] = phi i32 [ 0, %sw.bb2 ], [ %[[ACCUM_NEXT:.+]], %[[REDUCE_LOOP]] ]
-; CHECK:  %[[ITEM:.+]] = getelementptr inbounds %reduction_live_mem_info, {{ptr|.+\*}} %live_variables, i64 %[[IDX]]
-; CHECK:  %[[VAL:.+]] = getelementptr inbounds %reduction_live_mem_info, {{ptr|.+\*}} %[[ITEM]], i32 0, i32 0
-; CHECK:  %[[LD:.+]] = load i32, {{ptr|.+\*}} %[[VAL]], align 4
+; CHECK:  %[[ITEM:.+]] = getelementptr inbounds %reduction_live_mem_info, ptr %live_variables, i64 %[[IDX]]
+; CHECK:  %[[VAL:.+]] = getelementptr inbounds %reduction_live_mem_info, ptr %[[ITEM]], i32 0, i32 0
+; CHECK:  %[[LD:.+]] = load i32, ptr %[[VAL]], align 4
 ; CHECK:  %[[ACCUM_NEXT]] = add i32 %[[ACCUM]], %[[LD]]
 ; CHECK:  %[[IDX_NEXT]] = add i64 %[[IDX]], 1
 ; CHECK:  %[[LOOP_COND:.+]] = icmp ult i64 %24, 262144
