@@ -444,8 +444,16 @@ class BuiltinInfo {
   /// @brief Returns true if the mux builtin has a barrier ID as its first
   /// operand.
   static bool isMuxBuiltinWithBarrierID(BuiltinID ID) {
-    // NOTE sub group barriers do have an ID operand, but the handle barriers
-    // pass doesn't need to know about that.
+    if (isMuxControlBarrierID(ID)) {
+      return true;
+    }
+    auto Info = isMuxGroupCollective(ID);
+    return Info && Info->isWorkGroupScope();
+  }
+
+  /// @brief Returns true if the mux builtin has a barrier ID as its first
+  /// operand, and applies at Work Group scope.
+  static bool isMuxBuiltinWithWGBarrierID(BuiltinID ID) {
     if (ID == eMuxBuiltinWorkGroupBarrier) {
       return true;
     }

@@ -448,7 +448,7 @@ void compiler::utils::Barrier::FindBarriers() {
         Function *callee = call_inst->getCalledFunction();
         if (callee != nullptr) {
           auto const B = bi_->analyzeBuiltin(*callee);
-          if (BuiltinInfo::isMuxBuiltinWithBarrierID(B.ID)) {
+          if (BuiltinInfo::isMuxBuiltinWithWGBarrierID(B.ID)) {
             unsigned id = ~0u;
             auto *const id_param = call_inst->getOperand(0);
             if (auto *const id_param_c = dyn_cast<ConstantInt>(id_param)) {
