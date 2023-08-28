@@ -30,11 +30,7 @@
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
-#include <multi_llvm/optional_helper.h>
-#include <multi_llvm/triple.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cmath>
@@ -532,7 +528,7 @@ struct CLBuiltinEntry {
 };
 
 /// @brief Information about known OpenCL builtins.
-static const CLBuiltinEntry Builtins[] = {
+static constexpr CLBuiltinEntry Builtins[] = {
     // Non-standard Builtin Functions
     {eCLBuiltinConvertHalfToFloat, "convert_half_to_float"},
     {eCLBuiltinConvertFloatToHalf, "convert_float_to_half"},
@@ -951,73 +947,9 @@ llvm::StringRef CLBuiltinInfo::getBuiltinName(BuiltinID ID) const {
   return llvm::StringRef();
 }
 
-BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &B,
+BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &,
                                                   const CallInst *CI,
-                                                  unsigned SimdDimIdx) const {
-  ConstantInt *Rank = nullptr;
-  switch (B.ID) {
-    default:
-      break;
-    case eCLBuiltinGetWorkDim:
-    case eCLBuiltinGetGroupId:
-    case eCLBuiltinGetGlobalSize:
-    case eCLBuiltinGetGlobalOffset:
-    case eCLBuiltinGetLocalSize:
-    case eCLBuiltinGetEnqueuedLocalSize:
-    case eCLBuiltinGetNumGroups:
-      return eBuiltinUniformityAlways;
-    case eCLBuiltinAsyncWorkGroupCopy:
-    case eCLBuiltinAsyncWorkGroupStridedCopy:
-    case eCLBuiltinWaitGroupEvents:
-    case eCLBuiltinAsyncWorkGroupCopy2D2D:
-    case eCLBuiltinAsyncWorkGroupCopy3D3D:
-      // These builtins will always be uniform within the same workgroup, as
-      // otherwise their behaviour is undefined. They might not be across
-      // workgroups, but we do not vectorize across workgroups anyway.
-      return eBuiltinUniformityAlways;
-    case eCLBuiltinGetGlobalId:
-    case eCLBuiltinGetLocalId:
-      // We need to know the rank of these builtins at compile time.
-      if (!CI || CI->arg_empty()) {
-        return eBuiltinUniformityNever;
-      }
-      Rank = dyn_cast<ConstantInt>(CI->getArgOperand(0));
-      if (!Rank) {
-        // The Rank is some function, which "might" evaluate to zero
-        // sometimes, so we let the packetizer sort it out with some
-        // conditional magic.
-        // TODO Make sure this can never go haywire in weird edge cases.
-        // Where we have one get_global_id() dependent on another, this is
-        // not packetized correctly. Doing so is very hard!  We should
-        // probably just fail to packetize in this case.  We might also be
-        // able to return eBuiltinUniformityNever here, in cases where we can
-        // prove that the value can never be zero.
-        return eBuiltinUniformityMaybeInstanceID;
-      }
-      // Only vectorize on selected dimension. The value of get_global_id with
-      // other ranks is uniform.
-      if (Rank->getZExtValue() == SimdDimIdx) {
-        return eBuiltinUniformityInstanceID;
-      } else {
-        return eBuiltinUniformityAlways;
-      }
-    case eCLBuiltinGetLocalLinearId:
-    case eCLBuiltinGetGlobalLinearId:
-      // TODO: This is fine for vectorizing in the x-axis, but currently we do
-      // not support vectorizing along y or z (see CA-2843).
-      return (SimdDimIdx) ? eBuiltinUniformityNever
-                          : eBuiltinUniformityInstanceID;
-    case eCLBuiltinGetSubgroupLocalId:
-      return eBuiltinUniformityInstanceID;
-    case eCLBuiltinSubgroupAll:
-    case eCLBuiltinSubgroupAny:
-    case eCLBuiltinSubgroupReduceAdd:
-    case eCLBuiltinSubgroupReduceMax:
-    case eCLBuiltinSubgroupReduceMin:
-    case eCLBuiltinSubgroupBroadcast:
-      return eBuiltinUniformityAlways;
-  }
-
+                                                  unsigned) const {
   // Assume that builtins with side effects are varying.
   if (Function *Callee = CI->getCalledFunction()) {
     auto const Props = analyzeBuiltin(*Callee).properties;
@@ -1355,12 +1287,9 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
     if (OldPtrTy) {
       if (auto *const PtrRetPointeeTy =
               getPointerReturnPointeeTy(B.function, Props)) {
-        auto *OldPointeeTy = BuiltinPointeeTypes[i];
-        (void)OldPointeeTy;
-        assert(
-            OldPointeeTy && OldPointeeTy == PtrRetPointeeTy &&
-            multi_llvm::isOpaqueOrPointeeTypeMatches(OldPtrTy, OldPointeeTy) &&
-            "Demangling inconsistency");
+        [[maybe_unused]] auto *OldPointeeTy = BuiltinPointeeTypes[i];
+        assert(OldPointeeTy && OldPointeeTy == PtrRetPointeeTy &&
+               "Demangling inconsistency");
         if (!FixedVectorType::isValidElementType(PtrRetPointeeTy)) {
           return nullptr;
         }
@@ -1479,12 +1408,9 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
       Type *const PtrRetPointeeTy =
           getPointerReturnPointeeTy(B.function, Props);
       if (PtrRetPointeeTy && PtrRetPointeeTy->isVectorTy()) {
-        auto *OldPointeeTy = BuiltinPointeeTypes[i];
-        (void)OldPointeeTy;
-        assert(
-            OldPointeeTy && OldPointeeTy == PtrRetPointeeTy &&
-            multi_llvm::isOpaqueOrPointeeTypeMatches(OldPtrTy, OldPointeeTy) &&
-            "Demangling inconsistency");
+        [[maybe_unused]] auto *OldPointeeTy = BuiltinPointeeTypes[i];
+        assert(OldPointeeTy && OldPointeeTy == PtrRetPointeeTy &&
+               "Demangling inconsistency");
         auto *OldVecTy = cast<FixedVectorType>(PtrRetPointeeTy);
         Type *NewTy = PointerType::get(OldVecTy->getElementType(),
                                        OldPtrTy->getAddressSpace());
@@ -1556,19 +1482,19 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
 /// (assumed builtin) Function is known to possess the given qualifier.
 /// @return true if the parameter is known to have the qualifier, false if not,
 /// and None on error.
-static multi_llvm::Optional<bool> paramHasTypeQual(const Function &F,
-                                                   unsigned ParamIdx,
-                                                   TypeQualifier Q) {
+static std::optional<bool> paramHasTypeQual(const Function &F,
+                                            unsigned ParamIdx,
+                                            TypeQualifier Q) {
   // Demangle the function name to get the type qualifiers.
   SmallVector<Type *, 2> Types;
   SmallVector<TypeQualifiers, 2> Quals;
   NameMangler Mangler(&F.getContext());
   if (Mangler.demangleName(F.getName(), Types, Quals).empty()) {
-    return multi_llvm::None;
+    return std::nullopt;
   }
 
   if (ParamIdx >= Quals.size()) {
-    return multi_llvm::None;
+    return std::nullopt;
   }
 
   auto &Qual = Quals[ParamIdx];
@@ -1606,7 +1532,7 @@ Value *CLBuiltinInfo::emitBuiltinInline(Function *F, IRBuilder<> &B,
         // 6.12.3 Integer Functions
       case eCLBuiltinAddSat:
       case eCLBuiltinSubSat: {
-        multi_llvm::Optional<bool> IsParamSignedOrNone =
+        std::optional<bool> IsParamSignedOrNone =
             paramHasTypeQual(*F, 0, eTypeQualSignedInt);
         if (!IsParamSignedOrNone.has_value()) {
           return nullptr;
@@ -2724,51 +2650,6 @@ Value *CLBuiltinInfo::emitBuiltinInlinePrintf(BuiltinID, IRBuilder<> &B,
   return CreateBuiltinCall(B, Printf, Args);
 }
 
-std::optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
-    CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
-    std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const {
-  assert(CI.getCalledFunction() && CI.getType()->isIntegerTy() &&
-         "Unexpected builtin");
-
-  BuiltinID BuiltinID = identifyBuiltin(*CI.getCalledFunction());
-
-  auto Bits = CI.getType()->getIntegerBitWidth();
-  // Assume we're indexing the global sizes array.
-  std::array<std::optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
-
-  switch (BuiltinID) {
-    default:
-      return std::nullopt;
-    case eCLBuiltinGetWorkDim:
-      return ConstantRange::getNonEmpty(APInt(Bits, 1), APInt(Bits, 4));
-    case eCLBuiltinGetLocalId:
-    case eCLBuiltinGetLocalSize:
-    case eCLBuiltinGetEnqueuedLocalSize:
-      // Use the local sizes array, and fall through to common handling.
-      SizesPtr = &MaxLocalSizes;
-      LLVM_FALLTHROUGH;
-    case eCLBuiltinGetGlobalSize: {
-      auto *DimIdx = CI.getOperand(0);
-      if (!isa<ConstantInt>(DimIdx)) {
-        return std::nullopt;
-      }
-      uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
-      if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
-        return std::nullopt;
-      }
-      // ID builtins range from [0,size) and size builtins from [1,size]. Thus
-      // offset the range by 1 at each low/high end when returning the range
-      // for a size builtin.
-      int const SizeAdjust = BuiltinID == eCLBuiltinGetLocalSize ||
-                             BuiltinID == eCLBuiltinGetEnqueuedLocalSize ||
-                             BuiltinID == eCLBuiltinGetGlobalSize;
-      return ConstantRange::getNonEmpty(
-          APInt(Bits, SizeAdjust),
-          APInt(Bits, *(*SizesPtr)[DimVal] + SizeAdjust));
-    }
-  }
-}
-
 // Must be kept in sync with our OpenCL headers!
 enum : uint32_t {
   CLK_LOCAL_MEM_FENCE = 1,
@@ -2795,14 +2676,14 @@ enum : uint32_t {
   memory_order_seq_cst = 4,
 };
 
-static multi_llvm::Optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
+static std::optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
   // Grab the 'flags' parameter.
   if (auto *const Flags = dyn_cast<ConstantInt>(P)) {
     // cl_mem_fence_flags is a bitfield and can be 0 or a combination of
     // CLK_(GLOBAL|LOCAL|IMAGE)_MEM_FENCE values ORed together.
     switch (Flags->getZExtValue()) {
       case 0:
-        return multi_llvm::None;
+        return std::nullopt;
       case CLK_LOCAL_MEM_FENCE:
         return BIMuxInfoConcept::MemSemanticsWorkGroupMemory;
       case CLK_GLOBAL_MEM_FENCE:
@@ -2812,10 +2693,10 @@ static multi_llvm::Optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
                 BIMuxInfoConcept::MemSemanticsCrossWorkGroupMemory);
     }
   }
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
-static multi_llvm::Optional<unsigned> parseMemoryScopeParam(Value *const P) {
+static std::optional<unsigned> parseMemoryScopeParam(Value *const P) {
   if (auto *const Scope = dyn_cast<ConstantInt>(P)) {
     switch (Scope->getZExtValue()) {
       case memory_scope_work_item:
@@ -2833,10 +2714,10 @@ static multi_llvm::Optional<unsigned> parseMemoryScopeParam(Value *const P) {
         return BIMuxInfoConcept::MemScopeCrossDevice;
     }
   }
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
-static multi_llvm::Optional<unsigned> parseMemoryOrderParam(Value *const P) {
+static std::optional<unsigned> parseMemoryOrderParam(Value *const P) {
   if (auto *const Order = dyn_cast<ConstantInt>(P)) {
     switch (Order->getZExtValue()) {
       case memory_order_relaxed:
@@ -2851,7 +2732,7 @@ static multi_llvm::Optional<unsigned> parseMemoryOrderParam(Value *const P) {
         return BIMuxInfoConcept::MemSemanticsSequentiallyConsistent;
     }
   }
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
 // This function returns a mux builtin ID for the corresponding CL builtin ID
