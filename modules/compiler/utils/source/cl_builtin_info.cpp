@@ -532,7 +532,7 @@ struct CLBuiltinEntry {
 };
 
 /// @brief Information about known OpenCL builtins.
-static const CLBuiltinEntry Builtins[] = {
+static constexpr CLBuiltinEntry Builtins[] = {
     // Non-standard Builtin Functions
     {eCLBuiltinConvertHalfToFloat, "convert_half_to_float"},
     {eCLBuiltinConvertFloatToHalf, "convert_float_to_half"},
@@ -951,73 +951,9 @@ llvm::StringRef CLBuiltinInfo::getBuiltinName(BuiltinID ID) const {
   return llvm::StringRef();
 }
 
-BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &B,
+BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &,
                                                   const CallInst *CI,
-                                                  unsigned SimdDimIdx) const {
-  ConstantInt *Rank = nullptr;
-  switch (B.ID) {
-    default:
-      break;
-    case eCLBuiltinGetWorkDim:
-    case eCLBuiltinGetGroupId:
-    case eCLBuiltinGetGlobalSize:
-    case eCLBuiltinGetGlobalOffset:
-    case eCLBuiltinGetLocalSize:
-    case eCLBuiltinGetEnqueuedLocalSize:
-    case eCLBuiltinGetNumGroups:
-      return eBuiltinUniformityAlways;
-    case eCLBuiltinAsyncWorkGroupCopy:
-    case eCLBuiltinAsyncWorkGroupStridedCopy:
-    case eCLBuiltinWaitGroupEvents:
-    case eCLBuiltinAsyncWorkGroupCopy2D2D:
-    case eCLBuiltinAsyncWorkGroupCopy3D3D:
-      // These builtins will always be uniform within the same workgroup, as
-      // otherwise their behaviour is undefined. They might not be across
-      // workgroups, but we do not vectorize across workgroups anyway.
-      return eBuiltinUniformityAlways;
-    case eCLBuiltinGetGlobalId:
-    case eCLBuiltinGetLocalId:
-      // We need to know the rank of these builtins at compile time.
-      if (!CI || CI->arg_empty()) {
-        return eBuiltinUniformityNever;
-      }
-      Rank = dyn_cast<ConstantInt>(CI->getArgOperand(0));
-      if (!Rank) {
-        // The Rank is some function, which "might" evaluate to zero
-        // sometimes, so we let the packetizer sort it out with some
-        // conditional magic.
-        // TODO Make sure this can never go haywire in weird edge cases.
-        // Where we have one get_global_id() dependent on another, this is
-        // not packetized correctly. Doing so is very hard!  We should
-        // probably just fail to packetize in this case.  We might also be
-        // able to return eBuiltinUniformityNever here, in cases where we can
-        // prove that the value can never be zero.
-        return eBuiltinUniformityMaybeInstanceID;
-      }
-      // Only vectorize on selected dimension. The value of get_global_id with
-      // other ranks is uniform.
-      if (Rank->getZExtValue() == SimdDimIdx) {
-        return eBuiltinUniformityInstanceID;
-      } else {
-        return eBuiltinUniformityAlways;
-      }
-    case eCLBuiltinGetLocalLinearId:
-    case eCLBuiltinGetGlobalLinearId:
-      // TODO: This is fine for vectorizing in the x-axis, but currently we do
-      // not support vectorizing along y or z (see CA-2843).
-      return (SimdDimIdx) ? eBuiltinUniformityNever
-                          : eBuiltinUniformityInstanceID;
-    case eCLBuiltinGetSubgroupLocalId:
-      return eBuiltinUniformityInstanceID;
-    case eCLBuiltinSubgroupAll:
-    case eCLBuiltinSubgroupAny:
-    case eCLBuiltinSubgroupReduceAdd:
-    case eCLBuiltinSubgroupReduceMax:
-    case eCLBuiltinSubgroupReduceMin:
-    case eCLBuiltinSubgroupBroadcast:
-      return eBuiltinUniformityAlways;
-  }
-
+                                                  unsigned) const {
   // Assume that builtins with side effects are varying.
   if (Function *Callee = CI->getCalledFunction()) {
     auto const Props = analyzeBuiltin(*Callee).properties;
@@ -2722,51 +2658,6 @@ Value *CLBuiltinInfo::emitBuiltinInlinePrintf(BuiltinID, IRBuilder<> &B,
   }
 
   return CreateBuiltinCall(B, Printf, Args);
-}
-
-std::optional<ConstantRange> CLBuiltinInfo::getBuiltinRange(
-    CallInst &CI, std::array<std::optional<uint64_t>, 3> MaxLocalSizes,
-    std::array<std::optional<uint64_t>, 3> MaxGlobalSizes) const {
-  assert(CI.getCalledFunction() && CI.getType()->isIntegerTy() &&
-         "Unexpected builtin");
-
-  BuiltinID BuiltinID = identifyBuiltin(*CI.getCalledFunction());
-
-  auto Bits = CI.getType()->getIntegerBitWidth();
-  // Assume we're indexing the global sizes array.
-  std::array<std::optional<uint64_t>, 3> *SizesPtr = &MaxGlobalSizes;
-
-  switch (BuiltinID) {
-    default:
-      return std::nullopt;
-    case eCLBuiltinGetWorkDim:
-      return ConstantRange::getNonEmpty(APInt(Bits, 1), APInt(Bits, 4));
-    case eCLBuiltinGetLocalId:
-    case eCLBuiltinGetLocalSize:
-    case eCLBuiltinGetEnqueuedLocalSize:
-      // Use the local sizes array, and fall through to common handling.
-      SizesPtr = &MaxLocalSizes;
-      LLVM_FALLTHROUGH;
-    case eCLBuiltinGetGlobalSize: {
-      auto *DimIdx = CI.getOperand(0);
-      if (!isa<ConstantInt>(DimIdx)) {
-        return std::nullopt;
-      }
-      uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
-      if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
-        return std::nullopt;
-      }
-      // ID builtins range from [0,size) and size builtins from [1,size]. Thus
-      // offset the range by 1 at each low/high end when returning the range
-      // for a size builtin.
-      int const SizeAdjust = BuiltinID == eCLBuiltinGetLocalSize ||
-                             BuiltinID == eCLBuiltinGetEnqueuedLocalSize ||
-                             BuiltinID == eCLBuiltinGetGlobalSize;
-      return ConstantRange::getNonEmpty(
-          APInt(Bits, SizeAdjust),
-          APInt(Bits, *(*SizesPtr)[DimVal] + SizeAdjust));
-    }
-  }
 }
 
 // Must be kept in sync with our OpenCL headers!
