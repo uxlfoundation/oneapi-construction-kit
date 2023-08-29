@@ -448,6 +448,11 @@ struct ScheduleGenerator {
         });
 
     if (!resultPhi) {
+      if (exitBlock == latchBlock) {
+        // If `createLoop()` unrolled the loop, there will not be a separate
+        // exit block, so we won't create the LCSSA PHI node.
+        return {exitBlock, accumulator};
+      }
       resultPhi = PHINode::Create(accTy, 1, "WGC_reduce", exitBlock);
     }
     resultPhi->addIncoming(accumulator, latchBlock);
