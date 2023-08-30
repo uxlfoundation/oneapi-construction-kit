@@ -26,9 +26,6 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
-#include <multi_llvm/llvm_version.h>
-#include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
 
 #include <functional>
 

@@ -23,7 +23,6 @@
 #include <compiler/utils/target_extension_types.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
 
 #include <optional>
 
@@ -550,12 +549,8 @@ static BasicBlock *copy1D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
   Type *const I8Ty = IntegerType::get(M.getContext(), 8);
 
   assert(SrcPtr->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(SrcPtr->getType()), I8Ty) &&
          "Mux DMA builtins are always byte-accessed");
   assert(DstPtr->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(DstPtr->getType()), I8Ty) &&
          "Mux DMA builtins are always byte-accessed");
 
   Value *DmaIVs[] = {SrcPtr, DstPtr};
@@ -588,12 +583,8 @@ static BasicBlock *copy2D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
   Type *const I8Ty = IntegerType::get(M.getContext(), 8);
 
   assert(SrcPtr->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(SrcPtr->getType()), I8Ty) &&
          "Mux DMA builtins are always byte-accessed");
   assert(DstPtr->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(DstPtr->getType()), I8Ty) &&
          "Mux DMA builtins are always byte-accessed");
 
   Value *DmaIVs[] = {SrcPtr, DstPtr};
@@ -702,12 +693,8 @@ Function *BIMuxInfoConcept::defineDMA3D(Function &F) {
                                     *GetLocalIDFn);
 
   assert(ArgSrcPtr->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(ArgSrcPtr->getType()), I8Ty) &&
          "Mux DMA builtins are always byte-accessed");
   assert(ArgDstPtr->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(ArgDstPtr->getType()), I8Ty) &&
          "Mux DMA builtins are always byte-accessed");
 
   Value *DmaIVs[] = {ArgSrcPtr, ArgDstPtr};

@@ -18,7 +18,6 @@
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/Operator.h>
 #include <multi_llvm/llvm_version.h>
-#include <multi_llvm/opaque_pointers.h>
 #include <refsi_m1/refsi_mux_builtin_info.h>
 
 #include <cstdint>
@@ -356,9 +355,6 @@ void defineRefSiDmaWait(Function &F) {
     auto *CoreDMAEventTy =
         compiler::utils::getOrCreateMuxDMAEventType(*F.getParent());
     auto *EventPtrTy = CoreDMAEventTy->getPointerTo();
-    assert(multi_llvm::isOpaqueOrPointeeTypeMatches(
-               cast<PointerType>(EventList->getType()), EventPtrTy) &&
-           "__mux_dma_wait() parameter expected to be __mux_dma_event_t**");
     auto *EventGep = BodyBuilder.CreateGEP(EventPtrTy, EventList, LoopIVPhi);
     auto *Event = BodyBuilder.CreateLoad(EventPtrTy, EventGep);
     auto *EventID = BodyBuilder.CreatePtrToInt(Event, XferIdTy, "xfer_id");

@@ -23,7 +23,6 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
-#include <multi_llvm/opaque_pointers.h>
 
 using namespace llvm;
 
@@ -169,8 +168,6 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
     packedArgPtr->setName("packed-args");
 
     assert(packedArgPtr->getType()->isPointerTy() &&
-           multi_llvm::isOpaqueOrPointeeTypeMatches(
-               cast<PointerType>(packedArgPtr->getType()), structType) &&
            "First argument should be pointer to the packed args structure");
 
     SmallVector<Value *, 8> params;

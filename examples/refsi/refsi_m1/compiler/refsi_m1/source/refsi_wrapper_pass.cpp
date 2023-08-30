@@ -18,7 +18,6 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/IR/IRBuilder.h>
-#include <multi_llvm/opaque_pointers.h>
 #include <refsi_m1/refsi_wrapper_pass.h>
 
 using namespace llvm;
@@ -36,9 +35,7 @@ namespace {
 void storeToSchedStruct(IRBuilder<> &Builder, StructType *MuxWorkGroupStructTy,
                         Value *Sched, uint32_t Element, uint32_t Index,
                         Value *Val) {
-  assert(Sched->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(Sched->getType()), MuxWorkGroupStructTy));
+  assert(Sched->getType()->isPointerTy());
 
   Value *IndicesArray[3] = {Builder.getInt32(0), Builder.getInt32(Element),
                             Builder.getInt32(Index)};
@@ -69,9 +66,7 @@ void storeToSchedStruct(IRBuilder<> &Builder, StructType *MuxWorkGroupStructTy,
 Value *loadFromSchedStruct(IRBuilder<> &Builder,
                            StructType *MuxWorkGroupStructTy, Value *Sched,
                            uint32_t Element, uint32_t Index) {
-  assert(Sched->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(Sched->getType()), MuxWorkGroupStructTy));
+  assert(Sched->getType()->isPointerTy());
   Value *IndicesArray[3] = {Builder.getInt32(0), Builder.getInt32(Element),
                             Builder.getInt32(Index)};
   // Check if it's an array type

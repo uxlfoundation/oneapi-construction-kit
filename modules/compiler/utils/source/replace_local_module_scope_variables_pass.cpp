@@ -25,7 +25,6 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cassert>
@@ -48,9 +47,7 @@ GetElementPtrInst *generateStructGEP(Instruction &inst,
   // the local module-scope variables struct we added to each function
   auto funcsStruct = compiler::utils::getLastArgument(func);
 
-  assert(funcsStruct->getType()->isPointerTy() &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(funcsStruct->getType()), funcsStructTy));
+  assert(funcsStruct->getType()->isPointerTy());
 
   // the type with which to index into our struct type
   auto indexTy = Type::getInt32Ty(inst.getModule()->getContext());
