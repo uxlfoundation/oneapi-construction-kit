@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <base/bit_shift_fixup_pass.h>
 #include <base/builtin_simplification_pass.h>
 #include <base/check_for_doubles_pass.h>
@@ -103,7 +103,7 @@ void BaseModulePassMachinery::addClassToPassNames() {
 #define CGSCC_PASS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
 
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 }
 
 Expected<compiler::utils::AddKernelWrapperPassOptions>
@@ -428,7 +428,7 @@ void BaseModulePassMachinery::registerPasses() {
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS) \
   getFAM().registerPass([&] { return CREATE_PASS; });
 
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 }
 
 void BaseModulePassMachinery::registerPassCallbacks() {
@@ -545,7 +545,7 @@ void BaseModulePassMachinery::registerPassCallbacks() {
     return true;                                                      \
   }
 
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
         return false;
       });
   TimePasses.registerCallbacks(PIC);
@@ -555,36 +555,36 @@ void BaseModulePassMachinery::printPassNames(raw_ostream &OS) {
   OS << "Utility passes:\n\n";
   OS << "Module passes:\n";
 #define MODULE_PASS(NAME, CREATE_PASS) compiler::utils::printPassName(NAME, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 
   OS << "Module passes with params:\n";
 #define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   compiler::utils::printPassName(NAME, PARAMS, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 
   OS << "Module analyses:\n";
 #define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 
   OS << "Function analyses:\n";
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 
   OS << "Function passes:\n";
 #define FUNCTION_PASS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 
   OS << "Function passes with params:\n";
 #define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   compiler::utils::printPassName(NAME, PARAMS, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 
   OS << "CGSCC passes:\n";
 #define CGSCC_PASS(NAME, CREATE_PASS) compiler::utils::printPassName(NAME, OS);
-#include "base_pass_registry.def"
+#include "base_module_pass_registry.def"
 }
 
 compiler::utils::DeviceInfo initDeviceInfoFromMux(

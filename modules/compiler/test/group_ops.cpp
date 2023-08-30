@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/cl_builtin_info.h>
 #include <compiler/utils/lower_to_mux_builtins_pass.h>

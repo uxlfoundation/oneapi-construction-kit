@@ -17,7 +17,7 @@
 #ifndef RISCV_PASS_MACHINERY_H_INCLUDED
 #define RISCV_PASS_MACHINERY_H_INCLUDED
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <riscv/target.h>
 #include <vecz/pass.h>
 

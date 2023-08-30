@@ -20,7 +20,7 @@
 #ifndef HOST_PASSES_MACHINERY_H_INCLUDED
 #define HOST_PASSES_MACHINERY_H_INCLUDED
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 
 #include <optional>
 

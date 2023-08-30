@@ -16,7 +16,7 @@
 #ifndef COMPILER_TOOLS_MUXC_H_INCLUDED
 #define COMPILER_TOOLS_MUXC_H_INCLUDED
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <base/context.h>
 #include <compiler/target.h>
 #include <mux/mux.hpp>

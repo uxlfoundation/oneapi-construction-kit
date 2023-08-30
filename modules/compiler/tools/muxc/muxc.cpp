@@ -16,7 +16,7 @@
 
 #include "muxc.h"
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <base/module.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <compiler/library.h>
