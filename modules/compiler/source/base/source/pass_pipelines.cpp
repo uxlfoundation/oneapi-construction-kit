@@ -36,7 +36,8 @@
 #include <llvm/Transforms/IPO/GlobalOpt.h>
 #include <llvm/Transforms/IPO/Inliner.h>
 #include <llvm/Transforms/IPO/Internalize.h>
-#include <multi_llvm/optional_helper.h>
+
+#include <optional>
 
 using namespace llvm;
 
@@ -125,8 +126,7 @@ void addLLVMDefaultPerModulePipeline(ModulePassManager &PM, PassBuilder &PB,
 Result emitCodeGenFile(llvm::Module &M, TargetMachine *TM,
                        raw_pwrite_stream &ostream, bool create_assembly) {
   legacy::PassManager PM;
-  CodeGenFileType type =
-      !create_assembly ? llvm::CGFT_ObjectFile : llvm::CGFT_AssemblyFile;
+  CodeGenFileType type = !create_assembly ? CGFT_ObjectFile : CGFT_AssemblyFile;
   if (TM->addPassesToEmitFile(PM, ostream, /*DwoOut*/ nullptr, type,
                               /*DisableVerify*/ false)) {
     return compiler::Result::FAILURE;
@@ -135,7 +135,7 @@ Result emitCodeGenFile(llvm::Module &M, TargetMachine *TM,
   return compiler::Result::SUCCESS;
 }
 
-void encodeVectorizationMode(llvm::Function &F, VectorizationMode mode) {
+void encodeVectorizationMode(Function &F, VectorizationMode mode) {
   switch (mode) {
     case VectorizationMode::AUTO:
       F.addFnAttr("vecz-mode", "auto");
@@ -149,18 +149,17 @@ void encodeVectorizationMode(llvm::Function &F, VectorizationMode mode) {
   }
 }
 
-multi_llvm::Optional<VectorizationMode> getVectorizationMode(
-    const llvm::Function &F) {
-  llvm::Attribute Attr = F.getFnAttribute("vecz-mode");
+std::optional<VectorizationMode> getVectorizationMode(const Function &F) {
+  Attribute Attr = F.getFnAttribute("vecz-mode");
   if (Attr.isValid()) {
-    return StringSwitch<multi_llvm::Optional<VectorizationMode>>(
+    return StringSwitch<std::optional<VectorizationMode>>(
                Attr.getValueAsString())
         .Case("auto", VectorizationMode::AUTO)
         .Case("always", VectorizationMode::ALWAYS)
         .Case("never", VectorizationMode::NEVER)
-        .Default(multi_llvm::None);
+        .Default(std::nullopt);
   }
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
 }  // namespace compiler

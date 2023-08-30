@@ -28,6 +28,7 @@
 #include <llvm/IR/Metadata.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
+#include <multi_llvm/llvm_version.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <sstream>

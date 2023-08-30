@@ -17,7 +17,6 @@
 #include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/Support/type_traits.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>
@@ -25,6 +24,7 @@
 #include <spirv-ll/module.h>
 
 #include <mutex>
+#include <optional>
 
 spirv_ll::Builder::Builder(spirv_ll::Context &context, spirv_ll::Module &module,
                            const spirv_ll::DeviceInfo &deviceInfo)
@@ -1084,7 +1084,7 @@ std::string spirv_ll::Builder::getMangledFunctionName(
   for (size_t index = 0; index < args.size(); index++) {
     auto argTy = args[index]->getType();
 
-    multi_llvm::Optional<MangleInfo> mangleInfo;
+    std::optional<MangleInfo> mangleInfo;
     if (!argMangleInfo.empty()) {
       mangleInfo = argMangleInfo[index];
     }
@@ -1112,7 +1112,7 @@ std::string spirv_ll::Builder::getMangledFunctionName(
           // attempt to get the OpCode object for our element type, this is
           // basically so we can check signedness if element type is a vector of
           // ints
-          multi_llvm::Optional<MangleInfo> pointeeMangleInfo;
+          std::optional<MangleInfo> pointeeMangleInfo;
           if (spvPtrTy->isPointerType()) {
             pointeeMangleInfo = *mangleInfo;
             pointeeMangleInfo->typeQuals = 0;
@@ -1129,7 +1129,7 @@ std::string spirv_ll::Builder::getMangledFunctionName(
 
 const spirv_ll::Builder::SubstitutableType *spirv_ll::Builder::substitutableArg(
     llvm::Type *ty, const llvm::ArrayRef<SubstitutableType> &subTys,
-    multi_llvm::Optional<MangleInfo> mangleInfo) {
+    std::optional<MangleInfo> mangleInfo) {
   for (const SubstitutableType &subTy : subTys) {
     if (ty != subTy.ty) {
       continue;
@@ -1157,7 +1157,7 @@ const spirv_ll::Builder::SubstitutableType *spirv_ll::Builder::substitutableArg(
 }
 
 std::string spirv_ll::Builder::getMangledTypeName(
-    llvm::Type *ty, multi_llvm::Optional<MangleInfo> mangleInfo,
+    llvm::Type *ty, std::optional<MangleInfo> mangleInfo,
     llvm::ArrayRef<SubstitutableType> subTys) {
   auto subTyArg = substitutableArg(ty, subTys, mangleInfo);
   if (subTyArg != nullptr) {
@@ -1172,7 +1172,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
   } else if (ty->isFloatingPointTy()) {
     return getMangledFPName(ty);
   } else if (ty->isIntegerTy()) {
-    multi_llvm::Optional<bool> signedness;
+    std::optional<bool> signedness;
     if (mangleInfo && mangleInfo->id) {
       auto *const spvTy = module.get<OpType>(mangleInfo->id);
       if (spvTy->isBoolType()) {
@@ -1186,7 +1186,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
     // Assume signed integer when no opcode is provided
     return getMangledIntName(ty, signedness.value_or(true));
   } else if (ty->isVectorTy()) {
-    multi_llvm::Optional<MangleInfo> componentMangleInfo;
+    std::optional<MangleInfo> componentMangleInfo;
     if (mangleInfo) {
       componentMangleInfo = *mangleInfo;
       componentMangleInfo->id =
@@ -1238,7 +1238,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
     pointeeMangleInfo.id = spvPointeeTy;
     return mangled + getMangledTypeName(elementTy, pointeeMangleInfo, subTys);
   } else if (ty->isArrayTy()) {
-    multi_llvm::Optional<MangleInfo> eltMangleInfo;
+    std::optional<MangleInfo> eltMangleInfo;
     if (mangleInfo) {
       eltMangleInfo = *mangleInfo;
       eltMangleInfo->id =
@@ -1487,7 +1487,7 @@ bool spirv_ll::MangleInfo::getSignedness(const spirv_ll::Module &module) const {
   if (!id) {
     return true;
   }
-  multi_llvm::Optional<bool> tySignedness;
+  std::optional<bool> tySignedness;
   auto *const spvTy = module.get<OpType>(id);
   if (spvTy->isIntType()) {
     tySignedness = spvTy->getTypeInt()->Signedness();

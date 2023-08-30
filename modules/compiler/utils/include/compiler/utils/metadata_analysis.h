@@ -28,7 +28,6 @@
 #include <llvm/Support/Printable.h>
 #include <metadata/handler/generic_metadata.h>
 #include <metadata/handler/vectorize_info_metadata.h>
-#include <multi_llvm/optional_helper.h>
 
 namespace compiler {
 namespace utils {

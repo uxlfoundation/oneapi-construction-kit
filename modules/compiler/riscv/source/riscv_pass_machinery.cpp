@@ -33,7 +33,6 @@
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <metadata/handler/vectorize_info_metadata.h>
-#include <multi_llvm/optional_helper.h>
 #include <riscv/ir_to_builtins_pass.h>
 #include <riscv/riscv_pass_machinery.h>
 

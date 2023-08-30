@@ -37,10 +37,10 @@
 #include <compiler/module.h>
 #include <compiler/utils/pass_machinery.h>
 #include <llvm/IR/PassManager.h>
-#include <multi_llvm/optional_helper.h>
 #include <mux/mux.hpp>
 
 #include <mutex>
+#include <optional>
 
 namespace compiler {
 
@@ -489,10 +489,8 @@ class BaseModule : public Module {
   /// @param[in] late_passes Module pass manager populated with late passes.
   void runOpenCLFrontendPipeline(
       const clang::CodeGenOptions &codeGenOpts,
-      multi_llvm::Optional<llvm::ModulePassManager> early_passes =
-          multi_llvm::None,
-      multi_llvm::Optional<llvm::ModulePassManager> late_passes =
-          multi_llvm::None);
+      std::optional<llvm::ModulePassManager> early_passes = std::nullopt,
+      std::optional<llvm::ModulePassManager> late_passes = std::nullopt);
 
   /// @brief LLVM module produced by the `Module::finalize` method.
   std::unique_ptr<llvm::Module> finalized_llvm_module;

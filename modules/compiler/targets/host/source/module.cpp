@@ -52,7 +52,6 @@
 #include <llvm/IR/PassManager.h>
 #include <llvm/Support/CrashRecoveryContext.h>
 #include <llvm/Transforms/IPO/GlobalDCE.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/triple.h>
 #include <mux/mux.hpp>
 

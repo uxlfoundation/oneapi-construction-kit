@@ -28,7 +28,6 @@
 #include <llvm/Support/TypeSize.h>
 #include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/llvm_version.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>
@@ -37,6 +36,7 @@
 #include <spirv-ll/opcodes.h>
 #include <spirv/unified1/spirv.hpp>
 
+#include <optional>
 #include <unordered_map>
 
 namespace spirv_ll {
@@ -2167,7 +2167,7 @@ std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
 
 std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
                                   spv::Id argTyID, bool isBaseTyName) {
-  multi_llvm::Optional<std::string> argBaseTy;
+  std::optional<std::string> argBaseTy;
   if (argTy->isPointerTy()) {
 #if LLVM_VERSION_LESS(17, 0)
     // Check for special built-in types, which are found as pointers to

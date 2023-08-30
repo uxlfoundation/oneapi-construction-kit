@@ -31,7 +31,6 @@
 #include <llvm/Support/Process.h>
 #include <llvm/Target/TargetMachine.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/optional_helper.h>
 #include <riscv/ir_to_builtins_pass.h>
 #include <riscv/module.h>
 #include <riscv/riscv_pass_machinery.h>

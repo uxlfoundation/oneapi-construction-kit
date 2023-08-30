@@ -89,7 +89,6 @@
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/triple.h>
 #include <mux/mux.hpp>
 #include <spirv-ll/module.h>
@@ -117,7 +116,7 @@ namespace {
 // changed around; not a big deal, just a few ugly ifdefs
 inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
     llvm::PassBuilder &PB, llvm::OptimizationLevel OL,
-    multi_llvm::Optional<llvm::ModulePassManager> EP) {
+    std::optional<llvm::ModulePassManager> EP) {
   assert(OL != llvm::OptimizationLevel::O0);
   if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
@@ -134,7 +133,7 @@ inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
 }
 
 inline llvm::ModulePassManager buildO0DefaultPipeline(
-    llvm::PassBuilder &PB, multi_llvm::Optional<llvm::ModulePassManager> EP) {
+    llvm::PassBuilder &PB, std::optional<llvm::ModulePassManager> EP) {
   if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
         [&EP](llvm::ModulePassManager &MPM, llvm::OptimizationLevel) {
@@ -146,7 +145,7 @@ inline llvm::ModulePassManager buildO0DefaultPipeline(
 
 inline llvm::ModulePassManager buildPipeline(
     llvm::PassBuilder &PB, clang::CodeGenOptions Opts,
-    multi_llvm::Optional<llvm::ModulePassManager> EP) {
+    std::optional<llvm::ModulePassManager> EP) {
   return Opts.OptimizationLevel == 0
              ? buildO0DefaultPipeline(PB, std::move(EP))
              : buildPerModuleDefaultPipeline(PB, llvm::OptimizationLevel::O3,
@@ -166,8 +165,8 @@ inline llvm::ModulePassManager buildPipeline(
 void runFrontendPipeline(
     compiler::BaseModule &base_module, llvm::Module &module,
     const clang::CodeGenOptions &CGO,
-    multi_llvm::Optional<llvm::ModulePassManager> EP = multi_llvm::None,
-    multi_llvm::Optional<llvm::ModulePassManager> LP = multi_llvm::None) {
+    std::optional<llvm::ModulePassManager> EP = std::nullopt,
+    std::optional<llvm::ModulePassManager> LP = std::nullopt) {
   llvm::PipelineTuningOptions PTO;
   PTO.LoopUnrolling = CGO.UnrollLoops;
   auto PassMach = base_module.createPassMachinery();
@@ -1355,8 +1354,8 @@ void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance) {
 
 void BaseModule::runOpenCLFrontendPipeline(
     const clang::CodeGenOptions &codeGenOpts,
-    multi_llvm::Optional<llvm::ModulePassManager> early_passes,
-    multi_llvm::Optional<llvm::ModulePassManager> late_passes) {
+    std::optional<llvm::ModulePassManager> early_passes,
+    std::optional<llvm::ModulePassManager> late_passes) {
   if (options.fast_math) {
     if (late_passes.has_value()) {
       late_passes->addPass(FastMathPass());
@@ -2059,7 +2058,7 @@ void BaseModule::populateOpenCLOpts(clang::CompilerInstance &instance,
 std::unique_ptr<compiler::utils::PassMachinery>
 BaseModule::createPassMachinery() {
   return std::make_unique<BaseModulePassMachinery>(
-      llvm_module->getContext(), /*TM*/ nullptr, /*Info*/ multi_llvm::None,
+      llvm_module->getContext(), /*TM*/ nullptr, /*Info*/ std::nullopt,
       /*BICallback*/ nullptr, target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),
       target.getContext().isLLVMTimePassesEnabled());

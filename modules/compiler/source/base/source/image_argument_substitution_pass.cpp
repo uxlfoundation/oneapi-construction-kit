@@ -22,6 +22,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
+#include <multi_llvm/llvm_version.h>
 
 #include <map>
 
