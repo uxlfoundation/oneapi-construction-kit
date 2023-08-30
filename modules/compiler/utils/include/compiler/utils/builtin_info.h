@@ -441,6 +441,10 @@ class BuiltinInfo {
   /// @brief Gets information about a mux group operation builtin
   static std::optional<GroupCollective> isMuxGroupCollective(BuiltinID ID);
 
+  /// @brief Returns the mux builtin ID matching the group collective, or
+  /// eBuiltinInvalid.
+  static BuiltinID getMuxGroupCollective(const GroupCollective &Group);
+
   /// @brief Returns true if the mux builtin has a barrier ID as its first
   /// operand.
   static bool isMuxBuiltinWithBarrierID(BuiltinID ID) {

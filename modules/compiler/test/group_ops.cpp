@@ -418,14 +418,18 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       auto Info = BI.isMuxGroupCollective(Builtin.ID);
       ASSERT_TRUE(Info) << InfoStr;
 
-      // Now check that the returned values are what we expect. We don't
-      // check 'type' or 'function' here as it's not set by either party.
+      // Now check that the returned values are what we expect.
       assert(Info && "Asserting the optional to silence a compiler warning");
       EXPECT_EQ(Info->Op, GroupOps[GroupOpIdx].Collective.Op) << InfoStr;
       EXPECT_EQ(Info->Scope, GroupOps[GroupOpIdx].Collective.Scope) << InfoStr;
       EXPECT_EQ(Info->IsLogical, GroupOps[GroupOpIdx].Collective.IsLogical)
           << InfoStr;
       EXPECT_EQ(Info->Recurrence, GroupOps[GroupOpIdx].Collective.Recurrence)
+          << InfoStr;
+
+      EXPECT_EQ(Builtin.ID, BI.getMuxGroupCollective(*Info)) << InfoStr;
+      EXPECT_EQ(Builtin.ID,
+                BI.getMuxGroupCollective(GroupOps[GroupOpIdx].Collective))
           << InfoStr;
 
       ++GroupOpIdx;
