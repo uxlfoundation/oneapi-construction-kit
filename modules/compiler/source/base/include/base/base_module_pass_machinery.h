@@ -19,8 +19,8 @@
 /// @brief Base module pass machinery to be used for BaseModule's PassManager
 /// state
 
-#ifndef BASE_PASS_MACHINERY_H_INCLUDED
-#define BASE_PASS_MACHINERY_H_INCLUDED
+#ifndef BASE_MODULE_PASS_MACHINERY_H_INCLUDED
+#define BASE_MODULE_PASS_MACHINERY_H_INCLUDED
 
 #include <compiler/module.h>
 #include <compiler/utils/builtin_info.h>
@@ -93,4 +93,4 @@ compiler::utils::DeviceInfo initDeviceInfoFromMux(
 
 /// @}
 }  // namespace compiler
-#endif  // BASE_PASS_MACHINERY_H_INCLUDED
+#endif  // BASE_MODULE_PASS_MACHINERY_H_INCLUDED

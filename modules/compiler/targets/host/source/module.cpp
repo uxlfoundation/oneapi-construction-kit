@@ -60,7 +60,7 @@
 #ifndef NDEBUG
 #include <llvm/IR/Verifier.h>
 #endif
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <cargo/argument_parser.h>
 #include <cargo/small_vector.h>
 #include <cargo/string_view.h>

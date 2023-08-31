@@ -1130,9 +1130,9 @@ comprehension or to inspect a compiler bug narrowed down to a specific pass.
 
 The name of the pass can typically be found in any of the _pass registry
 files_. The main ComputeMux pass registry is found at
-`modules/compiler/source/base/source/base_pass_registry.def`, but targets may
-define their own. LLVM also defines its own, found (through access to the LLVM
-source code) at `llvm/lib/Passes/PassRegistry.def`.
+`modules/compiler/source/base/source/base_module_pass_registry.def`, but
+targets may define their own. LLVM also defines its own, found (through access
+to the LLVM source code) at `llvm/lib/Passes/PassRegistry.def`.
 
 Since LLVM ComputeMux use the same style of pass registration, both contain
 lines such as:

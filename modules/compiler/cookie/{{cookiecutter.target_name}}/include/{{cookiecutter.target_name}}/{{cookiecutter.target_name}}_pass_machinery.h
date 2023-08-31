@@ -21,7 +21,7 @@
 #ifndef {{cookiecutter.target_name_capitals}}_PASS_MACHINERY_H_INCLUDED
 #define {{cookiecutter.target_name_capitals}}_PASS_MACHINERY_H_INCLUDED
 
-#include <base/base_pass_machinery.h>
+#include <base/base_module_pass_machinery.h>
 #include <{{cookiecutter.target_name}}/target.h>
 
 namespace {{cookiecutter.target_name}} {
