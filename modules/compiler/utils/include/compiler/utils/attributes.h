@@ -18,7 +18,8 @@
 #define COMPILER_UTILS_ATTRIBUTES_H_INCLUDED
 
 #include <llvm/ADT/StringRef.h>
-#include <multi_llvm/optional_helper.h>
+
+#include <optional>
 
 namespace llvm {
 class CallInst;
@@ -112,9 +113,9 @@ void setLocalMemoryUsage(llvm::Function &F, uint64_t LocalMemUsage);
 /// @brief Gets the local memory usage estimation for the given function.
 ///
 /// @param[in] F Function from which to pull the attribute
-/// @return the (estimated) local memory usage in bytes if present, llvm::None
-/// otherwise.
-multi_llvm::Optional<uint64_t> getLocalMemoryUsage(const llvm::Function &F);
+/// @return the (estimated) local memory usage in bytes if present,
+/// std::nullopt otherwise.
+std::optional<uint64_t> getLocalMemoryUsage(const llvm::Function &F);
 
 /// @brief Sets information about a function's required DMA size as an
 /// attribute.
@@ -127,8 +128,8 @@ void setDMAReqdSizeBytes(llvm::Function &F, uint32_t DMASizeBytes);
 /// attribute.
 ///
 /// @param[in] F Function from which to pull the attribute
-/// @return The required DMA size order if present, else `llvm::None`
-multi_llvm::Optional<uint32_t> getDMAReqdSizeBytes(const llvm::Function &F);
+/// @return The required DMA size order if present, else `std::nullopt`
+std::optional<uint32_t> getDMAReqdSizeBytes(const llvm::Function &F);
 
 /// @brief Determines the ordering of work item execution after a barrier.
 enum class BarrierSchedule {

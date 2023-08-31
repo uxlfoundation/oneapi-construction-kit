@@ -22,8 +22,6 @@
 #include <llvm/Support/TypeSize.h>
 #include <llvm/Support/raw_ostream.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
-#include <multi_llvm/optional_helper.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cstring>

@@ -20,9 +20,6 @@
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
-#include <multi_llvm/optional_helper.h>
-
-#include "multi_llvm/multi_llvm.h"
 
 using namespace llvm;
 static llvm::Constant *getNeutralIdentityHelper(RecurKind Kind, Type *Ty,

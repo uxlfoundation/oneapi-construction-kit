@@ -23,7 +23,8 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/IR/PassManager.h>
-#include <multi_llvm/optional_helper.h>
+
+#include <optional>
 
 namespace compiler {
 namespace utils {
@@ -39,7 +40,7 @@ struct TransferKernelMetadataPass
 
 struct EncodeKernelMetadataPassOptions {
   std::string KernelName;
-  multi_llvm::Optional<std::array<uint64_t, 3>> LocalSizes = multi_llvm::None;
+  std::optional<std::array<uint64_t, 3>> LocalSizes = std::nullopt;
 };
 
 struct EncodeKernelMetadataPass
@@ -51,7 +52,7 @@ struct EncodeKernelMetadataPass
 
  private:
   std::string KernelName;
-  multi_llvm::Optional<std::array<uint64_t, 3>> LocalSizes;
+  std::optional<std::array<uint64_t, 3>> LocalSizes;
 };
 }  // namespace utils
 }  // namespace compiler

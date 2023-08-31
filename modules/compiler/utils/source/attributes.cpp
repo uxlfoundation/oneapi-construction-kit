@@ -20,7 +20,8 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
-#include <multi_llvm/optional_helper.h>
+
+#include <optional>
 
 namespace compiler {
 namespace utils {
@@ -108,14 +109,14 @@ StringRef getOrSetBaseFnName(Function &F, const Function &SetFromF) {
   return BaseFnName;
 }
 
-static multi_llvm::Optional<int> getStringFnAttrAsInt(const Attribute &Attr) {
+static std::optional<int> getStringFnAttrAsInt(const Attribute &Attr) {
   if (Attr.isValid()) {
     int AttrValue = 0;
     if (!Attr.getValueAsString().getAsInteger(10, AttrValue)) {
       return AttrValue;
     }
   }
-  return multi_llvm::None;
+  return std::nullopt;
 }
 
 static constexpr const char *LocalMemUsageAttrName = "mux-local-mem-usage";
@@ -126,12 +127,11 @@ void setLocalMemoryUsage(Function &F, uint64_t LocalMemUsage) {
   F.addFnAttr(Attr);
 }
 
-multi_llvm::Optional<uint64_t> getLocalMemoryUsage(const Function &F) {
+std::optional<uint64_t> getLocalMemoryUsage(const Function &F) {
   Attribute Attr = F.getFnAttribute(LocalMemUsageAttrName);
   auto Val = getStringFnAttrAsInt(Attr);
   // Only return non-negative integers
-  return Val && Val >= 0 ? multi_llvm::Optional<uint64_t>(*Val)
-                         : multi_llvm::None;
+  return Val && Val >= 0 ? std::optional<uint64_t>(*Val) : std::nullopt;
 }
 
 static constexpr const char *DMAReqdSizeBytesAttrName = "mux-dma-reqd-size";
@@ -142,12 +142,11 @@ void setDMAReqdSizeBytes(Function &F, uint32_t DMASizeBytes) {
   F.addFnAttr(Attr);
 }
 
-multi_llvm::Optional<uint32_t> getDMAReqdSizeBytes(const Function &F) {
+std::optional<uint32_t> getDMAReqdSizeBytes(const Function &F) {
   Attribute Attr = F.getFnAttribute(DMAReqdSizeBytesAttrName);
   auto Val = getStringFnAttrAsInt(Attr);
   // Only return non-negative integers
-  return Val && Val >= 0 ? multi_llvm::Optional<uint32_t>(*Val)
-                         : multi_llvm::None;
+  return Val && Val >= 0 ? std::optional<uint32_t>(*Val) : std::nullopt;
 }
 
 static constexpr const char *BarrierScheduleAttrName = "mux-barrier-schedule";

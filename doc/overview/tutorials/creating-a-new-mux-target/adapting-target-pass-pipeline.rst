@@ -90,7 +90,6 @@ This will need the following includes and settings:
     #include <compiler/utils/metadata.h>
     #include <compiler/utils/pass_functions.h>
     #include <llvm/IR/IRBuilder.h>
-    #include <multi_llvm/opaque_pointers.h>
     #include <compiler/utils/scheduling.h>
     using namespace llvm;
 

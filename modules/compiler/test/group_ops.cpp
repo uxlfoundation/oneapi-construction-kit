@@ -47,7 +47,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
     };
 
     PassMach = std::make_unique<compiler::BaseModulePassMachinery>(
-        Context, /*TM*/ nullptr, /*Info*/ multi_llvm::None, Callback,
+        Context, /*TM*/ nullptr, /*Info*/ std::nullopt, Callback,
         /*verify*/ false, /*logging level*/ DebugLogging::None,
         /*time passes*/ false);
     PassMach->initializeStart();

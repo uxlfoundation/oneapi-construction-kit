@@ -21,7 +21,6 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/opaque_pointers.h>
 #include <sys/types.h>
 
 using namespace llvm;

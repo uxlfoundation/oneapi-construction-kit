@@ -27,6 +27,7 @@
 #include <llvm/Support/Error.h>
 #include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/ToolOutputFile.h>
+#include <multi_llvm/llvm_version.h>
 
 using namespace llvm;
 

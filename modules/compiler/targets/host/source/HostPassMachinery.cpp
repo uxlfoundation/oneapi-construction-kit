@@ -50,7 +50,7 @@
 #include <llvm/Analysis/TargetTransformInfo.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Transforms/IPO/AlwaysInliner.h>
-#include <multi_llvm/optional_helper.h>
+#include <multi_llvm/llvm_version.h>
 #include <utils/system.h>
 #include <vecz/pass.h>
 

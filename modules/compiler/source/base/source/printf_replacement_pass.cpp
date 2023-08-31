@@ -30,7 +30,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 #include <llvm/Support/FormatVariadic.h>
-#include <multi_llvm/opaque_pointers.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -660,10 +659,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   auto *buffer_elt_ty = getBufferEltTy(module.getContext());
 
   // Double-check the buffer is the type we expect, unless it's opaque.
-  assert(isa<PointerType>(full_buffer->getType()) &&
-         multi_llvm::isOpaqueOrPointeeTypeMatches(
-             cast<PointerType>(full_buffer->getType()), buffer_elt_ty) &&
-         "Unknown buffer type");
+  assert(full_buffer->getType()->isPointerTy() && "Unknown buffer type");
 
   // entry block
   ir.SetInsertPoint(entry_block);

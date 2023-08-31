@@ -27,7 +27,6 @@
 #include <llvm/Transforms/Utils/Local.h>
 #include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/optional_helper.h>
 
 #include <algorithm>
 #include <functional>
@@ -1219,8 +1218,8 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
   bool const emitTail = barrierTail != nullptr;
 
   auto mainInfo = barrierMain.getVFInfo();
-  auto tailInfo = emitTail ? barrierTail->getVFInfo()
-                           : multi_llvm::Optional<VectorizationInfo>();
+  auto tailInfo =
+      emitTail ? barrierTail->getVFInfo() : std::optional<VectorizationInfo>();
 
   auto const workItemDim0 = 0;
   auto const workItemDim1 = 1;
@@ -1605,7 +1604,7 @@ Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
                               /*isVectorPredicated*/ false};
       }
     }
-    tailInfo = multi_llvm::None;
+    tailInfo = std::nullopt;
   }
 
   encodeWrapperFnMetadata(*new_wrapper, mainInfo, tailInfo);

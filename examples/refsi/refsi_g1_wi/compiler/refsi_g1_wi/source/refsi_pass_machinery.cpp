@@ -31,7 +31,6 @@
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <metadata/handler/vectorize_info_metadata.h>
-#include <multi_llvm/optional_helper.h>
 #include <refsi_g1_wi/refsi_pass_machinery.h>
 #include <refsi_g1_wi/refsi_wg_loop_pass.h>
 #include <riscv/ir_to_builtins_pass.h>
