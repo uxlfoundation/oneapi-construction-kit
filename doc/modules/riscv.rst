@@ -323,7 +323,7 @@ All but one of the passes are util or LLVM passes. The util ones are detailed
 
 * :ref:`compiler::utils::FixupCallingConventionPass <modules/compiler/utils:FixupCallingConventionPass>`
 
-* :ref:`compiler::utils::HandleBarriersPass <modules/compiler/utils:HandleBarriersPass>`
+* :ref:`compiler::utils::WorkItemLoopsPass <modules/compiler/utils:WorkItemLoopsPass>`
 
 * :ref:`compiler::utils::AddSchedulingParametersPass <modules/compiler/utils:AddSchedulingParametersPass>`
 

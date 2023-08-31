@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: muxc --passes barriers-pass,verify -S %s  | FileCheck %s
+; RUN: muxc --passes work-item-loops,verify -S %s  | FileCheck %s
 
 ; This test checks the validity of a set of main/tail loops in conjunction with
 ; the 'linear' work-item order. The sub-group IVs must be carefully managed

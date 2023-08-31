@@ -26,7 +26,6 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
-#include <compiler/utils/handle_barriers_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/metadata_analysis.h>
@@ -39,6 +38,7 @@
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/unique_opaque_structs_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
+#include <compiler/utils/work_item_loops_pass.h>
 #include <host/add_entry_hook_pass.h>
 #include <host/add_floating_point_control_pass.h>
 #include <host/disable_neon_attribute_pass.h>
@@ -261,10 +261,10 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
 
   addLateBuiltinsPasses(PM, tuner);
 
-  compiler::utils::HandleBarriersOptions HBOpts;
-  HBOpts.IsDebug = options.opt_disable;
+  compiler::utils::WorkItemLoopsPassOptions WIOpts;
+  WIOpts.IsDebug = options.opt_disable;
 
-  PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
+  PM.addPass(compiler::utils::WorkItemLoopsPass(WIOpts));
 
   PM.addPass(compiler::utils::AddSchedulingParametersPass());
 

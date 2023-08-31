@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: muxc --passes barriers-pass,verify -S %s | FileCheck %s
+; RUN: muxc --passes work-item-loops,verify -S %s | FileCheck %s
 
 ; It checks to make sure that the variable used by the barrier is reloaded from
 ; the barrier struct for use in the newly-created Memory Barrier call in the

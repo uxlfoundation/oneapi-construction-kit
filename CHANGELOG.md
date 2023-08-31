@@ -16,6 +16,8 @@ Upgrade guidance:
   integer arguments, not as integer arguments disguised as pointer values.
 * The `compiler::utils::ReplaceBarriersPass` has been replaced with the
   `compiler::utils::LowerToMuxBuiltinsPass`.
+* The `compiler::utils::HandleBarriersPass` has been renamed to the
+  `compiler::utils::WorkItemLoopsPass`.
 
 ## Version 3.0.0
 

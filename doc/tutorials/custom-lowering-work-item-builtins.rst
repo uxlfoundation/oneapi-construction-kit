@@ -259,9 +259,9 @@ Example #2
 Alternatively, it is possible to exploit the default lowering of
 ``__mux_get_local_id``. The default scheduling parameter ``MuxWorkItemInfo``
 has a three-dimensional field to hold local ID values. In the default
-compilation pipeline, these values are set by the :ref:`HandleBarriersPass
-<modules/compiler/utils:HandleBarriersPass>`. This pass maps all work-items of
-a work-group to run on a single hardware thread by making the implicit
+compilation pipeline, these values are set by the :ref:`WorkItemLoopsPass
+<modules/compiler/utils:WorkItemLoopsPass>`. This pass maps all work-items of a
+work-group to run on a single hardware thread by making the implicit
 parallelism model explicit, inserting three-dimensional loops over a work-group
 and calling ``__mux_set_local_id`` in every work-item loop iteration before
 calling the original kernel function. If the target does not run this pass and
@@ -486,6 +486,6 @@ the above examples:
 * Examples #2 and #3 could be combined to result in a third 64-bit integer
   ``ThreadID`` scheduling parameter whose value is initialized by the
   ``AddKernelWrapperPass``, rather than being passed to the kernel.
-* Targets using the ``HandleBarriersPass`` could customize the lowering of
+* Targets using the ``WorkItemLoopsPass`` could customize the lowering of
   ``__mux_set_local_id`` akin to example #1 to set a target-specific reserved
   register which is then read by ``__mux_get_local_id``.

@@ -16,10 +16,10 @@
 
 /// @file
 ///
-/// Barriers pass.
+/// Work-item loops pass, splitting into "barrier regions"
 
-#ifndef COMPILER_UTILS_HANDLE_BARRIERS_PASS_H_INCLUDED
-#define COMPILER_UTILS_HANDLE_BARRIERS_PASS_H_INCLUDED
+#ifndef COMPILER_UTILS_WORK_ITEM_LOOPS_PASS_H_INCLUDED
+#define COMPILER_UTILS_WORK_ITEM_LOOPS_PASS_H_INCLUDED
 
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/metadata.h>
@@ -40,7 +40,7 @@ namespace utils {
 class BuiltinInfo;
 class BarrierWithLiveVars;
 
-struct HandleBarriersOptions {
+struct WorkItemLoopsPassOptions {
   /// @brief Set to true if the pass should add extra alloca
   /// instructions to preserve the values of variables between barriers.
   bool IsDebug = false;
@@ -50,31 +50,31 @@ struct HandleBarriersOptions {
   bool ForceNoTail = false;
 };
 
-/// @brief The "handle barriers" pass.
+/// @brief The "work-item loops" pass.
 ///
-/// The handle barriers pass assumes that:
+/// This pass adds loops around implicitly SIMT kernels such that the original
+/// kernel is wrapped in a new function that runs over each work-item in the
+/// work-group and calls the original kernel: the scheduling model thus becomes
+/// explicit.
 ///
-/// * `__mux_get_local_size` is a function in the module (corresponding to
-///   OpenCL's get_local_size builtin)
-/// * If `_Z13get_global_idj` or `_Z12get_local_idj` functions are in the
-///   module, then a corresponding `__mux_set_local_id` function is also in the
-///   module, with the following function signature:
-///   `void __mux_set_local_id(uint_t index, size_t value);`
-/// * Any functions containing barriers have already been inlined into the
-///   kernel. Run PrepareBarriersPass first to ensure this.
+/// The work-item loops pass assumes that:
 ///
-/// The handle barriers pass will query a kernel function for the
-/// `reqd_work_group_size` metadata and optimize accordingly in the presence of
-/// it.
+/// * Any functions containing barrier-like functions have already been inlined
+/// into the kernel entry points
+/// * the IDs of pairs of barrier-like functions align between 'main' and 'tail
+/// kernels.
 ///
+/// Both of these can be achieved by first running the PrepareBarriersPass.
+///
+/// The pass will query a kernel function for the `reqd_work_group_size`
+/// metadata and optimize accordingly in the presence of it.
 ///
 /// Runs over all kernels with "kernel entry point" metadata. Work-item orders
 /// are sourced from the "work item order" function metadata on each kernel.
-class HandleBarriersPass final
-    : public llvm::PassInfoMixin<HandleBarriersPass> {
+class WorkItemLoopsPass final : public llvm::PassInfoMixin<WorkItemLoopsPass> {
  public:
   /// @brief Constructor.
-  HandleBarriersPass(const HandleBarriersOptions &Options)
+  WorkItemLoopsPass(const WorkItemLoopsPassOptions &Options)
       : IsDebug(Options.IsDebug), ForceNoTail(Options.ForceNoTail) {}
 
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
@@ -114,4 +114,4 @@ class HandleBarriersPass final
 }  // namespace utils
 }  // namespace compiler
 
-#endif  // COMPILER_UTILS_HANDLE_BARRIERS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_WORK_ITEM_LOOPS_PASS_H_INCLUDED

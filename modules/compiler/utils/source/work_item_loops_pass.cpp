@@ -18,9 +18,9 @@
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/group_collective_helpers.h>
-#include <compiler/utils/handle_barriers_pass.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/vectorization_factor.h>
+#include <compiler/utils/work_item_loops_pass.h>
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
@@ -35,14 +35,14 @@
 
 using namespace llvm;
 
-#define NDEBUG_BARRIER
-#define DEBUG_TYPE "ca-barriers"
+#define NDEBUG_WI_LOOPS
+#define DEBUG_TYPE "work-item-loops"
 
 namespace compiler {
 namespace utils {
 
 /// @brief A subclass of the generic Barrier which is used by the
-/// HandleBarriersPass.
+/// WorkItemLoopsPass.
 ///
 /// It adds additional fields used when creating wrapper kernels.
 class BarrierWithLiveVars : public Barrier {
@@ -98,7 +98,7 @@ class BarrierWithLiveVars : public Barrier {
 }  // namespace compiler
 
 namespace {
-#ifndef NDEBUG_BARRIER
+#ifndef NDEBUG_WI_LOOPS
 /// @brief Generate IR level printf function call Debug function only.
 ///
 /// @param[in] format Format string string.
@@ -156,7 +156,7 @@ Instruction *IRPrintf(const std::string format, Module &module, Value *v,
 
   return call;
 }
-#endif  // NDEBUG_BARRIER
+#endif  // NDEBUG_WI_LOOPS
 
 Value *materializeVF(IRBuilder<> &builder,
                      compiler::utils::VectorizationFactor vf) {
@@ -363,9 +363,9 @@ struct ScheduleGenerator {
     ci->setCallingConv(subkernel.getCallingConv());
     ci->setAttributes(compiler::utils::getCopiedFunctionAttrs(subkernel));
 
-#ifndef NDEBUG_BARRIER
+#ifndef NDEBUG_WI_LOOPS
     IRPrintf(std::string("return.kernel.body=%d\x0A"), module, ci, block);
-#endif  // NDEBUG_BARRIER
+#endif  // NDEBUG_WI_LOOPS
 
     // And update the location of where we need to go to next (if we need to)
     auto const &successors = barrier.getSuccessorIds(i);
@@ -1205,7 +1205,7 @@ void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
 
 }  // namespace
 
-Function *compiler::utils::HandleBarriersPass::makeWrapperFunction(
+Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     BarrierWithLiveVars &barrierMain, BarrierWithLiveVars *barrierTail,
     StringRef baseName, Module &M, compiler::utils::BuiltinInfo &BI) {
   Function &mainF = barrierMain.getFunc();
@@ -1631,7 +1631,7 @@ struct BarrierWrapperInfo {
   std::optional<compiler::utils::VectorizationInfo> TailInfo = std::nullopt;
 };
 
-PreservedAnalyses compiler::utils::HandleBarriersPass::run(
+PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     Module &M, ModuleAnalysisManager &MAM) {
   // Cache the functions we're interested in as this pass introduces new ones
   // which we don't want to run over.

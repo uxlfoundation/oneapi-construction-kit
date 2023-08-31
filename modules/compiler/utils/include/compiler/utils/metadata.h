@@ -124,7 +124,7 @@ void dropVeczOrigMetadata(llvm::Function &f);
 void dropVeczDerivedMetadata(llvm::Function &f);
 
 /// @brief Encodes metadata indicating the various components that constitute a
-/// kernel function wrapped with the HandleBarriers pass.
+/// kernel function wrapped with the WorkItemLoopsPass.
 ///
 /// @param[in] f Function in which to encode the metadata.
 /// @param[in] simdDimIdx The dimension (0,1,2) along which vectorization took
