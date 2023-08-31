@@ -35,7 +35,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_kernel_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/fixup_calling_convention_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/group_collective_helpers.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/handle_barriers_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/link_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/llvm_global_mutex.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/lower_to_mux_builtins_pass.h
@@ -69,6 +68,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/unique_opaque_structs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/vectorization_factor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/verify_reqd_sub_group_size_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/work_item_loops_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/add_kernel_wrapper_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/add_scheduling_parameters_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/align_module_structs_pass.cpp
@@ -85,7 +85,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_kernel_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fixup_calling_convention_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/group_collective_helpers.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/handle_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/link_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/llvm_global_mutex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lower_to_mux_builtins_pass.cpp
@@ -115,7 +114,8 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/scheduling.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/target_extension_types.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 
 target_include_directories(compiler-utils PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include)

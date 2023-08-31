@@ -54,8 +54,8 @@ struct BasePassPipelineTuner {
   /// @brief Whether or not to generate code for degenerate sub groups.
   bool degenerate_sub_groups = false;
 
-  /// @brief Whether or not the Handle Barriers Pass is going to be run.
-  bool handling_barriers = true;
+  /// @brief Whether or not the WorkItemLoopsPass is going to be run.
+  bool handling_work_item_loops = true;
 
   /// @brief The desired target calling convention, used to configure the
   /// FixupCallingConvention pass.

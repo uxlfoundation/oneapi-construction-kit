@@ -203,7 +203,7 @@ enum BuiltinProperties : int32_t {
   eBuiltinPropertyAtomic = (1 << 13),
   /// @brief The builtin is rematerializable on the other side of a barrier
   ///
-  /// The HandleBarriersPass queries this property to prune the number of live
+  /// The WorkItemLoopsPass queries this property to prune the number of live
   /// variables that are stored and passed between barrier regions. Calls to
   /// rematerializable builtins are removed from the live variable structure,
   /// and are re-inserted into each barrier region that requires their results.

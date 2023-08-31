@@ -20,7 +20,6 @@
 #include <compiler/utils/align_module_structs_pass.h>
 #include <compiler/utils/cl_builtin_info.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
-#include <compiler/utils/handle_barriers_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
@@ -28,6 +27,7 @@
 #include <compiler/utils/replace_mem_intrinsics_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
+#include <compiler/utils/work_item_loops_pass.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Transforms/Utils/Cloning.h>
@@ -136,10 +136,10 @@ llvm::ModulePassManager RefSiM1PassMachinery::getLateTargetPasses() {
 
   addLateBuiltinsPasses(PM, tuner);
 
-  compiler::utils::HandleBarriersOptions HBOpts;
-  HBOpts.IsDebug = options.opt_disable;
-  HBOpts.ForceNoTail = env_var_opts.force_no_tail;
-  PM.addPass(compiler::utils::HandleBarriersPass(HBOpts));
+  compiler::utils::WorkItemLoopsPassOptions WIOpts;
+  WIOpts.IsDebug = options.opt_disable;
+  WIOpts.ForceNoTail = env_var_opts.force_no_tail;
+  PM.addPass(compiler::utils::WorkItemLoopsPass(WIOpts));
 
   compiler::addPrepareWorkGroupSchedulingPasses(PM);
 

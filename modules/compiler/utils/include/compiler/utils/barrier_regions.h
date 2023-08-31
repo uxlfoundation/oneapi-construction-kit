@@ -16,10 +16,10 @@
 
 /// @file
 ///
-/// Barriers pass.
+/// Barrier regions, used by the WorkItemLoopsPass.
 
-#ifndef COMPILER_UTILS_HANDLE_BARRIER_REGIONS_H_INCLUDED
-#define COMPILER_UTILS_HANDLE_BARRIER_REGIONS_H_INCLUDED
+#ifndef COMPILER_UTILS_BARRIER_REGIONS_H_INCLUDED
+#define COMPILER_UTILS_BARRIER_REGIONS_H_INCLUDED
 
 #include <compiler/utils/attributes.h>
 #include <llvm/ADT/DenseSet.h>

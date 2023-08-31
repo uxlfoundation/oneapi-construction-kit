@@ -1231,7 +1231,7 @@ pipeline:
      - various (incl. *vectorization options*)
      - Information about a *kernel entry point* regarding its work-item
        iteration over *sub-kernels* as stitched together by the
-       ``HandleBarriersPass`` pass in the ``compiler::utils`` module. Typically
+       ``WorkItemLoopsPass`` pass in the ``compiler::utils`` module. Typically
        this involves the loop structure, the vectorization width and options of
        each loop.
    * - ``!codeplay_ca_vecz.base``

@@ -39,7 +39,6 @@
 #include <compiler/utils/encode_builtin_range_metadata_pass.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
-#include <compiler/utils/handle_barriers_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
@@ -63,6 +62,7 @@
 #include <compiler/utils/simple_callback_pass.h>
 #include <compiler/utils/unique_opaque_structs_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
+#include <compiler/utils/work_item_loops_pass.h>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/Support/FormatVariadic.h>
@@ -354,9 +354,9 @@ Expected<CallingConv::ID> parseFixupCallingConventionPassOptions(
   return Result;
 }
 
-Expected<compiler::utils::HandleBarriersOptions> parseHandleBarrierPassOptions(
-    StringRef Params) {
-  compiler::utils::HandleBarriersOptions Opts;
+Expected<compiler::utils::WorkItemLoopsPassOptions>
+parseWorkItemLoopsPassOptions(StringRef Params) {
+  compiler::utils::WorkItemLoopsPassOptions Opts;
 
   while (!Params.empty()) {
     StringRef ParamName;

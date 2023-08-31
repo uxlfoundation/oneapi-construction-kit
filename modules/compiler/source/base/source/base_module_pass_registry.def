@@ -124,19 +124,19 @@ MODULE_PASS_WITH_PARAMS(
     parseFixupCallingConventionPassOptions, "call-conv")
 
 MODULE_PASS_WITH_PARAMS(
-    "barriers-pass", "compiler::utils::HandleBarriersPass",
-    [](compiler::utils::HandleBarriersOptions Options) {
-      return compiler::utils::HandleBarriersPass(Options);
-    },
-    parseHandleBarrierPassOptions,
-    "debug;no-tail")
-
-MODULE_PASS_WITH_PARAMS(
     "reduce-to-func", "compiler::utils::ReduceToFunctionPass",
     [](const std::vector<llvm::StringRef> &Names) {
       return compiler::utils::ReduceToFunctionPass(Names);
     },
     parseReduceToFunctionPassOptions, "names=A:B:C:...")
+
+MODULE_PASS_WITH_PARAMS(
+    "work-item-loops", "compiler::utils::WorkItemLoopsPass",
+    [](compiler::utils::WorkItemLoopsPassOptions Options) {
+      return compiler::utils::WorkItemLoopsPass(Options);
+    },
+    parseWorkItemLoopsPassOptions,
+    "debug;no-tail")
 
 #ifndef MODULE_ANALYSIS
 #define MODULE_ANALYSIS(NAME, CREATE_PASS)

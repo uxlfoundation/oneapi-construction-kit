@@ -14,7 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: muxc --device "%default_device" --passes run-vecz,barriers-pass -S %s  | FileCheck %s
+; RUN: muxc --device "%default_device" --passes run-vecz,work-item-loops -S %s  | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

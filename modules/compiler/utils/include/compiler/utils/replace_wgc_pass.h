@@ -33,10 +33,10 @@ namespace utils {
 ///
 /// This pass introduces barrier calls into the work-group collective
 /// definitions so must be run before the PrepareBarriersPass and
-/// HandleBarriersPass on any target making use of these passes. This pass also
-/// introduces global variables into the module in the __local address space and
-/// therefore must be run before the ReplaceLocalModuleScopeVariablesPass on any
-/// target making use of that pass.
+/// WorkItemLoopsPass on any target making use of these passes. This pass also
+/// introduces global variables into the module in the __local address space
+/// and therefore must be run before the ReplaceLocalModuleScopeVariablesPass
+/// on any target making use of that pass.
 ///
 /// The constructor for this pass takes a boolean value indicating whether or
 /// not only Work Group Collective Scan operations should be processed. This is

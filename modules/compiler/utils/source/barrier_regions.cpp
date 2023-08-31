@@ -41,7 +41,7 @@
 using namespace llvm;
 
 #define NDEBUG_BARRIER
-#define DEBUG_TYPE "ca-barriers"
+#define DEBUG_TYPE "barrier-regions"
 
 namespace {
 using AlignIntTy = uint64_t;
