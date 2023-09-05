@@ -2362,6 +2362,7 @@ set(SPVASM_FILES
   op_opencl_arg_md.spvasm
   unsupported_capability.spvasm
   op_get_kernel_preferred_work_group_size_multiple.spvasm
+  invalid_storage_class.spvasm
   )
 
 if(SpirvAsVersionYear GREATER 2019)

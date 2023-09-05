@@ -2583,6 +2583,11 @@ cargo::optional<Error> Builder::create<OpVariable>(const OpVariable *op) {
         case spv::StorageClassFunction: {
           // Visible only within the declaring function of the current
           // invocation. Regular function memory.
+          if (!IRBuilder.GetInsertBlock()) {
+            return Error{
+                "invalid SPIR-V: variables can not have a function[7] "
+                "storage class outside of a function"};
+          }
           value = IRBuilder.CreateAlloca(varTy);
           value->setName(name);
           if (initializer) {
