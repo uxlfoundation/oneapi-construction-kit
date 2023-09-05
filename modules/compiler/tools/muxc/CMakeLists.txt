@@ -14,8 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-llvm_map_components_to_libnames(llvm_libs all ${LLVM_TARGETS_TO_BUILD})
-
 add_ca_executable(muxc
   ${CMAKE_CURRENT_SOURCE_DIR}/muxc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/muxc.cpp
