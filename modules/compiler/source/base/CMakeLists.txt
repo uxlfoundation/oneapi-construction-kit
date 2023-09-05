@@ -70,9 +70,27 @@ target_include_directories(compiler-base PUBLIC
 target_include_directories(compiler-base SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include)
 
+# Explicitly link against the individual static versions of the clang
+# libraries, as if clang was built with LLVM_LINK_LLVM_DYLIB=ON, then the
+# 'clangCodeGen' library target brings in the 'LLVM' dynamic library. It is
+# not safe for us to link with LLVM's dynamic library, due to LLVM's use of
+# global/static state.
+foreach(CLANG_LIB "clangCodeGen" "clangFrontend" "clangDriver"
+                  "clangParse" "clangSerialization" "clangSema"
+                  "clangAnalysis" "clangAST" "clangEdit" "clangASTMatchers"
+                  "clangLex" "clangBasic" "clangSupport")
+  list(APPEND CLANG_LIBS
+    "${CA_LLVM_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${CLANG_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endforeach()
+
 target_link_libraries(compiler-base PUBLIC
   builtins cargo mux spirv-ll compiler-utils vecz
-  clangCodeGen LLVMCodeGen LLVMCoroutines LLVMCoverage LLVMLTO)
+  "${CLANG_LIBS}"
+  # Link against version (for clang) on Windows.
+  $<$<BOOL:${WIN32}>:version>
+  LLVMCodeGen LLVMOption LLVMCoroutines LLVMCoverage LLVMLTO LLVMWindowsDriver
+  "$<$<VERSION_GREATER:${LLVM_VERSION_MAJOR},15>:LLVMFrontendHLSL>"
+)
 
 target_compile_definitions(compiler-base PRIVATE
   # Abacus builtins are only included as part of the .cpp files, so these
