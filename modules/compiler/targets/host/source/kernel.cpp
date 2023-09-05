@@ -335,6 +335,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                  /*data_size*/ 0);
       }
+      llvm::consumeError(std::move(err));
       return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
     }
     // Register this JITDylib so we can clear up its resources later.
@@ -362,6 +363,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                  /*data_size*/ 0);
       }
+      llvm::consumeError(std::move(err));
       return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
     }
 
@@ -373,6 +375,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                  /*data_size*/ 0);
       }
+      llvm::consumeError(std::move(err));
       return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
     }
 
@@ -388,6 +391,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
           callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                    /*data_size*/ 0);
         }
+        llvm::consumeError(std::move(err));
         return cargo::make_unexpected(
             compiler::Result::FINALIZE_PROGRAM_FAILURE);
       }
