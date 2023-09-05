@@ -444,3 +444,59 @@ TEST_F(GroupOpsTest, OpenCLSubgroupOps) {
 TEST_F(GroupOpsTest, OpenCLWorkgroupOps) {
   doTestBody<GroupCollective::ScopeKind::WorkGroup>();
 }
+
+TEST_F(GroupOpsTest, SubgroupShuffles) {
+  auto M = std::make_unique<llvm::Module>("test", Context);
+  auto &BI = PassMach->getMAM().getResult<BuiltinInfoAnalysis>(*M);
+  ASSERT_TRUE(M);
+
+  Type *const I32Ty = Type::getInt32Ty(Context);
+  Type *const F16Ty = Type::getHalfTy(Context);
+
+  auto *Shuff =
+      BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffle, *M, {F16Ty});
+  ASSERT_TRUE(Shuff);
+  EXPECT_TRUE(Shuff->getReturnType() == F16Ty && Shuff->arg_size() == 2 &&
+              Shuff->getArg(0)->getType() == F16Ty &&
+              Shuff->getArg(1)->getType() == I32Ty);
+  auto BIShuff = BI.analyzeBuiltin(*Shuff);
+  EXPECT_TRUE(BIShuff.isValid() && BIShuff.ID == eMuxBuiltinSubgroupShuffle &&
+              BIShuff.mux_overload_info.size() == 1 &&
+              *BIShuff.mux_overload_info.begin() == F16Ty);
+
+  auto *ShuffXor =
+      BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffleXor, *M, {F16Ty});
+  ASSERT_TRUE(ShuffXor);
+  EXPECT_TRUE(ShuffXor->getReturnType() == F16Ty && ShuffXor->arg_size() == 2 &&
+              ShuffXor->getArg(0)->getType() == F16Ty &&
+              ShuffXor->getArg(1)->getType() == I32Ty);
+  auto BIXor = BI.analyzeBuiltin(*ShuffXor);
+  EXPECT_TRUE(BIXor.isValid() && BIXor.ID == eMuxBuiltinSubgroupShuffleXor &&
+              BIXor.mux_overload_info.size() == 1 &&
+              *BIXor.mux_overload_info.begin() == F16Ty);
+
+  auto *ShuffUp =
+      BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffleUp, *M, {F16Ty});
+  ASSERT_TRUE(ShuffUp);
+  EXPECT_TRUE(ShuffUp->getReturnType() == F16Ty && ShuffUp->arg_size() == 3 &&
+              ShuffUp->getArg(0)->getType() == F16Ty &&
+              ShuffUp->getArg(1)->getType() == F16Ty &&
+              ShuffUp->getArg(2)->getType() == I32Ty);
+  auto BIUp = BI.analyzeBuiltin(*ShuffUp);
+  EXPECT_TRUE(BIUp.isValid() && BIUp.ID == eMuxBuiltinSubgroupShuffleUp &&
+              BIUp.mux_overload_info.size() == 1 &&
+              *BIUp.mux_overload_info.begin() == F16Ty);
+
+  auto *ShuffDown =
+      BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffleDown, *M, {F16Ty});
+  ASSERT_TRUE(ShuffDown);
+  EXPECT_TRUE(ShuffDown->getReturnType() == F16Ty &&
+              ShuffDown->arg_size() == 3 &&
+              ShuffDown->getArg(0)->getType() == F16Ty &&
+              ShuffDown->getArg(1)->getType() == F16Ty &&
+              ShuffDown->getArg(2)->getType() == I32Ty);
+  auto BIDown = BI.analyzeBuiltin(*ShuffDown);
+  EXPECT_TRUE(BIDown.isValid() && BIDown.ID == eMuxBuiltinSubgroupShuffleDown &&
+              BIDown.mux_overload_info.size() == 1 &&
+              *BIDown.mux_overload_info.begin() == F16Ty);
+}

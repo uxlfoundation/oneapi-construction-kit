@@ -1,0 +1,141 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; REQUIRES: spirv-as-v2022+
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 \
+; RUN:   -c GenericPointer -c SubgroupShuffleINTEL \
+; RUN:   -e SPV_INTEL_subgroups %spv_file_s | FileCheck %s
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Float16Buffer
+               OpCapability Int64
+               OpCapability GenericPointer
+               OpCapability Int8
+               OpCapability SubgroupShuffleINTEL
+               OpExtension "SPV_INTEL_subgroups"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %31 "permute_sub_group_kernel" %permute_sub_group_kernel %__spirv_BuiltInSubgroupSize %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInWorkgroupSize
+               OpSource OpenCL_CPP 100000
+               OpName %entry "entry"
+               OpName %for_cond_i "for.cond.i"
+               OpName %for_body_i "for.body.i"
+               OpName %exit_label "exit"
+               OpDecorate %permute_sub_group_kernel LinkageAttributes "permute_sub_group_kernel" Import
+               OpDecorate %permute_sub_group_kernel Constant
+               OpDecorate %permute_sub_group_kernel BuiltIn SubgroupLocalInvocationId
+               OpDecorate %permute_sub_group_kernel Alignment 4
+               OpDecorate %__spirv_BuiltInSubgroupSize LinkageAttributes "__spirv_BuiltInSubgroupSize" Import
+               OpDecorate %__spirv_BuiltInSubgroupSize Constant
+               OpDecorate %__spirv_BuiltInSubgroupSize BuiltIn SubgroupSize
+               OpDecorate %__spirv_BuiltInSubgroupSize Alignment 4
+               OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
+               OpDecorate %__spirv_BuiltInLocalInvocationId Constant
+               OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
+               OpDecorate %__spirv_BuiltInLocalInvocationId Alignment 32
+               OpDecorate %__spirv_BuiltInWorkgroupSize LinkageAttributes "__spirv_BuiltInWorkgroupSize" Import
+               OpDecorate %__spirv_BuiltInWorkgroupSize Constant
+               OpDecorate %__spirv_BuiltInWorkgroupSize BuiltIn WorkgroupSize
+               OpDecorate %__spirv_BuiltInWorkgroupSize Alignment 32
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %_arg_res_acc Alignment 1
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+      %uchar = OpTypeInt 8 0
+  %ulong_129 = OpConstant %ulong 129
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %uchar_0 = OpConstant %uchar 0
+    %uchar_1 = OpConstant %uchar 1
+     %uint_2 = OpConstant %uint 2
+    %ulong_3 = OpConstant %ulong 3
+    %ulong_2 = OpConstant %ulong 2
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+    %v3ulong = OpTypeVector %ulong 3
+    %_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+%_ptr_CrossWorkgroup_v3ulong = OpTypePointer CrossWorkgroup %v3ulong
+%_arr_uchar_ulong_129 = OpTypeArray %uchar %ulong_129
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
+         %30 = OpTypeFunction %void %_ptr_CrossWorkgroup_uchar
+%_ptr_Function_ulong = OpTypePointer Function %ulong
+      %float = OpTypeFloat 32
+       %half = OpTypeFloat 16
+       %bool = OpTypeBool
+%_arr_ulong_ulong_3 = OpTypeArray %ulong %ulong_3
+%_ptr_Function__arr_ulong_ulong_3 = OpTypePointer Function %_arr_ulong_ulong_3
+%_ptr_Generic__arr_ulong_ulong_3 = OpTypePointer Generic %_arr_ulong_ulong_3
+%_ptr_Function_uchar = OpTypePointer Function %uchar
+        %203 = OpTypeFunction %void %_ptr_Generic__arr_ulong_ulong_3 %ulong %uint
+        %228 = OpTypeFunction %void %_ptr_Generic__arr_ulong_ulong_3 %ulong
+%permute_sub_group_kernel = OpVariable %_ptr_CrossWorkgroup_uint CrossWorkgroup
+%__spirv_BuiltInSubgroupSize = OpVariable %_ptr_CrossWorkgroup_uint CrossWorkgroup
+%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_CrossWorkgroup_v3ulong CrossWorkgroup
+%__spirv_BuiltInWorkgroupSize = OpVariable %_ptr_CrossWorkgroup_v3ulong CrossWorkgroup
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+       %true = OpConstantTrue %bool
+
+         %31 = OpFunction %void None %30
+%_arg_res_acc = OpFunctionParameter %_ptr_CrossWorkgroup_uchar
+      %entry = OpLabel
+         %26 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+         %43 = OpCompositeExtract %ulong %26 0
+         %45 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInWorkgroupSize %uint_0 %uint_0
+         %46 = OpLoad %ulong %45 Aligned 32
+         %48 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_1
+         %49 = OpLoad %ulong %48 Aligned 8
+         %50 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_0
+         %51 = OpLoad %ulong %50 Aligned 32
+         %52 = OpLoad %uint %permute_sub_group_kernel Aligned 4
+      %add_i = OpIAdd %uint %52 %uint_1
+%conv_i_i_i_i = OpConvertUToF %float %add_i
+%conv_i_i_i_i_i = OpFConvert %half %conv_i_i_i_i
+         %58 = OpLoad %uint %__spirv_BuiltInSubgroupSize Aligned 4
+               OpBranch %for_cond_i
+ %for_cond_i = OpLabel
+    %res_0_i = OpPhi %bool %true %entry %and26_i %for_body_i
+   %mask_0_i = OpPhi %uint %uint_1 %entry %shl_i %for_body_i
+  %cmp_not_i = OpIEqual %bool %mask_0_i %uint_0
+               OpBranchConditional %cmp_not_i %exit_label %for_body_i
+
+; CHECK-LABEL: for.cond.i:
+; CHECK: call spir_func half @__mux_sub_group_shuffle_xor_f16(half %{{.*}}, i32 %{{.*}})
+
+ %for_body_i = OpLabel
+%call3_i_i_i = OpSubgroupShuffleXorINTEL %half %conv_i_i_i_i_i %mask_0_i
+      %xor_i = OpBitwiseXor %uint %52 %mask_0_i
+     %add5_i = OpIAdd %uint %xor_i %uint_1
+%conv_i_i_i32_i = OpConvertUToF %float %add5_i
+%conv_i_i_i_i33_i = OpFConvert %half %conv_i_i_i32_i
+%cmp_i_i_i_i = OpFOrdEqual %bool %call3_i_i_i %conv_i_i_i_i33_i
+     %cmp9_i = OpUGreaterThanEqual %bool %xor_i %58
+         %73 = OpSelect %bool %cmp_i_i_i_i %true %cmp9_i
+    %and26_i = OpLogicalAnd %bool %res_0_i %73
+      %shl_i = OpShiftLeftLogical %uint %mask_0_i %uint_1
+               OpBranch %for_cond_i
+%exit_label = OpLabel
+  %add_ptr_i = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uchar %_arg_res_acc %43
+%mul_i_i_i_i = OpIMul %ulong %49 %46
+%add_i_i_i_i = OpIAdd %ulong %mul_i_i_i_i %51
+%arrayidx_i_i = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uchar %add_ptr_i %add_i_i_i_i
+%frombool17_i = OpSelect %uchar %res_0_i %uchar_1 %uchar_0
+               OpStore %arrayidx_i_i %frombool17_i Aligned 1
+               OpReturn
+               OpFunctionEnd

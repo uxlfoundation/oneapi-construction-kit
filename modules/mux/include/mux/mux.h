@@ -37,7 +37,7 @@ extern "C" {
 /// @brief Mux major version number.
 #define MUX_MAJOR_VERSION 0
 /// @brief Mux minor version number.
-#define MUX_MINOR_VERSION 78
+#define MUX_MINOR_VERSION 79
 /// @brief Mux patch version number.
 #define MUX_PATCH_VERSION 0
 /// @brief Mux combined version number.

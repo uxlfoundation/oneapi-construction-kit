@@ -29,7 +29,7 @@ extern "C" {
 /// @brief Host major version number.
 #define HOST_MAJOR_VERSION 0
 /// @brief Host minor version number.
-#define HOST_MINOR_VERSION 78
+#define HOST_MINOR_VERSION 79
 /// @brief Host patch version number.
 #define HOST_PATCH_VERSION 0
 /// @brief Host combined version number.

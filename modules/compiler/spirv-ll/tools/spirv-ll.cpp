@@ -24,6 +24,7 @@
 #include <spirv-ll/builder.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
+#include <spirv/unified1/spirv.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -480,6 +481,7 @@ cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
         "SPV_KHR_uniform_group_instructions",
         "SPV_INTEL_optnone",
         "SPV_INTEL_memory_access_aliasing",
+        "SPV_INTEL_subgroups",
     });
   } else {
     for (auto extension : extensions) {

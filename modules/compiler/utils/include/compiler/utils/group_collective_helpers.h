@@ -69,6 +69,10 @@ struct GroupCollective {
     ScanInclusive,
     ScanExclusive,
     Broadcast,
+    Shuffle,
+    ShuffleUp,
+    ShuffleDown,
+    ShuffleXor,
   };
 
   /// @brief The possible scopes of a group collective.
@@ -93,6 +97,10 @@ struct GroupCollective {
   bool isReduction() const { return Op == OpKind::Reduction; }
   /// @brief Returns true for broadcast collective operations.
   bool isBroadcast() const { return Op == OpKind::Broadcast; }
+  bool isShuffleLike() const {
+    return Op == OpKind::Shuffle || Op == OpKind::ShuffleUp ||
+           Op == OpKind::ShuffleDown || Op == OpKind::ShuffleXor;
+  }
   /// @brief Returns true for sub-group collective operations.
   bool isSubGroupScope() const { return Scope == ScopeKind::SubGroup; }
   /// @brief Returns true for work-group collective operations.

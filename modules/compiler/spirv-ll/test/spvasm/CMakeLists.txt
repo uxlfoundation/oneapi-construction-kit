@@ -2374,7 +2374,12 @@ endif()
 
 if (SpirvAsVersionYear GREATER_EQUAL 2022)
   list(APPEND SPVASM_FILES
-    intel_opt_none.spvasm)
+    intel_opt_none.spvasm
+    subgroup_shuffle_intel.spvasm
+    subgroup_shuffle_up_intel.spvasm
+    subgroup_shuffle_down_intel.spvasm
+    subgroup_shuffle_xor_intel.spvasm
+  )
 endif()
 
 if (SpirvAsVersionYear GREATER 2022)

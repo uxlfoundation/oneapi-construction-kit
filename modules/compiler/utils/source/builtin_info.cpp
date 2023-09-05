@@ -16,6 +16,7 @@
 
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/cl_builtin_info.h>
+#include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
@@ -130,6 +131,26 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
     ID = SCOPED_GROUP_OP(All);
   } else if (Name.consume_front("broadcast")) {
     ID = SCOPED_GROUP_OP(Broadcast);
+  } else if (Name.consume_front("shuffle_up")) {
+    if (!IsSubgroupOp) {
+      return {eBuiltinInvalid, {}};
+    }
+    ID = eMuxBuiltinSubgroupShuffleUp;
+  } else if (Name.consume_front("shuffle_down")) {
+    if (!IsSubgroupOp) {
+      return {eBuiltinInvalid, {}};
+    }
+    ID = eMuxBuiltinSubgroupShuffleDown;
+  } else if (Name.consume_front("shuffle_xor")) {
+    if (!IsSubgroupOp) {
+      return {eBuiltinInvalid, {}};
+    }
+    ID = eMuxBuiltinSubgroupShuffleXor;
+  } else if (Name.consume_front("shuffle")) {
+    if (!IsSubgroupOp) {
+      return {eBuiltinInvalid, {}};
+    }
+    ID = eMuxBuiltinSubgroupShuffle;
   } else if (Name.consume_front("reduce_")) {
     auto NextIdx = Name.find_first_of('_');
     std::string Group = Name.substr(0, NextIdx).str();
@@ -857,6 +878,14 @@ std::string BuiltinInfo::getMuxBuiltinName(BuiltinID ID,
         return "__mux_work_group_scan_inclusive_logical_xor";
       case CASE_GROUP_OP_ALL_SCOPES(ScanLogicalXorExclusive):
         return "__mux_work_group_scan_exclusive_logical_xor";
+      case eMuxBuiltinSubgroupShuffle:
+        return "__mux_work_group_shuffle";
+      case eMuxBuiltinSubgroupShuffleUp:
+        return "__mux_work_group_shuffle_up";
+      case eMuxBuiltinSubgroupShuffleDown:
+        return "__mux_work_group_shuffle_down";
+      case eMuxBuiltinSubgroupShuffleXor:
+        return "__mux_work_group_shuffle_xor";
     }
   }(ID);
 
@@ -1004,6 +1033,18 @@ std::optional<GroupCollective> BuiltinInfo::isMuxGroupCollective(BuiltinID ID) {
     case CASE_GROUP_OP_ALL_SCOPES(ScanXorExclusive):
       Collective.Op = GroupCollective::OpKind::ScanExclusive;
       break;
+    case eMuxBuiltinSubgroupShuffle:
+      Collective.Op = GroupCollective::OpKind::Shuffle;
+      break;
+    case eMuxBuiltinSubgroupShuffleUp:
+      Collective.Op = GroupCollective::OpKind::ShuffleUp;
+      break;
+    case eMuxBuiltinSubgroupShuffleDown:
+      Collective.Op = GroupCollective::OpKind::ShuffleDown;
+      break;
+    case eMuxBuiltinSubgroupShuffleXor:
+      Collective.Op = GroupCollective::OpKind::ShuffleXor;
+      break;
   }
 
   // Then the recurrence kind.
@@ -1090,7 +1131,7 @@ std::optional<GroupCollective> BuiltinInfo::isMuxGroupCollective(BuiltinID ID) {
         Collective.Recurrence = RecurKind::Xor;
         break;
     }
-  } else if (Collective.Op != GroupCollective::OpKind::Broadcast) {
+  } else if (!Collective.isBroadcast() && !Collective.isShuffleLike()) {
     llvm_unreachable("Unhandled mux group operation");
   }
 
@@ -1173,6 +1214,18 @@ BuiltinID BuiltinInfo::getMuxGroupCollective(const GroupCollective &Group) {
     case GroupCollective::OpKind::ScanInclusive:
       COMPLEX_SCOPE_SWITCH(Scan, Inclusive);
       break;
+    case GroupCollective::OpKind::Shuffle:
+      return Group.isSubGroupScope() ? eMuxBuiltinSubgroupShuffle
+                                     : eBuiltinInvalid;
+    case GroupCollective::OpKind::ShuffleUp:
+      return Group.isSubGroupScope() ? eMuxBuiltinSubgroupShuffleUp
+                                     : eBuiltinInvalid;
+    case GroupCollective::OpKind::ShuffleDown:
+      return Group.isSubGroupScope() ? eMuxBuiltinSubgroupShuffleDown
+                                     : eBuiltinInvalid;
+    case GroupCollective::OpKind::ShuffleXor:
+      return Group.isSubGroupScope() ? eMuxBuiltinSubgroupShuffleXor
+                                     : eBuiltinInvalid;
   }
   return eBuiltinInvalid;
 #undef COMPLEX_SCOPE_SWITCH

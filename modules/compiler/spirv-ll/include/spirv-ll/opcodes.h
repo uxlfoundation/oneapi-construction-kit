@@ -2516,6 +2516,44 @@ class OpGroupLogicalXorKHR
   OpGroupLogicalXorKHR(OpCode const &other) : OpGroupOperation(other) {}
 };
 
+class OpSubgroupShuffle : public OpResult {
+ public:
+  OpSubgroupShuffle(OpCode const &other)
+      : OpResult(other, spv::OpSubgroupShuffleINTEL) {}
+  spv::Id Data() const { return getValueAtOffset(3); }
+  spv::Id InvocationId() const { return getValueAtOffset(4); }
+  static const spv::Op ClassCode = spv::OpSubgroupShuffleINTEL;
+};
+
+class OpSubgroupShuffleUp : public OpResult {
+ public:
+  OpSubgroupShuffleUp(OpCode const &other)
+      : OpResult(other, spv::OpSubgroupShuffleUpINTEL) {}
+  spv::Id Previous() const { return getValueAtOffset(3); }
+  spv::Id Current() const { return getValueAtOffset(4); }
+  spv::Id Delta() const { return getValueAtOffset(5); }
+  static const spv::Op ClassCode = spv::OpSubgroupShuffleUpINTEL;
+};
+
+class OpSubgroupShuffleDown : public OpResult {
+ public:
+  OpSubgroupShuffleDown(OpCode const &other)
+      : OpResult(other, spv::OpSubgroupShuffleDownINTEL) {}
+  spv::Id Current() const { return getValueAtOffset(3); }
+  spv::Id Next() const { return getValueAtOffset(4); }
+  spv::Id Delta() const { return getValueAtOffset(5); }
+  static const spv::Op ClassCode = spv::OpSubgroupShuffleDownINTEL;
+};
+
+class OpSubgroupShuffleXor : public OpResult {
+ public:
+  OpSubgroupShuffleXor(OpCode const &other)
+      : OpResult(other, spv::OpSubgroupShuffleXorINTEL) {}
+  spv::Id Data() const { return getValueAtOffset(3); }
+  spv::Id Value() const { return getValueAtOffset(4); }
+  static const spv::Op ClassCode = spv::OpSubgroupShuffleXorINTEL;
+};
+
 class OpReadPipe : public OpResult {
  public:
   OpReadPipe(OpCode const &other) : OpResult(other, spv::OpReadPipe) {}

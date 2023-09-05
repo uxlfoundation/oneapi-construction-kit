@@ -124,12 +124,20 @@ enum BaseBuiltinID {
       eMuxBuiltin##SCOPE##groupScanLogicalOrInclusive,                         \
       eMuxBuiltin##SCOPE##groupScanLogicalOrExclusive,                         \
       eMuxBuiltin##SCOPE##groupScanLogicalXorInclusive,                        \
-      eLastMux##SCOPE##groupCollectiveBuiltin,                                 \
-      eMuxBuiltin##SCOPE##groupScanLogicalXorExclusive =                       \
-          eLastMux##SCOPE##groupCollectiveBuiltin
+      eMuxBuiltin##SCOPE##groupScanLogicalXorExclusive
   GROUP_BUILTINS(Work),
+  eLastMuxWorkgroupCollectiveBuiltin =
+      eMuxBuiltinWorkgroupScanLogicalXorExclusive,
   GROUP_BUILTINS(Sub),
+  // Extra subgroup shuffle operations
+  eMuxBuiltinSubgroupShuffle,
+  eMuxBuiltinSubgroupShuffleUp,
+  eMuxBuiltinSubgroupShuffleDown,
+  eMuxBuiltinSubgroupShuffleXor,
+  eLastMuxSubgroupCollectiveBuiltin = eMuxBuiltinSubgroupShuffleXor,
   GROUP_BUILTINS(Vec),
+  eLastMuxVecgroupCollectiveBuiltin =
+      eMuxBuiltinVecgroupScanLogicalXorExclusive,
 
   // Marker - target builtins should start from here.
   eFirstTargetBuiltin,
