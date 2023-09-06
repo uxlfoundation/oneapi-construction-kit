@@ -38,6 +38,8 @@
 #include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/multi_llvm.h>
 
+#include <optional>
+
 using namespace llvm;
 
 #define NDEBUG_BARRIER
@@ -48,17 +50,20 @@ using AlignIntTy = uint64_t;
 
 /// @brief it returns true if and only if the instruction is a work group
 /// collective call, and returns false otherwise.
-bool isWorkGroupCollectiveCall(Instruction *inst,
-                               compiler::utils::BuiltinInfo &bi) {
+std::optional<compiler::utils::GroupCollective> getWorkGroupCollectiveCall(
+    Instruction *inst, compiler::utils::BuiltinInfo &bi) {
   auto *const ci = dyn_cast_or_null<CallInst>(inst);
   if (!ci) {
-    return false;
+    return std::nullopt;
   }
 
   Function *callee = ci->getCalledFunction();
   assert(callee && "could not get called function");
   auto info = bi.isMuxGroupCollective(bi.analyzeBuiltin(*callee).ID);
-  return info && info->isWorkGroupScope();
+  if (info && info->isWorkGroupScope()) {
+    return info;
+  }
+  return std::nullopt;
 }
 
 /// @brief Builds a stub function containing only a void return instruction.
@@ -406,26 +411,50 @@ void compiler::utils::Barrier::Run(llvm::ModuleAnalysisManager &mam) {
     node.id = kBarrier_FirstID;
     node.successor_ids.push_back(kBarrier_EndID);
     kernel_id_map_[kBarrier_FirstID] = &func_;
-  } else {
-    // if we found some barriers, need to split up our kernel across them!
-    {
-      ModulePassManager pm;
-      // It's convenient to create LCSSA PHI nodes to stop values defined
-      // within a loop being stored to the barrier unnecessarily on every
-      // iteration (if, for instance, the loop is entirely between two
-      // barriers, but the value is used outside of that barrier region).
-      pm.addPass(llvm::createModuleToFunctionPassAdaptor(LCSSAPass()));
-      pm.run(module_, mam);
-      mam.invalidate(module_, PreservedAnalyses::allInSet<CFGAnalyses>());
-    }
-    // do the splitting first in case a value is used on both sides of a
-    // barrier within the same basic block.
-    SplitBlockwithBarrier();
-    FindLiveVariables();
-    TidyLiveVariables();
-    MakeLiveVariableMemType();
-    SeperateKernelWithBarrier();
+    return;
   }
+
+  // If we found some barriers, we need to split up our kernel across them!
+  {
+    ModulePassManager pm;
+    // It's convenient to create LCSSA PHI nodes to stop values defined
+    // within a loop being stored to the barrier unnecessarily on every
+    // iteration (if, for instance, the loop is entirely between two
+    // barriers, but the value is used outside of that barrier region).
+    pm.addPass(llvm::createModuleToFunctionPassAdaptor(LCSSAPass()));
+    pm.run(module_, mam);
+    mam.invalidate(module_, PreservedAnalyses::allInSet<CFGAnalyses>());
+  }
+
+  // Do the splitting first in case a value is used on both sides of a barrier
+  // within the same basic block.
+  SplitBlockwithBarrier();
+  FindLiveVariables();
+
+  // Tidy up the barrier struct, removing values that we can
+  // reload/rematerialize on the other side of the barrier.
+  // NB: We don't do this if any of the barriers is a work-group broadcast. In
+  // the case that a broadcasted value is non-uniform (i.e., it depends on
+  // work-item builtins), we must preserve it in the barrier struct! This is
+  // because we can't rematerialize the local ID and broadcast that; we need
+  // to broadcast the specific local ID for the broadcasted work-item.
+  // This is very crude. We could either:
+  // 1. Trace through all candidate values we want to remove and ensure they're
+  // not being broadcasted.
+  // 2. Add some more advanced rematerialization logic to substitute
+  // rematerializable work-item functions with values specific to a given
+  // work-item. Note that the builtins we rematerialize are ultimately up to
+  // the BuiltinInfo to identify, so we can't assume anything here and would
+  // have to defer back to the BuiltinInfo to do this correctly.
+  if (llvm::none_of(barriers_, [this](llvm::CallInst *const CI) {
+        auto Info = getWorkGroupCollectiveCall(CI, *bi_);
+        return Info && Info->isBroadcast();
+      })) {
+    TidyLiveVariables();
+  }
+
+  MakeLiveVariableMemType();
+  SeperateKernelWithBarrier();
 }
 
 void compiler::utils::Barrier::replaceSubkernel(Function *from, Function *to) {
@@ -958,7 +987,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   // If we have a work group collective call, we need to create a new argument
   // so that the result can be passed in.
-  bool const collective = isWorkGroupCollectiveCall(region.barrier_inst, *bi_);
+  bool const collective =
+      getWorkGroupCollectiveCall(region.barrier_inst, *bi_).has_value();
   if (collective) {
     new_func_params.push_back(region.barrier_inst->getType());
   }
