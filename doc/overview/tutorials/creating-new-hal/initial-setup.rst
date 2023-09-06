@@ -12,7 +12,7 @@ of the creation of the RefSi HAL:
 * hal_refsi_tutorial: contains the skeleton for the RefSi HAL we will create in
   this tutorial. This is under ``examples/hals/hal_refsi_tutorial``.
 * refsidrv: contains a driver that controls a virtual RefSi device. This is under
-  ``modules/mux/external/refsidrv``.
+  ``examples/refsi/hal_refsi/external/refsidrv``.
 * hal: contains headers needed to interface with a HAL. At top level of the oneAPI
   Construction Kit.
 * riscv-isa-sim: contains the Spike RISC-V simulator, used to simulate the
@@ -29,8 +29,8 @@ assume that the environment variable ``OCK`` has been set to the base of the
     $ mkdir refsi_tutorial_part1
     $ cd refsi_tutorial_part1
     $ export OCK=<path_to_oneapi-construction-kit>
-    $ cp $OCK/examples/hal/hal_refsi_tutorial .
-    $ cp $OCK/modules/mux/external/refsidrv hal_refsi_tutorial/external
+    $ cp -a $OCK/examples/hals/hal_refsi_tutorial .
+    $ cp -a $OCK/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
 
 The resulting source code layout from running the above commands is the following:
 
@@ -41,7 +41,7 @@ The resulting source code layout from running the above commands is the followin
             external/
                 refsidrv/ -> refsidrv repository, 'tutorial1' branch
                     external/
-                        riscv-isa-sim/ -> submodule of refsidrv
+                        riscv-isa-sim/ -> submodule of refsidrv, will be fetched by cmake
 
 Installing a RISC-V toolchain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
