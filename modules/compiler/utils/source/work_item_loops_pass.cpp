@@ -591,6 +591,7 @@ struct ScheduleGenerator {
         compiler::utils::Barrier::LiveValuesHelper live_values(barrierMain,
                                                                block, liveVars);
         auto *const GEPmain = live_values.getGEP(op);
+        assert(GEPmain && "Could not get broadcasted value");
 
         if (barrierTail) {
           bool const VP = barrierTail->getVFInfo().IsVectorPredicated;
@@ -606,6 +607,7 @@ struct ScheduleGenerator {
           auto *const opTail =
               barrierTail->getBarrierCall(barrierID)->getOperand(1);
           auto *const GEPtail = live_values.getGEP(opTail);
+          assert(GEPtail && "Could not get tail-broadcasted value");
 
           // Select the main GEP or the tail GEP to load from
           auto *const cond = ir.CreateICmpUGE(idsMain[0], mainLoopLimit);
