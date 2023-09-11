@@ -294,8 +294,8 @@ hal->program_free(program2);
 A HAL writer can also expect that when `program_load` is called it becomes the
 responsibility of the callee to call `program_free` to release any resources
 used. All currently loaded programs will be freed by the callee prior to any
-call being made to `hal_device_t::device_delete`. The intension of this rule is
-to simplify HAL implementations so they dont have to track allocations.
+call being made to `hal_device_t::device_delete`. The intention of this rule is
+to simplify HAL implementations so they don't have to track allocations.
 
 
 -----
@@ -314,7 +314,7 @@ next API call was processed.
 When invoking a kernel with `kernel_exec` the kernel arguments are passed as a
 list of argument descriptors to the HAL. These descriptors are intentionally
 neutral regarding the details of how the data will be passed to the kernel. This
-breaks the direct coupling between the ABI and the HAL API, leading to less
+breaks the direct coupling between the ABI and the HAL API, leading to fewer
 changes when we change the kernel ABI.
 
 ```cpp
@@ -424,7 +424,7 @@ to provide more target specific information. By querying the
 downcast correctly to the correct type, giving access to ISA specific
 information.
 
-The rational behind this is to avoid multiple ISAs turning the `hal_device_info_t`
+The rationale behind this is to avoid multiple ISAs turning the `hal_device_info_t`
 struct into a "god" struct, while still allowing common information to be
 shared. If the oneAPI Construction Kit target needs to execute a target specific
 code-path the HAL can be downcast accordingly to access any target specific
@@ -557,7 +557,7 @@ Currently the following is adhered to:
 
 
 ----
-## Multiple kernel Variants
+## Multiple Kernel Variants
 
 For performance reasons it can be useful to create multiple distinct variants of
 kernels. While they are equivalent in operation, they vary in terms of
