@@ -74,7 +74,7 @@ entry point function:
       if (program == hal::hal_invalid_program) {
         return hal::hal_invalid_kernel;
       }
-      ELFProgram *elf = (ELFProgram )program;
+      ELFProgram *elf = (ELFProgram *)program;
       hal::hal_addr_t kernel = elf->find_symbol(name);
       if (kernel == hal::hal_nullptr) {
         return hal::hal_invalid_kernel;
