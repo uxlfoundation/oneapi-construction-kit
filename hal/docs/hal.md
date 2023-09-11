@@ -10,7 +10,7 @@ abstracting at this level, there are a number of benefits:
 - Tested and proven code can be shared between HALs for faster bring-up.
 
 Currently the HAL is used exclusively as part of the RISC-V MUX target and in
-the CLIK tool. The HAL specification makes no demands on the the executable used
+the CLIK tool. The HAL specification makes no demands on the executable used
 except for its use in RISC-V target. Since the RISC-V target will be used as a
 template for future targets this is also detailed
 [here](#hal-kernel-abi-used-in-the-current-risc-v-mux).
