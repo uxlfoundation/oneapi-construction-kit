@@ -17,6 +17,7 @@
 #include <compiler/utils/address_spaces.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/dma.h>
+#include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
@@ -184,6 +185,43 @@ static Function *defineSubGroupGroupOpBuiltin(Function &F,
           getIdentityVal(GroupOp.Recurrence, OverloadInfo[0]);
       assert(IdentityVal && "Unable to deduce identity val");
       B.CreateRet(IdentityVal);
+      break;
+    }
+    case GroupCollective::OpKind::Shuffle:
+    case GroupCollective::OpKind::ShuffleXor:
+      // In the trivial size=1 case, all of these operations just return the
+      // argument back again. Any computed shuffle index other than the only
+      // one in the sub-group would be out of bounds anyway.
+      B.CreateRet(Arg);
+      break;
+    case GroupCollective::OpKind::ShuffleUp: {
+      auto *const Prev = F.getArg(0);
+      auto *const Curr = F.getArg(1);
+      auto *const Delta = F.getArg(2);
+      // In the trivial size=1 case, negative delta is the desired index (since
+      // we're subtracting it from zero). If it's greater than zero and less
+      // than the size, we return 'current', else if it's less than zero and
+      // greater than or equal to the negative size, we return 'prev'. So if
+      // 'delta' is zero, return 'current', else return 'prev'. Anything else
+      // is out of bounds so we can simplify things here.
+      auto *const EqZero = B.CreateICmpEQ(Delta, B.getInt32(0), "eqzero");
+      auto *const Sel = B.CreateSelect(EqZero, Curr, Prev, "sel");
+      B.CreateRet(Sel);
+      break;
+    }
+    case GroupCollective::OpKind::ShuffleDown: {
+      auto *const Curr = F.getArg(0);
+      auto *const Next = F.getArg(1);
+      auto *const Delta = F.getArg(2);
+      // In the trivial size=1 case, the delta is the desired index (since
+      // we're adding it to zero). If it's less than the size, we return
+      // 'current', else if it's greater or equal to the size but less than
+      // twice the size, we return 'next'. So if 'delta' is zero, return
+      // 'current', else return 'next'. Anything else is out of bounds so we
+      // can simplify things here.
+      auto *const EqZero = B.CreateICmpEQ(Delta, B.getInt32(0), "eqzero");
+      auto *const Sel = B.CreateSelect(EqZero, Curr, Next, "sel");
+      B.CreateRet(Sel);
       break;
     }
   }
@@ -1061,22 +1099,56 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
       // explicitly enumerating each switch case.
       if (auto Group = BuiltinInfo::isMuxGroupCollective(ID)) {
         RetTy = OverloadInfo.front();
-        ParamTys.push_back(RetTy);
-        ParamNames.push_back("val");
         AB.addAttribute(Attribute::Convergent);
-        // Broadcasts additionally add ID parameters
-        if (Group->Op == GroupCollective::OpKind::Broadcast) {
-          if (Group->isSubGroupScope()) {
+        switch (Group->Op) {
+          default:
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("val");
+            break;
+          case GroupCollective::OpKind::Broadcast:
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("val");
+            // Broadcasts additionally add ID parameters
+            if (Group->isSubGroupScope()) {
+              ParamTys.push_back(Int32Ty);
+              ParamNames.push_back("lid");
+            } else {
+              ParamTys.push_back(SizeTy);
+              ParamNames.push_back("lidx");
+              ParamTys.push_back(SizeTy);
+              ParamNames.push_back("lidy");
+              ParamTys.push_back(SizeTy);
+              ParamNames.push_back("lidz");
+            }
+            break;
+          case GroupCollective::OpKind::Shuffle:
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("val");
             ParamTys.push_back(Int32Ty);
             ParamNames.push_back("lid");
-          } else {
-            ParamTys.push_back(SizeTy);
-            ParamNames.push_back("lidx");
-            ParamTys.push_back(SizeTy);
-            ParamNames.push_back("lidy");
-            ParamTys.push_back(SizeTy);
-            ParamNames.push_back("lidz");
-          }
+            break;
+          case GroupCollective::OpKind::ShuffleXor:
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("val");
+            ParamTys.push_back(Int32Ty);
+            ParamNames.push_back("xor_val");
+            break;
+          case GroupCollective::OpKind::ShuffleUp:
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("prev");
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("curr");
+            ParamTys.push_back(Int32Ty);
+            ParamNames.push_back("delta");
+            break;
+          case GroupCollective::OpKind::ShuffleDown:
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("curr");
+            ParamTys.push_back(RetTy);
+            ParamNames.push_back("next");
+            ParamTys.push_back(Int32Ty);
+            ParamNames.push_back("delta");
+            break;
         }
         // All work-group operations have a 'barrier id' operand as their first
         // parameter.

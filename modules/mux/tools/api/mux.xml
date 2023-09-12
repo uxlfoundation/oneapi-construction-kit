@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
     <block>
       <define priority="high">${FUNCTION_PREFIX}_MAJOR_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} major version number.</brief></doxygen></define>
-      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>78</value>
+      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>79</value>
         <doxygen><brief>${Function_Prefix} minor version number.</brief></doxygen></define>
       <define priority="high">${FUNCTION_PREFIX}_PATCH_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} patch version number.</brief></doxygen></define>

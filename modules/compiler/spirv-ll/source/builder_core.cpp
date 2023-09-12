@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/builtin_info.h>
 #include <compiler/utils/target_extension_types.h>
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
@@ -6755,6 +6756,100 @@ template <>
 cargo::optional<Error> Builder::create<OpGroupLogicalXorKHR>(
     const OpGroupLogicalXorKHR *op) {
   generateReduction(op, "logical_xor");
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpSubgroupShuffle>(
+    const OpSubgroupShuffle *op) {
+  std::string muxBuiltinName = "__mux_sub_group_shuffle_";
+
+  auto *data = module.getValue(op->Data());
+  SPIRV_LL_ASSERT_PTR(data);
+
+  auto *invocation_id = module.getValue(op->InvocationId());
+  SPIRV_LL_ASSERT_PTR(invocation_id);
+
+  auto retTy = module.getType(op->IdResultType());
+  SPIRV_LL_ASSERT_PTR(retTy);
+
+  muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
+
+  auto *const ci = createBuiltinCall(
+      muxBuiltinName, retTy, {data, invocation_id}, /*convergent*/ true);
+  module.addID(op->IdResult(), op, ci);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpSubgroupShuffleUp>(
+    const OpSubgroupShuffleUp *op) {
+  std::string muxBuiltinName = "__mux_sub_group_shuffle_up_";
+
+  auto *previous = module.getValue(op->Previous());
+  SPIRV_LL_ASSERT_PTR(previous);
+
+  auto *current = module.getValue(op->Current());
+  SPIRV_LL_ASSERT_PTR(current);
+
+  auto *delta = module.getValue(op->Delta());
+  SPIRV_LL_ASSERT_PTR(delta);
+
+  auto retTy = module.getType(op->IdResultType());
+  SPIRV_LL_ASSERT_PTR(retTy);
+
+  muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
+
+  auto *const ci = createBuiltinCall(
+      muxBuiltinName, retTy, {previous, current, delta}, /*convergent*/ true);
+  module.addID(op->IdResult(), op, ci);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpSubgroupShuffleDown>(
+    const OpSubgroupShuffleDown *op) {
+  std::string muxBuiltinName = "__mux_sub_group_shuffle_down_";
+
+  auto *current = module.getValue(op->Current());
+  SPIRV_LL_ASSERT_PTR(current);
+
+  auto *next = module.getValue(op->Next());
+  SPIRV_LL_ASSERT_PTR(next);
+
+  auto *delta = module.getValue(op->Delta());
+  SPIRV_LL_ASSERT_PTR(delta);
+
+  auto retTy = module.getType(op->IdResultType());
+  SPIRV_LL_ASSERT_PTR(retTy);
+
+  muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
+
+  auto *const ci = createBuiltinCall(
+      muxBuiltinName, retTy, {current, next, delta}, /*convergent*/ true);
+  module.addID(op->IdResult(), op, ci);
+  return cargo::nullopt;
+}
+
+template <>
+cargo::optional<Error> Builder::create<OpSubgroupShuffleXor>(
+    const OpSubgroupShuffleXor *op) {
+  std::string muxBuiltinName = "__mux_sub_group_shuffle_xor_";
+
+  auto *data = module.getValue(op->Data());
+  SPIRV_LL_ASSERT_PTR(data);
+
+  auto *value = module.getValue(op->Value());
+  SPIRV_LL_ASSERT_PTR(value);
+
+  auto retTy = module.getType(op->IdResultType());
+  SPIRV_LL_ASSERT_PTR(retTy);
+
+  muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
+
+  auto *const ci = createBuiltinCall(muxBuiltinName, retTy, {data, value},
+                                     /*convergent*/ true);
+  module.addID(op->IdResult(), op, ci);
   return cargo::nullopt;
 }
 

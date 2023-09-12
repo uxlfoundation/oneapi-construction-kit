@@ -315,6 +315,10 @@ bool OpCode::hasResult() const {
     case spv::OpSubgroupBallotKHR:
     case spv::OpSubgroupFirstInvocationKHR:
     case spv::OpSubgroupReadInvocationKHR:
+    case spv::OpSubgroupShuffleINTEL:
+    case spv::OpSubgroupShuffleUpINTEL:
+    case spv::OpSubgroupShuffleDownINTEL:
+    case spv::OpSubgroupShuffleXorINTEL:
     case spv::OpTranspose:
     case spv::OpUConvert:
     case spv::OpUDiv:

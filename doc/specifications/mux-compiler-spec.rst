@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.78.0 of the specification.
+   This is version 0.79.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -915,15 +915,15 @@ A Mux implementation **shall** provide definitions for these builtin functions.
   invocations within a work-group for the ``%i``'th dimension.
 * ``size_t __mux_get_local_id(i32 %i)`` - Returns the unique local invocation
   identifier for the ``%i``'th dimension.
-* ``i32 __mux_get_sub_group_id()`` - Returns the subgroup ID.
+* ``i32 __mux_get_sub_group_id()`` - Returns the sub-group ID.
 * ``size_t __mux_get_num_groups(i32 %i)`` - Returns the number of work-groups
   for the ``%i``'th dimension.
-* ``i32 __mux_get_num_sub_groups()`` - Returns the number of subgroups for
+* ``i32 __mux_get_num_sub_groups()`` - Returns the number of sub-groups for
   the current work-group.
-* ``i32 __mux_get_max_sub_group_size()`` - Returns the maximum subgroup size
+* ``i32 __mux_get_max_sub_group_size()`` - Returns the maximum sub-group size
   in the current kernel.
 * ``i32 __mux_get_sub_group_size()`` - Returns the number of invocations in the
-  subgroup.
+  sub-group.
 * ``i32 __mux_get_sub_group_local_id()`` - Returns the unique invocation ID
   within the current sub-group.
 * ``size_t __mux_get_group_id(i32 %i)`` - Returns the unique work-group
@@ -1109,6 +1109,100 @@ Examples:
 
    i64 @__mux_vec_group_scan_exclusive_mul_nxv1i64(<vscale x 1 x i64> %val)
 
+
+Sub-group ``shuffle`` builtin
++++++++++++++++++++++++++++++
+
+The ``sub_group_shuffle`` builtin allows data to be arbitrarily transferred
+between invocations in a sub-group. The data that is returned for this
+invocation is the value of ``%val`` for the invocation identified by ``%lid``.
+
+``%lid`` need not be the same value for all invocations in the sub-group.
+
+.. code:: llvm
+
+   i32 @__mux_sub_group_shuffle_i32(i32 %val, i32 %lid)
+
+Sub-group ``shuffle_up`` builtin
+++++++++++++++++++++++++++++++++
+
+The ``sub_group_shuffle_up`` builtin allows data to be transferred from an
+invocation in the sub-group with a lower sub-group local invocation ID up to an
+invocation in the sub-group with a higher sub-group local invocation ID.
+
+The builtin has two operands: ``%prev`` and ``%curr``. To determine the result
+of this builtin, first let ``SubgroupLocalInvocationId`` be equal to
+``__mux_get_sub_group_local_id()``, let the signed shuffle index be equivalent
+to this invocation’s ``SubgroupLocalInvocationId`` minus the specified
+``%delta``, and ``MaxSubgroupSize`` be equal to
+``__mux_get_max_sub_group_size()`` for the current kernel.
+
+* If the shuffle index is greater than or equal to zero and less than the
+  ``MaxSubgroupSize``, the result of this builtin is the value of the ``%curr``
+  operand for the invocation with ``SubgroupLocalInvocationId`` equal to the
+  shuffle index.
+
+* If the shuffle index is less than zero but greater than or equal to the
+  negative ``MaxSubgroupSize``, the result of this builtin is the value of the
+  ``%prev`` operand for the invocation with ``SubgroupLocalInvocationId`` equal
+  to the shuffle index plus the ``MaxSubgroupSize``.
+
+All other values of the shuffle index are considered to be out-of-range.
+
+``%delta`` need not be the same value for all invocations in the sub-group.
+
+.. code:: llvm
+
+   i8 @__mux_sub_group_shuffle_up_i8(i8 %prev, i8 %curr, i32 %delta)
+
+Sub-group ``shuffle_down`` builtin
+++++++++++++++++++++++++++++++++++
+
+The ``sub_group_shuffle_down`` builtin allows data to be transferred from an
+invocation in the sub-group with a higher sub-group local invocation ID down to
+a invocation in the sub-group with a lower sub-group local invocation ID.
+
+The builtin has two operands: ``%curr`` and ``%next``. To determine the result
+of this builtin , first let ``SubgroupLocalInvocationId`` be equal to
+``__mux_get_sub_group_local_id()``, the unsigned shuffle index be equivalent to
+the sum of this invocation’s ``SubgroupLocalInvocationId`` plus the specified
+``%delta``, and ``MaxSubgroupSize`` be equal to
+``__mux_get_max_sub_group_size()`` for the current kernel.
+
+* If the shuffle index is less than the ``MaxSubgroupSize``, the result of this
+  builtin is the value of the ``%curr`` operand for the invocation with
+  ``SubgroupLocalInvocationId`` equal to the shuffle index.
+
+* If the shuffle index is greater than or equal to the ``MaxSubgroupSize`` but
+  less than twice the ``MaxSubgroupSize``, the result of this builtin is the
+  value of the ``%next`` operand for the invocation with
+  ``SubgroupLocalInvocationId`` equal to the shuffle index minus the
+  ``MaxSubgroupSize``. All other values of the shuffle index are considered to
+  be out-of-range.
+
+All other values of the shuffle index are considered to be out-of-range.
+
+``%delta`` need not be the same value for all invocations in the sub-group.
+
+.. code:: llvm
+
+   float @__mux_sub_group_shuffle_down_f32(float %curr, float %next, i32 %delta)
+
+Sub-group ``shuffle_xor`` builtin
++++++++++++++++++++++++++++++++++
+
+These ``sub_group_shuffle_xor`` builtin allows for efficient sharing of data
+between items within a sub-group.
+
+The data that is returned for this invocation is the value of ``%val`` for the
+invocation with sub-group local ID equal to this invocation’s sub-group local
+ID XOR’d with the specified ``%xor_val``. If the result of the XOR is greater
+than the current kernel's maximum sub-group size, then it is considered
+out-of-range.
+
+.. code:: llvm
+
+   double @__mux_sub_group_shuffle_xor_f64(double %val, i32 %xor_val)
 
 Memory and Control Barriers
 ---------------------------

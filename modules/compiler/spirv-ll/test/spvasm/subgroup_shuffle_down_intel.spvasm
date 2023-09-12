@@ -1,0 +1,74 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; REQUIRES: spirv-as-v2022+
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 -c SubgroupShuffleINTEL \
+; RUN:   -e SPV_INTEL_subgroups %spv_file_s | FileCheck %s
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Float64
+               OpCapability Int64
+               OpCapability Groups
+               OpCapability Int8
+               OpCapability SubgroupShuffleINTEL
+
+               OpExtension "SPV_INTEL_subgroups"
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpSource OpenCL_CPP 100000
+
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+
+                      %void = OpTypeVoid
+                    %double = OpTypeFloat 64
+%_ptr_CrossWorkgroup_double = OpTypePointer CrossWorkgroup %double
+                      %uint = OpTypeInt 32 0
+  %_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+                     %ulong = OpTypeInt 64 0
+                   %v3ulong = OpTypeVector %ulong 3
+        %_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+ %_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+
+                        %35 = OpTypeFunction %void %_ptr_CrossWorkgroup_double %_ptr_CrossWorkgroup_ulong
+
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+
+         %uint_1 = OpConstant %uint 1
+
+; CHECK: call spir_func double @__mux_sub_group_shuffle_down_f64(double %{{.*}}, double %{{.*}}, i32 1)
+          %36 = OpFunction %void None %35
+%_arg_out_acc = OpFunctionParameter %_ptr_CrossWorkgroup_double
+%_arg_inp_acc = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+       %entry = OpLabel
+
+          %26 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
+          %24 = OpCompositeExtract %ulong %26 0
+
+   %inp_ptr_i = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %_arg_inp_acc %24
+   %out_ptr_i = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_double %_arg_out_acc %24
+
+          %38 = OpLoad %ulong %inp_ptr_i Aligned 8
+%conv_i_i_i_i = OpConvertUToF %double %38
+
+ %call1_i_i_i = OpSubgroupShuffleDownINTEL %double %conv_i_i_i_i %conv_i_i_i_i %uint_1
+
+                OpStore %out_ptr_i %call1_i_i_i Aligned 8
+
+                OpReturn
+                OpFunctionEnd

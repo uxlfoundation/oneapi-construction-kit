@@ -10,6 +10,7 @@ Upgrade guidance:
     DMA builtins.
   * 0.78.0: to introduce mux builtins for sub-group, work-group, and
     vector-group operations.
+  * 0.79.0: to introduce mux builtins for sub-group shuffle operations.
 * The `compiler::ImageArgumentSubstitutionPass` now replaces sampler typed
   parameters in kernel functions with i32 parameters via a wrapper function.
   The `host` target as a consequence now passes samplers to kernels as 32-bit

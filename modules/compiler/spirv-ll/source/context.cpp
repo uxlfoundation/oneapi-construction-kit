@@ -17,6 +17,7 @@
 #include <spirv-ll/builder.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
+#include <spirv/unified1/spirv.hpp>
 
 spirv_ll::Context::Context()
     : llvmContext(new llvm::LLVMContext), llvmContextIsOwned(true) {}
@@ -970,6 +971,18 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpGroupLogicalXorKHR:
         error = builder.create<OpGroupLogicalXorKHR>(op);
+        break;
+      case spv::OpSubgroupShuffleINTEL:
+        error = builder.create<OpSubgroupShuffle>(op);
+        break;
+      case spv::OpSubgroupShuffleUpINTEL:
+        error = builder.create<OpSubgroupShuffleUp>(op);
+        break;
+      case spv::OpSubgroupShuffleDownINTEL:
+        error = builder.create<OpSubgroupShuffleDown>(op);
+        break;
+      case spv::OpSubgroupShuffleXorINTEL:
+        error = builder.create<OpSubgroupShuffleXor>(op);
         break;
       case spv::OpReadPipe:
         error = builder.create<OpReadPipe>(op);
