@@ -118,149 +118,141 @@ bool isSubGroupWorkItemFunction(CallInst *CI,
 
 /// @brief Replaces sub-group builtin calls with their work-group equivalents.
 ///
-/// @param[in] SubGroupBuiltinCalls Builtin calls to replace.
-void replaceSubGroupBuiltinCalls(
-    const SmallVectorImpl<std::pair<CallInst *, compiler::utils::Builtin>>
-        &SubGroupBuiltinCalls,
-    compiler::utils::BuiltinInfo &BI) {
-  for (auto &[I, SGBuiltin] : SubGroupBuiltinCalls) {
-    auto *const M = I->getModule();
-    if (SGBuiltin.ID != compiler::utils::eMuxBuiltinSubgroupBroadcast) {
-      // We can just forward the argument directly to the
-      // work-group builtin for everything except broadcasts.
-      SmallVector<Value *, 4> Args;
-      if (SGBuiltin.ID != compiler::utils::eMuxBuiltinSubGroupBarrier) {
-        // Barrier ID
-        Args.push_back(
-            ConstantInt::get(IntegerType::get(M->getContext(), 32), 0));
-      }
-      for (auto &arg : I->args()) {
-        Args.push_back(arg);
-      }
-      auto *const WorkGroupBuiltinFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
-      assert(WorkGroupBuiltinFcn && "Must have work-group equivalent");
-      WorkGroupBuiltinFcn->setCallingConv(I->getCallingConv());
-      auto *WGCI = CallInst::Create(WorkGroupBuiltinFcn, Args, "", I);
-      WGCI->setCallingConv(I->getCallingConv());
-      I->replaceAllUsesWith(WGCI);
-      continue;
+/// @param[in] CI Builtin call to replace.
+/// @param[in] SGBuiltin Builtin to replace
+/// @param[in] BI BuiltinInfo
+void replaceSubGroupBuiltinCall(CallInst *CI,
+                                compiler::utils::Builtin SGBuiltin,
+                                compiler::utils::BuiltinInfo &BI) {
+  auto *const M = CI->getModule();
+  if (SGBuiltin.ID != compiler::utils::eMuxBuiltinSubgroupBroadcast) {
+    // We can just forward the argument directly to the
+    // work-group builtin for everything except broadcasts.
+    SmallVector<Value *, 4> Args;
+    if (SGBuiltin.ID != compiler::utils::eMuxBuiltinSubGroupBarrier) {
+      // Barrier ID
+      Args.push_back(
+          ConstantInt::get(IntegerType::get(M->getContext(), 32), 0));
     }
-    // Broadcasts don't map particularly well from sub-groups to work-groups.
-    // This is because the sub-group broadcast expects an index in the half
-    // closed interval [0, get_sub_group_size()), where as the work-group
-    // broadcasts expect the index arguments to be in the ranges [0,
-    // get_local_size(0)), [0, get_local_size(1)), [0, get_local_size(2)) for
-    // the 1D, 2D and 3D overloads respectively. This means that we need to
-    // invert the mapping of sub-group local id to the local (x, y, z)
-    // coordinates of the enqueue. This amounts to solving get_local_linear_id
-    // (since this is the sub-group local id) for x, y and z given ID of a
-    // sub-group element: x = ID % get_local_size(0) y = (ID - x) /
-    // get_local_size(0) % get_local_size(1) z = (ID - x - y *
-    // get_local_size(0) / (get_local_size(0) * get_local_size(1)
-    IRBuilder<> Builder{I};
-    auto *const Value = I->getArgOperand(0);
-    auto *const SubGroupElementID = I->getArgOperand(1);
-
-    auto *const GetLocalSize =
-        BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalSize, *M);
-    auto *const LocalSizeX = Builder.CreateIntCast(
-        Builder.CreateCall(
-            GetLocalSize,
-            ConstantInt::get(Type::getInt32Ty(M->getContext()), 0)),
-        SubGroupElementID->getType(), /* isSigned */ false);
-    auto *const LocalSizeY = Builder.CreateIntCast(
-        Builder.CreateCall(
-            GetLocalSize,
-            ConstantInt::get(Type::getInt32Ty(M->getContext()), 1)),
-        SubGroupElementID->getType(), /* isSigned */ false);
-
-    auto *X = Builder.CreateURem(SubGroupElementID, LocalSizeX, "x");
-    auto *Y = Builder.CreateURem(
-        Builder.CreateUDiv(Builder.CreateSub(SubGroupElementID, X), LocalSizeX),
-        LocalSizeY, "y");
-    auto *Z = Builder.CreateUDiv(
-        Builder.CreateSub(
-            SubGroupElementID,
-            Builder.CreateAdd(X, Builder.CreateMul(Y, LocalSizeX))),
-        Builder.CreateMul(LocalSizeX, LocalSizeY), "z");
-
-    auto *const SizeType = compiler::utils::getSizeType(*M);
-    auto *const WorkGroupBroadcastFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
-    assert(WorkGroupBroadcastFcn && "Must have work-group equivalent");
-    WorkGroupBroadcastFcn->setCallingConv(I->getCallingConv());
-    // Because sub_group_broadcast takes uint as its index argument but
-    // work_group_broadcast takes size_t we potentially need cast here to the
-    // native size_t.
-    auto *ID = Builder.getInt32(0);
-    X = Builder.CreateIntCast(X, SizeType, /* isSigned */ false);
-    Y = Builder.CreateIntCast(Y, SizeType, /* isSigned */ false);
-    Z = Builder.CreateIntCast(Z, SizeType, /* isSigned */ false);
-    auto *const WGCI =
-        Builder.CreateCall(WorkGroupBroadcastFcn, {ID, Value, X, Y, Z});
-    I->replaceAllUsesWith(WGCI);
+    for (auto &arg : CI->args()) {
+      Args.push_back(arg);
+    }
+    auto *const WorkGroupBuiltinFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
+    assert(WorkGroupBuiltinFcn && "Must have work-group equivalent");
+    WorkGroupBuiltinFcn->setCallingConv(CI->getCallingConv());
+    auto *WGCI = CallInst::Create(WorkGroupBuiltinFcn, Args, "", CI);
+    WGCI->setCallingConv(CI->getCallingConv());
+    CI->replaceAllUsesWith(WGCI);
+    return;
   }
+  // Broadcasts don't map particularly well from sub-groups to work-groups.
+  // This is because the sub-group broadcast expects an index in the half
+  // closed interval [0, get_sub_group_size()), where as the work-group
+  // broadcasts expect the index arguments to be in the ranges [0,
+  // get_local_size(0)), [0, get_local_size(1)), [0, get_local_size(2)) for
+  // the 1D, 2D and 3D overloads respectively. This means that we need to
+  // invert the mapping of sub-group local id to the local (x, y, z)
+  // coordinates of the enqueue. This amounts to solving get_local_linear_id
+  // (since this is the sub-group local id) for x, y and z given ID of a
+  // sub-group element: x = ID % get_local_size(0) y = (ID - x) /
+  // get_local_size(0) % get_local_size(1) z = (ID - x - y *
+  // get_local_size(0) / (get_local_size(0) * get_local_size(1)
+  IRBuilder<> Builder{CI};
+  auto *const Value = CI->getArgOperand(0);
+  auto *const SubGroupElementID = CI->getArgOperand(1);
+
+  auto *const GetLocalSize =
+      BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalSize, *M);
+  auto *const LocalSizeX = Builder.CreateIntCast(
+      Builder.CreateCall(
+          GetLocalSize, ConstantInt::get(Type::getInt32Ty(M->getContext()), 0)),
+      SubGroupElementID->getType(), /* isSigned */ false);
+  auto *const LocalSizeY = Builder.CreateIntCast(
+      Builder.CreateCall(
+          GetLocalSize, ConstantInt::get(Type::getInt32Ty(M->getContext()), 1)),
+      SubGroupElementID->getType(), /* isSigned */ false);
+
+  auto *X = Builder.CreateURem(SubGroupElementID, LocalSizeX, "x");
+  auto *Y = Builder.CreateURem(
+      Builder.CreateUDiv(Builder.CreateSub(SubGroupElementID, X), LocalSizeX),
+      LocalSizeY, "y");
+  auto *Z = Builder.CreateUDiv(
+      Builder.CreateSub(SubGroupElementID,
+                        Builder.CreateAdd(X, Builder.CreateMul(Y, LocalSizeX))),
+      Builder.CreateMul(LocalSizeX, LocalSizeY), "z");
+
+  auto *const SizeType = compiler::utils::getSizeType(*M);
+  auto *const WorkGroupBroadcastFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
+  assert(WorkGroupBroadcastFcn && "Must have work-group equivalent");
+  WorkGroupBroadcastFcn->setCallingConv(CI->getCallingConv());
+  // Because sub_group_broadcast takes uint as its index argument but
+  // work_group_broadcast takes size_t we potentially need cast here to the
+  // native size_t.
+  auto *ID = Builder.getInt32(0);
+  X = Builder.CreateIntCast(X, SizeType, /* isSigned */ false);
+  Y = Builder.CreateIntCast(Y, SizeType, /* isSigned */ false);
+  Z = Builder.CreateIntCast(Z, SizeType, /* isSigned */ false);
+  auto *const WGCI =
+      Builder.CreateCall(WorkGroupBroadcastFcn, {ID, Value, X, Y, Z});
+  CI->replaceAllUsesWith(WGCI);
 }
 
 /// @brief Replace sub-group work-item builtin calls with suitable values for
 /// the degenerate sub-group case.
 ///
-/// @param[in] SubGroupBuiltinCalls Sub-group work-item builtin calls to
-/// replace.
-void replaceSubGroupWorkItemBuiltinCalls(
-    const SmallVectorImpl<CallInst *> &SubGroupBuiltinCalls,
-    compiler::utils::BuiltinInfo &BI) {
-  for (auto &Call : SubGroupBuiltinCalls) {
-    const auto CalledFunctionName = Call->getCalledFunction()->getName();
-    // Handle __mux_get_sub_group_size, get_sub_group_size &
-    // get_max_sub_group_size. The sub-group is the work-group, meaning the
-    // sub-group size is the total local size.
-    if (CalledFunctionName.contains("sub_group_size")) {
-      auto *const M = Call->getModule();
-      IRBuilder<> Builder{Call};
-      auto *const GetLocalSize = BI.getOrDeclareMuxBuiltin(
-          compiler::utils::eMuxBuiltinGetLocalSize, *M);
-      GetLocalSize->setCallingConv(Call->getCallingConv());
+/// @param[in] CI Builtin call to replace
+/// @param[in] BI BuiltinInfo
+void replaceSubGroupWorkItemBuiltinCall(CallInst *CI,
+                                        compiler::utils::BuiltinInfo &BI) {
+  const auto CalledFunctionName = CI->getCalledFunction()->getName();
+  // Handle __mux_get_sub_group_size, get_sub_group_size &
+  // get_max_sub_group_size. The sub-group is the work-group, meaning the
+  // sub-group size is the total local size.
+  if (CalledFunctionName.contains("sub_group_size")) {
+    auto *const M = CI->getModule();
+    IRBuilder<> Builder{CI};
+    auto *const GetLocalSize =
+        BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetLocalSize, *M);
+    GetLocalSize->setCallingConv(CI->getCallingConv());
 
-      Value *TotalLocalSize =
-          ConstantInt::get(compiler::utils::getSizeType(*M), 1);
-      for (unsigned i = 0; i < 3; ++i) {
-        auto *const LocalSize = Builder.CreateCall(
-            GetLocalSize,
-            ConstantInt::get(Type::getInt32Ty(M->getContext()), i));
-        LocalSize->setCallingConv(Call->getCallingConv());
-        TotalLocalSize = Builder.CreateMul(LocalSize, TotalLocalSize);
-      }
-      TotalLocalSize = Builder.CreateIntCast(TotalLocalSize, Call->getType(),
-                                             /* isSigned */ false);
-      Call->replaceAllUsesWith(TotalLocalSize);
-    } else if (CalledFunctionName.contains("num_sub_groups")) {
-      // Handle get_num_sub_groups & get_enqueued_num_sub_groups.
-      // The sub-group is the work-group, meaning there is exactly 1 sub-group.
-      auto *const One = ConstantInt::get(Call->getType(), 1);
-      Call->replaceAllUsesWith(One);
-    } else if (CalledFunctionName.contains("get_sub_group_id")) {
-      // Handle get_sub_group_id. The sub-group is the work-group, meaning the
-      // sub-group id is 0.
-      auto *const Zero = ConstantInt::get(Call->getType(), 0);
-      Call->replaceAllUsesWith(Zero);
-    } else if (CalledFunctionName.contains("get_sub_group_local_id")) {
-      // Handle __mux_get_sub_group_local_id and get_sub_group_local_id. The
-      // sub-group local id is a unique local id of the work item, here we use
-      // get_local_linear_id.
-      auto *const M = Call->getModule();
-      auto *const GetLocalLinearID = BI.getOrDeclareMuxBuiltin(
-          compiler::utils::eMuxBuiltinGetLocalLinearId, *M);
-      GetLocalLinearID->setCallingConv(Call->getCallingConv());
-      auto *const LocalLinearIDCall =
-          CallInst::Create(GetLocalLinearID, {}, "", Call);
-      LocalLinearIDCall->setCallingConv(Call->getCallingConv());
-      auto *const LocalLinearID = CastInst::CreateIntegerCast(
-          LocalLinearIDCall, Type::getInt32Ty(M->getContext()),
-          /* isSigned */ false, "", Call);
-      Call->replaceAllUsesWith(LocalLinearID);
-    } else {
-      llvm_unreachable("unhandled sub-group builtin function");
+    Value *TotalLocalSize =
+        ConstantInt::get(compiler::utils::getSizeType(*M), 1);
+    for (unsigned i = 0; i < 3; ++i) {
+      auto *const LocalSize = Builder.CreateCall(
+          GetLocalSize, ConstantInt::get(Type::getInt32Ty(M->getContext()), i));
+      LocalSize->setCallingConv(CI->getCallingConv());
+      TotalLocalSize = Builder.CreateMul(LocalSize, TotalLocalSize);
     }
+    TotalLocalSize = Builder.CreateIntCast(TotalLocalSize, CI->getType(),
+                                           /* isSigned */ false);
+    CI->replaceAllUsesWith(TotalLocalSize);
+  } else if (CalledFunctionName.contains("num_sub_groups")) {
+    // Handle get_num_sub_groups & get_enqueued_num_sub_groups.
+    // The sub-group is the work-group, meaning there is exactly 1 sub-group.
+    auto *const One = ConstantInt::get(CI->getType(), 1);
+    CI->replaceAllUsesWith(One);
+  } else if (CalledFunctionName.contains("get_sub_group_id")) {
+    // Handle get_sub_group_id. The sub-group is the work-group, meaning the
+    // sub-group id is 0.
+    auto *const Zero = ConstantInt::get(CI->getType(), 0);
+    CI->replaceAllUsesWith(Zero);
+  } else if (CalledFunctionName.contains("get_sub_group_local_id")) {
+    // Handle __mux_get_sub_group_local_id and get_sub_group_local_id. The
+    // sub-group local id is a unique local id of the work item, here we use
+    // get_local_linear_id.
+    auto *const M = CI->getModule();
+    auto *const GetLocalLinearID = BI.getOrDeclareMuxBuiltin(
+        compiler::utils::eMuxBuiltinGetLocalLinearId, *M);
+    GetLocalLinearID->setCallingConv(CI->getCallingConv());
+    auto *const LocalLinearIDCall =
+        CallInst::Create(GetLocalLinearID, {}, "", CI);
+    LocalLinearIDCall->setCallingConv(CI->getCallingConv());
+    auto *const LocalLinearID = CastInst::CreateIntegerCast(
+        LocalLinearIDCall, Type::getInt32Ty(M->getContext()),
+        /* isSigned */ false, "", CI);
+    CI->replaceAllUsesWith(LocalLinearID);
+  } else {
+    llvm_unreachable("unhandled sub-group builtin function");
   }
 }
 }  // namespace
@@ -532,11 +524,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   // functions, so we must collect subgroup builtin calls and replace them. Not
   // all degenerate functions were cloned - some were updated in-place, so we
   // must be careful about which functions we're updating.
-  // TODO: We could probably update these calls as we go, rather than
-  // collecting these two vectors.
-  SmallVector<std::pair<CallInst *, compiler::utils::Builtin>>
-      SubGroupFunctionCalls;
-  SmallVector<CallInst *> SubGroupWorkItemFunctionCalls;
+  SmallVector<Instruction *> toDelete;
   worklist.assign(degenerateKernels.begin(), degenerateKernels.end());
   worklist.append(usedByDegenerate.begin(), usedByDegenerate.end());
   for (auto *const F : worklist) {
@@ -551,29 +539,23 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
           if (auto SGBuiltin = isSubGroupFunction(CI, BI)) {
-            SubGroupFunctionCalls.push_back({CI, *SGBuiltin});
+            // Replace the sub-group function builtin calls with work-group
+            // builtin calls inside the degenerately cloned functions.
+            replaceSubGroupBuiltinCall(CI, *SGBuiltin, BI);
+            toDelete.push_back(CI);
           } else if (isSubGroupWorkItemFunction(CI, BI)) {
-            SubGroupWorkItemFunctionCalls.push_back(CI);
+            // Replace the sub-group work-item builtin calls with work-group
+            // work-item builtin calls inside the degenerately cloned functions.
+            replaceSubGroupWorkItemBuiltinCall(CI, BI);
+            toDelete.push_back(CI);
           }
         }
       }
     }
   }
 
-  // Replace the sub-group function builtin calls with work-group
-  // builtin calls inside the degenerately cloned functions.
-  replaceSubGroupBuiltinCalls(SubGroupFunctionCalls, BI);
-
-  // Replace the sub-group work-item builtin calls with work-group work-item
-  // builtin calls inside the degenerately cloned functions.
-  replaceSubGroupWorkItemBuiltinCalls(SubGroupWorkItemFunctionCalls, BI);
-
   // Remove the old instructions from the module.
-  for (auto &[I, _] : SubGroupFunctionCalls) {
-    I->eraseFromParent();
-  }
-
-  for (auto *I : SubGroupWorkItemFunctionCalls) {
+  for (auto *I : toDelete) {
     I->eraseFromParent();
   }
 
