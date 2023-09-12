@@ -172,6 +172,11 @@ void setHasDegenerateSubgroups(llvm::Function &F);
 /// @param[in] F Function to check.
 bool hasDegenerateSubgroups(const llvm::Function &F);
 
+/// @brief Returns the mux sub-group size for the current function.
+///
+/// Currently always returns 1!
+unsigned getMuxSubgroupSize(const llvm::Function &F);
+
 }  // namespace utils
 }  // namespace compiler
 

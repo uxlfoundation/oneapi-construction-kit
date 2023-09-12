@@ -78,7 +78,6 @@ entry:
 }
 
 declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
-; CHECK: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
 
 ; CHECK: define spir_func i32 @sub_groups.degenerate-subgroups(i32 [[X3:%.+]]) #[[ATTR2:[0-9]+]] {
 ; CHECK: entry:
@@ -93,6 +92,8 @@ declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
 ; CHECK:   [[R1:%.+]] = call spir_func i32 @__mux_work_group_reduce_add_i32(i32 0, i32 [[X1]])
 ; CHECK:   ret i32 [[R1]]
 ; CHECK: }
+
+; CHECK: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
 
 !opencl.ocl.version = !{!0}
 

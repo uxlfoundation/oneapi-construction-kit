@@ -68,18 +68,23 @@ std::optional<compiler::utils::Builtin> isSubGroupFunction(
 }
 
 /// @return The work-group equivalent of the given builtin.
+compiler::utils::BuiltinID lookupWGBuiltinID(
+    const compiler::utils::Builtin &SGBuiltin,
+    compiler::utils::BuiltinInfo &BI) {
+  if (SGBuiltin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier) {
+    return compiler::utils::eMuxBuiltinWorkGroupBarrier;
+  }
+  auto SGCollective = BI.isMuxGroupCollective(SGBuiltin.ID);
+  assert(SGCollective.has_value() && "Not a sub-group builtin");
+  auto WGCollective = *SGCollective;
+  WGCollective.Scope = compiler::utils::GroupCollective::ScopeKind::WorkGroup;
+  return BI.getMuxGroupCollective(WGCollective);
+}
+
+/// @return The work-group equivalent of the given builtin.
 Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
                           compiler::utils::BuiltinInfo &BI, Module &M) {
-  compiler::utils::BuiltinID WGBuiltinID = compiler::utils::eBuiltinInvalid;
-  if (SGBuiltin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier) {
-    WGBuiltinID = compiler::utils::eMuxBuiltinWorkGroupBarrier;
-  } else {
-    auto SGCollective = BI.isMuxGroupCollective(SGBuiltin.ID);
-    assert(SGCollective.has_value() && "Not a sub-group builtin");
-    auto WGCollective = *SGCollective;
-    WGCollective.Scope = compiler::utils::GroupCollective::ScopeKind::WorkGroup;
-    WGBuiltinID = BI.getMuxGroupCollective(WGCollective);
-  }
+  compiler::utils::BuiltinID WGBuiltinID = lookupWGBuiltinID(SGBuiltin, BI);
   // Not all sub-group builtins have a work-group equivalent.
   if (WGBuiltinID == compiler::utils::eBuiltinInvalid) {
     return nullptr;
@@ -268,6 +273,13 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     if (isKernelEntryPt(F)) {
       kernels.push_back(&F);
 
+      if (compiler::utils::getReqdSubgroupSize(F)) {
+        // If there's a user-specified required sub-group size, we don't need to
+        // clone this kernel. If vectorization fails to produce the right
+        // sub-group size, we'll fail compilation.
+        continue;
+      }
+
       auto const local_sizes = compiler::utils::getLocalSizeMetadata(F);
       if (!local_sizes) {
         // If we don't know the local size at compile time, we can't guarantee
@@ -337,7 +349,8 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
             if (usesSubgroups.insert(&F).second) {
               worklist.push_back(&F);
             }
-            if (SGBuiltin && !lookupWGBuiltin(*SGBuiltin, BI, M)) {
+            if (SGBuiltin && lookupWGBuiltinID(*SGBuiltin, BI) ==
+                                 compiler::utils::eBuiltinInvalid) {
               poisonList.insert(&F);
             }
           }

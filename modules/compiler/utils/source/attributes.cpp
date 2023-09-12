@@ -198,5 +198,11 @@ bool hasDegenerateSubgroups(const Function &F) {
   return Attr.isValid();
 }
 
+unsigned getMuxSubgroupSize(const llvm::Function &) {
+  // FIXME: The mux sub-group size is currently assumed to be 1 for all
+  // functions, kerrnels, and targets. This helper function is just to avoid
+  // hard-coding the constant 1 in places that will eventually need updated.
+  return 1;
+}
 }  // namespace utils
 }  // namespace compiler

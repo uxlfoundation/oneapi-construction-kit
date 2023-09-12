@@ -76,9 +76,25 @@ class VectorizationFactor {
   /// factor represents.
   unsigned getKnownMin() const { return KnownMin; }
 
+  VectorizationFactor operator*(unsigned other) const {
+    auto res = *this;
+    res.KnownMin *= other;
+    return res;
+  }
+
   bool operator==(const VectorizationFactor &other) const {
     return KnownMin == other.KnownMin && IsScalable == other.IsScalable;
   }
+
+  bool operator!=(const VectorizationFactor &other) const {
+    return !operator==(other);
+  }
+
+  bool operator==(unsigned other) const {
+    return !IsScalable && KnownMin == other;
+  }
+
+  bool operator!=(unsigned other) const { return !operator==(other); }
 
  private:
   unsigned KnownMin = 1;
