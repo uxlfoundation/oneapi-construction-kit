@@ -148,6 +148,11 @@ bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
+  // Handle required sub-group sizes
+  if (auto reqd_subgroup_vf = vecz::getReqdSubgroupSizeOpts(F)) {
+    PassOpts.assign(1, *reqd_subgroup_vf);
+    return true;
+  }
   auto env_var_opts = RiscvPassMachinery::processOptimizationOptions(
       /*env_debug_prefix*/ {}, vecz_mode);
   if (env_var_opts.vecz_pass_opts.empty()) {

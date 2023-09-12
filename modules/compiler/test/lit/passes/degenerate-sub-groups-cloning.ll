@@ -34,7 +34,6 @@ entry:
   ret i32 %call
 }
 
-; CHECK: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
 
 ; CHECK-LABEL: define spir_func i32 @sub_group_reduce_add_test.degenerate-subgroups
 ; CHECK: (i32 [[Y:%.*]]) #[[ATTR0:[0-9]+]]
@@ -42,6 +41,8 @@ entry:
 ; CHECK: [[RESULT:%.*]] = call spir_func i32 @__mux_work_group_reduce_add_i32(i32 0, i32 [[Y]])
 ; CHECK: ret i32 [[RESULT]]
 ; CHECK: }
+
+; CHECK: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
 
 declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
 

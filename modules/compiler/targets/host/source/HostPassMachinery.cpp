@@ -67,6 +67,11 @@ bool hostVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
   if (!compiler::utils::isKernelEntryPt(F)) {
     return false;
   }
+  // Handle required sub-group sizes
+  if (auto reqd_subgroup_vf = vecz::getReqdSubgroupSizeOpts(F)) {
+    Opts.assign(1, *reqd_subgroup_vf);
+    return true;
+  }
   const auto &DI =
       MAM.getResult<compiler::utils::DeviceInfoAnalysis>(*F.getParent());
   auto max_work_width = DI.max_work_width;

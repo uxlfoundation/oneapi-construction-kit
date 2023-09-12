@@ -249,6 +249,11 @@ bool {{cookiecutter.target_name.capitalize()}}VeczPassOpts(
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
+  // Handle required sub-group sizes
+  if (auto reqd_subgroup_vf = vecz::getReqdSubgroupSizeOpts(F)) {
+    PassOpts.assign(1, *reqd_subgroup_vf);
+    return true;
+  }
   auto env_var_opts = processOptimizationOptions(/*env_debug_prefix*/ {});
   if (!env_var_opts.vecz_pass_opts.has_value()) {
     return false;
