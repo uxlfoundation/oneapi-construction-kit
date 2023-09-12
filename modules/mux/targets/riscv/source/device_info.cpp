@@ -145,6 +145,12 @@ device_info_s::device_info_s()
   this->max_hardware_counters = std::numeric_limits<int>::max();
   this->supports_work_group_collectives = true;
   this->supports_generic_address_space = true;
+
+  static std::array<size_t, 1> sg_sizes = {
+      1,  // we can always produce a 'trivial' sub-group if asked.
+  };
+  this->sub_group_sizes = sg_sizes.data();
+  this->num_sub_group_sizes = sg_sizes.size();
 }
 
 mux_result_t GetDeviceInfos(uint32_t device_types, uint64_t device_infos_length,
