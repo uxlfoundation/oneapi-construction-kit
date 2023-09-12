@@ -41,6 +41,8 @@
 
 using namespace llvm;
 
+#define DEBUG_TYPE "degenerate-sub-groups"
+
 namespace {
 /// @brief Helper for determining if a call instruction calls a sub-group
 /// builtin function.
@@ -78,8 +80,10 @@ Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
     WGCollective.Scope = compiler::utils::GroupCollective::ScopeKind::WorkGroup;
     WGBuiltinID = BI.getMuxGroupCollective(WGCollective);
   }
-  assert(WGBuiltinID != compiler::utils::eBuiltinInvalid &&
-         "Missing sub-group -> work-group mapping");
+  // Not all sub-group builtins have a work-group equivalent.
+  if (WGBuiltinID == compiler::utils::eBuiltinInvalid) {
+    return nullptr;
+  }
   auto *WGBuiltin =
       BI.getOrDeclareMuxBuiltin(WGBuiltinID, M, SGBuiltin.mux_overload_info);
   assert(WGBuiltin && "Missing work-group builtin");
@@ -134,6 +138,7 @@ void replaceSubGroupBuiltinCalls(
         Args.push_back(arg);
       }
       auto *const WorkGroupBuiltinFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
+      assert(WorkGroupBuiltinFcn && "Must have work-group equivalent");
       WorkGroupBuiltinFcn->setCallingConv(I->getCallingConv());
       auto *WGCI = CallInst::Create(WorkGroupBuiltinFcn, Args, "", I);
       WGCI->setCallingConv(I->getCallingConv());
@@ -181,6 +186,7 @@ void replaceSubGroupBuiltinCalls(
 
     auto *const SizeType = compiler::utils::getSizeType(*M);
     auto *const WorkGroupBroadcastFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
+    assert(WorkGroupBroadcastFcn && "Must have work-group equivalent");
     WorkGroupBroadcastFcn->setCallingConv(I->getCallingConv());
     // Because sub_group_broadcast takes uint as its index argument but
     // work_group_broadcast takes size_t we potentially need cast here to the
@@ -323,14 +329,25 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   // or indirectly make use of subgroups; otherwise, they can be shared by both
   // kinds of kernel.
   SmallVector<Function *, 8> worklist;
+  SmallPtrSet<Function *, 8> usesSubgroups;
+  // Some sub-group functions have no work-group equivalent (e.g., shuffles).
+  // We mark these as 'poisonous' as they poison the call-graph and halt the
+  // process of converting any of their transitive users to degenerate
+  // sub-groups.
+  SmallPtrSet<Function *, 8> poisonList;
   for (auto &F : M) {
     for (auto &BB : F) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
-          if (isSubGroupFunction(CI, BI) ||
-              isSubGroupWorkItemFunction(CI, BI)) {
-            worklist.push_back(&F);
-            break;
+          if (auto SGBuiltin = isSubGroupFunction(CI, BI);
+              SGBuiltin || isSubGroupWorkItemFunction(CI, BI)) {
+            // Only add each function to the worklist once
+            if (usesSubgroups.insert(&F).second) {
+              worklist.push_back(&F);
+            }
+            if (SGBuiltin && !lookupWGBuiltin(*SGBuiltin, BI, M)) {
+              poisonList.insert(&F);
+            }
           }
         }
       }
@@ -349,8 +366,8 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   }
 
   // Collect all functions that contain subgroup calls, including calls to
-  // other functions in the module that contain subgroup calls.
-  SmallPtrSet<Function *, 8> usesSubgroups(worklist.begin(), worklist.end());
+  // other functions in the module that contain subgroup calls. Also propagate
+  // the poison through the call graph.
   while (!worklist.empty()) {
     auto *const work = worklist.pop_back_val();
     for (auto *const U : work->users()) {
@@ -358,6 +375,9 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
         auto *const P = CI->getFunction();
         if (usesSubgroups.insert(P).second) {
           worklist.push_back(P);
+        }
+        if (poisonList.contains(work)) {
+          poisonList.insert(P);
         }
       }
     }
@@ -380,6 +400,18 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
 
       // No need to clone kernels that don't use any subgroup functions.
       kernelsToClone.erase(K);
+    }
+
+    // If the kernel transitively uses a sub-group function for which there is
+    // no work-group equivalent, we can't clone it and can't mark it as having
+    // degenerate sub-groups.
+    if (poisonList.contains(K)) {
+      LLVM_DEBUG(dbgs() << "Kernel '" << K->getName()
+                        << "' uses sub-group builtin with no work-group "
+                           "equivalent - skipping\n");
+      kernelsToClone.erase(K);
+      nonDegenerateUsers.push_back(K);
+      continue;
     }
 
     if (kernelsToClone.contains(K)) {
@@ -432,16 +464,90 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     }
   }
 
-  // The cloned functions are used by the non-degenerate subgroup kernels, so
-  // that we can collect subgroup builtin calls first and replace them in their
-  // original homes.
-  SmallVector<std::pair<CallInst *, compiler::utils::Builtin>, 32>
+  // Clone all functions used by both degenerate and non-degenerate subgroup
+  // kernels
+  SmallVector<Function *, 8> functionsToClone(kernelsToClone.begin(),
+                                              kernelsToClone.end());
+  for (auto &F : M) {
+    if (!F.empty() && usedByDegenerate.contains(&F) &&
+        usedByNonDegenerate.contains(&F)) {
+      functionsToClone.push_back(&F);
+    }
+  }
+
+  // First clone all the function declarations and insert them into the VMap.
+  // This allows us to automatically update all non-degenerate function calls
+  // to degenerate function calls while we clone.
+  ValueToValueMapTy VMap;
+  for (auto *const F : functionsToClone) {
+    // Create our new function, using the linkage from the old one
+    // Note - we don't have to copy attributes or metadata over, as
+    // CloneFunctionInto does that for us.
+    auto *const NewF =
+        Function::Create(F->getFunctionType(), F->getLinkage(), "", &M);
+    NewF->setCallingConv(F->getCallingConv());
+
+    auto baseName = getOrSetBaseFnName(*NewF, *F);
+    NewF->setName(baseName + ".degenerate-subgroups");
+    VMap[F] = NewF;
+  }
+
+  // Clone the function bodies
+  for (auto *const F : functionsToClone) {
+    auto Mapped = VMap.find(F);
+    assert(Mapped != VMap.end());
+    Function *const NewF = cast<Function>(Mapped->second);
+    assert(NewF && "Missing cloned function");
+    // Scrub any old subprogram - CloneFunctionInto will create a new one for us
+    if (auto *const SP = F->getSubprogram()) {
+      NewF->setSubprogram(nullptr);
+    }
+
+    // Map all original function arguments to the new function arguments
+    for (auto it : zip(F->args(), NewF->args())) {
+      auto *const OldA = &std::get<0>(it);
+      auto *const NewA = &std::get<1>(it);
+      VMap[OldA] = NewA;
+      NewA->setName(OldA->getName());
+    }
+
+    StringRef BaseName = getBaseFnNameOrFnName(*F);
+
+    auto const ChangeType = CloneFunctionChangeType::LocalChangesOnly;
+    SmallVector<ReturnInst *, 1> Returns;
+    CloneFunctionInto(NewF, F, VMap, ChangeType, Returns);
+
+    // Set the base name on the new cloned kernel to preserve its lineage.
+    if (!BaseName.empty()) {
+      setBaseFnName(*NewF, BaseName);
+    }
+
+    // If we just cloned a kernel, the original now has degenerate subgroups.
+    if (isKernel(*F)) {
+      setHasDegenerateSubgroups(*NewF);
+    }
+  }
+
+  // The degenerate functions/kernels are still using non-degenerate subgroup
+  // functions, so we must collect subgroup builtin calls and replace them. Not
+  // all degenerate functions were cloned - some were updated in-place, so we
+  // must be careful about which functions we're updating.
+  // TODO: We could probably update these calls as we go, rather than
+  // collecting these two vectors.
+  SmallVector<std::pair<CallInst *, compiler::utils::Builtin>>
       SubGroupFunctionCalls;
-  SmallVector<CallInst *, 32> SubGroupWorkItemFunctionCalls;
+  SmallVector<CallInst *> SubGroupWorkItemFunctionCalls;
   worklist.assign(degenerateKernels.begin(), degenerateKernels.end());
   worklist.append(usedByDegenerate.begin(), usedByDegenerate.end());
   for (auto *const F : worklist) {
-    for (auto &BB : *F) {
+    // Assume we'll update this function in place. If it's in the VMap then the
+    // degenerate version is the cloned version.
+    auto *ReplaceF = F;
+    if (auto Mapped = VMap.find(F); Mapped != VMap.end()) {
+      ReplaceF = cast<Function>(Mapped->second);
+    }
+    assert(ReplaceF && "Missing function");
+    for (auto &BB : *ReplaceF) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
           if (auto SGBuiltin = isSubGroupFunction(CI, BI)) {
@@ -454,88 +560,12 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     }
   }
 
-  // Clone all functions used by both degenerate and non-degenerate subgroup
-  // kernels
-  SmallVector<Function *, 8> functionsToClone(kernelsToClone.begin(),
-                                              kernelsToClone.end());
-  for (auto &F : M) {
-    if (!F.empty() && usedByDegenerate.contains(&F) &&
-        usedByNonDegenerate.contains(&F)) {
-      functionsToClone.push_back(&F);
-    }
-  }
-
-  ValueMap<Function *, Function *> OldToNewFnMap;
-  for (auto *const F : functionsToClone) {
-    // Create our new function, using the linkage from the old one
-    // Note - we don't have to copy attributes or metadata over, as
-    // CloneFunctionInto does that for us.
-    auto *const NewF =
-        Function::Create(F->getFunctionType(), F->getLinkage(), "", &M);
-    NewF->setCallingConv(F->getCallingConv());
-    NewF->takeName(F);
-    F->setName(Twine(NewF->getName(), ".degenerate-subgroups"));
-
-    // Scrub any old subprogram - CloneFunctionInto will create a new one for us
-    if (auto *const SP = F->getSubprogram()) {
-      NewF->setSubprogram(nullptr);
-    }
-
-    // Map all original function arguments to the new function arguments
-    ValueToValueMapTy VMap;
-    for (auto it : zip(F->args(), NewF->args())) {
-      auto *const OldA = &std::get<0>(it);
-      auto *const NewA = &std::get<1>(it);
-      VMap[OldA] = NewA;
-      NewA->setName(OldA->getName());
-    }
-
-    auto const ChangeType = CloneFunctionChangeType::LocalChangesOnly;
-    SmallVector<ReturnInst *, 1> Returns;
-    CloneFunctionInto(NewF, F, VMap, ChangeType, Returns);
-
-    // If we just cloned a kernel, the original now has degenerate subgroups.
-    if (isKernel(*F)) {
-      setHasDegenerateSubgroups(*F);
-    }
-
-    // The original function is now the degenerate user, so replace it in the
-    // list, if present.
-    auto const found =
-        std::find(nonDegenerateUsers.begin(), nonDegenerateUsers.end(), F);
-    if (found != nonDegenerateUsers.end()) {
-      *found = NewF;
-    } else {
-      nonDegenerateUsers.push_back(NewF);
-    }
-    OldToNewFnMap[F] = NewF;
-  }
-
-  // Remap all calls to degenerate subgroup functions from non-degenerate
-  // kernels/functions to their new non-degenerate equivalents.
-  for (auto *F : nonDegenerateUsers) {
-    for (auto &BB : *F) {
-      for (auto &I : BB) {
-        auto *CB = dyn_cast<CallBase>(&I);
-        if (!CB) {
-          continue;
-        }
-        if (auto *const NewF = OldToNewFnMap.lookup(CB->getCalledFunction())) {
-          if (CB->getOpcode() != Instruction::Call) {
-            llvm_unreachable("Unhandled CallBase sub-class");
-          }
-          CB->setCalledFunction(NewF);
-        }
-      }
-    }
-  }
-
   // Replace the sub-group function builtin calls with work-group
-  // builtin calls.
+  // builtin calls inside the degenerately cloned functions.
   replaceSubGroupBuiltinCalls(SubGroupFunctionCalls, BI);
 
   // Replace the sub-group work-item builtin calls with work-group work-item
-  // builtin calls.
+  // builtin calls inside the degenerately cloned functions.
   replaceSubGroupWorkItemBuiltinCalls(SubGroupWorkItemFunctionCalls, BI);
 
   // Remove the old instructions from the module.

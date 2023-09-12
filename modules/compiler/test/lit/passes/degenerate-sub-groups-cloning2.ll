@@ -29,65 +29,27 @@
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
 target triple = "spir64-unknown-unknown"
 
+; CHECK: define spir_func i32 @clone_this(i32 [[X6:%.+]]) {
+; CHECK: entry:
+; CHECK:   [[R6:%.+]] = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 [[X6]])
+; CHECK:   ret i32 [[R6]]
+; CHECK: }
 define spir_func i32 @clone_this(i32 %x) {
 entry:
   %call = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 %x)
   ret i32 %call
 }
 
-define spir_func i32 @shared(i32 %x) {
-entry:
-  %sqr = mul i32 %x, %x
-  ret i32 %sqr
-}
-
-define spir_func i32 @sub_groups(i32 %x) #0 {
-entry:
-  %call1 = call spir_func i32 @clone_this(i32 %x)
-  %call2 = call spir_func i32 @shared(i32 %x)
-  %add = add i32 %call1, %call2
-  ret i32 %add
-}
-
-define spir_func i32 @no_sub_groups(i32 %x) #0 {
-entry:
-  %call = call spir_func i32 @shared(i32 %x)
-  ret i32 %call
-}
-
-declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
-
-!opencl.ocl.version = !{!0}
-
-!0 = !{i32 3, i32 0}
-
-attributes #0 = { "mux-kernel"="entry-point" }
-
-; CHECK: define spir_func i32 @clone_this.degenerate-subgroups(i32 [[X1:%.+]]) {
-; CHECK: entry:
-; CHECK:   [[R1:%.+]] = call spir_func i32 @__mux_work_group_reduce_add_i32(i32 0, i32 [[X1]])
-; CHECK:   ret i32 [[R1]]
-; CHECK: }
-
 ; CHECK: define spir_func i32 @shared(i32 [[X2:%.+]]) {
 ; CHECK: entry:
 ; CHECK:   [[R2:%.+]] = mul i32 [[X2]], [[X2]]
 ; CHECK:   ret i32 [[R2]]
 ; CHECK: }
-
-; CHECK: define spir_func i32 @sub_groups.degenerate-subgroups(i32 [[X3:%.+]]) #[[ATTR0:[0-9]+]] {
-; CHECK: entry:
-; CHECK:   [[C3_1:%.+]] = call spir_func i32 @clone_this.degenerate-subgroups(i32 [[X3]])
-; CHECK:   [[C3_2:%.+]] = call spir_func i32 @shared(i32 [[X3]])
-; CHECK:   [[R3:%.+]] = add i32 [[C3_1]], [[C3_2]]
-; CHECK:   ret i32 [[R3:%.+]]
-; CHECK: }
-
-; CHECK: define spir_func i32 @no_sub_groups(i32 [[X4:%.+]]) #[[ATTR0]] {
-; CHECK: entry:
-; CHECK:   [[R4:%.+]] = call spir_func i32 @shared(i32 [[X4]])
-; CHECK:   ret i32 [[R4]]
-; CHECK: }
+define spir_func i32 @shared(i32 %x) {
+entry:
+  %sqr = mul i32 %x, %x
+  ret i32 %sqr
+}
 
 ; CHECK: define spir_func i32 @sub_groups(i32 [[X5:%.+]]) #[[ATTR1:[0-9]+]] {
 ; CHECK: entry:
@@ -96,13 +58,49 @@ attributes #0 = { "mux-kernel"="entry-point" }
 ; CHECK:   [[R5:%.+]] = add i32 [[C5_1]], [[C5_2]]
 ; CHECK:   ret i32 [[R5]]
 ; CHECK: }
+define spir_func i32 @sub_groups(i32 %x) #0 {
+entry:
+  %call1 = call spir_func i32 @clone_this(i32 %x)
+  %call2 = call spir_func i32 @shared(i32 %x)
+  %add = add i32 %call1, %call2
+  ret i32 %add
+}
 
-; CHECK: define spir_func i32 @clone_this(i32 [[X6:%.+]]) {
+; CHECK: define spir_func i32 @no_sub_groups(i32 [[X4:%.+]]) #[[ATTR0:[0-9]+]] {
 ; CHECK: entry:
-; CHECK:   [[R6:%.+]] = call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 [[X6]])
-; CHECK:   ret i32 [[R6]]
+; CHECK:   [[R4:%.+]] = call spir_func i32 @shared(i32 [[X4]])
+; CHECK:   ret i32 [[R4]]
+; CHECK: }
+define spir_func i32 @no_sub_groups(i32 %x) #0 {
+entry:
+  %call = call spir_func i32 @shared(i32 %x)
+  ret i32 %call
+}
+
+declare spir_func i32 @__mux_sub_group_reduce_add_i32(i32)
+; CHECK: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
+
+; CHECK: define spir_func i32 @sub_groups.degenerate-subgroups(i32 [[X3:%.+]]) #[[ATTR2:[0-9]+]] {
+; CHECK: entry:
+; CHECK:   [[C3_1:%.+]] = call spir_func i32 @clone_this.degenerate-subgroups(i32 [[X3]])
+; CHECK:   [[C3_2:%.+]] = call spir_func i32 @shared(i32 [[X3]])
+; CHECK:   [[R3:%.+]] = add i32 [[C3_1]], [[C3_2]]
+; CHECK:   ret i32 [[R3:%.+]]
 ; CHECK: }
 
-; CHECK-DAG: declare spir_func i32 @__mux_work_group_reduce_add_i32(i32, i32)
+; CHECK: define spir_func i32 @clone_this.degenerate-subgroups(i32 [[X1:%.+]]) #[[ATTR3:[0-9]+]] {
+; CHECK: entry:
+; CHECK:   [[R1:%.+]] = call spir_func i32 @__mux_work_group_reduce_add_i32(i32 0, i32 [[X1]])
+; CHECK:   ret i32 [[R1]]
+; CHECK: }
+
+!opencl.ocl.version = !{!0}
+
+!0 = !{i32 3, i32 0}
+
+attributes #0 = { "mux-kernel"="entry-point" }
+
 ; CHECK-DAG: attributes #[[ATTR0]] = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
 ; CHECK-DAG: attributes #[[ATTR1]] = { "mux-kernel"="entry-point" }
+; CHECK-DAG: attributes #[[ATTR2]] = { "mux-base-fn-name"="sub_groups" "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
+; CHECK-DAG: attributes #[[ATTR3]] = { "mux-base-fn-name"="clone_this" }
