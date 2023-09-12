@@ -68,117 +68,16 @@ std::optional<compiler::utils::Builtin> isSubGroupFunction(
 /// @return The work-group equivalent of the given builtin.
 Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
                           compiler::utils::BuiltinInfo &BI, Module &M) {
-  compiler::utils::BuiltinID WGBuiltinID = [](compiler::utils::BuiltinID ID) {
-    switch (ID) {
-      default:
-        return compiler::utils::eBuiltinInvalid;
-      case compiler::utils::eMuxBuiltinSubGroupBarrier:
-        return compiler::utils::eMuxBuiltinWorkGroupBarrier;
-      case compiler::utils::eMuxBuiltinSubgroupAny:
-        return compiler::utils::eMuxBuiltinWorkgroupAny;
-      case compiler::utils::eMuxBuiltinSubgroupAll:
-        return compiler::utils::eMuxBuiltinWorkgroupAll;
-      case compiler::utils::eMuxBuiltinSubgroupBroadcast:
-        return compiler::utils::eMuxBuiltinWorkgroupBroadcast;
-      case compiler::utils::eMuxBuiltinSubgroupReduceAdd:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceAdd;
-      case compiler::utils::eMuxBuiltinSubgroupReduceFAdd:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceFAdd;
-      case compiler::utils::eMuxBuiltinSubgroupReduceMul:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceMul;
-      case compiler::utils::eMuxBuiltinSubgroupReduceFMul:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceFMul;
-      case compiler::utils::eMuxBuiltinSubgroupReduceUMax:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceUMax;
-      case compiler::utils::eMuxBuiltinSubgroupReduceSMax:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceSMax;
-      case compiler::utils::eMuxBuiltinSubgroupReduceFMax:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceFMax;
-      case compiler::utils::eMuxBuiltinSubgroupReduceUMin:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceUMin;
-      case compiler::utils::eMuxBuiltinSubgroupReduceSMin:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceSMin;
-      case compiler::utils::eMuxBuiltinSubgroupReduceFMin:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceFMin;
-      case compiler::utils::eMuxBuiltinSubgroupReduceAnd:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceAnd;
-      case compiler::utils::eMuxBuiltinSubgroupReduceOr:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceOr;
-      case compiler::utils::eMuxBuiltinSubgroupReduceXor:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceXor;
-      case compiler::utils::eMuxBuiltinSubgroupReduceLogicalAnd:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceLogicalAnd;
-      case compiler::utils::eMuxBuiltinSubgroupReduceLogicalOr:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceLogicalOr;
-      case compiler::utils::eMuxBuiltinSubgroupReduceLogicalXor:
-        return compiler::utils::eMuxBuiltinWorkgroupReduceLogicalXor;
-      case compiler::utils::eMuxBuiltinSubgroupScanAddInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanAddInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFAddInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFAddInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanMulInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanMulInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFMulInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFMulInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanUMaxInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanUMaxInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanSMaxInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanSMaxInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFMaxInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFMaxInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanUMinInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanUMinInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanSMinInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanSMinInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFMinInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFMinInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanAndInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanAndInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanOrInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanOrInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanXorInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanXorInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanLogicalAndInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanLogicalAndInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanLogicalOrInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanLogicalOrInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanLogicalXorInclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanLogicalXorInclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanAddExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanAddExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFAddExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFAddExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanMulExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanMulExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFMulExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFMulExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanUMaxExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanUMaxExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanSMaxExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanSMaxExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFMaxExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFMaxExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanUMinExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanUMinExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanSMinExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanSMinExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanFMinExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanFMinExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanAndExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanAndExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanOrExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanOrExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanXorExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanXorExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanLogicalAndExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanLogicalAndExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanLogicalOrExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanLogicalOrExclusive;
-      case compiler::utils::eMuxBuiltinSubgroupScanLogicalXorExclusive:
-        return compiler::utils::eMuxBuiltinWorkgroupScanLogicalXorExclusive;
-    }
-  }(SGBuiltin.ID);
-
+  compiler::utils::BuiltinID WGBuiltinID = compiler::utils::eBuiltinInvalid;
+  if (SGBuiltin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier) {
+    WGBuiltinID = compiler::utils::eMuxBuiltinWorkGroupBarrier;
+  } else {
+    auto SGCollective = BI.isMuxGroupCollective(SGBuiltin.ID);
+    assert(SGCollective.has_value() && "Not a sub-group builtin");
+    auto WGCollective = *SGCollective;
+    WGCollective.Scope = compiler::utils::GroupCollective::ScopeKind::WorkGroup;
+    WGBuiltinID = BI.getMuxGroupCollective(WGCollective);
+  }
   assert(WGBuiltinID != compiler::utils::eBuiltinInvalid &&
          "Missing sub-group -> work-group mapping");
   auto *WGBuiltin =
