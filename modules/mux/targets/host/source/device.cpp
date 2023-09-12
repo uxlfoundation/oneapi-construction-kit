@@ -523,6 +523,12 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   this->sub_groups_support_ifp = false;
   this->supports_work_group_collectives = true;
   this->supports_generic_address_space = true;
+
+  static std::array<size_t, 1> sg_sizes = {
+      1,  // we can always produce a 'trivial' sub-group if asked.
+  };
+  this->sub_group_sizes = sg_sizes.data();
+  this->num_sub_group_sizes = sg_sizes.size();
 }
 
 host::arch device_info_s::detectHostArch() {
