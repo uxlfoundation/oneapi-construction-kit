@@ -60,6 +60,9 @@ MODULE_PASS("verify-reqd-sub-group-satisfied",
 
 MODULE_PASS("unique-opaque-structs", compiler::utils::UniqueOpaqueStructsPass())
 
+MODULE_PASS("print<sub-groups>",
+            compiler::utils::SubgroupAnalysisPrinterPass(llvm::dbgs()))
+
 MODULE_PASS("run-vecz", vecz::RunVeczPass())
 MODULE_PASS("print<vecz-pass-opts>", vecz::VeczPassOptionsPrinterPass(dbgs()))
 
@@ -149,6 +152,8 @@ MODULE_ANALYSIS("builtin-info",
 MODULE_ANALYSIS("device-info",
                 !Info ? compiler::utils::DeviceInfoAnalysis() :
                         compiler::utils::DeviceInfoAnalysis(*Info))
+
+MODULE_ANALYSIS("sub-groups", compiler::utils::SubgroupAnalysis());
 
 // Note - a default implementation to avoid crashes when retrieving the
 // analysis. Targets will most certainly want to register their own

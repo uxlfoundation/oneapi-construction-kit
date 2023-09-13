@@ -26,6 +26,7 @@
 #include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
+#include <compiler/utils/sub_group_analysis.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
@@ -44,37 +45,28 @@ using namespace llvm;
 #define DEBUG_TYPE "degenerate-sub-groups"
 
 namespace {
-/// @brief Helper for determining if a call instruction calls a sub-group
-/// builtin function.
-///
-/// @param[in] CI Call instruction to query.
-///
-/// @return True if CI is a call to sub-group builtin, false otherwise.
-std::optional<compiler::utils::Builtin> isSubGroupFunction(
-    CallInst *CI, compiler::utils::BuiltinInfo &BI) {
-  auto *Fcn = CI->getCalledFunction();
-  assert(Fcn && "virtual calls are not supported");
-  auto SGBuiltin = BI.analyzeBuiltin(*Fcn);
-
-  if (SGBuiltin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier) {
-    return SGBuiltin;
-  }
-  if (auto GroupOp = BI.isMuxGroupCollective(SGBuiltin.ID);
-      GroupOp && GroupOp->isSubGroupScope()) {
-    return SGBuiltin;
-  }
-
-  return std::nullopt;
-}
 
 /// @return The work-group equivalent of the given builtin.
-compiler::utils::BuiltinID lookupWGBuiltinID(
-    const compiler::utils::Builtin &SGBuiltin,
-    compiler::utils::BuiltinInfo &BI) {
-  if (SGBuiltin.ID == compiler::utils::eMuxBuiltinSubGroupBarrier) {
-    return compiler::utils::eMuxBuiltinWorkGroupBarrier;
+compiler::utils::BuiltinID lookupWGBuiltinID(compiler::utils::BuiltinID ID,
+                                             compiler::utils::BuiltinInfo &BI) {
+  switch (ID) {
+    default:
+      break;
+    case compiler::utils::eMuxBuiltinSubGroupBarrier:
+      return compiler::utils::eMuxBuiltinWorkGroupBarrier;
+    case compiler::utils::eMuxBuiltinGetSubGroupSize:
+    case compiler::utils::eMuxBuiltinGetMaxSubGroupSize:
+    case compiler::utils::eMuxBuiltinGetNumSubGroups:
+    case compiler::utils::eMuxBuiltinGetSubGroupId:
+    case compiler::utils::eMuxBuiltinGetSubGroupLocalId:
+      // There are work-group equivalents of all of these functions, but we
+      // don't care. This is purely to not return eBuiltinInvalid, which would
+      // signal that the caller of these builtins couldn't be converted to a
+      // degenerate sub-group function.
+      return compiler::utils::eBuiltinUnknown;
   }
-  auto SGCollective = BI.isMuxGroupCollective(SGBuiltin.ID);
+  // Check collective builtins
+  auto SGCollective = BI.isMuxGroupCollective(ID);
   assert(SGCollective.has_value() && "Not a sub-group builtin");
   auto WGCollective = *SGCollective;
   WGCollective.Scope = compiler::utils::GroupCollective::ScopeKind::WorkGroup;
@@ -84,7 +76,7 @@ compiler::utils::BuiltinID lookupWGBuiltinID(
 /// @return The work-group equivalent of the given builtin.
 Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
                           compiler::utils::BuiltinInfo &BI, Module &M) {
-  compiler::utils::BuiltinID WGBuiltinID = lookupWGBuiltinID(SGBuiltin, BI);
+  compiler::utils::BuiltinID WGBuiltinID = lookupWGBuiltinID(SGBuiltin.ID, BI);
   // Not all sub-group builtins have a work-group equivalent.
   if (WGBuiltinID == compiler::utils::eBuiltinInvalid) {
     return nullptr;
@@ -96,40 +88,20 @@ Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
   return WGBuiltin;
 }
 
-/// @brief Helper for determining if a call instruction calls a sub-group
-/// work-item builtin function.
-///
-/// @param[in] CI Call instruction to query.
-///
-/// @return True if CI is a call to sub-group work-item builtin, false
-/// otherwise.
-bool isSubGroupWorkItemFunction(CallInst *CI,
-                                compiler::utils::BuiltinInfo &BI) {
-  auto *Fcn = CI->getCalledFunction();
-  assert(Fcn && "virtual calls are not supported");
-  auto SGBuiltin = BI.analyzeBuiltin(*Fcn);
-
-  switch (SGBuiltin.ID) {
-    default:
-      return false;
-    case compiler::utils::eMuxBuiltinGetSubGroupSize:
-    case compiler::utils::eMuxBuiltinGetMaxSubGroupSize:
-    case compiler::utils::eMuxBuiltinGetNumSubGroups:
-    case compiler::utils::eMuxBuiltinGetSubGroupId:
-    case compiler::utils::eMuxBuiltinGetSubGroupLocalId:
-      return true;
-  }
-}
-
 /// @brief Replaces sub-group builtin calls with their work-group equivalents.
 ///
 /// @param[in] CI Builtin call to replace.
 /// @param[in] SGBuiltin Builtin to replace
 /// @param[in] BI BuiltinInfo
-void replaceSubGroupBuiltinCall(CallInst *CI,
+void replaceSubgroupBuiltinCall(CallInst *CI,
                                 compiler::utils::Builtin SGBuiltin,
                                 compiler::utils::BuiltinInfo &BI) {
   auto *const M = CI->getModule();
+
+  auto *const WorkGroupBuiltinFn = lookupWGBuiltin(SGBuiltin, BI, *M);
+  assert(WorkGroupBuiltinFn && "Must have work-group equivalent");
+  WorkGroupBuiltinFn->setCallingConv(CI->getCallingConv());
+
   if (SGBuiltin.ID != compiler::utils::eMuxBuiltinSubgroupBroadcast) {
     // We can just forward the argument directly to the
     // work-group builtin for everything except broadcasts.
@@ -142,10 +114,7 @@ void replaceSubGroupBuiltinCall(CallInst *CI,
     for (auto &arg : CI->args()) {
       Args.push_back(arg);
     }
-    auto *const WorkGroupBuiltinFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
-    assert(WorkGroupBuiltinFcn && "Must have work-group equivalent");
-    WorkGroupBuiltinFcn->setCallingConv(CI->getCallingConv());
-    auto *WGCI = CallInst::Create(WorkGroupBuiltinFcn, Args, "", CI);
+    auto *WGCI = CallInst::Create(WorkGroupBuiltinFn, Args, "", CI);
     WGCI->setCallingConv(CI->getCallingConv());
     CI->replaceAllUsesWith(WGCI);
     return;
@@ -187,9 +156,6 @@ void replaceSubGroupBuiltinCall(CallInst *CI,
       Builder.CreateMul(LocalSizeX, LocalSizeY), "z");
 
   auto *const SizeType = compiler::utils::getSizeType(*M);
-  auto *const WorkGroupBroadcastFcn = lookupWGBuiltin(SGBuiltin, BI, *M);
-  assert(WorkGroupBroadcastFcn && "Must have work-group equivalent");
-  WorkGroupBroadcastFcn->setCallingConv(CI->getCallingConv());
   // Because sub_group_broadcast takes uint as its index argument but
   // work_group_broadcast takes size_t we potentially need cast here to the
   // native size_t.
@@ -198,7 +164,7 @@ void replaceSubGroupBuiltinCall(CallInst *CI,
   Y = Builder.CreateIntCast(Y, SizeType, /* isSigned */ false);
   Z = Builder.CreateIntCast(Z, SizeType, /* isSigned */ false);
   auto *const WGCI =
-      Builder.CreateCall(WorkGroupBroadcastFcn, {ID, Value, X, Y, Z});
+      Builder.CreateCall(WorkGroupBuiltinFn, {ID, Value, X, Y, Z});
   CI->replaceAllUsesWith(WGCI);
 }
 
@@ -207,7 +173,7 @@ void replaceSubGroupBuiltinCall(CallInst *CI,
 ///
 /// @param[in] CI Builtin call to replace
 /// @param[in] BI BuiltinInfo
-void replaceSubGroupWorkItemBuiltinCall(CallInst *CI,
+void replaceSubgroupWorkItemBuiltinCall(CallInst *CI,
                                         compiler::utils::BuiltinInfo &BI) {
   const auto CalledFunctionName = CI->getCalledFunction()->getName();
   // Handle __mux_get_sub_group_size, get_sub_group_size &
@@ -268,6 +234,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   SmallPtrSet<Function *, 8> degenerateKernels;
   SmallPtrSet<Function *, 8> kernelsToClone;
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
+  const auto &GSGI = AM.getResult<SubgroupAnalysis>(M);
 
   for (auto &F : M) {
     if (isKernelEntryPt(F)) {
@@ -332,7 +299,6 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   // non-degenerate subgroup kernels, but only where those functions directly
   // or indirectly make use of subgroups; otherwise, they can be shared by both
   // kinds of kernel.
-  SmallVector<Function *, 8> worklist;
   SmallPtrSet<Function *, 8> usesSubgroups;
   // Some sub-group functions have no work-group equivalent (e.g., shuffles).
   // We mark these as 'poisonous' as they poison the call-graph and halt the
@@ -340,52 +306,30 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   // sub-groups.
   SmallPtrSet<Function *, 8> poisonList;
   for (auto &F : M) {
-    for (auto &BB : F) {
-      for (auto &I : BB) {
-        if (auto *CI = dyn_cast<CallInst>(&I)) {
-          if (auto SGBuiltin = isSubGroupFunction(CI, BI);
-              SGBuiltin || isSubGroupWorkItemFunction(CI, BI)) {
-            // Only add each function to the worklist once
-            if (usesSubgroups.insert(&F).second) {
-              worklist.push_back(&F);
-            }
-            if (SGBuiltin && lookupWGBuiltinID(*SGBuiltin, BI) ==
-                                 compiler::utils::eBuiltinInvalid) {
-              poisonList.insert(&F);
-            }
-          }
-        }
-      }
+    if (F.isDeclaration()) {
+      continue;
+    }
+    if (!GSGI.usesSubgroups(F)) {
+      continue;
+    }
+    const auto *SGI = GSGI[&F];
+    usesSubgroups.insert(&F);
+    if (any_of(SGI->UsedSubgroupBuiltins, [&](BuiltinID ID) {
+          return lookupWGBuiltinID(ID, BI) == eBuiltinInvalid;
+        })) {
+      poisonList.insert(&F);
     }
   }
 
   // If there were no sub-group builtin calls we are done, exit early and
   // preserve all analysis since we didn't touch the module.
-  if (worklist.empty()) {
+  if (usesSubgroups.empty()) {
     for (auto *const K : kernels) {
       // Set the attribute on every kernel that doesn't use any subgroups at
       // all, so the vectorizer knows it can vectorize them however it likes.
       setHasDegenerateSubgroups(*K);
     }
     return PreservedAnalyses::all();
-  }
-
-  // Collect all functions that contain subgroup calls, including calls to
-  // other functions in the module that contain subgroup calls. Also propagate
-  // the poison through the call graph.
-  while (!worklist.empty()) {
-    auto *const work = worklist.pop_back_val();
-    for (auto *const U : work->users()) {
-      if (auto *const CI = dyn_cast<CallInst>(U)) {
-        auto *const P = CI->getFunction();
-        if (usesSubgroups.insert(P).second) {
-          worklist.push_back(P);
-        }
-        if (poisonList.contains(work)) {
-          poisonList.insert(P);
-        }
-      }
-    }
   }
 
   // Categorise the kernels as users of degenerate and/or non-degenerate
@@ -395,6 +339,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   // Note that kernels marked as using degenerate subgroups that don't actually
   // call any subgroup functions (directly or indirectly) don't need to be
   // collected here.
+  SmallVector<Function *, 8> worklist;
   SmallVector<Function *, 8> nonDegenerateUsers;
   for (auto *const K : kernels) {
     bool const subgroups = usesSubgroups.contains(K);
@@ -551,15 +496,20 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     for (auto &BB : *ReplaceF) {
       for (auto &I : BB) {
         if (auto *CI = dyn_cast<CallInst>(&I)) {
-          if (auto SGBuiltin = isSubGroupFunction(CI, BI)) {
-            // Replace the sub-group function builtin calls with work-group
-            // builtin calls inside the degenerately cloned functions.
-            replaceSubGroupBuiltinCall(CI, *SGBuiltin, BI);
-            toDelete.push_back(CI);
-          } else if (isSubGroupWorkItemFunction(CI, BI)) {
-            // Replace the sub-group work-item builtin calls with work-group
-            // work-item builtin calls inside the degenerately cloned functions.
-            replaceSubGroupWorkItemBuiltinCall(CI, BI);
+          if (auto Builtin =
+                  GSGI.isMuxSubgroupBuiltin(CI->getCalledFunction())) {
+            switch (Builtin->ID) {
+              default:
+                replaceSubgroupBuiltinCall(CI, *Builtin, BI);
+                break;
+              case eMuxBuiltinGetSubGroupSize:
+              case eMuxBuiltinGetMaxSubGroupSize:
+              case eMuxBuiltinGetNumSubGroups:
+              case eMuxBuiltinGetSubGroupId:
+              case eMuxBuiltinGetSubGroupLocalId:
+                replaceSubgroupWorkItemBuiltinCall(CI, BI);
+                break;
+            }
             toDelete.push_back(CI);
           }
         }

@@ -60,6 +60,7 @@
 #include <compiler/utils/replace_target_ext_tys_pass.h>
 #include <compiler/utils/replace_wgc_pass.h>
 #include <compiler/utils/simple_callback_pass.h>
+#include <compiler/utils/sub_group_analysis.h>
 #include <compiler/utils/unique_opaque_structs_pass.h>
 #include <compiler/utils/verify_reqd_sub_group_size_pass.h>
 #include <compiler/utils/work_item_loops_pass.h>

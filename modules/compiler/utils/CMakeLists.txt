@@ -64,6 +64,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_wgc_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/scheduling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/simple_callback_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/sub_group_analysis.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/target_extension_types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/unique_opaque_structs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/vectorization_factor.h
@@ -112,6 +113,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_target_ext_tys_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_wgc_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/scheduling.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/sub_group_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/target_extension_types.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
