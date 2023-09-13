@@ -23,6 +23,9 @@ define internal void @foo() !codeplay_ca_vecz.base !2 !codeplay_ca_vecz.base !3 
   ret void
 }
 
+; Check we've stripped this VP kernel of its 'entry point' status, as it hasn't
+; been given work-item loops. Check this by checking there aren't any attributes.
+; CHECK: define internal void @__vecz_v2_vp_foo() !codeplay_ca_vecz.derived {{\![0-9]+}} {
 define void @__vecz_v2_vp_foo() #0 !codeplay_ca_vecz.derived !5 {
   ret void
 }

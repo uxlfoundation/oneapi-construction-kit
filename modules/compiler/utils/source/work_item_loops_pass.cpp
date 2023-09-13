@@ -1639,9 +1639,8 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
   // which we don't want to run over.
   SmallVector<BarrierWrapperInfo, 4> MainTailPairs;
 
-  SmallPtrSet<Function *, 4> SkipFns;
   for (auto &F : M.functions()) {
-    if (!isKernelEntryPt(F) || SkipFns.contains(&F)) {
+    if (!isKernelEntryPt(F)) {
       continue;
     }
 
@@ -1666,34 +1665,17 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     // Start out assuming scalar tail, which is the default behaviour...
     auto TailInfo = scalarTailInfo;
     auto *TailFunc = VeczToOrigFnData->first;
-    // ... and search for a linked vector-predicated tail
+    // ... and search for a linked vector-predicated tail, which we prefer.
     if (!MainInfo.IsVectorPredicated && TailFunc) {
       SmallVector<LinkMetadataResult, 4> LinkedFns;
       parseOrigToVeczFnLinkMetadata(*TailFunc, LinkedFns);
       for (const auto &Link : LinkedFns) {
-        if (Link.first == &F) {
-          continue;
-        }
         // Restrict our option to strict VF==VF matches.
-        if (Link.second.vf == MainInfo.vf && Link.second.IsVectorPredicated) {
+        if (Link.first != &F && Link.second.vf == MainInfo.vf &&
+            Link.second.IsVectorPredicated) {
           TailFunc = Link.first;
           TailInfo = Link.second;
-          // If the vector-predicated kernel is an entry point, drop that
-          // MainInfo now.
-          if (TailFunc && isKernelEntryPt(*TailFunc)) {
-            dropIsKernel(*TailFunc);
-            // Prevent this vector-predicated kernel forming a wrapper of its
-            // own.
-            SkipFns.insert(TailFunc);
-            // Delete any wrappers using this vector-predicated kernel from the
-            // list.
-            MainTailPairs.erase(
-                std::remove_if(MainTailPairs.begin(), MainTailPairs.end(),
-                               [TailFunc](const BarrierWrapperInfo &I) {
-                                 return I.MainF == TailFunc;
-                               }),
-                MainTailPairs.end());
-          }
+          break;
         }
       }
     }
@@ -1723,6 +1705,26 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     return PreservedAnalyses::all();
   }
 
+  // Prune redundant wrappers we don't want to create for the sake of compile
+  // time.
+  SmallPtrSet<Function *, 4> RedundantMains;
+  for (const auto &P : MainTailPairs) {
+    // If we're creating a wrapper with a VP 'tail', we don't want to create
+    // another wrapper where the VP is the 'main'
+    if (!P.MainInfo.IsVectorPredicated && P.TailInfo &&
+        P.TailInfo->IsVectorPredicated) {
+      RedundantMains.insert(P.TailF);
+    }
+  }
+
+  MainTailPairs.erase(
+      std::remove_if(MainTailPairs.begin(), MainTailPairs.end(),
+                     [&RedundantMains](const BarrierWrapperInfo &I) {
+                       return RedundantMains.contains(I.MainF);
+                     }),
+      MainTailPairs.end());
+
+  SmallPtrSet<Function *, 4> Wrappers;
   auto &BI = MAM.getResult<BuiltinInfoAnalysis>(M);
 
   for (const auto &P : MainTailPairs) {
@@ -1733,14 +1735,29 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
 
     // Tail kernels are optional
     if (!P.TailF) {
-      makeWrapperFunction(MainBarrier, nullptr, P.BaseName, M, BI);
+      Wrappers.insert(
+          makeWrapperFunction(MainBarrier, nullptr, P.BaseName, M, BI));
     } else {
       // Construct the tail barrier
       assert(P.TailInfo && "Missing tail info");
       BarrierWithLiveVars TailBarrier(M, *P.TailF, *P.TailInfo, IsDebug);
       TailBarrier.Run(MAM);
 
-      makeWrapperFunction(MainBarrier, &TailBarrier, P.BaseName, M, BI);
+      Wrappers.insert(
+          makeWrapperFunction(MainBarrier, &TailBarrier, P.BaseName, M, BI));
+    }
+  }
+
+  // At this point we mandate that any kernels that haven't been wrapped with
+  // work-item loops can't be kernels, nor entry points.
+  for (auto &F : M) {
+    if (isKernelEntryPt(F) && !Wrappers.contains(&F)) {
+      dropIsKernel(F);
+      // FIXME: Also mark them as internal in case they contain symbols we
+      // haven't resolved as part of the work-item loop wrapping process. We
+      // rely on GlobalOptPass to remove such functions; this is the same root
+      // issue as CA-4126.
+      F.setLinkage(GlobalValue::InternalLinkage);
     }
   }
 
