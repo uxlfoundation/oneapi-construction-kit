@@ -459,21 +459,27 @@ endmacro()
   project wide compiler options and definitions to the target.
 #]=======================================================================]
 macro(add_ca_library)
-  add_library(${ARGV})
-  target_compile_options(${ARGV0}
-    PRIVATE ${CA_COMPILE_OPTIONS})
-  target_compile_definitions(${ARGV0}
-    PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
-  set_ca_target_output_directory(${ARGV0})
-  if(COMMAND add_ca_tidy)
-    add_ca_tidy(${ARGV})
-  endif()
-  ca_target_link_options(${ARGV0} PRIVATE "${CA_LINK_OPTIONS}")
-  if(CA_ENABLE_DEBUG_BACKTRACE AND NOT ${ARGV0} STREQUAL debug-backtrace)
-    # Link the debug support library into all targets when it is enabled so
-    # that DEBUG_BACKTRACE can be used effectively, this is only enabled when
-    # requested by the user.
-    target_link_libraries(${ARGV0} PUBLIC debug-backtrace)
+  if(CA_NATIVE_CPU)
+    #Todo: add_llvm_library doesn't take in a SHARED keyword, add_ca_library does
+    #maybe it's better to drop it to avoid bugs?
+    add_llvm_library(${ARGV})
+  else()
+    add_library(${ARGV})
+    target_compile_options(${ARGV0}
+      PRIVATE ${CA_COMPILE_OPTIONS})
+    target_compile_definitions(${ARGV0}
+      PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
+    set_ca_target_output_directory(${ARGV0})
+    if(COMMAND add_ca_tidy)
+      add_ca_tidy(${ARGV})
+    endif()
+    ca_target_link_options(${ARGV0} PRIVATE "${CA_LINK_OPTIONS}")
+    if(CA_ENABLE_DEBUG_BACKTRACE AND NOT ${ARGV0} STREQUAL debug-backtrace)
+      # Link the debug support library into all targets when it is enabled so
+      # that DEBUG_BACKTRACE can be used effectively, this is only enabled when
+      # requested by the user.
+      target_link_libraries(${ARGV0} PUBLIC debug-backtrace)
+    endif()
   endif()
 endmacro()
 

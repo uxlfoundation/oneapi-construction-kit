@@ -24,10 +24,7 @@ include(cmake/FindBuiltinsTools.cmake)
 # release build of these executables by setting
 # -DCA_BUILTINS_TOOLS_DIR:PATH=<path> to the path containing the clang, opt,
 # and llvm-link binaries.
-if((NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED) OR CA_NATIVE_CPU)
-  if(CA_NATIVE_CPU)
-    set(CA_BUILTINS_TOOLS_DIR "${CMAKE_BINARY_DIR}/bin")
-  endif()
+if((NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED))
   find_builtins_tools("${CA_BUILTINS_TOOLS_DIR}")
   # ABACUS_BUILD_WITH_RUNTIME_TOOLS is mis-named. When ON, abacus is built with
   # builtins tools (if available) or tools in CA_LLVM_INSTALL_DIR otherwise.
@@ -435,7 +432,7 @@ set(CA_ALL_BUILTINS_H_PREFIXES "${builtins_h_prefixes}"
 # ${${mux_target}_CAPABILITIES} list. This variable is set in
 # mux/targets/<target>/CMakeLists.txt. The list is unordered.
 # Without a runtime compiler, no combinations are required.
-if(CA_RUNTIME_COMPILER_ENABLED OR CA_NATIVE_CPU)
+if(CA_RUNTIME_COMPILER_ENABLED)
   foreach(mux_target ${MUX_TARGET_LIBRARIES})
     set(this_target_capabilities ${${mux_target}_CAPABILITIES})
 

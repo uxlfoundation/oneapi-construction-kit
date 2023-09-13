@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-set(COMPILER_UTILS_SRC
+add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/StructTypeRemapper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_kernel_wrapper_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_metadata_pass.h
@@ -120,14 +120,11 @@ set(COMPILER_UTILS_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 if(CA_NATIVE_CPU)
-  add_llvm_library(compiler-utils ${COMPILER_UTILS_SRC})
   target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
   # cmake complains about the fact that include paths are in the build directory, so I had to make 
   # the include path PRIVATE, and add it manually here
   target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../cargo/include)
   target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../metadata/include)
-else()
-  add_ca_library(compiler-utils STATIC ${COMPILER_UTILS_SRC})
 endif()
 
 if(CA_NATIVE_CPU)

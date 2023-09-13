@@ -14,10 +14,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+add_ca_library(md_api STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/metadata.cpp)
 if(CA_NATIVE_CPU)
-  add_llvm_library(md_api 
-      ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/utils.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/metadata.cpp)
   target_link_libraries(md_api PUBLIC cargo)
   target_include_directories(md_api
       PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -33,9 +33,6 @@ if(CA_NATIVE_CPU)
   target_include_directories(md_handler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cargo/include)
   target_include_directories(md_api PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cargo/include)
 else()
-  add_ca_library(md_api STATIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/utils.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/metadata.cpp)
   target_link_libraries(md_api PUBLIC cargo)
   target_include_directories(md_api
       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include

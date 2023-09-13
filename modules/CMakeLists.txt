@@ -27,11 +27,6 @@ set(MODULES_INCLUDE_DIRS # No default value
 set(MODULES_LIBRARIES # No default value
   CACHE INTERNAL "List of module libraries.")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 
 # Fetch the official SPIR-V headers. These are required by some up our public
 # compiler headers, which are also included by mux, so this must take place
@@ -43,6 +38,17 @@ FetchContent_Declare(
   GIT_TAG        sdk-1.3.239.0
 )
 FetchContent_MakeAvailable(SPIRV-Headers)
+
+if(CA_NATIVE_CPU)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/metadata)
+else()
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 
 if(NOT spirv-headers_POPULATED)
   message(FATAL_ERROR "No SPIRV-Headers found.")
@@ -62,3 +68,4 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lit)
 foreach(LIBRARY ${MODULES_LIBRARIES})
   target_include_directories(${LIBRARY} PUBLIC ${MODULES_INCLUDE_DIRS})
 endforeach()
+endif() #CA_NATIVE_CPU
