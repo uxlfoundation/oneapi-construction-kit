@@ -191,15 +191,15 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}PassMachinery::
 
   PM.addPass(vecz::RunVeczPass());
 
-  // Verify that any required sub-group size was met.
-  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
-
   addLateBuiltinsPasses(PM, tuner);
 
   compiler::utils::WorkItemLoopsPassOptions WIOpts;
   WIOpts.IsDebug = options.opt_disable;
   WIOpts.ForceNoTail = env_var_opts.force_no_tail;
   PM.addPass(compiler::utils::WorkItemLoopsPass(WIOpts));
+
+  // Verify that any required sub-group size was met.
+  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
 
   compiler::addPrepareWorkGroupSchedulingPasses(PM);
 

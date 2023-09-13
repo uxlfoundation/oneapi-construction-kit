@@ -18,7 +18,9 @@
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/group_collective_helpers.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
+#include <compiler/utils/sub_group_analysis.h>
 #include <compiler/utils/vectorization_factor.h>
 #include <compiler/utils/work_item_loops_pass.h>
 #include <llvm/IR/DIBuilder.h>
@@ -1631,6 +1633,8 @@ struct BarrierWrapperInfo {
   // Optional information about the 'tail' kernel
   Function *TailF = nullptr;
   std::optional<compiler::utils::VectorizationInfo> TailInfo = std::nullopt;
+  // A 'tail' kernel which was explicitly omitted.
+  Function *SkippedTailF = nullptr;
 };
 
 PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
@@ -1638,6 +1642,7 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
   // Cache the functions we're interested in as this pass introduces new ones
   // which we don't want to run over.
   SmallVector<BarrierWrapperInfo, 4> MainTailPairs;
+  const auto &GSGI = MAM.getResult<compiler::utils::SubgroupAnalysis>(M);
 
   for (auto &F : M.functions()) {
     if (!isKernelEntryPt(F)) {
@@ -1694,7 +1699,9 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     if (!TailFunc || MainInfo.IsVectorPredicated || ForceNoTail ||
         (LocalSizeInVecDim && !MainInfo.vf.isScalable() &&
          *LocalSizeInVecDim % MainInfo.vf.getKnownMin() == 0)) {
-      MainTailPairs.push_back({BaseName, &F, MainInfo});
+      MainTailPairs.push_back({BaseName, &F, MainInfo, /*TailF*/ nullptr,
+                               /*TailInfo*/ std::nullopt,
+                               /*SkippedTailF*/ TailFunc});
     } else {
       // Else, emit a tail using the tail function.
       MainTailPairs.push_back({BaseName, &F, MainInfo, TailFunc, TailInfo});
@@ -1707,8 +1714,25 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
 
   // Prune redundant wrappers we don't want to create for the sake of compile
   // time.
-  SmallPtrSet<Function *, 4> RedundantMains;
+  SmallPtrSet<const Function *, 4> RedundantMains;
   for (const auto &P : MainTailPairs) {
+    // If we're creating a wrapper with a skipped 'tail' or a scalar 'tail', we
+    // don't want to create another wrapper where the scalar tail is the
+    // 'main', unless that tail is useful as a fallback sub-group kernel. A
+    // fallback sub-group kernel is one for which:
+    // * The 'main' is not a degenerate sub-group kernel. These are always safe
+    // to run so the fallback is unnecessary.
+    // * The 'main' has a required sub-group size that isn't the scalar size.
+    // * The 'main' and 'tail' kernels both make use of sub-group builtins. If
+    // neither do, there's no need for the fallback.
+    if (P.SkippedTailF || (P.TailInfo && P.TailInfo->vf.isScalar())) {
+      const auto *TailF = P.SkippedTailF ? P.SkippedTailF : P.TailF;
+      if (hasDegenerateSubgroups(*P.MainF) ||
+          getReqdSubgroupSize(*P.MainF).value_or(1) != 1 ||
+          (!GSGI.usesSubgroups(*P.MainF) && !GSGI.usesSubgroups(*TailF))) {
+        RedundantMains.insert(TailF);
+      }
+    }
     // If we're creating a wrapper with a VP 'tail', we don't want to create
     // another wrapper where the VP is the 'main'
     if (!P.MainInfo.IsVectorPredicated && P.TailInfo &&

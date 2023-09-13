@@ -261,15 +261,15 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
 
   PM.addPass(vecz::RunVeczPass());
 
-  // Verify that any required sub-group size was met.
-  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
-
   addLateBuiltinsPasses(PM, tuner);
 
   compiler::utils::WorkItemLoopsPassOptions WIOpts;
   WIOpts.IsDebug = options.opt_disable;
 
   PM.addPass(compiler::utils::WorkItemLoopsPass(WIOpts));
+
+  // Verify that any required sub-group size was met.
+  PM.addPass(compiler::utils::VerifyReqdSubGroupSizeSatisfiedPass());
 
   PM.addPass(compiler::utils::AddSchedulingParametersPass());
 
