@@ -48,7 +48,7 @@ class CTSTestRun(TestRunBase):
         fail_single_pattern = re.compile(b"^(FAILED .+\.|.+FAILED\.?)$")
         fail_pair_pattern = re.compile(b"^FAILED (\d+) of (\d+) tests\.$")
         skipped_pattern = re.compile(
-            b"(.*Skipping test\.+|skipping|SKIPPED.+)$")
+            b"(.*Skipping test\.+|skipping|SKIPPED.+|No tests ran)$")
         zerorun_pattern = re.compile(b"^Tests completed: 0$")
         doubles_unsupported_pattern = re.compile(b".*Has Double\? NO$")
         extension_unsupported_pattern = re.compile(
