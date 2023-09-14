@@ -67,7 +67,22 @@ exit:
   ret void
 }
 
+; We don't consider any of the internal mux 'setters' as uses of sub-group
+; builtins, as they are purely there to support the framework and aren't
+; apparent to the user.
+; CHECK: Function 'function4' uses no sub-group builtins
+define spir_func void @function4() {
+  call void @__mux_set_sub_group_id(i32 0)
+  call void @__mux_set_num_sub_groups(i32 1)
+  call void @__mux_set_max_sub_group_size(i32 2)
+  ret void
+}
+
 declare i32 @__mux_get_sub_group_id()
 declare i32 @__mux_get_sub_group_local_id()
 declare i32 @__mux_sub_group_shuffle_i32(i32, i32)
 declare i32 @__mux_get_max_sub_group_size()
+
+declare void @__mux_set_sub_group_id(i32)
+declare void @__mux_set_num_sub_groups(i32)
+declare void @__mux_set_max_sub_group_size(i32)
