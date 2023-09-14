@@ -1725,12 +1725,20 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     // * The 'main' has a required sub-group size that isn't the scalar size.
     // * The 'main' and 'tail' kernels both make use of sub-group builtins. If
     // neither do, there's no need for the fallback.
+    // * The 'main' kernel uses sub-groups but the 'main' vectorization factor
+    // cleanly divides the known local work-group size.
     if (P.SkippedTailF || (P.TailInfo && P.TailInfo->vf.isScalar())) {
       const auto *TailF = P.SkippedTailF ? P.SkippedTailF : P.TailF;
       if (hasDegenerateSubgroups(*P.MainF) ||
           getReqdSubgroupSize(*P.MainF).value_or(1) != 1 ||
           (!GSGI.usesSubgroups(*P.MainF) && !GSGI.usesSubgroups(*TailF))) {
         RedundantMains.insert(TailF);
+      } else if (auto wgs = parseRequiredWGSMetadata(*P.MainF)) {
+        uint64_t local_size_x = wgs.value()[0];
+        if (!P.MainInfo.IsVectorPredicated &&
+            !(local_size_x % P.MainInfo.vf.getKnownMin())) {
+          RedundantMains.insert(TailF);
+        }
       }
     }
     // If we're creating a wrapper with a VP 'tail', we don't want to create

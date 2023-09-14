@@ -75,6 +75,18 @@ define void @reqd_wg_tail() #0 !codeplay_ca_vecz.base !10 !reqd_work_group_size 
   ret void
 }
 
+; CHECK: define internal void @reqd_wg_sg_main() [[OLD_ATTRS]] !codeplay_ca_vecz.derived {{\![0-9]+}} !reqd_work_group_size {{\![0-9]+}} {
+define void @reqd_wg_sg_main() #0 !codeplay_ca_vecz.derived !14 !reqd_work_group_size !12 {
+  %id = call i32 @__mux_get_sub_group_local_id()
+  ret void
+}
+
+; CHECK: define internal void @reqd_wg_sg_tail() [[OLD_NOSG_ATTRS]] !codeplay_ca_vecz.base {{\![0-9]+}} !reqd_work_group_size {{\![0-9]+}} {
+define void @reqd_wg_sg_tail() #0 !codeplay_ca_vecz.base !13 !reqd_work_group_size !12 {
+  %id = call i32 @__mux_get_sub_group_local_id()
+  ret void
+}
+
 declare i32 @__mux_get_sub_group_local_id()
 
 ; Check we've defined a wrapper for 'foo' (because it was marked an entry
@@ -124,6 +136,15 @@ declare i32 @__mux_get_sub_group_local_id()
 ; tail.
 ; CHECK-NOT: @reqd_wg_tail.mux-barrier-wrapper()
 
+; Check we've defined a wrapper for reqd_wg's 'main' kernel
+; CHECK: define void @reqd_wg_sg_main.mux-barrier-wrapper() {{#[0-9]+}}
+
+; Check we haven't defined another separate wrapper for reqd_wg's 'tail' kernel.
+; Even though it was marked an entry point and uses sub-groups, it's redundant
+; as it the main has a required work-group size and so covers the whole
+; work-group without needing a tail.
+; CHECK-NOT: @reqd_wg_sg_tail.mux-barrier-wrapper()
+
 ; Check we've stripped the old functions of their 'entry-point' status
 ; CHECK-DAG: attributes [[OLD_ATTRS]] = { alwaysinline convergent norecurse nounwind }
 ; CHECK-DAG: attributes [[OLD_NOSG_ATTRS]] = { convergent norecurse nounwind }
@@ -146,3 +167,5 @@ attributes #1 = { convergent norecurse nounwind "mux-kernel"="entry-point" "mux-
 !10 = !{!2, ptr @reqd_wg_main}
 !11 = !{!2, ptr @reqd_wg_tail}
 !12 = !{i32 4, i32 1, i32 1}
+!13 = !{!2, ptr @reqd_wg_sg_main}
+!14 = !{!2, ptr @reqd_wg_sg_tail}
