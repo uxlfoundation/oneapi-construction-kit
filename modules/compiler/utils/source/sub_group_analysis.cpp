@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/attributes.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/sub_group_analysis.h>
 #include <llvm/ADT/PriorityWorklist.h>
@@ -33,6 +34,14 @@ GlobalSubgroupInfo::GlobalSubgroupInfo(Module &M, BuiltinInfo &BI) : BI(BI) {
       continue;
     }
     auto SGI = std::make_unique<SubgroupInfo>();
+
+    // Assume the 'mux-no-subgroups' attribute is correct. If a pass introduces
+    // the use of sub-groups, then it should remove the attribute itself!
+    if (hasNoExplicitSubgroups(F)) {
+      FunctionMap.insert({&F, std::move(SGI)});
+      continue;
+    }
+
     for (auto &BB : F) {
       for (const auto &I : BB) {
         if (auto *const CI = dyn_cast<CallInst>(&I)) {

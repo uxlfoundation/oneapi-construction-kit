@@ -198,6 +198,17 @@ bool hasDegenerateSubgroups(const Function &F) {
   return Attr.isValid();
 }
 
+static constexpr const char *MuxNoSubgroupsAttrName = "mux-no-subgroups";
+
+void setHasNoExplicitSubgroups(Function &F) {
+  F.addFnAttr(MuxNoSubgroupsAttrName);
+}
+
+bool hasNoExplicitSubgroups(const Function &F) {
+  Attribute Attr = F.getFnAttribute(MuxNoSubgroupsAttrName);
+  return Attr.isValid();
+}
+
 unsigned getMuxSubgroupSize(const llvm::Function &) {
   // FIXME: The mux sub-group size is currently assumed to be 1 for all
   // functions, kerrnels, and targets. This helper function is just to avoid

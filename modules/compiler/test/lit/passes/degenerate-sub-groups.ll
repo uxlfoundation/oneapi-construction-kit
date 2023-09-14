@@ -226,6 +226,11 @@ entry:
   ret void
 }
 
+; CHECK: define spir_func void @no_sub_groups_test() [[ATTRS:#[0-9]+]] {
+define spir_func void @no_sub_groups_test() #1 {
+  ret void
+}
+
 ; CHECK-DAG: declare spir_func i1 @__mux_work_group_all_i1(i32, i1)
 declare spir_func i1 @__mux_sub_group_all_i1(i1)
 ; CHECK-DAG: declare spir_func i1 @__mux_work_group_any_i1(i32, i1)
@@ -260,9 +265,14 @@ declare spir_func i32 @__mux_get_sub_group_local_id()
 ; CHECK-DAG: declare spir_func void @__mux_work_group_barrier(i32, i32, i32)
 declare spir_func void @__mux_sub_group_barrier(i32, i32, i32)
 
+; Check we didn't mark a function uses no sub-groups as having degenerate
+; sub-groups.
+; CHECK-DAG: attributes [[ATTRS]] = { "mux-kernel"="entry-point" "mux-no-subgroups" }
+; CHECK-DAG: attributes #0 = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
 attributes #0 = { "mux-kernel"="entry-point" }
+attributes #1 = { "mux-kernel"="entry-point" "mux-no-subgroups" }
+
 !0 = !{i32 13, i32 64, i32 64}
-; CHECK: attributes #0 = { "mux-degenerate-subgroups" "mux-kernel"="entry-point" }
 
 !opencl.ocl.version = !{!1}
 

@@ -65,6 +65,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/scheduling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/simple_callback_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/sub_group_analysis.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/sub_group_usage_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/target_extension_types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/unique_opaque_structs_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/vectorization_factor.h

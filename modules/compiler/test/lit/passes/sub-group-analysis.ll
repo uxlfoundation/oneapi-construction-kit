@@ -78,6 +78,17 @@ define spir_func void @function4() {
   ret void
 }
 
+; This function does use sub-groups but has the 'mux-no-subgroups' attribute.
+; Check that the analysis obeys the attribute rather than re-checking the
+; function! A pass should not introduce new sub-group usage without removing
+; that attribute!
+; CHECK: Function 'function5' uses no sub-group builtins
+define spir_kernel void @function5() #0 {
+entry:
+  %lid = call i32 @__mux_get_sub_group_local_id()
+  ret void
+}
+
 declare i32 @__mux_get_sub_group_id()
 declare i32 @__mux_get_sub_group_local_id()
 declare i32 @__mux_sub_group_shuffle_i32(i32, i32)
@@ -86,3 +97,5 @@ declare i32 @__mux_get_max_sub_group_size()
 declare void @__mux_set_sub_group_id(i32)
 declare void @__mux_set_num_sub_groups(i32)
 declare void @__mux_set_max_sub_group_size(i32)
+
+attributes #0 = { "mux-no-subgroups" }

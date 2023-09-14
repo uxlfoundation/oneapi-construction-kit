@@ -324,11 +324,6 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   // If there were no sub-group builtin calls we are done, exit early and
   // preserve all analysis since we didn't touch the module.
   if (usesSubgroups.empty()) {
-    for (auto *const K : kernels) {
-      // Set the attribute on every kernel that doesn't use any subgroups at
-      // all, so the vectorizer knows it can vectorize them however it likes.
-      setHasDegenerateSubgroups(*K);
-    }
     return PreservedAnalyses::all();
   }
 
@@ -344,10 +339,6 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   for (auto *const K : kernels) {
     bool const subgroups = usesSubgroups.contains(K);
     if (!subgroups) {
-      // Set the attribute on every kernel that doesn't use any subgroups at
-      // all, so the vectorizer knows it can vectorize them however it likes.
-      setHasDegenerateSubgroups(*K);
-
       // No need to clone kernels that don't use any subgroup functions.
       kernelsToClone.erase(K);
     }

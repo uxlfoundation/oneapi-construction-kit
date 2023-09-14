@@ -39,12 +39,14 @@ GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
   auto kernel_name = Fn.getName().str();
   auto source_name = getOrigFnNameOrFnName(Fn).str();
 
-  bool degenerate_sub_groups = compiler::utils::hasDegenerateSubgroups(Fn);
+  bool degenerate_or_no_sub_groups =
+      compiler::utils::hasDegenerateSubgroups(Fn) ||
+      compiler::utils::hasNoExplicitSubgroups(Fn);
   FixedOrScalableQuantity<uint32_t> sub_group_size(
-      degenerate_sub_groups ? 0 : 1, false);
+      degenerate_or_no_sub_groups ? 0 : 1, false);
   // If there are no degenerate sub-groups, whole-function vectorization
   // multiplies the sub-group size.
-  if (!degenerate_sub_groups) {
+  if (!degenerate_or_no_sub_groups) {
     if (auto vf_info = parseWrapperFnMetadata(Fn)) {
       VectorizationFactor vf = vf_info->first.vf;
       sub_group_size =
