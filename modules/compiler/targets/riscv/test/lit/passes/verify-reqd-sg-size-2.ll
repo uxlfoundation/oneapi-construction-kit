@@ -14,14 +14,16 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; Let vecz pick the right vectorization factor for this kernel check that the
-; verification pass correctly notes we've satisifed the required sub-group
-; size.
-; RUN: env muxc --device "%riscv_device" \
-; RUN:   --passes run-vecz,verify-reqd-sub-group-satisfied < %s \
+; Let vecz pick the right vectorization factor for this kernel, wrap the kernel
+; up in a loop, and check that the verification pass correctly notes we've
+; satisfied the required sub-group size. This implies that we haven't generated
+; a separate work-item loop wrapper for the original kernel, as the constraint
+; wouldn't have been satisfied on that.
+; RUN: muxc --device "%riscv_device" \
+; RUN:   --passes run-vecz,work-item-loops,verify-reqd-sub-group-satisfied < %s \
 ; RUN: | FileCheck %s
 
-; CHECK-LABEL: define void @__vecz_v8_bar_sg8(ptr addrspace(1) %in, ptr addrspace(1) %out) #0 !intel_reqd_sub_group_size !0 !codeplay_ca_vecz.derived !{{[0-9]+}} {
+; CHECK-LABEL: define{{( internal)?}} void @__vecz_v8_bar_sg8(ptr addrspace(1) %in, ptr addrspace(1) %out) #0 !intel_reqd_sub_group_size !0 !codeplay_ca_vecz.derived !{{[0-9]+}} {
 
 define void @bar_sg8(ptr addrspace(1) %in, ptr addrspace(1) %out) #0 !intel_reqd_sub_group_size !0 {
   %id = call i64 @__mux_get_global_id(i32 0)

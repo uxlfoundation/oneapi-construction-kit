@@ -136,12 +136,13 @@ barriers into no-ops when the kernel scheduling information and hardware
 vectorization capabilities are known when compiling the kernel.
 
 ComputeMux provides an implementation of the compiler-based approach described
-above in the form of a 'barrier pass' that can be used by any ComputeMux
-target. With this pass it is possible to easily execute compute kernels that
-make use of barriers without requiring any synchronization capabilities from
-the hardware other than what is already needed to execute barrier-less kernels.
-The Host ComputeMux target that executes kernels on the CPU is an example of a
-target that uses this barrier pass to support kernels with barriers.
+above in the form of a 'work-item loops pass' that can be used by any
+ComputeMux target. With this pass it is possible to easily execute compute
+kernels that make use of barriers without requiring any synchronization
+capabilities from the hardware other than what is already needed to execute
+barrier-less kernels. The Host ComputeMux target that executes kernels on the
+CPU is an example of a target that uses this work-item loops pass to support
+kernels with barriers.
 
 The Vecz Whole-Function Vectorizer
 ----------------------------------

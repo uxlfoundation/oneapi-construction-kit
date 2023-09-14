@@ -18,7 +18,9 @@
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/group_collective_helpers.h>
+#include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
+#include <compiler/utils/sub_group_analysis.h>
 #include <compiler/utils/vectorization_factor.h>
 #include <compiler/utils/work_item_loops_pass.h>
 #include <llvm/IR/DIBuilder.h>
@@ -1631,6 +1633,8 @@ struct BarrierWrapperInfo {
   // Optional information about the 'tail' kernel
   Function *TailF = nullptr;
   std::optional<compiler::utils::VectorizationInfo> TailInfo = std::nullopt;
+  // A 'tail' kernel which was explicitly omitted.
+  Function *SkippedTailF = nullptr;
 };
 
 PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
@@ -1638,10 +1642,10 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
   // Cache the functions we're interested in as this pass introduces new ones
   // which we don't want to run over.
   SmallVector<BarrierWrapperInfo, 4> MainTailPairs;
+  const auto &GSGI = MAM.getResult<compiler::utils::SubgroupAnalysis>(M);
 
-  SmallPtrSet<Function *, 4> SkipFns;
   for (auto &F : M.functions()) {
-    if (!isKernelEntryPt(F) || SkipFns.contains(&F)) {
+    if (!isKernelEntryPt(F)) {
       continue;
     }
 
@@ -1666,34 +1670,17 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     // Start out assuming scalar tail, which is the default behaviour...
     auto TailInfo = scalarTailInfo;
     auto *TailFunc = VeczToOrigFnData->first;
-    // ... and search for a linked vector-predicated tail
+    // ... and search for a linked vector-predicated tail, which we prefer.
     if (!MainInfo.IsVectorPredicated && TailFunc) {
       SmallVector<LinkMetadataResult, 4> LinkedFns;
       parseOrigToVeczFnLinkMetadata(*TailFunc, LinkedFns);
       for (const auto &Link : LinkedFns) {
-        if (Link.first == &F) {
-          continue;
-        }
         // Restrict our option to strict VF==VF matches.
-        if (Link.second.vf == MainInfo.vf && Link.second.IsVectorPredicated) {
+        if (Link.first != &F && Link.second.vf == MainInfo.vf &&
+            Link.second.IsVectorPredicated) {
           TailFunc = Link.first;
           TailInfo = Link.second;
-          // If the vector-predicated kernel is an entry point, drop that
-          // MainInfo now.
-          if (TailFunc && isKernelEntryPt(*TailFunc)) {
-            dropIsKernel(*TailFunc);
-            // Prevent this vector-predicated kernel forming a wrapper of its
-            // own.
-            SkipFns.insert(TailFunc);
-            // Delete any wrappers using this vector-predicated kernel from the
-            // list.
-            MainTailPairs.erase(
-                std::remove_if(MainTailPairs.begin(), MainTailPairs.end(),
-                               [TailFunc](const BarrierWrapperInfo &I) {
-                                 return I.MainF == TailFunc;
-                               }),
-                MainTailPairs.end());
-          }
+          break;
         }
       }
     }
@@ -1712,7 +1699,9 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     if (!TailFunc || MainInfo.IsVectorPredicated || ForceNoTail ||
         (LocalSizeInVecDim && !MainInfo.vf.isScalable() &&
          *LocalSizeInVecDim % MainInfo.vf.getKnownMin() == 0)) {
-      MainTailPairs.push_back({BaseName, &F, MainInfo});
+      MainTailPairs.push_back({BaseName, &F, MainInfo, /*TailF*/ nullptr,
+                               /*TailInfo*/ std::nullopt,
+                               /*SkippedTailF*/ TailFunc});
     } else {
       // Else, emit a tail using the tail function.
       MainTailPairs.push_back({BaseName, &F, MainInfo, TailFunc, TailInfo});
@@ -1723,6 +1712,51 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     return PreservedAnalyses::all();
   }
 
+  // Prune redundant wrappers we don't want to create for the sake of compile
+  // time.
+  SmallPtrSet<const Function *, 4> RedundantMains;
+  for (const auto &P : MainTailPairs) {
+    // If we're creating a wrapper with a skipped 'tail' or a scalar 'tail', we
+    // don't want to create another wrapper where the scalar tail is the
+    // 'main', unless that tail is useful as a fallback sub-group kernel. A
+    // fallback sub-group kernel is one for which:
+    // * The 'main' is not a degenerate sub-group kernel. These are always safe
+    // to run so the fallback is unnecessary.
+    // * The 'main' has a required sub-group size that isn't the scalar size.
+    // * The 'main' and 'tail' kernels both make use of sub-group builtins. If
+    // neither do, there's no need for the fallback.
+    // * The 'main' kernel uses sub-groups but the 'main' vectorization factor
+    // cleanly divides the known local work-group size.
+    if (P.SkippedTailF || (P.TailInfo && P.TailInfo->vf.isScalar())) {
+      const auto *TailF = P.SkippedTailF ? P.SkippedTailF : P.TailF;
+      if (hasDegenerateSubgroups(*P.MainF) ||
+          getReqdSubgroupSize(*P.MainF).value_or(1) != 1 ||
+          (!GSGI.usesSubgroups(*P.MainF) && !GSGI.usesSubgroups(*TailF))) {
+        RedundantMains.insert(TailF);
+      } else if (auto wgs = parseRequiredWGSMetadata(*P.MainF)) {
+        uint64_t local_size_x = wgs.value()[0];
+        if (!P.MainInfo.IsVectorPredicated &&
+            !(local_size_x % P.MainInfo.vf.getKnownMin())) {
+          RedundantMains.insert(TailF);
+        }
+      }
+    }
+    // If we're creating a wrapper with a VP 'tail', we don't want to create
+    // another wrapper where the VP is the 'main'
+    if (!P.MainInfo.IsVectorPredicated && P.TailInfo &&
+        P.TailInfo->IsVectorPredicated) {
+      RedundantMains.insert(P.TailF);
+    }
+  }
+
+  MainTailPairs.erase(
+      std::remove_if(MainTailPairs.begin(), MainTailPairs.end(),
+                     [&RedundantMains](const BarrierWrapperInfo &I) {
+                       return RedundantMains.contains(I.MainF);
+                     }),
+      MainTailPairs.end());
+
+  SmallPtrSet<Function *, 4> Wrappers;
   auto &BI = MAM.getResult<BuiltinInfoAnalysis>(M);
 
   for (const auto &P : MainTailPairs) {
@@ -1733,14 +1767,29 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
 
     // Tail kernels are optional
     if (!P.TailF) {
-      makeWrapperFunction(MainBarrier, nullptr, P.BaseName, M, BI);
+      Wrappers.insert(
+          makeWrapperFunction(MainBarrier, nullptr, P.BaseName, M, BI));
     } else {
       // Construct the tail barrier
       assert(P.TailInfo && "Missing tail info");
       BarrierWithLiveVars TailBarrier(M, *P.TailF, *P.TailInfo, IsDebug);
       TailBarrier.Run(MAM);
 
-      makeWrapperFunction(MainBarrier, &TailBarrier, P.BaseName, M, BI);
+      Wrappers.insert(
+          makeWrapperFunction(MainBarrier, &TailBarrier, P.BaseName, M, BI));
+    }
+  }
+
+  // At this point we mandate that any kernels that haven't been wrapped with
+  // work-item loops can't be kernels, nor entry points.
+  for (auto &F : M) {
+    if (isKernelEntryPt(F) && !Wrappers.contains(&F)) {
+      dropIsKernel(F);
+      // FIXME: Also mark them as internal in case they contain symbols we
+      // haven't resolved as part of the work-item loop wrapping process. We
+      // rely on GlobalOptPass to remove such functions; this is the same root
+      // issue as CA-4126.
+      F.setLinkage(GlobalValue::InternalLinkage);
     }
   }
 
