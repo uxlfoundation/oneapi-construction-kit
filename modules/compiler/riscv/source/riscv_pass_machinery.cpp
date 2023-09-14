@@ -35,6 +35,7 @@
 #include <metadata/handler/vectorize_info_metadata.h>
 #include <riscv/ir_to_builtins_pass.h>
 #include <riscv/riscv_pass_machinery.h>
+#include <vecz/pass.h>
 
 namespace riscv {
 
@@ -140,7 +141,7 @@ RiscvPassMachinery::processOptimizationOptions(
   return env_var_opts;
 }
 
-bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
+bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &AM,
                        llvm::SmallVectorImpl<vecz::VeczPassOptions> &PassOpts) {
   auto vecz_mode = compiler::getVectorizationMode(F);
   if (!compiler::utils::isKernelEntryPt(F) ||
@@ -148,9 +149,11 @@ bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &,
       vecz_mode == compiler::VectorizationMode::NEVER) {
     return false;
   }
-  // Handle required sub-group sizes
-  if (auto reqd_subgroup_vf = vecz::getReqdSubgroupSizeOpts(F)) {
-    PassOpts.assign(1, *reqd_subgroup_vf);
+  // Handle auto sub-group sizes. If the kernel uses sub-groups or has a
+  // required sub-group size, only vectorize to one of those lengths. Let vecz
+  // pick.
+  if (auto auto_subgroup_vf = vecz::getAutoSubgroupSizeOpts(F, AM)) {
+    PassOpts.assign(1, *auto_subgroup_vf);
     return true;
   }
   auto env_var_opts = RiscvPassMachinery::processOptimizationOptions(
@@ -223,10 +226,6 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
     PM.addPass(compiler::utils::LinkBuiltinsPass());
   }
 
-  // When degenerate sub-groups are enabled here, any kernel that uses sub-group
-  // functions will be cloned to give a version using degenerate sub-groups and
-  // a version using non-degenerate sub-groups, for selection by the runtime.
-  tuner.degenerate_sub_groups = true;
   addPreVeczPasses(PM, tuner);
 
   PM.addPass(vecz::RunVeczPass());
