@@ -34,6 +34,10 @@ namespace utils {
 /// processed. Thus an external function declaration that uses sub-group
 /// builtins will be missed.
 ///
+/// Internal mux sub-group 'setter' functions are not counted. This is because
+/// they only used internally by the oneAPI Construction Kit as scaffolding for
+/// the sub-group support that the user can observe.
+///
 /// Each function contains the set of mux sub-group builtins it (transitively)
 /// calls.
 class GlobalSubgroupInfo {
