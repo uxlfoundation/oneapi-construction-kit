@@ -19,6 +19,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <host/add_floating_point_control_pass.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InlineAsm.h>
 #include <llvm/IR/Instructions.h>
@@ -79,6 +80,14 @@ void configX86FP(Function &wrapper, Function &function) {
   auto *const ci = ir.CreateCall(&function, args);
   ci->setCallingConv(function.getCallingConv());
   ci->setAttributes(compiler::utils::getCopiedFunctionAttrs(function));
+
+  // An inlinable function call in a function with debug
+  // info *must* be given a debug location.
+  if (auto *const SP = wrapper.getSubprogram()) {
+    auto *const wrapperDbgLoc =
+        DILocation::get(ir.getContext(), /*line*/ 0, /*col*/ 0, SP);
+    ci->setDebugLoc(wrapperDbgLoc);
+  }
 
   // reset the MXCSR to the original value
   ir.CreateCall(ld_mxcsr, {bitcast_orig})

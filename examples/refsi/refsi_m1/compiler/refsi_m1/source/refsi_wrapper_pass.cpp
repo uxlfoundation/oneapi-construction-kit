@@ -17,6 +17,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <refsi_m1/refsi_wrapper_pass.h>
 
@@ -210,6 +211,15 @@ llvm::Function *addKernelWrapper(llvm::Module &M, llvm::Function &F) {
   CI->setCallingConv(F.getCallingConv());
   // Copy over the attributes to the call site
   CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(F));
+
+  // An inlinable function call in a function with debug info *must* be given
+  // a debug location.
+  if (auto *const SP = NewFunction->getSubprogram()) {
+    auto *const WrapperDbgLoc =
+        DILocation::get(F.getContext(), /*line*/ 0, /*col*/ 0, SP);
+    CI->setDebugLoc(WrapperDbgLoc);
+  }
+
   Builder.CreateRetVoid();
   return NewFunction;
 }

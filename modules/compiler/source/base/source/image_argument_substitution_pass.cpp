@@ -19,6 +19,7 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/SmallVector.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
@@ -168,6 +169,14 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       CI->setCallingConv(KernelF->getCallingConv());
       // Copy over the attributes to the call site
       CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(*KernelF));
+
+      // An inlinable function call in a function with debug
+      // info *must* be given a debug location.
+      if (auto *const SP = WrapperKernel->getSubprogram()) {
+        auto *const wrapperDbgLoc =
+            DILocation::get(B.getContext(), /*line*/ 0, /*col*/ 0, SP);
+        CI->setDebugLoc(wrapperDbgLoc);
+      }
 
       B.CreateRetVoid();
 

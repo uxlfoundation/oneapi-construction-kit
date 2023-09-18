@@ -19,6 +19,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <refsi_g1_wi/refsi_wg_loop_pass.h>
 
@@ -159,6 +160,14 @@ PreservedAnalyses RefSiWGLoopPass::run(Module &M, ModuleAnalysisManager &AM) {
                       ci->setCallingConv(function->getCallingConv());
                       ci->setAttributes(
                           compiler::utils::getCopiedFunctionAttrs(*function));
+
+                      // An inlinable function call in a function with debug
+                      // info *must* be given a debug location.
+                      if (auto *const SP = newFunction->getSubprogram()) {
+                        auto *const wrapperDbgLoc = DILocation::get(
+                            function->getContext(), /*line*/ 0, /*col*/ 0, SP);
+                        ci->setDebugLoc(wrapperDbgLoc);
+                      }
 
                       auto *local_barrier = BI.getOrDeclareMuxBuiltin(
                           compiler::utils::eMuxBuiltinWorkGroupBarrier, M);

@@ -22,6 +22,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
@@ -654,10 +655,12 @@ static llvm::Function *createKernelWrapperFunctionImpl(
   // copied it over to the new one.
   dropIsKernel(F);
 
-  // move debug info for function over
-  NewFunction.setSubprogram(F.getSubprogram());
-
-  F.setSubprogram(nullptr);
+  // copy debug info for function over
+  if (auto *SP = F.getSubprogram()) {
+    llvm::DIBuilder DIB(*F.getParent());
+    auto *NewSP = DIB.createArtificialSubprogram(SP);
+    NewFunction.setSubprogram(NewSP);
+  }
 
   // set the function to always inline: 'noinline' takes precedence, though
   if (!F.hasFnAttribute(llvm::Attribute::NoInline)) {

@@ -240,6 +240,14 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
     ci->setCallingConv(F.getCallingConv());
     ci->setAttributes(getCopiedFunctionAttrs(F));
 
+    // An inlinable function call in a function with debug info *must* be given
+    // a debug location.
+    if (auto *const SP = newFunction->getSubprogram()) {
+      auto *const wrapperDbgLoc =
+          DILocation::get(F.getContext(), /*line*/ 0, /*col*/ 0, SP);
+      ci->setDebugLoc(wrapperDbgLoc);
+    }
+
     ir.CreateRetVoid();
 
     Changed = true;
