@@ -77,17 +77,8 @@ void configX86FP(Function &wrapper, Function &function) {
   }
 
   // call the function we are wrapping
-  auto *const ci = ir.CreateCall(&function, args);
-  ci->setCallingConv(function.getCallingConv());
-  ci->setAttributes(compiler::utils::getCopiedFunctionAttrs(function));
-
-  // An inlinable function call in a function with debug
-  // info *must* be given a debug location.
-  if (auto *const SP = wrapper.getSubprogram()) {
-    auto *const wrapperDbgLoc =
-        DILocation::get(ir.getContext(), /*line*/ 0, /*col*/ 0, SP);
-    ci->setDebugLoc(wrapperDbgLoc);
-  }
+  compiler::utils::createCallToWrappedFunction(
+      function, args, ir.GetInsertBlock(), ir.GetInsertPoint());
 
   // reset the MXCSR to the original value
   ir.CreateCall(ld_mxcsr, {bitcast_orig})

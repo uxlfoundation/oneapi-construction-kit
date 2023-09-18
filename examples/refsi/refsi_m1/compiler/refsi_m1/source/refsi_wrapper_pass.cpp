@@ -207,18 +207,8 @@ llvm::Function *addKernelWrapper(llvm::Module &M, llvm::Function &F) {
     ArgIndex++;
   }
 
-  auto CI = Builder.CreateCall(&F, Args);
-  CI->setCallingConv(F.getCallingConv());
-  // Copy over the attributes to the call site
-  CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(F));
-
-  // An inlinable function call in a function with debug info *must* be given
-  // a debug location.
-  if (auto *const SP = NewFunction->getSubprogram()) {
-    auto *const WrapperDbgLoc =
-        DILocation::get(F.getContext(), /*line*/ 0, /*col*/ 0, SP);
-    CI->setDebugLoc(WrapperDbgLoc);
-  }
+  compiler::utils::createCallToWrappedFunction(
+      F, Args, Builder.GetInsertBlock(), Builder.GetInsertPoint());
 
   Builder.CreateRetVoid();
   return NewFunction;

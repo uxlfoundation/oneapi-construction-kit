@@ -164,19 +164,8 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
           KernelF->getContext(), WrapperKernel->getAttributes().getFnAttrs(),
           WrapperKernel->getAttributes().getRetAttrs(), WrapperParamAttrs));
 
-      auto *const CI = B.CreateCall(KernelF, Args);
-
-      CI->setCallingConv(KernelF->getCallingConv());
-      // Copy over the attributes to the call site
-      CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(*KernelF));
-
-      // An inlinable function call in a function with debug
-      // info *must* be given a debug location.
-      if (auto *const SP = WrapperKernel->getSubprogram()) {
-        auto *const wrapperDbgLoc =
-            DILocation::get(B.getContext(), /*line*/ 0, /*col*/ 0, SP);
-        CI->setDebugLoc(wrapperDbgLoc);
-      }
+      utils::createCallToWrappedFunction(*KernelF, Args, B.GetInsertBlock(),
+                                         B.GetInsertPoint());
 
       B.CreateRetVoid();
 

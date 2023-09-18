@@ -205,18 +205,9 @@ PreservedAnalyses AddEntryHookPass::run(Module &M, ModuleAnalysisManager &AM) {
                           x, ir.CreateGEP(dstGroupIdTy, dstGroupId,
                                           {i32_0, ir.getInt32(vec_dim)}));
 
-                      auto *const ci = ir.CreateCall(function, args);
-                      ci->setCallingConv(function->getCallingConv());
-                      ci->setAttributes(
-                          compiler::utils::getCopiedFunctionAttrs(*function));
-
-                      // An inlinable function call in a function with debug
-                      // info *must* be given a debug location.
-                      if (auto *const SP = newFunction->getSubprogram()) {
-                        auto *const wrapperDbgLoc =
-                            DILocation::get(context, /*line*/ 0, /*col*/ 0, SP);
-                        ci->setDebugLoc(wrapperDbgLoc);
-                      }
+                      compiler::utils::createCallToWrappedFunction(
+                          *function, args, ir.GetInsertBlock(),
+                          ir.GetInsertPoint());
 
                       return blockx;
                     });

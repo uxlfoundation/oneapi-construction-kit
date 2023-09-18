@@ -30,6 +30,7 @@
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
+#include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 
@@ -706,6 +707,38 @@ llvm::Function *createKernelWrapperFunction(
   copyFunctionAttrs(F, *NewFunction, 0);
 
   return createKernelWrapperFunctionImpl(F, *NewFunction, Suffix, OldSuffix);
+}
+
+llvm::CallInst *createCallToWrappedFunction(
+    llvm::Function &WrappedF, const llvm::SmallVectorImpl<llvm::Value *> &Args,
+    llvm::BasicBlock *BB, llvm::BasicBlock::iterator InsertPt,
+    llvm::StringRef Name) {
+  auto *const CI =
+      llvm::CallInst::Create(WrappedF.getFunctionType(), &WrappedF, Args);
+
+  CI->setName(Name);
+  CI->setCallingConv(WrappedF.getCallingConv());
+  CI->setAttributes(getCopiedFunctionAttrs(WrappedF));
+
+  if (BB) {
+#if LLVM_VERSION_GREATER(15, 0)
+    CI->insertInto(BB, InsertPt);
+#else
+    BB->getInstList().insert(InsertPt, CI);
+#endif
+
+    if (auto *const ParentF = BB->getParent()) {
+      // An inlinable function call in a function with debug info *must* be
+      // given a debug location.
+      if (auto *const SP = ParentF->getSubprogram()) {
+        auto *const DbgLoc = llvm::DILocation::get(ParentF->getContext(),
+                                                   /*line*/ 0, /*col*/ 0, SP);
+        CI->setDebugLoc(DbgLoc);
+      }
+    }
+  }
+
+  return CI;
 }
 
 }  // namespace utils

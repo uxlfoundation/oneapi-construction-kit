@@ -280,6 +280,23 @@ llvm::Function *createKernelWrapperFunction(llvm::Function &F,
                                             llvm::StringRef Suffix,
                                             llvm::StringRef OldSuffix = "");
 
+/// @brief Creates a call to a a wrapped function
+///
+/// Sets the calling convention and call-site attributes to match the wrapped
+/// function.
+///
+/// @param WrappedF the function to call
+/// @param Args the list of arguments to pass to the call
+/// @param BB the basic block into which to insert the call. May be null, in
+/// which case the call is not inserted anywhere.
+/// @param InsertPt the point in BB at which to insert the call
+/// @param Name the name of the call instruction. May be empty.
+/// @return The call instruction
+llvm::CallInst *createCallToWrappedFunction(
+    llvm::Function &WrappedF, const llvm::SmallVectorImpl<llvm::Value *> &Args,
+    llvm::BasicBlock *BB, llvm::BasicBlock::iterator InsertPt,
+    llvm::StringRef Name = "");
+
 /// @}
 }  // namespace utils
 }  // namespace compiler
