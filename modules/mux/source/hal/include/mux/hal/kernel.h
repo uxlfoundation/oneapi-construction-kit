@@ -48,8 +48,8 @@ struct kernel_variant_s {
   /// Note that the last sub-group in a work-group may be smaller than this
   /// value.
   /// * If one, denotes a trivial sub-group.
-  /// * If zero, denotes a 'degenerate' sub-group (i.e., the size of the
-  /// work-group at enqueue time).
+  /// * If zero, denotes either no sub-groups or a 'degenerate' sub-group
+  /// (i.e., the size of the work-group at enqueue time).
   uint32_t sub_group_size = 0;
 };
 

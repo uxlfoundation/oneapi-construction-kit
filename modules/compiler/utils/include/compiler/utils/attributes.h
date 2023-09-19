@@ -172,7 +172,20 @@ void setHasDegenerateSubgroups(llvm::Function &F);
 /// @param[in] F Function to check.
 bool hasDegenerateSubgroups(const llvm::Function &F);
 
-/// @brief Returns the mux sub-group size for the current function.
+/// @brief Marks a function as not explicitly using subgroups
+///
+/// May be set even with unresolved external functions, assuming those don't
+/// explicitly use subgroups.
+///
+/// @param[in] F Function in which to encode the information.
+void setHasNoExplicitSubgroups(llvm::Function &F);
+
+/// @brief Returns whether the kernel does not explicitly use subgroups
+///
+/// @param[in] F Function to check.
+bool hasNoExplicitSubgroups(const llvm::Function &F);
+
+/// @brief Returns the mux subgroup size for the current function.
 ///
 /// Currently always returns 1!
 unsigned getMuxSubgroupSize(const llvm::Function &F);

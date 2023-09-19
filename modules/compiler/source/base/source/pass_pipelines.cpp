@@ -29,6 +29,7 @@
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
 #include <compiler/utils/replace_mux_math_decls_pass.h>
 #include <compiler/utils/replace_wgc_pass.h>
+#include <compiler/utils/sub_group_usage_pass.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Passes/PassBuilder.h>
@@ -49,6 +50,8 @@ void addPreVeczPasses(ModulePassManager &PM,
     PM.addPass(createModuleToPostOrderCGSCCPassAdaptor(
         compiler::utils::OptimalBuiltinReplacementPass()));
   }
+
+  PM.addPass(compiler::utils::SubgroupUsagePass());
 
   if (tuner.degenerate_sub_groups) {
     PM.addPass(compiler::utils::DegenerateSubGroupPass());

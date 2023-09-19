@@ -1427,6 +1427,14 @@ different stages of the pipeline:
    * - ``"mux-barrier-schedule"="val"``
      - Typically found on call sites. Determines the ordering of work-item
        execution after a berrier. See the `BarrierSchedule` enum.
+   * - ``"mux-no-subgroups"``
+     - Marks the function as not explicitly using sub-groups (e.g., identified
+       by the use of known mux sub-group builtins). If a pass introduces the
+       explicit use of sub-groups to a function, it should remove this
+       attribute.
+   * - ``"mux-degenerate-subgroups"``
+     - Marks the function has using degenerate sub-groups (i.e. one sub-group
+       for the entire local work-group).
 
 ``mux-kernel`` attribute
 ~~~~~~~~~~~~~~~~~~~~~~~~
