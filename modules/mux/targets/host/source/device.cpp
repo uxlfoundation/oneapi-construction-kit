@@ -517,14 +517,15 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
 #endif
   this->descriptors_updatable = true;
   this->can_clone_command_buffers = true;
-  // On host we make use of the DegenerateSubGroupPass where sub-group ==
-  // work-group, so there is always exactly one sub-group.
-  this->max_sub_group_count = 1;
+  this->max_sub_group_count = this->max_concurrent_work_items;
   this->sub_groups_support_ifp = false;
   this->supports_work_group_collectives = true;
   this->supports_generic_address_space = true;
 
-  static std::array<size_t, 1> sg_sizes = {
+  // A list of sub-group sizes we report. Roughly ordered according to
+  // desirability.
+  static std::array<size_t, 4> sg_sizes = {
+      8, 4, 16,
       1,  // we can always produce a 'trivial' sub-group if asked.
   };
   this->sub_group_sizes = sg_sizes.data();
