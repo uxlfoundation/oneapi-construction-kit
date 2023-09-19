@@ -1538,7 +1538,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   // There are three cases:
   //
   // 1. With no vectorization:
-  //    get_max_sub_group_size() = 1
+  //    get_max_sub_group_size() = mux sub-group size
   //
   // 2. With predicated vectorization:
   //    get_max_sub_group_size() = min(vector_width,
@@ -1546,7 +1546,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   //
   // 3. Without predicated vectorization:
   //    get_max_sub_group_size() = local_size_in_vectorization_dimension
-  //    < vector_width ? 1 : vector_width
+  //    < vector_width ? mux sub-group size : vector_width
   {
     // Reset the insertion point back to the wrapper entry block, after VF was
     // materialized.
@@ -1554,16 +1554,17 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     auto setMaxSubgroupSizeFn =
         BI.getOrDeclareMuxBuiltin(eMuxBuiltinSetMaxSubGroupSize, M);
     assert(setMaxSubgroupSizeFn && "Missing __mux_set_max_sub_group_size");
-    // Assume no vectorization to begin with i.e. get_max_sub_group_size() = 1.
-    Value *maxSubgroupSize = entryIR.getInt32(1);
+    // Assume no vectorization to begin with i.e. get_max_sub_group_size() = mux
+    // sub-group size.
+    Value *maxSubgroupSize = entryIR.getInt32(getMuxSubgroupSize(refF));
     if (schedule.wrapperHasMain) {
       auto *localSizeInVecDim = localSizeDim[workItemDim0];
       auto *cmp = entryIR.CreateICmpULT(localSizeInVecDim, VF);
       if (isVectorPredicated) {
         maxSubgroupSize = entryIR.CreateSelect(cmp, localSizeInVecDim, VF);
       } else {
-        maxSubgroupSize =
-            entryIR.CreateSelect(cmp, ConstantInt::get(VF->getType(), 1), VF);
+        maxSubgroupSize = entryIR.CreateSelect(
+            cmp, ConstantInt::get(VF->getType(), getMuxSubgroupSize(refF)), VF);
       }
       if (maxSubgroupSize->getType() != i32Ty) {
         maxSubgroupSize = entryIR.CreateTrunc(maxSubgroupSize, i32Ty);

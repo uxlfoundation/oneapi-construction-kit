@@ -124,9 +124,6 @@ llvm::ModulePassManager RefSiM1PassMachinery::getLateTargetPasses() {
     PM.addPass(compiler::utils::LinkBuiltinsPass());
   }
 
-  // TODON'T temporary fix to get subgroup tests passing while we refactor
-  // subgroup support. CA-4712 CA-4679
-  tuner.degenerate_sub_groups = true;
   addPreVeczPasses(PM, tuner);
 
   PM.addPass(vecz::RunVeczPass());

@@ -39,18 +39,21 @@ GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
   auto kernel_name = Fn.getName().str();
   auto source_name = getOrigFnNameOrFnName(Fn).str();
 
-  bool degenerate_or_no_sub_groups =
-      compiler::utils::hasDegenerateSubgroups(Fn) ||
-      compiler::utils::hasNoExplicitSubgroups(Fn);
-  FixedOrScalableQuantity<uint32_t> sub_group_size(
-      degenerate_or_no_sub_groups ? 0 : 1, false);
-  // If there are no degenerate sub-groups, whole-function vectorization
-  // multiplies the sub-group size.
-  if (!degenerate_or_no_sub_groups) {
-    if (auto vf_info = parseWrapperFnMetadata(Fn)) {
+  FixedOrScalableQuantity<uint32_t> sub_group_size;
+  if (compiler::utils::hasDegenerateSubgroups(Fn)) {
+    sub_group_size = FixedOrScalableQuantity<uint32_t>(0, /*scalable*/ false);
+  } else {
+    sub_group_size = FixedOrScalableQuantity<uint32_t>(getMuxSubgroupSize(Fn),
+                                                       /*scalable*/ false);
+    // Whole-function vectorization multiplies the apparent sub-group size. If
+    // the function doesn't explicitly use sub-groups, though, then keep the
+    // size at the mux sub-group size as it's legally compatible with more
+    // work-group sizes.
+    if (auto vf_info = parseWrapperFnMetadata(Fn);
+        !hasNoExplicitSubgroups(Fn) && vf_info) {
       VectorizationFactor vf = vf_info->first.vf;
-      sub_group_size =
-          FixedOrScalableQuantity<uint32_t>(vf.getKnownMin(), vf.isScalable());
+      sub_group_size = FixedOrScalableQuantity<uint32_t>(
+          sub_group_size.getFixedValue() * vf.getKnownMin(), vf.isScalable());
     }
   }
   return Result(kernel_name, source_name, local_memory_usage, sub_group_size);
