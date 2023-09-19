@@ -67,9 +67,11 @@ bool hostVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
   if (!compiler::utils::isKernelEntryPt(F)) {
     return false;
   }
-  // Handle required sub-group sizes
-  if (auto reqd_subgroup_vf = vecz::getReqdSubgroupSizeOpts(F)) {
-    Opts.assign(1, *reqd_subgroup_vf);
+  // Handle auto sub-group sizes. If the kernel uses sub-groups or has a
+  // required sub-group size, only vectorize to one of those lengths. Let vecz
+  // pick.
+  if (auto auto_subgroup_vf = vecz::getAutoSubgroupSizeOpts(F, MAM)) {
+    Opts.assign(1, *auto_subgroup_vf);
     return true;
   }
   const auto &DI =
@@ -238,9 +240,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
     std::optional<std::string> unique_prefix) {
   llvm::ModulePassManager PM;
   compiler::BasePassPipelineTuner tuner(options);
-
-  // On host we have degenerate sub-groups i.e. sub-group == work-group.
-  tuner.degenerate_sub_groups = true;
 
   // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,

@@ -39,7 +39,7 @@ host::executable_s::executable_s(mux_device_t device,
                   std::vector<binary_kernel_s>(
                       {{kernel.hook, kernel.name, kernel.local_memory_used,
                         kernel.min_work_width, kernel.pref_work_width,
-                        /*sub_group_size*/ 0}}));
+                        kernel.sub_group_size}}));
 }
 
 host::executable_s::executable_s(
