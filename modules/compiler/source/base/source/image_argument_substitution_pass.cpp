@@ -19,6 +19,7 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/SmallVector.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
@@ -163,11 +164,8 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
           KernelF->getContext(), WrapperKernel->getAttributes().getFnAttrs(),
           WrapperKernel->getAttributes().getRetAttrs(), WrapperParamAttrs));
 
-      auto *const CI = B.CreateCall(KernelF, Args);
-
-      CI->setCallingConv(KernelF->getCallingConv());
-      // Copy over the attributes to the call site
-      CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(*KernelF));
+      utils::createCallToWrappedFunction(*KernelF, Args, B.GetInsertBlock(),
+                                         B.GetInsertPoint());
 
       B.CreateRetVoid();
 

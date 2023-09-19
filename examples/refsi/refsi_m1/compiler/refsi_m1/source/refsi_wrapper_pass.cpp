@@ -17,6 +17,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <refsi_m1/refsi_wrapper_pass.h>
 
@@ -206,10 +207,9 @@ llvm::Function *addKernelWrapper(llvm::Module &M, llvm::Function &F) {
     ArgIndex++;
   }
 
-  auto CI = Builder.CreateCall(&F, Args);
-  CI->setCallingConv(F.getCallingConv());
-  // Copy over the attributes to the call site
-  CI->setAttributes(compiler::utils::getCopiedFunctionAttrs(F));
+  compiler::utils::createCallToWrappedFunction(
+      F, Args, Builder.GetInsertBlock(), Builder.GetInsertPoint());
+
   Builder.CreateRetVoid();
   return NewFunction;
 }

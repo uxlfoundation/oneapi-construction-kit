@@ -1231,10 +1231,6 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
 
   LLVMContext &context = M.getContext();
 
-  // Cache the old subprogram as createKernelWrapperFunction will overwrite
-  // the reference subprogram.
-  auto *const OldSP = refF.getSubprogram();
-
   Function *new_wrapper =
       createKernelWrapperFunction(mainF, ".mux-barrier-wrapper");
 
@@ -1242,14 +1238,12 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   // Ensure the base name is recorded
   setBaseFnName(*new_wrapper, baseName);
 
-  // construct an artificial subprogram and debug location for this wrapper
-  // kernel.
+  // An inlinable function call in a function with debug info *must* be given
+  // a debug location.
   DILocation *wrapperDbgLoc = nullptr;
-  if (OldSP) {
-    DIBuilder DIB(M);
-    auto *NewSP = DIB.createArtificialSubprogram(OldSP);
-    new_wrapper->setSubprogram(NewSP);
-    wrapperDbgLoc = DILocation::get(context, 0, 0, NewSP);
+  if (auto *const SP = new_wrapper->getSubprogram()) {
+    wrapperDbgLoc = DILocation::get(context, /*line*/ 0, /*col*/ 0,
+                                    new_wrapper->getSubprogram());
   }
 
   IRBuilder<> entryIR(BasicBlock::Create(context, "entry", new_wrapper));

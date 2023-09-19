@@ -19,6 +19,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <host/add_floating_point_control_pass.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InlineAsm.h>
 #include <llvm/IR/Instructions.h>
@@ -76,9 +77,8 @@ void configX86FP(Function &wrapper, Function &function) {
   }
 
   // call the function we are wrapping
-  auto *const ci = ir.CreateCall(&function, args);
-  ci->setCallingConv(function.getCallingConv());
-  ci->setAttributes(compiler::utils::getCopiedFunctionAttrs(function));
+  compiler::utils::createCallToWrappedFunction(
+      function, args, ir.GetInsertBlock(), ir.GetInsertPoint());
 
   // reset the MXCSR to the original value
   ir.CreateCall(ld_mxcsr, {bitcast_orig})

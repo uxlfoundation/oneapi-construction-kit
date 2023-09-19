@@ -236,9 +236,8 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
       params.back()->setName(arg.getName());
     }
 
-    auto ci = ir.CreateCall(&F, params);
-    ci->setCallingConv(F.getCallingConv());
-    ci->setAttributes(getCopiedFunctionAttrs(F));
+    createCallToWrappedFunction(F, params, ir.GetInsertBlock(),
+                                ir.GetInsertPoint());
 
     ir.CreateRetVoid();
 

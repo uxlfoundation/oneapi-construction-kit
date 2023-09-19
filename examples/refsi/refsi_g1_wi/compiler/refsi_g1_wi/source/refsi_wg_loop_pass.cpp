@@ -19,6 +19,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <refsi_g1_wi/refsi_wg_loop_pass.h>
 
@@ -155,10 +156,9 @@ PreservedAnalyses RefSiWGLoopPass::run(Module &M, ModuleAnalysisManager &AM) {
                           x, ir.CreateGEP(dstGroupIdTy, dstGroupId,
                                           {i32_0, ir.getInt32(inner_dim)}));
 
-                      auto ci = ir.CreateCall(function, args);
-                      ci->setCallingConv(function->getCallingConv());
-                      ci->setAttributes(
-                          compiler::utils::getCopiedFunctionAttrs(*function));
+                      compiler::utils::createCallToWrappedFunction(
+                          *function, args, ir.GetInsertBlock(),
+                          ir.GetInsertPoint());
 
                       auto *local_barrier = BI.getOrDeclareMuxBuiltin(
                           compiler::utils::eMuxBuiltinWorkGroupBarrier, M);
