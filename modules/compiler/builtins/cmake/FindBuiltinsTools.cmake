@@ -115,7 +115,7 @@ function(find_builtins_tools tools_dir)
   # version of the compiler linked into the runtime.
   execute_process(COMMAND ${BUILTINS_COMPILER} --version
     OUTPUT_VARIABLE version_string RESULT_VARIABLE result)
-  if(result EQUAL 0 AND NOT CA_NATIVE_CPU)
+  if(result EQUAL 0)
     string(REPLACE "svn" "" llvm_version ${LLVM_PACKAGE_VERSION})
     string(REGEX MATCH "clang version [0-9]+\\.[0-9]+\\.[0-9]"
       version_string ${version_string})
