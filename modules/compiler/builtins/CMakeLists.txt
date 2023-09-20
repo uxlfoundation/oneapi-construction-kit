@@ -24,7 +24,7 @@ include(cmake/FindBuiltinsTools.cmake)
 # release build of these executables by setting
 # -DCA_BUILTINS_TOOLS_DIR:PATH=<path> to the path containing the clang, opt,
 # and llvm-link binaries.
-if((NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED))
+if(NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED)
   find_builtins_tools("${CA_BUILTINS_TOOLS_DIR}")
   # ABACUS_BUILD_WITH_RUNTIME_TOOLS is mis-named. When ON, abacus is built with
   # builtins tools (if available) or tools in CA_LLVM_INSTALL_DIR otherwise.
