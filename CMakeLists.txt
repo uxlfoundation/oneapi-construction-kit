@@ -161,6 +161,7 @@ endforeach()
 
 if(CA_NATIVE_CPU)
   set(CA_RUNTIME_COMPILER_ENABLED Off)
+  set(CA_ENABLE_TESTS Off)
 endif()
 if(CA_RUNTIME_COMPILER_ENABLED)
   include(ImportLLVM)

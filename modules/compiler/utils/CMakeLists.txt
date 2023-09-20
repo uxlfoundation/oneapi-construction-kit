@@ -123,13 +123,12 @@ if(CA_NATIVE_CPU)
   target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
   # cmake complains about the fact that include paths are in the build directory, so I had to make 
   # the include path PRIVATE, and add it manually here
-  target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../cargo/include)
   target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../metadata/include)
 endif()
 
 if(CA_NATIVE_CPU)
-  target_include_directories(compiler-utils PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_include_directories(compiler-utils PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 else()
   target_include_directories(compiler-utils PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include)

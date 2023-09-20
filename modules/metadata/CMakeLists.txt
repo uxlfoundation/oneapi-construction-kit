@@ -17,21 +17,17 @@
 add_ca_library(md_api STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/metadata.cpp)
-  add_ca_library(md_handler STATIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/handler/generic_metadata.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/handler/vectorize_info_metadata.cpp)
+add_ca_library(md_handler STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/handler/generic_metadata.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/handler/vectorize_info_metadata.cpp)
 if(CA_NATIVE_CPU)
   target_link_libraries(md_api PUBLIC cargo)
   target_include_directories(md_api
-      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/metadata/detail)
   
   target_link_libraries(md_handler PUBLIC cargo md_api)
   target_include_directories(md_handler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-  # cmake complains about the fact that include paths are in the build directory, so I had to make 
-  # the include path PRIVATE, and add it manually here
-  target_include_directories(md_handler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cargo/include)
-  target_include_directories(md_api PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cargo/include)
 else()
   target_link_libraries(md_api PUBLIC cargo)
   target_include_directories(md_api

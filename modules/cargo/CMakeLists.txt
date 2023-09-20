@@ -70,8 +70,8 @@ add_ca_library(cargo STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/statics.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/thread.cpp)
 if(CA_NATIVE_CPU)
-  target_include_directories(cargo PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_include_directories(cargo PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 else()
   target_include_directories(cargo PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
