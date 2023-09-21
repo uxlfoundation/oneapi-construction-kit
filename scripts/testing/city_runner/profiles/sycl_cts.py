@@ -17,6 +17,7 @@
 import os
 import io
 import re
+from sys import stdout
 from city_runner.profiles.default import DefaultProfile
 from city_runner.profiles.default import DefaultTestRun
 from city_runner.execution import TestRunBase
