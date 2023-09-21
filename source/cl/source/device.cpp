@@ -18,6 +18,7 @@
 #include <cargo/string_algorithm.h>
 #include <cargo/string_view.h>
 #include <cl/binary/binary.h>
+#include <cl/command_queue.h>
 #include <cl/config.h>
 #include <cl/device.h>
 #include <cl/limits.h>
@@ -328,6 +329,28 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
     OCL_ASSERT(error == cargo::success, "Out of memory");
   }
 #endif
+}
+
+void _cl_device_id::RegisterCommandQueue(cl_command_queue queue) {
+  std::lock_guard<std::mutex> lock(device_lock);
+  registered_queues.insert(queue);
+}
+
+void _cl_device_id::DeregisterCommandQueue(cl_command_queue queue) {
+  std::lock_guard<std::mutex> lock(device_lock);
+  registered_queues.erase(queue);
+}
+
+void _cl_device_id::ReleaseAllExternalQueues() {
+  // Need to copy as it will deregister as it goes along
+  auto queues = registered_queues;
+  for (auto q : queues) {
+    auto external_count = q->refCountExternal();
+    for (cl_uint i = 0; i < external_count; i++) {
+      cl::ReleaseCommandQueue(q);
+    }
+  }
+  registered_queues.clear();
 }
 
 _cl_device_id::~_cl_device_id() {

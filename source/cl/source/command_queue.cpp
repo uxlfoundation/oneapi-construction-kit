@@ -52,6 +52,7 @@ _cl_command_queue::_cl_command_queue(cl_context context, cl_device_id device,
       in_flush(false) {
   cl::retainInternal(context);
   cl::retainInternal(device);
+  { device->RegisterCommandQueue(this); }
 }
 
 _cl_command_queue::~_cl_command_queue() {
@@ -86,6 +87,7 @@ _cl_command_queue::~_cl_command_queue() {
     muxDestroyQueryPool(mux_queue, counter_queries, device->mux_allocator);
   }
 
+  device->DeregisterCommandQueue(this);
   cl::releaseInternal(device);
   cl::releaseInternal(context);
 }
