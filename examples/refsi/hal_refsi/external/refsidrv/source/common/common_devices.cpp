@@ -22,6 +22,7 @@
 #include <sstream>
 #include <fcntl.h>
 #include <unistd.h>
+#include <cassert>
 
 std::string format_unit(unit_id_t unit_id) {
   switch (get_unit_kind(unit_id)) {
@@ -276,6 +277,7 @@ bool MemoryController::load(reg_t addr, size_t len, uint8_t *bytes,
 
 bool MemoryController::store(reg_t addr, size_t len, const uint8_t *bytes,
                              unit_id_t unit) {
+  assert(bytes && "Data source must not be null");
   reg_t dev_offset = 0;
   if (MemoryDevice *device = find_device(addr, dev_offset)) {
     if (uint8_t *mem_contents = device->addr_to_mem(dev_offset, len, unit)) {

@@ -199,8 +199,9 @@ bool refsi_g1_hal_device::kernel_exec(hal::hal_program_t program,
   hal::hal_addr_t args_addr = refsiAllocDeviceMemory(device, packed_args.size(),
                                                      sizeof(uint64_t), DRAM);
   if (!args_addr ||
-      !mem_ctl.store(args_addr, packed_args.size(), packed_args.data(),
-                     make_unit(unit_kind::external))) {
+      (!packed_args.empty() &&
+       !mem_ctl.store(args_addr, packed_args.size(), packed_args.data(),
+                      make_unit(unit_kind::external)))) {
     return false;
   }
   exec.packed_args = args_addr;

@@ -224,7 +224,7 @@ public:
   /// converting the address to a device offset.
   /// @param dev_offset Offset to the start of the memory area to write to.
   /// @param len Size of the memory area to write to.
-  /// @param bytes Data to write to the device.
+  /// @param bytes Data to write to the device - must not be nullptr.
   /// @param unit_id ID of the execution unit requesting the memory access.
   /// @return true on success and false on failure.
   bool store(reg_t addr, size_t len, const uint8_t* bytes,
