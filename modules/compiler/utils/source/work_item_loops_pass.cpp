@@ -376,8 +376,8 @@ struct ScheduleGenerator {
     }
   }
 
-  // Create loops to execute all the main work items, and then all the
-  // left-over tail work items at the end.
+  // Create a 1D loop to execute all the work items in a 'barrier', reducing
+  // across an accumulator.
   std::pair<BasicBlock *, Value *> makeReductionLoop(
       compiler::utils::BarrierWithLiveVars const &barrier,
       compiler::utils::GroupCollective const &WGC, BasicBlock *block, Value *op,
@@ -385,8 +385,8 @@ struct ScheduleGenerator {
     auto *const accTy = accumulator->getType();
     Function *const func = block->getParent();
 
-    // Subgroup induction variables
-    Value *subgroupIVs[] = {accumulator};
+    // Induction variables
+    Value *IVs[] = {accumulator};
     auto *const totalSize = barrier.getTotalSize();
 
     compiler::utils::CreateLoopOpts inner_opts;
@@ -425,9 +425,9 @@ struct ScheduleGenerator {
 
     BasicBlock *latchBlock = nullptr;
 
-    // linearly looping through the vectorized work items
+    // linearly looping through the work items
     exitBlock = compiler::utils::createLoop(
-        preheader, exitBlock, zero, totalSize, subgroupIVs, inner_opts,
+        preheader, exitBlock, zero, totalSize, IVs, inner_opts,
         [&](BasicBlock *block, Value *index, ArrayRef<Value *> ivs,
             MutableArrayRef<Value *> ivsNext) -> BasicBlock * {
           IRBuilder<> ir(block);
@@ -508,7 +508,6 @@ struct ScheduleGenerator {
         }
         return loop;
       }
-
       case compiler::utils::GroupCollective::OpKind::Broadcast: {
         // First we need to get the item ID values from the barrier struct.
         // These should be uniform but they may still be variables. It should
