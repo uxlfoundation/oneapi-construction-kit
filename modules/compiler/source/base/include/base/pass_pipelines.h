@@ -54,8 +54,9 @@ struct BasePassPipelineTuner {
   /// @brief Whether or not to generate code for degenerate sub groups.
   bool degenerate_sub_groups = false;
 
-  /// @brief Whether or not the WorkItemLoopsPass is going to be run.
-  bool handling_work_item_loops = true;
+  /// @brief Whether or not to replace work-group collectives early before
+  /// vectorization.
+  bool replace_work_group_collectives = false;
 
   /// @brief The desired target calling convention, used to configure the
   /// FixupCallingConvention pass.

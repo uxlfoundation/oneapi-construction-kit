@@ -57,12 +57,11 @@ void addPreVeczPasses(ModulePassManager &PM,
     PM.addPass(compiler::utils::DegenerateSubGroupPass());
   }
 
-  // We need to use the software implementation of the work-group collective
-  // builtins. Because ReplaceWGCPass may introduce barrier calls it needs to be
-  // run before PrepareBarriersPass. When using the WorkItemLoopsPass, we can
-  // run the Replace WGC pass in Scans Only mode, since the WorkItemLoopsPass
-  // has its own implementations of reductions and broadcasts.
-  PM.addPass(compiler::utils::ReplaceWGCPass(tuner.handling_work_item_loops));
+  if (tuner.replace_work_group_collectives) {
+    // Because ReplaceWGCPass may introduce barrier calls it needs to be run
+    // before PrepareBarriersPass.
+    PM.addPass(compiler::utils::ReplaceWGCPass());
+  }
 
   // We have to inline all functions containing barriers before running vecz,
   // because the barriers in both the scalar and vector kernels need to be

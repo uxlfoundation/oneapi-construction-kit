@@ -615,9 +615,6 @@ PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
     auto Builtin = BI.analyzeBuiltin(F);
     if (auto WGC = BI.isMuxGroupCollective(Builtin.ID);
         WGC && WGC->isWorkGroupScope()) {
-      if (scans_only && !WGC->isScan()) {
-        continue;
-      }
       WGCollectives.push_back({&F, *WGC});
     }
   }
