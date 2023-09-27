@@ -44,13 +44,13 @@ To install the recommended packages, run:
 ```
 
 ### Compiling oneAPI Construction Kit 
-To compile the oneAPI Construction Kit, LLVM needs to be installed and linked against. The build process requires the use of tools from LLVM when the runtime compiler is enabled. The user can either follow the [LLVM guide](doc/developer-guide.md#compiling-llvm) to build a suitable install or follow the [without LLVM guide](doc/developer-guide.md#compiling-computeaorta-without-llvm) to compile the oneAPI Construction Kit with the runtime compiler disabled.
+To compile the oneAPI Construction Kit, LLVM needs to be installed and linked against. The build process requires the use of tools from LLVM when the runtime compiler is enabled. The user can either follow the [LLVM guide](doc/developer-guide.md#compiling-llvm) to build a suitable install or follow the [without LLVM guide](doc/developer-guide.md#compiling-the-oneapi-construction-kit-without-llvm) to compile the oneAPI Construction Kit with the runtime compiler disabled.
 
 Examples are provided to get started, but for more control over the compilation process, the user can consult the list of CMake options.
 
 The oneAPI Construction Kit can be compiled for two reference targets; `host` and `refsi` (`riscv`). In SYCL programming, the host target refers to the system where the SYCL program is compiled and executed, while the refsi (Reference System Implementation) target refers to the target platform for which the program is being developed. The refsi target is a hardware-specific implementation of the SYCL specification, enabling the program to run on a specific target platform. SYCL implementations such as DPC++ provide various refsi targets for CPUs, GPUs, FPGAs, and accelerators, which can be selected during compilation using specific flags and code.
 
-To compile oneAPI Construction Kit for the host, please refer to the [developer guide](doc/developer-guide.md#compiling-computeaorta).
+To compile oneAPI Construction Kit for the host, please refer to the [developer guide](doc/developer-guide.md#compiling-oneapi-construction-kit).
 
 #### Compiling oneAPI Construction Kit for RISC-V
 This target aims to provide a flexible way of communicating with various customer RISC-V targets with different configurations. It supports multiple variants using an abstract class and can configure targets and execute commands. However, the current version has only been tested on an x86_64 host CPU.
@@ -73,7 +73,7 @@ ninja -C build-riscv install
   ``-DLLVM_ENABLE_PROJECTS='clang;lld'``.
 
 ### Cross-compiling oneAPI Construction Kit
-When cross-compiling with CMake, you need to set the `CMAKE_TOOLCHAIN_FILE` variable to tell CMake how to compile for the target architecture. This file sets up various CMake variables, such as the locations of the C and C++ compilers, the assembler, the linker, and the target file system root. By setting these variables correctly, CMake can generate the appropriate build system files for the target platform. More information regarding cross compiling of the oneAPI Construction Kit, can be found [here](doc/developer-guide.md#cross-platform-building-llvm-and-computeaorta-for-linux)
+When cross-compiling with CMake, you need to set the `CMAKE_TOOLCHAIN_FILE` variable to tell CMake how to compile for the target architecture. This file sets up various CMake variables, such as the locations of the C and C++ compilers, the assembler, the linker, and the target file system root. By setting these variables correctly, CMake can generate the appropriate build system files for the target platform. More information regarding cross compiling of the oneAPI Construction Kit, can be found [here](doc/developer-guide.md#cross-platform-building-llvm-and-oneapi-construction-kit-for-linux)
 
 ### Compiling oneAPI-samples vector-add using DPC++ pre-released compiler
 To obtain the pre-released DPC++ compiler, please visit the following link: https://github.com/intel/llvm/releases. It is recommended to download the DPC++ daily version released on May 18, 2023, which can be found at https://github.com/intel/llvm/releases/tag/sycl-nightly%2F20230518.
