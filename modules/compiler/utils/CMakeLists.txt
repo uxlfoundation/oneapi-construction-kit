@@ -121,9 +121,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 if(CA_NATIVE_CPU)
   target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
-  # cmake complains about the fact that include paths are in the build directory, so I had to make 
-  # the include path PRIVATE, and add it manually here
-  target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../metadata/include)
 endif()
 
 if(CA_NATIVE_CPU)

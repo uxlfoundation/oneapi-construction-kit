@@ -17,7 +17,8 @@
 if(CA_NATIVE_CPU)
   add_subdirectory(multi_llvm)
   add_subdirectory(utils)
-else()
+  return()
+endif()
 add_subdirectory(builtins)
 if(CA_RUNTIME_COMPILER_ENABLED)
   if(CA_ENABLE_TESTS)
@@ -189,4 +190,3 @@ if(CA_RUNTIME_COMPILER_ENABLED)
 endif()
 
 add_subdirectory(loader)
-endif() #CA_NATIVE_CPU
