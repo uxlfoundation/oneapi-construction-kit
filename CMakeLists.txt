@@ -160,7 +160,13 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
 endforeach()
 
 if(CA_NATIVE_CPU)
+  # For Native CPU, we disable the runtime compiler and manually re-enable
+  # only the components that we need for our integration.
+  # Todo: consider defining a CMake option that allows to specify which
+  # components to build without editing the CMake files.
   set(CA_RUNTIME_COMPILER_ENABLED Off)
+  # We also disable directly testing the Construction Kit since the used
+  # compoenents will be tested as part of the DPC++ integration.
   set(CA_ENABLE_TESTS Off)
 endif()
 if(CA_RUNTIME_COMPILER_ENABLED)
