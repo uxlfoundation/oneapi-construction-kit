@@ -40,6 +40,8 @@ TEST_P(muxCreateFenceTest, InvalidDevice) {
 TEST_P(muxCreateFenceTest, InvalidAllocator) {
   mux_fence_t fence;
 
+  const mux_allocator_info_t saved_allocator = allocator;
+
   allocator.alloc = nullptr;
   allocator.free = nullptr;
   ASSERT_ERROR_EQ(mux_error_null_allocator_callback,
@@ -54,6 +56,9 @@ TEST_P(muxCreateFenceTest, InvalidAllocator) {
   allocator.free = nullptr;
   ASSERT_ERROR_EQ(mux_error_null_allocator_callback,
                   muxCreateFence(device, allocator, &fence));
+
+  // Restore allocator to properly tear down test
+  allocator = saved_allocator;
 }
 
 TEST_P(muxCreateFenceTest, NullFence) {
