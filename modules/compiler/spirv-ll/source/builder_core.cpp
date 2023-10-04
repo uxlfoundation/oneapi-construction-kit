@@ -1004,69 +1004,59 @@ cargo::optional<Error> Builder::create<OpSpecConstant>(
   llvm::Type *type = module.getType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
+  uint64_t value;
+  if (type->getScalarSizeInBits() > 32)
+    value = op->Value64();
+  else
+    value = op->Value32();
+
   llvm::Constant *spec_constant = nullptr;
 
   if (auto specId = module.getSpecId(op->IdResult())) {
     if (auto specInfo = module.getSpecInfo()) {
       if (specInfo->isSpecialized(*specId)) {
-        // Constant has been specialized, get value and create new constant.
-        switch (type->getTypeID()) {
-          case llvm::Type::IntegerTyID: {
-            switch (type->getScalarSizeInBits()) {
-              case 16: {
-                auto value = specInfo->getValue<uint16_t>(*specId);
-                SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                spec_constant = llvm::ConstantInt::get(type, *value);
-              } break;
-              case 1:
-                if (module.hasCapability(spv::CapabilityKernel)) {
-                  // OpenCL SPIR-V spec constant bool is 8 bits.
-                  auto value = specInfo->getValue<uint8_t>(*specId);
-                  SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                  spec_constant = llvm::ConstantInt::get(type, *value);
-                  break;
-                }
-                // Vulkan SPIR-V spec constant bool is 32 bits.
-                CARGO_FALLTHROUGH;
-              case 32: {
-                auto value = specInfo->getValue<uint32_t>(*specId);
-                SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                spec_constant = llvm::ConstantInt::get(type, *value);
-              } break;
-              case 64: {
-                auto value = specInfo->getValue<uint64_t>(*specId);
-                SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                spec_constant = llvm::ConstantInt::get(type, *value);
-              } break;
-              case 8:
-                if (module.hasCapability(spv::CapabilityKernel)) {
-                  auto value = specInfo->getValue<uint8_t>(*specId);
-                  SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                  spec_constant = llvm::ConstantInt::get(type, *value);
-                  break;
-                }
-                // Vulkan SPIR-V does not support 8 bit integers.
-                CARGO_FALLTHROUGH;
-              default:
-                // The types above encapsulate all those required to be
-                // supported in the SPIR-V core spec for either the Shader or
-                // Kernel capability. It should not be possible to reach this
-                // point as unsupported specialization constant types should
-                // result in an error on definition.
-                llvm_unreachable(
-                    "unsupported int type provided to OpSpecConstant");
+        int size = type->getScalarSizeInBits();
+        switch (size) {
+          case 1:
+            if (module.hasCapability(spv::CapabilityKernel)) {
+              // OpenCL SPIR-V spec constant bool is 8 bits.
+              size = 8;
+            } else {
+              // Vulkan SPIR-V spec constant bool is 32 bits.
+              size = 32;
             }
             break;
-          }
-          case llvm::Type::FloatTyID: {
-            auto value = specInfo->getValue<float>(*specId);
-            SPIRV_LL_ASSERT(value, value.error().message.c_str());
-            spec_constant = llvm::ConstantFP::get(type, *value);
+          case 8:
+            if (!module.hasCapability(spv::CapabilityKernel)) {
+              // Vulkan SPIR-V does not support 8 bit integers.
+              size = -1;
+            }
+            break;
+        }
+        // SpecializationInfo::getValue does not require the type to match, it
+        // merely requires the type to have the correct size. Use integer types
+        // for everything to avoid a need for the host compiler to support
+        // device types.
+        switch (size) {
+          case 8: {
+            auto specValue = specInfo->getValue<uint8_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
           } break;
-          case llvm::Type::DoubleTyID: {
-            auto value = specInfo->getValue<double>(*specId);
-            SPIRV_LL_ASSERT(value, value.error().message.c_str());
-            spec_constant = llvm::ConstantFP::get(type, *value);
+          case 16: {
+            auto specValue = specInfo->getValue<uint16_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 32: {
+            auto specValue = specInfo->getValue<uint32_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 64: {
+            auto specValue = specInfo->getValue<uint64_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
           } break;
           default:
             llvm_unreachable("Invalid type provided to OpSpecConstant");
@@ -1075,28 +1065,15 @@ cargo::optional<Error> Builder::create<OpSpecConstant>(
       }
     }
   }
-  if (!spec_constant) {
-    uint64_t value = 0;
 
-    if (type->isDoubleTy() || type->isIntegerTy(64)) {
-      value = op->Value64();
-    } else {
-      value = op->Value32();
-    }
-
-    if (type->isFloatingPointTy()) {
-      if (type->isDoubleTy()) {
-        double dval = 0;
-        memcpy(&dval, &value, sizeof(double));
-        spec_constant = llvm::ConstantFP::get(type, dval);
-      } else {
-        float fval = 0;
-        memcpy(&fval, &value, sizeof(float));
-        spec_constant = llvm::ConstantFP::get(type, fval);
-      }
-    } else {
-      spec_constant = llvm::ConstantInt::get(type, value);
-    }
+  if (type->isIntegerTy()) {
+    spec_constant = llvm::ConstantInt::get(type, value);
+  } else if (type->isFloatingPointTy()) {
+    spec_constant = llvm::ConstantFP::get(
+        type, llvm::APFloat(type->getFltSemantics(),
+                            llvm::APInt(type->getScalarSizeInBits(), value)));
+  } else {
+    llvm_unreachable("Invalid type provided to OpSpecConstant");
   }
 
   module.addID(op->IdResult(), op, spec_constant);

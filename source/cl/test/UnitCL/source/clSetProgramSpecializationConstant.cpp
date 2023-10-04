@@ -27,6 +27,8 @@
 // * SpecId: 4       OpTypeInt       16 bit    Default: 23
 // * SpecId: 5       OpTypeInt       64 bit    Default: 23
 // * SpecId: 6       OpTypeFloat     32 bit    Default: 23.0
+// * SpecId: 7       OpTypeFloat     64 bit    Default: 23.0
+// * SpecId: 8       OpTypeFloat     16 bit    Default: 23.0
 
 struct clSetProgramSpecializationConstantTest : ucl::ContextTest {
   void SetUp() override {
@@ -123,9 +125,21 @@ struct clSetProgramSpecializationConstantSuccessTest
     floatBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(cl_float),
                                  nullptr, &error);
     ASSERT_SUCCESS(error);
+    doubleBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(cl_double),
+                                  nullptr, &error);
+    ASSERT_SUCCESS(error);
+    halfBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(cl_half),
+                                nullptr, &error);
+    ASSERT_SUCCESS(error);
   }
 
   void TearDown() final {
+    if (halfBuffer) {
+      ASSERT_SUCCESS(clReleaseMemObject(halfBuffer));
+    }
+    if (doubleBuffer) {
+      ASSERT_SUCCESS(clReleaseMemObject(doubleBuffer));
+    }
     if (floatBuffer) {
       ASSERT_SUCCESS(clReleaseMemObject(floatBuffer));
     }
@@ -160,9 +174,11 @@ struct clSetProgramSpecializationConstantSuccessTest
     ASSERT_SUCCESS(clSetKernelArg(kernel, 3, sizeof(cl_mem), &intBuffer));
     ASSERT_SUCCESS(clSetKernelArg(kernel, 4, sizeof(cl_mem), &longBuffer));
     ASSERT_SUCCESS(clSetKernelArg(kernel, 5, sizeof(cl_mem), &floatBuffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 6, sizeof(cl_mem), &doubleBuffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 7, sizeof(cl_mem), &halfBuffer));
     cl_event taskEvent;
     ASSERT_SUCCESS(clEnqueueTask(commandQueue, kernel, 0, nullptr, &taskEvent));
-    std::array<cl_event, 6> resultEvents;
+    std::array<cl_event, 8> resultEvents;
     ASSERT_SUCCESS(clEnqueueReadBuffer(commandQueue, boolBuffer, CL_FALSE, 0,
                                        sizeof(bool) * 2, boolResults.data(), 1,
                                        &taskEvent, &resultEvents[0]));
@@ -181,6 +197,12 @@ struct clSetProgramSpecializationConstantSuccessTest
     ASSERT_SUCCESS(clEnqueueReadBuffer(commandQueue, floatBuffer, CL_FALSE, 0,
                                        sizeof(cl_float), &floatResult, 1,
                                        &taskEvent, &resultEvents[5]));
+    ASSERT_SUCCESS(clEnqueueReadBuffer(commandQueue, doubleBuffer, CL_FALSE, 0,
+                                       sizeof(cl_double), &doubleResult, 1,
+                                       &taskEvent, &resultEvents[6]));
+    ASSERT_SUCCESS(clEnqueueReadBuffer(commandQueue, halfBuffer, CL_FALSE, 0,
+                                       sizeof(cl_half), &halfResult, 1,
+                                       &taskEvent, &resultEvents[7]));
     ASSERT_SUCCESS(clWaitForEvents(resultEvents.size(), resultEvents.data()));
 
     std::for_each(
@@ -197,12 +219,16 @@ struct clSetProgramSpecializationConstantSuccessTest
   cl_mem intBuffer = nullptr;
   cl_mem longBuffer = nullptr;
   cl_mem floatBuffer = nullptr;
+  cl_mem doubleBuffer = nullptr;
+  cl_mem halfBuffer = nullptr;
   std::array<bool, 2> boolResults;
   cl_char charResult;
   cl_short shortResult;
   cl_int intResult;
   cl_long longResult;
   cl_float floatResult;
+  cl_double doubleResult;
+  cl_half halfResult;
 };
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest, None) {
@@ -219,6 +245,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest, None) {
   ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
   ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -239,6 +267,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
   ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -259,6 +289,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
   ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -279,6 +311,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
   ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -299,6 +333,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
   ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -319,6 +355,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   ASSERT_EQ(value, intResult);              // SpecId: 4
   ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -339,6 +377,8 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
   ASSERT_EQ(value, longResult);             // SpecId: 5
   ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest,
@@ -352,13 +392,59 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);       // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);      // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);    // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);  // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);      // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);    // SpecId: 5
-  ASSERT_EQ(value, floatResult);         // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);           // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);          // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);        // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);      // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);          // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);        // SpecId: 5
+  ASSERT_EQ(value, floatResult);             // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);    // SpecId: 8
+}
+
+TEST_F(clSetProgramSpecializationConstantSuccessTest,
+       SpecId7OpSpecConstantDouble) {
+  cl_double value = 42.0;
+  ASSERT_SUCCESS(
+      clSetProgramSpecializationConstant(program, 7, sizeof(value), &value));
+  ASSERT_SUCCESS(
+      clBuildProgram(program, 1, &device, "", ucl::buildLogCallback, nullptr));
+  cl_int error;
+  kernel = clCreateKernel(program, "test", &error);
+  ASSERT_SUCCESS(error);
+  UCL_RETURN_ON_FATAL_FAILURE(getResults());
+  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(value, doubleResult);           // SpecId: 7
+  ASSERT_EQ(cl_half(0x4dc0), halfResult);   // SpecId: 8
+}
+
+TEST_F(clSetProgramSpecializationConstantSuccessTest,
+       SpecId6OpSpecConstantHalf) {
+  cl_half value = 0x5140;  // cl_half(42.0f)
+  ASSERT_SUCCESS(
+      clSetProgramSpecializationConstant(program, 8, sizeof(value), &value));
+  ASSERT_SUCCESS(
+      clBuildProgram(program, 1, &device, "", ucl::buildLogCallback, nullptr));
+  cl_int error;
+  kernel = clCreateKernel(program, "test", &error);
+  ASSERT_SUCCESS(error);
+  UCL_RETURN_ON_FATAL_FAILURE(getResults());
+  ASSERT_EQ(true, boolResults[0]);           // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);          // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);        // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);      // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);          // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);        // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult);   // SpecId: 6
+  ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+  ASSERT_EQ(value, halfResult);              // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest, All) {
@@ -383,6 +469,12 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest, All) {
   cl_float floatValue = 42.0f;
   ASSERT_SUCCESS(clSetProgramSpecializationConstant(
       program, 6, sizeof(floatValue), &floatValue));
+  cl_double doubleValue = 42.0f;
+  ASSERT_SUCCESS(clSetProgramSpecializationConstant(
+      program, 7, sizeof(doubleValue), &doubleValue));
+  cl_half halfValue = 0x5140;  // cl_half(42.0f)
+  ASSERT_SUCCESS(clSetProgramSpecializationConstant(
+      program, 8, sizeof(halfValue), &halfValue));
   ASSERT_SUCCESS(
       clBuildProgram(program, 1, &device, "", ucl::buildLogCallback, nullptr));
   cl_int error;
@@ -396,4 +488,6 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest, All) {
   ASSERT_EQ(intValue, intResult);         // SpecId: 4
   ASSERT_EQ(longValue, longResult);       // SpecId: 5
   ASSERT_EQ(floatValue, floatResult);     // SpecId: 6
+  ASSERT_EQ(doubleValue, doubleResult);   // SpecId: 7
+  ASSERT_EQ(halfValue, halfResult);       // SpecId: 8
 }
