@@ -168,7 +168,7 @@ of parallel harts to use is set to the device's default value:
       cb.addWRITE_REG64(CMP_REG_RETURN_ADDR, elf->find_symbol("kernel_exit"));
       cb.addWRITE_REG64(CMP_REG_KUB_DESC, kub_desc); // Added
       cb.addWRITE_REG64(CMP_REG_TSD_INFO, tsd_info); // Added
-      cb.addRUN_KERNEL_SLICE(* num_harts */ 0, num_instances, 0); // Changed
+      cb.addRUN_KERNEL_SLICE(/* num_harts */ 0, num_instances, 0); // Changed
       cb.addFINISH();
 
       // Execute the command buffer.

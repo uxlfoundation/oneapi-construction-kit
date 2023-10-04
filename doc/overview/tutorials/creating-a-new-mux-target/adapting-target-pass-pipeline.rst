@@ -28,6 +28,7 @@ The scheduling struct looks like:
     struct sched_struct {
       size_t   group_id[3];
       size_t   num_groups[3];
+      size_t   global_offset[3];
       size_t   local_size[3];
       uint32_t work_dim;
     }
@@ -49,9 +50,9 @@ follows:
 
 .. code:: cpp
 
-  group_id[0] = slice id
-  group_id[1] = instance id % num_groups[1]
-  group_id[2] = instance id / num_groups[1]
+  group_id[0] = instance id
+  group_id[1] = slice id % num_groups[1]
+  group_id[2] = slice id / num_groups[1]
 
 We thus need to write an additional pass which takes the *RefSi* function
 signature, sets the ``group_id`` parts of the ``sched_struct`` and calls the

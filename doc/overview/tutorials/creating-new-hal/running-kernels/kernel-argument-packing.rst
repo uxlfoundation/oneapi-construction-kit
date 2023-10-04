@@ -72,7 +72,7 @@ be added:
     cb.addWRITE_REG64(CMP_REG_KUB_DESC, kub_desc);
     cb.addWRITE_REG64(CMP_REG_KARGS_INFO, kargs_info);    // Added
     cb.addWRITE_REG64(CMP_REG_TSD_INFO, tsd_info);
-    cb.addRUN_KERNEL_SLICE(* num_harts */ 0, num_instances, 0);
+    cb.addRUN_KERNEL_SLICE(/* num_harts */ 0, num_instances, 0);
     cb.addFINISH();
 
 Please note that the ``kargs_info`` value is set to zero instead of being
