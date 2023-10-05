@@ -75,18 +75,89 @@ ninja -C build-riscv install
 ### Cross-compiling oneAPI Construction Kit
 When cross-compiling with CMake, you need to set the `CMAKE_TOOLCHAIN_FILE` variable to tell CMake how to compile for the target architecture. This file sets up various CMake variables, such as the locations of the C and C++ compilers, the assembler, the linker, and the target file system root. By setting these variables correctly, CMake can generate the appropriate build system files for the target platform. More information regarding cross compiling of the oneAPI Construction Kit, can be found [here](doc/developer-guide.md#cross-platform-building-llvm-and-oneapi-construction-kit-for-linux)
 
-### Compiling oneAPI-samples vector-add using DPC++ pre-released compiler
-To obtain the pre-released DPC++ compiler, please visit the following link: https://github.com/intel/llvm/releases. It is recommended to download the DPC++ daily version released on May 18, 2023, which can be found at https://github.com/intel/llvm/releases/tag/sycl-nightly%2F20230518.
+### Compiling oneAPI-samples vector-add using official Intel oneAPI Base Toolkit
+The official Intel OneAPI Base Toolkit can be obtained by visiting the following link: [Intel OneAPI Base Toolkit Download](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.html). On this page, specify the operating system, the type of installer needed, and the desired version to access the download options. The initial download is for the installer application files only. The installer will acquire all the tools during the installation process. From the console, locate the downloaded install file.
+
+```sh
+# To launch the GUI installer as the root
+sudo sh ./<installer>.sh
+```
+Or
+```sh
+# To launch the GUI installer as the current user.
+sh ./<installer>.sh
+```
+
+Follow the instructions in the installer. And explore the Get Started Guide to get more information.
+
+For example, for Linux, online installer and version 2023.2.0, follow the instructions below:
+
+```sh
+wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/992857b9-624c-45de-9701-f6445d845359/l_BaseKit_p_2023.2.0.49397.sh
+
+sudo sh ./l_BaseKit_p_2023.2.0.49397.sh
+```
 
 To acquire the oneAPI-samples, clone it as follows.
 
 ```sh
 git clone https://github.com/oneapi-src/oneAPI-samples.git
 ```
+
+Now to compile the vector add from oneAPI samples, set the environment variables and follow the steps given below:
+
+```sh
+export OCL_ICD_FILENAMES=$ONEAPI_CON_KIT_INSTALL_DIR/lib/libCL.so
+export LD_LIBRARY_PATH=/path/to/intel/oneapi/compiler/2023.2.0/linux/lib:/path/to/intel/oneapi/compiler/2023.2.0/linux/compiler/lib/intel64_lin:/path/to/intel/oneapi/compiler/2023.2.0/linux/compiler/lib/:$LD_LIBRARY_PATH
+export ONEAPI_DEVICE_SELECTOR="*:acc"
+
+/path/to/intel/oneapi/compiler/2023.2.0/linux/bin-llvm/clang++ -fsycl /path/to/oneAPI-samples/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o vector-add-buffers
+CA_HAL_DEBUG=1 SYCL_CONFIG_FILE_NAME=  ./vector-add-buffers
+```
+
+>**_Note_:**
+   As the release has a whitelist of devices, it filters out RefSi. To override it, as a temporary solution we can point `SYCL_CONFIG_FILE_NAME` to empty space. This way it doesn't set the default `sycl.conf`.
+
+The generated output should be somthing like the following:
+```sh
+Running on device: RefSi G1 RV64
+Vector size: 10000
+refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x98006380
+refsi_hal_device::mem_write(dst=0x98006380, size=40000)
+refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x97ffc700
+refsi_hal_device::mem_write(dst=0x97ffc700, size=40000)
+refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x97ff2a80
+refsi_hal_device::mem_write(dst=0x97ff2a80, size=40000)
+refsi_hal_device::program_find_kernel(name='_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_.mux-kernel-wrapper') -> 0x00010570
+refsi_hal_device::kernel_exec(kernel=0x00010570, num_args=6, global=<10000:1:1>, local=<16:1:1>)
+refsi_hal_device::pack_arg(offset=0, align=8, value=0x0000000097ff2a80)
+refsi_hal_device::pack_arg(offset=8, align=8, value=0x0000000000000000)
+refsi_hal_device::pack_arg(offset=16, align=8, value=0x0000000098006380)
+refsi_hal_device::pack_arg(offset=24, align=8, value=0x0000000000000000)
+refsi_hal_device::pack_arg(offset=32, align=8, value=0x0000000097ffc700)
+refsi_hal_device::pack_arg(offset=40, align=8, value=0x0000000000000000)
+refsi_hal_device::kernel_exec finished in 0.003 s
+refsi_hal_device::mem_read(src=0x97ff2a80, size=40000)
+refsi_hal_device::mem_free(address=0x97ff2a80)
+refsi_hal_device::mem_free(address=0x97ffc700)
+refsi_hal_device::mem_free(address=0x98006380)
+[0]: 0 + 0 = 0
+[1]: 1 + 1 = 2
+[2]: 2 + 2 = 4
+...
+[9999]: 9999 + 9999 = 19998
+Vector add successfully completed on device.
+```
+
+### Compiling oneAPI-samples vector-add using DPC++ pre-released compiler
+To obtain the pre-released DPC++ compiler, please visit the following link: https://github.com/intel/llvm/releases. It is worth noting that these releases are regularly updated on daily basis.
+
+For illustrative purposes, we suggest installing and conducting tests using the DPC++ daily version that was made available on October 3, 2023. You can find this specific release at the following URL: https://github.com/intel/llvm/releases/tag/nightly-2023-10-03.
+
 Set the environment variables:
 ```sh
 export OCL_ICD_FILENAMES=$ONEAPI_CON_KIT_INSTALL_DIR/lib/libCL.so
-export LD_LIBRARY_PATH=/path/yo/dpcpp_compiler/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/path/to/dpcpp_compiler/lib:$ONEAPI_CONKIT_INSTALL_DIR/lib:$LD_LIBRARY_PATH
 export ONEAPI_DEVICE_SELECTOR="*:acc"
 ```
 
@@ -103,25 +174,25 @@ The generated output should look something like the following:
 ```sh
 Running on device: RefSi G1 RV64
 Vector size: 10000
-refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x9ff06380
-refsi_hal_device::mem_write(dst=0x9ff06380, size=40000)
-refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x9fefc700
-refsi_hal_device::mem_write(dst=0x9fefc700, size=40000)
-refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x9fef2a80
-refsi_hal_device::mem_write(dst=0x9fef2a80, size=40000)
-refsi_hal_device::program_find_kernel(name='_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_.mux-kernel-wrapper') -> 0x00010570
-refsi_hal_device::kernel_exec(kernel=0x00010570, num_args=6, global=<10000:1:1>, local=<16:1:1>)
-refsi_hal_device::pack_arg(offset=0, align=8, value=0x000000009fef2a80)
+refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x98006380
+refsi_hal_device::mem_write(dst=0x98006380, size=40000)
+refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x97ffc700
+refsi_hal_device::mem_write(dst=0x97ffc700, size=40000)
+refsi_hal_device::mem_alloc(size=40000, align=128) -> 0x97ff2a80
+refsi_hal_device::mem_write(dst=0x97ff2a80, size=40000)
+refsi_hal_device::program_find_kernel(name='_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_.mux-kernel-wrapper') -> 0x000104a2
+refsi_hal_device::kernel_exec(kernel=0x000104a2, num_args=6, global=<10000:1:1>, local=<16:1:1>)
+refsi_hal_device::pack_arg(offset=0, align=8, value=0x0000000097ff2a80)
 refsi_hal_device::pack_arg(offset=8, align=8, value=0x0000000000000000)
-refsi_hal_device::pack_arg(offset=16, align=8, value=0x000000009ff06380)
+refsi_hal_device::pack_arg(offset=16, align=8, value=0x0000000098006380)
 refsi_hal_device::pack_arg(offset=24, align=8, value=0x0000000000000000)
-refsi_hal_device::pack_arg(offset=32, align=8, value=0x000000009fefc700)
+refsi_hal_device::pack_arg(offset=32, align=8, value=0x0000000097ffc700)
 refsi_hal_device::pack_arg(offset=40, align=8, value=0x0000000000000000)
-refsi_hal_device::kernel_exec finished in 0.003 s
-refsi_hal_device::mem_read(src=0x9fef2a80, size=40000)
-refsi_hal_device::mem_free(address=0x9fef2a80)
-refsi_hal_device::mem_free(address=0x9fefc700)
-refsi_hal_device::mem_free(address=0x9ff06380)
+refsi_hal_device::kernel_exec finished in 0.007 s
+refsi_hal_device::mem_read(src=0x97ff2a80, size=40000)
+refsi_hal_device::mem_free(address=0x97ff2a80)
+refsi_hal_device::mem_free(address=0x97ffc700)
+refsi_hal_device::mem_free(address=0x98006380)
 [0]: 0 + 0 = 0
 [1]: 1 + 1 = 2
 [2]: 2 + 2 = 4
@@ -130,8 +201,8 @@ refsi_hal_device::mem_free(address=0x9ff06380)
 Vector add successfully completed on device.
 ```
 
-### Compiling DPC++ toolchain from Intel oneAPI ToolKit
-To build oneAPI follow the commands below:
+### Compiling oneAPI DPC++ compiler from Intel LLVM-base projects
+To build oneAPI DPC++ follow the commands below:
 
 ```sh
 git clone https://github.com/intel/llvm intel-llvm -b sycl
@@ -163,7 +234,8 @@ python buildbot/compile.py -o build
 > **_Note:_**
   The instructions differ for the host and riscv. The instructions mentioned above are for `riscv` target.
 
-#### Compiling a simple SYCL example with oneAPI
+
+#### Compiling a simple SYCL example with oneAPI DPC++ compiler
 The following simple-vector-add sample code serves as an introductory example, similar to a "Hello, World!" program, for data parallel programming using SYCL. It showcases fundamental features of SYCL and demonstrates how to perform vector addition on arrays of integers and float. Furthermore, building and running the simple-vector-add sample code can be used as a verification step to ensure that your development environment is properly configured for oneAPI Toolkit and oneAPI Construction kit.
 
 ```c++
