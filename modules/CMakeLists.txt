@@ -27,6 +27,21 @@ set(MODULES_INCLUDE_DIRS # No default value
 set(MODULES_LIBRARIES # No default value
   CACHE INTERNAL "List of module libraries.")
 
+
+if(CA_NATIVE_CPU)
+  include(FetchContent)
+  FetchContent_Declare(
+    SPIRV-Headers
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+    GIT_TAG        sdk-1.3.239.0
+  )
+  FetchContent_MakeAvailable(SPIRV-Headers)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/metadata)
+  return()
+endif()
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)

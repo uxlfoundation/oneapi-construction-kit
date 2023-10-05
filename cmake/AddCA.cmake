@@ -459,21 +459,27 @@ endmacro()
   project wide compiler options and definitions to the target.
 #]=======================================================================]
 macro(add_ca_library)
-  add_library(${ARGV})
-  target_compile_options(${ARGV0}
-    PRIVATE ${CA_COMPILE_OPTIONS})
-  target_compile_definitions(${ARGV0}
-    PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
-  set_ca_target_output_directory(${ARGV0})
-  if(COMMAND add_ca_tidy)
-    add_ca_tidy(${ARGV})
-  endif()
-  ca_target_link_options(${ARGV0} PRIVATE "${CA_LINK_OPTIONS}")
-  if(CA_ENABLE_DEBUG_BACKTRACE AND NOT ${ARGV0} STREQUAL debug-backtrace)
-    # Link the debug support library into all targets when it is enabled so
-    # that DEBUG_BACKTRACE can be used effectively, this is only enabled when
-    # requested by the user.
-    target_link_libraries(${ARGV0} PUBLIC debug-backtrace)
+  if(CA_NATIVE_CPU)
+    #Todo: add_llvm_library doesn't take in a SHARED keyword, add_ca_library does
+    #maybe it's better to drop it to avoid bugs?
+    add_llvm_library(${ARGV})
+  else()
+    add_library(${ARGV})
+    target_compile_options(${ARGV0}
+      PRIVATE ${CA_COMPILE_OPTIONS})
+    target_compile_definitions(${ARGV0}
+      PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
+    set_ca_target_output_directory(${ARGV0})
+    if(COMMAND add_ca_tidy)
+      add_ca_tidy(${ARGV})
+    endif()
+    ca_target_link_options(${ARGV0} PRIVATE "${CA_LINK_OPTIONS}")
+    if(CA_ENABLE_DEBUG_BACKTRACE AND NOT ${ARGV0} STREQUAL debug-backtrace)
+      # Link the debug support library into all targets when it is enabled so
+      # that DEBUG_BACKTRACE can be used effectively, this is only enabled when
+      # requested by the user.
+      target_link_libraries(${ARGV0} PUBLIC debug-backtrace)
+    endif()
   endif()
 endmacro()
 
@@ -686,7 +692,7 @@ macro(get_target_link_libraries variable target)
 endmacro()
 
 # Add the check target to run all registered checks, see add_ca_check() below.
-add_custom_target(check COMMENT "ComputeAorta checks.")
+add_custom_target(check-ca COMMENT "ComputeAorta checks.")
 
 if(CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING_EMULATOR)
   message(WARNING "ComputeAorta check targets disabled as "
@@ -793,7 +799,7 @@ function(add_ca_check name)
       DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
   endif()
   if(NOT args_NOGLOBAL)
-    add_dependencies(check check-${name})
+    add_dependencies(check-ca check-${name})
   endif()
   if(CA_ENABLE_COVERAGE AND (CA_RUNTIME_COMPILER_ENABLED OR
       (NOT CA_RUNTIME_COMPILER_ENABLED AND ${name} STREQUAL "UnitCL")))
@@ -973,8 +979,8 @@ function(add_ca_copy_file)
     COMMENT "Copying file ${relOut}")
 endfunction()
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/source/cl AND
-    (CA_ENABLE_API STREQUAL "" OR CA_ENABLE_API MATCHES cl))
+if((EXISTS ${PROJECT_SOURCE_DIR}/source/cl AND
+  (CA_ENABLE_API STREQUAL "" OR CA_ENABLE_API MATCHES cl)) OR CA_NATIVE_CPU)
   # Cleared to ensure reconfigures behave correctly.
   set(CA_CL_RUNTIME_EXTENSION_TAGS ""
     CACHE INTERNAL "List of runtime extension names.")

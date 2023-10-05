@@ -14,12 +14,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
-project(ComputeAorta VERSION 4.0.0 LANGUAGES C CXX ASM)
-
-# There's no situation where it's necessary to *not* generate this file and the
-# time difference to configure is about 0.1s
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(NOT CA_NATIVE_CPU)
+  cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+  project(ComputeAorta VERSION 4.0.0 LANGUAGES C CXX ASM)
+  
+  # There's no situation where it's necessary to *not* generate this file and the
+  # time difference to configure is about 0.1s
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+else()
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+endif()
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "oneAPI Construction Kit does not support in-tree builds!")
@@ -155,6 +159,16 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
   endif()
 endforeach()
 
+if(CA_NATIVE_CPU)
+  # For Native CPU, we disable the runtime compiler and manually re-enable
+  # only the components that we need for our integration.
+  # Todo: consider defining a CMake option that allows to specify which
+  # components to build without editing the CMake files.
+  set(CA_RUNTIME_COMPILER_ENABLED Off)
+  # We also disable directly testing the Construction Kit since the used
+  # compoenents will be tested as part of the DPC++ integration.
+  set(CA_ENABLE_TESTS Off)
+endif()
 if(CA_RUNTIME_COMPILER_ENABLED)
   include(ImportLLVM)
 endif()
@@ -289,11 +303,17 @@ if(CA_ENABLE_TESTS)
   ca_umbrella_lit_testsuite_open(all)
 endif()
 
-add_subdirectory(hal)
-add_subdirectory(external)
-add_subdirectory(source)
-if(CA_ENABLE_DOCUMENTATION)
-  add_subdirectory(doc)
+# CA_NATIVE_CPU should be set when adding the construction kit as a 
+# subdirectory
+if(CA_NATIVE_CPU)
+  add_subdirectory(modules)
+else()
+  add_subdirectory(hal)
+  add_subdirectory(external)
+  add_subdirectory(source)
+  if(CA_ENABLE_DOCUMENTATION)
+    add_subdirectory(doc)
+  endif()
 endif()
 
 # Add the deferred add_ca_extension_subdirectory() entries until all
@@ -319,7 +339,7 @@ add_to_group(ComputeAorta
   clVectorAddition vkVectorAddition veczc UnitUR urVectorAddition)
 
 # Create a check-ComputeAorta target to build+test.
-add_ca_check_group(ComputeAorta DEPENDS ComputeAorta check)
+add_ca_check_group(ComputeAorta DEPENDS ComputeAorta check-ca)
 
 # Create a check-tidy-ComputeAorta target to build+test+tidy.
 add_ca_check_group(tidy-ComputeAorta DEPENDS check-ComputeAorta tidy)

@@ -489,7 +489,7 @@ add_ca_default_unitcl_check(UnitCL-prevec-opt-disable COMPILER
   ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-opt-disable")
 
 # Add this group to the global check target
-add_dependencies(check check-UnitCL-group)
+add_dependencies(check-ca check-UnitCL-group)
 
 if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
   add_ca_vecz_unitcl_check(UnitCL-vecz COMPILER
@@ -553,7 +553,7 @@ if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
     ARGS --vecz-check)
 
   # Add this group to the global check target
-  add_dependencies(check check-UnitCL-group-vecz)
+  add_dependencies(check-ca check-UnitCL-group-vecz)
 endif()
 
 if(OCL_EXTENSION_cl_intel_unified_shared_memory)

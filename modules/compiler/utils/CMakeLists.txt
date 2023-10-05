@@ -119,9 +119,17 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
+if(CA_NATIVE_CPU)
+  target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
+endif()
 
-target_include_directories(compiler-utils PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(CA_NATIVE_CPU)
+  target_include_directories(compiler-utils PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+else()
+  target_include_directories(compiler-utils PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
 
 target_compile_definitions(compiler-utils PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
@@ -130,8 +138,13 @@ target_compile_definitions(compiler-utils PRIVATE
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-target_link_libraries(compiler-utils PUBLIC
-  cargo md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+if(CA_NATIVE_CPU)
+  target_link_libraries(compiler-utils PUBLIC
+    cargo md_handler LLVMPasses LLVMTransformUtils)
+else()
+  target_link_libraries(compiler-utils PUBLIC
+    cargo md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+endif()
 if(TARGET LLVMCore)
   target_link_libraries(compiler-utils PUBLIC LLVMCore)
 endif()

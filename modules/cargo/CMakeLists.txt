@@ -69,8 +69,13 @@ add_ca_library(cargo STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/endian.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/statics.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/thread.cpp)
-target_include_directories(cargo PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(CA_NATIVE_CPU)
+  target_include_directories(cargo PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+else()
+  target_include_directories(cargo PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
 
 ca_option(CA_ENABLE_CARGO_INSTRUMENTATION BOOL
   "Enable instrumentation of memory allocation in cargo" OFF)
