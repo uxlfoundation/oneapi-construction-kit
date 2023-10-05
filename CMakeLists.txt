@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+if(NOT CA_NATIVE_CPU)
   cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
   project(ComputeAorta VERSION 4.0.0 LANGUAGES C CXX ASM)
   
