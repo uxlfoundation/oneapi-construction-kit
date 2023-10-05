@@ -848,6 +848,12 @@ set(spirv_test
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv.23_memset_kernel.spvasm64
   ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.spvasm32
   ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp16.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp16.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.fp16.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.fp16.spvasm64
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm32
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm64
   )

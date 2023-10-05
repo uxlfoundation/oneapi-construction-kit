@@ -1,0 +1,143 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+;
+; This SPIR-V module was hand written to test the
+; clSetProgramSpecialzationConstant() entry point since there is not way to
+; generate specialization constants directly from OpenCL C source code. The
+; following module should be equivalent to:
+;
+; ```openclc
+;
+; kernel void test(global bool* qBool, global char* qChar, global short* qShort,
+;                  global int* qInt, global long* qLong, global float* qFloat,
+;                  global double* qDouble, global half* qHalf) {
+;   __attribute__((spec_id=0)) constant bool specTrue = true;
+;   __attribute__((spec_id=1)) constant bool specFalse = false;
+;   __attribute__((spec_id=2)) constant char specChar = 23;
+;   __attribute__((spec_id=3)) constant short specShort = 23;
+;   __attribute__((spec_id=4)) constant int specInt = 23;
+;   __attribute__((spec_id=5)) constant long specLong = 23;
+;   __attribute__((spec_id=6)) constant float specFloat = 23;
+;   __attribute__((spec_id=7)) constant double specDouble = 23;
+;   __attribute__((spec_id=8)) constant half specHalf = 23;
+;
+;   qBool[0] = specTrue;
+;   qBool[1] = specFalse;
+;   qChar[0] = specChar;
+;   qShort[0] = specShort;
+;   qInt[0] = specInt;
+;   qLong[0] = specLong;
+;   qFloat[0] = specFloat;
+;   qDouble[0] = specDouble;
+;   qHalf[0] = specHalf;
+; }
+; ```
+                   OpCapability Addresses
+                   OpCapability Linkage
+                   OpCapability Kernel
+                   OpCapability Int8
+                   OpCapability Int16
+                   OpCapability Int64
+         %opencl = OpExtInstImport "OpenCL.std"
+                   OpMemoryModel Physical64 OpenCL
+                   OpEntryPoint Kernel %test "test"
+  %kernelArgType = OpString "kernel_arg_type.test.bool*,char*,short*,int*,long*,float*,"
+                   OpSource OpenCL_C 102000
+
+; Variable names
+                   OpName %pBool "pBool"
+                   OpName %pChar "pChar"
+                   OpName %pShort "pShort"
+                   OpName %pInt "pInt"
+                   OpName %pLong "pLong"
+                   OpName %pFloat "pFloat"
+                   OpName %pDouble "pDouble"
+                   OpName %pHalf "pHalf"
+
+; Decorations
+                   OpDecorate %fnParamGroup FuncParamAttr NoCapture
+   %fnParamGroup = OpDecorationGroup
+                   OpGroupDecorate %fnParamGroup %pBool %pChar %pShort %pInt %pLong %pFloat %pDouble %pHalf
+
+; Specialization constant decorations
+                   OpDecorate %specBoolTrue SpecId 0
+                   OpDecorate %specBoolFalse SpecId 1
+                   OpDecorate %specChar SpecId 2
+                   OpDecorate %specShort SpecId 3
+                   OpDecorate %specInt SpecId 4
+                   OpDecorate %specLong SpecId 5
+                   OpDecorate %specFloat SpecId 6
+                   OpDecorate %specDouble SpecId 7
+                   OpDecorate %specHalf SpecId 8
+
+; Types
+           %void = OpTypeVoid
+           %bool = OpTypeBool
+           %char = OpTypeInt 8 0
+          %short = OpTypeInt 16 0
+            %int = OpTypeInt 32 0
+           %long = OpTypeInt 64 0
+          %float = OpTypeFloat 32
+         %double = OpTypeFloat 64
+           %half = OpTypeFloat 16
+  %globalBoolPtr = OpTypePointer CrossWorkgroup %bool
+  %globalCharPtr = OpTypePointer CrossWorkgroup %char
+ %gloablShortPtr = OpTypePointer CrossWorkgroup %short
+   %globalIntPtr = OpTypePointer CrossWorkgroup %int
+  %globalLongPtr = OpTypePointer CrossWorkgroup %long
+ %globalFloatPtr = OpTypePointer CrossWorkgroup %float
+%globalDoublePtr = OpTypePointer CrossWorkgroup %double
+  %globalHalfPtr = OpTypePointer CrossWorkgroup %half
+
+         %testFn = OpTypeFunction %void %globalBoolPtr %globalCharPtr %gloablShortPtr %globalIntPtr %globalLongPtr %globalFloatPtr %globalDoublePtr %globalHalfPtr
+
+; Specialzation constants
+   %specBoolTrue = OpSpecConstantTrue %bool    ; SpecId: 0
+  %specBoolFalse = OpSpecConstantFalse %bool   ; SpecId: 1
+       %specChar = OpSpecConstant %char 23     ; SpecId: 2
+      %specShort = OpSpecConstant %short 23    ; SpecId: 3
+        %specInt = OpSpecConstant %int 23      ; SpecId: 4
+       %specLong = OpSpecConstant %long 23     ; SpecId: 5
+      %specFloat = OpSpecConstant %float 23.0  ; SpecId: 6
+     %specDouble = OpSpecConstant %double 23.0 ; SpecId: 7
+       %specHalf = OpSpecConstant %half 23.0   ; SpecId: 8
+
+; Constants
+     %constLong1 = OpConstant %long 1
+
+; Entry point
+           %test = OpFunction %void None %testFn
+          %pBool = OpFunctionParameter %globalBoolPtr
+          %pChar = OpFunctionParameter %globalCharPtr
+         %pShort = OpFunctionParameter %gloablShortPtr
+           %pInt = OpFunctionParameter %globalIntPtr
+          %pLong = OpFunctionParameter %globalLongPtr
+         %pFloat = OpFunctionParameter %globalFloatPtr
+        %pDouble = OpFunctionParameter %globalDoublePtr
+          %pHalf = OpFunctionParameter %globalHalfPtr
+             %37 = OpLabel
+                   OpStore %pBool %specBoolTrue Aligned 1
+         %pBool1 = OpInBoundsPtrAccessChain %globalBoolPtr %pBool %constLong1
+                   OpStore %pBool1 %specBoolFalse Aligned 1
+                   OpStore %pChar %specChar Aligned 1
+                   OpStore %pShort %specShort Aligned 2
+                   OpStore %pInt %specInt Aligned 4
+                   OpStore %pLong %specLong Aligned 8
+                   OpStore %pFloat %specFloat Aligned 4
+                   OpStore %pDouble %specDouble Aligned 8
+                   OpStore %pHalf %specHalf Aligned 2
+                   OpReturn
+                   OpFunctionEnd
