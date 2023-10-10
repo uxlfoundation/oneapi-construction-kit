@@ -203,29 +203,29 @@ public:
   /// of the device mapped at the given address. This is equivalent to calling
   /// @ref find_device followed by @ref addr_to_mem on the returned device,
   /// converting the address to a device offset.
-  /// @param dev_offset Offset to the start of the memory area to map.
+  /// @param addr Device address from which to retrieve the host pointer.
   /// @param size Size of the memory area to map.
-  /// @param unit_id ID of the execution unit requesting the memory access.
+  /// @param unit ID of the execution unit requesting the memory access.
   /// @return Host pointer for the specified area, or null.
-  uint8_t * addr_to_mem(reg_t addr, size_t size, unit_id_t unit) override;
+  uint8_t *addr_to_mem(reg_t addr, size_t size, unit_id_t unit) override;
 
   /// @brief Try to read data from the device. This is equivalent to calling
   /// @ref find_device followed by @ref load on the returned device,
   /// converting the address to a device offset.
-  /// @param dev_offset Offset to the start of the memory area to read from.
+  /// @param addr Device address to copy data from.
   /// @param len Size of the memory area to read from.
   /// @param bytes Buffer to copy the data read from the device to.
-  /// @param unit_id ID of the execution unit requesting the memory access.
+  /// @param unit ID of the execution unit requesting the memory access.
   /// @return true on success and false on failure.
   bool load(reg_t addr, size_t len, uint8_t* bytes, unit_id_t unit) override;
 
   /// @brief Try to write data to the device. This is equivalent to calling
   /// @ref find_device followed by @ref store on the returned device,
   /// converting the address to a device offset.
-  /// @param dev_offset Offset to the start of the memory area to write to.
+  /// @param addr Device address to store data to.
   /// @param len Size of the memory area to write to.
   /// @param bytes Data to write to the device - must not be nullptr.
-  /// @param unit_id ID of the execution unit requesting the memory access.
+  /// @param unit ID of the execution unit requesting the memory access.
   /// @return true on success and false on failure.
   bool store(reg_t addr, size_t len, const uint8_t* bytes,
              unit_id_t unit) override;
@@ -234,7 +234,7 @@ public:
   /// @param dst_addr Device address to copy data to.
   /// @param src_addr Device address to copy data from.
   /// @param len Number of bytes to copy.
-  /// @param unit_id ID of the execution unit requesting the memory access.
+  /// @param unit ID of the execution unit requesting the memory access.
   /// @return true on success and false on failure.
   bool copy(reg_t dst_addr, reg_t src_addr, size_t len, unit_id_t unit);
 
