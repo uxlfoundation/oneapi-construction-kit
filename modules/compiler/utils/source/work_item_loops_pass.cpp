@@ -376,8 +376,8 @@ struct ScheduleGenerator {
     }
   }
 
-  // Create loops to execute all the main work items, and then all the
-  // left-over tail work items at the end.
+  // Create a 1D loop to execute all the work items in a 'barrier', reducing
+  // across an accumulator.
   std::pair<BasicBlock *, Value *> makeReductionLoop(
       compiler::utils::BarrierWithLiveVars const &barrier,
       compiler::utils::GroupCollective const &WGC, BasicBlock *block, Value *op,
@@ -385,8 +385,8 @@ struct ScheduleGenerator {
     auto *const accTy = accumulator->getType();
     Function *const func = block->getParent();
 
-    // Subgroup induction variables
-    Value *subgroupIVs[] = {accumulator};
+    // Induction variables
+    Value *IVs[] = {accumulator};
     auto *const totalSize = barrier.getTotalSize();
 
     compiler::utils::CreateLoopOpts inner_opts;
@@ -425,9 +425,9 @@ struct ScheduleGenerator {
 
     BasicBlock *latchBlock = nullptr;
 
-    // linearly looping through the vectorized work items
+    // linearly looping through the work items
     exitBlock = compiler::utils::createLoop(
-        preheader, exitBlock, zero, totalSize, subgroupIVs, inner_opts,
+        preheader, exitBlock, zero, totalSize, IVs, inner_opts,
         [&](BasicBlock *block, Value *index, ArrayRef<Value *> ivs,
             MutableArrayRef<Value *> ivsNext) -> BasicBlock * {
           IRBuilder<> ir(block);
@@ -475,40 +475,57 @@ struct ScheduleGenerator {
     }
   }
 
-  std::pair<BasicBlock *, Value *> makeReductionLoops(BasicBlock *block,
-                                                      unsigned barrierID) {
-    auto *const barrierCall = barrierMain.getBarrierCall(barrierID);
-    if (!barrierCall) {
-      return {block, nullptr};
+  std::optional<compiler::utils::GroupCollective> getBarrierGroupCollective(
+      compiler::utils::BarrierWithLiveVars const &Barrier, unsigned BarrierID) {
+    auto *const BarrierCall = Barrier.getBarrierCall(BarrierID);
+    if (!BarrierCall) {
+      return std::nullopt;
     }
 
-    auto *const groupCall = cast<CallInst>(barrierCall);
-    auto Builtin = BI.analyzeBuiltin(*groupCall->getCalledFunction());
-    auto Info = BI.isMuxGroupCollective(Builtin.ID);
+    auto Builtin = BI.analyzeBuiltin(*BarrierCall->getCalledFunction());
+    return BI.isMuxGroupCollective(Builtin.ID);
+  }
+
+  std::tuple<BasicBlock *, Value *,
+             std::optional<compiler::utils::GroupCollective>>
+  makeWorkGroupCollectiveLoops(BasicBlock *block, unsigned barrierID) {
+    auto *const groupCall = barrierMain.getBarrierCall(barrierID);
+    if (!groupCall) {
+      return {block, nullptr, std::nullopt};
+    }
+
+    auto Info = getBarrierGroupCollective(barrierMain, barrierID);
     if (!Info || !Info->isWorkGroupScope()) {
-      return {block, nullptr};
+      return {block, nullptr, std::nullopt};
     }
 
     switch (Info->Op) {
       case compiler::utils::GroupCollective::OpKind::Reduction:
       case compiler::utils::GroupCollective::OpKind::All:
       case compiler::utils::GroupCollective::OpKind::Any: {
-        auto *const ty = barrierCall->getType();
+        auto *const ty = groupCall->getType();
         auto *const accumulator =
             compiler::utils::getNeutralVal(Info->Recurrence, ty);
-        auto loop = makeReductionLoop(barrierMain, *Info, block,
-                                      groupCall->getOperand(1), accumulator);
+        auto [loop_exit_block, accum] = makeReductionLoop(
+            barrierMain, *Info, block, groupCall->getOperand(1), accumulator);
         if (barrierTail) {
           auto *const groupTailInst = barrierTail->getBarrierCall(barrierID);
-          loop = makeReductionLoop(*barrierTail, *Info, loop.first,
-                                   groupTailInst->getOperand(1), loop.second);
+          std::tie(loop_exit_block, accum) =
+              makeReductionLoop(*barrierTail, *Info, loop_exit_block,
+                                groupTailInst->getOperand(1), accum);
         }
         if (groupCall->hasName()) {
-          loop.second->takeName(groupCall);
+          accum->takeName(groupCall);
         }
-        return loop;
+        return std::make_tuple(loop_exit_block, accum, Info);
       }
-
+      case compiler::utils::GroupCollective::OpKind::ScanInclusive:
+      case compiler::utils::GroupCollective::OpKind::ScanExclusive: {
+        auto *const ty = groupCall->getType();
+        auto *const accumulator =
+            compiler::utils::getIdentityVal(Info->Recurrence, ty);
+        return {block, accumulator, Info};
+      }
       case compiler::utils::GroupCollective::OpKind::Broadcast: {
         // First we need to get the item ID values from the barrier struct.
         // These should be uniform but they may still be variables. It should
@@ -545,7 +562,7 @@ struct ScheduleGenerator {
         }
 
         if (!mainUniformBlock && !tailUniformBlock) {
-          return {block, nullptr};
+          return {block, nullptr, std::nullopt};
         }
 
         Value *idsMain[] = {zero, zero, zero};
@@ -558,13 +575,12 @@ struct ScheduleGenerator {
         }
 
         if (tailUniformBlock) {
-          auto *const barrierCall = barrierTail->getBarrierCall(barrierID);
-          assert(barrierCall &&
+          auto *const tailGroupCall = barrierTail->getBarrierCall(barrierID);
+          assert(tailGroupCall &&
                  "No corresponding work group broadcast in tail kernel");
-          auto *const groupCall = cast<CallInst>(barrierCall);
-          idsTail[0] = groupCall->getOperand(2);
-          idsTail[1] = groupCall->getOperand(3);
-          idsTail[2] = groupCall->getOperand(4);
+          idsTail[0] = tailGroupCall->getOperand(2);
+          idsTail[1] = tailGroupCall->getOperand(3);
+          idsTail[2] = tailGroupCall->getOperand(4);
           getUniformValues(tailUniformBlock, *barrierTail, idsTail);
         }
 
@@ -619,25 +635,29 @@ struct ScheduleGenerator {
           auto *const result = ir.CreateLoad(op->getType(), select);
           result->takeName(groupCall);
 
-          return {block, result};
+          return {block, result, Info};
         } else {
           auto *const result = ir.CreateLoad(op->getType(), GEPmain);
           result->takeName(groupCall);
-          return {block, result};
+          return {block, result, Info};
         }
       }
       default:
         break;
     }
-    return {block, nullptr};
+    return {block, nullptr, std::nullopt};
   }
 
   // Create loops to execute all the main work items, and then all the
   // left-over tail work items at the end.
   BasicBlock *makeWorkItemLoops(BasicBlock *block, unsigned barrierID) {
-    auto const collective = makeReductionLoops(block, barrierID);
-    block = collective.first;
-    auto *const accum = collective.second;
+    Value *accum = nullptr;
+    std::optional<compiler::utils::GroupCollective> collective;
+    std::tie(block, accum, collective) =
+        makeWorkGroupCollectiveLoops(block, barrierID);
+
+    // Work-group scans should be using linear work-item loops.
+    assert((!collective || !collective->isScan()) && "No support for scans");
 
     auto *const zero =
         Constant::getNullValue(compiler::utils::getSizeType(module));
@@ -878,9 +898,24 @@ struct ScheduleGenerator {
 
   // Create loops to execute all work items in local linear ID order.
   BasicBlock *makeLinearWorkItemLoops(BasicBlock *block, unsigned barrierID) {
-    auto const collective = makeReductionLoops(block, barrierID);
-    block = collective.first;
-    auto *const accum = collective.second;
+    Value *accum = nullptr;
+    std::optional<compiler::utils::GroupCollective> collective;
+    std::tie(block, accum, collective) =
+        makeWorkGroupCollectiveLoops(block, barrierID);
+
+    bool isScan = collective && collective->isScan();
+    bool isExclusiveScan =
+        isScan && collective->Op ==
+                      compiler::utils::GroupCollective::OpKind::ScanExclusive;
+    // The scan types can differ between 'main' and 'tail' kernels.
+    bool isTailExclusiveScan = false;
+    if (isScan && barrierTail) {
+      auto const tailInfo = getBarrierGroupCollective(*barrierTail, barrierID);
+      assert(tailInfo && "No corresponding work group scan in tail kernel");
+      isTailExclusiveScan =
+          tailInfo->Op ==
+          compiler::utils::GroupCollective::OpKind::ScanExclusive;
+    }
 
     auto *const zero =
         Constant::getNullValue(compiler::utils::getSizeType(module));
@@ -891,11 +926,20 @@ struct ScheduleGenerator {
     // the end of the last loop (i.e. beginning of the next loop)
     Value *nextSubgroupIV = i32Zero;
 
+    // The work-group scan induction variable, set to the current scan value at
+    // the end of the last loop (i.e. beginning of the next loop)
+    Value *nextScanIV = accum;
+
     // We need to ensure any subgroup IV is defined on the path in which
     // the vector loop is skipped.
     PHINode *subgroupMergePhi = nullptr;
+    // Same with the scan IV
+    PHINode *scanMergePhi = nullptr;
 
-    Value *subgroupIVs2[] = {i32Zero};
+    SmallVector<Value *, 2> subgroupIVs2 = {i32Zero};
+    if (isScan) {
+      subgroupIVs2.push_back(nextScanIV);
+    }
     compiler::utils::CreateLoopOpts outer_opts;
 
     // looping through num groups in the third (outermost) dimension
@@ -913,6 +957,11 @@ struct ScheduleGenerator {
           if (auto *i = dyn_cast<Instruction>(ivs2[0])) {
             i->setName("sg.z");
           }
+          if (isScan) {
+            if (auto *i = dyn_cast<Instruction>(ivs2[1])) {
+              i->setName("scan.z");
+            }
+          }
 
           // looping through num groups in the second dimension
           BasicBlock *exit1 = compiler::utils::createLoop(
@@ -927,6 +976,11 @@ struct ScheduleGenerator {
 
                 if (auto *i = dyn_cast<Instruction>(ivs1[0])) {
                   i->setName("sg.y");
+                }
+                if (isScan) {
+                  if (auto *i = dyn_cast<Instruction>(ivs1[1])) {
+                    i->setName("scan.y");
+                  }
                 }
 
                 // looping through num groups in the first (innermost)
@@ -957,6 +1011,12 @@ struct ScheduleGenerator {
                     subgroupMergePhi =
                         PHINode::Create(i32Ty, 2, "sg.merge", mainExitBB);
                     subgroupMergePhi->addIncoming(ivs1[0], block);
+
+                    if (isScan) {
+                      scanMergePhi = PHINode::Create(accum->getType(), 2,
+                                                     "scan.merge", mainExitBB);
+                      scanMergePhi->addIncoming(ivs1[1], block);
+                    }
 
                     auto needMain = new ICmpInst(*block, CmpInst::ICMP_NE, zero,
                                                  mainLoopLimit);
@@ -991,12 +1051,33 @@ struct ScheduleGenerator {
                         if (auto *i = dyn_cast<Instruction>(ivs0[0])) {
                           i->setName("sg.x.main");
                         }
+                        if (isScan) {
+                          if (auto *i = dyn_cast<Instruction>(ivs0[1])) {
+                            i->setName("scan.x.main");
+                          }
+                        }
 
                         if (set_subgroup_id) {
                           // set our subgroup id
                           ir.CreateCall(set_subgroup_id, {ivs0[0]})
                               ->setCallingConv(
                                   set_subgroup_id->getCallingConv());
+                        }
+
+                        if (isScan) {
+                          auto *const barrierCall =
+                              barrierMain.getBarrierCall(barrierID);
+                          auto *const liveVars = createLiveVarsPtr(
+                              barrierMain, ir, dim_0, dim_1, dim_2, VF);
+                          compiler::utils::Barrier::LiveValuesHelper
+                              live_values(barrierMain, block, liveVars);
+                          auto *const itemOp = live_values.getReload(
+                              barrierCall->getOperand(1), ir, "_load",
+                              /*reuse*/ true);
+                          nextScanIV = multi_llvm::createBinOpForRecurKind(
+                              ir, ivs0[1], itemOp, collective->Recurrence);
+                          accum = isExclusiveScan ? ivs0[1] : nextScanIV;
+                          ivsNext0[1] = nextScanIV;
                         }
 
                         createWorkItemLoopBody(barrierMain, ir, block,
@@ -1020,6 +1101,10 @@ struct ScheduleGenerator {
 
                   if (subgroupMergePhi) {
                     subgroupMergePhi->addIncoming(nextSubgroupIV, mainLoopBB);
+                  }
+
+                  if (scanMergePhi) {
+                    scanMergePhi->addIncoming(nextScanIV, mainLoopBB);
                   }
                 }
                 assert(mainExitBB && "didn't create a loop exit block!");
@@ -1064,8 +1149,12 @@ struct ScheduleGenerator {
                   assert(barrierTail);
                   wrapperHasTail = true;
                   // Subgroup induction variables
-                  Value *subgroupIVs0[] = {subgroupMergePhi ? subgroupMergePhi
-                                                            : nextSubgroupIV};
+                  SmallVector<Value *, 2> subgroupIVs0 = {
+                      subgroupMergePhi ? subgroupMergePhi : nextSubgroupIV};
+                  if (isScan) {
+                    subgroupIVs0.push_back(scanMergePhi ? scanMergePhi
+                                                        : nextScanIV);
+                  }
 
                   BasicBlock *tailLoopBB = nullptr;
                   if (barrierTail->getVFInfo().IsVectorPredicated) {
@@ -1074,6 +1163,23 @@ struct ScheduleGenerator {
                       // set our subgroup id
                       ir.CreateCall(set_subgroup_id, {subgroupIVs0[0]})
                           ->setCallingConv(set_subgroup_id->getCallingConv());
+                    }
+
+                    if (isScan) {
+                      assert(barrierTail);
+                      auto *const barrierCall =
+                          barrierTail->getBarrierCall(barrierID);
+                      auto *const liveVars = createLiveVarsPtr(
+                          *barrierTail, ir, zero, dim_1, dim_2, nullptr);
+                      compiler::utils::Barrier::LiveValuesHelper live_values(
+                          *barrierTail, tailPreheaderBB, liveVars);
+                      auto *const itemOp = live_values.getReload(
+                          barrierCall->getOperand(1), ir, "_load",
+                          /*reuse*/ true);
+                      nextScanIV = multi_llvm::createBinOpForRecurKind(
+                          ir, subgroupIVs0[1], itemOp, collective->Recurrence);
+                      accum =
+                          isTailExclusiveScan ? subgroupIVs0[1] : nextScanIV;
                     }
 
                     createWorkItemLoopBody(*barrierTail, ir, tailPreheaderBB,
@@ -1102,12 +1208,34 @@ struct ScheduleGenerator {
                           if (auto *i = dyn_cast<Instruction>(ivs0[0])) {
                             i->setName("sg.x.tail");
                           }
+                          if (isScan) {
+                            if (auto *i = dyn_cast<Instruction>(ivs0[1])) {
+                              i->setName("scan.x.tail");
+                            }
+                          }
 
                           if (set_subgroup_id) {
                             // set our subgroup id
                             ir.CreateCall(set_subgroup_id, {ivs0[0]})
                                 ->setCallingConv(
                                     set_subgroup_id->getCallingConv());
+                          }
+
+                          if (isScan) {
+                            assert(barrierTail);
+                            auto *const barrierCall =
+                                barrierTail->getBarrierCall(barrierID);
+                            auto *const liveVars = createLiveVarsPtr(
+                                *barrierTail, ir, dim_0, dim_1, dim_2, nullptr);
+                            compiler::utils::Barrier::LiveValuesHelper
+                                live_values(*barrierTail, block, liveVars);
+                            auto *const itemOp = live_values.getReload(
+                                barrierCall->getOperand(1), ir, "_load",
+                                /*reuse*/ true);
+                            nextScanIV = multi_llvm::createBinOpForRecurKind(
+                                ir, ivs0[1], itemOp, collective->Recurrence);
+                            accum = isTailExclusiveScan ? ivs0[1] : nextScanIV;
+                            ivsNext0[1] = nextScanIV;
                           }
 
                           createWorkItemLoopBody(
@@ -1142,14 +1270,33 @@ struct ScheduleGenerator {
                     cast<PHINode>(nextSubgroupIV)
                         ->addIncoming(subgroupMergePhi, mainExitBB);
                   }
+
+                  if (scanMergePhi) {
+                    auto *scalarScanIV = nextScanIV;
+                    nextScanIV =
+                        PHINode::Create(accum->getType(), 2,
+                                        "scan.main.tail.merge", tailExitBB);
+                    cast<PHINode>(nextScanIV)
+                        ->addIncoming(scalarScanIV, tailLoopBB);
+                    cast<PHINode>(nextScanIV)
+                        ->addIncoming(scanMergePhi, mainExitBB);
+                  }
                 }
                 // Don't forget to update the subgroup IV phi.
                 ivsNext1[0] = nextSubgroupIV;
+                if (isScan) {
+                  // ... or the scan IV phi.
+                  ivsNext1[1] = nextScanIV;
+                }
                 return tailExitBB;
               });
 
           // Don't forget to update the subgroup IV phi.
           ivsNext2[0] = nextSubgroupIV;
+          if (isScan) {
+            // ... or the scan IV phi.
+            ivsNext2[1] = nextScanIV;
+          }
           return exit1;
         });
   }
@@ -1434,7 +1581,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     } else {
       // Re-issue the barrier's memory fence before the work-item loops
       if (auto *const CI = barrierMain.getBarrierCall(i)) {
-        auto *const callee = cast<CallInst>(CI)->getCalledFunction();
+        auto *const callee = CI->getCalledFunction();
         auto const builtin = BI.analyzeBuiltin(*callee);
         if (builtin.ID == compiler::utils::eMuxBuiltinWorkGroupBarrier) {
           IRBuilder<> B(block);

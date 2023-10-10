@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/attributes.h>
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/group_collective_helpers.h>
@@ -371,6 +372,10 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
   }
 
   if (auto *I = dyn_cast<Instruction>(live)) {
+    // Save these
+    auto insPoint = ir.GetInsertPoint();
+    auto *const insBB = ir.GetInsertBlock();
+
     if (!reuse || !mapped) {
       auto *clone = I->clone();
       clone->setName(I->getName());
@@ -393,8 +398,12 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
         op.set(getReload(op_inst, ir, name, reuse));
       }
     }
+
+    // Restore the original insert point
+    ir.SetInsertPoint(insBB, insPoint);
     return I;
   }
+
   return live;
 }
 
@@ -555,6 +564,14 @@ void compiler::utils::Barrier::SplitBlockwithBarrier() {
     node.barrier_inst = split_point;
     node.id = barrier_id++;
     node.schedule = getBarrierSchedule(*split_point);
+
+    // Our scan implementation requires a linear work-item ordering, to loop
+    // over all of the 'main' and 'tail' work-items in order.
+    if (auto collective = getWorkGroupCollectiveCall(split_point, *bi_)) {
+      if (collective->isScan()) {
+        node.schedule = BarrierSchedule::Linear;
+      }
+    }
 
     split_point->getParent()->splitBasicBlock(split_point, "barrier");
   }

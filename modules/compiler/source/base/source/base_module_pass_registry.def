@@ -42,9 +42,9 @@ MODULE_PASS("rename-builtins", compiler::utils::RenameBuiltinsPass())
 MODULE_PASS("replace-atomic-funcs", compiler::utils::ReplaceAtomicFuncsPass())
 MODULE_PASS("replace-c11-atomic-funcs",
             compiler::utils::ReplaceC11AtomicFuncsPass())
-
 MODULE_PASS("replace-module-scope-vars",
             compiler::utils::ReplaceLocalModuleScopeVariablesPass())
+MODULE_PASS("replace-wgc", compiler::utils::ReplaceWGCPass())
 
 MODULE_PASS("builtin-simplify", compiler::BuiltinSimplificationPass())
 MODULE_PASS("image-arg-subst", compiler::ImageArgumentSubstitutionPass())
@@ -69,14 +69,6 @@ MODULE_PASS("print<vecz-pass-opts>", vecz::VeczPassOptionsPrinterPass(dbgs()))
 #ifndef MODULE_PASS_WITH_PARAMS
 #define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)
 #endif
-
-MODULE_PASS_WITH_PARAMS(
-    "replace-wgc", "compiler::utils::ReplaceWGCPass",
-    [](bool ScansOnly) {
-      return compiler::utils::ReplaceWGCPass(ScansOnly);
-    },
-    parseReplaceWGCPassOptions,
-    "scans-only")
 
 MODULE_PASS_WITH_PARAMS(
     "add-kernel-wrapper", "compiler::utils::AddKernelWrapperPass",
