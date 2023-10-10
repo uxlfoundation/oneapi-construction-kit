@@ -263,6 +263,7 @@ uint8_t * MemoryController::addr_to_mem(reg_t addr, size_t size,
 
 bool MemoryController::load(reg_t addr, size_t len, uint8_t *bytes,
                             unit_id_t unit) {
+  assert(bytes && "Data destination must not be null");
   reg_t dev_offset = 0;
   if (MemoryDevice *device = find_device(addr, dev_offset)) {
     if (const uint8_t *mem_contents = device->addr_to_mem(dev_offset, len,

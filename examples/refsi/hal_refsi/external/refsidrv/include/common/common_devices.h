@@ -214,7 +214,8 @@ public:
   /// converting the address to a device offset.
   /// @param addr Device address to copy data from.
   /// @param len Size of the memory area to read from.
-  /// @param bytes Buffer to copy the data read from the device to.
+  /// @param bytes Buffer to copy the data read from the device to - must not
+  /// be nullptr.
   /// @param unit ID of the execution unit requesting the memory access.
   /// @return true on success and false on failure.
   bool load(reg_t addr, size_t len, uint8_t* bytes, unit_id_t unit) override;
