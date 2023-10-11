@@ -177,7 +177,7 @@ PreservedAnalyses AddEntryHookPass::run(Module &M, ModuleAnalysisManager &AM) {
 
     // looping through num groups in the outermost dimension
     auto exitBlock = compiler::utils::createLoop(
-        loopIR.GetInsertBlock(), nullptr, zero, numGroups[outer_dim], {}, opts,
+        loopIR.GetInsertBlock(), nullptr, zero, numGroups[outer_dim], opts,
         [&](BasicBlock *blockz, Value *z, ArrayRef<Value *>,
             MutableArrayRef<Value *>) -> BasicBlock * {
           IRBuilder<> ir(blockz);
@@ -187,7 +187,7 @@ PreservedAnalyses AddEntryHookPass::run(Module &M, ModuleAnalysisManager &AM) {
                                          {i32_0, ir.getInt32(outer_dim)}));
           // looping through num groups in the middle dimension
           return compiler::utils::createLoop(
-              blockz, nullptr, zero, numGroups[middle_dim], {}, opts,
+              blockz, nullptr, zero, numGroups[middle_dim], opts,
               [&](BasicBlock *blocky, Value *y, ArrayRef<Value *>,
                   MutableArrayRef<Value *>) -> BasicBlock * {
                 IRBuilder<> ir(blocky);
@@ -197,7 +197,7 @@ PreservedAnalyses AddEntryHookPass::run(Module &M, ModuleAnalysisManager &AM) {
 
                 // looping through num groups in the x dimension
                 return compiler::utils::createLoop(
-                    blocky, nullptr, sliceStart, clampedSliceEnd, {}, opts,
+                    blocky, nullptr, sliceStart, clampedSliceEnd, opts,
                     [&](BasicBlock *blockx, Value *x, ArrayRef<Value *>,
                         MutableArrayRef<Value *>) -> BasicBlock * {
                       IRBuilder<> ir(blockx);

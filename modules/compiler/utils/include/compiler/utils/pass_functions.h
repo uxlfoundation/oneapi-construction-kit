@@ -182,6 +182,19 @@ struct CreateLoopOpts {
   /// @brief headerName Optional name for the loop header block. Defaults to:
   /// "loopIR".
   llvm::StringRef headerName = "loopIR";
+  /// @brief An optional list of incoming IV values.
+  ///
+  /// Each of these is used as the incoming value to a PHI created by
+  /// createLoop. These PHIs are provided to the 'body' function of createLoop,
+  /// which should in turn set the 'next' version of the IV.
+  std::vector<llvm::Value *> IVs;
+  /// @brief An optional list of IV names, to be set on the PHIs provided by
+  /// 'IVs' field/parameter.
+  ///
+  /// If set, the names are assumed to correlate 1:1 with those IVs. The list
+  /// may be shorter than the list of IVs, in which case the trailing IVs are
+  /// not named.
+  std::vector<std::string> loopIVNames;
 };
 
 /// @brief Create a loop around a body, creating an implicit induction variable
@@ -200,23 +213,22 @@ struct CreateLoopOpts {
 /// @param exit Loop exit block. The new loop will jump to this once it exits.
 /// @param indexStart The start index
 /// @param indexEnd The end index (we compare for <)
-/// @param ivs A list of extra induction variables to create.
 /// @param opts Set of options configuring the generation of this loop.
-/// @param body Body of code to insert into loop. The parameters of this
-/// function are as follows: the loop body BasicBlock; the Value corresponding
-/// to the IV beginning at `indexStart` and incremented each iteration by
-/// `indexInc` while less than `indexEnd`; the list of IVs for this iteration
-/// of the loop (may or may not be PHIs, depending on the loop bounds); the
-/// list of IVs for the next iteration of the loop (the function is required to
-/// fill these in). Both these sets of IVs will be arrays of equal length to
-/// the original list of IVs, in the same order. The function returns the loop
-/// latch/exiting block: this block will be given the branch that decides
-/// between continuing the loop and exiting from it.
+/// @param body Body of code to insert into loop.
+///
+/// The parameters of this function are as follows: the loop body BasicBlock;
+/// the Value corresponding to the IV beginning at `indexStart` and incremented
+/// each iteration by `indexInc` while less than `indexEnd`; the list of IVs
+/// for this iteration of the loop (may or may not be PHIs, depending on the
+/// loop bounds); the list of IVs for the next iteration of the loop (the
+/// function is required to fill these in). Both these sets of IVs will be
+/// arrays of equal length to the original list of IVs, in the same order. The
+/// function returns the loop latch/exiting block: this block will be given the
+/// branch that decides between continuing the loop and exiting from it.
 ///
 /// @return llvm::BasicBlock* The exit block
 llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
                              llvm::Value *indexStart, llvm::Value *indexEnd,
-                             llvm::ArrayRef<llvm::Value *> ivs,
                              const CreateLoopOpts &opts, CreateLoopBodyFn body);
 
 /// @brief Get the last argument of a function.
