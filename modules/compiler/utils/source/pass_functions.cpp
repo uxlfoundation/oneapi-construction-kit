@@ -502,63 +502,6 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
   llvm::SmallVector<llvm::Value *, 4> currIVs(opts.IVs.begin(), opts.IVs.end());
   llvm::SmallVector<llvm::Value *, 4> nextIVs(opts.IVs.size());
 
-  // Check if indexStart, indexEnd, and indexInc are constants.
-  if (llvm::isa<llvm::ConstantInt>(indexStart) &&
-      llvm::isa<llvm::ConstantInt>(indexEnd) &&
-      llvm::isa<llvm::ConstantInt>(indexInc)) {
-    auto start = llvm::cast<llvm::ConstantInt>(indexStart)->getZExtValue();
-    auto end = llvm::cast<llvm::ConstantInt>(indexEnd)->getZExtValue();
-    auto inc = llvm::cast<llvm::ConstantInt>(indexInc)->getZExtValue();
-
-    // If the loop requires no iteration at all, just return an empty block.
-    if ((end - start) == 0) {
-      // If no iteration is required, and we have already defined a block to
-      // branch to, create a link between the entry block to that exit block and
-      // return the latter.
-      if (exit) {
-        llvm::BranchInst::Create(exit, entry);
-        return exit;
-      }
-      return entry;
-    } else if ((end - start) == inc) {
-      // If our loop would only actually contain one iteration, don't output the
-      // loop body!
-      // run the lamdba for the loop body, storing the block is finished at.
-      auto *b = body(entry, indexStart, currIVs, nextIVs);
-      if (exit) {
-        llvm::BranchInst::Create(exit, b);
-        return exit;
-      }
-      return b;
-    } else if (opts.attemptUnroll) {
-      // We've been asked to attempt to unroll the loop! We only unroll loops in
-      // certain situations though. We only unroll loops that have
-      // maxUnrollIterations or less iterations, as a higher number will
-      // significantly increase code bloat.
-      const unsigned maxUnrollIterations = 2;
-      if (((end - start) / inc) <= maxUnrollIterations) {
-        // We start at the entry block for our insertions.
-        llvm::BasicBlock *last = entry;
-
-        for (auto i = start; i < end; i += inc) {
-          // Update last to the exit block from the body.
-          last = body(last, llvm::ConstantInt::get(indexStart->getType(), i),
-                      currIVs, nextIVs);
-          // Pass the 'next' values on to the next iteration, reusing the
-          // storage.
-          std::swap(currIVs, nextIVs);
-        }
-
-        // Return the last basic block we wrote to (our exit block).
-        if (exit) {
-          llvm::BranchInst::Create(exit, last);
-          return exit;
-        }
-        return last;
-      }
-    }
-  }
-
   // the basic block that will link into our loop
   llvm::IRBuilder<> entryIR(entry);
 
