@@ -17,8 +17,8 @@
 #include <base/base_module_pass_machinery.h>
 #include <base/bit_shift_fixup_pass.h>
 #include <base/builtin_simplification_pass.h>
-#include <base/check_for_doubles_pass.h>
 #include <base/check_for_ext_funcs_pass.h>
+#include <base/check_for_unsupported_types_pass.h>
 #include <base/combine_fpext_fptrunc_pass.h>
 #include <base/fast_math_pass.h>
 #include <base/image_argument_substitution_pass.h>
@@ -1776,7 +1776,7 @@ Result BaseModule::finalize(
   {
     llvm::FunctionPassManager fpm;
     fpm.addPass(compiler::CombineFPExtFPTruncPass());
-    fpm.addPass(compiler::CheckForDoublesPass());
+    fpm.addPass(compiler::CheckForUnsupportedTypesPass());
     pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
   }
 
