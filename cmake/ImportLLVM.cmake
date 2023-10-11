@@ -76,7 +76,7 @@ include(DetectLLVMMSVCCRT)
   a supported version.
 #]=======================================================================]
 set(CA_LLVM_MINIMUM_VERSION 14.0.0)
-set(CA_LLVM_MAXIMUM_VERSION 16.0.6)
+set(CA_LLVM_MAXIMUM_VERSION 17.0.1)
 string(REPLACE ";" "', '" CA_LLVM_VERSIONS_PRETTY "${CA_LLVM_VERSIONS}")
 if("${LLVM_PACKAGE_VERSION}" VERSION_LESS "${CA_LLVM_MINIMUM_VERSION}")
   message(FATAL_ERROR
