@@ -170,7 +170,7 @@ FUNCTION_ANALYSIS("vectorize-metadata", compiler::utils::VectorizeMetadataAnalys
 
 FUNCTION_PASS("bit-shift-fixup", compiler::BitShiftFixupPass())
 FUNCTION_PASS("ca-mem2reg", compiler::MemToRegPass())
-FUNCTION_PASS("check-doubles", compiler::CheckForDoublesPass())
+FUNCTION_PASS("check-unsupported-types", compiler::CheckForUnsupportedTypesPass())
 FUNCTION_PASS("combine-fpext-fptrunc", compiler::CombineFPExtFPTruncPass())
 FUNCTION_PASS("software-div", compiler::SoftwareDivisionPass())
 FUNCTION_PASS("replace-addrspace-fns", compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass())

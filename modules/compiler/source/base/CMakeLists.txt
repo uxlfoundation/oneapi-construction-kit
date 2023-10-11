@@ -33,8 +33,8 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/module.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/bit_shift_fixup_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/builtin_simplification_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/base/check_for_doubles_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/check_for_ext_funcs_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/base/check_for_unsupported_types_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/combine_fpext_fptrunc_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/fast_math_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/base/image_argument_substitution_pass.h
@@ -50,8 +50,8 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/module.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/bit_shift_fixup_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/builtin_simplification_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/check_for_doubles_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/check_for_ext_funcs_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/check_for_unsupported_types_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/combine_fpext_fptrunc_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fast_math_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/image_argument_substitution_pass.cpp
