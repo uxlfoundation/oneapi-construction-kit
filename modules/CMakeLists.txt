@@ -29,13 +29,8 @@ set(MODULES_LIBRARIES # No default value
 
 
 if(CA_NATIVE_CPU)
-  include(FetchContent)
-  FetchContent_Declare(
-    SPIRV-Headers
-    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-    GIT_TAG        sdk-1.3.239.0
-  )
-  FetchContent_MakeAvailable(SPIRV-Headers)
+  # We don't need to fetch the SPIRV-Headers here for Native CPU
+  # because llvm-spirv already fetches them.
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/compiler)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/metadata)
