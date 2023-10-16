@@ -6291,6 +6291,7 @@ void Builder::generateReduction(const T *op, const std::string &opName,
     // Always inline the function, this means for constant execution scope the
     // optimizer can remove the branches.
     reductionWrapper->addFnAttr(llvm::Attribute::AlwaysInline);
+    reductionWrapper->addFnAttr(llvm::Attribute::Convergent);
     // Restore the original insert point.
     IRBuilder.SetInsertPoint(insertBB, insertPoint);
   }
