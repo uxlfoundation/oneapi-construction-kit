@@ -126,7 +126,7 @@ PreservedAnalyses RefSiWGLoopPass::run(Module &M, ModuleAnalysisManager &AM) {
     // looping through num groups in the outermost dimension
     auto *const exitBlock = compiler::utils::createLoop(
         loopPreheaderIR.GetInsertBlock(), nullptr, zero, numGroups[outer_dim],
-        {}, create_loop_opts,
+        create_loop_opts,
         [&](BasicBlock *blockz, Value *z, ArrayRef<Value *>,
             MutableArrayRef<Value *>) -> BasicBlock * {
           IRBuilder<> ir(blockz);
@@ -136,8 +136,7 @@ PreservedAnalyses RefSiWGLoopPass::run(Module &M, ModuleAnalysisManager &AM) {
                                          {i32_0, ir.getInt32(outer_dim)}));
           // looping through num groups in the middle dimension
           return compiler::utils::createLoop(
-              blockz, nullptr, zero, numGroups[middle_dim], {},
-              create_loop_opts,
+              blockz, nullptr, zero, numGroups[middle_dim], create_loop_opts,
               [&](BasicBlock *blocky, Value *y, ArrayRef<Value *>,
                   MutableArrayRef<Value *>) -> BasicBlock * {
                 IRBuilder<> ir(blocky);
@@ -147,7 +146,7 @@ PreservedAnalyses RefSiWGLoopPass::run(Module &M, ModuleAnalysisManager &AM) {
 
                 // looping through num groups in the x dimension
                 return compiler::utils::createLoop(
-                    blocky, nullptr, zero, numGroups[inner_dim], {},
+                    blocky, nullptr, zero, numGroups[inner_dim],
                     create_loop_opts,
                     [&](BasicBlock *blockx, Value *x, ArrayRef<Value *>,
                         MutableArrayRef<Value *>) -> BasicBlock * {

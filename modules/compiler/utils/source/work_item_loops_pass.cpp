@@ -386,10 +386,10 @@ struct ScheduleGenerator {
     Function *const func = block->getParent();
 
     // Induction variables
-    Value *IVs[] = {accumulator};
     auto *const totalSize = barrier.getTotalSize();
 
     compiler::utils::CreateLoopOpts inner_opts;
+    inner_opts.IVs = {accumulator};
     inner_opts.attemptUnroll = true;
     inner_opts.disableVectorize = true;
 
@@ -427,7 +427,7 @@ struct ScheduleGenerator {
 
     // linearly looping through the work items
     exitBlock = compiler::utils::createLoop(
-        preheader, exitBlock, zero, totalSize, IVs, inner_opts,
+        preheader, exitBlock, zero, totalSize, inner_opts,
         [&](BasicBlock *block, Value *index, ArrayRef<Value *> ivs,
             MutableArrayRef<Value *> ivsNext) -> BasicBlock * {
           IRBuilder<> ir(block);
@@ -711,13 +711,13 @@ struct ScheduleGenerator {
     if (mainPreheaderBB) {
       wrapperHasMain = true;
       // Subgroup induction variables
-      Value *subgroupIVs2[] = {i32Zero};
       compiler::utils::CreateLoopOpts outer_opts;
+      outer_opts.IVs = {i32Zero};
 
       // looping through num groups in the third (outermost) dimension
       mainExitBB = compiler::utils::createLoop(
           mainPreheaderBB, mainExitBB, zero, localSizeDim[workItemDim2],
-          subgroupIVs2, outer_opts,
+          outer_opts,
           [&](BasicBlock *block, Value *dim_2, ArrayRef<Value *> ivs2,
               MutableArrayRef<Value *> ivsNext2) -> BasicBlock * {
             // if we need to set the local id, do so here.
@@ -726,10 +726,12 @@ struct ScheduleGenerator {
                           {ConstantInt::get(i32Ty, workItemDim2), dim_2})
                 ->setCallingConv(set_local_id->getCallingConv());
 
+            compiler::utils::CreateLoopOpts middle_opts;
+            middle_opts.IVs = ivs2.vec();
+
             // looping through num groups in the second dimension
             BasicBlock *exit1 = compiler::utils::createLoop(
-                block, nullptr, zero, localSizeDim[workItemDim1], ivs2,
-                outer_opts,
+                block, nullptr, zero, localSizeDim[workItemDim1], middle_opts,
                 [&](BasicBlock *block, Value *dim_1, ArrayRef<Value *> ivs1,
                     MutableArrayRef<Value *> ivsNext1) -> BasicBlock * {
                   IRBuilder<> ir(block);
@@ -742,11 +744,14 @@ struct ScheduleGenerator {
                   IRBuilder<> irph(mainPreheaderBB,
                                    mainPreheaderBB->getFirstInsertionPt());
                   auto *VF = materializeVF(irph, barrierMain.getVFInfo().vf);
+
                   compiler::utils::CreateLoopOpts inner_opts;
                   inner_opts.indexInc = VF;
+                  inner_opts.IVs = ivs1.vec();
                   inner_opts.attemptUnroll = true;
+
                   BasicBlock *exit0 = compiler::utils::createLoop(
-                      block, nullptr, zero, mainLoopLimit, ivs1, inner_opts,
+                      block, nullptr, zero, mainLoopLimit, inner_opts,
                       [&](BasicBlock *block, Value *dim_0,
                           ArrayRef<Value *> ivs0,
                           MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
@@ -824,15 +829,13 @@ struct ScheduleGenerator {
       assert(barrierTail);
       wrapperHasTail = true;
       // Subgroup induction variables
-      Value *subgroupIVs2[] = {subgroupMergePhi ? subgroupMergePhi
-                                                : nextSubgroupIV};
-
       compiler::utils::CreateLoopOpts outer_opts;
+      outer_opts.IVs = {subgroupMergePhi ? subgroupMergePhi : nextSubgroupIV};
 
       // looping through num groups in the third (outermost) dimension
       tailExitBB = compiler::utils::createLoop(
           tailPreheaderBB, tailExitBB, zero, localSizeDim[workItemDim2],
-          subgroupIVs2, outer_opts,
+          outer_opts,
           [&](BasicBlock *block, Value *dim_2, ArrayRef<Value *> ivs2,
               MutableArrayRef<Value *> ivsNext2) -> BasicBlock * {
             // set the local id
@@ -841,10 +844,12 @@ struct ScheduleGenerator {
                           {ConstantInt::get(i32Ty, workItemDim2), dim_2})
                 ->setCallingConv(set_local_id->getCallingConv());
 
+            compiler::utils::CreateLoopOpts middle_opts;
+            middle_opts.IVs = ivs2.vec();
+
             // looping through num groups in the second dimension
             BasicBlock *exit1 = compiler::utils::createLoop(
-                block, nullptr, zero, localSizeDim[workItemDim1], ivs2,
-                outer_opts,
+                block, nullptr, zero, localSizeDim[workItemDim1], middle_opts,
                 [&](BasicBlock *block, Value *dim_1, ArrayRef<Value *> ivs1,
                     MutableArrayRef<Value *> ivsNext1) -> BasicBlock * {
                   IRBuilder<> ir(block);
@@ -853,11 +858,12 @@ struct ScheduleGenerator {
                       ->setCallingConv(set_local_id->getCallingConv());
 
                   compiler::utils::CreateLoopOpts inner_opts;
+                  inner_opts.IVs = ivs1.vec();
                   inner_opts.attemptUnroll = true;
                   inner_opts.disableVectorize = true;
 
                   BasicBlock *exit0 = compiler::utils::createLoop(
-                      block, nullptr, zero, peel, ivs1, inner_opts,
+                      block, nullptr, zero, peel, inner_opts,
                       [&](BasicBlock *block, Value *dim_0,
                           ArrayRef<Value *> ivs0,
                           MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
@@ -936,16 +942,17 @@ struct ScheduleGenerator {
     // Same with the scan IV
     PHINode *scanMergePhi = nullptr;
 
-    SmallVector<Value *, 2> subgroupIVs2 = {i32Zero};
-    if (isScan) {
-      subgroupIVs2.push_back(nextScanIV);
-    }
     compiler::utils::CreateLoopOpts outer_opts;
+    outer_opts.IVs.push_back(i32Zero);
+    outer_opts.loopIVNames.push_back("sg.z");
+    if (isScan) {
+      outer_opts.IVs.push_back(nextScanIV);
+      outer_opts.loopIVNames.push_back("scan.z");
+    }
 
     // looping through num groups in the third (outermost) dimension
     return compiler::utils::createLoop(
-        block, nullptr, zero, localSizeDim[workItemDim2], subgroupIVs2,
-        outer_opts,
+        block, nullptr, zero, localSizeDim[workItemDim2], outer_opts,
         [&](BasicBlock *block, Value *dim_2, ArrayRef<Value *> ivs2,
             MutableArrayRef<Value *> ivsNext2) -> BasicBlock * {
           // set the local id
@@ -954,34 +961,22 @@ struct ScheduleGenerator {
                         {ConstantInt::get(i32Ty, workItemDim2), dim_2})
               ->setCallingConv(set_local_id->getCallingConv());
 
-          if (auto *i = dyn_cast<Instruction>(ivs2[0])) {
-            i->setName("sg.z");
-          }
+          compiler::utils::CreateLoopOpts middle_opts;
+          middle_opts.IVs = ivs2.vec();
+          middle_opts.loopIVNames.push_back("sg.y");
           if (isScan) {
-            if (auto *i = dyn_cast<Instruction>(ivs2[1])) {
-              i->setName("scan.z");
-            }
+            middle_opts.loopIVNames.push_back("scan.y");
           }
 
           // looping through num groups in the second dimension
           BasicBlock *exit1 = compiler::utils::createLoop(
-              block, nullptr, zero, localSizeDim[workItemDim1], ivs2,
-              outer_opts,
+              block, nullptr, zero, localSizeDim[workItemDim1], middle_opts,
               [&](BasicBlock *block, Value *dim_1, ArrayRef<Value *> ivs1,
                   MutableArrayRef<Value *> ivsNext1) -> BasicBlock * {
                 IRBuilder<> ir(block);
                 ir.CreateCall(set_local_id,
                               {ConstantInt::get(i32Ty, workItemDim1), dim_1})
                     ->setCallingConv(set_local_id->getCallingConv());
-
-                if (auto *i = dyn_cast<Instruction>(ivs1[0])) {
-                  i->setName("sg.y");
-                }
-                if (isScan) {
-                  if (auto *i = dyn_cast<Instruction>(ivs1[1])) {
-                    i->setName("scan.y");
-                  }
-                }
 
                 // looping through num groups in the first (innermost)
                 // dimension
@@ -1038,24 +1033,23 @@ struct ScheduleGenerator {
                   IRBuilder<> irph(mainPreheaderBB,
                                    mainPreheaderBB->getFirstInsertionPt());
                   auto *VF = materializeVF(irph, barrierMain.getVFInfo().vf);
+
                   compiler::utils::CreateLoopOpts inner_vf_opts;
                   inner_vf_opts.indexInc = VF;
                   inner_vf_opts.attemptUnroll = true;
+                  inner_vf_opts.IVs = ivs1.vec();
+                  inner_vf_opts.loopIVNames.push_back("sg.x.main");
+                  if (isScan) {
+                    inner_vf_opts.loopIVNames.push_back("scan.y.main");
+                  }
+
                   mainExitBB = compiler::utils::createLoop(
-                      mainPreheaderBB, mainExitBB, zero, mainLoopLimit, ivs1,
+                      mainPreheaderBB, mainExitBB, zero, mainLoopLimit,
                       inner_vf_opts,
                       [&](BasicBlock *block, Value *dim_0,
                           ArrayRef<Value *> ivs0,
                           MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
                         IRBuilder<> ir(block);
-                        if (auto *i = dyn_cast<Instruction>(ivs0[0])) {
-                          i->setName("sg.x.main");
-                        }
-                        if (isScan) {
-                          if (auto *i = dyn_cast<Instruction>(ivs0[1])) {
-                            i->setName("scan.x.main");
-                          }
-                        }
 
                         if (set_subgroup_id) {
                           // set our subgroup id
@@ -1196,23 +1190,20 @@ struct ScheduleGenerator {
                     compiler::utils::CreateLoopOpts inner_scalar_opts;
                     inner_scalar_opts.attemptUnroll = true;
                     inner_scalar_opts.disableVectorize = true;
+                    inner_scalar_opts.IVs.assign(subgroupIVs0.begin(),
+                                                 subgroupIVs0.end());
+                    inner_scalar_opts.loopIVNames.push_back("sg.x.tail");
+                    if (isScan) {
+                      inner_scalar_opts.loopIVNames.push_back("scan.x.tail");
+                    }
 
                     tailExitBB = compiler::utils::createLoop(
-                        tailPreheaderBB, tailExitBB, zero, peel, subgroupIVs0,
+                        tailPreheaderBB, tailExitBB, zero, peel,
                         inner_scalar_opts,
                         [&](BasicBlock *block, Value *dim_0,
                             ArrayRef<Value *> ivs0,
                             MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
                           IRBuilder<> ir(block);
-
-                          if (auto *i = dyn_cast<Instruction>(ivs0[0])) {
-                            i->setName("sg.x.tail");
-                          }
-                          if (isScan) {
-                            if (auto *i = dyn_cast<Instruction>(ivs0[1])) {
-                              i->setName("scan.x.tail");
-                            }
-                          }
 
                           if (set_subgroup_id) {
                             // set our subgroup id

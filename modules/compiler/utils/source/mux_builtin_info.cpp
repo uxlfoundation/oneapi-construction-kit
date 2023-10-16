@@ -591,12 +591,13 @@ static BasicBlock *copy1D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
   assert(DstPtr->getType()->isPointerTy() &&
          "Mux DMA builtins are always byte-accessed");
 
-  Value *DmaIVs[] = {SrcPtr, DstPtr};
+  compiler::utils::CreateLoopOpts opts;
+  opts.IVs = {SrcPtr, DstPtr};
+  opts.loopIVNames = {"dma.src", "dma.dst"};
 
   // This is a simple loop copy a byte at a time from SrcPtr to DstPtr.
   BasicBlock *ExitBB = compiler::utils::createLoop(
-      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumBytes, DmaIVs,
-      compiler::utils::CreateLoopOpts{},
+      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumBytes, opts,
       [&](BasicBlock *BB, Value *X, ArrayRef<Value *> IVsCurr,
           MutableArrayRef<Value *> IVsNext) {
         IRBuilder<> B(BB);
@@ -625,12 +626,13 @@ static BasicBlock *copy2D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
   assert(DstPtr->getType()->isPointerTy() &&
          "Mux DMA builtins are always byte-accessed");
 
-  Value *DmaIVs[] = {SrcPtr, DstPtr};
+  compiler::utils::CreateLoopOpts opts;
+  opts.IVs = {SrcPtr, DstPtr};
+  opts.loopIVNames = {"dma.src", "dma.dst"};
 
   // This is a loop over the range of lines, calling a 1D copy on each line
   BasicBlock *ExitBB = compiler::utils::createLoop(
-      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumLines, DmaIVs,
-      compiler::utils::CreateLoopOpts{},
+      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumLines, opts,
       [&](BasicBlock *block, Value *, ArrayRef<Value *> IVsCurr,
           MutableArrayRef<Value *> IVsNext) {
         IRBuilder<> loopIr(block);
@@ -735,12 +737,14 @@ Function *BIMuxInfoConcept::defineDMA3D(Function &F) {
   assert(ArgDstPtr->getType()->isPointerTy() &&
          "Mux DMA builtins are always byte-accessed");
 
-  Value *DmaIVs[] = {ArgSrcPtr, ArgDstPtr};
+  compiler::utils::CreateLoopOpts opts;
+  opts.IVs = {ArgSrcPtr, ArgDstPtr};
+  opts.loopIVNames = {"dma.src", "dma.dst"};
 
   // Create a loop around 1D DMA memcpy, adding stride, local width each time.
   BasicBlock *LoopExitBB = compiler::utils::createLoop(
       LoopEntryBB, nullptr, ConstantInt::get(getSizeType(M), 0), ArgNumPlanes,
-      DmaIVs, compiler::utils::CreateLoopOpts{},
+      opts,
       [&](BasicBlock *BB, Value *, ArrayRef<Value *> IVsCurr,
           MutableArrayRef<Value *> IVsNext) {
         IRBuilder<> loopIr(BB);

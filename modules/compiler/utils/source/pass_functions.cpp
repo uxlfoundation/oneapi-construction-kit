@@ -473,7 +473,6 @@ bool addParamToAllFunctions(llvm::Module &module,
 
 llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
                              llvm::Value *indexStart, llvm::Value *indexEnd,
-                             llvm::ArrayRef<llvm::Value *> ivs,
                              const CreateLoopOpts &opts,
                              CreateLoopBodyFn body) {
   // If the index increment is null, we default to 1 as our index.
@@ -483,8 +482,8 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   llvm::LLVMContext &ctx = entry->getContext();
 
-  llvm::SmallVector<llvm::Value *, 4> currIVs(ivs.begin(), ivs.end());
-  llvm::SmallVector<llvm::Value *, 4> nextIVs(ivs.size());
+  llvm::SmallVector<llvm::Value *, 4> currIVs(opts.IVs.begin(), opts.IVs.end());
+  llvm::SmallVector<llvm::Value *, 4> nextIVs(opts.IVs.size());
 
   // Check if indexStart, indexEnd, and indexInc are constants.
   if (llvm::isa<llvm::ConstantInt>(indexStart) &&
@@ -564,6 +563,10 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
     auto *const phi = loopIR.CreatePHI(currIVs[i]->getType(), 2);
     llvm::cast<llvm::PHINode>(phi)->addIncoming(currIVs[i],
                                                 entryIR.GetInsertBlock());
+    // Set IV names if they've been given to us.
+    if (i < opts.loopIVNames.size()) {
+      phi->setName(opts.loopIVNames[i]);
+    }
     currIVs[i] = phi;
   }
 

@@ -19,6 +19,9 @@ Upgrade guidance:
   `compiler::utils::LowerToMuxBuiltinsPass`.
 * The `compiler::utils::HandleBarriersPass` has been renamed to the
   `compiler::utils::WorkItemLoopsPass`.
+* The `compiler::utils::createLoop` API has moved its list of `IVs` parameter
+  into its `compiler::utils::CreateLoopOpts` parameter. It can now also set the
+  IV names via a second `CreateLoopOpts` field.
 
 ## Version 3.0.0
 
