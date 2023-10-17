@@ -35,17 +35,32 @@ if(CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE)
 
   find_package(SpirvTools COMPONENTS spirv-as)
   if(TARGET spirv::spirv-as)
-    # Get the found spirv-as version, takes the form: v<year>.<release>
+    # Get the found spirv-as version, takes the form: v<year>.<point>(-dev)?
+    # We treat 'dev' as the previous point release: see below.
     execute_process(
       COMMAND ${SpirvTools_spirv-as_EXECUTABLE} --version
       OUTPUT_VARIABLE SpirvAsVersionOutput)
-    string(REGEX MATCH "v20[0-9][0-9].[0-9]+"
-      SpirvAsVersion ${SpirvAsVersionOutput})
-    string(REGEX MATCH "20[0-9][0-9]"
-      SpirvAsVersionYear ${SpirvAsVersion})
-    string(REGEX MATCH "[0-9]+$"
-      SpirvAsVersionRelease ${SpirvAsVersion})
-    message(STATUS "spirv-as: v${SpirvAsVersionYear}.${SpirvAsVersionRelease}")
+    string(REGEX MATCH "v(20[0-9][0-9]).([0-9]+)(-dev)?" Tmp ${SpirvAsVersionOutput})
+    set(SpirvAsVersionYear "${CMAKE_MATCH_1}")
+    set(SpirvAsVersionPoint "${CMAKE_MATCH_2}")
+    set(SpirvAsVersionDev "${CMAKE_MATCH_3}")
+    message(STATUS "spirv-as: v${SpirvAsVersionYear}.${SpirvAsVersionPoint}${SpirvAsVersionDev}")
+    # If we have a 'development' version, canonicalize the internal version as
+    # the previous version:
+    # * Decrement the 'point release' by one
+    # * If that would result in a negative number, decrement the year and set
+    #   the 'point release' to 9 (an arbitrarily high version number)
+    if(SpirvAsVersionDev)
+      if(SpirvAsVersionPoint STREQUAL "0")
+        set(SpirvAsVersionPoint "9")
+        MATH(EXPR SpirvAsVersionYear "${SpirvAsVersionYear}-1")
+      else()
+        MATH(EXPR SpirvAsVersionPoint "${SpirvAsVersionPoint}-1")
+      endif()
+      message(STATUS "Detected 'dev' spirv-as version - tracking version "
+        "internally as: v${SpirvAsVersionYear}.${SpirvAsVersionPoint}")
+    endif()
+    set(SpirvAsVersion "${SpirvAsVersionYear}.${SpirvAsVersionPoint}")
   else()
     set(SPVASM_UNSUPPORTED True)
     message(WARNING "${SUITE} spvasm lit tests unsupported: spirv-as not found")
@@ -65,7 +80,8 @@ add_ca_configure_lit_site_cfg(
   CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=${CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE}
   GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED}
   SPVASM_UNSUPPORTED=${SPVASM_UNSUPPORTED}
-  SPIRV_AS_VERSION_YEAR=${SpirvAsVersionYear})
+  SPIRV_AS_VERSION_YEAR=${SpirvAsVersionYear}
+  SPIRV_AS_VERSION_POINT=${SpirvAsVersionPoint})
 
 add_subdirectory(glsl)
 add_subdirectory(spvasm)

@@ -52,6 +52,8 @@ if @SPVASM_UNSUPPORTED@ and (config.offline and config.explicitly_online_offline
 
 if '@SPIRV_AS_VERSION_YEAR@' and (config.offline and config.explicitly_online_offline != True):
     config.spirv_as_version_year = int(@SPIRV_AS_VERSION_YEAR@)
+if '@SPIRV_AS_VERSION_POINT@' and (config.offline and config.explicitly_online_offline != True):
+    config.spirv_as_version_point = int(@SPIRV_AS_VERSION_POINT@)
 
 # Defer to the common lit configuration to set up the bulk of the config.
 common_lit_cfg_path = os.path.join('@CA_COMMON_LIT_BINARY_PATH@', 'lit.common.cfg')
