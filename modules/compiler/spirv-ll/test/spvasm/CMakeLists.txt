@@ -2387,6 +2387,10 @@ if (SpirvAsVersionYear GREATER 2022)
     intel_memory_access_aliasing.spvasm)
 endif()
 
+if (SpirvAsVersionYear GREATER 2023)
+  list(APPEND SPVASM_FILES op_group_f_mul.spvasm)
+endif()
+
 # Test files that require SPIR-V v1.1
 # TODO: It might be more convenient to support a system like UnitCL where test
 # files declare their own requirements.
