@@ -1,0 +1,52 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; REQUIRES: spirv-as-v2024+
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c GroupUniformArithmeticKHR %spv_file_s | FileCheck %s
+
+                               OpCapability Addresses
+                               OpCapability Kernel
+                               OpCapability Groups
+                               OpCapability GroupUniformArithmeticKHR
+
+                               OpMemoryModel Physical64 OpenCL
+
+                               OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction"
+
+                  %float_ty  = OpTypeFloat 32
+                  %uint_ty   = OpTypeInt 32 0
+%ptr_CrossWorkgroup_float_ty = OpTypePointer CrossWorkgroup %float_ty
+                    %void_ty = OpTypeVoid
+                     %fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_float_ty
+
+            %sub_group_scope = OpConstant %uint_ty 3
+
+                               OpName %sub_group_reduction_in "a"
+
+; CHECK-LABEL: define spir_kernel void @sub_group_reduction(
+    %sub_group_reduction_fcn = OpFunction %void_ty None %fcn_ty
+     %sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_float_ty
+     %sub_group_reduction_bb = OpLabel
+    %sub_group_reduction_val = OpLoad %float_ty %sub_group_reduction_in Aligned 4
+; CHECK: [[RED:%.*]] = call float @reduction_wrapper(i32 3, float %{{.*}})
+    %sub_group_reduction_res0 = OpGroupFMulKHR %float_ty %sub_group_scope Reduce %sub_group_reduction_val
+    ; Do a second reduction (regression test that OpGroupFMulKHR 'has a result')
+; CHECK: call float @reduction_wrapper(i32 3, float [[RED]])
+    %sub_group_reduction_res = OpGroupFMulKHR %float_ty %sub_group_scope Reduce %sub_group_reduction_res0
+                               OpStore %sub_group_reduction_in %sub_group_reduction_res Aligned 4
+                               OpReturn
+                               OpFunctionEnd
