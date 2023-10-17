@@ -22,6 +22,8 @@ Upgrade guidance:
 * The `compiler::utils::createLoop` API has moved its list of `IVs` parameter
   into its `compiler::utils::CreateLoopOpts` parameter. It can now also set the
   IV names via a second `CreateLoopOpts` field.
+* Support for LLVM versions is now limited to LLVM 16 and LLVM 17. Support for
+  earlier LLVM versions has been removed.
 
 ## Version 3.0.0
 

@@ -107,14 +107,6 @@ class CommandBufferMutableBufferArgTest : public MutableDispatchTest {
       global_size * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferMutableBufferArgTest::global_size;
-constexpr const size_t CommandBufferMutableBufferArgTest::data_size_in_bytes;
-#endif
-
 TEST_F(CommandBufferMutableBufferArgTest, UpdateOutputBufferOnce) {
   // Enqueue a mutable dispatch to the command buffer.
   cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
@@ -1779,14 +1771,6 @@ class CommandBufferMutableLocalBufferArgTest : public MutableDispatchTest {
   static constexpr size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferMutableLocalBufferArgTest::global_size;
-constexpr size_t CommandBufferMutableLocalBufferArgTest::data_size_in_bytes;
-#endif
-
 TEST_F(CommandBufferMutableLocalBufferArgTest, UpdateOnce) {
   // Enqueue the command buffer.
   EXPECT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
@@ -1964,14 +1948,6 @@ class DISABLED_CommandBufferMutableNullArgTest : public MutableDispatchTest {
   static constexpr size_t global_size = 256;
   static constexpr size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
-
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t DISABLED_CommandBufferMutableNullArgTest::global_size;
-constexpr size_t DISABLED_CommandBufferMutableNullArgTest::data_size_in_bytes;
-#endif
 
 TEST_F(DISABLED_CommandBufferMutableNullArgTest,
        UpdateInputBufferToNullByValue) {
@@ -2601,14 +2577,6 @@ class CommandBufferMutablePODArgTest : public MutableDispatchTest {
       global_size * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferMutablePODArgTest::global_size;
-constexpr const size_t CommandBufferMutablePODArgTest::data_size_in_bytes;
-#endif
-
 TEST_F(CommandBufferMutablePODArgTest, InvalidArgSize) {
   // Finalize the command buffer.
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
@@ -3178,14 +3146,6 @@ class CommandBufferMutablePODMultiArgTest : public MutableDispatchTest {
   static constexpr const size_t data_size_in_bytes =
       global_size * sizeof(cl_int2);
 };
-
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferMutablePODMultiArgTest::global_size;
-constexpr const size_t CommandBufferMutablePODMultiArgTest::data_size_in_bytes;
-#endif
 
 TEST_F(CommandBufferMutablePODMultiArgTest,
        UpdateTwoInputsSameMutableDispatchConfig) {

@@ -237,10 +237,6 @@ struct muxCloneCommandBufferSingleBufferTest
   }
 };
 
-#if __cplusplus < 201703L
-constexpr size_t muxCloneCommandBufferSingleBufferTest::buffer_size_in_bytes;
-#endif
-
 TEST_P(muxCloneCommandBufferSingleBufferTest, CloneReadBuffer) {
   ASSERT_SUCCESS(muxCommandReadBuffer(command_buffer_to_clone, buffer, 0, data,
                                       buffer_size_in_bytes, 0, nullptr,
@@ -392,10 +388,6 @@ struct muxCloneCommandBufferTwoBufferTest : public muxCloneCommandBufferTest {
     muxCloneCommandBufferTest::TearDown();
   }
 };
-
-#if __cplusplus < 201703L
-constexpr size_t muxCloneCommandBufferTwoBufferTest::buffer_size_in_bytes;
-#endif
 
 TEST_P(muxCloneCommandBufferTwoBufferTest, CloneCopyBuffer) {
   ASSERT_SUCCESS(muxCommandCopyBuffer(command_buffer_to_clone, buffer_one, 0,

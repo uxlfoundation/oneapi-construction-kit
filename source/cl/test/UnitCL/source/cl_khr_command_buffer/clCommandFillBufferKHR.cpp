@@ -73,13 +73,6 @@ struct CommandFillBufferKHRTest : cl_khr_command_buffer_Test {
   static constexpr size_t buffer_size = 256;
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandFillBufferKHRTest::buffer_size;
-#endif
-
 class CommandFillBufferKHRParamTest
     : public cl_khr_command_buffer_Test,
       public ::testing::WithParamInterface<test_parameters> {};

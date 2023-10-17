@@ -130,14 +130,6 @@ void kernel usm_copy(__global int* in,
   constexpr static size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t MutableDispatchUSMTest::global_size;
-constexpr size_t MutableDispatchUSMTest::data_size_in_bytes;
-#endif
-
 // Return CL_INVALID_VALUE if arg_svm_list is NULL and num_svm_args > 0,
 // or arg_svm_list is not NULL and num_svm_args is 0.
 TEST_F(MutableDispatchUSMTest, InvalidArgList) {
@@ -275,13 +267,6 @@ struct MutableDispatchUpdateUSMArgs
       public ::testing::WithParamInterface<usm_pointers> {
   static constexpr std::array<bool, 2> usm_update_pair = {true, false};
 };
-
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr std::array<bool, 2> MutableDispatchUpdateUSMArgs::usm_update_pair;
-#endif
 
 // Test that a USM pointer argument to the kernel (pointer A) can be updated to
 // another USM pointer (pointer B).

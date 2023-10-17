@@ -71,13 +71,6 @@ struct MutableCommandInfoTest : MutableDispatchTest {
   constexpr static size_t global_size = 8;
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t MutableCommandInfoTest::global_size;
-#endif
-
 TEST_F(MutableCommandInfoTest, InvalidCommandBuffer) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_MUTABLE_COMMAND_KHR,
