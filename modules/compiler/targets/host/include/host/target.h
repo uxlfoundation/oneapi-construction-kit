@@ -73,7 +73,7 @@ class HostTarget : public compiler::BaseTarget {
   /// execution engine has a unique name. This identifier will be suffixed onto
   /// the kernel names, and incremented under the context's mutex lock such that
   /// no conflict should occur.
-  uint64_t unique_identifier;
+  uint64_t unique_identifier = 0;
 
   /// @brief LLVM Module containing implementations of the builtin functions
   /// this target provides. May be null for compiler targets without external
