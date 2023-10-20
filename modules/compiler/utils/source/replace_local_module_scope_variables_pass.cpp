@@ -194,6 +194,7 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
   unsigned int maxAlignment = 0;
   // byte offset in struct of current member
   unsigned int offset = 0;
+  const auto &dl = M.getDataLayout();
   for (auto &global : globals) {
     auto memberType = global->getValueType();
 
@@ -202,8 +203,7 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
     // global. This is also needed if '__attribute__(aligned)' was used to
     // set a specific alignment.
     const unsigned int alignment =
-        std::max(global->getAlignment(),
-                 calculateTypeAlign(memberType, M.getDataLayout()));
+        std::max(global->getAlignment(), calculateTypeAlign(memberType, dl));
     assert(alignment > 0 && "'0' is an impossible alignment");
 
     // check if this is the largest alignment seen so far
@@ -236,12 +236,13 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
     // then add our element type to the struct
     structElementTypes.push_back(memberType);
 
-    // update the offset, taking into account any array length
-    unsigned int totalSize = alignment;
-    while (memberType->isArrayTy()) {
-      totalSize *= memberType->getArrayNumElements();
-      memberType = memberType->getArrayElementType();
+    // update the offset based on the type's size
+    auto allocSize = dl.getTypeAllocSize(memberType);
+    if (dl.getTypeAllocSize(memberType).isScalable()) {
+      // Not an assert because this can happen in user-supplied IR
+      report_fatal_error("Scalable types in local memory are not supported");
     }
+    unsigned int totalSize = allocSize.getFixedValue();
     offset += totalSize;
   }
 
