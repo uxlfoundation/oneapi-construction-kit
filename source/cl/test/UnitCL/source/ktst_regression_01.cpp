@@ -33,7 +33,7 @@ using namespace kts::ucl;
 TEST_P(Execution, Regression_01_Pointer_To_Long_Cast) {
   // This test was compiled for SPIRV and Offline with the value of 256. You
   // will need to recompile these targets.
-  ASSERT_TRUE(kts::N == 256);
+  ASSERT_EQ(kts::N, 256);
   AddMacro("N", (unsigned int)kts::N);
   AddInputBuffer(kts::N, kts::Ref_Identity);
   RunGeneric1D(kts::N);
