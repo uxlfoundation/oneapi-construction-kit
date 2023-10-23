@@ -37,7 +37,7 @@ extern "C" {
 /// @brief Mux major version number.
 #define MUX_MAJOR_VERSION 0
 /// @brief Mux minor version number.
-#define MUX_MINOR_VERSION 79
+#define MUX_MINOR_VERSION 80
 /// @brief Mux patch version number.
 #define MUX_PATCH_VERSION 0
 /// @brief Mux combined version number.
@@ -600,6 +600,21 @@ enum mux_address_capabilities_e {
   mux_address_capabilities_bits32 = 0x1 << mux_address_type_bits32,
   /// @brief 64-bit wide pointer addressing supported.
   mux_address_capabilities_bits64 = 0x1 << mux_address_type_bits64
+};
+
+/// @brief Bitfield of all possible atomic capabilities.
+///
+/// Each Mux device struct has a member which denotes the atomic capabilities of
+/// that device, as a bitfield of the following enum.
+enum mux_atomic_capabilities_e {
+  /// @brief 8 bit atomic support
+  mux_atomic_capabilities_8bit = 0x1,
+  /// @brief 16 bit atomic support
+  mux_atomic_capabilities_16bit = 0x2,
+  /// @brief 32 bit atomic support
+  mux_atomic_capabilities_32bit = 0x4,
+  /// @brief 64 bit atomic support
+  mux_atomic_capabilities_64bit = 0x8
 };
 
 /// @brief Bitfield of all possible caching capabilities.
@@ -2074,6 +2089,10 @@ struct mux_device_info_s {
   ///
   /// @see mux_address_capabilities_e
   uint32_t address_capabilities;
+  /// @brief The atomic capabilities of this Mux device, a bitfield.
+  ///
+  /// @see mux_atomic_capabilities_e
+  uint32_t atomic_capabilities;
   /// @brief The caching capabilities of this Mux device, a bitfield.
   ///
   /// @see mux_cache_capabilities_e

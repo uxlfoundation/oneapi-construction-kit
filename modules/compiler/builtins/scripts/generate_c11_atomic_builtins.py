@@ -23,8 +23,11 @@ import sys
 
 type_pairs = {
     'atomic_int': 'int',
+    'atomic_long': 'long',
     'atomic_uint': 'uint',
+    'atomic_ulong': 'ulong',
     'atomic_float': 'float',
+    'atomic_double': 'double',
 }
 
 address_spaces = ['__local', '__global']

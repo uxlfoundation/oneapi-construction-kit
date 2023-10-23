@@ -360,10 +360,16 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
     case host::arch::ARM:
     case host::arch::X86:
       this->address_capabilities |= mux_address_capabilities_bits32;
+      this->atomic_capabilities = mux_atomic_capabilities_8bit |
+                                  mux_atomic_capabilities_16bit |
+                                  mux_atomic_capabilities_32bit;
       break;
     case host::arch::AARCH64:
     case host::arch::X86_64:
       this->address_capabilities |= mux_address_capabilities_bits64;
+      this->atomic_capabilities =
+          mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
+          mux_atomic_capabilities_32bit | mux_atomic_capabilities_64bit;
       break;
   }
 

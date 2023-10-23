@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 71
+; Bound: 65
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -9,12 +9,11 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical32 OpenCL
-               OpEntryPoint Kernel %65 "fetch_local_and_truth_table_uint" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInWorkgroupId
+               OpEntryPoint Kernel %12 "fetch_local_and_truth_table_uint" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInWorkgroupId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
                OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
                OpName %__spirv_BuiltInWorkgroupId "__spirv_BuiltInWorkgroupId"
-               OpName %fetch_local_and_truth_table_uint "fetch_local_and_truth_table_uint"
                OpName %input_buffer "input_buffer"
                OpName %output_buffer "output_buffer"
                OpName %local_buffer "local_buffer"
@@ -39,9 +38,6 @@
                OpName %call6 "call6"
                OpName %call8 "call8"
                OpName %arrayidx9 "arrayidx9"
-               OpName %input_buffer_0 "input_buffer"
-               OpName %output_buffer_0 "output_buffer"
-               OpName %local_buffer_0 "local_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
@@ -51,7 +47,6 @@
                OpDecorate %__spirv_BuiltInWorkgroupId LinkageAttributes "__spirv_BuiltInWorkgroupId" Import
                OpDecorate %__spirv_BuiltInWorkgroupId Constant
                OpDecorate %__spirv_BuiltInWorkgroupId BuiltIn WorkgroupId
-               OpDecorate %fetch_local_and_truth_table_uint LinkageAttributes "fetch_local_and_truth_table_uint" Export
                OpDecorate %input_buffer Alignment 4
                OpDecorate %output_buffer Alignment 4
                OpDecorate %local_buffer Alignment 4
@@ -61,10 +56,7 @@
                OpDecorate %gid Alignment 4
                OpDecorate %lid Alignment 4
                OpDecorate %wgid Alignment 4
-               OpDecorate %input_buffer_0 Alignment 4
-               OpDecorate %output_buffer_0 Alignment 4
-               OpDecorate %local_buffer_0 Alignment 4
-               OpDecorate %local_buffer_0 Volatile
+               OpDecorate %local_buffer Volatile
        %uint = OpTypeInt 32 0
      %uint_0 = OpConstant %uint 0
      %uint_2 = OpConstant %uint 2
@@ -84,7 +76,7 @@
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
 %__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3uint Input
 %__spirv_BuiltInWorkgroupId = OpVariable %_ptr_Input_v3uint Input
-%fetch_local_and_truth_table_uint = OpFunction %void DontInline %11
+         %12 = OpFunction %void DontInline %11
 %input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %local_buffer = OpFunctionParameter %_ptr_Workgroup_uint
@@ -142,13 +134,5 @@
          %63 = OpLoad %uint %wgid Aligned 4
   %arrayidx9 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %62 %63
                OpStore %arrayidx9 %call8 Aligned 4
-               OpReturn
-               OpFunctionEnd
-         %65 = OpFunction %void DontInline %11
-%input_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%local_buffer_0 = OpFunctionParameter %_ptr_Workgroup_uint
-         %69 = OpLabel
-         %70 = OpFunctionCall %void %fetch_local_and_truth_table_uint %input_buffer_0 %output_buffer_0 %local_buffer_0
                OpReturn
                OpFunctionEnd

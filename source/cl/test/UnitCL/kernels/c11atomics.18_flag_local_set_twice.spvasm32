@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 50
+; Bound: 45
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -9,11 +9,10 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical32 OpenCL
-               OpEntryPoint Kernel %45 "flag_local_set_twice" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
+               OpEntryPoint Kernel %11 "flag_local_set_twice" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
                OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
-               OpName %flag_local_set_twice "flag_local_set_twice"
                OpName %out_buffer "out_buffer"
                OpName %local_buffer "local_buffer"
                OpName %entry "entry"
@@ -31,24 +30,19 @@
                OpName %call4 "call4"
                OpName %conv "conv"
                OpName %arrayidx "arrayidx"
-               OpName %out_buffer_0 "out_buffer"
-               OpName %local_buffer_0 "local_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
                OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
                OpDecorate %__spirv_BuiltInLocalInvocationId Constant
                OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
-               OpDecorate %flag_local_set_twice LinkageAttributes "flag_local_set_twice" Export
                OpDecorate %out_buffer Alignment 4
                OpDecorate %local_buffer Alignment 4
                OpDecorate %out_buffer_addr Alignment 4
                OpDecorate %local_buffer_addr Alignment 4
                OpDecorate %gid Alignment 4
                OpDecorate %lid Alignment 4
-               OpDecorate %out_buffer_0 Alignment 4
-               OpDecorate %local_buffer_0 Alignment 4
-               OpDecorate %local_buffer_0 Volatile
+               OpDecorate %local_buffer Volatile
        %uint = OpTypeInt 32 0
      %uint_4 = OpConstant %uint 4
      %uint_0 = OpConstant %uint 0
@@ -66,7 +60,7 @@
        %bool = OpTypeBool
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
 %__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3uint Input
-%flag_local_set_twice = OpFunction %void DontInline %10
+         %11 = OpFunction %void DontInline %10
  %out_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %local_buffer = OpFunctionParameter %_ptr_Workgroup_uint
       %entry = OpLabel
@@ -97,12 +91,5 @@
          %43 = OpLoad %uint %gid Aligned 4
    %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %42 %43
                OpStore %arrayidx %conv Aligned 4
-               OpReturn
-               OpFunctionEnd
-         %45 = OpFunction %void DontInline %10
-%out_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%local_buffer_0 = OpFunctionParameter %_ptr_Workgroup_uint
-         %48 = OpLabel
-         %49 = OpFunctionCall %void %flag_local_set_twice %out_buffer_0 %local_buffer_0
                OpReturn
                OpFunctionEnd

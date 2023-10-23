@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // CL_STD: 3.0
-__kernel void exchange_global_float(volatile __global atomic_float *in_out_buffer,
-                              __global float *desired_buffer,
-                              __global float *output_buffer) {
+__kernel void exchange_global_float(
+    volatile __global atomic_float *in_out_buffer,
+    __global float *desired_buffer, __global float *output_buffer) {
   uint gid = get_global_id(0);
   output_buffer[gid] =
       atomic_exchange_explicit(in_out_buffer + gid, desired_buffer[gid],

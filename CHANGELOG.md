@@ -11,6 +11,7 @@ Upgrade guidance:
   * 0.78.0: to introduce mux builtins for sub-group, work-group, and
     vector-group operations.
   * 0.79.0: to introduce mux builtins for sub-group shuffle operations.
+  * 0.80.0: to introduce support for 64-bit atomic operations.
 * The `compiler::ImageArgumentSubstitutionPass` now replaces sampler typed
   parameters in kernel functions with i32 parameters via a wrapper function.
   The `host` target as a consequence now passes samplers to kernels as 32-bit
