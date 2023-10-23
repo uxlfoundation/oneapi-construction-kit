@@ -163,7 +163,7 @@ set(hostCapabilities)
 if(CA_BUILD_32_BITS OR ${CMAKE_SIZEOF_VOID_P} EQUAL 4)
   list(APPEND hostCapabilities "32bit")
 else()
-  list(APPEND hostCapabilities "64bit")
+  list(APPEND hostCapabilities "64bit" "atomic64")
 endif()
 
 if(CA_ENABLE_HOST_IMAGE_SUPPORT)

@@ -230,10 +230,12 @@ foreach(target ${MUX_TARGET_LIBRARIES})
       endif()
 
       # Skip kernels that don't match capabilities.
-      if((${kernel_name} MATCHES "\.fp64"
+      if(((${kernel_name} MATCHES "\.fp64" OR ${kernel_name} MATCHES "_double$")
             AND NOT ${target}_CAPABILITIES MATCHES "fp64") OR
          (${kernel_name} MATCHES "\.fp16"
-            AND NOT ${target}_CAPABILITIES MATCHES "fp16"))
+	    AND NOT ${target}_CAPABILITIES MATCHES "fp16") OR
+         ((${kernel_name} MATCHES "atomic.*long" OR ${kernel_name} MATCHES "atomic.*double")
+            AND NOT ${target}_CAPABILITIES MATCHES "atomic64"))
         continue()
       endif()
 

@@ -128,7 +128,7 @@ set(riscvCapabilities)
 if(RISCV_32_BITS)
   list(APPEND riscvCapabilities "32bit")
 else()
-  list(APPEND riscvCapabilities "64bit")
+  list(APPEND riscvCapabilities "64bit" "atomic64")
 endif()
 # This must match the HAL's capabilities i.e. D or G if enabled
 if(RISCV_FP64)

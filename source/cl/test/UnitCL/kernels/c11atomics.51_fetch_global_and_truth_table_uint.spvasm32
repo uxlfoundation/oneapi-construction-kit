@@ -1,17 +1,15 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 27
+; Bound: 22
 ; Schema: 0
                OpCapability Addresses
-               OpCapability Linkage
                OpCapability Kernel
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical32 OpenCL
-               OpEntryPoint Kernel %22 "fetch_global_and_truth_table_uint"
+               OpEntryPoint Kernel %6 "fetch_global_and_truth_table_uint"
                OpSource OpenCL_C 300000
-               OpName %fetch_global_and_truth_table_uint "fetch_global_and_truth_table_uint"
                OpName %total "total"
                OpName %input_buffer "input_buffer"
                OpName %entry "entry"
@@ -19,16 +17,11 @@
                OpName %input_buffer_addr "input_buffer.addr"
                OpName %arrayidx "arrayidx"
                OpName %call "call"
-               OpName %total_0 "total"
-               OpName %input_buffer_0 "input_buffer"
-               OpDecorate %fetch_global_and_truth_table_uint LinkageAttributes "fetch_global_and_truth_table_uint" Export
                OpDecorate %total Alignment 4
                OpDecorate %input_buffer Alignment 4
                OpDecorate %total_addr Alignment 4
                OpDecorate %input_buffer_addr Alignment 4
-               OpDecorate %total_0 Alignment 4
-               OpDecorate %input_buffer_0 Alignment 4
-               OpDecorate %total_0 Volatile
+               OpDecorate %total Volatile
        %uint = OpTypeInt 32 0
      %uint_0 = OpConstant %uint 0
      %uint_4 = OpConstant %uint 4
@@ -37,7 +30,7 @@
           %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_uint
 %_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
 %_ptr_Generic_uint = OpTypePointer Generic %uint
-%fetch_global_and_truth_table_uint = OpFunction %void DontInline %5
+          %6 = OpFunction %void DontInline %5
       %total = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
       %entry = OpLabel
@@ -51,12 +44,5 @@
    %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %16 %uint_0
          %19 = OpLoad %uint %arrayidx Aligned 4
        %call = OpAtomicAnd %uint %15 %uint_4 %uint_0 %19
-               OpReturn
-               OpFunctionEnd
-         %22 = OpFunction %void DontInline %5
-    %total_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%input_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-         %25 = OpLabel
-         %26 = OpFunctionCall %void %fetch_global_and_truth_table_uint %total_0 %input_buffer_0
                OpReturn
                OpFunctionEnd

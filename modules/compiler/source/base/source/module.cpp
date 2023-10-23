@@ -975,11 +975,13 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   }
 
   // Disable `cl_khr_int64_base_atomics` and `cl_khr_int64_extended_atomics`
-  // until we support them. (CA-518)
-  addOpenCLOpt("-cl_khr_int64_base_atomics", opencl_opts);
-  addMacroUndef("cl_khr_int64_base_atomics", macro_defs);
-  addOpenCLOpt("-cl_khr_int64_extended_atomics", opencl_opts);
-  addMacroUndef("cl_khr_int64_extended_atomics", macro_defs);
+  // unless supported by the device.
+  if (!(device_info->atomic_capabilities & mux_atomic_capabilities_64bit)) {
+    addOpenCLOpt("-cl_khr_int64_base_atomics", opencl_opts);
+    addMacroUndef("cl_khr_int64_base_atomics", macro_defs);
+    addOpenCLOpt("-cl_khr_int64_extended_atomics", opencl_opts);
+    addMacroUndef("cl_khr_int64_extended_atomics", macro_defs);
+  }
 
   if (options.standard == Standard::OpenCLC30) {
     // work-group collective functions are an optional feature in OpenCL 3.0.

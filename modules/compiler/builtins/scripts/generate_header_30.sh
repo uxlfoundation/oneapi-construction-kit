@@ -377,34 +377,42 @@ function all_atomic()
   echo ""
   for k in __local __global ""
   do
-    for i in int uint float
+    for i in int long uint ulong float double
     do
+      double_support_begin $i
       echo "void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile $k atomic_$i *obj, $i value);"
+      double_support_end $i
     done
   done
   echo "void __CL_BUILTIN_ATTRIBUTES atomic_work_item_fence(cl_mem_fence_flags flags, memory_order order, memory_scope scope);"
 
   for k in __local __global ""
   do
-    for i in int uint float
+    for i in int long uint ulong float double
     do
+      double_support_begin $i
       echo "void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile $k atomic_$i *object, $i desired, memory_order order, memory_scope scope);"
+      double_support_end $i
     done
   done
 
   for k in __local __global ""
   do
-    for i in int uint float
+    for i in int long uint ulong float double
     do
+      double_support_begin $i
       echo "$i __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(volatile $k atomic_$i *object, memory_order order, memory_scope scope);"
+      double_support_end $i
     done
   done
 
   for k in __local __global ""
   do
-    for i in int uint float
+    for i in int long uint ulong float double
     do
+      double_support_begin $i
       echo "$i __CL_BUILTIN_ATTRIBUTES atomic_exchange_explicit(volatile $k atomic_$i *object, $i desired, memory_order order, memory_scope scope);"
+      double_support_end $i
     done
   done
 
@@ -412,18 +420,20 @@ function all_atomic()
   do
     for k1 in __local __global ""
     do
-      for i in int uint float
+      for i in int long uint ulong float double
       do
+        double_support_begin $i
         for k2 in __local __global __private ""
         do
           echo "bool __CL_BUILTIN_ATTRIBUTES $name(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired, memory_order success, memory_order failure);"
           echo "bool __CL_BUILTIN_ATTRIBUTES $name(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired, memory_order success, memory_order failure, memory_scope scope);"
         done
+        double_support_end $i
       done
     done
   done
 
-  for t in int uint
+  for t in int long uint ulong
   do
     for op in add sub or xor and min max
     do

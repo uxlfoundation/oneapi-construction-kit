@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // CL_STD: 3.0
 __kernel void fetch_global_or_int(volatile __global atomic_int *total,
-                              __global int *input_buffer) {
+                                  __global int *input_buffer) {
   uint gid = get_global_id(0);
 
   atomic_fetch_or_explicit(total, input_buffer[gid], memory_order_relaxed,

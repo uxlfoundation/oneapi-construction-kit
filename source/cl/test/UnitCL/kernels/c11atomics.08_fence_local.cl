@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // CL_STD: 3.0
-__kernel void fence_local(__global int* in, __global int* out,
-                          __local int* tmp) {
+__kernel void fence_local(__global int *in, __global int *out,
+                          __local int *tmp) {
   uint gid = get_global_id(0);
   uint lid = get_local_id(0);
   tmp[lid] = in[gid];

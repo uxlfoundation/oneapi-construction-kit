@@ -80,6 +80,11 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     if ((result = spvCapabilities.push_back(spv::CapabilityInt64))) {
       return cargo::make_unexpected(result);
     }
+    if (device_info->atomic_capabilities & mux_atomic_capabilities_64bit) {
+      if ((result = spvCapabilities.push_back(spv::CapabilityInt64Atomics))) {
+        return cargo::make_unexpected(result);
+      }
+    }
   } else if (profile == "EMBEDDED_PROFILE") {
     auto error_or = spvCapabilities.insert(spvCapabilities.end(),
                                            sharedCapabilities.begin(),
@@ -90,6 +95,11 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     if (device_info->integer_capabilities & mux_integer_capabilities_64bit) {
       if ((result = spvCapabilities.push_back(spv::CapabilityInt64))) {
         return cargo::make_unexpected(result);
+      }
+      if (device_info->atomic_capabilities & mux_atomic_capabilities_64bit) {
+        if ((result = spvCapabilities.push_back(spv::CapabilityInt64Atomics))) {
+          return cargo::make_unexpected(result);
+        }
       }
     }
   }

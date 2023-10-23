@@ -1,0 +1,208 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 105
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int64Atomics
+               OpCapability GenericPointer
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %13 "compare_exchange_weak_local_local_ulong" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
+               OpName %inout "inout"
+               OpName %expected_buffer "expected_buffer"
+               OpName %desired_buffer "desired_buffer"
+               OpName %bool_output_buffer "bool_output_buffer"
+               OpName %local_atomic_buffer "local_atomic_buffer"
+               OpName %local_expected_buffer "local_expected_buffer"
+               OpName %entry "entry"
+               OpName %inout_addr "inout.addr"
+               OpName %expected_buffer_addr "expected_buffer.addr"
+               OpName %desired_buffer_addr "desired_buffer.addr"
+               OpName %bool_output_buffer_addr "bool_output_buffer.addr"
+               OpName %local_atomic_buffer_addr "local_atomic_buffer.addr"
+               OpName %local_expected_buffer_addr "local_expected_buffer.addr"
+               OpName %gid "gid"
+               OpName %lid "lid"
+               OpName %call "call"
+               OpName %conv "conv"
+               OpName %call1 "call1"
+               OpName %conv2 "conv2"
+               OpName %idx_ext "idx.ext"
+               OpName %add_ptr "add.ptr"
+               OpName %add_ptr_ascast "add.ptr.ascast"
+               OpName %idxprom "idxprom"
+               OpName %arrayidx "arrayidx"
+               OpName %idxprom3 "idxprom3"
+               OpName %arrayidx4 "arrayidx4"
+               OpName %idxprom5 "idxprom5"
+               OpName %arrayidx6 "arrayidx6"
+               OpName %idx_ext7 "idx.ext7"
+               OpName %add_ptr8 "add.ptr8"
+               OpName %add_ptr8_ascast "add.ptr8.ascast"
+               OpName %idx_ext9 "idx.ext9"
+               OpName %add_ptr10 "add.ptr10"
+               OpName %add_ptr10_ascast "add.ptr10.ascast"
+               OpName %idxprom11 "idxprom11"
+               OpName %arrayidx12 "arrayidx12"
+               OpName %exp "exp"
+               OpName %call13 "call13"
+               OpName %conv14 "conv14"
+               OpName %idxprom15 "idxprom15"
+               OpName %arrayidx16 "arrayidx16"
+               OpName %idxprom17 "idxprom17"
+               OpName %arrayidx18 "arrayidx18"
+               OpName %idxprom19 "idxprom19"
+               OpName %arrayidx20 "arrayidx20"
+               OpName %idx_ext21 "idx.ext21"
+               OpName %add_ptr22 "add.ptr22"
+               OpName %add_ptr22_ascast "add.ptr22.ascast"
+               OpName %call23 "call23"
+               OpName %idxprom24 "idxprom24"
+               OpName %arrayidx25 "arrayidx25"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
+               OpDecorate %__spirv_BuiltInLocalInvocationId Constant
+               OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
+               OpDecorate %inout Alignment 8
+               OpDecorate %expected_buffer Alignment 8
+               OpDecorate %desired_buffer Alignment 8
+               OpDecorate %bool_output_buffer Alignment 4
+               OpDecorate %local_atomic_buffer Alignment 8
+               OpDecorate %local_expected_buffer Alignment 8
+               OpDecorate %inout_addr Alignment 8
+               OpDecorate %expected_buffer_addr Alignment 8
+               OpDecorate %desired_buffer_addr Alignment 8
+               OpDecorate %bool_output_buffer_addr Alignment 8
+               OpDecorate %local_atomic_buffer_addr Alignment 8
+               OpDecorate %local_expected_buffer_addr Alignment 8
+               OpDecorate %gid Alignment 4
+               OpDecorate %lid Alignment 4
+               OpDecorate %local_atomic_buffer Volatile
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_Workgroup_ulong = OpTypePointer Workgroup %ulong
+         %12 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_uint %_ptr_Workgroup_ulong %_ptr_Workgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_Workgroup_ulong = OpTypePointer Function %_ptr_Workgroup_ulong
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Generic_ulong = OpTypePointer Generic %ulong
+       %bool = OpTypeBool
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %13 = OpFunction %void DontInline %12
+      %inout = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+%expected_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+%desired_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+%bool_output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+%local_atomic_buffer = OpFunctionParameter %_ptr_Workgroup_ulong
+%local_expected_buffer = OpFunctionParameter %_ptr_Workgroup_ulong
+      %entry = OpLabel
+ %inout_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+%expected_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+%desired_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+%bool_output_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+%local_atomic_buffer_addr = OpVariable %_ptr_Function__ptr_Workgroup_ulong Function
+%local_expected_buffer_addr = OpVariable %_ptr_Function__ptr_Workgroup_ulong Function
+        %gid = OpVariable %_ptr_Function_uint Function
+        %lid = OpVariable %_ptr_Function_uint Function
+               OpStore %inout_addr %inout Aligned 8
+               OpStore %expected_buffer_addr %expected_buffer Aligned 8
+               OpStore %desired_buffer_addr %desired_buffer Aligned 8
+               OpStore %bool_output_buffer_addr %bool_output_buffer Aligned 8
+               OpStore %local_atomic_buffer_addr %local_atomic_buffer Aligned 8
+               OpStore %local_expected_buffer_addr %local_expected_buffer Aligned 8
+         %33 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId Aligned 32
+       %call = OpCompositeExtract %ulong %33 0
+       %conv = OpUConvert %uint %call
+               OpStore %gid %conv Aligned 4
+         %36 = OpLoad %v3ulong %__spirv_BuiltInLocalInvocationId Aligned 32
+      %call1 = OpCompositeExtract %ulong %36 0
+      %conv2 = OpUConvert %uint %call1
+               OpStore %lid %conv2 Aligned 4
+         %39 = OpLoad %_ptr_Workgroup_ulong %local_atomic_buffer_addr Aligned 8
+         %40 = OpLoad %uint %lid Aligned 4
+    %idx_ext = OpSConvert %ulong %40
+    %add_ptr = OpInBoundsPtrAccessChain %_ptr_Workgroup_ulong %39 %idx_ext
+%add_ptr_ascast = OpPtrCastToGeneric %_ptr_Generic_ulong %add_ptr
+         %45 = OpLoad %_ptr_CrossWorkgroup_ulong %inout_addr Aligned 8
+         %46 = OpLoad %uint %gid Aligned 4
+    %idxprom = OpSConvert %ulong %46
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %45 %idxprom
+         %49 = OpLoad %ulong %arrayidx Aligned 8
+               OpStore %add_ptr_ascast %49 Aligned 8
+         %50 = OpLoad %_ptr_CrossWorkgroup_ulong %expected_buffer_addr Aligned 8
+         %51 = OpLoad %uint %gid Aligned 4
+   %idxprom3 = OpSConvert %ulong %51
+  %arrayidx4 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %50 %idxprom3
+         %54 = OpLoad %ulong %arrayidx4 Aligned 8
+         %55 = OpLoad %_ptr_Workgroup_ulong %local_expected_buffer_addr Aligned 8
+         %56 = OpLoad %uint %lid Aligned 4
+   %idxprom5 = OpSConvert %ulong %56
+  %arrayidx6 = OpInBoundsPtrAccessChain %_ptr_Workgroup_ulong %55 %idxprom5
+               OpStore %arrayidx6 %54 Aligned 8
+         %59 = OpLoad %_ptr_Workgroup_ulong %local_atomic_buffer_addr Aligned 8
+         %60 = OpLoad %uint %lid Aligned 4
+   %idx_ext7 = OpSConvert %ulong %60
+   %add_ptr8 = OpInBoundsPtrAccessChain %_ptr_Workgroup_ulong %59 %idx_ext7
+%add_ptr8_ascast = OpPtrCastToGeneric %_ptr_Generic_ulong %add_ptr8
+         %64 = OpLoad %_ptr_Workgroup_ulong %local_expected_buffer_addr Aligned 8
+         %65 = OpLoad %uint %lid Aligned 4
+   %idx_ext9 = OpSConvert %ulong %65
+  %add_ptr10 = OpInBoundsPtrAccessChain %_ptr_Workgroup_ulong %64 %idx_ext9
+%add_ptr10_ascast = OpPtrCastToGeneric %_ptr_Generic_ulong %add_ptr10
+         %69 = OpLoad %_ptr_CrossWorkgroup_ulong %desired_buffer_addr Aligned 8
+         %70 = OpLoad %uint %gid Aligned 4
+  %idxprom11 = OpSConvert %ulong %70
+ %arrayidx12 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %69 %idxprom11
+         %73 = OpLoad %ulong %arrayidx12 Aligned 8
+        %exp = OpLoad %ulong %add_ptr10_ascast Aligned 8
+         %77 = OpAtomicCompareExchange %ulong %add_ptr8_ascast %uint_4 %uint_0 %uint_0 %73 %exp
+               OpStore %add_ptr10_ascast %77 Aligned 8
+     %call13 = OpIEqual %bool %77 %exp
+     %conv14 = OpSelect %uint %call13 %uint_1 %uint_0
+         %82 = OpLoad %_ptr_CrossWorkgroup_uint %bool_output_buffer_addr Aligned 8
+         %83 = OpLoad %uint %gid Aligned 4
+  %idxprom15 = OpSConvert %ulong %83
+ %arrayidx16 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %82 %idxprom15
+               OpStore %arrayidx16 %conv14 Aligned 4
+         %86 = OpLoad %_ptr_Workgroup_ulong %local_expected_buffer_addr Aligned 8
+         %87 = OpLoad %uint %lid Aligned 4
+  %idxprom17 = OpSConvert %ulong %87
+ %arrayidx18 = OpInBoundsPtrAccessChain %_ptr_Workgroup_ulong %86 %idxprom17
+         %90 = OpLoad %ulong %arrayidx18 Aligned 8
+         %91 = OpLoad %_ptr_CrossWorkgroup_ulong %expected_buffer_addr Aligned 8
+         %92 = OpLoad %uint %gid Aligned 4
+  %idxprom19 = OpSConvert %ulong %92
+ %arrayidx20 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %91 %idxprom19
+               OpStore %arrayidx20 %90 Aligned 8
+         %95 = OpLoad %_ptr_Workgroup_ulong %local_atomic_buffer_addr Aligned 8
+         %96 = OpLoad %uint %lid Aligned 4
+  %idx_ext21 = OpSConvert %ulong %96
+  %add_ptr22 = OpInBoundsPtrAccessChain %_ptr_Workgroup_ulong %95 %idx_ext21
+%add_ptr22_ascast = OpPtrCastToGeneric %_ptr_Generic_ulong %add_ptr22
+     %call23 = OpAtomicLoad %ulong %add_ptr22_ascast %uint_4 %uint_0
+        %101 = OpLoad %_ptr_CrossWorkgroup_ulong %inout_addr Aligned 8
+        %102 = OpLoad %uint %gid Aligned 4
+  %idxprom24 = OpSConvert %ulong %102
+ %arrayidx25 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %101 %idxprom24
+               OpStore %arrayidx25 %call23 Aligned 8
+               OpReturn
+               OpFunctionEnd

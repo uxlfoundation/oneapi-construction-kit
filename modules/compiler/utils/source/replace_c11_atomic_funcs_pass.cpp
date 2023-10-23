@@ -244,7 +244,7 @@ void replaceFetchKey(CallInst *C11FetchKey) {
   auto KeyEndIndex = BuiltinName.find('_', KeyStartIndex);
   auto Key = BuiltinName.substr(KeyStartIndex, KeyEndIndex - KeyStartIndex);
 
-  bool const IsFloat = C11FetchKey->getType()->isFloatTy();
+  bool const IsFloat = C11FetchKey->getType()->isFloatingPointTy();
   AtomicRMWInst::BinOp KeyOpCode{IsFloat
                                      ? StringSwitch<AtomicRMWInst::BinOp>(Key)
                                            .Case("add", AtomicRMWInst::FAdd)
@@ -270,9 +270,11 @@ void replaceFetchKey(CallInst *C11FetchKey) {
   if (AtomicRMWInst::Min == KeyOpCode || AtomicRMWInst::Max == KeyOpCode) {
     auto OpTypeMangledIndex =
         BuiltinName.find("Atomic", KeyEndIndex) + std::strlen("Atomic");
-    if ('j' == BuiltinName[OpTypeMangledIndex]) {
-      KeyOpCode = (KeyOpCode == AtomicRMWInst::Min) ? AtomicRMWInst::UMin
-                                                    : AtomicRMWInst::UMax;
+    switch (BuiltinName[OpTypeMangledIndex]) {
+      case 'j':
+      case 'm':
+        KeyOpCode = (KeyOpCode == AtomicRMWInst::Min) ? AtomicRMWInst::UMin
+                                                      : AtomicRMWInst::UMax;
     }
   }
 
