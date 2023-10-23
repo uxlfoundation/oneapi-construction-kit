@@ -55,15 +55,15 @@ class InitTest : public C11AtomicTestBase {
       return input_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     AddInputBuffer(kts::N, random_reference);
     AddOutputBuffer(kts::N, random_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer(kts::localN * sizeof(T));
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 };
 
@@ -146,7 +146,7 @@ TEST_P(FenceTest, C11Atomics_08_Fence_Local) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   this->AddOutputBuffer(kts::N, kts::Ref_Identity);
-  this->AddLocalBuffer(kts::localN);
+  this->AddLocalBuffer(kts::localN * sizeof(cl_int));
 
   // Run the test.
   this->RunGeneric1D(kts::N, kts::localN);
@@ -166,15 +166,15 @@ class LoadStoreTest : public C11AtomicTestBase {
       return input_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     AddInputBuffer(kts::N, random_reference);
     AddOutputBuffer(kts::N, random_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer(kts::localN * sizeof(T));
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 };
 
@@ -227,7 +227,7 @@ class ExchangeTest : public C11AtomicTestBase {
       return desired_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     // The initial values of the atomics are the input.
     // The desired values exchanged into the atomics are the expected output.
     AddInOutBuffer(kts::N, initializer_reference, desired_reference);
@@ -237,11 +237,11 @@ class ExchangeTest : public C11AtomicTestBase {
     // output.
     AddOutputBuffer(kts::N, initializer_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer(kts::localN * sizeof(T));
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 };
 
@@ -289,10 +289,10 @@ TEST_P(FlagTest, C11Atomics_17_Flag_Local_Clear_Set) {
   // The expected output is that the local atomic flags are all unset
   // by the kernel.
   this->AddOutputBuffer(kts::N, false_reference);
-  this->AddLocalBuffer(kts::N);
+  this->AddLocalBuffer(kts::localN * sizeof(cl_bool));
 
   // Run the test.
-  this->RunGeneric1D(kts::N);
+  this->RunGeneric1D(kts::N, kts::localN);
 }
 
 TEST_P(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
@@ -308,10 +308,10 @@ TEST_P(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
   // The expected output is that the local atomic flags are all set
   // by the kernel.
   this->AddOutputBuffer(kts::N, true_reference);
-  this->AddLocalBuffer(kts::N);
+  this->AddLocalBuffer(kts::localN * sizeof(cl_bool));
 
   // Run the test.
-  this->RunGeneric1D(kts::N);
+  this->RunGeneric1D(kts::N, kts::localN);
 }
 
 TEST_P(FlagTest, C11Atomics_19_Flag_Global_Clear) {
@@ -365,17 +365,17 @@ class FetchTest : public C11AtomicTestBase {
       return input_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     // The initial values of the atomics are the random input.
     AddInputBuffer(kts::N, random_reference);
     // The expected output values are the initial values loaded atomically.
     AddOutputBuffer(kts::N, random_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer(kts::localN * sizeof(T));
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 
   template <typename T>
@@ -1449,7 +1449,7 @@ class WeakGlobalSingle : public C11AtomicTestBase {
     kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    kts::Reference1D<T> bool_output_reference =
+    kts::Reference1D<cl_int> bool_output_reference =
         [success_index, weak_exchange_failed](size_t index) {
           return index == success_index && !weak_exchange_failed;
         };
@@ -1462,7 +1462,7 @@ class WeakGlobalSingle : public C11AtomicTestBase {
     if (!local) {
       RunGeneric1D(kts::N);
     } else {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer(kts::localN * sizeof(T));
       RunGeneric1D(kts::N, kts::localN);
     }
   }
@@ -1569,7 +1569,7 @@ class WeakLocalSingle : public C11AtomicTestBase {
     kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    kts::Reference1D<T> bool_output_reference =
+    kts::Reference1D<cl_int> bool_output_reference =
         [&success_indices, &weak_exchanges_failed](size_t index) {
           const size_t work_group = index / kts::localN;
           const size_t success_index_of_workgroup = success_indices[work_group];
@@ -1584,7 +1584,7 @@ class WeakLocalSingle : public C11AtomicTestBase {
     AddOutputBuffer(kts::N, bool_output_reference);
     AddLocalBuffer(1);
     if (local_local) {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer(kts::localN * sizeof(T));
     }
 
     // Run the test.
