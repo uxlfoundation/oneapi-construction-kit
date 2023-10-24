@@ -104,14 +104,14 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       SmallVector<Type *> KernelArgTys(
           KernelF->getFunctionType()->getNumParams());
       // Create the list of kernel parameters with all samplers replaced with
-      // i32 types.
+      // size_t types.
       transform(enumerate(KernelF->getFunctionType()->params()),
                 KernelArgTys.begin(),
-                [&Ctx, ArgBaseTys](const auto &P) -> Type * {
+                [&M, ArgBaseTys](const auto &P) -> Type * {
                   const auto &MDOp = ArgBaseTys[P.index()];
                   if (const auto *BaseTyName = dyn_cast<const MDString>(MDOp)) {
                     if (BaseTyName->getString() == "sampler_t") {
-                      return IntegerType::getInt32Ty(Ctx);
+                      return utils::getSizeType(M);
                     }
                   }
                   return P.value();
@@ -147,13 +147,13 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
           Args.push_back(&NewArg);
           WrapperParamAttrs[ArgIdx] = KernelAttrs.getParamAttrs(ArgIdx);
         } else {
-          // Must be a sampler: simply cast the i32 to a pointer. This mirrors
-          // what we'll do down the line when changing the pointer back to an
-          // i32 via the opposite operation.
+          // Must be a sampler: simply cast the size_t to a pointer. This
+          // mirrors what we'll do down the line when changing the pointer back
+          // to an size_t/i32 via the opposite operation.
           Args.push_back(B.CreateIntToPtr(&NewArg, OldArg.getType(),
                                           NewArg.getName() + ".ptrcast"));
           // Don't copy across any parameter attributes here, as this was a
-          // pointer and is now an i32.
+          // pointer and is now an i32/i64 type.
           WrapperParamAttrs[ArgIdx] = AttributeSet();
         }
       }
@@ -195,14 +195,15 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       // it relies on the underlying target type for samplers to have already
       // been chosen.
       // On LLVM 17+ this means we require the target extension type to have
-      // been replaced with an i32, and otherwise we expect the sampler to be a
-      // pointer that's reinterpretable to an i32 or to be i32 (only in
-      // SPIR 1.2). We should really leave this to the mux implementation,
-      // perhaps in DefineMuxBuiltinsPass.
+      // been replaced with a size_t, and otherwise we expect the sampler to be
+      // a pointer that's reinterpretable to an i32 or to be i32 (only in SPIR
+      // 1.2). We should really leave this to the mux implementation, perhaps
+      // in DefineMuxBuiltinsPass.
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
-      assert(samplerInitFunc->getReturnType()->isIntegerTy(32) &&
-             "Expecting samplers to already have been replaced with i32s");
-      builder.CreateRet(arg);
+      assert(utils::getSizeType(M) == samplerInitFunc->getReturnType() &&
+             "Expecting samplers to already have been replaced with size_t");
+      builder.CreateRet(builder.CreateZExtOrTrunc(
+          arg, samplerInitFunc->getFunctionType()->getReturnType()));
 #else
       assert((samplerInitFunc->getReturnType()->isPointerTy() ||
               samplerInitFunc->getReturnType()->isIntegerTy(32)) &&
@@ -291,9 +292,11 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       if (std::string::npos != pair.first.find("sampler")) {
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
         // See the comment about __translate_sampler_initializer above.
-        assert(call->getArgOperand(1)->getType()->isIntegerTy(32) &&
-               "Expecting samplers to already have been replaced with i32s");
-        args.push_back(call->getArgOperand(1));
+        assert(utils::getSizeType(M) == call->getArgOperand(1)->getType() &&
+               "Expecting samplers to already have been replaced with size_t");
+        args.push_back(Builder.CreateZExtOrTrunc(
+            call->getArgOperand(1),
+            dstFunc->getFunctionType()->getParamType(1)));
 #else
         // we need to change our approach for handling samplers into libimg here
         // too

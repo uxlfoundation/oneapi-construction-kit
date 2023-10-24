@@ -26,15 +26,14 @@ declare spir_func void @__mux_dma_wait(i32, %__mux_dma_event_t**)
 
 ; CHECK: define spir_func void @__refsi_dma_wait(i32 [[numEvents:%.*]], ptr [[eventList:%.*]]) #0 {
 ; CHECK:   %loop_iv = phi i32 [ 0, %entry ], [ %new_iv, %body ]
-; CHECK:   %max_xfer_id = phi i32 [ 0, %entry ], [ %new_max_xfer_id, %body ]
+; CHECK:   %max_xfer_id = phi i64 [ 0, %entry ], [ %new_max_xfer_id, %body ]
 ; CHECK:   [[eventGep:%.*]] = getelementptr ptr, ptr [[eventList]], i32 %loop_iv
 ; CHECK:   [[event:%.*]] = load ptr, ptr [[eventGep]], align 8
-; CHECK:   %xfer_id = ptrtoint ptr [[event]] to i32
+; CHECK:   %xfer_id = ptrtoint ptr [[event]] to i64
 ; CHECK:   %new_iv = add i32 %loop_iv, 1
-; CHECK:   [[higher:%.*]] = icmp ugt i32 %xfer_id, %max_xfer_id
-; CHECK:   %new_max_xfer_id = select i1 [[higher]], i32 %xfer_id, i32 %max_xfer_id
+; CHECK:   [[higher:%.*]] = icmp ugt i64 %xfer_id, %max_xfer_id
+; CHECK:   %new_max_xfer_id = select i1 [[higher]], i64 %xfer_id, i64 %max_xfer_id
 ; CHECK:   %exit_cond = icmp ult i32 %new_iv, [[numEvents]]
 ; CHECK:   br i1 %exit_cond, label %body, label %epilog
-; CHECK:   %event_id_to_wait = phi i32 [ 0, %entry ], [ %new_max_xfer_id, %body ]
-; CHECK:   [[store:%.*]] = zext i32 %event_id_to_wait to i64
-; CHECK:   store volatile i64 [[store]], ptr inttoptr (i64 536879120 to ptr), align 8
+; CHECK:   %event_id_to_wait = phi i64 [ 0, %entry ], [ %new_max_xfer_id, %body ]
+; CHECK:   store volatile i64 %event_id_to_wait, ptr inttoptr (i64 536879120 to ptr), align 8

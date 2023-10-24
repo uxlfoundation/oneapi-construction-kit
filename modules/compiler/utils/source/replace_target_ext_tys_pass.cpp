@@ -28,9 +28,11 @@ using namespace llvm;
 
 class TargetExtTypeRemapper : public ValueMapTypeRemapper {
  public:
-  TargetExtTypeRemapper(compiler::utils::BuiltinInfo &BI, bool ReplaceImages,
-                        bool ReplaceSamplers, bool ReplaceEvents)
-      : BI(BI),
+  TargetExtTypeRemapper(Module &M, compiler::utils::BuiltinInfo &BI,
+                        bool ReplaceImages, bool ReplaceSamplers,
+                        bool ReplaceEvents)
+      : M(M),
+        BI(BI),
         ReplaceImages(ReplaceImages),
         ReplaceSamplers(ReplaceSamplers),
         ReplaceEvents(ReplaceEvents) {}
@@ -82,7 +84,13 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
       return Ty;
     }
     // Check if the target wants to remap this type.
-    if (auto *NewTy = BI.getRemappedTargetExtTy(Ty)) {
+    if (auto *NewTy = BI.getRemappedTargetExtTy(Ty, M)) {
+      // Check that the replacement type's size and alignment is valid, as
+      // otherwise this pass may leave the module in an invalid state.
+      [[maybe_unused]] auto &DL = M.getDataLayout();
+      assert(
+          DL.getTypeAllocSize(NewTy) == DL.getTypeAllocSize(Ty) &&
+          "Chosen target replacement type may leave module in invalid state");
       // Cache this type for next time.
       TyReplacementCache[Ty] = NewTy;
       return NewTy;
@@ -91,6 +99,7 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
   }
 
  private:
+  Module &M;
   compiler::utils::BuiltinInfo &BI;
   bool ReplaceImages = true;
   bool ReplaceSamplers = true;
@@ -103,7 +112,7 @@ PreservedAnalyses compiler::utils::ReplaceTargetExtTysPass::run(
   auto &BI = AM.getResult<compiler::utils::BuiltinInfoAnalysis>(M);
 
   ValueToValueMapTy VM;
-  TargetExtTypeRemapper TyMapper(BI, ReplaceImages, ReplaceSamplers,
+  TargetExtTypeRemapper TyMapper(M, BI, ReplaceImages, ReplaceSamplers,
                                  ReplaceEvents);
 
   SmallPtrSet<Function *, 4> ToDelete;

@@ -17,13 +17,16 @@
 ; REQUIRES: llvm-17+
 ; RUN: muxc --device "%riscv_device" %s --passes replace-target-ext-tys,define-mux-dma,verify -S | FileCheck %s
 
-target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
-target triple = "riscv64-unknown-unknown-elf"
+; Note - RefSi M1 is a 64-bit architecture. This test tests that the compiler
+; passes would correctly generate code for a theoretical 32-bit version of this
+; architecture.
+target datalayout = "e-m:e-p:32:32-i64:64-i128:128-n64-S128"
+target triple = "riscv32-unknown-unknown-elf"
 
-declare spir_func target("spirv.Event") @__mux_dma_write_1D(i8 addrspace(3)*, i8 addrspace(1)*, i64, target("spirv.Event"))
+declare spir_func target("spirv.Event") @__mux_dma_read_1D(i8 addrspace(3)*, i8 addrspace(1)*, i64, target("spirv.Event"))
 
 
-; CHECK: define spir_func i32 @__refsi_dma_start_seq_write(ptr addrspace(3) [[argDstDmaPointer:%.*]], ptr addrspace(1) [[argSrcDmaPointer:%.*]], i64 [[argWidth:%.*]], i32 [[argEvent:%.*]]) #0 {
+; CHECK: define spir_func i32 @__refsi_dma_start_seq_read(ptr addrspace(3) [[argDstDmaPointer:%.*]], ptr addrspace(1) [[argSrcDmaPointer:%.*]], i64 [[argWidth:%.*]], i32 [[argEvent:%.*]]) #0 {
 ; CHECK:   [[argDstDmaInt:%.*]] = ptrtoint ptr addrspace(3) [[argDstDmaPointer]] to i64
 ; CHECK:   store volatile i64 [[argDstDmaInt]], ptr inttoptr (i64 536879136 to ptr), align 8
 ; CHECK:   [[argSrcDmaInt:%.*]] = ptrtoint ptr addrspace(1) [[argSrcDmaPointer]] to i64

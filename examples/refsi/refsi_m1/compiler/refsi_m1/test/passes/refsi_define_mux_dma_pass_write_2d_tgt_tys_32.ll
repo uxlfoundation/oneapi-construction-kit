@@ -17,8 +17,11 @@
 ; REQUIRES: llvm-17+
 ; RUN: muxc --device "%riscv_device" %s --passes replace-target-ext-tys,define-mux-dma,verify -S | FileCheck %s
 
-target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
-target triple = "riscv64-unknown-unknown-elf"
+; Note - RefSi M1 is a 64-bit architecture. This test tests that the compiler
+; passes would correctly generate code for a theoretical 32-bit version of this
+; architecture.
+target datalayout = "e-m:e-p:32:32-i64:64-i128:128-n64-S128"
+target triple = "riscv32-unknown-unknown-elf"
 
 declare spir_func target("spirv.Event") @__mux_dma_write_2D(i8 addrspace(1)*, i8 addrspace(3)*, i64, i64, i64, i64, target("spirv.Event"))
 

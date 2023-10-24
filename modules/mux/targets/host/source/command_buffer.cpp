@@ -129,10 +129,10 @@ void populatePackedArgs(
             break;
         }
 
-        uint32_t sampler_ptr = libimg::HostCreateSampler(
+        uint64_t sampler_ptr = libimg::HostCreateSampler(
             info.sampler.normalize_coords, addressing_mode, filter_mode);
-        std::memcpy(packed_args_alloc + offset, &sampler_ptr, sizeof(uint32_t));
-        offset += sizeof(uint32_t);
+        std::memcpy(packed_args_alloc + offset, &sampler_ptr, sizeof(size_t));
+        offset += sizeof(size_t);
 #endif
       } break;
       case mux_descriptor_info_type_plain_old_data: {

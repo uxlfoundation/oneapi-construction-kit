@@ -20,7 +20,7 @@
 ;
 ; For this we usually run the replace-target-ext-tys-pass beforehand, to
 ; replace the target extension type with the default event type in ComputeMux
-; (i32). A target would also have control over this process.
+; (size_t). A target would also have control over this process.
 ;
 ; We also run the pass on the target extension types directly, to simulate a
 ; target using their own target extension types. This is perfectly valid from a
@@ -32,7 +32,7 @@
 ; RUN: muxc --passes lower-to-mux-builtins,early-cse,verify %s \
 ; RUN:  | FileCheck %s -DEVENT_TY='target("spirv.Event")' -DNULLEVENT=zeroinitializer
 ; RUN: muxc --passes replace-target-ext-tys,lower-to-mux-builtins,early-cse,verify %s \
-; RUN:  | FileCheck %s -DEVENT_TY=i32 -DNULLEVENT=0
+; RUN:  | FileCheck %s -DEVENT_TY=i64 -DNULLEVENT=0
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"

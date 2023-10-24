@@ -24,20 +24,19 @@
 ; RUN: muxc --passes "replace-target-ext-tys<no-samplers>",verify %s \
 ; RUN:   | FileCheck %s --check-prefixes CHECK,CHECK-IMG,CHECK-NOSAMP
 
-target triple = "spir-unknown-unknown"
-target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"
-
+target triple = "spir64-unknown-unknown"
+target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
 ; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly %v0,
 ; CHECK-IMG-SAME: ptr %img,
 ; CHECK-NOIMG-SAME: target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img,
-; CHECK-SAMP-SAME: i32 %sampler1, i32 %sampler2
+; CHECK-SAMP-SAME: i64 %sampler1, i64 %sampler2
 ; CHECK-NOSAMP-SAME: target("spirv.Sampler") %sampler1, target("spirv.Sampler") %sampler2
 ; CHECK-SAME: ) #0 !custom_metadata [[MD:\![0-9]+]] {
 define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly %v0, target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler1, target("spirv.Sampler") %sampler2) #0 !custom_metadata !9 {
 ; Check that a sampler stored to and loaded from a stack slot is also remapped
-; CHECK-SAMP: alloca i32, align 8
+; CHECK-SAMP: alloca i64, align 8
   %v4 = alloca target("spirv.Sampler"), align 8
-; CHECK-SAMP: store i32 %sampler2, ptr %v4, align 8
+; CHECK-SAMP: store i64 %sampler2, ptr %v4, align 8
   store target("spirv.Sampler") %sampler2, ptr %v4, align 8
   %v5 = tail call spir_func i64 @_Z13get_global_idj(i32 0)
   %v6 = trunc i64 %v5 to i32
@@ -49,25 +48,25 @@ define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly %v0,
   %v12 = fadd float %v11, 0x3FA99999A0000000
 ; CHECK:  %v13 = tail call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(
 ; CHECK-IMG-SAME: ptr %img,
-; CHECK-SAMP-SAME: i32 %sampler1,
+; CHECK-SAMP-SAME: i64 %sampler1,
 ; CHECK-SAME: float %v12)
   %v13 = tail call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler1, float %v12)
-; CHECK-SAMP: %sampler2_reload = load i32, ptr %v4, align 8
+; CHECK-SAMP: %sampler2_reload = load i64, ptr %v4, align 8
   %sampler2_reload = load target("spirv.Sampler"), ptr %v4, align 8
 ; CHECK: %v14 = tail call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(
 ; CHECK-IMG-SAME: ptr %img,
 ; CHECK-NOIMG-SAME: target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img,
-; CHECK-SAMP-SAME: i32 %sampler2_reload,
+; CHECK-SAMP-SAME: i64 %sampler2_reload,
 ; CHECK-NOSAMP-SAME: target("spirv.Sampler") %sampler2_reload,
 ; CHECK-SAME: float %v12)
   %v14 = tail call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler2_reload, float %v12)
 ; Check that a sampler introduced to the program by a function is also remapped
-; CHECK-SAMP: %sampler3 = call i32 @__translate_sampler_initializer(i32 42)
+; CHECK-SAMP: %sampler3 = call i64 @__translate_sampler_initializer(i32 42)
   %sampler3 = call target("spirv.Sampler") @__translate_sampler_initializer(i32 42)
 ; CHECK: %v23 = tail call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(
 ; CHECK-IMG-SAME: ptr %img,
 ; CHECK-NOIMG-SAME: target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img,
-; CHECK-SAMP-SAME: i32 %sampler3,
+; CHECK-SAMP-SAME: i64 %sampler3,
 ; CHECK-NOSAMP-SAME: target("spirv.Sampler") %sampler3,
 ; CHECK-SAME: float %v12)
   %v23 = tail call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler3, float %v12)
@@ -93,13 +92,13 @@ declare spir_func float @_Z13convert_floati(i32) #0
 
 declare spir_func float @_Z13convert_floatm(i64) #0
 
-; CHECK-SAMP: declare i32 @__translate_sampler_initializer(i32) #0
+; CHECK-SAMP: declare i64 @__translate_sampler_initializer(i32) #0
 declare target("spirv.Sampler") @__translate_sampler_initializer(i32) #0
 
 ; CHECK: declare spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(
 ; CHECK-IMG-SAME: ptr,
 ; CHECK-NOIMG-SAME: target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0),
-; CHECK-SAMP-SAME: i32,
+; CHECK-SAMP-SAME: i64,
 ; CHECK-NOSAMP-SAME: target("spirv.Sampler"),
 ; CHECK-SAME: float) #0
 declare spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf(target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0), target("spirv.Sampler"), float) #0
@@ -118,7 +117,7 @@ attributes #1 = { nofree nounwind memory(read) }
 ; Check that the new functions have replaced the old ones in metadata
 ; CHECK-DAG:        = !{ptr @image_sampler,
 ; Check that the global metadata has been updated with the new types
-; CHECK-SAMP-DAG: [[MD]] = !{!"custom_metadata", i32 0}
+; CHECK-SAMP-DAG: [[MD]] = !{!"custom_metadata", i64 0}
 !0 = !{!"Source language: OpenCL C, Version: 102000"}
 !1 = !{ptr @image_sampler, !2, !3, !4, !5, !6, !7}
 !2 = !{!"kernel_arg_addr_space", i32 1, i32 0, i32 0, i32 0}
