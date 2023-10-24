@@ -2353,6 +2353,7 @@ set(SPVASM_FILES
   op_expect_assume.spvasm
   op_generic_pointer.spvasm
   op_generic_pointer_builtin.spvasm
+  op_ptr_access_chain.spvasm
   op_spec_constant_generic_pointer.spvasm
   prioritize_function_names.spvasm
   prioritize_function_names_external.spvasm

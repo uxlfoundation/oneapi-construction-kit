@@ -1294,6 +1294,13 @@ void spirv_ll::Builder::checkMemberDecorations(
   // the pointer.
   uint64_t memberIndex = 1;
 
+  // If the size of indexes is only one, this means we are not indexing into the
+  // struct itself so exit in this case. This can happen for example if we are
+  // using something like OpPtrAccessChain without an empty indexes input field.
+  if (indexes.size() < 2) {
+    return;
+  }
+
   llvm::SmallVector<llvm::Type *, 4> traversed({accessedStructType});
 
   // Start at one for the reason described above.
