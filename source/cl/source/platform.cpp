@@ -129,12 +129,11 @@ cargo::expected<cl_platform_id, cl_int> _cl_platform_id::getInstance() {
 
 #if !defined(CA_PLATFORM_WINDOWS)
     // Add an atexit handler to destroy the cl_platform_id. This is not done on
-    // Windows because DLL's which we rely on are not guaranteed to be loaded
+    // Windows because DLL's which we rely on are not guarenteed to be loaded
     // when atexit handlers are invoked, the advice given by Microsoft is not
     // to perform any tear down at all.
     atexit([]() {
       for (auto device : platform.value()->devices) {
-        device->ReleaseAllExternalQueues();
         cl::releaseInternal(device);
       }
       cl::releaseInternal(platform.value());

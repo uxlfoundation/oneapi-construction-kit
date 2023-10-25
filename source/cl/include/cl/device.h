@@ -32,8 +32,6 @@
 #include <compiler/info.h>
 #include <mux/mux.h>
 
-#include <mutex>
-#include <set>
 #include <string>
 
 /// @addtogroup cl
@@ -56,25 +54,6 @@ struct _cl_device_id final : public cl::base<_cl_device_id> {
 
   /// @brief Destructor.
   ~_cl_device_id();
-
-  /// @brief Register a command queue with the device
-  /// This should usually be called on creation of the queue
-  void RegisterCommandQueue(cl_command_queue queue);
-
-  /// @brief Deregister a command queue with the device
-  /// This should usually be called on deletion of the queue
-  void DeregisterCommandQueue(cl_command_queue queue);
-
-  /// @brief Release any external queues that are still around.
-  /// This should only be called when we know that the application
-  /// is no longer in a position to do so e.g. at exit
-  /// @note This is to workaround an issue with dpc++ where temporary queues
-  /// can be left at exit if out of order queues are not supported.
-  /// This should be reviewed when https://github.com/intel/llvm/issues/11156 is
-  /// resolved.
-  void ReleaseAllExternalQueues();
-
-  std::set<cl_command_queue> registered_queues;
 
   /// @brief Platform the device belongs to.
   cl_platform_id platform;
@@ -373,8 +352,6 @@ struct _cl_device_id final : public cl::base<_cl_device_id> {
   /// TODO: Should probably be a core property, see CA-2717.
   size_t preferred_work_group_size_multiple;
 #endif
-  // Used to keep the registering of queues thread safe
-  std::mutex device_lock;
 };
 
 /// @}
