@@ -23,6 +23,7 @@
 
 #include <cargo/optional.h>
 #include <llvm/ADT/Twine.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
 
@@ -74,6 +75,18 @@ void replaceConstantExpressionWithInstruction(llvm::Constant *const constant);
 /// @param[in] to Constant which will replace any operands which are `from`
 void remapConstantExpr(llvm::ConstantExpr *expr, llvm::Constant *from,
                        llvm::Constant *to);
+
+/// @brief remap operands of a constant array
+///
+/// @note This will create a new constant array and replace references to
+/// the original constant with the new one
+///
+/// @param[in] arr Constant array to be remapped
+/// @param[in] from Constant which if found in array will be
+/// replaced
+/// @param[in] to Constant which will replace any operands which are `from`
+void remapConstantArray(llvm::ConstantArray *arr, llvm::Constant *from,
+                        llvm::Constant *to);
 
 /// @brief Discover if input function references debug info metadata nodes
 ///

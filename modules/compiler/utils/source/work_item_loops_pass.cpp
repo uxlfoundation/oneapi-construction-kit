@@ -1716,10 +1716,12 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   for (auto *user : refF.users()) {
     if (ConstantExpr *constant = dyn_cast<ConstantExpr>(user)) {
       remapConstantExpr(constant, &refF, new_wrapper);
+    } else if (ConstantArray *ca = dyn_cast<ConstantArray>(user)) {
+      remapConstantArray(ca, &refF, new_wrapper);
     } else if (!isa<CallInst>(user)) {
       llvm_unreachable(
           "Cannot handle user of function being anything other than a "
-          "ConstantExpr or CallInst");
+          "ConstantExpr, ConstantArray or CallInst");
     }
   }
 
