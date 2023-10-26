@@ -1467,12 +1467,13 @@ function a_atomic_one_arg()
 
 function all_atomic_one_arg()
 {
-  for i in int uint
+  for i in int long uint ulong
   do
     for k in global local
     do
       for m in atomic_dec atomic_inc atom_dec atom_inc
       do
+        [[ $m = atomic_* && $i = *long ]] && continue
         a_atomic_one_arg $i $k $m
       done
     done
@@ -1505,12 +1506,13 @@ function a_atomic_two_args_for_float()
 
 function all_atomic_two_args()
 {
-  for i in int uint
+  for i in int long uint ulong
   do
     for k in global local
     do
       for m in atomic_add atomic_sub atomic_xchg atomic_min atomic_max atomic_and atomic_or atomic_xor atom_add atom_sub atom_xchg atom_min atom_max atom_and atom_or atom_xor
       do
+        [[ $m = atomic_* && $i = *long ]] && continue
         a_atomic_two_args $i $k $m
       done
     done
@@ -1535,12 +1537,13 @@ function a_atomic_three_args()
 
 function all_atomic_three_args()
 {
-  for i in int uint
+  for i in int long uint ulong
   do
     for k in global local
     do
       for m in atomic_cmpxchg atom_cmpxchg
       do
+        [[ $m = atomic_* && $i = *long ]] && continue
         a_atomic_three_args $i $k $m
       done
     done
@@ -2670,8 +2673,9 @@ scriptDir="$(cd $(dirname $0); pwd)"
 
 # This version of clang-format used must match the version specified in the
 # root CMakeLists.txt file, so scrape that.
-CLANG_FORMAT_VERSION="$(cat "$scriptDir"/../../../CMakeLists.txt \
+CLANG_FORMAT_VERSION="$(cat "$scriptDir"/../../../../CMakeLists.txt \
   | grep 'find_package(ClangTools' \
+  | head -n 1 \
   | sed -e 's/.*ClangTools \([0-9\.]*\) COMPONENTS.*/\1/')"
 CLANG_FORMAT_LONG="clang-format-${CLANG_FORMAT_VERSION}"
 CLANG_FORMAT_SHORT="clang-format-${CLANG_FORMAT_VERSION%.[0-9]}"

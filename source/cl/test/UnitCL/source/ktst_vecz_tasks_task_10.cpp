@@ -229,7 +229,7 @@ UCL_EXECUTION_TEST_SUITE_P(
 // required by the OpenCL spec.
 TEST_P(Execution, Task_10_05_Atomic_CmpXchg_Builtin) {
   fail_if_not_vectorized_ = false;
-  auto streamer(std::make_shared<AtomicStreamer>(-1, (cl_int)kts::localN));
+  auto streamer(std::make_shared<AtomicStreamer<cl_int>>(-1, kts::localN));
   AddOutputBuffer(kts::BufferDesc(1, streamer));
   AddOutputBuffer(kts::BufferDesc(kts::localN, streamer));
   RunGeneric1D(kts::localN, kts::localN);

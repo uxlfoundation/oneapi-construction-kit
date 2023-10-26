@@ -261,6 +261,8 @@ const std::map<std::string, AtomicRMWInst::BinOp> atomicMap = {
     {"_Z10atomic_subPU3AS4Vmm", AtomicRMWInst::Sub},
 
     // Atomic xchg funcs...
+    // The double overloads are not part of the OpenCL specification but may be
+    // generated when translating SPIR-V.
     {"_Z9atom_xchgPU3AS1Vii", AtomicRMWInst::Xchg},
     {"_Z9atom_xchgPU3AS3Vii", AtomicRMWInst::Xchg},
     {"_Z9atom_xchgPU3AS4Vii", AtomicRMWInst::Xchg},
@@ -360,8 +362,9 @@ bool RunOnInstruction(CallInst &call) {
       value = builder.CreateExtractValue(value, 0);
     } else {
       auto op0 = call.getArgOperand(0);
-      auto op1 =
-          (1 == call.arg_size()) ? builder.getInt32(1) : call.getArgOperand(1);
+      auto op1 = (1 == call.arg_size())
+                     ? builder.getIntN(call.getType()->getIntegerBitWidth(), 1)
+                     : call.getArgOperand(1);
 
       if (call.getType()->isFloatingPointTy()) {
         auto ptr = builder.getIntNTy(call.getType()->getPrimitiveSizeInBits())

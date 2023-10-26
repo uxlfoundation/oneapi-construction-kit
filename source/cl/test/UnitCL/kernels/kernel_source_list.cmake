@@ -452,7 +452,8 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.23_as_uint_uchar4.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.24_as_uint4_float4.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.25_as_ushort2_uchar4.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.27_atomic_inc_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.29_modf4_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_04.01_copy_constant_offset.cl
