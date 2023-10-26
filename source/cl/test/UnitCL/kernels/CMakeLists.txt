@@ -234,7 +234,7 @@ foreach(target ${MUX_TARGET_LIBRARIES})
             AND NOT ${target}_CAPABILITIES MATCHES "fp64") OR
          (${kernel_name} MATCHES "\.fp16"
 	    AND NOT ${target}_CAPABILITIES MATCHES "fp16") OR
-         ((${kernel_name} MATCHES "atomic.*long" OR ${kernel_name} MATCHES "atomic.*double")
+         ((${kernel_name} MATCHES "atom.*long" OR ${kernel_name} MATCHES "atom.*double")
             AND NOT ${target}_CAPABILITIES MATCHES "atomic64"))
         continue()
       endif()

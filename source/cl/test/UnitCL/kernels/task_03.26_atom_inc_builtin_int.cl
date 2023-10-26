@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-kernel void atom_inc_builtin(volatile global int *counter,
-                             volatile global int *out) {
+kernel void atom_inc_builtin_int(volatile global int *counter,
+                                 volatile global int *out) {
   size_t tid = get_global_id(0);
 
   out[tid] = atom_inc(counter);
