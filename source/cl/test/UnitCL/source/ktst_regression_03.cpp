@@ -130,7 +130,7 @@ TEST_P(Execution, Regression_56_Local_Vec_Mem) {
 
   // Only want one thread
   AddOutputBuffer(1, refOut);
-  AddLocalBuffer(sizeof(cl_float4));
+  AddLocalBuffer<cl_float4>(1);
   AddInputBuffer(1, refIn);
   RunGeneric1D(1, 1);
 }
@@ -322,7 +322,7 @@ TEST_P(Execution, Regression_61_Sycl_Barrier) {
   };
 
   AddInOutBuffer(kts::N, kts::Ref_Identity, refOut);
-  AddLocalBuffer(sizeof(cl_int) * 2);
+  AddLocalBuffer<cl_int>(2);
   RunGeneric1D(kts::N, 2);
 }
 
@@ -334,13 +334,13 @@ TEST_P(Execution, Regression_62_Sycl_Barrier) {
   };
 
   AddInOutBuffer(kts::N, kts::Ref_Identity, refOut);
-  AddLocalBuffer(sizeof(cl_int) * 2);
+  AddLocalBuffer<cl_int>(2);
   AddInOutBuffer(kts::N, kts::Ref_Identity, refOut);
-  AddLocalBuffer(sizeof(cl_int) * 2);
+  AddLocalBuffer<cl_int>(2);
   AddInOutBuffer(kts::N, kts::Ref_Identity, refOut);
-  AddLocalBuffer(sizeof(cl_int) * 2);
+  AddLocalBuffer<cl_int>(2);
   AddInOutBuffer(kts::N, kts::Ref_Identity, refOut);
-  AddLocalBuffer(sizeof(cl_int) * 2);
+  AddLocalBuffer<cl_int>(2);
   RunGeneric1D(kts::N, 2);
 }
 
@@ -373,8 +373,8 @@ TEST_P(MultipleLocalDimensionsTests,
 
   kts::Reference1D<cl_int> refOut = [](size_t) { return 1; };
 
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, refIn);
   AddInputBuffer(kts::N, refIn);
   AddOutputBuffer(kts::N, refOut);

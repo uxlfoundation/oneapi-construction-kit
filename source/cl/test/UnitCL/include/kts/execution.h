@@ -105,7 +105,12 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   void AddInOutBuffer(size_t size, Reference1DPtr<T> refIn,
                       Reference1D<T> refOut);
 
-  void AddLocalBuffer(size_t size);
+  void AddLocalBuffer(size_t nelm, size_t elmsize);
+
+  template <typename T>
+  void AddLocalBuffer(size_t size) {
+    AddLocalBuffer(size, sizeof(T));
+  }
 
   template <typename T>
   void AddInputImage(const cl_image_format &format, const cl_image_desc &desc,

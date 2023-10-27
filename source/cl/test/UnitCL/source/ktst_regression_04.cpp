@@ -536,7 +536,7 @@ TEST_P(Execution, Regression_89_Multiple_Local_Memory_Kernels) {
 }
 
 TEST_P(Execution, Regression_90_Offline_Local_Memcpy) {
-  AddLocalBuffer(kts::localN * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(kts::localN);
   AddOutputBuffer(kts::localN, kts::Ref_Identity);
   RunGeneric1D(kts::localN, kts::localN);  // Only the first WG is valid.
 }
@@ -544,7 +544,7 @@ TEST_P(Execution, Regression_90_Offline_Local_Memcpy) {
 TEST_P(Execution, Regression_90_Offline_Local_Memcpy_Fixed) {
   fail_if_not_vectorized_ = false;
   const size_t local_size = 17;  // Kernel uses reqd_work_group_size(17,1,1);
-  AddLocalBuffer(local_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_size);
   AddOutputBuffer(local_size, kts::Ref_Identity);
   RunGeneric1D(local_size, local_size);  // Only the first WG is valid.
 }

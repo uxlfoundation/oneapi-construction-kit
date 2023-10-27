@@ -124,8 +124,8 @@ TEST_P(Execution, Dma_01_Direct) {
 }
 
 TEST_P(Execution, Dma_02_Explicit_Copy) {
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, vaddOutC);
@@ -133,8 +133,8 @@ TEST_P(Execution, Dma_02_Explicit_Copy) {
 }
 
 TEST_P(Execution, Dma_03_Explicit_Copy_Rotate) {
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, vaddOutC);
@@ -142,9 +142,9 @@ TEST_P(Execution, Dma_03_Explicit_Copy_Rotate) {
 }
 
 TEST_P(Execution, Dma_04_async_copy) {
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, vaddOutC);
@@ -156,12 +156,12 @@ TEST_P(Execution, Dma_04_async_copy) {
 // size of the local buffers.
 TEST_P(Execution, Dma_05_async_double_buffer) {
   const cl_int iterations = 16;
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N * iterations, vaddInA);
   AddInputBuffer(kts::N * iterations, vaddInB);
   AddOutputBuffer(kts::N * iterations, vaddOutC);
@@ -267,10 +267,9 @@ TEST_P(AsyncCopyTests, Dma_10_half_async_copy) {
   const auto param = getParam();
   AddMacro("TYPE", param.type_str);
 
-  const size_t local_buffer_len = local_wg_size * param.type_size;
-  AddLocalBuffer(local_buffer_len);
-  AddLocalBuffer(local_buffer_len);
-  AddLocalBuffer(local_buffer_len);
+  AddLocalBuffer(local_wg_size, param.type_size);
+  AddLocalBuffer(local_wg_size, param.type_size);
+  AddLocalBuffer(local_wg_size, param.type_size);
 
   if (3 == param.vec_width) {
     AddInputBuffer(kts::N, makeHalf3Streamer(HalfTypeParam::InA));
@@ -299,10 +298,9 @@ TEST_P(AsyncCopyTests, Dma_11_half_async_strided_copy) {
   const auto param = getParam();
   AddMacro("TYPE", param.type_str);
 
-  const size_t local_buffer_len = local_wg_size * param.type_size;
-  AddLocalBuffer(local_buffer_len);
-  AddLocalBuffer(local_buffer_len);
-  AddLocalBuffer(local_buffer_len);
+  AddLocalBuffer(local_wg_size, param.type_size);
+  AddLocalBuffer(local_wg_size, param.type_size);
+  AddLocalBuffer(local_wg_size, param.type_size);
 
   if (3 == param.vec_width) {
     AddInputBuffer(kts::N * 2, makeHalf3Streamer(HalfTypeParam::InA));
@@ -376,8 +374,8 @@ TEST_P(Execution, Dma_13_wait_event_is_barrier) {
                    (((x % local_wg_size) + 1) % local_wg_size));
   };
 
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, rotateB);
@@ -389,7 +387,7 @@ TEST_P(Execution, Dma_14_wait_event_is_barrier_overwrite) {
     return vaddInA(x) + 1;
   };
 
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddOutputBuffer(kts::N, vaddInAPlusOne);
   RunGeneric1D(kts::N, local_wg_size);
@@ -408,10 +406,10 @@ TEST_P(Execution, DISABLED_Dma_15_wait_event_is_execution_barrier) {
                    (((x % local_wg_size) + 1) % local_wg_size));
   };
 
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, rotateA);
@@ -424,7 +422,7 @@ TEST_P(Execution, Dma_16_wait_event_is_barrier_strided) {
     return vaddInA(x) + 1;
   };
 
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddOutputBuffer(kts::N, vaddInAPlusOne);
   RunGeneric1D(kts::N, local_wg_size);
