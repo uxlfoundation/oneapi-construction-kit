@@ -20,7 +20,7 @@
 ; RUN: muxc --passes image-arg-subst,verify %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
-target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; CHECK: define internal spir_kernel void @image_sampler.old(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) [[OLD_ATTRS:#[0-9]+]] {
 define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) #0 {
@@ -56,9 +56,9 @@ entry:
 }
 
 ; We've updated the old kernel to pass samplers as i32
-; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, i32 %sampler1, i32 %sampler2) [[NEW_ATTRS:#[0-9]+]] {
-; CHECK:   %sampler1.ptrcast = inttoptr i32 %sampler1 to ptr addrspace(2)
-; CHECK:   %sampler2.ptrcast = inttoptr i32 %sampler2 to ptr addrspace(2)
+; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, i64 %sampler1, i64 %sampler2) [[NEW_ATTRS:#[0-9]+]] {
+; CHECK:   %sampler1.ptrcast = inttoptr i64 %sampler1 to ptr addrspace(2)
+; CHECK:   %sampler2.ptrcast = inttoptr i64 %sampler2 to ptr addrspace(2)
 ; CHECK:   call spir_kernel void @image_sampler.old(
 ; CHECK-SAME:  ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img,
 ; CHECK-SAME:  ptr addrspace(2) %sampler1.ptrcast, ptr addrspace(2) %sampler2.ptrcast) #0

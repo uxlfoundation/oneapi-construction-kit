@@ -14,19 +14,24 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; REQUIRES: llvm-17+
-; RUN: muxc --device "%riscv_device" %s --passes replace-target-ext-tys,define-mux-dma,verify -S | FileCheck %s
+; UNSUPPORTED: llvm-17+
+; RUN: muxc --device "%riscv_device" %s --passes define-mux-dma,verify -S | FileCheck %s
 
-target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
-target triple = "riscv64-unknown-unknown-elf"
+; Note - RefSi M1 is a 64-bit architecture. This test tests that the compiler
+; passes would correctly generate code for a theoretical 32-bit version of this
+; architecture.
+target datalayout = "e-m:e-p:32:32-i64:64-i128:128-n64-S128"
+target triple = "riscv32-unknown-unknown-elf"
 
-declare spir_func void @__mux_dma_wait(i32, ptr)
+%__mux_dma_event_t = type opaque
+declare spir_func void @__mux_dma_wait(i32, %__mux_dma_event_t**)
 
 ; CHECK: define spir_func void @__refsi_dma_wait(i32 [[numEvents:%.*]], ptr [[eventList:%.*]]) #0 {
 ; CHECK:   %loop_iv = phi i32 [ 0, %entry ], [ %new_iv, %body ]
 ; CHECK:   %max_xfer_id = phi i32 [ 0, %entry ], [ %new_max_xfer_id, %body ]
-; CHECK:   [[eventGep:%.*]] = getelementptr i32, ptr [[eventList]], i32 %loop_iv
-; CHECK:   %xfer_id = load i32, ptr [[eventGep]], align 4
+; CHECK:   [[eventGep:%.*]] = getelementptr ptr, ptr [[eventList]], i32 %loop_iv
+; CHECK:   [[event:%.*]] = load ptr, ptr [[eventGep]], align 4
+; CHECK:   %xfer_id = ptrtoint ptr [[event]] to i32
 ; CHECK:   %new_iv = add i32 %loop_iv, 1
 ; CHECK:   [[higher:%.*]] = icmp ugt i32 %xfer_id, %max_xfer_id
 ; CHECK:   %new_max_xfer_id = select i1 [[higher]], i32 %xfer_id, i32 %max_xfer_id

@@ -629,9 +629,10 @@ class BuiltinInfo {
   /// that the type is a target extension type.
   ///
   /// @param Ty The target extension type to remap
+  /// @param M The Module in which to replace the type
   /// @return The remapped type, or nullptr if the type does not require
   /// remapping
-  llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty);
+  llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty, llvm::Module &M);
 
   /// Handle the invalidation of this information.
   ///
@@ -709,7 +710,7 @@ class BIMuxInfoConcept {
   ///   * spirv.Event -> i32
   ///   * spirv.Sampler -> i32
   ///   * spirv.Image -> MuxImage* (regardless of image parameters)
-  virtual llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty);
+  virtual llvm::Type *getRemappedTargetExtTy(llvm::Type *Ty, llvm::Module &M);
 
   /// @see BuiltinInfo::getBuiltinRange
   virtual std::optional<llvm::ConstantRange> getBuiltinRange(

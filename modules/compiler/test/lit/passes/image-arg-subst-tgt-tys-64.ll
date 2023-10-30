@@ -14,16 +14,14 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; This tests certain behaviours of the pass that do not feature in LLVM 17+, as
-; there we expect target extension types and not opaque pointers.
-; UNSUPPORTED: llvm-17+
-; RUN: muxc --passes image-arg-subst,verify %s | FileCheck %s
+; REQUIRES: llvm-17+
+; RUN: muxc --passes replace-target-ext-tys,image-arg-subst,verify %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
-target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: define internal spir_kernel void @image_sampler.old(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) [[OLD_ATTRS:#[0-9]+]] {
-define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) #0 {
+; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr %img, i64 %sampler1, i64 %sampler2) {{#[0-9]+}} {
+define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler1, target("spirv.Sampler") %sampler2) #0 {
 entry:
   %call = tail call i64 @__mux_get_global_id(i32 0) #3
   %conv = trunc i64 %call to i32
@@ -34,14 +32,12 @@ entry:
   %div4 = fdiv float %conv1, %div
   %add = fadd float %div4, 0x3FA99999A0000000
 ; Check we're now calling the 'codeplay' libimg functions
-; CHECK: [[T0:%.*]] = addrspacecast ptr addrspace(1) %img to ptr
-; CHECK: [[T1:%.*]] = ptrtoint ptr addrspace(2) %sampler1 to i32
-; CHECK: = call spir_func <4 x i32> @_Z26__Codeplay_read_imageui_1dP5Imagejf(ptr [[T0]], i32 [[T1]], float %add)
-  %call5 = tail call spir_func <4 x i32> @_Z12read_imageui14ocl_image1d_ro11ocl_samplerf(ptr addrspace(1) %img, ptr addrspace(2) %sampler1, float %add) #4
-; CHECK: [[T2:%.*]] = addrspacecast ptr addrspace(1) %img to ptr
-; CHECK: [[T3:%.*]] = ptrtoint ptr addrspace(2) %sampler2 to i32
-; CHECK: %5 = call spir_func <4 x i32> @_Z26__Codeplay_read_imageui_1dP5Imagejf(ptr [[T2]], i32 [[T3]], float %add)
-  %call6 = tail call spir_func <4 x i32> @_Z12read_imageui14ocl_image1d_ro11ocl_samplerf(ptr addrspace(1) %img, ptr addrspace(2) %sampler2, float %add) #4
+; CHECK: [[T0:%.*]] = trunc i64 %sampler1 to i32
+; CHECK: = call spir_func <4 x i32> @_Z26__Codeplay_read_imageui_1dP5Imagejf(ptr %img, i32 [[T0]], float %add)
+  %call5 = tail call spir_func <4 x i32> @_Z12read_imageui14ocl_image1d_ro11ocl_samplerf(target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler1, float %add) #4
+; CHECK: [[T1:%.*]] = trunc i64 %sampler2 to i32
+; CHECK: = call spir_func <4 x i32> @_Z26__Codeplay_read_imageui_1dP5Imagejf(ptr %img, i32 [[T1]], float %add)
+  %call6 = tail call spir_func <4 x i32> @_Z12read_imageui14ocl_image1d_ro11ocl_samplerf(target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler2, float %add) #4
   %0 = extractelement <4 x i32> %call5, i64 0
   %mul = shl nsw i32 %conv, 1
   %idxprom = sext i32 %mul to i64
@@ -55,24 +51,11 @@ entry:
   ret void
 }
 
-; We've updated the old kernel to pass samplers as i32
-; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, i32 %sampler1, i32 %sampler2) [[NEW_ATTRS:#[0-9]+]] {
-; CHECK:   %sampler1.ptrcast = inttoptr i32 %sampler1 to ptr addrspace(2)
-; CHECK:   %sampler2.ptrcast = inttoptr i32 %sampler2 to ptr addrspace(2)
-; CHECK:   call spir_kernel void @image_sampler.old(
-; CHECK-SAME:  ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img,
-; CHECK-SAME:  ptr addrspace(2) %sampler1.ptrcast, ptr addrspace(2) %sampler2.ptrcast) #0
-; CHECK:   ret void
-; CHECK: }
-
 declare i64 @__mux_get_global_id(i32) #1
 
 declare i64 @__mux_get_global_size(i32) #1
 
 declare spir_func <4 x i32> @_Z12read_imageui14ocl_image1d_ro11ocl_samplerf(ptr addrspace(1), ptr addrspace(2), float) #2
-
-; CHECK-DAG: attributes [[OLD_ATTRS]] = { alwaysinline convergent mustprogress nofree norecurse nounwind willreturn "mux-base-fn-name"="image_sampler" }
-; CHECK-DAG: attributes [[NEW_ATTRS]] = { convergent mustprogress nofree norecurse nounwind willreturn "mux-base-fn-name"="image_sampler" }
 
 attributes #0 = { convergent mustprogress nofree norecurse nounwind willreturn }
 attributes #1 = { mustprogress nofree nounwind readonly willreturn }

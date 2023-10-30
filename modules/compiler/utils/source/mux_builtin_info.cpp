@@ -22,6 +22,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <compiler/utils/target_extension_types.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 
@@ -876,8 +877,9 @@ bool BIMuxInfoConcept::requiresSchedulingParameters(BuiltinID ID) {
   }
 }
 
-Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
+Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty, Module &M) {
 #if LLVM_VERSION_LESS(17, 0)
+  (void)M;
   (void)Ty;
 #else
   // We only map target extension types
@@ -885,14 +887,14 @@ Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
   auto &Ctx = Ty->getContext();
   auto *TgtExtTy = cast<TargetExtType>(Ty);
 
-  // Samplers are replaced by default with i32s
+  // Samplers are replaced by default with size_t.
   if (TgtExtTy == compiler::utils::tgtext::getSamplerTy(Ctx)) {
-    return IntegerType::getInt32Ty(Ctx);
+    return getSizeType(M);
   }
 
-  // Events are replaced by default with i32s
+  // Events are replaced by default with size_t.
   if (TgtExtTy == compiler::utils::tgtext::getEventTy(Ctx)) {
-    return IntegerType::getInt32Ty(Ctx);
+    return getSizeType(M);
   }
 
   // *All* images are replaced by default with a pointer in the default address
