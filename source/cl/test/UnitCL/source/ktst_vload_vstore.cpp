@@ -86,7 +86,7 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_02_Half_Local) {
   const size_t elements = N * vec_width;
 
   AddInputBuffer(elements, refIn);
-  AddLocalBuffer(elements * sizeof(cl_half));
+  AddLocalBuffer<cl_half>(elements);
   AddOutputBuffer(elements, refOut);
   RunGeneric1D(N, N);
 }

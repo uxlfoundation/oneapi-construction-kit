@@ -89,7 +89,7 @@ TEST_P(Execution, Regression_104_async_work_group_copy_int3) {
   auto refIn = kts::BuildVec3Reference1D<cl_int3>(kts::Ref_A);
   AddInputBuffer(kts::N, refIn);
   AddOutputBuffer(kts::N, refIn);
-  AddLocalBuffer(kts::localN * sizeof(cl_int3));
+  AddLocalBuffer<cl_int3>(kts::localN);
   RunGeneric1D(kts::N, kts::localN);
 }
 

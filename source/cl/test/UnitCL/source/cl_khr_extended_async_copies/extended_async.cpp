@@ -44,9 +44,9 @@ TEST_P(Execution, Ext_Async_01_Simple_2D) {
   if (!isSourceTypeIn({OPENCL_C, OFFLINE})) {
     GTEST_SKIP();
   }
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, vaddOutC);
@@ -58,9 +58,9 @@ TEST_P(Execution, Ext_Async_02_Simple_3D) {
   if (!isSourceTypeIn({OPENCL_C, OFFLINE})) {
     GTEST_SKIP();
   }
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
-  AddLocalBuffer(local_wg_size * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
+  AddLocalBuffer<cl_int>(local_wg_size);
   AddInputBuffer(kts::N, vaddInA);
   AddInputBuffer(kts::N, vaddInB);
   AddOutputBuffer(kts::N, vaddOutC);
