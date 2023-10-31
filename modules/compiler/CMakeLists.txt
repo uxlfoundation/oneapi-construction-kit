@@ -17,6 +17,7 @@
 if(CA_NATIVE_CPU)
   add_subdirectory(multi_llvm)
   add_subdirectory(utils)
+  add_subdirectory(vecz)
   return()
 endif()
 add_subdirectory(builtins)
