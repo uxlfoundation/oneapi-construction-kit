@@ -41,7 +41,7 @@ size_t calcPackedArgsAllocSize(
     size_t size = 0;
     switch (descriptor.type) {
       case mux_descriptor_info_type_sampler:
-        size = sizeof(uint32_t);
+        size = sizeof(size_t);
         break;
       case mux_descriptor_info_type_buffer:
       case mux_descriptor_info_type_null_buffer:
