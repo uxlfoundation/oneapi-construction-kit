@@ -108,7 +108,7 @@ static compiler::utils::StructMap uniqueOpaqueSuffixedStructs(
 
     // Check whether there is a type in the context with the same name minus a
     // suffix.
-    if (auto *ctxStructTy = multi_llvm::getStructTypeByName(
+    if (auto *ctxStructTy = llvm::StructType::getTypeByName(
             module.getContext(), structName.rtrim(Suffix))) {
       // Make sure it is also opaque.
       if (!ctxStructTy->isOpaque()) {

@@ -903,7 +903,7 @@ Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty, Module &M) {
   if (TgtExtTy->getName() == "spirv.Image") {
     return PointerType::getUnqual([&Ctx]() {
       const char *MuxImageTyName = "MuxImage";
-      if (auto *STy = multi_llvm::getStructTypeByName(Ctx, MuxImageTyName)) {
+      if (auto *STy = StructType::getTypeByName(Ctx, MuxImageTyName)) {
         return STy;
       }
       return StructType::create(Ctx, MuxImageTyName);
