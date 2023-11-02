@@ -228,8 +228,9 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
           SmallVector<Value *, 8> NewArgs(CB->args());
           // Append all of our scheduling parameters to the old list of
           // parameters.
-          append_range(NewArgs,
-                       multi_llvm::ArrayRef(FArgs).take_back(NumSchedParams));
+          append_range(
+              NewArgs,
+              ArrayRef(FArgs.data(), FArgs.size()).take_back(NumSchedParams));
 
           auto *NewCB = CallInst::Create(NewF, NewArgs, "", CB);
           NewCB->takeName(CB);
