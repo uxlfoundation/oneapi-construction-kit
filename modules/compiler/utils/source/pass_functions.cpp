@@ -749,11 +749,7 @@ llvm::CallInst *createCallToWrappedFunction(
   CI->setAttributes(getCopiedFunctionAttrs(WrappedF));
 
   if (BB) {
-#if LLVM_VERSION_GREATER(15, 0)
     CI->insertInto(BB, InsertPt);
-#else
-    BB->getInstList().insert(InsertPt, CI);
-#endif
 
     if (auto *const ParentF = BB->getParent()) {
       // An inlinable function call in a function with debug info *must* be

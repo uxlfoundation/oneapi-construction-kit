@@ -1067,10 +1067,6 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
   lang_opts.AllowRecip =
       options.unsafe_math_optimizations;  // Spec does not mandate this.
 
-#if LLVM_VERSION_LESS(16, 0)
-  lang_opts.HalfArgsAndReturns = lang_opts.NativeHalfArgsAndReturns;
-#endif
-
   // Override the C99 inline semantics to accommodate for more OpenCL C
   // programs in the wild.
   lang_opts.GNUInline = true;
