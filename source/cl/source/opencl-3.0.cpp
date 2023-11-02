@@ -342,7 +342,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelSubGroupInfo(
         // for input_value_size.
         //
         // We start by setting all dimensions to 1, then copy over the input
-        // local size, that way we always have a valid local size.
+        // local size. That way we always have a valid local size.
         size_t local_size[]{1, 1, 1};
         std::memcpy(local_size, input_value, input_value_size);
         const auto expected_sub_group_size =
@@ -369,7 +369,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelSubGroupInfo(
         // dimensions in the ND-range will be inferred from the value specified
         // for input_value_size.
         //
-        // So Like above we statrt by setting all dimensions to 1.
+        // We start by setting all dimensions to 1, then copy over the input
+        // local size. That way we always have a valid local size.
         size_t local_size[]{1, 1, 1};
         std::memcpy(local_size, input_value, input_value_size);
         const auto expected_sub_group_count =
