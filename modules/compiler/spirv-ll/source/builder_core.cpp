@@ -27,7 +27,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Support/TypeSize.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
