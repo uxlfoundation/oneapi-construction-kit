@@ -25,6 +25,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 #include <multi_llvm/multi_llvm.h>
 
 using namespace compiler::utils;

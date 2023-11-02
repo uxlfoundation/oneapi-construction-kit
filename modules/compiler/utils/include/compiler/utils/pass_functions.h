@@ -23,6 +23,7 @@
 
 #include <cargo/optional.h>
 #include <llvm/ADT/Twine.h>
+#include <llvm/Analysis/IVDescriptors.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
@@ -42,6 +43,7 @@ class Module;
 class ModulePass;
 class Type;
 class Value;
+class IRBuilderBase;
 }  // namespace llvm
 
 namespace compiler {
@@ -322,6 +324,19 @@ llvm::CallInst *createCallToWrappedFunction(
     llvm::BasicBlock *BB, llvm::BasicBlock::iterator InsertPt,
     llvm::StringRef Name = "");
 
+/// @brief Create a binary operation corresponding to the given
+/// `llvm::RecurKind` with the two provided arguments. It may not
+/// necessarily return one of LLVM's in-built `BinaryOperator`s, or even one
+/// operation: integer min/max operations may defer to multiple instructions or
+/// intrinsics depending on the LLVM version.
+///
+/// @param[in] B the IRBuilder to build new instructions
+/// @param[in] LHS the left-hand value for the operation
+/// @param[in] RHS the right-hand value for the operation
+/// @param[in] Kind the kind of operation to create
+/// @return The binary operation.
+llvm::Value *createBinOpForRecurKind(llvm::IRBuilderBase &B, llvm::Value *LHS,
+                                     llvm::Value *RHS, llvm::RecurKind Kind);
 /// @}
 }  // namespace utils
 }  // namespace compiler
