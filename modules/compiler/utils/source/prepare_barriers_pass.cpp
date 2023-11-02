@@ -80,7 +80,10 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
 
       auto *const InfoF = cast<CallInst>(U)->getFunction();
       InlineFunctionInfo IFI;
-      auto InlineResult = multi_llvm::InlineFunction(cast<CallInst>(U), IFI);
+      auto InlineResult =
+          InlineFunction(*cast<CallInst>(U), IFI, /*MergeAttributes*/ false,
+                         /*CalleeAAR*/ nullptr, /*InsertLifetime*/ true,
+                         /*ForwardVarArgsTo*/ nullptr);
       if (InlineResult.isSuccess()) {
         Changed = true;
 
