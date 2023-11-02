@@ -24,7 +24,6 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/Transforms/Utils/Cloning.h>
-#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cassert>
@@ -583,8 +582,9 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
 
       // Insert debug declare intrinsic pointing to the location of
       // the variable in our allocated struct
-      auto location =
-          multi_llvm::getDILocation(DIGlobal->getLine(), 0, DISubprogram);
+      auto *location =
+          DILocation::get(DISubprogram->getContext(), DIGlobal->getLine(),
+                          /*Column*/ 0, DISubprogram);
       if (enqueued_kernel_scope) {
         DIB.insertDeclare(alloca, DILocal, offset_expr, location,
                           alloca->getParent());

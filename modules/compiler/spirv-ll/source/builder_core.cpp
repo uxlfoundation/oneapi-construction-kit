@@ -205,8 +205,8 @@ cargo::optional<Error> Builder::create<OpLine>(const OpLine *op) {
     iter = IRBuilder.GetInsertBlock()->back().getIterator();
   }
 
-  llvm::DILocation *loc =
-      multi_llvm::getDILocation(op->Line(), op->Column(), block);
+  auto *loc = llvm::DILocation::get(block->getContext(), op->Line(),
+                                    op->Column(), block);
 
   module.setCurrentOpLineRange(loc, iter);
   return cargo::nullopt;
