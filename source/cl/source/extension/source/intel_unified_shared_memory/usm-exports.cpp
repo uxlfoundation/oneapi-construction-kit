@@ -474,20 +474,12 @@ cl_int clSetKernelArgMemPointerINTEL(cl_kernel kernel, cl_uint arg_index,
   OCL_CHECK(!(arg_type->address_space == compiler::AddressSpace::GLOBAL ||
               arg_type->address_space == compiler::AddressSpace::CONSTANT),
             return CL_INVALID_ARG_VALUE);
-  if (arg_value) {
-    const cl_context context = kernel->program->context;
 
-    extension::usm::allocation_info *const usm_alloc =
-        extension::usm::findAllocation(context, arg_value);
-    OCL_CHECK(nullptr == usm_alloc, return CL_INVALID_ARG_VALUE);
-
-    const uint64_t offset = getUSMOffset(arg_value, usm_alloc);
-
-    // Will create a mux_descriptor_info_buffer_s descriptor for the argument
-    // using the device specific mux_buffer assigned to the allocation.
-    kernel->saved_args[arg_index] =
-        _cl_kernel::argument(*arg_type, usm_alloc, offset);
-  }
+  // The cl_intel_unified_shared_memory specification has an open question on
+  // whether unknown pointers should be accepted. We accept them since the SYCL
+  // specification and the SYCL CTS imply this must be treated as valid.
+  kernel->saved_args[arg_index] =
+      _cl_kernel::argument(*arg_type, &arg_value, sizeof(void *));
 
   return CL_SUCCESS;
 }

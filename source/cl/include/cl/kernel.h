@@ -262,17 +262,6 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     /// @param value_size Size of the data.
     argument(compiler::ArgumentType type, const void *value, size_t value_size);
 
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-    /// @brief Constructor to create an USM allocation argument.
-    ///
-    /// @param type Type of the kernel argument, must be a valid type to use
-    /// with a USM allocation, i.e a global or constant pointer.
-    /// @param usm_alloc USM allocation associated with parameter.
-    /// @param offset Byte offset from the start of the USM allocation.
-    argument(compiler::ArgumentType type,
-             extension::usm::allocation_info *usm_alloc, size_t offset);
-#endif
-
     /// @brief Copy constructor.
     ///
     /// @param other Argument to copy from.
@@ -315,12 +304,6 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
         void *data;
         size_t size;
       } value;
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-      struct {
-        extension::usm::allocation_info *usm_ptr;
-        size_t offset;
-      } usm;
-#endif
     };
 
     using info = compiler::KernelInfo::ArgumentInfo;
@@ -336,9 +319,6 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
       memory_buffer,
       sampler,
       value,
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-      usm,
-#endif
       uninitialized
     };
 
