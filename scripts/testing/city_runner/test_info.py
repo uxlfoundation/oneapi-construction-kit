@@ -121,13 +121,13 @@ class TestList(object):
 
             with open(path, "r") as f:
                 stripped = (line.strip() for line in f)
-                filtered = (line for line in stripped if not line.startswith("#"))
+                filtered = (line for line in stripped if line and not line.startswith("#"))
                 chunked = csv.reader(filtered)
                 filtered_tests.append(json.dumps(chunks) for chunks in chunked)
 
         with open(list_file_path, "r") as f:
             stripped = (line.strip() for line in f)
-            filtered = (line for line in stripped if not line.startswith("#"))
+            filtered = (line for line in stripped if line and not line.startswith("#"))
             chunked = csv.reader(filtered)
             for chunks in chunked:
                 device_filter = None
