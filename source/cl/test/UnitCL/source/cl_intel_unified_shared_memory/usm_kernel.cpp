@@ -67,8 +67,6 @@ struct USMKernelTest : public cl_intel_unified_shared_memory_Test {
     ASSERT_SUCCESS(clGetDeviceInfo(
         device, CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
         sizeof(cross_capabilities), &cross_capabilities, nullptr));
-    shared_mem_support =
-        (single_capabilities != 0) && (cross_capabilities != 0);
   }
 
   void TearDown() override {
@@ -95,7 +93,6 @@ struct USMKernelTest : public cl_intel_unified_shared_memory_Test {
   }
 
   cl_device_unified_shared_memory_capabilities_intel host_capabilities = 0;
-  bool shared_mem_support = false;
 
   const size_t elements = 64;
   const size_t bytes = elements * sizeof(cl_int);
@@ -153,11 +150,12 @@ TEST_P(USMSetKernelArgMemPointerTest, InvalidUsage) {
   err = clSetKernelArgMemPointerINTEL(kernel, 4, device_ptr);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_INDEX);
 
-  if (!shared_mem_support) {
-    cl_uint usm_arg_index = GetParam();
-    err = clSetKernelArgMemPointerINTEL(kernel, usm_arg_index, user_ptr);
-    EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_VALUE);
-  }
+  // The cl_intel_unified_shared_memory specification has an open question
+  // whether invalid pointers should result in an error. We accept this as Intel
+  // passes invalid pointers in valid SYCL code.
+  cl_uint usm_arg_index = GetParam();
+  err = clSetKernelArgMemPointerINTEL(kernel, usm_arg_index, user_ptr);
+  ASSERT_SUCCESS(err);
 
   if (host_ptr) {
     err = clSetKernelArgMemPointerINTEL(kernel, 2, host_ptr);

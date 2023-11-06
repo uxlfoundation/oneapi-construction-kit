@@ -1168,19 +1168,11 @@ CARGO_NODISCARD cl_int _cl_command_buffer_khr::updateCommandBuffer(
       // Construct Descriptor
       mux_descriptor_info_s descriptor;
       descriptor.type =
-          mux_descriptor_info_type_e::mux_descriptor_info_type_buffer;
-
-      extension::usm::allocation_info *const usm_alloc =
-          extension::usm::findAllocation(command_queue->context, arg_value);
-      OCL_CHECK(nullptr == usm_alloc, return CL_INVALID_ARG_VALUE);
-
-      const uint64_t offset = static_cast<uint64_t>(
-          reinterpret_cast<uintptr_t>(arg_value) -
-          reinterpret_cast<uintptr_t>(usm_alloc->base_ptr));
-
-      auto mux_buffer = usm_alloc->getMuxBufferForDevice(device);
-      descriptor.buffer_descriptor =
-          mux_descriptor_info_buffer_s{mux_buffer, offset};
+          mux_descriptor_info_type_e::mux_descriptor_info_type_plain_old_data;
+      void *data = new char[sizeof arg_value];
+      memcpy(data, &arg_value, sizeof arg_value);
+      descriptor.plain_old_data_descriptor.data = data;
+      descriptor.plain_old_data_descriptor.length = sizeof arg_value;
       update_info.descriptors[update_index] = descriptor;
       update_index++;
     }

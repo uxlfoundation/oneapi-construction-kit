@@ -219,8 +219,6 @@ TEST_F(MutableDispatchUSMTest, InvalidArgIndex) {
                                               command_buffer, &mutable_config));
 }
 
-// Test clSetKernelMemPointerINTEL error code for CL_INVALID_ARG_VALUE if
-// arg_value is not a valid argument index.
 TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrs[0]));
 
@@ -251,8 +249,11 @@ TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
   cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_ARG_VALUE, clUpdateMutableCommandsKHR(
-                                              command_buffer, &mutable_config));
+  // The interaction between cl_intel_unified_shared_memory and
+  // cl_khr_command_buffer_mutable_dispatch is not specified but we assume that
+  // if clSetKernelArgMemPointerINTEL would not report invalid values, neither
+  // will clUpdateMutableCommandsKHR.
+  ASSERT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 }
 
 // Tests for updating USM arguments to a command-buffer kernel command are
