@@ -864,7 +864,7 @@ class Module : public ModuleHeader {
   ///
   /// @return A pointer to the Op or nullptr if not found.
   template <class Op = OpCode>
-  const Op *get(llvm::Type *ty) const {
+  const Op *getFromLLVMTy(llvm::Type *ty) const {
     assert(!ty->isPointerTy() && "can't get the type of a pointer");
     auto found = std::find_if(
         Types.begin(), Types.end(),

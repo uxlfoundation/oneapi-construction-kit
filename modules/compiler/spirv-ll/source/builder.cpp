@@ -121,7 +121,7 @@ llvm::DIType *spirv_ll::Builder::getDIType(llvm::Type *type) {
         name = "dbg_float_ty";
         break;
       case llvm::Type::PointerTyID: {
-        auto *opTy = module.get<OpType>(type);
+        auto *opTy = module.getFromLLVMTy<OpType>(type);
         SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
         llvm::DIType *elem_type =
             getDIType(module.getType(opTy->getTypePointer()->Type()));
@@ -1318,7 +1318,7 @@ void spirv_ll::Builder::checkMemberDecorations(
         nextType = multi_llvm::getVectorElementType(traversed.back());
         break;
       case llvm::Type::PointerTyID: {
-        auto *opTy = module.get<OpType>(traversed.back());
+        auto *opTy = module.getFromLLVMTy<OpType>(traversed.back());
         SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
         nextType = module.getType(opTy->getTypePointer()->Type());
         break;
@@ -1364,7 +1364,7 @@ void spirv_ll::Builder::checkMemberDecorations(
   // according to the spec, so this cast is safe.
   uint32_t member =
       cast<llvm::ConstantInt>(indexes[memberIndex])->getZExtValue();
-  auto structType = module.get<OpTypeStruct>(accessedStructType);
+  auto structType = module.getFromLLVMTy<OpTypeStruct>(accessedStructType);
   const auto &memberDecorations =
       module.getMemberDecorations(structType->IdResult(), member);
   for (auto *opMemberDecorate : memberDecorations) {
