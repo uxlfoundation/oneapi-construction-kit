@@ -89,7 +89,7 @@ target_link_libraries(compiler-base PUBLIC
   # Link against version (for clang) on Windows.
   $<$<BOOL:${WIN32}>:version>
   LLVMCodeGen LLVMOption LLVMCoroutines LLVMCoverage LLVMLTO LLVMWindowsDriver
-  "$<$<VERSION_GREATER:${LLVM_VERSION_MAJOR},15>:LLVMFrontendHLSL>"
+  LLVMFrontendHLSL
 )
 
 target_compile_definitions(compiler-base PRIVATE

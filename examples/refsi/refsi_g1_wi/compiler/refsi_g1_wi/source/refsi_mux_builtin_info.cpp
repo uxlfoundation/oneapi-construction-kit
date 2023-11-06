@@ -18,7 +18,6 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/IR/InlineAsm.h>
-#include <multi_llvm/multi_llvm.h>
 #include <refsi_g1_wi/refsi_mux_builtin_info.h>
 
 #include <cstdint>
@@ -28,7 +27,7 @@ using namespace refsi_g1_wi;
 
 StructType *RefSiG1BIMuxInfo::getExecStateStruct(Module &M) {
   static constexpr const char *StructName = "exec_state";
-  if (auto *ty = multi_llvm::getStructTypeByName(M.getContext(), StructName)) {
+  if (auto *ty = StructType::getTypeByName(M.getContext(), StructName)) {
     return ty;
   }
 

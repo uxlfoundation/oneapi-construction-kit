@@ -27,7 +27,6 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Local.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/multi_llvm.h>
 
 #include <algorithm>
@@ -440,8 +439,8 @@ struct ScheduleGenerator {
               live_values.getReload(op, ir_load, "_load", /*reuse*/ true);
 
           // Do the reduction here..
-          accumulator = multi_llvm::createBinOpForRecurKind(ir, ivs[0], itemOp,
-                                                            WGC.Recurrence);
+          accumulator = compiler::utils::createBinOpForRecurKind(
+              ir, ivs[0], itemOp, WGC.Recurrence);
           ivsNext[0] = accumulator;
           latchBlock = block;
 
@@ -1068,7 +1067,7 @@ struct ScheduleGenerator {
                           auto *const itemOp = live_values.getReload(
                               barrierCall->getOperand(1), ir, "_load",
                               /*reuse*/ true);
-                          nextScanIV = multi_llvm::createBinOpForRecurKind(
+                          nextScanIV = compiler::utils::createBinOpForRecurKind(
                               ir, ivs0[1], itemOp, collective->Recurrence);
                           accum = isExclusiveScan ? ivs0[1] : nextScanIV;
                           ivsNext0[1] = nextScanIV;
@@ -1170,7 +1169,7 @@ struct ScheduleGenerator {
                       auto *const itemOp = live_values.getReload(
                           barrierCall->getOperand(1), ir, "_load",
                           /*reuse*/ true);
-                      nextScanIV = multi_llvm::createBinOpForRecurKind(
+                      nextScanIV = compiler::utils::createBinOpForRecurKind(
                           ir, subgroupIVs0[1], itemOp, collective->Recurrence);
                       accum =
                           isTailExclusiveScan ? subgroupIVs0[1] : nextScanIV;
@@ -1223,8 +1222,10 @@ struct ScheduleGenerator {
                             auto *const itemOp = live_values.getReload(
                                 barrierCall->getOperand(1), ir, "_load",
                                 /*reuse*/ true);
-                            nextScanIV = multi_llvm::createBinOpForRecurKind(
-                                ir, ivs0[1], itemOp, collective->Recurrence);
+                            nextScanIV =
+                                compiler::utils::createBinOpForRecurKind(
+                                    ir, ivs0[1], itemOp,
+                                    collective->Recurrence);
                             accum = isTailExclusiveScan ? ivs0[1] : nextScanIV;
                             ivsNext0[1] = nextScanIV;
                           }

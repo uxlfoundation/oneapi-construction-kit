@@ -23,6 +23,7 @@
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
+#include <llvm/Analysis/IVDescriptors.h>
 #include <llvm/IR/IRBuilder.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
@@ -116,6 +117,14 @@ llvm::Value *sanitizeVPReductionInput(llvm::IRBuilder<> &B, llvm::Value *Val,
 llvm::Value *getGatherIndicesVector(llvm::IRBuilder<> &B, llvm::Value *Indices,
                                     llvm::Type *Ty, unsigned FixedVecElts,
                                     const llvm::Twine &N = "");
+
+/// @brief Returns a boolean vector with all elements set to 'true'.
+llvm::Value *createAllTrueMask(llvm::IRBuilder<> &B, llvm::ElementCount EC);
+
+/// @brief Returns an integer step vector, representing the sequence 0 ... N-1.
+llvm::Value *createIndexSequence(llvm::IRBuilder<> &Builder,
+                                 llvm::VectorType *VecTy,
+                                 const llvm::Twine &Name = "");
 
 /// @brief Class that represents a range in a vector of Value pointers.
 /// The range is represented by its integer starting index and length, so that

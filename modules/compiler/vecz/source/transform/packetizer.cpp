@@ -19,8 +19,10 @@
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/group_collective_helpers.h>
 #include <compiler/utils/mangling.h>
+#include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/DepthFirstIterator.h>
 #include <llvm/ADT/SmallPtrSet.h>
+#include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/Statistic.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Analysis/LoopInfo.h>
@@ -36,7 +38,6 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Utils/LoopUtils.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
@@ -496,9 +497,8 @@ bool Packetizer::Impl::packetize() {
       } else if (TargetArg.PointerRetPointeeTy &&
                  PAR.needsPacketization(TargetArg.NewArg)) {
         if (!idxVector) {
-          idxVector = multi_llvm::createIndexSequence(
-              B, VectorType::get(B.getInt32Ty(), SimdWidth), SimdWidth,
-              "index.vec");
+          idxVector = createIndexSequence(
+              B, VectorType::get(B.getInt32Ty(), SimdWidth), "index.vec");
         }
 
         // CA-3943 this implementation looks unlikely to be correct, but for
@@ -1210,8 +1210,8 @@ Value *Packetizer::Impl::packetizeGroupReduction(Instruction *I) {
     for (decltype(packetWidth) i = 0; i < packetWidth; ++i) {
       Value *const lhs = opPackets[i];
       Value *const rhs = opPackets[i + packetWidth];
-      opPackets[i] =
-          multi_llvm::createBinOpForRecurKind(B, lhs, rhs, Info->Recurrence);
+      opPackets[i] = compiler::utils::createBinOpForRecurKind(B, lhs, rhs,
+                                                              Info->Recurrence);
     }
   }
 
@@ -1737,10 +1737,10 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
           // If it's an alloca we can widen, we can just change the size
           llvm::TypeSize const allocSize =
               Ctx.dataLayout()->getTypeAllocSize(alloca->getAllocatedType());
-          auto const lifeSize = allocSize.isScalable() || SimdWidth.isScalable()
-                                    ? -1
-                                    : multi_llvm::getKnownMinValue(allocSize) *
-                                          SimdWidth.getKnownMinValue();
+          auto const lifeSize =
+              allocSize.isScalable() || SimdWidth.isScalable()
+                  ? -1
+                  : allocSize.getKnownMinValue() * SimdWidth.getKnownMinValue();
           CI->setOperand(
               0, ConstantInt::get(CI->getOperand(0)->getType(), lifeSize));
           results.push_back(CI);
@@ -2100,8 +2100,8 @@ ValuePacket Packetizer::Impl::packetizeGroupScan(
 
   Value *const Splat = B.CreateVectorSplat(SimdWidth, ExclScanCI);
 
-  auto *const Result = multi_llvm::createBinOpForRecurKind(B, VectorScan, Splat,
-                                                           Scan.Recurrence);
+  auto *const Result = compiler::utils::createBinOpForRecurKind(
+      B, VectorScan, Splat, Scan.Recurrence);
 
   results.push_back(Result);
   return results;
@@ -2259,8 +2259,8 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
       // Bitcast the above sub-splat to purely scalar pointers
       vecPtr = B.CreateBitCast(vecPtr, newPtrTy);
       // Create an index sequence to start the offseting process
-      Value *idxVector = multi_llvm::createIndexSequence(
-          B, VectorType::get(B.getInt32Ty(), wideEC), wideEC, "index.vec");
+      Value *idxVector = createIndexSequence(
+          B, VectorType::get(B.getInt32Ty(), wideEC), "index.vec");
       PACK_FAIL_IF(!idxVector);
       // Modulo the indices 0,1,2,.. with the original vector type, producing,
       // e.g., for the above: <0,1,2,3,0,1,2,3>
@@ -2313,7 +2313,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     if (mask || EVL) {
       if (!mask) {
         // If there's no mask then just splat a trivial one.
-        auto *const trueMask = multi_llvm::createAllTrueMask(
+        auto *const trueMask = createAllTrueMask(
             B, multi_llvm::getVectorElementCount(packetVecTy));
         std::fill(maskPacket.begin(), maskPacket.end(), trueMask);
       } else {
@@ -2374,7 +2374,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     if (mask || EVL) {
       if (!mask) {
         // If there's no mask then just splat a trivial one.
-        auto *const trueMask = multi_llvm::createAllTrueMask(
+        auto *const trueMask = createAllTrueMask(
             B, multi_llvm::getVectorElementCount(packetVecTy));
         std::fill(maskPacket.begin(), maskPacket.end(), trueMask);
       } else {
@@ -2421,8 +2421,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     // alignment, but may be overaligned. After vectorization it can't be
     // larger than the pointee element type.
     unsigned alignment = op.getAlignment();
-    unsigned sizeInBits =
-        multi_llvm::getKnownMinValue(dataTy->getPrimitiveSizeInBits());
+    unsigned sizeInBits = dataTy->getPrimitiveSizeInBits().getKnownMinValue();
     alignment = std::min(alignment, std::max(sizeInBits, 8u) / 8u);
 
     // Regular load or store.
@@ -2603,7 +2602,7 @@ ValuePacket Packetizer::Impl::packetizeBinaryOp(BinaryOperator *BinOp) {
       PACK_FAIL_IF(packetWidth != 1);
       auto VPId = VPIntrinsic::getForOpcode(opcode);
       PACK_FAIL_IF(VPId == Intrinsic::not_intrinsic);
-      auto *const Mask = multi_llvm::createAllTrueMask(
+      auto *const Mask = createAllTrueMask(
           B, multi_llvm::getVectorElementCount(LHS[0]->getType()));
       // Scale the base length by the number of vector elements, where
       // appropriate.
@@ -2977,8 +2976,8 @@ Value *Packetizer::Impl::vectorizeWorkGroupCall(
   auto const Uniformity = Builtin.uniformity;
   if (Uniformity == compiler::utils::eBuiltinUniformityInstanceID ||
       Uniformity == compiler::utils::eBuiltinUniformityMaybeInstanceID) {
-    Value *StepVector = multi_llvm::createIndexSequence(B, Splat->getType(),
-                                                        SimdWidth, "index.vec");
+    Value *StepVector =
+        createIndexSequence(B, cast<VectorType>(Splat->getType()), "index.vec");
     VECZ_FAIL_IF(!StepVector);
 
     Value *Result = B.CreateAdd(Splat, StepVector);
@@ -3039,8 +3038,8 @@ Value *Packetizer::Impl::vectorizeAlloca(AllocaInst *alloca) {
   deleteInstructionLater(alloca);
 
   auto *const idxTy = Ctx.dataLayout()->getIndexType(wideAlloca->getType());
-  Value *const indices = multi_llvm::createIndexSequence(
-      B, VectorType::get(idxTy, SimdWidth), SimdWidth);
+  Value *const indices =
+      createIndexSequence(B, VectorType::get(idxTy, SimdWidth));
 
   return B.CreateInBoundsGEP(ty, wideAlloca, ArrayRef<Value *>{indices},
                              Twine(alloca->getName(), ".lanes"));
@@ -3422,8 +3421,8 @@ ValuePacket Packetizer::Impl::packetizeShuffleVector(
       auto *const vecMask =
           VTI.createOuterScalableBroadcast(B, mask, EVL, SimdWidth);
 
-      auto *const idxVector = multi_llvm::createIndexSequence(
-          B, VectorType::get(B.getInt32Ty(), fullWidth), fullWidth);
+      auto *const idxVector =
+          createIndexSequence(B, VectorType::get(B.getInt32Ty(), fullWidth));
 
       // We need to create offsets into the source operand subvectors, to add
       // onto the broadcast shuffle mask, so that each subvector of the

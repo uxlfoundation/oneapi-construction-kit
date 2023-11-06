@@ -33,7 +33,6 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/ErrorHandling.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/multi_llvm.h>
 
 using namespace llvm;
@@ -259,8 +258,8 @@ Value *createSubgroupBroadcast(IRBuilder<> &Builder, Value *Src, Value *ID,
 /// @return The result of the operation.
 Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
                    llvm::Value *Operand, RecurKind Kind) {
-  return multi_llvm::createBinOpForRecurKind(Builder, CurrentVal, Operand,
-                                             Kind);
+  return compiler::utils::createBinOpForRecurKind(Builder, CurrentVal, Operand,
+                                                  Kind);
 }
 
 /// @brief Helper function to define the work-group collective reductions.

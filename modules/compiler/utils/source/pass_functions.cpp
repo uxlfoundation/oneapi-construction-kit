@@ -749,11 +749,7 @@ llvm::CallInst *createCallToWrappedFunction(
   CI->setAttributes(getCopiedFunctionAttrs(WrappedF));
 
   if (BB) {
-#if LLVM_VERSION_GREATER(15, 0)
     CI->insertInto(BB, InsertPt);
-#else
-    BB->getInstList().insert(InsertPt, CI);
-#endif
 
     if (auto *const ParentF = BB->getParent()) {
       // An inlinable function call in a function with debug info *must* be
@@ -767,6 +763,47 @@ llvm::CallInst *createCallToWrappedFunction(
   }
 
   return CI;
+}
+
+llvm::Value *createBinOpForRecurKind(llvm::IRBuilderBase &B, llvm::Value *LHS,
+                                     llvm::Value *RHS, llvm::RecurKind Kind) {
+  switch (Kind) {
+    default:
+      break;
+    case llvm::RecurKind::None:
+      return nullptr;
+    case llvm::RecurKind::Add:
+      return B.CreateAdd(LHS, RHS);
+    case llvm::RecurKind::Mul:
+      return B.CreateMul(LHS, RHS);
+    case llvm::RecurKind::Or:
+      return B.CreateOr(LHS, RHS);
+    case llvm::RecurKind::And:
+      return B.CreateAnd(LHS, RHS);
+    case llvm::RecurKind::Xor:
+      return B.CreateXor(LHS, RHS);
+    case llvm::RecurKind::FAdd:
+      return B.CreateFAdd(LHS, RHS);
+    case llvm::RecurKind::FMul:
+      return B.CreateFMul(LHS, RHS);
+  }
+  assert((Kind == llvm::RecurKind::FMin || Kind == llvm::RecurKind::FMax ||
+          Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax ||
+          Kind == llvm::RecurKind::UMin || Kind == llvm::RecurKind::UMax) &&
+         "Unexpected min/max Kind");
+  if (Kind == llvm::RecurKind::FMin || Kind == llvm::RecurKind::FMax) {
+    return B.CreateBinaryIntrinsic(Kind == llvm::RecurKind::FMin
+                                       ? llvm::Intrinsic::minnum
+                                       : llvm::Intrinsic::maxnum,
+                                   LHS, RHS);
+  }
+  bool isMin = Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::UMin;
+  bool isSigned =
+      Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax;
+  llvm::Intrinsic::ID intrOpc =
+      isMin ? (isSigned ? llvm::Intrinsic::smin : llvm::Intrinsic::umin)
+            : (isSigned ? llvm::Intrinsic::smax : llvm::Intrinsic::umax);
+  return B.CreateBinaryIntrinsic(intrOpc, LHS, RHS);
 }
 
 }  // namespace utils

@@ -23,14 +23,11 @@
 #include <compiler/utils/scheduling.h>
 #include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/Support/ModRef.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 
 #include <optional>
-
-#if LLVM_VERSION_GREATER_EQUAL(16, 0)
-#include <llvm/Support/ModRef.h>
-#endif
 
 using namespace llvm;
 
@@ -903,7 +900,7 @@ Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty, Module &M) {
   if (TgtExtTy->getName() == "spirv.Image") {
     return PointerType::getUnqual([&Ctx]() {
       const char *MuxImageTyName = "MuxImage";
-      if (auto *STy = multi_llvm::getStructTypeByName(Ctx, MuxImageTyName)) {
+      if (auto *STy = StructType::getTypeByName(Ctx, MuxImageTyName)) {
         return STy;
       }
       return StructType::create(Ctx, MuxImageTyName);
@@ -962,11 +959,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
                   ? Int32Ty
                   : SizeTy;
       // All of our mux getters are readonly - they may never write data
-#if LLVM_VERSION_GREATER_EQUAL(16, 0)
       AB.addMemoryAttr(MemoryEffects::readOnly());
-#else
-      AB.addAttribute(Attribute::ReadOnly);
-#endif
       break;
     }
     // Ranked Setters
