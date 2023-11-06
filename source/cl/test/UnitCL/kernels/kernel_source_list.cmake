@@ -997,6 +997,8 @@ set(spirv_test
   ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.fp16.spvasm64
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm32
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.23_string_dpcpp.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.23_string_dpcpp.spvasm64
   )
 
 if(${OCL_EXTENSION_cl_intel_required_subgroup_size})

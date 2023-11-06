@@ -1999,6 +1999,22 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
       module.addName(op->IdResult(), name);
     }
 
+    // DPC++ rejects variadic functions in SYCL code, with the exception of
+    // __builtin_printf which it accepts and generates invalid SPIR-V for that
+    // calls printf, but declares printf as a non-variadic function (because
+    // SPIR-V has no variadic functions) yet calls it with the normal arguments.
+    // Patch this up.
+    // We may not strictly infer for SPIR-V code that printf is the standard
+    // library function printf, but we only aim to support OpenCL C and SYCL
+    // which do allow us to make assumptions here, and SPIR-V generated from
+    // GLSL which appends a "(" to function names so is not affected.
+    if (name == "printf" && function_type->getNumParams() == 1 &&
+        !function_type->isVarArg()) {
+      function_type = llvm::FunctionType::get(function_type->getReturnType(),
+                                              {function_type->getParamType(0)},
+                                              /*isVarArg=*/true);
+    }
+
     name.clear();
 
     function = llvm::Function::Create(function_type, linkage, name,
