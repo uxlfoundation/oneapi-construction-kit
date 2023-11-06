@@ -32,6 +32,7 @@
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>
+#include <spirv-ll/builder_debug_info.h>
 #include <spirv-ll/builder_glsl.h>
 #include <spirv-ll/builder_group_async_copies.h>
 #include <spirv-ll/builder_opencl.h>
@@ -317,6 +318,15 @@ llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
         ExtendedInstrSet::GroupAsyncCopies);
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::GroupAsyncCopies);
+  } else if (name == "DebugInfo") {
+    registerExtInstHandler<DebugInfoBuilder>(ExtendedInstrSet::DebugInfo);
+    module.associateExtendedInstrSet(op->IdResult(),
+                                     ExtendedInstrSet::DebugInfo);
+  } else if (name == "OpenCL.DebugInfo.100") {
+    registerExtInstHandler<DebugInfoBuilder>(
+        ExtendedInstrSet::OpenCLDebugInfo100);
+    module.associateExtendedInstrSet(op->IdResult(),
+                                     ExtendedInstrSet::OpenCLDebugInfo100);
   } else {
     return makeStringError(llvm::Twine(name.data()) +
                            " extended instruction set is not supported!\n");

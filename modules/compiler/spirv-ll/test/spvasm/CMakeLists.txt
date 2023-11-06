@@ -2197,6 +2197,8 @@ set(SPVASM_V1_1_FILES
   op_execution_mode_subgroups_per_workgroup.spvasm
   op_get_default_queue.spvasm
   op_get_kernel_max_num_subgroups.spvasm
+  opencl_debug_info_100.spvasm
+  opencl_debug_info_100_clean.spvasm
 )
 
 set(UNVERIFIABLE_SPVASM_FILES
@@ -2207,6 +2209,9 @@ set(UNVERIFIABLE_SPVASM_FILES
   codeplay/opencl_usm_generic_address_space.spvasm
   codeplay/opencl_group_async_copy_2d2d.spvasm
   codeplay/opencl_group_async_copy_3d3d.spvasm
+  # Unclear whether or not the SPIR-V is valid, but the output of llvm-spirv
+  # produces this and the verifier doesn't like it.
+  opencl_debug_info_100.spvasm
 )
 
 # Remove obsolete lit test inputs from the binary directory.

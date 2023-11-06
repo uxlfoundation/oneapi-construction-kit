@@ -43,9 +43,11 @@
 namespace spirv_ll {
 /// @brief Enum class used to represent an Extended Instruction Set.
 enum class ExtendedInstrSet {
-  GLSL450,           ///< The "GLSL.std.450" instruction set.
-  OpenCL,            ///< The "OpenCL.std" instruction set.
-  GroupAsyncCopies,  ///< The "Codeplay.GroupAsyncCopies" instruction set.
+  GLSL450,             ///< The "GLSL.std.450" instruction set.
+  OpenCL,              ///< The "OpenCL.std" instruction set.
+  GroupAsyncCopies,    ///< The "Codeplay.GroupAsyncCopies" instruction set.
+  DebugInfo,           ///< The "DebugInfo" instruction set.
+  OpenCLDebugInfo100,  ///< The "OpenCL.DebugInfo.100" instruction set.
 };
 
 /// @brief Interface to a binary SPIR-V module's header.
