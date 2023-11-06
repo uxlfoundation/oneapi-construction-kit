@@ -209,18 +209,18 @@ HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
 };
 
 cargo::expected<size_t, compiler::Result> HostKernel::queryMaxSubGroupCount() {
-  // FIXME: Without compiling this kernel, we can't determine the maximum
-  // number of sub-groups. We can't meaningfully compile unless we know the
-  // local size. We're just returning 1 here, assuming degenerate sub-groups,
-  // but the compiler may choose to take advantage of the local work-group size
-  // and emit a kernel with a larger sub-group size that fits the work-group
-  // size (e.g., vecz).
-  // For now we return an unfeasibly high number so that we're conservative,
-  // assuming a trivial sub-group size of 1. See CA-4785.
+  // Without compiling this kernel, we can't determine the actual maximum
+  // number of sub-groups, and we can't meaningfully compile unless we know the
+  // local size.
+  // Our implementation allows the compiler to generate multiple variants of a
+  // kernel with different sub-group sizes, and choose to dispatch each
+  // depending on what suits the ND range. The OpenCL and SYCL specifications
+  // are loose enough to permit this too.
+  // So, we return the device-specific maximum number of sub-groups, assuming
+  // that this kernel *could* be compiled with a trivial sub-group size of 1
+  // for a given ND-range.
   const auto &info = *target.getCompilerInfo()->device_info;
-  return static_cast<size_t>(info.max_work_group_size_x) *
-         static_cast<size_t>(info.max_work_group_size_y) *
-         static_cast<size_t>(info.max_work_group_size_z);
+  return static_cast<size_t>(info.max_sub_group_count);
 }
 
 cargo::expected<const OptimizedKernel &, compiler::Result>
