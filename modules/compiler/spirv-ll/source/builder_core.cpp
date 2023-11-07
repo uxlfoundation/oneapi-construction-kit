@@ -167,14 +167,18 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
     return function_scope;
   }
 
-  llvm::SmallVector<llvm::Metadata *, 4> dbg_function_types;
+  llvm::SmallVector<llvm::Metadata *, 4> dbg_function_param_types;
 
-  for (auto &arg : function->args()) {
-    dbg_function_types.push_back(getDIType(arg.getType()));
+  const OpFunction *opFunction = module.get<OpFunction>(function);
+  const OpTypeFunction *opTypeFunction =
+      module.get<OpTypeFunction>(opFunction->FunctionType());
+
+  for (auto spv_ty_id : opTypeFunction->ParameterTypes()) {
+    dbg_function_param_types.push_back(getDIType(spv_ty_id));
   }
 
   llvm::DISubroutineType *dbg_function_type = DIBuilder.createSubroutineType(
-      DIBuilder.getOrCreateTypeArray(dbg_function_types));
+      DIBuilder.getOrCreateTypeArray(dbg_function_param_types));
 
   auto *di_file = getOrCreateDIFile(op_line);
   auto *di_compile_unit = getOrCreateDICompileUnit(op_line);
@@ -2085,6 +2089,10 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
   function->setCallingConv(CC);
   setCurrentFunction(function);
 
+  // Add the ID before calling getOrCreateDebugFunctionScope below, so we can
+  // easily retrieve the OpFunction directly from the function.
+  module.addID(op->IdResult(), op, function);
+
   // If there's a line range currently open at this point, create and attach
   // the DISubprogram for this function. If there isn't, we'll generate one on
   // the fly when we hit an OpLine.
@@ -2092,7 +2100,6 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
     getOrCreateDebugFunctionScope(function, current_range->op_line);
   }
 
-  module.addID(op->IdResult(), op, function);
   return cargo::nullopt;
 }
 
