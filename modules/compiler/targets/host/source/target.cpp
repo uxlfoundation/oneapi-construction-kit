@@ -32,6 +32,7 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
+#include <multi_llvm/multi_llvm.h>
 
 #include "host/device.h"
 #include "host/info.h"
@@ -193,7 +194,7 @@ compiler::Result HostTarget::initWithBuiltins(
 
   llvm::orc::JITTargetMachineBuilder TMBuilder(triple);
   TMBuilder.setCPU(CPUName.str());
-  TMBuilder.setCodeGenOptLevel(llvm::CodeGenOpt::Aggressive);
+  TMBuilder.setCodeGenOptLevel(multi_llvm::CodeGenOptLevel::Aggressive);
   for (auto &Feature : FeatureMap) {
     TMBuilder.getFeatures().AddFeature(Feature.first(), Feature.second);
   }
