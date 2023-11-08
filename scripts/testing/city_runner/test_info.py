@@ -123,7 +123,7 @@ class TestList(object):
                 stripped = (line.strip() for line in f)
                 filtered = (line for line in stripped if line and not line.startswith("#"))
                 chunked = csv.reader(filtered)
-                filter_tests.append(json.dumps(chunks) for chunks in chunked)
+                filter_tests.extend(json.dumps(chunks) for chunks in chunked)
 
         with open(list_file_path, "r") as f:
             stripped = (line.strip() for line in f)
