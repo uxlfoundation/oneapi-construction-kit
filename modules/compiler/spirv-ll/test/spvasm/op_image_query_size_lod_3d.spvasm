@@ -27,7 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %int_t = OpTypeInt 32 1
+               %int_t = OpTypeInt 32 0
              %v3int_t = OpTypeVector %int_t 3
         %image3d_t = OpTypeImage %void_t 3D 0 0 0 0 Unknown ReadOnly
      %query_size_fn_t = OpTypeFunction %void_t %image3d_t

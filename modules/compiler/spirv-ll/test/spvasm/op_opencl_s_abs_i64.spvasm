@@ -26,16 +26,16 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-              %ui64_t = OpTypeInt 64 0
-               %i64_t = OpTypeInt 64 1
+               %i64_t = OpTypeInt 64 0
           %s_abs_fn_t = OpTypeFunction %void_t
-               %i64_2 = OpConstant %i64_t -2
+          ; Minus 2 in two's complement
+               %i64_2 = OpConstant %i64_t 18446744073709551614
 
 ; All functions
            %s_abs_i64 = OpFunction %void_t None %s_abs_fn_t
 ; CHECK: define spir_kernel void @s_abs_i64()
                    %2 = OpLabel
-                   %3 = OpExtInst %ui64_t %1 s_abs %i64_2
+                   %3 = OpExtInst %i64_t %1 s_abs %i64_2
 ; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z3absl(i64 -2)
                         OpReturn
 ; CHECK: ret void

@@ -27,14 +27,12 @@
 ; All types, variables and constants
               %void_t = OpTypeVoid
               %ui32_t = OpTypeInt 32 0
-               %i32_t = OpTypeInt 32 1
             %v8ui32_t = OpTypeVector %ui32_t 8
-             %v8i32_t = OpTypeVector %i32_t 8
      %s_abs_diff_fn_t = OpTypeFunction %void_t
-               %i32_2 = OpConstant %i32_t 2
-               %i32_5 = OpConstant %i32_t 5
-             %v8i32_2 = OpConstantComposite %v8i32_t %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2
-             %v8i32_5 = OpConstantComposite %v8i32_t %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5
+               %i32_2 = OpConstant %ui32_t 2
+               %i32_5 = OpConstant %ui32_t 5
+             %v8i32_2 = OpConstantComposite %v8ui32_t %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2
+             %v8i32_5 = OpConstantComposite %v8ui32_t %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5
 
 ; All functions
     %s_abs_diff_v8i32 = OpFunction %void_t None %s_abs_diff_fn_t

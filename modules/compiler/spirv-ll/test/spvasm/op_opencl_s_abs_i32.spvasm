@@ -26,9 +26,8 @@
 ; All types, variables and constants
               %void_t = OpTypeVoid
               %ui32_t = OpTypeInt 32 0
-               %i32_t = OpTypeInt 32 1
           %s_abs_fn_t = OpTypeFunction %void_t
-               %i32_2 = OpConstant %i32_t -2
+               %i32_2 = OpConstant %ui32_t 4294967294
 
 ; All functions
            %s_abs_i32 = OpFunction %void_t None %s_abs_fn_t

@@ -35,13 +35,12 @@
                OpDecorate %12 SpecId 0
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-   %idx_type = OpTypeInt 32 0
         %uint = OpTypeInt 32 0
     %vec_uint = OpTypeVector %uint 3
  %test_block = OpTypeStruct %vec_uint
 %_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
           %_ = OpVariable %_ptr_Uniform_test_block Uniform
-         %11 = OpConstant %idx_type 0
+         %11 = OpConstant %uint 0
          %12 = OpSpecConstant %uint 42
          %13 = OpSpecConstantComposite %vec_uint %12 %12 %12 ; testing this
 %ptr_vec_uint = OpTypePointer Uniform %vec_uint

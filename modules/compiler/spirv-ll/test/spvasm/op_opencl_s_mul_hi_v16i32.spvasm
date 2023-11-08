@@ -26,7 +26,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %i32_t = OpTypeInt 32 1
+               %i32_t = OpTypeInt 32 0
             %v16i32_t = OpTypeVector %i32_t 16
        %s_mul_hi_fn_t = OpTypeFunction %void_t
                %i32_1 = OpConstant %i32_t 1

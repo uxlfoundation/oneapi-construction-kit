@@ -27,9 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-              %ui16_t = OpTypeInt 16 0
-               %i16_t = OpTypeInt 16 1
-           %v16ui16_t = OpTypeVector %ui16_t 16
+               %i16_t = OpTypeInt 16 0
             %v16i16_t = OpTypeVector %i16_t 16
      %s_abs_diff_fn_t = OpTypeFunction %void_t
                %i16_2 = OpConstant %i16_t 2
@@ -41,7 +39,7 @@
    %s_abs_diff_v16i16 = OpFunction %void_t None %s_abs_diff_fn_t
 ; CHECK: define spir_kernel void @s_abs_diff_v16i16()
                    %2 = OpLabel
-                   %3 = OpExtInst %v16ui16_t %1 s_abs_diff %v16i16_2 %v16i16_5
+                   %3 = OpExtInst %v16i16_t %1 s_abs_diff %v16i16_2 %v16i16_5
 ; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i16> @_Z8abs_diffDv16_sS_(<16 x i16> <i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2>, <16 x i16> <i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5>)
                         OpReturn
 ; CHECK: ret void
