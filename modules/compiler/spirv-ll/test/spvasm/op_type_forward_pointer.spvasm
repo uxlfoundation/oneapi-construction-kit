@@ -19,9 +19,11 @@
 
      OpCapability Kernel
      OpCapability Addresses
+     OpCapability Linkage
      OpMemoryModel Physical64 OpenCL
-     OpTypeForwardPointer %a Function
-%b = OpTypeVoid
-%c = OpTypePointer Function %a
-%a = OpTypePointer Function %b
+     OpTypeForwardPointer %ptr_Foo Function
+      %b = OpTypeVoid
+      %a = OpTypePointer Function %b
+    %Foo = OpTypeStruct %a
+%ptr_Foo = OpTypePointer Function %Foo
 ; CHECK: ; ModuleID = '{{.*}}'

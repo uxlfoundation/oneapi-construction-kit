@@ -39,9 +39,9 @@
 %double = OpTypeFloat 64 ; this should be blank if type is Foo
           %9 = OpConstant %struct_float 42.42
  %struct_int = OpTypeInt 32 0
-               OpTypeForwardPointer %ptr_double Function
+               OpTypeForwardPointer %ptr_Foo Function
+ %ptr_double = OpTypePointer Function %double
         %Foo = OpTypeStruct %struct_int %struct_float %ptr_double
-%ptr_double = OpTypePointer Function %double ; this should be blank if type is Foo
     %ptr_Foo = OpTypePointer Function %Foo
          %14 = OpConstant %struct_int 1
        %main = OpFunction %void None %3
