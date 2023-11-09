@@ -26,6 +26,7 @@
                OpEntryPoint Kernel %20 "entry_pt"
 
        %void = OpTypeVoid
+       %uint = OpTypeInt 32 0
       %ulong = OpTypeInt 64 0
         %_ptr_ulong = OpTypePointer CrossWorkgroup %ulong
         %_ptr_Generic_ulong = OpTypePointer Generic %ulong
