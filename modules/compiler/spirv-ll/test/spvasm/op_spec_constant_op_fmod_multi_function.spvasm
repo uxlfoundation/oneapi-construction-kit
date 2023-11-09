@@ -24,7 +24,6 @@
             OpEntryPoint Kernel %testfn "testfn"
             OpSource OpenCL_C 102000
             OpName %add "add"
-            OpName %main "main"
             OpName %res "res"
             OpName %test "test"
             OpName %const "const"

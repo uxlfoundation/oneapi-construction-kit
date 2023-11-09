@@ -20,10 +20,8 @@
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"
                         OpMemoryModel Physical64 OpenCL
-                        OpEntryPoint Kernel %lgamma_r_float "lgamma_r_float"
                         OpEntryPoint Kernel %lgamma_r_float_uint "lgamma_r_float_uint"
                         OpSource OpenCL_C 102000
-                        OpName %in_signp "in_signp"
                         OpName %in_signp_uint "in_signp"
 
 ; All types, variables and constants

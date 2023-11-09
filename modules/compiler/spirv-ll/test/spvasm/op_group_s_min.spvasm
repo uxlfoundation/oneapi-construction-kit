@@ -25,7 +25,6 @@
                               OpMemoryModel Physical64 OpenCL
 
                               OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction"
-                              OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction"
                               OpEntryPoint Kernel %sub_group_scan_exc_fcn "sub_group_scan_exclusive"
                               OpEntryPoint Kernel %sub_group_scan_inc_fcn "sub_group_scan_inclusive"
 

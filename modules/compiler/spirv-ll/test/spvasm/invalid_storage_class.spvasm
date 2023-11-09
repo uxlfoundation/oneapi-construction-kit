@@ -29,7 +29,6 @@
                OpCapability Int8
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %54 "_ZTSZN24kernel_bundle_spec_constL22CATCH2_INTERNAL_TEST_4EvE13simple_kernel"
                OpSource OpenCL_CPP 100000
        %uint = OpTypeInt 32 0
 %_ptr_Function_uint = OpTypePointer Function %uint

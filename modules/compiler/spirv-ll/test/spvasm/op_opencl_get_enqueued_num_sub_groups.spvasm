@@ -21,7 +21,7 @@
                                               OpCapability Int64
                                          %1 = OpExtInstImport "OpenCL.std"
                                               OpMemoryModel Physical64 OpenCL
-                                              OpEntryPoint Kernel %get_enqueued_num_sub_groups_fn "get_enqueued_num_sub_groups_fn" %__spirv_BuiltInSubgroupID
+                                              OpEntryPoint Kernel %get_enqueued_num_sub_groups_fn "get_enqueued_num_sub_groups_fn" %__spirv_BuiltInBuiltInNumEnqueuedSubgroups
                                               OpDecorate %__spirv_BuiltInBuiltInNumEnqueuedSubgroups BuiltIn NumEnqueuedSubgroups
                                     %size_t = OpTypeInt 64 0
                                 %size_ptr_t = OpTypePointer Input %size_t
