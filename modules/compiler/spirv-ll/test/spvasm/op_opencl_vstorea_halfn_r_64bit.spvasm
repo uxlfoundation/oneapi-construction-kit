@@ -56,8 +56,6 @@
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_half
         %loc = OpFunctionParameter %_ptr_Workgroup_half
       %entry = OpLabel
-         %15 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %out RTE
-; CHECK: call spir_func void @_Z16vstorea_half_rtefmPU3AS1Dh(float 1.000000e+00, i64 0, ptr addrspace(1) %out)
          %19 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %out RTE
 ; CHECK: call spir_func void @_Z17vstorea_half2_rteDv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(1) %out)
          %23 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %out RTE
@@ -68,8 +66,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rteDv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(1) %out)
          %35 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %out RTE
 ; CHECK: call spir_func void @_Z18vstorea_half16_rteDv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(1) %out)
-         %36 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %loc RTE
-; CHECK: call spir_func void @_Z16vstorea_half_rtefmPU3AS3Dh(float 1.000000e+00, i64 0, ptr addrspace(3) %loc)
          %37 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %loc RTE
 ; CHECK: call spir_func void @_Z17vstorea_half2_rteDv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %38 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %loc RTE
@@ -80,8 +76,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rteDv8_fmPU3AS3Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %41 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %loc RTE
 ; CHECK: call spir_func void @_Z18vstorea_half16_rteDv16_fmPU3AS3Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
-         %42 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %out RTZ
-; CHECK: call spir_func void @_Z16vstorea_half_rtzfmPU3AS1Dh(float 1.000000e+00, i64 0, ptr addrspace(1) %out)
          %43 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %out RTZ
 ; CHECK: call spir_func void @_Z17vstorea_half2_rtzDv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(1) %out)
          %44 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %out RTZ
@@ -92,8 +86,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rtzDv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(1) %out)
          %47 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %out RTZ
 ; CHECK: call spir_func void @_Z18vstorea_half16_rtzDv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(1) %out)
-         %48 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %loc RTZ
-; CHECK: call spir_func void @_Z16vstorea_half_rtzfmPU3AS3Dh(float 1.000000e+00, i64 0, ptr addrspace(3) %loc)
          %49 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %loc RTZ
 ; CHECK: call spir_func void @_Z17vstorea_half2_rtzDv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %50 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %loc RTZ
@@ -104,8 +96,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rtzDv8_fmPU3AS3Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %53 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %loc RTZ
 ; CHECK: call spir_func void @_Z18vstorea_half16_rtzDv16_fmPU3AS3Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
-         %54 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %out RTP
-; CHECK: call spir_func void @_Z16vstorea_half_rtpfmPU3AS1Dh(float 1.000000e+00, i64 0, ptr addrspace(1) %out)
          %55 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %out RTP
 ; CHECK: call spir_func void @_Z17vstorea_half2_rtpDv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(1) %out)
          %56 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %out RTP
@@ -116,8 +106,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rtpDv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(1) %out)
          %59 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %out RTP
 ; CHECK: call spir_func void @_Z18vstorea_half16_rtpDv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(1) %out)
-         %60 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %loc RTP
-; CHECK: call spir_func void @_Z16vstorea_half_rtpfmPU3AS3Dh(float 1.000000e+00, i64 0, ptr addrspace(3) %loc)
          %61 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %loc RTP
 ; CHECK: call spir_func void @_Z17vstorea_half2_rtpDv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %62 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %loc RTP
@@ -128,8 +116,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rtpDv8_fmPU3AS3Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %65 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %loc RTP
 ; CHECK: call spir_func void @_Z18vstorea_half16_rtpDv16_fmPU3AS3Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
-         %66 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %out RTN
-; CHECK: call spir_func void @_Z16vstorea_half_rtnfmPU3AS1Dh(float 1.000000e+00, i64 0, ptr addrspace(1) %out)
          %67 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %out RTN
 ; CHECK: call spir_func void @_Z17vstorea_half2_rtnDv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(1) %out)
          %68 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %out RTN
@@ -140,8 +126,6 @@
 ; CHECK: call spir_func void @_Z17vstorea_half8_rtnDv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(1) %out)
          %71 = OpExtInst %void %1 vstorea_halfn_r %34 %ulong_0 %out RTN
 ; CHECK: call spir_func void @_Z18vstorea_half16_rtnDv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(1) %out)
-         %72 = OpExtInst %void %1 vstorea_halfn_r %float_1 %ulong_0 %loc RTN
-; CHECK: call spir_func void @_Z16vstorea_half_rtnfmPU3AS3Dh(float 1.000000e+00, i64 0, ptr addrspace(3) %loc)
          %73 = OpExtInst %void %1 vstorea_halfn_r %18 %ulong_0 %loc RTN
 ; CHECK: call spir_func void @_Z17vstorea_half2_rtnDv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
          %74 = OpExtInst %void %1 vstorea_halfn_r %22 %ulong_0 %loc RTN
