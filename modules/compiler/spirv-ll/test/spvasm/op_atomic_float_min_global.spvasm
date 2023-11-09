@@ -26,6 +26,7 @@
             OpName %atomic "atomic"
             OpName %a "a"
             OpDecorate %block_t Block
+            OpMemberDecorate %block_t 0 Offset 0
             OpDecorate %block_var DescriptorSet 0
             OpDecorate %block_var Binding 0
     %void = OpTypeVoid
