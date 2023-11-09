@@ -70,7 +70,7 @@
 
 
 %bar = OpFunction %ulong None %bar_fn_ty
-  %1 = OpFunctionParameter %ulong
+  %2 = OpFunctionParameter %ulong
     %entry_5 = OpLabel
-               OpReturnValue %1
+               OpReturnValue %2
                OpFunctionEnd

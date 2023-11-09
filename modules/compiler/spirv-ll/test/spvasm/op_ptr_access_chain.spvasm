@@ -25,7 +25,6 @@
 
     %void = OpTypeVoid
     %ulong = OpTypeInt 64 0
-    %_ptr_Generic_ulong = OpTypePointer Generic %ulong
 
     %ulong_0 = OpConstant %ulong 0
     %ulong_3 = OpConstant %ulong 3
@@ -33,7 +32,6 @@
     %uchar = OpTypeInt 8 0
     %uint = OpTypeInt 32 0
     %_ptr_uint = OpTypePointer CrossWorkgroup %uint
-    %ulong_3 = OpConstant %ulong 3
 
     %struct_user_struct = OpTypeStruct %float %uint %uchar %_ptr_uint
     %_ptr_CrossWorkgroup_struct_user_struct = OpTypePointer CrossWorkgroup %struct_user_struct
