@@ -24,15 +24,14 @@
 
                     OpMemoryModel Physical64 OpenCL
 
+                    OpName %broadcast_val "val"
+                    OpName %broadcast_fcn "broadcast"
+                    OpName %xyz "xyz"
 
         %uint_ty  = OpTypeInt 32 0
        %uint3_ty  = OpTypeVector %uint_ty 3
           %fcn_ty = OpTypeFunction %uint_ty %uint_ty %uint3_ty
 %work_group_scope = OpConstant %uint_ty 2
-
-                    OpName %broadcast_val "val"
-                    OpName %broadcast_fcn "broadcast"
-                    OpName %xyz "xyz"
 
 ; CHECK: define private spir_func i32 @broadcast(i32 [[VAL:%.*]], <3 x i32> [[XYZ:%.*]])
 ; CHECK:  [[X:%.*]] = extractelement <3 x i32> [[XYZ]], i64 0

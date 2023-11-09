@@ -30,6 +30,12 @@
                                 OpEntryPoint Kernel %uint_sub_group_scan_inc_fcn "uint_sub_group_scan_inclusive"
                                 OpEntryPoint Kernel %uint_sub_group_scan_exc_fcn "uint_sub_group_scan_exclusive"
 
+                                OpName %uint_sub_group_reduction_in "a"
+                                OpName %uint_work_group_reduction_in "a"
+                                OpName %uint_variable_scope_reduction_in "a"
+                                OpName %uint_sub_group_scan_inc_in "a"
+                                OpName %uint_sub_group_scan_exc_in "a"
+
                     %uint_ty  = OpTypeInt 32 0
   %ptr_CrossWorkgroup_uint_ty = OpTypePointer CrossWorkgroup %uint_ty
                      %void_ty = OpTypeVoid
@@ -38,12 +44,6 @@
 
              %sub_group_scope = OpConstant %uint_ty 3
             %work_group_scope = OpConstant %uint_ty 2
-
-                                OpName %uint_sub_group_reduction_in "a"
-                                OpName %uint_work_group_reduction_in "a"
-                                OpName %uint_variable_scope_reduction_in "a"
-                                OpName %uint_sub_group_scan_inc_in "a"
-                                OpName %uint_sub_group_scan_exc_in "a"
 
 ; CHCK-LABEL: uint_sub_group_reduction
 ; CHECK: define spir_kernel void @uint_sub_group_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])

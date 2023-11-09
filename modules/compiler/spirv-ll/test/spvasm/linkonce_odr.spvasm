@@ -24,14 +24,15 @@
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
                OpSource OpenCL_C 102000
-               OpDecorate %gv LinkageAttributes "gv" LinkOnceODR
-               OpDecorate %foo LinkageAttributes "foo" Import
-               OpDecorate %bar LinkageAttributes "bar" LinkOnceODR
 
                OpName %gv "gv"
                OpName %foo "foo"
                OpName %bar "bar"
                OpName %y "y"
+
+               OpDecorate %gv LinkageAttributes "gv" LinkOnceODR
+               OpDecorate %foo LinkageAttributes "foo" Import
+               OpDecorate %bar LinkageAttributes "bar" LinkOnceODR
 
        %void = OpTypeVoid
        %uint = OpTypeInt 32 0
