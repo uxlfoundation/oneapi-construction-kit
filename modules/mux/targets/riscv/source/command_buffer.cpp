@@ -727,8 +727,13 @@ uint32_t calcPodDataSize(
   // Work out the size needed here
   uint32_t size_pod_data = 0;
   for (const auto &descriptor : descriptors) {
-    if (descriptor.type == mux_descriptor_info_type_plain_old_data) {
-      size_pod_data += descriptor.plain_old_data_descriptor.length;
+    switch (descriptor.type) {
+      case mux_descriptor_info_type_plain_old_data:
+        size_pod_data += descriptor.plain_old_data_descriptor.length;
+        break;
+      case mux_descriptor_info_type_plain_old_embedded_data:
+        size_pod_data += descriptor.plain_old_embedded_data_descriptor.length;
+        break;
     }
   }
   return size_pod_data;
@@ -760,6 +765,19 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
       case mux_descriptor_info_type_plain_old_data: {
         mux_descriptor_info_plain_old_data_s info =
             descriptor.plain_old_data_descriptor;
+        hal::hal_arg_t arg;
+        arg.kind = hal::hal_arg_value;
+        arg.space = hal::hal_space_global;
+        arg.size = info.length;
+        std::memcpy(pod_data.data() + write_point, info.data, info.length);
+        arg.pod_data = pod_data.data() + write_point;
+        write_point += info.length;
+        kernel_args[i] = arg;
+
+      } break;
+      case mux_descriptor_info_type_plain_old_embedded_data: {
+        mux_descriptor_info_plain_old_embedded_data_s info =
+            descriptor.plain_old_embedded_data_descriptor;
         hal::hal_arg_t arg;
         arg.kind = hal::hal_arg_value;
         arg.space = hal::hal_space_global;
@@ -907,6 +925,11 @@ mux_result_t riscvUpdateDescriptors(mux_command_buffer_t command_buffer,
       case mux_descriptor_info_type_plain_old_data: {
         mux_descriptor_info_plain_old_data_s info =
             descriptors[i].plain_old_data_descriptor;
+        std::memcpy((void *)arg.pod_data, info.data, arg.size);
+      } break;
+      case mux_descriptor_info_type_plain_old_embedded_data: {
+        mux_descriptor_info_plain_old_embedded_data_s info =
+            descriptors[i].plain_old_embedded_data_descriptor;
         std::memcpy((void *)arg.pod_data, info.data, arg.size);
       } break;
       case mux_descriptor_info_type_shared_local_buffer: {

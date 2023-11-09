@@ -1,7 +1,7 @@
 ComputeMux Runtime Specification
 ================================
 
-   This is version 0.80.0 of the specification.
+   This is version 0.81.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -739,6 +739,8 @@ freed.
        struct mux_descriptor_info_image_s image_descriptor;
        struct mux_descriptor_info_sampler_s sampler_descriptor;
        struct mux_descriptor_info_plain_old_data_s plain_old_data_descriptor;
+       struct mux_descriptor_info_plain_old_embedded_data_s
+           plain_old_embedded_data_descriptor;
        struct mux_descriptor_info_shared_local_buffer_s
            shared_local_buffer_descriptor;
        struct mux_descriptor_info_custom_buffer_s custom_buffer_descriptor;
@@ -752,6 +754,8 @@ freed.
 -  ``sampler_descriptor`` - the description of the sampler.
 -  ``plain_old_data_descriptor`` - the description of the plain old
    data.
+-  ``plain_old_embedded_data_descriptor`` - the description of the
+   plain old embedded data.
 -  ``shared_local_buffer_descriptor`` - the description of the shared
    local buffer.
 -  ``custom_buffer_descriptor`` - the description of the custom buffer.
@@ -762,41 +766,60 @@ freed.
 
    -  ``buffer_descriptor`` **must** be initialized.
    -  ``image_descriptor``, ``sampler_descriptor``,
-      ``plain_old_data_descriptor``, ``shared_local_buffer_descriptor``,
-      and ``custom_buffer_descriptor`` **must not** be initialized.
+      ``plain_old_data_descriptor``,
+      ``plain_old_embedded_data_descriptor``,
+      ``shared_local_buffer_descriptor``, and
+      ``custom_buffer_descriptor``
+      **must not** be initialized.
 
 -  If ``type`` is ``mux_descriptor_info_type_image``
 
    -  ``image_descriptor`` **must** be initialized.
    -  ``buffer_descriptor``, ``sampler_descriptor``,
-      ``plain_old_data_descriptor``, ``shared_local_buffer_descriptor``,
-      and ``custom_buffer_descriptor`` **must not** be initialized.
+      ``plain_old_data_descriptor``,
+      ``plain_old_embedded_data_descriptor``,
+      ``shared_local_buffer_descriptor``, and
+      ``custom_buffer_descriptor`` **must not** be initialized.
 
 -  If ``type`` is ``mux_descriptor_info_type_sampler``
 
    -  ``sampler_descriptor`` **must** be initialized.
    -  ``buffer_descriptor``, ``image_descriptor``,
-      ``plain_old_data_descriptor``, ``shared_local_buffer_descriptor``,
-      and ``custom_buffer_descriptor`` **must not** be initialized.
+      ``plain_old_data_descriptor``,
+      ``plain_old_embedded_data_descriptor``,
+      ``shared_local_buffer_descriptor``, and
+      ``custom_buffer_descriptor`` **must not** be initialized.
 
 -  If ``type`` is ``mux_descriptor_info_type_plain_old_data``
 
    -  ``plain_old_data_descriptor`` **must** be initialized.
    -  ``buffer_descriptor``, ``image_descriptor``,
-      ``sampler_descriptor``, ``shared_local_buffer_descriptor``, and
+      ``sampler_descriptor``, ``plain_old_embedded_data_descriptor``,
+      ``shared_local_buffer_descriptor``, and
+      ``custom_buffer_descriptor`` **must not** be initialized.
+
+-  If ``type`` is ``mux_descriptor_info_type_plain_old_embedded_data``
+
+   -  ``plain_old_data_descriptor_embedded`` **must** be initialized.
+   -  ``buffer_descriptor``, ``image_descriptor``,
+      ``sampler_descriptor``, ``plain_old_data_descriptor``,
+      ``shared_local_buffer_descriptor``, and
       ``custom_buffer_descriptor`` **must not** be initialized.
 
 -  If ``type`` is ``mux_descriptor_info_type_shared_local_buffer``
 
    -  ``shared_local_buffer_descriptor`` **must** be initialized.
    -  ``buffer_descriptor``, ``image_descriptor``,
-      ``sampler_descriptor``, ``plain_old_data_descriptor``, and
+      ``sampler_descriptor``,
+      ``plain_old_data_descriptor``,
+      ``plain_old_embedded_data_descriptor``, and
       ``custom_buffer_descriptor`` **must not** be initialized.
 
 -  If ``type`` is ``mux_descriptor_info_type_null_buffer``
 
    -  ``buffer_descriptor``, ``image_descriptor``,
       ``sampler_descriptor``, ``plain_old_data_descriptor``,
+      ``plain_old_embedded_data_descriptor``,
       ``shared_local_buffer_descriptor``, and
       ``custom_buffer_descriptor`` **must not** be initialized.
 
@@ -890,7 +913,31 @@ The ``mux_descriptor_info_type_plain_old_data`` enumeration of
    };
 
 -  ``data`` - the data that this descriptor is *describing*.
--  ``offset`` - the length (in bytes) of ``data``.
+-  ``length`` - the length (in bytes) of ``data``.
+
+Plain Old Embedded Data Descriptors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Plain-old-embedded-data descriptors specify that a given
+``mux_descriptor_info_t`` is a
+``mux_descriptor_info_plain_old_embedded_data_s``.
+
+Plain-old-embedded-data descriptors are just like plain-old-data
+descriptors, except they hold the data they refer to internally rather
+than pointing elsewhere. Data is limited in size to 16 bytes.
+
+The ``mux_descriptor_info_type_plain_old_data`` enumeration of
+``mux_descriptor_info_type_e`` is used to specify a buffer descriptor.
+
+.. code:: c
+
+   struct mux_descriptor_info_plain_old_embedded_data_s {
+     size_t length;
+     char data[16];
+   };
+
+-  ``length`` - the length (in bytes) of ``data``.
+-  ``data`` - the data that this descriptor is *describing*.
 
 Shared Local Buffer Descriptors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

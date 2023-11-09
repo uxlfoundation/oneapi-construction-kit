@@ -37,7 +37,7 @@ extern "C" {
 /// @brief Mux major version number.
 #define MUX_MAJOR_VERSION 0
 /// @brief Mux minor version number.
-#define MUX_MINOR_VERSION 80
+#define MUX_MINOR_VERSION 81
 /// @brief Mux patch version number.
 #define MUX_PATCH_VERSION 0
 /// @brief Mux combined version number.
@@ -719,7 +719,9 @@ enum mux_descriptor_info_type_e {
   /// @brief Descriptor is a null buffer.
   mux_descriptor_info_type_null_buffer = 5,
   /// @brief Descriptor is a custom buffer.
-  mux_descriptor_info_type_custom_buffer = 6
+  mux_descriptor_info_type_custom_buffer = 6,
+  /// @brief Descriptor is plain-old-embedded-data.
+  mux_descriptor_info_type_plain_old_embedded_data = 7
 };
 
 /// @brief All possible addressing modes describing how to handle out of range
@@ -2709,6 +2711,14 @@ struct mux_descriptor_info_plain_old_data_s {
   size_t length;
 };
 
+/// @brief A Mux descriptor for plain old data.
+struct mux_descriptor_info_plain_old_embedded_data_s {
+  /// @brief Size in bytes of @p data storage.
+  size_t length;
+  /// @brief Buffer for plain old data.
+  char data[16];
+};
+
 /// @brief A Mux descriptor for a shared local buffer.
 struct mux_descriptor_info_shared_local_buffer_s {
   /// @brief Size in bytes of shared local buffer.
@@ -2739,6 +2749,8 @@ struct mux_descriptor_info_s {
     struct mux_descriptor_info_image_s image_descriptor;
     struct mux_descriptor_info_sampler_s sampler_descriptor;
     struct mux_descriptor_info_plain_old_data_s plain_old_data_descriptor;
+    struct mux_descriptor_info_plain_old_embedded_data_s
+        plain_old_embedded_data_descriptor;
     struct mux_descriptor_info_shared_local_buffer_s
         shared_local_buffer_descriptor;
     struct mux_descriptor_info_custom_buffer_s custom_buffer_descriptor;

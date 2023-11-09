@@ -11,6 +11,11 @@ version increases mean backward compatible bug fixes have been applied.
    Versions prior to 1.0.0 may contain breaking changes in minor
    versions as the API is still under development.
 
+0.81.0
+------
+
+* Added ``plain_old_embedded_data`` storage type.
+
 0.80.0
 ------
 

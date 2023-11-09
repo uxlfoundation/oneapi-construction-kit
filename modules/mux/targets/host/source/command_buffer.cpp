@@ -51,6 +51,9 @@ size_t calcPackedArgsAllocSize(
       case mux_descriptor_info_type_plain_old_data: {
         size = descriptor.plain_old_data_descriptor.length;
       } break;
+      case mux_descriptor_info_type_plain_old_embedded_data: {
+        size = descriptor.plain_old_embedded_data_descriptor.length;
+      } break;
       case mux_descriptor_info_type_shared_local_buffer: {
         size = sizeof(size_t);
       } break;
@@ -138,6 +141,13 @@ void populatePackedArgs(
       case mux_descriptor_info_type_plain_old_data: {
         mux_descriptor_info_plain_old_data_s info =
             descriptor.plain_old_data_descriptor;
+
+        std::memcpy(packed_args_alloc + offset, info.data, info.length);
+        offset += info.length;
+      } break;
+      case mux_descriptor_info_type_plain_old_embedded_data: {
+        mux_descriptor_info_plain_old_embedded_data_s info =
+            descriptor.plain_old_embedded_data_descriptor;
 
         std::memcpy(packed_args_alloc + offset, info.data, info.length);
         offset += info.length;
@@ -1018,6 +1028,12 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
       case mux_descriptor_info_type_plain_old_data: {
         mux_descriptor_info_plain_old_data_s info =
             descriptors[i].plain_old_data_descriptor;
+
+        std::memcpy(arg_address, info.data, info.length);
+      } break;
+      case mux_descriptor_info_type_plain_old_embedded_data: {
+        mux_descriptor_info_plain_old_embedded_data_s info =
+            descriptors[i].plain_old_embedded_data_descriptor;
 
         std::memcpy(arg_address, info.data, info.length);
       } break;

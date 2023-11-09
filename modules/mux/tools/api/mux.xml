@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
     <block>
       <define priority="high">${FUNCTION_PREFIX}_MAJOR_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} major version number.</brief></doxygen></define>
-      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>80</value>
+      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>81</value>
         <doxygen><brief>${Function_Prefix} minor version number.</brief></doxygen></define>
       <define priority="high">${FUNCTION_PREFIX}_PATCH_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} patch version number.</brief></doxygen></define>
@@ -710,6 +710,8 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
           <doxygen><brief>Descriptor is a null buffer.</brief></doxygen></constant>
         <constant>${prefix}_descriptor_info_type_custom_buffer<value>6</value>
           <doxygen><brief>Descriptor is a custom buffer.</brief></doxygen></constant>
+        <constant>${prefix}_descriptor_info_type_plain_old_embedded_data<value>7</value>
+          <doxygen><brief>Descriptor is plain-old-embedded-data.</brief></doxygen></constant>
       </scope>
       <doxygen><brief>All possible descriptor types.</brief>
         <see>${prefix}_descriptor_info_s::_type</see>
@@ -2432,6 +2434,16 @@ For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_
       <doxygen><brief>An ${Prefix} descriptor for plain old data.</brief></doxygen>
     </struct>
 
+    <struct>${prefix}_descriptor_info_plain_old_embedded_data_s
+      <scope>
+        <member>length<type>size_t</type>
+          <doxygen><brief>Size in bytes of @p data storage.</brief></doxygen></member>
+        <member>data[16]<type>char</type>
+          <doxygen><brief>Buffer for plain old data.</brief></doxygen></member>
+      </scope>
+      <doxygen><brief>An ${Prefix} descriptor for plain old data.</brief></doxygen>
+    </struct>
+
     <struct>${prefix}_descriptor_info_shared_local_buffer_s
       <scope>
         <member>size<type>size_t</type>
@@ -2467,6 +2479,7 @@ For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_
         <member>image_descriptor<struct>${prefix}_descriptor_info_image_s</struct></member>
         <member>sampler_descriptor<struct>${prefix}_descriptor_info_sampler_s</struct></member>
         <member>plain_old_data_descriptor<struct>${prefix}_descriptor_info_plain_old_data_s</struct></member>
+        <member>plain_old_embedded_data_descriptor<struct>${prefix}_descriptor_info_plain_old_embedded_data_s</struct></member>
         <member>shared_local_buffer_descriptor<struct>${prefix}_descriptor_info_shared_local_buffer_s</struct></member>
         <member>custom_buffer_descriptor<struct>${prefix}_descriptor_info_custom_buffer_s</struct></member>
         </scope></union></member>

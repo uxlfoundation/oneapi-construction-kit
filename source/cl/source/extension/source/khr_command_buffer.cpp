@@ -1167,12 +1167,13 @@ CARGO_NODISCARD cl_int _cl_command_buffer_khr::updateCommandBuffer(
 
       // Construct Descriptor
       mux_descriptor_info_s descriptor;
-      descriptor.type =
-          mux_descriptor_info_type_e::mux_descriptor_info_type_plain_old_data;
-      void *data = new char[sizeof arg_value];
-      memcpy(data, &arg_value, sizeof arg_value);
-      descriptor.plain_old_data_descriptor.data = data;
-      descriptor.plain_old_data_descriptor.length = sizeof arg_value;
+      descriptor.type = mux_descriptor_info_type_e::
+          mux_descriptor_info_type_plain_old_embedded_data;
+      static_assert(sizeof arg_value <=
+                    sizeof descriptor.plain_old_embedded_data_descriptor.data);
+      memcpy(descriptor.plain_old_embedded_data_descriptor.data, &arg_value,
+             sizeof arg_value);
+      descriptor.plain_old_embedded_data_descriptor.length = sizeof arg_value;
       update_info.descriptors[update_index] = descriptor;
       update_index++;
     }
