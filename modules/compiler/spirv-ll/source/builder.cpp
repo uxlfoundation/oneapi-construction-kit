@@ -912,6 +912,7 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     case OpenCLLIB::SMul_hi:
     case OpenCLLIB::SSub_sat:
     case OpenCLLIB::SMul24:
+    case OpenCLLIB::SMad24:
       resMangleInfo = MangleInfo::getSigned(resTyId);
       for (auto &arg : argInfo) {
         arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
