@@ -130,14 +130,6 @@ void kernel usm_copy(__global int* in,
   constexpr static size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t MutableDispatchUSMTest::global_size;
-constexpr size_t MutableDispatchUSMTest::data_size_in_bytes;
-#endif
-
 // Return CL_INVALID_VALUE if arg_svm_list is NULL and num_svm_args > 0,
 // or arg_svm_list is not NULL and num_svm_args is 0.
 TEST_F(MutableDispatchUSMTest, InvalidArgList) {
@@ -227,8 +219,6 @@ TEST_F(MutableDispatchUSMTest, InvalidArgIndex) {
                                               command_buffer, &mutable_config));
 }
 
-// Test clSetKernelMemPointerINTEL error code for CL_INVALID_ARG_VALUE if
-// arg_value is not a valid argument index.
 TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrs[0]));
 
@@ -259,8 +249,11 @@ TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
   cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_ARG_VALUE, clUpdateMutableCommandsKHR(
-                                              command_buffer, &mutable_config));
+  // The interaction between cl_intel_unified_shared_memory and
+  // cl_khr_command_buffer_mutable_dispatch is not specified but we assume that
+  // if clSetKernelArgMemPointerINTEL would not report invalid values, neither
+  // will clUpdateMutableCommandsKHR.
+  ASSERT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 }
 
 // Tests for updating USM arguments to a command-buffer kernel command are
@@ -275,13 +268,6 @@ struct MutableDispatchUpdateUSMArgs
       public ::testing::WithParamInterface<usm_pointers> {
   static constexpr std::array<bool, 2> usm_update_pair = {true, false};
 };
-
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr std::array<bool, 2> MutableDispatchUpdateUSMArgs::usm_update_pair;
-#endif
 
 // Test that a USM pointer argument to the kernel (pointer A) can be updated to
 // another USM pointer (pointer B).

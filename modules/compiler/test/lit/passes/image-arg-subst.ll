@@ -20,7 +20,7 @@
 ; RUN: muxc --passes image-arg-subst,verify %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
-target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; CHECK: define internal spir_kernel void @image_sampler.old(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) [[OLD_ATTRS:#[0-9]+]] {
 define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr addrspace(1) %img, ptr addrspace(2) %sampler1, ptr addrspace(2) %sampler2) #0 {

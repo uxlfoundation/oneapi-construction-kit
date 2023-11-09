@@ -37,23 +37,10 @@ namespace utils {
 /// introduces global variables into the module in the __local address space
 /// and therefore must be run before the ReplaceLocalModuleScopeVariablesPass
 /// on any target making use of that pass.
-///
-/// The constructor for this pass takes a boolean value indicating whether or
-/// not only Work Group Collective Scan operations should be processed. This is
-/// because the vectorizer and the Handle Barriers Pass are now able to work
-/// with reductions and broadcasts *as-is*. Pass false here if you do not intend
-/// to use the Handle Barriers Pass, so working implementations of these
-/// builtins are still generated. Pass true if you are using the Handle Barriers
-/// Pass, since its own implementations are more efficient.
 class ReplaceWGCPass final : public llvm::PassInfoMixin<ReplaceWGCPass> {
  public:
-  ReplaceWGCPass(bool scansOnly = false) : scans_only(scansOnly) {}
+  ReplaceWGCPass() {}
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
-
- private:
-  /// @brief when set to true, only work group collective scans will be
-  /// replaced.
-  bool scans_only = false;
 };
 }  // namespace utils
 }  // namespace compiler

@@ -364,7 +364,7 @@ TEST_P(Execution, Barrier_14_Barrier_In_Reduce) {
 
   AddInputBuffer(kts::N, refIn);
   AddOutputBuffer(kts::N / kts::localN, refOut);
-  AddLocalBuffer(kts::localN * sizeof(cl_int));
+  AddLocalBuffer<cl_int>(kts::localN);
   RunGeneric1D(kts::N, kts::localN);
 }
 
@@ -397,7 +397,7 @@ TEST_P(MemFenceTests, Barrier_16_Memory_Fence_Global) {
 TEST_P(MemFenceTests, Barrier_16_Memory_Fence_Local) {
   AddMacro("FENCE_OP", getParam());
   AddInputBuffer(kts::N, kts::Ref_Identity);
-  AddLocalBuffer(kts::localN);
+  AddLocalBuffer<cl_int>(kts::localN);
   AddOutputBuffer(kts::N, kts::Ref_Identity);
   RunGeneric1D(kts::N, kts::localN);
 }

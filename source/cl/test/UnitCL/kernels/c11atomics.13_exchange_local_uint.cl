@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // CL_STD: 3.0
 __kernel void exchange_local_uint(__global uint *in_out_buffer,
-                             __global uint *desired_buffer,
-                             __global uint *output_buffer,
-                             volatile __local atomic_uint *local_buffer) {
+                                  __global uint *desired_buffer,
+                                  __global uint *output_buffer,
+                                  volatile __local atomic_uint *local_buffer) {
   uint gid = get_global_id(0);
   uint lid = get_local_id(0);
 

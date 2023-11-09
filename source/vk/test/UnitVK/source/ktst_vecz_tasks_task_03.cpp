@@ -274,7 +274,7 @@ TEST_F(Execution, Task_03_27_Atomic_Inc_Builtin) {
   if (clspvSupported_) {
     const cl_int base_value = 42;
     auto streamer(
-        std::make_shared<AtomicStreamer>(base_value, (cl_int)kts::localN));
+        std::make_shared<AtomicStreamer<cl_int>>(base_value, kts::localN));
     AddOutputBuffer(kts::BufferDesc(1, streamer));
     AddOutputBuffer(kts::BufferDesc(kts::localN, streamer));
     RunGeneric1D(kts::localN, kts::localN);

@@ -18,7 +18,6 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <host/host_mux_builtin_info.h>
-#include <multi_llvm/multi_llvm.h>
 
 #include <optional>
 
@@ -35,8 +34,7 @@ enum {
 
 StructType *HostBIMuxInfo::getMiniWGInfoStruct(Module &M) {
   static constexpr const char *HostStructName = "MiniWGInfo";
-  if (auto *ty =
-          multi_llvm::getStructTypeByName(M.getContext(), HostStructName)) {
+  if (auto *ty = StructType::getTypeByName(M.getContext(), HostStructName)) {
     return ty;
   }
 
@@ -53,8 +51,7 @@ StructType *HostBIMuxInfo::getMiniWGInfoStruct(Module &M) {
 
 StructType *HostBIMuxInfo::getScheduleInfoStruct(Module &M) {
   static constexpr const char *HostStructName = "Mux_schedule_info_s";
-  if (auto *ty =
-          multi_llvm::getStructTypeByName(M.getContext(), HostStructName)) {
+  if (auto *ty = StructType::getTypeByName(M.getContext(), HostStructName)) {
     return ty;
   }
   auto &Ctx = M.getContext();

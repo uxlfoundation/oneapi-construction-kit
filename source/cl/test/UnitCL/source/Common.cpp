@@ -1304,6 +1304,12 @@ bool UCL::hasDoubleSupport(cl_device_id device) {
   return 0 != config;
 }
 
+bool UCL::hasAtomic64Support(cl_device_id device) {
+  return UCL::hasDeviceExtensionSupport(device, "cl_khr_int64_base_atomics") &&
+         UCL::hasDeviceExtensionSupport(device,
+                                        "cl_khr_int64_extended_atomics");
+}
+
 bool UCL::hasCompilerSupport(cl_device_id device) {
   cl_bool has_compiler;
   UCL_ASSERT(

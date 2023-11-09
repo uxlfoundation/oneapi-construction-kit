@@ -10,7 +10,7 @@ jobs:
   create_llvm_cache:
     strategy:
       matrix:
-        version: [15, 16]
+        version: [16, 17]
         os: [ubuntu-22.04]
         build_type: [Release, RelAssert]
         include:

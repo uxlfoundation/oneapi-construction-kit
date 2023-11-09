@@ -42,27 +42,6 @@ Instead, targets may wish to use the following:
 
 This form will preserve ``CA_LLVM_OPTIONS`` in debug builds.
 
-.. warning::
-
-  Targets should be aware that before LLVM 15 it is possible that if a
-  command-line option was set in both ``cl_args`` *and* ``CA_LLVM_OPTIONS``,
-  the process may crash with the following error:
-
-  .. code::
-
-    for the --foo option: may only occur one or more times!
-    for the --bar option: may only occur zero or one times!
-
-  This affected all options not explicitly defined in LLVM as
-  ``llvm::cl::OneOrMore`` or ``llvm::cl::ZeroOrMore``.
-
-  This issue was resolved in LLVM 15 so that this will no longer be an error,
-  but rather the *last* occurrence of an option always wins. The implementation
-  of ``llvm::cl::ParseCommandLineOptions`` parses ``CA_LLVM_OPTIONS`` first,
-  followed by the ``cl_args``. This means that users are unable to override
-  options with ``CA_LLVM_OPTIONS``, with their attempts silently ignored. It is
-  advised that this is documented to users.
-
 Parsing of command-line options could take place in several places.
 
 If options are inherent to a target and not dictated by the specific compilation

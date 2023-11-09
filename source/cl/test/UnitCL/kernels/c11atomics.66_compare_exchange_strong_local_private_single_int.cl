@@ -36,8 +36,8 @@ __kernel void compare_exchange_strong_local_private_single_int(
   work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
   if (0 == lid) {
-    inout_buffer[wgid] = atomic_load_explicit(local_atomic, memory_order_relaxed,
-                                             memory_scope_work_item);
+    inout_buffer[wgid] = atomic_load_explicit(
+        local_atomic, memory_order_relaxed, memory_scope_work_item);
   }
 
   expected_buffer[gid] = expected_private;

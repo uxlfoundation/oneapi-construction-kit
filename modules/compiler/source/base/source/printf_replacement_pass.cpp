@@ -332,16 +332,20 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
   GlobalVariable *var = dyn_cast<GlobalVariable>(op);
   if (!var) {
     if (auto const_string = dyn_cast<ConstantExpr>(op)) {
-      if (const_string->getOpcode() == Instruction::GetElementPtr) {
-        var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
-      } else if (const_string->getOpcode() == Instruction::IntToPtr) {
-        // Sometimes we see a PtrToInt expression inside an IntToPtr
-        // expression, so therefore we need to unwrap it twice.
-        const_string = dyn_cast<ConstantExpr>(const_string->getOperand(0));
-        if (const_string &&
-            const_string->getOpcode() == Instruction::PtrToInt) {
+      switch (const_string->getOpcode()) {
+        case Instruction::GetElementPtr:
+        case Instruction::AddrSpaceCast:
           var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
-        }
+          break;
+        case Instruction::IntToPtr:
+          // Sometimes we see a PtrToInt expression inside an IntToPtr
+          // expression, so therefore we need to unwrap it twice.
+          const_string = dyn_cast<ConstantExpr>(const_string->getOperand(0));
+          if (const_string &&
+              const_string->getOpcode() == Instruction::PtrToInt) {
+            var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
+          }
+          break;
       }
     } else if (auto gep_string = dyn_cast<GetElementPtrInst>(op)) {
       var = dyn_cast<GlobalVariable>(gep_string->getPointerOperand());

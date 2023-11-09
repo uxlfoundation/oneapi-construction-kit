@@ -45,6 +45,11 @@ cl_int extension::khr_opencl_c_1_2::GetDeviceInfo(
       extension_names += "cl_khr_local_int32_base_atomics ";
       extension_names += "cl_khr_local_int32_extended_atomics ";
       extension_names += "cl_khr_byte_addressable_store ";
+      if (device->mux_device->info->atomic_capabilities &
+          mux_atomic_capabilities_64bit) {
+        extension_names += "cl_khr_int64_base_atomics ";
+        extension_names += "cl_khr_int64_extended_atomics ";
+      }
 
       if (device->profile == "EMBEDDED_PROFILE") {
         if (device->mux_device->info->integer_capabilities &

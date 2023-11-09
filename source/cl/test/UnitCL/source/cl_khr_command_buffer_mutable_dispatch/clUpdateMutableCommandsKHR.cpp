@@ -108,14 +108,6 @@ class CommandBufferUpdateNDKernel : public MutableDispatchTest {
   constexpr static size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferUpdateNDKernel::global_size;
-constexpr size_t CommandBufferUpdateNDKernel::data_size_in_bytes;
-#endif
-
 // Return CL_INVALID_COMMAND_BUFFER_KHR if command_buffer is not a valid
 // command-buffer.
 TEST_F(CommandBufferUpdateNDKernel, NullCommandBuffer) {

@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
     <block>
       <define priority="high">${FUNCTION_PREFIX}_MAJOR_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} major version number.</brief></doxygen></define>
-      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>79</value>
+      <define priority="high">${FUNCTION_PREFIX}_MINOR_VERSION<value>80</value>
         <doxygen><brief>${Function_Prefix} minor version number.</brief></doxygen></define>
       <define priority="high">${FUNCTION_PREFIX}_PATCH_VERSION<value>0</value>
         <doxygen><brief>${Function_Prefix} patch version number.</brief></doxygen></define>
@@ -586,6 +586,22 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
       <doxygen><brief>Bitfield of all possible addressing capabilities.</brief>
         <see>${prefix}_device_info_s::source_capabilities</see>
         <detail>Each ${Prefix} device info struct has a member which denotes the addressing capabilities of that device, as a bitfield of the following enum.</detail>
+      </doxygen>
+    </enum>
+
+    <enum>${prefix}_atomic_capabilities_e
+      <scope>
+        <constant>${prefix}_atomic_capabilities_8bit<value>0x1</value>
+          <doxygen><brief>8 bit atomic support</brief></doxygen></constant>
+        <constant>${prefix}_atomic_capabilities_16bit<value>0x2</value>
+          <doxygen><brief>16 bit atomic support</brief></doxygen></constant>
+        <constant>${prefix}_atomic_capabilities_32bit<value>0x4</value>
+          <doxygen><brief>32 bit atomic support</brief></doxygen></constant>
+        <constant>${prefix}_atomic_capabilities_64bit<value>0x8</value>
+          <doxygen><brief>64 bit atomic support</brief></doxygen></constant>
+      </scope>
+      <doxygen><brief>Bitfield of all possible atomic capabilities.</brief>
+	<detail>Each ${Prefix} device struct has a member which denotes the atomic capabilities of that device, as a bitfield of the following enum.</detail>
       </doxygen>
     </enum>
 
@@ -1897,6 +1913,10 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</comment>
         <member>address_capabilities<type>uint32_t </type>
           <doxygen><brief>The addressing capabilities of this ${Prefix} device, a bitfield.</brief>
             <see>${prefix}_address_capabilities_e</see></doxygen></member>
+
+        <member>atomic_capabilities<type>uint32_t </type>
+          <doxygen><brief>The atomic capabilities of this ${Prefix} device, a bitfield.</brief>
+            <see>${prefix}_atomic_capabilities_e</see></doxygen></member>
 
         <member>cache_capabilities<type>uint32_t </type>
           <doxygen><brief>The caching capabilities of this ${Prefix} device, a bitfield.</brief>

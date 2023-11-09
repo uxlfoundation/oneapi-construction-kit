@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 112
+; Bound: 103
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -10,11 +10,10 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %103 "compare_exchange_strong_local_local_int" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
+               OpEntryPoint Kernel %12 "compare_exchange_strong_local_local_int" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
                OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
-               OpName %compare_exchange_strong_local_local_int "compare_exchange_strong_local_local_int"
                OpName %inout "inout"
                OpName %expected_buffer "expected_buffer"
                OpName %desired_buffer "desired_buffer"
@@ -52,7 +51,6 @@
                OpName %idxprom11 "idxprom11"
                OpName %arrayidx12 "arrayidx12"
                OpName %exp "exp"
-               OpName %call131 "call131"
                OpName %call13 "call13"
                OpName %conv14 "conv14"
                OpName %idxprom15 "idxprom15"
@@ -67,19 +65,12 @@
                OpName %call23 "call23"
                OpName %idxprom24 "idxprom24"
                OpName %arrayidx25 "arrayidx25"
-               OpName %inout_0 "inout"
-               OpName %expected_buffer_0 "expected_buffer"
-               OpName %desired_buffer_0 "desired_buffer"
-               OpName %bool_output_buffer_0 "bool_output_buffer"
-               OpName %local_atomic_buffer_0 "local_atomic_buffer"
-               OpName %local_expected_buffer_0 "local_expected_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
                OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
                OpDecorate %__spirv_BuiltInLocalInvocationId Constant
                OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
-               OpDecorate %compare_exchange_strong_local_local_int LinkageAttributes "compare_exchange_strong_local_local_int" Export
                OpDecorate %inout Alignment 4
                OpDecorate %expected_buffer Alignment 4
                OpDecorate %desired_buffer Alignment 4
@@ -94,13 +85,7 @@
                OpDecorate %local_expected_buffer_addr Alignment 8
                OpDecorate %gid Alignment 4
                OpDecorate %lid Alignment 4
-               OpDecorate %inout_0 Alignment 4
-               OpDecorate %expected_buffer_0 Alignment 4
-               OpDecorate %desired_buffer_0 Alignment 4
-               OpDecorate %bool_output_buffer_0 Alignment 4
-               OpDecorate %local_atomic_buffer_0 Alignment 4
-               OpDecorate %local_expected_buffer_0 Alignment 4
-               OpDecorate %local_atomic_buffer_0 Volatile
+               OpDecorate %local_atomic_buffer Volatile
       %ulong = OpTypeInt 64 0
        %uint = OpTypeInt 32 0
      %uint_4 = OpConstant %uint 4
@@ -119,7 +104,7 @@
        %bool = OpTypeBool
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
 %__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3ulong Input
-%compare_exchange_strong_local_local_int = OpFunction %void DontInline %11
+         %12 = OpFunction %void DontInline %11
       %inout = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %expected_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %desired_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
@@ -186,9 +171,9 @@
  %arrayidx12 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %67 %idxprom11
          %71 = OpLoad %uint %arrayidx12 Aligned 4
         %exp = OpLoad %uint %add_ptr10_ascast Aligned 4
-    %call131 = OpAtomicCompareExchange %uint %add_ptr8_ascast %uint_4 %uint_0 %uint_0 %71 %exp
-               OpStore %add_ptr10_ascast %call131 Aligned 4
-     %call13 = OpIEqual %bool %call131 %exp
+         %75 = OpAtomicCompareExchange %uint %add_ptr8_ascast %uint_4 %uint_0 %uint_0 %71 %exp
+               OpStore %add_ptr10_ascast %75 Aligned 4
+     %call13 = OpIEqual %bool %75 %exp
      %conv14 = OpSelect %uint %call13 %uint_1 %uint_0
          %80 = OpLoad %_ptr_CrossWorkgroup_uint %bool_output_buffer_addr Aligned 8
          %81 = OpLoad %uint %gid Aligned 4
@@ -216,16 +201,5 @@
   %idxprom24 = OpSConvert %ulong %100
  %arrayidx25 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %99 %idxprom24
                OpStore %arrayidx25 %call23 Aligned 4
-               OpReturn
-               OpFunctionEnd
-        %103 = OpFunction %void DontInline %11
-    %inout_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%expected_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%desired_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%bool_output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%local_atomic_buffer_0 = OpFunctionParameter %_ptr_Workgroup_uint
-%local_expected_buffer_0 = OpFunctionParameter %_ptr_Workgroup_uint
-        %110 = OpLabel
-        %111 = OpFunctionCall %void %compare_exchange_strong_local_local_int %inout_0 %expected_buffer_0 %desired_buffer_0 %bool_output_buffer_0 %local_atomic_buffer_0 %local_expected_buffer_0
                OpReturn
                OpFunctionEnd

@@ -17,7 +17,7 @@
 #include <compiler/utils/pass_machinery.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Analysis/AliasAnalysis.h>
-#include <multi_llvm/optional_helper.h>
+#include <multi_llvm/llvm_version.h>
 
 using namespace llvm;
 
@@ -71,20 +71,14 @@ PassMachinery::PassMachinery(LLVMContext &Ctx, TargetMachine *TM,
   PrintPassOpts.Verbose = DebugPM == DebugLogging::Verbose;
   PrintPassOpts.SkipAnalyses = DebugPM == DebugLogging::Quiet;
   PrintPassOpts.Indent = debugLogLevel != DebugLogging::None;
-#if LLVM_VERSION_MAJOR >= 16
   SI = std::make_unique<StandardInstrumentations>(
       Ctx, debugLogLevel != DebugLogging::None, VerifyEach, PrintPassOpts);
-#else
-  CTX_UNUSED(Ctx);
-  SI = std::make_unique<StandardInstrumentations>(
-      debugLogLevel != DebugLogging::None, VerifyEach, PrintPassOpts);
-#endif
 }
 
 PassMachinery::~PassMachinery() {}
 
 void PassMachinery::initializeStart(PipelineTuningOptions PTO) {
-  multi_llvm::Optional<PGOOptions> PGOOpt;
+  std::optional<PGOOptions> PGOOpt;
   PB = PassBuilder(TM, PTO, PGOOpt, &PIC);
 }
 

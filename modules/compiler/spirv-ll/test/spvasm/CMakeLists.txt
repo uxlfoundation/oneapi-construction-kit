@@ -2353,6 +2353,7 @@ set(SPVASM_FILES
   op_expect_assume.spvasm
   op_generic_pointer.spvasm
   op_generic_pointer_builtin.spvasm
+  op_ptr_access_chain.spvasm
   op_spec_constant_generic_pointer.spvasm
   prioritize_function_names.spvasm
   prioritize_function_names_external.spvasm
@@ -2365,14 +2366,14 @@ set(SPVASM_FILES
   invalid_storage_class.spvasm
   )
 
-if(SpirvAsVersionYear GREATER 2019)
+if(SpirvAsVersion VERSION_GREATER_EQUAL "2020.0")
   list(APPEND SPVASM_FILES
     op_execution_mode_max_work_dim.spvasm
     opencl_group_async_copy_2d2d.spvasm
     opencl_group_async_copy_3d3d.spvasm)
 endif()
 
-if (SpirvAsVersionYear GREATER_EQUAL 2022)
+if (SpirvAsVersion VERSION_GREATER_EQUAL "2021.3")
   list(APPEND SPVASM_FILES
     intel_opt_none.spvasm
     subgroup_shuffle_intel.spvasm
@@ -2382,9 +2383,12 @@ if (SpirvAsVersionYear GREATER_EQUAL 2022)
   )
 endif()
 
-if (SpirvAsVersionYear GREATER 2022)
-  list(APPEND SPVASM_FILES
-    intel_memory_access_aliasing.spvasm)
+if (SpirvAsVersion VERSION_GREATER_EQUAL "2022.2")
+  list(APPEND SPVASM_FILES intel_memory_access_aliasing.spvasm)
+endif()
+
+if (SpirvAsVersion VERSION_GREATER_EQUAL "2023.5")
+  list(APPEND SPVASM_FILES op_group_f_mul.spvasm)
 endif()
 
 # Test files that require SPIR-V v1.1

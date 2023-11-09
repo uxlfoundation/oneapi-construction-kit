@@ -353,6 +353,10 @@ int __CL_BUILTIN_ATTRIBUTES atomic_dec(volatile int local *p);
 int __CL_BUILTIN_ATTRIBUTES atomic_inc(volatile int local *p);
 int __CL_BUILTIN_ATTRIBUTES atom_dec(volatile int local *p);
 int __CL_BUILTIN_ATTRIBUTES atom_inc(volatile int local *p);
+long __CL_BUILTIN_ATTRIBUTES atom_dec(volatile long global *p);
+long __CL_BUILTIN_ATTRIBUTES atom_inc(volatile long global *p);
+long __CL_BUILTIN_ATTRIBUTES atom_dec(volatile long local *p);
+long __CL_BUILTIN_ATTRIBUTES atom_inc(volatile long local *p);
 uint __CL_BUILTIN_ATTRIBUTES atomic_dec(volatile uint global *p);
 uint __CL_BUILTIN_ATTRIBUTES atomic_inc(volatile uint global *p);
 uint __CL_BUILTIN_ATTRIBUTES atom_dec(volatile uint global *p);
@@ -361,6 +365,10 @@ uint __CL_BUILTIN_ATTRIBUTES atomic_dec(volatile uint local *p);
 uint __CL_BUILTIN_ATTRIBUTES atomic_inc(volatile uint local *p);
 uint __CL_BUILTIN_ATTRIBUTES atom_dec(volatile uint local *p);
 uint __CL_BUILTIN_ATTRIBUTES atom_inc(volatile uint local *p);
+ulong __CL_BUILTIN_ATTRIBUTES atom_dec(volatile ulong global *p);
+ulong __CL_BUILTIN_ATTRIBUTES atom_inc(volatile ulong global *p);
+ulong __CL_BUILTIN_ATTRIBUTES atom_dec(volatile ulong local *p);
+ulong __CL_BUILTIN_ATTRIBUTES atom_inc(volatile ulong local *p);
 int __CL_BUILTIN_ATTRIBUTES atomic_add(volatile int global *p, int val);
 int __CL_BUILTIN_ATTRIBUTES atomic_sub(volatile int global *p, int val);
 int __CL_BUILTIN_ATTRIBUTES atomic_xchg(volatile int global *p, int val);
@@ -393,6 +401,22 @@ int __CL_BUILTIN_ATTRIBUTES atom_max(volatile int local *p, int val);
 int __CL_BUILTIN_ATTRIBUTES atom_and(volatile int local *p, int val);
 int __CL_BUILTIN_ATTRIBUTES atom_or(volatile int local *p, int val);
 int __CL_BUILTIN_ATTRIBUTES atom_xor(volatile int local *p, int val);
+long __CL_BUILTIN_ATTRIBUTES atom_add(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_sub(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_xchg(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_min(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_max(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_and(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_or(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_xor(volatile long global *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_add(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_sub(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_xchg(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_min(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_max(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_and(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_or(volatile long local *p, long val);
+long __CL_BUILTIN_ATTRIBUTES atom_xor(volatile long local *p, long val);
 uint __CL_BUILTIN_ATTRIBUTES atomic_add(volatile uint global *p, uint val);
 uint __CL_BUILTIN_ATTRIBUTES atomic_sub(volatile uint global *p, uint val);
 uint __CL_BUILTIN_ATTRIBUTES atomic_xchg(volatile uint global *p, uint val);
@@ -425,6 +449,22 @@ uint __CL_BUILTIN_ATTRIBUTES atom_max(volatile uint local *p, uint val);
 uint __CL_BUILTIN_ATTRIBUTES atom_and(volatile uint local *p, uint val);
 uint __CL_BUILTIN_ATTRIBUTES atom_or(volatile uint local *p, uint val);
 uint __CL_BUILTIN_ATTRIBUTES atom_xor(volatile uint local *p, uint val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_add(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_sub(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_xchg(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_min(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_max(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_and(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_or(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_xor(volatile ulong global *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_add(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_sub(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_xchg(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_min(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_max(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_and(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_or(volatile ulong local *p, ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_xor(volatile ulong local *p, ulong val);
 float __CL_BUILTIN_ATTRIBUTES atomic_xchg(volatile float global *p, float val);
 float __CL_BUILTIN_ATTRIBUTES atom_xchg(volatile float global *p, float val);
 float __CL_BUILTIN_ATTRIBUTES atomic_xchg(volatile float local *p, float val);
@@ -437,6 +477,10 @@ int __CL_BUILTIN_ATTRIBUTES atomic_cmpxchg(volatile int local *p, int cmp,
                                            int val);
 int __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile int local *p, int cmp,
                                          int val);
+long __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile long global *p, long cmp,
+                                          long val);
+long __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile long local *p, long cmp,
+                                          long val);
 uint __CL_BUILTIN_ATTRIBUTES atomic_cmpxchg(volatile uint global *p, uint cmp,
                                             uint val);
 uint __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile uint global *p, uint cmp,
@@ -445,6 +489,10 @@ uint __CL_BUILTIN_ATTRIBUTES atomic_cmpxchg(volatile uint local *p, uint cmp,
                                             uint val);
 uint __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile uint local *p, uint cmp,
                                           uint val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile ulong global *p, ulong cmp,
+                                           ulong val);
+ulong __CL_BUILTIN_ATTRIBUTES atom_cmpxchg(volatile ulong local *p, ulong cmp,
+                                           ulong val);
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 

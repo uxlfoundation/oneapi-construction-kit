@@ -32,6 +32,12 @@ void device_info_s::update_from_hal_info(const hal::hal_device_info_t *info) {
   this->address_capabilities = info->word_size == 32
                                    ? mux_address_capabilities_bits32
                                    : mux_address_capabilities_bits64;
+  this->atomic_capabilities =
+      info->word_size == 32
+          ? (mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
+             mux_atomic_capabilities_32bit)
+          : (mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
+             mux_atomic_capabilities_32bit | mux_atomic_capabilities_64bit);
 
   this->half_capabilities = info->supports_fp16
                                 ? (mux_floating_point_capabilities_inf_nan |
@@ -70,6 +76,7 @@ device_info_s::device_info_s()
 
   // Override this default from hal updates
   this->address_capabilities = mux_address_capabilities_bits64;
+  this->atomic_capabilities = 0;
 
   this->cache_capabilities =
       mux_cache_capabilities_read | mux_cache_capabilities_write;

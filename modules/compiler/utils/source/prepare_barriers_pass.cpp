@@ -19,6 +19,7 @@
 #include <compiler/utils/prepare_barriers_pass.h>
 #include <llvm/ADT/SmallPtrSet.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 #include <multi_llvm/multi_llvm.h>
 
 #include <functional>
@@ -80,7 +81,10 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
 
       auto *const InfoF = cast<CallInst>(U)->getFunction();
       InlineFunctionInfo IFI;
-      auto InlineResult = multi_llvm::InlineFunction(cast<CallInst>(U), IFI);
+      auto InlineResult =
+          InlineFunction(*cast<CallInst>(U), IFI, /*MergeAttributes*/ false,
+                         /*CalleeAAR*/ nullptr, /*InsertLifetime*/ true,
+                         /*ForwardVarArgsTo*/ nullptr);
       if (InlineResult.isSuccess()) {
         Changed = true;
 

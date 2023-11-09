@@ -708,6 +708,9 @@ TEST_P(Execution, Regression_42_Shuffle_Function_Call) {
 }
 
 TEST_P(Execution, Regression_43_Scatter_Gather) {
+  // This test has a kernel that does not handle arbitrary values of N. If its
+  // value is changed, this test will need to be updated manually.
+  ASSERT_EQ(kts::N, 256);
   kts::Reference1D<cl_int> refOut = [](size_t x) { return (cl_int)(x * 7); };
   kts::Reference1D<cl_int> refIn = [](size_t x) {
     return (cl_int)((x + 1) * 7);

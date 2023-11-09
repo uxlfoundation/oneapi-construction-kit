@@ -311,6 +311,11 @@ bool hasHalfSupport(cl_device_id device);
 /// @return True if the device has double support, false otherwise
 bool hasDoubleSupport(cl_device_id device);
 
+/// @brief Check if the device at index 'device' has Atomic64 support
+/// @param[in] device - The index of the device in getDevices()
+/// @return True if the device has Atomic64 support, false otherwise
+bool hasAtomic64Support(cl_device_id device);
+
 /// @brief Check if the device at index 'device' has a compiler available
 /// @param[in] device - The index of the device in getDevices()
 /// @return True if the device has a compiler, false otherwise

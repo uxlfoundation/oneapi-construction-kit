@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <compiler/utils/attributes.h>
 #include <compiler/utils/barrier_regions.h>
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/group_collective_helpers.h>
@@ -35,7 +36,6 @@
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/LCSSA.h>
 #include <llvm/Transforms/Utils/Local.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/multi_llvm.h>
 
 #include <optional>
@@ -371,6 +371,10 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
   }
 
   if (auto *I = dyn_cast<Instruction>(live)) {
+    // Save these
+    auto insPoint = ir.GetInsertPoint();
+    auto *const insBB = ir.GetInsertBlock();
+
     if (!reuse || !mapped) {
       auto *clone = I->clone();
       clone->setName(I->getName());
@@ -393,8 +397,12 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
         op.set(getReload(op_inst, ir, name, reuse));
       }
     }
+
+    // Restore the original insert point
+    ir.SetInsertPoint(insBB, insPoint);
     return I;
   }
+
   return live;
 }
 
@@ -556,6 +564,14 @@ void compiler::utils::Barrier::SplitBlockwithBarrier() {
     node.id = barrier_id++;
     node.schedule = getBarrierSchedule(*split_point);
 
+    // Our scan implementation requires a linear work-item ordering, to loop
+    // over all of the 'main' and 'tail' work-items in order.
+    if (auto collective = getWorkGroupCollectiveCall(split_point, *bi_)) {
+      if (collective->isScan()) {
+        node.schedule = BarrierSchedule::Linear;
+      }
+    }
+
     split_point->getParent()->splitBasicBlock(split_point, "barrier");
   }
 
@@ -597,7 +613,7 @@ Function *compiler::utils::Barrier::GenerateFakeKernel(
     if (region.barrier_blocks.count(bb)) {
       ReturnInst::Create(context, nullptr, new_bb);
     } else {
-      multi_llvm::insertAtEnd(new_bb, bb->getTerminator()->clone());
+      bb->getTerminator()->clone()->insertInto(new_bb, new_bb->end());
     }
     vmap[bb] = new_bb;
     bbmap[bb] = new_bb;
@@ -1356,7 +1372,7 @@ BasicBlock *compiler::utils::Barrier::CloneBasicBlock(
 
     Instruction *new_inst = i.clone();
     if (i.hasName()) new_inst->setName(i.getName() + name_suffix);
-    multi_llvm::insertAtEnd(new_bb, new_inst);
+    new_inst->insertInto(new_bb, new_bb->end());
 
     // Record live variables' defs which are in current kernel.
     if (whole_live_variables_set_.count(&i)) {

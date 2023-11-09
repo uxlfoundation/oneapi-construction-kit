@@ -129,15 +129,6 @@ cl_int createBlockingEventForKernel(cl_command_queue queue, cl_kernel kernel,
   }
   return_event = *new_event;
 
-  // USM allocation set as kernel arguments
-  for (size_t i = 0, e = kernel->info->getNumArguments(); i < e; ++i) {
-    _cl_kernel::argument &arg = kernel->saved_args[i];
-    if (arg.stype == _cl_kernel::argument::storage_type::usm) {
-      auto mux_error = arg.usm.usm_ptr->record_event(return_event);
-      OCL_CHECK(mux_error, return CL_OUT_OF_RESOURCES);
-    }
-  }
-
   // USM allocations which have been set explicitly via clSetKernelExecInfo
   // to be used indirectly in the kernel.
   for (auto indirect_alloc : kernel->indirect_usm_allocs) {

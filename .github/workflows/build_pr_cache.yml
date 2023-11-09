@@ -28,12 +28,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
       
-      # installs tools, ninja and installs llvm (default 16, RelAssert) and sets up cache
+      # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
         with:
           save: true
-          llvm_version: 16
+          llvm_version: 17
           llvm_build_type: RelAssert
 
       - name: build host x86_64 release

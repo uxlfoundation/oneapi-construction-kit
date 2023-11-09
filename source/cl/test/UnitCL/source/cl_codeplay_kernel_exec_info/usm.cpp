@@ -18,15 +18,6 @@
 
 #include "cl_codeplay_kernel_exec_info.h"
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t USMKernelExecInfoCodeplayTest::elements;
-constexpr cl_uint USMKernelExecInfoCodeplayTest::align;
-constexpr size_t USMKernelExecInfoCodeplayTest::bytes;
-#endif
-
 namespace {
 // Fixture for running kernels where the USM pointers are accessed indirectly,
 // and so must be set in clSetKernelExecInfoCodeplay

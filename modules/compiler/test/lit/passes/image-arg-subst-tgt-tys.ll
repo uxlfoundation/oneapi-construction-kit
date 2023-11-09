@@ -17,8 +17,9 @@
 ; REQUIRES: llvm-17+
 ; RUN: muxc --passes replace-target-ext-tys,image-arg-subst,verify %s | FileCheck %s
 
-target triple = "spir64-unknown-unknown"
-target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "spir-unknown-unknown"
+target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"
+
 
 ; CHECK: define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, ptr %img, i32 %sampler1, i32 %sampler2) {{#[0-9]+}} {
 define spir_kernel void @image_sampler(ptr addrspace(1) nocapture writeonly align 4 %out, target("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0) %img, target("spirv.Sampler") %sampler1, target("spirv.Sampler") %sampler2) #0 {

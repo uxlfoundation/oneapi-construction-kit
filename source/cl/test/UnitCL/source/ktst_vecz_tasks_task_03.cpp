@@ -322,10 +322,22 @@ TEST_P(Execution, Task_03_25_As_UShort2_UChar4) {
 // Set local workgroup size to be the same as global work size, otherwise the
 // test is assuming that atomic operations have global scope, which is not
 // required by the OpenCL spec.
-TEST_P(Execution, Task_03_26_Atom_Inc_Builtin) {
+TEST_P(Execution, Task_03_26_Atom_Inc_Builtin_Int) {
   const cl_int base_value = 42;
   auto streamer(
-      std::make_shared<AtomicStreamer>(base_value, (cl_int)kts::localN));
+      std::make_shared<AtomicStreamer<cl_int>>(base_value, kts::localN));
+  AddOutputBuffer(kts::BufferDesc(1, streamer));
+  AddOutputBuffer(kts::BufferDesc(kts::localN, streamer));
+  RunGeneric1D(kts::localN, kts::localN);
+}
+
+TEST_P(Execution, Task_03_26_Atom_Inc_Builtin_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const cl_long base_value = 42;
+  auto streamer(
+      std::make_shared<AtomicStreamer<cl_long>>(base_value, kts::localN));
   AddOutputBuffer(kts::BufferDesc(1, streamer));
   AddOutputBuffer(kts::BufferDesc(kts::localN, streamer));
   RunGeneric1D(kts::localN, kts::localN);
@@ -337,7 +349,7 @@ TEST_P(Execution, Task_03_26_Atom_Inc_Builtin) {
 TEST_P(Execution, Task_03_27_Atomic_Inc_Builtin) {
   const cl_int base_value = 42;
   auto streamer(
-      std::make_shared<AtomicStreamer>(base_value, (cl_int)kts::localN));
+      std::make_shared<AtomicStreamer<cl_int>>(base_value, kts::localN));
   AddOutputBuffer(kts::BufferDesc(1, streamer));
   AddOutputBuffer(kts::BufferDesc(kts::localN, streamer));
   RunGeneric1D(kts::localN, kts::localN);

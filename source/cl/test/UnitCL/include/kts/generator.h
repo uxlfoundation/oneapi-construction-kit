@@ -275,7 +275,7 @@ void InputGenerator::GenerateUniqueIntData(std::vector<T> &buffer, T min,
                                            T max) {
   // The user could potentially shoot themseleves in the foot here by asking for
   // more values than can actually be represented by type T.
-  assert(buffer.size() <= (1LLU << (sizeof(T) << 3LLU)) &&
+  assert(buffer.size() == (size_t)(std::make_unsigned_t<T>)buffer.size() &&
          "Caller requested more unique values than can be represented by the "
          "type");
   // Try to always test

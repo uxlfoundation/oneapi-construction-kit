@@ -97,20 +97,43 @@ void __CL_BARRIER_ATTRIBUTES work_group_barrier(cl_mem_fence_flags flags,
 
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __local atomic_int *obj,
                                          int value);
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __local atomic_long *obj,
+                                         long value);
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __local atomic_uint *obj,
                                          uint value);
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __local atomic_ulong *obj,
+                                         ulong value);
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __local atomic_float *obj,
                                          float value);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __local atomic_double *obj,
+                                         double value);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __global atomic_int *obj,
                                          int value);
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __global atomic_long *obj,
+                                         long value);
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __global atomic_uint *obj,
                                          uint value);
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __global atomic_ulong *obj,
+                                         ulong value);
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __global atomic_float *obj,
                                          float value);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile __global atomic_double *obj,
+                                         double value);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile atomic_int *obj, int value);
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile atomic_long *obj, long value);
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile atomic_uint *obj, uint value);
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile atomic_ulong *obj,
+                                         ulong value);
 void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile atomic_float *obj,
                                          float value);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+void __CL_BUILTIN_ATTRIBUTES atomic_init(volatile atomic_double *obj,
+                                         double value);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 void __CL_BUILTIN_ATTRIBUTES atomic_work_item_fence(cl_mem_fence_flags flags,
                                                     memory_order order,
                                                     memory_scope scope);
@@ -118,22 +141,48 @@ void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile __local atomic_int *object, int desired,
                       memory_order order, memory_scope scope);
 void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile __local atomic_long *object, long desired,
+                      memory_order order, memory_scope scope);
+void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile __local atomic_uint *object, uint desired,
+                      memory_order order, memory_scope scope);
+void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile __local atomic_ulong *object, ulong desired,
                       memory_order order, memory_scope scope);
 void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile __local atomic_float *object, float desired,
                       memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile __local atomic_double *object, double desired,
+                      memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile __global atomic_int *object, int desired,
+                      memory_order order, memory_scope scope);
+void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile __global atomic_long *object, long desired,
                       memory_order order, memory_scope scope);
 void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile __global atomic_uint *object, uint desired,
                       memory_order order, memory_scope scope);
 void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile __global atomic_ulong *object, ulong desired,
+                      memory_order order, memory_scope scope);
+void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile __global atomic_float *object, float desired,
                       memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile __global atomic_double *object, double desired,
+                      memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile atomic_int *object,
                                                    int desired,
+                                                   memory_order order,
+                                                   memory_scope scope);
+void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile atomic_long *object,
+                                                   long desired,
                                                    memory_order order,
                                                    memory_scope scope);
 void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile atomic_uint *object,
@@ -141,61 +190,133 @@ void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile atomic_uint *object,
                                                    memory_order order,
                                                    memory_scope scope);
 void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile atomic_ulong *object, ulong desired,
+                      memory_order order, memory_scope scope);
+void __CL_BUILTIN_ATTRIBUTES
 atomic_store_explicit(volatile atomic_float *object, float desired,
                       memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+void __CL_BUILTIN_ATTRIBUTES
+atomic_store_explicit(volatile atomic_double *object, double desired,
+                      memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES
 atomic_load_explicit(volatile __local atomic_int *object, memory_order order,
+                     memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_load_explicit(volatile __local atomic_long *object, memory_order order,
                      memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_load_explicit(volatile __local atomic_uint *object, memory_order order,
                      memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_load_explicit(volatile __local atomic_ulong *object, memory_order order,
+                     memory_scope scope);
 float __CL_BUILTIN_ATTRIBUTES
 atomic_load_explicit(volatile __local atomic_float *object, memory_order order,
                      memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+double __CL_BUILTIN_ATTRIBUTES
+atomic_load_explicit(volatile __local atomic_double *object, memory_order order,
+                     memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES
 atomic_load_explicit(volatile __global atomic_int *object, memory_order order,
+                     memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_load_explicit(volatile __global atomic_long *object, memory_order order,
                      memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_load_explicit(volatile __global atomic_uint *object, memory_order order,
                      memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_load_explicit(volatile __global atomic_ulong *object, memory_order order,
+                     memory_scope scope);
 float __CL_BUILTIN_ATTRIBUTES
 atomic_load_explicit(volatile __global atomic_float *object, memory_order order,
                      memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+double __CL_BUILTIN_ATTRIBUTES
+atomic_load_explicit(volatile __global atomic_double *object,
+                     memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(volatile atomic_int *object,
                                                  memory_order order,
                                                  memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(volatile atomic_long *object,
+                                                  memory_order order,
+                                                  memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(volatile atomic_uint *object,
                                                   memory_order order,
                                                   memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(
+    volatile atomic_ulong *object, memory_order order, memory_scope scope);
 float __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(
     volatile atomic_float *object, memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+double __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(
+    volatile atomic_double *object, memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile __local atomic_int *object, int desired,
+                         memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile __local atomic_long *object, long desired,
                          memory_order order, memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile __local atomic_uint *object, uint desired,
                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile __local atomic_ulong *object, ulong desired,
+                         memory_order order, memory_scope scope);
 float __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile __local atomic_float *object, float desired,
                          memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+double __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile __local atomic_double *object, double desired,
+                         memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile __global atomic_int *object, int desired,
+                         memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile __global atomic_long *object, long desired,
                          memory_order order, memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile __global atomic_uint *object, uint desired,
                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile __global atomic_ulong *object, ulong desired,
+                         memory_order order, memory_scope scope);
 float __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile __global atomic_float *object, float desired,
                          memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+double __CL_BUILTIN_ATTRIBUTES atomic_exchange_explicit(
+    volatile __global atomic_double *object, double desired, memory_order order,
+    memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile atomic_int *object, int desired,
+                         memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile atomic_long *object, long desired,
                          memory_order order, memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile atomic_uint *object, uint desired,
                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile atomic_ulong *object, ulong desired,
+                         memory_order order, memory_scope scope);
 float __CL_BUILTIN_ATTRIBUTES
 atomic_exchange_explicit(volatile atomic_float *object, float desired,
                          memory_order order, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+double __CL_BUILTIN_ATTRIBUTES
+atomic_exchange_explicit(volatile atomic_double *object, double desired,
+                         memory_order order, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __local atomic_int *object, __local int *expected, int desired,
     memory_order success, memory_order failure);
@@ -219,6 +340,31 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __local atomic_int *object, int *expected, int desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_long *object, long *expected, long desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __local atomic_uint *object, __local uint *expected, uint desired,
@@ -244,6 +390,33 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __local atomic_uint *object, uint *expected, uint desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_ulong *object, ulong *expected, ulong desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __local atomic_float *object, __local float *expected,
@@ -272,6 +445,35 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __local atomic_float *object, float *expected, float desired,
     memory_order success, memory_order failure, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __local atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __global atomic_int *object, __local int *expected, int desired,
     memory_order success, memory_order failure);
@@ -295,6 +497,32 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __global atomic_int *object, int *expected, int desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, __global long *expected,
+    long desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, __global long *expected,
+    long desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_long *object, long *expected, long desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __global atomic_uint *object, __local uint *expected, uint desired,
@@ -323,6 +551,33 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __global atomic_uint *object, uint *expected, uint desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __global atomic_float *object, __local float *expected,
     float desired, memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
@@ -349,6 +604,35 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile __global atomic_float *object, float *expected, float desired,
     memory_order success, memory_order failure, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile __global atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile atomic_int *object, __local int *expected, int desired,
     memory_order success, memory_order failure);
@@ -372,6 +656,30 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile atomic_int *object, int *expected, int desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, __private long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, __private long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_long *object, long *expected, long desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile atomic_uint *object, __local uint *expected, uint desired,
@@ -398,6 +706,30 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile atomic_uint *object, uint *expected, uint desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, __local ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, __local ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, __global ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, __global ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, __private ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, __private ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile atomic_float *object, __local float *expected, float desired,
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
@@ -421,6 +753,32 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
     volatile atomic_float *object, float *expected, float desired,
     memory_order success, memory_order failure, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, __local double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, __local double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, __global double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, __global double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, __private double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, __private double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_strong_explicit(
+    volatile atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __local atomic_int *object, __local int *expected, int desired,
     memory_order success, memory_order failure);
@@ -444,6 +802,31 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __local atomic_int *object, int *expected, int desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_long *object, long *expected, long desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __local atomic_uint *object, __local uint *expected, uint desired,
@@ -469,6 +852,33 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __local atomic_uint *object, uint *expected, uint desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_ulong *object, ulong *expected, ulong desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __local atomic_float *object, __local float *expected,
@@ -497,6 +907,35 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __local atomic_float *object, float *expected, float desired,
     memory_order success, memory_order failure, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __local atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __global atomic_int *object, __local int *expected, int desired,
     memory_order success, memory_order failure);
@@ -520,6 +959,32 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __global atomic_int *object, int *expected, int desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, __global long *expected,
+    long desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, __global long *expected,
+    long desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, __private long *expected,
+    long desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_long *object, long *expected, long desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __global atomic_uint *object, __local uint *expected, uint desired,
@@ -548,6 +1013,33 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __global atomic_uint *object, uint *expected, uint desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, __local ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, __global ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, __private ulong *expected,
+    ulong desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __global atomic_float *object, __local float *expected,
     float desired, memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
@@ -574,6 +1066,35 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile __global atomic_float *object, float *expected, float desired,
     memory_order success, memory_order failure, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, __local double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, __global double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, __private double *expected,
+    double desired, memory_order success, memory_order failure,
+    memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile __global atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile atomic_int *object, __local int *expected, int desired,
     memory_order success, memory_order failure);
@@ -597,6 +1118,30 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile atomic_int *object, int *expected, int desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, __local long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, __global long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, __private long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, __private long *expected, long desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, long *expected, long desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_long *object, long *expected, long desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile atomic_uint *object, __local uint *expected, uint desired,
@@ -623,6 +1168,30 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile atomic_uint *object, uint *expected, uint desired,
     memory_order success, memory_order failure, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, __local ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, __local ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, __global ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, __global ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, __private ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, __private ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_ulong *object, ulong *expected, ulong desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile atomic_float *object, __local float *expected, float desired,
     memory_order success, memory_order failure);
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
@@ -646,6 +1215,32 @@ bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
 bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
     volatile atomic_float *object, float *expected, float desired,
     memory_order success, memory_order failure, memory_scope scope);
+#ifdef __CA_BUILTINS_DOUBLE_SUPPORT
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, __local double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, __local double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, __global double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, __global double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, __private double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, __private double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure);
+bool __CL_BUILTIN_ATTRIBUTES atomic_compare_exchange_weak_explicit(
+    volatile atomic_double *object, double *expected, double desired,
+    memory_order success, memory_order failure, memory_scope scope);
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 int __CL_BUILTIN_ATTRIBUTES
 atomic_fetch_add_explicit(volatile __local atomic_int *object, int operand,
                           memory_order order, memory_scope scope);
@@ -709,6 +1304,69 @@ atomic_fetch_max_explicit(volatile __global atomic_int *object, int operand,
 int __CL_BUILTIN_ATTRIBUTES
 atomic_fetch_max_explicit(volatile atomic_int *object, int operand,
                           memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_add_explicit(volatile __local atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_add_explicit(volatile __global atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_add_explicit(volatile atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_sub_explicit(volatile __local atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_sub_explicit(volatile __global atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_sub_explicit(volatile atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_or_explicit(volatile __local atomic_long *object, long operand,
+                         memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_or_explicit(volatile __global atomic_long *object, long operand,
+                         memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_or_explicit(volatile atomic_long *object, long operand,
+                         memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_xor_explicit(volatile __local atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_xor_explicit(volatile __global atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_xor_explicit(volatile atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_and_explicit(volatile __local atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_and_explicit(volatile __global atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_and_explicit(volatile atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_min_explicit(volatile __local atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_min_explicit(volatile __global atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_min_explicit(volatile atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_max_explicit(volatile __local atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_max_explicit(volatile __global atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
+long __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_max_explicit(volatile atomic_long *object, long operand,
+                          memory_order order, memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_fetch_add_explicit(volatile __local atomic_uint *object, uint operand,
                           memory_order order, memory_scope scope);
@@ -771,6 +1429,69 @@ atomic_fetch_max_explicit(volatile __global atomic_uint *object, uint operand,
                           memory_order order, memory_scope scope);
 uint __CL_BUILTIN_ATTRIBUTES
 atomic_fetch_max_explicit(volatile atomic_uint *object, uint operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_add_explicit(volatile __local atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_add_explicit(volatile __global atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_add_explicit(volatile atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_sub_explicit(volatile __local atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_sub_explicit(volatile __global atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_sub_explicit(volatile atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_or_explicit(volatile __local atomic_ulong *object, ulong operand,
+                         memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_or_explicit(volatile __global atomic_ulong *object, ulong operand,
+                         memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_or_explicit(volatile atomic_ulong *object, ulong operand,
+                         memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_xor_explicit(volatile __local atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_xor_explicit(volatile __global atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_xor_explicit(volatile atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_and_explicit(volatile __local atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_and_explicit(volatile __global atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_and_explicit(volatile atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_min_explicit(volatile __local atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_min_explicit(volatile __global atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_min_explicit(volatile atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_max_explicit(volatile __local atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_max_explicit(volatile __global atomic_ulong *object, ulong operand,
+                          memory_order order, memory_scope scope);
+ulong __CL_BUILTIN_ATTRIBUTES
+atomic_fetch_max_explicit(volatile atomic_ulong *object, ulong operand,
                           memory_order order, memory_scope scope);
 bool __CL_BUILTIN_ATTRIBUTES
 atomic_flag_test_and_set_explicit(volatile __local atomic_flag *object,

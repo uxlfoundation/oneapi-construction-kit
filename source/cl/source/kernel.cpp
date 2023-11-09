@@ -46,6 +46,8 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &global_size,
     mux_buffer_t printf_buffer,
     std::unique_ptr<mux_descriptor_info_t[]> &descriptors) {
+  (void)device;
+
   const size_t num_arguments = info->getNumArguments();
   const bool printf = nullptr != printf_buffer;
   descriptors = std::unique_ptr<mux_descriptor_info_t[]>(
@@ -53,72 +55,48 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
 
   for (size_t i = 0; i < num_arguments; i++) {
     _cl_kernel::argument &arg = saved_args[i];
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-    if (arg.stype == _cl_kernel::argument::storage_type::usm) {
-      // Find mux_buffer_t bound to USM allocation for device
-      auto mux_buffer = arg.usm.usm_ptr->getMuxBufferForDevice(device);
-
-      descriptors[i].type = mux_descriptor_info_type_buffer;
-      descriptors[i].buffer_descriptor.buffer = mux_buffer;
-      descriptors[i].buffer_descriptor.offset = arg.usm.offset;
-      continue;
-    }
-#endif
-
-    switch (arg.type.kind) {
-      default: {
-        descriptors[i].type = mux_descriptor_info_type_plain_old_data;
-        descriptors[i].plain_old_data_descriptor.data = arg.value.data;
-        descriptors[i].plain_old_data_descriptor.length = arg.value.size;
-        break;
+    switch (arg.stype) {
+      case _cl_kernel::argument::storage_type::local_memory: {
+        descriptors[i].type = mux_descriptor_info_type_shared_local_buffer;
+        descriptors[i].shared_local_buffer_descriptor.size =
+            arg.local_memory_size;
       }
-      case compiler::ArgumentKind::POINTER: {
-        if (arg.type.address_space == compiler::AddressSpace::GLOBAL ||
-            arg.type.address_space == compiler::AddressSpace::CONSTANT ||
-            arg.type.address_space == compiler::AddressSpace::PRIVATE) {
-          if (nullptr != arg.memory_buffer) {
-            auto buffer = static_cast<cl_mem_buffer>(arg.memory_buffer);
-            descriptors[i].type = mux_descriptor_info_type_buffer;
-            descriptors[i].buffer_descriptor.buffer =
-                buffer->mux_buffers[device_index];
-            descriptors[i].buffer_descriptor.offset = 0;
-          } else {
-            descriptors[i].type = mux_descriptor_info_type_null_buffer;
+        continue;
+
+      case _cl_kernel::argument::storage_type::memory_buffer:
+        switch (arg.type.kind) {
+          default:
+            OCL_ABORT("Unhandled argument type");
+            continue;
+
+          case compiler::ArgumentKind::POINTER: {
+            if (arg.memory_buffer) {
+              auto buffer = static_cast<cl_mem_buffer>(arg.memory_buffer);
+              descriptors[i].type = mux_descriptor_info_type_buffer;
+              descriptors[i].buffer_descriptor.buffer =
+                  buffer->mux_buffers[device_index];
+              descriptors[i].buffer_descriptor.offset = 0;
+            } else {
+              descriptors[i].type = mux_descriptor_info_type_null_buffer;
+            }
           }
-          break;
-        } else if (arg.type.address_space == compiler::AddressSpace::LOCAL) {
-          descriptors[i].type = mux_descriptor_info_type_shared_local_buffer;
-          descriptors[i].shared_local_buffer_descriptor.size =
-              arg.local_memory_size;
-          break;
-        } else {
-          descriptors[i].type = mux_descriptor_info_type_custom_buffer;
-          descriptors[i].custom_buffer_descriptor = {};
-          if (mux_custom_buffer_capabilities_data &
-              device->mux_device->info->custom_buffer_capabilities) {
-            // Pass through custom buffer data.
-            descriptors[i].custom_buffer_descriptor.data = arg.value.data;
-            descriptors[i].custom_buffer_descriptor.size = arg.value.size;
+            continue;
+
+          case compiler::ArgumentKind::IMAGE1D:         // fall-through
+          case compiler::ArgumentKind::IMAGE1D_ARRAY:   // fall-through
+          case compiler::ArgumentKind::IMAGE1D_BUFFER:  // fall-through
+          case compiler::ArgumentKind::IMAGE2D_ARRAY:   // fall-through
+          case compiler::ArgumentKind::IMAGE3D:         // fall-through
+          case compiler::ArgumentKind::IMAGE2D: {
+            auto image = static_cast<cl_mem_image>(arg.memory_buffer);
+            descriptors[i].type = mux_descriptor_info_type_image;
+            descriptors[i].image_descriptor.image =
+                image->mux_images[device_index];
           }
-          if (mux_custom_buffer_capabilities_address_space &
-              device->mux_device->info->custom_buffer_capabilities) {
-            // Pass through custom buffer address space.
-            descriptors[i].custom_buffer_descriptor.address_space =
-                arg.type.address_space;
-          }
+            continue;
         }
-      } break;
-      case compiler::ArgumentKind::IMAGE1D:         // fall-through
-      case compiler::ArgumentKind::IMAGE1D_ARRAY:   // fall-through
-      case compiler::ArgumentKind::IMAGE1D_BUFFER:  // fall-through
-      case compiler::ArgumentKind::IMAGE2D_ARRAY:   // fall-through
-      case compiler::ArgumentKind::IMAGE3D:         // fall-through
-      case compiler::ArgumentKind::IMAGE2D: {
-        auto image = static_cast<cl_mem_image>(arg.memory_buffer);
-        descriptors[i].type = mux_descriptor_info_type_image;
-        descriptors[i].image_descriptor.image = image->mux_images[device_index];
-      } break;
-      case compiler::ArgumentKind::SAMPLER: {
+
+      case _cl_kernel::argument::storage_type::sampler: {
         // HACK(Benie): This code is going away so hack in samplers to
         // Core.cpp because the target device abstraction is going to die and
         // there is no point putting effort into it. These hexidecimal values
@@ -156,16 +134,22 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
           case 0x10:
             descriptors[i].sampler_descriptor.sampler.filter_mode =
                 mux_filter_mode_linear;
-            break;
+            continue;
           case 0x20:
             descriptors[i].sampler_descriptor.sampler.filter_mode =
                 mux_filter_mode_nearest;
-            break;
+            continue;
         }
-      } break;
-      case compiler::ArgumentKind::UNKNOWN:
-        OCL_ASSERT(false, "Unhandled argument type!");
-        break;
+      }
+
+      case _cl_kernel::argument::storage_type::value:
+        descriptors[i].type = mux_descriptor_info_type_plain_old_data;
+        descriptors[i].plain_old_data_descriptor.data = arg.value.data;
+        descriptors[i].plain_old_data_descriptor.length = arg.value.size;
+        continue;
+
+      case _cl_kernel::argument::storage_type::uninitialized:
+        continue;
     }
   }
 
@@ -732,24 +716,6 @@ _cl_kernel::argument::argument(compiler::ArgumentType type, cl_mem mem)
              "Trying to create a memory argument with a non-memory type.");
 }
 
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-_cl_kernel::argument::argument(compiler::ArgumentType type,
-                               extension::usm::allocation_info *usm_alloc,
-                               size_t offset)
-    : type(type), stype(_cl_kernel::argument::storage_type::usm) {
-  OCL_ASSERT(compiler::ArgumentKind::POINTER == type.kind,
-             "Trying to create a USM allocation argument on a type other than "
-             "a pointer.");
-  OCL_ASSERT(type.address_space == compiler::AddressSpace::GLOBAL ||
-                 type.address_space == compiler::AddressSpace::CONSTANT,
-             "Trying to create a USM allocation argument from pointer type "
-             "without global or constant address space.");
-
-  usm.usm_ptr = usm_alloc;
-  usm.offset = offset;
-}
-#endif
-
 _cl_kernel::argument::argument(compiler::ArgumentType type, const void *data,
                                size_t size)
     : type(type), stype(_cl_kernel::argument::storage_type::value) {
@@ -779,11 +745,6 @@ _cl_kernel::argument::argument(const argument &other)
       std::memcpy(value.data, other.value.data, other.value.size);
       value.size = other.value.size;
       break;
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-    case _cl_kernel::argument::storage_type::usm:
-      usm = other.usm;
-      break;
-#endif
     case _cl_kernel::argument::storage_type::uninitialized:
       break;
   }
@@ -805,11 +766,6 @@ _cl_kernel::argument::argument(argument &&other)
       value.data = other.value.data;
       value.size = other.value.size;
       break;
-#ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-    case _cl_kernel::argument::storage_type::usm:
-      usm = other.usm;
-      break;
-#endif
     case _cl_kernel::argument::storage_type::uninitialized:
       break;
   }

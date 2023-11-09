@@ -1,19 +1,12 @@
 Supported LLVM Versions
 =======================
 
-oneAPI Construction Kit depends on LLVM, Clang and LLD.
+The oneAPI Construction Kit depends on LLVM, Clang and (optionally) LLD.
 
-Host
-----
-
-.. rubric:: Supported - tested daily
-
-- 15.0.0 (Any released version)
-- 16.0.6+
-
-RISC-V
-------
+All targets
+-----------
 
 .. rubric:: Supported - tested daily
 
 - 16.0.6+
+- 17.0.3

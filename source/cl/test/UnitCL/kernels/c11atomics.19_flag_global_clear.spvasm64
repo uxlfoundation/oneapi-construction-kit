@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 32
+; Bound: 28
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -10,10 +10,9 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %28 "flag_global_clear" %__spirv_BuiltInGlobalInvocationId
+               OpEntryPoint Kernel %10 "flag_global_clear" %__spirv_BuiltInGlobalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
-               OpName %flag_global_clear "flag_global_clear"
                OpName %flag_buffer "flag_buffer"
                OpName %entry "entry"
                OpName %flag_buffer_addr "flag_buffer.addr"
@@ -23,16 +22,13 @@
                OpName %idx_ext "idx.ext"
                OpName %add_ptr "add.ptr"
                OpName %add_ptr_ascast "add.ptr.ascast"
-               OpName %flag_buffer_0 "flag_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
-               OpDecorate %flag_global_clear LinkageAttributes "flag_global_clear" Export
                OpDecorate %flag_buffer Alignment 4
                OpDecorate %flag_buffer_addr Alignment 8
                OpDecorate %gid Alignment 4
-               OpDecorate %flag_buffer_0 Alignment 4
-               OpDecorate %flag_buffer_0 Volatile
+               OpDecorate %flag_buffer Volatile
       %ulong = OpTypeInt 64 0
        %uint = OpTypeInt 32 0
      %uint_4 = OpConstant %uint 4
@@ -46,7 +42,7 @@
 %_ptr_Function_uint = OpTypePointer Function %uint
 %_ptr_Generic_uint = OpTypePointer Generic %uint
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
-%flag_global_clear = OpFunction %void DontInline %9
+         %10 = OpFunction %void DontInline %9
 %flag_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
       %entry = OpLabel
 %flag_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
@@ -62,11 +58,5 @@
     %add_ptr = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %20 %idx_ext
 %add_ptr_ascast = OpPtrCastToGeneric %_ptr_Generic_uint %add_ptr
                OpAtomicFlagClear %add_ptr_ascast %uint_4 %uint_0
-               OpReturn
-               OpFunctionEnd
-         %28 = OpFunction %void DontInline %9
-%flag_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-         %30 = OpLabel
-         %31 = OpFunctionCall %void %flag_global_clear %flag_buffer_0
                OpReturn
                OpFunctionEnd

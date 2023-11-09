@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 34
+; Bound: 29
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -9,10 +9,9 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical32 OpenCL
-               OpEntryPoint Kernel %29 "init_global_int" %__spirv_BuiltInGlobalInvocationId
+               OpEntryPoint Kernel %9 "init_global_int" %__spirv_BuiltInGlobalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
-               OpName %init_global_int "init_global_int"
                OpName %input_buffer "input_buffer"
                OpName %output_buffer "output_buffer"
                OpName %entry "entry"
@@ -23,20 +22,15 @@
                OpName %add_ptr "add.ptr"
                OpName %add_ptr_ascast "add.ptr.ascast"
                OpName %arrayidx "arrayidx"
-               OpName %input_buffer_0 "input_buffer"
-               OpName %output_buffer_0 "output_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
-               OpDecorate %init_global_int LinkageAttributes "init_global_int" Export
                OpDecorate %input_buffer Alignment 4
                OpDecorate %output_buffer Alignment 4
                OpDecorate %input_buffer_addr Alignment 4
                OpDecorate %output_buffer_addr Alignment 4
                OpDecorate %gid Alignment 4
-               OpDecorate %input_buffer_0 Alignment 4
-               OpDecorate %output_buffer_0 Alignment 4
-               OpDecorate %output_buffer_0 Volatile
+               OpDecorate %output_buffer Volatile
        %uint = OpTypeInt 32 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
@@ -47,7 +41,7 @@
 %_ptr_Function_uint = OpTypePointer Function %uint
 %_ptr_Generic_uint = OpTypePointer Generic %uint
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
-%init_global_int = OpFunction %void DontInline %8
+          %9 = OpFunction %void DontInline %8
 %input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
       %entry = OpLabel
@@ -68,12 +62,5 @@
    %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %25 %26
          %28 = OpLoad %uint %arrayidx Aligned 4
                OpStore %add_ptr_ascast %28 Aligned 4
-               OpReturn
-               OpFunctionEnd
-         %29 = OpFunction %void DontInline %8
-%input_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-         %32 = OpLabel
-         %33 = OpFunctionCall %void %init_global_int %input_buffer_0 %output_buffer_0
                OpReturn
                OpFunctionEnd

@@ -13,7 +13,7 @@
 ; under the License.
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-; REQUIRES: spirv-as-v2023+
+; REQUIRES: spirv-as-v2022.2+
 ; RUN: spirv-as --version
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -e SPV_INTEL_memory_access_aliasing %spv_file_s

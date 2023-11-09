@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 50
+; Bound: 44
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -9,10 +9,9 @@
                OpCapability Int64
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %44 "fence_release" %__spirv_BuiltInGlobalInvocationId
+               OpEntryPoint Kernel %10 "fence_release" %__spirv_BuiltInGlobalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
-               OpName %fence_release "fence_release"
                OpName %in "in"
                OpName %out "out"
                OpName %tmp "tmp"
@@ -31,13 +30,9 @@
                OpName %arrayidx4 "arrayidx4"
                OpName %idxprom5 "idxprom5"
                OpName %arrayidx6 "arrayidx6"
-               OpName %in_0 "in"
-               OpName %out_0 "out"
-               OpName %tmp_0 "tmp"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
-               OpDecorate %fence_release LinkageAttributes "fence_release" Export
                OpDecorate %in Alignment 4
                OpDecorate %out Alignment 4
                OpDecorate %tmp Alignment 4
@@ -45,9 +40,6 @@
                OpDecorate %out_addr Alignment 8
                OpDecorate %tmp_addr Alignment 8
                OpDecorate %gid Alignment 4
-               OpDecorate %in_0 Alignment 4
-               OpDecorate %out_0 Alignment 4
-               OpDecorate %tmp_0 Alignment 4
       %ulong = OpTypeInt 64 0
        %uint = OpTypeInt 32 0
      %uint_4 = OpConstant %uint 4
@@ -60,7 +52,7 @@
 %_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
 %_ptr_Function_uint = OpTypePointer Function %uint
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
-%fence_release = OpFunction %void DontInline %9
+         %10 = OpFunction %void DontInline %9
          %in = OpFunctionParameter %_ptr_CrossWorkgroup_uint
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
         %tmp = OpFunctionParameter %_ptr_CrossWorkgroup_uint
@@ -97,13 +89,5 @@
    %idxprom5 = OpUConvert %ulong %41
   %arrayidx6 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %40 %idxprom5
                OpStore %arrayidx6 %39 Aligned 4
-               OpReturn
-               OpFunctionEnd
-         %44 = OpFunction %void DontInline %9
-       %in_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-      %out_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-      %tmp_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-         %48 = OpLabel
-         %49 = OpFunctionCall %void %fence_release %in_0 %out_0 %tmp_0
                OpReturn
                OpFunctionEnd
