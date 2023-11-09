@@ -17,6 +17,7 @@
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_add -c Float64 -c AtomicFloat64AddEXT | FileCheck %s
             OpCapability Shader
+            OpCapability Float64
             OpCapability AtomicFloat64AddEXT
             OpExtension "SPV_EXT_shader_atomic_float_add"
        %1 = OpExtInstImport "GLSL.std.450"
