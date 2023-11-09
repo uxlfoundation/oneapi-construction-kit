@@ -16,9 +16,9 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_min_max -c AtomicFloat32MinMaxEXT | FileCheck %s
-            OpExtension "SPV_EXT_shader_atomic_float_min_max"
             OpCapability Shader
             OpCapability AtomicFloat32MinMaxEXT
+            OpExtension "SPV_EXT_shader_atomic_float_min_max"
        %1 = OpExtInstImport "GLSL.std.450"
             OpMemoryModel Logical GLSL450
             OpEntryPoint GLCompute %atomic "atomic"

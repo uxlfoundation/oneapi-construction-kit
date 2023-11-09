@@ -19,8 +19,8 @@
 
 ; Ensure entry point functions get priority on assignment of their names when there are normal functions with the same name
 
-%1 = OpExtInstImport "OpenCL.std"
                OpCapability Addresses
+%1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
                OpEntryPoint Kernel %44 "signed_ints"
                OpEntryPoint Kernel %51 "unsigned_ints"
