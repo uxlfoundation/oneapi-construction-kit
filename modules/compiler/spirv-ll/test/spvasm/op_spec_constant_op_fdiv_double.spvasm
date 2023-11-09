@@ -15,35 +15,34 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
-            OpCapability Float64
-            OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
-            OpExecutionMode %main LocalSize 1 1 1
-            OpSource GLSL 450
-            OpName %main "main"
-            OpName %res "res"
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
+               OpCapability Kernel
+               OpCapability Addresses
+               OpCapability Float64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %testfn "testfn"
+               OpSource OpenCL_C 102000
+               OpName %testfn "testfn"
+               OpName %res "res"
                OpName %test "test"
                OpName %const "const"
                OpDecorate %test SpecId 0
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-        %double = OpTypeFloat 64
-%ptr_double = OpTypePointer Function %double
+     %double = OpTypeFloat 64
+ %ptr_double = OpTypePointer Function %double
        %test = OpSpecConstant %double -42.42
       %const = OpConstant %double -42.42
          %11 = OpSpecConstantOp %double FDiv %test %const
-       %main = OpFunction %void None %3
+     %testfn = OpFunction %void None %3
           %5 = OpLabel
         %res = OpVariable %ptr_double Function
                OpStore %res %11
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main()
+; CHECK: define spir_kernel void @testfn()
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
 ; CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void
