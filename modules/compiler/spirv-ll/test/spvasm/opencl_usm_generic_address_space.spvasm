@@ -20,10 +20,10 @@
                OpCapability Linkage
                OpCapability Kernel
                OpCapability Int64
+               OpExtension "SPV_codeplay_usm_generic_storage_class"
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
                OpEntryPoint Kernel %11 "test" %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInGlobalInvocationId
-               OpExtension "SPV_codeplay_usm_generic_storage_class"
                OpSource OpenCL_C 102000
                OpDecorate %54 Constant
          %54 = OpDecorationGroup
