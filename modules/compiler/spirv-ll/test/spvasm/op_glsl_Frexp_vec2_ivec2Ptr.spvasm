@@ -33,11 +33,11 @@
                          OpMemberName %outBuff_t 1 "exponent"
                          OpMemberDecorate %outBuff_t 0 Offset 0
                          OpMemberDecorate %outBuff_t 1 Offset 8
-                         OpDecorate %outBuff BufferBlock
+                         OpDecorate %outBuff_t BufferBlock
                          OpDecorate %outBuff DescriptorSet 0
                          OpDecorate %outBuff Binding 1
                          OpMemberDecorate %inBuff_t 0 Offset 0
-                         OpDecorate %inBuff BufferBlock
+                         OpDecorate %inBuff_t BufferBlock
                          OpDecorate %inBuff DescriptorSet 0
                          OpDecorate %inBuff Binding 0
      %void_t           = OpTypeVoid
