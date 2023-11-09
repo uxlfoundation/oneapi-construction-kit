@@ -30,8 +30,8 @@
         %_ptr_ulong = OpTypePointer CrossWorkgroup %ulong
         %_ptr_Generic_ulong = OpTypePointer Generic %ulong
 
-        %_ptr_ptr_ulong = OpTypePointer Private %_ptr_ulong
-        %_ptr_ptr_Generic_ulong = OpTypePointer Private %_ptr_Generic_ulong
+        %_ptr_ptr_ulong = OpTypePointer Workgroup %_ptr_ulong
+        %_ptr_ptr_Generic_ulong = OpTypePointer Workgroup %_ptr_Generic_ulong
 
     %ulong_0 = OpConstant %ulong 0
     %ulong_1 = OpConstant %ulong 1

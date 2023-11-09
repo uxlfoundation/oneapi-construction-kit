@@ -20,6 +20,7 @@
             OpCapability Kernel
             OpCapability Addresses
             OpCapability ArbitraryPrecisionIntegersINTEL
+            OpExtension "SPV_INTEL_arbitrary_precision_integers"
             OpMemoryModel Physical64 OpenCL
             OpEntryPoint Kernel %kernel "kernel"
             OpName %kernel "kernel"

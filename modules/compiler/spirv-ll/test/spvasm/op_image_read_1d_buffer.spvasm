@@ -16,11 +16,11 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c Sampled1D %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c SampledBuffer %spv_file_s | FileCheck %t
                         OpCapability Kernel
                         OpCapability Addresses
                         OpCapability ImageBasic
-                        OpCapability Sampled1D
+                        OpCapability SampledBuffer
                         OpMemoryModel Physical64 OpenCL
                         OpEntryPoint Kernel %image1d_buffer "image1d_buffer"
                         OpSource OpenCL_C 102000
