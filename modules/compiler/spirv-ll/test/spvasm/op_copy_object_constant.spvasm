@@ -20,11 +20,8 @@
                OpCapability Kernel
                OpCapability Addresses
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint GLCompute %main "main"
-               OpExecutionMode %main LocalSize 1 1 1
-               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
-               OpSourceExtension "GL_GOOGLE_include_directive"
-               OpName %main "main"
+               OpEntryPoint Kernel %testfn "testfn"
+               OpName %testfn "testfn"
                OpName %x "x"
                OpName %y "y"
                OpName %res "res"
@@ -35,7 +32,7 @@
 %_ptr_Function_float = OpTypePointer Function %float
 %_ptr_Function_bool = OpTypePointer Function %bool
 %float_42_42 = OpConstant %float 42.42
-       %main = OpFunction %void None %3
+     %testfn = OpFunction %void None %3
           %5 = OpLabel
         %res = OpVariable %_ptr_Function_bool Function
           %x = OpVariable %_ptr_Function_float Function %float_42_42
@@ -46,7 +43,7 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main()
+; CHECK: define spir_kernel void @testfn()
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
 ; CHECK: [[X:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
