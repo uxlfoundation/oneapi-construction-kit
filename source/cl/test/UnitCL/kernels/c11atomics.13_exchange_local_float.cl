@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // CL_STD: 3.0
-__kernel void exchange_local_float(__global float *in_out_buffer,
-                             __global float *desired_buffer,
-                             __global float *output_buffer,
-                             volatile __local atomic_float *local_buffer) {
+__kernel void exchange_local_float(
+    __global float *in_out_buffer, __global float *desired_buffer,
+    __global float *output_buffer,
+    volatile __local atomic_float *local_buffer) {
   uint gid = get_global_id(0);
   uint lid = get_local_id(0);
 

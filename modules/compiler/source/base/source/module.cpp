@@ -17,8 +17,8 @@
 #include <base/base_module_pass_machinery.h>
 #include <base/bit_shift_fixup_pass.h>
 #include <base/builtin_simplification_pass.h>
-#include <base/check_for_doubles_pass.h>
 #include <base/check_for_ext_funcs_pass.h>
+#include <base/check_for_unsupported_types_pass.h>
 #include <base/combine_fpext_fptrunc_pass.h>
 #include <base/fast_math_pass.h>
 #include <base/image_argument_substitution_pass.h>
@@ -975,11 +975,13 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   }
 
   // Disable `cl_khr_int64_base_atomics` and `cl_khr_int64_extended_atomics`
-  // until we support them. (CA-518)
-  addOpenCLOpt("-cl_khr_int64_base_atomics", opencl_opts);
-  addMacroUndef("cl_khr_int64_base_atomics", macro_defs);
-  addOpenCLOpt("-cl_khr_int64_extended_atomics", opencl_opts);
-  addMacroUndef("cl_khr_int64_extended_atomics", macro_defs);
+  // unless supported by the device.
+  if (!(device_info->atomic_capabilities & mux_atomic_capabilities_64bit)) {
+    addOpenCLOpt("-cl_khr_int64_base_atomics", opencl_opts);
+    addMacroUndef("cl_khr_int64_base_atomics", macro_defs);
+    addOpenCLOpt("-cl_khr_int64_extended_atomics", opencl_opts);
+    addMacroUndef("cl_khr_int64_extended_atomics", macro_defs);
+  }
 
   if (options.standard == Standard::OpenCLC30) {
     // work-group collective functions are an optional feature in OpenCL 3.0.
@@ -1064,10 +1066,6 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
       options.unsafe_math_optimizations;  // Spec does not mandate this.
   lang_opts.AllowRecip =
       options.unsafe_math_optimizations;  // Spec does not mandate this.
-
-#if LLVM_VERSION_LESS(16, 0)
-  lang_opts.HalfArgsAndReturns = lang_opts.NativeHalfArgsAndReturns;
-#endif
 
   // Override the C99 inline semantics to accommodate for more OpenCL C
   // programs in the wild.
@@ -1776,7 +1774,7 @@ Result BaseModule::finalize(
   {
     llvm::FunctionPassManager fpm;
     fpm.addPass(compiler::CombineFPExtFPTruncPass());
-    fpm.addPass(compiler::CheckForDoublesPass());
+    fpm.addPass(compiler::CheckForUnsupportedTypesPass());
     pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
   }
 
@@ -2083,24 +2081,24 @@ void BaseModule::initializePassMachineryForFrontend(
 
   switch (CGO.getVecLib()) {
     case clang::CodeGenOptions::Accelerate:
-      multi_llvm::addVectorizableFunctionsFromVecLib(
-          TLII, llvm::TargetLibraryInfoImpl::Accelerate, TT);
+      TLII.addVectorizableFunctionsFromVecLib(
+          llvm::TargetLibraryInfoImpl::Accelerate, TT);
       break;
     case clang::CodeGenOptions::SVML:
-      multi_llvm::addVectorizableFunctionsFromVecLib(
-          TLII, llvm::TargetLibraryInfoImpl::SVML, TT);
+      TLII.addVectorizableFunctionsFromVecLib(llvm::TargetLibraryInfoImpl::SVML,
+                                              TT);
       break;
     case clang::CodeGenOptions::MASSV:
-      multi_llvm::addVectorizableFunctionsFromVecLib(
-          TLII, llvm::TargetLibraryInfoImpl::MASSV, TT);
+      TLII.addVectorizableFunctionsFromVecLib(
+          llvm::TargetLibraryInfoImpl::MASSV, TT);
       break;
     case clang::CodeGenOptions::LIBMVEC:
       switch (TT.getArch()) {
         default:
           break;
         case llvm::Triple::x86_64:
-          multi_llvm::addVectorizableFunctionsFromVecLib(
-              TLII, llvm::TargetLibraryInfoImpl::LIBMVEC_X86, TT);
+          TLII.addVectorizableFunctionsFromVecLib(
+              llvm::TargetLibraryInfoImpl::LIBMVEC_X86, TT);
           break;
       }
       break;

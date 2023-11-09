@@ -34,6 +34,8 @@
 using namespace kts::ucl;
 
 UCL_EXECUTION_TEST_SUITE(PrintfExecution, testing::ValuesIn(getSourceTypes()));
+UCL_EXECUTION_TEST_SUITE(PrintfExecutionSPIRV,
+                         testing::Values(SPIRV, OFFLINESPIRV));
 
 BasePrintfExecution::BasePrintfExecution() : BaseExecution() {}
 
@@ -1746,5 +1748,13 @@ TEST_P(PrintfExecution, Printf_22_Half_With_Double_Conversion) {
   AddInputBuffer(1, input);
   this->SetPrintfReference(1, ref);
 
+  this->RunPrintf1D(1);
+}
+
+TEST_P(PrintfExecutionSPIRV, Printf_23_String_DPCPP) {
+  fail_if_not_vectorized_ = false;
+  ReferencePrintfString ref = [](size_t) { return "Hello World!\n"; };
+
+  this->SetPrintfReference(1, ref);
   this->RunPrintf1D(1);
 }

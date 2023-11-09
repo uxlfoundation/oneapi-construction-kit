@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 79
+; Bound: 72
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -10,11 +10,10 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %72 "exchange_local_float" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
+               OpEntryPoint Kernel %12 "exchange_local_float" %__spirv_BuiltInGlobalInvocationId %__spirv_BuiltInLocalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
                OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
-               OpName %exchange_local_float "exchange_local_float"
                OpName %in_out_buffer "in_out_buffer"
                OpName %desired_buffer "desired_buffer"
                OpName %output_buffer "output_buffer"
@@ -49,17 +48,12 @@
                OpName %call12 "call12"
                OpName %idxprom13 "idxprom13"
                OpName %arrayidx14 "arrayidx14"
-               OpName %in_out_buffer_0 "in_out_buffer"
-               OpName %desired_buffer_0 "desired_buffer"
-               OpName %output_buffer_0 "output_buffer"
-               OpName %local_buffer_0 "local_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
                OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
                OpDecorate %__spirv_BuiltInLocalInvocationId Constant
                OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
-               OpDecorate %exchange_local_float LinkageAttributes "exchange_local_float" Export
                OpDecorate %in_out_buffer Alignment 4
                OpDecorate %desired_buffer Alignment 4
                OpDecorate %output_buffer Alignment 4
@@ -70,11 +64,7 @@
                OpDecorate %local_buffer_addr Alignment 8
                OpDecorate %gid Alignment 4
                OpDecorate %lid Alignment 4
-               OpDecorate %in_out_buffer_0 Alignment 4
-               OpDecorate %desired_buffer_0 Alignment 4
-               OpDecorate %output_buffer_0 Alignment 4
-               OpDecorate %local_buffer_0 Alignment 4
-               OpDecorate %local_buffer_0 Volatile
+               OpDecorate %local_buffer Volatile
       %ulong = OpTypeInt 64 0
        %uint = OpTypeInt 32 0
      %uint_4 = OpConstant %uint 4
@@ -92,7 +82,7 @@
 %_ptr_Generic_float = OpTypePointer Generic %float
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
 %__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3ulong Input
-%exchange_local_float = OpFunction %void DontInline %11
+         %12 = OpFunction %void DontInline %11
 %in_out_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_float
 %desired_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_float
 %output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_float
@@ -154,14 +144,5 @@
   %idxprom13 = OpUConvert %ulong %69
  %arrayidx14 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %68 %idxprom13
                OpStore %arrayidx14 %call12 Aligned 4
-               OpReturn
-               OpFunctionEnd
-         %72 = OpFunction %void DontInline %11
-%in_out_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_float
-%desired_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_float
-%output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_float
-%local_buffer_0 = OpFunctionParameter %_ptr_Workgroup_float
-         %77 = OpLabel
-         %78 = OpFunctionCall %void %exchange_local_float %in_out_buffer_0 %desired_buffer_0 %output_buffer_0 %local_buffer_0
                OpReturn
                OpFunctionEnd

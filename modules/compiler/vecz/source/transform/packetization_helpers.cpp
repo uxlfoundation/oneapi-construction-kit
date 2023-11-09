@@ -27,7 +27,8 @@
 #include <llvm/Analysis/VectorUtils.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
-#include <multi_llvm/creation_apis_helper.h>
+#include <llvm/IR/Intrinsics.h>
+#include <llvm/Transforms/Utils/LoopUtils.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 
@@ -248,16 +249,70 @@ bool createSubSplats(const vecz::TargetInfo &TI, IRBuilder<> &B,
   return true;
 }
 
-Value *sanitizeVPReductionInput(IRBuilder<> &B, Value *Val, Value *VL,
-                                RecurKind Kind) {
-  Type *const ValTy = Val->getType();
-  ElementCount const EC = multi_llvm::getVectorElementCount(ValTy);
-  Value *const VLSplat = B.CreateVectorSplat(EC, VL);
-  Value *const IdxVec = multi_llvm::createIndexSequence(
-      B, VectorType::get(VL->getType(), EC), EC);
-  Value *const ActiveMask = B.CreateICmp(CmpInst::ICMP_ULT, IdxVec, VLSplat);
-  auto *const NeutralVal = compiler::utils::getNeutralVal(Kind, ValTy);
-  return B.CreateSelect(ActiveMask, Val, NeutralVal);
+Value *createMaybeVPTargetReduction(IRBuilderBase &B,
+                                    const TargetTransformInfo &TTI, Value *Val,
+                                    RecurKind Kind, Value *VL) {
+  assert(isa<VectorType>(Val->getType()) && "Must be vector type");
+  // If VL is null, it's not a vector-predicated reduction.
+  if (!VL) {
+    return createSimpleTargetReduction(B, &TTI, Val, Kind);
+  }
+  auto IntrinsicOp = Intrinsic::not_intrinsic;
+  switch (Kind) {
+    default:
+      break;
+    case RecurKind::None:
+      return nullptr;
+    case RecurKind::Add:
+      IntrinsicOp = Intrinsic::vp_reduce_add;
+      break;
+    case RecurKind::Mul:
+      IntrinsicOp = Intrinsic::vp_reduce_mul;
+      break;
+    case RecurKind::Or:
+      IntrinsicOp = Intrinsic::vp_reduce_or;
+      break;
+    case RecurKind::And:
+      IntrinsicOp = Intrinsic::vp_reduce_and;
+      break;
+    case RecurKind::Xor:
+      IntrinsicOp = Intrinsic::vp_reduce_xor;
+      break;
+    case RecurKind::FAdd:
+      IntrinsicOp = Intrinsic::vp_reduce_fadd;
+      break;
+    case RecurKind::FMul:
+      IntrinsicOp = Intrinsic::vp_reduce_fmul;
+      break;
+    case RecurKind::SMin:
+      IntrinsicOp = Intrinsic::vp_reduce_smin;
+      break;
+    case RecurKind::SMax:
+      IntrinsicOp = Intrinsic::vp_reduce_smax;
+      break;
+    case RecurKind::UMin:
+      IntrinsicOp = Intrinsic::vp_reduce_umin;
+      break;
+    case RecurKind::UMax:
+      IntrinsicOp = Intrinsic::vp_reduce_umax;
+      break;
+    case RecurKind::FMin:
+      IntrinsicOp = Intrinsic::vp_reduce_fmin;
+      break;
+    case RecurKind::FMax:
+      IntrinsicOp = Intrinsic::vp_reduce_fmax;
+      break;
+  }
+
+  auto *const F = Intrinsic::getDeclaration(B.GetInsertBlock()->getModule(),
+                                            IntrinsicOp, Val->getType());
+  assert(F && "Could not declare vector-predicated reduction intrinsic");
+
+  auto *const VecTy = cast<VectorType>(Val->getType());
+  auto *const NeutralVal =
+      compiler::utils::getNeutralVal(Kind, VecTy->getElementType());
+  auto *const Mask = createAllTrueMask(B, VecTy->getElementCount());
+  return B.CreateCall(F, {NeutralVal, Val, Mask, VL});
 }
 
 Value *getGatherIndicesVector(IRBuilder<> &B, Value *Indices, Type *Ty,
@@ -272,6 +327,28 @@ Value *getGatherIndicesVector(IRBuilder<> &B, Value *Indices, Type *Ty,
   auto *const StepsMul = B.CreateMul(Steps, FixedVecEltsSplat);
   return B.CreateAdd(StepsMul, Indices, N);
 }
+
+Value *createAllTrueMask(IRBuilderBase &B, ElementCount EC) {
+  return ConstantInt::getTrue(VectorType::get(B.getInt1Ty(), EC));
+}
+
+Value *createIndexSequence(IRBuilder<> &Builder, VectorType *VecTy,
+                           const Twine &Name) {
+  auto EC = VecTy->getElementCount();
+  if (EC.isScalable()) {
+    // FIXME: This intrinsic works on fixed-length types too: should we migrate
+    // to using it starting from LLVM 13?
+    return Builder.CreateStepVector(VecTy, Name);
+  }
+
+  SmallVector<Constant *, 16> Indices;
+  auto *EltTy = VecTy->getElementType();
+  for (unsigned i = 0, e = EC.getFixedValue(); i != e; i++) {
+    Indices.push_back(ConstantInt::get(EltTy, i));
+  }
+  return ConstantVector::get(Indices);
+}
+
 }  // namespace vecz
 
 PacketRange PacketInfo::getRange(std::vector<llvm::Value *> &d,

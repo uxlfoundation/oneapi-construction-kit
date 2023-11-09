@@ -183,6 +183,8 @@ struct PrintfExecution : BasePrintfExecution,
   }
 };
 
+using PrintfExecutionSPIRV = PrintfExecution;
+
 template <class Param>
 struct PrintfExecutionWithParam
     : BasePrintfExecution,

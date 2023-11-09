@@ -25,15 +25,16 @@
 #include "kts/reference_functions.h"
 
 /// @brief Populate and verify the contents of buffers used in atomic tests.
+template <typename T>
 class AtomicStreamer : public kts::BufferStreamer {
  public:
-  AtomicStreamer(int init_value, int count)
+  AtomicStreamer(T init_value, T count)
       : init_value_(init_value), count_(count) {}
 
   virtual void PopulateBuffer(kts::ArgumentBase &arg,
                               const kts::BufferDesc &desc) override {
-    kts::MemoryAccessor<int> accessor;
-    arg.SetBufferStorageSize(desc.size_ * sizeof(int));
+    kts::MemoryAccessor<T> accessor;
+    arg.SetBufferStorageSize(desc.size_ * sizeof(T));
     if (arg.GetIndex() == 0) {
       // Initialize the global counter.
       accessor.StoreToBuffer(init_value_, arg.GetBufferStoragePtr(), 0);
@@ -48,11 +49,11 @@ class AtomicStreamer : public kts::BufferStreamer {
   virtual bool ValidateBuffer(kts::ArgumentBase &arg,
                               const kts::BufferDesc &desc,
                               std::vector<std::string> *errors) override {
-    kts::MemoryAccessor<int> accessor;
+    kts::MemoryAccessor<T> accessor;
     if (arg.GetIndex() == 0) {
       // Validate the global counter, which should be equal to 'init + count'
-      int result = accessor.LoadFromBuffer(arg.GetBufferStoragePtr(), 0);
-      int expected = init_value_ + count_;
+      T result = accessor.LoadFromBuffer(arg.GetBufferStoragePtr(), 0);
+      T expected = init_value_ + count_;
       if (expected != result) {
         std::stringstream ss;
         ss << "Result mismatch (expected: " << expected
@@ -64,13 +65,13 @@ class AtomicStreamer : public kts::BufferStreamer {
     } else if (arg.GetIndex() == 1) {
       // Validate the intermediate result buffer, which should hold one copy of
       // all values from 'min_expected' to 'max_expected'.
-      int min_expected = init_value_;
-      int max_expected = init_value_ + count_ - 1;
+      T min_expected = init_value_;
+      T max_expected = init_value_ + count_ - 1;
       // Count the number of times each value appears in the buffer.
-      std::vector<int> histogram;
+      std::vector<T> histogram;
       histogram.resize(count_, 0);
       for (size_t i = 0; i < desc.size_; i++) {
-        int result =
+        T result =
             accessor.LoadFromBuffer(arg.GetBufferStoragePtr(), (unsigned int)i);
         if ((result < min_expected) || (result > max_expected)) {
           std::stringstream ss;
@@ -101,11 +102,11 @@ class AtomicStreamer : public kts::BufferStreamer {
     return false;
   }
 
-  virtual size_t GetElementSize() override { return sizeof(int); }
+  virtual size_t GetElementSize() override { return sizeof(T); }
 
  private:
-  int init_value_;
-  int count_;
+  T init_value_;
+  T count_;
 };
 
 #endif  // KTS_VECZ_TASKS_COMMON_H_INCLUDED

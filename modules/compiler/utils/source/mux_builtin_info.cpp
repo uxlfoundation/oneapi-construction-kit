@@ -22,14 +22,12 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <compiler/utils/target_extension_types.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/Support/ModRef.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 
 #include <optional>
-
-#if LLVM_VERSION_GREATER_EQUAL(16, 0)
-#include <llvm/Support/ModRef.h>
-#endif
 
 using namespace llvm;
 
@@ -591,12 +589,13 @@ static BasicBlock *copy1D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
   assert(DstPtr->getType()->isPointerTy() &&
          "Mux DMA builtins are always byte-accessed");
 
-  Value *DmaIVs[] = {SrcPtr, DstPtr};
+  compiler::utils::CreateLoopOpts opts;
+  opts.IVs = {SrcPtr, DstPtr};
+  opts.loopIVNames = {"dma.src", "dma.dst"};
 
   // This is a simple loop copy a byte at a time from SrcPtr to DstPtr.
   BasicBlock *ExitBB = compiler::utils::createLoop(
-      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumBytes, DmaIVs,
-      compiler::utils::CreateLoopOpts{},
+      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumBytes, opts,
       [&](BasicBlock *BB, Value *X, ArrayRef<Value *> IVsCurr,
           MutableArrayRef<Value *> IVsNext) {
         IRBuilder<> B(BB);
@@ -625,12 +624,13 @@ static BasicBlock *copy2D(Module &M, BasicBlock &ParentBB, Value *DstPtr,
   assert(DstPtr->getType()->isPointerTy() &&
          "Mux DMA builtins are always byte-accessed");
 
-  Value *DmaIVs[] = {SrcPtr, DstPtr};
+  compiler::utils::CreateLoopOpts opts;
+  opts.IVs = {SrcPtr, DstPtr};
+  opts.loopIVNames = {"dma.src", "dma.dst"};
 
   // This is a loop over the range of lines, calling a 1D copy on each line
   BasicBlock *ExitBB = compiler::utils::createLoop(
-      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumLines, DmaIVs,
-      compiler::utils::CreateLoopOpts{},
+      &ParentBB, nullptr, ConstantInt::get(getSizeType(M), 0), NumLines, opts,
       [&](BasicBlock *block, Value *, ArrayRef<Value *> IVsCurr,
           MutableArrayRef<Value *> IVsNext) {
         IRBuilder<> loopIr(block);
@@ -735,12 +735,14 @@ Function *BIMuxInfoConcept::defineDMA3D(Function &F) {
   assert(ArgDstPtr->getType()->isPointerTy() &&
          "Mux DMA builtins are always byte-accessed");
 
-  Value *DmaIVs[] = {ArgSrcPtr, ArgDstPtr};
+  compiler::utils::CreateLoopOpts opts;
+  opts.IVs = {ArgSrcPtr, ArgDstPtr};
+  opts.loopIVNames = {"dma.src", "dma.dst"};
 
   // Create a loop around 1D DMA memcpy, adding stride, local width each time.
   BasicBlock *LoopExitBB = compiler::utils::createLoop(
       LoopEntryBB, nullptr, ConstantInt::get(getSizeType(M), 0), ArgNumPlanes,
-      DmaIVs, compiler::utils::CreateLoopOpts{},
+      opts,
       [&](BasicBlock *BB, Value *, ArrayRef<Value *> IVsCurr,
           MutableArrayRef<Value *> IVsNext) {
         IRBuilder<> loopIr(BB);
@@ -872,8 +874,9 @@ bool BIMuxInfoConcept::requiresSchedulingParameters(BuiltinID ID) {
   }
 }
 
-Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
+Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty, Module &M) {
 #if LLVM_VERSION_LESS(17, 0)
+  (void)M;
   (void)Ty;
 #else
   // We only map target extension types
@@ -881,14 +884,14 @@ Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
   auto &Ctx = Ty->getContext();
   auto *TgtExtTy = cast<TargetExtType>(Ty);
 
-  // Samplers are replaced by default with i32s
+  // Samplers are replaced by default with size_t.
   if (TgtExtTy == compiler::utils::tgtext::getSamplerTy(Ctx)) {
-    return IntegerType::getInt32Ty(Ctx);
+    return getSizeType(M);
   }
 
-  // Events are replaced by default with i32s
+  // Events are replaced by default with size_t.
   if (TgtExtTy == compiler::utils::tgtext::getEventTy(Ctx)) {
-    return IntegerType::getInt32Ty(Ctx);
+    return getSizeType(M);
   }
 
   // *All* images are replaced by default with a pointer in the default address
@@ -897,7 +900,7 @@ Type *BIMuxInfoConcept::getRemappedTargetExtTy(Type *Ty) {
   if (TgtExtTy->getName() == "spirv.Image") {
     return PointerType::getUnqual([&Ctx]() {
       const char *MuxImageTyName = "MuxImage";
-      if (auto *STy = multi_llvm::getStructTypeByName(Ctx, MuxImageTyName)) {
+      if (auto *STy = StructType::getTypeByName(Ctx, MuxImageTyName)) {
         return STy;
       }
       return StructType::create(Ctx, MuxImageTyName);
@@ -956,11 +959,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
                   ? Int32Ty
                   : SizeTy;
       // All of our mux getters are readonly - they may never write data
-#if LLVM_VERSION_GREATER_EQUAL(16, 0)
       AB.addMemoryAttr(MemoryEffects::readOnly());
-#else
-      AB.addAttribute(Attribute::ReadOnly);
-#endif
       break;
     }
     // Ranked Setters

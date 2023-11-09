@@ -32,7 +32,7 @@ TEST_P(Execution, Spirv_01_Copy) {
 
 TEST_P(Execution, Spirv_02_Async_Copy) {
   AddInputBuffer(kts::N, kts::Ref_A);
-  AddLocalBuffer(kts::localN * sizeof(cl_uint));
+  AddLocalBuffer<cl_uint>(kts::localN);
   AddOutputBuffer(kts::N, kts::Ref_A);
 
   RunGeneric1D(kts::N, kts::localN);

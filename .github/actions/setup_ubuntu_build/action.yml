@@ -6,8 +6,8 @@ inputs:
     description: 'llvm Build type (Release, RelAssert) - note we need to use RelAssert for the cache pattern matching'
     default: RelAssert
   llvm_version:
-    description: 'Major llvm version to use for fetching llvm cache e.g. 16'
-    default: 16
+    description: 'Major llvm version to use for fetching llvm cache e.g. 17'
+    default: 17
   ubuntu_version:
     description: 'Version of ubuntu used for cache retrieval'
     default: 22.04

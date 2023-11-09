@@ -55,14 +55,6 @@ struct CommandBufferCopyBufferTest : cl_khr_command_buffer_Test {
   static constexpr size_t data_size_in_bytes = elements * sizeof(cl_int);
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferCopyBufferTest::elements;
-constexpr size_t CommandBufferCopyBufferTest::data_size_in_bytes;
-#endif
-
 TEST_F(CommandBufferCopyBufferTest, Default) {
   std::vector<cl_int> input_data(elements);
 

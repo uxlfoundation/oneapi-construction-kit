@@ -122,8 +122,6 @@ class PassMachinery {
   llvm::PassBuilder PB;
 };
 
-#define CTX_UNUSED(x) ((void)(x))
-
 /// Helper functions for pass printing.
 
 /// @brief Helper function for printing a pass name, to be used by

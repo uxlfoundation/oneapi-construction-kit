@@ -380,10 +380,13 @@ void kts::ucl::BaseExecution::AddInOutBuffer(BufferDesc &&desc) {
   args_->AddInOutBuffer(desc);
 }
 
-void kts::ucl::BaseExecution::AddLocalBuffer(size_t size) {
+void kts::ucl::BaseExecution::AddLocalBuffer(size_t nelm, size_t elmsize) {
+  assert(elmsize != 0 && "cannot allocate zero-sized elements");
+  size_t bytesize = nelm * elmsize;
+  assert(bytesize / elmsize == nelm && "overflow in size computation");
   // UnitCL AddLocalBuffer requires this to be allocated with cargo::alloc.
   void *raw = cargo::alloc(sizeof(PointerPrimitive), alignof(PointerPrimitive));
-  PointerPrimitive *pointer_primitive = new (raw) PointerPrimitive(size);
+  PointerPrimitive *pointer_primitive = new (raw) PointerPrimitive(bytesize);
   args_->AddLocalBuffer(pointer_primitive);
 }
 

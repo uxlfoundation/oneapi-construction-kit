@@ -26,9 +26,8 @@ __kernel void compare_exchange_strong_local_private_uint(
   uint private_expected = expected_buffer[gid];
 
   bool_output_buffer[gid] = atomic_compare_exchange_strong_explicit(
-      local_atomic_buffer + lid, &private_expected,
-      desired_buffer[gid], memory_order_relaxed, memory_order_relaxed,
-      memory_scope_work_item);
+      local_atomic_buffer + lid, &private_expected, desired_buffer[gid],
+      memory_order_relaxed, memory_order_relaxed, memory_scope_work_item);
 
   expected_buffer[gid] = private_expected;
 

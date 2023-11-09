@@ -19,7 +19,6 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Target/TargetMachine.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/triple.h>
 #include <multi_llvm/vector_type_helper.h>
 
@@ -100,8 +99,7 @@ Value *TargetInfo::createLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
                              "reported it would be illegal");
         VECZ_FAIL();
       }
-      auto *Mask = multi_llvm::createAllTrueMask(
-          B, multi_llvm::getVectorElementCount(Ty));
+      auto *Mask = createAllTrueMask(B, multi_llvm::getVectorElementCount(Ty));
       SmallVector<llvm::Value *, 2> Args = {VecPtr, Mask, EVL};
       SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtr->getType()};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_load, Tys, Args);
@@ -169,8 +167,8 @@ Value *TargetInfo::createStore(IRBuilder<> &B, Value *Data, Value *Ptr,
                              "reported it would be illegal");
         VECZ_FAIL();
       }
-      auto *Mask = multi_llvm::createAllTrueMask(
-          B, multi_llvm::getVectorElementCount(VecTy));
+      auto *Mask =
+          createAllTrueMask(B, multi_llvm::getVectorElementCount(VecTy));
       SmallVector<llvm::Value *, 3> Args = {Data, VecPtr, Mask, EVL};
       SmallVector<llvm::Type *, 2> Tys = {Data->getType(), VecPtr->getType()};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_store, Tys, Args);
@@ -438,7 +436,7 @@ Value *TargetInfo::createMaskedInterleavedLoad(IRBuilder<> &B, Type *Ty,
   Value *StrideSplat = B.CreateVectorSplat(EC, Stride);
 
   Value *IndicesVector =
-      multi_llvm::createIndexSequence(B, StrideSplat->getType(), EC);
+      createIndexSequence(B, cast<VectorType>(StrideSplat->getType()));
   VECZ_FAIL_IF(!IndicesVector);
   IndicesVector = B.CreateMul(StrideSplat, IndicesVector);
 
@@ -459,7 +457,7 @@ Value *TargetInfo::createMaskedInterleavedStore(IRBuilder<> &B, Value *Data,
   Value *StrideSplat = B.CreateVectorSplat(EC, Stride);
 
   Value *IndicesVector =
-      multi_llvm::createIndexSequence(B, StrideSplat->getType(), EC);
+      createIndexSequence(B, cast<VectorType>(StrideSplat->getType()));
   VECZ_FAIL_IF(!IndicesVector);
   IndicesVector = B.CreateMul(StrideSplat, IndicesVector);
 
@@ -1278,8 +1276,9 @@ bool TargetInfo::interleaveVectors(IRBuilder<> &B,
 unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
                                        const ArrayRef<const Value *> vals,
                                        unsigned width) const {
-  unsigned MaxVecRegBitWidth = multi_llvm::getFixedValue(
-      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector));
+  unsigned MaxVecRegBitWidth =
+      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector)
+          .getFixedValue();
 
   unsigned NumVecRegs =
       TTI.getNumberOfRegisters(TTI.getRegisterClassForType(true));
@@ -1302,8 +1301,9 @@ unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
 
 unsigned TargetInfo::getVectorWidthForType(const llvm::TargetTransformInfo &TTI,
                                            const llvm::Type &Ty) const {
-  unsigned MaxVecRegBitWidth = multi_llvm::getFixedValue(
-      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector));
+  unsigned MaxVecRegBitWidth =
+      TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector)
+          .getFixedValue();
 
   if (MaxVecRegBitWidth == 0) {
     return 0;

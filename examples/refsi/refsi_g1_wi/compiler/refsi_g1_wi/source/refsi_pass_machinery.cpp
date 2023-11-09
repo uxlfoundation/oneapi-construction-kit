@@ -92,6 +92,10 @@ llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   auto env_var_opts =
       processOptimizationOptions(env_debug_prefix, /* vecz_mode*/ {});
 
+  // We don't run the WorkItemLoopsPass; we need an implementation of
+  // work-group collective operations.
+  tuner.replace_work_group_collectives = true;
+
   PM.addPass(compiler::utils::TransferKernelMetadataPass());
 
   if (env_debug_prefix) {
@@ -130,8 +134,6 @@ llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   // addLateBuiltinsPasses, which isn't ideal.
   PM.addPass(compiler::utils::DefineMuxDmaPass());
 
-  // We don't run the WorkItemLoopsPass; make sure that's taken into account.
-  tuner.handling_work_item_loops = false;
   addPreVeczPasses(PM, tuner);
 
   addLateBuiltinsPasses(PM, tuner);

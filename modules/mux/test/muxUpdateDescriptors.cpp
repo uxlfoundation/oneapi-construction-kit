@@ -137,14 +137,6 @@ struct muxUpdateDescriptorsTest : public DeviceCompilerTest {
   }
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline.
-constexpr size_t muxUpdateDescriptorsTest::local_size[];
-constexpr size_t muxUpdateDescriptorsTest::global_offset[];
-constexpr size_t muxUpdateDescriptorsTest::global_size[];
-#endif
-
 /// @brief Test fixture for checking we can update the descriptors of an nd
 /// range where the arguments are of the mux_descriptor_info_buffer_s type.
 ///
@@ -298,13 +290,6 @@ struct muxUpdateDescriptorsBufferTest : public muxUpdateDescriptorsTest {
     muxUpdateDescriptorsTest::TearDown();
   }
 };
-
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline.
-constexpr size_t muxUpdateDescriptorsBufferTest::buffer_size;
-constexpr char muxUpdateDescriptorsBufferTest::input_value;
-#endif
 
 // Tests we can successfully update the output argument descriptors to a
 // kernel in an nd range command.
@@ -607,14 +592,6 @@ struct muxUpdateDescriptorsPODTest : public muxUpdateDescriptorsTest {
     muxUpdateDescriptorsTest::TearDown();
   }
 };
-
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline.
-constexpr size_t muxUpdateDescriptorsPODTest::buffer_size;
-constexpr int32_t muxUpdateDescriptorsPODTest::input_value;
-constexpr int32_t muxUpdateDescriptorsPODTest::input_value_updated;
-#endif
 
 // Tests that we can successfully update the descriptors for an input POD
 // argument to a kernel in an nd range command.

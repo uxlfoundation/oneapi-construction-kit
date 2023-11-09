@@ -75,20 +75,24 @@ include(DetectLLVMMSVCCRT)
   :cmake:variable:`LLVM_PACKAGE_VERSION` from the imported LLVM install is
   a supported version.
 #]=======================================================================]
-set(CA_LLVM_MINIMUM_VERSION 14.0.0)
-set(CA_LLVM_MAXIMUM_VERSION 16.0.6)
+set(CA_LLVM_MINIMUM_VERSION 16.0.0)
+set(CA_LLVM_MAXIMUM_VERSION 17)
 string(REPLACE ";" "', '" CA_LLVM_VERSIONS_PRETTY "${CA_LLVM_VERSIONS}")
 if("${LLVM_PACKAGE_VERSION}" VERSION_LESS "${CA_LLVM_MINIMUM_VERSION}")
   message(FATAL_ERROR
-    "LLVM version '${LLVM_PACKAGE_VERSION}' is not supported. oneAPI Construction Kit "
-    "supports released versions between: "
-    "'${CA_LLVM_MINIMUM_VERSION}' and '${CA_LLVM_MAXIMUM_VERSION}'.")
+    "LLVM version '${LLVM_PACKAGE_VERSION}' is not supported. oneAPI
+    Construction Kit " "supports released versions between: "
+    "'${CA_LLVM_MINIMUM_VERSION}' and '${CA_LLVM_MAXIMUM_VERSION}.x'.")
 else()
-  if("${LLVM_PACKAGE_VERSION}" VERSION_GREATER "${CA_LLVM_MAXIMUM_VERSION}")
+  # We notionally support all minor/patch versions of our maximum supported
+  # LLVM major version. Grab the *next* version after this, to warn users that
+  # they may be using a newer untested/unsupported version of LLVM.
+  MATH(EXPR MAX_LLVM_VER_PLUS_ONE "${CA_LLVM_MAXIMUM_VERSION}+1")
+  if("${LLVM_PACKAGE_VERSION}" VERSION_GREATER_EQUAL "${MAX_LLVM_VER_PLUS_ONE}")
     message(AUTHOR_WARNING
       "Build with LLVM version '${LLVM_PACKAGE_VERSION}' which is not "
       "supported. oneAPI Construction Kit supports released versions between: "
-      "'${CA_LLVM_MINIMUM_VERSION}' and '${CA_LLVM_MAXIMUM_VERSION}'.")
+      "'${CA_LLVM_MINIMUM_VERSION}' and '${CA_LLVM_MAXIMUM_VERSION}.x'.")
   endif()
 endif()
 message(STATUS "oneAPI Construction Kit using LLVM ${LLVM_PACKAGE_VERSION}")

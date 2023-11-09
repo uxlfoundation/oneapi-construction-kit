@@ -18,6 +18,7 @@
 #include <llvm/ADT/StringSwitch.h>
 #include <spirv-ll/module.h>
 #include <spirv-ll/opcodes.h>
+#include <spirv/unified1/spirv.hpp>
 
 #include <unordered_map>
 
@@ -215,6 +216,14 @@ bool OpCode::hasResult() const {
     case spv::OpGroupSMin:
     case spv::OpGroupUMax:
     case spv::OpGroupUMin:
+    case spv::OpGroupFMulKHR:
+    case spv::OpGroupIMulKHR:
+    case spv::OpGroupBitwiseAndKHR:
+    case spv::OpGroupLogicalAndKHR:
+    case spv::OpGroupBitwiseOrKHR:
+    case spv::OpGroupLogicalOrKHR:
+    case spv::OpGroupBitwiseXorKHR:
+    case spv::OpGroupLogicalXorKHR:
     case spv::OpIAdd:
     case spv::OpIAddCarry:
     case spv::OpIEqual:

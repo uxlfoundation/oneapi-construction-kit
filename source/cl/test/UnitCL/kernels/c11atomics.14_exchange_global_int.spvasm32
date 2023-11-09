@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 43
+; Bound: 37
 ; Schema: 0
                OpCapability Addresses
                OpCapability Linkage
@@ -9,10 +9,9 @@
                OpCapability GenericPointer
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical32 OpenCL
-               OpEntryPoint Kernel %37 "exchange_global_int" %__spirv_BuiltInGlobalInvocationId
+               OpEntryPoint Kernel %9 "exchange_global_int" %__spirv_BuiltInGlobalInvocationId
                OpSource OpenCL_C 300000
                OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
-               OpName %exchange_global_int "exchange_global_int"
                OpName %in_out_buffer "in_out_buffer"
                OpName %desired_buffer "desired_buffer"
                OpName %output_buffer "output_buffer"
@@ -27,13 +26,9 @@
                OpName %arrayidx "arrayidx"
                OpName %call1 "call1"
                OpName %arrayidx2 "arrayidx2"
-               OpName %in_out_buffer_0 "in_out_buffer"
-               OpName %desired_buffer_0 "desired_buffer"
-               OpName %output_buffer_0 "output_buffer"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
-               OpDecorate %exchange_global_int LinkageAttributes "exchange_global_int" Export
                OpDecorate %in_out_buffer Alignment 4
                OpDecorate %desired_buffer Alignment 4
                OpDecorate %output_buffer Alignment 4
@@ -41,10 +36,7 @@
                OpDecorate %desired_buffer_addr Alignment 4
                OpDecorate %output_buffer_addr Alignment 4
                OpDecorate %gid Alignment 4
-               OpDecorate %in_out_buffer_0 Alignment 4
-               OpDecorate %desired_buffer_0 Alignment 4
-               OpDecorate %output_buffer_0 Alignment 4
-               OpDecorate %in_out_buffer_0 Volatile
+               OpDecorate %in_out_buffer Volatile
        %uint = OpTypeInt 32 0
      %uint_4 = OpConstant %uint 4
      %uint_0 = OpConstant %uint 0
@@ -57,7 +49,7 @@
 %_ptr_Function_uint = OpTypePointer Function %uint
 %_ptr_Generic_uint = OpTypePointer Generic %uint
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
-%exchange_global_int = OpFunction %void DontInline %8
+          %9 = OpFunction %void DontInline %8
 %in_out_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %desired_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
 %output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_uint
@@ -85,13 +77,5 @@
          %35 = OpLoad %uint %gid Aligned 4
   %arrayidx2 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %34 %35
                OpStore %arrayidx2 %call1 Aligned 4
-               OpReturn
-               OpFunctionEnd
-         %37 = OpFunction %void DontInline %8
-%in_out_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%desired_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-%output_buffer_0 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
-         %41 = OpLabel
-         %42 = OpFunctionCall %void %exchange_global_int %in_out_buffer_0 %desired_buffer_0 %output_buffer_0
                OpReturn
                OpFunctionEnd

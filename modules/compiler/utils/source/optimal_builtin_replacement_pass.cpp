@@ -26,7 +26,6 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/Intrinsics.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/triple.h>
 #include <multi_llvm/vector_type_helper.h>
 

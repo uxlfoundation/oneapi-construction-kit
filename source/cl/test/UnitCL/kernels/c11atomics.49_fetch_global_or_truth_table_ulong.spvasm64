@@ -1,0 +1,52 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 24
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int64Atomics
+               OpCapability GenericPointer
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %6 "fetch_global_or_truth_table_ulong"
+               OpSource OpenCL_C 300000
+               OpName %total "total"
+               OpName %input_buffer "input_buffer"
+               OpName %entry "entry"
+               OpName %total_addr "total.addr"
+               OpName %input_buffer_addr "input_buffer.addr"
+               OpName %arrayidx "arrayidx"
+               OpName %call "call"
+               OpDecorate %total Alignment 8
+               OpDecorate %input_buffer Alignment 8
+               OpDecorate %total_addr Alignment 8
+               OpDecorate %input_buffer_addr Alignment 8
+               OpDecorate %total Volatile
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+    %ulong_0 = OpConstant %ulong 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+          %5 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+%_ptr_Generic_ulong = OpTypePointer Generic %ulong
+          %6 = OpFunction %void DontInline %5
+      %total = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+%input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+      %entry = OpLabel
+ %total_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+%input_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+               OpStore %total_addr %total Aligned 8
+               OpStore %input_buffer_addr %input_buffer Aligned 8
+         %13 = OpLoad %_ptr_CrossWorkgroup_ulong %total_addr Aligned 8
+         %15 = OpPtrCastToGeneric %_ptr_Generic_ulong %13
+         %16 = OpLoad %_ptr_CrossWorkgroup_ulong %input_buffer_addr Aligned 8
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %16 %ulong_0
+         %19 = OpLoad %ulong %arrayidx Aligned 8
+       %call = OpAtomicOr %ulong %15 %uint_4 %uint_0 %19
+               OpReturn
+               OpFunctionEnd

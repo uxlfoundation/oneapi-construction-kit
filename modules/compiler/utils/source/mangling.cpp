@@ -496,7 +496,7 @@ bool NameMangler::demangleOpenCLBuiltinType(Lexer &L, Type *&Ty) {
   }
 
   if (auto *const OpenCLType =
-          multi_llvm::getStructTypeByName(*Context, Name)) {
+          llvm::StructType::getTypeByName(*Context, Name)) {
     Ty = OpenCLType;
   } else {
     Ty = llvm::StructType::create(*Context, Name);

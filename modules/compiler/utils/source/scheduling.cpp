@@ -20,7 +20,6 @@
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
-#include <multi_llvm/multi_llvm.h>
 #include <sys/types.h>
 
 using namespace llvm;
@@ -34,7 +33,7 @@ static constexpr const char *WorkGroupParamName = "MuxWorkGroupInfo";
 StructType *getWorkItemInfoStructTy(llvm::Module &M) {
   LLVMContext &ctx = M.getContext();
   // Check whether this struct has previously been defined.
-  if (auto *ty = multi_llvm::getStructTypeByName(ctx, WorkItemParamName)) {
+  if (auto *ty = StructType::getTypeByName(ctx, WorkItemParamName)) {
     return ty;
   }
   auto *uint_type = Type::getInt32Ty(ctx);
@@ -55,7 +54,7 @@ StructType *getWorkItemInfoStructTy(llvm::Module &M) {
 StructType *getWorkGroupInfoStructTy(llvm::Module &M) {
   LLVMContext &ctx = M.getContext();
   // Check whether this struct has previously been defined.
-  if (auto *ty = multi_llvm::getStructTypeByName(ctx, WorkGroupParamName)) {
+  if (auto *ty = StructType::getTypeByName(ctx, WorkGroupParamName)) {
     return ty;
   }
   auto *uint_type = Type::getInt32Ty(ctx);

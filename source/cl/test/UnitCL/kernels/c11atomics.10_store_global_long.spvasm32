@@ -1,0 +1,71 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 32
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int64Atomics
+               OpCapability GenericPointer
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %10 "store_global_long" %__spirv_BuiltInGlobalInvocationId
+               OpSource OpenCL_C 300000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %input_buffer "input_buffer"
+               OpName %output_buffer "output_buffer"
+               OpName %entry "entry"
+               OpName %input_buffer_addr "input_buffer.addr"
+               OpName %output_buffer_addr "output_buffer.addr"
+               OpName %gid "gid"
+               OpName %call "call"
+               OpName %add_ptr "add.ptr"
+               OpName %add_ptr_ascast "add.ptr.ascast"
+               OpName %arrayidx "arrayidx"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %input_buffer Alignment 8
+               OpDecorate %output_buffer Alignment 8
+               OpDecorate %input_buffer_addr Alignment 4
+               OpDecorate %output_buffer_addr Alignment 4
+               OpDecorate %gid Alignment 4
+               OpDecorate %output_buffer Volatile
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+     %uint_4 = OpConstant %uint 4
+     %uint_0 = OpConstant %uint 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
+          %9 = OpTypeFunction %void %_ptr_CrossWorkgroup_ulong %_ptr_CrossWorkgroup_ulong
+%_ptr_Function__ptr_CrossWorkgroup_ulong = OpTypePointer Function %_ptr_CrossWorkgroup_ulong
+%_ptr_Function_uint = OpTypePointer Function %uint
+%_ptr_Generic_ulong = OpTypePointer Generic %ulong
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3uint Input
+         %10 = OpFunction %void DontInline %9
+%input_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+%output_buffer = OpFunctionParameter %_ptr_CrossWorkgroup_ulong
+      %entry = OpLabel
+%input_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+%output_buffer_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_ulong Function
+        %gid = OpVariable %_ptr_Function_uint Function
+               OpStore %input_buffer_addr %input_buffer Aligned 4
+               OpStore %output_buffer_addr %output_buffer Aligned 4
+         %19 = OpLoad %v3uint %__spirv_BuiltInGlobalInvocationId Aligned 16
+       %call = OpCompositeExtract %uint %19 0
+               OpStore %gid %call Aligned 4
+         %21 = OpLoad %_ptr_CrossWorkgroup_ulong %output_buffer_addr Aligned 4
+         %22 = OpLoad %uint %gid Aligned 4
+    %add_ptr = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %21 %22
+%add_ptr_ascast = OpPtrCastToGeneric %_ptr_Generic_ulong %add_ptr
+         %26 = OpLoad %_ptr_CrossWorkgroup_ulong %input_buffer_addr Aligned 4
+         %27 = OpLoad %uint %gid Aligned 4
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %26 %27
+         %29 = OpLoad %ulong %arrayidx Aligned 8
+               OpAtomicStore %add_ptr_ascast %uint_4 %uint_0 %29
+               OpReturn
+               OpFunctionEnd

@@ -73,20 +73,35 @@ uint64_t computeApproximatePrivateMemoryUsage(const llvm::Function &fn) {
   return bytes;
 }
 
-void remapConstantExpr(llvm::ConstantExpr *expr, llvm::Constant *from,
-                       llvm::Constant *to) {
-  llvm::SmallVector<llvm::Constant *, 8> newOps;
-  // iterate through the constant expression and create a vector of old and new
+static llvm::SmallVector<llvm::Constant *> getNewOps(llvm::Constant *constant,
+                                                     llvm::Constant *from,
+                                                     llvm::Constant *to) {
+  llvm::SmallVector<llvm::Constant *> newOps;
+  // iterate through the constant and create a vector of old and new
   // ones
-  for (unsigned i = 0, e = expr->getNumOperands(); i != e; ++i) {
-    auto op = expr->getOperand(i);
+  for (unsigned i = 0, e = constant->getNumOperands(); i != e; ++i) {
+    auto op = constant->getOperand(i);
     if (op == from) {
       newOps.push_back(to);
     } else {
-      newOps.push_back(op);
+      newOps.push_back(llvm::cast<llvm::Constant>(op));
     }
   }
+  return newOps;
+}
 
+void remapConstantArray(llvm::ConstantArray *arr, llvm::Constant *from,
+                        llvm::Constant *to) {
+  llvm::SmallVector<llvm::Constant *> newOps = getNewOps(arr, from, to);
+  // Create a new array with the list of operands and replace all uses with
+  llvm::Constant *newConstant =
+      llvm::ConstantArray::get(arr->getType(), newOps);
+  arr->replaceAllUsesWith(newConstant);
+}
+
+void remapConstantExpr(llvm::ConstantExpr *expr, llvm::Constant *from,
+                       llvm::Constant *to) {
+  llvm::SmallVector<llvm::Constant *> newOps = getNewOps(expr, from, to);
   // Create a new expression with the list of operands and replace all uses with
   llvm::Constant *newConstant = expr->getWithOperands(newOps);
   expr->replaceAllUsesWith(newConstant);
@@ -473,7 +488,6 @@ bool addParamToAllFunctions(llvm::Module &module,
 
 llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
                              llvm::Value *indexStart, llvm::Value *indexEnd,
-                             llvm::ArrayRef<llvm::Value *> ivs,
                              const CreateLoopOpts &opts,
                              CreateLoopBodyFn body) {
   // If the index increment is null, we default to 1 as our index.
@@ -483,8 +497,8 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   llvm::LLVMContext &ctx = entry->getContext();
 
-  llvm::SmallVector<llvm::Value *, 4> currIVs(ivs.begin(), ivs.end());
-  llvm::SmallVector<llvm::Value *, 4> nextIVs(ivs.size());
+  llvm::SmallVector<llvm::Value *, 4> currIVs(opts.IVs.begin(), opts.IVs.end());
+  llvm::SmallVector<llvm::Value *, 4> nextIVs(opts.IVs.size());
 
   // Check if indexStart, indexEnd, and indexInc are constants.
   if (llvm::isa<llvm::ConstantInt>(indexStart) &&
@@ -564,6 +578,10 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
     auto *const phi = loopIR.CreatePHI(currIVs[i]->getType(), 2);
     llvm::cast<llvm::PHINode>(phi)->addIncoming(currIVs[i],
                                                 entryIR.GetInsertBlock());
+    // Set IV names if they've been given to us.
+    if (i < opts.loopIVNames.size()) {
+      phi->setName(opts.loopIVNames[i]);
+    }
     currIVs[i] = phi;
   }
 
@@ -731,11 +749,7 @@ llvm::CallInst *createCallToWrappedFunction(
   CI->setAttributes(getCopiedFunctionAttrs(WrappedF));
 
   if (BB) {
-#if LLVM_VERSION_GREATER(15, 0)
     CI->insertInto(BB, InsertPt);
-#else
-    BB->getInstList().insert(InsertPt, CI);
-#endif
 
     if (auto *const ParentF = BB->getParent()) {
       // An inlinable function call in a function with debug info *must* be
@@ -749,6 +763,47 @@ llvm::CallInst *createCallToWrappedFunction(
   }
 
   return CI;
+}
+
+llvm::Value *createBinOpForRecurKind(llvm::IRBuilderBase &B, llvm::Value *LHS,
+                                     llvm::Value *RHS, llvm::RecurKind Kind) {
+  switch (Kind) {
+    default:
+      break;
+    case llvm::RecurKind::None:
+      return nullptr;
+    case llvm::RecurKind::Add:
+      return B.CreateAdd(LHS, RHS);
+    case llvm::RecurKind::Mul:
+      return B.CreateMul(LHS, RHS);
+    case llvm::RecurKind::Or:
+      return B.CreateOr(LHS, RHS);
+    case llvm::RecurKind::And:
+      return B.CreateAnd(LHS, RHS);
+    case llvm::RecurKind::Xor:
+      return B.CreateXor(LHS, RHS);
+    case llvm::RecurKind::FAdd:
+      return B.CreateFAdd(LHS, RHS);
+    case llvm::RecurKind::FMul:
+      return B.CreateFMul(LHS, RHS);
+  }
+  assert((Kind == llvm::RecurKind::FMin || Kind == llvm::RecurKind::FMax ||
+          Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax ||
+          Kind == llvm::RecurKind::UMin || Kind == llvm::RecurKind::UMax) &&
+         "Unexpected min/max Kind");
+  if (Kind == llvm::RecurKind::FMin || Kind == llvm::RecurKind::FMax) {
+    return B.CreateBinaryIntrinsic(Kind == llvm::RecurKind::FMin
+                                       ? llvm::Intrinsic::minnum
+                                       : llvm::Intrinsic::maxnum,
+                                   LHS, RHS);
+  }
+  bool isMin = Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::UMin;
+  bool isSigned =
+      Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax;
+  llvm::Intrinsic::ID intrOpc =
+      isMin ? (isSigned ? llvm::Intrinsic::smin : llvm::Intrinsic::umin)
+            : (isSigned ? llvm::Intrinsic::smax : llvm::Intrinsic::umax);
+  return B.CreateBinaryIntrinsic(intrOpc, LHS, RHS);
 }
 
 }  // namespace utils

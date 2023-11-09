@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/dma.h>
+#include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/Operator.h>
 #include <multi_llvm/llvm_version.h>
@@ -52,8 +53,8 @@ static IntegerType *getDmaRegTy(LLVMContext &Ctx) {
 }
 
 // Return the type used to represent RefSi DMA transfer IDs.
-static IntegerType *getTransferIDTy(LLVMContext &Ctx) {
-  return IntegerType::getInt32Ty(Ctx);
+static IntegerType *getTransferIDTy(Module &M) {
+  return compiler::utils::getSizeType(M);
 }
 
 // Materialize the address of a DMA memory-mapped register in a basic block.
@@ -313,20 +314,24 @@ void defineRefSiDmaWait(Function &F) {
   Argument *const NumEvents = F.getArg(0);
   Argument *const EventList = F.getArg(1);
 
+  auto &M = *F.getParent();
   auto &Ctx = F.getContext();
   auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F);
   auto *const BodyBB = BasicBlock::Create(Ctx, "body", &F);
   auto *const EpilogBB = BasicBlock::Create(Ctx, "epilog", &F);
 
-  auto *const XferIdTy = getTransferIDTy(F.getContext());
-  auto *const Zero = ConstantInt::get(XferIdTy, 0);
-  auto *const One = ConstantInt::get(XferIdTy, 1);
+  auto *const XferIdTy = getTransferIDTy(M);
+  auto *const I32Ty = IntegerType::getInt32Ty(Ctx);
+  auto *const Zero = ConstantInt::get(I32Ty, 0);
+  auto *const One = ConstantInt::get(I32Ty, 1);
+
+  auto *const ZeroEventIdTy = ConstantInt::get(XferIdTy, 0);
 
   // Build the entry of the DMA builtin. This either branches to the body (if
   // there is at least one event in the list) or the epilog (empty list).
   {
     IRBuilder<> EntryBuilder(EntryBB);
-    assert(Zero->getType() == IntegerType::getInt32Ty(Ctx));
+    assert(NumEvents->getType() == IntegerType::getInt32Ty(Ctx));
     auto *EmptyListCond = EntryBuilder.CreateICmpEQ(NumEvents, Zero);
     EntryBuilder.CreateCondBr(EmptyListCond, EpilogBB, BodyBB);
   }
@@ -337,17 +342,17 @@ void defineRefSiDmaWait(Function &F) {
   {
     IRBuilder<> BodyBuilder(BodyBB);
 
-    auto *LoopIVPhi = BodyBuilder.CreatePHI(XferIdTy, 2, "loop_iv");
+    auto *LoopIVPhi = BodyBuilder.CreatePHI(I32Ty, 2, "loop_iv");
     LoopIVPhi->addIncoming(Zero, EntryBB);
 
     auto *MaxXferIdPhi = BodyBuilder.CreatePHI(XferIdTy, 2, "max_xfer_id");
-    MaxXferIdPhi->addIncoming(Zero, EntryBB);
+    MaxXferIdPhi->addIncoming(ZeroEventIdTy, EntryBB);
 
     // Retrieve the n-th event from the list.
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
-    // On LLVM 17, the event target type has already been replaced with i32s,
+    // On LLVM 17, the event target type has already been replaced with size_t,
     // so that is our event list.
-    auto *EventTy = getTransferIDTy(Ctx);
+    auto *EventTy = getTransferIDTy(M);
     auto *EventGep = BodyBuilder.CreateGEP(EventTy, EventList, LoopIVPhi);
     auto *EventID = BodyBuilder.CreateLoad(EventTy, EventGep, "xfer_id");
 #else
@@ -381,7 +386,7 @@ void defineRefSiDmaWait(Function &F) {
     IRBuilder<> epilogBuilder(EpilogBB);
     PHINode *eventIdToWait =
         epilogBuilder.CreatePHI(XferIdTy, 2, "event_id_to_wait");
-    eventIdToWait->addIncoming(Zero, EntryBB);
+    eventIdToWait->addIncoming(ZeroEventIdTy, EntryBB);
     eventIdToWait->addIncoming(MaxXferId, BodyBB);
     writeDmaReg(epilogBuilder, REFSI_REG_DMADONESEQ, eventIdToWait);
     epilogBuilder.CreateRetVoid();

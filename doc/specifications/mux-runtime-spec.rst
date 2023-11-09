@@ -1,7 +1,7 @@
 ComputeMux Runtime Specification
 ================================
 
-   This is version 0.79.0 of the specification.
+   This is version 0.80.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -186,6 +186,7 @@ in the system, but it can still be useful as a target for compilation.
      uint32_t allocation_capabilities;
      uint32_t source_capabilities;
      uint32_t address_capabilities;
+     uint32_t atomic_capabilities;
      uint32_t cache_capabilities;
      uint32_t half_capabilities;
      uint32_t float_capabilities;
@@ -243,6 +244,8 @@ in the system, but it can still be useful as a target for compilation.
    ``mux_source_capabilities_e``.
 -  ``address_capabilities`` - a bitfield of
    ``mux_address_capabilities_e``.
+-  ``atomic_capabilities`` - a bitfield of
+   ``mux_atomic_capabilities_e``.
 -  ``cache_capabilities`` - a bitfield of ``mux_cache_capabilities_e``.
 -  ``half_capabilities`` - half floating point support, a bitfield of
    ``mux_floating_point_capabilities_e``.

@@ -11,6 +11,7 @@ Upgrade guidance:
   * 0.78.0: to introduce mux builtins for sub-group, work-group, and
     vector-group operations.
   * 0.79.0: to introduce mux builtins for sub-group shuffle operations.
+  * 0.80.0: to introduce support for 64-bit atomic operations.
 * The `compiler::ImageArgumentSubstitutionPass` now replaces sampler typed
   parameters in kernel functions with i32 parameters via a wrapper function.
   The `host` target as a consequence now passes samplers to kernels as 32-bit
@@ -19,6 +20,11 @@ Upgrade guidance:
   `compiler::utils::LowerToMuxBuiltinsPass`.
 * The `compiler::utils::HandleBarriersPass` has been renamed to the
   `compiler::utils::WorkItemLoopsPass`.
+* The `compiler::utils::createLoop` API has moved its list of `IVs` parameter
+  into its `compiler::utils::CreateLoopOpts` parameter. It can now also set the
+  IV names via a second `CreateLoopOpts` field.
+* Support for LLVM versions is now limited to LLVM 16 and LLVM 17. Support for
+  earlier LLVM versions has been removed.
 
 ## Version 3.0.0
 

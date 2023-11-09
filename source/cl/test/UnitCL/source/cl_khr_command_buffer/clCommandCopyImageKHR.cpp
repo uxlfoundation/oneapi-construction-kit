@@ -91,14 +91,6 @@ struct CommandBufferCopyImageTest : cl_khr_command_buffer_Test {
   cl_command_buffer_khr command_buffer = nullptr;
 };
 
-#if __cplusplus < 201703L
-// C++14 and below require static member definitions be defined outside the
-// class even if they are initialized inline. TODO: Remove condition once we no
-// longer support earlier than LLVM 15.
-constexpr size_t CommandBufferCopyImageTest::half_dimension;
-constexpr size_t CommandBufferCopyImageTest::dimension_length;
-#endif
-
 TEST_F(CommandBufferCopyImageTest, Sync) {
   const size_t origin[] = {0, 0, 0};
   const size_t region[] = {dimension_length, 1, 1};

@@ -27,7 +27,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Support/TypeSize.h>
-#include <multi_llvm/creation_apis_helper.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
@@ -205,8 +204,8 @@ cargo::optional<Error> Builder::create<OpLine>(const OpLine *op) {
     iter = IRBuilder.GetInsertBlock()->back().getIterator();
   }
 
-  llvm::DILocation *loc =
-      multi_llvm::getDILocation(op->Line(), op->Column(), block);
+  auto *loc = llvm::DILocation::get(block->getContext(), op->Line(),
+                                    op->Column(), block);
 
   module.setCurrentOpLineRange(loc, iter);
   return cargo::nullopt;
@@ -494,7 +493,7 @@ cargo::optional<Error> Builder::create<OpTypeImage>(const OpTypeImage *op) {
   // llvm::Context, creating a new StructType when one already exists with the
   // same name results in .1 being appended to the struct name causing issues.
   auto *namedTy =
-      multi_llvm::getStructTypeByName(*context.llvmContext, imageTypeName);
+      llvm::StructType::getTypeByName(*context.llvmContext, imageTypeName);
   if (namedTy) {
     structTy = namedTy;
   } else {
@@ -524,7 +523,7 @@ cargo::optional<Error> Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
                compiler::utils::tgtext::getSamplerTy(*context.llvmContext));
 #else
   llvm::StructType *sampler_struct;
-  if (auto *s = multi_llvm::getStructTypeByName(*context.llvmContext,
+  if (auto *s = llvm::StructType::getTypeByName(*context.llvmContext,
                                                 "opencl.sampler_t")) {
     sampler_struct = s;
   } else {
@@ -1004,69 +1003,60 @@ cargo::optional<Error> Builder::create<OpSpecConstant>(
   llvm::Type *type = module.getType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
+  uint64_t value;
+  if (type->getScalarSizeInBits() > 32) {
+    value = op->Value64();
+  } else {
+    value = op->Value32();
+  }
+
   llvm::Constant *spec_constant = nullptr;
 
   if (auto specId = module.getSpecId(op->IdResult())) {
     if (auto specInfo = module.getSpecInfo()) {
       if (specInfo->isSpecialized(*specId)) {
-        // Constant has been specialized, get value and create new constant.
-        switch (type->getTypeID()) {
-          case llvm::Type::IntegerTyID: {
-            switch (type->getScalarSizeInBits()) {
-              case 16: {
-                auto value = specInfo->getValue<uint16_t>(*specId);
-                SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                spec_constant = llvm::ConstantInt::get(type, *value);
-              } break;
-              case 1:
-                if (module.hasCapability(spv::CapabilityKernel)) {
-                  // OpenCL SPIR-V spec constant bool is 8 bits.
-                  auto value = specInfo->getValue<uint8_t>(*specId);
-                  SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                  spec_constant = llvm::ConstantInt::get(type, *value);
-                  break;
-                }
-                // Vulkan SPIR-V spec constant bool is 32 bits.
-                CARGO_FALLTHROUGH;
-              case 32: {
-                auto value = specInfo->getValue<uint32_t>(*specId);
-                SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                spec_constant = llvm::ConstantInt::get(type, *value);
-              } break;
-              case 64: {
-                auto value = specInfo->getValue<uint64_t>(*specId);
-                SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                spec_constant = llvm::ConstantInt::get(type, *value);
-              } break;
-              case 8:
-                if (module.hasCapability(spv::CapabilityKernel)) {
-                  auto value = specInfo->getValue<uint8_t>(*specId);
-                  SPIRV_LL_ASSERT(value, value.error().message.c_str());
-                  spec_constant = llvm::ConstantInt::get(type, *value);
-                  break;
-                }
-                // Vulkan SPIR-V does not support 8 bit integers.
-                CARGO_FALLTHROUGH;
-              default:
-                // The types above encapsulate all those required to be
-                // supported in the SPIR-V core spec for either the Shader or
-                // Kernel capability. It should not be possible to reach this
-                // point as unsupported specialization constant types should
-                // result in an error on definition.
-                llvm_unreachable(
-                    "unsupported int type provided to OpSpecConstant");
+        int size = type->getScalarSizeInBits();
+        switch (size) {
+          case 1:
+            if (module.hasCapability(spv::CapabilityKernel)) {
+              // OpenCL SPIR-V spec constant bool is 8 bits.
+              size = 8;
+            } else {
+              // Vulkan SPIR-V spec constant bool is 32 bits.
+              size = 32;
             }
             break;
-          }
-          case llvm::Type::FloatTyID: {
-            auto value = specInfo->getValue<float>(*specId);
-            SPIRV_LL_ASSERT(value, value.error().message.c_str());
-            spec_constant = llvm::ConstantFP::get(type, *value);
+          case 8:
+            if (!module.hasCapability(spv::CapabilityKernel)) {
+              // Vulkan SPIR-V does not support 8 bit integers.
+              size = -1;
+            }
+            break;
+        }
+        // SpecializationInfo::getValue does not require the type to match, it
+        // merely requires the type to have the correct size. Use integer types
+        // for everything to avoid a need for the host compiler to support
+        // device types.
+        switch (size) {
+          case 8: {
+            auto specValue = specInfo->getValue<uint8_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
           } break;
-          case llvm::Type::DoubleTyID: {
-            auto value = specInfo->getValue<double>(*specId);
-            SPIRV_LL_ASSERT(value, value.error().message.c_str());
-            spec_constant = llvm::ConstantFP::get(type, *value);
+          case 16: {
+            auto specValue = specInfo->getValue<uint16_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 32: {
+            auto specValue = specInfo->getValue<uint32_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 64: {
+            auto specValue = specInfo->getValue<uint64_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
           } break;
           default:
             llvm_unreachable("Invalid type provided to OpSpecConstant");
@@ -1075,28 +1065,15 @@ cargo::optional<Error> Builder::create<OpSpecConstant>(
       }
     }
   }
-  if (!spec_constant) {
-    uint64_t value = 0;
 
-    if (type->isDoubleTy() || type->isIntegerTy(64)) {
-      value = op->Value64();
-    } else {
-      value = op->Value32();
-    }
-
-    if (type->isFloatingPointTy()) {
-      if (type->isDoubleTy()) {
-        double dval = 0;
-        memcpy(&dval, &value, sizeof(double));
-        spec_constant = llvm::ConstantFP::get(type, dval);
-      } else {
-        float fval = 0;
-        memcpy(&fval, &value, sizeof(float));
-        spec_constant = llvm::ConstantFP::get(type, fval);
-      }
-    } else {
-      spec_constant = llvm::ConstantInt::get(type, value);
-    }
+  if (type->isIntegerTy()) {
+    spec_constant = llvm::ConstantInt::get(type, value);
+  } else if (type->isFloatingPointTy()) {
+    spec_constant = llvm::ConstantFP::get(
+        type, llvm::APFloat(type->getFltSemantics(),
+                            llvm::APInt(type->getScalarSizeInBits(), value)));
+  } else {
+    llvm_unreachable("Invalid type provided to OpSpecConstant");
   }
 
   module.addID(op->IdResult(), op, spec_constant);
@@ -2020,6 +1997,22 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
     if (linkage == llvm::Function::LinkageTypes::ExternalLinkage) {
       module.addName(op->IdResult(), name);
+    }
+
+    // DPC++ rejects variadic functions in SYCL code, with the exception of
+    // __builtin_printf which it accepts and generates invalid SPIR-V for that
+    // calls printf, but declares printf as a non-variadic function (because
+    // SPIR-V has no variadic functions) yet calls it with the normal arguments.
+    // Patch this up.
+    // We may not strictly infer for SPIR-V code that printf is the standard
+    // library function printf, but we only aim to support OpenCL C and SYCL
+    // which do allow us to make assumptions here, and SPIR-V generated from
+    // GLSL which appends a "(" to function names so is not affected.
+    if (name == "printf" && function_type->getNumParams() == 1 &&
+        !function_type->isVarArg()) {
+      function_type = llvm::FunctionType::get(function_type->getReturnType(),
+                                              {function_type->getParamType(0)},
+                                              /*isVarArg=*/true);
     }
 
     name.clear();
@@ -6313,6 +6306,7 @@ void Builder::generateReduction(const T *op, const std::string &opName,
     // Always inline the function, this means for constant execution scope the
     // optimizer can remove the branches.
     reductionWrapper->addFnAttr(llvm::Attribute::AlwaysInline);
+    reductionWrapper->addFnAttr(llvm::Attribute::Convergent);
     // Restore the original insert point.
     IRBuilder.SetInsertPoint(insertBB, insertPoint);
   }

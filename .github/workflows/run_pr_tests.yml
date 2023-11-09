@@ -34,7 +34,7 @@ jobs:
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
         with:
-          llvm_version: 16
+          llvm_version: 17
           llvm_build_type: RelAssert        
   
       # These need to match the configurations of build_pr_cache to use the cache effectively
@@ -78,7 +78,7 @@ jobs:
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
         with:
-          llvm_version: 16
+          llvm_version: 17
           llvm_build_type: RelAssert
 
       - name: build riscv M1

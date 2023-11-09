@@ -55,30 +55,66 @@ class InitTest : public C11AtomicTestBase {
       return input_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     AddInputBuffer(kts::N, random_reference);
     AddOutputBuffer(kts::N, random_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer<T>(kts::localN);
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 };
 
 TEST_P(InitTest, C11Atomics_01_Init_Global_Int) { doTest<cl_int>(); }
+TEST_P(InitTest, C11Atomics_01_Init_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(InitTest, C11Atomics_01_Init_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(InitTest, C11Atomics_01_Init_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
+}
 TEST_P(InitTest, C11Atomics_01_Init_Global_Float) { doTest<cl_float>(); }
+TEST_P(InitTest, C11Atomics_01_Init_Global_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>();
+}
 
 TEST_P(InitTest, C11Atomics_02_Init_Local_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(InitTest, C11Atomics_02_Init_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(InitTest, C11Atomics_02_Init_Local_Uint) {
   doTest<cl_uint>(/*local*/ true);
 }
+TEST_P(InitTest, C11Atomics_02_Init_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
+}
 TEST_P(InitTest, C11Atomics_02_Init_Local_Float) {
   doTest<cl_float>(/*local*/ true);
+}
+TEST_P(InitTest, C11Atomics_02_Init_Local_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>(/*local*/ true);
 }
 
 UCL_EXECUTION_TEST_SUITE(InitTest, testing::ValuesIn(source_types));
@@ -146,7 +182,7 @@ TEST_P(FenceTest, C11Atomics_08_Fence_Local) {
   // Set up the buffers.
   this->AddInputBuffer(kts::N, kts::Ref_Identity);
   this->AddOutputBuffer(kts::N, kts::Ref_Identity);
-  this->AddLocalBuffer(kts::localN);
+  this->AddLocalBuffer<cl_int>(kts::localN);
 
   // Run the test.
   this->RunGeneric1D(kts::N, kts::localN);
@@ -166,45 +202,117 @@ class LoadStoreTest : public C11AtomicTestBase {
       return input_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     AddInputBuffer(kts::N, random_reference);
     AddOutputBuffer(kts::N, random_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer<T>(kts::localN);
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 };
 
 TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Float) {
   doTest<cl_float>(/*local*/ true);
 }
+TEST_P(LoadStoreTest, C11Atomics_09_Store_Local_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>(/*local*/ true);
+}
 
 TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Int) { doTest<cl_int>(); }
+TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
+}
 TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Float) { doTest<cl_float>(); }
+TEST_P(LoadStoreTest, C11Atomics_10_Store_Global_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>();
+}
 
 TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Float) {
   doTest<cl_float>(/*local*/ true);
 }
+TEST_P(LoadStoreTest, C11Atomics_11_Load_Local_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>(/*local*/ true);
+}
 
 TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Int) { doTest<cl_int>(); }
+TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
+}
 TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Float) { doTest<cl_float>(); }
+TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>();
+}
 
 UCL_EXECUTION_TEST_SUITE(LoadStoreTest, testing::ValuesIn(source_types));
 
@@ -227,7 +335,7 @@ class ExchangeTest : public C11AtomicTestBase {
       return desired_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     // The initial values of the atomics are the input.
     // The desired values exchanged into the atomics are the expected output.
     AddInOutBuffer(kts::N, initializer_reference, desired_reference);
@@ -237,28 +345,64 @@ class ExchangeTest : public C11AtomicTestBase {
     // output.
     AddOutputBuffer(kts::N, initializer_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer<T>(kts::localN);
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 };
 
 TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Float) {
   doTest<cl_float>(/*local*/ true);
 }
+TEST_P(ExchangeTest, C11Atomics_13_Exchange_Local_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>(/*local*/ true);
+}
 
 TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Int) { doTest<cl_int>(); }
+TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Uint) { doTest<cl_uint>(); }
+TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
+}
 TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Float) {
   doTest<cl_float>();
+}
+TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Double) {
+  if (!UCL::hasAtomic64Support(device) || !UCL::hasDoubleSupport(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_double>();
 }
 
 UCL_EXECUTION_TEST_SUITE(ExchangeTest, testing::ValuesIn(source_types));
@@ -289,10 +433,10 @@ TEST_P(FlagTest, C11Atomics_17_Flag_Local_Clear_Set) {
   // The expected output is that the local atomic flags are all unset
   // by the kernel.
   this->AddOutputBuffer(kts::N, false_reference);
-  this->AddLocalBuffer(kts::N);
+  this->AddLocalBuffer<cl_bool>(kts::localN);
 
   // Run the test.
-  this->RunGeneric1D(kts::N);
+  this->RunGeneric1D(kts::N, kts::localN);
 }
 
 TEST_P(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
@@ -308,10 +452,10 @@ TEST_P(FlagTest, C11Atomics_18_Flag_Local_Set_Twice) {
   // The expected output is that the local atomic flags are all set
   // by the kernel.
   this->AddOutputBuffer(kts::N, true_reference);
-  this->AddLocalBuffer(kts::N);
+  this->AddLocalBuffer<cl_bool>(kts::localN);
 
   // Run the test.
-  this->RunGeneric1D(kts::N);
+  this->RunGeneric1D(kts::N, kts::localN);
 }
 
 TEST_P(FlagTest, C11Atomics_19_Flag_Global_Clear) {
@@ -365,17 +509,17 @@ class FetchTest : public C11AtomicTestBase {
       return input_data[index];
     };
 
-    // Set up the buffers.
+    // Set up the buffers and run the test.
     // The initial values of the atomics are the random input.
     AddInputBuffer(kts::N, random_reference);
     // The expected output values are the initial values loaded atomically.
     AddOutputBuffer(kts::N, random_reference);
     if (local) {
-      AddLocalBuffer(kts::N);
+      AddLocalBuffer<T>(kts::localN);
+      RunGeneric1D(kts::N, kts::localN);
+    } else {
+      RunGeneric1D(kts::N);
     }
-
-    // Run the test.
-    RunGeneric1D(kts::N);
   }
 
   template <typename T>
@@ -465,7 +609,7 @@ class FetchTest : public C11AtomicTestBase {
       AddInputBuffer(kts::N / kts::localN, init_reference);
     }
 
-    AddLocalBuffer(kts::N / kts::localN);
+    AddLocalBuffer<T>(kts::localN);
 
     // Run the test.
     RunGeneric1D(kts::N, kts::localN);
@@ -485,99 +629,267 @@ T firstEltReference(size_t, const std::vector<T> &input) {
 TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_21_Fetch_Global_Add_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_22_Fetch_Global_Sub_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_23_Fetch_Global_Or_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_24_Fetch_Global_Xor_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_25_Fetch_Global_And_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_26_Fetch_Global_Min_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return_Int) {
   doCheckReturnTest<cl_int>();
 }
+TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>();
+}
 TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>();
+}
+TEST_P(FetchTest, C11Atomics_27_Fetch_Global_Max_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>();
 }
 
 TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_28_Fetch_Local_Add_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_29_Fetch_Local_Sub_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_30_Fetch_Local_Or_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_31_Fetch_Local_Xor_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_32_Fetch_Local_And_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_33_Fetch_Local_Min_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return_Int) {
   doCheckReturnTest<cl_int>(/*local*/ true);
 }
+TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_long>(/*local*/ true);
+}
 TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return_Uint) {
   doCheckReturnTest<cl_uint>(/*local*/ true);
+}
+TEST_P(FetchTest, C11Atomics_34_Fetch_Local_Max_Check_Return_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doCheckReturnTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Int) {
@@ -586,11 +898,29 @@ TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Int) {
   };
   doTest<cl_int>(zeroReference<cl_int>, accumulate_ref, /*clamp*/ true);
 }
+TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t, const std::vector<cl_long> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_long{0});
+  };
+  doTest<cl_long>(zeroReference<cl_long>, accumulate_ref, /*clamp*/ true);
+}
 TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Uint) {
   const auto accumulate_ref = [](size_t, const std::vector<cl_uint> &input) {
     return std::accumulate(std::begin(input), std::end(input), cl_uint{0});
   };
   doTest<cl_uint>(zeroReference<cl_uint>, accumulate_ref, /*clamp*/ true);
+}
+TEST_P(FetchTest, C11Atomics_35_Fetch_Global_Add_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_ulong{0});
+  };
+  doTest<cl_ulong>(zeroReference<cl_ulong>, accumulate_ref, /*clamp*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Int) {
@@ -602,6 +932,18 @@ TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Int) {
   };
   doLocalTest<cl_int>(nullptr, accumulate_ref, /*clamp*/ true);
 }
+TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = start + kts::localN;
+    return std::accumulate(start, end, cl_long{0});
+  };
+  doLocalTest<cl_long>(nullptr, accumulate_ref, /*clamp*/ true);
+}
 TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Uint) {
   const auto accumulate_ref = [](size_t index,
                                  const std::vector<cl_uint> &input) {
@@ -611,6 +953,18 @@ TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Uint) {
   };
   doLocalTest<cl_uint>(nullptr, accumulate_ref, /*clamp*/ true);
 }
+TEST_P(FetchTest, C11Atomics_36_Fetch_Local_Add_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = start + kts::localN;
+    return std::accumulate(start, end, cl_ulong{0});
+  };
+  doLocalTest<cl_ulong>(nullptr, accumulate_ref, /*clamp*/ true);
+}
 
 TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Int) {
   const auto accumulate_ref = [](size_t, const std::vector<cl_int> &input) {
@@ -618,11 +972,29 @@ TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Int) {
   };
   doTest<cl_int>(accumulate_ref, zeroReference<cl_int>, /*clamp*/ true);
 }
+TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t, const std::vector<cl_long> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_long{0});
+  };
+  doTest<cl_long>(accumulate_ref, zeroReference<cl_long>, /*clamp*/ true);
+}
 TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Uint) {
   const auto accumulate_ref = [](size_t, const std::vector<cl_uint> &input) {
     return std::accumulate(std::begin(input), std::end(input), cl_uint{0});
   };
   doTest<cl_uint>(accumulate_ref, zeroReference<cl_uint>, /*clamp*/ true);
+}
+TEST_P(FetchTest, C11Atomics_37_Fetch_Global_Sub_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return std::accumulate(std::begin(input), std::end(input), cl_ulong{0});
+  };
+  doTest<cl_ulong>(accumulate_ref, zeroReference<cl_ulong>, /*clamp*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Int) {
@@ -634,6 +1006,18 @@ TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Int) {
   };
   doLocalTest<cl_int>(accumulate_ref, zeroReference<cl_int>, /*clamp*/ true);
 }
+TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = start + kts::localN;
+    return std::accumulate(start, end, cl_long{0});
+  };
+  doLocalTest<cl_long>(accumulate_ref, zeroReference<cl_long>, /*clamp*/ true);
+}
 TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Uint) {
   const auto accumulate_ref = [](size_t index,
                                  const std::vector<cl_uint> &input) {
@@ -642,6 +1026,19 @@ TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Uint) {
     return std::accumulate(start, end, cl_uint{0});
   };
   doLocalTest<cl_uint>(accumulate_ref, zeroReference<cl_uint>, /*clamp*/ true);
+}
+TEST_P(FetchTest, C11Atomics_38_Fetch_Local_Sub_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto accumulate_ref = [](size_t index,
+                                 const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = start + kts::localN;
+    return std::accumulate(start, end, cl_ulong{0});
+  };
+  doLocalTest<cl_ulong>(accumulate_ref, zeroReference<cl_ulong>,
+                        /*clamp*/ true);
 }
 
 TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Int) {
@@ -652,6 +1049,17 @@ TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Int) {
   };
   doTest<cl_int>(firstEltReference<cl_int>, or_ref);
 }
+TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](size_t, const std::vector<cl_long> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_long lhs, cl_long rhs) { return lhs | rhs; });
+  };
+  doTest<cl_long>(firstEltReference<cl_long>, or_ref);
+}
 TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Uint) {
   const auto or_ref = [](size_t, const std::vector<cl_uint> &input) {
     return std::accumulate(std::next(std::begin(input)), std::end(input),
@@ -659,6 +1067,17 @@ TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Uint) {
                            [](cl_uint lhs, cl_uint rhs) { return lhs | rhs; });
   };
   doTest<cl_uint>(firstEltReference<cl_uint>, or_ref);
+}
+TEST_P(FetchTest, C11Atomics_39_Fetch_Global_Or_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return std::accumulate(
+        std::next(std::begin(input)), std::end(input), input[0],
+        [](cl_ulong lhs, cl_ulong rhs) { return lhs | rhs; });
+  };
+  doTest<cl_ulong>(firstEltReference<cl_ulong>, or_ref);
 }
 
 TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Int) {
@@ -670,6 +1089,18 @@ TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Int) {
   };
   doLocalTest<cl_int>(nullptr, or_ref);
 }
+TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](size_t index, const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(std::next(start), end, *start,
+                           [](cl_long lhs, cl_long rhs) { return lhs | rhs; });
+  };
+  doLocalTest<cl_long>(nullptr, or_ref);
+}
 TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Uint) {
   const auto or_ref = [](size_t index, const std::vector<cl_uint> &input) {
     auto start = std::next(std::begin(input), index * kts::localN);
@@ -678,6 +1109,19 @@ TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Uint) {
                            [](cl_uint lhs, cl_uint rhs) { return lhs | rhs; });
   };
   doLocalTest<cl_uint>(nullptr, or_ref);
+}
+TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](size_t index, const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(
+        std::next(start), end, *start,
+        [](cl_ulong lhs, cl_ulong rhs) { return lhs | rhs; });
+  };
+  doLocalTest<cl_ulong>(nullptr, or_ref);
 }
 
 TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Int) {
@@ -693,6 +1137,22 @@ TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Int) {
 
   doTest<cl_int>(firstEltReference<cl_int>, xor_ref);
 }
+TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  // This test makes use of control flow in the kernel. Control flow conversion
+  // is not supported for atomics so we need to make sure this isn't registered
+  // as a failure when the vectorizer fails. See CA-3294.
+  fail_if_not_vectorized_ = false;
+  const auto xor_ref = [](size_t, const std::vector<cl_long> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_long lhs, cl_long rhs) { return lhs ^ rhs; });
+  };
+
+  doTest<cl_long>(firstEltReference<cl_long>, xor_ref);
+}
 TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Uint) {
   // This test makes use of control flow in the kernel. Control flow conversion
   // is not supported for atomics so we need to make sure this isn't registered
@@ -705,6 +1165,21 @@ TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Uint) {
   };
   doTest<cl_uint>(firstEltReference<cl_uint>, xor_ref);
 }
+TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  // This test makes use of control flow in the kernel. Control flow conversion
+  // is not supported for atomics so we need to make sure this isn't registered
+  // as a failure when the vectorizer fails. See CA-3294.
+  fail_if_not_vectorized_ = false;
+  const auto xor_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return std::accumulate(
+        std::next(std::begin(input)), std::end(input), input[0],
+        [](cl_ulong lhs, cl_ulong rhs) { return lhs ^ rhs; });
+  };
+  doTest<cl_ulong>(firstEltReference<cl_ulong>, xor_ref);
+}
 
 TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Int) {
   const auto xor_ref = [](size_t index, const std::vector<cl_int> &input) {
@@ -715,6 +1190,18 @@ TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Int) {
   };
   doLocalTest<cl_int>(nullptr, xor_ref);
 }
+TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto xor_ref = [](size_t index, const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(std::next(start), end, *start,
+                           [](cl_long lhs, cl_long rhs) { return lhs ^ rhs; });
+  };
+  doLocalTest<cl_long>(nullptr, xor_ref);
+}
 TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Uint) {
   const auto xor_ref = [](size_t index, const std::vector<cl_uint> &input) {
     auto start = std::next(std::begin(input), index * kts::localN);
@@ -723,6 +1210,19 @@ TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Uint) {
                            [](cl_uint lhs, cl_uint rhs) { return lhs ^ rhs; });
   };
   doLocalTest<cl_uint>(nullptr, xor_ref);
+}
+TEST_P(FetchTest, C11Atomics_42_Fetch_Local_Xor_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto xor_ref = [](size_t index, const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(
+        std::next(start), end, *start,
+        [](cl_ulong lhs, cl_ulong rhs) { return lhs ^ rhs; });
+  };
+  doLocalTest<cl_ulong>(nullptr, xor_ref);
 }
 
 TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Int) {
@@ -733,6 +1233,17 @@ TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Int) {
   };
   doTest<cl_int>(firstEltReference<cl_int>, and_ref);
 }
+TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](size_t, const std::vector<cl_long> &input) {
+    return std::accumulate(std::next(std::begin(input)), std::end(input),
+                           input[0],
+                           [](cl_long lhs, cl_long rhs) { return lhs & rhs; });
+  };
+  doTest<cl_long>(firstEltReference<cl_long>, and_ref);
+}
 TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Uint) {
   const auto and_ref = [](size_t, const std::vector<cl_uint> &input) {
     return std::accumulate(std::next(std::begin(input)), std::end(input),
@@ -740,6 +1251,17 @@ TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Uint) {
                            [](cl_uint lhs, cl_uint rhs) { return lhs & rhs; });
   };
   doTest<cl_uint>(firstEltReference<cl_uint>, and_ref);
+}
+TEST_P(FetchTest, C11Atomics_43_Fetch_Global_And_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return std::accumulate(
+        std::next(std::begin(input)), std::end(input), input[0],
+        [](cl_ulong lhs, cl_ulong rhs) { return lhs & rhs; });
+  };
+  doTest<cl_ulong>(firstEltReference<cl_ulong>, and_ref);
 }
 
 TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Int) {
@@ -751,6 +1273,18 @@ TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Int) {
   };
   doLocalTest<cl_int>(nullptr, and_ref);
 }
+TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](size_t index, const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(std::next(start), end, *start,
+                           [](cl_long lhs, cl_long rhs) { return lhs & rhs; });
+  };
+  doLocalTest<cl_long>(nullptr, and_ref);
+}
 TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Uint) {
   const auto and_ref = [](size_t index, const std::vector<cl_uint> &input) {
     auto start = std::next(std::begin(input), index * kts::localN);
@@ -760,6 +1294,19 @@ TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Uint) {
   };
   doLocalTest<cl_uint>(nullptr, and_ref);
 }
+TEST_P(FetchTest, C11Atomics_44_Fetch_Local_And_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](size_t index, const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return std::accumulate(
+        std::next(start), end, *start,
+        [](cl_ulong lhs, cl_ulong rhs) { return lhs & rhs; });
+  };
+  doLocalTest<cl_ulong>(nullptr, and_ref);
+}
 
 TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Int) {
   const auto min_ref = [](size_t, const std::vector<cl_int> &input) {
@@ -767,11 +1314,29 @@ TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Int) {
   };
   doTest<cl_int>(firstEltReference<cl_int>, min_ref);
 }
+TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto min_ref = [](size_t, const std::vector<cl_long> &input) {
+    return *std::min_element(std::begin(input), std::end(input));
+  };
+  doTest<cl_long>(firstEltReference<cl_long>, min_ref);
+}
 TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Uint) {
   const auto min_ref = [](size_t, const std::vector<cl_uint> &input) {
     return *std::min_element(std::begin(input), std::end(input));
   };
   doTest<cl_uint>(firstEltReference<cl_uint>, min_ref);
+}
+TEST_P(FetchTest, C11Atomics_45_Fetch_Global_Min_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto min_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return *std::min_element(std::begin(input), std::end(input));
+  };
+  doTest<cl_ulong>(firstEltReference<cl_ulong>, min_ref);
 }
 
 TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Int) {
@@ -782,6 +1347,17 @@ TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Int) {
   };
   doLocalTest<cl_int>(nullptr, min_ref);
 }
+TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto min_ref = [](size_t index, const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return *std::min_element(start, end);
+  };
+  doLocalTest<cl_long>(nullptr, min_ref);
+}
 TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Uint) {
   const auto min_ref = [](size_t index, const std::vector<cl_uint> &input) {
     auto start = std::next(std::begin(input), index * kts::localN);
@@ -790,6 +1366,17 @@ TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Uint) {
   };
   doLocalTest<cl_uint>(nullptr, min_ref);
 }
+TEST_P(FetchTest, C11Atomics_46_Fetch_Local_Min_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto min_ref = [](size_t index, const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return *std::min_element(start, end);
+  };
+  doLocalTest<cl_ulong>(nullptr, min_ref);
+}
 
 TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Int) {
   const auto max_ref = [](size_t, const std::vector<cl_int> &input) {
@@ -797,11 +1384,29 @@ TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Int) {
   };
   doTest<cl_int>(firstEltReference<cl_int>, max_ref);
 }
+TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto max_ref = [](size_t, const std::vector<cl_long> &input) {
+    return *std::max_element(std::begin(input), std::end(input));
+  };
+  doTest<cl_long>(firstEltReference<cl_long>, max_ref);
+}
 TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Uint) {
   const auto max_ref = [](size_t, const std::vector<cl_uint> &input) {
     return *std::max_element(std::begin(input), std::end(input));
   };
   doTest<cl_uint>(firstEltReference<cl_uint>, max_ref);
+}
+TEST_P(FetchTest, C11Atomics_47_Fetch_Global_Max_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto max_ref = [](size_t, const std::vector<cl_ulong> &input) {
+    return *std::max_element(std::begin(input), std::end(input));
+  };
+  doTest<cl_ulong>(firstEltReference<cl_ulong>, max_ref);
 }
 
 TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Int) {
@@ -812,6 +1417,17 @@ TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Int) {
   };
   doLocalTest<cl_int>(nullptr, max_ref);
 }
+TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto max_ref = [](size_t index, const std::vector<cl_long> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return *std::max_element(start, end);
+  };
+  doLocalTest<cl_long>(nullptr, max_ref);
+}
 TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Uint) {
   const auto max_ref = [](size_t index, const std::vector<cl_uint> &input) {
     auto start = std::next(std::begin(input), index * kts::localN);
@@ -819,6 +1435,17 @@ TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Uint) {
     return *std::max_element(start, end);
   };
   doLocalTest<cl_uint>(nullptr, max_ref);
+}
+TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto max_ref = [](size_t index, const std::vector<cl_ulong> &input) {
+    auto start = std::next(std::begin(input), index * kts::localN);
+    auto end = std::next(start, kts::localN);
+    return *std::max_element(start, end);
+  };
+  doLocalTest<cl_ulong>(nullptr, max_ref);
 }
 
 UCL_EXECUTION_TEST_SUITE(FetchTest, testing::ValuesIn(source_types));
@@ -894,10 +1521,10 @@ class FetchTruthTableTest
     this->AddInputBuffer(2, input_reference);
     // Expected output is the result of the binary operation.
     this->AddOutputBuffer(1, output_reference);
-    this->AddLocalBuffer(2);
+    this->AddLocalBuffer<T>(2);
 
     // Run the test.
-    this->RunGeneric1D(2);
+    this->RunGeneric1D(2, 2);
   }
 };
 
@@ -905,54 +1532,138 @@ TEST_P(FetchTruthTableTest, C11Atomics_49_Fetch_Global_Or_Truth_Table_Int) {
   const auto or_ref = [](cl_int A, cl_int B) { return A | B; };
   doTest<cl_int>(or_ref);
 }
+TEST_P(FetchTruthTableTest, C11Atomics_49_Fetch_Global_Or_Truth_Table_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](cl_long A, cl_long B) { return A | B; };
+  doTest<cl_long>(or_ref);
+}
 TEST_P(FetchTruthTableTest, C11Atomics_49_Fetch_Global_Or_Truth_Table_Uint) {
   const auto or_ref = [](cl_uint A, cl_uint B) { return A | B; };
   doTest<cl_uint>(or_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_49_Fetch_Global_Or_Truth_Table_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](cl_ulong A, cl_ulong B) { return A | B; };
+  doTest<cl_ulong>(or_ref);
 }
 
 TEST_P(FetchTruthTableTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table_Int) {
   const auto xor_ref = [](cl_int A, cl_int B) { return A ^ B; };
   doTest<cl_int>(xor_ref);
 }
+TEST_P(FetchTruthTableTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto xor_ref = [](cl_long A, cl_long B) { return A ^ B; };
+  doTest<cl_long>(xor_ref);
+}
 TEST_P(FetchTruthTableTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table_Uint) {
   const auto xor_ref = [](cl_uint A, cl_uint B) { return A ^ B; };
   doTest<cl_uint>(xor_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_50_Fetch_Global_Xor_Truth_Table_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto xor_ref = [](cl_ulong A, cl_ulong B) { return A ^ B; };
+  doTest<cl_ulong>(xor_ref);
 }
 
 TEST_P(FetchTruthTableTest, C11Atomics_51_Fetch_Global_And_Truth_Table_Int) {
   const auto and_ref = [](cl_int A, cl_int B) { return A & B; };
   doTest<cl_int>(and_ref);
 }
+TEST_P(FetchTruthTableTest, C11Atomics_51_Fetch_Global_And_Truth_Table_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](cl_long A, cl_long B) { return A & B; };
+  doTest<cl_long>(and_ref);
+}
 TEST_P(FetchTruthTableTest, C11Atomics_51_Fetch_Global_And_Truth_Table_Uint) {
   const auto and_ref = [](cl_uint A, cl_uint B) { return A & B; };
   doTest<cl_uint>(and_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_51_Fetch_Global_And_Truth_Table_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](cl_ulong A, cl_ulong B) { return A & B; };
+  doTest<cl_ulong>(and_ref);
 }
 
 TEST_P(FetchTruthTableTest, C11Atomics_52_Fetch_Local_Or_Truth_Table_Int) {
   const auto or_ref = [](cl_int A, cl_int B) { return A | B; };
   doLocalTest<cl_int>(or_ref);
 }
+TEST_P(FetchTruthTableTest, C11Atomics_52_Fetch_Local_Or_Truth_Table_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](cl_long A, cl_int B) { return A | B; };
+  doLocalTest<cl_long>(or_ref);
+}
 TEST_P(FetchTruthTableTest, C11Atomics_52_Fetch_Local_Or_Truth_Table_Uint) {
   const auto or_ref = [](cl_uint A, cl_uint B) { return A | B; };
   doLocalTest<cl_uint>(or_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_52_Fetch_Local_Or_Truth_Table_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto or_ref = [](cl_ulong A, cl_ulong B) { return A | B; };
+  doLocalTest<cl_ulong>(or_ref);
 }
 
 TEST_P(FetchTruthTableTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table_Int) {
   const auto xor_ref = [](cl_int A, cl_int B) { return A ^ B; };
   doLocalTest<cl_int>(xor_ref);
 }
+TEST_P(FetchTruthTableTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto xor_ref = [](cl_long A, cl_long B) { return A ^ B; };
+  doLocalTest<cl_long>(xor_ref);
+}
 TEST_P(FetchTruthTableTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table_Uint) {
   const auto xor_ref = [](cl_uint A, cl_uint B) { return A ^ B; };
   doLocalTest<cl_uint>(xor_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_53_Fetch_Local_Xor_Truth_Table_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto xor_ref = [](cl_ulong A, cl_ulong B) { return A ^ B; };
+  doLocalTest<cl_ulong>(xor_ref);
 }
 
 TEST_P(FetchTruthTableTest, C11Atomics_54_Fetch_Local_And_Truth_Table_Int) {
   const auto and_ref = [](cl_int A, cl_int B) { return A & B; };
   doLocalTest<cl_int>(and_ref);
 }
+TEST_P(FetchTruthTableTest, C11Atomics_54_Fetch_Local_And_Truth_Table_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](cl_long A, cl_long B) { return A & B; };
+  doLocalTest<cl_long>(and_ref);
+}
 TEST_P(FetchTruthTableTest, C11Atomics_54_Fetch_Local_And_Truth_Table_Uint) {
   const auto and_ref = [](cl_uint A, cl_uint B) { return A & B; };
   doLocalTest<cl_uint>(and_ref);
+}
+TEST_P(FetchTruthTableTest, C11Atomics_54_Fetch_Local_And_Truth_Table_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  const auto and_ref = [](cl_ulong A, cl_ulong B) { return A & B; };
+  doLocalTest<cl_ulong>(and_ref);
 }
 
 static const TruthTableInputs truth_table_domain[] = {
@@ -1003,9 +1714,9 @@ class Strong : public C11AtomicTestBase {
     if (!local) {
       RunGeneric1D(kts::N);
     } else {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer<T>(kts::localN);
       if (local_local) {
-        AddLocalBuffer(kts::localN);
+        AddLocalBuffer<T>(kts::localN);
       }
       RunGeneric1D(kts::N, kts::localN);
     }
@@ -1015,43 +1726,115 @@ class Strong : public C11AtomicTestBase {
 TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global_Int) {
   doTest<cl_int>();
 }
+TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(Strong, C11Atomics_55_Compare_Exchange_Strong_Global_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(Strong, C11Atomics_56_Compare_Exchange_Strong_Global_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private_Int) {
   doTest<cl_int>();
 }
+TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(Strong, C11Atomics_57_Compare_Exchange_Strong_Global_Private_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(Strong, C11Atomics_58_Compare_Exchange_Strong_Local_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local_Int) {
   doTest<cl_int>(/*local*/ true, /*local_local*/ true);
 }
+TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true, /*local_local*/ true);
+}
 TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local_Uint) {
   doTest<cl_uint>(/*local*/ true, /*local_ulocal*/ true);
+}
+TEST_P(Strong, C11Atomics_59_Compare_Exchange_Strong_Local_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true, /*local_ulocal*/ true);
 }
 
 TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 UCL_EXECUTION_TEST_SUITE(Strong, testing::ValuesIn(source_types));
@@ -1117,7 +1900,7 @@ class StrongGlobalSingle : public C11AtomicTestBase {
     if (!local) {
       RunGeneric1D(kts::N);
     } else {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer<T>(kts::localN);
 
       // Run the test.
       RunGeneric1D(kts::N, kts::localN);
@@ -1130,8 +1913,22 @@ TEST_P(StrongGlobalSingle,
   doTest<cl_int>();
 }
 TEST_P(StrongGlobalSingle,
+       C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(StrongGlobalSingle,
        C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(StrongGlobalSingle,
+       C11Atomics_61_Compare_Exchange_Strong_Global_Global_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(StrongGlobalSingle,
@@ -1139,8 +1936,22 @@ TEST_P(StrongGlobalSingle,
   doTest<cl_int>(/*local*/ true);
 }
 TEST_P(StrongGlobalSingle,
+       C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
+TEST_P(StrongGlobalSingle,
        C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(StrongGlobalSingle,
+       C11Atomics_62_Compare_Exchange_Strong_Global_Local_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(StrongGlobalSingle,
@@ -1148,8 +1959,22 @@ TEST_P(StrongGlobalSingle,
   doTest<cl_int>();
 }
 TEST_P(StrongGlobalSingle,
+       C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(StrongGlobalSingle,
        C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(StrongGlobalSingle,
+       C11Atomics_63_Compare_Exchange_Strong_Global_Private_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 UCL_EXECUTION_TEST_SUITE(StrongGlobalSingle, testing::ValuesIn(source_types));
@@ -1234,9 +2059,9 @@ class StrongLocalSingle : public C11AtomicTestBase {
     AddInOutBuffer(kts::N, expected_in_reference, expected_output_reference);
     AddInputBuffer(kts::N, desired_reference);
     AddOutputBuffer(kts::N, bool_output_reference);
-    AddLocalBuffer(1);
+    AddLocalBuffer<T>(1);
     if (local_local) {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer<T>(kts::localN);
     }
 
     // Run the test.
@@ -1249,8 +2074,22 @@ TEST_P(StrongLocalSingle,
   doTest<cl_int>();
 }
 TEST_P(StrongLocalSingle,
+       C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(StrongLocalSingle,
        C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(StrongLocalSingle,
+       C11Atomics_64_Compare_Exchange_Strong_Local_Global_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(StrongLocalSingle,
@@ -1258,8 +2097,22 @@ TEST_P(StrongLocalSingle,
   doTest<cl_int>(/*local_local*/ true);
 }
 TEST_P(StrongLocalSingle,
+       C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local_local*/ true);
+}
+TEST_P(StrongLocalSingle,
        C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single_Uint) {
   doTest<cl_uint>(/*local_local*/ true);
+}
+TEST_P(StrongLocalSingle,
+       C11Atomics_65_Compare_Exchange_Strong_Local_Local_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local_local*/ true);
 }
 
 TEST_P(StrongLocalSingle,
@@ -1267,8 +2120,22 @@ TEST_P(StrongLocalSingle,
   doTest<cl_int>();
 }
 TEST_P(StrongLocalSingle,
+       C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(StrongLocalSingle,
        C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(StrongLocalSingle,
+       C11Atomics_66_Compare_Exchange_Strong_Local_Private_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 UCL_EXECUTION_TEST_SUITE(StrongLocalSingle, testing::ValuesIn(source_types));
@@ -1341,9 +2208,9 @@ class Weak : public C11AtomicTestBase {
     if (!local) {
       RunGeneric1D(kts::N);
     } else {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer<T>(kts::localN);
       if (local_local) {
-        AddLocalBuffer(kts::localN);
+        AddLocalBuffer<T>(kts::localN);
       }
       RunGeneric1D(kts::N, kts::localN);
     }
@@ -1353,43 +2220,115 @@ class Weak : public C11AtomicTestBase {
 TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global_Int) {
   doTest<cl_int>();
 }
+TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(Weak, C11Atomics_67_Compare_Exchange_Weak_Global_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(Weak, C11Atomics_68_Compare_Exchange_Weak_Global_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private_Int) {
   doTest<cl_int>();
 }
+TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
 TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(Weak, C11Atomics_69_Compare_Exchange_Weak_Global_Private_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(Weak, C11Atomics_70_Compare_Exchange_Weak_Local_Global_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local_Int) {
   doTest<cl_int>(/*local*/ true, /*local_local*/ true);
 }
+TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true, /*local_local*/ true);
+}
 TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local_Uint) {
   doTest<cl_uint>(/*local*/ true, /*local_ulocal*/ true);
+}
+TEST_P(Weak, C11Atomics_71_Compare_Exchange_Weak_Local_Local_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true, /*local_ulocal*/ true);
 }
 
 TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Int) {
   doTest<cl_int>(/*local*/ true);
 }
+TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
 TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 UCL_EXECUTION_TEST_SUITE(Weak, testing::ValuesIn(source_types));
@@ -1449,7 +2388,7 @@ class WeakGlobalSingle : public C11AtomicTestBase {
     kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    kts::Reference1D<T> bool_output_reference =
+    kts::Reference1D<cl_int> bool_output_reference =
         [success_index, weak_exchange_failed](size_t index) {
           return index == success_index && !weak_exchange_failed;
         };
@@ -1462,7 +2401,7 @@ class WeakGlobalSingle : public C11AtomicTestBase {
     if (!local) {
       RunGeneric1D(kts::N);
     } else {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer<T>(kts::localN);
       RunGeneric1D(kts::N, kts::localN);
     }
   }
@@ -1473,8 +2412,22 @@ TEST_P(WeakGlobalSingle,
   doTest<cl_int>();
 }
 TEST_P(WeakGlobalSingle,
+       C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(WeakGlobalSingle,
        C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(WeakGlobalSingle,
+       C11Atomics_73_Compare_Exchange_Weak_Global_Global_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(WeakGlobalSingle,
@@ -1482,8 +2435,22 @@ TEST_P(WeakGlobalSingle,
   doTest<cl_int>(/*local*/ true);
 }
 TEST_P(WeakGlobalSingle,
+       C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local*/ true);
+}
+TEST_P(WeakGlobalSingle,
        C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single_Uint) {
   doTest<cl_uint>(/*local*/ true);
+}
+TEST_P(WeakGlobalSingle,
+       C11Atomics_74_Compare_Exchange_Weak_Global_Local_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local*/ true);
 }
 
 TEST_P(WeakGlobalSingle,
@@ -1491,8 +2458,22 @@ TEST_P(WeakGlobalSingle,
   doTest<cl_int>();
 }
 TEST_P(WeakGlobalSingle,
+       C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(WeakGlobalSingle,
        C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(WeakGlobalSingle,
+       C11Atomics_75_Compare_Exchange_Weak_Global_Private_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 UCL_EXECUTION_TEST_SUITE(WeakGlobalSingle, testing::ValuesIn(source_types));
@@ -1569,7 +2550,7 @@ class WeakLocalSingle : public C11AtomicTestBase {
     kts::Reference1D<T> desired_reference = [desired_values](size_t index) {
       return desired_values[index];
     };
-    kts::Reference1D<T> bool_output_reference =
+    kts::Reference1D<cl_int> bool_output_reference =
         [&success_indices, &weak_exchanges_failed](size_t index) {
           const size_t work_group = index / kts::localN;
           const size_t success_index_of_workgroup = success_indices[work_group];
@@ -1582,9 +2563,9 @@ class WeakLocalSingle : public C11AtomicTestBase {
     AddInOutBuffer(kts::N, expected_in_reference, expected_output_reference);
     AddInputBuffer(kts::N, desired_reference);
     AddOutputBuffer(kts::N, bool_output_reference);
-    AddLocalBuffer(1);
+    AddLocalBuffer<T>(1);
     if (local_local) {
-      AddLocalBuffer(kts::localN);
+      AddLocalBuffer<T>(kts::localN);
     }
 
     // Run the test.
@@ -1599,8 +2580,22 @@ TEST_P(WeakLocalSingle,
   doTest<cl_int>();
 }
 TEST_P(WeakLocalSingle,
+       C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(WeakLocalSingle,
        C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(WeakLocalSingle,
+       C11Atomics_76_Compare_Exchange_Weak_Local_Global_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 TEST_P(WeakLocalSingle,
@@ -1608,8 +2603,22 @@ TEST_P(WeakLocalSingle,
   doTest<cl_int>(/*local_local*/ true);
 }
 TEST_P(WeakLocalSingle,
+       C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>(/*local_local*/ true);
+}
+TEST_P(WeakLocalSingle,
        C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single_Uint) {
   doTest<cl_uint>(/*local_local*/ true);
+}
+TEST_P(WeakLocalSingle,
+       C11Atomics_77_Compare_Exchange_Weak_Local_Local_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>(/*local_local*/ true);
 }
 
 TEST_P(WeakLocalSingle,
@@ -1617,8 +2626,22 @@ TEST_P(WeakLocalSingle,
   doTest<cl_int>();
 }
 TEST_P(WeakLocalSingle,
+       C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single_Long) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_long>();
+}
+TEST_P(WeakLocalSingle,
        C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single_Uint) {
   doTest<cl_uint>();
+}
+TEST_P(WeakLocalSingle,
+       C11Atomics_78_Compare_Exchange_Weak_Local_Private_Single_Ulong) {
+  if (!UCL::hasAtomic64Support(device)) {
+    GTEST_SKIP();
+  }
+  doTest<cl_ulong>();
 }
 
 UCL_EXECUTION_TEST_SUITE(WeakLocalSingle, testing::ValuesIn(source_types));

@@ -452,7 +452,8 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.23_as_uint_uchar4.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.24_as_uint4_float4.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.25_as_ushort2_uchar4.cl
-  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/task_03.26_atom_inc_builtin_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.27_atomic_inc_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_03.29_modf4_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/task_04.01_copy_constant_offset.cl
@@ -550,11 +551,17 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/vloadvstore.03_half_private.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/vloadvstore.04_half_constant.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.01_init_global_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.02_init_local_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.03_fence_acquire_release.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.04_fence_acquire.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.05_fence_release.cl
@@ -562,143 +569,277 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.07_fence_global.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.08_fence_local.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.09_store_local_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.10_store_global_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.11_load_local_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.12_load_global_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.13_exchange_local_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global_float.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.14_exchange_global_double.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.17_flag_local_clear_set.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.18_flag_local_set_twice.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.19_flag_global_clear.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.20_flag_global_set_once.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.21_fetch_global_add_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.21_fetch_global_add_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.21_fetch_global_add_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.21_fetch_global_add_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.22_fetch_global_sub_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.22_fetch_global_sub_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.22_fetch_global_sub_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.22_fetch_global_sub_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.23_fetch_global_or_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.23_fetch_global_or_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.23_fetch_global_or_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.23_fetch_global_or_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.24_fetch_global_xor_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.24_fetch_global_xor_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.24_fetch_global_xor_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.24_fetch_global_xor_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.25_fetch_global_and_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.25_fetch_global_and_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.25_fetch_global_and_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.25_fetch_global_and_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.26_fetch_global_min_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.26_fetch_global_min_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.26_fetch_global_min_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.26_fetch_global_min_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.27_fetch_global_max_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.27_fetch_global_max_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.27_fetch_global_max_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.27_fetch_global_max_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.28_fetch_local_add_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.28_fetch_local_add_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.28_fetch_local_add_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.28_fetch_local_add_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.29_fetch_local_sub_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.29_fetch_local_sub_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.29_fetch_local_sub_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.29_fetch_local_sub_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.30_fetch_local_or_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.30_fetch_local_or_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.30_fetch_local_or_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.30_fetch_local_or_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.31_fetch_local_xor_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.31_fetch_local_xor_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.31_fetch_local_xor_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.31_fetch_local_xor_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.32_fetch_local_and_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.32_fetch_local_and_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.32_fetch_local_and_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.32_fetch_local_and_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.33_fetch_local_min_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.33_fetch_local_min_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.33_fetch_local_min_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.33_fetch_local_min_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.34_fetch_local_max_check_return_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.34_fetch_local_max_check_return_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.34_fetch_local_max_check_return_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.34_fetch_local_max_check_return_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.35_fetch_global_add_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.35_fetch_global_add_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.35_fetch_global_add_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.35_fetch_global_add_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.36_fetch_local_add_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.36_fetch_local_add_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.36_fetch_local_add_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.36_fetch_local_add_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.37_fetch_global_sub_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.37_fetch_global_sub_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.37_fetch_global_sub_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.37_fetch_global_sub_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.38_fetch_local_sub_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.38_fetch_local_sub_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.38_fetch_local_sub_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.38_fetch_local_sub_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.39_fetch_global_or_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.39_fetch_global_or_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.39_fetch_global_or_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.39_fetch_global_or_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.40_fetch_local_or_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.40_fetch_local_or_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.40_fetch_local_or_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.40_fetch_local_or_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.41_fetch_global_xor_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.41_fetch_global_xor_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.41_fetch_global_xor_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.41_fetch_global_xor_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.42_fetch_local_xor_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.42_fetch_local_xor_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.42_fetch_local_xor_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.42_fetch_local_xor_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.43_fetch_global_and_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.43_fetch_global_and_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.43_fetch_global_and_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.43_fetch_global_and_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.44_fetch_local_and_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.44_fetch_local_and_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.44_fetch_local_and_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.44_fetch_local_and_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.45_fetch_global_min_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.45_fetch_global_min_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.45_fetch_global_min_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.45_fetch_global_min_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.46_fetch_local_min_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.46_fetch_local_min_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.46_fetch_local_min_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.46_fetch_local_min_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.47_fetch_global_max_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.47_fetch_global_max_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.47_fetch_global_max_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.47_fetch_global_max_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.48_fetch_local_max_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.48_fetch_local_max_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.48_fetch_local_max_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.48_fetch_local_max_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.49_fetch_global_or_truth_table_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.49_fetch_global_or_truth_table_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.49_fetch_global_or_truth_table_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.49_fetch_global_or_truth_table_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.50_fetch_global_xor_truth_table_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.50_fetch_global_xor_truth_table_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.50_fetch_global_xor_truth_table_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.50_fetch_global_xor_truth_table_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.51_fetch_global_and_truth_table_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.51_fetch_global_and_truth_table_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.51_fetch_global_and_truth_table_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.51_fetch_global_and_truth_table_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.52_fetch_local_or_truth_table_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.52_fetch_local_or_truth_table_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.52_fetch_local_or_truth_table_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.52_fetch_local_or_truth_table_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.53_fetch_local_xor_truth_table_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.53_fetch_local_xor_truth_table_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.53_fetch_local_xor_truth_table_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.53_fetch_local_xor_truth_table_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.54_fetch_local_and_truth_table_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.54_fetch_local_and_truth_table_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.54_fetch_local_and_truth_table_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.54_fetch_local_and_truth_table_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.55_compare_exchange_strong_global_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.55_compare_exchange_strong_global_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.55_compare_exchange_strong_global_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.55_compare_exchange_strong_global_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.56_compare_exchange_strong_global_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.56_compare_exchange_strong_global_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.56_compare_exchange_strong_global_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.56_compare_exchange_strong_global_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.57_compare_exchange_strong_global_private_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.57_compare_exchange_strong_global_private_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.57_compare_exchange_strong_global_private_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.57_compare_exchange_strong_global_private_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.58_compare_exchange_strong_local_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.58_compare_exchange_strong_local_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.58_compare_exchange_strong_local_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.58_compare_exchange_strong_local_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.59_compare_exchange_strong_local_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.59_compare_exchange_strong_local_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.59_compare_exchange_strong_local_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.59_compare_exchange_strong_local_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.60_compare_exchange_strong_local_private_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.60_compare_exchange_strong_local_private_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.60_compare_exchange_strong_local_private_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.60_compare_exchange_strong_local_private_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.61_compare_exchange_strong_global_global_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.61_compare_exchange_strong_global_global_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.61_compare_exchange_strong_global_global_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.61_compare_exchange_strong_global_global_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.62_compare_exchange_strong_global_local_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.62_compare_exchange_strong_global_local_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.62_compare_exchange_strong_global_local_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.62_compare_exchange_strong_global_local_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.63_compare_exchange_strong_global_private_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.63_compare_exchange_strong_global_private_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.63_compare_exchange_strong_global_private_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.63_compare_exchange_strong_global_private_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.64_compare_exchange_strong_local_global_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.64_compare_exchange_strong_local_global_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.64_compare_exchange_strong_local_global_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.64_compare_exchange_strong_local_global_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.65_compare_exchange_strong_local_local_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.65_compare_exchange_strong_local_local_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.65_compare_exchange_strong_local_local_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.65_compare_exchange_strong_local_local_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.66_compare_exchange_strong_local_private_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.66_compare_exchange_strong_local_private_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.66_compare_exchange_strong_local_private_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.66_compare_exchange_strong_local_private_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.67_compare_exchange_weak_global_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.67_compare_exchange_weak_global_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.67_compare_exchange_weak_global_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.67_compare_exchange_weak_global_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.68_compare_exchange_weak_global_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.68_compare_exchange_weak_global_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.68_compare_exchange_weak_global_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.68_compare_exchange_weak_global_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.69_compare_exchange_weak_global_private_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.69_compare_exchange_weak_global_private_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.69_compare_exchange_weak_global_private_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.69_compare_exchange_weak_global_private_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.70_compare_exchange_weak_local_global_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.70_compare_exchange_weak_local_global_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.70_compare_exchange_weak_local_global_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.70_compare_exchange_weak_local_global_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.71_compare_exchange_weak_local_local_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.71_compare_exchange_weak_local_local_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.71_compare_exchange_weak_local_local_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.71_compare_exchange_weak_local_local_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.72_compare_exchange_weak_local_private_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.72_compare_exchange_weak_local_private_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.72_compare_exchange_weak_local_private_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.72_compare_exchange_weak_local_private_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.73_compare_exchange_weak_global_global_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.73_compare_exchange_weak_global_global_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.73_compare_exchange_weak_global_global_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.73_compare_exchange_weak_global_global_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.74_compare_exchange_weak_global_local_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.74_compare_exchange_weak_global_local_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.74_compare_exchange_weak_global_local_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.74_compare_exchange_weak_global_local_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.75_compare_exchange_weak_global_private_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.75_compare_exchange_weak_global_private_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.75_compare_exchange_weak_global_private_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.75_compare_exchange_weak_global_private_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.76_compare_exchange_weak_local_global_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.76_compare_exchange_weak_local_global_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.76_compare_exchange_weak_local_global_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.76_compare_exchange_weak_local_global_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.77_compare_exchange_weak_local_local_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.77_compare_exchange_weak_local_local_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.77_compare_exchange_weak_local_local_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.77_compare_exchange_weak_local_local_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.78_compare_exchange_weak_local_private_single_int.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.78_compare_exchange_weak_local_private_single_long.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.78_compare_exchange_weak_local_private_single_uint.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/c11atomics.78_compare_exchange_weak_local_private_single_ulong.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.01_get_sub_group_size_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.02_get_max_sub_group_size_builtin.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sub_group.03_get_num_sub_groups_builtin.cl
@@ -848,8 +989,16 @@ set(spirv_test
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv.23_memset_kernel.spvasm64
   ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.spvasm32
   ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp16.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp16.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.fp16.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/clSetProgramSpecializationConstant.fp64.fp16.spvasm64
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm32
   ${CMAKE_CURRENT_SOURCE_DIR}/spirv_regression.55_float_memcpy.spvasm64
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.23_string_dpcpp.spvasm32
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.23_string_dpcpp.spvasm64
   )
 
 if(${OCL_EXTENSION_cl_intel_required_subgroup_size})
