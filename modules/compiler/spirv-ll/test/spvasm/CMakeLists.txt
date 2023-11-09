@@ -2137,7 +2137,6 @@ set(SPVASM_FILES
   op_opencl_get_local_linear_id.spvasm
   op_opencl_get_enqueued_local_size.spvasm
   op_opencl_call_byval_arg.spvasm
-  opencl_max_byte_offset.spvasm
   op_expect_assume.spvasm
   op_generic_pointer.spvasm
   op_generic_pointer_builtin.spvasm
@@ -2183,6 +2182,7 @@ endif()
 # TODO: It might be more convenient to support a system like UnitCL where test
 # files declare their own requirements.
 set(SPVASM_V1_1_FILES
+  opencl_max_byte_offset.spvasm
   op_execution_mode_subgroup_size.spvasm
   op_execution_mode_subgroups_per_workgroup.spvasm
   op_get_default_queue.spvasm
