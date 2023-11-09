@@ -26,7 +26,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %i64_t = OpTypeInt 64 1
+               %i64_t = OpTypeInt 64 0
         %s_clamp_fn_t = OpTypeFunction %void_t
                %i64_1 = OpConstant %i64_t 1
                %i64_2 = OpConstant %i64_t 2

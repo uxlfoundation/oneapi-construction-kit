@@ -27,19 +27,18 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-              %ui64_t = OpTypeInt 64 0
-               %i64_t = OpTypeInt 64 1
-            %v8ui64_t = OpTypeVector %ui64_t 8
+               %i64_t = OpTypeInt 64 0
              %v8i64_t = OpTypeVector %i64_t 8
           %s_abs_fn_t = OpTypeFunction %void_t
-               %i64_2 = OpConstant %i64_t -2
+          ; Minus 2 in two's complement
+               %i64_2 = OpConstant %i64_t 18446744073709551614
              %v8i64_2 = OpConstantComposite %v8i64_t %i64_2 %i64_2 %i64_2 %i64_2 %i64_2 %i64_2 %i64_2 %i64_2
 
 ; All functions
          %s_abs_v8i64 = OpFunction %void_t None %s_abs_fn_t
 ; CHECK: define spir_kernel void @s_abs_v8i64()
                    %2 = OpLabel
-                   %3 = OpExtInst %v8ui64_t %1 s_abs %v8i64_2
+                   %3 = OpExtInst %v8i64_t %1 s_abs %v8i64_2
 ; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i64> @_Z3absDv8_l(<8 x i64> <i64 -2, i64 -2, i64 -2, i64 -2, i64 -2, i64 -2, i64 -2, i64 -2>)
                         OpReturn
 ; CHECK: ret void

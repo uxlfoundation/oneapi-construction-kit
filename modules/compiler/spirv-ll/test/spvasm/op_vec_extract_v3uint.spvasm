@@ -30,13 +30,12 @@
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
         %uint = OpTypeInt 32 0
-     %idx_ty = OpTypeInt 32 0
          %v3 = OpTypeVector %uint 3
      %ptr_v3 = OpTypePointer Function %v3
           %8 = OpConstant %uint 42
           %9 = OpConstant %uint 42
          %10 = OpConstant %uint 42
-         %11 = OpConstant %idx_ty 1
+         %11 = OpConstant %uint 1
          %12 = OpConstantComposite %v3 %8 %9 %10
     %ptr_uint = OpTypePointer Function %uint
        %main = OpFunction %void None %3

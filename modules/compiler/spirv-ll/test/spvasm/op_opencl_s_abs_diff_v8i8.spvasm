@@ -27,9 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %ui8_t = OpTypeInt 8 0
-                %i8_t = OpTypeInt 8 1
-             %v8ui8_t = OpTypeVector %ui8_t 8
+                %i8_t = OpTypeInt 8 0
               %v8i8_t = OpTypeVector %i8_t 8
      %s_abs_diff_fn_t = OpTypeFunction %void_t
                 %i8_2 = OpConstant %i8_t 2
@@ -41,7 +39,7 @@
      %s_abs_diff_v8i8 = OpFunction %void_t None %s_abs_diff_fn_t
 ; CHECK: define spir_kernel void @s_abs_diff_v8i8()
                    %2 = OpLabel
-                   %3 = OpExtInst %v8ui8_t %1 s_abs_diff %v8i8_2 %v8i8_5
+                   %3 = OpExtInst %v8i8_t %1 s_abs_diff %v8i8_2 %v8i8_5
 ; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i8> @_Z8abs_diffDv8_cS_(<8 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <8 x i8> <i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5>)
                         OpReturn
 ; CHECK: ret void

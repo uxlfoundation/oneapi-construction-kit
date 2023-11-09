@@ -27,7 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %int_t = OpTypeInt 32 1
+               %int_t = OpTypeInt 32 0
              %float_t = OpTypeFloat 32
             %v16int_t = OpTypeVector %int_t 16
           %v16float_t = OpTypeVector %float_t 16

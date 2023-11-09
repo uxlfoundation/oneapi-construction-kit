@@ -27,7 +27,6 @@
                       OpName %in_image "in_image"
 
             %void_t = OpTypeVoid
-             %int_t = OpTypeInt 32 1
             %uint_t = OpTypeInt 32 0
            %float_t = OpTypeFloat 32
           %v2uint_t = OpTypeVector %uint_t 2

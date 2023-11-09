@@ -36,13 +36,12 @@
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
         %uint = OpTypeInt 32 0
-   %idx_type = OpTypeInt 32 0
-          %8 = OpConstant %idx_type 4
+          %8 = OpConstant %uint 4
     %arr_uint = OpTypeArray %uint %8
  %test_block = OpTypeStruct %arr_uint
 %_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
           %_ = OpVariable %_ptr_Uniform_test_block Uniform
-         %13 = OpConstant %idx_type 0
+         %13 = OpConstant %uint 0
          %14 = OpSpecConstant %uint 42
          %15 = OpSpecConstantComposite %arr_uint %14 %14 %14 %14 ; testing this
 %ptr_arr_uint = OpTypePointer Uniform %arr_uint

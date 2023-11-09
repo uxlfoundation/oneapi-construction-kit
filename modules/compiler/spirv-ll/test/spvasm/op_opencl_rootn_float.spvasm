@@ -26,24 +26,11 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %int_t = OpTypeInt 32 1
               %uint_t = OpTypeInt 32 0
              %float_t = OpTypeFloat 32
           %rootn_fn_t = OpTypeFunction %void_t
-               %int_2 = OpConstant %int_t 2
               %uint_2 = OpConstant %uint_t 2
              %float_2 = OpConstant %float_t 2.0
-
-; All functions
-         %rootn_float = OpFunction %void_t None %rootn_fn_t
-; CHECK: define spir_kernel void @rootn_float()
-                   %2 = OpLabel
-                   %3 = OpExtInst %float_t %1 rootn %float_2 %int_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5rootnfi(float 2.000000e+00, i32 2)
-                        OpReturn
-; CHECK: ret void
-                        OpFunctionEnd
-; CHECK: }
 
     %rootn_float_uint = OpFunction %void_t None %rootn_fn_t
 ; CHECK: define spir_kernel void @rootn_float_uint()

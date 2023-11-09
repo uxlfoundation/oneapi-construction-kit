@@ -26,7 +26,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-                %i8_t = OpTypeInt 8 1
+                %i8_t = OpTypeInt 8 0
           %s_min_fn_t = OpTypeFunction %void_t
                 %i8_1 = OpConstant %i8_t 1
                 %i8_2 = OpConstant %i8_t 2

@@ -26,19 +26,16 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %i16_t = OpTypeInt 16 1
-              %ui16_t = OpTypeInt 16 0
+               %i16_t = OpTypeInt 16 0
           %s_abs_fn_t = OpTypeFunction %void_t
 ; This constant is the unsigned decimal representation of the two's compliment for -2.
-               %ui16_2 = OpConstant %ui16_t 65534
+               %i16_2 = OpConstant %i16_t 65534
 
 ; All functions
            %s_abs_i16 = OpFunction %void_t None %s_abs_fn_t
 ; CHECK: define spir_kernel void @s_abs_i16()
                    %2 = OpLabel
-                   %3 = OpExtInst %ui16_t %1 s_abs %ui16_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i16 @_Z3abss(i16 signext -2)
-                   %4 = OpExtInst %i16_t %1 s_abs %ui16_2
+                   %3 = OpExtInst %i16_t %1 s_abs %i16_2
 ; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i16 @_Z3abss(i16 signext -2)
                         OpReturn
 ; CHECK: ret void

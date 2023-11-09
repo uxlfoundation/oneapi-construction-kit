@@ -31,7 +31,6 @@
                %ui8_t = OpTypeInt 8 0
                %i16_t = OpTypeInt 16 0
             %v16ui8_t = OpTypeVector %ui8_t 16
-             %v16i8_t = OpTypeVector %ui8_t 16
             %v16i16_t = OpTypeVector %i16_t 16
      %s_upsample_fn_t = OpTypeFunction %void_t
                 %i8_3 = OpConstant %ui8_t 3

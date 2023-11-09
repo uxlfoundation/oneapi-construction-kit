@@ -32,7 +32,6 @@
         %image_write_fn_t = OpTypeFunction %void_t %image2d_array_t
                  %v4int_t = OpTypeVector %uint_t 4
                %v4float_t = OpTypeVector %float_t 4
-                %v4uint_t = OpTypeVector %uint_t 4
                   %uint_1 = OpConstant %uint_t 1
                  %float_1 = OpConstant %float_t 1
                  %v4int_1 = OpConstantComposite %v4int_t %uint_1 %uint_1 %uint_1 %uint_1

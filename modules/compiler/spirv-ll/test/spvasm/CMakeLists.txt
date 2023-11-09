@@ -1086,30 +1086,6 @@ set(SPVASM_FILES
   op_opencl_s_add_sat_v8i32.spvasm
   op_opencl_s_add_sat_v8i64.spvasm
   op_opencl_s_add_sat_v8i8.spvasm
-  op_opencl_s_bitselect_i16.spvasm
-  op_opencl_s_bitselect_i32.spvasm
-  op_opencl_s_bitselect_i64.spvasm
-  op_opencl_s_bitselect_i8.spvasm
-  op_opencl_s_bitselect_v16i16.spvasm
-  op_opencl_s_bitselect_v16i32.spvasm
-  op_opencl_s_bitselect_v16i64.spvasm
-  op_opencl_s_bitselect_v16i8.spvasm
-  op_opencl_s_bitselect_v2i16.spvasm
-  op_opencl_s_bitselect_v2i32.spvasm
-  op_opencl_s_bitselect_v2i64.spvasm
-  op_opencl_s_bitselect_v2i8.spvasm
-  op_opencl_s_bitselect_v3i16.spvasm
-  op_opencl_s_bitselect_v3i32.spvasm
-  op_opencl_s_bitselect_v3i64.spvasm
-  op_opencl_s_bitselect_v3i8.spvasm
-  op_opencl_s_bitselect_v4i16.spvasm
-  op_opencl_s_bitselect_v4i32.spvasm
-  op_opencl_s_bitselect_v4i64.spvasm
-  op_opencl_s_bitselect_v4i8.spvasm
-  op_opencl_s_bitselect_v8i16.spvasm
-  op_opencl_s_bitselect_v8i32.spvasm
-  op_opencl_s_bitselect_v8i64.spvasm
-  op_opencl_s_bitselect_v8i8.spvasm
   op_opencl_s_clamp_i16.spvasm
   op_opencl_s_clamp_i32.spvasm
   op_opencl_s_clamp_i64.spvasm
@@ -1134,30 +1110,6 @@ set(SPVASM_FILES
   op_opencl_s_clamp_v8i32.spvasm
   op_opencl_s_clamp_v8i64.spvasm
   op_opencl_s_clamp_v8i8.spvasm
-  op_opencl_s_clz_i16.spvasm
-  op_opencl_s_clz_i32.spvasm
-  op_opencl_s_clz_i64.spvasm
-  op_opencl_s_clz_i8.spvasm
-  op_opencl_s_clz_v16i16.spvasm
-  op_opencl_s_clz_v16i32.spvasm
-  op_opencl_s_clz_v16i64.spvasm
-  op_opencl_s_clz_v16i8.spvasm
-  op_opencl_s_clz_v2i16.spvasm
-  op_opencl_s_clz_v2i32.spvasm
-  op_opencl_s_clz_v2i64.spvasm
-  op_opencl_s_clz_v2i8.spvasm
-  op_opencl_s_clz_v3i16.spvasm
-  op_opencl_s_clz_v3i32.spvasm
-  op_opencl_s_clz_v3i64.spvasm
-  op_opencl_s_clz_v3i8.spvasm
-  op_opencl_s_clz_v4i16.spvasm
-  op_opencl_s_clz_v4i32.spvasm
-  op_opencl_s_clz_v4i64.spvasm
-  op_opencl_s_clz_v4i8.spvasm
-  op_opencl_s_clz_v8i16.spvasm
-  op_opencl_s_clz_v8i32.spvasm
-  op_opencl_s_clz_v8i64.spvasm
-  op_opencl_s_clz_v8i8.spvasm
   op_opencl_s_hadd_i16.spvasm
   op_opencl_s_hadd_i32.spvasm
   op_opencl_s_hadd_i64.spvasm
@@ -1314,78 +1266,6 @@ set(SPVASM_FILES
   op_opencl_s_mul_hi_v8i32.spvasm
   op_opencl_s_mul_hi_v8i64.spvasm
   op_opencl_s_mul_hi_v8i8.spvasm
-  op_opencl_s_popcount_i16.spvasm
-  op_opencl_s_popcount_i32.spvasm
-  op_opencl_s_popcount_i64.spvasm
-  op_opencl_s_popcount_i8.spvasm
-  op_opencl_s_popcount_v16i16.spvasm
-  op_opencl_s_popcount_v16i32.spvasm
-  op_opencl_s_popcount_v16i64.spvasm
-  op_opencl_s_popcount_v16i8.spvasm
-  op_opencl_s_popcount_v2i16.spvasm
-  op_opencl_s_popcount_v2i32.spvasm
-  op_opencl_s_popcount_v2i64.spvasm
-  op_opencl_s_popcount_v2i8.spvasm
-  op_opencl_s_popcount_v3i16.spvasm
-  op_opencl_s_popcount_v3i32.spvasm
-  op_opencl_s_popcount_v3i64.spvasm
-  op_opencl_s_popcount_v3i8.spvasm
-  op_opencl_s_popcount_v4i16.spvasm
-  op_opencl_s_popcount_v4i32.spvasm
-  op_opencl_s_popcount_v4i64.spvasm
-  op_opencl_s_popcount_v4i8.spvasm
-  op_opencl_s_popcount_v8i16.spvasm
-  op_opencl_s_popcount_v8i32.spvasm
-  op_opencl_s_popcount_v8i64.spvasm
-  op_opencl_s_popcount_v8i8.spvasm
-  op_opencl_s_prefetch_i16_32bit.spvasm
-  op_opencl_s_prefetch_i16_64bit.spvasm
-  op_opencl_s_prefetch_i32_32bit.spvasm
-  op_opencl_s_prefetch_i32_64bit.spvasm
-  op_opencl_s_prefetch_i64_32bit.spvasm
-  op_opencl_s_prefetch_i64_64bit.spvasm
-  op_opencl_s_prefetch_i8_32bit.spvasm
-  op_opencl_s_prefetch_i8_64bit.spvasm
-  op_opencl_s_prefetch_v16i16_32bit.spvasm
-  op_opencl_s_prefetch_v16i16_64bit.spvasm
-  op_opencl_s_prefetch_v16i32_32bit.spvasm
-  op_opencl_s_prefetch_v16i32_64bit.spvasm
-  op_opencl_s_prefetch_v16i64_32bit.spvasm
-  op_opencl_s_prefetch_v16i64_64bit.spvasm
-  op_opencl_s_prefetch_v16i8_32bit.spvasm
-  op_opencl_s_prefetch_v16i8_64bit.spvasm
-  op_opencl_s_prefetch_v2i16_32bit.spvasm
-  op_opencl_s_prefetch_v2i16_64bit.spvasm
-  op_opencl_s_prefetch_v2i32_32bit.spvasm
-  op_opencl_s_prefetch_v2i32_64bit.spvasm
-  op_opencl_s_prefetch_v2i64_32bit.spvasm
-  op_opencl_s_prefetch_v2i64_64bit.spvasm
-  op_opencl_s_prefetch_v2i8_32bit.spvasm
-  op_opencl_s_prefetch_v2i8_64bit.spvasm
-  op_opencl_s_prefetch_v3i16_32bit.spvasm
-  op_opencl_s_prefetch_v3i16_64bit.spvasm
-  op_opencl_s_prefetch_v3i32_32bit.spvasm
-  op_opencl_s_prefetch_v3i32_64bit.spvasm
-  op_opencl_s_prefetch_v3i64_32bit.spvasm
-  op_opencl_s_prefetch_v3i64_64bit.spvasm
-  op_opencl_s_prefetch_v3i8_32bit.spvasm
-  op_opencl_s_prefetch_v3i8_64bit.spvasm
-  op_opencl_s_prefetch_v4i16_32bit.spvasm
-  op_opencl_s_prefetch_v4i16_64bit.spvasm
-  op_opencl_s_prefetch_v4i32_32bit.spvasm
-  op_opencl_s_prefetch_v4i32_64bit.spvasm
-  op_opencl_s_prefetch_v4i64_32bit.spvasm
-  op_opencl_s_prefetch_v4i64_64bit.spvasm
-  op_opencl_s_prefetch_v4i8_32bit.spvasm
-  op_opencl_s_prefetch_v4i8_64bit.spvasm
-  op_opencl_s_prefetch_v8i16_32bit.spvasm
-  op_opencl_s_prefetch_v8i16_64bit.spvasm
-  op_opencl_s_prefetch_v8i32_32bit.spvasm
-  op_opencl_s_prefetch_v8i32_64bit.spvasm
-  op_opencl_s_prefetch_v8i64_32bit.spvasm
-  op_opencl_s_prefetch_v8i64_64bit.spvasm
-  op_opencl_s_prefetch_v8i8_32bit.spvasm
-  op_opencl_s_prefetch_v8i8_64bit.spvasm
   op_opencl_s_rhadd_i16.spvasm
   op_opencl_s_rhadd_i32.spvasm
   op_opencl_s_rhadd_i64.spvasm
@@ -1410,98 +1290,6 @@ set(SPVASM_FILES
   op_opencl_s_rhadd_v8i32.spvasm
   op_opencl_s_rhadd_v8i64.spvasm
   op_opencl_s_rhadd_v8i8.spvasm
-  op_opencl_s_rotate_i16.spvasm
-  op_opencl_s_rotate_i32.spvasm
-  op_opencl_s_rotate_i64.spvasm
-  op_opencl_s_rotate_i8.spvasm
-  op_opencl_s_rotate_v16i16.spvasm
-  op_opencl_s_rotate_v16i32.spvasm
-  op_opencl_s_rotate_v16i64.spvasm
-  op_opencl_s_rotate_v16i8.spvasm
-  op_opencl_s_rotate_v2i16.spvasm
-  op_opencl_s_rotate_v2i32.spvasm
-  op_opencl_s_rotate_v2i64.spvasm
-  op_opencl_s_rotate_v2i8.spvasm
-  op_opencl_s_rotate_v3i16.spvasm
-  op_opencl_s_rotate_v3i32.spvasm
-  op_opencl_s_rotate_v3i64.spvasm
-  op_opencl_s_rotate_v3i8.spvasm
-  op_opencl_s_rotate_v4i16.spvasm
-  op_opencl_s_rotate_v4i32.spvasm
-  op_opencl_s_rotate_v4i64.spvasm
-  op_opencl_s_rotate_v4i8.spvasm
-  op_opencl_s_rotate_v8i16.spvasm
-  op_opencl_s_rotate_v8i32.spvasm
-  op_opencl_s_rotate_v8i64.spvasm
-  op_opencl_s_rotate_v8i8.spvasm
-  op_opencl_s_select_double.spvasm
-  op_opencl_s_select_float.spvasm
-  op_opencl_s_select_i16.spvasm
-  op_opencl_s_select_i32.spvasm
-  op_opencl_s_select_i64.spvasm
-  op_opencl_s_select_i8.spvasm
-  op_opencl_s_select_v16double.spvasm
-  op_opencl_s_select_v16float.spvasm
-  op_opencl_s_select_v16i16.spvasm
-  op_opencl_s_select_v16i32.spvasm
-  op_opencl_s_select_v16i64.spvasm
-  op_opencl_s_select_v16i8.spvasm
-  op_opencl_s_select_v2double.spvasm
-  op_opencl_s_select_v2float.spvasm
-  op_opencl_s_select_v2i16.spvasm
-  op_opencl_s_select_v2i32.spvasm
-  op_opencl_s_select_v2i64.spvasm
-  op_opencl_s_select_v2i8.spvasm
-  op_opencl_s_select_v3double.spvasm
-  op_opencl_s_select_v3float.spvasm
-  op_opencl_s_select_v3i16.spvasm
-  op_opencl_s_select_v3i32.spvasm
-  op_opencl_s_select_v3i64.spvasm
-  op_opencl_s_select_v3i8.spvasm
-  op_opencl_s_select_v4double.spvasm
-  op_opencl_s_select_v4float.spvasm
-  op_opencl_s_select_v4i16.spvasm
-  op_opencl_s_select_v4i32.spvasm
-  op_opencl_s_select_v4i64.spvasm
-  op_opencl_s_select_v4i8.spvasm
-  op_opencl_s_select_v8double.spvasm
-  op_opencl_s_select_v8float.spvasm
-  op_opencl_s_select_v8i16.spvasm
-  op_opencl_s_select_v8i32.spvasm
-  op_opencl_s_select_v8i64.spvasm
-  op_opencl_s_select_v8i8.spvasm
-  op_opencl_s_shuffle2_v16i16.spvasm
-  op_opencl_s_shuffle2_v16i32.spvasm
-  op_opencl_s_shuffle2_v16i64.spvasm
-  op_opencl_s_shuffle2_v16i8.spvasm
-  op_opencl_s_shuffle2_v2i16.spvasm
-  op_opencl_s_shuffle2_v2i32.spvasm
-  op_opencl_s_shuffle2_v2i64.spvasm
-  op_opencl_s_shuffle2_v2i8.spvasm
-  op_opencl_s_shuffle2_v4i16.spvasm
-  op_opencl_s_shuffle2_v4i32.spvasm
-  op_opencl_s_shuffle2_v4i64.spvasm
-  op_opencl_s_shuffle2_v4i8.spvasm
-  op_opencl_s_shuffle2_v8i16.spvasm
-  op_opencl_s_shuffle2_v8i32.spvasm
-  op_opencl_s_shuffle2_v8i64.spvasm
-  op_opencl_s_shuffle2_v8i8.spvasm
-  op_opencl_s_shuffle_v16i16.spvasm
-  op_opencl_s_shuffle_v16i32.spvasm
-  op_opencl_s_shuffle_v16i64.spvasm
-  op_opencl_s_shuffle_v16i8.spvasm
-  op_opencl_s_shuffle_v2i16.spvasm
-  op_opencl_s_shuffle_v2i32.spvasm
-  op_opencl_s_shuffle_v2i64.spvasm
-  op_opencl_s_shuffle_v2i8.spvasm
-  op_opencl_s_shuffle_v4i16.spvasm
-  op_opencl_s_shuffle_v4i32.spvasm
-  op_opencl_s_shuffle_v4i64.spvasm
-  op_opencl_s_shuffle_v4i8.spvasm
-  op_opencl_s_shuffle_v8i16.spvasm
-  op_opencl_s_shuffle_v8i32.spvasm
-  op_opencl_s_shuffle_v8i64.spvasm
-  op_opencl_s_shuffle_v8i8.spvasm
   op_opencl_s_sub_sat_i16.spvasm
   op_opencl_s_sub_sat_i32.spvasm
   op_opencl_s_sub_sat_i64.spvasm
