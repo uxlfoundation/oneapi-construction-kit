@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @entry_pt(ptr addrspace(4) [[PTR:%.*]])
       %entry = OpLabel
 
-          %x = OpIAdd %uint %ulong_0 %ulong_1
+          %x = OpIAdd %ulong %ulong_0 %ulong_1
 
 ; CHECK: store i64 1, ptr addrspace(4) [[PTR]], align 4
                OpStore %_arg_ptr %x Aligned 4
