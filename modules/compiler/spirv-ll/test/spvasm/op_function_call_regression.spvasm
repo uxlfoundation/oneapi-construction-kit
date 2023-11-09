@@ -19,19 +19,22 @@
 ; references was leaving behind invalid instructions.
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Addresses %spv_file_s | FileCheck %s
 
                OpCapability Kernel
+               OpCapability Addresses
+               OpCapability Int64
+               OpCapability Linkage
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
                OpSource OpenCL_CPP 100000
-
-               OpDecorate %ptr FuncParamAttr ByVal
 
                OpName %bar "bar"
                OpName %main "main"
                OpName %foo "foo"
                OpName %a "a"
+
+               OpDecorate %ptr FuncParamAttr ByVal
 
        %void = OpTypeVoid
       %ulong = OpTypeInt 64 0
@@ -47,10 +50,10 @@
 
 %main = OpFunction %void None %main_fn_ty
     %entry_4 = OpLabel
-; CHECK: [[TMP:%.*]] = call spir_func i64 @bar(i64 0)
-      %call0 = OpFunctionCall %ulong %bar %ulong_0
 ; CHECK: %a = alloca i64, align 8
           %a = OpVariable %ptr_ty Function
+; CHECK: [[TMP:%.*]] = call spir_func i64 @bar(i64 0)
+      %call0 = OpFunctionCall %ulong %bar %ulong_0
 ; CHECK: store i64 1, {{(ptr|i64\*)}} %a
                OpStore %a %ulong_1 Aligned 8
 ; Check we also apply call-site attributes to this function

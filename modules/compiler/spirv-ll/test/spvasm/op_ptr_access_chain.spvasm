@@ -19,47 +19,53 @@
 
     OpCapability Addresses
     OpCapability Kernel
-    OpCapability Int64
+    OpCapability Int8
     OpMemoryModel Physical64 OpenCL
     OpEntryPoint Kernel %20 "entry_pt"
 
     %void = OpTypeVoid
-    %ulong = OpTypeInt 64 0
 
-    %ulong_0 = OpConstant %ulong 0
-    %ulong_3 = OpConstant %ulong 3
     %float = OpTypeFloat 32
     %uchar = OpTypeInt 8 0
     %uint = OpTypeInt 32 0
+
+
     %_ptr_uint = OpTypePointer CrossWorkgroup %uint
 
     %struct_user_struct = OpTypeStruct %float %uint %uchar %_ptr_uint
     %_ptr_CrossWorkgroup_struct_user_struct = OpTypePointer CrossWorkgroup %struct_user_struct
 
-    %19 = OpTypeFunction %void %_ptr_CrossWorkgroup_struct_user_struct %ulong  %ulong
+    %19 = OpTypeFunction %void %_ptr_CrossWorkgroup_struct_user_struct %uint  %uint
+
+    %uint_0 = OpConstant %uint 0
+    %uint_1 = OpConstant %uint 1
+    %uint_3 = OpConstant %uint 3
+
     %20 = OpFunction %void None %19
     %_arg_user_struct = OpFunctionParameter %_ptr_CrossWorkgroup_struct_user_struct
-    %_ulong_input = OpFunctionParameter %ulong
-    %_ulong_input2 = OpFunctionParameter %ulong
+    %_uint_input = OpFunctionParameter %uint
+    %_uint_input2 = OpFunctionParameter %uint
    
-; CHECK: define spir_kernel void @entry_pt(ptr addrspace(1) [[PTR:%.*]], i64 {{%[a-zA-Z0-9]+}}, i64 {{%[a-zA-Z0-9]+}}
+; CHECK: define spir_kernel void @entry_pt(ptr addrspace(1) [[PTR:%.*]], i32 {{%.*}}, i32 {{%.*}}
     %entry = OpLabel
 
     ; some maths for the gep input (multiple and an add)
-    %mul = OpIMul %ulong %ulong_3 %_ulong_input
-; CHECK: [[MUL_RES:%[a-zA-Z0-9_]+]] = mul
-    %add = OpIAdd %uint %ulong_0 %_ulong_input2
-; CHECK: [[ADD_RES:%[a-zA-Z0-9_]+]] = add
+    %mul = OpIMul %uint %uint_3 %_uint_input
+; CHECK: [[MUL_RES:%.*]] = mul
+    %add = OpIAdd %uint %uint_0 %_uint_input2
+; CHECK: [[ADD_RES:%.*]] = add
 
     ; use two OpPtrAccessChain values to get to the correct index of the user struct array
     ; we don't gep into the struct
     %mul_user_struct_ptr = OpPtrAccessChain %_ptr_CrossWorkgroup_struct_user_struct %_arg_user_struct  %mul
     %add_user_struct_ptr = OpPtrAccessChain %_ptr_CrossWorkgroup_struct_user_struct %mul_user_struct_ptr %add
+    %var_ptr = OpPtrAccessChain %_ptr_uint %add_user_struct_ptr %uint_0 %uint_1
 
-; CHECK:   [[GEP_MUL:%[a-zA-Z0-9_]+]] = getelementptr %0, ptr addrspace(1) [[PTR]], i64 [[MUL_RES]]
-; CHECK:   [[GEP_ADD:%[a-zA-Z0-9_]+]] = getelementptr %0, ptr addrspace(1) [[GEP_MUL]], i64 [[ADD_RES]]
-; CHECK: store i64 [[ADD_RES]], ptr addrspace(1) [[GEP_ADD]], align 4
+; CHECK:   [[GEP_MUL:%.*]] = getelementptr %0, ptr addrspace(1) [[PTR]], i32 [[MUL_RES]]
+; CHECK:   [[GEP_ADD:%.*]] = getelementptr %0, ptr addrspace(1) [[GEP_MUL]], i32 [[ADD_RES]]
+; CHECK:   [[VAR_PTR:%.*]] = getelementptr %0, ptr addrspace(1) [[GEP_ADD]], i32 0, i32 1
+; CHECK: store i32 [[ADD_RES]], ptr addrspace(1) [[VAR_PTR]], align 4
 
-    OpStore %add_user_struct_ptr %add Aligned 4
+    OpStore %var_ptr %add Aligned 4
     OpReturn
     OpFunctionEnd

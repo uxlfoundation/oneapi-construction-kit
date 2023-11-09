@@ -21,7 +21,7 @@
 ; RUN: not spirv-ll-tool -a OpenCL -b 64 %spv_file_s 2>&1 | FileCheck %s
                           OpCapability Kernel
                           OpCapability Addresses
-                          OpMemoryModel Physical64 OpenCL
                           OpCapability MultiViewport
+                          OpMemoryModel Physical64 OpenCL
 
 ; CHECK: OpCapability MultiViewport (#57) not supported by device
