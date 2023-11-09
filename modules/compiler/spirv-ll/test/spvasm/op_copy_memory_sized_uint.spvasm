@@ -32,11 +32,10 @@
                OpName %b "b"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-     %size_t = OpTypeInt 32 0
        %uint = OpTypeInt 32 0
    %ptr_uint = OpTypePointer Function %uint
          %14 = OpConstant %uint 42
-         %15 = OpConstant %size_t 4
+         %15 = OpConstant %uint 4
        %main = OpFunction %void None %3
 ; CHECK: define spir_kernel void @main()
           %5 = OpLabel
