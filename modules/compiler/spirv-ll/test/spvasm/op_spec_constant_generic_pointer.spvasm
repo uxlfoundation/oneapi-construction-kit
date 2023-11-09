@@ -31,8 +31,8 @@
         %_ptr_ulong = OpTypePointer CrossWorkgroup %ulong
         %_ptr_Generic_ulong = OpTypePointer Generic %ulong
 
-        %_ptr_ptr_ulong = OpTypePointer Workgroup %_ptr_ulong
-        %_ptr_ptr_Generic_ulong = OpTypePointer Workgroup %_ptr_Generic_ulong
+        %_ptr_ptr_ulong = OpTypePointer Function %_ptr_ulong
+        %_ptr_ptr_Generic_ulong = OpTypePointer Function %_ptr_Generic_ulong
 
     %ulong_0 = OpConstant %ulong 0
     %ulong_1 = OpConstant %ulong 1
@@ -53,7 +53,7 @@
 ; CHECK: [[PTRPTR:%.*]] = alloca ptr addrspace(1)
    %_arg_ptr = OpVariable %_ptr_ptr_ulong Function
 
-          %val = OpIAdd %uint %ulong_0 %ulong_1
+          %val = OpIAdd %ulong %ulong_0 %ulong_1
 
 ; CHECK: store ptr addrspace(1) addrspacecast (ptr addrspace(4) null to ptr addrspace(1)), ptr [[PTRPTR]]
                OpStore %_arg_ptr %11 Aligned 4
