@@ -24,16 +24,19 @@
 
                     OpMemoryModel Physical64 OpenCL
 
+                    OpEntryPoint Kernel %broadcast_fcn "broadcast"
+
                     OpName %broadcast_val "val"
                     OpName %broadcast_fcn "broadcast"
                     OpName %xyz "xyz"
 
+         %void_ty = OpTypeVoid
         %uint_ty  = OpTypeInt 32 0
        %uint3_ty  = OpTypeVector %uint_ty 3
-          %fcn_ty = OpTypeFunction %uint_ty %uint_ty %uint3_ty
+          %fcn_ty = OpTypeFunction %void_ty %uint_ty %uint3_ty
 %work_group_scope = OpConstant %uint_ty 2
 
-; CHECK: define private spir_func i32 @broadcast(i32 [[VAL:%.*]], <3 x i32> [[XYZ:%.*]])
+; CHECK: define spir_kernel void @broadcast(i32 [[VAL:%.*]], <3 x i32> [[XYZ:%.*]])
 ; CHECK:  [[X:%.*]] = extractelement <3 x i32> [[XYZ]], i64 0
 ; CHECK:  [[Y:%.*]] = extractelement <3 x i32> [[XYZ]], i64 1
 ; CHECK:  [[Z:%.*]] = extractelement <3 x i32> [[XYZ]], i64 2
@@ -41,11 +44,11 @@
 ; CHECK:  [[Yi64:%.*]] = zext i32 [[Y]] to i64
 ; CHECK:  [[Zi64:%.*]] = zext i32 [[Z]] to i64
 ; CHECK: [[RES:%.*]] = call spir_func i32 @_Z20work_group_broadcastjmmm(i32 [[VAL]], i64 [[Xi64]], i64 [[Yi64]], i64 [[Zi64]])
-; CHECK: ret i32 [[RES]]
-%broadcast_fcn = OpFunction %uint_ty None %fcn_ty
+; CHECK: ret void
+%broadcast_fcn = OpFunction %void_ty None %fcn_ty
 %broadcast_val = OpFunctionParameter %uint_ty
            %xyz = OpFunctionParameter %uint3_ty
  %broadcast_bb = OpLabel
 %broadcast_res = OpGroupBroadcast %uint_ty %work_group_scope %broadcast_val %xyz
-                 OpReturnValue %broadcast_res
+                 OpReturn
                  OpFunctionEnd
