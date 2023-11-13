@@ -2195,6 +2195,16 @@ set(SPVASM_V1_1_FILES
   op_get_kernel_max_num_subgroups.spvasm
 )
 
+set(UNVERIFIABLE_SPVASM_FILES
+  # Valid SPIR-V as per the extension, but even current versions of spirv-val
+  # don't recognize it.
+  intel_arbitrary_precision_integers.spvasm
+  invalid-spir-v/invalid_storage_class.spvasm
+  codeplay/opencl_usm_generic_address_space.spvasm
+  codeplay/opencl_group_async_copy_2d2d.spvasm
+  codeplay/opencl_group_async_copy_3d3d.spvasm
+)
+
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.spvasm)
 foreach(testFile ${SPVASM_FILES} ${SPVASM_V1_1_FILES})
@@ -2220,13 +2230,13 @@ function(ca_assemble_spirv_ll_lit_test)
     message(FATAL_ERROR "Must pass spvasm file to assemble")
   endif()
 
-  set(spvasm "${args_UNPARSED_ARGUMENTS}")
+  set(spvasm_file "${args_UNPARSED_ARGUMENTS}")
 
-  get_filename_component(name ${spvasm} NAME_WE)
-  get_filename_component(dir ${spvasm} DIRECTORY)
+  get_filename_component(name ${spvasm_file} NAME_WE)
+  get_filename_component(dir ${spvasm_file} DIRECTORY)
 
-  set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm})
-  set(spvasm ${CMAKE_CURRENT_SOURCE_DIR}/${spvasm})
+  set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm_file})
+  set(spvasm ${CMAKE_CURRENT_SOURCE_DIR}/${spvasm_file})
   set(spv ${CMAKE_CURRENT_BINARY_DIR}/${dir}/${name}.spv)
   if(NOT EXISTS ${spvasm})
     message(FATAL_ERROR "spirv-ll input spvasm does not exist: ${spvasm}")
@@ -2237,10 +2247,22 @@ function(ca_assemble_spirv_ll_lit_test)
   if(SPVASM_UNSUPPORTED STREQUAL False)
     # Generate .spv from .spvasm source.
     file(RELATIVE_PATH spvOut ${CMAKE_BINARY_DIR} ${spv})
+
+    # Work out whether we're validating this SPIR-V file.
+    set(OPTIONAL_VALIDATE_DEPENDS)
+    set(OPTIONAL_VALIDATE_COMMAND)
+    # Certain tests can't be verified. These must be manually specified in the
+    # UNVERIFIABLE_SPVASM_FILES list.
+    if(TARGET spirv::spirv-val AND NOT spvasm_file IN_LIST UNVERIFIABLE_SPVASM_FILES)
+      set(OPTIONAL_VALIDATE_DEPENDS spirv::spirv-val)
+      set(OPTIONAL_VALIDATE_COMMAND COMMAND spirv::spirv-val ${spv})
+    endif()
+
     add_custom_command(OUTPUT ${spv}
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${dir}
       COMMAND spirv::spirv-as --target-env ${args_TGT_ENV} -o ${spv} ${spvasm}
-      DEPENDS spirv::spirv-as ${spvasm}
+      ${OPTIONAL_VALIDATE_COMMAND}
+      DEPENDS spirv::spirv-as ${OPTIONAL_VALIDATE_DEPENDS} ${spvasm}
       COMMENT "Building SPIR-V ${spvOut}")
     list(APPEND LitTestFiles ${spv})
   endif()
