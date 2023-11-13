@@ -2105,7 +2105,6 @@ set(SPVASM_FILES
   op_vector_swizzle_int.spvasm
   op_vector_swizzle_long.spvasm
   op_vector_swizzle_uint.spvasm
-  opencl_usm_generic_address_space.spvasm
   ptr_int_conversions.spvasm
   vec_type_hint_length_1.spvasm
   op_opencl_u_ctz_i16.spvasm
@@ -2153,13 +2152,18 @@ set(SPVASM_FILES
   # Tests that check behaviour on invalid SPIR-V
   invalid-spir-v/invalid_storage_class.spvasm
   invalid-spir-v/ext_variable_pointers_op_variable.spvasm
+
+  # Tests that check non-standard Codeplay extensions
+  codeplay/opencl_usm_generic_address_space.spvasm
   )
 
 if(SpirvAsVersion VERSION_GREATER_EQUAL "2020.0")
   list(APPEND SPVASM_FILES
     op_execution_mode_max_work_dim.spvasm
-    opencl_group_async_copy_2d2d.spvasm
-    opencl_group_async_copy_3d3d.spvasm)
+    # Tests that check non-standard Codeplay extensions
+    codeplay/opencl_group_async_copy_2d2d.spvasm
+    codeplay/opencl_group_async_copy_3d3d.spvasm
+  )
 endif()
 
 if (SpirvAsVersion VERSION_GREATER_EQUAL "2021.3")
