@@ -44,11 +44,13 @@
                OpLine %file 6 3
           %a = OpVariable %_ptr_Function_bool Function
 ; CHECK: %a = alloca i1{{(, align [0-9])?}}, !dbg [[aLocation:![0-9]+]]
-               OpStore %a %9
-; CHECK: store i1 false, ptr %a{{(, align [0-9])?}}, !dbg [[aLocation]]
                OpLine %file 7 3
           %b = OpVariable %_ptr_Function_int Function
 ; CHECK: %b = alloca i32{{(, align [0-9])?}}, !dbg [[bLocation:![0-9]+]]
+               OpLine %file 6 3
+               OpStore %a %9
+; CHECK: store i1 false, ptr %a{{(, align [0-9])?}}, !dbg [[aLocation]]
+               OpLine %file 7 3
                OpStore %b %13
 ; CHECK: store i32 42, ptr %b{{(, align [0-9])?}}, !dbg [[bLocation]]
                OpLine %file 8 3

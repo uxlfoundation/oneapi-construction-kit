@@ -408,12 +408,17 @@ class Module : public ModuleHeader {
       llvm::DILocation *location,
       std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range);
 
+  /// @brief A list of basic block ranges (begin/end).
+  using OpLineRangeVec = std::vector<
+      std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator>>;
+
+  /// @brief A map from a debug location to the list of ranges it covers.
+  using OpLineRangeMap = llvm::MapVector<llvm::DILocation *, OpLineRangeVec>;
+
   /// @brief Get reference to complete OpLine range list.
   ///
   /// @return Reference to map of `DILocation`/iterator range pairs
-  llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                                llvm::BasicBlock::iterator>> &
-  getOpLineRanges();
+  OpLineRangeMap &getOpLineRanges();
 
   /// @brief Get `DILocation`/iterator pair for current OpLine range
   ///
@@ -1025,15 +1030,13 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, std::string> DebugStrings;
   /// @brief `DIFile` object specified by the module currently being translated.
   llvm::DIFile *File;
-  /// @brief Map of DILocation to basic block iterator range.
+  /// @brief Map of DILocation to sets of basic block iterator ranges.
   ///
-  /// Storing a `std::pair` of iterators instead of `llvm::iterator_range`
+  /// Storing `std::pair`s of iterators instead of `llvm::iterator_range`
   /// because the iterators need to be manipulated after the module has been
   /// translated in its entirety, so we can't construct the `iterator_range`
   /// until that's happened but we still need to store the range.
-  llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                                llvm::BasicBlock::iterator>>
-      OpLineRanges;
+  OpLineRangeMap OpLineRanges;
   /// @brief DILocation/basic block iterator pair to store current OpLine range.
   std::pair<llvm::DILocation *, llvm::BasicBlock::iterator> CurrentOpLineRange;
   /// @brief Map of BasicBlock to associated `DILexicalBlock`.
