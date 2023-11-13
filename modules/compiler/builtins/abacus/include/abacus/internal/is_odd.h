@@ -45,13 +45,19 @@ inline typename TypeTraits<T>::SignedType is_odd(const T &x) {
   const SignedType unbiasedExp = abacus::internal::logb_unsafe(x);
 
   // We're using the exponent to shift, we can only shift by [0, <bits in type>)
-  const SignedType validExp = (unbiasedExp >= 0) & (unbiasedExp < numBits);
+  // Scalar relational comparisons return +1 for true, vector relational
+  // comparisons return -1. -1 has all bits set so is useful as a mask, so make
+  // sure we get that even for scalars.
+  const SignedType validExp =
+      TypeTraits<T>::num_elements == 1
+          ? -((unbiasedExp >= 0) & (unbiasedExp < numBits))
+          : (unbiasedExp >= 0) & (unbiasedExp < numBits);
 
   // Shifting our mantissa by the exponent means that the hidden bit now holds
   // the least significant bit of the integer component of the float. If this
   // is set it means that the number is odd.
   const SignedType hiddenBitMasked =
-      (mantissa << unbiasedExp) & mantissaHiddenBit;
+      (mantissa << (validExp & unbiasedExp)) & mantissaHiddenBit;
 
   // Truncates any remaining fractional bits, since we're only interested in
   // the last bit of integer component.

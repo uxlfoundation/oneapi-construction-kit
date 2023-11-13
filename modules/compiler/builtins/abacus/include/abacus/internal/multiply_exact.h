@@ -21,6 +21,16 @@
 #include <abacus/abacus_detail_cast.h>
 #include <abacus/abacus_type_traits.h>
 
+// Perform exact multiplication of two floating point values.
+//
+// After hi = multiply_exact(x, y, &lo), unless overflow occurred, hi = x * y
+// according to floating point rules, and hi + lo = x * y according to
+// mathematical rules.
+//
+// Dekker, T.J. A floating-point technique for extending the available
+// precision. Numer. Math. 18, 224–242 (1971).
+// https://doi.org/10.1007/BF01397083
+
 namespace {
 template <typename E>
 struct multiply_exact_helper {
@@ -31,8 +41,9 @@ struct multiply_exact_helper {
 
     UnsignedType C = 1;
     // shift is the number of mantissa bits plus 1 for the implicit bit, then
-    // divided by two as we're splitting `x` into two parts.
-    const SignedType shift = (FPShape<E>::Mantissa() + 1) / 2;
+    // divided by two as we're splitting `x` into two parts, rounded up as
+    // described in section 6.3 with reference to 5.7.
+    const SignedType shift = FPShape<E>::Mantissa() / 2 + 1;
     C = (C << shift) + 1;
     const T gamma = x * abacus::detail::cast::convert<E>(C);
     const T delta = x - gamma;
@@ -40,37 +51,6 @@ struct multiply_exact_helper {
     *x_lo = x - *x_hi;
   }
 };
-
-#ifdef __CA_BUILTINS_HALF_SUPPORT
-
-// This is very similar to the templated function, however because half's have
-// an odd (11 including hidden bit) number of bits in the mantissa it doesn't
-// quite fit in.
-// Potentially you could change the line in the template
-// const SignedType shift = (FPShape<E>::Mantissa() + 1) / 2;
-// to
-// const SignedType shift = (FPShape<E>::Mantissa() + 2) / 2;
-// and it should theoretically be the same for 32/64 bit, and also work for 16
-// bit. However I don't have the tests for that so for the time being we're just
-// specializing the 16 bit version:
-template <>
-struct multiply_exact_helper<abacus_half> {
-  template <typename T>
-  static void split(const T &x, T *x_hi, T *x_lo) {
-    // Derived from the 'Handbook of Floating Point Arithmetic',
-    // section 4.4 (page 132)
-
-    T C = 64.0f16;  // 2^6
-    T gamma = C * x;
-    T delta = x - gamma;
-    T xh = gamma + delta;
-
-    *x_lo = x - xh;
-    *x_hi = xh;
-  }
-};
-
-#endif
 
 template <>
 struct multiply_exact_helper<abacus_float> {
@@ -96,8 +76,6 @@ struct multiply_exact_helper<abacus_float> {
 
 namespace abacus {
 namespace internal {
-// See paper on error free transformation of the product of two floating point
-// numbers(https://doi.org/10.1007/BF01397083) where this algorithm taken from
 template <typename T>
 inline T multiply_exact(const T x, const T y, T *out_remainder) {
   // TODO
