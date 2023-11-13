@@ -225,12 +225,10 @@ void spirv_ll::Module::setCurrentOpLineRange(llvm::DILocation *block,
 void spirv_ll::Module::addCompleteOpLineRange(
     llvm::DILocation *location,
     std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range) {
-  OpLineRanges.insert({location, range});
+  OpLineRanges[location].push_back(range);
 }
 
-llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                              llvm::BasicBlock::iterator>> &
-spirv_ll::Module::getOpLineRanges() {
+spirv_ll::Module::OpLineRangeMap &spirv_ll::Module::getOpLineRanges() {
   return OpLineRanges;
 }
 

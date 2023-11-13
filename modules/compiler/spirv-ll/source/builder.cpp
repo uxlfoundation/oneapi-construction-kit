@@ -16,6 +16,7 @@
 
 #include <compiler/utils/target_extension_types.h>
 #include <llvm/IR/Attributes.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/type_traits.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
@@ -141,20 +142,17 @@ void spirv_ll::Builder::addDebugInfoToModule() {
     DIBuilder.finalize();
   }
 
-  for (auto op_line_info : module.getOpLineRanges()) {
-    llvm::DebugLoc location = llvm::DebugLoc(op_line_info.first);
-    auto range_pair = op_line_info.second;
+  for (auto &[loc, op_line_ranges] : module.getOpLineRanges()) {
+    llvm::DebugLoc location(loc);
+    for (auto [range_begin, range_end] : op_line_ranges) {
+      ++range_begin;
+      if (range_end != range_begin->getParent()->end()) {
+        ++range_end;
+      }
 
-    range_pair.first++;
-    if (range_pair.second != range_pair.first->getParent()->end()) {
-      range_pair.second++;
-    }
-
-    auto range = llvm::iterator_range<llvm::BasicBlock::iterator>(
-        range_pair.first, range_pair.second);
-
-    for (auto &inst : range) {
-      inst.setDebugLoc(location);
+      for (auto &inst : make_range(range_begin, range_end)) {
+        inst.setDebugLoc(location);
+      }
     }
   }
 }

@@ -206,7 +206,6 @@ cargo::optional<Error> Builder::create<OpLine>(const OpLine *op) {
 
   auto *loc = llvm::DILocation::get(block->getContext(), op->Line(),
                                     op->Column(), block);
-
   module.setCurrentOpLineRange(loc, iter);
   return cargo::nullopt;
 }
