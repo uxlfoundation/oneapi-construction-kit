@@ -22,6 +22,7 @@ endif()
 
 set(SPVASM_FILES
   debug_info.spvasm
+  ext_variable_pointers_op_variable.spvasm
   ext_variable_pointers_function_call.spvasm
   op_atomic_and_function.spvasm
   op_atomic_and_generic.spvasm
@@ -2151,7 +2152,6 @@ set(SPVASM_FILES
 
   # Tests that check behaviour on invalid SPIR-V
   invalid-spir-v/invalid_storage_class.spvasm
-  invalid-spir-v/ext_variable_pointers_op_variable.spvasm
 
   # Tests that check non-standard Codeplay extensions
   codeplay/opencl_usm_generic_address_space.spvasm
