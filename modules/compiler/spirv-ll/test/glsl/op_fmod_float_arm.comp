@@ -16,6 +16,7 @@
 
 // REQUIRES: arm
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
