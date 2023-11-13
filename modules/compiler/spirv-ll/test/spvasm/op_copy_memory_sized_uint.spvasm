@@ -15,11 +15,12 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 -c Addresses %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                OpCapability Shader
                OpCapability Float64
                OpCapability Int64
+               OpCapability Addresses
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main"
@@ -31,11 +32,10 @@
                OpName %b "b"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-     %size_t = OpTypeInt 32 0
        %uint = OpTypeInt 32 0
    %ptr_uint = OpTypePointer Function %uint
          %14 = OpConstant %uint 42
-         %15 = OpConstant %size_t 4
+         %15 = OpConstant %uint 4
        %main = OpFunction %void None %3
 ; CHECK: define spir_kernel void @main()
           %5 = OpLabel

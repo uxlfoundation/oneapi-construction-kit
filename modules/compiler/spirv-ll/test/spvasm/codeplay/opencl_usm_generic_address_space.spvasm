@@ -15,15 +15,16 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL -e SPV_codeplay_usm_generic_storage_class -b 64 %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -e SPV_codeplay_usm_generic_storage_class -b 64 -c GenericPointer %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Linkage
                OpCapability Kernel
                OpCapability Int64
+               OpCapability GenericPointer
+               OpExtension "SPV_codeplay_usm_generic_storage_class"
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
                OpEntryPoint Kernel %11 "test" %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInGlobalInvocationId
-               OpExtension "SPV_codeplay_usm_generic_storage_class"
                OpSource OpenCL_C 102000
                OpDecorate %54 Constant
          %54 = OpDecorationGroup

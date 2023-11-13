@@ -26,6 +26,7 @@
                OpEntryPoint Kernel %20 "entry_pt"
 
        %void = OpTypeVoid
+       %uint = OpTypeInt 32 0
       %ulong = OpTypeInt 64 0
         %_ptr_ulong = OpTypePointer CrossWorkgroup %ulong
         %_ptr_Generic_ulong = OpTypePointer Generic %ulong
@@ -40,7 +41,7 @@
 ; CHECK: define spir_kernel void @entry_pt(ptr addrspace(4) [[PTR:%.*]])
       %entry = OpLabel
 
-          %x = OpIAdd %uint %ulong_0 %ulong_1
+          %x = OpIAdd %ulong %ulong_0 %ulong_1
 
 ; CHECK: store i64 1, ptr addrspace(4) [[PTR]], align 4
                OpStore %_arg_ptr %x Aligned 4

@@ -15,11 +15,12 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan -c VariablePointersStorageBuffer %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a Vulkan -c VariablePointersStorageBuffer -e SPV_KHR_variable_pointers %spv_file_s | FileCheck %s
 ; tests that variable pointers work correctly with functions, that they can be
 ; passed as arguments and returned
                OpCapability Shader
                OpCapability VariablePointersStorageBuffer
+               OpExtension "SPV_KHR_variable_pointers"
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main"

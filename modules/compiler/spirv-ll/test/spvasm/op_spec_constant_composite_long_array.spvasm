@@ -34,6 +34,7 @@
                             OpDecorate %_ DescriptorSet 0
                             OpDecorate %_ Binding 0
                             OpDecorate %14 SpecId 0
+                            OpDecorate %arr_long ArrayStride 8
                     %void = OpTypeVoid
                        %3 = OpTypeFunction %void
                     %long = OpTypeInt 64 1

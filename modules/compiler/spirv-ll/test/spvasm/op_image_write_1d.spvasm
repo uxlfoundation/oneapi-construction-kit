@@ -32,9 +32,8 @@
                  %float_t = OpTypeFloat 32
                 %float4_t = OpTypeVector %float_t 4
                  %uint4_t = OpTypeVector %uint_t 4
-                  %int4_t = OpTypeVector %uint_t 4
             %image1d_t = OpTypeImage %void_t 1D 0 0 0 0 Unknown WriteOnly
-                    %test = OpTypeFunction %void_t %image1d_t
+                %testfnty = OpTypeFunction %void_t %image1d_t
                  %float_1 = OpConstant %float_t 1
                   %uint_1 = OpConstant %uint_t 1
                    %int_1 = OpConstant %uint_t 1
@@ -43,7 +42,7 @@
              %uint4_color = OpConstantComposite %uint4_t %uint_1 %uint_1 %uint_1 %uint_1
 
 ; All functions              
-                    %test = OpFunction %void_t None %test
+                    %test = OpFunction %void_t None %testfnty
                    %image = OpFunctionParameter %image1d_t
 ; CHECK-GE17: define spir_kernel void @test([[TY:target\("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0\)]] %image)
 ; CHECK-LT17: define spir_kernel void @test([[TY:ptr addrspace\(1\)]] %image)

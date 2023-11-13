@@ -20,7 +20,6 @@
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"
                         OpMemoryModel Physical64 OpenCL
-                        OpEntryPoint Kernel %rootn_float "rootn_float"
                         OpEntryPoint Kernel %rootn_float_uint "rootn_float_uint"
                         OpSource OpenCL_C 102000
 

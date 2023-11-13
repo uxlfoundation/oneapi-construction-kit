@@ -27,9 +27,11 @@
                                OpEntryPoint Kernel %sub_group_uint_broadcast_fcn "sub_group_uint_broadcast"
                                OpEntryPoint Kernel %work_group_uint_broadcast_fcn "work_group_uint_broadcast"
                                OpEntryPoint Kernel %variable_scope_uint_broadcast_fcn "variable_scope_uint_broadcast"
-                               OpEntryPoint Kernel %int_broadcast_fcn "int_broadcast"
                                OpEntryPoint Kernel %float_broadcast_fcn "float_broadcast"
                                OpEntryPoint Kernel %bool_broadcast_fcn "bool_broadcast"
+
+                               OpName %float_broadcast_in "a"
+                               OpName %bool_broadcast_in "a"
 
                    %uint_ty  = OpTypeInt 32 0
                   %float_ty  = OpTypeFloat 32
@@ -40,19 +42,12 @@
                     %void_ty = OpTypeVoid
                 %uint_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty
            %uint_uint_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty %uint_ty
-                 %int_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty
                %float_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_float_ty
                 %bool_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_bool_ty
 
             %sub_group_scope = OpConstant %uint_ty 3
            %work_group_scope = OpConstant %uint_ty 2
                        %zero = OpConstant %uint_ty 0
-
-                               OpName %sub_group_uint_broadcast_in "a"
-                               OpName %work_group_uint_broadcast_in "a"
-                               OpName %int_broadcast_in "a"
-                               OpName %float_broadcast_in "a"
-                               OpName %bool_broadcast_in "a"
 
 ; CHCK-LABEL: sub_group_uint_broadcast
 ; CHECK: define spir_kernel void @sub_group_uint_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
@@ -99,21 +94,6 @@
 ; CHECK: ret void
                                      OpReturn
                                      OpFunctionEnd
-
-; CHCK-LABEL: int_broadcast
-; CHECK: define spir_kernel void @int_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-          %int_broadcast_fcn = OpFunction %void_ty None %int_fcn_ty
-           %int_broadcast_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
-           %int_broadcast_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
-          %int_broadcast_val = OpLoad %uint_ty %int_broadcast_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z19sub_group_broadcastjj(i32 [[VAL]], i32 0)
-          %int_broadcast_res = OpGroupBroadcast %uint_ty %sub_group_scope %int_broadcast_val %zero
-; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
-                               OpStore %int_broadcast_in %int_broadcast_res Aligned 4
-; CHECK: ret void
-                               OpReturn
-                               OpFunctionEnd
 
 ; CHCK-LABEL: float_broadcast
 ; CHECK: define spir_kernel void @float_broadcast(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])

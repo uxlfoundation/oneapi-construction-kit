@@ -33,7 +33,7 @@
            %pown_fn_t = OpTypeFunction %void_t
                %int_2 = OpConstant %int_t 2
              %float_2 = OpConstant %float_t 2.2
-             %v8int_2 = OpConstantComposite %v8float_t %int_2 %int_2 %int_2 %int_2 %int_2 %int_2 %int_2 %int_2
+             %v8int_2 = OpConstantComposite %v8int_t %int_2 %int_2 %int_2 %int_2 %int_2 %int_2 %int_2 %int_2
            %v8float_2 = OpConstantComposite %v8float_t %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2 %float_2
 
 ; All functions

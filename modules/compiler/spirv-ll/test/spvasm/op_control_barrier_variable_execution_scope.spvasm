@@ -22,6 +22,7 @@
                    OpMemoryModel Physical64 OpenCL
                    OpEntryPoint Kernel %main "main"
                    OpName %main "main"
+                   OpName %execution_scope "execution_scope"
 
         %void_ty = OpTypeVoid
         %uint_ty = OpTypeInt 32 0
@@ -29,8 +30,6 @@
 
       %semantics = OpConstant %uint_ty 264
    %memory_scope = OpConstant %uint_ty 2
-
-                   OpName %execution_scope "execution_scope"
 
            %main = OpFunction %void_ty DontInline %fcn_ty
 %execution_scope = OpFunctionParameter %uint_ty

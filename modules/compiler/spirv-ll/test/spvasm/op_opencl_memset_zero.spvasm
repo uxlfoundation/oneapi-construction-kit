@@ -22,7 +22,7 @@
                OpCapability Int8
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %6 "memset_zero" %24
+               OpEntryPoint Kernel %6 "memset_zero"
                OpSource OpenCL_C 102000
                OpName %out "out"
                OpName %entry "entry"

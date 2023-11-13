@@ -31,8 +31,6 @@
                OpName %out "out"
                OpName %entry "entry"
                OpDecorate %24 Constant
-               OpDecorate %size_addr Alignment 4
-               OpDecorate %out_addr Alignment 8
        %uint = OpTypeInt 32 0
       %ulong = OpTypeInt 64 0
       %uchar = OpTypeInt 8 0

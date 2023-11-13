@@ -53,6 +53,7 @@
                OpGroupMemberDecorate %offsetGroup %ablock 0 %bblock 0 %cblock 0 %dblock 0
                OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
                OpDecorate %dblock BufferBlock
+               OpDecorate %_runtimearr_int ArrayStride 4
                OpDecorate %__0 Binding 0
                OpDecorate %__1 Binding 1
                OpDecorate %__2 Binding 2

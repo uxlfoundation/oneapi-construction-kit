@@ -39,10 +39,10 @@
  %_ptr_Function_float = OpTypePointer Function %float
                 %uint = OpTypeInt 32 0  ; this should be blank if type is Foo
                    %9 = OpConstant %float 42.42
-                        OpTypeForwardPointer %ptr_uint Function
+                        OpTypeForwardPointer %ptr_Foo Function
+            %ptr_uint = OpTypePointer Function %uint
                  %Foo = OpTypeStruct %uint %float %ptr_uint
 ; CHECK: [[Foo:%[a-zA-Z0-9_]+]] = type { i32, float, ptr }
-            %ptr_uint = OpTypePointer Function %uint  ; this should be blank if type is Foo
              %ptr_Foo = OpTypePointer Function %Foo
                   %14 = OpConstant %uint 1
                 %main = OpFunction %void None %3

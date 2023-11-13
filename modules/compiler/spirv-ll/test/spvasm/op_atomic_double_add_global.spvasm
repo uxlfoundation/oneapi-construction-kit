@@ -16,9 +16,10 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_add -c Float64 -c AtomicFloat64AddEXT | FileCheck %s
-            OpExtension "SPV_EXT_shader_atomic_float_add"
             OpCapability Shader
+            OpCapability Float64
             OpCapability AtomicFloat64AddEXT
+            OpExtension "SPV_EXT_shader_atomic_float_add"
        %1 = OpExtInstImport "GLSL.std.450"
             OpMemoryModel Logical GLSL450
             OpEntryPoint GLCompute %atomic "atomic"
@@ -26,6 +27,7 @@
             OpName %atomic "atomic"
             OpName %a "a"
             OpDecorate %block_t Block
+            OpMemberDecorate %block_t 0 Offset 0
             OpDecorate %block_var DescriptorSet 0
             OpDecorate %block_var Binding 0
     %void = OpTypeVoid

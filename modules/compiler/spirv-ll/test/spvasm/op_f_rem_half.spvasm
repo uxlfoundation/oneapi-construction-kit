@@ -17,6 +17,7 @@
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -E %spv_file_s | FileCheck %s
                OpCapability Kernel
+               OpCapability Addresses
                OpCapability Float16
                OpCapability Int64
           %1 = OpExtInstImport "OpenCL.std"

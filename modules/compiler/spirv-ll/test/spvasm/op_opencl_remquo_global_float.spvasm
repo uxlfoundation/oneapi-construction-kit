@@ -20,10 +20,8 @@
                         OpCapability Addresses
                    %1 = OpExtInstImport "OpenCL.std"
                         OpMemoryModel Physical64 OpenCL
-                        OpEntryPoint Kernel %remquo_float "remquo_float"
                         OpEntryPoint Kernel %remquo_float_uint "remquo_float_uint"
                         OpSource OpenCL_C 102000
-                        OpName %in_quo "in_quo"
                         OpName %in_quo_uint "in_quo"
 
 ; All types, variables and constants

@@ -15,16 +15,12 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
-            OpCapability Float64
-            OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
-            OpExecutionMode %main LocalSize 1 1 1
-            OpSource GLSL 450
-            OpName %main "main"
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
+            OpCapability Addresses
+            OpMemoryModel Physical64 OpenCL
+            OpEntryPoint Kernel %testfn "testfn"
+            OpName %testfn "testfn"
             OpName %a "a"
        %void = OpTypeVoid
           %5 = OpTypeFunction %void
@@ -32,14 +28,14 @@
         %ptr = OpTypePointer Function %int
     %ptr_ptr = OpTypePointer Function %ptr
           %8 = OpConstantNull %ptr
-       %main = OpFunction %void None %5
+     %testfn = OpFunction %void None %5
           %9 = OpLabel
           %a = OpVariable %ptr_ptr Function
                OpStore %a %8
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main()
+; CHECK: define spir_kernel void @testfn()
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca ptr
 ; CHECK: store ptr null, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
 ; CHECK: ret void

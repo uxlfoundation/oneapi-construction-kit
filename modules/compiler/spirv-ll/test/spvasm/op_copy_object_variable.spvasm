@@ -15,16 +15,15 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
 ; This tests for a potential bug where copying a pointer object simply makes
 ; the same pointer available through a new ID, which would make storing to it
 ; overwrite the original.
                OpCapability Kernel
-               OpEntryPoint GLCompute %main "main"
-               OpExecutionMode %main LocalSize 1 1 1
-               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
-               OpSourceExtension "GL_GOOGLE_include_directive"
-               OpName %main "main"
+               OpCapability Addresses
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %testfn "testfn"
+               OpName %testfn "testfn"
                OpName %x "x"
                OpName %y "y"
                OpName %res "res"
@@ -36,11 +35,11 @@
 %_ptr_Function_bool = OpTypePointer Function %bool
 %float_42_42 = OpConstant %float 42.42
 %float_24_24 = OpConstant %float 24.24
-       %main = OpFunction %void None %3
+     %testfn = OpFunction %void None %3
           %5 = OpLabel
           %x = OpVariable %_ptr_Function_float Function
-          %y = OpCopyObject %_ptr_Function_float %x
         %res = OpVariable %_ptr_Function_bool Function
+          %y = OpCopyObject %_ptr_Function_float %x
                OpStore %x %float_42_42
                OpStore %y %float_24_24
          %12 = OpLoad %float %x
@@ -50,12 +49,12 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main()
+; CHECK: define spir_kernel void @testfn()
 ; CHECK: [[X:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
+; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
 ; CHECK: [[Y:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
 ; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr [[Y]]
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[Y]]
 ; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]

@@ -2106,7 +2106,6 @@ set(SPVASM_FILES
   op_vector_swizzle_int.spvasm
   op_vector_swizzle_long.spvasm
   op_vector_swizzle_uint.spvasm
-  opencl_usm_generic_address_space.spvasm
   ptr_int_conversions.spvasm
   vec_type_hint_length_1.spvasm
   op_opencl_u_ctz_i16.spvasm
@@ -2137,7 +2136,6 @@ set(SPVASM_FILES
   op_opencl_get_local_linear_id.spvasm
   op_opencl_get_enqueued_local_size.spvasm
   op_opencl_call_byval_arg.spvasm
-  opencl_max_byte_offset.spvasm
   op_expect_assume.spvasm
   op_generic_pointer.spvasm
   op_generic_pointer_builtin.spvasm
@@ -2151,14 +2149,21 @@ set(SPVASM_FILES
   op_opencl_arg_md.spvasm
   unsupported_capability.spvasm
   op_get_kernel_preferred_work_group_size_multiple.spvasm
-  invalid_storage_class.spvasm
+
+  # Tests that check behaviour on invalid SPIR-V
+  invalid-spir-v/invalid_storage_class.spvasm
+
+  # Tests that check non-standard Codeplay extensions
+  codeplay/opencl_usm_generic_address_space.spvasm
   )
 
 if(SpirvAsVersion VERSION_GREATER_EQUAL "2020.0")
   list(APPEND SPVASM_FILES
     op_execution_mode_max_work_dim.spvasm
-    opencl_group_async_copy_2d2d.spvasm
-    opencl_group_async_copy_3d3d.spvasm)
+    # Tests that check non-standard Codeplay extensions
+    codeplay/opencl_group_async_copy_2d2d.spvasm
+    codeplay/opencl_group_async_copy_3d3d.spvasm
+  )
 endif()
 
 if (SpirvAsVersion VERSION_GREATER_EQUAL "2021.3")
@@ -2183,6 +2188,7 @@ endif()
 # TODO: It might be more convenient to support a system like UnitCL where test
 # files declare their own requirements.
 set(SPVASM_V1_1_FILES
+  opencl_max_byte_offset.spvasm
   op_execution_mode_subgroup_size.spvasm
   op_execution_mode_subgroups_per_workgroup.spvasm
   op_get_default_queue.spvasm
@@ -2217,10 +2223,11 @@ function(ca_assemble_spirv_ll_lit_test)
   set(spvasm "${args_UNPARSED_ARGUMENTS}")
 
   get_filename_component(name ${spvasm} NAME_WE)
+  get_filename_component(dir ${spvasm} DIRECTORY)
 
   set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm})
   set(spvasm ${CMAKE_CURRENT_SOURCE_DIR}/${spvasm})
-  set(spv ${CMAKE_CURRENT_BINARY_DIR}/${name}.spv)
+  set(spv ${CMAKE_CURRENT_BINARY_DIR}/${dir}/${name}.spv)
   if(NOT EXISTS ${spvasm})
     message(FATAL_ERROR "spirv-ll input spvasm does not exist: ${spvasm}")
   endif()
