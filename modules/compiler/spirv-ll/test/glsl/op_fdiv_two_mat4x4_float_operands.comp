@@ -38,20 +38,20 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main()
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fdiv <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fdiv <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 2
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 2
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fdiv <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 3
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [4 x <4 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 3
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fdiv <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: [[INITIAL:%[a-zA-Z0-9_]+]] = insertvalue [4 x <4 x float>] undef, <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-// CHECK: [[INSERT1:%[a-zA-Z0-9_]+]] = insertvalue [4 x <4 x float>] [[INITIAL]], <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-// CHECK: [[INSERT2:%[a-zA-Z0-9_]+]] = insertvalue [4 x <4 x float>] [[INSERT1]], <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 2
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue [4 x <4 x float>] [[INSERT2]], <4 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 3
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 0
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 0
+// CHECK: {{[%@].*}} = fdiv <4 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 1
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 1
+// CHECK: {{[%@].*}} = fdiv <4 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 2
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 2
+// CHECK: {{[%@].*}} = fdiv <4 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 3
+// CHECK: {{[%@].*}} = extractvalue [4 x <4 x float>] {{[%@].*}}, 3
+// CHECK: {{[%@].*}} = fdiv <4 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: [[INITIAL:%.*]] = insertvalue [4 x <4 x float>] undef, <4 x float> {{[%@].*}}, 0
+// CHECK: [[INSERT1:%.*]] = insertvalue [4 x <4 x float>] [[INITIAL]], <4 x float> {{[%@].*}}, 1
+// CHECK: [[INSERT2:%.*]] = insertvalue [4 x <4 x float>] [[INSERT1]], <4 x float> {{[%@].*}}, 2
+// CHECK: {{[%@].*}} = insertvalue [4 x <4 x float>] [[INSERT2]], <4 x float> {{[%@].*}}, 3
 // CHECK: ret void

@@ -48,9 +48,9 @@
                       OpStore %a %true
 ; CHECK: store i1 true, ptr %a
                 %14 = OpLoad %bool %a
-; CHECK: [[aValue:%[a-zA-Z0-9_]+]] = load i1, ptr %a
+; CHECK: [[aValue:%.*]] = load i1, ptr %a
                 %15 = OpSelect %long %14 %17 %19  ; testing this
-; CHECK: [[selected:%[a-zA-Z0-9_]+]] = select i1 [[aValue]], i64 -4200000000, i64 4200000000
+; CHECK: [[selected:%.*]] = select i1 [[aValue]], i64 -4200000000, i64 4200000000
                       OpStore %b %15
 ; CHECK: store i64 [[selected]], ptr %b
                       OpReturn

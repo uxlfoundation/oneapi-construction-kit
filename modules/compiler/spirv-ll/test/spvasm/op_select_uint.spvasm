@@ -49,10 +49,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: store i1 true, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = select i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 42, i32 42
-; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca i1
+; CHECK: {{[%@].*}} = alloca i32
+; CHECK: store i1 true, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i1, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = select i1 {{[%@].*}}, i32 42, i32 42
+; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

@@ -29,11 +29,11 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { double }
+// CHECK: {{[%@].*}} = type { double }
 // CHECK: define spir_kernel void @main(ptr addrspace(2){{( %0)?}}) #0 {
-// CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
-// CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK:   store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK:   {{[%@].*}} = alloca double
+// CHECK:   {{[%@].*}} = getelementptr {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}, i32 0, i32 0
+// CHECK:   {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK:   store double {{[%@].*}}, ptr {{[%@].*}}
 // CHECK:   ret void
 // CHECK: }

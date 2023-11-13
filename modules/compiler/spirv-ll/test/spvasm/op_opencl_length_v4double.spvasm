@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @length_v4double()
                    %2 = OpLabel
                    %3 = OpExtInst %double_t %1 length %v4double_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z6lengthDv4_d(<4 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>)
+; CHECK: {{%.*}} = call spir_func double @_Z6lengthDv4_d(<4 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

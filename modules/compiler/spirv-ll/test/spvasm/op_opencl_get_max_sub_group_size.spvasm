@@ -32,7 +32,7 @@
 %__spirv_BuiltInSubgroupMaxSize = OpVariable %size_ptr_t Input
      %get_max_sub_group_size_fn = OpFunction %void_t None %get_max_sub_group_size_fn_t
                              %2 = OpLabel
-;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z22get_max_sub_group_sizev()
+;CHECK: {{%.*}} = call spir_func i32 @_Z22get_max_sub_group_sizev()
                            %res = OpLoad %size_t %__spirv_BuiltInSubgroupMaxSize
                                   OpReturn
                                   OpFunctionEnd

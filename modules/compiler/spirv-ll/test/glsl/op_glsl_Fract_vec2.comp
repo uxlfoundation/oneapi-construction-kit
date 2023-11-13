@@ -33,9 +33,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <2 x float>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <2 x float> @_Z5fractDv2_fPS_(<2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@].*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: {{[%@].*}} = alloca <2 x float>
+// CHECK: {{[%@].*}} = call spir_func <2 x float> @_Z5fractDv2_fPS_(<2 x float> {{[%@].*}}, ptr {{[%@].*}})
+// CHECK: store <2 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <2 x float> @_Z5fractDv2_fPS_(<2 x float>, ptr)

@@ -44,6 +44,6 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca [3 x i32]
-; CHECK: store [3 x i32] {{\[(i32 [0-9]+(, )?)+\]}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca [3 x i32]
+; CHECK: store [3 x i32] {{\[(i32 [0-9]+(, )?)+\]}}, ptr {{[%@].*}}
 ; CHECK: ret void

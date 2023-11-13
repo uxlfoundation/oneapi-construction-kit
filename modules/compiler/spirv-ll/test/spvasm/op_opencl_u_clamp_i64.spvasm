@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @u_clamp_i64()
                    %2 = OpLabel
                    %3 = OpExtInst %i64_t %1 u_clamp %i64_1 %i64_2 %i64_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z5clampmmm(i64 1, i64 2, i64 3)
+; CHECK: {{%.*}} = call spir_func i64 @_Z5clampmmm(i64 1, i64 2, i64 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

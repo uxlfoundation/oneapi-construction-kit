@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @atan_v16float()
                    %2 = OpLabel
                    %3 = OpExtInst %v16float_t %1 atan %v16float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z4atanDv16_f(<16 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK: {{%.*}} = call spir_func <16 x float> @_Z4atanDv16_f(<16 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

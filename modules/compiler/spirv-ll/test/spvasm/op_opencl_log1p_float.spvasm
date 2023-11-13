@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @log1p_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 log1p %float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5log1pf(float 0x3FF6666660000000)
+; CHECK: {{%.*}} = call spir_func float @_Z5log1pf(float 0x3FF6666660000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

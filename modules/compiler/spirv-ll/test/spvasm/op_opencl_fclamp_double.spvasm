@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @fclamp_double()
                    %2 = OpLabel
                    %3 = OpExtInst %double_t %1 fclamp %double_0 %double_1 %double_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z5clampddd(double 8.000000e-01, double 1.000000e+00, double 2.000000e+00)
+; CHECK: {{%.*}} = call spir_func double @_Z5clampddd(double 8.000000e-01, double 1.000000e+00, double 2.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

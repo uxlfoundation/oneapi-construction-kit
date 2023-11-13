@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @sin_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 sin %float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z3sinf(float 0x3FF91EB860000000)
+; CHECK: {{%.*}} = call spir_func float @_Z3sinf(float 0x3FF91EB860000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -40,9 +40,9 @@
 ; CHECK: define spir_kernel void @frexp_v4float()
                    %2 = OpLabel
                    %3 = OpVariable %v4int_ptr_t Function
-; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca <4 x i32>
+; CHECK: [[ptr:%.*]] = alloca <4 x i32>
                    %4 = OpExtInst %v4float_t %1 frexp %v4float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z5frexpDv4_fPDv4_i(<4 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z5frexpDv4_fPDv4_i(<4 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

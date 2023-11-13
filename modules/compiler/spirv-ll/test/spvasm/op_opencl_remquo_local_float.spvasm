@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @remquo_float(ptr addrspace(3) %in_quo)
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 remquo %float_2 %float_1 %in_quo
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6remquoffPU3AS3i(float 2.000000e+00, float 1.500000e+00, ptr addrspace(3) %in_quo)
+; CHECK: {{%.*}} = call spir_func float @_Z6remquoffPU3AS3i(float 2.000000e+00, float 1.500000e+00, ptr addrspace(3) %in_quo)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

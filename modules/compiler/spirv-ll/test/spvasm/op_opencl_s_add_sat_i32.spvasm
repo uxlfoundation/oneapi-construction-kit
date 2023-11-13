@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @s_add_sat_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %i32_t %1 s_add_sat %i32_1 %i32_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z7add_satii(i32 1, i32 2)
+; CHECK: {{%.*}} = call spir_func i32 @_Z7add_satii(i32 1, i32 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @tan_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %v4float_t %1 tan %v4float_0
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z3tanDv4_f(<4 x float> <float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000>)
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z3tanDv4_f(<4 x float> <float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

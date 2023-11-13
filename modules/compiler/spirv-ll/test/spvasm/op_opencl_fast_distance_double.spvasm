@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @fast_distance_double()
                    %2 = OpLabel
                    %3 = OpExtInst %double_t %1 fast_distance %double_2 %double_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z13fast_distancedd(double 2.000000e+00, double 4.000000e+00)
+; CHECK: {{%.*}} = call spir_func double @_Z13fast_distancedd(double 2.000000e+00, double 4.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

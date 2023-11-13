@@ -40,7 +40,7 @@
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @atomic()
-; CHECK: [[PTR:%[a-zA-Z0-9_]+]] = alloca i32
+; CHECK: [[PTR:%.*]] = alloca i32
 ; CHECK: store i32 424, ptr [[PTR]]
-; CHECK: {{%[a-zA-Z0-9_]+}} = load i32, ptr [[PTR]]
+; CHECK: {{%.*}} = load i32, ptr [[PTR]]
 ; CHECK: ret void

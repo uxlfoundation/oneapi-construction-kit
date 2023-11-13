@@ -44,10 +44,10 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @testfn()
 ; CHECK: init_spec_constants:
-; CHECK: [[MOD:%[a-zA-Z0-9_]+]] = call spir_func float @_Z4fmodff(float 0x404535C280000000, float 0x404535C280000000)
-; CHECK: [[CONST:%[a-zA-Z0-9_]+]] = call spir_func float @_Z8copysignff(float [[MOD]], float 0x404535C280000000)
-; CHECK: br label {{%[a-zA-Z0-9_]+}}
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca float
+; CHECK: [[MOD:%.*]] = call spir_func float @_Z4fmodff(float 0x404535C280000000, float 0x404535C280000000)
+; CHECK: [[CONST:%.*]] = call spir_func float @_Z8copysignff(float [[MOD]], float 0x404535C280000000)
+; CHECK: br label {{%.*}}
+; CHECK: [[RES:%.*]] = alloca float
 ; CHECK: store float [[CONST]], ptr [[RES]]
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z4fmodff(float, float)

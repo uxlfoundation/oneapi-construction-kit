@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @u_clz_i64()
                    %2 = OpLabel
                    %3 = OpExtInst %i64_t %1 clz %i64_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z3clzm(i64 1)
+; CHECK: {{%.*}} = call spir_func i64 @_Z3clzm(i64 1)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

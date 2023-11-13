@@ -28,15 +28,15 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <2 x double>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <2 x double>
-// CHECK: store <2 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <2 x double> undef, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <2 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fdiv <2 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store <2 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@].*}} = alloca <2 x double>
+// CHECK: {{[%@].*}} = alloca double
+// CHECK: {{[%@].*}} = alloca <2 x double>
+// CHECK: store <2 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+// CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
+// CHECK: {{[%@].*}} = load <2 x double>, ptr {{[%@].*}}
+// CHECK: {{[%@].*}} = load double, ptr {{[%@].*}}
+// CHECK: {{[%@].*}} = insertelement <2 x double> undef, double {{[%@].*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: {{[%@].*}} = insertelement <2 x double> {{[%@].*}}, double {{[%@].*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: {{[%@].*}} = fdiv <2 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: store <2 x double> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

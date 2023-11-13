@@ -58,16 +58,16 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: store i1 false, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: br i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca i1
+; CHECK: {{[%@].*}} = alloca i32
+; CHECK: store i1 false, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i1, ptr {{[%@].*}}
+; CHECK: br i1 {{[%@].*}}, label {{[%@].*}}, label {{[%@].*}}
 ; CHECK: {{[0-9]+:}}
-; CHECK: br label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: br label {{[%@].*}}
 ; CHECK: {{[0-9]+:}}
-; CHECK: br label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: br label {{[%@].*}}
 ; CHECK: {{[0-9]+:}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = phi i32 [ 50, %2 ], [ 8, %3 ]
-; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = phi i32 [ 50, %2 ], [ 8, %3 ]
+; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

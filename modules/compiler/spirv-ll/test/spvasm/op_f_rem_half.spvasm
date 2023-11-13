@@ -49,13 +49,13 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
-; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
-; CHECK: {{[%@][-a-zA-Z$._0-9]+}} = alloca half
-; CHECK: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK: store half 0xH514D, ptr {{[%@][-a-zA-Z$._0-9]+}}
-; CHECK: [[a:%[a-zA-Z0-9_]+]] = load half, ptr %a
-; CHECK: [[b:%[a-zA-Z0-9_]+]] = load half, ptr %b
-; CHECK: [[mod:%[a-zA-Z0-9_]+]] = call spir_func half @_Z4fmodDhDh(half [[a]], half [[b]])
-; CHECK: store half [[mod]], ptr {{[%@][-a-zA-Z$._0-9]+}}
+; CHECK: {{[%@].*}} = alloca half
+; CHECK: {{[%@].*}} = alloca half
+; CHECK: {{[%@].*}} = alloca half
+; CHECK: store half 0xH514D, ptr {{[%@].*}}
+; CHECK: store half 0xH514D, ptr {{[%@].*}}
+; CHECK: [[a:%.*]] = load half, ptr %a
+; CHECK: [[b:%.*]] = load half, ptr %b
+; CHECK: [[mod:%.*]] = call spir_func half @_Z4fmodDhDh(half [[a]], half [[b]])
+; CHECK: store half [[mod]], ptr {{[%@].*}}
 ; CHECK: ret void

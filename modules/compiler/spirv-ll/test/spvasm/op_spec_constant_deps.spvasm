@@ -48,8 +48,8 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { <2 x i32> }
+; CHECK: {{[%@].*}} = type { <2 x i32> }
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} { <2 x i32> <i32 84, i32 84> }, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca {{[%@].*}}
+; CHECK: store {{[%@].*}} { <2 x i32> <i32 84, i32 84> }, ptr {{[%@].*}}
 ; CHECK: ret void

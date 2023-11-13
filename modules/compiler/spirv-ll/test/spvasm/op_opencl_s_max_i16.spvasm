@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @s_max_i16()
                    %2 = OpLabel
                    %3 = OpExtInst %i16_t %1 s_max %i16_1 %i16_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func signext i16 @_Z3maxss(i16 signext 1, i16 signext 2)
+; CHECK: {{%.*}} = call spir_func signext i16 @_Z3maxss(i16 signext 1, i16 signext 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

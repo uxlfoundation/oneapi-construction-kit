@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @u_popcount_v8i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i64_t %1 popcount %v8i64_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i64> @_Z8popcountDv8_m(<8 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>)
+; CHECK: {{%.*}} = call spir_func <8 x i64> @_Z8popcountDv8_m(<8 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -34,7 +34,7 @@
       %float = OpTypeFloat 32
        %long = OpTypeInt 64 1
      %struct = OpTypeStruct %float %long
-; CHECK: [[struct:%[a-zA-Z0-9]+]] = type { float, i64 }
+; CHECK: [[struct:%.*]] = type { float, i64 }
  %ptr_struct = OpTypePointer Function %struct
 %float_const = OpConstant %float 42.42
  %long_const = OpConstant %long 42

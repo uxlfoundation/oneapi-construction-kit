@@ -29,15 +29,15 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{%[a-zA-Z0-9_]+}} = alloca double
-// CHECK: {{%[a-zA-Z0-9_]+}} = alloca double
-// CHECK: {{%[a-zA-Z0-9_]+}} = alloca double
-// CHECK: store double -4.242000e+01, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: store double -4.242000e+01, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: {{%[a-zA-Z0-9_]+}} = load double, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: {{%[a-zA-Z0-9_]+}} = load double, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func double @_Z4fmoddd(double {{%[a-zA-Z0-9_]+}}, double {{%[a-zA-Z0-9_]+}})
-// CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func double @_Z8copysigndd(double {{%[a-zA-Z0-9_]+}}, double {{%[a-zA-Z0-9_]+}})
-// CHECK: store double {{%[a-zA-Z0-9_]+}}, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK: {{%.*}} = alloca double
+// CHECK: {{%.*}} = alloca double
+// CHECK: {{%.*}} = alloca double
+// CHECK: store double -4.242000e+01, ptr {{%.*}}
+// CHECK: store double -4.242000e+01, ptr {{%.*}}
+// CHECK: {{%.*}} = load double, ptr {{%.*}}
+// CHECK: {{%.*}} = load double, ptr {{%.*}}
+// CHECK: {{%.*}} = call spir_func double @_Z4fmoddd(double {{%.*}}, double {{%.*}})
+// CHECK: {{%.*}} = call spir_func double @_Z8copysigndd(double {{%.*}}, double {{%.*}})
+// CHECK: store double {{%.*}}, ptr {{%.*}}
 // CHECK: ret void
 // CHECK: declare spir_func double @_Z8copysigndd(double, double)

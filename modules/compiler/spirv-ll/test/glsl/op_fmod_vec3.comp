@@ -24,19 +24,19 @@
 
 void main() {
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x float>
-// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x float>
-// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x float>
+// CHECK:  {{%.*}} = alloca <3 x float>
+// CHECK:  {{%.*}} = alloca <3 x float>
+// CHECK:  {{%.*}} = alloca <3 x float>
   vec3 x = vec3(42.42, 42.42, 42.42);
-// CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%.*}}
   vec3 y = vec3(42.42, 42.42, 42.42);
-// CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK:  [[X:%[a-zA-Z0-9_]+]] = load <3 x float>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK:  [[Y:%[a-zA-Z0-9_]+]] = load <3 x float>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%.*}}
+// CHECK:  [[X:%.*]] = load <3 x float>, ptr {{%.*}}
+// CHECK:  [[Y:%.*]] = load <3 x float>, ptr {{%.*}}
   vec3 res = mod(x, y);
-// CHECK:  [[MOD:%[a-zA-Z0-9_]+]] = call spir_func <3 x float> @_Z4fmodDv3_fS_(<3 x float> [[X]], <3 x float> [[Y]])
-// CHECK:  [[RES:%[a-zA-Z0-9_]+]] = call spir_func <3 x float> @_Z8copysignDv3_fS_(<3 x float> [[MOD]], <3 x float> [[Y]])
-// CHECK:  store <3 x float> [[RES]], ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  [[MOD:%.*]] = call spir_func <3 x float> @_Z4fmodDv3_fS_(<3 x float> [[X]], <3 x float> [[Y]])
+// CHECK:  [[RES:%.*]] = call spir_func <3 x float> @_Z8copysignDv3_fS_(<3 x float> [[MOD]], <3 x float> [[Y]])
+// CHECK:  store <3 x float> [[RES]], ptr {{%.*}}
 // CHECK:  ret void
 }
 

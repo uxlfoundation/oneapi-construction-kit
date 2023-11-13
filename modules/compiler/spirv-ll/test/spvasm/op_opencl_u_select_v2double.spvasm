@@ -45,7 +45,7 @@
 ; CHECK: define spir_kernel void @select_v2double()
                    %2 = OpLabel
                    %3 = OpExtInst %v2double_t %1 select %v2double_1 %v2double_2 %v2ui64_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x double> @_Z6selectDv2_dS_Dv2_m(<2 x double> <double 1.000000e+00, double 1.000000e+00>, <2 x double> <double 2.000000e+00, double 2.000000e+00>, <2 x i64> <i64 3, i64 3>)
+; CHECK: {{%.*}} = call spir_func <2 x double> @_Z6selectDv2_dS_Dv2_m(<2 x double> <double 1.000000e+00, double 1.000000e+00>, <2 x double> <double 2.000000e+00, double 2.000000e+00>, <2 x i64> <i64 3, i64 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

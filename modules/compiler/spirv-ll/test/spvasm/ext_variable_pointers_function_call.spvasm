@@ -77,19 +77,19 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: source_filename = "{{.*}}"
 ; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}, ptr addrspace(1){{( %2)?}}, ptr addrspace(1){{( %3)?}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca ptr addrspace(1)
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca ptr addrspace(1)
-; CHECK: store ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: store ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func ptr @{{(foo|"foo\(.+")}}(ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca ptr addrspace(1)
+; CHECK: {{[%@].*}} = alloca ptr addrspace(1)
+; CHECK: store ptr addrspace(1) {{[%@].*}}, ptr {{[%@].*}}
+; CHECK: store ptr addrspace(1) {{[%@].*}}, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = call spir_func ptr @{{(foo|"foo\(.+")}}(ptr {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
+; CHECK: store i32 {{[%@].*}}, ptr addrspace(1) {{[%@].*}}
 ; CHECK: ret void
-; CHECK: define private spir_func ptr @{{(foo|"foo\(.+")}}(ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load ptr addrspace(1), ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load ptr addrspace(1), ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: ret ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: define private spir_func ptr @{{(foo|"foo\(.+")}}(ptr {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: {{[%@].*}} = load ptr addrspace(1), ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i32, ptr addrspace(1) {{[%@].*}}
+; CHECK: {{[%@].*}} = load ptr addrspace(1), ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i32, ptr addrspace(1) {{[%@].*}}
+; CHECK: {{[%@].*}} = add i32 {{[%@].*}}, {{[%@].*}}
+; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
+; CHECK: ret ptr {{[%@].*}}

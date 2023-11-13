@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @s_abs_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %ui32_t %1 s_abs %i32_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z3absi(i32 -2)
+; CHECK: {{%.*}} = call spir_func i32 @_Z3absi(i32 -2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

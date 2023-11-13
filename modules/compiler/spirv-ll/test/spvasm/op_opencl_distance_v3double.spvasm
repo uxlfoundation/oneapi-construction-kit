@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @distance_v3double()
                    %2 = OpLabel
                    %3 = OpExtInst %double_t %1 distance %v3double_2 %v3double_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z8distanceDv3_dS_(<3 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>, <3 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>)
+; CHECK: {{%.*}} = call spir_func double @_Z8distanceDv3_dS_(<3 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>, <3 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

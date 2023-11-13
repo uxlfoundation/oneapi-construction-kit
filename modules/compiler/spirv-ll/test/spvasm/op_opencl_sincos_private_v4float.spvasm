@@ -38,9 +38,9 @@
 ; CHECK: define spir_kernel void @sincos_v4float()
                    %2 = OpLabel
                    %3 = OpVariable %v4float_ptr_t Function
-; CHECK: [[cosval:%[a-zA-Z0-9]+]] = alloca <4 x float>
+; CHECK: [[cosval:%.*]] = alloca <4 x float>
                    %4 = OpExtInst %v4float_t %1 sincos %v4float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z6sincosDv4_fPS_(<4 x float> <float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000>, ptr [[cosval]])
+; CHECK: {{%.*}} = call spir_func <4 x float> @_Z6sincosDv4_fPS_(<4 x float> <float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000>, ptr [[cosval]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

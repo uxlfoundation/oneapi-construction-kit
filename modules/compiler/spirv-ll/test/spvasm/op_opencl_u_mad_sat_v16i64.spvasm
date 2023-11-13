@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @u_mad_sat_v16i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i64_t %1 u_mad_sat %v16i64_1 %v16i64_2 %v16i64_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i64> @_Z7mad_satDv16_mS_S_(<16 x i64> <i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1>, <16 x i64> <i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2>, <16 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>)
+; CHECK: {{%.*}} = call spir_func <16 x i64> @_Z7mad_satDv16_mS_S_(<16 x i64> <i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1>, <16 x i64> <i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2>, <16 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

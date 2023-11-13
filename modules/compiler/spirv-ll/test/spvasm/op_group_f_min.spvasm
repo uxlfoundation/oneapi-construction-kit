@@ -41,13 +41,13 @@
 
             %sub_group_scope = OpConstant %uint_ty 3
 
-; CHECK: define spir_kernel void @sub_group_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @sub_group_reduction(ptr addrspace(1) [[IN:%.*]])
     %sub_group_reduction_fcn = OpFunction %void_ty None %fcn_ty
      %sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_float_ty
      %sub_group_reduction_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load float, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load float, ptr addrspace(1) [[IN]], align 4
     %sub_group_reduction_val = OpLoad %float_ty %sub_group_reduction_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func float @_Z20sub_group_reduce_minf(float [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func float @_Z20sub_group_reduce_minf(float [[VAL]])
     %sub_group_reduction_res = OpGroupFMin %float_ty %sub_group_scope Reduce %sub_group_reduction_val
 ; CHECK: store float [[RES]], ptr addrspace(1) [[IN]]
                                OpStore %sub_group_reduction_in %sub_group_reduction_res Aligned 4
@@ -57,13 +57,13 @@
 
 ; CHECK: declare spir_func float @_Z20sub_group_reduce_minf(float)
 
-; CHECK: define spir_kernel void @sub_group_scan_inclusive(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @sub_group_scan_inclusive(ptr addrspace(1) [[IN:%.*]])
      %sub_group_scan_inc_fcn = OpFunction %void_ty None %fcn_ty
       %sub_group_scan_inc_in = OpFunctionParameter %ptr_CrossWorkgroup_float_ty
       %sub_group_scan_inc_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load float, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load float, ptr addrspace(1) [[IN]], align 4
      %sub_group_scan_inc_val = OpLoad %float_ty %sub_group_scan_inc_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func float @_Z28sub_group_scan_inclusive_minf(float [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func float @_Z28sub_group_scan_inclusive_minf(float [[VAL]])
      %sub_group_scan_inc_res = OpGroupFMin %float_ty %sub_group_scope InclusiveScan %sub_group_scan_inc_val
 ; CHECK: store float [[RES]], ptr addrspace(1) [[IN]]
                                OpStore %sub_group_scan_inc_in %sub_group_scan_inc_res Aligned 4
@@ -73,13 +73,13 @@
 
 ; CHECK: declare spir_func float @_Z28sub_group_scan_inclusive_minf(float)
 
-; CHECK: define spir_kernel void @sub_group_scan_exclusive(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @sub_group_scan_exclusive(ptr addrspace(1) [[IN:%.*]])
      %sub_group_scan_exc_fcn = OpFunction %void_ty None %fcn_ty
       %sub_group_scan_exc_in = OpFunctionParameter %ptr_CrossWorkgroup_float_ty
       %sub_group_scan_exc_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load float, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load float, ptr addrspace(1) [[IN]], align 4
      %sub_group_scan_exc_val = OpLoad %float_ty %sub_group_scan_exc_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func float @_Z28sub_group_scan_exclusive_minf(float [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func float @_Z28sub_group_scan_exclusive_minf(float [[VAL]])
      %sub_group_scan_exc_res = OpGroupFMin %float_ty %sub_group_scope ExclusiveScan %sub_group_scan_exc_val
 ; CHECK: store float [[RES]], ptr addrspace(1) [[IN]]
                                OpStore %sub_group_scan_exc_in %sub_group_scan_exc_res Aligned 4

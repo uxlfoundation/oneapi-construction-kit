@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @shuffle2_v2float()
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 shuffle2 %v2float_3 %v2float_4 %v2i32_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z8shuffle2Dv2_fS_Dv2_j(<2 x float> <float 3.000000e+00, float 3.000000e+00>, <2 x float> <float 4.000000e+00, float 4.000000e+00>, <2 x i32> <i32 5, i32 5>)
+; CHECK: {{%.*}} = call spir_func <2 x float> @_Z8shuffle2Dv2_fS_Dv2_j(<2 x float> <float 3.000000e+00, float 3.000000e+00>, <2 x float> <float 4.000000e+00, float 4.000000e+00>, <2 x i32> <i32 5, i32 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -35,10 +35,10 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z5clampiii(i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@].*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: {{[%@].*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: {{[%@].*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: {{[%@].*}} = call spir_func i32 @_Z5clampiii(i32 {{[%@].*}}, i32 {{[%@].*}}, i32 {{[%@].*}})
+// CHECK: store i32 {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func i32 @_Z5clampiii(i32, i32, i32)

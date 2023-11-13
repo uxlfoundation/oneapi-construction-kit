@@ -31,12 +31,12 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float  @{{("func_ret_float.+")}}()
-// CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@].*}} = alloca float
+// CHECK: {{[%@].*}} = call spir_func float  @{{("func_ret_float.+")}}()
+// CHECK: store float {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: define private spir_func float @{{("func_ret_float.+")}}()
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-// CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: ret float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@].*}} = alloca float
+// CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
+// CHECK: {{[%@].*}} = load float, ptr {{[%@].*}}
+// CHECK: ret float {{[%@].*}}

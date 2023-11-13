@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @u_popcount_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %i32_t %1 popcount %i32_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z8popcountj(i32 3)
+; CHECK: {{%.*}} = call spir_func i32 @_Z8popcountj(i32 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

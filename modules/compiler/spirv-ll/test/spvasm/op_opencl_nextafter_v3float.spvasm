@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @nextafter_v3float()
                    %2 = OpLabel
                    %3 = OpExtInst %v3float_t %1 nextafter %v3float_2 %v3float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z9nextafterDv3_fS_(<3 x float> <float 0xC000CCCCC0000000, float 0xC000CCCCC0000000, float 0xC000CCCCC0000000>, <3 x float> <float 0x3FF3333340000000, float 0x3FF3333340000000, float 0x3FF3333340000000>)
+; CHECK: {{%.*}} = call spir_func <3 x float> @_Z9nextafterDv3_fS_(<3 x float> <float 0xC000CCCCC0000000, float 0xC000CCCCC0000000, float 0xC000CCCCC0000000>, <3 x float> <float 0x3FF3333340000000, float 0x3FF3333340000000, float 0x3FF3333340000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

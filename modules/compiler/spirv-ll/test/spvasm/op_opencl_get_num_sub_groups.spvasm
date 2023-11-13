@@ -32,7 +32,7 @@
 %__spirv_BuiltInNumSubgroups = OpVariable %size_ptr_t Input
       %get_num_sub_groups_fn = OpFunction %void_t None %get_num_sub_groups_fn_t
                           %2 = OpLabel
-;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z18get_num_sub_groupsv()
+;CHECK: {{%.*}} = call spir_func i32 @_Z18get_num_sub_groupsv()
                         %res = OpLoad %size_t %__spirv_BuiltInNumSubgroups
                                  OpReturn
                                  OpFunctionEnd

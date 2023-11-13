@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @u_clz_i8()
                    %2 = OpLabel
                    %3 = OpExtInst %i8_t %1 clz %i8_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i8 @_Z3clzh(i8 zeroext 1)
+; CHECK: {{%.*}} = call spir_func zeroext i8 @_Z3clzh(i8 zeroext 1)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

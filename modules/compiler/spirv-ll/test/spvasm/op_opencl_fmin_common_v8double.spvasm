@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @fmin_common_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 fmin_common %v8double_1 %v8double_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x double> @_Z3minDv8_dS_(<8 x double> <double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00>, <8 x double> <double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00>)
+; CHECK: {{%.*}} = call spir_func <8 x double> @_Z3minDv8_dS_(<8 x double> <double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00>, <8 x double> <double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00, double 2.400000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

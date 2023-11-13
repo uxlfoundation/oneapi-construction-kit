@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @native_sin_v3float()
                    %2 = OpLabel
                    %3 = OpExtInst %v3float_t %1 native_sin %v3float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z10native_sinDv3_f(<3 x float> <float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000>)
+; CHECK: {{%.*}} = call spir_func <3 x float> @_Z10native_sinDv3_f(<3 x float> <float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

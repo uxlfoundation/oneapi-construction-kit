@@ -41,10 +41,10 @@
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: [[ARG:%[a-zA-Z0-9_]+]] = alloca float
+; CHECK: [[ARG:%.*]] = alloca float
 ; CHECK: store float 0x400921FB60000000, ptr [[ARG]]
-; CHECK: [[LD_ARG:%[a-zA-Z0-9_]+]] = load float, ptr [[ARG]]
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func float @_Z13quantizeToF16f(float [[LD_ARG]])
+; CHECK: [[LD_ARG:%.*]] = load float, ptr [[ARG]]
+; CHECK: [[RES:%.*]] = call spir_func float @_Z13quantizeToF16f(float [[LD_ARG]])
 ; CHECK: store float [[RES]], ptr [[ARG]]
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z13quantizeToF16f(float)

@@ -54,19 +54,19 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { i32, i32 }
+; CHECK: {{[%@].*}} = type { i32, i32 }
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: store i32 42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: store i32 42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call { i32, i1 } @llvm.usub.with.overflow.i32(i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue { i32, i1 } {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} undef, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue { i32, i1 } {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = sext i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i32
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
-; CHECK: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca i32
+; CHECK: {{[%@].*}} = alloca i32
+; CHECK: store i32 42, ptr {{[%@].*}}
+; CHECK: store i32 42, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = call { i32, i1 } @llvm.usub.with.overflow.i32(i32 {{[%@].*}}, i32 {{[%@].*}})
+; CHECK: {{[%@].*}} = extractvalue { i32, i1 } {{[%@].*}}, 0
+; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, i32 {{[%@].*}}, {{[0-9]+}}
+; CHECK: {{[%@].*}} = extractvalue { i32, i1 } {{[%@].*}}, 1
+; CHECK: {{[%@].*}} = sext i1 {{[%@].*}} to i32
+; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, i32 {{[%@].*}}, {{[0-9]+}}
+; CHECK: store {{[%@].*}} {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

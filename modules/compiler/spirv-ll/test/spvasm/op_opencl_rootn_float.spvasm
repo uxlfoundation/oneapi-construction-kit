@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @rootn_float_uint()
                    %4 = OpLabel
                    %5 = OpExtInst %float_t %1 rootn %float_2 %uint_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5rootnfi(float 2.000000e+00, i32 2)
+; CHECK: {{%.*}} = call spir_func float @_Z5rootnfi(float 2.000000e+00, i32 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

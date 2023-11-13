@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @fclamp_v3double()
                    %2 = OpLabel
                    %3 = OpExtInst %v3double_t %1 fclamp %v3double_0 %v3double_1 %v3double_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x double> @_Z5clampDv3_dS_S_(<3 x double> <double 8.000000e-01, double 8.000000e-01, double 8.000000e-01>, <3 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <3 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>)
+; CHECK: {{%.*}} = call spir_func <3 x double> @_Z5clampDv3_dS_S_(<3 x double> <double 8.000000e-01, double 8.000000e-01, double 8.000000e-01>, <3 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <3 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

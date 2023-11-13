@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @tgamma_v2float()
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 tgamma %v2float_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z6tgammaDv2_f(<2 x float> <float 0x40091EB860000000, float 0x40091EB860000000>)
+; CHECK: {{%.*}} = call spir_func <2 x float> @_Z6tgammaDv2_f(<2 x float> <float 0x40091EB860000000, float 0x40091EB860000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

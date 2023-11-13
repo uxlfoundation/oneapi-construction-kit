@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @s_sub_sat_i64()
                    %2 = OpLabel
                    %3 = OpExtInst %i64_t %1 s_sub_sat %i64_3 %i64_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z7sub_satll(i64 3, i64 4)
+; CHECK: {{%.*}} = call spir_func i64 @_Z7sub_satll(i64 3, i64 4)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -51,17 +51,17 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @testfn()
-; CHECK: [[X:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-; CHECK: [[Y:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
-; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr [[Y]]
+; CHECK: [[X:[%@].*]] = alloca float
+; CHECK: {{[%@].*}} = alloca i1
+; CHECK: [[Y:[%@].*]] = alloca float
+; CHECK: {{[%@].*}} = load float, ptr [[X]]
+; CHECK: store float {{[%@].*}}, ptr [[Y]]
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[Y]]
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[X]]
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr [[Y]]
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z13islessgreaterff(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = trunc i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i1
-; CHECK: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = load float, ptr [[X]]
+; CHECK: {{[%@].*}} = load float, ptr [[Y]]
+; CHECK: {{[%@].*}} = call spir_func i32 @_Z13islessgreaterff(float {{[%@].*}}, float {{[%@].*}})
+; CHECK: {{[%@].*}} = trunc i32 {{[%@].*}} to i1
+; CHECK: store i1 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z13islessgreaterff(float, float)

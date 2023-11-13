@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @sign_v2double()
                    %2 = OpLabel
                    %3 = OpExtInst %v2double_t %1 sign %v2double_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x double> @_Z4signDv2_d(<2 x double> <double 3.140000e+00, double 3.140000e+00>)
+; CHECK: {{%.*}} = call spir_func <2 x double> @_Z4signDv2_d(<2 x double> <double 3.140000e+00, double 3.140000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

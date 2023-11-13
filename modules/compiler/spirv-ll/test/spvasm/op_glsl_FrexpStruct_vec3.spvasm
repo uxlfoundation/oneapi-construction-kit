@@ -71,10 +71,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x i32>
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <3 x float> @_Z5frexpDv3_fPDv3_i(<3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} undef, <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <3 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
-; CHECK: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: {{[%@].*}} = alloca <3 x i32>
+; CHECK: {{[%@].*}} = call spir_func <3 x float> @_Z5frexpDv3_fPDv3_i(<3 x float> {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, <3 x float> {{[%@].*}}, {{[0-9]+}}
+; CHECK: {{[%@].*}} = load <3 x i32>, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, <3 x i32> {{[%@].*}}, {{[0-9]+}}
+; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

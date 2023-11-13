@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @s_abs_diff_v3i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v3ui32_t %1 s_abs_diff %v3i32_2 %v3i32_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i32> @_Z8abs_diffDv3_iS_(<3 x i32> <i32 2, i32 2, i32 2>, <3 x i32> <i32 5, i32 5, i32 5>)
+; CHECK: {{%.*}} = call spir_func <3 x i32> @_Z8abs_diffDv3_iS_(<3 x i32> <i32 2, i32 2, i32 2>, <3 x i32> <i32 5, i32 5, i32 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

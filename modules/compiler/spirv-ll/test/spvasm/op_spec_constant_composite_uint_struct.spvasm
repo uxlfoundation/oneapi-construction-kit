@@ -55,9 +55,9 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: [[test_block:%[a-zA-Z0-9_]+]] = type { [[Foo:%[a-zA-Z0-9_]+]] }
+; CHECK: [[test_block:%.*]] = type { [[Foo:%.*]] }
 ; CHECK: [[Foo]] = type { i32 }
 ; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
-; CHECK: [[uniformA:%[a-zA-Z0-9]+]] = getelementptr [[test_block]], ptr addrspace(1) {{%[a-zA-Z0-9]+}}, i32 0, i32 0
+; CHECK: [[uniformA:%.*]] = getelementptr [[test_block]], ptr addrspace(1) {{%.*}}, i32 0, i32 0
 ; CHECK: store [[Foo]] { i32 42 }, ptr addrspace(1) [[uniformA]]
 ; CHECK: ret void

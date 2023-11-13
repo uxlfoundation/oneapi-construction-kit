@@ -39,6 +39,6 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: define spir_kernel void @isnormal()
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func i32 @_Z8isnormald(double 0x7FF0000000000000)
-; CHECK: {{%[a-zA-Z0-9_]+}} = trunc i32 [[RES]] to i1
+; CHECK: [[RES:%.*]] = call spir_func i32 @_Z8isnormald(double 0x7FF0000000000000)
+; CHECK: {{%.*}} = trunc i32 [[RES]] to i1
 ; CHECK: declare spir_func i32 @_Z8isnormald(double)

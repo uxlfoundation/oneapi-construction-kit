@@ -42,9 +42,9 @@
 ; CHECK: define spir_kernel void @remquo_v3float()
                    %2 = OpLabel
                    %3 = OpVariable %v3int_ptr_t Function
-; CHECK: [[quo:%[a-zA-Z0-9]+]] = alloca <3 x i32>
+; CHECK: [[quo:%.*]] = alloca <3 x i32>
                    %4 = OpExtInst %v3float_t %1 remquo %v3float_2 %v3float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z6remquoDv3_fS_PDv3_i(<3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <3 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
+; CHECK: {{%.*}} = call spir_func <3 x float> @_Z6remquoDv3_fS_PDv3_i(<3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <3 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

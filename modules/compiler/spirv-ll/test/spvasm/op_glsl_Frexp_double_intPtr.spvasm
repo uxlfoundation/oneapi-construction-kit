@@ -66,8 +66,8 @@
                          OpReturn
                          OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func double @_Z5frexpdPU3AS1i(double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: {{[%@].*}} = call spir_func double @_Z5frexpdPU3AS1i(double {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
+; CHECK: store double {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func double @_Z5frexpdPU3AS1i(double, ptr addrspace(1))

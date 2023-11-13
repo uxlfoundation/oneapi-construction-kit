@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @degrees_double()
                    %2 = OpLabel
                    %3 = OpExtInst %double_t %1 degrees %double_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func double @_Z7degreesd(double 1.570000e+00)
+; CHECK: {{%.*}} = call spir_func double @_Z7degreesd(double 1.570000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @u_rotate_v16i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i64_t %1 rotate %v16i64_2 %v16i64_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i64> @_Z6rotateDv16_mS_(<16 x i64> <i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2>, <16 x i64> <i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4>)
+; CHECK: {{%.*}} = call spir_func <16 x i64> @_Z6rotateDv16_mS_(<16 x i64> <i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2>, <16 x i64> <i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

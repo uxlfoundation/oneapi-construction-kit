@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @fmax_common_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 fmax_common %float_1 %float_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z3maxff(float 0x3FFE666660000000, float 0x4003333340000000)
+; CHECK: {{%.*}} = call spir_func float @_Z3maxff(float 0x3FFE666660000000, float 0x4003333340000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

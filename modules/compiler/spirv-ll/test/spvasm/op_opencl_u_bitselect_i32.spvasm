@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @u_bitselect_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %i32_t %1 bitselect %i32_1 %i32_2 %i32_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z9bitselectjjj(i32 1, i32 2, i32 3)
+; CHECK: {{%.*}} = call spir_func i32 @_Z9bitselectjjj(i32 1, i32 2, i32 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

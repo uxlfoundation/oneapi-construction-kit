@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @fast_normalize_v2double()
                        %2 = OpLabel
                        %3 = OpExtInst %v2double_t %1 fast_normalize %v2double_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x double> @_Z14fast_normalizeDv2_d(<2 x double> <double 5.000000e+00, double 5.000000e+00>)
+; CHECK: {{%.*}} = call spir_func <2 x double> @_Z14fast_normalizeDv2_d(<2 x double> <double 5.000000e+00, double 5.000000e+00>)
                             OpReturn
 ; CHECK: ret void
                             OpFunctionEnd

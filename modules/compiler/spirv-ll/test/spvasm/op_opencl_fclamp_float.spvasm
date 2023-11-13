@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @fclamp_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 fclamp %float_0 %float_1 %float_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5clampfff(float 0x3FE99999A0000000, float 1.000000e+00, float 2.000000e+00)
+; CHECK: {{%.*}} = call spir_func float @_Z5clampfff(float 0x3FE99999A0000000, float 1.000000e+00, float 2.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

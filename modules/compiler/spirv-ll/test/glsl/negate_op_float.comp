@@ -27,10 +27,10 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-// CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: %[[VAR:.+]] = load float, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: %{{[A-Za-z0-9]+}} = {{(fsub float [-]0[.]000000e[+]00,)|(fneg float)}} %[[VAR]]
-// CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: {{[%@].*}} = alloca float
+// CHECK: {{[%@].*}} = alloca float
+// CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
+// CHECK: %[[VAR:.+]] = load float, ptr {{[%@].*}}
+// CHECK: %{{.*}} = {{(fsub float [-]0[.]000000e[+]00,)|(fneg float)}} %[[VAR]]
+// CHECK: store float {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

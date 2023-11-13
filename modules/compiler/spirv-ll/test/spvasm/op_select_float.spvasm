@@ -49,10 +49,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-; CHECK: store i1 true, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = select i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}
-; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: {{[%@].*}} = alloca i1
+; CHECK: {{[%@].*}} = alloca float
+; CHECK: store i1 true, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = load i1, ptr {{[%@].*}}
+; CHECK: {{[%@].*}} = select i1 {{[%@].*}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}
+; CHECK: store float {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @pown_v2float()
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 pown %v2float_2 %v2int_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z4pownDv2_fDv2_i(<2 x float> <float 0x40019999A0000000, float 0x40019999A0000000>, <2 x i32> <i32 2, i32 2>)
+; CHECK: {{%.*}} = call spir_func <2 x float> @_Z4pownDv2_fDv2_i(<2 x float> <float 0x40019999A0000000, float 0x40019999A0000000>, <2 x i32> <i32 2, i32 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

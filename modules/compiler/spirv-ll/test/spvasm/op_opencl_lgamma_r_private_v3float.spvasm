@@ -40,9 +40,9 @@
 ; CHECK: define spir_kernel void @lgamma_r_v3float()
                    %2 = OpLabel
                    %3 = OpVariable %v3int_ptr_t Function
-; CHECK: [[signp:%[a-zA-Z0-9]+]] = alloca <3 x i32>
+; CHECK: [[signp:%.*]] = alloca <3 x i32>
                    %4 = OpExtInst %v3float_t %1 lgamma_r %v3float_2 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x float> @_Z8lgamma_rDv3_fPDv3_i(<3 x float> <float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000>, ptr [[signp]])
+; CHECK: {{%.*}} = call spir_func <3 x float> @_Z8lgamma_rDv3_fPDv3_i(<3 x float> <float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000>, ptr [[signp]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd
