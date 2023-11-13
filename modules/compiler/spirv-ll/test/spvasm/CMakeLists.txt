@@ -22,7 +22,6 @@ endif()
 
 set(SPVASM_FILES
   debug_info.spvasm
-  ext_variable_pointers_op_variable.spvasm
   ext_variable_pointers_function_call.spvasm
   op_atomic_and_function.spvasm
   op_atomic_and_generic.spvasm
@@ -2150,7 +2149,10 @@ set(SPVASM_FILES
   op_opencl_arg_md.spvasm
   unsupported_capability.spvasm
   op_get_kernel_preferred_work_group_size_multiple.spvasm
-  invalid_storage_class.spvasm
+
+  # Tests that check behaviour on invalid SPIR-V
+  invalid-spir-v/invalid_storage_class.spvasm
+  invalid-spir-v/ext_variable_pointers_op_variable.spvasm
   )
 
 if(SpirvAsVersion VERSION_GREATER_EQUAL "2020.0")
@@ -2217,10 +2219,11 @@ function(ca_assemble_spirv_ll_lit_test)
   set(spvasm "${args_UNPARSED_ARGUMENTS}")
 
   get_filename_component(name ${spvasm} NAME_WE)
+  get_filename_component(dir ${spvasm} DIRECTORY)
 
   set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm})
   set(spvasm ${CMAKE_CURRENT_SOURCE_DIR}/${spvasm})
-  set(spv ${CMAKE_CURRENT_BINARY_DIR}/${name}.spv)
+  set(spv ${CMAKE_CURRENT_BINARY_DIR}/${dir}/${name}.spv)
   if(NOT EXISTS ${spvasm})
     message(FATAL_ERROR "spirv-ll input spvasm does not exist: ${spvasm}")
   endif()
