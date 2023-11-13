@@ -237,6 +237,8 @@ struct _cl_command_buffer_khr final : public cl::base<_cl_command_buffer_khr> {
     cargo::dynamic_array<mux_descriptor_info_s> descriptors;
     // Storage for the indices of each arguments that is getting updated.
     cargo::dynamic_array<uint64_t> indices;
+    // Storage for any pointers referenced by descriptors.
+    cargo::dynamic_array<const void *> pointers;
     // ID of mutable command
     cl_uint id;
   };
