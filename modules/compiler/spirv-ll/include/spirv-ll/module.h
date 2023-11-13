@@ -675,7 +675,7 @@ class Module : public ModuleHeader {
   /// @param[in] id The SPIR-V ID to fetch the value for.
   ///
   /// @return A pointer to the Type or nullptr if not found.
-  llvm::Type *getType(spv::Id id) const;
+  llvm::Type *getLLVMType(spv::Id id) const;
 
   /// @brief Get the `OpType` from the result type of an `OpCode`.
   ///

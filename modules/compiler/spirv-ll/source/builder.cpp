@@ -124,7 +124,7 @@ llvm::DIType *spirv_ll::Builder::getDIType(llvm::Type *type) {
         auto *opTy = module.getFromLLVMTy<OpType>(type);
         SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
         llvm::DIType *elem_type =
-            getDIType(module.getType(opTy->getTypePointer()->Type()));
+            getDIType(module.getLLVMType(opTy->getTypePointer()->Type()));
         return DIBuilder.createPointerType(elem_type, size, align);
       }
       default:
@@ -663,7 +663,8 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
     llvm::ArrayRef<llvm::Value *> args,
     llvm::ArrayRef<MangleInfo> argMangleInfo,
     const spirv_ll::OpTypeVector *pixelTypeOp) {
-  llvm::Type *pixelElementType = module.getType(pixelTypeOp->ComponentType());
+  llvm::Type *pixelElementType =
+      module.getLLVMType(pixelTypeOp->ComponentType());
   if (pixelElementType->isIntegerTy()) {
     // We need to look up the int type by ID because searching by `llvm::Type`
     // doesn't distinguish between signed and unsigned types, which can cause
@@ -700,7 +701,7 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
 llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     OpenCLLIB::Entrypoints opcode, spv::Id resTyId,
     llvm::ArrayRef<spv::Id> args) {
-  llvm::Type *resultType = module.getType(resTyId);
+  llvm::Type *resultType = module.getLLVMType(resTyId);
   SPIRV_LL_ASSERT_PTR(resultType);
 
   llvm::SmallVector<llvm::Value *, 4> argVals;
@@ -1099,7 +1100,7 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         llvm::Type *pointeeTy = nullptr;
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
-          pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
+          pointeeTy = module.getLLVMType(spvPtrTy->getTypePointer()->Type());
 #if LLVM_VERSION_LESS(17, 0)
         } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
                    spvPtrTy->isSamplerType()) {
@@ -1230,7 +1231,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
 
     auto const spvPointeeTy =
         module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
-    auto *const elementTy = module.getType(spvPointeeTy);
+    auto *const elementTy = module.getLLVMType(spvPointeeTy);
     std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
     auto pointeeMangleInfo = *mangleInfo;
     pointeeMangleInfo.typeQuals = 0;
@@ -1320,7 +1321,7 @@ void spirv_ll::Builder::checkMemberDecorations(
       case llvm::Type::PointerTyID: {
         auto *opTy = module.getFromLLVMTy<OpType>(traversed.back());
         SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
-        nextType = module.getType(opTy->getTypePointer()->Type());
+        nextType = module.getLLVMType(opTy->getTypePointer()->Type());
         break;
       }
       default:
@@ -1404,7 +1405,7 @@ void spirv_ll::Builder::generateSpecConstantOps() {
 
     switch (op->Opcode()) {
       case spv::OpFMod: {
-        llvm::Type *type = module.getType(op->IdResultType());
+        llvm::Type *type = module.getLLVMType(op->IdResultType());
         SPIRV_LL_ASSERT_PTR(type);
 
         llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
@@ -1426,7 +1427,7 @@ void spirv_ll::Builder::generateSpecConstantOps() {
                                           {modResult, rhs}, {});
       } break;
       case spv::OpFRem: {
-        llvm::Type *type = module.getType(op->IdResultType());
+        llvm::Type *type = module.getLLVMType(op->IdResultType());
         SPIRV_LL_ASSERT_PTR(type);
 
         llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
