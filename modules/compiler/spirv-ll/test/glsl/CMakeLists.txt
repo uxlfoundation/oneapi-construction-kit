@@ -812,9 +812,6 @@ foreach(glsl ${GLSL_FILES})
       COMMENT "Building SPIR-V ${spvOut}")
     list(APPEND LitTestFiles ${spv})
   endif()
-
-  add_ca_copy_file(INPUT ${comp} OUTPUT ${test})
-  list(APPEND LitTestFiles ${test})
 endforeach()
 
 add_custom_target(spirv-ll-glsl-lit DEPENDS ${LitTestFiles})
