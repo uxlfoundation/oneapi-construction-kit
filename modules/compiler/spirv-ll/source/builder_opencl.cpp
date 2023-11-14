@@ -27,7 +27,7 @@ static cargo::optional<spirv_ll::Error> createPrintf(OpExtInst const &opc,
                                                      Builder &builder) {
   auto *op = module.create<OpenCLstd::Printf>(opc);
 
-  llvm::Type *resultType = module.getType(op->IdResultType());
+  llvm::Type *resultType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(resultType);
 
   llvm::Value *format = module.getValue(op->format());

@@ -489,7 +489,7 @@ bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
   return true;
 }
 
-llvm::Type *spirv_ll::Module::getType(spv::Id id) const {
+llvm::Type *spirv_ll::Module::getLLVMType(spv::Id id) const {
   return Types.lookup(id).Type;
 }
 
@@ -551,10 +551,10 @@ void spirv_ll::Module::updateIncompleteStruct(spv::Id member_id) {
         if (iter.second.empty()) {
           llvm::SmallVector<llvm::Type *, 4> memberTypes;
           for (auto memberType : iter.first->MemberTypes()) {
-            memberTypes.push_back(getType(memberType));
+            memberTypes.push_back(getLLVMType(memberType));
           }
           llvm::StructType *structType =
-              llvm::cast<llvm::StructType>(getType(iter.first->IdResult()));
+              llvm::cast<llvm::StructType>(getLLVMType(iter.first->IdResult()));
           structType->setBody(memberTypes);
           // remove the now fully populated struct from the map
           IncompleteStructs.erase(IncompleteStructs.find(iter.first));
@@ -568,7 +568,7 @@ void spirv_ll::Module::updateIncompleteStruct(spv::Id member_id) {
 void spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
   spv::Id typeId = op->Type();
   SPIRV_LL_ASSERT(!isForwardPointer(typeId), "typeId is a forward pointer");
-  llvm::Type *type = getType(typeId);
+  llvm::Type *type = getLLVMType(typeId);
   SPIRV_LL_ASSERT_PTR(type);
 
   // Pointer to void type isn't legal in llvm, so substitute char* in such

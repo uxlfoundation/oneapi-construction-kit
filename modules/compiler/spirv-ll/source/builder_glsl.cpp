@@ -33,7 +33,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Round>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -52,7 +52,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450RoundEven>(OpExtInst const &opc) {
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -71,7 +71,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Trunc>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -90,7 +90,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FAbs>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -109,7 +109,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -128,7 +128,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FSign>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -147,7 +147,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   /*
@@ -193,7 +193,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Floor>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -212,7 +212,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Ceil>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -231,7 +231,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Fract>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   // The builtin function also returns the whole number part through a
@@ -265,7 +265,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Radians>(OpExtInst const &opc) {
   llvm::Value *degrees = module.getValue(op->degrees());
   SPIRV_LL_ASSERT_PTR(degrees);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -284,7 +284,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Degrees>(OpExtInst const &opc) {
   llvm::Value *radians = module.getValue(op->radians());
   SPIRV_LL_ASSERT_PTR(radians);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -303,7 +303,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -322,7 +322,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -341,7 +341,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -360,7 +360,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Asin>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -379,7 +379,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Acos>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -398,7 +398,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atan>(
   llvm::Value *yOverX = module.getValue(op->yOverX());
   SPIRV_LL_ASSERT_PTR(yOverX);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -418,7 +418,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sinh>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -437,7 +437,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cosh>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -456,7 +456,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Tanh>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -475,7 +475,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Asinh>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -494,7 +494,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Acosh>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -513,7 +513,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atanh>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -535,7 +535,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atan2>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -557,7 +557,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -576,7 +576,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -595,7 +595,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Log>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -614,7 +614,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Exp2>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -633,7 +633,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Log2>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -652,7 +652,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sqrt>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -671,7 +671,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450InverseSqrt>(OpExtInst const &opc) {
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -715,7 +715,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Modf>(
   llvm::Value *i = module.getValue(op->i());
   SPIRV_LL_ASSERT_PTR(i);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -734,7 +734,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450ModfStruct>(OpExtInst const &opc) {
   auto *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  auto *retType = module.getType(op->IdResultType());
+  auto *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::Value *wholeNo = builder.getIRBuilder().CreateAlloca(x->getType());
@@ -775,7 +775,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMin>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -797,7 +797,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450UMin>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -819,7 +819,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SMin>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -841,7 +841,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMax>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -863,7 +863,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450UMax>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -885,7 +885,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SMax>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -910,7 +910,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FClamp>(OpExtInst const &opc) {
   llvm::Value *maxVal = module.getValue(op->maxVal());
   SPIRV_LL_ASSERT_PTR(maxVal);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -936,7 +936,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UClamp>(OpExtInst const &opc) {
   llvm::Value *maxVal = module.getValue(op->maxVal());
   SPIRV_LL_ASSERT_PTR(maxVal);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -962,7 +962,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450SClamp>(OpExtInst const &opc) {
   llvm::Value *maxVal = module.getValue(op->maxVal());
   SPIRV_LL_ASSERT_PTR(maxVal);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -988,7 +988,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMix>(
   llvm::Value *a = module.getValue(op->a());
   SPIRV_LL_ASSERT_PTR(a);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result =
@@ -1022,7 +1022,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Step>(
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1047,7 +1047,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450SmoothStep>(OpExtInst const &opc) {
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1073,7 +1073,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(
   llvm::Value *c = module.getValue(op->c());
   SPIRV_LL_ASSERT_PTR(c);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result =
@@ -1097,7 +1097,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Frexp>(
   llvm::Value *exp = module.getValue(op->exp());
   SPIRV_LL_ASSERT_PTR(exp);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   // We can't automatically mangle frexp with our APIs. For the pointer
@@ -1129,7 +1129,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(OpExtInst const &opc) {
   auto *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  auto *retType = module.getType(op->IdResultType());
+  auto *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::Type *expTy = builder.getIRBuilder().getInt32Ty();
@@ -1176,7 +1176,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Ldexp>(
   llvm::Value *exp = module.getValue(op->exp());
   SPIRV_LL_ASSERT_PTR(exp);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   // Don't pass IDs to force signed int mangling. Since CL ldexp can only take
@@ -1199,7 +1199,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm4x8>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1217,7 +1217,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm4x8>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1235,7 +1235,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm2x16>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1253,7 +1253,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm2x16>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1271,7 +1271,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackHalf2x16>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1289,7 +1289,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackDouble2x32>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::Value *result = builder.getIRBuilder().CreateBitCast(v, retType);
@@ -1306,7 +1306,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm2x16>(OpExtInst const &opc) {
   llvm::Value *p = module.getValue(op->p());
   SPIRV_LL_ASSERT_PTR(p);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   auto result = builder.createMangledBuiltinCall(
@@ -1324,7 +1324,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm2x16>(OpExtInst const &opc) {
   llvm::Value *p = module.getValue(op->p());
   SPIRV_LL_ASSERT_PTR(p);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   auto result = builder.createMangledBuiltinCall(
@@ -1342,7 +1342,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackHalf2x16>(OpExtInst const &opc) {
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1360,7 +1360,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm4x8>(OpExtInst const &opc) {
   llvm::Value *p = module.getValue(op->p());
   SPIRV_LL_ASSERT_PTR(p);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   auto result = builder.createMangledBuiltinCall(
@@ -1378,7 +1378,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm4x8>(OpExtInst const &opc) {
   llvm::Value *p = module.getValue(op->p());
   SPIRV_LL_ASSERT_PTR(p);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   auto result = builder.createMangledBuiltinCall(
@@ -1397,7 +1397,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackDouble2x32>(
   llvm::Value *v = module.getValue(op->v());
   SPIRV_LL_ASSERT_PTR(v);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::Value *result = builder.getIRBuilder().CreateBitCast(v, retType);
@@ -1414,7 +1414,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Length>(OpExtInst const &opc) {
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1436,7 +1436,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Distance>(OpExtInst const &opc) {
   llvm::Value *p1 = module.getValue(op->p1());
   SPIRV_LL_ASSERT_PTR(p1);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1458,7 +1458,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cross>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1477,7 +1477,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Normalize>(OpExtInst const &opc) {
   llvm::Value *x = module.getValue(op->x());
   SPIRV_LL_ASSERT_PTR(x);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1502,7 +1502,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FaceForward>(OpExtInst const &opc) {
   llvm::Value *nRef = module.getValue(op->nRef());
   SPIRV_LL_ASSERT_PTR(nRef);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1526,7 +1526,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Reflect>(OpExtInst const &opc) {
   llvm::Value *n = module.getValue(op->n());
   SPIRV_LL_ASSERT_PTR(n);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1552,7 +1552,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Refract>(OpExtInst const &opc) {
   llvm::Value *eta = module.getValue(op->eta());
   SPIRV_LL_ASSERT_PTR(eta);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1572,7 +1572,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindILsb>(OpExtInst const &opc) {
   llvm::Value *value = module.getValue(op->value());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1591,7 +1591,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(OpExtInst const &opc) {
   llvm::Value *value = module.getValue(op->value());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1611,7 +1611,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindUMsb>(OpExtInst const &opc) {
   llvm::Value *value = module.getValue(op->value());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1669,7 +1669,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450NMin>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1691,7 +1691,7 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450NMax>(
   llvm::Value *y = module.getValue(op->y());
   SPIRV_LL_ASSERT_PTR(y);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(
@@ -1716,7 +1716,7 @@ spirv_ll::GLSLBuilder::create<GLSLstd450NClamp>(OpExtInst const &opc) {
   llvm::Value *maxVal = module.getValue(op->maxVal());
   SPIRV_LL_ASSERT_PTR(maxVal);
 
-  llvm::Type *retType = module.getType(op->IdResultType());
+  llvm::Type *retType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retType);
 
   llvm::CallInst *result = builder.createMangledBuiltinCall(

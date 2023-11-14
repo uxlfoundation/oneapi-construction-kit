@@ -55,7 +55,7 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
     OpExtInst const &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy2D2D>(opc);
 
-  llvm::Type *eventTy = module.getType(op->IdResultType());
+  llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(eventTy);
   llvm::Value *dst = module.getValue(op->Destination());
   SPIRV_LL_ASSERT_PTR(dst);
@@ -124,7 +124,7 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
     OpExtInst const &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy3D3D>(opc);
 
-  llvm::Type *eventTy = module.getType(op->IdResultType());
+  llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(eventTy);
   llvm::Value *dst = module.getValue(op->Destination());
   SPIRV_LL_ASSERT_PTR(dst);

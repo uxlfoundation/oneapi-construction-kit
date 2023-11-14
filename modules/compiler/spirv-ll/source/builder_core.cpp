@@ -49,7 +49,7 @@ cargo::optional<Error> Builder::create<OpNop>(const OpNop *) {
 
 template <>
 cargo::optional<Error> Builder::create<OpUndef>(const OpUndef *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   module.addID(op->IdResult(), op, llvm::UndefValue::get(type));
@@ -396,7 +396,7 @@ cargo::optional<Error> Builder::create<OpTypeFloat>(const OpTypeFloat *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeVector>(const OpTypeVector *op) {
-  llvm::Type *componentType = module.getType(op->ComponentType());
+  llvm::Type *componentType = module.getLLVMType(op->ComponentType());
 
   SPIRV_LL_ASSERT_PTR(componentType);
 
@@ -407,7 +407,7 @@ cargo::optional<Error> Builder::create<OpTypeVector>(const OpTypeVector *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
-  llvm::Type *columnType = module.getType(op->ColumnType());
+  llvm::Type *columnType = module.getLLVMType(op->ColumnType());
 
   SPIRV_LL_ASSERT_PTR(columnType);
 
@@ -546,7 +546,7 @@ cargo::optional<Error> Builder::create<OpTypeSampledImage>(
 
 template <>
 cargo::optional<Error> Builder::create<OpTypeArray>(const OpTypeArray *op) {
-  llvm::Type *elementType = module.getType(op->ElementType());
+  llvm::Type *elementType = module.getLLVMType(op->ElementType());
   llvm::Value *length = module.getValue(op->Length());
 
   SPIRV_LL_ASSERT_PTR(elementType);
@@ -562,7 +562,7 @@ cargo::optional<Error> Builder::create<OpTypeArray>(const OpTypeArray *op) {
 template <>
 cargo::optional<Error> Builder::create<OpTypeRuntimeArray>(
     const OpTypeRuntimeArray *op) {
-  llvm::Type *elementType = module.getType(op->ElementType());
+  llvm::Type *elementType = module.getLLVMType(op->ElementType());
 
   SPIRV_LL_ASSERT_PTR(elementType);
 
@@ -593,7 +593,7 @@ cargo::optional<Error> Builder::create<OpTypeStruct>(const OpTypeStruct *op) {
     llvm::SmallVector<llvm::Type *, 4> memberTypes;
 
     for (auto memberTypeID : memberTypeIDs) {
-      llvm::Type *memberType = module.getType(memberTypeID);
+      llvm::Type *memberType = module.getLLVMType(memberTypeID);
 
       SPIRV_LL_ASSERT_PTR(memberType);
 
@@ -635,7 +635,7 @@ cargo::optional<Error> Builder::create<OpTypePointer>(const OpTypePointer *op) {
 template <>
 cargo::optional<Error> Builder::create<OpTypeFunction>(
     const OpTypeFunction *op) {
-  llvm::Type *returnType = module.getType(op->ReturnType());
+  llvm::Type *returnType = module.getLLVMType(op->ReturnType());
   SPIRV_LL_ASSERT_PTR(returnType);
 
   llvm::SmallVector<llvm::Type *, 4> paramTypes;
@@ -643,7 +643,7 @@ cargo::optional<Error> Builder::create<OpTypeFunction>(
 
   for (int i = 0, n = op->wordCount() - 3; i < n; ++i) {
     auto opTyID = op->ParameterTypes()[i];
-    llvm::Type *paramType = module.getType(opTyID);
+    llvm::Type *paramType = module.getLLVMType(opTyID);
     SPIRV_LL_ASSERT_PTR(paramType);
 
     paramTypes.push_back(paramType);
@@ -720,7 +720,7 @@ cargo::optional<Error> Builder::create<OpTypeForwardPointer>(
 template <>
 cargo::optional<Error> Builder::create<OpConstantTrue>(
     const OpConstantTrue *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -734,7 +734,7 @@ cargo::optional<Error> Builder::create<OpConstantTrue>(
 template <>
 cargo::optional<Error> Builder::create<OpConstantFalse>(
     const OpConstantFalse *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -747,7 +747,7 @@ cargo::optional<Error> Builder::create<OpConstantFalse>(
 
 template <>
 cargo::optional<Error> Builder::create<OpConstant>(const OpConstant *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -800,7 +800,7 @@ cargo::optional<Error> Builder::create<OpConstant>(const OpConstant *op) {
 template <>
 cargo::optional<Error> Builder::create<OpConstantComposite>(
     const OpConstantComposite *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -875,7 +875,7 @@ cargo::optional<Error> Builder::create<OpConstantSampler>(
 template <>
 cargo::optional<Error> Builder::create<OpConstantNull>(
     const OpConstantNull *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -933,7 +933,7 @@ cargo::optional<Error> Builder::create<OpConstantNull>(
 template <>
 cargo::optional<Error> Builder::create<OpSpecConstantTrue>(
     const OpSpecConstantTrue *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Constant *spec_constant = nullptr;
@@ -966,7 +966,7 @@ cargo::optional<Error> Builder::create<OpSpecConstantTrue>(
 template <>
 cargo::optional<Error> Builder::create<OpSpecConstantFalse>(
     const OpSpecConstantFalse *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Constant *spec_constant = nullptr;
@@ -999,7 +999,7 @@ cargo::optional<Error> Builder::create<OpSpecConstantFalse>(
 template <>
 cargo::optional<Error> Builder::create<OpSpecConstant>(
     const OpSpecConstant *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   uint64_t value;
@@ -1082,7 +1082,7 @@ cargo::optional<Error> Builder::create<OpSpecConstant>(
 template <>
 cargo::optional<Error> Builder::create<OpSpecConstantComposite>(
     const OpSpecConstantComposite *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::SmallVector<llvm::Constant *, 4> constituents;
@@ -1133,7 +1133,7 @@ cargo::optional<Error> Builder::create<OpSpecConstantComposite>(
 template <>
 cargo::optional<Error> Builder::create<OpSpecConstantOp>(
     const OpSpecConstantOp *op) {
-  llvm::Type *result_type = module.getType(op->IdResultType());
+  llvm::Type *result_type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(result_type);
 
   llvm::Value *result = nullptr;
@@ -1624,7 +1624,8 @@ cargo::optional<Error> Builder::create<OpSpecConstantOp>(
         indexes.push_back(index);
       }
 
-      auto elementType = module.getType(pointerTy->getTypePointer()->Type());
+      auto elementType =
+          module.getLLVMType(pointerTy->getTypePointer()->Type());
       SPIRV_LL_ASSERT_PTR(elementType);
       if (elementType->isStructTy()) {
         checkMemberDecorations(elementType, indexes, op->IdResult());
@@ -1680,8 +1681,8 @@ static std::optional<std::pair<uint32_t, const char *>> getLinkage(
 template <>
 cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
   // get function type
-  llvm::FunctionType *function_type =
-      llvm::dyn_cast<llvm::FunctionType>(module.getType(op->FunctionType()));
+  auto *function_type = llvm::dyn_cast<llvm::FunctionType>(
+      module.getLLVMType(op->FunctionType()));
 
   SPIRV_LL_ASSERT_PTR(function_type);
 
@@ -2075,7 +2076,7 @@ cargo::optional<Error> Builder::create<OpFunctionParameter>(
       } else if (arg->getType()->isPointerTy()) {
         auto *ty = module.get<OpType>(op->IdResultType());
         SPIRV_LL_ASSERT(ty->isPointerType(), "Parameter is not a pointer");
-        auto *paramTy = module.getType(ty->getTypePointer()->Type());
+        auto *paramTy = module.getLLVMType(ty->getTypePointer()->Type());
         SPIRV_LL_ASSERT_PTR(paramTy);
         switch (funcParamAttr->getValueAtOffset(3)) {
           case spv::FunctionParameterAttributeByVal:
@@ -2177,7 +2178,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     // If we haven't found a known pointer, keep trying.
     auto argTyOp = module.get<OpTypePointer>(argTyID);
     auto pointeeTyID = argTyOp->getTypePointer()->Type();
-    auto *pointeeTy = module.getType(pointeeTyID);
+    auto *pointeeTy = module.getLLVMType(pointeeTyID);
 
     return retrieveArgTyMetadata(module, pointeeTy, pointeeTyID, isBaseTyName) +
            '*';
@@ -2190,7 +2191,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
   }
   if (argTy->isVectorTy()) {
     auto *const elemTy = multi_llvm::getVectorElementType(argTy);
-    auto const opElem = module.get<OpCode>(elemTy);
+    auto const opElem = module.getFromLLVMTy<OpCode>(elemTy);
     auto const name = getScalarTypeName(elemTy, opElem);
     auto const numElements =
         std::to_string(multi_llvm::getVectorNumElements(argTy));
@@ -2204,7 +2205,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     return structName;
   }
   if (argTy->isIntegerTy()) {
-    auto argTyOp = module.get<OpType>(argTy);
+    auto argTyOp = module.getFromLLVMTy<OpType>(argTy);
     return getScalarTypeName(argTy, argTyOp);
   }
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
@@ -2238,7 +2239,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     SPIRV_LL_ABORT("Unknown Target Extension Type");
   }
 #endif
-  auto argOp = module.get<OpCode>(argTy);
+  auto argOp = module.getFromLLVMTy<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
 }  // namespace
@@ -2381,11 +2382,11 @@ cargo::optional<Error> Builder::create<OpFunctionCall>(
     //   Note: A forward call is possible because there is no missing type
     //   information: Result Type must match the Return Type of the function,
     //   and the calling argument types must match the formal parameter types.
-    llvm::Type *resultType = module.getType(op->IdResultType());
+    llvm::Type *resultType = module.getLLVMType(op->IdResultType());
     for (unsigned i = 0; i < n_args; ++i) {
       auto *const spv_ty = module.getResultType(op->Arguments()[i]);
       SPIRV_LL_ASSERT_PTR(spv_ty);
-      auto *const llvm_ty = module.getType(spv_ty->IdResult());
+      auto *const llvm_ty = module.getLLVMType(spv_ty->IdResult());
       SPIRV_LL_ASSERT_PTR(llvm_ty);
       paramTypes.push_back(llvm_ty);
     }
@@ -2471,12 +2472,12 @@ cargo::optional<Error> Builder::create<OpFunctionCall>(
 
 template <>
 cargo::optional<Error> Builder::create<OpVariable>(const OpVariable *op) {
-  llvm::Type *varPtrTy = module.getType(op->IdResultType());
+  llvm::Type *varPtrTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(varPtrTy);
 
   auto *resultTy = module.get<OpTypePointer>(op->IdResultType());
   SPIRV_LL_ASSERT(resultTy, "Result type is not a pointer");
-  auto varTy = module.getType(resultTy->getTypePointer()->Type());
+  auto varTy = module.getLLVMType(resultTy->getTypePointer()->Type());
 
   llvm::Constant *initializer = nullptr;
   if (op->wordCount() > 4) {
@@ -2750,7 +2751,7 @@ cargo::optional<Error> Builder::create<OpImageTexelPointer>(
 template <>
 cargo::optional<Error> Builder::create<OpLoad>(const OpLoad *op) {
   llvm::Value *ptr = module.getValue(op->Pointer());
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(ptr);
 
@@ -2842,7 +2843,8 @@ cargo::optional<Error> Builder::create<OpCopyMemory>(const OpCopyMemory *op) {
       sourceOpType->isPointerType() && targetOpType->isPointerType(),
       "Source and Target are not pointers");
 
-  auto *pointeeType = module.getType(sourceOpType->getTypePointer()->Type());
+  auto *pointeeType =
+      module.getLLVMType(sourceOpType->getTypePointer()->Type());
 
   SPIRV_LL_ASSERT(sourceOpType->getTypePointer()->Type() ==
                       targetOpType->getTypePointer()->Type(),
@@ -2904,7 +2906,7 @@ cargo::optional<Error> Builder::create<OpCopyMemorySized>(
   SPIRV_LL_ASSERT(targetOpType && targetOpType->isPointerType(),
                   "Target is not a pointer type");
   llvm::Type *targetElementType =
-      module.getType(targetOpType->getTypePointer()->Type());
+      module.getLLVMType(targetOpType->getTypePointer()->Type());
   if (sourceGlobal && sourceGlobal->isConstant() &&
       sourceGlobal->getInitializer() &&
       sourceGlobal->getInitializer()->getType()->isArrayTy() &&
@@ -2956,7 +2958,7 @@ cargo::optional<Error> Builder::create<OpAccessChain>(const OpAccessChain *op) {
   SPIRV_LL_ASSERT(baseTy && baseTy->isPointerType(),
                   "Base is not a pointer type");
 
-  auto *basePointeeTy = module.getType(baseTy->getTypePointer()->Type());
+  auto *basePointeeTy = module.getLLVMType(baseTy->getTypePointer()->Type());
   auto inst = llvm::GetElementPtrInst::Create(basePointeeTy, base, indexes,
                                               module.getName(op->IdResult()),
                                               IRBuilder.GetInsertBlock());
@@ -2985,7 +2987,7 @@ cargo::optional<Error> Builder::create<OpInBoundsAccessChain>(
   SPIRV_LL_ASSERT(baseTy && baseTy->isPointerType(),
                   "Base is not a pointer type");
 
-  auto *basePointeeTy = module.getType(baseTy->getTypePointer()->Type());
+  auto *basePointeeTy = module.getLLVMType(baseTy->getTypePointer()->Type());
   llvm::GetElementPtrInst *inst = llvm::GetElementPtrInst::Create(
       basePointeeTy, base, indexes, module.getName(op->IdResult()),
       IRBuilder.GetInsertBlock());
@@ -3019,7 +3021,7 @@ cargo::optional<Error> Builder::create<OpPtrAccessChain>(
   SPIRV_LL_ASSERT(baseTy && baseTy->isPointerType(),
                   "Base is not a pointer type");
 
-  auto *basePointeeTy = module.getType(baseTy->getTypePointer()->Type());
+  auto *basePointeeTy = module.getLLVMType(baseTy->getTypePointer()->Type());
   llvm::GetElementPtrInst *inst = llvm::GetElementPtrInst::Create(
       basePointeeTy, base, indexes, module.getName(op->IdResult()),
       IRBuilder.GetInsertBlock());
@@ -3132,7 +3134,7 @@ cargo::optional<Error> Builder::create<OpInBoundsPtrAccessChain>(
   SPIRV_LL_ASSERT(baseTy && baseTy->isPointerType(),
                   "Base is not a pointer type");
 
-  auto *basePointeeTy = module.getType(baseTy->getTypePointer()->Type());
+  auto *basePointeeTy = module.getLLVMType(baseTy->getTypePointer()->Type());
   llvm::GetElementPtrInst *inst = llvm::GetElementPtrInst::Create(
       basePointeeTy, base, indexes, module.getName(op->IdResult()),
       IRBuilder.GetInsertBlock());
@@ -3259,7 +3261,7 @@ cargo::optional<Error> Builder::create<OpVectorShuffle>(
 template <>
 cargo::optional<Error> Builder::create<OpCompositeConstruct>(
     const OpCompositeConstruct *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::SmallVector<llvm::Value *, 4> constituents;
@@ -3378,7 +3380,7 @@ cargo::optional<Error> Builder::create<OpCopyObject>(const OpCopyObject *op) {
   auto *opTy = module.getResultType(op->Operand());
   SPIRV_LL_ASSERT_PTR(opTy);
   if (opTy->isPointerType()) {
-    auto *pointeeTy = module.getType(opTy->getTypePointer()->Type());
+    auto *pointeeTy = module.getLLVMType(opTy->getTypePointer()->Type());
     SPIRV_LL_ASSERT_PTR(pointeeTy);
     new_object = IRBuilder.CreateAlloca(pointeeTy);
 
@@ -3418,7 +3420,7 @@ cargo::optional<Error> Builder::create<OpSampledImage>(
     auto *formalSamplerOpTy = module.getResultType(op->Sampler());
     SPIRV_LL_ASSERT_PTR(formalSamplerOpTy);
     auto formalSamplerTyID = formalSamplerOpTy->IdResult();
-    auto *formalSamplerTy = module.getType(formalSamplerTyID);
+    auto *formalSamplerTy = module.getLLVMType(formalSamplerTyID);
     SPIRV_LL_ASSERT(sampler->getType() && sampler->getType()->isIntegerTy(32),
                     "Internal sampler error");
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
@@ -3449,7 +3451,7 @@ cargo::optional<Error> Builder::create<OpImageSampleImplicitLod>(
 template <>
 cargo::optional<Error> Builder::create<OpImageSampleExplicitLod>(
     const OpImageSampleExplicitLod *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   Module::SampledImage sampledImage =
@@ -3544,7 +3546,7 @@ cargo::optional<Error> Builder::create<OpImageDrefGather>(
 
 template <>
 cargo::optional<Error> Builder::create<OpImageRead>(const OpImageRead *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto image = module.getValue(op->Image());
@@ -3594,7 +3596,7 @@ cargo::optional<Error> Builder::create<OpImage>(const OpImage *op) {
 template <>
 cargo::optional<Error> Builder::create<OpImageQueryFormat>(
     const OpImageQueryFormat *op) {
-  llvm::Type *resultType = module.getType(op->IdResultType());
+  llvm::Type *resultType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(resultType);
 
   llvm::Value *image = module.getValue(op->Image());
@@ -3611,7 +3613,7 @@ cargo::optional<Error> Builder::create<OpImageQueryFormat>(
 template <>
 cargo::optional<Error> Builder::create<OpImageQueryOrder>(
     const OpImageQueryOrder *op) {
-  llvm::Type *resultType = module.getType(op->IdResultType());
+  llvm::Type *resultType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(resultType);
 
   llvm::Value *image = module.getValue(op->Image());
@@ -3628,7 +3630,7 @@ cargo::optional<Error> Builder::create<OpImageQueryOrder>(
 template <>
 cargo::optional<Error> Builder::create<OpImageQuerySizeLod>(
     const OpImageQuerySizeLod *op) {
-  llvm::Type *returnType = module.getType(op->IdResultType());
+  llvm::Type *returnType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(returnType);
 
   llvm::Type *returnScalarType = returnType->getScalarType();
@@ -3766,7 +3768,7 @@ cargo::optional<Error> Builder::create<OpImageQuerySamples>(
 
 template <>
 cargo::optional<Error> Builder::create<OpConvertFToU>(const OpConvertFToU *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->FloatValue());
@@ -3782,7 +3784,7 @@ cargo::optional<Error> Builder::create<OpConvertFToU>(const OpConvertFToU *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpConvertFToS>(const OpConvertFToS *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->FloatValue());
@@ -3798,7 +3800,7 @@ cargo::optional<Error> Builder::create<OpConvertFToS>(const OpConvertFToS *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpConvertSToF>(const OpConvertSToF *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->SignedValue());
@@ -3814,7 +3816,7 @@ cargo::optional<Error> Builder::create<OpConvertSToF>(const OpConvertSToF *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpConvertUToF>(const OpConvertUToF *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->UnsignedValue());
@@ -3829,7 +3831,7 @@ cargo::optional<Error> Builder::create<OpConvertUToF>(const OpConvertUToF *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpUConvert>(const OpUConvert *op) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->UnsignedValue());
@@ -3843,7 +3845,7 @@ cargo::optional<Error> Builder::create<OpUConvert>(const OpUConvert *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpSConvert>(const OpSConvert *op) {
-  llvm::Type *retTy = module.getType(op->IdResultType());
+  llvm::Type *retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   llvm::Value *value = module.getValue(op->SignedValue());
@@ -3860,7 +3862,7 @@ cargo::optional<Error> Builder::create<OpFConvert>(const OpFConvert *op) {
   llvm::Value *value = module.getValue(op->FloatValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   module.addID(op->IdResult(), op,
@@ -3875,7 +3877,7 @@ cargo::optional<Error> Builder::create<OpQuantizeToF16>(
   llvm::Value *val = module.getValue(op->Value());
   SPIRV_LL_ASSERT_PTR(val);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   module.addID(
@@ -3891,7 +3893,7 @@ cargo::optional<Error> Builder::create<OpConvertPtrToU>(
   llvm::Value *value = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = IRBuilder.CreatePtrToInt(value, type);
@@ -3905,7 +3907,7 @@ cargo::optional<Error> Builder::create<OpSatConvertSToU>(
   SPIRV_LL_ASSERT(module.hasCapability(spv::CapabilityKernel),
                   "Kernel capability not enabled");
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->SignedValue());
@@ -3926,7 +3928,7 @@ cargo::optional<Error> Builder::create<OpSatConvertUToS>(
   SPIRV_LL_ASSERT(module.hasCapability(spv::CapabilityKernel),
                   "Kernel capability not enabled");
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto value = module.getValue(op->UnsignedValue());
@@ -3949,7 +3951,7 @@ cargo::optional<Error> Builder::create<OpConvertUToPtr>(
   llvm::Value *value = module.getValue(op->IntegerValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = IRBuilder.CreateIntToPtr(value, type);
@@ -3963,7 +3965,7 @@ cargo::optional<Error> Builder::create<OpPtrCastToGeneric>(
   llvm::Value *value = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = IRBuilder.CreatePointerCast(value, type);
@@ -3977,7 +3979,7 @@ cargo::optional<Error> Builder::create<OpGenericCastToPtr>(
   llvm::Value *value = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = IRBuilder.CreatePointerCast(value, type);
@@ -3991,7 +3993,7 @@ cargo::optional<Error> Builder::create<OpGenericCastToPtrExplicit>(
   llvm::Value *value = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = IRBuilder.CreatePointerCast(value, type);
@@ -4004,7 +4006,7 @@ cargo::optional<Error> Builder::create<OpBitcast>(const OpBitcast *op) {
   llvm::Value *value = module.getValue(op->Operand());
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = IRBuilder.CreateBitCast(value, type);
@@ -4201,7 +4203,7 @@ cargo::optional<Error> Builder::create<OpSRem>(const OpSRem *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpSMod>(const OpSMod *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *lhs = module.getValue(op->Operand1());
@@ -4234,7 +4236,7 @@ cargo::optional<Error> Builder::create<OpFRem>(const OpFRem *op) {
 
   llvm::Value *result = nullptr;
 
-  llvm::Type *resultType = module.getType(op->IdResultType());
+  llvm::Type *resultType = module.getLLVMType(op->IdResultType());
   result =
       createMangledBuiltinCall("fmod", resultType, op->IdResultType(),
                                {lhs, rhs}, {op->Operand1(), op->Operand2()});
@@ -4244,7 +4246,7 @@ cargo::optional<Error> Builder::create<OpFRem>(const OpFRem *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpFMod>(const OpFMod *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *lhs = module.getValue(op->Operand1());
@@ -4254,7 +4256,7 @@ cargo::optional<Error> Builder::create<OpFMod>(const OpFMod *op) {
   SPIRV_LL_ASSERT_PTR(rhs);
 
   llvm::Value *result = nullptr;
-  llvm::Type *resultType = module.getType(op->IdResultType());
+  llvm::Type *resultType = module.getLLVMType(op->IdResultType());
   result =
       createMangledBuiltinCall("fmod", resultType, op->IdResultType(),
                                {lhs, rhs}, {op->Operand1(), op->Operand2()});
@@ -4276,8 +4278,8 @@ cargo::optional<Error> Builder::create<OpVectorTimesScalar>(
   llvm::Value *vectorValue = module.getValue(op->Vector());
   SPIRV_LL_ASSERT_PTR(vectorValue);
 
-  auto vectorType =
-      llvm::dyn_cast<llvm::FixedVectorType>(module.getType(op->IdResultType()));
+  auto *vectorType = llvm::dyn_cast<llvm::FixedVectorType>(
+      module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(vectorType);
 
   llvm::Value *splatVector =
@@ -4324,7 +4326,7 @@ cargo::optional<Error> Builder::create<OpOuterProduct>(const OpOuterProduct *) {
 
 template <>
 cargo::optional<Error> Builder::create<OpDot>(const OpDot *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *lhs = module.getValue(op->Vector1());
@@ -4352,7 +4354,7 @@ cargo::optional<Error> Builder::create<OpIAddCarry>(const OpIAddCarry *op) {
   llvm::Type *operandType = rhs->getType();
 
   llvm::StructType *resultType =
-      llvm::dyn_cast<llvm::StructType>(module.getType(op->IdResultType()));
+      llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(resultType);
 
   std::string functionName;
@@ -4410,7 +4412,7 @@ cargo::optional<Error> Builder::create<OpISubBorrow>(const OpISubBorrow *op) {
   llvm::Type *operandType = rhs->getType();
 
   llvm::StructType *resultType =
-      llvm::dyn_cast<llvm::StructType>(module.getType(op->IdResultType()));
+      llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(resultType);
 
   std::string functionName;
@@ -4479,7 +4481,7 @@ cargo::optional<Error> Builder::create<OpUMulExtended>(
   llvm::Value *highOrderBits = IRBuilder.CreateAnd(highOrderBitsMask, mul);
 
   llvm::StructType *type =
-      llvm::dyn_cast<llvm::StructType>(module.getType(op->IdResultType()));
+      llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = llvm::ConstantStruct::get(
@@ -4515,7 +4517,7 @@ cargo::optional<Error> Builder::create<OpSMulExtended>(
   llvm::Value *highOrderBits = IRBuilder.CreateAnd(highOrderBitsMask, mul);
 
   llvm::StructType *type =
-      llvm::dyn_cast<llvm::StructType>(module.getType(op->IdResultType()));
+      llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *result = llvm::ConstantStruct::get(
@@ -4531,7 +4533,7 @@ cargo::optional<Error> Builder::create<OpSMulExtended>(
 
 template <>
 cargo::optional<Error> Builder::create<OpAny>(const OpAny *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *vector = module.getValue(op->Vector());
@@ -4562,7 +4564,7 @@ cargo::optional<Error> Builder::create<OpAny>(const OpAny *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpAll>(const OpAll *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *vector = module.getValue(op->Vector());
@@ -4593,7 +4595,7 @@ cargo::optional<Error> Builder::create<OpAll>(const OpAll *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpIsNan>(const OpIsNan *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4613,7 +4615,7 @@ cargo::optional<Error> Builder::create<OpIsNan>(const OpIsNan *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpIsInf>(const OpIsInf *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4633,7 +4635,7 @@ cargo::optional<Error> Builder::create<OpIsInf>(const OpIsInf *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpIsFinite>(const OpIsFinite *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4653,7 +4655,7 @@ cargo::optional<Error> Builder::create<OpIsFinite>(const OpIsFinite *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpIsNormal>(const OpIsNormal *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4673,7 +4675,7 @@ cargo::optional<Error> Builder::create<OpIsNormal>(const OpIsNormal *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpSignBitSet>(const OpSignBitSet *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4694,7 +4696,7 @@ cargo::optional<Error> Builder::create<OpSignBitSet>(const OpSignBitSet *op) {
 template <>
 cargo::optional<Error> Builder::create<OpLessOrGreater>(
     const OpLessOrGreater *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4717,7 +4719,7 @@ cargo::optional<Error> Builder::create<OpLessOrGreater>(
 
 template <>
 cargo::optional<Error> Builder::create<OpOrdered>(const OpOrdered *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -4740,7 +4742,7 @@ cargo::optional<Error> Builder::create<OpOrdered>(const OpOrdered *op) {
 
 template <>
 cargo::optional<Error> Builder::create<OpUnordered>(const OpUnordered *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *x = module.getValue(op->x());
@@ -5244,7 +5246,7 @@ cargo::optional<Error> Builder::create<OpNot>(const OpNot *op) {
 template <>
 cargo::optional<Error> Builder::create<OpBitFieldInsert>(
     const OpBitFieldInsert *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *base = module.getValue(op->Base());
@@ -5294,7 +5296,7 @@ cargo::optional<Error> Builder::create<OpBitFieldInsert>(
 template <>
 cargo::optional<Error> Builder::create<OpBitFieldSExtract>(
     const OpBitFieldSExtract *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *base = module.getValue(op->Base());
@@ -5336,7 +5338,7 @@ cargo::optional<Error> Builder::create<OpBitFieldSExtract>(
 template <>
 cargo::optional<Error> Builder::create<OpBitFieldUExtract>(
     const OpBitFieldUExtract *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *base = module.getValue(op->Base());
@@ -5383,7 +5385,7 @@ cargo::optional<Error> Builder::create<OpBitReverse>(const OpBitReverse *) {
 
 template <>
 cargo::optional<Error> Builder::create<OpBitCount>(const OpBitCount *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   llvm::Value *base = module.getValue(op->Base());
@@ -5632,7 +5634,7 @@ cargo::optional<Error> Builder::create<OpAtomicLoad>(const OpAtomicLoad *op) {
   auto semantics = module.getValue(op->Semantics());
   SPIRV_LL_ASSERT_PTR(semantics);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(
@@ -5670,7 +5672,7 @@ cargo::optional<Error> Builder::create<OpAtomicExchange>(
     const OpAtomicExchange *op) {
   const auto retOp = op->IdResultType();
   // Atomic exchange can work on floats or integers.
-  const auto *const type = module.getType(retOp);
+  const auto *const type = module.getLLVMType(retOp);
   const auto is_signed =
       !type->isFloatingPointTy() && module.get<OpTypeInt>(retOp)->Signedness();
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_xchg",
@@ -5687,7 +5689,7 @@ cargo::optional<Error> Builder::create<OpAtomicCompareExchange>(
   // storage class Function is valid but undefined behaviour, so just return the
   // orginal value as the instruction should
   if (pointer->getType()->getPointerAddressSpace() == 0) {
-    auto *resultTy = module.getType(op->IdResultType());
+    auto *resultTy = module.getLLVMType(op->IdResultType());
     module.addID(op->IdResult(), op, IRBuilder.CreateLoad(resultTy, pointer));
     return cargo::nullopt;
   }
@@ -5698,7 +5700,7 @@ cargo::optional<Error> Builder::create<OpAtomicCompareExchange>(
   auto cmp = module.getValue(op->Comparator());
   SPIRV_LL_ASSERT_PTR(cmp);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(
@@ -5724,7 +5726,7 @@ cargo::optional<Error> Builder::create<OpAtomicIIncrement>(
   llvm::Value *pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
-  llvm::Type *retTy = module.getType(op->IdResultType());
+  llvm::Type *retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(op->IdResult(), op,
@@ -5740,7 +5742,7 @@ cargo::optional<Error> Builder::create<OpAtomicIDecrement>(
   llvm::Value *pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
-  llvm::Type *retTy = module.getType(op->IdResultType());
+  llvm::Type *retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(op->IdResult(), op,
@@ -5761,14 +5763,14 @@ void Builder::generateBinaryAtomic(const OpResult *op, spv::Id pointerID,
   if (pointer->getType()->getPointerAddressSpace() == 0) {
     module.addID(
         op->IdResult(), op,
-        IRBuilder.CreateLoad(module.getType(op->IdResultType()), pointer));
+        IRBuilder.CreateLoad(module.getLLVMType(op->IdResultType()), pointer));
     return;
   }
 
   auto value = module.getValue(valueID);
   SPIRV_LL_ASSERT_PTR(value);
 
-  llvm::Type *retTy = module.getType(op->IdResultType());
+  llvm::Type *retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   llvm::Type *value_type = value->getType();
@@ -5876,7 +5878,7 @@ cargo::optional<Error> Builder::create<OpAtomicXor>(const OpAtomicXor *op) {
 template <>
 cargo::optional<Error> Builder::create<OpPhi>(const OpPhi *op) {
   const unsigned num_values = op->wordCount() - 3;
-  llvm::Type *result_ty = module.getType(op->IdResultType());
+  llvm::Type *result_ty = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(result_ty);
 
   llvm::PHINode *phi = IRBuilder.CreatePHI(result_ty, num_values);
@@ -6137,7 +6139,7 @@ cargo::optional<Error> Builder::create<OpLifetimeStop>(
 template <>
 cargo::optional<Error> Builder::create<OpGroupAsyncCopy>(
     const OpGroupAsyncCopy *op) {
-  llvm::Type *eventTy = module.getType(op->IdResultType());
+  llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(eventTy);
 
   llvm::Value *dst = module.getValue(op->Destination());
@@ -6190,7 +6192,7 @@ cargo::optional<Error> Builder::create<OpGroupWaitEvents>(
 template <typename T>
 void Builder::generateReduction(const T *op, const std::string &opName,
                                 MangleInfo::ForceSignInfo signInfo) {
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   auto *const execution = module.getValue(op->Execution());
@@ -6318,7 +6320,7 @@ void Builder::generateReduction(const T *op, const std::string &opName,
 template <typename T>
 void Builder::generatePredicate(const T *op, const std::string &opName) {
   // Result Type must be a boolean type, which maps to an i1 in LLVM IR.
-  auto *const retTy = module.getType(op->IdResultType());
+  auto *const retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
   SPIRV_LL_ASSERT(retTy == IRBuilder.getInt1Ty(),
                   "return type is not a boolean");
@@ -6441,7 +6443,7 @@ cargo::optional<Error> Builder::create<OpGroupBroadcast>(
     const OpGroupBroadcast *op) {
   // Result Type must be a scalar or vector or floating-point type, integer type
   // or boolean type.
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
   SPIRV_LL_ASSERT(retTy->isIntegerTy() || retTy->isFloatingPointTy(),
                   "return type is not float, integer or boolean");
@@ -6763,7 +6765,7 @@ cargo::optional<Error> Builder::create<OpSubgroupShuffle>(
   auto *invocation_id = module.getValue(op->InvocationId());
   SPIRV_LL_ASSERT_PTR(invocation_id);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
@@ -6788,7 +6790,7 @@ cargo::optional<Error> Builder::create<OpSubgroupShuffleUp>(
   auto *delta = module.getValue(op->Delta());
   SPIRV_LL_ASSERT_PTR(delta);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
@@ -6813,7 +6815,7 @@ cargo::optional<Error> Builder::create<OpSubgroupShuffleDown>(
   auto *delta = module.getValue(op->Delta());
   SPIRV_LL_ASSERT_PTR(delta);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
@@ -6835,7 +6837,7 @@ cargo::optional<Error> Builder::create<OpSubgroupShuffleXor>(
   auto *value = module.getValue(op->Value());
   SPIRV_LL_ASSERT_PTR(value);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   muxBuiltinName += compiler::utils::BuiltinInfo::getMangledTypeStr(retTy);
@@ -7173,7 +7175,7 @@ cargo::optional<Error> Builder::create<OpAtomicFlagTestAndSet>(
   auto semantics = module.getValue(op->Semantics());
   SPIRV_LL_ASSERT_PTR(semantics);
 
-  auto retTy = module.getType(op->IdResultType());
+  auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
   module.addID(
@@ -7224,7 +7226,7 @@ cargo::optional<Error> Builder::create<OpAssumeTrueKHR>(
 
 template <>
 cargo::optional<Error> Builder::create<OpExpectKHR>(const OpExpectKHR *op) {
-  llvm::Type *type = module.getType(op->IdResultType());
+  llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
   auto value = module.getValue(op->Value());
