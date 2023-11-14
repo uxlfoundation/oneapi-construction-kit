@@ -2238,6 +2238,7 @@ function(ca_assemble_spirv_ll_lit_test)
     # Generate .spv from .spvasm source.
     file(RELATIVE_PATH spvOut ${CMAKE_BINARY_DIR} ${spv})
     add_custom_command(OUTPUT ${spv}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${dir}
       COMMAND spirv::spirv-as --target-env ${args_TGT_ENV} -o ${spv} ${spvasm}
       DEPENDS spirv::spirv-as ${spvasm}
       COMMENT "Building SPIR-V ${spvOut}")
