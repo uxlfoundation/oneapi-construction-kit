@@ -40,6 +40,6 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-; CHECK: store float 0.000000e+00, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = alloca float
+; CHECK: store float 0.000000e+00, ptr {{[%@].*}}
 ; CHECK: ret void

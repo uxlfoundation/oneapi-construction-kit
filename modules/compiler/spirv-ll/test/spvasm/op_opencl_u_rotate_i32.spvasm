@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @u_rotate_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %i32_t %1 rotate %i32_2 %i32_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z6rotatejj(i32 2, i32 4)
+; CHECK: = call spir_func i32 @_Z6rotatejj(i32 2, i32 4)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

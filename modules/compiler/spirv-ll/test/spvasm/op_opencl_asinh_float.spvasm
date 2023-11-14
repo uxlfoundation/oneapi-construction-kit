@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @asinh_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 asinh %float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5asinhf(float 1.000000e+00)
+; CHECK: = call spir_func float @_Z5asinhf(float 1.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

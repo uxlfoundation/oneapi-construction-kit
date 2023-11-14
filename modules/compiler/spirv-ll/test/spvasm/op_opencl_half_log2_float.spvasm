@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @half_log2_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 half_log2 %float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z9half_log2f(float 0x3FF6666660000000)
+; CHECK: = call spir_func float @_Z9half_log2f(float 0x3FF6666660000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

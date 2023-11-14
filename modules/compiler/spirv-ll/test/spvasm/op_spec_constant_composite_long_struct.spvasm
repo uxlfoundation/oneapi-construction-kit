@@ -44,7 +44,7 @@
                 %idx_type = OpTypeInt 32 0
                      %Foo = OpTypeStruct %long
               %test_block = OpTypeStruct %Foo
-; CHECK: [[uniforms:%[a-zA-Z0-9_]+]] = type { [[uniformStruct:%[a-zA-Z0-9_]+]] }
+; CHECK: [[uniforms:%.*]] = type { [[uniformStruct:%.*]] }
 ; CHECK: [[uniformStruct]] = type { i64 }
  %_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
                        %_ = OpVariable %_ptr_Uniform_test_block Uniform

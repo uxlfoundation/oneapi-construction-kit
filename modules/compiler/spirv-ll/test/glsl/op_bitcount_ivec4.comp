@@ -26,11 +26,11 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x i32>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <4 x i32>
-// CHECK: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x i32> @_Z8popcountDv4_i(<4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store <4 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca <4 x i32>
+// CHECK: = alloca <4 x i32>
+// CHECK: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, ptr {{[%@].*}}
+// CHECK: = load <4 x i32>, ptr {{[%@].*}}
+// CHECK: = call spir_func <4 x i32> @_Z8popcountDv4_i(<4 x i32> {{[%@].*}})
+// CHECK: store <4 x i32> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <4 x i32> @_Z8popcountDv4_i(<4 x i32>)

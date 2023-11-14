@@ -47,10 +47,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-; CHECK: store i32 -42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = bitcast i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to float
-; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = alloca i32
+; CHECK: = alloca float
+; CHECK: store i32 -42, ptr {{[%@].*}}
+; CHECK: = load i32, ptr {{[%@].*}}
+; CHECK: = bitcast i32 {{[%@].*}} to float
+; CHECK: store float {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

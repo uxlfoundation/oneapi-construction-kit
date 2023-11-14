@@ -53,19 +53,19 @@
 ; of variable are covered: we have global and local OpFunctionParameters, a
 ; function scope OpVariable and a couple of OpVariables that represent work item
 ; builtins.
-; CHECK: define spir_kernel void @test(ptr{{( %[a-zA-Z0-9]+)?}}, ptr{{( %[a-zA-Z0-9]+)?}}, ptr{{( %[a-zA-Z0-9]+)?}})
+; CHECK: define spir_kernel void @test(ptr{{( %.*)?}}, ptr{{( %.*)?}}, ptr{{( %.*)?}})
          %11 = OpFunction %void DontInline %10
         %src = OpFunctionParameter %_ptr_Generic_uint
         %dst = OpFunctionParameter %_ptr_Generic_uint
   %localBuff = OpFunctionParameter %_ptr_Generic_uint
       %entry = OpLabel
-; CHECK: {{%[a-zA-Z0-9]+}} = alloca i32, align 4
+; CHECK: = alloca i32, align 4
       %index = OpVariable %_ptr_Generic_uint Generic
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z12get_local_idj(i32 {{%[a-zA-Z0-9]+}})
+; CHECK: = call spir_func i64 @_Z12get_local_idj(i32 {{%.*}})
          %23 = OpLoad %v3ulong %__spirv_BuiltInLocalInvocationId
        %call = OpCompositeExtract %ulong %23 0
         %lid = OpUConvert %uint %call
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i64 @_Z13get_global_idj(i32 {{%[a-zA-Z0-9]+}})
+; CHECK: = call spir_func i64 @_Z13get_global_idj(i32 {{%.*}})
          %26 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
          %24 = OpCompositeExtract %ulong %26 0
         %gid = OpUConvert %uint %24
@@ -86,9 +86,9 @@
          %51 = OpLoad %uint %index Aligned 4
    %idxprom7 = OpSConvert %ulong %51
 ; Finally check the end result of the kernel is what we expect
-; CHECK: {{%[a-zA-Z0-9]+}} = getelementptr inbounds i32, ptr {{%[a-zA-Z0-9]+}}, i64 {{%[a-zA-Z0-9]+}}
+; CHECK: = getelementptr inbounds i32, ptr {{%.*}}, i64 {{%.*}}
   %arrayidx8 = OpInBoundsPtrAccessChain %_ptr_Generic_uint %dst %idxprom7
-; store i32 {{%[a-zA-Z0-9]+}}, i32* {{%[a-zA-Z0-9]+}}, align 4
+; store i32 {{%.*}}, i32* {{%.*}}, align 4
                OpStore %arrayidx8 %49 Aligned 4
                OpReturn
                OpFunctionEnd

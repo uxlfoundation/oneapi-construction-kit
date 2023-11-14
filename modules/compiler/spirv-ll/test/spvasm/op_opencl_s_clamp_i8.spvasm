@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @s_clamp_i8()
                    %2 = OpLabel
                    %3 = OpExtInst %i8_t %1 s_clamp %i8_1 %i8_2 %i8_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func signext i8 @_Z5clampccc(i8 signext 1, i8 signext 2, i8 signext 3)
+; CHECK: = call spir_func signext i8 @_Z5clampccc(i8 signext 1, i8 signext 2, i8 signext 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

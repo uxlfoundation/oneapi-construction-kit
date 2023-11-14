@@ -43,9 +43,9 @@
 ; CHECK: define spir_kernel void @remquo_v16float()
                    %2 = OpLabel
                    %3 = OpVariable %v16int_ptr_t Function
-; CHECK: [[quo:%[a-zA-Z0-9]+]] = alloca <16 x i32>
+; CHECK: [[quo:%.*]] = alloca <16 x i32>
                    %4 = OpExtInst %v16float_t %1 remquo %v16float_2 %v16float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z6remquoDv16_fS_PDv16_i(<16 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <16 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
+; CHECK: = call spir_func <16 x float> @_Z6remquoDv16_fS_PDv16_i(<16 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <16 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

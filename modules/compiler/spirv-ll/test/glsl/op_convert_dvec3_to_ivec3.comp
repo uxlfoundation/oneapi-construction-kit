@@ -27,10 +27,10 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: [[FROM:%[a-zA-Z0-9_]+]] = alloca <3 x double>
-// CHECK: [[TO:%[a-zA-Z0-9_]+]] = alloca <3 x i32>
+// CHECK: [[FROM:%.*]] = alloca <3 x double>
+// CHECK: [[TO:%.*]] = alloca <3 x i32>
 // CHECK: store <3 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr [[FROM]]
-// CHECK: {{%[a-zA-Z0-9_]+}} = load <3 x double>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func <3 x i32> @_Z12convert_int3Dv3_d(<3 x double> {{%[a-zA-Z0-9_]+}})
+// CHECK: = load <3 x double>, ptr {{%.*}}
+// CHECK: [[RES:%.*]] = call spir_func <3 x i32> @_Z12convert_int3Dv3_d(<3 x double> {{%.*}})
 // CHECK: store <3 x i32> [[RES]], ptr [[TO]]
 // CHECK: ret void

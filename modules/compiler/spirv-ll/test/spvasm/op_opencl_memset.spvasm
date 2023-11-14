@@ -50,6 +50,6 @@
          %19 = OpConvertUToPtr %_ptr_Function_uchar %16
          %26 = OpBitcast %_ptr_UniformConstant_uchar %24
                OpCopyMemorySized %19 %26 %ulong_4 Aligned 1
-; CHECK: call void @llvm.memset.p0.i64(ptr align 1 {{%[a-zA-Z0-9]+}}, i8 42, i64 4, i1 false)
+; CHECK: call void @llvm.memset.p0.i64(ptr align 1 {{%.*}}, i8 42, i64 4, i1 false)
                OpReturn
                OpFunctionEnd

@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @u_rhadd_v4i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i64_t %1 u_rhadd %v4i64_1 %v4i64_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i64> @_Z5rhaddDv4_mS_(<4 x i64> <i64 1, i64 1, i64 1, i64 1>, <4 x i64> <i64 2, i64 2, i64 2, i64 2>)
+; CHECK: = call spir_func <4 x i64> @_Z5rhaddDv4_mS_(<4 x i64> <i64 1, i64 1, i64 1, i64 1>, <4 x i64> <i64 2, i64 2, i64 2, i64 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

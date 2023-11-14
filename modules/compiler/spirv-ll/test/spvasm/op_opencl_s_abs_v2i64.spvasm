@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @s_abs_v2i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i64_t %1 s_abs %v2i64_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i64> @_Z3absDv2_l(<2 x i64> <i64 -2, i64 -2>)
+; CHECK: = call spir_func <2 x i64> @_Z3absDv2_l(<2 x i64> <i64 -2, i64 -2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

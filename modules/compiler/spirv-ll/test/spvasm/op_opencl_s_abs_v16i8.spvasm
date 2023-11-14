@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @s_abs_v16i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i8_t %1 s_abs %v16i8_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i8> @_Z3absDv16_c(<16 x i8> <i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2>)
+; CHECK: = call spir_func <16 x i8> @_Z3absDv16_c(<16 x i8> <i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2, i8 -2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

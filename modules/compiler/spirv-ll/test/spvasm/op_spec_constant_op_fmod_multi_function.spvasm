@@ -56,22 +56,22 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define private spir_func double @add(double{{( %0)?}}, double{{( %1)?}})
 ; CHECK: init_spec_constants:
-; CHECK: [[MOD_A:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double 4.242000e+01, double 4.242000e+01)
-; CHECK: [[SPEC_A:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_A]], double 4.242000e+01)
-; CHECK: [[MOD_B:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double [[SPEC_A]])
-; CHECK: [[SPEC_B:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_B]], double [[SPEC_A]])
-; CHECK: br label {{%[a-zA-Z0-9_]+}}
-; CHECK: [[ADD:%[a-zA-Z0-9_]+]] = fadd double {{%[a-zA-Z0-9_]+}}, {{%[a-zA-Z0-9_]+}}
-; CHECK: [[RET:%[a-zA-Z0-9_]+]] = fadd double [[ADD]], [[SPEC_B]]
+; CHECK: [[MOD_A:%.*]] = call spir_func double @_Z4fmoddd(double 4.242000e+01, double 4.242000e+01)
+; CHECK: [[SPEC_A:%.*]] = call spir_func double @_Z8copysigndd(double [[MOD_A]], double 4.242000e+01)
+; CHECK: [[MOD_B:%.*]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double [[SPEC_A]])
+; CHECK: [[SPEC_B:%.*]] = call spir_func double @_Z8copysigndd(double [[MOD_B]], double [[SPEC_A]])
+; CHECK: br label {{%.*}}
+; CHECK: [[ADD:%.*]] = fadd double {{%.*}}, {{%.*}}
+; CHECK: [[RET:%.*]] = fadd double [[ADD]], [[SPEC_B]]
 ; CHECK: ret double [[RET]]
 ; CHECK: define spir_kernel void @testfn()
 ; CHECK: init_spec_constants:
-; CHECK: [[MOD_C:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double 4.242000e+01, double 4.242000e+01)
-; CHECK: [[SPEC_C:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_C]], double 4.242000e+01)
-; CHECK: [[MOD_D:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double [[SPEC_C]])
-; CHECK: [[SPEC_D:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD_D]], double [[SPEC_C]])
-; CHECK: br label {{%[a-zA-Z0-9_]+}}
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca double
-; CHECK: [[CALL:%[a-zA-Z0-9_]+]] = call spir_func double @add(double [[SPEC_C]], double [[SPEC_D]])
+; CHECK: [[MOD_C:%.*]] = call spir_func double @_Z4fmoddd(double 4.242000e+01, double 4.242000e+01)
+; CHECK: [[SPEC_C:%.*]] = call spir_func double @_Z8copysigndd(double [[MOD_C]], double 4.242000e+01)
+; CHECK: [[MOD_D:%.*]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double [[SPEC_C]])
+; CHECK: [[SPEC_D:%.*]] = call spir_func double @_Z8copysigndd(double [[MOD_D]], double [[SPEC_C]])
+; CHECK: br label {{%.*}}
+; CHECK: [[RES:%.*]] = alloca double
+; CHECK: [[CALL:%.*]] = call spir_func double @add(double [[SPEC_C]], double [[SPEC_D]])
 ; CHECK: store double [[CALL]], ptr [[RES]]
 ; CHECK: ret void

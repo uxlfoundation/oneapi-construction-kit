@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @s_max_v2i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i32_t %1 s_max %v2i32_1 %v2i32_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z3maxDv2_iS_(<2 x i32> <i32 1, i32 1>, <2 x i32> <i32 2, i32 2>)
+; CHECK: = call spir_func <2 x i32> @_Z3maxDv2_iS_(<2 x i32> <i32 1, i32 1>, <2 x i32> <i32 2, i32 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

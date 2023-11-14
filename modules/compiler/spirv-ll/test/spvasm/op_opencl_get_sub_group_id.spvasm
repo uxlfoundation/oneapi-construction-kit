@@ -32,7 +32,7 @@
     %__spirv_BuiltInSubgroupID = OpVariable %size_ptr_t Input
           %get_sub_group_id_fn = OpFunction %void_t None %get_sub_group_id_fn_t
                             %2 = OpLabel
-;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z16get_sub_group_idv()
+;CHECK: = call spir_func i32 @_Z16get_sub_group_idv()
                           %res = OpLoad %size_t %__spirv_BuiltInSubgroupID
                                  OpReturn
                                  OpFunctionEnd

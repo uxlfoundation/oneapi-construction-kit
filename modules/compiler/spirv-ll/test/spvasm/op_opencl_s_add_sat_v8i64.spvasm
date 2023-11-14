@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @s_add_sat_v8i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i64_t %1 s_add_sat %v8i64_1 %v8i64_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i64> @_Z7add_satDv8_lS_(<8 x i64> <i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1>, <8 x i64> <i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2>)
+; CHECK: = call spir_func <8 x i64> @_Z7add_satDv8_lS_(<8 x i64> <i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1, i64 1>, <8 x i64> <i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2, i64 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

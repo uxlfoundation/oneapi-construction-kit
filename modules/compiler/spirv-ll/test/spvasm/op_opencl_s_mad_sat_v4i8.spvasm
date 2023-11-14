@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @s_mad_sat_v4i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i8_t %1 s_mad_sat %v4i8_1 %v4i8_2 %v4i8_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i8> @_Z7mad_satDv4_cS_S_(<4 x i8> <i8 1, i8 1, i8 1, i8 1>, <4 x i8> <i8 2, i8 2, i8 2, i8 2>, <4 x i8> <i8 3, i8 3, i8 3, i8 3>)
+; CHECK: = call spir_func <4 x i8> @_Z7mad_satDv4_cS_S_(<4 x i8> <i8 1, i8 1, i8 1, i8 1>, <4 x i8> <i8 2, i8 2, i8 2, i8 2>, <4 x i8> <i8 3, i8 3, i8 3, i8 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

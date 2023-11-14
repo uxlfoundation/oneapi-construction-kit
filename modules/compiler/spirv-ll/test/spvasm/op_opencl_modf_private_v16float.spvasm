@@ -39,9 +39,9 @@
 ; CHECK: define spir_kernel void @modf_v16float()
                    %2 = OpLabel
                    %3 = OpVariable %v16float_ptr_t Function
-; CHECK: [[iptr:%[a-zA-Z0-9]+]] = alloca <16 x float>
+; CHECK: [[iptr:%.*]] = alloca <16 x float>
                    %4 = OpExtInst %v16float_t %1 modf %v16float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z4modfDv16_fPS_(<16 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[iptr]])
+; CHECK: = call spir_func <16 x float> @_Z4modfDv16_fPS_(<16 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[iptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

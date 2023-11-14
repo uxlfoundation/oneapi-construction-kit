@@ -39,15 +39,15 @@
 ; CHECK: define spir_kernel void @main()
        %label = OpLabel
            %a = OpVariable %ptr_int Function
-; CHECK: [[a:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca i32
+; CHECK: [[a:%.*]] = alloca i32
            %b = OpVariable %ptr_char Function
-; CHECK: [[b:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca i8
+; CHECK: [[b:%.*]] = alloca i8
                 OpStore %a %const_1024
 ; CHECK: store i32 1024, ptr [[a]]
        %a_val = OpLoad %int %a
 ; CHECK: [[a_val:%[0-9]+]] = load i32, ptr [[a]]
        %b_val = OpSatConvertSToU %char %a_val
-; CHECK: [[b_val:%[-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = call spir_func zeroext i8 @_Z17convert_uchar_sati(i32 [[a_val]])
+; CHECK: [[b_val:%.*]] = call spir_func zeroext i8 @_Z17convert_uchar_sati(i32 [[a_val]])
                 OpStore %b %b_val
 ; CHECK: store i8 [[b_val]], ptr [[b]]
                 OpReturn

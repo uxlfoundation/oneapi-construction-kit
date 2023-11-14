@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @nan_v8float()
                    %2 = OpLabel
                    %3 = OpExtInst %v8float_t %1 nan %v8uint_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z3nanDv8_j(<8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>)
+; CHECK: = call spir_func <8 x float> @_Z3nanDv8_j(<8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

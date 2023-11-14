@@ -49,7 +49,7 @@
             %numLines = OpConstant %int64T 8
           %lineLength = OpConstant %int64T 4
 
-; CHECK: define spir_kernel void @test(ptr addrspace(1) [[in:%[a-zA-Z0-9]+]], ptr addrspace(3) [[scratch:%[a-zA-Z0-9]+]], ptr addrspace(1) [[out:%[a-zA-Z0-9]+]])
+; CHECK: define spir_kernel void @test(ptr addrspace(1) [[in:%.*]], ptr addrspace(3) [[scratch:%.*]], ptr addrspace(1) [[out:%.*]])
               %testFn = OpFunction %voidT DontInline %testFnT
                   %in = OpFunctionParameter %intGlobalPtrT
              %scratch = OpFunctionParameter %intLocalPtrT
@@ -62,8 +62,8 @@
              %inEvent = OpExtInst %eventT %groupAsyncCopies 1 %scratch %int64Zero %in %int64Zero %sizeofInt32T %numBytesPerLine %numLines %lineLength %lineLength %nullEvent
 
 
-; CHECK-GE17: {{%.*}} = call spir_func target("spirv.Event") @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, target("spirv.Event") [[inEvent]])
-; CHECK-LT17: {{%.*}} = call spir_func ptr @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, ptr [[inEvent]])
+; CHECK-GE17: = call spir_func target("spirv.Event") @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, target("spirv.Event") [[inEvent]])
+; CHECK-LT17: = call spir_func ptr @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, ptr [[inEvent]])
             %outEvent = OpExtInst %eventT %groupAsyncCopies 1 %out %int64Zero %scratch %int64Zero %sizeofInt32T %numBytesPerLine %numLines %lineLength %lineLength %inEvent
 
                         OpReturn

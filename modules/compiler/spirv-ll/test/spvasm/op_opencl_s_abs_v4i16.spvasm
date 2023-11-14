@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @s_abs_v4i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i16_t %1 s_abs %v4i16_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i16> @_Z3absDv4_s(<4 x i16> <i16 -2, i16 -2, i16 -2, i16 -2>)
+; CHECK: = call spir_func <4 x i16> @_Z3absDv4_s(<4 x i16> <i16 -2, i16 -2, i16 -2, i16 -2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

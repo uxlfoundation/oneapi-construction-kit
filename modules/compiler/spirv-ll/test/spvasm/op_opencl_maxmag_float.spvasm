@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @maxmag_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 maxmag %float_2 %float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z6maxmagff(float 0xC000CCCCC0000000, float 0x3FF3333340000000)
+; CHECK: = call spir_func float @_Z6maxmagff(float 0xC000CCCCC0000000, float 0x3FF3333340000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

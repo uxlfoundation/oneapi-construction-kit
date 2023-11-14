@@ -44,7 +44,7 @@
 ; CHECK: [[size_result:%.*]] = call spir_func i32 @_Z20get_image_array_size16ocl_image1darray([[IMG_TY]] %image)
 ; CHECK: [[v2int_idx_1:%.*]] = insertelement <2 x i32> undef, i32 [[size_result]], i32 1
 ; CHECK: [[width_result:%.*]] = call spir_func i32 @_Z15get_image_width16ocl_image1darray([[IMG_TY]] %image)
-; CHECK: {{%.*}} = insertelement <2 x i32> [[v2int_idx_1]], i32 [[width_result]], i32 0
+; CHECK: = insertelement <2 x i32> [[v2int_idx_1]], i32 [[width_result]], i32 0
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

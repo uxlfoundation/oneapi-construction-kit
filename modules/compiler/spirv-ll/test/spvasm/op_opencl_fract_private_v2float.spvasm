@@ -38,9 +38,9 @@
 ; CHECK: define spir_kernel void @fract_v2float()
                    %2 = OpLabel
                    %3 = OpVariable %v2float_ptr_t Function
-; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca <2 x float>
+; CHECK: [[ptr:%.*]] = alloca <2 x float>
                    %4 = OpExtInst %v2float_t %1 fract %v2float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z5fractDv2_fPS_(<2 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
+; CHECK: = call spir_func <2 x float> @_Z5fractDv2_fPS_(<2 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

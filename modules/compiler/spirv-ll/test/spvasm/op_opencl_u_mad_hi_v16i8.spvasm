@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @u_mad_hi_v16i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i8_t %1 u_mad_hi %v16i8_2 %v16i8_3 %v16i8_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i8> @_Z6mad_hiDv16_hS_S_(<16 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <16 x i8> <i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3>, <16 x i8> <i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4>)
+; CHECK: = call spir_func <16 x i8> @_Z6mad_hiDv16_hS_S_(<16 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <16 x i8> <i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3>, <16 x i8> <i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4, i8 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

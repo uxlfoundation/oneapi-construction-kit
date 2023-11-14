@@ -51,10 +51,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x float>
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x float>
-; CHECK: store <3 x float> <float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x float>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, i32 1
-; CHECK: store <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = alloca <3 x float>
+; CHECK: = alloca <3 x float>
+; CHECK: store <3 x float> <float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+; CHECK: = load <3 x float>, ptr {{[%@].*}}
+; CHECK: = insertelement <3 x float> {{[%@].*}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, i32 1
+; CHECK: store <3 x float> {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

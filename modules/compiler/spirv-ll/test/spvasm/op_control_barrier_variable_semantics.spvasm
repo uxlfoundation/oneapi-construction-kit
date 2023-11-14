@@ -38,7 +38,7 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @testfn()
-; CHECK: [[SEMANTICS_VAR:%[a-zA-Z0-9_]+]] = alloca i32
+; CHECK: [[SEMANTICS_VAR:%.*]] = alloca i32
 ; CHECK: store i32 272, {{(ptr|i32\*)}} [[SEMANTICS_VAR]]
-; CHECK: [[SEMANTICS:%[a-zA-Z0-9_]+]] = load i32, {{(ptr|i32\*)}} [[SEMANTICS_VAR]]
+; CHECK: [[SEMANTICS:%.*]] = load i32, {{(ptr|i32\*)}} [[SEMANTICS_VAR]]
 ; CHECK: call spir_func void @__mux_work_group_barrier(i32 0, i32 2, i32 [[SEMANTICS]])

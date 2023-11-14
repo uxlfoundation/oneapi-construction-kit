@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @s_upsample_v2i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i32_t %1 s_upsample %v2i16_3 %v2ui16_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i32> @_Z8upsampleDv2_sDv2_t(<2 x i16> <i16 3, i16 3>, <2 x i16> <i16 4, i16 4>)
+; CHECK: = call spir_func <2 x i32> @_Z8upsampleDv2_sDv2_t(<2 x i16> <i16 3, i16 3>, <2 x i16> <i16 4, i16 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

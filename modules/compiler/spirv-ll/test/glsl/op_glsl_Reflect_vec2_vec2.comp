@@ -34,9 +34,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <2 x float> @_Z7reflectDv2_fS_(<2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <2 x float> @_Z7reflectDv2_fS_(<2 x float> {{[%@].*}}, <2 x float> {{[%@].*}})
+// CHECK: store <2 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <2 x float> @_Z7reflectDv2_fS_(<2 x float>, <2 x float>)

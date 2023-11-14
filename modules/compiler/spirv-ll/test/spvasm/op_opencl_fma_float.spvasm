@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @fma_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 fma %float_2 %float_1 %float_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z3fmafff(float 2.000000e+00, float 1.000000e+00, float 3.000000e+00)
+; CHECK: = call spir_func float @_Z3fmafff(float 2.000000e+00, float 1.000000e+00, float 3.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

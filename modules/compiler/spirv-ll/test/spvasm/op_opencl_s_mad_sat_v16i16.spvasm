@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @s_mad_sat_v16i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i16_t %1 s_mad_sat %v16i16_1 %v16i16_2 %v16i16_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i16> @_Z7mad_satDv16_sS_S_(<16 x i16> <i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1>, <16 x i16> <i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2>, <16 x i16> <i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3>)
+; CHECK: = call spir_func <16 x i16> @_Z7mad_satDv16_sS_S_(<16 x i16> <i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1>, <16 x i16> <i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2>, <16 x i16> <i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

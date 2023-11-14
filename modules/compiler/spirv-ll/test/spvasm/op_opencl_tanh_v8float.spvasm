@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @tanh_v8float()
                    %2 = OpLabel
                    %3 = OpExtInst %v8float_t %1 tanh %v8float_0
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x float> @_Z4tanhDv8_f(<8 x float> <float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000>)
+; CHECK: = call spir_func <8 x float> @_Z4tanhDv8_f(<8 x float> <float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000, float 0x3FE947AE20000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

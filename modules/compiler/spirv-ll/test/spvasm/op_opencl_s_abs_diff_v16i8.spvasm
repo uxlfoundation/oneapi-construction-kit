@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @s_abs_diff_v16i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i8_t %1 s_abs_diff %v16i8_2 %v16i8_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i8> @_Z8abs_diffDv16_cS_(<16 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <16 x i8> <i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5>)
+; CHECK: = call spir_func <16 x i8> @_Z8abs_diffDv16_cS_(<16 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <16 x i8> <i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5, i8 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

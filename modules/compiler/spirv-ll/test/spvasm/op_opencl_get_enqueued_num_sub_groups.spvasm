@@ -32,7 +32,7 @@
 %__spirv_BuiltInBuiltInNumEnqueuedSubgroups = OpVariable %size_ptr_t Input
             %get_enqueued_num_sub_groups_fn = OpFunction %void_t None %get_enqueued_num_sub_groups_fn_t
                                          %2 = OpLabel
-;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z27get_enqueued_num_sub_groupsv()
+;CHECK: = call spir_func i32 @_Z27get_enqueued_num_sub_groupsv()
                                        %res = OpLoad %size_t %__spirv_BuiltInBuiltInNumEnqueuedSubgroups
                                               OpReturn
                                               OpFunctionEnd

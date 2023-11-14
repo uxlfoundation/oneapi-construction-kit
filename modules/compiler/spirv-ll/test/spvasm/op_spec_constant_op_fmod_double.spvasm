@@ -44,10 +44,10 @@
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @testfn() #0
-; CHECK: [[MOD:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double -4.242000e+01)
-; CHECK: [[SPEC:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
-; CHECK: br label {{%[a-zA-Z0-9_]+}}
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca double
+; CHECK: [[MOD:%.*]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double -4.242000e+01)
+; CHECK: [[SPEC:%.*]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
+; CHECK: br label {{%.*}}
+; CHECK: [[RES:%.*]] = alloca double
 ; CHECK: store double [[SPEC]], ptr [[RES]]
 ; CHECK: ret void
 ; CHECK: declare spir_func double @_Z4fmoddd(double, double)

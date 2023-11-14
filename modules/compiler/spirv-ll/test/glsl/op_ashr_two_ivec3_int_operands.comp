@@ -28,13 +28,13 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x i32>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x i32>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x i32>
-// CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = ashr <3 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store <3 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca <3 x i32>
+// CHECK: = alloca <3 x i32>
+// CHECK: = alloca <3 x i32>
+// CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr {{[%@].*}}
+// CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr {{[%@].*}}
+// CHECK: = load <3 x i32>, ptr {{[%@].*}}
+// CHECK: = load <3 x i32>, ptr {{[%@].*}}
+// CHECK: = ashr <3 x i32> {{[%@].*}}, {{[%@].*}}
+// CHECK: store <3 x i32> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

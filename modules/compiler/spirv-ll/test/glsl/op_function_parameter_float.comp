@@ -31,19 +31,19 @@ void main() {
 // CHECK: ; ModuleID = '{{.*}}'
 
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: [[res:%[a-zA-Z0-9]+]] = alloca i1
-// CHECK: [[param:%[a-zA-Z0-9]+]] = alloca float
-// CHECK: [[param1:%[a-zA-Z0-9]+]] = alloca float
+// CHECK: [[res:%.*]] = alloca i1
+// CHECK: [[param:%.*]] = alloca float
+// CHECK: [[param1:%.*]] = alloca float
 // CHECK: store float 0x404535C280000000, ptr [[param]]
 // CHECK: store float 0x404535C280000000, ptr [[param1]]
-// CHECK: [[call:%[a-zA-Z0-9]+]] = call spir_func i1 @{{(foo|"foo\(.+")}}(ptr [[param]], ptr [[param1]])
+// CHECK: [[call:%.*]] = call spir_func i1 @{{(foo|"foo\(.+")}}(ptr [[param]], ptr [[param1]])
 // CHECK: store i1 [[call]], ptr [[res]]
 // CHECK: ret void
 // CHECK: }
 
 // CHECK: define private spir_func i1 @{{(foo|"foo\(.+")}}(ptr %a, ptr %b) #0 {
-// CHECK: [[a:%[a-zA-Z0-9]+]] = load float, ptr %a
-// CHECK: [[b:%[a-zA-Z0-9]+]] = load float, ptr %b
-// CHECK: [[ret:%[a-zA-Z0-9]+]] = fcmp oeq float [[a]], [[b]]
+// CHECK: [[a:%.*]] = load float, ptr %a
+// CHECK: [[b:%.*]] = load float, ptr %b
+// CHECK: [[ret:%.*]] = fcmp oeq float [[a]], [[b]]
 // CHECK: ret i1 [[ret]]
 // CHECK: }

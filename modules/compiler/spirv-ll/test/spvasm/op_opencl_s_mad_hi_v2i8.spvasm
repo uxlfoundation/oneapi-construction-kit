@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @s_mad_hi_v2i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i8_t %1 s_mad_hi %v2i8_1 %v2i8_2 %v2i8_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i8> @_Z6mad_hiDv2_cS_S_(<2 x i8> <i8 1, i8 1>, <2 x i8> <i8 2, i8 2>, <2 x i8> <i8 3, i8 3>)
+; CHECK: = call spir_func <2 x i8> @_Z6mad_hiDv2_cS_S_(<2 x i8> <i8 1, i8 1>, <2 x i8> <i8 2, i8 2>, <2 x i8> <i8 3, i8 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -28,13 +28,13 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca [4 x double]
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK: store i32 -42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store [4 x double] [double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}], ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr [4 x double], ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca i32
+// CHECK: = alloca [4 x double]
+// CHECK: = alloca double
+// CHECK: store i32 -42, ptr {{[%@].*}}
+// CHECK: store [4 x double] [double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}], ptr {{[%@].*}}
+// CHECK: = load i32, ptr {{[%@].*}}
+// CHECK: = getelementptr [4 x double], ptr {{[%@].*}}, i32 0, i32 {{[%@].*}}
+// CHECK: = load double, ptr {{[%@].*}}
+// CHECK: store double {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

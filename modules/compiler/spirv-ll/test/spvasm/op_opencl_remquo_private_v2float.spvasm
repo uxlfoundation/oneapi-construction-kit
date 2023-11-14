@@ -42,9 +42,9 @@
 ; CHECK: define spir_kernel void @remquo_v2float()
                    %2 = OpLabel
                    %3 = OpVariable %v2int_ptr_t Function
-; CHECK: [[quo:%[a-zA-Z0-9]+]] = alloca <2 x i32>
+; CHECK: [[quo:%.*]] = alloca <2 x i32>
                    %4 = OpExtInst %v2float_t %1 remquo %v2float_2 %v2float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x float> @_Z6remquoDv2_fS_PDv2_i(<2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x float> <float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
+; CHECK: = call spir_func <2 x float> @_Z6remquoDv2_fS_PDv2_i(<2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x float> <float 1.500000e+00, float 1.500000e+00>, ptr [[quo]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

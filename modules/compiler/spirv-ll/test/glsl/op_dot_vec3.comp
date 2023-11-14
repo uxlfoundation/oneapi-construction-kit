@@ -27,13 +27,13 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x float>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x float>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-// CHECK: store <3 x float> <float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store <3 x float> <float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x float>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x float>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float @_Z3dotDv3_fS_(<3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
+// CHECK: = alloca <3 x float>
+// CHECK: = alloca <3 x float>
+// CHECK: = alloca float
+// CHECK: store <3 x float> <float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+// CHECK: store <3 x float> <float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+// CHECK: = load <3 x float>, ptr {{[%@].*}}
+// CHECK: = load <3 x float>, ptr {{[%@].*}}
+// CHECK: = call spir_func float @_Z3dotDv3_fS_(<3 x float> {{[%@].*}}, <3 x float> {{[%@].*}})
 // CHECK: ret void
 // CHECK: declare spir_func float @_Z3dotDv3_fS_(<3 x float>, <3 x float>)

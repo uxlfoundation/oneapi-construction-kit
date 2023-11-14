@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @trunc_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 trunc %float_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5truncf(float 0x40091EB860000000)
+; CHECK: = call spir_func float @_Z5truncf(float 0x40091EB860000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

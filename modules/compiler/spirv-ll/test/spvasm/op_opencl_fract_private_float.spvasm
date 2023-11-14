@@ -36,9 +36,9 @@
 ; CHECK: define spir_kernel void @fract_float()
                    %2 = OpLabel
                    %3 = OpVariable %float_ptr_t Function
-; CHECK: [[ptr:%[a-zA-Z0-9]+]] = alloca float
+; CHECK: [[ptr:%.*]] = alloca float
                    %4 = OpExtInst %float_t %1 fract %float_1 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
+; CHECK: = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -50,7 +50,7 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: [[TYPE:%.*]] = type { float }
 ; CHECK: define spir_kernel void @atomic(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
-; CHECK: [[PTR:%[a-zA-Z0-9_]+]] = getelementptr [[TYPE]], ptr addrspace(1) %0, i32 0, i32 0
-; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func float @_Z25atomic_fetch_min_explicitPU3AS1Vff(ptr addrspace(1) [[PTR]], float 0x4045333340000000)
+; CHECK: [[PTR:%.*]] = getelementptr [[TYPE]], ptr addrspace(1) %0, i32 0, i32 0
+; CHECK: = call spir_func float @_Z25atomic_fetch_min_explicitPU3AS1Vff(ptr addrspace(1) [[PTR]], float 0x4045333340000000)
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z25atomic_fetch_min_explicitPU3AS1Vff(ptr addrspace(1), float)

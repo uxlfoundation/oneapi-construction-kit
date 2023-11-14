@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @u_min_v16i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i32_t %1 u_min %v16i32_1 %v16i32_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z3minDv16_jS_(<16 x i32> <i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1>, <16 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>)
+; CHECK: = call spir_func <16 x i32> @_Z3minDv16_jS_(<16 x i32> <i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1>, <16 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

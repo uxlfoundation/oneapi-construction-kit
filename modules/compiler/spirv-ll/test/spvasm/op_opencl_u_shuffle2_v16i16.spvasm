@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @u_shuffle2_v16i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i16_t %1 shuffle2 %v16i16_3 %v16i16_4 %v16i16_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i16> @_Z8shuffle2Dv16_tS_S_(<16 x i16> <i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3>, <16 x i16> <i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4>, <16 x i16> <i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5>)
+; CHECK: = call spir_func <16 x i16> @_Z8shuffle2Dv16_tS_S_(<16 x i16> <i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3, i16 3>, <16 x i16> <i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4, i16 4>, <16 x i16> <i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5, i16 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

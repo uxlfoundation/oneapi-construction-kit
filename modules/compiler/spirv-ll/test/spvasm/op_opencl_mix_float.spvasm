@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @mix_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 mix %float_1 %float_2 %float_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z3mixfff(float 0x3FF19999A0000000, float 0x40019999A0000000, float 0x400A666660000000)
+; CHECK: = call spir_func float @_Z3mixfff(float 0x3FF19999A0000000, float 0x40019999A0000000, float 0x400A666660000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

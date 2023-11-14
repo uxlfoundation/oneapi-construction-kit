@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @s_min_v3i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v3i16_t %1 s_min %v3i16_1 %v3i16_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i16> @_Z3minDv3_sS_(<3 x i16> <i16 1, i16 1, i16 1>, <3 x i16> <i16 2, i16 2, i16 2>)
+; CHECK: = call spir_func <3 x i16> @_Z3minDv3_sS_(<3 x i16> <i16 1, i16 1, i16 1>, <3 x i16> <i16 2, i16 2, i16 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

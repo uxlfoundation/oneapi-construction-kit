@@ -25,8 +25,8 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func {{i[0-9]+}} @_Z19get_local_linear_idv()
-// CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca i32
+// CHECK: = call spir_func {{i[0-9]+}} @_Z19get_local_linear_idv()
+// CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func {{i[0-9]+}} @_Z19get_local_linear_idv()

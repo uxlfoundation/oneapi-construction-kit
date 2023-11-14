@@ -68,8 +68,8 @@
                          OpReturn
                          OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: store <4 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = call spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double> {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
+; CHECK: store <4 x double> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func <4 x double> @_Z4modfDv4_dPU3AS1S_(<4 x double>, ptr addrspace(1))
