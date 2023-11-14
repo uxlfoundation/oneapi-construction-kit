@@ -25,6 +25,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Metadata.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Support/TypeSize.h>
 #include <multi_llvm/llvm_version.h>
@@ -131,104 +132,155 @@ cargo::optional<Error> Builder::create<OpString>(const OpString *op) {
   return cargo::nullopt;
 }
 
+llvm::DIFile *Builder::getOrCreateDIFile(const OpLine *op_line) {
+  if (llvm::DIFile *file = module.getDIFile()) {
+    return file;
+  }
+
+  std::string filePath = module.getDebugString(op_line->File());
+  std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
+  std::string fileDir = filePath.substr(0, filePath.find_last_of("\\/"));
+
+  llvm::DIFile *file = DIBuilder.createFile(fileName, fileDir);
+
+  module.setDIFile(file);
+  return file;
+}
+
+llvm::DICompileUnit *Builder::getOrCreateDICompileUnit(const OpLine *op_line) {
+  if (llvm::DICompileUnit *compile_unit = module.getCompileUnit()) {
+    return compile_unit;
+  }
+
+  auto *di_file = getOrCreateDIFile(op_line);
+
+  llvm::DICompileUnit *compile_unit = DIBuilder.createCompileUnit(
+      llvm::dwarf::DW_LANG_OpenCL, di_file, "", false, "", 0, "");
+
+  module.setCompileUnit(compile_unit);
+  return compile_unit;
+}
+
+llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
+    llvm::Function *function, const OpLine *op_line) {
+  if (auto *function_scope = module.getDebugFunctionScope(function)) {
+    return function_scope;
+  }
+
+  llvm::SmallVector<llvm::Metadata *, 4> dbg_function_types;
+
+  for (auto &arg : function->args()) {
+    dbg_function_types.push_back(getDIType(arg.getType()));
+  }
+
+  llvm::DISubroutineType *dbg_function_type = DIBuilder.createSubroutineType(
+      DIBuilder.getOrCreateTypeArray(dbg_function_types));
+
+  auto *di_file = getOrCreateDIFile(op_line);
+  auto *di_compile_unit = getOrCreateDICompileUnit(op_line);
+
+  // TODO: pass mangled name here when we're mangling names
+  auto *function_scope = DIBuilder.createFunction(
+      di_compile_unit, function->getName(), function->getName(), di_file,
+      op_line->Line(), dbg_function_type, 1, llvm::DINode::FlagZero,
+      llvm::DISubprogram::SPFlagDefinition);
+
+  // Set the function's debug sub-program
+  function->setSubprogram(function_scope);
+
+  // Track this sub-program for later
+  module.addDebugFunctionScope(function, function_scope);
+
+  return function_scope;
+}
+
+Module::LineRangeBeginTy Builder::createLineRangeBegin(const OpLine *op_line,
+                                                       llvm::BasicBlock &bb) {
+  // Get or create the DILexicalBlock for this basic block.
+  llvm::DILexicalBlock *di_block = module.getLexicalBlock(&bb);
+
+  if (!di_block) {
+    auto *di_file = getOrCreateDIFile(op_line);
+    auto *function_scope =
+        getOrCreateDebugFunctionScope(bb.getParent(), op_line);
+    di_block = DIBuilder.createLexicalBlock(function_scope, di_file,
+                                            op_line->Line(), op_line->Column());
+
+    module.addLexicalBlock(&bb, di_block);
+  }
+
+  // If there aren't any instructions in the basic block yet just go from the
+  // start of the block.
+  llvm::BasicBlock::iterator iter =
+      bb.empty() ? bb.begin() : bb.back().getIterator();
+
+  auto *di_loc = llvm::DILocation::get(di_block->getContext(), op_line->Line(),
+                                       op_line->Column(), di_block);
+
+  return Module::LineRangeBeginTy{op_line, di_loc, iter};
+}
+
 template <>
 cargo::optional<Error> Builder::create<OpLine>(const OpLine *op) {
-  // having an OpLine before you start a function is valid, but we won't be able
-  // to do anything with it
-  if (!getCurrentFunction()) {
+  // Close the current range, if applicable.
+  checkEndOpLineRange();
+
+  llvm::Function *current_function = getCurrentFunction();
+
+  // Having an OpLine before you start a function is valid. We'll attach the
+  // current range onto the function when we create it.
+  if (!current_function) {
+    // Create a location within the current file
+    auto *loc = llvm::DILocation::get(*context.llvmContext, op->Line(),
+                                      op->Column(), module.getDIFile());
+    module.setCurrentOpLineRange(Module::LineRangeBeginTy{op, loc});
+
     return cargo::nullopt;
   }
 
-  checkEndOpLineRange();
-
-  llvm::DIFile *file = module.getDIFile();
-
-  if (!file) {
-    std::string filePath = module.getDebugString(op->File());
-    std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
-    std::string fileDir = filePath.substr(0, filePath.find_last_of("\\/"));
-
-    file = DIBuilder.createFile(fileName, fileDir);
-    module.setDIFile(file);
-  }
-
-  llvm::DICompileUnit *compile_unit = module.getCompileUnit();
-
-  if (!compile_unit) {
-    compile_unit = DIBuilder.createCompileUnit(llvm::dwarf::DW_LANG_OpenCL,
-                                               file, "", false, "", 0, "");
-    module.setCompileUnit(compile_unit);
-  }
-
   llvm::DISubprogram *function_scope =
-      module.getDebugFunctionScope(IRBuilder.GetInsertBlock()->getParent());
+      getOrCreateDebugFunctionScope(current_function, op);
 
-  if (!function_scope) {
-    llvm::Function *function = IRBuilder.GetInsertBlock()->getParent();
+  auto *current_block = IRBuilder.GetInsertBlock();
 
-    llvm::SmallVector<llvm::Metadata *, 4> dbg_function_types;
+  // Having an OpLine before you start a block is valid. We'll attach the
+  // current range onto the block when we create it.
+  if (!current_block) {
+    // Create a location within the current function.
+    auto *loc = llvm::DILocation::get(*context.llvmContext, op->Line(),
+                                      op->Column(), function_scope);
+    module.setCurrentOpLineRange(Module::LineRangeBeginTy{op, loc});
 
-    for (auto &arg : function->args()) {
-      dbg_function_types.push_back(getDIType(arg.getType()));
-    }
-
-    llvm::DISubroutineType *dbg_function_type = DIBuilder.createSubroutineType(
-        DIBuilder.getOrCreateTypeArray(dbg_function_types));
-
-    // TODO: pass mangled name here when we're mangling names
-    function_scope = DIBuilder.createFunction(
-        compile_unit, function->getName(), function->getName(), file,
-        op->Line(), dbg_function_type, 1, llvm::DINode::FlagZero,
-        llvm::DISubprogram::SPFlagDefinition);
-
-    module.addDebugFunctionScope(function, function_scope);
+    return cargo::nullopt;
   }
 
-  llvm::DILexicalBlock *block =
-      module.getLexicalBlock(IRBuilder.GetInsertBlock());
+  module.setCurrentOpLineRange(createLineRangeBegin(op, *current_block));
 
-  if (!block) {
-    block = DIBuilder.createLexicalBlock(function_scope, file, op->Line(),
-                                         op->Column());
-
-    module.addLexicalBlock(IRBuilder.GetInsertBlock(), block);
-  }
-
-  llvm::BasicBlock::iterator iter;
-
-  // if there aren't any instructions in the basic block yet just go from the
-  // start
-  if (IRBuilder.GetInsertBlock()->empty()) {
-    iter = IRBuilder.GetInsertBlock()->begin();
-  } else {
-    iter = IRBuilder.GetInsertBlock()->back().getIterator();
-  }
-
-  auto *loc = llvm::DILocation::get(block->getContext(), op->Line(),
-                                    op->Column(), block);
-  module.setCurrentOpLineRange(loc, iter);
   return cargo::nullopt;
 }
 
-void Builder::checkEndOpLineRange(bool is_branch) {
-  if (module.getCurrentOpLineRange().first) {
-    llvm::BasicBlock::iterator begin_iter =
-        module.getCurrentOpLineRange().second;
+void Builder::checkEndOpLineRange() {
+  auto line_range = module.getCurrentOpLineRange();
+  if (!line_range) {
+    return;
+  }
 
-    llvm::BasicBlock::iterator end_iter;
+  auto [op_line, loc, begin_iter] = *line_range;
 
-    if (is_branch) {
-      end_iter = IRBuilder.GetInsertBlock()->end();
-    } else {
-      end_iter = IRBuilder.GetInsertBlock()->back().getIterator();
-    }
+  llvm::BasicBlock *current_block = IRBuilder.GetInsertBlock();
+
+  // A closed range on an empty block means nothing.
+  if (current_block && !current_block->empty()) {
+    llvm::BasicBlock::iterator end_iter =
+        IRBuilder.GetInsertBlock()->back().getIterator();
 
     auto range = std::make_pair(begin_iter, end_iter);
 
-    module.addCompleteOpLineRange(module.getCurrentOpLineRange().first, range);
-
-    module.setCurrentOpLineRange(nullptr, llvm::BasicBlock::iterator());
+    module.addCompleteOpLineRange(loc, range);
   }
+
+  // Close off the current range.
+  module.closeCurrentOpLineRange();
 }
 
 template <>
@@ -2032,6 +2084,13 @@ cargo::optional<Error> Builder::create<OpFunction>(const OpFunction *op) {
 
   function->setCallingConv(CC);
   setCurrentFunction(function);
+
+  // If there's a line range currently open at this point, create and attach
+  // the DISubprogram for this function. If there isn't, we'll generate one on
+  // the fly when we hit an OpLine.
+  if (auto current_range = module.getCurrentOpLineRange()) {
+    getOrCreateDebugFunctionScope(function, current_range->op_line);
+  }
 
   module.addID(op->IdResult(), op, function);
   return cargo::nullopt;
@@ -5954,16 +6013,37 @@ cargo::optional<Error> Builder::create<OpSelectionMerge>(
   return cargo::nullopt;
 }
 
+llvm::BasicBlock *Builder::getOrCreateBasicBlock(spv::Id label) {
+  auto *bb = llvm::dyn_cast_or_null<llvm::BasicBlock>(module.getValue(label));
+  if (bb) {
+    return bb;
+  }
+
+  llvm::Function *current_function = getCurrentFunction();
+  SPIRV_LL_ASSERT_PTR(current_function);
+
+  bb = llvm::BasicBlock::Create(*context.llvmContext, module.getName(label),
+                                current_function);
+  module.addID(label, /*Op*/ nullptr, bb);
+  return bb;
+}
+
 template <>
 cargo::optional<Error> Builder::create<OpLabel>(const OpLabel *op) {
   llvm::Function *current_function = getCurrentFunction();
   SPIRV_LL_ASSERT_PTR(current_function);
 
-  // This signifies the end of a block, so close out any existing OpLine range.
-  checkEndOpLineRange(true);
+  auto *bb = getOrCreateBasicBlock(op->IdResult());
+  SPIRV_LL_ASSERT_PTR(bb);
 
-  llvm::BasicBlock *bb = llvm::BasicBlock::Create(
-      *context.llvmContext, module.getName(op->IdResult()), current_function);
+  // If we've already created this basic block before reaching the OpLabel
+  // (through a forward reference), then it's in the "wrong" place in terms of
+  // the linear layout of the function. Remove and re-insert the basic block at
+  // the end of the current function.
+  if (bb->getIterator() != std::prev(current_function->end())) {
+    bb->removeFromParent();
+    current_function->insert(current_function->end(), bb);
+  }
 
   IRBuilder.SetInsertPoint(bb);
 
@@ -5977,31 +6057,34 @@ cargo::optional<Error> Builder::create<OpLabel>(const OpLabel *op) {
     generateSpecConstantOps();
   }
 
+  if (auto current_range = module.getCurrentOpLineRange()) {
+    module.setCurrentOpLineRange(
+        createLineRangeBegin(current_range->op_line, *bb));
+  }
+
   module.addID(op->IdResult(), op, bb);
   return cargo::nullopt;
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpBranch>(const OpBranch *op) {
-  llvm::Value *label = module.getValue(op->TargetLabel());
-  SPIRV_LL_ASSERT_PTR(label);
-  llvm::BasicBlock *bb = llvm::dyn_cast<llvm::BasicBlock>(label);
+  llvm::BasicBlock *bb = getOrCreateBasicBlock(op->TargetLabel());
   SPIRV_LL_ASSERT_PTR(bb);
 
   IRBuilder.CreateBr(bb);
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpBranchConditional>(
     const OpBranchConditional *op) {
-  llvm::Value *true_label = module.getValue(op->TrueLabel());
-  SPIRV_LL_ASSERT_PTR(true_label);
-  llvm::BasicBlock *true_bb = llvm::dyn_cast<llvm::BasicBlock>(true_label);
+  llvm::BasicBlock *true_bb = getOrCreateBasicBlock(op->TrueLabel());
   SPIRV_LL_ASSERT_PTR(true_bb);
-  llvm::Value *false_label = module.getValue(op->FalseLabel());
-  SPIRV_LL_ASSERT_PTR(false_label);
-  llvm::BasicBlock *false_bb = llvm::dyn_cast<llvm::BasicBlock>(false_label);
+  llvm::BasicBlock *false_bb = getOrCreateBasicBlock(op->FalseLabel());
   SPIRV_LL_ASSERT_PTR(false_bb);
   llvm::Value *cond = module.getValue(op->Condition());
   SPIRV_LL_ASSERT_PTR(cond);
@@ -6037,6 +6120,10 @@ cargo::optional<Error> Builder::create<OpBranchConditional>(
           "MDTuple", llvm::MDTuple::get(*context.llvmContext, md_arr));
     }
   }
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 
@@ -6045,10 +6132,8 @@ cargo::optional<Error> Builder::create<OpSwitch>(const OpSwitch *op) {
   llvm::Value *selector = module.getValue(op->Selector());
   SPIRV_LL_ASSERT_PTR(selector);
 
-  llvm::Value *defaultDest = module.getValue(op->Default());
-  SPIRV_LL_ASSERT_PTR(defaultDest);
-
-  llvm::BasicBlock *destBB = llvm::cast<llvm::BasicBlock>(defaultDest);
+  llvm::BasicBlock *destBB = getOrCreateBasicBlock(op->Default());
+  SPIRV_LL_ASSERT_PTR(destBB);
   llvm::SwitchInst *switchInst = IRBuilder.CreateSwitch(selector, destBB);
 
   // Check how many words long our literals are. They are the same width as
@@ -6057,15 +6142,17 @@ cargo::optional<Error> Builder::create<OpSwitch>(const OpSwitch *op) {
       std::max(1u, selector->getType()->getScalarSizeInBits() / 32);
 
   for (auto target : op->Target(literalWords)) {
-    llvm::Value *caseDest = module.getValue(target.Label);
-    SPIRV_LL_ASSERT_PTR(caseDest);
-
-    llvm::BasicBlock *caseBB = llvm::cast<llvm::BasicBlock>(caseDest);
+    llvm::BasicBlock *caseBB = getOrCreateBasicBlock(target.Label);
+    SPIRV_LL_ASSERT_PTR(caseBB);
     llvm::Constant *caseVal =
         llvm::ConstantInt::get(selector->getType(), target.Literal);
 
     switchInst->addCase(llvm::cast<llvm::ConstantInt>(caseVal), caseBB);
   }
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 
@@ -6073,6 +6160,10 @@ template <>
 cargo::optional<Error> Builder::create<OpKill>(const OpKill *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 
@@ -6080,6 +6171,10 @@ template <>
 cargo::optional<Error> Builder::create<OpReturn>(const OpReturn *) {
   SPIRV_LL_ASSERT_PTR(getCurrentFunction());
   IRBuilder.CreateRetVoid();
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 
@@ -6091,12 +6186,20 @@ cargo::optional<Error> Builder::create<OpReturnValue>(const OpReturnValue *op) {
   SPIRV_LL_ASSERT_PTR(value);
 
   IRBuilder.CreateRet(value);
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 
 template <>
 cargo::optional<Error> Builder::create<OpUnreachable>(const OpUnreachable *) {
   IRBuilder.CreateUnreachable();
+
+  // This instruction ends a block.
+  checkEndOpLineRange();
+
   return cargo::nullopt;
 }
 

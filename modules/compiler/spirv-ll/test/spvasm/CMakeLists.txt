@@ -22,6 +22,7 @@ endif()
 
 set(SPVASM_FILES
   debug_info.spvasm
+  debug_info_funcs_and_blocks.spvasm
   ext_variable_pointers_op_variable.spvasm
   ext_variable_pointers_function_call.spvasm
   op_atomic_and_function.spvasm
