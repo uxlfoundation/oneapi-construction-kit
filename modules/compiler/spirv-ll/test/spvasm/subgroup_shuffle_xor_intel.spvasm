@@ -16,6 +16,7 @@
 
 ; REQUIRES: spirv-as-v2021.3+
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 \
 ; RUN:   -c GenericPointer -c SubgroupShuffleINTEL \
 ; RUN:   -e SPV_INTEL_subgroups %spv_file_s | FileCheck %s

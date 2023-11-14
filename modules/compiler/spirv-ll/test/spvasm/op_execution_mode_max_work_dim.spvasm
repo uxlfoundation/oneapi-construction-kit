@@ -16,6 +16,7 @@
 
 ; REQUIRES: spirv-as-v2020.0+
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -e SPV_INTEL_kernel_attributes %spv_file_s | FileCheck %s
 
                   OpCapability Kernel

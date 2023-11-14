@@ -33,7 +33,7 @@ if(CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE)
   else()
   endif()
 
-  find_package(SpirvTools COMPONENTS spirv-as)
+  find_package(SpirvTools COMPONENTS spirv-as spirv-val)
   if(TARGET spirv::spirv-as)
     # Get the found spirv-as version, takes the form: v<year>.<point>(-dev)?
     # We treat 'dev' as the previous point release: see below.

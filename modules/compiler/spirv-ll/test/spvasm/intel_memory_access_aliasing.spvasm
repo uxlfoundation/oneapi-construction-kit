@@ -16,6 +16,7 @@
 ; REQUIRES: spirv-as-v2022.2+
 ; RUN: spirv-as --version
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -e SPV_INTEL_memory_access_aliasing %spv_file_s
                OpCapability Addresses
                OpCapability Kernel
