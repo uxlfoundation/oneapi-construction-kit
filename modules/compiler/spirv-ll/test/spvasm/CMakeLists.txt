@@ -2244,9 +2244,6 @@ function(ca_assemble_spirv_ll_lit_test)
     list(APPEND LitTestFiles ${spv})
   endif()
 
-  add_ca_copy_file(INPUT ${spvasm} OUTPUT ${test})
-  list(APPEND LitTestFiles ${test})
-
   set_property(GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES ${LitTestFiles})
 endfunction()
 
