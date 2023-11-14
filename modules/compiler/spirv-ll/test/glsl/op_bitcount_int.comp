@@ -27,11 +27,11 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca i32
-// CHECK: {{[%@].*}} = alloca i32
+// CHECK: = alloca i32
+// CHECK: = alloca i32
 // CHECK: store i32 -42, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func i32 @_Z8popcounti(i32 {{[%@].*}})
+// CHECK: = load i32, ptr {{[%@].*}}
+// CHECK: = call spir_func i32 @_Z8popcounti(i32 {{[%@].*}})
 // CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func i32 @_Z8popcounti(i32)

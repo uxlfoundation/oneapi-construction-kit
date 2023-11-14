@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @exp2_v3float()
                    %2 = OpLabel
                    %3 = OpExtInst %v3float_t %1 exp2 %v3float_1
-; CHECK: {{%.*}} = call spir_func <3 x float> @_Z4exp2Dv3_f(<3 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK: = call spir_func <3 x float> @_Z4exp2Dv3_f(<3 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

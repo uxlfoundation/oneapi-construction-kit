@@ -37,6 +37,6 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @test(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) #0 {
-; CHECK: {{%.*}} = call spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1) {{%.*}})
+; CHECK: = call spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1) {{%.*}})
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z10atomic_incPU3AS1Vj(ptr addrspace(1))

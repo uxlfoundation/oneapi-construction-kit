@@ -34,9 +34,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <3 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <3 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func <3 x i32> @_Z3maxDv3_iS_(<3 x i32> {{[%@].*}}, <3 x i32> {{[%@].*}})
+// CHECK: = load <3 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <3 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <3 x i32> @_Z3maxDv3_iS_(<3 x i32> {{[%@].*}}, <3 x i32> {{[%@].*}})
 // CHECK: store <3 x i32> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <3 x i32> @_Z3maxDv3_iS_(<3 x i32>, <3 x i32>)

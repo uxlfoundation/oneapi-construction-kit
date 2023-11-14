@@ -40,7 +40,7 @@
 ; CHECK-LT17: define spir_kernel void @image1d([[IMG_TY:ptr addrspace\(1\)]] %image)
                    %1 = OpLabel
                    %2 = OpImageQuerySizeLod %int_t %image %int_1
-; CHECK: {{%.*}} = call spir_func i32 @_Z15get_image_width11ocl_image1d([[IMG_TY]] %image)
+; CHECK: = call spir_func i32 @_Z15get_image_width11ocl_image1d([[IMG_TY]] %image)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

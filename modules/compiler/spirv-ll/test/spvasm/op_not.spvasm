@@ -45,10 +45,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@].*}} = alloca i32
-; CHECK: {{[%@].*}} = alloca i32
+; CHECK: = alloca i32
+; CHECK: = alloca i32
 ; CHECK: store i32 -42, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = xor i32 {{[%@].*}}, -1
+; CHECK: = load i32, ptr {{[%@].*}}
+; CHECK: = xor i32 {{[%@].*}}, -1
 ; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

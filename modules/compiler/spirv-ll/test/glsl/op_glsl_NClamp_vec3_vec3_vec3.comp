@@ -35,10 +35,10 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func <3 x float> @_Z5clampDv3_fS_S_(<3 x float> {{[%@].*}}, <3 x float> {{[%@].*}}, <3 x float> {{[%@].*}})
+// CHECK: = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <3 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <3 x float> @_Z5clampDv3_fS_S_(<3 x float> {{[%@].*}}, <3 x float> {{[%@].*}}, <3 x float> {{[%@].*}})
 // CHECK: store <3 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <3 x float> @_Z5clampDv3_fS_S_(<3 x float>, <3 x float>, <3 x float>)

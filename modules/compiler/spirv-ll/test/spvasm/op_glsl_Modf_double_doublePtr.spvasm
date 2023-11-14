@@ -66,8 +66,8 @@
                           OpReturn
                           OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = call spir_func double @_Z4modfdPU3AS1d(double {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
+; CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = call spir_func double @_Z4modfdPU3AS1d(double {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
 ; CHECK: store double {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func double @_Z4modfdPU3AS1d(double, ptr addrspace(1))

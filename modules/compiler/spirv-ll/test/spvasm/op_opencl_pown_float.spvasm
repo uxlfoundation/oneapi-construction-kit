@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @pown_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 pown %float_2 %int_2
-; CHECK: {{%.*}} = call spir_func float @_Z4pownfi(float 0x40019999A0000000, i32 2)
+; CHECK: = call spir_func float @_Z4pownfi(float 0x40019999A0000000, i32 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

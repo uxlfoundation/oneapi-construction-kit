@@ -56,7 +56,7 @@
 ; CHECK: store i32 42, ptr %b{{(, align [0-9])?}}, !dbg [[bLocation]]
                OpLine %file 8 3
          %14 = OpLoad %bool %a
-; CHECK: {{[%@].*}} = load i1, ptr %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
+; CHECK: = load i1, ptr %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
                OpSelectionMerge %16 None
                OpBranchConditional %14 %15 %16
 ; CHECK: br i1 {{[%@].*}}, label {{[%@].*}}, label {{[%@].*}}, !dbg [[ifConditionLocation]]
@@ -64,9 +64,9 @@
 ; CHECK: {{[0-9]+:}}
                OpLine %file 8 3
          %17 = OpLoad %int %b
-; CHECK: {{[%@].*}} = load i32, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
+; CHECK: = load i32, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
          %18 = OpIAdd %int %17 %13
-; CHECK: {{[%@].*}} = add i32 {{[%@].*}}, 42, !dbg [[ifTrueBlockLocation]]
+; CHECK: = add i32 {{[%@].*}}, 42, !dbg [[ifTrueBlockLocation]]
                OpStore %b %18
 ; CHECK: store i32 {{[%@].*}}, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation]]
                OpLine %file 9 5

@@ -36,16 +36,16 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main()
-// CHECK: {{[%@].*}} = extractvalue [3 x <3 x double>] {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = extractvalue [3 x <3 x double>] {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = extractvalue [3 x <3 x double>] {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = extractvalue [3 x <3 x double>] {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = extractvalue [3 x <3 x double>] {{[%@].*}}, 2
-// CHECK: {{[%@].*}} = extractvalue [3 x <3 x double>] {{[%@].*}}, 2
-// CHECK: {{[%@].*}} = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [3 x <3 x double>] {{[%@].*}}, 0
+// CHECK: = extractvalue [3 x <3 x double>] {{[%@].*}}, 0
+// CHECK: = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [3 x <3 x double>] {{[%@].*}}, 1
+// CHECK: = extractvalue [3 x <3 x double>] {{[%@].*}}, 1
+// CHECK: = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [3 x <3 x double>] {{[%@].*}}, 2
+// CHECK: = extractvalue [3 x <3 x double>] {{[%@].*}}, 2
+// CHECK: = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
 // CHECK: [[INITIAL:%.*]] = insertvalue [3 x <3 x double>] undef, <3 x double> {{[%@].*}}, 0
 // CHECK: [[INSERT1:%.*]] = insertvalue [3 x <3 x double>] [[INITIAL]], <3 x double> {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = insertvalue [3 x <3 x double>] [[INSERT1]], <3 x double> {{[%@].*}}, 2
+// CHECK: = insertvalue [3 x <3 x double>] [[INSERT1]], <3 x double> {{[%@].*}}, 2
 // CHECK: ret void

@@ -46,10 +46,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{%.*}} = alloca i64
-; CHECK: {{%.*}} = alloca i32
+; CHECK: = alloca i64
+; CHECK: = alloca i32
 ; CHECK: store i64 -4200000000, {{(ptr|i64\*)}} {{%.*}}
-; CHECK: {{%.*}} = load i64, {{(ptr|i64\*)}} {{%.*}}
-; CHECK: {{%.*}} = trunc i64 %2 to i32
+; CHECK: = load i64, {{(ptr|i64\*)}} {{%.*}}
+; CHECK: = trunc i64 %2 to i32
 ; CHECK: store i32 {{%.*}}, {{(ptr|i32\*)}} {{%.*}}
 ; CHECK: ret void

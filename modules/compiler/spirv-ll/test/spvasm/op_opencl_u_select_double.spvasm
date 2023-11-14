@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @select_double()
                    %2 = OpLabel
                    %3 = OpExtInst %double_t %1 select %double_1 %double_2 %ui64_3
-; CHECK: {{%.*}} = call spir_func double @_Z6selectddm(double 1.000000e+00, double 2.000000e+00, i64 3)
+; CHECK: = call spir_func double @_Z6selectddm(double 1.000000e+00, double 2.000000e+00, i64 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

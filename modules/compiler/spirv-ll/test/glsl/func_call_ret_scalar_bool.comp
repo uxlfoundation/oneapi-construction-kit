@@ -31,12 +31,12 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca i1
-// CHECK: {{[%@].*}} = call spir_func i1  @{{("func_ret_bool.+")}}()
+// CHECK: = alloca i1
+// CHECK: = call spir_func i1  @{{("func_ret_bool.+")}}()
 // CHECK: store i1 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: define private spir_func i1 @{{("func_ret_bool.+")}}()
-// CHECK: {{[%@].*}} = alloca i1
+// CHECK: = alloca i1
 // CHECK: store i1 true, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load i1, ptr {{[%@].*}}
+// CHECK: = load i1, ptr {{[%@].*}}
 // CHECK: ret i1 {{[%@].*}}

@@ -29,9 +29,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = type { float }
-// CHECK: {{[%@].*}} = alloca i1
-// CHECK: {{[%@].*}} = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0
-// CHECK: {{[%@].*}} = load float, ptr addrspace(1) {{[%@].*}}
-// CHECK: {{[%@].*}} = fcmp oeq float {{[%@].*}}, {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}
+// CHECK: = type { float }
+// CHECK: = alloca i1
+// CHECK: = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0
+// CHECK: = load float, ptr addrspace(1) {{[%@].*}}
+// CHECK: = fcmp oeq float {{[%@].*}}, {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}
 // CHECK: store i1 {{[%@].*}}, ptr {{[%@].*}}

@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @u_mad_hi_v3i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v3i16_t %1 u_mad_hi %v3i16_2 %v3i16_3 %v3i16_4
-; CHECK: {{%.*}} = call spir_func <3 x i16> @_Z6mad_hiDv3_tS_S_(<3 x i16> <i16 2, i16 2, i16 2>, <3 x i16> <i16 3, i16 3, i16 3>, <3 x i16> <i16 4, i16 4, i16 4>)
+; CHECK: = call spir_func <3 x i16> @_Z6mad_hiDv3_tS_S_(<3 x i16> <i16 2, i16 2, i16 2>, <3 x i16> <i16 3, i16 3, i16 3>, <3 x i16> <i16 4, i16 4, i16 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

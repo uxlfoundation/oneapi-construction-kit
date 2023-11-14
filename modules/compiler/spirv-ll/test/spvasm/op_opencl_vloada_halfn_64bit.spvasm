@@ -57,24 +57,24 @@
         %loc = OpFunctionParameter %_ptr_Workgroup_half
       %entry = OpLabel
       %call1 = OpExtInst %v2float %1 vloada_halfn %ulong_0 %out 2
-; CHECK: {{%.*}} = call spir_func <2 x float> @_Z12vloada_half2mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
+; CHECK: = call spir_func <2 x float> @_Z12vloada_half2mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
       %call2 = OpExtInst %v3float %1 vloada_halfn %ulong_0 %out 3
-; CHECK: {{%.*}} = call spir_func <3 x float> @_Z12vloada_half3mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
+; CHECK: = call spir_func <3 x float> @_Z12vloada_half3mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
       %call3 = OpExtInst %v4float %1 vloada_halfn %ulong_0 %out 4
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z12vloada_half4mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
+; CHECK: = call spir_func <4 x float> @_Z12vloada_half4mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
       %call4 = OpExtInst %v8float %1 vloada_halfn %ulong_0 %out 8
-; CHECK: {{%.*}} = call spir_func <8 x float> @_Z12vloada_half8mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
+; CHECK: = call spir_func <8 x float> @_Z12vloada_half8mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
       %call5 = OpExtInst %v16float %1 vloada_halfn %ulong_0 %out 16
-; CHECK: {{%.*}} = call spir_func <16 x float> @_Z13vloada_half16mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
+; CHECK: = call spir_func <16 x float> @_Z13vloada_half16mPU3AS1KDh(i64 0, ptr addrspace(1) %out)
       %call7 = OpExtInst %v2float %1 vloada_halfn %ulong_0 %loc 2
-; CHECK: {{%.*}} = call spir_func <2 x float> @_Z12vloada_half2mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <2 x float> @_Z12vloada_half2mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
       %call8 = OpExtInst %v3float %1 vloada_halfn %ulong_0 %loc 3
-; CHECK: {{%.*}} = call spir_func <3 x float> @_Z12vloada_half3mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <3 x float> @_Z12vloada_half3mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
       %call9 = OpExtInst %v4float %1 vloada_halfn %ulong_0 %loc 4
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z12vloada_half4mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <4 x float> @_Z12vloada_half4mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
    %call10 = OpExtInst %v8float %1 vloada_halfn %ulong_0 %loc 8
-; CHECK: {{%.*}} = call spir_func <8 x float> @_Z12vloada_half8mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <8 x float> @_Z12vloada_half8mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
    %call11 = OpExtInst %v16float %1 vloada_halfn %ulong_0 %loc 16
-; CHECK: {{%.*}} = call spir_func <16 x float> @_Z13vloada_half16mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <16 x float> @_Z13vloada_half16mPU3AS3KDh(i64 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

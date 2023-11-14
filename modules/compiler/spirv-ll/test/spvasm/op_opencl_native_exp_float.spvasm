@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @native_exp_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 native_exp %float_1
-; CHECK: {{%.*}} = call spir_func float @_Z10native_expf(float 1.000000e+00)
+; CHECK: = call spir_func float @_Z10native_expf(float 1.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

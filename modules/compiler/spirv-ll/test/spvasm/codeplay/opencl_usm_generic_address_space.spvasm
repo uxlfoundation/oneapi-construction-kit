@@ -59,13 +59,13 @@
         %dst = OpFunctionParameter %_ptr_Generic_uint
   %localBuff = OpFunctionParameter %_ptr_Generic_uint
       %entry = OpLabel
-; CHECK: {{%.*}} = alloca i32, align 4
+; CHECK: = alloca i32, align 4
       %index = OpVariable %_ptr_Generic_uint Generic
-; CHECK: {{%.*}} = call spir_func i64 @_Z12get_local_idj(i32 {{%.*}})
+; CHECK: = call spir_func i64 @_Z12get_local_idj(i32 {{%.*}})
          %23 = OpLoad %v3ulong %__spirv_BuiltInLocalInvocationId
        %call = OpCompositeExtract %ulong %23 0
         %lid = OpUConvert %uint %call
-; CHECK: {{%.*}} = call spir_func i64 @_Z13get_global_idj(i32 {{%.*}})
+; CHECK: = call spir_func i64 @_Z13get_global_idj(i32 {{%.*}})
          %26 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
          %24 = OpCompositeExtract %ulong %26 0
         %gid = OpUConvert %uint %24
@@ -86,7 +86,7 @@
          %51 = OpLoad %uint %index Aligned 4
    %idxprom7 = OpSConvert %ulong %51
 ; Finally check the end result of the kernel is what we expect
-; CHECK: {{%.*}} = getelementptr inbounds i32, ptr {{%.*}}, i64 {{%.*}}
+; CHECK: = getelementptr inbounds i32, ptr {{%.*}}, i64 {{%.*}}
   %arrayidx8 = OpInBoundsPtrAccessChain %_ptr_Generic_uint %dst %idxprom7
 ; store i32 {{%.*}}, i32* {{%.*}}, align 4
                OpStore %arrayidx8 %49 Aligned 4

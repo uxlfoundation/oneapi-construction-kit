@@ -25,8 +25,8 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca i32
-// CHECK: {{[%@].*}} = call spir_func {{i[0-9]+}} @_Z14get_num_groupsj(i32 0)
+// CHECK: = alloca i32
+// CHECK: = call spir_func {{i[0-9]+}} @_Z14get_num_groupsj(i32 0)
 // CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func {{i[0-9]+}} @_Z14get_num_groupsj(i32)

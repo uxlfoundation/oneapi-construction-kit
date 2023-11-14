@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @half_cos_v8float()
                    %2 = OpLabel
                    %3 = OpExtInst %v8float_t %1 half_cos %v8float_3
-; CHECK: {{%.*}} = call spir_func <8 x float> @_Z8half_cosDv8_f(<8 x float> <float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000>)
+; CHECK: = call spir_func <8 x float> @_Z8half_cosDv8_f(<8 x float> <float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000, float 0x40091EB860000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

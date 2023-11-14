@@ -40,6 +40,6 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: define spir_kernel void @atomic(ptr addrspace(1) [[IN:%.*]])
-; CHECK: {{%.*}} = call spir_func float @_Z11atomic_xchgPU3AS1Vff(ptr addrspace(1) [[IN]], float 4.240000e+02)
+; CHECK: = call spir_func float @_Z11atomic_xchgPU3AS1Vff(ptr addrspace(1) [[IN]], float 4.240000e+02)
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z11atomic_xchgPU3AS1Vff(ptr addrspace(1), float)

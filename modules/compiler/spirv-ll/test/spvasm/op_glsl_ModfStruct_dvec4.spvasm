@@ -78,10 +78,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = alloca <4 x double>
-; CHECK: {{[%@].*}} = call spir_func <4 x double> @_Z4modfDv4_dPS_(<4 x double> {{[%@].*}}, ptr {{[%@].*}})
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, <4 x double> {{[%@].*}}, {{[0-9]+}}
-; CHECK: {{[%@].*}} = load <4 x double>, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, <4 x double> {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = alloca <4 x double>
+; CHECK: = call spir_func <4 x double> @_Z4modfDv4_dPS_(<4 x double> {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: = insertvalue {{[%@].*}} undef, <4 x double> {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load <4 x double>, ptr {{[%@].*}}
+; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, <4 x double> {{[%@].*}}, {{[0-9]+}}
 ; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

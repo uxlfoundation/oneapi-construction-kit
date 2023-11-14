@@ -33,5 +33,5 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <2 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = bitcast <2 x i32> {{[%@].*}} to double
+// CHECK: = load <2 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = bitcast <2 x i32> {{[%@].*}} to double

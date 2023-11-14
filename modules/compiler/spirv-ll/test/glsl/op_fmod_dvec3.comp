@@ -24,9 +24,9 @@
 
 void main() {
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK:  {{%.*}} = alloca <3 x double>
-// CHECK:  {{%.*}} = alloca <3 x double>
-// CHECK:  {{%.*}} = alloca <3 x double>
+// CHECK:  = alloca <3 x double>
+// CHECK:  = alloca <3 x double>
+// CHECK:  = alloca <3 x double>
   dvec3 x = dvec3(-42.42, -42.42, -42.42);
 // CHECK:  store <3 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
   dvec3 y = dvec3(-42.42, -42.42, -42.42);

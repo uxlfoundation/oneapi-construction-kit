@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @select_v2float()
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 select %v2float_1 %v2float_2 %v2ui32_3
-; CHECK: {{%.*}} = call spir_func <2 x float> @_Z6selectDv2_fS_Dv2_j(<2 x float> <float 1.000000e+00, float 1.000000e+00>, <2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x i32> <i32 3, i32 3>)
+; CHECK: = call spir_func <2 x float> @_Z6selectDv2_fS_Dv2_j(<2 x float> <float 1.000000e+00, float 1.000000e+00>, <2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x i32> <i32 3, i32 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @u_rotate_v2i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i32_t %1 rotate %v2i32_2 %v2i32_4
-; CHECK: {{%.*}} = call spir_func <2 x i32> @_Z6rotateDv2_jS_(<2 x i32> <i32 2, i32 2>, <2 x i32> <i32 4, i32 4>)
+; CHECK: = call spir_func <2 x i32> @_Z6rotateDv2_jS_(<2 x i32> <i32 2, i32 2>, <2 x i32> <i32 4, i32 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

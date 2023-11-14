@@ -26,12 +26,12 @@ void main(){
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = alloca double
-// CHECK: {{[%@].*}} = alloca i1
+// CHECK: = alloca double
+// CHECK: = alloca i1
 // CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load double, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func i32 @_Z5isinfd(double {{[%@].*}})
-// CHECK: {{[%@].*}} = trunc i32 {{[%@].*}} to i1
+// CHECK: = load double, ptr {{[%@].*}}
+// CHECK: = call spir_func i32 @_Z5isinfd(double {{[%@].*}})
+// CHECK: = trunc i32 {{[%@].*}} to i1
 // CHECK: store i1 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func i32 @_Z5isinfd(double)

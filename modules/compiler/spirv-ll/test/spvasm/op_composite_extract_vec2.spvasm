@@ -48,9 +48,9 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = alloca <2 x i32>
-; CHECK: {{[%@].*}} = alloca i32
+; CHECK: = alloca <2 x i32>
+; CHECK: = alloca i32
 ; CHECK: store <2 x i32> <i32 -42, i32 -42>, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = load <2 x i32>, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = extractelement <2 x i32> {{[%@].*}}, i64 1
+; CHECK: = load <2 x i32>, ptr {{[%@].*}}
+; CHECK: = extractelement <2 x i32> {{[%@].*}}, i64 1
 ; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}

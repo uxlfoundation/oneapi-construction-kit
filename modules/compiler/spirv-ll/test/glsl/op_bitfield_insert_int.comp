@@ -28,16 +28,16 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca i32
-// CHECK: {{[%@].*}} = alloca i32
-// CHECK: {{[%@].*}} = alloca i32
+// CHECK: = alloca i32
+// CHECK: = alloca i32
+// CHECK: = alloca i32
 // CHECK: store i32 -42, ptr {{[%@].*}}
 // CHECK: store i32 -42, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = and i32 {{[0-9]+}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = shl i32 {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = and i32 {{[%@].*}}, {{poison|undef}}
-// CHECK: {{[%@].*}} = or i32 {{[%@].*}}, {{[%@].*}}
+// CHECK: = load i32, ptr {{[%@].*}}
+// CHECK: = load i32, ptr {{[%@].*}}
+// CHECK: = and i32 {{[0-9]+}}, {{[%@].*}}
+// CHECK: = shl i32 {{[%@].*}}, 0
+// CHECK: = and i32 {{[%@].*}}, {{poison|undef}}
+// CHECK: = or i32 {{[%@].*}}, {{[%@].*}}
 // CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

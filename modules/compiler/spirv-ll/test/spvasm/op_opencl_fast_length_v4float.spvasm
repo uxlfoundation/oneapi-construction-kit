@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @fast_length_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 fast_length %v4float_3
-; CHECK: {{%.*}} = call spir_func float @_Z11fast_lengthDv4_f(<4 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>)
+; CHECK: = call spir_func float @_Z11fast_lengthDv4_f(<4 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

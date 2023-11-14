@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @u_ctz_v4i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i8_t %1 ctz %v4i8_1
-; CHECK: {{%.*}} = call spir_func <4 x i8> @_Z3ctzDv4_h(<4 x i8> <i8 1, i8 1, i8 1, i8 1>)
+; CHECK: = call spir_func <4 x i8> @_Z3ctzDv4_h(<4 x i8> <i8 1, i8 1, i8 1, i8 1>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

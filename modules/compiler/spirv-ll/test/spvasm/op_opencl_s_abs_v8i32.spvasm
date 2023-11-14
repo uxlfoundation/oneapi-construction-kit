@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @s_abs_v8i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v8ui32_t %1 s_abs %v8i32_2
-; CHECK: {{%.*}} = call spir_func <8 x i32> @_Z3absDv8_i(<8 x i32> <i32 -2, i32 -2, i32 -2, i32 -2, i32 -2, i32 -2, i32 -2, i32 -2>)
+; CHECK: = call spir_func <8 x i32> @_Z3absDv8_i(<8 x i32> <i32 -2, i32 -2, i32 -2, i32 -2, i32 -2, i32 -2, i32 -2, i32 -2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

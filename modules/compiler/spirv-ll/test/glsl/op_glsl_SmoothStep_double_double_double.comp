@@ -35,10 +35,10 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func double @_Z10smoothstepddd(double {{[%@].*}}, double {{[%@].*}}, double {{[%@].*}})
+// CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func double @_Z10smoothstepddd(double {{[%@].*}}, double {{[%@].*}}, double {{[%@].*}})
 // CHECK: store double {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func double @_Z10smoothstepddd(double, double, double)

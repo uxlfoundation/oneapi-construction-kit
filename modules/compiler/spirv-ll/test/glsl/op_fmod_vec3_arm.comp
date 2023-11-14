@@ -24,9 +24,9 @@
 
 void main() {
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK:  {{%.*}} = alloca <3 x float>
-// CHECK:  {{%.*}} = alloca <3 x float>
-// CHECK:  {{%.*}} = alloca <3 x float>
+// CHECK:  = alloca <3 x float>
+// CHECK:  = alloca <3 x float>
+// CHECK:  = alloca <3 x float>
   vec3 x = vec3(42.42, 42.42, 42.42);
 // CHECK:  store <3 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%.*}}
   vec3 y = vec3(42.42, 42.42, 42.42);

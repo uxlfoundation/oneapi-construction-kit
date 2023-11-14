@@ -29,15 +29,15 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{%.*}} = alloca float
-// CHECK: {{%.*}} = alloca float
-// CHECK: {{%.*}} = alloca float
+// CHECK: = alloca float
+// CHECK: = alloca float
+// CHECK: = alloca float
 // CHECK: store float 0x404535C280000000, ptr {{%.*}}
 // CHECK: store float 0x404535C280000000, ptr {{%.*}}
-// CHECK: {{%.*}} = load float, ptr {{%.*}}
-// CHECK: {{%.*}} = load float, ptr {{%.*}}
-// CHECK: {{%.*}} = call spir_func float @_Z4fmodff(float {{%.*}}, float {{%.*}})
-// CHECK: {{%.*}} = call spir_func float @_Z8copysignff(float {{%.*}}, float {{%.*}})
+// CHECK: = load float, ptr {{%.*}}
+// CHECK: = load float, ptr {{%.*}}
+// CHECK: = call spir_func float @_Z4fmodff(float {{%.*}}, float {{%.*}})
+// CHECK: = call spir_func float @_Z8copysignff(float {{%.*}}, float {{%.*}})
 // CHECK: store float {{%.*}}, ptr {{%.*}}
 // CHECK: ret void
 // CHECK: declare spir_func float @_Z8copysignff(float, float)

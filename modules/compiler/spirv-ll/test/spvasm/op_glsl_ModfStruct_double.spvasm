@@ -76,10 +76,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = alloca double
-; CHECK: {{[%@].*}} = call spir_func double @_Z4modfdPd(double {{[%@].*}}, ptr {{[%@].*}})
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, double {{[%@].*}}, {{[0-9]+}}
-; CHECK: {{[%@].*}} = load double, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, double {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = alloca double
+; CHECK: = call spir_func double @_Z4modfdPd(double {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: = insertvalue {{[%@].*}} undef, double {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load double, ptr {{[%@].*}}
+; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, double {{[%@].*}}, {{[0-9]+}}
 ; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

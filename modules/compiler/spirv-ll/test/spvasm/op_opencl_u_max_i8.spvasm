@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @u_max_i8()
                    %2 = OpLabel
                    %3 = OpExtInst %u8_t %1 u_max %u8_1 %u8_2
-; CHECK: {{%.*}} = call spir_func zeroext i8 @_Z3maxhh(i8 zeroext 1, i8 zeroext 2)
+; CHECK: = call spir_func zeroext i8 @_Z3maxhh(i8 zeroext 1, i8 zeroext 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

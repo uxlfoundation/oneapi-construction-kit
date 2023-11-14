@@ -30,7 +30,7 @@ void main() {
 // CHECK: [[FROM:%.*]] = alloca <2 x i32>
 // CHECK: [[TO:%.*]] = alloca <2 x float>
 // CHECK: store <2 x i32> <i32 -42, i32 -42>, ptr [[FROM]]
-// CHECK: {{%.*}} = load <2 x i32>, ptr {{[%@].*}}
+// CHECK: = load <2 x i32>, ptr {{[%@].*}}
 // CHECK: [[RESULT:%.*]] = call spir_func <2 x float> @_Z14convert_float2Dv2_i(<2 x i32> %1)
 // CHECK: store <2 x float> [[RESULT]], ptr [[TO]]
 // CHECK: ret void

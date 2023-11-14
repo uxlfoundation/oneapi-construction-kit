@@ -40,7 +40,7 @@
                    %3 = OpVariable %v4float_ptr_t Function
 ; CHECK: [[ptr:%.*]] = alloca <4 x float>
                    %4 = OpExtInst %v4float_t %1 fract %v4float_1 %3
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
+; CHECK: = call spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float> <float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000, float 0x3FF6666660000000>, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

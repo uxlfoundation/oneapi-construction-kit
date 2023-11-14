@@ -63,10 +63,10 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@].*}} = alloca i1
-; CHECK: {{[%@].*}} = alloca i32
+; CHECK: = alloca i1
+; CHECK: = alloca i32
 ; CHECK: store i1 true, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = load i1, ptr {{[%@].*}}
+; CHECK: = load i1, ptr {{[%@].*}}
 ; CHECK: br i1 {{[%@].*}}, label {{[%@].*}}, label {{[%@].*}}
 ; CHECK: {{[0-9]+:}}
 ; CHECK: store i32 24, ptr {{[%@].*}}
@@ -75,7 +75,7 @@
 ; CHECK: store i32 42, ptr {{[%@].*}}
 ; CHECK: br label {{[%@].*}}
 ; CHECK: {{[0-9]+:}}
-; CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = xor i32 {{[%@].*}}, 42
+; CHECK: = load i32, ptr {{[%@].*}}
+; CHECK: = xor i32 {{[%@].*}}, 42
 ; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

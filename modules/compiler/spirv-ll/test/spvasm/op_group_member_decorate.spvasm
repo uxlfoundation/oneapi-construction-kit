@@ -65,7 +65,7 @@
 ; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) #0 {
 ; CHECK: [[IN_GEP:%.*]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 0
 ; Check that the volatile decoration was correctly propagated to the result of the GEP
-; CHECK: {{%.*}} = load volatile i32, ptr addrspace(1) [[IN_GEP]]
+; CHECK: = load volatile i32, ptr addrspace(1) [[IN_GEP]]
 ; CHECK: [[OUT_GEP:%.*]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 1
 ; Check that the volatile decoration was only applied to the first member
 ; CHECK: store i32 {{%.*}}, ptr addrspace(1) [[OUT_GEP]]

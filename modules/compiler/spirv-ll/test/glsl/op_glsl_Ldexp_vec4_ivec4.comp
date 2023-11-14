@@ -34,9 +34,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <4 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func <4 x float> @_Z5ldexpDv4_fDv4_i(<4 x float> {{[%@].*}}, <4 x i32> {{[%@].*}})
+// CHECK: = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <4 x i32>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <4 x float> @_Z5ldexpDv4_fDv4_i(<4 x float> {{[%@].*}}, <4 x i32> {{[%@].*}})
 // CHECK: store <4 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <4 x float> @_Z5ldexpDv4_fDv4_i(<4 x float>, <4 x i32>)

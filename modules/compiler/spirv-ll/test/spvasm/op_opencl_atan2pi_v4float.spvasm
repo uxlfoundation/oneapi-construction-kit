@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @atan2pi_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %v4float_t %1 atan2pi %v4float_1 %v4float_2
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z7atan2piDv4_fS_(<4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>)
+; CHECK: = call spir_func <4 x float> @_Z7atan2piDv4_fS_(<4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

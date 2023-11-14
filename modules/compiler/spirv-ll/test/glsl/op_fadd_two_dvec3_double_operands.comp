@@ -28,13 +28,13 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca <3 x double>
-// CHECK: {{[%@].*}} = alloca <3 x double>
-// CHECK: {{[%@].*}} = alloca <3 x double>
+// CHECK: = alloca <3 x double>
+// CHECK: = alloca <3 x double>
+// CHECK: = alloca <3 x double>
 // CHECK: store <3 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
 // CHECK: store <3 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load <3 x double>, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load <3 x double>, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = load <3 x double>, ptr {{[%@].*}}
+// CHECK: = load <3 x double>, ptr {{[%@].*}}
+// CHECK: = fadd <3 x double> {{[%@].*}}, {{[%@].*}}
 // CHECK: store <3 x double> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

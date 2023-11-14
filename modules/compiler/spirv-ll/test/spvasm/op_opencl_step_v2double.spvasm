@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @step_v2double()
                    %2 = OpLabel
                    %3 = OpExtInst %v2double_t %1 step %v2double_1 %v2double_2
-; CHECK: {{%.*}} = call spir_func <2 x double> @_Z4stepDv2_dS_(<2 x double> <double 1.900000e+00, double 1.900000e+00>, <2 x double> <double 2.000000e+00, double 2.000000e+00>)
+; CHECK: = call spir_func <2 x double> @_Z4stepDv2_dS_(<2 x double> <double 1.900000e+00, double 1.900000e+00>, <2 x double> <double 2.000000e+00, double 2.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

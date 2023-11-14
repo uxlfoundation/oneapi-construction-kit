@@ -42,5 +42,5 @@
                OpFunctionEnd
 ; CHECK: define spir_kernel void @ordered()
 ; CHECK: [[RES:%.*]] = call spir_func <2 x i32> @_Z9isorderedDv2_fS_(<2 x float> <float 0x3810000000000000, float 0x3810000000000000>, <2 x float> <float 0x3810000000000000, float 0x3810000000000000>)
-; CHECK: {{%.*}} = trunc <2 x i32> [[RES]] to <2 x i1>
+; CHECK: = trunc <2 x i32> [[RES]] to <2 x i1>
 ; CHECK: declare spir_func <2 x i32> @_Z9isorderedDv2_fS_(<2 x float>, <2 x float>)

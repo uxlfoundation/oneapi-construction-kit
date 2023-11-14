@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @s_upsample_v4i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i16_t %1 s_upsample %v4i8_3 %v4ui8_4
-; CHECK: {{%.*}} = call spir_func <4 x i16> @_Z8upsampleDv4_cDv4_h(<4 x i8> <i8 3, i8 3, i8 3, i8 3>, <4 x i8> <i8 4, i8 4, i8 4, i8 4>)
+; CHECK: = call spir_func <4 x i16> @_Z8upsampleDv4_cDv4_h(<4 x i8> <i8 3, i8 3, i8 3, i8 3>, <4 x i8> <i8 4, i8 4, i8 4, i8 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

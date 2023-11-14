@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @native_sin_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 native_sin %float_1
-; CHECK: {{%.*}} = call spir_func float @_Z10native_sinf(float 0x3FF91EB860000000)
+; CHECK: = call spir_func float @_Z10native_sinf(float 0x3FF91EB860000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

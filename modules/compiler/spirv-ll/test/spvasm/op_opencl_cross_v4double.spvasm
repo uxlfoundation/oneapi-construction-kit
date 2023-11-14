@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @cross_v4double()
                    %2 = OpLabel
                    %3 = OpExtInst %v4double_t %1 cross %v4double_1 %v4double_2
-; CHECK: {{%.*}} = call spir_func <4 x double> @_Z5crossDv4_dS_(<4 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <4 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>)
+; CHECK: = call spir_func <4 x double> @_Z5crossDv4_dS_(<4 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <4 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

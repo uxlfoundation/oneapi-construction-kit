@@ -34,9 +34,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <3 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <3 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func <3 x double> @_Z4fminDv3_dS_(<3 x double> {{[%@].*}}, <3 x double> {{[%@].*}})
+// CHECK: = load <3 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <3 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <3 x double> @_Z4fminDv3_dS_(<3 x double> {{[%@].*}}, <3 x double> {{[%@].*}})
 // CHECK: store <3 x double> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <3 x double> @_Z4fminDv3_dS_(<3 x double>, <3 x double>)

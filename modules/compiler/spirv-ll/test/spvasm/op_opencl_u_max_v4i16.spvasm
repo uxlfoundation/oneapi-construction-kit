@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @u_max_v4i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i16_t %1 u_max %v4i16_1 %v4i16_2
-; CHECK: {{%.*}} = call spir_func <4 x i16> @_Z3maxDv4_tS_(<4 x i16> <i16 1, i16 1, i16 1, i16 1>, <4 x i16> <i16 2, i16 2, i16 2, i16 2>)
+; CHECK: = call spir_func <4 x i16> @_Z3maxDv4_tS_(<4 x i16> <i16 1, i16 1, i16 1, i16 1>, <4 x i16> <i16 2, i16 2, i16 2, i16 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

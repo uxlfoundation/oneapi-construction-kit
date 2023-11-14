@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @atan2pi_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 atan2pi %float_1 %float_2
-; CHECK: {{%.*}} = call spir_func float @_Z7atan2piff(float 1.000000e+00, float 2.000000e+00)
+; CHECK: = call spir_func float @_Z7atan2piff(float 1.000000e+00, float 2.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

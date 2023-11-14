@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @degrees_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 degrees %v8double_1
-; CHECK: {{%.*}} = call spir_func <8 x double> @_Z7degreesDv8_d(<8 x double> <double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00>)
+; CHECK: = call spir_func <8 x double> @_Z7degreesDv8_d(<8 x double> <double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -27,10 +27,10 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca double
-// CHECK: {{[%@].*}} = alloca float
+// CHECK: = alloca double
+// CHECK: = alloca float
 // CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load double, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func float @_Z13convert_floatd(double {{[%@].*}})
+// CHECK: = load double, ptr {{[%@].*}}
+// CHECK: = call spir_func float @_Z13convert_floatd(double {{[%@].*}})
 // CHECK: store float {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

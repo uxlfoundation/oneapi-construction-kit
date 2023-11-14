@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @distance_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 distance %v4float_2 %v4float_4
-; CHECK: {{%.*}} = call spir_func float @_Z8distanceDv4_fS_(<4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>)
+; CHECK: = call spir_func float @_Z8distanceDv4_fS_(<4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

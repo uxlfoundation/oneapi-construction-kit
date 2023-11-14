@@ -38,20 +38,20 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main()
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 2
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 2
-// CHECK: {{[%@].*}} = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 3
-// CHECK: {{[%@].*}} = extractvalue [4 x <4 x double>] {{[%@].*}}, 3
-// CHECK: {{[%@].*}} = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 0
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 0
+// CHECK: = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 1
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 1
+// CHECK: = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 2
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 2
+// CHECK: = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 3
+// CHECK: = extractvalue [4 x <4 x double>] {{[%@].*}}, 3
+// CHECK: = fdiv <4 x double> {{[%@].*}}, {{[%@].*}}
 // CHECK: [[INITIAL:%.*]] = insertvalue [4 x <4 x double>] undef, <4 x double> {{[%@].*}}, 0
 // CHECK: [[INSERT1:%.*]] = insertvalue [4 x <4 x double>] [[INITIAL]], <4 x double> {{[%@].*}}, 1
 // CHECK: [[INSERT2:%.*]] = insertvalue [4 x <4 x double>] [[INSERT1]], <4 x double> {{[%@].*}}, 2
-// CHECK: {{[%@].*}} = insertvalue [4 x <4 x double>] [[INSERT2]], <4 x double> {{[%@].*}}, 3
+// CHECK: = insertvalue [4 x <4 x double>] [[INSERT2]], <4 x double> {{[%@].*}}, 3
 // CHECK: ret void

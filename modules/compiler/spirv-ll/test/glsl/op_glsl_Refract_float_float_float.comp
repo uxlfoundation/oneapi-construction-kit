@@ -35,10 +35,10 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func float @_Z7refractfff(float {{[%@].*}}, float {{[%@].*}}, float {{[%@].*}})
+// CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func float @_Z7refractfff(float {{[%@].*}}, float {{[%@].*}}, float {{[%@].*}})
 // CHECK: store float {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func float @_Z7refractfff(float, float, float)

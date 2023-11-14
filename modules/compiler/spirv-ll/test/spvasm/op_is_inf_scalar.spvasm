@@ -40,5 +40,5 @@
                OpFunctionEnd
 ; CHECK: define spir_kernel void @isinf()
 ; CHECK: [[RES:%.*]] = call spir_func i32 @_Z5isinfd(double 0x7FF0000000000000)
-; CHECK: {{%.*}} = trunc i32 [[RES]] to i1
+; CHECK: = trunc i32 [[RES]] to i1
 ; CHECK: declare spir_func i32 @_Z5isinfd(double)

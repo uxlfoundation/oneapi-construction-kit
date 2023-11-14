@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @u_select_v8i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i32_t %1 select %v8i32_1 %v8i32_2 %v8i32_3
-; CHECK: {{%.*}} = call spir_func <8 x i32> @_Z6selectDv8_jS_S_(<8 x i32> <i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1>, <8 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>, <8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>)
+; CHECK: = call spir_func <8 x i32> @_Z6selectDv8_jS_S_(<8 x i32> <i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1>, <8 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>, <8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

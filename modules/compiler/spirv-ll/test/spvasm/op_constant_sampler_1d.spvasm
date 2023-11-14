@@ -47,13 +47,13 @@
 ; CHECK-GE17: [[SAMPLER:%.*]] = call [[SAMPLER_TY:target\("spirv.Sampler"\)]] @__translate_sampler_initializer(i32 16)
 ; CHECK-LT17: [[SAMPLER:%.*]] = call [[SAMPLER_TY:ptr]] @__translate_sampler_initializer(i32 16)
                    %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %float_1 None
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], float 1.000000e+00)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], float 1.000000e+00)
                    %3 = OpImageSampleExplicitLod %v4float_t %sampled_image %uint_1 None
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], i32 1)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], i32 1)
                    %6 = OpImageSampleExplicitLod %v4uint_t %sampled_image %float_1 None
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], float 1.000000e+00)
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], float 1.000000e+00)
                    %7 = OpImageSampleExplicitLod %v4uint_t %sampled_image %uint_1 None
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], i32 1)
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], i32 1)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

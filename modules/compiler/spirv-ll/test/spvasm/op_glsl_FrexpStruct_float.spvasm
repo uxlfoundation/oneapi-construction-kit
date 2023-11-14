@@ -69,10 +69,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = alloca i32
-; CHECK: {{[%@].*}} = call spir_func float @_Z5frexpfPi(float {{[%@].*}}, ptr {{[%@].*}})
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, float {{[%@].*}}, {{[0-9]+}}
-; CHECK: {{[%@].*}} = load i32, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, i32 {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = alloca i32
+; CHECK: = call spir_func float @_Z5frexpfPi(float {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: = insertvalue {{[%@].*}} undef, float {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load i32, ptr {{[%@].*}}
+; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, i32 {{[%@].*}}, {{[0-9]+}}
 ; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

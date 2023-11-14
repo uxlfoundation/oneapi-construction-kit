@@ -46,7 +46,7 @@
 ; CHECK: define spir_kernel void @select_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 select %v8double_1 %v8double_2 %v8ui64_3
-; CHECK: {{%.*}} = call spir_func <8 x double> @_Z6selectDv8_dS_Dv8_m(<8 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <8 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>, <8 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>)
+; CHECK: = call spir_func <8 x double> @_Z6selectDv8_dS_Dv8_m(<8 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <8 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>, <8 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

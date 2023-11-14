@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @fclamp_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 fclamp %v8double_0 %v8double_1 %v8double_2
-; CHECK: {{%.*}} = call spir_func <8 x double> @_Z5clampDv8_dS_S_(<8 x double> <double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01>, <8 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <8 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>)
+; CHECK: = call spir_func <8 x double> @_Z5clampDv8_dS_S_(<8 x double> <double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01, double 8.000000e-01>, <8 x double> <double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00, double 1.000000e+00>, <8 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

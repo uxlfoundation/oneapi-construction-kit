@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @s_abs_diff_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %ui32_t %1 s_abs_diff %i32_2 %i32_5
-; CHECK: {{%.*}} = call spir_func i32 @_Z8abs_diffii(i32 2, i32 5)
+; CHECK: = call spir_func i32 @_Z8abs_diffii(i32 2, i32 5)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

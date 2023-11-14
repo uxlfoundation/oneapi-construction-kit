@@ -42,5 +42,5 @@
 ; CHECK: define spir_kernel void @atomic()
 ; CHECK: [[PTR:%.*]] = alloca i32
 ; CHECK: store i32 424, ptr [[PTR]]
-; CHECK: {{%.*}} = load i32, ptr [[PTR]]
+; CHECK: = load i32, ptr [[PTR]]
 ; CHECK: ret void

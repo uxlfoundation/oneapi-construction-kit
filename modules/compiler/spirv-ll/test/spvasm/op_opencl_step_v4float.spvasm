@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @step_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %v4float_t %1 step %v4float_1 %v4float_2
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z4stepDv4_fS_(<4 x float> <float 0x3FFE666660000000, float 0x3FFE666660000000, float 0x3FFE666660000000, float 0x3FFE666660000000>, <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>)
+; CHECK: = call spir_func <4 x float> @_Z4stepDv4_fS_(<4 x float> <float 0x3FFE666660000000, float 0x3FFE666660000000, float 0x3FFE666660000000, float 0x3FFE666660000000>, <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

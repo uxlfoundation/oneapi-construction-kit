@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @s_hadd_i64()
                    %2 = OpLabel
                    %3 = OpExtInst %i64_t %1 s_hadd %i64_1 %i64_2
-; CHECK: {{%.*}} = call spir_func i64 @_Z4haddll(i64 1, i64 2)
+; CHECK: = call spir_func i64 @_Z4haddll(i64 1, i64 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

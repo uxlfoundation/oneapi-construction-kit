@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @u_rhadd_v4i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i32_t %1 u_rhadd %v4i32_1 %v4i32_2
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z5rhaddDv4_jS_(<4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x i32> <i32 2, i32 2, i32 2, i32 2>)
+; CHECK: = call spir_func <4 x i32> @_Z5rhaddDv4_jS_(<4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x i32> <i32 2, i32 2, i32 2, i32 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

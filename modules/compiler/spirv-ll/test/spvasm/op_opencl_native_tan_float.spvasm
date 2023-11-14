@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @native_tan_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 native_tan %float_0
-; CHECK: {{%.*}} = call spir_func float @_Z10native_tanf(float 0x3FE947AE20000000)
+; CHECK: = call spir_func float @_Z10native_tanf(float 0x3FE947AE20000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

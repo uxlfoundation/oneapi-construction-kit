@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @nan_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 nan %uint_3
-; CHECK: {{%.*}} = call spir_func float @_Z3nanj(i32 3)
+; CHECK: = call spir_func float @_Z3nanj(i32 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

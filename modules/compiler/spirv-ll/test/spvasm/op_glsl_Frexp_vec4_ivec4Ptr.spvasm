@@ -68,8 +68,8 @@
                          OpReturn
                          OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = call spir_func <4 x float> @_Z5frexpDv4_fPU3AS1Dv4_i(<4 x float> {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
+; CHECK: = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = call spir_func <4 x float> @_Z5frexpDv4_fPU3AS1Dv4_i(<4 x float> {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
 ; CHECK: store <4 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func <4 x float> @_Z5frexpDv4_fPU3AS1Dv4_i(<4 x float>, ptr addrspace(1))

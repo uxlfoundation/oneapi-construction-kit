@@ -34,8 +34,8 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func <4 x double> @_Z4signDv4_d(<4 x double> {{[%@].*}})
+// CHECK: = load <4 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <4 x double> @_Z4signDv4_d(<4 x double> {{[%@].*}})
 // CHECK: store <4 x double> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <4 x double> @_Z4signDv4_d(<4 x double>)

@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @bitselect_v2float()
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 bitselect %v2float_1 %v2float_2 %v2float_3
-; CHECK: {{%.*}} = call spir_func <2 x float> @_Z9bitselectDv2_fS_S_(<2 x float> <float 1.000000e+00, float 1.000000e+00>, <2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x float> <float 3.000000e+00, float 3.000000e+00>)
+; CHECK: = call spir_func <2 x float> @_Z9bitselectDv2_fS_S_(<2 x float> <float 1.000000e+00, float 1.000000e+00>, <2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x float> <float 3.000000e+00, float 3.000000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

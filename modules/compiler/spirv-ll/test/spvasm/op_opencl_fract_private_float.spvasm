@@ -38,7 +38,7 @@
                    %3 = OpVariable %float_ptr_t Function
 ; CHECK: [[ptr:%.*]] = alloca float
                    %4 = OpExtInst %float_t %1 fract %float_1 %3
-; CHECK: {{%.*}} = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
+; CHECK: = call spir_func float @_Z5fractfPf(float 0x3FF6666660000000, ptr [[ptr]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

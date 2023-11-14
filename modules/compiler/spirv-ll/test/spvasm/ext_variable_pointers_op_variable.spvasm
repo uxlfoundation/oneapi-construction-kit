@@ -45,6 +45,6 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@].*}} = alloca ptr
+; CHECK: = alloca ptr
 ; CHECK: store ptr null, ptr {{[%@].*}}
 ; CHECK: ret void

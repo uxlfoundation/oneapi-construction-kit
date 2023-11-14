@@ -28,13 +28,13 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@].*}} = alloca <2 x i32>
-// CHECK: {{[%@].*}} = alloca <2 x i32>
-// CHECK: {{[%@].*}} = alloca <2 x i32>
+// CHECK: = alloca <2 x i32>
+// CHECK: = alloca <2 x i32>
+// CHECK: = alloca <2 x i32>
 // CHECK: store <2 x i32> <i32 42, i32 42>, ptr {{[%@].*}}
 // CHECK: store <2 x i32> <i32 42, i32 42>, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load <2 x i32>, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load <2 x i32>, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = xor <2 x i32> {{[%@].*}}, {{[%@].*}}
+// CHECK: = load <2 x i32>, ptr {{[%@].*}}
+// CHECK: = load <2 x i32>, ptr {{[%@].*}}
+// CHECK: = xor <2 x i32> {{[%@].*}}, {{[%@].*}}
 // CHECK: store <2 x i32> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

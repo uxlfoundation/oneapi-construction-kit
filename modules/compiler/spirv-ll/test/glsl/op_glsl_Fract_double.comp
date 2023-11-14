@@ -33,9 +33,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = alloca double
-// CHECK: {{[%@].*}} = call spir_func double @_Z5fractdPd(double {{[%@].*}}, ptr {{[%@].*}})
+// CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = alloca double
+// CHECK: = call spir_func double @_Z5fractdPd(double {{[%@].*}}, ptr {{[%@].*}})
 // CHECK: store double {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func double @_Z5fractdPd(double, ptr)

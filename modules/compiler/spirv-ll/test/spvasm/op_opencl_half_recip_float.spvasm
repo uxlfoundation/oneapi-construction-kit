@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @half_recip_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 half_recip %float_2
-; CHECK: {{%.*}} = call spir_func float @_Z10half_recipf(float 2.000000e+00)
+; CHECK: = call spir_func float @_Z10half_recipf(float 2.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -32,7 +32,7 @@
 %__spirv_BuiltInGlobalLinearID = OpVariable %size_ptr_t Input
       %get_global_linear_id_fn = OpFunction %void_t None %get_global_linear_id_fn_t
                             %2 = OpLabel
-;CHECK: {{%.*}} = call spir_func i64 @_Z20get_global_linear_idv()
+;CHECK: = call spir_func i64 @_Z20get_global_linear_idv()
                           %res = OpLoad %size_t %__spirv_BuiltInGlobalLinearID
                                  OpReturn
                                  OpFunctionEnd

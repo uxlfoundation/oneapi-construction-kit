@@ -33,9 +33,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = alloca <4 x float>
-// CHECK: {{[%@].*}} = call spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float> {{[%@].*}}, ptr {{[%@].*}})
+// CHECK: = load <4 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = alloca <4 x float>
+// CHECK: = call spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float> {{[%@].*}}, ptr {{[%@].*}})
 // CHECK: store <4 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <4 x float> @_Z5fractDv4_fPS_(<4 x float>, ptr)

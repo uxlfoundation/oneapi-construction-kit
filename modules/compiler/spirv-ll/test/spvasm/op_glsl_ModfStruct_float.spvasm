@@ -76,10 +76,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = alloca float
-; CHECK: {{[%@].*}} = call spir_func float @_Z4modffPf(float {{[%@].*}}, ptr {{[%@].*}})
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, float {{[%@].*}}, {{[0-9]+}}
-; CHECK: {{[%@].*}} = load float, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, float {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = alloca float
+; CHECK: = call spir_func float @_Z4modffPf(float {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: = insertvalue {{[%@].*}} undef, float {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load float, ptr {{[%@].*}}
+; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, float {{[%@].*}}, {{[0-9]+}}
 ; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

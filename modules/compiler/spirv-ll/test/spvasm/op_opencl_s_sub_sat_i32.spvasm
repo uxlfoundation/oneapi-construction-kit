@@ -36,7 +36,7 @@
 ; CHECK: define spir_kernel void @s_sub_sat_i32()
                    %2 = OpLabel
                    %3 = OpExtInst %i32_t %1 s_sub_sat %i32_3 %i32_4
-; CHECK: {{%.*}} = call spir_func i32 @_Z7sub_satii(i32 3, i32 4)
+; CHECK: = call spir_func i32 @_Z7sub_satii(i32 3, i32 4)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

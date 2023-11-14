@@ -30,7 +30,7 @@ void main() {
 // CHECK: [[FROM:%.*]] = alloca <3 x i32>
 // CHECK: [[TO:%.*]] = alloca <3 x float>
 // CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr [[FROM]]
-// CHECK: {{%.*}} = load <3 x i32>, ptr {{[%@].*}}
+// CHECK: = load <3 x i32>, ptr {{[%@].*}}
 // CHECK: [[RESULT:%.*]] = call spir_func <3 x float> @_Z14convert_float3Dv3_i(<3 x i32> %1)
 // CHECK: store <3 x float> [[RESULT]], ptr [[TO]]
 // CHECK: ret void

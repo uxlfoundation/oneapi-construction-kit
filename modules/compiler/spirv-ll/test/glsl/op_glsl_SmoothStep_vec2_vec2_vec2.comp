@@ -35,10 +35,10 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func <2 x float> @_Z10smoothstepDv2_fS_S_(<2 x float> {{[%@].*}}, <2 x float> {{[%@].*}}, <2 x float> {{[%@].*}})
+// CHECK: = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <2 x float> @_Z10smoothstepDv2_fS_S_(<2 x float> {{[%@].*}}, <2 x float> {{[%@].*}}, <2 x float> {{[%@].*}})
 // CHECK: store <2 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <2 x float> @_Z10smoothstepDv2_fS_S_(<2 x float>, <2 x float>, <2 x float>)

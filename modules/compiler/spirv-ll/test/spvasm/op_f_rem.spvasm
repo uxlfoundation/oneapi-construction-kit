@@ -50,9 +50,9 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = alloca float
-; CHECK: {{[%@].*}} = alloca float
-; CHECK: {{[%@].*}} = alloca float
+; CHECK: = alloca float
+; CHECK: = alloca float
+; CHECK: = alloca float
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
 ; CHECK: [[a:%.*]] = load float, ptr %a

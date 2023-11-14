@@ -37,7 +37,7 @@
 ; CHECK: define spir_kernel void @s_sub_sat_i8()
                    %2 = OpLabel
                    %3 = OpExtInst %i8_t %1 s_sub_sat %i8_3 %i8_4
-; CHECK: {{%.*}} = call spir_func signext i8 @_Z7sub_satcc(i8 signext 3, i8 signext 4)
+; CHECK: = call spir_func signext i8 @_Z7sub_satcc(i8 signext 3, i8 signext 4)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

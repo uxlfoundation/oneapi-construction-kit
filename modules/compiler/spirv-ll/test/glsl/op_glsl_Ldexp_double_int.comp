@@ -34,9 +34,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func double @_Z5ldexpdi(double {{[%@].*}}, i32 {{[%@].*}})
+// CHECK: = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func double @_Z5ldexpdi(double {{[%@].*}}, i32 {{[%@].*}})
 // CHECK: store double {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func double @_Z5ldexpdi(double, i32)

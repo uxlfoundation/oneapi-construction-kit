@@ -30,7 +30,7 @@ void main() {
 // CHECK: [[FROM:%.*]] = alloca <4 x double>
 // CHECK: [[TO:%.*]] = alloca <4 x i32>
 // CHECK: store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr [[FROM]]
-// CHECK: {{%.*}} = load <4 x double>, ptr {{%.*}}
+// CHECK: = load <4 x double>, ptr {{%.*}}
 // CHECK: [[RES:%.*]] = call spir_func <4 x i32> @_Z12convert_int4Dv4_d(<4 x double> {{%.*}})
 // CHECK: store <4 x i32> [[RES]], ptr [[TO]]
 // CHECK: ret void

@@ -43,5 +43,5 @@
                OpFunctionEnd
 ; CHECK: define spir_kernel void @isnan()
 ; CHECK: [[RES:%.*]] = call spir_func <2 x i64> @_Z5isnanDv2_d(<2 x double> <double 0x7FF0000000000000, double 0x7FF0000000000000>)
-; CHECK: {{%.*}} = trunc <2 x i64> [[RES]] to <2 x i1>
+; CHECK: = trunc <2 x i64> [[RES]] to <2 x i1>
 ; CHECK: declare spir_func <2 x i64> @_Z5isnanDv2_d(<2 x double>)

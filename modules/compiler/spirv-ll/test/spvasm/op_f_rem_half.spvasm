@@ -49,9 +49,9 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = alloca half
-; CHECK: {{[%@].*}} = alloca half
-; CHECK: {{[%@].*}} = alloca half
+; CHECK: = alloca half
+; CHECK: = alloca half
+; CHECK: = alloca half
 ; CHECK: store half 0xH514D, ptr {{[%@].*}}
 ; CHECK: store half 0xH514D, ptr {{[%@].*}}
 ; CHECK: [[a:%.*]] = load half, ptr %a

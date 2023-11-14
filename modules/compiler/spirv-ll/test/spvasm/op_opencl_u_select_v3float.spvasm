@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @select_v3float()
                    %2 = OpLabel
                    %3 = OpExtInst %v3float_t %1 select %v3float_1 %v3float_2 %v3ui32_3
-; CHECK: {{%.*}} = call spir_func <3 x float> @_Z6selectDv3_fS_Dv3_j(<3 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <3 x i32> <i32 3, i32 3, i32 3>)
+; CHECK: = call spir_func <3 x float> @_Z6selectDv3_fS_Dv3_j(<3 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <3 x i32> <i32 3, i32 3, i32 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

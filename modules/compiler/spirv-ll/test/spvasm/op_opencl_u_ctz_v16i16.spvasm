@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @u_ctz_v16i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v16i16_t %1 ctz %v16i16_1
-; CHECK: {{%.*}} = call spir_func <16 x i16> @_Z3ctzDv16_t(<16 x i16> <i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1>)
+; CHECK: = call spir_func <16 x i16> @_Z3ctzDv16_t(<16 x i16> <i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

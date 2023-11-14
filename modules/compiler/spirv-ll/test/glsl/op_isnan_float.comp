@@ -26,12 +26,12 @@ void main(){
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = alloca float
-// CHECK: {{[%@].*}} = alloca i1
+// CHECK: = alloca float
+// CHECK: = alloca i1
 // CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = load float, ptr {{[%@].*}}
-// CHECK: {{[%@].*}} = call spir_func i32 @_Z5isnanf(float {{[%@].*}})
-// CHECK: {{[%@].*}} = trunc i32 {{[%@].*}} to i1
+// CHECK: = load float, ptr {{[%@].*}}
+// CHECK: = call spir_func i32 @_Z5isnanf(float {{[%@].*}})
+// CHECK: = trunc i32 {{[%@].*}} to i1
 // CHECK: store i1 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func i32 @_Z5isnanf(float)

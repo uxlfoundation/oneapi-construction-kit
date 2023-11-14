@@ -34,12 +34,12 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main()
-// CHECK: {{[%@].*}} = extractvalue [2 x <2 x double>] {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = extractvalue [2 x <2 x double>] {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = fdiv <2 x double> {{[%@].*}}, {{[%@].*}}
-// CHECK: {{[%@].*}} = extractvalue [2 x <2 x double>] {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = extractvalue [2 x <2 x double>] {{[%@].*}}, 1
-// CHECK: {{[%@].*}} = fdiv <2 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [2 x <2 x double>] {{[%@].*}}, 0
+// CHECK: = extractvalue [2 x <2 x double>] {{[%@].*}}, 0
+// CHECK: = fdiv <2 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [2 x <2 x double>] {{[%@].*}}, 1
+// CHECK: = extractvalue [2 x <2 x double>] {{[%@].*}}, 1
+// CHECK: = fdiv <2 x double> {{[%@].*}}, {{[%@].*}}
 // CHECK: [[INITIAL:%.*]] = insertvalue [2 x <2 x double>] undef, <2 x double> {{[%@].*}}, 0
-// CHECK: {{[%@].*}} = insertvalue [2 x <2 x double>] [[INITIAL]], <2 x double> {{[%@].*}}, 1
+// CHECK: = insertvalue [2 x <2 x double>] [[INITIAL]], <2 x double> {{[%@].*}}, 1
 // CHECK: ret void

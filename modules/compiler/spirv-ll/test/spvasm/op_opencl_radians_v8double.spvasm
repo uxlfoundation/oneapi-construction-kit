@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @radians_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 radians %v8double_90
-; CHECK: {{%.*}} = call spir_func <8 x double> @_Z7radiansDv8_d(<8 x double> <double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01>)
+; CHECK: = call spir_func <8 x double> @_Z7radiansDv8_d(<8 x double> <double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

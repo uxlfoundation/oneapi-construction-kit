@@ -79,10 +79,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@].*}} = load <2 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
-; CHECK: {{[%@].*}} = alloca <2 x i32>
-; CHECK: {{[%@].*}} = call spir_func <2 x double> @_Z5frexpDv2_dPDv2_i(<2 x double> {{[%@].*}}, ptr {{[%@].*}})
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} undef, <2 x double> {{[%@].*}}, {{[0-9]+}}
-; CHECK: {{[%@].*}} = load <2 x i32>, ptr {{[%@].*}}
-; CHECK: {{[%@].*}} = insertvalue {{[%@].*}} {{[%@].*}}, <2 x i32> {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load <2 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = alloca <2 x i32>
+; CHECK: = call spir_func <2 x double> @_Z5frexpDv2_dPDv2_i(<2 x double> {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: = insertvalue {{[%@].*}} undef, <2 x double> {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load <2 x i32>, ptr {{[%@].*}}
+; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, <2 x i32> {{[%@].*}}, {{[0-9]+}}
 ; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

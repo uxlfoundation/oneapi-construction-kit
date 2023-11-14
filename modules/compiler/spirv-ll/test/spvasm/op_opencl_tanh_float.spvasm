@@ -35,7 +35,7 @@
 ; CHECK: define spir_kernel void @tanh_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 tanh %float_0
-; CHECK: {{%.*}} = call spir_func float @_Z4tanhf(float 0x3FE947AE20000000)
+; CHECK: = call spir_func float @_Z4tanhf(float 0x3FE947AE20000000)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

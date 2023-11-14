@@ -33,9 +33,9 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@].*}} = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK: {{[%@].*}} = alloca float
-// CHECK: {{[%@].*}} = call spir_func float @_Z5fractfPf(float {{[%@].*}}, ptr {{[%@].*}})
+// CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = alloca float
+// CHECK: = call spir_func float @_Z5fractfPf(float {{[%@].*}}, ptr {{[%@].*}})
 // CHECK: store float {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func float @_Z5fractfPf(float, ptr)

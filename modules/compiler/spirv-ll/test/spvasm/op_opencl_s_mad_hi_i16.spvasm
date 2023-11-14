@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @s_mad_hi_i16()
                    %2 = OpLabel
                    %3 = OpExtInst %i16_t %1 s_mad_hi %i16_1 %i16_2 %i16_3
-; CHECK: {{%.*}} = call spir_func signext i16 @_Z6mad_hisss(i16 signext 1, i16 signext 2, i16 signext 3)
+; CHECK: = call spir_func signext i16 @_Z6mad_hisss(i16 signext 1, i16 signext 2, i16 signext 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

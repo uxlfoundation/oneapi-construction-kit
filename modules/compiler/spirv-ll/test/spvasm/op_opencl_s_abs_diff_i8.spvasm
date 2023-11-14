@@ -37,9 +37,9 @@
 ; CHECK: define spir_kernel void @s_abs_diff_i8()
                    %2 = OpLabel
                    %3 = OpExtInst %i8_t %1 s_abs_diff %i8_2 %i8_5
-; CHECK: {{%.*}} = call spir_func zeroext i8 @_Z8abs_diffcc(i8 signext 2, i8 signext 5)
+; CHECK: = call spir_func zeroext i8 @_Z8abs_diffcc(i8 signext 2, i8 signext 5)
                    %4 = OpExtInst %i8_t %1 s_abs_diff %i8_2 %i8_5
-; CHECK: {{%.*}} = call spir_func zeroext i8 @_Z8abs_diffcc(i8 signext 2, i8 signext 5)
+; CHECK: = call spir_func zeroext i8 @_Z8abs_diffcc(i8 signext 2, i8 signext 5)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd
