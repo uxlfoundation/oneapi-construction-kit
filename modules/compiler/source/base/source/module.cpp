@@ -1266,7 +1266,7 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
 
   auto addIncludeFile = [&](const std::string &name, const void *data,
                             const size_t size) {
-    const auto *entry = instance.getFileManager().getVirtualFile(
+    clang::FileEntryRef entry = instance.getFileManager().getVirtualFileRef(
         "include" PATH_SEPARATOR + name, size, 0);
     std::unique_ptr<llvm::MemoryBuffer> buffer{
         new BakedMemoryBuffer(data, size)};
