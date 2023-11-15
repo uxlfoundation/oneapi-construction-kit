@@ -1117,7 +1117,12 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     }
   }
 
-  // replace all global builtin vars with function local versions
+  // Add debug info, before we start replacing global builtin vars; the
+  // instruction ranges we've recorded are on the current state of the basic
+  // blocks. Replacing the global builtins will invalidate the iterators.
+  builder.addDebugInfoToModule();
+
+  // Replace all global builtin vars with function local versions
   builder.replaceBuiltinGlobals();
 
   // Check non-entry-point functions with empty names and re-set the name if it
@@ -1136,9 +1141,8 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     }
   }
 
-  // add any remaining metadata to llvm module
+  // Add any remaining metadata to llvm module
   builder.finalizeMetadata();
-  builder.addDebugInfoToModule();
 
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
   // GCC <9 requires this redundant move, this branch of the #if can be

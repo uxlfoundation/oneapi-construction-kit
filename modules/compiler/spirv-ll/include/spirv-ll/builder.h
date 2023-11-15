@@ -330,10 +330,10 @@ class Builder {
 
   /// @brief Return a `DIType` object that represents the given type
   ///
-  /// @param type `Type` to get `DIType` from
+  /// @param tyID spv::Id `Type` to get `DIType` from
   ///
   /// @return pointer to `DIType` derived from the given `Type`
-  llvm::DIType *getDIType(llvm::Type *type);
+  llvm::DIType *getDIType(spv::Id tyID);
 
   /// @brief Gets (or creates) a DIFile for the given OpLine.
   llvm::DIFile *getOrCreateDIFile(const OpLine *op_line);

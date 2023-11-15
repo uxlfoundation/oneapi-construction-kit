@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/target_extension_types.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/type_traits.h>
@@ -61,78 +62,69 @@ llvm::Value *spirv_ll::Builder::popFunctionArg() {
   return arg;
 }
 
-llvm::DIType *spirv_ll::Builder::getDIType(llvm::Type *type) {
-  const llvm::DataLayout &datalayout =
+llvm::DIType *spirv_ll::Builder::getDIType(spv::Id tyID) {
+  const llvm::DataLayout &DL =
       IRBuilder.GetInsertBlock()->getModule()->getDataLayout();
 
-  uint32_t align = datalayout.getABITypeAlign(type).value();
+  auto *const llvmTy = module.getLLVMType(tyID);
+  SPIRV_LL_ASSERT_PTR(llvmTy);
+  auto *const opTy = module.get<OpType>(tyID);
+  SPIRV_LL_ASSERT_PTR(opTy);
 
-  uint64_t size = datalayout.getTypeAllocSizeInBits(type);
+  uint32_t align = DL.getABITypeAlign(llvmTy).value();
 
-  std::string name;
+  uint64_t size = DL.getTypeAllocSizeInBits(llvmTy);
 
-  if (type->isAggregateType()) {
-    switch (type->getTypeID()) {
-      case llvm::Type::ArrayTyID: {
-        llvm::DIType *elem_type = getDIType(type->getArrayElementType());
-
-        return DIBuilder.createArrayType(type->getArrayNumElements(), align,
-                                         elem_type, llvm::DINodeArray());
-      }
-      case llvm::Type::StructTyID: {
-        llvm::StructType *struct_type = llvm::cast<llvm::StructType>(type);
-
-        llvm::SmallVector<llvm::Metadata *, 4> element_types;
-
-        for (uint32_t elem_index = 0;
-             elem_index < struct_type->getNumElements(); elem_index++) {
-          element_types.push_back(
-              getDIType(struct_type->getElementType(elem_index)));
-        }
-
-        // TODO: track line info for struct definitions, will require further
-        // interface changes so for now just use 0
-        return DIBuilder.createStructType(
-            module.getCompileUnit(), struct_type->getName(), module.getDIFile(),
-            0, size, align, llvm::DINode::FlagZero, nullptr,
-            DIBuilder.getOrCreateArray(element_types));
-      }
-      case llvm::Type::FixedVectorTyID: {
-        llvm::DIType *elem_type =
-            getDIType(multi_llvm::getVectorElementType(type));
-
-        return DIBuilder.createVectorType(
-            multi_llvm::getVectorNumElements(type), align, elem_type,
-            llvm::DINodeArray());
-      }
-      default:
-        llvm_unreachable("unsupported debug type");
-    }
-  } else {
-    switch (type->getTypeID()) {
-      case llvm::Type::IntegerTyID:
-        if (llvm::cast<llvm::IntegerType>(type)->getSignBit()) {
-          name = "dbg_int_ty";
-        } else {
-          name = "dbg_uint_ty";
-        }
-        break;
-      case llvm::Type::FloatTyID:
-        name = "dbg_float_ty";
-        break;
-      case llvm::Type::PointerTyID: {
-        auto *opTy = module.getFromLLVMTy<OpType>(type);
-        SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
-        llvm::DIType *elem_type =
-            getDIType(module.getLLVMType(opTy->getTypePointer()->Type()));
-        return DIBuilder.createPointerType(elem_type, size, align);
-      }
-      default:
-        llvm_unreachable("unsupported debug type");
-    }
+  if (opTy->isArrayType()) {
+    llvm::DIType *elem_type = getDIType(opTy->getTypeArray()->ElementType());
+    return DIBuilder.createArrayType(llvmTy->getArrayNumElements(), align,
+                                     elem_type, llvm::DINodeArray());
   }
 
-  return DIBuilder.createBasicType(name, size, align);
+  if (opTy->isVectorType()) {
+    llvm::DIType *elem_type = getDIType(opTy->getTypeVector()->ComponentType());
+    return DIBuilder.createVectorType(opTy->getTypeVector()->ComponentCount(),
+                                      align, elem_type, llvm::DINodeArray());
+  }
+
+  if (opTy->isStructType()) {
+    auto *const opStructTy = opTy->getTypeStruct();
+    llvm::StructType *struct_type = llvm::cast<llvm::StructType>(llvmTy);
+
+    llvm::SmallVector<llvm::Metadata *, 4> member_types;
+
+    for (auto memberTyID : opStructTy->MemberTypes()) {
+      member_types.push_back(getDIType(memberTyID));
+    }
+
+    // TODO: track line info for struct definitions, will require further
+    // interface changes so for now just use 0
+    return DIBuilder.createStructType(
+        module.getCompileUnit(), struct_type->getName(), module.getDIFile(),
+        /*LineNumber*/ 0, size, align, llvm::DINode::FlagZero, nullptr,
+        DIBuilder.getOrCreateArray(member_types));
+  }
+
+  if (opTy->isIntType()) {
+    return opTy->getTypeInt()->Signedness()
+               ? DIBuilder.createBasicType("dbg_int_ty", size,
+                                           llvm::dwarf::DW_ATE_signed)
+
+               : DIBuilder.createBasicType("dbg_uint_ty", size,
+                                           llvm::dwarf::DW_ATE_unsigned);
+  }
+
+  if (opTy->isFloatType()) {
+    return DIBuilder.createBasicType("dbg_float_ty", size,
+                                     llvm::dwarf::DW_ATE_float);
+  }
+
+  if (opTy->isPointerType()) {
+    llvm::DIType *elem_type = getDIType(opTy->getTypePointer()->Type());
+    return DIBuilder.createPointerType(elem_type, size, align);
+  }
+
+  llvm_unreachable("unsupported debug type");
 }
 
 void spirv_ll::Builder::addDebugInfoToModule() {
