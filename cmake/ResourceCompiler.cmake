@@ -300,10 +300,6 @@ function(target_resources target)
     message(FATAL_ERROR "One or more NAMESPACES must be provided.")
   endif()
 
-  foreach(namespace ${args_NAMESPACES})
-    add_dependencies(${target} resources-${namespace})
-  endforeach()
-
   # Generate the .s/.rc files and add them to the specified target.
   if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 
@@ -316,6 +312,7 @@ function(target_resources target)
 
     foreach(namespace ${args_NAMESPACES})
       get_target_property(resources resources-${namespace} RESOURCES)
+      set_property(SOURCE ${resources_file} APPEND PROPERTY OBJECT_DEPENDS ${resources})
 
       foreach(resource ${resources})
         get_filename_component(name ${resource} NAME)
@@ -377,6 +374,7 @@ ${name}_size:
 
     foreach(namespace ${args_NAMESPACES})
       get_target_property(resources resources-${namespace} RESOURCES)
+      set_property(SOURCE ${resources_file} APPEND PROPERTY OBJECT_DEPENDS ${resources})
 
       foreach(resource ${resources})
         get_filename_component(name ${resource} NAME)
@@ -402,6 +400,8 @@ ${CNAME}_ID RCDATA \"${resource}\"
 
     foreach(namespace ${args_NAMESPACES})
       get_target_property(resources resources-${namespace} RESOURCES)
+      set_property(SOURCE ${resources_file} APPEND PROPERTY OBJECT_DEPENDS ${resources})
+
       foreach(resource ${resources})
         get_filename_component(name ${resource} NAME)
         string(REGEX REPLACE "[-\\.]" "_" name ${name})
