@@ -804,8 +804,11 @@ class Module : public ModuleHeader {
   /// @brief Add a new ID, matching Op and LLVM Value to the module.
   ///
   /// If the ID doesn't exist, a new one will be created and inserted into the
-  /// Values map. If the ID already exists, the operation will fail, since SSA
-  /// form does not allow for IDs to be reassigned.
+  /// Values map.
+  ///
+  /// If the ID already exists, the new value will replace the old one,
+  /// assuming the old one was a forward declaration and the new one is the
+  /// concrete value.
   ///
   /// @param[in] id The new ID.
   /// @param[in] Op The Op associated with (i.e. creating) the ID.

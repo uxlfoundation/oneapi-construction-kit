@@ -19,6 +19,7 @@
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/DebugLoc.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
@@ -5942,29 +5943,22 @@ cargo::optional<Error> Builder::create<OpPhi>(const OpPhi *op) {
 
   llvm::PHINode *phi = IRBuilder.CreatePHI(result_ty, num_values);
 
-  // We will not be adding the incoming edges and values here since some of the
-  // basic blocks might not exist yet. Instead they will be added later by
-  // populatePhi()
-
-  module.addID(op->IdResult(), op, phi);
-  return cargo::nullopt;
-}
-
-void Builder::populatePhi(OpPhi const &op) {
-  llvm::Value *value = module.getValue(op.IdResult());
-  SPIRV_LL_ASSERT_PTR(value);
-  llvm::PHINode *phi = llvm::dyn_cast<llvm::PHINode>(value);
-  SPIRV_LL_ASSERT_PTR(phi);
-
-  for (auto pair : op.VariableParent()) {
-    llvm::Value *value = module.getValue(pair.Variable);
+  for (auto [value_id, parent_id] : op->VariableParent()) {
+    llvm::Value *value = module.getValue(value_id);
+    // If this value is a forward reference, create a temporary poison value.
+    // We'll fix this up later when the value comes to be concretely defined.
+    if (!value) {
+      value = llvm::PoisonValue::get(result_ty);
+      module.addID(value_id, nullptr, value);
+    }
     SPIRV_LL_ASSERT_PTR(value);
-    llvm::Value *block_val = module.getValue(pair.Parent);
-    SPIRV_LL_ASSERT_PTR(block_val);
-    llvm::BasicBlock *block = llvm::dyn_cast<llvm::BasicBlock>(block_val);
+    llvm::BasicBlock *block = getOrCreateBasicBlock(parent_id);
     SPIRV_LL_ASSERT_PTR(block);
     phi->addIncoming(value, block);
   }
+
+  module.addID(op->IdResult(), op, phi);
+  return cargo::nullopt;
 }
 
 template <>

@@ -485,6 +485,13 @@ bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
   // SSA form forbids the reassignment of IDs
   auto existing = Values.find(id);
   if (existing != Values.end() && existing->second.Value != nullptr) {
+    // If we've already registered a different value with this ID, assume the
+    // old one was a forward reference and new one is the concrete value.
+    // Replace the current value with the new one.
+    if (existing->second.Value != V) {
+      existing->second.Value->replaceAllUsesWith(V);
+      existing->second = ValuePair(Op, V);
+    }
     return false;
   }
   Values.insert({id, ValuePair(Op, V)});

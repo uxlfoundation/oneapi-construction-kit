@@ -315,10 +315,6 @@ class Builder {
   template <class Op>
   cargo::optional<spirv_ll::Error> create(const Op *op);
 
-  /// @brief Populate the incoming edges/values for the given Phi node
-  /// @param op The SpirV Op for the Phi node
-  void populatePhi(OpPhi const &op);
-
   /// @brief A unification of the four very similar access chain functions
   ///
   /// @param opc The OpCode representing the access chain instruction

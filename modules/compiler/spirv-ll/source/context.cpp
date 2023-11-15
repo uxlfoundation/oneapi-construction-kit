@@ -136,16 +136,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
 
   spirv_ll::Builder builder(*this, module, deviceInfo);
 
-  using IRInsertPoint = llvm::IRBuilder<>::InsertPoint;
-  // InsertPoint stack for moving around the IR Module
-  llvm::SmallVector<IRInsertPoint, 8> IPStack;
-  // Store the branch instructions found in the current function, as we need to
-  // generate them after all the basic blocks have been generated.
-  using OpIRLocTy = std::pair<OpCode const, IRInsertPoint>;
-  // Store the Phi nodes in order to add the values after all the basic blocks
-  // have been generated
-  llvm::SmallVector<OpIRLocTy, 8> Phis;
-
   for (auto op : module) {
     cargo::optional<Error> error;
     switch (op.code) {
@@ -312,17 +302,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpFunctionEnd:
         error = builder.create<OpFunctionEnd>(op);
-        // Populate all the incoming edges for the Phi nodes we have generated
-        IPStack.push_back(builder.getIRBuilder().saveIP());
-        for (auto &IterPos : Phis) {
-          builder.getIRBuilder().restoreIP(IterPos.second);
-          const OpCode *phi = &IterPos.first;
-          SPIRV_LL_ASSERT(phi->opCode() == spv::OpPhi,
-                          "Bad phi instruction found while populating edges!");
-          builder.populatePhi(*phi);
-        }
-        Phis.clear();
-        IPStack.pop_back();
         break;
       case spv::OpFunctionCall:
         error = builder.create<OpFunctionCall>(op);
@@ -851,7 +830,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpPhi:
         error = builder.create<OpPhi>(op);
-        Phis.push_back(std::make_pair(op, builder.getIRBuilder().saveIP()));
         break;
       case spv::OpLoopMerge:
         error = builder.create<OpLoopMerge>(op);

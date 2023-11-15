@@ -1,0 +1,93 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int8
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %testfn "testfn"
+
+               OpName %entry "entry"
+               OpName %for_cond "for.cond"
+               OpName %for_body "for.body"
+               OpName %exit_label "exit"
+
+               OpDecorate %output Alignment 1
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+    %uchar_0 = OpConstant %uchar 0
+    %uchar_1 = OpConstant %uchar 1
+       %void = OpTypeVoid
+       %bool = OpTypeBool
+  %ptr_uchar = OpTypePointer CrossWorkgroup %uchar
+   %ptr_uint = OpTypePointer CrossWorkgroup %uint
+      %fn_ty = OpTypeFunction %void %ptr_uchar %ptr_uint
+       %true = OpConstantTrue %bool
+
+; CHECK: define spir_kernel void @testfn(ptr addrspace(1) [[OUTPUT:%.*]], ptr addrspace(1) [[INPUT:%.*]])
+     %testfn = OpFunction %void None %fn_ty
+     %output = OpFunctionParameter %ptr_uchar
+      %input = OpFunctionParameter %ptr_uint
+
+; CHECK-LABEL: entry:
+; CHECK: [[LOAD:%.*]] = load i32, ptr addrspace(1) [[INPUT]], align 4
+; CHECK: [[ADD:%.*]] = add i32 [[LOAD]], 1
+; CHECK: br label %for.cond
+      %entry = OpLabel
+         %52 = OpLoad %uint %input Aligned 4
+        %add = OpIAdd %uint %52 %uint_1
+               OpBranch %for_cond
+
+; CHECK-LABEL: for.cond:
+; CHECK: [[RES:%.*]] = phi i1 [ true, %entry ], [ [[RES_NEXT:%.*]], %for.body ]
+; CHECK: [[MASK:%.*]] = phi i32 [ 1, %entry ], [ [[MASK_NEXT:%.*]], %for.body ]
+; CHECK: [[CMP0:%.*]] = icmp eq i32 [[MASK]], 0
+; CHECK: br i1 [[CMP0]], label %exit, label %for.body
+   %for_cond = OpLabel
+        %res = OpPhi %bool %true %entry %and26 %for_body
+       %mask = OpPhi %uint %uint_1 %entry %shl10 %for_body
+       %cmp0 = OpIEqual %bool %mask %uint_0
+               OpBranchConditional %cmp0 %exit_label %for_body
+
+; CHECK-LABEL: for.body:
+; CHECK: [[MUL:%.*]] = mul i32 [[ADD]], [[MASK]]
+; CHECK: [[CMP1:%.*]] = icmp eq i32 [[MUL]], [[ADD]]
+; CHECK: [[RES_NEXT]] = and i1 [[RES]], [[CMP1]]
+; CHECK: [[MASK_NEXT]] = shl i32 [[MASK]], 1
+; CHECK: br label %for.cond
+   %for_body = OpLabel
+       %mul1 = OpIMul %uint %add %mask
+       %cmp1 = OpIEqual %bool %mul1 %add
+      %and26 = OpLogicalAnd %bool %res %cmp1
+      %shl10 = OpShiftLeftLogical %uint %mask %uint_1
+               OpBranch %for_cond
+
+; CHECK-LABEL: exit:
+; CHECK: [[SEL:%.*]] = select i1 [[RES]], i8 1, i8 0
+; CHECK: store i8 [[SEL]], ptr addrspace(1) [[OUTPUT]], align 1
+; CHECK: ret void
+ %exit_label = OpLabel
+   %frombool = OpSelect %uchar %res %uchar_1 %uchar_0
+               OpStore %output %frombool Aligned 1
+               OpReturn
+
+               OpFunctionEnd
