@@ -142,7 +142,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   // Store the branch instructions found in the current function, as we need to
   // generate them after all the basic blocks have been generated.
   using OpIRLocTy = std::pair<OpCode const, IRInsertPoint>;
-  llvm::SmallVector<OpIRLocTy, 16> Branches;
   // Store the Phi nodes in order to add the values after all the basic blocks
   // have been generated
   llvm::SmallVector<OpIRLocTy, 8> Phis;
@@ -313,29 +312,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpFunctionEnd:
         error = builder.create<OpFunctionEnd>(op);
-        // Generate all the branches in the function. We are doing it here
-        // because
-        // at this point all the basic blocks will have been created
-        IPStack.push_back(builder.getIRBuilder().saveIP());
-        for (auto &IterPos : Branches) {
-          builder.getIRBuilder().restoreIP(IterPos.second);
-          OpCode const BranchOp = IterPos.first;
-          switch (BranchOp.opCode()) {
-            default:
-              std::abort();
-            case spv::OpBranch:
-              error = builder.create<OpBranch>(*cast<OpBranch>(&IterPos.first));
-              break;
-            case spv::OpBranchConditional:
-              error = builder.create<OpBranchConditional>(
-                  *cast<OpBranchConditional>(&IterPos.first));
-              break;
-            case spv::OpSwitch:
-              error = builder.create<OpSwitch>(*cast<OpSwitch>(&IterPos.first));
-          }
-        }
-        Branches.clear();
-        IPStack.pop_back();
         // Populate all the incoming edges for the Phi nodes we have generated
         IPStack.push_back(builder.getIRBuilder().saveIP());
         for (auto &IterPos : Phis) {
@@ -887,9 +863,13 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         error = builder.create<OpLabel>(op);
         break;
       case spv::OpBranch:
+        error = builder.create<OpBranch>(op);
+        break;
       case spv::OpBranchConditional:
+        error = builder.create<OpBranchConditional>(op);
+        break;
       case spv::OpSwitch:
-        Branches.push_back(std::make_pair(op, builder.getIRBuilder().saveIP()));
+        error = builder.create<OpSwitch>(op);
         break;
       case spv::OpKill:
         error = builder.create<OpKill>(op);

@@ -393,12 +393,23 @@ class Module : public ModuleHeader {
   /// @return The string or an empty one if the ID isn't found.
   std::string getDebugString(spv::Id id) const;
 
-  /// @brief Set basic block iterator at start of the current OpLine range.
+  /// @brief A type containing an LLVM debug location and the beginning of the
+  /// range it corresponds to.
+  struct LineRangeBeginTy {
+    const OpLine *op_line;
+    llvm::DILocation *loc;
+    llvm::BasicBlock::iterator range_begin = llvm::BasicBlock::iterator();
+  };
+
+  /// @brief Opens up a new OpLine range, setting it to the current one.
   ///
-  /// @param location DILocation containing the line/column info.
-  /// @param iter Basic block iterator at the start of the new range.
-  void setCurrentOpLineRange(llvm::DILocation *location,
-                             llvm::BasicBlock::iterator iter);
+  /// Does *not* close the current one. Call closeCurrentOpLineRange() first.
+  ///
+  /// @param range_begin LineRangeBeginTy information about the range to begin.
+  void setCurrentOpLineRange(const LineRangeBeginTy &range_begin);
+
+  /// @brief Closes (i.e., clears) the current OpLine range.
+  void closeCurrentOpLineRange();
 
   /// @brief Add a completed OpLine range to the module.
   ///
@@ -424,8 +435,7 @@ class Module : public ModuleHeader {
   ///
   /// @return Pair containing `DILocation` and iterator range, location will be
   /// nullptr if there isn't an ongoing range
-  std::pair<llvm::DILocation *, llvm::BasicBlock::iterator>
-  getCurrentOpLineRange() const;
+  std::optional<LineRangeBeginTy> getCurrentOpLineRange() const;
 
   /// @brief Add a basic block and associated lexical block to the module.
   ///
@@ -1037,8 +1047,9 @@ class Module : public ModuleHeader {
   /// translated in its entirety, so we can't construct the `iterator_range`
   /// until that's happened but we still need to store the range.
   OpLineRangeMap OpLineRanges;
-  /// @brief DILocation/basic block iterator pair to store current OpLine range.
-  std::pair<llvm::DILocation *, llvm::BasicBlock::iterator> CurrentOpLineRange;
+  /// @brief DILocation/basic block iterator pair to store the beginning of the
+  /// current OpLine range.
+  std::optional<LineRangeBeginTy> CurrentOpLineRange;
   /// @brief Map of BasicBlock to associated `DILexicalBlock`.
   llvm::DenseMap<llvm::BasicBlock *, llvm::DILexicalBlock *> LexicalBlocks;
   /// @brief Map of function to associated `DISubprogram`.

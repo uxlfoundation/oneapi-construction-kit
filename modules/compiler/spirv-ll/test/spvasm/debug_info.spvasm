@@ -39,8 +39,10 @@
         %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
          %13 = OpConstant %int 42
+               OpLine %file 4 0
        %main = OpFunction %void None %3
-; CHECK: define spir_kernel void @main()
+; CHECK: define spir_kernel void @main(){{.*}} !dbg [[mainSubprogram:![0-9]+]]
+               OpLine %file 5 2
           %5 = OpLabel
                OpLine %file 6 3
           %a = OpVariable %_ptr_Function_bool Function
@@ -85,13 +87,8 @@
 ;
 ; CHECK: [[CompileUnit]] = distinct !DICompileUnit(language: DW_LANG_OpenCL, file: [[File:![0-9]+]],{{( producer: "Codeplay SPIR-V  translator",)?}} isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug{{(, enums: ![0-9]+)?}}{{(, subprograms: ![0-9]+)?}})
 ; CHECK: [[File]] = !DIFile(filename: "debug_info.comp", directory: "modules/spirv-ll-tool/test/spvasm")
-; CHECK: [[aLocation]] = !DILocation(line: 6, column: 3, scope: [[mainLexicalBlock:![0-9]+]])
-; TODO The line and column for `mainLexicalBlock` are incorrect and instead
-;      point to those for the variable `a`, adding an OpLine before `main`'s
-;      OpFunction has no effect.
-; CHECK: [[mainLexicalBlock]] = distinct !DILexicalBlock(scope: [[mainSubprogram:![0-9]+]], file: [[File]], line: 6, column: 3)
 ; CHECK: [[mainSubprogram]] = distinct !DISubprogram(name: "main", linkageName: "main", scope: null, file: [[File]],
-; CHECK-SAME: line: 6, type: [[mainSubroutineType:![0-9]+]]
+; CHECK-SAME: line: 4, type: [[mainSubroutineType:![0-9]+]]
 ; CHECK-SAME: {{(, isLocal: true, isDefinition: true)?}}, scopeLine: 1
 ; CHECK-SAME: {{(, isOptimized: false)?}}
 ; CHECK-SAME: {{(, spFlags: DISPFlagDefinition)?}}
@@ -99,6 +96,8 @@
 ; CHECK-SAME: {{(, (variables|retainedNodes): ![0-9]+)?}}
 ; CHECK-SAME: )
 ; CHECK: [[mainSubroutineType]] = !DISubroutineType(types: !{{[0-9]+}})
+; CHECK: [[aLocation]] = !DILocation(line: 6, column: 3, scope: [[mainLexicalBlock:![0-9]+]])
+; CHECK: [[mainLexicalBlock]] = distinct !DILexicalBlock(scope: [[mainSubprogram]], file: [[File]], line: 5, column: 2)
 ; CHECK: [[bLocation]] = !DILocation(line: 7, column: 3, scope: [[mainLexicalBlock]])
 ; CHECK: [[ifConditionLocation]] = !DILocation(line: 8, column: 3, scope: [[mainLexicalBlock]])
 ; CHECK: [[ifTrueBlockLocation]] = !DILocation(line: 8, column: 3, scope: [[ifLexicalBlock:![0-9]+]])
