@@ -673,17 +673,17 @@ void spirv_ll::Module::setParamTypeIDs(spv::Id F, llvm::ArrayRef<spv::Id> IDs) {
   ParamTypeIDs[F].assign(IDs.begin(), IDs.end());
 }
 
-cargo::optional<spv::Id> spirv_ll::Module::getParamTypeID(
-    spv::Id F, unsigned argno) const {
+std::optional<spv::Id> spirv_ll::Module::getParamTypeID(spv::Id F,
+                                                        unsigned argno) const {
   auto it = ParamTypeIDs.find(F);
   if (it == ParamTypeIDs.end()) {
     assert(false && "function type was not added before query");
-    return cargo::nullopt;
+    return std::nullopt;
   }
   auto &params = it->getSecond();
   if (argno >= params.size()) {
     assert(false && "invalid number of parameters for function");
-    return cargo::nullopt;
+    return std::nullopt;
   }
   return params[argno];
 }
@@ -703,10 +703,10 @@ void spirv_ll::Module::addSpecId(spv::Id id, spv::Id spec_id) {
   SpecIDs.insert({id, spec_id});
 }
 
-cargo::optional<uint32_t> spirv_ll::Module::getSpecId(spv::Id id) const {
+std::optional<uint32_t> spirv_ll::Module::getSpecId(spv::Id id) const {
   auto found = SpecIDs.find(id);
   if (found == SpecIDs.end()) {
-    return cargo::nullopt;
+    return std::nullopt;
   }
   return found->second;
 }

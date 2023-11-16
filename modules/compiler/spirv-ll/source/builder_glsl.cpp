@@ -26,7 +26,7 @@
 namespace spirv_ll {
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Round>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Round>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Round>(opc);
 
@@ -41,12 +41,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Round>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450RoundEven>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450RoundEven>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::RoundEven>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -60,11 +60,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450RoundEven>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Trunc>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Trunc>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Trunc>(opc);
 
@@ -79,11 +79,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Trunc>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FAbs>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FAbs>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FAbs>(opc);
 
@@ -98,11 +98,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FAbs>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::SAbs>(opc);
 
@@ -117,11 +117,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FSign>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FSign>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FSign>(opc);
 
@@ -136,11 +136,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FSign>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::SSign>(opc);
 
@@ -182,11 +182,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Floor>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Floor>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Floor>(opc);
 
@@ -201,11 +201,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Floor>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Ceil>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Ceil>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Ceil>(opc);
 
@@ -220,11 +220,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Ceil>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Fract>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fract>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Fract>(opc);
 
@@ -254,12 +254,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Fract>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Radians>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Radians>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Radians>(opc);
 
   llvm::Value *degrees = module.getValue(op->degrees());
@@ -273,12 +273,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Radians>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Degrees>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Degrees>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Degrees>(opc);
 
   llvm::Value *radians = module.getValue(op->radians());
@@ -292,12 +292,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Degrees>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Sin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -311,12 +310,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Cos>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -330,12 +328,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Tan>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -349,11 +346,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Asin>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Asin>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Asin>(opc);
 
@@ -368,11 +365,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Asin>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Acos>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Acos>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Acos>(opc);
 
@@ -387,11 +384,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Acos>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atan>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atan>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Atan>(opc);
 
@@ -407,11 +404,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atan>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sinh>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sinh>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Sinh>(opc);
 
@@ -426,11 +423,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sinh>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cosh>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cosh>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Cosh>(opc);
 
@@ -445,11 +442,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cosh>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Tanh>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tanh>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Tanh>(opc);
 
@@ -464,11 +461,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Tanh>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Asinh>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Asinh>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Asinh>(opc);
 
@@ -483,11 +480,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Asinh>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Acosh>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Acosh>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Acosh>(opc);
 
@@ -502,11 +499,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Acosh>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atanh>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atanh>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Atanh>(opc);
 
@@ -521,11 +518,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atanh>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atan2>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atan2>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Atan2>(opc);
 
@@ -543,12 +540,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Atan2>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Pow>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -565,12 +561,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Exp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -584,12 +579,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Log>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Log>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -603,11 +597,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Log>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Exp2>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp2>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Exp2>(opc);
 
@@ -622,11 +616,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Exp2>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Log2>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log2>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Log2>(opc);
 
@@ -641,11 +635,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Log2>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sqrt>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sqrt>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Sqrt>(opc);
 
@@ -660,12 +654,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Sqrt>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450InverseSqrt>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InverseSqrt>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::InverseSqrt>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -679,33 +673,33 @@ spirv_ll::GLSLBuilder::create<GLSLstd450InverseSqrt>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Determinant>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Determinant>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Determinant>(opc);
 
   // Builtin not yet implemented!
   // Update and rerun generate_glsl_builder_calls once implemented.
   (void)op;
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450MatrixInverse>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450MatrixInverse>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::MatrixInverse>(opc);
 
   // Builtin not yet implemented!
   // Update and rerun generate_glsl_builder_calls once implemented.
   (void)op;
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Modf>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Modf>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Modf>(opc);
 
@@ -723,12 +717,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Modf>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450ModfStruct>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450ModfStruct>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FrexpStruct>(opc);
 
   auto *x = module.getValue(op->x());
@@ -761,11 +755,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450ModfStruct>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMin>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMin>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FMin>(opc);
 
@@ -783,11 +777,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMin>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450UMin>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UMin>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UMin>(opc);
 
@@ -805,11 +799,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450UMin>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SMin>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SMin>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::SMin>(opc);
 
@@ -827,11 +821,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SMin>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMax>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMax>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FMax>(opc);
 
@@ -849,11 +843,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMax>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450UMax>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UMax>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UMax>(opc);
 
@@ -871,11 +865,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450UMax>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SMax>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SMax>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::SMax>(opc);
 
@@ -893,12 +887,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450SMax>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450FClamp>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FClamp>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -919,12 +913,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FClamp>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UClamp>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UClamp>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -945,12 +939,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UClamp>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450SClamp>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SClamp>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::SClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -971,11 +965,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450SClamp>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMix>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMix>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FMix>(opc);
 
@@ -997,22 +991,22 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450FMix>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450IMix>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450IMix>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::IMix>(opc);
 
   // Builtin not yet implemented!
   // Update and rerun generate_glsl_builder_calls once implemented.
   (void)op;
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Step>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Step>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Step>(opc);
 
@@ -1030,12 +1024,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Step>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450SmoothStep>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SmoothStep>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::SmoothStep>(opc);
 
   llvm::Value *edge0 = module.getValue(op->edge0());
@@ -1056,12 +1050,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450SmoothStep>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Fma>(opc);
 
   llvm::Value *a = module.getValue(op->a());
@@ -1083,11 +1076,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Frexp>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Frexp>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Frexp>(opc);
 
@@ -1118,12 +1111,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Frexp>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FrexpStruct>(opc);
 
   auto *x = module.getValue(op->x());
@@ -1162,11 +1155,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Ldexp>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Ldexp>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Ldexp>(opc);
 
@@ -1188,12 +1181,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Ldexp>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm4x8>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm4x8>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::PackSnorm4x8>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1206,12 +1199,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm4x8>(OpExtInst const &opc) {
       "packSnorm4x8", retType, op->IdResultType(), {v}, {op->v()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm4x8>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm4x8>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::PackUnorm4x8>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1224,12 +1217,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm4x8>(OpExtInst const &opc) {
       "packUnorm4x8", retType, op->IdResultType(), {v}, {op->v()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm2x16>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm2x16>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::PackSnorm2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1242,12 +1235,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm2x16>(OpExtInst const &opc) {
       "packSnorm2x16", retType, op->IdResultType(), {v}, {op->v()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm2x16>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm2x16>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::PackUnorm2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1260,12 +1253,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm2x16>(OpExtInst const &opc) {
       "packUnorm2x16", retType, op->IdResultType(), {v}, {op->v()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450PackHalf2x16>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackHalf2x16>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::PackHalf2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1278,12 +1271,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackHalf2x16>(OpExtInst const &opc) {
       "packHalf2x16", retType, op->IdResultType(), {v}, {op->v()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450PackDouble2x32>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackDouble2x32>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::PackDouble2x32>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1295,12 +1288,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450PackDouble2x32>(OpExtInst const &opc) {
   llvm::Value *result = builder.getIRBuilder().CreateBitCast(v, retType);
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm2x16>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm2x16>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UnpackSnorm2x16>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1313,12 +1306,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm2x16>(OpExtInst const &opc) {
       "unpackSnorm2x16", retType, op->IdResultType(), {p}, {op->p()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm2x16>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm2x16>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UnpackUnorm2x16>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1331,12 +1324,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm2x16>(OpExtInst const &opc) {
       "unpackUnorm2x16", retType, op->IdResultType(), {p}, {op->p()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UnpackHalf2x16>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackHalf2x16>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UnpackHalf2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1349,12 +1342,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackHalf2x16>(OpExtInst const &opc) {
       "unpackHalf2x16", retType, op->IdResultType(), {v}, {op->v()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm4x8>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm4x8>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UnpackSnorm4x8>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1367,12 +1360,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm4x8>(OpExtInst const &opc) {
       "unpackSnorm4x8", retType, op->IdResultType(), {p}, {op->p()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm4x8>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm4x8>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UnpackUnorm4x8>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1385,12 +1378,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm4x8>(OpExtInst const &opc) {
       "unpackUnorm4x8", retType, op->IdResultType(), {p}, {op->p()});
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450UnpackDouble2x32>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackDouble2x32>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::UnpackDouble2x32>(opc);
 
@@ -1403,12 +1395,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450UnpackDouble2x32>(
   llvm::Value *result = builder.getIRBuilder().CreateBitCast(v, retType);
 
   module.addID(op->IdResult(), op, result);
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Length>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Length>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Length>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1422,12 +1414,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Length>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Distance>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Distance>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Distance>(opc);
 
   llvm::Value *p0 = module.getValue(op->p0());
@@ -1444,11 +1436,11 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Distance>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cross>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cross>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Cross>(opc);
 
@@ -1466,12 +1458,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450Cross>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Normalize>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Normalize>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Normalize>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1485,12 +1477,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Normalize>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450FaceForward>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FaceForward>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FaceForward>(opc);
 
   llvm::Value *n = module.getValue(op->n());
@@ -1512,12 +1504,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FaceForward>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Reflect>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Reflect>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Reflect>(opc);
 
   llvm::Value *i = module.getValue(op->i());
@@ -1535,12 +1527,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Reflect>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450Refract>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Refract>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::Refract>(opc);
 
   llvm::Value *i = module.getValue(op->i());
@@ -1561,12 +1553,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450Refract>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450FindILsb>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindILsb>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FindILsb>(opc);
 
   llvm::Value *value = module.getValue(op->value());
@@ -1580,12 +1572,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindILsb>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FindSMsb>(opc);
 
   llvm::Value *value = module.getValue(op->value());
@@ -1600,12 +1592,12 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450FindUMsb>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindUMsb>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::FindUMsb>(opc);
 
   llvm::Value *value = module.getValue(op->value());
@@ -1619,47 +1611,44 @@ spirv_ll::GLSLBuilder::create<GLSLstd450FindUMsb>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtCentroid>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtCentroid>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::InterpolateAtCentroid>(opc);
 
   // Builtin not yet implemented!
   // Update and rerun generate_glsl_builder_calls once implemented.
   (void)op;
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtSample>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtSample>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::InterpolateAtSample>(opc);
 
   // Builtin not yet implemented!
   // Update and rerun generate_glsl_builder_calls once implemented.
   (void)op;
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtOffset>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtOffset>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::InterpolateAtOffset>(opc);
 
   // Builtin not yet implemented!
   // Update and rerun generate_glsl_builder_calls once implemented.
   (void)op;
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450NMin>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NMin>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::NMin>(opc);
 
@@ -1677,11 +1666,11 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450NMin>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450NMax>(
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NMax>(
     OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::NMax>(opc);
 
@@ -1699,12 +1688,12 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create<GLSLstd450NMax>(
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
-spirv_ll::GLSLBuilder::create<GLSLstd450NClamp>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NClamp>(
+    OpExtInst const &opc) {
   auto *op = module.create<GLSLstd450::NClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1725,15 +1714,14 @@ spirv_ll::GLSLBuilder::create<GLSLstd450NClamp>(OpExtInst const &opc) {
 
   module.addID(op->IdResult(), op, result);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 #define CASE(ExtInst) \
   case ExtInst:       \
     return create<ExtInst>(opc);
 
-cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create(
-    OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create(OpExtInst const &opc) {
   switch (opc.Instruction()) {
     CASE(GLSLstd450Round)
     CASE(GLSLstd450RoundEven)
@@ -1817,8 +1805,8 @@ cargo::optional<spirv_ll::Error> spirv_ll::GLSLBuilder::create(
     CASE(GLSLstd450NMax)
     CASE(GLSLstd450NClamp)
     default:
-      return Error("Unrecognized extended instruction " +
-                   std::to_string(opc.Instruction()));
+      return makeStringError(llvm::Twine("Unrecognized extended instruction ") +
+                             std::to_string(opc.Instruction()));
   }
 }
 

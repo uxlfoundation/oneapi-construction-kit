@@ -147,7 +147,7 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   llvm::SmallVector<OpIRLocTy, 8> Phis;
 
   for (auto op : module) {
-    cargo::optional<Error> error;
+    std::optional<llvm::Error> error;
     switch (op.code) {
         // Unsupported opcodes are ignored.
       default:
@@ -157,7 +157,8 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         // SPIR-V which contains unsupported opcodes intentionally by the user
         // with the intent that the SPIR-V consumer simply ignores them, as is
         // allowed by the SPIR-V spec, then this abort should be removed.
-        error = Error{"unsupported opcode: " + std::to_string(op.code)};
+        error =
+            makeStringError("unsupported opcode: " + std::to_string(op.code));
 #endif
         break;
       case spv::OpNop:
@@ -1112,8 +1113,8 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         error = builder.create<OpExpectKHR>(op);
         break;
     }
-    if (error) {
-      return cargo::make_unexpected(std::move(error.value()));
+    if (error && *error) {
+      return cargo::make_unexpected(llvm::toString(std::move(*error)));
     }
   }
 

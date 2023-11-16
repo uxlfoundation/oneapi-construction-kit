@@ -50,7 +50,7 @@ struct GroupAsyncCopy3D3D : OpExtInst {
 };
 
 template <>
-cargo::optional<spirv_ll::Error>
+llvm::Error
 GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
     OpExtInst const &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy2D2D>(opc);
@@ -89,9 +89,9 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
     mangledName =
         "_Z26async_work_group_copy_2D2DPU3AS3vmPU3AS1Kvmmmmmm9ocl_event";
   } else {
-    return Error{
+    return makeStringError(
         "GroupAsyncCopy2D2D invalid storage class for Source and/or "
-        "Destination"};
+        "Destination");
   }
 
   llvm::Type *i8Ty = llvm::IntegerType::getInt8Ty(*module.context.llvmContext);
@@ -115,11 +115,11 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
       /* convergent = */ true);
   module.addID(op->IdResult(), op, call);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
+llvm::Error
 GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
     OpExtInst const &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy3D3D>(opc);
@@ -164,9 +164,9 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
     mangledName =
         "_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event";
   } else {
-    return Error{
+    return makeStringError(
         "GroupAsyncCopy3D3D invalid storage class for Source and/or "
-        "Destination"};
+        "Destination");
   }
 
   llvm::Type *i8Ty = llvm::IntegerType::getInt8Ty(*module.context.llvmContext);
@@ -193,20 +193,19 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
       /* convergent = */ true);
   module.addID(op->IdResult(), op, call);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
-cargo::optional<spirv_ll::Error> GroupAsyncCopiesBuilder::create(
-    OpExtInst const &opc) {
+llvm::Error GroupAsyncCopiesBuilder::create(OpExtInst const &opc) {
   switch (opc.Instruction()) {
     case GroupAsyncCopy2D2D:
       return create<GroupAsyncCopy2D2D>(opc);
     case GroupAsyncCopy3D3D:
       return create<GroupAsyncCopy3D3D>(opc);
     default:
-      return Error{
+      return makeStringError(
           "Unrecognized Codeplay.GroupAsyncCopies extended instruction " +
-          std::to_string(opc.Instruction())};
+          std::to_string(opc.Instruction()));
   }
 }
 }  // namespace spirv_ll
