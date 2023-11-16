@@ -49,6 +49,12 @@ static constexpr const char SAMPLER_INIT_FN[] =
 
 class Builder;
 
+/// Wrap a string into an llvm::StringError.
+static inline llvm::Error makeStringError(const llvm::Twine &message) {
+  return llvm::make_error<llvm::StringError>(message.str(),
+                                             llvm::inconvertibleErrorCode());
+}
+
 class OpenCLBuilder {
  public:
   /// @brief Constructor.
@@ -63,10 +69,10 @@ class OpenCLBuilder {
   /// @tparam T The OpenCL extended instruction class template to create.
   /// @param opc The OpCode object to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <typename T>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  llvm::Error create(OpExtInst const &opc);
 
   /// @brief Create a vector OpenCL extended instruction transformation to LLVM
   /// IR.
@@ -74,10 +80,10 @@ class OpenCLBuilder {
   /// @tparam inst The OpenCL extended instruction to create.
   /// @param opc The OpCode object to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <OpenCLLIB::Entrypoints inst>
-  cargo::optional<spirv_ll::Error> createVec(OpExtInst const &opc);
+  llvm::Error createVec(OpExtInst const &opc);
 
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
   ///
@@ -86,9 +92,9 @@ class OpenCLBuilder {
   ///
   /// @param opc The OpCode object to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
+  llvm::Error create(OpExtInst const &opc);
 
  private:
   /// @brief `spirv_ll::Builder` that owns this object.
@@ -112,10 +118,10 @@ class GLSLBuilder {
   /// @tparam inst The GLSL extended instruction to create.
   /// @param opc The OpCode object to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <enum GLSLstd450 inst>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  llvm::Error create(OpExtInst const &opc);
 
   /// @brief Create a GLSL extended instruction transformation to LLVM IR.
   ///
@@ -124,9 +130,9 @@ class GLSLBuilder {
   ///
   /// @param opc The OpCode object to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
+  llvm::Error create(OpExtInst const &opc);
 
  private:
   /// @brief `spirv_ll::Builder` that owns this object.
@@ -162,10 +168,10 @@ class GroupAsyncCopiesBuilder {
   /// create.
   /// @param opc The spirv_ll::OpCode object to translate.
   ///
-  /// @return Returns an optional where cargo::nullopt represents success,
-  /// otherwise returns a spirv_ll::Error object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <Instruction inst>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  llvm::Error create(OpExtInst const &opc);
 
   /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
   /// transformation to LLVM IR.
@@ -175,9 +181,9 @@ class GroupAsyncCopiesBuilder {
   ///
   /// @param opc The spirv_ll::OpCode object to translate.
   ///
-  /// @return Returns an optional where cargo::nullopt represents success,
-  /// otherwise returns a spirv_ll::Error object containing a diagnostic.
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
+  llvm::Error create(OpExtInst const &opc);
 
  private:
   /// @brief Reference to the spirv_ll::Builder that owns this object.
@@ -298,10 +304,10 @@ class Builder {
   /// @tparam Op The type of OpCode to create.
   /// @param op The base object to create the derived OpCode from.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <class Op>
-  cargo::optional<spirv_ll::Error> create(const OpCode &op) {
+  llvm::Error create(const OpCode &op) {
     return create<Op>(module.create<Op>(op));
   }
 
@@ -310,10 +316,10 @@ class Builder {
   /// @tparam Op The type of OpCode to create.
   /// @param op The OpCode to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <class Op>
-  cargo::optional<spirv_ll::Error> create(const Op *op);
+  llvm::Error create(const Op *op);
 
   /// @brief Populate the incoming edges/values for the given Phi node
   /// @param op The SpirV Op for the Phi node

@@ -678,7 +678,7 @@ class Module : public ModuleHeader {
   /// @param[in] argno the zero-indexed argument number
   /// @return SPIR-V SSA ID referring to the parameter type or nullopt on
   /// failure
-  cargo::optional<spv::Id> getParamTypeID(spv::Id func, unsigned argno) const;
+  std::optional<spv::Id> getParamTypeID(spv::Id func, unsigned argno) const;
 
   /// @brief Get the LLVM Type for the given SPIR-V ID.
   ///
@@ -909,8 +909,8 @@ class Module : public ModuleHeader {
   /// @param id ID of the spec constant.
   ///
   /// @return Return the specialization ID of the spec constant if present,
-  /// `cargo::nullopt` otherwise.
-  cargo::optional<uint32_t> getSpecId(spv::Id id) const;
+  /// `std::nullopt` otherwise.
+  std::optional<uint32_t> getSpecId(spv::Id id) const;
 
   /// @brief Get a pointer to the push constant struct type defined in the
   /// module.
