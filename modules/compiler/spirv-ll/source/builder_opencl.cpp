@@ -16,7 +16,7 @@
 
 #include <cargo/optional.h>
 #include <llvm/IR/Attributes.h>
-#include <spirv-ll/builder.h>
+#include <spirv-ll/builder_opencl.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 

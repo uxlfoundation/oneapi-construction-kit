@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <spirv-ll/builder.h>
+#include <spirv-ll/builder_group_async_copies.h>
 #include <spirv-ll/module.h>
 
 namespace spirv_ll {
