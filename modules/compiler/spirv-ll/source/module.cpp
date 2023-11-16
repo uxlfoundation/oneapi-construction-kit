@@ -482,6 +482,12 @@ llvm::Type *spirv_ll::Module::getBlockType(const spv::Id id) const {
 }
 
 bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
+  // If the ID has a name attached to it, try to set it here if it wasn't
+  // already set. reference might not have been able to take a name (e.g., if
+  // it was a undef/poison constant).
+  if (auto name = getName(id); !name.empty() && V && !V->hasName()) {
+    V->setName(name);
+  }
   // SSA form forbids the reassignment of IDs
   auto existing = Values.find(id);
   if (existing != Values.end() && existing->second.Value != nullptr) {

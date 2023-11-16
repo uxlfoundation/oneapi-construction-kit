@@ -2028,6 +2028,7 @@ set(SPVASM_FILES
   op_ordered_scalar.spvasm
   op_ordered_vector.spvasm
   op_phi.spvasm
+  op_phi_forward_ref.spvasm
   op_quantize_to_f16.spvasm
   op_quantize_to_f16_vec2.spvasm
   op_sat_convert_int_to_uchar.spvasm

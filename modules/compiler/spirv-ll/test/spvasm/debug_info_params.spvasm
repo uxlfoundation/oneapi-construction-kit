@@ -59,7 +59,8 @@
 ; CHECK: [[CompileUnit]] = distinct !DICompileUnit(language: DW_LANG_OpenCL, file: [[File:![0-9]+]], isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug)
 ; CHECK: [[File]] = !DIFile(filename: "debug_info_params.comp", directory: "test/spvasm")
 
-; CHECK: [[MainSubprogram]] = distinct !DISubprogram(scope: null, file: [[File]],
+; CHECK: [[MainSubprogram]] = distinct !DISubprogram(name: "my_kernel", linkageName: "my_kernel",
+; CHECK-SAME: scope: null, file: [[File]],
 ; CHECK-SAME: line: 6, type: [[MainSubroutineType:![0-9]+]]
 ; CHECK-SAME: {{(, isLocal: true, isDefinition: true)?}}, scopeLine: 1
 ; CHECK-SAME: {{(, isOptimized: false)?}}

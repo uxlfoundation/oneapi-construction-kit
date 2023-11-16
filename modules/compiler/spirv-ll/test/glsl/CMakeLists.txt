@@ -780,7 +780,9 @@ set(GLSL_FILES
   push_constant_float.comp
   push_constant_int.comp
   push_constant_uint.comp
-  spec_constants.comp)
+  spec_constants.comp
+  printf.comp
+)
 
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.comp)
