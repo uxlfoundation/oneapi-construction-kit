@@ -300,6 +300,10 @@ function(target_resources target)
     message(FATAL_ERROR "One or more NAMESPACES must be provided.")
   endif()
 
+  foreach(namespace ${args_NAMESPACES})
+    add_dependencies(${target} resources-${namespace})
+  endforeach()
+
   # Generate the .s/.rc files and add them to the specified target.
   if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 
