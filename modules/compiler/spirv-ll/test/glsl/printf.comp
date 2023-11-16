@@ -16,24 +16,24 @@
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
 // RUN: %if online-glsl %{ spirv-val %spv_file_s %}
-// RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
+// RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
 
-layout (push_constant) uniform push {
-  double test;
-} test_push;
+// Check that we don't pick up either of these functions called printf as "the"
+// printf, and give it the signature of printf (e.g., variadic).
 
-void main() {
-  double result = test_push.test;
+// CHECK: define private spir_func void @"printf("() {{(#0 )?}}{
+void printf() {
+  return;
 }
 
-// CHECK: ; ModuleID = '{{.*}}'
-// CHECK: = type { double }
-// CHECK: define spir_kernel void @main(ptr addrspace(2){{( %.*)?}}) #0 {
-// CHECK:   = alloca double
-// CHECK:   = getelementptr {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}, i32 0, i32 0
-// CHECK:   = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
-// CHECK:   store double {{[%@].*}}, ptr {{[%@].*}}
-// CHECK:   ret void
-// CHECK: }
+// CHECK: define private spir_func void @"printf(u1;"(ptr %id) {{(#0 )?}}{
+void printf(uint id) {
+  return;
+}
+
+void main() {
+  printf();
+  printf(0);
+}

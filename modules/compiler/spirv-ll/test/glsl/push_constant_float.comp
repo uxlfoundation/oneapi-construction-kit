@@ -30,7 +30,7 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: = type { float }
-// CHECK: define spir_kernel void @main(ptr addrspace(2){{( %0)?}}) #0 {
+// CHECK: define spir_kernel void @main(ptr addrspace(2){{( %.*)?}}) #0 {
 // CHECK:   = alloca float
 // CHECK:   = getelementptr {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}, i32 0, i32 0
 // CHECK:   = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
