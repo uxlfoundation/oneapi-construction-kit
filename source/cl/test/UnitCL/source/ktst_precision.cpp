@@ -1633,23 +1633,11 @@ TEST_P(HalfMathBuiltins, Precision_53_Half_mix) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2882: Vector widths 2 and 4 don't work
-#ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
-    GTEST_SKIP();
-  }
-#endif
-
   auto mix_ref = [](cl_float x, cl_float y, cl_float a) -> cl_float {
+    // Our reference for mix is inaccurate due to intermediate rounding, even if
+    // we use float rather than half, but because we test with MAX_ULP_ERROR,
+    // this does not matter for the overall test.
     cl_float sub = y - x;
-
-    // Check for overflow and underflow of intermediate
-    const cl_half sub_as_half = ConvertFloatToHalf(sub);
-    if (IsInf(sub_as_half)) {
-      sub = std::copysign(INFINITY, sub);
-    } else if (0 == (sub_as_half & ~TypeInfo<cl_half>::sign_bit)) {
-      sub = std::copysign(0.0f, sub);
-    }
 
     return x + sub * a;
   };
@@ -1666,24 +1654,11 @@ TEST_P(HalfMathBuiltins, Precision_53_Half_mix_scalar) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector widths 2 and 8 don't work
-  // TODO: CA-2882: Vector width 4 doesn't work
-#ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4) || (getParam() == 8)) {
-    GTEST_SKIP();
-  }
-#endif
-
   auto mix_ref = [](cl_float x, cl_float y, cl_float a) -> cl_float {
+    // Our reference for mix is inaccurate due to intermediate rounding, even if
+    // we use float rather than half, but because we test with MAX_ULP_ERROR,
+    // this does not matter for the overall test.
     cl_float sub = y - x;
-
-    // Check for overflow and underflow of intermediate
-    const cl_half sub_as_half = ConvertFloatToHalf(sub);
-    if (IsInf(sub_as_half)) {
-      sub = std::copysign(INFINITY, sub);
-    } else if (0 == (sub_as_half & ~TypeInfo<cl_half>::sign_bit)) {
-      sub = std::copysign(0.0f, sub);
-    }
 
     return x + sub * a;
   };

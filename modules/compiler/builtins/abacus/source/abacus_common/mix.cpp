@@ -21,9 +21,9 @@
   TYPE __abacus_mix(TYPE x, TYPE y, TYPE a) {    \
     return abacus::detail::common::mix(x, y, a); \
   }
-#define DEF2(TYPE, TYPE2)                        \
-  TYPE __abacus_mix(TYPE x, TYPE y, TYPE2 a) {   \
-    return abacus::detail::common::mix(x, y, a); \
+#define DEF2(TYPE, TYPE2)                              \
+  TYPE __abacus_mix(TYPE x, TYPE y, TYPE2 a) {         \
+    return abacus::detail::common::mix<TYPE>(x, y, a); \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
