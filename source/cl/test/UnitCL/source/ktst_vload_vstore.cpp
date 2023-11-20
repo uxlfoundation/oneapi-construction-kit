@@ -91,12 +91,7 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_02_Half_Local) {
   RunGeneric1D(N, N);
 }
 
-// TODO: CA-2731
-#ifdef __arm__
-TEST_P(HalfVloadVstoreTests, DISABLED_Vloadvstore_03_Half_Private) {
-#else
 TEST_P(HalfVloadVstoreTests, Vloadvstore_03_Half_Private) {
-#endif
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }

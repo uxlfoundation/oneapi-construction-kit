@@ -445,13 +445,6 @@ TEST_P(HalfGeometricBuiltins, DISABLED_Geometric_04_Half_Normalize) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-4428: Fix (half) normalize due to overflow issues on dot
-  // TODO: CA-2731: Vector width 2 doesn't work
-#ifdef __arm__
-  if (getParam() == 2) {
-    GTEST_SKIP();
-  }
-#endif
 
   fail_if_not_vectorized_ = false;
 

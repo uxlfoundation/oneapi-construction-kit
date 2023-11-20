@@ -412,15 +412,14 @@ UCL_EXECUTION_TEST_SUITE_P(HalfOperatorTest, testing::Values(OPENCL_C),
                            testing::Values(1, 2, 3, 4, 8, 16));
 
 using HalfMathBuiltins = HalfParamExecution;
-// CA-2774: Re-enable after fixing failing edge cases.
-TEST_P(HalfMathBuiltins, DISABLED_Precision_08_Half_Ldexp) {
+
+TEST_P(HalfMathBuiltins, Precision_08_Half_Ldexp) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -436,10 +435,9 @@ TEST_P(HalfMathBuiltins, Precision_09_Half_Exp10) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -453,10 +451,9 @@ TEST_P(HalfMathBuiltins, Precision_10_Half_Exp) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -470,10 +467,9 @@ TEST_P(HalfMathBuiltins, Precision_11_Half_Exp2) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -487,10 +483,9 @@ TEST_P(HalfMathBuiltins, Precision_12_Half_Expm1) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -520,10 +515,9 @@ TEST_P(HalfMathBuiltins, Precision_14_Half_Copysign) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -539,10 +533,9 @@ TEST_P(HalfMathBuiltins, Precision_15_Half_Floor) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -556,10 +549,9 @@ TEST_P(HalfMathBuiltins, Precision_16_Half_Ceil) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -588,10 +580,9 @@ TEST_P(HalfMathBuiltins, Precision_18_Half_frexp) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -607,10 +598,9 @@ TEST_P(HalfMathBuiltins, Precision_18_Half_frexp_local) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -626,10 +616,9 @@ TEST_P(HalfMathBuiltins, Precision_18_Half_frexp_private) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -645,10 +634,9 @@ TEST_P(HalfMathBuiltins, Precision_19_Half_rsqrt) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -662,10 +650,9 @@ TEST_P(HalfMathBuiltins, Precision_20_Half_Sinpi) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -679,10 +666,9 @@ TEST_P(HalfMathBuiltins, Precision_21_Half_Cospi) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -725,10 +711,9 @@ TEST_P(HalfMathBuiltins, Precision_23_Half_log2) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -742,10 +727,9 @@ TEST_P(HalfMathBuiltins, Precision_24_Half_log10) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -759,10 +743,9 @@ TEST_P(HalfMathBuiltins, Precision_25_Half_log) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -870,10 +853,9 @@ TEST_P(HalfMathBuiltins, Precision_30_Half_Trunc) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -959,10 +941,9 @@ TEST_P(HalfMathBuiltins, Precision_33_Half_fmod) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -978,10 +959,9 @@ TEST_P(HalfMathBuiltins, Precision_34_Half_round) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -995,10 +975,9 @@ TEST_P(HalfMathBuiltins, Precision_35_Half_rint) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1012,10 +991,9 @@ TEST_P(HalfMathBuiltins, Precision_36_Half_remainder) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1031,10 +1009,9 @@ TEST_P(HalfMathBuiltins, Precision_37_Half_remquo) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1046,10 +1023,9 @@ TEST_P(HalfMathBuiltins, Precision_37_Half_remquo_local) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1061,10 +1037,9 @@ TEST_P(HalfMathBuiltins, Precision_37_Half_remquo_private) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1076,10 +1051,9 @@ TEST_P(HalfMathBuiltins, Precision_38_Half_fdim) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1095,10 +1069,9 @@ TEST_P(HalfMathBuiltins, Precision_39_Half_fract) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1128,10 +1101,9 @@ TEST_P(HalfMathBuiltins, Precision_39_Half_fract_local) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1161,10 +1133,9 @@ TEST_P(HalfMathBuiltins, Precision_39_Half_fract_private) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1194,10 +1165,9 @@ TEST_P(HalfMathBuiltins, Precision_40_Half_logb) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1211,10 +1181,9 @@ TEST_P(HalfMathBuiltins, Precision_41_Half_modf) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1230,10 +1199,9 @@ TEST_P(HalfMathBuiltins, Precision_41_Half_modf_local) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1249,10 +1217,9 @@ TEST_P(HalfMathBuiltins, Precision_41_Half_modf_private) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1347,10 +1314,9 @@ TEST_P(HalfMathBuiltins, Precision_44_Half_log1p) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1364,10 +1330,9 @@ TEST_P(HalfMathBuiltins, Precision_45_Half_cbrt) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1381,10 +1346,9 @@ TEST_P(HalfMathBuiltins, Precision_46_Half_hypot) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1406,10 +1370,9 @@ TEST_P(HalfMathBuiltins, Precision_47_Half_max) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1432,10 +1395,9 @@ TEST_P(HalfMathBuiltins, Precision_47_Half_max_scalar) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1461,10 +1423,9 @@ TEST_P(HalfMathBuiltins, Precision_48_Half_min) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1487,10 +1448,9 @@ TEST_P(HalfMathBuiltins, Precision_48_Half_min_scalar) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1605,10 +1565,9 @@ TEST_P(HalfMathBuiltins, Precision_52_Half_clamp_scalar) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1842,10 +1801,9 @@ TEST_P(HalfMathBuiltins, Precision_56_Half_asin) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1859,10 +1817,9 @@ TEST_P(HalfMathBuiltins, Precision_57_Half_acos) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1877,10 +1834,9 @@ TEST_P(HalfMathBuiltins, Precision_58_Half_atan) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1895,10 +1851,9 @@ TEST_P(HalfMathBuiltins, Precision_59_Half_sin) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1913,10 +1868,9 @@ TEST_P(HalfMathBuiltins, Precision_60_Half_cos) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1931,10 +1885,9 @@ TEST_P(HalfMathBuiltins, Precision_61_Half_tan) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1949,10 +1902,9 @@ TEST_P(HalfMathBuiltins, Precision_62_Half_asinh) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1967,10 +1919,9 @@ TEST_P(HalfMathBuiltins, Precision_63_Half_acosh) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -1985,10 +1936,9 @@ TEST_P(HalfMathBuiltins, Precision_64_Half_atanh) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2003,10 +1953,9 @@ TEST_P(HalfMathBuiltins, Precision_65_Half_asinpi) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2023,10 +1972,9 @@ TEST_P(HalfMathBuiltins, Precision_66_Half_acospi) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2043,10 +1991,9 @@ TEST_P(HalfMathBuiltins, Precision_67_Half_atanpi) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2063,10 +2010,9 @@ TEST_P(HalfMathBuiltins, Precision_68_Half_atan2) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector widths 1 and 2 don't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 1) || (getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2094,10 +2040,9 @@ TEST_P(HalfMathBuiltins, Precision_69_Half_atan2pi) {
     GTEST_SKIP();
   }
 
-  // TODO: CA-2731: Vector widths 1 and 2 don't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 1) || (getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2124,10 +2069,9 @@ TEST_P(HalfMathBuiltins, Precision_70_Half_sincos) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2144,10 +2088,9 @@ TEST_P(HalfMathBuiltins, Precision_70_Half_sincos_local) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2164,10 +2107,9 @@ TEST_P(HalfMathBuiltins, Precision_70_Half_sincos_private) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2184,10 +2126,9 @@ TEST_P(HalfMathBuiltins, Precision_71_Half_tanpi) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2216,10 +2157,9 @@ TEST_P(HalfMathBuiltins, Precision_72_Half_erfc) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2233,10 +2173,9 @@ TEST_P(HalfMathBuiltins, Precision_73_Half_erf) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2250,10 +2189,9 @@ TEST_P(HalfMathBuiltins, Precision_74_Half_lgamma) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2268,10 +2206,9 @@ TEST_P(HalfMathBuiltins, Precision_75_Half_lgammar) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2293,10 +2230,9 @@ TEST_P(HalfMathBuiltins, Precision_75_Half_lgammar_local) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2318,10 +2254,9 @@ TEST_P(HalfMathBuiltins, Precision_75_Half_lgammar_private) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2358,10 +2293,9 @@ TEST_P(HalfMathBuiltins, Precision_77_Half_sinh) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2375,10 +2309,9 @@ TEST_P(HalfMathBuiltins, Precision_78_Half_cosh) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector width 2 doesn't work
   // TODO: CA-2882: Vector width 4 doesn't work
 #ifdef __arm__
-  if ((getParam() == 2) || (getParam() == 4)) {
+  if (getParam() == 4) {
     GTEST_SKIP();
   }
 #endif
@@ -2392,12 +2325,6 @@ TEST_P(HalfMathBuiltins, Precision_79_Half_tanh) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector widths 2 and 4 don't work
-#ifdef __arm__
-  if (getParam() == 2 || getParam() == 4) {
-    GTEST_SKIP();
-  }
-#endif
 
   auto tanh_ref = [](cl_float x) -> cl_float { return std::tanh(x); };
 
@@ -2487,12 +2414,6 @@ TEST_P(HalfMathBuiltins, Precision_83_Half_rootn) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
-  // TODO: CA-2731: Vector widths 2 and 4 don't work
-#ifdef __arm__
-  if (getParam() == 2 || getParam() == 4) {
-    GTEST_SKIP();
-  }
-#endif
 
   auto rootn_ref = [](cl_float x, cl_int y) -> cl_float {
     if (0 == y) {
