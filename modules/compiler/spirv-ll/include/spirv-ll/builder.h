@@ -27,7 +27,6 @@
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 #include <spirv-ll/opcodes.h>
-#include <spirv/1.0/GLSL.std.450.h>
 #include <spirv/1.0/OpenCL.std.h>
 
 #include <optional>
@@ -55,140 +54,31 @@ static inline llvm::Error makeStringError(const llvm::Twine &message) {
                                              llvm::inconvertibleErrorCode());
 }
 
-class OpenCLBuilder {
+/// @brief An interface for builders of extended instruction sets.
+class ExtInstSetHandler {
  public:
   /// @brief Constructor.
   ///
   /// @param builder `Builder` object that will own this object.
   /// @param module The module being translated.
-  OpenCLBuilder(Builder &builder, Module &module)
+  ExtInstSetHandler(Builder &builder, Module &module)
       : builder(builder), module(module) {}
 
-  /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
-  ///
-  /// @tparam T The OpenCL extended instruction class template to create.
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an `llvm::Error` object representing either success, or
-  /// an error value.
-  template <typename T>
-  llvm::Error create(OpExtInst const &opc);
-
-  /// @brief Create a vector OpenCL extended instruction transformation to LLVM
-  /// IR.
-  ///
-  /// @tparam inst The OpenCL extended instruction to create.
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an `llvm::Error` object representing either success, or
-  /// an error value.
-  template <OpenCLLIB::Entrypoints inst>
-  llvm::Error createVec(OpExtInst const &opc);
+  virtual ~ExtInstSetHandler() {}
 
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
   ///
-  /// This overload contains the switch that calls the correct templated
-  /// overload.
-  ///
   /// @param opc The OpCode object to translate.
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  llvm::Error create(OpExtInst const &opc);
+  virtual llvm::Error create(OpExtInst const &opc) = 0;
 
- private:
+ protected:
   /// @brief `spirv_ll::Builder` that owns this object.
   spirv_ll::Builder &builder;
 
   /// @brief Reference to the module being translated.
-  spirv_ll::Module &module;
-};
-
-class GLSLBuilder {
- public:
-  /// @brief Constructor.
-  ///
-  /// @param builder `Builder` object that will own this object.
-  /// @param module The module being translated.
-  GLSLBuilder(Builder &builder, Module &module)
-      : builder(builder), module(module) {}
-
-  /// @brief Create a GLSL extended instruction transformation to LLVM IR.
-  ///
-  /// @tparam inst The GLSL extended instruction to create.
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an `llvm::Error` object representing either success, or
-  /// an error value.
-  template <enum GLSLstd450 inst>
-  llvm::Error create(OpExtInst const &opc);
-
-  /// @brief Create a GLSL extended instruction transformation to LLVM IR.
-  ///
-  /// This overload contains the switch that calls the correct templated
-  /// overload.
-  ///
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an `llvm::Error` object representing either success, or
-  /// an error value.
-  llvm::Error create(OpExtInst const &opc);
-
- private:
-  /// @brief `spirv_ll::Builder` that owns this object.
-  spirv_ll::Builder &builder;
-
-  /// @brief Reference to the module being translated.
-  spirv_ll::Module &module;
-};
-
-/// @brief builder for the Codeplay.GroupAsyncCopies extended instruction set.
-class GroupAsyncCopiesBuilder {
- public:
-  /// @brief Constructor.
-  ///
-  /// @param[in] builder spirv_ll::Builder object that will own this object.
-  /// @param[in] module The module being translated.
-  GroupAsyncCopiesBuilder(Builder &builder, Module &module)
-      : builder(builder), module(module) {}
-
-  /// @brief Enumeration of instruction ID's in the Codeplay.GroupAsyncCopies
-  /// extended instruction set.
-  // TODO(CA-4119): If this vendor extension lives beyond any official Khronos
-  // extension, these definitions should be defined upstream in SPIRV-Headers.
-  enum Instruction {
-    GroupAsyncCopy2D2D = 1,  ///< Represents async_work_group_copy_2D2D.
-    GroupAsyncCopy3D3D = 2,  ///< Represents async_work_group_copy_3D3D.
-  };
-
-  /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
-  /// transformation to LLVM IR.
-  ///
-  /// @tparam inst The Codeplay.GroupAsyncCopies extended instruction to
-  /// create.
-  /// @param opc The spirv_ll::OpCode object to translate.
-  ///
-  /// @return Returns an `llvm::Error` object representing either success, or
-  /// an error value.
-  template <Instruction inst>
-  llvm::Error create(OpExtInst const &opc);
-
-  /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
-  /// transformation to LLVM IR.
-  ///
-  /// This overload contains the switch that calls the correct templated
-  /// overload.
-  ///
-  /// @param opc The spirv_ll::OpCode object to translate.
-  ///
-  /// @return Returns an `llvm::Error` object representing either success, or
-  /// an error value.
-  llvm::Error create(OpExtInst const &opc);
-
- private:
-  /// @brief Reference to the spirv_ll::Builder that owns this object.
-  spirv_ll::Builder &builder;
-  /// @brief Reference to the spirv_ll::Module being translated.
   spirv_ll::Module &module;
 };
 
@@ -813,6 +703,24 @@ class Builder {
   /// they must be translated into entry point parameters for core.
   void handleGlobalParameters();
 
+  /// @brief Registers an extended instruction set handler with an instruction
+  /// set ID.
+  ///
+  /// Each handler is created only once per set.
+  template <typename Handler>
+  void registerExtInstHandler(ExtendedInstrSet Set) {
+    auto &builder = ext_inst_handlers[Set];
+    if (!builder) {
+      builder = std::make_unique<Handler>(*this, module);
+    }
+  }
+
+  /// @brief Returns an extended instruction set handler for the instruction
+  /// set ID.
+  ///
+  /// @return A pointer to the handler if registered; nullptr otherwise.
+  spirv_ll::ExtInstSetHandler *getExtInstHandler(ExtendedInstrSet set) const;
+
   /// @brief Determine the return type of a relational builtin from its operand.
   ///
   /// @param operand An operand that will be passed to the relational builtin.
@@ -838,13 +746,10 @@ class Builder {
   llvm::SmallVector<llvm::Value *, 8> CurrentFunctionArgs;
   /// @brief A list of the builtin IDs specified at `CurrentFunction`'s creation
   BuiltinIDList CurrentFunctionBuiltinIDs;
-  /// @brief Builder object for generating OpenCL extended instructions.
-  spirv_ll::OpenCLBuilder OpenCLBuilder;
-  /// @brief Builder object for generating GLSL extended instructions.
-  spirv_ll::GLSLBuilder GLSLBuilder;
-  /// @brief Builder object for experimental
-  /// NonSemantic.Codeplay.GroupAsyncCopies extended instructions.
-  spirv_ll::GroupAsyncCopiesBuilder GroupAsyncCopiesBuilder;
+  /// @brief Registered extended instruction set handlers.
+  std::unordered_map<spirv_ll::ExtendedInstrSet,
+                     std::unique_ptr<spirv_ll::ExtInstSetHandler>>
+      ext_inst_handlers;
 };
 }  // namespace spirv_ll
 

@@ -32,6 +32,9 @@
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>
+#include <spirv-ll/builder_glsl.h>
+#include <spirv-ll/builder_group_async_copies.h>
+#include <spirv-ll/builder_opencl.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 #include <spirv-ll/opcodes.h>
@@ -303,35 +306,41 @@ template <>
 llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
   auto name = op->Name();
   if (name == "GLSL.std.450") {
+    registerExtInstHandler<GLSLBuilder>(ExtendedInstrSet::GLSL450);
     module.associateExtendedInstrSet(op->IdResult(), ExtendedInstrSet::GLSL450);
   } else if (name == "OpenCL.std") {
+    registerExtInstHandler<OpenCLBuilder>(ExtendedInstrSet::OpenCL);
     module.associateExtendedInstrSet(op->IdResult(), ExtendedInstrSet::OpenCL);
   } else if (name == "Codeplay.GroupAsyncCopies" ||
              name == "NonSemantic.Codeplay.GroupAsyncCopies") {
+    registerExtInstHandler<GroupAsyncCopiesBuilder>(
+        ExtendedInstrSet::GroupAsyncCopies);
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::GroupAsyncCopies);
   } else {
-    fprintf(stderr, "%.*s extended instruction set is not supported!\n",
-            static_cast<int>(name.size()), name.data());
-    abort();
+    return makeStringError(llvm::Twine(name.data()) +
+                           " extended instruction set is not supported!\n");
   }
   return llvm::Error::success();
 }
 
+spirv_ll::ExtInstSetHandler *Builder::getExtInstHandler(
+    ExtendedInstrSet set) const {
+  auto handler_it = ext_inst_handlers.find(set);
+  if (handler_it == ext_inst_handlers.end()) {
+    return nullptr;
+  }
+  return handler_it->second.get();
+}
+
 template <>
 llvm::Error Builder::create<OpExtInst>(const OpExtInst *op) {
-  switch (module.getExtendedInstrSet(op->Set())) {
-    case ExtendedInstrSet::GLSL450:
-      return GLSLBuilder.create(*op);
-    case ExtendedInstrSet::OpenCL:
-      return OpenCLBuilder.create(*op);
-    case ExtendedInstrSet::GroupAsyncCopies:
-      return GroupAsyncCopiesBuilder.create(*op);
-    default: {
-      return makeStringError("Could not find extended instruction set for ID " +
-                             std::to_string(op->Set()));
-    }
+  if (auto *handler =
+          getExtInstHandler(module.getExtendedInstrSet(op->Set()))) {
+    return handler->create(*op);
   }
+  return makeStringError("Could not find extended instruction set for ID " +
+                         std::to_string(op->Set()));
 }
 
 template <>

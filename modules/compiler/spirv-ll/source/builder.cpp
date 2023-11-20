@@ -35,10 +35,7 @@ spirv_ll::Builder::Builder(spirv_ll::Context &context, spirv_ll::Module &module,
       deviceInfo(deviceInfo),
       IRBuilder(*context.llvmContext),
       DIBuilder(*module.llvmModule),
-      CurrentFunction(nullptr),
-      OpenCLBuilder(*this, module),
-      GLSLBuilder(*this, module),
-      GroupAsyncCopiesBuilder(*this, module) {}
+      CurrentFunction(nullptr) {}
 
 llvm::IRBuilder<> &spirv_ll::Builder::getIRBuilder() { return IRBuilder; }
 

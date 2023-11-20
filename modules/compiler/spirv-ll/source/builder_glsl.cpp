@@ -18,7 +18,7 @@
 #include <llvm/IR/Instructions.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
-#include <spirv-ll/builder.h>
+#include <spirv-ll/builder_glsl.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 #include <spirv/1.0/GLSL.std.450.h>

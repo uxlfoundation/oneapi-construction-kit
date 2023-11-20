@@ -47,6 +47,9 @@ endif()
 add_ca_library(spirv-ll STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/assert.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_glsl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_group_async_copies.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_opencl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/context.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/module.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/opcodes.h
