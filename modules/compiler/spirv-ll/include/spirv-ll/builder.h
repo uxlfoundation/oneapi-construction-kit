@@ -23,6 +23,7 @@
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Metadata.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/context.h>
@@ -53,6 +54,17 @@ class Builder;
 static inline llvm::Error makeStringError(const llvm::Twine &message) {
   return llvm::make_error<llvm::StringError>(message.str(),
                                              llvm::inconvertibleErrorCode());
+}
+
+static inline std::string getIDAsStr(spv::Id id, Module *module = nullptr) {
+  std::string id_str = "%" + std::to_string(id);
+  if (module) {
+    std::string name = module->getName(id);
+    if (!name.empty()) {
+      id_str += "[%" + name + "]";
+    }
+  }
+  return id_str;
 }
 
 /// @brief An interface for builders of extended instruction sets.
@@ -759,11 +771,12 @@ class Builder {
   /// set ID.
   ///
   /// Each handler is created only once per set.
-  template <typename Handler>
-  void registerExtInstHandler(ExtendedInstrSet Set) {
+  template <typename Handler, typename... Args>
+  void registerExtInstHandler(ExtendedInstrSet Set, Args... args) {
     auto &builder = ext_inst_handlers[Set];
     if (!builder) {
-      builder = std::make_unique<Handler>(*this, module);
+      builder =
+          std::make_unique<Handler>(*this, module, std::forward<Args>(args)...);
     }
   }
   /// @brief Add debug metadata to the appropriate instructions

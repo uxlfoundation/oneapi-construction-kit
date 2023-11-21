@@ -95,7 +95,7 @@
                OpName %mul "mul"
                OpName %conv "conv"
                OpName %arrayidx3 "arrayidx3"
-               OpModuleProcessed "Debug info producer: clang version 17.0.3 (git@git.office.codeplay.com:ComputeAorta/llvm-project.git 37b79e779f447f1c714af7f907e7a2ec846d1da0)"
+               OpModuleProcessed "Debug info producer: clang version 17.0.3 (git@github.com:llvm/llvm-project.git 2170252b443f898d7c650ce93ab701a697c351df)"
                OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
                OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
                OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
@@ -204,7 +204,12 @@
                OpReturn
                OpFunctionEnd
 
-; CHECK-DAG: [[SCOPE:![0-9]+]] = distinct !DILexicalBlock(
+; CHECK: = distinct !DICompileUnit(language: DW_LANG_OpenCL, file: [[FILE:![0-9]+]],
+; CHECK-SAME: producer: "clang version 17.0.3 (git@github.com:llvm/llvm-project.git 2170252b443f898d7c650ce93ab701a697c351df)",
+; CHECK-SAME: isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug)
+
+; CHECK-DAG: [[FILE]] = !DIFile(filename: "kernel.cl", directory: "/tmp", checksumkind: CSK_MD5, checksum: "778eaa9cd957459f44d042d2dd1bf574")
+; CHECK-DAG: [[SCOPE:![0-9]+]] = distinct !DISubprogram(
 ; CHECK-DAG: [[IDLoc]] = !DILocation(line: 2, column: 15, scope: [[SCOPE]])
 ; CHECK-DAG: [[A0Loc]] = !DILocation(line: 3, column: 12, scope: [[SCOPE]])
 ; CHECK-DAG: [[B0LDLoc]] = !DILocation(line: 4, column: 24, scope: [[SCOPE]])

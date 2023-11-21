@@ -24,6 +24,7 @@
 #include <spirv/unified1/spirv.hpp>
 
 #include <algorithm>
+#include <unordered_set>
 
 spirv_ll::ModuleHeader::ModuleHeader(llvm::ArrayRef<uint32_t> code)
     : code(code), endianSwap(code[0] == cargo::byte_swap(MAGIC)) {}
@@ -71,7 +72,8 @@ spirv_ll::Module::Module(
       PushConstantStructID{},
       WorkgroupSize({{1, 1, 1}}),
       BufferSizeArray(nullptr),
-      deferredSpecConstantOps() {}
+      deferredSpecConstantOps(),
+      ImplicitDebugScopes(true) {}
 
 spirv_ll::Module::Module(spirv_ll::Context &context,
                          llvm::ArrayRef<uint32_t> code)
@@ -95,7 +97,8 @@ spirv_ll::Module::Module(spirv_ll::Context &context,
       PushConstantStructID{},
       WorkgroupSize({{1, 1, 1}}),
       BufferSizeArray(nullptr),
-      deferredSpecConstantOps() {}
+      deferredSpecConstantOps(),
+      ImplicitDebugScopes(true) {}
 
 void spirv_ll::Module::associateExtendedInstrSet(spv::Id id,
                                                  ExtendedInstrSet iset) {
@@ -230,6 +233,14 @@ llvm::DILexicalBlock *spirv_ll::Module::getLexicalBlock(
     llvm::BasicBlock *block) const {
   auto found = LexicalBlocks.find(block);
   return found != LexicalBlocks.end() ? found->getSecond() : nullptr;
+}
+
+bool spirv_ll::Module::useImplicitDebugScopes() const {
+  return ImplicitDebugScopes;
+}
+
+void spirv_ll::Module::disableImplicitDebugScopes() {
+  ImplicitDebugScopes = false;
 }
 
 void spirv_ll::Module::addDebugFunctionScope(
@@ -768,4 +779,32 @@ spirv_ll::Module::getGlobalArgs() const {
   }
 
   return globals;
+}
+
+const std::string &spirv_ll::Module::getModuleProcess() const {
+  return ModuleProcess;
+}
+
+void spirv_ll::Module::setModuleProcess(const std::string &str) {
+  ModuleProcess = str;
+}
+
+bool spirv_ll::Module::isOpExtInst(
+    spv::Id id, const std::unordered_set<uint32_t> &opcodes,
+    const std::unordered_set<ExtendedInstrSet> &sets) const {
+  const auto *op = get_or_null<OpExtInst>(id);
+  if (!op) {
+    return false;
+  }
+  if (!sets.count(getExtendedInstrSet(op->Set()))) {
+    return false;
+  }
+  return opcodes.count(op->Instruction());
+}
+
+bool spirv_ll::Module::isOpExtInst(
+    spv::Id id, uint32_t opcode,
+    const std::unordered_set<ExtendedInstrSet> &sets) const {
+  std::unordered_set<uint32_t> opcodes = {opcode};
+  return isOpExtInst(id, opcodes, sets);
 }
