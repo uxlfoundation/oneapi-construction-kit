@@ -104,9 +104,8 @@ llvm::Error Builder::create<OpSource>(const OpSource *op) {
   source += ", Version: " + std::to_string(op->Version());
 
   if (op->wordCount() > 3) {
-    std::string file_path = module.getDebugString(op->File());
-    if (!file_path.empty()) {
-      source += ", Source file: " + file_path + "\r\n";
+    if (auto file_path = module.getDebugString(op->File())) {
+      source += ", Source file: " + file_path.value() + "\r\n";
     }
 
     if (op->wordCount() > 4) {
@@ -139,7 +138,7 @@ llvm::DIFile *Builder::getOrCreateDIFile(const OpLine *op_line) {
     return file;
   }
 
-  std::string filePath = module.getDebugString(op_line->File());
+  std::string filePath = module.getDebugString(op_line->File()).value_or("");
   std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
   std::string fileDir = filePath.substr(0, filePath.find_last_of("\\/"));
 
@@ -165,13 +164,25 @@ llvm::DICompileUnit *Builder::getOrCreateDICompileUnit(const OpLine *op_line) {
 
 llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
     llvm::Function *function, const OpLine *op_line) {
-  if (auto *function_scope = module.getDebugFunctionScope(function)) {
+  if (!function) {
+    return nullptr;
+  }
+  const OpFunction *opFunction = module.get<OpFunction>(function);
+  // If we have a llvm::Function we should have an OpFunction.
+  SPIRV_LL_ASSERT_PTR(opFunction);
+  spv::Id function_id = opFunction->IdResult();
+
+  if (auto *function_scope = module.getDebugFunctionScope(function_id)) {
+    // If we've created the scope before creating the function, link the two
+    // together here if we haven't already.
+    if (!function->getSubprogram()) {
+      function->setSubprogram(function_scope);
+    }
     return function_scope;
   }
 
   llvm::SmallVector<llvm::Metadata *, 4> dbg_function_param_types;
 
-  const OpFunction *opFunction = module.get<OpFunction>(function);
   const OpTypeFunction *opTypeFunction =
       module.get<OpTypeFunction>(opFunction->FunctionType());
 
@@ -195,7 +206,7 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
   function->setSubprogram(function_scope);
 
   // Track this sub-program for later
-  module.addDebugFunctionScope(function, function_scope);
+  module.addDebugFunctionScope(function_id, function_scope);
 
   return function_scope;
 }
@@ -697,7 +708,9 @@ llvm::Error Builder::create<OpTypePointer>(const OpTypePointer *op) {
   if (module.isForwardPointer(typeId)) {
     module.addIncompletePointer(op, typeId);
   } else {
-    module.addCompletePointer(op);
+    if (auto err = module.addCompletePointer(op)) {
+      return err;
+    }
   }
   return llvm::Error::success();
 }
