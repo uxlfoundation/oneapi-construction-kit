@@ -104,9 +104,8 @@ llvm::Error Builder::create<OpSource>(const OpSource *op) {
   source += ", Version: " + std::to_string(op->Version());
 
   if (op->wordCount() > 3) {
-    std::string file_path = module.getDebugString(op->File());
-    if (!file_path.empty()) {
-      source += ", Source file: " + file_path + "\r\n";
+    if (auto file_path = module.getDebugString(op->File())) {
+      source += ", Source file: " + file_path.value() + "\r\n";
     }
 
     if (op->wordCount() > 4) {
@@ -139,7 +138,7 @@ llvm::DIFile *Builder::getOrCreateDIFile(const OpLine *op_line) {
     return file;
   }
 
-  std::string filePath = module.getDebugString(op_line->File());
+  std::string filePath = module.getDebugString(op_line->File()).value_or("");
   std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
   std::string fileDir = filePath.substr(0, filePath.find_last_of("\\/"));
 

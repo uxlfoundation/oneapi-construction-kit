@@ -213,8 +213,11 @@ bool spirv_ll::Module::addDebugString(spv::Id id, const std::string &string) {
   return DebugStrings.try_emplace(id, string).second;
 }
 
-std::string spirv_ll::Module::getDebugString(spv::Id id) const {
-  return DebugStrings.lookup(id);
+std::optional<std::string> spirv_ll::Module::getDebugString(spv::Id id) const {
+  if (auto iter = DebugStrings.find(id); iter != DebugStrings.end()) {
+    return iter->getSecond();
+  }
+  return std::nullopt;
 }
 
 void spirv_ll::Module::setCurrentOpLineRange(

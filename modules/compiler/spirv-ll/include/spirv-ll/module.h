@@ -392,8 +392,8 @@ class Module : public ModuleHeader {
   ///
   /// @param[in] id The ID the string is associated with.
   ///
-  /// @return The string or an empty one if the ID isn't found.
-  std::string getDebugString(spv::Id id) const;
+  /// @return The string or std::nullopt if the ID isn't found.
+  std::optional<std::string> getDebugString(spv::Id id) const;
 
   /// @brief A type containing an LLVM debug location and the beginning of the
   /// range it corresponds to.
