@@ -254,13 +254,13 @@ llvm::DILexicalBlock *spirv_ll::Module::getLexicalBlock(
 }
 
 void spirv_ll::Module::addDebugFunctionScope(
-    llvm::Function *function, llvm::DISubprogram *function_scope) {
-  FunctionScopes.insert({function, function_scope});
+    spv::Id function_id, llvm::DISubprogram *function_scope) {
+  FunctionScopes.insert({function_id, function_scope});
 }
 
 llvm::DISubprogram *spirv_ll::Module::getDebugFunctionScope(
-    llvm::Function *function) const {
-  auto found = FunctionScopes.find(function);
+    spv::Id function_id) const {
+  auto found = FunctionScopes.find(function_id);
   return found != FunctionScopes.end() ? found->getSecond() : nullptr;
 }
 

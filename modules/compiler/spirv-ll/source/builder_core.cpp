@@ -164,13 +164,25 @@ llvm::DICompileUnit *Builder::getOrCreateDICompileUnit(const OpLine *op_line) {
 
 llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
     llvm::Function *function, const OpLine *op_line) {
-  if (auto *function_scope = module.getDebugFunctionScope(function)) {
+  if (!function) {
+    return nullptr;
+  }
+  const OpFunction *opFunction = module.get<OpFunction>(function);
+  // If we have a llvm::Function we should have an OpFunction.
+  SPIRV_LL_ASSERT_PTR(opFunction);
+  spv::Id function_id = opFunction->IdResult();
+
+  if (auto *function_scope = module.getDebugFunctionScope(function_id)) {
+    // If we've created the scope before creating the function, link the two
+    // together here if we haven't already.
+    if (!function->getSubprogram()) {
+      function->setSubprogram(function_scope);
+    }
     return function_scope;
   }
 
   llvm::SmallVector<llvm::Metadata *, 4> dbg_function_param_types;
 
-  const OpFunction *opFunction = module.get<OpFunction>(function);
   const OpTypeFunction *opTypeFunction =
       module.get<OpTypeFunction>(opFunction->FunctionType());
 
@@ -194,7 +206,7 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
   function->setSubprogram(function_scope);
 
   // Track this sub-program for later
-  module.addDebugFunctionScope(function, function_scope);
+  module.addDebugFunctionScope(function_id, function_scope);
 
   return function_scope;
 }
