@@ -759,10 +759,15 @@ class Module : public ModuleHeader {
   /// @param member_id ID of the member type that was defined.
   void updateIncompleteStruct(spv::Id member_id);
 
+  /// @brief Return the LLVM address space for the given storage class, or an
+  /// error if the storage class is unknown/unsupported.
+  llvm::Expected<unsigned> translateStorageClassToAddrSpace(
+      uint32_t storage_class) const;
+
   /// @brief Add a complete pointer.
   ///
   /// @param pointer_type OpCode object that describes the pointer type.
-  void addCompletePointer(const OpTypePointer *pointer_type);
+  llvm::Error addCompletePointer(const OpTypePointer *pointer_type);
 
   /// @brief Add an incomplete pointer and its missing type IDs to the module.
   ///
@@ -774,7 +779,7 @@ class Module : public ModuleHeader {
   /// @brief Update an incomplete pointer type with a newly defined type.
   ///
   /// @param type_id ID of the type that was defined.
-  void updateIncompletePointer(spv::Id type_id);
+  llvm::Error updateIncompletePointer(spv::Id type_id);
 
   /// @brief Add id, image and sampler to the module.
   ///

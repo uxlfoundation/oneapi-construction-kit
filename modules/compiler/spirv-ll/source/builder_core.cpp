@@ -708,7 +708,9 @@ llvm::Error Builder::create<OpTypePointer>(const OpTypePointer *op) {
   if (module.isForwardPointer(typeId)) {
     module.addIncompletePointer(op, typeId);
   } else {
-    module.addCompletePointer(op);
+    if (auto err = module.addCompletePointer(op)) {
+      return err;
+    }
   }
   return llvm::Error::success();
 }

@@ -2201,11 +2201,16 @@ set(SPVASM_V1_1_FILES
   opencl_debug_info_100_clean.spvasm
 )
 
+set(SPVASM_V1_5_FILES
+  invalid-spir-v/unsupported_storage_class.spvasm
+)
+
 set(UNVERIFIABLE_SPVASM_FILES
   # Valid SPIR-V as per the extension, but even current versions of spirv-val
   # don't recognize it.
   intel_arbitrary_precision_integers.spvasm
   invalid-spir-v/invalid_storage_class.spvasm
+  invalid-spir-v/unsupported_storage_class.spvasm
   codeplay/opencl_usm_generic_address_space.spvasm
   codeplay/opencl_group_async_copy_2d2d.spvasm
   codeplay/opencl_group_async_copy_3d3d.spvasm
@@ -2216,7 +2221,7 @@ set(UNVERIFIABLE_SPVASM_FILES
 
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.spvasm)
-foreach(testFile ${SPVASM_FILES} ${SPVASM_V1_1_FILES})
+foreach(testFile ${SPVASM_FILES} ${SPVASM_V1_1_FILES} ${SPVASM_V1_5_FILES})
   list(REMOVE_ITEM obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/${testFile})
 endforeach()
 if(obsoleteTests)
@@ -2285,6 +2290,10 @@ endforeach()
 
 foreach(spvasm ${SPVASM_V1_1_FILES})
   ca_assemble_spirv_ll_lit_test(${spvasm} TGT_ENV spv1.1)
+endforeach()
+
+foreach(spvasm ${SPVASM_V1_5_FILES})
+  ca_assemble_spirv_ll_lit_test(${spvasm} TGT_ENV spv1.5)
 endforeach()
 
 get_property(LitTestFiles GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES)
