@@ -1,0 +1,59 @@
+name: Build and Package
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/create_publish_artifacts.yml'
+  schedule:
+    - cron: '0 0 * * *'  # Runs the workflow at midnight every day
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run for RISCV
+  run_riscv_m1_tartan:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+       # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 17
+          llvm_build_type: RelAssert
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install Python libraries and system dependencies
+        run: |
+          pip install requests numpy h5py Pillow
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
+
+      - name: build riscv M1
+        uses: ./.github/actions/do_build_ock/do_build_m1
+
+      - name: Package Artifacts
+        run: |
+          ls
+          # Create a directory for artifacts
+          mkdir artifacts
+
+          # Copy binaries to the artifacts directory
+          cp -rf $(pwd)/build artifacts/
+
+          # Create a ZIP archive
+          zip -r artifacts.zip artifacts
+
+          ls
