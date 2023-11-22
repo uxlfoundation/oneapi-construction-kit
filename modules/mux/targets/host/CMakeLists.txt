@@ -75,7 +75,7 @@ set(fp16_supported_arches ARM64;ARM)
 if(CA_HOST_ENABLE_FP16)
   set(arch ${CMAKE_SYSTEM_PROCESSOR})
   if(NOT ${arch} IN_LIST fp16_supported_arches)
-    message(FATAL_ERROR "half-precision is not supported on ${arch} targets")
+    message(WARNING "half-precision is not supported on ${arch} targets")
   endif()
 endif()
 
