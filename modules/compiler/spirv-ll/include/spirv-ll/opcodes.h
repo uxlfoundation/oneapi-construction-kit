@@ -20,7 +20,6 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 #include <spirv-ll/assert.h>
-#include <spirv/unified1/GLSL.std.450.h>
 #include <spirv/unified1/spirv.hpp>
 
 #include <cstdint>
@@ -3650,90 +3649,6 @@ class Printf : public OpExtInst {
   llvm::SmallVector<spv::Id, 8> AdditionalArguments() const;
 };
 }  // namespace OpenCLstd
-
-namespace GLSLstd450 {
-using Round = ExtInst<X>;
-using RoundEven = ExtInst<X>;
-using Trunc = ExtInst<X>;
-using FAbs = ExtInst<X>;
-using SAbs = ExtInst<X>;
-using FSign = ExtInst<X>;
-using SSign = ExtInst<X>;
-using Floor = ExtInst<X>;
-using Ceil = ExtInst<X>;
-using Fract = ExtInst<X>;
-using Radians = ExtInst<DEGREES>;
-using Degrees = ExtInst<RADIANS>;
-using Sin = ExtInst<X>;
-using Cos = ExtInst<X>;
-using Tan = ExtInst<X>;
-using Asin = ExtInst<X>;
-using Acos = ExtInst<X>;
-using Atan = ExtInst<Y_OVER_X>;
-using Sinh = ExtInst<X>;
-using Cosh = ExtInst<X>;
-using Tanh = ExtInst<X>;
-using Asinh = ExtInst<X>;
-using Acosh = ExtInst<X>;
-using Atanh = ExtInst<X>;
-using Atan2 = ExtInst<Y, X>;
-using Pow = ExtInst<X, Y>;
-using Exp = ExtInst<X>;
-using Log = ExtInst<X>;
-using Exp2 = ExtInst<X>;
-using Log2 = ExtInst<X>;
-using Sqrt = ExtInst<X>;
-using InverseSqrt = ExtInst<X>;
-using Determinant = ExtInst<X>;
-using MatrixInverse = ExtInst<X>;
-using Modf = ExtInst<X, I>;
-using ModfStruct = ExtInst<X>;
-using FMin = ExtInst<X, Y>;
-using UMin = ExtInst<X, Y>;
-using SMin = ExtInst<X, Y>;
-using FMax = ExtInst<X, Y>;
-using UMax = ExtInst<X, Y>;
-using SMax = ExtInst<X, Y>;
-using FClamp = ExtInst<X, MINVAL, MAXVAL>;
-using UClamp = ExtInst<X, MINVAL, MAXVAL>;
-using SClamp = ExtInst<X, MINVAL, MAXVAL>;
-using FMix = ExtInst<X, Y, A>;
-using IMix = ExtInst<X, Y, A>;
-using Step = ExtInst<EDGE, X>;
-using SmoothStep = ExtInst<EDGE0, EDGE1, X>;
-using Fma = ExtInst<A, B, C>;
-using Frexp = ExtInst<X, EXP>;
-using FrexpStruct = ExtInst<X>;
-using Ldexp = ExtInst<X, EXP>;
-using PackSnorm4x8 = ExtInst<V>;
-using PackUnorm4x8 = ExtInst<V>;
-using PackSnorm2x16 = ExtInst<V>;
-using PackUnorm2x16 = ExtInst<V>;
-using PackHalf2x16 = ExtInst<V>;
-using PackDouble2x32 = ExtInst<V>;
-using UnpackSnorm2x16 = ExtInst<P>;
-using UnpackUnorm2x16 = ExtInst<P>;
-using UnpackHalf2x16 = ExtInst<V>;
-using UnpackSnorm4x8 = ExtInst<P>;
-using UnpackUnorm4x8 = ExtInst<P>;
-using UnpackDouble2x32 = ExtInst<V>;
-using Length = ExtInst<X>;
-using Distance = ExtInst<P0, P1>;
-using Cross = ExtInst<X, Y>;
-using Normalize = ExtInst<X>;
-using FaceForward = ExtInst<N, I, NREF>;
-using Reflect = ExtInst<I, N>;
-using Refract = ExtInst<I, N, ETA>;
-using FindILsb = ExtInst<VALUE>;
-using FindSMsb = ExtInst<VALUE>;
-using FindUMsb = ExtInst<VALUE>;
-using InterpolateAtCentroid = ExtInst<INTERPOLANT>;
-using InterpolateAtSample = ExtInst<INTERPOLANT, SAMPLER>;
-using InterpolateAtOffset = ExtInst<INTERPOLANT, OFFSET>;
-using NMin = ExtInst<X, Y>;
-using NMax = ExtInst<X, Y>;
-using NClamp = ExtInst<X, MINVAL, MAXVAL>;
-};  // namespace GLSLstd450
 
 std::string getCapabilityName(spv::Capability cap);
 
