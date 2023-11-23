@@ -22,6 +22,184 @@
 
 namespace spirv_ll {
 
+namespace OpenCLstd {
+using Acos = ExtInst<X>;
+using Acosh = ExtInst<X>;
+using Acospi = ExtInst<X>;
+using Asin = ExtInst<X>;
+using Asinh = ExtInst<X>;
+using Asinpi = ExtInst<X>;
+using Atan = ExtInst<X>;
+using Atan2 = ExtInst<Y, X>;
+using Atanh = ExtInst<X>;
+using Atanpi = ExtInst<X>;
+using Atan2pi = ExtInst<Y, X>;
+using Cbrt = ExtInst<X>;
+using Ceil = ExtInst<X>;
+using Copysign = ExtInst<X, Y>;
+using Cos = ExtInst<X>;
+using Cosh = ExtInst<X>;
+using Cospi = ExtInst<X>;
+using Erfc = ExtInst<X>;
+using Erf = ExtInst<X>;
+using Exp = ExtInst<X>;
+using Exp2 = ExtInst<X>;
+using Exp10 = ExtInst<X>;
+using Expm1 = ExtInst<X>;
+using Fabs = ExtInst<X>;
+using Fdim = ExtInst<X, Y>;
+using Floor = ExtInst<X>;
+using Fma = ExtInst<A, B, C>;
+using Fmax = ExtInst<X, Y>;
+using Fmin = ExtInst<X, Y>;
+using Fmod = ExtInst<X, Y>;
+using Fract = ExtInst<X, PTR>;
+using Frexp = ExtInst<X, EXP>;
+using Hypot = ExtInst<X, Y>;
+using Ilogb = ExtInst<X>;
+using Ldexp = ExtInst<X, K>;
+using Lgamma = ExtInst<X>;
+using Lgamma_r = ExtInst<X, SIGNP>;
+using Log = ExtInst<X>;
+using Log2 = ExtInst<X>;
+using Log10 = ExtInst<X>;
+using Log1p = ExtInst<X>;
+using Logb = ExtInst<X>;
+using Mad = ExtInst<A, B, C>;
+using Maxmag = ExtInst<X, Y>;
+using Minmag = ExtInst<X, Y>;
+using Modf = ExtInst<X, IPTR>;
+using Nan = ExtInst<NANCODE>;
+using Nextafter = ExtInst<X, Y>;
+using Pow = ExtInst<X, Y>;
+using Pown = ExtInst<X, Y>;
+using Powr = ExtInst<X, Y>;
+using Remainder = ExtInst<X, Y>;
+using Remquo = ExtInst<X, Y, QUO>;
+using Rint = ExtInst<X>;
+using Rootn = ExtInst<X, Y>;
+using Round = ExtInst<X>;
+using Rsqrt = ExtInst<X>;
+using Sin = ExtInst<X>;
+using Sincos = ExtInst<X, COSVAL>;
+using Sinh = ExtInst<X>;
+using Sinpi = ExtInst<X>;
+using Sqrt = ExtInst<X>;
+using Tan = ExtInst<X>;
+using Tanh = ExtInst<X>;
+using Tanpi = ExtInst<X>;
+using Tgamma = ExtInst<X>;
+using Trunc = ExtInst<X>;
+using Half_cos = ExtInst<X>;
+using Half_divide = ExtInst<X, Y>;
+using Half_exp = ExtInst<X>;
+using Half_exp2 = ExtInst<X>;
+using Half_exp10 = ExtInst<X>;
+using Half_log = ExtInst<X>;
+using Half_log2 = ExtInst<X>;
+using Half_log10 = ExtInst<X>;
+using Half_powr = ExtInst<X, Y>;
+using Half_recip = ExtInst<X>;
+using Half_rsqrt = ExtInst<X>;
+using Half_sin = ExtInst<X>;
+using Half_sqrt = ExtInst<X>;
+using Half_tan = ExtInst<X>;
+using Native_cos = ExtInst<X>;
+using Native_divide = ExtInst<X, Y>;
+using Native_exp = ExtInst<X>;
+using Native_exp2 = ExtInst<X>;
+using Native_exp10 = ExtInst<X>;
+using Native_log = ExtInst<X>;
+using Native_log2 = ExtInst<X>;
+using Native_log10 = ExtInst<X>;
+using Native_powr = ExtInst<X, Y>;
+using Native_recip = ExtInst<X>;
+using Native_rsqrt = ExtInst<X>;
+using Native_sin = ExtInst<X>;
+using Native_sqrt = ExtInst<X>;
+using Native_tan = ExtInst<X>;
+using S_abs = ExtInst<X>;
+using S_abs_diff = ExtInst<X, Y>;
+using S_add_sat = ExtInst<X, Y>;
+using U_add_sat = ExtInst<X, Y>;
+using S_hadd = ExtInst<X, Y>;
+using U_hadd = ExtInst<X, Y>;
+using S_rhadd = ExtInst<X, Y>;
+using U_rhadd = ExtInst<X, Y>;
+using S_clamp = ExtInst<X, MINVAL, MAXVAL>;
+using U_clamp = ExtInst<X, MINVAL, MAXVAL>;
+using Clz = ExtInst<X>;
+using Ctz = ExtInst<X>;
+using S_mad_hi = ExtInst<A, B, C>;
+using U_mad_sat = ExtInst<X, Y, Z>;
+using S_mad_sat = ExtInst<X, Y, Z>;
+using S_max = ExtInst<X, Y>;
+using U_max = ExtInst<X, Y>;
+using S_min = ExtInst<X, Y>;
+using U_min = ExtInst<X, Y>;
+using S_mul_hi = ExtInst<X, Y>;
+using Rotate = ExtInst<V, I>;
+using S_sub_sat = ExtInst<X, Y>;
+using U_sub_sat = ExtInst<X, Y>;
+using U_upsample = ExtInst<HI, LO>;
+using S_upsample = ExtInst<HI, LO>;
+using Popcount = ExtInst<X>;
+using S_mad24 = ExtInst<X, Y, Z>;
+using U_mad24 = ExtInst<X, Y, Z>;
+using S_mul24 = ExtInst<X, Y>;
+using U_mul24 = ExtInst<X, Y>;
+using U_abs = ExtInst<X>;
+using U_abs_diff = ExtInst<X, Y>;
+using U_mul_hi = ExtInst<X, Y>;
+using U_mad_hi = ExtInst<A, B, C>;
+using Fclamp = ExtInst<X, MINVAL, MAXVAL>;
+using Degrees = ExtInst<RADIANS>;
+using Fmax_common = ExtInst<X, Y>;
+using Fmin_common = ExtInst<X, Y>;
+using Mix = ExtInst<X, Y, A>;
+using Radians = ExtInst<DEGREES>;
+using Step = ExtInst<EDGE, X>;
+using Smoothstep = ExtInst<EDGE0, EDGE1, X>;
+using Sign = ExtInst<X>;
+using Cross = ExtInst<P0, P1>;
+using Distance = ExtInst<P0, P1>;
+using Length = ExtInst<P>;
+using Normalize = ExtInst<P>;
+using Fast_distance = ExtInst<P0, P1>;
+using Fast_length = ExtInst<P>;
+using Fast_normalize = ExtInst<P>;
+using Bitselect = ExtInst<A, B, C>;
+using Select = ExtInst<A, B, C>;
+using Vloadn = ExtInst<OFFSET, P, N>;
+using Vstoren = ExtInst<DATA, OFFSET, P>;
+using Vload_half = ExtInst<OFFSET, P>;
+using Vload_halfn = ExtInst<OFFSET, P, N>;
+using Vstore_half = ExtInst<DATA, OFFSET, P>;
+using Vstore_half_r = ExtInst<DATA, OFFSET, P, MODE>;
+using Vstore_halfn = ExtInst<DATA, OFFSET, P>;
+using Vstore_halfn_r = ExtInst<DATA, OFFSET, P, MODE>;
+using Vloada_halfn = ExtInst<OFFSET, P, N>;
+using Vstorea_halfn = ExtInst<DATA, OFFSET, P>;
+using Vstorea_halfn_r = ExtInst<DATA, OFFSET, P, MODE>;
+using Shuffle = ExtInst<X, SHUFFLEMASK>;
+using Shuffle2 = ExtInst<X, Y, SHUFFLEMASK>;
+using Prefetch = ExtInst<PTR, NUM_ELEMENTS>;
+
+class Printf : public OpExtInst {
+ public:
+  Printf(OpCode const &other) : OpExtInst(other) {}
+  spv::Id format() const { return getValueAtOffset(5); }
+  llvm::SmallVector<spv::Id, 8> AdditionalArguments() const {
+    llvm::SmallVector<spv::Id, 8> additionalArguments;
+    for (uint16_t i = 6; i < wordCount(); i++) {
+      additionalArguments.push_back(getValueAtOffset(i));
+    }
+    return additionalArguments;
+  }
+};
+
+}  // namespace OpenCLstd
+
 static llvm::Error createPrintf(OpExtInst const &opc, Module &module,
                                 Builder &builder) {
   auto *op = module.create<OpenCLstd::Printf>(opc);
