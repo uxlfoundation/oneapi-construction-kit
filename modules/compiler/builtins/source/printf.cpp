@@ -26,11 +26,11 @@
 
 // TODO: Should we have a CA_ASSERT, if so where should it live?
 #ifndef NDEBUG
-#define ASSERT(CONDITION, MESSAGE)                                \
-  if (CONDITION) {                                                \
-    fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, MESSAGE); \
-    std::abort();                                                 \
-  }                                                               \
+#define ASSERT(CONDITION, MESSAGE)                                      \
+  if (CONDITION) {                                                      \
+    (void)fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, MESSAGE); \
+    std::abort();                                                       \
+  }                                                                     \
   (void)0
 #else
 #define ASSERT(CONDITION, MESSAGE)
