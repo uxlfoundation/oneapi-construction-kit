@@ -18,6 +18,7 @@
 #include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/Support/Debug.h>
+#include <llvm/Support/Error.h>
 #include <llvm/Support/type_traits.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
@@ -122,6 +123,36 @@ llvm::DIType *spirv_ll::Builder::getDIType(spv::Id tyID) {
   }
 
   llvm_unreachable("unsupported debug type");
+}
+
+llvm::Error spirv_ll::Builder::finishModuleProcessing() {
+  // Add debug info, before we start replacing global builtin vars; the
+  // instruction ranges we've recorded are on the current state of the basic
+  // blocks. Replacing the global builtins will invalidate the iterators.
+  addDebugInfoToModule();
+
+  // Replace all global builtin vars with function local versions
+  replaceBuiltinGlobals();
+
+  // Set some default attributes on functions we've created.
+  for (auto &function : module.llvmModule->functions()) {
+    // We don't use exceptions
+    if (!function.hasFnAttribute(llvm::Attribute::NoUnwind)) {
+      function.addFnAttr(llvm::Attribute::NoUnwind);
+    }
+  }
+
+  // Add any remaining metadata to llvm module
+  finalizeMetadata();
+
+  // Notify handlers that the module has been finished.
+  for (auto &[set, handler] : ext_inst_handlers) {
+    if (auto err = handler->finishModuleProcessing()) {
+      return err;
+    }
+  }
+
+  return llvm::Error::success();
 }
 
 void spirv_ll::Builder::addDebugInfoToModule() {

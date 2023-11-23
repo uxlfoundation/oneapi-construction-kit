@@ -1121,24 +1121,9 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     }
   }
 
-  // Add debug info, before we start replacing global builtin vars; the
-  // instruction ranges we've recorded are on the current state of the basic
-  // blocks. Replacing the global builtins will invalidate the iterators.
-  builder.addDebugInfoToModule();
-
-  // Replace all global builtin vars with function local versions
-  builder.replaceBuiltinGlobals();
-
-  // Set some default attributes on functions we've created.
-  for (auto &function : module.llvmModule->functions()) {
-    // We don't use exceptions
-    if (!function.hasFnAttribute(llvm::Attribute::NoUnwind)) {
-      function.addFnAttr(llvm::Attribute::NoUnwind);
-    }
+  if (auto err = builder.finishModuleProcessing()) {
+    return cargo::make_unexpected(llvm::toString(std::move(err)));
   }
-
-  // Add any remaining metadata to llvm module
-  builder.finalizeMetadata();
 
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
   // GCC <9 requires this redundant move, this branch of the #if can be
