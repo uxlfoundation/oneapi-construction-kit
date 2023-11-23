@@ -46,8 +46,8 @@
 #ifndef NDEBUG
 #define CARGO_ASSERT(CONDITION, MESSAGE)                                      \
   if (!(CONDITION)) {                                                         \
-    std::fprintf(stderr, "%s:%d: assert: %s\n  %s: %s\n", __FILE__, __LINE__, \
-                 #CONDITION, CARGO_PRETTY_FUNCTION, MESSAGE);                 \
+    (void)std::fprintf(stderr, "%s:%d: assert: %s\n  %s: %s\n", __FILE__,     \
+                       __LINE__, #CONDITION, CARGO_PRETTY_FUNCTION, MESSAGE); \
     std::abort();                                                             \
   }                                                                           \
   (void)0
