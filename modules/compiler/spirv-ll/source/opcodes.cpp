@@ -421,10 +421,20 @@ spv::Id OpExtInst::Set() const { return getValueAtOffset(3); }
 
 uint32_t OpExtInst::Instruction() const { return getValueAtOffset(4); }
 
+uint16_t OpExtInst::opExtInstOperandCount() const {
+  return wordCount() - OpExtInstBaseOperandOffset;
+}
+
+uint32_t OpExtInst::getOpExtInstOperand(unsigned idx) const {
+  assert(OpExtInstBaseOperandOffset + idx < wordCount() &&
+         "Invalid operand index");
+  return getValueAtOffset(OpExtInstBaseOperandOffset + idx);
+}
+
 llvm::SmallVector<spv::Id, 8> OpExtInst::Operands() const {
   llvm::SmallVector<spv::Id, 8> operands;
-  for (uint16_t i = 5; i < wordCount(); i++) {
-    operands.push_back(getValueAtOffset(i));
+  for (uint16_t i = 0, e = opExtInstOperandCount(); i != e; i++) {
+    operands.push_back(getOpExtInstOperand(i));
   }
   return operands;
 }

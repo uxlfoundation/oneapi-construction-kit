@@ -467,6 +467,19 @@ class OpExtInst : public OpResult {
   spv::Id Set() const;
   uint32_t Instruction() const;
   llvm::SmallVector<spv::Id, 8> Operands() const;
+
+  /// @brief Return the instruction's operand count.
+  uint16_t opExtInstOperandCount() const;
+
+  /// @brief Return the operand at a specified index.
+  ///
+  /// @param idx The operand index.
+  ///
+  /// @return Operand value.
+  uint32_t getOpExtInstOperand(unsigned idx) const;
+
+  static const unsigned OpExtInstBaseOperandOffset = 5;
+
   static const spv::Op ClassCode = spv::OpExtInst;
 };
 
@@ -3144,325 +3157,325 @@ template <>
 class ExtInst<DEGREES> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id degrees() const { return getValueAtOffset(5); }
+  spv::Id degrees() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<INTERPOLANT> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id interpolant() const { return getValueAtOffset(5); }
+  spv::Id interpolant() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<NANCODE> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id nanCode() const { return getValueAtOffset(5); }
+  spv::Id nanCode() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<P> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id p() const { return getValueAtOffset(5); }
+  spv::Id p() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<RADIANS> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id radians() const { return getValueAtOffset(5); }
+  spv::Id radians() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<V> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id v() const { return getValueAtOffset(5); }
+  spv::Id v() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<VALUE> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id value() const { return getValueAtOffset(5); }
+  spv::Id value() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<Y_OVER_X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id yOverX() const { return getValueAtOffset(5); }
+  spv::Id yOverX() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<EDGE, X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id edge() const { return getValueAtOffset(5); }
-  spv::Id x() const { return getValueAtOffset(6); }
+  spv::Id edge() const { return getOpExtInstOperand(0); }
+  spv::Id x() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<HI, LO> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id hi() const { return getValueAtOffset(5); }
-  spv::Id lo() const { return getValueAtOffset(6); }
+  spv::Id hi() const { return getOpExtInstOperand(0); }
+  spv::Id lo() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<I, N> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id i() const { return getValueAtOffset(5); }
-  spv::Id n() const { return getValueAtOffset(6); }
+  spv::Id i() const { return getOpExtInstOperand(0); }
+  spv::Id n() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<INTERPOLANT, OFFSET> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id interpolant() const { return getValueAtOffset(5); }
-  spv::Id offset() const { return getValueAtOffset(6); }
+  spv::Id interpolant() const { return getOpExtInstOperand(0); }
+  spv::Id offset() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<INTERPOLANT, SAMPLER> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id interpolant() const { return getValueAtOffset(5); }
-  spv::Id sampler() const { return getValueAtOffset(6); }
+  spv::Id interpolant() const { return getOpExtInstOperand(0); }
+  spv::Id sampler() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<OFFSET, P> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id offset() const { return getValueAtOffset(5); }
-  spv::Id p() const { return getValueAtOffset(6); }
+  spv::Id offset() const { return getOpExtInstOperand(0); }
+  spv::Id p() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<P0, P1> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id p0() const { return getValueAtOffset(5); }
-  spv::Id p1() const { return getValueAtOffset(6); }
+  spv::Id p0() const { return getOpExtInstOperand(0); }
+  spv::Id p1() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<PTR, NUM_ELEMENTS> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id ptr() const { return getValueAtOffset(5); }
-  spv::Id numElements() const { return getValueAtOffset(6); }
+  spv::Id ptr() const { return getOpExtInstOperand(0); }
+  spv::Id numElements() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<V, I> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id v() const { return getValueAtOffset(5); }
-  spv::Id i() const { return getValueAtOffset(6); }
+  spv::Id v() const { return getOpExtInstOperand(0); }
+  spv::Id i() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, COSVAL> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id cosVal() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id cosVal() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, EXP> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id exp() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id exp() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, I> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id i() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id i() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, IPTR> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id iPtr() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id iPtr() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, K> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id k() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id k() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, PTR> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id ptr() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id ptr() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, SHUFFLEMASK> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id shuffleMask() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id shuffleMask() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, SIGNP> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id signp() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id signp() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, Y> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<Y, X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id y() const { return getValueAtOffset(5); }
-  spv::Id x() const { return getValueAtOffset(6); }
+  spv::Id y() const { return getOpExtInstOperand(0); }
+  spv::Id x() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<A, B, C> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id a() const { return getValueAtOffset(5); }
-  spv::Id b() const { return getValueAtOffset(6); }
-  spv::Id c() const { return getValueAtOffset(7); }
+  spv::Id a() const { return getOpExtInstOperand(0); }
+  spv::Id b() const { return getOpExtInstOperand(1); }
+  spv::Id c() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<DATA, OFFSET, P> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id data() const { return getValueAtOffset(5); }
-  spv::Id offset() const { return getValueAtOffset(6); }
-  spv::Id p() const { return getValueAtOffset(7); }
+  spv::Id data() const { return getOpExtInstOperand(0); }
+  spv::Id offset() const { return getOpExtInstOperand(1); }
+  spv::Id p() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<EDGE0, EDGE1, X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id edge0() const { return getValueAtOffset(5); }
-  spv::Id edge1() const { return getValueAtOffset(6); }
-  spv::Id x() const { return getValueAtOffset(7); }
+  spv::Id edge0() const { return getOpExtInstOperand(0); }
+  spv::Id edge1() const { return getOpExtInstOperand(1); }
+  spv::Id x() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<I, N, ETA> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id i() const { return getValueAtOffset(5); }
-  spv::Id n() const { return getValueAtOffset(6); }
-  spv::Id eta() const { return getValueAtOffset(7); }
+  spv::Id i() const { return getOpExtInstOperand(0); }
+  spv::Id n() const { return getOpExtInstOperand(1); }
+  spv::Id eta() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<N, I, NREF> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id n() const { return getValueAtOffset(5); }
-  spv::Id i() const { return getValueAtOffset(6); }
-  spv::Id nRef() const { return getValueAtOffset(7); }
+  spv::Id n() const { return getOpExtInstOperand(0); }
+  spv::Id i() const { return getOpExtInstOperand(1); }
+  spv::Id nRef() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<OFFSET, P, N> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id offset() const { return getValueAtOffset(5); }
-  spv::Id p() const { return getValueAtOffset(6); }
-  spv::Id n() const { return getValueAtOffset(7); }
+  spv::Id offset() const { return getOpExtInstOperand(0); }
+  spv::Id p() const { return getOpExtInstOperand(1); }
+  spv::Id n() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, MINVAL, MAXVAL> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id minVal() const { return getValueAtOffset(6); }
-  spv::Id maxVal() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id minVal() const { return getOpExtInstOperand(1); }
+  spv::Id maxVal() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, A> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id a() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id a() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, QUO> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id quo() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id quo() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, SHUFFLEMASK> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id shuffleMask() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id shuffleMask() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, Z> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id z() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id z() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<DATA, OFFSET, P, MODE> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id data() const { return getValueAtOffset(5); }
-  spv::Id offset() const { return getValueAtOffset(6); }
-  spv::Id p() const { return getValueAtOffset(7); }
+  spv::Id data() const { return getOpExtInstOperand(0); }
+  spv::Id offset() const { return getOpExtInstOperand(1); }
+  spv::Id p() const { return getOpExtInstOperand(2); }
   spv::FPRoundingMode mode() const {
-    return static_cast<spv::FPRoundingMode>(getValueAtOffset(8));
+    return static_cast<spv::FPRoundingMode>(getOpExtInstOperand(3));
   }
 };
 class OpAssumeTrueKHR : public OpCode {

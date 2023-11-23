@@ -188,11 +188,11 @@ using Prefetch = ExtInst<PTR, NUM_ELEMENTS>;
 class Printf : public OpExtInst {
  public:
   Printf(OpCode const &other) : OpExtInst(other) {}
-  spv::Id format() const { return getValueAtOffset(5); }
+  spv::Id format() const { return getOpExtInstOperand(0); }
   llvm::SmallVector<spv::Id, 8> AdditionalArguments() const {
     llvm::SmallVector<spv::Id, 8> additionalArguments;
-    for (uint16_t i = 6; i < wordCount(); i++) {
-      additionalArguments.push_back(getValueAtOffset(i));
+    for (uint16_t i = 1; i < opExtInstOperandCount(); i++) {
+      additionalArguments.push_back(getOpExtInstOperand(i));
     }
     return additionalArguments;
   }
