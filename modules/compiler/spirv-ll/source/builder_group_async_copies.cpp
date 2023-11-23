@@ -20,33 +20,33 @@
 namespace spirv_ll {
 struct GroupAsyncCopy2D2D : OpExtInst {
   GroupAsyncCopy2D2D(OpCode const &opc) : OpExtInst(opc) {}
-  spv::Id Destination() const { return getValueAtOffset(5); }
-  spv::Id DestinationOffset() const { return getValueAtOffset(6); }
-  spv::Id Source() const { return getValueAtOffset(7); }
-  spv::Id SourceOffset() const { return getValueAtOffset(8); }
-  spv::Id NumBytesPerElement() const { return getValueAtOffset(9); }
-  spv::Id NumElementsPerLine() const { return getValueAtOffset(10); }
-  spv::Id NumLines() const { return getValueAtOffset(11); }
-  spv::Id SourceLineLength() const { return getValueAtOffset(12); }
-  spv::Id DestinationLineLength() const { return getValueAtOffset(13); }
-  spv::Id Event() const { return getValueAtOffset(14); }
+  spv::Id Destination() const { return getOpExtInstOperand(0); }
+  spv::Id DestinationOffset() const { return getOpExtInstOperand(1); }
+  spv::Id Source() const { return getOpExtInstOperand(2); }
+  spv::Id SourceOffset() const { return getOpExtInstOperand(3); }
+  spv::Id NumBytesPerElement() const { return getOpExtInstOperand(4); }
+  spv::Id NumElementsPerLine() const { return getOpExtInstOperand(5); }
+  spv::Id NumLines() const { return getOpExtInstOperand(6); }
+  spv::Id SourceLineLength() const { return getOpExtInstOperand(7); }
+  spv::Id DestinationLineLength() const { return getOpExtInstOperand(8); }
+  spv::Id Event() const { return getOpExtInstOperand(9); }
 };
 
 struct GroupAsyncCopy3D3D : OpExtInst {
   GroupAsyncCopy3D3D(OpCode const &opc) : OpExtInst(opc) {}
-  spv::Id Destination() const { return getValueAtOffset(5); }
-  spv::Id DestinationOffset() const { return getValueAtOffset(6); }
-  spv::Id Source() const { return getValueAtOffset(7); }
-  spv::Id SourceOffset() const { return getValueAtOffset(8); }
-  spv::Id NumBytesPerElement() const { return getValueAtOffset(9); }
-  spv::Id NumElementsPerLine() const { return getValueAtOffset(10); }
-  spv::Id NumLines() const { return getValueAtOffset(11); }
-  spv::Id NumPlanes() const { return getValueAtOffset(12); }
-  spv::Id SourceLineLength() const { return getValueAtOffset(13); }
-  spv::Id SourcePlaneArea() const { return getValueAtOffset(14); }
-  spv::Id DestinationLineLength() const { return getValueAtOffset(15); }
-  spv::Id DestinationPlaneArea() const { return getValueAtOffset(16); }
-  spv::Id Event() const { return getValueAtOffset(17); }
+  spv::Id Destination() const { return getOpExtInstOperand(0); }
+  spv::Id DestinationOffset() const { return getOpExtInstOperand(1); }
+  spv::Id Source() const { return getOpExtInstOperand(2); }
+  spv::Id SourceOffset() const { return getOpExtInstOperand(3); }
+  spv::Id NumBytesPerElement() const { return getOpExtInstOperand(4); }
+  spv::Id NumElementsPerLine() const { return getOpExtInstOperand(5); }
+  spv::Id NumLines() const { return getOpExtInstOperand(6); }
+  spv::Id NumPlanes() const { return getOpExtInstOperand(7); }
+  spv::Id SourceLineLength() const { return getOpExtInstOperand(8); }
+  spv::Id SourcePlaneArea() const { return getOpExtInstOperand(9); }
+  spv::Id DestinationLineLength() const { return getOpExtInstOperand(10); }
+  spv::Id DestinationPlaneArea() const { return getOpExtInstOperand(11); }
+  spv::Id Event() const { return getOpExtInstOperand(12); }
 };
 
 template <>

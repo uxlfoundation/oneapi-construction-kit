@@ -18,6 +18,7 @@
 #define SPIRV_LL_SPV_BUILDER_GLSL_H_INCLUDED
 
 #include <spirv-ll/builder.h>
+#include <spirv/unified1/GLSL.std.450.h>
 
 namespace spirv_ll {
 
