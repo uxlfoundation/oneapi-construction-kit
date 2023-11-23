@@ -1714,7 +1714,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
 
   // Remap any constant expression which take a reference to the old function
   // FIXME: What about the main function?
-  for (auto *user : refF.users()) {
+  for (auto *user : make_early_inc_range(refF.users())) {
     if (ConstantExpr *constant = dyn_cast<ConstantExpr>(user)) {
       remapConstantExpr(constant, &refF, new_wrapper);
     } else if (ConstantArray *ca = dyn_cast<ConstantArray>(user)) {
@@ -1725,6 +1725,10 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
           "ConstantExpr, ConstantArray or CallInst");
     }
   }
+  // We output the number of uses here to lit test that the number of uses was
+  // not increased by the remap functions.
+  LLVM_DEBUG(dbgs() << "Uses of " << refF.getName() << ": " << refF.getNumUses()
+                    << "\n");
 
   // Forcibly disable the tail info if we know we've omitted it.
   if (!schedule.wrapperHasMain || !schedule.wrapperHasTail) {
