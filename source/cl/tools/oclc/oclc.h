@@ -31,28 +31,28 @@
 #include <vector>
 
 /// @brief Print an error message and return failure.
-#define OCLC_CHECK(cond, msg)              \
-  if ((cond)) {                            \
-    fprintf(stderr, "error: %s\n", (msg)); \
-    return oclc::failure;                  \
-  }                                        \
+#define OCLC_CHECK(cond, msg)                    \
+  if ((cond)) {                                  \
+    (void)fprintf(stderr, "error: %s\n", (msg)); \
+    return oclc::failure;                        \
+  }                                              \
   (void)0
 
 /// @brief Print a formatted error message and return failure.
-#define OCLC_CHECK_FMT(cond, fmt, ...) \
-  if (cond) {                          \
-    fprintf(stderr, fmt, __VA_ARGS__); \
-    return oclc::failure;              \
-  }                                    \
+#define OCLC_CHECK_FMT(cond, fmt, ...)       \
+  if (cond) {                                \
+    (void)fprintf(stderr, fmt, __VA_ARGS__); \
+    return oclc::failure;                    \
+  }                                          \
   (void)0
 
 /// @brief Print an error message and return failure.
-#define OCLC_CHECK_CL(ret, msg)                                     \
-  if ((ret) != CL_SUCCESS) {                                        \
-    fprintf(stderr, "error: %s (%s, %d)\n", (msg),                  \
-            (oclc::cl_error_code_to_name_map[ret].c_str()), (ret)); \
-    return oclc::failure;                                           \
-  }                                                                 \
+#define OCLC_CHECK_CL(ret, msg)                                           \
+  if ((ret) != CL_SUCCESS) {                                              \
+    (void)fprintf(stderr, "error: %s (%s, %d)\n", (msg),                  \
+                  (oclc::cl_error_code_to_name_map[ret].c_str()), (ret)); \
+    return oclc::failure;                                                 \
+  }                                                                       \
   (void)0
 
 template <typename T>

@@ -27,9 +27,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#define SPIRV_LL_ABORT(MESSAGE)                                          \
-  std::fprintf(stderr, "%s:%d: %s\n  %s\n", __FILE__, __LINE__, MESSAGE, \
-               SPIRV_LL_FUNCTION);                                       \
+#define SPIRV_LL_ABORT(MESSAGE)                                                \
+  (void)std::fprintf(stderr, "%s:%d: %s\n  %s\n", __FILE__, __LINE__, MESSAGE, \
+                     SPIRV_LL_FUNCTION);                                       \
   std::abort()
 
 #define SPIRV_LL_ASSERT(CONDITION, MESSAGE) \

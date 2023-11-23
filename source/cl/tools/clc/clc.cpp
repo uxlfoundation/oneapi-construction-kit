@@ -34,15 +34,16 @@
 #include "cargo/small_vector.h"
 #include "cargo/string_algorithm.h"
 
-#define CLC_CHECK_CL(EXPRESSION, MESSAGE)                                     \
-  {                                                                           \
-    cl_int result = EXPRESSION;                                               \
-    if (result != CL_SUCCESS) {                                               \
-      std::fprintf(stderr, "error: %s (%s, %d)\n", MESSAGE,                   \
-                   clc::cl_error_code_to_name_map[result].c_str(), (result)); \
-      return clc::result::failure;                                            \
-    }                                                                         \
-  }                                                                           \
+#define CLC_CHECK_CL(EXPRESSION, MESSAGE)                                \
+  {                                                                      \
+    cl_int result = EXPRESSION;                                          \
+    if (result != CL_SUCCESS) {                                          \
+      (void)std::fprintf(stderr, "error: %s (%s, %d)\n", MESSAGE,        \
+                         clc::cl_error_code_to_name_map[result].c_str(), \
+                         (result));                                      \
+      return clc::result::failure;                                       \
+    }                                                                    \
+  }                                                                      \
   (void)0
 
 int main(int argc, char **argv) {
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
 namespace clc {
 
 void mux_message(const char *message, const void *, size_t) {
-  std::fprintf(stderr, "%s", message);
+  (void)std::fprintf(stderr, "%s", message);
 }
 
 std::map<cl_int, std::string> cl_error_code_to_name_map = {
@@ -248,11 +249,12 @@ result driver::parseArguments(int argc, char **argv) {
       cargo::argument_parser_option::ACCEPT_POSITIONAL |
       cargo::argument_parser_option::KEEP_UNRECOGNIZED);
 
-#define CHECK(RESULT)                                                         \
-  if (RESULT) {                                                               \
-    std::fprintf(stderr, "error: failed to parse command line arguments.\n"); \
-    return result::failure;                                                   \
-  }                                                                           \
+#define CHECK(RESULT)                                                       \
+  if (RESULT) {                                                             \
+    (void)std::fprintf(stderr,                                              \
+                       "error: failed to parse command line arguments.\n"); \
+    return result::failure;                                                 \
+  }                                                                         \
   (void)0
 
   bool show_help = false;
@@ -457,7 +459,8 @@ result driver::parseArguments(int argc, char **argv) {
 
   const auto &pos_args = parser.get_positional_args();
   if (pos_args.size() > 1) {
-    std::fprintf(stderr, "error: more than one input file is not supported\n");
+    (void)std::fprintf(stderr,
+                       "error: more than one input file is not supported\n");
     return result::failure;
   } else if (pos_args.empty()) {
     input_file = "-";
@@ -495,7 +498,7 @@ result driver::setupContext() {
 
   context = compiler::createContext();
   if (!context) {
-    std::fprintf(stderr, "error: Could not create compiler context\n");
+    (void)std::fprintf(stderr, "error: Could not create compiler context\n");
     return result::failure;
   }
 
@@ -503,7 +506,7 @@ result driver::setupContext() {
   if (!compiler_target ||
       compiler_target->init(cl::binary::detectBuiltinCapabilities(
           compiler_info->device_info)) != compiler::Result::SUCCESS) {
-    std::fprintf(stderr, "error: Could not create compiler target\n");
+    (void)std::fprintf(stderr, "error: Could not create compiler target\n");
     return result::failure;
   }
 
@@ -516,7 +519,8 @@ result ReadWholeFile(std::istream &fp, std::vector<char> &output) {
   if (!fp.fail()) {
     long file_length = fp.tellg();
     if (file_length < 0) {
-      std::fprintf(stderr, "error: Could not determine input file size\n");
+      (void)std::fprintf(stderr,
+                         "error: Could not determine input file size\n");
       return result::failure;
     }
     output.reserve(output.size() + file_length);
@@ -535,7 +539,7 @@ result driver::buildProgram() {
   uint32_t module_num_errors = 0;
   module = compiler_target->createModule(module_num_errors, module_log);
   if (!module) {
-    std::fprintf(stderr, "error: Could not create compiler module\n");
+    (void)std::fprintf(stderr, "error: Could not create compiler module\n");
     return result::failure;
   }
 
@@ -546,8 +550,8 @@ result driver::buildProgram() {
     if (!use_stdin) {
       file_instream.open(input_file, std::ios_base::binary | std::ios_base::in);
       if (file_instream.fail()) {
-        std::fprintf(stderr, "error: Could not open input file %s\n",
-                     input_file.c_str());
+        (void)std::fprintf(stderr, "error: Could not open input file %s\n",
+                           input_file.c_str());
         return result::failure;
       }
       module->getOptions().source_file_in.assign(input_file.data(),
@@ -624,9 +628,9 @@ result driver::buildProgram() {
       if (module->parseOptions({cl_options.data(), cl_options.size() - 1},
                                compiler::Options::Mode::BUILD) !=
           compiler::Result::SUCCESS) {
-        std::fprintf(stderr, "error: Could not parse compiler options:\n%.*s\n",
-                     static_cast<int>(cl_options.size() - 1),
-                     cl_options.data());
+        (void)std::fprintf(
+            stderr, "error: Could not parse compiler options:\n%.*s\n",
+            static_cast<int>(cl_options.size() - 1), cl_options.data());
         return result::failure;
       }
       errcode = module->compileOpenCLC(device_profile, source_as_string, {});
@@ -639,12 +643,12 @@ result driver::buildProgram() {
   }
   if (compiler::Result::SUCCESS != errcode) {
     if (!module_log.empty() && module_log.front() != '\0') {
-      std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
-                   module_log.data());
+      (void)std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
+                         module_log.data());
       return result::failure;
     }
-    std::fprintf(stderr,
-                 "Failed to build the program, no build log available.\n");
+    (void)std::fprintf(
+        stderr, "Failed to build the program, no build log available.\n");
     return result::failure;
   }
 
@@ -678,7 +682,8 @@ result driver::saveBinary() {
       std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
                    module_log.data());
     } else {
-      std::fprintf(stderr, "Unknown compilation error in 'createBinary'.\n");
+      (void)std::fprintf(stderr,
+                         "Unknown compilation error in 'createBinary'.\n");
     }
     return result::failure;
   }
@@ -689,7 +694,7 @@ result driver::saveBinary() {
     if (!cl::binary::serializeBinary(
             binary_storage, module_executable, printf_calls, program_info,
             module->getOptions().kernel_arg_info, nullptr)) {
-      std::fprintf(stderr, "Failed to serialize binary");
+      (void)std::fprintf(stderr, "Failed to serialize binary");
       return result::failure;
     }
     binary = binary_storage;
@@ -729,14 +734,14 @@ result driver::saveBinary() {
 result driver::findDevice() {
   auto compilers = compiler::compilers();
   if (compilers.empty()) {
-    std::fprintf(stderr, "error: no compilers found\n");
+    (void)std::fprintf(stderr, "error: no compilers found\n");
     return result::failure;
   }
 
   if (compilers.size() > 1 && device_name_substring.empty()) {
-    std::fprintf(stderr,
-                 "error: Multiple devices available, please choose one "
-                 "(--device NAME):\n");
+    (void)std::fprintf(stderr,
+                       "error: Multiple devices available, please choose one "
+                       "(--device NAME):\n");
     printMuxCompilers(compilers);
     return result::failure;
   }
@@ -750,8 +755,8 @@ result driver::findDevice() {
     }
     if (matches) {
       if (found) {
-        std::fprintf(stderr,
-                     "error: Device selection ambiguous, available devices:\n");
+        (void)std::fprintf(
+            stderr, "error: Device selection ambiguous, available devices:\n");
         printMuxCompilers(compilers);
         return result::failure;
       }
@@ -760,7 +765,7 @@ result driver::findDevice() {
     }
   }
   if (!found) {
-    std::fprintf(
+    (void)std::fprintf(
         stderr,
         "error: No device matched the given substring, available devices:\n");
     printMuxCompilers(compilers);

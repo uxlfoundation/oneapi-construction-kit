@@ -26,6 +26,7 @@
 #include <llvm/IR/Metadata.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/Debug.h>
+#include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Support/TypeSize.h>
 #include <multi_llvm/llvm_version.h>
@@ -531,10 +532,9 @@ llvm::Error Builder::create<OpTypeImage>(const OpTypeImage *op) {
   }
 
   if (!imageType) {
-    (void)fprintf(
-        stderr, "Unsupported type (Dim = %d) passed to 'create<OpTypeImage>'\n",
-        op->Dim());
-    std::abort();
+    return makeStringError(llvm::formatv(
+        "Unsupported type (Dim = {0}) passed to 'create<OpTypeImage>'\n",
+        op->Dim()));
   }
 
   module.addID(op->IdResult(), op, imageType);
@@ -2069,10 +2069,9 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
 
       } break;
       default:
-        fprintf(stderr, "Execution model (ID = %d) is not supported.\n",
-                ep_op->ExecutionModel());
-        std::abort();
-        break;
+        return makeStringError(
+            llvm::formatv("Execution model (ID = {0}) is not supported",
+                          ep_op->ExecutionModel()));
     }
   } else {
     // DPC++ rejects variadic functions in SYCL code, with the exception of
@@ -4480,8 +4479,7 @@ llvm::Error Builder::create<OpISubBorrow>(const OpISubBorrow *op) {
                      std::to_string(operandType->getIntegerBitWidth());
       break;
     default:
-      fprintf(stderr, "Unsupported integer type passed to OpISubBorrow\n");
-      abort();
+      return makeStringError("Unsupported integer type passed to OpISubBorrow");
   }
 
   llvm::Function *intrinsic = module.llvmModule->getFunction(functionName);
