@@ -85,7 +85,8 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
   if (symbol_target_address == 0) {
 #ifndef NDEBUG
     auto name = map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-    fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(), name.data());
+    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(),
+                  name.data());
 #endif
     return false;
   }
@@ -121,7 +122,8 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
 #ifndef NDEBUG
       // If this warning is ever triggered, then we can investigate further
       if (implicit_addend & uint32_t(0x80008000)) {
-        fprintf(stderr, "WARNING: Relocation with possibly negative offset\n");
+        (void)fprintf(stderr,
+                      "WARNING: Relocation with possibly negative offset\n");
       }
 #endif
       uint32_t value = symbol_target_address + implicit_addend;
@@ -173,7 +175,8 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
   if (symbol_target_address == 0) {
 #ifndef NDEBUG
     auto name = map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-    fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(), name.data());
+    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(),
+                  name.data());
 #endif
     return false;
   }
@@ -282,7 +285,8 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
   if (symbol_target_address == 0) {
 #ifndef NDEBUG
     auto name = map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-    fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(), name.data());
+    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(),
+                  name.data());
 #endif
     return false;
   }
@@ -396,8 +400,8 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       map.getSymbolTargetAddress(r.symbol_index).value_or(0);
   if (symbol_target_address == 0) {
 #ifndef NDEBUG
-    fprintf(stderr, "Missing symbol: %.*s\n", (int)symbol_name.size(),
-            symbol_name.data());
+    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)symbol_name.size(),
+                  symbol_name.data());
 #endif
     return false;
   }
@@ -547,9 +551,10 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       uint64_t stub_target = getOrCreateStub(symbol_target_address);
       if (0LU == stub_target) {
 #ifndef NDEBUG
-        fprintf(stderr,
-                "Out of stub space when constructing linker veneer for: %.*s\n",
-                (int)symbol_name.size(), symbol_name.data());
+        (void)fprintf(
+            stderr,
+            "Out of stub space when constructing linker veneer for: %.*s\n",
+            (int)symbol_name.size(), symbol_name.data());
 #endif
         return false;
       }
@@ -558,10 +563,11 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       if (static_cast<int64_t>(relative_value) < -(1LL << 27) ||
           static_cast<int64_t>(relative_value) >= (1LL << 27)) {
 #ifndef NDEBUG
-        fprintf(stderr,
-                "Linker veneer for symbol %.*s beyond addressable span of "
-                "branch instruction",
-                (int)symbol_name.size(), symbol_name.data());
+        (void)fprintf(
+            stderr,
+            "Linker veneer for symbol %.*s beyond addressable span of "
+            "branch instruction",
+            (int)symbol_name.size(), symbol_name.data());
 #endif
         return false;
       }
