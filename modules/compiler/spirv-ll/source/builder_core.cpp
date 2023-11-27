@@ -19,6 +19,7 @@
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/DebugLoc.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
@@ -163,12 +164,25 @@ llvm::DICompileUnit *Builder::getOrCreateDICompileUnit(const OpLine *op_line) {
   return compile_unit;
 }
 
-llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
-    llvm::Function *function, const OpLine *op_line) {
-  if (!function) {
-    return nullptr;
+llvm::DILexicalBlock *Builder::getOrCreateDebugBasicBlockScope(
+    llvm::BasicBlock &bb, const OpLine *op_line) {
+  if (auto *const di_block = module.getLexicalBlock(&bb)) {
+    return di_block;
   }
-  const OpFunction *opFunction = module.get<OpFunction>(function);
+
+  auto *const di_file = getOrCreateDIFile(op_line);
+  auto *const function_scope =
+      getOrCreateDebugFunctionScope(*bb.getParent(), op_line);
+  auto *const di_block = DIBuilder.createLexicalBlock(
+      function_scope, di_file, op_line->Line(), op_line->Column());
+  module.addLexicalBlock(&bb, di_block);
+
+  return di_block;
+}
+
+llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
+    llvm::Function &function, const OpLine *op_line) {
+  const OpFunction *opFunction = module.get<OpFunction>(&function);
   // If we have a llvm::Function we should have an OpFunction.
   SPIRV_LL_ASSERT_PTR(opFunction);
   spv::Id function_id = opFunction->IdResult();
@@ -176,8 +190,8 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
   if (auto *function_scope = module.getDebugFunctionScope(function_id)) {
     // If we've created the scope before creating the function, link the two
     // together here if we haven't already.
-    if (!function->getSubprogram()) {
-      function->setSubprogram(function_scope);
+    if (!function.getSubprogram()) {
+      function.setSubprogram(function_scope);
     }
     return function_scope;
   }
@@ -199,12 +213,12 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
 
   // TODO: pass mangled name here when we're mangling names
   auto *function_scope = DIBuilder.createFunction(
-      di_compile_unit, function->getName(), function->getName(), di_file,
+      di_compile_unit, function.getName(), function.getName(), di_file,
       op_line->Line(), dbg_function_type, 1, llvm::DINode::FlagZero,
       llvm::DISubprogram::SPFlagDefinition);
 
   // Set the function's debug sub-program
-  function->setSubprogram(function_scope);
+  function.setSubprogram(function_scope);
 
   // Track this sub-program for later
   module.addDebugFunctionScope(function_id, function_scope);
@@ -212,93 +226,101 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
   return function_scope;
 }
 
-Module::LineRangeBeginTy Builder::createLineRangeBegin(const OpLine *op_line,
-                                                       llvm::BasicBlock &bb) {
-  // Get or create the DILexicalBlock for this basic block.
-  llvm::DILexicalBlock *di_block = module.getLexicalBlock(&bb);
+template <>
+llvm::Error Builder::create<OpLine>(const OpLine *op) {
+  // Close the current range, if applicable.
+  // Note we don't close the current range afterwards, since we'll just
+  // overwrite it with a new one a few lines down.
+  applyDebugInfoAtClosedRangeOrScope();
 
-  if (!di_block) {
-    auto *di_file = getOrCreateDIFile(op_line);
-    auto *function_scope =
-        getOrCreateDebugFunctionScope(bb.getParent(), op_line);
-    di_block = DIBuilder.createLexicalBlock(function_scope, di_file,
-                                            op_line->Line(), op_line->Column());
+  llvm::Function *current_function = getCurrentFunction();
 
-    module.addLexicalBlock(&bb, di_block);
+  if (!current_function || !IRBuilder.GetInsertBlock()) {
+    setCurrentOpLineRange(LineRangeBeginTy{op, /*range_begin*/ std::nullopt});
+    return llvm::Error::success();
   }
+
+  llvm::BasicBlock &bb = *IRBuilder.GetInsertBlock();
 
   // If there aren't any instructions in the basic block yet just go from the
   // start of the block.
   llvm::BasicBlock::iterator iter =
       bb.empty() ? bb.begin() : bb.back().getIterator();
 
-  auto *di_loc = llvm::DILocation::get(di_block->getContext(), op_line->Line(),
-                                       op_line->Column(), di_block);
-
-  return Module::LineRangeBeginTy{op_line, di_loc, iter};
-}
-
-template <>
-llvm::Error Builder::create<OpLine>(const OpLine *op) {
-  // Close the current range, if applicable.
-  checkEndOpLineRange();
-
-  llvm::Function *current_function = getCurrentFunction();
-
-  // Having an OpLine before you start a function is valid. We'll attach the
-  // current range onto the function when we create it.
-  if (!current_function) {
-    // Create a location within the current file
-    auto *loc = llvm::DILocation::get(*context.llvmContext, op->Line(),
-                                      op->Column(), module.getDIFile());
-    module.setCurrentOpLineRange(Module::LineRangeBeginTy{op, loc});
-
-    return llvm::Error::success();
-  }
-
-  llvm::DISubprogram *function_scope =
-      getOrCreateDebugFunctionScope(current_function, op);
-
-  auto *current_block = IRBuilder.GetInsertBlock();
-
-  // Having an OpLine before you start a block is valid. We'll attach the
-  // current range onto the block when we create it.
-  if (!current_block) {
-    // Create a location within the current function.
-    auto *loc = llvm::DILocation::get(*context.llvmContext, op->Line(),
-                                      op->Column(), function_scope);
-    module.setCurrentOpLineRange(Module::LineRangeBeginTy{op, loc});
-
-    return llvm::Error::success();
-  }
-
-  module.setCurrentOpLineRange(createLineRangeBegin(op, *current_block));
+  setCurrentOpLineRange(LineRangeBeginTy{op, iter});
 
   return llvm::Error::success();
 }
 
-void Builder::checkEndOpLineRange() {
-  auto line_range = module.getCurrentOpLineRange();
+void Builder::closeCurrentLexicalScope(bool closing_line_range) {
+  // Apply debug info to the previous scope.
+  applyDebugInfoAtClosedRangeOrScope();
+  // Close the current op line range, unless this is a lexical scope. In this
+  // case, we keep any OpLine/OpNoLine range that's active, as we may later
+  // open a new lexical scope inside the same range:
+  //  OpLine
+  //    DebugScope
+  //    DebugNoScope <- we may be here
+  //    ...
+  //    DebugScope
+  //    DebugNoScope
+  //  OpNoLine
+  if (closing_line_range) {
+    setCurrentOpLineRange(std::nullopt);
+  }
+  // Close any lexical scope that's active
+  setCurrentFunctionLexicalScope(std::nullopt);
+}
+
+void Builder::applyDebugInfoAtClosedRangeOrScope() {
+  auto line_range = getCurrentOpLineRange();
+  // If we don't have line information, we can bail here.
   if (!line_range) {
     return;
   }
 
-  auto [op_line, loc, begin_iter] = *line_range;
+  const auto *op_line = line_range->op_line;
+  llvm::BasicBlock *bb = IRBuilder.GetInsertBlock();
 
-  llvm::BasicBlock *current_block = IRBuilder.GetInsertBlock();
-
-  // A closed range on an empty block means nothing.
-  if (current_block && !current_block->empty()) {
-    llvm::BasicBlock::iterator end_iter =
-        IRBuilder.GetInsertBlock()->back().getIterator();
-
-    auto range = std::make_pair(begin_iter, end_iter);
-
-    module.addCompleteOpLineRange(loc, range);
+  // If we don't have a block of instructions to apply
+  // debug information to, we can bail here.
+  if (!bb || bb->empty()) {
+    // If we have a function but haven't attached a sub-program to it, manifest
+    // and attach one now. It's arguable how useful this is (in the case that
+    // we only have empty line ranges in a function but attach a sub-program to
+    // it anyway).
+    if (auto *f = getCurrentFunction()) {
+      getOrCreateDebugFunctionScope(*f, op_line);
+    }
+    return;
   }
 
-  // Close off the current range.
-  module.closeCurrentOpLineRange();
+  llvm::Metadata *scope = nullptr;
+  llvm::Metadata *inlined_at = nullptr;
+
+  if (auto lexical_scope = getCurrentFunctionLexicalScope()) {
+    scope = lexical_scope->scope;
+    inlined_at = lexical_scope->inlined_at;
+  } else {
+    scope = getOrCreateDebugBasicBlockScope(*bb, op_line);
+  }
+
+  auto *const di_loc =
+      llvm::DILocation::get(*context.llvmContext, op_line->Line(),
+                            op_line->Column(), scope, inlined_at);
+
+  llvm::BasicBlock::iterator range_begin =
+      std::next(line_range->range_begin.value_or(bb->begin()));
+  llvm::BasicBlock::iterator range_end = IRBuilder.GetInsertPoint();
+
+  for (auto &inst : make_range(range_begin, range_end)) {
+    inst.setDebugLoc(di_loc);
+  }
+
+  // Update the current line range to start where the range currently ends -
+  // we've added debug info to everything before this point.
+  setCurrentOpLineRange(
+      LineRangeBeginTy{line_range->op_line, std::prev(range_end)});
 }
 
 template <>
@@ -2112,9 +2134,10 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
 
   // If there's a line range currently open at this point, create and attach
   // the DISubprogram for this function. If there isn't, we'll generate one on
-  // the fly when we hit an OpLine.
-  if (auto current_range = module.getCurrentOpLineRange()) {
-    getOrCreateDebugFunctionScope(function, current_range->op_line);
+  // the fly when we hit an OpLine but it'll have that OpLine's line/column
+  // information.
+  if (auto current_range = getCurrentOpLineRange()) {
+    getOrCreateDebugFunctionScope(*function, current_range->op_line);
   }
 
   return llvm::Error::success();
@@ -2435,7 +2458,7 @@ llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
   }
 
   setCurrentFunction(nullptr);
-  checkEndOpLineRange();
+
   return llvm::Error::success();
 }
 
@@ -6022,9 +6045,20 @@ llvm::Error Builder::create<OpLabel>(const OpLabel *op) {
     generateSpecConstantOps();
   }
 
-  if (auto current_range = module.getCurrentOpLineRange()) {
-    module.setCurrentOpLineRange(
-        createLineRangeBegin(current_range->op_line, *bb));
+  // If there's a line range currently open at this point, create and register
+  // a DILexicalBlock for this function. If there isn't, we'll generate one on
+  // the fly when we hit an OpLine but it'll have that OpLine's line/column
+  // information.
+  // Note that it's legal for there to be an open line range before the first
+  // basic block in a function, but not any subsequent ones, because all blocks
+  // must end in a block termination instruction, and those close line ranges.
+  //   OpLine           <- new line range opens here
+  //     OpFunction
+  //       OpLine       <- new line range opens here; old one closes
+  //         OpLabel
+  //         OpBranch   <- line range closes here
+  if (auto current_range = getCurrentOpLineRange()) {
+    getOrCreateDebugBasicBlockScope(*bb, current_range->op_line);
   }
 
   module.addID(op->IdResult(), op, bb);
@@ -6038,8 +6072,8 @@ llvm::Error Builder::create<OpBranch>(const OpBranch *op) {
 
   IRBuilder.CreateBr(bb);
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6086,8 +6120,8 @@ llvm::Error Builder::create<OpBranchConditional>(
     }
   }
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6115,8 +6149,8 @@ llvm::Error Builder::create<OpSwitch>(const OpSwitch *op) {
     switchInst->addCase(llvm::cast<llvm::ConstantInt>(caseVal), caseBB);
   }
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6126,8 +6160,8 @@ llvm::Error Builder::create<OpKill>(const OpKill *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6137,8 +6171,8 @@ llvm::Error Builder::create<OpReturn>(const OpReturn *) {
   SPIRV_LL_ASSERT_PTR(getCurrentFunction());
   IRBuilder.CreateRetVoid();
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6152,8 +6186,8 @@ llvm::Error Builder::create<OpReturnValue>(const OpReturnValue *op) {
 
   IRBuilder.CreateRet(value);
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6162,8 +6196,8 @@ template <>
 llvm::Error Builder::create<OpUnreachable>(const OpUnreachable *) {
   IRBuilder.CreateUnreachable();
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -7205,7 +7239,8 @@ llvm::Error Builder::create<OpImageSparseTexelsResident>(
 
 template <>
 llvm::Error Builder::create<OpNoLine>(const OpNoLine *) {
-  checkEndOpLineRange();
+  applyDebugInfoAtClosedRangeOrScope();
+  setCurrentOpLineRange(std::nullopt);
   return llvm::Error::success();
 }
 

@@ -21,6 +21,7 @@
 
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
@@ -230,8 +231,57 @@ class Builder {
   /// being translated
   void accessChain(OpCode const &opc);
 
-  /// @brief Check if an OpLine range is in progress and end it if there is
-  void checkEndOpLineRange();
+  /// @brief Represents a lexical scope, used for debug information.
+  struct LexicalScopeTy {
+    /// @brief The scope, represented in LLVM metadata; could be a function or
+    /// block scope but is not specified here. Must not be nullptr in a valid
+    /// scope.
+    llvm::Metadata *scope = nullptr;
+    /// @brief An optional scope, representing where the scope was inlined. May
+    /// be nullptr.
+    llvm::Metadata *inlined_at = nullptr;
+  };
+
+  /// @brief Get the currently active debug scope in the current function the
+  /// builder is currently working on
+  ///
+  /// @return The function if one has been declared, otherwise std::nullopt
+  std::optional<LexicalScopeTy> getCurrentFunctionLexicalScope() const;
+
+  /// @brief Set the currently active lexical scope in the current function the
+  /// builder is currently working on; std::nullopt signals no active scope, or
+  /// the closing of an open one.
+  void setCurrentFunctionLexicalScope(std::optional<LexicalScopeTy>);
+
+  /// @brief Called at the end of a lexical scope for book-keeping.
+  /// @param closing_line_range True if any open line range should be closed at
+  /// the same time.
+  void closeCurrentLexicalScope(bool closing_line_range = true);
+
+  /// @brief A type containing an OpLine line range and the beginning of the
+  /// range it corresponds to.
+  struct LineRangeBeginTy {
+    /// @brief A pointer to the OpLine that this line range corresponds to.
+    const OpLine *op_line = nullptr;
+    /// @brief An optional iterator pointing to the first instruction the range
+    /// applies to. Ranges may be open before a block has begun, in which case
+    /// this will be std::nullopt.
+    std::optional<llvm::BasicBlock::iterator> range_begin = std::nullopt;
+  };
+
+  /// @brief Get the currently active debug scope in the current function the
+  /// builder is currently working on
+  ///
+  /// @return The function if one has been declared, otherwise std::nullopt
+  std::optional<LineRangeBeginTy> getCurrentOpLineRange() const;
+
+  /// @brief Set the currently active OpLine range; std::nullopt signals no
+  /// active OpLine range, or the closing of an open one.
+  void setCurrentOpLineRange(std::optional<LineRangeBeginTy>);
+
+  /// @brief At the closing of a scope, apply debug information to instructions
+  /// within the closed scope.
+  void applyDebugInfoAtClosedRangeOrScope();
 
   /// @brief Return a `DIType` object that represents the given type
   ///
@@ -248,13 +298,13 @@ class Builder {
 
   /// @brief Gets (or creates) a DISubprogram for the given function and
   /// OpLine.
-  llvm::DISubprogram *getOrCreateDebugFunctionScope(llvm::Function *function,
+  llvm::DISubprogram *getOrCreateDebugFunctionScope(llvm::Function &function,
                                                     const OpLine *op_line);
 
-  /// @brief Creates the beginning of a line range for the given OpLine,
-  /// contained within the basic block.
-  Module::LineRangeBeginTy createLineRangeBegin(const OpLine *op_line,
-                                                llvm::BasicBlock &bb);
+  /// @brief Gets (or creates) a DILexicalBlock for the given function and
+  /// OpLine.
+  llvm::DILexicalBlock *getOrCreateDebugBasicBlockScope(llvm::BasicBlock &bb,
+                                                        const OpLine *op_line);
 
   /// @brief Called once all instructions in the module have been visited in
   /// order during the first pass through the SPIR-V binary.
@@ -756,6 +806,12 @@ class Builder {
   llvm::Function *CurrentFunction;
   /// @brief A copy of the current function's argument list
   llvm::SmallVector<llvm::Value *, 8> CurrentFunctionArgs;
+  /// @brief Current debug scope of the function the builder is currently
+  /// working on (or std::nullopt if no debug scope is active)
+  std::optional<LexicalScopeTy> CurrentFunctionLexicalScope;
+  /// @brief Current line range - marked by the beginning of an OpLine
+  /// instruction - (or std::nullopt if no line range is active)
+  std::optional<LineRangeBeginTy> CurrentOpLineRange;
   /// @brief A list of the builtin IDs specified at `CurrentFunction`'s creation
   BuiltinIDList CurrentFunctionBuiltinIDs;
   /// @brief Registered extended instruction set handlers.

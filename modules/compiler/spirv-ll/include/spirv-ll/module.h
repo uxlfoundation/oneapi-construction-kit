@@ -395,50 +395,6 @@ class Module : public ModuleHeader {
   /// @return The string or std::nullopt if the ID isn't found.
   std::optional<std::string> getDebugString(spv::Id id) const;
 
-  /// @brief A type containing an LLVM debug location and the beginning of the
-  /// range it corresponds to.
-  struct LineRangeBeginTy {
-    const OpLine *op_line;
-    llvm::DILocation *loc;
-    llvm::BasicBlock::iterator range_begin = llvm::BasicBlock::iterator();
-  };
-
-  /// @brief Opens up a new OpLine range, setting it to the current one.
-  ///
-  /// Does *not* close the current one. Call closeCurrentOpLineRange() first.
-  ///
-  /// @param range_begin LineRangeBeginTy information about the range to begin.
-  void setCurrentOpLineRange(const LineRangeBeginTy &range_begin);
-
-  /// @brief Closes (i.e., clears) the current OpLine range.
-  void closeCurrentOpLineRange();
-
-  /// @brief Add a completed OpLine range to the module.
-  ///
-  /// @param location DILocation that represents the OpLine instruction.
-  /// @param range Iterator range over which the debug metadata will be applied.
-  void addCompleteOpLineRange(
-      llvm::DILocation *location,
-      std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range);
-
-  /// @brief A list of basic block ranges (begin/end).
-  using OpLineRangeVec = std::vector<
-      std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator>>;
-
-  /// @brief A map from a debug location to the list of ranges it covers.
-  using OpLineRangeMap = llvm::MapVector<llvm::DILocation *, OpLineRangeVec>;
-
-  /// @brief Get reference to complete OpLine range list.
-  ///
-  /// @return Reference to map of `DILocation`/iterator range pairs
-  OpLineRangeMap &getOpLineRanges();
-
-  /// @brief Get `DILocation`/iterator pair for current OpLine range
-  ///
-  /// @return Pair containing `DILocation` and iterator range, location will be
-  /// nullptr if there isn't an ongoing range
-  std::optional<LineRangeBeginTy> getCurrentOpLineRange() const;
-
   /// @brief Add a basic block and associated lexical block to the module.
   ///
   /// @param b_block Basic block to associate the lexical block with.
@@ -1047,16 +1003,6 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, std::string> DebugStrings;
   /// @brief `DIFile` object specified by the module currently being translated.
   llvm::DIFile *File;
-  /// @brief Map of DILocation to sets of basic block iterator ranges.
-  ///
-  /// Storing `std::pair`s of iterators instead of `llvm::iterator_range`
-  /// because the iterators need to be manipulated after the module has been
-  /// translated in its entirety, so we can't construct the `iterator_range`
-  /// until that's happened but we still need to store the range.
-  OpLineRangeMap OpLineRanges;
-  /// @brief DILocation/basic block iterator pair to store the beginning of the
-  /// current OpLine range.
-  std::optional<LineRangeBeginTy> CurrentOpLineRange;
   /// @brief Map of BasicBlock to associated `DILexicalBlock`.
   llvm::DenseMap<llvm::BasicBlock *, llvm::DILexicalBlock *> LexicalBlocks;
   /// @brief Map of function IDs to their associated `DISubprogram`s.
