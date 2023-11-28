@@ -28,9 +28,7 @@
 // does not have dedicated (TCIM) memory for storing kernel exeutables, a memory
 // window is set up to map this memory area to a reserved area in DMA.
 constexpr const uint64_t REFSI_ELF_BASE = 0x10000ull;
-// The upper region can be up to the tdcm start point at 0x10000000
-// We will make it approx 128MB to give some latitude
-constexpr const uint64_t REFSI_ELF_SIZE = (1 << 27) - REFSI_ELF_BASE;
+constexpr const uint64_t REFSI_ELF_SIZE = (1 << 20) - REFSI_ELF_BASE;
 
 // Memory area for per-hart storage.
 constexpr const uint64_t G_HART_LOCAL_BASE = 0x20800000;
