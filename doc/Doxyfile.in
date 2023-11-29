@@ -854,9 +854,9 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @ONEAPI_CON_KIT_SOURCE_DIR@/source \
-                         @ONEAPI_CON_KIT_SOURCE_DIR@/modules \
-                         @ONEAPI_CON_KIT_BINARY_DIR@/include
+INPUT                  = @ComputeAorta_SOURCE_DIR@/source \
+                         @ComputeAorta_SOURCE_DIR@/modules \
+                         @ComputeAorta_BINARY_DIR@/include
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -900,11 +900,11 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = @ONEAPI_CON_KIT_SOURCE_DIR@/source/cl/external \
-                         @ONEAPI_CON_KIT_SOURCE_DIR@/source/cl/test \
-                         @ONEAPI_CON_KIT_SOURCE_DIR@/source/vk \
-                         @ONEAPI_CON_KIT_SOURCE_DIR@/modules/spirv-ll/external \
-                         @ONEAPI_CON_KIT_SOURCE_DIR@/modules/mux/targets/riscv/external
+EXCLUDE                = @ComputeAorta_SOURCE_DIR@/source/cl/external \
+                         @ComputeAorta_SOURCE_DIR@/source/cl/test \
+                         @ComputeAorta_SOURCE_DIR@/source/vk \
+                         @ComputeAorta_SOURCE_DIR@/modules/spirv-ll/external \
+                         @ComputeAorta_SOURCE_DIR@/modules/mux/targets/riscv/external
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -2191,7 +2191,7 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           = @ONEAPI_CON_KIT_BINARY_DIR@/include \
+INCLUDE_PATH           = @ComputeAorta_BINARY_DIR@/include \
                          @CA_LLVM_INSTALL_DIR@/include
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
