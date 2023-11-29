@@ -77,7 +77,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
       - name: Download Artifacts
-        uses: actions/download-artifacts@v2
+        uses: actions/download-artifact@v2
         with:
           name: riscv-build
           path: artifacts
