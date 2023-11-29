@@ -34,12 +34,12 @@
 ///
 /// @param CONDITION Condition to test.
 /// @param MESSAGE Message to display on assertion failure.
-#define OCL_ASSERT(CONDITION, MESSAGE)                                     \
-  if (!(CONDITION)) {                                                      \
-    std::fprintf(stderr, "%s:%d: %s %s\n", __FILE__, __LINE__, #CONDITION, \
-                 MESSAGE);                                                 \
-    std::abort();                                                          \
-  }                                                                        \
+#define OCL_ASSERT(CONDITION, MESSAGE)                               \
+  if (!(CONDITION)) {                                                \
+    (void)std::fprintf(stderr, "%s:%d: %s %s\n", __FILE__, __LINE__, \
+                       #CONDITION, MESSAGE);                         \
+    std::abort();                                                    \
+  }                                                                  \
   (void)0
 #else
 #define OCL_ASSERT(CONDITION, MESSAGE) (void)0
@@ -48,11 +48,11 @@
 /// @brief Display a message to stderr and abort.
 ///
 /// @param MESSAGE Message to display prior to aborting.
-#define OCL_ABORT(MESSAGE)                                            \
-  {                                                                   \
-    std::fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, MESSAGE); \
-    std::abort();                                                     \
-  }                                                                   \
+#define OCL_ABORT(MESSAGE)                                                  \
+  {                                                                         \
+    (void)std::fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, MESSAGE); \
+    std::abort();                                                           \
+  }                                                                         \
   (void)0
 
 /// @brief Provides hints to the compiler about the likelihood of a condition

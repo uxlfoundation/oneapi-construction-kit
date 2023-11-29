@@ -97,6 +97,7 @@ void remapConstantArray(llvm::ConstantArray *arr, llvm::Constant *from,
   llvm::Constant *newConstant =
       llvm::ConstantArray::get(arr->getType(), newOps);
   arr->replaceAllUsesWith(newConstant);
+  arr->destroyConstant();
 }
 
 void remapConstantExpr(llvm::ConstantExpr *expr, llvm::Constant *from,
@@ -105,6 +106,7 @@ void remapConstantExpr(llvm::ConstantExpr *expr, llvm::Constant *from,
   // Create a new expression with the list of operands and replace all uses with
   llvm::Constant *newConstant = expr->getWithOperands(newOps);
   expr->replaceAllUsesWith(newConstant);
+  expr->destroyConstant();
 }
 
 bool funcContainsDebugMetadata(const llvm::Function &func,

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
             OpCapability Kernel
             OpCapability Float64
@@ -41,7 +42,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @lifetime(ptr addrspace(3) [[PTR:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @lifetime(ptr addrspace(3) [[PTR:%.*]])
 ; We can't generate these intrinsics with address space 3 on llvm 4.0
 ; CHECK: {{(call void @llvm.lifetime.start.p3(i64 4, ptr addrspace(3) [[PTR]]))?}}
 ; CHECK: {{(call void @llvm.lifetime.end.p3(i64 4, ptr addrspace(3) [[PTR]]))?}}

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -27,10 +28,7 @@
 ; All types, variables and constants
               %void_t = OpTypeVoid
                 %u8_t = OpTypeInt 8 0
-                %i8_t = OpTypeInt 8 1
           %u_max_fn_t = OpTypeFunction %void_t
-                %i8_1 = OpConstant %i8_t 1
-                %i8_2 = OpConstant %i8_t 2
                 %u8_1 = OpConstant %u8_t 1
                 %u8_2 = OpConstant %u8_t 2
 
@@ -38,10 +36,8 @@
             %u_max_i8 = OpFunction %void_t None %u_max_fn_t
 ; CHECK: define spir_kernel void @u_max_i8()
                    %2 = OpLabel
-                   %3 = OpExtInst %i8_t %1 u_max %i8_1 %i8_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i8 @_Z3maxhh(i8 zeroext 1, i8 zeroext 2)
-                   %4 = OpExtInst %u8_t %1 u_max %u8_1 %u8_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func zeroext i8 @_Z3maxhh(i8 zeroext 1, i8 zeroext 2)
+                   %3 = OpExtInst %u8_t %1 u_max %u8_1 %u8_2
+; CHECK: = call spir_func zeroext i8 @_Z3maxhh(i8 zeroext 1, i8 zeroext 2)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -14,6 +14,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+# Under the old policy, the generated dependency files are passed to Ninja
+# directly, causing spurious rebuilds when Ninja's expectations do not align
+# with what Clang generates, but this only causes unnecessary rebuilds, no
+# wrong results, so we can continue permitting old CMake versions.
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.20)
+  cmake_policy(SET CMP0116 NEW)
+endif()
+
 # Add abacus source directories to get lists of source files.
 add_subdirectory(abacus_cast)
 add_subdirectory(abacus_common)
@@ -185,9 +193,11 @@ if(${ABACUS_BUILD_WITH_RUNTIME_TOOLS})
           ${ABACUS_RUNTIME_OPTIONS} ${BUILTINS_EXTRA_OPTIONS} ${ENABLE_OPENCL_BUILTINS}
           -include "${RUNTIME_CLHEADER}"
           -emit-llvm-bc -o "${OUTPUT}"
+          -dependency-file "${OUTPUT}.d" -MT "${OUTPUT}" -sys-header-deps
           "${SOURCE}"
         DEPENDS "${SOURCE}" "${RUNTIME_COMPILER}" "${RUNTIME_CLHEADER}"
-          abacus_generate ${ABACUS_GENERATED_FILES})
+          abacus_generate ${ABACUS_GENERATED_FILES}
+	DEPFILE "${OUTPUT}.d")
 
       set(ALL_BCS "${ALL_BCS};${OUTPUT}")
     endforeach()

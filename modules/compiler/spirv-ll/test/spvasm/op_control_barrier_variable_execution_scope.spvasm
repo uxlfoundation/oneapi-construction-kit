@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                    OpCapability Addresses
                    OpCapability Kernel
@@ -22,6 +23,7 @@
                    OpMemoryModel Physical64 OpenCL
                    OpEntryPoint Kernel %main "main"
                    OpName %main "main"
+                   OpName %execution_scope "execution_scope"
 
         %void_ty = OpTypeVoid
         %uint_ty = OpTypeInt 32 0
@@ -29,8 +31,6 @@
 
       %semantics = OpConstant %uint_ty 264
    %memory_scope = OpConstant %uint_ty 2
-
-                   OpName %execution_scope "execution_scope"
 
            %main = OpFunction %void_ty DontInline %fcn_ty
 %execution_scope = OpFunctionParameter %uint_ty

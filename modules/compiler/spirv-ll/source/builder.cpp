@@ -15,7 +15,10 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/target_extension_types.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/IR/Attributes.h>
+#include <llvm/Support/Debug.h>
+#include <llvm/Support/Error.h>
 #include <llvm/Support/type_traits.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/assert.h>
@@ -33,10 +36,7 @@ spirv_ll::Builder::Builder(spirv_ll::Context &context, spirv_ll::Module &module,
       deviceInfo(deviceInfo),
       IRBuilder(*context.llvmContext),
       DIBuilder(*module.llvmModule),
-      CurrentFunction(nullptr),
-      OpenCLBuilder(*this, module),
-      GLSLBuilder(*this, module),
-      GroupAsyncCopiesBuilder(*this, module) {}
+      CurrentFunction(nullptr) {}
 
 llvm::IRBuilder<> &spirv_ll::Builder::getIRBuilder() { return IRBuilder; }
 
@@ -60,78 +60,99 @@ llvm::Value *spirv_ll::Builder::popFunctionArg() {
   return arg;
 }
 
-llvm::DIType *spirv_ll::Builder::getDIType(llvm::Type *type) {
-  const llvm::DataLayout &datalayout =
+llvm::DIType *spirv_ll::Builder::getDIType(spv::Id tyID) {
+  const llvm::DataLayout &DL =
       IRBuilder.GetInsertBlock()->getModule()->getDataLayout();
 
-  uint32_t align = datalayout.getABITypeAlign(type).value();
+  auto *const llvmTy = module.getLLVMType(tyID);
+  SPIRV_LL_ASSERT_PTR(llvmTy);
+  auto *const opTy = module.get<OpType>(tyID);
+  SPIRV_LL_ASSERT_PTR(opTy);
 
-  uint64_t size = datalayout.getTypeAllocSizeInBits(type);
+  uint32_t align = DL.getABITypeAlign(llvmTy).value();
 
-  std::string name;
+  uint64_t size = DL.getTypeAllocSizeInBits(llvmTy);
 
-  if (type->isAggregateType()) {
-    switch (type->getTypeID()) {
-      case llvm::Type::ArrayTyID: {
-        llvm::DIType *elem_type = getDIType(type->getArrayElementType());
+  if (opTy->isArrayType()) {
+    llvm::DIType *elem_type = getDIType(opTy->getTypeArray()->ElementType());
+    return DIBuilder.createArrayType(llvmTy->getArrayNumElements(), align,
+                                     elem_type, llvm::DINodeArray());
+  }
 
-        return DIBuilder.createArrayType(type->getArrayNumElements(), align,
-                                         elem_type, llvm::DINodeArray());
-      }
-      case llvm::Type::StructTyID: {
-        llvm::StructType *struct_type = llvm::cast<llvm::StructType>(type);
+  if (opTy->isVectorType()) {
+    llvm::DIType *elem_type = getDIType(opTy->getTypeVector()->ComponentType());
+    return DIBuilder.createVectorType(opTy->getTypeVector()->ComponentCount(),
+                                      align, elem_type, llvm::DINodeArray());
+  }
 
-        llvm::SmallVector<llvm::Metadata *, 4> element_types;
+  if (opTy->isStructType()) {
+    auto *const opStructTy = opTy->getTypeStruct();
+    llvm::StructType *struct_type = llvm::cast<llvm::StructType>(llvmTy);
 
-        for (uint32_t elem_index = 0;
-             elem_index < struct_type->getNumElements(); elem_index++) {
-          element_types.push_back(
-              getDIType(struct_type->getElementType(elem_index)));
-        }
+    llvm::SmallVector<llvm::Metadata *, 4> member_types;
 
-        // TODO: track line info for struct definitions, will require further
-        // interface changes so for now just use 0
-        return DIBuilder.createStructType(
-            module.getCompileUnit(), struct_type->getName(), module.getDIFile(),
-            0, size, align, llvm::DINode::FlagZero, nullptr,
-            DIBuilder.getOrCreateArray(element_types));
-      }
-      case llvm::Type::FixedVectorTyID: {
-        llvm::DIType *elem_type =
-            getDIType(multi_llvm::getVectorElementType(type));
-
-        return DIBuilder.createVectorType(
-            multi_llvm::getVectorNumElements(type), align, elem_type,
-            llvm::DINodeArray());
-      }
-      default:
-        llvm_unreachable("unsupported debug type");
+    for (auto memberTyID : opStructTy->MemberTypes()) {
+      member_types.push_back(getDIType(memberTyID));
     }
-  } else {
-    switch (type->getTypeID()) {
-      case llvm::Type::IntegerTyID:
-        if (llvm::cast<llvm::IntegerType>(type)->getSignBit()) {
-          name = "dbg_int_ty";
-        } else {
-          name = "dbg_uint_ty";
-        }
-        break;
-      case llvm::Type::FloatTyID:
-        name = "dbg_float_ty";
-        break;
-      case llvm::Type::PointerTyID: {
-        auto *opTy = module.get<OpType>(type);
-        SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
-        llvm::DIType *elem_type =
-            getDIType(module.getType(opTy->getTypePointer()->Type()));
-        return DIBuilder.createPointerType(elem_type, size, align);
-      }
-      default:
-        llvm_unreachable("unsupported debug type");
+
+    // TODO: track line info for struct definitions, will require further
+    // interface changes so for now just use 0
+    return DIBuilder.createStructType(
+        module.getCompileUnit(), struct_type->getName(), module.getDIFile(),
+        /*LineNumber*/ 0, size, align, llvm::DINode::FlagZero, nullptr,
+        DIBuilder.getOrCreateArray(member_types));
+  }
+
+  if (opTy->isIntType()) {
+    return opTy->getTypeInt()->Signedness()
+               ? DIBuilder.createBasicType("dbg_int_ty", size,
+                                           llvm::dwarf::DW_ATE_signed)
+
+               : DIBuilder.createBasicType("dbg_uint_ty", size,
+                                           llvm::dwarf::DW_ATE_unsigned);
+  }
+
+  if (opTy->isFloatType()) {
+    return DIBuilder.createBasicType("dbg_float_ty", size,
+                                     llvm::dwarf::DW_ATE_float);
+  }
+
+  if (opTy->isPointerType()) {
+    llvm::DIType *elem_type = getDIType(opTy->getTypePointer()->Type());
+    return DIBuilder.createPointerType(elem_type, size, align);
+  }
+
+  llvm_unreachable("unsupported debug type");
+}
+
+llvm::Error spirv_ll::Builder::finishModuleProcessing() {
+  // Add debug info, before we start replacing global builtin vars; the
+  // instruction ranges we've recorded are on the current state of the basic
+  // blocks. Replacing the global builtins will invalidate the iterators.
+  addDebugInfoToModule();
+
+  // Replace all global builtin vars with function local versions
+  replaceBuiltinGlobals();
+
+  // Set some default attributes on functions we've created.
+  for (auto &function : module.llvmModule->functions()) {
+    // We don't use exceptions
+    if (!function.hasFnAttribute(llvm::Attribute::NoUnwind)) {
+      function.addFnAttr(llvm::Attribute::NoUnwind);
     }
   }
 
-  return DIBuilder.createBasicType(name, size, align);
+  // Add any remaining metadata to llvm module
+  finalizeMetadata();
+
+  // Notify handlers that the module has been finished.
+  for (auto &[set, handler] : ext_inst_handlers) {
+    if (auto err = handler->finishModuleProcessing()) {
+      return err;
+    }
+  }
+
+  return llvm::Error::success();
 }
 
 void spirv_ll::Builder::addDebugInfoToModule() {
@@ -141,20 +162,17 @@ void spirv_ll::Builder::addDebugInfoToModule() {
     DIBuilder.finalize();
   }
 
-  for (auto op_line_info : module.getOpLineRanges()) {
-    llvm::DebugLoc location = llvm::DebugLoc(op_line_info.first);
-    auto range_pair = op_line_info.second;
+  for (auto &[loc, op_line_ranges] : module.getOpLineRanges()) {
+    llvm::DebugLoc location(loc);
+    for (auto [range_begin, range_end] : op_line_ranges) {
+      ++range_begin;
+      if (range_end != range_begin->getParent()->end()) {
+        ++range_end;
+      }
 
-    range_pair.first++;
-    if (range_pair.second != range_pair.first->getParent()->end()) {
-      range_pair.second++;
-    }
-
-    auto range = llvm::iterator_range<llvm::BasicBlock::iterator>(
-        range_pair.first, range_pair.second);
-
-    for (auto &inst : range) {
-      inst.setDebugLoc(location);
+      for (auto &inst : make_range(range_begin, range_end)) {
+        inst.setDebugLoc(location);
+      }
     }
   }
 }
@@ -665,7 +683,8 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
     llvm::ArrayRef<llvm::Value *> args,
     llvm::ArrayRef<MangleInfo> argMangleInfo,
     const spirv_ll::OpTypeVector *pixelTypeOp) {
-  llvm::Type *pixelElementType = module.getType(pixelTypeOp->ComponentType());
+  llvm::Type *pixelElementType =
+      module.getLLVMType(pixelTypeOp->ComponentType());
   if (pixelElementType->isIntegerTy()) {
     // We need to look up the int type by ID because searching by `llvm::Type`
     // doesn't distinguish between signed and unsigned types, which can cause
@@ -702,7 +721,7 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
 llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     OpenCLLIB::Entrypoints opcode, spv::Id resTyId,
     llvm::ArrayRef<spv::Id> args) {
-  llvm::Type *resultType = module.getType(resTyId);
+  llvm::Type *resultType = module.getLLVMType(resTyId);
   SPIRV_LL_ASSERT_PTR(resultType);
 
   llvm::SmallVector<llvm::Value *, 4> argVals;
@@ -912,6 +931,7 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     case OpenCLLIB::SMul_hi:
     case OpenCLLIB::SSub_sat:
     case OpenCLLIB::SMul24:
+    case OpenCLLIB::SMad24:
       resMangleInfo = MangleInfo::getSigned(resTyId);
       for (auto &arg : argInfo) {
         arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
@@ -1100,7 +1120,7 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         llvm::Type *pointeeTy = nullptr;
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
-          pointeeTy = module.getType(spvPtrTy->getTypePointer()->Type());
+          pointeeTy = module.getLLVMType(spvPtrTy->getTypePointer()->Type());
 #if LLVM_VERSION_LESS(17, 0)
         } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
                    spvPtrTy->isSamplerType()) {
@@ -1231,7 +1251,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
 
     auto const spvPointeeTy =
         module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
-    auto *const elementTy = module.getType(spvPointeeTy);
+    auto *const elementTy = module.getLLVMType(spvPointeeTy);
     std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
     auto pointeeMangleInfo = *mangleInfo;
     pointeeMangleInfo.typeQuals = 0;
@@ -1319,9 +1339,9 @@ void spirv_ll::Builder::checkMemberDecorations(
         nextType = multi_llvm::getVectorElementType(traversed.back());
         break;
       case llvm::Type::PointerTyID: {
-        auto *opTy = module.get<OpType>(traversed.back());
+        auto *opTy = module.getFromLLVMTy<OpType>(traversed.back());
         SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
-        nextType = module.getType(opTy->getTypePointer()->Type());
+        nextType = module.getLLVMType(opTy->getTypePointer()->Type());
         break;
       }
       default:
@@ -1365,7 +1385,7 @@ void spirv_ll::Builder::checkMemberDecorations(
   // according to the spec, so this cast is safe.
   uint32_t member =
       cast<llvm::ConstantInt>(indexes[memberIndex])->getZExtValue();
-  auto structType = module.get<OpTypeStruct>(accessedStructType);
+  auto structType = module.getFromLLVMTy<OpTypeStruct>(accessedStructType);
   const auto &memberDecorations =
       module.getMemberDecorations(structType->IdResult(), member);
   for (auto *opMemberDecorate : memberDecorations) {
@@ -1405,7 +1425,7 @@ void spirv_ll::Builder::generateSpecConstantOps() {
 
     switch (op->Opcode()) {
       case spv::OpFMod: {
-        llvm::Type *type = module.getType(op->IdResultType());
+        llvm::Type *type = module.getLLVMType(op->IdResultType());
         SPIRV_LL_ASSERT_PTR(type);
 
         llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
@@ -1427,7 +1447,7 @@ void spirv_ll::Builder::generateSpecConstantOps() {
                                           {modResult, rhs}, {});
       } break;
       case spv::OpFRem: {
-        llvm::Type *type = module.getType(op->IdResultType());
+        llvm::Type *type = module.getLLVMType(op->IdResultType());
         SPIRV_LL_ASSERT_PTR(type);
 
         llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));

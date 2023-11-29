@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Addresses %spv_file_s | FileCheck %t
                OpCapability Addresses

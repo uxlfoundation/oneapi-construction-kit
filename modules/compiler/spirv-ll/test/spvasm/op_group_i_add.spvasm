@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -o %t
 ; RUN: opt -S --passes=always-inline %t -o - | FileCheck -- %s
 
@@ -27,41 +28,30 @@
                                 OpEntryPoint Kernel %uint_sub_group_reduction_fcn "uint_sub_group_reduction"
                                 OpEntryPoint Kernel %uint_work_group_reduction_fcn "uint_work_group_reduction"
                                 OpEntryPoint Kernel %uint_variable_scope_reduction_fcn "uint_variable_scope_reduction"
-                                OpEntryPoint Kernel %int_sub_group_reduction_fcn "int_sub_group_reduction"
                                 OpEntryPoint Kernel %uint_sub_group_scan_inc_fcn "uint_sub_group_scan_inclusive"
-                                OpEntryPoint Kernel %int_sub_group_scan_inc_fcn "int_sub_group_scan_inclusive"
-                                OpEntryPoint Kernel %uint_sub_group_scan_exc_fcn "uint_sub_group_scan_exclusive"
-                                OpEntryPoint Kernel %int_sub_group_scan_exc_fcn "int_sub_group_scan_exclusive"
-
-                    %uint_ty  = OpTypeInt 32 0
-                     %int_ty  = OpTypeInt 32 1
-  %ptr_CrossWorkgroup_uint_ty = OpTypePointer CrossWorkgroup %uint_ty
-   %ptr_CrossWorkgroup_int_ty = OpTypePointer CrossWorkgroup %int_ty
-                     %void_ty = OpTypeVoid
-                 %uint_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty
-            %uint_uint_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty %uint_ty
-                  %int_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_int_ty
-
-             %sub_group_scope = OpConstant %uint_ty 3
-            %work_group_scope = OpConstant %uint_ty 2
 
                                 OpName %uint_sub_group_reduction_in "a"
                                 OpName %uint_work_group_reduction_in "a"
                                 OpName %uint_variable_scope_reduction_in "a"
-                                OpName %int_sub_group_reduction_in "a"
                                 OpName %uint_sub_group_scan_inc_in "a"
-                                OpName %int_sub_group_scan_inc_in "a"
-                                OpName %uint_sub_group_scan_exc_in "a"
-                                OpName %int_sub_group_scan_exc_in "a"
+
+                    %uint_ty  = OpTypeInt 32 0
+  %ptr_CrossWorkgroup_uint_ty = OpTypePointer CrossWorkgroup %uint_ty
+                     %void_ty = OpTypeVoid
+                 %uint_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty
+            %uint_uint_fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_uint_ty %uint_ty
+
+             %sub_group_scope = OpConstant %uint_ty 3
+            %work_group_scope = OpConstant %uint_ty 2
 
 ; CHCK-LABEL: uint_sub_group_reduction
-; CHECK: define spir_kernel void @uint_sub_group_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @uint_sub_group_reduction(ptr addrspace(1) [[IN:%.*]])
 %uint_sub_group_reduction_fcn = OpFunction %void_ty None %uint_fcn_ty
  %uint_sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
  %uint_sub_group_reduction_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load i32, ptr addrspace(1) [[IN]], align 4
 %uint_sub_group_reduction_val = OpLoad %uint_ty %uint_sub_group_reduction_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20sub_group_reduce_addj(i32 [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func i32 @_Z20sub_group_reduce_addj(i32 [[VAL]])
 %uint_sub_group_reduction_res = OpGroupIAdd %uint_ty %sub_group_scope Reduce %uint_sub_group_reduction_val
 ; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
                                 OpStore %uint_sub_group_reduction_in %uint_sub_group_reduction_res Aligned 4
@@ -71,13 +61,13 @@
 ; CHECK: declare spir_func i32 @_Z20sub_group_reduce_addj(i32)
 
 ; CHCK-LABEL: uint_work_group_reduction
-; CHECK: define spir_kernel void @uint_work_group_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @uint_work_group_reduction(ptr addrspace(1) [[IN:%.*]])
 %uint_work_group_reduction_fcn = OpFunction %void_ty None %uint_fcn_ty
  %uint_work_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
  %uint_work_group_reduction_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load i32, ptr addrspace(1) [[IN]], align 4
 %uint_work_group_reduction_val = OpLoad %uint_ty %uint_work_group_reduction_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z21work_group_reduce_addj(i32 [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func i32 @_Z21work_group_reduce_addj(i32 [[VAL]])
 %uint_work_group_reduction_res = OpGroupIAdd %uint_ty %work_group_scope Reduce %uint_work_group_reduction_val
 ; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
                                 OpStore %uint_work_group_reduction_in %uint_work_group_reduction_res Aligned 4
@@ -86,46 +76,29 @@
                                 OpFunctionEnd
 
 ; CHCK-LABEL: uint_variable_scope_reduction
-; CHECK: define spir_kernel void @uint_variable_scope_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]], i32 %{{[0-9a-zA-Z_]+}})
+; CHECK: define spir_kernel void @uint_variable_scope_reduction(ptr addrspace(1) [[IN:%.*]], i32 %{{.*}})
 %uint_variable_scope_reduction_fcn = OpFunction %void_ty None %uint_uint_fcn_ty
  %uint_variable_scope_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
                             %scope = OpFunctionParameter %uint_ty
  %uint_variable_scope_reduction_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load i32, ptr addrspace(1) [[IN]], align 4
 %uint_variable_scope_reduction_val = OpLoad %uint_ty %uint_variable_scope_reduction_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z21work_group_reduce_addj(i32 [[VAL]])
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20sub_group_reduce_addj(i32 [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func i32 @_Z21work_group_reduce_addj(i32 [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func i32 @_Z20sub_group_reduce_addj(i32 [[VAL]])
 %uint_variable_scope_reduction_res = OpGroupIAdd %uint_ty %scope Reduce %uint_variable_scope_reduction_val
                                 OpStore %uint_variable_scope_reduction_in %uint_variable_scope_reduction_res Aligned 4
 ; CHECK: ret void
                                 OpReturn
                                 OpFunctionEnd
 
-; CHCK-LABEL: int_sub_group_reduction
-; CHECK: define spir_kernel void @int_sub_group_reduction(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
- %int_sub_group_reduction_fcn = OpFunction %void_ty None %int_fcn_ty
-  %int_sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_int_ty
-  %int_sub_group_reduction_bb = OpLabel
- ; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
- %int_sub_group_reduction_val = OpLoad %int_ty %int_sub_group_reduction_in Aligned 4
- ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z20sub_group_reduce_addi(i32 [[VAL]])
- %int_sub_group_reduction_res = OpGroupIAdd %int_ty %sub_group_scope Reduce %int_sub_group_reduction_val
- ; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
-                                OpStore %int_sub_group_reduction_in %int_sub_group_reduction_res Aligned 4
- ; CHECK: ret void
-                                OpReturn
-                                OpFunctionEnd
-
- ; CHECK: declare spir_func i32 @_Z20sub_group_reduce_addi(i32)
-
 ; CHCK-LABEL: uint_sub_group_inclusive_scan
-; CHECK: define spir_kernel void @uint_sub_group_scan_inclusive(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @uint_sub_group_scan_inclusive(ptr addrspace(1) [[IN:%.*]])
  %uint_sub_group_scan_inc_fcn = OpFunction %void_ty None %uint_fcn_ty
   %uint_sub_group_scan_inc_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
   %uint_sub_group_scan_inc_bb = OpLabel
-; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VAL:%.*]] = load i32, ptr addrspace(1) [[IN]], align 4
  %uint_sub_group_scan_inc_val = OpLoad %uint_ty %uint_sub_group_scan_inc_in Aligned 4
-; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z28sub_group_scan_inclusive_addj(i32 [[VAL]])
+; CHECK: [[RES:%.*]] = call spir_func i32 @_Z28sub_group_scan_inclusive_addj(i32 [[VAL]])
  %uint_sub_group_scan_inc_res = OpGroupIAdd %uint_ty %sub_group_scope InclusiveScan %uint_sub_group_scan_inc_val
 ; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
                                 OpStore %uint_sub_group_scan_inc_in %uint_sub_group_scan_inc_res Aligned 4
@@ -133,20 +106,3 @@
                                 OpReturn
                                 OpFunctionEnd
 ; CHECK: declare spir_func i32 @_Z28sub_group_scan_inclusive_addj(i32)
-
-; CHCK-LABEL: int_sub_group_exclusive_scan
-; CHECK: define spir_kernel void @int_sub_group_scan_exclusive(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
-  %int_sub_group_scan_exc_fcn = OpFunction %void_ty None %int_fcn_ty
-   %int_sub_group_scan_exc_in = OpFunctionParameter %ptr_CrossWorkgroup_int_ty
-   %int_sub_group_scan_exc_bb = OpLabel
- ; CHECK: [[VAL:%[a-zA-Z0-9_]+]] = load i32, ptr addrspace(1) [[IN]], align 4
-  %int_sub_group_scan_exc_val = OpLoad %int_ty %int_sub_group_scan_exc_in Aligned 4
- ; CHECK: [[RES:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z28sub_group_scan_exclusive_addi(i32 [[VAL]])
-  %int_sub_group_scan_exc_res = OpGroupIAdd %int_ty %sub_group_scope ExclusiveScan %int_sub_group_scan_exc_val
- ; CHECK: store i32 [[RES]], ptr addrspace(1) [[IN]]
-                                OpStore %int_sub_group_scan_exc_in %int_sub_group_scan_exc_res Aligned 4
- ; CHECK: ret void
-                                OpReturn
-                                OpFunctionEnd
-
- ; CHECK: declare spir_func i32 @_Z28sub_group_scan_exclusive_addi(i32)

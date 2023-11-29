@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Addresses -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                         OpCapability Addresses
@@ -39,13 +40,12 @@
  %_ptr_Function_float = OpTypePointer Function %float
                 %uint = OpTypeInt 32 0  ; this should be blank if type is Foo
                    %9 = OpConstant %float 42.42
-          %struct_int = OpTypeInt 32 0
-                        OpTypeForwardPointer %ptr_uint Function
-                 %Foo = OpTypeStruct %struct_int %float %ptr_uint
-; CHECK: [[Foo:%[a-zA-Z0-9_]+]] = type { i32, float, ptr }
-            %ptr_uint = OpTypePointer Function %uint  ; this should be blank if type is Foo
+                        OpTypeForwardPointer %ptr_Foo Function
+            %ptr_uint = OpTypePointer Function %uint
+                 %Foo = OpTypeStruct %uint %float %ptr_uint
+; CHECK: [[Foo:%.*]] = type { i32, float, ptr }
              %ptr_Foo = OpTypePointer Function %Foo
-                  %14 = OpConstant %struct_int 1
+                  %14 = OpConstant %uint 1
                 %main = OpFunction %void None %3
 ; CHECK: define spir_kernel void @main()
                    %5 = OpLabel
@@ -54,11 +54,11 @@
                    %f = OpVariable %ptr_Foo Function
 ; CHECK: %f = alloca [[Foo]]
                   %15 = OpInBoundsAccessChain %_ptr_Function_float %f %14
-; CHECK: [[float_ptr:%[a-zA-Z0-9_]+]] = getelementptr inbounds [[Foo]], ptr %f, i32 0, i32 1
+; CHECK: [[float_ptr:%.*]] = getelementptr inbounds [[Foo]], ptr %f, i32 0, i32 1
                   %16 = OpLoad %float %15
-; CHECK: [[float_value:%[a-zA-Z0-9_]+]] = load float, ptr [[float_ptr]]
+; CHECK: [[float_value:%.*]] = load float, ptr [[float_ptr]]
                   %17 = OpFAdd %float %9 %16
-; CHECK: [[res:%[a-zA-Z0-9_]+]] = fadd float 0x404535C280000000, [[float_value]]
+; CHECK: [[res:%.*]] = fadd float 0x404535C280000000, [[float_value]]
                         OpStore %res %17
 ; CHECK: store float [[res]], ptr %res
                         OpReturn

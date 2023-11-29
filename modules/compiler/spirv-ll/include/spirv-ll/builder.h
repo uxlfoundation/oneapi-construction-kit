@@ -27,7 +27,6 @@
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 #include <spirv-ll/opcodes.h>
-#include <spirv/1.0/GLSL.std.450.h>
 #include <spirv/1.0/OpenCL.std.h>
 
 #include <optional>
@@ -49,140 +48,46 @@ static constexpr const char SAMPLER_INIT_FN[] =
 
 class Builder;
 
-class OpenCLBuilder {
+/// Wrap a string into an llvm::StringError.
+static inline llvm::Error makeStringError(const llvm::Twine &message) {
+  return llvm::make_error<llvm::StringError>(message.str(),
+                                             llvm::inconvertibleErrorCode());
+}
+
+/// @brief An interface for builders of extended instruction sets.
+class ExtInstSetHandler {
  public:
   /// @brief Constructor.
   ///
   /// @param builder `Builder` object that will own this object.
   /// @param module The module being translated.
-  OpenCLBuilder(Builder &builder, Module &module)
+  ExtInstSetHandler(Builder &builder, Module &module)
       : builder(builder), module(module) {}
 
-  /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
-  ///
-  /// @tparam T The OpenCL extended instruction class template to create.
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  template <typename T>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  virtual ~ExtInstSetHandler() {}
 
-  /// @brief Create a vector OpenCL extended instruction transformation to LLVM
-  /// IR.
+  /// @brief A hook called once all instructions in the module have been
+  /// visited and the IR has been finalized by the 'main' builder.
   ///
-  /// @tparam inst The OpenCL extended instruction to create.
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  template <OpenCLLIB::Entrypoints inst>
-  cargo::optional<spirv_ll::Error> createVec(OpExtInst const &opc);
+  /// Note that handlers may further alter the IR and the order in which they
+  /// are called is not deterministic.
+  virtual llvm::Error finishModuleProcessing() {
+    return llvm::Error::success();
+  }
 
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
   ///
-  /// This overload contains the switch that calls the correct templated
-  /// overload.
-  ///
   /// @param opc The OpCode object to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
+  virtual llvm::Error create(OpExtInst const &opc) = 0;
 
- private:
+ protected:
   /// @brief `spirv_ll::Builder` that owns this object.
   spirv_ll::Builder &builder;
 
   /// @brief Reference to the module being translated.
-  spirv_ll::Module &module;
-};
-
-class GLSLBuilder {
- public:
-  /// @brief Constructor.
-  ///
-  /// @param builder `Builder` object that will own this object.
-  /// @param module The module being translated.
-  GLSLBuilder(Builder &builder, Module &module)
-      : builder(builder), module(module) {}
-
-  /// @brief Create a GLSL extended instruction transformation to LLVM IR.
-  ///
-  /// @tparam inst The GLSL extended instruction to create.
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  template <enum GLSLstd450 inst>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
-
-  /// @brief Create a GLSL extended instruction transformation to LLVM IR.
-  ///
-  /// This overload contains the switch that calls the correct templated
-  /// overload.
-  ///
-  /// @param opc The OpCode object to translate.
-  ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
-
- private:
-  /// @brief `spirv_ll::Builder` that owns this object.
-  spirv_ll::Builder &builder;
-
-  /// @brief Reference to the module being translated.
-  spirv_ll::Module &module;
-};
-
-/// @brief builder for the Codeplay.GroupAsyncCopies extended instruction set.
-class GroupAsyncCopiesBuilder {
- public:
-  /// @brief Constructor.
-  ///
-  /// @param[in] builder spirv_ll::Builder object that will own this object.
-  /// @param[in] module The module being translated.
-  GroupAsyncCopiesBuilder(Builder &builder, Module &module)
-      : builder(builder), module(module) {}
-
-  /// @brief Enumeration of instruction ID's in the Codeplay.GroupAsyncCopies
-  /// extended instruction set.
-  // TODO(CA-4119): If this vendor extension lives beyond any official Khronos
-  // extension, these definitions should be defined upstream in SPIRV-Headers.
-  enum Instruction {
-    GroupAsyncCopy2D2D = 1,  ///< Represents async_work_group_copy_2D2D.
-    GroupAsyncCopy3D3D = 2,  ///< Represents async_work_group_copy_3D3D.
-  };
-
-  /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
-  /// transformation to LLVM IR.
-  ///
-  /// @tparam inst The Codeplay.GroupAsyncCopies extended instruction to
-  /// create.
-  /// @param opc The spirv_ll::OpCode object to translate.
-  ///
-  /// @return Returns an optional where cargo::nullopt represents success,
-  /// otherwise returns a spirv_ll::Error object containing a diagnostic.
-  template <Instruction inst>
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
-
-  /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
-  /// transformation to LLVM IR.
-  ///
-  /// This overload contains the switch that calls the correct templated
-  /// overload.
-  ///
-  /// @param opc The spirv_ll::OpCode object to translate.
-  ///
-  /// @return Returns an optional where cargo::nullopt represents success,
-  /// otherwise returns a spirv_ll::Error object containing a diagnostic.
-  cargo::optional<spirv_ll::Error> create(OpExtInst const &opc);
-
- private:
-  /// @brief Reference to the spirv_ll::Builder that owns this object.
-  spirv_ll::Builder &builder;
-  /// @brief Reference to the spirv_ll::Module being translated.
   spirv_ll::Module &module;
 };
 
@@ -298,10 +203,10 @@ class Builder {
   /// @tparam Op The type of OpCode to create.
   /// @param op The base object to create the derived OpCode from.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <class Op>
-  cargo::optional<spirv_ll::Error> create(const OpCode &op) {
+  llvm::Error create(const OpCode &op) {
     return create<Op>(module.create<Op>(op));
   }
 
@@ -310,10 +215,10 @@ class Builder {
   /// @tparam Op The type of OpCode to create.
   /// @param op The OpCode to translate.
   ///
-  /// @return Returns an optional where `cargo::nullopt` represents success,
-  /// otherwise returns a `spirv_ll::Error` object containing a diagnostic.
+  /// @return Returns an `llvm::Error` object representing either success, or
+  /// an error value.
   template <class Op>
-  cargo::optional<spirv_ll::Error> create(const Op *op);
+  llvm::Error create(const Op *op);
 
   /// @brief Populate the incoming edges/values for the given Phi node
   /// @param op The SpirV Op for the Phi node
@@ -326,21 +231,37 @@ class Builder {
   void accessChain(OpCode const &opc);
 
   /// @brief Check if an OpLine range is in progress and end it if there is
-  void checkEndOpLineRange(bool is_branch = false);
+  void checkEndOpLineRange();
 
   /// @brief Return a `DIType` object that represents the given type
   ///
-  /// @param type `Type` to get `DIType` from
+  /// @param tyID spv::Id `Type` to get `DIType` from
   ///
   /// @return pointer to `DIType` derived from the given `Type`
-  llvm::DIType *getDIType(llvm::Type *type);
+  llvm::DIType *getDIType(spv::Id tyID);
 
-  /// @brief Add debug metadata to the appropriate instructions
-  void addDebugInfoToModule();
+  /// @brief Gets (or creates) a DIFile for the given OpLine.
+  llvm::DIFile *getOrCreateDIFile(const OpLine *op_line);
 
-  /// @brief Finalizes and adds any metadata to LLVM that was generated by
-  /// SpvBuilder
-  void finalizeMetadata();
+  /// @brief Gets (or creates) a DICompileUnit for the given OpLine.
+  llvm::DICompileUnit *getOrCreateDICompileUnit(const OpLine *op_line);
+
+  /// @brief Gets (or creates) a DISubprogram for the given function and
+  /// OpLine.
+  llvm::DISubprogram *getOrCreateDebugFunctionScope(llvm::Function *function,
+                                                    const OpLine *op_line);
+
+  /// @brief Creates the beginning of a line range for the given OpLine,
+  /// contained within the basic block.
+  Module::LineRangeBeginTy createLineRangeBegin(const OpLine *op_line,
+                                                llvm::BasicBlock &bb);
+
+  /// @brief Called once all instructions in the module have been visited in
+  /// order during the first pass through the SPIR-V binary.
+  llvm::Error finishModuleProcessing();
+
+  /// @brief Gets (or creates) the BasicBlock for a spv::Id OpLabel.
+  llvm::BasicBlock *getOrCreateBasicBlock(spv::Id label);
 
   /// @brief Generates code in a basic block to initialize a builtin variable.
   ///
@@ -363,10 +284,6 @@ class Builder {
   /// @param kind SPIR-V enum denoting which builtin the variable represents.
   bool replaceBuiltinUsesWithCalls(llvm::GlobalVariable *builtinGlobal,
                                    spv::BuiltIn kind);
-
-  /// @brief Replaces all references to global builtin variables with a thread
-  /// safe function local definition
-  void replaceBuiltinGlobals();
 
   /// @brief Creates a call to a builtin function.
   ///
@@ -788,6 +705,34 @@ class Builder {
   /// they must be translated into entry point parameters for core.
   void handleGlobalParameters();
 
+  /// @brief Registers an extended instruction set handler with an instruction
+  /// set ID.
+  ///
+  /// Each handler is created only once per set.
+  template <typename Handler>
+  void registerExtInstHandler(ExtendedInstrSet Set) {
+    auto &builder = ext_inst_handlers[Set];
+    if (!builder) {
+      builder = std::make_unique<Handler>(*this, module);
+    }
+  }
+  /// @brief Add debug metadata to the appropriate instructions
+  void addDebugInfoToModule();
+
+  /// @brief Replaces all references to global builtin variables with a
+  /// thread-safe function local definition
+  void replaceBuiltinGlobals();
+
+  /// @brief Finalizes and adds any metadata to LLVM that was generated by
+  /// SpvBuilder
+  void finalizeMetadata();
+
+  /// @brief Returns an extended instruction set handler for the instruction
+  /// set ID.
+  ///
+  /// @return A pointer to the handler if registered; nullptr otherwise.
+  spirv_ll::ExtInstSetHandler *getExtInstHandler(ExtendedInstrSet set) const;
+
   /// @brief Determine the return type of a relational builtin from its operand.
   ///
   /// @param operand An operand that will be passed to the relational builtin.
@@ -813,13 +758,10 @@ class Builder {
   llvm::SmallVector<llvm::Value *, 8> CurrentFunctionArgs;
   /// @brief A list of the builtin IDs specified at `CurrentFunction`'s creation
   BuiltinIDList CurrentFunctionBuiltinIDs;
-  /// @brief Builder object for generating OpenCL extended instructions.
-  spirv_ll::OpenCLBuilder OpenCLBuilder;
-  /// @brief Builder object for generating GLSL extended instructions.
-  spirv_ll::GLSLBuilder GLSLBuilder;
-  /// @brief Builder object for experimental
-  /// NonSemantic.Codeplay.GroupAsyncCopies extended instructions.
-  spirv_ll::GroupAsyncCopiesBuilder GroupAsyncCopiesBuilder;
+  /// @brief Registered extended instruction set handlers.
+  std::unordered_map<spirv_ll::ExtendedInstrSet,
+                     std::unique_ptr<spirv_ll::ExtInstSetHandler>>
+      ext_inst_handlers;
 };
 }  // namespace spirv_ll
 

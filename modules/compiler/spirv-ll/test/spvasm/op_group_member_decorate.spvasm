@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                OpCapability Shader
@@ -60,11 +61,11 @@
                OpStore %23 %22
                OpReturn
                OpFunctionEnd
-; CHECK: [[STRUCT:%[a-zA-Z0-9_]+]] = type { i32, i32 }
+; CHECK: [[STRUCT:%.*]] = type { i32, i32 }
 ; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) #0 {
-; CHECK: [[IN_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 0
+; CHECK: [[IN_GEP:%.*]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 0
 ; Check that the volatile decoration was correctly propagated to the result of the GEP
-; CHECK: {{%[a-zA-Z0-9_]+}} = load volatile i32, ptr addrspace(1) [[IN_GEP]]
-; CHECK: [[OUT_GEP:%[a-zA-Z0-9_]+]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 1
+; CHECK: = load volatile i32, ptr addrspace(1) [[IN_GEP]]
+; CHECK: [[OUT_GEP:%.*]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 1
 ; Check that the volatile decoration was only applied to the first member
-; CHECK: store i32 {{%[a-zA-Z0-9_]+}}, ptr addrspace(1) [[OUT_GEP]]
+; CHECK: store i32 {{%.*}}, ptr addrspace(1) [[OUT_GEP]]

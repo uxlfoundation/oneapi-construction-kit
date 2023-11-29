@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
@@ -35,16 +36,16 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main()
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [3 x <3 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [3 x <3 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fsub <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [3 x <3 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [3 x <3 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fsub <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [3 x <3 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 2
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractvalue [3 x <3 x float>] {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 2
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fsub <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: [[INITIAL:%[a-zA-Z0-9_]+]] = insertvalue [3 x <3 x float>] undef, <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 0
-// CHECK: [[INSERT1:%[a-zA-Z0-9_]+]] = insertvalue [3 x <3 x float>] [[INITIAL]], <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 1
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue [3 x <3 x float>] [[INSERT1]], <3 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 2
+// CHECK: = extractvalue [3 x <3 x float>] {{[%@].*}}, 0
+// CHECK: = extractvalue [3 x <3 x float>] {{[%@].*}}, 0
+// CHECK: = fsub <3 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [3 x <3 x float>] {{[%@].*}}, 1
+// CHECK: = extractvalue [3 x <3 x float>] {{[%@].*}}, 1
+// CHECK: = fsub <3 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: = extractvalue [3 x <3 x float>] {{[%@].*}}, 2
+// CHECK: = extractvalue [3 x <3 x float>] {{[%@].*}}, 2
+// CHECK: = fsub <3 x float> {{[%@].*}}, {{[%@].*}}
+// CHECK: [[INITIAL:%.*]] = insertvalue [3 x <3 x float>] undef, <3 x float> {{[%@].*}}, 0
+// CHECK: [[INSERT1:%.*]] = insertvalue [3 x <3 x float>] [[INITIAL]], <3 x float> {{[%@].*}}, 1
+// CHECK: = insertvalue [3 x <3 x float>] [[INSERT1]], <3 x float> {{[%@].*}}, 2
 // CHECK: ret void

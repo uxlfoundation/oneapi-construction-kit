@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Sampled1D %spv_file_s | FileCheck %t
                       OpCapability Kernel
@@ -31,7 +32,6 @@
             %uint_t = OpTypeInt 32 0
            %float_t = OpTypeFloat 32         
            %v4int_t = OpTypeVector %uint_t 4
-          %v4uint_t = OpTypeVector %uint_t 4
          %v4float_t = OpTypeVector %float_t 4
          %sampler_t = OpTypeSampler
 %image2d_array_t = OpTypeImage %void_t 2D 0 1 0 0 Unknown ReadOnly
@@ -52,13 +52,13 @@
                  %1 = OpLabel
         %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
                  %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v4float_1 None
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_f([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_f([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
                  %3 = OpImageSampleExplicitLod %v4float_t %sampled_image %v4int_1 None
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_i([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
-                 %6 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v4float_1 None
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_f([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
-                 %7 = OpImageSampleExplicitLod %v4uint_t %sampled_image %v4int_1 None
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_i([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darray11ocl_samplerDv4_i([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+                 %6 = OpImageSampleExplicitLod %v4int_t %sampled_image %v4float_1 None
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_f([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+                 %7 = OpImageSampleExplicitLod %v4int_t %sampled_image %v4int_1 None
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darray11ocl_samplerDv4_i([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
                       OpReturn
 ; CHECK: ret void                         
                       OpFunctionEnd

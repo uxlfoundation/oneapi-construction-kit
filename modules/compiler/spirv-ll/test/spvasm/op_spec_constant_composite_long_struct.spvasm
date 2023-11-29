@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                             OpCapability Shader
@@ -43,7 +44,7 @@
                 %idx_type = OpTypeInt 32 0
                      %Foo = OpTypeStruct %long
               %test_block = OpTypeStruct %Foo
-; CHECK: [[uniforms:%[a-zA-Z0-9_]+]] = type { [[uniformStruct:%[a-zA-Z0-9_]+]] }
+; CHECK: [[uniforms:%.*]] = type { [[uniformStruct:%.*]] }
 ; CHECK: [[uniformStruct]] = type { i64 }
  %_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
                        %_ = OpVariable %_ptr_Uniform_test_block Uniform

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Addresses -c Float64 -c Int64 %spv_file_s | FileCheck %s
             OpCapability Addresses
             OpCapability Shader
@@ -34,14 +35,13 @@
                OpName %f "f"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-%struct_float = OpTypeFloat 32
-%_ptr_Function_float = OpTypePointer Function %struct_float
-%float = OpTypeFloat 32 ; this should be blank if type is Foo
-          %9 = OpConstant %struct_float 42.42
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+          %9 = OpConstant %float 42.42
  %struct_int = OpTypeInt 32 0
-               OpTypeForwardPointer %ptr_float Function
-        %Foo = OpTypeStruct %struct_int %struct_float %ptr_float
-%ptr_float = OpTypePointer Function %float ; this should be blank if type is Foo
+               OpTypeForwardPointer %ptr_Foo Function
+  %ptr_float = OpTypePointer Function %float
+        %Foo = OpTypeStruct %struct_int %float %ptr_float
     %ptr_Foo = OpTypePointer Function %Foo
          %14 = OpConstant %struct_int 1
        %main = OpFunction %void None %3
@@ -49,18 +49,18 @@
         %res = OpVariable %_ptr_Function_float Function
           %f = OpVariable %ptr_Foo Function
          %15 = OpInBoundsAccessChain %_ptr_Function_float %f %14
-         %16 = OpLoad %struct_float %15
-         %17 = OpFAdd %struct_float %9 %16
+         %16 = OpLoad %float %15
+         %17 = OpFAdd %float %9 %16
                OpStore %res %17
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { i32, float, ptr }
+; CHECK: = type { i32, float, ptr }
 ; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr inbounds {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 1
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fadd float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = alloca float
+; CHECK: = alloca {{[%@].*}}
+; CHECK: = getelementptr inbounds {{[%@].*}}, ptr {{[%@].*}}, i32 0, i32 1
+; CHECK: = load float, ptr {{[%@].*}}
+; CHECK: = fadd float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, {{[%@].*}}
+; CHECK: store float {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

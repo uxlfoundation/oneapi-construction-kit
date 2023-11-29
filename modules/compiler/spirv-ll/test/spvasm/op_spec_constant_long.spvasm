@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                       OpCapability Shader
@@ -39,7 +40,7 @@
               %long = OpTypeInt 64 1
           %idx_type = OpTypeInt 32 0
            %a_block = OpTypeStruct %long
-; CHECK: [[uniforms:%[a-zA-Z0-9_]+]] = type { i64 }
+; CHECK: [[uniforms:%.*]] = type { i64 }
  %ptr_Uniform_block = OpTypePointer Uniform %a_block
                  %_ = OpVariable %ptr_Uniform_block Uniform
                 %10 = OpConstant %idx_type 0
@@ -49,7 +50,7 @@
 ; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
                  %5 = OpLabel
                 %13 = OpAccessChain %ptr_Uniform_long %_ %10
-; CHECK: [[uniformLongPtr:%[a-zA-Z0-9]+]] = getelementptr [[uniforms]], ptr addrspace(1) {{%[a-zA-Z0-9]+}}, i32 0, i32 0
+; CHECK: [[uniformLongPtr:%.*]] = getelementptr [[uniforms]], ptr addrspace(1) {{%.*}}, i32 0, i32 0
                       OpStore %13 %11
 ; CHECK: store i64 -42000000000, ptr addrspace(1) [[uniformLongPtr]]
                       OpReturn

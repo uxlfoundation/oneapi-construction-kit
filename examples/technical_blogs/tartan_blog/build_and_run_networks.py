@@ -44,10 +44,21 @@ def parse_arguments():
 
 # Set environment variables
 def set_env_vars(args):
-    os.environ["CMAKE_CXX_COMPILER"] = os.path.join(args.oneapi_base_toolkit, "compiler", "linux", "bin-llvm", "clang++")
-    os.environ["CMAKE_C_COMPILER"] = os.path.join(args.oneapi_base_toolkit, "compiler", "linux", "bin-llvm", "clang")
+    os.environ["CMAKE_CXX_COMPILER"] = os.environ.get("CMAKE_CXX_COMPILER", os.path.join(args.oneapi_base_toolkit, "compiler", "linux", "bin-llvm", "clang++"))
+    os.environ["CMAKE_C_COMPILER"] = os.environ.get("CMAKE_C_COMPILER", os.path.join(args.oneapi_base_toolkit, "compiler", "linux", "bin-llvm", "clang"))
     os.environ["LD_LIBRARY_PATH"] = f"{os.path.join(args.oneapi_base_toolkit, 'compiler', 'linux', 'lib')}:{os.path.join(args.oneapi_base_toolkit, 'compiler', 'linux', 'compiler', 'lib', 'intel64_lin')}:{os.environ.get('LD_LIBRARY_PATH', '')}"
-    os.environ["OCL_ICD_FILENAMES"] = os.path.join(args.oneapi_construction_kit_build_dir, 'lib', 'libCL.so')
+    os.environ["OCL_ICD_FILENAMES"] = os.environ.get("OCL_ICD_FILENAMES", os.path.join(args.oneapi_construction_kit_build_dir, 'lib', 'libCL.so'))
+
+    # Get a dictionary of all environment variables
+    env_variables = os.environ
+
+    # Print each environment variable and its value
+    for key, value in env_variables.items():
+        print(f"{key}={value}")
+
+    print("Parsed Arguments:")
+    print(f"oneapi_base_toolkit: {args.oneapi_base_toolkit}")
+    print(f"oneapi-construction-kit_build_dir: {args.oneapi_construction_kit_build_dir}")
 
 
 def run_cmake_and_ninja(cmake_command, build_dir):

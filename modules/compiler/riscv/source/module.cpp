@@ -189,7 +189,7 @@ static llvm::TargetMachine *createTargetMachine(
   return llvm_target->createTargetMachine(
       target.llvm_triple, target.llvm_cpu, target.llvm_features, options,
       llvm::Reloc::Model::Static, llvm::CodeModel::Small,
-      llvm::CodeGenOpt::Aggressive);
+      multi_llvm::CodeGenOptLevel::Aggressive);
 }
 
 llvm::TargetMachine *riscv::RiscvModule::getTargetMachine() {

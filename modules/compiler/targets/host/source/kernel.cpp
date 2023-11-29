@@ -388,8 +388,62 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
       // Compiling the kernel may touch the global LLVM state
       std::lock_guard<std::mutex> globalLock(
           compiler::utils::getLLVMGlobalMutex());
-      auto sym = target.orc_engine->lookup(*jd, unique_name);
-      if (auto err = sym.takeError()) {
+
+      // We cannot safely look up any symbol inside a CrashRecoveryContext
+      // because the CRC handles errors by a longjmp back to safety, skipping
+      // over destructors of objects that do need to be destroyed. We do so
+      // anyway because the effect is less bad than crashing right away.
+      std::promise<uint64_t> promise;
+      llvm::Error err = llvm::Error::success();
+      llvm::cantFail(std::move(err));
+
+      auto &es = target.orc_engine->getExecutionSession();
+      auto so = makeJITDylibSearchOrder(
+          &*jd, llvm::orc::JITDylibLookupFlags::MatchAllSymbols);
+      auto name = target.orc_engine->mangleAndIntern(unique_name);
+      llvm::orc::SymbolLookupSet names({name});
+      llvm::orc::SymbolsResolvedCallback notifyComplete =
+          [&](llvm::Expected<llvm::orc::SymbolMap> r) {
+            if (r) {
+              assert(r->size() == 1 && "Unexpected number of results");
+              assert(r->count(name) && "Missing result for symbol");
+              auto address = r->begin()->second.getAddress();
+#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+              promise.set_value(address.getValue());
+#else
+              promise.set_value(address);
+#endif
+            } else {
+              llvm::ErrorAsOutParameter _(&err);
+              err = r.takeError();
+              promise.set_value(0);
+            }
+          };
+
+      bool crashed;
+      {
+        llvm::CrashRecoveryContext crc;
+        llvm::CrashRecoveryContext::Enable();
+        crashed = !crc.RunSafely([&] {
+          es.lookup(llvm::orc::LookupKind::Static, std::move(so),
+                    std::move(names), llvm::orc::SymbolState::Ready,
+                    std::move(notifyComplete),
+                    llvm::orc::NoDependenciesToRegister);
+          hook = promise.get_future().get();
+        });
+        llvm::CrashRecoveryContext::Disable();
+      }
+
+      if (crashed) {
+        // If we crashed, remove the dylib now so that the lookup callback
+        // runs right away and does not try to access the promise after it has
+        // already been destroyed. Note that this guarantees err will be set and
+        // we return an error.
+        llvm::cantFail(es.removeJITDylib(*jd));
+        promise.get_future().get();
+      }
+
+      if (err) {
         if (auto callback = target.getNotifyCallbackFn()) {
           callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                    /*data_size*/ 0);
@@ -399,7 +453,6 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         return cargo::make_unexpected(
             compiler::Result::FINALIZE_PROGRAM_FAILURE);
       }
-      hook = sym->getValue();
     }
 
     uint32_t min_width = fn_metadata.min_work_item_factor.getFixedValue();

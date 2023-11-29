@@ -22,6 +22,9 @@ endif()
 
 set(SPVASM_FILES
   debug_info.spvasm
+  debug_info_params.spvasm
+  debug_info_builtins.spvasm
+  debug_info_funcs_and_blocks.spvasm
   ext_variable_pointers_op_variable.spvasm
   ext_variable_pointers_function_call.spvasm
   op_atomic_and_function.spvasm
@@ -1086,30 +1089,6 @@ set(SPVASM_FILES
   op_opencl_s_add_sat_v8i32.spvasm
   op_opencl_s_add_sat_v8i64.spvasm
   op_opencl_s_add_sat_v8i8.spvasm
-  op_opencl_s_bitselect_i16.spvasm
-  op_opencl_s_bitselect_i32.spvasm
-  op_opencl_s_bitselect_i64.spvasm
-  op_opencl_s_bitselect_i8.spvasm
-  op_opencl_s_bitselect_v16i16.spvasm
-  op_opencl_s_bitselect_v16i32.spvasm
-  op_opencl_s_bitselect_v16i64.spvasm
-  op_opencl_s_bitselect_v16i8.spvasm
-  op_opencl_s_bitselect_v2i16.spvasm
-  op_opencl_s_bitselect_v2i32.spvasm
-  op_opencl_s_bitselect_v2i64.spvasm
-  op_opencl_s_bitselect_v2i8.spvasm
-  op_opencl_s_bitselect_v3i16.spvasm
-  op_opencl_s_bitselect_v3i32.spvasm
-  op_opencl_s_bitselect_v3i64.spvasm
-  op_opencl_s_bitselect_v3i8.spvasm
-  op_opencl_s_bitselect_v4i16.spvasm
-  op_opencl_s_bitselect_v4i32.spvasm
-  op_opencl_s_bitselect_v4i64.spvasm
-  op_opencl_s_bitselect_v4i8.spvasm
-  op_opencl_s_bitselect_v8i16.spvasm
-  op_opencl_s_bitselect_v8i32.spvasm
-  op_opencl_s_bitselect_v8i64.spvasm
-  op_opencl_s_bitselect_v8i8.spvasm
   op_opencl_s_clamp_i16.spvasm
   op_opencl_s_clamp_i32.spvasm
   op_opencl_s_clamp_i64.spvasm
@@ -1134,30 +1113,6 @@ set(SPVASM_FILES
   op_opencl_s_clamp_v8i32.spvasm
   op_opencl_s_clamp_v8i64.spvasm
   op_opencl_s_clamp_v8i8.spvasm
-  op_opencl_s_clz_i16.spvasm
-  op_opencl_s_clz_i32.spvasm
-  op_opencl_s_clz_i64.spvasm
-  op_opencl_s_clz_i8.spvasm
-  op_opencl_s_clz_v16i16.spvasm
-  op_opencl_s_clz_v16i32.spvasm
-  op_opencl_s_clz_v16i64.spvasm
-  op_opencl_s_clz_v16i8.spvasm
-  op_opencl_s_clz_v2i16.spvasm
-  op_opencl_s_clz_v2i32.spvasm
-  op_opencl_s_clz_v2i64.spvasm
-  op_opencl_s_clz_v2i8.spvasm
-  op_opencl_s_clz_v3i16.spvasm
-  op_opencl_s_clz_v3i32.spvasm
-  op_opencl_s_clz_v3i64.spvasm
-  op_opencl_s_clz_v3i8.spvasm
-  op_opencl_s_clz_v4i16.spvasm
-  op_opencl_s_clz_v4i32.spvasm
-  op_opencl_s_clz_v4i64.spvasm
-  op_opencl_s_clz_v4i8.spvasm
-  op_opencl_s_clz_v8i16.spvasm
-  op_opencl_s_clz_v8i32.spvasm
-  op_opencl_s_clz_v8i64.spvasm
-  op_opencl_s_clz_v8i8.spvasm
   op_opencl_s_hadd_i16.spvasm
   op_opencl_s_hadd_i32.spvasm
   op_opencl_s_hadd_i64.spvasm
@@ -1314,78 +1269,6 @@ set(SPVASM_FILES
   op_opencl_s_mul_hi_v8i32.spvasm
   op_opencl_s_mul_hi_v8i64.spvasm
   op_opencl_s_mul_hi_v8i8.spvasm
-  op_opencl_s_popcount_i16.spvasm
-  op_opencl_s_popcount_i32.spvasm
-  op_opencl_s_popcount_i64.spvasm
-  op_opencl_s_popcount_i8.spvasm
-  op_opencl_s_popcount_v16i16.spvasm
-  op_opencl_s_popcount_v16i32.spvasm
-  op_opencl_s_popcount_v16i64.spvasm
-  op_opencl_s_popcount_v16i8.spvasm
-  op_opencl_s_popcount_v2i16.spvasm
-  op_opencl_s_popcount_v2i32.spvasm
-  op_opencl_s_popcount_v2i64.spvasm
-  op_opencl_s_popcount_v2i8.spvasm
-  op_opencl_s_popcount_v3i16.spvasm
-  op_opencl_s_popcount_v3i32.spvasm
-  op_opencl_s_popcount_v3i64.spvasm
-  op_opencl_s_popcount_v3i8.spvasm
-  op_opencl_s_popcount_v4i16.spvasm
-  op_opencl_s_popcount_v4i32.spvasm
-  op_opencl_s_popcount_v4i64.spvasm
-  op_opencl_s_popcount_v4i8.spvasm
-  op_opencl_s_popcount_v8i16.spvasm
-  op_opencl_s_popcount_v8i32.spvasm
-  op_opencl_s_popcount_v8i64.spvasm
-  op_opencl_s_popcount_v8i8.spvasm
-  op_opencl_s_prefetch_i16_32bit.spvasm
-  op_opencl_s_prefetch_i16_64bit.spvasm
-  op_opencl_s_prefetch_i32_32bit.spvasm
-  op_opencl_s_prefetch_i32_64bit.spvasm
-  op_opencl_s_prefetch_i64_32bit.spvasm
-  op_opencl_s_prefetch_i64_64bit.spvasm
-  op_opencl_s_prefetch_i8_32bit.spvasm
-  op_opencl_s_prefetch_i8_64bit.spvasm
-  op_opencl_s_prefetch_v16i16_32bit.spvasm
-  op_opencl_s_prefetch_v16i16_64bit.spvasm
-  op_opencl_s_prefetch_v16i32_32bit.spvasm
-  op_opencl_s_prefetch_v16i32_64bit.spvasm
-  op_opencl_s_prefetch_v16i64_32bit.spvasm
-  op_opencl_s_prefetch_v16i64_64bit.spvasm
-  op_opencl_s_prefetch_v16i8_32bit.spvasm
-  op_opencl_s_prefetch_v16i8_64bit.spvasm
-  op_opencl_s_prefetch_v2i16_32bit.spvasm
-  op_opencl_s_prefetch_v2i16_64bit.spvasm
-  op_opencl_s_prefetch_v2i32_32bit.spvasm
-  op_opencl_s_prefetch_v2i32_64bit.spvasm
-  op_opencl_s_prefetch_v2i64_32bit.spvasm
-  op_opencl_s_prefetch_v2i64_64bit.spvasm
-  op_opencl_s_prefetch_v2i8_32bit.spvasm
-  op_opencl_s_prefetch_v2i8_64bit.spvasm
-  op_opencl_s_prefetch_v3i16_32bit.spvasm
-  op_opencl_s_prefetch_v3i16_64bit.spvasm
-  op_opencl_s_prefetch_v3i32_32bit.spvasm
-  op_opencl_s_prefetch_v3i32_64bit.spvasm
-  op_opencl_s_prefetch_v3i64_32bit.spvasm
-  op_opencl_s_prefetch_v3i64_64bit.spvasm
-  op_opencl_s_prefetch_v3i8_32bit.spvasm
-  op_opencl_s_prefetch_v3i8_64bit.spvasm
-  op_opencl_s_prefetch_v4i16_32bit.spvasm
-  op_opencl_s_prefetch_v4i16_64bit.spvasm
-  op_opencl_s_prefetch_v4i32_32bit.spvasm
-  op_opencl_s_prefetch_v4i32_64bit.spvasm
-  op_opencl_s_prefetch_v4i64_32bit.spvasm
-  op_opencl_s_prefetch_v4i64_64bit.spvasm
-  op_opencl_s_prefetch_v4i8_32bit.spvasm
-  op_opencl_s_prefetch_v4i8_64bit.spvasm
-  op_opencl_s_prefetch_v8i16_32bit.spvasm
-  op_opencl_s_prefetch_v8i16_64bit.spvasm
-  op_opencl_s_prefetch_v8i32_32bit.spvasm
-  op_opencl_s_prefetch_v8i32_64bit.spvasm
-  op_opencl_s_prefetch_v8i64_32bit.spvasm
-  op_opencl_s_prefetch_v8i64_64bit.spvasm
-  op_opencl_s_prefetch_v8i8_32bit.spvasm
-  op_opencl_s_prefetch_v8i8_64bit.spvasm
   op_opencl_s_rhadd_i16.spvasm
   op_opencl_s_rhadd_i32.spvasm
   op_opencl_s_rhadd_i64.spvasm
@@ -1410,98 +1293,6 @@ set(SPVASM_FILES
   op_opencl_s_rhadd_v8i32.spvasm
   op_opencl_s_rhadd_v8i64.spvasm
   op_opencl_s_rhadd_v8i8.spvasm
-  op_opencl_s_rotate_i16.spvasm
-  op_opencl_s_rotate_i32.spvasm
-  op_opencl_s_rotate_i64.spvasm
-  op_opencl_s_rotate_i8.spvasm
-  op_opencl_s_rotate_v16i16.spvasm
-  op_opencl_s_rotate_v16i32.spvasm
-  op_opencl_s_rotate_v16i64.spvasm
-  op_opencl_s_rotate_v16i8.spvasm
-  op_opencl_s_rotate_v2i16.spvasm
-  op_opencl_s_rotate_v2i32.spvasm
-  op_opencl_s_rotate_v2i64.spvasm
-  op_opencl_s_rotate_v2i8.spvasm
-  op_opencl_s_rotate_v3i16.spvasm
-  op_opencl_s_rotate_v3i32.spvasm
-  op_opencl_s_rotate_v3i64.spvasm
-  op_opencl_s_rotate_v3i8.spvasm
-  op_opencl_s_rotate_v4i16.spvasm
-  op_opencl_s_rotate_v4i32.spvasm
-  op_opencl_s_rotate_v4i64.spvasm
-  op_opencl_s_rotate_v4i8.spvasm
-  op_opencl_s_rotate_v8i16.spvasm
-  op_opencl_s_rotate_v8i32.spvasm
-  op_opencl_s_rotate_v8i64.spvasm
-  op_opencl_s_rotate_v8i8.spvasm
-  op_opencl_s_select_double.spvasm
-  op_opencl_s_select_float.spvasm
-  op_opencl_s_select_i16.spvasm
-  op_opencl_s_select_i32.spvasm
-  op_opencl_s_select_i64.spvasm
-  op_opencl_s_select_i8.spvasm
-  op_opencl_s_select_v16double.spvasm
-  op_opencl_s_select_v16float.spvasm
-  op_opencl_s_select_v16i16.spvasm
-  op_opencl_s_select_v16i32.spvasm
-  op_opencl_s_select_v16i64.spvasm
-  op_opencl_s_select_v16i8.spvasm
-  op_opencl_s_select_v2double.spvasm
-  op_opencl_s_select_v2float.spvasm
-  op_opencl_s_select_v2i16.spvasm
-  op_opencl_s_select_v2i32.spvasm
-  op_opencl_s_select_v2i64.spvasm
-  op_opencl_s_select_v2i8.spvasm
-  op_opencl_s_select_v3double.spvasm
-  op_opencl_s_select_v3float.spvasm
-  op_opencl_s_select_v3i16.spvasm
-  op_opencl_s_select_v3i32.spvasm
-  op_opencl_s_select_v3i64.spvasm
-  op_opencl_s_select_v3i8.spvasm
-  op_opencl_s_select_v4double.spvasm
-  op_opencl_s_select_v4float.spvasm
-  op_opencl_s_select_v4i16.spvasm
-  op_opencl_s_select_v4i32.spvasm
-  op_opencl_s_select_v4i64.spvasm
-  op_opencl_s_select_v4i8.spvasm
-  op_opencl_s_select_v8double.spvasm
-  op_opencl_s_select_v8float.spvasm
-  op_opencl_s_select_v8i16.spvasm
-  op_opencl_s_select_v8i32.spvasm
-  op_opencl_s_select_v8i64.spvasm
-  op_opencl_s_select_v8i8.spvasm
-  op_opencl_s_shuffle2_v16i16.spvasm
-  op_opencl_s_shuffle2_v16i32.spvasm
-  op_opencl_s_shuffle2_v16i64.spvasm
-  op_opencl_s_shuffle2_v16i8.spvasm
-  op_opencl_s_shuffle2_v2i16.spvasm
-  op_opencl_s_shuffle2_v2i32.spvasm
-  op_opencl_s_shuffle2_v2i64.spvasm
-  op_opencl_s_shuffle2_v2i8.spvasm
-  op_opencl_s_shuffle2_v4i16.spvasm
-  op_opencl_s_shuffle2_v4i32.spvasm
-  op_opencl_s_shuffle2_v4i64.spvasm
-  op_opencl_s_shuffle2_v4i8.spvasm
-  op_opencl_s_shuffle2_v8i16.spvasm
-  op_opencl_s_shuffle2_v8i32.spvasm
-  op_opencl_s_shuffle2_v8i64.spvasm
-  op_opencl_s_shuffle2_v8i8.spvasm
-  op_opencl_s_shuffle_v16i16.spvasm
-  op_opencl_s_shuffle_v16i32.spvasm
-  op_opencl_s_shuffle_v16i64.spvasm
-  op_opencl_s_shuffle_v16i8.spvasm
-  op_opencl_s_shuffle_v2i16.spvasm
-  op_opencl_s_shuffle_v2i32.spvasm
-  op_opencl_s_shuffle_v2i64.spvasm
-  op_opencl_s_shuffle_v2i8.spvasm
-  op_opencl_s_shuffle_v4i16.spvasm
-  op_opencl_s_shuffle_v4i32.spvasm
-  op_opencl_s_shuffle_v4i64.spvasm
-  op_opencl_s_shuffle_v4i8.spvasm
-  op_opencl_s_shuffle_v8i16.spvasm
-  op_opencl_s_shuffle_v8i32.spvasm
-  op_opencl_s_shuffle_v8i64.spvasm
-  op_opencl_s_shuffle_v8i8.spvasm
   op_opencl_s_sub_sat_i16.spvasm
   op_opencl_s_sub_sat_i32.spvasm
   op_opencl_s_sub_sat_i64.spvasm
@@ -2237,6 +2028,7 @@ set(SPVASM_FILES
   op_ordered_scalar.spvasm
   op_ordered_vector.spvasm
   op_phi.spvasm
+  op_phi_forward_ref.spvasm
   op_quantize_to_f16.spvasm
   op_quantize_to_f16_vec2.spvasm
   op_sat_convert_int_to_uchar.spvasm
@@ -2318,7 +2110,6 @@ set(SPVASM_FILES
   op_vector_swizzle_int.spvasm
   op_vector_swizzle_long.spvasm
   op_vector_swizzle_uint.spvasm
-  opencl_usm_generic_address_space.spvasm
   ptr_int_conversions.spvasm
   vec_type_hint_length_1.spvasm
   op_opencl_u_ctz_i16.spvasm
@@ -2349,7 +2140,6 @@ set(SPVASM_FILES
   op_opencl_get_local_linear_id.spvasm
   op_opencl_get_enqueued_local_size.spvasm
   op_opencl_call_byval_arg.spvasm
-  opencl_max_byte_offset.spvasm
   op_expect_assume.spvasm
   op_generic_pointer.spvasm
   op_generic_pointer_builtin.spvasm
@@ -2363,14 +2153,21 @@ set(SPVASM_FILES
   op_opencl_arg_md.spvasm
   unsupported_capability.spvasm
   op_get_kernel_preferred_work_group_size_multiple.spvasm
-  invalid_storage_class.spvasm
+
+  # Tests that check behaviour on invalid SPIR-V
+  invalid-spir-v/invalid_storage_class.spvasm
+
+  # Tests that check non-standard Codeplay extensions
+  codeplay/opencl_usm_generic_address_space.spvasm
   )
 
 if(SpirvAsVersion VERSION_GREATER_EQUAL "2020.0")
   list(APPEND SPVASM_FILES
     op_execution_mode_max_work_dim.spvasm
-    opencl_group_async_copy_2d2d.spvasm
-    opencl_group_async_copy_3d3d.spvasm)
+    # Tests that check non-standard Codeplay extensions
+    codeplay/opencl_group_async_copy_2d2d.spvasm
+    codeplay/opencl_group_async_copy_3d3d.spvasm
+  )
 endif()
 
 if (SpirvAsVersion VERSION_GREATER_EQUAL "2021.3")
@@ -2395,15 +2192,36 @@ endif()
 # TODO: It might be more convenient to support a system like UnitCL where test
 # files declare their own requirements.
 set(SPVASM_V1_1_FILES
+  opencl_max_byte_offset.spvasm
   op_execution_mode_subgroup_size.spvasm
   op_execution_mode_subgroups_per_workgroup.spvasm
   op_get_default_queue.spvasm
   op_get_kernel_max_num_subgroups.spvasm
+  opencl_debug_info_100.spvasm
+  opencl_debug_info_100_clean.spvasm
+)
+
+set(SPVASM_V1_5_FILES
+  invalid-spir-v/unsupported_storage_class.spvasm
+)
+
+set(UNVERIFIABLE_SPVASM_FILES
+  # Valid SPIR-V as per the extension, but even current versions of spirv-val
+  # don't recognize it.
+  intel_arbitrary_precision_integers.spvasm
+  invalid-spir-v/invalid_storage_class.spvasm
+  invalid-spir-v/unsupported_storage_class.spvasm
+  codeplay/opencl_usm_generic_address_space.spvasm
+  codeplay/opencl_group_async_copy_2d2d.spvasm
+  codeplay/opencl_group_async_copy_3d3d.spvasm
+  # Unclear whether or not the SPIR-V is valid, but the output of llvm-spirv
+  # produces this and the verifier doesn't like it.
+  opencl_debug_info_100.spvasm
 )
 
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.spvasm)
-foreach(testFile ${SPVASM_FILES} ${SPVASM_V1_1_FILES})
+foreach(testFile ${SPVASM_FILES} ${SPVASM_V1_1_FILES} ${SPVASM_V1_5_FILES})
   list(REMOVE_ITEM obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/${testFile})
 endforeach()
 if(obsoleteTests)
@@ -2426,13 +2244,14 @@ function(ca_assemble_spirv_ll_lit_test)
     message(FATAL_ERROR "Must pass spvasm file to assemble")
   endif()
 
-  set(spvasm "${args_UNPARSED_ARGUMENTS}")
+  set(spvasm_file "${args_UNPARSED_ARGUMENTS}")
 
-  get_filename_component(name ${spvasm} NAME_WE)
+  get_filename_component(name ${spvasm_file} NAME_WE)
+  get_filename_component(dir ${spvasm_file} DIRECTORY)
 
-  set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm})
-  set(spvasm ${CMAKE_CURRENT_SOURCE_DIR}/${spvasm})
-  set(spv ${CMAKE_CURRENT_BINARY_DIR}/${name}.spv)
+  set(test ${CMAKE_CURRENT_BINARY_DIR}/${spvasm_file})
+  set(spvasm ${CMAKE_CURRENT_SOURCE_DIR}/${spvasm_file})
+  set(spv ${CMAKE_CURRENT_BINARY_DIR}/${dir}/${name}.spv)
   if(NOT EXISTS ${spvasm})
     message(FATAL_ERROR "spirv-ll input spvasm does not exist: ${spvasm}")
   endif()
@@ -2442,15 +2261,25 @@ function(ca_assemble_spirv_ll_lit_test)
   if(SPVASM_UNSUPPORTED STREQUAL False)
     # Generate .spv from .spvasm source.
     file(RELATIVE_PATH spvOut ${CMAKE_BINARY_DIR} ${spv})
+
+    # Work out whether we're validating this SPIR-V file.
+    set(OPTIONAL_VALIDATE_DEPENDS)
+    set(OPTIONAL_VALIDATE_COMMAND)
+    # Certain tests can't be verified. These must be manually specified in the
+    # UNVERIFIABLE_SPVASM_FILES list.
+    if(TARGET spirv::spirv-val AND NOT spvasm_file IN_LIST UNVERIFIABLE_SPVASM_FILES)
+      set(OPTIONAL_VALIDATE_DEPENDS spirv::spirv-val)
+      set(OPTIONAL_VALIDATE_COMMAND COMMAND spirv::spirv-val ${spv})
+    endif()
+
     add_custom_command(OUTPUT ${spv}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${dir}
       COMMAND spirv::spirv-as --target-env ${args_TGT_ENV} -o ${spv} ${spvasm}
-      DEPENDS spirv::spirv-as ${spvasm}
+      ${OPTIONAL_VALIDATE_COMMAND}
+      DEPENDS spirv::spirv-as ${OPTIONAL_VALIDATE_DEPENDS} ${spvasm}
       COMMENT "Building SPIR-V ${spvOut}")
     list(APPEND LitTestFiles ${spv})
   endif()
-
-  add_ca_copy_file(INPUT ${spvasm} OUTPUT ${test})
-  list(APPEND LitTestFiles ${test})
 
   set_property(GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES ${LitTestFiles})
 endfunction()
@@ -2461,6 +2290,10 @@ endforeach()
 
 foreach(spvasm ${SPVASM_V1_1_FILES})
   ca_assemble_spirv_ll_lit_test(${spvasm} TGT_ENV spv1.1)
+endforeach()
+
+foreach(spvasm ${SPVASM_V1_5_FILES})
+  ca_assemble_spirv_ll_lit_test(${spvasm} TGT_ENV spv1.5)
 endforeach()
 
 get_property(LitTestFiles GLOBAL PROPERTY CA_SPIRV_LL_SPVASM_TEST_FILES)

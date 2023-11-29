@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -37,7 +38,7 @@
 ; CHECK: define spir_kernel void @sinh_v16float()
                    %2 = OpLabel
                    %3 = OpExtInst %v16float_t %1 sinh %v16float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x float> @_Z4sinhDv16_f(<16 x float> <float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000>)
+; CHECK: = call spir_func <16 x float> @_Z4sinhDv16_f(<16 x float> <float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -117,19 +117,50 @@ mux_result_t kernel_s::getLocalSizeForSubGroupCount(size_t sub_group_count,
                                                     size_t *out_local_size_x,
                                                     size_t *out_local_size_y,
                                                     size_t *out_local_size_z) {
-  // FIXME: For a single sub-group, we know we can satisfy that with a
-  // work-group of 1,1,1. For any other sub-group count, we should ensure that
-  // the work-group size we report comes back through getKernelVariantForWGSize
-  // when it comes to run it. See CA-4784.
-  if (sub_group_count == 1) {
+  // Grab the maximum sub-group size we've compiled for.
+  uint32_t max_sub_group_size = 1;
+  for (auto &v : variant_data) {
+    max_sub_group_size = std::max(max_sub_group_size, v.sub_group_size);
+  }
+
+  // For simplicity, if we're being asked for just the one sub-group, or the
+  // kernel's sub-group size is 1, we know we can satisfy the query with a
+  // work-group of 1,1,1.
+  if (sub_group_count == 1 || max_sub_group_size == 1) {
     *out_local_size_x = 1;
     *out_local_size_y = 1;
     *out_local_size_z = 1;
-  } else {
+    return mux_success;
+  }
+
+  // For any other sub-group count, we should ensure that the work-group size
+  // we report comes back through getKernelVariantForWGSize when it comes to
+  // run it.
+  *out_local_size_x = sub_group_count * max_sub_group_size;
+  *out_local_size_y = 1;
+  *out_local_size_z = 1;
+
+  // If the required local work-group size would be an invalid work-group size,
+  // return 0,0,0 as per the specification.
+  if (*out_local_size_x > device->info->max_work_group_size_x) {
     *out_local_size_x = 0;
     *out_local_size_y = 0;
     *out_local_size_z = 0;
+    return mux_success;
   }
+
+#ifndef NDEBUG
+  // Double-check that if we were to be asked for the kernel variant for this
+  // work-group size we've reported, we'd receive a kernel variant with the
+  // same sub-group size as we've assumed for the calculations.
+  mux::hal::kernel_variant_s variant;
+  mux_result_t res = getKernelVariantForWGSize(
+      *out_local_size_x, *out_local_size_y, *out_local_size_z, &variant);
+  if (res != mux_success || variant.sub_group_size != max_sub_group_size) {
+    return mux_error_internal;
+  }
+#endif
+
   return mux_success;
 }
 

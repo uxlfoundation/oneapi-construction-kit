@@ -16,6 +16,7 @@
 
 // REQUIRES: arm
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
 
 // CHECK: ; ModuleID = '{{.*}}'
@@ -23,19 +24,19 @@
 
 void main() {
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x double>
-// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x double>
-// CHECK:  {{%[a-zA-Z0-9_]+}} = alloca <3 x double>
+// CHECK:  = alloca <3 x double>
+// CHECK:  = alloca <3 x double>
+// CHECK:  = alloca <3 x double>
   dvec3 x = dvec3(-42.42, -42.42, -42.42);
-// CHECK:  store <3 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
   dvec3 y = dvec3(-42.42, -42.42, -42.42);
-// CHECK:  store <3 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK:  [[X:%[a-zA-Z0-9_]+]] = load <3 x double>, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK:  [[Y:%[a-zA-Z0-9_]+]] = load <3 x double>, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  store <3 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
+// CHECK:  [[X:%.*]] = load <3 x double>, ptr {{%.*}}
+// CHECK:  [[Y:%.*]] = load <3 x double>, ptr {{%.*}}
   dvec3 res = mod(x, y);
-// CHECK:  [[MOD:%[a-zA-Z0-9_]+]] = call spir_func <3 x double> @_Z4fmodDv3_dS_(<3 x double> [[X]], <3 x double> [[Y]])
-// CHECK:  [[RES:%[a-zA-Z0-9_]+]] = call spir_func <3 x double> @_Z8copysignDv3_dS_(<3 x double> [[MOD]], <3 x double> [[Y]])
-// CHECK:  store <3 x double> [[RES]], ptr {{%[a-zA-Z0-9_]+}}
+// CHECK:  [[MOD:%.*]] = call spir_func <3 x double> @_Z4fmodDv3_dS_(<3 x double> [[X]], <3 x double> [[Y]])
+// CHECK:  [[RES:%.*]] = call spir_func <3 x double> @_Z8copysignDv3_dS_(<3 x double> [[MOD]], <3 x double> [[Y]])
+// CHECK:  store <3 x double> [[RES]], ptr {{%.*}}
 // CHECK:  ret void
 }
 

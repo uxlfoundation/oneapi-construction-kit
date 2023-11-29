@@ -67,20 +67,23 @@ cargo::array_view<const uint8_t> get_pch_file(
       resource = rc::builtins::builtins64_pch;
       break;
     default:
-      fprintf(stderr, "Illegal capabilities_bitfield\n");
+      (void)fprintf(stderr, "Illegal capabilities_bitfield\n");
       abort();
   }
   if (resource.size() == 1) {
-    fprintf(stderr,
-            "Attempted to load an unavailable PCH file with capabilities:\n");
-    fprintf(stderr, "Bit width: %d\n", (caps & file::CAPS_32BIT) ? 32 : 64);
-    fprintf(stderr, "Doubles: %s\n",
-            (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
-    fprintf(stderr, "Halfs: %s\n",
-            (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
-    fprintf(stderr,
-            "This usually indicates that the device capabilities were "
-            "incorrectly listed in the target device's CMakeLists.txt.\n");
+    (void)fprintf(
+        stderr,
+        "Attempted to load an unavailable PCH file with capabilities:\n");
+    (void)fprintf(stderr, "Bit width: %d\n",
+                  (caps & file::CAPS_32BIT) ? 32 : 64);
+    (void)fprintf(stderr, "Doubles: %s\n",
+                  (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
+    (void)fprintf(stderr, "Halfs: %s\n",
+                  (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
+    (void)fprintf(
+        stderr,
+        "This usually indicates that the device capabilities were "
+        "incorrectly listed in the target device's CMakeLists.txt.\n");
     abort();
   }
   return resource;
@@ -114,20 +117,23 @@ cargo::array_view<const uint8_t> get_bc_file(file::capabilities_bitfield caps) {
       resource = rc::builtins::builtins64_bc;
       break;
     default:
-      fprintf(stderr, "Illegal capabilities_bitfield\n");
+      (void)fprintf(stderr, "Illegal capabilities_bitfield\n");
       abort();
   }
   if (resource.size() == 1) {
-    fprintf(stderr,
-            "Attempted to load an unavailable BC file with capabilities:\n");
-    fprintf(stderr, "Bit width: %d\n", (caps & file::CAPS_32BIT) ? 32 : 64);
-    fprintf(stderr, "Doubles: %s\n",
-            (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
-    fprintf(stderr, "Halfs: %s\n",
-            (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
-    fprintf(stderr,
-            "This usually indicates that the device capabilities were "
-            "incorrectly listed in the target device's CMakeLists.txt.\n");
+    (void)fprintf(
+        stderr,
+        "Attempted to load an unavailable BC file with capabilities:\n");
+    (void)fprintf(stderr, "Bit width: %d\n",
+                  (caps & file::CAPS_32BIT) ? 32 : 64);
+    (void)fprintf(stderr, "Doubles: %s\n",
+                  (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
+    (void)fprintf(stderr, "Halfs: %s\n",
+                  (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
+    (void)fprintf(
+        stderr,
+        "This usually indicates that the device capabilities were "
+        "incorrectly listed in the target device's CMakeLists.txt.\n");
     abort();
   }
   return resource;

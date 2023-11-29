@@ -421,10 +421,20 @@ spv::Id OpExtInst::Set() const { return getValueAtOffset(3); }
 
 uint32_t OpExtInst::Instruction() const { return getValueAtOffset(4); }
 
+uint16_t OpExtInst::opExtInstOperandCount() const {
+  return wordCount() - OpExtInstBaseOperandOffset;
+}
+
+uint32_t OpExtInst::getOpExtInstOperand(unsigned idx) const {
+  assert(OpExtInstBaseOperandOffset + idx < wordCount() &&
+         "Invalid operand index");
+  return getValueAtOffset(OpExtInstBaseOperandOffset + idx);
+}
+
 llvm::SmallVector<spv::Id, 8> OpExtInst::Operands() const {
   llvm::SmallVector<spv::Id, 8> operands;
-  for (uint16_t i = 5; i < wordCount(); i++) {
-    operands.push_back(getValueAtOffset(i));
+  for (uint16_t i = 0, e = opExtInstOperandCount(); i != e; i++) {
+    operands.push_back(getOpExtInstOperand(i));
   }
   return operands;
 }
@@ -2144,16 +2154,6 @@ spv::Id OpAssumeTrueKHR::Condition() const { return getValueAtOffset(1); }
 
 spv::Id OpExpectKHR::Value() const { return getValueAtOffset(3); }
 spv::Id OpExpectKHR::ExpectedValue() const { return getValueAtOffset(4); }
-
-spv::Id OpenCLstd::Printf::format() const { return getValueAtOffset(5); }
-
-llvm::SmallVector<spv::Id, 8> OpenCLstd::Printf::AdditionalArguments() const {
-  llvm::SmallVector<spv::Id, 8> additionalArguments;
-  for (uint16_t i = 6; i < wordCount(); i++) {
-    additionalArguments.push_back(getValueAtOffset(i));
-  }
-  return additionalArguments;
-}
 
 std::string getCapabilityName(spv::Capability cap) {
   // Note: this can't be a switch because there are multiple capability names

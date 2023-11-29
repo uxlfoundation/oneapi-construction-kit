@@ -15,10 +15,13 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <cargo/endian.h>
+#include <llvm/Support/Error.h>
 #include <multi_llvm/llvm_version.h>
 #include <spirv-ll/assert.h>
+#include <spirv-ll/builder.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
+#include <spirv/unified1/spirv.hpp>
 
 #include <algorithm>
 
@@ -62,7 +65,7 @@ spirv_ll::Module::Module(
       sourceMetadataString(),
       CompileUnit(nullptr),
       File(nullptr),
-      CurrentOpLineRange(nullptr, llvm::BasicBlock::iterator()),
+      CurrentOpLineRange(std::nullopt),
       LoopControl(),
       specInfo(specInfo),
       PushConstantStructVariable(nullptr),
@@ -87,7 +90,7 @@ spirv_ll::Module::Module(spirv_ll::Context &context,
       sourceMetadataString(),
       CompileUnit(nullptr),
       File(nullptr),
-      CurrentOpLineRange(nullptr, llvm::BasicBlock::iterator()),
+      CurrentOpLineRange(std::nullopt),
       LoopControl(),
       specInfo(),
       PushConstantStructVariable(nullptr),
@@ -213,28 +216,31 @@ bool spirv_ll::Module::addDebugString(spv::Id id, const std::string &string) {
   return DebugStrings.try_emplace(id, string).second;
 }
 
-std::string spirv_ll::Module::getDebugString(spv::Id id) const {
-  return DebugStrings.lookup(id);
+std::optional<std::string> spirv_ll::Module::getDebugString(spv::Id id) const {
+  if (auto iter = DebugStrings.find(id); iter != DebugStrings.end()) {
+    return iter->getSecond();
+  }
+  return std::nullopt;
 }
 
-void spirv_ll::Module::setCurrentOpLineRange(llvm::DILocation *block,
-                                             llvm::BasicBlock::iterator pos) {
-  CurrentOpLineRange = std::make_pair(block, pos);
+void spirv_ll::Module::setCurrentOpLineRange(
+    const LineRangeBeginTy &range_begin) {
+  CurrentOpLineRange = range_begin;
 }
+
+void spirv_ll::Module::closeCurrentOpLineRange() { CurrentOpLineRange.reset(); }
 
 void spirv_ll::Module::addCompleteOpLineRange(
     llvm::DILocation *location,
     std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range) {
-  OpLineRanges.insert({location, range});
+  OpLineRanges[location].push_back(range);
 }
 
-llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                              llvm::BasicBlock::iterator>> &
-spirv_ll::Module::getOpLineRanges() {
+spirv_ll::Module::OpLineRangeMap &spirv_ll::Module::getOpLineRanges() {
   return OpLineRanges;
 }
 
-std::pair<llvm::DILocation *, llvm::BasicBlock::iterator>
+std::optional<spirv_ll::Module::LineRangeBeginTy>
 spirv_ll::Module::getCurrentOpLineRange() const {
   return CurrentOpLineRange;
 }
@@ -251,13 +257,13 @@ llvm::DILexicalBlock *spirv_ll::Module::getLexicalBlock(
 }
 
 void spirv_ll::Module::addDebugFunctionScope(
-    llvm::Function *function, llvm::DISubprogram *function_scope) {
-  FunctionScopes.insert({function, function_scope});
+    spv::Id function_id, llvm::DISubprogram *function_scope) {
+  FunctionScopes.insert({function_id, function_scope});
 }
 
 llvm::DISubprogram *spirv_ll::Module::getDebugFunctionScope(
-    llvm::Function *function) const {
-  auto found = FunctionScopes.find(function);
+    spv::Id function_id) const {
+  auto found = FunctionScopes.find(function_id);
   return found != FunctionScopes.end() ? found->getSecond() : nullptr;
 }
 
@@ -482,6 +488,12 @@ llvm::Type *spirv_ll::Module::getBlockType(const spv::Id id) const {
 }
 
 bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
+  // If the ID has a name attached to it, try to set it here if it wasn't
+  // already set. reference might not have been able to take a name (e.g., if
+  // it was a undef/poison constant).
+  if (auto name = getName(id); !name.empty() && V && !V->hasName()) {
+    V->setName(name);
+  }
   // SSA form forbids the reassignment of IDs
   auto existing = Values.find(id);
   if (existing != Values.end() && existing->second.Value != nullptr) {
@@ -491,7 +503,7 @@ bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
   return true;
 }
 
-llvm::Type *spirv_ll::Module::getType(spv::Id id) const {
+llvm::Type *spirv_ll::Module::getLLVMType(spv::Id id) const {
   return Types.lookup(id).Type;
 }
 
@@ -553,10 +565,10 @@ void spirv_ll::Module::updateIncompleteStruct(spv::Id member_id) {
         if (iter.second.empty()) {
           llvm::SmallVector<llvm::Type *, 4> memberTypes;
           for (auto memberType : iter.first->MemberTypes()) {
-            memberTypes.push_back(getType(memberType));
+            memberTypes.push_back(getLLVMType(memberType));
           }
           llvm::StructType *structType =
-              llvm::cast<llvm::StructType>(getType(iter.first->IdResult()));
+              llvm::cast<llvm::StructType>(getLLVMType(iter.first->IdResult()));
           structType->setBody(memberTypes);
           // remove the now fully populated struct from the map
           IncompleteStructs.erase(IncompleteStructs.find(iter.first));
@@ -567,10 +579,44 @@ void spirv_ll::Module::updateIncompleteStruct(spv::Id member_id) {
   }
 }
 
-void spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
-  spv::Id typeId = op->Type();
-  SPIRV_LL_ASSERT(!isForwardPointer(typeId), "typeId is a forward pointer");
-  llvm::Type *type = getType(typeId);
+llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
+    uint32_t storage_class) const {
+  switch (storage_class) {
+    default:
+      return makeStringError("Unknown StorageClass " +
+                             std::to_string(storage_class));
+    case spv::StorageClassFunction:
+    case spv::StorageClassPrivate:
+    case spv::StorageClassAtomicCounter:
+    case spv::StorageClassInput:
+    case spv::StorageClassOutput:
+      // private
+      return 0;
+    case spv::StorageClassUniform:
+    case spv::StorageClassCrossWorkgroup:
+    case spv::StorageClassImage:
+    case spv::StorageClassStorageBuffer:
+      // global
+      return 1;
+    case spv::StorageClassUniformConstant:
+    case spv::StorageClassPushConstant:
+      // constant
+      return 2;
+    case spv::StorageClassWorkgroup:
+      // local
+      return 3;
+    case spv::StorageClassGeneric:
+      if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
+        return 0;
+      }
+      return 4;
+  }
+}
+
+llvm::Error spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
+  spv::Id type_id = op->Type();
+  SPIRV_LL_ASSERT(!isForwardPointer(type_id), "type_id is a forward pointer");
+  llvm::Type *type = getLLVMType(type_id);
   SPIRV_LL_ASSERT_PTR(type);
 
   // Pointer to void type isn't legal in llvm, so substitute char* in such
@@ -579,52 +625,25 @@ void spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
     type = llvm::Type::getInt8Ty(llvmModule->getContext());
   }
 
-  int AddressSpace = 0;
-
-  switch (op->StorageClass()) {
-    case spv::StorageClassFunction:
-    case spv::StorageClassPrivate:
-    case spv::StorageClassAtomicCounter:
-    case spv::StorageClassInput:
-    case spv::StorageClassOutput:
-      // private
-      break;
-    case spv::StorageClassUniform:
-    case spv::StorageClassCrossWorkgroup:
-    case spv::StorageClassImage:
-    case spv::StorageClassStorageBuffer:
-      // global
-      AddressSpace = 1;
-      break;
-    case spv::StorageClassUniformConstant:
-    case spv::StorageClassPushConstant:
-      // constant
-      AddressSpace = 2;
-      break;
-    case spv::StorageClassWorkgroup:
-      // local
-      AddressSpace = 3;
-      break;
-    case spv::StorageClassGeneric: {
-      if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
-        AddressSpace = 0;
-      } else {
-        AddressSpace = 4;
-      }
-    } break;
-    default:
-      llvm_unreachable("unknown StorageClass");
+  auto addrspace_or_error =
+      translateStorageClassToAddrSpace(op->StorageClass());
+  if (auto err = addrspace_or_error.takeError()) {
+    return err;
   }
 
-  llvm::Type *pointer_type = llvm::PointerType::get(type, AddressSpace);
+  llvm::Type *pointer_type =
+      llvm::PointerType::get(type, addrspace_or_error.get());
 
   addID(op->IdResult(), op, pointer_type);
 
   if (isForwardPointer(op->IdResult())) {
     removeForwardPointer(op->IdResult());
     updateIncompleteStruct(op->IdResult());
-    updateIncompletePointer(op->IdResult());
+    if (auto err = updateIncompletePointer(op->IdResult())) {
+      return err;
+    }
   }
+  return llvm::Error::success();
 }
 
 void spirv_ll::Module::addIncompletePointer(const OpTypePointer *pointer_type,
@@ -632,13 +651,15 @@ void spirv_ll::Module::addIncompletePointer(const OpTypePointer *pointer_type,
   IncompletePointers.insert({pointer_type, missing_type});
 }
 
-void spirv_ll::Module::updateIncompletePointer(spv::Id type_id) {
+llvm::Error spirv_ll::Module::updateIncompletePointer(spv::Id type_id) {
   for (auto it = IncompletePointers.begin(), end = IncompletePointers.end();
        it != end;) {
     // if the newly declared type id is found in an incomplete pointer,
     if (type_id == it->second) {
       // complete the pointer
-      addCompletePointer(it->first);
+      if (auto err = addCompletePointer(it->first)) {
+        return err;
+      }
       // and remove the now completed pointer from the map
       IncompletePointers.erase(it);
       it = IncompletePointers.begin();
@@ -646,6 +667,7 @@ void spirv_ll::Module::updateIncompletePointer(spv::Id type_id) {
       ++it;
     }
   }
+  return llvm::Error::success();
 }
 
 void spirv_ll::Module::addSampledImage(spv::Id id, llvm::Value *image,
@@ -673,17 +695,17 @@ void spirv_ll::Module::setParamTypeIDs(spv::Id F, llvm::ArrayRef<spv::Id> IDs) {
   ParamTypeIDs[F].assign(IDs.begin(), IDs.end());
 }
 
-cargo::optional<spv::Id> spirv_ll::Module::getParamTypeID(
-    spv::Id F, unsigned argno) const {
+std::optional<spv::Id> spirv_ll::Module::getParamTypeID(spv::Id F,
+                                                        unsigned argno) const {
   auto it = ParamTypeIDs.find(F);
   if (it == ParamTypeIDs.end()) {
     assert(false && "function type was not added before query");
-    return cargo::nullopt;
+    return std::nullopt;
   }
   auto &params = it->getSecond();
   if (argno >= params.size()) {
     assert(false && "invalid number of parameters for function");
-    return cargo::nullopt;
+    return std::nullopt;
   }
   return params[argno];
 }
@@ -703,10 +725,10 @@ void spirv_ll::Module::addSpecId(spv::Id id, spv::Id spec_id) {
   SpecIDs.insert({id, spec_id});
 }
 
-cargo::optional<uint32_t> spirv_ll::Module::getSpecId(spv::Id id) const {
+std::optional<uint32_t> spirv_ll::Module::getSpecId(spv::Id id) const {
   auto found = SpecIDs.find(id);
   if (found == SpecIDs.end()) {
-    return cargo::nullopt;
+    return std::nullopt;
   }
   return found->second;
 }

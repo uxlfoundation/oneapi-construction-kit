@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -39,7 +40,7 @@
 ; CHECK: define spir_kernel void @u_sub_sat_v8i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i32_t %1 u_sub_sat %v8i32_3 %v8i32_4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i32> @_Z7sub_satDv8_jS_(<8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>, <8 x i32> <i32 4, i32 4, i32 4, i32 4, i32 4, i32 4, i32 4, i32 4>)
+; CHECK: = call spir_func <8 x i32> @_Z7sub_satDv8_jS_(<8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>, <8 x i32> <i32 4, i32 4, i32 4, i32 4, i32 4, i32 4, i32 4, i32 4>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

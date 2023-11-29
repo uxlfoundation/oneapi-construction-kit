@@ -119,7 +119,7 @@ TEST_P(muxQueryLocalSizeForSubGroupCountTest, ValidateLocalSize) {
   // be 1.
   const auto one_dimensional_counts =
       std::count(std::begin(local_sizes), std::end(local_sizes), 1);
-  ASSERT_EQ(one_dimensional_counts, 2);
+  ASSERT_GE(one_dimensional_counts, 2);
 
   // The local size must be evenly divisible by the sub-group size with no
   // remainders.

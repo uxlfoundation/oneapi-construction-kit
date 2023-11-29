@@ -1,0 +1,217 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; This test was created by compiling the following OpenCL kernel:
+;
+;  kernel void foo(global int *a, global float *b, global char *c) {
+;    size_t id = get_global_id(0);
+;    int a0 = a[id];
+;    int b0 = convert_int(b[id]);
+;    a0 /= 2;
+;    c[id] = a0 * b0;
+;  }
+;
+; with:
+;   clang-17 -target spir64-unknown-unknown -x cl -cl-kernel-arg-info -g \
+;            -emit-llvm -o kernel.bc kernel.cl
+; then:
+;   llvm-spirv-18 kernel.bc -o kernel.spv --spirv-debug-info-version=ocl-100 \
+;                 --debugify-level='location+variables'
+; then:
+;   spirv-dis kernel.spv
+;
+; And then the following line was removed because it was using an extension
+; without declaring it, and it's unnecessary:
+;   OpDecorate %mul NoSignedWrap
+;
+; Then, to make the verifier happy, whilst still roughly retaining the intent
+; of the program:
+; - %55 = OpExtInst %void %2 DebugTypeFunction None %20 %47 %50 %54
+; + %55 = OpExtInst %void %2 DebugTypeFunction None %void %47 %50 %54
+; (because it doesn't accept DebugInfoNone for the return type)
+; - %66 = OpExtInst %void %2 DebugFunction %64 %55 %42 1 0 %43 %65 FlagIsDefinition|FlagPrototyped|FlagIsOptimized 1 %15 %20
+; + %66 = OpExtInst %void %2 DebugFunction %64 %55 %42 1 0 %43 %65 FlagIsDefinition|FlagPrototyped|FlagIsOptimized 1 %15
+; (because it doesn't accept DebugInfoNone for the optional declaration <id>)
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env spv1.1 -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Int64 %spv_file_s | FileCheck %s
+
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 84
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+          %2 = OpExtInstImport "OpenCL.DebugInfo.100"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %15 "foo" %__spirv_BuiltInGlobalInvocationId
+         %40 = OpString "/tmp/kernel.cl"
+         %41 = OpString "//__CSK_MD5:778eaa9cd957459f44d042d2dd1bf574"
+         %44 = OpString "int"
+         %48 = OpString "float"
+         %51 = OpString "char"
+         %56 = OpString "size_t"
+         %57 = OpString "unsigned long"
+         %60 = OpString "/include/opencl-c-base.h"
+         %61 = OpString "//__CSK_MD5:8040a97cda029467f3f64c25e932a46e"
+         %64 = OpString "foo"
+         %65 = OpString ""
+         %67 = OpString "a"
+         %69 = OpString "b"
+         %71 = OpString "c"
+         %73 = OpString "id"
+         %75 = OpString "a0"
+         %77 = OpString "b0"
+               OpSource OpenCL_C 102000
+               OpName %__spirv_BuiltInGlobalInvocationId "__spirv_BuiltInGlobalInvocationId"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %c "c"
+               OpName %entry "entry"
+               OpName %call "call"
+               OpName %arrayidx "arrayidx"
+               OpName %arrayidx1 "arrayidx1"
+               OpName %call2 "call2"
+               OpName %div "div"
+               OpName %mul "mul"
+               OpName %conv "conv"
+               OpName %arrayidx3 "arrayidx3"
+               OpModuleProcessed "Debug info producer: clang version 17.0.3 (git@git.office.codeplay.com:ComputeAorta/llvm-project.git 37b79e779f447f1c714af7f907e7a2ec846d1da0)"
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %a FuncParamAttr NoCapture
+               OpDecorate %a FuncParamAttr NoWrite
+               OpDecorate %a Alignment 4
+               OpDecorate %b FuncParamAttr NoCapture
+               OpDecorate %b FuncParamAttr NoWrite
+               OpDecorate %b Alignment 4
+               OpDecorate %c FuncParamAttr NoCapture
+               OpDecorate %c Alignment 1
+      %ulong = OpTypeInt 64 0
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+     %uint_2 = OpConstant %uint 2
+    %uint_32 = OpConstant %uint 32
+     %uint_8 = OpConstant %uint 8
+    %uint_64 = OpConstant %uint 64
+    %v3ulong = OpTypeVector %ulong 3
+%_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+      %float = OpTypeFloat 32
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+%_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
+         %14 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_uchar
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+         %20 = OpExtInst %void %2 DebugInfoNone
+         %42 = OpExtInst %void %2 DebugSource %40 %41
+         %43 = OpExtInst %void %2 DebugCompilationUnit 65536 5 %42 OpenCL_C
+         %46 = OpExtInst %void %2 DebugTypeBasic %44 %uint_32 Signed
+         %47 = OpExtInst %void %2 DebugTypePointer %46 CrossWorkgroup None
+         %49 = OpExtInst %void %2 DebugTypeBasic %48 %uint_32 Float
+         %50 = OpExtInst %void %2 DebugTypePointer %49 CrossWorkgroup None
+         %53 = OpExtInst %void %2 DebugTypeBasic %51 %uint_8 SignedChar
+         %54 = OpExtInst %void %2 DebugTypePointer %53 CrossWorkgroup None
+         %55 = OpExtInst %void %2 DebugTypeFunction None %void %47 %50 %54
+         %59 = OpExtInst %void %2 DebugTypeBasic %57 %uint_64 Unsigned
+         %62 = OpExtInst %void %2 DebugSource %60 %61
+         %63 = OpExtInst %void %2 DebugTypedef %56 %59 %62 0 0 %43
+         %66 = OpExtInst %void %2 DebugFunction %64 %55 %42 1 0 %43 %65 FlagIsDefinition|FlagPrototyped|FlagIsOptimized 1 %15
+         %68 = OpExtInst %void %2 DebugLocalVariable %67 %47 %42 1 0 %66 None 1
+         %70 = OpExtInst %void %2 DebugLocalVariable %69 %50 %42 1 0 %66 None 2
+         %72 = OpExtInst %void %2 DebugLocalVariable %71 %54 %42 1 0 %66 None 3
+         %74 = OpExtInst %void %2 DebugLocalVariable %73 %63 %42 2 0 %66 None
+         %76 = OpExtInst %void %2 DebugLocalVariable %75 %46 %42 3 0 %66 None
+         %78 = OpExtInst %void %2 DebugLocalVariable %77 %46 %42 4 0 %66 None
+         %79 = OpExtInst %void %2 DebugOperation Constu 0
+         %80 = OpExtInst %void %2 DebugOperation Swap
+         %81 = OpExtInst %void %2 DebugOperation Xderef
+         %82 = OpExtInst %void %2 DebugExpression %79 %80 %81
+
+; CHECK: define spir_kernel void @foo(ptr addrspace(1){{.*}} %a, ptr addrspace(1){{.*}} %b, ptr addrspace(1){{.*}} %c)
+         %15 = OpFunction %void None %14
+          %a = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+          %b = OpFunctionParameter %_ptr_CrossWorkgroup_float
+          %c = OpFunctionParameter %_ptr_CrossWorkgroup_uchar
+      %entry = OpLabel
+         %83 = OpExtInst %void %2 DebugScope %66
+               OpLine %40 0 0
+         %21 = OpExtInst %void %2 DebugValue %68 %a %82
+         %22 = OpExtInst %void %2 DebugValue %70 %b %82
+         %23 = OpExtInst %void %2 DebugValue %72 %c %82
+               OpLine %40 2 15
+; CHECK: [[ID:%.*]] = call spir_func i64 @_Z13get_global_idj(i32 {{.*}}), !dbg [[IDLoc:![0-9]+]]
+         %24 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId Aligned 32
+       %call = OpCompositeExtract %ulong %24 0
+               OpLine %40 0 0
+         %26 = OpExtInst %void %2 DebugValue %74 %call %82
+               OpLine %40 3 12
+; CHECK: [[A0IDX:%.*]] = getelementptr inbounds i32, ptr addrspace(1) %a, i64 [[ID]], !dbg [[A0Loc:![0-9]+]]
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %a %call
+; CHECK: [[A0:%.*]] = load i32, ptr addrspace(1) [[A0IDX]], align 4, !dbg [[A0Loc]]
+         %28 = OpLoad %uint %arrayidx Aligned 4
+               OpLine %40 0 0
+         %29 = OpExtInst %void %2 DebugValue %76 %28 %82
+               OpLine %40 4 24
+; CHECK: [[B0IDX:%.*]] = getelementptr inbounds float, ptr addrspace(1) %b, i64 [[ID]], !dbg [[B0LDLoc:![0-9]+]]
+  %arrayidx1 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_float %b %call
+; CHECK: [[B0LD:%.*]] = load float, ptr addrspace(1) [[B0IDX]], align 4, !dbg [[B0LDLoc]]
+         %31 = OpLoad %float %arrayidx1 Aligned 4
+               OpLine %40 4 12
+; CHECK: [[B0:%.*]] = call spir_func i32 @_Z11convert_intf(float [[B0LD]]), !dbg [[B0Loc:![0-9]+]]
+      %call2 = OpConvertFToS %uint %31
+               OpLine %40 0 0
+         %33 = OpExtInst %void %2 DebugValue %78 %call2 %82
+               OpLine %40 5 6
+; CHECK: [[DIV:%.*]] = sdiv i32 [[A0]], 2, !dbg [[DIVLoc:![0-9]+]]
+        %div = OpSDiv %uint %28 %uint_2
+               OpLine %40 0 0
+         %36 = OpExtInst %void %2 DebugValue %76 %div %82
+               OpLine %40 6 14
+; CHECK: [[MUL:%.*]] = mul i32 [[B0]], [[DIV]], !dbg [[MULLoc:![0-9]+]]
+        %mul = OpIMul %uint %call2 %div
+               OpLine %40 6 11
+; CHECK: [[TRUNC:%.*]] = trunc i32 [[MUL]] to i8, !dbg [[TRUNCLoc:![0-9]+]]
+       %conv = OpUConvert %uchar %mul
+               OpLine %40 6 3
+; CHECK: [[C0IDX:%.*]] = getelementptr inbounds i8, ptr addrspace(1) %c, i64 [[ID]], !dbg [[C0IDXLoc:![0-9]+]]
+  %arrayidx3 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uchar %c %call
+               OpLine %40 6 9
+; CHECK: store i8 [[TRUNC]], ptr addrspace(1) [[C0IDX]], align 1, !dbg [[STORELoc:![0-9]+]]
+               OpStore %arrayidx3 %conv Aligned 1
+               OpLine %40 7 1
+; CHECK: ret void, !dbg [[RETLoc:![0-9]+]]
+               OpReturn
+               OpFunctionEnd
+
+; CHECK-DAG: [[SCOPE:![0-9]+]] = distinct !DILexicalBlock(
+; CHECK-DAG: [[IDLoc]] = !DILocation(line: 2, column: 15, scope: [[SCOPE]])
+; CHECK-DAG: [[A0Loc]] = !DILocation(line: 3, column: 12, scope: [[SCOPE]])
+; CHECK-DAG: [[B0LDLoc]] = !DILocation(line: 4, column: 24, scope: [[SCOPE]])
+; CHECK-DAG: [[B0Loc]] = !DILocation(line: 4, column: 12, scope: [[SCOPE]])
+; CHECK-DAG: [[DIVLoc]] = !DILocation(line: 5, column: 6, scope: [[SCOPE]])
+; CHECK-DAG: [[MULLoc]] = !DILocation(line: 6, column: 14, scope: [[SCOPE]])
+; CHECK-DAG: [[TRUNCLoc]] = !DILocation(line: 6, column: 11, scope: [[SCOPE]])
+; CHECK-DAG: [[C0IDXLoc]] = !DILocation(line: 6, column: 3, scope: [[SCOPE]])
+; CHECK-DAG: [[STORELoc]] = !DILocation(line: 6, column: 9, scope: [[SCOPE]])
+; CHECK-DAG: [[RETLoc]] = !DILocation(line: 7, column: 1, scope: [[SCOPE]])

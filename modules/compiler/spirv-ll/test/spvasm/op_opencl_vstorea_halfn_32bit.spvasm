@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 32 -c Addresses %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Kernel
@@ -55,8 +56,6 @@
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_half
         %loc = OpFunctionParameter %_ptr_Workgroup_half
       %entry = OpLabel
-         %15 = OpExtInst %void %1 vstorea_halfn %float_1 %uint_0 %out
-; CHECK: call spir_func void @_Z12vstorea_halffjPU3AS1Dh(float 1.000000e+00, i32 0, ptr addrspace(1) %out)
          %19 = OpExtInst %void %1 vstorea_halfn %18 %uint_0 %out
 ; CHECK: call spir_func void @_Z13vstorea_half2Dv2_fjPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i32 0, ptr addrspace(1) %out)
          %23 = OpExtInst %void %1 vstorea_halfn %22 %uint_0 %out
@@ -67,8 +66,6 @@
 ; CHECK: call spir_func void @_Z13vstorea_half8Dv8_fjPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i32 0, ptr addrspace(1) %out)
          %35 = OpExtInst %void %1 vstorea_halfn %34 %uint_0 %out
 ; CHECK: call spir_func void @_Z14vstorea_half16Dv16_fjPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i32 0, ptr addrspace(1) %out)
-         %36 = OpExtInst %void %1 vstorea_halfn %float_1 %uint_0 %loc
-; CHECK: call spir_func void @_Z12vstorea_halffjPU3AS3Dh(float 1.000000e+00, i32 0, ptr addrspace(3) %loc)
          %37 = OpExtInst %void %1 vstorea_halfn %18 %uint_0 %loc
 ; CHECK: call spir_func void @_Z13vstorea_half2Dv2_fjPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i32 0, ptr addrspace(3) %loc)
          %38 = OpExtInst %void %1 vstorea_halfn %22 %uint_0 %loc

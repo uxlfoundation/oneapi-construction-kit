@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -37,7 +38,7 @@
 ; CHECK: define spir_kernel void @degrees_v3double()
                    %2 = OpLabel
                    %3 = OpExtInst %v3double_t %1 degrees %v3double_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x double> @_Z7degreesDv3_d(<3 x double> <double 1.570000e+00, double 1.570000e+00, double 1.570000e+00>)
+; CHECK: = call spir_func <3 x double> @_Z7degreesDv3_d(<3 x double> <double 1.570000e+00, double 1.570000e+00, double 1.570000e+00>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

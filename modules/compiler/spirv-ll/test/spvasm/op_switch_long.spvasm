@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Int64 %spv_file_s | FileCheck %s
                OpCapability Shader
                OpCapability Int64
@@ -59,19 +60,19 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: define spir_kernel void @main()
-; CHECK: [[COND:%[a-zA-Z0-9_]+]] = alloca i64
-; CHECK: [[A:%[a-zA-Z0-9_]+]] = alloca i32
+; CHECK: [[COND:%.*]] = alloca i64
+; CHECK: [[A:%.*]] = alloca i32
 ; CHECK: store i64 42, ptr [[COND]]
-; CHECK: [[LD_COND:%[a-zA-Z0-9_]+]] = load i64, ptr [[COND]]
+; CHECK: [[LD_COND:%.*]] = load i64, ptr [[COND]]
 ; CHECK: switch i64 [[LD_COND]], label %[[DEFAULT:[0-9]]] [
 ; CHECK: i64 -540431955301232641, label %[[CASE:[0-9]]]
 ; CHECK: [[DEFAULT]]:
 ; CHECK: store i32 24, ptr [[A]]
-; CHECK: br label [[END:%[a-zA-Z0-9_]+]]
+; CHECK: br label [[END:%.*]]
 ; CHECK: [[CASE]]:
 ; CHECK: store i32 42, ptr [[A]]
 ; CHECK: br label [[END]]
-; CHECK: [[LD_A:%[a-zA-Z0-9_]+]] = load i32, ptr [[A]]
-; CHECK: [[XOR_A:%[a-zA-Z0-9_]+]] = xor i32 [[LD_A]], 42
-; CHECK: store i32 [[XOR_A]], ptr {{%[a-zA-Z0-9_]+}}
+; CHECK: [[LD_A:%.*]] = load i32, ptr [[A]]
+; CHECK: [[XOR_A:%.*]] = xor i32 [[LD_A]], 42
+; CHECK: store i32 [[XOR_A]], ptr {{%.*}}
 ; CHECK ret void
