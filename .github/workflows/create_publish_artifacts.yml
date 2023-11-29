@@ -44,6 +44,13 @@ jobs:
       - name: build riscv M1
         uses: ./.github/actions/do_build_ock/do_build_m1
 
+      - name: Download Daily Release
+        run: |
+          wget "https://github.com/intel/llvm/releases/download/nightly-2023-11-22/sycl_linux.tar.gz"
+          mkdir linux_nightly_release
+          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+          ls
+
       - name: Package Artifacts
         run: |
           ls
@@ -52,6 +59,7 @@ jobs:
 
           # Copy binaries to the artifacts directory
           cp -rf $(pwd)/build artifacts/
+          cp -rf $(pwd)/linux_nightly_release artifacts/
 
       - name: Upload Artifacts
         uses: actions/upload-artifacts@v2
