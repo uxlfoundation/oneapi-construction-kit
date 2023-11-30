@@ -1027,15 +1027,6 @@ TEST_P(HalfToCharExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLchar>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToCharExplicitConvert, testing::Values(OPENCL_C),
@@ -1060,15 +1051,6 @@ TEST_P(HalfToUcharExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLuchar>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUcharExplicitConvert,
@@ -1095,15 +1077,6 @@ TEST_P(HalfToShortExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLshort>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToShortExplicitConvert,
@@ -1130,15 +1103,6 @@ TEST_P(HalfToUshortExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLushort>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUshortExplicitConvert,
@@ -1165,15 +1129,6 @@ TEST_P(HalfToIntExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLint>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToIntExplicitConvert, testing::Values(OPENCL_C),
@@ -1198,15 +1153,6 @@ TEST_P(HalfToUintExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLuint>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUintExplicitConvert, testing::Values(OPENCL_C),
@@ -1231,15 +1177,6 @@ TEST_P(HalfToLongExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLlong>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToLongExplicitConvert, testing::Values(OPENCL_C),
@@ -1264,15 +1201,6 @@ TEST_P(HalfToUlongExplicitConvert, Conversion_04_Explicit_Convert) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  // TODO: CA-2731: With a vector width of 2, only rounding mode `NONE` works
-#ifdef __arm__
-  unsigned width{};
-  RoundingMode rnd{};
-  std::tie(width, std::ignore, rnd) = getParam();
-  if (width == 2 && rnd != RoundingMode::NONE) {
-    GTEST_SKIP();
-  }
-#endif
   Run<CLhalf, CLulong>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUlongExplicitConvert,

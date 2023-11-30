@@ -1,0 +1,66 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Int64 %spv_file_s | FileCheck %s
+                 OpCapability Addresses
+                 OpCapability Linkage
+                 OpCapability Kernel
+                 OpCapability Int64
+                 OpMemoryModel Physical64 OpenCL
+
+         %file = OpString "spvasm/debug_info_builtins.comp"
+
+                 OpDecorate %giid BuiltIn GlobalInvocationId
+                 OpDecorate %giid LinkageAttributes "giid" Import
+
+         %void = OpTypeVoid
+        %ulong = OpTypeInt 64 0
+      %v3ulong = OpTypeVector %ulong 3
+ %_ptr_v3ulong = OpTypePointer Input %v3ulong
+    %ptr_ulong = OpTypePointer CrossWorkgroup %ulong
+         %fnty = OpTypeFunction %void %ptr_ulong
+
+                 OpLine %file 4 0
+         %giid = OpVariable %_ptr_v3ulong Input
+                 OpNoLine
+
+           %fn = OpFunction %void None %fnty
+    %arg_inout = OpFunctionParameter %ptr_ulong
+        %entry = OpLabel
+
+; Check that we correctly get the line for the builtin access (line 5)
+; CHECK: = call spir_func i64 @_Z13get_global_idj(i32 {{%.*}}), !dbg [[gidLoc:![0-9]+]]
+                 OpLine %file 5 0
+           %26 = OpLoad %v3ulong %giid
+           %24 = OpCompositeExtract %ulong %26 0
+                 OpNoLine
+
+; CHECK: = getelementptr inbounds i64, ptr addrspace(1) {{%.*}}, !dbg [[nextLoc:![0-9]+]]
+; CHECK: = load i64, ptr addrspace(1) {{%.*}}, align 8, !dbg [[nextLoc]]
+; CHECK: store i64 {{%.*}}, ptr addrspace(1) {{%.*}}, align 8, !dbg [[nextLoc]]
+                 OpLine %file 6 0
+  %inout_ptr_i = OpInBoundsPtrAccessChain %ptr_ulong %arg_inout %24
+           %38 = OpLoad %ulong %inout_ptr_i Aligned 8
+                 OpStore %arg_inout %38 Aligned 8
+
+                 OpReturn
+                 OpFunctionEnd
+
+; CHECK: [[gidLoc]] = !DILocation(line: 5, scope: [[mainLexicalBlock:![0-9]+]])
+; CHECK: [[mainLexicalBlock]] = distinct !DILexicalBlock(scope: {{![0-9]+}}, file: {{![0-9]+}}, line: 5)
+; CHECK: [[nextLoc]] = !DILocation(line: 6, scope: [[mainLexicalBlock]])

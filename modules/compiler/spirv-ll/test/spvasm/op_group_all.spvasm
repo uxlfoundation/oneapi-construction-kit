@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -o %t
 ; RUN: opt -S --passes=always-inline %t -o - | FileCheck -- %s
 
@@ -28,6 +29,10 @@
                               OpEntryPoint Kernel %work_group_all_fcn "work_group_all"
                               OpEntryPoint Kernel %variable_scope_all_fcn "variable_scope_all"
 
+                              OpName %sub_group_all_in "a"
+                              OpName %work_group_all_in "a"
+                              OpName %variable_scope_all_in "a"
+
                   %uint_ty  = OpTypeInt 32 0
                    %bool_ty = OpTypeBool
 %ptr_CrossWorkgroup_bool_ty = OpTypePointer CrossWorkgroup %bool_ty
@@ -38,19 +43,16 @@
           %work_group_scope = OpConstant %uint_ty 2
            %sub_group_scope = OpConstant %uint_ty 3
 
-                              OpName %sub_group_all_in "a"
-                              OpName %work_group_all_in "a"
-                              OpName %variable_scope_all_in "a"
 
-; CHECK: define spir_kernel void @sub_group_all(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @sub_group_all(ptr addrspace(1) [[IN:%.*]])
          %sub_group_all_fcn = OpFunction %void_ty None %fcn_ty
           %sub_group_all_in = OpFunctionParameter %ptr_CrossWorkgroup_bool_ty
           %sub_group_all_bb = OpLabel
-; CHECK: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VALI1:%.*]] = load i1, ptr addrspace(1) [[IN]], align 4
          %sub_group_all_val = OpLoad %bool_ty %sub_group_all_in Aligned 4
-; CHECK: [[VALI32:%[a-zA-Z0-9_]+]] = sext i1 [[VALI1]] to i32
-; CHECK: [[RESI32:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z13sub_group_alli(i32 [[VALI32]])
-; CHECK: [[RESI1:%[a-zA-Z0-9]+]] = trunc i32 [[RESI32]] to i1
+; CHECK: [[VALI32:%.*]] = sext i1 [[VALI1]] to i32
+; CHECK: [[RESI32:%.*]] = call spir_func i32 @_Z13sub_group_alli(i32 [[VALI32]])
+; CHECK: [[RESI1:%.*]] = trunc i32 [[RESI32]] to i1
          %sub_group_all_res = OpGroupAll %bool_ty %sub_group_scope %sub_group_all_val
 ; CHECK: store i1 [[RESI1]], ptr addrspace(1) [[IN]]
                               OpStore %sub_group_all_in %sub_group_all_res Aligned 4
@@ -58,15 +60,15 @@
                               OpReturn
                               OpFunctionEnd
 
-; CHECK: define spir_kernel void @work_group_all(ptr addrspace(1) [[IN:%[a-zA-Z0-9_]+]])
+; CHECK: define spir_kernel void @work_group_all(ptr addrspace(1) [[IN:%.*]])
         %work_group_all_fcn = OpFunction %void_ty None %fcn_ty
          %work_group_all_in = OpFunctionParameter %ptr_CrossWorkgroup_bool_ty
          %work_group_all_bb = OpLabel
-; CHECK: [[VALI1:%[a-zA-Z0-9_]+]] = load i1, ptr addrspace(1) [[IN]], align 4
+; CHECK: [[VALI1:%.*]] = load i1, ptr addrspace(1) [[IN]], align 4
         %work_group_all_val = OpLoad %bool_ty %work_group_all_in Aligned 4
-; CHECK: [[VALI32:%[a-zA-Z0-9_]+]] = sext i1 [[VALI1]] to i32
-; CHECK: [[RESI32:%[a-zA-Z0-9]+]] = call spir_func i32 @_Z14work_group_alli(i32 [[VALI32]])
-; CHECK: [[RESI1:%[a-zA-Z0-9]+]] = trunc i32 [[RESI32]] to i1
+; CHECK: [[VALI32:%.*]] = sext i1 [[VALI1]] to i32
+; CHECK: [[RESI32:%.*]] = call spir_func i32 @_Z14work_group_alli(i32 [[VALI32]])
+; CHECK: [[RESI1:%.*]] = trunc i32 [[RESI32]] to i1
         %work_group_all_res = OpGroupAll %bool_ty %work_group_scope %work_group_all_val
 ; CHECK: store i1 [[RESI1]], ptr addrspace(1) [[IN]]
                              OpStore %work_group_all_in %work_group_all_res Aligned 4
@@ -80,8 +82,8 @@
                      %scope = OpFunctionParameter %uint_ty
      %variable_scope_all_bb = OpLabel
     %variable_scope_all_val = OpLoad %bool_ty %variable_scope_all_in Aligned 4
-; CHECK: call spir_func i32 @_Z14work_group_alli(i32 {{%[0-9a-zA-Z_]+}})
-; CHECK: call spir_func i32 @_Z13sub_group_alli(i32 {{%[0-9a-zA-Z_]+}})
+; CHECK: call spir_func i32 @_Z14work_group_alli(i32 {{%.*}})
+; CHECK: call spir_func i32 @_Z13sub_group_alli(i32 {{%.*}})
     %variable_scope_all_res = OpGroupAll %bool_ty %scope %variable_scope_all_val
                               OpStore %variable_scope_all_in %variable_scope_all_res Aligned 4
                               OpReturn

@@ -15,14 +15,14 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL %spv_file_s | FileCheck %s
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
 ; This is a smoke test to check that OpCopyObject propagates values correctly
                OpCapability Kernel
-               OpEntryPoint GLCompute %main "main"
-               OpExecutionMode %main LocalSize 1 1 1
-               OpSourceExtension "GL_GOOGLE_cpp_style_line_directive"
-               OpSourceExtension "GL_GOOGLE_include_directive"
-               OpName %main "main"
+               OpCapability Addresses
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %testfn "testfn"
+               OpName %testfn "testfn"
                OpName %x "x"
                OpName %y "y"
                OpName %res "res"
@@ -33,7 +33,7 @@
 %_ptr_Function_float = OpTypePointer Function %float
 %_ptr_Function_bool = OpTypePointer Function %bool
 %float_42_42 = OpConstant %float 42.42
-       %main = OpFunction %void None %3
+     %testfn = OpFunction %void None %3
           %5 = OpLabel
         %res = OpVariable %_ptr_Function_bool Function
           %x = OpVariable %_ptr_Function_float Function %float_42_42
@@ -44,13 +44,13 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main()
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i1
-; CHECK: [[X:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = alloca float
+; CHECK: define spir_kernel void @testfn()
+; CHECK: = alloca i1
+; CHECK: [[X:[%@].*]] = alloca float
 ; CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr [[X]]
-; CHECK: [[CPY:[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*]] = load float, ptr [[X]]
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z13islessgreaterff(float [[CPY]], float [[CPY]])
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = trunc i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} to i1
-; CHECK: store i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: [[CPY:[%@].*]] = load float, ptr [[X]]
+; CHECK: = call spir_func i32 @_Z13islessgreaterff(float [[CPY]], float [[CPY]])
+; CHECK: = trunc i32 {{[%@].*}} to i1
+; CHECK: store i1 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z13islessgreaterff(float, float)

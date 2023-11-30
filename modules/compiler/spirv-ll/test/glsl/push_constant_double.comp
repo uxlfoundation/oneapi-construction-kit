@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
 
 #version 450
@@ -28,11 +29,11 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = type { double }
-// CHECK: define spir_kernel void @main(ptr addrspace(2){{( %0)?}}) #0 {
-// CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = getelementptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 0, i32 0
-// CHECK:   {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK:   store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = type { double }
+// CHECK: define spir_kernel void @main(ptr addrspace(2){{( %.*)?}}) #0 {
+// CHECK:   = alloca double
+// CHECK:   = getelementptr {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}, i32 0, i32 0
+// CHECK:   = load double, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK:   store double {{[%@].*}}, ptr {{[%@].*}}
 // CHECK:   ret void
 // CHECK: }

@@ -80,7 +80,7 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
     size_t write_count = static_cast<size_t>(write(null_fd, src, count));
     close(null_fd);
     if (write_count != count) {
-      fprintf(stderr, "memcpy (called from kernel) out-of-bounds read\n");
+      (void)fprintf(stderr, "memcpy (called from kernel) out-of-bounds read\n");
       std::abort();
     }
   }
@@ -90,7 +90,8 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
     size_t read_count = static_cast<size_t>(read(zero_fd, dest, count));
     close(zero_fd);
     if (read_count != count) {
-      fprintf(stderr, "memcpy (called from kernel) out-of-bounds write\n");
+      (void)fprintf(stderr,
+                    "memcpy (called from kernel) out-of-bounds write\n");
       std::abort();
     }
   }
@@ -115,7 +116,8 @@ void *dbg_memset(void *dest, int ch, size_t count) {
     size_t cnt = static_cast<size_t>(read(zero_fd, dest, count));
     close(zero_fd);
     if (count != cnt) {
-      fprintf(stderr, "memset (called from kernel) out-of-bounds write\n");
+      (void)fprintf(stderr,
+                    "memset (called from kernel) out-of-bounds write\n");
       std::abort();
     }
   }

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -25,7 +26,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %int_t = OpTypeInt 32 1
+               %int_t = OpTypeInt 32 0
              %float_t = OpTypeFloat 32
            %int_ptr_t = OpTypePointer Function %int_t
        %lgamma_r_fn_t = OpTypeFunction %void_t
@@ -36,9 +37,9 @@
 ; CHECK: define spir_kernel void @lgamma_r_float()
                    %2 = OpLabel
                    %3 = OpVariable %int_ptr_t Function
-; CHECK: [[signp:%[a-zA-Z0-9]+]] = alloca i32
+; CHECK: [[signp:%.*]] = alloca i32
                    %4 = OpExtInst %float_t %1 lgamma_r %float_2 %3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z8lgamma_rfPi(float 0x40011EB860000000, ptr [[signp]])
+; CHECK: = call spir_func float @_Z8lgamma_rfPi(float 0x40011EB860000000, ptr [[signp]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

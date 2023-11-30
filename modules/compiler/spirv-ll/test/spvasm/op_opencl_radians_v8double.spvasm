@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -38,7 +39,7 @@
 ; CHECK: define spir_kernel void @radians_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 radians %v8double_90
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x double> @_Z7radiansDv8_d(<8 x double> <double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01>)
+; CHECK: = call spir_func <8 x double> @_Z7radiansDv8_d(<8 x double> <double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01, double 9.000000e+01>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

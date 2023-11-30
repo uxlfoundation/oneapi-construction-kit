@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
             OpCapability Shader
             OpCapability Float64
@@ -47,9 +48,9 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <2 x i32>
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-; CHECK: store <2 x i32> <i32 -42, i32 -42>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = extractelement <2 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i64 1
-; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = alloca <2 x i32>
+; CHECK: = alloca i32
+; CHECK: store <2 x i32> <i32 -42, i32 -42>, ptr {{[%@].*}}
+; CHECK: = load <2 x i32>, ptr {{[%@].*}}
+; CHECK: = extractelement <2 x i32> {{[%@].*}}, i64 1
+; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}

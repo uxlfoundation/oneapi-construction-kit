@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
                OpCapability Shader
                OpCapability Float64
@@ -70,10 +71,10 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x double>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x i32>
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <3 x double> @_Z5frexpDv3_dPDv3_i(<3 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} undef, <3 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x i32>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertvalue {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, <3 x i32> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[0-9]+}}
-; CHECK: store {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = load <3 x double>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = alloca <3 x i32>
+; CHECK: = call spir_func <3 x double> @_Z5frexpDv3_dPDv3_i(<3 x double> {{[%@].*}}, ptr {{[%@].*}})
+; CHECK: = insertvalue {{[%@].*}} undef, <3 x double> {{[%@].*}}, {{[0-9]+}}
+; CHECK: = load <3 x i32>, ptr {{[%@].*}}
+; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, <3 x i32> {{[%@].*}}, {{[0-9]+}}
+; CHECK: store {{[%@].*}} {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}

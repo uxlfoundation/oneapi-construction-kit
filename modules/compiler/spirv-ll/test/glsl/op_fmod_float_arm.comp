@@ -16,6 +16,7 @@
 
 // REQUIRES: arm
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
@@ -28,15 +29,15 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{%[a-zA-Z0-9_]+}} = alloca float
-// CHECK: {{%[a-zA-Z0-9_]+}} = alloca float
-// CHECK: {{%[a-zA-Z0-9_]+}} = alloca float
-// CHECK: store float 0x404535C280000000, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: store float 0x404535C280000000, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: {{%[a-zA-Z0-9_]+}} = load float, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: {{%[a-zA-Z0-9_]+}} = load float, ptr {{%[a-zA-Z0-9_]+}}
-// CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func float @_Z4fmodff(float {{%[a-zA-Z0-9_]+}}, float {{%[a-zA-Z0-9_]+}})
-// CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func float @_Z8copysignff(float {{%[a-zA-Z0-9_]+}}, float {{%[a-zA-Z0-9_]+}})
-// CHECK: store float {{%[a-zA-Z0-9_]+}}, ptr {{%[a-zA-Z0-9_]+}}
+// CHECK: = alloca float
+// CHECK: = alloca float
+// CHECK: = alloca float
+// CHECK: store float 0x404535C280000000, ptr {{%.*}}
+// CHECK: store float 0x404535C280000000, ptr {{%.*}}
+// CHECK: = load float, ptr {{%.*}}
+// CHECK: = load float, ptr {{%.*}}
+// CHECK: = call spir_func float @_Z4fmodff(float {{%.*}}, float {{%.*}})
+// CHECK: = call spir_func float @_Z8copysignff(float {{%.*}}, float {{%.*}})
+// CHECK: store float {{%.*}}, ptr {{%.*}}
 // CHECK: ret void
 // CHECK: declare spir_func float @_Z8copysignff(float, float)

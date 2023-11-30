@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
                          OpCapability Shader
                          OpCapability Float64
@@ -33,11 +34,11 @@
                          OpMemberName %outBuff_t 1 "exponent"
                          OpMemberDecorate %outBuff_t 0 Offset 0
                          OpMemberDecorate %outBuff_t 1 Offset 4
-                         OpDecorate %outBuff BufferBlock
+                         OpDecorate %outBuff_t BufferBlock
                          OpDecorate %outBuff DescriptorSet 0
                          OpDecorate %outBuff Binding 1
                          OpMemberDecorate %inBuff_t 0 Offset 0
-                         OpDecorate %inBuff BufferBlock
+                         OpDecorate %inBuff_t BufferBlock
                          OpDecorate %inBuff DescriptorSet 0
                          OpDecorate %inBuff Binding 0
      %void_t           = OpTypeVoid
@@ -65,8 +66,8 @@
      OpReturn
      OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func float @_Z5frexpfPU3AS1i(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace(1) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-; CHECK: store float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+; CHECK: = load float, ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: = call spir_func float @_Z5frexpfPU3AS1i(float {{[%@].*}}, ptr addrspace(1) {{[%@].*}})
+; CHECK: store float {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z5frexpfPU3AS1i(float, ptr addrspace(1))

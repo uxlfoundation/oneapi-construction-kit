@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -34,7 +35,7 @@
 ; CHECK: define spir_kernel void @erfc_float()
                    %2 = OpLabel
                    %3 = OpExtInst %float_t %1 erfc %float_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func float @_Z4erfcf(float 1.000000e+00)
+; CHECK: = call spir_func float @_Z4erfcf(float 1.000000e+00)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -1,0 +1,72 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; REQUIRES: spirv-as-v2020.0+
+; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %t
+
+                        OpCapability Addresses
+                        OpCapability Linkage
+                        OpCapability Kernel
+                        OpCapability Int64
+              %opencl = OpExtInstImport "OpenCL.std"
+    %groupAsyncCopies = OpExtInstImport "NonSemantic.Codeplay.GroupAsyncCopies"
+                        OpMemoryModel Physical64 OpenCL
+                        OpEntryPoint Kernel %testFn "test"
+
+                        OpName %in "in"
+                        OpName %scratch "scratch"
+                        OpName %out "out"
+
+               %voidT = OpTypeVoid
+              %eventT = OpTypeEvent
+              %int32T = OpTypeInt 32 0
+              %int64T = OpTypeInt 64 0
+       %intGlobalPtrT = OpTypePointer CrossWorkgroup %int32T
+        %intLocalPtrT = OpTypePointer Workgroup %int32T
+             %testFnT = OpTypeFunction %voidT %intGlobalPtrT %intLocalPtrT %intGlobalPtrT
+
+           %int64Zero = OpConstant %int64T 0
+        %sizeofInt32T = OpConstant %int64T 4    ; sizeof(int)
+           %nullEvent = OpConstantNull %eventT
+            %int32One = OpConstant %int32T 1
+            %int32Two = OpConstant %int32T 2
+     %numBytesPerLine = OpConstant %int64T 16   ; %sizeofInt32T * %lineLength
+            %numLines = OpConstant %int64T 8
+          %lineLength = OpConstant %int64T 4
+           %numPlanes = OpConstant %int64T 2
+           %planeArea = OpConstant %int64T 32   ; %lineLength * %numLines
+
+; CHECK: define spir_kernel void @test(ptr addrspace(1) [[in:%.*]], ptr addrspace(3) [[scratch:%.*]], ptr addrspace(1) [[out:%.*]])
+              %testFn = OpFunction %voidT DontInline %testFnT
+                  %in = OpFunctionParameter %intGlobalPtrT
+             %scratch = OpFunctionParameter %intLocalPtrT
+                 %out = OpFunctionParameter %intGlobalPtrT
+               %entry = OpLabel
+
+
+; CHECK-GE17: [[inEvent:%.*]] = call spir_func target("spirv.Event") @_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, target("spirv.Event") zeroinitializer)
+; CHECK-LT17: [[inEvent:%.*]] = call spir_func ptr @_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, ptr null)
+             %inEvent = OpExtInst %eventT %groupAsyncCopies 2 %scratch %int64Zero %in %int64Zero %sizeofInt32T %numBytesPerLine %numLines %numPlanes %lineLength %planeArea %lineLength %planeArea %nullEvent
+
+
+; CHECK-GE17: = call spir_func target("spirv.Event") @_Z26async_work_group_copy_3D3DPU3AS1vmPU3AS3Kvmmmmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, target("spirv.Event") [[inEvent]])
+; CHECK-LT17: = call spir_func ptr @_Z26async_work_group_copy_3D3DPU3AS1vmPU3AS3Kvmmmmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 2, i64 4, i64 32, i64 4, i64 32, ptr [[inEvent]])
+            %outEvent = OpExtInst %eventT %groupAsyncCopies 2 %out %int64Zero %scratch %int64Zero %sizeofInt32T %numBytesPerLine %numLines %numPlanes %lineLength %planeArea %lineLength %planeArea %inEvent
+
+                        OpReturn
+                        OpFunctionEnd

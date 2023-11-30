@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -26,7 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %int_t = OpTypeInt 32 1
+               %int_t = OpTypeInt 32 0
              %float_t = OpTypeFloat 32
              %v4int_t = OpTypeVector %int_t 4
            %v4float_t = OpTypeVector %float_t 4
@@ -43,7 +44,7 @@
 ; CHECK: define spir_kernel void @remquo_v4float(ptr addrspace(3) %in_quo)
                    %2 = OpLabel
                    %3 = OpExtInst %v4float_t %1 remquo %v4float_2 %v4float_1 %in_quo
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z6remquoDv4_fS_PU3AS3Dv4_i(<4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <4 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr addrspace(3) %in_quo)
+; CHECK: = call spir_func <4 x float> @_Z6remquoDv4_fS_PU3AS3Dv4_i(<4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <4 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr addrspace(3) %in_quo)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

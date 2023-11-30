@@ -15,13 +15,14 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                                   OpCapability Addresses
                                   OpCapability Kernel
                                   OpCapability Int64
                              %1 = OpExtInstImport "OpenCL.std"
                                   OpMemoryModel Physical64 OpenCL
-                                  OpEntryPoint Kernel %get_max_sub_group_size_fn "get_max_sub_group_size_fn" %__spirv_BuiltInSubgroupID
+                                  OpEntryPoint Kernel %get_max_sub_group_size_fn "get_max_sub_group_size_fn" %__spirv_BuiltInSubgroupMaxSize
                                   OpDecorate %__spirv_BuiltInSubgroupMaxSize BuiltIn SubgroupMaxSize
                         %size_t = OpTypeInt 64 0
                     %size_ptr_t = OpTypePointer Input %size_t
@@ -31,7 +32,7 @@
 %__spirv_BuiltInSubgroupMaxSize = OpVariable %size_ptr_t Input
      %get_max_sub_group_size_fn = OpFunction %void_t None %get_max_sub_group_size_fn_t
                              %2 = OpLabel
-;CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z22get_max_sub_group_sizev()
+;CHECK: = call spir_func i32 @_Z22get_max_sub_group_sizev()
                            %res = OpLoad %size_t %__spirv_BuiltInSubgroupMaxSize
                                   OpReturn
                                   OpFunctionEnd

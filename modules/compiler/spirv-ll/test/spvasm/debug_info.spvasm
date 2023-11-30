@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                OpCapability Shader
@@ -38,37 +39,41 @@
         %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
          %13 = OpConstant %int 42
+               OpLine %file 4 0
        %main = OpFunction %void None %3
-; CHECK: define spir_kernel void @main()
+; CHECK: define spir_kernel void @main(){{.*}} !dbg [[mainSubprogram:![0-9]+]]
+               OpLine %file 5 2
           %5 = OpLabel
                OpLine %file 6 3
           %a = OpVariable %_ptr_Function_bool Function
 ; CHECK: %a = alloca i1{{(, align [0-9])?}}, !dbg [[aLocation:![0-9]+]]
-               OpStore %a %9
-; CHECK: store i1 false, ptr %a{{(, align [0-9])?}}, !dbg [[aLocation]]
                OpLine %file 7 3
           %b = OpVariable %_ptr_Function_int Function
 ; CHECK: %b = alloca i32{{(, align [0-9])?}}, !dbg [[bLocation:![0-9]+]]
+               OpLine %file 6 3
+               OpStore %a %9
+; CHECK: store i1 false, ptr %a{{(, align [0-9])?}}, !dbg [[aLocation]]
+               OpLine %file 7 3
                OpStore %b %13
 ; CHECK: store i32 42, ptr %b{{(, align [0-9])?}}, !dbg [[bLocation]]
                OpLine %file 8 3
          %14 = OpLoad %bool %a
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i1, ptr %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
+; CHECK: = load i1, ptr %a{{(, align [0-9])?}}, !dbg [[ifConditionLocation:![0-9]+]]
                OpSelectionMerge %16 None
                OpBranchConditional %14 %15 %16
-; CHECK: br i1 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, !dbg [[ifConditionLocation]]
+; CHECK: br i1 {{[%@].*}}, label {{[%@].*}}, label {{[%@].*}}, !dbg [[ifConditionLocation]]
          %15 = OpLabel
 ; CHECK: {{[0-9]+:}}
                OpLine %file 8 3
          %17 = OpLoad %int %b
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
+; CHECK: = load i32, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation:![0-9]+]]
          %18 = OpIAdd %int %17 %13
-; CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = add i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, 42, !dbg [[ifTrueBlockLocation]]
+; CHECK: = add i32 {{[%@].*}}, 42, !dbg [[ifTrueBlockLocation]]
                OpStore %b %18
-; CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation]]
+; CHECK: store i32 {{[%@].*}}, ptr %b{{(, align [0-9])?}}, !dbg [[ifTrueBlockLocation]]
                OpLine %file 9 5
                OpBranch %16
-; CHECK: br label {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, !dbg [[ifJoinLocation:![0-9]+]]
+; CHECK: br label {{[%@].*}}, !dbg [[ifJoinLocation:![0-9]+]]
          %16 = OpLabel
 ; CHECK: {{[0-9]+:}}
                OpNoLine
@@ -82,13 +87,8 @@
 ;
 ; CHECK: [[CompileUnit]] = distinct !DICompileUnit(language: DW_LANG_OpenCL, file: [[File:![0-9]+]],{{( producer: "Codeplay SPIR-V  translator",)?}} isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug{{(, enums: ![0-9]+)?}}{{(, subprograms: ![0-9]+)?}})
 ; CHECK: [[File]] = !DIFile(filename: "debug_info.comp", directory: "modules/spirv-ll-tool/test/spvasm")
-; CHECK: [[aLocation]] = !DILocation(line: 6, column: 3, scope: [[mainLexicalBlock:![0-9]+]])
-; TODO The line and column for `mainLexicalBlock` are incorrect and instead
-;      point to those for the variable `a`, adding an OpLine before `main`'s
-;      OpFunction has no effect.
-; CHECK: [[mainLexicalBlock]] = distinct !DILexicalBlock(scope: [[mainSubprogram:![0-9]+]], file: [[File]], line: 6, column: 3)
 ; CHECK: [[mainSubprogram]] = distinct !DISubprogram(name: "main", linkageName: "main", scope: null, file: [[File]],
-; CHECK-SAME: line: 6, type: [[mainSubroutineType:![0-9]+]]
+; CHECK-SAME: line: 4, type: [[mainSubroutineType:![0-9]+]]
 ; CHECK-SAME: {{(, isLocal: true, isDefinition: true)?}}, scopeLine: 1
 ; CHECK-SAME: {{(, isOptimized: false)?}}
 ; CHECK-SAME: {{(, spFlags: DISPFlagDefinition)?}}
@@ -96,6 +96,8 @@
 ; CHECK-SAME: {{(, (variables|retainedNodes): ![0-9]+)?}}
 ; CHECK-SAME: )
 ; CHECK: [[mainSubroutineType]] = !DISubroutineType(types: !{{[0-9]+}})
+; CHECK: [[aLocation]] = !DILocation(line: 6, column: 3, scope: [[mainLexicalBlock:![0-9]+]])
+; CHECK: [[mainLexicalBlock]] = distinct !DILexicalBlock(scope: [[mainSubprogram]], file: [[File]], line: 5, column: 2)
 ; CHECK: [[bLocation]] = !DILocation(line: 7, column: 3, scope: [[mainLexicalBlock]])
 ; CHECK: [[ifConditionLocation]] = !DILocation(line: 8, column: 3, scope: [[mainLexicalBlock]])
 ; CHECK: [[ifTrueBlockLocation]] = !DILocation(line: 8, column: 3, scope: [[ifLexicalBlock:![0-9]+]])

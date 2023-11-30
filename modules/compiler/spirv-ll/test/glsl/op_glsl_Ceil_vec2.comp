@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
@@ -33,8 +34,8 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func <2 x float> @_Z4ceilDv2_f(<2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store <2 x float> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = load <2 x float>, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func <2 x float> @_Z4ceilDv2_f(<2 x float> {{[%@].*}})
+// CHECK: store <2 x float> {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func <2 x float> @_Z4ceilDv2_f(<2 x float>)

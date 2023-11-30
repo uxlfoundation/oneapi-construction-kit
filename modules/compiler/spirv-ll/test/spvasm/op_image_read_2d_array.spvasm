@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c Sampled1D %spv_file_s | FileCheck %t
                       OpCapability Kernel
@@ -40,9 +41,9 @@
 ; CHECK-LT17: define spir_kernel void @image2d_array([[TY:ptr addrspace\(1\)]] %image)
                  %1 = OpLabel
                  %3 = OpImageRead %uint4_t %image %int4_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darrayDv4_i([[TY]] %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui16ocl_image2darrayDv4_i([[TY]] %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
                  %4 = OpImageRead %float4_t %image %int4_1
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darrayDv4_i([[TY]] %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef16ocl_image2darrayDv4_i([[TY]] %image, <4 x i32> <i32 1, i32 1, i32 1, i32 1>)
                       OpReturn
 ; CHECK: ret void
                       OpFunctionEnd

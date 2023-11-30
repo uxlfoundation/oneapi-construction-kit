@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
 
 #version 450
@@ -26,10 +27,10 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca float
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load float, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func double @_Z14convert_doublef(float {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca float
+// CHECK: = alloca double
+// CHECK: store float {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
+// CHECK: = load float, ptr {{[%@].*}}
+// CHECK: = call spir_func double @_Z14convert_doublef(float {{[%@].*}})
+// CHECK: store double {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

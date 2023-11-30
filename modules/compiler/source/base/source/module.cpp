@@ -238,7 +238,12 @@ static bool loadKernelAPIHeader(clang::CompilerInstance &compiler,
   // stored inside the PCH file.
   llvm::BitstreamCursor &Cursor = moduleFile->InputFilesCursor;
   clang::SavedStreamPosition SavedPosition(Cursor);
-  if (Cursor.JumpToBit(moduleFile->InputFileOffsets[0])) {
+  uint64_t Base = 0;
+#if LLVM_VERSION_GREATER_EQUAL(18, 0)
+  // LLVM 18 introduces a new offset that should be included
+  Base = moduleFile->InputFilesOffsetBase;
+#endif
+  if (Cursor.JumpToBit(Base + moduleFile->InputFileOffsets[0])) {
     return false;
   }
 
@@ -250,7 +255,7 @@ static bool loadKernelAPIHeader(clang::CompilerInstance &compiler,
   // warning.  However, this assert is guaranteed to be correct due to the
   // above `Cursor.JumpToBit` call, and provides enough information for
   // clang-tidy to understand that the undefined shift is impossible.
-  assert((Cursor.GetCurrentBitNo() == moduleFile->InputFileOffsets[0]) &&
+  assert((Cursor.GetCurrentBitNo() == Base + moduleFile->InputFileOffsets[0]) &&
          "Clang bitstream reader is in invalid state.");
   clang::ASTReader::RecordData Record;
   llvm::StringRef Filename;
@@ -1266,7 +1271,7 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
 
   auto addIncludeFile = [&](const std::string &name, const void *data,
                             const size_t size) {
-    const auto *entry = instance.getFileManager().getVirtualFile(
+    clang::FileEntryRef entry = instance.getFileManager().getVirtualFileRef(
         "include" PATH_SEPARATOR + name, size, 0);
     std::unique_ptr<llvm::MemoryBuffer> buffer{
         new BakedMemoryBuffer(data, size)};

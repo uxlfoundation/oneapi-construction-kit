@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
 ; RUN: spirv-ll-tool -a OpenCL -b 32 -c Sampled1D %spv_file_s | FileCheck %t
                         OpCapability Kernel
@@ -27,7 +28,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-               %int_t = OpTypeInt 32 1
+               %int_t = OpTypeInt 32 0
              %v2int_t = OpTypeVector %int_t 2
   %image1d_array_t = OpTypeImage %void_t 1D 0 1 0 0 Unknown ReadOnly
      %query_size_fn_t = OpTypeFunction %void_t %image1d_array_t
@@ -43,7 +44,7 @@
 ; CHECK: [[size_result:%.*]] = call spir_func i32 @_Z20get_image_array_size16ocl_image1darray([[IMG_TY]] %image)
 ; CHECK: [[v2int_idx_1:%.*]] = insertelement <2 x i32> undef, i32 [[size_result]], i32 1
 ; CHECK: [[width_result:%.*]] = call spir_func i32 @_Z15get_image_width16ocl_image1darray([[IMG_TY]] %image)
-; CHECK: {{%.*}} = insertelement <2 x i32> [[v2int_idx_1]], i32 [[width_result]], i32 0
+; CHECK: = insertelement <2 x i32> [[v2int_idx_1]], i32 [[width_result]], i32 0
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

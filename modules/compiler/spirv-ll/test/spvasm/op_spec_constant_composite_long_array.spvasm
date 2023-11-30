@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
                             OpCapability Shader
@@ -34,6 +35,7 @@
                             OpDecorate %_ DescriptorSet 0
                             OpDecorate %_ Binding 0
                             OpDecorate %14 SpecId 0
+                            OpDecorate %arr_long ArrayStride 8
                     %void = OpTypeVoid
                        %3 = OpTypeFunction %void
                     %long = OpTypeInt 64 1
@@ -41,7 +43,7 @@
                        %8 = OpConstant %idx_type 4
                 %arr_long = OpTypeArray %long %8
               %test_block = OpTypeStruct %arr_long
-; CHECK: [[uniforms:%[a-zA-Z0-9_]+]] = type { [4 x i64] }
+; CHECK: [[uniforms:%.*]] = type { [4 x i64] }
  %_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
                        %_ = OpVariable %_ptr_Uniform_test_block Uniform
                       %13 = OpConstant %idx_type 0
@@ -52,7 +54,7 @@
 ; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
                        %5 = OpLabel
                       %17 = OpAccessChain %ptr_arr_long %_ %13
-; CHECK: [[uniformArrayPtr:%[0-9]+]] = getelementptr [[uniforms]], ptr addrspace(1) {{%[a-zA-Z0-9]+}}, i32 0, i32 0
+; CHECK: [[uniformArrayPtr:%[0-9]+]] = getelementptr [[uniforms]], ptr addrspace(1) {{%.*}}, i32 0, i32 0
                             OpStore %17 %15
 ; CHECK: store [4 x i64] [i64 -4200000000, i64 -4200000000, i64 -4200000000, i64 -4200000000], ptr addrspace(1) [[uniformArrayPtr]]
                             OpReturn

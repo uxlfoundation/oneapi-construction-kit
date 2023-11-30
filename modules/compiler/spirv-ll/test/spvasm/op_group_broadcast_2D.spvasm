@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -o %t
 ; RUN: opt -S --passes=always-inline %t -o - | FileCheck -- %s
 
@@ -24,27 +25,29 @@
 
                     OpMemoryModel Physical64 OpenCL
 
-
-        %uint_ty  = OpTypeInt 32 0
-       %uint2_ty  = OpTypeVector %uint_ty 2
-          %fcn_ty = OpTypeFunction %uint_ty %uint_ty %uint2_ty
-%work_group_scope = OpConstant %uint_ty 2
+                    OpEntryPoint Kernel %broadcast_fcn "broadcast"
 
                     OpName %broadcast_val "val"
                     OpName %broadcast_fcn "broadcast"
                     OpName %xy "xy"
 
-; CHECK: define private spir_func i32 @broadcast(i32 [[VAL:%.*]], <2 x i32> [[XY:%.*]])
+         %void_ty = OpTypeVoid
+        %uint_ty  = OpTypeInt 32 0
+       %uint2_ty  = OpTypeVector %uint_ty 2
+          %fcn_ty = OpTypeFunction %void_ty %uint_ty %uint2_ty
+%work_group_scope = OpConstant %uint_ty 2
+
+; CHECK: define spir_kernel void @broadcast(i32 [[VAL:%.*]], <2 x i32> [[XY:%.*]])
 ; CHECK:  [[X:%.*]] = extractelement <2 x i32> [[XY]], i64 0
 ; CHECK:  [[Y:%.*]] = extractelement <2 x i32> [[XY]], i64 1
 ; CHECK:  [[Xi64:%.*]] = zext i32 [[X]] to i64
 ; CHECK:  [[Yi64:%.*]] = zext i32 [[Y]] to i64
 ; CHECK: [[RES:%.*]] = call spir_func i32 @_Z20work_group_broadcastjmm(i32 [[VAL]], i64 [[Xi64]], i64 [[Yi64]])
-; CHECK: ret i32 [[RES]]
-%broadcast_fcn = OpFunction %uint_ty None %fcn_ty
+; CHECK: ret void
+%broadcast_fcn = OpFunction %void_ty None %fcn_ty
 %broadcast_val = OpFunctionParameter %uint_ty
            %xy = OpFunctionParameter %uint2_ty
  %broadcast_bb = OpLabel
 %broadcast_res = OpGroupBroadcast %uint_ty %work_group_scope %broadcast_val %xy
-                 OpReturnValue %broadcast_res
+                 OpReturn
                  OpFunctionEnd

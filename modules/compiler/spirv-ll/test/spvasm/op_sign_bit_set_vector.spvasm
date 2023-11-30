@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -c Kernel -c Float64 -b 64 %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Kernel
@@ -41,6 +42,6 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: define spir_kernel void @signbitset()
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = call spir_func <2 x i64> @_Z7signbitDv2_d(<2 x double> <double 0x7FF0000000000000, double 0x7FF0000000000000>)
-; CHECK: {{%[a-zA-Z0-9_]+}} = trunc <2 x i64> [[RES]] to <2 x i1>
+; CHECK: [[RES:%.*]] = call spir_func <2 x i64> @_Z7signbitDv2_d(<2 x double> <double 0x7FF0000000000000, double 0x7FF0000000000000>)
+; CHECK: = trunc <2 x i64> [[RES]] to <2 x i1>
 ; CHECK: declare spir_func <2 x i64> @_Z7signbitDv2_d(<2 x double>)

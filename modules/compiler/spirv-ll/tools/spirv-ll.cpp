@@ -35,7 +35,7 @@ int outputSpecConstants(spirv_ll::Context &spvContext,
                         llvm::ArrayRef<uint32_t> spvCode,
                         llvm::raw_os_ostream &out);
 
-cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
+llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
     cargo::string_view api, cargo::array_view<cargo::string_view> capabilities,
     cargo::array_view<cargo::string_view> extensions, cargo::string_view bits,
     bool enableAll);
@@ -197,8 +197,8 @@ optional arguments:
 
   auto spvDeviceInfo =
       getDeviceInfo(api, capabilities, extensions, addressBits, enableAll);
-  if (!spvDeviceInfo) {
-    std::cerr << spvDeviceInfo.error() << "\n";
+  if (auto err = spvDeviceInfo.takeError()) {
+    std::cerr << llvm::toString(std::move(err)) << "\n";
     return 1;
   }
 
@@ -267,7 +267,7 @@ int outputSpecConstants(spirv_ll::Context &spvContext,
   return 0;
 }
 
-cargo::expected<spirv_ll::DeviceInfo, std::string> getDeviceInfo(
+llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
     cargo::string_view api, cargo::array_view<cargo::string_view> capabilities,
     cargo::array_view<cargo::string_view> extensions, cargo::string_view bits,
     bool enableAll) {

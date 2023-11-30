@@ -20,7 +20,6 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 #include <spirv-ll/assert.h>
-#include <spirv/unified1/GLSL.std.450.h>
 #include <spirv/unified1/spirv.hpp>
 
 #include <cstdint>
@@ -468,6 +467,19 @@ class OpExtInst : public OpResult {
   spv::Id Set() const;
   uint32_t Instruction() const;
   llvm::SmallVector<spv::Id, 8> Operands() const;
+
+  /// @brief Return the instruction's operand count.
+  uint16_t opExtInstOperandCount() const;
+
+  /// @brief Return the operand at a specified index.
+  ///
+  /// @param idx The operand index.
+  ///
+  /// @return Operand value.
+  uint32_t getOpExtInstOperand(unsigned idx) const;
+
+  static const unsigned OpExtInstBaseOperandOffset = 5;
+
   static const spv::Op ClassCode = spv::OpExtInst;
 };
 
@@ -3145,325 +3157,325 @@ template <>
 class ExtInst<DEGREES> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id degrees() const { return getValueAtOffset(5); }
+  spv::Id degrees() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<INTERPOLANT> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id interpolant() const { return getValueAtOffset(5); }
+  spv::Id interpolant() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<NANCODE> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id nanCode() const { return getValueAtOffset(5); }
+  spv::Id nanCode() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<P> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id p() const { return getValueAtOffset(5); }
+  spv::Id p() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<RADIANS> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id radians() const { return getValueAtOffset(5); }
+  spv::Id radians() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<V> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id v() const { return getValueAtOffset(5); }
+  spv::Id v() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<VALUE> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id value() const { return getValueAtOffset(5); }
+  spv::Id value() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<Y_OVER_X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id yOverX() const { return getValueAtOffset(5); }
+  spv::Id yOverX() const { return getOpExtInstOperand(0); }
 };
 
 template <>
 class ExtInst<EDGE, X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id edge() const { return getValueAtOffset(5); }
-  spv::Id x() const { return getValueAtOffset(6); }
+  spv::Id edge() const { return getOpExtInstOperand(0); }
+  spv::Id x() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<HI, LO> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id hi() const { return getValueAtOffset(5); }
-  spv::Id lo() const { return getValueAtOffset(6); }
+  spv::Id hi() const { return getOpExtInstOperand(0); }
+  spv::Id lo() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<I, N> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id i() const { return getValueAtOffset(5); }
-  spv::Id n() const { return getValueAtOffset(6); }
+  spv::Id i() const { return getOpExtInstOperand(0); }
+  spv::Id n() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<INTERPOLANT, OFFSET> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id interpolant() const { return getValueAtOffset(5); }
-  spv::Id offset() const { return getValueAtOffset(6); }
+  spv::Id interpolant() const { return getOpExtInstOperand(0); }
+  spv::Id offset() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<INTERPOLANT, SAMPLER> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id interpolant() const { return getValueAtOffset(5); }
-  spv::Id sampler() const { return getValueAtOffset(6); }
+  spv::Id interpolant() const { return getOpExtInstOperand(0); }
+  spv::Id sampler() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<OFFSET, P> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id offset() const { return getValueAtOffset(5); }
-  spv::Id p() const { return getValueAtOffset(6); }
+  spv::Id offset() const { return getOpExtInstOperand(0); }
+  spv::Id p() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<P0, P1> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id p0() const { return getValueAtOffset(5); }
-  spv::Id p1() const { return getValueAtOffset(6); }
+  spv::Id p0() const { return getOpExtInstOperand(0); }
+  spv::Id p1() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<PTR, NUM_ELEMENTS> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id ptr() const { return getValueAtOffset(5); }
-  spv::Id numElements() const { return getValueAtOffset(6); }
+  spv::Id ptr() const { return getOpExtInstOperand(0); }
+  spv::Id numElements() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<V, I> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id v() const { return getValueAtOffset(5); }
-  spv::Id i() const { return getValueAtOffset(6); }
+  spv::Id v() const { return getOpExtInstOperand(0); }
+  spv::Id i() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, COSVAL> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id cosVal() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id cosVal() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, EXP> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id exp() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id exp() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, I> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id i() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id i() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, IPTR> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id iPtr() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id iPtr() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, K> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id k() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id k() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, PTR> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id ptr() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id ptr() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, SHUFFLEMASK> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id shuffleMask() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id shuffleMask() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, SIGNP> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id signp() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id signp() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<X, Y> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<Y, X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id y() const { return getValueAtOffset(5); }
-  spv::Id x() const { return getValueAtOffset(6); }
+  spv::Id y() const { return getOpExtInstOperand(0); }
+  spv::Id x() const { return getOpExtInstOperand(1); }
 };
 
 template <>
 class ExtInst<A, B, C> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id a() const { return getValueAtOffset(5); }
-  spv::Id b() const { return getValueAtOffset(6); }
-  spv::Id c() const { return getValueAtOffset(7); }
+  spv::Id a() const { return getOpExtInstOperand(0); }
+  spv::Id b() const { return getOpExtInstOperand(1); }
+  spv::Id c() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<DATA, OFFSET, P> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id data() const { return getValueAtOffset(5); }
-  spv::Id offset() const { return getValueAtOffset(6); }
-  spv::Id p() const { return getValueAtOffset(7); }
+  spv::Id data() const { return getOpExtInstOperand(0); }
+  spv::Id offset() const { return getOpExtInstOperand(1); }
+  spv::Id p() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<EDGE0, EDGE1, X> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id edge0() const { return getValueAtOffset(5); }
-  spv::Id edge1() const { return getValueAtOffset(6); }
-  spv::Id x() const { return getValueAtOffset(7); }
+  spv::Id edge0() const { return getOpExtInstOperand(0); }
+  spv::Id edge1() const { return getOpExtInstOperand(1); }
+  spv::Id x() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<I, N, ETA> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id i() const { return getValueAtOffset(5); }
-  spv::Id n() const { return getValueAtOffset(6); }
-  spv::Id eta() const { return getValueAtOffset(7); }
+  spv::Id i() const { return getOpExtInstOperand(0); }
+  spv::Id n() const { return getOpExtInstOperand(1); }
+  spv::Id eta() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<N, I, NREF> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id n() const { return getValueAtOffset(5); }
-  spv::Id i() const { return getValueAtOffset(6); }
-  spv::Id nRef() const { return getValueAtOffset(7); }
+  spv::Id n() const { return getOpExtInstOperand(0); }
+  spv::Id i() const { return getOpExtInstOperand(1); }
+  spv::Id nRef() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<OFFSET, P, N> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id offset() const { return getValueAtOffset(5); }
-  spv::Id p() const { return getValueAtOffset(6); }
-  spv::Id n() const { return getValueAtOffset(7); }
+  spv::Id offset() const { return getOpExtInstOperand(0); }
+  spv::Id p() const { return getOpExtInstOperand(1); }
+  spv::Id n() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, MINVAL, MAXVAL> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id minVal() const { return getValueAtOffset(6); }
-  spv::Id maxVal() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id minVal() const { return getOpExtInstOperand(1); }
+  spv::Id maxVal() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, A> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id a() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id a() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, QUO> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id quo() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id quo() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, SHUFFLEMASK> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id shuffleMask() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id shuffleMask() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<X, Y, Z> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id x() const { return getValueAtOffset(5); }
-  spv::Id y() const { return getValueAtOffset(6); }
-  spv::Id z() const { return getValueAtOffset(7); }
+  spv::Id x() const { return getOpExtInstOperand(0); }
+  spv::Id y() const { return getOpExtInstOperand(1); }
+  spv::Id z() const { return getOpExtInstOperand(2); }
 };
 
 template <>
 class ExtInst<DATA, OFFSET, P, MODE> : public OpExtInst {
  public:
   ExtInst(OpCode const &other) : OpExtInst(other) {}
-  spv::Id data() const { return getValueAtOffset(5); }
-  spv::Id offset() const { return getValueAtOffset(6); }
-  spv::Id p() const { return getValueAtOffset(7); }
+  spv::Id data() const { return getOpExtInstOperand(0); }
+  spv::Id offset() const { return getOpExtInstOperand(1); }
+  spv::Id p() const { return getOpExtInstOperand(2); }
   spv::FPRoundingMode mode() const {
-    return static_cast<spv::FPRoundingMode>(getValueAtOffset(8));
+    return static_cast<spv::FPRoundingMode>(getOpExtInstOperand(3));
   }
 };
 class OpAssumeTrueKHR : public OpCode {
@@ -3479,261 +3491,6 @@ class OpExpectKHR : public OpResult {
   spv::Id ExpectedValue() const;
   static const spv::Op ClassCode = spv::OpExpectKHR;
 };
-
-namespace OpenCLstd {
-using Acos = ExtInst<X>;
-using Acosh = ExtInst<X>;
-using Acospi = ExtInst<X>;
-using Asin = ExtInst<X>;
-using Asinh = ExtInst<X>;
-using Asinpi = ExtInst<X>;
-using Atan = ExtInst<X>;
-using Atan2 = ExtInst<Y, X>;
-using Atanh = ExtInst<X>;
-using Atanpi = ExtInst<X>;
-using Atan2pi = ExtInst<Y, X>;
-using Cbrt = ExtInst<X>;
-using Ceil = ExtInst<X>;
-using Copysign = ExtInst<X, Y>;
-using Cos = ExtInst<X>;
-using Cosh = ExtInst<X>;
-using Cospi = ExtInst<X>;
-using Erfc = ExtInst<X>;
-using Erf = ExtInst<X>;
-using Exp = ExtInst<X>;
-using Exp2 = ExtInst<X>;
-using Exp10 = ExtInst<X>;
-using Expm1 = ExtInst<X>;
-using Fabs = ExtInst<X>;
-using Fdim = ExtInst<X, Y>;
-using Floor = ExtInst<X>;
-using Fma = ExtInst<A, B, C>;
-using Fmax = ExtInst<X, Y>;
-using Fmin = ExtInst<X, Y>;
-using Fmod = ExtInst<X, Y>;
-using Fract = ExtInst<X, PTR>;
-using Frexp = ExtInst<X, EXP>;
-using Hypot = ExtInst<X, Y>;
-using Ilogb = ExtInst<X>;
-using Ldexp = ExtInst<X, K>;
-using Lgamma = ExtInst<X>;
-using Lgamma_r = ExtInst<X, SIGNP>;
-using Log = ExtInst<X>;
-using Log2 = ExtInst<X>;
-using Log10 = ExtInst<X>;
-using Log1p = ExtInst<X>;
-using Logb = ExtInst<X>;
-using Mad = ExtInst<A, B, C>;
-using Maxmag = ExtInst<X, Y>;
-using Minmag = ExtInst<X, Y>;
-using Modf = ExtInst<X, IPTR>;
-using Nan = ExtInst<NANCODE>;
-using Nextafter = ExtInst<X, Y>;
-using Pow = ExtInst<X, Y>;
-using Pown = ExtInst<X, Y>;
-using Powr = ExtInst<X, Y>;
-using Remainder = ExtInst<X, Y>;
-using Remquo = ExtInst<X, Y, QUO>;
-using Rint = ExtInst<X>;
-using Rootn = ExtInst<X, Y>;
-using Round = ExtInst<X>;
-using Rsqrt = ExtInst<X>;
-using Sin = ExtInst<X>;
-using Sincos = ExtInst<X, COSVAL>;
-using Sinh = ExtInst<X>;
-using Sinpi = ExtInst<X>;
-using Sqrt = ExtInst<X>;
-using Tan = ExtInst<X>;
-using Tanh = ExtInst<X>;
-using Tanpi = ExtInst<X>;
-using Tgamma = ExtInst<X>;
-using Trunc = ExtInst<X>;
-using Half_cos = ExtInst<X>;
-using Half_divide = ExtInst<X, Y>;
-using Half_exp = ExtInst<X>;
-using Half_exp2 = ExtInst<X>;
-using Half_exp10 = ExtInst<X>;
-using Half_log = ExtInst<X>;
-using Half_log2 = ExtInst<X>;
-using Half_log10 = ExtInst<X>;
-using Half_powr = ExtInst<X, Y>;
-using Half_recip = ExtInst<X>;
-using Half_rsqrt = ExtInst<X>;
-using Half_sin = ExtInst<X>;
-using Half_sqrt = ExtInst<X>;
-using Half_tan = ExtInst<X>;
-using Native_cos = ExtInst<X>;
-using Native_divide = ExtInst<X, Y>;
-using Native_exp = ExtInst<X>;
-using Native_exp2 = ExtInst<X>;
-using Native_exp10 = ExtInst<X>;
-using Native_log = ExtInst<X>;
-using Native_log2 = ExtInst<X>;
-using Native_log10 = ExtInst<X>;
-using Native_powr = ExtInst<X, Y>;
-using Native_recip = ExtInst<X>;
-using Native_rsqrt = ExtInst<X>;
-using Native_sin = ExtInst<X>;
-using Native_sqrt = ExtInst<X>;
-using Native_tan = ExtInst<X>;
-using S_abs = ExtInst<X>;
-using S_abs_diff = ExtInst<X, Y>;
-using S_add_sat = ExtInst<X, Y>;
-using U_add_sat = ExtInst<X, Y>;
-using S_hadd = ExtInst<X, Y>;
-using U_hadd = ExtInst<X, Y>;
-using S_rhadd = ExtInst<X, Y>;
-using U_rhadd = ExtInst<X, Y>;
-using S_clamp = ExtInst<X, MINVAL, MAXVAL>;
-using U_clamp = ExtInst<X, MINVAL, MAXVAL>;
-using Clz = ExtInst<X>;
-using Ctz = ExtInst<X>;
-using S_mad_hi = ExtInst<A, B, C>;
-using U_mad_sat = ExtInst<X, Y, Z>;
-using S_mad_sat = ExtInst<X, Y, Z>;
-using S_max = ExtInst<X, Y>;
-using U_max = ExtInst<X, Y>;
-using S_min = ExtInst<X, Y>;
-using U_min = ExtInst<X, Y>;
-using S_mul_hi = ExtInst<X, Y>;
-using Rotate = ExtInst<V, I>;
-using S_sub_sat = ExtInst<X, Y>;
-using U_sub_sat = ExtInst<X, Y>;
-using U_upsample = ExtInst<HI, LO>;
-using S_upsample = ExtInst<HI, LO>;
-using Popcount = ExtInst<X>;
-using S_mad24 = ExtInst<X, Y, Z>;
-using U_mad24 = ExtInst<X, Y, Z>;
-using S_mul24 = ExtInst<X, Y>;
-using U_mul24 = ExtInst<X, Y>;
-using U_abs = ExtInst<X>;
-using U_abs_diff = ExtInst<X, Y>;
-using U_mul_hi = ExtInst<X, Y>;
-using U_mad_hi = ExtInst<A, B, C>;
-using Fclamp = ExtInst<X, MINVAL, MAXVAL>;
-using Degrees = ExtInst<RADIANS>;
-using Fmax_common = ExtInst<X, Y>;
-using Fmin_common = ExtInst<X, Y>;
-using Mix = ExtInst<X, Y, A>;
-using Radians = ExtInst<DEGREES>;
-using Step = ExtInst<EDGE, X>;
-using Smoothstep = ExtInst<EDGE0, EDGE1, X>;
-using Sign = ExtInst<X>;
-using Cross = ExtInst<P0, P1>;
-using Distance = ExtInst<P0, P1>;
-using Length = ExtInst<P>;
-using Normalize = ExtInst<P>;
-using Fast_distance = ExtInst<P0, P1>;
-using Fast_length = ExtInst<P>;
-using Fast_normalize = ExtInst<P>;
-using Bitselect = ExtInst<A, B, C>;
-using Select = ExtInst<A, B, C>;
-using Vloadn = ExtInst<OFFSET, P, N>;
-using Vstoren = ExtInst<DATA, OFFSET, P>;
-using Vload_half = ExtInst<OFFSET, P>;
-using Vload_halfn = ExtInst<OFFSET, P, N>;
-using Vstore_half = ExtInst<DATA, OFFSET, P>;
-using Vstore_half_r = ExtInst<DATA, OFFSET, P, MODE>;
-using Vstore_halfn = ExtInst<DATA, OFFSET, P>;
-using Vstore_halfn_r = ExtInst<DATA, OFFSET, P, MODE>;
-using Vloada_halfn = ExtInst<OFFSET, P, N>;
-using Vstorea_halfn = ExtInst<DATA, OFFSET, P>;
-using Vstorea_halfn_r = ExtInst<DATA, OFFSET, P, MODE>;
-using Shuffle = ExtInst<X, SHUFFLEMASK>;
-using Shuffle2 = ExtInst<X, Y, SHUFFLEMASK>;
-using Prefetch = ExtInst<PTR, NUM_ELEMENTS>;
-
-class Printf : public OpExtInst {
- public:
-  Printf(OpCode const &other) : OpExtInst(other) {}
-  spv::Id format() const;
-  llvm::SmallVector<spv::Id, 8> AdditionalArguments() const;
-};
-}  // namespace OpenCLstd
-
-namespace GLSLstd450 {
-using Round = ExtInst<X>;
-using RoundEven = ExtInst<X>;
-using Trunc = ExtInst<X>;
-using FAbs = ExtInst<X>;
-using SAbs = ExtInst<X>;
-using FSign = ExtInst<X>;
-using SSign = ExtInst<X>;
-using Floor = ExtInst<X>;
-using Ceil = ExtInst<X>;
-using Fract = ExtInst<X>;
-using Radians = ExtInst<DEGREES>;
-using Degrees = ExtInst<RADIANS>;
-using Sin = ExtInst<X>;
-using Cos = ExtInst<X>;
-using Tan = ExtInst<X>;
-using Asin = ExtInst<X>;
-using Acos = ExtInst<X>;
-using Atan = ExtInst<Y_OVER_X>;
-using Sinh = ExtInst<X>;
-using Cosh = ExtInst<X>;
-using Tanh = ExtInst<X>;
-using Asinh = ExtInst<X>;
-using Acosh = ExtInst<X>;
-using Atanh = ExtInst<X>;
-using Atan2 = ExtInst<Y, X>;
-using Pow = ExtInst<X, Y>;
-using Exp = ExtInst<X>;
-using Log = ExtInst<X>;
-using Exp2 = ExtInst<X>;
-using Log2 = ExtInst<X>;
-using Sqrt = ExtInst<X>;
-using InverseSqrt = ExtInst<X>;
-using Determinant = ExtInst<X>;
-using MatrixInverse = ExtInst<X>;
-using Modf = ExtInst<X, I>;
-using ModfStruct = ExtInst<X>;
-using FMin = ExtInst<X, Y>;
-using UMin = ExtInst<X, Y>;
-using SMin = ExtInst<X, Y>;
-using FMax = ExtInst<X, Y>;
-using UMax = ExtInst<X, Y>;
-using SMax = ExtInst<X, Y>;
-using FClamp = ExtInst<X, MINVAL, MAXVAL>;
-using UClamp = ExtInst<X, MINVAL, MAXVAL>;
-using SClamp = ExtInst<X, MINVAL, MAXVAL>;
-using FMix = ExtInst<X, Y, A>;
-using IMix = ExtInst<X, Y, A>;
-using Step = ExtInst<EDGE, X>;
-using SmoothStep = ExtInst<EDGE0, EDGE1, X>;
-using Fma = ExtInst<A, B, C>;
-using Frexp = ExtInst<X, EXP>;
-using FrexpStruct = ExtInst<X>;
-using Ldexp = ExtInst<X, EXP>;
-using PackSnorm4x8 = ExtInst<V>;
-using PackUnorm4x8 = ExtInst<V>;
-using PackSnorm2x16 = ExtInst<V>;
-using PackUnorm2x16 = ExtInst<V>;
-using PackHalf2x16 = ExtInst<V>;
-using PackDouble2x32 = ExtInst<V>;
-using UnpackSnorm2x16 = ExtInst<P>;
-using UnpackUnorm2x16 = ExtInst<P>;
-using UnpackHalf2x16 = ExtInst<V>;
-using UnpackSnorm4x8 = ExtInst<P>;
-using UnpackUnorm4x8 = ExtInst<P>;
-using UnpackDouble2x32 = ExtInst<V>;
-using Length = ExtInst<X>;
-using Distance = ExtInst<P0, P1>;
-using Cross = ExtInst<X, Y>;
-using Normalize = ExtInst<X>;
-using FaceForward = ExtInst<N, I, NREF>;
-using Reflect = ExtInst<I, N>;
-using Refract = ExtInst<I, N, ETA>;
-using FindILsb = ExtInst<VALUE>;
-using FindSMsb = ExtInst<VALUE>;
-using FindUMsb = ExtInst<VALUE>;
-using InterpolateAtCentroid = ExtInst<INTERPOLANT>;
-using InterpolateAtSample = ExtInst<INTERPOLANT, SAMPLER>;
-using InterpolateAtOffset = ExtInst<INTERPOLANT, OFFSET>;
-using NMin = ExtInst<X, Y>;
-using NMax = ExtInst<X, Y>;
-using NClamp = ExtInst<X, MINVAL, MAXVAL>;
-};  // namespace GLSLstd450
 
 std::string getCapabilityName(spv::Capability cap);
 

@@ -36,21 +36,21 @@
 ///
 /// @param CONDITION Expression to evaluate and ensure is true.
 /// @param MESSAGE A human readable message describing the failure.
-#define IMG_ASSERT(CONDITION, MESSAGE)                                 \
-  if (!(CONDITION)) {                                                  \
-    fprintf(stderr, "%s: %d: libimg assert: %s\n", __FILE__, __LINE__, \
-            MESSAGE);                                                  \
-    abort();                                                           \
+#define IMG_ASSERT(CONDITION, MESSAGE)                                       \
+  if (!(CONDITION)) {                                                        \
+    (void)fprintf(stderr, "%s: %d: libimg assert: %s\n", __FILE__, __LINE__, \
+                  MESSAGE);                                                  \
+    abort();                                                                 \
   }
 
 /// @brief Abort due to a situation that should never happen. Disabled by NDEBUG
 ///
 /// @param MESSAGE A human readable message describing the failure.
-#define IMG_UNREACHABLE(MESSAGE)                                            \
-  {                                                                         \
-    fprintf(stderr, "%s: %d: libimg unreachable: %s\n", __FILE__, __LINE__, \
-            MESSAGE);                                                       \
-    abort();                                                                \
+#define IMG_UNREACHABLE(MESSAGE)                                        \
+  {                                                                     \
+    (void)fprintf(stderr, "%s: %d: libimg unreachable: %s\n", __FILE__, \
+                  __LINE__, MESSAGE);                                   \
+    abort();                                                            \
   }
 #else
 #define IMG_ASSERT(CONDITION, MESSAGE)
