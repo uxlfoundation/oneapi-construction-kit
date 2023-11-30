@@ -27,6 +27,7 @@
 #include <llvm/IR/ValueMap.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
+#include <multi_llvm/llvm_version.h>
 
 #include <cassert>
 
@@ -274,7 +275,11 @@ Function *cloneFunctionUpdatingTypes(Function &func,
 
   // Take attributes of old function
   newFunc->takeName(&func);
+#if LLVM_VERSION_GREATER_EQUAL(18, 0)
+  newFunc->updateAfterNameChange();
+#else
   newFunc->recalculateIntrinsicID();
+#endif
   newFunc->setCallingConv(func.getCallingConv());
 
   assert(func.isIntrinsic() == newFunc->isIntrinsic() &&
