@@ -34,7 +34,7 @@ jobs:
 
       - name: Install Python libraries and system dependencies
         run: |
-          pip install requests numpy h5py Pillow
+          pip install --user requests numpy h5py Pillow
           sudo add-apt-repository universe
           sudo apt-get update
           sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
@@ -47,7 +47,6 @@ jobs:
           wget "https://github.com/intel/llvm/releases/download/nightly-2023-11-22/sycl_linux.tar.gz"
           mkdir linux_nightly_release
           tar -xzf sycl_linux.tar.gz -C linux_nightly_release
-          ls
 
       - name: Build portBLAS
         uses: ./.github/actions/build_portBLAS_action
@@ -56,5 +55,38 @@ jobs:
 
       - name: Build portDNN
         uses: ./.github/actions/build_portDNN_action
+        with:
+          workspace: ${{ github.workspace }}
+
+      - name: Package Tartan Artifacts
+        run: |
+          ls
+          tar -cvzf new_tartan.tar.gz build portDNN_build_dir portBLAS_build_dir
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: tartan-build
+          path: new_tartan.tar.gz
+
+  build_and_run_networks:
+    runs-on: ubuntu-22.04
+    needs: run_riscv_m1_tartan
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: tartan-build
+
+      - name: Untar artifacts
+        run: |
+          tar -xvzf new_tartan.tar.gz
+          ls
+
+      - name: Build vgg and resnet
+        uses: ./.github/actions/build_vgg_resnet_action
         with:
           workspace: ${{ github.workspace }}
