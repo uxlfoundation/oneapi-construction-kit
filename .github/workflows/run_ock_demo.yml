@@ -80,7 +80,11 @@ jobs:
           cd build_riscv_tests
           ctest bin/ --verbose
           cd ..
-
+      
+      - name: Build sycl_nbody
+        uses: ./.github/actions/build_sycl_nbody_action
+        with:
+          workspace: ${{ github.workspace }}
       - name: Build portBLAS
         uses: ./.github/actions/build_portBLAS_action
         with:

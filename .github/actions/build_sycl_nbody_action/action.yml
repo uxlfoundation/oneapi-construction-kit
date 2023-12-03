@@ -1,0 +1,40 @@
+name: build-sycl_nbody
+description: Action to clone and build sycl_nbody using oneAPI
+
+inputs:
+  workspace:
+    description: 'Main workflow workspace'
+    default: ${{ github.workspace }}
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: Clone sycl_nbody
+      shell: bash
+      run: git clone --recursive https://github.com/codeplaysoftware/cuda-to-sycl-nbody.git
+
+    - name: Download Syclomatic release
+      shell: bash
+      run: |
+          wget "https://github.com/oneapi-src/SYCLomatic/releases/download/20240102/linux_release.tgz"
+          mkdir syclomatic_nightly_release
+          tar -xzf linux_release.tgz -C syclomatic_nightly_release
+          ls syclomatic_nightly_release
+
+    - name: Set up Environment and build 
+      shell: bash
+      run: |
+        export LD_LIBRARY_PATH=${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
+        export CMAKE_CXX_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        export PATH=${{ inputs.workspace }}/linux_nightly_release/bin/clang++:$(pwd)/syclomatic_nightly_release:$PATH
+        export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
+        export OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so
+        export CXX=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        export OCL_ICD_VENDORS=/dev/null
+        export dpct_INCLUDE_DIR=$(pwd)/syclomatic_nightly_release/include
+        export dpct_LOCATION=$(pwd)/syclomatic_nightly_release
+
+        cd cuda-to-sycl-nbody
+        CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ sh scripts/build_dpcpp.sh -nocudalib -DBACKEND=DPCPP -DDPCPP_CUDA_SUPPORT=off
+        CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ./nbody_dpcpp 1
