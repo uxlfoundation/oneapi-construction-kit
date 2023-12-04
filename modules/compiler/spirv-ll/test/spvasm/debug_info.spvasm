@@ -28,8 +28,10 @@
                OpSource GLSL 450
        %file = OpString "modules/spirv-ll-tool/test/spvasm/debug_info.comp"
                OpName %main "main"
+               OpName %testfn2 "testfn2"
                OpName %a "a"
                OpName %b "b"
+               OpName %c "c"
                OpName %file "file"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
@@ -81,7 +83,26 @@
 ; CHECK: ret void
                OpFunctionEnd
 ; CHECK: }
-;
+
+    %testfn2 = OpFunction %void None %3
+; CHECK: define private spir_func void @testfn2(){{.*}} !dbg [[testfn2Subprogram:![0-9]+]]
+               OpLine %file 5 2
+         %19 = OpLabel
+               OpLine %file 6 3
+          %c = OpVariable %_ptr_Function_bool Function
+; CHECK: %c = alloca i1{{(, align [0-9])?}}, !dbg [[cLocation:![0-9]+]]
+               OpBranch %20
+         %20 = OpLabel
+         %21 = OpLoad %bool %c
+; Check we're not mistakenly adding debug locations to the instructions in this
+; block; the range should have ended at the last block terminator instruction
+; (the OpBranch)
+; CHECK: = load i1, ptr %c{{(, align [0-9])?$}}
+               OpReturn
+; CHECK: ret void{{$}}
+               OpFunctionEnd
+; CHECK: }
+
 ; CHECK: !llvm.dbg.cu = !{[[CompileUnit:![0-9]+]]}
 ; CHECK: !llvm.ident = !{!{{[0-9]+}}}
 ;
@@ -103,3 +124,9 @@
 ; CHECK: [[ifTrueBlockLocation]] = !DILocation(line: 8, column: 3, scope: [[ifLexicalBlock:![0-9]+]])
 ; CHECK: [[ifLexicalBlock]] = distinct !DILexicalBlock(scope: [[mainSubprogram]], file: !{{[0-9]+}}, line: 8, column: 3)
 ; CHECK: [[ifJoinLocation]] = !DILocation(line: 9, column: 5, scope: [[ifLexicalBlock]])
+
+; CHECK: [[testfn2Subprogram]] = distinct !DISubprogram(name: "testfn2", linkageName: "testfn2",
+; CHECK-SAME: scope: null, file: [[File]],
+; CHECK-SAME: line: 5, type: [[mainSubroutineType]],
+; CHECK-SAME: scopeLine: 1, spFlags: DISPFlagDefinition,
+; CHECK-SAME: unit: {{![0-9]+}}{{(, retainedNodes: ![0-9]+)?}})

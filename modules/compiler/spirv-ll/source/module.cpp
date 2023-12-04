@@ -65,7 +65,6 @@ spirv_ll::Module::Module(
       sourceMetadataString(),
       CompileUnit(nullptr),
       File(nullptr),
-      CurrentOpLineRange(std::nullopt),
       LoopControl(),
       specInfo(specInfo),
       PushConstantStructVariable(nullptr),
@@ -90,7 +89,6 @@ spirv_ll::Module::Module(spirv_ll::Context &context,
       sourceMetadataString(),
       CompileUnit(nullptr),
       File(nullptr),
-      CurrentOpLineRange(std::nullopt),
       LoopControl(),
       specInfo(),
       PushConstantStructVariable(nullptr),
@@ -221,28 +219,6 @@ std::optional<std::string> spirv_ll::Module::getDebugString(spv::Id id) const {
     return iter->getSecond();
   }
   return std::nullopt;
-}
-
-void spirv_ll::Module::setCurrentOpLineRange(
-    const LineRangeBeginTy &range_begin) {
-  CurrentOpLineRange = range_begin;
-}
-
-void spirv_ll::Module::closeCurrentOpLineRange() { CurrentOpLineRange.reset(); }
-
-void spirv_ll::Module::addCompleteOpLineRange(
-    llvm::DILocation *location,
-    std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range) {
-  OpLineRanges[location].push_back(range);
-}
-
-spirv_ll::Module::OpLineRangeMap &spirv_ll::Module::getOpLineRanges() {
-  return OpLineRanges;
-}
-
-std::optional<spirv_ll::Module::LineRangeBeginTy>
-spirv_ll::Module::getCurrentOpLineRange() const {
-  return CurrentOpLineRange;
 }
 
 void spirv_ll::Module::addLexicalBlock(llvm::BasicBlock *b_block,

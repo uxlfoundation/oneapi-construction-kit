@@ -36,7 +36,8 @@ spirv_ll::Builder::Builder(spirv_ll::Context &context, spirv_ll::Module &module,
       deviceInfo(deviceInfo),
       IRBuilder(*context.llvmContext),
       DIBuilder(*module.llvmModule),
-      CurrentFunction(nullptr) {}
+      CurrentFunction(nullptr),
+      CurrentFunctionLexicalScope(std::nullopt) {}
 
 llvm::IRBuilder<> &spirv_ll::Builder::getIRBuilder() { return IRBuilder; }
 
@@ -155,25 +156,31 @@ llvm::Error spirv_ll::Builder::finishModuleProcessing() {
   return llvm::Error::success();
 }
 
+std::optional<spirv_ll::Builder::LexicalScopeTy>
+spirv_ll::Builder::getCurrentFunctionLexicalScope() const {
+  return CurrentFunctionLexicalScope;
+}
+
+void spirv_ll::Builder::setCurrentFunctionLexicalScope(
+    std::optional<LexicalScopeTy> scope) {
+  CurrentFunctionLexicalScope = scope;
+}
+
+std::optional<spirv_ll::Builder::LineRangeBeginTy>
+spirv_ll::Builder::getCurrentOpLineRange() const {
+  return CurrentOpLineRange;
+}
+
+void spirv_ll::Builder::setCurrentOpLineRange(
+    std::optional<LineRangeBeginTy> scope) {
+  CurrentOpLineRange = scope;
+}
+
 void spirv_ll::Builder::addDebugInfoToModule() {
   // If any debug info was added to the module we will have at least a
   // `DICompileUnit`
   if (module.getCompileUnit()) {
     DIBuilder.finalize();
-  }
-
-  for (auto &[loc, op_line_ranges] : module.getOpLineRanges()) {
-    llvm::DebugLoc location(loc);
-    for (auto [range_begin, range_end] : op_line_ranges) {
-      ++range_begin;
-      if (range_end != range_begin->getParent()->end()) {
-        ++range_end;
-      }
-
-      for (auto &inst : make_range(range_begin, range_end)) {
-        inst.setDebugLoc(location);
-      }
-    }
   }
 }
 
