@@ -285,20 +285,23 @@ void {{cookiecutter.target_name.capitalize()}}Module::initializePassMachineryFor
   llvm::Triple TT = llvm::Triple(target_machine->getTargetTriple());
   auto TLII = llvm::TargetLibraryInfoImpl(TT);
 
-  switch (CGO.getVecLib()) {
-    case clang::CodeGenOptions::Accelerate:
+  // getVecLib()'s return type changed in LLVM 18.
+  auto VecLib = CGO.getVecLib();
+  using VecLibT = decltype(VecLib);
+  switch (VecLib) {
+    case VecLibT::Accelerate:
       TLII.addVectorizableFunctionsFromVecLib(
           llvm::TargetLibraryInfoImpl::Accelerate, TT);
       break;
-    case clang::CodeGenOptions::SVML:
+    case VecLibT::SVML:
       TLII.addVectorizableFunctionsFromVecLib(llvm::TargetLibraryInfoImpl::SVML,
                                               TT);
       break;
-    case clang::CodeGenOptions::MASSV:
+    case VecLibT::MASSV:
       TLII.addVectorizableFunctionsFromVecLib(
           llvm::TargetLibraryInfoImpl::MASSV, TT);
       break;
-    case clang::CodeGenOptions::LIBMVEC:
+    case VecLibT::LIBMVEC:
       switch (TT.getArch()) {
         default:
           break;

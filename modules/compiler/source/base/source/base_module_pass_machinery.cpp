@@ -274,7 +274,9 @@ std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"Cold", CallingConv::Cold},
     {"GHC", CallingConv::GHC},
     {"HiPE", CallingConv::HiPE},
+#if LLVM_VERSION_LESS(18, 0)
     {"WebKit_JS", CallingConv::WebKit_JS},
+#endif
     {"AnyReg", CallingConv::AnyReg},
     {"PreserveMost", CallingConv::PreserveMost},
     {"PreserveAll", CallingConv::PreserveAll},

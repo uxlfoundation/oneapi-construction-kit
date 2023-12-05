@@ -84,7 +84,6 @@
 #include <llvm/Transforms/Scalar/SimplifyCFG.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/EntryExitInstrumenter.h>
-#include <llvm/Transforms/Vectorize.h>
 #include <llvm/Transforms/Vectorize/LoopVectorize.h>
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
@@ -2084,20 +2083,23 @@ void BaseModule::initializePassMachineryForFrontend(
   llvm::Triple TT = llvm::Triple(llvm_module->getTargetTriple());
   auto TLII = llvm::TargetLibraryInfoImpl(TT);
 
-  switch (CGO.getVecLib()) {
-    case clang::CodeGenOptions::Accelerate:
+  // getVecLib()'s return type changed in LLVM 18.
+  auto VecLib = CGO.getVecLib();
+  using VecLibT = decltype(VecLib);
+  switch (VecLib) {
+    case VecLibT::Accelerate:
       TLII.addVectorizableFunctionsFromVecLib(
           llvm::TargetLibraryInfoImpl::Accelerate, TT);
       break;
-    case clang::CodeGenOptions::SVML:
+    case VecLibT::SVML:
       TLII.addVectorizableFunctionsFromVecLib(llvm::TargetLibraryInfoImpl::SVML,
                                               TT);
       break;
-    case clang::CodeGenOptions::MASSV:
+    case VecLibT::MASSV:
       TLII.addVectorizableFunctionsFromVecLib(
           llvm::TargetLibraryInfoImpl::MASSV, TT);
       break;
-    case clang::CodeGenOptions::LIBMVEC:
+    case VecLibT::LIBMVEC:
       switch (TT.getArch()) {
         default:
           break;
