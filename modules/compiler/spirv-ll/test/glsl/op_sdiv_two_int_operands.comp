@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
@@ -27,13 +28,13 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca i32
-// CHECK: store i32 -42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store i32 -42, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = sdiv i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca i32
+// CHECK: = alloca i32
+// CHECK: = alloca i32
+// CHECK: store i32 -42, ptr {{[%@].*}}
+// CHECK: store i32 -42, ptr {{[%@].*}}
+// CHECK: = load i32, ptr {{[%@].*}}
+// CHECK: = load i32, ptr {{[%@].*}}
+// CHECK: = sdiv i32 {{[%@].*}}, {{[%@].*}}
+// CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

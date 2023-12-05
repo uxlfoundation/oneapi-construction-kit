@@ -43,9 +43,11 @@
 namespace spirv_ll {
 /// @brief Enum class used to represent an Extended Instruction Set.
 enum class ExtendedInstrSet {
-  GLSL450,           ///< The "GLSL.std.450" instruction set.
-  OpenCL,            ///< The "OpenCL.std" instruction set.
-  GroupAsyncCopies,  ///< The "Codeplay.GroupAsyncCopies" instruction set.
+  GLSL450,             ///< The "GLSL.std.450" instruction set.
+  OpenCL,              ///< The "OpenCL.std" instruction set.
+  GroupAsyncCopies,    ///< The "Codeplay.GroupAsyncCopies" instruction set.
+  DebugInfo,           ///< The "DebugInfo" instruction set.
+  OpenCLDebugInfo100,  ///< The "OpenCL.DebugInfo.100" instruction set.
 };
 
 /// @brief Interface to a binary SPIR-V module's header.
@@ -390,15 +392,26 @@ class Module : public ModuleHeader {
   ///
   /// @param[in] id The ID the string is associated with.
   ///
-  /// @return The string or an empty one if the ID isn't found.
-  std::string getDebugString(spv::Id id) const;
+  /// @return The string or std::nullopt if the ID isn't found.
+  std::optional<std::string> getDebugString(spv::Id id) const;
 
-  /// @brief Set basic block iterator at start of the current OpLine range.
+  /// @brief A type containing an LLVM debug location and the beginning of the
+  /// range it corresponds to.
+  struct LineRangeBeginTy {
+    const OpLine *op_line;
+    llvm::DILocation *loc;
+    llvm::BasicBlock::iterator range_begin = llvm::BasicBlock::iterator();
+  };
+
+  /// @brief Opens up a new OpLine range, setting it to the current one.
   ///
-  /// @param location DILocation containing the line/column info.
-  /// @param iter Basic block iterator at the start of the new range.
-  void setCurrentOpLineRange(llvm::DILocation *location,
-                             llvm::BasicBlock::iterator iter);
+  /// Does *not* close the current one. Call closeCurrentOpLineRange() first.
+  ///
+  /// @param range_begin LineRangeBeginTy information about the range to begin.
+  void setCurrentOpLineRange(const LineRangeBeginTy &range_begin);
+
+  /// @brief Closes (i.e., clears) the current OpLine range.
+  void closeCurrentOpLineRange();
 
   /// @brief Add a completed OpLine range to the module.
   ///
@@ -408,19 +421,23 @@ class Module : public ModuleHeader {
       llvm::DILocation *location,
       std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range);
 
+  /// @brief A list of basic block ranges (begin/end).
+  using OpLineRangeVec = std::vector<
+      std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator>>;
+
+  /// @brief A map from a debug location to the list of ranges it covers.
+  using OpLineRangeMap = llvm::MapVector<llvm::DILocation *, OpLineRangeVec>;
+
   /// @brief Get reference to complete OpLine range list.
   ///
   /// @return Reference to map of `DILocation`/iterator range pairs
-  llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                                llvm::BasicBlock::iterator>> &
-  getOpLineRanges();
+  OpLineRangeMap &getOpLineRanges();
 
   /// @brief Get `DILocation`/iterator pair for current OpLine range
   ///
   /// @return Pair containing `DILocation` and iterator range, location will be
   /// nullptr if there isn't an ongoing range
-  std::pair<llvm::DILocation *, llvm::BasicBlock::iterator>
-  getCurrentOpLineRange() const;
+  std::optional<LineRangeBeginTy> getCurrentOpLineRange() const;
 
   /// @brief Add a basic block and associated lexical block to the module.
   ///
@@ -438,18 +455,18 @@ class Module : public ModuleHeader {
 
   /// @brief Add a DISubprogram to the module, and associate it with an ID.
   ///
-  /// @param function Function to associate the `DISubprogram` with.
+  /// @param function_id Function to associate the `DISubprogram` with.
   /// @param function_scope `DISubprogram` to add to the module.
-  void addDebugFunctionScope(llvm::Function *function,
+  void addDebugFunctionScope(spv::Id function_id,
                              llvm::DISubprogram *function_scope);
 
   /// @brief Get the `DISubProgram` associated with a given function
   ///
-  /// @param function Pointer to the function to look up.
+  /// @param function_id ID of the function to look up.
   ///
   /// @return Pointer to the `DISubprogram` associated with the function, or
   /// nullptr if there isn't one
-  llvm::DISubprogram *getDebugFunctionScope(llvm::Function *function) const;
+  llvm::DISubprogram *getDebugFunctionScope(spv::Id function_id) const;
 
   /// @brief Store control mask metadata created by OpLoopMerge
   ///
@@ -663,14 +680,14 @@ class Module : public ModuleHeader {
   /// @param[in] argno the zero-indexed argument number
   /// @return SPIR-V SSA ID referring to the parameter type or nullopt on
   /// failure
-  cargo::optional<spv::Id> getParamTypeID(spv::Id func, unsigned argno) const;
+  std::optional<spv::Id> getParamTypeID(spv::Id func, unsigned argno) const;
 
   /// @brief Get the LLVM Type for the given SPIR-V ID.
   ///
   /// @param[in] id The SPIR-V ID to fetch the value for.
   ///
   /// @return A pointer to the Type or nullptr if not found.
-  llvm::Type *getType(spv::Id id) const;
+  llvm::Type *getLLVMType(spv::Id id) const;
 
   /// @brief Get the `OpType` from the result type of an `OpCode`.
   ///
@@ -742,10 +759,15 @@ class Module : public ModuleHeader {
   /// @param member_id ID of the member type that was defined.
   void updateIncompleteStruct(spv::Id member_id);
 
+  /// @brief Return the LLVM address space for the given storage class, or an
+  /// error if the storage class is unknown/unsupported.
+  llvm::Expected<unsigned> translateStorageClassToAddrSpace(
+      uint32_t storage_class) const;
+
   /// @brief Add a complete pointer.
   ///
   /// @param pointer_type OpCode object that describes the pointer type.
-  void addCompletePointer(const OpTypePointer *pointer_type);
+  llvm::Error addCompletePointer(const OpTypePointer *pointer_type);
 
   /// @brief Add an incomplete pointer and its missing type IDs to the module.
   ///
@@ -757,7 +779,7 @@ class Module : public ModuleHeader {
   /// @brief Update an incomplete pointer type with a newly defined type.
   ///
   /// @param type_id ID of the type that was defined.
-  void updateIncompletePointer(spv::Id type_id);
+  llvm::Error updateIncompletePointer(spv::Id type_id);
 
   /// @brief Add id, image and sampler to the module.
   ///
@@ -859,7 +881,7 @@ class Module : public ModuleHeader {
   ///
   /// @return A pointer to the Op or nullptr if not found.
   template <class Op = OpCode>
-  const Op *get(llvm::Type *ty) const {
+  const Op *getFromLLVMTy(llvm::Type *ty) const {
     assert(!ty->isPointerTy() && "can't get the type of a pointer");
     auto found = std::find_if(
         Types.begin(), Types.end(),
@@ -894,8 +916,8 @@ class Module : public ModuleHeader {
   /// @param id ID of the spec constant.
   ///
   /// @return Return the specialization ID of the spec constant if present,
-  /// `cargo::nullopt` otherwise.
-  cargo::optional<uint32_t> getSpecId(spv::Id id) const;
+  /// `std::nullopt` otherwise.
+  std::optional<uint32_t> getSpecId(spv::Id id) const;
 
   /// @brief Get a pointer to the push constant struct type defined in the
   /// module.
@@ -1025,21 +1047,20 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, std::string> DebugStrings;
   /// @brief `DIFile` object specified by the module currently being translated.
   llvm::DIFile *File;
-  /// @brief Map of DILocation to basic block iterator range.
+  /// @brief Map of DILocation to sets of basic block iterator ranges.
   ///
-  /// Storing a `std::pair` of iterators instead of `llvm::iterator_range`
+  /// Storing `std::pair`s of iterators instead of `llvm::iterator_range`
   /// because the iterators need to be manipulated after the module has been
   /// translated in its entirety, so we can't construct the `iterator_range`
   /// until that's happened but we still need to store the range.
-  llvm::MapVector<llvm::DILocation *, std::pair<llvm::BasicBlock::iterator,
-                                                llvm::BasicBlock::iterator>>
-      OpLineRanges;
-  /// @brief DILocation/basic block iterator pair to store current OpLine range.
-  std::pair<llvm::DILocation *, llvm::BasicBlock::iterator> CurrentOpLineRange;
+  OpLineRangeMap OpLineRanges;
+  /// @brief DILocation/basic block iterator pair to store the beginning of the
+  /// current OpLine range.
+  std::optional<LineRangeBeginTy> CurrentOpLineRange;
   /// @brief Map of BasicBlock to associated `DILexicalBlock`.
   llvm::DenseMap<llvm::BasicBlock *, llvm::DILexicalBlock *> LexicalBlocks;
-  /// @brief Map of function to associated `DISubprogram`.
-  llvm::DenseMap<llvm::Function *, llvm::DISubprogram *> FunctionScopes;
+  /// @brief Map of function IDs to their associated `DISubprogram`s.
+  llvm::DenseMap<spv::Id, llvm::DISubprogram *> FunctionScopes;
   /// @brief A mapping between spirv block id's and LLVM loop control mask.
   ///
   /// For each entry, the LLVM block generated by the spirv block `Id` will

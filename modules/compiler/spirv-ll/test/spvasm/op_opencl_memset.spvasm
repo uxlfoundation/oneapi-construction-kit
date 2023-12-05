@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -E %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Kernel
@@ -27,8 +28,6 @@
                OpName %out "out"
                OpName %entry "entry"
                OpDecorate %24 Constant
-               OpDecorate %size_addr Alignment 4
-               OpDecorate %out_addr Alignment 8
        %uint = OpTypeInt 32 0
       %ulong = OpTypeInt 64 0
       %uchar = OpTypeInt 8 0
@@ -51,6 +50,6 @@
          %19 = OpConvertUToPtr %_ptr_Function_uchar %16
          %26 = OpBitcast %_ptr_UniformConstant_uchar %24
                OpCopyMemorySized %19 %26 %ulong_4 Aligned 1
-; CHECK: call void @llvm.memset.p0.i64(ptr align 1 {{%[a-zA-Z0-9]+}}, i8 42, i64 4, i1 false)
+; CHECK: call void @llvm.memset.p0.i64(ptr align 1 {{%.*}}, i8 42, i64 4, i1 false)
                OpReturn
                OpFunctionEnd

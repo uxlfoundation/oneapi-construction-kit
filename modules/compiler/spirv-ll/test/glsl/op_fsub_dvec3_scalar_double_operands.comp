@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan -c Float64 -c Float64 %spv_file_s | FileCheck %s
 
 #version 450
@@ -27,16 +28,16 @@ void main() {
 
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: define spir_kernel void @main() #0 {
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x double>
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca double
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = alloca <3 x double>
-// CHECK: store <3 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load <3 x double>, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load double, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <3 x double> undef, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <3 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = insertelement <3 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, double {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{i[0-9]+}} {{[0-9]+}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = fsub <3 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: store <3 x double> {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = alloca <3 x double>
+// CHECK: = alloca double
+// CHECK: = alloca <3 x double>
+// CHECK: store <3 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+// CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
+// CHECK: = load <3 x double>, ptr {{[%@].*}}
+// CHECK: = load double, ptr {{[%@].*}}
+// CHECK: = insertelement <3 x double> undef, double {{[%@].*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: = insertelement <3 x double> {{[%@].*}}, double {{[%@].*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: = insertelement <3 x double> {{[%@].*}}, double {{[%@].*}}, {{i[0-9]+}} {{[0-9]+}}
+// CHECK: = fsub <3 x double> {{[%@].*}}, {{[%@].*}}
+// CHECK: store <3 x double> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

@@ -15,11 +15,13 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c GenericPointer %spv_file_s | FileCheck %s
             OpCapability Kernel
             OpCapability Addresses
             OpCapability Float64
             OpCapability Int64
+            OpCapability GenericPointer
             OpMemoryModel Physical64 OpenCL
             OpEntryPoint Kernel %atomic "atomic"
             OpName %atomic "atomic"
@@ -38,7 +40,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @atomic(ptr addrspace(4) [[IN:%[a-zA-Z0-9_]+]])
-; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z11atomic_xchgPU3AS4Vjj(ptr addrspace(4) [[IN]], i32 424)
+; CHECK: define spir_kernel void @atomic(ptr addrspace(4) [[IN:%.*]])
+; CHECK: = call spir_func i32 @_Z11atomic_xchgPU3AS4Vjj(ptr addrspace(4) [[IN]], i32 424)
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z11atomic_xchgPU3AS4Vjj(ptr addrspace(4), i32)

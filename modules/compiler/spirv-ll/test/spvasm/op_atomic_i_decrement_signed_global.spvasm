@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
                OpCapability Shader
                OpMemoryModel Logical GLSL450
@@ -37,6 +38,6 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @test(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) #0 {
-; CHECK: {{%[a-zA-Z0-9_]+}} = call spir_func i32 @_Z10atomic_decPU3AS1Vi(ptr addrspace(1) {{%[a-zA-Z0-9_]+}})
+; CHECK: = call spir_func i32 @_Z10atomic_decPU3AS1Vi(ptr addrspace(1) {{%.*}})
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z10atomic_decPU3AS1Vi(ptr addrspace(1))

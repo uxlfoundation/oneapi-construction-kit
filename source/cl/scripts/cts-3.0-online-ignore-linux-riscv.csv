@@ -1306,6 +1306,3 @@ SPIR (cl_khr_spir),spir/test_spir conversions_double no-unzip
 Mipmaps (Kernel),images/kernel_read_write/test_image_streams test_mipmaps CL_FILTER_NEAREST
 Mipmaps (clCopyImage),images/clCopyImage/test_cl_copy_images
 Mipmaps (clReadWriteImage),images/clReadWriteImage/test_cl_read_write_images test_mipmaps
-
-# TODO(CA-4540): Fix cl12/api/test_api/sub_group_dispatch.
-API,api/test_api sub_group_dispatch

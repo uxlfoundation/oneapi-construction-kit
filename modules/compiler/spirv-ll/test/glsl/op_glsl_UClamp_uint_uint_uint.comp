@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // RUN: %if online-glsl %{ glslangValidator -s -V -o %spv_file_s %s %}
+// RUN: %if online-glsl %{ spirv-val %spv_file_s %}
 // RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
 
 #version 450
@@ -34,10 +35,10 @@ void main() {
 }
 
 // CHECK: ; ModuleID = '{{.*}}'
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = load i32, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
-// CHECK: {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}} = call spir_func i32 @_Z5clampjjj(i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}})
-// CHECK: store i32 {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}, ptr addrspace({{[0-9]}}) {{[%@][-a-zA-Z$._0-9][-a-zA-Z$._0-9]*}}
+// CHECK: = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = load i32, ptr addrspace({{[0-9]}}) {{[%@].*}}
+// CHECK: = call spir_func i32 @_Z5clampjjj(i32 {{[%@].*}}, i32 {{[%@].*}}, i32 {{[%@].*}})
+// CHECK: store i32 {{[%@].*}}, ptr addrspace({{[0-9]}}) {{[%@].*}}
 // CHECK: ret void
 // CHECK: declare spir_func i32 @_Z5clampjjj(i32, i32, i32)

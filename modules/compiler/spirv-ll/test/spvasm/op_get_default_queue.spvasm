@@ -17,6 +17,7 @@
 ; Note that OpTypeQueue and OpGetDefaultQueue are 1.0, but in this test we hide
 ; the capability behind SubgroupDispatch.
 ; RUN: %if online-spirv-as %{ spirv-as --target-env spv1.1 -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: not spirv-ll-tool -a OpenCL -b 64 -c SubgroupDispatch %spv_file_s 2>&1 | FileCheck %s
 
 ; Check that we don't silently ignore this op/type.

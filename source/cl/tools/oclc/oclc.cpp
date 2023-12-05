@@ -395,7 +395,7 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
     } else {
       const char *unknown = args.Peek();
       OCLC_CHECK(!unknown, "Expected another argument but got a nullptr");
-      fprintf(stderr, "error: unknown option '%s'.\n", unknown);
+      (void)fprintf(stderr, "error: unknown option '%s'.\n", unknown);
       return oclc::failure;
     }
 
@@ -408,7 +408,7 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
   if (positional_args.size() != 1) {
     PrintUsage(argc, argv);
     if (positional_args.size() > 1) {
-      fprintf(stderr, "\nerror: too many positional arguments.\n");
+      (void)fprintf(stderr, "\nerror: too many positional arguments.\n");
     }
     return oclc::failure;
   }
@@ -819,12 +819,13 @@ std::vector<std::string> oclc::Driver::CreateRange(T a, T b, T stride) {
       vec.push_back(std::to_string(i));
     }
   } else if (stride == 0.0) {
-    fprintf(stderr,
-            "error: stride value of 0 for range() function not acceptable\n");
+    (void)fprintf(
+        stderr,
+        "error: stride value of 0 for range() function not acceptable\n");
   } else {
-    fprintf(stderr,
-            "error: the sign of (b - a) must match the sign of stride in "
-            "range() function\n");
+    (void)fprintf(stderr,
+                  "error: the sign of (b - a) must match the sign of stride in "
+                  "range() function\n");
   }
   return vec;
 }
@@ -1324,8 +1325,8 @@ bool oclc::Driver::BuildProgram() {
     fprintf(stderr, "%s", build_log.c_str());
 
     if (CL_SUCCESS != err) {
-      fprintf(stderr, "Build program failed with error: %s (%d)\n",
-              oclc::cl_error_code_to_name_map[err].c_str(), err);
+      (void)fprintf(stderr, "Build program failed with error: %s (%d)\n",
+                    oclc::cl_error_code_to_name_map[err].c_str(), err);
       return oclc::failure;
     }
   }
@@ -1458,8 +1459,8 @@ std::string oclc::Driver::BufferToString(const unsigned char *buffer, size_t n,
       stringVal += (std::to_string(halfBuffer[i]) + ",");
     }
   } else {
-    fprintf(stderr, "error printing buffer: unsupported data type (%s)\n",
-            dataType.c_str());
+    (void)fprintf(stderr, "error printing buffer: unsupported data type (%s)\n",
+                  dataType.c_str());
     return "";
   }
 
@@ -1479,7 +1480,7 @@ T *oclc::Driver::CastToTypeInteger(const std::vector<std::string> &source,
     size = casted_buffers.back().size() * sizeof(T);
     return casted_buffers.back().data();
   } else {
-    fprintf(
+    (void)fprintf(
         stderr,
         "error: floating point value passed into integer kernel argument\n");
     return nullptr;
@@ -1542,8 +1543,8 @@ bool oclc::Driver::CreateImage(
     typeName = "image1d_t";
     imageType = CL_MEM_OBJECT_IMAGE1D;
   } else {
-    fprintf(stderr, "error: %d-dimensional image '%s' not supported.\n",
-            dimensions, name.c_str());
+    (void)fprintf(stderr, "error: %d-dimensional image '%s' not supported.\n",
+                  dimensions, name.c_str());
     return oclc::failure;
   }
   cl_image_desc desc;
@@ -2248,7 +2249,7 @@ const char *oclc::Arguments::Take() {
 const char *oclc::Arguments::TakePositional(bool &failed) {
   const char *arg = Peek();
   if (!arg) {
-    fprintf(stderr, "error: no argument left to parse.\n");
+    (void)fprintf(stderr, "error: no argument left to parse.\n");
     failed |= true;
     return nullptr;
   } else if (arg[0] == '-') {
@@ -2260,7 +2261,7 @@ const char *oclc::Arguments::TakePositional(bool &failed) {
 bool oclc::Arguments::TakeKey(const char *key, bool &failed) {
   const char *arg = Peek();
   if (!arg) {
-    fprintf(stderr, "error: no argument left to parse.\n");
+    (void)fprintf(stderr, "error: no argument left to parse.\n");
     failed |= true;
     return oclc::failure;
   } else if (0 != strcmp(key, arg)) {
@@ -2275,7 +2276,8 @@ const char *oclc::Arguments::TakeKeyValue(const char *key, bool &failed) {
   if (!first_arg || (0 != strcmp(first_arg, key))) {
     return nullptr;
   } else if (!HasMore(2)) {
-    fprintf(stderr, "error: '%s' must be followed by another argument.\n", key);
+    (void)fprintf(stderr, "error: '%s' must be followed by another argument.\n",
+                  key);
     failed |= true;
     return nullptr;
   }

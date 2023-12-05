@@ -316,6 +316,7 @@ function(target_resources target)
 
     foreach(namespace ${args_NAMESPACES})
       get_target_property(resources resources-${namespace} RESOURCES)
+      set_property(SOURCE ${resources_file} APPEND PROPERTY OBJECT_DEPENDS ${resources})
 
       foreach(resource ${resources})
         get_filename_component(name ${resource} NAME)
@@ -377,6 +378,7 @@ ${name}_size:
 
     foreach(namespace ${args_NAMESPACES})
       get_target_property(resources resources-${namespace} RESOURCES)
+      set_property(SOURCE ${resources_file} APPEND PROPERTY OBJECT_DEPENDS ${resources})
 
       foreach(resource ${resources})
         get_filename_component(name ${resource} NAME)
@@ -402,6 +404,8 @@ ${CNAME}_ID RCDATA \"${resource}\"
 
     foreach(namespace ${args_NAMESPACES})
       get_target_property(resources resources-${namespace} RESOURCES)
+      set_property(SOURCE ${resources_file} APPEND PROPERTY OBJECT_DEPENDS ${resources})
+
       foreach(resource ${resources})
         get_filename_component(name ${resource} NAME)
         string(REGEX REPLACE "[-\\.]" "_" name ${name})

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -26,9 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-              %ui64_t = OpTypeInt 64 0
-               %i64_t = OpTypeInt 64 1
-            %v4ui64_t = OpTypeVector %ui64_t 4
+               %i64_t = OpTypeInt 64 0
              %v4i64_t = OpTypeVector %i64_t 4
      %s_abs_diff_fn_t = OpTypeFunction %void_t
                %i64_2 = OpConstant %i64_t 2
@@ -40,8 +39,8 @@
     %s_abs_diff_v4i64 = OpFunction %void_t None %s_abs_diff_fn_t
 ; CHECK: define spir_kernel void @s_abs_diff_v4i64()
                    %2 = OpLabel
-                   %3 = OpExtInst %v4ui64_t %1 s_abs_diff %v4i64_2 %v4i64_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i64> @_Z8abs_diffDv4_lS_(<4 x i64> <i64 2, i64 2, i64 2, i64 2>, <4 x i64> <i64 5, i64 5, i64 5, i64 5>)
+                   %3 = OpExtInst %v4i64_t %1 s_abs_diff %v4i64_2 %v4i64_5
+; CHECK: = call spir_func <4 x i64> @_Z8abs_diffDv4_lS_(<4 x i64> <i64 2, i64 2, i64 2, i64 2>, <4 x i64> <i64 5, i64 5, i64 5, i64 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c StorageImageWriteWithoutFormat %spv_file_s | FileCheck %t
                             OpCapability Kernel
@@ -32,7 +33,6 @@
         %image_write_fn_t = OpTypeFunction %void_t %image2d_array_t
                  %v4int_t = OpTypeVector %uint_t 4
                %v4float_t = OpTypeVector %float_t 4
-                %v4uint_t = OpTypeVector %uint_t 4
                   %uint_1 = OpConstant %uint_t 1
                  %float_1 = OpConstant %float_t 1
                  %v4int_1 = OpConstantComposite %v4int_t %uint_1 %uint_1 %uint_1 %uint_1

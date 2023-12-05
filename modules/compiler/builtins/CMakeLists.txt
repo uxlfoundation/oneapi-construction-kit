@@ -14,6 +14,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+# Under the old policy, the generated dependency files are passed to Ninja
+# directly, causing spurious rebuilds when Ninja's expectations do not align
+# with what Clang generates, but this only causes unnecessary rebuilds, no
+# wrong results, so we can continue permitting old CMake versions.
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.20)
+  cmake_policy(SET CMP0116 NEW)
+endif()
+
 set(BUILTINS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
   "Cached path of the builtins source directory.")
 
@@ -124,11 +132,13 @@ macro(build_cl_bc_cmd)
       ${BUILD_CL_EXTRA_OPTS}
       ${BUILD_CL_INPUT}
       -emit-llvm-bc
+      -dependency-file ${BUILD_CL_OUTPUT}.d -MT ${BUILD_CL_OUTPUT} -sys-header-deps
       -o ${BUILD_CL_OUTPUT}
     DEPENDS
       builtins::compiler
       ${BUILD_CL_INPUT}
-      ${BUILD_CL_DEPENDENCIES})
+      ${BUILD_CL_DEPENDENCIES}
+    DEPFILE ${BUILD_CL_OUTPUT}.d)
   list(APPEND ALL_BCS ${BUILD_CL_OUTPUT})
 endmacro()
 
@@ -160,11 +170,13 @@ macro(build_cxx_bc_cmd)
       ${BUILD_CXX_EXTRA_OPTS}
       ${BUILD_CXX_INPUT}
       -emit-llvm-bc
+      -dependency-file ${BUILD_CXX_OUTPUT}.d -MT ${BUILD_CXX_OUTPUT} -sys-header-deps
       -o ${BUILD_CXX_OUTPUT}
     DEPENDS
       builtins::compiler
       ${BUILD_CXX_INPUT}
-      ${BUILD_CXX_DEPENDENCIES})
+      ${BUILD_CXX_DEPENDENCIES}
+    DEPFILE ${BUILD_CXX_OUTPUT}.d)
   list(APPEND ALL_BCS ${BUILD_CXX_OUTPUT})
 endmacro()
 
@@ -349,10 +361,13 @@ macro(build_builtins triple bits fp64 fp16)
       ${BUILTINS_PCH_OPTIONS}
       ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h
       -emit-pch -fno-trigraphs -fno-rtti
+      -dependency-file ${CMAKE_CURRENT_BINARY_DIR}/builtins${bits}${cap_suf}.pch.d
+      -MT ${CMAKE_CURRENT_BINARY_DIR}/builtins${bits}${cap_suf}.pch -sys-header-deps
       -o ${CMAKE_CURRENT_BINARY_DIR}/builtins${bits}${cap_suf}.pch
     DEPENDS
       builtins::compiler
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h)
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h
+    DEPFILE ${CMAKE_CURRENT_BINARY_DIR}/builtins${bits}${cap_suf}.pch.d)
 
   # Add custom targets for the bitcode and pch files
   add_custom_target(builtins_bc${bits}${cap_suf}
@@ -727,9 +742,11 @@ function(add_target_builtins target)
         # Pretend to compile in SPIR mode when using a different triple.
         $<$<AND:$<BOOL:${args_TRIPLE}>,$<BOOL:${args_32BIT}>>:-D__SPIR32__>
         $<$<AND:$<BOOL:${args_TRIPLE}>,$<BOOL:${args_64BIT}>>:-D__SPIR64__>
-        ${args_OPTIONS} -emit-llvm-bc -o ${compiled_bc} ${input}
+        ${args_OPTIONS} -emit-llvm-bc -dependency-file ${compiled_bc}.d
+	-MT ${compiled_bc} -sys-header-deps -o ${compiled_bc} ${input}
       MAIN_DEPENDENCY ${input}
       DEPENDS internal_builtins
+      DEPFILE ${compiled_bc}.d
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Building BC object ${compiled_bc_relpath}")
 

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -26,7 +27,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-                %i8_t = OpTypeInt 8 1
+                %i8_t = OpTypeInt 8 0
               %v4i8_t = OpTypeVector %i8_t 4
           %s_max_fn_t = OpTypeFunction %void_t
                 %i8_1 = OpConstant %i8_t 1
@@ -39,7 +40,7 @@
 ; CHECK: define spir_kernel void @s_max_v4i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i8_t %1 s_max %v4i8_1 %v4i8_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i8> @_Z3maxDv4_cS_(<4 x i8> <i8 1, i8 1, i8 1, i8 1>, <4 x i8> <i8 2, i8 2, i8 2, i8 2>)
+; CHECK: = call spir_func <4 x i8> @_Z3maxDv4_cS_(<4 x i8> <i8 1, i8 1, i8 1, i8 1>, <4 x i8> <i8 2, i8 2, i8 2, i8 2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

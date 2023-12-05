@@ -15,21 +15,20 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
-               OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main"
-               OpExecutionMode %main LocalSize 1 1 1
-               OpSource GLSL 450
-               OpName %main "main"
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+               OpCapability Kernel
+               OpCapability Addresses
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %testfn "testfn"
+               OpName %testfn "testfn"
        %void = OpTypeVoid
           %4 = OpTypeFunction %void
        %uint = OpTypeInt 32 0
 %_ptr_Function_uint = OpTypePointer Function %uint
      %uint_2 = OpConstant %uint 2
    %uint_272 = OpConstant %uint 272
-       %main = OpFunction %void None %4
+     %testfn = OpFunction %void None %4
           %9 = OpLabel
          %10 = OpVariable %_ptr_Function_uint Function
                OpStore %10 %uint_272
@@ -38,8 +37,8 @@
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main()
-; CHECK: [[SEMANTICS_VAR:%[a-zA-Z0-9_]+]] = alloca i32
+; CHECK: define spir_kernel void @testfn()
+; CHECK: [[SEMANTICS_VAR:%.*]] = alloca i32
 ; CHECK: store i32 272, {{(ptr|i32\*)}} [[SEMANTICS_VAR]]
-; CHECK: [[SEMANTICS:%[a-zA-Z0-9_]+]] = load i32, {{(ptr|i32\*)}} [[SEMANTICS_VAR]]
+; CHECK: [[SEMANTICS:%.*]] = load i32, {{(ptr|i32\*)}} [[SEMANTICS_VAR]]
 ; CHECK: call spir_func void @__mux_work_group_barrier(i32 0, i32 2, i32 [[SEMANTICS]])

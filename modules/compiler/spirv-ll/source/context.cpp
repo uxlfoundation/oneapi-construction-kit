@@ -142,13 +142,12 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   // Store the branch instructions found in the current function, as we need to
   // generate them after all the basic blocks have been generated.
   using OpIRLocTy = std::pair<OpCode const, IRInsertPoint>;
-  llvm::SmallVector<OpIRLocTy, 16> Branches;
   // Store the Phi nodes in order to add the values after all the basic blocks
   // have been generated
   llvm::SmallVector<OpIRLocTy, 8> Phis;
 
   for (auto op : module) {
-    cargo::optional<Error> error;
+    std::optional<llvm::Error> error;
     switch (op.code) {
         // Unsupported opcodes are ignored.
       default:
@@ -158,7 +157,8 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         // SPIR-V which contains unsupported opcodes intentionally by the user
         // with the intent that the SPIR-V consumer simply ignores them, as is
         // allowed by the SPIR-V spec, then this abort should be removed.
-        error = Error{"unsupported opcode: " + std::to_string(op.code)};
+        error =
+            makeStringError("unsupported opcode: " + std::to_string(op.code));
 #endif
         break;
       case spv::OpNop:
@@ -175,6 +175,9 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpSourceExtension:
         error = builder.create<OpSourceExtension>(op);
+        break;
+      case spv::OpModuleProcessed:
+        // Ignore this.
         break;
       case spv::OpName:
         error = builder.create<OpName>(op);
@@ -313,29 +316,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpFunctionEnd:
         error = builder.create<OpFunctionEnd>(op);
-        // Generate all the branches in the function. We are doing it here
-        // because
-        // at this point all the basic blocks will have been created
-        IPStack.push_back(builder.getIRBuilder().saveIP());
-        for (auto &IterPos : Branches) {
-          builder.getIRBuilder().restoreIP(IterPos.second);
-          OpCode const BranchOp = IterPos.first;
-          switch (BranchOp.opCode()) {
-            default:
-              std::abort();
-            case spv::OpBranch:
-              error = builder.create<OpBranch>(*cast<OpBranch>(&IterPos.first));
-              break;
-            case spv::OpBranchConditional:
-              error = builder.create<OpBranchConditional>(
-                  *cast<OpBranchConditional>(&IterPos.first));
-              break;
-            case spv::OpSwitch:
-              error = builder.create<OpSwitch>(*cast<OpSwitch>(&IterPos.first));
-          }
-        }
-        Branches.clear();
-        IPStack.pop_back();
         // Populate all the incoming edges for the Phi nodes we have generated
         IPStack.push_back(builder.getIRBuilder().saveIP());
         for (auto &IterPos : Phis) {
@@ -887,9 +867,13 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         error = builder.create<OpLabel>(op);
         break;
       case spv::OpBranch:
+        error = builder.create<OpBranch>(op);
+        break;
       case spv::OpBranchConditional:
+        error = builder.create<OpBranchConditional>(op);
+        break;
       case spv::OpSwitch:
-        Branches.push_back(std::make_pair(op, builder.getIRBuilder().saveIP()));
+        error = builder.create<OpSwitch>(op);
         break;
       case spv::OpKill:
         error = builder.create<OpKill>(op);
@@ -1132,33 +1116,14 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         error = builder.create<OpExpectKHR>(op);
         break;
     }
-    if (error) {
-      return cargo::make_unexpected(std::move(error.value()));
+    if (error && *error) {
+      return cargo::make_unexpected(llvm::toString(std::move(*error)));
     }
   }
 
-  // replace all global builtin vars with function local versions
-  builder.replaceBuiltinGlobals();
-
-  // Check non-entry-point functions with empty names and re-set the name if it
-  // exists in the Module's Value map. See function creation in
-  // Builder::create<OpFunction>(const OpFunction *op) in builder_core.cpp
-  for (auto &function : module.llvmModule->functions()) {
-    // We don't use exceptions
-    if (!function.hasFnAttribute(llvm::Attribute::NoUnwind)) {
-      function.addFnAttr(llvm::Attribute::NoUnwind);
-    }
-    if (function.getCallingConv() == llvm::CallingConv::SPIR_FUNC) {
-      const std::string name = module.getName(&function);
-      if (!name.empty()) {
-        function.setName(name);
-      }
-    }
+  if (auto err = builder.finishModuleProcessing()) {
+    return cargo::make_unexpected(llvm::toString(std::move(err)));
   }
-
-  // add any remaining metadata to llvm module
-  builder.finalizeMetadata();
-  builder.addDebugInfoToModule();
 
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
   // GCC <9 requires this redundant move, this branch of the #if can be

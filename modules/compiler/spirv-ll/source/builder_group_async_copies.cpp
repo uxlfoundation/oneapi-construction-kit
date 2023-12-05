@@ -14,48 +14,48 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <spirv-ll/builder.h>
+#include <spirv-ll/builder_group_async_copies.h>
 #include <spirv-ll/module.h>
 
 namespace spirv_ll {
 struct GroupAsyncCopy2D2D : OpExtInst {
   GroupAsyncCopy2D2D(OpCode const &opc) : OpExtInst(opc) {}
-  spv::Id Destination() const { return getValueAtOffset(5); }
-  spv::Id DestinationOffset() const { return getValueAtOffset(6); }
-  spv::Id Source() const { return getValueAtOffset(7); }
-  spv::Id SourceOffset() const { return getValueAtOffset(8); }
-  spv::Id NumBytesPerElement() const { return getValueAtOffset(9); }
-  spv::Id NumElementsPerLine() const { return getValueAtOffset(10); }
-  spv::Id NumLines() const { return getValueAtOffset(11); }
-  spv::Id SourceLineLength() const { return getValueAtOffset(12); }
-  spv::Id DestinationLineLength() const { return getValueAtOffset(13); }
-  spv::Id Event() const { return getValueAtOffset(14); }
+  spv::Id Destination() const { return getOpExtInstOperand(0); }
+  spv::Id DestinationOffset() const { return getOpExtInstOperand(1); }
+  spv::Id Source() const { return getOpExtInstOperand(2); }
+  spv::Id SourceOffset() const { return getOpExtInstOperand(3); }
+  spv::Id NumBytesPerElement() const { return getOpExtInstOperand(4); }
+  spv::Id NumElementsPerLine() const { return getOpExtInstOperand(5); }
+  spv::Id NumLines() const { return getOpExtInstOperand(6); }
+  spv::Id SourceLineLength() const { return getOpExtInstOperand(7); }
+  spv::Id DestinationLineLength() const { return getOpExtInstOperand(8); }
+  spv::Id Event() const { return getOpExtInstOperand(9); }
 };
 
 struct GroupAsyncCopy3D3D : OpExtInst {
   GroupAsyncCopy3D3D(OpCode const &opc) : OpExtInst(opc) {}
-  spv::Id Destination() const { return getValueAtOffset(5); }
-  spv::Id DestinationOffset() const { return getValueAtOffset(6); }
-  spv::Id Source() const { return getValueAtOffset(7); }
-  spv::Id SourceOffset() const { return getValueAtOffset(8); }
-  spv::Id NumBytesPerElement() const { return getValueAtOffset(9); }
-  spv::Id NumElementsPerLine() const { return getValueAtOffset(10); }
-  spv::Id NumLines() const { return getValueAtOffset(11); }
-  spv::Id NumPlanes() const { return getValueAtOffset(12); }
-  spv::Id SourceLineLength() const { return getValueAtOffset(13); }
-  spv::Id SourcePlaneArea() const { return getValueAtOffset(14); }
-  spv::Id DestinationLineLength() const { return getValueAtOffset(15); }
-  spv::Id DestinationPlaneArea() const { return getValueAtOffset(16); }
-  spv::Id Event() const { return getValueAtOffset(17); }
+  spv::Id Destination() const { return getOpExtInstOperand(0); }
+  spv::Id DestinationOffset() const { return getOpExtInstOperand(1); }
+  spv::Id Source() const { return getOpExtInstOperand(2); }
+  spv::Id SourceOffset() const { return getOpExtInstOperand(3); }
+  spv::Id NumBytesPerElement() const { return getOpExtInstOperand(4); }
+  spv::Id NumElementsPerLine() const { return getOpExtInstOperand(5); }
+  spv::Id NumLines() const { return getOpExtInstOperand(6); }
+  spv::Id NumPlanes() const { return getOpExtInstOperand(7); }
+  spv::Id SourceLineLength() const { return getOpExtInstOperand(8); }
+  spv::Id SourcePlaneArea() const { return getOpExtInstOperand(9); }
+  spv::Id DestinationLineLength() const { return getOpExtInstOperand(10); }
+  spv::Id DestinationPlaneArea() const { return getOpExtInstOperand(11); }
+  spv::Id Event() const { return getOpExtInstOperand(12); }
 };
 
 template <>
-cargo::optional<spirv_ll::Error>
+llvm::Error
 GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
     OpExtInst const &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy2D2D>(opc);
 
-  llvm::Type *eventTy = module.getType(op->IdResultType());
+  llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(eventTy);
   llvm::Value *dst = module.getValue(op->Destination());
   SPIRV_LL_ASSERT_PTR(dst);
@@ -89,9 +89,9 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
     mangledName =
         "_Z26async_work_group_copy_2D2DPU3AS3vmPU3AS1Kvmmmmmm9ocl_event";
   } else {
-    return Error{
+    return makeStringError(
         "GroupAsyncCopy2D2D invalid storage class for Source and/or "
-        "Destination"};
+        "Destination");
   }
 
   llvm::Type *i8Ty = llvm::IntegerType::getInt8Ty(*module.context.llvmContext);
@@ -115,16 +115,16 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
       /* convergent = */ true);
   module.addID(op->IdResult(), op, call);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
 template <>
-cargo::optional<spirv_ll::Error>
+llvm::Error
 GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
     OpExtInst const &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy3D3D>(opc);
 
-  llvm::Type *eventTy = module.getType(op->IdResultType());
+  llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(eventTy);
   llvm::Value *dst = module.getValue(op->Destination());
   SPIRV_LL_ASSERT_PTR(dst);
@@ -164,9 +164,9 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
     mangledName =
         "_Z26async_work_group_copy_3D3DPU3AS3vmPU3AS1Kvmmmmmmmmm9ocl_event";
   } else {
-    return Error{
+    return makeStringError(
         "GroupAsyncCopy3D3D invalid storage class for Source and/or "
-        "Destination"};
+        "Destination");
   }
 
   llvm::Type *i8Ty = llvm::IntegerType::getInt8Ty(*module.context.llvmContext);
@@ -193,20 +193,19 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
       /* convergent = */ true);
   module.addID(op->IdResult(), op, call);
 
-  return cargo::nullopt;
+  return llvm::Error::success();
 }
 
-cargo::optional<spirv_ll::Error> GroupAsyncCopiesBuilder::create(
-    OpExtInst const &opc) {
+llvm::Error GroupAsyncCopiesBuilder::create(OpExtInst const &opc) {
   switch (opc.Instruction()) {
     case GroupAsyncCopy2D2D:
       return create<GroupAsyncCopy2D2D>(opc);
     case GroupAsyncCopy3D3D:
       return create<GroupAsyncCopy3D3D>(opc);
     default:
-      return Error{
+      return makeStringError(
           "Unrecognized Codeplay.GroupAsyncCopies extended instruction " +
-          std::to_string(opc.Instruction())};
+          std::to_string(opc.Instruction()));
   }
 }
 }  // namespace spirv_ll

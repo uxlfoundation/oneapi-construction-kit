@@ -1127,6 +1127,10 @@ CARGO_NODISCARD cl_int _cl_command_buffer_khr::updateCommandBuffer(
       return CL_OUT_OF_HOST_MEMORY;
     }
 
+    if (update_info.pointers.alloc(config.num_svm_args)) {
+      return CL_OUT_OF_HOST_MEMORY;
+    }
+
     const auto mutable_command = config.command;
     update_info.id = mutable_command->id;
     cargo::array_view<const cl_mutable_dispatch_arg_khr> args(config.arg_list,
@@ -1169,10 +1173,10 @@ CARGO_NODISCARD cl_int _cl_command_buffer_khr::updateCommandBuffer(
       mux_descriptor_info_s descriptor;
       descriptor.type =
           mux_descriptor_info_type_e::mux_descriptor_info_type_plain_old_data;
-      void *data = new char[sizeof arg_value];
-      memcpy(data, &arg_value, sizeof arg_value);
-      descriptor.plain_old_data_descriptor.data = data;
-      descriptor.plain_old_data_descriptor.length = sizeof arg_value;
+      descriptor.plain_old_data_descriptor.data = &update_info.pointers[i];
+      descriptor.plain_old_data_descriptor.length =
+          sizeof update_info.pointers[i];
+      update_info.pointers[i] = arg_value;
       update_info.descriptors[update_index] = descriptor;
       update_index++;
     }

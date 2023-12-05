@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -27,21 +28,19 @@
 ; All types, variables and constants
               %void_t = OpTypeVoid
               %ui32_t = OpTypeInt 32 0
-               %i32_t = OpTypeInt 32 1
            %v16ui32_t = OpTypeVector %ui32_t 16
-            %v16i32_t = OpTypeVector %i32_t 16
      %s_abs_diff_fn_t = OpTypeFunction %void_t
-               %i32_2 = OpConstant %i32_t 2
-               %i32_5 = OpConstant %i32_t 5
-            %v16i32_2 = OpConstantComposite %v16i32_t %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2
-            %v16i32_5 = OpConstantComposite %v16i32_t %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5
+               %i32_2 = OpConstant %ui32_t 2
+               %i32_5 = OpConstant %ui32_t 5
+            %v16i32_2 = OpConstantComposite %v16ui32_t %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2 %i32_2
+            %v16i32_5 = OpConstantComposite %v16ui32_t %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5 %i32_5
 
 ; All functions
    %s_abs_diff_v16i32 = OpFunction %void_t None %s_abs_diff_fn_t
 ; CHECK: define spir_kernel void @s_abs_diff_v16i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v16ui32_t %1 s_abs_diff %v16i32_2 %v16i32_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i32> @_Z8abs_diffDv16_iS_(<16 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>, <16 x i32> <i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5>)
+; CHECK: = call spir_func <16 x i32> @_Z8abs_diffDv16_iS_(<16 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>, <16 x i32> <i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -26,20 +27,19 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-              %ui64_t = OpTypeInt 64 0
-               %i64_t = OpTypeInt 64 1
-            %v2ui64_t = OpTypeVector %ui64_t 2
+               %i64_t = OpTypeInt 64 0
              %v2i64_t = OpTypeVector %i64_t 2
           %s_abs_fn_t = OpTypeFunction %void_t
-               %i64_2 = OpConstant %i64_t -2
+          ; Minus 2 in two's complement
+               %i64_2 = OpConstant %i64_t 18446744073709551614
              %v2i64_2 = OpConstantComposite %v2i64_t %i64_2 %i64_2
 
 ; All functions
          %s_abs_v2i64 = OpFunction %void_t None %s_abs_fn_t
 ; CHECK: define spir_kernel void @s_abs_v2i64()
                    %2 = OpLabel
-                   %3 = OpExtInst %v2ui64_t %1 s_abs %v2i64_2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i64> @_Z3absDv2_l(<2 x i64> <i64 -2, i64 -2>)
+                   %3 = OpExtInst %v2i64_t %1 s_abs %v2i64_2
+; CHECK: = call spir_func <2 x i64> @_Z3absDv2_l(<2 x i64> <i64 -2, i64 -2>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

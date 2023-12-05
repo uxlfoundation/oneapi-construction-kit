@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 32 -c Addresses %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Kernel
@@ -54,24 +55,24 @@
         %loc = OpFunctionParameter %_ptr_Workgroup_ushort
       %entry = OpLabel
        %call = OpExtInst %v2ushort %1 vloadn %uint_0 %in 2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i16> @_Z6vload2jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
+; CHECK: = call spir_func <2 x i16> @_Z6vload2jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
       %call1 = OpExtInst %v3ushort %1 vloadn %uint_0 %in 3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i16> @_Z6vload3jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
+; CHECK: = call spir_func <3 x i16> @_Z6vload3jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
       %call2 = OpExtInst %v4ushort %1 vloadn %uint_0 %in 4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i16> @_Z6vload4jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
+; CHECK: = call spir_func <4 x i16> @_Z6vload4jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
       %call3 = OpExtInst %v8ushort %1 vloadn %uint_0 %in 8
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i16> @_Z6vload8jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
+; CHECK: = call spir_func <8 x i16> @_Z6vload8jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
       %call4 = OpExtInst %v16ushort %1 vloadn %uint_0 %in 16
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i16> @_Z7vload16jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
+; CHECK: = call spir_func <16 x i16> @_Z7vload16jPU3AS1Kt(i32 0, ptr addrspace(1) %in)
       %call5 = OpExtInst %v2ushort %1 vloadn %uint_0 %loc 2
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <2 x i16> @_Z6vload2jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <2 x i16> @_Z6vload2jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
       %call6 = OpExtInst %v3ushort %1 vloadn %uint_0 %loc 3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <3 x i16> @_Z6vload3jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <3 x i16> @_Z6vload3jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
       %call7 = OpExtInst %v4ushort %1 vloadn %uint_0 %loc 4
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <4 x i16> @_Z6vload4jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <4 x i16> @_Z6vload4jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
       %call8 = OpExtInst %v8ushort %1 vloadn %uint_0 %loc 8
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i16> @_Z6vload8jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <8 x i16> @_Z6vload8jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
       %call9 = OpExtInst %v16ushort %1 vloadn %uint_0 %loc 16
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <16 x i16> @_Z7vload16jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
+; CHECK: = call spir_func <16 x i16> @_Z7vload16jPU3AS3Kt(i32 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

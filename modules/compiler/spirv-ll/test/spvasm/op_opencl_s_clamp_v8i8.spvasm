@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -27,7 +28,7 @@
 
 ; All types, variables and constants
               %void_t = OpTypeVoid
-                %i8_t = OpTypeInt 8 1
+                %i8_t = OpTypeInt 8 0
               %v8i8_t = OpTypeVector %i8_t 8
         %s_clamp_fn_t = OpTypeFunction %void_t
                 %i8_1 = OpConstant %i8_t 1
@@ -42,7 +43,7 @@
 ; CHECK: define spir_kernel void @s_clamp_v8i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i8_t %1 s_clamp %v8i8_1 %v8i8_2 %v8i8_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i8> @_Z5clampDv8_cS_S_(<8 x i8> <i8 1, i8 1, i8 1, i8 1, i8 1, i8 1, i8 1, i8 1>, <8 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <8 x i8> <i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3>)
+; CHECK: = call spir_func <8 x i8> @_Z5clampDv8_cS_S_(<8 x i8> <i8 1, i8 1, i8 1, i8 1, i8 1, i8 1, i8 1, i8 1>, <8 x i8> <i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2, i8 2>, <8 x i8> <i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3, i8 3>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

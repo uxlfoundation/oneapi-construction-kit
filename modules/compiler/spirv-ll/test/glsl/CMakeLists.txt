@@ -780,7 +780,9 @@ set(GLSL_FILES
   push_constant_float.comp
   push_constant_int.comp
   push_constant_uint.comp
-  spec_constants.comp)
+  spec_constants.comp
+  printf.comp
+)
 
 # Remove obsolete lit test inputs from the binary directory.
 file(GLOB obsoleteTests ${CMAKE_CURRENT_BINARY_DIR}/*.comp)
@@ -806,15 +808,22 @@ foreach(glsl ${GLSL_FILES})
   if(GLSL_UNSUPPORTED STREQUAL False)
     # Generate .spv from .comp source.
     file(RELATIVE_PATH spvOut ${CMAKE_BINARY_DIR} ${spv})
+
+    # Work out whether we're validating this SPIR-V file.
+    set(OPTIONAL_VALIDATE_DEPENDS)
+    set(OPTIONAL_VALIDATE_COMMAND)
+    if(TARGET spirv::spirv-val)
+      set(OPTIONAL_VALIDATE_DEPENDS spirv::spirv-val)
+      set(OPTIONAL_VALIDATE_COMMAND COMMAND spirv::spirv-val ${spv})
+    endif()
+
     add_custom_command(OUTPUT ${spv}
       COMMAND ${glslangValidator_EXECUTABLE} -s -V -o ${spv} ${comp}
-      DEPENDS ${glslangValidator_EXECUTABLE} ${comp}
+      ${OPTIONAL_VALIDATE_COMMAND}
+      DEPENDS ${glslangValidator_EXECUTABLE} ${OPTIONAL_VALIDATE_DEPENDS} ${comp}
       COMMENT "Building SPIR-V ${spvOut}")
     list(APPEND LitTestFiles ${spv})
   endif()
-
-  add_ca_copy_file(INPUT ${comp} OUTPUT ${test})
-  list(APPEND LitTestFiles ${test})
 endforeach()
 
 add_custom_target(spirv-ll-glsl-lit DEPENDS ${LitTestFiles})

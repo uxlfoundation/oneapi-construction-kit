@@ -16,6 +16,7 @@
 
 ; REQUIRES: spirv-as-v2021.3+
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 \
 ; RUN:   -c GenericPointer -c SubgroupShuffleINTEL \
 ; RUN:   -e SPV_INTEL_subgroups %spv_file_s | FileCheck %s
@@ -30,7 +31,7 @@
                OpExtension "SPV_INTEL_subgroups"
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical64 OpenCL
-               OpEntryPoint Kernel %31 "permute_sub_group_kernel" %permute_sub_group_kernel %__spirv_BuiltInSubgroupSize %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInWorkgroupSize
+               OpEntryPoint Kernel %31 "permute_sub_group_kernel" %permute_sub_group_kernel %__spirv_BuiltInSubgroupSize %__spirv_BuiltInLocalInvocationId %__spirv_BuiltInWorkgroupSize %__spirv_BuiltInGlobalInvocationId
                OpSource OpenCL_CPP 100000
                OpName %entry "entry"
                OpName %for_cond_i "for.cond.i"
@@ -66,12 +67,12 @@
      %uint_2 = OpConstant %uint 2
     %ulong_3 = OpConstant %ulong 3
     %ulong_2 = OpConstant %ulong 2
-%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
     %v3ulong = OpTypeVector %ulong 3
+    %_ptr_Input_uint = OpTypePointer Input %uint
+    %_ptr_Input_ulong = OpTypePointer Input %ulong
     %_ptr_Input_v3ulong = OpTypePointer Input %v3ulong
 %_ptr_CrossWorkgroup_v3ulong = OpTypePointer CrossWorkgroup %v3ulong
 %_arr_uchar_ulong_129 = OpTypeArray %uchar %ulong_129
-%_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
        %void = OpTypeVoid
 %_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
          %30 = OpTypeFunction %void %_ptr_CrossWorkgroup_uchar
@@ -85,10 +86,10 @@
 %_ptr_Function_uchar = OpTypePointer Function %uchar
         %203 = OpTypeFunction %void %_ptr_Generic__arr_ulong_ulong_3 %ulong %uint
         %228 = OpTypeFunction %void %_ptr_Generic__arr_ulong_ulong_3 %ulong
-%permute_sub_group_kernel = OpVariable %_ptr_CrossWorkgroup_uint CrossWorkgroup
-%__spirv_BuiltInSubgroupSize = OpVariable %_ptr_CrossWorkgroup_uint CrossWorkgroup
-%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_CrossWorkgroup_v3ulong CrossWorkgroup
-%__spirv_BuiltInWorkgroupSize = OpVariable %_ptr_CrossWorkgroup_v3ulong CrossWorkgroup
+%permute_sub_group_kernel = OpVariable %_ptr_Input_uint Input
+%__spirv_BuiltInSubgroupSize = OpVariable %_ptr_Input_uint Input
+%__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_Input_v3ulong Input
+%__spirv_BuiltInWorkgroupSize = OpVariable %_ptr_Input_v3ulong Input
 %__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_Input_v3ulong Input
        %true = OpConstantTrue %bool
 
@@ -97,11 +98,11 @@
       %entry = OpLabel
          %26 = OpLoad %v3ulong %__spirv_BuiltInGlobalInvocationId
          %43 = OpCompositeExtract %ulong %26 0
-         %45 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInWorkgroupSize %uint_0 %uint_0
+         %45 = OpInBoundsPtrAccessChain %_ptr_Input_ulong %__spirv_BuiltInWorkgroupSize %uint_0 %uint_0
          %46 = OpLoad %ulong %45 Aligned 32
-         %48 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_1
+         %48 = OpInBoundsPtrAccessChain %_ptr_Input_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_1
          %49 = OpLoad %ulong %48 Aligned 8
-         %50 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_0
+         %50 = OpInBoundsPtrAccessChain %_ptr_Input_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_0
          %51 = OpLoad %ulong %50 Aligned 32
          %52 = OpLoad %uint %permute_sub_group_kernel Aligned 4
       %add_i = OpIAdd %uint %52 %uint_1

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -42,7 +43,7 @@
 ; CHECK: define spir_kernel void @u_shuffle2_v8i64()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i64_t %1 shuffle2 %v8i64_3 %v8i64_4 %v8i64_5
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func <8 x i64> @_Z8shuffle2Dv8_mS_S_(<8 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>, <8 x i64> <i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4>, <8 x i64> <i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5>)
+; CHECK: = call spir_func <8 x i64> @_Z8shuffle2Dv8_mS_S_(<8 x i64> <i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3, i64 3>, <8 x i64> <i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4, i64 4>, <8 x i64> <i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5>)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                         OpCapability Kernel
                         OpCapability Addresses
@@ -26,10 +27,7 @@
 ; All types, variables and constants
               %void_t = OpTypeVoid
                %u32_t = OpTypeInt 32 0
-               %i32_t = OpTypeInt 32 1
      %u_abs_diff_fn_t = OpTypeFunction %void_t
-               %i32_2 = OpConstant %i32_t 2
-               %i32_3 = OpConstant %i32_t 3
                %u32_2 = OpConstant %u32_t 2
                %u32_3 = OpConstant %u32_t 3
 
@@ -37,10 +35,8 @@
       %u_abs_diff_i32 = OpFunction %void_t None %u_abs_diff_fn_t
 ; CHECK: define spir_kernel void @u_abs_diff_i32()
                    %2 = OpLabel
-                   %3 = OpExtInst %u32_t %1 u_abs_diff %i32_2 %i32_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z8abs_diffjj(i32 2, i32 3)
-                   %4 = OpExtInst %u32_t %1 u_abs_diff %u32_2 %u32_3
-; CHECK: {{%[a-zA-Z0-9]+}} = call spir_func i32 @_Z8abs_diffjj(i32 2, i32 3)
+                   %3 = OpExtInst %u32_t %1 u_abs_diff %u32_2 %u32_3
+; CHECK: = call spir_func i32 @_Z8abs_diffjj(i32 2, i32 3)
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

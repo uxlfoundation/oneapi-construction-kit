@@ -15,6 +15,7 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
 ; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
 ; RUN: spirv-ll-tool -a OpenCL -b 64 -c Sampled1D %spv_file_s | FileCheck %t
                       OpCapability Kernel
@@ -50,13 +51,13 @@
                 %10 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
                 %11 = OpImageSampleExplicitLod %v4float_t %sampled_image %float_1 None
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, float 1.000000e+00)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, float 1.000000e+00)
                 %12 = OpImageSampleExplicitLod %v4float_t %sampled_image %int_1 None 
-; CHECK: {{%.*}} = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, i32 1)
+; CHECK: = call spir_func <4 x float> @_Z11read_imagef11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, i32 1)
                 %15 = OpImageSampleExplicitLod %v4uint_t %sampled_image %float_1 None
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, float 1.000000e+00)
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_samplerf([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, float 1.000000e+00)
                 %16 = OpImageSampleExplicitLod %v4uint_t %sampled_image %int_1 None
-; CHECK: {{%.*}} = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, i32 1)
+; CHECK: = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1d11ocl_sampleri([[IMG_TY]] %in_image, [[SAMPLER_TY]] %in_sampler, i32 1)
                       OpReturn
 ; CHECK: ret void
                       OpFunctionEnd

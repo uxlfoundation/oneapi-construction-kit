@@ -66,8 +66,8 @@ struct TracerVirtualMemFileImpl {
     int f = open(tmp_name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (f == 0) {
-      fprintf(stderr, "Could not open %s temp file for tracing.\n",
-              tmp_name.c_str());
+      (void)fprintf(stderr, "Could not open %s temp file for tracing.\n",
+                    tmp_name.c_str());
       return;
     }
 
@@ -90,8 +90,8 @@ struct TracerVirtualMemFileImpl {
     lseek64(f, bytes, SEEK_SET);
     auto written = write(f, "", 1);
     if (0 == written) {
-      fprintf(stderr, "Failed to resize %s.\n", tmp_name.c_str());
-      remove(tmp_name.c_str());
+      (void)fprintf(stderr, "Failed to resize %s.\n", tmp_name.c_str());
+      (void)remove(tmp_name.c_str());
       return;
     }
     lseek64(f, 0, SEEK_SET);
@@ -101,8 +101,8 @@ struct TracerVirtualMemFileImpl {
     close(f);
 
     if (map == MAP_FAILED) {
-      fprintf(stderr, "Failed to map tmp file:%s.\n", strerror(errno));
-      remove(tmp_name.c_str());
+      (void)fprintf(stderr, "Failed to map tmp file:%s.\n", strerror(errno));
+      (void)remove(tmp_name.c_str());
     }
 
     // Buffer to keep things stack allocated.
@@ -132,9 +132,9 @@ struct TracerVirtualMemFileImpl {
       const char *ending = "\n\t]\n}\n";
 
       if (std::strlen(ending) + offset > max_offset) {
-        fprintf(stderr,
-                "Trace overflow, failed to write data, increase "
-                "CA_TRACE_FILE_BUFFER_MB");
+        (void)fprintf(stderr,
+                      "Trace overflow, failed to write data, increase "
+                      "CA_TRACE_FILE_BUFFER_MB");
       }
 
       writeToMemMap(ending, std::strlen(ending));
@@ -149,7 +149,7 @@ struct TracerVirtualMemFileImpl {
         fclose(file);
 
         if (idx != offset.load()) {
-          fprintf(stderr, "Trace file could not be shrunk down.");
+          (void)fprintf(stderr, "Trace file could not be shrunk down.");
         }
       }
 
@@ -216,7 +216,7 @@ struct TracerFileImpl {
     file = fopen(env, "w");
 
     if (nullptr == file) {
-      fprintf(stderr, "Could not open '%s' for tracing.\n", env);
+      (void)fprintf(stderr, "Could not open '%s' for tracing.\n", env);
       return;
     }
 

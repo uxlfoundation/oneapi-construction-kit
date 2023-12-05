@@ -15,16 +15,16 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
+            OpCapability Addresses
             OpCapability Float64
-            OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
-            OpExecutionMode %main LocalSize 1 1 1
-            OpSource GLSL 450
-            OpName %main "main"
+       %1 = OpExtInstImport "OpenCL.std"
+            OpMemoryModel Physical64 OpenCL
+            OpEntryPoint Kernel %testfn "testfn"
+            OpSource OpenCL_C 102000
+            OpName %testfn "testfn"
             OpName %res "res"
             OpName %test "test"
             OpName %const "const"
@@ -36,18 +36,18 @@
     %test = OpSpecConstant %double -42.42
    %const = OpConstant %double -42.42
       %11 = OpSpecConstantOp %double FMod %test %const
-    %main = OpFunction %void None %3
+  %testfn = OpFunction %void None %3
        %5 = OpLabel
      %res = OpVariable %ptr_double Function
             OpStore %res %11
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main() #0 {
-; CHECK: [[MOD:%[a-zA-Z0-9_]+]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double -4.242000e+01)
-; CHECK: [[SPEC:%[a-zA-Z0-9_]+]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
-; CHECK: br label {{%[a-zA-Z0-9_]+}}
-; CHECK: [[RES:%[a-zA-Z0-9_]+]] = alloca double
+; CHECK: define spir_kernel void @testfn() #0
+; CHECK: [[MOD:%.*]] = call spir_func double @_Z4fmoddd(double -4.242000e+01, double -4.242000e+01)
+; CHECK: [[SPEC:%.*]] = call spir_func double @_Z8copysigndd(double [[MOD]], double -4.242000e+01)
+; CHECK: br label {{%.*}}
+; CHECK: [[RES:%.*]] = alloca double
 ; CHECK: store double [[SPEC]], ptr [[RES]]
 ; CHECK: ret void
 ; CHECK: declare spir_func double @_Z4fmoddd(double, double)
