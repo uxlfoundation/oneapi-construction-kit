@@ -2,7 +2,7 @@ diff --git a/include/refsi_hal.h b/include/refsi_hal.h
 index cd2667c..e16389d 100644
 --- a/include/refsi_hal.h
 +++ b/include/refsi_hal.h
-@@ -79,7 +79,8 @@ class refsi_hal_device : public hal::hal_device_t {
+@@ -93,7 +93,8 @@ class refsi_hal_device : public hal::hal_device_t {
    bool populateSchedulingInfo(exec_state_t &exec,
                                const hal::hal_ndrange_t &range,
                                uint32_t work_dim);
@@ -16,7 +16,7 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index bfa1488..3a22b6f 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -6,6 +6,7 @@
+@@ -20,6 +20,7 @@
  
  #include <memory>
  
@@ -24,7 +24,7 @@ index bfa1488..3a22b6f 100644
  #include "elf_loader.h"
  #include "refsi_command_buffer.h"
  
-@@ -76,7 +77,9 @@ bool refsi_hal_device::populateSchedulingInfo(exec_state_t &exec,
+@@ -90,7 +91,9 @@ bool refsi_hal_device::populateSchedulingInfo(exec_state_t &exec,
    return true;
  }
  
@@ -35,7 +35,7 @@ index bfa1488..3a22b6f 100644
                                                hal::hal_size_t &kub_desc,
                                                hal::hal_size_t &tsd_info) {
    auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
-@@ -85,6 +88,15 @@ hal::hal_addr_t refsi_hal_device::allocateKUB(const exec_state_t &exec,
+@@ -99,6 +102,15 @@ hal::hal_addr_t refsi_hal_device::allocateKUB(const exec_state_t &exec,
    };
    std::vector<uint8_t> kub_data;
  
@@ -51,7 +51,7 @@ index bfa1488..3a22b6f 100644
    // Pack work-group scheduling info into the KUB.
    uint64_t sched_offset = kub_data.size();
    uint64_t sched_size = sizeof(exec_state_t);
-@@ -132,8 +144,10 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -146,8 +158,10 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
      return false;
    }
    hal::hal_size_t kub_desc = 0;
@@ -63,7 +63,7 @@ index bfa1488..3a22b6f 100644
    if (!kub_addr) {
      return false;
    }
-@@ -144,6 +158,7 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -158,6 +172,7 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
    cb.addWRITE_REG64(CMP_REG_ENTRY_PT_FN, kernel_wrapper->symbol);
    cb.addWRITE_REG64(CMP_REG_RETURN_ADDR, elf->find_symbol("kernel_exit"));
    cb.addWRITE_REG64(CMP_REG_KUB_DESC, kub_desc);
