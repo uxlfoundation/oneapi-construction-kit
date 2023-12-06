@@ -117,14 +117,14 @@ then
   then
     cp -r $ock_dir/examples/hals/hal_refsi_tutorial hal_refsi_tutorial
     cd hal_refsi_tutorial
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step1.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step2.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step3.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step4.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub1.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step1.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step2.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step3.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step4.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub1.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
+    patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch
     cd ..
     ln -s $ock_dir/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
   fi
