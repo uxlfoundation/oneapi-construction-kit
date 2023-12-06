@@ -19,7 +19,7 @@ OUTPUT_ARCH( "riscv" )
 
 MEMORY
 {
-    mainmem : ORIGIN = 0x10000, LENGTH = (1 << 20)
+    mainmem : ORIGIN = 0x10000, LENGTH = (1 << 27)
     localmem : ORIGIN = 0x10000000, LENGTH = 0x200000
 }
 

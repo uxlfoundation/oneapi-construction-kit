@@ -29,8 +29,10 @@
 // Default memory area for storing kernel ELF binaries. When the RefSi device
 // does not have dedicated (TCIM) memory for storing kernel exeutables, a memory
 // window is set up to map this memory area to a reserved area in DMA.
+// We have increased the memory size from 1 << 20 to handle kernels larger than
+// 1MiB
 constexpr const uint64_t REFSI_ELF_BASE = 0x10000ull;
-constexpr const uint64_t REFSI_ELF_SIZE = (1 << 20) - REFSI_ELF_BASE;
+constexpr const uint64_t REFSI_ELF_SIZE = (1 << 27) - REFSI_ELF_BASE;
 
 constexpr const uint64_t REFSI_MAX_HARTS = 64;
 
