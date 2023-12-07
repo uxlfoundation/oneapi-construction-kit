@@ -121,7 +121,7 @@ after the ``Add final passes here`` comment, add:
 .. code:: cpp
 
   // Add final passes here by adding directly to PM as needed
-  PM.addPass(refsi::RefSiWrapperPass()); 
+  PM.addPass(refsi_tutorial::RefSiWrapperPass());
 
 Note you will also need to include the header file ``refsi_wrapper_pass.h`` you
 just created. 
@@ -172,7 +172,7 @@ we see the `IR` dumped after that pass, including the unchanged function:
 
 .. code:: console
 
-  ** IR Dump After refsi::RefSiWrapperPass on [module] ***
+  ** IR Dump After refsi_tutorial::RefSiWrapperPass on [module] ***
   ; ModuleID = 'kernel.opencl'
   source_filename = "kernel.opencl"
   target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
