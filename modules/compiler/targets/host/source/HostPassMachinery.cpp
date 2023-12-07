@@ -27,6 +27,7 @@
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
+#include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/pipeline_parse_helpers.h>
@@ -329,6 +330,9 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   PM.addPass(compiler::utils::AddMetadataPass<
              compiler::utils::VectorizeMetadataAnalysis,
              handler::VectorizeInfoMetadataHandler>());
+
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ManualTypeLegalizationPass()));
 
   return PM;
 }

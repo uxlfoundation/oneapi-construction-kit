@@ -507,12 +507,7 @@ TEST_P(HalfMathBuiltins, Precision_16_Half_Ceil) {
   TestAgainstRef<0_ULP>(ceil_ref);
 }
 
-// TODO: CA-2731
-#ifdef __arm__
-TEST_P(HalfMathBuiltins, DISABLED_Precision_17_Half_sqrt) {
-#else
 TEST_P(HalfMathBuiltins, Precision_17_Half_sqrt) {
-#endif
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -756,12 +751,7 @@ TEST_P(HalfMathBuiltins, Precision_31_Half_Nan) {
   this->RunGeneric1D(N / vec_width);
 }
 
-// TODO: CA-2731
-#ifdef __arm__
-TEST_P(HalfMathBuiltins, DISABLED_Precision_32_Half_Mad) {
-#else
 TEST_P(HalfMathBuiltins, Precision_32_Half_Mad) {
-#endif
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -1744,12 +1734,7 @@ TEST_P(HalfMathBuiltins, Precision_75_Half_lgammar_private) {
   TestAgainstIntReferenceArgRef<MAX_ULP_ERROR>(lgammar_ref);
 }
 
-// TODO: CA-2731
-#ifdef __arm__
-TEST_P(HalfMathBuiltins, DISABLED_Precision_76_Half_tgamma) {
-#else
 TEST_P(HalfMathBuiltins, Precision_76_Half_tgamma) {
-#endif
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -1789,9 +1774,7 @@ TEST_P(HalfMathBuiltins, Precision_79_Half_tanh) {
   TestAgainstRef<2_ULP>(tanh_ref);
 }
 
-// TODO: CA-2731
-// TODO: CA-4735
-TEST_P(HalfMathBuiltins, DISABLED_Precision_80_Half_pow) {
+TEST_P(HalfMathBuiltins, Precision_80_Half_pow) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -1813,8 +1796,7 @@ TEST_P(HalfMathBuiltins, DISABLED_Precision_80_Half_pow) {
   TestAgainstRef<4_ULP>(pow_ref);
 }
 
-// TODO: CA-2731
-// TODO: CA-4735
+// TODO: OCK-523
 TEST_P(HalfMathBuiltins, DISABLED_Precision_81_Half_powr) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
@@ -1851,12 +1833,7 @@ TEST_P(HalfMathBuiltins, DISABLED_Precision_81_Half_powr) {
   TestAgainstRef<4_ULP>(powr_ref);
 }
 
-#ifdef __arm__
-// TODO: CA-2731
-TEST_P(HalfMathBuiltins, DISABLED_Precision_82_Half_pown) {
-#else
 TEST_P(HalfMathBuiltins, Precision_82_Half_pown) {
-#endif
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
