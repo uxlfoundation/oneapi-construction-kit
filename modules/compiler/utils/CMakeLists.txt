@@ -39,6 +39,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/llvm_global_mutex.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/lower_to_mux_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/make_function_name_unique_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/manual_type_legalization_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/mangling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/memory_buffer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata.h
@@ -92,6 +93,7 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lower_to_mux_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/make_function_name_unique_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mangling.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/manual_type_legalization_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp

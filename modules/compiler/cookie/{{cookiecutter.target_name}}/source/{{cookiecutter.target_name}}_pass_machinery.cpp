@@ -26,6 +26,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
+#include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
@@ -221,6 +222,9 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}PassMachinery::
              handler::VectorizeInfoMetadataHandler>());
 
   addLLVMDefaultPerModulePipeline(PM, getPB(), options);
+
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ManualTypeLegalizationPass()));
 
   if (env_debug_prefix) {
     // With all passes scheduled, add a callback pass to view the
