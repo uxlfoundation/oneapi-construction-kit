@@ -25,8 +25,22 @@
 namespace extension {
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
 namespace usm {
+// Return whether a given alignment for a USM pointer is valid
+//
+// A valid alignment is a possibly 0 power of two. This function does not check
+// for device support.
+constexpr bool isAlignmentValid(cl_uint alignment) {
+  return !alignment || (alignment & (alignment - 1)) == 0;
+}
+
+/// Return whether multiple bits are set for the given value
+template <typename T>
+constexpr bool areMultipleBitsSet(T value) {
+  return value && (value & (value - 1)) != 0;
+};
+
 cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
-    const cl_mem_properties_intel *properties) {
+    const cl_mem_properties_intel *properties, bool is_shared) {
   cl_mem_alloc_flags_intel alloc_flags = 0;
   if (properties && properties[0] != 0) {
     auto current = properties;
@@ -37,16 +51,21 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
       switch (property) {
         case CL_MEM_ALLOC_FLAGS_INTEL: {
           if (0 == (seen & CL_MEM_ALLOC_FLAGS_INTEL)) {
-            if (value & (CL_MEM_ALLOC_INITIAL_PLACEMENT_DEVICE_INTEL |
-                         CL_MEM_ALLOC_INITIAL_PLACEMENT_HOST_INTEL)) {
-              // These options are valid only for shared memory allocations,
-              // which we don't yet support.
+            constexpr auto PLACEMENT =
+                CL_MEM_ALLOC_INITIAL_PLACEMENT_DEVICE_INTEL |
+                CL_MEM_ALLOC_INITIAL_PLACEMENT_HOST_INTEL;
+
+            const auto valid_flags =
+                CL_MEM_ALLOC_WRITE_COMBINED_INTEL | (is_shared ? PLACEMENT : 0);
+
+            if (value & ~valid_flags) {
+              // Either an invalid flag is set, or one of the "placement" ones
+              // set on a non-shared pointer
               return cargo::make_unexpected(CL_INVALID_PROPERTY);
             }
 
-            if (value >= (CL_MEM_ALLOC_INITIAL_PLACEMENT_HOST_INTEL << 1)) {
-              // Bit set which is more significant than the largest valid bit
-              // in bitfield.
+            if (areMultipleBitsSet(value & PLACEMENT)) {
+              // Options are mutually exclusive - Can't have both
               return cargo::make_unexpected(CL_INVALID_PROPERTY);
             }
 
@@ -109,6 +128,13 @@ bool deviceSupportsHostAllocations(cl_device_id device) {
 #error Unsupported pointer size
 #endif
   return can_access_host & ptr_widths_match;
+}
+
+bool deviceSupportsSharedAllocations(cl_device_id device) {
+  // Currently, we implement shared allocations as a wrapper around host
+  // allocations. Any device that supports host allocations also supports shared
+  // allocations.
+  return deviceSupportsHostAllocations(device);
 }
 
 cl_int createBlockingEventForKernel(cl_command_queue queue, cl_kernel kernel,
@@ -210,8 +236,7 @@ host_allocation_info::create(cl_context context,
                              const cl_mem_properties_intel *properties,
                              size_t size, cl_uint alignment) {
   OCL_CHECK(size == 0, return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
-
-  OCL_CHECK((alignment & (alignment - 1)) != 0,
+  OCL_CHECK(!isAlignmentValid(alignment),
             return cargo::make_unexpected(CL_INVALID_VALUE));
 
   cl_uint max_align = 0;
@@ -230,13 +255,14 @@ host_allocation_info::create(cl_context context,
     alignment = max_align;
   }
 
-  auto alloc_properties = parseProperties(properties);
+  auto alloc_properties = parseProperties(properties, false);
   if (!alloc_properties) {
     return cargo::make_unexpected(alloc_properties.error());
   }
 
   auto usm_alloc = std::unique_ptr<host_allocation_info>(
       new (std::nothrow) host_allocation_info(context, size));
+  OCL_CHECK(!usm_alloc, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
   OCL_CHECK(nullptr == usm_alloc,
             return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
@@ -332,8 +358,7 @@ device_allocation_info::create(cl_context context, cl_device_id device,
                                const cl_mem_properties_intel *properties,
                                size_t size, cl_uint alignment) {
   OCL_CHECK(size == 0, return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
-
-  OCL_CHECK((alignment & (alignment - 1)) != 0,
+  OCL_CHECK(!isAlignmentValid(alignment),
             return cargo::make_unexpected(CL_INVALID_VALUE));
 
   const auto device_align = device->mux_device->info->buffer_alignment;
@@ -342,7 +367,7 @@ device_allocation_info::create(cl_context context, cl_device_id device,
   OCL_CHECK(alignment > device_align,
             return cargo::make_unexpected(CL_INVALID_VALUE));
 
-  auto alloc_properties = parseProperties(properties);
+  auto alloc_properties = parseProperties(properties, false);
   if (!alloc_properties) {
     return cargo::make_unexpected(alloc_properties.error());
   }
@@ -353,6 +378,7 @@ device_allocation_info::create(cl_context context, cl_device_id device,
 
   auto usm_alloc = std::unique_ptr<device_allocation_info>(
       new (std::nothrow) device_allocation_info(context, device, size));
+  OCL_CHECK(!usm_alloc, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
   cl_int error = usm_alloc->allocate(alignment);
   OCL_CHECK(error != CL_SUCCESS, return cargo::make_unexpected(error));
@@ -400,6 +426,147 @@ cl_int device_allocation_info::allocate(cl_uint alignment) {
 
   return CL_SUCCESS;
 }
+
+shared_allocation_info::shared_allocation_info(const cl_context context,
+                                               const cl_device_id device,
+                                               const size_t size)
+    : allocation_info(context, size),
+      device(device),
+      mux_memory(nullptr),
+      mux_buffer(nullptr) {
+  if (device) {
+    cl::retainInternal(device);
+  }
+};
+
+shared_allocation_info::~shared_allocation_info() {
+  if (mux_buffer) {
+    assert(device);
+    (void)muxDestroyBuffer(device->mux_device, mux_buffer,
+                           device->mux_allocator);
+  }
+
+  if (mux_memory) {
+    assert(device);
+    muxFreeMemory(device->mux_device, mux_memory, device->mux_allocator);
+  }
+
+  // Free the host side allocation
+  if (base_ptr) {
+    cargo::free(base_ptr);
+  }
+
+  if (device) {
+    cl::releaseInternal(device);
+  }
+};
+
+cargo::expected<std::unique_ptr<shared_allocation_info>, cl_int>
+shared_allocation_info::create(cl_context context, cl_device_id device,
+                               const cl_mem_properties_intel *properties,
+                               size_t size, cl_uint alignment) {
+  OCL_CHECK(size == 0, return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
+
+  if (device) {
+    OCL_CHECK(size > device->max_mem_alloc_size,
+              return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
+    OCL_CHECK(alignment > device->mux_device->info->buffer_alignment,
+              return cargo::make_unexpected(CL_INVALID_VALUE));
+  } else {
+    // If no device is given, all devices that support shared USM must meet
+    // the max_alloc_size and alignment requirements
+    for (auto device : context->devices) {
+      if (deviceSupportsSharedAllocations(device)) {
+        const auto device_align = device->mux_device->info->buffer_alignment;
+        OCL_CHECK(size > device->max_mem_alloc_size,
+                  return cargo::make_unexpected(CL_INVALID_BUFFER_SIZE));
+        OCL_CHECK(alignment > device_align,
+                  return cargo::make_unexpected(CL_INVALID_VALUE));
+      }
+    }
+  }
+
+  OCL_CHECK(!isAlignmentValid(alignment),
+            return cargo::make_unexpected(CL_INVALID_VALUE));
+
+  if (alignment == 0) {
+    if (device) {
+      alignment = device->mux_device->info->buffer_alignment;
+    } else {
+      // Default alignment with no device is the highest alignment of all other
+      // devices that support shared allocations (must be at least one,
+      // otherwise this function is undefined)
+      cl_uint max_align = 2;
+      for (auto device : context->devices) {
+        if (deviceSupportsSharedAllocations(device)) {
+          const auto device_align = device->min_data_type_align_size;
+          max_align = std::max(device_align, max_align);
+        }
+      }
+      alignment = max_align;
+    }
+  }
+
+  auto alloc_properties = parseProperties(properties, true);
+  if (!alloc_properties) {
+    return cargo::make_unexpected(alloc_properties.error());
+  }
+
+  auto usm_alloc = std::unique_ptr<shared_allocation_info>(
+      new (std::nothrow) shared_allocation_info(context, device, size));
+  OCL_CHECK(!usm_alloc, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
+
+  // Decide whether to allocate initially on device or not
+  // NOTE: The specification says these are only hints, so we ignore them for
+  // now
+  bool prefers_host = true;
+  if (*alloc_properties & CL_MEM_ALLOC_INITIAL_PLACEMENT_DEVICE_INTEL) {
+    prefers_host = false;
+  }
+  (void)prefers_host;
+
+  cl_int error = usm_alloc->allocate(alignment);
+  OCL_CHECK(error != CL_SUCCESS, return cargo::make_unexpected(error));
+
+  usm_alloc->alloc_flags = alloc_properties.value();
+
+  return usm_alloc;
+}
+
+cl_int shared_allocation_info::allocate(cl_uint alignment) {
+  base_ptr = cargo::alloc(size, alignment);
+  if (base_ptr == nullptr) {
+    return CL_OUT_OF_HOST_MEMORY;
+  }
+
+  if (device) {
+    if (!deviceSupportsSharedAllocations(device)) {
+      return CL_INVALID_OPERATION;
+    }
+
+    // Initialize the Mux objects needed by each device
+    if (muxCreateBuffer(device->mux_device, size, device->mux_allocator,
+                        &mux_buffer)) {
+      return CL_OUT_OF_HOST_MEMORY;
+    }
+
+    mux_result_t mux_error = muxCreateMemoryFromHost(
+        device->mux_device, size, base_ptr, device->mux_allocator, &mux_memory);
+    if (mux_error) {
+      return CL_OUT_OF_RESOURCES;
+    }
+
+    const uint64_t offset = 0;
+    mux_error =
+        muxBindBufferMemory(device->mux_device, mux_memory, mux_buffer, offset);
+    if (mux_error) {
+      return CL_MEM_OBJECT_ALLOCATION_FAILURE;
+    }
+  }
+
+  return CL_SUCCESS;
+}
+
 }  // namespace usm
 #endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
 
@@ -442,9 +609,15 @@ cl_int intel_unified_shared_memory::GetDeviceInfo(
       result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
       break;
     case CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL:
-      CARGO_FALLTHROUGH;
+      if (!usm::deviceSupportsSharedAllocations(device)) {
+        break;
+      }
+      result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
+      break;
     case CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL:
-      CARGO_FALLTHROUGH;
+      // Not supported yet
+      result = 0;
+      break;
     case CL_DEVICE_SHARED_SYSTEM_MEM_CAPABILITIES_INTEL:
       break;
     default:

@@ -256,43 +256,42 @@ void *clSharedMemAllocINTEL(cl_context context, cl_device_id device,
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_DEVICE);
             return nullptr);
 
-  OCL_CHECK(size == 0, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
-            return nullptr);
+  if (device) {
+    if (!extension::usm::deviceSupportsSharedAllocations(device)) {
+      OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
+      return nullptr;
+    }
+  } else {
+    // If no device is given, we fail if no device in the context supports
+    // shared USM
+    const bool no_host_support = std::none_of(
+        context->devices.cbegin(), context->devices.cend(),
+        [](cl_device_id device) {
+          return extension::usm::deviceSupportsSharedAllocations(device);
+        });
 
-  auto alloc_flags = extension::usm::parseProperties(properties);
-  if (!alloc_flags) {
-    OCL_SET_IF_NOT_NULL(errcode_ret, alloc_flags.error());
+    OCL_CHECK(no_host_support,
+              OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
+              return nullptr);
+  }
+
+  auto new_usm_allocation = extension::usm::shared_allocation_info::create(
+      context, device, properties, size, alignment);
+
+  if (!new_usm_allocation) {
+    OCL_SET_IF_NOT_NULL(errcode_ret, new_usm_allocation.error());
     return nullptr;
   }
 
-  if (device) {
-    OCL_CHECK(size > device->max_mem_alloc_size,
-              OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
-              return nullptr);
-    OCL_CHECK(alignment > device->mux_device->info->buffer_alignment,
-              OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
-              return nullptr);
-
-  } else {
-    for (auto device : context->devices) {
-      const auto device_align = device->mux_device->info->buffer_alignment;
-
-      OCL_CHECK(size > device->max_mem_alloc_size,
-                OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
-                return nullptr);
-      OCL_CHECK(alignment > device_align,
-                OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
-                return nullptr);
-    }
+  // Lock context for pushing to list of usm allocations
+  std::lock_guard<std::mutex> context_guard(context->mutex);
+  if (context->usm_allocations.push_back(
+          std::move(new_usm_allocation.value()))) {
+    OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
+    return nullptr;
   }
-
-  OCL_CHECK((alignment & (alignment - 1)) != 0,
-            OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
-            return nullptr);
-
-  OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
-
-  return nullptr;
+  OCL_SET_IF_NOT_NULL(errcode_ret, CL_SUCCESS);
+  return context->usm_allocations.back()->base_ptr;
 }
 
 CL_API_ENTRY
@@ -401,8 +400,7 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
     case CL_MEM_ALLOC_TYPE_INTEL: {
       cl_unified_shared_memory_type_intel result = CL_MEM_TYPE_UNKNOWN_INTEL;
       if (usm_alloc) {
-        result = usm_alloc->getDevice() ? CL_MEM_TYPE_DEVICE_INTEL
-                                        : CL_MEM_TYPE_HOST_INTEL;
+        result = usm_alloc->getMemoryType();
       }
 
       if (nullptr != param_value) {
