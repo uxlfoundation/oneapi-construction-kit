@@ -100,8 +100,8 @@ prepares the values to write to the KUB and TSD registers:
                                                   hal::hal_size_t &kub_desc,
                                                   hal::hal_size_t &tsd_info) {
       auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
-        uint64_t padding = align - (buffer.size() % align);
-        buffer.resize(buffer.size() + padding);
+        size_t aligned_size = (buffer.size() + align - 1) / align * align;
+        buffer.resize(aligned_size);
       };
       std::vector<uint8_t> kub_data;
 
