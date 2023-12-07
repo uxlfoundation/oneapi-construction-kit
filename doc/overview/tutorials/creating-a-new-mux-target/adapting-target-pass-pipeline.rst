@@ -541,7 +541,7 @@ Dumping the IR of your function should show your changes:
     %6 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 1, i32 0
     store i64 %5, ptr %6, align 8
   
-    ; more load/stores like this top copy whole struct
+    ; more load/stores like this to copy the whole struct
   
     %34 = urem i64 %slice, %3
     %35 = udiv i64 %slice, %3
