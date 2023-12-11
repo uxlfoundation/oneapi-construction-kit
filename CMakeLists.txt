@@ -85,6 +85,8 @@ ca_option(CA_ENABLE_EXAMPLES BOOL
   "Enable building example programs" ON)
 ca_option(CA_ENABLE_HOST_IMAGE_SUPPORT BOOL
   "Enable host image support" OFF)
+ca_option(CA_ENABLE_OUT_OF_ORDER_EXEC_MODE BOOL
+  "Enable out of order execution mode" ON)
 ca_immutable_option(CA_ENABLE_DEBUG_SUPPORT BOOL
   "Enable debug support regardless of build type" OFF)
 ca_option(CA_ENABLE_DEBUG_BACKTRACE BOOL

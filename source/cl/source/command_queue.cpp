@@ -94,31 +94,25 @@ _cl_command_queue::~_cl_command_queue() {
 cargo::expected<std::unique_ptr<_cl_command_queue>, cl_int>
 _cl_command_queue::create(cl_context context, cl_device_id device,
                           cl_command_queue_properties properties) {
-  cl_command_queue_properties queueProperties = 0;
-
   if (properties &
       ~(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE)) {
     return cargo::make_unexpected(CL_INVALID_VALUE);
   }
 
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
   if (cl::validate::IsInBitSet(properties,
                                CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)) {
     return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
   }
-
-  // Set profiling enable
-  if (cl::validate::IsInBitSet(properties, CL_QUEUE_PROFILING_ENABLE)) {
-    queueProperties |= CL_QUEUE_PROFILING_ENABLE;
-  }
+#endif
 
   mux_queue_t mux_queue;
   mux_result_t error =
       muxGetQueue(device->mux_device, mux_queue_type_compute, 0, &mux_queue);
   OCL_CHECK(error, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
-  auto queue =
-      std::unique_ptr<_cl_command_queue>(new (std::nothrow) _cl_command_queue(
-          context, device, queueProperties, mux_queue));
+  auto queue = std::unique_ptr<_cl_command_queue>(new (
+      std::nothrow) _cl_command_queue(context, device, properties, mux_queue));
   OCL_CHECK(nullptr == queue,
             return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
@@ -163,16 +157,18 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
         case CL_QUEUE_PROPERTIES:
           if (value & ~valid_properties_mask) {
             return cargo::make_unexpected(CL_INVALID_VALUE);
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
           } else if (value & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) {
             // TODO(CA-1123): Support out of order command queues.
             return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
+#endif
 #if defined(CL_VERSION_3_0)
           } else if (value & CL_QUEUE_ON_DEVICE ||
                      value & CL_QUEUE_ON_DEVICE_DEFAULT) {
             return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
 #endif
-          } else if (value & CL_QUEUE_PROFILING_ENABLE) {
-            command_queue_properties |= CL_QUEUE_PROFILING_ENABLE;
+          } else {
+            command_queue_properties |= value;
           }
           break;
 #if defined(CL_VERSION_3_0)
@@ -1229,10 +1225,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
               return CL_INVALID_CONTEXT);
   }
 
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
   OCL_CHECK(cl::validate::IsInBitSet(queue->properties,
                                      CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE),
             OCL_ABORT("OCL API objects event. Error clEnqueueWaitForEvents "
                       "does not support out of order execution"));
+#endif
 
   // no-op, as our queue is in-order we guarantee that all events are executed
   // before this could be!
