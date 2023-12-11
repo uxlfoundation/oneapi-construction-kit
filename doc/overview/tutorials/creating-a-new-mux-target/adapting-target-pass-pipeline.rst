@@ -121,7 +121,7 @@ after the ``Add final passes here`` comment, add:
 .. code:: cpp
 
   // Add final passes here by adding directly to PM as needed
-  PM.addPass(refsi::RefSiWrapperPass()); 
+  PM.addPass(refsi_tutorial::RefSiWrapperPass());
 
 Note you will also need to include the header file ``refsi_wrapper_pass.h`` you
 just created. 
@@ -172,7 +172,7 @@ we see the `IR` dumped after that pass, including the unchanged function:
 
 .. code:: console
 
-  ** IR Dump After refsi::RefSiWrapperPass on [module] ***
+  ** IR Dump After refsi_tutorial::RefSiWrapperPass on [module] ***
   ; ModuleID = 'kernel.opencl'
   source_filename = "kernel.opencl"
   target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
@@ -350,24 +350,22 @@ id``.
     for (auto &Arg : F.getFunctionType()->params()) { 
       ArgTypes.push_back(Arg); 
     } 
-    Function *NewFunction = compiler::utils::createKernelWrapperFunction(M, F, ArgTypes);
+    Function *NewFunction = compiler::utils::createKernelWrapperFunction(
+        M, F, ArgTypes, ".refsi-wrapper");
 
-We now want to put together the arguments for calling the original function. The
-first parameters are a copy of the original parameters: 
+    // Copy over the old parameter names and attributes
+    for (unsigned i = 0, e = F.arg_size(); i != e; i++) {
+      auto *NewArg = NewFunction->getArg(i + 2);
+      NewArg->setName(F.getArg(i)->getName());
+      NewFunction->addParamAttrs(
+          i + 2, AttrBuilder(F.getContext(), F.getAttributes().getParamAttrs(i)));
+    }
+    NewFunction->getArg(InstanceArgIndex)->setName("instance");
+    NewFunction->getArg(SliceArgIndex)->setName("slice");
 
-.. code:: cpp
-
-      // get the arguments 
-      SmallVector<Value *, 8> Args;
-
-      unsigned int CountArgs = F.arg_size();
-      for (auto &Arg : NewFunction->args()) {
-        if (!(CountArgs--)) {
-          break;
-        }
-        Args.push_back(&Arg);
-      }
-
+    if (!NewFunction->hasFnAttribute(Attribute::NoInline)) {
+      NewFunction->addFnAttr(Attribute::AlwaysInline);
+    }
 
 We want to start creating code now, so create an ``IRBuilder`` for ease of use: 
 
@@ -401,7 +399,6 @@ structure on the stack:
 We can now copy the input structure to our copied structure:
 
 .. code:: cpp
-
 
     CopyElementToNewSchedStruct(
         Builder, MuxWorkGroupStructTy, SchedArg, SchedCopyInst,
@@ -456,6 +453,7 @@ scheduling struct with our copy and dropping the ``instance`` and ``slice`` argu
 .. code:: cpp
 
   unsigned int ArgIndex = 0;
+  SmallVector<Value *, 8> Args;
   for (auto &Arg : NewFunction->args()) {
     if (ArgIndex > SliceArgIndex) {
       if (ArgIndex == SchedStructArgIndex) {
@@ -472,8 +470,9 @@ complete now and we can return this created function.
 
 .. code:: cpp
 
-    auto CI = Builder.CreateCall(&F, Args); 
-    CI->setCallingConv(F.getCallingConv()); 
+    compiler::utils::createCallToWrappedFunction(
+        F, Args, Builder.GetInsertBlock(), Builder.GetInsertPoint());
+
     Builder.CreateRetVoid(); 
     return NewFunction; 
 
@@ -532,26 +531,26 @@ Dumping the IR of your function should show your changes:
    $ CA_LLVM_OPTIONS="-print-after=refsi-wrapper" bin/UnitCL \
      --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 
-  ; Function Attrs: alwaysinline nounwind
-  define void @add(ptr %0, ptr %1, i64 %2, i64 %3) #3 !codeplay_ca_wrapper !12 !mux_scheduled_fn !15 {
-    %5 = alloca %MuxWorkGroupInfo, align 8
-    %6 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 1, i32 1
-    %7 = load i64, ptr %6, align 8
-    %8 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 1, i32 0
-    %9 = load i64, ptr %8, align 8
-    %10 = getelementptr %MuxWorkGroupInfo, ptr %5, i32 0, i32 1, i32 0
-    store i64 %9, ptr %10, align 8
+  ; Function Attrs: alwaysinline mustprogress nofree norecurse nounwind willreturn memory(read, argmem: readwrite)
+  define void @add.refsi-wrapper(i64 %instance, i64 %slice, ptr %packed-args, ptr noalias nonnull align 8 deferenceable(104) %wg-info) #3 !codeplay_ca_wrapper !12 !mux_scheduled_fn !15 {
+    %1 = alloca %MuxWorkGroupInfo, align 8
+    %2 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 1, i32 1
+    %3 = load i64, ptr %2, align 8
+    %4 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 1, i32 0
+    %5 = load i64, ptr %4, align 8
+    %6 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 1, i32 0
+    store i64 %5, ptr %6, align 8
   
-    ; more load/stores like this top copy whole struct
+    ; more load/stores like this to copy the whole struct
   
-    %38 = urem i64 %3, %7
-    %39 = udiv i64 %3, %7
-    %40 = getelementptr %MuxWorkGroupInfo, ptr %5, i32 0, i32 0, i32 0
-    store i64 %2, ptr %40, align 8
-    %41 = getelementptr %MuxWorkGroupInfo, ptr %5, i32 0, i32 0, i32 1
-    store i64 %38, ptr %41, align 8
-    %42 = getelementptr %MuxWorkGroupInfo, ptr %5, i32 0, i32 0, i32 2
-    store i64 %39, ptr %42, align 8
-    call void @2(ptr %0, ptr %5)
+    %34 = urem i64 %slice, %3
+    %35 = udiv i64 %slice, %3
+    %36 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 0, i32 0
+    store i64 %instance, ptr %36, align 8
+    %37 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 0, i32 1
+    store i64 %34, ptr %37, align 8
+    %38 = getelementptr %MuxWorkGroupInfo, ptr %1, i32 0, i32 0, i32 2
+    store i64 %35, ptr %38, align 8
+    call void @add.mux-kernel-wrapper(ptr %packed-args, ptr noalias nonnull align 8 dereferenceable(104) %1)
     ret void
   }

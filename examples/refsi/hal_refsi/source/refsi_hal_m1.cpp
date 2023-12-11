@@ -299,8 +299,8 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   exec.kernel_entry = kernel_wrapper->symbol;
 
   auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
-    uint64_t padding = align - (buffer.size() % align);
-    buffer.resize(buffer.size() + padding);
+    size_t aligned_size = (buffer.size() + align - 1) / align * align;
+    buffer.resize(aligned_size);
   };
 
   // Pack arguments.

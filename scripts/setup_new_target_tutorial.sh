@@ -107,25 +107,36 @@ cd $external_dir
 
 if [[ $run_script != "none" ]]
 then
-    # Create the new target
-    $ock_dir/scripts/create_target.py $ock_dir \
-      $ock_dir/scripts/new_target_templates/$json_file \
-         --external-dir $external_dir $overwrite \
-         $feature_enable $feature_enable_name $feature_enable_val \
-         $copyright_enable $copyright_enable_name $copyright_enable_val
+  # Create the new target
+  $ock_dir/scripts/create_target.py $ock_dir \
+    $ock_dir/scripts/new_target_templates/$json_file \
+      --external-dir $external_dir $overwrite \
+      $feature_enable $feature_enable_name $feature_enable_val \
+      $copyright_enable $copyright_enable_name $copyright_enable_val
   if [[ $do_overwrite_tutorial -eq 0 ]]
   then
-    cp -r $ock_dir/examples/hals/hal_refsi_tutorial hal_refsi_tutorial
-    cd hal_refsi_tutorial
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step1.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step2.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step3.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step4.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub1.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
-    git apply $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch
-    cd ..
-    ln -s $ock_dir/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
+    if [[ -d hal_refsi_tutorial ]]
+    then
+      echo "Warning: $PWD/hal_refsi_tutorial already exists - no patches applied"
+    else
+      cp -r $ock_dir/examples/hals/hal_refsi_tutorial hal_refsi_tutorial
+      cd hal_refsi_tutorial
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step1.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step2.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step3.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step4.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub1.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub2.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub3.patch
+      patch -s -p1 < $ock_dir/doc/overview/tutorials/creating-new-hal/patches/tutorial1_step5_sub4.patch
+      cd ..
+    fi
+    if [[ -L hal_refsi_tutorial/external/refsidrv && -e hal_refsi_tutorial/external/refsidrv ]]
+    then
+      echo "Note: link already exists from hal_refsi_tutorial/external/refsidrv
+         to $ock_dir/examples/refsi/hal_refsi/external/refsidrv"
+    else
+      ln -s -i $ock_dir/examples/refsi/hal_refsi/external/refsidrv hal_refsi_tutorial/external
+    fi
   fi
 fi

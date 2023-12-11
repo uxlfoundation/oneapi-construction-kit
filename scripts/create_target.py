@@ -217,6 +217,7 @@ def main():
     parser.add_argument('config', help='json override description of target')
     args = parser.parse_args()
     base_computeaorta_dir = os.path.abspath(args.base_computeaorta_dir)
+    external_dir = os.path.abspath(args.external_dir)
 
     if args.base_config:
         base_config = os.path.abspath(args.base_config)
@@ -230,14 +231,14 @@ def main():
     compiler_dir_in_base = os.path.join(modules_dir_in_base, 'compiler')
     mux_dir_in_base = os.path.join(modules_dir_in_base, 'mux')
 
-    compiler_dir_out_base = os.path.join(args.external_dir, 'compiler')
-    mux_dir_out_base = os.path.join(args.external_dir, 'mux')
+    compiler_dir_out_base = os.path.join(external_dir, 'compiler')
+    mux_dir_out_base = os.path.join(external_dir, 'mux')
     external_dir_in_base = os.path.join(base_computeaorta_dir, 'external')
 
 
     context = create_context(base_config, args.config, base_computeaorta_dir, args.override)
     if context:
-        context['cookiecutter']['external_dir'] = args.external_dir
+        context['cookiecutter']['external_dir'] = external_dir
         update_string_values(context, ["llvm_cpu", "llvm_features", "llvm_triple"])
         result = create_subtarget(
             compiler_dir_in_base,
@@ -254,7 +255,7 @@ def main():
         if result:
             result = create_subtarget(
                 external_dir_in_base,
-                args.external_dir,
+                external_dir,
                 context,
                 overwrite_if_exists=True)                
         if not result:

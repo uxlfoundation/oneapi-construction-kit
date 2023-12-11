@@ -2,15 +2,17 @@ diff --git a/include/refsi_hal.h b/include/refsi_hal.h
 index 5a96851..a0bf0c4 100644
 --- a/include/refsi_hal.h
 +++ b/include/refsi_hal.h
-@@ -4,6 +4,7 @@
+@@ -18,13 +18,32 @@
  #define _HAL_REFSI_REFSI_HAL_H
  
  #include <mutex>
++#include <memory>
 +#include <string>
  
++#include "elf_loader.h"
  #include "hal.h"
  #include "hal_riscv.h"
-@@ -11,6 +12,14 @@
+ #include "refsidrv/refsidrv.h"
  
  using refsi_locker = std::lock_guard<std::recursive_mutex>;
  
@@ -22,6 +24,14 @@ index 5a96851..a0bf0c4 100644
 +  const std::string name;
 +};
 +
++struct refsi_hal_program {
++  refsi_hal_program(std::unique_ptr<ELFProgram> program)
++      : elf(std::move(program)) {}
++
++  std::unique_ptr<ELFProgram> elf;
++  std::map<std::string, std::unique_ptr<refsi_hal_kernel>> kernels;
++};
++
  class refsi_hal_device : public hal::hal_device_t {
   public:
    refsi_hal_device(riscv::hal_device_info_riscv_t *info, refsi_device_t device,
@@ -29,18 +39,7 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index 1c976d6..4e97324 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -4,6 +4,10 @@
- 
- #include <string.h>
- 
-+#include <memory>
-+
-+#include "elf_loader.h"
-+
- refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
-                                    refsi_device_t device,
-                                    std::recursive_mutex &hal_lock)
-@@ -17,18 +21,35 @@ refsi_hal_device::~refsi_hal_device() {
+@@ -31,18 +35,46 @@ refsi_hal_device::~refsi_hal_device() {
  hal::hal_kernel_t refsi_hal_device::program_find_kernel(
      hal::hal_program_t program, const char *name) {
    refsi_locker locker(hal_lock);
@@ -48,12 +47,21 @@ index 1c976d6..4e97324 100644
 +  if (program == hal::hal_invalid_program) {
 +    return hal::hal_invalid_kernel;
 +  }
-+  ELFProgram *elf = (ELFProgram *)program;
-+  hal::hal_addr_t kernel = elf->find_symbol(name);
-+  if (kernel == hal::hal_nullptr) {
-+    return hal::hal_invalid_kernel;
++  refsi_hal_program *refsi_program = (refsi_hal_program *)program;
++  refsi_hal_kernel *refsi_kernel = nullptr;
++  if (auto it = refsi_program->kernels.find(name);
++      it != refsi_program->kernels.end()) {
++    refsi_kernel = it->second.get();
++  } else {
++    hal::hal_addr_t kernel = refsi_program->elf->find_symbol(name);
++    if (kernel == hal::hal_nullptr) {
++      return hal::hal_invalid_kernel;
++    }
++    refsi_program->kernels[name] =
++        std::make_unique<refsi_hal_kernel>(kernel, name);
++    refsi_kernel = refsi_program->kernels[name].get();
 +  }
-+  return (hal::hal_kernel_t) new refsi_hal_kernel(kernel, name);
++  return reinterpret_cast<hal::hal_kernel_t>(refsi_kernel);
  }
  
  hal::hal_program_t refsi_hal_device::program_load(const void *data,
@@ -65,7 +73,8 @@ index 1c976d6..4e97324 100644
 +  if (!new_program->read(elf_data)) {
 +    return hal::hal_invalid_program;
 +  }
-+  return (hal::hal_program_t)new_program.release();
++  auto *refsi_program = new refsi_hal_program(std::move(new_program));
++  return (hal::hal_program_t)refsi_program;
  }
  
  bool refsi_hal_device::program_free(hal::hal_program_t program) {
@@ -74,7 +83,8 @@ index 1c976d6..4e97324 100644
 +  if (program == hal::hal_invalid_program) {
 +    return false;
 +  }
-+  delete (ELFProgram *)program;
++  auto *refsi_program = (refsi_hal_program *)program;
++  delete refsi_program;
 +  return true;
  }
  

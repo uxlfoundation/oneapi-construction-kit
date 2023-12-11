@@ -66,17 +66,14 @@ device. The ``populateSchedulingInfo`` function does the first part:
     bool refsi_hal_device::populateSchedulingInfo(wg_info_t &wg,
                                                   const hal::hal_ndrange_t &range,
                                                   uint32_t work_dim) {
-      exec_state_t &exec(wg.exec);
-      memset(&wg, 0, sizeof(wg_info_t));
-      wg.num_dim = exec.num_dim = work_dim;
+      wg.num_dim = work_dim;
       for (int i = 0; i < DIMS; i++) {
-        wg.local_size[i] = exec.local_size[i] = range.local[i];
-        wg.num_groups[i] = exec.num_groups[i] =
-            (range.global[i] / wg.local_size[i]);
+        wg.local_size[i] = range.local[i];
+        wg.num_groups[i] = (range.global[i] / wg.local_size[i]);
         if ((wg.num_groups[i] * wg.local_size[i]) != range.global[i]) {
           return false;
         }
-        wg.global_offset[i] = exec.offset[i] = range.offset[i];
+        wg.global_offset[i] = range.offset[i];
       }
       return true;
     }
@@ -91,7 +88,7 @@ prepares the values to write to the KUB and TSD registers:
       ...
      private:
       ...
-      hal::hal_addr_t allocateKUB(const wg_info_t &wg, hal::hal_size_t &kub_desc,
+      hal::hal_addr_t allocateKUB(const exec_state_t &exec, hal::hal_size_t &kub_desc,
                                   hal::hal_size_t &tsd_info); // Added
       ...
     };
@@ -103,8 +100,8 @@ prepares the values to write to the KUB and TSD registers:
                                                   hal::hal_size_t &kub_desc,
                                                   hal::hal_size_t &tsd_info) {
       auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
-        uint64_t padding = align - (buffer.size() % align);
-        buffer.resize(buffer.size() + padding);
+        size_t aligned_size = (buffer.size() + align - 1) / align * align;
+        buffer.resize(aligned_size);
       };
       std::vector<uint8_t> kub_data;
 
@@ -150,7 +147,8 @@ of parallel harts to use is set to the device's default value:
       
       // Store work-group scheduling info for the kernel in the KUB.
       exec_state_t exec;
-      if (!populateSchedulingInfo(exec, *nd_range, work_dim)) {
+      memset(&exec, 0, sizeof(exec_state_t));
+      if (!populateSchedulingInfo(exec.wg, *nd_range, work_dim)) {
         return false;
       }
       hal::hal_size_t kub_desc = 0;
