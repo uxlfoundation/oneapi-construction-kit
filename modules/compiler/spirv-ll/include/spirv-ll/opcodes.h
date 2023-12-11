@@ -3024,6 +3024,14 @@ class OpNoLine : public OpCode {
   static const spv::Op ClassCode = spv::OpNoLine;
 };
 
+class OpModuleProcessed : public OpCode {
+ public:
+  OpModuleProcessed(OpCode const &other)
+      : OpCode(other, spv::OpModuleProcessed) {}
+  llvm::StringRef Process() const;
+  static const spv::Op ClassCode = spv::OpModuleProcessed;
+};
+
 class OpAtomicFlagTestAndSet : public OpResult {
  public:
   OpAtomicFlagTestAndSet(OpCode const &other)

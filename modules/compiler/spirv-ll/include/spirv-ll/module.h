@@ -39,6 +39,7 @@
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace spirv_ll {
 /// @brief Enum class used to represent an Extended Instruction Set.
@@ -361,6 +362,26 @@ class Module : public ModuleHeader {
   /// included with the OpSource and OpSourceContinued functions.
   ///
   const std::string &getSourceMetadataString() const;
+
+  /// @brief Sets the string used to hold the process/processor
+  void setModuleProcess(const std::string &str);
+
+  /// @brief Gets the string used to hold the process/processor
+  const std::string &getModuleProcess() const;
+
+  /// @brief Check if this ID is an OpExtInst with the given opcode.
+  ///
+  /// @return Returns true if this opcode is an OpExtInst with the given
+  /// opcode, false otherwise.
+  bool isOpExtInst(spv::Id id, uint32_t opcode,
+                   const std::unordered_set<ExtendedInstrSet> &sets) const;
+
+  /// @brief Check if this ID is an OpExtInst with any of the given opcodes.
+  ///
+  /// @return Returns true if this opcode is an OpExtInst with any of the given
+  /// opcodes, false otherwise.
+  bool isOpExtInst(spv::Id id, const std::unordered_set<uint32_t> &opcodes,
+                   const std::unordered_set<ExtendedInstrSet> &sets) const;
 
   /// @brief Set the DICompileUnit for this module.
   void setCompileUnit(llvm::DICompileUnit *compile_unit);
@@ -793,13 +814,14 @@ class Module : public ModuleHeader {
   ///
   /// @return A pointer to the Op or nullptr if not found.
   template <class Op = OpCode>
-  const Op *get(spv::Id id) const {
-    auto ty = Types.find(id);
-    if (ty != Types.end()) {
+  const Op *get_or_null(spv::Id id) const {
+    if (!id) {
+      return nullptr;
+    }
+    if (auto ty = Types.find(id); ty != Types.end()) {
       return cast<Op>(ty->second.Op);
     }
-    auto val = Values.find(id);
-    if (val != Values.end()) {
+    if (auto val = Values.find(id); val != Values.end()) {
       return cast<Op>(val->second.Op);
     }
     auto found = std::find_if(
@@ -813,8 +835,22 @@ class Module : public ModuleHeader {
           }
           return false;
         });
-    SPIRV_LL_ASSERT(found != OpCodes.end(), "OpCode for ID not found");
-    return cast<Op>(found->get());
+    return found == OpCodes.end() ? nullptr : cast<Op>(found->get());
+  }
+
+  /// @brief Get the SPIR-V Op for the given ID.
+  ///
+  /// The function will search both the Types and the Values to try and find
+  /// the given ID. Asserts that the op was found.
+  ///
+  /// @param[in] id The ID for the Op to get.
+  ///
+  /// @return A pointer to the Op.
+  template <class Op = OpCode>
+  const Op *get(spv::Id id) const {
+    auto *const op = get_or_null<Op>(id);
+    SPIRV_LL_ASSERT(op, "OpCode for ID not found");
+    return op;
   }
 
   /// @brief Get the SpirV Op for the given LLVM Value.
@@ -962,6 +998,13 @@ class Module : public ModuleHeader {
                          std::unordered_map<const OpType *, llvm::Function *>>>
       reductionWrapperMap;
 
+  /// @brief Turn off the use of implicit debug scopes across the module.
+  void disableImplicitDebugScopes();
+
+  /// @brief Returns true if implicit debug scopes should be created to handle
+  /// debug information.
+  bool useImplicitDebugScopes() const;
+
  private:
   /// @brief The set of enabled capabilities.
   llvm::SmallSet<spv::Capability, 16> capabilities;
@@ -1097,6 +1140,13 @@ class Module : public ModuleHeader {
   /// deferred.
   llvm::SmallVector<spirv_ll::OpSpecConstantOp const *, 2>
       deferredSpecConstantOps;
+  std::string ModuleProcess;
+  /// @brief True if debug scopes should be inferred and generated when
+  /// processing debug information.
+  ///
+  /// False if a DebugInfo-like extension is enabled, and only explicit scope
+  /// instructions are to be obeyed.
+  bool ImplicitDebugScopes = true;
 };
 
 /// @brief Less than operator that compares the descriptor binding in each `ID`

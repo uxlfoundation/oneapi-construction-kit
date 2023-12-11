@@ -407,6 +407,10 @@ uint32_t OpLine::Line() const { return getValueAtOffset(2); }
 
 uint32_t OpLine::Column() const { return getValueAtOffset(3); }
 
+llvm::StringRef OpModuleProcessed::Process() const {
+  return reinterpret_cast<char const *>(data + 1);
+}
+
 llvm::StringRef OpExtension::Name() const {
   return reinterpret_cast<char const *>(data + 1);
 }

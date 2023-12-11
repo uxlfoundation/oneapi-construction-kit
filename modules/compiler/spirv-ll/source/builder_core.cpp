@@ -77,6 +77,15 @@ llvm::Error Builder::create<OpSourceExtension>(const OpSourceExtension *) {
 }
 
 template <>
+llvm::Error Builder::create<OpModuleProcessed>(const OpModuleProcessed *op) {
+  // This instruction has no semantic impact. Take and store the 'Process' in
+  // case it it's useful for debug information. We only store the one; any
+  // subsequent ones will overwrite this.
+  module.setModuleProcess(op->Process().str());
+  return llvm::Error::success();
+}
+
+template <>
 llvm::Error Builder::create<OpSource>(const OpSource *op) {
   module.setSourceLanguage(op->SourceLanguage());
 
@@ -188,11 +197,6 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
   spv::Id function_id = opFunction->IdResult();
 
   if (auto *function_scope = module.getDebugFunctionScope(function_id)) {
-    // If we've created the scope before creating the function, link the two
-    // together here if we haven't already.
-    if (!function.getSubprogram()) {
-      function.setSubprogram(function_scope);
-    }
     return function_scope;
   }
 
@@ -295,26 +299,28 @@ void Builder::applyDebugInfoAtClosedRangeOrScope() {
     return;
   }
 
+  llvm::BasicBlock::iterator range_begin =
+      std::next(line_range->range_begin.value_or(bb->begin()));
+  llvm::BasicBlock::iterator range_end = IRBuilder.GetInsertPoint();
+
   llvm::Metadata *scope = nullptr;
   llvm::Metadata *inlined_at = nullptr;
 
   if (auto lexical_scope = getCurrentFunctionLexicalScope()) {
     scope = lexical_scope->scope;
     inlined_at = lexical_scope->inlined_at;
-  } else {
+  } else if (module.useImplicitDebugScopes()) {
     scope = getOrCreateDebugBasicBlockScope(*bb, op_line);
   }
 
-  auto *const di_loc =
-      llvm::DILocation::get(*context.llvmContext, op_line->Line(),
-                            op_line->Column(), scope, inlined_at);
+  if (scope) {
+    auto *const di_loc =
+        llvm::DILocation::get(*context.llvmContext, op_line->Line(),
+                              op_line->Column(), scope, inlined_at);
 
-  llvm::BasicBlock::iterator range_begin =
-      std::next(line_range->range_begin.value_or(bb->begin()));
-  llvm::BasicBlock::iterator range_end = IRBuilder.GetInsertPoint();
-
-  for (auto &inst : make_range(range_begin, range_end)) {
-    inst.setDebugLoc(di_loc);
+    for (auto &inst : make_range(range_begin, range_end)) {
+      inst.setDebugLoc(di_loc);
+    }
   }
 
   // Update the current line range to start where the range currently ends -
@@ -353,12 +359,21 @@ llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::GroupAsyncCopies);
   } else if (name == "DebugInfo") {
-    registerExtInstHandler<DebugInfoBuilder>(ExtendedInstrSet::DebugInfo);
+    // Work around a known llvm-spirv bug, until it's generally fixed upstream.
+    registerExtInstHandler<DebugInfoBuilder>(
+        ExtendedInstrSet::DebugInfo,
+        DebugInfoBuilder::Workarounds::
+            TemplateTemplateSwappedWithParameterPack);
+    module.disableImplicitDebugScopes();
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::DebugInfo);
   } else if (name == "OpenCL.DebugInfo.100") {
+    // Work around a known llvm-spirv bug, until it's generally fixed upstream.
     registerExtInstHandler<DebugInfoBuilder>(
-        ExtendedInstrSet::OpenCLDebugInfo100);
+        ExtendedInstrSet::OpenCLDebugInfo100,
+        DebugInfoBuilder::Workarounds::
+            TemplateTemplateSwappedWithParameterPack);
+    module.disableImplicitDebugScopes();
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::OpenCLDebugInfo100);
   } else {
@@ -2132,11 +2147,16 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
   // easily retrieve the OpFunction directly from the function.
   module.addID(op->IdResult(), op, function);
 
-  // If there's a line range currently open at this point, create and attach
-  // the DISubprogram for this function. If there isn't, we'll generate one on
-  // the fly when we hit an OpLine but it'll have that OpLine's line/column
-  // information.
-  if (auto current_range = getCurrentOpLineRange()) {
+  if (auto *function_scope = module.getDebugFunctionScope(op->IdResult())) {
+    // If we've created the scope before creating the function, link the two
+    // together here
+    function->setSubprogram(function_scope);
+  } else if (auto current_range = getCurrentOpLineRange();
+             current_range && module.useImplicitDebugScopes()) {
+    // Else, if there's a line range currently open at this point, create and
+    // attach a synthetic DISubprogram for this function. If there isn't, we'll
+    // generate one on the fly when we hit an OpLine but it'll have that
+    // OpLine's line/column information.
     getOrCreateDebugFunctionScope(*function, current_range->op_line);
   }
 
@@ -6057,7 +6077,8 @@ llvm::Error Builder::create<OpLabel>(const OpLabel *op) {
   //       OpLine       <- new line range opens here; old one closes
   //         OpLabel
   //         OpBranch   <- line range closes here
-  if (auto current_range = getCurrentOpLineRange()) {
+  if (auto current_range = getCurrentOpLineRange();
+      current_range && module.useImplicitDebugScopes()) {
     getOrCreateDebugBasicBlockScope(*bb, current_range->op_line);
   }
 

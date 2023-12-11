@@ -199,7 +199,7 @@
                OpReturn
                OpFunctionEnd
 
-; CHECK-DAG: [[SCOPE:![0-9]+]] = distinct !DILexicalBlock(
+; CHECK-DAG: [[SCOPE:![0-9]+]] = distinct !DISubprogram(
 ; CHECK-DAG: [[IDLoc]] = !DILocation(line: 2, column: 15, scope: [[SCOPE]])
 ; CHECK-DAG: [[A0Loc]] = !DILocation(line: 3, column: 12, scope: [[SCOPE]])
 ; CHECK-DAG: [[B0LDLoc]] = !DILocation(line: 4, column: 24, scope: [[SCOPE]])

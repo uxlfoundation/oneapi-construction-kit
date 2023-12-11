@@ -177,7 +177,7 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         error = builder.create<OpSourceExtension>(op);
         break;
       case spv::OpModuleProcessed:
-        // Ignore this.
+        error = builder.create<OpModuleProcessed>(op);
         break;
       case spv::OpName:
         error = builder.create<OpName>(op);
