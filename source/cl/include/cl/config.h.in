@@ -63,4 +63,8 @@
 // even though it might encode extra information in the name.
 #define CA_HOST_CL_DEVICE_NAME_PREFIX "@CA_HOST_CL_DEVICE_NAME_PREFIX@"
 
-#endif // CL_CONFIG_H_INCLUDED
+// Whether we support out of order execution mode. Note that at the moment, this
+// only enables the mode, it has no impact on how commands are executed.
+#cmakedefine CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
+
+#endif  // CL_CONFIG_H_INCLUDED
