@@ -116,13 +116,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
   OCL_CHECK(nullptr == queue,
             return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(queue);
-#else
   return queue;
-#endif
 }
 
 // Used by clCreateCommandQueueWithProperties and
@@ -194,13 +188,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
 #endif
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(command_queue);
-#else
   return command_queue;
-#endif
 }
 
 cl_int _cl_command_queue::flush() {

@@ -542,13 +542,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
           context->getCompilerTarget(device));
     }
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clCreateProgramWithIL, clCreateProgramWithILKHR.
@@ -583,13 +577,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
           context->getCompilerTarget(device));
     }
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clCreateProgramWithBinary.
@@ -650,13 +638,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
     return cargo::make_unexpected(error);
   }
   program->type = cl::program_type::BINARY;
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clCreateProgramWithBuiltInKernels.
@@ -752,13 +734,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
   if (!program->finalize({device_list, num_devices})) {
     return cargo::make_unexpected(CL_INVALID_VALUE);
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clLinkProgram.
@@ -787,13 +763,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
   if (!program->finalize(devices)) {
     return cargo::make_unexpected(CL_LINK_PROGRAM_FAILURE);
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 cl_int _cl_program::compile(

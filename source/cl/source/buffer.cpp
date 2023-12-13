@@ -121,13 +121,7 @@ cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int> _cl_mem_buffer::create(
     }
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(buffer);
-#else
   return buffer;
-#endif
 }
 
 cl_int _cl_mem_buffer::synchronize(cl_command_queue command_queue) {
