@@ -20,6 +20,25 @@ Relationals,relationals/test_relationals relational_all
 
 SPIR (cl_khr_spir),spir/test_spir basic no-unzip
 
+Subgroups,subgroups/test_subgroups sub_group_info_ext
+Subgroups,subgroups/test_subgroups sub_group_info_core
+Subgroups,subgroups/test_subgroups work_item_functions_ext
+Subgroups,subgroups/test_subgroups work_item_functions_core
+Subgroups,subgroups/test_subgroups subgroup_functions_ext
+Subgroups,subgroups/test_subgroups subgroup_functions_core
+Subgroups,subgroups/test_subgroups barrier_functions_ext
+Subgroups,subgroups/test_subgroups barrier_functions_core
+Subgroups,subgroups/test_subgroups ifp_ext
+Subgroups,subgroups/test_subgroups ifp_core
+Subgroups,subgroups/test_subgroups subgroup_functions_extended_types
+Subgroups,subgroups/test_subgroups subgroup_functions_non_uniform_vote
+Subgroups,subgroups/test_subgroups subgroup_functions_non_uniform_arithmetic
+Subgroups,subgroups/test_subgroups subgroup_functions_ballot
+Subgroups,subgroups/test_subgroups subgroup_functions_clustered_reduce
+Subgroups,subgroups/test_subgroups subgroup_functions_shuffle
+Subgroups,subgroups/test_subgroups subgroup_functions_shuffle_relative
+Subgroups,subgroups/test_subgroups subgroup_functions_rotate
+
 # #############################################################################
 # Slower ones from now on, about a minute each (math_bruteforce_double about 3)
 # #############################################################################
