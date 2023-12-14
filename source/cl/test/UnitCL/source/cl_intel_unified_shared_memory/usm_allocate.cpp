@@ -334,6 +334,16 @@ TEST_F(USMTests, SingleSharedMemAlloc_InvalidUsage) {
   const cl_uint align = 4;
   cl_int err;
 
+  // Require shared USM support - otherwise these functions may return
+  // CL_INVALID_OPERATION
+  cl_device_unified_shared_memory_capabilities_intel capabilities;
+  ASSERT_SUCCESS(clGetDeviceInfo(
+      device, CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
+      sizeof(capabilities), &capabilities, nullptr));
+  if (0 == capabilities) {
+    GTEST_SKIP();
+  }
+
   // Invalid context
   void *shared_ptr =
       clSharedMemAllocINTEL(nullptr, device, nullptr, bytes, align, &err);
@@ -420,8 +430,7 @@ TEST_F(USMTests, SingleSharedMemAlloc_ValidUsage) {
   ASSERT_SUCCESS(clGetDeviceInfo(
       device, CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
       sizeof(cross_capabilities), &cross_capabilities, nullptr));
-  const bool shared_mem_support =
-      (single_capabilities != 0) && (cross_capabilities != 0);
+  const bool shared_mem_support = single_capabilities != 0;
 
   const size_t bytes = 128;
   const cl_uint align = 4;
@@ -475,6 +484,16 @@ TEST_F(USMTests, CrossSharedMemAlloc_InvalidUsage) {
   const size_t bytes = 256;
   const cl_uint align = 4;
   cl_int err;
+
+  // Require shared USM support - otherwise these functions may return
+  // CL_INVALID_OPERATION
+  cl_device_unified_shared_memory_capabilities_intel capabilities;
+  ASSERT_SUCCESS(clGetDeviceInfo(
+      device, CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
+      sizeof(capabilities), &capabilities, nullptr));
+  if (0 == capabilities) {
+    GTEST_SKIP();
+  }
 
   // Invalid context
   void *shared_ptr =
@@ -556,8 +575,7 @@ TEST_F(USMTests, CrossSharedMemAlloc_ValidUsage) {
   ASSERT_SUCCESS(clGetDeviceInfo(
       device, CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
       sizeof(cross_capabilities), &cross_capabilities, nullptr));
-  const bool shared_mem_support =
-      (single_capabilities != 0) && (cross_capabilities != 0);
+  const bool shared_mem_support = single_capabilities != 0;
 
   const size_t bytes = 128;
   const cl_uint align = 4;
