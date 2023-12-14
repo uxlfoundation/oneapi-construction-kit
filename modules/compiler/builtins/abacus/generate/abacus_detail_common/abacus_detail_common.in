@@ -115,8 +115,35 @@ template<typename T> T degrees(const T& t) {
   return t * T(57.295779513082320876798154814105170332405472466564321);
 }
 
-template<typename T, typename U> T mix(const T& x, const T& y, const U& a) {
-  return x + ((y - x) * T(a));
+template <typename T>
+T mix(const T &a, const T &b, const T &t) {
+  // Unoptimized vector version of the implementation of std::lerp given in
+  // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0811r3.html
+  // adjusted to support non-finite arguments.
+  //
+  // Unlike std::lerp, OpenCL mix returns an undefined result if
+  // !(t >= 0 && t <= 1), so we could simplify slightly, but we aim to behave
+  // sensibly for this.
+
+  using SignedType = typename TypeTraits<T>::SignedType;
+
+  // The direct translation of the expression mix/lerp is defined as. This
+  // version is used in most cases, but has issues around t=1 and does not
+  // account for the possibility b-a overflows.
+  const T x = a + t * (b - a);
+
+  // Correct for the issues around t=1 by returning b in edge cases.
+  const SignedType useb =
+      __abacus_select(b <= x, x <= b, (t > T(1)) == (b > a)) |
+      ((t == T(1)) & (x == x));
+
+  // Alternative definition that avoids overflow of b-a. This version is used
+  // when a and b are finite numbers with different signs.
+  const T y = t * b + (T(1) - t) * a;
+  const SignedType usey = isfinite(a) & isfinite(b) &
+                          (((a <= 0) & (b >= 0)) | ((a >= 0) & (b <= 0)));
+
+  return __abacus_select(__abacus_select(x, b, useb), y, usey);
 }
 
 template<typename T> T radians(const T& t) {
