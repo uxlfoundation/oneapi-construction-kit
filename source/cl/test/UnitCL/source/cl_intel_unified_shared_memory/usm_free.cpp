@@ -32,12 +32,6 @@ TEST_F(USMTests, MemFree_InvalidUsage) {
   err = clMemBlockingFreeINTEL(nullptr, malloc_ptr);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_CONTEXT);
 
-  err = clMemFreeINTEL(context, malloc_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
-
-  err = clMemBlockingFreeINTEL(context, malloc_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
-
   free(malloc_ptr);
 }
 
@@ -87,6 +81,19 @@ TEST_F(USMTests, MemFree_ValidUsage) {
 
   err = clMemFreeINTEL(context, device_ptr);
   EXPECT_SUCCESS(err);
+
+  // Freeing arbitrary host data is permitted by the spec
+  {
+    void *malloc_ptr = malloc(256);
+
+    err = clMemFreeINTEL(context, malloc_ptr);
+    EXPECT_SUCCESS(err);
+
+    err = clMemBlockingFreeINTEL(context, malloc_ptr);
+    EXPECT_SUCCESS(err);
+
+    free(malloc_ptr);
+  }
 }
 
 namespace {
