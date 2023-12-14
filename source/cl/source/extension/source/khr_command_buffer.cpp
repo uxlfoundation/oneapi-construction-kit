@@ -145,13 +145,7 @@ _cl_mutable_command_khr::create(cl_uint id, cl_kernel kernel) {
     return cargo::make_unexpected(error);
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(mutable_command);
-#else
   return mutable_command;
-#endif
 }
 
 _cl_command_buffer_khr::_cl_command_buffer_khr(cl_command_queue queue)
@@ -268,13 +262,7 @@ _cl_command_buffer_khr::create(
     }
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(command_buffer);
-#else
   return command_buffer;
-#endif
 }
 
 cl_command_buffer_state_khr _cl_command_buffer_khr::getState() const {
@@ -340,13 +328,7 @@ _cl_command_buffer_khr::convertWaitList(
       return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
     }
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(command_wait_list);
-#else
   return command_wait_list;
-#endif
 }
 
 cl_int _cl_command_buffer_khr::commandBarrierWithWaitList(

@@ -1125,11 +1125,5 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     return cargo::make_unexpected(llvm::toString(std::move(err)));
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(module);
-#else
   return module;
-#endif
 }

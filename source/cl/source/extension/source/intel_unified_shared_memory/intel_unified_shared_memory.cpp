@@ -63,13 +63,7 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
       current += 2;
     } while (current[0] != 0);
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(alloc_flags);
-#else
   return alloc_flags;
-#endif
 }
 
 allocation_info *findAllocation(const cl_context context, const void *ptr) {
@@ -252,13 +246,7 @@ host_allocation_info::create(cl_context context,
 
   usm_alloc->alloc_flags = alloc_properties.value();
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(usm_alloc);
-#else
   return usm_alloc;
-#endif
 }
 
 cl_int host_allocation_info::allocate(cl_uint alignment) {
@@ -371,13 +359,7 @@ device_allocation_info::create(cl_context context, cl_device_id device,
 
   usm_alloc->alloc_flags = alloc_properties.value();
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(usm_alloc);
-#else
   return usm_alloc;
-#endif
 }
 
 cl_int device_allocation_info::allocate(cl_uint alignment) {

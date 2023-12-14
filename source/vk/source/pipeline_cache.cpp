@@ -44,13 +44,7 @@ cargo::error_or<cached_shader> cached_shader::clone() const {
   } else {
     return clone_descriptor_bindings.error();
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(clone);
-#else
   return clone;
-#endif
 }
 
 bool cached_shader::operator==(const cached_shader &other) const {

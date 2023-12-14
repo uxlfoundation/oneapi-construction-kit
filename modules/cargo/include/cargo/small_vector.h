@@ -838,13 +838,7 @@ class small_vector {
     }
     std::copy(Begin, End, other.Begin);
     other.setEnd(other.Begin + size());
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-    // GCC <9 requires this redundant move, this branch of the #if can be
-    // deleted once the minimum supported version of GCC is at least 9.
-    return std::move(other);
-#else
     return other;
-#endif
   }
 
  private:
