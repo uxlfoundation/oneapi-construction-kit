@@ -398,8 +398,7 @@ bool deviceSupportsSharedAllocations(cl_device_id device);
 /// @param[in] kernel Kernel object used in command
 /// @param[in] type Command type to create event for
 /// @param[out] event Event created by function
-/// @note This is not thread safe and there should be a mutex on the context
-///       in the calling code.
+///
 /// @return CL_SUCCESS, or an OpenCL error code on failure.
 cl_int createBlockingEventForKernel(cl_command_queue queue, cl_kernel kernel,
                                     const cl_command_type type,

@@ -1568,11 +1568,6 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
   cl_event return_event = nullptr;
   cl_int error = 0;
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-  // We need to lock the context for the remainder of the function as we need to
-  // ensure any blocking operations such clMemBlockingFreeINTEL are entirely in
-  // sync as createBlockingEventForKernel adds to USM lists assuming that they
-  // reflect already queued events.
-  std::lock_guard<std::mutex> context_guard(command_queue->context->mutex);
   error = extension::usm::createBlockingEventForKernel(
       command_queue, kernel, CL_COMMAND_NDRANGE_KERNEL, return_event);
   OCL_CHECK(error != CL_SUCCESS, return error);
@@ -1648,11 +1643,6 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueTask(cl_command_queue command_queue,
 
   cl_event return_event = nullptr;
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
-  // We need to lock the context for the remainder of the function as we need to
-  // ensure any blocking operations such clMemBlockingFreeINTEL are entirely in
-  // sync as createBlockingEventForKernel adds to USM lists assuming that they
-  // reflect already queued events.
-  std::lock_guard<std::mutex> context_guard(command_queue->context->mutex);
   error = extension::usm::createBlockingEventForKernel(
       command_queue, kernel, CL_COMMAND_TASK, return_event);
   OCL_CHECK(error != CL_SUCCESS, return error);
