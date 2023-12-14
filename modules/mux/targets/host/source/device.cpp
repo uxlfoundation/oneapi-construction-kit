@@ -530,8 +530,8 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
 
   // A list of sub-group sizes we report. Roughly ordered according to
   // desirability.
-  static std::array<size_t, 4> sg_sizes = {
-      8, 4, 16,
+  static std::array<size_t, 5> sg_sizes = {
+      8, 4, 16, 32,
       1,  // we can always produce a 'trivial' sub-group if asked.
   };
   this->sub_group_sizes = sg_sizes.data();
