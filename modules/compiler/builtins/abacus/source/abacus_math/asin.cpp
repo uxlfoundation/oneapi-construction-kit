@@ -24,7 +24,7 @@
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/atan_unsafe.h>
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 
 // see maple worksheet for how coefficients were derived.
 static ABACUS_CONSTANT abacus_float __codeplay_asin_coeff[80] = {
@@ -136,7 +136,7 @@ abacus_float __abacus_asin(abacus_float x) {
 #endif
 
   if (interval < 9) {
-    ans = -abacus::internal::sqrt_unsafe(ans);
+    ans = -abacus::internal::sqrt(ans);
     ans += ABACUS_PI_2_F;
   }
 
@@ -168,7 +168,7 @@ T asin_half(const T x) {
   T ansBig =
       xAbs * abacus::internal::horner_polynomial<T, 3>(xAbs, __codeplay_asin_1);
 
-  ansBig = -abacus::internal::sqrt_unsafe(ansBig) + ABACUS_PI_2_H;
+  ansBig = -abacus::internal::sqrt(ansBig) + ABACUS_PI_2_H;
   ansBig = __abacus_copysign(ansBig, x);
 
   ans = __abacus_select(ans, ansBig, xBig);
@@ -200,7 +200,7 @@ abacus_half asin_half(const abacus_half x) {
         xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
                    xAbs, __codeplay_asin_1);
 
-    ans = -abacus::internal::sqrt_unsafe(ans) + ABACUS_PI_2_H;
+    ans = -abacus::internal::sqrt(ans) + ABACUS_PI_2_H;
     return __abacus_copysign(ans, x);
   }
 
@@ -235,8 +235,8 @@ T asin(const T x) {
     ans = __abacus_select(ans, poly, cond);
   }
 
-  T result = __abacus_select(
-      ans, -abacus::internal::sqrt_unsafe(ans) + ABACUS_PI_2_F, (interval < 9));
+  T result = __abacus_select(ans, -abacus::internal::sqrt(ans) + ABACUS_PI_2_F,
+                             (interval < 9));
 
   result = __abacus_select(-result, result, x > 0);
 

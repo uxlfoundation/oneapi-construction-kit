@@ -16,8 +16,9 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
+#include <abacus/abacus_relational.h>
 #include <abacus/internal/horner_polynomial.h>
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 
 namespace {
 template <typename T>
@@ -56,8 +57,7 @@ T acospi_half(const T x) {
 
   ans = xAbs * __abacus_select(poly1, poly2, cond1);
 
-  ans =
-      __abacus_select(ans + 0.5f16, abacus::internal::sqrt_unsafe(ans), cond1);
+  ans = __abacus_select(ans + 0.5f16, abacus::internal::sqrt(ans), cond1);
 
   ans = __abacus_select(ans, 1.0f16 - ans, x < 0.0f16);
 
@@ -74,7 +74,7 @@ abacus_half acospi_half(const abacus_half x) {
     ans = xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
                      xAbs, __codeplay_acospi_coeff_halfH1);
 
-    ans = abacus::internal::sqrt_unsafe(ans);
+    ans = abacus::internal::sqrt(ans);
   } else {
     const abacus_half x2 = x * x;
     ans = xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(

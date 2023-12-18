@@ -24,7 +24,7 @@
 #include <abacus/internal/atan_unsafe.h>
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/horner_polynomial.h>
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/multiply_exact.h>
@@ -134,7 +134,7 @@ abacus_float ABACUS_API __abacus_acos(abacus_float x) {
   // get acos:
   abacus_float result = ans;
   if (interval < 12 && interval != 8 && interval != 7) {
-    result = abacus::internal::sqrt_unsafe(ans);
+    result = abacus::internal::sqrt(ans);
   }
 
   return (x > 0.0f) ? result : ABACUS_PI_F - result;
@@ -163,7 +163,7 @@ T acos(const T x) {
   }
 
   T result =
-      __abacus_select(ans, abacus::internal::sqrt_unsafe(ans),
+      __abacus_select(ans, abacus::internal::sqrt(ans),
                       (interval < 12) & (interval != 8) & (interval != 7));
 
   result = __abacus_select((T)ABACUS_PI_F - result, result, x > 0);
@@ -219,7 +219,7 @@ T ABACUS_API acos_half(T x) {
   T ansBig =
       xAbs * abacus::internal::horner_polynomial<T, 3>(xAbs, __codeplay_acos_1);
 
-  ansBig = abacus::internal::sqrt_unsafe(ansBig);
+  ansBig = abacus::internal::sqrt(ansBig);
 
   ans = __abacus_select(ans, ansBig, xBig);
   ans = __abacus_select(ans, ABACUS_PI_H - ans, SignedType(x < 0.0f16));
