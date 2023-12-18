@@ -14,24 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <abacus/abacus_config.h>
-#include <abacus/internal/sqrt.h>
+#ifndef __ABACUS_INTERNAL_SQRT_H__
+#define __ABACUS_INTERNAL_SQRT_H__
 
-abacus_float ABACUS_API __abacus_half_sqrt(abacus_float x) {
-  return abacus::internal::sqrt(x);
-}
-abacus_float2 ABACUS_API __abacus_half_sqrt(abacus_float2 x) {
-  return abacus::internal::sqrt(x);
-}
-abacus_float3 ABACUS_API __abacus_half_sqrt(abacus_float3 x) {
-  return abacus::internal::sqrt(x);
-}
-abacus_float4 ABACUS_API __abacus_half_sqrt(abacus_float4 x) {
-  return abacus::internal::sqrt(x);
-}
-abacus_float8 ABACUS_API __abacus_half_sqrt(abacus_float8 x) {
-  return abacus::internal::sqrt(x);
-}
-abacus_float16 ABACUS_API __abacus_half_sqrt(abacus_float16 x) {
-  return abacus::internal::sqrt(x);
-}
+#include <abacus/abacus_config.h>
+
+namespace abacus {
+namespace internal {
+template <typename T>
+T sqrt(T);
+}  // namespace internal
+}  // namespace abacus
+
+#endif  //__ABACUS_INTERNAL_SQRT_H__
