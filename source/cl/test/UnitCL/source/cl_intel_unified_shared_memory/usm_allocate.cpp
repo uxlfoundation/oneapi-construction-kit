@@ -446,6 +446,10 @@ TEST_F(USMTests, SingleSharedMemAlloc_ValidUsage) {
     EXPECT_TRUE(shared_ptr != nullptr);
   }
 
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+  }
   shared_ptr = clSharedMemAllocINTEL(context, device, nullptr, bytes, 0, &err);
   if (!shared_mem_support) {
     EXPECT_EQ_ERRCODE(err, CL_INVALID_OPERATION);
@@ -453,6 +457,11 @@ TEST_F(USMTests, SingleSharedMemAlloc_ValidUsage) {
   } else {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
+  }
+
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
   }
 
   const cl_mem_properties_intel no_properties[] = {0};
@@ -465,7 +474,10 @@ TEST_F(USMTests, SingleSharedMemAlloc_ValidUsage) {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
   }
-
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+  }
   const cl_mem_properties_intel properties[] = {CL_MEM_ALLOC_FLAGS_INTEL, 0, 0};
   shared_ptr =
       clSharedMemAllocINTEL(context, device, properties, bytes, align, &err);
@@ -475,6 +487,10 @@ TEST_F(USMTests, SingleSharedMemAlloc_ValidUsage) {
   } else {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
+  }
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
   }
 }
 
@@ -590,6 +606,10 @@ TEST_F(USMTests, CrossSharedMemAlloc_ValidUsage) {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
   }
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+  }
 
   shared_ptr = clSharedMemAllocINTEL(context, nullptr, nullptr, bytes, 0, &err);
   if (!shared_mem_support) {
@@ -598,6 +618,10 @@ TEST_F(USMTests, CrossSharedMemAlloc_ValidUsage) {
   } else {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
+  }
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
   }
 
   const cl_mem_properties_intel no_properties[] = {0};
@@ -610,6 +634,10 @@ TEST_F(USMTests, CrossSharedMemAlloc_ValidUsage) {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
   }
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+  }
 
   const cl_mem_properties_intel properties[] = {CL_MEM_ALLOC_FLAGS_INTEL, 0, 0};
   shared_ptr =
@@ -620,6 +648,10 @@ TEST_F(USMTests, CrossSharedMemAlloc_ValidUsage) {
   } else {
     EXPECT_SUCCESS(err);
     EXPECT_TRUE(shared_ptr != nullptr);
+  }
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
   }
 }
 
@@ -703,8 +735,10 @@ TEST_P(USMAllocFlagTest, SharedAlloc) {
   EXPECT_SUCCESS(err);
   EXPECT_TRUE(shared_ptr != nullptr);
 
-  err = clMemBlockingFreeINTEL(context, shared_ptr);
-  EXPECT_SUCCESS(err);
+  if (shared_ptr) {
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+  }
 }
 
 INSTANTIATE_TEST_SUITE_P(
