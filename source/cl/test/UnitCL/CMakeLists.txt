@@ -58,7 +58,7 @@ configure_file(
 
 add_ca_cl_executable(UnitCL
   # General testing machinery
-  include/Common.h source/Common.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/include/Common.h source/Common.cpp
   include/EventWaitList.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/Device.h
   source/main.cpp
