@@ -244,16 +244,17 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   ///    associated with a user command buffer, get the current command
   ///    buffer or the last pending dispatch.
   /// 2. There are no wait events and the last pending dispatch is associated
-  ///    with a user command buffer, get an unsed (new or reseted and cached)
+  ///    with a user command buffer, get an unused (new or reset and cached)
   ///    command buffer.
   /// 3. There are wait events associated with a single pending dispatch, get
   ///    the associated command buffer.
   /// 4. There are wait events associated with multiple pending dispatches, get
-  ///    an unused (new or reseted and cached) command buffer.
+  ///    an unused (new or reset and cached) command buffer.
   /// 5. There are wait events with no associated pending dispatches (already
-  ///    dispatched), get an unused (new or reseted and cached) command buffer.
+  ///    dispatched), get an unused (new or reset and cached) command buffer.
+  /// 6. There are wait events associated with a different queue.
   ///
-  /// When commands can't be batched into a single comand group, semaphores are
+  /// When commands can't be batched into a single command group, semaphores are
   /// used to maintain submission order since the command queue is in-order.
   /// Dispatches will have wait semaphores in the following cases:
   ///
@@ -263,6 +264,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// 3.  There are wait events associated with multiple command buffers.
   /// 4.  There are wait events, no pending dispatches, and there is a running
   ///     command buffer.
+  /// 5.  The wait event is cross queue.
   ///
   /// A user event completion callback is registered with all user events, it
   /// submits pending dispatches to the queue when the user event is in a

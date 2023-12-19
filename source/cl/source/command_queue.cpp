@@ -512,7 +512,8 @@ _cl_command_queue::getCommandBufferPending(
   // Storage for the pending dispatches on which this command buffer will
   // depend.
   using dispatch_pair = std::pair<const mux_command_buffer_t, dispatch_state_t>;
-  cargo::small_vector<dispatch_pair *, 8> dependent_dispatches;
+  using dispatch_dependency = std::pair<dispatch_pair *, cl_command_queue>;
+  cargo::small_vector<dispatch_dependency, 8> dependent_dispatches;
 
   // Flag indicating whether it is safe to append to the last command buffer in
   // the case that we only have one dependent command (which will always be the
@@ -526,7 +527,7 @@ _cl_command_queue::getCommandBufferPending(
     OCL_ASSERT(pending_dispatch != std::end(pending_dispatches),
                "The last pending command buffer has no entry in the "
                "pending dispatches map.");
-    if (dependent_dispatches.push_back(&*pending_dispatch)) {
+    if (dependent_dispatches.push_back({&*pending_dispatch, this})) {
       return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
     }
 
@@ -535,6 +536,7 @@ _cl_command_queue::getCommandBufferPending(
     can_append_last_dispatch = !pending_dispatch->second.is_user_command_buffer;
   }
 
+  cargo::small_vector<cl_command_queue, 2> dependent_dispatch_command_queues;
   // Find all dependent dispatches in the event_wait_list.
   for (auto wait_event : event_wait_list) {
     if (cl::isUserEvent(wait_event) &&
@@ -557,7 +559,7 @@ _cl_command_queue::getCommandBufferPending(
       // dependent_dispatches.
       if (std::any_of(dispatch.signal_events.begin(),
                       dispatch.signal_events.end(), isWaitEvent)) {
-        if (dependent_dispatches.push_back(&pending)) {
+        if (dependent_dispatches.push_back({&pending, wait_event->queue})) {
           return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
         }
       }
@@ -567,15 +569,24 @@ _cl_command_queue::getCommandBufferPending(
     // different from this one
     if (wait_event->queue != this &&
         CL_COMMAND_USER != wait_event->command_type) {
+      // Check if the cross queue does not exist in the queues
+      if (std::find(dependent_dispatch_command_queues.begin(),
+                    dependent_dispatch_command_queues.end(),
+                    wait_event->queue) ==
+          dependent_dispatch_command_queues.end()) {
+        if (dependent_dispatch_command_queues.push_back(wait_event->queue)) {
+          return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+        }
+      }
+      can_append_last_dispatch = false;
+
       for (auto &pending : wait_event->queue->pending_dispatches) {
         auto &dispatch = pending.second;
         // Check if any signal events are the wait event and add them to
         // dependent_dispatches.
         if (std::any_of(dispatch.signal_events.begin(),
                         dispatch.signal_events.end(), isWaitEvent)) {
-          can_append_last_dispatch = false;
-
-          if (dependent_dispatches.push_back(&pending)) {
+          if (dependent_dispatches.push_back({&pending, wait_event->queue})) {
             return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
           }
         }
@@ -595,33 +606,51 @@ _cl_command_queue::getCommandBufferPending(
   // There is only a single dependent dispatch so return its command buffer.
   // Since there is only one it must be the most recent dispatch.
   if (dependent_dispatches.size() == 1 && can_append_last_dispatch) {
-    return dependent_dispatches.front()->first;
+    return dependent_dispatches.front().first->first;
   }
 
   // Storage for wait semaphores to set on a pending command buffer.
   cargo::small_vector<mux_shared_semaphore, 8> semaphores;
 
-  // There are one or more dependent dispatches we must create a new command
-  // group and wait on the their signal semaphores.
-  if (!dependent_dispatches.empty()) {
-    for (auto &dependent : dependent_dispatches) {
-      auto &dependent_dispatch = dependent->second;
-      // Append the signal semaphore to wait_semaphores of the current
-      // dispatch.
-      if (semaphores.push_back(dependent_dispatch.signal_semaphore)) {
-        return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+  // We always process the current queue
+  if (dependent_dispatch_command_queues.push_back(this)) {
+    return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+  }
+
+  for (auto &dispatch_queue : dependent_dispatch_command_queues) {
+    // There are one or more dependent dispatches we must create a new command
+    // group and wait on the their signal semaphores.
+    bool has_dependent_dispatches =
+        std::find_if(
+            dependent_dispatches.begin(), dependent_dispatches.end(),
+            [dispatch_queue](dispatch_dependency &dispatch_dependency) {
+              return dispatch_dependency.second == dispatch_queue;
+            }) != std::end(dependent_dispatches);
+
+    if (has_dependent_dispatches) {
+      for (auto &dependent_dispatch_info : dependent_dispatches) {
+        if (dependent_dispatch_info.second != dispatch_queue) {
+          continue;
+        }
+        auto &dependent_dispatch = dependent_dispatch_info.first->second;
+
+        // Append the signal semaphore to wait_semaphores of the current
+        // dispatch.
+        if (semaphores.push_back(dependent_dispatch.signal_semaphore)) {
+          return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+        }
       }
-    }
-  } else {
-    // There are no dependent dispatches, this means the command buffer is
-    // running now or has already completed or there were never any wait events
-    // in the first place.
-    // Wait on all running dispatches to ensure ordering since the commands in
-    // running_command_buffers may be out of order with respect the
-    // container (ordering is still enforced via semaphore dependencies though).
-    for (auto &running_dispatch : running_command_buffers) {
-      if (semaphores.push_back(running_dispatch.signal_semaphore)) {
-        return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+    } else {
+      // There are no dependent dispatches, this means the command buffer is
+      // running now or has already completed or there were never any wait
+      // events in the first place. Wait on all running dispatches to ensure
+      // ordering since the commands in running_command_buffers may be out of
+      // order with respect the container (ordering is still enforced via
+      // semaphore dependencies though).
+      for (auto &running_dispatch : dispatch_queue->running_command_buffers) {
+        if (semaphores.push_back(running_dispatch.signal_semaphore)) {
+          return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+        }
       }
     }
   }

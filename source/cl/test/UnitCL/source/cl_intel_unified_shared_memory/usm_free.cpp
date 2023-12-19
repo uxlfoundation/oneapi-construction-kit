@@ -297,8 +297,8 @@ TEST_F(USMBlockingFreeTest, SingleQueueMultipleAlloc) {
 // Populates two device allocations, A & B, on their own queues using fill calls
 // before copying them to a separate allocation C. The copy operation is
 // enqueued on the queue C, so allocations A & B interact with multiple queues.
-TEST_F(USMBlockingFreeTest, DISABLED_MultipleQueueMultipleAlloc) {
-  std::array<cl_event, 2> events;
+TEST_F(USMBlockingFreeTest, MultipleQueueMultipleAlloc) {
+  std::array<cl_event, 2> events = {nullptr, nullptr};
   const cl_uint pattern_A = 42;
   auto &queue_A = fixture_queues[0];
   auto &device_ptr_A = fixture_device_ptrs[0];
