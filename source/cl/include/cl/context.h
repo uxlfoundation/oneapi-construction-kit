@@ -204,8 +204,17 @@ struct _cl_context final : public cl::base<_cl_context> {
   /// @brief List of devices the context targets.
   cargo::dynamic_array<cl_device_id> devices;
   /// @brief Mutex to protect accesses for _cl_context::context with is not
-  /// thread safe.
+  /// thread safe except for USM which has its own mutex. This must not be
+  /// used above a command queue mutex, as it call program destructor during
+  /// clean up
   std::mutex mutex;
+
+  /// @brief Mutex to protect accesses USM allocations. Note due to the nature
+  /// of usm allocations and queue related activities it is sometimes needed to
+  /// stay around beyond just accessing the list. It must not be below the
+  /// general context mutex or the queue mutex.
+  std::mutex usm_mutex;
+
   /// @brief List of the context's enabled properties.
   cargo::dynamic_array<cl_context_properties> properties;
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory

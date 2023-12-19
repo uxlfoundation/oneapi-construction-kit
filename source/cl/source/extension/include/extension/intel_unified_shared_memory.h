@@ -361,6 +361,7 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
 /// @param[in] context Context containing list of USM allocations to search.
 /// @param[in] ptr Pointer to find an owning USM allocation for.
 ///
+/// @note this is not thread safe and a USM mutex should be used above it.
 /// @return Pointer to matching allocation on success, or nullptr on failure.
 allocation_info *findAllocation(const cl_context context, const void *ptr);
 

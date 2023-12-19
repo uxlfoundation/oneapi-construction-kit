@@ -86,9 +86,7 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
 }
 
 allocation_info *findAllocation(const cl_context context, const void *ptr) {
-  // Lock context to ensure usm allocation iterators are valid
-  std::lock_guard<std::mutex> context_guard(context->mutex);
-
+  // Note this is not thread safe and the usm mutex should be locked above this.
   auto ownsUsmPtr = [ptr](const std::unique_ptr<allocation_info> &usm_alloc) {
     return usm_alloc->isOwnerOf(ptr);
   };
@@ -661,6 +659,7 @@ cl_int intel_unified_shared_memory::SetKernelExecInfo(
       }
 
       const cl_context context = kernel->program->context;
+      std::lock_guard<std::mutex> context_guard(context->usm_mutex);
       for (size_t i = 0; i < num_pointers; i++) {
         indirect_allocs[i] = usm::findAllocation(context, usm_pointers[i]);
       }
