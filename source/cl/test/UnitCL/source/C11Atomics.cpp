@@ -567,11 +567,6 @@ class FetchTest : public C11AtomicTestBase {
       const std::function<T(size_t, const std::vector<T> &)> &init_ref_fn,
       const std::function<T(size_t, const std::vector<T> &)> &op_ref_fn,
       bool clamp = false) {
-    // This test makes use of control flow in the kernel. Control flow
-    // conversion is not supported for atomics so we need to make sure this
-    // isn't registered as a failure when the vectorizer fails. See CA-3294.
-    fail_if_not_vectorized_ = false;
-
     // Generate the random input.
     std::vector<T> input_data(kts::N, T{});
     if (!clamp) {
@@ -1125,10 +1120,6 @@ TEST_P(FetchTest, C11Atomics_40_Fetch_Local_Or_Ulong) {
 }
 
 TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Int) {
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  fail_if_not_vectorized_ = false;
   const auto xor_ref = [](size_t, const std::vector<cl_int> &input) {
     return std::accumulate(std::next(std::begin(input)), std::end(input),
                            input[0],
@@ -1141,10 +1132,6 @@ TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Long) {
   if (!UCL::hasAtomic64Support(device)) {
     GTEST_SKIP();
   }
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  fail_if_not_vectorized_ = false;
   const auto xor_ref = [](size_t, const std::vector<cl_long> &input) {
     return std::accumulate(std::next(std::begin(input)), std::end(input),
                            input[0],
@@ -1154,10 +1141,6 @@ TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Long) {
   doTest<cl_long>(firstEltReference<cl_long>, xor_ref);
 }
 TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Uint) {
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  fail_if_not_vectorized_ = false;
   const auto xor_ref = [](size_t, const std::vector<cl_uint> &input) {
     return std::accumulate(std::next(std::begin(input)), std::end(input),
                            input[0],
@@ -1169,10 +1152,6 @@ TEST_P(FetchTest, C11Atomics_41_Fetch_Global_Xor_Ulong) {
   if (!UCL::hasAtomic64Support(device)) {
     GTEST_SKIP();
   }
-  // This test makes use of control flow in the kernel. Control flow conversion
-  // is not supported for atomics so we need to make sure this isn't registered
-  // as a failure when the vectorizer fails. See CA-3294.
-  fail_if_not_vectorized_ = false;
   const auto xor_ref = [](size_t, const std::vector<cl_ulong> &input) {
     return std::accumulate(
         std::next(std::begin(input)), std::end(input), input[0],
@@ -1472,10 +1451,7 @@ class FetchTruthTableTest
 
     this->AddBuildOption("-cl-std=CL3.0");
 
-    // This test makes use of control flow in the kernel or very small local
-    // sizes. Control flow conversion is not supported for atomics so we need
-    // to make sure this isn't registered as a failure when the vectorizer
-    // fails. See CA-3294.
+    // This test only uses uniform inputs so the vectorizer doesn't vectorize.
     this->fail_if_not_vectorized_ = false;
   }
 
