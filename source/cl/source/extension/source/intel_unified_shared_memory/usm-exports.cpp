@@ -199,7 +199,7 @@ void *clHostMemAllocINTEL(cl_context context,
   }
 
   // Lock context for pushing to list of usm allocations
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  std::lock_guard<std::mutex> context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -232,7 +232,7 @@ void *clDeviceMemAllocINTEL(cl_context context, cl_device_id device,
   }
 
   // Lock context for pushing to list of usm allocations
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  std::lock_guard<std::mutex> context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -284,7 +284,7 @@ void *clSharedMemAllocINTEL(cl_context context, cl_device_id device,
   }
 
   // Lock context for pushing to list of usm allocations
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  std::lock_guard<std::mutex> context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -302,7 +302,7 @@ cl_int clMemFreeINTEL(cl_context context, void *ptr) {
   OCL_CHECK(ptr == NULL, return CL_SUCCESS);
 
   // Lock context to ensure usm allocation iterators are valid
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  std::lock_guard<std::mutex> context_guard(context->usm_mutex);
 
   auto isUsmPtr =
       [ptr](const std::unique_ptr<extension::usm::allocation_info> &usm_alloc) {
@@ -329,7 +329,7 @@ cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
   OCL_CHECK(ptr == NULL, return CL_SUCCESS);
 
   // Lock context to ensure usm allocation iterators are valid
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  std::lock_guard<std::mutex> context_guard(context->usm_mutex);
 
   auto isUsmPtr =
       [ptr](const std::unique_ptr<extension::usm::allocation_info> &usm_alloc) {
@@ -392,6 +392,7 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
   tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
+  std::lock_guard<std::mutex> context_guard(context->usm_mutex);
 
   const extension::usm::allocation_info *const usm_alloc =
       extension::usm::findAllocation(context, ptr);
@@ -497,6 +498,8 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
     return new_event.error();
   }
   cl_event return_event = *new_event;
+
+  std::lock_guard<std::mutex> context_guard(command_queue->context->usm_mutex);
 
   // Find USM allocation from pointer
   extension::usm::allocation_info *usm_alloc =
@@ -618,7 +621,7 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     return new_event.error();
   }
   cl_event return_event = *new_event;
-
+  std::lock_guard<std::mutex> context_guard(command_queue->context->usm_mutex);
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
@@ -783,6 +786,8 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
+    std::lock_guard<std::mutex> context_guard(
+        command_queue->context->usm_mutex);
     const cl_context context = command_queue->context;
     extension::usm::allocation_info *const usm_alloc =
         extension::usm::findAllocation(context, ptr);
@@ -838,6 +843,8 @@ cl_int clEnqueueMemAdviseINTEL(cl_command_queue command_queue, const void *ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
+    std::lock_guard<std::mutex> context_guard(
+        command_queue->context->usm_mutex);
     const cl_context context = command_queue->context;
     extension::usm::allocation_info *const usm_alloc =
         extension::usm::findAllocation(context, ptr);
