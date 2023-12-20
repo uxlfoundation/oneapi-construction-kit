@@ -161,15 +161,10 @@ Instruction *IRPrintf(const std::string format, Module &module, Value *v,
 
 Value *materializeVF(IRBuilder<> &builder,
                      compiler::utils::VectorizationFactor vf) {
-  auto sizeTyBytes =
-      compiler::utils::getSizeTypeBytes(*builder.GetInsertBlock()->getModule());
-  Value *multiple = builder.getIntN(8 * sizeTyBytes, vf.getKnownMin());
-  if (!vf.isScalable()) {
-    return multiple;
-  }
-  Type *size_type = builder.getIntNTy(sizeTyBytes * 8);
-  Value *vscale = builder.CreateIntrinsic(Intrinsic::vscale, size_type, {});
-  return builder.CreateMul(vscale, multiple);
+  auto &m = *builder.GetInsertBlock()->getModule();
+  Constant *multiple =
+      ConstantInt::get(compiler::utils::getSizeType(m), vf.getKnownMin());
+  return !vf.isScalable() ? multiple : builder.CreateVScale(multiple);
 }
 
 struct ScheduleGenerator {
@@ -1309,14 +1304,14 @@ struct ScheduleGenerator {
 // here corresponds to the current outermost to innermost vectorized
 // dimensions, rather than in their absolutist sense.
 void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
-                         IRBuilder<> &B, Value *const VF, unsigned sizeTyBytes,
-                         Value *const sizeZ, Value *const sizeY,
+                         IRBuilder<> &B, Value *const sizeZ, Value *const sizeY,
                          Value *const sizeX, StringRef name, bool isDebug) {
   barrier.setSize0(sizeX);
   Value *const live_var_size = B.CreateMul(sizeX, B.CreateMul(sizeY, sizeZ));
   barrier.setTotalSize(live_var_size);
-
   AllocaInst *live_var_mem_space;
+  auto &m = *B.GetInsertBlock()->getModule();
+  auto *const size_ty = compiler::utils::getSizeType(m);
   auto const scalablesSize = barrier.getLiveVarMemSizeScalable();
   if (scalablesSize == 0) {
     live_var_mem_space =
@@ -1327,10 +1322,10 @@ void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
   } else {
     auto const fixedSize = barrier.getLiveVarMemSizeFixed();
     // We ensure that the VFs are the same between the main and tail.
-    auto *const vscale = cast<Instruction>(VF)->getOperand(0);
-    auto *const structSize = B.CreateAdd(
-        B.CreateMul(vscale, B.getIntN(8 * sizeTyBytes, scalablesSize)),
-        B.getIntN(8 * sizeTyBytes, fixedSize));
+    auto *const vscale =
+        B.CreateVScale(ConstantInt::get(size_ty, scalablesSize));
+    auto *const structSize =
+        B.CreateAdd(vscale, ConstantInt::get(size_ty, fixedSize));
     auto *const buffer_size = B.CreateMul(structSize, live_var_size);
 
     live_var_mem_space = B.CreateAlloca(B.getInt8Ty(), buffer_size, name);
@@ -1502,9 +1497,9 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     }
     Value *const size0 = entryIR.CreateUDiv(numerator, VF);
 
-    setUpLiveVarsAlloca(barrierMain, entryIR, VF, sizeTyBytes,
-                        localSizeDim[workItemDim2], localSizeDim[workItemDim1],
-                        size0, "live_variables", IsDebug);
+    setUpLiveVarsAlloca(barrierMain, entryIR, localSizeDim[workItemDim2],
+                        localSizeDim[workItemDim1], size0, "live_variables",
+                        IsDebug);
   }
 
   // Amazingly, it's possible for the tail kernel to have live vars in its
@@ -1519,9 +1514,9 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
           "tail.has.vp");
       size0 = entryIR.CreateZExt(hasLeftover, peel->getType());
     }
-    setUpLiveVarsAlloca(*barrierTail, entryIR, VF, sizeTyBytes,
-                        localSizeDim[workItemDim2], localSizeDim[workItemDim1],
-                        size0, "live_variables_peel", IsDebug);
+    setUpLiveVarsAlloca(*barrierTail, entryIR, localSizeDim[workItemDim2],
+                        localSizeDim[workItemDim1], size0,
+                        "live_variables_peel", IsDebug);
   }
 
   // next means next barrier id. This variable is uninitialized to begin with,
