@@ -68,6 +68,8 @@ struct USMMemFillTest : public cl_intel_unified_shared_memory_Test {
     cl_intel_unified_shared_memory_Test::TearDown();
   }
 
+  void validateResults(T *ptr);
+
   static const size_t bytes = sizeof(T) * elements;
   static const cl_uint align = sizeof(T);
 
@@ -203,6 +205,30 @@ using OpenCLTypes = ::testing::Types<cl_int>;
 #endif
 TYPED_TEST_SUITE(USMMemFillTest, OpenCLTypes);
 
+template <typename TypeParam>
+void USMMemFillTest<TypeParam>::validateResults(TypeParam *ptr) {
+  // Verify results
+  const TypeParam pattern1 = test_patterns<TypeParam>::pattern1;
+  const TypeParam pattern2 = test_patterns<TypeParam>::pattern2;
+
+  const char *tested_type_string = test_patterns<TypeParam>::as_string;
+  // Elements [0,1] should be set to pattern1
+  EXPECT_TRUE(0 == std::memcmp(&ptr[0], &pattern1, sizeof(TypeParam)))
+      << "For type " << tested_type_string;
+  EXPECT_TRUE(0 == std::memcmp(&ptr[1], &pattern1, sizeof(TypeParam)))
+      << "For type " << tested_type_string;
+
+  // Elements [2,6] should still be zero
+  TypeParam zero[5];
+  std::memset(zero, 0, sizeof(TypeParam) * 5);
+  EXPECT_TRUE(0 == std::memcmp(&ptr[2], zero, sizeof(TypeParam) * 5))
+      << "For type " << tested_type_string;
+
+  // Final element [7] should be pattern2
+  EXPECT_TRUE(0 == std::memcmp(&ptr[7], &pattern2, sizeof(pattern2)))
+      << "For type " << tested_type_string;
+}
+
 // Test expected behaviour of clEnqueueMemFillINTEL for a host USM allocation
 TYPED_TEST(USMMemFillTest, HostAllocation) {
   // gtest TYPED_TEST uses a derived class template, requiring us to visit
@@ -239,27 +265,7 @@ TYPED_TEST(USMMemFillTest, HostAllocation) {
   EXPECT_SUCCESS(clFinish(queue));
 
   // Verify results
-  TypeParam *host_validation_ptr = reinterpret_cast<TypeParam *>(host_ptr);
-  const char *tested_type_string = test_patterns<TypeParam>::as_string;
-  // Elements [0,1] should be set to pattern
-  EXPECT_TRUE(0 ==
-              std::memcmp(&host_validation_ptr[0], &pattern, sizeof(TypeParam)))
-      << "For type " << tested_type_string;
-  EXPECT_TRUE(0 ==
-              std::memcmp(&host_validation_ptr[1], &pattern, sizeof(TypeParam)))
-      << "For type " << tested_type_string;
-
-  // Elements [2,6] should still be zero
-  TypeParam zero[5];
-  std::memset(zero, 0, sizeof(TypeParam) * 5);
-  EXPECT_TRUE(0 ==
-              std::memcmp(&host_validation_ptr[2], zero, sizeof(TypeParam) * 5))
-      << "For type " << tested_type_string;
-
-  // Final element [7] should be pattern2
-  EXPECT_TRUE(0 ==
-              std::memcmp(&host_validation_ptr[7], &pattern2, sizeof(pattern2)))
-      << "For type " << tested_type_string;
+  this->validateResults(reinterpret_cast<TypeParam *>(host_ptr));
 }
 
 // Test expected behaviour of clEnqueueMemFillINTEL for a device USM allocation
@@ -314,28 +320,55 @@ TYPED_TEST(USMMemFillTest, DeviceAllocation) {
 
   // Verify results
   if (host_ptr) {
-    TypeParam *host_validation_ptr = reinterpret_cast<TypeParam *>(host_ptr);
-    const char *tested_type_string = test_patterns<TypeParam>::as_string;
-    // Elements [0,1] should be set to pattern
-    EXPECT_TRUE(
-        0 == std::memcmp(&host_validation_ptr[0], &pattern, sizeof(TypeParam)))
-        << "For type " << tested_type_string;
-    EXPECT_TRUE(
-        0 == std::memcmp(&host_validation_ptr[1], &pattern, sizeof(TypeParam)))
-        << "For type " << tested_type_string;
-
-    // Elements [2,6] should still be zero
-    TypeParam zero[5];
-    std::memset(zero, 0, sizeof(TypeParam) * 5);
-    EXPECT_TRUE(
-        0 == std::memcmp(&host_validation_ptr[2], zero, sizeof(TypeParam) * 5))
-        << "For type " << tested_type_string;
-
-    // Final element [7] should be pattern2
-    EXPECT_TRUE(
-        0 == std::memcmp(&host_validation_ptr[7], &pattern2, sizeof(pattern2)))
-        << "For type " << tested_type_string;
+    this->validateResults(reinterpret_cast<TypeParam *>(host_ptr));
   }
+
+  for (cl_event &event : wait_events) {
+    EXPECT_SUCCESS(clReleaseEvent(event));
+  }
+}
+
+// Test expected behaviour of clEnqueueMemFillINTEL for a user allocation
+TYPED_TEST(USMMemFillTest, UserAllocation) {
+  // gtest TYPED_TEST uses a derived class template, requiring us to visit
+  // members of USMMemFillTest via 'this'.
+  auto bytes = this->bytes;
+  auto queue = this->queue;
+  auto getPointerOffset = this->getPointerOffset;
+  auto clEnqueueMemFillINTEL = this->clEnqueueMemFillINTEL;
+
+  std::vector<TypeParam, UCL::aligned_allocator<TypeParam, sizeof(TypeParam)>>
+      user_data(elements);
+
+  std::array<cl_event, 3> wait_events;
+  // Zero initialize user memory containing 8 TypeParam elements before
+  // beginning testing
+  const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
+  cl_int err = clEnqueueMemFillINTEL(queue, user_data.data(), &zero_pattern,
+                                     sizeof(zero_pattern), bytes, 0, nullptr,
+                                     &wait_events[0]);
+
+  // Fill first two elements
+  const TypeParam pattern = test_patterns<TypeParam>::pattern1;
+  err = clEnqueueMemFillINTEL(queue, user_data.data(), &pattern,
+                              sizeof(pattern), sizeof(pattern) * 2, 1,
+                              &wait_events[0], &wait_events[1]);
+  EXPECT_SUCCESS(err);
+
+  // Fill last element
+  const TypeParam pattern2 = test_patterns<TypeParam>::pattern2;
+  const size_t offset = bytes - sizeof(TypeParam);
+
+  void *offset_device_ptr = getPointerOffset(user_data.data(), offset);
+  err = clEnqueueMemFillINTEL(queue, offset_device_ptr, &pattern2,
+                              sizeof(pattern2), sizeof(pattern2), 1,
+                              &wait_events[0], &wait_events[2]);
+  EXPECT_SUCCESS(err);
+
+  EXPECT_SUCCESS(clFinish(queue));
+
+  // Verify results
+  this->validateResults(reinterpret_cast<TypeParam *>(user_data.data()));
 
   for (cl_event &event : wait_events) {
     EXPECT_SUCCESS(clReleaseEvent(event));

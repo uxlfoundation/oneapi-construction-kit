@@ -313,11 +313,11 @@ cl_int clMemFreeINTEL(cl_context context, void *ptr) {
       std::find_if(context->usm_allocations.begin(),
                    context->usm_allocations.end(), isUsmPtr);
 
-  OCL_CHECK(context->usm_allocations.end() == usm_alloc_iterator,
-            return CL_INVALID_VALUE);
+  if (context->usm_allocations.end() != usm_alloc_iterator) {
+    // Remove now empty shared pointer from list
+    context->usm_allocations.erase(usm_alloc_iterator);
+  }
 
-  // Remove now empty shared pointer from list
-  context->usm_allocations.erase(usm_alloc_iterator);
   return CL_SUCCESS;
 }
 
@@ -340,8 +340,9 @@ cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
       std::find_if(context->usm_allocations.begin(),
                    context->usm_allocations.end(), isUsmPtr);
 
-  OCL_CHECK(context->usm_allocations.end() == usm_alloc_iterator,
-            return CL_INVALID_VALUE);
+  if (context->usm_allocations.end() == usm_alloc_iterator) {
+    return CL_SUCCESS;
+  }
 
   // Implicitly flush all the queues that the events belong to
   std::unordered_set<_cl_command_queue *> flushed_queues;
@@ -508,12 +509,31 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
+    mux_buffer_t mux_buffer = nullptr;
+    const cl_device_id device = command_queue->device;
+
+    uint64_t offset = 0;
+    std::unique_ptr<UserDataWrapper> dst_user_data;
     // TODO CA-3084 Unresolved issue in extension doc whether fill on arbitrary
     // host pointer should be allowed.
-    OCL_CHECK(usm_alloc == nullptr, return CL_INVALID_VALUE);
+    if (usm_alloc == nullptr) {
+      // Source pointer is to arbitrary user data, heap allocate a wrapper class
+      // so we can use Mux memory constructs to work with it.
+      auto wrapper = UserDataWrapper::create(device, size, dst_ptr);
+      OCL_CHECK(!wrapper, return CL_OUT_OF_RESOURCES);
+      dst_user_data.reset(*wrapper);
+      mux_buffer = dst_user_data->mux_buffer;
+    } else {
+      // Push Mux fill buffer operation
+      auto mux_error =
+          ExamineUSMAlloc(usm_alloc, device, return_event, mux_buffer);
+      OCL_CHECK(mux_error, return CL_OUT_OF_RESOURCES);
+      offset = getUSMOffset(dst_ptr, usm_alloc);
+    }
 
-    auto mux_error = usm_alloc->record_event(return_event);
-    OCL_CHECK(mux_error, return CL_OUT_OF_RESOURCES);
+    // TODO CA-2863 Define correct return code for this situation where device
+    // USM allocation device is not the same as command queue device
+    OCL_CHECK(mux_buffer == nullptr, return CL_INVALID_COMMAND_QUEUE);
 
     std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
@@ -522,16 +542,7 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
         {event_wait_list, num_events_in_wait_list}, return_event);
     OCL_CHECK(!mux_command_buffer, return CL_OUT_OF_RESOURCES);
 
-    // Push Mux fill buffer operation
-    const cl_device_id device = command_queue->device;
-    mux_buffer_t mux_buffer = usm_alloc->getMuxBufferForDevice(device);
-
-    // TODO CA-2863 Define correct return code for this situation where device
-    // USM allocation device is not the same as command queue device
-    OCL_CHECK(mux_buffer == nullptr, return CL_INVALID_COMMAND_QUEUE);
-
-    const uint64_t offset = getUSMOffset(dst_ptr, usm_alloc);
-    mux_error =
+    auto mux_error =
         muxCommandFillBuffer(*mux_command_buffer, mux_buffer, offset, size,
                              pattern, pattern_size, 0, nullptr, nullptr);
     if (mux_error) {
@@ -539,6 +550,38 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
       if (return_event) {
         return_event->complete(error);
       }
+      return error;
+    }
+
+    // If the destination operand was user data, we need to manually copy
+    // the destination Mux buffer back to the user supplied `dst_ptr` by
+    // mapping the buffer.
+    if (dst_user_data) {
+      mux_error = muxCommandUserCallback(
+          *mux_command_buffer,
+          [](mux_queue_t, mux_command_buffer_t, void *user_data) {
+            static_cast<UserDataWrapper *>(user_data)->readFromDevice();
+          },
+          dst_user_data.get(), 0, nullptr, nullptr);
+
+      if (mux_error) {
+        auto error = cl::getErrorFrom(mux_error);
+        if (return_event) {
+          return_event->complete(error);
+        }
+        return error;
+      }
+    }
+
+    // UserDataWrapper objects used to encapsulate user pointer operands are
+    // heap allocated. Free them once the command has completed.
+    auto raw_dst_user_data = dst_user_data.release();
+    if (auto error = command_queue->registerDispatchCallback(
+            *mux_command_buffer, return_event, [raw_dst_user_data]() {
+              if (raw_dst_user_data) {
+                delete raw_dst_user_data;
+              }
+            })) {
       return error;
     }
   }
