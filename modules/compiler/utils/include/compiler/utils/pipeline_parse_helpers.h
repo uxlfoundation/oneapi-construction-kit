@@ -75,7 +75,7 @@ static bool checkParametrizedPassName(StringRef Name, StringRef PassName) {
   if (!Name.consume_front(PassName)) return false;
   // normal pass name w/o parameters == default parameters
   if (Name.empty()) return true;
-  return Name.startswith("<") && Name.endswith(">");
+  return Name.starts_with("<") && Name.ends_with(">");
 }
 
 inline Expected<StringRef> parseSinglePassStringRef(StringRef Params) {

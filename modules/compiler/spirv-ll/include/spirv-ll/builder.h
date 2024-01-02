@@ -591,7 +591,7 @@ class Builder {
     llvm::SmallVector<llvm::StringRef, 16> subs;
     for (size_t nameIndex = 0; nameIndex < names.size(); nameIndex++) {
       llvm::StringRef name(names[nameIndex]);
-      if (name.startswith("Dv")) {
+      if (name.starts_with("Dv")) {
         auto found = std::find(subs.begin(), subs.end(), name);
         if (found == subs.end()) {
           subs.push_back(name);
