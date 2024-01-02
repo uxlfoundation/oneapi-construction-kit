@@ -280,7 +280,8 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
 
   // Single awkward boundary value fix:
   const SignedType edge(abacus::detail::cast::as<UnsignedType>(x) == 0x39f6);
-  remainder = __abacus_select(remainder, T(-0.000144362f16), edge);
+  // -0.14783 ==> -0.000144362 * 2^10
+  remainder = __abacus_select(remainder, T(-0.14783f16), edge);
 
   // Set return parameters
   *hiExp = abacus::detail::cast::convert<T>(hiExpI);
