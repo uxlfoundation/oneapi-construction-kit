@@ -37,7 +37,7 @@ PreservedAnalyses compiler::CheckForExtFuncsPass::run(Module &M,
   for (const auto &F : M) {
     auto FName = F.getName();
     if (F.isDeclaration() && !F.isIntrinsic() && !FName.equals("printf") &&
-        !FName.startswith("_Z") && !FName.startswith("__")) {
+        !FName.starts_with("_Z") && !FName.starts_with("__")) {
       M.getContext().diagnose(DiagnosticInfoExternalFunc(FName));
     }
   }

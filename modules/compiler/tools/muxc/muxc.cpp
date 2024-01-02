@@ -270,8 +270,8 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
   // Assume that .bc and .ll files are already IR unless told otherwise.
   if (InputLanguage == "ir" ||
       (InputLanguage.empty() &&
-       (IFN.endswith(".bc") || IFN.endswith(".bc32") || IFN.endswith(".bc64") ||
-        IFN.endswith(".ll")))) {
+       (IFN.ends_with(".bc") || IFN.ends_with(".bc32") ||
+        IFN.ends_with(".bc64") || IFN.ends_with(".ll")))) {
     return parseIRFileToModule(*LLVMContextToUse);
   }
   // Assume that stdin is IR unless told otherwise

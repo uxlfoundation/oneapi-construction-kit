@@ -811,7 +811,7 @@ bool Lexer::Consume(unsigned Size) {
 bool Lexer::Consume(StringRef Pattern) {
   if (Left() < Pattern.size()) {
     return false;
-  } else if (!TextLeft().startswith(Pattern)) {
+  } else if (!TextLeft().starts_with(Pattern)) {
     return false;
   }
   Pos += Pattern.size();
