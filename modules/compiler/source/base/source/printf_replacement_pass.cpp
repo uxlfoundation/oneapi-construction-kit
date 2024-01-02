@@ -843,7 +843,7 @@ PreservedAnalyses compiler::PrintfReplacementPass::run(
   auto to_be_cloned_func = [&funcs_calling_printf](const Function &func,
                                                    bool &ClonedWithBody,
                                                    bool &ClonedNoBody) {
-    ClonedWithBody = !func.getName().startswith("__llvm") &&
+    ClonedWithBody = !func.getName().starts_with("__llvm") &&
                      funcs_calling_printf.count(&func);
     ClonedNoBody = false;
   };

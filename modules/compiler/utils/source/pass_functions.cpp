@@ -482,7 +482,7 @@ bool addParamToAllFunctions(llvm::Module &module,
         // don't clone and add arg to special functions starting with __llvm.
         // These are reserved for clang generated functions such as profile
         // related ones
-        ClonedWithBody = !func.getName().startswith("__llvm");
+        ClonedWithBody = !func.getName().starts_with("__llvm");
         ClonedNoBody = false;
       },
       updateMetaDataCallback);

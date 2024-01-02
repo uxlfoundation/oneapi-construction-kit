@@ -41,12 +41,12 @@ bool isImageType(llvm::StringRef type_name, const char *const compare) {
   }
 
   llvm::StringRef ro = "__read_only ";
-  if (type_name.startswith(ro) && type_name.substr(ro.size()) == compare) {
+  if (type_name.starts_with(ro) && type_name.substr(ro.size()) == compare) {
     return true;
   }
 
   llvm::StringRef wo = "__write_only ";
-  if (type_name.startswith(wo) && type_name.substr(wo.size()) == compare) {
+  if (type_name.starts_with(wo) && type_name.substr(wo.size()) == compare) {
     return true;
   }
 
