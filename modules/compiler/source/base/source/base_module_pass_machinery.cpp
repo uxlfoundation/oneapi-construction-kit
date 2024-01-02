@@ -49,7 +49,6 @@
 #include <compiler/utils/prepare_barriers_pass.h>
 #include <compiler/utils/reduce_to_function_pass.h>
 #include <compiler/utils/remove_exceptions_pass.h>
-#include <compiler/utils/remove_fences_pass.h>
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/rename_builtins_pass.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
