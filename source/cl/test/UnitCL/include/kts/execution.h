@@ -347,6 +347,9 @@ class HalfParamExecution : public ExecutionWithParam<unsigned> {
   /// @brief Returns true if parameter at index has a scalar type
   /// @param[in] Index of parameter to check
   bool IsArgScalar(unsigned index) const;
+
+  /// @brief Returns a vector of edge cases that need extra testing.
+  virtual const std::vector<cl_ushort> &GetEdgeCases() const;
 };
 
 template <typename T>
