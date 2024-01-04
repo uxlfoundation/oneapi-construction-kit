@@ -413,6 +413,17 @@ UCL_EXECUTION_TEST_SUITE_P(HalfOperatorTest, testing::Values(OPENCL_C),
 
 using HalfMathBuiltins = HalfParamExecution;
 
+struct HalfMathBuiltinsPow : HalfMathBuiltins {
+  const std::vector<cl_ushort> &GetEdgeCases() const override {
+    static const std::vector<cl_ushort> EdgeCases = [&] {
+      std::vector<cl_ushort> EdgeCases = HalfMathBuiltins::GetEdgeCases();
+      EdgeCases.push_back(0x39f6);
+      return EdgeCases;
+    }();
+    return EdgeCases;
+  }
+};
+
 TEST_P(HalfMathBuiltins, Precision_08_Half_Ldexp) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
@@ -1774,7 +1785,7 @@ TEST_P(HalfMathBuiltins, Precision_79_Half_tanh) {
   TestAgainstRef<2_ULP>(tanh_ref);
 }
 
-TEST_P(HalfMathBuiltins, Precision_80_Half_pow) {
+TEST_P(HalfMathBuiltinsPow, Precision_80_Half_pow) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -1797,7 +1808,7 @@ TEST_P(HalfMathBuiltins, Precision_80_Half_pow) {
 }
 
 // TODO: OCK-523
-TEST_P(HalfMathBuiltins, DISABLED_Precision_81_Half_powr) {
+TEST_P(HalfMathBuiltinsPow, DISABLED_Precision_81_Half_powr) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -1833,7 +1844,7 @@ TEST_P(HalfMathBuiltins, DISABLED_Precision_81_Half_powr) {
   TestAgainstRef<4_ULP>(powr_ref);
 }
 
-TEST_P(HalfMathBuiltins, Precision_82_Half_pown) {
+TEST_P(HalfMathBuiltinsPow, Precision_82_Half_pown) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -1893,6 +1904,8 @@ TEST_P(HalfMathBuiltins, Precision_83_Half_rootn) {
 
 // Miss out half3 to avoid complications with having sizeof(half4)
 UCL_EXECUTION_TEST_SUITE_P(HalfMathBuiltins, testing::Values(OPENCL_C),
+                           testing::Values(1, 2, 4, 8, 16));
+UCL_EXECUTION_TEST_SUITE_P(HalfMathBuiltinsPow, testing::Values(OPENCL_C),
                            testing::Values(1, 2, 4, 8, 16));
 
 TEST_P(Execution, Precision_84_Double_Remquo) {
