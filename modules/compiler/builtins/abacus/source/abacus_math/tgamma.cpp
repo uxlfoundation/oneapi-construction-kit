@@ -186,50 +186,38 @@ abacus_half ABACUS_API __abacus_tgamma(abacus_half x) {
   switch (x_ushort) {
     default:
       break;
-    case 0x3F5E:  // 1.841796875f16
-      return 0.943359375f16;
-    case 0x3FC1:  // 1.9384765625f16
-      return 0.9755859375f16;
     case 0x4530:  // 5.1875f16
       return 31.953125f16;
-    case 0xB58D:  // -0.346923828125f16
-      return -3.974609375f16;
-    case 0xB6E9:  // -0.431884765625f16
-      return -3.62890625f16;
-    case 0xBAE3:  // -0.86083984375f16
-      return -7.8203125f16;
-    case 0xBF5E:  // -1.841796875f16
-      return 3.79296875f16;
-    case 0xC0F3:  // -2.474609375f16
-      return -0.97509765625f16;
-    case 0xC135:  // -2.603515625f16
-      return -0.88818359375f16;
-    case 0xC144:  // -2.6328125f16
-      return -0.890625f16;
-    case 0xC17D:  // -2.744140625f16
-      return -0.9931640625f16;
-    case 0xC28E:  // -3.27734375f16
-      return 0.477783203125f16;
-    case 0xC351:  // -3.658203125f16
-      return 0.245849609375f16;
-    case 0xC361:  // -3.689453125f16
-      return 0.2496337890625f16;
-    case 0xC534:  // -5.203125f16
-      return 0.0309600830078125f16;
-    case 0xC5FA:  // -5.9765625f16
-      return 0.061981201171875f16;
-    case 0xC67B:  // -6.48046875f16
-      return -0.00174713134765625f16;
-    case 0xC69D:  // -6.61328125f16
-      return -0.00143527984619140625f16;
-    case 0xC6D9:  // -6.84765625f16
-      return -0.0018367767333984375f16;
-    case 0xC718:  // -7.09375f16
-      return 0.00177669525146484375f16;
-    case 0xC786:  // -7.5234375f16
-      return 0.00021374225616455078125f16;
-    case 0xC7D3:  // -7.82421875f16
-      return 0.000216007232666015625f16;
+    case 0xb5e9:  // -0.369385f16
+      return -3.85156f16;
+    case 0xb6c8:  // -0.423828f16
+      return -3.64844f16;
+    case 0xb6e9:  // -0.431885f16
+      return -3.62891f16;
+    case 0xb7cb:  // -0.487061f16
+      return -3.54883f16;
+    case 0xb834:  // -0.525391f16
+      return -3.55273f16;
+    case 0xbade:  // -0.858398f16
+      return -7.69922f16;
+    case 0xbfd4:  // -1.95703f16
+      return 12.1406f16;
+    case 0xc0f3:  // -2.47461f16
+      return -0.975098f16;
+    case 0xc135:  // -2.60352f16
+      return -0.888184f16;
+    case 0xc586:  // -5.52344f16
+      return 0.0104904f16;
+    case 0xc5e1:  // -5.87891f16
+      return 0.0147247f16;
+    case 0xc5fa:  // -5.97656f16
+      return 0.0619812f16;
+    case 0xc67b:  // -6.48047f16
+      return -0.00174713f16;
+    case 0xc69d:  // -6.61328f16
+      return -0.00143528f16;
+    case 0xc814:  // -8.15625f16
+      return -0.000118136f16;
   }
 
   const abacus_half xAbs = __abacus_fabs(x);

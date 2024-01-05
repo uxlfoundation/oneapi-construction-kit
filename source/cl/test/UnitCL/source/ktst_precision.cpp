@@ -417,7 +417,13 @@ struct HalfMathBuiltinsPow : HalfMathBuiltins {
   const std::vector<cl_ushort> &GetEdgeCases() const override {
     static const std::vector<cl_ushort> EdgeCases = [&] {
       std::vector<cl_ushort> EdgeCases = HalfMathBuiltins::GetEdgeCases();
+      // 0x39f6 is singled out as a special case in log2_extended_precision.
       EdgeCases.push_back(0x39f6);
+      // pow(0x39f0, 0xd00e) is just one example where evaluating
+      // horner_polynomial without FMA gives results with insufficient
+      // precision.
+      EdgeCases.push_back(0x39f0);
+      EdgeCases.push_back(0xd00e);
       return EdgeCases;
     }();
     return EdgeCases;

@@ -27,7 +27,7 @@ inline T horner_polynomial(const T x, const TCoef *p_coef, size_t N) {
   T coef_sum = T(p_coef[N - 1]);
 
   for (size_t n = N - 1; n > 0; n--) {
-    coef_sum = T(p_coef[n - 1]) + x * coef_sum;
+    coef_sum = __abacus_fma(coef_sum, x, T(p_coef[n - 1]));
   }
 
   return coef_sum;

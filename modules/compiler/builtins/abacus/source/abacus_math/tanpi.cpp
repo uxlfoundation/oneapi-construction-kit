@@ -68,10 +68,8 @@ struct helper<T, abacus_half> {
     // and `add_exact` in the return expression, adding dozens of extra FP16
     // operations. Instead of adding these extra calculations, we handle that
     // case explicitly here.
-    using UnsignedType = typename TypeTraits<T>::UnsignedType;
-    return __abacus_select(ans,
-                           abacus::detail::cast::as<T>(UnsignedType(0x3bbf)),
-                           UnsignedType(xAbs == 0.244873046875f16));
+    using SignedType = typename TypeTraits<T>::SignedType;
+    return __abacus_select(ans, T(0.978027f16), SignedType(xAbs == 0.24646f16));
   }
 };
 #endif  // __CA_BUILTINS_HALF_SUPPORT
