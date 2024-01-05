@@ -46,8 +46,8 @@ T half_exp2(T x) {
   SignedType xFloor = abacus::internal::floor_unsafe(x);
   T xMant = x - abacus::detail::cast::convert<T>(xFloor);
 
-  T exp2_xMant = abacus::internal::horner_polynomial<T, 4>(
-      xMant, __codeplay_half_exp2_coeff);
+  T exp2_xMant =
+      abacus::internal::horner_polynomial(xMant, __codeplay_half_exp2_coeff);
 
   T result = abacus::internal::ldexp_unsafe(exp2_xMant, xFloor);
 

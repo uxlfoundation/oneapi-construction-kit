@@ -38,18 +38,18 @@ struct erf_helper<T, abacus_half> {
     // Polynomial over range [0, 0.8]
     const abacus_half polynomial0[4] = {1.1279296875f16, 1.10321044921875e-2f16,
                                         -0.44189453125f16, 0.1436767578125f16};
-    const T s0 = abacus::internal::horner_polynomial<T, 4>(xAbs, polynomial0);
+    const T s0 = abacus::internal::horner_polynomial(xAbs, polynomial0);
 
     // Polynomial over range [0.8, 1.75]
     const abacus_half polynomial1[4] = {1.234375f16, -0.2978515625f16,
                                         -0.15478515625f16,
                                         6.0638427734375e-2f16};
-    const T s1 = abacus::internal::horner_polynomial<T, 4>(xAbs, polynomial1);
+    const T s1 = abacus::internal::horner_polynomial(xAbs, polynomial1);
 
     // Polynomial over range [1.75, 2.1]
     const abacus_half polynomial2[3] = {1.40234375f16, -0.66650390625f16,
                                         0.1070556640625f16};
-    const T s2 = abacus::internal::horner_polynomial<T, 3>(xAbs, polynomial2);
+    const T s2 = abacus::internal::horner_polynomial(xAbs, polynomial2);
 
     // Select the last interval as the default value
     T result = s2;
@@ -93,32 +93,31 @@ struct erf_helper<T, abacus_float> {
         -0.480089943431e-2f, .1291708894549f,  -0.2738900335275e-1f,
         -0.7265839921372e-2f};
 
-    const T s0 =
-        xAbs * abacus::internal::horner_polynomial<T, 7>(xAbs, polynomial0);
+    const T s0 = xAbs * abacus::internal::horner_polynomial(xAbs, polynomial0);
 
     const abacus_float polynomial1[7] = {
         .1572988043812f,     -.4151063740764f,     .4151681759610f,
         -.1386338728462f,    -0.6996173760407e-1f, 0.7588668092134e-1f,
         -0.1999414841696e-1f};
 
-    const T s1 = (T)1.0f - abacus::internal::horner_polynomial<T, 7>(
-                               xAbs - 1.0f, polynomial1);
+    const T s1 =
+        (T)1.0f - abacus::internal::horner_polynomial(xAbs - 1.0f, polynomial1);
 
     const abacus_float polynomial2[7] = {
         0.4677923940847e-2f,  -0.2066698149162e-1f, 0.4131261993220e-1f,
         -0.4814201425671e-1f, 0.3459644561569e-1f,  -0.1449449409692e-1f,
         0.2739553512239e-2f};
 
-    const T s2 = (T)1.0f - abacus::internal::horner_polynomial<T, 7>(
-                               xAbs - 2.0f, polynomial2);
+    const T s2 =
+        (T)1.0f - abacus::internal::horner_polynomial(xAbs - 2.0f, polynomial2);
 
     const abacus_float polynomial3[7] = {
         0.221830562446e-4f,  -0.140925585762e-3f, 0.420115643592e-3f,
         -0.743785588448e-3f, 0.804037923904e-3f,  -0.488747786554e-3f,
         0.127400179584e-3f};
 
-    const T s3 = (T)1.0f - abacus::internal::horner_polynomial<T, 7>(
-                               xAbs - 3.0f, polynomial3);
+    const T s3 =
+        (T)1.0f - abacus::internal::horner_polynomial(xAbs - 3.0f, polynomial3);
 
     // select the last interval as the default value
     T result = s3;
@@ -159,8 +158,7 @@ struct erf_helper<T, abacus_double> {
         -0.8502053102671020146012240e-3, -0.131562968994956982451090e-4,
         0.1453015580982363557541757e-3,  -0.2803416013593745284248751e-4};
 
-    const T s =
-        x * abacus::internal::horner_polynomial<T, 14>(xAbs, polynomial);
+    const T s = x * abacus::internal::horner_polynomial(xAbs, polynomial);
 
     const SignedType c0 = xAbs < 0.3;
     result = __abacus_select(result, s, c0);

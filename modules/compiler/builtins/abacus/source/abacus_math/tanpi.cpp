@@ -48,7 +48,7 @@ struct helper<T, abacus_half> {
                                        2.55859375f16, -0.66943359375f16};
     const abacus_half polynomial_0_hi = 3.140625f16;
     return x * (polynomial_0_hi +
-                abacus::internal::horner_polynomial<T, 4>(x * x, polynomial));
+                abacus::internal::horner_polynomial(x * x, polynomial));
   }
 
   static T denominator(const T x) {
@@ -56,7 +56,7 @@ struct helper<T, abacus_half> {
     // See tanpi.sollya
     const abacus_half polynomial[4] = {1.0f16, -4.93359375f16, 4.00390625f16,
                                        -0.74072265625f16};
-    return abacus::internal::horner_polynomial<T, 4>(x * x, polynomial);
+    return abacus::internal::horner_polynomial(x * x, polynomial);
   }
 
   static T handle_edge_cases(const T xAbs, const T ans) {
@@ -97,7 +97,7 @@ struct helper<T, abacus_double> {
         3.6490197133941196023, -4.6200497777346237839, 0.99735716184355045101,
         -0.26253549797567171127e-1};
 
-    return x * abacus::internal::horner_polynomial<T, 4>(x * x, polynomial);
+    return x * abacus::internal::horner_polynomial(x * x, polynomial);
   }
 
   static T denominator(const T x) {
@@ -105,7 +105,7 @@ struct helper<T, abacus_double> {
         1.1615190496528906454, -5.2918520270485559140, 2.6412953506383059363,
         -0.23276806353523888909};
 
-    return abacus::internal::horner_polynomial<T, 4>(x * x, polynomial);
+    return abacus::internal::horner_polynomial(x * x, polynomial);
   }
 
   static T handle_edge_cases(const T, const T ans) { return ans; }

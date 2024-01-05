@@ -40,7 +40,7 @@ T native_log2(const T x) {
   // mycurvefit.com, a simple online tool.
   const abacus_float polynomial[6] = {-3.810813f, 10.26252f,  -14.43957f,
                                       13.39757f,  -6.918097f, 1.508444f};
-  const T log2f = abacus::internal::horner_polynomial<T, 6>(f, polynomial);
+  const T log2f = abacus::internal::horner_polynomial(f, polynomial);
 
   // Make the effort to return NaN and inf in the appropriate cases (x<0 and
   // x==0 repectively).

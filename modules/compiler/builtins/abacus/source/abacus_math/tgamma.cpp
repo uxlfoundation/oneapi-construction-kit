@@ -72,33 +72,33 @@ abacus_half tgamma_poly(abacus_half x, abacus_half *exp_neg_x,
     // over range [0.5, 1]
     const abacus_half coeffs[4] = {4.9140625f16, -6.76171875f16, 6.5390625f16,
                                    -1.974609375f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 1.6f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
     // over range [1, 1.6]
     const abacus_half coeffs[4] = {3.326171875f16, -1.673828125f16,
                                    1.0390625f16, 2.6641845703125e-2f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 1.7998f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
     // over range [1.6, 1.8]
     const abacus_half coeffs[4] = {2.099609375f16, 0.751953125f16,
                                    -0.56494140625f16, 0.381103515625f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 3.0f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^(x - 0.5))
     // over range [1.8, 3]
     const abacus_half coeffs[4] = {2.87890625f16, -0.2421875f16,
                                    6.9091796875e-2f16,
                                    -7.305145263671875e-3f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 6.0f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^(x - 0.5))
     // over range [3, 6]
     const abacus_half coeffs[4] = {2.708984375f16, -7.110595703125e-2f16,
                                    1.08489990234375e-2f16,
                                    -6.07967376708984375e-4f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^(x - 2))
     // over range [6, 9.2]
@@ -109,7 +109,7 @@ abacus_half tgamma_poly(abacus_half x, abacus_half *exp_neg_x,
     *pow_sqrt = __abacus_powr(x, (x - 2.0f16) * 0.5f16);
     const abacus_half coeffs[4] = {-2.876953125f16, 3.875f16, 0.5185546875f16,
                                    -7.808685302734375e-3f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   }
 }
 

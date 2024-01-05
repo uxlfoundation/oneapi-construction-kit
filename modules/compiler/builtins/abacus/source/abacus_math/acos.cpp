@@ -156,8 +156,8 @@ T acos(const T x) {
     const SignedType cond = xAbs <= intervals[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 4>(
-        i < 12 ? oneMinusXAbs : xAbs, polynomial + i * 4);
+    const T poly = abacus::internal::horner_polynomial(
+        i < 12 ? oneMinusXAbs : xAbs, polynomial + i * 4, 4);
 
     ans = __abacus_select(ans, poly, cond);
   }
@@ -217,7 +217,7 @@ T ABACUS_API acos_half(T x) {
 
   xAbs = xAbs - T(1.0f16);
   T ansBig =
-      xAbs * abacus::internal::horner_polynomial<T, 3>(xAbs, __codeplay_acos_1);
+      xAbs * abacus::internal::horner_polynomial(xAbs, __codeplay_acos_1);
 
   ansBig = abacus::internal::sqrt(ansBig);
 

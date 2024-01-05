@@ -175,8 +175,9 @@ inline T lgamma_positive(const T &x) {
     const SignedType cond = x > _intervals[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 8>(
-        x - _lgamma_translation[i], __codeplay_lgamma_positive_coeff + i * 8);
+    const T poly = abacus::internal::horner_polynomial(
+        x - _lgamma_translation[i], __codeplay_lgamma_positive_coeff + i * 8,
+        8);
 
     ans = __abacus_select(ans, poly, cond);
   }
@@ -212,9 +213,9 @@ inline T lgamma_positive_half(const T &x) {
     const SignedType cond = x > _intervals_half[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 8>(
+    const T poly = abacus::internal::horner_polynomial(
         x - _lgamma_translation_half[i],
-        __codeplay_lgamma_positive_coeff_half + i * 8);
+        __codeplay_lgamma_positive_coeff_half + i * 8, 8);
 
     ans = __abacus_select(ans, poly, cond);
   }
