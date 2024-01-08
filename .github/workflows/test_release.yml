@@ -1,0 +1,122 @@
+name: Test Release
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs the workflow at midnight every day
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run for RISCV
+  test_package:
+    runs-on: ubuntu-22.04
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+       # installs tools, ninja, installs llvm and sets up sccache
+      - name: Setup ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 17
+          llvm_build_type: RelAssert
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Build riscv M1
+        uses: ./.github/actions/do_build_ock/do_build_m1
+
+      - name: Download Daily Release
+        run: |
+          # TODO: Update the nightly release from intel/llvm from 2023-12-18 to daily once
+          # everything has stablised
+          wget "https://github.com/intel/llvm/releases/download/nightly-2023-12-18/sycl_linux.tar.gz"
+          mkdir linux_nightly_release
+          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+
+      - name: Clone oneAPI-samples
+        run: git clone https://github.com/oneapi-src/oneAPI-samples.git
+
+      - name: Setup environment and test Vector Add
+        run: |
+          export ONEAPI_ROOT=$(pwd)/linux_nightly_release
+          export PATH=$(pwd)/linux_nightly_release/bin:$PATH
+          export LD_LIBRARY_PATH=$(pwd)/linux_nightly_release/lib:$(pwd)/build/lib:$LD_LIBRARY_PATH
+
+          $(pwd)/linux_nightly_release/bin/clang++ -fsycl $(pwd)/oneAPI-samples/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o vect
+          CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$(pwd)/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc  SYCL_CONFIG_FILE_NAME="" ./vect
+
+      - name: Package Artifacts
+        run: |
+          tar -czf ock_build.tar.gz $(pwd)/build
+
+      # - name: Upload Artifacts
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: riscv-build
+      #     path: ock_build.tar.gz
+
+  # ock_nightly:
+  #   name: OCK Nightly Build Upload
+  #   runs-on: ubuntu-22.04
+  #   needs: [run_riscv_m1_nightly_package]
+
+  #   steps:
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: riscv-build
+  #         path: ock_build.tar.gz
+
+      - name: Compute tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name == 'schedule' }}" == "true" ]; then
+            echo "TAG=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          else
+            # TODO: Use date of the commit?
+            echo "TAG=$(date +'%Y-%m-%d')-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Nightly OCK pre-release
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          files:
+            ock_build.tar.gz
+          tag_name: nightly-${{ steps.tag.outputs.TAG }}
+          name: OCK daily ${{ steps.tag.outputs.TAG }}
+          prerelease: true
+          body: "Daily build ${{ steps.tag.outputs.TAG }}"
+          target_commitish: ${{ github.sha }}
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: Release ${{ github.ref }}
+      #     body: |
+      #       Changes in this release:
+      #       - Add new features
+      #     draft: true
+      #     prerelease: true
+
+      # - name: Upload Release Asset
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: $(pwd)/ock_build.tar.gz
+      #     asset_name: ock_build.tar.gz
+      #     asset_content_type: application/gzip
