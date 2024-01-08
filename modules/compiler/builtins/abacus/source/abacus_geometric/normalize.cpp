@@ -18,7 +18,7 @@
 #include <abacus/abacus_geometric.h>
 
 #define SCALAR_DEF(TYPE)                                  \
-  TYPE __abacus_normalize(TYPE x) {                       \
+  TYPE ABACUS_API __abacus_normalize(TYPE x) {            \
     if (x == static_cast<TYPE>(0) || __abacus_isnan(x)) { \
       return x;                                           \
     }                                                     \
@@ -26,7 +26,7 @@
   }
 
 #define DEF(TYPE)                                   \
-  TYPE __abacus_normalize(TYPE x) {                 \
+  TYPE ABACUS_API __abacus_normalize(TYPE x) {      \
     return abacus::detail::geometric::normalize(x); \
   }
 

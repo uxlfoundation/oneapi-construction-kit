@@ -56,8 +56,6 @@ if(COMMAND add_ca_tidy)
   endif()
 endif()
 
-set_property(TARGET abacus_static PROPERTY CXX_STANDARD 11)
-
 target_include_directories(abacus_static PUBLIC
   ${CMAKE_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../include)
@@ -200,7 +198,7 @@ target datalayout = \"e-p:32:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:
       set(DEPFILE_ARGS -dependency-file "${OUTPUT}.d" -MT "${OUTPUT}" -sys-header-deps)
       if(SOURCE_TYPE STREQUAL ".cpp")
         set(XTYPE "c++")
-        set(XOPTS "-std=c++11")
+        set(XOPTS "-std=c++17")
       elseif(SOURCE_TYPE STREQUAL ".cl")
         set(XTYPE "cl")
         set(XOPTS "-cl-std=CL1.2")

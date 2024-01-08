@@ -87,7 +87,9 @@ T lgamma_scalar(const T x) {
 }  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-abacus_half __abacus_lgamma(abacus_half x) { return lgamma_scalar(x); }
+abacus_half ABACUS_API __abacus_lgamma(abacus_half x) {
+  return lgamma_scalar(x);
+}
 abacus_half2 ABACUS_API __abacus_lgamma(abacus_half2 x) {
   return lgamma_vector(x);
 }
@@ -105,7 +107,9 @@ abacus_half16 ABACUS_API __abacus_lgamma(abacus_half16 x) {
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-abacus_float __abacus_lgamma(abacus_float x) { return lgamma_scalar(x); }
+abacus_float ABACUS_API __abacus_lgamma(abacus_float x) {
+  return lgamma_scalar(x);
+}
 abacus_float2 ABACUS_API __abacus_lgamma(abacus_float2 x) {
   return lgamma_vector(x);
 }

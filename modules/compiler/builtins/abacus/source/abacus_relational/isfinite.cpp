@@ -40,7 +40,7 @@ struct helper<abacus_half> {
 }  // namespace
 
 #define DEF(TYPE)                                             \
-  helper<TYPE>::type __abacus_isfinite(TYPE x) {              \
+  helper<TYPE>::type ABACUS_API __abacus_isfinite(TYPE x) {   \
     return abacus::detail::cast::convert<helper<TYPE>::type>( \
         abacus::detail::relational::isfinite(x));             \
   }

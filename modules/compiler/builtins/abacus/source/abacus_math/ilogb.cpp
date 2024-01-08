@@ -119,7 +119,9 @@ typename ilogb_info<T>::IntType ilogb_helper(const T x) {
 }  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-abacus_int __abacus_ilogb(abacus_half x) { return ilogb_helper_scalar<>(x); }
+abacus_int ABACUS_API __abacus_ilogb(abacus_half x) {
+  return ilogb_helper_scalar<>(x);
+}
 abacus_int2 ABACUS_API __abacus_ilogb(abacus_half2 x) {
   return ilogb_helper<>(x);
 }
@@ -137,7 +139,9 @@ abacus_int16 ABACUS_API __abacus_ilogb(abacus_half16 x) {
 }
 #endif
 
-abacus_int __abacus_ilogb(abacus_float x) { return ilogb_helper_scalar<>(x); }
+abacus_int ABACUS_API __abacus_ilogb(abacus_float x) {
+  return ilogb_helper_scalar<>(x);
+}
 abacus_int2 ABACUS_API __abacus_ilogb(abacus_float2 x) {
   return ilogb_helper<>(x);
 }
@@ -155,7 +159,9 @@ abacus_int16 ABACUS_API __abacus_ilogb(abacus_float16 x) {
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-abacus_int __abacus_ilogb(abacus_double x) { return ilogb_helper_scalar<>(x); }
+abacus_int ABACUS_API __abacus_ilogb(abacus_double x) {
+  return ilogb_helper_scalar<>(x);
+}
 abacus_int2 ABACUS_API __abacus_ilogb(abacus_double2 x) {
   return ilogb_helper<>(x);
 }

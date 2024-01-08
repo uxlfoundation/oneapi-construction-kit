@@ -782,40 +782,46 @@ T convert_sat_rtp(const U &u) {
 }
 }  // namespace
 
-#define DEF_WITH_BOTH_TYPES(IN_TYPE, OUT_TYPE)                              \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE(abacus_##IN_TYPE x) {       \
-    return convert<abacus_##OUT_TYPE>(x);                                   \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_rte(abacus_##IN_TYPE x) { \
-    return convert_rte<abacus_##OUT_TYPE>(x);                               \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_rtn(abacus_##IN_TYPE x) { \
-    return convert_rtn<abacus_##OUT_TYPE>(x);                               \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_rtz(abacus_##IN_TYPE x) { \
-    return convert_rtz<abacus_##OUT_TYPE>(x);                               \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_rtp(abacus_##IN_TYPE x) { \
-    return convert_rtp<abacus_##OUT_TYPE>(x);                               \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_sat(abacus_##IN_TYPE x) { \
-    return convert_sat<abacus_##OUT_TYPE>(x);                               \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_sat_rte(                  \
-      abacus_##IN_TYPE x) {                                                 \
-    return convert_sat_rte<abacus_##OUT_TYPE>(x);                           \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_sat_rtn(                  \
-      abacus_##IN_TYPE x) {                                                 \
-    return convert_sat_rtn<abacus_##OUT_TYPE>(x);                           \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_sat_rtz(                  \
-      abacus_##IN_TYPE x) {                                                 \
-    return convert_sat_rtz<abacus_##OUT_TYPE>(x);                           \
-  }                                                                         \
-  abacus_##OUT_TYPE __abacus_convert_##OUT_TYPE##_sat_rtp(                  \
-      abacus_##IN_TYPE x) {                                                 \
-    return convert_sat_rtp<abacus_##OUT_TYPE>(x);                           \
+#define DEF_WITH_BOTH_TYPES(IN_TYPE, OUT_TYPE)                        \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE(           \
+      abacus_##IN_TYPE x) {                                           \
+    return convert<abacus_##OUT_TYPE>(x);                             \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rte(     \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_rte<abacus_##OUT_TYPE>(x);                         \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtn(     \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_rtn<abacus_##OUT_TYPE>(x);                         \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtz(     \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_rtz<abacus_##OUT_TYPE>(x);                         \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtp(     \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_rtp<abacus_##OUT_TYPE>(x);                         \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat(     \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_sat<abacus_##OUT_TYPE>(x);                         \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rte( \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_sat_rte<abacus_##OUT_TYPE>(x);                     \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtn( \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_sat_rtn<abacus_##OUT_TYPE>(x);                     \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtz( \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_sat_rtz<abacus_##OUT_TYPE>(x);                     \
+  }                                                                   \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtp( \
+      abacus_##IN_TYPE x) {                                           \
+    return convert_sat_rtp<abacus_##OUT_TYPE>(x);                     \
   }
 
 #define DEF_INTERGRAL_TYPES(TYPE, SIZE)         \

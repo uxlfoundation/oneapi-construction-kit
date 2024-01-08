@@ -49,7 +49,7 @@ R shuffle(const T x, const M m) {
 }  // namespace hidden
 
 #define DEF_WITH_BOTH_SIZES(TYPE, IN_SIZE, OUT_SIZE)                 \
-  TYPE##OUT_SIZE __abacus_shuffle(                                   \
+  TYPE##OUT_SIZE ABACUS_API __abacus_shuffle(                        \
       TYPE##IN_SIZE x, TypeTraits<TYPE##OUT_SIZE>::UnsignedType m) { \
     return hidden::shuffle<TYPE##OUT_SIZE>(x, m);                    \
   }
