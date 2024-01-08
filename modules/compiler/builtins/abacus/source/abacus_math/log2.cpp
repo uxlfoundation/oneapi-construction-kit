@@ -37,7 +37,7 @@ struct helper<T, abacus_half> {
         4.06640625f16,     -6.3828125f16,      -1.4638671875f16,
     };
 
-    return x * abacus::internal::horner_polynomial<T, 9>(x, polynomial);
+    return x * abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 #endif
@@ -58,7 +58,7 @@ struct helper<T, abacus_float> {
                                          -1.675888001918792724609375E-1f,
                                          9.700144827365875244140625E-2f};
 
-    return x * abacus::internal::horner_polynomial<T, 11>(x, polynomial);
+    return x * abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 
@@ -79,7 +79,7 @@ static ABACUS_CONSTANT abacus_double polynomialD[21] = {
 template <typename T>
 struct helper<T, abacus_double> {
   static T _(const T x) {
-    return x * abacus::internal::horner_polynomial<T, 21>(x, polynomialD);
+    return x * abacus::internal::horner_polynomial(x, polynomialD);
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

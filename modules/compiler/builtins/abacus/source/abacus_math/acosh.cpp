@@ -75,7 +75,7 @@ T acosh_half(const T x) {
 
   const T small_return =
       abacus::internal::sqrt(x - 1.0f16) *
-      abacus::internal::horner_polynomial<T, 3>(x - T(1.0f16), _acoshH);
+      abacus::internal::horner_polynomial(x - T(1.0f16), _acoshH);
 
   ans = __abacus_select(ans, small_return, SignedType(x < T(2.0f16)));
 
@@ -86,8 +86,7 @@ template <>
 abacus_half acosh_half(const abacus_half x) {
   if (x < 2.0f16) {
     return abacus::internal::sqrt(x - 1.0f16) *
-           abacus::internal::horner_polynomial<abacus_half, 3>(x - 1.0f16,
-                                                               _acoshH);
+           abacus::internal::horner_polynomial(x - 1.0f16, _acoshH);
   }
 
   // As x > 11.7, acosh(x) = log(x + sqrt(x^2 - 1)) converges to

@@ -161,7 +161,7 @@ struct pow_unsafe_helper<T, abacus_half> {
 
     // Now a normal exp2 should do the trick:
     // We know that 0 <= y_times_log2X <= 1 so we can just use a polynomial
-    T result = abacus::internal::horner_polynomial<T, 6>(
+    T result = abacus::internal::horner_polynomial(
         y_times_log2X, __codeplay_pow_unsafe_coeffH);
 
     // We do the same trick as for __log2_extra_precision here, using some extra
@@ -238,8 +238,8 @@ struct pow_unsafe_helper<T, abacus_float> {
     exponent_mantissa -= abacus::detail::cast::convert<T>(
         abacus::internal::floor_unsafe(exponent_mantissa));
 
-    T result = abacus::internal::horner_polynomial<T, 8>(
-        exponent_mantissa, __codeplay_pow_unsafe_coeff);
+    T result = abacus::internal::horner_polynomial(exponent_mantissa,
+                                                   __codeplay_pow_unsafe_coeff);
 
     result = __abacus_ldexp(result, exponent_floor);
 
@@ -326,10 +326,9 @@ struct pow_unsafe_helper<T, abacus_double> {
     exponent_floor += mantissa_trunc;
     exponent_mantissa -= abacus::detail::cast::convert<T>(mantissa_trunc);
 
-    T result =
-        (T)1.0 + exponent_mantissa *
-                     abacus::internal::horner_polynomial<T, 18>(
-                         exponent_mantissa, __codeplay_pow_unsafe_coeffD);
+    T result = (T)1.0 + exponent_mantissa * abacus::internal::horner_polynomial(
+                                                exponent_mantissa,
+                                                __codeplay_pow_unsafe_coeffD);
 
     result = __abacus_ldexp(
         result, abacus::detail::cast::convert<IntVecType>(exponent_floor));

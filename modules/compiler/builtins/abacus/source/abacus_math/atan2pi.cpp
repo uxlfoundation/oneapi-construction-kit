@@ -81,7 +81,7 @@ T atan2pi_half(const T y, const T x) {
 
   const T x2 = ratio * ratio;
 
-  const T poly = atan2pi_horner_polynomial<T>(x2);
+  const T poly = atan2pi_horner_polynomial(x2);
 
   // Adding this small constant to the polynomial, then multiplying by 'ratio',
   // loses too much precision in cases where the other operands are large.
@@ -117,8 +117,7 @@ T atan2pi_half(const T y, const T x) {
     const T remaining_term = 0.318359375f16 * 8.0f16;
 
     // Compute horner polynomial.
-    T ans_ftz =
-        abacus::internal::horner_polynomial<T, 3>(abs_ratio, _atan2piH_ftz);
+    T ans_ftz = abacus::internal::horner_polynomial(abs_ratio, _atan2piH_ftz);
     ans_ftz = remaining_term + ans_ftz;
     // Perform final multiplcation, then undo the scaling.
     ans_ftz = (abs_ratio * ans_ftz) * 0.125f16;
@@ -221,7 +220,7 @@ abacus_half atan2pi_half(const abacus_half y, const abacus_half x) {
 
   const abacus_half x2 = ratio * ratio;
 
-  const abacus_half poly = atan2pi_horner_polynomial<abacus_half>(x2);
+  const abacus_half poly = atan2pi_horner_polynomial(x2);
 
   // Adding this small constant to the polynomial, then multiplying by 'ratio',
   // loses too much precision in cases where the other operands are large.
@@ -263,8 +262,7 @@ abacus_half atan2pi_half(const abacus_half y, const abacus_half x) {
       const abacus_half remaining_term = 0.318359375f16 * 8.0f16;
 
       // Compute horner polynomial.
-      ans = abacus::internal::horner_polynomial<abacus_half, 3>(abs_ratio,
-                                                                _atan2piH_ftz);
+      ans = abacus::internal::horner_polynomial(abs_ratio, _atan2piH_ftz);
       ans = remaining_term + ans;
 
       // Perform final multiplcation, then undo the scaling.

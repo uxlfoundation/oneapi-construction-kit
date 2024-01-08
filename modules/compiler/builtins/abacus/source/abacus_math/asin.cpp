@@ -161,12 +161,12 @@ T asin_half(const T x) {
   // around x = 1 we want to estimate (asin(x) - pi/2)^2
   SignedType xBig = (xAbs > T(5.9375E-1f16));
   const T x2 = x * x;
-  T ans = x * abacus::internal::horner_polynomial<T, 3>(x2, __codeplay_asin_2);
+  T ans = x * abacus::internal::horner_polynomial(x2, __codeplay_asin_2);
 
   xAbs = xAbs - T(1.0f16);
 
   T ansBig =
-      xAbs * abacus::internal::horner_polynomial<T, 3>(xAbs, __codeplay_asin_1);
+      xAbs * abacus::internal::horner_polynomial(xAbs, __codeplay_asin_1);
 
   ansBig = -abacus::internal::sqrt(ansBig) + ABACUS_PI_2_H;
   ansBig = __abacus_copysign(ansBig, x);
@@ -197,8 +197,7 @@ abacus_half asin_half(const abacus_half x) {
 
     // Estimate (asin(x + 1) - pi / 2)^2 (see solly script)
     abacus_half ans =
-        xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
-                   xAbs, __codeplay_asin_1);
+        xAbs * abacus::internal::horner_polynomial(xAbs, __codeplay_asin_1);
 
     ans = -abacus::internal::sqrt(ans) + ABACUS_PI_2_H;
     return __abacus_copysign(ans, x);
@@ -206,8 +205,7 @@ abacus_half asin_half(const abacus_half x) {
 
   // Estimate the remaining values
   const abacus_half x2 = x * x;
-  return x * abacus::internal::horner_polynomial<abacus_half, 3>(
-                 x2, __codeplay_asin_2);
+  return x * abacus::internal::horner_polynomial(x2, __codeplay_asin_2);
 }
 }  // namespace
 
@@ -229,8 +227,8 @@ T asin(const T x) {
     const SignedType cond = xAbs < intervals[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 5>(
-        i < 9 ? oneMinusXAbs : xAbs, __codeplay_asin_coeff + i * 5);
+    const T poly = abacus::internal::horner_polynomial(
+        i < 9 ? oneMinusXAbs : xAbs, __codeplay_asin_coeff + i * 5, 5);
 
     ans = __abacus_select(ans, poly, cond);
   }

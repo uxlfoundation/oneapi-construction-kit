@@ -46,8 +46,7 @@ struct helper<T, abacus_half> {
 
     // We know remainder will be in the reduced range [0.0, 1.0], so we use a
     // polynomial approximation to calculate 2^remainder
-    const T fract =
-        abacus::internal::horner_polynomial<T, 4>(remainder, polynomial);
+    const T fract = abacus::internal::horner_polynomial(remainder, polynomial);
 
     // Multiply 2^floor by approximation of 2^remainder to get the final result
     T result = __abacus_ldexp(fract, floor);
@@ -94,7 +93,7 @@ struct helper<T, abacus_float> {
 
     // Minimax polynomial approximation in the domain [0.0, 1.0]
     // ideal maximum error +8.256512799094739296267877813873319906884e-13
-    T result = abacus::internal::horner_polynomial<T, 9>(r, polynomial);
+    T result = abacus::internal::horner_polynomial(r, polynomial);
 
     result = __abacus_ldexp(result, k);
 
@@ -133,7 +132,7 @@ struct helper<T, abacus_double> {
                                           4.1791513827899285111307e-10,
                                           3.5365538828220154193844e-11};
 
-    const T fract = abacus::internal::horner_polynomial<T, 13>(r, polynomial);
+    const T fract = abacus::internal::horner_polynomial(r, polynomial);
 
     const T factor1 = abacus::detail::cast::as<T>((k / 2 + 1023) << 52);
     const T factor2 = abacus::detail::cast::as<T>((k - (k / 2) + 1023) << 52);

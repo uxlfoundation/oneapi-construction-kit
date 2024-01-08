@@ -70,7 +70,7 @@ T atan_unsafe(const T &x) {
       -0.27671732461794832889713721816369215e-1,
       0.12384767226415412063082059444905478e-1};
 
-  T r = c * abacus::internal::horner_polynomial<T, 15>(c * c, polynomial);
+  T r = c * abacus::internal::horner_polynomial(c * c, polynomial);
 
   // atan(PI/7) in two constants for Cody & Waite reduction
   const abacus_double atank1 =

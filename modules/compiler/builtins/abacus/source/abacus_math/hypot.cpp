@@ -142,7 +142,7 @@ struct hypot_helper<T, abacus_half> {
 
     // Estimate sqrt(1 + x^2) from x in [0,1]:
     // P = fpminimax(sqrt(1 + x^2), 4, [|11...|],[0;1],floating,relative);
-    const T sqrt_guess = abacus::internal::horner_polynomial<T, 5>(
+    const T sqrt_guess = abacus::internal::horner_polynomial(
         xReduced, __codeplay_hypot_coeff_half);
 
     return max_xy * sqrt_guess;
