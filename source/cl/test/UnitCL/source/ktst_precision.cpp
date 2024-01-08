@@ -1813,8 +1813,7 @@ TEST_P(HalfMathBuiltinsPow, Precision_80_Half_pow) {
   TestAgainstRef<4_ULP>(pow_ref);
 }
 
-// TODO: OCK-523
-TEST_P(HalfMathBuiltinsPow, DISABLED_Precision_81_Half_powr) {
+TEST_P(HalfMathBuiltinsPow, Precision_81_Half_powr) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }

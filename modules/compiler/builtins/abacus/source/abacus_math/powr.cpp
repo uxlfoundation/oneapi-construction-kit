@@ -45,12 +45,14 @@ inline T powr(const T x, const T y) {
   result =
       __abacus_select(result, bit, SignedType(xIsInf | yIsInf | (x == 0.0f)));
 
-  // Return for any input where y is zero
-  result = __abacus_select(result, T(1.0), SignedType(y == 0.0f));
+  // Return 1 for any input where x is 1 or y is zero and we do not subsequently
+  // change it to NaN.
+  result =
+      __abacus_select(result, T(1.0f), SignedType((x == 1.0f) | (y == 0.0f)));
 
-  // Return NAN in the following conditions:
-  // * x is NAN
-  // * y is NAN
+  // Return NaN in the following conditions:
+  // * x is NaN
+  // * y is NaN
   // * x is less than zero
   // * x is +/- zero and y is +/- zero
   // * x is INFINITY and y is +/- zero
