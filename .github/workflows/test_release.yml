@@ -1,5 +1,8 @@
 name: Test Release
 on:
+  push:
+    branches:
+      - marya/test_release
   schedule:
     - cron: '0 0 * * *'  # Runs the workflow at midnight every day
   # Allows you to run this workflow manually from the Actions tab
