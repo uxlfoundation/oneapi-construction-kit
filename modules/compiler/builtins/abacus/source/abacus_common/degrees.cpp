@@ -17,8 +17,10 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE) \
-  TYPE __abacus_degrees(TYPE x) { return abacus::detail::common::degrees(x); }
+#define DEF(TYPE)                              \
+  TYPE ABACUS_API __abacus_degrees(TYPE x) {   \
+    return abacus::detail::common::degrees(x); \
+  }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 DEF(abacus_half);

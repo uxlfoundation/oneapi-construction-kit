@@ -120,7 +120,7 @@ static ABACUS_CONSTANT abacus_float intervals[16] = {ABACUS_INFINITY,
                                                      .3f,
                                                      .12f};
 
-abacus_float __abacus_asinh(abacus_float x) {
+abacus_float ABACUS_API __abacus_asinh(abacus_float x) {
   if (__abacus_isftz() && abacus::internal::is_denorm(x)) {
     return x;
   }

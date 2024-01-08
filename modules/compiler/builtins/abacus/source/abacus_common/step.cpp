@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                              \
-  TYPE __abacus_step(TYPE e, TYPE x) {         \
-    return abacus::detail::common::step(e, x); \
+#define DEF(TYPE)                                 \
+  TYPE ABACUS_API __abacus_step(TYPE e, TYPE x) { \
+    return abacus::detail::common::step(e, x);    \
   }
-#define DEF2(TYPE, TYPE2)                      \
-  TYPE __abacus_step(TYPE2 e, TYPE x) {        \
-    return abacus::detail::common::step(e, x); \
+#define DEF2(TYPE, TYPE2)                          \
+  TYPE ABACUS_API __abacus_step(TYPE2 e, TYPE x) { \
+    return abacus::detail::common::step(e, x);     \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

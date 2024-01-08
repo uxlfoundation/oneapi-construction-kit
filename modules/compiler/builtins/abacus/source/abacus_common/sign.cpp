@@ -17,8 +17,10 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE) \
-  TYPE __abacus_sign(TYPE x) { return abacus::detail::common::sign(x); }
+#define DEF(TYPE)                           \
+  TYPE ABACUS_API __abacus_sign(TYPE x) {   \
+    return abacus::detail::common::sign(x); \
+  }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 DEF(abacus_half);

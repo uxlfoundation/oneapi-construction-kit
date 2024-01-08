@@ -47,7 +47,7 @@ T mul_hi(const T x, const T y) {
 }  // namespace
 
 #define DEF(TYPE) \
-  TYPE __abacus_mul_hi(TYPE x, TYPE y) { return mul_hi<TYPE>(x, y); }
+  TYPE ABACUS_API __abacus_mul_hi(TYPE x, TYPE y) { return mul_hi<TYPE>(x, y); }
 
 DEF(abacus_char);
 DEF(abacus_char2);

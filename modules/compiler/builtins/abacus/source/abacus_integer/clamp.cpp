@@ -16,13 +16,13 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                                   \
-  TYPE __abacus_clamp(TYPE x, TYPE y, TYPE z) {     \
-    return abacus::detail::integer::clamp(x, y, z); \
+#define DEF(TYPE)                                          \
+  TYPE ABACUS_API __abacus_clamp(TYPE x, TYPE y, TYPE z) { \
+    return abacus::detail::integer::clamp(x, y, z);        \
   }
-#define DEF2(TYPE, TYPE2)                           \
-  TYPE __abacus_clamp(TYPE x, TYPE2 y, TYPE2 z) {   \
-    return abacus::detail::integer::clamp(x, y, z); \
+#define DEF2(TYPE, TYPE2)                                    \
+  TYPE ABACUS_API __abacus_clamp(TYPE x, TYPE2 y, TYPE2 z) { \
+    return abacus::detail::integer::clamp(x, y, z);          \
   }
 
 DEF(abacus_char);

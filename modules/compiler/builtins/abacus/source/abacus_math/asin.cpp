@@ -115,7 +115,7 @@ static ABACUS_CONSTANT abacus_float intervals[16] = {
     ABACUS_INFINITY, 0.9999f, 0.998f, 0.97f, 0.93f, 0.895f, 0.85f, 0.77f,
     0.71f,           0.62f,   0.53f,  0.42f, 0.35f, 0.25f,  0.16f, 0.07f};
 
-abacus_float __abacus_asin(abacus_float x) {
+abacus_float ABACUS_API __abacus_asin(abacus_float x) {
   if (__abacus_isinf(x)) {
     return __abacus_copysign(ABACUS_NAN, x);
   }
