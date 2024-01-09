@@ -73,3 +73,14 @@ runs:
 
         # Testing on image for Resnet50
         CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/resnet50/resnet50 rdata/ ${{ inputs.workspace }}/examples/technical_blogs/tartan_blog/Simple.jpg.bin
+
+    - name: Package artifacts
+      shell: bash
+      run: |
+        tar -cvzf network_artifacts.tar.gz vdata rdata
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: network-build
+        path: network_artifacts.tar.gz

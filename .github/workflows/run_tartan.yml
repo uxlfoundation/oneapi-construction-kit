@@ -5,7 +5,9 @@ on:
     - cron: '30 23 * * *'  # Runs the workflow at midnight every day
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+  pull_request:
+    paths:
+      - '.github/workflows/run_tartan.yml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -58,16 +60,16 @@ jobs:
         with:
           workspace: ${{ github.workspace }}
 
-      - name: Package Tartan Artifacts
+      - name: Package Build Artifacts
         run: |
           ls
-          tar -cvzf new_tartan.tar.gz build portDNN_build_dir portBLAS_build_dir
+          tar -cvzf artifacts.tar.gz build portDNN_build_dir portBLAS_build_dir
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: tartan-build
-          path: new_tartan.tar.gz
+          path: artifacts.tar.gz
 
   build_and_run_networks:
     runs-on: ubuntu-22.04
@@ -83,10 +85,62 @@ jobs:
 
       - name: Untar artifacts
         run: |
-          tar -xvzf new_tartan.tar.gz
+          tar -xvzf artifacts.tar.gz
           ls
 
       - name: Build vgg and resnet
         uses: ./.github/actions/build_vgg_resnet_action
         with:
           workspace: ${{ github.workspace }}
+
+  publish_OCK_demo_artifacts:
+    runs-on: ubuntu-22.04
+    needs: run_riscv_m1_tartan, build_and_run_networks
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: tartan-build
+
+      - name: Download network artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: network-build
+
+      - name: Untar artifacts and package OCK demo tar
+        run: |
+          tar -xvzf artifacts.tar.gz
+          tar -xvzf network_artifacts.tar.gz
+          ls
+          tar -cvzf ock_demo.tar.gz build portDNN_build_dir portBLAS_build_dir vdata rdata
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ock-demo
+          path: ock_demo.tar.gz
+
+      - name: Compute tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name == 'schedule' }}" == "true" ]; then
+            echo "TAG=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          else
+            # TODO: Use date of the commit?
+            echo "TAG=$(date +'%Y-%m-%d')-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create OCK demo release
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          files:
+            ock_demo.tar.gz
+          tag_name: nightly-${{ steps.tag.outputs.TAG }}
+          name: OCK daily ${{ steps.tag.outputs.TAG }}
+          prerelease: true
+          body: "Daily build ${{ steps.tag.outputs.TAG }}"
+          target_commitish: ${{ github.sha }}
