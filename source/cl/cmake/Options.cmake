@@ -39,18 +39,6 @@ ca_option(CA_CL_LIBRARY_VERSION STRING
         "Version of the OpenCL shared library" "")
 
 #[=======================================================================[.rst:
-.. cmake:variable:: CA_CL_FORCE_PROFILE
-
-  A string CMAke option to force the OpenCL platform to report ``"full"`` or
-  ``"embedded"`` profile.
-
-  Default value
-    ``""``
-#]=======================================================================]
-ca_option(CA_CL_FORCE_PROFILE STRING
-        "Force cl to use 'full' or 'embedded' profile" "")
-
-#[=======================================================================[.rst:
 .. cmake:variable:: CA_CL_PUBLIC_LINK_LIBRARIES
 
   A list of additional libraries that the ``CL`` target should be linked

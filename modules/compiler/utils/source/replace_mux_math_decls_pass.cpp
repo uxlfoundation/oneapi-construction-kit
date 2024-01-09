@@ -51,11 +51,6 @@ PreservedAnalyses compiler::utils::ReplaceMuxMathDeclsPass::run(
         (0 == (DI.half_capabilities & device_floating_point_capabilities_full));
   }
 
-#ifdef CA_CL_FORCE_PROFILE_STRING
-  is_embedded_profile =
-      cargo::string_view(CA_CL_FORCE_PROFILE_STRING) == "EMBEDDED_PROFILE";
-#endif
-
   const std::array<std::pair<StringRef, const bool>, 3> MuxMathDecls = {
       std::make_pair(MuxBuiltins::isftz, flush_denorms_to_zero),
       std::make_pair(MuxBuiltins ::usefast, UseFast),
