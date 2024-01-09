@@ -44,10 +44,6 @@ class MutableDispatchUSMTest : public MutableDispatchTest,
         clCreateCommandBufferKHR(1, &command_queue, properties, &error);
     ASSERT_SUCCESS(error);
 
-    ASSERT_SUCCESS(clGetDeviceInfo(
-        device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
-        sizeof(host_capabilities), &host_capabilities, nullptr));
-
     if (host_capabilities) {
       for (auto &host_ptr : host_ptrs) {
         host_ptr = clHostMemAllocINTEL(context, nullptr, data_size_in_bytes,
@@ -123,8 +119,6 @@ void kernel usm_copy(__global int* in,
   std::array<void *, 2> device_ptrs = {nullptr, nullptr};
   cl_program program = nullptr;
   cl_kernel kernel = nullptr;
-
-  cl_device_unified_shared_memory_capabilities_intel host_capabilities = 0;
 
   constexpr static size_t global_size = 256;
   constexpr static size_t data_size_in_bytes = global_size * sizeof(cl_int);

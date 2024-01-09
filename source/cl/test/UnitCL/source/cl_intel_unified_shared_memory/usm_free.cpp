@@ -46,10 +46,6 @@ TEST_F(USMTests, MemFree_ValidUsage) {
   err = clMemBlockingFreeINTEL(context, nullptr);
   EXPECT_SUCCESS(err);
 
-  cl_device_unified_shared_memory_capabilities_intel host_capabilities;
-  ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
-                                 sizeof(host_capabilities), &host_capabilities,
-                                 nullptr));
   if (host_capabilities != 0) {
     void *host_ptr = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
     ASSERT_SUCCESS(err);
@@ -63,6 +59,24 @@ TEST_F(USMTests, MemFree_ValidUsage) {
     ASSERT_TRUE(host_ptr != nullptr);
 
     err = clMemFreeINTEL(context, host_ptr);
+    EXPECT_SUCCESS(err);
+  }
+
+  if (shared_capabilities != 0) {
+    void *shared_ptr =
+        clSharedMemAllocINTEL(context, device, nullptr, bytes, align, &err);
+    ASSERT_SUCCESS(err);
+    ASSERT_TRUE(shared_ptr != nullptr);
+
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+
+    shared_ptr =
+        clSharedMemAllocINTEL(context, nullptr, nullptr, bytes, align, &err);
+    ASSERT_SUCCESS(err);
+    ASSERT_TRUE(shared_ptr != nullptr);
+
+    err = clMemFreeINTEL(context, shared_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -108,12 +122,7 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
         sizeof(host_capabilities), &host_capabilities, nullptr));
 
     cl_int err;
-    if (host_capabilities) {
-      host_ptr =
-          clHostMemAllocINTEL(context, nullptr, bytes, sizeof(cl_uint), &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_TRUE(host_ptr != nullptr);
-    }
+    initPointers(bytes, sizeof(cl_uint));
 
     for (auto &device_ptr : fixture_device_ptrs) {
       device_ptr = clDeviceMemAllocINTEL(context, device, nullptr, bytes,
@@ -130,16 +139,6 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
   }
 
   void TearDown() override {
-    if (host_ptr) {
-      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, host_ptr));
-    }
-
-    for (auto device_ptr : fixture_device_ptrs) {
-      if (device_ptr) {
-        EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, device_ptr));
-      }
-    }
-
     for (auto queue : fixture_queues) {
       if (queue) {
         EXPECT_SUCCESS(clReleaseCommandQueue(queue));
@@ -156,7 +155,6 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
   std::array<void *, 3> fixture_device_ptrs = {{nullptr, nullptr, nullptr}};
   std::array<cl_command_queue, 3> fixture_queues = {
       {nullptr, nullptr, nullptr}};
-  void *host_ptr = nullptr;
 };
 
 }  // namespace

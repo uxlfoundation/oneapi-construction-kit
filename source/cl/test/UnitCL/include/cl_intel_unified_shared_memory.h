@@ -17,6 +17,8 @@
 #define UNITCL_USM_H_INCLUDED
 
 #include <CL/cl_ext.h>
+#include <cargo/error.h>
+#include <cargo/small_vector.h>
 
 #include "Common.h"
 
@@ -29,6 +31,13 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
     if (!isDeviceExtensionSupported("cl_intel_unified_shared_memory")) {
       GTEST_SKIP();
     }
+
+    ASSERT_SUCCESS(clGetDeviceInfo(
+        device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
+        sizeof(host_capabilities), &host_capabilities, nullptr));
+    ASSERT_SUCCESS(clGetDeviceInfo(
+        device, CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
+        sizeof(shared_capabilities), &shared_capabilities, nullptr));
 
 #define CL_GET_EXTENSION_ADDRESS(FUNC)                            \
   FUNC = reinterpret_cast<FUNC##_fn>(                             \
@@ -51,10 +60,76 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
 #undef GET_EXTENSION_ADDRESS
   }
 
+  void TearDown() override {
+    for (auto ptr : allPointers()) {
+      cl_int err = clMemBlockingFreeINTEL(context, ptr);
+      EXPECT_SUCCESS(err);
+    }
+    device_ptr = shared_ptr = host_ptr = nullptr;
+
+    ucl::ContextTest::TearDown();
+  }
+
   static void *getPointerOffset(void *ptr, size_t offset) {
     cl_char *byte_ptr = reinterpret_cast<cl_char *>(ptr) + offset;
     return reinterpret_cast<void *>(byte_ptr);
   }
+
+  /// Allocates USM pointers with the given size of alignment
+  ///
+  /// Device, host and/or shared USM allocations will be allocated, depending on
+  /// what the device supports. The pointers will be available in the
+  /// `device_ptr`, `host_ptr` and `shared_ptr` members of this object, and will
+  /// be freed during TearDown.
+  void initPointers(size_t bytes, size_t align) {
+    cl_int err;
+
+    if (host_capabilities) {
+      host_ptr = clHostMemAllocINTEL(context, {}, bytes, align, &err);
+      ASSERT_SUCCESS(err);
+      ASSERT_TRUE(host_ptr != nullptr);
+    }
+
+    if (shared_capabilities != 0) {
+      shared_ptr =
+          clSharedMemAllocINTEL(context, device, {}, bytes, align, &err);
+      ASSERT_SUCCESS(err);
+      ASSERT_TRUE(shared_ptr != nullptr);
+    }
+
+    device_ptr =
+        clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
+    ASSERT_SUCCESS(err);
+    ASSERT_TRUE(device_ptr != nullptr);
+  }
+
+  /// Return a vector of available USM pointers allocated by `initPointers`
+  ///
+  /// This will return an array containing up to 3 pointers, one of each device,
+  /// host and shared, depending on the capabilities of the device.
+  cargo::small_vector<void *, 3> allPointers() {
+    cargo::small_vector<void *, 3> to_return{};
+
+    if (device_ptr) {
+      (void)to_return.push_back(device_ptr);
+    }
+    if (shared_ptr) {
+      (void)to_return.push_back(shared_ptr);
+    }
+    if (host_ptr) {
+      (void)to_return.push_back(host_ptr);
+    }
+
+    return to_return;
+  }
+
+  constexpr static size_t MAX_NUM_POINTERS = 3;
+  void *host_ptr = nullptr;
+  void *shared_ptr = nullptr;
+  void *device_ptr = nullptr;
+
+  cl_device_unified_shared_memory_capabilities_intel host_capabilities = 0;
+  cl_device_unified_shared_memory_capabilities_intel shared_capabilities = 0;
 
   clHostMemAllocINTEL_fn clHostMemAllocINTEL = nullptr;
   clDeviceMemAllocINTEL_fn clDeviceMemAllocINTEL = nullptr;
