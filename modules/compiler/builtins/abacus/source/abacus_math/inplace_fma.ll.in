@@ -1,0 +1,218 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+@target@
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDF16_EEvRT_S3_S3_(ptr dereferenceable(2) %0, ptr dereferenceable(2) %1, ptr dereferenceable(2) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load half, ptr %0
+  %4 = load half, ptr %1
+  %5 = load half, ptr %2
+  %6 = call half @llvm.fma.f16(half %3, half %4, half %5)
+  store half %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv2_DF16_EEvRT_S4_S4_(ptr dereferenceable(4) %0, ptr dereferenceable(4) %1, ptr dereferenceable(4) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <2 x half>, ptr %0
+  %4 = load <2 x half>, ptr %1
+  %5 = load <2 x half>, ptr %2
+  %6 = call <2 x half> @llvm.fma.v2f16(<2 x half> %3, <2 x half> %4, <2 x half> %5)
+  store <2 x half> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv3_DF16_EEvRT_S4_S4_(ptr dereferenceable(6) %0, ptr dereferenceable(6) %1, ptr dereferenceable(6) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <3 x half>, ptr %0
+  %4 = load <3 x half>, ptr %1
+  %5 = load <3 x half>, ptr %2
+  %6 = call <3 x half> @llvm.fma.v3f16(<3 x half> %3, <3 x half> %4, <3 x half> %5)
+  store <3 x half> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv4_DF16_EEvRT_S4_S4_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <4 x half>, ptr %0
+  %4 = load <4 x half>, ptr %1
+  %5 = load <4 x half>, ptr %2
+  %6 = call <4 x half> @llvm.fma.v4f16(<4 x half> %3, <4 x half> %4, <4 x half> %5)
+  store <4 x half> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv8_DF16_EEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <8 x half>, ptr %0
+  %4 = load <8 x half>, ptr %1
+  %5 = load <8 x half>, ptr %2
+  %6 = call <8 x half> @llvm.fma.v8f16(<8 x half> %3, <8 x half> %4, <8 x half> %5)
+  store <8 x half> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv16_DF16_EEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <16 x half>, ptr %0
+  %4 = load <16 x half>, ptr %1
+  %5 = load <16 x half>, ptr %2
+  %6 = call <16 x half> @llvm.fma.v16f16(<16 x half> %3, <16 x half> %4, <16 x half> %5)
+  store <16 x half> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIfEEvRT_S3_S3_(ptr dereferenceable(4) %0, ptr dereferenceable(4) %1, ptr dereferenceable(4) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load float, ptr %0
+  %4 = load float, ptr %1
+  %5 = load float, ptr %2
+  %6 = call float @llvm.fma.f32(float %3, float %4, float %5)
+  store float %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv2_fEEvRT_S4_S4_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <2 x float>, ptr %0
+  %4 = load <2 x float>, ptr %1
+  %5 = load <2 x float>, ptr %2
+  %6 = call <2 x float> @llvm.fma.v2f32(<2 x float> %3, <2 x float> %4, <2 x float> %5)
+  store <2 x float> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv3_fEEvRT_S4_S4_(ptr dereferenceable(12) %0, ptr dereferenceable(12) %1, ptr dereferenceable(12) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <3 x float>, ptr %0
+  %4 = load <3 x float>, ptr %1
+  %5 = load <3 x float>, ptr %2
+  %6 = call <3 x float> @llvm.fma.v3f32(<3 x float> %3, <3 x float> %4, <3 x float> %5)
+  store <3 x float> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv4_fEEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <4 x float>, ptr %0
+  %4 = load <4 x float>, ptr %1
+  %5 = load <4 x float>, ptr %2
+  %6 = call <4 x float> @llvm.fma.v4f32(<4 x float> %3, <4 x float> %4, <4 x float> %5)
+  store <4 x float> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv8_fEEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <8 x float>, ptr %0
+  %4 = load <8 x float>, ptr %1
+  %5 = load <8 x float>, ptr %2
+  %6 = call <8 x float> @llvm.fma.v8f32(<8 x float> %3, <8 x float> %4, <8 x float> %5)
+  store <8 x float> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv16_fEEvRT_S4_S4_(ptr dereferenceable(64) %0, ptr dereferenceable(64) %1, ptr dereferenceable(64) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <16 x float>, ptr %0
+  %4 = load <16 x float>, ptr %1
+  %5 = load <16 x float>, ptr %2
+  %6 = call <16 x float> @llvm.fma.v16f32(<16 x float> %3, <16 x float> %4, <16 x float> %5)
+  store <16 x float> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIdEEvRT_S3_S3_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load double, ptr %0
+  %4 = load double, ptr %1
+  %5 = load double, ptr %2
+  %6 = call double @llvm.fma.f64(double %3, double %4, double %5)
+  store double %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv2_dEEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <2 x double>, ptr %0
+  %4 = load <2 x double>, ptr %1
+  %5 = load <2 x double>, ptr %2
+  %6 = call <2 x double> @llvm.fma.v2f64(<2 x double> %3, <2 x double> %4, <2 x double> %5)
+  store <2 x double> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv3_dEEvRT_S4_S4_(ptr dereferenceable(24) %0, ptr dereferenceable(24) %1, ptr dereferenceable(24) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <3 x double>, ptr %0
+  %4 = load <3 x double>, ptr %1
+  %5 = load <3 x double>, ptr %2
+  %6 = call <3 x double> @llvm.fma.v3f64(<3 x double> %3, <3 x double> %4, <3 x double> %5)
+  store <3 x double> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv4_dEEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <4 x double>, ptr %0
+  %4 = load <4 x double>, ptr %1
+  %5 = load <4 x double>, ptr %2
+  %6 = call <4 x double> @llvm.fma.v4f64(<4 x double> %3, <4 x double> %4, <4 x double> %5)
+  store <4 x double> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv8_dEEvRT_S4_S4_(ptr dereferenceable(64) %0, ptr dereferenceable(64) %1, ptr dereferenceable(64) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <8 x double>, ptr %0
+  %4 = load <8 x double>, ptr %1
+  %5 = load <8 x double>, ptr %2
+  %6 = call <8 x double> @llvm.fma.v8f64(<8 x double> %3, <8 x double> %4, <8 x double> %5)
+  store <8 x double> %6, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv16_dEEvRT_S4_S4_(ptr dereferenceable(128) %0, ptr dereferenceable(128) %1, ptr dereferenceable(128) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %3 = load <16 x double>, ptr %0
+  %4 = load <16 x double>, ptr %1
+  %5 = load <16 x double>, ptr %2
+  %6 = call <16 x double> @llvm.fma.v16f64(<16 x double> %3, <16 x double> %4, <16 x double> %5)
+  store <16 x double> %6, ptr %0
+  ret void
+}
+
+declare half @llvm.fma.f16(half, half, half)
+declare <2 x half> @llvm.fma.v2f16(<2 x half>, <2 x half>, <2 x half>)
+declare <3 x half> @llvm.fma.v3f16(<3 x half>, <3 x half>, <3 x half>)
+declare <4 x half> @llvm.fma.v4f16(<4 x half>, <4 x half>, <4 x half>)
+declare <8 x half> @llvm.fma.v8f16(<8 x half>, <8 x half>, <8 x half>)
+declare <16 x half> @llvm.fma.v16f16(<16 x half>, <16 x half>, <16 x half>)
+
+declare float @llvm.fma.f32(float, float, float)
+declare <2 x float> @llvm.fma.v2f32(<2 x float>, <2 x float>, <2 x float>)
+declare <3 x float> @llvm.fma.v3f32(<3 x float>, <3 x float>, <3 x float>)
+declare <4 x float> @llvm.fma.v4f32(<4 x float>, <4 x float>, <4 x float>)
+declare <8 x float> @llvm.fma.v8f32(<8 x float>, <8 x float>, <8 x float>)
+declare <16 x float> @llvm.fma.v16f32(<16 x float>, <16 x float>, <16 x float>)
+
+declare double @llvm.fma.f64(double, double, double)
+declare <2 x double> @llvm.fma.v2f64(<2 x double>, <2 x double>, <2 x double>)
+declare <3 x double> @llvm.fma.v3f64(<3 x double>, <3 x double>, <3 x double>)
+declare <4 x double> @llvm.fma.v4f64(<4 x double>, <4 x double>, <4 x double>)
+declare <8 x double> @llvm.fma.v8f64(<8 x double>, <8 x double>, <8 x double>)
+declare <16 x double> @llvm.fma.v16f64(<16 x double>, <16 x double>, <16 x double>)
