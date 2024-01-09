@@ -432,7 +432,7 @@ T ABACUS_API __abacus_fma_unsafe(const T x, const T y, const T z) {
   const SignedType finalExpBiased =
       (((ansAsUint & exp_mask) >> mantissa_bits)) + 2 * ansExp;
 
-  if (finalExpBiased < 1) {
+  if (ans != 0 && finalExpBiased < 1) {
     // The answer is a denormal, find what bits will be cut off and see if it's
     // going to result in a RTE case.
     const UnsignedType rounding_bits = UnsignedType(0x1)
