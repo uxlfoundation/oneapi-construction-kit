@@ -95,7 +95,7 @@ jobs:
 
   publish_OCK_demo_artifacts:
     runs-on: ubuntu-22.04
-    needs: run_riscv_m1_tartan, build_and_run_networks
+    needs: [run_riscv_m1_tartan, build_and_run_networks]
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
