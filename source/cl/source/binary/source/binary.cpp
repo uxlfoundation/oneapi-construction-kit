@@ -780,15 +780,10 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
 
 cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
                                           mux_device_info_t device) {
-#ifdef CA_CL_FORCE_PROFILE_STRING
-  (void)device;
-  return CA_CL_FORCE_PROFILE_STRING;
-#else
   if (compiler_available == CL_FALSE) {
     return "EMBEDDED_PROFILE";
   }
   return mux::detectOpenCLProfile(device);
-#endif  // CA_CL_FORCE_PROFILE_STRING
 }
 
 uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {

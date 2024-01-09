@@ -253,17 +253,6 @@ foreach(CL_lib CL CL-static)
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include)
 
-  if(CA_CL_FORCE_PROFILE STREQUAL "full")
-    target_compile_definitions(${CL_lib} PRIVATE
-      CA_CL_FORCE_PROFILE_STRING="FULL_PROFILE")
-  elseif(CA_CL_FORCE_PROFILE STREQUAL "embedded")
-    target_compile_definitions(${CL_lib} PRIVATE
-      CA_CL_FORCE_PROFILE_STRING="EMBEDDED_PROFILE")
-  elseif(CA_CL_FORCE_PROFILE)
-    message(FATAL_ERROR
-      "Invalid CA_CL_FORCE_PROFILE, only 'full' or 'embedded' allowed.")
-  endif()
-
   target_link_libraries(${CL_lib}
     PUBLIC Threads::Threads
     # Optional extra library dependencies set for customer devices
