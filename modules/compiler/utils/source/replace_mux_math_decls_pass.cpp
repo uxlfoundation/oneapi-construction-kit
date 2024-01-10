@@ -19,6 +19,7 @@
 #include <compiler/utils/replace_mux_math_decls_pass.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
+#include <multi_llvm/triple.h>
 
 using namespace llvm;
 
@@ -26,7 +27,9 @@ PreservedAnalyses compiler::utils::ReplaceMuxMathDeclsPass::run(
     Module &M, ModuleAnalysisManager &MAM) {
   bool Changed = false;
 
+  Triple TT(M.getTargetTriple());
   auto &DI = MAM.getResult<DeviceInfoAnalysis>(M);
+
   // Abacus needs to know if denormal floats are supported, so it can avoid
   // Flush To Zero behaviour in intermediate operations of maths builtins.
   //
@@ -51,14 +54,35 @@ PreservedAnalyses compiler::utils::ReplaceMuxMathDeclsPass::run(
         (0 == (DI.half_capabilities & device_floating_point_capabilities_full));
   }
 
-  const std::array<std::pair<StringRef, const bool>, 3> MuxMathDecls = {
-      std::make_pair(MuxBuiltins::isftz, flush_denorms_to_zero),
-      std::make_pair(MuxBuiltins ::usefast, UseFast),
-      std::make_pair(MuxBuiltins::isembeddedprofile, is_embedded_profile)};
+  // "Native" FMA means we can translate @llvm.fma without libcall support.
+  // TODO We want to handle this for x86, when targetting a sufficiently recent
+  // CPU, too, but this information is not in the target triple.
+  bool has_native_fma = TT.isARM() || TT.isAArch64() || TT.isRISCV();
+
+  const std::pair<StringRef, const bool> MuxMathDecls[] = {
+      {MuxBuiltins::isftz, flush_denorms_to_zero},
+      {MuxBuiltins::usefast, UseFast},
+      {MuxBuiltins::isembeddedprofile, is_embedded_profile},
+      {MuxBuiltins::has_native_fma, has_native_fma},
+  };
 
   for (const auto &MathDecl : MuxMathDecls) {
     if (Function *const Fn = M.getFunction(MathDecl.first)) {
+      if (Fn->size()) {
+        // If the function already has a definition, do not attempt to redefine
+        // it. This pass may run multiple times.
+        continue;
+      }
+
       Changed = true;
+
+      if (Fn->hasFnAttribute(Attribute::NoInline)) {
+        report_fatal_error(
+            "internal error: Mux internal function declared with noinline "
+            "attribute");
+      }
+
+      Fn->addFnAttr(Attribute::AlwaysInline);
 
       // create an IR builder with a single basic block in our function
       IRBuilder<> IR(BasicBlock::Create(Fn->getContext(), "", Fn));

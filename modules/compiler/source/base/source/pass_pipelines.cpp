@@ -70,6 +70,9 @@ void addPreVeczPasses(ModulePassManager &PM,
   // associated with each other. To do so, the Prepare Barriers Pass also gives
   // each barrier a unique ID in metadata.
   PM.addPass(compiler::utils::PrepareBarriersPass());
+
+  PM.addPass(compiler::utils::ReplaceMuxMathDeclsPass(
+      tuner.options.unsafe_math_optimizations));
 }
 
 void addLateBuiltinsPasses(ModulePassManager &PM,
