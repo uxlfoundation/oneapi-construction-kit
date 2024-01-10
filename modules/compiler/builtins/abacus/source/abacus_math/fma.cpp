@@ -24,6 +24,13 @@
 #include <abacus/internal/ldexp_unsafe.h>
 #include <abacus/internal/multiply_exact.h>
 
+namespace abacus {
+namespace detail {
+template <typename T>
+void inplace_fma(T &, T &, T &);
+}  // namespace detail
+}  // namespace abacus
+
 namespace {
 
 template <typename T>
@@ -531,8 +538,13 @@ struct fma_select<T, abacus_double, true> {
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
-inline T fma_helper(const T x, const T y, const T z) {
-  return fma_select<T>::fma(x, y, z);
+inline T fma_helper(T x, T y, T z) {
+  if (__abacus_hasnativefma()) {
+    abacus::detail::inplace_fma(x, y, z);
+    return x;
+  } else {
+    return fma_select<T>::fma(x, y, z);
+  }
 }
 }  // namespace
 #ifdef __CA_BUILTINS_HALF_SUPPORT

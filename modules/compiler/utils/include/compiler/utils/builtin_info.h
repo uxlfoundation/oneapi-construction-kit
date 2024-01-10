@@ -73,6 +73,7 @@ enum BaseBuiltinID {
   eMuxBuiltinGetEnqueuedLocalSize,
   eMuxBuiltinGetSubGroupSize,
   eMuxBuiltinGetSubGroupLocalId,
+  eMuxBuiltinHasNativeFMA,
   // Synchronization builtins
   eMuxBuiltinMemBarrier,
   eMuxBuiltinSubGroupBarrier,
@@ -260,6 +261,7 @@ namespace MuxBuiltins {
 constexpr const char isftz[] = "__mux_isftz";
 constexpr const char usefast[] = "__mux_usefast";
 constexpr const char isembeddedprofile[] = "__mux_isembeddedprofile";
+constexpr const char has_native_fma[] = "__mux_hasnativefma";
 constexpr const char get_global_size[] = "__mux_get_global_size";
 constexpr const char get_global_id[] = "__mux_get_global_id";
 constexpr const char get_global_offset[] = "__mux_get_global_offset";
