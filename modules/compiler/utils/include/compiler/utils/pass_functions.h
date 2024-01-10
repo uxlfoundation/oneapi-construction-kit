@@ -21,7 +21,6 @@
 #ifndef COMPILER_UTILS_PASS_FUNCTIONS_H_INCLUDED
 #define COMPILER_UTILS_PASS_FUNCTIONS_H_INCLUDED
 
-#include <cargo/optional.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Analysis/IVDescriptors.h>
 #include <llvm/IR/Constants.h>
