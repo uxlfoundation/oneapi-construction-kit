@@ -68,7 +68,6 @@ TEST(optional, assignment) {
 }
 
 TEST(optional, bases_triviality) {
-#ifndef CARGO_GCC49
   ASSERT_TRUE(
       std::is_trivially_copy_constructible<cargo::optional<int>>::value);
   ASSERT_TRUE(std::is_trivially_copy_assignable<cargo::optional<int>>::value);
@@ -110,7 +109,6 @@ TEST(optional, bases_triviality) {
     ASSERT_TRUE(!std::is_trivially_move_assignable<cargo::optional<T>>::value);
     ASSERT_TRUE(!std::is_trivially_destructible<cargo::optional<T>>::value);
   }
-#endif
 }
 
 TEST(optional, bases_deletion) {
@@ -178,7 +176,6 @@ TEST(optional, bases_deletion) {
 }
 
 TEST(optional, constexpr) {
-#if defined(CARGO_CXX14)
   {
     constexpr cargo::optional<int> o2{};
     constexpr cargo::optional<int> o3 = {};
@@ -212,7 +209,6 @@ TEST(optional, constexpr) {
     ASSERT_TRUE(*o7 == 42);
     ASSERT_TRUE(*o8 == 42);
   }
-#endif
 }
 
 TEST(optional, constructors) {
@@ -249,7 +245,7 @@ TEST(optional, constructors) {
 }
 
 constexpr int get_int(int) { return 42; }
-CARGO_CXX14_CONSTEXPR cargo::optional<int> get_opt_int(int) { return 42; }
+constexpr cargo::optional<int> get_opt_int(int) { return 42; }
 
 TEST(optional, map) {
   // lhs is empty
@@ -370,7 +366,6 @@ TEST(optional, map) {
 }
 
 TEST(optional, map_constexpr) {
-#if defined(CARGO_CXX14)
   // test each overload in turn
   constexpr cargo::optional<int> o16 = 42;
   constexpr auto o16r = o16.map(get_int);
@@ -386,7 +381,6 @@ TEST(optional, map_constexpr) {
   constexpr cargo::optional<int> o36 = cargo::nullopt;
   constexpr auto o36r = std::move(o36).map(get_int);
   ASSERT_TRUE(!o36r);
-#endif
 }
 
 TEST(optional, and_then) {
@@ -488,8 +482,6 @@ TEST(optional, and_then) {
 }
 
 TEST(optional, constexpr_and_then) {
-#if defined(CARGO_CXX14)
-
   constexpr cargo::optional<int> o10 = 42;
   constexpr auto o10r = o10.and_then(get_opt_int);
   ASSERT_EQ(*o10r, 42);
@@ -505,7 +497,6 @@ TEST(optional, constexpr_and_then) {
   constexpr cargo::optional<int> o19 = cargo::nullopt;
   constexpr auto o19r = std::move(o19).and_then(get_opt_int);
   ASSERT_TRUE(!o19r);
-#endif
 }
 
 TEST(optional, or_else) {
@@ -699,10 +690,8 @@ TEST(optional, observers) {
   success = std::is_same<decltype(std::move(o1).value()), int &&>::value;
   ASSERT_TRUE(success);
 
-#ifndef CARGO_NO_CONSTRR
   success = std::is_same<decltype(std::move(o3).value()), const int &&>::value;
   ASSERT_TRUE(success);
-#endif
 
   cargo::optional<move_detector> o4{cargo::in_place};
   move_detector o5 = std::move(o4).value();

@@ -397,7 +397,7 @@ cl_uint _cl_command_queue::getDeviceIndex() {
   return context->getDeviceIndex(device);
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::getCommandBuffer(
     cargo::array_view<const cl_event> event_wait_list, cl_event event) {
   // Register the wait and signal events for the command buffer's dispatch.
@@ -432,7 +432,7 @@ _cl_command_queue::getCommandBuffer(
       .or_else(setEventFailure);
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::registerDispatchCallback(
+[[nodiscard]] cl_int _cl_command_queue::registerDispatchCallback(
     mux_command_buffer_t command_buffer, cl_event event,
     std::function<void()> callback) {
   OCL_ASSERT(
@@ -451,7 +451,7 @@ CARGO_NODISCARD cl_int _cl_command_queue::registerDispatchCallback(
   return CL_SUCCESS;
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::getCurrentCommandBuffer() {
   if (pending_command_buffers.empty()) {
     // There are no pending command buffers, create one.
@@ -462,7 +462,7 @@ _cl_command_queue::getCurrentCommandBuffer() {
   return pending_command_buffers.back();
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::getCommandBufferPending(
     cargo::array_view<const cl_event> event_wait_list) {
   // Utility function object adds wait semaphores to a pending dispatch.
@@ -659,7 +659,7 @@ _cl_command_queue::getCommandBufferPending(
       add_wait{semaphores, pending_dispatches});
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
+[[nodiscard]] cl_int _cl_command_queue::dispatch(
     cargo::array_view<mux_command_buffer_t> command_buffers) {
   for (auto command_buffer : command_buffers) {
     auto &dispatch = pending_dispatches[command_buffer];
@@ -884,7 +884,7 @@ cl_int _cl_command_queue::dropDispatchesPending(
   return removeFromPending(command_buffers);
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::createCommandBuffer() {
   mux_command_buffer_t command_buffer;
   if (auto cached_command_buffer = cached_command_buffers.dequeue()) {
@@ -984,7 +984,7 @@ void _cl_command_queue::userEventDispatch(cl_event user_event,
   command_queue->dispatchPending(user_event);
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
+[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
     cargo::array_view<const cl_event> event_wait_list) {
   if (!event_wait_list.empty()) {
     // Add all non-completed events to the dispatches wait list.
@@ -1006,8 +1006,8 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
   return CL_SUCCESS;
 }
 
-CARGO_NODISCARD cl_int
-_cl_command_queue::dispatch_state_t::addSignalEvent(cl_event event) {
+[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addSignalEvent(
+    cl_event event) {
   if (event) {
     if (signal_events.push_back(event)) {
       return CL_OUT_OF_RESOURCES;
@@ -1017,7 +1017,7 @@ _cl_command_queue::dispatch_state_t::addSignalEvent(cl_event event) {
   return CL_SUCCESS;
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addCallback(
+[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addCallback(
     std::function<void()> callback) {
   if (callbacks.push_back(std::move(callback))) {
     return CL_OUT_OF_RESOURCES;
@@ -1349,7 +1349,7 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
 }
 
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
-CARGO_NODISCARD cl_int _cl_command_queue::enqueueCommandBuffer(
+[[nodiscard]] cl_int _cl_command_queue::enqueueCommandBuffer(
     cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *return_event) {
   // Lock both queue and command-buffer

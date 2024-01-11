@@ -129,7 +129,7 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   /// @retval True if program successfully built
   /// @retval False if program did not successfully build or if test should be
   /// skipped
-  CARGO_NODISCARD bool BuildProgram();
+  [[nodiscard]] bool BuildProgram();
 
   /// @brief Build the kernel program.
   ///
@@ -140,8 +140,8 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   /// @retval True if program successfully built
   /// @retval False if program did not successfully build or if test should be
   /// skipped
-  CARGO_NODISCARD virtual bool BuildProgram(std::string file_prefix,
-                                            std::string kernel_name);
+  [[nodiscard]] virtual bool BuildProgram(std::string file_prefix,
+                                          std::string kernel_name);
 
   /// @brief Check whether the kernel was vectorized or not.
   bool CheckVectorized();

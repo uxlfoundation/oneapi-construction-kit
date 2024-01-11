@@ -74,7 +74,7 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
             break;
           }
           // Fallthrough to error if we've seen property already
-          CARGO_FALLTHROUGH;
+          [[fallthrough]];
         }
         default:
           return cargo::make_unexpected(CL_INVALID_PROPERTY);
@@ -602,7 +602,7 @@ cl_int intel_unified_shared_memory::GetDeviceInfo(
       if (!usm::deviceSupportsHostAllocations(device)) {
         break;
       }
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_DEVICE_DEVICE_MEM_CAPABILITIES_INTEL:
       result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
       break;

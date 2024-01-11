@@ -315,7 +315,7 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
                                  user_callback->user_data);
 }
 
-CARGO_NODISCARD mux_query_duration_result_t commandBeginQuery(
+[[nodiscard]] mux_query_duration_result_t commandBeginQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
   host::command_info_begin_query_s *const begin_query =
       &(info->begin_query_command);
@@ -326,7 +326,7 @@ CARGO_NODISCARD mux_query_duration_result_t commandBeginQuery(
   return duration_query;
 }
 
-CARGO_NODISCARD mux_query_duration_result_t commandEndQuery(
+[[nodiscard]] mux_query_duration_result_t commandEndQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
   host::command_info_end_query_s *const end_query = &(info->end_query_command);
   if (end_query->pool->type == mux_query_type_duration) {

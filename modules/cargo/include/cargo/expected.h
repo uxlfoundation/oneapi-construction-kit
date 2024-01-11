@@ -62,12 +62,12 @@ class unexpected {
   /// @brief Access the unexpected value.
   ///
   /// @return Returns a reference to the unexpected value.
-  CARGO_CXX14_CONSTEXPR E &value() & { return m_val; }
+  constexpr E &value() & { return m_val; }
 
   /// @brief Access the unexpected value.
   ///
   /// @return Returns an r-value reference to the unexpected value.
-  CARGO_CXX14_CONSTEXPR E &&value() && { return std::move(m_val); }
+  constexpr E &&value() && { return std::move(m_val); }
 
   /// @brief Access the unexpected value.
   ///
@@ -163,7 +163,7 @@ constexpr bool operator>=(const unexpected<E> &lhs, const unexpected<E> &rhs) {
 /// unexpected<int> e2(42);
 /// ```
 template <class E>
-CARGO_NODISCARD unexpected<decay_t<E>> make_unexpected(E &&e) {
+[[nodiscard]] unexpected<decay_t<E>> make_unexpected(E &&e) {
   return unexpected<decay_t<E>>(std::forward<E>(e));
 }
 
@@ -394,7 +394,7 @@ class expected
                     std::is_convertible<G const &, E>::value)> * = nullptr,
       detail::expected_enable_from_other<T, E, U, G, const U &, const G &> * =
           nullptr>
-  explicit CARGO_CXX14_CONSTEXPR expected(const expected<U, G> &rhs)
+  explicit constexpr expected(const expected<U, G> &rhs)
       : ctor_base(detail::default_constructor_tag{}) {
     if (rhs.has_value()) {
       this->construct(*rhs);
@@ -413,7 +413,7 @@ class expected
                          std::is_convertible<G const &, E>::value)> * = nullptr,
             detail::expected_enable_from_other<T, E, U, G, const U &, const G &>
                 * = nullptr>
-  CARGO_CXX14_CONSTEXPR expected(const expected<U, G> &rhs)
+  constexpr expected(const expected<U, G> &rhs)
       : ctor_base(detail::default_constructor_tag{}) {
     if (rhs.has_value()) {
       this->construct(*rhs);
@@ -432,7 +432,7 @@ class expected
       enable_if_t<!(std::is_convertible<U &&, T>::value &&
                     std::is_convertible<G &&, E>::value)> * = nullptr,
       detail::expected_enable_from_other<T, E, U, G, U &&, G &&> * = nullptr>
-  explicit CARGO_CXX14_CONSTEXPR expected(expected<U, G> &&rhs)
+  explicit constexpr expected(expected<U, G> &&rhs)
       : ctor_base(detail::default_constructor_tag{}) {
     if (rhs.has_value()) {
       this->construct(std::move(*rhs));
@@ -451,7 +451,7 @@ class expected
       enable_if_t<(std::is_convertible<U &&, T>::value &&
                    std::is_convertible<G &&, E>::value)> * = nullptr,
       detail::expected_enable_from_other<T, E, U, G, U &&, G &&> * = nullptr>
-  CARGO_CXX14_CONSTEXPR expected(expected<U, G> &&rhs)
+  constexpr expected(expected<U, G> &&rhs)
       : ctor_base(detail::default_constructor_tag{}) {
     if (rhs.has_value()) {
       this->construct(std::move(*rhs));
@@ -467,8 +467,7 @@ class expected
   template <class U = T,
             enable_if_t<!std::is_convertible<U &&, T>::value> * = nullptr,
             detail::expected_enable_forward_value<T, E, U> * = nullptr>
-  explicit CARGO_CXX14_CONSTEXPR expected(U &&v)
-      : expected(in_place, std::forward<U>(v)) {}
+  explicit constexpr expected(U &&v) : expected(in_place, std::forward<U>(v)) {}
 
   /// @brief Expected value move constructor.
   ///
@@ -477,8 +476,7 @@ class expected
   template <class U = T,
             enable_if_t<std::is_convertible<U &&, T>::value> * = nullptr,
             detail::expected_enable_forward_value<T, E, U> * = nullptr>
-  CARGO_CXX14_CONSTEXPR expected(U &&v)
-      : expected(in_place, std::forward<U>(v)) {}
+  constexpr expected(U &&v) : expected(in_place, std::forward<U>(v)) {}
 
   /// @brief Default copy assignment operator.
   ///
@@ -576,9 +574,6 @@ class expected
     return *this;
   }
 
-#if defined(CARGO_CXX14) && !defined(CARGO_GCC49) && !defined(CARGO_GCC54) && \
-    !defined(CARGO_GCC55)
-
   /// @brief Invoke a callable returning an expected on the stored object, if
   /// there is one.
   ///
@@ -593,7 +588,7 @@ class expected
   /// `invoke(std::forward<F>(f), value())` is returned.
   /// @retval If `has_value()` is false, the returned value is empty.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) & {
+  constexpr auto and_then(F &&f) & {
     return and_then_impl(*this, std::forward<F>(f));
   }
 
@@ -611,7 +606,7 @@ class expected
   /// `invoke(std::forward<F>(f), value())` is returned.
   /// @retval If `has_value()` is false, the returned value is empty.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) && {
+  constexpr auto and_then(F &&f) && {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -633,7 +628,6 @@ class expected
     return and_then_impl(*this, std::forward<F>(f));
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Invoke a callable returning an expected on the stored object, if
   /// there is one.
   ///
@@ -651,92 +645,6 @@ class expected
   constexpr auto and_then(F &&f) const && {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
-#endif
-
-#else
-
-  /// @brief Invoke a callable returning an expected on the stored object, if
-  /// there is one.
-  ///
-  /// @note Requires that `invoke(std::forward<F>(f), value())` returns a
-  /// `expected<U,E>` for some type `U`.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the stored object.
-  ///
-  /// @return Returns the result of the callable.
-  /// @retval If `has_value()` is true, the value returned from
-  /// `invoke(std::forward<F>(f), value())` is returned.
-  /// @retval If `has_value()` is false, the returned value is empty.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(
-      F &&f) & -> decltype(and_then_impl(*this, std::forward<F>(f))) {
-    return and_then_impl(*this, std::forward<F>(f));
-  }
-
-  /// @brief Invoke a callable returning an expected on the stored object, if
-  /// there is one.
-  ///
-  /// @note Requires that `invoke(std::forward<F>(f), value())` returns a
-  /// `expected<U,E>` for some type `U`.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the stored object.
-  ///
-  /// @return Returns the result of the callable.
-  /// @retval If `has_value()` is true, the value returned from
-  /// `invoke(std::forward<F>(f), value())` is returned.
-  /// @retval If `has_value()` is false, the returned value is empty.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) && -> decltype(and_then_impl(
-      std::move(*this), std::forward<F>(f))) {
-    return and_then_impl(std::move(*this), std::forward<F>(f));
-  }
-
-  /// @brief Invoke a callable returning an expected on the stored object, if
-  /// there is one.
-  ///
-  /// @note Requires that `invoke(std::forward<F>(f), value())` returns a
-  /// `expected<U,E>` for some type `U`.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the stored object.
-  ///
-  /// @return Returns the result of the callable.
-  /// @retval If `has_value()` is true, the value returned from
-  /// `invoke(std::forward<F>(f), value())` is returned.
-  /// @retval If `has_value()` is false, the returned value is empty.
-  template <class F>
-  constexpr auto and_then(
-      F &&f) const & -> decltype(and_then_impl(*this, std::forward<F>(f))) {
-    return and_then_impl(*this, std::forward<F>(f));
-  }
-
-#ifndef CARGO_NO_CONSTRR
-  /// @brief Invoke a callable returning an expected on the stored object, if
-  /// there is one.
-  ///
-  /// @note Requires that `invoke(std::forward<F>(f), value())` returns a
-  /// `expected<U,E>` for some type `U`.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the stored object.
-  ///
-  /// @return Returns the result of the callable.
-  /// @retval If `has_value()` is true, the value returned from
-  /// `invoke(std::forward<F>(f), value())` is returned.
-  /// @retval If `has_value()` is false, the returned value is empty.
-  template <class F>
-  constexpr auto and_then(F &&f) const && -> decltype(and_then_impl(
-      std::move(*this), std::forward<F>(f))) {
-    return and_then_impl(std::move(*this), std::forward<F>(f));
-  }
-#endif
-
-#endif
-
-#if defined(CARGO_CXX14) && !defined(CARGO_GCC49) && !defined(CARGO_GCC54) && \
-    !defined(CARGO_GCC55)
 
   /// @brief Invoke a callable on the stored object, if there is one.
   ///
@@ -752,7 +660,7 @@ class expected
   /// returned.
   /// @retval If `has_value()` is false, the result is `*this`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) & {
+  constexpr auto map(F &&f) & {
     return expected_map_impl(*this, std::forward<F>(f));
   }
 
@@ -770,7 +678,7 @@ class expected
   /// returned.
   /// @retval If `has_value()` is false, the result is `*this`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) && {
+  constexpr auto map(F &&f) && {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -792,7 +700,6 @@ class expected
     return expected_map_impl(*this, std::forward<F>(f));
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Invoke a callable on the stored object, if there is one.
   ///
   /// @tparam F Type of the callable object.
@@ -810,92 +717,6 @@ class expected
   constexpr auto map(F &&f) const && {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
-#endif
-
-#else
-
-  /// @brief Invoke a callable on the stored object, if there is one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the value.
-  ///
-  /// @return Returns the result of the callable wrapped in a
-  /// `expected<U,E>` where `U` is the type returned from the callable.
-  /// @retval If `U` is not `void`, returns an `expected<U,E>`.
-  /// @retval If `U` is `void`, returns an `expected<monostate,E>`.
-  /// @retval If `has_value()` is true, an `expected<U,E>` is constructed from
-  /// the return value of `invoke(std::forward<F>(f), value())` and
-  /// returned.
-  /// @retval If `has_value()` is false, the result is `*this`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) & -> decltype(expected_map_impl(
-      std::declval<expected &>(), std::declval<F &&>())) {
-    return expected_map_impl(*this, std::forward<F>(f));
-  }
-
-  /// @brief Invoke a callable on the stored object, if there is one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the value.
-  ///
-  /// @return Returns the result of the callable wrapped in a
-  /// `expected<U,E>` where `U` is the type returned from the callable.
-  /// @retval If `U` is not `void`, returns an `expected<U,E>`.
-  /// @retval If `U` is `void`, returns an `expected<monostate,E>`.
-  /// @retval If `has_value()` is true, an `expected<U,E>` is constructed from
-  /// the return value of `invoke(std::forward<F>(f), value())` and
-  /// returned.
-  /// @retval If `has_value()` is false, the result is `*this`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) && -> decltype(expected_map_impl(
-      std::declval<expected &>(), std::declval<F &&>())) {
-    return expected_map_impl(std::move(*this), std::forward<F>(f));
-  }
-
-  /// @brief Invoke a callable on the stored object, if there is one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the value.
-  ///
-  /// @return Returns the result of the callable wrapped in a
-  /// `expected<U,E>` where `U` is the type returned from the callable.
-  /// @retval If `U` is not `void`, returns an `expected<U,E>`.
-  /// @retval If `U` is `void`, returns an `expected<monostate,E>`.
-  /// @retval If `has_value()` is true, an `expected<U,E>` is constructed from
-  /// the return value of `invoke(std::forward<F>(f), value())` and
-  /// returned.
-  /// @retval If `has_value()` is false, the result is `*this`.
-  template <class F>
-  constexpr auto map(F &&f) const & -> decltype(expected_map_impl(
-      std::declval<const expected &>(), std::declval<F &&>())) {
-    return expected_map_impl(*this, std::forward<F>(f));
-  }
-
-#ifndef CARGO_NO_CONSTRR
-  /// @brief Invoke a callable on the stored object, if there is one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param[in] f Callable to invoke on the value.
-  ///
-  /// @return Returns the result of the callable wrapped in a
-  /// `expected<U,E>` where `U` is the type returned from the callable.
-  /// @retval If `U` is not `void`, returns an `expected<U,E>`.
-  /// @retval If `U` is `void`, returns an `expected<monostate,E>`.
-  /// @retval If `has_value()` is false, the result is `*this`.
-  /// @retval If `has_value()` is true, an `expected<U,E>` is constructed from
-  /// the return value of `invoke(std::forward<F>(f), value())` and
-  /// returned.
-  template <class F>
-  constexpr auto map(F &&f) const && -> decltype(expected_map_impl(
-      std::declval<const expected &&>(), std::declval<F &&>())) {
-    return expected_map_impl(std::move(*this), std::forward<F>(f));
-  }
-#endif
-
-#endif
-
-#if defined(CARGO_CXX14) && !defined(CARGO_GCC49) && !defined(CARGO_GCC54) && \
-    !defined(CARGO_GCC55)
 
   /// @brief Invoke a callable on the stored unexpected object, if there is
   /// one.
@@ -912,7 +733,7 @@ class expected
   /// `expected<T,U>` from
   /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) & {
+  constexpr auto map_error(F &&f) & {
     return map_error_impl(*this, std::forward<F>(f));
   }
 
@@ -931,7 +752,7 @@ class expected
   /// `expected<T,U>` from
   /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) && {
+  constexpr auto map_error(F &&f) && {
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -973,92 +794,6 @@ class expected
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
 
-#else
-
-  /// @brief Invoke a callable on the stored unexpected object, if there is
-  /// one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param f Callable to invoke on the unexpected value.
-  ///
-  /// @return Returns an expected, where `U` is the result type of
-  /// `invoke(std::forward<F>(f), value())`.
-  /// @retval If `U` is `void`, return an `expected<T,monostate>`.
-  /// @retval If `U` is not `void`, returns `expected<T,U>`.
-  /// @retval If `has_value()` is true, return `*this`.
-  /// @retval If `has_value()` is false, return a newly constructed
-  /// `expected<T,U>` from
-  /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) & -> decltype(map_error_impl(
-      std::declval<expected &>(), std::declval<F &&>())) {
-    return map_error_impl(*this, std::forward<F>(f));
-  }
-
-  /// @brief Invoke a callable on the stored unexpected object, if there is
-  /// one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param f Callable to invoke on the unexpected value.
-  ///
-  /// @return Returns an expected, where `U` is the result type of
-  /// `invoke(std::forward<F>(f), value())`.
-  /// @retval If `U` is `void`, return an `expected<T,monostate>`.
-  /// @retval If `U` is not `void`, returns `expected<T,U>`.
-  /// @retval If `has_value()` is true, return `*this`.
-  /// @retval If `has_value()` is false, return a newly constructed
-  /// `expected<T,U>` from
-  /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto map_error(F &&f) && -> decltype(map_error_impl(
-      std::declval<expected &&>(), std::declval<F &&>())) {
-    return map_error_impl(std::move(*this), std::forward<F>(f));
-  }
-
-  /// @brief Invoke a callable on the stored unexpected object, if there is
-  /// one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param f Callable to invoke on the unexpected value.
-  ///
-  /// @return Returns an expected, where `U` is the result type of
-  /// `invoke(std::forward<F>(f), value())`.
-  /// @retval If `U` is `void`, return an `expected<T,monostate>`.
-  /// @retval If `U` is not `void`, returns `expected<T,U>`.
-  /// @retval If `has_value()` is true, return `*this`.
-  /// @retval If `has_value()` is false, return a newly constructed
-  /// `expected<T,U>` from
-  /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
-  template <class F>
-  constexpr auto map_error(F &&f) const & -> decltype(map_error_impl(
-      std::declval<const expected &>(), std::declval<F &&>())) {
-    return map_error_impl(*this, std::forward<F>(f));
-  }
-
-#ifndef CARGO_NO_CONSTRR
-  /// @brief Invoke a callable on the stored unexpected object, if there is
-  /// one.
-  ///
-  /// @tparam F Type of the callable object.
-  /// @param f Callable to invoke on the unexpected value.
-  ///
-  /// @return Returns an expected, where `U` is the result type of
-  /// `invoke(std::forward<F>(f), value())`.
-  /// @retval If `U` is `void`, return an `expected<T,monostate>`.
-  /// @retval If `U` is not `void`, returns `expected<T,U>`.
-  /// @retval If `has_value()` is true, return `*this`.
-  /// @retval If `has_value()` is false, return a newly constructed
-  /// `expected<T,U>` from
-  /// `make_unexpected(invoke(std::forward<F>(f), value()))`.
-  template <class F>
-  constexpr auto map_error(F &&f) const && -> decltype(map_error_impl(
-      std::declval<const expected &&>(), std::declval<F &&>())) {
-    return map_error_impl(std::move(*this), std::forward<F>(f));
-  }
-#endif
-
-#endif
-
   /// @brief Invoke a callable when in an unexpected state.
   ///
   /// @note Requires that callable `F` is invokable with type `E` and
@@ -1074,7 +809,7 @@ class expected
   /// @retval If `has_value()` is false and `f` does not return `void`, return
   /// `std::forward<F>(f)(error())`.
   template <class F>
-  expected CARGO_CXX14_CONSTEXPR or_else(F &&f) & {
+  expected constexpr or_else(F &&f) & {
     return or_else_impl(*this, std::forward<F>(f));
   }
 
@@ -1093,7 +828,7 @@ class expected
   /// @retval If `has_value()` is false and `f` does not return `void`, return
   /// `std::forward<F>(f)(error())`.
   template <class F>
-  expected CARGO_CXX14_CONSTEXPR or_else(F &&f) && {
+  expected constexpr or_else(F &&f) && {
     return or_else_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -1116,7 +851,6 @@ class expected
     return or_else_impl(*this, std::forward<F>(f));
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Invoke a callable when in an unexpected state.
   ///
   /// @note Requires that callable `F` is invokable with type `E` and
@@ -1135,7 +869,6 @@ class expected
   expected constexpr or_else(F &&f) const && {
     return or_else_impl(std::move(*this), std::forward<F>(f));
   }
-#endif
 
   /// @brief Emplace construct an expected value.
   ///
@@ -1245,7 +978,7 @@ class expected
   /// @return Returns a pointer to the stored value.
   constexpr const_pointer operator->() const { return valptr(); }
 
-  CARGO_CXX14_CONSTEXPR pointer operator->() { return valptr(); }
+  constexpr pointer operator->() { return valptr(); }
 
   /// @brief Access the expected value.
   ///
@@ -1263,7 +996,7 @@ class expected
   ///
   /// @return Returns a reference to the stored value.
   template <class U = T, enable_if_t<!std::is_void<U>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR U &operator*() & {
+  constexpr U &operator*() & {
     return val();
   }
 
@@ -1283,7 +1016,7 @@ class expected
   ///
   /// @return Returns an r-value reference to the stored value.
   template <class U = T, enable_if_t<!std::is_void<U>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR U &&operator*() && {
+  constexpr U &&operator*() && {
     return std::move(val());
   }
 
@@ -1299,7 +1032,7 @@ class expected
   /// @return Returns a const reference to the contained value if there is one,
   /// assert otherwise.
   template <class U = T, enable_if_t<!std::is_void<U>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR const U &value() const & {
+  constexpr const U &value() const & {
     CARGO_ASSERT(has_value(), "bad expected access");
     return val();
   }
@@ -1309,7 +1042,7 @@ class expected
   /// @return Returns a reference to the contained value if there is one,
   /// assert otherwise.
   template <class U = T, enable_if_t<!std::is_void<U>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR U &value() & {
+  constexpr U &value() & {
     CARGO_ASSERT(has_value(), "bad expected access");
     return val();
   }
@@ -1319,7 +1052,7 @@ class expected
   /// @return Returns a const r-value reference to the contained value if there
   /// is one, assert otherwise.
   template <class U = T, enable_if_t<!std::is_void<U>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR const U &&value() const && {
+  constexpr const U &&value() const && {
     CARGO_ASSERT(has_value(), "bad expected access");
     return std::move(val());
   }
@@ -1329,7 +1062,7 @@ class expected
   /// @return Returns an r-value reference to the contained value if there is
   /// one, assert otherwise.
   template <class U = T, enable_if_t<!std::is_void<U>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR U &&value() && {
+  constexpr U &&value() && {
     CARGO_ASSERT(has_value(), "bad expected access");
     return std::move(val());
   }
@@ -1346,7 +1079,7 @@ class expected
   /// @note Requires there is an unexpected value.
   ///
   /// @return Returns a reference to the unexpected value.
-  CARGO_CXX14_CONSTEXPR E &error() & { return err().value(); }
+  constexpr E &error() & { return err().value(); }
 
   /// @brief Access the unexpected value.
   ///
@@ -1360,7 +1093,7 @@ class expected
   /// @note Requires there is an unexpected value.
   ///
   /// @return Returns an r-value reference to the unexpected value.
-  CARGO_CXX14_CONSTEXPR E &&error() && { return std::move(err().value()); }
+  constexpr E &&error() && { return std::move(err().value()); }
 
   /// @brief Access the expected value or the provided default value.
   ///
@@ -1383,7 +1116,7 @@ class expected
   /// @returns Returns an r-value reference to the stored value if there is
   /// one, otherwise returns the default value.
   template <class U>
-  CARGO_CXX14_CONSTEXPR T value_or(U &&v) && {
+  constexpr T value_or(U &&v) && {
     static_assert(std::is_move_constructible<T>::value &&
                       std::is_convertible<U &&, T>::value,
                   "T must be move-constructible and convertible to from U&&");
@@ -1449,8 +1182,6 @@ using err_t = typename decay_t<Exp>::error_type;
 template <class Exp, class Ret>
 using ret_t = expected<Ret, err_t<Exp>>;
 
-#ifdef CARGO_CXX14
-
 template <class Exp, class F,
           class Ret = decltype(cargo::invoke(std::declval<F>(),
                                              *std::declval<Exp>())),
@@ -1471,33 +1202,6 @@ constexpr auto and_then_impl(Exp &&exp, F &&f) {
   return exp.has_value() ? cargo::invoke(std::forward<F>(f))
                          : Ret(unexpect, exp.error());
 }
-
-#else
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             *std::declval<Exp>())),
-          enable_if_t<!std::is_void<exp_t<Exp>>::value> * = nullptr>
-auto and_then_impl(Exp &&exp, F &&f) -> Ret {
-  static_assert(detail::is_expected<Ret>::value, "F must return an expected");
-  return exp.has_value()
-             ? cargo::invoke(std::forward<F>(f), *std::forward<Exp>(exp))
-             : Ret(unexpect, exp.error());
-}
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             *std::declval<Exp>())),
-          enable_if_t<std::is_void<exp_t<Exp>>::value> * = nullptr>
-constexpr auto and_then_impl(Exp &&exp, F &&f) -> Ret {
-  static_assert(detail::is_expected<Ret>::value, "F must return an expected");
-  return exp.has_value() ? cargo::invoke(std::forward<F>(f))
-                         : Ret(unexpect, exp.error());
-}
-
-#endif
-
-#ifdef CARGO_CXX14
 
 template <class Exp, class F,
           class Ret = decltype(cargo::invoke(std::declval<F>(),
@@ -1524,37 +1228,6 @@ auto expected_map_impl(Exp &&exp, F &&f) {
   return result(unexpect, std::forward<Exp>(exp).error());
 }
 
-#else
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             *std::declval<Exp>())),
-          enable_if_t<!std::is_void<Ret>::value> * = nullptr>
-constexpr auto expected_map_impl(Exp &&exp, F &&f) -> ret_t<Exp, decay_t<Ret>> {
-  using result = ret_t<Exp, decay_t<Ret>>;
-  return exp.has_value() ? result(cargo::invoke(std::forward<F>(f),
-                                                *std::forward<Exp>(exp)))
-                         : result(unexpect, std::forward<Exp>(exp).error());
-}
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             *std::declval<Exp>())),
-          enable_if_t<std::is_void<Ret>::value> * = nullptr>
-auto expected_map_impl(Exp &&exp, F &&f) -> expected<void, err_t<Exp>> {
-  if (exp.has_value()) {
-    cargo::invoke(std::forward<F>(f), *std::forward<Exp>(exp));
-    return {};
-  }
-
-  return unexpected<err_t<Exp>>(std::forward<Exp>(exp).error());
-}
-
-#endif
-
-#if defined(CARGO_CXX14) && !defined(CARGO_GCC49) && !defined(CARGO_GCC54) && \
-    !defined(CARGO_GCC55)
-
 template <class Exp, class F,
           class Ret = decltype(cargo::invoke(std::declval<F>(),
                                              std::declval<Exp>().error())),
@@ -1579,38 +1252,6 @@ auto map_error_impl(Exp &&exp, F &&f) {
   return result(unexpect, monostate{});
 }
 
-#else
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             std::declval<Exp>().error())),
-          enable_if_t<!std::is_void<Ret>::value> * = nullptr>
-constexpr auto map_error_impl(Exp &&exp, F &&f)
-    -> expected<exp_t<Exp>, decay_t<Ret>> {
-  using result = ret_t<Exp, decay_t<Ret>>;
-  return exp.has_value()
-             ? result(*std::forward<Exp>(exp))
-             : result(unexpect, cargo::invoke(std::forward<F>(f),
-                                              std::forward<Exp>(exp).error()));
-}
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             std::declval<Exp>().error())),
-          enable_if_t<std::is_void<Ret>::value> * = nullptr>
-auto map_error_impl(Exp &&exp, F &&f) -> expected<exp_t<Exp>, monostate> {
-  using result = expected<exp_t<Exp>, monostate>;
-  if (exp.has_value()) {
-    return result(*std::forward<Exp>(exp));
-  }
-  cargo::invoke(std::forward<F>(f), std::forward<Exp>(exp).error());
-  return result(unexpect, monostate{});
-}
-
-#endif
-
-#ifdef CARGO_CXX14
-
 template <class Exp, class F,
           class Ret = decltype(cargo::invoke(std::declval<F>(),
                                              std::declval<Exp>().error())),
@@ -1633,31 +1274,6 @@ decay_t<Exp> or_else_impl(Exp &&exp, F &&f) {
                             std::forward<Exp>(exp));
 }
 
-#else
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             std::declval<Exp>().error())),
-          enable_if_t<!std::is_void<Ret>::value> * = nullptr>
-auto or_else_impl(Exp &&exp, F &&f) -> Ret {
-  static_assert(detail::is_expected<Ret>::value, "F must return an expected");
-  return exp.has_value() ? std::forward<Exp>(exp)
-                         : cargo::invoke(std::forward<F>(f),
-                                         std::forward<Exp>(exp).error());
-}
-
-template <class Exp, class F,
-          class Ret = decltype(cargo::invoke(std::declval<F>(),
-                                             std::declval<Exp>().error())),
-          enable_if_t<std::is_void<Ret>::value> * = nullptr>
-decay_t<Exp> or_else_impl(Exp &&exp, F &&f) {
-  return exp.has_value() ? std::forward<Exp>(exp)
-                         : (cargo::invoke(std::forward<F>(f),
-                                          std::forward<Exp>(exp).error()),
-                            std::forward<Exp>(exp));
-}
-
-#endif
 }  // namespace detail
 
 /// @addtogroup cargo

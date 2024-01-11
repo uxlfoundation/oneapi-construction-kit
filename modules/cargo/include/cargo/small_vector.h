@@ -203,7 +203,7 @@ class small_vector {
   ///
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
-  CARGO_NODISCARD cargo::result assign(size_type size, const_reference value) {
+  [[nodiscard]] cargo::result assign(size_type size, const_reference value) {
     erase(Begin, End);
     if (auto error = insert(Begin, size, value).error()) {
       return error;
@@ -220,9 +220,9 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class InputIterator>
-  CARGO_NODISCARD
-      enable_if_t<is_input_iterator<InputIterator>::value, cargo::result>
-      assign(InputIterator first, InputIterator last) {
+  [[nodiscard]] enable_if_t<is_input_iterator<InputIterator>::value,
+                            cargo::result>
+  assign(InputIterator first, InputIterator last) {
     erase(Begin, End);
     if (auto error = insert(Begin, first, last).error()) {
       return error;
@@ -236,7 +236,7 @@ class small_vector {
   ///
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
-  CARGO_NODISCARD cargo::result assign(std::initializer_list<value_type> list) {
+  [[nodiscard]] cargo::result assign(std::initializer_list<value_type> list) {
     erase(Begin, End);
     if (auto error = insert(Begin, list).error()) {
       return error;
@@ -427,7 +427,7 @@ class small_vector {
   ///
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
-  CARGO_NODISCARD cargo::result reserve(size_type size) {
+  [[nodiscard]] cargo::result reserve(size_type size) {
     if (size <= Capacity) {
       return cargo::success;
     }
@@ -484,9 +484,9 @@ class small_vector {
   /// @return Returns iterator at the inserted element, or `cargo::bad_alloc` on
   /// allocation failure.
   template <typename VT = value_type>
-  CARGO_NODISCARD cargo::enable_if_t<std::is_copy_assignable<VT>::value &&
-                                         std::is_copy_constructible<VT>::value,
-                                     error_or<iterator>>
+  [[nodiscard]] cargo::enable_if_t<std::is_copy_assignable<VT>::value &&
+                                       std::is_copy_constructible<VT>::value,
+                                   error_or<iterator>>
   insert(const_iterator pos, const_reference value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -510,9 +510,9 @@ class small_vector {
   /// @return Returns iterator at the inserted element, or `cargo::bad_alloc` on
   /// allocation failure.
   template <typename VT = value_type>
-  CARGO_NODISCARD cargo::enable_if_t<std::is_move_assignable<VT>::value &&
-                                         std::is_move_constructible<VT>::value,
-                                     error_or<iterator>>
+  [[nodiscard]] cargo::enable_if_t<std::is_move_assignable<VT>::value &&
+                                       std::is_move_constructible<VT>::value,
+                                   error_or<iterator>>
   insert(const_iterator pos, value_type &&value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -537,9 +537,9 @@ class small_vector {
   /// @return Returns iterator pointing to the first element inserted, or
   /// `cargo::bad_alloc` on allocation failure.
   template <typename VT = value_type>
-  CARGO_NODISCARD cargo::enable_if_t<std::is_copy_assignable<VT>::value &&
-                                         std::is_copy_constructible<VT>::value,
-                                     error_or<iterator>>
+  [[nodiscard]] cargo::enable_if_t<std::is_copy_assignable<VT>::value &&
+                                       std::is_copy_constructible<VT>::value,
+                                   error_or<iterator>>
   insert(const_iterator pos, size_type count, const_reference value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -566,10 +566,10 @@ class small_vector {
   /// @return Returns iterator pointing to the first element inserted, or
   /// `cargo::bad_alloc` on allocation failure.
   template <typename InputIterator, typename VT = value_type>
-  CARGO_NODISCARD enable_if_t<is_input_iterator<InputIterator>::value &&
-                                  std::is_move_constructible<VT>::value &&
-                                  std::is_move_assignable<VT>::value,
-                              error_or<iterator>>
+  [[nodiscard]] enable_if_t<is_input_iterator<InputIterator>::value &&
+                                std::is_move_constructible<VT>::value &&
+                                std::is_move_assignable<VT>::value,
+                            error_or<iterator>>
   insert(const_iterator pos, InputIterator first, InputIterator last) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -595,9 +595,9 @@ class small_vector {
   /// @return Returns iterator pointing to the first element inserted, or
   /// `cargo::bad_alloc` on allocation failure.
   template <typename VT = value_type>
-  CARGO_NODISCARD cargo::enable_if_t<std::is_move_assignable<VT>::value &&
-                                         std::is_move_constructible<VT>::value,
-                                     error_or<iterator>>
+  [[nodiscard]] cargo::enable_if_t<std::is_move_assignable<VT>::value &&
+                                       std::is_move_constructible<VT>::value,
+                                   error_or<iterator>>
   insert(const_iterator pos, std::initializer_list<VT> list) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -623,8 +623,7 @@ class small_vector {
   /// @return Returns iterator pointer to the emplace element, or
   /// `cargo::bad_alloc` on allocation failure.
   template <class... Args>
-  CARGO_NODISCARD error_or<iterator> emplace(const_iterator pos,
-                                             Args &&...args) {
+  [[nodiscard]] error_or<iterator> emplace(const_iterator pos, Args &&...args) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
     if (auto error = extend(1)) {
@@ -680,8 +679,8 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class ValueType = value_type>
-  CARGO_NODISCARD cargo::enable_if_t<
-      std::is_copy_constructible<ValueType>::value, cargo::result>
+  [[nodiscard]] cargo::enable_if_t<std::is_copy_constructible<ValueType>::value,
+                                   cargo::result>
   push_back(const_reference value) {
     if (auto error = extend(1)) {
       return error;
@@ -700,8 +699,8 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class ValueType = value_type>
-  CARGO_NODISCARD cargo::enable_if_t<
-      std::is_move_constructible<ValueType>::value, cargo::result>
+  [[nodiscard]] cargo::enable_if_t<std::is_move_constructible<ValueType>::value,
+                                   cargo::result>
   push_back(value_type &&value) {
     if (auto error = extend(1)) {
       return error;
@@ -721,7 +720,7 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class... Args>
-  CARGO_NODISCARD cargo::result emplace_back(Args &&...args) {
+  [[nodiscard]] cargo::result emplace_back(Args &&...args) {
     if (auto error = extend(1)) {
       return error;
     }
@@ -745,7 +744,7 @@ class small_vector {
   ///
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
-  CARGO_NODISCARD cargo::result resize(size_type count) {
+  [[nodiscard]] cargo::result resize(size_type count) {
     if (auto error = reserve(count)) {
       return error;
     }
@@ -772,8 +771,7 @@ class small_vector {
   ///
   /// @return Returns `value_type` on allocation failure, `cargo::success`
   /// otherwise.
-  CARGO_NODISCARD cargo::result resize(size_type count,
-                                       const value_type &value) {
+  [[nodiscard]] cargo::result resize(size_type count, const value_type &value) {
     if (auto error = reserve(count)) {
       return error;
     }

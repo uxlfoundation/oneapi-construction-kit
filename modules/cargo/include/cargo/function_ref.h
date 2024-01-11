@@ -25,7 +25,6 @@
 #define CARGO_FUNCTION_REF_INCLUDED
 
 #include <cargo/functional.h>
-#include <cargo/platform_defines.h>
 
 #include <functional>
 #include <utility>
@@ -62,7 +61,7 @@ class function_ref<R(Args...)> {
   template <typename F,
             enable_if_t<!std::is_same<decay_t<F>, function_ref>::value &&
                         is_invocable_r<R, F &&, Args...>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR function_ref(F &&f) noexcept
+  constexpr function_ref(F &&f) noexcept
       : obj_(const_cast<void *>(
             reinterpret_cast<const void *>(std::addressof(f)))) {
     callback_ = [](void *obj, Args... args) -> R {
@@ -73,7 +72,7 @@ class function_ref<R(Args...)> {
   }
 
   /// Makes `*this` refer to the same callable as `rhs`.
-  CARGO_CXX14_CONSTEXPR function_ref<R(Args...)> &operator=(
+  constexpr function_ref<R(Args...)> &operator=(
       const function_ref<R(Args...)> &rhs) noexcept = default;
 
   /// Makes `*this` refer to `f`.
@@ -82,7 +81,7 @@ class function_ref<R(Args...)> {
   /// noexcept;
   template <typename F,
             enable_if_t<is_invocable_r<R, F &&, Args...>::value> * = nullptr>
-  CARGO_CXX14_CONSTEXPR function_ref<R(Args...)> &operator=(F &&f) noexcept {
+  constexpr function_ref<R(Args...)> &operator=(F &&f) noexcept {
     obj_ = reinterpret_cast<void *>(std::addressof(f));
     callback_ = [](void *obj, Args... args) {
       return cargo::invoke(
@@ -94,7 +93,7 @@ class function_ref<R(Args...)> {
   }
 
   /// Swaps the referred callables of `*this` and `rhs`.
-  CARGO_CXX14_CONSTEXPR void swap(function_ref<R(Args...)> &rhs) noexcept {
+  constexpr void swap(function_ref<R(Args...)> &rhs) noexcept {
     std::swap(obj_, rhs.obj_);
     std::swap(callback_, rhs.callback_);
   }
@@ -111,8 +110,8 @@ class function_ref<R(Args...)> {
 
 /// Swaps the referred callables of `lhs` and `rhs`.
 template <typename R, typename... Args>
-CARGO_CXX14_CONSTEXPR void swap(function_ref<R(Args...)> &lhs,
-                                function_ref<R(Args...)> &rhs) noexcept {
+constexpr void swap(function_ref<R(Args...)> &lhs,
+                    function_ref<R(Args...)> &rhs) noexcept {
   lhs.swap(rhs);
 }
 

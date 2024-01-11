@@ -449,7 +449,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
     case CL_PROFILING_COMMAND_COMPLETE:
       // Returns a value equivalent to passing CL_PROFILING_COMMAND_END
       // if the device associated with event does not support On-Device Enqueue.
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
 #endif
     case CL_PROFILING_COMMAND_END: {
       mux_query_duration_result_s duration;

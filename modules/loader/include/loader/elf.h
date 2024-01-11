@@ -564,8 +564,8 @@ struct ElfMap {
 
   /// @brief Adds a new callback, which allows to define undefined symbols that
   /// are present outside of the ELF file.
-  CARGO_NODISCARD inline cargo::result addCallback(cargo::string_view name,
-                                                   uint64_t target_address) {
+  [[nodiscard]] inline cargo::result addCallback(cargo::string_view name,
+                                                 uint64_t target_address) {
     return callbacks.push_back(
         {std::string{name.data(), name.size()}, target_address});
   }

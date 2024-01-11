@@ -154,7 +154,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
     default:  // NOTE: Already validated, case will never be hit.
     case CL_MEM_OBJECT_IMAGE1D_ARRAY:
       arrayLayers = image_desc->image_array_size;
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_MEM_OBJECT_IMAGE1D:
     case CL_MEM_OBJECT_IMAGE1D_BUFFER:
       height = 1;
@@ -164,7 +164,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
       break;
     case CL_MEM_OBJECT_IMAGE2D_ARRAY:
       arrayLayers = image_desc->image_array_size;
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_MEM_OBJECT_IMAGE2D:
       depth = 1;
       imageType = mux_image_type_2d;

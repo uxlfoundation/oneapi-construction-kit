@@ -25,7 +25,6 @@
 
 #include <cargo/detail/sfinae_bases.h>
 #include <cargo/functional.h>
-#include <cargo/platform_defines.h>
 #include <cargo/type_traits.h>
 #include <cargo/utility.h>
 
@@ -185,12 +184,10 @@ struct optional_operations_base : optional_storage_base<T> {
 
   bool has_value() const { return this->m_has_value; }
 
-  CARGO_CXX14_CONSTEXPR T &get() & { return this->m_value; }
-  CARGO_CXX14_CONSTEXPR const T &get() const & { return this->m_value; }
-  CARGO_CXX14_CONSTEXPR T &&get() && { return std::move(this->m_value); }
-#ifndef CARGO_NO_CONSTRR
+  constexpr T &get() & { return this->m_value; }
+  constexpr const T &get() const & { return this->m_value; }
+  constexpr T &&get() && { return std::move(this->m_value); }
   constexpr const T &&get() const && { return std::move(this->m_value); }
-#endif
 };
 
 // This class manages conditionally having a trivial copy constructor
@@ -221,19 +218,10 @@ struct optional_copy_base<T, false> : optional_operations_base<T> {
 };
 
 // This class manages conditionally having a trivial move constructor
-// Unfortunately there's no way to achieve this in GCC < 5 AFAIK, since it
-// doesn't implement an analogue to std::is_trivially_move_constructible. We
-// have to make do with a non-trivial move constructor even if T is trivially
-// move constructible
-#ifndef CARGO_GCC49
 template <class T, bool = std::is_trivially_move_constructible<T>::value>
 struct optional_move_base : optional_copy_base<T> {
   using optional_copy_base<T>::optional_copy_base;
 };
-#else
-template <class T, bool = false>
-struct optional_move_base;
-#endif
 
 template <class T>
 struct optional_move_base<T, false> : optional_copy_base<T> {
@@ -278,21 +266,12 @@ struct optional_copy_assign_base<T, false> : optional_move_base<T> {
 };
 
 // This class manages conditionally having a trivial move assignment operator
-// Unfortunately there's no way to achieve this in GCC < 5 AFAIK, since it
-// doesn't implement an analogue to std::is_trivially_move_assignable. We have
-// to make do with a non-trivial move assignment operator even if T is trivially
-// move assignable
-#ifndef CARGO_GCC49
 template <class T, bool = std::is_trivially_destructible<T>::value
                        &&std::is_trivially_move_constructible<T>::value
                            &&std::is_trivially_move_assignable<T>::value>
 struct optional_move_assign_base : optional_copy_assign_base<T> {
   using optional_copy_assign_base<T>::optional_copy_assign_base;
 };
-#else
-template <class T, bool = false>
-struct optional_move_assign_base;
-#endif
 
 template <class T>
 struct optional_move_assign_base<T, false> : optional_copy_assign_base<T> {

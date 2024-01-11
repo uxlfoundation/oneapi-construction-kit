@@ -761,7 +761,7 @@ void *GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
 /// @param[out] extensions_ret Space-separated view of extensions.
 ///
 /// @return CL_SUCCESS for success or an error code otherwise.
-CARGO_NODISCARD cl_int GetRuntimeExtensionsForDevice(
+[[nodiscard]] cl_int GetRuntimeExtensionsForDevice(
     cl_device_id device, cargo::string_view &extensions_ret);
 
 /// @brief Get list of compiler extensions supported by the device.
@@ -770,7 +770,7 @@ CARGO_NODISCARD cl_int GetRuntimeExtensionsForDevice(
 /// @param[out] extensions_ret Space-separated view of extensions.
 ///
 /// @return CL_SUCCESS for success or an error code otherwise.
-CARGO_NODISCARD cl_int GetCompilerExtensionsForDevice(
+[[nodiscard]] cl_int GetCompilerExtensionsForDevice(
     cl_device_id device, cargo::string_view &extensions_ret);
 /// @}
 }  // namespace extension

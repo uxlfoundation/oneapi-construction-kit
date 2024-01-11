@@ -80,7 +80,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urDeviceGet(ur_platform_handle_t hPlatform,
 
   switch (DevicesType) {
     case UR_DEVICE_TYPE_DEFAULT:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case UR_DEVICE_TYPE_ALL:
       if (pNumDevices) {
         *pNumDevices = hPlatform->devices.size();
@@ -122,9 +122,9 @@ UR_APIEXPORT ur_result_t UR_APICALL urDeviceGet(ur_platform_handle_t hPlatform,
     } break;
 
     case UR_DEVICE_TYPE_FPGA:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case UR_DEVICE_TYPE_MCA:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case UR_DEVICE_TYPE_VPU:
       if (pNumDevices) {
         *pNumDevices = 0;

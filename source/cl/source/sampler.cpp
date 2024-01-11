@@ -48,7 +48,7 @@ cl::CreateSampler(cl_context context, cl_bool normalized_coords,
       OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
       return NULL;
     case CL_TRUE:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_FALSE:
       break;
   }
@@ -57,16 +57,16 @@ cl::CreateSampler(cl_context context, cl_bool normalized_coords,
       OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
       return NULL;
     case CL_ADDRESS_MIRRORED_REPEAT:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_ADDRESS_REPEAT:
       OCL_CHECK(CL_TRUE != normalized_coords,
                 OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
                 return NULL);
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_ADDRESS_CLAMP_TO_EDGE:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_ADDRESS_CLAMP:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_ADDRESS_NONE:
       break;
   }
@@ -75,7 +75,7 @@ cl::CreateSampler(cl_context context, cl_bool normalized_coords,
       OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
       return NULL;
     case CL_FILTER_NEAREST:  // Intentional fall-through.
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_FILTER_LINEAR:
       break;
   }
