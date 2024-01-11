@@ -384,7 +384,6 @@ struct ScheduleGenerator {
 
     compiler::utils::CreateLoopOpts inner_opts;
     inner_opts.IVs = {accumulator};
-    inner_opts.attemptUnroll = true;
     inner_opts.disableVectorize = true;
 
     BasicBlock *preheader = block;
@@ -443,11 +442,7 @@ struct ScheduleGenerator {
         });
 
     if (!resultPhi) {
-      if (exitBlock == latchBlock) {
-        // If `createLoop()` unrolled the loop, there will not be a separate
-        // exit block, so we won't create the LCSSA PHI node.
-        return {exitBlock, accumulator};
-      }
+      assert(exitBlock != latchBlock && "createLoop didn't create a loop");
       resultPhi = PHINode::Create(accTy, 1, "WGC_reduce", exitBlock);
     }
     resultPhi->addIncoming(accumulator, latchBlock);
@@ -742,7 +737,6 @@ struct ScheduleGenerator {
                   compiler::utils::CreateLoopOpts inner_opts;
                   inner_opts.indexInc = VF;
                   inner_opts.IVs = ivs1.vec();
-                  inner_opts.attemptUnroll = true;
 
                   BasicBlock *exit0 = compiler::utils::createLoop(
                       block, nullptr, zero, mainLoopLimit, inner_opts,
@@ -853,7 +847,6 @@ struct ScheduleGenerator {
 
                   compiler::utils::CreateLoopOpts inner_opts;
                   inner_opts.IVs = ivs1.vec();
-                  inner_opts.attemptUnroll = true;
                   inner_opts.disableVectorize = true;
 
                   BasicBlock *exit0 = compiler::utils::createLoop(
@@ -1030,7 +1023,6 @@ struct ScheduleGenerator {
 
                   compiler::utils::CreateLoopOpts inner_vf_opts;
                   inner_vf_opts.indexInc = VF;
-                  inner_vf_opts.attemptUnroll = true;
                   inner_vf_opts.IVs = ivs1.vec();
                   inner_vf_opts.loopIVNames.push_back("sg.x.main");
                   if (isScan) {
@@ -1182,7 +1174,6 @@ struct ScheduleGenerator {
                     tailLoopBB = tailPreheaderBB;
                   } else {
                     compiler::utils::CreateLoopOpts inner_scalar_opts;
-                    inner_scalar_opts.attemptUnroll = true;
                     inner_scalar_opts.disableVectorize = true;
                     inner_scalar_opts.IVs.assign(subgroupIVs0.begin(),
                                                  subgroupIVs0.end());
