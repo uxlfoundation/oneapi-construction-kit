@@ -36,15 +36,11 @@
 extern bool __attribute__((const)) __mux_isftz(void);
 extern bool __attribute__((const)) __mux_usefast(void);
 extern bool __attribute__((const)) __mux_isembeddedprofile(void);
-extern bool __attribute__((const)) __mux_hasnativefma(void);
 
 bool __CL_CONST_ATTRIBUTES __abacus_isftz() { return __mux_isftz(); }
 bool __CL_CONST_ATTRIBUTES __abacus_usefast() { return __mux_usefast(); }
 bool __CL_CONST_ATTRIBUTES __abacus_isembeddedprofile() {
   return __mux_isembeddedprofile();
-}
-bool __CL_CONST_ATTRIBUTES __abacus_hasnativefma() {
-  return __mux_hasnativefma();
 }
 
 #endif  // OCL_CLBUILTINS_H_INCLUDED

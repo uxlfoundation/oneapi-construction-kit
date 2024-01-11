@@ -156,6 +156,7 @@ compiler::Result HostTarget::initWithBuiltins(
       break;
   }
 
+  llvm::StringRef CPUName = "";
   llvm::StringMap<bool> FeatureMap;
 
   if (llvm::Triple::arm == triple.getArch()) {
@@ -174,11 +175,10 @@ compiler::Result HostTarget::initWithBuiltins(
     if (host_device_info.half_capabilities) {
       FeatureMap["fp16"] = true;
     }
-  } else if (llvm::Triple::x86 == triple.getArch() && triple.isArch32Bit()) {
-    FeatureMap["sse2"] = true;
+  } else if (triple.isX86()) {
+    CPUName = "x86-64-v3";  // Default only, may be overridden below.
   }
 
-  llvm::StringRef CPUName = "";
 #ifndef NDEBUG
   if (const char *E = getenv("CA_HOST_TARGET_CPU")) {
     CPUName = E;
