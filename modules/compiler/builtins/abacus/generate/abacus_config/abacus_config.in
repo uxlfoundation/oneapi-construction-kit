@@ -188,7 +188,6 @@
 extern ABACUS_API bool __abacus_isftz(void);
 extern ABACUS_API bool __abacus_usefast(void);
 extern ABACUS_API bool __abacus_isembeddedprofile(void);
-extern ABACUS_API bool __abacus_hasnativefma(void);
 #else
 // by default we just assume flush to zero
 inline bool __abacus_isftz(void) {
@@ -202,11 +201,6 @@ inline bool __abacus_usefast(void) {
 
 // assume full profile by default
 inline bool __abacus_isembeddedprofile(void) {
-  return false;
-}
-
-// do not make assumptions about FMA support on host
-inline bool __abacus_hasnativefma(void) {
   return false;
 }
 #endif

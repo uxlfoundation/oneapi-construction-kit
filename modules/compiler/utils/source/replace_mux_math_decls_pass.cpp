@@ -54,16 +54,10 @@ PreservedAnalyses compiler::utils::ReplaceMuxMathDeclsPass::run(
         (0 == (DI.half_capabilities & device_floating_point_capabilities_full));
   }
 
-  // "Native" FMA means we can translate @llvm.fma without libcall support.
-  // TODO We want to handle this for x86, when targetting a sufficiently recent
-  // CPU, too, but this information is not in the target triple.
-  bool has_native_fma = TT.isARM() || TT.isAArch64() || TT.isRISCV();
-
   const std::pair<StringRef, const bool> MuxMathDecls[] = {
       {MuxBuiltins::isftz, flush_denorms_to_zero},
       {MuxBuiltins::usefast, UseFast},
       {MuxBuiltins::isembeddedprofile, is_embedded_profile},
-      {MuxBuiltins::has_native_fma, has_native_fma},
   };
 
   for (const auto &MathDecl : MuxMathDecls) {
