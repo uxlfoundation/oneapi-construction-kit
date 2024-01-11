@@ -216,10 +216,8 @@ TEST(expected, constructors) {
     ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
     ASSERT_TRUE(cargo::is_trivially_copy_constructible<decltype(e)>::value);
     ASSERT_TRUE(cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
     ASSERT_TRUE(std::is_trivially_move_constructible<decltype(e)>::value);
     ASSERT_TRUE(std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
   }
 
   {
@@ -231,10 +229,8 @@ TEST(expected, constructors) {
     ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
     ASSERT_TRUE(!cargo::is_trivially_copy_constructible<decltype(e)>::value);
     ASSERT_TRUE(!cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
     ASSERT_TRUE(!std::is_trivially_move_constructible<decltype(e)>::value);
     ASSERT_TRUE(!std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
   }
 
   {
@@ -246,10 +242,8 @@ TEST(expected, constructors) {
     ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
     ASSERT_TRUE(!cargo::is_trivially_copy_constructible<decltype(e)>::value);
     ASSERT_TRUE(!cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
     ASSERT_TRUE(!std::is_trivially_move_constructible<decltype(e)>::value);
     ASSERT_TRUE(!std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
   }
 
   {
@@ -261,10 +255,8 @@ TEST(expected, constructors) {
     ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
     ASSERT_TRUE(!cargo::is_trivially_copy_constructible<decltype(e)>::value);
     ASSERT_TRUE(!cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
     ASSERT_TRUE(!std::is_trivially_move_constructible<decltype(e)>::value);
     ASSERT_TRUE(!std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
   }
 
   {
@@ -963,10 +955,8 @@ TEST(expected, observers) {
   success = std::is_same<decltype(std::move(o1).value()), int &&>::value;
   ASSERT_TRUE(success);
 
-#ifndef CARGO_NO_CONSTRR
   success = std::is_same<decltype(std::move(o3).value()), const int &&>::value;
   ASSERT_TRUE(success);
-#endif
 
   cargo::expected<move_detector, int> o4{cargo::in_place};
   move_detector o5 = std::move(o4).value();

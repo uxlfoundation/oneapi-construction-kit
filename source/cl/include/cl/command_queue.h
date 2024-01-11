@@ -142,9 +142,8 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// @param event Return event the dispatch sets status of.
   ///
   /// @return Returns the expected command buffer or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
-  getCommandBuffer(cargo::array_view<const cl_event> event_wait_list,
-                   cl_event event);
+  [[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int> getCommandBuffer(
+      cargo::array_view<const cl_event> event_wait_list, cl_event event);
 
   /// @brief Register a command buffer dispatch completion callback.
   ///
@@ -163,9 +162,9 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// @param callback Callback to be called on completion.
   ///
   /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cl_int
-  registerDispatchCallback(mux_command_buffer_t command_buffer, cl_event event,
-                           std::function<void()> callback);
+  [[nodiscard]] cl_int registerDispatchCallback(
+      mux_command_buffer_t command_buffer, cl_event event,
+      std::function<void()> callback);
 
   /// @brief Flush and wait for any outstanding events
   ///
@@ -193,7 +192,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   ///
   /// @return Returns `CL_SUCCESS` if successful otherwise an appropriate OpenCL
   /// error code.
-  CARGO_NODISCARD cl_int enqueueCommandBuffer(
+  [[nodiscard]] cl_int enqueueCommandBuffer(
       cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
       const cl_event *event_wait_list, cl_event *return_event);
 
@@ -228,7 +227,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// used.
   ///
   /// @return Returns the expected command buffer or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+  [[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
   getCurrentCommandBuffer();
 
   /// @brief Get a command buffer suitable for the given wait events.
@@ -273,7 +272,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// @param event_wait_list List of events to wait for.
   ///
   /// @return Returns the expected command buffer or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+  [[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
   getCommandBufferPending(cargo::array_view<const cl_event> event_wait_list);
 
   /// @brief Dispatch the given command buffers.
@@ -290,8 +289,8 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   ///
   /// @return Returns `CL_SUCCESS`, `CL_OUT_OF_RESOURCES`,
   /// `CL_OUT_OF_HOST_MEMORY` or `CL_INVALID_COMMAND_QUEUE`.
-  CARGO_NODISCARD cl_int
-  dispatch(cargo::array_view<mux_command_buffer_t> command_buffers);
+  [[nodiscard]] cl_int dispatch(
+      cargo::array_view<mux_command_buffer_t> command_buffers);
 
   /// @brief Remove command buffers no longer pending dispatch.
   ///
@@ -306,8 +305,8 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// dispatch.
   ///
   /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cl_int
-  removeFromPending(cargo::array_view<mux_command_buffer_t> command_buffers);
+  [[nodiscard]] cl_int removeFromPending(
+      cargo::array_view<mux_command_buffer_t> command_buffers);
 
   /// @brief Dispatch command buffers associated with a user event.
   ///
@@ -344,7 +343,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// lock on `_cl_command_queue->mutex` when calling it.
   ///
   /// @return Returns the expected command buffer or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+  [[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
   createCommandBuffer();
 
   /// @brief Cache or destroy a command buffer.
@@ -362,8 +361,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// lock on `context->getCommandQueueMutex()` when calling it.
   ///
   /// @return Returns the expected semaphore or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_shared_semaphore, cl_int>
-  createSemaphore();
+  [[nodiscard]] cargo::expected<mux_shared_semaphore, cl_int> createSemaphore();
 
   /// @brief Drop ref count on  mux semaphore and delete if zero
   ///
@@ -389,22 +387,22 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
     /// @param event_wait_list List of events to wait for.
     ///
     /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
-    CARGO_NODISCARD cl_int
-    addWaitEvents(cargo::array_view<const cl_event> event_wait_list);
+    [[nodiscard]] cl_int addWaitEvents(
+        cargo::array_view<const cl_event> event_wait_list);
 
     /// @brief Add a new signal event to this dispatch.
     ///
     /// @param event Event to signal on completion.
     ///
     /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
-    CARGO_NODISCARD cl_int addSignalEvent(cl_event event);
+    [[nodiscard]] cl_int addSignalEvent(cl_event event);
 
     /// @brief Register a new callback to invoke on dispatch completion.
     ///
     /// @param callback Callback to invoke on completion.
     ///
     /// @return Returns `CL_SUCCESS` or `CL_OUT_OF_RESOURCES`.
-    CARGO_NODISCARD cl_int addCallback(std::function<void()> callback);
+    [[nodiscard]] cl_int addCallback(std::function<void()> callback);
 
     /// @brief List of events this dispatch must wait for.
     cargo::small_vector<cl_event, 8> wait_events;

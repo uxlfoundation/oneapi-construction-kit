@@ -1128,7 +1128,7 @@ void* extension::GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
       getExtensions().size(), getExtensions().data(), platform, func_name);
 }
 
-CARGO_NODISCARD cl_int extension::GetRuntimeExtensionsForDevice(
+[[nodiscard]] cl_int extension::GetRuntimeExtensionsForDevice(
     cl_device_id device, cargo::string_view& extensions_ret) {
   static std::string extensions{};
   static std::once_flag initialized_flag{};
@@ -1173,7 +1173,7 @@ CARGO_NODISCARD cl_int extension::GetRuntimeExtensionsForDevice(
   return retcode;
 }
 
-CARGO_NODISCARD cl_int extension::GetCompilerExtensionsForDevice(
+[[nodiscard]] cl_int extension::GetCompilerExtensionsForDevice(
     cl_device_id device, cargo::string_view& extensions_ret) {
   static std::string extensions{};
   static std::once_flag initialized_flag{};

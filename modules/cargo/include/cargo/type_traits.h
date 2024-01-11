@@ -21,8 +21,6 @@
 #ifndef CARGO_TRAITS_H_INCLUDED
 #define CARGO_TRAITS_H_INCLUDED
 
-#include <cargo/platform_defines.h>
-
 #include <iterator>
 #include <type_traits>
 
@@ -66,40 +64,6 @@ using enable_if_t = typename std::enable_if<C, T>::type;
 template <size_t S, size_t A>
 using aligned_storage_t = typename std::aligned_storage<S, A>::type;
 
-#ifdef CARGO_GCC49
-
-/// @brief Alias for `std::has_trivial_copy_constructor` using correct name.
-///
-/// @note GCC versions below 5 do not support
-/// `std::is_trivially_copy_constructible`.
-///
-/// @tparam T Sepcific type.
-template <class T>
-using is_trivially_copy_constructible = std::has_trivial_copy_constructor<T>;
-
-/// @brief Alias for `std::has_trivial_copy_assign` using correct name.
-///
-/// @note GCC versions below 5 do not support
-/// `std::is_trivially_copy_assignable`.
-///
-/// @tparam T Sepcific type.
-template <class T>
-using is_trivially_copy_assignable = std::has_trivial_copy_assign<T>;
-
-/// @brief Implementation of missing `std::is_trivially_copyable`.
-///
-/// @note GCC versions below 5 do not support `std::is_trivially_copyable`.
-///
-/// @tparam T Specified type.
-template <class T>
-struct is_trivially_copyable {
-  static const bool value = is_trivially_copy_constructible<T>::value &&
-                            is_trivially_copy_assignable<T>::value &&
-                            std::is_trivially_destructible<T>::value;
-};
-
-#else
-
 /// @brief Alias for `std::has_trivial_copy_constructor` using correct name.
 ///
 /// @note GCC versions below 5 do not support
@@ -125,8 +89,6 @@ using is_trivially_copy_assignable = std::is_trivially_copy_assignable<T>;
 /// @tparam T Specified type.
 template <class T>
 using is_trivially_copyable = std::is_trivially_copyable<T>;
-
-#endif
 
 /// @brief Alias for `std::remove_reference` to reduce noise.
 ///

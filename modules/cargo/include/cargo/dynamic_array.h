@@ -81,7 +81,7 @@ class dynamic_array final {
   ///
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
-  CARGO_NODISCARD cargo::result alloc(size_type size) {
+  [[nodiscard]] cargo::result alloc(size_type size) {
     if (Begin) {
       clear();
     }

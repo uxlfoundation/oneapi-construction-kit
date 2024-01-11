@@ -250,7 +250,7 @@ _cl_command_buffer_khr::create(
             seen |= property;
             break;
           }
-          CARGO_FALLTHROUGH;
+          [[fallthrough]];
         default:
           return cargo::make_unexpected(CL_INVALID_VALUE);
       }
@@ -1070,7 +1070,7 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
 }
 }  // anonymous namespace
 
-CARGO_NODISCARD cl_int _cl_command_buffer_khr::updateCommandBuffer(
+[[nodiscard]] cl_int _cl_command_buffer_khr::updateCommandBuffer(
     const cl_mutable_base_config_khr &mutable_config) {
   std::lock_guard<std::mutex> guard(mutex);
   const cl_device_id device = command_queue->device;
@@ -1606,7 +1606,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
             seen |= property;
             break;
           }
-          CARGO_FALLTHROUGH;
+          [[fallthrough]];
         default:
           return CL_INVALID_VALUE;
       }

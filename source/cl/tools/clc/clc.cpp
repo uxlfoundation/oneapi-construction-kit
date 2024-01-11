@@ -586,7 +586,7 @@ result driver::buildProgram() {
         source_type_name = "SPIR-V";
         break;
       case input_type::opencl_c:
-        CARGO_FALLTHROUGH;
+        [[fallthrough]];
       default:
         source_type_name = "OpenCL C";
         break;
@@ -623,7 +623,7 @@ result driver::buildProgram() {
       }
     } break;
     case input_type::opencl_c:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     default: {
       if (module->parseOptions({cl_options.data(), cl_options.size() - 1},
                                compiler::Options::Mode::BUILD) !=

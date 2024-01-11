@@ -24,7 +24,6 @@
 #define CARGO_DETAIL_EXPECTED_H_INCLUDED
 
 #include <cargo/detail/sfinae_bases.h>
-#include <cargo/platform_defines.h>
 #include <cargo/type_traits.h>
 #include <cargo/utility.h>
 
@@ -183,8 +182,7 @@ struct expected_storage_base<T, E, true, true> {
 template <class T, class E>
 struct expected_storage_base<T, E, true, false> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
-  CARGO_CXX14_CONSTEXPR expected_storage_base(no_init_t)
-      : m_no_init(), m_has_val(false) {}
+  constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
   template <
       class... Args,
@@ -274,7 +272,7 @@ struct expected_storage_base<T, E, false, true> {
 // `T` is `void`, `E` is trivially-destructible
 template <class E>
 struct expected_storage_base<void, E, false, true> {
-  CARGO_CXX14_CONSTEXPR expected_storage_base() : m_has_val(true) {}
+  constexpr expected_storage_base() : m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
   constexpr expected_storage_base(in_place_t) : m_has_val(true) {}
@@ -398,23 +396,17 @@ struct expected_operations_base : expected_storage_base<T, E> {
 
   bool has_value() const { return this->m_has_val; }
 
-  CARGO_CXX14_CONSTEXPR T &get() & { return this->m_val; }
+  constexpr T &get() & { return this->m_val; }
   constexpr const T &get() const & { return this->m_val; }
-  CARGO_CXX14_CONSTEXPR T &&get() && { return std::move(this->m_val); }
-#ifndef CARGO_NO_CONSTRR
+  constexpr T &&get() && { return std::move(this->m_val); }
   constexpr const T &&get() const && { return std::move(this->m_val); }
-#endif
 
-  CARGO_CXX14_CONSTEXPR unexpected<E> &geterr() & { return this->m_unexpect; }
+  constexpr unexpected<E> &geterr() & { return this->m_unexpect; }
   constexpr const unexpected<E> &geterr() const & { return this->m_unexpect; }
-  CARGO_CXX14_CONSTEXPR unexpected<E> &&geterr() && {
-    return std::move(this->m_unexpect);
-  }
-#ifndef CARGO_NO_CONSTRR
+  constexpr unexpected<E> &&geterr() && { return std::move(this->m_unexpect); }
   constexpr const unexpected<E> &&geterr() const && {
     return std::move(this->m_unexpect);
   }
-#endif
 };
 
 // This base class provides some handy member functions which can be used in
@@ -460,16 +452,12 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 
   bool has_value() const { return this->m_has_val; }
 
-  CARGO_CXX14_CONSTEXPR unexpected<E> &geterr() & { return this->m_unexpect; }
+  constexpr unexpected<E> &geterr() & { return this->m_unexpect; }
   constexpr const unexpected<E> &geterr() const & { return this->m_unexpect; }
-  CARGO_CXX14_CONSTEXPR unexpected<E> &&geterr() && {
-    std::move(this->m_unexpect);
-  }
-#ifndef CARGO_NO_CONSTRR
+  constexpr unexpected<E> &&geterr() && { std::move(this->m_unexpect); }
   constexpr const unexpected<E> &&geterr() const && {
     return std::move(this->m_unexpect);
   }
-#endif
 };
 
 // This class manages conditionally having a trivial copy constructor
@@ -502,21 +490,12 @@ struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
 };
 
 // This class manages conditionally having a trivial move constructor
-// Unfortunately there's no way to achieve this in GCC < 5 AFAIK, since it
-// doesn't implement an analogue to std::is_trivially_move_constructible. We
-// have to make do with a non-trivial move constructor even if T is trivially
-// move constructible
-#ifndef CARGO_GCC49
 template <class T, class E,
           bool = is_void_or<T, std::is_trivially_move_constructible<T>>::value
               &&std::is_trivially_move_constructible<E>::value>
 struct expected_move_base : expected_copy_base<T, E> {
   using expected_copy_base<T, E>::expected_copy_base;
 };
-#else
-template <class T, class E, bool = false>
-struct expected_move_base;
-#endif
 template <class T, class E>
 struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
   using expected_copy_base<T, E>::expected_copy_base;
@@ -566,11 +545,6 @@ struct expected_copy_assign_base<T, E, false> : expected_move_base<T, E> {
 };
 
 // This class manages conditionally having a trivial move assignment operator
-// Unfortunately there's no way to achieve this in GCC < 5 AFAIK, since it
-// doesn't implement an analogue to std::is_trivially_move_assignable. We have
-// to make do with a non-trivial move assignment operator even if T is trivially
-// move assignable
-#ifndef CARGO_GCC49
 template <class T, class E,
           bool =
               is_void_or<T, conjunction<std::is_trivially_destructible<T>,
@@ -582,10 +556,6 @@ template <class T, class E,
 struct expected_move_assign_base : expected_copy_assign_base<T, E> {
   using expected_copy_assign_base<T, E>::expected_copy_assign_base;
 };
-#else
-template <class T, class E, bool = false>
-struct expected_move_assign_base;
-#endif
 
 template <class T, class E>
 struct expected_move_assign_base<T, E, false>

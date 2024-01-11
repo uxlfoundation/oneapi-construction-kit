@@ -69,7 +69,7 @@ bool dispatch_s::is_terminated() const {
       [](riscv::semaphore_s *semaphore) { return semaphore->is_terminated(); });
 }
 
-CARGO_NODISCARD mux_result_t queue_s::dispatch(
+[[nodiscard]] mux_result_t queue_s::dispatch(
     riscv::command_buffer_s *command_buffer,
     cargo::array_view<riscv::semaphore_s *> wait_semaphores,
     cargo::array_view<riscv::semaphore_s *> signal_semaphores,

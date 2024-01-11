@@ -21,7 +21,6 @@
 #ifndef CARGO_ENDIAN_H_INCLUDED
 #define CARGO_ENDIAN_H_INCLUDED
 
-#include <cargo/platform_defines.h>
 #include <cargo/type_traits.h>
 
 #include <cstdint>

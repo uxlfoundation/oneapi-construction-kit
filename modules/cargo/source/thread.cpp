@@ -53,8 +53,7 @@ cargo::result cargo::thread::set_name(const std::string &name) noexcept {
   return cargo::success;
 }
 
-CARGO_NODISCARD cargo::error_or<std::string>
-cargo::thread::get_name() noexcept {
+[[nodiscard]] cargo::error_or<std::string> cargo::thread::get_name() noexcept {
 #if defined(_WIN32) || CARGO_HAS_PTHREAD_GETNAME_NP
   constexpr size_t len = 1024;
   std::array<char, len> buffer;
