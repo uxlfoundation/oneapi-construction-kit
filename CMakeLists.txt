@@ -137,6 +137,8 @@ ca_option(CA_USE_SPLIT_DWARF BOOL
   "Use split DWARF debuginfo for faster link times and smaller executables"
   ON)
 
+ca_option(CA_BUILD_COMPONENTS STRING
+  "Components to build" "hal;external;api;compiler;tests;metadata;mux;utils")  
 if(CMAKE_MAKE_PROGRAM MATCHES ninja)
   ca_option(CA_PARALLEL_LINK_JOBS STRING
     "Number of parallel link jobs (Ninja only)." "2")
@@ -291,9 +293,17 @@ if(CA_ENABLE_TESTS)
   ca_umbrella_lit_testsuite_open(all)
 endif()
 
+if (hal IN_LIST CA_BUILD_COMPONENTS)
 add_subdirectory(hal)
+endif()
+if (external IN_LIST CA_BUILD_COMPONENTS)
 add_subdirectory(external)
+endif()
+add_subdirectory(modules)
+if (api IN_LIST CA_BUILD_COMPONENTS)
 add_subdirectory(source)
+endif()
+
 if(CA_ENABLE_DOCUMENTATION)
   add_subdirectory(doc)
 endif()

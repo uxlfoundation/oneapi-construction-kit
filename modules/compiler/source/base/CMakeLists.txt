@@ -91,7 +91,7 @@ list(TRANSFORM CLANG_LIBS
      APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 target_link_libraries(compiler-base PUBLIC
-  builtins cargo mux spirv-ll compiler-utils vecz
+  builtins cargo mux spirv-ll compiler-utils compiler-non-pipeline-utils vecz
   "${CLANG_LIBS}"
   # Link against version (for clang) on Windows.
   $<$<BOOL:${WIN32}>:version>

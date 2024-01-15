@@ -33,7 +33,7 @@ endmacro()
 
 # The modules source directory is not a subdirectory of source so we must also
 # set the binary directory.
-add_subdirectory(${PROJECT_SOURCE_DIR}/modules ${PROJECT_BINARY_DIR}/modules)
+# add_subdirectory(${PROJECT_SOURCE_DIR}/modules ${PROJECT_BINARY_DIR}/modules)
 
 add_ca_api_subdirectory(cl)
 add_ca_api_subdirectory(vk)

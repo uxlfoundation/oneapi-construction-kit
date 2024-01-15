@@ -14,7 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+if (compiler IN_LIST CA_BUILD_COMPONENTS)
 add_subdirectory(builtins)
+endif()
 
 if(CA_RUNTIME_COMPILER_ENABLED)
   if(CA_ENABLE_TESTS)
@@ -22,16 +24,25 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     ca_umbrella_lit_testsuite_open(compiler)
   endif()
 
+  if (compiler IN_LIST CA_BUILD_COMPONENTS OR compiler_pipeline IN_LIST CA_BUILD_COMPONENTS)
   add_subdirectory(multi_llvm)
+  endif()
+  if (compiler IN_LIST CA_BUILD_COMPONENTS)
   add_subdirectory(source/base)
   add_subdirectory(targets)
+  endif()
+  if (compiler IN_LIST CA_BUILD_COMPONENTS OR compiler_pipeline IN_LIST CA_BUILD_COMPONENTS)
   add_subdirectory(utils)
+  endif()
+  if (compiler IN_LIST CA_BUILD_COMPONENTS)
   add_subdirectory(riscv)
   add_subdirectory(tools)
   add_subdirectory(spirv-ll)
   add_subdirectory(vecz)
+  endif()
+  
+  if (compiler IN_LIST CA_BUILD_COMPONENTS)
   set(COMPILER_CONFIG_SOURCE ${PROJECT_BINARY_DIR}/modules/compiler/source/config.cpp)
-
   set(COMPILER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/context.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/kernel.h
@@ -183,6 +194,9 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     # Close off the active set of 'compiler' lit suites
     ca_umbrella_lit_testsuite_close(compiler)
   endif()
+  endif()
 endif()
 
+if (compiler IN_LIST CA_BUILD_COMPONENTS)
 add_subdirectory(loader)
+endif()
