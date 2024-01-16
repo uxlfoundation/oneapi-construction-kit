@@ -46,9 +46,9 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     ${CMAKE_CURRENT_SOURCE_DIR}/library/source/library.cpp
     ${COMPILER_CONFIG_SOURCE})
   target_include_directories(compiler-static PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/library/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/utils/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/library/include>
     SYSTEM PUBLIC
     ${spirv-headers_SOURCE_DIR}/include)
   target_link_libraries(compiler-static

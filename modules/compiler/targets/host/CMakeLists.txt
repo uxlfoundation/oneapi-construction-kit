@@ -67,15 +67,15 @@ set(HOST_SOURCES
 add_ca_library(compiler-host STATIC ${HOST_SOURCES})
 
 target_include_directories(compiler-host PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/builtins/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/source/base/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/builtins/include
-    ${CMAKE_SOURCE_DIR}/modules/utils/include
-    ${CMAKE_SOURCE_DIR}/modules/debug/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/multi_llvm/include
-    ${CMAKE_SOURCE_DIR}/modules/mux/source/host/include
-    ${CMAKE_SOURCE_DIR}/modules/mux/include)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/builtins/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/compiler/source/base/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/compiler/builtins/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/utils/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/debug/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/compiler/multi_llvm/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/mux/source/host/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/modules/mux/include>)
 
 target_compile_definitions(compiler-host PUBLIC
   $<$<TARGET_EXISTS:resources-host>:CA_ENABLE_HOST_BUILTINS>)

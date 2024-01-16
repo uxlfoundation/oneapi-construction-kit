@@ -65,8 +65,8 @@ set(COMPILER_BASE_SOURCES
 
 add_ca_library(compiler-base STATIC ${COMPILER_BASE_SOURCES})
 target_include_directories(compiler-base PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/modules/compiler/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/include>)
 target_include_directories(compiler-base SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include)
 

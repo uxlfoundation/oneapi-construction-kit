@@ -18,7 +18,7 @@ add_ca_library(utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/utils/system.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/system.cpp)
 
-target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(utils PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_compile_definitions(utils PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
   $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>

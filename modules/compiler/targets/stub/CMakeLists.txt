@@ -21,7 +21,7 @@ endif()
 
 add_ca_library(compiler-stub STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/stub/compiler-stub.h)
-target_include_directories(compiler-stub PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(compiler-stub PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(compiler-stub PUBLIC compiler-base)
 
 add_mux_compiler_target(compiler-stub
