@@ -12,7 +12,7 @@ runs:
   steps:
     - name: Clone sycl_nbody
       shell: bash
-      run: git clone --recursive https://github.com/codeplaysoftware/cuda-to-sycl-nbody.git
+      run: git clone --recursive --depth 1 --single-branch https://github.com/codeplaysoftware/cuda-to-sycl-nbody.git
 
     - name: Download Syclomatic release
       shell: bash
@@ -38,5 +38,6 @@ runs:
 
         cd cuda-to-sycl-nbody
         ls
-        sh scripts/build_dpcpp.sh -DBACKEND=DPCPP -DDPCPP_CUDA_SUPPORT=off
+        chmod +x scripts/build_dpcpp.sh
+        sh scripts/build_dpcpp.sh -nocudalib -DBACKEND=DPCPP -DDPCPP_CUDA_SUPPORT=off
         #CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ./nbody_dpcpp 1
