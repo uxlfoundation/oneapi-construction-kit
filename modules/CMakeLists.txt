@@ -27,11 +27,13 @@ set(MODULES_INCLUDE_DIRS # No default value
 set(MODULES_LIBRARIES # No default value
   CACHE INTERNAL "List of module libraries.")
 
+if (utils IN_LIST CA_BUILD_COMPONENTS)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/debug)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
+endif()
 
 # Fetch the official SPIR-V headers. These are required by some up our public
 # compiler headers, which are also included by mux, so this must take place

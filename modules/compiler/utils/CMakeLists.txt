@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-if (compiler IN_LIST CA_BUILD_COMPONENTS OR compiler_pipeline IN_LIST CA_BUILD_COMPONENTS)
+if (compiler IN_LIST CA_BUILD_COMPONENTS OR compiler_pipeline IN_LIST CA_BUILD_COMPONENTS OR vecz IN_LIST CA_BUILD_COMPONENTS)
 add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/StructTypeRemapper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_kernel_wrapper_pass.h
