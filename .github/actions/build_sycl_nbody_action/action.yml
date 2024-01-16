@@ -30,8 +30,8 @@ runs:
         export PATH=${{ inputs.workspace }}/linux_nightly_release/bin/clang++:$(pwd)/syclomatic_nightly_release:$PATH
         export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
         export OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so
-        export CXX=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
-        export CC=${{ inputs.workspace }}/linux_nightly_release/bin/clang
+        #export CXX=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        #export CC=${{ inputs.workspace }}/linux_nightly_release/bin/clang
         export OCL_ICD_VENDORS=/dev/null
         export dpct_INCLUDE_DIR=$(pwd)/syclomatic_nightly_release/include
         export dpct_LOCATION=$(pwd)/syclomatic_nightly_release
