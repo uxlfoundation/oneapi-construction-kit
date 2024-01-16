@@ -141,7 +141,7 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   llvm::SmallVector<IRInsertPoint, 8> IPStack;
   // Store the branch instructions found in the current function, as we need to
   // generate them after all the basic blocks have been generated.
-  using OpIRLocTy = std::pair<OpCode const, IRInsertPoint>;
+  using OpIRLocTy = std::pair<const OpCode, IRInsertPoint>;
   // Store the Phi nodes in order to add the values after all the basic blocks
   // have been generated
   llvm::SmallVector<OpIRLocTy, 8> Phis;

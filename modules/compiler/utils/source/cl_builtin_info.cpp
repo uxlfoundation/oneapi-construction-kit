@@ -511,7 +511,7 @@ CLBuiltinInfo::~CLBuiltinInfo() = default;
 /// @return The newly emitted CallInst
 static CallInst *CreateBuiltinCall(IRBuilder<> &B, Function *Builtin,
                                    ArrayRef<Value *> Args,
-                                   Twine const &NameStr = "") {
+                                   const Twine &NameStr = "") {
   CallInst *CI =
       B.CreateCall(Builtin->getFunctionType(), Builtin, Args, NameStr);
   CI->setCallingConv(Builtin->getCallingConv());
@@ -868,11 +868,11 @@ Function *CLBuiltinInfo::materializeBuiltin(StringRef BuiltinName,
   return Loader->materializeBuiltin(BuiltinName, DestM, Flags);
 }
 
-BuiltinID CLBuiltinInfo::identifyBuiltin(Function const &F) const {
+BuiltinID CLBuiltinInfo::identifyBuiltin(const Function &F) const {
   NameMangler Mangler(nullptr);
-  StringRef const Name = F.getName();
+  const StringRef Name = F.getName();
   const CLBuiltinEntry *entry = Builtins;
-  auto const Version = getOpenCLVersion(*F.getParent());
+  const auto Version = getOpenCLVersion(*F.getParent());
   StringRef DemangledName = Mangler.demangleName(Name);
   while (entry->ID != eBuiltinInvalid) {
     if (Version >= entry->MinVer && DemangledName.equals(entry->OpenCLFnName)) {
@@ -947,12 +947,12 @@ llvm::StringRef CLBuiltinInfo::getBuiltinName(BuiltinID ID) const {
   return llvm::StringRef();
 }
 
-BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &,
+BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(const Builtin &,
                                                   const CallInst *CI,
                                                   unsigned) const {
   // Assume that builtins with side effects are varying.
   if (Function *Callee = CI->getCalledFunction()) {
-    auto const Props = analyzeBuiltin(*Callee).properties;
+    const auto Props = analyzeBuiltin(*Callee).properties;
     if (Props & eBuiltinPropertySideEffects) {
       return eBuiltinUniformityNever;
     }
@@ -961,7 +961,7 @@ BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &,
   return eBuiltinUniformityLikeInputs;
 }
 
-Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
+Builtin CLBuiltinInfo::analyzeBuiltin(const Function &Callee) const {
   BuiltinID ID = identifyBuiltin(Callee);
 
   bool IsConvergent = false;
@@ -1253,10 +1253,10 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
   return Builtin{Callee, ID, (BuiltinProperties)Properties};
 }
 
-Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
+Function *CLBuiltinInfo::getVectorEquivalent(const Builtin &B, unsigned Width,
                                              Module *M) {
   // Analyze the builtin. Some functions have no vector equivalent.
-  auto const Props = B.properties;
+  const auto Props = B.properties;
   if (Props & eBuiltinPropertyNoVectorEquivalent) {
     return nullptr;
   }
@@ -1361,9 +1361,9 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   return VectorBuiltin;
 }
 
-Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
+Function *CLBuiltinInfo::getScalarEquivalent(const Builtin &B, Module *M) {
   // Analyze the builtin. Some functions have no scalar equivalent.
-  auto const Props = B.properties;
+  const auto Props = B.properties;
   if (Props & eBuiltinPropertyNoVectorEquivalent) {
     return nullptr;
   }
@@ -1557,7 +1557,7 @@ Value *CLBuiltinInfo::emitBuiltinInline(Function *F, IRBuilder<> &B,
       } break;
       case eCLBuiltinVLoadHalf: {
         NameMangler Mangler(&F->getContext());
-        auto const name = Mangler.demangleName(F->getName());
+        const auto name = Mangler.demangleName(F->getName());
         if (name == "vload_half") {
           // TODO CA-4691 handle "vload_halfn"
           return emitBuiltinInlineVLoadHalf(F, B, Args);
@@ -2517,7 +2517,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineRelationalsWithOneArgument(
   if (isVectorTy) {
     SignedTy = FixedVectorType::get(SignedTy, Width);
     ReturnTy = FixedVectorType::get(ReturnTy, Width);
-    auto const EC = ElementCount::getFixed(Width);
+    const auto EC = ElementCount::getFixed(Width);
     ExponentMask = ConstantVector::getSplat(EC, ExponentMask);
     MantissaMask = ConstantVector::getSplat(EC, MantissaMask);
     NonSignMask = ConstantVector::getSplat(EC, NonSignMask);
@@ -2787,7 +2787,7 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
   auto &M = *CI.getModule();
   auto *const F = CI.getCalledFunction();
   assert(F && "No calling function?");
-  auto const ID = identifyBuiltin(*F);
+  const auto ID = identifyBuiltin(*F);
 
   // Handle straightforward 1:1 mappings.
   if (auto MuxID = get1To1BuiltinLowering(ID)) {
@@ -3292,7 +3292,7 @@ Instruction *CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(
     }
   }
 
-  bool const IsAnyAll = MuxBuiltinID == eMuxBuiltinSubgroupAny ||
+  const bool IsAnyAll = MuxBuiltinID == eMuxBuiltinSubgroupAny ||
                         MuxBuiltinID == eMuxBuiltinSubgroupAll ||
                         MuxBuiltinID == eMuxBuiltinWorkgroupAny ||
                         MuxBuiltinID == eMuxBuiltinWorkgroupAll;
@@ -3386,7 +3386,7 @@ Instruction *CLBuiltinInfo::lowerAsyncBuiltinToMuxBuiltin(
              BuiltinArgPointeeTypes[0] && "Could not demangle async builtin");
 
       auto *const DataTy = BuiltinArgPointeeTypes[0];
-      bool const IsStrided = ID == eCLBuiltinAsyncWorkGroupStridedCopy;
+      const bool IsStrided = ID == eCLBuiltinAsyncWorkGroupStridedCopy;
 
       auto *const Dst = CI.getArgOperand(0);
       auto *const Src = CI.getArgOperand(1);
@@ -3397,7 +3397,7 @@ Instruction *CLBuiltinInfo::lowerAsyncBuiltinToMuxBuiltin(
       // builtin.
       const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
                           compiler::utils::AddressSpace::Local;
-      auto const ElementTypeWidthInBytes =
+      const auto ElementTypeWidthInBytes =
           DL.getTypeAllocSize(DataTy).getFixedValue();
       auto *const ElementSize =
           ConstantInt::get(NumElements->getType(), ElementTypeWidthInBytes);

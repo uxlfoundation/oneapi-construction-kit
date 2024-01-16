@@ -73,7 +73,7 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
     if (!F.isDeclaration() || F.isIntrinsic()) {
       continue;
     }
-    auto const B = BI.analyzeBuiltin(F);
+    const auto B = BI.analyzeBuiltin(F);
     if (B.isUnknown() || !B.isValid()) {
       continue;
     }

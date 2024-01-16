@@ -150,7 +150,7 @@ class Barrier {
   // TODO CA-1115 llvm.dbg.declare is being deprecated
   using debug_intrinsics_t =
       llvm::SmallVector<std::pair<llvm::DbgDeclareInst *, unsigned>, 4>;
-  debug_intrinsics_t const &getDebugIntrinsics() const {
+  const debug_intrinsics_t &getDebugIntrinsics() const {
     return debug_intrinsics_;
   }
 
@@ -160,7 +160,7 @@ class Barrier {
 
   /// @brief struct to help retrieval of values from the barrier struct
   struct LiveValuesHelper {
-    Barrier const &barrier;
+    const Barrier &barrier;
     /// @brief A cache of queried live-values addresses (inside the live
     /// variables struct), stored by the pair (value, member_idx).
     llvm::DenseMap<std::pair<const llvm::Value *, unsigned>, llvm::Value *>
@@ -170,10 +170,10 @@ class Barrier {
     llvm::Value *barrier_struct = nullptr;
     llvm::Value *vscale = nullptr;
 
-    LiveValuesHelper(Barrier const &b, llvm::Instruction *i, llvm::Value *s)
+    LiveValuesHelper(const Barrier &b, llvm::Instruction *i, llvm::Value *s)
         : barrier(b), gepBuilder(i), barrier_struct(s) {}
 
-    LiveValuesHelper(Barrier const &b, llvm::BasicBlock *bb, llvm::Value *s)
+    LiveValuesHelper(const Barrier &b, llvm::BasicBlock *bb, llvm::Value *s)
         : barrier(b), gepBuilder(bb), barrier_struct(s) {}
 
     /// @brief Return a GEP instruction pointing to the given value/idx pair in

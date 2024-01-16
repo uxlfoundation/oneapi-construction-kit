@@ -160,7 +160,7 @@ void setBarrierSchedule(llvm::CallInst &CI, BarrierSchedule Sched);
 ///
 /// @param[in] CI the barrier call instruction
 /// @return the execution schedule for this barrier
-BarrierSchedule getBarrierSchedule(llvm::CallInst const &CI);
+BarrierSchedule getBarrierSchedule(const llvm::CallInst &CI);
 
 /// @brief Marks a kernel's subgroups as degenerate
 ///

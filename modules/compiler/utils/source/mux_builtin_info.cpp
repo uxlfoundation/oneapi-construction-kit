@@ -1314,7 +1314,7 @@ std::optional<llvm::ConstantRange> BIMuxInfoConcept::getBuiltinRange(
       // ID builtins range [0,size) (exclusive), and size builtins [1,size]
       // (inclusive). Thus offset the range by 1 at each low/high end when
       // returning the range for a size builtin.
-      int const SizeAdjust = ID == eMuxBuiltinGetLocalSize ||
+      const int SizeAdjust = ID == eMuxBuiltinGetLocalSize ||
                              ID == eMuxBuiltinGetEnqueuedLocalSize ||
                              ID == eMuxBuiltinGetGlobalSize;
       return ConstantRange::getNonEmpty(

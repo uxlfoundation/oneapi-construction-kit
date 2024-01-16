@@ -296,7 +296,7 @@ class Module : public ModuleHeader {
   ///
   /// @param Op `OpResult` object with the ID whose value will be replaced.
   /// @param V `Value` object to replace the old value with.
-  void replaceID(OpResult const *Op, llvm::Value *V);
+  void replaceID(const OpResult *Op, llvm::Value *V);
 
   /// @brief Add a specified execution mode to the module.
   ///
@@ -638,7 +638,7 @@ class Module : public ModuleHeader {
   /// @param[in] T The LLVM value for the given Op.
   ///
   /// @return true on success, false if the ID already exists
-  bool addID(spv::Id id, OpCode const *Op, llvm::Type *T);
+  bool addID(spv::Id id, const OpCode *Op, llvm::Type *T);
 
   /// @brief track the original SPIR-V type ids for the OpFunctionType `func`
   ///
@@ -796,7 +796,7 @@ class Module : public ModuleHeader {
   /// @param[in] V The LLVM value for the given Op.
   ///
   /// @return true on success, false if the ID already exists
-  bool addID(spv::Id id, OpCode const *Op, llvm::Value *V);
+  bool addID(spv::Id id, const OpCode *Op, llvm::Value *V);
 
   /// @brief Get the LLVM Value for the given SPIR-V ID.
   ///
@@ -1082,7 +1082,7 @@ class Module : public ModuleHeader {
     /// @brief Empty constructor, initializes everything to nullptr.
     TypePair() : Op(nullptr), Type(nullptr) {}
     /// @brief Constructor with initializers
-    TypePair(OpCode const *Op, llvm::Type *Type) : Op(Op), Type(Type) {}
+    TypePair(const OpCode *Op, llvm::Type *Type) : Op(Op), Type(Type) {}
     /// @brief Pointer to the SPIR-V Op.
     const OpCode *Op;
     /// @brief Pointer to the LLVM Type defined by the SPIR-V Op.
@@ -1109,7 +1109,7 @@ class Module : public ModuleHeader {
     /// @brief Empty constructor, initializes everything to nullptr.
     ValuePair() : Op(nullptr), Value(nullptr) {}
     /// @brief Constructor with initializers
-    ValuePair(OpCode const *Op, llvm::Value *Value) : Op(Op), Value(Value) {}
+    ValuePair(const OpCode *Op, llvm::Value *Value) : Op(Op), Value(Value) {}
     /// @brief Pointer to the SPIR-V Op.
     const OpCode *Op;
     /// @brief Pointer to the LLVM Value defined by the SPIR-V Op.
@@ -1138,7 +1138,7 @@ class Module : public ModuleHeader {
   llvm::Value *BufferSizeArray;
   /// @brief List of `OpSpecConstantOp` instructions whose translation had to be
   /// deferred.
-  llvm::SmallVector<spirv_ll::OpSpecConstantOp const *, 2>
+  llvm::SmallVector<const spirv_ll::OpSpecConstantOp *, 2>
       deferredSpecConstantOps;
   std::string ModuleProcess;
   /// @brief True if debug scopes should be inferred and generated when

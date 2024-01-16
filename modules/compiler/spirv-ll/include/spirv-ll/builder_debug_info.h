@@ -45,7 +45,7 @@ class DebugInfoBuilder : public ExtInstSetHandler {
       : ExtInstSetHandler(builder, module), workarounds(workarounds) {}
 
   /// @see ExtInstSetHandler::create
-  virtual llvm::Error create(OpExtInst const &opc) override;
+  virtual llvm::Error create(const OpExtInst &opc) override;
 
   virtual llvm::Error finishModuleProcessing() override;
 
@@ -67,7 +67,7 @@ class DebugInfoBuilder : public ExtInstSetHandler {
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
   template <typename T>
-  llvm::Error create(OpExtInst const &opc);
+  llvm::Error create(const OpExtInst &opc);
 
   /// @brief Returns the LLVM DIBuilder for the given instruction.
   ///

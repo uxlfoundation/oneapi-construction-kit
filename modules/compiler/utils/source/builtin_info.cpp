@@ -44,7 +44,7 @@ Module *BuiltinInfo::getBuiltinsModule() {
 }
 
 std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
-    Function const &F) const {
+    const Function &F) const {
   StringRef Name = F.getName();
   auto ID =
       StringSwitch<BuiltinID>(Name)
@@ -123,7 +123,7 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
 
   // Most group operations have one argument, except for broadcasts. Despite
   // that, we don't mangle the indices as they're fixed.
-  unsigned const NumExpectedMangledArgs = 1;
+  const unsigned NumExpectedMangledArgs = 1;
 
   if (Name.consume_front("any")) {
     ID = SCOPED_GROUP_OP(Any);
@@ -271,7 +271,7 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
 #undef SCOPED_GROUP_OP
 }
 
-BuiltinUniformity BuiltinInfo::isBuiltinUniform(Builtin const &B,
+BuiltinUniformity BuiltinInfo::isBuiltinUniform(const Builtin &B,
                                                 const CallInst *CI,
                                                 unsigned SimdDimIdx) const {
   switch (B.ID) {
@@ -328,7 +328,7 @@ BuiltinUniformity BuiltinInfo::isBuiltinUniform(Builtin const &B,
   return eBuiltinUniformityUnknown;
 }
 
-Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
+Builtin BuiltinInfo::analyzeBuiltin(const Function &F) const {
   // Handle LLVM intrinsics.
   if (F.isIntrinsic()) {
     int32_t Properties = eBuiltinPropertyNone;
@@ -485,16 +485,16 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
   return Builtin{F, ID, (BuiltinProperties)Properties, OverloadInfo};
 }
 
-BuiltinCall BuiltinInfo::analyzeBuiltinCall(CallInst const &CI,
+BuiltinCall BuiltinInfo::analyzeBuiltinCall(const CallInst &CI,
                                             unsigned SimdDimIdx) const {
   auto *const callee = CI.getCalledFunction();
   assert(callee && "Call instruction with no callee");
-  auto const B = analyzeBuiltin(*callee);
-  auto const U = isBuiltinUniform(B, &CI, SimdDimIdx);
+  const auto B = analyzeBuiltin(*callee);
+  const auto U = isBuiltinUniform(B, &CI, SimdDimIdx);
   return BuiltinCall{B, CI, U};
 }
 
-Function *BuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
+Function *BuiltinInfo::getVectorEquivalent(const Builtin &B, unsigned Width,
                                            Module *M) {
   // We don't handle LLVM intrinsics here
   if (B.function.isIntrinsic()) {
@@ -507,12 +507,12 @@ Function *BuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   return nullptr;
 }
 
-Function *BuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
+Function *BuiltinInfo::getScalarEquivalent(const Builtin &B, Module *M) {
   // We will first check to see if this is an LLVM intrinsic that has a scalar
   // equivalent.
   if (B.function.isIntrinsic()) {
     // Analyze the builtin. Some functions have no scalar equivalent.
-    auto const Props = B.properties;
+    const auto Props = B.properties;
     if (!(Props & eBuiltinPropertyVectorEquivalent)) {
       return nullptr;
     }

@@ -330,7 +330,7 @@ class expected
   template <class G = E,
             enable_if_t<std::is_constructible<E, const G &>::value> * = nullptr,
             enable_if_t<std::is_convertible<const G &, E>::value> * = nullptr>
-  constexpr expected(unexpected<G> const &e)
+  constexpr expected(const unexpected<G> &e)
       : impl_base(unexpect, e.value()),
         ctor_base(detail::default_constructor_tag{}) {}
 
@@ -390,8 +390,8 @@ class expected
   /// @param rhs Expected object to copy.
   template <
       class U, class G,
-      enable_if_t<!(std::is_convertible<U const &, T>::value &&
-                    std::is_convertible<G const &, E>::value)> * = nullptr,
+      enable_if_t<!(std::is_convertible<const U &, T>::value &&
+                    std::is_convertible<const G &, E>::value)> * = nullptr,
       detail::expected_enable_from_other<T, E, U, G, const U &, const G &> * =
           nullptr>
   explicit constexpr expected(const expected<U, G> &rhs)
@@ -409,8 +409,8 @@ class expected
   /// @tparam G Type of `rhs'`s unexpected value.
   /// @param rhs Expected object to copy.
   template <class U, class G,
-            enable_if_t<(std::is_convertible<U const &, T>::value &&
-                         std::is_convertible<G const &, E>::value)> * = nullptr,
+            enable_if_t<(std::is_convertible<const U &, T>::value &&
+                         std::is_convertible<const G &, E>::value)> * = nullptr,
             detail::expected_enable_from_other<T, E, U, G, const U &, const G &>
                 * = nullptr>
   constexpr expected(const expected<U, G> &rhs)

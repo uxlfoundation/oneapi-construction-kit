@@ -174,7 +174,7 @@ void setBarrierSchedule(CallInst &CI, BarrierSchedule Sched) {
   CI.addFnAttr(Attr);
 }
 
-BarrierSchedule getBarrierSchedule(CallInst const &CI) {
+BarrierSchedule getBarrierSchedule(const CallInst &CI) {
   Attribute Attr = CI.getFnAttr(BarrierScheduleAttrName);
   if (Attr.isValid()) {
     return StringSwitch<BarrierSchedule>(Attr.getValueAsString())

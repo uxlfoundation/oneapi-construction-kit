@@ -244,7 +244,7 @@ void replaceFetchKey(CallInst *C11FetchKey) {
   auto KeyEndIndex = BuiltinName.find('_', KeyStartIndex);
   auto Key = BuiltinName.substr(KeyStartIndex, KeyEndIndex - KeyStartIndex);
 
-  bool const IsFloat = C11FetchKey->getType()->isFloatingPointTy();
+  const bool IsFloat = C11FetchKey->getType()->isFloatingPointTy();
   AtomicRMWInst::BinOp KeyOpCode{IsFloat
                                      ? StringSwitch<AtomicRMWInst::BinOp>(Key)
                                            .Case("add", AtomicRMWInst::FAdd)

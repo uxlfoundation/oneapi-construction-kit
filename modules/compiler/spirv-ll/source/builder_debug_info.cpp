@@ -324,7 +324,7 @@ llvm::Expected<std::optional<uint64_t>> DebugInfoBuilder::getConstantIntValue(
 
 class DebugCompilationUnit : public OpExtInst {
  public:
-  DebugCompilationUnit(OpCode const &other) : OpExtInst(other) {}
+  DebugCompilationUnit(const OpCode &other) : OpExtInst(other) {}
   uint32_t Version() const { return getOpExtInstOperand(0); }
   uint32_t DWARFVersion() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -388,7 +388,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugSource : public OpExtInst {
  public:
-  DebugSource(OpCode const &other) : OpExtInst(other) {}
+  DebugSource(const OpCode &other) : OpExtInst(other) {}
   spv::Id File() const { return getOpExtInstOperand(0); }
   std::optional<spv::Id> Text() const {
     return 1 < opExtInstOperandCount() ? getOpExtInstOperand(1)
@@ -443,7 +443,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeBasic : public OpExtInst {
  public:
-  DebugTypeBasic(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeBasic(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Size() const { return getOpExtInstOperand(1); }
   uint32_t Encoding() const { return getOpExtInstOperand(2); }
@@ -480,7 +480,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypePointer : public OpExtInst {
  public:
-  DebugTypePointer(OpCode const &other) : OpExtInst(other) {}
+  DebugTypePointer(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
   uint32_t StorageClass() const {
     return static_cast<spv::StorageClass>(getOpExtInstOperand(1));
@@ -534,7 +534,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeQualifier : public OpExtInst {
  public:
-  DebugTypeQualifier(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeQualifier(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
   uint32_t TypeQualifier() const { return getOpExtInstOperand(1); }
 };
@@ -565,7 +565,7 @@ static uint64_t getDerivedSizeInBits(const llvm::DIType *Ty) {
 
 class DebugTypeArray : public OpExtInst {
  public:
-  DebugTypeArray(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeArray(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
 
   llvm::SmallVector<std::pair<spv::Id, spv::Id>, 4> ComponentCounts() const {
@@ -629,7 +629,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeVector : public OpExtInst {
  public:
-  DebugTypeVector(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeVector(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
   uint32_t ComponentCount() const { return getOpExtInstOperand(1); }
 };
@@ -660,7 +660,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypedef : public OpExtInst {
  public:
-  DebugTypedef(OpCode const &other) : OpExtInst(other) {}
+  DebugTypedef(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id BaseType() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -702,7 +702,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeFunction : public OpExtInst {
  public:
-  DebugTypeFunction(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeFunction(const OpCode &other) : OpExtInst(other) {}
   uint32_t Flags() const { return getOpExtInstOperand(0); }
   spv::Id ReturnType() const { return getOpExtInstOperand(1); }
   llvm::SmallVector<spv::Id, 4> ParameterTypes() const {
@@ -736,7 +736,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeEnum : public OpExtInst {
  public:
-  DebugTypeEnum(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeEnum(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id UnderlyingType() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -825,7 +825,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeComposite : public OpExtInst {
  public:
-  DebugTypeComposite(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeComposite(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   uint32_t Tag() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -936,7 +936,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeMember : public OpExtInst {
  public:
-  DebugTypeMember(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeMember(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -1032,7 +1032,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeInheritance : public OpExtInst {
  public:
-  DebugTypeInheritance(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeInheritance(const OpCode &other) : OpExtInst(other) {}
   spv::Id Child() const { return getOpExtInstOperand(0); }
   static constexpr size_t ParentIdx = 1;
   spv::Id Parent() const { return getOpExtInstOperand(ParentIdx); }
@@ -1074,7 +1074,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypePtrToMember : public OpExtInst {
  public:
-  DebugTypePtrToMember(OpCode const &other) : OpExtInst(other) {}
+  DebugTypePtrToMember(const OpCode &other) : OpExtInst(other) {}
   spv::Id MemberType() const { return getOpExtInstOperand(0); }
   static constexpr size_t ParentIdx = 1;
   spv::Id Parent() const { return getOpExtInstOperand(ParentIdx); }
@@ -1102,7 +1102,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeTemplate : public OpExtInst {
  public:
-  DebugTypeTemplate(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeTemplate(const OpCode &other) : OpExtInst(other) {}
   spv::Id Target() const { return getOpExtInstOperand(0); }
   llvm::SmallVector<spv::Id, 4> Parameters() const {
     llvm::SmallVector<spv::Id, 4> parameters;
@@ -1158,7 +1158,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeTemplateParameter : public OpExtInst {
  public:
-  DebugTypeTemplateParameter(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeTemplateParameter(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id ActualType() const { return getOpExtInstOperand(1); }
   spv::Id Value() const { return getOpExtInstOperand(2); }
@@ -1205,7 +1205,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeTemplateTemplateParameter : public OpExtInst {
  public:
-  DebugTypeTemplateTemplateParameter(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeTemplateTemplateParameter(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id TemplateName() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -1243,7 +1243,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugTypeTemplateParameterPack : public OpExtInst {
  public:
-  DebugTypeTemplateParameterPack(OpCode const &other) : OpExtInst(other) {}
+  DebugTypeTemplateParameterPack(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Source() const { return getOpExtInstOperand(1); }
   uint32_t Line() const { return getOpExtInstOperand(2); }
@@ -1295,7 +1295,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugGlobalVariable : public OpExtInst {
  public:
-  DebugGlobalVariable(OpCode const &other) : OpExtInst(other) {}
+  DebugGlobalVariable(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -1387,7 +1387,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugFunctionDeclaration : public OpExtInst {
  public:
-  DebugFunctionDeclaration(OpCode const &other) : OpExtInst(other) {}
+  DebugFunctionDeclaration(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -1487,7 +1487,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugFunction : public OpExtInst {
  public:
-  DebugFunction(OpCode const &other) : OpExtInst(other) {}
+  DebugFunction(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -1606,7 +1606,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugLexicalBlock : public OpExtInst {
  public:
-  DebugLexicalBlock(OpCode const &other) : OpExtInst(other) {}
+  DebugLexicalBlock(const OpCode &other) : OpExtInst(other) {}
   spv::Id Source() const { return getOpExtInstOperand(0); }
   uint32_t Line() const { return getOpExtInstOperand(1); }
   uint32_t Column() const { return getOpExtInstOperand(2); }
@@ -1650,7 +1650,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugLexicalBlockDiscriminator : public OpExtInst {
  public:
-  DebugLexicalBlockDiscriminator(OpCode const &other) : OpExtInst(other) {}
+  DebugLexicalBlockDiscriminator(const OpCode &other) : OpExtInst(other) {}
   spv::Id Source() const { return getOpExtInstOperand(0); }
   uint32_t Discriminator() const { return getOpExtInstOperand(1); }
   static constexpr size_t ScopeIdx = 2;
@@ -1682,7 +1682,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugScope : public OpExtInst {
  public:
-  DebugScope(OpCode const &other) : OpExtInst(other) {}
+  DebugScope(const OpCode &other) : OpExtInst(other) {}
   static constexpr size_t ScopeIdx = 0;
   spv::Id Scope() const { return getOpExtInstOperand(ScopeIdx); }
   std::optional<spv::Id> InlinedAt() const {
@@ -1692,7 +1692,7 @@ class DebugScope : public OpExtInst {
 };
 
 template <>
-llvm::Error DebugInfoBuilder::create<DebugScope>(OpExtInst const &opc) {
+llvm::Error DebugInfoBuilder::create<DebugScope>(const OpExtInst &opc) {
   auto *op = module.create<DebugScope>(opc);
 
   // Close any current scope.
@@ -1728,18 +1728,18 @@ llvm::Error DebugInfoBuilder::create<DebugScope>(OpExtInst const &opc) {
 
 class DebugNoScope : public OpExtInst {
  public:
-  DebugNoScope(OpCode const &other) : OpExtInst(other) {}
+  DebugNoScope(const OpCode &other) : OpExtInst(other) {}
 };
 
 template <>
-llvm::Error DebugInfoBuilder::create<DebugNoScope>(OpExtInst const &) {
+llvm::Error DebugInfoBuilder::create<DebugNoScope>(const OpExtInst &) {
   builder.closeCurrentLexicalScope(/*closing_line_range*/ false);
   return llvm::Error::success();
 }
 
 class DebugInlinedAt : public OpExtInst {
  public:
-  DebugInlinedAt(OpCode const &other) : OpExtInst(other) {}
+  DebugInlinedAt(const OpCode &other) : OpExtInst(other) {}
   uint32_t Line() const { return getOpExtInstOperand(0); }
   static constexpr size_t ScopeIdx = 1;
   spv::Id Scope() const { return getOpExtInstOperand(ScopeIdx); }
@@ -1784,7 +1784,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugLocalVariable : public OpExtInst {
  public:
-  DebugLocalVariable(OpCode const &other) : OpExtInst(other) {}
+  DebugLocalVariable(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -1859,14 +1859,14 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
 class DebugDeclare : public OpExtInst {
  public:
-  DebugDeclare(OpCode const &other) : OpExtInst(other) {}
+  DebugDeclare(const OpCode &other) : OpExtInst(other) {}
   spv::Id LocalVariable() const { return getOpExtInstOperand(0); }
   spv::Id Variable() const { return getOpExtInstOperand(1); }
   spv::Id Expression() const { return getOpExtInstOperand(2); }
 };
 
 template <>
-llvm::Error DebugInfoBuilder::create<DebugDeclare>(OpExtInst const &opc) {
+llvm::Error DebugInfoBuilder::create<DebugDeclare>(const OpExtInst &opc) {
   auto *op = module.create<DebugDeclare>(opc);
 
   llvm::Value *variable = module.getValue(op->Variable());
@@ -1920,7 +1920,7 @@ llvm::Error DebugInfoBuilder::create<DebugDeclare>(OpExtInst const &opc) {
 
 class DebugValue : public OpExtInst {
  public:
-  DebugValue(OpCode const &other) : OpExtInst(other) {}
+  DebugValue(const OpCode &other) : OpExtInst(other) {}
   spv::Id LocalVariable() const { return getOpExtInstOperand(0); }
   spv::Id Variable() const { return getOpExtInstOperand(1); }
   spv::Id Expression() const { return getOpExtInstOperand(2); }
@@ -1934,7 +1934,7 @@ class DebugValue : public OpExtInst {
 };
 
 template <>
-llvm::Error DebugInfoBuilder::create<DebugValue>(OpExtInst const &opc) {
+llvm::Error DebugInfoBuilder::create<DebugValue>(const OpExtInst &opc) {
   auto *op = module.create<DebugValue>(opc);
   llvm::Value *variable = module.getValue(op->Variable());
   if (!variable) {
@@ -1984,7 +1984,7 @@ llvm::Error DebugInfoBuilder::create<DebugValue>(OpExtInst const &opc) {
 
 class DebugOperation : public OpExtInst {
  public:
-  DebugOperation(OpCode const &other) : OpExtInst(other) {}
+  DebugOperation(const OpCode &other) : OpExtInst(other) {}
   spv::Id Operation() const { return getOpExtInstOperand(0); }
   llvm::SmallVector<spv::Id, 4> Operands() const {
     llvm::SmallVector<uint32_t, 4> operands;
@@ -1997,7 +1997,7 @@ class DebugOperation : public OpExtInst {
 
 class DebugExpression : public OpExtInst {
  public:
-  DebugExpression(OpCode const &other) : OpExtInst(other) {}
+  DebugExpression(const OpCode &other) : OpExtInst(other) {}
   llvm::SmallVector<spv::Id, 4> Operation() const {
     llvm::SmallVector<spv::Id, 4> operations;
     for (uint16_t i = 0, e = opExtInstOperandCount(); i != e; i++) {
@@ -2041,7 +2041,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 // skipping it, depending on the number of operands in the instruction.
 class DebugImportedEntity : public OpExtInst {
  public:
-  DebugImportedEntity(OpCode const &other) : OpExtInst(other) {
+  DebugImportedEntity(const OpCode &other) : OpExtInst(other) {
     dummy_offset = opExtInstOperandCount() == 7 ? 0 : 1;
   }
   spv::Id Name() const { return getOpExtInstOperand(0); }
@@ -2060,7 +2060,7 @@ class DebugImportedEntity : public OpExtInst {
 
 template <>
 llvm::Error DebugInfoBuilder::create<DebugImportedEntity>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<DebugImportedEntity>(opc);
   uint32_t line = op->Line();
 
@@ -2305,7 +2305,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translateDebugInstImpl(
 // All other nodes are visited through the process of creating these above
 // nodes. They are visited through the 'translateDebugInst' API, and are
 // cached as they may be multiply referenced.
-llvm::Error DebugInfoBuilder::create(OpExtInst const &opc) {
+llvm::Error DebugInfoBuilder::create(const OpExtInst &opc) {
   // Most of this code *should* work for the DebugInfo instruction set, with a
   // few tweaks to account for the differences. However, we haven't thoroughly
   // tested that instruction set as there is a dearth of producers and test

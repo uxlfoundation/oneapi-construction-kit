@@ -246,7 +246,7 @@ struct VectorType {
   /// @brief Construct from a std::vector of values.
   ///
   /// @param[in] buffer Vector of values to construct from.
-  VectorType(std::vector<value_type> const &buffer) {
+  VectorType(const std::vector<value_type> &buffer) {
     UCL_ASSERT(buffer.size() == N, "invalid vector size");
     std::copy(std::begin(buffer), std::end(buffer), std::begin(*this));
   }

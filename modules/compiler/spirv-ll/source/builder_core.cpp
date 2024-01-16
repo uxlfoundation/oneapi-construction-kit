@@ -2317,9 +2317,9 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
   }
   if (argTy->isVectorTy()) {
     auto *const elemTy = multi_llvm::getVectorElementType(argTy);
-    auto const opElem = module.getFromLLVMTy<OpCode>(elemTy);
-    auto const name = getScalarTypeName(elemTy, opElem);
-    auto const numElements =
+    const auto opElem = module.getFromLLVMTy<OpCode>(elemTy);
+    const auto name = getScalarTypeName(elemTy, opElem);
+    const auto numElements =
         std::to_string(multi_llvm::getVectorNumElements(argTy));
     return isBaseTyName
                ? name + " __attribute__((ext_vector_type(" + numElements + ")))"
@@ -5594,8 +5594,8 @@ llvm::Error Builder::create<OpControlBarrier>(const OpControlBarrier *op) {
   // The mux enumeration values for 'scope' and 'semantics' are identical to
   // the SPIR-V ones, so we can just pass operands straight through.
 
-  auto const wgBarrierName = "__mux_work_group_barrier";
-  auto const sgBarrierName = "__mux_sub_group_barrier";
+  const auto wgBarrierName = "__mux_work_group_barrier";
+  const auto sgBarrierName = "__mux_sub_group_barrier";
   // If it's constant (which is most likely is) emit the right barrier
   // directly.
   if (auto *exe_const = dyn_cast<llvm::ConstantInt>(execution)) {
@@ -5959,7 +5959,7 @@ llvm::Error Builder::create<OpPhi>(const OpPhi *op) {
   return llvm::Error::success();
 }
 
-void Builder::populatePhi(OpPhi const &op) {
+void Builder::populatePhi(const OpPhi &op) {
   llvm::Value *value = module.getValue(op.IdResult());
   SPIRV_LL_ASSERT_PTR(value);
   llvm::PHINode *phi = llvm::dyn_cast<llvm::PHINode>(value);

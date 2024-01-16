@@ -111,7 +111,7 @@ using NClamp = ExtInst<X, MINVAL, MAXVAL>;
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Round>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Round>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -130,7 +130,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Round>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450RoundEven>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::RoundEven>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -149,7 +149,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450RoundEven>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Trunc>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Trunc>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -168,7 +168,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Trunc>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FAbs>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FAbs>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -187,7 +187,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FAbs>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::SAbs>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -206,7 +206,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SAbs>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FSign>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FSign>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -225,7 +225,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FSign>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::SSign>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -271,7 +271,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SSign>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Floor>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Floor>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -290,7 +290,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Floor>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Ceil>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Ceil>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -309,7 +309,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Ceil>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fract>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Fract>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -343,7 +343,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fract>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Radians>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Radians>(opc);
 
   llvm::Value *degrees = module.getValue(op->degrees());
@@ -362,7 +362,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Radians>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Degrees>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Degrees>(opc);
 
   llvm::Value *radians = module.getValue(op->radians());
@@ -380,7 +380,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Degrees>(
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Sin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -398,7 +398,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sin>(OpExtInst const &opc) {
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Cos>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -416,7 +416,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cos>(OpExtInst const &opc) {
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Tan>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -435,7 +435,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tan>(OpExtInst const &opc) {
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Asin>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Asin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -454,7 +454,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Asin>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Acos>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Acos>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -473,7 +473,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Acos>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atan>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Atan>(opc);
 
   llvm::Value *yOverX = module.getValue(op->yOverX());
@@ -493,7 +493,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atan>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sinh>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Sinh>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -512,7 +512,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sinh>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cosh>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Cosh>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -531,7 +531,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cosh>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tanh>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Tanh>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -550,7 +550,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Tanh>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Asinh>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Asinh>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -569,7 +569,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Asinh>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Acosh>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Acosh>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -588,7 +588,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Acosh>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atanh>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Atanh>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -607,7 +607,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atanh>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atan2>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Atan2>(opc);
 
   llvm::Value *y = module.getValue(op->y());
@@ -628,7 +628,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Atan2>(
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Pow>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -649,7 +649,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Pow>(OpExtInst const &opc) {
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Exp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -667,7 +667,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp>(OpExtInst const &opc) {
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Log>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -686,7 +686,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log>(OpExtInst const &opc) {
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp2>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Exp2>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -705,7 +705,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Exp2>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log2>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Log2>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -724,7 +724,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Log2>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sqrt>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Sqrt>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -743,7 +743,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Sqrt>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InverseSqrt>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::InverseSqrt>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -762,7 +762,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InverseSqrt>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Determinant>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Determinant>(opc);
 
   // Builtin not yet implemented!
@@ -773,7 +773,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Determinant>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450MatrixInverse>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::MatrixInverse>(opc);
 
   // Builtin not yet implemented!
@@ -784,7 +784,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450MatrixInverse>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Modf>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Modf>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -806,7 +806,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Modf>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450ModfStruct>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FrexpStruct>(opc);
 
   auto *x = module.getValue(op->x());
@@ -844,7 +844,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450ModfStruct>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMin>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FMin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -866,7 +866,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMin>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UMin>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UMin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -888,7 +888,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UMin>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SMin>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::SMin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -910,7 +910,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SMin>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMax>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FMax>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -932,7 +932,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMax>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UMax>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UMax>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -954,7 +954,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UMax>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SMax>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::SMax>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -976,7 +976,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SMax>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FClamp>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1002,7 +1002,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FClamp>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UClamp>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1028,7 +1028,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UClamp>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SClamp>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::SClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1054,7 +1054,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SClamp>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMix>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FMix>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1080,7 +1080,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FMix>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450IMix>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::IMix>(opc);
 
   // Builtin not yet implemented!
@@ -1091,7 +1091,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450IMix>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Step>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Step>(opc);
 
   llvm::Value *edge = module.getValue(op->edge());
@@ -1113,7 +1113,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Step>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SmoothStep>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::SmoothStep>(opc);
 
   llvm::Value *edge0 = module.getValue(op->edge0());
@@ -1138,7 +1138,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450SmoothStep>(
 }
 
 template <>
-llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Fma>(opc);
 
   llvm::Value *a = module.getValue(op->a());
@@ -1165,7 +1165,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Fma>(OpExtInst const &opc) {
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Frexp>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Frexp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1200,7 +1200,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Frexp>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FrexpStruct>(opc);
 
   auto *x = module.getValue(op->x());
@@ -1244,7 +1244,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FrexpStruct>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Ldexp>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Ldexp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1270,7 +1270,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Ldexp>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm4x8>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::PackSnorm4x8>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1288,7 +1288,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm4x8>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm4x8>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::PackUnorm4x8>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1306,7 +1306,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm4x8>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm2x16>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::PackSnorm2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1324,7 +1324,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackSnorm2x16>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm2x16>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::PackUnorm2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1342,7 +1342,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackUnorm2x16>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackHalf2x16>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::PackHalf2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1360,7 +1360,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackHalf2x16>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackDouble2x32>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::PackDouble2x32>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1377,7 +1377,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450PackDouble2x32>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm2x16>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UnpackSnorm2x16>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1395,7 +1395,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm2x16>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm2x16>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UnpackUnorm2x16>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1413,7 +1413,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm2x16>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackHalf2x16>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UnpackHalf2x16>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1431,7 +1431,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackHalf2x16>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm4x8>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UnpackSnorm4x8>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1449,7 +1449,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackSnorm4x8>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm4x8>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UnpackUnorm4x8>(opc);
 
   llvm::Value *p = module.getValue(op->p());
@@ -1467,7 +1467,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackUnorm4x8>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackDouble2x32>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::UnpackDouble2x32>(opc);
 
   llvm::Value *v = module.getValue(op->v());
@@ -1484,7 +1484,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450UnpackDouble2x32>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Length>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Length>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1503,7 +1503,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Length>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Distance>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Distance>(opc);
 
   llvm::Value *p0 = module.getValue(op->p0());
@@ -1525,7 +1525,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Distance>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cross>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Cross>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1547,7 +1547,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Cross>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Normalize>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Normalize>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1566,7 +1566,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Normalize>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FaceForward>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FaceForward>(opc);
 
   llvm::Value *n = module.getValue(op->n());
@@ -1593,7 +1593,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FaceForward>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Reflect>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Reflect>(opc);
 
   llvm::Value *i = module.getValue(op->i());
@@ -1616,7 +1616,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Reflect>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Refract>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::Refract>(opc);
 
   llvm::Value *i = module.getValue(op->i());
@@ -1642,7 +1642,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Refract>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindILsb>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FindILsb>(opc);
 
   llvm::Value *value = module.getValue(op->value());
@@ -1661,7 +1661,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindILsb>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FindSMsb>(opc);
 
   llvm::Value *value = module.getValue(op->value());
@@ -1681,7 +1681,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindSMsb>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindUMsb>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::FindUMsb>(opc);
 
   llvm::Value *value = module.getValue(op->value());
@@ -1700,7 +1700,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450FindUMsb>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtCentroid>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::InterpolateAtCentroid>(opc);
 
   // Builtin not yet implemented!
@@ -1711,7 +1711,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtCentroid>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtSample>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::InterpolateAtSample>(opc);
 
   // Builtin not yet implemented!
@@ -1722,7 +1722,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtSample>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtOffset>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::InterpolateAtOffset>(opc);
 
   // Builtin not yet implemented!
@@ -1733,7 +1733,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450InterpolateAtOffset>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NMin>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::NMin>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1755,7 +1755,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NMin>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NMax>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::NMax>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1777,7 +1777,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NMax>(
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NClamp>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<GLSLstd450::NClamp>(opc);
 
   llvm::Value *x = module.getValue(op->x());
@@ -1805,7 +1805,7 @@ llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450NClamp>(
   case ExtInst:       \
     return create<ExtInst>(opc);
 
-llvm::Error spirv_ll::GLSLBuilder::create(OpExtInst const &opc) {
+llvm::Error spirv_ll::GLSLBuilder::create(const OpExtInst &opc) {
   switch (opc.Instruction()) {
     CASE(GLSLstd450Round)
     CASE(GLSLstd450RoundEven)

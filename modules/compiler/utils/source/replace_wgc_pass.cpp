@@ -514,7 +514,7 @@ void emitWorkGroupScanBody(Function &F,
                                      IsInclusive, WGC.IsLogical, BI);
   assert(SubScan && "Invalid subgroup scan");
 
-  bool const NeedsIdentityFix =
+  const bool NeedsIdentityFix =
       !IsInclusive &&
       (WGC.Recurrence == RecurKind::FAdd || WGC.Recurrence == RecurKind::FMin ||
        WGC.Recurrence == RecurKind::FMax);

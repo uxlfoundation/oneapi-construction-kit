@@ -122,7 +122,7 @@ class Reference1D {
   Reference1D() : Ref(nullptr), Type(Empty) {}
   /// @brief Copy constructor
   /// @param Other The reference to copy
-  Reference1D(Reference1D const &Other) : Ref(Other.Ref), Type(Other.Type) {}
+  Reference1D(const Reference1D &Other) : Ref(Other.Ref), Type(Other.Type) {}
   /// @brief Copy constructor
   /// @param Other The reference to copy
   Reference1D(Reference1D &Other) : Ref(Other.Ref), Type(Other.Type) {}
@@ -137,7 +137,7 @@ class Reference1D {
   /// @brief Copy assignment
   /// @param Other The reference to copy
   /// @return `*this`
-  Reference1D &operator=(Reference1D const &Other) {
+  Reference1D &operator=(const Reference1D &Other) {
     if (this != &Other) {
       Ref = Other.Ref;
       Type = Other.Type;

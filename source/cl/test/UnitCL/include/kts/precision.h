@@ -84,10 +84,10 @@ inline std::ostream &operator<<(std::ostream &out, const RoundingMode &mode) {
 template <typename T, typename Parameter>
 class NamedType {
  public:
-  explicit NamedType(T const &value) : value_(value) {}
+  explicit NamedType(const T &value) : value_(value) {}
   explicit NamedType(T &&value) : value_(std::move(value)) {}
   T &get() { return value_; }
-  T const &get() const { return value_; }
+  const T &get() const { return value_; }
 
   using WrappedT = T;
 

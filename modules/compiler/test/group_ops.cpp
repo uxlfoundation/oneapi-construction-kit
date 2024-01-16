@@ -395,7 +395,7 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
     // order as the group operations we generated earlier.
     unsigned GroupOpIdx = 0;
     for (auto &I : BB) {
-      auto const *CI = dyn_cast<CallInst>(&I);
+      const auto *CI = dyn_cast<CallInst>(&I);
       if (!CI) {
         continue;
       }

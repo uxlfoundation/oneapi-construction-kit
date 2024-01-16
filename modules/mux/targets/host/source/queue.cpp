@@ -125,7 +125,7 @@ void commandCopyBuffer(host::command_info_s *info) {
 
 void commandReadImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_read_image_s const &read = info->read_image_command;
+  const host::command_info_read_image_s &read = info->read_image_command;
 
   auto image = static_cast<host::image_s *>(read.image);
   const size_t origin[3] = {read.offset.x, read.offset.y, read.offset.z};
@@ -143,7 +143,7 @@ void commandReadImage(host::command_info_s *info) {
 
 void commandWriteImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_write_image_s const &write = info->write_image_command;
+  const host::command_info_write_image_s &write = info->write_image_command;
 
   auto image = static_cast<host::image_s *>(write.image);
   size_t origin[3] = {write.offset.x, write.offset.y, write.offset.z};
@@ -161,7 +161,7 @@ void commandWriteImage(host::command_info_s *info) {
 
 void commandFillImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_fill_image_s const &fill = info->fill_image_command;
+  const host::command_info_fill_image_s &fill = info->fill_image_command;
 
   auto image = static_cast<host::image_s *>(fill.image);
 
@@ -194,7 +194,7 @@ void commandCopyImage(host::command_info_s *info) {
 
 void commandCopyImageToBuffer(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_copy_image_to_buffer_s const &copy =
+  const host::command_info_copy_image_to_buffer_s &copy =
       info->copy_image_to_buffer_command;
 
   auto srcImage = static_cast<host::image_s *>(copy.src_image);
