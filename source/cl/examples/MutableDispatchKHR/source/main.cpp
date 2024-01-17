@@ -209,16 +209,11 @@ int main(const int argc, const char **argv) {
     // If not executing the first frame
     if (i != 0) {
       // Configure the mutable configuration to update the kernel arguments
-      const cl_mutable_dispatch_arg_khr arg_0{0, sizeof(cl_mem),
-                                              &input_A_buffer};
-      const cl_mutable_dispatch_arg_khr arg_1{1, sizeof(cl_mem),
-                                              &input_B_buffer};
-      const cl_mutable_dispatch_arg_khr arg_2{2, sizeof(cl_mem),
-                                              &output_buffer};
-      const cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
-      const cl_mutable_dispatch_config_khr dispatch_config{
-          CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
-          nullptr,
+      cl_mutable_dispatch_arg_khr arg_0{0, sizeof(cl_mem), &input_A_buffer};
+      cl_mutable_dispatch_arg_khr arg_1{1, sizeof(cl_mem), &input_B_buffer};
+      cl_mutable_dispatch_arg_khr arg_2{2, sizeof(cl_mem), &output_buffer};
+      cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
+      cl_mutable_dispatch_config_khr dispatch_config{
           command_handle,
           3 /* num_args */,
           0 /* num_svm_arg */,
@@ -230,12 +225,14 @@ int main(const int argc, const char **argv) {
           nullptr /* global_work_offset */,
           nullptr /* global_work_size */,
           nullptr /* local_work_size */};
-      const cl_mutable_base_config_khr mutable_config{
-          CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1,
-          &dispatch_config};
 
       // Update the command buffer with the mutable configuration
-      error = clUpdateMutableCommandsKHR(command_buffer, &mutable_config);
+      cl_uint num_configs = 1;
+      cl_command_buffer_update_type_khr config_types[1] = {
+          CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR};
+      const void *configs[1] = {&dispatch_config};
+      error = clUpdateMutableCommandsKHR(command_buffer, num_configs,
+                                         config_types, configs);
       CL_CHECK(error);
     }
 

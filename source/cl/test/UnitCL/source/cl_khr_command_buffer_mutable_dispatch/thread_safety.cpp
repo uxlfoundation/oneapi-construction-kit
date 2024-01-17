@@ -107,27 +107,18 @@ TEST_F(MutableDispatchThreadSafetyTest, UpdateInParallel) {
   auto update_input_value_and_enqueue = [&](size_t id) {
     const cl_int updated_input_value = id;
     // Create a mutable config.
-    const cl_mutable_dispatch_arg_khr arg{0, sizeof(cl_int),
-                                          &updated_input_value};
-    const cl_mutable_dispatch_config_khr dispatch_config{
-        CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
-        nullptr,
-        command_handle,
-        1,
-        0,
-        0,
-        0,
-        &arg,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr};
-    const cl_mutable_base_config_khr mutable_config{
-        CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1,
-        &dispatch_config};
+    cl_mutable_dispatch_arg_khr arg{0, sizeof(cl_int), &updated_input_value};
+    cl_mutable_dispatch_config_khr dispatch_config{
+        command_handle, 1,       0,       0,       0,      &arg,
+        nullptr,        nullptr, nullptr, nullptr, nullptr};
     // Update the nd range.
-    EXPECT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
+    cl_uint num_configs = 1;
+    cl_command_buffer_update_type_khr config_types[1] = {
+        CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR};
+    const void *configs[1] = {&dispatch_config};
+
+    EXPECT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, num_configs,
+                                              config_types, configs));
     EXPECT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                              nullptr, nullptr));
   };

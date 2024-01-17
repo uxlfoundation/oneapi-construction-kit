@@ -317,12 +317,12 @@ before the extension can be turned on by default in the oneAPI Construction Kit:
 * Event profiling is not implemented (see CA-3322).
 
 .. _cl_khr_command_buffer:
-  https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_Ext.html#cl_khr_command_buffer
+  https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#cl_khr_command_buffer
 
 Command Buffers: Mutable Dispatch - ``cl_khr_command_buffer_mutable_dispatch``
 ------------------------------------------------------------------------------
 
-oneAPI Construction Kit implements version 0.9.0 of the provisional
+oneAPI Construction Kit implements version 0.9.2 of the provisional
 `cl_khr_command_buffer_mutable_dispatch`_ extension.
 
 `cl_khr_command_buffer_mutable_dispatch`_  builds upon `cl_khr_command_buffer`_
@@ -330,7 +330,7 @@ to allow users to modify kernel execution commands between enqueues of a
 command-buffer.
 
 .. _cl_khr_command_buffer_mutable_dispatch:
-  https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_Ext.html#cl_khr_command_buffer_mutable_dispatch
+  https://registry.khronos.org/OpenCL/specs/3.0-unified/html/OpenCL_API.html#cl_khr_command_buffer_mutable_dispatch
 
 Extended Async Copies - ``cl_khr_extended_async_copies``
 ---------------------------------------------------------
