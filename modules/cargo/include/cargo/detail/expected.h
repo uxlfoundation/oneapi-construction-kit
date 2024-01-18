@@ -47,30 +47,30 @@ struct is_expected_impl : std::false_type {};
 template <class T, class E>
 struct is_expected_impl<expected<T, E>> : std::true_type {};
 template <class T>
-using is_expected = is_expected_impl<decay_t<T>>;
+using is_expected = is_expected_impl<std::decay_t<T>>;
 
 template <class T, class E, class U>
 using expected_enable_forward_value =
-    enable_if_t<std::is_constructible<T, U &&>::value &&
-                !std::is_same<decay_t<U>, in_place_t>::value &&
-                !std::is_same<expected<T, E>, decay_t<U>>::value &&
-                !std::is_same<unexpected<E>, decay_t<U>>::value>;
+    std::enable_if_t<std::is_constructible_v<T, U &&> &&
+                     !std::is_same_v<std::decay_t<U>, in_place_t> &&
+                     !std::is_same_v<expected<T, E>, std::decay_t<U>> &&
+                     !std::is_same_v<unexpected<E>, std::decay_t<U>>>;
 
 template <class T, class E, class U, class G, class UR, class GR>
 using expected_enable_from_other =
-    enable_if_t<std::is_constructible<T, UR>::value &&
-                std::is_constructible<E, GR>::value &&
-                !std::is_constructible<T, expected<U, G> &>::value &&
-                !std::is_constructible<T, expected<U, G> &&>::value &&
-                !std::is_constructible<T, const expected<U, G> &>::value &&
-                !std::is_constructible<T, const expected<U, G> &&>::value &&
-                !std::is_convertible<expected<U, G> &, T>::value &&
-                !std::is_convertible<expected<U, G> &&, T>::value &&
-                !std::is_convertible<const expected<U, G> &, T>::value &&
-                !std::is_convertible<const expected<U, G> &&, T>::value>;
+    std::enable_if_t<std::is_constructible_v<T, UR> &&
+                     std::is_constructible_v<E, GR> &&
+                     !std::is_constructible_v<T, expected<U, G> &> &&
+                     !std::is_constructible_v<T, expected<U, G> &&> &&
+                     !std::is_constructible_v<T, const expected<U, G> &> &&
+                     !std::is_constructible_v<T, const expected<U, G> &&> &&
+                     !std::is_convertible_v<expected<U, G> &, T> &&
+                     !std::is_convertible_v<expected<U, G> &&, T> &&
+                     !std::is_convertible_v<const expected<U, G> &, T> &&
+                     !std::is_convertible_v<const expected<U, G> &&, T>>;
 
 template <class T, class U>
-using is_void_or = conditional_t<std::is_void<T>::value, std::true_type, U>;
+using is_void_or = std::conditional_t<std::is_void_v<T>, std::true_type, U>;
 
 template <class T>
 using is_copy_constructible_or_void =
@@ -89,33 +89,33 @@ static constexpr no_init_t no_init{};
 // This specialization is for where neither `T` or `E` is trivially
 // destructible, so the destructors must be called on destruction of the
 // `expected`
-template <class T, class E, bool = std::is_trivially_destructible<T>::value,
-          bool = std::is_trivially_destructible<E>::value>
+template <class T, class E, bool = std::is_trivially_destructible_v<T>,
+          bool = std::is_trivially_destructible_v<E>>
 struct expected_storage_base {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
   template <
       class... Args,
-      enable_if_t<std::is_constructible<T, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, std::initializer_list<U> il,
                                   Args &&...args)
       : m_val(il, std::forward<Args>(args)...), m_has_val(true) {}
   template <
       class... Args,
-      enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<E, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args &&...args)
       : m_unexpect(std::forward<Args>(args)...), m_has_val(false) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args &&...args)
@@ -145,25 +145,25 @@ struct expected_storage_base<T, E, true, true> {
 
   template <
       class... Args,
-      enable_if_t<std::is_constructible<T, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, std::initializer_list<U> il,
                                   Args &&...args)
       : m_val(il, std::forward<Args>(args)...), m_has_val(true) {}
   template <
       class... Args,
-      enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<E, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args &&...args)
       : m_unexpect(std::forward<Args>(args)...), m_has_val(false) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args &&...args)
@@ -186,25 +186,25 @@ struct expected_storage_base<T, E, true, false> {
 
   template <
       class... Args,
-      enable_if_t<std::is_constructible<T, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, std::initializer_list<U> il,
                                   Args &&...args)
       : m_val(il, std::forward<Args>(args)...), m_has_val(true) {}
   template <
       class... Args,
-      enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<E, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args &&...args)
       : m_unexpect(std::forward<Args>(args)...), m_has_val(false) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args &&...args)
@@ -232,25 +232,25 @@ struct expected_storage_base<T, E, false, true> {
 
   template <
       class... Args,
-      enable_if_t<std::is_constructible<T, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                T, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr expected_storage_base(in_place_t, std::initializer_list<U> il,
                                   Args &&...args)
       : m_val(il, std::forward<Args>(args)...), m_has_val(true) {}
   template <
       class... Args,
-      enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<E, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args &&...args)
       : m_unexpect(std::forward<Args>(args)...), m_has_val(false) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args &&...args)
@@ -279,13 +279,13 @@ struct expected_storage_base<void, E, false, true> {
 
   template <
       class... Args,
-      enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<E, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args &&...args)
       : m_unexpect(std::forward<Args>(args)...), m_has_val(false) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args &&...args)
@@ -309,13 +309,13 @@ struct expected_storage_base<void, E, false, false> {
 
   template <
       class... Args,
-      enable_if_t<std::is_constructible<E, Args &&...>::value> * = nullptr>
+      std::enable_if_t<std::is_constructible_v<E, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t, Args &&...args)
       : m_unexpect(std::forward<Args>(args)...), m_has_val(false) {}
 
   template <class U, class... Args,
-            enable_if_t<std::is_constructible<E, std::initializer_list<U> &,
-                                              Args &&...>::value> * = nullptr>
+            std::enable_if_t<std::is_constructible_v<
+                E, std::initializer_list<U> &, Args &&...>> * = nullptr>
   constexpr explicit expected_storage_base(unexpect_t,
                                            std::initializer_list<U> il,
                                            Args &&...args)
@@ -463,8 +463,9 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 // This class manages conditionally having a trivial copy constructor
 // This specialization is for when T and E are trivially copy constructible
 template <class T, class E,
-          bool = is_void_or<T, is_trivially_copy_constructible<T>>::value &&
-                 is_trivially_copy_constructible<E>::value>
+          bool =
+              is_void_or<T, std::is_trivially_copy_constructible<T>>::value &&
+              std::is_trivially_copy_constructible_v<E>>
 struct expected_copy_base : expected_operations_base<T, E> {
   using expected_operations_base<T, E>::expected_operations_base;
 };
@@ -493,7 +494,7 @@ struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
 template <class T, class E,
           bool =
               is_void_or<T, std::is_trivially_move_constructible<T>>::value &&
-              std::is_trivially_move_constructible<E>::value>
+              std::is_trivially_move_constructible_v<E>>
 struct expected_move_base : expected_copy_base<T, E> {
   using expected_copy_base<T, E>::expected_copy_base;
 };
@@ -505,7 +506,7 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
   expected_move_base(const expected_move_base &rhs) = default;
 
   expected_move_base(expected_move_base &&rhs) noexcept(
-      std::is_nothrow_move_constructible<T>::value)
+      std::is_nothrow_move_constructible_v<T>)
       : expected_copy_base<T, E>(no_init) {
     if (rhs.has_value()) {
       this->construct_with(std::move(rhs));
@@ -521,12 +522,12 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
 template <
     class T, class E,
     bool =
-        is_void_or<T, conjunction<is_trivially_copy_assignable<T>,
-                                  is_trivially_copy_constructible<T>,
+        is_void_or<T, conjunction<std::is_trivially_copy_assignable<T>,
+                                  std::is_trivially_copy_constructible<T>,
                                   std::is_trivially_destructible<T>>>::value &&
-        is_trivially_copy_assignable<E>::value &&
-        is_trivially_copy_constructible<E>::value &&
-        std::is_trivially_destructible<E>::value>
+        std::is_trivially_copy_assignable_v<E> &&
+        std::is_trivially_copy_constructible_v<E> &&
+        std::is_trivially_destructible_v<E>>
 struct expected_copy_assign_base : expected_move_base<T, E> {
   using expected_move_base<T, E>::expected_move_base;
 };
@@ -554,9 +555,9 @@ template <
                T, conjunction<std::is_trivially_destructible<T>,
                               std::is_trivially_move_constructible<T>,
                               std::is_trivially_move_assignable<T>>>::value &&
-           std::is_trivially_destructible<E>::value &&
-           std::is_trivially_move_constructible<E>::value &&
-           std::is_trivially_move_assignable<E>::value>
+           std::is_trivially_destructible_v<E> &&
+           std::is_trivially_move_constructible_v<E> &&
+           std::is_trivially_move_assignable_v<E>>
 struct expected_move_assign_base : expected_copy_assign_base<T, E> {
   using expected_copy_assign_base<T, E>::expected_copy_assign_base;
 };
@@ -576,8 +577,8 @@ struct expected_move_assign_base<T, E, false>
 
   expected_move_assign_base &operator=(
       expected_move_assign_base
-          &&rhs) noexcept(std::is_nothrow_move_constructible<T>::value &&
-                          std::is_nothrow_move_assignable<T>::value) {
+          &&rhs) noexcept(std::is_nothrow_move_constructible_v<T> &&
+                          std::is_nothrow_move_assignable_v<T>) {
     this->assign(std::move(rhs));
     return *this;
   }
@@ -593,8 +594,7 @@ struct default_constructor_tag {
 // constructor if T is not default constructible.
 // This specialization is for when T is default constructible
 template <class T, class E,
-          bool Enable =
-              std::is_default_constructible<T>::value || std::is_void<T>::value>
+          bool Enable = std::is_default_constructible_v<T> || std::is_void_v<T>>
 struct expected_default_ctor_base {
   constexpr expected_default_ctor_base() noexcept = default;
   constexpr expected_default_ctor_base(

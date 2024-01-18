@@ -311,36 +311,36 @@ void {{cookiecutter.target_name.capitalize()}}PassMachinery::registerPassCallbac
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
          llvm::ArrayRef<llvm::PassBuilder::PipelineElement>) {
-        (void) Name;
-        (void) PM;
-#define MODULE_PASS(NAME, CREATE_PASS) \
-  if (Name == NAME) {                  \
-    PM.addPass(CREATE_PASS);           \
-    return true;                       \
+        (void)Name;
+        (void)PM;
+#define MODULE_PASS(NAME, CREATE_PASS)   \
+  if (Name == NAME) {                    \
+    PM.addPass(CREATE_PASS);             \
+    return true;                         \
   }
 
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
-  if (utils::checkParametrizedPassName(Name, NAME)) {                     \
-    auto Params = utils::parsePassParameters(PARSER, Name, NAME);         \
-    if (!Params) {                                                        \
-      errs() << toString(Params.takeError()) << "\n";                     \
-      return false;                                                       \
-    }                                                                     \
-    PM.addPass(CREATE_PASS(Params.get()));                                \
-    return true;                                                          \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)   \
+  if (utils::checkParametrizedPassName(Name, NAME)) {                       \
+    auto Params = utils::parsePassParameters(PARSER, Name, NAME);           \
+    if (!Params) {                                                          \
+      errs() << toString(Params.takeError()) << "\n";                       \
+      return false;                                                         \
+    }                                                                       \
+    PM.addPass(CREATE_PASS(Params.get()));                                  \
+    return true;                                                            \
   }
 
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                             \
-  if (Name == "require<" NAME ">") {                                   \
-    PM.addPass(RequireAnalysisPass<                                    \
-               std::remove_reference<decltype(CREATE_PASS)>::type,     \
-               llvm::Module>());                                       \
-    return true;                                                       \
-  }                                                                    \
-  if (Name == "invalidate<" NAME ">") {                                \
-    PM.addPass(InvalidateAnalysisPass<                                 \
-               std::remove_reference<decltype(CREATE_PASS)>::type>()); \
-    return true;                                                       \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                  \
+  if (Name == "require<" NAME ">") {                                        \
+    PM.addPass(                                                             \
+        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>, \
+                            llvm::Module>());                               \
+    return true;                                                            \
+  }                                                                         \
+  if (Name == "invalidate<" NAME ">") {                                     \
+    PM.addPass(InvalidateAnalysisPass<                                      \
+               std::remove_reference_t<decltype(CREATE_PASS)>>());          \
+    return true;                                                            \
   }
 
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                \

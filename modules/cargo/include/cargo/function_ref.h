@@ -58,16 +58,16 @@ class function_ref<R(Args...)> {
   /// Constructs a `function_ref` referring to `f`.
   ///
   /// \synopsis template <typename F> constexpr function_ref(F &&f) noexcept
-  template <typename F,
-            enable_if_t<!std::is_same<decay_t<F>, function_ref>::value &&
-                        is_invocable_r<R, F &&, Args...>::value> * = nullptr>
+  template <
+      typename F,
+      std::enable_if_t<!std::is_same_v<std::decay_t<F>, function_ref> &&
+                       is_invocable_r<R, F &&, Args...>::value> * = nullptr>
   constexpr function_ref(F &&f) noexcept
       : obj_(const_cast<void *>(
             reinterpret_cast<const void *>(std::addressof(f)))) {
     callback_ = [](void *obj, Args... args) -> R {
-      return cargo::invoke(
-          *reinterpret_cast<typename std::add_pointer<F>::type>(obj),
-          std::forward<Args>(args)...);
+      return cargo::invoke(*reinterpret_cast<std::add_pointer_t<F>>(obj),
+                           std::forward<Args>(args)...);
     };
   }
 
@@ -79,14 +79,14 @@ class function_ref<R(Args...)> {
   ///
   /// \synopsis template <typename F> constexpr function_ref &operator=(F &&f)
   /// noexcept;
-  template <typename F,
-            enable_if_t<is_invocable_r<R, F &&, Args...>::value> * = nullptr>
+  template <
+      typename F,
+      std::enable_if_t<is_invocable_r<R, F &&, Args...>::value> * = nullptr>
   constexpr function_ref<R(Args...)> &operator=(F &&f) noexcept {
     obj_ = reinterpret_cast<void *>(std::addressof(f));
     callback_ = [](void *obj, Args... args) {
-      return cargo::invoke(
-          *reinterpret_cast<typename std::add_pointer<F>::type>(obj),
-          std::forward<Args>(args)...);
+      return cargo::invoke(*reinterpret_cast<std::add_pointer_t<F>>(obj),
+                           std::forward<Args>(args)...);
     };
 
     return *this;

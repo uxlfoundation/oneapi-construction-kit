@@ -85,7 +85,7 @@ class OpCode {
 
 template <class Op>
 inline bool isa(const OpCode *op) {
-  static_assert(std::is_base_of<OpCode, Op>::value, "invalid OpCode cast");
+  static_assert(std::is_base_of_v<OpCode, Op>, "invalid OpCode cast");
   return Op::ClassCode == op->code;
 }
 

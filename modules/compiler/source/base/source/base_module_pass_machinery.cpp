@@ -493,17 +493,17 @@ void BaseModulePassMachinery::registerPassCallbacks() {
     return true;                                                            \
   }
 
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                             \
-  if (Name == "require<" NAME ">") {                                   \
-    PM.addPass(RequireAnalysisPass<                                    \
-               std::remove_reference<decltype(CREATE_PASS)>::type,     \
-               llvm::Module>());                                       \
-    return true;                                                       \
-  }                                                                    \
-  if (Name == "invalidate<" NAME ">") {                                \
-    PM.addPass(InvalidateAnalysisPass<                                 \
-               std::remove_reference<decltype(CREATE_PASS)>::type>()); \
-    return true;                                                       \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                  \
+  if (Name == "require<" NAME ">") {                                        \
+    PM.addPass(                                                             \
+        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>, \
+                            llvm::Module>());                               \
+    return true;                                                            \
+  }                                                                         \
+  if (Name == "invalidate<" NAME ">") {                                     \
+    PM.addPass(InvalidateAnalysisPass<                                      \
+               std::remove_reference_t<decltype(CREATE_PASS)>>());          \
+    return true;                                                            \
   }
 
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                \

@@ -308,7 +308,7 @@ TEST(array_view, as_std_vector_convertible_type) {
   std::vector<int> v{12, 0, 15, 16, 14, 13};
   cargo::array_view<int> av(v);
   auto v2(cargo::as<std::vector<size_t>>(av));
-  static_assert(std::is_same<decltype(v2)::value_type, size_t>::value,
+  static_assert(std::is_same_v<decltype(v2)::value_type, size_t>,
                 "Deduction failed");
   ASSERT_TRUE(v2[0] == 12 && v2[2] == 15 && v2[5] == 13);
 }

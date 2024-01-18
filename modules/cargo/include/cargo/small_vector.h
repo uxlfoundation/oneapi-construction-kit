@@ -74,7 +74,7 @@ namespace cargo {
 /// @tparam N Capacity of the embedded storage.
 template <class T, size_t N, class A = mallocator<T>>
 class small_vector {
-  using storage_type = aligned_storage_t<sizeof(T), alignof(T)>;
+  using storage_type = std::aligned_storage_t<sizeof(T), alignof(T)>;
 
  public:
   using value_type = T;
@@ -220,8 +220,8 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class InputIterator>
-  [[nodiscard]] enable_if_t<is_input_iterator<InputIterator>::value,
-                            cargo::result>
+  [[nodiscard]] std::enable_if_t<is_input_iterator<InputIterator>::value,
+                                 cargo::result>
   assign(InputIterator first, InputIterator last) {
     erase(Begin, End);
     if (auto error = insert(Begin, first, last).error()) {
@@ -484,9 +484,9 @@ class small_vector {
   /// @return Returns iterator at the inserted element, or `cargo::bad_alloc` on
   /// allocation failure.
   template <typename VT = value_type>
-  [[nodiscard]] cargo::enable_if_t<std::is_copy_assignable<VT>::value &&
-                                       std::is_copy_constructible<VT>::value,
-                                   error_or<iterator>>
+  [[nodiscard]] std::enable_if_t<std::is_copy_assignable_v<VT> &&
+                                     std::is_copy_constructible_v<VT>,
+                                 error_or<iterator>>
   insert(const_iterator pos, const_reference value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -510,9 +510,9 @@ class small_vector {
   /// @return Returns iterator at the inserted element, or `cargo::bad_alloc` on
   /// allocation failure.
   template <typename VT = value_type>
-  [[nodiscard]] cargo::enable_if_t<std::is_move_assignable<VT>::value &&
-                                       std::is_move_constructible<VT>::value,
-                                   error_or<iterator>>
+  [[nodiscard]] std::enable_if_t<std::is_move_assignable_v<VT> &&
+                                     std::is_move_constructible_v<VT>,
+                                 error_or<iterator>>
   insert(const_iterator pos, value_type &&value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -537,9 +537,9 @@ class small_vector {
   /// @return Returns iterator pointing to the first element inserted, or
   /// `cargo::bad_alloc` on allocation failure.
   template <typename VT = value_type>
-  [[nodiscard]] cargo::enable_if_t<std::is_copy_assignable<VT>::value &&
-                                       std::is_copy_constructible<VT>::value,
-                                   error_or<iterator>>
+  [[nodiscard]] std::enable_if_t<std::is_copy_assignable_v<VT> &&
+                                     std::is_copy_constructible_v<VT>,
+                                 error_or<iterator>>
   insert(const_iterator pos, size_type count, const_reference value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -566,10 +566,10 @@ class small_vector {
   /// @return Returns iterator pointing to the first element inserted, or
   /// `cargo::bad_alloc` on allocation failure.
   template <typename InputIterator, typename VT = value_type>
-  [[nodiscard]] enable_if_t<is_input_iterator<InputIterator>::value &&
-                                std::is_move_constructible<VT>::value &&
-                                std::is_move_assignable<VT>::value,
-                            error_or<iterator>>
+  [[nodiscard]] std::enable_if_t<is_input_iterator<InputIterator>::value &&
+                                     std::is_move_constructible_v<VT> &&
+                                     std::is_move_assignable_v<VT>,
+                                 error_or<iterator>>
   insert(const_iterator pos, InputIterator first, InputIterator last) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -595,9 +595,9 @@ class small_vector {
   /// @return Returns iterator pointing to the first element inserted, or
   /// `cargo::bad_alloc` on allocation failure.
   template <typename VT = value_type>
-  [[nodiscard]] cargo::enable_if_t<std::is_move_assignable<VT>::value &&
-                                       std::is_move_constructible<VT>::value,
-                                   error_or<iterator>>
+  [[nodiscard]] std::enable_if_t<std::is_move_assignable_v<VT> &&
+                                     std::is_move_constructible_v<VT>,
+                                 error_or<iterator>>
   insert(const_iterator pos, std::initializer_list<VT> list) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
     size_type index = pos - Begin;
@@ -679,8 +679,8 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class ValueType = value_type>
-  [[nodiscard]] cargo::enable_if_t<std::is_copy_constructible<ValueType>::value,
-                                   cargo::result>
+  [[nodiscard]] std::enable_if_t<std::is_copy_constructible_v<ValueType>,
+                                 cargo::result>
   push_back(const_reference value) {
     if (auto error = extend(1)) {
       return error;
@@ -699,8 +699,8 @@ class small_vector {
   /// @return Returns `cargo::bad_alloc` on allocation failure, `cargo::success`
   /// otherwise.
   template <class ValueType = value_type>
-  [[nodiscard]] cargo::enable_if_t<std::is_move_constructible<ValueType>::value,
-                                   cargo::result>
+  [[nodiscard]] std::enable_if_t<std::is_move_constructible_v<ValueType>,
+                                 cargo::result>
   push_back(value_type &&value) {
     if (auto error = extend(1)) {
       return error;
@@ -851,15 +851,15 @@ class small_vector {
 
   // use move if possible, copy otherwise
   template <class Iterator = iterator>
-  enable_if_t<std::is_move_constructible<
-      typename std::iterator_traits<Iterator>::value_type>::value>
+  std::enable_if_t<std::is_move_constructible_v<
+      typename std::iterator_traits<Iterator>::value_type>>
   move_or_copy(Iterator first, Iterator last, Iterator dest) {
     cargo::uninitialized_move(first, last, dest);
   }
 
   template <class Iterator = iterator>
-  enable_if_t<!std::is_move_constructible<
-      typename std::iterator_traits<Iterator>::value_type>::value>
+  std::enable_if_t<!std::is_move_constructible_v<
+      typename std::iterator_traits<Iterator>::value_type>>
   move_or_copy(Iterator first, Iterator last, Iterator dest) {
     std::uninitialized_copy(first, last, dest);
   }

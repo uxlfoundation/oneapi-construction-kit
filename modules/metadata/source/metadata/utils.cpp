@@ -152,7 +152,7 @@ namespace {
 /// @tparam T The specific integral type.
 /// @param val The value to be serialized.
 /// @param output The output byte-array to which the bytes are written.
-template <class T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+template <class T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 void serialize_int(T val, std::vector<uint8_t> &output, uint8_t endianness) {
   T out_val = read_value<T>(reinterpret_cast<uint8_t *>(&val), endianness);
   auto width = sizeof(T);

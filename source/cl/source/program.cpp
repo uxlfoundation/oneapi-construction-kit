@@ -1354,16 +1354,16 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
   OCL_CHECK(!param_value && !param_value_size_ret, return CL_INVALID_VALUE);
 
-#define PROGRAM_INFO_CASE(ENUM, VALUE)                                        \
-  case ENUM: {                                                                \
-    const size_t typeSize = sizeof(VALUE);                                    \
-    OCL_CHECK(param_value && (param_value_size < typeSize),                   \
-              return CL_INVALID_VALUE);                                       \
-    if (param_value) {                                                        \
-      *static_cast<std::remove_const<decltype(VALUE)>::type *>(param_value) = \
-          VALUE;                                                              \
-    }                                                                         \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                      \
+#define PROGRAM_INFO_CASE(ENUM, VALUE)                                    \
+  case ENUM: {                                                            \
+    const size_t typeSize = sizeof(VALUE);                                \
+    OCL_CHECK(param_value && (param_value_size < typeSize),               \
+              return CL_INVALID_VALUE);                                   \
+    if (param_value) {                                                    \
+      *static_cast<std::remove_const_t<decltype(VALUE)> *>(param_value) = \
+          VALUE;                                                          \
+    }                                                                     \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                  \
   } break
 
 #define PROGRAM_INFO_CASE_WITH_TYPE(ENUM, VALUE, TYPE)      \

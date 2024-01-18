@@ -210,8 +210,8 @@ inline bool operator>=(const ScalarType<T, Tag> &left,
 template <class T, size_t N, class Tag>
 struct VectorType {
   using cl_type = T;
-  using value_type = typename std::remove_reference<
-      decltype(std::declval<cl_type>().s[0])>::type;
+  using value_type =
+      std::remove_reference_t<decltype(std::declval<cl_type>().s[0])>;
   using reference = value_type &;
   using const_reference = const value_type &;
   using pointer = value_type *;
