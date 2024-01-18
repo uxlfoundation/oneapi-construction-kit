@@ -236,7 +236,7 @@ static bool loadKernelAPIHeader(clang::CompilerInstance &compiler,
   // Jump to the place where the information about the builtins header is
   // stored inside the PCH file.
   llvm::BitstreamCursor &Cursor = moduleFile->InputFilesCursor;
-  clang::SavedStreamPosition SavedPosition(Cursor);
+  const clang::SavedStreamPosition SavedPosition(Cursor);
   uint64_t Base = 0;
 #if LLVM_VERSION_GREATER_EQUAL(18, 0)
   // LLVM 18 introduces a new offset that should be included
@@ -262,18 +262,18 @@ static bool loadKernelAPIHeader(clang::CompilerInstance &compiler,
   if (ExpectCode.takeError()) {
     return false;
   }
-  unsigned Code = *ExpectCode;
+  const unsigned Code = *ExpectCode;
   auto ExpectResult = Cursor.readRecord(Code, Record, &Filename);
   if (ExpectResult.takeError()) {
     return false;
   }
-  unsigned Result = *ExpectResult;
+  const unsigned Result = *ExpectResult;
   if (static_cast<clang::serialization::InputFileRecordTypes>(Result) !=
       clang::serialization::INPUT_FILE) {
     return false;
   }
-  off_t StoredSize = static_cast<off_t>(Record[1]);
-  time_t StoredTime = static_cast<time_t>(Record[2]);
+  const off_t StoredSize = static_cast<off_t>(Record[1]);
+  const time_t StoredTime = static_cast<time_t>(Record[2]);
 
   // Retrieve the builtins header and checks that the size matches.
   auto header = builtins::get_api_src_file();
@@ -387,13 +387,13 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
   // -cl-strict-aliasing is deprecated in OpenCL 1.1, so accept the argument,
   // but do nothing with the result (i.e. do not record it in options).
   bool cl_strict_aliasing = false;
-  cargo::string_view spir_std;
-  cargo::string_view x;
+  const cargo::string_view spir_std;
+  const cargo::string_view x;
 
   cargo::string_view cl_std;
   cargo::string_view cl_vec;
   cargo::string_view cl_wfv;
-  cargo::string_view cl_dma;
+  const cargo::string_view cl_dma;
   cargo::string_view source;
 
   if (parser.add_argument({"-create-library", create_library})) {
@@ -518,7 +518,8 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
         for (size_t i = 0; i < wgs_dims.size(); i++) {
           std::string wgs_dim_string(wgs_dims[i].begin(), wgs_dims[i].end());
           char *endptr;
-          int64_t local_size = std::strtol(wgs_dim_string.data(), &endptr, 10);
+          const int64_t local_size =
+              std::strtol(wgs_dim_string.data(), &endptr, 10);
           // Fail if we got a dodgy value or a non-number character.
           if (endptr != wgs_dim_string.data() + wgs_dim_string.size() ||
               local_size < 1) {
@@ -768,8 +769,8 @@ llvm::ModulePassManager BaseModule::getEarlySPIRVPasses() {
   pm.addPass(compiler::utils::SimpleCallbackPass([](llvm::Module &m) {
     if (!m.getNamedMetadata("opencl.ocl.version")) {
       auto *const ocl_ver = m.getOrInsertNamedMetadata("opencl.ocl.version");
-      unsigned major = 3;
-      unsigned minor = 0;
+      const unsigned major = 3;
+      const unsigned minor = 0;
       llvm::Metadata *values[2] = {
           llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(
               llvm::Type::getInt32Ty(m.getContext()), major)),
@@ -798,7 +799,7 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
     cargo::array_view<const std::uint32_t> buffer,
     const spirv::DeviceInfo &spirv_device_info,
     cargo::optional<const spirv::SpecializationInfo &> spirv_spec_info) {
-  std::lock_guard<compiler::BaseContext> lock(context);
+  const std::lock_guard<compiler::BaseContext> lock(context);
 
   spirv::ModuleInfo module_info;
 
@@ -1229,9 +1230,9 @@ Result BaseModule::setOpenCLInstanceDefaults(
   auto &lang_opts = instance.getLangOpts();
   auto &pp_opts = instance.getPreprocessorOpts();
 
-  clang::LangStandard::Kind standard = setClangOpenCLStandard(lang_opts);
+  const clang::LangStandard::Kind standard = setClangOpenCLStandard(lang_opts);
 
-  llvm::Triple triple(spir_triple);
+  const llvm::Triple triple(spir_triple);
   clang::LangOptions::setLangDefaults(lang_opts, OpenCLInputKind, triple,
                                       pp_opts.Includes, standard);
   setDefaultOpenCLLangOpts(lang_opts);
@@ -1270,8 +1271,9 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
 
   auto addIncludeFile = [&](const std::string &name, const void *data,
                             const size_t size) {
-    clang::FileEntryRef entry = instance.getFileManager().getVirtualFileRef(
-        "include" PATH_SEPARATOR + name, size, 0);
+    const clang::FileEntryRef entry =
+        instance.getFileManager().getVirtualFileRef(
+            "include" PATH_SEPARATOR + name, size, 0);
     std::unique_ptr<llvm::MemoryBuffer> buffer{
         new BakedMemoryBuffer(data, size)};
     instance.getSourceManager().overrideFileContents(entry, std::move(buffer));
@@ -1337,20 +1339,21 @@ void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance) {
         "to load precompiled header.");
   }
 
-  ScopedDiagnosticHandler handler(*this);
+  const ScopedDiagnosticHandler handler(*this);
 
   // Load the builtins header as a virtual file. This is required by Clang which
   // needs to access the contents of the header even when using PCH files.
   clang::serialization::ModuleFile *moduleFile =
       reader->getModuleManager().lookupByFileName(builtinsName);
-  bool builtinsLoaded = loadKernelAPIHeader(instance, moduleFile);
+  const bool builtinsLoaded = loadKernelAPIHeader(instance, moduleFile);
   if (!builtinsLoaded) {
     CPL_ABORT(
         "BaseModule::loadBuiltinsPCH. Error compiling program: unable "
         "to load builtins header.");
   }
 
-  llvm::IntrusiveRefCntPtr<clang::ExternalASTSource> pchAST(reader.release());
+  const llvm::IntrusiveRefCntPtr<clang::ExternalASTSource> pchAST(
+      reader.release());
   instance.getASTContext().setExternalSource(pchAST);
 }
 
@@ -1401,7 +1404,7 @@ Result BaseModule::compileOpenCLC(
 
   // Now run the passes we skipped by enabling the DisableLLVMPasses option
   // earlier.
-  std::lock_guard<compiler::BaseContext> guard(context);
+  const std::lock_guard<compiler::BaseContext> guard(context);
   runOpenCLFrontendPipeline(instance.getCodeGenOpts(), getEarlyOpenCLCPasses());
 
   return compiler::Result::SUCCESS;
@@ -1412,7 +1415,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
     cargo::string_view source_sv,
     cargo::array_view<compiler::InputHeader> input_headers,
     uint32_t *num_errors, ModuleState *new_state) {
-  llvm::StringRef source{source_sv.data(), source_sv.size()};
+  const llvm::StringRef source{source_sv.data(), source_sv.size()};
 
   MacroDefVec macro_defs;
   OpenCLOptVec opencl_opts;
@@ -1432,9 +1435,11 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
   // TODO(CA-608): Allow developers to inject LLVM options for debugging at
   // this point, formerly called OCL_LLVM_DEBUG was remove due to lack of use.
 
-  std::string dbg_filename;
 #ifdef CA_ENABLE_DEBUG_SUPPORT
-  dbg_filename = debugDumpKernelSource(source, options.definitions);
+  const std::string dbg_filename =
+      debugDumpKernelSource(source, options.definitions);
+#else
+  const std::string dbg_filename;
 #endif  // CA_ENABLE_DEBUG_SUPPORT
 
   instance.createDiagnostics(
@@ -1450,7 +1455,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
                                            opencl_opts, input_headers);
 
   // Now we're actually going to start doing work, so need to lock LLVMContext.
-  std::lock_guard<compiler::BaseContext> guard(context);
+  const std::lock_guard<compiler::BaseContext> guard(context);
 
   clang::EmitLLVMOnlyAction action(&target.getLLVMContext());
 
@@ -1458,7 +1463,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
   {
     // BeginSourceFile accesses LLVM global variables: LLVMTimePassesEnabled
     // and LLVMTimePassesPerRun.
-    std::lock_guard<std::mutex> globalLock(
+    const std::lock_guard<std::mutex> globalLock(
         compiler::utils::getLLVMGlobalMutex());
     if (!action.BeginSourceFile(instance, kernelFile)) {
       return nullptr;
@@ -1478,7 +1483,8 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
     // this did not seem to matter, on AArch64 it caused crashes due to double
     // free's within a std::string's destructor.  So, we lock globally before
     // asking Clang to process this source file.
-    std::lock_guard<std::mutex> guard(compiler::utils::getLLVMGlobalMutex());
+    const std::lock_guard<std::mutex> guard(
+        compiler::utils::getLLVMGlobalMutex());
     if (action.Execute()) {
       return nullptr;
     }
@@ -1489,7 +1495,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
       instance.getDiagnostics().getClient();
   consumer->finish();
 
-  uint32_t errs = consumer->getNumErrors();
+  const uint32_t errs = consumer->getNumErrors();
   if (num_errors) {
     *num_errors = errs;
   }
@@ -1520,7 +1526,7 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
   std::unique_ptr<llvm::Module> module;
 
   // We'll need to lock the LLVMContext for the whole function.
-  std::lock_guard<compiler::BaseContext> guard(context);
+  const std::lock_guard<compiler::BaseContext> guard(context);
 
   auto filter_func = [](const llvm::DiagnosticInfo &DI) {
     switch (DI.getSeverity()) {
@@ -1531,7 +1537,7 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
         return true;
     }
   };
-  ScopedDiagnosticHandler handler(*this, filter_func);
+  const ScopedDiagnosticHandler handler(*this, filter_func);
 
   if (ModuleState::COMPILED_OBJECT == state) {
     module = llvm::CloneModule(*this->llvm_module);
@@ -1636,11 +1642,12 @@ Result BaseModule::finalize(
     std::vector<builtins::printf::descriptor> &printf_calls) {
   // Lock the context, this is necessary due to analysis/pass managers being
   // owned by the LLVMContext and we are making heavy use of both below.
-  std::lock_guard<compiler::BaseContext> contextLock(context);
+  const std::lock_guard<compiler::BaseContext> contextLock(context);
   // Numerous things below touch LLVM's global state, in particular
   // retriggering command-line option parsing at various points. Ensure we
   // avoid data races by locking the LLVM global mutex.
-  std::lock_guard<std::mutex> globalLock(compiler::utils::getLLVMGlobalMutex());
+  const std::lock_guard<std::mutex> globalLock(
+      compiler::utils::getLLVMGlobalMutex());
 
   if (!llvm_module) {
     CPL_ABORT(
@@ -1673,7 +1680,7 @@ Result BaseModule::finalize(
                                        llvm::Module>());
 
   if (auto *target_machine = pass_mach->getTM()) {
-    std::string triple = target_machine->getTargetTriple().normalize();
+    const std::string triple = target_machine->getTargetTriple().normalize();
     auto DL = target_machine->createDataLayout();
     pm.addPass(
         compiler::utils::SimpleCallbackPass([triple, DL](llvm::Module &m) {
@@ -1685,7 +1692,7 @@ Result BaseModule::finalize(
   pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());
 
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
-  compiler::utils::ReplaceTargetExtTysOptions RTETOpts;
+  const compiler::utils::ReplaceTargetExtTysOptions RTETOpts;
   pm.addPass(compiler::utils::ReplaceTargetExtTysPass(RTETOpts));
 #endif
 
@@ -1782,10 +1789,10 @@ Result BaseModule::finalize(
     pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
   }
 
-  ScopedDiagnosticHandler handler(*this);
+  const ScopedDiagnosticHandler handler(*this);
   /// Set up an error handler to redirect fatal errors to the build log.
-  llvm::ScopedFatalErrorHandler error_handler(BaseModule::llvmFatalErrorHandler,
-                                              this);
+  const llvm::ScopedFatalErrorHandler error_handler(
+      BaseModule::llvmFatalErrorHandler, this);
 
   // We need to clone the LLVM module as LLVM does not preserve the source
   // module during linking and the module can be used multiple times.
@@ -1809,7 +1816,8 @@ Result BaseModule::finalize(
 
   llvm::CrashRecoveryContext CRC;
   llvm::CrashRecoveryContext::Enable();
-  bool crashed = !CRC.RunSafely([&] { pm.run(*clone, pass_mach->getMAM()); });
+  const bool crashed =
+      !CRC.RunSafely([&] { pm.run(*clone, pass_mach->getMAM()); });
   llvm::CrashRecoveryContext::Disable();
 
   // Check if we've accumulated any errors
@@ -1830,7 +1838,7 @@ Kernel *BaseModule::getKernel(const std::string &name) {
   }
 
   // Lookup or create kernel.
-  std::lock_guard<std::mutex> guard(kernel_mutex);
+  const std::lock_guard<std::mutex> guard(kernel_mutex);
 
   if (kernel_map.count(name)) {
     return kernel_map[name].get();
@@ -1870,7 +1878,7 @@ std::size_t BaseModule::size() {
   } stream;
 
   {
-    std::lock_guard<compiler::BaseContext> guard(context);
+    const std::lock_guard<compiler::BaseContext> guard(context);
     llvm::WriteBitcodeToFile(*llvm_module, stream);
   }
   stream.flush();
@@ -1911,7 +1919,7 @@ std::size_t BaseModule::serialize(std::uint8_t *output_buffer) {
   } stream(reinterpret_cast<char *>(output_buffer));
 
   {
-    std::lock_guard<compiler::BaseContext> guard(context);
+    const std::lock_guard<compiler::BaseContext> guard(context);
     llvm::WriteBitcodeToFile(*llvm_module, stream);
   }
   stream.flush();
@@ -1922,8 +1930,8 @@ std::size_t BaseModule::serialize(std::uint8_t *output_buffer) {
 }
 
 bool BaseModule::deserialize(cargo::array_view<const std::uint8_t> buffer) {
-  std::lock_guard<compiler::BaseContext> guard(context);
-  ScopedDiagnosticHandler handler(*this);
+  const std::lock_guard<compiler::BaseContext> guard(context);
+  const ScopedDiagnosticHandler handler(*this);
 
   // If there's nothing to deserialize, that implies that the module is empty.
   if (buffer.empty()) {
@@ -1937,8 +1945,8 @@ bool BaseModule::deserialize(cargo::array_view<const std::uint8_t> buffer) {
   buffer_read_ptr += sizeof(state);
 
   // Deserialize the LLVM module.
-  std::ptrdiff_t header_size = buffer_read_ptr - buffer.data();
-  DeserializeMemoryBuffer memoryBuffer(
+  const std::ptrdiff_t header_size = buffer_read_ptr - buffer.data();
+  const DeserializeMemoryBuffer memoryBuffer(
       llvm::StringRef(reinterpret_cast<const char *>(buffer_read_ptr),
                       buffer.size() - header_size));
   auto errorOrModule(llvm::parseBitcodeFile(memoryBuffer.getMemBufferRef(),
@@ -2080,7 +2088,7 @@ void BaseModule::initializePassMachineryForFrontend(
 
   // Register the target library analysis directly and give it a customized
   // preset TLI.
-  llvm::Triple TT = llvm::Triple(llvm_module->getTargetTriple());
+  const llvm::Triple TT = llvm::Triple(llvm_module->getTargetTriple());
   auto TLII = llvm::TargetLibraryInfoImpl(TT);
 
   // getVecLib()'s return type changed in LLVM 18.

@@ -46,8 +46,8 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
     auto current = properties;
     cl_mem_properties_intel seen = 0;
     do {
-      cl_mem_properties_intel property = current[0];
-      cl_mem_properties_intel value = current[1];
+      const cl_mem_properties_intel property = current[0];
+      const cl_mem_properties_intel value = current[1];
       switch (property) {
         case CL_MEM_ALLOC_FLAGS_INTEL: {
           if (0 == (seen & CL_MEM_ALLOC_FLAGS_INTEL)) {
@@ -196,7 +196,7 @@ allocation_info::~allocation_info() {
 }
 
 mux_result_t allocation_info::record_event(cl_event event) {
-  std::unique_lock<std::mutex> guard(this->mutex);
+  const std::unique_lock<std::mutex> guard(this->mutex);
 
   cl::retainInternal(event);
   return queued_commands.push_back(event);
@@ -265,7 +265,7 @@ host_allocation_info::create(cl_context context,
   OCL_CHECK(nullptr == usm_alloc,
             return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
-  cl_int error = usm_alloc->allocate(alignment);
+  const cl_int error = usm_alloc->allocate(alignment);
   OCL_CHECK(error != CL_SUCCESS, return cargo::make_unexpected(error));
 
   usm_alloc->alloc_flags = alloc_properties.value();
@@ -378,7 +378,7 @@ device_allocation_info::create(cl_context context, cl_device_id device,
       new (std::nothrow) device_allocation_info(context, device, size));
   OCL_CHECK(!usm_alloc, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
-  cl_int error = usm_alloc->allocate(alignment);
+  const cl_int error = usm_alloc->allocate(alignment);
   OCL_CHECK(error != CL_SUCCESS, return cargo::make_unexpected(error));
 
   usm_alloc->alloc_flags = alloc_properties.value();
@@ -388,7 +388,7 @@ device_allocation_info::create(cl_context context, cl_device_id device,
 
 cl_int device_allocation_info::allocate(cl_uint alignment) {
   // Allocation device local memory
-  uint32_t heap = 1;
+  const uint32_t heap = 1;
   mux_result_t mux_error = muxAllocateMemory(
       device->mux_device, size, heap, mux_memory_property_device_local,
       mux_allocation_type_alloc_device, alignment, device->mux_allocator,
@@ -523,7 +523,7 @@ shared_allocation_info::create(cl_context context, cl_device_id device,
   }
   (void)prefers_host;
 
-  cl_int error = usm_alloc->allocate(alignment);
+  const cl_int error = usm_alloc->allocate(alignment);
   OCL_CHECK(error != CL_SUCCESS, return cargo::make_unexpected(error));
 
   usm_alloc->alloc_flags = alloc_properties.value();
@@ -659,7 +659,7 @@ cl_int intel_unified_shared_memory::SetKernelExecInfo(
       }
 
       const cl_context context = kernel->program->context;
-      std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+      const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
       for (size_t i = 0; i < num_pointers; i++) {
         indirect_allocs[i] = usm::findAllocation(context, usm_pointers[i]);
       }

@@ -228,7 +228,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
     // we found the function, so we definitely are modifying the module!
     module_modified = true;
 
-    for (Use &use : srcFunc->uses()) {
+    for (const Use &use : srcFunc->uses()) {
       auto *const call = dyn_cast<CallInst>(use.getUser());
 
       assert(call && "User wasn't a call instruction!");
@@ -258,7 +258,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
           i = 2;
         }
 
-        for (unsigned e = srcFuncType->getNumParams(); i < e; i++) {
+        for (const unsigned e = srcFuncType->getNumParams(); i < e; i++) {
           types.push_back(srcFuncType->getParamType(i));
         }
 
@@ -312,7 +312,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
         i = 2;
       }
 
-      for (unsigned e = call->arg_size(); i < e; i++) {
+      for (const unsigned e = call->arg_size(); i < e; i++) {
         args.push_back(call->getArgOperand(i));
       }
 

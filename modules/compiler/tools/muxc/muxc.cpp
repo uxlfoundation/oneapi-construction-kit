@@ -255,7 +255,7 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
     return make_error<StringError>("input language must be '', 'ir' or 'cl'",
                                    inconvertibleErrorCode());
   }
-  StringRef IFN = InputFilename;
+  const StringRef IFN = InputFilename;
 
   auto *LLVMContextToUse =
       CompilerTarget
@@ -294,7 +294,7 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
 
   ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
       MemoryBuffer::getFileOrSTDIN(IFN, /*IsText=*/true);
-  if (std::error_code EC = FileOrErr.getError()) {
+  if (const std::error_code EC = FileOrErr.getError()) {
     return make_error<StringError>("Could not open input file: " + EC.message(),
                                    inconvertibleErrorCode());
   }
@@ -358,7 +358,7 @@ driver::createPassMachinery() {
 Error driver::runPipeline(Module &M, compiler::utils::PassMachinery &PassMach) {
   ModulePassManager pm;
   if (auto Err = PassMach.getPB().parsePassPipeline(pm, PipelineText)) {
-    std::string Msg =
+    const std::string Msg =
         formatv("error: parse of pass pipeline '{0}' failed : {1}\n",
                 PipelineText, toString(std::move(Err)));
     return make_error<StringError>(std::move(Msg), inconvertibleErrorCode());

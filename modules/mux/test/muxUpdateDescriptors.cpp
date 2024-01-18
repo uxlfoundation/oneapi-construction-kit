@@ -46,8 +46,8 @@ TEST_P(muxUpdateDescriptorsUnsupportedTest, UpdateDescriptorsUnsupported) {
   mux_command_buffer_t command_buffer;
   ASSERT_SUCCESS(
       muxCreateCommandBuffer(device, callback, allocator, &command_buffer));
-  mux_command_id_t command_id{};
-  uint64_t num_args = 1;
+  const mux_command_id_t command_id{};
+  const uint64_t num_args = 1;
   uint64_t arg_indices[1] = {0};
   mux_descriptor_info_t descriptors[1] = {};
 
@@ -195,7 +195,7 @@ struct muxUpdateDescriptorsBufferTest : public muxUpdateDescriptorsTest {
     EXPECT_EQ(buffer_out->memory_requirements.supported_heaps,
               buffer_out_updated->memory_requirements.supported_heaps);
 
-    uint32_t heap = mux::findFirstSupportedHeap(
+    const uint32_t heap = mux::findFirstSupportedHeap(
         buffer_out->memory_requirements.supported_heaps);
 
     // Check that we can allocate memory on the device, then allocate enough
@@ -514,7 +514,7 @@ struct muxUpdateDescriptorsPODTest : public muxUpdateDescriptorsTest {
     EXPECT_SUCCESS(
         muxCreateBuffer(device, buffer_size, allocator, &buffer_out));
 
-    uint32_t heap = mux::findFirstSupportedHeap(
+    const uint32_t heap = mux::findFirstSupportedHeap(
         buffer_out->memory_requirements.supported_heaps);
 
     // Check that we can allocate memory on the device, then allocate enough

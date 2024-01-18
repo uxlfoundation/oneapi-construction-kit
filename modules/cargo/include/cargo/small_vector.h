@@ -175,7 +175,7 @@ class small_vector {
     }
     Allocator = other.Allocator;
     if (other.Capacity <= N) {
-      size_type Size = other.size();
+      const size_type Size = other.size();
       cargo::uninitialized_move(other.Begin, other.End, Begin);
       End = Begin + Size;
       std::for_each(other.Begin, other.End,
@@ -445,7 +445,7 @@ class small_vector {
     // Keep track of the maximum capacity.
     MaxCapacity = std::max(MaxCapacity, Capacity);
 #endif
-    size_type count = End - Begin;
+    const size_type count = End - Begin;
     Begin = begin;
     End = Begin + count;
     return cargo::success;
@@ -458,7 +458,7 @@ class small_vector {
 
   /// @brief Attempt to reduce memory consumption.
   void shrink_to_fit() {
-    size_type Size = size();
+    const size_type Size = size();
     if (Size <= N && N < Capacity) {
       cargo::uninitialized_move(Begin, End, getStorage());
       Allocator.free(Begin);
@@ -489,7 +489,7 @@ class small_vector {
                                  error_or<iterator>>
   insert(const_iterator pos, const_reference value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
-    size_type index = pos - Begin;
+    const size_type index = pos - Begin;
     if (auto error = extend(1)) {
       return error;
     }
@@ -515,7 +515,7 @@ class small_vector {
                                  error_or<iterator>>
   insert(const_iterator pos, value_type &&value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
-    size_type index = pos - Begin;
+    const size_type index = pos - Begin;
     if (auto error = extend(1)) {
       return error;
     }
@@ -542,7 +542,7 @@ class small_vector {
                                  error_or<iterator>>
   insert(const_iterator pos, size_type count, const_reference value) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
-    size_type index = pos - Begin;
+    const size_type index = pos - Begin;
     if (auto error = extend(count)) {
       return error;
     }
@@ -572,8 +572,8 @@ class small_vector {
                                  error_or<iterator>>
   insert(const_iterator pos, InputIterator first, InputIterator last) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
-    size_type index = pos - Begin;
-    size_type count = std::distance(first, last);
+    const size_type index = pos - Begin;
+    const size_type count = std::distance(first, last);
     if (auto error = extend(count)) {
       return error;
     }
@@ -600,7 +600,7 @@ class small_vector {
                                  error_or<iterator>>
   insert(const_iterator pos, std::initializer_list<VT> list) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
-    size_type index = pos - Begin;
+    const size_type index = pos - Begin;
     if (auto error = extend(list.size())) {
       return error;
     }
@@ -625,7 +625,7 @@ class small_vector {
   template <class... Args>
   [[nodiscard]] error_or<iterator> emplace(const_iterator pos, Args &&...args) {
     CARGO_ASSERT(Begin <= pos && End >= pos, "invalid position");
-    size_type index = pos - Begin;
+    const size_type index = pos - Begin;
     if (auto error = extend(1)) {
       return error;
     }
@@ -748,7 +748,7 @@ class small_vector {
     if (auto error = reserve(count)) {
       return error;
     }
-    size_type size = End - Begin;
+    const size_type size = End - Begin;
     if (size > count) {
       std::for_each(Begin + count, End,
                     [](reference item) { item.~value_type(); });
@@ -775,7 +775,7 @@ class small_vector {
     if (auto error = reserve(count)) {
       return error;
     }
-    size_type size = End - Begin;
+    const size_type size = End - Begin;
     if (size > count) {
       std::for_each(Begin + count, End,
                     [](reference item) { item.~value_type(); });
@@ -802,13 +802,13 @@ class small_vector {
     Allocator = allocator;
     if (N == Capacity) {
       storage_type storage[N];
-      size_type Size = size();
+      const size_type Size = size();
       iterator begin = reinterpret_cast<iterator>(storage);
       iterator end = begin + Size;
       std::swap_ranges(Begin, End, begin);
       std::swap_ranges(other.Begin, other.End, Begin);
       std::swap_ranges(begin, end, other.Begin);
-      size_type OtherSize = other.size();
+      const size_type OtherSize = other.size();
       End = Begin + OtherSize;
       other.End = other.Begin + Size;
     } else {

@@ -28,7 +28,7 @@ TEST_F(MultiDeviceContext, CreateBuffer) {
 TEST_F(MultiDeviceContext, CreateImage) {
   if (hasImageSupport()) {
     cl_int error;
-    cl_image_format image_format = {CL_RGBA, CL_UNORM_INT8};
+    const cl_image_format image_format = {CL_RGBA, CL_UNORM_INT8};
     const cl_image_desc image_desc = []() {
       cl_image_desc image_desc;
       image_desc.image_type = CL_MEM_OBJECT_IMAGE2D;
@@ -57,7 +57,7 @@ TEST_F(MultiDeviceContext, CreateImage) {
 
 TEST_F(MultiDeviceContext, CreateProgram) {
   const char *source = "kernel void foo() {}";
-  size_t length = strlen(source);
+  const size_t length = strlen(source);
   cl_int error;
   auto program =
       clCreateProgramWithSource(context, 1, &source, &length, &error);
@@ -70,7 +70,7 @@ TEST_F(MultiDeviceContext, CreateKernel) {
     GTEST_SKIP();
   }
   const char *source = "kernel void foo() {}";
-  size_t length = strlen(source);
+  const size_t length = strlen(source);
   cl_int error;
   auto program =
       clCreateProgramWithSource(context, 1, &source, &length, &error);

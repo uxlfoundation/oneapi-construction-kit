@@ -75,7 +75,8 @@ MultiDevice (version %s) - Options:
                   CA_VERSION);
       return 0;
     } else if (arg.find("--opencl-platform=") != std::string::npos) {
-      std::string platformName(arg.begin() + 1 + arg.find('='), arg.end());
+      const std::string platformName(arg.begin() + 1 + arg.find('='),
+                                     arg.end());
       for (cl_uint index = 0; index < numPlatforms; index++) {
         if (platformName == platformNames[index]) {
           selectedPlatform = platforms[index];

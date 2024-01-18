@@ -441,8 +441,8 @@ void BaseModulePassMachinery::registerPassCallbacks() {
           }
           // Construct some default compiler options and a pipeline tuner, since
           // we've not been told otherwise.
-          compiler::Options options;
-          compiler::BasePassPipelineTuner tuner(options);
+          const compiler::Options options;
+          const compiler::BasePassPipelineTuner tuner(options);
           if (Name.consume_front("pre-vecz")) {
             compiler::addPreVeczPasses(PM, tuner);
           } else if (Name.consume_front("late-builtins")) {
@@ -451,7 +451,7 @@ void BaseModulePassMachinery::registerPassCallbacks() {
             compiler::addPrepareWorkGroupSchedulingPasses(PM);
           } else if (Name.consume_front("wg-sched")) {
             compiler::addPrepareWorkGroupSchedulingPasses(PM);
-            compiler::utils::AddKernelWrapperPassOptions opts;
+            const compiler::utils::AddKernelWrapperPassOptions opts;
             PM.addPass(compiler::utils::AddKernelWrapperPass(opts));
           } else {
             errs() << "Unknown mux-base pipeline component '" << Name << "'\n";

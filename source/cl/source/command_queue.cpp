@@ -58,7 +58,7 @@ _cl_command_queue::~_cl_command_queue() {
   muxWaitAll(mux_queue);
 
   {
-    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
     cleanupCompletedCommandBuffers();
   }
   // Release any completed signal semaphores
@@ -107,7 +107,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
 #endif
 
   mux_queue_t mux_queue;
-  mux_result_t error =
+  const mux_result_t error =
       muxGetQueue(device->mux_device, mux_queue_type_compute, 0, &mux_queue);
   OCL_CHECK(error, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
@@ -125,7 +125,7 @@ cargo::expected<std::unique_ptr<_cl_command_queue>, cl_int>
 _cl_command_queue::create(cl_context context, cl_device_id device,
                           const cl_bitfield *properties) {
   mux_queue_t mux_queue;
-  mux_result_t error =
+  const mux_result_t error =
       muxGetQueue(device->mux_device, mux_queue_type_compute, 0, &mux_queue);
   OCL_CHECK(error, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
@@ -145,8 +145,8 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
         CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE;
     auto current = properties;
     do {
-      cl_bitfield property = current[0];
-      cl_command_queue_properties value = current[1];
+      const cl_bitfield property = current[0];
+      const cl_command_queue_properties value = current[1];
       switch (property) {
         case CL_QUEUE_PROPERTIES:
           if (value & ~valid_properties_mask) {
@@ -203,7 +203,7 @@ cl_int _cl_command_queue::flush() {
     ~raii_wrapper() { in_flush = false; }
     bool &in_flush;
   };
-  raii_wrapper wrapper(in_flush);
+  const raii_wrapper wrapper(in_flush);
 
   if (auto error = cleanupCompletedCommandBuffers()) {
     return error;
@@ -251,7 +251,7 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     events[i]->wait();
   }
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   return CL_SUCCESS == cleanupCompletedCommandBuffers()
              ? CL_SUCCESS
@@ -259,8 +259,8 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
 }
 
 cl_int _cl_command_queue::getEventStatus(cl_event event) {
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
-  cl_int error = cleanupCompletedCommandBuffers();
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const cl_int error = cleanupCompletedCommandBuffers();
   OCL_UNUSED(error);
   assert(CL_SUCCESS == error);
   return event->command_status;
@@ -277,7 +277,7 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
     // Check if the first running command buffer has completed.
     auto fence = fences[running_command_buffers.front().command_buffer];
     assert(fence && "Missing fence entry for command buffer dispatch!");
-    mux_result_t error = muxTryWait(mux_queue, 0, fence);
+    const mux_result_t error = muxTryWait(mux_queue, 0, fence);
     OCL_ASSERT(mux_success == error || mux_error_fence_failure == error ||
                    mux_fence_not_ready == error,
                "muxTryWait failed!");
@@ -620,7 +620,7 @@ _cl_command_queue::getCommandBufferPending(
   for (auto &dispatch_queue : dependent_dispatch_command_queues) {
     // There are one or more dependent dispatches we must create a new command
     // group and wait on the their signal semaphores.
-    bool has_dependent_dispatches =
+    const bool has_dependent_dispatches =
         std::find_if(
             dependent_dispatches.begin(), dependent_dispatches.end(),
             [dispatch_queue](dispatch_dependency &dispatch_dependency) {
@@ -772,7 +772,7 @@ _cl_command_queue::getCommandBufferPending(
 }
 
 cl_int _cl_command_queue::dispatchPending(cl_event user_event) {
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   // Remove the user event from all pending dispatches wait event lists.
   for (auto &pending : pending_dispatches) {
@@ -830,7 +830,7 @@ cl_int _cl_command_queue::removeFromPending(
 
 cl_int _cl_command_queue::dropDispatchesPending(
     cl_event user_event, cl_int event_command_exec_status) {
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   cargo::small_vector<mux_command_buffer_t, 16> command_buffers;
 
@@ -965,7 +965,7 @@ _cl_command_queue::createSemaphore() {
 }
 
 cl_int _cl_command_queue::releaseSemaphore(mux_shared_semaphore semaphore) {
-  bool should_destroy = semaphore->release();
+  const bool should_destroy = semaphore->release();
   if (should_destroy) {
     delete semaphore;
   }
@@ -1039,7 +1039,8 @@ cl_int _cl_command_queue::finish_state_t::addState(
 
 void _cl_command_queue::finish_state_t::clear(
     mux_command_buffer_t command_buffer, mux_result_t error, bool locked) {
-  cl_int cl_error = (mux_success == error) ? CL_COMPLETE : CL_OUT_OF_RESOURCES;
+  const cl_int cl_error =
+      (mux_success == error) ? CL_COMPLETE : CL_OUT_OF_RESOURCES;
   for (auto signal_event : signal_events) {
     signal_event->complete(cl_error);
     cl::releaseInternal(signal_event);
@@ -1051,7 +1052,7 @@ void _cl_command_queue::finish_state_t::clear(
   if (locked) {
     command_queue->finish_state.erase(command_buffer);
   } else {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
     command_queue->finish_state.erase(command_buffer);
   }
@@ -1060,7 +1061,7 @@ void _cl_command_queue::finish_state_t::clear(
 CL_API_ENTRY cl_command_queue CL_API_CALL cl::CreateCommandQueue(
     cl_context context, cl_device_id device_id,
     cl_command_queue_properties properties, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateCommandQueue");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateCommandQueue");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   OCL_CHECK(!device_id || !context->hasDevice(device_id),
@@ -1080,14 +1081,14 @@ CL_API_ENTRY cl_command_queue CL_API_CALL cl::CreateCommandQueue(
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::RetainCommandQueue(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainCommandQueue");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainCommandQueue");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   return cl::retainExternal(command_queue);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::ReleaseCommandQueue(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandQueue");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandQueue");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   // If we are on the last ref count external and there is still an internal
@@ -1096,7 +1097,7 @@ cl::ReleaseCommandQueue(cl_command_queue command_queue) {
       command_queue->refCountInternal()) {
     command_queue->finish();
   } else {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     // releasing a command queue causes an implicit flush
@@ -1110,7 +1111,7 @@ cl::ReleaseCommandQueue(cl_command_queue command_queue) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
     cl_command_queue command_queue, cl_command_queue_info param_name,
     size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandQueueInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandQueueInfo");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
 #define COMMAND_QUEUE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)    \
@@ -1168,7 +1169,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
     cl_command_queue command_queue, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueBarrierWithWaitList");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clEnqueueBarrierWithWaitList");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   const cl_int error = cl::validate::EventWaitList(
@@ -1182,7 +1184,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     // barriers are implicit in in-order queues, could mostly be a no-op
@@ -1200,7 +1202,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
     cl_command_queue command_queue, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarkerWithWaitList");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarkerWithWaitList");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   const cl_int error = cl::validate::EventWaitList(
@@ -1214,7 +1216,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -1229,7 +1231,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
     cl_command_queue queue, cl_uint num_events, const cl_event *event_list) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWaitForEvents");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWaitForEvents");
   OCL_CHECK(!queue, return CL_INVALID_COMMAND_QUEUE);
 
   // This does not use the cl::validate::EventWaitList because this call is not
@@ -1256,16 +1258,16 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::Flush(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clFlush");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clFlush");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
   return command_queue->flush();
 }
 
 cl_int _cl_command_queue::finish() {
   {
-    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
     flush();
   }
 
@@ -1274,7 +1276,7 @@ cl_int _cl_command_queue::finish() {
   }
 
   {
-    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
     if (CL_SUCCESS != cleanupCompletedCommandBuffers()) {
       return CL_OUT_OF_RESOURCES;
     }
@@ -1283,7 +1285,7 @@ cl_int _cl_command_queue::finish() {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clFinish");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clFinish");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   auto new_event = _cl_event::create(command_queue, 0);
@@ -1302,7 +1304,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
 
   cl_int result;
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
     result = command_queue->flush();
   }
@@ -1317,14 +1319,14 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrier(cl_command_queue queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueBarrier");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueBarrier");
   OCL_CHECK(!queue, return CL_INVALID_COMMAND_QUEUE);
   return CL_SUCCESS;
 }
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarker");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarker");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!event, return CL_INVALID_VALUE);
 
@@ -1336,7 +1338,7 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer({}, *event);

@@ -34,14 +34,14 @@ struct helper {
     const T diff = x - truncated;
 
     // Add 1 to truncated value if diff and x are positive
-    SignedType is_positive = (diff > 0.0) & (x >= 0.0);
+    const SignedType is_positive = (diff > 0.0) & (x >= 0.0);
     const T incremented = truncated + 1.0;
     T result = __abacus_select(truncated, incremented, is_positive);
     result = __abacus_copysign(result, x);  // 0.0 -> -0.0
 
     // Return the original input for INF, NaN, and floats which already
     // represent integers
-    SignedType identity =
+    const SignedType identity =
         ~__abacus_isnormal(x) | abacus::internal::is_integer_quick(x);
     result = __abacus_select(result, x, identity);
 

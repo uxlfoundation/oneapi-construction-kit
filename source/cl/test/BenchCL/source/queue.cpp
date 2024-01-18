@@ -84,12 +84,12 @@ struct CreateData {
 };
 
 void SingleThreadOneQueueNoDependencies(benchmark::State &state) {
-  CreateData cd;
+  const CreateData cd;
 
   for (auto _ : state) {
     (void)_;
     for (unsigned i = 0; i < state.range(0); i++) {
-      size_t size = CreateData::BUFFER_LENGTH;
+      const size_t size = CreateData::BUFFER_LENGTH;
       clEnqueueNDRangeKernel(cd.queue, cd.kernel, 1, nullptr, &size, nullptr, 0,
                              nullptr, nullptr);
     }
@@ -102,7 +102,7 @@ void SingleThreadOneQueueNoDependencies(benchmark::State &state) {
 BENCHMARK(SingleThreadOneQueueNoDependencies)->Arg(1)->Arg(256)->Arg(1024);
 
 void SingleThreadOneQueue(benchmark::State &state) {
-  CreateData cd;
+  const CreateData cd;
 
   for (auto _ : state) {
     (void)_;
@@ -127,12 +127,12 @@ void SingleThreadOneQueue(benchmark::State &state) {
 BENCHMARK(SingleThreadOneQueue)->Arg(1)->Arg(256)->Arg(1024);
 
 void MultiThreadOneQueueNoDependencies(benchmark::State &state) {
-  CreateData cd;
+  const CreateData cd;
 
   for (auto _ : state) {
     (void)_;
     for (unsigned i = 0; i < state.range(0); i++) {
-      size_t size = CreateData::BUFFER_LENGTH;
+      const size_t size = CreateData::BUFFER_LENGTH;
       clEnqueueNDRangeKernel(cd.queue, cd.kernel, 1, nullptr, &size, nullptr, 0,
                              nullptr, nullptr);
     }
@@ -149,7 +149,7 @@ BENCHMARK(MultiThreadOneQueueNoDependencies)
     ->Threads(std::thread::hardware_concurrency());
 
 void MultiThreadOneQueue(benchmark::State &state) {
-  CreateData cd;
+  const CreateData cd;
 
   for (auto _ : state) {
     (void)_;
@@ -178,7 +178,7 @@ BENCHMARK(MultiThreadOneQueue)
     ->Threads(std::thread::hardware_concurrency());
 
 void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
-  CreateData cd;
+  const CreateData cd;
 
   cl_command_queue queue;
 
@@ -191,7 +191,7 @@ void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
   for (auto _ : state) {
     (void)_;
     for (unsigned i = 0; i < state.range(0); i++) {
-      size_t size = CreateData::BUFFER_LENGTH;
+      const size_t size = CreateData::BUFFER_LENGTH;
       clEnqueueNDRangeKernel(queue, cd.kernel, 1, nullptr, &size, nullptr, 0,
                              nullptr, nullptr);
     }
@@ -212,7 +212,7 @@ BENCHMARK(MultiThreadMultiQueueNoDependencies)
     ->Threads(std::thread::hardware_concurrency());
 
 void MultiThreadMultiQueue(benchmark::State &state) {
-  CreateData cd;
+  const CreateData cd;
 
   cl_command_queue queue;
 

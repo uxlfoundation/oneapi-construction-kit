@@ -22,7 +22,7 @@ mux_result_t muxCreateExecutable(mux_device_t device, const void *binary,
                                  uint64_t binary_length,
                                  mux_allocator_info_t allocator_info,
                                  mux_executable_t *out_executable) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -44,7 +44,7 @@ mux_result_t muxCreateExecutable(mux_device_t device, const void *binary,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectCreateExecutable(
+  const mux_result_t error = muxSelectCreateExecutable(
       device, binary, binary_length, allocator_info, out_executable);
 
   if (mux_success == error) {
@@ -56,7 +56,7 @@ mux_result_t muxCreateExecutable(mux_device_t device, const void *binary,
 
 void muxDestroyExecutable(mux_device_t device, mux_executable_t executable,
                           mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;

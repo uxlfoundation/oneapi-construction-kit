@@ -259,7 +259,7 @@ class release_guard {
     if (object) {
       switch (type) {
         case ref_count_type::EXTERNAL: {
-          cl_int retcode = releaseExternal(object);
+          const cl_int retcode = releaseExternal(object);
           OCL_ASSERT(CL_SUCCESS == retcode, "External release failed!");
           OCL_UNUSED(retcode);
           break;

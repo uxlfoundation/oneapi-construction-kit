@@ -66,7 +66,7 @@ TEST_F(Execution, Task_02_06_Clamp_Builtin) {
     const float low = 0.0f;
     const float high = 0.0f;
     kts::Reference1D<float> refOut = [low, high](size_t x) {
-      float v = kts::Ref_Float(x);
+      const float v = kts::Ref_Float(x);
       return std::min(std::max(v, low), high);
     };
     AddInputBuffer(kts::N, kts::Ref_Float);

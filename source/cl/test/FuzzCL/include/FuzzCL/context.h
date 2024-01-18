@@ -59,7 +59,7 @@
 
 #define IS_CL_SUCCESS(X)                                                     \
   {                                                                          \
-    cl_int ret_val = X;                                                      \
+    const cl_int ret_val = X;                                                \
     if (CL_SUCCESS != ret_val) {                                             \
       std::cerr << "OpenCL error occured: " << #X << " returned " << ret_val \
                 << " : " << fuzzcl::cl_error_code_to_name_map.at(ret_val)    \
@@ -327,7 +327,7 @@ struct context_t {
     clFinish(queue);
 
     // Unmap previously mapped ptrs
-    for (map_ptr_t &map_ptr : map_ptrs) {
+    for (const map_ptr_t &map_ptr : map_ptrs) {
       const cl_uint num_events_in_wait_list =
           map_ptr.mem_obj->event_stack.size() > 0 ? 1 : 0;
       const cl_event *event_wait_list =

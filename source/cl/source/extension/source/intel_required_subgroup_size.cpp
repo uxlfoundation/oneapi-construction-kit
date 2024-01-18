@@ -42,7 +42,7 @@ cl_int extension::intel_required_subgroup_size::GetDeviceInfo(
 
   if (CL_DEVICE_SUB_GROUP_SIZES_INTEL == param_name) {
     // First check how many sub-group sizes the device reports.
-    uint64_t num_sizes = device->mux_device->info->num_sub_group_sizes;
+    const uint64_t num_sizes = device->mux_device->info->num_sub_group_sizes;
     const size_t param_size = num_sizes * sizeof(size_t);
     OCL_CHECK(param_value && (param_value_size < param_size),
               return CL_INVALID_VALUE);

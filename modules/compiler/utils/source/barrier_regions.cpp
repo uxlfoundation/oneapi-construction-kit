@@ -319,7 +319,7 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live,
   if (auto field_it = barrier.live_variable_index_map_.find(key);
       field_it != barrier.live_variable_index_map_.end()) {
     LLVMContext &context = barrier.module_.getContext();
-    unsigned field_index = field_it->second;
+    const unsigned field_index = field_it->second;
     Value *live_variable_info_idxs[2] = {
         ConstantInt::get(Type::getInt32Ty(context), 0),
         ConstantInt::get(Type::getInt32Ty(context), field_index)};
@@ -942,7 +942,7 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
 
       // Need to ensure that alloc alignment or preferred alignment is kept
       // in the new struct so pad as necessary.
-      unsigned size = dl.getTypeAllocSize(member_ty_fixed);
+      const unsigned size = dl.getTypeAllocSize(member_ty_fixed);
       alignment = std::max(dl.getPrefTypeAlign(ty).value(),
                            static_cast<AlignIntTy>(alignment));
       max_live_var_alignment = std::max(alignment, max_live_var_alignment);
@@ -1129,7 +1129,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       cloned_bb->getTerminator()->eraseFromParent();
 
       // Return the next barrier's id.
-      unsigned next_barrier_id = barrier_id_map_[block->getSingleSuccessor()];
+      const unsigned next_barrier_id =
+          barrier_id_map_[block->getSingleSuccessor()];
       ConstantInt *barrier_id_cst =
           ConstantInt::get(Type::getInt32Ty(context), next_barrier_id);
       auto new_ret = ReturnInst::Create(context, barrier_id_cst, cloned_bb);
@@ -1324,7 +1325,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   // don't remap the first basicblock again..
   Function::iterator cfi = ++(new_kernel->begin());
-  Function::iterator cfie = new_kernel->end();
+  const Function::iterator cfie = new_kernel->end();
   for (; cfi != cfie; cfi++) {
     for (Instruction &cbi : *cfi) {
       RemapInstruction(&cbi, vmap, remapFlags);

@@ -28,8 +28,8 @@ struct muxCreateImageTest : DeviceTest {
 INSTANTIATE_DEVICE_TEST_SUITE_P(muxCreateImageTest);
 
 TEST_P(muxCreateImageTest, 1D) {
-  mux_image_type_e type = mux_image_type_1d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_1d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -53,8 +53,8 @@ TEST_P(muxCreateImageTest, 1D) {
 }
 
 TEST_P(muxCreateImageTest, 2D) {
-  mux_image_type_e type = mux_image_type_2d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_2d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -78,8 +78,8 @@ TEST_P(muxCreateImageTest, 2D) {
 }
 
 TEST_P(muxCreateImageTest, 3D) {
-  mux_image_type_e type = mux_image_type_3d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_3d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -103,8 +103,8 @@ TEST_P(muxCreateImageTest, 3D) {
 }
 
 TEST_P(muxCreateImageTest, MalformedDevice) {
-  mux_image_type_e type = mux_image_type_3d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_3d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -123,8 +123,8 @@ TEST_P(muxCreateImageTest, MalformedDevice) {
 }
 
 TEST_P(muxCreateImageTest, IncorrectImageParams1D) {
-  mux_image_type_e type = mux_image_type_1d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_1d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -150,8 +150,8 @@ TEST_P(muxCreateImageTest, IncorrectImageParams1D) {
 }
 
 TEST_P(muxCreateImageTest, IncorrectImageParams2D) {
-  mux_image_type_e type = mux_image_type_2d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_2d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -177,8 +177,8 @@ TEST_P(muxCreateImageTest, IncorrectImageParams2D) {
 }
 
 TEST_P(muxCreateImageTest, IncorrectImageParams3D) {
-  mux_image_type_e type = mux_image_type_3d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_3d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device
@@ -204,8 +204,8 @@ TEST_P(muxCreateImageTest, IncorrectImageParams3D) {
 }
 
 TEST_P(muxCreateImageTest, NullOutParameter) {
-  mux_image_type_e type = mux_image_type_1d;
-  mux_allocation_type_e allocation_type =
+  const mux_image_type_e type = mux_image_type_1d;
+  const mux_allocation_type_e allocation_type =
       (mux_allocation_capabilities_alloc_device &
        device->info->allocation_capabilities)
           ? mux_allocation_type_alloc_device

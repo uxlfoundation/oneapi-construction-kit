@@ -295,7 +295,7 @@ template <typename T, size_t Columns, size_t Rows, Order O>
 inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, O> &lhs,
                     const glsl_mat<T, Columns, Rows, O> &rhs,
                     T max_error = static_cast<T>(0.001)) {
-  int arrSize = (O == Order::ColumnMajor) ? Columns : Rows;
+  const int arrSize = (O == Order::ColumnMajor) ? Columns : Rows;
   bool eq = true;
   for (int i = 0; i < arrSize; i++) {
     eq &= fuzzyEq(lhs.data[i], rhs.data[i], max_error);

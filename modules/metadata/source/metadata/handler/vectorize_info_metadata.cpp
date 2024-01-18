@@ -36,10 +36,11 @@ bool push(md_stack stack, FixedOrScalableQuantity<uint32_t> q) {
 
 FixedOrScalableQuantity<uint32_t> read_quantity(uint8_t *&data,
                                                 MD_ENDIAN endianness) {
-  uint32_t quantity = md::utils::read_value<uint64_t>(data, endianness);
+  const uint32_t quantity = md::utils::read_value<uint64_t>(data, endianness);
   data += sizeof(uint64_t);
 
-  bool is_scalable = md::utils::read_value<uint64_t>(data, endianness) == 1;
+  const bool is_scalable =
+      md::utils::read_value<uint64_t>(data, endianness) == 1;
   data += sizeof(uint64_t);
 
   return FixedOrScalableQuantity<uint32_t>(quantity, is_scalable);
@@ -95,7 +96,7 @@ bool VectorizeInfoMetadataHandler::finalize() {
   if (!vectorize_stack) {
     return false;
   }
-  int err = md_finalize_block(vectorize_stack);
+  const int err = md_finalize_block(vectorize_stack);
   if (MD_CHECK_ERR(err)) {
     return false;
   }

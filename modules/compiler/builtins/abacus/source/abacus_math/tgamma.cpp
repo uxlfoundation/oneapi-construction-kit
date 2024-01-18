@@ -465,12 +465,12 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
 
   const abacus_float xx = (xAbs >= 3.0f) ? xAbs : (xAbs + 3.0f);
 
-  abacus_float pow_sqrt = __abacus_powr(xx, (xx - 0.5f) * 0.5f);
+  const abacus_float pow_sqrt = __abacus_powr(xx, (xx - 0.5f) * 0.5f);
 
   abacus_float result = pow_sqrt * __abacus_exp(-xx);
 
   // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
-  abacus_float polynomial_extension =
+  const abacus_float polynomial_extension =
       (1.0f +
        (-139.0f + (180.0f + 4320.0f * xx) * xx) / ((51840.f * xx) * (xx * xx)));
 
@@ -487,7 +487,7 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
   if (xAbs < 3.0f) {
     // We need to be slightly more accurate
     // This estimates pow(xx, (xx - 0.5f) * 0.5f) * exp(-xx) accurately:
-    abacus_float est =
+    const abacus_float est =
         abacus::internal::horner_polynomial(xAbs, __codeplay_tgamma_coeff, 10);
 
     result = est * polynomial_extension * 2.506628274631000502415765f;
@@ -563,7 +563,7 @@ abacus_double16 ABACUS_API __abacus_tgamma(abacus_double16 x) {
 namespace {
 abacus_double tgamma_positive_only(abacus_double x) {
   // Return tgamma(x) for x > 0 only
-  abacus_double orig = x;
+  const abacus_double orig = x;
 
   if (0.0 < orig && orig <= 1.0) {
     x += 2.0;
@@ -744,7 +744,7 @@ abacus_double tgamma_positive_only(abacus_double x) {
                 x);
   }
 
-  abacus_double pow_sqrt = __abacus_powr(x, (x - 0.5) * 0.5);
+  const abacus_double pow_sqrt = __abacus_powr(x, (x - 0.5) * 0.5);
   abacus_double ans = poly * (__abacus_exp(-x) * pow_sqrt) * pow_sqrt;
 
   if (1.0 < orig && orig <= 2.0) {
@@ -776,14 +776,14 @@ abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
     return ABACUS_NAN;
   }
 
-  abacus_double xAbs = __abacus_fabs(x);
+  const abacus_double xAbs = __abacus_fabs(x);
 
   // Solves a slew of overflow problems
   if (xAbs < 1.0e-15) {
     return 1.0 / x;
   }
 
-  abacus_double posVal = tgamma_positive_only(xAbs);
+  const abacus_double posVal = tgamma_positive_only(xAbs);
 
   if (x > 0.0) {
     return posVal;
@@ -792,16 +792,16 @@ abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
   // Reflection identity:
   // T(x)T(-x) = pi/(-x*sinpi(x))
 
-  abacus_double sinpi = __abacus_sinpi(x);
+  const abacus_double sinpi = __abacus_sinpi(x);
   // TODO replace with proper constant
-  abacus_double c_Pi =
+  const abacus_double c_Pi =
       3.141592653589793238462643383279502884197169399375105820974944;
 
   // if x < -172 posVal overflows to infinity, but the resulting product makes
   // sense, so we need to work round it.
   abacus_double ans = c_Pi / (sinpi * posVal * xAbs);
 
-  abacus_double c_pow_2_m500 = 3.05493636349960468205197939321E-151;
+  const abacus_double c_pow_2_m500 = 3.05493636349960468205197939321E-151;
 
   if (x < -172.0) {
     ans *= c_pow_2_m500;

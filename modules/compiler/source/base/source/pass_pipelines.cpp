@@ -133,9 +133,9 @@ void addLLVMDefaultPerModulePipeline(ModulePassManager &PM, PassBuilder &PB,
 Result emitCodeGenFile(llvm::Module &M, TargetMachine *TM,
                        raw_pwrite_stream &ostream, bool create_assembly) {
   legacy::PassManager PM;
-  CodeGenFileType type = !create_assembly
-                             ? multi_llvm::CodeGenFileType::ObjectFile
-                             : multi_llvm::CodeGenFileType::AssemblyFile;
+  const CodeGenFileType type = !create_assembly
+                                   ? multi_llvm::CodeGenFileType::ObjectFile
+                                   : multi_llvm::CodeGenFileType::AssemblyFile;
   if (TM->addPassesToEmitFile(PM, ostream, /*DwoOut*/ nullptr, type,
                               /*DisableVerify*/ false)) {
     return compiler::Result::FAILURE;
@@ -159,7 +159,7 @@ void encodeVectorizationMode(Function &F, VectorizationMode mode) {
 }
 
 std::optional<VectorizationMode> getVectorizationMode(const Function &F) {
-  Attribute Attr = F.getFnAttribute("vecz-mode");
+  const Attribute Attr = F.getFnAttribute("vecz-mode");
   if (Attr.isValid()) {
     return StringSwitch<std::optional<VectorizationMode>>(
                Attr.getValueAsString())

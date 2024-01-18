@@ -76,7 +76,8 @@ compiler::utils::BuiltinID lookupWGBuiltinID(compiler::utils::BuiltinID ID,
 /// @return The work-group equivalent of the given builtin.
 Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
                           compiler::utils::BuiltinInfo &BI, Module &M) {
-  compiler::utils::BuiltinID WGBuiltinID = lookupWGBuiltinID(SGBuiltin.ID, BI);
+  const compiler::utils::BuiltinID WGBuiltinID =
+      lookupWGBuiltinID(SGBuiltin.ID, BI);
   // Not all sub-group builtins have a work-group equivalent.
   if (WGBuiltinID == compiler::utils::eBuiltinInvalid) {
     return nullptr;
@@ -452,7 +453,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
       NewA->setName(OldA->getName());
     }
 
-    StringRef BaseName = getBaseFnNameOrFnName(*F);
+    const StringRef BaseName = getBaseFnNameOrFnName(*F);
 
     const auto ChangeType = CloneFunctionChangeType::LocalChangesOnly;
     SmallVector<ReturnInst *, 1> Returns;

@@ -196,7 +196,7 @@ class basic_map {
   /// @return The number of key/value pairs removed. If the Key is present in
   /// the map, it is erased and 1 is returned. Otherwise, 0 is returned.
   size_t erase(const key_type &key) {
-    const_iterator it = find(key);
+    const const_iterator it = find(key);
     if (it == end()) {
       return 0;
     }

@@ -31,7 +31,8 @@ BaseContext::BaseContext() {
   static std::once_flag parseEnvironmentOptionsFlag;
   std::call_once(parseEnvironmentOptionsFlag, [this]() {
     const char *argv[] = {"ComputeAortaCL"};
-    std::lock_guard<std::mutex> lock(compiler::utils::getLLVMGlobalMutex());
+    const std::lock_guard<std::mutex> lock(
+        compiler::utils::getLLVMGlobalMutex());
     llvm::cl::ParseCommandLineOptions(1, argv, "", nullptr, "CA_LLVM_OPTIONS");
 
     const llvm::StringMap<llvm::cl::Option *> &opt_map =

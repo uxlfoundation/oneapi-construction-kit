@@ -83,7 +83,7 @@ class basic_context {
   /// this context.
   cargo::expected<stack_t *, md_err> create_block(const char *name) {
     const string_t stack_name(name, alloc.template get_allocator<char>());
-    stack_t stack(alloc);
+    const stack_t stack(alloc);
     const std::pair<typename map_t::iterator, bool> in = stack_map.insert(
         std::make_pair(stack_name, alloc.template allocate_shared<stack_t>(
                                        std::move(stack))));

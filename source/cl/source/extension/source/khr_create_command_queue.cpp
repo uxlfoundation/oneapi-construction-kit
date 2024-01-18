@@ -37,7 +37,7 @@ extension::khr_create_command_queue::khr_create_command_queue()
 CL_API_ENTRY cl_command_queue CL_API_CALL clCreateCommandQueueWithPropertiesKHR(
     cl_context context, cl_device_id device,
     const cl_queue_properties_khr *properties, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> trace(
+  const tracer::TraceGuard<tracer::OpenCL> trace(
       "clCreateCommandQueueWithPropertiesKHR");
 
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
@@ -48,8 +48,9 @@ CL_API_ENTRY cl_command_queue CL_API_CALL clCreateCommandQueueWithPropertiesKHR(
 
   auto device_index = context->getDeviceIndex(device);
   mux_queue_t mux_queue;
-  mux_result_t error = muxGetQueue(context->devices[device_index]->mux_device,
-                                   mux_queue_type_compute, 0, &mux_queue);
+  const mux_result_t error =
+      muxGetQueue(context->devices[device_index]->mux_device,
+                  mux_queue_type_compute, 0, &mux_queue);
   OCL_CHECK(error, OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
             return nullptr);
 

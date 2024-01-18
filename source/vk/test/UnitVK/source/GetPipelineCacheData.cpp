@@ -32,7 +32,7 @@ class GetPipelineCacheData : public uvk::PipelineLayoutTest {
                      vkCreatePipelineCache(device, &pipelineCacheCreateInfo,
                                            nullptr, &pipelineCache));
 
-    uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
+    const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
 
     VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
     shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

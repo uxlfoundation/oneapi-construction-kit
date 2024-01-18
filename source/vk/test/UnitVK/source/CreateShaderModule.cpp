@@ -25,7 +25,7 @@ class CreateShaderModule : public uvk::DeviceTest {
   virtual void SetUp() override {
     RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
 
-    uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
+    const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = shaderCode.size;
     createInfo.pCode = (uint32_t *)shaderCode.code;

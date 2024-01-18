@@ -102,8 +102,8 @@ cl_int _cl_mem::allocateMemory(mux_device_t mux_device,
       (device_alloc_caps & mux_allocation_capabilities_coherent_host)) {
     const uintptr_t host_ptr_uint = reinterpret_cast<uintptr_t>(host_ptr);
     if (0 == (host_ptr_uint % mux_device->info->buffer_alignment)) {
-      mux_result_t error = muxCreateMemoryFromHost(mux_device, size, host_ptr,
-                                                   mux_allocator, out_memory);
+      const mux_result_t error = muxCreateMemoryFromHost(
+          mux_device, size, host_ptr, mux_allocator, out_memory);
       return error ? CL_MEM_OBJECT_ALLOCATION_FAILURE : CL_SUCCESS;
     }
   }
@@ -191,7 +191,7 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
 
   {
     // lock the cl_mem while we get a first mapping
-    std::lock_guard<std::mutex> lock(mem_to_map->mutex);
+    const std::lock_guard<std::mutex> lock(mem_to_map->mutex);
 
     // if we have no current mapping map the whole memory chunk in the parent
     if (0 == mem_to_map->mapCount) {
@@ -230,7 +230,7 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
     }
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer =
@@ -252,7 +252,7 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
     void flushMemoryFromDevice() {
       mux_device_t device = mem->context->devices[device_index]->mux_device;
       mux_memory_t memory = mem->mux_memories[device_index];
-      mux_result_t error =
+      const mux_result_t error =
           muxFlushMappedMemoryFromDevice(device, memory, offset, size);
       OCL_ASSERT(mux_success == error,
                  "muxFlushMappedMemoryFromDevice failed!");
@@ -285,19 +285,19 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
   if (write) {
     callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
       auto mapping = static_cast<mapping_state_t *>(user_data);
-      std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+      const std::lock_guard<std::mutex> lock(mapping->mem->mutex);
       mapping->flushMemoryFromDevice();
     };
   } else if (read) {
     callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
       auto mapping = static_cast<mapping_state_t *>(user_data);
-      std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+      const std::lock_guard<std::mutex> lock(mapping->mem->mutex);
       mapping->flushMemoryFromDevice();
     };
   } else if (invalidate) {
     callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
       auto mapping = static_cast<mapping_state_t *>(user_data);
-      std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+      const std::lock_guard<std::mutex> lock(mapping->mem->mutex);
     };
   }
   OCL_ASSERT(callback, "failed to set user callback for mapping");
@@ -346,14 +346,14 @@ bool _cl_mem::overlaps(size_t offset, size_t size) {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainMemObject(cl_mem memobj) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainMemObject");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainMemObject");
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
 
   return cl::retainExternal(memobj);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseMemObject(cl_mem memobj) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseMemObject");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseMemObject");
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
 
   return cl::releaseExternal(memobj);
@@ -363,7 +363,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetMemObjectDestructorCallback(
     cl_mem memobj,
     void(CL_CALLBACK *pfn_notify)(cl_mem memobj, void *user_data),
     void *user_data) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clSetMemObjectDestructorCallback");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clSetMemObjectDestructorCallback");
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
 
   if (!(memobj->registerCallback(pfn_notify, user_data))) {
@@ -375,7 +376,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetMemObjectDestructorCallback(
 CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
     cl_mem memobj, cl_mem_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetMemObjectInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetMemObjectInfo");
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
 
 #define MEM_OBJECT_INFO_CASE(NAME, TYPE, VALUE)                   \
@@ -428,7 +429,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
     } break;
 #if defined(CL_VERSION_3_0)
     case CL_MEM_PROPERTIES: {
-      size_t size = sizeof(cl_mem_properties) * memobj->properties.size();
+      const size_t size = sizeof(cl_mem_properties) * memobj->properties.size();
       OCL_CHECK(param_value && param_value_size < size,
                 return CL_INVALID_VALUE);
       OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
@@ -456,7 +457,7 @@ CL_API_ENTRY cl_int CL_API_CALL
 cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
                           void *mapped_ptr, cl_uint num_events_in_wait_list,
                           const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueUnmapMemObject");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueUnmapMemObject");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
   OCL_CHECK(!mapped_ptr, return CL_INVALID_VALUE);
@@ -506,7 +507,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
     it->second.is_active = false;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -543,7 +544,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
         mux_memory_t mux_memory = mem->mux_memories[unmap_info->device_index];
 
         {
-          std::lock_guard<std::mutex> lock(mem->mutex);
+          const std::lock_guard<std::mutex> lock(mem->mutex);
 
           auto it = mem->write_mappings.find(unmap_info->ptr);
           // if this is a write mapping we need to flush the memory region to
@@ -598,7 +599,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMigrateMemObjects(
     cl_command_queue queue, cl_uint num_mem_objects, const cl_mem *mem_objects,
     cl_mem_migration_flags flags, cl_uint num_events, const cl_event *events,
     cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMigrateMemObjects");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMigrateMemObjects");
   OCL_CHECK(!queue, return CL_INVALID_COMMAND_QUEUE);
 
   OCL_CHECK((0 == num_mem_objects) && mem_objects, return CL_INVALID_VALUE);
@@ -623,7 +624,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMigrateMemObjects(
   // migration costs us nothing!
 
   if (event) {
-    cl_int errorcode =
+    const cl_int errorcode =
         cl::EnqueueMarkerWithWaitList(queue, num_events, events, event);
     OCL_CHECK(CL_SUCCESS != errorcode, return errorcode);
     // Make sure that if an event was provided it has a correct command type

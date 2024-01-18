@@ -52,7 +52,7 @@ void GetDeviceQueue(vk::device device, uint32_t queueFamilyIndex,
 }
 
 VkResult QueueWaitIdle(vk::queue queue) {
-  mux_result_t mux_error = muxWaitAll(queue->mux_queue);
+  const mux_result_t mux_error = muxWaitAll(queue->mux_queue);
   if (mux_success != mux_error) {
     return vk::getVkResult(mux_error);
   }
@@ -67,7 +67,7 @@ static void semaphore_callback(mux_command_buffer_t command_buffer,
   vk::queue queue = VK_NULL_HANDLE;
 
   {
-    std::lock_guard<std::mutex> lock(semaphore->mutex);
+    const std::lock_guard<std::mutex> lock(semaphore->mutex);
     queue = semaphore->queue;
 
     // first we need to find the matching semaphore for the mux command buffer
@@ -88,7 +88,7 @@ static void semaphore_callback(mux_command_buffer_t command_buffer,
     // GCOVR_EXCL_STOP
   }
 
-  std::lock_guard<std::mutex> lock(queue->mutex);
+  const std::lock_guard<std::mutex> lock(queue->mutex);
 
   // now that the semaphore is about to be signaled we can remove it from the
   // lists of user semaphores that new submissions need to wait for
@@ -113,14 +113,14 @@ static void cmd_group_complete_callback(mux_command_buffer_t, mux_result_t,
     if (!(cb_data->commandBuffer->usage_flags &
           VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) {
       {
-        std::lock_guard<std::mutex> lock(cb_data->commandBuffer->mutex);
+        const std::lock_guard<std::mutex> lock(cb_data->commandBuffer->mutex);
         cb_data->commandBuffer->state = vk::command_buffer_t::executable;
       }
     }
 
     // Handle signalled semaphores:
     {
-      std::lock_guard<std::mutex> lock(cb_data->queue->mutex);
+      const std::lock_guard<std::mutex> lock(cb_data->queue->mutex);
 
       // remove this mux command buffer's semaphore from the relevant lists
       // since the mux command buffer is done
@@ -148,7 +148,7 @@ static void cmd_group_complete_callback(mux_command_buffer_t, mux_result_t,
 // Processes a single submit info
 static VkResult ProcessSubmitInfo(const VkSubmitInfo &submitInfo,
                                   const vk::queue queue) {
-  std::lock_guard<std::mutex> lock(queue->mutex);
+  const std::lock_guard<std::mutex> lock(queue->mutex);
   // loop through this submit info's wait semaphores extracting the mux
   // semaphores and add them to appropriate lists based on their dst mask
   for (uint32_t waitSemaphoreIndex = 0;
@@ -157,7 +157,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo &submitInfo,
     vk::semaphore wait_semaphore =
         vk::cast<vk::semaphore>(submitInfo.pWaitSemaphores[waitSemaphoreIndex]);
 
-    std::lock_guard<std::mutex> lock(wait_semaphore->mutex);
+    const std::lock_guard<std::mutex> lock(wait_semaphore->mutex);
 
     wait_semaphore->wait_stage =
         submitInfo.pWaitDstStageMask[waitSemaphoreIndex];
@@ -236,7 +236,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo &submitInfo,
     wait_semaphore->has_dispatched = true;
   }
 
-  vk::small_vector<mux_semaphore_t, 2> wait_events_semaphores(
+  const vk::small_vector<mux_semaphore_t, 2> wait_events_semaphores(
       {queue->allocator.getCallbacks(), VK_SYSTEM_ALLOCATION_SCOPE_COMMAND});
 
   // loop through this submit info's command buffers
@@ -245,7 +245,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo &submitInfo,
        commandBufferIndex++) {
     vk::command_buffer commandBuffer = reinterpret_cast<vk::command_buffer>(
         submitInfo.pCommandBuffers[commandBufferIndex]);
-    std::lock_guard<std::mutex> lockCb(commandBuffer->mutex);
+    const std::lock_guard<std::mutex> lockCb(commandBuffer->mutex);
     commandBuffer->state = command_buffer_t::pending;
 
     if (commandBuffer->usage_flags &
@@ -731,7 +731,8 @@ VkResult QueueSubmit(vk::queue queue, uint32_t submitCount,
 
   // loop through each submit info
   for (uint32_t submitIndex = 0; submitIndex < submitCount; submitIndex++) {
-    if (VkResult result = ProcessSubmitInfo(pSubmits[submitIndex], queue)) {
+    if (const VkResult result =
+            ProcessSubmitInfo(pSubmits[submitIndex], queue)) {
       return result;
     }
 
@@ -759,7 +760,7 @@ VkResult QueueSubmit(vk::queue queue, uint32_t submitCount,
     mux_semaphore_t *wait_semaphores =
         fence_semaphores.empty() ? nullptr : fence_semaphores.data();
 
-    uint32_t wait_semaphores_length =
+    const uint32_t wait_semaphores_length =
         wait_semaphores ? fence_semaphores.size() : 0;
 
     if (auto error =

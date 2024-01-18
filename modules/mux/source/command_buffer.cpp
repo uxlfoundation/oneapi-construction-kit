@@ -38,7 +38,7 @@ mux_result_t muxCreateCommandBuffer(mux_device_t device,
                                     mux_callback_info_t callback_info,
                                     mux_allocator_info_t allocator_info,
                                     mux_command_buffer_t *out_command_buffer) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -52,7 +52,7 @@ mux_result_t muxCreateCommandBuffer(mux_device_t device,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectCreateCommandBuffer(
+  const mux_result_t error = muxSelectCreateCommandBuffer(
       device, callback_info, allocator_info, out_command_buffer);
 
   if (mux_success == error) {
@@ -64,7 +64,7 @@ mux_result_t muxCreateCommandBuffer(mux_device_t device,
 }
 
 mux_result_t muxFinalizeCommandBuffer(mux_command_buffer_t command_buffer) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
   if (nullptr == command_buffer) {
     return mux_error_null_out_parameter;
   }
@@ -80,7 +80,7 @@ mux_result_t muxCloneCommandBuffer(mux_device_t device,
                                    mux_allocator_info_t allocator_info,
                                    mux_command_buffer_t command_buffer,
                                    mux_command_buffer_t *out_command_buffer) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -98,7 +98,7 @@ mux_result_t muxCloneCommandBuffer(mux_device_t device,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectCloneCommandBuffer(
+  const mux_result_t error = muxSelectCloneCommandBuffer(
       device, allocator_info, command_buffer, out_command_buffer);
 
   if (mux_success == error) {
@@ -112,7 +112,7 @@ mux_result_t muxCloneCommandBuffer(mux_device_t device,
 void muxDestroyCommandBuffer(mux_device_t device,
                              mux_command_buffer_t command_buffer,
                              mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;
@@ -130,7 +130,7 @@ void muxDestroyCommandBuffer(mux_device_t device,
 }
 
 mux_result_t muxResetCommandBuffer(mux_command_buffer_t command_buffer) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -146,7 +146,7 @@ mux_result_t muxCommandCopyBuffer(mux_command_buffer_t command_buffer,
                                   uint32_t num_sync_points_in_wait_list,
                                   const mux_sync_point_t *sync_point_wait_list,
                                   mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -176,7 +176,7 @@ mux_result_t muxCommandCopyBuffer(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandCopyBuffer(
+  const mux_result_t error = muxSelectCommandCopyBuffer(
       command_buffer, src_buffer, src_offset, dst_buffer, dst_offset, size,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -193,7 +193,7 @@ mux_result_t muxCommandCopyBufferRegions(
     uint64_t regions_length, uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -240,19 +240,21 @@ mux_result_t muxCommandCopyBufferRegions(
 
     // check the last 1D row of the last slice
     {
-      size_t z = r.region.z - 1;
-      size_t y = r.region.y - 1;
+      const size_t z = r.region.z - 1;
+      const size_t y = r.region.y - 1;
 
-      size_t dst_slice_offset = (r.dst_origin.z + z) * r.dst_desc.y;
-      size_t src_slice_offset = (r.src_origin.z + z) * r.src_desc.y;
+      const size_t dst_slice_offset = (r.dst_origin.z + z) * r.dst_desc.y;
+      const size_t src_slice_offset = (r.src_origin.z + z) * r.src_desc.y;
 
-      size_t dst_row_offset = (r.dst_origin.y + y) * r.dst_desc.x;
-      size_t src_row_offset = (r.src_origin.y + y) * r.src_desc.x;
+      const size_t dst_row_offset = (r.dst_origin.y + y) * r.dst_desc.x;
+      const size_t src_row_offset = (r.src_origin.y + y) * r.src_desc.x;
 
-      size_t dst_offset = dst_slice_offset + dst_row_offset + r.dst_origin.x;
-      size_t src_offset = src_slice_offset + src_row_offset + r.src_origin.x;
+      const size_t dst_offset =
+          dst_slice_offset + dst_row_offset + r.dst_origin.x;
+      const size_t src_offset =
+          src_slice_offset + src_row_offset + r.src_origin.x;
 
-      size_t size = r.region.x;
+      const size_t size = r.region.x;
 
       if ((src_offset + size) > src_buffer->memory_requirements.size) {
         return mux_error_invalid_value;
@@ -320,7 +322,7 @@ mux_result_t muxCommandCopyBufferRegions(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandCopyBufferRegions(
+  const mux_result_t error = muxSelectCommandCopyBufferRegions(
       command_buffer, src_buffer, dst_buffer, regions, regions_length,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -338,7 +340,7 @@ mux_result_t muxCommandFillBuffer(mux_command_buffer_t command_buffer,
                                   uint32_t num_sync_points_in_wait_list,
                                   const mux_sync_point_t *sync_point_wait_list,
                                   mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -368,7 +370,7 @@ mux_result_t muxCommandFillBuffer(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandFillBuffer(
+  const mux_result_t error = muxSelectCommandFillBuffer(
       command_buffer, buffer, offset, size, pattern_pointer, pattern_size,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -385,7 +387,7 @@ mux_result_t muxCommandReadBuffer(mux_command_buffer_t command_buffer,
                                   uint32_t num_sync_points_in_wait_list,
                                   const mux_sync_point_t *sync_point_wait_list,
                                   mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -411,7 +413,7 @@ mux_result_t muxCommandReadBuffer(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandReadBuffer(
+  const mux_result_t error = muxSelectCommandReadBuffer(
       command_buffer, buffer, offset, host_pointer, size,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -428,7 +430,7 @@ mux_result_t muxCommandReadBufferRegions(
     uint64_t regions_length, uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -475,14 +477,15 @@ mux_result_t muxCommandReadBufferRegions(
 
     // check the last 1D row of the last slice
     {
-      size_t z = r.region.z - 1;
-      size_t y = r.region.y - 1;
+      const size_t z = r.region.z - 1;
+      const size_t y = r.region.y - 1;
 
-      size_t src_slice_offset = (r.src_origin.z + z) * r.src_desc.y;
-      size_t src_row_offset = (r.src_origin.y + y) * r.src_desc.x;
-      size_t src_offset = src_slice_offset + src_row_offset + r.src_origin.x;
+      const size_t src_slice_offset = (r.src_origin.z + z) * r.src_desc.y;
+      const size_t src_row_offset = (r.src_origin.y + y) * r.src_desc.x;
+      const size_t src_offset =
+          src_slice_offset + src_row_offset + r.src_origin.x;
 
-      size_t size = r.region.x;
+      const size_t size = r.region.x;
 
       if ((src_offset + size) > buffer->memory_requirements.size) {
         return mux_error_invalid_value;
@@ -522,7 +525,7 @@ mux_result_t muxCommandReadBufferRegions(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandReadBufferRegions(
+  const mux_result_t error = muxSelectCommandReadBufferRegions(
       command_buffer, buffer, host_pointer, regions, regions_length,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -539,7 +542,7 @@ mux_result_t muxCommandWriteBuffer(mux_command_buffer_t command_buffer,
                                    uint32_t num_sync_points_in_wait_list,
                                    const mux_sync_point_t *sync_point_wait_list,
                                    mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -565,7 +568,7 @@ mux_result_t muxCommandWriteBuffer(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandWriteBuffer(
+  const mux_result_t error = muxSelectCommandWriteBuffer(
       command_buffer, buffer, offset, host_pointer, size,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -582,7 +585,7 @@ mux_result_t muxCommandWriteBufferRegions(
     uint64_t regions_length, uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -629,14 +632,15 @@ mux_result_t muxCommandWriteBufferRegions(
 
     // check the last 1D row of the last slice
     {
-      size_t z = r.region.z - 1;
-      size_t y = r.region.y - 1;
+      const size_t z = r.region.z - 1;
+      const size_t y = r.region.y - 1;
 
-      size_t src_slice_offset = (r.src_origin.z + z) * r.src_desc.y;
-      size_t src_row_offset = (r.src_origin.y + y) * r.src_desc.x;
-      size_t src_offset = src_slice_offset + src_row_offset + r.src_origin.x;
+      const size_t src_slice_offset = (r.src_origin.z + z) * r.src_desc.y;
+      const size_t src_row_offset = (r.src_origin.y + y) * r.src_desc.x;
+      const size_t src_offset =
+          src_slice_offset + src_row_offset + r.src_origin.x;
 
-      size_t size = r.region.x;
+      const size_t size = r.region.x;
 
       if ((src_offset + size) > buffer->memory_requirements.size) {
         return mux_error_invalid_value;
@@ -676,7 +680,7 @@ mux_result_t muxCommandWriteBufferRegions(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandWriteBufferRegions(
+  const mux_result_t error = muxSelectCommandWriteBufferRegions(
       command_buffer, buffer, host_pointer, regions, regions_length,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -694,7 +698,7 @@ mux_result_t muxCommandReadImage(mux_command_buffer_t command_buffer,
                                  uint32_t num_sync_points_in_wait_list,
                                  const mux_sync_point_t *sync_point_wait_list,
                                  mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -732,7 +736,7 @@ mux_result_t muxCommandReadImage(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandReadImage(
+  const mux_result_t error = muxSelectCommandReadImage(
       command_buffer, image, offset, extent, row_size, slice_size, pointer,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -750,7 +754,7 @@ mux_result_t muxCommandWriteImage(mux_command_buffer_t command_buffer,
                                   uint32_t num_sync_points_in_wait_list,
                                   const mux_sync_point_t *sync_point_wait_list,
                                   mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -788,7 +792,7 @@ mux_result_t muxCommandWriteImage(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandWriteImage(
+  const mux_result_t error = muxSelectCommandWriteImage(
       command_buffer, image, offset, extent, row_size, slice_size, pointer,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -806,7 +810,7 @@ mux_result_t muxCommandFillImage(mux_command_buffer_t command_buffer,
                                  uint32_t num_sync_points_in_wait_list,
                                  const mux_sync_point_t *sync_point_wait_list,
                                  mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -854,7 +858,7 @@ mux_result_t muxCommandFillImage(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandFillImage(
+  const mux_result_t error = muxSelectCommandFillImage(
       command_buffer, image, color, color_size, offset, extent,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -873,7 +877,7 @@ mux_result_t muxCommandCopyImage(mux_command_buffer_t command_buffer,
                                  uint32_t num_sync_points_in_wait_list,
                                  const mux_sync_point_t *sync_point_wait_list,
                                  mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -933,7 +937,7 @@ mux_result_t muxCommandCopyImage(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandCopyImage(
+  const mux_result_t error = muxSelectCommandCopyImage(
       command_buffer, src_image, dst_image, src_offset, dst_offset, extent,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -950,7 +954,7 @@ mux_result_t muxCommandCopyImageToBuffer(
     mux_extent_3d_t extent, uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -994,7 +998,7 @@ mux_result_t muxCommandCopyImageToBuffer(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandCopyImageToBuffer(
+  const mux_result_t error = muxSelectCommandCopyImageToBuffer(
       command_buffer, src_image, dst_buffer, src_offset, dst_offset, extent,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -1011,7 +1015,7 @@ mux_result_t muxCommandCopyBufferToImage(
     mux_extent_3d_t extent, uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1056,7 +1060,7 @@ mux_result_t muxCommandCopyBufferToImage(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandCopyBufferToImage(
+  const mux_result_t error = muxSelectCommandCopyBufferToImage(
       command_buffer, src_buffer, dst_image, src_offset, dst_offset, extent,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -1073,7 +1077,7 @@ mux_result_t muxCommandNDRange(mux_command_buffer_t command_buffer,
                                uint32_t num_sync_points_in_wait_list,
                                const mux_sync_point_t *sync_point_wait_list,
                                mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1087,7 +1091,7 @@ mux_result_t muxCommandNDRange(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandNDRange(
+  const mux_result_t error = muxSelectCommandNDRange(
       command_buffer, kernel, options, num_sync_points_in_wait_list,
       sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -1102,7 +1106,7 @@ mux_result_t muxUpdateDescriptors(mux_command_buffer_t command_buffer,
                                   mux_command_id_t command_id,
                                   uint64_t num_args, uint64_t *arg_indices,
                                   mux_descriptor_info_s *descriptors) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1132,7 +1136,7 @@ mux_result_t muxCommandUserCallback(
     void *user_data, uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1146,7 +1150,7 @@ mux_result_t muxCommandUserCallback(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandUserCallback(
+  const mux_result_t error = muxSelectCommandUserCallback(
       command_buffer, user_function, user_data, num_sync_points_in_wait_list,
       sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -1163,7 +1167,7 @@ mux_result_t muxCommandBeginQuery(mux_command_buffer_t command_buffer,
                                   uint32_t num_sync_points_in_wait_list,
                                   const mux_sync_point_t *sync_point_wait_list,
                                   mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1185,7 +1189,7 @@ mux_result_t muxCommandBeginQuery(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandBeginQuery(
+  const mux_result_t error = muxSelectCommandBeginQuery(
       command_buffer, query_pool, query_index, query_count,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -1202,7 +1206,7 @@ mux_result_t muxCommandEndQuery(mux_command_buffer_t command_buffer,
                                 uint32_t num_sync_points_in_wait_list,
                                 const mux_sync_point_t *sync_point_wait_list,
                                 mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1224,7 +1228,7 @@ mux_result_t muxCommandEndQuery(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandEndQuery(
+  const mux_result_t error = muxSelectCommandEndQuery(
       command_buffer, query_pool, query_index, query_count,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {
@@ -1241,7 +1245,7 @@ mux_result_t muxCommandResetQueryPool(
     uint32_t num_sync_points_in_wait_list,
     const mux_sync_point_t *sync_point_wait_list,
     mux_sync_point_t *sync_point) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {
     return mux_error_invalid_value;
@@ -1260,7 +1264,7 @@ mux_result_t muxCommandResetQueryPool(
     return mux_error_invalid_value;
   }
 
-  mux_result_t error = muxSelectCommandResetQueryPool(
+  const mux_result_t error = muxSelectCommandResetQueryPool(
       command_buffer, query_pool, query_index, query_count,
       num_sync_points_in_wait_list, sync_point_wait_list, sync_point);
   if (mux_success == error && nullptr != sync_point) {

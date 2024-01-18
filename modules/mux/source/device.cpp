@@ -39,7 +39,7 @@ mux_result_t muxGetDeviceInfos(uint32_t device_types,
                                uint64_t device_infos_length,
                                mux_device_info_t *out_device_infos,
                                uint64_t *out_device_infos_length) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (0 == device_types) {
     return mux_error_invalid_value;
@@ -146,7 +146,7 @@ mux_result_t muxCreateDevices(uint64_t devices_length,
                               mux_device_info_t *device_infos,
                               mux_allocator_info_t allocator_info,
                               mux_device_t *out_devices) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (nullptr == out_devices) {
     return mux_error_null_out_parameter;
@@ -253,7 +253,7 @@ mux_result_t muxCreateDevices(uint64_t devices_length,
 
 void muxDestroyDevice(mux_device_t device,
                       mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;

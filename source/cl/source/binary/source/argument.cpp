@@ -57,7 +57,7 @@ getArgumentTypeFromParameterTypeString(const cargo::string_view &str) {
   type_name_str += cargo::as<std::string>(type_str);
 
   // Check for vector widths
-  static std::regex trailing_num_re(R"((\d+)$)", std::regex::optimize);
+  static const std::regex trailing_num_re(R"((\d+)$)", std::regex::optimize);
   std::match_results<cargo::string_view::const_iterator> match;
   if (std::regex_search(type_str.cbegin(), type_str.cend(), match,
                         trailing_num_re)) {

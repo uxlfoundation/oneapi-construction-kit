@@ -78,7 +78,7 @@ TEST_P(muxCreateMemoryFromHostTest, BadAllocator) {
   mux_memory_t memory;
   uint32_t data[1];
 
-  mux_allocator_info_t bad_allocator = {nullptr, nullptr, nullptr};
+  const mux_allocator_info_t bad_allocator = {nullptr, nullptr, nullptr};
 
   ASSERT_ERROR_EQ(mux_error_null_allocator_callback,
                   muxCreateMemoryFromHost(device, sizeof(data), data,

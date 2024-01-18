@@ -235,7 +235,7 @@ llvm::ModulePassManager HostPassMachinery::getLateTargetPasses() {
 llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
     std::optional<std::string> unique_prefix) {
   llvm::ModulePassManager PM;
-  compiler::BasePassPipelineTuner tuner(options);
+  const compiler::BasePassPipelineTuner tuner(options);
 
   // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,

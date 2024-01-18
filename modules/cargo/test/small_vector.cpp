@@ -24,7 +24,7 @@
 #include "common.h"
 
 TEST(small_vector, construct_default) {
-  cargo::small_vector<int, 8> v;
+  const cargo::small_vector<int, 8> v;
   ASSERT_EQ(0u, v.size());
   ASSERT_EQ(8u, v.capacity());
 }
@@ -41,7 +41,7 @@ TEST(small_vector, construct_move) {
     cargo::small_vector<element, 4> v;
     ASSERT_EQ(cargo::success, v.assign(2, 42));
     ASSERT_EQ(2, v.size());
-    cargo::small_vector<element, 4> m(std::move(v));
+    const cargo::small_vector<element, 4> m(std::move(v));
     v.clear();
     ASSERT_EQ(0, v.size());
     ASSERT_EQ(2, m.size());
@@ -138,11 +138,11 @@ TEST(small_vector, assign_size) {
   ASSERT_EQ(1u, v.size());
   ASSERT_EQ(42, v[0]);
   ASSERT_EQ(cargo::success, v.assign(16, 0));
-  for (int value : v) {
+  for (const int value : v) {
     ASSERT_EQ(0, value);
   }
   ASSERT_EQ(cargo::success, v.assign(32, 23));
-  for (int value : v) {
+  for (const int value : v) {
     ASSERT_EQ(23, value);
   }
 }
@@ -345,7 +345,7 @@ TEST(small_vector, iterator_crend) {
 }
 
 TEST(small_vector, capacity_empty) {
-  cargo::small_vector<int, 1> v;
+  const cargo::small_vector<int, 1> v;
   ASSERT_TRUE(v.empty());
 }
 
@@ -400,7 +400,7 @@ TEST(small_vector, modify_clear) {
 
 TEST(small_vector, modify_insert_single_copy) {
   cargo::small_vector<copyable_t, 2> v;
-  copyable_t c(23);
+  const copyable_t c(23);
   ASSERT_EQ(cargo::success, v.push_back(c));
   ASSERT_EQ(1u, v.size());
   auto i = v.insert(v.begin(), copyable_t(42));
@@ -577,7 +577,7 @@ TEST(small_vector, modify_push_back_copy) {
   cargo::small_vector<copyable_t, 2> v;
   ASSERT_TRUE(v.empty());
   for (int index = 0; index < 256; index++) {
-    copyable_t c(index);
+    const copyable_t c(index);
     ASSERT_EQ(cargo::success, v.push_back(c));
     ASSERT_EQ(size_t(index + 1), v.size());
     ASSERT_EQ(index, v.back().get());

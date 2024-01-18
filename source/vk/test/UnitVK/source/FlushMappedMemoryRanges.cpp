@@ -250,7 +250,7 @@ TEST_F(FlushMappedMemoryRanges, Default) {
   // we can verify the results
   srand(std::time(NULL));
   for (uint32_t k = 0; k < bufferElements; k++) {
-    uint32_t random_no = static_cast<uint32_t>(rand());
+    const uint32_t random_no = static_cast<uint32_t>(rand());
     static_cast<uint32_t *>(mappedMemory)[k] = random_no;
     testData.push_back(random_no);
   }

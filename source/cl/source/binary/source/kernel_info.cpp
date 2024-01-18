@@ -52,13 +52,13 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
              "'. Only ' ' is supported."));
 
   // Split string into name and parameters
-  static std::regex kernel_and_params_re(R"(^\s*(\w+)\s*\(\s*(.*)\s*\)\s*$)",
-                                         std::regex::optimize);
+  static const std::regex kernel_and_params_re(
+      R"(^\s*(\w+)\s*\(\s*(.*)\s*\)\s*$)", std::regex::optimize);
   std::match_results<cargo::string_view::const_iterator> match;
 
   // Split the declaration into a name and parameters
-  bool error = std::regex_search(decl.cbegin(), decl.cend(), match,
-                                 kernel_and_params_re);
+  const bool error = std::regex_search(decl.cbegin(), decl.cend(), match,
+                                       kernel_and_params_re);
   // We're parsing hard-coded kernel declaration strings, so the assertions in
   // this file should never fire after built-in kernels have been tested
   OCL_ASSERT(error,
@@ -72,7 +72,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
   OCL_ASSERT(kernel_info.name.length() < CL_MAX_KERNEL_NAME_SIZE,
              "Built in kernel name exceeds internal buffer of cl_name_version "
              "object which is defined by spec");
-  cargo::string_view params_str(match[2].first, match[2].length());
+  const cargo::string_view params_str(match[2].first, match[2].length());
 
   // Create a vector, where each element is a string_view of one parameter
   auto params_str_v = cargo::split_all(params_str, ",");
@@ -88,8 +88,8 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
   // Take the last word from v, delimited by ` ` or `*`. Shorten v and
   // return the word.
   auto pop_word = [](cargo::string_view &v) {
-    size_t loc = v.find_last_of(" *");  // not a regex; just characters
-    cargo::string_view ret(v.cbegin() + loc + 1, v.size() - loc - 1);
+    const size_t loc = v.find_last_of(" *");  // not a regex; just characters
+    const cargo::string_view ret(v.cbegin() + loc + 1, v.size() - loc - 1);
     v.remove_suffix(ret.size());
     v = cargo::trim_right(v, " ");
     return ret;
@@ -97,19 +97,19 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
 
   // Like pop_word, but doesn't modify the paramter
   auto get_last_word = [](const cargo::string_view &v) {
-    size_t loc = v.find_last_of(" *");  // not a regex; just characters
+    const size_t loc = v.find_last_of(" *");  // not a regex; just characters
     return cargo::string_view(v.cbegin() + loc + 1, v.size() - loc - 1);
   };
 
   // Return the first word from v and shorten v.
   auto deque_word = [](cargo::string_view &v) {
-    size_t loc = v.find(' ');
+    const size_t loc = v.find(' ');
     if (cargo::string_view::npos == loc) {
-      cargo::string_view ret(v);
+      const cargo::string_view ret(v);
       v.remove_prefix(v.size());
       return ret;
     } else {
-      cargo::string_view ret(v.cbegin(), loc);
+      const cargo::string_view ret(v.cbegin(), loc);
       v.remove_prefix(loc);
       v = cargo::trim_left(v, " ");
       return ret;
@@ -138,7 +138,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
     // parameter.
     if (p.rfind('*', p.size()) != cargo::string_view::npos) {
       // Pick up address space qualifier
-      cargo::string_view addr_qual = deque_word(p);
+      const cargo::string_view addr_qual = deque_word(p);
       // Search in reverse because we don't care about leading `__`
       if (cargo::string_view::npos != addr_qual.rfind("global")) {
         arg_info.address_qual = compiler::AddressSpace::GLOBAL;
@@ -159,7 +159,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
         // Gobble trailing `const`s and `restrict`s. A const is a constant
         // pointer (a don't-care).
         while (true) {
-          cargo::string_view word(get_last_word(p));
+          const cargo::string_view word(get_last_word(p));
           if (!word.compare("restrict")) {
             arg_info.type_qual |= CL_KERNEL_ARG_TYPE_RESTRICT;
           } else if (!word.compare("const")) {

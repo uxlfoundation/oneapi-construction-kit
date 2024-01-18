@@ -78,7 +78,7 @@ PassMachinery::PassMachinery(LLVMContext &Ctx, TargetMachine *TM,
 PassMachinery::~PassMachinery() {}
 
 void PassMachinery::initializeStart(PipelineTuningOptions PTO) {
-  std::optional<PGOOptions> PGOOpt;
+  const std::optional<PGOOptions> PGOOpt;
   PB = PassBuilder(TM, PTO, PGOOpt, &PIC);
 }
 

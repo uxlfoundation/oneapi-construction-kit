@@ -219,13 +219,13 @@ class OfflineExecutionType : public BaseExecution {
 
   void runTest() {
     // Extract the type name from the test name
-    std::string testName =
+    const std::string testName =
         ::testing::UnitTest::GetInstance()->current_test_info()->name();
     auto typeName =
         testName.substr(testName.find_last_of('_') + 1, std::string::npos);
 
     // Check if the type is supported and skip if not
-    cargo::string_view param{typeName};
+    const cargo::string_view param{typeName};
     if (param.starts_with("half") && !UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
     }

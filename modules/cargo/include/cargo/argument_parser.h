@@ -313,8 +313,8 @@ class argument_parser {
       return cargo::success;
     }
     bool AfterArgumentTerminator = false;
-    bool ErrorOnUnrecognized = !(Options & KEEP_UNRECOGNIZED);
-    bool AcceptPositionalArgs = bool(Options & ACCEPT_POSITIONAL);
+    const bool ErrorOnUnrecognized = !(Options & KEEP_UNRECOGNIZED);
+    const bool AcceptPositionalArgs = bool(Options & ACCEPT_POSITIONAL);
 
     for (auto iter = args.begin(), end = args.end(); iter != end; iter++) {
       auto &arg = *iter;

@@ -241,7 +241,7 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
       // Not an assert because this can happen in user-supplied IR
       report_fatal_error("Scalable types in local memory are not supported");
     }
-    unsigned int totalSize = allocSize.getFixedValue();
+    const unsigned int totalSize = allocSize.getFixedValue();
     offset += totalSize;
   }
 
@@ -249,13 +249,13 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
   auto structTy = StructType::create(structElementTypes, "localVarTypes");
 
   // change all our functions to take a pointer to the new structTy we created
-  AttributeSet defaultAttrs;
+  const AttributeSet defaultAttrs;
   addParamToAllFunctions(M, structTy->getPointerTo(), defaultAttrs);
 
   // Check if we have debug info, if so we need to fix it up to turn global
   // variable entries into local variable ones.
   if (const auto NMD = M.getNamedMetadata("llvm.dbg.cu")) {
-    DIBuilder DIB(M, /*AllowUnresolved*/ false);
+    const DIBuilder DIB(M, /*AllowUnresolved*/ false);
 
     for (auto *CUOp : NMD->operands()) {
       // Find module compilation unit
@@ -295,7 +295,7 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
   }
 
   for (auto &global : globals) {
-    SmallVector<User *, 8> users(global->users());
+    const SmallVector<User *, 8> users(global->users());
 
     for (auto *user : users) {
       // if we have a constant expression, we need to force it back to a
@@ -325,7 +325,7 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
     // in 1) to the type of the global instruction.
     // 3) Replace the use of the global instruction with the instruction
     // created in 2).
-    SmallVector<User *, 4> users(global->users());
+    const SmallVector<User *, 4> users(global->users());
     for (auto *user : users) {
       // if we have a GEP instruction...
       if (GetElementPtrInst *gep = dyn_cast<GetElementPtrInst>(user)) {

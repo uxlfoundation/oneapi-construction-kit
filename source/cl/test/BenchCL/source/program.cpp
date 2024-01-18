@@ -171,7 +171,7 @@ template <InputType::Type TYPE>
 static void CreateSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
+  const std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
@@ -193,7 +193,7 @@ template <InputType::Type TYPE>
 static void CompileSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
+  const std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
@@ -218,7 +218,7 @@ template <InputType::Type TYPE>
 static void LinkSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
+  const std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 
@@ -249,7 +249,7 @@ template <InputType::Type TYPE>
 static void BuildSingleStringProgram(benchmark::State &state) {
   CreateProgramData cpd;
 
-  std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
+  const std::vector<const char *> data(cpd.generate<TYPE>(state.range(0)));
 
   std::string flattened;
 

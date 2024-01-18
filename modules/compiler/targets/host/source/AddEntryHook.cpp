@@ -160,7 +160,7 @@ PreservedAnalyses AddEntryHookPass::run(Module &M, ModuleAnalysisManager &AM) {
     earlyExitIR.CreateRetVoid();
 
     // the loop's main basic block
-    IRBuilder<> loopIR(BasicBlock::Create(context, "loop", newFunction));
+    const IRBuilder<> loopIR(BasicBlock::Create(context, "loop", newFunction));
 
     // need to early exit before the loops if we don't have a slice to
     // process

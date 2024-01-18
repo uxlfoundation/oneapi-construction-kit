@@ -145,12 +145,12 @@ HostModule::hostCompileObject(HostTarget &target,
   {
     // Using the CrashRecoveryContext and statistics touches LLVM's global
     // state.
-    std::lock_guard<std::mutex> globalLock(
+    const std::lock_guard<std::mutex> globalLock(
         compiler::utils::getLLVMGlobalMutex());
 
     llvm::CrashRecoveryContext CRC;
     llvm::CrashRecoveryContext::Enable();
-    bool crashed = !CRC.RunSafely(
+    const bool crashed = !CRC.RunSafely(
         [&] { pm.run(*cloned_module, host_pass_mach.getMAM()); });
     llvm::CrashRecoveryContext::Disable();
     if (crashed) {
@@ -186,12 +186,12 @@ compiler::Result HostModule::createBinary(
 
   std::unique_ptr<llvm::Module> clonedModule;
   {
-    std::lock_guard<compiler::Context> guard(context);
+    const std::lock_guard<compiler::Context> guard(context);
 
     clonedModule = llvm::CloneModule(*finalized_llvm_module.get());
 
     llvm::SmallVector<char, 1024> object_code_buffer;
-    llvm::raw_svector_ostream stream(object_code_buffer);
+    const llvm::raw_svector_ostream stream(object_code_buffer);
 
     auto binaryOrError =
         hostCompileObject(host_target, options, clonedModule.get());
@@ -219,7 +219,7 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
   std::unique_ptr<llvm::Module> kernel_module;
   handler::GenericMetadata kernel_md(name, name, 0);
   {
-    std::lock_guard<compiler::Context> guard(context);
+    const std::lock_guard<compiler::Context> guard(context);
     kernel_module = llvm::CloneModule(*finalized_llvm_module);
 
     if (!kernel_module || !kernel_module->getFunction(name)) {
@@ -233,7 +233,7 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
 
     // Set up the kernel metadata which informs later passes which kernel we're
     // interested in optimizing.
-    compiler::utils::EncodeKernelMetadataPassOptions pass_opts{name};
+    const compiler::utils::EncodeKernelMetadataPassOptions pass_opts{name};
     pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
     pm.addPass(compiler::utils::ReduceToFunctionPass());
     pm.addPass(compiler::utils::ComputeLocalMemoryUsagePass());

@@ -127,7 +127,7 @@ abacus_float ABACUS_API __abacus_acos(abacus_float x) {
 #ifdef __CODEPLAY_USE_ESTRIN_POLYNOMIAL_REDUCTION__
   abacus_float ans = __Codeplay__estrin_4coeff(xAbs, polynomial + interval * 4);
 #else
-  abacus_float ans =
+  const abacus_float ans =
       abacus::internal::horner_polynomial(xAbs, polynomial + interval * 4, 4);
 #endif
 

@@ -29,7 +29,7 @@ constexpr size_t ca_free_hw_threads = 0;
 /// The code to do one iteration of the threadFunc loop.
 void threadFuncBody(host::thread_pool_s *const me,
                     host::thread_pool_work_item_s item) {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   item.function(item.user_data, item.user_data2, item.user_data3, item.index);
   // technically our condition variable doesn't need this to be locked, but
@@ -37,7 +37,7 @@ void threadFuncBody(host::thread_pool_s *const me,
   // hold this mutex before signalling the work item is complete.
   bool reached_zero{false};
   {
-    std::lock_guard<std::mutex> guard(me->wait_mutex);
+    const std::lock_guard<std::mutex> guard(me->wait_mutex);
 
     // Signal that we've completed this bit of work.  Count gets decremented
     // after signal gets set because if a program is waiting on a single
@@ -75,7 +75,7 @@ void threadFunc(host::thread_pool_s *const me) {
 
 namespace host {
 thread_pool_s::thread_pool_s() : stayAlive(true) {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   auto clamp = [](size_t v, size_t a, size_t b) {
     const size_t start = std::min(a, b);
@@ -96,7 +96,7 @@ thread_pool_s::thread_pool_s() : stayAlive(true) {
   // programmer sets a high number it won't necessarily have an effect.
   const char *env = std::getenv("CA_HOST_NUM_THREADS");
   if (nullptr != env) {
-    if (int t = std::atoi(env)) {
+    if (const int t = std::atoi(env)) {
       debug_threads = t;
     }
   }
@@ -110,10 +110,10 @@ thread_pool_s::thread_pool_s() : stayAlive(true) {
 }
 
 thread_pool_s::~thread_pool_s() {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   {
-    std::lock_guard<std::mutex> guard(mutex);
+    const std::lock_guard<std::mutex> guard(mutex);
     // kill the thread pool
     stayAlive = false;
   }
@@ -139,7 +139,7 @@ bool thread_pool_s::getWork(thread_pool_work_item_s *const work) {
 
   // This tracer is placed later so we get nice gaps in the graph when the
   // thread pool is just waiting.
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   if (!stayAlive) {
     return false;
@@ -153,13 +153,13 @@ bool thread_pool_s::getWork(thread_pool_work_item_s *const work) {
 }
 
 bool thread_pool_s::tryGetWork(thread_pool_work_item_s *const work) {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   if (!stayAlive) {
     return false;
   }
 
-  std::unique_lock<std::mutex> guard(mutex);
+  const std::unique_lock<std::mutex> guard(mutex);
 
   if (queue_read_index == queue_write_index) {
     return false;
@@ -178,7 +178,7 @@ void thread_pool_s::enqueue(function_t function, void *user_data,
                             void *user_data2, void *user_data3, size_t index,
                             std::atomic<bool> *signal,
                             std::atomic<uint32_t> *count) {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   // Count gets incremented before signal gets set.
   *count += 1u;
@@ -217,7 +217,7 @@ void thread_pool_s::enqueue(function_t function, void *user_data,
 }
 
 void thread_pool_s::wait(std::atomic<bool> *signal) {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   // If the signal hasn't been triggered, lets jump in and help the thread pool
   // execute! We need to help out the main thread pool with our current thread
@@ -240,7 +240,7 @@ void thread_pool_s::wait(std::atomic<bool> *signal) {
 }
 
 void thread_pool_s::wait(std::atomic<uint32_t> *count) {
-  tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+  const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   // If the counter hasn't been triggered, lets jump in and help the thread pool
   // execute! We need to help out the main thread pool with our current thread

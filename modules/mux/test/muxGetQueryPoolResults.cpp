@@ -190,8 +190,8 @@ struct muxGetQueryPoolResultsCounterTest : DeviceCompilerTest {
     ASSERT_SUCCESS(createMuxExecutable(nop_opencl_c, &executable));
     ASSERT_SUCCESS(muxCreateKernel(device, executable, "nop", strlen("nop"),
                                    allocator, &kernel));
-    size_t global_offset = 0;
-    size_t global_size = 8;
+    const size_t global_offset = 0;
+    const size_t global_size = 8;
     size_t local_size[3] = {1, 1, 1};
 
     mux_ndrange_options_t nd_range_options{};
@@ -399,8 +399,8 @@ struct muxGetQueryPoolResultsMultiplePoolsCounterTest
     ASSERT_SUCCESS(createMuxExecutable(nop_opencl_c, &executable));
     ASSERT_SUCCESS(muxCreateKernel(device, executable, "nop", strlen("nop"),
                                    allocator, &kernel));
-    size_t global_offset = 0;
-    size_t global_size = 8;
+    const size_t global_offset = 0;
+    const size_t global_size = 8;
     size_t local_size[3] = {1, 1, 1};
 
     mux_ndrange_options_t nd_range_options{};
@@ -491,9 +491,9 @@ struct muxGetQueryPoolResultsMultipleCountersCounterTest
     // platforms where counters incur a significant perf hit) number of
     // counters.
     std::vector<mux_query_counter_config_t> counters_to_enable;
-    uint32_t max_hw_counters = device->info->max_hardware_counters;
+    const uint32_t max_hw_counters = device->info->max_hardware_counters;
     // Obviously we can't try for more counters than there are on the system.
-    uint32_t target_counters_to_enable =
+    const uint32_t target_counters_to_enable =
         std::min(static_cast<uint32_t>(counters.size()), 4u);
     uint32_t hw_counters_used = 0;
 
@@ -526,8 +526,8 @@ struct muxGetQueryPoolResultsMultipleCountersCounterTest
     ASSERT_SUCCESS(createMuxExecutable(nop_opencl_c, &executable));
     ASSERT_SUCCESS(muxCreateKernel(device, executable, "nop", strlen("nop"),
                                    allocator, &kernel));
-    size_t global_offset = 0;
-    size_t global_size = 8;
+    const size_t global_offset = 0;
+    const size_t global_size = 8;
     size_t local_size[3] = {1, 1, 1};
 
     mux_ndrange_options_t nd_range_options{};

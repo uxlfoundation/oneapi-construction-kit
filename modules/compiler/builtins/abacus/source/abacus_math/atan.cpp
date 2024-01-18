@@ -56,7 +56,7 @@ abacus_float ABACUS_API __abacus_atan(abacus_float x) {
 namespace {
 template <typename T>
 T ABACUS_API atan(T x) {
-  typename TypeTraits<T>::SignedType recip_x = (T)1.0f < __abacus_fabs(x);
+  const typename TypeTraits<T>::SignedType recip_x = (T)1.0f < __abacus_fabs(x);
 
   x = __abacus_select(x, (T)1.0f / x, recip_x);
 

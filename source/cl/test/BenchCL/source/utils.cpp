@@ -75,7 +75,7 @@ cl_uint benchcl::get_device(cargo::string_view device_name,
   }
 
   fprintf(stderr, "Available devices:\n");
-  for (std::string &name : names) {
+  for (const std::string &name : names) {
     fprintf(stderr, "  - '%s'\n", name.c_str());
   }
 
