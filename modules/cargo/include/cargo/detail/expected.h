@@ -463,8 +463,8 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 // This class manages conditionally having a trivial copy constructor
 // This specialization is for when T and E are trivially copy constructible
 template <class T, class E,
-          bool = is_void_or<T, is_trivially_copy_constructible<T>>::value
-              &&is_trivially_copy_constructible<E>::value>
+          bool = is_void_or<T, is_trivially_copy_constructible<T>>::value &&
+                 is_trivially_copy_constructible<E>::value>
 struct expected_copy_base : expected_operations_base<T, E> {
   using expected_operations_base<T, E>::expected_operations_base;
 };
@@ -491,8 +491,9 @@ struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
 
 // This class manages conditionally having a trivial move constructor
 template <class T, class E,
-          bool = is_void_or<T, std::is_trivially_move_constructible<T>>::value
-              &&std::is_trivially_move_constructible<E>::value>
+          bool =
+              is_void_or<T, std::is_trivially_move_constructible<T>>::value &&
+              std::is_trivially_move_constructible<E>::value>
 struct expected_move_base : expected_copy_base<T, E> {
   using expected_copy_base<T, E>::expected_copy_base;
 };
@@ -517,13 +518,15 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
 };
 
 // This class manages conditionally having a trivial copy assignment operator
-template <class T, class E,
-          bool = is_void_or<T, conjunction<is_trivially_copy_assignable<T>,
-                                           is_trivially_copy_constructible<T>,
-                                           std::is_trivially_destructible<T>>>::
-              value &&is_trivially_copy_assignable<E>::value
-                  &&is_trivially_copy_constructible<E>::value
-                      &&std::is_trivially_destructible<E>::value>
+template <
+    class T, class E,
+    bool =
+        is_void_or<T, conjunction<is_trivially_copy_assignable<T>,
+                                  is_trivially_copy_constructible<T>,
+                                  std::is_trivially_destructible<T>>>::value &&
+        is_trivially_copy_assignable<E>::value &&
+        is_trivially_copy_constructible<E>::value &&
+        std::is_trivially_destructible<E>::value>
 struct expected_copy_assign_base : expected_move_base<T, E> {
   using expected_move_base<T, E>::expected_move_base;
 };
@@ -545,14 +548,15 @@ struct expected_copy_assign_base<T, E, false> : expected_move_base<T, E> {
 };
 
 // This class manages conditionally having a trivial move assignment operator
-template <class T, class E,
-          bool =
-              is_void_or<T, conjunction<std::is_trivially_destructible<T>,
-                                        std::is_trivially_move_constructible<T>,
-                                        std::is_trivially_move_assignable<T>>>::
-                  value &&std::is_trivially_destructible<E>::value
-                      &&std::is_trivially_move_constructible<E>::value
-                          &&std::is_trivially_move_assignable<E>::value>
+template <
+    class T, class E,
+    bool = is_void_or<
+               T, conjunction<std::is_trivially_destructible<T>,
+                              std::is_trivially_move_constructible<T>,
+                              std::is_trivially_move_assignable<T>>>::value &&
+           std::is_trivially_destructible<E>::value &&
+           std::is_trivially_move_constructible<E>::value &&
+           std::is_trivially_move_assignable<E>::value>
 struct expected_move_assign_base : expected_copy_assign_base<T, E> {
   using expected_copy_assign_base<T, E>::expected_copy_assign_base;
 };
@@ -570,10 +574,10 @@ struct expected_move_assign_base<T, E, false>
   expected_move_assign_base &operator=(const expected_move_assign_base &rhs) =
       default;
 
-  expected_move_assign_base &
-  operator=(expected_move_assign_base &&rhs) noexcept(
-      std::is_nothrow_move_constructible<T>::value
-          &&std::is_nothrow_move_assignable<T>::value) {
+  expected_move_assign_base &operator=(
+      expected_move_assign_base
+          &&rhs) noexcept(std::is_nothrow_move_constructible<T>::value &&
+                          std::is_nothrow_move_assignable<T>::value) {
     this->assign(std::move(rhs));
     return *this;
   }
