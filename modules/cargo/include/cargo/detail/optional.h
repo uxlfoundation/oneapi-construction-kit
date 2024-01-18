@@ -242,9 +242,9 @@ struct optional_move_base<T, false> : optional_copy_base<T> {
 };
 
 // This class manages conditionally having a trivial copy assignment operator
-template <class T, bool = is_trivially_copy_assignable<T>::value
-                       &&is_trivially_copy_constructible<T>::value
-                           &&std::is_trivially_destructible<T>::value>
+template <class T, bool = is_trivially_copy_assignable<T>::value &&
+                          is_trivially_copy_constructible<T>::value &&
+                          std::is_trivially_destructible<T>::value>
 struct optional_copy_assign_base : optional_move_base<T> {
   using optional_move_base<T>::optional_move_base;
 };
@@ -266,9 +266,9 @@ struct optional_copy_assign_base<T, false> : optional_move_base<T> {
 };
 
 // This class manages conditionally having a trivial move assignment operator
-template <class T, bool = std::is_trivially_destructible<T>::value
-                       &&std::is_trivially_move_constructible<T>::value
-                           &&std::is_trivially_move_assignable<T>::value>
+template <class T, bool = std::is_trivially_destructible<T>::value &&
+                          std::is_trivially_move_constructible<T>::value &&
+                          std::is_trivially_move_assignable<T>::value>
 struct optional_move_assign_base : optional_copy_assign_base<T> {
   using optional_copy_assign_base<T>::optional_copy_assign_base;
 };

@@ -29,5 +29,4 @@ understanding and verifying your patch, please include it here.*
 * Read and follow the project [Code of Conduct](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
 * Make sure the project builds successfully with your changes.
 * Run relevant testing locally to avoid regressions.
-* Run [clang-format-16](https://clang.llvm.org/docs/ClangFormat.html) (the most
-  recent version available through `pip`) on all modified code.
+* Run [clang-format-17](https://clang.llvm.org/docs/ClangFormat.html) on all modified code.
