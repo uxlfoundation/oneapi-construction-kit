@@ -470,12 +470,12 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
     return std::move(err);
   }
   // Without a size, we can't create a type.
-  if (!size_or_error.get()) {
+  std::optional<uint64_t> size = size_or_error.get();
+  if (!size) {
     return nullptr;
   }
-  uint64_t size = *size_or_error.get();
 
-  return getDIBuilder(op).createBasicType(*name, size, encoding);
+  return getDIBuilder(op).createBasicType(*name, *size, encoding);
 }
 
 class DebugTypePointer : public OpExtInst {
@@ -890,10 +890,10 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
     return std::move(err);
   }
   // Without a size, we can't create a type.
-  if (!size_or_error.get()) {
+  std::optional<uint64_t> size = size_or_error.get();
+  if (!size) {
     return nullptr;
   }
-  uint64_t size = *size_or_error.get();
 
   llvm::DIType *const derived_from = nullptr;
   llvm::DICompositeType *composite_type = nullptr;
@@ -910,20 +910,21 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
       // tag instead.
       composite_type = dib.createReplaceableCompositeType(
           llvm::dwarf::DW_TAG_class_type, *name, scope, file, op->Line(),
-          /*RuntimeLang*/ 0, size, align, flags, linkage_name);
+          /*RuntimeLang*/ 0, *size, align, flags, linkage_name);
       composite_type = llvm::MDNode::replaceWithDistinct(
           llvm::TempDICompositeType(composite_type));
       break;
     case OpenCLDebugInfo100Structure:
       composite_type = dib.createStructType(
-          scope, *name, file, op->Line(), size, align, flags, derived_from,
+          scope, *name, file, op->Line(), *size, align, flags, derived_from,
           /*Elements*/ llvm::DINodeArray(), /*RunTimeLang*/ 0,
           /*VTableHolder*/ nullptr, linkage_name);
       break;
     case OpenCLDebugInfo100Union:
-      composite_type = dib.createUnionType(scope, *name, file, op->Line(), size,
-                                           align, flags, llvm::DINodeArray(),
-                                           /*RunTimeLang*/ 0, linkage_name);
+      composite_type =
+          dib.createUnionType(scope, *name, file, op->Line(), *size, align,
+                              flags, llvm::DINodeArray(),
+                              /*RunTimeLang*/ 0, linkage_name);
       break;
   }
 
@@ -986,13 +987,13 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   }
   llvm::DIType *const base_ty = base_ty_or_error.get();
 
-  if ((spv_flags & OpenCLDebugInfo100FlagStaticMember) && op->Value()) {
-    llvm::Value *val = module.getValue(*op->Value());
+  if (auto op_val = op->Value();
+      (spv_flags & OpenCLDebugInfo100FlagStaticMember) && op_val) {
+    llvm::Value *val = module.getValue(*op_val);
     if (!llvm::isa_and_present<llvm::Constant>(val)) {
-      return makeStringError("'Value' " + getIDAsStr(*op->Value(), &module) +
-                             " of DebugTypeMember " +
-                             getIDAsStr(op->IdResult(), &module) +
-                             " is not an OpConstant");
+      return makeStringError(
+          "'Value' " + getIDAsStr(*op_val, &module) + " of DebugTypeMember " +
+          getIDAsStr(op->IdResult(), &module) + " is not an OpConstant");
     }
 #if LLVM_VERSION_GREATER_EQUAL(18, 0)
     return getDIBuilder(op).createStaticMemberType(
@@ -1010,24 +1011,25 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
     return std::move(err);
   }
   // Without a size, we can't create a type.
-  if (!size_or_error.get()) {
+  std::optional<uint64_t> size = size_or_error.get();
+  if (!size) {
     return nullptr;
   }
   uint64_t alignment = 0;
-  uint64_t size = *size_or_error.get();
 
   auto offset_or_error = getConstantIntValue(op->Offset());
   if (auto err = offset_or_error.takeError()) {
     return std::move(err);
   }
   // Without an offset, we can't create a type.
-  if (!offset_or_error.get()) {
+  std::optional<uint64_t> offset = offset_or_error.get();
+  if (!offset) {
     return nullptr;
   }
-  uint64_t offset = *offset_or_error.get();
 
-  return getDIBuilder(op).createMemberType(scope, *name, file, op->Line(), size,
-                                           alignment, offset, flags, base_ty);
+  return getDIBuilder(op).createMemberType(scope, *name, file, op->Line(),
+                                           *size, alignment, *offset, flags,
+                                           base_ty);
 }
 
 class DebugTypeInheritance : public OpExtInst {
@@ -1063,12 +1065,12 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
     return std::move(err);
   }
   // Without an offset, we can't continue.
-  if (!offset_or_error.get()) {
+  std::optional<uint64_t> offset = offset_or_error.get();
+  if (!offset) {
     return nullptr;
   }
-  uint64_t offset = *offset_or_error.get();
 
-  return getDIBuilder(op).createInheritance(child, parent, offset,
+  return getDIBuilder(op).createInheritance(child, parent, *offset,
                                             /*VBPtrOffset*/ 0, flags);
 }
 
@@ -1347,9 +1349,9 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   llvm::DIType *const ty = ty_or_error.get();
 
   llvm::DIDerivedType *static_member_decl_ty = nullptr;
-  if (op->StaticMemberDecl()) {
+  if (auto static_member_decl = op->StaticMemberDecl()) {
     auto smd_or_error =
-        translateDebugInst<llvm::DIDerivedType>(*op->StaticMemberDecl());
+        translateDebugInst<llvm::DIDerivedType>(*static_member_decl);
     if (auto err = smd_or_error.takeError()) {
       return std::move(err);
     }

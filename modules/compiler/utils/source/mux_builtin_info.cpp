@@ -1308,7 +1308,11 @@ std::optional<llvm::ConstantRange> BIMuxInfoConcept::getBuiltinRange(
         return std::nullopt;
       }
       uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
-      if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
+      if (DimVal >= SizesPtr->size()) {
+        return std::nullopt;
+      }
+      std::optional<uint64_t> Size = (*SizesPtr)[DimVal];
+      if (!Size) {
         return std::nullopt;
       }
       // ID builtins range [0,size) (exclusive), and size builtins [1,size]
@@ -1317,9 +1321,8 @@ std::optional<llvm::ConstantRange> BIMuxInfoConcept::getBuiltinRange(
       const int SizeAdjust = ID == eMuxBuiltinGetLocalSize ||
                              ID == eMuxBuiltinGetEnqueuedLocalSize ||
                              ID == eMuxBuiltinGetGlobalSize;
-      return ConstantRange::getNonEmpty(
-          APInt(Bits, SizeAdjust),
-          APInt(Bits, *(*SizesPtr)[DimVal] + SizeAdjust));
+      return ConstantRange::getNonEmpty(APInt(Bits, SizeAdjust),
+                                        APInt(Bits, Size.value() + SizeAdjust));
     }
   }
 }
