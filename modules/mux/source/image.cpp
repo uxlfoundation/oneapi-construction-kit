@@ -25,7 +25,7 @@ mux_result_t muxCreateImage(mux_device_t device, mux_image_type_e type,
                             uint64_t slice_size,
                             mux_allocator_info_t allocator_info,
                             mux_image_t *out_image) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -74,7 +74,7 @@ mux_result_t muxCreateImage(mux_device_t device, mux_image_type_e type,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectCreateImage(
+  const mux_result_t error = muxSelectCreateImage(
       device, type, format, width, height, depth, array_layers, row_size,
       slice_size, allocator_info, out_image);
 
@@ -87,7 +87,7 @@ mux_result_t muxCreateImage(mux_device_t device, mux_image_type_e type,
 
 void muxDestroyImage(mux_device_t device, mux_image_t image,
                      mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;
@@ -106,7 +106,7 @@ void muxDestroyImage(mux_device_t device, mux_image_t image,
 
 mux_result_t muxBindImageMemory(mux_device_t device, mux_memory_t memory,
                                 mux_image_t image, uint64_t offset) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -137,7 +137,7 @@ mux_result_t muxGetSupportedImageFormats(mux_device_t device,
                                          uint32_t count,
                                          mux_image_format_e *out_formats,
                                          uint32_t *out_count) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;

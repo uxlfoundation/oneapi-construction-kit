@@ -24,7 +24,7 @@ mux_result_t muxAllocateMemory(mux_device_t device, size_t size, uint32_t heap,
                                uint32_t alignment,
                                mux_allocator_info_t allocator_info,
                                mux_memory_t *out_memory) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -69,7 +69,7 @@ mux_result_t muxAllocateMemory(mux_device_t device, size_t size, uint32_t heap,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectAllocateMemory(
+  const mux_result_t error = muxSelectAllocateMemory(
       device, size, heap, memory_properties, allocation_type, alignment,
       allocator_info, out_memory);
 
@@ -84,7 +84,7 @@ mux_result_t muxCreateMemoryFromHost(mux_device_t device, size_t size,
                                      void *host_pointer,
                                      mux_allocator_info_t allocator_info,
                                      mux_memory_t *out_memory) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -111,7 +111,7 @@ mux_result_t muxCreateMemoryFromHost(mux_device_t device, size_t size,
     return mux_error_feature_unsupported;
   }
 
-  mux_result_t error = muxSelectCreateMemoryFromHost(
+  const mux_result_t error = muxSelectCreateMemoryFromHost(
       device, size, host_pointer, allocator_info, out_memory);
 
   if (mux_success == error) {
@@ -123,7 +123,7 @@ mux_result_t muxCreateMemoryFromHost(mux_device_t device, size_t size,
 
 void muxFreeMemory(mux_device_t device, mux_memory_t memory,
                    mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;
@@ -142,7 +142,7 @@ void muxFreeMemory(mux_device_t device, mux_memory_t memory,
 
 mux_result_t muxMapMemory(mux_device_t device, mux_memory_t memory,
                           uint64_t offset, uint64_t size, void **out_data) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -174,7 +174,7 @@ mux_result_t muxMapMemory(mux_device_t device, mux_memory_t memory,
 mux_result_t muxFlushMappedMemoryToDevice(mux_device_t device,
                                           mux_memory_t memory, uint64_t offset,
                                           uint64_t size) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -194,7 +194,7 @@ mux_result_t muxFlushMappedMemoryToDevice(mux_device_t device,
 mux_result_t muxFlushMappedMemoryFromDevice(mux_device_t device,
                                             mux_memory_t memory,
                                             uint64_t offset, uint64_t size) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -212,7 +212,7 @@ mux_result_t muxFlushMappedMemoryFromDevice(mux_device_t device,
 }
 
 mux_result_t muxUnmapMemory(mux_device_t device, mux_memory_t memory) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;

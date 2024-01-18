@@ -115,7 +115,7 @@ TEST_F(CreateDevice, DefaultExtension) {
 }
 
 TEST_F(CreateDevice, DefaultFeature) {
-  VkPhysicalDeviceFeatures physicalDeviceFeatures = {};
+  const VkPhysicalDeviceFeatures physicalDeviceFeatures = {};
   deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures;
   ASSERT_EQ_RESULT(VK_SUCCESS, vkCreateDevice(physicalDevice, &deviceCreateInfo,
                                               nullptr, &device));

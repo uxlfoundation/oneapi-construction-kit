@@ -133,13 +133,15 @@ abacus_float ABACUS_API __abacus_asinh(abacus_float x) {
     return x;
   }
 
-  abacus_float xAbs = __abacus_fabs(x);
+  const abacus_float xAbs = __abacus_fabs(x);
 
-  abacus_int high_eight = (xAbs < intervals[8]) ? 8 : 0;
-  abacus_int high_four =
+  const abacus_int high_eight = (xAbs < intervals[8]) ? 8 : 0;
+  const abacus_int high_four =
       high_eight + ((xAbs < intervals[high_eight + 4]) ? 4 : 0);
-  abacus_int high_two = high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
-  abacus_int interval = high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
+  const abacus_int high_two =
+      high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
+  const abacus_int interval =
+      high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
 
   abacus_float ans = abacus::internal::horner_polynomial(
       xAbs, __codeplay_asinh_coeff + interval * 5, 5);

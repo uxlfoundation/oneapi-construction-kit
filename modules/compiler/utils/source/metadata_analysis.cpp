@@ -51,7 +51,7 @@ GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
     // work-group sizes.
     if (auto vf_info = parseWrapperFnMetadata(Fn);
         !hasNoExplicitSubgroups(Fn) && vf_info) {
-      VectorizationFactor vf = vf_info->first.vf;
+      const VectorizationFactor vf = vf_info->first.vf;
       sub_group_size = FixedOrScalableQuantity<uint32_t>(
           sub_group_size.getFixedValue() * vf.getKnownMin(), vf.isScalable());
     }
@@ -61,7 +61,7 @@ GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
 
 PreservedAnalyses GenericMetadataPrinterPass::run(Function &F,
                                                   FunctionAnalysisManager &AM) {
-  handler::GenericMetadata md = AM.getResult<GenericMetadataAnalysis>(F);
+  const handler::GenericMetadata md = AM.getResult<GenericMetadataAnalysis>(F);
   OS << "Cached generic metadata analysis:\n";
   OS << printGenericMD(md);
   return PreservedAnalyses::all();
@@ -86,7 +86,7 @@ VectorizeMetadataAnalysis::Result VectorizeMetadataAnalysis::run(
   auto pref_width = FixedOrScalableQuantity<uint32_t>::getOne();
 
   if (auto vf_info = parseWrapperFnMetadata(Fn)) {
-    VectorizationFactor main_vf = vf_info->first.vf;
+    const VectorizationFactor main_vf = vf_info->first.vf;
     pref_width = FixedOrScalableQuantity<uint32_t>(main_vf.getKnownMin(),
                                                    main_vf.isScalable());
     // Until we parse the tail, assume this also constitutes the minimum legal
@@ -99,7 +99,7 @@ VectorizeMetadataAnalysis::Result VectorizeMetadataAnalysis::run(
     // Now check the tail, which may loosen the requirements on the minimum
     // legal width.
     if (auto tail_info = vf_info->second) {
-      VectorizationFactor tail_vf = tail_info->vf;
+      const VectorizationFactor tail_vf = tail_info->vf;
       if (tail_info->IsVectorPredicated) {
         // Vector-predicated kernels can execute a minimum of 1 work-item.
         min_width = FixedOrScalableQuantity<uint32_t>::getOne();
@@ -116,7 +116,7 @@ VectorizeMetadataAnalysis::Result VectorizeMetadataAnalysis::run(
 
 PreservedAnalyses VectorizeMetadataPrinterPass::run(
     Function &F, FunctionAnalysisManager &AM) {
-  handler::VectorizeInfoMetadata md =
+  const handler::VectorizeInfoMetadata md =
       AM.getResult<VectorizeMetadataAnalysis>(F);
   OS << "Cached vectorize metadata analysis:\n";
   OS << printVectorizeMD(md);

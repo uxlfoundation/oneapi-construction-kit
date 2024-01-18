@@ -59,7 +59,7 @@ static inline llvm::Error makeStringError(const llvm::Twine &message) {
 static inline std::string getIDAsStr(spv::Id id, Module *module = nullptr) {
   std::string id_str = "%" + std::to_string(id);
   if (module) {
-    std::string name = module->getName(id);
+    const std::string name = module->getName(id);
     if (!name.empty()) {
       id_str += "[%" + name + "]";
     }
@@ -590,7 +590,7 @@ class Builder {
     std::string joined;
     llvm::SmallVector<llvm::StringRef, 16> subs;
     for (size_t nameIndex = 0; nameIndex < names.size(); nameIndex++) {
-      llvm::StringRef name(names[nameIndex]);
+      const llvm::StringRef name(names[nameIndex]);
       if (name.starts_with("Dv")) {
         auto found = std::find(subs.begin(), subs.end(), name);
         if (found == subs.end()) {

@@ -384,13 +384,13 @@ struct HalfConvertHelper_rte<UShort, Float> {
     } else if (shift == 32u) {
       return x >> 31;
     }
-    UInt round = x & ((1u << shift) - 1);
+    const UInt round = x & ((1u << shift) - 1);
     if (round < (1u << (shift - 1u))) {
       return x >> shift;
     } else if (round > (1u << (shift - 1u))) {
       return (x >> shift) + 1u;
     } else {
-      UInt tmp = x >> shift;
+      const UInt tmp = x >> shift;
       return (tmp & 0x1) ? (tmp + 1u) : tmp;
     }
   }
@@ -417,10 +417,12 @@ static inline UShort HalfDownConvertHelper_rte(const Float payload) {
     out.Exponent = 0x1f;
     out.Sign = in.Sign;
   } else if ((in.Exponent + Shape::Float16Bias) <= Shape::Float32Bias) {
-    Int bias_exponent = in.Exponent + Shape::Float16Bias - Shape::Float32Bias;
-    UInt shift = 23u - 10u - bias_exponent + 1u;
-    UInt mantissa = HalfConvertHelper_rte<UShort, Float>::ShiftRightLogical(
-        in.Mantissa | (1u << 23), shift, in.Sign);
+    const Int bias_exponent =
+        in.Exponent + Shape::Float16Bias - Shape::Float32Bias;
+    const UInt shift = 23u - 10u - bias_exponent + 1u;
+    const UInt mantissa =
+        HalfConvertHelper_rte<UShort, Float>::ShiftRightLogical(
+            in.Mantissa | (1u << 23), shift, in.Sign);
     if (mantissa == (1u << 10)) {
       out.Mantissa = 0;
       out.Exponent = 0x1;
@@ -431,7 +433,7 @@ static inline UShort HalfDownConvertHelper_rte(const Float payload) {
       out.Sign = in.Sign;
     }
   } else {
-    UInt shift = 23u - 10u;
+    const UInt shift = 23u - 10u;
     UInt mantissa = HalfConvertHelper_rte<UShort, Float>::ShiftRightLogical(
         in.Mantissa, shift, in.Sign);
     UInt exponent = Shape::Float16Bias - Shape::Float32Bias + in.Exponent;

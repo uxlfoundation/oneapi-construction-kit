@@ -152,7 +152,7 @@ void configArmFP(Function &wrapper, Function &function) {
   // bits [12..8]  - exception trap bits, set to 0 (turn off traps).
   // bits [7..5]   - reserved, set to 0.
   // bits [4,,0]   - exception bits, set to 0 (traps are off anyway).
-  uint32_t fpscr_bits = 0x00000000;
+  const uint32_t fpscr_bits = 0x00000000;
   auto new_fpscr = ir.getInt32(fpscr_bits);
 
   // set the fpscr to the new masked value
@@ -178,13 +178,13 @@ void configArmFP(Function &wrapper, Function &function) {
 }
 
 Function *runOnFunction(Function &F, bool SetFTZ) {
-  Module &M = *F.getParent();
+  const Module &M = *F.getParent();
   // Setting floating point configuration is very architecture specific,
   // so find out which architecture specific helper we want to invoke.
   using helper_func_type = decltype(&configArmFP);
   helper_func_type arch_helper = nullptr;
 
-  Triple triple(M.getTargetTriple());
+  const Triple triple(M.getTargetTriple());
   switch (triple.getArch()) {
     case Triple::arm:
       arch_helper = configArmFP;

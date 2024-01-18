@@ -43,7 +43,7 @@ PreservedAnalyses host::DisableNeonAttributePass::run(Module &M,
   // vector conversions from i64 -> float do the conversion in two stages,
   // i64 -> double then double -> float. This loses precision because of
   // incorrect rounding in the intermediate value.
-  Triple triple(M.getTargetTriple());
+  const Triple triple(M.getTargetTriple());
   if (Triple::aarch64 != triple.getArch()) {
     return PreservedAnalyses::all();
   }

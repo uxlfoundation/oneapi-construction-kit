@@ -69,7 +69,7 @@ TEST_F(Execution, Task_09_03_Masked_Scatter) {
       return Indices[x];
     };
     kts::Reference1D<cl_int> refOut = [&Indices](size_t x) -> cl_int {
-      cl_int Index = static_cast<cl_int>(
+      const cl_int Index = static_cast<cl_int>(
           std::find(Indices.begin(), Indices.end(), x) - Indices.begin());
       return Index % 3 == 0 ? 42 : kts::Ref_A(Index);
     };
@@ -107,12 +107,12 @@ TEST_F(Execution, Task_09_04_Masked_Gather) {
 
 TEST_F(Execution, Task_09_05_Masked_Argument_Stride) {
   if (clspvSupported_) {
-    cl_int Stride = 3;
-    cl_int Max = 1 << 30;
-    kts::Reference1D<cl_int> refIn = [Max](size_t x) {
+    static const cl_int Stride = 3;
+    static const cl_int Max = 1 << 30;
+    kts::Reference1D<cl_int> refIn = [](size_t x) {
       return static_cast<cl_int>(x % Max);
     };
-    kts::Reference1D<cl_int> refOut = [Max, Stride](size_t x) -> cl_int {
+    kts::Reference1D<cl_int> refOut = [](size_t x) -> cl_int {
       if (x == 0 || x == 1 || x == 2) {
         return 13;
       } else {
@@ -129,7 +129,7 @@ TEST_F(Execution, Task_09_05_Masked_Argument_Stride) {
 
 TEST_F(Execution, Task_09_06_Masked_Negative_Stride) {
   if (clspvSupported_) {
-    cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
+    const cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
     kts::Reference1D<cl_int> refIn = [](size_t x) {
       return static_cast<cl_int>(x * x);
     };
@@ -150,7 +150,7 @@ TEST_F(Execution, Task_09_06_Masked_Negative_Stride) {
 
 TEST_F(Execution, Task_09_07_Masked_Negative_Argument_Stride) {
   if (clspvSupported_) {
-    cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
+    const cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
     kts::Reference1D<cl_int> refIn = [](size_t x) {
       return static_cast<cl_int>(x * x);
     };

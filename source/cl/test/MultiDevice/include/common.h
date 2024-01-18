@@ -106,7 +106,7 @@ class ErrcodeRetWrapper {
         // mainly used to flag unknown error codes and allows this to be a
         // simple C string. As unknown error code problems should be fixed
         // immediately, the chance for a race shouldn't occur regularly.
-        static std::string str = strstr.str();
+        static const std::string str = strstr.str();
         return str.c_str();
       } break;
     }

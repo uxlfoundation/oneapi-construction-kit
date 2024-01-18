@@ -569,8 +569,8 @@ spv::StorageClass OpTypeForwardPointer::StorageClass() const {
 uint32_t OpConstant::Value32() const { return getValueAtOffset(3); }
 
 uint64_t OpConstant::Value64() const {
-  uint64_t lowWord = getValueAtOffset(3);
-  uint64_t highWord = getValueAtOffset(4);
+  const uint64_t lowWord = getValueAtOffset(3);
+  const uint64_t highWord = getValueAtOffset(4);
   return lowWord | (highWord << 32);
 }
 
@@ -595,8 +595,8 @@ spv::SamplerFilterMode OpConstantSampler::SamplerFilterMode() const {
 uint32_t OpSpecConstant::Value32() const { return getValueAtOffset(3); }
 
 uint64_t OpSpecConstant::Value64() const {
-  uint64_t lowWord = getValueAtOffset(3);
-  uint64_t highWord = getValueAtOffset(4);
+  const uint64_t lowWord = getValueAtOffset(3);
+  const uint64_t highWord = getValueAtOffset(4);
   return lowWord | (highWord << 32);
 }
 

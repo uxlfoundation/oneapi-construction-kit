@@ -59,8 +59,8 @@ bool serializeExecutable(OpenCLWriteUserdata *cl_userdata, md_ctx ctx) {
   }
 
   if (cl_userdata->is_executable) {
-    int err = md_push_bytes(stack, cl_userdata->mux_executable.data(),
-                            cl_userdata->mux_executable.size());
+    const int err = md_push_bytes(stack, cl_userdata->mux_executable.data(),
+                                  cl_userdata->mux_executable.size());
     if (MD_CHECK_ERR(err)) {
       return false;
     }
@@ -466,7 +466,7 @@ bool deserializeOpenCLPrintfCalls(
     if (MD_CHECK_ERR(err)) {
       return false;
     }
-    int types_arr_len = md_get_array_size(types_arr);
+    const int types_arr_len = md_get_array_size(types_arr);
     if (MD_CHECK_ERR(types_arr_len)) {
       return false;
     }
@@ -491,7 +491,7 @@ bool deserializeOpenCLPrintfCalls(
     if (MD_CHECK_ERR(err)) {
       return false;
     }
-    int strings_arr_len = md_get_array_size(strings_arr);
+    const int strings_arr_len = md_get_array_size(strings_arr);
     if (MD_CHECK_ERR(strings_arr_len)) {
       return false;
     }

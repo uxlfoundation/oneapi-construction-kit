@@ -27,7 +27,7 @@ PreservedAnalyses compiler::utils::ReplaceMuxMathDeclsPass::run(
     Module &M, ModuleAnalysisManager &MAM) {
   bool Changed = false;
 
-  Triple TT(M.getTargetTriple());
+  const Triple TT(M.getTargetTriple());
   auto &DI = MAM.getResult<DeviceInfoAnalysis>(M);
 
   // Abacus needs to know if denormal floats are supported, so it can avoid

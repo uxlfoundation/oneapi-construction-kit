@@ -20,7 +20,7 @@
 
 mux_result_t muxGetQueue(mux_device_t device, mux_queue_type_e queue_type,
                          uint32_t queue_index, mux_queue_t *out_queue) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -43,7 +43,7 @@ mux_result_t muxGetQueue(mux_device_t device, mux_queue_type_e queue_type,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error =
+  const mux_result_t error =
       muxSelectGetQueue(device, queue_type, queue_index, out_queue);
 
   // Note that all the muxCreate* functions do mux::setId on their object
@@ -61,7 +61,7 @@ mux_result_t muxDispatch(
     void (*user_function)(mux_command_buffer_t command_buffer,
                           mux_result_t error, void *const user_data),
     void *user_data) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return mux_error_invalid_value;
@@ -107,7 +107,7 @@ mux_result_t muxDispatch(
 
 mux_result_t muxTryWait(mux_queue_t queue, uint64_t timeout,
                         mux_fence_t fence) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return mux_error_invalid_value;
@@ -121,7 +121,7 @@ mux_result_t muxTryWait(mux_queue_t queue, uint64_t timeout,
 }
 
 mux_result_t muxWaitAll(mux_queue_t queue) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return mux_error_invalid_value;

@@ -32,7 +32,7 @@ struct muxBindImageMemoryTest : DeviceTest {
             ? mux_allocation_type_alloc_device
             : mux_allocation_type_alloc_host;
 
-    uint32_t heap = mux::findFirstSupportedHeap(supported_heaps);
+    const uint32_t heap = mux::findFirstSupportedHeap(supported_heaps);
 
     return muxAllocateMemory(device, MEMORY_SIZE, heap,
                              mux_memory_property_host_visible, allocation_type,
@@ -51,7 +51,7 @@ INSTANTIATE_DEVICE_TEST_SUITE_P(muxBindImageMemoryTest);
 
 TEST_P(muxBindImageMemoryTest, 1D) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
+    const mux_image_type_e type = mux_image_type_1d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -79,7 +79,7 @@ TEST_P(muxBindImageMemoryTest, 1D) {
 
 TEST_P(muxBindImageMemoryTest, 2D) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_2d;
+    const mux_image_type_e type = mux_image_type_2d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -107,7 +107,7 @@ TEST_P(muxBindImageMemoryTest, 2D) {
 
 TEST_P(muxBindImageMemoryTest, 3D) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
+    const mux_image_type_e type = mux_image_type_3d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -135,7 +135,7 @@ TEST_P(muxBindImageMemoryTest, 3D) {
 
 TEST_P(muxBindImageMemoryTest, InvalidDevice) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
+    const mux_image_type_e type = mux_image_type_3d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -164,7 +164,7 @@ TEST_P(muxBindImageMemoryTest, InvalidDevice) {
 
 TEST_P(muxBindImageMemoryTest, InvalidMemory) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
+    const mux_image_type_e type = mux_image_type_3d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -193,7 +193,7 @@ TEST_P(muxBindImageMemoryTest, InvalidMemory) {
 
 TEST_P(muxBindImageMemoryTest, InvalidImage) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
+    const mux_image_type_e type = mux_image_type_3d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -222,7 +222,7 @@ TEST_P(muxBindImageMemoryTest, InvalidImage) {
 
 TEST_P(muxBindImageMemoryTest, InvalidImageSize) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
+    const mux_image_type_e type = mux_image_type_3d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
@@ -252,7 +252,7 @@ TEST_P(muxBindImageMemoryTest, InvalidImageSize) {
 TEST_P(muxBindImageMemoryTest, InvalidOffset) {
   // We test for each of the devices where length is number of devices
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
+    const mux_image_type_e type = mux_image_type_3d;
     const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)

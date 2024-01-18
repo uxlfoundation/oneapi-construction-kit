@@ -22,8 +22,8 @@ INSTANTIATE_DEVICE_TEST_SUITE_P(muxGetSupportedImageFormatsTest);
 
 TEST_P(muxGetSupportedImageFormatsTest, 1D) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_1d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -41,8 +41,8 @@ TEST_P(muxGetSupportedImageFormatsTest, 1D) {
 
 TEST_P(muxGetSupportedImageFormatsTest, 2D) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_2d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_2d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -60,8 +60,8 @@ TEST_P(muxGetSupportedImageFormatsTest, 2D) {
 
 TEST_P(muxGetSupportedImageFormatsTest, 3D) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_3d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_3d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -79,8 +79,8 @@ TEST_P(muxGetSupportedImageFormatsTest, 3D) {
 
 TEST_P(muxGetSupportedImageFormatsTest, MalformedDevice) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_1d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -94,8 +94,8 @@ TEST_P(muxGetSupportedImageFormatsTest, MalformedDevice) {
 
 TEST_P(muxGetSupportedImageFormatsTest, MalformedImageType) {
   if (device->info->image_support) {
-    mux_image_type_e type = static_cast<mux_image_type_e>(-1);
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = static_cast<mux_image_type_e>(-1);
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -109,8 +109,8 @@ TEST_P(muxGetSupportedImageFormatsTest, MalformedImageType) {
 
 TEST_P(muxGetSupportedImageFormatsTest, MalformedAllocType) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_1d;
+    const mux_allocation_type_e allocation_type =
         static_cast<mux_allocation_type_e>(-1);
     uint32_t out_count = 0;
     ASSERT_ERROR_EQ(mux_error_invalid_value,
@@ -121,8 +121,8 @@ TEST_P(muxGetSupportedImageFormatsTest, MalformedAllocType) {
 
 TEST_P(muxGetSupportedImageFormatsTest, InvalidCount) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_1d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device

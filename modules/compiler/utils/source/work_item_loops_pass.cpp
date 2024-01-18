@@ -1385,7 +1385,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     localSizeDim[1] = entryIR.getIntN(8 * sizeTyBytes, (*wgs)[1]);
     localSizeDim[2] = entryIR.getIntN(8 * sizeTyBytes, (*wgs)[2]);
   } else {
-    uint32_t max_work_dim = parseMaxWorkDimMetadata(refF).value_or(3);
+    const uint32_t max_work_dim = parseMaxWorkDimMetadata(refF).value_or(3);
 
     // Fill out a default local size of 1x1x1.
     std::fill(std::begin(localSizeDim), std::end(localSizeDim),
@@ -1517,7 +1517,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
       entryIR.CreateAlloca(index_type, nullptr, "next_barrier_id");
 
   SmallVector<BasicBlock *, 8> bbs;
-  unsigned num_blocks = barrierMain.getNumSubkernels();
+  const unsigned num_blocks = barrierMain.getNumSubkernels();
   assert(!emitTail || barrierTail->getNumSubkernels() == num_blocks);
 
   for (unsigned i = kBarrier_EndID; i <= num_blocks; i++) {
@@ -1780,9 +1780,9 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
 
     const auto WorkItemDim0 = 0;
 
-    VectorizationInfo scalarTailInfo{VectorizationFactor::getScalar(),
-                                     WorkItemDim0,
-                                     /*IsVectorPredicated*/ false};
+    const VectorizationInfo scalarTailInfo{VectorizationFactor::getScalar(),
+                                           WorkItemDim0,
+                                           /*IsVectorPredicated*/ false};
 
     if (!VeczToOrigFnData) {
       // If there was no vectorization metadata, it's a scalar kernel.
@@ -1860,7 +1860,7 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
           (!GSGI.usesSubgroups(*P.MainF) && !GSGI.usesSubgroups(*TailF))) {
         RedundantMains.insert(TailF);
       } else if (auto wgs = parseRequiredWGSMetadata(*P.MainF)) {
-        uint64_t local_size_x = wgs.value()[0];
+        const uint64_t local_size_x = wgs.value()[0];
         if (!P.MainInfo.IsVectorPredicated &&
             !(local_size_x % P.MainInfo.vf.getKnownMin())) {
           RedundantMains.insert(TailF);

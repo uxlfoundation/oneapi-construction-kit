@@ -153,8 +153,8 @@ cl_int GetObjectExtensionInfoSingleValue(
   cl_int retcode = CL_INVALID_VALUE;
   size_t ext_idx = 0;
   for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    cl_int supported_retcode = get_info_fn(extensions[ext_idx], object, param_name, 0, nullptr,
-                          nullptr);
+    const cl_int supported_retcode = get_info_fn(
+        extensions[ext_idx], object, param_name, 0, nullptr, nullptr);
     if (CL_SUCCESS != supported_retcode) {
       // This extension does not support the info query, keep searching.
       continue;
@@ -230,8 +230,8 @@ cl_int GetObjectDetailExtensionInfoSingleValue(
   cl_int retcode = CL_INVALID_VALUE;
   size_t ext_idx = 0;
   for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    cl_int supported_retcode = get_info_fn(extensions[ext_idx], object, detail, param_name, 0,
-                          nullptr, nullptr);
+    const cl_int supported_retcode = get_info_fn(
+        extensions[ext_idx], object, detail, param_name, 0, nullptr, nullptr);
     if (CL_SUCCESS != supported_retcode) {
       // This extension does not support the info query, keep searching.
       continue;
@@ -306,7 +306,7 @@ cl_int GetObjectDetailExtensionInfoSingleInputValue(
   cl_int retcode = CL_INVALID_VALUE;
   size_t ext_idx = 0;
   for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    cl_int supported_retcode =
+    const cl_int supported_retcode =
         get_info_fn(extensions[ext_idx], object, detail, param_name, 0, nullptr,
                     0, nullptr, nullptr);
     if (CL_SUCCESS != supported_retcode) {
@@ -392,8 +392,8 @@ cl_int GetObjectExtensionInfoAggregatedCString(
     // Last Revision Date: 11/14/12,
     // Section 4.1 Querying Platform Info, page 35.
     size_t value_size_ret = 0;
-    cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name, 0,
-                                 nullptr, &value_size_ret);
+    const cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name,
+                                       0, nullptr, &value_size_ret);
     if (CL_SUCCESS != retcode) {
       // This extension does not support the info query, skip it to find
       // extensions that do.
@@ -475,8 +475,8 @@ cl_int GetObjectExtensionInfoAggregatedArray(
   size_t aggregated_value_size_ret = 0;
   for (size_t ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
     size_t value_size_ret = 0;
-    cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name, 0,
-                                 nullptr, &value_size_ret);
+    const cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name,
+                                       0, nullptr, &value_size_ret);
     if (CL_SUCCESS != retcode) {
       // This extension does not support the info query, skip it to find
       // extensions that do.

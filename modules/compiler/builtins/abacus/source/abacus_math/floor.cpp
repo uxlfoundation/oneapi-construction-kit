@@ -34,13 +34,13 @@ struct helper {
     const T diff = x - truncated;
 
     // Subtract 1 from truncated value if diff and x are negative
-    SignedType is_negative = (diff < 0.0) & (x < 0.0);
+    const SignedType is_negative = (diff < 0.0) & (x < 0.0);
     const T decremented = truncated - (T)1.0;
     T result = __abacus_select(truncated, decremented, is_negative);
 
     // Return the original input for INF, NaN, and floats which already
     // represent integers
-    SignedType identity =
+    const SignedType identity =
         ~__abacus_isnormal(x) | abacus::internal::is_integer_quick(x);
     result = __abacus_select(result, x, identity);
 

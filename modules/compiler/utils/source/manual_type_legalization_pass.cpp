@@ -41,7 +41,7 @@ PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
   // We cannot reliably determine which targets these are, but that is okay, on
   // targets where this pass is not needed it does no harm, it merely wastes
   // time.
-  llvm::Triple TT(F.getParent()->getTargetTriple());
+  const llvm::Triple TT(F.getParent()->getTargetTriple());
   if (TTI.isTypeLegal(HalfT) || TT.isX86() || TT.isRISCV()) {
     return PreservedAnalyses::all();
   }

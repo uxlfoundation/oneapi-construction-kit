@@ -89,11 +89,11 @@ void compiler::utils::AddKernelWrapperPass::createNewFunctionArgTypes(
     // we never go beyond 128
     if (!IsPacked) {
       const auto &datalayout = M.getDataLayout();
-      uint64_t size =
+      const uint64_t size =
           std::max((uint64_t)1,
                    (uint64_t)datalayout.getTypeAllocSizeInBits(addType) / 8);
-      uint32_t alignSize = std::min((uint64_t)128, PowerOf2Ceil(size));
-      uint32_t remainder = index % alignSize;
+      const uint32_t alignSize = std::min((uint64_t)128, PowerOf2Ceil(size));
+      const uint32_t remainder = index % alignSize;
 
       if (remainder) {
         // Add padding
@@ -138,7 +138,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
     SmallVector<Type *, 4> argTypes;
     SmallVector<KernelArgMapping, 4> argMappings;
 
-    std::string packedArgsTyName =
+    const std::string packedArgsTyName =
         (StringRef("MuxPackedArgs.") + getBaseFnNameOrFnName(F)).str();
     auto *const structType =
         StructType::create(F.getContext(), packedArgsTyName);
@@ -175,7 +175,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
 
     for (const auto &argMapping : argMappings) {
       assert(argMapping.OldArgIdx < F.arg_size());
-      Argument &arg = *F.getArg(argMapping.OldArgIdx);
+      const Argument &arg = *F.getArg(argMapping.OldArgIdx);
       Type *const type = arg.getType();
 
       // Copy over parameter names and attributes from directly-mapped mapped
@@ -214,7 +214,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
           structType, packedArgPtr,
           {ir.getInt32(0), ir.getInt32(argMapping.PackedStructFieldIdx)});
       auto &dl = M.getDataLayout();
-      uint32_t alignmentNeeded =
+      const uint32_t alignmentNeeded =
           IsPacked ? 1 : dl.getABITypeAlign(type).value();
       auto llvmAlignment = Align(alignmentNeeded);
 

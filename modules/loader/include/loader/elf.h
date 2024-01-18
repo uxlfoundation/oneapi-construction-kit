@@ -352,8 +352,8 @@ class ElfFile {
     inline const cargo::array_view<uint8_t> data() const {
       CARGO_ASSERT(type() != ElfFields::SectionType::NOBITS,
                    "Trying to get a data view for a nobits section.");
-      size_t offset = file->field(file->is32Bit() ? header32()->file_offset
-                                                  : header64()->file_offset);
+      const size_t offset = file->field(
+          file->is32Bit() ? header32()->file_offset : header64()->file_offset);
       return {file->bytes.begin() + offset, static_cast<size_t>(size())};
     }
     /// @brief Field accessors, choosing the right bitness and converting

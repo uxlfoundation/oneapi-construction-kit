@@ -17,7 +17,7 @@
 #include "common.h"
 
 TEST(muxDestroyDeviceTest, Default) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 

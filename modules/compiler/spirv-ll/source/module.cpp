@@ -349,14 +349,14 @@ void spirv_ll::Module::addMemberDecoration(spv::Id structType, uint32_t member,
                                            const OpDecorateBase *op) {
   auto iter = MemberDecorations.find(structType);
   if (iter == MemberDecorations.end()) {
-    llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
+    const llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
     DecoratedStruct newDecoratedStruct;
     newDecoratedStruct.try_emplace(member, decorations);
     MemberDecorations.try_emplace(structType, newDecoratedStruct);
   } else {
     auto member_iter = iter->second.find(member);
     if (member_iter == iter->second.end()) {
-      llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
+      const llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
       iter->second.try_emplace(member, decorations);
     } else {
       member_iter->second.push_back(op);
@@ -601,7 +601,7 @@ llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
 }
 
 llvm::Error spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
-  spv::Id type_id = op->Type();
+  const spv::Id type_id = op->Type();
   SPIRV_LL_ASSERT(!isForwardPointer(type_id), "type_id is a forward pointer");
   llvm::Type *type = getLLVMType(type_id);
   SPIRV_LL_ASSERT_PTR(type);
@@ -659,7 +659,8 @@ llvm::Error spirv_ll::Module::updateIncompletePointer(spv::Id type_id) {
 
 void spirv_ll::Module::addSampledImage(spv::Id id, llvm::Value *image,
                                        llvm::Value *sampler) {
-  Module::SampledImage sampledImage = Module::SampledImage(image, sampler);
+  const Module::SampledImage sampledImage =
+      Module::SampledImage(image, sampler);
   SampledImagesMap.insert({id, sampledImage});
 }
 
@@ -805,6 +806,6 @@ bool spirv_ll::Module::isOpExtInst(
 bool spirv_ll::Module::isOpExtInst(
     spv::Id id, uint32_t opcode,
     const std::unordered_set<ExtendedInstrSet> &sets) const {
-  std::unordered_set<uint32_t> opcodes = {opcode};
+  const std::unordered_set<uint32_t> opcodes = {opcode};
   return isOpExtInst(id, opcodes, sets);
 }

@@ -72,9 +72,9 @@ llvm::DIType *spirv_ll::Builder::getDIType(spv::Id tyID) {
   auto *const opTy = module.get<OpType>(tyID);
   SPIRV_LL_ASSERT_PTR(opTy);
 
-  uint32_t align = DL.getABITypeAlign(llvmTy).value();
+  const uint32_t align = DL.getABITypeAlign(llvmTy).value();
 
-  uint64_t size = DL.getTypeAllocSizeInBits(llvmTy);
+  const uint64_t size = DL.getTypeAllocSizeInBits(llvmTy);
 
   if (opTy->isArrayType()) {
     llvm::DIType *elem_type = getDIType(opTy->getTypeArray()->ElementType());
@@ -405,7 +405,7 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
 
   // If we've gotten this far we can replace all uses of this builtin global
   // with work item function calls, so get the name and type of the function.
-  llvm::StringRef builtinName = getBuiltinName(kind);
+  const llvm::StringRef builtinName = getBuiltinName(kind);
   llvm::Type *funcRetTy = nullptr;
   // get_work_dim and sub-group builtins return a uint, all the other work item
   // functions return size_t
@@ -498,7 +498,7 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
     auto *opDecorate = module.getFirstDecoration(ID, spv::DecorationBuiltIn);
     SPIRV_LL_ASSERT_PTR(opDecorate);
 
-    spv::BuiltIn builtin = spv::BuiltIn(opDecorate->getValueAtOffset(3));
+    const spv::BuiltIn builtin = spv::BuiltIn(opDecorate->getValueAtOffset(3));
 
     // Before generating an init block see if we can replace all uses of the
     // builtin with calls to the work item function. If we can, skip this one.
@@ -653,7 +653,7 @@ llvm::CallInst *spirv_ll::Builder::createConversionBuiltinCall(
   }
 
   if (scalarType->isIntegerTy()) {
-    uint32_t signedness = retMangleInfo.getSignedness(module);
+    const uint32_t signedness = retMangleInfo.getSignedness(module);
     builtin += getIntTypeName(scalarType, signedness);
   } else {
     builtin += getFPTypeName(scalarType);
@@ -1067,7 +1067,7 @@ llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
       // assume signed here and below because a subset of OpenCL builtins treat
       // their parameters as signed, but creating a signed int type isn't
       // allowed by the OpenCL SPIR-V environment spec.
-      llvm::Attribute::AttrKind attribute =
+      const llvm::Attribute::AttrKind attribute =
           retMangleInfo.getSignedness(module) ? llvm::Attribute::AttrKind::SExt
                                               : llvm::Attribute::AttrKind::ZExt;
       mangledBuiltInCall->addRetAttr(attribute);
@@ -1167,7 +1167,7 @@ const spirv_ll::Builder::SubstitutableType *spirv_ll::Builder::substitutableArg(
     // if the types are vectors, makes sure that both are signed/unsigned
     if (mangleInfo && ty->isVectorTy() &&
         multi_llvm::getVectorElementType(ty)->isIntegerTy()) {
-      bool tySignedness = mangleInfo->getSignedness(module);
+      const bool tySignedness = mangleInfo->getSignedness(module);
       uint32_t subTySignedness = 1;
       if (subTy.mangleInfo) {
         subTySignedness = subTy.mangleInfo->getSignedness(module);
@@ -1261,7 +1261,8 @@ std::string spirv_ll::Builder::getMangledTypeName(
     const auto spvPointeeTy =
         module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
     auto *const elementTy = module.getLLVMType(spvPointeeTy);
-    std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);
+    const std::string mangled =
+        getMangledPointerPrefix(ty, mangleInfo->typeQuals);
     auto pointeeMangleInfo = *mangleInfo;
     pointeeMangleInfo.typeQuals = 0;
     pointeeMangleInfo.id = spvPointeeTy;
@@ -1392,7 +1393,7 @@ void spirv_ll::Builder::checkMemberDecorations(
   // Now we have the struct type and the member we can lookup decorations and
   // apply any that are there. Indexes into structs have to be OpConstantInt
   // according to the spec, so this cast is safe.
-  uint32_t member =
+  const uint32_t member =
       cast<llvm::ConstantInt>(indexes[memberIndex])->getZExtValue();
   auto structType = module.getFromLLVMTy<OpTypeStruct>(accessedStructType);
   const auto &memberDecorations =

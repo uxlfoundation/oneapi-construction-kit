@@ -23,7 +23,7 @@
 
 #define IS_VK_SUCCESS(X)                                                       \
   {                                                                            \
-    VkResult ret_val = X;                                                      \
+    const VkResult ret_val = X;                                                \
     if (VK_SUCCESS != ret_val) {                                               \
       fprintf(stderr, "Vulkan error occurred: %s returned %d\n", #X, ret_val); \
       exit(1);                                                                 \

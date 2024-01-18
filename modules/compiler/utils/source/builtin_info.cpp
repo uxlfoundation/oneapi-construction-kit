@@ -109,8 +109,8 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
   // Now check for group functions, which are a bit more involved as there's
   // many of them and they're also mangled. We enforce that the mangling makes
   // sense, otherwise the builtin is declared as invalid.
-  bool IsSubgroupOp = Name.consume_front("__mux_sub_group_");
-  bool IsVecgroupOp = Name.consume_front("__mux_vec_group_");
+  const bool IsSubgroupOp = Name.consume_front("__mux_sub_group_");
+  const bool IsVecgroupOp = Name.consume_front("__mux_vec_group_");
   if (!IsSubgroupOp && !IsVecgroupOp &&
       !Name.consume_front("__mux_work_group_")) {
     return {eBuiltinInvalid, {}};
@@ -183,7 +183,7 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
              .Case("logical_xor", SCOPED_GROUP_OP(ReduceLogicalXor))
              .Default(eBuiltinInvalid);
   } else if (Name.consume_front("scan_")) {
-    bool IsInclusive = Name.consume_front("inclusive_");
+    const bool IsInclusive = Name.consume_front("inclusive_");
     if (!IsInclusive && !Name.consume_front("exclusive_")) {
       return {eBuiltinInvalid, {}};
     }
@@ -245,8 +245,8 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
     unsigned NumMangledArgs = 0;
     // Work-group builtins have an unmangled 'barrier ID' parameter first, which
     // we want to skip.
-    unsigned Offset = ID >= eFirstMuxWorkgroupCollectiveBuiltin &&
-                      ID <= eLastMuxWorkgroupCollectiveBuiltin;
+    const unsigned Offset = ID >= eFirstMuxWorkgroupCollectiveBuiltin &&
+                            ID <= eLastMuxWorkgroupCollectiveBuiltin;
     while (!Name.empty()) {
       if (!Name.consume_front("_")) {
         return {eBuiltinInvalid, {}};
@@ -333,9 +333,9 @@ Builtin BuiltinInfo::analyzeBuiltin(const Function &F) const {
   if (F.isIntrinsic()) {
     int32_t Properties = eBuiltinPropertyNone;
 
-    Intrinsic::ID IntrID = (Intrinsic::ID)F.getIntrinsicID();
-    AttributeList AS = Intrinsic::getAttributes(F.getContext(), IntrID);
-    bool NoSideEffect = F.onlyReadsMemory();
+    const Intrinsic::ID IntrID = (Intrinsic::ID)F.getIntrinsicID();
+    const AttributeList AS = Intrinsic::getAttributes(F.getContext(), IntrID);
+    const bool NoSideEffect = F.onlyReadsMemory();
     bool SafeIntrinsic = false;
     switch (IntrID) {
       default:
@@ -629,7 +629,7 @@ Value *BuiltinInfo::initializeSchedulingParamForWrappedKernel(
 std::string BuiltinInfo::getMangledTypeStr(Type *Ty) {
   std::string Result;
   if (VectorType *VTy = dyn_cast<VectorType>(Ty)) {
-    ElementCount EC = VTy->getElementCount();
+    const ElementCount EC = VTy->getElementCount();
     if (EC.isScalable()) {
       Result += "nx";
     }
@@ -658,7 +658,7 @@ std::string BuiltinInfo::getMangledTypeStr(Type *Ty) {
 
 std::pair<Type *, StringRef> BuiltinInfo::getDemangledTypeFromStr(
     StringRef TyStr, LLVMContext &Ctx) {
-  bool IsScalable = TyStr.consume_front("nx");
+  const bool IsScalable = TyStr.consume_front("nx");
   if (TyStr.consume_front("v")) {
     unsigned EC;
     if (TyStr.consumeInteger(10, EC)) {

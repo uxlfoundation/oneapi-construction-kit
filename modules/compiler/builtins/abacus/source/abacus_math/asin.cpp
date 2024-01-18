@@ -119,12 +119,13 @@ abacus_float ABACUS_API __abacus_asin(abacus_float x) {
   if (__abacus_isinf(x)) {
     return __abacus_copysign(ABACUS_NAN, x);
   }
-  abacus_float xAbs = __abacus_fabs(x);
+  const abacus_float xAbs = __abacus_fabs(x);
 
-  int high_eight = (xAbs < intervals[8]) ? 8 : 0;
-  int high_four = high_eight + ((xAbs < intervals[high_eight + 4]) ? 4 : 0);
-  int high_two = high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
-  int interval = high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
+  const int high_eight = (xAbs < intervals[8]) ? 8 : 0;
+  const int high_four =
+      high_eight + ((xAbs < intervals[high_eight + 4]) ? 4 : 0);
+  const int high_two = high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
+  const int interval = high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
 
   float ans = (interval < 9) ? xAbs - 1.0f : xAbs;
 

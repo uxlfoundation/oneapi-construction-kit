@@ -32,7 +32,7 @@ inline UInt deconstruct_helper(T x, UInt *unBiasedExp) {
 
   *unBiasedExp = exponent;
 
-  typename TypeTraits<T>::SignedType zeroExp = (UInt)0 == exponent;
+  const typename TypeTraits<T>::SignedType zeroExp = (UInt)0 == exponent;
   const UInt shift = ix << 1;
   return __abacus_select(mantissa, shift, zeroExp);
 }

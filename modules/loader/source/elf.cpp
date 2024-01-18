@@ -24,12 +24,12 @@ const std::array<uint8_t, 4> ElfFile::HeaderIdent::ELF_MAGIC = {
 
 const cargo::string_view ElfFile::Section::name() const {
   CARGO_ASSERT(file != nullptr, "Using a null ElfFile instance");
-  Section sh = file->section(
+  const Section sh = file->section(
       file->field(file->is32Bit() ? file->header32()->sht_names_index
                                   : file->header64()->sht_names_index));
-  size_t name_offset = file->is32Bit()
-                           ? file->field(this->header32()->name_offset)
-                           : file->field(this->header64()->name_offset);
+  const size_t name_offset = file->is32Bit()
+                                 ? file->field(this->header32()->name_offset)
+                                 : file->field(this->header64()->name_offset);
   return reinterpret_cast<const char *>(file->bytes.begin() + sh.file_offset() +
                                         name_offset);
 }
@@ -40,9 +40,9 @@ cargo::optional<cargo::string_view> ElfFile::Symbol::name() const {
   if (!sh) {
     return cargo::nullopt;
   }
-  size_t name_offset = file->is32Bit()
-                           ? file->field(this->symbol32()->name_offset)
-                           : file->field(this->symbol64()->name_offset);
+  const size_t name_offset = file->is32Bit()
+                                 ? file->field(this->symbol32()->name_offset)
+                                 : file->field(this->symbol64()->name_offset);
   if (name_offset == 0) {
     return cargo::nullopt;
   }

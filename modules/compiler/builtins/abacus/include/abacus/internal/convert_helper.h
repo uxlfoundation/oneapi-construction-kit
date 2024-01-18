@@ -120,7 +120,7 @@ struct RTNHelper {
     using FPSigned = typename FP::SignedType;
     FP out;
 
-    FPSigned sign = abacus::detail::cast::convert<FPUnsigned>(s) == 1;
+    const FPSigned sign = abacus::detail::cast::convert<FPUnsigned>(s) == 1;
 
     out.Mantissa =
         __abacus_select(FP::Shape::MantissaOnes(), FPUnsigned(0), sign);
@@ -185,7 +185,7 @@ struct RTPHelper {
     using FPSigned = typename FP::SignedType;
     FP out;
 
-    FPSigned sign = abacus::detail::cast::convert<FPUnsigned>(s) == 1;
+    const FPSigned sign = abacus::detail::cast::convert<FPUnsigned>(s) == 1;
 
     out.Mantissa = __abacus_select(FPUnsigned(0),
                                    FPUnsigned(FP::Shape::MantissaOnes()), sign);
@@ -340,7 +340,7 @@ inline T DownFloatConvertHelper(const U payload) {
   // do here depends on the rounding mode, but the options are either to go
   // with an infinite or round down to the largest representable value.
   const SignedType rni_cond = exponent >= FPT::Shape::ExponentOnes();
-  FPT outrni = H::template RoundNearInfinity<FPT, UnsignedType>(in.Sign);
+  const FPT outrni = H::template RoundNearInfinity<FPT, UnsignedType>(in.Sign);
   wip.Mantissa = __abacus_select(
       wip.Mantissa,
       abacus::detail::cast::convert<UnsignedType>(outrni.Mantissa), rni_cond);

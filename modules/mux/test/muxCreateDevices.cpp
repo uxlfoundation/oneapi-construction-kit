@@ -17,7 +17,7 @@
 #include "common.h"
 
 TEST(muxCreateDevicesTest, Default) {
-  mux_allocator_info_t allocator{mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator{mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -43,7 +43,7 @@ TEST(muxCreateDevicesTest, Default) {
 }
 
 TEST(muxCreateDevicesTest, allocation_capabilities) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -71,7 +71,7 @@ TEST(muxCreateDevicesTest, allocation_capabilities) {
 }
 
 TEST(muxCreateDevicesTest, allocation_size) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -103,7 +103,7 @@ TEST(muxCreateDevicesTest, allocation_size) {
 }
 
 TEST(muxCreateDevicesTest, compute_units) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -129,7 +129,7 @@ TEST(muxCreateDevicesTest, compute_units) {
 }
 
 TEST(muxCreateDevicesTest, AllocatorAllocNull) {
-  mux_allocator_info_t allocator = {nullptr, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {nullptr, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -151,7 +151,7 @@ TEST(muxCreateDevicesTest, AllocatorAllocNull) {
 }
 
 TEST(muxCreateDevicesTest, AllocatorFreeNull) {
-  mux_allocator_info_t allocator = {mux::alloc, nullptr, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, nullptr, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -173,7 +173,7 @@ TEST(muxCreateDevicesTest, AllocatorFreeNull) {
 }
 
 TEST(muxCreateDevicesTest, DevicesLengthZero) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -195,7 +195,7 @@ TEST(muxCreateDevicesTest, DevicesLengthZero) {
 }
 
 TEST(muxCreateDevicesTest, OutDevicesNull) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 
@@ -215,14 +215,14 @@ TEST(muxCreateDevicesTest, OutDevicesNull) {
 }
 
 TEST(muxCreateDevicesTest, AllNull) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   ASSERT_ERROR_EQ(mux_error_null_out_parameter,
                   muxCreateDevices(0, nullptr, allocator, nullptr));
 }
 
 TEST(muxCreateDevicesTest, CorrectMembers) {
-  mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
+  const mux_allocator_info_t allocator = {mux::alloc, mux::free, nullptr};
 
   uint64_t devices_length = 0;
 

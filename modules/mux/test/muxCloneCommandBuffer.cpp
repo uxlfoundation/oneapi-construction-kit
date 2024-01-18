@@ -210,7 +210,7 @@ struct muxCloneCommandBufferSingleBufferTest
             ? mux_allocation_type_alloc_device
             : mux_allocation_type_alloc_host;
 
-    uint32_t heap = mux::findFirstSupportedHeap(
+    const uint32_t heap = mux::findFirstSupportedHeap(
         buffer->memory_requirements.supported_heaps);
 
     ASSERT_SUCCESS(muxAllocateMemory(device, buffer_size_in_bytes, heap,
@@ -356,7 +356,7 @@ struct muxCloneCommandBufferTwoBufferTest : public muxCloneCommandBufferTest {
             ? mux_allocation_type_alloc_device
             : mux_allocation_type_alloc_host;
 
-    uint32_t heap = mux::findFirstSupportedHeap(
+    const uint32_t heap = mux::findFirstSupportedHeap(
         buffer_one->memory_requirements.supported_heaps);
 
     ASSERT_SUCCESS(muxAllocateMemory(device, 2 * buffer_size_in_bytes, heap,
@@ -615,7 +615,7 @@ TEST_P(muxCloneCommandBufferTest, CloneUserCallbackInLoop) {
                           void *const user_data) {
     auto *command_buffers_executed =
         static_cast<command_buffers_executed_t *>(user_data);
-    std::lock_guard<std::mutex> guard(command_buffers_executed->mutex);
+    const std::lock_guard<std::mutex> guard(command_buffers_executed->mutex);
     command_buffers_executed->command_buffers_executed.push_back(
         command_buffer);
   };

@@ -247,28 +247,29 @@ struct helper<abacus_float, abacus_float> {
 
     abacus_int polynomial_select = 0;
 
-    abacus_float approx_threshold_1 =
+    const abacus_float approx_threshold_1 =
         __abacus_as_float(0x3f2610c3);  // 6.48693263530731201171875E-1
     if (x <= approx_threshold_1 && x >= 0) {
       polynomial_select = 2;
       significand = x;
     }
 
-    abacus_float approx_threshold_2 =
+    const abacus_float approx_threshold_2 =
         __abacus_as_float(0xbec974cf);  //-3.934693038463592529296875E-1
     if (x < 0 && x >= approx_threshold_2) {
       significand = x;
       polynomial_select = 1;
     }
 
-    abacus_float poly_approx = abacus::internal::horner_polynomial(
+    const abacus_float poly_approx = abacus::internal::horner_polynomial(
         significand, __codeplay_log1p_coeff + polynomial_select * 10, 10);
 
     if (polynomial_select != 0) {
       return poly_approx;
     }
 
-    abacus_float result = significand + significand * significand * poly_approx;
+    const abacus_float result =
+        significand + significand * significand * poly_approx;
 
     const abacus_float fexponent = (abacus_float)(exponent);
 
@@ -286,7 +287,7 @@ struct helper<T, abacus_float> {
 
     // Scale the significand in order to fit in the domain of the polynomial
     // approximation
-    SignedType cond = significand < ABACUS_SQRT1_2_F;
+    const SignedType cond = significand < ABACUS_SQRT1_2_F;
 
     significand = __abacus_select(significand, significand * 2.0f, cond);
     exponent = __abacus_select(exponent, exponent - 1, cond);

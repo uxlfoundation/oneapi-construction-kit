@@ -42,7 +42,7 @@ VkResult AllocateDescriptorSets(
       pAllocateInfo->descriptorSetCount <= descriptor_pool->remaining_sets,
       "No descriptor sets remaining in this pool!");
 
-  vk::allocator allocator = descriptor_pool->allocator;
+  const vk::allocator allocator = descriptor_pool->allocator;
 
   for (int descriptorSetIndex = 0,
            decriptorSetEnd = pAllocateInfo->descriptorSetCount;
@@ -66,7 +66,7 @@ VkResult AllocateDescriptorSets(
       return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    for (VkDescriptorSetLayoutBinding &layout_binding :
+    for (const VkDescriptorSetLayoutBinding &layout_binding :
          descriptor_set_layout->layout_bindings) {
       mux_descriptor_info_t *descriptors =
           static_cast<mux_descriptor_info_t *>(allocator.alloc(
@@ -135,7 +135,7 @@ void UpdateDescriptorSets(vk::device device, uint32_t descriptorWriteCount,
 
   for (uint32_t writeIndex = 0; writeIndex < descriptorWriteCount;
        writeIndex++) {
-    VkWriteDescriptorSet write = pDescriptorWrites[writeIndex];
+    const VkWriteDescriptorSet write = pDescriptorWrites[writeIndex];
 
     vk::descriptor_set descriptor_set =
         vk::cast<vk::descriptor_set>(write.dstSet);
@@ -146,7 +146,7 @@ void UpdateDescriptorSets(vk::device device, uint32_t descriptorWriteCount,
     }
 
     uint32_t dstBinding = write.dstBinding;
-    uint32_t descriptorCount = write.descriptorCount;
+    const uint32_t descriptorCount = write.descriptorCount;
     uint32_t dstArrayElement = write.dstArrayElement;
 
     // used to index the descriptor we are writing to independently from the
@@ -202,13 +202,13 @@ void UpdateDescriptorSets(vk::device device, uint32_t descriptorWriteCount,
   }
 
   for (uint32_t copyIndex = 0; copyIndex < descriptorCopyCount; copyIndex++) {
-    VkCopyDescriptorSet copy = pDescriptorCopies[copyIndex];
+    const VkCopyDescriptorSet copy = pDescriptorCopies[copyIndex];
 
     vk::descriptor_set dst_set = vk::cast<vk::descriptor_set>(copy.dstSet);
 
     vk::descriptor_set src_set = vk::cast<vk::descriptor_set>(copy.srcSet);
 
-    uint32_t descriptorCount = copy.descriptorCount;
+    const uint32_t descriptorCount = copy.descriptorCount;
 
     uint32_t dstBinding = copy.dstBinding;
     uint32_t dstArrayElement = copy.dstArrayElement;

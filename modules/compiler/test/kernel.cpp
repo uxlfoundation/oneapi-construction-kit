@@ -154,9 +154,9 @@ TEST_P(CreateSpecializedKernelTest, CreateSpecializedKernel) {
   nd_range_options.descriptors_length = 0;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 
@@ -173,9 +173,9 @@ TEST_P(CreateSpecializedKernelTest, NDRangeOptionsInvalidDescriptorsNull) {
   nd_range_options.descriptors_length = 1;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 
@@ -194,9 +194,9 @@ TEST_P(CreateSpecializedKernelTest, NDRangeOptionsInvalidDescriptorsLength) {
   nd_range_options.descriptors_length = 0;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 
@@ -212,9 +212,9 @@ TEST_P(CreateSpecializedKernelTest, NDRangeOptionsInvalidLocalSize) {
   mux_ndrange_options_t nd_range_options{};
   nd_range_options.descriptors = nullptr;
   nd_range_options.descriptors_length = 0;
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 
@@ -251,7 +251,7 @@ TEST_P(CreateSpecializedKernelTest, NDRangeOptionsInvalidGlobalOffsetNull) {
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
   nd_range_options.global_offset = nullptr;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 
@@ -269,7 +269,7 @@ TEST_P(CreateSpecializedKernelTest, NDRangeOptionsInvalidGlobalSizeNull) {
   nd_range_options.descriptors_length = 0;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
   nd_range_options.global_size = nullptr;
   nd_range_options.dimensions = 1;
@@ -288,9 +288,9 @@ TEST_P(CreateSpecializedKernelTest, NDRangeOptionsInvalidGlobalDimensions) {
   nd_range_options.descriptors_length = 0;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 0;
 
@@ -331,9 +331,9 @@ TEST_P(CreateSpecializedKernelTest,
   nd_range_options.descriptors_length = 1;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 0;
+  const size_t global_offset = 0;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 

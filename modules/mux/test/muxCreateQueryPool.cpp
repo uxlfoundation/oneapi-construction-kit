@@ -57,7 +57,7 @@ TEST_P(muxCreateQueryPoolTest, DefaultCounter) {
                            &query_counter_config, allocator, &query_pool));
     muxDestroyQueryPool(queue, query_pool, allocator);
   } else {
-    mux_query_counter_config_t query_counter_config = {};
+    const mux_query_counter_config_t query_counter_config = {};
     mux_query_pool_t query_pool;
     ASSERT_ERROR_EQ(
         mux_error_feature_unsupported,

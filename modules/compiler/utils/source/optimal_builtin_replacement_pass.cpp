@@ -142,7 +142,7 @@ Value *OptimalBuiltinReplacementPass::replaceAbacusMulhi(
 Value *OptimalBuiltinReplacementPass::replaceAbacusFMinFMax(
     CallBase &CB, StringRef BaseName, const SmallVectorImpl<Type *> &,
     const SmallVectorImpl<TypeQualifiers> &) {
-  bool IsFMin = BaseName == "__abacus_fmin";
+  const bool IsFMin = BaseName == "__abacus_fmin";
   if (!IsFMin && BaseName != "__abacus_fmax") {
     return nullptr;
   }
@@ -192,7 +192,8 @@ Value *OptimalBuiltinReplacementPass::replaceBuiltinWithInlineIR(
   SmallVector<TypeQualifiers, 4> Quals;
   Function *Callee = CB.getCalledFunction();
   assert(Callee);
-  StringRef BaseName = mangler.demangleName(Callee->getName(), Types, Quals);
+  const StringRef BaseName =
+      mangler.demangleName(Callee->getName(), Types, Quals);
 
   for (const auto &replace_fn : replacements) {
     if (replace_fn) {
@@ -233,7 +234,7 @@ PreservedAnalyses OptimalBuiltinReplacementPass::run(LazyCallGraph::SCC &C,
           auto const Props = BI->analyzeBuiltin(*Callee).properties;
           if (Props & eBuiltinPropertyCanEmitInline) {
             IRBuilder<> B(&CB);
-            SmallVector<Value *, 4> Args(CB.args());
+            const SmallVector<Value *, 4> Args(CB.args());
             if (Value *Impl = BI->emitBuiltinInline(Callee, B, Args)) {
               assert(
                   Impl->getType() == CB.getType() &&
@@ -297,7 +298,7 @@ PreservedAnalyses OptimalBuiltinReplacementPass::run(LazyCallGraph::SCC &C,
     }
   }
 
-  bool Modified = !ToDelete.empty();
+  const bool Modified = !ToDelete.empty();
 
   // Clean up any dead calls.
   while (!ToDelete.empty()) {

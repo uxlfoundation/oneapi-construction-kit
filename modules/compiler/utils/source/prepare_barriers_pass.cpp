@@ -70,7 +70,7 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
     // Make a copy of the users of the function to be inlined since
     // InlineFunction modifies the state of ci/F which affects
     // the range being iterated over, resulting in use-after-free.
-    SmallVector<User *, 8> Users{F->user_begin(), F->user_end()};
+    const SmallVector<User *, 8> Users{F->user_begin(), F->user_end()};
 
     // Check the users of the function the call instruction inhabits.
     for (User *U : Users) {

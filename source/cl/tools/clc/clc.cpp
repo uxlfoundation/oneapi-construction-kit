@@ -477,7 +477,7 @@ result driver::parseArguments(int argc, char **argv) {
   if (output_file.empty()) {
     if (input_file != "-") {
       output_file = input_file;
-      size_t lastdot = output_file.find_last_of('.');
+      const size_t lastdot = output_file.find_last_of('.');
       if (lastdot != cargo::string_view::npos) {
         generated_output_file =
             std::string(output_file.data(), lastdot) + ".bin";
@@ -517,7 +517,7 @@ result ReadWholeFile(std::istream &fp, std::vector<char> &output) {
   fp.seekg(0, std::ios_base::end);
 
   if (!fp.fail()) {
-    long file_length = fp.tellg();
+    const long file_length = fp.tellg();
     if (file_length < 0) {
       (void)std::fprintf(stderr,
                          "error: Could not determine input file size\n");
@@ -545,7 +545,7 @@ result driver::buildProgram() {
 
   std::vector<char> source_vec;
   {
-    bool use_stdin = (input_file == "-");
+    const bool use_stdin = (input_file == "-");
     std::ifstream file_instream;
     if (!use_stdin) {
       file_instream.open(input_file, std::ios_base::binary | std::ios_base::in);
@@ -609,7 +609,7 @@ result driver::buildProgram() {
                  static_cast<int>(cl_options.size() - 1), cl_options.data());
   }
 
-  cargo::string_view device_profile =
+  const cargo::string_view device_profile =
       cl::binary::detectMuxDeviceProfile(CL_TRUE, compiler_info->device_info);
   compiler::Result errcode = compiler::Result::SUCCESS;
   switch (source_type) {

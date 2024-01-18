@@ -34,8 +34,8 @@ mux_result_t hostCreateBuffer(mux_device_t device, size_t size,
   mux::allocator allocator(allocator_info);
 
   // TODO: Also report host::memory_s::HEAP_ANY
-  mux_memory_requirements_s memory_requirements = {size, 16,
-                                                   host::memory_s::HEAP_BUFFER};
+  const mux_memory_requirements_s memory_requirements = {
+      size, 16, host::memory_s::HEAP_BUFFER};
 
   auto buffer = allocator.create<host::buffer_s>(memory_requirements);
   if (nullptr == buffer) {

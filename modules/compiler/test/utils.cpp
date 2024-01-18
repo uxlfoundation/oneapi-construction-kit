@@ -65,7 +65,7 @@ TEST_F(CompilerUtilsTest, CreateKernelWrapper) {
 
   // Check that we can create wrappers, leaving the old functions in place.
   //   { function name, expected wrapper function name }
-  std::tuple<const char *, const char *> TestData[2] = {
+  const std::tuple<const char *, const char *> TestData[2] = {
       {"foo", "foo.new"},
       {"bar", "baz.new"},
   };
@@ -82,8 +82,8 @@ TEST_F(CompilerUtilsTest, CreateKernelWrapper) {
 
   // Now check that we can rename the old functions at the same time.
   //   { function name, expected wrapper function name }
-  std::tuple<const char *, const char *, const char *> RenameOldFnsTestData[2] =
-      {
+  const std::tuple<const char *, const char *, const char *>
+      RenameOldFnsTestData[2] = {
           {"foo", "foo.old", "foo.brand_new"},
           {"bar", "bar.old", "baz.brand_new"},
       };

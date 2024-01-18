@@ -39,7 +39,7 @@ CL_API_ENTRY cl_sampler CL_API_CALL
 cl::CreateSampler(cl_context context, cl_bool normalized_coords,
                   cl_addressing_mode addressing_mode,
                   cl_filter_mode filter_mode, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateSampler");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateSampler");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return NULL);
   // Validate input values.
@@ -95,13 +95,13 @@ cl::CreateSampler(cl_context context, cl_bool normalized_coords,
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainSampler(cl_sampler sampler) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainSampler");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainSampler");
   OCL_CHECK(!sampler, return CL_INVALID_SAMPLER);
   return cl::retainExternal(sampler);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseSampler(cl_sampler sampler) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseSampler");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseSampler");
   OCL_CHECK(!sampler, return CL_INVALID_SAMPLER);
   return cl::releaseExternal(sampler);
 }
@@ -109,7 +109,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseSampler(cl_sampler sampler) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetSamplerInfo(
     cl_sampler sampler, cl_sampler_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetSamplerInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetSamplerInfo");
   OCL_CHECK(!sampler, return CL_INVALID_SAMPLER);
 #define SAMPLER_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)            \
   case TYPE: {                                                       \

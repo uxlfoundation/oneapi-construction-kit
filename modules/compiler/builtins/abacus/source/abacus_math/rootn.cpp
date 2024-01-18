@@ -133,8 +133,8 @@ inline T rootn(
 
   const IntVecType nFudged = __abacus_select(n, 1, n == 0);
 
-  IntVecType initial_guess = xExp / nFudged;  // int divide
-  xExp -= (initial_guess * n);                // xExp = xExp (mod n) basically
+  const IntVecType initial_guess = xExp / nFudged;  // int divide
+  xExp -= (initial_guess * n);  // xExp = xExp (mod n) basically
 
   T sum = (log2_xMant + abacus::detail::cast::convert<T>(xExp)) /
           abacus::detail::cast::convert<T>(nFudged);

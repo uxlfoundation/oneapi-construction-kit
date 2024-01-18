@@ -30,7 +30,7 @@ class CreateComputePipelines : public uvk::PipelineLayoutTest {
   virtual void SetUp() {
     RETURN_ON_FATAL_FAILURE(PipelineLayoutTest::SetUp());
 
-    uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
+    const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
     shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     shaderCreateInfo.pCode = (uint32_t *)shaderCode.code;
     shaderCreateInfo.codeSize = shaderCode.size;
@@ -127,7 +127,7 @@ TEST_F(CreateComputePipelines, DefaultDerivativeBaseIndex) {
 }
 
 TEST_F(CreateComputePipelines, DefaultSpecializationInfo) {
-  uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::spec_const);
+  const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::spec_const);
 
   VkShaderModule specConstantSModule;
 

@@ -22,7 +22,7 @@ mux_result_t muxGetSupportedQueryCounters(
     mux_device_t device, mux_queue_type_e queue_type, uint32_t count,
     mux_query_counter_t *out_counters,
     mux_query_counter_description_t *out_descriptions, uint32_t *out_count) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -58,7 +58,7 @@ mux_result_t muxCreateQueryPool(
     mux_queue_t queue, mux_query_type_e query_type, uint32_t query_count,
     const mux_query_counter_config_t *query_counter_configs,
     mux_allocator_info_t allocator_info, mux_query_pool_t *out_query_pool) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return mux_error_invalid_value;
@@ -104,7 +104,7 @@ mux_result_t muxCreateQueryPool(
 
 void muxDestroyQueryPool(mux_queue_t queue, mux_query_pool_t query_pool,
                          mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return;
@@ -121,7 +121,7 @@ mux_result_t muxGetQueryCounterRequiredPasses(
     mux_queue_t queue, uint32_t query_count,
     const mux_query_counter_config_t *query_counter_configs,
     uint32_t *out_pass_count) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return mux_error_invalid_value;
@@ -147,7 +147,7 @@ mux_result_t muxGetQueryPoolResults(mux_queue_t queue,
                                     mux_query_pool_t query_pool,
                                     uint32_t query_index, uint32_t query_count,
                                     size_t size, void *data, size_t stride) {
-  tracer::TraceGuard<tracer::Mux> trace(__func__);
+  const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(queue)) {
     return mux_error_invalid_value;

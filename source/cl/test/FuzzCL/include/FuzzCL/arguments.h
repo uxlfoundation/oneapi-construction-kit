@@ -109,7 +109,7 @@ std::vector<T> read_file(const std::string &filepath) {
   }
 
   // tellg() returns the position of the cursor in bytes
-  size_t size = fs.tellg();
+  const size_t size = fs.tellg();
   // move the cursor at the beginning
   fs.seekg(0, std::ios::beg);
 

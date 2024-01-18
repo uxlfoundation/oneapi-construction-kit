@@ -51,7 +51,7 @@ void DestroyEvent(vk::device, vk::event event, vk::allocator allocator) {
 }
 
 VkResult GetEventStatus(vk::device, vk::event event) {
-  std::lock_guard<std::mutex> lock(event->mutex);
+  const std::lock_guard<std::mutex> lock(event->mutex);
   if (event->signaled) {
     return VK_EVENT_SET;
   }
@@ -59,13 +59,13 @@ VkResult GetEventStatus(vk::device, vk::event event) {
 }
 
 VkResult SetEvent(vk::device, vk::event event) {
-  std::lock_guard<std::mutex> lock(event->mutex);
+  const std::lock_guard<std::mutex> lock(event->mutex);
 
   event->signaled = true;
   event->set_stage = 0;
   if (!event->wait_infos.empty()) {
     for (auto wait_info : event->wait_infos) {
-      std::lock_guard<std::mutex> waitLock(wait_info->mutex);
+      const std::lock_guard<std::mutex> waitLock(wait_info->mutex);
       wait_info->event_count--;
       wait_info->condition_variable.notify_all();
     }
@@ -75,7 +75,7 @@ VkResult SetEvent(vk::device, vk::event event) {
 }
 
 VkResult ResetEvent(vk::device, vk::event event) {
-  std::lock_guard<std::mutex> lock(event->mutex);
+  const std::lock_guard<std::mutex> lock(event->mutex);
 
   event->signaled = false;
 
@@ -84,11 +84,11 @@ VkResult ResetEvent(vk::device, vk::event event) {
 
 void setEventCallback(mux_queue_t, mux_command_buffer_t, void *user_data) {
   vk::event event = reinterpret_cast<vk::event>(user_data);
-  std::lock_guard<std::mutex> lock(event->mutex);
+  const std::lock_guard<std::mutex> lock(event->mutex);
   event->signaled = true;
   if (!event->wait_infos.empty()) {
     for (auto wait_info : event->wait_infos) {
-      std::lock_guard<std::mutex> waitLock(wait_info->mutex);
+      const std::lock_guard<std::mutex> waitLock(wait_info->mutex);
       wait_info->event_count--;
       wait_info->condition_variable.notify_all();
     }
@@ -98,7 +98,7 @@ void setEventCallback(mux_queue_t, mux_command_buffer_t, void *user_data) {
 
 void resetEventCallback(mux_queue_t, mux_command_buffer_t, void *user_data) {
   vk::event event = reinterpret_cast<vk::event>(user_data);
-  std::lock_guard<std::mutex> lock(event->mutex);
+  const std::lock_guard<std::mutex> lock(event->mutex);
   event->signaled = false;
 }
 

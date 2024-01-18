@@ -56,7 +56,8 @@ class CmdPipelineBarrier : public uvk::PipelineTest,
     pipelineLayoutCreateInfo.setLayoutCount = 1;
     pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
 
-    VkDescriptorPoolSize poolSize = {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2};
+    const VkDescriptorPoolSize poolSize = {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                                           2};
 
     DescriptorPoolTest::poolSizes.push_back(poolSize);
     RETURN_ON_FATAL_FAILURE(DescriptorPoolTest::SetUp());
@@ -75,7 +76,7 @@ class CmdPipelineBarrier : public uvk::PipelineTest,
     ASSERT_EQ_RESULT(VK_SUCCESS, vkCreateBuffer(device, &bufferCreateInfo,
                                                 nullptr, &buffer2));
 
-    VkDeviceSize alignedBufferSize =
+    const VkDeviceSize alignedBufferSize =
         alignedDeviceSize(bufferMemoryRequirements);
     DeviceMemoryTest::memorySize = alignedBufferSize * 2;
     RETURN_ON_FATAL_FAILURE(DeviceMemoryTest::SetUp());
@@ -404,7 +405,7 @@ TEST_F(CmdPipelineBarrier, AcrossPipelines) {
   PipelineTest::shader = uvk::Shader::delay;
   RETURN_ON_FATAL_FAILURE(PipelineTest::SetUp());
 
-  uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::write_back);
+  const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::write_back);
 
   VkShaderModuleCreateInfo shaderCreateInfo = {};
   shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

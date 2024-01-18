@@ -27,7 +27,7 @@
 TEST(optional, assignment) {
   cargo::optional<int> o1 = 42;
   cargo::optional<int> o2 = 12;
-  cargo::optional<int> o3;
+  const cargo::optional<int> o3;
 
   const cargo::optional<int> &o1cr = o1;
   o1 = o1cr;
@@ -206,10 +206,10 @@ TEST(optional, constexpr) {
 }
 
 TEST(optional, constructors) {
-  cargo::optional<int> o1;
+  const cargo::optional<int> o1;
   ASSERT_TRUE(!o1);
 
-  cargo::optional<int> o2 = cargo::nullopt;
+  const cargo::optional<int> o2 = cargo::nullopt;
   ASSERT_TRUE(!o2);
 
   cargo::optional<int> o3 = 42;
@@ -218,7 +218,7 @@ TEST(optional, constructors) {
   cargo::optional<int> o4 = o3;
   ASSERT_EQ(*o4, 42);
 
-  cargo::optional<int> o5 = o1;
+  const cargo::optional<int> o5 = o1;
   ASSERT_TRUE(!o5);
 
   cargo::optional<int> o6 = std::move(o3);
@@ -517,12 +517,12 @@ TEST(optional, disjunction) {
 }
 
 TEST(optional, conjunction) {
-  cargo::optional<int> o1 = 42;
+  const cargo::optional<int> o1 = 42;
   ASSERT_EQ(*o1.conjunction(42.0), 42.0);
   ASSERT_EQ(*o1.conjunction(std::string{"hello"}), std::string{"hello"});
   ASSERT_TRUE(!o1.conjunction(cargo::nullopt));
 
-  cargo::optional<int> o2;
+  const cargo::optional<int> o2;
   ASSERT_TRUE(!o2.conjunction(42.0));
   ASSERT_TRUE(!o2.conjunction(std::string{"hello"}));
   ASSERT_TRUE(!o2.conjunction(cargo::nullopt));
@@ -571,14 +571,14 @@ struct takes_init_and_variadic {
 };
 
 TEST(optional, in_place) {
-  cargo::optional<int> o1{cargo::in_place};
-  cargo::optional<int> o2(cargo::in_place);
+  const cargo::optional<int> o1{cargo::in_place};
+  const cargo::optional<int> o2(cargo::in_place);
   ASSERT_TRUE(!!o1);
   ASSERT_EQ(o1, 0);
   ASSERT_TRUE(!!o2);
   ASSERT_EQ(o2, 0);
 
-  cargo::optional<int> o3(cargo::in_place, 42);
+  const cargo::optional<int> o3(cargo::in_place, 42);
   ASSERT_EQ(o3, 42);
 
   cargo::optional<std::tuple<int, int>> o4(cargo::in_place, 0, 1);
@@ -626,10 +626,10 @@ TEST(optional, make_optional) {
 }
 
 TEST(optional, nullopt) {
-  cargo::optional<int> o1 = cargo::nullopt;
-  cargo::optional<int> o2{cargo::nullopt};
-  cargo::optional<int> o3(cargo::nullopt);
-  cargo::optional<int> o4 = {cargo::nullopt};
+  const cargo::optional<int> o1 = cargo::nullopt;
+  const cargo::optional<int> o2{cargo::nullopt};
+  const cargo::optional<int> o3(cargo::nullopt);
+  const cargo::optional<int> o4 = {cargo::nullopt};
 
   ASSERT_TRUE(!o1);
   ASSERT_TRUE(!o2);
@@ -669,7 +669,7 @@ struct move_detector {
 
 TEST(optional, observers) {
   cargo::optional<int> o1 = 42;
-  cargo::optional<int> o2;
+  const cargo::optional<int> o2;
   const cargo::optional<int> o3 = 42;
 
   ASSERT_EQ(*o1, 42);
@@ -687,15 +687,15 @@ TEST(optional, observers) {
   ASSERT_TRUE(success);
 
   cargo::optional<move_detector> o4{cargo::in_place};
-  move_detector o5 = std::move(o4).value();
+  const move_detector o5 = std::move(o4).value();
   ASSERT_TRUE(o4->been_moved);
   ASSERT_TRUE(!o5.been_moved);
 }
 
 TEST(optional, relops) {
-  cargo::optional<int> o1{4};
-  cargo::optional<int> o2{42};
-  cargo::optional<int> o3{};
+  const cargo::optional<int> o1{4};
+  const cargo::optional<int> o2{42};
+  const cargo::optional<int> o3{};
 
   ASSERT_TRUE(!(o1 == o2));
   ASSERT_EQ(o1, o1);
@@ -762,8 +762,8 @@ TEST(optional, relops) {
   ASSERT_TRUE(o1 >= 4);
   ASSERT_TRUE(4 >= o1);
 
-  cargo::optional<std::string> o4{"hello"};
-  cargo::optional<std::string> o5{"xyz"};
+  const cargo::optional<std::string> o4{"hello"};
+  const cargo::optional<std::string> o5{"xyz"};
 
   ASSERT_TRUE(!(o4 == o5));
   ASSERT_EQ(o4, o4);

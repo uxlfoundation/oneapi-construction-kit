@@ -299,11 +299,11 @@ abacus_double ABACUS_API __abacus_ldexp(abacus_double x, abacus_int n) {
   n_lo_lo += bias;
 
   const abacus_long mant_bits = Shape::Mantissa();
-  abacus_double mul_hi =
+  const abacus_double mul_hi =
       abacus::detail::cast::as<abacus_double>(n_hi << mant_bits);
-  abacus_double mul_lo =
+  const abacus_double mul_lo =
       abacus::detail::cast::as<abacus_double>(n_lo << mant_bits);
-  abacus_double mul_lo_lo =
+  const abacus_double mul_lo_lo =
       abacus::detail::cast::as<abacus_double>(n_lo_lo << mant_bits);
 
   return ((x * mul_hi) * mul_lo) * mul_lo_lo;

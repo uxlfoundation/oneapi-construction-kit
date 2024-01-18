@@ -230,7 +230,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
   }
 
   {
-    std::lock_guard<compiler::Context> guard(target.getContext());
+    const std::lock_guard<compiler::Context> guard(target.getContext());
 
     std::unique_ptr<llvm::Module> optimized_module(llvm::CloneModule(*module));
     if (nullptr == optimized_module) {
@@ -282,11 +282,11 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     {
       // Using the CrashRecoveryContext and statistics touches LLVM's global
       // state.
-      std::lock_guard<std::mutex> globalLock(
+      const std::lock_guard<std::mutex> globalLock(
           compiler::utils::getLLVMGlobalMutex());
       llvm::CrashRecoveryContext CRC;
       llvm::CrashRecoveryContext::Enable();
-      bool crashed = !CRC.RunSafely(
+      const bool crashed = !CRC.RunSafely(
           [&] { pm.run(*optimized_module, pass_mach.getMAM()); });
       llvm::CrashRecoveryContext::Disable();
       if (crashed) {
@@ -386,7 +386,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     uint64_t hook;
     {
       // Compiling the kernel may touch the global LLVM state
-      std::lock_guard<std::mutex> globalLock(
+      const std::lock_guard<std::mutex> globalLock(
           compiler::utils::getLLVMGlobalMutex());
 
       // We cannot safely look up any symbol inside a CrashRecoveryContext
@@ -414,7 +414,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
               promise.set_value(address);
 #endif
             } else {
-              llvm::ErrorAsOutParameter _(&err);
+              const llvm::ErrorAsOutParameter _(&err);
               err = r.takeError();
               promise.set_value(0);
             }
@@ -455,9 +455,10 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
       }
     }
 
-    uint32_t min_width = fn_metadata.min_work_item_factor.getFixedValue();
-    uint32_t pref_width = fn_metadata.pref_work_item_factor.getFixedValue();
-    uint32_t sub_group_size = fn_metadata.sub_group_size.getFixedValue();
+    const uint32_t min_width = fn_metadata.min_work_item_factor.getFixedValue();
+    const uint32_t pref_width =
+        fn_metadata.pref_work_item_factor.getFixedValue();
+    const uint32_t sub_group_size = fn_metadata.sub_group_size.getFixedValue();
 
     std::unique_ptr<host::utils::jit_kernel_s> jit_kernel(
         new host::utils::jit_kernel_s{

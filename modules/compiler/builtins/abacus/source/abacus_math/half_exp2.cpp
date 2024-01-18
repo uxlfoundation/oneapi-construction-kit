@@ -43,7 +43,7 @@ T half_exp2(T x) {
   // r = 2^(i + f)
   // r = 2^i * 2^f
   // r = ldexp(2^f, i)
-  SignedType xFloor = abacus::internal::floor_unsafe(x);
+  const SignedType xFloor = abacus::internal::floor_unsafe(x);
   T xMant = x - abacus::detail::cast::convert<T>(xFloor);
 
   T exp2_xMant =

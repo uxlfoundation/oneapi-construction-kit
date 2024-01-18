@@ -41,7 +41,7 @@ class MergePipelineCaches : public uvk::PipelineLayoutTest {
                                              nullptr, &pipelineCache));
     }
 
-    uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
+    const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
 
     VkShaderModule shaderModule;
 

@@ -22,7 +22,7 @@ mux_result_t muxCreateKernel(mux_device_t device, mux_executable_t executable,
                              const char *name, uint64_t name_length,
                              mux_allocator_info_t allocator_info,
                              mux_kernel_t *out_kernel) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -48,7 +48,7 @@ mux_result_t muxCreateKernel(mux_device_t device, mux_executable_t executable,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectCreateKernel(
+  const mux_result_t error = muxSelectCreateKernel(
       device, executable, name, name_length, allocator_info, out_kernel);
 
   if (mux_success == error) {
@@ -62,7 +62,7 @@ mux_result_t muxCreateBuiltInKernel(mux_device_t device, const char *name,
                                     uint64_t name_length,
                                     mux_allocator_info_t allocator_info,
                                     mux_kernel_t *out_kernel) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -84,8 +84,8 @@ mux_result_t muxCreateBuiltInKernel(mux_device_t device, const char *name,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error = muxSelectCreateBuiltInKernel(device, name, name_length,
-                                                    allocator_info, out_kernel);
+  const mux_result_t error = muxSelectCreateBuiltInKernel(
+      device, name, name_length, allocator_info, out_kernel);
 
   if (mux_success == error) {
     mux::setId<mux_object_id_kernel>(device->id, *out_kernel);
@@ -99,7 +99,7 @@ mux_result_t muxQuerySubGroupSizeForLocalSize(mux_kernel_t kernel,
                                               size_t local_size_y,
                                               size_t local_size_z,
                                               size_t *out_sub_group_size) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
   if (mux::objectIsInvalid(kernel)) {
     return mux_error_invalid_value;
   }
@@ -121,7 +121,7 @@ mux_result_t muxQueryWFVInfoForLocalSize(
     size_t local_size_z, mux_wfv_status_e *out_wfv_status,
     size_t *out_work_width_x, size_t *out_work_width_y,
     size_t *out_work_width_z) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
   if (mux::objectIsInvalid(kernel)) {
     return mux_error_invalid_value;
   }
@@ -142,7 +142,7 @@ mux_result_t muxQueryWFVInfoForLocalSize(
 
 mux_result_t muxQueryMaxNumSubGroups(mux_kernel_t kernel,
                                      size_t *out_max_sub_group_size) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
   if (mux::objectIsInvalid(kernel)) {
     return mux_error_invalid_value;
   }
@@ -159,7 +159,7 @@ mux_result_t muxQueryLocalSizeForSubGroupCount(mux_kernel_t kernel,
                                                size_t *out_local_size_x,
                                                size_t *out_local_size_y,
                                                size_t *out_local_size_z) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
   if (mux::objectIsInvalid(kernel)) {
     return mux_error_invalid_value;
   }
@@ -187,7 +187,7 @@ mux_result_t muxQueryLocalSizeForSubGroupCount(mux_kernel_t kernel,
 
 void muxDestroyKernel(mux_device_t device, mux_kernel_t kernel,
                       mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;

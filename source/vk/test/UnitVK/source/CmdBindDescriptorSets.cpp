@@ -223,7 +223,7 @@ TEST_F(CmdBindDescriptorSets, DefaultDynamicOffset) {
 
   vkGetPhysicalDeviceProperties(physicalDevice, &properties);
 
-  uint32_t offset = properties.limits.minStorageBufferOffsetAlignment;
+  const uint32_t offset = properties.limits.minStorageBufferOffsetAlignment;
 
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                           dynamicPipelineLayout, 0, 1, &dynamicDescriptorSet, 1,
