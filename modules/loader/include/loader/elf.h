@@ -493,7 +493,7 @@ class ElfFile {
   /// @brief Use this wrapper if reading directly from ELF structures, it
   /// converts the values in memory to the right endianness for the CPU.
   template <typename Integer>
-  inline cargo::enable_if_t<std::is_unsigned<Integer>::value, Integer> field(
+  inline std::enable_if_t<std::is_unsigned_v<Integer>, Integer> field(
       Integer v) const {
     CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
     return (headerIdent()->endianness == (cargo::is_little_endian()
@@ -505,12 +505,11 @@ class ElfFile {
 
   /// @brief Use this wrapper if reading directly from ELF structures, it
   /// converts the values in memory to the right endianness for the CPU.
-  template <typename Enum,
-            typename = cargo::enable_if_t<std::is_enum<Enum>::value>>
-  inline cargo::enable_if_t<
-      std::is_unsigned<typename std::underlying_type<Enum>::type>::value, Enum>
+  template <typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
+  inline std::enable_if_t<std::is_unsigned_v<std::underlying_type_t<Enum>>,
+                          Enum>
   field(Enum v) const {
-    using Integer = typename std::underlying_type<Enum>::type;
+    using Integer = std::underlying_type_t<Enum>;
     CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
     return (headerIdent()->endianness == (cargo::is_little_endian()
                                               ? ElfFields::Endianness::LITTLE

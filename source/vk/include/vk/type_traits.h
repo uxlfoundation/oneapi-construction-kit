@@ -222,7 +222,7 @@ struct is_convertible_to<vk::command_pool, VkCommandPool> : std::true_type {};
 ///
 /// @return Returns `u` cast to type `T`.
 template <class T, class U>
-cargo::enable_if_t<is_convertible_to<T, U>::value, T> cast(U u) {
+std::enable_if_t<is_convertible_to<T, U>::value, T> cast(U u) {
   return reinterpret_cast<T>(u);
 }
 
@@ -234,8 +234,8 @@ cargo::enable_if_t<is_convertible_to<T, U>::value, T> cast(U u) {
 ///
 /// @return Returns `u` cast to type `T`.
 template <class T, class U>
-cargo::enable_if_t<is_convertible_to<cargo::remove_pointer_t<T>, U>::value, T>
-cast(U *u) {
+std::enable_if_t<is_convertible_to<std::remove_pointer_t<T>, U>::value, T> cast(
+    U *u) {
   return reinterpret_cast<T>(u);
 }
 
@@ -247,10 +247,10 @@ cast(U *u) {
 ///
 /// @return Returns `u` cast to type `T`.
 template <class T, class U>
-cargo::enable_if_t<
-    std::is_pointer<T>::value &&
-        is_convertible_to<cargo::remove_const_t<cargo::remove_pointer_t<T>>,
-                          cargo::remove_const_t<U>>::value,
+std::enable_if_t<
+    std::is_pointer_v<T> &&
+        is_convertible_to<std::remove_const_t<std::remove_pointer_t<T>>,
+                          std::remove_const_t<U>>::value,
     T>
 cast(const U *u) {
   return reinterpret_cast<T>(u);

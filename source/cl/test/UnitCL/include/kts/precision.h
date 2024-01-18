@@ -279,9 +279,8 @@ bool IsDenormalAsHalf(cl_float x);
 template <class T>
 cl_float calculateULP(const typename TypeInfo<T>::LargerType reference,
                       const T actual) {
-  static_assert(
-      std::is_same<T, cl_float>::value || std::is_same<T, cl_double>::value,
-      "T must be cl_float or cl_double");
+  static_assert(std::is_same_v<T, cl_float> || std::is_same_v<T, cl_double>,
+                "T must be cl_float or cl_double");
 
   if (static_cast<T>(reference) == actual) {
     // catches reference overflow and underflow
@@ -305,7 +304,7 @@ cl_float calculateULP(const typename TypeInfo<T>::LargerType reference,
     return static_cast<cl_float>(promoted - reference);
   }
 
-  if (std::isinf(promoted) && std::is_same<T, cl_float>::value) {
+  if (std::isinf(promoted) && std::is_same_v<T, cl_float>) {
     // 2**128 is next representable value on the single-precision number line
     promoted = std::copysign(3.4028237e+38, promoted);
   }
@@ -362,7 +361,7 @@ struct ULPValidator final {
   bool validate(const LargerType &expected, const T &actual) {
     bool denormSupport =
         test_denormals &&
-        UCL::hasDenormSupport(device, std::is_same<T, cl_float>::value
+        UCL::hasDenormSupport(device, std::is_same_v<T, cl_float>
                                           ? CL_DEVICE_SINGLE_FP_CONFIG
                                           : CL_DEVICE_DOUBLE_FP_CONFIG);
     // Note that we cannot use `std::isnormal` or `std::fpclassify` to detect
@@ -383,7 +382,7 @@ struct ULPValidator final {
   void print(std::stringstream &s, Y value) {
     s << value << "[0x" << std::hex << matchingType(value) << std::dec << "]";
 
-    if (std::is_same<Y, T>::value) {
+    if (std::is_same_v<Y, T>) {
       printULPError(s);
     }
   }

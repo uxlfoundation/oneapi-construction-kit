@@ -117,11 +117,11 @@ static constexpr nullopt_t nullopt{nullopt_t::do_not_use{},
 template <class T>
 class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
                  private detail::delete_ctor_base<
-                     std::is_copy_constructible<wrap_reference_t<T>>::value,
-                     std::is_move_constructible<wrap_reference_t<T>>::value>,
+                     std::is_copy_constructible_v<wrap_reference_t<T>>,
+                     std::is_move_constructible_v<wrap_reference_t<T>>>,
                  private detail::delete_assign_base<
-                     std::is_copy_assignable<wrap_reference_t<T>>::value,
-                     std::is_move_assignable<wrap_reference_t<T>>::value> {
+                     std::is_copy_assignable_v<wrap_reference_t<T>>,
+                     std::is_move_assignable_v<wrap_reference_t<T>>> {
   using base = detail::optional_move_assign_base<wrap_reference_t<T>>;
   using storage_type = wrap_reference_t<T>;
 
@@ -156,7 +156,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// Constructs the stored value in-place using the given arguments.
   template <class... Args>
   constexpr explicit optional(
-      enable_if_t<std::is_constructible<T, Args...>::value, in_place_t>,
+      std::enable_if_t<std::is_constructible_v<T, Args...>, in_place_t>,
       Args &&...args)
       : base(in_place, std::forward<Args>(args)...) {}
 
@@ -165,9 +165,9 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// Constructs the stored value in-place using the given arguments.
   template <class U, class... Args>
   constexpr explicit optional(
-      enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
-                                        Args &&...>::value,
-                  in_place_t>,
+      std::enable_if_t<
+          std::is_constructible_v<T, std::initializer_list<U> &, Args &&...>,
+          in_place_t>,
       std::initializer_list<U> il, Args &&...args) {
     this->construct(il, std::forward<Args>(args)...);
   }
@@ -176,7 +176,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// Constructs the stored value with `u`.
   template <class U = T,
-            enable_if_t<std::is_convertible<U &&, T>::value> * = nullptr,
+            std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr,
             detail::enable_forward_value<T, U> * = nullptr>
   constexpr optional(U &&u) : base(in_place, std::forward<U>(u)) {}
 
@@ -184,34 +184,34 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// Constructs the stored value with `u`.
   template <class U = T,
-            enable_if_t<!std::is_convertible<U &&, T>::value> * = nullptr,
+            std::enable_if_t<!std::is_convertible_v<U &&, T>> * = nullptr,
             detail::enable_forward_value<T, U> * = nullptr>
   constexpr explicit optional(U &&u) : base(in_place, std::forward<U>(u)) {}
 
   /// @brief Converting copy constructor.
   template <class U, detail::enable_from_other<T, U, const U &> * = nullptr,
-            enable_if_t<std::is_convertible<const U &, T>::value> * = nullptr>
+            std::enable_if_t<std::is_convertible_v<const U &, T>> * = nullptr>
   optional(const optional<U> &rhs) {
     this->construct(*rhs);
   }
 
   /// @brief Converting copy constructor.
   template <class U, detail::enable_from_other<T, U, const U &> * = nullptr,
-            enable_if_t<!std::is_convertible<const U &, T>::value> * = nullptr>
+            std::enable_if_t<!std::is_convertible_v<const U &, T>> * = nullptr>
   explicit optional(const optional<U> &rhs) {
     this->construct(*rhs);
   }
 
   /// @brief Converting move constructor.
   template <class U, detail::enable_from_other<T, U, U &&> * = nullptr,
-            enable_if_t<std::is_convertible<U &&, T>::value> * = nullptr>
+            std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr>
   optional(optional<U> &&rhs) {
     this->construct(std::move(*rhs));
   }
 
   /// @brief Converting move constructor.
   template <class U, detail::enable_from_other<T, U, U &&> * = nullptr,
-            enable_if_t<!std::is_convertible<U &&, T>::value> * = nullptr>
+            std::enable_if_t<!std::is_convertible_v<U &&, T>> * = nullptr>
   explicit optional(optional<U> &&rhs) {
     this->construct(std::move(*rhs));
   }
@@ -653,8 +653,8 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// @return `u` if `*this` has a value, otherwise an empty optional.
   template <class U>
-  constexpr optional<typename std::decay<U>::type> conjunction(U &&u) const {
-    using result = optional<decay_t<U>>;
+  constexpr optional<std::decay_t<U>> conjunction(U &&u) const {
+    using result = optional<std::decay_t<U>>;
     return has_value() ? result{u} : result{nullopt};
   }
 
@@ -773,9 +773,8 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// @return The constructed value.
   template <class U, class... Args>
-  enable_if_t<
-      std::is_constructible<T, std::initializer_list<U> &, Args &&...>::value,
-      T &>
+  std::enable_if_t<
+      std::is_constructible_v<T, std::initializer_list<U> &, Args &&...>, T &>
   emplace(std::initializer_list<U> il, Args &&...args) {
     *this = nullopt;
     this->construct(il, std::forward<Args>(args)...);
@@ -808,7 +807,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return A pointer to the contained value  .
-  constexpr remove_reference_t<T> *operator->() {
+  constexpr std::remove_reference_t<T> *operator->() {
     value_type &ref = this->m_value;
     return std::addressof(ref);
   }
@@ -818,7 +817,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return A pointer to the contained value.
-  constexpr const remove_reference_t<T> *operator->() const {
+  constexpr const std::remove_reference_t<T> *operator->() const {
     const value_type &ref = this->m_value;
     return std::addressof(ref);
   }
@@ -1214,15 +1213,15 @@ inline constexpr bool operator>=(const U &lhs, const optional<T> &rhs) {
 ///
 /// Equivalent to `lhs.swap(rhs)`.
 template <class T,
-          enable_if_t<std::is_move_constructible<T>::value> * = nullptr>
+          std::enable_if_t<std::is_move_constructible_v<T>> * = nullptr>
 void swap(optional<T> &lhs, optional<T> &rhs) {
   return lhs.swap(rhs);
 }
 
 /// @brief Creates an optional from `v`.
 template <class T>
-inline constexpr optional<decay_t<T>> make_optional(T &&v) {
-  return optional<decay_t<T>>(std::forward<T>(v));
+inline constexpr optional<std::decay_t<T>> make_optional(T &&v) {
+  return optional<std::decay_t<T>>(std::forward<T>(v));
 }
 
 /// @brief Creates an optional from `args`.
@@ -1246,7 +1245,7 @@ optional(T) -> optional<T>;
 namespace detail {
 template <class Opt, class F,
           class Ret = decltype(invoke(std::declval<F>(), *std::declval<Opt>())),
-          enable_if_t<!std::is_void<Ret>::value> * = nullptr>
+          std::enable_if_t<!std::is_void_v<Ret>> * = nullptr>
 constexpr auto optional_map_impl(Opt &&opt, F &&f) -> optional<Ret> {
   return opt.has_value() ? invoke(std::forward<F>(f), *std::forward<Opt>(opt))
                          : optional<Ret>(nullopt);
@@ -1254,7 +1253,7 @@ constexpr auto optional_map_impl(Opt &&opt, F &&f) -> optional<Ret> {
 
 template <class Opt, class F,
           class Ret = decltype(invoke(std::declval<F>(), *std::declval<Opt>())),
-          enable_if_t<std::is_void<Ret>::value> * = nullptr>
+          std::enable_if_t<std::is_void_v<Ret>> * = nullptr>
 auto optional_map_impl(Opt &&opt, F &&f) -> optional<monostate> {
   if (opt.has_value()) {
     invoke(std::forward<F>(f), *std::forward<Opt>(opt));
@@ -1271,7 +1270,7 @@ template <class T>
 struct hash<cargo::optional<T>> {
   ::std::size_t operator()(const cargo::optional<T> &o) const {
     if (!o.has_value()) return 0;
-    return std::hash<cargo::remove_const_t<T>>()(*o);
+    return std::hash<std::remove_const_t<T>>()(*o);
   }
 };
 }  // namespace std

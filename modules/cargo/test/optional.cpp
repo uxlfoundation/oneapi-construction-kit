@@ -68,13 +68,11 @@ TEST(optional, assignment) {
 }
 
 TEST(optional, bases_triviality) {
-  ASSERT_TRUE(
-      std::is_trivially_copy_constructible<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_trivially_copy_assignable<cargo::optional<int>>::value);
-  ASSERT_TRUE(
-      std::is_trivially_move_constructible<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_trivially_move_assignable<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_trivially_destructible<cargo::optional<int>>::value);
+  ASSERT_TRUE(std::is_trivially_copy_constructible_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_trivially_copy_assignable_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_trivially_move_constructible_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_trivially_move_assignable_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_trivially_destructible_v<cargo::optional<int>>);
 
   {
     struct T {
@@ -84,13 +82,11 @@ TEST(optional, bases_triviality) {
       T &operator=(T &&) = default;
       ~T() = default;
     };
-    ASSERT_TRUE(
-        std::is_trivially_copy_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_trivially_copy_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(
-        std::is_trivially_move_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_trivially_move_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_trivially_destructible<cargo::optional<T>>::value);
+    ASSERT_TRUE(std::is_trivially_copy_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_trivially_copy_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_trivially_move_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_trivially_move_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_trivially_destructible_v<cargo::optional<T>>);
   }
 
   {
@@ -101,22 +97,20 @@ TEST(optional, bases_triviality) {
       T &operator=(T &&) { return *this; };
       ~T() {}
     };
-    ASSERT_TRUE(
-        !std::is_trivially_copy_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_trivially_copy_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(
-        !std::is_trivially_move_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_trivially_move_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_trivially_destructible<cargo::optional<T>>::value);
+    ASSERT_TRUE(!std::is_trivially_copy_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_trivially_copy_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_trivially_move_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_trivially_move_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_trivially_destructible_v<cargo::optional<T>>);
   }
 }
 
 TEST(optional, bases_deletion) {
-  ASSERT_TRUE(std::is_copy_constructible<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_copy_assignable<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_move_constructible<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_move_assignable<cargo::optional<int>>::value);
-  ASSERT_TRUE(std::is_destructible<cargo::optional<int>>::value);
+  ASSERT_TRUE(std::is_copy_constructible_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_copy_assignable_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_move_constructible_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_move_assignable_v<cargo::optional<int>>);
+  ASSERT_TRUE(std::is_destructible_v<cargo::optional<int>>);
 
   {
     struct T {
@@ -126,11 +120,11 @@ TEST(optional, bases_deletion) {
       T &operator=(T &&) = default;
       ~T() = default;
     };
-    ASSERT_TRUE(std::is_copy_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_copy_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_move_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_move_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_destructible<cargo::optional<T>>::value);
+    ASSERT_TRUE(std::is_copy_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_copy_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_move_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_move_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_destructible_v<cargo::optional<T>>);
   }
 
   {
@@ -140,10 +134,10 @@ TEST(optional, bases_deletion) {
       T &operator=(const T &) = delete;
       T &operator=(T &&) = delete;
     };
-    ASSERT_TRUE(!std::is_copy_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_copy_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_move_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_move_assignable<cargo::optional<T>>::value);
+    ASSERT_TRUE(!std::is_copy_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_copy_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_move_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_move_assignable_v<cargo::optional<T>>);
   }
 
   {
@@ -153,10 +147,10 @@ TEST(optional, bases_deletion) {
       T &operator=(const T &) = delete;
       T &operator=(T &&) = default;
     };
-    ASSERT_TRUE(!std::is_copy_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(!std::is_copy_assignable<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_move_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_move_assignable<cargo::optional<T>>::value);
+    ASSERT_TRUE(!std::is_copy_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(!std::is_copy_assignable_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_move_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_move_assignable_v<cargo::optional<T>>);
   }
 
   {
@@ -166,12 +160,12 @@ TEST(optional, bases_deletion) {
       T &operator=(const T &) = default;
       T &operator=(T &&) = delete;
     };
-    ASSERT_TRUE(std::is_copy_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_copy_assignable<cargo::optional<T>>::value);
+    ASSERT_TRUE(std::is_copy_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_copy_assignable_v<cargo::optional<T>>);
 
     // These should both be true, as it should just copy instead of move
-    ASSERT_TRUE(std::is_move_constructible<cargo::optional<T>>::value);
-    ASSERT_TRUE(std::is_move_assignable<cargo::optional<T>>::value);
+    ASSERT_TRUE(std::is_move_constructible_v<cargo::optional<T>>);
+    ASSERT_TRUE(std::is_move_assignable_v<cargo::optional<T>>);
   }
 }
 
@@ -251,13 +245,13 @@ TEST(optional, map) {
   // lhs is empty
   cargo::optional<int> o1;
   auto o1r = o1.map([](int i) { return i + 2; });
-  ASSERT_TRUE((std::is_same<decltype(o1r), cargo::optional<int>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o1r), cargo::optional<int>>));
   ASSERT_TRUE(!o1r);
 
   // lhs has value
   cargo::optional<int> o2 = 40;
   auto o2r = o2.map([](int i) { return i + 2; });
-  ASSERT_TRUE((std::is_same<decltype(o2r), cargo::optional<int>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o2r), cargo::optional<int>>));
   ASSERT_EQ(o2r.value(), 42);
 
   struct rval_call_map {
@@ -267,19 +261,19 @@ TEST(optional, map) {
   // ensure that function object is forwarded
   cargo::optional<int> o3 = 42;
   auto o3r = o3.map(rval_call_map{});
-  ASSERT_TRUE((std::is_same<decltype(o3r), cargo::optional<double>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o3r), cargo::optional<double>>));
   ASSERT_EQ(o3r.value(), 42);
 
   // ensure that lhs is forwarded
   cargo::optional<int> o4 = 40;
   auto o4r = std::move(o4).map([](int &&i) { return i + 2; });
-  ASSERT_TRUE((std::is_same<decltype(o4r), cargo::optional<int>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o4r), cargo::optional<int>>));
   ASSERT_EQ(o4r.value(), 42);
 
   // ensure that lhs is const-propagated
   const cargo::optional<int> o5 = 40;
   auto o5r = o5.map([](const int &i) { return i + 2; });
-  ASSERT_TRUE((std::is_same<decltype(o5r), cargo::optional<int>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o5r), cargo::optional<int>>));
   ASSERT_EQ(o5r.value(), 42);
 
   // test void return
@@ -287,7 +281,7 @@ TEST(optional, map) {
   auto f7 = [](const int &) { return; };
   auto o7r = o7.map(f7);
   ASSERT_TRUE(
-      (std::is_same<decltype(o7r), cargo::optional<cargo::monostate>>::value));
+      (std::is_same_v<decltype(o7r), cargo::optional<cargo::monostate>>));
   ASSERT_TRUE(o7r.has_value());
 
   // test each overload in turn
@@ -387,25 +381,25 @@ TEST(optional, and_then) {
   // lhs is empty
   cargo::optional<int> o1;
   auto o1r = o1.and_then([](int) { return cargo::optional<float>{42}; });
-  ASSERT_TRUE((std::is_same<decltype(o1r), cargo::optional<float>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o1r), cargo::optional<float>>));
   ASSERT_TRUE(!o1r);
 
   // lhs has value
   cargo::optional<int> o2 = 12;
   auto o2r = o2.and_then([](int) { return cargo::optional<float>{42}; });
-  ASSERT_TRUE((std::is_same<decltype(o2r), cargo::optional<float>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o2r), cargo::optional<float>>));
   ASSERT_EQ(o2r.value(), 42.f);
 
   // lhs is empty, rhs returns empty
   cargo::optional<int> o3;
   auto o3r = o3.and_then([](int) { return cargo::optional<float>{}; });
-  ASSERT_TRUE((std::is_same<decltype(o3r), cargo::optional<float>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o3r), cargo::optional<float>>));
   ASSERT_TRUE(!o3r);
 
   // rhs returns empty
   cargo::optional<int> o4 = 12;
   auto o4r = o4.and_then([](int) { return cargo::optional<float>{}; });
-  ASSERT_TRUE((std::is_same<decltype(o4r), cargo::optional<float>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o4r), cargo::optional<float>>));
   ASSERT_TRUE(!o4r);
 
   struct rval_call_and_then {
@@ -417,21 +411,21 @@ TEST(optional, and_then) {
   // ensure that function object is forwarded
   cargo::optional<int> o5 = 42;
   auto o5r = o5.and_then(rval_call_and_then{});
-  ASSERT_TRUE((std::is_same<decltype(o5r), cargo::optional<double>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o5r), cargo::optional<double>>));
   ASSERT_EQ(o5r.value(), 42);
 
   // ensure that lhs is forwarded
   cargo::optional<int> o6 = 42;
   auto o6r = std::move(o6).and_then(
       [](int &&i) { return cargo::optional<double>(i); });
-  ASSERT_TRUE((std::is_same<decltype(o6r), cargo::optional<double>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o6r), cargo::optional<double>>));
   ASSERT_EQ(o6r.value(), 42);
 
   // ensure that function object is const-propagated
   const cargo::optional<int> o7 = 42;
   auto o7r =
       o7.and_then([](const int &i) { return cargo::optional<double>(i); });
-  ASSERT_TRUE((std::is_same<decltype(o7r), cargo::optional<double>>::value));
+  ASSERT_TRUE((std::is_same_v<decltype(o7r), cargo::optional<double>>));
   ASSERT_EQ(o7r.value(), 42);
 
   // test each overload in turn
@@ -608,8 +602,7 @@ TEST(optional, make_optional) {
   auto o1 = cargo::make_optional(42);
   auto o2 = cargo::optional<int>(42);
 
-  constexpr bool is_same =
-      std::is_same<decltype(o1), cargo::optional<int>>::value;
+  constexpr bool is_same = std::is_same_v<decltype(o1), cargo::optional<int>>;
   ASSERT_TRUE(is_same);
   ASSERT_EQ(o1, o2);
 
@@ -643,7 +636,7 @@ TEST(optional, nullopt) {
   ASSERT_TRUE(!o3);
   ASSERT_TRUE(!o4);
 
-  ASSERT_TRUE(!std::is_default_constructible<cargo::nullopt_t>::value);
+  ASSERT_TRUE(!std::is_default_constructible_v<cargo::nullopt_t>);
 }
 
 TEST(optional, emplace) {
@@ -683,14 +676,14 @@ TEST(optional, observers) {
   ASSERT_EQ(*o1, o1.value());
   ASSERT_EQ(o2.value_or(42), 42);
   ASSERT_EQ(o3.value(), 42);
-  auto success = std::is_same<decltype(o1.value()), int &>::value;
+  auto success = std::is_same_v<decltype(o1.value()), int &>;
   ASSERT_TRUE(success);
-  success = std::is_same<decltype(o3.value()), const int &>::value;
+  success = std::is_same_v<decltype(o3.value()), const int &>;
   ASSERT_TRUE(success);
-  success = std::is_same<decltype(std::move(o1).value()), int &&>::value;
+  success = std::is_same_v<decltype(std::move(o1).value()), int &&>;
   ASSERT_TRUE(success);
 
-  success = std::is_same<decltype(std::move(o3).value()), const int &&>::value;
+  success = std::is_same_v<decltype(std::move(o3).value()), const int &&>;
   ASSERT_TRUE(success);
 
   cargo::optional<move_detector> o4{cargo::in_place};

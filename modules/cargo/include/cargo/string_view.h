@@ -85,10 +85,10 @@ class string_view {
   /// @param string Reference to the `std::string` like object.
   template <
       class String,
-      enable_if_t<is_detected<detail::data_member_fn, String>::value &&
-                  is_detected<detail::size_member_fn, String>::value &&
-                  has_value_type_convertible_to<value_type, String>::value> * =
-          nullptr>
+      std::enable_if_t<is_detected<detail::data_member_fn, String>::value &&
+                       is_detected<detail::size_member_fn, String>::value &&
+                       has_value_type_convertible_to<value_type, String>::value>
+          * = nullptr>
   string_view(const String &string)
       : Begin(string.data()), Size(string.size()) {
     while (Begin + Size - 1 >= Begin && Begin[Size - 1] == '\0') {

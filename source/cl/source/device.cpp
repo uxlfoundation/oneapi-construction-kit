@@ -502,16 +502,15 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
     OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);         \
   } break
 
-#define DEVICE_INFO_CASE(ENUM, TYPE)                                         \
-  case ENUM: {                                                               \
-    const size_t typeSize = sizeof(TYPE);                                    \
-    OCL_CHECK(param_value && (param_value_size < typeSize),                  \
-              return CL_INVALID_VALUE);                                      \
-    if (param_value) {                                                       \
-      *static_cast<std::remove_const<decltype(TYPE)>::type *>(param_value) = \
-          TYPE;                                                              \
-    }                                                                        \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                     \
+#define DEVICE_INFO_CASE(ENUM, TYPE)                                           \
+  case ENUM: {                                                                 \
+    const size_t typeSize = sizeof(TYPE);                                      \
+    OCL_CHECK(param_value && (param_value_size < typeSize),                    \
+              return CL_INVALID_VALUE);                                        \
+    if (param_value) {                                                         \
+      *static_cast<std::remove_const_t<decltype(TYPE)> *>(param_value) = TYPE; \
+    }                                                                          \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                       \
   } break
 
   switch (param_name) {

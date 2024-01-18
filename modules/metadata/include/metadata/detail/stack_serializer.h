@@ -38,8 +38,8 @@ namespace {
 /// @param output The output binary.
 /// @param endianness The desired endianness.
 template <class NumberTy,
-          std::enable_if_t<std::is_integral<NumberTy>::value ||
-                               std::is_floating_point<NumberTy>::value,
+          std::enable_if_t<std::is_integral_v<NumberTy> ||
+                               std::is_floating_point_v<NumberTy>,
                            bool> = true>
 void serialize_number(NumberTy num, std::vector<uint8_t> &output,
                       MD_ENDIAN endianness) {

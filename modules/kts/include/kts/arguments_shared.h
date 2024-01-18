@@ -164,11 +164,8 @@ class Reference1D {
   /// will construct a reference from it. The second argument is used purely to
   /// trigger SFINAE.
   template <typename F>
-  Reference1D(
-      F &&f,
-      typename std::enable_if<HasOperatorSizeT<F>::value,
-                              typename std::remove_reference<F>::type>::type * =
-          0) {
+  Reference1D(F &&f, std::enable_if_t<HasOperatorSizeT<F>::value,
+                                      std::remove_reference_t<F>> * = 0) {
     Ref = std::make_shared<ReferenceFun<T(size_t)>>(f);
     Type = Value;
   }
@@ -181,11 +178,8 @@ class Reference1D {
   /// will construct a reference from it. The second argument is used purely to
   /// trigger SFINAE.
   template <typename F>
-  Reference1D(
-      F &&f,
-      typename std::enable_if<HasOperatorSizeTT<F>::value,
-                              typename std::remove_reference<F>::type>::type * =
-          0) {
+  Reference1D(F &&f, std::enable_if_t<HasOperatorSizeTT<F>::value,
+                                      std::remove_reference_t<F>> * = 0) {
     Ref = std::make_shared<ReferenceFun<bool(size_t, T &)>>(f);
     Type = Boolean;
   }
