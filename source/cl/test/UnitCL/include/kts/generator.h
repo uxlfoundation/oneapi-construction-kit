@@ -189,7 +189,7 @@ void InputGenerator::GenerateFiniteFloatData(std::vector<T> &buffer, T low,
   // other than the sign bit, if the sign bit is set. This gives us an
   // equivalent range over signed integers. Inverting the sign bit then converts
   // that to a range over unsigned integers.
-  auto const sign_bit = TypeInfo<T>::sign_bit;
+  const auto sign_bit = TypeInfo<T>::sign_bit;
 
   UInt iMin = cargo::bit_cast<UInt>(low);
   iMin ^= (iMin & sign_bit) ? ~UInt(0) : sign_bit;

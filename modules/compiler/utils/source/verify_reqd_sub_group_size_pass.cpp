@@ -69,7 +69,7 @@ PreservedAnalyses VerifyReqdSubGroupSizeLegalPass::run(
   auto &DI = AM.getResult<DeviceInfoAnalysis>(M);
   const auto &SGSizes = DI.reqd_sub_group_sizes;
   for (auto &F : M) {
-    auto const ReqdSGSize = getReqdSubgroupSize(F);
+    const auto ReqdSGSize = getReqdSubgroupSize(F);
     if (!ReqdSGSize) {
       continue;
     }
@@ -92,7 +92,7 @@ PreservedAnalyses VerifyReqdSubGroupSizeSatisfiedPass::run(
       continue;
     }
 
-    auto const ReqdSGSize = getReqdSubgroupSize(F);
+    const auto ReqdSGSize = getReqdSubgroupSize(F);
     if (!ReqdSGSize) {
       continue;
     }

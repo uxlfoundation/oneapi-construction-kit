@@ -916,10 +916,10 @@ TEST(expected, and_then_std_string) { getInt1(); }
 
 cargo::expected<int, int> operation1() { return 42; }
 
-cargo::expected<std::string, int> operation2(int const) { return "Bananas"; }
+cargo::expected<std::string, int> operation2(const int) { return "Bananas"; }
 
 TEST(expected, and_then_non_constexpr) {
-  auto const intermediate_result = operation1();
+  const auto intermediate_result = operation1();
 
   intermediate_result.and_then(operation2);
 }

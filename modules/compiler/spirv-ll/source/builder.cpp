@@ -1258,7 +1258,7 @@ std::string spirv_ll::Builder::getMangledTypeName(
         mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
         "Parameter is not a pointer");
 
-    auto const spvPointeeTy =
+    const auto spvPointeeTy =
         module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
     auto *const elementTy = module.getLLVMType(spvPointeeTy);
     std::string mangled = getMangledPointerPrefix(ty, mangleInfo->typeQuals);

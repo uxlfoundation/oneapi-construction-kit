@@ -58,7 +58,7 @@ compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass::run(
 
       auto &call = cast<CallInst>(inst);
       Function *const callee = call.getCalledFunction();
-      auto const name = callee->getName();
+      const auto name = callee->getName();
       if (auto *const ASQ = replaceAddressSpaceQualifierFunction(call, name)) {
         call.replaceAllUsesWith(ASQ);
         call.eraseFromParent();

@@ -19,7 +19,7 @@
 
 namespace spirv_ll {
 struct GroupAsyncCopy2D2D : OpExtInst {
-  GroupAsyncCopy2D2D(OpCode const &opc) : OpExtInst(opc) {}
+  GroupAsyncCopy2D2D(const OpCode &opc) : OpExtInst(opc) {}
   spv::Id Destination() const { return getOpExtInstOperand(0); }
   spv::Id DestinationOffset() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -33,7 +33,7 @@ struct GroupAsyncCopy2D2D : OpExtInst {
 };
 
 struct GroupAsyncCopy3D3D : OpExtInst {
-  GroupAsyncCopy3D3D(OpCode const &opc) : OpExtInst(opc) {}
+  GroupAsyncCopy3D3D(const OpCode &opc) : OpExtInst(opc) {}
   spv::Id Destination() const { return getOpExtInstOperand(0); }
   spv::Id DestinationOffset() const { return getOpExtInstOperand(1); }
   spv::Id Source() const { return getOpExtInstOperand(2); }
@@ -52,7 +52,7 @@ struct GroupAsyncCopy3D3D : OpExtInst {
 template <>
 llvm::Error
 GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy2D2D>(opc);
 
   llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
@@ -121,7 +121,7 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
 template <>
 llvm::Error
 GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<spirv_ll::GroupAsyncCopy3D3D>(opc);
 
   llvm::Type *eventTy = module.getLLVMType(op->IdResultType());
@@ -196,7 +196,7 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
   return llvm::Error::success();
 }
 
-llvm::Error GroupAsyncCopiesBuilder::create(OpExtInst const &opc) {
+llvm::Error GroupAsyncCopiesBuilder::create(const OpExtInst &opc) {
   switch (opc.Instruction()) {
     case GroupAsyncCopy2D2D:
       return create<GroupAsyncCopy2D2D>(opc);

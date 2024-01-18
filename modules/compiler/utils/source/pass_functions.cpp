@@ -52,7 +52,7 @@ uint64_t computeApproximatePrivateMemoryUsage(const llvm::Function &fn) {
       continue;
     }
     const auto &alloca_inst = llvm::cast<llvm::AllocaInst>(inst);
-    auto const *type = alloca_inst.getType();
+    const auto *type = alloca_inst.getType();
     if (type->getAddressSpace() != AddressSpace::Private) {
       continue;
     }
@@ -275,7 +275,7 @@ bool cloneFunctionsAddArg(
   // Preserve the value map across all function clones
   llvm::ValueToValueMapTy vmap;
 
-  ParamTypeAttrsPair const paramInfo = paramTypeFunc(module);
+  const ParamTypeAttrsPair paramInfo = paramTypeFunc(module);
 
   // For each function we run the function toBeCloned to set the bools
   // doCloneNoBody and doCloneWithBody

@@ -43,7 +43,7 @@ void GenerateOrderIndependentFloatData(std::vector<cl_float> &input_data) {
   // range of integers, which are guaranteed not to lose any bits of precision
   // during addition, and the sum will be exact regardless of
   // ordering.
-  auto const data_size = input_data.size();
+  const auto data_size = input_data.size();
   std::vector<cl_int> input_ints(data_size);
   ucl::Environment::instance->GetInputGenerator().GenerateIntData<cl_int>(
       input_ints, -65536, 65536);

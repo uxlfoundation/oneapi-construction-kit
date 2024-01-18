@@ -94,7 +94,7 @@ class ExtInstSetHandler {
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  virtual llvm::Error create(OpExtInst const &opc) = 0;
+  virtual llvm::Error create(const OpExtInst &opc) = 0;
 
  protected:
   /// @brief `spirv_ll::Builder` that owns this object.
@@ -235,13 +235,13 @@ class Builder {
 
   /// @brief Populate the incoming edges/values for the given Phi node
   /// @param op The SpirV Op for the Phi node
-  void populatePhi(OpPhi const &op);
+  void populatePhi(const OpPhi &op);
 
   /// @brief A unification of the four very similar access chain functions
   ///
   /// @param opc The OpCode representing the access chain instruction
   /// being translated
-  void accessChain(OpCode const &opc);
+  void accessChain(const OpCode &opc);
 
   /// @brief Represents a lexical scope, used for debug information.
   struct LexicalScopeTy {

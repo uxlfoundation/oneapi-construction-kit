@@ -594,11 +594,11 @@ template <class T, class E,
 struct expected_default_ctor_base {
   constexpr expected_default_ctor_base() noexcept = default;
   constexpr expected_default_ctor_base(
-      expected_default_ctor_base const &) noexcept = default;
+      const expected_default_ctor_base &) noexcept = default;
   constexpr expected_default_ctor_base(expected_default_ctor_base &&) noexcept =
       default;
   expected_default_ctor_base &operator=(
-      expected_default_ctor_base const &) noexcept = default;
+      const expected_default_ctor_base &) noexcept = default;
   expected_default_ctor_base &operator=(
       expected_default_ctor_base &&) noexcept = default;
 
@@ -610,11 +610,11 @@ template <class T, class E>
 struct expected_default_ctor_base<T, E, false> {
   constexpr expected_default_ctor_base() noexcept = delete;
   constexpr expected_default_ctor_base(
-      expected_default_ctor_base const &) noexcept = default;
+      const expected_default_ctor_base &) noexcept = default;
   constexpr expected_default_ctor_base(expected_default_ctor_base &&) noexcept =
       default;
   expected_default_ctor_base &operator=(
-      expected_default_ctor_base const &) noexcept = default;
+      const expected_default_ctor_base &) noexcept = default;
   expected_default_ctor_base &operator=(
       expected_default_ctor_base &&) noexcept = default;
 

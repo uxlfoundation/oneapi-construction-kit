@@ -211,7 +211,7 @@ cl_int parseProperties(const cl_context_properties *properties,
   cl_platform_id platformid = nullptr;
 
   uint32_t length = 0;
-  cl_context_properties const *property = properties;
+  const cl_context_properties *property = properties;
   while (0 != property[0]) {
     switch (property[0]) {
       case CL_CONTEXT_PLATFORM:

@@ -41,7 +41,7 @@ PreservedAnalyses compiler::utils::PrepareBarriersPass::run(
   SmallPtrSet<Function *, 4> FuncsWithBarriers;
 
   for (Function &F : M) {
-    auto const B = BI.analyzeBuiltin(F);
+    const auto B = BI.analyzeBuiltin(F);
     // If the function does not have a barrier id.
     if (!BI.isMuxBuiltinWithBarrierID(B.ID)) {
       continue;

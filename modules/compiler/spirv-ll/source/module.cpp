@@ -133,7 +133,7 @@ const spirv_ll::OpEntryPoint *spirv_ll::Module::getEntryPoint(
   return found != EntryPoints.end() ? found->getSecond() : nullptr;
 }
 
-void spirv_ll::Module::replaceID(OpResult const *Op, llvm::Value *V) {
+void spirv_ll::Module::replaceID(const OpResult *Op, llvm::Value *V) {
   auto found = Values.find(Op->IdResult());
   if (found != Values.end()) {
     Values.erase(found);
@@ -474,7 +474,7 @@ llvm::Type *spirv_ll::Module::getBlockType(const spv::Id id) const {
   }
 }
 
-bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
+bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op, llvm::Value *V) {
   // If the ID has a name attached to it, try to set it here if it wasn't
   // already set. reference might not have been able to take a name (e.g., if
   // it was a undef/poison constant).
@@ -668,7 +668,7 @@ spirv_ll::Module::SampledImage spirv_ll::Module::getSampledImage(
   return SampledImagesMap.lookup(id);
 }
 
-bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Type *T) {
+bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op, llvm::Type *T) {
   // SSA form forbids the reassignment of IDs
   auto existing = Types.find(id);
   if (existing != Types.end() && existing->second.Type != nullptr) {

@@ -164,7 +164,7 @@ inline bool CheckValidUse(Value *v) {
 bool IsRematerializableBuiltinCall(Value *v, compiler::utils::BuiltinInfo &bi) {
   if (auto *call = dyn_cast<CallInst>(v)) {
     assert(call->getCalledFunction() && "Could not get called function");
-    auto const B = bi.analyzeBuiltin(*call->getCalledFunction());
+    const auto B = bi.analyzeBuiltin(*call->getCalledFunction());
     if (B.properties & compiler::utils::eBuiltinPropertyRematerializable) {
       for (auto &op : call->operands()) {
         if (isa<Instruction>(op.get())) {
@@ -329,7 +329,7 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live,
                                        Twine("live_gep_") + live->getName());
   } else if (auto field_it = barrier.live_variable_scalables_map_.find(key);
              field_it != barrier.live_variable_scalables_map_.end()) {
-    unsigned const field_offset = field_it->second;
+    const unsigned field_offset = field_it->second;
     Value *scaled_offset = nullptr;
 
     LLVMContext &context = barrier.module_.getContext();
@@ -521,7 +521,7 @@ void compiler::utils::Barrier::FindBarriers() {
       if (CallInst *call_inst = dyn_cast<CallInst>(&bi)) {
         Function *callee = call_inst->getCalledFunction();
         if (callee != nullptr) {
-          auto const B = bi_->analyzeBuiltin(*callee);
+          const auto B = bi_->analyzeBuiltin(*callee);
           if (BuiltinInfo::isMuxBuiltinWithWGBarrierID(B.ID)) {
             unsigned id = ~0u;
             auto *const id_param = call_inst->getOperand(0);
@@ -536,7 +536,7 @@ void compiler::utils::Barrier::FindBarriers() {
   }
 
   std::sort(orderedBarriers.begin(), orderedBarriers.end());
-  for (auto const &barrier : orderedBarriers) {
+  for (const auto &barrier : orderedBarriers) {
     barriers_.push_back(barrier.second);
   }
 }
@@ -1062,14 +1062,14 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   // If we have a work group collective call, we need to create a new argument
   // so that the result can be passed in.
-  bool const collective =
+  const bool collective =
       getWorkGroupCollectiveCall(region.barrier_inst, *bi_).has_value();
   if (collective) {
     new_func_params.push_back(region.barrier_inst->getType());
   }
 
   // Add live variables' parameter as last if there are any.
-  bool const hasBarrierStruct = !whole_live_variables_set_.empty() &&
+  const bool hasBarrierStruct = !whole_live_variables_set_.empty() &&
                                 region.schedule != BarrierSchedule::Once;
   if (hasBarrierStruct) {
     PointerType *pty = PointerType::get(live_var_mem_ty_, 0);

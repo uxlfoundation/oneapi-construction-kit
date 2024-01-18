@@ -87,16 +87,16 @@ class CLBuiltinInfo : public BILangInfoConcept {
   llvm::Module *getBuiltinsModule() override;
 
   /// @see BuiltinInfo::isBuiltinUniform
-  BuiltinUniformity isBuiltinUniform(Builtin const &B, const llvm::CallInst *CI,
+  BuiltinUniformity isBuiltinUniform(const Builtin &B, const llvm::CallInst *CI,
                                      unsigned SimdDimIdx) const override;
 
   /// @see BuiltinInfo::analyzeBuiltin
-  Builtin analyzeBuiltin(llvm::Function const &F) const override;
+  Builtin analyzeBuiltin(const llvm::Function &F) const override;
   /// @see BuiltinInfo::getVectorEquivalent
-  llvm::Function *getVectorEquivalent(Builtin const &B, unsigned Width,
+  llvm::Function *getVectorEquivalent(const Builtin &B, unsigned Width,
                                       llvm::Module *M = nullptr) override;
   /// @see BuiltinInfo::getScalarEquivalent
-  llvm::Function *getScalarEquivalent(Builtin const &B,
+  llvm::Function *getScalarEquivalent(const Builtin &B,
                                       llvm::Module *M) override;
   /// @see BuiltinInfo::emitBuiltinInline
   llvm::Value *emitBuiltinInline(llvm::Function *Builtin, llvm::IRBuilder<> &B,
@@ -109,7 +109,7 @@ class CLBuiltinInfo : public BILangInfoConcept {
   BuiltinID getPrintfBuiltin() const override;
 
  private:
-  BuiltinID identifyBuiltin(llvm::Function const &) const;
+  BuiltinID identifyBuiltin(const llvm::Function &) const;
 
   llvm::Function *materializeBuiltin(
       llvm::StringRef BuiltinName, llvm::Module *DestM = nullptr,
