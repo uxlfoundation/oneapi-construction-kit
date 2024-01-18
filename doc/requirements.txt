@@ -1,5 +1,10 @@
 # Documentation generator.
 sphinx==4.5.0
+sphinxcontrib-applehelp==1.0.4
+sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-htmlhelp==2.0.1
+sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-serializinghtml==1.1.5
 # Markdown -> Sphinx extension.
 myst-parser==0.15.2
 linkify-it-py==1.0.2
