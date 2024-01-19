@@ -141,7 +141,7 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
   const bool linkResult = !s.retCode && s.canRunAgain;
   ::lld::CommonLinkerContext::destroy();
 #else
-  bool linkResult =
+  const bool linkResult =
       lld::elf::link(lld_args, outs(), stderrOS,
                      /*exitEarly*/ false, /*disableOutput*/ false);
   lld::CommonLinkerContext::destroy();

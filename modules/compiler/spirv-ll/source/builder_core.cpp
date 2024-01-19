@@ -3772,11 +3772,11 @@ llvm::Error Builder::create<OpImageQuerySizeLod>(
       module.getInternalStructType(opFunctionParameter->IdResultType());
   SPIRV_LL_ASSERT(imgTy, "Unknown/untracked image type");
 
-  llvm::StringRef imageTypeName = imgTy->getStructName();
+  const llvm::StringRef imageTypeName = imgTy->getStructName();
 
-  bool isArray = imageTypeName.contains("array");
-  bool is2D = imageTypeName.contains("2d");
-  bool is3D = imageTypeName.contains("3d");
+  const bool isArray = imageTypeName.contains("array");
+  const bool is2D = imageTypeName.contains("2d");
+  const bool is3D = imageTypeName.contains("3d");
 #endif
 
   llvm::Value *result = llvm::UndefValue::get(returnType);

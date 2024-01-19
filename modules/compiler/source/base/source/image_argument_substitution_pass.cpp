@@ -135,13 +135,13 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       // Our wrapper hasn't been created with any parameter attributes, as the
       // parameter types have changed. We must copy across all attributes from
       // the non-sampler arguments to maintain program semantics.
-      AttributeList KernelAttrs = KernelF->getAttributes();
+      const AttributeList KernelAttrs = KernelF->getAttributes();
       SmallVector<AttributeSet, 4> WrapperParamAttrs(KernelF->arg_size());
 
       for (auto [OldArg, NewArg] :
            zip(KernelF->args(), WrapperKernel->args())) {
         // Copy parameter names across
-        unsigned ArgIdx = Args.size();
+        const unsigned ArgIdx = Args.size();
         NewArg.setName(OldArg.getName());
         if (OldArg.getType() == NewArg.getType()) {
           Args.push_back(&NewArg);
