@@ -1076,8 +1076,8 @@ llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
   }
 
   // Setting the attributes for the function arguments.
-  for (size_t index = 0; index < args.size(); index++) {
-    auto argTy = args[index]->getType();
+  for (size_t argno = 0; argno < args.size(); argno++) {
+    auto argTy = args[argno]->getType();
     if (argTy->isIntegerTy()) {
       // If the type is i8 or i16, it requires an attribute (signext or
       // zeroext). Vectors containing i8 or i16 do not require parameter
@@ -1087,12 +1087,12 @@ llvm::CallInst *spirv_ll::Builder::createMangledBuiltinCall(
         // Assume signed unless an OpCode was provided that says otherwise.
         llvm::Attribute::AttrKind attribute = llvm::Attribute::AttrKind::SExt;
         if (!argTyMangleInfo.empty()) {
-          attribute = argTyMangleInfo[index].getSignedness(module)
+          attribute = argTyMangleInfo[argno].getSignedness(module)
                           ? llvm::Attribute::AttrKind::SExt
                           : llvm::Attribute::AttrKind::ZExt;
         }
-        mangledBuiltInCall->addParamAttr(index, attribute);
-        calledFunction->addParamAttr(index, attribute);
+        mangledBuiltInCall->addParamAttr(argno, attribute);
+        calledFunction->addParamAttr(argno, attribute);
       }
     }
   }

@@ -175,7 +175,7 @@ TEST(UtilsTest, SerializeMDHeader) {
   md::utils::serialize_md_header(header, output);
 
   md::CAMD_Header decoded_header;
-  auto decoded = md::utils::decode_md_header(&output[0], decoded_header,
+  auto decoded = md::utils::decode_md_header(output.data(), decoded_header,
                                              output.size() + 1);
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
@@ -208,7 +208,7 @@ TEST(UtilsTest, SerializeMDBlockInfo) {
       static_cast<uint32_t>(0) /*n_blocks*/};
 
   md::CAMD_BlockInfo decoded_info;
-  auto decoded = md::utils::decode_md_block_info(&output[0], test_header,
+  auto decoded = md::utils::decode_md_block_info(output.data(), test_header,
                                                  decoded_info, 200);
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));

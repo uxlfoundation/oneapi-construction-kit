@@ -45,7 +45,6 @@ class basic_context {
   // (see P0211)
   using map_t = basic_map<string_t, std::shared_ptr<stack_t>, AllocatorType>;
 
- public:
   /// @brief Construct a new basic context object.
   ///
   /// @param hooks A pointer to user-provided hooks.

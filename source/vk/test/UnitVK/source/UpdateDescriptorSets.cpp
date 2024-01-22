@@ -119,7 +119,8 @@ class UpdateDescriptorSets : public uvk::PipelineTest,
     write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     write.dstArrayElement = 0;
     write.dstBinding = 0;
-    write.pBufferInfo = &bufferInfo[0];
+    write.pBufferInfo =
+        &bufferInfo[0];  // NOLINT(readability-container-data-pointer)
     write.dstSet = descriptorSet;
 
     writes.push_back(write);

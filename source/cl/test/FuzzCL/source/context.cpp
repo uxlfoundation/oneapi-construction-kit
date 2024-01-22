@@ -1235,7 +1235,8 @@ cl_device_id fuzzcl::context_t::select_device(
     if (device_name_size > 0) {
       std::string device_name = std::string(device_name_size - 1, '\0');
       IS_CL_SUCCESS(clGetDeviceInfo(devices[i], CL_DEVICE_NAME,
-                                    device_name_size, &device_name[0], NULL));
+                                    device_name_size, device_name.data(),
+                                    NULL));
       device_names.push_back(device_name);
     } else {
       device_names.push_back("Nameless device");

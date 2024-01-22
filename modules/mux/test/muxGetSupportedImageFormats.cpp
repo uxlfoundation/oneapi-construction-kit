@@ -34,8 +34,8 @@ TEST_P(muxGetSupportedImageFormatsTest, 1D) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
   }
 }
 
@@ -53,8 +53,8 @@ TEST_P(muxGetSupportedImageFormatsTest, 2D) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
   }
 }
 
@@ -72,8 +72,8 @@ TEST_P(muxGetSupportedImageFormatsTest, 3D) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
   }
 }
 
@@ -135,6 +135,6 @@ TEST_P(muxGetSupportedImageFormatsTest, InvalidCount) {
 
     ASSERT_ERROR_EQ(mux_error_invalid_value,
                     muxGetSupportedImageFormats(device, type, allocation_type,
-                                                0, &format[0], nullptr));
+                                                0, format.data(), nullptr));
   }
 }

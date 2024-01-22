@@ -64,8 +64,8 @@ TEST_P(muxBindImageMemoryTest, 1D) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 16, 1, 1, 0, 0, 0,
                                   allocator, &image));
@@ -92,8 +92,8 @@ TEST_P(muxBindImageMemoryTest, 2D) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 12, 12, 1, 0, 0, 0,
                                   allocator, &image));
@@ -120,8 +120,8 @@ TEST_P(muxBindImageMemoryTest, 3D) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 8, 8, 8, 0, 0, 0,
                                   allocator, &image));
@@ -148,8 +148,8 @@ TEST_P(muxBindImageMemoryTest, InvalidDevice) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 16, 16, 16, 0, 0, 0,
                                   allocator, &image));
@@ -177,8 +177,8 @@ TEST_P(muxBindImageMemoryTest, InvalidMemory) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 16, 16, 16, 0, 0, 0,
                                   allocator, &image));
@@ -206,8 +206,8 @@ TEST_P(muxBindImageMemoryTest, InvalidImage) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 16, 16, 16, 0, 0, 0,
                                   allocator, &image));
@@ -235,8 +235,8 @@ TEST_P(muxBindImageMemoryTest, InvalidImageSize) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 64, 64, 64, 0, 0, 0,
                                   allocator, &image));
@@ -265,8 +265,8 @@ TEST_P(muxBindImageMemoryTest, InvalidOffset) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     mux_image_t image;
     ASSERT_SUCCESS(muxCreateImage(device, type, format[0], 4, 4, 4, 0, 0, 0,
                                   allocator, &image));

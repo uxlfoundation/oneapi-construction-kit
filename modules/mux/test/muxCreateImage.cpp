@@ -40,8 +40,8 @@ TEST_P(muxCreateImageTest, 1D) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
   // For each of the supported image formats on this device we test creation
   // of an image
   for (uint64_t i = 0; i < out_count; i++) {
@@ -65,8 +65,8 @@ TEST_P(muxCreateImageTest, 2D) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
   // For each of the supported image formats on this device we test creation
   // of an image
   for (uint64_t i = 0; i < out_count; i++) {
@@ -90,8 +90,8 @@ TEST_P(muxCreateImageTest, 3D) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
   // For each of the supported image formats on this device we test creation
   // of an image
   for (uint64_t i = 0; i < out_count; i++) {
@@ -115,8 +115,8 @@ TEST_P(muxCreateImageTest, MalformedDevice) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
   ASSERT_ERROR_EQ(mux_error_invalid_value,
                   muxCreateImage(nullptr, type, format[0], 2, 2, 2, 0, 0, 0,
                                  allocator, nullptr));
@@ -135,8 +135,8 @@ TEST_P(muxCreateImageTest, IncorrectImageParams1D) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
 
   ASSERT_ERROR_EQ(mux_error_invalid_value,
                   muxCreateImage(device, type, format[0], 0, 1, 1, 0, 0, 0,
@@ -162,8 +162,8 @@ TEST_P(muxCreateImageTest, IncorrectImageParams2D) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
 
   ASSERT_ERROR_EQ(mux_error_invalid_value,
                   muxCreateImage(device, type, format[0], 0, 4, 1, 0, 0, 0,
@@ -189,8 +189,8 @@ TEST_P(muxCreateImageTest, IncorrectImageParams3D) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
 
   ASSERT_ERROR_EQ(mux_error_invalid_value,
                   muxCreateImage(device, type, format[0], 0, 4, 4, 0, 0, 0,
@@ -216,8 +216,8 @@ TEST_P(muxCreateImageTest, NullOutParameter) {
 
   std::vector<mux_image_format_e> format(out_count);
 
-  ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                             out_count, &format[0], nullptr));
+  ASSERT_SUCCESS(muxGetSupportedImageFormats(
+      device, type, allocation_type, out_count, format.data(), nullptr));
   ASSERT_ERROR_EQ(mux_error_null_out_parameter,
                   muxCreateImage(device, type, format[0], 16, 1, 1, 0, 0, 0,
                                  allocator, nullptr));
