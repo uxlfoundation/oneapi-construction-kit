@@ -144,7 +144,6 @@ class allocation_info {
 
 /// @brief Derived class for host USM allocations
 class host_allocation_info final : public allocation_info {
- private:
   /// @brief Private constructor, use the `create()` functions instead.
   host_allocation_info(const cl_context context, const size_t size);
 
@@ -213,7 +212,6 @@ class host_allocation_info final : public allocation_info {
 
 /// @brief Derived class for device USM allocations
 class device_allocation_info final : public allocation_info {
- private:
   /// @brief Private constructor, use the `create()` functions instead.
   device_allocation_info(const cl_context context, const cl_device_id device,
                          const size_t size);
@@ -275,7 +273,6 @@ class device_allocation_info final : public allocation_info {
 
 /// @brief Derived class for shared USM allocations
 class shared_allocation_info final : public allocation_info {
- private:
   /// @brief Private constructor, use the `create()` functions instead.
   shared_allocation_info(const cl_context context, const cl_device_id device,
                          const size_t size);

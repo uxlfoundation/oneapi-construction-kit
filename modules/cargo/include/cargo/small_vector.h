@@ -663,11 +663,15 @@ class small_vector {
   /// @return Returns iterator one past the last erased element.
   iterator erase(iterator first, iterator last) {
     CARGO_ASSERT(Begin <= first && End >= last, "invalid range");
-    std::move(last, End, first);
-    auto oldEnd = End;
-    End -= std::distance(first, last);
-    std::for_each(End, oldEnd, [](reference item) { item.~value_type(); });
-    return first;
+    const iterator old_tail_first = last, old_tail_last = End;
+    const size_t tail_size = old_tail_last - old_tail_first;
+    const iterator new_tail_first = first,
+                   new_tail_last = new_tail_first + tail_size;
+    std::move(old_tail_first, old_tail_last, new_tail_first);
+    End = new_tail_last;
+    std::for_each(new_tail_last, old_tail_last,
+                  [](reference item) { item.~value_type(); });
+    return new_tail_first;
   }
 
   /// @brief Add element at the end.

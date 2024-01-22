@@ -1342,18 +1342,19 @@ llvm::Error Builder::create<OpSpecConstantOp>(const OpSpecConstantOp *op) {
       break;
     }
     case spv::OpSMod: {
-      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+      llvm::Value *num = module.getValue(op->getValueAtOffset(firstArgIndex));
 
-      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+      llvm::Value *denom =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
 
       llvm::Constant *zero = llvm::ConstantInt::getSigned(result_type, 0);
-      llvm::Value *cmp = IRBuilder.CreateICmpSLT(rhs, zero);
-      llvm::Value *absRhs =
-          IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(rhs), rhs);
+      llvm::Value *cmp = IRBuilder.CreateICmpSLT(denom, zero);
+      llvm::Value *absDenom =
+          IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(denom), denom);
 
-      llvm::Value *sRem = IRBuilder.CreateSRem(lhs, rhs);
-      result =
-          IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absRhs), sRem);
+      llvm::Value *sRem = IRBuilder.CreateSRem(num, denom);
+      result = IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absDenom),
+                                      sRem);
       break;
     }
     case spv::OpShiftRightLogical: {
@@ -2711,11 +2712,12 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
                 "invalid SPIR-V: variables can not have a function[7] "
                 "storage class outside of a function");
           }
-          value = IRBuilder.CreateAlloca(varTy);
-          value->setName(name);
+          auto *alloca = IRBuilder.CreateAlloca(varTy);
+          alloca->setName(name);
           if (initializer) {
-            IRBuilder.CreateStore(initializer, value);
+            IRBuilder.CreateStore(initializer, alloca);
           }
+          value = alloca;
         } break;
         case spv::StorageClassGeneric: {
           if (module.isExtensionEnabled(
@@ -2736,11 +2738,12 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
               );
               value = globalValue;
             } else {
-              value = IRBuilder.CreateAlloca(varTy);
-              value->setName(name);
+              auto *alloca = IRBuilder.CreateAlloca(varTy);
+              alloca->setName(name);
               if (initializer) {
-                IRBuilder.CreateStore(initializer, value);
+                IRBuilder.CreateStore(initializer, alloca);
               }
+              value = alloca;
             }
           } else {
             // This requires the GenericPointer capability, which we do not
@@ -2771,11 +2774,12 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
     switch (op->StorageClass()) {
       case spv::StorageClassFunction: {
         SPIRV_LL_ASSERT_PTR(getCurrentFunction());
-        value = IRBuilder.CreateAlloca(varTy);
+        auto *alloca = IRBuilder.CreateAlloca(varTy);
+        alloca->setName(name);
         if (initializer) {
-          IRBuilder.CreateStore(initializer, value);
+          IRBuilder.CreateStore(initializer, alloca);
         }
-        value->setName(name);
+        value = alloca;
       } break;
       case spv::StorageClassPrivate: {
         value = new llvm::GlobalVariable(
@@ -4310,21 +4314,21 @@ llvm::Error Builder::create<OpSMod>(const OpSMod *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
-  llvm::Value *lhs = module.getValue(op->Operand1());
-  SPIRV_LL_ASSERT_PTR(lhs);
+  llvm::Value *num = module.getValue(op->Operand1());
+  SPIRV_LL_ASSERT_PTR(num);
 
-  llvm::Value *rhs = module.getValue(op->Operand2());
-  SPIRV_LL_ASSERT_PTR(rhs);
+  llvm::Value *denom = module.getValue(op->Operand2());
+  SPIRV_LL_ASSERT_PTR(denom);
 
-  llvm::Constant *zero = llvm::ConstantInt::getSigned(type, 0);
-  llvm::Value *cmp = IRBuilder.CreateICmpSLT(rhs, zero);
-  llvm::Value *absRhs = nullptr;
-  llvm::Value *result = nullptr;
+  llvm::Constant *const zero = llvm::ConstantInt::getSigned(type, 0);
+  llvm::Value *const cmp = IRBuilder.CreateICmpSLT(denom, zero);
 
-  absRhs = IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(rhs), rhs);
+  llvm::Value *const absDenom =
+      IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(denom), denom);
 
-  llvm::Value *sRem = IRBuilder.CreateSRem(lhs, rhs);
-  result = IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absRhs), sRem);
+  llvm::Value *const sRem = IRBuilder.CreateSRem(num, denom);
+  llvm::Value *const result =
+      IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absDenom), sRem);
 
   module.addID(op->IdResult(), op, result);
   return llvm::Error::success();

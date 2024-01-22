@@ -34,8 +34,8 @@ TEST_P(muxDestroyImageTest, Default) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     // For each of the supported image formats on this device we test creation
     // of an image
     for (uint64_t j = 0; j < out_count; j++) {
@@ -61,8 +61,8 @@ TEST_P(muxDestroyImageTest, MalformedDevice) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     // For each of the supported image formats on this device we test creation
     // of an image
     for (uint64_t j = 0; j < out_count; j++) {

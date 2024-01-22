@@ -1164,7 +1164,7 @@ bool oclc::Driver::InitCL() {
     OCLC_CHECK_CL(err, "Getting the platform name size failed");
     platform_name.resize(name_size);
     err = clGetPlatformInfo(platform_, CL_PLATFORM_NAME, name_size,
-                            &platform_name[0], nullptr);
+                            platform_name.data(), nullptr);
     OCLC_CHECK_CL(err, "Getting the platform name failed");
     fprintf(stderr, "Platform: %s\n", platform_name.c_str());
   }
@@ -1192,7 +1192,7 @@ bool oclc::Driver::InitCL() {
     err = clGetDeviceInfo(device, CL_DEVICE_NAME, 0, nullptr, &name_size);
     OCLC_CHECK_CL(err, "Getting the device name size failed");
     device_name.resize(name_size);
-    err = clGetDeviceInfo(device, CL_DEVICE_NAME, name_size, &device_name[0],
+    err = clGetDeviceInfo(device, CL_DEVICE_NAME, name_size, device_name.data(),
                           nullptr);
     OCLC_CHECK_CL(err, "Getting the device name failed");
 
@@ -1266,7 +1266,7 @@ bool oclc::Driver::BuildProgram() {
     fseek(fin, 0, SEEK_END);
     source_.resize(ftell(fin));
     rewind(fin);
-    if (source_.size() != fread(&source_[0], 1, source_.size(), fin)) {
+    if (source_.size() != fread(source_.data(), 1, source_.size(), fin)) {
       fclose(fin);
       OCLC_CHECK(true, "Could not read input file");
     }
@@ -1759,7 +1759,7 @@ bool oclc::Driver::EnqueueKernel() {
     std::string arg_name;
     arg_name.resize(arg_name_size - 1);
     err = clGetKernelArgInfo(kernel, i, CL_KERNEL_ARG_NAME, arg_name_size,
-                             &arg_name[0], nullptr);
+                             arg_name.data(), nullptr);
     OCLC_CHECK_CL(err, "clGetKernelInfo failed");
 
     auto input = kernel_arg_map_.find(arg_name);
