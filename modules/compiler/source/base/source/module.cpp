@@ -874,6 +874,8 @@ void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const {
   codeGenOpts.OptimizationLevel = options.opt_disable ? 0 : 3;
   codeGenOpts.StackRealignment = true;
   codeGenOpts.SimplifyLibCalls = false;
+  // Clang sets this by default when compiling OpenCL C.
+  codeGenOpts.EnableNoundefAttrs = true;
 
   codeGenOpts.VectorizeSLP =
       options.prevec_mode == compiler::PreVectorizationMode::SLP ||
