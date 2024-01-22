@@ -238,22 +238,18 @@ cl_half ConvertFloatToHalf(const T x,
 ///
 /// @param reference        Reference 32-bit float value
 /// @param test             Half precision value we've calculated
-/// @param denorm_support   Whether device supports denormal numbers
 ///
 /// @return ULP calculated as a float value.
-cl_float calcHalfPrecisionULP(const cl_float reference, const cl_half test,
-                              bool denorm_support);
+cl_float calcHalfPrecisionULP(const cl_float reference, const cl_half test);
 
 /// @brief Calculates the ULP between two floating points values, ignoring
 ///        the mantissa bits not available in half precision.
 ///
 /// @param reference        Reference 64-bit float value
 /// @param test             Half precision value we've calculated
-/// @param denorm_support   Whether device supports denormal numbers
 ///
 /// @return ULP calculated as a double precision value.
-cl_double calcHalfPrecisionULP(const cl_double reference, const cl_half test,
-                               bool denorm_support);
+cl_double calcHalfPrecisionULP(const cl_double reference, const cl_half test);
 
 /// @brief Discovers if input is a finite denormal number when converted from
 ///        single precision to half precision
@@ -411,19 +407,16 @@ struct ULPValidator final {
 /// @brief Verifies that two half values are within a template defined ULP
 template <cl_ulong ULP, bool test_denormals>
 struct ULPValidator<cl_half, ULP, test_denormals> final {
-  ULPValidator(cl_device_id device) : ulp_err(0.0f) {
-    denorm_support = test_denormals &&
-                     UCL::hasDenormSupport(device, CL_DEVICE_HALF_FP_CONFIG);
-  }
+  ULPValidator(cl_device_id) : ulp_err(0.0f) {}
 
   bool validate(const cl_float &expected, const cl_half &actual) {
-    ulp_err = calcHalfPrecisionULP(expected, actual, denorm_support);
+    ulp_err = calcHalfPrecisionULP(expected, actual);
     return (std::fabs(ulp_err) <= static_cast<cl_float>(ULP)) ||
            (std::isinf(ulp_err) && (ULP == MAX_ULP_ERROR));
   }
 
   bool validate(const cl_double &expected, const cl_half &actual) {
-    ulp_err = calcHalfPrecisionULP(expected, actual, denorm_support);
+    ulp_err = calcHalfPrecisionULP(expected, actual);
     return (std::fabs(ulp_err) <= static_cast<cl_double>(ULP)) ||
            (std::isinf(ulp_err) && (ULP == MAX_ULP_ERROR));
   }
@@ -467,7 +460,6 @@ struct ULPValidator<cl_half, ULP, test_denormals> final {
 
  private:
   cl_float ulp_err;
-  bool denorm_support;
 };
 
 template <typename T, cl_ulong ULP, bool test_denormals = true, typename F>
