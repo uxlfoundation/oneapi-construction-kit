@@ -47,7 +47,7 @@
     %_uint_input = OpFunctionParameter %uint
     %_uint_input2 = OpFunctionParameter %uint
    
-; CHECK: define spir_kernel void @entry_pt(ptr addrspace(1) [[PTR:%.*]], i32 {{%.*}}, i32 {{%.*}}
+; CHECK: define spir_kernel void @entry_pt(ptr addrspace(1) noundef [[PTR:%.*]], i32 noundef {{%.*}}, i32 noundef {{%.*}}
     %entry = OpLabel
 
     ; some maths for the gep input (multiple and an add)

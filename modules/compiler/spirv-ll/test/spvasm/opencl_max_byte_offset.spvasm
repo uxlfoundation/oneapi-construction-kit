@@ -35,7 +35,7 @@
           %6 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_Workgroup_uint
 %_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
 %_ptr_Function__ptr_Workgroup_uint = OpTypePointer Function %_ptr_Workgroup_uint
-; CHECK: define spir_kernel void @foo(ptr addrspace(1) dereferenceable(128) {{%.*}}, ptr addrspace(3) dereferenceable(256) {{%.*}})
+; CHECK: define spir_kernel void @foo(ptr addrspace(1) noundef dereferenceable(128) {{%.*}}, ptr addrspace(3) noundef dereferenceable(256) {{%.*}})
           %7 = OpFunction %void DontInline %6
           %8 = OpFunctionParameter %_ptr_CrossWorkgroup_uint
           %9 = OpFunctionParameter %_ptr_Workgroup_uint

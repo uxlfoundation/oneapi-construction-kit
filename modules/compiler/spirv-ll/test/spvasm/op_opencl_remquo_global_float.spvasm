@@ -36,7 +36,7 @@
 
    %remquo_float_uint = OpFunction %void_t None %remquo_uint_fn_t
          %in_quo_uint = OpFunctionParameter %uint_ptr_t
-; CHECK: define spir_kernel void @remquo_float_uint(ptr addrspace(1) %in_quo)
+; CHECK: define spir_kernel void @remquo_float_uint(ptr addrspace(1) noundef %in_quo)
                    %4 = OpLabel
                    %5 = OpExtInst %float_t %1 remquo %float_2 %float_1 %in_quo_uint
 ; CHECK: = call spir_func float @_Z6remquoffPU3AS1i(float 2.000000e+00, float 1.500000e+00, ptr addrspace(1) %in_quo)

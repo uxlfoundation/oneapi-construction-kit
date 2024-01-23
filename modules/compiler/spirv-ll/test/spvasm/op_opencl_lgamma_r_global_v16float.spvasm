@@ -40,7 +40,7 @@
 ; All functions
    %lgamma_r_v16float = OpFunction %void_t None %lgamma_r_fn_t
             %in_signp = OpFunctionParameter %v16int_ptr_t
-; CHECK: define spir_kernel void @lgamma_r_v16float(ptr addrspace(1) %in_signp)
+; CHECK: define spir_kernel void @lgamma_r_v16float(ptr addrspace(1) noundef %in_signp)
                    %2 = OpLabel
                    %3 = OpExtInst %v16float_t %1 lgamma_r %v16float_2 %in_signp
 ; CHECK: = call spir_func <16 x float> @_Z8lgamma_rDv16_fPU3AS1Dv16_i(<16 x float> <float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000>, ptr addrspace(1) %in_signp)
