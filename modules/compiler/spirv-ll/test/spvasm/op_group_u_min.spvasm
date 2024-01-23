@@ -40,7 +40,7 @@
 
            %sub_group_scope = OpConstant %uint_ty 3
 
-; CHECK: define spir_kernel void @sub_group_reduction(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @sub_group_reduction(ptr addrspace(1) noundef [[IN:%.*]])
    %sub_group_reduction_fcn = OpFunction %void_ty None %fcn_ty
     %sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
     %sub_group_reduction_bb = OpLabel
@@ -56,7 +56,7 @@
 
 ; CHECK: declare spir_func i32 @_Z20sub_group_reduce_minj(i32)
 
-; CHECK: define spir_kernel void @sub_group_scan_inclusive(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @sub_group_scan_inclusive(ptr addrspace(1) noundef [[IN:%.*]])
     %sub_group_scan_inc_fcn = OpFunction %void_ty None %fcn_ty
      %sub_group_scan_inc_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
      %sub_group_scan_inc_bb = OpLabel
@@ -72,7 +72,7 @@
 
 ; CHECK: declare spir_func i32 @_Z28sub_group_scan_inclusive_minj(i32)
 
-; CHECK: define spir_kernel void @sub_group_scan_exclusive(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @sub_group_scan_exclusive(ptr addrspace(1) noundef [[IN:%.*]])
     %sub_group_scan_exc_fcn = OpFunction %void_ty None %fcn_ty
      %sub_group_scan_exc_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
      %sub_group_scan_exc_bb = OpLabel

@@ -39,7 +39,7 @@
 %original = OpAtomicExchange %float %a %uint_1 %uint_0 %9
             OpReturn
             OpFunctionEnd
-; CHECK: define spir_kernel void @atomic(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @atomic(ptr addrspace(1) noundef [[IN:%.*]])
 ; CHECK: = call spir_func float @_Z11atomic_xchgPU3AS1Vff(ptr addrspace(1) [[IN]], float 4.240000e+02)
 ; CHECK: ret void
 ; CHECK: declare spir_func float @_Z11atomic_xchgPU3AS1Vff(ptr addrspace(1), float)

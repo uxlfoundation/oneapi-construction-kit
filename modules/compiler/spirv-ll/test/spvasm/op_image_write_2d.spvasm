@@ -44,8 +44,8 @@
 ; All functions
                  %image2d = OpFunction %void_t None %image_write_fn_t                            
                    %image = OpFunctionParameter %image2d_t
-; CHECK-GE17: define spir_kernel void @image2d([[TY:target\("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0\)]] %image)
-; CHECK-LT17: define spir_kernel void @image2d([[TY:ptr addrspace\(1\)]] %image)
+; CHECK-GE17: define spir_kernel void @image2d([[TY:target\("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0\)]] noundef %image)
+; CHECK-LT17: define spir_kernel void @image2d([[TY:ptr addrspace\(1\)]] noundef %image)
                        %1 = OpLabel
                             OpImageWrite %image %v2int_1 %v4float_1
 ; CHECK: call spir_func void @_Z12write_imagef11ocl_image2dDv2_iDv4_f([[TY]] %image, <2 x i32> <i32 1, i32 1>, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)

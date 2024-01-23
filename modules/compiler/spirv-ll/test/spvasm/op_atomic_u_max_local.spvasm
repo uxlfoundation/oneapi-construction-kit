@@ -39,7 +39,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @atomic(ptr addrspace(3) [[IN:%.*]])
+; CHECK: define spir_kernel void @atomic(ptr addrspace(3) noundef [[IN:%.*]])
 ; CHECK: = call spir_func i32 @_Z10atomic_maxPU3AS3Vjj(ptr addrspace(3) [[IN]], i32 424)
 ; CHECK: ret void
 ; CHECK: declare spir_func i32 @_Z10atomic_maxPU3AS3Vjj(ptr addrspace(3), i32)

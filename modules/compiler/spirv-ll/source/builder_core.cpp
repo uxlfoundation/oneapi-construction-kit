@@ -2144,6 +2144,24 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
     function->addFnAttr(llvm::Attribute::NoInline);
   }
 
+  // For kernel entry points, all parameters can be decorated with noundef; it
+  // is not valid for the host to pass undefined/poison bits to kernels. Note
+  // that in a correct SPIR-V module, it is invalid for a function to call an
+  // entry point, so entry points are truly reserved only for calling from the
+  // host.
+  // FIXME: This would ideally be done on all functions. However, we're
+  // currently translating some well-defined programs SPIR-V to a "more
+  // poisonous" LLVM IR (e.g., see how OpShiftRightLogical produces an
+  // "undefined value" for out-of-bounds shifts, whereas LLVM's lshr produces a
+  // poison value). We don't want to pass poison to a 'noundef' function
+  // parameter when translating an otherwise correct SPIR-V module.
+  if (auto ep_op = module.getEntryPoint(op->IdResult());
+      ep_op && ep_op->ExecutionModel() == spv::ExecutionModelKernel) {
+    for (auto &arg : function->args()) {
+      arg.addAttr(llvm::Attribute::NoUndef);
+    }
+  }
+
   function->setCallingConv(CC);
   setCurrentFunction(function);
 

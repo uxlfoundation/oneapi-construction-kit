@@ -63,7 +63,7 @@
                OpReturn
                OpFunctionEnd
 
-; CHECK: define spir_kernel void @foo(ptr addrspace(1) {{%.*}}){{.*}} !dbg [[DBG:![0-9]+]]
+; CHECK: define spir_kernel void @foo(ptr addrspace(1) noundef {{%.*}}){{.*}} !dbg [[DBG:![0-9]+]]
 
 ; CHECK-DAG: [[DBG]] = distinct !DISubprogram({{.*}}, type: [[TY:![0-9]+]],
 ; CHECK-DAG: [[TY]] = !DISubroutineType(types: [[TYLIST:![0-9]+]])

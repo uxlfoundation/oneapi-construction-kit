@@ -35,7 +35,7 @@
 
        %3 = OpTypeFunction %void %u40 %ptr_u40
 
-; CHECK: define spir_kernel void @kernel(i40 %x, {{(ptr|i40\*)}} %p)
+; CHECK: define spir_kernel void @kernel(i40 noundef %x, {{(ptr|i40\*)}} noundef %p)
   %kernel = OpFunction %void None %3
        %x = OpFunctionParameter %u40
        %p = OpFunctionParameter %ptr_u40

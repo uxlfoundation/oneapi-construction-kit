@@ -40,7 +40,7 @@
                OpReturn
                OpFunctionEnd
 
-; CHECK: define spir_kernel void @await_events(ptr addrspace(4) %event)
+; CHECK: define spir_kernel void @await_events(ptr addrspace(4) noundef %event)
 ; CHECK-SAME: !kernel_arg_addr_space [[ARG_AS:\![0-9]+]] !kernel_arg_access_qual {{\!.*}} !kernel_arg_type [[ARG_TYS:\![0-9]+]] !kernel_arg_base_type [[ARG_TYS]] !kernel_arg_type_qual {{\!.*}} !kernel_arg_name [[ARG_NAMES:\![0-9]*]]
 
 ; CHECK: call spir_func void @_Z17wait_group_eventsiPU3AS49ocl_event(i32 1, ptr addrspace(4) %event)

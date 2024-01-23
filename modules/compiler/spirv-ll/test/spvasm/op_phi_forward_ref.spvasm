@@ -56,7 +56,7 @@
       %fn_ty = OpTypeFunction %void %ptr_uchar %ptr_uint
        %true = OpConstantTrue %bool
 
-; CHECK: define spir_kernel void @testfn(ptr addrspace(1) %output, ptr addrspace(1) %input)
+; CHECK: define spir_kernel void @testfn(ptr addrspace(1) noundef %output, ptr addrspace(1) noundef %input)
      %testfn = OpFunction %void None %fn_ty
      %output = OpFunctionParameter %ptr_uchar
       %input = OpFunctionParameter %ptr_uint
