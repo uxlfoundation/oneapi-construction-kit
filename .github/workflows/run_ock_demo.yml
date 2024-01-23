@@ -45,6 +45,10 @@ jobs:
           build_type: Release
           extra_flags: '-DCA_REFSI_M1_DEMO_MODE=ON'
 
+      - name: Create OCK install
+        run: |
+          ninja -C $(pwd)/build install
+
       - name: Download Daily Release
         run: |
           # TODO: Update the nightly release from intel/llvm from 2023-12-18 to daily once
@@ -52,6 +56,30 @@ jobs:
           wget "https://github.com/intel/llvm/releases/download/nightly-2023-12-18/sycl_linux.tar.gz"
           mkdir linux_nightly_release
           tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+
+      - name: Test RSICV examples
+        run: |
+          # Set environment variables
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
+          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          export CA_HAL_DEBUG=1
+          export CA_PROFILE_LEVEL=3
+          export ONEAPI_DEVICE_SELECTOR=opencl:acc
+          export OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so
+          # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+          # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+          # This way it doesn't set the default sycl.conf.
+          export SYCL_CONFIG_FILE_NAME=""
+
+          mkdir build_riscv_tests
+          cmake -GNinja -Bbuild_riscv_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          ninja -C build_riscv_tests
+
+          # Run tests
+          cd build_riscv_tests
+          ctest bin/ --verbose
+          cd ..
 
       - name: Build portBLAS
         uses: ./.github/actions/build_portBLAS_action
@@ -65,13 +93,13 @@ jobs:
 
       - name: Package Build Artifacts
         run: |
-          tar -cvzf artifacts.tar.gz build portDNN_build_dir portBLAS_build_dir
+          tar -cvzf ock_demo_artifacts.tar.gz install portDNN_build_dir portBLAS_build_dir build_riscv_tests
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ock_demo_build
-          path: artifacts.tar.gz
+          path: ock_demo_artifacts.tar.gz
 
   build_and_run_networks:
     runs-on: ubuntu-22.04
@@ -87,7 +115,7 @@ jobs:
 
       - name: Untar artifacts
         run: |
-          tar -xvzf artifacts.tar.gz
+          tar -xvzf ock_demo_artifacts.tar.gz
 
       - name: Build vgg and resnet
         uses: ./.github/actions/build_vgg_resnet_action
@@ -110,19 +138,6 @@ jobs:
         with:
           name: network_build
 
-      - name: Untar artifacts and package OCK demo tar
-        run: |
-          tar -xvzf artifacts.tar.gz
-          tar -xvzf network_artifacts.tar.gz
-          ls
-          tar -cvzf ock_demo.tar.gz build portDNN_build_dir portBLAS_build_dir vdata rdata
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ock_demo_with_networks
-          path: ock_demo.tar.gz
-
       - name: Compute tag
         id: tag
         run: |
@@ -138,8 +153,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          files:
-            ock_demo.tar.gz
+          files: |
+            ock_demo_artifacts.tar.gz
+            network_artifacts.tar.gz
           tag_name: nightly-${{ steps.tag.outputs.TAG }}
           name: OCK daily ${{ steps.tag.outputs.TAG }}
           prerelease: true
