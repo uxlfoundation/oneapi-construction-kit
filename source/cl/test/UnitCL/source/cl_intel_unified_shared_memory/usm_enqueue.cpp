@@ -192,7 +192,7 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
     }
   }
 
-  std::array<cl_event, MAX_NUM_POINTERS> wait_events;
+  std::array<cl_event, MAX_NUM_POINTERS> wait_events{};
   size_t num_events = 0;
 
   for (auto ptr : allPointers()) {
@@ -380,7 +380,7 @@ TEST_F(USMCommandQueueTest, MigrateMem_InvalidUsage) {
 // Test for valid API usage of clEnqueueMigrateMemINTEL()
 TEST_F(USMCommandQueueTest, MigrateMem_ValidUsage) {
   for (auto ptr : allPointers()) {
-    std::array<cl_event, 1> events;
+    std::array<cl_event, 1> events{};
     cl_int err = clEnqueueMigrateMemINTEL(
         queue, ptr, bytes, CL_MIGRATE_MEM_OBJECT_HOST, 0, nullptr, &events[0]);
     EXPECT_SUCCESS(err);
