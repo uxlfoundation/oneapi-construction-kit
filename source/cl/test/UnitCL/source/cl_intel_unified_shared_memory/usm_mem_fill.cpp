@@ -28,39 +28,14 @@ struct USMMemFillTest : public cl_intel_unified_shared_memory_Test {
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_intel_unified_shared_memory_Test::SetUp());
 
-    cl_device_unified_shared_memory_capabilities_intel host_capabilities;
-    ASSERT_SUCCESS(clGetDeviceInfo(
-        device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
-        sizeof(host_capabilities), &host_capabilities, nullptr));
-
+    initPointers(bytes, align);
     cl_int err;
-    if (host_capabilities) {
-      host_ptr = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_TRUE(host_ptr != nullptr);
-    }
-
-    device_ptr =
-        clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
-    ASSERT_SUCCESS(err);
-    ASSERT_TRUE(device_ptr != nullptr);
-
     queue = clCreateCommandQueue(context, device, 0, &err);
     ASSERT_TRUE(queue != nullptr);
     ASSERT_SUCCESS(err);
   }
 
   void TearDown() override {
-    if (device_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
-      EXPECT_SUCCESS(err);
-    }
-
-    if (host_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
-      EXPECT_SUCCESS(err);
-    }
-
     if (queue) {
       EXPECT_SUCCESS(clReleaseCommandQueue(queue));
     }
@@ -72,9 +47,6 @@ struct USMMemFillTest : public cl_intel_unified_shared_memory_Test {
 
   static const size_t bytes = sizeof(T) * elements;
   static const cl_uint align = sizeof(T);
-
-  void *host_ptr = nullptr;
-  void *device_ptr = nullptr;
 
   cl_command_queue queue = nullptr;
 };
@@ -312,6 +284,69 @@ TYPED_TEST(USMMemFillTest, DeviceAllocation) {
     auto clEnqueueMemcpyINTEL = this->clEnqueueMemcpyINTEL;
     // Copy whole device allocation to host for result validation
     err = clEnqueueMemcpyINTEL(queue, CL_FALSE, host_ptr, device_ptr, bytes, 3,
+                               wait_events.data(), nullptr);
+    EXPECT_SUCCESS(err);
+  }
+
+  EXPECT_SUCCESS(clFinish(queue));
+
+  // Verify results
+  if (host_ptr) {
+    this->validateResults(reinterpret_cast<TypeParam *>(host_ptr));
+  }
+
+  for (cl_event &event : wait_events) {
+    EXPECT_SUCCESS(clReleaseEvent(event));
+  }
+}
+
+// Test expected behaviour of clEnqueueMemFillINTEL for a shared USM allocation
+TYPED_TEST(USMMemFillTest, SharedAllocation) {
+  // gtest TYPED_TEST uses a derived class template, requiring us to visit
+  // members of USMMemFillTest via 'this'.
+  auto shared_ptr = this->shared_ptr;
+  auto host_ptr = this->host_ptr;
+  auto bytes = this->bytes;
+  auto queue = this->queue;
+  auto getPointerOffset = this->getPointerOffset;
+  auto clEnqueueMemFillINTEL = this->clEnqueueMemFillINTEL;
+  if (!shared_ptr) {
+    GTEST_SKIP();
+  }
+
+  // Zero initialize host and shared memory containing 8 TypeParam elements
+  // before beginning testing
+  if (host_ptr) {
+    std::memset(host_ptr, 0, bytes);
+  }
+
+  std::array<cl_event, 3> wait_events;
+  const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
+  cl_int err = clEnqueueMemFillINTEL(queue, shared_ptr, &zero_pattern,
+                                     sizeof(zero_pattern), bytes, 0, nullptr,
+                                     &wait_events[0]);
+
+  // Fill first two elements
+  const TypeParam pattern = test_patterns<TypeParam>::pattern1;
+  err = clEnqueueMemFillINTEL(queue, shared_ptr, &pattern, sizeof(pattern),
+                              sizeof(pattern) * 2, 1, &wait_events[0],
+                              &wait_events[1]);
+  EXPECT_SUCCESS(err);
+
+  // Fill last element
+  const TypeParam pattern2 = test_patterns<TypeParam>::pattern2;
+  const size_t offset = bytes - sizeof(TypeParam);
+
+  void *offset_shared_ptr = getPointerOffset(shared_ptr, offset);
+  err = clEnqueueMemFillINTEL(queue, offset_shared_ptr, &pattern2,
+                              sizeof(pattern2), sizeof(pattern2), 1,
+                              &wait_events[0], &wait_events[2]);
+  EXPECT_SUCCESS(err);
+
+  if (host_ptr) {
+    auto clEnqueueMemcpyINTEL = this->clEnqueueMemcpyINTEL;
+    // Copy whole device allocation to host for result validation
+    err = clEnqueueMemcpyINTEL(queue, CL_FALSE, host_ptr, shared_ptr, bytes, 3,
                                wait_events.data(), nullptr);
     EXPECT_SUCCESS(err);
   }

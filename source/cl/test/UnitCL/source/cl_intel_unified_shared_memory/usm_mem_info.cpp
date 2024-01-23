@@ -82,9 +82,6 @@ struct USMMemInfoTest : public cl_intel_unified_shared_memory_Test {
   const cl_uint align = 4;
 
   void *user_ptr = nullptr;
-  void *host_ptr = nullptr;
-  void *shared_ptr = nullptr;
-  void *device_ptr = nullptr;
 };
 
 // Test for invalid API usage of clGetMemAllocInfoINTEL()
