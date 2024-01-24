@@ -192,7 +192,7 @@ target_compile_options(vecz PRIVATE ${VECZ_COMPILE_OPTIONS})
 target_compile_definitions(vecz PRIVATE
   ${VECZ_COMPILE_DEFINITIONS})
 
-target_link_libraries(vecz PRIVATE compiler-utils multi_llvm PUBLIC ${LLVM_LIBS})
+target_link_libraries(vecz PRIVATE compiler-pipeline multi_llvm PUBLIC ${LLVM_LIBS})
 
 # intrinsics_gen uses tablegen to generate Attributes.inc, which is
 # (recursively) included by 'llvm/IR/Module.h', therefore this module depends

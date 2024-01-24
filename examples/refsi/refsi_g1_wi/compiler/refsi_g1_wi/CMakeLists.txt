@@ -50,7 +50,8 @@ if(CA_RUNTIME_COMPILER_ENABLED)
 
   target_link_libraries(compiler-refsi-g1-wi PUBLIC
     compiler-riscv-utils
-    compiler-utils
+    compiler-pipeline
+    compiler-binary-metadata
     compiler-linker-utils
     refsidrv
     compiler-base

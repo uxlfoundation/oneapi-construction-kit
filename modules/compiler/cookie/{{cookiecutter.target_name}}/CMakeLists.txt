@@ -59,7 +59,8 @@ endif()
   target_link_libraries(compiler-{{cookiecutter.target_name}} PUBLIC
     compiler-base
     utils
-    compiler-utils
+    compiler-pipeline
+    compiler-binary-metadata
     compiler-linker-utils
     LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
     LLVMVectorize LLVMipo multi_llvm)
