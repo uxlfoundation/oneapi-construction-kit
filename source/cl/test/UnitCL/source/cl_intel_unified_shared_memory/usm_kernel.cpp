@@ -333,7 +333,6 @@ struct USMVectorAddKernelTest : public USMKernelTest {
   }
 
   void TearDown() override {
-    clMemBlockingFreeINTEL(context, (void *)0x3e18df0);
     if (host_ptrB) {
       EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, host_ptrB));
     }
