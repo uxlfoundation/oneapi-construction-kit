@@ -40,7 +40,8 @@ void device_info_s::update_from_hal_info(const hal::hal_device_info_t *info) {
              mux_atomic_capabilities_32bit | mux_atomic_capabilities_64bit);
 
   this->half_capabilities = info->supports_fp16
-                                ? (mux_floating_point_capabilities_inf_nan |
+                                ? (mux_floating_point_capabilities_denorm |
+                                   mux_floating_point_capabilities_inf_nan |
                                    mux_floating_point_capabilities_rte |
                                    mux_floating_point_capabilities_full)
                                 : 0;
