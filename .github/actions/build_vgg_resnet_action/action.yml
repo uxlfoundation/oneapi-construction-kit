@@ -62,6 +62,7 @@ runs:
         wget --no-verbose https://storage.googleapis.com/tensorflow/keras-applications/vgg16/vgg16_weights_tf_dim_ordering_tf_kernels.h5
         python $portDNN_source/samples/networks/vgg/h5toBin.py vgg16_weights_tf_dim_ordering_tf_kernels.h5
         cd ..
+        mkdir vgg_data && cp -r vdata/* vgg_data/
 
         # Resnet50
         mkdir rdata
@@ -69,6 +70,7 @@ runs:
         wget --no-verbose https://storage.googleapis.com/tensorflow/keras-applications/resnet/resnet50_weights_tf_dim_ordering_tf_kernels.h5
         python $portDNN_source/samples/networks/resnet50/h5toBin.py resnet50_weights_tf_dim_ordering_tf_kernels.h5
         cd ..
+        mkdir resnet_data && cp -r rdata/* resnet_data/
 
         # Preparing an image
         python $portDNN_source/samples/networks/img2bin.py $(pwd)/Labrador_Retriever_Molly.jpg
@@ -81,7 +83,7 @@ runs:
     - name: Package artifacts
       shell: bash
       run: |
-        tar -cvzf network_artifacts.tar.gz vdata rdata Labrador_Retriever_Molly.jpg Labrador_Retriever_Molly.jpg.bin
+        tar -cvzf network_artifacts.tar.gz vgg_data resnet_data Labrador_Retriever_Molly.jpg Labrador_Retriever_Molly.jpg.bin
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
