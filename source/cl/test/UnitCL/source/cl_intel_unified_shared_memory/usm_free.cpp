@@ -139,6 +139,12 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
   }
 
   void TearDown() override {
+    for (auto device_ptr : fixture_device_ptrs) {
+      if (device_ptr) {
+        EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, device_ptr));
+      }
+    }
+
     for (auto queue : fixture_queues) {
       if (queue) {
         EXPECT_SUCCESS(clReleaseCommandQueue(queue));
