@@ -21,14 +21,20 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: define internal spir_kernel void @foo(ptr addrspace(1) %x, ptr addrspace(1) %y)
+; CHECK: define internal spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y)
 ; CHECK-SAME: [[ATTRS:#[0-9]+]] !dbg [[SP:\![0-9]+]] {
-define spir_kernel void @foo(ptr addrspace(1) %x, ptr addrspace(1) %y) #0 !dbg !10 {
+define spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y) #0 !dbg !10 {
   ret void
 }
 
-; CHECK: define spir_kernel void @foo.mux-kernel-wrapper(ptr %packed-args)
+; CHECK: define spir_kernel void @foo.mux-kernel-wrapper(
+; CHECK-SAME: ptr noundef nonnull dereferenceable(16) %packed-args)
 ; CHECK-SAME:  [[NEW_ATTRS:#[0-9]+]] !dbg [[NEW_SP:\![0-9]+]] !mux_scheduled_fn {{\![0-9]+}} {
+; Check that the 'noundef' and 'nonnull' attributes are transferred to the load
+; of %x, but not %y
+; CHECK: %x = load ptr addrspace(1), ptr {{.*}}, align 1,
+; CHECK-SAME: !nonnull [[EMPTY:\![0-9]+]], !noundef [[EMPTY]]
+; CHECK: %y = load ptr addrspace(1), ptr {{.*}}, align 1{{$}}
 ; Check that when we call the original kernel we've attached a debug location.
 ; This is required by LLVM.
 ; CHECK: call spir_kernel void @foo({{.*}}) [[ATTRS]], !dbg [[LOC:\![0-9]+]]
