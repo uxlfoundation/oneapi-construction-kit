@@ -14,10 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_ca_library(compiler-utils STATIC
+add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/StructTypeRemapper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_kernel_wrapper_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_scheduling_parameters_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/address_spaces.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/align_module_structs_pass.h
@@ -43,8 +42,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/mangling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/memory_buffer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_analysis.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_hooks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/optimal_builtin_replacement_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/pass_functions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/pass_machinery.h
@@ -94,8 +91,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mangling.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/manual_type_legalization_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mux_builtin_info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/optimal_builtin_replacement_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pass_functions.cpp
@@ -120,21 +115,45 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 
-target_include_directories(compiler-utils PUBLIC
+target_include_directories(compiler-pipeline PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_compile_definitions(compiler-utils PRIVATE
+target_compile_definitions(compiler-pipeline PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
   $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
   $<$<BOOL:${CA_PLATFORM_MAC}>:CA_PLATFORM_MAC>
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-target_link_libraries(compiler-utils PUBLIC
-  cargo md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+target_link_libraries(compiler-pipeline PUBLIC
+ multi_llvm LLVMPasses LLVMTransformUtils)
 if(TARGET LLVMCore)
-  target_link_libraries(compiler-utils PUBLIC LLVMCore)
+  target_link_libraries(compiler-pipeline PUBLIC LLVMCore)
 endif()
+
+add_ca_library(compiler-binary-metadata STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_metadata_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_analysis.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_hooks.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp)
+
+target_include_directories(compiler-binary-metadata PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_compile_definitions(compiler-binary-metadata PRIVATE
+  $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
+  $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
+  $<$<BOOL:${CA_PLATFORM_MAC}>:CA_PLATFORM_MAC>
+  $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
+  $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
+
+target_link_libraries(compiler-binary-metadata PUBLIC
+  md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+if(TARGET LLVMCore)
+  target_link_libraries(compiler-binary-metadata PUBLIC LLVMCore)
+endif()
+
 
 # Determine whether LLVM was built with LLD, in which case add a support
 # library that exposes lld to ComputeMux compiler targets.
