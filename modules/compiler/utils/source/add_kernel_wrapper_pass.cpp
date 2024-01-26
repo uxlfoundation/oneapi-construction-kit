@@ -121,6 +121,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
     Module &M, ModuleAnalysisManager &AM) {
   bool Changed = false;
   SmallPtrSet<Function *, 4> NewKernels;
+  auto &DL = M.getDataLayout();
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 
   const auto &schedParamInfo = BI.getMuxSchedulingParameters(M);
@@ -166,6 +167,20 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
 
     auto *packedArgPtr = newFunction->getArg(0);
     packedArgPtr->setName("packed-args");
+    // Add some helpful attributes to this argument.
+    // FIXME: Could we also mandate alignment? Can we guarantee noalias on the
+    // packed argument structure but not on the pointers it contains?
+    // If there are no kernel arguments to pack, we don't require the runtime
+    // to pass a valid pointer: it could be null.
+    if (!structType->isEmptyTy()) {
+      // It is invalid for a Mux runtime to pass a null or undef packed argument
+      // struct.
+      packedArgPtr->addAttr(Attribute::NoUndef);
+      packedArgPtr->addAttr(Attribute::NonNull);
+      // The packed argument struct must be fully dereferenceable.
+      packedArgPtr->addAttr(Attribute::getWithDereferenceableBytes(
+          newFunction->getContext(), DL.getTypeAllocSize(structType)));
+    }
 
     assert(packedArgPtr->getType()->isPointerTy() &&
            "First argument should be pointer to the packed args structure");
@@ -230,7 +245,20 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
       } else if (arg.hasByValAttr()) {
         params.push_back(gep);
       } else {
-        params.push_back(ir.CreateAlignedLoad(type, gep, llvmAlignment));
+        auto *arg_load = ir.CreateAlignedLoad(type, gep, llvmAlignment);
+        // If the old argument was marked 'noundef', the result of the load
+        // from it will also be noundef. Use metadata to convey that.
+        if (F.getArg(argMapping.OldArgIdx)->hasAttribute(Attribute::NoUndef)) {
+          MDNode *md = MDNode::get(newFunction->getContext(), std::nullopt);
+          arg_load->setMetadata(LLVMContext::MD_noundef, md);
+        }
+        // If the old argument was marked 'nonnull', the result of the load
+        // from it will also be nonnull. Use metadata to convey that.
+        if (F.getArg(argMapping.OldArgIdx)->hasAttribute(Attribute::NonNull)) {
+          MDNode *md = MDNode::get(newFunction->getContext(), std::nullopt);
+          arg_load->setMetadata(LLVMContext::MD_nonnull, md);
+        }
+        params.push_back(arg_load);
       }
       // Set the name to help readability
       params.back()->setName(arg.getName());

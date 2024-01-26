@@ -24,7 +24,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; Check we've preserved scheduling parameters, their names, and their attributes.
 ; Check we've dropped !mux_scheduled_fn metadata, which can't be ensured
 ; correct after this transformation.
-; CHECK: define void @add.mux-kernel-wrapper(ptr %packed-args, ptr noalias %wg-info) [[WRAPPER_ATTRS:#[0-9]+]] !mux_scheduled_fn [[WRAPPER_SCHED_PARAMS:\![0-9]+]] {
+; CHECK: define void @add.mux-kernel-wrapper(ptr noundef nonnull dereferenceable(12) %packed-args, ptr noalias %wg-info) [[WRAPPER_ATTRS:#[0-9]+]] !mux_scheduled_fn [[WRAPPER_SCHED_PARAMS:\![0-9]+]] {
 ; Check we're calling the original kernel, passing through the scheduling
 ; parameters and with the right attributes
 ; CHECK: call void @add(ptr readonly %in, ptr byval(i32) %s, ptr noalias %wi-info, ptr noalias %wg-info) [[ATTRS]]
