@@ -50,7 +50,7 @@ namespace detail {
 namespace geometric {
 
 template <typename T>
-T cross(const T& x, const T& y) {
+T cross(const T &x, const T &y) {
   // We need to initialize the result to 0 because for vec4, the fourth element
   // must be set to 0.
   T result(0);
@@ -64,7 +64,7 @@ T cross(const T& x, const T& y) {
 
 template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
 struct dot_helper {
-  static typename TypeTraits<T>::ElementType _(const T& x, const T& y) {
+  static typename TypeTraits<T>::ElementType _(const T &x, const T &y) {
     const T sum = x * y;
 
     typename TypeTraits<T>::ElementType result = sum[0];
@@ -79,13 +79,13 @@ struct dot_helper {
 
 template <typename T>
 struct dot_helper<T, true> {
-  static typename TypeTraits<T>::ElementType _(const T& x, const T& y) {
+  static typename TypeTraits<T>::ElementType _(const T &x, const T &y) {
     return x * y;
   }
 };
 
 template <typename T>
-typename TypeTraits<T>::ElementType dot(const T& x, const T& y) {
+typename TypeTraits<T>::ElementType dot(const T &x, const T &y) {
   return dot_helper<T>::_(x, y);
 }
 
@@ -95,7 +95,7 @@ struct length_typed_helper;
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <typename T>
 struct length_typed_helper<T, abacus_half> {
-  static abacus_half _(const T& x) {
+  static abacus_half _(const T &x) {
     // 2^-11
     const abacus_half reducingFactor = 0.00048828125f16;
     // 2^11
@@ -120,7 +120,7 @@ struct length_typed_helper<T, abacus_half> {
 
 template <typename T>
 struct length_typed_helper<T, abacus_float> {
-  static abacus_float _(const T& x) {
+  static abacus_float _(const T &x) {
     // 1.2924697E-26, 2^-86
     const abacus_float reducingFactor = cast::as<abacus_float>(0x14800000);
     // 7.7371252E25, 2^86
@@ -145,7 +145,7 @@ struct length_typed_helper<T, abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T>
 struct length_typed_helper<T, abacus_double> {
-  static abacus_double _(const T& x) {
+  static abacus_double _(const T &x) {
     // 1.8645851828000517e-155, 2^-514
     const abacus_double reducingFactor =
         cast::as<abacus_double>(0x1fd0000000000000);
@@ -172,7 +172,7 @@ struct length_typed_helper<T, abacus_double> {
 
 template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
 struct length_untyped_helper {
-  static typename TypeTraits<T>::ElementType _(const T& x) {
+  static typename TypeTraits<T>::ElementType _(const T &x) {
     return length_typed_helper<T>::_(x);
   }
 };
@@ -185,32 +185,32 @@ struct length_untyped_helper<T, true> {
 };
 
 template <typename T>
-typename TypeTraits<T>::ElementType length(const T& p) {
+typename TypeTraits<T>::ElementType length(const T &p) {
   return length_untyped_helper<T>::_(p);
 }
 
 template <typename T>
-typename TypeTraits<T>::ElementType distance(const T& x, const T& y) {
+typename TypeTraits<T>::ElementType distance(const T &x, const T &y) {
   return geometric::length<T>(x - y);
 }
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct fast_length_typed_helper {
-  static typename TypeTraits<T>::ElementType _(const T& p) {
+  static typename TypeTraits<T>::ElementType _(const T &p) {
     return __abacus_sqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T>
 struct fast_length_typed_helper<T, abacus_float> {
-  static typename TypeTraits<T>::ElementType _(const T& p) {
+  static typename TypeTraits<T>::ElementType _(const T &p) {
     return __abacus_half_sqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
 struct fast_length_untyped_helper {
-  static typename TypeTraits<T>::ElementType _(const T& x) {
+  static typename TypeTraits<T>::ElementType _(const T &x) {
     return fast_length_typed_helper<T>::_(x);
   }
 };
@@ -223,34 +223,34 @@ struct fast_length_untyped_helper<T, true> {
 };
 
 template <typename T>
-typename TypeTraits<T>::ElementType fast_length(const T& p) {
+typename TypeTraits<T>::ElementType fast_length(const T &p) {
   return fast_length_untyped_helper<T>::_(p);
 }
 
 template <typename T>
-typename TypeTraits<T>::ElementType fast_distance(const T& x, const T& y) {
+typename TypeTraits<T>::ElementType fast_distance(const T &x, const T &y) {
   return geometric::fast_length<T>(x - y);
 }
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct fast_normalize_helper {
-  static T _(const T& p) { return p * __abacus_rsqrt(geometric::dot<T>(p, p)); }
+  static T _(const T &p) { return p * __abacus_rsqrt(geometric::dot<T>(p, p)); }
 };
 
 template <typename T>
 struct fast_normalize_helper<T, abacus_float> {
-  static T _(const T& p) {
+  static T _(const T &p) {
     return p * __abacus_half_rsqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T>
-T fast_normalize(const T& p) {
+T fast_normalize(const T &p) {
   return fast_normalize_helper<T>::_(p);
 }
 
 template <typename T>
-T normalize(const T& p) {
+T normalize(const T &p) {
   using IntType = typename TypeTraits<T>::SignedType;
 
   // Check if *any* vector lane is INF.
