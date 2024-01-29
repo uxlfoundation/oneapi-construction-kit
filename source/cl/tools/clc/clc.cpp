@@ -700,31 +700,34 @@ result driver::saveBinary() {
     binary = binary_storage;
   }
 
+  FILE *fp = nullptr;
+  bool owns_fp = false;
   if (output_file == "-") {
-    if (!dry_run) {
-      if (fwrite(binary.data(), 1, binary.size(), stdout) != binary.size()) {
-        perror("error: Could not write all of the binary to the output file");
-        return result::failure;
-      }
-      fflush(stdout);
-    }
-  } else {
-    if (verbose) {
-      std::fprintf(stderr, "info: writing binary to %s\n",
-                   generated_output_file.c_str());
-    }
-    if (!dry_run) {
-      FILE *fp = fopen(generated_output_file.c_str(), "wb");
+    fp = stdin;
+  } else if (verbose) {
+    (void)std::fprintf(stderr, "info: writing binary to %s\n",
+                       generated_output_file.c_str());
+  }
+  if (!dry_run) {
+    if (fp == nullptr) {
+      fp = fopen(generated_output_file.c_str(), "wb");
       if (fp == nullptr) {
-        perror("error: Could not open output file");
+        (void)perror("error: Could not open output file");
         return result::failure;
       }
-      if (fwrite(binary.data(), 1, binary.size(), fp) != binary.size()) {
-        perror("error: Could not write all of the binary to the output file");
-        fclose(fp);
-        return result::failure;
-      }
-      fclose(fp);
+      owns_fp = true;
+    }
+    bool write_error =
+        fwrite(binary.data(), 1, binary.size(), fp) != binary.size();
+    if (owns_fp) {
+      write_error |= fclose(fp);
+    } else {
+      write_error |= fflush(fp);
+    }
+    if (write_error) {
+      (void)perror(
+          "error: Could not write all of the binary to the output file");
+      return result::failure;
     }
   }
 
