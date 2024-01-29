@@ -357,11 +357,11 @@ struct abacus_vector_signed_type_helper<abacus_double> {
 template <typename T, unsigned N>
 struct abacus_vector {
   /// @brief Default constructor.
-  abacus_vector() = default;
+  constexpr abacus_vector() = default;
 
   /// @brief Splat constructor.
   /// @param[in] other operand.
-  abacus_vector(const T &other) {
+  constexpr abacus_vector(const T &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] = other;
     }
@@ -376,17 +376,17 @@ struct abacus_vector {
 
   /// @brief Copy constructor.
   /// @param[in] other operand.
-  abacus_vector(const abacus_vector &other) = default;
+  constexpr abacus_vector(const abacus_vector &other) = default;
 
   /// @brief Copy assignment operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator=(const abacus_vector &other) = default;
+  constexpr abacus_vector &operator=(const abacus_vector &other) = default;
 
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator+=(const abacus_vector &other) {
+  constexpr abacus_vector &operator+=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] += other.payload[i];
     }
@@ -396,7 +396,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator-=(const abacus_vector &other) {
+  constexpr abacus_vector &operator-=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] -= other.payload[i];
     }
@@ -406,7 +406,7 @@ struct abacus_vector {
   /// @brief Converting constructor.
   /// @param[in] other operand.
   template <typename U>
-  explicit abacus_vector(const abacus_vector<U, N> &other) {
+  explicit constexpr abacus_vector(const abacus_vector<U, N> &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] = other[i];
     }
@@ -422,7 +422,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator*=(const abacus_vector &other) {
+  constexpr abacus_vector &operator*=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] *= other.payload[i];
     }
@@ -432,7 +432,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator&=(const abacus_vector &other) {
+  constexpr abacus_vector &operator&=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] &= other.payload[i];
     }
@@ -442,7 +442,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator|=(const abacus_vector &other) {
+  constexpr abacus_vector &operator|=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] |= other.payload[i];
     }
@@ -452,7 +452,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator<<=(const abacus_vector &other) {
+  constexpr abacus_vector &operator<<=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] <<= other.payload[i];
     }
@@ -462,7 +462,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector &operator>>=(const abacus_vector &other) {
+  constexpr abacus_vector &operator>>=(const abacus_vector &other) {
     for (unsigned i = 0; i < N; i++) {
       payload[i] >>= other.payload[i];
     }
@@ -472,16 +472,16 @@ struct abacus_vector {
   /// @brief Element extraction.
   /// @param[in] i index.
   /// @return reference to element.
-  T &operator[](uint64_t i) { return payload[i]; }
+  constexpr T &operator[](uint64_t i) { return payload[i]; }
 
   /// @brief Element extraction.
   /// @param[in] i index.
   /// @return constant reference to element.
-  const T &operator[](uint64_t i) const { return payload[i]; }
+  constexpr const T &operator[](uint64_t i) const { return payload[i]; }
 
   /// @brief Element by element operator.
   /// @return reference to this.
-  abacus_vector operator~() const {
+  constexpr abacus_vector operator~() const {
     abacus_vector r{};
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] = ~payload[i];
@@ -491,7 +491,7 @@ struct abacus_vector {
 
   /// @brief Element by element operator.
   /// @return reference to this.
-  abacus_vector operator-() const {
+  constexpr abacus_vector operator-() const {
     abacus_vector r{};
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] = -payload[i];
@@ -502,7 +502,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator+(const abacus_vector &other) const {
+  constexpr abacus_vector operator+(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] += other.payload[i];
@@ -513,7 +513,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator-(const abacus_vector &other) const {
+  constexpr abacus_vector operator-(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] -= other.payload[i];
@@ -524,7 +524,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator*(const abacus_vector &other) const {
+  constexpr abacus_vector operator*(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] *= other.payload[i];
@@ -535,7 +535,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator/(const abacus_vector &other) const {
+  constexpr abacus_vector operator/(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] /= other.payload[i];
@@ -546,7 +546,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator%(const abacus_vector &other) const {
+  constexpr abacus_vector operator%(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] %= other.payload[i];
@@ -557,7 +557,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator&(const abacus_vector &other) const {
+  constexpr abacus_vector operator&(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] &= other.payload[i];
@@ -568,7 +568,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator|(const abacus_vector &other) const {
+  constexpr abacus_vector operator|(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] |= other.payload[i];
@@ -579,7 +579,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator^(const abacus_vector &other) const {
+  constexpr abacus_vector operator^(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] ^= other.payload[i];
@@ -590,7 +590,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator>>(const abacus_vector &other) const {
+  constexpr abacus_vector operator>>(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] >>= other.payload[i];
@@ -601,7 +601,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return reference to this.
-  abacus_vector operator<<(const abacus_vector &other) const {
+  constexpr abacus_vector operator<<(const abacus_vector &other) const {
     abacus_vector r(*this);
     for (unsigned i = 0; i < N; i++) {
       r.payload[i] <<= other.payload[i];
@@ -612,7 +612,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return signed comparator.
-  abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+  constexpr abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
   operator<(const abacus_vector &other) const {
     abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
     for (unsigned i = 0; i < N; i++) {
@@ -624,7 +624,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return signed comparator.
-  abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+  constexpr abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
   operator<=(const abacus_vector &other) const {
     abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
     for (unsigned i = 0; i < N; i++) {
@@ -636,7 +636,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return signed comparator.
-  abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+  constexpr abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
   operator>(const abacus_vector &other) const {
     abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
     for (unsigned i = 0; i < N; i++) {
@@ -648,7 +648,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return signed comparator.
-  abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+  constexpr abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
   operator>=(const abacus_vector &other) const {
     abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
     for (unsigned i = 0; i < N; i++) {
@@ -660,7 +660,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return signed comparator.
-  abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+  constexpr abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
   operator==(const abacus_vector &other) const {
     abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
     for (unsigned i = 0; i < N; i++) {
@@ -672,7 +672,7 @@ struct abacus_vector {
   /// @brief Element by element operator.
   /// @param[in] other operand.
   /// @return signed comparator.
-  abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
+  constexpr abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N>
   operator!=(const abacus_vector &other) const {
     abacus_vector<typename abacus_vector_signed_type_helper<T>::type, N> r{};
     for (unsigned i = 0; i < N; i++) {
