@@ -1263,15 +1263,16 @@ bool oclc::Driver::BuildProgram() {
   } else {
     fin = fopen(input_file_.c_str(), mode);
     OCLC_CHECK(!fin, "Could not open input file");
-    fseek(fin, 0, SEEK_END);
-    source_.resize(ftell(fin));
-    rewind(fin);
-    if (source_.size() != fread(source_.data(), 1, source_.size(), fin)) {
-      fclose(fin);
-      OCLC_CHECK(true, "Could not read input file");
-    }
+    bool read_error = [&] {
+      if (fseek(fin, 0, SEEK_END)) return true;
+      source_.resize(ftell(fin));
+      if (fseek(fin, 0, SEEK_SET)) return true;
+      const size_t bytes_read = fread(source_.data(), 1, source_.size(), fin);
+      return source_.size() != bytes_read;
+    }();
+    if (fclose(fin)) read_error = true;
+    OCLC_CHECK(read_error, "Could not read input file");
   }
-  fclose(fin);
 
   // Detect the source file type.
   SourceFileType source_file_type = SourceFileType::OpenCL_C;
@@ -1350,7 +1351,7 @@ bool oclc::Driver::BuildProgram() {
 
 bool oclc::Driver::WriteToFile(const char *data, const size_t length,
                                bool binary) {
-  bool ownsFount = false;
+  bool ownsFout = false;
   FILE *fout = nullptr;
   if (output_file_.empty()) {
     output_file_ = !binary ? "-" : input_file_ + ".bin";
@@ -1362,13 +1363,17 @@ bool oclc::Driver::WriteToFile(const char *data, const size_t length,
     // Klocwork doesn't realize c_str() returns a null-terminated string
     fout = fopen(output_file_.c_str(), "wb");
     OCLC_CHECK(!fout, "Could not open output file");
-    ownsFount = true;
+    ownsFout = true;
   }
-  fwrite(data, sizeof(char), length, fout);
-  fflush(fout);
-  if (ownsFount) fclose(fout);
+  bool success = fwrite(data, sizeof(char), length, fout) == length;
+  if (ownsFout) {
+    success &= fclose(fout) == 0;
+  } else {
+    success &= fflush(fout) == 0;
+  }
+  OCLC_CHECK(!success, "Could not write data to output file");
 
-  return oclc::success;
+  return success;
 }
 
 bool oclc::Driver::GetProgramBinary() {
