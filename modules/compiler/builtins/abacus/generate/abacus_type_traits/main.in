@@ -8,8 +8,8 @@ template <> struct TypeTraits<abacus_@type@@vector_size@> {
   static const bool is_signed = @is_signed_type@;
   static const bool is_int = @is_int_type@;
   static const unsigned num_elements = @num_elements@;
-  static abacus_@type@@vector_size@ min() { return abacus_@type@(@min_value@); }
-  static abacus_@type@@vector_size@ max() { return abacus_@type@(@max_value@); }
+  static constexpr abacus_@type@@vector_size@ min() { return abacus_@type@(@min_value@); }
+  static constexpr abacus_@type@@vector_size@ max() { return abacus_@type@(@max_value@); }
 };
 
 template<> struct MakeType<abacus_@type@, @num_elements@> {
