@@ -115,7 +115,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 if(CA_NATIVE_CPU)
-  target_include_directories(compiler-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
+  target_include_directories(compiler-pipeline PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
 endif()
 
 if(CA_NATIVE_CPU)
@@ -152,8 +152,13 @@ add_ca_library(compiler-binary-metadata STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp)
 
-target_include_directories(compiler-binary-metadata PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(CA_NATIVE_CPU)
+  target_include_directories(compiler-binary-metadata PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+else()
+  target_include_directories(compiler-binary-metadata PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
 
 target_compile_definitions(compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
@@ -162,8 +167,14 @@ target_compile_definitions(compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-target_link_libraries(compiler-binary-metadata PUBLIC
-  md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+if(CA_NATIVE_CPU)
+  target_link_libraries(compiler-binary-metadata PUBLIC
+    md_handler LLVMPasses LLVMTransformUtils)
+else()
+  target_link_libraries(compiler-binary-metadata PUBLIC
+    md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+endif()
+
 if(TARGET LLVMCore)
   target_link_libraries(compiler-binary-metadata PUBLIC LLVMCore)
 endif()
