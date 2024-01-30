@@ -17,10 +17,10 @@
 #include <abacus/abacus_detail_integer.h>
 #include <abacus/abacus_type_traits.h>
 
-#define DEF(TYPE)                                     \
-  TypeTraits<TYPE>::LargerType __abacus_upsample(     \
-      TYPE x, TypeTraits<TYPE>::UnsignedType y) {     \
-    return abacus::detail::integer::upsample<>(x, y); \
+#define DEF(TYPE)                                            \
+  TypeTraits<TYPE>::LargerType ABACUS_API __abacus_upsample( \
+      TYPE x, TypeTraits<TYPE>::UnsignedType y) {            \
+    return abacus::detail::integer::upsample<>(x, y);        \
   }
 
 DEF(abacus_char);

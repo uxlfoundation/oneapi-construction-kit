@@ -16,13 +16,13 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                              \
-  TYPE __abacus_max(TYPE x, TYPE y) {          \
-    return abacus::detail::integer::max(x, y); \
+#define DEF(TYPE)                                \
+  TYPE ABACUS_API __abacus_max(TYPE x, TYPE y) { \
+    return abacus::detail::integer::max(x, y);   \
   }
-#define DEF2(TYPE, TYPE2)                      \
-  TYPE __abacus_max(TYPE x, TYPE2 y) {         \
-    return abacus::detail::integer::max(x, y); \
+#define DEF2(TYPE, TYPE2)                         \
+  TYPE ABACUS_API __abacus_max(TYPE x, TYPE2 y) { \
+    return abacus::detail::integer::max(x, y);    \
   }
 
 DEF(abacus_char);

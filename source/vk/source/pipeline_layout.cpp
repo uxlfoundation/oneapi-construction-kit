@@ -37,7 +37,7 @@ VkResult CreatePipelineLayout(vk::device device,
   (void)device;
 
   // TODO: replace std::accumulate with cargo::accumulate when it is implemented
-  uint32_t push_constant_buffer_size = std::accumulate(
+  const uint32_t push_constant_buffer_size = std::accumulate(
       pCreateInfo->pPushConstantRanges,
       pCreateInfo->pPushConstantRanges + pCreateInfo->pushConstantRangeCount, 0,
       [](const uint32_t &current,

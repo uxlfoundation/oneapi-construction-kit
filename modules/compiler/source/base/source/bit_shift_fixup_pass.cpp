@@ -63,8 +63,8 @@ llvm::PreservedAnalyses compiler::BitShiftFixupPass::run(
       llvm::Value *amount = I.getOperand(1);
 
       // Figure out the width of the first operand and the mask for the modulo
-      unsigned srcWidth = src->getType()->getScalarSizeInBits();
-      unsigned srcMask = srcWidth - 1;
+      const unsigned srcWidth = src->getType()->getScalarSizeInBits();
+      const unsigned srcMask = srcWidth - 1;
 
       // Skip non-oversized constant shift amounts.
       if (llvm::ConstantInt *V = llvm::dyn_cast<llvm::ConstantInt>(amount)) {
@@ -80,7 +80,7 @@ llvm::PreservedAnalyses compiler::BitShiftFixupPass::run(
         if (amountOp->getOpcode() == llvm::Instruction::And) {
           // Extract the mask value from the modulo operation
           uint64_t andMask = 0;
-          bool extracted =
+          const bool extracted =
               ExtractIntegerConstant(amountOp->getOperand(1), andMask);
 
           // Skip the shift instruction if the modulo uses the correct mask

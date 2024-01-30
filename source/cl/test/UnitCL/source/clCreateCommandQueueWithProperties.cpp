@@ -31,6 +31,30 @@ TEST_F(clCreateCommandQueueWithPropertiesTest, Default) {
   ASSERT_SUCCESS(clReleaseCommandQueue(command_queue));
 }
 
+TEST_F(clCreateCommandQueueWithPropertiesTest, DefaultOutOfOrder) {
+  cl_int error;
+  std::array<cl_queue_properties, 3> properties{
+      {CL_QUEUE_PROPERTIES, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, 0}};
+  cl_command_queue command_queue = clCreateCommandQueueWithProperties(
+      context, device, properties.data(), &error);
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
+  ASSERT_EQ(nullptr, command_queue);
+  ASSERT_EQ(CL_INVALID_QUEUE_PROPERTIES, error);
+#else
+  EXPECT_SUCCESS(error);
+  size_t size;
+  EXPECT_SUCCESS(clGetCommandQueueInfo(command_queue, CL_QUEUE_PROPERTIES, 0,
+                                       nullptr, &size));
+  EXPECT_EQ(sizeof(cl_command_queue_properties), size);
+  cl_command_queue_properties command_queue_properties;
+  EXPECT_SUCCESS(clGetCommandQueueInfo(command_queue, CL_QUEUE_PROPERTIES, size,
+                                       &command_queue_properties, nullptr));
+  EXPECT_EQ(properties[1], command_queue_properties);
+  EXPECT_SUCCESS(error);
+  ASSERT_SUCCESS(clReleaseCommandQueue(command_queue));
+#endif
+}
+
 TEST_F(clCreateCommandQueueWithPropertiesTest, DefaultProfiling) {
   cl_int error;
   std::array<cl_queue_properties, 3> properties{
@@ -69,7 +93,7 @@ TEST_F(clCreateCommandQueueWithPropertiesTest, InvalidQueueProperties) {
   cl_int error;
   // Try with one bit that we don't support.
   std::array<cl_queue_properties, 3> properties{
-      {CL_QUEUE_PROPERTIES, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, 0}};
+      {CL_QUEUE_PROPERTIES, CL_QUEUE_ON_DEVICE, 0}};
   cl_command_queue command_queue = clCreateCommandQueueWithProperties(
       context, device, properties.data(), &error);
   ASSERT_EQ_ERRCODE(CL_INVALID_QUEUE_PROPERTIES, error);

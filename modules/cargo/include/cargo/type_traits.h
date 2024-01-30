@@ -21,146 +21,10 @@
 #ifndef CARGO_TRAITS_H_INCLUDED
 #define CARGO_TRAITS_H_INCLUDED
 
-#include <cargo/platform_defines.h>
-
 #include <iterator>
 #include <type_traits>
 
 namespace cargo {
-namespace detail {
-/// @brief Helper struct to turn void_t into void.
-///
-/// Work around for a C++14 standard defect to enable `void_t`.
-///
-/// @see http://open-std.org/JTC1/SC22/WG21/docs/cwg_defects.html#1558
-///
-/// @tparam Ts Template parameter pack.
-template <class... Ts>
-struct make_void {
-  using type = void;
-};
-}  // namespace detail
-
-/// @addtogroup cargo
-/// @{
-
-/// @brief Maps a sequence of any types to void.
-///
-/// Used to detect ill-formed types in SFINAE context.
-///
-/// @tparam Ts Template parameter pack.
-template <class... Ts>
-using void_t = typename detail::make_void<Ts...>::type;
-
-/// @brief Alias for `std::enable_if` to reduce noise.
-///
-/// @tparam C Boolean condition.
-/// @tparam T Specified type.
-template <bool C, class T = void>
-using enable_if_t = typename std::enable_if<C, T>::type;
-
-/// @brief Alias for `std::aligned_storage` to reduce noise.
-///
-/// @tparam S Size for aligned storage.
-/// @tparam A Alignment for aligned storage.
-template <size_t S, size_t A>
-using aligned_storage_t = typename std::aligned_storage<S, A>::type;
-
-#ifdef CARGO_GCC49
-
-/// @brief Alias for `std::has_trivial_copy_constructor` using correct name.
-///
-/// @note GCC versions below 5 do not support
-/// `std::is_trivially_copy_constructible`.
-///
-/// @tparam T Sepcific type.
-template <class T>
-using is_trivially_copy_constructible = std::has_trivial_copy_constructor<T>;
-
-/// @brief Alias for `std::has_trivial_copy_assign` using correct name.
-///
-/// @note GCC versions below 5 do not support
-/// `std::is_trivially_copy_assignable`.
-///
-/// @tparam T Sepcific type.
-template <class T>
-using is_trivially_copy_assignable = std::has_trivial_copy_assign<T>;
-
-/// @brief Implementation of missing `std::is_trivially_copyable`.
-///
-/// @note GCC versions below 5 do not support `std::is_trivially_copyable`.
-///
-/// @tparam T Specified type.
-template <class T>
-struct is_trivially_copyable {
-  static const bool value = is_trivially_copy_constructible<T>::value &&
-                            is_trivially_copy_assignable<T>::value &&
-                            std::is_trivially_destructible<T>::value;
-};
-
-#else
-
-/// @brief Alias for `std::has_trivial_copy_constructor` using correct name.
-///
-/// @note GCC versions below 5 do not support
-/// `std::is_trivially_copy_constructible`.
-///
-/// @tparam T Sepcific type.
-template <class T>
-using is_trivially_copy_constructible = std::is_trivially_copy_constructible<T>;
-
-/// @brief Alias for `std::has_trivial_copy_assign` using correct name.
-///
-/// @note GCC versions below 5 do not support
-/// `std::is_trivially_copy_assignable`.
-///
-/// @tparam T Sepcific type.
-template <class T>
-using is_trivially_copy_assignable = std::is_trivially_copy_assignable<T>;
-
-/// @brief Alias for `std::is_trivially_copyable`.
-///
-/// @note GCC versions below 5 do not support `std::is_trivially_copyable`.
-///
-/// @tparam T Specified type.
-template <class T>
-using is_trivially_copyable = std::is_trivially_copyable<T>;
-
-#endif
-
-/// @brief Alias for `std::remove_reference` to reduce noise.
-///
-/// @tparam Ts Type to remove reference from.
-template <class... Ts>
-using remove_reference_t = typename std::remove_reference<Ts...>::type;
-
-/// @brief Alias for `std::remove_pointer` to reduce noise.
-///
-/// @tparam T Type to remove pointer from.
-template <class T>
-using remove_pointer_t = typename std::remove_pointer<T>::type;
-
-/// @brief Alias for `std::remove_const` to reduce noise.
-///
-/// @tparam Ts Type to remove const from.
-template <class... Ts>
-using remove_const_t = typename std::remove_const<Ts...>::type;
-
-/// @brief Alias for `std::decay` to reduce noise.
-///
-/// @tparam Ts Type to decay.
-template <class... Ts>
-using decay_t = typename std::decay<Ts...>::type;
-
-/// @brief Alias for `std::conditional` to reduce noise.
-///
-/// @tparam B Boolean condition.
-/// @tparam T Result if the condition is true.
-/// @tparam F Result if the condition is false.
-template <bool B, class T, class F>
-using conditional_t = typename std::conditional<B, T, F>::type;
-
-/// @}
 
 namespace detail {
 /// @brief Failure case, member type `iterator_category` not found.
@@ -171,8 +35,8 @@ struct has_iterator_category : public std::false_type {};
 ///
 /// @tparam IteratorTraits Type of iterator traits.
 template <class IteratorTraits>
-struct has_iterator_category<IteratorTraits,
-                             void_t<typename IteratorTraits::iterator_category>>
+struct has_iterator_category<
+    IteratorTraits, std::void_t<typename IteratorTraits::iterator_category>>
     : std::true_type {};
 
 /// @brief Success case, determine if iterator category matches.
@@ -221,7 +85,7 @@ template <class B>
 struct conjunction<B> : B {};
 template <class B, class... Bs>
 struct conjunction<B, Bs...>
-    : std::conditional<bool(B::value), conjunction<Bs...>, B>::type {};
+    : std::conditional_t<bool(B::value), conjunction<Bs...>, B> {};
 
 /// @}
 
@@ -238,7 +102,7 @@ struct detector : std::false_type {};
 /// @tparam Op Template or alias template of the operation to be detected.
 /// @tparam Args Type parameter pack describing arguments to the expression.
 template <template <class...> class Op, class... Args>
-struct detector<void_t<Op<Args...>>, Op, Args...> : std::true_type {};
+struct detector<std::void_t<Op<Args...>>, Op, Args...> : std::true_type {};
 }  // namespace detail
 
 /// @addtogroup cargo
@@ -283,7 +147,8 @@ struct has_value_type : public std::false_type {};
 ///
 /// @tparam T Type to detect `value_type` member type on.
 template <class T>
-struct has_value_type<T, void_t<typename T::value_type>> : std::true_type {};
+struct has_value_type<T, std::void_t<typename T::value_type>> : std::true_type {
+};
 
 /// @brief Failure case, member type `iterator` not found.
 template <class, class = void>
@@ -293,7 +158,7 @@ struct has_iterator : public std::false_type {};
 ///
 /// @tparam T Type to detect `iterator` member type on.
 template <class T>
-struct has_iterator<T, void_t<typename T::iterator>> : std::true_type {};
+struct has_iterator<T, std::void_t<typename T::iterator>> : std::true_type {};
 }  // namespace detail
 
 /// @addtogroup cargo

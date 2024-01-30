@@ -73,7 +73,7 @@ TEST_P(muxCreateKernelTest, NullName) {
 
 TEST_P(muxCreateKernelTest, InvalidName) {
   // TODO(CA-3368): Don't skip this test once the riscv target passes it.
-  cargo::string_view device_name{device->info->device_name};
+  const cargo::string_view device_name{device->info->device_name};
   if (device_name.find("RISC-V") != cargo::string_view::npos) {
     GTEST_SKIP();
   }

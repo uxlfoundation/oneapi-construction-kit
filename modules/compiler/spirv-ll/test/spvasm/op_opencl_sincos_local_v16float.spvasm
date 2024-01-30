@@ -38,7 +38,7 @@
 ; All functions
      %sincos_v16float = OpFunction %void_t None %sincos_fn_t
            %in_cosval = OpFunctionParameter %v16float_ptr_t
-; CHECK: define spir_kernel void @sincos_v16float(ptr addrspace(3) %in_cosval)
+; CHECK: define spir_kernel void @sincos_v16float(ptr addrspace(3) noundef %in_cosval)
                    %2 = OpLabel
                    %3 = OpExtInst %v16float_t %1 sincos %v16float_1 %in_cosval
 ; CHECK: = call spir_func <16 x float> @_Z6sincosDv16_fPU3AS3S_(<16 x float> <float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000>, ptr addrspace(3) %in_cosval)

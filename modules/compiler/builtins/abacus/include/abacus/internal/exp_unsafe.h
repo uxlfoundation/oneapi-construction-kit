@@ -58,8 +58,7 @@ struct exp_unsafe_helper<T, abacus_half> {
                                        1.0833740234375e-2f16};
 
     // Minimax polynomial approximation in the domain [0, ln(2)] of e^x
-    const T result =
-        abacus::internal::horner_polynomial<T, 6>(rr_x, polynomial);
+    const T result = abacus::internal::horner_polynomial(rr_x, polynomial);
 
     // Polynomial approximation * 2^k
     return abacus::internal::ldexp_unsafe(result, k);
@@ -87,7 +86,7 @@ struct exp_unsafe_helper<T, abacus_float> {
         0.272579824216659e-5f};
 
     // minimax from 0 -> ln(2) of e^x
-    const T result = abacus::internal::horner_polynomial<T, 10>(r, polynomial);
+    const T result = abacus::internal::horner_polynomial(r, polynomial);
 
     return abacus::internal::ldexp_unsafe(result, k);
   }
@@ -126,7 +125,7 @@ struct exp_unsafe_helper<T, abacus_double> {
                                           0.294609311301038779771435680411e-8};
 
     // minimax from 0 -> ln(2) of e^x
-    const T result = abacus::internal::horner_polynomial<T, 15>(r, polynomial);
+    const T result = abacus::internal::horner_polynomial(r, polynomial);
 
     return abacus::internal::ldexp_unsafe(result, k);
   }

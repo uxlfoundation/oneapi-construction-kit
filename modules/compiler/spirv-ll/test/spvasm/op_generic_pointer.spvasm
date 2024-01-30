@@ -39,7 +39,7 @@
          %20 = OpFunction %void None %19
    %_arg_ptr = OpFunctionParameter %_ptr_Generic_ulong
 ; Check we use the right address space for generic pointers
-; CHECK: define spir_kernel void @entry_pt(ptr addrspace(4) [[PTR:%.*]])
+; CHECK: define spir_kernel void @entry_pt(ptr addrspace(4) noundef [[PTR:%.*]])
       %entry = OpLabel
 
           %x = OpIAdd %ulong %ulong_0 %ulong_1

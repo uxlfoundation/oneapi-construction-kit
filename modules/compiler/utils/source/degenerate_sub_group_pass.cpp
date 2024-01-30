@@ -76,7 +76,8 @@ compiler::utils::BuiltinID lookupWGBuiltinID(compiler::utils::BuiltinID ID,
 /// @return The work-group equivalent of the given builtin.
 Function *lookupWGBuiltin(const compiler::utils::Builtin &SGBuiltin,
                           compiler::utils::BuiltinInfo &BI, Module &M) {
-  compiler::utils::BuiltinID WGBuiltinID = lookupWGBuiltinID(SGBuiltin.ID, BI);
+  const compiler::utils::BuiltinID WGBuiltinID =
+      lookupWGBuiltinID(SGBuiltin.ID, BI);
   // Not all sub-group builtins have a work-group equivalent.
   if (WGBuiltinID == compiler::utils::eBuiltinInvalid) {
     return nullptr;
@@ -247,7 +248,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
         continue;
       }
 
-      auto const local_sizes = compiler::utils::getLocalSizeMetadata(F);
+      const auto local_sizes = compiler::utils::getLocalSizeMetadata(F);
       if (!local_sizes) {
         // If we don't know the local size at compile time, we can't guarantee
         // safety of non-degenerate subgroups, so we clone the kernel and defer
@@ -267,11 +268,11 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
         // avoid the need for degenerate sub-groups, but we can't rely on it,
         // therefore if the local size is not a power of two, we only go by the
         // maximum width supported by the device. TODO DDK-75
-        uint32_t const local_size = local_sizes ? (*local_sizes)[0] : 0;
+        const uint32_t local_size = local_sizes ? (*local_sizes)[0] : 0;
         if (!isPowerOf2_32(local_size)) {
-          auto const &DI =
+          const auto &DI =
               AM.getResult<compiler::utils::DeviceInfoAnalysis>(*F.getParent());
-          auto const max_work_width = DI.max_work_width;
+          const auto max_work_width = DI.max_work_width;
           if (local_size % max_work_width != 0) {
             // Flag the presence of degenerate sub-groups in this kernel.
             // There might not be any sub-group builtins, in which case it's
@@ -337,7 +338,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
   SmallVector<Function *, 8> worklist;
   SmallVector<Function *, 8> nonDegenerateUsers;
   for (auto *const K : kernels) {
-    bool const subgroups = usesSubgroups.contains(K);
+    const bool subgroups = usesSubgroups.contains(K);
     if (!subgroups) {
       // No need to clone kernels that don't use any subgroup functions.
       kernelsToClone.erase(K);
@@ -452,9 +453,9 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
       NewA->setName(OldA->getName());
     }
 
-    StringRef BaseName = getBaseFnNameOrFnName(*F);
+    const StringRef BaseName = getBaseFnNameOrFnName(*F);
 
-    auto const ChangeType = CloneFunctionChangeType::LocalChangesOnly;
+    const auto ChangeType = CloneFunctionChangeType::LocalChangesOnly;
     SmallVector<ReturnInst *, 1> Returns;
     CloneFunctionInto(NewF, F, VMap, ChangeType, Returns);
 

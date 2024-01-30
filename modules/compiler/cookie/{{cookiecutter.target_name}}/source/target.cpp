@@ -20,13 +20,18 @@
 
 #include <hal.h>
 
-#include <llvm/Support/Host.h>
 #include <llvm/Target/TargetMachine.h>
 #include <multi_llvm/multi_llvm.h>
 #include <{{cookiecutter.target_name}}/device_info.h>
 #include <{{cookiecutter.target_name}}/module.h>
 #include <{{cookiecutter.target_name}}/target.h>
 #include "{{cookiecutter.target_name}}/module.h"
+
+#if LLVM_VERSION_GREATER_EQUAL(18, 0)
+#include <llvm/TargetParser/Host.h>
+#else
+#include <llvm/Support/Host.h>
+#endif
 
 namespace {{cookiecutter.target_name}} {
 {{cookiecutter.target_name.capitalize()}}Target::{{cookiecutter.target_name.capitalize()}}Target(const compiler::Info *compiler_info,

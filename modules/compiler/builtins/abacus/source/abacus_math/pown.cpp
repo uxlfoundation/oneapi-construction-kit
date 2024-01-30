@@ -167,7 +167,7 @@ struct helper<T, abacus_half> {
 
     // Now a normal exp2 should do the trick:
     // We know that 0 <= n_times_log2X <= 1 so we can just use a polynomial
-    T result = abacus::internal::horner_polynomial<T, 6>(
+    T result = abacus::internal::horner_polynomial(
         n_times_log2X, __codeplay_pown_unsafe_coeffH);
 
     // We do the same trick as for __log2_extra_precision here, using some extra
@@ -178,7 +178,7 @@ struct helper<T, abacus_half> {
     // rules exp(n + remainder) ==> exp(n) * exp(remainder)
     const T remainder_times_log2X =
         mul1_remainder + mul2_remainder + mul3_remainder;
-    const T remainder_poly = abacus::internal::horner_polynomial<T, 6>(
+    const T remainder_poly = abacus::internal::horner_polynomial(
         remainder_times_log2X, __codeplay_pown_unsafe_coeffH);
     result *= remainder_poly;
 
@@ -259,8 +259,8 @@ struct helper<T, abacus_float> {
         log2_hi, log2_lo, xExp_float, n, &exponent_floor);
 
     // 2^x from 0 -> 1
-    T result = abacus::internal::horner_polynomial<T, 6>(exponent_mantissa,
-                                                         __codeplay_pown_coeff);
+    T result = abacus::internal::horner_polynomial(exponent_mantissa,
+                                                   __codeplay_pown_coeff);
 
     result = __abacus_ldexp(result, exponent_floor);
 
@@ -347,10 +347,9 @@ struct helper<T, abacus_double> {
     exponent_mantissa -=
         abacus::detail::cast::convert<T>(trunced_exponent_mantissa);
 
-    T result =
-        (T)1.0 + exponent_mantissa *
-                     abacus::internal::horner_polynomial<T, 18>(
-                         exponent_mantissa, __codeplay_pow_unsafe_coeffD);
+    T result = (T)1.0 + exponent_mantissa * abacus::internal::horner_polynomial(
+                                                exponent_mantissa,
+                                                __codeplay_pow_unsafe_coeffD);
 
     result = __abacus_ldexp(
         result, abacus::detail::cast::convert<IntVecType>(exponent_floor));

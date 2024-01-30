@@ -41,11 +41,11 @@ int __attribute__((noinline)) function(void) {
   return get_local_id(0) + 1;
 }
 
-// CHECK: declare spir_func {{.*}} @_Z12get_local_idj(i32) #[[GLID_FN_ATTRS:[0-9]+]]
+// CHECK: declare spir_func {{.*}} @_Z12get_local_idj(i32 noundef) #[[GLID_FN_ATTRS:[0-9]+]]
 
 // CHECK: define dso_local spir_kernel void @do_stuff{{.*}} #[[KERNEL_ATTRS:[0-9]+]]
-// CHECK: call spir_func {{.*}}@_Z13get_global_idj(i32 0) #[[GGID_CALL_ATTRS:[0-9]+]]
-// CHECK: call spir_func {{.*}}_Z7barrierj(i32 1) #[[BARRIER_CALL_ATTRS:[0-9]+]]
+// CHECK: call spir_func {{.*}}@_Z13get_global_idj(i32 noundef 0) #[[GGID_CALL_ATTRS:[0-9]+]]
+// CHECK: call spir_func {{.*}}_Z7barrierj(i32 noundef 1) #[[BARRIER_CALL_ATTRS:[0-9]+]]
 // CHECK: call spir_func {{.*}}function() #[[FUNCTION_CALL_ATTRS:[0-9]+]]
 __kernel void do_stuff(int __global *out, const int __global *in) {
   size_t i = get_global_id(0);
@@ -53,8 +53,8 @@ __kernel void do_stuff(int __global *out, const int __global *in) {
   out[i] += in[function()];
 }
 
-// CHECK: declare spir_func {{.*}}@_Z13get_global_idj(i32){{.*}} #[[GGID_FN_ATTRS:[0-9]+]]
-// CHECK: declare spir_func {{.*}}@_Z7barrierj(i32){{.*}} #[[BARRIER_ATTRS:[0-9]+]]
+// CHECK: declare spir_func {{.*}}@_Z13get_global_idj(i32 noundef){{.*}} #[[GGID_FN_ATTRS:[0-9]+]]
+// CHECK: declare spir_func {{.*}}@_Z7barrierj(i32 noundef){{.*}} #[[BARRIER_ATTRS:[0-9]+]]
 
 // CHECK-FUNCTION-NOT: attributes #[[FUNCTION_ATTRS]] = {{.*}}convergent
 // CHECK-GGID-NOT: attributes #[[GGID_CALL_ATTRS]] = {{.*}}convergent

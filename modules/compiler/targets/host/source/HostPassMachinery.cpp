@@ -27,11 +27,11 @@
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
+#include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/pipeline_parse_helpers.h>
 #include <compiler/utils/remove_exceptions_pass.h>
-#include <compiler/utils/remove_fences_pass.h>
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
@@ -235,7 +235,7 @@ llvm::ModulePassManager HostPassMachinery::getLateTargetPasses() {
 llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
     std::optional<std::string> unique_prefix) {
   llvm::ModulePassManager PM;
-  compiler::BasePassPipelineTuner tuner(options);
+  const compiler::BasePassPipelineTuner tuner(options);
 
   // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
@@ -310,25 +310,14 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
         compiler::utils::RemoveLifetimeIntrinsicsPass()));
   }
 
-  // ENORMOUS WARNING:
-  // Removing memory fences can result in invalid code or incorrect behaviour in
-  // general. This pass is a workaround for backends that do not yet support
-  // memory fences.  This is not required for any of the LLVM backends used by
-  // host, but the pass is used here to ensure that it is tested.
-  // The memory model on OpenCL 1.2 is so underspecified that we can get away
-  // with removing fences. In OpenCL 3.0 the memory model is better defined, and
-  // just removing fences could result in incorrect behavior for valid 3.0
-  // OpenCL applications.
-  if (options.standard != compiler::Standard::OpenCLC30) {
-    PM.addPass(llvm::createModuleToFunctionPassAdaptor(
-        compiler::utils::RemoveFencesPass()));
-  }
-
   PM.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
 
   PM.addPass(compiler::utils::AddMetadataPass<
              compiler::utils::VectorizeMetadataAnalysis,
              handler::VectorizeInfoMetadataHandler>());
+
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ManualTypeLegalizationPass()));
 
   return PM;
 }

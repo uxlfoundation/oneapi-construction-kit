@@ -53,7 +53,7 @@
 ; of variable are covered: we have global and local OpFunctionParameters, a
 ; function scope OpVariable and a couple of OpVariables that represent work item
 ; builtins.
-; CHECK: define spir_kernel void @test(ptr{{( %.*)?}}, ptr{{( %.*)?}}, ptr{{( %.*)?}})
+; CHECK: define spir_kernel void @test(ptr noundef{{( %.*)?}}, ptr noundef{{( %.*)?}}, ptr noundef{{( %.*)?}})
          %11 = OpFunction %void DontInline %10
         %src = OpFunctionParameter %_ptr_Generic_uint
         %dst = OpFunctionParameter %_ptr_Generic_uint

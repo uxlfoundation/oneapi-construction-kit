@@ -45,7 +45,7 @@ T atanpi_half(const T x) {
   x_local = __abacus_select(x_local, 1.0f16 / x_local, inverse);
 
   const T x2 = x_local * x_local;
-  T ans = x_local * abacus::internal::horner_polynomial<T, 5>(
+  T ans = x_local * abacus::internal::horner_polynomial(
                         x2, __codeplay_atanpi_coeff_halfH1);
 
   ans = __abacus_select(ans, __abacus_copysign(0.5f16, ans) - ans, inverse);
@@ -64,9 +64,8 @@ abacus_half atanpi_half(const abacus_half x) {
   }
 
   const abacus_half x2 = x_local * x_local;
-  abacus_half ans =
-      x_local * abacus::internal::horner_polynomial<abacus_half, 5>(
-                    x2, __codeplay_atanpi_coeff_halfH1);
+  abacus_half ans = x_local * abacus::internal::horner_polynomial(
+                                  x2, __codeplay_atanpi_coeff_halfH1);
 
   if (!inverse) {
     return ans;

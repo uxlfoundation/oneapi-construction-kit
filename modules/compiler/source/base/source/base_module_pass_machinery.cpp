@@ -42,13 +42,13 @@
 #include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/lower_to_mux_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
+#include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/optimal_builtin_replacement_pass.h>
 #include <compiler/utils/pipeline_parse_helpers.h>
 #include <compiler/utils/prepare_barriers_pass.h>
 #include <compiler/utils/reduce_to_function_pass.h>
 #include <compiler/utils/remove_exceptions_pass.h>
-#include <compiler/utils/remove_fences_pass.h>
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/rename_builtins_pass.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
@@ -274,7 +274,9 @@ std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"Cold", CallingConv::Cold},
     {"GHC", CallingConv::GHC},
     {"HiPE", CallingConv::HiPE},
+#if LLVM_VERSION_LESS(18, 0)
     {"WebKit_JS", CallingConv::WebKit_JS},
+#endif
     {"AnyReg", CallingConv::AnyReg},
     {"PreserveMost", CallingConv::PreserveMost},
     {"PreserveAll", CallingConv::PreserveAll},
@@ -439,8 +441,8 @@ void BaseModulePassMachinery::registerPassCallbacks() {
           }
           // Construct some default compiler options and a pipeline tuner, since
           // we've not been told otherwise.
-          compiler::Options options;
-          compiler::BasePassPipelineTuner tuner(options);
+          const compiler::Options options;
+          const compiler::BasePassPipelineTuner tuner(options);
           if (Name.consume_front("pre-vecz")) {
             compiler::addPreVeczPasses(PM, tuner);
           } else if (Name.consume_front("late-builtins")) {
@@ -449,7 +451,7 @@ void BaseModulePassMachinery::registerPassCallbacks() {
             compiler::addPrepareWorkGroupSchedulingPasses(PM);
           } else if (Name.consume_front("wg-sched")) {
             compiler::addPrepareWorkGroupSchedulingPasses(PM);
-            compiler::utils::AddKernelWrapperPassOptions opts;
+            const compiler::utils::AddKernelWrapperPassOptions opts;
             PM.addPass(compiler::utils::AddKernelWrapperPass(opts));
           } else {
             errs() << "Unknown mux-base pipeline component '" << Name << "'\n";
@@ -491,17 +493,17 @@ void BaseModulePassMachinery::registerPassCallbacks() {
     return true;                                                            \
   }
 
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                             \
-  if (Name == "require<" NAME ">") {                                   \
-    PM.addPass(RequireAnalysisPass<                                    \
-               std::remove_reference<decltype(CREATE_PASS)>::type,     \
-               llvm::Module>());                                       \
-    return true;                                                       \
-  }                                                                    \
-  if (Name == "invalidate<" NAME ">") {                                \
-    PM.addPass(InvalidateAnalysisPass<                                 \
-               std::remove_reference<decltype(CREATE_PASS)>::type>()); \
-    return true;                                                       \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                  \
+  if (Name == "require<" NAME ">") {                                        \
+    PM.addPass(                                                             \
+        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>, \
+                            llvm::Module>());                               \
+    return true;                                                            \
+  }                                                                         \
+  if (Name == "invalidate<" NAME ">") {                                     \
+    PM.addPass(InvalidateAnalysisPass<                                      \
+               std::remove_reference_t<decltype(CREATE_PASS)>>());          \
+    return true;                                                            \
   }
 
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                \

@@ -71,7 +71,7 @@ void populatePackedArgs(
     const auto descriptor = descriptors[i];
     switch (descriptor.type) {
       case mux_descriptor_info_type_buffer: {
-        mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
+        const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
 
         ::host::buffer_s *const host_buffer =
             static_cast<::host::buffer_s *>(info.buffer);
@@ -136,7 +136,7 @@ void populatePackedArgs(
 #endif
       } break;
       case mux_descriptor_info_type_plain_old_data: {
-        mux_descriptor_info_plain_old_data_s info =
+        const mux_descriptor_info_plain_old_data_s info =
             descriptor.plain_old_data_descriptor;
 
         std::memcpy(packed_args_alloc + offset, info.data, info.length);
@@ -268,7 +268,7 @@ mux_result_t hostCommandReadBuffer(mux_command_buffer_t command_buffer,
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_read_buffer_s{
           buffer, offset, host_pointer, size})) {
@@ -300,7 +300,7 @@ mux_result_t hostCommandReadBufferRegions(
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   char *data = reinterpret_cast<char *>(host_pointer);
 
@@ -375,7 +375,7 @@ mux_result_t hostCommandWriteBuffer(
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_write_buffer_s{
           buffer, offset, host_pointer, size})) {
@@ -407,7 +407,7 @@ mux_result_t hostCommandWriteBufferRegions(
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   const char *data = reinterpret_cast<const char *>(host_pointer);
 
@@ -483,7 +483,7 @@ mux_result_t hostCommandCopyBuffer(mux_command_buffer_t command_buffer,
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   // lastly copy the new command onto the end of the buffer
   if (host->commands.emplace_back(host::command_info_copy_buffer_s{
@@ -516,7 +516,7 @@ mux_result_t hostCommandCopyBufferRegions(
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   if (host->commands.reserve(host->commands.size() + regions_length)) {
     return mux_error_out_of_memory;
@@ -590,7 +590,7 @@ mux_result_t hostCommandFillBuffer(mux_command_buffer_t command_buffer,
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   host::command_info_fill_buffer_s fill_buffer;
   fill_buffer.buffer = buffer;
@@ -904,7 +904,7 @@ mux_result_t hostCommandNDRange(mux_command_buffer_t command_buffer,
   (void)sync_point_wait_list;
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   auto host_kernel = static_cast<host::kernel_s *>(kernel);
   mux::allocator allocator(host_kernel->allocator_info);
@@ -1006,7 +1006,8 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
       default:
         return mux_error_invalid_value;
       case mux_descriptor_info_type_buffer: {
-        mux_descriptor_info_buffer_s info = descriptors[i].buffer_descriptor;
+        const mux_descriptor_info_buffer_s info =
+            descriptors[i].buffer_descriptor;
 
         auto *host_buffer = static_cast<host::buffer_s *>(info.buffer);
 
@@ -1016,7 +1017,7 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
         std::memcpy(arg_address, &buffer_value, sizeof(void *));
       } break;
       case mux_descriptor_info_type_plain_old_data: {
-        mux_descriptor_info_plain_old_data_s info =
+        const mux_descriptor_info_plain_old_data_s info =
             descriptors[i].plain_old_data_descriptor;
 
         std::memcpy(arg_address, info.data, info.length);
@@ -1048,7 +1049,7 @@ mux_result_t hostCommandUserCallback(
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   if (host->commands.emplace_back(
           host::command_info_user_callback_s{user_function, user_data})) {
@@ -1080,7 +1081,7 @@ mux_result_t hostCommandBeginQuery(mux_command_buffer_t command_buffer,
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_begin_query_s{
           query_pool, query_index, query_count})) {
@@ -1112,7 +1113,7 @@ mux_result_t hostCommandEndQuery(mux_command_buffer_t command_buffer,
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   auto found =
       std::find_if(host->commands.begin(), host->commands.end(),
@@ -1156,7 +1157,7 @@ mux_result_t hostCommandResetQueryPool(
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_reset_query_pool_s{
           query_pool, query_index, query_count})) {
@@ -1179,7 +1180,7 @@ mux_result_t hostCommandResetQueryPool(
 mux_result_t hostResetCommandBuffer(mux_command_buffer_t command_buffer) {
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  std::lock_guard<std::mutex> lock(host->mutex);
+  const std::lock_guard<std::mutex> lock(host->mutex);
 
   host->commands.clear();
 
@@ -1215,8 +1216,8 @@ mux_result_t hostCloneCommandBuffer(mux_device_t device,
   // MuxUpdateDescriptors() without affecting the original command-buffer.
   auto *host_command_buffer =
       static_cast<host::command_buffer_s *>(command_buffer);
-  std::lock_guard<std::mutex> lock_original(host_command_buffer->mutex);
-  std::lock_guard<std::mutex> lock_clone{cloned_command_buffer->mutex};
+  const std::lock_guard<std::mutex> lock_original(host_command_buffer->mutex);
+  const std::lock_guard<std::mutex> lock_clone{cloned_command_buffer->mutex};
   for (const auto &command : host_command_buffer->commands) {
     if (command.type != host::command_type_ndrange) {
       if (cloned_command_buffer->commands.push_back(command)) {

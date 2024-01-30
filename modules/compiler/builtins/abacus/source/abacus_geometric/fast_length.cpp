@@ -17,9 +17,9 @@
 #include <abacus/abacus_detail_geometric.h>
 #include <abacus/abacus_geometric.h>
 
-#define DEF(TYPE)                                              \
-  TypeTraits<TYPE>::ElementType __abacus_fast_length(TYPE x) { \
-    return abacus::detail::geometric::fast_length(x);          \
+#define DEF(TYPE)                                                         \
+  TypeTraits<TYPE>::ElementType ABACUS_API __abacus_fast_length(TYPE x) { \
+    return abacus::detail::geometric::fast_length(x);                     \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

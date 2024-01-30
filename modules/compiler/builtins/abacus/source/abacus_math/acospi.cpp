@@ -16,8 +16,9 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
+#include <abacus/abacus_relational.h>
 #include <abacus/internal/horner_polynomial.h>
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 
 namespace {
 template <typename T>
@@ -49,15 +50,14 @@ T acospi_half(const T x) {
 
   // TODO maybe there's a way to pick the coefficients of the polynomials
   // branchlessly, then this wouldn't branch
-  const T poly1 = abacus::internal::horner_polynomial<T, 3>(
-      x2, __codeplay_acospi_coeff_halfH2);
-  const T poly2 = abacus::internal::horner_polynomial<T, 3>(
-      xAbs, __codeplay_acospi_coeff_halfH1);
+  const T poly1 =
+      abacus::internal::horner_polynomial(x2, __codeplay_acospi_coeff_halfH2);
+  const T poly2 =
+      abacus::internal::horner_polynomial(xAbs, __codeplay_acospi_coeff_halfH1);
 
   ans = xAbs * __abacus_select(poly1, poly2, cond1);
 
-  ans =
-      __abacus_select(ans + 0.5f16, abacus::internal::sqrt_unsafe(ans), cond1);
+  ans = __abacus_select(ans + 0.5f16, abacus::internal::sqrt(ans), cond1);
 
   ans = __abacus_select(ans, 1.0f16 - ans, x < 0.0f16);
 
@@ -71,13 +71,13 @@ abacus_half acospi_half(const abacus_half x) {
 
   if (xAbs > 5.9375E-1f16) {
     xAbs = xAbs - 1.0f16;
-    ans = xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
+    ans = xAbs * abacus::internal::horner_polynomial(
                      xAbs, __codeplay_acospi_coeff_halfH1);
 
-    ans = abacus::internal::sqrt_unsafe(ans);
+    ans = abacus::internal::sqrt(ans);
   } else {
     const abacus_half x2 = x * x;
-    ans = xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
+    ans = xAbs * abacus::internal::horner_polynomial(
                      x2, __codeplay_acospi_coeff_halfH2);
 
     ans = ans + 0.5f16;

@@ -16,9 +16,9 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                                   \
-  TYPE __abacus_mad24(TYPE x, TYPE y, TYPE z) {     \
-    return abacus::detail::integer::mad24(x, y, z); \
+#define DEF(TYPE)                                          \
+  TYPE ABACUS_API __abacus_mad24(TYPE x, TYPE y, TYPE z) { \
+    return abacus::detail::integer::mad24(x, y, z);        \
   }
 
 DEF(abacus_int);

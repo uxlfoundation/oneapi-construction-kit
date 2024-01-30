@@ -33,12 +33,16 @@ add_subdirectory(abacus_memory)
 add_subdirectory(abacus_misc)
 add_subdirectory(abacus_relational)
 
-set(abacus_sources
+set(abacus_sources_host
   ${abacus_cast_sources} ${abacus_common_sources} ${abacus_extra_sources}
-  ${abacus_geometric_sources} ${abacus_integer_sources} ${abacus_math_sources}
+  ${abacus_geometric_sources} ${abacus_integer_sources} ${abacus_math_sources_host}
+  ${abacus_memory_sources} ${abacus_misc_sources} ${abacus_relational_sources})
+set(abacus_sources_device
+  ${abacus_cast_sources} ${abacus_common_sources} ${abacus_extra_sources}
+  ${abacus_geometric_sources} ${abacus_integer_sources} ${abacus_math_sources_device}
   ${abacus_memory_sources} ${abacus_misc_sources} ${abacus_relational_sources})
 
-add_library(abacus_static STATIC ${abacus_sources})
+add_library(abacus_static STATIC ${abacus_sources_host})
 add_dependencies(abacus_static abacus_generate)
 target_compile_definitions(abacus_static PRIVATE
   "ABACUS_ENABLE_OPENCL_1_2_BUILTINS"
@@ -46,13 +50,11 @@ target_compile_definitions(abacus_static PRIVATE
 
 # If extra ComputeAorta commands exist, use them.
 if(COMMAND add_ca_tidy)
-  add_ca_tidy(abacus_static ${abacus_sources})
+  add_ca_tidy(abacus_static ${abacus_sources_host})
   if(TARGET tidy-abacus_static)
     add_dependencies(tidy-abacus_static abacus_generate)
   endif()
 endif()
-
-set_property(TARGET abacus_static PROPERTY CXX_STANDARD 11)
 
 target_include_directories(abacus_static PUBLIC
   ${CMAKE_BINARY_DIR}/include
@@ -157,15 +159,32 @@ if(${ABACUS_BUILD_WITH_RUNTIME_TOOLS})
       set(cap_suf "${cap_suf}_fp16")
     endif()
 
-    foreach(SOURCE IN LISTS abacus_sources)
-      string(LENGTH "${CMAKE_CURRENT_SOURCE_DIR}/" LENGTH)
-      string(SUBSTRING "${SOURCE}" ${LENGTH} -1 SUB_SOURCE)
-      string(REGEX REPLACE "^.*\\.\(c[lp]*\)$" "\\1" SOURCE_TYPE "${SOURCE}")
+    foreach(SOURCE IN LISTS abacus_sources_device)
+      file(RELATIVE_PATH RELSOURCE "${CMAKE_CURRENT_SOURCE_DIR}" "${SOURCE}")
+      get_filename_component(SOURCE_DIR "${RELSOURCE}" DIRECTORY)
+      get_filename_component(SOURCE_NAME "${SOURCE}" NAME)
+      get_filename_component(SOURCE_TYPE "${SOURCE}" LAST_EXT)
+      if(SOURCE_TYPE STREQUAL ".in")
+        if("${triple}" STREQUAL spir64-unknown-unknown)
+          set(target "\
+target triple = \"spir64-unknown-unknown\"\n\
+target datalayout = \"e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024\"")
+        elseif("${triple}" STREQUAL spir-unknown-unknown)
+          set(target "\
+target triple = \"spir-unknown-unknown\"\n\
+target datalayout = \"e-p:32:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024\"")
+        else()
+          message(FATAL_ERROR "Missing target definition for target '${triple}'")
+        endif()
+        get_filename_component(SOURCE_NAME "${SOURCE}" NAME_WLE)
+        configure_file(${SOURCE} "${CMAKE_CURRENT_BINARY_DIR}/bc/${triple}${cap_suf}/${SOURCE_DIR}/${SOURCE_NAME}" @ONLY)
+        set(SOURCE "${CMAKE_CURRENT_BINARY_DIR}/bc/${triple}${cap_suf}/${SOURCE_DIR}/${SOURCE_NAME}")
+        get_filename_component(SOURCE_TYPE "${SOURCE}" LAST_EXT)
+      endif()
 
-      set(XTYPE "${SOURCE_TYPE}") # Language for -x option.
+      set(XTYPE "") # Language for -x option.
       set(XOPTS "") # Extra language specific options.
-      set(OUTPUT
-        "${CMAKE_CURRENT_BINARY_DIR}/bc/${triple}${cap_suf}/${SUB_SOURCE}.bc")
+      set(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/bc/${triple}${cap_suf}/${SOURCE_DIR}/${SOURCE_NAME}.bc")
 
       # The 'Unix Makefiles' and 'MinGW Makefiles' generators do not
       # automatically create the output directories the bc files are output to,
@@ -176,28 +195,46 @@ if(${ABACUS_BUILD_WITH_RUNTIME_TOOLS})
         file(MAKE_DIRECTORY ${OUTPUT_DIR})
       endif()
 
-      if("${SOURCE_TYPE}" STREQUAL "cpp")
+      set(DEPFILE_ARGS -dependency-file "${OUTPUT}.d" -MT "${OUTPUT}" -sys-header-deps)
+      if(SOURCE_TYPE STREQUAL ".cpp")
         set(XTYPE "c++")
-        set(XOPTS "-std=c++11")
-      elseif("${SOURCE_TYPE}" STREQUAL "cl")
+        set(XOPTS "-std=c++17")
+      elseif(SOURCE_TYPE STREQUAL ".cl")
+        set(XTYPE "cl")
         set(XOPTS "-cl-std=CL1.2")
+      elseif(SOURCE_TYPE STREQUAL ".ll")
+        set(XTYPE "ir")
+	set(DEPFILE_ARGS)
+      else()
+        message(FATAL_ERROR "Missing handling for source type '${SOURCE_TYPE}'")
       endif()
 
       # This is required to correctly expose all the builtins since some of their
       # defintions come from this file.
       set(ENABLE_OPENCL_BUILTINS
         "-DABACUS_ENABLE_OPENCL_1_2_BUILTINS -DABACUS_ENABLE_OPENCL_3_0_BUILTINS")
-      add_custom_command(
-        OUTPUT "${OUTPUT}"
-        COMMAND ${RUNTIME_COMPILER} -cc1 -x ${XTYPE} ${XOPTS} -triple ${triple}
-          ${ABACUS_RUNTIME_OPTIONS} ${BUILTINS_EXTRA_OPTIONS} ${ENABLE_OPENCL_BUILTINS}
-          -include "${RUNTIME_CLHEADER}"
-          -emit-llvm-bc -o "${OUTPUT}"
-          -dependency-file "${OUTPUT}.d" -MT "${OUTPUT}" -sys-header-deps
-          "${SOURCE}"
-        DEPENDS "${SOURCE}" "${RUNTIME_COMPILER}" "${RUNTIME_CLHEADER}"
-          abacus_generate ${ABACUS_GENERATED_FILES}
-	DEPFILE "${OUTPUT}.d")
+      if(DEFINED DEPFILE_ARGS)
+        add_custom_command(
+          OUTPUT "${OUTPUT}"
+          COMMAND ${RUNTIME_COMPILER} -cc1 -x ${XTYPE} ${XOPTS} -triple ${triple}
+            ${ABACUS_RUNTIME_OPTIONS} ${BUILTINS_EXTRA_OPTIONS} ${ENABLE_OPENCL_BUILTINS}
+            -include "${RUNTIME_CLHEADER}"
+            -emit-llvm-bc -o "${OUTPUT}" ${DEPFILE_ARGS}
+            "${SOURCE}"
+          DEPENDS "${SOURCE}" "${RUNTIME_COMPILER}" "${RUNTIME_CLHEADER}"
+            abacus_generate ${ABACUS_GENERATED_FILES}
+          DEPFILE "${OUTPUT}.d")
+      else()
+        add_custom_command(
+          OUTPUT "${OUTPUT}"
+          COMMAND ${RUNTIME_COMPILER} -cc1 -x ${XTYPE} ${XOPTS} -triple ${triple}
+            ${ABACUS_RUNTIME_OPTIONS} ${BUILTINS_EXTRA_OPTIONS} ${ENABLE_OPENCL_BUILTINS}
+            -include "${RUNTIME_CLHEADER}"
+            -emit-llvm-bc -o "${OUTPUT}"
+            "${SOURCE}"
+          DEPENDS "${SOURCE}" "${RUNTIME_COMPILER}" "${RUNTIME_CLHEADER}"
+            abacus_generate ${ABACUS_GENERATED_FILES})
+      endif()
 
       set(ALL_BCS "${ALL_BCS};${OUTPUT}")
     endforeach()

@@ -117,11 +117,11 @@ static constexpr nullopt_t nullopt{nullopt_t::do_not_use{},
 template <class T>
 class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
                  private detail::delete_ctor_base<
-                     std::is_copy_constructible<wrap_reference_t<T>>::value,
-                     std::is_move_constructible<wrap_reference_t<T>>::value>,
+                     std::is_copy_constructible_v<wrap_reference_t<T>>,
+                     std::is_move_constructible_v<wrap_reference_t<T>>>,
                  private detail::delete_assign_base<
-                     std::is_copy_assignable<wrap_reference_t<T>>::value,
-                     std::is_move_assignable<wrap_reference_t<T>>::value> {
+                     std::is_copy_assignable_v<wrap_reference_t<T>>,
+                     std::is_move_assignable_v<wrap_reference_t<T>>> {
   using base = detail::optional_move_assign_base<wrap_reference_t<T>>;
   using storage_type = wrap_reference_t<T>;
 
@@ -143,20 +143,20 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// If `rhs` contains a value, the stored value is direct-initialized with
   /// it. Otherwise, the constructed optional is empty.
-  CARGO_CXX14_CONSTEXPR optional(const optional &rhs) = default;
+  constexpr optional(const optional &rhs) = default;
 
   /// @brief Move constructor.
   ///
   /// If `rhs` contains a value, the stored value is direct-initialized with
   /// it. Otherwise, the constructed optional is empty.
-  CARGO_CXX14_CONSTEXPR optional(optional &&rhs) = default;
+  constexpr optional(optional &&rhs) = default;
 
   /// @brief In-place construction.
   ///
   /// Constructs the stored value in-place using the given arguments.
   template <class... Args>
   constexpr explicit optional(
-      enable_if_t<std::is_constructible<T, Args...>::value, in_place_t>,
+      std::enable_if_t<std::is_constructible_v<T, Args...>, in_place_t>,
       Args &&...args)
       : base(in_place, std::forward<Args>(args)...) {}
 
@@ -164,10 +164,10 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// Constructs the stored value in-place using the given arguments.
   template <class U, class... Args>
-  CARGO_CXX14_CONSTEXPR explicit optional(
-      enable_if_t<std::is_constructible<T, std::initializer_list<U> &,
-                                        Args &&...>::value,
-                  in_place_t>,
+  constexpr explicit optional(
+      std::enable_if_t<
+          std::is_constructible_v<T, std::initializer_list<U> &, Args &&...>,
+          in_place_t>,
       std::initializer_list<U> il, Args &&...args) {
     this->construct(il, std::forward<Args>(args)...);
   }
@@ -176,43 +176,42 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// Constructs the stored value with `u`.
   template <class U = T,
-            enable_if_t<std::is_convertible<U &&, T>::value> * = nullptr,
+            std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr,
             detail::enable_forward_value<T, U> * = nullptr>
-  CARGO_CXX14_CONSTEXPR optional(U &&u) : base(in_place, std::forward<U>(u)) {}
+  constexpr optional(U &&u) : base(in_place, std::forward<U>(u)) {}
 
   /// @brief Construction from a value.
   ///
   /// Constructs the stored value with `u`.
   template <class U = T,
-            enable_if_t<!std::is_convertible<U &&, T>::value> * = nullptr,
+            std::enable_if_t<!std::is_convertible_v<U &&, T>> * = nullptr,
             detail::enable_forward_value<T, U> * = nullptr>
-  CARGO_CXX14_CONSTEXPR explicit optional(U &&u)
-      : base(in_place, std::forward<U>(u)) {}
+  constexpr explicit optional(U &&u) : base(in_place, std::forward<U>(u)) {}
 
   /// @brief Converting copy constructor.
   template <class U, detail::enable_from_other<T, U, const U &> * = nullptr,
-            enable_if_t<std::is_convertible<const U &, T>::value> * = nullptr>
+            std::enable_if_t<std::is_convertible_v<const U &, T>> * = nullptr>
   optional(const optional<U> &rhs) {
     this->construct(*rhs);
   }
 
   /// @brief Converting copy constructor.
   template <class U, detail::enable_from_other<T, U, const U &> * = nullptr,
-            enable_if_t<!std::is_convertible<const U &, T>::value> * = nullptr>
+            std::enable_if_t<!std::is_convertible_v<const U &, T>> * = nullptr>
   explicit optional(const optional<U> &rhs) {
     this->construct(*rhs);
   }
 
   /// @brief Converting move constructor.
   template <class U, detail::enable_from_other<T, U, U &&> * = nullptr,
-            enable_if_t<std::is_convertible<U &&, T>::value> * = nullptr>
+            std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr>
   optional(optional<U> &&rhs) {
     this->construct(std::move(*rhs));
   }
 
   /// @brief Converting move constructor.
   template <class U, detail::enable_from_other<T, U, U &&> * = nullptr,
-            enable_if_t<!std::is_convertible<U &&, T>::value> * = nullptr>
+            std::enable_if_t<!std::is_convertible_v<U &&, T>> * = nullptr>
   explicit optional(optional<U> &&rhs) {
     this->construct(std::move(*rhs));
   }
@@ -298,11 +297,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     return *this;
   }
 
-// The different versions for C++14 and 11 are needed because deduced return
-// types are not SFINAE-safe. This provides better support for things like
-// generic lambdas. C.f.
-// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0826r0.html
-#if defined(CARGO_CXX14) && !defined(CARGO_GCC49) && !defined(CARGO_GCC54)
   /// @brief Carries out some operation which returns an optional on the stored
   /// object if there is one.
   ///
@@ -316,7 +310,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) & {
+  constexpr auto and_then(F &&f) & {
     using result = invoke_result_t<F, T &>;
     static_assert(detail::is_optional<result>::value,
                   "F must return an optional");
@@ -337,7 +331,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto and_then(F &&f) && {
+  constexpr auto and_then(F &&f) && {
     using result = invoke_result_t<F, T &&>;
     static_assert(detail::is_optional<result>::value,
                   "F must return an optional");
@@ -365,7 +359,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     return has_value() ? invoke(std::forward<F>(f), **this) : result(nullopt);
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Carries out some operation which returns an optional on the stored
   /// object if there is one.
   ///
@@ -387,96 +380,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     return has_value() ? invoke(std::forward<F>(f), std::move(**this))
                        : result(nullopt);
   }
-#endif
-#else
-  /// @brief Carries out some operation which returns an optional on the stored
-  /// object if there is one.
-  ///
-  /// @note `std::invoke(std::forward<F>(f), value())`
-  /// must return a `std::optional<U>` for some `U`.
-  ///
-  /// @retval empty An empty optional is returned if `*this` is empty.
-  /// @retval value `std::invoke(std::forward<F>(f), value())` is returned if
-  /// `*this` has a value.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// value())`. Returns a `std::optional<U>`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR invoke_result_t<F, T &> and_then(F &&f) & {
-    using result = invoke_result_t<F, T &>;
-    static_assert(detail::is_optional<result>::value,
-                  "F must return an optional");
-    return has_value() ? invoke(std::forward<F>(f), **this) : result(nullopt);
-  }
-
-  /// @brief Carries out some operation which returns an optional on the stored
-  /// object if there is one.
-  ///
-  /// @note `std::invoke(std::forward<F>(f), std::move(value()))`
-  /// must return a `std::optional<U>` for some `U`.
-  ///
-  /// @retval empty An empty optional is returned if `*this` is empty.
-  /// @retval value `std::invoke(std::forward<F>(f), std::move(value()))` is
-  /// returned if
-  /// `*this` has a value.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR invoke_result_t<F, T &&> and_then(F &&f) && {
-    using result = invoke_result_t<F, T &&>;
-    static_assert(detail::is_optional<result>::value,
-                  "F must return an optional");
-    return has_value() ? invoke(std::forward<F>(f), std::move(**this))
-                       : result(nullopt);
-  }
-
-  /// @brief Carries out some operation which returns an optional on the stored
-  /// object if there is one.
-  ///
-  /// @note `std::invoke(std::forward<F>(f), value())`
-  /// must return a `std::optional<U>` for some `U`.
-  ///
-  /// @retval empty An empty optional is returned if `*this` is empty.
-  /// @retval value `std::invoke(std::forward<F>(f), value())` is returned if
-  /// `*this` has a value.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// value())`. Returns a `std::optional<U>`.
-  template <class F>
-  constexpr invoke_result_t<F, const T &> and_then(F &&f) const & {
-    using result = invoke_result_t<F, const T &>;
-    static_assert(detail::is_optional<result>::value,
-                  "F must return an optional");
-    return has_value() ? invoke(std::forward<F>(f), **this) : result(nullopt);
-  }
-
-#ifndef CARGO_NO_CONSTRR
-  /// @brief Carries out some operation which returns an optional on the stored
-  /// object if there is one.
-  ///
-  /// @note `std::invoke(std::forward<F>(f), std::move(value()))`
-  /// must return a `std::optional<U>` for some `U`.
-  ///
-  /// @retval empty An empty optional is returned if `*this` is empty.
-  /// @retval value `std::invoke(std::forward<F>(f), std::move(value()))` is
-  /// returned if
-  /// `*this` has a value.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F>
-  constexpr invoke_result_t<F, const T &&> and_then(F &&f) const && {
-    using result = invoke_result_t<F, const T &&>;
-    static_assert(detail::is_optional<result>::value,
-                  "F must return an optional");
-    return has_value() ? invoke(std::forward<F>(f), std::move(**this))
-                       : result(nullopt);
-  }
-#endif
-#endif
-
-#if defined(CARGO_CXX14) && !defined(CARGO_GCC49) && !defined(CARGO_GCC54)
 
   /// @brief Carries out some operation on the stored object if there is one.
   ///
@@ -488,7 +391,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) & {
+  constexpr auto map(F &&f) & {
     return optional_map_impl(*this, std::forward<F>(f));
   }
 
@@ -502,7 +405,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
   template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) && {
+  constexpr auto map(F &&f) && {
     return optional_map_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -533,69 +436,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   constexpr auto map(F &&f) const && {
     return optional_map_impl(std::move(*this), std::forward<F>(f));
   }
-#else
-  /// @brief Carries out some operation on the stored object if there is one.
-  ///
-  /// @retval empty The return value is empty if `*this` is empty.
-  /// @retval value If `*this` has a value, an `optional<U>` is constructed from
-  /// the return value of `std::invoke(std::forward<F>(f), value())` and is
-  /// returned.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// value())`. Returns a `std::optional<U>`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) & -> decltype(optional_map_impl(
-      std::declval<optional &>(), std::declval<F &&>())) {
-    return optional_map_impl(*this, std::forward<F>(f));
-  }
-
-  /// @brief Carries out some operation on the stored object if there is one.
-  ///
-  /// @retval empty The return value is empty if `*this` is empty.
-  /// @retval value If `*this` has a value, an `optional<U>` is constructed from
-  /// the return value of `std::invoke(std::forward<F>(f), std::move(value()))`
-  /// and is returned.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F>
-  CARGO_CXX14_CONSTEXPR auto map(F &&f) && -> decltype(optional_map_impl(
-      std::declval<optional &&>(), std::declval<F &&>())) {
-    return optional_map_impl(std::move(*this), std::forward<F>(f));
-  }
-
-  /// @brief Carries out some operation on the stored object if there is one.
-  ///
-  /// @retval empty The return value is empty if `*this` is empty.
-  /// @retval value If `*this` has a value, an `optional<U>` is constructed from
-  /// the return value of `std::invoke(std::forward<F>(f), value())` and is
-  /// returned.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// value())`. Returns a `std::optional<U>`.
-  template <class F>
-  constexpr auto map(F &&f) const & -> decltype(optional_map_impl(
-      std::declval<const optional &>(), std::declval<F &&>())) {
-    return optional_map_impl(*this, std::forward<F>(f));
-  }
-
-#ifndef CARGO_NO_CONSTRR
-  /// @brief Carries out some operation on the stored object if there is one.
-  ///
-  /// @retval empty The return value is empty if `*this` is empty.
-  /// @retval value If `*this` has a value, an `optional<U>` is constructed from
-  /// the return value of `std::invoke(std::forward<F>(f), std::move(value()))`
-  /// and is returned.
-  ///
-  /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
-  /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F>
-  constexpr auto map(F &&f) const && -> decltype(optional_map_impl(
-      std::declval<const optional &&>(), std::declval<F &&>())) {
-    return optional_map_impl(std::move(*this), std::forward<F>(f));
-  }
-#endif
-#endif
 
   /// @brief Calls `f` if the optional is empty
   ///
@@ -606,7 +446,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// calls `std::forward<F>(f)` and returns `std::nullopt`. Otherwise, returns
   /// `std::forward<F>(f)()`.
   template <class F, detail::enable_if_ret_void<F> * = nullptr>
-  optional<T> CARGO_CXX14_CONSTEXPR or_else(F &&f) & {
+  optional<T> constexpr or_else(F &&f) & {
     if (has_value()) {
       return *this;
     }
@@ -623,7 +463,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// calls `std::forward<F>(f)` and returns `std::nullopt`. Otherwise, returns
   /// `std::forward<F>(f)()`.
   template <class F, detail::disable_if_ret_void<F> * = nullptr>
-  optional<T> CARGO_CXX14_CONSTEXPR or_else(F &&f) & {
+  optional<T> constexpr or_else(F &&f) & {
     return has_value() ? *this : std::forward<F>(f)();
   }
 
@@ -653,7 +493,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// returns `void`, calls `std::forward<F>(f)` and returns `std::nullopt`.
   /// Otherwise, returns `std::forward<F>(f)()`.
   template <class F, detail::disable_if_ret_void<F> * = nullptr>
-  optional<T> CARGO_CXX14_CONSTEXPR or_else(F &&f) && {
+  optional<T> constexpr or_else(F &&f) && {
     return has_value() ? std::move(*this) : std::forward<F>(f)();
   }
 
@@ -683,11 +523,10 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// calls `std::forward<F>(f)` and returns `std::nullopt`. Otherwise, returns
   /// `std::forward<F>(f)()`.
   template <class F, detail::disable_if_ret_void<F> * = nullptr>
-  optional<T> CARGO_CXX14_CONSTEXPR or_else(F &&f) const & {
+  optional<T> constexpr or_else(F &&f) const & {
     return has_value() ? *this : std::forward<F>(f)();
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Calls `f` if the optional is empty
   ///
   /// @note `std::invoke_result_t<F>` must be void or convertible to
@@ -717,7 +556,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   optional<T> or_else(F &&f) const && {
     return has_value() ? std::move(*this) : std::forward<F>(f)();
   }
-#endif
 
   /// @brief Maps the stored value with `f` if there is one, otherwise returns
   /// `u`.
@@ -752,7 +590,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
                        : std::forward<U>(u);
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Maps the stored value with `f` if there is one, otherwise returns
   /// `u`.
   ///
@@ -763,7 +600,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     return has_value() ? invoke(std::forward<F>(f), std::move(**this))
                        : std::forward<U>(u);
   }
-#endif
 
   /// @brief Maps the stored value with `f` if there is one, otherwise calls
   /// `u` and returns the result.
@@ -801,7 +637,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
                        : std::forward<U>(u)();
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Maps the stored value with `f` if there is one, otherwise calls
   /// `u` and returns the result.
   ///
@@ -813,21 +648,20 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     return has_value() ? invoke(std::forward<F>(f), std::move(**this))
                        : std::forward<U>(u)();
   }
-#endif
 
   /// @brief An AND operation on the stored value.
   ///
   /// @return `u` if `*this` has a value, otherwise an empty optional.
   template <class U>
-  constexpr optional<typename std::decay<U>::type> conjunction(U &&u) const {
-    using result = optional<decay_t<U>>;
+  constexpr optional<std::decay_t<U>> conjunction(U &&u) const {
+    using result = optional<std::decay_t<U>>;
     return has_value() ? result{u} : result{nullopt};
   }
 
   /// @brief An OR operation on the stored value.
   ///
   /// @return `rhs` if `*this` is empty, otherwise the current value.
-  CARGO_CXX14_CONSTEXPR optional disjunction(const optional &rhs) & {
+  constexpr optional disjunction(const optional &rhs) & {
     return has_value() ? *this : rhs;
   }
 
@@ -841,23 +675,21 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @brief An OR operation on the stored value.
   ///
   /// @return `rhs` if `*this` is empty, otherwise the current value.
-  CARGO_CXX14_CONSTEXPR optional disjunction(const optional &rhs) && {
+  constexpr optional disjunction(const optional &rhs) && {
     return has_value() ? std::move(*this) : rhs;
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief An OR operation on the stored value.
   ///
   /// @return `rhs` if `*this` is empty, otherwise the current value.
   constexpr optional disjunction(const optional &rhs) const && {
     return has_value() ? std::move(*this) : rhs;
   }
-#endif
 
   /// @brief An OR operation on the stored value.
   ///
   /// @return `rhs` if `*this` is empty, otherwise the current value.
-  CARGO_CXX14_CONSTEXPR optional disjunction(optional &&rhs) & {
+  constexpr optional disjunction(optional &&rhs) & {
     return has_value() ? *this : std::move(rhs);
   }
 
@@ -871,18 +703,16 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @brief An OR operation on the stored value.
   ///
   /// @return `rhs` if `*this` is empty, otherwise the current value.
-  CARGO_CXX14_CONSTEXPR optional disjunction(optional &&rhs) && {
+  constexpr optional disjunction(optional &&rhs) && {
     return has_value() ? std::move(*this) : std::move(rhs);
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief An OR operation on the stored value.
   ///
   /// @return `rhs` if `*this` is empty, otherwise the current value.
   constexpr optional disjunction(optional &&rhs) const && {
     return has_value() ? std::move(*this) : std::move(rhs);
   }
-#endif
 
   /// @brief Takes the value out of the optional, leaving it empty.
   ///
@@ -911,7 +741,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     return ret;
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Takes the value out of the optional, leaving it empty.
   ///
   /// @return An optional equal to `*this`.
@@ -920,7 +749,6 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     reset();
     return ret;
   }
-#endif
 
   /// @brief Constructs the value in-place, destroying the current one if there
   /// is one.
@@ -945,9 +773,8 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   ///
   /// @return The constructed value.
   template <class U, class... Args>
-  enable_if_t<
-      std::is_constructible<T, std::initializer_list<U> &, Args &&...>::value,
-      T &>
+  std::enable_if_t<
+      std::is_constructible_v<T, std::initializer_list<U> &, Args &&...>, T &>
   emplace(std::initializer_list<U> il, Args &&...args) {
     *this = nullopt;
     this->construct(il, std::forward<Args>(args)...);
@@ -980,7 +807,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return A pointer to the contained value  .
-  CARGO_CXX14_CONSTEXPR remove_reference_t<T> *operator->() {
+  constexpr std::remove_reference_t<T> *operator->() {
     value_type &ref = this->m_value;
     return std::addressof(ref);
   }
@@ -990,7 +817,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return A pointer to the contained value.
-  CARGO_CXX14_CONSTEXPR const remove_reference_t<T> *operator->() const {
+  constexpr const std::remove_reference_t<T> *operator->() const {
     const value_type &ref = this->m_value;
     return std::addressof(ref);
   }
@@ -1000,7 +827,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
-  CARGO_CXX14_CONSTEXPR T &operator*() & { return this->m_value; }
+  constexpr T &operator*() & { return this->m_value; }
 
   /// @brief Access the contained value.
   ///
@@ -1014,16 +841,14 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
-  CARGO_CXX14_CONSTEXPR T &&operator*() && { return std::move(this->m_value); }
+  constexpr T &&operator*() && { return std::move(this->m_value); }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Access the contained value.
   ///
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
   constexpr const T &&operator*() const && { return std::move(this->m_value); }
-#endif
 
   /// @brief Determine if the optional has a value.
   ///
@@ -1040,7 +865,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
-  CARGO_CXX14_CONSTEXPR T &value() & {
+  constexpr T &value() & {
     CARGO_ASSERT(has_value(), "optional does not have a value");
     return this->m_value;
   }
@@ -1049,7 +874,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
-  CARGO_CXX14_CONSTEXPR const T &value() const & {
+  constexpr const T &value() const & {
     CARGO_ASSERT(has_value(), "optional does not have a value");
     return this->m_value;
   }
@@ -1058,22 +883,20 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
-  CARGO_CXX14_CONSTEXPR T &&value() && {
+  constexpr T &&value() && {
     CARGO_ASSERT(has_value(), "optional does not have a value");
     return std::move(this->m_value);
   }
 
-#ifndef CARGO_NO_CONSTRR
   /// @brief Access the contained value.
   ///
   /// @note The optional must have a value.
   ///
   /// @return The contained value.
-  CARGO_CXX14_CONSTEXPR const T &&value() const && {
+  constexpr const T &&value() const && {
     CARGO_ASSERT(has_value(), "optional does not have a value");
     return std::move(this->m_value);
   }
-#endif
 
   /// @return The stored value if there is one, otherwise `u`.
   template <class U>
@@ -1086,7 +909,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
 
   /// @return The stored value if there is one, otherwise `u`.
   template <class U>
-  CARGO_CXX14_CONSTEXPR T value_or(U &&u) && {
+  constexpr T value_or(U &&u) && {
     static_assert(std::is_move_constructible<T>::value &&
                       std::is_convertible<U &&, T>::value,
                   "T must be move constructible and convertible from U");
@@ -1390,15 +1213,15 @@ inline constexpr bool operator>=(const U &lhs, const optional<T> &rhs) {
 ///
 /// Equivalent to `lhs.swap(rhs)`.
 template <class T,
-          enable_if_t<std::is_move_constructible<T>::value> * = nullptr>
+          std::enable_if_t<std::is_move_constructible_v<T>> * = nullptr>
 void swap(optional<T> &lhs, optional<T> &rhs) {
   return lhs.swap(rhs);
 }
 
 /// @brief Creates an optional from `v`.
 template <class T>
-inline constexpr optional<decay_t<T>> make_optional(T &&v) {
-  return optional<decay_t<T>>(std::forward<T>(v));
+inline constexpr optional<std::decay_t<T>> make_optional(T &&v) {
+  return optional<std::decay_t<T>>(std::forward<T>(v));
 }
 
 /// @brief Creates an optional from `args`.
@@ -1414,17 +1237,15 @@ inline constexpr optional<T> make_optional(std::initializer_list<U> il,
   return optional<T>(in_place, il, std::forward<Args>(args)...);
 }
 
-#ifdef CARGO_CXX17
 template <class T>
 optional(T) -> optional<T>;
-#endif
 
 /// @}
 
 namespace detail {
 template <class Opt, class F,
           class Ret = decltype(invoke(std::declval<F>(), *std::declval<Opt>())),
-          enable_if_t<!std::is_void<Ret>::value> * = nullptr>
+          std::enable_if_t<!std::is_void_v<Ret>> * = nullptr>
 constexpr auto optional_map_impl(Opt &&opt, F &&f) -> optional<Ret> {
   return opt.has_value() ? invoke(std::forward<F>(f), *std::forward<Opt>(opt))
                          : optional<Ret>(nullopt);
@@ -1432,7 +1253,7 @@ constexpr auto optional_map_impl(Opt &&opt, F &&f) -> optional<Ret> {
 
 template <class Opt, class F,
           class Ret = decltype(invoke(std::declval<F>(), *std::declval<Opt>())),
-          enable_if_t<std::is_void<Ret>::value> * = nullptr>
+          std::enable_if_t<std::is_void_v<Ret>> * = nullptr>
 auto optional_map_impl(Opt &&opt, F &&f) -> optional<monostate> {
   if (opt.has_value()) {
     invoke(std::forward<F>(f), *std::forward<Opt>(opt));
@@ -1449,7 +1270,7 @@ template <class T>
 struct hash<cargo::optional<T>> {
   ::std::size_t operator()(const cargo::optional<T> &o) const {
     if (!o.has_value()) return 0;
-    return std::hash<cargo::remove_const_t<T>>()(*o);
+    return std::hash<std::remove_const_t<T>>()(*o);
   }
 };
 }  // namespace std

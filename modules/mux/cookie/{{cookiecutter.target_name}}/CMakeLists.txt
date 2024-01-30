@@ -130,7 +130,8 @@ target_link_libraries({{cookiecutter.target_name}}
   PUBLIC
   cargo
   tracer
-  compiler-utils
+  compiler-pipeline
+  compiler-binary-metadata
   utils
 )
 target_link_libraries({{cookiecutter.target_name}} PUBLIC loader)

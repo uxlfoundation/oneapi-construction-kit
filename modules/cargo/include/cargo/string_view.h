@@ -85,10 +85,10 @@ class string_view {
   /// @param string Reference to the `std::string` like object.
   template <
       class String,
-      enable_if_t<is_detected<detail::data_member_fn, String>::value &&
-                  is_detected<detail::size_member_fn, String>::value &&
-                  has_value_type_convertible_to<value_type, String>::value> * =
-          nullptr>
+      std::enable_if_t<is_detected<detail::data_member_fn, String>::value &&
+                       is_detected<detail::size_member_fn, String>::value &&
+                       has_value_type_convertible_to<value_type, String>::value>
+          * = nullptr>
   string_view(const String &string)
       : Begin(string.data()), Size(string.size()) {
     while (Begin + Size - 1 >= Begin && Begin[Size - 1] == '\0') {
@@ -266,7 +266,7 @@ class string_view {
   ///
   /// @param other View to swap.
   void swap(string_view &other) {
-    string_view temp(other);
+    const string_view temp(other);
     other = *this;
     *this = temp;
   }
@@ -956,8 +956,8 @@ struct hash<cargo::string_view> {
   inline size_t operator()(const cargo::string_view &sv) const {
     // FNV-1a hash
     if (sizeof(size_t) == 8) {
-      uint64_t basis{14695981039346656037ULL};
-      uint64_t prime{1099511628211ULL};
+      const uint64_t basis{14695981039346656037ULL};
+      const uint64_t prime{1099511628211ULL};
       uint64_t hash{basis};
       for (const char &c : sv) {
         hash ^= c;
@@ -965,8 +965,8 @@ struct hash<cargo::string_view> {
       }
       return hash;
     } else {
-      uint32_t basis{2166136261U};
-      uint32_t prime{16777619U};
+      const uint32_t basis{2166136261U};
+      const uint32_t prime{16777619U};
       uint32_t hash{basis};
       for (const char &c : sv) {
         hash ^= c;

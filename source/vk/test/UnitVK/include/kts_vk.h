@@ -409,7 +409,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
           arg.first->GetKind() == eOutputBuffer ||
           arg.first->GetKind() == eInputImage ||
           arg.first->GetKind() == eSampledImage) {
-        BufferDesc desc = arg.first->GetBufferDesc();
+        const BufferDesc desc = arg.first->GetBufferDesc();
 
         if (!desc.size_) {
           Fail("Empty buffer arguments are not supported");
@@ -486,7 +486,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
         continue;
       }
       ImageInfo *imageInfo = (ImageInfo *)arg.second.get();
-      VkImageSubresourceRange subresourceRange =
+      const VkImageSubresourceRange subresourceRange =
           arg.first->GetImageDesc().imageViewInfo.subresourceRange;
 
       changeImageLayout(
@@ -579,7 +579,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
   void setUpShaderModule() {
     setUpPipelineLayout();
     if (!shaderModule.has_value()) {
-      ::uvk::ShaderCode shaderCode = getShaderCode();
+      const ::uvk::ShaderCode shaderCode = getShaderCode();
 
       VkShaderModuleCreateInfo shaderCreateInfo = {};
       shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -708,7 +708,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     writeDescriptorSet.descriptorCount = 1;
 
     for (uint32_t i = 0; i < bindingCount - !!primitiveBufferSize; i++) {
-      int index = resources[i].first->GetIndex();
+      const int index = resources[i].first->GetIndex();
       if (!lookup(descriptorSetUpdates, index).has_value()) {
         writeDescriptorSet.descriptorType = resources[i].second->descriptorType;
         if (resources[i].second->descriptorType ==
@@ -773,13 +773,13 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     bool found_error = false;
     for (auto &arg : resources) {
       if (arg.first->GetKind() == eOutputBuffer && !found_error) {
-        VkMappedMemoryRange range =
+        const VkMappedMemoryRange range =
             get(mappingRanges, (int)arg.first->GetIndex());
 
         ASSERT_EQ_RESULT(VK_SUCCESS,
                          vkInvalidateMappedMemoryRanges(device, 1, &range));
 
-        BufferDesc desc = arg.first->GetBufferDesc();
+        const BufferDesc desc = arg.first->GetBufferDesc();
         BufferStreamer *streamer = desc.streamer_.get();
         std::vector<std::string> errors;
         if (streamer && !streamer->ValidateBuffer(*arg.first, desc, &errors)) {
@@ -787,7 +787,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
             std::stringstream ss;
             ss << "Invalid data when validating buffer "
                << arg.first->GetIndex() << ":";
-            for (std::string &error : errors) {
+            for (const std::string &error : errors) {
               ss << "\n" << error;
             }
             Fail(ss.str());
@@ -1022,7 +1022,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
       VkMemoryRequirements bufferMemoryRequirements;
       vkGetBufferMemoryRequirements(device, buffer, &bufferMemoryRequirements);
 
-      VkDeviceSize memSize = alignedDeviceSize(bufferMemoryRequirements);
+      const VkDeviceSize memSize = alignedDeviceSize(bufferMemoryRequirements);
 
       bufferMemories.insert({index, createMemory(memSize)});
     }
@@ -1048,7 +1048,8 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
       vkGetBufferMemoryRequirements(device, stagingBuffer,
                                     &bufferMemoryRequirements);
 
-      VkDeviceSize memSizeBuffer = alignedDeviceSize(bufferMemoryRequirements);
+      const VkDeviceSize memSizeBuffer =
+          alignedDeviceSize(bufferMemoryRequirements);
 
       bufferMemories.insert({index, createMemory(memSizeBuffer)});
     }
@@ -1071,7 +1072,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     if (!lookup(imageMemories, index).has_value()) {
       VkMemoryRequirements memReqs;
       vkGetImageMemoryRequirements(device, image, &memReqs);
-      VkDeviceSize memSize = alignedDeviceSize(memReqs);
+      const VkDeviceSize memSize = alignedDeviceSize(memReqs);
 
       imageMemories.insert({index, createMemory(memSize)});
     }

@@ -58,7 +58,7 @@ PreservedAnalyses ComputeLocalMemoryUsagePass::run(Module &M,
     while (!Worklist.empty()) {
       LazyCallGraph::Node *N = Worklist.pop_back_val();
       VisitedFns.insert(&N->getFunction());
-      for (LazyCallGraph::Edge &E : N->populate()) {
+      for (const LazyCallGraph::Edge &E : N->populate()) {
         LLVM_DEBUG(dbgs() << "    " << (E.isCall() ? "call" : "ref ") << " -> "
                           << E.getFunction().getName() << "\n");
         if (Visited.insert(&E.getNode()).second) {

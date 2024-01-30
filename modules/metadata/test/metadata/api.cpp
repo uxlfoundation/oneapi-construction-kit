@@ -49,7 +49,7 @@ TEST_F(MDApiCtxTest, GetNonExistentBlock) {
 
 TEST_F(MDApiStackTest, PushValueTypes) {
   // UINT
-  int uint_idx = md_push_uint(stack, 3U);
+  const int uint_idx = md_push_uint(stack, 3U);
   EXPECT_FALSE(MD_CHECK_ERR(uint_idx));
   md_value val = md_get_value(stack, uint_idx);
   ASSERT_NE(val, nullptr);
@@ -59,7 +59,7 @@ TEST_F(MDApiStackTest, PushValueTypes) {
   EXPECT_EQ(uint_val, 3);
 
   // SINT
-  int sint_idx = md_push_sint(stack, -3);
+  const int sint_idx = md_push_sint(stack, -3);
   EXPECT_FALSE(MD_CHECK_ERR(sint_idx));
   val = md_get_value(stack, sint_idx);
   int64_t sint_val;
@@ -68,7 +68,7 @@ TEST_F(MDApiStackTest, PushValueTypes) {
   EXPECT_EQ(sint_val, -3);
 
   // REAL
-  int real_idx = md_push_real(stack, 2.718);
+  const int real_idx = md_push_real(stack, 2.718);
   EXPECT_FALSE(MD_CHECK_ERR(real_idx));
   val = md_get_value(stack, real_idx);
   double real_val;
@@ -78,12 +78,12 @@ TEST_F(MDApiStackTest, PushValueTypes) {
 }
 
 TEST_F(MDApiStackTest, PushZstr) {
-  int zstr_idx = md_push_zstr(stack, "Hello Metadata");
+  const int zstr_idx = md_push_zstr(stack, "Hello Metadata");
   EXPECT_FALSE(MD_CHECK_ERR(zstr_idx));
   md_value val = md_get_value(stack, zstr_idx);
   char *out_str;
   size_t str_len;
-  int err = md_get_zstr(val, &out_str, &str_len);
+  const int err = md_get_zstr(val, &out_str, &str_len);
   EXPECT_FALSE(MD_CHECK_ERR(err));
 
   EXPECT_STREQ(out_str, "Hello Metadata");
@@ -95,14 +95,14 @@ TEST_F(MDApiStackTest, PushZstr) {
 
 TEST_F(MDApiStackTest, PushByteArray) {
   std::vector<uint8_t> bytes = {0x00, 0x01, 0x02, 0x03};
-  int bytestr_idx = md_push_bytes(stack, bytes.data(), bytes.size());
+  const int bytestr_idx = md_push_bytes(stack, bytes.data(), bytes.size());
   EXPECT_FALSE(MD_CHECK_ERR(bytestr_idx));
   md_value val = md_get_value(stack, bytestr_idx);
   ASSERT_NE(val, nullptr);
 
   char *out_bytes;
   size_t out_len;
-  int err = md_get_bytes(val, &out_bytes, &out_len);
+  const int err = md_get_bytes(val, &out_bytes, &out_len);
   EXPECT_FALSE(MD_CHECK_ERR(err));
 
   EXPECT_EQ(out_len, 4);
@@ -116,7 +116,7 @@ TEST_F(MDApiStackTest, PushByteArray) {
 }
 
 TEST_F(MDApiStackTest, PushArray) {
-  int array_idx = md_push_array(stack, 3);
+  const int array_idx = md_push_array(stack, 3);
   EXPECT_FALSE(MD_CHECK_ERR(array_idx));
 
   int uint_idx = md_push_uint(stack, 3);
@@ -179,25 +179,25 @@ TEST_F(MDApiStackTest, PushArray) {
 
 TEST_F(MDApiStackTest, PushHashTable) {
   // Setup the stack
-  int hash_idx = md_push_hashtable(stack, 2);
+  const int hash_idx = md_push_hashtable(stack, 2);
   EXPECT_FALSE(MD_CHECK_ERR(hash_idx));
 
-  int age_key_idx = md_push_zstr(stack, "Age");
+  const int age_key_idx = md_push_zstr(stack, "Age");
   EXPECT_FALSE(MD_CHECK_ERR(age_key_idx));
-  int age_val_idx = md_push_uint(stack, 11);
+  const int age_val_idx = md_push_uint(stack, 11);
   EXPECT_FALSE(MD_CHECK_ERR(age_val_idx));
 
-  int name_key_idx = md_push_zstr(stack, "Name");
+  const int name_key_idx = md_push_zstr(stack, "Name");
   EXPECT_FALSE(MD_CHECK_ERR(name_key_idx));
-  int name_val_idx = md_push_zstr(stack, "Steven Gerrard");
+  const int name_val_idx = md_push_zstr(stack, "Steven Gerrard");
   EXPECT_FALSE(MD_CHECK_ERR(name_val_idx));
 
   // Set key/values in the hashtable
-  int age_kv_idx =
+  const int age_kv_idx =
       md_hashtable_setkv(stack, hash_idx, age_key_idx, age_val_idx);
   EXPECT_FALSE(MD_CHECK_ERR(age_kv_idx));
 
-  int name_kv_idx =
+  const int name_kv_idx =
       md_hashtable_setkv(stack, hash_idx, name_key_idx, name_val_idx);
   EXPECT_FALSE(MD_CHECK_ERR(name_kv_idx));
 
@@ -232,13 +232,13 @@ TEST_F(MDApiStackTest, PushHashTable) {
 }
 
 TEST_F(MDApiStackTest, HashTablePushInvalidKey) {
-  int hash_idx = md_push_hashtable(stack, 2);
+  const int hash_idx = md_push_hashtable(stack, 2);
   EXPECT_FALSE(MD_CHECK_ERR(hash_idx));
 
-  int byte_arr_idx = md_push_bytes(stack, nullptr, 0);
+  const int byte_arr_idx = md_push_bytes(stack, nullptr, 0);
   EXPECT_FALSE(MD_CHECK_ERR(byte_arr_idx));
 
-  int uint_idx = md_push_uint(stack, 0);
+  const int uint_idx = md_push_uint(stack, 0);
   EXPECT_FALSE(MD_CHECK_ERR(uint_idx));
 
   int err = md_hashtable_setkv(stack, hash_idx, byte_arr_idx, uint_idx);
@@ -271,8 +271,8 @@ TEST_F(MDApiStackTest, StackPop) {
 }
 
 TEST_F(MDApiStackTest, GetInvalidType) {
-  int uint_idx = md_push_uint(stack, 3);
-  int sint_idx = md_push_sint(stack, -3);
+  const int uint_idx = md_push_uint(stack, 3);
+  const int sint_idx = md_push_sint(stack, -3);
   EXPECT_FALSE(MD_CHECK_ERR(uint_idx));
   EXPECT_FALSE(MD_CHECK_ERR(sint_idx));
   md_value uint_val = md_get_value(stack, uint_idx);
@@ -315,9 +315,9 @@ TEST_F(MDApiStackTest, md_pushf_md_load_f_SimpleTypes) {
 
   const char *str_v = "Hello pushf";
   std::vector<uint8_t> bytes_v = {0x01, 0x02, 0x03, 0x04};
-  double real_v = 0.31;
-  uint64_t unsigned_v = 21;
-  int64_t signed_v = -31;
+  const double real_v = 0.31;
+  const uint64_t unsigned_v = 21;
+  const int64_t signed_v = -31;
   int err = md_pushf(stack, fmt_str, str_v, bytes_v.size(), bytes_v.data(),
                      real_v, unsigned_v, signed_v);
   ASSERT_FALSE(MD_CHECK_ERR(err));
@@ -400,7 +400,7 @@ TEST_F(MDApiStackTest, md_pushf_md_loadf_EmptyFmtString) {
 
 TEST_F(MDApiStackTest, md_pushf_InvalidFmtStrArray) {
   auto inv_fmt_str = "[u,u";
-  int err = md_pushf(stack, inv_fmt_str, 3UL, 3UL);
+  const int err = md_pushf(stack, inv_fmt_str, 3UL, 3UL);
   ASSERT_TRUE(MD_CHECK_ERR(err));
   EXPECT_EQ(err, md_err::MD_E_INVALID_FMT_STR);
   // stack should be empty
@@ -409,9 +409,9 @@ TEST_F(MDApiStackTest, md_pushf_InvalidFmtStrArray) {
 
 TEST_F(MDApiStackTest, md_pushf_InvalidFmtStrHash) {
   auto inv_fmt_str = "[u, u, {u:u]}";
-  int err = md_pushf(stack, inv_fmt_str, static_cast<uint64_t>(3),
-                     static_cast<uint64_t>(3), static_cast<uint64_t>(3),
-                     static_cast<uint64_t>(3));
+  const int err = md_pushf(stack, inv_fmt_str, static_cast<uint64_t>(3),
+                           static_cast<uint64_t>(3), static_cast<uint64_t>(3),
+                           static_cast<uint64_t>(3));
   ASSERT_TRUE(MD_CHECK_ERR(err));
   EXPECT_EQ(err, md_err::MD_E_INVALID_FMT_STR);
 }
@@ -433,8 +433,9 @@ TEST_F(MDApiStackTest, md_loadf_InvalidFmtStr) {
 }
 
 TEST_F(MDApiStackTest, md_pushf_UnsuportedCharacters) {
-  int err = md_pushf(stack, "[u, u]f*&^", static_cast<uint64_t>(3),
-                     static_cast<uint64_t>(5), static_cast<double>(3.141));
+  const int err =
+      md_pushf(stack, "[u, u]f*&^", static_cast<uint64_t>(3),
+               static_cast<uint64_t>(5), static_cast<double>(3.141));
   ASSERT_TRUE(MD_CHECK_ERR(err));
   EXPECT_EQ(err, md_err::MD_E_INVALID_FMT_STR);
 }
@@ -606,7 +607,7 @@ TEST_F(MDApiCtxTest, finalizeCtx) {
   constexpr auto zstr_len = 18;
   EXPECT_TRUE(std::strncmp(compiler_md_bytes, "Compiler Metadata", zstr_len) ==
               0);
-  MD_ENDIAN endianness = md_get_endianness(read_ctx);
+  const MD_ENDIAN endianness = md_get_endianness(read_ctx);
   const auto r_uint = md::utils::read_value<uint64_t>(
       (uint8_t *)compiler_md_bytes + zstr_len, endianness);
   EXPECT_EQ(r_uint, 3);

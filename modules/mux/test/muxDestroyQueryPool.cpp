@@ -41,7 +41,7 @@ TEST_P(muxDestroyQueryPoolTest, DefaultCounter) {
   mux_query_counter_t counter;
   ASSERT_SUCCESS(muxGetSupportedQueryCounters(device, mux_queue_type_compute, 1,
                                               &counter, nullptr, nullptr));
-  mux_query_counter_config_t enabled_counter = {counter.uuid, nullptr};
+  const mux_query_counter_config_t enabled_counter = {counter.uuid, nullptr};
   mux_query_pool_t query_pool;
   ASSERT_SUCCESS(muxCreateQueryPool(queue, mux_query_type_counter, 1,
                                     &enabled_counter, allocator, &query_pool));

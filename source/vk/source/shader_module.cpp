@@ -59,7 +59,7 @@ VkResult CreateShaderModule(vk::device device,
     return VK_ERROR_OUT_OF_HOST_MEMORY;
   }
 
-  uint32_t checksum =
+  const uint32_t checksum =
       getModuleChecksum(pCreateInfo->pCode, pCreateInfo->codeSize);
 
   vk::shader_module shader_module = allocator.create<vk::shader_module_t>(

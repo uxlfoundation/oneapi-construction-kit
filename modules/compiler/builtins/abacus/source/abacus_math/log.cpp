@@ -65,9 +65,8 @@ struct helper<abacus_half, abacus_half> {
     // input by one.
     significand = significand - 1.0f16;
 
-    const abacus_half poly_approx =
-        abacus::internal::horner_polynomial<abacus_half, 9>(
-            significand, __codeplay_log_coeff_half);
+    const abacus_half poly_approx = abacus::internal::horner_polynomial(
+        significand, __codeplay_log_coeff_half);
 
     const abacus_half result = significand * poly_approx;
     const abacus_half fexponent(exponent);
@@ -100,7 +99,7 @@ struct helper<T, abacus_half> {
     // input by one.
     significand = significand - 1.0f16;
 
-    T result = significand * abacus::internal::horner_polynomial<T, 9>(
+    T result = significand * abacus::internal::horner_polynomial(
                                  significand, __codeplay_log_coeff_half);
 
     result = result + (abacus::detail::cast::convert<T>(exponent_short) *

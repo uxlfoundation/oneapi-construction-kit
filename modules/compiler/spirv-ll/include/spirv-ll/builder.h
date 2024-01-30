@@ -21,7 +21,9 @@
 
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Metadata.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/context.h>
@@ -54,6 +56,17 @@ static inline llvm::Error makeStringError(const llvm::Twine &message) {
                                              llvm::inconvertibleErrorCode());
 }
 
+static inline std::string getIDAsStr(spv::Id id, Module *module = nullptr) {
+  std::string id_str = "%" + std::to_string(id);
+  if (module) {
+    const std::string name = module->getName(id);
+    if (!name.empty()) {
+      id_str += "[%" + name + "]";
+    }
+  }
+  return id_str;
+}
+
 /// @brief An interface for builders of extended instruction sets.
 class ExtInstSetHandler {
  public:
@@ -81,7 +94,7 @@ class ExtInstSetHandler {
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  virtual llvm::Error create(OpExtInst const &opc) = 0;
+  virtual llvm::Error create(const OpExtInst &opc) = 0;
 
  protected:
   /// @brief `spirv_ll::Builder` that owns this object.
@@ -222,16 +235,65 @@ class Builder {
 
   /// @brief Populate the incoming edges/values for the given Phi node
   /// @param op The SpirV Op for the Phi node
-  void populatePhi(OpPhi const &op);
+  void populatePhi(const OpPhi &op);
 
   /// @brief A unification of the four very similar access chain functions
   ///
   /// @param opc The OpCode representing the access chain instruction
   /// being translated
-  void accessChain(OpCode const &opc);
+  void accessChain(const OpCode &opc);
 
-  /// @brief Check if an OpLine range is in progress and end it if there is
-  void checkEndOpLineRange();
+  /// @brief Represents a lexical scope, used for debug information.
+  struct LexicalScopeTy {
+    /// @brief The scope, represented in LLVM metadata; could be a function or
+    /// block scope but is not specified here. Must not be nullptr in a valid
+    /// scope.
+    llvm::Metadata *scope = nullptr;
+    /// @brief An optional scope, representing where the scope was inlined. May
+    /// be nullptr.
+    llvm::Metadata *inlined_at = nullptr;
+  };
+
+  /// @brief Get the currently active debug scope in the current function the
+  /// builder is currently working on
+  ///
+  /// @return The function if one has been declared, otherwise std::nullopt
+  std::optional<LexicalScopeTy> getCurrentFunctionLexicalScope() const;
+
+  /// @brief Set the currently active lexical scope in the current function the
+  /// builder is currently working on; std::nullopt signals no active scope, or
+  /// the closing of an open one.
+  void setCurrentFunctionLexicalScope(std::optional<LexicalScopeTy>);
+
+  /// @brief Called at the end of a lexical scope for book-keeping.
+  /// @param closing_line_range True if any open line range should be closed at
+  /// the same time.
+  void closeCurrentLexicalScope(bool closing_line_range = true);
+
+  /// @brief A type containing an OpLine line range and the beginning of the
+  /// range it corresponds to.
+  struct LineRangeBeginTy {
+    /// @brief A pointer to the OpLine that this line range corresponds to.
+    const OpLine *op_line = nullptr;
+    /// @brief An optional iterator pointing to the first instruction the range
+    /// applies to. Ranges may be open before a block has begun, in which case
+    /// this will be std::nullopt.
+    std::optional<llvm::BasicBlock::iterator> range_begin = std::nullopt;
+  };
+
+  /// @brief Get the currently active debug scope in the current function the
+  /// builder is currently working on
+  ///
+  /// @return The function if one has been declared, otherwise std::nullopt
+  std::optional<LineRangeBeginTy> getCurrentOpLineRange() const;
+
+  /// @brief Set the currently active OpLine range; std::nullopt signals no
+  /// active OpLine range, or the closing of an open one.
+  void setCurrentOpLineRange(std::optional<LineRangeBeginTy>);
+
+  /// @brief At the closing of a scope, apply debug information to instructions
+  /// within the closed scope.
+  void applyDebugInfoAtClosedRangeOrScope();
 
   /// @brief Return a `DIType` object that represents the given type
   ///
@@ -248,13 +310,13 @@ class Builder {
 
   /// @brief Gets (or creates) a DISubprogram for the given function and
   /// OpLine.
-  llvm::DISubprogram *getOrCreateDebugFunctionScope(llvm::Function *function,
+  llvm::DISubprogram *getOrCreateDebugFunctionScope(llvm::Function &function,
                                                     const OpLine *op_line);
 
-  /// @brief Creates the beginning of a line range for the given OpLine,
-  /// contained within the basic block.
-  Module::LineRangeBeginTy createLineRangeBegin(const OpLine *op_line,
-                                                llvm::BasicBlock &bb);
+  /// @brief Gets (or creates) a DILexicalBlock for the given function and
+  /// OpLine.
+  llvm::DILexicalBlock *getOrCreateDebugBasicBlockScope(llvm::BasicBlock &bb,
+                                                        const OpLine *op_line);
 
   /// @brief Called once all instructions in the module have been visited in
   /// order during the first pass through the SPIR-V binary.
@@ -528,8 +590,8 @@ class Builder {
     std::string joined;
     llvm::SmallVector<llvm::StringRef, 16> subs;
     for (size_t nameIndex = 0; nameIndex < names.size(); nameIndex++) {
-      llvm::StringRef name(names[nameIndex]);
-      if (name.startswith("Dv")) {
+      const llvm::StringRef name(names[nameIndex]);
+      if (name.starts_with("Dv")) {
         auto found = std::find(subs.begin(), subs.end(), name);
         if (found == subs.end()) {
           subs.push_back(name);
@@ -709,11 +771,12 @@ class Builder {
   /// set ID.
   ///
   /// Each handler is created only once per set.
-  template <typename Handler>
-  void registerExtInstHandler(ExtendedInstrSet Set) {
+  template <typename Handler, typename... Args>
+  void registerExtInstHandler(ExtendedInstrSet Set, Args... args) {
     auto &builder = ext_inst_handlers[Set];
     if (!builder) {
-      builder = std::make_unique<Handler>(*this, module);
+      builder =
+          std::make_unique<Handler>(*this, module, std::forward<Args>(args)...);
     }
   }
   /// @brief Add debug metadata to the appropriate instructions
@@ -756,6 +819,12 @@ class Builder {
   llvm::Function *CurrentFunction;
   /// @brief A copy of the current function's argument list
   llvm::SmallVector<llvm::Value *, 8> CurrentFunctionArgs;
+  /// @brief Current debug scope of the function the builder is currently
+  /// working on (or std::nullopt if no debug scope is active)
+  std::optional<LexicalScopeTy> CurrentFunctionLexicalScope;
+  /// @brief Current line range - marked by the beginning of an OpLine
+  /// instruction - (or std::nullopt if no line range is active)
+  std::optional<LineRangeBeginTy> CurrentOpLineRange;
   /// @brief A list of the builtin IDs specified at `CurrentFunction`'s creation
   BuiltinIDList CurrentFunctionBuiltinIDs;
   /// @brief Registered extended instruction set handlers.

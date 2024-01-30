@@ -150,7 +150,7 @@ class Barrier {
   // TODO CA-1115 llvm.dbg.declare is being deprecated
   using debug_intrinsics_t =
       llvm::SmallVector<std::pair<llvm::DbgDeclareInst *, unsigned>, 4>;
-  debug_intrinsics_t const &getDebugIntrinsics() const {
+  const debug_intrinsics_t &getDebugIntrinsics() const {
     return debug_intrinsics_;
   }
 
@@ -160,22 +160,35 @@ class Barrier {
 
   /// @brief struct to help retrieval of values from the barrier struct
   struct LiveValuesHelper {
-    Barrier const &barrier;
-    llvm::DenseMap<const llvm::Value *, llvm::Value *> live_GEPs;
+    const Barrier &barrier;
+    /// @brief A cache of queried live-values addresses (inside the live
+    /// variables struct), stored by the pair (value, member_idx).
+    llvm::DenseMap<std::pair<const llvm::Value *, unsigned>, llvm::Value *>
+        live_GEPs;
     llvm::DenseMap<const llvm::Value *, llvm::Value *> reloads;
     llvm::IRBuilder<> gepBuilder;
     llvm::Value *barrier_struct = nullptr;
     llvm::Value *vscale = nullptr;
 
-    LiveValuesHelper(Barrier const &b, llvm::Instruction *i, llvm::Value *s)
+    LiveValuesHelper(const Barrier &b, llvm::Instruction *i, llvm::Value *s)
         : barrier(b), gepBuilder(i), barrier_struct(s) {}
 
-    LiveValuesHelper(Barrier const &b, llvm::BasicBlock *bb, llvm::Value *s)
+    LiveValuesHelper(const Barrier &b, llvm::BasicBlock *bb, llvm::Value *s)
         : barrier(b), gepBuilder(bb), barrier_struct(s) {}
 
-    /// @brief get a GEP instruction pointing to the given value in the barrier
-    /// struct.
-    llvm::Value *getGEP(const llvm::Value *live);
+    /// @brief Return a GEP instruction pointing to the given value/idx pair in
+    /// the barrier struct.
+    ///
+    /// @return The GEP corresponding to the address of the value in the
+    /// struct, or nullptr if the value could not be found in the struct.
+    llvm::Value *getGEP(const llvm::Value *live, unsigned member_idx = 0);
+
+    /// @brief Return a GEP instruction corresponding to the address of
+    /// the given ExtractValueInst in the barriers struct.
+    ///
+    /// @return The GEP corresponding to the address of the value in the
+    /// struct, or nullptr if the value is not an ExtractValueInst.
+    llvm::Value *getExtractValueGEP(const llvm::Value *live);
 
     /// @brief get a value reloaded from the barrier struct.
     ///
@@ -194,10 +207,13 @@ class Barrier {
       std::pair<llvm::DenseSet<llvm::Value *>, llvm::DenseSet<llvm::Value *>>;
   /// @brief Type for memory allocation of live variables at all of barriers
   using live_variable_mem_t = OrderedSet<llvm::Value *, 32>;
-  /// @brief Type for index of live variabless on live variable inforamtion
-  using live_variable_index_map_t = llvm::DenseMap<llvm::Value *, unsigned>;
-  /// @brief Type for index of live variabless on live variable inforamtion
-  using live_variable_scalables_map_t = llvm::DenseMap<llvm::Value *, unsigned>;
+  /// @brief Type for index of live variables on live variable information
+  /// Indexed by the pair (value, member_idx)
+  using live_variable_index_map_t =
+      llvm::DenseMap<std::pair<const llvm::Value *, unsigned>, unsigned>;
+  /// @brief Type for index of live variables on live variable information
+  /// Indexed by the pair (value, member_idx)
+  using live_variable_scalables_map_t = live_variable_index_map_t;
   /// @brief Type for ids of barriers
   using barrier_id_map_t = llvm::DenseMap<llvm::BasicBlock *, unsigned>;
   /// @brief Type for ids of new kernel functions

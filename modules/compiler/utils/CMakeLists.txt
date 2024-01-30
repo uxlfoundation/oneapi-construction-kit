@@ -14,10 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_ca_library(compiler-utils STATIC
+add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/StructTypeRemapper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_kernel_wrapper_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_scheduling_parameters_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/address_spaces.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/align_module_structs_pass.h
@@ -39,11 +38,10 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/llvm_global_mutex.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/lower_to_mux_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/make_function_name_unique_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/manual_type_legalization_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/mangling.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/memory_buffer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_analysis.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_hooks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/optimal_builtin_replacement_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/pass_functions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/pass_machinery.h
@@ -51,7 +49,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/prepare_barriers_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/reduce_to_function_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_exceptions_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_fences_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_lifetime_intrinsics_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/rename_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/replace_address_space_qualifier_functions_pass.h
@@ -92,9 +89,8 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lower_to_mux_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/make_function_name_unique_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mangling.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/manual_type_legalization_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mux_builtin_info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/optimal_builtin_replacement_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pass_functions.cpp
@@ -102,7 +98,6 @@ add_ca_library(compiler-utils STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/prepare_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/reduce_to_function_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_exceptions_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_fences_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_lifetime_intrinsics_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/rename_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_address_space_qualifier_functions_pass.cpp
@@ -124,14 +119,14 @@ if(CA_NATIVE_CPU)
 endif()
 
 if(CA_NATIVE_CPU)
-  target_include_directories(compiler-utils PUBLIC
+  target_include_directories(compiler-pipeline PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 else()
-  target_include_directories(compiler-utils PUBLIC
+  target_include_directories(compiler-pipeline PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 endif()
 
-target_compile_definitions(compiler-utils PRIVATE
+target_compile_definitions(compiler-pipeline PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
   $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
   $<$<BOOL:${CA_PLATFORM_MAC}>:CA_PLATFORM_MAC>
@@ -139,15 +134,40 @@ target_compile_definitions(compiler-utils PRIVATE
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
 if(CA_NATIVE_CPU)
-  target_link_libraries(compiler-utils PUBLIC
+  target_link_libraries(compiler-pipeline PUBLIC
     cargo md_handler LLVMPasses LLVMTransformUtils)
 else()
-  target_link_libraries(compiler-utils PUBLIC
+  target_link_libraries(compiler-pipeline PUBLIC
     cargo md_handler multi_llvm LLVMPasses LLVMTransformUtils)
 endif()
+
 if(TARGET LLVMCore)
-  target_link_libraries(compiler-utils PUBLIC LLVMCore)
+  target_link_libraries(compiler-pipeline PUBLIC LLVMCore)
 endif()
+
+add_ca_library(compiler-binary-metadata STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_metadata_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_analysis.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_hooks.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp)
+
+target_include_directories(compiler-binary-metadata PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_compile_definitions(compiler-binary-metadata PRIVATE
+  $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
+  $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
+  $<$<BOOL:${CA_PLATFORM_MAC}>:CA_PLATFORM_MAC>
+  $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
+  $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
+
+target_link_libraries(compiler-binary-metadata PUBLIC
+  md_handler multi_llvm LLVMPasses LLVMTransformUtils)
+if(TARGET LLVMCore)
+  target_link_libraries(compiler-binary-metadata PUBLIC LLVMCore)
+endif()
+
 
 # Determine whether LLVM was built with LLD, in which case add a support
 # library that exposes lld to ComputeMux compiler targets.

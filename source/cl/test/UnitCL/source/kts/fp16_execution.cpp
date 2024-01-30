@@ -79,14 +79,23 @@ bool HalfParamExecution::IsArgScalar(unsigned index) const {
          std::find(scalar_arg_indices.begin(), scalar_arg_indices.end(), index);
 }
 
+const std::vector<cl_ushort> &HalfParamExecution::GetEdgeCases() const {
+  static const std::vector<cl_ushort> EdgeCases =
+      std::vector<cl_ushort>(InputGenerator::half_edge_cases.begin(),
+                             InputGenerator::half_edge_cases.end());
+  return EdgeCases;
+}
+
 template <size_t N>
 unsigned HalfParamExecution::FillInputBuffers(
     std::array<input_details_t, N> &inputs) {
+  const auto &edge_cases = GetEdgeCases();
+
   // The more parameters a functions takes, the more data we need for verifying
   // it's behaviour across the increased range of input combinations. Even in
   // wimpy mode we want to test at least all the combinations of edge case
   // values which have been known to cause failures.
-  const unsigned edge_case_len = InputGenerator::half_edge_cases.size();
+  const unsigned edge_case_len = edge_cases.size();
   size_t cartesian_len = edge_case_len;
   for (size_t i = 1; i < N; i++) {
     cartesian_len *= edge_case_len;
@@ -136,8 +145,7 @@ unsigned HalfParamExecution::FillInputBuffers(
         edge_idx = i / div;
       }
 
-      input[i] =
-          cargo::bit_cast<cl_half>(InputGenerator::half_edge_cases[edge_idx]);
+      input[i] = cargo::bit_cast<cl_half>(edge_cases[edge_idx]);
     }
   }
 

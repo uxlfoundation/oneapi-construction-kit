@@ -104,7 +104,7 @@ void command_user_callback_s::operator()(
   user_function(queue, command_buffer, user_data);
 }
 
-CARGO_NODISCARD mux_query_duration_result_t command_begin_query_s::operator()(
+[[nodiscard]] mux_query_duration_result_t command_begin_query_s::operator()(
     riscv::device_s *device, mux_query_duration_result_t duration_query) {
   if (pool->type == mux_query_type_duration) {
     return static_cast<riscv::query_pool_s *>(pool)->getDurationQueryAt(index);
@@ -117,7 +117,7 @@ CARGO_NODISCARD mux_query_duration_result_t command_begin_query_s::operator()(
   return duration_query;
 }
 
-CARGO_NODISCARD mux_query_duration_result_t command_end_query_s::operator()(
+[[nodiscard]] mux_query_duration_result_t command_end_query_s::operator()(
     riscv::device_s *device, mux_query_duration_result_t duration_query) {
   if (pool->type == mux_query_type_duration) {
     auto end_duration_query =

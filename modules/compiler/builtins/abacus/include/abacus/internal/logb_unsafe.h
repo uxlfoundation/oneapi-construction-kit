@@ -37,7 +37,7 @@ typename TypeTraits<T>::SignedType get_unbiased_exponent(T x) {
   // bitcast to a vector of integer types (type depends on the floating point
   // type T). If x is a scalar then the bitcast and mask will apply directly to
   // that.
-  SignedType only_exponent =
+  const SignedType only_exponent =
       detail::cast::as<SignedType>(x) & Shape::ExponentMask();
 
   // Shift the exponent so we have an integer representing the biased exponent.

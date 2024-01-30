@@ -92,7 +92,7 @@ TEST_P(muxAllocateMemoryTest, AllocHostAlignment) {
 
   const std::array<uint32_t, 5> alignments = {16, 32, 64, 128, 256};
   const size_t size = 4;  // Smaller than desired alignment
-  for (uint32_t align : alignments) {
+  for (const uint32_t align : alignments) {
     ASSERT_SUCCESS(muxAllocateMemory(device, size, 1, property,
                                      mux_allocation_type_alloc_host, align,
                                      allocator, &memory));
@@ -116,7 +116,7 @@ TEST_P(muxAllocateMemoryTest, DeviceAlignment) {
 
   const std::array<uint32_t, 5> alignments = {16, 32, 64, 128, 256};
   const size_t size = 4;  // Smaller than desired alignment
-  for (uint32_t align : alignments) {
+  for (const uint32_t align : alignments) {
     ASSERT_SUCCESS(muxAllocateMemory(
         device, size, 1, mux_memory_property_host_visible,
         mux_allocation_type_alloc_device, align, allocator, &memory));

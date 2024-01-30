@@ -32,7 +32,7 @@ md_hooks getElfMetadataWriteHooks() {
   md_hooks.write = [](void *userdata, const void *src, size_t n) -> md_err {
     auto *M = static_cast<llvm::Module *>(userdata);
     auto &Ctx = M->getContext();
-    std::string globalName = std::string(MD_NOTES_SECTION) + "_global";
+    const std::string globalName = std::string(MD_NOTES_SECTION) + "_global";
 
     auto *GlobalMD = M->getGlobalVariable(globalName);
     if (GlobalMD) {

@@ -28,9 +28,9 @@
 // Default memory area for storing kernel ELF binaries. When the RefSi device
 // does not have dedicated (TCIM) memory for storing kernel exeutables, a memory
 // window is set up to map this memory area to a reserved area in DMA.
+// We have increased the memory size from 1 << 20 to handle kernels larger than
+// 1MiB
 constexpr const uint64_t REFSI_ELF_BASE = 0x10000ull;
-// The upper region can be up to the tdcm start point at 0x10000000
-// We will make it approx 128MB to give some latitude
 constexpr const uint64_t REFSI_ELF_SIZE = (1 << 27) - REFSI_ELF_BASE;
 
 refsi_m1_hal_device::refsi_m1_hal_device(refsi_device_t device,
@@ -299,8 +299,8 @@ bool refsi_m1_hal_device::kernel_exec(hal::hal_program_t program,
   exec.kernel_entry = kernel_wrapper->symbol;
 
   auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
-    uint64_t padding = align - (buffer.size() % align);
-    buffer.resize(buffer.size() + padding);
+    size_t aligned_size = (buffer.size() + align - 1) / align * align;
+    buffer.resize(aligned_size);
   };
 
   // Pack arguments.

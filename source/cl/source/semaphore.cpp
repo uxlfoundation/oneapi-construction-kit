@@ -35,7 +35,7 @@ _mux_shared_semaphore::~_mux_shared_semaphore() {
 }
 
 cl_int _mux_shared_semaphore::retain() {
-  cl_uint last_ref_count = ref_count;
+  const cl_uint last_ref_count = ref_count;
   cl_uint next_ref_count;
   OCL_ASSERT(0u != last_ref_count,
              "Cannot retain object with internal reference count of zero.");
@@ -49,7 +49,7 @@ cl_int _mux_shared_semaphore::retain() {
 }
 
 bool _mux_shared_semaphore::release() {
-  cl_uint last_ref_count = ref_count;
+  const cl_uint last_ref_count = ref_count;
 
   OCL_ASSERT(0u < last_ref_count,
              "Cannot release object with internal reference count of zero.");

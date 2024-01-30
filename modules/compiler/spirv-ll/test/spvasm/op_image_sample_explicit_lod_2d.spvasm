@@ -48,10 +48,10 @@
            %image2d = OpFunction %void_t None %sampler_fn_t
         %in_sampler = OpFunctionParameter %sampler_t
           %in_image = OpFunctionParameter %image2d_t
-; CHECK-GE17: define spir_kernel void @image2d([[SAMPLER_TY:target\("spirv.Sampler"\)]] %in_sampler,
-; CHECK-GE17-SAME: [[IMG_TY:target\("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0\)]] %in_image)
-; CHECK-LT17: define spir_kernel void @image2d([[SAMPLER_TY:ptr]] %in_sampler,
-; CHECK-LT17-SAME: [[IMG_TY:ptr addrspace\(1\)]] %in_image)
+; CHECK-GE17: define spir_kernel void @image2d([[SAMPLER_TY:target\("spirv.Sampler"\)]] noundef %in_sampler,
+; CHECK-GE17-SAME: [[IMG_TY:target\("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0\)]] noundef %in_image)
+; CHECK-LT17: define spir_kernel void @image2d([[SAMPLER_TY:ptr]] noundef %in_sampler,
+; CHECK-LT17-SAME: [[IMG_TY:ptr addrspace\(1\)]] noundef %in_image)
                  %1 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
                  %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2float_1 None

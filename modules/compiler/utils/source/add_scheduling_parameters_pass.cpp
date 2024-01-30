@@ -73,7 +73,7 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
     if (!F.isDeclaration() || F.isIntrinsic()) {
       continue;
     }
-    auto const B = BI.analyzeBuiltin(F);
+    const auto B = BI.analyzeBuiltin(F);
     if (B.isUnknown() || !B.isValid()) {
       continue;
     }
@@ -119,7 +119,7 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
   for (auto *OldF : FuncsToClone) {
     ValueToValueMapTy VMap;
     auto *OldFTy = OldF->getFunctionType();
-    unsigned NumParams = OldFTy->getNumParams();
+    const unsigned NumParams = OldFTy->getNumParams();
     SmallVector<Type *, 8> NewParamTypes(NumParams);
 
     for (unsigned i = 0; i < NumParams; i++) {
@@ -137,7 +137,7 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
     // CloneFunctionInto does that for us.
     auto *NewF = Function::Create(NewFTy, OldF->getLinkage(), "", &M);
 
-    StringRef BaseName = getBaseFnNameOrFnName(*OldF);
+    const StringRef BaseName = getBaseFnNameOrFnName(*OldF);
     if (LeafBuiltins.contains(OldF)) {
       // Leaf builtins need to retain their current names to keep builtin
       // recognition working. In this case, rename the old function instead.

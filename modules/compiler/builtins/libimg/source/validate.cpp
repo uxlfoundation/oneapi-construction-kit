@@ -138,7 +138,7 @@ cl_int libimg::ValidateImageSize(
     case CL_MEM_OBJECT_IMAGE1D_ARRAY:
       IMG_CHECK(image_max_array_size < desc.image_array_size,
                 return CL_INVALID_IMAGE_SIZE);
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_MEM_OBJECT_IMAGE1D:
       IMG_CHECK(image2d_max_width < desc.image_width,
                 return CL_INVALID_IMAGE_SIZE);
@@ -146,7 +146,7 @@ cl_int libimg::ValidateImageSize(
     case CL_MEM_OBJECT_IMAGE2D_ARRAY:
       IMG_CHECK(image_max_array_size < desc.image_array_size,
                 return CL_INVALID_IMAGE_SIZE);
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_MEM_OBJECT_IMAGE2D:
       IMG_CHECK(image2d_max_width < desc.image_width ||
                     image2d_max_height < desc.image_height,

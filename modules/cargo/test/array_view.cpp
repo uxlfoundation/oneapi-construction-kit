@@ -24,7 +24,7 @@
 #include <vector>
 
 TEST(array_view, construct_default) {
-  cargo::array_view<int> av;
+  const cargo::array_view<int> av;
   ASSERT_EQ(0u, av.size());
   ASSERT_TRUE(av.empty());
 }
@@ -54,7 +54,7 @@ TEST(array_view, construct_iterator) {
 
 TEST(array_view, construct_iterator_empty) {
   std::array<int, 0> a;
-  cargo::array_view<int> av(a.begin(), a.end());
+  const cargo::array_view<int> av(a.begin(), a.end());
   ASSERT_EQ(a.size(), av.size());
   ASSERT_TRUE(av.empty());
 }
@@ -72,13 +72,13 @@ TEST(array_view, constuct_container) {
 
 TEST(array_view, constuct_container_empty) {
   std::vector<int> v;
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   ASSERT_EQ(v.size(), av.size());
   ASSERT_EQ(true, av.empty());
 }
 
 TEST(array_view, constuct_container_const) {
-  std::vector<int> v{2, 9, 5, 1};
+  const std::vector<int> v{2, 9, 5, 1};
   const auto &cv = v;
   cargo::array_view<const int> av(cv);
   ASSERT_EQ(cv.data(), av.data());
@@ -100,7 +100,7 @@ TEST(array_view, access_at) {
 
 TEST(array_view, access_at_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   for (size_t index = 0; index < v.size(); index++) {
     ASSERT_EQ(v.at(index), *cav.at(index));
@@ -118,7 +118,7 @@ TEST(array_view, access_operator_index) {
 
 TEST(array_view, access_operator_index_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   for (size_t index = 0; index < v.size(); index++) {
     ASSERT_EQ(v.at(index), cav[index]);
@@ -133,7 +133,7 @@ TEST(array_view, access_front) {
 
 TEST(array_view, access_front_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(v.front(), cav.front());
 }
@@ -146,7 +146,7 @@ TEST(array_view, access_back) {
 
 TEST(array_view, access_back_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(v.back(), cav.back());
 }
@@ -159,7 +159,7 @@ TEST(array_view, access_data) {
 
 TEST(array_view, access_data_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(v.data(), cav.data());
 }
@@ -173,7 +173,7 @@ TEST(array_view, iterator_begin) {
 
 TEST(array_view, iterator_begin_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(*v.begin(), *cav.begin());
   ASSERT_TRUE(std::equal(cav.begin(), cav.end(), v.cbegin()));
@@ -181,7 +181,7 @@ TEST(array_view, iterator_begin_const) {
 
 TEST(array_view, iterator_cbegin) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(*v.cbegin(), *cav.cbegin());
   ASSERT_TRUE(std::equal(cav.cbegin(), cav.cend(), v.cbegin()));
@@ -196,7 +196,7 @@ TEST(array_view, iterator_end) {
 
 TEST(array_view, iterator_end_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(*(v.end() - 1), *(cav.end() - 1));
   ASSERT_TRUE(std::equal(cav.begin(), cav.end(), v.cbegin()));
@@ -204,7 +204,7 @@ TEST(array_view, iterator_end_const) {
 
 TEST(array_view, iterator_cend) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(*(v.cend() - 1), *(cav.cend() - 1));
   ASSERT_TRUE(std::equal(cav.cbegin(), cav.cend(), v.cbegin()));
@@ -219,7 +219,7 @@ TEST(array_view, iterator_rbegin) {
 
 TEST(array_view, iterator_rbegin_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(v.back(), *cav.rbegin());
   ASSERT_TRUE(std::equal(cav.rbegin(), cav.rend(), v.crbegin()));
@@ -227,7 +227,7 @@ TEST(array_view, iterator_rbegin_const) {
 
 TEST(array_view, iterator_crbegin) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   ASSERT_EQ(v.back(), *av.crbegin());
   ASSERT_TRUE(std::equal(av.crbegin(), av.crend(), v.crbegin()));
 }
@@ -241,7 +241,7 @@ TEST(array_view, iterator_rend) {
 
 TEST(array_view, iterator_rend_const) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   const auto &cav = av;
   ASSERT_EQ(v.front(), *(cav.rend() - 1));
   ASSERT_TRUE(std::equal(cav.rbegin(), cav.rend(), v.crbegin()));
@@ -249,7 +249,7 @@ TEST(array_view, iterator_rend_const) {
 
 TEST(array_view, iterator_crend) {
   std::vector<int> v{2, 9, 5, 1};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   ASSERT_EQ(v.front(), *(av.crend() - 1));
   ASSERT_TRUE(std::equal(av.crbegin(), av.crend(), v.rbegin()));
 }
@@ -297,7 +297,7 @@ TEST(array_view, modify_pop_back) {
 
 TEST(array_view, as_std_vector_same_type) {
   std::vector<int> v{12, 0, 15, 16, 14, 13};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   std::vector<int> v2(cargo::as<std::vector<int>>(av));
   ASSERT_EQ(v, v2);
   v[0] = 13;
@@ -306,9 +306,9 @@ TEST(array_view, as_std_vector_same_type) {
 
 TEST(array_view, as_std_vector_convertible_type) {
   std::vector<int> v{12, 0, 15, 16, 14, 13};
-  cargo::array_view<int> av(v);
+  const cargo::array_view<int> av(v);
   auto v2(cargo::as<std::vector<size_t>>(av));
-  static_assert(std::is_same<decltype(v2)::value_type, size_t>::value,
+  static_assert(std::is_same_v<decltype(v2)::value_type, size_t>,
                 "Deduction failed");
   ASSERT_TRUE(v2[0] == 12 && v2[2] == 15 && v2[5] == 13);
 }

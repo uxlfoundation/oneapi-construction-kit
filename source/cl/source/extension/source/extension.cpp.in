@@ -153,8 +153,8 @@ cl_int GetObjectExtensionInfoSingleValue(
   cl_int retcode = CL_INVALID_VALUE;
   size_t ext_idx = 0;
   for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    cl_int supported_retcode = get_info_fn(extensions[ext_idx], object, param_name, 0, nullptr,
-                          nullptr);
+    const cl_int supported_retcode = get_info_fn(
+        extensions[ext_idx], object, param_name, 0, nullptr, nullptr);
     if (CL_SUCCESS != supported_retcode) {
       // This extension does not support the info query, keep searching.
       continue;
@@ -230,8 +230,8 @@ cl_int GetObjectDetailExtensionInfoSingleValue(
   cl_int retcode = CL_INVALID_VALUE;
   size_t ext_idx = 0;
   for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    cl_int supported_retcode = get_info_fn(extensions[ext_idx], object, detail, param_name, 0,
-                          nullptr, nullptr);
+    const cl_int supported_retcode = get_info_fn(
+        extensions[ext_idx], object, detail, param_name, 0, nullptr, nullptr);
     if (CL_SUCCESS != supported_retcode) {
       // This extension does not support the info query, keep searching.
       continue;
@@ -306,7 +306,7 @@ cl_int GetObjectDetailExtensionInfoSingleInputValue(
   cl_int retcode = CL_INVALID_VALUE;
   size_t ext_idx = 0;
   for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    cl_int supported_retcode =
+    const cl_int supported_retcode =
         get_info_fn(extensions[ext_idx], object, detail, param_name, 0, nullptr,
                     0, nullptr, nullptr);
     if (CL_SUCCESS != supported_retcode) {
@@ -392,8 +392,8 @@ cl_int GetObjectExtensionInfoAggregatedCString(
     // Last Revision Date: 11/14/12,
     // Section 4.1 Querying Platform Info, page 35.
     size_t value_size_ret = 0;
-    cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name, 0,
-                                 nullptr, &value_size_ret);
+    const cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name,
+                                       0, nullptr, &value_size_ret);
     if (CL_SUCCESS != retcode) {
       // This extension does not support the info query, skip it to find
       // extensions that do.
@@ -475,8 +475,8 @@ cl_int GetObjectExtensionInfoAggregatedArray(
   size_t aggregated_value_size_ret = 0;
   for (size_t ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
     size_t value_size_ret = 0;
-    cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name, 0,
-                                 nullptr, &value_size_ret);
+    const cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name,
+                                       0, nullptr, &value_size_ret);
     if (CL_SUCCESS != retcode) {
       // This extension does not support the info query, skip it to find
       // extensions that do.
@@ -581,7 +581,7 @@ cl_int extension::extension::GetPlatformInfo(
                         &platform_extensions_size);
         std::string platform_extensions(platform_extensions_size, '\0');
         GetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS,
-                        platform_extensions.size(), &platform_extensions[0],
+                        platform_extensions.size(), platform_extensions.data(),
                         nullptr);
         auto split_extensions = cargo::split(platform_extensions, " ");
         auto size_in_bytes =
@@ -646,7 +646,7 @@ cl_int extension::extension::GetDeviceInfo(cl_device_id device,
                       &device_extensions_size);
         std::string device_extensions(device_extensions_size, '\0');
         GetDeviceInfo(device, CL_DEVICE_EXTENSIONS, device_extensions.size(),
-                      &device_extensions[0], nullptr);
+                      device_extensions.data(), nullptr);
         auto split_extensions = cargo::split(device_extensions, " ");
         auto size_in_bytes =
             split_extensions.size() * sizeof(cl_name_version_khr);
@@ -1128,7 +1128,7 @@ void* extension::GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
       getExtensions().size(), getExtensions().data(), platform, func_name);
 }
 
-CARGO_NODISCARD cl_int extension::GetRuntimeExtensionsForDevice(
+[[nodiscard]] cl_int extension::GetRuntimeExtensionsForDevice(
     cl_device_id device, cargo::string_view& extensions_ret) {
   static std::string extensions{};
   static std::once_flag initialized_flag{};
@@ -1159,21 +1159,21 @@ CARGO_NODISCARD cl_int extension::GetRuntimeExtensionsForDevice(
     extensions = std::string(ext_string_length, '\0');
     retcode = GetObjectExtensionInfoAggregatedCString(
         getRuntimeExtensions().size(), getRuntimeExtensions().data(), device,
-        CL_DEVICE_EXTENSIONS, ext_string_length, &extensions[0], nullptr, ' ',
-        query_fn);
+        CL_DEVICE_EXTENSIONS, ext_string_length, extensions.data(), nullptr,
+        ' ', query_fn);
     if (CL_SUCCESS != retcode) {
       return;
     }
   });
 
   if (CL_SUCCESS == retcode) {
-    extensions_ret = cargo::string_view(&extensions[0], extensions.size());
+    extensions_ret = cargo::string_view(extensions.data(), extensions.size());
   }
 
   return retcode;
 }
 
-CARGO_NODISCARD cl_int extension::GetCompilerExtensionsForDevice(
+[[nodiscard]] cl_int extension::GetCompilerExtensionsForDevice(
     cl_device_id device, cargo::string_view& extensions_ret) {
   static std::string extensions{};
   static std::once_flag initialized_flag{};
@@ -1204,15 +1204,15 @@ CARGO_NODISCARD cl_int extension::GetCompilerExtensionsForDevice(
     extensions = std::string(ext_string_length, '\0');
     retcode = GetObjectExtensionInfoAggregatedCString(
         getCompilerExtensions().size(), getCompilerExtensions().data(), device,
-        CL_DEVICE_EXTENSIONS, ext_string_length, &extensions[0], nullptr, ' ',
-        query_fn);
+        CL_DEVICE_EXTENSIONS, ext_string_length, extensions.data(), nullptr,
+        ' ', query_fn);
     if (CL_SUCCESS != retcode) {
       return;
     }
   });
 
   if (CL_SUCCESS == retcode) {
-    extensions_ret = cargo::string_view(&extensions[0], extensions.size());
+    extensions_ret = cargo::string_view(extensions.data(), extensions.size());
   }
 
   return retcode;

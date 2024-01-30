@@ -149,7 +149,7 @@ class argument {
   /// @retval `INCOMPLETE` argument was found, requires a value.
   /// @retval `NOT_FOUND` argument was not found.
   /// @retval `INVALID` invalid argument, value not found.
-  CARGO_NODISCARD cargo::error_or<cargo::argument::parse> parse_arg(
+  [[nodiscard]] cargo::error_or<cargo::argument::parse> parse_arg(
       cargo::string_view arg) {
     if (Name == arg) {  // "<name> <value>"
       switch (Type) {
@@ -184,7 +184,7 @@ class argument {
   /// @return Returns an error from `cargo::small_vector` or the parse result.
   /// @retval `COMPLETE` argument was found with no further action required.
   /// @retval `INVALID` invalid argument, value not found.
-  CARGO_NODISCARD cargo::error_or<cargo::argument::parse> parse_value(
+  [[nodiscard]] cargo::error_or<cargo::argument::parse> parse_value(
       cargo::string_view value) {
     switch (Type) {
       case BOOL:
@@ -295,7 +295,7 @@ class argument_parser {
   /// @param arg Argument to be added to the parser.
   ///
   /// @return Returns result from `cargo::small_vector`.
-  CARGO_NODISCARD cargo::result add_argument(cargo::argument arg) {
+  [[nodiscard]] cargo::result add_argument(cargo::argument arg) {
     return Args.emplace_back(std::move(arg));
   }
 
@@ -307,14 +307,14 @@ class argument_parser {
   /// @retval `cargo::success` parsing was successful.
   /// @retval `cargo::bad_argument` an invalid argument was found.
   /// @retval `cargo::bad_alloc` allocation failure.
-  CARGO_NODISCARD cargo::result parse_args(
+  [[nodiscard]] cargo::result parse_args(
       cargo::array_view<cargo::string_view> args) {
     if (0 == args.size()) {
       return cargo::success;
     }
     bool AfterArgumentTerminator = false;
-    bool ErrorOnUnrecognized = !(Options & KEEP_UNRECOGNIZED);
-    bool AcceptPositionalArgs = bool(Options & ACCEPT_POSITIONAL);
+    const bool ErrorOnUnrecognized = !(Options & KEEP_UNRECOGNIZED);
+    const bool AcceptPositionalArgs = bool(Options & ACCEPT_POSITIONAL);
 
     for (auto iter = args.begin(), end = args.end(); iter != end; iter++) {
       auto &arg = *iter;
@@ -387,7 +387,7 @@ class argument_parser {
   /// @retval `cargo::success` parsing was successful.
   /// @retval `cargo::bad_argument` when an invalid argument was found.
   /// @retval `cargo::bad_alloc` when an allocation failed.
-  CARGO_NODISCARD cargo::result parse_args(cargo::string_view arg_string) {
+  [[nodiscard]] cargo::result parse_args(cargo::string_view arg_string) {
     auto args = cargo::split_with_quotes(arg_string, " ");
     return parse_args(cargo::array_view<cargo::string_view>(args));
   }
@@ -404,8 +404,8 @@ class argument_parser {
   /// @retval `cargo::success` parsing was successful.
   /// @retval `cargo::bad_argument` when an invalid argument was found.
   /// @retval `cargo::bad_alloc` when an allocation failed.
-  CARGO_NODISCARD cargo::result parse_args(const int argc,
-                                           const char *const *argv) {
+  [[nodiscard]] cargo::result parse_args(const int argc,
+                                         const char *const *argv) {
     cargo::small_vector<cargo::string_view, 16> args;
     if (auto error = args.reserve(argc - 1)) {
       return error;

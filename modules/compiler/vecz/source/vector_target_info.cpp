@@ -92,7 +92,7 @@ Value *TargetInfo::createLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
   if (CIntStride && CIntStride->getSExtValue() == 1) {
     if (EVL) {
       const Function *F = B.GetInsertBlock()->getParent();
-      auto const Legality = isVPLoadLegal(F, Ty, Alignment);
+      const auto Legality = isVPLoadLegal(F, Ty, Alignment);
       if (!Legality.isVPLegal()) {
         emitVeczRemarkMissed(F,
                              "Could not create a VP load as the target "
@@ -100,8 +100,8 @@ Value *TargetInfo::createLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
         VECZ_FAIL();
       }
       auto *Mask = createAllTrueMask(B, multi_llvm::getVectorElementCount(Ty));
-      SmallVector<llvm::Value *, 2> Args = {VecPtr, Mask, EVL};
-      SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtr->getType()};
+      const SmallVector<llvm::Value *, 2> Args = {VecPtr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtr->getType()};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_load, Tys, Args);
     }
     return B.CreateAlignedLoad(Ty, VecPtr, MaybeAlign(Alignment));
@@ -120,7 +120,7 @@ Value *TargetInfo::createLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
                          "Could not create a scalable-vector interleaved load");
     VECZ_FAIL();
   }
-  unsigned SimdWidth = Elts.getFixedValue();
+  const unsigned SimdWidth = Elts.getFixedValue();
   // Load individual values.
   SmallVector<Value *, 8> Values;
   Value *Index = B.getInt64(0);
@@ -160,7 +160,7 @@ Value *TargetInfo::createStore(IRBuilder<> &B, Value *Data, Value *Ptr,
     Value *VecPtr = B.CreateBitCast(Ptr, VecPtrTy);
     if (EVL) {
       const Function *F = B.GetInsertBlock()->getParent();
-      auto const Legality = isVPStoreLegal(F, VecTy, Alignment);
+      const auto Legality = isVPStoreLegal(F, VecTy, Alignment);
       if (!Legality.isVPLegal()) {
         emitVeczRemarkMissed(F,
                              "Could not create a VP store as the target "
@@ -169,8 +169,9 @@ Value *TargetInfo::createStore(IRBuilder<> &B, Value *Data, Value *Ptr,
       }
       auto *Mask =
           createAllTrueMask(B, multi_llvm::getVectorElementCount(VecTy));
-      SmallVector<llvm::Value *, 3> Args = {Data, VecPtr, Mask, EVL};
-      SmallVector<llvm::Type *, 2> Tys = {Data->getType(), VecPtr->getType()};
+      const SmallVector<llvm::Value *, 3> Args = {Data, VecPtr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Data->getType(),
+                                                VecPtr->getType()};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_store, Tys, Args);
     }
     return B.CreateAlignedStore(Data, VecPtr, MaybeAlign(Alignment));
@@ -190,7 +191,7 @@ Value *TargetInfo::createStore(IRBuilder<> &B, Value *Data, Value *Ptr,
         "Could not create a scalable-vector interleaved store");
     VECZ_FAIL();
   }
-  unsigned SimdWidth = Elts.getFixedValue();
+  const unsigned SimdWidth = Elts.getFixedValue();
   // Extract values from the vector.
   SmallVector<Value *, 8> Values;
   for (unsigned i = 0; i < SimdWidth; i++) {
@@ -232,10 +233,10 @@ Value *TargetInfo::createMaskedLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
     PtrTy = Ty->getPointerTo(PtrTy->getAddressSpace());
     Ptr = B.CreateBitCast(Ptr, PtrTy);
     const Function *F = B.GetInsertBlock()->getParent();
-    auto const Legality = isVPLoadLegal(F, Ty, Alignment);
+    const auto Legality = isVPLoadLegal(F, Ty, Alignment);
     if (EVL && Legality.isVPLegal()) {
-      SmallVector<llvm::Value *, 2> Args = {Ptr, Mask, EVL};
-      SmallVector<llvm::Type *, 2> Tys = {Ty, PtrTy};
+      const SmallVector<llvm::Value *, 2> Args = {Ptr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Ty, PtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_load, Tys, Args);
     } else if (Legality.isMaskLegal()) {
       Mask = applyEVLToMask(B, EVL, Mask);
@@ -249,7 +250,7 @@ Value *TargetInfo::createMaskedLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
     }
   }
 
-  unsigned const Width = 1;
+  const unsigned Width = 1;
 
   LLVMContext &Ctx = B.getContext();
   BasicBlock *Entry = B.GetInsertBlock();
@@ -339,10 +340,10 @@ Value *TargetInfo::createMaskedStore(IRBuilder<> &B, Value *Data, Value *Ptr,
     PtrTy = DataTy->getPointerTo(PtrTy->getAddressSpace());
     Ptr = B.CreateBitCast(Ptr, PtrTy);
     const Function *F = B.GetInsertBlock()->getParent();
-    auto const Legality = isVPStoreLegal(F, DataTy, Alignment);
+    const auto Legality = isVPStoreLegal(F, DataTy, Alignment);
     if (EVL && Legality.isVPLegal()) {
-      SmallVector<llvm::Value *, 3> Args = {Data, Ptr, Mask, EVL};
-      SmallVector<llvm::Type *, 2> Tys = {Data->getType(), PtrTy};
+      const SmallVector<llvm::Value *, 3> Args = {Data, Ptr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Data->getType(), PtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_store, Tys, Args);
     } else if (Legality.isMaskLegal()) {
       Mask = applyEVLToMask(B, EVL, Mask);
@@ -356,7 +357,7 @@ Value *TargetInfo::createMaskedStore(IRBuilder<> &B, Value *Data, Value *Ptr,
     }
   }
 
-  unsigned const Width = 1;
+  const unsigned Width = 1;
 
   LLVMContext &Ctx = B.getContext();
   BasicBlock *Entry = B.GetInsertBlock();
@@ -498,10 +499,10 @@ Value *TargetInfo::createMaskedGatherLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
   Constant *DefaultEleData = UndefValue::get(EleTy);
 
   if (Ty->isVectorTy()) {
-    auto const Legality = isVPGatherLegal(F, Ty, Alignment);
+    const auto Legality = isVPGatherLegal(F, Ty, Alignment);
     if (EVL && Legality.isVPLegal()) {
-      SmallVector<llvm::Value *, 2> Args = {Ptr, Mask, EVL};
-      SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtrTy};
+      const SmallVector<llvm::Value *, 2> Args = {Ptr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_gather, Tys, Args);
     } else if (Legality.isMaskLegal()) {
       Function *MaskedGather = Intrinsic::getDeclaration(
@@ -529,7 +530,7 @@ Value *TargetInfo::createMaskedGatherLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
 
   VECZ_FAIL_IF(EVL);
   auto VecWidth = multi_llvm::getVectorElementCount(Ty);
-  unsigned Width = VecWidth.getFixedValue();
+  const unsigned Width = VecWidth.getFixedValue();
 
   // Fallback scalar function generator
   // Create all the required blocks.
@@ -596,10 +597,10 @@ Value *TargetInfo::createMaskedScatterStore(IRBuilder<> &B, Value *Data,
   if (DataTy->isVectorTy()) {
     auto *VecPtrTy = dyn_cast<VectorType>(Ptr->getType());
     VECZ_FAIL_IF(!VecPtrTy);
-    auto const Legality = isVPScatterLegal(F, DataTy, Alignment);
+    const auto Legality = isVPScatterLegal(F, DataTy, Alignment);
     if (EVL && Legality.isVPLegal()) {
-      SmallVector<llvm::Value *, 3> Args = {Data, Ptr, Mask, EVL};
-      SmallVector<llvm::Type *, 2> Tys = {Data->getType(), VecPtrTy};
+      const SmallVector<llvm::Value *, 3> Args = {Data, Ptr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Data->getType(), VecPtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_scatter, Tys, Args);
     } else if (Legality.isMaskLegal()) {
       Function *MaskedScatter = Intrinsic::getDeclaration(
@@ -627,7 +628,7 @@ Value *TargetInfo::createMaskedScatterStore(IRBuilder<> &B, Value *Data,
 
   VECZ_FAIL_IF(EVL);
   auto VecWidth = multi_llvm::getVectorElementCount(DataTy);
-  unsigned Width = VecWidth.getFixedValue();
+  const unsigned Width = VecWidth.getFixedValue();
 
   // Fallback scalar function generator
   // Create all the required blocks.
@@ -671,7 +672,7 @@ Value *TargetInfo::createScalableExtractElement(IRBuilder<> &B,
                                                 Type *narrowTy, Value *src,
                                                 Value *index, Value *VL) const {
   (void)VL;
-  auto const *origSrc = extract->getOperand(0);
+  const auto *origSrc = extract->getOperand(0);
   auto *eltTy = src->getType()->getScalarType();
 
   auto *wideTy = src->getType();
@@ -695,7 +696,7 @@ Value *TargetInfo::createScalableExtractElement(IRBuilder<> &B,
   auto *const bcastalloc =
       B.CreatePointerBitCastOrAddrSpaceCast(alloc, eltptrTy, "bcast.alloc");
 
-  unsigned const fixedVecElts =
+  const unsigned fixedVecElts =
       multi_llvm::getVectorNumElements(origSrc->getType());
 
   Value *load = nullptr;
@@ -796,8 +797,8 @@ Value *TargetInfo::createBroadcastIndexVector(IRBuilder<> &B, Type *ty,
                                               ElementCount factor, bool URem,
                                               const llvm::Twine &N) {
   auto *const steps = B.CreateStepVector(ty, "idx0");
-  auto const tyEC = multi_llvm::getVectorElementCount(ty);
-  unsigned const factorMinVal = factor.getKnownMinValue();
+  const auto tyEC = multi_llvm::getVectorElementCount(ty);
+  const unsigned factorMinVal = factor.getKnownMinValue();
 
   unsigned fixedAmt;
   Instruction::BinaryOps Opc;
@@ -842,7 +843,7 @@ Value *TargetInfo::createScalableInsertElement(IRBuilder<> &B,
   auto *const bcastalloc =
       B.CreatePointerBitCastOrAddrSpaceCast(alloc, eltptrTy, "bcast.alloc");
 
-  unsigned const fixedVecElts =
+  const unsigned fixedVecElts =
       multi_llvm::getVectorNumElements(insert->getOperand(0)->getType());
 
   // Construct the index, either by packetizing if (if varying) or by
@@ -907,7 +908,7 @@ TargetInfo::VPMemOpLegality TargetInfo::checkMemOpLegality(
         Checker,
     Type *Ty, unsigned Alignment) const {
   assert(Ty->isVectorTy() && "Expected a vector type");
-  bool const isMaskLegal =
+  const bool isMaskLegal =
       !(isa<ScalableVectorType>(Ty) && TM_) ||
       Checker(TM_->getTargetTransformInfo(*F), Ty, Alignment);
   // Assuming a pointer bit width of 64
@@ -966,8 +967,8 @@ llvm::Value *TargetInfo::createVectorShuffle(llvm::IRBuilder<> &B,
   // The alloca must be inserted at the beginning of the function.
   auto *const curBlock = B.GetInsertBlock();
   auto &entryBlock = curBlock->getParent()->getEntryBlock();
-  auto const allocaIt = entryBlock.getFirstInsertionPt();
-  auto const it = B.GetInsertPoint();
+  const auto allocaIt = entryBlock.getFirstInsertionPt();
+  const auto it = B.GetInsertPoint();
 
   B.SetInsertPoint(&entryBlock, allocaIt);
   auto *const alloc = B.CreateAlloca(srcTy, nullptr);
@@ -988,14 +989,14 @@ llvm::Value *TargetInfo::createVectorShuffle(llvm::IRBuilder<> &B,
   // Index into the allocation.
   auto *const gep = B.CreateInBoundsGEP(eltTy, bcastalloc, mask, "vec.alloc");
 
-  auto const eltCount = maskTy->getElementCount();
+  const auto eltCount = maskTy->getElementCount();
   auto *const dstTy = VectorType::get(eltTy, eltCount);
-  auto const alignment =
+  const auto alignment =
       MaybeAlign(eltTy->getScalarSizeInBits() / 8).valueOrOne();
 
   Value *gatherMask = nullptr;
   if (evl) {
-    auto const EC = srcTy->getElementCount();
+    const auto EC = srcTy->getElementCount();
     auto *const IndexTy = VectorType::get(evl->getType(), EC);
     auto *const step = B.CreateStepVector(IndexTy);
     gatherMask = B.CreateICmpULT(step, B.CreateVectorSplat(EC, evl));
@@ -1016,10 +1017,10 @@ llvm::Value *TargetInfo::createVectorSlideUp(llvm::IRBuilder<> &B,
          "TargetInfo::createVectorShuffle: source must have vector type");
 
   auto *const undef = UndefValue::get(srcTy);
-  auto const EC = srcTy->getElementCount();
+  const auto EC = srcTy->getElementCount();
   if (!EC.isScalable()) {
     // Special case for fixed-width vectors
-    auto const width = EC.getFixedValue();
+    const auto width = EC.getFixedValue();
     SmallVector<int, 16> mask(width);
     auto it = mask.begin();
     *it++ = 0;
@@ -1087,12 +1088,12 @@ bool TargetInfo::optimizeInterleavedGroup(IRBuilder<> &B,
   }
 
   auto VecWidth = multi_llvm::getVectorElementCount(VecTy);
-  unsigned SimdWidth = VecWidth.getFixedValue();
+  const unsigned SimdWidth = VecWidth.getFixedValue();
 
   Type *EleTy = VecTy->getElementType();
-  unsigned Align = EleTy->getScalarSizeInBits() / 8;
+  const unsigned Align = EleTy->getScalarSizeInBits() / 8;
 
-  bool HasMask =
+  const bool HasMask =
       (Kind == eMaskedInterleavedLoad) || (Kind == eMaskedInterleavedStore);
   SmallVector<Value *, 4> Vectors;
   SmallVector<Value *, 4> VecMasks(Masks.begin(), Masks.end());
@@ -1105,7 +1106,7 @@ bool TargetInfo::optimizeInterleavedGroup(IRBuilder<> &B,
     for (unsigned i = 0; i < Group.size(); i++) {
       Value *AddressN = Address;
       if (i > 0) {
-        unsigned Offset = i * SimdWidth;
+        const unsigned Offset = i * SimdWidth;
         AddressN = B.CreateGEP(EleTy, Address, B.getInt32(Offset));
       }
       Value *Load = nullptr;
@@ -1141,7 +1142,7 @@ bool TargetInfo::optimizeInterleavedGroup(IRBuilder<> &B,
       Value *Vector = Vectors[i];
       Value *AddressN = Address;
       if (i > 0) {
-        unsigned Offset = i * SimdWidth;
+        const unsigned Offset = i * SimdWidth;
         AddressN = B.CreateGEP(EleTy, Address, B.getInt32(Offset));
       }
       Value *Store = nullptr;
@@ -1276,11 +1277,11 @@ bool TargetInfo::interleaveVectors(IRBuilder<> &B,
 unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
                                        const ArrayRef<const Value *> vals,
                                        unsigned width) const {
-  unsigned MaxVecRegBitWidth =
+  const unsigned MaxVecRegBitWidth =
       TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector)
           .getFixedValue();
 
-  unsigned NumVecRegs =
+  const unsigned NumVecRegs =
       TTI.getNumberOfRegisters(TTI.getRegisterClassForType(true));
 
   unsigned VaryingUsage = 0;
@@ -1291,7 +1292,7 @@ unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
             ? TM_->getPointerSizeInBits(Ty->getPointerAddressSpace())
             : VI->getType()->getPrimitiveSizeInBits();
   }
-  unsigned const MaxBits = MaxVecRegBitWidth * NumVecRegs;
+  const unsigned MaxBits = MaxVecRegBitWidth * NumVecRegs;
   while (VaryingUsage * width > MaxBits) {
     width >>= 1;
   }
@@ -1301,7 +1302,7 @@ unsigned TargetInfo::estimateSimdWidth(const TargetTransformInfo &TTI,
 
 unsigned TargetInfo::getVectorWidthForType(const llvm::TargetTransformInfo &TTI,
                                            const llvm::Type &Ty) const {
-  unsigned MaxVecRegBitWidth =
+  const unsigned MaxVecRegBitWidth =
       TTI.getRegisterBitWidth(llvm::TargetTransformInfo::RGK_FixedWidthVector)
           .getFixedValue();
 

@@ -56,11 +56,12 @@ compiler::Result RiscvModule::createBinary(
 
   // Lock the context, this is necessary due to analysis/pass managers being
   // owned by the LLVMContext and we are making heavy use of both below.
-  std::lock_guard<compiler::BaseContext> contextLock(context);
+  const std::lock_guard<compiler::BaseContext> contextLock(context);
   // Numerous things below touch LLVM's global state, in particular
   // retriggering command-line option parsing at various points. Ensure we
   // avoid data races by locking the LLVM global mutex.
-  std::lock_guard<std::mutex> globalLock(compiler::utils::getLLVMGlobalMutex());
+  const std::lock_guard<std::mutex> globalLock(
+      compiler::utils::getLLVMGlobalMutex());
 
   // Write to an Elf object
   auto *TM = getTargetMachine();
@@ -68,14 +69,14 @@ compiler::Result RiscvModule::createBinary(
   llvm::raw_svector_ostream ostream(objectBinary);
 
   /// Set up an error handler to redirect fatal errors to the build log.
-  llvm::ScopedFatalErrorHandler error_handler(BaseModule::llvmFatalErrorHandler,
-                                              this);
+  const llvm::ScopedFatalErrorHandler error_handler(
+      BaseModule::llvmFatalErrorHandler, this);
 
   {
     compiler::Result err = compiler::Result::FAILURE;
     llvm::CrashRecoveryContext CRC;
     llvm::CrashRecoveryContext::Enable();
-    bool crashed = !CRC.RunSafely([&] {
+    const bool crashed = !CRC.RunSafely([&] {
       err = compiler::emitCodeGenFile(*finalized_llvm_module, TM, ostream);
     });
     llvm::CrashRecoveryContext::Disable();
@@ -99,17 +100,17 @@ compiler::Result RiscvModule::createBinary(
   // entry point will not be used directly.
   lld_args.push_back("-e0");
 
-  cargo::dynamic_array<uint8_t> finalizer_binary;
+  const cargo::dynamic_array<uint8_t> finalizer_binary;
   {
     bool linkSuccess = false;
     llvm::CrashRecoveryContext CRC;
     llvm::CrashRecoveryContext::Enable();
-    bool crashed = !CRC.RunSafely([&] {
+    const bool crashed = !CRC.RunSafely([&] {
       auto linkResult = compiler::utils::lldLinkToBinary(
           inputBinary, getTarget().riscv_hal_device_info->linker_script,
           getTarget().rt_lib, getTarget().rt_lib_size, lld_args);
       if (auto E = linkResult.takeError()) {
-        std::string errStr = toString(std::move(E));
+        const std::string errStr = toString(std::move(E));
         addBuildError(errStr);
         if (auto callback = target.getNotifyCallbackFn()) {
           callback(errStr.c_str(), /*data*/ nullptr, /*data_size*/ 0);
@@ -132,9 +133,10 @@ compiler::Result RiscvModule::createBinary(
 // copy the generated ELF file to a specified path if desired
 #if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_RISCV_DEMO_MODE)
   if (!getTarget().env_debug_prefix.empty()) {
-    std::string env_name = getTarget().env_debug_prefix + "_SAVE_ELF_PATH";
+    const std::string env_name =
+        getTarget().env_debug_prefix + "_SAVE_ELF_PATH";
     if (const auto copyElfPath = llvm::sys::Process::GetEnv(env_name.c_str())) {
-      llvm::SmallVector<char, 8> resultPath;
+      const llvm::SmallVector<char, 8> resultPath;
       std::error_code error;
       llvm::raw_fd_ostream of(*copyElfPath, error);
       if (error) {
@@ -205,7 +207,7 @@ RiscvModule::createPassMachinery() {
   auto *Builtins = getTarget().getBuiltins();
   const auto &BaseContext = getTarget().getContext();
 
-  compiler::utils::DeviceInfo Info = compiler::initDeviceInfoFromMux(
+  const compiler::utils::DeviceInfo Info = compiler::initDeviceInfoFromMux(
       getTarget().getCompilerInfo()->device_info);
 
   auto Callback = [Builtins](const llvm::Module &) {
@@ -236,23 +238,26 @@ void RiscvModule::initializePassMachineryForFrontend(
 
   // Register the target library analysis directly and give it a customized
   // preset TLI.
-  llvm::Triple TT = llvm::Triple(target_machine->getTargetTriple());
+  const llvm::Triple TT = llvm::Triple(target_machine->getTargetTriple());
   auto TLII = llvm::TargetLibraryInfoImpl(TT);
 
-  switch (CGO.getVecLib()) {
-    case clang::CodeGenOptions::Accelerate:
+  // getVecLib()'s return type changed in LLVM 18.
+  auto VecLib = CGO.getVecLib();
+  using VecLibT = decltype(VecLib);
+  switch (VecLib) {
+    case VecLibT::Accelerate:
       TLII.addVectorizableFunctionsFromVecLib(
           llvm::TargetLibraryInfoImpl::Accelerate, TT);
       break;
-    case clang::CodeGenOptions::SVML:
+    case VecLibT::SVML:
       TLII.addVectorizableFunctionsFromVecLib(llvm::TargetLibraryInfoImpl::SVML,
                                               TT);
       break;
-    case clang::CodeGenOptions::MASSV:
+    case VecLibT::MASSV:
       TLII.addVectorizableFunctionsFromVecLib(
           llvm::TargetLibraryInfoImpl::MASSV, TT);
       break;
-    case clang::CodeGenOptions::LIBMVEC:
+    case VecLibT::LIBMVEC:
       switch (TT.getArch()) {
         default:
           break;

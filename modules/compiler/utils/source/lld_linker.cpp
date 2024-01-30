@@ -136,12 +136,12 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
   std::string stderrStr;
   raw_string_ostream stderrOS(stderrStr);
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
-  ::lld::Result s = ::lld::lldMain(lld_args, outs(), stderrOS,
-                                   {{::lld::Gnu, &lld::elf::link}});
-  bool linkResult = !s.retCode && s.canRunAgain;
+  const ::lld::Result s = ::lld::lldMain(lld_args, outs(), stderrOS,
+                                         {{::lld::Gnu, &lld::elf::link}});
+  const bool linkResult = !s.retCode && s.canRunAgain;
   ::lld::CommonLinkerContext::destroy();
 #else
-  bool linkResult =
+  const bool linkResult =
       lld::elf::link(lld_args, outs(), stderrOS,
                      /*exitEarly*/ false, /*disableOutput*/ false);
   lld::CommonLinkerContext::destroy();

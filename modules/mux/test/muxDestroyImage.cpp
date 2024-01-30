@@ -22,8 +22,8 @@ INSTANTIATE_DEVICE_TEST_SUITE_P(muxDestroyImageTest);
 
 TEST_P(muxDestroyImageTest, Default) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_1d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -34,8 +34,8 @@ TEST_P(muxDestroyImageTest, Default) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     // For each of the supported image formats on this device we test creation
     // of an image
     for (uint64_t j = 0; j < out_count; j++) {
@@ -49,8 +49,8 @@ TEST_P(muxDestroyImageTest, Default) {
 
 TEST_P(muxDestroyImageTest, MalformedDevice) {
   if (device->info->image_support) {
-    mux_image_type_e type = mux_image_type_1d;
-    mux_allocation_type_e allocation_type =
+    const mux_image_type_e type = mux_image_type_1d;
+    const mux_allocation_type_e allocation_type =
         (mux_allocation_capabilities_alloc_device &
          device->info->allocation_capabilities)
             ? mux_allocation_type_alloc_device
@@ -61,8 +61,8 @@ TEST_P(muxDestroyImageTest, MalformedDevice) {
 
     std::vector<mux_image_format_e> format(out_count);
 
-    ASSERT_SUCCESS(muxGetSupportedImageFormats(device, type, allocation_type,
-                                               out_count, &format[0], nullptr));
+    ASSERT_SUCCESS(muxGetSupportedImageFormats(
+        device, type, allocation_type, out_count, format.data(), nullptr));
     // For each of the supported image formats on this device we test creation
     // of an image
     for (uint64_t j = 0; j < out_count; j++) {

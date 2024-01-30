@@ -1,0 +1,119 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env spv1.1 -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+          %2 = OpExtInstImport "OpenCL.DebugInfo.100"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %15 "foo"
+         %40 = OpString "/tmp/kernel.cl"
+         %44 = OpString "int"
+         %48 = OpString "float"
+         %51 = OpString "char"
+         %64 = OpString "foo"
+         %65 = OpString ""
+         %67 = OpString "a"
+         %69 = OpString "b"
+         %71 = OpString "c"
+         %73 = OpString "id"
+         %75 = OpString "a0"
+         %77 = OpString "b0"
+               OpSource OpenCL_C 102000
+               OpName %a "a"
+               OpName %b "b"
+               OpName %c "c"
+               OpName %entry "entry"
+               OpName %ld "ld"
+               OpName %conv "conv"
+               OpDecorate %a FuncParamAttr NoCapture
+               OpDecorate %a FuncParamAttr NoWrite
+               OpDecorate %a Alignment 4
+               OpDecorate %b FuncParamAttr NoCapture
+               OpDecorate %b FuncParamAttr NoWrite
+               OpDecorate %b Alignment 4
+               OpDecorate %c FuncParamAttr NoCapture
+               OpDecorate %c Alignment 1
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+    %uint_32 = OpConstant %uint 32
+     %uint_8 = OpConstant %uint 8
+      %float = OpTypeFloat 32
+       %void = OpTypeVoid
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+%_ptr_CrossWorkgroup_float = OpTypePointer CrossWorkgroup %float
+%_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
+         %14 = OpTypeFunction %void %_ptr_CrossWorkgroup_uint %_ptr_CrossWorkgroup_float %_ptr_CrossWorkgroup_uchar
+         %42 = OpExtInst %void %2 DebugSource %40 %65
+         %43 = OpExtInst %void %2 DebugCompilationUnit 65536 5 %42 OpenCL_C
+         %46 = OpExtInst %void %2 DebugTypeBasic %44 %uint_32 Signed
+         %47 = OpExtInst %void %2 DebugTypePointer %46 CrossWorkgroup None
+         %49 = OpExtInst %void %2 DebugTypeBasic %48 %uint_32 Float
+         %50 = OpExtInst %void %2 DebugTypePointer %49 CrossWorkgroup None
+         %53 = OpExtInst %void %2 DebugTypeBasic %51 %uint_8 SignedChar
+         %54 = OpExtInst %void %2 DebugTypePointer %53 CrossWorkgroup None
+         %55 = OpExtInst %void %2 DebugTypeFunction None %void %47 %50 %54
+         %66 = OpExtInst %void %2 DebugFunction %64 %55 %42 1 0 %43 %65 FlagIsDefinition|FlagPrototyped|FlagIsOptimized 1 %15
+
+; CHECK: define spir_kernel void @foo(ptr addrspace(1){{.*}} %a, ptr addrspace(1){{.*}} %b, ptr addrspace(1){{.*}} %c)
+         %15 = OpFunction %void None %14
+          %a = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+          %b = OpFunctionParameter %_ptr_CrossWorkgroup_float
+          %c = OpFunctionParameter %_ptr_CrossWorkgroup_uchar
+      %entry = OpLabel
+               OpLine %40 1 0
+        %ds0 = OpExtInst %void %2 DebugScope %66
+; CHECK: %ld = load i32, ptr addrspace(1) %a, align 4, !dbg [[ldLoc:![0-9]+]]
+         %ld = OpLoad %uint %a Aligned 4
+
+               OpLine %40 2 0
+; Check that the conversion uses a new debug location, as the line information
+; has changed.
+; CHECK: %conv = trunc i32 %ld to i8, !dbg [[convLoc:![0-9]+]]
+       %conv = OpUConvert %uchar %ld
+
+        %ds1 = OpExtInst %void %2 DebugScope %66
+; Check that the first store uses the same debug location as the previous
+; instruction.
+; CHECK: store i8 %conv, ptr addrspace(1) %c, align 1, !dbg [[convLoc]]
+               OpStore %c %conv Aligned 1
+
+        %ds2 = OpExtInst %void %2 DebugNoScope
+; Check that with line information but without a debug scope, we don't create
+; or attach a debug scope.
+; CHECK: store i8 %conv, ptr addrspace(1) %c, align 1{{$}}
+               OpStore %c %conv Aligned 1
+
+               OpNoLine
+; Check that without line information we don't apply debug info to this return
+; instruction
+; CHECK: ret void{{$}}
+               OpReturn
+
+               OpFunctionEnd
+
+; CHECK-DAG: [[SCOPE:![0-9]+]] = distinct !DISubprogram(
+; CHECK-SAME:  name: "foo",
+; CHECK-SAME:  file: [[FILE:![0-9]+]], line: 1,
+
+; CHECK-DAG: [[ldLoc]] = !DILocation(line: 1, scope: [[SCOPE]])
+; CHECK-DAG: [[convLoc]] = !DILocation(line: 2, scope: [[SCOPE]])

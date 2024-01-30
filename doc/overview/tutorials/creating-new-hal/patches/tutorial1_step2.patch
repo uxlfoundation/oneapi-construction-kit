@@ -2,7 +2,7 @@ diff --git a/include/refsi_hal.h b/include/refsi_hal.h
 index ca7810f..5a96851 100644
 --- a/include/refsi_hal.h
 +++ b/include/refsi_hal.h
-@@ -7,14 +7,19 @@
+@@ -21,14 +21,19 @@
  
  #include "hal.h"
  #include "hal_riscv.h"
@@ -23,7 +23,7 @@ index ca7810f..5a96851 100644
    // find a specific kernel function in a compiled program
    // returns `hal_invalid_kernel` if no symbol could be found
    hal::hal_kernel_t program_find_kernel(hal::hal_program_t program,
-@@ -52,6 +57,7 @@ class refsi_hal_device : public hal::hal_device_t {
+@@ -66,6 +71,7 @@ class refsi_hal_device : public hal::hal_device_t {
   private:
    std::recursive_mutex &hal_lock;
    hal::hal_device_info_t *info;
@@ -35,7 +35,7 @@ diff --git a/source/hal_main.cpp b/source/hal_main.cpp
 index 42e7782..263c157 100644
 --- a/source/hal_main.cpp
 +++ b/source/hal_main.cpp
-@@ -29,10 +29,30 @@ class refsi_tutorial_hal : public hal::hal_t {
+@@ -43,10 +43,30 @@ class refsi_tutorial_hal : public hal::hal_t {
    }
  
    // request the creation of a new hal
@@ -72,7 +72,7 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index 5d704c7..3fa5804 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -3,8 +3,14 @@
+@@ -17,8 +17,14 @@
  #include "refsi_hal.h"
  
  refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
@@ -88,7 +88,7 @@ index 5d704c7..3fa5804 100644
  
  hal::hal_kernel_t refsi_hal_device::program_find_kernel(
      hal::hal_program_t program, const char *name) {
-@@ -54,3 +60,5 @@ bool refsi_hal_device::mem_write(hal::hal_addr_t dst, const void *src,
+@@ -68,3 +74,5 @@ bool refsi_hal_device::mem_write(hal::hal_addr_t dst, const void *src,
    refsi_locker locker(hal_lock);
    return false;
  }

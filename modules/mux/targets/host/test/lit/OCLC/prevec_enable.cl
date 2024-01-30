@@ -39,9 +39,8 @@ __kernel void slp_test(__global int *out, __global int *in1, __global int *in2) 
   out[x + 7] = a7;
 }
 
-// This test makes sure that the prevectorization option creates two vector
-// adds. It's basically checking that -cl-vec=slp gets makes the pass pipeline
-// run LLVM's SLP vectorizer, so this test is somewhat cumbersome.
+// This test makes sure that the prevectorization option creates a vector add.
+// It's basically checking that -cl-vec=slp gets makes the pass pipeline run
+// LLVM's SLP vectorizer, so this test is somewhat cumbersome.
 
-// CHECK: add nsw <4 x i32>
-// CHECK: add nsw <4 x i32>
+// CHECK: add nsw <{{[0-9]+}} x i32>

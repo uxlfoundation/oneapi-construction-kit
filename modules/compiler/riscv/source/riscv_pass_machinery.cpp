@@ -21,6 +21,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
+#include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
@@ -81,7 +82,7 @@ RiscvPassMachinery::processOptimizationOptions(
     // Set scalable to off and let users add it explicitly with 'S'.
     vecz_opts.factor.setIsScalable(false);
     llvm::SmallVector<llvm::StringRef, 4> flags;
-    llvm::StringRef vf_flags_ref(vecz_vf_flags_env);
+    const llvm::StringRef vf_flags_ref(vecz_vf_flags_env);
     vf_flags_ref.split(flags, ',');
     for (auto r : flags) {
       if (r == "A" || r == "a") {
@@ -117,7 +118,7 @@ RiscvPassMachinery::processOptimizationOptions(
   // Choices override the cost model
   const char *ptr = std::getenv("CODEPLAY_VECZ_CHOICES");
   if (ptr) {
-    bool success = vecz_opts.choices.parseChoicesString(ptr);
+    const bool success = vecz_opts.choices.parseChoicesString(ptr);
     if (!success) {
       llvm::errs() << "failed to parse the CODEPLAY_VECZ_CHOICES variable\n";
     }
@@ -132,7 +133,7 @@ RiscvPassMachinery::processOptimizationOptions(
   // Allow any decisions made on early linking builtins to be overridden
   // with an env variable
   if (env_debug_prefix) {
-    std::string env_name = *env_debug_prefix + "_EARLY_LINK_BUILTINS";
+    const std::string env_name = *env_debug_prefix + "_EARLY_LINK_BUILTINS";
     if (const char *early_link_builtins_env = getenv(env_name.c_str())) {
       env_var_opts.early_link_builtins = atoi(early_link_builtins_env) != 0;
     }
@@ -191,14 +192,14 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   env_debug_prefix = target.env_debug_prefix;
 #endif
 
-  compiler::BasePassPipelineTuner tuner(options);
+  const compiler::BasePassPipelineTuner tuner(options);
   auto env_var_opts =
       processOptimizationOptions(env_debug_prefix, /* vecz_mode*/ {});
 
   PM.addPass(compiler::utils::TransferKernelMetadataPass());
 
   if (env_debug_prefix) {
-    std::string dump_ir_env_name = *env_debug_prefix + "_DUMP_IR";
+    const std::string dump_ir_env_name = *env_debug_prefix + "_DUMP_IR";
     if (std::getenv(dump_ir_env_name.c_str())) {
       PM.addPass(compiler::utils::SimpleCallbackPass(
           [](llvm::Module &m) { m.print(llvm::dbgs(), /*AAW*/ nullptr); }));
@@ -255,10 +256,13 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
 
   addLLVMDefaultPerModulePipeline(PM, getPB(), options);
 
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ManualTypeLegalizationPass()));
+
   if (env_debug_prefix) {
     // With all passes scheduled, add a callback pass to view the
     // assembly/object file, if requested.
-    std::string dump_asm_env_name = *env_debug_prefix + "_DUMP_ASM";
+    const std::string dump_asm_env_name = *env_debug_prefix + "_DUMP_ASM";
     if (std::getenv(dump_asm_env_name.c_str())) {
       PM.addPass(compiler::utils::SimpleCallbackPass([this](llvm::Module &m) {
         // Clone the module so we leave it in the same state after we compile.

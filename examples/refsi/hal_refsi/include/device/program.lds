@@ -17,6 +17,12 @@
 
 OUTPUT_ARCH( "riscv" )
 
+MEMORY
+{
+    mainmem : ORIGIN = 0x10000, LENGTH = (1 << 27)
+    localmem : ORIGIN = 0x10000000, LENGTH = 0x200000
+}
+
 SECTIONS
 {
 
@@ -24,50 +30,44 @@ SECTIONS
   /* Code and read-only segment                                         */
   /*--------------------------------------------------------------------*/
 
-  /* Begining of code and text segment */
-  . = 0x00010000;
-
-  .text :
-  {
+  .text : {
     *(.text.init)
-  }
+  } >mainmem
 
   /* text: Program code section */
-  .text : 
+  .text :
   {
     *(.text)
     *(.text.*)
     *(.gnu.linkonce.t.*)
-  }
+  } >mainmem
 
   /* rodata: Read-only data */
-  .rodata : 
+  .rodata :
   {
     *(.rdata)
     *(.rodata)
     *(.rodata.*)
     *(.gnu.linkonce.r.*)
-  }
+  } >mainmem
 
   /* End of code and read-only segment */
-  . = ALIGN(0x1000);
 
   /*--------------------------------------------------------------------*/
   /* Initialized data segment                                           */
   /*--------------------------------------------------------------------*/
 
   /* data: Writable data */
-  .data : 
+  .data ALIGN(0x1000) :
   {
     *(.data)
     *(.data.*)
     *(.srodata*)
     *(.gnu.linkonce.d.*)
     *(.comment)
-  }
+  } >mainmem
 
   /* End of initialized data segment */
-  . = ALIGN(16);
 
   /*--------------------------------------------------------------------*/
   /* Uninitialized data segment                                         */
@@ -81,26 +81,23 @@ SECTIONS
 
   /* bss: Uninitialized writeable data section */
   . = .;
-  .bss : 
+  .bss ALIGN(16) :
   {
     *(.bss)
     *(.bss.*)
     *(.sbss*)
     *(.gnu.linkonce.b.*)
     *(COMMON)
-  }
+  } >mainmem
 
 
   /*--------------------------------------------------------------------*/
   /* Local memory                                                       */
   /*--------------------------------------------------------------------*/
-
-  . = 0x10000000;
-
   .local :
   {
     *(.local)
-  }
+  } >localmem
 
   /DISCARD/ : { *(.note.gnu.build-id) }
 }

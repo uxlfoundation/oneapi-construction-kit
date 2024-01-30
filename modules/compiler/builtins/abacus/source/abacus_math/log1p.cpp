@@ -87,8 +87,8 @@ struct helper<abacus_half, abacus_half> {
     if (-0.4f16 < x && x < 0.7f16) {
       // p = fpminimax(log1p(x), [|1,2,3,4,5,6,7,8|],[|11...|],[-0.4;0.7], 0,
       // floating, relative);
-      abacus_half result = abacus::internal::horner_polynomial<abacus_half, 8>(
-          x, __codeplay_log1p_coeff_halfH1);
+      abacus_half result =
+          abacus::internal::horner_polynomial(x, __codeplay_log1p_coeff_halfH1);
       return x * result;
     }
 
@@ -122,9 +122,8 @@ struct helper<abacus_half, abacus_half> {
     // log(x + 1) ~ x(a0 + a1*x + a2*x^2 + ...) = a0*x + a1*x^2 + a2*x^3 + ...
     // aka a poynomial with no constant term.
 
-    abacus_half poly_approx =
-        abacus::internal::horner_polynomial<abacus_half, 9>(
-            significand, __codeplay_log1p_coeff_halfH2);
+    abacus_half poly_approx = abacus::internal::horner_polynomial(
+        significand, __codeplay_log1p_coeff_halfH2);
 
     abacus_half result = poly_approx * significand;
 
@@ -159,7 +158,7 @@ struct helper<T, abacus_half> {
     // input by one.
     significand = significand - 1.0f16;
 
-    T result = significand * abacus::internal::horner_polynomial<T, 9>(
+    T result = significand * abacus::internal::horner_polynomial(
                                  significand, __codeplay_log1p_coeff_halfH2);
 
     result = result +
@@ -170,7 +169,7 @@ struct helper<T, abacus_half> {
 
     result =
         __abacus_select(result,
-                        x * abacus::internal::horner_polynomial<T, 8>(
+                        x * abacus::internal::horner_polynomial(
                                 x, __codeplay_log1p_coeff_halfH1),
                         (approx_threshold_2 < x) && (x < approx_threshold_1));
 
@@ -248,28 +247,29 @@ struct helper<abacus_float, abacus_float> {
 
     abacus_int polynomial_select = 0;
 
-    abacus_float approx_threshold_1 =
+    const abacus_float approx_threshold_1 =
         __abacus_as_float(0x3f2610c3);  // 6.48693263530731201171875E-1
     if (x <= approx_threshold_1 && x >= 0) {
       polynomial_select = 2;
       significand = x;
     }
 
-    abacus_float approx_threshold_2 =
+    const abacus_float approx_threshold_2 =
         __abacus_as_float(0xbec974cf);  //-3.934693038463592529296875E-1
     if (x < 0 && x >= approx_threshold_2) {
       significand = x;
       polynomial_select = 1;
     }
 
-    abacus_float poly_approx = abacus::internal::horner_polynomial(
+    const abacus_float poly_approx = abacus::internal::horner_polynomial(
         significand, __codeplay_log1p_coeff + polynomial_select * 10, 10);
 
     if (polynomial_select != 0) {
       return poly_approx;
     }
 
-    abacus_float result = significand + significand * significand * poly_approx;
+    const abacus_float result =
+        significand + significand * significand * poly_approx;
 
     const abacus_float fexponent = (abacus_float)(exponent);
 
@@ -287,7 +287,7 @@ struct helper<T, abacus_float> {
 
     // Scale the significand in order to fit in the domain of the polynomial
     // approximation
-    SignedType cond = significand < ABACUS_SQRT1_2_F;
+    const SignedType cond = significand < ABACUS_SQRT1_2_F;
 
     significand = __abacus_select(significand, significand * 2.0f, cond);
     exponent = __abacus_select(exponent, exponent - 1, cond);
@@ -296,8 +296,8 @@ struct helper<T, abacus_float> {
     // input by one.
     significand = significand - 1.0f;
 
-    T result = abacus::internal::horner_polynomial<T, 10>(
-        significand, __codeplay_log1p_coeff);
+    T result = abacus::internal::horner_polynomial(significand,
+                                                   __codeplay_log1p_coeff, 10);
 
     result = significand + significand * significand * result;
 
@@ -307,18 +307,18 @@ struct helper<T, abacus_float> {
     const T approx_threshold_1 =
         __abacus_as_float(0x3f2610c3);  // 6.48693263530731201171875E-1
 
-    result = __abacus_select(result,
-                             abacus::internal::horner_polynomial<T, 10>(
-                                 x, __codeplay_log1p_coeff + 20),
-                             (x <= approx_threshold_1) & (x >= 0));
+    result = __abacus_select(
+        result,
+        abacus::internal::horner_polynomial(x, __codeplay_log1p_coeff + 20, 10),
+        (x <= approx_threshold_1) & (x >= 0));
 
     const T approx_threshold_2 =
         __abacus_as_float(0xbec974cf);  //-3.934693038463592529296875E-1
 
-    result = __abacus_select(result,
-                             abacus::internal::horner_polynomial<T, 10>(
-                                 x, __codeplay_log1p_coeff + 10),
-                             (x < 0) & (x >= approx_threshold_2));
+    result = __abacus_select(
+        result,
+        abacus::internal::horner_polynomial(x, __codeplay_log1p_coeff + 10, 10),
+        (x < 0) & (x >= approx_threshold_2));
 
     result = __abacus_select(result, __abacus_copysign(ABACUS_INFINITY, x),
                              (x == -1.0f) | __abacus_isinf(x));
@@ -371,14 +371,11 @@ template <>
 struct helper<abacus_double, abacus_double> {
   static abacus_double _(abacus_double x) {
     if (-0.5 <= x && x < 0.0) {
-      return x * abacus::internal::horner_polynomial<abacus_double, 21>(
-                     x, polynomialD1);
+      return x * abacus::internal::horner_polynomial(x, polynomialD1);
     } else if (0.0 <= x && x < 1.0) {
-      return x * abacus::internal::horner_polynomial<abacus_double, 24>(
-                     x, polynomialD2);
+      return x * abacus::internal::horner_polynomial(x, polynomialD2);
     } else if (1.0 <= x && x < 2.0) {
-      return abacus::internal::horner_polynomial<abacus_double, 16>(
-          x - 1.0, polynomialD3);
+      return abacus::internal::horner_polynomial(x - 1.0, polynomialD3);
     } else {
       return __abacus_log(x + 1.0);
     }
@@ -394,18 +391,17 @@ struct helper<T, abacus_double> {
 
     const SignedType cond1 = (x >= -0.5) & (x < 0.0);
     result = __abacus_select(
-        result, x * abacus::internal::horner_polynomial<T, 21>(x, polynomialD1),
+        result, x * abacus::internal::horner_polynomial(x, polynomialD1),
         cond1);
 
     const SignedType cond2 = (x >= 0.0) & (x < 1.0);
     result = __abacus_select(
-        result, x * abacus::internal::horner_polynomial<T, 24>(x, polynomialD2),
+        result, x * abacus::internal::horner_polynomial(x, polynomialD2),
         cond2);
 
     const SignedType cond3 = (x >= 1.0) & (x < 2.0);
     result = __abacus_select(
-        result,
-        abacus::internal::horner_polynomial<T, 16>(x - 1.0, polynomialD3),
+        result, abacus::internal::horner_polynomial(x - 1.0, polynomialD3),
         cond3);
 
     return result;

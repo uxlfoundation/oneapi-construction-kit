@@ -25,11 +25,18 @@
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/PostDominators.h>
 #include <llvm/Analysis/ValueTracking.h>
+#include <llvm/IR/Argument.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/CFG.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/InstrTypes.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/Support/Casting.h>
 #include <llvm/Support/Debug.h>
+#include <llvm/Support/Error.h>
+#include <llvm/Support/TypeSize.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <queue>
@@ -90,10 +97,10 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
   };
 
   /// @brief Type that maps exit blocks to exit mask information.
-  using DenseExitPHIMap = SmallDenseMap<BasicBlock const *, PHINode *, 2>;
+  using DenseExitPHIMap = SmallDenseMap<const BasicBlock *, PHINode *, 2>;
   /// @brief Type that maps exiting blocks to update mask information.
   using DenseExitUpdateMap =
-      SmallDenseMap<BasicBlock const *, BinaryOperator *, 2>;
+      SmallDenseMap<const BasicBlock *, BinaryOperator *, 2>;
 
   struct LoopMasksInfo {
     /// @brief Keep track of which instances left the loop through which exit
@@ -145,8 +152,9 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
   /// @brief Apply masks to basic blocks in the function, to prevent
   /// side-effects for inactive instances.
   ///
-  /// @return true if masks were applied successfully, false otherwise.
-  bool applyMasks();
+  /// @return llvm::Error::success if masks were applied successfully, an error
+  /// message explaining the failure otherwise.
+  Error applyMasks();
 
   /// @brief Apply a mask to the given basic block, to prevent side-effects for
   /// inactive instances.
@@ -154,8 +162,9 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
   /// @param[in] BB Basic block to apply masks to.
   /// @param[in] mask Mask to apply.
   ///
-  /// @return true if masks were applied successfully, false otherwise.
-  bool applyMask(BasicBlock &BB, Value *mask);
+  /// @return llvm::Error::success if masks were applied successfully, an error
+  /// message explaining the failure otherwise.
+  Error applyMask(BasicBlock &BB, Value *mask);
 
   /// @brief Emit a call instructions to the masked version of the called
   /// function.
@@ -207,6 +216,15 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
   /// @param[out] toDelete mapping of deleted unmasked operations
   /// @return true if it is valid to mask this call, false otherwise
   bool applyMaskToCall(CallInst *CI, Value *mask, DeletionMap &toDelete);
+
+  /// @brief Attempt to apply a mask to an atomic instruction via a builtin
+  /// call.
+  ///
+  /// @param[in] I The (atomic) instruction to apply the mask to
+  /// @param[in] mask The mask to apply to the masked atomic
+  /// @param[out] toDelete mapping of deleted unmasked operations
+  /// @return true if it is valid to mask this atomic, false otherwise
+  bool applyMaskToAtomic(Instruction &I, Value *mask, DeletionMap &toDelete);
 
   /// @brief Linearize a CFG.
   /// @return true if no problem occurred, false otherwise.
@@ -378,6 +396,25 @@ Instruction *copyExitMask(Value *mask, StringRef base, BasicBlock &BB) {
   VECZ_ERROR_IF(!mask, "Trying to copy exit mask with invalid arguments");
   return copyMask(mask, base + ".exit_mask", BB.getTerminator());
 }
+
+/// Wrap a string into an llvm::StringError, pointing to an instruction.
+static inline Error makeStringError(const Twine &message, Instruction &I) {
+  std::string helper_str = message.str();
+  raw_string_ostream helper_stream(helper_str);
+  helper_stream << " " << I;
+  return make_error<StringError>(helper_stream.str(), inconvertibleErrorCode());
+}
+
+// A helper method to determine whether a branch condition
+// (expected to be an i1 result of a comparison instruction) is truly uniform.
+static bool isBranchCondTrulyUniform(Value *cond, UniformValueResult &UVR) {
+  const auto *cmp = dyn_cast_if_present<CmpInst>(cond);
+  if (!cmp || cmp->getType()->isVectorTy()) {
+    return false;
+  }
+
+  return UVR.isTrueUniform(cmp);
+}
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -399,7 +436,7 @@ ControlFlowConversionState::ControlFlowConversionState(
 
 PreservedAnalyses ControlFlowConversionState::Impl::run(
     Function &F, FunctionAnalysisManager &AM) {
-  auto const &CFGR = AM.getResult<CFGAnalysis>(F);
+  const auto &CFGR = AM.getResult<CFGAnalysis>(F);
   if (CFGR.getFailed()) {
     ++VeczCFGFail;
     return VU.setFailed("Cannot vectorize the CFG for", &F, &F);
@@ -538,8 +575,9 @@ bool ControlFlowConversionState::Impl::convertToDataFlow() {
                          "Could not generate masks for");
     return false;
   }
-  if (!applyMasks()) {
-    emitVeczRemarkMissed(&F, VU.scalarFunction(), "Could not apply masks for");
+  if (auto err = applyMasks()) {
+    emitVeczRemarkMissed(&F, VU.scalarFunction(), "Could not apply masks for",
+                         llvm::toString(std::move(err)));
     return false;
   }
 
@@ -671,7 +709,7 @@ bool ControlFlowConversionState::Impl::createEntryMasks(BasicBlock &BB) {
   //
   // Here we only store the preheader's exit block as we handle the latch
   // in case the loop is divergent in the caller function.
-  auto const *const LTag = DR->getTag(&BB).loop;
+  const auto *const LTag = DR->getTag(&BB).loop;
   if (LTag && LTag->header == &BB) {
     BasicBlock *preheader = LTag->preheader;
     VECZ_ERROR_IF(!preheader, "BasicBlock tag is not defined");
@@ -902,9 +940,9 @@ bool ControlFlowConversionState::Impl::createLoopExitMasks(LoopTag &LTag) {
   Type *maskTy = Type::getInt1Ty(F.getContext());
   SmallVector<Loop::Edge, 1> exitEdges;
   LTag.loop->getExitEdges(exitEdges);
-  for (Loop::Edge &EE : exitEdges) {
-    auto const *const exitingBlock = EE.first;
-    auto const *const exitBlock = EE.second;
+  for (const Loop::Edge &EE : exitEdges) {
+    const auto *const exitingBlock = EE.first;
+    const auto *const exitBlock = EE.second;
     // Divergent loop need to keep track of which instance left at which exit.
     if (LTag.isLoopDivergent() && DR->isDivergent(*exitBlock)) {
       // The value of the exit mask of a divergent loop is a phi function
@@ -948,7 +986,7 @@ bool ControlFlowConversionState::Impl::createLoopExitMasks(LoopTag &LTag) {
     return innerLoop;
   };
 
-  for (Loop::Edge &EE : exitEdges) {
+  for (const Loop::Edge &EE : exitEdges) {
     BasicBlock *exitingBlock = const_cast<BasicBlock *>(EE.first);
     BasicBlock *exitBlock = const_cast<BasicBlock *>(EE.second);
 
@@ -956,7 +994,7 @@ bool ControlFlowConversionState::Impl::createLoopExitMasks(LoopTag &LTag) {
       PHINode *REM = LMask.persistedDivergentExitMasks[exitingBlock];
       REM->addIncoming(getDefaultValue(REM->getType()), LTag.preheader);
 
-      auto const *const exitingLTag = DR->getTag(exitingBlock).loop;
+      const auto *const exitingLTag = DR->getTag(exitingBlock).loop;
       VECZ_ERROR_IF(!exitingLTag, "Loop tag is not defined");
 
       // By default, the second operand of the mask update is the exit
@@ -1029,7 +1067,7 @@ bool ControlFlowConversionState::Impl::createCombinedLoopExitMask(
   auto *const Loop = LTag.loop;
   Loop->getExitEdges(exitEdges);
   auto &LMask = LoopMasks[Loop];
-  for (Loop::Edge &EE : exitEdges) {
+  for (const Loop::Edge &EE : exitEdges) {
     BasicBlock *exitingBlock = const_cast<BasicBlock *>(EE.first);
     BasicBlock *exitBlock = const_cast<BasicBlock *>(EE.second);
     if (DR->isDivergent(*exitBlock)) {
@@ -1075,19 +1113,21 @@ bool ControlFlowConversionState::Impl::createCombinedLoopExitMask(
   return true;
 }
 
-bool ControlFlowConversionState::Impl::applyMasks() {
+Error ControlFlowConversionState::Impl::applyMasks() {
   for (auto &BB : F) {
     // Use masks with instructions that have side-effects.
     if (!DR->isUniform(BB) && !DR->isByAll(BB)) {
       auto *const entryMask = MaskInfos[&BB].entryMask;
       VECZ_ERROR_IF(!entryMask, "BasicBlock should have an entry mask");
-      VECZ_FAIL_IF(!applyMask(BB, entryMask));
+      if (auto err = applyMask(BB, entryMask)) {
+        return err;
+      }
     }
   }
-  return true;
+  return Error::success();
 }
 
-bool ControlFlowConversionState::Impl::applyMask(BasicBlock &BB, Value *mask) {
+Error ControlFlowConversionState::Impl::applyMask(BasicBlock &BB, Value *mask) {
   // Packetization hasn't happened yet so this better be a scalar 1 bit int.
   assert(mask->getType()->isIntegerTy(1) && "CFG mask type should be int1");
   // Map the unmasked instruction with the masked one.
@@ -1102,17 +1142,18 @@ bool ControlFlowConversionState::Impl::applyMask(BasicBlock &BB, Value *mask) {
     // Turn loads and stores into masked loads and stores.
     if (memOp && (memOp->isLoad() || memOp->isStore())) {
       if (!tryApplyMaskToMemOp(*memOp, mask, toDelete)) {
-        return false;
+        return makeStringError("Could not apply mask to MemOp", I);
       }
     } else if (auto *CI = dyn_cast<CallInst>(&I)) {
       // Turn calls into masked calls if possible.
       if (!applyMaskToCall(CI, mask, toDelete)) {
-        return false;
+        return makeStringError("Could not apply mask to call instruction", I);
       }
     } else if (I.isAtomic() && !isa<FenceInst>(&I)) {
-      // We need to apply masks to atomic functions, but it is currently not
-      // implemented. See CA-3294.
-      return false;
+      // Turn atomics into calls to masked builtins if possible.
+      if (!applyMaskToAtomic(I, mask, toDelete)) {
+        return makeStringError("Could not apply mask to atomic instruction", I);
+      }
     } else if (auto *branch = dyn_cast<BranchInst>(&I)) {
       // We have to be careful with infinite loops, because if they exist on a
       // divergent code path, they will always be entered and will hang the
@@ -1138,7 +1179,8 @@ bool ControlFlowConversionState::Impl::applyMask(BasicBlock &BB, Value *mask) {
     updateMaps(unmasked, masked);
     IRCleanup::deleteInstructionNow(unmasked);
   }
-  return true;
+
+  return Error::success();
 }
 
 CallInst *ControlFlowConversionState::Impl::emitMaskedVersion(CallInst *CI,
@@ -1292,8 +1334,8 @@ bool ControlFlowConversionState::Impl::applyMaskToCall(CallInst *CI,
   }
 
   // Builtins without side effects do not need to be masked.
-  auto const builtin = Ctx.builtins().analyzeBuiltin(*callee);
-  auto const props = builtin.properties;
+  const auto builtin = Ctx.builtins().analyzeBuiltin(*callee);
+  const auto props = builtin.properties;
   if (props & compiler::utils::eBuiltinPropertyNoSideEffects) {
     LLVM_DEBUG(dbgs() << "vecz-cf: Called function is an pure builtin\n");
     return true;
@@ -1337,6 +1379,70 @@ bool ControlFlowConversionState::Impl::applyMaskToCall(CallInst *CI,
 
   LLVM_DEBUG(dbgs() << "vecz-cf: Replaced " << *CI << "\n");
   LLVM_DEBUG(dbgs() << "          with " << *newCI << "\n");
+
+  return true;
+}
+
+bool ControlFlowConversionState::Impl::applyMaskToAtomic(
+    Instruction &I, Value *mask, DeletionMap &toDelete) {
+  LLVM_DEBUG(dbgs() << "vecz-cf: Now at atomic inst " << I << "\n");
+
+  SmallVector<Value *, 8> maskedFnArgs;
+  VectorizationContext::MaskedAtomic MA;
+  MA.VF = ElementCount::getFixed(1);
+  MA.IsVectorPredicated = VU.choices().vectorPredication();
+
+  if (auto *atomicI = dyn_cast<AtomicRMWInst>(&I)) {
+    MA.Align = atomicI->getAlign();
+    MA.BinOp = atomicI->getOperation();
+    MA.IsVolatile = atomicI->isVolatile();
+    MA.Ordering = atomicI->getOrdering();
+    MA.SyncScope = atomicI->getSyncScopeID();
+    MA.ValTy = atomicI->getType();
+    MA.PointerTy = atomicI->getPointerOperand()->getType();
+
+    // Set up the arguments to this function
+    maskedFnArgs = {atomicI->getPointerOperand(), atomicI->getValOperand(),
+                    mask};
+
+  } else if (auto *cmpxchgI = dyn_cast<AtomicCmpXchgInst>(&I)) {
+    MA.Align = cmpxchgI->getAlign();
+    MA.BinOp = AtomicRMWInst::BAD_BINOP;
+    MA.IsWeak = cmpxchgI->isWeak();
+    MA.IsVolatile = cmpxchgI->isVolatile();
+    MA.Ordering = cmpxchgI->getSuccessOrdering();
+    MA.CmpXchgFailureOrdering = cmpxchgI->getFailureOrdering();
+    MA.SyncScope = cmpxchgI->getSyncScopeID();
+    MA.ValTy = cmpxchgI->getCompareOperand()->getType();
+    MA.PointerTy = cmpxchgI->getPointerOperand()->getType();
+
+    // Set up the arguments to this function
+    maskedFnArgs = {cmpxchgI->getPointerOperand(),
+                    cmpxchgI->getCompareOperand(), cmpxchgI->getNewValOperand(),
+                    mask};
+  } else {
+    return false;
+  }
+
+  // Create the new function and replace the old one with it
+  // Get the masked function
+  Function *maskedAtomicFn = Ctx.getOrCreateMaskedAtomicFunction(
+      MA, VU.choices(), ElementCount::getFixed(1));
+  VECZ_FAIL_IF(!maskedAtomicFn);
+  // We don't have a vector length just yet - pass in one as a dummy.
+  if (MA.IsVectorPredicated) {
+    maskedFnArgs.push_back(
+        ConstantInt::get(IntegerType::getInt32Ty(I.getContext()), 1));
+  }
+
+  CallInst *maskedCI = CallInst::Create(maskedAtomicFn, maskedFnArgs, "", &I);
+  VECZ_FAIL_IF(!maskedCI);
+
+  I.replaceAllUsesWith(maskedCI);
+  toDelete.emplace_back(&I, maskedCI);
+
+  LLVM_DEBUG(dbgs() << "vecz-cf: Replaced " << I << "\n");
+  LLVM_DEBUG(dbgs() << "          with " << *maskedCI << "\n");
 
   return true;
 }
@@ -1411,9 +1517,29 @@ bool ControlFlowConversionState::Impl::createBranchReductions() {
     auto *TI = BB.getTerminator();
     if (BranchInst *Branch = dyn_cast<BranchInst>(TI)) {
       if (Branch->isConditional()) {
-        auto *const cond = Branch->getCondition();
+        auto *cond = Branch->getCondition();
         if (isa<Constant>(cond)) {
           continue;
+        }
+
+        // On divergent paths, ensure that only active lanes contribute to a
+        // branch condition; merge the branch condition with the active lane
+        // mask. This ensures that disabled lanes don't spuriously contribute a
+        // 'true' value into the reduced branch condition.
+        // Note that the distinction between 'uniform' and 'divergent' isn't
+        // 100% sufficient for our purposes here, because even uniform values
+        // may read undefined/poison values when masked out.
+        // Don't perform this on uniform loops as those may be unconditionally
+        // entered even when no work-items are active. Masking the loop exit
+        // with the entry mask would mean that the loop never exits.
+        // FIXME: Is this missing incorrect branches in uniform blocks/loops?
+        if (auto *LTag = DR->getTag(&BB).loop;
+            DR->isDivergent(BB) && (!LTag || LTag->isLoopDivergent())) {
+          if (!isBranchCondTrulyUniform(cond, *UVR)) {
+            cond = BinaryOperator::Create(Instruction::BinaryOps::And, cond,
+                                          MaskInfos[&BB].entryMask,
+                                          cond->getName() + "_active", Branch);
+          }
         }
 
         const auto &name = needsAllOfMask ? nameAll : nameAny;
@@ -1610,7 +1736,7 @@ bool ControlFlowConversionState::Impl::uniformizeDivergentLoops() {
         // Order the loop exit blocks such that:
         // - divergent loop exits come first
         // - smallest DCBI come first
-        auto const middle = std::partition(
+        const auto middle = std::partition(
             exitBlocks.begin(), exitBlocks.end(),
             [this](BasicBlock *BB) { return DR->isDivergent(*BB); });
         std::sort(exitBlocks.begin(), middle,
@@ -1727,7 +1853,7 @@ bool ControlFlowConversionState::Impl::rewireDivergentLoopExitBlocks(
         // proven otherwise, should not.
         break;
       case Instruction::Br: {
-        unsigned keepIdx = succIdx == 0 ? 1 : 0;
+        const unsigned keepIdx = succIdx == 0 ? 1 : 0;
         auto *newT = BranchInst::Create(T->getSuccessor(keepIdx), T);
 
         updateMaps(T, newT);
@@ -1829,7 +1955,7 @@ bool ControlFlowConversionState::Impl::rewireDivergentLoopExitBlocks(
       {
         SmallPtrSet<BasicBlock *, 1> predsToRemove;
         for (BasicBlock *pred : predecessors(EB)) {
-          auto const *const predLTag = DR->getTag(pred).loop;
+          const auto *const predLTag = DR->getTag(pred).loop;
           // All predecessors of the divergent loop exit that belong in a loop
           // contained in the outermost loop left by that exit need their
           // edge removed.
@@ -2174,7 +2300,7 @@ bool ControlFlowConversionState::Impl::replaceUsesOutsideDivergentLoop(
     // If the use is in a pure exit block of a divergent loop, don't replace
     // the use if it comes from an optional exit block of that loop.
     if (PHINode *PHI = dyn_cast<PHINode>(user)) {
-      auto const *const exitedLoop = DR->getTag(blockUse).outermostExitedLoop;
+      const auto *const exitedLoop = DR->getTag(blockUse).outermostExitedLoop;
       if (exitedLoop && exitedLoop->pureExit == blockUse) {
         BasicBlock *incoming = PHI->getIncomingBlock(U);
         if (!exitedLoop->loop->contains(incoming)) {
@@ -2239,10 +2365,10 @@ void removeDeferrals(BasicBlock *src, DenseDeferralMap &deferrals) {
 
 bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
   // The entry block cannot be targeted.
-  auto const &DCBI = DR->getBlockOrdering();
-  size_t const numBlocks = DCBI.size();
+  const auto &DCBI = DR->getBlockOrdering();
+  const size_t numBlocks = DCBI.size();
   DenseSet<BasicBlock *> targets(numBlocks - 1);
-  for (auto const &tag : make_range(std::next(DCBI.begin()), DCBI.end())) {
+  for (const auto &tag : make_range(std::next(DCBI.begin()), DCBI.end())) {
     targets.insert(tag.BB);
   }
 
@@ -2263,7 +2389,7 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
   lin.infos.reserve(numBlocks);
   lin.data.reserve(numBlocks);
   for (size_t BBIndex = 0; BBIndex != numBlocks; ++BBIndex) {
-    auto const &BBTag = DR->getBlockTag(BBIndex);
+    const auto &BBTag = DR->getBlockTag(BBIndex);
     BasicBlock *BB = BBTag.BB;
     lin.beginBlock(BB);
 
@@ -2298,13 +2424,13 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
             continue;
           }
 
-          size_t const deferredIndex = DR->getTagIndex(deferred);
+          const size_t deferredIndex = DR->getTagIndex(deferred);
           if (nextIndex == ~size_t(0) || nextIndex > deferredIndex) {
             nextIndex = deferredIndex;
           }
         }
 
-        size_t const succIndex = DR->getTagIndex(succ);
+        const size_t succIndex = DR->getTagIndex(succ);
         if (!targeted.count(succ)) {
           // If we have not found a target or there is a better one.
           if (nextIndex == ~size_t(0) || nextIndex > succIndex) {
@@ -2346,7 +2472,7 @@ bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
 
       size_t nextIndex = ~size_t(0);
       for (BasicBlock *deferred : availableTargets) {
-        size_t const deferredIndex = DR->getTagIndex(deferred);
+        const size_t deferredIndex = DR->getTagIndex(deferred);
         if (nextIndex == ~size_t(0) || nextIndex > deferredIndex) {
           LLVM_DEBUG(dbgs()
                      << (nextIndex == ~size_t(0)
@@ -2423,12 +2549,12 @@ bool ControlFlowConversionState::Impl::linearizeCFG() {
   VECZ_FAIL_IF(!computeNewTargets(lin));
 
   auto dataIt = lin.data.begin();
-  for (auto const &newTargetInfo : lin.infos) {
+  for (const auto &newTargetInfo : lin.infos) {
     BasicBlock *BB = newTargetInfo.BB;
 
     // Get the new target info for this block
-    auto const numTargets = newTargetInfo.numTargets;
-    auto const newTargets = dataIt;
+    const auto numTargets = newTargetInfo.numTargets;
+    const auto newTargets = dataIt;
     dataIt += numTargets;
 
     LLVM_DEBUG(dbgs() << BB->getName() << ":\n");
@@ -2533,13 +2659,13 @@ bool ControlFlowConversionState::Impl::generateSelects() {
   // For each basic block that has only one predecessor and phi nodes, we need
   // to either blend those phi nodes into select instructions or try to move
   // the phi nodes up the chain of linearized path.
-  for (auto const &BTag : DR->getBlockOrdering()) {
+  for (const auto &BTag : DR->getBlockOrdering()) {
     BasicBlock *B = BTag.BB;
     if (B->hasNPredecessors(1) || DR->isBlend(*B)) {
       if (PHINode *PHI = dyn_cast<PHINode>(&B->front())) {
         LLVM_DEBUG(dbgs() << B->getName() << ":\n");
-        SmallPtrSet<BasicBlock *, 2> incomings(PHI->block_begin(),
-                                               PHI->block_end());
+        const SmallPtrSet<BasicBlock *, 2> incomings(PHI->block_begin(),
+                                                     PHI->block_end());
         BasicBlock *cur = B;
         while (cur->hasNPredecessors(1) && !incomings.empty()) {
           cur = cur->getSinglePredecessor();
@@ -2655,9 +2781,9 @@ bool ControlFlowConversionState::Impl::repairSSA() {
 bool ControlFlowConversionState::Impl::updatePHIsIncomings() {
   // We need to update the incoming blocks of phi nodes whose predecessors may
   // have changed since we have not changed the phi nodes during the rewiring.
-  for (auto const &BBTag : DR->getBlockOrdering()) {
+  for (const auto &BBTag : DR->getBlockOrdering()) {
     BasicBlock *BB = BBTag.BB;
-    SmallPtrSet<BasicBlock *, 4> preds(pred_begin(BB), pred_end(BB));
+    const SmallPtrSet<BasicBlock *, 4> preds(pred_begin(BB), pred_end(BB));
     for (auto it = BB->begin(); it != BB->end();) {
       Instruction &I = *it++;
       PHINode *PHI = dyn_cast<PHINode>(&I);
@@ -2665,8 +2791,8 @@ bool ControlFlowConversionState::Impl::updatePHIsIncomings() {
         break;
       }
 
-      SmallPtrSet<BasicBlock *, 4> incomings(PHI->block_begin(),
-                                             PHI->block_end());
+      const SmallPtrSet<BasicBlock *, 4> incomings(PHI->block_begin(),
+                                                   PHI->block_end());
 
       // If no predecessors of `BB` is an incoming block of its PHI Node, then
       // completely transform the PHI Node into multiple select instructions.
@@ -2752,9 +2878,9 @@ bool ControlFlowConversionState::Impl::updatePHIsIncomings() {
 bool ControlFlowConversionState::Impl::blendInstructions() {
   LLVM_DEBUG(dbgs() << "CFC: BLEND INSTRUCTIONS\n");
 
-  auto addSuccessors = [this](BasicBlockTag const &BTag, BlockQueue &queue,
+  auto addSuccessors = [this](const BasicBlockTag &BTag, BlockQueue &queue,
                               DenseSet<BasicBlock *> &visited,
-                              BasicBlockTag const &dstTag) {
+                              const BasicBlockTag &dstTag) {
     for (BasicBlock *succ : successors(BTag.BB)) {
       // Allow latch if 'succ' belongs in 'dst's loop and 'dst' is the header
       // of that loop.
@@ -2891,7 +3017,7 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
 
   SmallPtrSet<Value *, 16> spareBlends;
 
-  for (auto const &dstTag : DR->getBlockOrdering()) {
+  for (const auto &dstTag : DR->getBlockOrdering()) {
     BasicBlock *dst = dstTag.BB;
     LLVM_DEBUG(dbgs() << "Blending instructions used in " << dst->getName()
                       << ":\n");
@@ -2940,7 +3066,7 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
         DenseSet<BasicBlock *> visited;
         BlockQueue queue(*DR);
 
-        auto const &srcTag = DR->getTag(src);
+        const auto &srcTag = DR->getTag(src);
 
         addSuccessors(srcTag, queue, visited, dstTag);
 
@@ -2948,7 +3074,7 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
         if (srcLoop && srcLoop->isLoopDivergent()) {
           if (dst != srcLoop->header) {
             auto &srcMasks = LoopMasks[srcLoop->loop];
-            auto const &headerTag = DR->getTag(srcLoop->header);
+            const auto &headerTag = DR->getTag(srcLoop->header);
 
             // If 'opDef' is an update loop exit mask, set an entry point in
             // the loop header.
@@ -2975,7 +3101,7 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
         }
 
         while (!queue.empty()) {
-          BasicBlockTag const &curTag = queue.pop();
+          const BasicBlockTag &curTag = queue.pop();
           BasicBlock *const cur = curTag.BB;
 
           LLVM_DEBUG(dbgs() << "\t\t\tPopping " << cur->getName() << "\n");
@@ -3066,7 +3192,7 @@ bool ControlFlowConversionState::Impl::simplifyMasks() {
   // however linearization and/or BOSCC can sometimes delete them from under
   // our nose so it's only safe just to go through all the boolean operations
   // and see if we can simplify any of them.
-  for (auto const &BBTag : DR->getBlockOrdering()) {
+  for (const auto &BBTag : DR->getBlockOrdering()) {
     SmallVector<Instruction *, 16> toDelete;
     for (auto &I : *BBTag.BB) {
       if (isa<SelectInst>(&I) || (I.getType()->getScalarSizeInBits() == 1 &&
@@ -3098,12 +3224,12 @@ bool ControlFlowConversionState::computeBlockOrdering() {
 }
 
 bool ControlFlowConversionState::Impl::checkBlocksOrder() const {
-  auto const &DCBI = DR->getBlockOrdering();
+  const auto &DCBI = DR->getBlockOrdering();
   VECZ_ERROR_IF(F.size() != DCBI.size(),
                 "Worklist does not contain all blocks");
 
   uint32_t next = 0u;
-  for (auto const &BBTag : DCBI) {
+  for (const auto &BBTag : DCBI) {
     VECZ_ERROR_IF(BBTag.pos != next,
                   "BasicBlock indices not in consecutive order");
     ++next;

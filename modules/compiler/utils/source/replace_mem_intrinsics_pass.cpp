@@ -27,7 +27,7 @@ namespace utils {
 
 PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
                                                 FunctionAnalysisManager &FAM) {
-  TargetTransformInfo &TTI = FAM.getResult<TargetIRAnalysis>(F);
+  const TargetTransformInfo &TTI = FAM.getResult<TargetIRAnalysis>(F);
   SmallVector<CallInst *, 4> CallsToProcess;
 
   for (auto &B : F) {

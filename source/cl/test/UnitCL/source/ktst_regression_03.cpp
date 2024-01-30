@@ -1262,7 +1262,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                       switch (leftovers) {
                         case 2:
                           ret = 2 * n + 1;
-                          CARGO_FALLTHROUGH;
+                          [[fallthrough]];
                         case 1:
                           ret += 3 * n - 1;
                           break;
@@ -1270,7 +1270,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                       switch (leftovers) {
                         case 2:
                           ret /= n;
-                          CARGO_FALLTHROUGH;
+                          [[fallthrough]];
                         case 1:
                           ret--;
                           break;

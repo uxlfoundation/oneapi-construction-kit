@@ -1,0 +1,94 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env spv1.1 -o %spv_file_s %s %}
+; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 84
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+          %2 = OpExtInstImport "OpenCL.DebugInfo.100"
+               OpMemoryModel Physical64 OpenCL
+         %40 = OpString "/tmp/kernel.cpp"
+         %41 = OpString "//__CSK_MD5:778eaa9cd957459f44d042d2dd1bf574"
+         %57 = OpString "unsigned"
+         %60 = OpString "/include/opencl-c-base.h"
+         %61 = OpString "//__CSK_MD5:8040a97cda029467f3f64c25e932a46e"
+         %65 = OpString ""
+        %700 = OpString "foo"
+        %701 = OpString "_Z3foo"
+        %800 = OpString "bar"
+        %801 = OpString "_Z3bar"
+        %900 = OpString "baz"
+        %901 = OpString "_Z3baz"
+               OpSource OpenCL_C 102000
+
+               OpName %glob "glob"
+
+               OpModuleProcessed "Debug info producer: clang version 17.0.3 (git@github.com:llvm/llvm-project.git 2170252b443f898d7c650ce93ab701a697c351df)"
+       %uint = OpTypeInt 32 0
+    %uint_64 = OpConstant %uint 64
+       %void = OpTypeVoid
+   %ptr_uint = OpTypePointer CrossWorkgroup %uint
+       %none = OpExtInst %void %2 DebugInfoNone
+     %source = OpExtInst %void %2 DebugSource %40 %41
+         %cu = OpExtInst %void %2 DebugCompilationUnit 65536 5 %source OpenCL_C
+         %basicty = OpExtInst %void %2 DebugTypeBasic %57 %uint_64 Unsigned
+ %ext_source = OpExtInst %void %2 DebugSource %60 %61
+       %glob = OpVariable %ptr_uint CrossWorkgroup
+
+         ; An optimized out variable
+         %70 = OpExtInst %void %2 DebugGlobalVariable %700 %basicty %ext_source 0 0 %cu %701 %none FlagFwdDecl
+         %71 = OpExtInst %void %2 DebugImportedEntity %65 ImportedDeclaration %ext_source %70 96 0 %cu
+
+         ; A constant variable
+         %80 = OpExtInst %void %2 DebugGlobalVariable %800 %basicty %ext_source 0 0 %cu %801 %uint_64 FlagFwdDecl
+         %81 = OpExtInst %void %2 DebugImportedEntity %65 ImportedDeclaration %ext_source %80 96 0 %cu
+
+         ; A global variable
+         %90 = OpExtInst %void %2 DebugGlobalVariable %900 %basicty %ext_source 0 0 %cu %901 %glob FlagFwdDecl
+         %91 = OpExtInst %void %2 DebugImportedEntity %65 ImportedDeclaration %ext_source %90 96 0 %cu
+
+; CHECK: @glob = addrspace(1) global i32 undef, !dbg [[BAZEXPR:![0-9]+]]
+
+; CHECK-DAG: [[BAZEXPR]] = !DIGlobalVariableExpression(var: [[BAZ:![0-9]+]], expr: !DIExpression())
+
+; CHECK-DAG: [[BAZ]] = distinct !DIGlobalVariable(name: "baz", linkageName: "_Z3baz",
+; CHECK-SAME:           scope: [[CU:![0-9]+]], file: [[EXT_FILE:![0-9]+]], type: [[TY:![0-9]+]]
+
+; CHECK-DAG: [[CU]] = distinct !DICompileUnit(
+; CHECK-SAME:           file: [[FILE:![0-9]+]],
+; CHECK-SAME:           globals: [[GLOBALS:![0-9]+]]{{[,)]}}
+
+; CHECK-DAG: [[GLOBALS]] = !{[[FOOEXPR:![0-9]+]], [[BAREXPR:![0-9]+]], [[BAZEXPR]]}
+
+; CHECK-DAG: [[TY]] = !DIBasicType(name: "unsigned", size: 64, encoding: DW_ATE_unsigned{{[,)]}}
+
+; CHECK-DAG: [[FOOEXPR]] = !DIGlobalVariableExpression(var: [[FOO:![0-9]+]],
+; CHECK-DAG: [[FOO]] = distinct !DIGlobalVariable(name: "foo", linkageName: "_Z3foo",
+; CHECK-DAG: [[BAREXPR]] = !DIGlobalVariableExpression(var: [[BAR:![0-9]+]],
+; CHECK-DAG: [[BAR]] = distinct !DIGlobalVariable(name: "bar", linkageName: "_Z3bar",
+
+; CHECK-DAG: [[FILE]] = !DIFile(filename: "kernel.cpp", directory: "/tmp", checksumkind: CSK_MD5, checksum: "778eaa9cd957459f44d042d2dd1bf574"
+; CHECK-DAG: [[EXT_FILE]] = !DIFile(filename: "opencl-c-base.h", directory: "/include", checksumkind: CSK_MD5, checksum: "8040a97cda029467f3f64c25e932a46e"

@@ -34,14 +34,14 @@ struct helper {
     const T diff = x - truncated;
 
     // Add 1 to truncated value if diff and x are positive
-    SignedType is_positive = (diff > 0.0) & (x >= 0.0);
+    const SignedType is_positive = (diff > 0.0) & (x >= 0.0);
     const T incremented = truncated + 1.0;
     T result = __abacus_select(truncated, incremented, is_positive);
     result = __abacus_copysign(result, x);  // 0.0 -> -0.0
 
     // Return the original input for INF, NaN, and floats which already
     // represent integers
-    SignedType identity =
+    const SignedType identity =
         ~__abacus_isnormal(x) | abacus::internal::is_integer_quick(x);
     result = __abacus_select(result, x, identity);
 
@@ -90,26 +90,28 @@ T ceil(const T x) {
 }  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-abacus_half __abacus_ceil(abacus_half x) { return ceil<>(x); }
-abacus_half2 __abacus_ceil(abacus_half2 x) { return ceil<>(x); }
-abacus_half3 __abacus_ceil(abacus_half3 x) { return ceil<>(x); }
-abacus_half4 __abacus_ceil(abacus_half4 x) { return ceil<>(x); }
-abacus_half8 __abacus_ceil(abacus_half8 x) { return ceil<>(x); }
-abacus_half16 __abacus_ceil(abacus_half16 x) { return ceil<>(x); }
+abacus_half ABACUS_API __abacus_ceil(abacus_half x) { return ceil<>(x); }
+abacus_half2 ABACUS_API __abacus_ceil(abacus_half2 x) { return ceil<>(x); }
+abacus_half3 ABACUS_API __abacus_ceil(abacus_half3 x) { return ceil<>(x); }
+abacus_half4 ABACUS_API __abacus_ceil(abacus_half4 x) { return ceil<>(x); }
+abacus_half8 ABACUS_API __abacus_ceil(abacus_half8 x) { return ceil<>(x); }
+abacus_half16 ABACUS_API __abacus_ceil(abacus_half16 x) { return ceil<>(x); }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-abacus_float __abacus_ceil(abacus_float x) { return ceil<>(x); }
-abacus_float2 __abacus_ceil(abacus_float2 x) { return ceil<>(x); }
-abacus_float3 __abacus_ceil(abacus_float3 x) { return ceil<>(x); }
-abacus_float4 __abacus_ceil(abacus_float4 x) { return ceil<>(x); }
-abacus_float8 __abacus_ceil(abacus_float8 x) { return ceil<>(x); }
-abacus_float16 __abacus_ceil(abacus_float16 x) { return ceil<>(x); }
+abacus_float ABACUS_API __abacus_ceil(abacus_float x) { return ceil<>(x); }
+abacus_float2 ABACUS_API __abacus_ceil(abacus_float2 x) { return ceil<>(x); }
+abacus_float3 ABACUS_API __abacus_ceil(abacus_float3 x) { return ceil<>(x); }
+abacus_float4 ABACUS_API __abacus_ceil(abacus_float4 x) { return ceil<>(x); }
+abacus_float8 ABACUS_API __abacus_ceil(abacus_float8 x) { return ceil<>(x); }
+abacus_float16 ABACUS_API __abacus_ceil(abacus_float16 x) { return ceil<>(x); }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-abacus_double __abacus_ceil(abacus_double x) { return ceil<>(x); }
-abacus_double2 __abacus_ceil(abacus_double2 x) { return ceil<>(x); }
-abacus_double3 __abacus_ceil(abacus_double3 x) { return ceil<>(x); }
-abacus_double4 __abacus_ceil(abacus_double4 x) { return ceil<>(x); }
-abacus_double8 __abacus_ceil(abacus_double8 x) { return ceil<>(x); }
-abacus_double16 __abacus_ceil(abacus_double16 x) { return ceil<>(x); }
+abacus_double ABACUS_API __abacus_ceil(abacus_double x) { return ceil<>(x); }
+abacus_double2 ABACUS_API __abacus_ceil(abacus_double2 x) { return ceil<>(x); }
+abacus_double3 ABACUS_API __abacus_ceil(abacus_double3 x) { return ceil<>(x); }
+abacus_double4 ABACUS_API __abacus_ceil(abacus_double4 x) { return ceil<>(x); }
+abacus_double8 ABACUS_API __abacus_ceil(abacus_double8 x) { return ceil<>(x); }
+abacus_double16 ABACUS_API __abacus_ceil(abacus_double16 x) {
+  return ceil<>(x);
+}
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

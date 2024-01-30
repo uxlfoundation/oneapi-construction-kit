@@ -2,7 +2,7 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index 3fa5804..1c976d6 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -2,6 +2,8 @@
+@@ -16,6 +16,8 @@
  
  #include "refsi_hal.h"
  
@@ -11,7 +11,7 @@ index 3fa5804..1c976d6 100644
  refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
                                     refsi_device_t device,
                                     std::recursive_mutex &hal_lock)
-@@ -41,24 +43,34 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -55,24 +57,34 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
  hal::hal_addr_t refsi_hal_device::mem_alloc(hal::hal_size_t size,
                                              hal::hal_size_t alignment) {
    refsi_locker locker(hal_lock);

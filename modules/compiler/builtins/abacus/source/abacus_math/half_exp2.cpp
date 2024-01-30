@@ -43,11 +43,11 @@ T half_exp2(T x) {
   // r = 2^(i + f)
   // r = 2^i * 2^f
   // r = ldexp(2^f, i)
-  SignedType xFloor = abacus::internal::floor_unsafe(x);
+  const SignedType xFloor = abacus::internal::floor_unsafe(x);
   T xMant = x - abacus::detail::cast::convert<T>(xFloor);
 
-  T exp2_xMant = abacus::internal::horner_polynomial<T, 4>(
-      xMant, __codeplay_half_exp2_coeff);
+  T exp2_xMant =
+      abacus::internal::horner_polynomial(xMant, __codeplay_half_exp2_coeff);
 
   T result = abacus::internal::ldexp_unsafe(exp2_xMant, xFloor);
 

@@ -666,7 +666,7 @@ void CmdDispatch(vk::command_buffer commandBuffer, uint32_t x, uint32_t y,
                  uint32_t z) {
   if (VK_COMMAND_BUFFER_LEVEL_SECONDARY ==
       commandBuffer->command_buffer_level) {
-    vk::command_info_dispatch command = {x, y, z};
+    const vk::command_info_dispatch command = {x, y, z};
     if (commandBuffer->compute_command_list->push_back(
             vk::command_info(command))) {
       commandBuffer->error = VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -750,8 +750,8 @@ void CmdDispatch(vk::command_buffer commandBuffer, uint32_t x, uint32_t y,
         return;
       }
 
-      buffer_memory_pair push_constant_buffer_pair = {push_constant_buffer,
-                                                      push_constant_memory};
+      const buffer_memory_pair push_constant_buffer_pair = {
+          push_constant_buffer, push_constant_memory};
       if (commandBuffer->push_constant_objects.push_back(
               push_constant_buffer_pair)) {
         commandBuffer->error = VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -965,7 +965,7 @@ void CmdDispatch(vk::command_buffer commandBuffer, uint32_t x, uint32_t y,
     }
 
     // need to push the command here so that it gets executed in the submit
-    vk::command_info_dispatch command = {x, y, z};
+    const vk::command_info_dispatch command = {x, y, z};
     if (commandBuffer->commands.push_back(vk::command_info(command))) {
       commandBuffer->error = VK_ERROR_OUT_OF_HOST_MEMORY;
     }
@@ -1097,7 +1097,7 @@ void CmdExecuteCommands(vk::command_buffer commandBuffer,
                         const vk::command_buffer *pCommandBuffers) {
   for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount;
        commandBufferIndex++) {
-    for (vk::command_info command_info :
+    for (const vk::command_info &command_info :
          pCommandBuffers[commandBufferIndex]->commands) {
       ExecuteCommand(commandBuffer, command_info);
     }
@@ -1436,7 +1436,7 @@ void CmdPipelineBarrier(vk::command_buffer commandBuffer,
     // over to any copies we make
     if (commandBuffer->usage_flags &
         VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT) {
-      vk::command_info_pipeline_barrier command = {};
+      const vk::command_info_pipeline_barrier command = {};
       if (commandBuffer->barrier_group_infos.back()->commands.push_back(
               vk::command_info(command))) {
         commandBuffer->error = VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -1530,7 +1530,7 @@ void CmdWaitEvents(vk::command_buffer commandBuffer, uint32_t eventCount,
     }
     vk::unique_ptr<wait_callback_data> wait_info_ptr(wait_info,
                                                      commandBuffer->allocator);
-    std::lock_guard<std::mutex> infoLock(wait_info_ptr->mutex);
+    const std::lock_guard<std::mutex> infoLock(wait_info_ptr->mutex);
     // list of locks obtained on each unsignaled event so they can't be signaled
     // while the command is still going
     vk::small_vector<std::unique_lock<std::mutex>, 2> eventLocks(

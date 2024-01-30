@@ -110,7 +110,7 @@ struct ur_queue_handle_t_ : ur::base {
   /// for before executing.
   ///
   /// @return Returns the expected command buffer or `CL_OUT_OF_RESOURCES`.
-  CARGO_NODISCARD cargo::expected<mux_command_buffer_t, ur_result_t>
+  [[nodiscard]] cargo::expected<mux_command_buffer_t, ur_result_t>
   getCommandBuffer(const ur_event_handle_t signal_event,
                    uint32_t num_wait_events,
                    const ur_event_handle_t *wait_events);

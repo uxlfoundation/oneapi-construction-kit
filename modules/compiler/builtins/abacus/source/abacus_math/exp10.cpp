@@ -70,8 +70,7 @@ struct helper<T, abacus_half> {
 
     // Minimax polynomial approximation in the domain
     // [-log(2)/(2*log(10)), log(2)/(2*log(10))]
-    const T result =
-        abacus::internal::horner_polynomial<T, 5>(rr_x, polynomial);
+    const T result = abacus::internal::horner_polynomial(rr_x, polynomial);
 
     const IntType kInt = abacus::detail::cast::convert<IntType>(k);
     const T raise = __abacus_ldexp(result, kInt);
@@ -107,7 +106,7 @@ struct helper<T, abacus_float> {
                                         0.206220193305040f};
 
     // Minimax polynomial approximation in the domain [-log10(2)/2, log10(2)/2]
-    const T result = abacus::internal::horner_polynomial<T, 7>(r, polynomial);
+    const T result = abacus::internal::horner_polynomial(r, polynomial);
 
     return __abacus_select(__abacus_ldexp(result, k), 0.0f,
                            x < -44.8534698486328125f);
@@ -143,7 +142,7 @@ struct helper<T, abacus_double> {
         0.6543870973084372896203514e-4};
 
     // minimax from 0 -> ln(10)/ln(2) of 10^x
-    const T fract = abacus::internal::horner_polynomial<T, 13>(r, polynomial);
+    const T fract = abacus::internal::horner_polynomial(r, polynomial);
 
     // The answer is ldexp(poly, quotient), but we don't need the full ldexp
     const T factor1 = abacus::detail::cast::as<T>((k / 2 + 1023) << 52);

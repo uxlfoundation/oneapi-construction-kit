@@ -44,7 +44,7 @@ Module *BuiltinInfo::getBuiltinsModule() {
 }
 
 std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
-    Function const &F) const {
+    const Function &F) const {
   StringRef Name = F.getName();
   auto ID =
       StringSwitch<BuiltinID>(Name)
@@ -109,8 +109,8 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
   // Now check for group functions, which are a bit more involved as there's
   // many of them and they're also mangled. We enforce that the mangling makes
   // sense, otherwise the builtin is declared as invalid.
-  bool IsSubgroupOp = Name.consume_front("__mux_sub_group_");
-  bool IsVecgroupOp = Name.consume_front("__mux_vec_group_");
+  const bool IsSubgroupOp = Name.consume_front("__mux_sub_group_");
+  const bool IsVecgroupOp = Name.consume_front("__mux_vec_group_");
   if (!IsSubgroupOp && !IsVecgroupOp &&
       !Name.consume_front("__mux_work_group_")) {
     return {eBuiltinInvalid, {}};
@@ -123,7 +123,7 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
 
   // Most group operations have one argument, except for broadcasts. Despite
   // that, we don't mangle the indices as they're fixed.
-  unsigned const NumExpectedMangledArgs = 1;
+  const unsigned NumExpectedMangledArgs = 1;
 
   if (Name.consume_front("any")) {
     ID = SCOPED_GROUP_OP(Any);
@@ -183,7 +183,7 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
              .Case("logical_xor", SCOPED_GROUP_OP(ReduceLogicalXor))
              .Default(eBuiltinInvalid);
   } else if (Name.consume_front("scan_")) {
-    bool IsInclusive = Name.consume_front("inclusive_");
+    const bool IsInclusive = Name.consume_front("inclusive_");
     if (!IsInclusive && !Name.consume_front("exclusive_")) {
       return {eBuiltinInvalid, {}};
     }
@@ -245,8 +245,8 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
     unsigned NumMangledArgs = 0;
     // Work-group builtins have an unmangled 'barrier ID' parameter first, which
     // we want to skip.
-    unsigned Offset = ID >= eFirstMuxWorkgroupCollectiveBuiltin &&
-                      ID <= eLastMuxWorkgroupCollectiveBuiltin;
+    const unsigned Offset = ID >= eFirstMuxWorkgroupCollectiveBuiltin &&
+                            ID <= eLastMuxWorkgroupCollectiveBuiltin;
     while (!Name.empty()) {
       if (!Name.consume_front("_")) {
         return {eBuiltinInvalid, {}};
@@ -271,7 +271,7 @@ std::pair<BuiltinID, std::vector<Type *>> BuiltinInfo::identifyMuxBuiltin(
 #undef SCOPED_GROUP_OP
 }
 
-BuiltinUniformity BuiltinInfo::isBuiltinUniform(Builtin const &B,
+BuiltinUniformity BuiltinInfo::isBuiltinUniform(const Builtin &B,
                                                 const CallInst *CI,
                                                 unsigned SimdDimIdx) const {
   switch (B.ID) {
@@ -328,14 +328,14 @@ BuiltinUniformity BuiltinInfo::isBuiltinUniform(Builtin const &B,
   return eBuiltinUniformityUnknown;
 }
 
-Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
+Builtin BuiltinInfo::analyzeBuiltin(const Function &F) const {
   // Handle LLVM intrinsics.
   if (F.isIntrinsic()) {
     int32_t Properties = eBuiltinPropertyNone;
 
-    Intrinsic::ID IntrID = (Intrinsic::ID)F.getIntrinsicID();
-    AttributeList AS = Intrinsic::getAttributes(F.getContext(), IntrID);
-    bool NoSideEffect = F.onlyReadsMemory();
+    const Intrinsic::ID IntrID = (Intrinsic::ID)F.getIntrinsicID();
+    const AttributeList AS = Intrinsic::getAttributes(F.getContext(), IntrID);
+    const bool NoSideEffect = F.onlyReadsMemory();
     bool SafeIntrinsic = false;
     switch (IntrID) {
       default:
@@ -485,16 +485,16 @@ Builtin BuiltinInfo::analyzeBuiltin(Function const &F) const {
   return Builtin{F, ID, (BuiltinProperties)Properties, OverloadInfo};
 }
 
-BuiltinCall BuiltinInfo::analyzeBuiltinCall(CallInst const &CI,
+BuiltinCall BuiltinInfo::analyzeBuiltinCall(const CallInst &CI,
                                             unsigned SimdDimIdx) const {
   auto *const callee = CI.getCalledFunction();
   assert(callee && "Call instruction with no callee");
-  auto const B = analyzeBuiltin(*callee);
-  auto const U = isBuiltinUniform(B, &CI, SimdDimIdx);
+  const auto B = analyzeBuiltin(*callee);
+  const auto U = isBuiltinUniform(B, &CI, SimdDimIdx);
   return BuiltinCall{B, CI, U};
 }
 
-Function *BuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
+Function *BuiltinInfo::getVectorEquivalent(const Builtin &B, unsigned Width,
                                            Module *M) {
   // We don't handle LLVM intrinsics here
   if (B.function.isIntrinsic()) {
@@ -507,12 +507,12 @@ Function *BuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   return nullptr;
 }
 
-Function *BuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
+Function *BuiltinInfo::getScalarEquivalent(const Builtin &B, Module *M) {
   // We will first check to see if this is an LLVM intrinsic that has a scalar
   // equivalent.
   if (B.function.isIntrinsic()) {
     // Analyze the builtin. Some functions have no scalar equivalent.
-    auto const Props = B.properties;
+    const auto Props = B.properties;
     if (!(Props & eBuiltinPropertyVectorEquivalent)) {
       return nullptr;
     }
@@ -629,7 +629,7 @@ Value *BuiltinInfo::initializeSchedulingParamForWrappedKernel(
 std::string BuiltinInfo::getMangledTypeStr(Type *Ty) {
   std::string Result;
   if (VectorType *VTy = dyn_cast<VectorType>(Ty)) {
-    ElementCount EC = VTy->getElementCount();
+    const ElementCount EC = VTy->getElementCount();
     if (EC.isScalable()) {
       Result += "nx";
     }
@@ -658,7 +658,7 @@ std::string BuiltinInfo::getMangledTypeStr(Type *Ty) {
 
 std::pair<Type *, StringRef> BuiltinInfo::getDemangledTypeFromStr(
     StringRef TyStr, LLVMContext &Ctx) {
-  bool IsScalable = TyStr.consume_front("nx");
+  const bool IsScalable = TyStr.consume_front("nx");
   if (TyStr.consume_front("v")) {
     unsigned EC;
     if (TyStr.consumeInteger(10, EC)) {

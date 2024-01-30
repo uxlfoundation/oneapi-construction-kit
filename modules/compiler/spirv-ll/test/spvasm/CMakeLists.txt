@@ -2198,7 +2198,15 @@ set(SPVASM_V1_1_FILES
   op_get_default_queue.spvasm
   op_get_kernel_max_num_subgroups.spvasm
   opencl_debug_info_100.spvasm
+  opencl_debug_info_100_arrays.spvasm
   opencl_debug_info_100_clean.spvasm
+  opencl_debug_info_100_debug_scopes.spvasm
+  opencl_debug_info_100_global_var.spvasm
+  opencl_debug_info_100_type_templates.spvasm
+
+  invalid-spir-v/opencl_debug_info_100_type_templates.spvasm
+  invalid-spir-v/opencl_debug_info_100_type_member_non_constant.spvasm
+  invalid-spir-v/opencl_debug_info_100_type_template_parameter_non_constant.spvasm
 )
 
 set(SPVASM_V1_5_FILES
@@ -2214,9 +2222,14 @@ set(UNVERIFIABLE_SPVASM_FILES
   codeplay/opencl_usm_generic_address_space.spvasm
   codeplay/opencl_group_async_copy_2d2d.spvasm
   codeplay/opencl_group_async_copy_3d3d.spvasm
+  opencl_debug_info_100_arrays.spvasm
   # Unclear whether or not the SPIR-V is valid, but the output of llvm-spirv
   # produces this and the verifier doesn't like it.
   opencl_debug_info_100.spvasm
+  # Tests invalid SPIR-V debug info
+  invalid-spir-v/opencl_debug_info_100_type_templates.spvasm
+  invalid-spir-v/opencl_debug_info_100_type_member_non_constant.spvasm
+  invalid-spir-v/opencl_debug_info_100_type_template_parameter_non_constant.spvasm
 )
 
 # Remove obsolete lit test inputs from the binary directory.

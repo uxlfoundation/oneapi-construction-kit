@@ -29,7 +29,7 @@ buffer_t::~buffer_t() {}
 VkResult CreateBuffer(vk::device device, const VkBufferCreateInfo *pCreateInfo,
                       vk::allocator allocator, vk::buffer *pBuffer) {
   mux_buffer_t mux_buffer;
-  mux_result_t error =
+  const mux_result_t error =
       muxCreateBuffer(device->mux_device, pCreateInfo->size,
                       allocator.getMuxAllocator(), &mux_buffer);
 
@@ -69,7 +69,7 @@ void GetBufferMemoryRequirements(vk::device device, vk::buffer buffer,
   VkMemoryRequirements memory_requirements = {};
   memory_requirements.alignment = device->mux_device->info->buffer_alignment;
 
-  uint64_t buffer_size = buffer->mux_buffer->memory_requirements.size;
+  const uint64_t buffer_size = buffer->mux_buffer->memory_requirements.size;
 
   if (buffer_size <= memory_requirements.alignment) {
     memory_requirements.size = memory_requirements.alignment;

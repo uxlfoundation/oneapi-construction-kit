@@ -91,13 +91,11 @@ struct AbsoluteErrValidator final {
 };
 
 struct ULPErrValidator final {
-  ULPErrValidator(cl_device_id device) : previous(0.0), previous_set(false) {
-    denorm_support = UCL::hasDenormSupport(device, CL_DEVICE_HALF_FP_CONFIG);
-  }
+  ULPErrValidator(cl_device_id) : previous(0.0), previous_set(false) {}
 
   bool validate(const cl_float &expected, const cl_half &actual,
                 const cl_float ulp_threshold) {
-    const cl_float ulp = calcHalfPrecisionULP(expected, actual, denorm_support);
+    const cl_float ulp = calcHalfPrecisionULP(expected, actual);
     return std::fabs(ulp) <= std::fabs(ulp_threshold);
   }
 
@@ -107,8 +105,7 @@ struct ULPErrValidator final {
     s << ", as float 0x" << matchingType(as_float) << std::dec;
 
     if (previous_set) {
-      s << ", ulp: "
-        << calcHalfPrecisionULP(previous, as_float, denorm_support);
+      s << ", ulp: " << calcHalfPrecisionULP(previous, as_float);
     }
   }
 
@@ -125,7 +122,6 @@ struct ULPErrValidator final {
  private:
   cl_float previous;
   bool previous_set;
-  bool denorm_support;
 };
 
 template <class V>

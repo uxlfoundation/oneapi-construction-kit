@@ -16,9 +16,9 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                                \
-  TYPE __abacus_mul24(TYPE x, TYPE y) {          \
-    return abacus::detail::integer::mul24(x, y); \
+#define DEF(TYPE)                                  \
+  TYPE ABACUS_API __abacus_mul24(TYPE x, TYPE y) { \
+    return abacus::detail::integer::mul24(x, y);   \
   }
 
 DEF(abacus_int);

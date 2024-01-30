@@ -45,7 +45,7 @@
             %work_group_scope = OpConstant %uint_ty 2
 
 ; CHCK-LABEL: uint_sub_group_reduction
-; CHECK: define spir_kernel void @uint_sub_group_reduction(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @uint_sub_group_reduction(ptr addrspace(1) noundef [[IN:%.*]])
 %uint_sub_group_reduction_fcn = OpFunction %void_ty None %uint_fcn_ty
  %uint_sub_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
  %uint_sub_group_reduction_bb = OpLabel
@@ -61,7 +61,7 @@
 ; CHECK: declare spir_func i32 @_Z20sub_group_reduce_addj(i32)
 
 ; CHCK-LABEL: uint_work_group_reduction
-; CHECK: define spir_kernel void @uint_work_group_reduction(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @uint_work_group_reduction(ptr addrspace(1) noundef [[IN:%.*]])
 %uint_work_group_reduction_fcn = OpFunction %void_ty None %uint_fcn_ty
  %uint_work_group_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
  %uint_work_group_reduction_bb = OpLabel
@@ -76,7 +76,7 @@
                                 OpFunctionEnd
 
 ; CHCK-LABEL: uint_variable_scope_reduction
-; CHECK: define spir_kernel void @uint_variable_scope_reduction(ptr addrspace(1) [[IN:%.*]], i32 %{{.*}})
+; CHECK: define spir_kernel void @uint_variable_scope_reduction(ptr addrspace(1) noundef [[IN:%.*]], i32 noundef %{{.*}})
 %uint_variable_scope_reduction_fcn = OpFunction %void_ty None %uint_uint_fcn_ty
  %uint_variable_scope_reduction_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
                             %scope = OpFunctionParameter %uint_ty
@@ -92,7 +92,7 @@
                                 OpFunctionEnd
 
 ; CHCK-LABEL: uint_sub_group_inclusive_scan
-; CHECK: define spir_kernel void @uint_sub_group_scan_inclusive(ptr addrspace(1) [[IN:%.*]])
+; CHECK: define spir_kernel void @uint_sub_group_scan_inclusive(ptr addrspace(1) noundef [[IN:%.*]])
  %uint_sub_group_scan_inc_fcn = OpFunction %void_ty None %uint_fcn_ty
   %uint_sub_group_scan_inc_in = OpFunctionParameter %ptr_CrossWorkgroup_uint_ty
   %uint_sub_group_scan_inc_bb = OpLabel

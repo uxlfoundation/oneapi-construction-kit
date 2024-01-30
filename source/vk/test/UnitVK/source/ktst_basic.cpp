@@ -190,7 +190,7 @@ TEST_F(ktst_sgemm_custom, BasicCorrectnessTest) {
   AddInputBuffer(16, refIn);
   AddOutputBuffer(16, refOut);
 
-  uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::kts_sgemm);
+  const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::kts_sgemm);
 
   VkShaderModuleCreateInfo shaderCreateInfo = {};
   shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                             \
-  TYPE __abacus_max(TYPE x, TYPE y) {         \
-    return abacus::detail::common::max(x, y); \
+#define DEF(TYPE)                                \
+  TYPE ABACUS_API __abacus_max(TYPE x, TYPE y) { \
+    return abacus::detail::common::max(x, y);    \
   }
-#define DEF2(TYPE, TYPE2)                     \
-  TYPE __abacus_max(TYPE x, TYPE2 y) {        \
-    return abacus::detail::common::max(x, y); \
+#define DEF2(TYPE, TYPE2)                         \
+  TYPE ABACUS_API __abacus_max(TYPE x, TYPE2 y) { \
+    return abacus::detail::common::max(x, y);     \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

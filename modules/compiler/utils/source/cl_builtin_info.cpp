@@ -511,7 +511,7 @@ CLBuiltinInfo::~CLBuiltinInfo() = default;
 /// @return The newly emitted CallInst
 static CallInst *CreateBuiltinCall(IRBuilder<> &B, Function *Builtin,
                                    ArrayRef<Value *> Args,
-                                   Twine const &NameStr = "") {
+                                   const Twine &NameStr = "") {
   CallInst *CI =
       B.CreateCall(Builtin->getFunctionType(), Builtin, Args, NameStr);
   CI->setCallingConv(Builtin->getCallingConv());
@@ -824,7 +824,8 @@ Function *CLBuiltinInfo::declareBuiltin(Module *M, BuiltinID ID, Type *RetTy,
 
   // Mangle the function name and look it up in the module.
   NameMangler Mangler(&M->getContext());
-  std::string MangledName = Mangler.mangleName(BuiltinName, ArgTys, ArgQuals);
+  const std::string MangledName =
+      Mangler.mangleName(BuiltinName, ArgTys, ArgQuals);
   Function *Builtin = M->getFunction(MangledName);
 
   // Declare the builtin if necessary.
@@ -868,12 +869,12 @@ Function *CLBuiltinInfo::materializeBuiltin(StringRef BuiltinName,
   return Loader->materializeBuiltin(BuiltinName, DestM, Flags);
 }
 
-BuiltinID CLBuiltinInfo::identifyBuiltin(Function const &F) const {
+BuiltinID CLBuiltinInfo::identifyBuiltin(const Function &F) const {
   NameMangler Mangler(nullptr);
-  StringRef const Name = F.getName();
+  const StringRef Name = F.getName();
   const CLBuiltinEntry *entry = Builtins;
-  auto const Version = getOpenCLVersion(*F.getParent());
-  StringRef DemangledName = Mangler.demangleName(Name);
+  const auto Version = getOpenCLVersion(*F.getParent());
+  const StringRef DemangledName = Mangler.demangleName(Name);
   while (entry->ID != eBuiltinInvalid) {
     if (Version >= entry->MinVer && DemangledName.equals(entry->OpenCLFnName)) {
       return entry->ID;
@@ -947,12 +948,12 @@ llvm::StringRef CLBuiltinInfo::getBuiltinName(BuiltinID ID) const {
   return llvm::StringRef();
 }
 
-BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &,
+BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(const Builtin &,
                                                   const CallInst *CI,
                                                   unsigned) const {
   // Assume that builtins with side effects are varying.
   if (Function *Callee = CI->getCalledFunction()) {
-    auto const Props = analyzeBuiltin(*Callee).properties;
+    const auto Props = analyzeBuiltin(*Callee).properties;
     if (Props & eBuiltinPropertySideEffects) {
       return eBuiltinUniformityNever;
     }
@@ -961,8 +962,8 @@ BuiltinUniformity CLBuiltinInfo::isBuiltinUniform(Builtin const &,
   return eBuiltinUniformityLikeInputs;
 }
 
-Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
-  BuiltinID ID = identifyBuiltin(Callee);
+Builtin CLBuiltinInfo::analyzeBuiltin(const Function &Callee) const {
+  const BuiltinID ID = identifyBuiltin(Callee);
 
   bool IsConvergent = false;
   unsigned Properties = eBuiltinPropertyNone;
@@ -1253,10 +1254,10 @@ Builtin CLBuiltinInfo::analyzeBuiltin(Function const &Callee) const {
   return Builtin{Callee, ID, (BuiltinProperties)Properties};
 }
 
-Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
+Function *CLBuiltinInfo::getVectorEquivalent(const Builtin &B, unsigned Width,
                                              Module *M) {
   // Analyze the builtin. Some functions have no vector equivalent.
-  auto const Props = B.properties;
+  const auto Props = B.properties;
   if (Props & eBuiltinPropertyNoVectorEquivalent) {
     return nullptr;
   }
@@ -1266,7 +1267,7 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   NameMangler Mangler(&B.function.getContext());
   SmallVector<Type *, 4> BuiltinArgTypes, BuiltinPointeeTypes;
   SmallVector<TypeQualifiers, 4> BuiltinArgQuals;
-  StringRef BuiltinName =
+  const StringRef BuiltinName =
       Mangler.demangleName(B.function.getName(), BuiltinArgTypes,
                            BuiltinPointeeTypes, BuiltinArgQuals);
   if (BuiltinName.empty()) {
@@ -1279,7 +1280,7 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   SmallVector<TypeQualifiers, 4> VectorQuals;
   for (unsigned i = 0; i < BuiltinArgTypes.size(); i++) {
     Type *OldTy = BuiltinArgTypes[i];
-    TypeQualifiers OldQuals = BuiltinArgQuals[i];
+    const TypeQualifiers OldQuals = BuiltinArgQuals[i];
     if (isa<FixedVectorType>(OldTy)) {
       return nullptr;
     }
@@ -1325,8 +1326,8 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   StringRef FirstChunk;
   Lexer L(BuiltinName);
   if (L.ConsumeUntil('_', FirstChunk)) {
-    bool AsBuiltin = FirstChunk.equals("as");
-    bool ConvertBuiltin = FirstChunk.equals("convert");
+    const bool AsBuiltin = FirstChunk.equals("as");
+    const bool ConvertBuiltin = FirstChunk.equals("convert");
     if (!L.Consume("_")) {
       return nullptr;
     }
@@ -1340,12 +1341,12 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
       if (AsBuiltin && L.Left()) {
         return nullptr;
       }
-      Twine WidthText(Width);
+      const Twine WidthText(Width);
       EquivNameBase.insert(L.CurrentPos(), WidthText.str());
     }
   }
 
-  std::string EquivName =
+  const std::string EquivName =
       Mangler.mangleName(EquivNameBase, VectorTypes, VectorQuals);
 
   // Lookup the vector equivalent and make sure the return type agrees.
@@ -1361,9 +1362,9 @@ Function *CLBuiltinInfo::getVectorEquivalent(Builtin const &B, unsigned Width,
   return VectorBuiltin;
 }
 
-Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
+Function *CLBuiltinInfo::getScalarEquivalent(const Builtin &B, Module *M) {
   // Analyze the builtin. Some functions have no scalar equivalent.
-  auto const Props = B.properties;
+  const auto Props = B.properties;
   if (Props & eBuiltinPropertyNoVectorEquivalent) {
     return nullptr;
   }
@@ -1379,7 +1380,7 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
   NameMangler Mangler(&B.function.getContext());
   SmallVector<Type *, 4> BuiltinArgTypes, BuiltinPointeeTypes;
   SmallVector<TypeQualifiers, 4> BuiltinArgQuals;
-  StringRef BuiltinName =
+  const StringRef BuiltinName =
       Mangler.demangleName(B.function.getName(), BuiltinArgTypes,
                            BuiltinPointeeTypes, BuiltinArgQuals);
   if (BuiltinName.empty()) {
@@ -1388,12 +1389,12 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
 
   // Determine the mangled name of the scalar equivalent.
   // This means creating a list of qualified types for the arguments.
-  unsigned Width = VecRetTy->getNumElements();
+  const unsigned Width = VecRetTy->getNumElements();
   SmallVector<Type *, 4> ScalarTypes;
   SmallVector<TypeQualifiers, 4> ScalarQuals;
   for (unsigned i = 0; i < BuiltinArgTypes.size(); i++) {
     Type *OldTy = BuiltinArgTypes[i];
-    TypeQualifiers OldQuals = BuiltinArgQuals[i];
+    const TypeQualifiers OldQuals = BuiltinArgQuals[i];
     if (auto *OldVecTy = dyn_cast<FixedVectorType>(OldTy)) {
       if (OldVecTy->getNumElements() != Width) {
         return nullptr;
@@ -1415,10 +1416,10 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
         Type *NewTy = PointerType::get(OldVecTy->getElementType(),
                                        OldPtrTy->getAddressSpace());
         TypeQualifiers NewQuals = OldQuals;
-        TypeQualifier PtrQual = NewQuals.pop_front();
-        TypeQualifier VecQual = NewQuals.pop_front();
+        const TypeQualifier PtrQual = NewQuals.pop_front();
+        const TypeQualifier VecQual = NewQuals.pop_front();
         (void)VecQual;
-        TypeQualifier EleQual = NewQuals.pop_front();
+        const TypeQualifier EleQual = NewQuals.pop_front();
         NewQuals.push_back(PtrQual);
         NewQuals.push_back(EleQual);
         ScalarTypes.push_back(NewTy);
@@ -1441,8 +1442,8 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
   StringRef FirstChunk;
   Lexer L(BuiltinName);
   if (L.ConsumeUntil('_', FirstChunk)) {
-    bool AsBuiltin = FirstChunk.equals("as");
-    bool ConvertBuiltin = FirstChunk.equals("convert");
+    const bool AsBuiltin = FirstChunk.equals("as");
+    const bool ConvertBuiltin = FirstChunk.equals("convert");
     if (!L.Consume("_")) {
       return nullptr;
     }
@@ -1453,17 +1454,17 @@ Function *CLBuiltinInfo::getScalarEquivalent(Builtin const &B, Module *M) {
     if (AsBuiltin || ConvertBuiltin) {
       // as_* and convert_* builtins have scalar equivalents, with no width
       // suffix. Remove the width suffix from the vector builtin name.
-      unsigned WidthStart = L.CurrentPos();
+      const unsigned WidthStart = L.CurrentPos();
       unsigned Width = 0;
       if (!L.ConsumeInteger(Width)) {
         return nullptr;
       }
-      unsigned WidthEnd = L.CurrentPos();
+      const unsigned WidthEnd = L.CurrentPos();
       EquivNameBase.erase(WidthStart, WidthEnd - WidthStart);
     }
   }
 
-  std::string EquivName =
+  const std::string EquivName =
       Mangler.mangleName(EquivNameBase, ScalarTypes, ScalarQuals);
 
   // Lookup the scalar equivalent and make sure the return type agrees.
@@ -1513,7 +1514,7 @@ Value *CLBuiltinInfo::emitBuiltinInline(Function *F, IRBuilder<> &B,
   }
 
   // Handle 'common' builtins.
-  BuiltinID BuiltinID = identifyBuiltin(*F);
+  const BuiltinID BuiltinID = identifyBuiltin(*F);
   if (BuiltinID != eBuiltinInvalid && BuiltinID != eBuiltinUnknown) {
     // Note we have to handle these specially since we need to deduce whether
     // the source operand is signed or not. It is not possible to do this based
@@ -1537,8 +1538,8 @@ Value *CLBuiltinInfo::emitBuiltinInline(Function *F, IRBuilder<> &B,
         if (!IsParamSignedOrNone.has_value()) {
           return nullptr;
         }
-        bool IsSigned = *IsParamSignedOrNone;
-        Intrinsic::ID IntrinsicOpc =
+        const bool IsSigned = *IsParamSignedOrNone;
+        const Intrinsic::ID IntrinsicOpc =
             BuiltinID == eCLBuiltinSubSat
                 ? (IsSigned ? Intrinsic::ssub_sat : Intrinsic::usub_sat)
                 : (IsSigned ? Intrinsic::sadd_sat : Intrinsic::uadd_sat);
@@ -1557,7 +1558,7 @@ Value *CLBuiltinInfo::emitBuiltinInline(Function *F, IRBuilder<> &B,
       } break;
       case eCLBuiltinVLoadHalf: {
         NameMangler Mangler(&F->getContext());
-        auto const name = Mangler.demangleName(F->getName());
+        const auto name = Mangler.demangleName(F->getName());
         if (name == "vload_half") {
           // TODO CA-4691 handle "vload_halfn"
           return emitBuiltinInlineVLoadHalf(F, B, Args);
@@ -1719,8 +1720,8 @@ Value *CLBuiltinInfo::emitBuiltinInlineCross(IRBuilder<> &B,
 
   Value *Result = UndefValue::get(RetTy);
   for (unsigned i = 0; i < 3; i++) {
-    int Idx0 = SrcIndices[(i * 2) + 0];
-    int Idx1 = SrcIndices[(i * 2) + 1];
+    const int Idx0 = SrcIndices[(i * 2) + 0];
+    const int Idx1 = SrcIndices[(i * 2) + 1];
     Value *Src0A = Src0Lanes[Idx0];
     Value *Src1A = Src1Lanes[Idx1];
     Value *TempA = B.CreateFMul(Src0A, Src1A);
@@ -1774,7 +1775,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineLength(IRBuilder<> &B,
     return nullptr;
   }
 
-  std::string FabsName = Mangler.mangleName("fabs", Tys, Quals);
+  const std::string FabsName = Mangler.mangleName("fabs", Tys, Quals);
   Function *Fabs = materializeBuiltin(FabsName, M);
   if (!Fabs) {
     return nullptr;
@@ -1784,13 +1785,13 @@ Value *CLBuiltinInfo::emitBuiltinInlineLength(IRBuilder<> &B,
     return CreateBuiltinCall(B, Fabs, Src0, "scalar_length");
   }
 
-  std::string SqrtName = Mangler.mangleName("sqrt", Tys, Quals);
+  const std::string SqrtName = Mangler.mangleName("sqrt", Tys, Quals);
   Function *Sqrt = materializeBuiltin(SqrtName, M);
   if (!Sqrt) {
     return nullptr;
   }
 
-  std::string IsInfName = Mangler.mangleName("isinf", Tys, Quals);
+  const std::string IsInfName = Mangler.mangleName("isinf", Tys, Quals);
   Function *IsInf = materializeBuiltin(IsInfName, M);
   if (!IsInf) {
     return nullptr;
@@ -1803,7 +1804,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineLength(IRBuilder<> &B,
   Quals.push_back(SrcQuals);
   Tys.push_back(SrcType);
   Quals.push_back(SrcQuals);
-  std::string FmaxName = Mangler.mangleName("fmax", Tys, Quals);
+  const std::string FmaxName = Mangler.mangleName("fmax", Tys, Quals);
   Function *Fmax = materializeBuiltin(FmaxName, M);
   if (!Fmax) {
     return nullptr;
@@ -1874,7 +1875,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineNormalize(IRBuilder<> &B,
   if (!SrcVecType) {
     // A normalized scalar is either 1.0 or -1.0, unless the input was NaN, or
     // in other words, just the sign.
-    std::string SignName = Mangler.mangleName("sign", Tys, Quals);
+    const std::string SignName = Mangler.mangleName("sign", Tys, Quals);
     Function *Sign = materializeBuiltin(SignName, M);
     if (!Sign) {
       return nullptr;
@@ -1882,7 +1883,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineNormalize(IRBuilder<> &B,
     return CreateBuiltinCall(B, Sign, Src0, "scalar_normalize");
   }
 
-  std::string RSqrtName = Mangler.mangleName("rsqrt", Tys, Quals);
+  const std::string RSqrtName = Mangler.mangleName("rsqrt", Tys, Quals);
   Function *RSqrt = materializeBuiltin(RSqrtName, M);
   if (!RSqrt) {
     return nullptr;
@@ -1926,7 +1927,7 @@ static Value *emitAllAnyReduction(IRBuilder<> &B, ArrayRef<Value *> Args,
   }
 
   // Shift the MSB to return either 0 or 1.
-  unsigned ShiftAmount = EleTy->getPrimitiveSizeInBits() - 1;
+  const unsigned ShiftAmount = EleTy->getPrimitiveSizeInBits() - 1;
   Value *ShiftAmountVal = ConstantInt::get(EleTy, ShiftAmount);
   Value *Result = B.CreateLShr(ReducedVal, ShiftAmountVal);
   return B.CreateZExtOrTrunc(Result, B.getInt32Ty());
@@ -1953,9 +1954,9 @@ Value *CLBuiltinInfo::emitBuiltinInlineSelect(Function *F, IRBuilder<> &B,
   Type *RetTy = F->getReturnType();
   auto *VecRetTy = dyn_cast<FixedVectorType>(RetTy);
   Type *CondEleTy = Cond->getType()->getScalarType();
-  unsigned CondEleBits = CondEleTy->getPrimitiveSizeInBits();
+  const unsigned CondEleBits = CondEleTy->getPrimitiveSizeInBits();
   if (VecRetTy) {
-    unsigned SimdWidth = VecRetTy->getNumElements();
+    const unsigned SimdWidth = VecRetTy->getNumElements();
     Constant *ShiftAmount = ConstantInt::get(CondEleTy, CondEleBits - 1);
     Constant *VecShiftAmount = ConstantVector::getSplat(
         ElementCount::getFixed(SimdWidth), ShiftAmount);
@@ -2033,13 +2034,14 @@ Value *CLBuiltinInfo::emitBuiltinInlineAs(Function *F, llvm::IRBuilder<> &B,
   auto *DstVecTy = dyn_cast<FixedVectorType>(DstTy);
   Type *SrcEleTy = SrcVecTy ? SrcVecTy->getElementType() : nullptr;
   Type *DstEleTy = DstVecTy ? DstVecTy->getElementType() : nullptr;
-  unsigned SrcEleBits = SrcEleTy ? SrcEleTy->getPrimitiveSizeInBits() : 0;
-  unsigned DstEleBits = DstEleTy ? DstEleTy->getPrimitiveSizeInBits() : 0;
-  bool SrcDstHaveSameWidth = SrcEleTy && DstEleTy && (SrcEleBits == DstEleBits);
-  bool SrcVec3 = SrcVecTy && (SrcVecTy->getNumElements() == 3);
-  bool SrcVec4 = SrcVecTy && (SrcVecTy->getNumElements() == 4);
-  bool DstVec3 = DstVecTy && (DstVecTy->getNumElements() == 3);
-  bool DstVec4 = DstVecTy && (DstVecTy->getNumElements() == 4);
+  const unsigned SrcEleBits = SrcEleTy ? SrcEleTy->getPrimitiveSizeInBits() : 0;
+  const unsigned DstEleBits = DstEleTy ? DstEleTy->getPrimitiveSizeInBits() : 0;
+  const bool SrcDstHaveSameWidth =
+      SrcEleTy && DstEleTy && (SrcEleBits == DstEleBits);
+  const bool SrcVec3 = SrcVecTy && (SrcVecTy->getNumElements() == 3);
+  const bool SrcVec4 = SrcVecTy && (SrcVecTy->getNumElements() == 4);
+  const bool DstVec3 = DstVecTy && (DstVecTy->getNumElements() == 3);
+  const bool DstVec4 = DstVecTy && (DstVecTy->getNumElements() == 4);
   bool LowerAsShuffle = false;
   if (SrcVec3 && !DstVec3) {
     if (!DstVec4 || !SrcDstHaveSameWidth) {
@@ -2188,7 +2190,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineVLoad(Function *F, unsigned Width,
     Value *VecBase = B.CreateBitCast(GEPBase, VecPtrTy, "vload_ptr");
     auto *Load = B.CreateLoad(DataTy, VecBase, false, "vload");
 
-    unsigned Align = DataTy->getScalarSizeInBits() / 8;
+    const unsigned Align = DataTy->getScalarSizeInBits() / 8;
     Load->setAlignment(MaybeAlign(Align).valueOrOne());
     Data = Load;
   }
@@ -2249,7 +2251,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineVStore(Function *F, unsigned Width,
     Value *VecBase = B.CreateBitCast(GEPBase, VecPtrTy, "vstore_ptr");
     Store = B.CreateStore(Data, VecBase, false);
 
-    unsigned Align = VecDataTy->getScalarSizeInBits() / 8;
+    const unsigned Align = VecDataTy->getScalarSizeInBits() / 8;
     Store->setAlignment(MaybeAlign(Align).valueOrOne());
   }
   return Store;
@@ -2517,7 +2519,7 @@ Value *CLBuiltinInfo::emitBuiltinInlineRelationalsWithOneArgument(
   if (isVectorTy) {
     SignedTy = FixedVectorType::get(SignedTy, Width);
     ReturnTy = FixedVectorType::get(ReturnTy, Width);
-    auto const EC = ElementCount::getFixed(Width);
+    const auto EC = ElementCount::getFixed(Width);
     ExponentMask = ConstantVector::getSplat(EC, ExponentMask);
     MantissaMask = ConstantVector::getSplat(EC, MantissaMask);
     NonSignMask = ConstantVector::getSplat(EC, NonSignMask);
@@ -2787,13 +2789,13 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
   auto &M = *CI.getModule();
   auto *const F = CI.getCalledFunction();
   assert(F && "No calling function?");
-  auto const ID = identifyBuiltin(*F);
+  const auto ID = identifyBuiltin(*F);
 
   // Handle straightforward 1:1 mappings.
   if (auto MuxID = get1To1BuiltinLowering(ID)) {
     auto *const MuxBuiltinFn = BIMuxImpl.getOrDeclareMuxBuiltin(*MuxID, M);
     assert(MuxBuiltinFn && "Could not get/declare mux builtin");
-    SmallVector<Value *> Args(CI.args());
+    const SmallVector<Value *> Args(CI.args());
     auto *const NewCI = CallInst::Create(MuxBuiltinFn, Args, CI.getName(), &CI);
     NewCI->takeName(&CI);
     NewCI->setAttributes(MuxBuiltinFn->getAttributes());
@@ -2835,7 +2837,7 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
         }
       }
 
-      unsigned SemanticsVal =
+      const unsigned SemanticsVal =
           DefaultMemOrder |
           parseMemFenceFlagsParam(CI.getOperand(0)).value_or(0);
 
@@ -2870,7 +2872,7 @@ Instruction *CLBuiltinInfo::lowerBuiltinToMuxBuiltin(
       } else if (ID == eCLBuiltinWriteMemFence) {
         DefaultMemOrder = BIMuxInfoConcept::MemSemanticsRelease;
       }
-      unsigned SemanticsVal =
+      const unsigned SemanticsVal =
           DefaultMemOrder |
           parseMemFenceFlagsParam(CI.getOperand(0)).value_or(0);
       auto *const MemBarrier =
@@ -3173,7 +3175,7 @@ Instruction *CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(
       IsSignedInt |= Qual.pop_front() == compiler::utils::eTypeQualSignedInt;
     }
 
-    bool IsFP = ArgumentTypes[0]->isFloatingPointTy();
+    const bool IsFP = ArgumentTypes[0]->isFloatingPointTy();
     switch (MuxBuiltinID) {
       default:
         llvm_unreachable("unknown group operation for which to check the type");
@@ -3292,7 +3294,7 @@ Instruction *CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(
     }
   }
 
-  bool const IsAnyAll = MuxBuiltinID == eMuxBuiltinSubgroupAny ||
+  const bool IsAnyAll = MuxBuiltinID == eMuxBuiltinSubgroupAny ||
                         MuxBuiltinID == eMuxBuiltinSubgroupAll ||
                         MuxBuiltinID == eMuxBuiltinWorkgroupAny ||
                         MuxBuiltinID == eMuxBuiltinWorkgroupAll;
@@ -3379,14 +3381,14 @@ Instruction *CLBuiltinInfo::lowerAsyncBuiltinToMuxBuiltin(
       SmallVector<Type *, 4> BuiltinArgTypes, BuiltinArgPointeeTypes;
       SmallVector<compiler::utils::TypeQualifiers, 4> BuiltinArgQuals;
 
-      [[maybe_unused]] StringRef BuiltinName = Mangler.demangleName(
+      [[maybe_unused]] const StringRef BuiltinName = Mangler.demangleName(
           CI.getCalledFunction()->getName(), BuiltinArgTypes,
           BuiltinArgPointeeTypes, BuiltinArgQuals);
       assert(!BuiltinName.empty() && BuiltinArgTypes[0]->isPointerTy() &&
              BuiltinArgPointeeTypes[0] && "Could not demangle async builtin");
 
       auto *const DataTy = BuiltinArgPointeeTypes[0];
-      bool const IsStrided = ID == eCLBuiltinAsyncWorkGroupStridedCopy;
+      const bool IsStrided = ID == eCLBuiltinAsyncWorkGroupStridedCopy;
 
       auto *const Dst = CI.getArgOperand(0);
       auto *const Src = CI.getArgOperand(1);
@@ -3397,7 +3399,7 @@ Instruction *CLBuiltinInfo::lowerAsyncBuiltinToMuxBuiltin(
       // builtin.
       const bool IsRead = Dst->getType()->getPointerAddressSpace() ==
                           compiler::utils::AddressSpace::Local;
-      auto const ElementTypeWidthInBytes =
+      const auto ElementTypeWidthInBytes =
           DL.getTypeAllocSize(DataTy).getFixedValue();
       auto *const ElementSize =
           ConstantInt::get(NumElements->getType(), ElementTypeWidthInBytes);
@@ -3406,7 +3408,7 @@ Instruction *CLBuiltinInfo::lowerAsyncBuiltinToMuxBuiltin(
           IsStrided ? ElementSize
                     : B.CreateMul(ElementSize, NumElements, "width.bytes");
 
-      BuiltinID MuxBuiltinID =
+      const BuiltinID MuxBuiltinID =
           IsRead ? (IsStrided ? eMuxBuiltinDMARead2D : eMuxBuiltinDMARead1D)
                  : (IsStrided ? eMuxBuiltinDMAWrite2D : eMuxBuiltinDMAWrite1D);
 
@@ -3600,7 +3602,7 @@ Function *CLBuiltinLoader::materializeBuiltin(StringRef BuiltinName,
   ValueToValueMapTy ValueMap;
   SmallVector<ReturnInst *, 4> Returns;
   // Avoid linking errors.
-  GlobalValue::LinkageTypes Linkage = GlobalValue::LinkOnceAnyLinkage;
+  const GlobalValue::LinkageTypes Linkage = GlobalValue::LinkOnceAnyLinkage;
 
   // Declare the callees in the module if they don't already exist.
   for (Function *Callee : Callees) {

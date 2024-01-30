@@ -46,7 +46,8 @@ class DiagnosticInfoReqdSGSize : public DiagnosticInfoWithLocationBase {
   }
 
   void print(DiagnosticPrinter &DP) const override {
-    DP << getLocationStr() << ": kernel has required sub-group size " << SGSize;
+    DP << getLocationStr() << ": kernel '" << this->getFunction().getName()
+       << "' has required sub-group size " << SGSize;
     if (getKind() == DK_FailedReqdSGSize) {
       DP << " but the compiler was unable to sastify this constraint";
     } else {
@@ -68,7 +69,7 @@ PreservedAnalyses VerifyReqdSubGroupSizeLegalPass::run(
   auto &DI = AM.getResult<DeviceInfoAnalysis>(M);
   const auto &SGSizes = DI.reqd_sub_group_sizes;
   for (auto &F : M) {
-    auto const ReqdSGSize = getReqdSubgroupSize(F);
+    const auto ReqdSGSize = getReqdSubgroupSize(F);
     if (!ReqdSGSize) {
       continue;
     }
@@ -91,7 +92,7 @@ PreservedAnalyses VerifyReqdSubGroupSizeSatisfiedPass::run(
       continue;
     }
 
-    auto const ReqdSGSize = getReqdSubgroupSize(F);
+    const auto ReqdSGSize = getReqdSubgroupSize(F);
     if (!ReqdSGSize) {
       continue;
     }

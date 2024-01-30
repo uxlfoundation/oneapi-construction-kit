@@ -334,7 +334,7 @@ const std::map<std::string, AtomicRMWInst::BinOp> atomicMap = {
 /// @return bool Whether or not the pass changed anything.
 bool RunOnInstruction(CallInst &call) {
   if (Function *callee = call.getCalledFunction()) {
-    StringRef name = callee->getName();
+    const StringRef name = callee->getName();
     // Let's check mangled name. If spir's name mangling is changed, we also
     // need to check function's name changed. We need to check for two
     // variants of each mangled function because LLVM 3.8 backwards was

@@ -41,7 +41,7 @@ struct muxCommandCopyBufferTest : DeviceTest {
             ? mux_allocation_type_alloc_device
             : mux_allocation_type_alloc_host;
 
-    uint32_t heap = mux::findFirstSupportedHeap(
+    const uint32_t heap = mux::findFirstSupportedHeap(
         src_buffer->memory_requirements.supported_heaps);
 
     ASSERT_SUCCESS(muxAllocateMemory(device, MEMORY_SIZE, heap,

@@ -28,7 +28,7 @@
 
 #define IS_CL_SUCCESS(X)                                                       \
   {                                                                            \
-    cl_int ret_val = X;                                                        \
+    const cl_int ret_val = X;                                                  \
     if (CL_SUCCESS != ret_val) {                                               \
       fprintf(stderr, "OpenCL error occurred: %s returned %d\n", #X, ret_val); \
       exit(1);                                                                 \

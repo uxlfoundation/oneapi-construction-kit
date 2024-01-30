@@ -55,7 +55,7 @@ bool definedOrUsedInLoop(Value *V, Loop *L) {
     return true;
   }
 
-  auto const *const I = dyn_cast<Instruction>(V);
+  const auto *const I = dyn_cast<Instruction>(V);
   if (I && L->contains(I)) {
     // It's defined in the current loop.
     return true;
@@ -65,8 +65,8 @@ bool definedOrUsedInLoop(Value *V, Loop *L) {
   // Values defined outwith the loop, but used only by a PHI node within it must
   // be loop-carried variable initial values. If these are not otherwise used
   // directly within the loop, then they are not really live inside the loop.
-  for (auto const *const U : V->users()) {
-    auto const *const I = dyn_cast<Instruction>(U);
+  for (const auto *const U : V->users()) {
+    const auto *const I = dyn_cast<Instruction>(U);
     if (I && !isa<PHINode>(I) && L->contains(I)) {
       return true;
     }
@@ -134,7 +134,7 @@ unsigned SimdWidthAnalysis::avoidSpillImpl(Function &F,
       // the live set at the point before the last (i.e. first) instruction, so
       // we deal with the operands first and then process the live set.
       if (PAR.needsPacketization(&inst)) {
-        bool isGEP = isa<GetElementPtrInst>(&inst);
+        const bool isGEP = isa<GetElementPtrInst>(&inst);
         for (auto operand : inst.operand_values()) {
           if (isa<Instruction>(operand) || isa<Argument>(operand)) {
             if (!isGEP || PAR.needsPacketization(operand)) {
@@ -167,8 +167,9 @@ unsigned SimdWidthAnalysis::avoidSpillImpl(Function &F,
 
 SimdWidthAnalysis::Result SimdWidthAnalysis::run(
     Function &F, llvm::FunctionAnalysisManager &AM) {
-  TargetTransformInfo &TTI = AM.getResult<TargetIRAnalysis>(F);
-  VectorizationUnit &VU = AM.getResult<VectorizationUnitAnalysis>(F).getVU();
+  const TargetTransformInfo &TTI = AM.getResult<TargetIRAnalysis>(F);
+  const VectorizationUnit &VU =
+      AM.getResult<VectorizationUnitAnalysis>(F).getVU();
 
   // If the target does not provide vector registers, return 0.
   MaxVecRegBitWidth =

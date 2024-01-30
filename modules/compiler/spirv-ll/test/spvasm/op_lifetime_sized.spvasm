@@ -42,7 +42,7 @@
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @lifetime(ptr addrspace(3) [[PTR:%.*]])
+; CHECK: define spir_kernel void @lifetime(ptr addrspace(3) noundef [[PTR:%.*]])
 ; We can't generate these intrinsics with address space 3 on llvm 4.0
 ; CHECK: {{(call void @llvm.lifetime.start.p3(i64 4, ptr addrspace(3) [[PTR]]))?}}
 ; CHECK: {{(call void @llvm.lifetime.end.p3(i64 4, ptr addrspace(3) [[PTR]]))?}}

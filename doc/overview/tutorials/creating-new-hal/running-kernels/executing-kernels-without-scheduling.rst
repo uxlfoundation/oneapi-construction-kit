@@ -186,14 +186,15 @@ kernel's ELF:
                                        uint32_t num_args, uint32_t work_dim) {
       refsi_locker locker(hal_lock);
 
-      ELFProgram *elf = (ELFProgram *)program;     // Added
+      refsi_hal_program *refsi_program = (refsi_hal_program *)program; // Added
+      ELFProgram *elf = refsi_program->elf.get();                      // Added
       refsi_hal_kernel *kernel_wrapper = (refsi_hal_kernel *)kernel;
 
-      // Load ELF into the RefSi device's memory.  // Added
-      hal_mem_device mem_if(this);                 // Added
-      if (!elf->load(mem_if)) {                    // Added
-        return false;                              // Added
-      }                                            // Added
+      // Load ELF into the RefSi device's memory.                      // Added
+      hal_mem_device mem_if(this);                                     // Added
+      if (!elf->load(mem_if)) {                                        // Added
+        return false;                                                  // Added
+      }                                                                // Added
       ...
     }
 

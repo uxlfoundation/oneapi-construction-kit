@@ -58,7 +58,7 @@ _cl_command_queue::~_cl_command_queue() {
   muxWaitAll(mux_queue);
 
   {
-    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
     cleanupCompletedCommandBuffers();
   }
   // Release any completed signal semaphores
@@ -94,41 +94,29 @@ _cl_command_queue::~_cl_command_queue() {
 cargo::expected<std::unique_ptr<_cl_command_queue>, cl_int>
 _cl_command_queue::create(cl_context context, cl_device_id device,
                           cl_command_queue_properties properties) {
-  cl_command_queue_properties queueProperties = 0;
-
   if (properties &
       ~(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE)) {
     return cargo::make_unexpected(CL_INVALID_VALUE);
   }
 
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
   if (cl::validate::IsInBitSet(properties,
                                CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)) {
     return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
   }
-
-  // Set profiling enable
-  if (cl::validate::IsInBitSet(properties, CL_QUEUE_PROFILING_ENABLE)) {
-    queueProperties |= CL_QUEUE_PROFILING_ENABLE;
-  }
+#endif
 
   mux_queue_t mux_queue;
-  mux_result_t error =
+  const mux_result_t error =
       muxGetQueue(device->mux_device, mux_queue_type_compute, 0, &mux_queue);
   OCL_CHECK(error, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
-  auto queue =
-      std::unique_ptr<_cl_command_queue>(new (std::nothrow) _cl_command_queue(
-          context, device, queueProperties, mux_queue));
+  auto queue = std::unique_ptr<_cl_command_queue>(new (
+      std::nothrow) _cl_command_queue(context, device, properties, mux_queue));
   OCL_CHECK(nullptr == queue,
             return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(queue);
-#else
   return queue;
-#endif
 }
 
 // Used by clCreateCommandQueueWithProperties and
@@ -137,7 +125,7 @@ cargo::expected<std::unique_ptr<_cl_command_queue>, cl_int>
 _cl_command_queue::create(cl_context context, cl_device_id device,
                           const cl_bitfield *properties) {
   mux_queue_t mux_queue;
-  mux_result_t error =
+  const mux_result_t error =
       muxGetQueue(device->mux_device, mux_queue_type_compute, 0, &mux_queue);
   OCL_CHECK(error, return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY));
 
@@ -157,22 +145,24 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
         CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE;
     auto current = properties;
     do {
-      cl_bitfield property = current[0];
-      cl_command_queue_properties value = current[1];
+      const cl_bitfield property = current[0];
+      const cl_command_queue_properties value = current[1];
       switch (property) {
         case CL_QUEUE_PROPERTIES:
           if (value & ~valid_properties_mask) {
             return cargo::make_unexpected(CL_INVALID_VALUE);
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
           } else if (value & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) {
             // TODO(CA-1123): Support out of order command queues.
             return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
+#endif
 #if defined(CL_VERSION_3_0)
           } else if (value & CL_QUEUE_ON_DEVICE ||
                      value & CL_QUEUE_ON_DEVICE_DEFAULT) {
             return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
 #endif
-          } else if (value & CL_QUEUE_PROFILING_ENABLE) {
-            command_queue_properties |= CL_QUEUE_PROFILING_ENABLE;
+          } else {
+            command_queue_properties |= value;
           }
           break;
 #if defined(CL_VERSION_3_0)
@@ -198,13 +188,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
 #endif
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(command_queue);
-#else
   return command_queue;
-#endif
 }
 
 cl_int _cl_command_queue::flush() {
@@ -219,7 +203,7 @@ cl_int _cl_command_queue::flush() {
     ~raii_wrapper() { in_flush = false; }
     bool &in_flush;
   };
-  raii_wrapper wrapper(in_flush);
+  const raii_wrapper wrapper(in_flush);
 
   if (auto error = cleanupCompletedCommandBuffers()) {
     return error;
@@ -267,7 +251,7 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     events[i]->wait();
   }
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   return CL_SUCCESS == cleanupCompletedCommandBuffers()
              ? CL_SUCCESS
@@ -275,8 +259,8 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
 }
 
 cl_int _cl_command_queue::getEventStatus(cl_event event) {
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
-  cl_int error = cleanupCompletedCommandBuffers();
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const cl_int error = cleanupCompletedCommandBuffers();
   OCL_UNUSED(error);
   assert(CL_SUCCESS == error);
   return event->command_status;
@@ -293,7 +277,7 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
     // Check if the first running command buffer has completed.
     auto fence = fences[running_command_buffers.front().command_buffer];
     assert(fence && "Missing fence entry for command buffer dispatch!");
-    mux_result_t error = muxTryWait(mux_queue, 0, fence);
+    const mux_result_t error = muxTryWait(mux_queue, 0, fence);
     OCL_ASSERT(mux_success == error || mux_error_fence_failure == error ||
                    mux_fence_not_ready == error,
                "muxTryWait failed!");
@@ -413,7 +397,7 @@ cl_uint _cl_command_queue::getDeviceIndex() {
   return context->getDeviceIndex(device);
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::getCommandBuffer(
     cargo::array_view<const cl_event> event_wait_list, cl_event event) {
   // Register the wait and signal events for the command buffer's dispatch.
@@ -448,7 +432,7 @@ _cl_command_queue::getCommandBuffer(
       .or_else(setEventFailure);
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::registerDispatchCallback(
+[[nodiscard]] cl_int _cl_command_queue::registerDispatchCallback(
     mux_command_buffer_t command_buffer, cl_event event,
     std::function<void()> callback) {
   OCL_ASSERT(
@@ -467,7 +451,7 @@ CARGO_NODISCARD cl_int _cl_command_queue::registerDispatchCallback(
   return CL_SUCCESS;
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::getCurrentCommandBuffer() {
   if (pending_command_buffers.empty()) {
     // There are no pending command buffers, create one.
@@ -478,7 +462,7 @@ _cl_command_queue::getCurrentCommandBuffer() {
   return pending_command_buffers.back();
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::getCommandBufferPending(
     cargo::array_view<const cl_event> event_wait_list) {
   // Utility function object adds wait semaphores to a pending dispatch.
@@ -528,7 +512,8 @@ _cl_command_queue::getCommandBufferPending(
   // Storage for the pending dispatches on which this command buffer will
   // depend.
   using dispatch_pair = std::pair<const mux_command_buffer_t, dispatch_state_t>;
-  cargo::small_vector<dispatch_pair *, 8> dependent_dispatches;
+  using dispatch_dependency = std::pair<dispatch_pair *, cl_command_queue>;
+  cargo::small_vector<dispatch_dependency, 8> dependent_dispatches;
 
   // Flag indicating whether it is safe to append to the last command buffer in
   // the case that we only have one dependent command (which will always be the
@@ -542,7 +527,7 @@ _cl_command_queue::getCommandBufferPending(
     OCL_ASSERT(pending_dispatch != std::end(pending_dispatches),
                "The last pending command buffer has no entry in the "
                "pending dispatches map.");
-    if (dependent_dispatches.push_back(&*pending_dispatch)) {
+    if (dependent_dispatches.push_back({&*pending_dispatch, this})) {
       return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
     }
 
@@ -551,6 +536,7 @@ _cl_command_queue::getCommandBufferPending(
     can_append_last_dispatch = !pending_dispatch->second.is_user_command_buffer;
   }
 
+  cargo::small_vector<cl_command_queue, 2> dependent_dispatch_command_queues;
   // Find all dependent dispatches in the event_wait_list.
   for (auto wait_event : event_wait_list) {
     if (cl::isUserEvent(wait_event) &&
@@ -573,7 +559,7 @@ _cl_command_queue::getCommandBufferPending(
       // dependent_dispatches.
       if (std::any_of(dispatch.signal_events.begin(),
                       dispatch.signal_events.end(), isWaitEvent)) {
-        if (dependent_dispatches.push_back(&pending)) {
+        if (dependent_dispatches.push_back({&pending, wait_event->queue})) {
           return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
         }
       }
@@ -583,15 +569,24 @@ _cl_command_queue::getCommandBufferPending(
     // different from this one
     if (wait_event->queue != this &&
         CL_COMMAND_USER != wait_event->command_type) {
+      // Check if the cross queue does not exist in the queues
+      if (std::find(dependent_dispatch_command_queues.begin(),
+                    dependent_dispatch_command_queues.end(),
+                    wait_event->queue) ==
+          dependent_dispatch_command_queues.end()) {
+        if (dependent_dispatch_command_queues.push_back(wait_event->queue)) {
+          return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+        }
+      }
+      can_append_last_dispatch = false;
+
       for (auto &pending : wait_event->queue->pending_dispatches) {
         auto &dispatch = pending.second;
         // Check if any signal events are the wait event and add them to
         // dependent_dispatches.
         if (std::any_of(dispatch.signal_events.begin(),
                         dispatch.signal_events.end(), isWaitEvent)) {
-          can_append_last_dispatch = false;
-
-          if (dependent_dispatches.push_back(&pending)) {
+          if (dependent_dispatches.push_back({&pending, wait_event->queue})) {
             return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
           }
         }
@@ -611,33 +606,51 @@ _cl_command_queue::getCommandBufferPending(
   // There is only a single dependent dispatch so return its command buffer.
   // Since there is only one it must be the most recent dispatch.
   if (dependent_dispatches.size() == 1 && can_append_last_dispatch) {
-    return dependent_dispatches.front()->first;
+    return dependent_dispatches.front().first->first;
   }
 
   // Storage for wait semaphores to set on a pending command buffer.
   cargo::small_vector<mux_shared_semaphore, 8> semaphores;
 
-  // There are one or more dependent dispatches we must create a new command
-  // group and wait on the their signal semaphores.
-  if (!dependent_dispatches.empty()) {
-    for (auto &dependent : dependent_dispatches) {
-      auto &dependent_dispatch = dependent->second;
-      // Append the signal semaphore to wait_semaphores of the current
-      // dispatch.
-      if (semaphores.push_back(dependent_dispatch.signal_semaphore)) {
-        return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+  // We always process the current queue
+  if (dependent_dispatch_command_queues.push_back(this)) {
+    return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+  }
+
+  for (auto &dispatch_queue : dependent_dispatch_command_queues) {
+    // There are one or more dependent dispatches we must create a new command
+    // group and wait on the their signal semaphores.
+    const bool has_dependent_dispatches =
+        std::find_if(
+            dependent_dispatches.begin(), dependent_dispatches.end(),
+            [dispatch_queue](dispatch_dependency &dispatch_dependency) {
+              return dispatch_dependency.second == dispatch_queue;
+            }) != std::end(dependent_dispatches);
+
+    if (has_dependent_dispatches) {
+      for (auto &dependent_dispatch_info : dependent_dispatches) {
+        if (dependent_dispatch_info.second != dispatch_queue) {
+          continue;
+        }
+        auto &dependent_dispatch = dependent_dispatch_info.first->second;
+
+        // Append the signal semaphore to wait_semaphores of the current
+        // dispatch.
+        if (semaphores.push_back(dependent_dispatch.signal_semaphore)) {
+          return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+        }
       }
-    }
-  } else {
-    // There are no dependent dispatches, this means the command buffer is
-    // running now or has already completed or there were never any wait events
-    // in the first place.
-    // Wait on all running dispatches to ensure ordering since the commands in
-    // running_command_buffers may be out of order with respect the
-    // container (ordering is still enforced via semaphore dependencies though).
-    for (auto &running_dispatch : running_command_buffers) {
-      if (semaphores.push_back(running_dispatch.signal_semaphore)) {
-        return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+    } else {
+      // There are no dependent dispatches, this means the command buffer is
+      // running now or has already completed or there were never any wait
+      // events in the first place. Wait on all running dispatches to ensure
+      // ordering since the commands in running_command_buffers may be out of
+      // order with respect the container (ordering is still enforced via
+      // semaphore dependencies though).
+      for (auto &running_dispatch : dispatch_queue->running_command_buffers) {
+        if (semaphores.push_back(running_dispatch.signal_semaphore)) {
+          return cargo::make_unexpected(CL_OUT_OF_RESOURCES);
+        }
       }
     }
   }
@@ -646,7 +659,7 @@ _cl_command_queue::getCommandBufferPending(
       add_wait{semaphores, pending_dispatches});
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
+[[nodiscard]] cl_int _cl_command_queue::dispatch(
     cargo::array_view<mux_command_buffer_t> command_buffers) {
   for (auto command_buffer : command_buffers) {
     auto &dispatch = pending_dispatches[command_buffer];
@@ -759,7 +772,7 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch(
 }
 
 cl_int _cl_command_queue::dispatchPending(cl_event user_event) {
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   // Remove the user event from all pending dispatches wait event lists.
   for (auto &pending : pending_dispatches) {
@@ -817,7 +830,7 @@ cl_int _cl_command_queue::removeFromPending(
 
 cl_int _cl_command_queue::dropDispatchesPending(
     cl_event user_event, cl_int event_command_exec_status) {
-  std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   cargo::small_vector<mux_command_buffer_t, 16> command_buffers;
 
@@ -871,7 +884,7 @@ cl_int _cl_command_queue::dropDispatchesPending(
   return removeFromPending(command_buffers);
 }
 
-CARGO_NODISCARD cargo::expected<mux_command_buffer_t, cl_int>
+[[nodiscard]] cargo::expected<mux_command_buffer_t, cl_int>
 _cl_command_queue::createCommandBuffer() {
   mux_command_buffer_t command_buffer;
   if (auto cached_command_buffer = cached_command_buffers.dequeue()) {
@@ -952,7 +965,7 @@ _cl_command_queue::createSemaphore() {
 }
 
 cl_int _cl_command_queue::releaseSemaphore(mux_shared_semaphore semaphore) {
-  bool should_destroy = semaphore->release();
+  const bool should_destroy = semaphore->release();
   if (should_destroy) {
     delete semaphore;
   }
@@ -971,7 +984,7 @@ void _cl_command_queue::userEventDispatch(cl_event user_event,
   command_queue->dispatchPending(user_event);
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
+[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
     cargo::array_view<const cl_event> event_wait_list) {
   if (!event_wait_list.empty()) {
     // Add all non-completed events to the dispatches wait list.
@@ -993,8 +1006,8 @@ CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addWaitEvents(
   return CL_SUCCESS;
 }
 
-CARGO_NODISCARD cl_int
-_cl_command_queue::dispatch_state_t::addSignalEvent(cl_event event) {
+[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addSignalEvent(
+    cl_event event) {
   if (event) {
     if (signal_events.push_back(event)) {
       return CL_OUT_OF_RESOURCES;
@@ -1004,7 +1017,7 @@ _cl_command_queue::dispatch_state_t::addSignalEvent(cl_event event) {
   return CL_SUCCESS;
 }
 
-CARGO_NODISCARD cl_int _cl_command_queue::dispatch_state_t::addCallback(
+[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addCallback(
     std::function<void()> callback) {
   if (callbacks.push_back(std::move(callback))) {
     return CL_OUT_OF_RESOURCES;
@@ -1026,7 +1039,8 @@ cl_int _cl_command_queue::finish_state_t::addState(
 
 void _cl_command_queue::finish_state_t::clear(
     mux_command_buffer_t command_buffer, mux_result_t error, bool locked) {
-  cl_int cl_error = (mux_success == error) ? CL_COMPLETE : CL_OUT_OF_RESOURCES;
+  const cl_int cl_error =
+      (mux_success == error) ? CL_COMPLETE : CL_OUT_OF_RESOURCES;
   for (auto signal_event : signal_events) {
     signal_event->complete(cl_error);
     cl::releaseInternal(signal_event);
@@ -1038,7 +1052,7 @@ void _cl_command_queue::finish_state_t::clear(
   if (locked) {
     command_queue->finish_state.erase(command_buffer);
   } else {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
     command_queue->finish_state.erase(command_buffer);
   }
@@ -1047,7 +1061,7 @@ void _cl_command_queue::finish_state_t::clear(
 CL_API_ENTRY cl_command_queue CL_API_CALL cl::CreateCommandQueue(
     cl_context context, cl_device_id device_id,
     cl_command_queue_properties properties, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateCommandQueue");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateCommandQueue");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   OCL_CHECK(!device_id || !context->hasDevice(device_id),
@@ -1067,14 +1081,14 @@ CL_API_ENTRY cl_command_queue CL_API_CALL cl::CreateCommandQueue(
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::RetainCommandQueue(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainCommandQueue");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainCommandQueue");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   return cl::retainExternal(command_queue);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::ReleaseCommandQueue(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandQueue");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandQueue");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   // If we are on the last ref count external and there is still an internal
@@ -1083,7 +1097,7 @@ cl::ReleaseCommandQueue(cl_command_queue command_queue) {
       command_queue->refCountInternal()) {
     command_queue->finish();
   } else {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     // releasing a command queue causes an implicit flush
@@ -1097,7 +1111,7 @@ cl::ReleaseCommandQueue(cl_command_queue command_queue) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
     cl_command_queue command_queue, cl_command_queue_info param_name,
     size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandQueueInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandQueueInfo");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
 #define COMMAND_QUEUE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)    \
@@ -1155,7 +1169,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
     cl_command_queue command_queue, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueBarrierWithWaitList");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clEnqueueBarrierWithWaitList");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   const cl_int error = cl::validate::EventWaitList(
@@ -1169,7 +1184,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     // barriers are implicit in in-order queues, could mostly be a no-op
@@ -1187,7 +1202,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
     cl_command_queue command_queue, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarkerWithWaitList");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarkerWithWaitList");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   const cl_int error = cl::validate::EventWaitList(
@@ -1201,7 +1216,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -1216,7 +1231,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
     cl_command_queue queue, cl_uint num_events, const cl_event *event_list) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWaitForEvents");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWaitForEvents");
   OCL_CHECK(!queue, return CL_INVALID_COMMAND_QUEUE);
 
   // This does not use the cl::validate::EventWaitList because this call is not
@@ -1229,10 +1244,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
               return CL_INVALID_CONTEXT);
   }
 
+#ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
   OCL_CHECK(cl::validate::IsInBitSet(queue->properties,
                                      CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE),
             OCL_ABORT("OCL API objects event. Error clEnqueueWaitForEvents "
                       "does not support out of order execution"));
+#endif
 
   // no-op, as our queue is in-order we guarantee that all events are executed
   // before this could be!
@@ -1241,16 +1258,16 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::Flush(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clFlush");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clFlush");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
   return command_queue->flush();
 }
 
 cl_int _cl_command_queue::finish() {
   {
-    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
     flush();
   }
 
@@ -1259,7 +1276,7 @@ cl_int _cl_command_queue::finish() {
   }
 
   {
-    std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
     if (CL_SUCCESS != cleanupCompletedCommandBuffers()) {
       return CL_OUT_OF_RESOURCES;
     }
@@ -1268,7 +1285,7 @@ cl_int _cl_command_queue::finish() {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clFinish");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clFinish");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   auto new_event = _cl_event::create(command_queue, 0);
@@ -1287,7 +1304,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
 
   cl_int result;
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
     result = command_queue->flush();
   }
@@ -1302,14 +1319,14 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrier(cl_command_queue queue) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueBarrier");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueBarrier");
   OCL_CHECK(!queue, return CL_INVALID_COMMAND_QUEUE);
   return CL_SUCCESS;
 }
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarker");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMarker");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!event, return CL_INVALID_VALUE);
 
@@ -1321,7 +1338,7 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
     }
     *event = *new_event;
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer({}, *event);
@@ -1334,7 +1351,7 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
 }
 
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
-CARGO_NODISCARD cl_int _cl_command_queue::enqueueCommandBuffer(
+[[nodiscard]] cl_int _cl_command_queue::enqueueCommandBuffer(
     cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *return_event) {
   // Lock both queue and command-buffer

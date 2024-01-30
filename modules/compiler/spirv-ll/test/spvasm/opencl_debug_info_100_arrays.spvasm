@@ -1,0 +1,76 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; This test doesn't validate because spirv-val doesn't like seeing 'OpConstant
+; %ulong 0' in the DebugTypeArray operands. This looks like a bug in spirv-val:
+; it's okay with '1'.
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env spv1.1 -o %spv_file_s %s %}
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Int64 %spv_file_s | FileCheck %s
+
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 84
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+          %2 = OpExtInstImport "OpenCL.DebugInfo.100"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %15 "foo"
+         %40 = OpString "/tmp/kernel.cl"
+         %44 = OpString "int"
+         %57 = OpString "unsigned long"
+         %64 = OpString "foo"
+         %65 = OpString ""
+               OpSource OpenCL_C 102000
+               OpModuleProcessed ""
+      %ulong = OpTypeInt 64 0
+    %ulong_0 = OpConstant %ulong 0
+    %ulong_1 = OpConstant %ulong 1
+   %ulong_32 = OpConstant %ulong 32
+   %ulong_64 = OpConstant %ulong 64
+       %void = OpTypeVoid
+        %ptr = OpTypePointer CrossWorkgroup %ulong
+         %14 = OpTypeFunction %void %ptr
+       %none = OpExtInst %void %2 DebugInfoNone
+         %42 = OpExtInst %void %2 DebugSource %40 %65
+         %43 = OpExtInst %void %2 DebugCompilationUnit 65536 5 %42 OpenCL_C
+         %59 = OpExtInst %void %2 DebugTypeBasic %57 %ulong_64 Unsigned
+         %82 = OpExtInst %void %2 DebugTypeArray %59 %ulong_32 %ulong_32 %ulong_0 %ulong_1
+         %55 = OpExtInst %void %2 DebugTypeFunction None %void %82
+         %66 = OpExtInst %void %2 DebugFunction %64 %55 %42 1 0 %43 %65 FlagIsDefinition|FlagPrototyped|FlagIsOptimized 1 %15
+
+         %15 = OpFunction %void None %14
+          %a = OpFunctionParameter %ptr
+      %entry = OpLabel
+               OpReturn
+               OpFunctionEnd
+
+; CHECK: define spir_kernel void @foo(ptr addrspace(1) noundef {{%.*}}){{.*}} !dbg [[DBG:![0-9]+]]
+
+; CHECK-DAG: [[DBG]] = distinct !DISubprogram({{.*}}, type: [[TY:![0-9]+]],
+; CHECK-DAG: [[TY]] = !DISubroutineType(types: [[TYLIST:![0-9]+]])
+; CHECK-DAG: [[TYLIST]] = !{[[ARRAYTY:![0-9]+]]}
+; CHECK-DAG: [[ARRAYTY]] = !DICompositeType(tag: DW_TAG_array_type, baseType: [[BASETY:![0-9]+]],
+; CHECK-SAME:                 size: 65536, elements: [[ELTS:![0-9]+]])
+; CHECK-DAG: [[BASETY]] = !DIBasicType(name: "unsigned long", size: 64, encoding: DW_ATE_unsigned)
+; CHECK-DAG: [[ELTS]] = !{[[ELT0:![0-9]+]], [[ELT1:![0-9]+]]}
+; CHECK-DAG: [[ELT0]] = !DISubrange(count: 32, lowerBound: 0)
+; CHECK-DAG: [[ELT1]] = !DISubrange(count: 32, lowerBound: 1)

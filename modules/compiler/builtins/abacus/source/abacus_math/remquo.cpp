@@ -148,7 +148,7 @@ abacus_double remquo_helper_scalar(const abacus_double x, const abacus_double m,
     return x;
   }
 
-  abacus_double mAbs = __abacus_fabs(m);
+  const abacus_double mAbs = __abacus_fabs(m);
 
   abacus_int quotient = 0;
   abacus_double result = abacus::internal::fmod_unsafe(x, m, &quotient);

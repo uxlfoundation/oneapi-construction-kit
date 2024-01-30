@@ -1,0 +1,182 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+@target@
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDF16_EEvRT_(ptr dereferenceable(2) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load half, ptr %0
+  %2 = call half @llvm.sqrt.f16(half %1)
+  store half %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv2_DF16_EEvRT_(ptr dereferenceable(4) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <2 x half>, ptr %0
+  %2 = call <2 x half> @llvm.sqrt.v2f16(<2 x half> %1)
+  store <2 x half> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv3_DF16_EEvRT_(ptr dereferenceable(6) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <3 x half>, ptr %0
+  %2 = call <3 x half> @llvm.sqrt.v3f16(<3 x half> %1)
+  store <3 x half> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv4_DF16_EEvRT_(ptr dereferenceable(8) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <4 x half>, ptr %0
+  %2 = call <4 x half> @llvm.sqrt.v4f16(<4 x half> %1)
+  store <4 x half> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv8_DF16_EEvRT_(ptr dereferenceable(16) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <8 x half>, ptr %0
+  %2 = call <8 x half> @llvm.sqrt.v8f16(<8 x half> %1)
+  store <8 x half> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv16_DF16_EEvRT_(ptr dereferenceable(32) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <16 x half>, ptr %0
+  %2 = call <16 x half> @llvm.sqrt.v16f16(<16 x half> %1)
+  store <16 x half> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIfEEvRT_(ptr dereferenceable(4) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load float, ptr %0
+  %2 = call float @llvm.sqrt.f32(float %1)
+  store float %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv2_fEEvRT_(ptr dereferenceable(8) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <2 x float>, ptr %0
+  %2 = call <2 x float> @llvm.sqrt.v2f32(<2 x float> %1)
+  store <2 x float> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv3_fEEvRT_(ptr dereferenceable(12) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <3 x float>, ptr %0
+  %2 = call <3 x float> @llvm.sqrt.v3f32(<3 x float> %1)
+  store <3 x float> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv4_fEEvRT_(ptr dereferenceable(16) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <4 x float>, ptr %0
+  %2 = call <4 x float> @llvm.sqrt.v4f32(<4 x float> %1)
+  store <4 x float> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv8_fEEvRT_(ptr dereferenceable(32) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <8 x float>, ptr %0
+  %2 = call <8 x float> @llvm.sqrt.v8f32(<8 x float> %1)
+  store <8 x float> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv16_fEEvRT_(ptr dereferenceable(64) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <16 x float>, ptr %0
+  %2 = call <16 x float> @llvm.sqrt.v16f32(<16 x float> %1)
+  store <16 x float> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIdEEvRT_(ptr dereferenceable(8) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load double, ptr %0
+  %2 = call double @llvm.sqrt.f64(double %1)
+  store double %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv2_dEEvRT_(ptr dereferenceable(16) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <2 x double>, ptr %0
+  %2 = call <2 x double> @llvm.sqrt.v2f64(<2 x double> %1)
+  store <2 x double> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv3_dEEvRT_(ptr dereferenceable(24) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <3 x double>, ptr %0
+  %2 = call <3 x double> @llvm.sqrt.v3f64(<3 x double> %1)
+  store <3 x double> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv4_dEEvRT_(ptr dereferenceable(32) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <4 x double>, ptr %0
+  %2 = call <4 x double> @llvm.sqrt.v4f64(<4 x double> %1)
+  store <4 x double> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv8_dEEvRT_(ptr dereferenceable(64) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <8 x double>, ptr %0
+  %2 = call <8 x double> @llvm.sqrt.v8f64(<8 x double> %1)
+  store <8 x double> %2, ptr %0
+  ret void
+}
+
+define hidden spir_func void @_ZN6abacus6detail12inplace_sqrtIDv16_dEEvRT_(ptr dereferenceable(128) %0) local_unnamed_addr mustprogress nounwind alwaysinline {
+entry:
+  %1 = load <16 x double>, ptr %0
+  %2 = call <16 x double> @llvm.sqrt.v16f64(<16 x double> %1)
+  store <16 x double> %2, ptr %0
+  ret void
+}
+
+declare half @llvm.sqrt.f16(half)
+declare <2 x half> @llvm.sqrt.v2f16(<2 x half>)
+declare <3 x half> @llvm.sqrt.v3f16(<3 x half>)
+declare <4 x half> @llvm.sqrt.v4f16(<4 x half>)
+declare <8 x half> @llvm.sqrt.v8f16(<8 x half>)
+declare <16 x half> @llvm.sqrt.v16f16(<16 x half>)
+
+declare float @llvm.sqrt.f32(float)
+declare <2 x float> @llvm.sqrt.v2f32(<2 x float>)
+declare <3 x float> @llvm.sqrt.v3f32(<3 x float>)
+declare <4 x float> @llvm.sqrt.v4f32(<4 x float>)
+declare <8 x float> @llvm.sqrt.v8f32(<8 x float>)
+declare <16 x float> @llvm.sqrt.v16f32(<16 x float>)
+
+declare double @llvm.sqrt.f64(double)
+declare <2 x double> @llvm.sqrt.v2f64(<2 x double>)
+declare <3 x double> @llvm.sqrt.v3f64(<3 x double>)
+declare <4 x double> @llvm.sqrt.v4f64(<4 x double>)
+declare <8 x double> @llvm.sqrt.v8f64(<8 x double>)
+declare <16 x double> @llvm.sqrt.v16f64(<16 x double>)

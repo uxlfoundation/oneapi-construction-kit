@@ -474,7 +474,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   builtins::printf::descriptor &printf_desc = printf_calls.back();
 
   IRBuilder<> ir(ci);
-  OptimizationRemarkEmitter ORE(ci->getFunction());
+  const OptimizationRemarkEmitter ORE(ci->getFunction());
 
   // get the format string
   std::optional<std::string> format_string =
@@ -578,7 +578,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
           new_args.push_back(ir.CreatePtrToInt(arg, size_t_type));
           new_args_types.push_back(size_t_type);
 
-          unsigned size = size_t_type->getPrimitiveSizeInBits();
+          const unsigned size = size_t_type->getPrimitiveSizeInBits();
           printf_desc.types.push_back((size == 32)
                                           ? builtins::printf::type::INT
                                           : builtins::printf::type::LONG);
@@ -743,7 +743,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
     auto gep = ir.CreateGEP(buffer_elt_ty, buffer, argOffset);
 
     // offset by the number of bytes of the type
-    unsigned size = type->getPrimitiveSizeInBits();
+    const unsigned size = type->getPrimitiveSizeInBits();
     offset += size / 8;
 
     // cast the pointer to the larger type and store the value
@@ -843,7 +843,7 @@ PreservedAnalyses compiler::PrintfReplacementPass::run(
   auto to_be_cloned_func = [&funcs_calling_printf](const Function &func,
                                                    bool &ClonedWithBody,
                                                    bool &ClonedNoBody) {
-    ClonedWithBody = !func.getName().startswith("__llvm") &&
+    ClonedWithBody = !func.getName().starts_with("__llvm") &&
                      funcs_calling_printf.count(&func);
     ClonedNoBody = false;
   };

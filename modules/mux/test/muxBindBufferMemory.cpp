@@ -32,7 +32,7 @@ struct muxBindBufferMemoryTest : public DeviceTest {
             ? mux_allocation_type_alloc_device
             : mux_allocation_type_alloc_host;
 
-    uint32_t heap = mux::findFirstSupportedHeap(supported_heaps);
+    const uint32_t heap = mux::findFirstSupportedHeap(supported_heaps);
     return muxAllocateMemory(device, MEMORY_SIZE, heap,
                              mux_memory_property_host_visible, allocation_type,
                              0, allocator, &memory);
@@ -105,7 +105,7 @@ TEST_P(muxBindBufferMemoryTest, InvalidMemory) {
 
   ASSERT_SUCCESS(muxCreateBuffer(device, MEMORY_SIZE * 2, allocator, &buffer));
 
-  uint32_t heap =
+  const uint32_t heap =
       mux::findFirstSupportedHeap(buffer->memory_requirements.supported_heaps);
   mux_memory_t memory;
 

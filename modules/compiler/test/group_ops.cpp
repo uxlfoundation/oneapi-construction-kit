@@ -87,7 +87,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
 
   std::vector<GroupOp> getGroupBroadcasts(GroupCollective::ScopeKind Scope) {
     std::vector<GroupOp> GroupOps;
-    std::string BaseName = getGroupBuiltinBaseName(Scope);
+    const std::string BaseName = getGroupBuiltinBaseName(Scope);
 
     NameMangler Mangler(&Context);
     Type *const I32Ty = IntegerType::getInt32Ty(Context);
@@ -103,7 +103,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
 
     if (Scope == GroupCollective::ScopeKind::SubGroup ||
         Scope == GroupCollective::ScopeKind::VectorGroup) {
-      std::string BuiltinName = BaseName + "broadcast";
+      const std::string BuiltinName = BaseName + "broadcast";
       SmallVector<TypeQualifiers, 4> QualsVec;
       QualsVec.push_back(eTypeQualNone);
       // And another for the index
@@ -124,7 +124,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
     } else {
       SmallVector<Type *, 4> Args;
       SmallVector<TypeQualifiers, 4> QualsVec;
-      std::string BuiltinName = BaseName + "broadcast";
+      const std::string BuiltinName = BaseName + "broadcast";
 
       // Qualifiers for the argument
       Args.push_back(nullptr);
@@ -169,8 +169,9 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
     std::vector<GroupOp> GroupOps;
 
     // All sorts of reductions and scans
-    for (StringRef OpKind : {"add", "mul", "max", "min", "and", "or", "xor",
-                             "logical_and", "logical_or", "logical_xor"}) {
+    for (const StringRef OpKind :
+         {"add", "mul", "max", "min", "and", "or", "xor", "logical_and",
+          "logical_or", "logical_xor"}) {
       GroupCollective Collective;
       Collective.IsLogical = false;
       Collective.Scope = Scope;
@@ -275,7 +276,7 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
                                         bool IncludeReductions = true,
                                         bool IncludeScans = true) {
     std::vector<GroupOp> GroupOps;
-    std::string BaseName = getGroupBuiltinBaseName(Scope);
+    const std::string BaseName = getGroupBuiltinBaseName(Scope);
 
     if (IncludeAnyAll) {
       GroupCollective Collective;
@@ -366,14 +367,14 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
     for (const auto &Op : GroupOps) {
       BuiltinDecls.push_back("declare " + Op.getLLVMFnString());
 
-      StringRef ParamName =
+      const StringRef ParamName =
           Op.LLVMTy == "float" ? "%f" : (Op.LLVMTy == "i32" ? "%i" : "<err>");
       BuiltinCalls.push_back("%call" + std::to_string(Idx) + " = call " +
                              Op.getLLVMFnString(ParamName));
       ++Idx;
     }
 
-    std::string ModuleStr = getTestModuleStr(BuiltinCalls, BuiltinDecls);
+    const std::string ModuleStr = getTestModuleStr(BuiltinCalls, BuiltinDecls);
 
     auto M = parseModule(ModuleStr);
 
@@ -390,12 +391,12 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
     auto &BB = TestFn->front();
 
     DenseSet<Function *> MuxBuiltins;
-    DenseSet<BuiltinID> MuxBuiltinIDs;
+    const DenseSet<BuiltinID> MuxBuiltinIDs;
     // Note we expect the called functions in the basic block to be in the same
     // order as the group operations we generated earlier.
     unsigned GroupOpIdx = 0;
     for (auto &I : BB) {
-      auto const *CI = dyn_cast<CallInst>(&I);
+      const auto *CI = dyn_cast<CallInst>(&I);
       if (!CI) {
         continue;
       }
@@ -404,8 +405,9 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       MuxBuiltins.insert(CalledFn);
 
       auto Builtin = BI.analyzeBuiltin(*CalledFn);
-      std::string InfoStr = " for function " + CalledFn->getName().str() +
-                            " identified as ID " + std::to_string(Builtin.ID);
+      const std::string InfoStr = " for function " + CalledFn->getName().str() +
+                                  " identified as ID " +
+                                  std::to_string(Builtin.ID);
       EXPECT_NE(Builtin.ID, eBuiltinInvalid) << InfoStr;
       EXPECT_TRUE(BI.isMuxBuiltinID(Builtin.ID)) << InfoStr;
 

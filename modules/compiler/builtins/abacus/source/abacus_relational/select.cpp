@@ -17,12 +17,14 @@
 #include <abacus/abacus_detail_relational.h>
 #include <abacus/abacus_relational.h>
 
-#define DEF(TYPE)                                                          \
-  TYPE __abacus_select(TYPE x, TYPE y, TypeTraits<TYPE>::SignedType z) {   \
-    return abacus::detail::relational::select(x, y, z);                    \
-  }                                                                        \
-  TYPE __abacus_select(TYPE x, TYPE y, TypeTraits<TYPE>::UnsignedType z) { \
-    return abacus::detail::relational::select(x, y, z);                    \
+#define DEF(TYPE)                                                     \
+  TYPE ABACUS_API __abacus_select(TYPE x, TYPE y,                     \
+                                  TypeTraits<TYPE>::SignedType z) {   \
+    return abacus::detail::relational::select(x, y, z);               \
+  }                                                                   \
+  TYPE ABACUS_API __abacus_select(TYPE x, TYPE y,                     \
+                                  TypeTraits<TYPE>::UnsignedType z) { \
+    return abacus::detail::relational::select(x, y, z);               \
   }
 
 DEF(abacus_char);

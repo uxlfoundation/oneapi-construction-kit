@@ -4,6 +4,4 @@ if(NOT DEFINED GENERATE_OUTPUT_FILE)
   )
 endif()
 
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/abacus_config.in" abacus_config)
-string(CONFIGURE "${abacus_config}" abacus_config @ONLY)
-file(WRITE "${GENERATE_OUTPUT_FILE}" "${abacus_config}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/abacus_config.in" "${GENERATE_OUTPUT_FILE}" @ONLY)

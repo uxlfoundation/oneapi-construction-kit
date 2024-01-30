@@ -34,11 +34,8 @@ lit_config.load_config(config, common_lit_cfg_path)
 
 config.test_exec_root = '@CURRENT_BINARY_DIR@'
 
-config.ca_host_target_cpu = if_enabled(
-    '@CA_HOST_TARGET_CPU@',
-    '@CA_HOST_TARGET_CPU@',
-    None
-)
+config.ca_host_target_cpu = '@CA_HOST_TARGET_CPU@' or None
+
 config.ca_host_cl_device_name = '@host_CA_HOST_CL_DEVICE_NAME@'
 
 config.ca_host_capabilities = '@host_CAPABILITIES@'

@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                                \
-  TYPE __abacus_mix(TYPE x, TYPE y, TYPE a) {    \
-    return abacus::detail::common::mix(x, y, a); \
+#define DEF(TYPE)                                        \
+  TYPE ABACUS_API __abacus_mix(TYPE x, TYPE y, TYPE a) { \
+    return abacus::detail::common::mix(x, y, a);         \
   }
-#define DEF2(TYPE, TYPE2)                        \
-  TYPE __abacus_mix(TYPE x, TYPE y, TYPE2 a) {   \
-    return abacus::detail::common::mix(x, y, a); \
+#define DEF2(TYPE, TYPE2)                                 \
+  TYPE ABACUS_API __abacus_mix(TYPE x, TYPE y, TYPE2 a) { \
+    return abacus::detail::common::mix(x, y, a);          \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

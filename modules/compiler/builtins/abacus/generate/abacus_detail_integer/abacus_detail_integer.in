@@ -183,17 +183,17 @@ typename TypeTraits<T>::SignedType ctz(const T& t) {
 
   const abacus_int bits = sizeof(SignedElementType) * 8;
 
-  SignedType data = cast::as<SignedType>(t) & -cast::as<SignedType>(t);
+  const SignedType data = cast::as<SignedType>(t) & -cast::as<SignedType>(t);
 
   SignedType result = (SignedType)(bits - 1);
 
   for (abacus_int i = 0; (1 << i) < bits; i++) {
-    SignedType c1 = (data & cast::convert<SignedElementType>(table[i])) != 0;
-    SignedType intermediate = result - cast::convert<SignedElementType>(1 << i);
+    const SignedType c1 = (data & cast::convert<SignedElementType>(table[i])) != 0;
+    const SignedType intermediate = result - cast::convert<SignedElementType>(1 << i);
     result = __abacus_select(result, intermediate, c1);
   }
 
-  SignedType c0 = t != 0;
+  const SignedType c0 = t != 0;
   const SignedType bit_width = sizeof(SignedElementType) << 3;
   result = __abacus_select(bit_width, result, c0);
   return result;
@@ -299,7 +299,7 @@ struct sub_sat_helper<T, true> {
 
     ux = (ux >> (UnsignedType)SHIFT) + cast::convert<UnsignedType>(max);
 
-    UnsignedType lhs = (ux ^ uy) & (ux ^ res);
+    const UnsignedType lhs = (ux ^ uy) & (ux ^ res);
 
     const T cond = cast::as<T>(lhs) < (T)0;
 

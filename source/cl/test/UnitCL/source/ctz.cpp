@@ -25,7 +25,7 @@
 #include "Common.h"
 
 template <typename T>
-static cargo::enable_if_t<std::is_integral<T>::value, T> reference_ctz(T val) {
+static std::enable_if_t<std::is_integral<T>::value, T> reference_ctz(T val) {
   if (!val) {
     return sizeof(val) << 3;
   }
@@ -38,7 +38,7 @@ static cargo::enable_if_t<std::is_integral<T>::value, T> reference_ctz(T val) {
 }
 
 template <typename T>
-static cargo::enable_if_t<UCL::is_cl_vector<T>::value, T> reference_ctz(T val) {
+static std::enable_if_t<UCL::is_cl_vector<T>::value, T> reference_ctz(T val) {
   T output{};
   unsigned i{0};
   for (const auto &element : val.s) {

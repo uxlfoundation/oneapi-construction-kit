@@ -156,7 +156,7 @@ struct muxApplication : public ::testing::Test {
 
     EXPECT_EQ(buffer_out->memory_requirements.supported_heaps,
               buffer_in->memory_requirements.supported_heaps);
-    uint32_t heap = mux::findFirstSupportedHeap(
+    const uint32_t heap = mux::findFirstSupportedHeap(
         buffer_out->memory_requirements.supported_heaps);
 
     // Check that we can allocate memory on the device, then allocate enough
@@ -172,7 +172,7 @@ struct muxApplication : public ::testing::Test {
 
     // Set up the nd range options, complete with the buffers to use as the
     // kernel arguements and the global work item dimensions.
-    size_t global_offset[3] = {0, 0, 0};
+    const size_t global_offset[3] = {0, 0, 0};
     size_t global_size[3] = {BUFFER_SIZE / sizeof(int32_t), 1, 1};
     size_t local_size[3] = {1, 1, 1};
     bool zero_sized_kernel = false;

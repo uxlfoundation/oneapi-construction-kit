@@ -38,8 +38,8 @@
             %int2_1 = OpConstantComposite %int2_t %int_1 %int_1
    %image1d_array = OpFunction %void_t None %foo_t
            %image = OpFunctionParameter %image1d_array_t
-; CHECK-GE17: define spir_kernel void @image1d_array([[TY:target\("spirv.Image", void, 0, 0, 1, 0, 0, 0, 0\)]] %image)
-; CHECK-LT17: define spir_kernel void @image1d_array([[TY:ptr addrspace\(1\)]] %image)
+; CHECK-GE17: define spir_kernel void @image1d_array([[TY:target\("spirv.Image", void, 0, 0, 1, 0, 0, 0, 0\)]] noundef %image)
+; CHECK-LT17: define spir_kernel void @image1d_array([[TY:ptr addrspace\(1\)]] noundef %image)
                %1 = OpLabel
                %3 = OpImageRead %uint4_t %image %int2_1
 ; CHECK: = call spir_func <4 x i32> @_Z12read_imageui16ocl_image1darrayDv2_i([[TY]] %image, <2 x i32> <i32 1, i32 1>)

@@ -54,7 +54,7 @@ TEST_F(BasicMapTest, Erase) {
   }
 
   for (const auto &el : data) {
-    size_t erased = map.erase(el.first);
+    const size_t erased = map.erase(el.first);
     EXPECT_EQ(erased, 1);
   }
 

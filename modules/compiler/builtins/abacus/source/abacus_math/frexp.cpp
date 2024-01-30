@@ -155,63 +155,63 @@ T frexp(const T x,
 }
 }  // namespace
 
-abacus_float __abacus_frexp(abacus_float x, abacus_int *o) {
+abacus_float ABACUS_API __abacus_frexp(abacus_float x, abacus_int *o) {
   return frexp<>(x, o);
 }
-abacus_float2 __abacus_frexp(abacus_float2 x, abacus_int2 *o) {
+abacus_float2 ABACUS_API __abacus_frexp(abacus_float2 x, abacus_int2 *o) {
   return frexp<>(x, o);
 }
-abacus_float3 __abacus_frexp(abacus_float3 x, abacus_int3 *o) {
+abacus_float3 ABACUS_API __abacus_frexp(abacus_float3 x, abacus_int3 *o) {
   return frexp<>(x, o);
 }
-abacus_float4 __abacus_frexp(abacus_float4 x, abacus_int4 *o) {
+abacus_float4 ABACUS_API __abacus_frexp(abacus_float4 x, abacus_int4 *o) {
   return frexp<>(x, o);
 }
-abacus_float8 __abacus_frexp(abacus_float8 x, abacus_int8 *o) {
+abacus_float8 ABACUS_API __abacus_frexp(abacus_float8 x, abacus_int8 *o) {
   return frexp<>(x, o);
 }
-abacus_float16 __abacus_frexp(abacus_float16 x, abacus_int16 *o) {
+abacus_float16 ABACUS_API __abacus_frexp(abacus_float16 x, abacus_int16 *o) {
   return frexp<>(x, o);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-abacus_double __abacus_frexp(abacus_double x, abacus_int *o) {
+abacus_double ABACUS_API __abacus_frexp(abacus_double x, abacus_int *o) {
   return frexp<>(x, o);
 }
-abacus_double2 __abacus_frexp(abacus_double2 x, abacus_int2 *o) {
+abacus_double2 ABACUS_API __abacus_frexp(abacus_double2 x, abacus_int2 *o) {
   return frexp<>(x, o);
 }
-abacus_double3 __abacus_frexp(abacus_double3 x, abacus_int3 *o) {
+abacus_double3 ABACUS_API __abacus_frexp(abacus_double3 x, abacus_int3 *o) {
   return frexp<>(x, o);
 }
-abacus_double4 __abacus_frexp(abacus_double4 x, abacus_int4 *o) {
+abacus_double4 ABACUS_API __abacus_frexp(abacus_double4 x, abacus_int4 *o) {
   return frexp<>(x, o);
 }
-abacus_double8 __abacus_frexp(abacus_double8 x, abacus_int8 *o) {
+abacus_double8 ABACUS_API __abacus_frexp(abacus_double8 x, abacus_int8 *o) {
   return frexp<>(x, o);
 }
-abacus_double16 __abacus_frexp(abacus_double16 x, abacus_int16 *o) {
+abacus_double16 ABACUS_API __abacus_frexp(abacus_double16 x, abacus_int16 *o) {
   return frexp<>(x, o);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
-abacus_half __abacus_frexp(abacus_half x, abacus_int *o) {
+abacus_half ABACUS_API __abacus_frexp(abacus_half x, abacus_int *o) {
   return frexp<>(x, o);
 }
-abacus_half2 __abacus_frexp(abacus_half2 x, abacus_int2 *o) {
+abacus_half2 ABACUS_API __abacus_frexp(abacus_half2 x, abacus_int2 *o) {
   return frexp<>(x, o);
 }
-abacus_half3 __abacus_frexp(abacus_half3 x, abacus_int3 *o) {
+abacus_half3 ABACUS_API __abacus_frexp(abacus_half3 x, abacus_int3 *o) {
   return frexp<>(x, o);
 }
-abacus_half4 __abacus_frexp(abacus_half4 x, abacus_int4 *o) {
+abacus_half4 ABACUS_API __abacus_frexp(abacus_half4 x, abacus_int4 *o) {
   return frexp<>(x, o);
 }
-abacus_half8 __abacus_frexp(abacus_half8 x, abacus_int8 *o) {
+abacus_half8 ABACUS_API __abacus_frexp(abacus_half8 x, abacus_int8 *o) {
   return frexp<>(x, o);
 }
-abacus_half16 __abacus_frexp(abacus_half16 x, abacus_int16 *o) {
+abacus_half16 ABACUS_API __abacus_frexp(abacus_half16 x, abacus_int16 *o) {
   return frexp<>(x, o);
 }
 

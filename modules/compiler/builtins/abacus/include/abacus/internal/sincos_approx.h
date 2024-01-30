@@ -62,10 +62,9 @@ struct sincos_approx_helper<T, abacus_half> {
     using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
     const T xx = x * x;
-    *out_cos = abacus::internal::horner_polynomial<T, 4>(xx, _sincos_coefcH);
+    *out_cos = abacus::internal::horner_polynomial(xx, _sincos_coefcH);
 
-    const T sin =
-        x * abacus::internal::horner_polynomial<T, 4>(xx, _sincos_coefsH);
+    const T sin = x * abacus::internal::horner_polynomial(xx, _sincos_coefsH);
 
     // 0.151611328125 (0x30da) is only slightly above 2 ULP. It's faster to
     // add a special case for this input using select instead of changing the
@@ -81,9 +80,9 @@ template <typename T>
 struct sincos_approx_helper<T, abacus_float> {
   static T _(const T &x, T *out_cos) {
     const T xx = x * x;
-    *out_cos = abacus::internal::horner_polynomial<T, 4>(xx, _sincos_coefc);
+    *out_cos = abacus::internal::horner_polynomial(xx, _sincos_coefc);
 
-    return x * abacus::internal::horner_polynomial<T, 4>(xx, _sincos_coefs);
+    return x * abacus::internal::horner_polynomial(xx, _sincos_coefs);
   }
 };
 
@@ -92,9 +91,9 @@ template <typename T>
 struct sincos_approx_helper<T, abacus_double> {
   static T _(const T &x, T *out_cos) {
     const T xx = x * x;
-    *out_cos = abacus::internal::horner_polynomial<T, 7>(xx, _sincos_coefcD);
+    *out_cos = abacus::internal::horner_polynomial(xx, _sincos_coefcD);
 
-    return x * abacus::internal::horner_polynomial<T, 7>(xx, _sincos_coefsD);
+    return x * abacus::internal::horner_polynomial(xx, _sincos_coefsD);
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

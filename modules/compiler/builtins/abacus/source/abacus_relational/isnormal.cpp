@@ -40,7 +40,7 @@ struct helper<abacus_half> {
 }  // namespace
 
 #define DEF(TYPE)                                             \
-  helper<TYPE>::type __abacus_isnormal(TYPE x) {              \
+  helper<TYPE>::type ABACUS_API __abacus_isnormal(TYPE x) {   \
     return abacus::detail::cast::convert<helper<TYPE>::type>( \
         abacus::detail::relational::isnormal(x));             \
   }

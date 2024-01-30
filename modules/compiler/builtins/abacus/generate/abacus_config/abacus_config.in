@@ -28,11 +28,11 @@
   #endif
 
   #if __has_attribute(overloadable)
-    #define ABACUS_API __attribute__((overloadable))
-    #define ABACUS_EXPORT_API __attribute__((overloadable, visibility("hidden")))
+    #define ABACUS_API __attribute__((overloadable, nothrow))
+    #define ABACUS_EXPORT_API __attribute__((overloadable, nothrow, visibility("hidden")))
   #else
-    #define ABACUS_API
-    #define ABACUS_EXPORT_API __attribute__((visibility("hidden")))
+    #define ABACUS_API __attribute__((nothrow))
+    #define ABACUS_EXPORT_API __attribute__((nothrow, visibility("hidden")))
   #endif
 #elif defined(__cplusplus)
   #ifdef _MSC_VER
@@ -48,8 +48,8 @@
 
     #define ABACUS_API ABACUS_EXPORT_API
   #else
-    #define ABACUS_API
-    #define ABACUS_EXPORT_API __attribute__((visibility("default")))
+    #define ABACUS_API __attribute__((nothrow))
+    #define ABACUS_EXPORT_API __attribute__((nothrow, visibility("default")))
   #endif
 #else
   #error Abacus only support C++ and OpenCL compilation!

@@ -89,6 +89,8 @@ ca_option(CA_ENABLE_EXAMPLES BOOL
   "Enable building example programs" ON)
 ca_option(CA_ENABLE_HOST_IMAGE_SUPPORT BOOL
   "Enable host image support" OFF)
+ca_option(CA_ENABLE_OUT_OF_ORDER_EXEC_MODE BOOL
+  "Enable out of order execution mode" ON)
 ca_immutable_option(CA_ENABLE_DEBUG_SUPPORT BOOL
   "Enable debug support regardless of build type" OFF)
 ca_option(CA_ENABLE_DEBUG_BACKTRACE BOOL
@@ -189,7 +191,7 @@ find_package(PythonInterp 3.6 REQUIRED)
 # which perform static analysis and style checking on source files.
 # When updating the version here, also update that used in the merge request
 # config
-find_package(ClangTools 16 COMPONENTS clang-format)
+find_package(ClangTools 17 COMPONENTS clang-format)
 find_package(ClangTools 9 COMPONENTS clang-tidy)
 if(TARGET ClangTools::clang-tidy)
   ca_option(CA_CLANG_TIDY_FLAGS STRING

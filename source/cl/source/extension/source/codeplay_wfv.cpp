@@ -158,7 +158,7 @@ cl_int CL_API_CALL clGetKernelWFVInfoCODEPLAY(
     // release the lock guard immediately, so that it is not held for the
     // remainder of this function.
     const uint32_t max_work_width = [&] {
-      std::lock_guard<std::mutex> context_guard(context->mutex);
+      const std::lock_guard<std::mutex> context_guard(context->mutex);
       return kernel->device_kernel_map[device]->getDynamicWorkWidth(
           final_local_work_size[0], final_local_work_size[1],
           final_local_work_size[2]);

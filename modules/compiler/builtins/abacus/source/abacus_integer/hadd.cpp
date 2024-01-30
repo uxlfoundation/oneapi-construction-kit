@@ -16,9 +16,9 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                               \
-  TYPE __abacus_hadd(TYPE x, TYPE y) {          \
-    return abacus::detail::integer::hadd(x, y); \
+#define DEF(TYPE)                                 \
+  TYPE ABACUS_API __abacus_hadd(TYPE x, TYPE y) { \
+    return abacus::detail::integer::hadd(x, y);   \
   }
 
 DEF(abacus_char);

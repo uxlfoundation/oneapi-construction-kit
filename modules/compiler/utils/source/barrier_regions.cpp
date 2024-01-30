@@ -28,6 +28,7 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfo.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
@@ -163,7 +164,7 @@ inline bool CheckValidUse(Value *v) {
 bool IsRematerializableBuiltinCall(Value *v, compiler::utils::BuiltinInfo &bi) {
   if (auto *call = dyn_cast<CallInst>(v)) {
     assert(call->getCalledFunction() && "Could not get called function");
-    auto const B = bi.analyzeBuiltin(*call->getCalledFunction());
+    const auto B = bi.analyzeBuiltin(*call->getCalledFunction());
     if (B.properties & compiler::utils::eBuiltinPropertyRematerializable) {
       for (auto &op : call->operands()) {
         if (isa<Instruction>(op.get())) {
@@ -279,11 +280,33 @@ void UpdateAndTrimPHINodeEdges(BasicBlock *BB, ValueToValueMapTy &vmap) {
   }
 }
 
+/// @brief Returns true if the type is a struct type containing any scalable
+/// vectors in its list of elements
+bool isStructWithScalables(Type *ty) {
+  if (auto *const struct_ty = dyn_cast<StructType>(ty)) {
+    return any_of(struct_ty->elements(),
+                  [](Type *ty) { return isa<ScalableVectorType>(ty); });
+  }
+  return false;
+}
+
 }  // namespace
 
-Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
-  auto gep_it = live_GEPs.find(live);
-  if (gep_it != live_GEPs.end()) {
+Value *compiler::utils::Barrier::LiveValuesHelper::getExtractValueGEP(
+    const Value *live) {
+  if (auto *const extract = dyn_cast<ExtractValueInst>(live)) {
+    // We can't handle extracts with multiple indices
+    if (extract->getIndices().size() == 1) {
+      return getGEP(extract->getAggregateOperand(), extract->getIndices()[0]);
+    }
+  }
+  return nullptr;
+}
+
+Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live,
+                                                          unsigned member_idx) {
+  auto key = std::make_pair(live, member_idx);
+  if (auto gep_it = live_GEPs.find(key); gep_it != live_GEPs.end()) {
     return gep_it->second;
   }
 
@@ -293,14 +316,10 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
     data_ty = AI->getAllocatedType();
   }
 
-  if (!isa<ScalableVectorType>(data_ty)) {
-    auto field_it = barrier.live_variable_index_map_.find(live);
-    if (field_it == barrier.live_variable_index_map_.end()) {
-      return nullptr;
-    }
-
+  if (auto field_it = barrier.live_variable_index_map_.find(key);
+      field_it != barrier.live_variable_index_map_.end()) {
     LLVMContext &context = barrier.module_.getContext();
-    unsigned field_index = field_it->second;
+    const unsigned field_index = field_it->second;
     Value *live_variable_info_idxs[2] = {
         ConstantInt::get(Type::getInt32Ty(context), 0),
         ConstantInt::get(Type::getInt32Ty(context), field_index)};
@@ -308,12 +327,9 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
     gep = gepBuilder.CreateInBoundsGEP(barrier.live_var_mem_ty_, barrier_struct,
                                        live_variable_info_idxs,
                                        Twine("live_gep_") + live->getName());
-  } else {
-    auto field_it = barrier.live_variable_scalables_map_.find(live);
-    if (field_it == barrier.live_variable_scalables_map_.end()) {
-      return nullptr;
-    }
-    unsigned const field_offset = field_it->second;
+  } else if (auto field_it = barrier.live_variable_scalables_map_.find(key);
+             field_it != barrier.live_variable_scalables_map_.end()) {
+    const unsigned field_offset = field_it->second;
     Value *scaled_offset = nullptr;
 
     LLVMContext &context = barrier.module_.getContext();
@@ -346,9 +362,15 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getGEP(const Value *live) {
         PointerType::get(
             data_ty,
             cast<PointerType>(barrier_struct->getType())->getAddressSpace()));
+  } else {
+    // Fall back and see if this live variable is actually a decomposed
+    // structure type.
+    return getExtractValueGEP(live);
   }
 
-  live_GEPs.insert(std::make_pair(live, gep));
+  // Cache this GEP for later
+  live_GEPs[key] = gep;
+
   return gep;
 }
 
@@ -364,7 +386,22 @@ Value *compiler::utils::Barrier::LiveValuesHelper::getReload(Value *live,
   if (Value *v = getGEP(live)) {
     if (!isa<AllocaInst>(live)) {
       // If live variable is not allocainst, insert load.
-      v = ir.CreateLoad(live->getType(), v, Twine(live->getName(), name));
+      if (!isStructWithScalables(live->getType())) {
+        v = ir.CreateLoad(live->getType(), v, Twine(live->getName(), name));
+      } else {
+        auto *const struct_ty = cast<StructType>(live->getType());
+        // Start off with a poison value, and build the struct up member by
+        // member, reloading each member at a time from their respective
+        // offsets.
+        v = PoisonValue::get(struct_ty);
+        for (auto [idx, ty] : enumerate(struct_ty->elements())) {
+          auto *const elt_addr = getGEP(live, idx);
+          assert(elt_addr && "Could not get address of struct element");
+          auto *const reload =
+              ir.CreateLoad(ty, elt_addr, Twine(live->getName(), name));
+          v = ir.CreateInsertValue(v, reload, idx);
+        }
+      }
     }
     mapped = v;
     return v;
@@ -484,7 +521,7 @@ void compiler::utils::Barrier::FindBarriers() {
       if (CallInst *call_inst = dyn_cast<CallInst>(&bi)) {
         Function *callee = call_inst->getCalledFunction();
         if (callee != nullptr) {
-          auto const B = bi_->analyzeBuiltin(*callee);
+          const auto B = bi_->analyzeBuiltin(*callee);
           if (BuiltinInfo::isMuxBuiltinWithWGBarrierID(B.ID)) {
             unsigned id = ~0u;
             auto *const id_param = call_inst->getOperand(0);
@@ -499,7 +536,7 @@ void compiler::utils::Barrier::FindBarriers() {
   }
 
   std::sort(orderedBarriers.begin(), orderedBarriers.end());
-  for (auto const &barrier : orderedBarriers) {
+  for (const auto &barrier : orderedBarriers) {
     barriers_.push_back(barrier.second);
   }
 }
@@ -855,47 +892,64 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
   const auto &dl = module_.getDataLayout();
 
   struct member_info {
+    /// @brief The root `value` being stored.
     Value *value;
+    /// @brief The member index of this member inside `value`, if `value` is a
+    /// decomposed structure type. Zero otherwise.
+    unsigned member_idx;
+    /// @brief The type of `value`, or of the specific member of `value`.
     Type *type;
+    /// @brief The alignment of the value being stored
     unsigned alignment;
+    /// @brief The size of the value being stored
     unsigned size;
   };
 
   SmallVector<member_info, 8> barrier_members;
   barrier_members.reserve(whole_live_variables_set_.size());
-  for (Value *i : whole_live_variables_set_) {
-    LLVM_DEBUG(dbgs() << "whole live set:" << *i << '\n';
-               dbgs() << "type:" << *(i->getType()) << '\n';);
-    Type *field_ty = i->getType();
+  for (Value *live_var : whole_live_variables_set_) {
+    LLVM_DEBUG(dbgs() << "whole live set:" << *live_var << '\n';
+               dbgs() << "type:" << *(live_var->getType()) << '\n';);
+    Type *field_ty = live_var->getType();
 
     Type *member_ty = nullptr;
     unsigned alignment = 0;
     // If allocainst is live variable, get element type of pointer type
     // from field_ty and remember alignment
-    if (const auto *AI = dyn_cast<AllocaInst>(i)) {
+    if (const auto *AI = dyn_cast<AllocaInst>(live_var)) {
       member_ty = AI->getAllocatedType();
       alignment = AI->getAlign().value();
     } else {
       member_ty = field_ty;
     }
 
-    // For a scalable vector, we need the size of the equivalent fixed vector
-    // based on its known minimum size.
-    auto member_ty_fixed = member_ty;
-    if (isa<ScalableVectorType>(member_ty)) {
-      auto *const eltTy = multi_llvm::getVectorElementType(member_ty);
-      auto n = multi_llvm::getVectorElementCount(member_ty).getKnownMinValue();
-      member_ty_fixed = VectorType::get(eltTy, ElementCount::getFixed(n));
+    std::vector<Type *> member_tys = {member_ty};
+    // If this is a struct type containing any scalable members, we must
+    // decompose the value into its individual components.
+    if (isStructWithScalables(member_ty)) {
+      member_tys = cast<StructType>(member_ty)->elements().vec();
     }
 
-    // Need to ensure that alloc alignment or preferred alignment is kept
-    // in the new struct so pad as necessary.
-    unsigned size = dl.getTypeAllocSize(member_ty_fixed);
-    alignment = std::max(dl.getPrefTypeAlign(member_ty).value(),
-                         static_cast<AlignIntTy>(alignment));
-    max_live_var_alignment = std::max(alignment, max_live_var_alignment);
+    for (auto [idx, ty] : enumerate(member_tys)) {
+      // For a scalable vector, we need the size of the equivalent fixed vector
+      // based on its known minimum size.
+      auto member_ty_fixed = ty;
+      if (isa<ScalableVectorType>(ty)) {
+        auto *const eltTy = multi_llvm::getVectorElementType(ty);
+        auto n = multi_llvm::getVectorElementCount(ty).getKnownMinValue();
+        member_ty_fixed = VectorType::get(eltTy, ElementCount::getFixed(n));
+      }
 
-    barrier_members.push_back({i, member_ty, alignment, size});
+      // Need to ensure that alloc alignment or preferred alignment is kept
+      // in the new struct so pad as necessary.
+      const unsigned size = dl.getTypeAllocSize(member_ty_fixed);
+      alignment = std::max(dl.getPrefTypeAlign(ty).value(),
+                           static_cast<AlignIntTy>(alignment));
+      max_live_var_alignment = std::max(alignment, max_live_var_alignment);
+
+      barrier_members.push_back(
+          {live_var, static_cast<unsigned>(idx), ty, alignment, size});
+    }
   }
 
   // sort the barrier members by decreasing alignment to minimise the amount
@@ -916,7 +970,9 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
 
     // Check if the alloca has a debug info source variable attached. If
     // so record this and the matching byte offset into the struct.
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
+#if LLVM_VERSION_GREATER_EQUAL(18, 0)
+    auto DbgIntrinsics = findDbgDeclares(member.value);
+#elif LLVM_VERSION_GREATER_EQUAL(17, 0)
     auto DbgIntrinsics = FindDbgDeclareUses(member.value);
 #else
     auto DbgIntrinsics = FindDbgAddrUses(member.value);
@@ -927,7 +983,8 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
       }
     }
     offset += member.size;
-    live_variable_index_map_[member.value] = field_tys.size();
+    live_variable_index_map_[std::make_pair(member.value, member.member_idx)] =
+        field_tys.size();
     field_tys.push_back(member.type);
   }
   // Pad the end of the struct to the max alignment as we are creating an
@@ -947,7 +1004,8 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
 
     offset = PadTypeToAlignment(field_tys_scalable, offset, member.alignment);
 
-    live_variable_scalables_map_[member.value] = offset;
+    live_variable_scalables_map_[std::make_pair(member.value,
+                                                member.member_idx)] = offset;
     offset += member.size;
     field_tys_scalable.push_back(member.type);
   }
@@ -1003,14 +1061,14 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   // If we have a work group collective call, we need to create a new argument
   // so that the result can be passed in.
-  bool const collective =
+  const bool collective =
       getWorkGroupCollectiveCall(region.barrier_inst, *bi_).has_value();
   if (collective) {
     new_func_params.push_back(region.barrier_inst->getType());
   }
 
   // Add live variables' parameter as last if there are any.
-  bool const hasBarrierStruct = !whole_live_variables_set_.empty() &&
+  const bool hasBarrierStruct = !whole_live_variables_set_.empty() &&
                                 region.schedule != BarrierSchedule::Once;
   if (hasBarrierStruct) {
     PointerType *pty = PointerType::get(live_var_mem_ty_, 0);
@@ -1070,7 +1128,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       cloned_bb->getTerminator()->eraseFromParent();
 
       // Return the next barrier's id.
-      unsigned next_barrier_id = barrier_id_map_[block->getSingleSuccessor()];
+      const unsigned next_barrier_id =
+          barrier_id_map_[block->getSingleSuccessor()];
       ConstantInt *barrier_id_cst =
           ConstantInt::get(Type::getInt32Ty(context), next_barrier_id);
       auto new_ret = ReturnInst::Create(context, barrier_id_cst, cloned_bb);
@@ -1214,7 +1273,20 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       while (isa<PHINode>(insert_point)) {
         insert_point = insert_point->getNextNonDebugInstruction();
       }
-      new StoreInst(live_var, live_values.getGEP(live_var), insert_point);
+      IRBuilder<> B(insert_point);
+      if (!isStructWithScalables(live_var->getType())) {
+        auto *addr = live_values.getGEP(live_var);
+        B.CreateStore(live_var, addr);
+      } else {
+        // Store this struct containing scalable members piece-wise
+        auto member_tys = cast<StructType>(live_var->getType())->elements();
+        for (auto [idx, ty] : enumerate(member_tys)) {
+          auto *extract = B.CreateExtractValue(live_var, idx);
+          auto *extract_addr = live_values.getGEP(extract);
+          assert(extract_addr);
+          B.CreateStore(extract, extract_addr);
+        }
+      }
     }
   }
 
@@ -1252,7 +1324,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
 
   // don't remap the first basicblock again..
   Function::iterator cfi = ++(new_kernel->begin());
-  Function::iterator cfie = new_kernel->end();
+  const Function::iterator cfie = new_kernel->end();
   for (; cfi != cfie; cfi++) {
     for (Instruction &cbi : *cfi) {
       RemapInstruction(&cbi, vmap, remapFlags);

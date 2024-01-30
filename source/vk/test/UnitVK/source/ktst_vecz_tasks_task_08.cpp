@@ -42,10 +42,10 @@ TEST_F(Execution, Task_08_03_User_Fn_Two_Contexts) {
     const cl_int alpha = 17;
     auto foo = [](cl_int x, cl_int y) { return x * (y - 1); };
     kts::Reference1D<cl_int> refOut = [=, &foo](size_t x) {
-      cl_int src1 = kts::Ref_A(x);
-      cl_int src2 = kts::Ref_B(x);
-      cl_int res1 = foo(src1, src2);
-      cl_int res2 = foo(alpha, src2);
+      const cl_int src1 = kts::Ref_A(x);
+      const cl_int src2 = kts::Ref_B(x);
+      const cl_int res1 = foo(src1, src2);
+      const cl_int res2 = foo(alpha, src2);
       return res1 + res2;
     };
     AddOutputBuffer(kts::N, refOut);

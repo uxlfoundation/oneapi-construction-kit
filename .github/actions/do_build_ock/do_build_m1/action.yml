@@ -5,6 +5,9 @@ inputs:
   build_type:
     description: 'build type (Release, ReleaseAssert)'
     default: ReleaseAssert
+  extra_flags:
+    description: 'any additional flags'
+    default: ''
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -20,3 +23,4 @@ runs:
         riscv_enabled: ON
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_VP_vecz_check: ON
+        extra_flags: ${{ inputs.extra_flags }}

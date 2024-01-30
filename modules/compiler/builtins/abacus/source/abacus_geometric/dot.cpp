@@ -17,9 +17,9 @@
 #include <abacus/abacus_detail_geometric.h>
 #include <abacus/abacus_geometric.h>
 
-#define DEF(TYPE)                                              \
-  TypeTraits<TYPE>::ElementType __abacus_dot(TYPE x, TYPE y) { \
-    return abacus::detail::geometric::dot(x, y);               \
+#define DEF(TYPE)                                                         \
+  TypeTraits<TYPE>::ElementType ABACUS_API __abacus_dot(TYPE x, TYPE y) { \
+    return abacus::detail::geometric::dot(x, y);                          \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

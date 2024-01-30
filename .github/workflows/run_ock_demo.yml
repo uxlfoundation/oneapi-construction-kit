@@ -1,0 +1,163 @@
+# Build, Run and Test OCK Demo EcoSystem
+name: Build and Run OCK Demo
+on:
+  schedule:
+    - cron: '59 23 * * 5'  # Run every Friday at 11:59 PM
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run for RISCV
+  run_riscv_m1_ock_demo:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+       # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 17
+          llvm_build_type: RelAssert
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Install Python libraries and system dependencies
+        run: |
+          pip install --user requests numpy h5py Pillow
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
+
+      - name: Build riscv M1
+        uses: ./.github/actions/do_build_ock/do_build_m1
+        with:
+          build_type: Release
+          extra_flags: '-DCA_REFSI_M1_DEMO_MODE=ON'
+
+      - name: Create OCK install
+        run: |
+          ninja -C $(pwd)/build install
+
+      - name: Download Daily Release
+        run: |
+          # TODO: Update the nightly release from intel/llvm from 2023-12-18 to daily once
+          # everything has stablised
+          wget "https://github.com/intel/llvm/releases/download/nightly-2023-12-18/sycl_linux.tar.gz"
+          mkdir linux_nightly_release
+          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+
+      - name: Test RSICV examples
+        run: |
+          # Set environment variables
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
+          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          export CA_HAL_DEBUG=1
+          export CA_PROFILE_LEVEL=3
+          export ONEAPI_DEVICE_SELECTOR=opencl:acc
+          export OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so
+          # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+          # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+          # This way it doesn't set the default sycl.conf.
+          export SYCL_CONFIG_FILE_NAME=""
+
+          mkdir build_riscv_tests
+          cmake -GNinja -Bbuild_riscv_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          ninja -C build_riscv_tests
+
+          # Run tests
+          cd build_riscv_tests
+          ctest bin/ --verbose
+          cd ..
+
+      - name: Build portBLAS
+        uses: ./.github/actions/build_portBLAS_action
+        with:
+          workspace: ${{ github.workspace }}
+
+      - name: Build portDNN
+        uses: ./.github/actions/build_portDNN_action
+        with:
+          workspace: ${{ github.workspace }}
+
+      - name: Package Build Artifacts
+        run: |
+          tar -cvzf ock_demo_artifacts.tar.gz install portDNN_build_dir portBLAS_build_dir build_riscv_tests
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ock_demo_build
+          path: ock_demo_artifacts.tar.gz
+
+  build_and_run_networks:
+    runs-on: ubuntu-22.04
+    needs: run_riscv_m1_ock_demo
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ock_demo_build
+
+      - name: Untar artifacts
+        run: |
+          tar -xvzf ock_demo_artifacts.tar.gz
+
+      - name: Build vgg and resnet
+        uses: ./.github/actions/build_vgg_resnet_action
+        with:
+          workspace: ${{ github.workspace }}
+
+  publish_OCK_demo_artifacts:
+    runs-on: ubuntu-22.04
+    needs: [run_riscv_m1_ock_demo, build_and_run_networks]
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ock_demo_build
+
+      - name: Download network artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: network_build
+
+      - name: Compute tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name == 'schedule' }}" == "true" ]; then
+            echo "TAG=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          else
+            # TODO: Use date of the commit?
+            echo "TAG=$(date +'%Y-%m-%d')-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create OCK demo release
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          files: |
+            ock_demo_artifacts.tar.gz
+            network_artifacts.tar.gz
+          tag_name: nightly-${{ steps.tag.outputs.TAG }}
+          name: OCK daily ${{ steps.tag.outputs.TAG }}
+          prerelease: true
+          body: "Daily build ${{ steps.tag.outputs.TAG }}"
+          target_commitish: ${{ github.sha }}

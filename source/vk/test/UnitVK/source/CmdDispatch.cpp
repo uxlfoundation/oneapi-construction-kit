@@ -225,7 +225,7 @@ TEST_F(CmdDispatch, DefaultRuntimeArray) {
 
   bufferSize = sizeof(int);
 
-  uint32_t inBufferRequiredSize = bufferMemoryRequirements.size;
+  const uint32_t inBufferRequiredSize = bufferMemoryRequirements.size;
 
   VkBuffer outBuffer;
   vkCreateBuffer(device, &bufferCreateInfo, nullptr, &outBuffer);
@@ -268,7 +268,7 @@ TEST_F(CmdDispatch, DefaultRuntimeArray) {
 
   void *mappedMemory;
 
-  uint32_t initialOutValue = 0;
+  const uint32_t initialOutValue = 0;
 
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -467,7 +467,7 @@ TEST_F(CmdDispatch, glWorkGroupID) {
   for (int mem_index = 0; mem_index < 8; mem_index++) {
     // since our global size is 8 and our local size (defined in the kernel) is
     // four, our first four IDs will be 0 and the last four will be 1
-    uint32_t expected_id = mem_index < 4 ? 0 : 1;
+    const uint32_t expected_id = mem_index < 4 ? 0 : 1;
     ASSERT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[mem_index],
               expected_id);
   }
@@ -551,7 +551,7 @@ TEST_F(CmdDispatch, glLocalInvocationID) {
   for (int mem_index = 0; mem_index < 8; mem_index++) {
     // since our global size is 8 and our local size (defined in the kernel) is
     // four, our output will be numbers 0-3 twice, once for each work group
-    uint32_t expected_id = mem_index % 4;
+    const uint32_t expected_id = mem_index % 4;
     ASSERT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[mem_index],
               expected_id);
   }
@@ -654,7 +654,7 @@ TEST_F(CmdDispatch, glLocalInvocationIndex) {
   RETURN_ON_FATAL_FAILURE(PipelineTest::SetUp());
 
   // the local work group sizes
-  int width = 4, height = 4;
+  const int width = 4, height = 4;
 
   // here we need a buffer big enough to hold a value for each invocation
   bufferSize = sizeof(int) * width * height;
@@ -722,7 +722,7 @@ TEST_F(CmdDispatch, glLocalInvocationIndex) {
   uint32_t expected = 0;
   for (int mem_y = 0; mem_y < height; mem_y++) {
     for (int mem_x = 0; mem_x < width; mem_x++) {
-      int index = (mem_y * width) + mem_x;
+      const int index = (mem_y * width) + mem_x;
       EXPECT_EQ(reinterpret_cast<uint32_t *>(mappedMemory)[index], expected);
       expected++;
     }

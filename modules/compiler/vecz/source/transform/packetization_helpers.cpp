@@ -25,6 +25,7 @@
 #include <compiler/utils/group_collective_helpers.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Analysis/VectorUtils.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
@@ -46,13 +47,25 @@ using namespace vecz;
 namespace {
 inline Type *getWideType(Type *ty, ElementCount factor) {
   if (!ty->isVectorTy()) {
+    // The wide type of a struct literal is the wide type of each of its
+    // elements.
+    if (auto *structTy = dyn_cast<StructType>(ty);
+        structTy && structTy->isLiteral()) {
+      SmallVector<Type *, 4> wideElts(structTy->elements());
+      for (unsigned i = 0, e = wideElts.size(); i != e; i++) {
+        wideElts[i] = getWideType(wideElts[i], factor);
+      }
+      return StructType::get(ty->getContext(), wideElts);
+    } else if (structTy) {
+      VECZ_ERROR("Can't create wide type for structure type");
+    }
     return VectorType::get(ty, factor);
   }
-  bool const isScalable = isa<ScalableVectorType>(ty);
+  const bool isScalable = isa<ScalableVectorType>(ty);
   assert((!factor.isScalable() || !isScalable) &&
          "Can't widen a scalable vector by a scalable amount");
   auto *vecTy = cast<llvm::VectorType>(ty);
-  unsigned elts = vecTy->getElementCount().getKnownMinValue();
+  const unsigned elts = vecTy->getElementCount().getKnownMinValue();
   // If we're widening a scalable type then set the fixed factor to scalable
   // here.
   if (isScalable && !factor.isScalable()) {
@@ -166,9 +179,9 @@ Value *createOptimalShuffle(IRBuilder<> &B, Value *srcA, Value *srcB,
     // We can absorb one or two unary shuffles into the new shuffle..
     auto *const shuffleAsrc = shuffleA ? shuffleA->getOperand(0) : srcA;
     auto *const shuffleBsrc = shuffleB ? shuffleB->getOperand(0) : srcB;
-    auto const srcASize =
+    const auto srcASize =
         cast<FixedVectorType>(shuffleAsrc->getType())->getNumElements();
-    auto const srcBSize =
+    const auto srcBSize =
         cast<FixedVectorType>(shuffleBsrc->getType())->getNumElements();
     if (srcASize == srcBSize) {
       Constant *srcMaskA = nullptr;
@@ -232,7 +245,7 @@ bool createSubSplats(const vecz::TargetInfo &TI, IRBuilder<> &B,
     return false;
   }
 
-  unsigned srcWidth = vecTy->getNumElements();
+  const unsigned srcWidth = vecTy->getNumElements();
 
   // Build shuffle mask to widen the vector condition.
   SmallVector<int, 16> mask;
@@ -319,7 +332,7 @@ Value *getGatherIndicesVector(IRBuilder<> &B, Value *Indices, Type *Ty,
                               unsigned FixedVecElts, const Twine &N) {
   auto *const Steps = B.CreateStepVector(Ty);
 
-  auto const EltCount = multi_llvm::getVectorElementCount(Ty);
+  const auto EltCount = multi_llvm::getVectorElementCount(Ty);
   auto *const ElTy = multi_llvm::getVectorElementType(Ty);
 
   auto *const FixedVecEltsSplat =
@@ -411,7 +424,7 @@ Value *Packetizer::Result::getAsValue() const {
     // Gathering an instantiated vector by concatenating all the lanes
     auto parts = narrow(2);
     auto *vecTy = cast<FixedVectorType>(parts.front()->getType());
-    unsigned fullWidth = vecTy->getNumElements() * 2;
+    const unsigned fullWidth = vecTy->getNumElements() * 2;
 
     SmallVector<int, 16> mask;
     for (size_t j = 0; j < fullWidth; ++j) {
@@ -467,7 +480,7 @@ PacketRange Packetizer::Result::getAsPacket(unsigned width) const {
   Value *vec = info->vector;
   if (auto *const vecTy = dyn_cast<FixedVectorType>(vec->getType())) {
     assert(isa<FixedVectorType>(vecTy) && "Must be a fixed vector type here!");
-    unsigned scalarWidth = vecTy->getNumElements() / width;
+    const unsigned scalarWidth = vecTy->getNumElements() / width;
     if (scalarWidth > 1) {
       auto *const undef = UndefValue::get(vec->getType());
 
@@ -499,7 +512,7 @@ PacketRange Packetizer::Result::getAsPacket(unsigned width) const {
 
 void Packetizer::Result::getPacketValues(SmallVectorImpl<Value *> &vals) const {
   assert(info && "No packet info for this packetization result");
-  auto const width = info->numInstances;
+  const auto width = info->numInstances;
   if (width != 0) {
     return getPacketValues(width, vals);
   }
@@ -634,7 +647,7 @@ Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
                                const vecz::TargetInfo &TI, IRBuilder<> &B,
                                bool URem) {
   auto *ty = subvec->getType();
-  auto const subVecEltCount = multi_llvm::getVectorElementCount(ty);
+  const auto subVecEltCount = multi_llvm::getVectorElementCount(ty);
   assert(subVecEltCount.isScalable() ^ factor.isScalable() &&
          "Must either broadcast fixed vector by scalable factor or scalable "
          "vector by fixed factor");
@@ -694,16 +707,18 @@ const Packetizer::Result &Packetizer::Result::broadcast(unsigned width) const {
   auto &F = packetizer.F;
   Value *result = nullptr;
   const auto &TI = packetizer.context().targetInfo();
-  if (isa<UndefValue>(scalar)) {
+  if (isa<PoisonValue>(scalar)) {
+    result = PoisonValue::get(getWideType(ty, factor));
+  } else if (isa<UndefValue>(scalar)) {
     result = UndefValue::get(getWideType(ty, factor));
   } else if (ty->isVectorTy() && factor.isScalable()) {
     IRBuilder<> B(buildAfter(scalar, F));
     result = createScalableBroadcastOfFixedVector(TI, B, scalar, factor);
   } else if (ty->isVectorTy()) {
     auto *const vecTy = cast<FixedVectorType>(ty);
-    unsigned scalarWidth = vecTy->getNumElements();
+    const unsigned scalarWidth = vecTy->getNumElements();
 
-    unsigned simdWidth = factor.getFixedValue();
+    const unsigned simdWidth = factor.getFixedValue();
 
     // Build shuffle mask to perform the splat.
     SmallVector<int, 16> mask;

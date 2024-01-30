@@ -41,16 +41,16 @@ diff --git a/include/refsi_hal.h b/include/refsi_hal.h
 index a0bf0c4..a2aaa02 100644
 --- a/include/refsi_hal.h
 +++ b/include/refsi_hal.h
-@@ -5,6 +5,7 @@
- 
+@@ -20,6 +20,7 @@
  #include <mutex>
+ #include <memory>
  #include <string>
 +#include <vector>
  
+ #include "elf_loader.h"
  #include "hal.h"
- #include "hal_riscv.h"
-@@ -20,15 +21,18 @@ struct refsi_hal_kernel {
-   const std::string name;
+@@ -44,15 +45,18 @@ struct refsi_hal_kernel {
+   std::map<std::string, std::unique_ptr<refsi_hal_kernel>> kernels;
  };
  
 +using refsi_locker = std::lock_guard<std::recursive_mutex>;
@@ -73,7 +73,7 @@ diff --git a/source/CMakeLists.txt b/source/CMakeLists.txt
 index c8b2a30..38e8869 100644
 --- a/source/CMakeLists.txt
 +++ b/source/CMakeLists.txt
-@@ -5,6 +5,7 @@ add_subdirectory(common)
+@@ -19,6 +19,7 @@ add_subdirectory(common)
  add_library(hal_refsi_tutorial SHARED
    hal_main.cpp
    refsi_hal.cpp
@@ -125,15 +125,15 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index 4e97324..4bb197a 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -7,6 +7,7 @@
- #include <memory>
- 
- #include "elf_loader.h"
+@@ -17,6 +17,7 @@
+ #include "refsi_hal.h"
+
+ #include <string.h>
 +#include "refsi_command_buffer.h"
  
  refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
                                     refsi_device_t device,
-@@ -58,7 +59,20 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -79,7 +80,20 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
                                     const hal::hal_arg_t *args,
                                     uint32_t num_args, uint32_t work_dim) {
    refsi_locker locker(hal_lock);

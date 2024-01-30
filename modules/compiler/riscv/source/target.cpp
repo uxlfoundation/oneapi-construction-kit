@@ -56,7 +56,7 @@ void setTargetFeatureString(const riscv::hal_device_info_riscv_t *info,
   if (info->extensions & riscv::rv_extension_V) {
     addFeature(features, "+v", hasFeature);
     if (info->vlen) {
-      std::string zvl = "+zvl" + std::to_string(info->vlen) + "b";
+      const std::string zvl = "+zvl" + std::to_string(info->vlen) + "b";
       addFeature(features, zvl.c_str(), hasFeature);
     }
   }

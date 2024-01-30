@@ -42,7 +42,7 @@
 %_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
          %22 = OpConstantNull %_arr_uchar_ulong_64
          %24 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_64 UniformConstant %22
-; CHECK: define spir_kernel void @memset_zero(ptr addrspace(1) %out)
+; CHECK: define spir_kernel void @memset_zero(ptr addrspace(1) noundef %out)
           %6 = OpFunction %void None %5
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
       %entry = OpLabel

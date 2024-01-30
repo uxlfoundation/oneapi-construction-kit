@@ -33,8 +33,9 @@ inline T frexp_unsafe(const T &x, N *n) {
   using Shape = FPShape<T>;
   using UnsignedElemType = typename Shape::ScalarUnsignedType;
 
-  IntVecType integerOutputAsI32 = abacus::detail::cast::convert<IntVecType>(
-      abacus::internal::logb_unsafe(x) + 1);
+  const IntVecType integerOutputAsI32 =
+      abacus::detail::cast::convert<IntVecType>(
+          abacus::internal::logb_unsafe(x) + 1);
 
   const SignedType xAs = abacus::detail::cast::as<SignedType>(x);
 

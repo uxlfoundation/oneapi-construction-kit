@@ -52,7 +52,7 @@ uint64_t computeApproximatePrivateMemoryUsage(const llvm::Function &fn) {
       continue;
     }
     const auto &alloca_inst = llvm::cast<llvm::AllocaInst>(inst);
-    auto const *type = alloca_inst.getType();
+    const auto *type = alloca_inst.getType();
     if (type->getAddressSpace() != AddressSpace::Private) {
       continue;
     }
@@ -92,7 +92,7 @@ static llvm::SmallVector<llvm::Constant *> getNewOps(llvm::Constant *constant,
 
 void remapConstantArray(llvm::ConstantArray *arr, llvm::Constant *from,
                         llvm::Constant *to) {
-  llvm::SmallVector<llvm::Constant *> newOps = getNewOps(arr, from, to);
+  const llvm::SmallVector<llvm::Constant *> newOps = getNewOps(arr, from, to);
   // Create a new array with the list of operands and replace all uses with
   llvm::Constant *newConstant =
       llvm::ConstantArray::get(arr->getType(), newOps);
@@ -102,7 +102,7 @@ void remapConstantArray(llvm::ConstantArray *arr, llvm::Constant *from,
 
 void remapConstantExpr(llvm::ConstantExpr *expr, llvm::Constant *from,
                        llvm::Constant *to) {
-  llvm::SmallVector<llvm::Constant *> newOps = getNewOps(expr, from, to);
+  const llvm::SmallVector<llvm::Constant *> newOps = getNewOps(expr, from, to);
   // Create a new expression with the list of operands and replace all uses with
   llvm::Constant *newConstant = expr->getWithOperands(newOps);
   expr->replaceAllUsesWith(newConstant);
@@ -242,10 +242,10 @@ void replaceConstantExpressionWithInstruction(llvm::Constant *const constant) {
 
 llvm::AttributeList getCopiedFunctionAttrs(const llvm::Function &oldFn,
                                            int numParams) {
-  unsigned numParamsToCopy =
+  const unsigned numParamsToCopy =
       numParams < 0 ? oldFn.arg_size() : (unsigned)numParams;
   llvm::SmallVector<llvm::AttributeSet, 4> newArgAttrs(numParamsToCopy);
-  llvm::AttributeList oldAttrs = oldFn.getAttributes();
+  const llvm::AttributeList oldAttrs = oldFn.getAttributes();
   // clone any argument attributes we're copying over. Note we can't simply
   // call Function::copyAttributes as not all arguments are present in the new
   // function.
@@ -275,7 +275,7 @@ bool cloneFunctionsAddArg(
   // Preserve the value map across all function clones
   llvm::ValueToValueMapTy vmap;
 
-  ParamTypeAttrsPair const paramInfo = paramTypeFunc(module);
+  const ParamTypeAttrsPair paramInfo = paramTypeFunc(module);
 
   // For each function we run the function toBeCloned to set the bools
   // doCloneNoBody and doCloneWithBody
@@ -289,7 +289,7 @@ bool cloneFunctionsAddArg(
     bool doCloneNoBody = false;
 
     toBeCloned(func, doCloneWithBody, doCloneNoBody);
-    bool isDecl = func.isDeclaration();
+    const bool isDecl = func.isDeclaration();
     bool processFunc = (0 == newToOldMap.count(&func));
 
     if (!isDecl) {
@@ -301,7 +301,7 @@ bool cloneFunctionsAddArg(
     if (processFunc) {
       auto funcTy = func.getFunctionType();
 
-      unsigned numParams = funcTy->getNumParams();
+      const unsigned numParams = funcTy->getNumParams();
       llvm::SmallVector<llvm::Type *, 8> newParamTypes(numParams + 1);
 
       // add each param from the original function to the new one
@@ -482,7 +482,7 @@ bool addParamToAllFunctions(llvm::Module &module,
         // don't clone and add arg to special functions starting with __llvm.
         // These are reserved for clang generated functions such as profile
         // related ones
-        ClonedWithBody = !func.getName().startswith("__llvm");
+        ClonedWithBody = !func.getName().starts_with("__llvm");
         ClonedNoBody = false;
       },
       updateMetaDataCallback);
@@ -501,63 +501,6 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   llvm::SmallVector<llvm::Value *, 4> currIVs(opts.IVs.begin(), opts.IVs.end());
   llvm::SmallVector<llvm::Value *, 4> nextIVs(opts.IVs.size());
-
-  // Check if indexStart, indexEnd, and indexInc are constants.
-  if (llvm::isa<llvm::ConstantInt>(indexStart) &&
-      llvm::isa<llvm::ConstantInt>(indexEnd) &&
-      llvm::isa<llvm::ConstantInt>(indexInc)) {
-    auto start = llvm::cast<llvm::ConstantInt>(indexStart)->getZExtValue();
-    auto end = llvm::cast<llvm::ConstantInt>(indexEnd)->getZExtValue();
-    auto inc = llvm::cast<llvm::ConstantInt>(indexInc)->getZExtValue();
-
-    // If the loop requires no iteration at all, just return an empty block.
-    if ((end - start) == 0) {
-      // If no iteration is required, and we have already defined a block to
-      // branch to, create a link between the entry block to that exit block and
-      // return the latter.
-      if (exit) {
-        llvm::BranchInst::Create(exit, entry);
-        return exit;
-      }
-      return entry;
-    } else if ((end - start) == inc) {
-      // If our loop would only actually contain one iteration, don't output the
-      // loop body!
-      // run the lamdba for the loop body, storing the block is finished at.
-      auto *b = body(entry, indexStart, currIVs, nextIVs);
-      if (exit) {
-        llvm::BranchInst::Create(exit, b);
-        return exit;
-      }
-      return b;
-    } else if (opts.attemptUnroll) {
-      // We've been asked to attempt to unroll the loop! We only unroll loops in
-      // certain situations though. We only unroll loops that have
-      // maxUnrollIterations or less iterations, as a higher number will
-      // significantly increase code bloat.
-      const unsigned maxUnrollIterations = 2;
-      if (((end - start) / inc) <= maxUnrollIterations) {
-        // We start at the entry block for our insertions.
-        llvm::BasicBlock *last = entry;
-
-        for (auto i = start; i < end; i += inc) {
-          // Update last to the exit block from the body.
-          last = body(last, llvm::ConstantInt::get(indexStart->getType(), i),
-                      currIVs, nextIVs);
-          // Pass the 'next' values on to the next iteration, reusing the
-          // storage.
-          std::swap(currIVs, nextIVs);
-        }
-
-        // Return the last basic block we wrote to (our exit block).
-        if (exit) {
-          llvm::BranchInst::Create(exit, last);
-          return exit;
-        }
-        return last;
-      }
-    }
-  }
 
   // the basic block that will link into our loop
   llvm::IRBuilder<> entryIR(entry);
@@ -605,7 +548,7 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   if (!exit) {
     // the basic block to exit our loop when we are done
-    llvm::IRBuilder<> exitIR(
+    const llvm::IRBuilder<> exitIR(
         llvm::BasicBlock::Create(ctx, "exitIR", entry->getParent()));
     exit = exitIR.GetInsertBlock();
   }
@@ -652,7 +595,7 @@ static llvm::Function *createKernelWrapperFunctionImpl(
     llvm::StringRef OldSuffix) {
   // Make sure we take a copy of the basename as we're going to change the
   // original function's name from underneath the StringRef.
-  std::string baseName = getOrSetBaseFnName(NewFunction, F).str();
+  const std::string baseName = getOrSetBaseFnName(NewFunction, F).str();
 
   if (!OldSuffix.empty()) {
     if (getBaseFnName(F).empty()) {
@@ -678,7 +621,7 @@ static llvm::Function *createKernelWrapperFunctionImpl(
 
   // copy debug info for function over
   if (auto *SP = F.getSubprogram()) {
-    llvm::DIBuilder DIB(*F.getParent());
+    const llvm::DIBuilder DIB(*F.getParent());
     llvm::DISubprogram *const NewSP = DIB.createArtificialSubprogram(SP);
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
     // Wipe the list of retained nodes, as this new function is a wrapper over
@@ -799,10 +742,11 @@ llvm::Value *createBinOpForRecurKind(llvm::IRBuilderBase &B, llvm::Value *LHS,
                                        : llvm::Intrinsic::maxnum,
                                    LHS, RHS);
   }
-  bool isMin = Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::UMin;
-  bool isSigned =
+  const bool isMin =
+      Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::UMin;
+  const bool isSigned =
       Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax;
-  llvm::Intrinsic::ID intrOpc =
+  const llvm::Intrinsic::ID intrOpc =
       isMin ? (isSigned ? llvm::Intrinsic::smin : llvm::Intrinsic::umin)
             : (isSigned ? llvm::Intrinsic::smax : llvm::Intrinsic::umax);
   return B.CreateBinaryIntrinsic(intrOpc, LHS, RHS);
