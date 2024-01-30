@@ -32,5 +32,5 @@
                OpMemoryBarrier %uint_2 %input_semantics
                OpReturn
                OpFunctionEnd
-; CHECK: define spir_kernel void @testfn(i32 [[SEMANTICS:%.*]])
+; CHECK: define spir_kernel void @testfn(i32 noundef [[SEMANTICS:%.*]])
 ; CHECK: call spir_func void @__mux_mem_barrier(i32 2, i32 [[SEMANTICS]])

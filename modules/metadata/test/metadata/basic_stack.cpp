@@ -21,7 +21,7 @@
 struct MDStackTest : public MDAllocatorTest {};
 
 TEST_F(MDStackTest, EmptyStack) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   EXPECT_TRUE(stack.empty());
@@ -50,7 +50,7 @@ TEST_F(MDStackTest, EmptyStack) {
 }
 
 TEST_F(MDStackTest, PushValues) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> err_or_idx = stack.push_unsigned(33);
@@ -107,7 +107,7 @@ TEST_F(MDStackTest, PushValues) {
 }
 
 TEST_F(MDStackTest, ArrayAppend) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> arr_err_or_idx = stack.push_arr(4);
@@ -124,7 +124,7 @@ TEST_F(MDStackTest, ArrayAppend) {
   ASSERT_TRUE(top_idx.has_value());
   EXPECT_EQ(zstr_err_or_idx.value(), top_idx.value());
 
-  cargo::expected<size_t, md_err> append_err_or_idx =
+  const cargo::expected<size_t, md_err> append_err_or_idx =
       stack.arr_append(arr_err_or_idx.value(), zstr_err_or_idx.value());
   ASSERT_TRUE(append_err_or_idx.has_value());
 
@@ -136,7 +136,7 @@ TEST_F(MDStackTest, ArrayAppend) {
 }
 
 TEST_F(MDStackTest, ArrayAppendInvalidStackPosition) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   // The value is located bellow the array on the stack
@@ -161,7 +161,7 @@ TEST_F(MDStackTest, ArrayAppendInvalidStackPosition) {
 }
 
 TEST_F(MDStackTest, ArrayAppendInvalidType) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> zstr_idx = stack.push_zstr("Hello");
@@ -177,7 +177,7 @@ TEST_F(MDStackTest, ArrayAppendInvalidType) {
 }
 
 TEST_F(MDStackTest, HashSetKeyValue) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> hash_idx = stack.push_map(2);
@@ -189,7 +189,7 @@ TEST_F(MDStackTest, HashSetKeyValue) {
   cargo::expected<size_t, md_err> value_idx = stack.push_unsigned(23);
   ASSERT_TRUE(value_idx.has_value());
 
-  cargo::expected<size_t, md_err> kv_or_err =
+  const cargo::expected<size_t, md_err> kv_or_err =
       stack.hash_set_kv(hash_idx.value(), key_idx.value(), value_idx.value());
   ASSERT_TRUE(kv_or_err.has_value());
 
@@ -198,7 +198,7 @@ TEST_F(MDStackTest, HashSetKeyValue) {
 }
 
 TEST_F(MDStackTest, HashSetKeyValueInvalidKeyType) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> hash_idx = stack.push_map(2);
@@ -217,7 +217,7 @@ TEST_F(MDStackTest, HashSetKeyValueInvalidKeyType) {
 }
 
 TEST_F(MDStackTest, HashSetKeyValueInvalidStackPosition) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> key_idx = stack.push_zstr("Age");
@@ -236,7 +236,7 @@ TEST_F(MDStackTest, HashSetKeyValueInvalidStackPosition) {
 }
 
 TEST_F(MDStackTest, HashSetKeyValueInvalidType) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   md_stack_ stack(helper);
 
   cargo::expected<size_t, md_err> zstr_idx = stack.push_zstr("Not a Hashtable");

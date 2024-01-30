@@ -16,12 +16,12 @@
 
 ; RUN: not muxc --device-sg-sizes 6,7,8,9 --passes=verify-reqd-sub-group-legal %s 2>&1 | FileCheck %s
 
-; CHECK: kernel.cl:10:0: kernel has required sub-group size 5 which is not supported by this device
+; CHECK: kernel.cl:10:0: kernel 'foo_sg5' has required sub-group size 5 which is not supported by this device
 define void @foo_sg5() !dbg !5 !intel_reqd_sub_group_size !2 {
   ret void
 }
 
-; CHECK-NOT: kernel has required sub-group size 6 which is not supported by this device
+; CHECK-NOT: kernel 'foo_sg6' has required sub-group size 6 which is not supported by this device
 define void @foo_sg6() !dbg !6 !intel_reqd_sub_group_size !3 {
   ret void
 }

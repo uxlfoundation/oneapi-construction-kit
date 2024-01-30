@@ -113,7 +113,7 @@ TEST_P(OneArgRelationals, Task_10_04_OneArg_Relationals) {
 
   // Determine the output based on the function being tested
   AddMacro("FUNC", Function);
-  cl_int const *Out = nullptr;
+  const cl_int *Out = nullptr;
 
   if (Function == "isfinite") {
     Out = OutIsFinite;

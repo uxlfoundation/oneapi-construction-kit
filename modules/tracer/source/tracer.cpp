@@ -57,13 +57,13 @@ thread_local const int tid = static_cast<int>(GetCurrentThreadId());
 struct TracerVirtualMemFileImpl {
   explicit TracerVirtualMemFileImpl()
       : export_file(std::getenv("CA_TRACE_FILE")) {
-    uint64_t start = tracer::getCurrentTimestamp();
+    const uint64_t start = tracer::getCurrentTimestamp();
 
     if ((nullptr == export_file) || (0 == std::strlen(export_file))) {
       return;
     }
     tmp_name = "/tmp/ca_" + std::to_string(pid) + ".tracer";
-    int f = open(tmp_name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    const int f = open(tmp_name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (f == 0) {
       (void)fprintf(stderr, "Could not open %s temp file for tracing.\n",
@@ -114,7 +114,7 @@ struct TracerVirtualMemFileImpl {
     std::memset((void *)buf, 0, sizeof(buf));
 
     // Insert dummy value so we can ignore JSON's comma requirements.
-    uint64_t end = tracer::getCurrentTimestamp();
+    const uint64_t end = tracer::getCurrentTimestamp();
 
     consumed = std::snprintf(
         buf, sizeof(buf),
@@ -145,7 +145,7 @@ struct TracerVirtualMemFileImpl {
       FILE *file = fopen(export_file, "w");
 
       if (nullptr != file) {
-        size_t idx = fwrite(map, sizeof(map[0]), offset.load(), file);
+        const size_t idx = fwrite(map, sizeof(map[0]), offset.load(), file);
         fclose(file);
 
         if (idx != offset.load()) {
@@ -163,7 +163,7 @@ struct TracerVirtualMemFileImpl {
                uint64_t end) {
     // Buffer to keep stack allocated.
     char buf[256]{};
-    int consumed = std::snprintf(
+    const int consumed = std::snprintf(
         buf, sizeof(buf),
         ",\n\t\t{\"name\":\"%s\", "
         "\"cat\":\"%s\",\"ph\":\"X\",\"pid\":%d,\"tid\":%d,\"ts\":%" PRIu64
@@ -179,7 +179,7 @@ struct TracerVirtualMemFileImpl {
       return;
     }
 
-    uint64_t insert_pt = offset.fetch_add(size);
+    const uint64_t insert_pt = offset.fetch_add(size);
 
     if ((insert_pt + size) < max_offset) {
       std::memcpy((void *)&map[insert_pt], (void *)buf, size);

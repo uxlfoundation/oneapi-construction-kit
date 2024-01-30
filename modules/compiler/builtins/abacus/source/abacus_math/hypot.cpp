@@ -98,7 +98,7 @@ struct hypot_helper<T, abacus_half> {
       ans = fast(xAbs, yAbs);
     } else {
       // Uses slower __abacus_sqrt() which is currently implemented with
-      // some 32-bit float operations in abacus::internal::sqrt_unsafe
+      // some 32-bit float operations in abacus::internal::sqrt
       ans = accurate(xAbs, yAbs);
     }
 
@@ -142,7 +142,7 @@ struct hypot_helper<T, abacus_half> {
 
     // Estimate sqrt(1 + x^2) from x in [0,1]:
     // P = fpminimax(sqrt(1 + x^2), 4, [|11...|],[0;1],floating,relative);
-    const T sqrt_guess = abacus::internal::horner_polynomial<T, 5>(
+    const T sqrt_guess = abacus::internal::horner_polynomial(
         xReduced, __codeplay_hypot_coeff_half);
 
     return max_xy * sqrt_guess;
@@ -197,7 +197,7 @@ struct hypot_helper<T, abacus_half> {
     const T yReduced = yAbs * inverse_pow;
 
     // NOTE: This call uses 32-bit float instruction as part of
-    // abacus::internal::sqrt_unsafe
+    // abacus::internal::sqrt
     T ans = __abacus_sqrt(xReduced * xReduced + yReduced * yReduced);
     ans *= similar_pow;
     return ans;

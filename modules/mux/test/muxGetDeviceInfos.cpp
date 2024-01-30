@@ -53,7 +53,7 @@ TEST(muxGetDeviceInfos, NullInfos) {
 
   ASSERT_LT(0u, devices_length);
 
-  std::vector<mux_device_info_t> device_infos(devices_length);
+  const std::vector<mux_device_info_t> device_infos(devices_length);
 
   ASSERT_ERROR_EQ(
       mux_error_null_out_parameter,

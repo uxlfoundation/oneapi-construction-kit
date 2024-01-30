@@ -70,13 +70,13 @@ void print_device_info_cl_device_type(cl_device_id device,
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)    \
-  if ((pname)&param_value) {  \
-    if (matched) {            \
-      fprintf(stdout, " | "); \
-    }                         \
-    matched = true;           \
-    fprintf(stdout, #pname);  \
+#define PRINT_MATCH(pname)     \
+  if ((pname) & param_value) { \
+    if (matched) {             \
+      fprintf(stdout, " | ");  \
+    }                          \
+    matched = true;            \
+    fprintf(stdout, #pname);   \
   }
 
   PRINT_MATCH(CL_DEVICE_TYPE_CPU);
@@ -179,13 +179,13 @@ void print_device_info_cl_device_fp_config(cl_device_id device,
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)    \
-  if ((pname)&param_value) {  \
-    if (matched) {            \
-      fprintf(stdout, " | "); \
-    }                         \
-    matched = true;           \
-    fprintf(stdout, #pname);  \
+#define PRINT_MATCH(pname)     \
+  if ((pname) & param_value) { \
+    if (matched) {             \
+      fprintf(stdout, " | ");  \
+    }                          \
+    matched = true;            \
+    fprintf(stdout, #pname);   \
   }
 
   PRINT_MATCH(CL_FP_DENORM);
@@ -281,13 +281,13 @@ void print_device_info_cl_device_exec_capabilities(
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)    \
-  if ((pname)&param_value) {  \
-    if (matched) {            \
-      fprintf(stdout, " | "); \
-    }                         \
-    matched = true;           \
-    fprintf(stdout, #pname);  \
+#define PRINT_MATCH(pname)     \
+  if ((pname) & param_value) { \
+    if (matched) {             \
+      fprintf(stdout, " | ");  \
+    }                          \
+    matched = true;            \
+    fprintf(stdout, #pname);   \
   }
 
   PRINT_MATCH(CL_EXEC_KERNEL);
@@ -313,13 +313,13 @@ void print_device_info_cl_command_queue_properties(
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)    \
-  if ((pname)&param_value) {  \
-    if (matched) {            \
-      fprintf(stdout, " | "); \
-    }                         \
-    matched = true;           \
-    fprintf(stdout, #pname);  \
+#define PRINT_MATCH(pname)     \
+  if ((pname) & param_value) { \
+    if (matched) {             \
+      fprintf(stdout, " | ");  \
+    }                          \
+    matched = true;            \
+    fprintf(stdout, #pname);   \
   }
 
   PRINT_MATCH(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);
@@ -410,13 +410,13 @@ void print_device_info_cl_device_affinity_domain(
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)    \
-  if ((pname)&param_value) {  \
-    if (matched) {            \
-      fprintf(stdout, " | "); \
-    }                         \
-    matched = true;           \
-    fprintf(stdout, #pname);  \
+#define PRINT_MATCH(pname)     \
+  if ((pname) & param_value) { \
+    if (matched) {             \
+      fprintf(stdout, " | ");  \
+    }                          \
+    matched = true;            \
+    fprintf(stdout, #pname);   \
   }
 
   PRINT_MATCH(CL_DEVICE_AFFINITY_DOMAIN_NUMA);
@@ -1142,13 +1142,13 @@ size_t UCL::getPixelSize(const cl_image_format &format) {
 #define SIZE(ELEMENTS, DATA_TYPE) \
   switch (DATA_TYPE) {            \
     case CL_SNORM_INT8:           \
-      return (ELEMENTS)*1;        \
+      return (ELEMENTS) * 1;      \
     case CL_SNORM_INT16:          \
-      return (ELEMENTS)*2;        \
+      return (ELEMENTS) * 2;      \
     case CL_UNORM_INT8:           \
-      return (ELEMENTS)*1;        \
+      return (ELEMENTS) * 1;      \
     case CL_UNORM_INT16:          \
-      return (ELEMENTS)*2;        \
+      return (ELEMENTS) * 2;      \
     case CL_UNORM_SHORT_565:      \
       return 2;                   \
     case CL_UNORM_SHORT_555:      \
@@ -1156,23 +1156,23 @@ size_t UCL::getPixelSize(const cl_image_format &format) {
     case CL_UNORM_INT_101010:     \
       return 4;                   \
     case CL_SIGNED_INT8:          \
-      return (ELEMENTS)*1;        \
+      return (ELEMENTS) * 1;      \
     case CL_SIGNED_INT16:         \
-      return (ELEMENTS)*2;        \
+      return (ELEMENTS) * 2;      \
     case CL_SIGNED_INT32:         \
-      return (ELEMENTS)*4;        \
+      return (ELEMENTS) * 4;      \
     case CL_UNSIGNED_INT8:        \
-      return (ELEMENTS)*1;        \
+      return (ELEMENTS) * 1;      \
     case CL_UNSIGNED_INT16:       \
-      return (ELEMENTS)*2;        \
+      return (ELEMENTS) * 2;      \
     case CL_UNSIGNED_INT32:       \
-      return (ELEMENTS)*4;        \
+      return (ELEMENTS) * 4;      \
     case CL_HALF_FLOAT:           \
-      return (ELEMENTS)*2;        \
+      return (ELEMENTS) * 2;      \
     case CL_FLOAT:                \
-      return (ELEMENTS)*4;        \
+      return (ELEMENTS) * 4;      \
     default:                      \
-      return (ELEMENTS)*0;        \
+      return (ELEMENTS) * 0;      \
   }
   switch (format.image_channel_order) {
     case CL_R:

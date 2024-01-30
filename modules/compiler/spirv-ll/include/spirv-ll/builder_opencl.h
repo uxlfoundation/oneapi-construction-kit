@@ -31,7 +31,7 @@ class OpenCLBuilder : public spirv_ll::ExtInstSetHandler {
       : ExtInstSetHandler(builder, module) {}
 
   /// @see ExtInstSetHandler::create
-  virtual llvm::Error create(OpExtInst const &opc) override;
+  virtual llvm::Error create(const OpExtInst &opc) override;
 
  private:
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
@@ -42,7 +42,7 @@ class OpenCLBuilder : public spirv_ll::ExtInstSetHandler {
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
   template <typename T>
-  llvm::Error create(OpExtInst const &opc);
+  llvm::Error create(const OpExtInst &opc);
 
   /// @brief Create a vector OpenCL extended instruction transformation to LLVM
   /// IR.
@@ -53,7 +53,7 @@ class OpenCLBuilder : public spirv_ll::ExtInstSetHandler {
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
   template <OpenCLLIB::Entrypoints inst>
-  llvm::Error createVec(OpExtInst const &opc);
+  llvm::Error createVec(const OpExtInst &opc);
 };
 
 }  // namespace spirv_ll

@@ -21,7 +21,6 @@
 #ifndef CARGO_ENDIAN_H_INCLUDED
 #define CARGO_ENDIAN_H_INCLUDED
 
-#include <cargo/platform_defines.h>
 #include <cargo/type_traits.h>
 
 #include <cstdint>
@@ -65,10 +64,10 @@ constexpr bool is_little_endian() { return detail::endianness_helper::little; }
 /// @brief Reads an integer into the native endian format from a little-endian
 /// byte iterator.
 template <typename InputIterator>
-typename cargo::enable_if_t<
-    std::is_same<cargo::remove_const_t<
-                     typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<std::remove_const_t<
+                       typename std::iterator_traits<InputIterator>::reference>,
+                   uint8_t &>,
     InputIterator>
 read_little_endian(uint8_t *v, InputIterator it) {
   *v = *it++;
@@ -78,10 +77,10 @@ read_little_endian(uint8_t *v, InputIterator it) {
 /// @brief Reads an integer into the native endian format from a little-endian
 /// byte iterator.
 template <typename InputIterator>
-typename cargo::enable_if_t<
-    std::is_same<cargo::remove_const_t<
-                     typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<std::remove_const_t<
+                       typename std::iterator_traits<InputIterator>::reference>,
+                   uint8_t &>,
     InputIterator>
 read_little_endian(uint16_t *v, InputIterator it) {
   *v = *it++;
@@ -92,10 +91,10 @@ read_little_endian(uint16_t *v, InputIterator it) {
 /// @brief Reads an integer into the native endian format from a little-endian
 /// byte iterator.
 template <typename InputIterator>
-typename cargo::enable_if_t<
-    std::is_same<cargo::remove_const_t<
-                     typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<std::remove_const_t<
+                       typename std::iterator_traits<InputIterator>::reference>,
+                   uint8_t &>,
     InputIterator>
 read_little_endian(uint32_t *v, InputIterator it) {
   *v = *it++;
@@ -108,10 +107,10 @@ read_little_endian(uint32_t *v, InputIterator it) {
 /// @brief Reads an integer into the native endian format from a little-endian
 /// byte iterator.
 template <typename InputIterator>
-typename cargo::enable_if_t<
-    std::is_same<cargo::remove_const_t<
-                     typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<std::remove_const_t<
+                       typename std::iterator_traits<InputIterator>::reference>,
+                   uint8_t &>,
     InputIterator>
 read_little_endian(uint64_t *v, InputIterator it) {
   *v = *it++;
@@ -128,15 +127,15 @@ read_little_endian(uint64_t *v, InputIterator it) {
 /// @brief Reads an integer into the native endian format from a big-endian
 /// byte iterator.
 template <typename Integer, typename InputIterator>
-typename cargo::enable_if_t<
-    std::is_same<cargo::remove_const_t<
-                     typename std::iterator_traits<InputIterator>::reference>,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<std::remove_const_t<
+                       typename std::iterator_traits<InputIterator>::reference>,
+                   uint8_t &>,
     InputIterator>
 read_big_endian(Integer *v, InputIterator it) {
   // read from little-endian to native and swap to achieve the same effect as a
   // big-endian read with less code duplication
-  typename std::remove_cv<Integer>::type le;
+  std::remove_cv_t<Integer> le;
   it = read_little_endian(&le, it);
   *v = byte_swap(le);
   return it;
@@ -145,9 +144,9 @@ read_big_endian(Integer *v, InputIterator it) {
 /// @brief Writes a native-endian integer to a little-endian stream byte
 /// iterator.
 template <typename OutputIterator>
-typename cargo::enable_if_t<
-    std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<typename std::iterator_traits<OutputIterator>::reference,
+                   uint8_t &>,
     OutputIterator>
 write_little_endian(uint8_t v, OutputIterator it) {
   *it++ = v;
@@ -157,9 +156,9 @@ write_little_endian(uint8_t v, OutputIterator it) {
 /// @brief Writes a native-endian integer to a little-endian stream byte
 /// iterator.
 template <typename OutputIterator>
-typename cargo::enable_if_t<
-    std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<typename std::iterator_traits<OutputIterator>::reference,
+                   uint8_t &>,
     OutputIterator>
 write_little_endian(uint16_t v, OutputIterator it) {
   *it++ = v & 0xFF;
@@ -170,9 +169,9 @@ write_little_endian(uint16_t v, OutputIterator it) {
 /// @brief Writes a native-endian integer to a little-endian stream byte
 /// iterator.
 template <typename OutputIterator>
-typename cargo::enable_if_t<
-    std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<typename std::iterator_traits<OutputIterator>::reference,
+                   uint8_t &>,
     OutputIterator>
 write_little_endian(uint32_t v, OutputIterator it) {
   *it++ = v & 0xFF;
@@ -185,9 +184,9 @@ write_little_endian(uint32_t v, OutputIterator it) {
 /// @brief Writes a native-endian integer to a little-endian stream byte
 /// iterator.
 template <typename OutputIterator>
-typename cargo::enable_if_t<
-    std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<typename std::iterator_traits<OutputIterator>::reference,
+                   uint8_t &>,
     OutputIterator>
 write_little_endian(uint64_t v, OutputIterator it) {
   *it++ = v & 0xFF;
@@ -203,9 +202,9 @@ write_little_endian(uint64_t v, OutputIterator it) {
 
 /// @brief Writes a native-endian integer to a big-endian stream byte iterator.
 template <typename Integer, typename OutputIterator>
-typename cargo::enable_if_t<
-    std::is_same<typename std::iterator_traits<OutputIterator>::reference,
-                 uint8_t &>::value,
+typename std::enable_if_t<
+    std::is_same_v<typename std::iterator_traits<OutputIterator>::reference,
+                   uint8_t &>,
     OutputIterator>
 write_big_endian(Integer v, OutputIterator it) {
   // write swapped native to little-endian to achieve the same effect as a

@@ -31,8 +31,8 @@ void BufferReadRect(benchmark::State &state) {
   auto qu = clCreateCommandQueue(ctx, device, 0, &status);
   ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
 
-  size_t arg_size = static_cast<size_t>(state.range(0));
-  size_t count = arg_size * arg_size * arg_size;
+  const size_t arg_size = static_cast<size_t>(state.range(0));
+  const size_t count = arg_size * arg_size * arg_size;
 
   auto buf_mem = std::vector<char>(count);
   auto host_mem = std::vector<char>(count);
@@ -44,8 +44,8 @@ void BufferReadRect(benchmark::State &state) {
   size_t origin[3] = {};
   size_t region[3] = {arg_size, arg_size, arg_size};
 
-  size_t pitch = arg_size;
-  size_t slice = arg_size * arg_size;
+  const size_t pitch = arg_size;
+  const size_t slice = arg_size * arg_size;
 
   for (auto _ : state) {
     (void)_;
@@ -68,8 +68,8 @@ void BufferWriteRect(benchmark::State &state) {
   auto qu = clCreateCommandQueue(ctx, device, 0, &status);
   ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
 
-  size_t arg_size = static_cast<size_t>(state.range(0));
-  size_t count = arg_size * arg_size * arg_size;
+  const size_t arg_size = static_cast<size_t>(state.range(0));
+  const size_t count = arg_size * arg_size * arg_size;
 
   auto buf_mem = std::vector<char>(count);
   auto host_mem = std::vector<char>(count);
@@ -81,8 +81,8 @@ void BufferWriteRect(benchmark::State &state) {
   size_t origin[3] = {};
   size_t region[3] = {arg_size, arg_size, arg_size};
 
-  size_t pitch = arg_size;
-  size_t slice = arg_size * arg_size;
+  const size_t pitch = arg_size;
+  const size_t slice = arg_size * arg_size;
 
   for (auto _ : state) {
     (void)_;

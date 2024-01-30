@@ -1,0 +1,30 @@
+name: build-portBLAS
+description: Action to clone and build portBLAS using oneAPI
+
+inputs:
+  workspace:
+    description: 'Main workflow workspace'
+    default: ${{ github.workspace }}
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: Clone portBLAS
+      shell: bash
+      run: git clone --recursive https://github.com/codeplaysoftware/portBLAS
+
+    - name: Set up Environment and Build portBLAS
+      shell: bash
+      run: |
+        ls
+        export LD_LIBRARY_PATH=${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
+        export CMAKE_CXX_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
+        export OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so
+        export CXX=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        # Note: With default options enabled, portBLAS supports complex math using
+        # <ext/oneapi/experimental/sycl_complex.hpp>. It was removed in DPC++ in 0b5757bf.
+        # To disable this -DBLAS_ENABLE_COMPLEX=OFF needs to added to cmake command line.
+        cmake -B portBLAS_build_dir portBLAS -GNinja -DSYCL_COMPILER=dpcpp -DBLAS_ENABLE_COMPLEX=OFF
+        ninja -C $(pwd)/portBLAS_build_dir

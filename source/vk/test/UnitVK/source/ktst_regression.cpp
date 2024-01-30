@@ -48,7 +48,7 @@ TEST_F(Execution, Regression_10_Dont_Mask_Workitem_Builtins) {
       return kts::Ref_Identity(x + 2) * 3;
     };
     kts::Reference1D<cl_int> refOut = [](size_t x) {
-      size_t local_id = x % kts::localN;
+      const size_t local_id = x % kts::localN;
       if (local_id > 0) {
         return (kts::Ref_Identity(x) + 2) * 3;
       } else {
@@ -64,12 +64,12 @@ TEST_F(Execution, Regression_10_Dont_Mask_Workitem_Builtins) {
 
 TEST_F(Execution, Regression_14_Argument_Stride) {
   if (clspvSupported_) {
-    cl_int Stride = 3;
-    cl_int Max = 1 << 30;
-    kts::Reference1D<cl_int> refIn = [Max](size_t x) {
+    static const cl_int Stride = 3;
+    static const cl_int Max = 1 << 30;
+    kts::Reference1D<cl_int> refIn = [](size_t x) {
       return kts::Ref_Identity(x) % Max;
     };
-    kts::Reference1D<cl_int> refOut = [Stride, &refIn](size_t x) {
+    kts::Reference1D<cl_int> refOut = [&refIn](size_t x) {
       return kts::Ref_Identity(x) % Stride == 0 ? refIn(x) : 1;
     };
 
@@ -82,7 +82,7 @@ TEST_F(Execution, Regression_14_Argument_Stride) {
 
 TEST_F(Execution, Regression_15_Negative_Stride) {
   if (clspvSupported_) {
-    cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
+    const cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
     kts::Reference1D<cl_int> refIn = [](size_t x) {
       return static_cast<cl_int>(x * x);
     };
@@ -99,7 +99,7 @@ TEST_F(Execution, Regression_15_Negative_Stride) {
 
 TEST_F(Execution, Regression_16_Negative_Argument_Stride) {
   if (clspvSupported_) {
-    cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
+    const cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
     kts::Reference1D<cl_int> refIn = [](size_t x) {
       return static_cast<cl_int>(x * x);
     };
@@ -120,11 +120,11 @@ TEST_F(Execution, Regression_17_Scalar_Select_Transform) {
     // Inputs are not important, since this bug caused a compilation failure
     // because a function was called with the wrong arguments.
     kts::Reference1D<cl_int4> refA = [](size_t x) -> cl_int4 {
-      cl_int A = kts::Ref_A(x);
+      const cl_int A = kts::Ref_A(x);
       return cl_int4{{A, A, A, A}};
     };
     kts::Reference1D<cl_int4> refB = [](size_t x) -> cl_int4 {
-      cl_int B = kts::Ref_B(x);
+      const cl_int B = kts::Ref_B(x);
       return cl_int4{{B, B, B, B}};
     };
     kts::Reference1D<cl_int4> refOut = [&refA, &refB](size_t x) {
@@ -161,7 +161,7 @@ TEST_F(Execution, Regression_19_Memcpy_Optimization) {
     // This tests assumes that clang will optimize the struct copying into a
     // memcpy.
     kts::Reference1D<cl_int4> refIn = [](size_t x) {
-      cl_int v = kts::Ref_Identity(x);
+      const cl_int v = kts::Ref_Identity(x);
       return cl_int4{{v, v + 11, v + 12, v + 13}};
     };
 
@@ -258,7 +258,7 @@ TEST_F(Execution, Regression_37_CFC) {
   if (clspvSupported_) {
     const cl_int limit = static_cast<cl_int>(kts::N / 2);
     kts::Reference1D<cl_int> refOut = [limit](size_t x) {
-      cl_int ix = kts::Ref_Identity(x);
+      const cl_int ix = kts::Ref_Identity(x);
       return ix < limit ? ix : kts::Ref_A(ix % 32);
     };
     AddInputBuffer(limit, kts::Ref_A);
@@ -365,7 +365,7 @@ using ktst_regression_array_spec_op =
 TEST_F(ktst_regression_array_spec_op, RegressionTest) {
   glsl::uintTy sizeArr[2] = {4, 12};
 
-  size_t size = sizeArr[0] + sizeArr[1];
+  const size_t size = sizeArr[0] + sizeArr[1];
   AddInputBuffer(size, kts::Ref_Float);
   AddOutputBuffer(size, kts::Ref_Float);
 
@@ -411,7 +411,7 @@ using ktst_regression_workgroup_spec =
 TEST_F(ktst_regression_workgroup_spec, RegressionTest) {
   uint32_t local[3] = {4, 1, 1};
   uint32_t global[3] = {4, 1, 1};
-  glsl::uintTy size = global[0] * local[0];
+  const glsl::uintTy size = global[0] * local[0];
 
   AddInputBuffer(size, kts::Ref_Float);
   AddOutputBuffer(size, kts::Ref_Float);
@@ -426,7 +426,7 @@ TEST_F(ktst_regression_workgroup_spec_mixed, RegressionTest) {
   glsl::uintTy specData[2] = {2, 2};
   uint32_t global[3] = {8, 1, 1};
 
-  size_t size = localY * specData[0] * specData[1] * global[0];
+  const size_t size = localY * specData[0] * specData[1] * global[0];
   AddInputBuffer(size, kts::Ref_Float);
   AddOutputBuffer(size, kts::Ref_Float);
 

@@ -1,0 +1,63 @@
+; Copyright (C) Codeplay Software Limited
+;
+; Licensed under the Apache License, Version 2.0 (the "License") with LLVM
+; Exceptions; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+; License for the specific language governing permissions and limitations
+; under the License.
+;
+; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+; RUN: %if online-spirv-as %{ spirv-as --target-env spv1.1 -o %spv_file_s %s %}
+; RUN: not spirv-ll-tool -a OpenCL -b 64 %spv_file_s 2>&1 | FileCheck %s
+
+; CHECK: 'Value' %{{[0-9]+}}[%void] of DebugTypeMember %{{[0-9]+}}[%xmember] is not an OpConstant
+
+               OpCapability Addresses
+               OpCapability Linkage
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+          %2 = OpExtInstImport "OpenCL.DebugInfo.100"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %foo "foo"
+         %40 = OpString "/tmp/kernel.cl"
+         %41 = OpString "//__CSK_MD5:778eaa9cd957459f44d042d2dd1bf574"
+         %48 = OpString "uint32_t"
+         %64 = OpString "foo"
+         %65 = OpString ""
+         %67 = OpString "xmember"
+         %78 = OpString "my_struct"
+         %79 = OpString "_ZTS9my_struct"
+               OpSource OpenCL_C 102000
+               OpName %99 "xmember"
+               OpName %void "void"
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+     %uint_0 = OpConstant %uint 0
+    %uint_32 = OpConstant %uint 32
+       %void = OpTypeVoid
+         %14 = OpTypeFunction %void
+         %42 = OpExtInst %void %2 DebugSource %40 %41
+         %43 = OpExtInst %void %2 DebugCompilationUnit 65536 5 %42 OpenCL_C
+         %49 = OpExtInst %void %2 DebugTypeBasic %48 %uint_32 Unsigned
+
+         %98 = OpExtInst %void %2 DebugTypeComposite %78 Class %42 13 0 %43 %79 %uint_32 FlagTypePassByValue %99
+         ; This is an error - the last operand ('Value') must be an OpConstant
+         %99 = OpExtInst %void %2 DebugTypeMember %67 %49 %42 15 0 %98 %uint_0 %uint_32 FlagStaticMember %void
+
+         %55 = OpExtInst %void %2 DebugTypeFunction None %void %99
+         %66 = OpExtInst %void %2 DebugFunction %64 %55 %42 1 0 %43 %65 FlagIsDefinition|FlagPrototyped|FlagIsOptimized 1 %foo
+
+        %foo = OpFunction %void None %14
+      %entry = OpLabel
+               OpLine %40 4 4
+               OpNoLine
+               OpReturn
+               OpFunctionEnd

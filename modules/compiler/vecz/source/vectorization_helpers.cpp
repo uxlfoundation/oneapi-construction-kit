@@ -22,7 +22,10 @@
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/Support/Debug.h>
+#include <llvm/Support/TypeSize.h>
 #include <llvm/Transforms/Utils/Cloning.h>
+
+#include <optional>
 
 #include "debugging.h"
 #include "vectorization_context.h"
@@ -34,17 +37,17 @@ using namespace vecz;
 
 namespace {
 
-Function *declareFunction(VectorizationUnit const &VU) {
+Function *declareFunction(const VectorizationUnit &VU) {
   Module &Module = VU.context().module();
-  Function const *const ScalarFn = VU.scalarFunction();
-  ElementCount SimdWidth = VU.width();
+  const Function *const ScalarFn = VU.scalarFunction();
+  const ElementCount SimdWidth = VU.width();
 
   // For kernels, the vectorized function type is is the same as the original
   // scalar function type, since function arguments are uniform. We no longer
   // use Vectorization Units for builtins.
   FunctionType *VectorizedFnType = VU.scalarFunction()->getFunctionType();
   VECZ_FAIL_IF(!VectorizedFnType);
-  std::string VectorizedName =
+  const std::string VectorizedName =
       getVectorizedFunctionName(ScalarFn->getName(), SimdWidth, VU.choices());
   Module.getOrInsertFunction(VectorizedName, VectorizedFnType);
   auto *const VectorizedFn = Module.getFunction(VectorizedName);
@@ -63,9 +66,9 @@ Function *declareFunction(VectorizationUnit const &VU) {
 /// searches for the node that contains the scalar kernel, and copies all its
 /// metadata, which the exception of the Function itself, which is replaced by
 /// the vectorized kernel.
-void cloneOpenCLNamedMetadataHelper(VectorizationUnit const &VU,
+void cloneOpenCLNamedMetadataHelper(const VectorizationUnit &VU,
                                     const std::string &NodeName) {
-  Module &M = VU.context().module();
+  const Module &M = VU.context().module();
 
   // Try to get the OpenCL metadata
   NamedMDNode *KernelsMD = M.getNamedMetadata(NodeName);
@@ -118,10 +121,10 @@ void cloneOpenCLNamedMetadataHelper(VectorizationUnit const &VU,
 ///
 /// @param[in,out] ValueMap Map to update with the arguments.
 SmallVector<Instruction *, 2> createArgumentPlaceholders(
-    VectorizationUnit const &VU, Function *VecFunc,
+    const VectorizationUnit &VU, Function *VecFunc,
     ValueToValueMapTy &ValueMap) {
   SmallVector<Instruction *, 2> Placeholders;
-  auto const &Arguments = VU.arguments();
+  const auto &Arguments = VU.arguments();
   unsigned i = 0u;
   for (Argument &DstArg : VecFunc->args()) {
     Argument *SrcArg = Arguments[i++].OldArg;
@@ -146,15 +149,50 @@ SmallVector<Instruction *, 2> createArgumentPlaceholders(
 
 namespace vecz {
 std::string getVectorizedFunctionName(StringRef ScalarName, ElementCount VF,
-                                      VectorizationChoices Choices) {
-  Twine Prefix = Twine(VF.isScalable() ? "nxv" : "v");
-  Twine IsVP = Twine(Choices.vectorPredication() ? "_vp_" : "_");
-  return (Twine("__vecz_") + Prefix + Twine(VF.getKnownMinValue()) + IsVP +
-          ScalarName)
+                                      VectorizationChoices Choices,
+                                      bool IsBuiltin) {
+  const Twine Prefix = Twine(VF.isScalable() ? "nxv" : "v");
+  const Twine IsVP = Twine(Choices.vectorPredication() ? "_vp_" : "_");
+  return ((IsBuiltin ? VectorizationContext::InternalBuiltinPrefix
+                     : Twine("__vecz_")) +
+          Prefix + Twine(VF.getKnownMinValue()) + IsVP + ScalarName)
       .str();
 }
 
-Function *cloneFunctionToVector(VectorizationUnit const &VU) {
+std::optional<std::tuple<std::string, ElementCount, VectorizationChoices>>
+decodeVectorizedFunctionName(StringRef Name) {
+  if (!Name.consume_front(VectorizationContext::InternalBuiltinPrefix)) {
+    if (!Name.consume_front("__vecz_")) {
+      return std::nullopt;
+    }
+  }
+
+  ElementCount VF;
+  bool Scalable = false;
+  if (Name.consume_front("nxv")) {
+    Scalable = true;
+  } else if (!Name.consume_front("v")) {
+    return std::nullopt;
+  }
+
+  unsigned KnownMin = 0;
+  if (Name.consumeInteger(10, KnownMin)) {
+    return std::nullopt;
+  }
+
+  VF = ElementCount::get(KnownMin, Scalable);
+
+  VectorizationChoices Choices;
+  if (Name.consume_front("_vp_")) {
+    Choices.enableVectorPredication();
+  } else if (!Name.consume_front("_")) {
+    return std::nullopt;
+  }
+
+  return std::make_tuple(Name.str(), VF, Choices);
+}
+
+Function *cloneFunctionToVector(const VectorizationUnit &VU) {
   auto *const VectorizedFn = declareFunction(VU);
   VECZ_ERROR_IF(!VectorizedFn, "declareFunction failed to initialize");
 
@@ -184,7 +222,7 @@ Function *cloneFunctionToVector(VectorizationUnit const &VU) {
     LLVMContext &Ctx = VectorizedFn->getContext();
     AttributeList PAL = VectorizedFn->getAttributes();
     bool RemovedAttribute = false;
-    for (Attribute::AttrKind Kind : {Attribute::ZExt, Attribute::SExt}) {
+    for (const Attribute::AttrKind Kind : {Attribute::ZExt, Attribute::SExt}) {
       if (PAL.hasRetAttr(Kind)) {
         PAL = PAL.removeRetAttribute(Ctx, Kind);
         RemovedAttribute = true;
@@ -228,7 +266,7 @@ static DILocation *getDILocation(unsigned Line, unsigned Column, MDNode *Scope,
                          /*ImplicitCode*/ false);
 }
 
-void cloneDebugInfo(VectorizationUnit const &VU) {
+void cloneDebugInfo(const VectorizationUnit &VU) {
   DISubprogram *const ScalarDI = VU.scalarFunction()->getSubprogram();
   // We don't have debug info
   if (!ScalarDI) {
@@ -392,7 +430,7 @@ void cloneDebugInfo(VectorizationUnit const &VU) {
   return;
 }
 
-void cloneOpenCLMetadata(VectorizationUnit const &VU) {
+void cloneOpenCLMetadata(const VectorizationUnit &VU) {
   cloneOpenCLNamedMetadataHelper(VU, "opencl.kernels");
   cloneOpenCLNamedMetadataHelper(VU, "opencl.kernel_wg_size_info");
 }

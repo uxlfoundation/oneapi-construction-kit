@@ -161,21 +161,16 @@ Instruction *IRPrintf(const std::string format, Module &module, Value *v,
 
 Value *materializeVF(IRBuilder<> &builder,
                      compiler::utils::VectorizationFactor vf) {
-  auto sizeTyBytes =
-      compiler::utils::getSizeTypeBytes(*builder.GetInsertBlock()->getModule());
-  Value *multiple = builder.getIntN(8 * sizeTyBytes, vf.getKnownMin());
-  if (!vf.isScalable()) {
-    return multiple;
-  }
-  Type *size_type = builder.getIntNTy(sizeTyBytes * 8);
-  Value *vscale = builder.CreateIntrinsic(Intrinsic::vscale, size_type, {});
-  return builder.CreateMul(vscale, multiple);
+  auto &m = *builder.GetInsertBlock()->getModule();
+  Constant *multiple =
+      ConstantInt::get(compiler::utils::getSizeType(m), vf.getKnownMin());
+  return !vf.isScalable() ? multiple : builder.CreateVScale(multiple);
 }
 
 struct ScheduleGenerator {
   ScheduleGenerator(Module &m,
-                    compiler::utils::BarrierWithLiveVars const &barrierMain,
-                    compiler::utils::BarrierWithLiveVars const *barrierTail,
+                    const compiler::utils::BarrierWithLiveVars &barrierMain,
+                    const compiler::utils::BarrierWithLiveVars *barrierTail,
                     compiler::utils::BuiltinInfo &BI)
       : module(m),
         context(m.getContext()),
@@ -191,8 +186,8 @@ struct ScheduleGenerator {
   }
   Module &module;
   LLVMContext &context;
-  compiler::utils::BarrierWithLiveVars const &barrierMain;
-  compiler::utils::BarrierWithLiveVars const *barrierTail;
+  const compiler::utils::BarrierWithLiveVars &barrierMain;
+  const compiler::utils::BarrierWithLiveVars *barrierTail;
   compiler::utils::BuiltinInfo &BI;
 
   SmallVector<Value *, 8> args;
@@ -216,7 +211,7 @@ struct ScheduleGenerator {
   DILocation *wrapperDbgLoc = nullptr;
 
   Value *createLinearLiveVarsPtr(
-      compiler::utils::BarrierWithLiveVars const &barrier, IRBuilder<> &ir,
+      const compiler::utils::BarrierWithLiveVars &barrier, IRBuilder<> &ir,
       Value *index) {
     Value *const mem_space = barrier.getMemSpace();
     if (!mem_space) {
@@ -252,7 +247,7 @@ struct ScheduleGenerator {
     return live_var_ptr;
   }
 
-  Value *createLiveVarsPtr(compiler::utils::BarrierWithLiveVars const &barrier,
+  Value *createLiveVarsPtr(const compiler::utils::BarrierWithLiveVars &barrier,
                            IRBuilder<> &ir, Value *dim_0, Value *dim_1,
                            Value *dim_2, Value *VF = nullptr) {
     Value *const mem_space = barrier.getMemSpace();
@@ -275,7 +270,7 @@ struct ScheduleGenerator {
   }
 
   void recreateDebugIntrinsics(
-      compiler::utils::BarrierWithLiveVars const &barrier, BasicBlock *block,
+      const compiler::utils::BarrierWithLiveVars &barrier, BasicBlock *block,
       StoreInst *SI) {
     DIBuilder DIB(module, /*AllowUnresolved*/ false);
     for (auto debug_pair : barrier.getDebugIntrinsics()) {
@@ -309,7 +304,7 @@ struct ScheduleGenerator {
   }
 
   void createWorkItemLoopBody(
-      compiler::utils::BarrierWithLiveVars const &barrier, IRBuilder<> &ir,
+      const compiler::utils::BarrierWithLiveVars &barrier, IRBuilder<> &ir,
       BasicBlock *block, unsigned i, Value *dim_0, Value *dim_1, Value *dim_2,
       Value *accumulator = nullptr, Value *VF = nullptr,
       Value *offset = nullptr) {
@@ -369,7 +364,7 @@ struct ScheduleGenerator {
 #endif  // NDEBUG_WI_LOOPS
 
     // And update the location of where we need to go to next (if we need to)
-    auto const &successors = barrier.getSuccessorIds(i);
+    const auto &successors = barrier.getSuccessorIds(i);
     if (successors.size() > 1) {
       ir.CreateStore(ci, nextID);
     }
@@ -378,8 +373,8 @@ struct ScheduleGenerator {
   // Create a 1D loop to execute all the work items in a 'barrier', reducing
   // across an accumulator.
   std::pair<BasicBlock *, Value *> makeReductionLoop(
-      compiler::utils::BarrierWithLiveVars const &barrier,
-      compiler::utils::GroupCollective const &WGC, BasicBlock *block, Value *op,
+      const compiler::utils::BarrierWithLiveVars &barrier,
+      const compiler::utils::GroupCollective &WGC, BasicBlock *block, Value *op,
       Value *accumulator) {
     auto *const accTy = accumulator->getType();
     Function *const func = block->getParent();
@@ -389,7 +384,6 @@ struct ScheduleGenerator {
 
     compiler::utils::CreateLoopOpts inner_opts;
     inner_opts.IVs = {accumulator};
-    inner_opts.attemptUnroll = true;
     inner_opts.disableVectorize = true;
 
     BasicBlock *preheader = block;
@@ -448,11 +442,7 @@ struct ScheduleGenerator {
         });
 
     if (!resultPhi) {
-      if (exitBlock == latchBlock) {
-        // If `createLoop()` unrolled the loop, there will not be a separate
-        // exit block, so we won't create the LCSSA PHI node.
-        return {exitBlock, accumulator};
-      }
+      assert(exitBlock != latchBlock && "createLoop didn't create a loop");
       resultPhi = PHINode::Create(accTy, 1, "WGC_reduce", exitBlock);
     }
     resultPhi->addIncoming(accumulator, latchBlock);
@@ -460,7 +450,7 @@ struct ScheduleGenerator {
   }
 
   void getUniformValues(BasicBlock *block,
-                        compiler::utils::BarrierWithLiveVars const &barrier,
+                        const compiler::utils::BarrierWithLiveVars &barrier,
                         MutableArrayRef<Value *> values) {
     auto *const zero =
         Constant::getNullValue(compiler::utils::getSizeType(module));
@@ -475,7 +465,7 @@ struct ScheduleGenerator {
   }
 
   std::optional<compiler::utils::GroupCollective> getBarrierGroupCollective(
-      compiler::utils::BarrierWithLiveVars const &Barrier, unsigned BarrierID) {
+      const compiler::utils::BarrierWithLiveVars &Barrier, unsigned BarrierID) {
     auto *const BarrierCall = Barrier.getBarrierCall(BarrierID);
     if (!BarrierCall) {
       return std::nullopt;
@@ -611,7 +601,7 @@ struct ScheduleGenerator {
         assert(GEPmain && "Could not get broadcasted value");
 
         if (barrierTail) {
-          bool const VP = barrierTail->getVFInfo().IsVectorPredicated;
+          const bool VP = barrierTail->getVFInfo().IsVectorPredicated;
 
           // Compute the address of the value in the tail barrier struct
           auto *const offsetDim0 = ir.CreateSub(idsMain[0], mainLoopLimit);
@@ -747,7 +737,6 @@ struct ScheduleGenerator {
                   compiler::utils::CreateLoopOpts inner_opts;
                   inner_opts.indexInc = VF;
                   inner_opts.IVs = ivs1.vec();
-                  inner_opts.attemptUnroll = true;
 
                   BasicBlock *exit0 = compiler::utils::createLoop(
                       block, nullptr, zero, mainLoopLimit, inner_opts,
@@ -858,7 +847,6 @@ struct ScheduleGenerator {
 
                   compiler::utils::CreateLoopOpts inner_opts;
                   inner_opts.IVs = ivs1.vec();
-                  inner_opts.attemptUnroll = true;
                   inner_opts.disableVectorize = true;
 
                   BasicBlock *exit0 = compiler::utils::createLoop(
@@ -915,7 +903,7 @@ struct ScheduleGenerator {
     // The scan types can differ between 'main' and 'tail' kernels.
     bool isTailExclusiveScan = false;
     if (isScan && barrierTail) {
-      auto const tailInfo = getBarrierGroupCollective(*barrierTail, barrierID);
+      const auto tailInfo = getBarrierGroupCollective(*barrierTail, barrierID);
       assert(tailInfo && "No corresponding work group scan in tail kernel");
       isTailExclusiveScan =
           tailInfo->Op ==
@@ -1035,7 +1023,6 @@ struct ScheduleGenerator {
 
                   compiler::utils::CreateLoopOpts inner_vf_opts;
                   inner_vf_opts.indexInc = VF;
-                  inner_vf_opts.attemptUnroll = true;
                   inner_vf_opts.IVs = ivs1.vec();
                   inner_vf_opts.loopIVNames.push_back("sg.x.main");
                   if (isScan) {
@@ -1187,7 +1174,6 @@ struct ScheduleGenerator {
                     tailLoopBB = tailPreheaderBB;
                   } else {
                     compiler::utils::CreateLoopOpts inner_scalar_opts;
-                    inner_scalar_opts.attemptUnroll = true;
                     inner_scalar_opts.disableVectorize = true;
                     inner_scalar_opts.IVs.assign(subgroupIVs0.begin(),
                                                  subgroupIVs0.end());
@@ -1309,15 +1295,15 @@ struct ScheduleGenerator {
 // here corresponds to the current outermost to innermost vectorized
 // dimensions, rather than in their absolutist sense.
 void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
-                         IRBuilder<> &B, Value *const VF, unsigned sizeTyBytes,
-                         Value *const sizeZ, Value *const sizeY,
+                         IRBuilder<> &B, Value *const sizeZ, Value *const sizeY,
                          Value *const sizeX, StringRef name, bool isDebug) {
   barrier.setSize0(sizeX);
   Value *const live_var_size = B.CreateMul(sizeX, B.CreateMul(sizeY, sizeZ));
   barrier.setTotalSize(live_var_size);
-
   AllocaInst *live_var_mem_space;
-  auto const scalablesSize = barrier.getLiveVarMemSizeScalable();
+  auto &m = *B.GetInsertBlock()->getModule();
+  auto *const size_ty = compiler::utils::getSizeType(m);
+  const auto scalablesSize = barrier.getLiveVarMemSizeScalable();
   if (scalablesSize == 0) {
     live_var_mem_space =
         B.CreateAlloca(barrier.getLiveVarsType(), live_var_size, name);
@@ -1325,12 +1311,12 @@ void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
         MaybeAlign(barrier.getLiveVarMaxAlignment()).valueOrOne());
     barrier.setMemSpace(live_var_mem_space);
   } else {
-    auto const fixedSize = barrier.getLiveVarMemSizeFixed();
+    const auto fixedSize = barrier.getLiveVarMemSizeFixed();
     // We ensure that the VFs are the same between the main and tail.
-    auto *const vscale = cast<Instruction>(VF)->getOperand(0);
-    auto *const structSize = B.CreateAdd(
-        B.CreateMul(vscale, B.getIntN(8 * sizeTyBytes, scalablesSize)),
-        B.getIntN(8 * sizeTyBytes, fixedSize));
+    auto *const vscale =
+        B.CreateVScale(ConstantInt::get(size_ty, scalablesSize));
+    auto *const structSize =
+        B.CreateAdd(vscale, ConstantInt::get(size_ty, fixedSize));
     auto *const buffer_size = B.CreateMul(structSize, live_var_size);
 
     live_var_mem_space = B.CreateAlloca(B.getInt8Ty(), buffer_size, name);
@@ -1358,15 +1344,15 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   // function if one exists, else it's the main function.
   Function &refF = barrierTail ? barrierTail->getFunc() : barrierMain.getFunc();
 
-  bool const emitTail = barrierTail != nullptr;
+  const bool emitTail = barrierTail != nullptr;
 
   auto mainInfo = barrierMain.getVFInfo();
   auto tailInfo =
       emitTail ? barrierTail->getVFInfo() : std::optional<VectorizationInfo>();
 
-  auto const workItemDim0 = 0;
-  auto const workItemDim1 = 1;
-  auto const workItemDim2 = 2;
+  const auto workItemDim0 = 0;
+  const auto workItemDim1 = 1;
+  const auto workItemDim2 = 2;
 
   LLVMContext &context = M.getContext();
 
@@ -1399,7 +1385,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     localSizeDim[1] = entryIR.getIntN(8 * sizeTyBytes, (*wgs)[1]);
     localSizeDim[2] = entryIR.getIntN(8 * sizeTyBytes, (*wgs)[2]);
   } else {
-    uint32_t max_work_dim = parseMaxWorkDimMetadata(refF).value_or(3);
+    const uint32_t max_work_dim = parseMaxWorkDimMetadata(refF).value_or(3);
 
     // Fill out a default local size of 1x1x1.
     std::fill(std::begin(localSizeDim), std::end(localSizeDim),
@@ -1502,9 +1488,9 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     }
     Value *const size0 = entryIR.CreateUDiv(numerator, VF);
 
-    setUpLiveVarsAlloca(barrierMain, entryIR, VF, sizeTyBytes,
-                        localSizeDim[workItemDim2], localSizeDim[workItemDim1],
-                        size0, "live_variables", IsDebug);
+    setUpLiveVarsAlloca(barrierMain, entryIR, localSizeDim[workItemDim2],
+                        localSizeDim[workItemDim1], size0, "live_variables",
+                        IsDebug);
   }
 
   // Amazingly, it's possible for the tail kernel to have live vars in its
@@ -1519,9 +1505,9 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
           "tail.has.vp");
       size0 = entryIR.CreateZExt(hasLeftover, peel->getType());
     }
-    setUpLiveVarsAlloca(*barrierTail, entryIR, VF, sizeTyBytes,
-                        localSizeDim[workItemDim2], localSizeDim[workItemDim1],
-                        size0, "live_variables_peel", IsDebug);
+    setUpLiveVarsAlloca(*barrierTail, entryIR, localSizeDim[workItemDim2],
+                        localSizeDim[workItemDim1], size0,
+                        "live_variables_peel", IsDebug);
   }
 
   // next means next barrier id. This variable is uninitialized to begin with,
@@ -1531,7 +1517,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
       entryIR.CreateAlloca(index_type, nullptr, "next_barrier_id");
 
   SmallVector<BasicBlock *, 8> bbs;
-  unsigned num_blocks = barrierMain.getNumSubkernels();
+  const unsigned num_blocks = barrierMain.getNumSubkernels();
   assert(!emitTail || barrierTail->getNumSubkernels() == num_blocks);
 
   for (unsigned i = kBarrier_EndID; i <= num_blocks; i++) {
@@ -1574,7 +1560,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
       // Re-issue the barrier's memory fence before the work-item loops
       if (auto *const CI = barrierMain.getBarrierCall(i)) {
         auto *const callee = CI->getCalledFunction();
-        auto const builtin = BI.analyzeBuiltin(*callee);
+        const auto builtin = BI.analyzeBuiltin(*callee);
         if (builtin.ID == compiler::utils::eMuxBuiltinWorkGroupBarrier) {
           IRBuilder<> B(block);
           auto *MemBarrier =
@@ -1637,8 +1623,8 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
       // the last basic block in our function!
       IRBuilder<> exitIR(exitBlock);
 
-      auto const &successors = barrierMain.getSuccessorIds(i);
-      auto const num_succ = successors.size();
+      const auto &successors = barrierMain.getSuccessorIds(i);
+      const auto num_succ = successors.size();
       if (num_succ == 1) {
         // If there is only one successor, we can branch directly to it
         exitIR.CreateBr(bbs[successors.front()]);
@@ -1662,7 +1648,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
             new LoadInst(index_type, nextID, "", switch_body);
         SwitchInst *const sw = SwitchInst::Create(
             ld_next_id, bbs[successors[0]], num_succ, switch_body);
-        for (auto const i : successors) {
+        for (const auto i : successors) {
           sw->addCase(ConstantInt::get(index_type, i), bbs[i]);
         }
         exitIR.CreateBr(switch_body);
@@ -1789,14 +1775,14 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
       continue;
     }
 
-    auto const BaseName = getBaseFnNameOrFnName(F);
+    const auto BaseName = getBaseFnNameOrFnName(F);
     auto VeczToOrigFnData = parseVeczToOrigFnLinkMetadata(F);
 
-    auto const WorkItemDim0 = 0;
+    const auto WorkItemDim0 = 0;
 
-    VectorizationInfo scalarTailInfo{VectorizationFactor::getScalar(),
-                                     WorkItemDim0,
-                                     /*IsVectorPredicated*/ false};
+    const VectorizationInfo scalarTailInfo{VectorizationFactor::getScalar(),
+                                           WorkItemDim0,
+                                           /*IsVectorPredicated*/ false};
 
     if (!VeczToOrigFnData) {
       // If there was no vectorization metadata, it's a scalar kernel.
@@ -1805,7 +1791,7 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     }
 
     // If we got a vectorized kernel, wrap it using the vectorization factor.
-    auto const MainInfo = VeczToOrigFnData->second;
+    const auto MainInfo = VeczToOrigFnData->second;
 
     // Start out assuming scalar tail, which is the default behaviour...
     auto TailInfo = scalarTailInfo;
@@ -1874,7 +1860,7 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
           (!GSGI.usesSubgroups(*P.MainF) && !GSGI.usesSubgroups(*TailF))) {
         RedundantMains.insert(TailF);
       } else if (auto wgs = parseRequiredWGSMetadata(*P.MainF)) {
-        uint64_t local_size_x = wgs.value()[0];
+        const uint64_t local_size_x = wgs.value()[0];
         if (!P.MainInfo.IsVectorPredicated &&
             !(local_size_x % P.MainInfo.vf.getKnownMin())) {
           RedundantMains.insert(TailF);

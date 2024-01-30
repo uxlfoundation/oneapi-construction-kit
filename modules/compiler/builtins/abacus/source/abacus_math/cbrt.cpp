@@ -217,7 +217,7 @@ struct helper<T, abacus_double> {
         -0.2577879379162866445639990e0};
 
     // estimate the cbrt here, xMant [0.5 -> 1]:
-    T ans = abacus::internal::horner_polynomial<T, 11>(xMant, polynomial);
+    T ans = abacus::internal::horner_polynomial(xMant, polynomial);
 
     abacus_double4 cbrts;
     // skip term

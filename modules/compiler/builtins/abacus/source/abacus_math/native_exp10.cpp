@@ -40,7 +40,7 @@ T native_exp10(const T x) {
   const abacus_float polynomial[3] = {1.00172475857780f, 2.18462045783410f,
                                       3.72095499205386f};
 
-  const T twoToTheF = abacus::internal::horner_polynomial<T, 3>(f, polynomial);
+  const T twoToTheF = abacus::internal::horner_polynomial(f, polynomial);
   return abacus::internal::ldexp_unsafe(twoToTheF, k);
 }
 }  // namespace

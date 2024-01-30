@@ -120,7 +120,7 @@ static llvm::cl::list<unsigned> SGSizes(
 static llvm::TargetMachine *initLLVMTarget(llvm::StringRef triple_string,
                                            llvm::StringRef cpu_model,
                                            llvm::StringRef target_features) {
-  llvm::Triple triple(triple_string);
+  const llvm::Triple triple(triple_string);
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmPrinters();
@@ -170,7 +170,7 @@ static vecz::VeczPassOptions getDefaultPassOptions() {
     llvm::EnableStatistics(true);
   }
 
-  auto const factor = SIMDWidth ? SIMDWidth : 4;
+  const auto factor = SIMDWidth ? SIMDWidth : 4;
   auto VF = compiler::utils::VectorizationFactor::getFixedWidth(factor);
   if (VeczSimdWidth) {
     VF.setKnownMin(VeczSimdWidth);

@@ -56,12 +56,12 @@ abacus_float ABACUS_API __abacus_atan(abacus_float x) {
 namespace {
 template <typename T>
 T ABACUS_API atan(T x) {
-  typename TypeTraits<T>::SignedType recip_x = (T)1.0f < __abacus_fabs(x);
+  const typename TypeTraits<T>::SignedType recip_x = (T)1.0f < __abacus_fabs(x);
 
   x = __abacus_select(x, (T)1.0f / x, recip_x);
 
-  const T result = x * abacus::internal::horner_polynomial<T, 8>(
-                           x * x, __codeplay_atan_coeff);
+  const T result =
+      x * abacus::internal::horner_polynomial(x * x, __codeplay_atan_coeff);
 
   return __abacus_select(result, __abacus_copysign(ABACUS_PI_2_F, x) - result,
                          recip_x);
@@ -97,8 +97,7 @@ T ABACUS_API atan_half(T x) {
 
   x = __abacus_select(x, 1.0f16 / x, inverse);
 
-  T ans = x * abacus::internal::horner_polynomial<T, 4>(x * x,
-                                                        __codeplay_atan_half);
+  T ans = x * abacus::internal::horner_polynomial(x * x, __codeplay_atan_half);
 
   ans = __abacus_select(ans, __abacus_copysign(ABACUS_PI_2_H, ans) - ans,
                         inverse);

@@ -37,8 +37,8 @@
 ; All functions
        %image2d_array = OpFunction %void_t None %query_size_fn_t
                %image = OpFunctionParameter %image2d_array_t
-; CHECK-GE17: define spir_kernel void @image2d_array([[IMG_TY:target\("spirv.Image", void, 1, 0, 1, 0, 0, 0, 0\)]] %image)
-; CHECK-LT17: define spir_kernel void @image2d_array([[IMG_TY:ptr addrspace\(1\)]] %image)
+; CHECK-GE17: define spir_kernel void @image2d_array([[IMG_TY:target\("spirv.Image", void, 1, 0, 1, 0, 0, 0, 0\)]] noundef %image)
+; CHECK-LT17: define spir_kernel void @image2d_array([[IMG_TY:ptr addrspace\(1\)]] noundef %image)
                    %1 = OpLabel
                    %2 = OpImageQuerySizeLod %v3int_t %image %int_1
 ; CHECK: [[size_result:%.*]] = call spir_func i32 @_Z20get_image_array_size16ocl_image2darray([[IMG_TY]] %image)

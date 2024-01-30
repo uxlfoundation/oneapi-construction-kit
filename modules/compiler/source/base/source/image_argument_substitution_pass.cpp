@@ -135,13 +135,13 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
       // Our wrapper hasn't been created with any parameter attributes, as the
       // parameter types have changed. We must copy across all attributes from
       // the non-sampler arguments to maintain program semantics.
-      AttributeList KernelAttrs = KernelF->getAttributes();
+      const AttributeList KernelAttrs = KernelF->getAttributes();
       SmallVector<AttributeSet, 4> WrapperParamAttrs(KernelF->arg_size());
 
       for (auto [OldArg, NewArg] :
            zip(KernelF->args(), WrapperKernel->args())) {
         // Copy parameter names across
-        unsigned ArgIdx = Args.size();
+        const unsigned ArgIdx = Args.size();
         NewArg.setName(OldArg.getName());
         if (OldArg.getType() == NewArg.getType()) {
           Args.push_back(&NewArg);
@@ -228,7 +228,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
     // we found the function, so we definitely are modifying the module!
     module_modified = true;
 
-    for (Use &use : srcFunc->uses()) {
+    for (const Use &use : srcFunc->uses()) {
       auto *const call = dyn_cast<CallInst>(use.getUser());
 
       assert(call && "User wasn't a call instruction!");
@@ -258,7 +258,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
           i = 2;
         }
 
-        for (unsigned e = srcFuncType->getNumParams(); i < e; i++) {
+        for (const unsigned e = srcFuncType->getNumParams(); i < e; i++) {
           types.push_back(srcFuncType->getParamType(i));
         }
 
@@ -312,7 +312,7 @@ PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
         i = 2;
       }
 
-      for (unsigned e = call->arg_size(); i < e; i++) {
+      for (const unsigned e = call->arg_size(); i < e; i++) {
         args.push_back(call->getArgOperand(i));
       }
 

@@ -6,7 +6,7 @@ should be based off `hal_refsi_tutorial`.
 
 The *RefSi* target is a RISC-V target which uses a command processor to run a
 kernel with any given parameters across different instances and slices. These
-parameters will all be indentical for each kernel execution.
+parameters will all be identical for each kernel execution.
 
 First of all we need an empty directory ``refsi_tutorial``. We also assume that
 the ``oneAPI Construction Kit`` exists at ``$ONEAPI_CON_KIT_PATH`` commands:
@@ -85,7 +85,7 @@ named after the `target_name` field. It also creates a ``CMakeLists.txt`` which
 can be used to build the oneAPI Construction Kit. After creating these new
 directories, we have a fully buildable target, ready for your ``HAL``. The ``mux``
 side handles the runtime aspects and the default generated here assumes it is on the
-same architecure as the host we build on. The ``compiler`` side manages the
+same architecture as the host we build on. The ``compiler`` side manages the
 compilation of kernels. It has a standard LLVM pipeline influenced by the `json`
 file, which is used to produce executable kernels.
 
@@ -114,7 +114,7 @@ The generated `CMakeLists.txt` is very simple and will look something like this:
     ${CMAKE_CURRENT_BINARY_DIR}/oneAPIConstructionKit)
 
 The ``CA_EXTERNAL_MUX_TARGET_DIRS`` and ``CA_EXTERNAL_MUX_COMPILER_DIRS`` are
-used to tell the oneAPI Construction Kit where to look for for the per target code,
+used to tell the oneAPI Construction Kit where to look for the per target code,
 both for ``mux`` (the runtime) and ``compiler`` (the code generation). The
 directory name should match the target name.
 
@@ -122,7 +122,7 @@ directory name should match the target name.
 target. This can be changed to wherever you have stored the final
 `hal_refsi_tutorial`, but defaults to within the current top level directory.
 
-``CA_EXTERNAL_ONEAPI_KIT_DIR`` is used to indicate where the `oneAPI construction kit` directory is.
+``CA_EXTERNAL_ONEAPI_KIT_DIR`` is used to indicate where the `oneAPI Construction Kit` directory is.
 
 
 Both of these variables can be overridden on the `cmake` line.

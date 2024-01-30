@@ -33,7 +33,7 @@ void fuzzcl::fuzz_from_input(const uint8_t *data, size_t size,
       should_export = true;
     }
 
-    fuzzcl::input_t input(data, size, should_export);
+    const fuzzcl::input_t input(data, size, should_export);
     running_threads.emplace_back(
         std::thread(fuzzcl::run_input, std::ref(fc), input));
   }
@@ -149,7 +149,7 @@ void fuzzcl::enqueueReadBuffer(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueReadBuffer" << '\n';
   }
 
@@ -195,7 +195,7 @@ void fuzzcl::enqueueWriteBuffer(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueWriteBuffer" << '\n';
   }
 
@@ -276,7 +276,7 @@ void fuzzcl::enqueueReadBufferRect(fuzzcl::context_t &fc,
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueReadBufferRect" << '\n';
   }
 
@@ -359,7 +359,7 @@ void fuzzcl::enqueueWriteBufferRect(fuzzcl::context_t &fc,
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueWriteBufferRect" << '\n';
   }
 
@@ -408,7 +408,7 @@ void fuzzcl::enqueueFillBuffer(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueFillBuffer" << '\n';
   }
 
@@ -454,7 +454,7 @@ void fuzzcl::enqueueCopyBuffer(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueCopyBuffer" << '\n';
   }
 
@@ -530,7 +530,7 @@ void fuzzcl::enqueueCopyBufferRect(fuzzcl::context_t &fc,
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueCopyBufferRect" << '\n';
   }
 
@@ -576,7 +576,7 @@ void fuzzcl::enqueueMapBuffer(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueMapBuffer" << '\n';
   }
 
@@ -636,7 +636,7 @@ void fuzzcl::enqueueReadImage(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueReadImage" << '\n';
   }
 
@@ -697,7 +697,7 @@ void fuzzcl::enqueueWriteImage(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueWriteImage" << '\n';
   }
 
@@ -748,7 +748,7 @@ void fuzzcl::enqueueFillImage(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueFillImage" << '\n';
   }
 
@@ -808,7 +808,7 @@ void fuzzcl::enqueueCopyImage(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueCopyImage" << '\n';
   }
 
@@ -871,7 +871,7 @@ void fuzzcl::enqueueCopyImageToBuffer(context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueCopyImageToBuffer" << '\n';
   }
 
@@ -935,7 +935,7 @@ void fuzzcl::enqueueCopyBufferToImage(fuzzcl::context_t &fc,
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueCopyBufferToImage" << '\n';
   }
 
@@ -992,7 +992,7 @@ void fuzzcl::enqueueMapImage(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueMapImage" << '\n';
   }
 
@@ -1008,14 +1008,14 @@ void fuzzcl::enqueueUnmapMemObject(fuzzcl::context_t &fc,
   std::unique_lock<std::mutex> lock(fc.mutex);
   if (fc.map_ptrs.empty()) {
     if (fc.verbose) {
-      std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+      const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
       std::cout << "There are not map_ptr to unmap\n";
     }
     return;
   }
 
   const size_t map_ptr_index = input.next(0, fc.map_ptrs.size() - 1);
-  map_ptr_t map_ptr = fc.map_ptrs[map_ptr_index];
+  const map_ptr_t map_ptr = fc.map_ptrs[map_ptr_index];
 
   // If a previous call was made on this mem_obj, wait for its event
   const cl_uint num_events_in_wait_list =
@@ -1036,7 +1036,7 @@ void fuzzcl::enqueueUnmapMemObject(fuzzcl::context_t &fc,
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueUnmapMemObject" << '\n';
   }
 
@@ -1056,7 +1056,7 @@ void fuzzcl::enqueueNDRangeKernel(fuzzcl::context_t &fc,
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueNDRangeKernel" << '\n';
   }
 
@@ -1073,7 +1073,7 @@ void fuzzcl::enqueueTask(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clEnqueueTask" << '\n';
   }
 
@@ -1085,7 +1085,7 @@ void fuzzcl::enqueueTask(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
 /// @brief The callback used by fuzzcl::setEventCallback
 void CL_CALLBACK callback(cl_event, cl_int, void *user_data) {
-  fuzzcl::callback_input_data_t callback_input_data =
+  const fuzzcl::callback_input_data_t callback_input_data =
       *static_cast<fuzzcl::callback_input_data_t *>(user_data);
   run_input(*callback_input_data.fc, callback_input_data.input);
 }
@@ -1103,7 +1103,7 @@ void fuzzcl::setEventCallback(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   if (mem_obj->event_stack.empty()) {
     if (fc.verbose) {
-      std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+      const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
       std::cout << "There is no event to attach a callback to\n";
     }
     return;
@@ -1133,7 +1133,7 @@ void fuzzcl::setEventCallback(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
   // get a part of the input data to be used in the callback
   if (input.data.size() - input.index < 1) {
     if (fc.verbose) {
-      std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+      const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
       std::cout << "There is not enough data to create a callback\n";
     }
     return;
@@ -1148,7 +1148,7 @@ void fuzzcl::setEventCallback(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
   }
 
   size_t callback_id = input.last_callback_id++;
-  fuzzcl::input_t callback_input =
+  const fuzzcl::input_t callback_input =
       fuzzcl::input_t(callback_data, input.should_export, callback_id);
 
   fuzzcl::callback_input_data_t *callback_input_data_ptr =
@@ -1162,7 +1162,7 @@ void fuzzcl::setEventCallback(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   // print to stdout
   if (fc.verbose) {
-    std::lock_guard<std::mutex> output_lock(fc.output_mutex);
+    const std::lock_guard<std::mutex> output_lock(fc.output_mutex);
     std::cout << "clSetEventCallback" << '\n';
   }
 
@@ -1235,7 +1235,8 @@ cl_device_id fuzzcl::context_t::select_device(
     if (device_name_size > 0) {
       std::string device_name = std::string(device_name_size - 1, '\0');
       IS_CL_SUCCESS(clGetDeviceInfo(devices[i], CL_DEVICE_NAME,
-                                    device_name_size, &device_name[0], NULL));
+                                    device_name_size, device_name.data(),
+                                    NULL));
       device_names.push_back(device_name);
     } else {
       device_names.push_back("Nameless device");

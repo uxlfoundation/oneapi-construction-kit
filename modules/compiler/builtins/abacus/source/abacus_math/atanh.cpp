@@ -38,9 +38,9 @@ T atanh_half(const T x) {
   // return T(0.5f16) * (__abacus_log(T(1.0) + x) - __abacus_log(T(1.0) - x));
   T ans = 0.5f16 * (__abacus_log((1.0f16 + x) / (1.0f16 - x)));
 
-  ans = __abacus_select(
-      ans, x * abacus::internal::horner_polynomial<T, 3>(x * x, _atanhH),
-      __abacus_fabs(x) < 0.5f16);
+  ans = __abacus_select(ans,
+                        x * abacus::internal::horner_polynomial(x * x, _atanhH),
+                        __abacus_fabs(x) < 0.5f16);
 
   return ans;
 }
@@ -48,8 +48,7 @@ T atanh_half(const T x) {
 template <>
 abacus_half atanh_half(const abacus_half x) {
   if (__abacus_fabs(x) < 0.5f16) {
-    return x *
-           abacus::internal::horner_polynomial<abacus_half, 3>(x * x, _atanhH);
+    return x * abacus::internal::horner_polynomial(x * x, _atanhH);
   }
 
   // Both of these work, one has a divide, the other calls log twice. Divide is

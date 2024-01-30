@@ -39,9 +39,9 @@ Derived *getDerived() { return nullptr; }
 }  // namespace
 
 TEST(function_ref, constructors) {
-  cargo::function_ref<void(void)> fr1 = [] {};
-  cargo::function_ref<void(void)> fr2 = f;
-  cargo::function_ref<void(b)> fr3 = &b::baz;
+  const cargo::function_ref<void(void)> fr1 = [] {};
+  const cargo::function_ref<void(void)> fr2 = f;
+  const cargo::function_ref<void(b)> fr3 = &b::baz;
 
   // Silence warnings
   (void)fr1;
@@ -63,7 +63,7 @@ TEST(function_ref, assignment) {
 
 TEST(function_ref, call) {
   {
-    cargo::function_ref<int(void)> fr = getValue;
+    const cargo::function_ref<int(void)> fr = getValue;
     EXPECT_EQ(fr(), 1337);
   }
 
@@ -81,14 +81,14 @@ TEST(function_ref, call) {
 
   {
     auto x = [] { return 42; };
-    cargo::function_ref<int()> fr = x;
+    const cargo::function_ref<int()> fr = x;
     EXPECT_EQ(fr(), 42);
   }
 
   {
     int i = 0;
     auto x = [&i] { i = 42; };
-    cargo::function_ref<void()> fr = x;
+    const cargo::function_ref<void()> fr = x;
     fr();
     EXPECT_EQ(i, 42);
   }
@@ -98,7 +98,7 @@ TEST(function_ref, pass_then_call) {
   auto call_ref = [](cargo::function_ref<int(void)> func) { return func(); };
 
   {
-    int r = call_ref([] { return 1337; });
+    const int r = call_ref([] { return 1337; });
     EXPECT_EQ(r, 1337);
   }
 
@@ -106,17 +106,17 @@ TEST(function_ref, pass_then_call) {
     struct Callable {
       int operator()() { return 1337; }
     };
-    int r = call_ref(Callable{});
+    const int r = call_ref(Callable{});
     EXPECT_EQ(r, 1337);
   }
 
   {
-    int r = call_ref(getValue);
+    const int r = call_ref(getValue);
     EXPECT_EQ(r, 1337);
   }
 
   {
-    int r = call_ref(&getValue);
+    const int r = call_ref(&getValue);
     EXPECT_EQ(r, 1337);
   }
 }

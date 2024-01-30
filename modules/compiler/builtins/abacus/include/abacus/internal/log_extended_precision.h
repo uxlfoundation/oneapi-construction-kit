@@ -61,7 +61,7 @@ namespace internal {
 template <typename T>
 inline T log_extended_precision(const T &xMant, T *out_remainder) {
   const T xMant1m = xMant - 1.0f;
-  const T poly = abacus::internal::horner_polynomial<T, 26>(
+  const T poly = abacus::internal::horner_polynomial(
       xMant1m, __codeplay_natural_log_extended_precision_coeffD);
 
   // We need xMant1m*(xMant1m*(xMant1m*(xMant1m*poly + 1/3) - 0.5) + 1)

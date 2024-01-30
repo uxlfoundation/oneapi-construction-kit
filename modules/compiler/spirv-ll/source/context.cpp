@@ -141,7 +141,7 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
   llvm::SmallVector<IRInsertPoint, 8> IPStack;
   // Store the branch instructions found in the current function, as we need to
   // generate them after all the basic blocks have been generated.
-  using OpIRLocTy = std::pair<OpCode const, IRInsertPoint>;
+  using OpIRLocTy = std::pair<const OpCode, IRInsertPoint>;
   // Store the Phi nodes in order to add the values after all the basic blocks
   // have been generated
   llvm::SmallVector<OpIRLocTy, 8> Phis;
@@ -177,7 +177,7 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         error = builder.create<OpSourceExtension>(op);
         break;
       case spv::OpModuleProcessed:
-        // Ignore this.
+        error = builder.create<OpModuleProcessed>(op);
         break;
       case spv::OpName:
         error = builder.create<OpName>(op);
@@ -1125,11 +1125,5 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
     return cargo::make_unexpected(llvm::toString(std::move(err)));
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(module);
-#else
   return module;
-#endif
 }

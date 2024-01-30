@@ -18,6 +18,9 @@
 
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/mangling.h>
+#include <llvm/Analysis/ValueTracking.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/InstrTypes.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/Debug.h>
@@ -40,7 +43,7 @@ namespace {
 // Find leaves by recursing through an instruction's uses
 bool findStrayLeaves(UniformValueResult &UVR, Instruction &I,
                      DenseSet<Instruction *> &Visited) {
-  for (Use &U : I.uses()) {
+  for (const Use &U : I.uses()) {
     auto *User = U.getUser();
     if (isa<StoreInst>(User) || isa<AtomicRMWInst>(User) ||
         isa<AtomicCmpXchgInst>(User)) {
@@ -76,6 +79,38 @@ bool isDivergenceReduction(const Function &F) {
           L.Consume("divergence_"));
 }
 
+bool isTrueUniformInternal(const Value *V, unsigned Depth) {
+  if (!V) {
+    return false;
+  }
+
+  // Constants and Arguments that can't be undef/poison are truly uniform
+  if (isa<Constant>(V) || isa<Argument>(V)) {
+    return isGuaranteedNotToBePoison(V);
+  }
+
+  constexpr unsigned DepthLimit = 6;
+
+  if (Depth < DepthLimit) {
+    // For a specific subset of instructions, if all operands are truly
+    // uniform, then the instruction is too.
+    // FIXME: This is pessimistic. We could improve this by extending the list
+    // of instructions covered. We could also use flow-sensitive analysis in
+    // isGuaranteedNotToBePoison to enhance its capabilities.
+    if (const auto *I = dyn_cast<Instruction>(V)) {
+      if (isa<UnaryOperator>(I) || isa<BinaryOperator>(I) || isa<CastInst>(I) ||
+          isa<CmpInst>(I) || isa<SelectInst>(I) || isa<PHINode>(I)) {
+        return isGuaranteedNotToBePoison(I) &&
+               llvm::all_of(I->operands(), [Depth](Value *Op) {
+                 return isTrueUniformInternal(Op, Depth + 1);
+               });
+      }
+    }
+  }
+
+  return false;
+}
+
 }  // namespace
 
 UniformValueResult::UniformValueResult(Function &F, VectorizationUnit &vu)
@@ -102,7 +137,21 @@ bool UniformValueResult::isValueOrMaskVarying(const Value *V) const {
   if (found == varying.end()) {
     return false;
   }
-  return found->second != VaryingKind::eValueUniform;
+  return found->second != VaryingKind::eValueTrueUniform &&
+         found->second != VaryingKind::eValueActiveUniform;
+}
+
+bool UniformValueResult::isTrueUniform(const Value *V) {
+  auto found = varying.find(V);
+  if (found != varying.end()) {
+    return found->second == VaryingKind::eValueTrueUniform;
+  }
+  if (!isTrueUniformInternal(V, /*Depth=*/0)) {
+    return false;
+  }
+  // Cache this result to help speed up future queries
+  varying[V] = VaryingKind::eValueTrueUniform;
+  return true;
 }
 
 /// @brief Utility function to check whether an instruction is a call to a
@@ -129,7 +178,7 @@ static bool isGroupBroadcastOrReduction(
 
 void UniformValueResult::findVectorLeaves(
     std::vector<Instruction *> &Leaves) const {
-  compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+  const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
   for (BasicBlock &BB : F) {
     for (Instruction &I : BB) {
       // Reductions and broadcasts are always vector leaves regardless of
@@ -156,7 +205,7 @@ void UniformValueResult::findVectorLeaves(
           // uniform then add it to the leaves
           if (!Callee->isIntrinsic() && CI->use_empty()) {
             // Try to identify the called function
-            auto const Builtin = BI.analyzeBuiltin(*Callee);
+            const auto Builtin = BI.analyzeBuiltin(*Callee);
             if (!Builtin.isValid()) {
               Leaves.push_back(CI);
             }
@@ -198,6 +247,8 @@ void UniformValueResult::findVectorLeaves(
                Op->isMaskedScatterGatherMemOp())) {
             IsCallLeaf = true;
           }
+        } else if (Ctx.isMaskedAtomicFunction(*CI->getCalledFunction())) {
+          IsCallLeaf = true;
         }
         if (IsCallLeaf) {
           Leaves.push_back(CI);
@@ -209,15 +260,15 @@ void UniformValueResult::findVectorLeaves(
 }
 
 void UniformValueResult::findVectorRoots(std::vector<Value *> &Roots) const {
-  compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+  const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
   for (BasicBlock &BB : F) {
     for (Instruction &I : BB) {
       CallInst *CI = dyn_cast<CallInst>(&I);
       if (!CI || !CI->getCalledFunction()) {
         continue;
       }
-      auto const Builtin = BI.analyzeBuiltinCall(*CI, dimension);
-      auto const Uniformity = Builtin.uniformity;
+      const auto Builtin = BI.analyzeBuiltinCall(*CI, dimension);
+      const auto Uniformity = Builtin.uniformity;
       if (Uniformity == compiler::utils::eBuiltinUniformityInstanceID ||
           Uniformity == compiler::utils::eBuiltinUniformityMaybeInstanceID) {
         // Calls to `get_global_id`/`get_local_id` are roots.
@@ -277,9 +328,9 @@ void UniformValueResult::markVaryingValues(Value *V, Value *From) {
     // Some builtins produce a uniform value regardless of their inputs.
     Function *Callee = CI->getCalledFunction();
     if (Callee) {
-      compiler::utils::BuiltinInfo &BI = Ctx.builtins();
-      auto const Builtin = BI.analyzeBuiltinCall(*CI, dimension);
-      auto const Uniformity = Builtin.uniformity;
+      const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+      const auto Builtin = BI.analyzeBuiltinCall(*CI, dimension);
+      const auto Uniformity = Builtin.uniformity;
       if (Uniformity == compiler::utils::eBuiltinUniformityAlways) {
         return;
       }
@@ -308,7 +359,7 @@ void UniformValueResult::markVaryingValues(Value *V, Value *From) {
   LLVM_DEBUG(dbgs() << "vecz: Needs packetization: " << *V << "\n");
 
   // Visit all users of V, they are varying too.
-  for (Use &Use : V->uses()) {
+  for (const Use &Use : V->uses()) {
     User *User = Use.getUser();
     markVaryingValues(User, V);
   }
@@ -403,7 +454,7 @@ Value *UniformValueResult::extractMemBase(Value *Address) {
       // If it's a simple loop iterator, the base can be analyzed from the
       // initial value.
       if (GEP->getPointerOperand() == Phi) {
-        for (auto const &index : GEP->indices()) {
+        for (const auto &index : GEP->indices()) {
           if (isVarying(index.get())) {
             return nullptr;
           }
@@ -441,7 +492,7 @@ UniformValueResult UniformValueAnalysis::run(
     Res.markVaryingValues(Root);
   }
 
-  compiler::utils::BuiltinInfo &BI = Res.Ctx.builtins();
+  const compiler::utils::BuiltinInfo &BI = Res.Ctx.builtins();
   for (BasicBlock &BB : F) {
     for (Instruction &I : BB) {
       // Find atomic instructions, these are always varying
@@ -453,7 +504,7 @@ UniformValueResult UniformValueAnalysis::run(
       // The same goes for the atomic builtins as well
       if (CallInst *CI = dyn_cast<CallInst>(&I)) {
         if (Function *Callee = CI->getCalledFunction()) {
-          auto const Builtin = BI.analyzeBuiltin(*Callee);
+          const auto Builtin = BI.analyzeBuiltin(*Callee);
           if (Builtin.properties & compiler::utils::eBuiltinPropertyAtomic) {
             Res.markVaryingValues(&I);
             continue;

@@ -2,8 +2,8 @@ diff --git a/include/refsi_hal.h b/include/refsi_hal.h
 index cd2667c..e16389d 100644
 --- a/include/refsi_hal.h
 +++ b/include/refsi_hal.h
-@@ -79,7 +79,8 @@ class refsi_hal_device : public hal::hal_device_t {
-   bool populateSchedulingInfo(exec_state_t &exec,
+@@ -103,7 +103,8 @@ class refsi_hal_device : public hal::hal_device_t {
+   bool populateSchedulingInfo(wg_info_t &wg,
                                const hal::hal_ndrange_t &range,
                                uint32_t work_dim);
 -  hal::hal_addr_t allocateKUB(const exec_state_t &exec,
@@ -16,18 +16,18 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index bfa1488..3a22b6f 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -6,6 +6,7 @@
- 
- #include <memory>
- 
-+#include "arg_pack.h"
- #include "elf_loader.h"
+@@ -18,6 +18,7 @@
+
+ #include <string.h>
  #include "refsi_command_buffer.h"
- 
-@@ -76,7 +77,9 @@ bool refsi_hal_device::populateSchedulingInfo(exec_state_t &exec,
++#include "arg_pack.h"
+
+ // Default memory area for storing kernel ELF binaries. When the RefSi device
+ // does not have dedicated (TCIM) memory for storing kernel exeutables, a memory
+@@ -95,7 +96,9 @@ bool refsi_hal_device::populateSchedulingInfo(wg_info_t &wg,
    return true;
  }
- 
+
 -hal::hal_addr_t refsi_hal_device::allocateKUB(const exec_state_t &exec,
 +hal::hal_addr_t refsi_hal_device::allocateKUB(const hal::hal_arg_t *args,
 +                                              uint32_t num_args,
@@ -35,10 +35,10 @@ index bfa1488..3a22b6f 100644
                                                hal::hal_size_t &kub_desc,
                                                hal::hal_size_t &tsd_info) {
    auto alignBuffer = [](std::vector<uint8_t> &buffer, uint64_t align) {
-@@ -85,6 +88,15 @@ hal::hal_addr_t refsi_hal_device::allocateKUB(const exec_state_t &exec,
+@@ -104,6 +107,15 @@ hal::hal_addr_t refsi_hal_device::allocateKUB(const exec_state_t &exec,
    };
    std::vector<uint8_t> kub_data;
- 
+
 +  // Pack arguments.
 +  hal::util::hal_argpack_t packer(64);
 +  if (!packer.build(args, num_args)) {
@@ -51,7 +51,7 @@ index bfa1488..3a22b6f 100644
    // Pack work-group scheduling info into the KUB.
    uint64_t sched_offset = kub_data.size();
    uint64_t sched_size = sizeof(exec_state_t);
-@@ -132,8 +144,10 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -153,8 +165,10 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
      return false;
    }
    hal::hal_size_t kub_desc = 0;
@@ -63,7 +63,7 @@ index bfa1488..3a22b6f 100644
    if (!kub_addr) {
      return false;
    }
-@@ -144,6 +158,7 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -165,6 +179,7 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
    cb.addWRITE_REG64(CMP_REG_ENTRY_PT_FN, kernel_wrapper->symbol);
    cb.addWRITE_REG64(CMP_REG_RETURN_ADDR, elf->find_symbol("kernel_exit"));
    cb.addWRITE_REG64(CMP_REG_KUB_DESC, kub_desc);

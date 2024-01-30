@@ -60,9 +60,9 @@ TEST_P(CreateBinaryTest, CreateBinary) {
   nd_range_options.descriptors_length = 0;
   size_t local_size[]{1, 1, 1};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
-  size_t global_offset = 1;
+  const size_t global_offset = 1;
   nd_range_options.global_offset = &global_offset;
-  size_t global_size = 1;
+  const size_t global_size = 1;
   nd_range_options.global_size = &global_size;
   nd_range_options.dimensions = 1;
 
@@ -105,15 +105,15 @@ struct CompileOptionsTest : CompilerModuleTest {
       auto tuple = cargo::split(option, ",");
       ASSERT_EQ(3, tuple.size());
 
-      cargo::string_view arg_name = tuple[0];
+      const cargo::string_view arg_name = tuple[0];
       ASSERT_TRUE(arg_name.starts_with("--"));
       ASSERT_EQ(cargo::string_view::npos,
                 arg_name.find_first_of(" \t\n\v\f\r"));
 
-      cargo::string_view takes_value = tuple[1];
+      const cargo::string_view takes_value = tuple[1];
       ASSERT_TRUE(takes_value == "1" || takes_value == "0");
 
-      cargo::string_view help = tuple[2];
+      const cargo::string_view help = tuple[2];
       ASSERT_EQ(cargo::string_view::npos, help.find_first_of("\t\n\v\f\r"));
 
       BuildOption build_option = {
@@ -221,7 +221,7 @@ struct SerializeModuleTest : CompilerModuleTest {
     RETURN_ON_SKIP_OR_FATAL_FAILURE(CompilerModuleTest::SetUp());
 
     // Compile a program, but don't finalize it yet.
-    cargo::string_view kernel_source = "kernel void nop(){}";
+    const cargo::string_view kernel_source = "kernel void nop(){}";
     ASSERT_EQ(compiler::Result::SUCCESS,
               module->compileOpenCLC(
                   mux::detectOpenCLProfile(compiler_info->device_info),
@@ -250,7 +250,7 @@ TEST_P(SerializeModuleTest, DeserializeFailure) {
 }
 
 TEST_P(SerializeModuleTest, SerializeIntermediate) {
-  size_t size = module->size();
+  const size_t size = module->size();
   ASSERT_GT(size, 0);
 
   std::vector<uint8_t> buffer;
@@ -283,7 +283,7 @@ TEST_P(SerializeModuleTest, SerializeLibraryThenLink) {
         target->createModule(num_errors, log);
     ASSERT_NE(library_module, nullptr);
 
-    cargo::string_view library_source = "void library_func(){}";
+    const cargo::string_view library_source = "void library_func(){}";
     ASSERT_EQ(compiler::Result::SUCCESS,
               library_module->compileOpenCLC(
                   mux::detectOpenCLProfile(compiler_info->device_info),
@@ -294,7 +294,7 @@ TEST_P(SerializeModuleTest, SerializeLibraryThenLink) {
     EXPECT_EQ(module->getState(), compiler::ModuleState::LIBRARY);
   }
 
-  size_t size = module->size();
+  const size_t size = module->size();
   ASSERT_GT(size, 0);
 
   std::vector<uint8_t> buffer;
@@ -322,7 +322,7 @@ TEST_P(SerializeModuleTest, SerializeFinalized) {
   std::vector<builtins::printf::descriptor> printf_calls;
   ASSERT_EQ(compiler::Result::SUCCESS, module->finalize(nullptr, printf_calls));
 
-  size_t size = module->size();
+  const size_t size = module->size();
   ASSERT_GT(size, 0);
 
   std::vector<uint8_t> buffer;

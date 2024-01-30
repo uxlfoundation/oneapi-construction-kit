@@ -24,6 +24,7 @@
 #include <spirv/unified1/spirv.hpp>
 
 #include <algorithm>
+#include <unordered_set>
 
 spirv_ll::ModuleHeader::ModuleHeader(llvm::ArrayRef<uint32_t> code)
     : code(code), endianSwap(code[0] == cargo::byte_swap(MAGIC)) {}
@@ -65,14 +66,14 @@ spirv_ll::Module::Module(
       sourceMetadataString(),
       CompileUnit(nullptr),
       File(nullptr),
-      CurrentOpLineRange(std::nullopt),
       LoopControl(),
       specInfo(specInfo),
       PushConstantStructVariable(nullptr),
       PushConstantStructID{},
       WorkgroupSize({{1, 1, 1}}),
       BufferSizeArray(nullptr),
-      deferredSpecConstantOps() {}
+      deferredSpecConstantOps(),
+      ImplicitDebugScopes(true) {}
 
 spirv_ll::Module::Module(spirv_ll::Context &context,
                          llvm::ArrayRef<uint32_t> code)
@@ -90,14 +91,14 @@ spirv_ll::Module::Module(spirv_ll::Context &context,
       sourceMetadataString(),
       CompileUnit(nullptr),
       File(nullptr),
-      CurrentOpLineRange(std::nullopt),
       LoopControl(),
       specInfo(),
       PushConstantStructVariable(nullptr),
       PushConstantStructID{},
       WorkgroupSize({{1, 1, 1}}),
       BufferSizeArray(nullptr),
-      deferredSpecConstantOps() {}
+      deferredSpecConstantOps(),
+      ImplicitDebugScopes(true) {}
 
 void spirv_ll::Module::associateExtendedInstrSet(spv::Id id,
                                                  ExtendedInstrSet iset) {
@@ -132,7 +133,7 @@ const spirv_ll::OpEntryPoint *spirv_ll::Module::getEntryPoint(
   return found != EntryPoints.end() ? found->getSecond() : nullptr;
 }
 
-void spirv_ll::Module::replaceID(OpResult const *Op, llvm::Value *V) {
+void spirv_ll::Module::replaceID(const OpResult *Op, llvm::Value *V) {
   auto found = Values.find(Op->IdResult());
   if (found != Values.end()) {
     Values.erase(found);
@@ -223,28 +224,6 @@ std::optional<std::string> spirv_ll::Module::getDebugString(spv::Id id) const {
   return std::nullopt;
 }
 
-void spirv_ll::Module::setCurrentOpLineRange(
-    const LineRangeBeginTy &range_begin) {
-  CurrentOpLineRange = range_begin;
-}
-
-void spirv_ll::Module::closeCurrentOpLineRange() { CurrentOpLineRange.reset(); }
-
-void spirv_ll::Module::addCompleteOpLineRange(
-    llvm::DILocation *location,
-    std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range) {
-  OpLineRanges[location].push_back(range);
-}
-
-spirv_ll::Module::OpLineRangeMap &spirv_ll::Module::getOpLineRanges() {
-  return OpLineRanges;
-}
-
-std::optional<spirv_ll::Module::LineRangeBeginTy>
-spirv_ll::Module::getCurrentOpLineRange() const {
-  return CurrentOpLineRange;
-}
-
 void spirv_ll::Module::addLexicalBlock(llvm::BasicBlock *b_block,
                                        llvm::DILexicalBlock *lex_block) {
   LexicalBlocks.insert({b_block, lex_block});
@@ -254,6 +233,14 @@ llvm::DILexicalBlock *spirv_ll::Module::getLexicalBlock(
     llvm::BasicBlock *block) const {
   auto found = LexicalBlocks.find(block);
   return found != LexicalBlocks.end() ? found->getSecond() : nullptr;
+}
+
+bool spirv_ll::Module::useImplicitDebugScopes() const {
+  return ImplicitDebugScopes;
+}
+
+void spirv_ll::Module::disableImplicitDebugScopes() {
+  ImplicitDebugScopes = false;
 }
 
 void spirv_ll::Module::addDebugFunctionScope(
@@ -362,14 +349,14 @@ void spirv_ll::Module::addMemberDecoration(spv::Id structType, uint32_t member,
                                            const OpDecorateBase *op) {
   auto iter = MemberDecorations.find(structType);
   if (iter == MemberDecorations.end()) {
-    llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
+    const llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
     DecoratedStruct newDecoratedStruct;
     newDecoratedStruct.try_emplace(member, decorations);
     MemberDecorations.try_emplace(structType, newDecoratedStruct);
   } else {
     auto member_iter = iter->second.find(member);
     if (member_iter == iter->second.end()) {
-      llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
+      const llvm::SmallVector<const OpDecorateBase *, 2> decorations({op});
       iter->second.try_emplace(member, decorations);
     } else {
       member_iter->second.push_back(op);
@@ -487,7 +474,7 @@ llvm::Type *spirv_ll::Module::getBlockType(const spv::Id id) const {
   }
 }
 
-bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Value *V) {
+bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op, llvm::Value *V) {
   // If the ID has a name attached to it, try to set it here if it wasn't
   // already set. reference might not have been able to take a name (e.g., if
   // it was a undef/poison constant).
@@ -614,7 +601,7 @@ llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
 }
 
 llvm::Error spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
-  spv::Id type_id = op->Type();
+  const spv::Id type_id = op->Type();
   SPIRV_LL_ASSERT(!isForwardPointer(type_id), "type_id is a forward pointer");
   llvm::Type *type = getLLVMType(type_id);
   SPIRV_LL_ASSERT_PTR(type);
@@ -672,7 +659,8 @@ llvm::Error spirv_ll::Module::updateIncompletePointer(spv::Id type_id) {
 
 void spirv_ll::Module::addSampledImage(spv::Id id, llvm::Value *image,
                                        llvm::Value *sampler) {
-  Module::SampledImage sampledImage = Module::SampledImage(image, sampler);
+  const Module::SampledImage sampledImage =
+      Module::SampledImage(image, sampler);
   SampledImagesMap.insert({id, sampledImage});
 }
 
@@ -681,7 +669,7 @@ spirv_ll::Module::SampledImage spirv_ll::Module::getSampledImage(
   return SampledImagesMap.lookup(id);
 }
 
-bool spirv_ll::Module::addID(spv::Id id, OpCode const *Op, llvm::Type *T) {
+bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op, llvm::Type *T) {
   // SSA form forbids the reassignment of IDs
   auto existing = Types.find(id);
   if (existing != Types.end() && existing->second.Type != nullptr) {
@@ -792,4 +780,32 @@ spirv_ll::Module::getGlobalArgs() const {
   }
 
   return globals;
+}
+
+const std::string &spirv_ll::Module::getModuleProcess() const {
+  return ModuleProcess;
+}
+
+void spirv_ll::Module::setModuleProcess(const std::string &str) {
+  ModuleProcess = str;
+}
+
+bool spirv_ll::Module::isOpExtInst(
+    spv::Id id, const std::unordered_set<uint32_t> &opcodes,
+    const std::unordered_set<ExtendedInstrSet> &sets) const {
+  const auto *op = get_or_null<OpExtInst>(id);
+  if (!op) {
+    return false;
+  }
+  if (!sets.count(getExtendedInstrSet(op->Set()))) {
+    return false;
+  }
+  return opcodes.count(op->Instruction());
+}
+
+bool spirv_ll::Module::isOpExtInst(
+    spv::Id id, uint32_t opcode,
+    const std::unordered_set<ExtendedInstrSet> &sets) const {
+  const std::unordered_set<uint32_t> opcodes = {opcode};
+  return isOpExtInst(id, opcodes, sets);
 }

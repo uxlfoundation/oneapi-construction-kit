@@ -194,7 +194,7 @@ TEST_F(Execution, Task_04_11_Byval_Struct) {
     my_struct ms = {2, 1, 2};
 
     kts::Reference1D<cl_int> refOut = [&ms](size_t idx) {
-      cl_int x = kts::Ref_Identity(idx);
+      const cl_int x = kts::Ref_Identity(idx);
       return (x * ms.foo) + (ms.bar * ms.gee);
     };
 
@@ -237,7 +237,7 @@ struct Validator<SampleBuffer> {
 
 TEST_F(Execution, Task_04_13_Struct_Offset) {
   if (clspvSupported_) {
-    cl_int numChannels = 2;
+    const cl_int numChannels = 2;
     cl_int channelID = 1;
     kts::Reference1D<SampleBuffer> refOut = [&channelID](size_t x) {
       SampleBuffer buffer;

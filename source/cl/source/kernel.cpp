@@ -54,7 +54,7 @@ mux_ndrange_options_t _cl_kernel::createKernelExecutionOptions(
       new mux_descriptor_info_t[printf ? num_arguments + 1 : num_arguments]);
 
   for (size_t i = 0; i < num_arguments; i++) {
-    _cl_kernel::argument &arg = saved_args[i];
+    const _cl_kernel::argument &arg = saved_args[i];
     switch (arg.stype) {
       case _cl_kernel::argument::storage_type::local_memory: {
         descriptors[i].type = mux_descriptor_info_type_shared_local_buffer;
@@ -238,7 +238,7 @@ cl_int PushExecuteKernel(
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &local_work_size,
     const cl_uint num_events_in_wait_list,
     const cl_event *const event_wait_list, cl_event return_event) {
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
@@ -268,7 +268,8 @@ cl_int PushExecuteKernel(
 
   auto &device_program = kernel->program->programs[command_queue->device];
 
-  mux_allocator_info_t mux_allocator = command_queue->device->mux_allocator;
+  const mux_allocator_info_t mux_allocator =
+      command_queue->device->mux_allocator;
 
   // create the printf buffer argument if necessary
   mux_buffer_t printf_buffer = nullptr;
@@ -276,9 +277,9 @@ cl_int PushExecuteKernel(
   size_t num_groups = 0;
   size_t buffer_group_size = 0;
   if (device_program.printf_calls.size() != 0) {
-    cl_int err = createPrintfBuffer(device, local_work_size, global_work_size,
-                                    num_groups, buffer_group_size,
-                                    printf_memory, printf_buffer);
+    const cl_int err = createPrintfBuffer(
+        device, local_work_size, global_work_size, num_groups,
+        buffer_group_size, printf_memory, printf_buffer);
     if (err) {
       if (nullptr != return_event) {
         return_event->complete(CL_OUT_OF_RESOURCES);
@@ -289,7 +290,7 @@ cl_int PushExecuteKernel(
 
   std::unique_ptr<mux_descriptor_info_t[]> descriptor_info_storage;
   const cl_uint device_index = kernel->program->context->getDeviceIndex(device);
-  mux_ndrange_options_t mux_execution_options =
+  const mux_ndrange_options_t mux_execution_options =
       kernel->createKernelExecutionOptions(
           command_queue->device, device_index, work_dim, local_work_size,
           global_work_offset, global_work_size, printf_buffer,
@@ -556,8 +557,9 @@ MuxKernelWrapper::getLocalSizeForSubGroupCount(size_t sub_group_count) const {
   } else {
     std::array<size_t, 3> local_size;
     const auto error = muxQueryLocalSizeForSubGroupCount(
-        precompiled_kernel, sub_group_count, &local_size[0], &local_size[1],
-        &local_size[2]);
+        precompiled_kernel, sub_group_count,
+        &local_size[0],  // NOLINT(readability-container-data-pointer)
+        &local_size[1], &local_size[2]);
     if (error) {
       return cargo::make_unexpected(cl::getErrorFrom(error));
     }
@@ -801,7 +803,7 @@ _cl_kernel::argument::~argument() {
 CL_API_ENTRY cl_kernel CL_API_CALL cl::CreateKernel(cl_program program,
                                                     const char *kernel_name,
                                                     cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateKernel");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateKernel");
   OCL_CHECK(!program, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_PROGRAM);
             return nullptr);
 
@@ -861,7 +863,7 @@ CL_API_ENTRY cl_kernel CL_API_CALL cl::CreateKernel(cl_program program,
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainKernel(cl_kernel kernel) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainKernel");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainKernel");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
   kernel->program->num_external_kernels++;
@@ -869,7 +871,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::RetainKernel(cl_kernel kernel) {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseKernel(cl_kernel kernel) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseKernel");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseKernel");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
   kernel->program->num_external_kernels--;
@@ -880,7 +882,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArg(cl_kernel kernel,
                                                  cl_uint arg_index,
                                                  size_t arg_size,
                                                  const void *arg_value) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clSetKernelArg");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clSetKernelArg");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
   OCL_CHECK(arg_index >= kernel->info->getNumArguments(),
@@ -1076,7 +1078,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetKernelArg(cl_kernel kernel,
 CL_API_ENTRY cl_int CL_API_CALL
 cl::CreateKernelsInProgram(cl_program program, cl_uint num_kernels,
                            cl_kernel *kernels, cl_uint *num_kernels_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateKernelsInProgram");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateKernelsInProgram");
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
 
   for (auto device : program->context->devices) {
@@ -1110,7 +1112,7 @@ cl::CreateKernelsInProgram(cl_program program, cl_uint num_kernels,
 CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelInfo(
     cl_kernel kernel, cl_kernel_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelInfo");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
 #define KERNEL_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)                  \
@@ -1222,7 +1224,7 @@ cl_kernel_arg_type_qualifier convertKernelArgTypeQualifier(std::uint32_t type) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelArgInfo(
     cl_kernel kernel, cl_uint arg_indx, cl_kernel_arg_info param_name,
     size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelArgInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelArgInfo");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
   OCL_CHECK(!kernel->GetArgInfo(), return CL_KERNEL_ARG_INFO_NOT_AVAILABLE);
   OCL_CHECK(arg_indx > kernel->info->getNumArguments(),
@@ -1310,7 +1312,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelWorkGroupInfo(
     cl_kernel kernel, cl_device_id device_id,
     cl_kernel_work_group_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelWorkGroupInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetKernelWorkGroupInfo");
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
   OCL_CHECK(
       nullptr == device_id && kernel->program->context->devices.size() > 1,
@@ -1504,7 +1506,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
     const size_t *global_work_offset, const size_t *global_work_size,
     const size_t *local_work_size, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueNDRangeKernel");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueNDRangeKernel");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
   OCL_CHECK(!(kernel->program), return CL_INVALID_PROGRAM_EXECUTABLE);
@@ -1568,6 +1570,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
   cl_event return_event = nullptr;
   cl_int error = 0;
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
+  // We need to lock the context for the remainder of the function as we need to
+  // ensure any blocking operations such clMemBlockingFreeINTEL are entirely in
+  // sync as createBlockingEventForKernel adds to USM lists assuming that they
+  // reflect already queued events.
+  const std::lock_guard<std::mutex> context_guard(
+      command_queue->context->usm_mutex);
   error = extension::usm::createBlockingEventForKernel(
       command_queue, kernel, CL_COMMAND_NDRANGE_KERNEL, return_event);
   OCL_CHECK(error != CL_SUCCESS, return error);
@@ -1616,7 +1624,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueTask(cl_command_queue command_queue,
                                                 cl_uint num_events_in_wait_list,
                                                 const cl_event *event_wait_list,
                                                 cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueTask");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueTask");
   // Redmine issue 5014
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
@@ -1643,6 +1651,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueTask(cl_command_queue command_queue,
 
   cl_event return_event = nullptr;
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
+  // We need to lock the context for the remainder of the function as we need to
+  // ensure any blocking operations such clMemBlockingFreeINTEL are entirely in
+  // sync as createBlockingEventForKernel adds to USM lists assuming that they
+  // reflect already queued events.
+  const std::lock_guard<std::mutex> context_guard(
+      command_queue->context->usm_mutex);
   error = extension::usm::createBlockingEventForKernel(
       command_queue, kernel, CL_COMMAND_TASK, return_event);
   OCL_CHECK(error != CL_SUCCESS, return error);
@@ -1694,7 +1708,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNativeKernel(
     void *args, size_t cb_args, cl_uint num_mem_objects, const cl_mem *mem_list,
     const void *const *args_mem_loc, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueNativeKernel");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueNativeKernel");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!user_func, return CL_INVALID_VALUE);
   OCL_CHECK(!args && cb_args > 0, return CL_INVALID_VALUE);

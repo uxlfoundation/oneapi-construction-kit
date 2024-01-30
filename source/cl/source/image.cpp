@@ -103,7 +103,7 @@ _cl_mem_image::~_cl_mem_image() {
 CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
     cl_context context, cl_mem_flags flags, const cl_image_format *image_format,
     const cl_image_desc *image_desc, void *host_ptr, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateImage");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   cl_int error = cl::validate::ImageSupportForAnyDevice(context);
@@ -145,7 +145,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
   cl_mem optional_parent = nullptr;
 
   // Translate image descriptor to core expected values.
-  uint32_t width = image_desc->image_width;
+  const uint32_t width = image_desc->image_width;
   uint32_t height = image_desc->image_height;
   uint32_t depth = image_desc->image_depth;
   uint32_t arrayLayers = 0;
@@ -154,7 +154,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
     default:  // NOTE: Already validated, case will never be hit.
     case CL_MEM_OBJECT_IMAGE1D_ARRAY:
       arrayLayers = image_desc->image_array_size;
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_MEM_OBJECT_IMAGE1D:
     case CL_MEM_OBJECT_IMAGE1D_BUFFER:
       height = 1;
@@ -164,7 +164,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
       break;
     case CL_MEM_OBJECT_IMAGE2D_ARRAY:
       arrayLayers = image_desc->image_array_size;
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     case CL_MEM_OBJECT_IMAGE2D:
       depth = 1;
       imageType = mux_image_type_2d;
@@ -176,7 +176,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
 
   // NOTE: Construct mux_image_format_e value out of cl_channel_order and
   // cl_channel_type values, see documentation.
-  mux_image_format_e imageFormat = static_cast<mux_image_format_e>(
+  const mux_image_format_e imageFormat = static_cast<mux_image_format_e>(
       image_format->image_channel_order |
       (image_format->image_channel_data_type << 16));
 
@@ -225,7 +225,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
       // TODO: Can you actually create an image 1D buffer from a sub-buffer?
       offset = buffer->offset;
     } else {
-      cl_int error = image->allocateMemory(
+      const cl_int error = image->allocateMemory(
           device->mux_device, mux_image->memory_requirements.supported_heaps,
           device->mux_allocator, &image->mux_memories[index]);
       OCL_CHECK(error, OCL_SET_IF_NOT_NULL(errcode_ret, error); return nullptr);
@@ -249,7 +249,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
 
       memcpy(data, host_ptr, mux_image->memory_requirements.size);
 
-      mux_result_t error =
+      const mux_result_t error =
           muxFlushMappedMemoryToDevice(device->mux_device, mux_memory, offset,
                                        mux_image->memory_requirements.size);
       if (mux_success != error ||
@@ -268,7 +268,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetSupportedImageFormats(
     cl_context context, cl_mem_flags flags, cl_mem_object_type image_type,
     cl_uint num_entries, cl_image_format *image_formats,
     cl_uint *num_image_formats) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetSupportedImageFormats");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetSupportedImageFormats");
   (void)image_type;
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
   OCL_CHECK(!num_entries && image_formats, return CL_INVALID_VALUE);
@@ -351,7 +351,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetSupportedImageFormats(
       // Contract the cl_image_format from a mux_image_format_e which is
       // defined as the cl_channel_order in the lower 16 bits and the
       // cl_channel_type in the upper 16 bits of the 32 bit value..
-      cl_image_format newImageFormat = {
+      const cl_image_format newImageFormat = {
           static_cast<cl_channel_order>(muxImageFormat & 0xffff),
           static_cast<cl_channel_type>((muxImageFormat & 0xffff0000) >> 16)};
 
@@ -400,7 +400,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadImage(
     const size_t *origin, const size_t *region, size_t row_pitch,
     size_t slice_pitch, void *ptr, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueReadImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueReadImage");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!command_queue->device->image_support, return CL_INVALID_OPERATION);
   OCL_CHECK(!(command_queue->context), return CL_INVALID_CONTEXT);
@@ -446,7 +446,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadImage(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -500,7 +500,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteImage(
     const size_t *origin, const size_t *region, size_t input_row_pitch,
     size_t input_slice_pitch, const void *ptr, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWriteImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWriteImage");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!command_queue->device->image_support, return CL_INVALID_OPERATION);
   OCL_CHECK(!(command_queue->context), return CL_INVALID_CONTEXT);
@@ -547,7 +547,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteImage(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -600,7 +600,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueFillImage(
     cl_command_queue command_queue, cl_mem image_, const void *fill_color,
     const size_t *origin, const size_t *region, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueFillImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueFillImage");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   cl_int error = cl::validate::FillImageArguments(command_queue, image_,
@@ -621,7 +621,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueFillImage(
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -660,7 +660,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyImage(
     const size_t *src_origin, const size_t *dst_origin, const size_t *region,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyImage");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   cl_int error = cl::validate::CopyImageArguments(
@@ -681,7 +681,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyImage(
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -730,7 +730,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyImageToBuffer(
     const size_t *src_origin, const size_t *region, size_t dst_offset,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyImageToBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyImageToBuffer");
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   cl_int error = cl::validate::CopyImageToBufferArguments(
@@ -752,7 +752,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyImageToBuffer(
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -798,7 +798,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyBufferToImage(
     size_t src_offset, const size_t *dst_origin, const size_t *region,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyBufferToImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyBufferToImage");
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   cl_int error = cl::validate::CopyBufferToImageArguments(
@@ -820,7 +820,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyBufferToImage(
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -867,7 +867,7 @@ CL_API_ENTRY void *CL_API_CALL cl::EnqueueMapImage(
     size_t *image_row_pitch, size_t *image_slice_pitch,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMapImage");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMapImage");
   // TODO: Extract commonalities with clEnqueueMapBuffer and call into them
   //       from both functions.
 
@@ -1038,7 +1038,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetImageInfo(cl_mem image,
                                                  size_t param_value_size,
                                                  void *param_value,
                                                  size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetImageInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetImageInfo");
   OCL_CHECK(!image, return CL_INVALID_MEM_OBJECT);
 #define IMAGE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)              \
   case TYPE: {                                                       \
@@ -1107,7 +1107,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage2D(
     cl_context context, cl_mem_flags flags, const cl_image_format *image_format,
     size_t image_width, size_t image_height, size_t image_row_pitch,
     void *host_ptr, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateImage2D");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateImage2D");
   const cl_int pre12Flags = ValidatePreOpenCL12MemoryFlags(flags);
   OCL_CHECK(pre12Flags, OCL_SET_IF_NOT_NULL(errcode_ret, pre12Flags);
             return nullptr);
@@ -1140,7 +1140,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage3D(
     size_t image_width, size_t image_height, size_t image_depth,
     size_t image_row_pitch, size_t image_slice_pitch, void *host_ptr,
     cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateImage3D");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateImage3D");
   const cl_int pre12Flags = ValidatePreOpenCL12MemoryFlags(flags);
   OCL_CHECK(pre12Flags, OCL_SET_IF_NOT_NULL(errcode_ret, pre12Flags);
             return nullptr);

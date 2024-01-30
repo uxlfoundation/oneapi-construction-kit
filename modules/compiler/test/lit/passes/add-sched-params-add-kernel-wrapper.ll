@@ -23,7 +23,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; CHECK: define internal void @add.mux-sched-wrapper(ptr readonly %in, ptr byval(i32) %s, ptr [[WIATTRS:noalias nonnull align 8 dereferenceable\(40\)]] %wi-info, ptr [[WGATTRS:noalias nonnull align 8 dereferenceable\(104\)]] %wg-info) [[SCHED_ATTRS:#[0-9]+]] !mux_scheduled_fn [[SCHED_MD:\![0-9]+]] {
 
-; CHECK: define void @add.mux-kernel-wrapper(ptr %packed-args, ptr [[WGATTRS]] %wg-info) [[WRAPPER_ATTRS:#[0-9]+]] !mux_scheduled_fn [[WRAPPER_MD:\![0-9]+]] {
+; CHECK: define void @add.mux-kernel-wrapper(ptr noundef nonnull dereferenceable(12) %packed-args, ptr [[WGATTRS]] %wg-info) [[WRAPPER_ATTRS:#[0-9]+]] !mux_scheduled_fn [[WRAPPER_MD:\![0-9]+]] {
 ; Check we're initializing the work-item info on the stack
 ; CHECK: %wi-info = alloca %MuxWorkItemInfo, align 8
 ; Check we're calling the original kernel, passing through the scheduling

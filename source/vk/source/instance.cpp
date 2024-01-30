@@ -101,8 +101,8 @@ VkResult CreateInstance(const VkInstanceCreateInfo *pCreateInfo,
     if (device_info->address_capabilities &
         (mux_address_capabilities_bits32 | mux_address_capabilities_bits64)) {
       VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
-      VkMemoryHeap heap = {device_info->memory_size,
-                           VK_MEMORY_HEAP_DEVICE_LOCAL_BIT};
+      const VkMemoryHeap heap = {device_info->memory_size,
+                                 VK_MEMORY_HEAP_DEVICE_LOCAL_BIT};
 
       deviceMemoryProperties.memoryHeapCount = 1;
       deviceMemoryProperties.memoryHeaps[0] = heap;

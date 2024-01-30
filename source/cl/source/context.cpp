@@ -131,7 +131,7 @@ compiler::Context *_cl_context::getCompilerContext() {
 }
 
 compiler::Target *_cl_context::getCompilerTarget(const cl_device_id device) {
-  std::lock_guard<std::mutex> guard{compiler_targets_mutex};
+  const std::lock_guard<std::mutex> guard{compiler_targets_mutex};
 
   auto it = compiler_targets.find(device);
   if (it != compiler_targets.end()) {
@@ -211,7 +211,7 @@ cl_int parseProperties(const cl_context_properties *properties,
   cl_platform_id platformid = nullptr;
 
   uint32_t length = 0;
-  cl_context_properties const *property = properties;
+  const cl_context_properties *property = properties;
   while (0 != property[0]) {
     switch (property[0]) {
       case CL_CONTEXT_PLATFORM:
@@ -252,7 +252,7 @@ CL_API_ENTRY cl_context CL_API_CALL cl::CreateContext(
     const cl_device_id *devices,
     void(CL_CALLBACK *pfn_notify)(const char *, const void *, size_t, void *),
     void *user_data, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateContext");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateContext");
   uint32_t length = 0;
   cl_platform_id platform = nullptr;
   if (auto error = parseProperties(properties, length, platform)) {
@@ -316,7 +316,7 @@ CL_API_ENTRY cl_context CL_API_CALL cl::CreateContextFromType(
     const cl_context_properties *properties, cl_device_type device_type,
     void(CL_CALLBACK *pfn_notify)(const char *, const void *, size_t, void *),
     void *user_data, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateContextFromType");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateContextFromType");
   uint32_t length = 0;
   cl_platform_id platform = nullptr;
   if (auto error = parseProperties(properties, length, platform)) {
@@ -363,14 +363,14 @@ CL_API_ENTRY cl_context CL_API_CALL cl::CreateContextFromType(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainContext(cl_context context) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainContext");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainContext");
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
 
   return cl::retainExternal(context);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseContext(cl_context context) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseContext");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseContext");
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
 
   return cl::releaseExternal(context);
@@ -379,7 +379,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseContext(cl_context context) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetContextInfo(
     cl_context context, cl_context_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetContextInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetContextInfo");
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
 
   switch (param_name) {

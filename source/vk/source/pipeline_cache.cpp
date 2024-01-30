@@ -44,13 +44,7 @@ cargo::error_or<cached_shader> cached_shader::clone() const {
   } else {
     return clone_descriptor_bindings.error();
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(clone);
-#else
   return clone;
-#endif
 }
 
 bool cached_shader::operator==(const cached_shader &other) const {
@@ -77,7 +71,7 @@ VkResult CreatePipelineCache(vk::device device,
   }
 
   if (pCreateInfo->initialDataSize) {
-    size_t header_size =
+    const size_t header_size =
         static_cast<const uint32_t *>(pCreateInfo->pInitialData)[0];
 
     const uint32_t *cache_header =
@@ -169,7 +163,8 @@ VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
   }
 
   for (uint32_t cacheIndex = 0; cacheIndex < srcCacheCount; cacheIndex++) {
-    for (cached_shader &cachedShader : src_caches[cacheIndex]->cache_entries) {
+    for (const cached_shader &cachedShader :
+         src_caches[cacheIndex]->cache_entries) {
       if (std::find(dstCache->cache_entries.begin(),
                     dstCache->cache_entries.end(),
                     cachedShader) == dstCache->cache_entries.end()) {
@@ -191,7 +186,7 @@ VkResult MergePipelineCaches(vk::device device, vk::pipeline_cache dstCache,
 VkResult GetPipelineCacheData(vk::device device,
                               vk::pipeline_cache pipelineCache,
                               size_t *pDataSize, void *pData) {
-  uint32_t header_size = 16 + VK_UUID_SIZE;
+  const uint32_t header_size = 16 + VK_UUID_SIZE;
 
   if (!pData) {
     size_t data_size = header_size;

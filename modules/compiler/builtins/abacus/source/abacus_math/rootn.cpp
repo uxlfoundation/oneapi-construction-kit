@@ -37,8 +37,7 @@ struct helper<T, abacus_half> {
 
     const T x_minus_one = x - 1.0f;
 
-    return x_minus_one *
-           abacus::internal::horner_polynomial<T, 7>(x, polynomial);
+    return x_minus_one * abacus::internal::horner_polynomial(x, polynomial);
   }
 
   static T refinement(const T x) {
@@ -47,7 +46,7 @@ struct helper<T, abacus_half> {
     const abacus_half polynomial[4] = {1.0f16, 0.693359375f16, 0.234375f16,
                                        7.177734375e-2f16};
 
-    return abacus::internal::horner_polynomial<T, 4>(x, polynomial);
+    return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 #endif  // __CA_BUILTINS_HALF_SUPPORT
@@ -62,8 +61,7 @@ struct helper<T, abacus_float> {
 
     const T x_minus_one = x - 1.0f;
 
-    return x_minus_one *
-           abacus::internal::horner_polynomial<T, 7>(x, polynomial);
+    return x_minus_one * abacus::internal::horner_polynomial(x, polynomial);
   }
 
   static T refinement(const T x) {
@@ -71,7 +69,7 @@ struct helper<T, abacus_float> {
         .999999925066056f,    .693153073167932f,    .240153617206963f,
         .558263175864784e-1f, .898934063766142e-2f, .187757646702639e-2f};
 
-    return abacus::internal::horner_polynomial<T, 6>(x, polynomial);
+    return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 
@@ -95,7 +93,7 @@ struct helper<T, abacus_double> {
     const T x_minus_one = x - 1.0;
 
     return x_minus_one *
-           abacus::internal::horner_polynomial<T, 19>(x_minus_one, polynomialD);
+           abacus::internal::horner_polynomial(x_minus_one, polynomialD);
   }
 
   static T refinement(const T x) {
@@ -112,7 +110,7 @@ struct helper<T, abacus_double> {
                                           0.6641338398972727973820141e-8,
                                           0.6109234053107283700972839e-9};
 
-    return abacus::internal::horner_polynomial<T, 12>(x, polynomial);
+    return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -135,8 +133,8 @@ inline T rootn(
 
   const IntVecType nFudged = __abacus_select(n, 1, n == 0);
 
-  IntVecType initial_guess = xExp / nFudged;  // int divide
-  xExp -= (initial_guess * n);                // xExp = xExp (mod n) basically
+  const IntVecType initial_guess = xExp / nFudged;  // int divide
+  xExp -= (initial_guess * n);  // xExp = xExp (mod n) basically
 
   T sum = (log2_xMant + abacus::detail::cast::convert<T>(xExp)) /
           abacus::detail::cast::convert<T>(nFudged);

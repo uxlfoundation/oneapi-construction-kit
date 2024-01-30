@@ -39,14 +39,14 @@ cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
   // endianness
   // 1 = Little Endian
   // 2 = Big Endian
-  uint8_t endianness = header_start[4];
+  const uint8_t endianness = header_start[4];
   if (!(endianness == MD_ENDIAN::LITTLE || endianness == MD_ENDIAN::BIG)) {
     return cargo::make_unexpected("Invalid Endian Format.");
   }
   header.endianness = endianness;
 
   // Version - only v1 is supported
-  uint8_t version = header_start[5];
+  const uint8_t version = header_start[5];
   if (version != 1) {
     return cargo::make_unexpected("Invalid Version.");
   }
@@ -57,7 +57,7 @@ cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
   header.pad_unused_[1] = 0x00;
 
   // Block List Offset
-  uint32_t block_list_offset =
+  const uint32_t block_list_offset =
       read_value<uint32_t>(&header_start[8], header.endianness);
   if (block_list_offset < 16 || block_list_offset >= bin_size) {
     return cargo::make_unexpected("Invalid block-list offset.");
@@ -65,7 +65,7 @@ cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
   header.block_list_offset = block_list_offset;
 
   // N_blocks
-  uint32_t n_blocks =
+  const uint32_t n_blocks =
       read_value<uint32_t>(&header_start[12], header.endianness);
   header.n_blocks = n_blocks;
   return md_err::MD_SUCCESS;
@@ -87,8 +87,9 @@ cargo::expected<int, std::string> decode_md_block_info(
     uint8_t *block_info_start, const CAMD_Header &header,
     CAMD_BlockInfo &block_info, size_t bin_size) {
   // read the offset
-  uint64_t offset = read_value<uint64_t>(block_info_start, header.endianness);
-  size_t min_valid_block_offset =
+  const uint64_t offset =
+      read_value<uint64_t>(block_info_start, header.endianness);
+  const size_t min_valid_block_offset =
       header.block_list_offset + (MD_BLOCK_INFO_SIZE * header.n_blocks);
   if (offset < min_valid_block_offset) {
     return cargo::make_unexpected("Invalid block offset value.");
@@ -96,7 +97,7 @@ cargo::expected<int, std::string> decode_md_block_info(
   block_info.offset = offset;
 
   // read the size
-  uint64_t block_size =
+  const uint64_t block_size =
       read_value<uint64_t>(&block_info_start[8], header.endianness);
   if (block_info.offset + block_size > bin_size) {
     return cargo::make_unexpected("Invalid Block size");
@@ -104,7 +105,7 @@ cargo::expected<int, std::string> decode_md_block_info(
   block_info.size = block_size;
 
   // read the name_idx
-  uint32_t name_idx =
+  const uint32_t name_idx =
       read_value<uint32_t>(&block_info_start[16], header.endianness);
   if (name_idx > header.block_list_offset) {
     return cargo::make_unexpected("Invalid name index value.");
@@ -112,7 +113,7 @@ cargo::expected<int, std::string> decode_md_block_info(
   block_info.name_idx = name_idx;
 
   // read the flags
-  uint32_t flags =
+  const uint32_t flags =
       read_value<uint32_t>(&block_info_start[20], header.endianness);
   if (!(get_enc(flags).has_value() || get_fmt(flags).has_value())) {
     return cargo::make_unexpected("Invalid flags field.");
@@ -152,7 +153,7 @@ namespace {
 /// @tparam T The specific integral type.
 /// @param val The value to be serialized.
 /// @param output The output byte-array to which the bytes are written.
-template <class T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+template <class T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 void serialize_int(T val, std::vector<uint8_t> &output, uint8_t endianness) {
   T out_val = read_value<T>(reinterpret_cast<uint8_t *>(&val), endianness);
   auto width = sizeof(T);

@@ -46,7 +46,7 @@ int main(const int argc, const char **argv) {
                            &device_version_length));
   std::string device_version(device_version_length, '\0');
   CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_VERSION, device_version_length,
-                           &device_version[0], nullptr));
+                           device_version.data(), nullptr));
 
   // The device version string must be of the form
   // OpenCL<space><major_version.minor_version><space><vendor-specific

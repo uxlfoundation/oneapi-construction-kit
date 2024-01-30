@@ -40,13 +40,13 @@ bool isImageType(llvm::StringRef type_name, const char *const compare) {
     return true;
   }
 
-  llvm::StringRef ro = "__read_only ";
-  if (type_name.startswith(ro) && type_name.substr(ro.size()) == compare) {
+  const llvm::StringRef ro = "__read_only ";
+  if (type_name.starts_with(ro) && type_name.substr(ro.size()) == compare) {
     return true;
   }
 
-  llvm::StringRef wo = "__write_only ";
-  if (type_name.startswith(wo) && type_name.substr(wo.size()) == compare) {
+  const llvm::StringRef wo = "__write_only ";
+  if (type_name.starts_with(wo) && type_name.substr(wo.size()) == compare) {
     return true;
   }
 
@@ -283,8 +283,9 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
       [[maybe_unused]] const auto type_name = metadata->getString();
       auto Dim =
           TgtTy->getIntParameter(utils::tgtext::ImageTyDimensionalityIdx);
-      bool Arrayed = TgtTy->getIntParameter(utils::tgtext::ImageTyArrayedIdx) ==
-                     utils::tgtext::ImageArrayed;
+      const bool Arrayed =
+          TgtTy->getIntParameter(utils::tgtext::ImageTyArrayedIdx) ==
+          utils::tgtext::ImageArrayed;
       switch (Dim) {
         default:
           CPL_ABORT("Unknown spirv.Image target extension type");
@@ -518,7 +519,7 @@ cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
     for (uint32_t j = 1; j < node->getNumOperands(); ++j) {
       llvm::MDNode *const mdNode =
           llvm::cast<llvm::MDNode>(node->getOperand(j));
-      llvm::StringRef mdName =
+      const llvm::StringRef mdName =
           llvm::cast<llvm::MDString>(mdNode->getOperand(0))->getString();
 
       for (uint32_t k = 1; k < mdNode->getNumOperands(); ++k) {
@@ -556,7 +557,7 @@ cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
         } else if ("kernel_arg_access_qual" == mdName) {
           llvm::MDString *const accessQual =
               llvm::cast<llvm::MDString>(mdNode->getOperand(k));
-          llvm::StringRef access_qual_string = accessQual->getString();
+          const llvm::StringRef access_qual_string = accessQual->getString();
           if ("none" == access_qual_string) {
             info.access_qual = KernelArgAccess::NONE;
           } else if ("read_only" == access_qual_string) {
@@ -587,7 +588,7 @@ cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
 
           info.type_qual = KernelArgType::NONE;
 
-          llvm::StringRef typeAsString = typeQual->getString();
+          const llvm::StringRef typeAsString = typeQual->getString();
 
           if (typeAsString.find("const") != llvm::StringRef::npos) {
             info.type_qual |= KernelArgType::CONST;

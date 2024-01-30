@@ -47,7 +47,8 @@ inline T multiply_exact_unsafe(const T x, const T y, T *out_remainder) {
 
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
 
-  typename TypeTraits<UnsignedType>::ElementType mask = Helper<UnsignedType>::m;
+  const typename TypeTraits<UnsignedType>::ElementType mask =
+      Helper<UnsignedType>::m;
 
   const T x_hi = abacus::detail::cast::as<T>(
       abacus::detail::cast::as<UnsignedType>(x) & mask);

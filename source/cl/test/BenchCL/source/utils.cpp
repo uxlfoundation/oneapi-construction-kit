@@ -56,8 +56,8 @@ cl_uint benchcl::get_device(cargo::string_view device_name,
     CHECK(clGetDeviceInfo(dev, CL_DEVICE_NAME, 0, nullptr, &size));
 
     std::string name(size, '\0');
-    CHECK(
-        clGetDeviceInfo(dev, CL_DEVICE_NAME, name.length(), &name[0], nullptr));
+    CHECK(clGetDeviceInfo(dev, CL_DEVICE_NAME, name.length(), name.data(),
+                          nullptr));
 
     names.push_back(name);
     if (name == device_name) {
@@ -75,7 +75,7 @@ cl_uint benchcl::get_device(cargo::string_view device_name,
   }
 
   fprintf(stderr, "Available devices:\n");
-  for (std::string &name : names) {
+  for (const std::string &name : names) {
     fprintf(stderr, "  - '%s'\n", name.c_str());
   }
 

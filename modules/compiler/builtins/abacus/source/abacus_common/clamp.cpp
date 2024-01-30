@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                                  \
-  TYPE __abacus_clamp(TYPE x, TYPE y, TYPE z) {    \
-    return abacus::detail::common::clamp(x, y, z); \
+#define DEF(TYPE)                                          \
+  TYPE ABACUS_API __abacus_clamp(TYPE x, TYPE y, TYPE z) { \
+    return abacus::detail::common::clamp(x, y, z);         \
   }
-#define DEF2(TYPE, TYPE2)                          \
-  TYPE __abacus_clamp(TYPE x, TYPE2 y, TYPE2 z) {  \
-    return abacus::detail::common::clamp(x, y, z); \
+#define DEF2(TYPE, TYPE2)                                    \
+  TYPE ABACUS_API __abacus_clamp(TYPE x, TYPE2 y, TYPE2 z) { \
+    return abacus::detail::common::clamp(x, y, z);           \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

@@ -103,7 +103,7 @@ void StdoutCapture::CaptureStdout() {
   ASSERT_TRUE(stdout_tmp != NULL);
 
   original_fd = DUP(fileno(stdout));
-  int redirect_fd = DUP2(fileno(stdout_tmp), fileno(stdout));
+  const int redirect_fd = DUP2(fileno(stdout_tmp), fileno(stdout));
   ASSERT_NE(-1, original_fd);
   ASSERT_NE(-1, redirect_fd);
 }
@@ -111,7 +111,7 @@ void StdoutCapture::CaptureStdout() {
 void StdoutCapture::RestoreStdout() {
   ASSERT_EQ(0, std::fflush(stdout));
 
-  int restored_fd = DUP2(original_fd, fileno(stdout));
+  const int restored_fd = DUP2(original_fd, fileno(stdout));
   ASSERT_NE(-1, restored_fd);  // If this has failed stdout is not restored.
   original_fd = -1;
 }

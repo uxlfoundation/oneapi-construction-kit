@@ -72,12 +72,12 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
 
 #if !defined(_MSC_VER)
   // On 'nix, check that the source is readable and the destination is writeable
-  int null_fd = open("/dev/null", O_WRONLY);
-  int zero_fd = open("/dev/zero", O_RDONLY);
+  const int null_fd = open("/dev/null", O_WRONLY);
+  const int zero_fd = open("/dev/zero", O_RDONLY);
 
   // Only read src if opened "/dev/null" successfully
   if (null_fd >= 0) {
-    size_t write_count = static_cast<size_t>(write(null_fd, src, count));
+    const size_t write_count = static_cast<size_t>(write(null_fd, src, count));
     close(null_fd);
     if (write_count != count) {
       (void)fprintf(stderr, "memcpy (called from kernel) out-of-bounds read\n");
@@ -87,7 +87,7 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
 
   // Only write zeros if opening "/dev/zero" was successful
   if (zero_fd >= 0) {
-    size_t read_count = static_cast<size_t>(read(zero_fd, dest, count));
+    const size_t read_count = static_cast<size_t>(read(zero_fd, dest, count));
     close(zero_fd);
     if (read_count != count) {
       (void)fprintf(stderr,
@@ -104,16 +104,16 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
 }
 
 void *dbg_memset(void *dest, int ch, size_t count) {
-  unsigned char c = static_cast<unsigned char>(ch);
+  const unsigned char c = static_cast<unsigned char>(ch);
   unsigned char *d = reinterpret_cast<unsigned char *>(dest);
 
 #if !defined(_MSC_VER)
   // On 'nix, check that the destination is writeable
-  int zero_fd = open("/dev/zero", O_RDONLY);
+  const int zero_fd = open("/dev/zero", O_RDONLY);
 
   // Only write zeros if opening "/dev/zero" was successful
   if (zero_fd >= 0) {
-    size_t cnt = static_cast<size_t>(read(zero_fd, dest, count));
+    const size_t cnt = static_cast<size_t>(read(zero_fd, dest, count));
     close(zero_fd);
     if (count != cnt) {
       (void)fprintf(stderr,

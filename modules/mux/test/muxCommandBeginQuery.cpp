@@ -118,8 +118,8 @@ struct muxCommandBeginQueryCounterTest : DeviceTest {
     ASSERT_SUCCESS(muxGetSupportedQueryCounters(device, mux_queue_type_compute,
                                                 count, counters.data(), nullptr,
                                                 nullptr));
-    mux_query_counter_config_t counter_config = {counters[query_index].uuid,
-                                                 nullptr};
+    const mux_query_counter_config_t counter_config = {
+        counters[query_index].uuid, nullptr};
     ASSERT_SUCCESS(muxCreateQueryPool(queue, mux_query_type_counter,
                                       query_count, &counter_config, allocator,
                                       &query_pool));

@@ -115,5 +115,12 @@ set(abacus_math_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/tanh.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/tanpi.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/tgamma.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/trunc.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/trunc.cpp)
+set(abacus_math_sources_host ${abacus_math_sources}
+  ${CMAKE_CURRENT_SOURCE_DIR}/inplace_fma.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/inplace_sqrt.cpp
+  PARENT_SCOPE)
+set(abacus_math_sources_device ${abacus_math_sources}
+  ${CMAKE_CURRENT_SOURCE_DIR}/inplace_fma.ll.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/inplace_sqrt.ll.in
   PARENT_SCOPE)

@@ -18,7 +18,7 @@
 #include <abacus/abacus_geometric.h>
 
 #define DEF(TYPE)                                        \
-  TYPE __abacus_fast_normalize(TYPE x) {                 \
+  TYPE ABACUS_API __abacus_fast_normalize(TYPE x) {      \
     return abacus::detail::geometric::fast_normalize(x); \
   }
 

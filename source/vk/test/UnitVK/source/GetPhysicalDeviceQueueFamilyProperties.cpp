@@ -32,7 +32,7 @@ TEST_F(GetPhysicalDeviceQueueFamilyProperties, Default) {
   queueFamilyProperties.resize(propertyCount);
   vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &propertyCount,
                                            queueFamilyProperties.data());
-  for (VkQueueFamilyProperties p : queueFamilyProperties) {
+  for (const auto &p : queueFamilyProperties) {
     ASSERT_TRUE(p.queueCount > 0);
   }
 }
@@ -50,7 +50,7 @@ TEST_F(GetPhysicalDeviceQueueFamilyProperties,
   std::vector<VkQueueFamilyProperties2> queueFamilyProperties2(propertyCount);
   vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice, &propertyCount,
                                             queueFamilyProperties2.data());
-  for (VkQueueFamilyProperties2 p : queueFamilyProperties2) {
+  for (const auto &p : queueFamilyProperties2) {
     ASSERT_TRUE(p.queueFamilyProperties.queueCount > 0);
   }
 }

@@ -27,7 +27,7 @@ llvm::PreservedAnalyses compiler::utils::RenameBuiltinsPass::run(
   constexpr llvm::StringLiteral MuxFnPrefix = "__mux";
 
   for (auto &fn : M.functions()) {
-    if (!fn.getName().startswith(MuxFnPrefix)) {
+    if (!fn.getName().starts_with(MuxFnPrefix)) {
       continue;
     }
     Changed = true;

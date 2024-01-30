@@ -63,7 +63,7 @@ void threadPoolCleanup(void *const v_queue, void *const v_command_buffer,
   }
 
   // Acquire a lock on the queue's mutex.
-  std::lock_guard<std::mutex> lock(queue->mutex);
+  const std::lock_guard<std::mutex> lock(queue->mutex);
 
   for (auto signal_semaphore : command_buffer->signal_semaphores) {
     static_cast<host::semaphore_s *>(signal_semaphore)->signal(terminate);
@@ -125,7 +125,7 @@ void commandCopyBuffer(host::command_info_s *info) {
 
 void commandReadImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_read_image_s const &read = info->read_image_command;
+  const host::command_info_read_image_s &read = info->read_image_command;
 
   auto image = static_cast<host::image_s *>(read.image);
   const size_t origin[3] = {read.offset.x, read.offset.y, read.offset.z};
@@ -143,7 +143,7 @@ void commandReadImage(host::command_info_s *info) {
 
 void commandWriteImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_write_image_s const &write = info->write_image_command;
+  const host::command_info_write_image_s &write = info->write_image_command;
 
   auto image = static_cast<host::image_s *>(write.image);
   size_t origin[3] = {write.offset.x, write.offset.y, write.offset.z};
@@ -161,7 +161,7 @@ void commandWriteImage(host::command_info_s *info) {
 
 void commandFillImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_fill_image_s const &fill = info->fill_image_command;
+  const host::command_info_fill_image_s &fill = info->fill_image_command;
 
   auto image = static_cast<host::image_s *>(fill.image);
 
@@ -194,7 +194,7 @@ void commandCopyImage(host::command_info_s *info) {
 
 void commandCopyImageToBuffer(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
-  host::command_info_copy_image_to_buffer_s const &copy =
+  const host::command_info_copy_image_to_buffer_s &copy =
       info->copy_image_to_buffer_command;
 
   auto srcImage = static_cast<host::image_s *>(copy.src_image);
@@ -315,7 +315,7 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
                                  user_callback->user_data);
 }
 
-CARGO_NODISCARD mux_query_duration_result_t commandBeginQuery(
+[[nodiscard]] mux_query_duration_result_t commandBeginQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
   host::command_info_begin_query_s *const begin_query =
       &(info->begin_query_command);
@@ -326,7 +326,7 @@ CARGO_NODISCARD mux_query_duration_result_t commandBeginQuery(
   return duration_query;
 }
 
-CARGO_NODISCARD mux_query_duration_result_t commandEndQuery(
+[[nodiscard]] mux_query_duration_result_t commandEndQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
   host::command_info_end_query_s *const end_query = &(info->end_query_command);
   if (end_query->pool->type == mux_query_type_duration) {
@@ -509,7 +509,7 @@ mux_result_t queue_s::addGroup(mux_command_buffer_t group, mux_fence_t fence,
                                     hostFence, 0, hostThreadPoolSignal,
                                     &this->runningGroups);
   } else {
-    signal_info_s signal_info{numWaits, fence};
+    const signal_info_s signal_info{numWaits, fence};
     if (signalInfos.emplace_back(group, signal_info)) {
       return mux_error_out_of_memory;
     }
@@ -539,7 +539,7 @@ mux_result_t hostDispatch(
   auto hostQueue = static_cast<host::queue_s *>(queue);
   auto hostFence = static_cast<host::fence_s *>(fence);
 
-  std::lock_guard<std::mutex> guard(hostQueue->mutex);
+  const std::lock_guard<std::mutex> guard(hostQueue->mutex);
 
   // store the semaphores we have to signal into the group
   if (!hostGroup->signal_semaphores.insert(

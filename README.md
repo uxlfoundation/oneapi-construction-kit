@@ -40,7 +40,7 @@ To install the dependencies on Ubuntu, open the terminal and run:
 To install the recommended packages, run:
 ```sh
    $ sudo apt install -y ninja-build doxygen python3-pip
-   $ sudo pip3 install lit virtualenv cmakelint clang-format==16.0.6
+   $ sudo pip3 install lit virtualenv cmakelint clang-format==17.0.6
 ```
 
 ### Compiling oneAPI Construction Kit 

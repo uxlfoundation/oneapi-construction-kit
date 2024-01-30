@@ -118,7 +118,7 @@ void _cl_event::submitted() {
 void _cl_event::running() { command_status = CL_RUNNING; }
 
 void _cl_event::complete(const cl_int status) {
-  std::unique_lock<std::mutex> signal_lock(wait_complete_mutex);
+  const std::unique_lock<std::mutex> signal_lock(wait_complete_mutex);
 
   command_status = status;
 
@@ -156,7 +156,7 @@ void _cl_event::clear() {
   while (!callbacks.empty()) {
     // Work on batches of callbacks to minimize unlocking and locking.
     // Assuming that all callbacks have completed or failed.
-    cargo::small_vector<callback_state_t, 4> callbacks_to_execute =
+    const cargo::small_vector<callback_state_t, 4> callbacks_to_execute =
         std::move(callbacks);
     // Ensure that callbacks are not called more than once.
     callbacks.clear();
@@ -176,7 +176,7 @@ void _cl_event::clear() {
 
 CL_API_ENTRY cl_event CL_API_CALL cl::CreateUserEvent(cl_context context,
                                                       cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateUserEvent");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateUserEvent");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   auto new_event = _cl_event::create(context);
@@ -191,20 +191,20 @@ CL_API_ENTRY cl_event CL_API_CALL cl::CreateUserEvent(cl_context context,
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainEvent(cl_event event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainEvent");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainEvent");
   OCL_CHECK(!event, return CL_INVALID_EVENT);
   return cl::retainExternal(event);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseEvent(cl_event event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseEvent");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseEvent");
   OCL_CHECK(!event, return CL_INVALID_EVENT);
   return cl::releaseExternal(event);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::WaitForEvents(cl_uint num_events,
                                                   const cl_event *event_list) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clWaitForEvents");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clWaitForEvents");
   OCL_CHECK(0 == num_events, return CL_INVALID_VALUE);
   OCL_CHECK(!event_list, return CL_INVALID_VALUE);
 
@@ -239,9 +239,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::WaitForEvents(cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     // if the event belonged to a queue
     if (nullptr != event_list[i]->queue) {
-      std::lock_guard<std::mutex> lock(
+      const std::lock_guard<std::mutex> lock(
           event_list[i]->queue->context->getCommandQueueMutex());
-      cl_int result = event_list[i]->queue->flush();
+      const cl_int result = event_list[i]->queue->flush();
 
       if (CL_SUCCESS != result) {
         return result;
@@ -292,7 +292,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventInfo(cl_event event,
                                                  size_t param_value_size,
                                                  void *param_value,
                                                  size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetEventInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetEventInfo");
   OCL_CHECK(!event, return CL_INVALID_EVENT);
 
   if (CL_EVENT_COMMAND_EXECUTION_STATUS == param_name) {
@@ -340,7 +340,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventInfo(cl_event event,
 CL_API_ENTRY cl_int CL_API_CALL
 cl::SetEventCallback(cl_event event, cl_int command_exec_callback_type,
                      cl::pfn_event_notify_t pfn_event_notify, void *user_data) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clSetEventCallback");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clSetEventCallback");
   OCL_CHECK(!event, return CL_INVALID_EVENT);
   OCL_CHECK(!pfn_event_notify, return CL_INVALID_VALUE);
 
@@ -358,7 +358,7 @@ cl::SetEventCallback(cl_event event, cl_int command_exec_callback_type,
 
 CL_API_ENTRY cl_int CL_API_CALL
 cl::SetUserEventStatus(cl_event event, cl_int execution_status) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clSetUserEventStatus");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clSetUserEventStatus");
   OCL_CHECK(!event, return CL_INVALID_EVENT);
   OCL_CHECK(CL_COMMAND_USER != event->command_type, return CL_INVALID_EVENT);
   OCL_CHECK(CL_COMPLETE < execution_status, return CL_INVALID_VALUE);
@@ -377,7 +377,7 @@ cl::SetUserEventStatus(cl_event event, cl_int execution_status) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
     cl_event event, cl_profiling_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetEventProfilingInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetEventProfilingInfo");
   OCL_CHECK(!event, return CL_INVALID_EVENT);
   OCL_CHECK(CL_COMMAND_USER == event->command_type,
             return CL_PROFILING_INFO_NOT_AVAILABLE);
@@ -449,7 +449,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
     case CL_PROFILING_COMMAND_COMPLETE:
       // Returns a value equivalent to passing CL_PROFILING_COMMAND_END
       // if the device associated with event does not support On-Device Enqueue.
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
 #endif
     case CL_PROFILING_COMMAND_END: {
       mux_query_duration_result_s duration;

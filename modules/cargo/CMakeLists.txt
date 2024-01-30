@@ -56,7 +56,6 @@ add_ca_library(cargo STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/memory.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/mutex.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/optional.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/platform_defines.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/ring_buffer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/small_vector.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/string_algorithm.h

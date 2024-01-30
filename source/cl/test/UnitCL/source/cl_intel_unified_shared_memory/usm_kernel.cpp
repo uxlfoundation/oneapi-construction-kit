@@ -46,17 +46,11 @@ struct USMKernelTest : public cl_intel_unified_shared_memory_Test {
         device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
         sizeof(host_capabilities), &host_capabilities, nullptr));
 
-    cl_int err;
-    if (host_capabilities) {
-      host_ptr = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_NE(host_ptr, nullptr);
-    }
-    device_ptr =
-        clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
-    ASSERT_SUCCESS(err);
-    ASSERT_NE(device_ptr, nullptr);
+    ASSERT_SUCCESS(clGetDeviceInfo(
+        device, CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
+        sizeof(shared_capabilities), &shared_capabilities, nullptr));
 
+    initPointers(bytes, align);
     user_ptr = malloc(bytes);
 
     cl_device_unified_shared_memory_capabilities_intel single_capabilities,
@@ -70,14 +64,6 @@ struct USMKernelTest : public cl_intel_unified_shared_memory_Test {
   }
 
   void TearDown() override {
-    if (device_ptr) {
-      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, device_ptr));
-    }
-
-    if (host_ptr) {
-      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, host_ptr));
-    }
-
     if (user_ptr) {
       free(user_ptr);
     }
@@ -92,15 +78,11 @@ struct USMKernelTest : public cl_intel_unified_shared_memory_Test {
     cl_intel_unified_shared_memory_Test::TearDown();
   }
 
-  cl_device_unified_shared_memory_capabilities_intel host_capabilities = 0;
-
   const size_t elements = 64;
   const size_t bytes = elements * sizeof(cl_int);
   const cl_uint align = sizeof(cl_int);
 
-  void *host_ptr = nullptr;
   void *user_ptr = nullptr;
-  void *device_ptr = nullptr;
 
   cl_kernel kernel = nullptr;
   cl_program program = nullptr;
@@ -139,16 +121,13 @@ TEST_P(USMSetKernelArgMemPointerTest, InvalidUsage) {
   cl_int err = clSetKernelArgMemPointerINTEL(nullptr, 0, device_ptr);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_KERNEL);
 
-  err = clSetKernelArgMemPointerINTEL(kernel, CL_UINT_MAX, device_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_INDEX);
+  for (auto ptr : allPointers()) {
+    err = clSetKernelArgMemPointerINTEL(kernel, CL_UINT_MAX, ptr);
+    EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_INDEX);
 
-  if (host_ptr) {
-    err = clSetKernelArgMemPointerINTEL(kernel, 4, host_ptr);
+    err = clSetKernelArgMemPointerINTEL(kernel, 4, ptr);
     EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_INDEX);
   }
-
-  err = clSetKernelArgMemPointerINTEL(kernel, 4, device_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_INDEX);
 
   // The cl_intel_unified_shared_memory specification has an open question
   // whether invalid pointers should result in an error. We accept this as Intel
@@ -157,41 +136,26 @@ TEST_P(USMSetKernelArgMemPointerTest, InvalidUsage) {
   err = clSetKernelArgMemPointerINTEL(kernel, usm_arg_index, user_ptr);
   ASSERT_SUCCESS(err);
 
-  if (host_ptr) {
-    err = clSetKernelArgMemPointerINTEL(kernel, 2, host_ptr);
+  for (auto ptr : allPointers()) {
+    err = clSetKernelArgMemPointerINTEL(kernel, 2, ptr);
+    EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_VALUE);
+
+    err = clSetKernelArgMemPointerINTEL(kernel, 3, ptr);
     EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_VALUE);
   }
-
-  err = clSetKernelArgMemPointerINTEL(kernel, 2, device_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_VALUE);
-
-  if (host_ptr) {
-    err = clSetKernelArgMemPointerINTEL(kernel, 3, host_ptr);
-    EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_VALUE);
-  }
-
-  err = clSetKernelArgMemPointerINTEL(kernel, 3, device_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_ARG_VALUE);
 }
 
 // Test for valid API usage of clSetKernelArgMemPointerINTEL()
 TEST_P(USMSetKernelArgMemPointerTest, ValidUsage) {
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
-
   cl_uint arg_index = GetParam();
 
-  if (host_ptr) {
-    void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
-    EXPECT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, arg_index, host_ptr));
+  for (auto ptr : allPointers()) {
+    void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int));
+    EXPECT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, arg_index, ptr));
 
     EXPECT_SUCCESS(
-        clSetKernelArgMemPointerINTEL(kernel, arg_index, offset_host_ptr));
+        clSetKernelArgMemPointerINTEL(kernel, arg_index, offset_ptr));
   }
-
-  EXPECT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, arg_index, device_ptr));
-
-  EXPECT_SUCCESS(
-      clSetKernelArgMemPointerINTEL(kernel, arg_index, offset_device_ptr));
 
   EXPECT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, arg_index, nullptr));
 }
@@ -210,12 +174,7 @@ TEST_P(USMSetKernelExecInfoTest, ValidUsage) {
   const cl_kernel_exec_info param_name = GetParam();
 
   if (CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL == param_name) {
-    cargo::small_vector<void *, 2> indirect_usm_pointers;
-    ASSERT_EQ(cargo::success, indirect_usm_pointers.assign({device_ptr}));
-
-    if (host_ptr) {
-      ASSERT_EQ(cargo::success, indirect_usm_pointers.push_back(host_ptr));
-    }
+    cargo::small_vector<void *, 3> indirect_usm_pointers = allPointers();
 
     EXPECT_SUCCESS(
         clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
@@ -243,12 +202,7 @@ TEST_P(USMSetKernelExecInfoTest, InvalidUsage) {
     cl_int err = clSetKernelExecInfo(nullptr, param_name, 0, nullptr);
     EXPECT_EQ_ERRCODE(err, CL_INVALID_KERNEL);
 
-    cargo::small_vector<void *, 2> indirect_usm_pointers;
-    ASSERT_EQ(cargo::success, indirect_usm_pointers.assign({device_ptr}));
-
-    if (host_ptr) {
-      ASSERT_EQ(cargo::success, indirect_usm_pointers.push_back(host_ptr));
-    }
+    cargo::small_vector<void *, 3> indirect_usm_pointers = allPointers();
 
     // Invalid param_value_size
     err = clSetKernelExecInfo(kernel, param_name, 0,
@@ -320,19 +274,17 @@ struct USMVectorAddKernelTest : public USMKernelTest {
 
     cl_int err;
     if (host_capabilities) {
-      host_ptrA = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_NE(host_ptrA, nullptr);
-
       host_ptrB = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
       ASSERT_SUCCESS(err);
       ASSERT_NE(host_ptrB, nullptr);
     }
 
-    device_ptrA =
-        clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
-    ASSERT_SUCCESS(err);
-    ASSERT_NE(device_ptrA, nullptr);
+    if (shared_capabilities) {
+      shared_ptrB =
+          clSharedMemAllocINTEL(context, device, nullptr, bytes, align, &err);
+      ASSERT_SUCCESS(err);
+      ASSERT_NE(shared_ptrB, nullptr);
+    }
 
     device_ptrB =
         clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
@@ -343,6 +295,7 @@ struct USMVectorAddKernelTest : public USMKernelTest {
     ASSERT_SUCCESS(err);
     ASSERT_NE(cl_mem_buffer, nullptr);
 
+    initPointers(bytes, align);
     BuildKernel(source);
 
     queue = clCreateCommandQueue(context, device, 0, &err);
@@ -350,7 +303,7 @@ struct USMVectorAddKernelTest : public USMKernelTest {
     ASSERT_SUCCESS(err);
 
     // Initialize default value of input USM allocations
-    err = clEnqueueMemFillINTEL(queue, device_ptrA, &patternA, sizeof(patternA),
+    err = clEnqueueMemFillINTEL(queue, device_ptr, &patternA, sizeof(patternA),
                                 bytes, 0, nullptr, nullptr);
     ASSERT_SUCCESS(err);
 
@@ -359,7 +312,7 @@ struct USMVectorAddKernelTest : public USMKernelTest {
     ASSERT_SUCCESS(err);
 
     if (host_capabilities) {
-      err = clEnqueueMemFillINTEL(queue, host_ptrA, &patternA, sizeof(patternA),
+      err = clEnqueueMemFillINTEL(queue, host_ptr, &patternA, sizeof(patternA),
                                   bytes, 0, nullptr, nullptr);
       ASSERT_SUCCESS(err);
 
@@ -367,19 +320,25 @@ struct USMVectorAddKernelTest : public USMKernelTest {
                                   bytes, 0, nullptr, nullptr);
       ASSERT_SUCCESS(err);
     }
+
+    if (shared_capabilities) {
+      err = clEnqueueMemFillINTEL(queue, shared_ptr, &patternA,
+                                  sizeof(patternA), bytes, 0, nullptr, nullptr);
+      ASSERT_SUCCESS(err);
+
+      err = clEnqueueMemFillINTEL(queue, shared_ptrB, &patternB,
+                                  sizeof(patternB), bytes, 0, nullptr, nullptr);
+      ASSERT_SUCCESS(err);
+    }
   }
 
   void TearDown() override {
-    if (host_ptrA) {
-      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, host_ptrA));
-    }
-
     if (host_ptrB) {
       EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, host_ptrB));
     }
 
-    if (device_ptrA) {
-      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, device_ptrA));
+    if (shared_ptrB) {
+      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, shared_ptrB));
     }
 
     if (device_ptrB) {
@@ -397,10 +356,9 @@ struct USMVectorAddKernelTest : public USMKernelTest {
     USMKernelTest::TearDown();
   }
 
-  void *host_ptrA = nullptr;
   void *host_ptrB = nullptr;
-  void *device_ptrA = nullptr;
   void *device_ptrB = nullptr;
+  void *shared_ptrB = nullptr;
   cl_mem cl_mem_buffer = nullptr;
 
   cl_command_queue queue = nullptr;
@@ -425,7 +383,7 @@ const cl_int USMVectorAddKernelTest::patternB = 0xA;
 // Two device USM allocation input arguments, and a cl_mem buffer output arg
 TEST_F(USMVectorAddKernelTest, DeviceInputs) {
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
@@ -443,7 +401,7 @@ TEST_F(USMVectorAddKernelTest, HostInputs) {
   }
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, host_ptrB));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
@@ -454,16 +412,15 @@ TEST_F(USMVectorAddKernelTest, HostInputs) {
   verifyOutputBuffer(elements);
 }
 
-// Two USM input arguments, a host and a device allocation, with a cl_mem buffer
-// output argument.
-TEST_F(USMVectorAddKernelTest, HostDeviceInputs) {
-  if (!host_capabilities) {
+// Two shared USM allocation input arguments, and a cl_mem buffer output arg
+TEST_F(USMVectorAddKernelTest, SharedInputs) {
+  if (!shared_capabilities) {
     GTEST_SKIP();
   }
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptrA));
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, shared_ptr));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, shared_ptrB));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
   // Run 1-D kernel with a global size of 'elements'
@@ -471,6 +428,34 @@ TEST_F(USMVectorAddKernelTest, HostDeviceInputs) {
                                         nullptr, 0, nullptr, nullptr));
 
   verifyOutputBuffer(elements);
+}
+
+// Multiple different types for arguments, with a cl_mem buffer output argument.
+TEST_F(USMVectorAddKernelTest, MixedInputs) {
+  const std::array<std::pair<void *, void *>, 6> options{{
+      {host_ptr, device_ptrB},
+      {host_ptr, shared_ptrB},
+      {shared_ptr, device_ptrB},
+      {device_ptr, host_ptrB},
+      {shared_ptr, host_ptrB},
+      {device_ptr, shared_ptrB},
+  }};
+
+  for (auto ptr : options) {
+    if (!ptr.first || !ptr.second) {
+      continue;
+    }
+    // Set kernel arguments
+    ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, ptr.first));
+    ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, ptr.second));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+
+    // Run 1-D kernel with a global size of 'elements'
+    ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
+                                          nullptr, 0, nullptr, nullptr));
+
+    verifyOutputBuffer(elements);
+  }
 }
 
 // Two device USM allocation input arguments, and a host USM allocation output
@@ -481,12 +466,12 @@ TEST_F(USMVectorAddKernelTest, HostOutput) {
   }
 
   // Zero host allocation as it'll be used for output argument
-  std::memset(host_ptrA, 0, bytes);
+  std::memset(host_ptr, 0, bytes);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 2, host_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 2, host_ptr));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -494,7 +479,7 @@ TEST_F(USMVectorAddKernelTest, HostOutput) {
   ASSERT_SUCCESS(clFinish(queue));
 
   // Verify output result
-  const cl_int *output = static_cast<cl_int *>(host_ptrA);
+  const cl_int *output = static_cast<cl_int *>(host_ptr);
   for (size_t i = 0; i < elements; i++) {
     const cl_int reference = patternA + patternB + i;
     ASSERT_EQ(output[i], reference) << " index " << i;
@@ -510,14 +495,42 @@ TEST_F(USMVectorAddKernelTest, OffsetHostInput) {
 
   // Find pointer addressing halfway into the memory allocation
   const size_t half_bytes = bytes / 2;
-  void *offset_host_ptr = getPointerOffset(host_ptrA, half_bytes);
+  void *offset_host_ptr = getPointerOffset(host_ptr, half_bytes);
   ASSERT_SUCCESS(clEnqueueMemFillINTEL(queue, offset_host_ptr, &patternB,
                                        sizeof(patternB), half_bytes, 0, nullptr,
                                        nullptr));
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_host_ptr));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+
+  // Run 1-D kernel with a global size equal to half the number of cl_int
+  // elements in the buffer
+  const size_t half_elements = elements / 2;
+  ASSERT_SUCCESS(clEnqueueNDRangeKernel(
+      queue, kernel, 1, nullptr, &half_elements, nullptr, 0, nullptr, nullptr));
+
+  verifyOutputBuffer(half_elements);
+}
+
+// A single shared USM allocation used across two input arguments, with a cl_mem
+// buffer output argument
+TEST_F(USMVectorAddKernelTest, OffsetSharedInput) {
+  if (!shared_capabilities) {
+    GTEST_SKIP();
+  }
+
+  // Find pointer addressing halfway into the memory allocation
+  const size_t half_bytes = bytes / 2;
+  void *offset_shared_ptr = getPointerOffset(shared_ptr, half_bytes);
+  ASSERT_SUCCESS(clEnqueueMemFillINTEL(queue, offset_shared_ptr, &patternB,
+                                       sizeof(patternB), half_bytes, 0, nullptr,
+                                       nullptr));
+
+  // Set kernel arguments
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, shared_ptr));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_shared_ptr));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
@@ -534,13 +547,13 @@ TEST_F(USMVectorAddKernelTest, OffsetHostInput) {
 TEST_F(USMVectorAddKernelTest, OffsetDeviceInput) {
   // Find pointer addressing halfway into the memory allocation
   const size_t half_bytes = bytes / 2;
-  void *offset_device_ptr = getPointerOffset(device_ptrA, half_bytes);
+  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
   ASSERT_SUCCESS(clEnqueueMemFillINTEL(queue, offset_device_ptr, &patternB,
                                        sizeof(patternB), half_bytes, 0, nullptr,
                                        nullptr));
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
@@ -561,13 +574,13 @@ TEST_F(USMVectorAddKernelTest, OverwriteUSMArg) {
 
   // Find pointer addressing halfway into the memory allocation
   const size_t half_bytes = bytes / 2;
-  void *offset_device_ptr = getPointerOffset(device_ptrA, half_bytes);
+  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
   // Overwrite Pointer arg
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
   // elements in the buffer
@@ -583,7 +596,7 @@ TEST_F(USMVectorAddKernelTest, OverwriteUSMArg) {
 TEST_F(USMVectorAddKernelTest, OverwriteCLMemArg) {
   // Find pointer addressing halfway into the memory allocation
   const size_t half_bytes = bytes / 2;
-  void *offset_device_ptr = getPointerOffset(device_ptrA, half_bytes);
+  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
   ASSERT_SUCCESS(clEnqueueMemFillINTEL(queue, offset_device_ptr, &patternB,
                                        sizeof(patternB), half_bytes, 0, nullptr,
                                        nullptr));
@@ -595,7 +608,7 @@ TEST_F(USMVectorAddKernelTest, OverwriteCLMemArg) {
 
   // Overwrite args
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
   // elements in the buffer
@@ -609,7 +622,7 @@ TEST_F(USMVectorAddKernelTest, OverwriteCLMemArg) {
 // Tests setting kernel arguments without enqueuing the kernel
 TEST_F(USMVectorAddKernelTest, SetArgsWithoutEnqueue) {
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
@@ -617,7 +630,7 @@ TEST_F(USMVectorAddKernelTest, SetArgsWithoutEnqueue) {
   ASSERT_SUCCESS(clReleaseKernel(kernel));
   kernel = nullptr;
 
-  ASSERT_SUCCESS(clEnqueueMemcpyINTEL(queue, CL_TRUE, device_ptrA, device_ptrB,
+  ASSERT_SUCCESS(clEnqueueMemcpyINTEL(queue, CL_TRUE, device_ptr, device_ptrB,
                                       bytes, 0, nullptr, nullptr));
 }
 
@@ -631,11 +644,11 @@ TEST_F(USMVectorAddKernelTest, MultipleKernels) {
 
   // Set original kernel arguments
   const size_t half_bytes = bytes / 2;
-  void *offset_deviceA_ptr = getPointerOffset(device_ptrA, half_bytes);
+  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
   void *offset_deviceB_ptr = getPointerOffset(device_ptrB, half_bytes);
 
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_deviceA_ptr));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
   // Set arguments on new kernel
@@ -668,11 +681,11 @@ TEST_F(USMVectorAddKernelTest, MultipleKernels) {
 TEST_F(USMVectorAddKernelTest, RepeatedEnqueue) {
   // Set kernel arguments
   const size_t half_bytes = bytes / 2;
-  void *offset_deviceA_ptr = getPointerOffset(device_ptrA, half_bytes);
+  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
   void *offset_deviceB_ptr = getPointerOffset(device_ptrB, half_bytes);
 
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_deviceA_ptr));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
@@ -700,7 +713,7 @@ TEST_F(USMVectorAddKernelTest, ClonedKernel) {
   }
 
   // Set arguments on original kernel
-  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrA));
+  ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
 

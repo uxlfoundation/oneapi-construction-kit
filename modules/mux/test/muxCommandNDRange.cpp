@@ -54,10 +54,10 @@ struct muxCommandNDRangeTest : DeviceCompilerTest {
 INSTANTIATE_DEVICE_TEST_SUITE_P(muxCommandNDRangeTest);
 
 TEST_P(muxCommandNDRangeTest, Default) {
-  size_t global_offset[3] = {1, 1, 1};
-  size_t global_size[3] = {1, 1, 1};
+  const size_t global_offset[3] = {1, 1, 1};
+  const size_t global_size[3] = {1, 1, 1};
   size_t local_size[3] = {1, 1, 1};
-  size_t dimensions = 3;
+  const size_t dimensions = 3;
 
   mux_ndrange_options_t nd_range_options{};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
@@ -70,10 +70,10 @@ TEST_P(muxCommandNDRangeTest, Default) {
 }
 
 TEST_P(muxCommandNDRangeTest, InvalidKernel) {
-  size_t global_offset[3] = {1, 1, 1};
-  size_t global_size[3] = {1, 1, 1};
+  const size_t global_offset[3] = {1, 1, 1};
+  const size_t global_size[3] = {1, 1, 1};
   size_t local_size[3] = {1, 1, 1};
-  size_t dimensions = 3;
+  const size_t dimensions = 3;
 
   mux_ndrange_options_t nd_range_options{};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
@@ -89,10 +89,10 @@ TEST_P(muxCommandNDRangeTest, InvalidKernel) {
 }
 
 TEST_P(muxCommandNDRangeTest, InvalidWaitList) {
-  size_t global_offset[3] = {1, 1, 1};
-  size_t global_size[3] = {1, 1, 1};
+  const size_t global_offset[3] = {1, 1, 1};
+  const size_t global_size[3] = {1, 1, 1};
   size_t local_size[3] = {1, 1, 1};
-  size_t dimensions = 3;
+  const size_t dimensions = 3;
 
   mux_ndrange_options_t nd_range_options{};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));
@@ -116,10 +116,10 @@ TEST_P(muxCommandNDRangeTest, InvalidWaitList) {
 }
 
 TEST_P(muxCommandNDRangeTest, Sync) {
-  size_t global_offset[3] = {1, 1, 1};
-  size_t global_size[3] = {1, 1, 1};
+  const size_t global_offset[3] = {1, 1, 1};
+  const size_t global_size[3] = {1, 1, 1};
   size_t local_size[3] = {1, 1, 1};
-  size_t dimensions = 3;
+  const size_t dimensions = 3;
 
   mux_ndrange_options_t nd_range_options{};
   std::memcpy(nd_range_options.local_size, local_size, sizeof(local_size));

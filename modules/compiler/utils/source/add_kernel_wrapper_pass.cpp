@@ -89,11 +89,11 @@ void compiler::utils::AddKernelWrapperPass::createNewFunctionArgTypes(
     // we never go beyond 128
     if (!IsPacked) {
       const auto &datalayout = M.getDataLayout();
-      uint64_t size =
+      const uint64_t size =
           std::max((uint64_t)1,
                    (uint64_t)datalayout.getTypeAllocSizeInBits(addType) / 8);
-      uint32_t alignSize = std::min((uint64_t)128, PowerOf2Ceil(size));
-      uint32_t remainder = index % alignSize;
+      const uint32_t alignSize = std::min((uint64_t)128, PowerOf2Ceil(size));
+      const uint32_t remainder = index % alignSize;
 
       if (remainder) {
         // Add padding
@@ -121,6 +121,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
     Module &M, ModuleAnalysisManager &AM) {
   bool Changed = false;
   SmallPtrSet<Function *, 4> NewKernels;
+  auto &DL = M.getDataLayout();
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 
   const auto &schedParamInfo = BI.getMuxSchedulingParameters(M);
@@ -138,7 +139,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
     SmallVector<Type *, 4> argTypes;
     SmallVector<KernelArgMapping, 4> argMappings;
 
-    std::string packedArgsTyName =
+    const std::string packedArgsTyName =
         (StringRef("MuxPackedArgs.") + getBaseFnNameOrFnName(F)).str();
     auto *const structType =
         StructType::create(F.getContext(), packedArgsTyName);
@@ -166,6 +167,20 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
 
     auto *packedArgPtr = newFunction->getArg(0);
     packedArgPtr->setName("packed-args");
+    // Add some helpful attributes to this argument.
+    // FIXME: Could we also mandate alignment? Can we guarantee noalias on the
+    // packed argument structure but not on the pointers it contains?
+    // If there are no kernel arguments to pack, we don't require the runtime
+    // to pass a valid pointer: it could be null.
+    if (!structType->isEmptyTy()) {
+      // It is invalid for a Mux runtime to pass a null or undef packed argument
+      // struct.
+      packedArgPtr->addAttr(Attribute::NoUndef);
+      packedArgPtr->addAttr(Attribute::NonNull);
+      // The packed argument struct must be fully dereferenceable.
+      packedArgPtr->addAttr(Attribute::getWithDereferenceableBytes(
+          newFunction->getContext(), DL.getTypeAllocSize(structType)));
+    }
 
     assert(packedArgPtr->getType()->isPointerTy() &&
            "First argument should be pointer to the packed args structure");
@@ -175,7 +190,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
 
     for (const auto &argMapping : argMappings) {
       assert(argMapping.OldArgIdx < F.arg_size());
-      Argument &arg = *F.getArg(argMapping.OldArgIdx);
+      const Argument &arg = *F.getArg(argMapping.OldArgIdx);
       Type *const type = arg.getType();
 
       // Copy over parameter names and attributes from directly-mapped mapped
@@ -214,7 +229,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
           structType, packedArgPtr,
           {ir.getInt32(0), ir.getInt32(argMapping.PackedStructFieldIdx)});
       auto &dl = M.getDataLayout();
-      uint32_t alignmentNeeded =
+      const uint32_t alignmentNeeded =
           IsPacked ? 1 : dl.getABITypeAlign(type).value();
       auto llvmAlignment = Align(alignmentNeeded);
 
@@ -230,7 +245,20 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
       } else if (arg.hasByValAttr()) {
         params.push_back(gep);
       } else {
-        params.push_back(ir.CreateAlignedLoad(type, gep, llvmAlignment));
+        auto *arg_load = ir.CreateAlignedLoad(type, gep, llvmAlignment);
+        // If the old argument was marked 'noundef', the result of the load
+        // from it will also be noundef. Use metadata to convey that.
+        if (F.getArg(argMapping.OldArgIdx)->hasAttribute(Attribute::NoUndef)) {
+          MDNode *md = MDNode::get(newFunction->getContext(), std::nullopt);
+          arg_load->setMetadata(LLVMContext::MD_noundef, md);
+        }
+        // If the old argument was marked 'nonnull', the result of the load
+        // from it will also be nonnull. Use metadata to convey that.
+        if (F.getArg(argMapping.OldArgIdx)->hasAttribute(Attribute::NonNull)) {
+          MDNode *md = MDNode::get(newFunction->getContext(), std::nullopt);
+          arg_load->setMetadata(LLVMContext::MD_nonnull, md);
+        }
+        params.push_back(arg_load);
       }
       // Set the name to help readability
       params.back()->setName(arg.getName());

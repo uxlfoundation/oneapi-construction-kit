@@ -23,14 +23,15 @@
 TEST(UtilsTest, ReadValueBigEndianUint32) {
   // 4321 in BIG-ENDIAN -> uint32
   uint8_t val[] = {0x00, 0x00, 0x10, 0xe1};
-  uint32_t read_val = md::utils::read_value<uint32_t>(&val[0], MD_ENDIAN::BIG);
+  const uint32_t read_val =
+      md::utils::read_value<uint32_t>(&val[0], MD_ENDIAN::BIG);
   EXPECT_EQ(read_val, 4321);
 }
 
 TEST(UtilsTest, ReadValueLittleEndianUint32) {
   // 15432 in LITTLE-ENDIAN -> uint32
   uint8_t val[] = {0x48, 0x3c, 0x00, 0x00};
-  uint32_t read_val =
+  const uint32_t read_val =
       md::utils::read_value<uint32_t>(&val[0], MD_ENDIAN::LITTLE);
   EXPECT_EQ(read_val, 15432);
 }
@@ -174,7 +175,7 @@ TEST(UtilsTest, SerializeMDHeader) {
   md::utils::serialize_md_header(header, output);
 
   md::CAMD_Header decoded_header;
-  auto decoded = md::utils::decode_md_header(&output[0], decoded_header,
+  auto decoded = md::utils::decode_md_header(output.data(), decoded_header,
                                              output.size() + 1);
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
@@ -190,14 +191,14 @@ TEST(UtilsTest, SerializeMDHeader) {
 }
 
 TEST(UtilsTest, SerializeMDBlockInfo) {
-  md::CAMD_BlockInfo info{120 /* offset */, 20 /* size */, 16 /* name_idx */,
-                          0 /* flags */};
-  uint8_t mach_endianness =
+  const md::CAMD_BlockInfo info{120 /* offset */, 20 /* size */,
+                                16 /* name_idx */, 0 /* flags */};
+  const uint8_t mach_endianness =
       cargo::is_little_endian() ? MD_ENDIAN::LITTLE : MD_ENDIAN::BIG;
   std::vector<uint8_t> output;
   md::utils::serialize_block_info(info, mach_endianness, output);
 
-  md::CAMD_Header test_header{
+  const md::CAMD_Header test_header{
       {md::MD_MAGIC_0, md::MD_MAGIC_1, md::MD_MAGIC_2,
        md::MD_MAGIC_3} /* MAGIC */,
       cargo::is_little_endian() ? MD_ENDIAN::LITTLE : MD_ENDIAN::BIG,
@@ -207,7 +208,7 @@ TEST(UtilsTest, SerializeMDBlockInfo) {
       static_cast<uint32_t>(0) /*n_blocks*/};
 
   md::CAMD_BlockInfo decoded_info;
-  auto decoded = md::utils::decode_md_block_info(&output[0], test_header,
+  auto decoded = md::utils::decode_md_block_info(output.data(), test_header,
                                                  decoded_info, 200);
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
@@ -219,7 +220,7 @@ TEST(UtilsTest, SerializeMDBlockInfo) {
 }
 
 TEST(UtilsTest, GetFlags) {
-  uint32_t flags =
+  const uint32_t flags =
       md::utils::get_flags(md_fmt::MD_FMT_LLVM_TEXT_MD, md_enc::MD_ENC_ZLIB);
   // LLVM_TEXT  = 0x04
   // ZLIB       = 0x01
@@ -230,7 +231,7 @@ TEST(UtilsTest, GetFlags) {
 }
 
 TEST(UtilsTest, GetEnc) {
-  uint32_t flags =
+  const uint32_t flags =
       md::utils::get_flags(md_fmt::MD_FMT_LLVM_TEXT_MD, md_enc::MD_ENC_ZLIB);
   auto enc = md::utils::get_enc(flags);
   EXPECT_TRUE(enc.has_value());
@@ -238,7 +239,7 @@ TEST(UtilsTest, GetEnc) {
 }
 
 TEST(UtilsTest, GetFmt) {
-  uint32_t flags =
+  const uint32_t flags =
       md::utils::get_flags(md_fmt::MD_FMT_LLVM_TEXT_MD, md_enc::MD_ENC_ZLIB);
   auto fmt = md::utils::get_fmt(flags);
   EXPECT_TRUE(fmt.has_value());
@@ -246,7 +247,7 @@ TEST(UtilsTest, GetFmt) {
 }
 
 TEST(UtilsTest, InvalidFlags) {
-  uint32_t inv_flags =
+  const uint32_t inv_flags =
       md::utils::get_flags(md_fmt::MD_FMT_MAX_, md_enc::MD_ENC_MAX_);
 
   auto enc = md::utils::get_enc(inv_flags);

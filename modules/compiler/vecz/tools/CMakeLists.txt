@@ -23,5 +23,5 @@ llvm_map_components_to_libnames(llvm_libs all ${LLVM_TARGETS_TO_BUILD})
 # LLVM 8 adds these invalid libraries to the list, remove them to avoid
 # attempting to link against LTO-NOTFOUND and OptRemarks-NOTFOUND.
 list(REMOVE_ITEM llvm_libs LTO OptRemarks)
-target_link_libraries(veczc PUBLIC vecz multi_llvm compiler-utils ${llvm_libs})
+target_link_libraries(veczc PUBLIC vecz multi_llvm compiler-pipeline ${llvm_libs})
 install(TARGETS veczc RUNTIME DESTINATION bin COMPONENT VECZ)

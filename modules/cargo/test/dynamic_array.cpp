@@ -22,7 +22,7 @@
 #include <vector>
 
 TEST(dynamic_array, construct_default) {
-  cargo::dynamic_array<int> d;
+  const cargo::dynamic_array<int> d;
   ASSERT_EQ(0u, d.size());
 }
 

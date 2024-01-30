@@ -29,11 +29,12 @@ namespace internal {
 template <typename T>
 inline typename TypeTraits<T>::SignedType floor_unsafe(const T &x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
-  SignedType truncated = abacus::detail::cast::convert<SignedType>(x);
+  const SignedType truncated = abacus::detail::cast::convert<SignedType>(x);
   T diff = __abacus_fabs(x - abacus::detail::cast::convert<T>(truncated));
 
-  SignedType condition = __abacus_isgreater(diff, 0) & __abacus_isless(x, 0);
-  SignedType decremented = truncated - 1;
+  const SignedType condition =
+      __abacus_isgreater(diff, 0) & __abacus_isless(x, 0);
+  const SignedType decremented = truncated - 1;
   return __abacus_select(truncated, decremented, condition);
 }
 }  // namespace internal

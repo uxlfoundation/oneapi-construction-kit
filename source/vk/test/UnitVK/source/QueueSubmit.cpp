@@ -105,7 +105,7 @@ TEST_F(QueueSubmit, DefaultWaitSemaphore) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkQueueWaitIdle(queue));
 
-  VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+  const VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
   submitInfo.signalSemaphoreCount = 0;
   submitInfo.pSignalSemaphores = nullptr;

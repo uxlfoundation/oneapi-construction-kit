@@ -70,6 +70,9 @@ inputs:
   enable_rvv_scalable_VP_vecz_check:
     description: "Enable RVV scalable vecz VP check (default OFF)"
     default: OFF
+  install_dir:
+    description: "Install directory for OCK"
+    default: install
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -104,6 +107,7 @@ runs:
               -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vecz_check }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vp_vecz_check }}
+              -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }}
                ${{ inputs.extra_flags }}
               .      
     - name: build_ock

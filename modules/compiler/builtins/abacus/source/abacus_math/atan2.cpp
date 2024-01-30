@@ -33,7 +33,7 @@ struct helper<T, abacus_float> {
         -0.142035440289f,    +0.106405958967f,    -0.750364848983e-1f,
         +0.426844903103e-1f, -0.160645730104e-1f, +0.284892648503e-2f};
 
-    return x * abacus::internal::horner_polynomial<T, 9>(x * x, polynomial);
+    return x * abacus::internal::horner_polynomial(x * x, polynomial);
   }
 };
 
@@ -54,7 +54,7 @@ static ABACUS_CONSTANT abacus_double polynomialD[19] = {
 template <typename T>
 struct helper<T, abacus_double> {
   static T _(const T x) {
-    return x * abacus::internal::horner_polynomial<T, 19>(x * x, polynomialD);
+    return x * abacus::internal::horner_polynomial(x * x, polynomialD);
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -124,7 +124,7 @@ T atan2_half(const T y, const T x) {
 
   const T x2 = ratio * ratio;
 
-  T ans = ratio * abacus::internal::horner_polynomial<T, 5>(x2, _atan2H);
+  T ans = ratio * abacus::internal::horner_polynomial(x2, _atan2H);
 
   T pi_multiplication_factor = 0.0f16;
 
@@ -213,8 +213,7 @@ abacus_half atan2_half(const abacus_half y, const abacus_half x) {
 
   const abacus_half x2 = ratio * ratio;
 
-  abacus_half ans =
-      ratio * abacus::internal::horner_polynomial<abacus_half, 5>(x2, _atan2H);
+  abacus_half ans = ratio * abacus::internal::horner_polynomial(x2, _atan2H);
 
   abacus_half pi_multiplication_factor = 0.0f16;
 

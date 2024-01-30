@@ -40,7 +40,7 @@ bool isKernel(const Function &F) {
 }
 
 bool isKernelEntryPt(const Function &F) {
-  Attribute Attr = F.getFnAttribute(MuxKernelAttrName);
+  const Attribute Attr = F.getFnAttribute(MuxKernelAttrName);
   if (Attr.isValid()) {
     return Attr.getValueAsString() == "entry-point";
   }
@@ -54,7 +54,7 @@ void takeIsKernel(Function &ToF, Function &FromF) {
     return;
   }
   // Check whether we need to add entry-point data.
-  bool IsEntryPt = isKernelEntryPt(FromF);
+  const bool IsEntryPt = isKernelEntryPt(FromF);
   // Drop all data for simplicity
   dropIsKernel(ToF);
   dropIsKernel(FromF);
@@ -63,7 +63,7 @@ void takeIsKernel(Function &ToF, Function &FromF) {
 }
 
 static StringRef getFnNameFromAttr(const Function &F, StringRef AttrName) {
-  Attribute Attr = F.getFnAttribute(AttrName);
+  const Attribute Attr = F.getFnAttribute(AttrName);
   if (Attr.isValid()) {
     return Attr.getValueAsString();
   }
@@ -97,7 +97,7 @@ StringRef getBaseFnNameOrFnName(const Function &F) {
 }
 
 StringRef getOrSetBaseFnName(Function &F, const Function &SetFromF) {
-  Attribute Attr = F.getFnAttribute(BaseFnNameAttr);
+  const Attribute Attr = F.getFnAttribute(BaseFnNameAttr);
   if (Attr.isValid()) {
     return Attr.getValueAsString();
   }
@@ -122,13 +122,13 @@ static std::optional<int> getStringFnAttrAsInt(const Attribute &Attr) {
 static constexpr const char *LocalMemUsageAttrName = "mux-local-mem-usage";
 
 void setLocalMemoryUsage(Function &F, uint64_t LocalMemUsage) {
-  Attribute Attr = Attribute::get(F.getContext(), LocalMemUsageAttrName,
-                                  itostr(LocalMemUsage));
+  const Attribute Attr = Attribute::get(F.getContext(), LocalMemUsageAttrName,
+                                        itostr(LocalMemUsage));
   F.addFnAttr(Attr);
 }
 
 std::optional<uint64_t> getLocalMemoryUsage(const Function &F) {
-  Attribute Attr = F.getFnAttribute(LocalMemUsageAttrName);
+  const Attribute Attr = F.getFnAttribute(LocalMemUsageAttrName);
   auto Val = getStringFnAttrAsInt(Attr);
   // Only return non-negative integers
   return Val && Val >= 0 ? std::optional<uint64_t>(*Val) : std::nullopt;
@@ -137,13 +137,13 @@ std::optional<uint64_t> getLocalMemoryUsage(const Function &F) {
 static constexpr const char *DMAReqdSizeBytesAttrName = "mux-dma-reqd-size";
 
 void setDMAReqdSizeBytes(Function &F, uint32_t DMASizeBytes) {
-  Attribute Attr = Attribute::get(F.getContext(), DMAReqdSizeBytesAttrName,
-                                  itostr(DMASizeBytes));
+  const Attribute Attr = Attribute::get(
+      F.getContext(), DMAReqdSizeBytesAttrName, itostr(DMASizeBytes));
   F.addFnAttr(Attr);
 }
 
 std::optional<uint32_t> getDMAReqdSizeBytes(const Function &F) {
-  Attribute Attr = F.getFnAttribute(DMAReqdSizeBytesAttrName);
+  const Attribute Attr = F.getFnAttribute(DMAReqdSizeBytesAttrName);
   auto Val = getStringFnAttrAsInt(Attr);
   // Only return non-negative integers
   return Val && Val >= 0 ? std::optional<uint32_t>(*Val) : std::nullopt;
@@ -169,13 +169,13 @@ void setBarrierSchedule(CallInst &CI, BarrierSchedule Sched) {
       break;
   }
 
-  Attribute Attr =
+  const Attribute Attr =
       Attribute::get(CI.getContext(), BarrierScheduleAttrName, Val);
   CI.addFnAttr(Attr);
 }
 
-BarrierSchedule getBarrierSchedule(CallInst const &CI) {
-  Attribute Attr = CI.getFnAttr(BarrierScheduleAttrName);
+BarrierSchedule getBarrierSchedule(const CallInst &CI) {
+  const Attribute Attr = CI.getFnAttr(BarrierScheduleAttrName);
   if (Attr.isValid()) {
     return StringSwitch<BarrierSchedule>(Attr.getValueAsString())
         .Case("once", BarrierSchedule::Once)
@@ -194,7 +194,7 @@ void setHasDegenerateSubgroups(Function &F) {
 }
 
 bool hasDegenerateSubgroups(const Function &F) {
-  Attribute Attr = F.getFnAttribute(MuxDegenerateSubgroupsAttrName);
+  const Attribute Attr = F.getFnAttribute(MuxDegenerateSubgroupsAttrName);
   return Attr.isValid();
 }
 
@@ -205,7 +205,7 @@ void setHasNoExplicitSubgroups(Function &F) {
 }
 
 bool hasNoExplicitSubgroups(const Function &F) {
-  Attribute Attr = F.getFnAttribute(MuxNoSubgroupsAttrName);
+  const Attribute Attr = F.getFnAttribute(MuxNoSubgroupsAttrName);
   return Attr.isValid();
 }
 

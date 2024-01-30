@@ -40,7 +40,7 @@ TEST_F(op_glsl_Quantize_float, BasicCorrectnessTest) {
 TEST_F(op_glsl_Quantize_float, InfInInfOut) {
   // Tests the spec rule "If Value is an infinity, the result is the same
   // infinity.".
-  float arg = std::numeric_limits<float>::infinity();
+  const float arg = std::numeric_limits<float>::infinity();
   auto result = RunWithArgs(arg);
   EXPECT_EQ(arg, result);
 }

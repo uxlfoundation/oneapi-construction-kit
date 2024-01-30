@@ -26,7 +26,7 @@ struct MDStackFinalizeFixture : MDAllocatorTest,
                                 ::testing::WithParamInterface<MD_ENDIAN> {};
 
 TEST_P(MDStackFinalizeFixture, FinalizeValueTypes) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   md_stack_ stack(helper);
   stack.push_unsigned(33);
   stack.push_signed(-33);
@@ -59,7 +59,7 @@ TEST_P(MDStackFinalizeFixture, FinalizeValueTypes) {
 }
 
 TEST_P(MDStackFinalizeFixture, FinalizeArrayHashTypes) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   md_stack_ stack(helper);
 
   auto hash_idx = stack.push_map(1).value();
@@ -89,7 +89,8 @@ TEST_P(MDStackFinalizeFixture, FinalizeArrayHashTypes) {
   auto sint_tmp = md::utils::read_value<uint64_t>(binary_start, endianness);
   auto sint_val = cargo::bit_cast<md_stack_::signed_t>(sint_tmp);
 
-  std::string md_str = std::string(reinterpret_cast<char *>(binary_start + 8));
+  const std::string md_str =
+      std::string(reinterpret_cast<char *>(binary_start + 8));
 
   auto real_tmp =
       md::utils::read_value<uint64_t>(binary_start + 8 + 15, endianness);
@@ -101,8 +102,8 @@ TEST_P(MDStackFinalizeFixture, FinalizeArrayHashTypes) {
 }
 
 TEST_P(MDStackFinalizeFixture, MsgPackTest) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
-  MD_ENDIAN endianness = GetParam();
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const MD_ENDIAN endianness = GetParam();
   md_stack_ stack(helper);
   stack.push_unsigned(1);
   stack.push_unsigned(2);
@@ -115,13 +116,14 @@ TEST_P(MDStackFinalizeFixture, MsgPackTest) {
 
   // attempt to read back the data
   md_stack_ read_stack(helper);
-  md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
+  const md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
   serializer.deserialize(read_stack, binary.data(), binary.size(), endianness);
 
   uint64_t a;
   uint64_t b;
   uint64_t c;
-  int err = md_loadf(static_cast<md_stack>(&read_stack), "uuu", &a, &b, &c);
+  const int err =
+      md_loadf(static_cast<md_stack>(&read_stack), "uuu", &a, &b, &c);
   ASSERT_FALSE(MD_CHECK_ERR(err));
 
   EXPECT_EQ(a, 1);
@@ -130,15 +132,15 @@ TEST_P(MDStackFinalizeFixture, MsgPackTest) {
 }
 
 TEST_P(MDStackFinalizeFixture, MsgPackTestArrays) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   std::vector<uint8_t> binary;
   const char *fmt_str = "[u,f,z]";
-  MD_ENDIAN endianness = GetParam();
+  const MD_ENDIAN endianness = GetParam();
   {
     md_stack_ stack(helper);
-    int err = md_pushf(static_cast<md_stack>(&stack), fmt_str,
-                       static_cast<uint64_t>(3), static_cast<double>(3.141),
-                       "Hello World!!!");
+    const int err = md_pushf(static_cast<md_stack>(&stack), fmt_str,
+                             static_cast<uint64_t>(3),
+                             static_cast<double>(3.141), "Hello World!!!");
     ASSERT_FALSE(MD_CHECK_ERR(err));
 
     // serialize
@@ -148,14 +150,14 @@ TEST_P(MDStackFinalizeFixture, MsgPackTestArrays) {
 
   // deserialize
   md_stack_ read_stack(helper);
-  md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
+  const md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
   serializer.deserialize(read_stack, binary.data(), binary.size(), endianness);
 
   uint64_t load_uint;
   double load_double;
   char *load_str;
-  int err = md_loadf(static_cast<md_stack>(&read_stack), fmt_str, &load_uint,
-                     &load_double, &load_str);
+  const int err = md_loadf(static_cast<md_stack>(&read_stack), fmt_str,
+                           &load_uint, &load_double, &load_str);
   ASSERT_FALSE(MD_CHECK_ERR(err));
   EXPECT_EQ(load_uint, 3);
   EXPECT_EQ(load_double, 3.141);
@@ -164,15 +166,16 @@ TEST_P(MDStackFinalizeFixture, MsgPackTestArrays) {
 }
 
 TEST_P(MDStackFinalizeFixture, MsgPackTestHashTable) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   std::vector<uint8_t> binary;
   const char *fmt_str = "{z:u,u:i}";
-  MD_ENDIAN endianness = GetParam();
+  const MD_ENDIAN endianness = GetParam();
   {
     md_stack_ stack(helper);
-    int err = md_pushf(static_cast<md_stack>(&stack), fmt_str, "Age",
-                       static_cast<uint64_t>(23), static_cast<uint64_t>(42),
-                       static_cast<uint64_t>(-42));
+    const int err =
+        md_pushf(static_cast<md_stack>(&stack), fmt_str, "Age",
+                 static_cast<uint64_t>(23), static_cast<uint64_t>(42),
+                 static_cast<uint64_t>(-42));
     ASSERT_FALSE(MD_CHECK_ERR(err));
 
     // serialize
@@ -182,28 +185,28 @@ TEST_P(MDStackFinalizeFixture, MsgPackTestHashTable) {
 
   // deserialize
   md_stack_ read_stack(helper);
-  md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
+  const md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
   serializer.deserialize(read_stack, binary.data(), binary.size(), endianness);
 
   char *key_1_str;
   uint64_t val_1_uint;
   uint64_t key_2_uint;
   int64_t val_2_int;
-  int err = md_loadf(static_cast<md_stack>(&read_stack), fmt_str, &key_1_str,
-                     &val_1_uint, &key_2_uint, &val_2_int);
+  const int err = md_loadf(static_cast<md_stack>(&read_stack), fmt_str,
+                           &key_1_str, &val_1_uint, &key_2_uint, &val_2_int);
   ASSERT_FALSE(MD_CHECK_ERR(err));
   EXPECT_STREQ(key_1_str, "Age");
   hooks.deallocate(key_1_str, &userdata);
 }
 
 TEST_P(MDStackFinalizeFixture, MsgPackTestComplex) {
-  md::AllocatorHelper<> helper(&hooks, &userdata);
+  const md::AllocatorHelper<> helper(&hooks, &userdata);
   const char *fmt_str = "[{z:z}, z, [z]]";
   std::vector<uint8_t> binary;
-  MD_ENDIAN endianness = GetParam();
+  const MD_ENDIAN endianness = GetParam();
   {
     md_stack_ stack(helper);
-    int err =
+    const int err =
         md_pushf(static_cast<md_stack>(&stack), fmt_str, "A", "B", "C", "D");
     ASSERT_FALSE(MD_CHECK_ERR(err));
     stack.set_out_fmt(md_fmt::MD_FMT_MSGPACK);
@@ -211,13 +214,13 @@ TEST_P(MDStackFinalizeFixture, MsgPackTestComplex) {
   }
 
   md_stack_ read_stack(helper);
-  md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
+  const md::BasicMsgPackStackSerializer<decltype(read_stack)> serializer;
   serializer.deserialize(read_stack, binary.data(), binary.size(), endianness);
   char *a;
   char *b;
   char *c;
   char *d;
-  int err =
+  const int err =
       md_loadf(static_cast<md_stack>(&read_stack), fmt_str, &a, &b, &c, &d);
   ASSERT_FALSE(MD_CHECK_ERR(err));
 

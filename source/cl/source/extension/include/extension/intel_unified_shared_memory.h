@@ -103,6 +103,11 @@ class allocation_info {
   /// @return A matching Mux buffer object on success, or nullptr on failure
   virtual mux_buffer_t getMuxBufferForDevice(cl_device_id device) const = 0;
 
+  /// @brief Return the USM memory type for this allocation
+  ///
+  /// @return The enum variant corresponding to this memory allocation type
+  virtual cl_unified_shared_memory_type_intel getMemoryType() const = 0;
+
   /// @brief Checks if a pointer belongs to USM allocation
   ///
   /// @param[in] ptr Pointer to host memory address.
@@ -139,7 +144,6 @@ class allocation_info {
 
 /// @brief Derived class for host USM allocations
 class host_allocation_info final : public allocation_info {
- private:
   /// @brief Private constructor, use the `create()` functions instead.
   host_allocation_info(const cl_context context, const size_t size);
 
@@ -192,6 +196,13 @@ class host_allocation_info final : public allocation_info {
   /// @return A matching Mux buffer object on success, or nullptr on failure
   mux_buffer_t getMuxBufferForDevice(cl_device_id device) const override;
 
+  /// @brief Return the USM memory type for this allocation
+  ///
+  /// @return The enum variant corresponding to this memory allocation type
+  cl_unified_shared_memory_type_intel getMemoryType() const override {
+    return CL_MEM_TYPE_HOST_INTEL;
+  }
+
   /// @brief Mux memory object bound to every device in the OpenCL context.
   cargo::dynamic_array<mux_memory_t> mux_memories;
 
@@ -201,7 +212,6 @@ class host_allocation_info final : public allocation_info {
 
 /// @brief Derived class for device USM allocations
 class device_allocation_info final : public allocation_info {
- private:
   /// @brief Private constructor, use the `create()` functions instead.
   device_allocation_info(const cl_context context, const cl_device_id device,
                          const size_t size);
@@ -246,7 +256,82 @@ class device_allocation_info final : public allocation_info {
     return query_device == device ? mux_buffer : nullptr;
   };
 
+  /// @brief Return the USM memory type for this allocation
+  ///
+  /// @return The enum variant corresponding to this memory allocation type
+  cl_unified_shared_memory_type_intel getMemoryType() const override {
+    return CL_MEM_TYPE_DEVICE_INTEL;
+  }
+
   /// @brief OpenCL device associated with memory allocation
+  const cl_device_id device;
+  /// @brief Mux memory allocated on device
+  mux_memory_t mux_memory;
+  /// @brief Mux buffer tied to mux_memory
+  mux_buffer_t mux_buffer;
+};
+
+/// @brief Derived class for shared USM allocations
+class shared_allocation_info final : public allocation_info {
+  /// @brief Private constructor, use the `create()` functions instead.
+  shared_allocation_info(const cl_context context, const cl_device_id device,
+                         const size_t size);
+
+  shared_allocation_info(const shared_allocation_info &) = delete;
+
+ public:
+  /// @brief Create a shared USM allocation
+  ///
+  /// @param[in] context Context the allocation will belong to.
+  /// @param[in] device Device associated with this shared allocation, may be
+  /// null to not associate it with a device.
+  /// @param[in] properties Properties bitfield encoding which properties to
+  /// enable.
+  /// @param[in] size Bytes to allocate.
+  /// @param[in] alignment Minimum alignment of allocation.
+  static cargo::expected<std::unique_ptr<shared_allocation_info>, cl_int>
+  create(cl_context context, cl_device_id device,
+         const cl_mem_properties_intel *properties, const size_t size,
+         cl_uint alignment);
+
+  /// @brief Destructor.
+  ~shared_allocation_info() override;
+
+  /// @brief Get device used when allocation was made, or nullptr if no device
+  /// was given
+  cl_device_id getDevice() const override { return device; }
+
+  /// @brief Allocates memory for the USM allocation and binds it to a Mux
+  /// buffer object if a device is associated with this allocation. Sets
+  /// 'mux_memory' and 'mux_buffer' members if bound, otherwise they remain
+  /// nullptr.
+  ///
+  /// @param[in] alignment Minimum alignment in bytes for allocation
+  ///
+  /// @return CL_SUCCESS or an OpenCL error code on failure
+  cl_int allocate(uint32_t alignment) override;
+
+  /// @brief Given an OpenCL device returns the Mux buffer object associated
+  /// with the device for this USM allocation.
+  ///
+  /// @param[in] query_device Device to find a buffer for.
+  ///
+  /// @return A matching Mux buffer object on success, or nullptr on failure
+  mux_buffer_t getMuxBufferForDevice(cl_device_id query_device) const override {
+    if (!device) {
+      return nullptr;
+    }
+    return query_device == device ? mux_buffer : nullptr;
+  };
+
+  /// @brief Return the USM memory type for this allocation
+  ///
+  /// @return The enum variant corresponding to this memory allocation type
+  cl_unified_shared_memory_type_intel getMemoryType() const override {
+    return CL_MEM_TYPE_SHARED_INTEL;
+  }
+
+  /// @brief OpenCL device associated with memory allocation, may be nullptr
   const cl_device_id device;
   /// @brief Mux memory allocated on device
   mux_memory_t mux_memory;
@@ -265,7 +350,7 @@ class device_allocation_info final : public allocation_info {
 /// an OpenCL error code if properties are malformed according to extension
 /// spec.
 cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
-    const cl_mem_properties_intel *properties);
+    const cl_mem_properties_intel *properties, bool is_shared);
 
 /// @brief Finds if a pointer belongs to the memory addresses of any USM memory
 /// allocations existing in the context.
@@ -273,6 +358,7 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
 /// @param[in] context Context containing list of USM allocations to search.
 /// @param[in] ptr Pointer to find an owning USM allocation for.
 ///
+/// @note this is not thread safe and a USM mutex should be used above it.
 /// @return Pointer to matching allocation on success, or nullptr on failure.
 allocation_info *findAllocation(const cl_context context, const void *ptr);
 
@@ -291,6 +377,14 @@ bool deviceSupportsDeviceAllocations(cl_device_id device);
 ///
 /// @return True if device can support host allocations, false otherwise.
 bool deviceSupportsHostAllocations(cl_device_id device);
+
+/// @brief Checks if an OpenCL device can support shared USM allocations, an
+/// optional feature of the extension specification.
+///
+/// @param[in] device OpenCL device to query support for.
+///
+/// @return True if device can support host allocations, false otherwise.
+bool deviceSupportsSharedAllocations(cl_device_id device);
 
 /// @brief Creates an OpenCL event for use by kernel enqueue commands
 /// `clEnqueueNDRangeKernel` and `clEnqueueTask`.

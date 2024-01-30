@@ -210,52 +210,52 @@ inline T ldexp_double(const T x, const S n) {
 }  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-abacus_half __abacus_ldexp(abacus_half x, abacus_int n) {
+abacus_half ABACUS_API __abacus_ldexp(abacus_half x, abacus_int n) {
   return ldexp_half(x, n);
 }
 
-abacus_half2 __abacus_ldexp(abacus_half2 x, abacus_int2 n) {
+abacus_half2 ABACUS_API __abacus_ldexp(abacus_half2 x, abacus_int2 n) {
   return ldexp_half<>(x, n);
 }
 
-abacus_half3 __abacus_ldexp(abacus_half3 x, abacus_int3 n) {
+abacus_half3 ABACUS_API __abacus_ldexp(abacus_half3 x, abacus_int3 n) {
   return ldexp_half<>(x, n);
 }
 
-abacus_half4 __abacus_ldexp(abacus_half4 x, abacus_int4 n) {
+abacus_half4 ABACUS_API __abacus_ldexp(abacus_half4 x, abacus_int4 n) {
   return ldexp_half<>(x, n);
 }
 
-abacus_half8 __abacus_ldexp(abacus_half8 x, abacus_int8 n) {
+abacus_half8 ABACUS_API __abacus_ldexp(abacus_half8 x, abacus_int8 n) {
   return ldexp_half<>(x, n);
 }
 
-abacus_half16 __abacus_ldexp(abacus_half16 x, abacus_int16 n) {
+abacus_half16 ABACUS_API __abacus_ldexp(abacus_half16 x, abacus_int16 n) {
   return ldexp_half<>(x, n);
 }
 #endif
 
-abacus_float __abacus_ldexp(abacus_float x, abacus_int n) {
+abacus_float ABACUS_API __abacus_ldexp(abacus_float x, abacus_int n) {
   return ldexp_float(x, n);
 }
 
-abacus_float2 __abacus_ldexp(abacus_float2 x, abacus_int2 n) {
+abacus_float2 ABACUS_API __abacus_ldexp(abacus_float2 x, abacus_int2 n) {
   return ldexp_float<>(x, n);
 }
 
-abacus_float3 __abacus_ldexp(abacus_float3 x, abacus_int3 n) {
+abacus_float3 ABACUS_API __abacus_ldexp(abacus_float3 x, abacus_int3 n) {
   return ldexp_float<>(x, n);
 }
 
-abacus_float4 __abacus_ldexp(abacus_float4 x, abacus_int4 n) {
+abacus_float4 ABACUS_API __abacus_ldexp(abacus_float4 x, abacus_int4 n) {
   return ldexp_float<>(x, n);
 }
 
-abacus_float8 __abacus_ldexp(abacus_float8 x, abacus_int8 n) {
+abacus_float8 ABACUS_API __abacus_ldexp(abacus_float8 x, abacus_int8 n) {
   return ldexp_float<>(x, n);
 }
 
-abacus_float16 __abacus_ldexp(abacus_float16 x, abacus_int16 n) {
+abacus_float16 ABACUS_API __abacus_ldexp(abacus_float16 x, abacus_int16 n) {
   return ldexp_float<>(x, n);
 }
 
@@ -263,7 +263,7 @@ abacus_float16 __abacus_ldexp(abacus_float16 x, abacus_int16 n) {
 // We don't use the templated version for scalar doubles because the return
 // types of functions such as isnan are inconsistent for doubles, they return
 // longs for vectors and ints for scalars.
-abacus_double __abacus_ldexp(abacus_double x, abacus_int n) {
+abacus_double ABACUS_API __abacus_ldexp(abacus_double x, abacus_int n) {
   typedef FPShape<abacus_double> Shape;
   const bool is_not_denorm = 0 == abacus::internal::is_denorm(x);
 
@@ -299,33 +299,33 @@ abacus_double __abacus_ldexp(abacus_double x, abacus_int n) {
   n_lo_lo += bias;
 
   const abacus_long mant_bits = Shape::Mantissa();
-  abacus_double mul_hi =
+  const abacus_double mul_hi =
       abacus::detail::cast::as<abacus_double>(n_hi << mant_bits);
-  abacus_double mul_lo =
+  const abacus_double mul_lo =
       abacus::detail::cast::as<abacus_double>(n_lo << mant_bits);
-  abacus_double mul_lo_lo =
+  const abacus_double mul_lo_lo =
       abacus::detail::cast::as<abacus_double>(n_lo_lo << mant_bits);
 
   return ((x * mul_hi) * mul_lo) * mul_lo_lo;
 }
 
-abacus_double2 __abacus_ldexp(abacus_double2 x, abacus_int2 n) {
+abacus_double2 ABACUS_API __abacus_ldexp(abacus_double2 x, abacus_int2 n) {
   return ldexp_double<>(x, n);
 }
 
-abacus_double3 __abacus_ldexp(abacus_double3 x, abacus_int3 n) {
+abacus_double3 ABACUS_API __abacus_ldexp(abacus_double3 x, abacus_int3 n) {
   return ldexp_double<>(x, n);
 }
 
-abacus_double4 __abacus_ldexp(abacus_double4 x, abacus_int4 n) {
+abacus_double4 ABACUS_API __abacus_ldexp(abacus_double4 x, abacus_int4 n) {
   return ldexp_double<>(x, n);
 }
 
-abacus_double8 __abacus_ldexp(abacus_double8 x, abacus_int8 n) {
+abacus_double8 ABACUS_API __abacus_ldexp(abacus_double8 x, abacus_int8 n) {
   return ldexp_double<>(x, n);
 }
 
-abacus_double16 __abacus_ldexp(abacus_double16 x, abacus_int16 n) {
+abacus_double16 ABACUS_API __abacus_ldexp(abacus_double16 x, abacus_int16 n) {
   return ldexp_double<>(x, n);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

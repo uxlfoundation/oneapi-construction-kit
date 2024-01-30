@@ -99,15 +99,15 @@ bool GenericMetadataHandler::read(GenericMetadata &md) {
   std::string source_name(data + offset);
   offset += source_name.size() + 1;
 
-  uint64_t local_memory_used = md::utils::read_value<uint64_t>(
+  const uint64_t local_memory_used = md::utils::read_value<uint64_t>(
       (uint8_t *)data + offset, md_get_endianness(ctx));
   offset += sizeof(uint64_t);
 
   // We only use the low 4 bytes of this value, even though it's encoded as 8.
-  uint32_t sub_group_size_fixed = md::utils::read_value<uint64_t>(
+  const uint32_t sub_group_size_fixed = md::utils::read_value<uint64_t>(
       (uint8_t *)data + offset, md_get_endianness(ctx));
   offset += sizeof(uint64_t);
-  bool sub_group_size_is_scalable =
+  const bool sub_group_size_is_scalable =
       md::utils::read_value<uint64_t>((uint8_t *)data + offset,
                                       md_get_endianness(ctx)) == 1;
   offset += sizeof(uint64_t);

@@ -34,7 +34,6 @@ template <template <class U> class AllocatorType = md::callback_allocator>
 class basic_value {
   using allocator_helper_t = AllocatorHelper<AllocatorType>;
 
- private:
   /// @brief Runtime Polymorphism pattern adapted from Sean Parent's conference
   /// talk at NDC London 2017 - "Better Code: Runtime Polymorphism".
   struct type_concept {

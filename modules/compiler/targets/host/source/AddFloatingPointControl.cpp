@@ -49,14 +49,12 @@ void configX86FP(Function &wrapper, Function &function) {
       wrapper.getParent(), Intrinsic::x86_sse_ldmxcsr);
 
   // Allocas to store the old and new state
-  const auto int32Ty = Type::getInt32Ty(wrapper.getContext());
+  const auto int32Ty = ir.getInt32Ty();
   auto original_mxcsr = ir.CreateAlloca(int32Ty);
   auto new_mxcsr = ir.CreateAlloca(int32Ty);
 
   // Store the original value in alloca
-  const auto int8PtrTy = Type::getInt8PtrTy(wrapper.getContext());
-  auto bitcast_orig = ir.CreateBitCast(original_mxcsr, int8PtrTy);
-  auto st_mxcsr_call = ir.CreateCall(st_mxcsr, {bitcast_orig});
+  auto st_mxcsr_call = ir.CreateCall(st_mxcsr, {original_mxcsr});
   st_mxcsr_call->setCallingConv(st_mxcsr->getCallingConv());
 
   // FTZ is 15th bit of MXCSR, counting from zero
@@ -67,8 +65,7 @@ void configX86FP(Function &wrapper, Function &function) {
   ir.CreateStore(or_mask, new_mxcsr);
 
   // Set new MXCSR value via intrinsic call
-  auto new_bitcast = ir.CreateBitCast(new_mxcsr, int8PtrTy);
-  ir.CreateCall(ld_mxcsr, {new_bitcast})
+  ir.CreateCall(ld_mxcsr, {new_mxcsr})
       ->setCallingConv(ld_mxcsr->getCallingConv());
 
   SmallVector<Value *, 1> args;
@@ -81,7 +78,7 @@ void configX86FP(Function &wrapper, Function &function) {
       function, args, ir.GetInsertBlock(), ir.GetInsertPoint());
 
   // reset the MXCSR to the original value
-  ir.CreateCall(ld_mxcsr, {bitcast_orig})
+  ir.CreateCall(ld_mxcsr, {original_mxcsr})
       ->setCallingConv(ld_mxcsr->getCallingConv());
 
   ir.CreateRetVoid();
@@ -155,7 +152,7 @@ void configArmFP(Function &wrapper, Function &function) {
   // bits [12..8]  - exception trap bits, set to 0 (turn off traps).
   // bits [7..5]   - reserved, set to 0.
   // bits [4,,0]   - exception bits, set to 0 (traps are off anyway).
-  uint32_t fpscr_bits = 0x00000000;
+  const uint32_t fpscr_bits = 0x00000000;
   auto new_fpscr = ir.getInt32(fpscr_bits);
 
   // set the fpscr to the new masked value
@@ -181,13 +178,13 @@ void configArmFP(Function &wrapper, Function &function) {
 }
 
 Function *runOnFunction(Function &F, bool SetFTZ) {
-  Module &M = *F.getParent();
+  const Module &M = *F.getParent();
   // Setting floating point configuration is very architecture specific,
   // so find out which architecture specific helper we want to invoke.
   using helper_func_type = decltype(&configArmFP);
   helper_func_type arch_helper = nullptr;
 
-  Triple triple(M.getTargetTriple());
+  const Triple triple(M.getTargetTriple());
   switch (triple.getArch()) {
     case Triple::arm:
       arch_helper = configArmFP;

@@ -40,7 +40,8 @@ void device_info_s::update_from_hal_info(const hal::hal_device_info_t *info) {
              mux_atomic_capabilities_32bit | mux_atomic_capabilities_64bit);
 
   this->half_capabilities = info->supports_fp16
-                                ? (mux_floating_point_capabilities_inf_nan |
+                                ? (mux_floating_point_capabilities_denorm |
+                                   mux_floating_point_capabilities_inf_nan |
                                    mux_floating_point_capabilities_rte |
                                    mux_floating_point_capabilities_full)
                                 : 0;
@@ -155,8 +156,8 @@ device_info_s::device_info_s()
 
   // A list of sub-group sizes we report. Roughly ordered according to
   // desirability.
-  static std::array<size_t, 4> sg_sizes = {
-      8, 4, 16,
+  static std::array<size_t, 5> sg_sizes = {
+      8, 4, 16, 32,
       1,  // we can always produce a 'trivial' sub-group if asked.
   };
   this->sub_group_sizes = sg_sizes.data();

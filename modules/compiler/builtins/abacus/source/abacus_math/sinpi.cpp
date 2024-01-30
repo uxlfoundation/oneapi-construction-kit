@@ -40,7 +40,7 @@ struct helper<T, abacus_half> {
     // multiply_exact / add_exact.
     const abacus_half polynomial[3] = {3.140625f16, -5.13671875f16,
                                        2.298828125f16};
-    const T poly = abacus::internal::horner_polynomial<T, 2>(x, &polynomial[1]);
+    const T poly = abacus::internal::horner_polynomial(x, &polynomial[1], 2);
 
     // Perform last horner_polynomial step by hand.
     T poly_mul_lo;
@@ -67,7 +67,7 @@ struct helper<T, abacus_float> {
                                         +2.5500695377459f, -0.59824115267029f,
                                         +0.77558697671848e-1f};
 
-    return abacus::internal::horner_polynomial<T, 5>(x, polynomial);
+    return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 
@@ -82,7 +82,7 @@ struct helper<T, abacus_double> {
         0.466299691216533729550e-3, -0.219031914477628858710e-4,
         7.69478758985541321889e-7};
 
-    return abacus::internal::horner_polynomial<T, 9>(x, polynomial);
+    return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -28,8 +28,8 @@
           %sampler_t = OpTypeSampler
         %sampler_fn_t = OpTypeFunction %void %sampler_t %sampler_t
         %sampler_type = OpFunction %void None %sampler_fn_t
-; CHECK-GE17: define spir_kernel void @sampler_type(target("spirv.Sampler") %0, target("spirv.Sampler") %1){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
-; CHECK-LT17: define spir_kernel void @sampler_type(ptr %0, ptr %1){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
+; CHECK-GE17: define spir_kernel void @sampler_type(target("spirv.Sampler") noundef %0, target("spirv.Sampler") noundef %1){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
+; CHECK-LT17: define spir_kernel void @sampler_type(ptr noundef %0, ptr noundef %1){{.*}}!kernel_arg_type [[MD:\![0-9]+]]
   %sampler_type_enter = OpLabel
                         OpReturn
 ; CHECK: ret void

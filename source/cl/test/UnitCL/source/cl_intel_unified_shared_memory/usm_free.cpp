@@ -32,12 +32,6 @@ TEST_F(USMTests, MemFree_InvalidUsage) {
   err = clMemBlockingFreeINTEL(nullptr, malloc_ptr);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_CONTEXT);
 
-  err = clMemFreeINTEL(context, malloc_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
-
-  err = clMemBlockingFreeINTEL(context, malloc_ptr);
-  EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
-
   free(malloc_ptr);
 }
 
@@ -52,10 +46,6 @@ TEST_F(USMTests, MemFree_ValidUsage) {
   err = clMemBlockingFreeINTEL(context, nullptr);
   EXPECT_SUCCESS(err);
 
-  cl_device_unified_shared_memory_capabilities_intel host_capabilities;
-  ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
-                                 sizeof(host_capabilities), &host_capabilities,
-                                 nullptr));
   if (host_capabilities != 0) {
     void *host_ptr = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
     ASSERT_SUCCESS(err);
@@ -69,6 +59,24 @@ TEST_F(USMTests, MemFree_ValidUsage) {
     ASSERT_TRUE(host_ptr != nullptr);
 
     err = clMemFreeINTEL(context, host_ptr);
+    EXPECT_SUCCESS(err);
+  }
+
+  if (shared_capabilities != 0) {
+    void *shared_ptr =
+        clSharedMemAllocINTEL(context, device, nullptr, bytes, align, &err);
+    ASSERT_SUCCESS(err);
+    ASSERT_TRUE(shared_ptr != nullptr);
+
+    err = clMemBlockingFreeINTEL(context, shared_ptr);
+    EXPECT_SUCCESS(err);
+
+    shared_ptr =
+        clSharedMemAllocINTEL(context, nullptr, nullptr, bytes, align, &err);
+    ASSERT_SUCCESS(err);
+    ASSERT_TRUE(shared_ptr != nullptr);
+
+    err = clMemFreeINTEL(context, shared_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -87,6 +95,19 @@ TEST_F(USMTests, MemFree_ValidUsage) {
 
   err = clMemFreeINTEL(context, device_ptr);
   EXPECT_SUCCESS(err);
+
+  // Freeing arbitrary host data is permitted by the spec
+  {
+    void *malloc_ptr = malloc(256);
+
+    err = clMemFreeINTEL(context, malloc_ptr);
+    EXPECT_SUCCESS(err);
+
+    err = clMemBlockingFreeINTEL(context, malloc_ptr);
+    EXPECT_SUCCESS(err);
+
+    free(malloc_ptr);
+  }
 }
 
 namespace {
@@ -101,12 +122,7 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
         sizeof(host_capabilities), &host_capabilities, nullptr));
 
     cl_int err;
-    if (host_capabilities) {
-      host_ptr =
-          clHostMemAllocINTEL(context, nullptr, bytes, sizeof(cl_uint), &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_TRUE(host_ptr != nullptr);
-    }
+    initPointers(bytes, sizeof(cl_uint));
 
     for (auto &device_ptr : fixture_device_ptrs) {
       device_ptr = clDeviceMemAllocINTEL(context, device, nullptr, bytes,
@@ -123,10 +139,6 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
   }
 
   void TearDown() override {
-    if (host_ptr) {
-      EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, host_ptr));
-    }
-
     for (auto device_ptr : fixture_device_ptrs) {
       if (device_ptr) {
         EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, device_ptr));
@@ -149,7 +161,6 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
   std::array<void *, 3> fixture_device_ptrs = {{nullptr, nullptr, nullptr}};
   std::array<cl_command_queue, 3> fixture_queues = {
       {nullptr, nullptr, nullptr}};
-  void *host_ptr = nullptr;
 };
 
 }  // namespace
@@ -290,8 +301,8 @@ TEST_F(USMBlockingFreeTest, SingleQueueMultipleAlloc) {
 // Populates two device allocations, A & B, on their own queues using fill calls
 // before copying them to a separate allocation C. The copy operation is
 // enqueued on the queue C, so allocations A & B interact with multiple queues.
-TEST_F(USMBlockingFreeTest, DISABLED_MultipleQueueMultipleAlloc) {
-  std::array<cl_event, 2> events;
+TEST_F(USMBlockingFreeTest, MultipleQueueMultipleAlloc) {
+  std::array<cl_event, 2> events = {nullptr, nullptr};
   const cl_uint pattern_A = 42;
   auto &queue_A = fixture_queues[0];
   auto &device_ptr_A = fixture_device_ptrs[0];

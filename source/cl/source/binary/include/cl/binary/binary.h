@@ -111,8 +111,6 @@ md_hooks getOpenCLMetadataReadHooks();
 ///
 /// @return "FULL_PROFILE" if the device supports the OpenCL specification, or
 /// "EMBEDDED_PROFILE" if the device supports the OpenCL embedded profile. If
-/// CA_CL_FORCE_PROFILE_STRING is set when configuring CMake, then that string
-/// will be returned instead.
 cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
                                           mux_device_info_t device);
 

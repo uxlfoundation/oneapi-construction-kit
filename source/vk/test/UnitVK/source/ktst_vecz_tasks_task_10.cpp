@@ -57,10 +57,10 @@ TEST_F(Execution, Task_10_08_InsertElement_Constant_Index) {
   if (clspvSupported_) {
     auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
     kts::Reference1D<cl_int4> refOut = [](size_t x) {
-      cl_int a = kts::Ref_A(4 * x);
-      cl_int b = kts::Ref_A(4 * x + 1);
-      cl_int c = 42;
-      cl_int d = kts::Ref_A(4 * x + 3);
+      const cl_int a = kts::Ref_A(4 * x);
+      const cl_int b = kts::Ref_A(4 * x + 1);
+      const cl_int c = 42;
+      const cl_int d = kts::Ref_A(4 * x + 3);
       return cl_int4{{a, b, c, d}};
     };
     AddInputBuffer(kts::N, refIn);
@@ -76,10 +76,10 @@ TEST_F(Execution, Task_10_09_InsertElement_Runtime_Index) {
     };
     auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
     kts::Reference1D<cl_int4> refOut = [](size_t x) {
-      cl_int a = (x % 4 == 0) ? 42 : kts::Ref_A(4 * x);
-      cl_int b = (x % 4 == 1) ? 42 : kts::Ref_A(4 * x + 1);
-      cl_int c = (x % 4 == 2) ? 42 : kts::Ref_A(4 * x + 2);
-      cl_int d = (x % 4 == 3) ? 42 : kts::Ref_A(4 * x + 3);
+      const cl_int a = (x % 4 == 0) ? 42 : kts::Ref_A(4 * x);
+      const cl_int b = (x % 4 == 1) ? 42 : kts::Ref_A(4 * x + 1);
+      const cl_int c = (x % 4 == 2) ? 42 : kts::Ref_A(4 * x + 2);
+      const cl_int d = (x % 4 == 3) ? 42 : kts::Ref_A(4 * x + 3);
       return cl_int4{{a, b, c, d}};
     };
     AddInputBuffer(kts::N, refIn);
@@ -93,11 +93,11 @@ TEST_F(Execution, Task_10_10_ExtractElement_Constant_Index) {
   if (clspvSupported_) {
     auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
     kts::Reference1D<cl_int4> refOut = [](size_t x) {
-      cl_int a = 4;
-      cl_int b = 4;
-      cl_int c = kts::Ref_A(4 * x);
+      const cl_int a = 4;
+      const cl_int b = 4;
+      const cl_int c = kts::Ref_A(4 * x);
       ;
-      cl_int d = 4;
+      const cl_int d = 4;
       return cl_int4{{a, b, c, d}};
     };
     AddInputBuffer(kts::N, refIn);
@@ -113,10 +113,10 @@ TEST_F(Execution, Task_10_11_ExtractElement_Runtime_Index) {
     };
     auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
     kts::Reference1D<cl_int4> refOut = [](size_t x) {
-      cl_int a = 4;
-      cl_int b = 4;
-      cl_int c = kts::Ref_A(4 * x);
-      cl_int d = 4;
+      const cl_int a = 4;
+      const cl_int b = 4;
+      const cl_int c = kts::Ref_A(4 * x);
+      const cl_int d = 4;
       return cl_int4{{a, b, c, d}};
     };
     AddInputBuffer(kts::N, refIn);

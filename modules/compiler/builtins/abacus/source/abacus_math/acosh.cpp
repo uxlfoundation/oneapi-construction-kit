@@ -19,7 +19,7 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/horner_polynomial.h>
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 
 namespace {
 template <typename T>
@@ -28,7 +28,7 @@ T acosh(const T x) {
 
   const T y = x - 1.0f;
 
-  T ex = y + abacus::internal::sqrt_unsafe(y * (y + 2.0f));
+  T ex = y + abacus::internal::sqrt(y * (y + 2.0f));
 
   // This can overflow so we check for large values
   const SignedType cond1 = y > 2.0e16f;
@@ -61,9 +61,8 @@ T acosh_half(const T x) {
   // A small optimization for vectorized versions. Rather than call log multiple
   // times and select the right answer, we instead do a smaller branch to pick
   // the input value for log:
-  T log_input =
-      __abacus_select(x + abacus::internal::sqrt_unsafe(x * x - 1.0f16), x,
-                      SignedType(x >= xBigBound));
+  T log_input = __abacus_select(x + abacus::internal::sqrt(x * x - 1.0f16), x,
+                                SignedType(x >= xBigBound));
   log_input = __abacus_select(log_input, 2.0f16 * x,
                               SignedType(x >= xBigBound && x < xOverflowBound));
 
@@ -75,8 +74,8 @@ T acosh_half(const T x) {
       __abacus_select(ans, ABACUS_LN2_H + ans, SignedType(x >= xOverflowBound));
 
   const T small_return =
-      abacus::internal::sqrt_unsafe(x - 1.0f16) *
-      abacus::internal::horner_polynomial<T, 3>(x - T(1.0f16), _acoshH);
+      abacus::internal::sqrt(x - 1.0f16) *
+      abacus::internal::horner_polynomial(x - T(1.0f16), _acoshH);
 
   ans = __abacus_select(ans, small_return, SignedType(x < T(2.0f16)));
 
@@ -86,9 +85,8 @@ T acosh_half(const T x) {
 template <>
 abacus_half acosh_half(const abacus_half x) {
   if (x < 2.0f16) {
-    return abacus::internal::sqrt_unsafe(x - 1.0f16) *
-           abacus::internal::horner_polynomial<abacus_half, 3>(x - 1.0f16,
-                                                               _acoshH);
+    return abacus::internal::sqrt(x - 1.0f16) *
+           abacus::internal::horner_polynomial(x - 1.0f16, _acoshH);
   }
 
   // As x > 11.7, acosh(x) = log(x + sqrt(x^2 - 1)) converges to
@@ -104,7 +102,7 @@ abacus_half acosh_half(const abacus_half x) {
     return __abacus_log(2.0f16 * x);
   }
 
-  return __abacus_log(x + abacus::internal::sqrt_unsafe(x * x - 1.0f16));
+  return __abacus_log(x + abacus::internal::sqrt(x * x - 1.0f16));
 }
 
 abacus_half ABACUS_API __abacus_acosh(abacus_half x) { return acosh_half<>(x); }

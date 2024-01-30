@@ -39,10 +39,10 @@ struct helper<abacus_half> {
 #endif
 }  // namespace
 
-#define DEF(TYPE)                                             \
-  helper<TYPE>::type __abacus_islessgreater(TYPE x, TYPE y) { \
-    return abacus::detail::cast::convert<helper<TYPE>::type>( \
-        abacus::detail::relational::islessgreater(x, y));     \
+#define DEF(TYPE)                                                        \
+  helper<TYPE>::type ABACUS_API __abacus_islessgreater(TYPE x, TYPE y) { \
+    return abacus::detail::cast::convert<helper<TYPE>::type>(            \
+        abacus::detail::relational::islessgreater(x, y));                \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

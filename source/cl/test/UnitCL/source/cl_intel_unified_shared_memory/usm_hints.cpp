@@ -16,6 +16,8 @@
 
 #include <Common.h>
 
+#include <iterator>
+
 #include "cl_intel_unified_shared_memory.h"
 
 // Fixture for testing performance hint APIs `clEnqueueMemAdviseINTEL` &
@@ -30,39 +32,15 @@ struct USMMemHintTest : public cl_intel_unified_shared_memory_Test {
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_intel_unified_shared_memory_Test::SetUp());
 
-    cl_device_unified_shared_memory_capabilities_intel host_capabilities;
-    ASSERT_SUCCESS(clGetDeviceInfo(
-        device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
-        sizeof(host_capabilities), &host_capabilities, nullptr));
+    initPointers(bytes, align);
 
     cl_int err;
-    if (host_capabilities != 0) {
-      host_ptr = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_TRUE(host_ptr != nullptr);
-    }
-
-    device_ptr =
-        clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
-    ASSERT_SUCCESS(err);
-    ASSERT_TRUE(device_ptr != nullptr);
-
     queue = clCreateCommandQueue(context, device, 0, &err);
     ASSERT_TRUE(queue != nullptr);
     ASSERT_SUCCESS(err);
   }
 
   void TearDown() override {
-    if (device_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
-      EXPECT_SUCCESS(err);
-    }
-
-    if (host_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
-      EXPECT_SUCCESS(err);
-    }
-
     if (queue) {
       EXPECT_SUCCESS(clReleaseCommandQueue(queue));
     }
@@ -72,8 +50,6 @@ struct USMMemHintTest : public cl_intel_unified_shared_memory_Test {
   const size_t bytes = 256;
   const cl_uint align = 4;
 
-  void *host_ptr = nullptr;
-  void *device_ptr = nullptr;
   cl_command_queue queue = nullptr;
 };
 
@@ -130,6 +106,35 @@ TEST_F(USMMemHintTest, MigrateHost) {
   host_ptr = nullptr;
 }
 
+// Test migrating a shared USM allocation
+TEST_F(USMMemHintTest, MigrateShared) {
+  if (!shared_ptr) {
+    GTEST_SKIP();
+  }
+
+  cl_int err;
+
+  // Create a user event to block migration happening immediately
+  cl_event user_event = clCreateUserEvent(context, &err);
+  ASSERT_SUCCESS(err);
+
+  // Enqueue a migration hint, implemented as a no-op
+  err = clEnqueueMigrateMemINTEL(queue, shared_ptr, bytes,
+                                 CL_MIGRATE_MEM_OBJECT_HOST, 1, &user_event,
+                                 nullptr);
+  EXPECT_SUCCESS(err);
+
+  // Set status event status to allow migrate command to be dispatched
+  EXPECT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));
+  EXPECT_SUCCESS(clReleaseEvent(user_event));
+
+  // Blocking free flushes command queue
+  EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, shared_ptr));
+
+  // Prevent free being called in test fixture teardown
+  shared_ptr = nullptr;
+}
+
 // Test advice performance hint on a device allocation
 TEST_F(USMMemHintTest, AdviseDevice) {
   // Create a user event to block advise command happening immediately
@@ -180,4 +185,32 @@ TEST_F(USMMemHintTest, AdviseHost) {
 
   // Prevent free being called in test fixture teardown
   host_ptr = nullptr;
+}
+
+// Test advice performance hint on a shared allocation
+TEST_F(USMMemHintTest, AdviseShared) {
+  if (!shared_ptr) {
+    GTEST_SKIP();
+  }
+
+  // Create a user event to block advise command happening immediately
+  cl_int err;
+  cl_event user_event = clCreateUserEvent(context, &err);
+  ASSERT_SUCCESS(err);
+
+  // Enqueue a no-op advise command
+  const cl_mem_advice_intel advice = 0;
+  err = clEnqueueMemAdviseINTEL(queue, shared_ptr, bytes, advice, 1,
+                                &user_event, nullptr);
+  EXPECT_SUCCESS(err);
+
+  // Set status event status to allow advise command to be dispatched
+  EXPECT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));
+  EXPECT_SUCCESS(clReleaseEvent(user_event));
+
+  // Blocking free flushes command queue
+  EXPECT_SUCCESS(clMemBlockingFreeINTEL(context, shared_ptr));
+
+  // Prevent free being called in test fixture teardown
+  shared_ptr = nullptr;
 }

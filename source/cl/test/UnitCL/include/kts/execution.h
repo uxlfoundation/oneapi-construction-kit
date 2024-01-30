@@ -129,7 +129,7 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   /// @retval True if program successfully built
   /// @retval False if program did not successfully build or if test should be
   /// skipped
-  CARGO_NODISCARD bool BuildProgram();
+  [[nodiscard]] bool BuildProgram();
 
   /// @brief Build the kernel program.
   ///
@@ -140,8 +140,8 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   /// @retval True if program successfully built
   /// @retval False if program did not successfully build or if test should be
   /// skipped
-  CARGO_NODISCARD virtual bool BuildProgram(std::string file_prefix,
-                                            std::string kernel_name);
+  [[nodiscard]] virtual bool BuildProgram(std::string file_prefix,
+                                          std::string kernel_name);
 
   /// @brief Check whether the kernel was vectorized or not.
   bool CheckVectorized();
@@ -347,6 +347,9 @@ class HalfParamExecution : public ExecutionWithParam<unsigned> {
   /// @brief Returns true if parameter at index has a scalar type
   /// @param[in] Index of parameter to check
   bool IsArgScalar(unsigned index) const;
+
+  /// @brief Returns a vector of edge cases that need extra testing.
+  virtual const std::vector<cl_ushort> &GetEdgeCases() const;
 };
 
 template <typename T>

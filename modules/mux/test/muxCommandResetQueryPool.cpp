@@ -115,8 +115,8 @@ struct muxCommandResetQueryPoolCounterTest : DeviceTest {
     ASSERT_SUCCESS(muxGetSupportedQueryCounters(device, mux_queue_type_compute,
                                                 count, counters.data(), nullptr,
                                                 nullptr));
-    mux_query_counter_config_t counter_config = {counters.front().uuid,
-                                                 nullptr};
+    const mux_query_counter_config_t counter_config = {counters.front().uuid,
+                                                       nullptr};
     ASSERT_SUCCESS(muxCreateQueryPool(queue, mux_query_type_counter,
                                       query_count, &counter_config, allocator,
                                       &query_pool));
@@ -214,7 +214,7 @@ struct muxCommandResetQueryPoolCounterReuseTest : DeviceCompilerTest {
                                                 1, &counter, nullptr, nullptr));
 
     // Enable the first counter.
-    mux_query_counter_config_t config = {counter.uuid, nullptr};
+    const mux_query_counter_config_t config = {counter.uuid, nullptr};
     ASSERT_SUCCESS(muxCreateQueryPool(queue, mux_query_type_counter, 1, &config,
                                       allocator, &query_pool));
 
@@ -231,8 +231,8 @@ struct muxCommandResetQueryPoolCounterReuseTest : DeviceCompilerTest {
     ASSERT_SUCCESS(createMuxExecutable(nop_opencl_c, &executable));
     ASSERT_SUCCESS(muxCreateKernel(device, executable, "nop", strlen("nop"),
                                    allocator, &kernel));
-    size_t global_offset = 0;
-    size_t global_size = 8;
+    const size_t global_offset = 0;
+    const size_t global_size = 8;
     size_t local_size[3] = {1, 1, 1};
 
     mux_ndrange_options_t nd_range_options{};

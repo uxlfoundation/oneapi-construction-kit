@@ -705,7 +705,7 @@ struct ph_extract_fract<T, abacus_float> {
     // octet and the highest_significant_bit from the first int (just about!)
 
     // octet (the first 3 bits)
-    SignedType octet_local =
+    const SignedType octet_local =
         abacus::detail::cast::convert<SignedType>(hi >> 29);
 
     // if the octet is an odd number, reduce it to the range 0 -> pi/8
@@ -773,7 +773,7 @@ struct ph_extract_fract<T, abacus_double> {
       IntVectorType;
   static T _(UnsignedType &hi, UnsignedType &lo, IntVectorType *octet) {
     // The decimal point is 3 bits into hi
-    UnsignedType octet_local = hi >> 61;
+    const UnsignedType octet_local = hi >> 61;
 
     // if the octet is an odd number, reduce it to the range 0 -> pi/8
     const SignedType cond = (octet_local & 0x1) == 0x1;
@@ -783,9 +783,9 @@ struct ph_extract_fract<T, abacus_double> {
     // Get rid of the octet and get the highest significant bit
     hi = hi & 0x1FFFFFFFFFFFFFFF;
 
-    UnsignedType leading_zeros = __abacus_clz(hi);
+    const UnsignedType leading_zeros = __abacus_clz(hi);
 
-    UnsignedType AnsMant =
+    const UnsignedType AnsMant =
         (hi << (leading_zeros)) | (lo >> ((UnsignedType)64 - leading_zeros));
 
     // Put the mantissa into float format
@@ -797,7 +797,8 @@ struct ph_extract_fract<T, abacus_double> {
     u += ((AnsMant >> 10) & 0x1);
 
     // Unsafe ldexp (Should be fine on CPU's) Not sure about FTZ devices:
-    UnsignedType ldexp_factor = ((UnsignedType)1026 - leading_zeros) << 52;
+    const UnsignedType ldexp_factor = ((UnsignedType)1026 - leading_zeros)
+                                      << 52;
     T fract = abacus::detail::cast::as<T>(u) *
               abacus::detail::cast::as<T>(ldexp_factor);
 
@@ -844,7 +845,7 @@ struct payne_hanek_helper<abacus_float, abacus_float> {
     ph_reduce(filterHi, filterMi, filterLo, xMantissa, rHi, rLo);
     // Get the relevent integral and mantissa
     SignedType octet;
-    T fract = ph_extract_fract<T>::_(rHi, rLo, &octet);
+    const T fract = ph_extract_fract<T>::_(rHi, rLo, &octet);
 
     *out_octet = __abacus_select(octet, ~octet, x < 0);
 
@@ -939,7 +940,7 @@ struct payne_hanek_helper<abacus_double, abacus_double> {
     IntVectorType phoctet;
     const T fract = ph_extract_fract<abacus_double>::_(rHi, rLo, &phoctet);
 
-    IntVectorType octetCond =
+    const IntVectorType octetCond =
         abacus::detail::cast::convert<IntVectorType>(x < 0);
     *octet = __abacus_select(phoctet, ~phoctet, octetCond);
 
@@ -984,14 +985,14 @@ struct payne_hanek_helper<T, abacus_double> {
     IntVectorType phoctet;
     T result = ph_extract_fract<T>::_(rHi, rLo, &phoctet);
 
-    IntVectorType octetCond =
+    const IntVectorType octetCond =
         abacus::detail::cast::convert<IntVectorType>(x < 0);
     phoctet = __abacus_select(phoctet, ~phoctet, octetCond);
 
     const SignedType cond1 = __abacus_fabs(x) < PI_8;
     result = __abacus_select(result, __abacus_fabs(x * FOUR_PI), cond1);
 
-    IntVectorType octetExtremes =
+    const IntVectorType octetExtremes =
         __abacus_select((IntVectorType)0, (IntVectorType)7, octetCond);
     phoctet =
         __abacus_select(phoctet, octetExtremes,

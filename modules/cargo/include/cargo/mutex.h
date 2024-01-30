@@ -23,7 +23,6 @@
 
 #include <mutex>
 
-#include "cargo/platform_defines.h"
 #include "cargo/thread_safety.h"
 
 namespace cargo {

@@ -35,8 +35,10 @@ namespace {
 // Aprroximation of log2(x+1) between [-0.25;0.5]
 // See log2_extended_precision.sollya for derivation
 // In order to gain performance we've dropped the first term of the polynomial
-// out, 1.442689418792724609375, since it's in 32-bit precision and we'll
-// manually add it in exactly by splitting into 16-bit values.
+// out, since it's in 32-bit precision and we'll manually add it in exactly by
+// splitting into 16-bit values.
+static constexpr ABACUS_CONSTANT abacus_float
+    __codeplay_log2_extended_precision_coeffH0 = 1.442689418792724609375f;
 static ABACUS_CONSTANT abacus_half
     __codeplay_log2_extended_precision_coeffH[5] = {
         -0.72119140625f16, 0.4814453125f16, -0.369384765625f16, 0.2919921875f16,
@@ -64,7 +66,7 @@ struct log2_extended_precision_helper<T, abacus_float> {
   static T _(const T &xMant, T *out_remainder) {
     T xMAnt1m = xMant - 1.0f;
 
-    T poly = abacus::internal::horner_polynomial<T, 16>(
+    T poly = abacus::internal::horner_polynomial(
         xMAnt1m, __codeplay_log2_extended_precision_coeff);
 
     T poly_times_x_lo;
@@ -147,7 +149,7 @@ T log2_extended_precision_half_unsafe(const T &x, T *ans_lo, T *xExp) {
 
   // Approximate log2(x+1) with polynomial
   xMant = xMant - 1.0f16;
-  T poly_start = abacus::internal::horner_polynomial<T, 5>(
+  T poly_start = abacus::internal::horner_polynomial(
       xMant, __codeplay_log2_extended_precision_coeffH);
 
   T poly_lo;
@@ -222,7 +224,7 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
   // Approximate log2(x+1) with polynomial
   xMant = xMant - 1.0f16;
 
-  T poly_start = abacus::internal::horner_polynomial<T, 5>(
+  T poly_start = abacus::internal::horner_polynomial(
       xMant, __codeplay_log2_extended_precision_coeffH);
 
   // Avoid creating denormal numbers in the lo components of exact add and
@@ -280,7 +282,8 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
 
   // Single awkward boundary value fix:
   const SignedType edge(abacus::detail::cast::as<UnsignedType>(x) == 0x39f6);
-  remainder = __abacus_select(remainder, T(-0.000144362f16), edge);
+  // -0.14783 ==> -0.000144362 * 2^10
+  remainder = __abacus_select(remainder, T(-0.14783f16), edge);
 
   // Set return parameters
   *hiExp = abacus::detail::cast::convert<T>(hiExpI);

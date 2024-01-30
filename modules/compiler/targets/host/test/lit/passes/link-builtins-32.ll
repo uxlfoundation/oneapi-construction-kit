@@ -21,7 +21,7 @@ target triple = "spir32-unknown-unknown"
 target datalayout = "e-p:32:32:32-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; We don't really care *what* the abs function looks like, but check it's been materialized
-; CHECK: define {{.*}}spir_func i32 @_Z3absi(i32 {{.*%.+}}){{.*}} {
+; CHECK: define {{.*}}spir_func{{.*}} i32 @_Z3absi(i32 {{.*%.+}}){{.*}} {
 ; CHECK:   ret i32 {{.*}}
 ; CHECK: }
 

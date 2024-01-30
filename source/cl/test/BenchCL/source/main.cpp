@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
   cl_platform_id platform;
   cl_device_id device;
 
-  cl_uint err = benchcl::get_device(device_name, platform, device);
+  const cl_uint err = benchcl::get_device(device_name, platform, device);
   if (CL_SUCCESS != err) {
     return err;
   }

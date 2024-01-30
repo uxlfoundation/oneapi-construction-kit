@@ -20,7 +20,7 @@
 mux_result_t muxCreateFence(mux_device_t device,
                             mux_allocator_info_t allocator_info,
                             mux_fence_t *out_fence) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -44,7 +44,7 @@ mux_result_t muxCreateFence(mux_device_t device,
 
 void muxDestroyFence(mux_device_t device, mux_fence_t fence,
                      mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;
@@ -62,7 +62,7 @@ void muxDestroyFence(mux_device_t device, mux_fence_t fence,
 }
 
 mux_result_t muxResetFence(mux_fence_t fence) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(fence)) {
     return mux_error_invalid_value;

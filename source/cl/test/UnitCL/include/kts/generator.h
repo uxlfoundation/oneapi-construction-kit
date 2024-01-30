@@ -69,7 +69,7 @@ class InputGenerator final {
   /// @param buffer Vector that will be populated. Size should already be
   ///        at the capacity of number of elements to fill.
   template <typename T,
-            cargo::enable_if_t<std::is_floating_point<T>::value> * = nullptr>
+            std::enable_if_t<std::is_floating_point_v<T>> * = nullptr>
   void GenerateFloatData(std::vector<T> &buffer);
 
   /// @brief Populates buffer with random float of type T while avoiding inf
@@ -90,7 +90,7 @@ class InputGenerator final {
   /// imply smallest in magnitude (i.e. closest to zero), which is not
   /// necessarily the case.
   template <typename T,
-            cargo::enable_if_t<std::is_floating_point<T>::value> * = nullptr>
+            std::enable_if_t<std::is_floating_point_v<T>> * = nullptr>
   void GenerateFiniteFloatData(std::vector<T> &buffer,
                                T low = std::numeric_limits<T>::lowest(),
                                T high = std::numeric_limits<T>::max());
@@ -140,8 +140,7 @@ class InputGenerator final {
   /// @param buffer Vector that will be populated. Size should already be
   ///        at the capacity of number of elements to fill.
   template <typename T>
-  cargo::enable_if_t<std::is_integral<T>::value> GenerateData(
-      std::vector<T> &buffer) {
+  std::enable_if_t<std::is_integral_v<T>> GenerateData(std::vector<T> &buffer) {
     GenerateIntData(buffer);
   }
 
@@ -153,13 +152,13 @@ class InputGenerator final {
   /// @param buffer Vector that will be populated. Size should already be
   ///        at the capacity of number of elements to fill.
   template <typename T>
-  cargo::enable_if_t<std::is_integral<T>::value> GenerateData(
-      std::vector<T> &buffer, T min, T max) {
+  std::enable_if_t<std::is_integral_v<T>> GenerateData(std::vector<T> &buffer,
+                                                       T min, T max) {
     GenerateIntData(buffer, min, max);
   }
 
   template <typename T>
-  cargo::enable_if_t<std::is_floating_point<T>::value> GenerateData(
+  std::enable_if_t<std::is_floating_point_v<T>> GenerateData(
       std::vector<T> &buffer) {
     GenerateFloatData(buffer);
   }
@@ -175,7 +174,7 @@ class InputGenerator final {
   unsigned seed_;
 };
 
-template <class T, cargo::enable_if_t<std::is_floating_point<T>::value> *>
+template <class T, std::enable_if_t<std::is_floating_point_v<T>> *>
 void InputGenerator::GenerateFiniteFloatData(std::vector<T> &buffer, T low,
                                              T high) {
   // Generate a distribution where each floating point value in the given range
@@ -189,7 +188,7 @@ void InputGenerator::GenerateFiniteFloatData(std::vector<T> &buffer, T low,
   // other than the sign bit, if the sign bit is set. This gives us an
   // equivalent range over signed integers. Inverting the sign bit then converts
   // that to a range over unsigned integers.
-  auto const sign_bit = TypeInfo<T>::sign_bit;
+  const auto sign_bit = TypeInfo<T>::sign_bit;
 
   UInt iMin = cargo::bit_cast<UInt>(low);
   iMin ^= (iMin & sign_bit) ? ~UInt(0) : sign_bit;
@@ -207,7 +206,7 @@ void InputGenerator::GenerateFiniteFloatData(std::vector<T> &buffer, T low,
   });
 }
 
-template <class T, cargo::enable_if_t<std::is_floating_point<T>::value> *>
+template <class T, std::enable_if_t<std::is_floating_point_v<T>> *>
 void InputGenerator::GenerateFloatData(std::vector<T> &buffer) {
   GenerateFiniteFloatData(buffer);
 
@@ -249,11 +248,9 @@ void InputGenerator::GenerateIntData(std::vector<T> &buffer, T min, T max) {
   // This is a work around for the fact that std::uniform_int_distribution isn't
   // defined for 8 bit types. If we get an 8 bit type we use a wider integer
   // then cast back the result.
-  using LargerType = typename std::conditional<
-      std::is_same<typename std::make_unsigned<T>::type, uint8_t>::value,
-      typename std::conditional<std::is_unsigned<T>::value, uint32_t,
-                                int32_t>::type,
-      T>::type;
+  using LargerType = std::conditional_t<
+      std::is_same_v<std::make_unsigned_t<T>, uint8_t>,
+      std::conditional_t<std::is_unsigned<T>::value, uint32_t, int32_t>, T>;
 
   std::uniform_int_distribution<LargerType> dist(min, max);
   std::generate(buffer.begin(), buffer.end(),
@@ -318,11 +315,9 @@ T InputGenerator::GenerateInt(T min, T max) {
   // This is a work around for the fact that std::uniform_int_distribution isn't
   // defined for 8 bit types. If we get an 8 bit type we use a wider integer
   // then cast back the result.
-  using LargerType = typename std::conditional<
-      std::is_same<typename std::make_unsigned<T>::type, uint8_t>::value,
-      typename std::conditional<std::is_unsigned<T>::value, uint32_t,
-                                int32_t>::type,
-      T>::type;
+  using LargerType = std::conditional_t<
+      std::is_same_v<std::make_unsigned_t<T>, uint8_t>,
+      std::conditional_t<std::is_unsigned<T>::value, uint32_t, int32_t>, T>;
   std::uniform_int_distribution<LargerType> dist(min, max);
   return static_cast<T>(dist(gen_));
 }

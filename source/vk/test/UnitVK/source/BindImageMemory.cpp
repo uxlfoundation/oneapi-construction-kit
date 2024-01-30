@@ -29,7 +29,7 @@ class BindImageMemoryTest : public uvk::DeviceTest {
     RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
 
     // completely arbitrary allocation for test purposes
-    size_t size = 16;
+    const size_t size = 16;
 
     VkExtent3D extent = {};
     extent.width = 42;

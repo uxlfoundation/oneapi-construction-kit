@@ -46,7 +46,7 @@ struct deleter {
 ///
 /// @tparam T Type of any object created with a `vk::allocator`
 template <class T>
-using unique_ptr = std::unique_ptr<cargo::remove_pointer_t<T>, deleter<T>>;
+using unique_ptr = std::unique_ptr<std::remove_pointer_t<T>, deleter<T>>;
 }  // namespace vk
 
 #endif  // VK_UNIQUE_PTR_H_INCLUDED

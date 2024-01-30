@@ -23,8 +23,11 @@
 
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/Analysis/IVDescriptors.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/PassManager.h>
 #include <llvm/IR/ValueHandle.h>
+#include <llvm/Support/AtomicOrdering.h>
 #include <llvm/Support/TypeSize.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
 #include <multi_llvm/multi_llvm.h>
@@ -150,6 +153,61 @@ class VectorizationContext {
   /// @return The masked version of the function
   llvm::Function *getOrCreateMaskedFunction(llvm::CallInst *CI);
 
+  /// @brief Represents either an atomicrmw or cmpxchg operation.
+  ///
+  /// Most fields are shared, with the exception of CmpXchgFailureOrdering and
+  /// IsWeak, which are only to be set for cmpxchg, and BinOp, which is only to
+  /// be set to a valid value for atomicrmw.
+  struct MaskedAtomic {
+    llvm::Type *PointerTy;
+    llvm::Type *ValTy;
+    /// @brief Must be set to BAD_BINOP for cmpxchg instructions
+    llvm::AtomicRMWInst::BinOp BinOp;
+    llvm::Align Align;
+    bool IsVolatile = false;
+    llvm::SyncScope::ID SyncScope;
+    llvm::AtomicOrdering Ordering;
+    /// @brief Must be set for cmpxchg instructions
+    std::optional<llvm::AtomicOrdering> CmpXchgFailureOrdering = std::nullopt;
+    /// @brief Must only be set for cmpxchg instructions
+    bool IsWeak = false;
+    // Vectorization info
+    llvm::ElementCount VF;
+    bool IsVectorPredicated = false;
+
+    /// @brief Returns true if this MaskedAtomic represents a cmpxchg operation.
+    bool isCmpXchg() const {
+      if (CmpXchgFailureOrdering.has_value()) {
+        // 'binop' only applies to atomicrmw
+        assert(BinOp == llvm::AtomicRMWInst::BAD_BINOP &&
+               "Invalid MaskedAtomic state");
+        return true;
+      }
+      // 'weak' only applies to cmpxchg
+      assert(!IsWeak && "Invalid MaskedAtomic state");
+      return false;
+    }
+  };
+
+  /// @brief Check if the given function is a masked version of an atomicrmw or
+  /// cmpxchg operation.
+  ///
+  /// @param[in] F The function to check
+  /// @return A MaskedAtomic instance detailing the atomic operation if the
+  /// function is a masked atomic, or std::nullopt otherwise
+  std::optional<MaskedAtomic> isMaskedAtomicFunction(
+      const llvm::Function &F) const;
+  /// @brief Get (if it exists already) or create the function representing the
+  /// masked version of an atomicrmw/cmpxchg operation.
+  ///
+  /// @param[in] I Atomic to be masked
+  /// @param[in] Choices Choices to mangle into the function name
+  /// @param[in] VF The vectorization factor of the atomic operation
+  /// @return The masked version of the function
+  llvm::Function *getOrCreateMaskedAtomicFunction(
+      MaskedAtomic &I, const VectorizationChoices &Choices,
+      llvm::ElementCount VF);
+
   /// @brief Create a VectorizationUnit to use to vectorize the given scalar
   /// function.
   ///
@@ -157,7 +215,7 @@ class VectorizationContext {
   /// VectorizationContext.
   ///
   /// @param[in] F Function to vectorize.
-  /// @param[in] Width VF vectorization factor to use.
+  /// @param[in] VF vectorization factor to use.
   /// @param[in] Dimension SIMD dimension to use (0 => x, 1 => y, 2 => z).
   /// @param[in] Ch Vectorization Choices for the vectorization.
   VectorizationUnit *createVectorizationUnit(llvm::Function &F,
@@ -210,13 +268,13 @@ class VectorizationContext {
   /// @param[in] F The empty (declaration only) function to emit the body in
   /// @param[in] Desc The MemOpDesc for the memory operation
   /// @returns true on success, false otherwise
-  bool emitMaskedMemOpBody(llvm::Function &F, MemOpDesc const &Desc) const;
+  bool emitMaskedMemOpBody(llvm::Function &F, const MemOpDesc &Desc) const;
   /// @brief Emit the body for the interleaved load or store internal builtins
   ///
   /// @param[in] F The empty (declaration only) function to emit the body in
   /// @param[in] Desc The MemOpDesc for the memory operation
   /// @returns true on success, false otherwise
-  bool emitInterleavedMemOpBody(llvm::Function &F, MemOpDesc const &Desc) const;
+  bool emitInterleavedMemOpBody(llvm::Function &F, const MemOpDesc &Desc) const;
   /// @brief Emit the body for the masked interleaved load/store internal
   /// builtins
   ///
@@ -224,21 +282,21 @@ class VectorizationContext {
   /// @param[in] Desc The MemOpDesc for the memory operation
   /// @returns true on success, false otherwise
   bool emitMaskedInterleavedMemOpBody(llvm::Function &F,
-                                      MemOpDesc const &Desc) const;
+                                      const MemOpDesc &Desc) const;
   /// @brief Emit the body for the scatter or gather internal builtins
   ///
   /// @param[in] F The empty (declaration only) function to emit the body in
   /// @param[in] Desc The MemOpDesc for the memory operation
   /// @returns true on success, false otherwise
   bool emitScatterGatherMemOpBody(llvm::Function &F,
-                                  MemOpDesc const &Desc) const;
+                                  const MemOpDesc &Desc) const;
   /// @brief Emit the body for the masked scatter or gather internal builtins
   ///
   /// @param[in] F The empty (declaration only) function to emit the body in
   /// @param[in] Desc The MemOpDesc for the memory operation
   /// @returns true on success, false otherwise
   bool emitMaskedScatterGatherMemOpBody(llvm::Function &F,
-                                        MemOpDesc const &Desc) const;
+                                        const MemOpDesc &Desc) const;
   /// @brief Add the masked function to the tracking set
   ///
   /// @param[in] F The function to add
@@ -257,6 +315,13 @@ class VectorizationContext {
   /// @returns true on success, false otherwise
   bool emitSubgroupScanBody(llvm::Function &F, bool IsInclusive,
                             llvm::RecurKind OpKind, bool IsVP) const;
+
+  /// @brief Emit the body for a masked atomic builtin
+  ///
+  /// @param[in] F The empty (declaration only) function to emit the body in
+  /// @param[in] MA The MaskedAtomic information
+  /// @returns true on success, false otherwise
+  bool emitMaskedAtomicBody(llvm::Function &F, const MaskedAtomic &MA) const;
 
   /// @brief Helper for non-vectorization tasks.
   TargetInfo &VTI;

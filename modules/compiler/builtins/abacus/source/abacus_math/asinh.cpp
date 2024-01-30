@@ -120,7 +120,7 @@ static ABACUS_CONSTANT abacus_float intervals[16] = {ABACUS_INFINITY,
                                                      .3f,
                                                      .12f};
 
-abacus_float __abacus_asinh(abacus_float x) {
+abacus_float ABACUS_API __abacus_asinh(abacus_float x) {
   if (__abacus_isftz() && abacus::internal::is_denorm(x)) {
     return x;
   }
@@ -133,13 +133,15 @@ abacus_float __abacus_asinh(abacus_float x) {
     return x;
   }
 
-  abacus_float xAbs = __abacus_fabs(x);
+  const abacus_float xAbs = __abacus_fabs(x);
 
-  abacus_int high_eight = (xAbs < intervals[8]) ? 8 : 0;
-  abacus_int high_four =
+  const abacus_int high_eight = (xAbs < intervals[8]) ? 8 : 0;
+  const abacus_int high_four =
       high_eight + ((xAbs < intervals[high_eight + 4]) ? 4 : 0);
-  abacus_int high_two = high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
-  abacus_int interval = high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
+  const abacus_int high_two =
+      high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
+  const abacus_int interval =
+      high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
 
   abacus_float ans = abacus::internal::horner_polynomial(
       xAbs, __codeplay_asinh_coeff + interval * 5, 5);
@@ -172,8 +174,8 @@ T asinh(const T x) {
     const SignedType cond = xAbs < intervals[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 5>(
-        xAbs, __codeplay_asinh_coeff + i * 5);
+    const T poly = abacus::internal::horner_polynomial(
+        xAbs, __codeplay_asinh_coeff + i * 5, 5);
 
     ans = __abacus_select(ans, poly, cond);
   }
@@ -242,8 +244,7 @@ T asinhD(const T x) {
       0.7670591834281017654139093e-2, -0.5403578695078777809556689e-2,
       0.2818764122836144912311135e-2, -0.7716999562952834196266079e-3};
 
-  const T poly =
-      x * abacus::internal::horner_polynomial<T, 14>(x * x, polynomial);
+  const T poly = x * abacus::internal::horner_polynomial(x * x, polynomial);
 
   const SignedType small = xAbs <= 0.6;
   T result = __abacus_select(afterLog, poly, small);
@@ -302,7 +303,7 @@ T asinhH(const T x) {
   const T logX = __abacus_log(log_input);
 
   // Since we have to calculate log(x) anyway, we may as well use it:
-  T ans = abacus::internal::horner_polynomial<T, 6>(logX, _asinhH1);
+  T ans = abacus::internal::horner_polynomial(logX, _asinhH1);
 
   // Logically, this case should be log(2x). However, to avoid calling
   // __abacus_log twice, we change the input of __abacus_log above to be 2x,
@@ -312,7 +313,7 @@ T asinhH(const T x) {
   ans = __abacus_select(ans, sign * (ABACUS_LN2_H + logX),
                         SignedType(xAbs >= xOverflowBound));
   ans = __abacus_select(
-      ans, x * abacus::internal::horner_polynomial<T, 2>(x * x, _asinhH2),
+      ans, x * abacus::internal::horner_polynomial(x * x, _asinhH2),
       SignedType(xAbs < 0.55f16));
 
   // When denormals are unavailable, we need to handle the smallest FP16 value
@@ -339,8 +340,7 @@ abacus_half asinhH(const abacus_half x) {
   // themselves for fabs(x) > 0.55.
   // For values less than this we use a direct polynomial to get the answer:
   if (xAbs < 0.55f16) {
-    return x *
-           abacus::internal::horner_polynomial<abacus_half, 2>(x * x, _asinhH2);
+    return x * abacus::internal::horner_polynomial(x * x, _asinhH2);
   }
 
   const abacus_half sign = __abacus_copysign(1.0f16, x);
@@ -359,8 +359,7 @@ abacus_half asinhH(const abacus_half x) {
   }
 
   // Since we have to calculate log(x) anyway, we may as well use it:
-  const abacus_half ans =
-      abacus::internal::horner_polynomial<abacus_half, 6>(logX, _asinhH1);
+  const abacus_half ans = abacus::internal::horner_polynomial(logX, _asinhH1);
 
   return sign * ans;
 }

@@ -219,13 +219,13 @@ class OfflineExecutionType : public BaseExecution {
 
   void runTest() {
     // Extract the type name from the test name
-    std::string testName =
+    const std::string testName =
         ::testing::UnitTest::GetInstance()->current_test_info()->name();
     auto typeName =
         testName.substr(testName.find_last_of('_') + 1, std::string::npos);
 
     // Check if the type is supported and skip if not
-    cargo::string_view param{typeName};
+    const cargo::string_view param{typeName};
     if (param.starts_with("half") && !UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
     }
@@ -278,7 +278,7 @@ class OfflineExecutionType : public BaseExecution {
                                         0, nullptr, &size));
       std::string name(size, '\0');
       ASSERT_SUCCESS(clGetKernelArgInfo(kernel_, argIndex, CL_KERNEL_ARG_NAME,
-                                        size, &name[0], nullptr));
+                                        size, name.data(), nullptr));
       if (!name.empty()) {
         name.resize(strlen(name.data()));
       }
@@ -288,8 +288,9 @@ class OfflineExecutionType : public BaseExecution {
       ASSERT_SUCCESS(clGetKernelArgInfo(
           kernel_, argIndex, CL_KERNEL_ARG_TYPE_NAME, 0, nullptr, &size));
       std::string type(size, '\0');
-      ASSERT_SUCCESS(clGetKernelArgInfo(
-          kernel_, argIndex, CL_KERNEL_ARG_TYPE_NAME, size, &type[0], nullptr));
+      ASSERT_SUCCESS(clGetKernelArgInfo(kernel_, argIndex,
+                                        CL_KERNEL_ARG_TYPE_NAME, size,
+                                        type.data(), nullptr));
       if (!type.empty()) {
         type.resize(strlen(type.data()));
       }

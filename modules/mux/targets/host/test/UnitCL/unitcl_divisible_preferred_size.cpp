@@ -145,10 +145,10 @@ struct clEnqueueNDRangeKernel_Host : ucl::CommandQueueTest,
     // NOTE: To avoid allocating to much memory on devices sharing resources
     // with other applications (such as parallel testing), be conservative
     // about the buffer max_mem size.
-    cl_ulong max_mem = getDeviceMaxMemAllocSize() / 8;
+    const cl_ulong max_mem = getDeviceMaxMemAllocSize() / 8;
 
-    cl_ulong items = max_mem / sizeof(PerItemKernelInfo);
-    size_t possible_dimension_length = static_cast<size_t>(
+    const cl_ulong items = max_mem / sizeof(PerItemKernelInfo);
+    const size_t possible_dimension_length = static_cast<size_t>(
         std::floor(std::pow(static_cast<double>(items), 1.0 / NUM_DIMENSIONS)));
     dimension_length = std::min(possible_dimension_length,
                                 static_cast<size_t>(DEFAULT_DIMENSION_LENGTH));
@@ -259,7 +259,7 @@ TEST_F(clEnqueueNDRangeKernel_Host, PreferredLocalWorkSizeNotDivisible) {
   const size_t global_work_offset[] = {0, 0, 0};
   const size_t global_work_size[] = {96, 64, 1};
 
-  NDRangeValue val =
+  const NDRangeValue val =
       NDRangeValue(3, global_work_offset, global_work_size, nullptr);
   cl_event fillEvent, ndRangeEvent;
 

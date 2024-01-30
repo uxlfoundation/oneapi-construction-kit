@@ -49,7 +49,7 @@ R shuffle2(const T x, const T y, const M m) {
 }  // namespace
 
 #define DEF_WITH_BOTH_SIZES(TYPE, IN_SIZE, OUT_SIZE) \
-  TYPE##OUT_SIZE __abacus_shuffle2(                  \
+  TYPE##OUT_SIZE ABACUS_API __abacus_shuffle2(       \
       TYPE##IN_SIZE x, TYPE##IN_SIZE y,              \
       TypeTraits<TYPE##OUT_SIZE>::UnsignedType m) {  \
     return shuffle2<TYPE##OUT_SIZE>(x, y, m);        \

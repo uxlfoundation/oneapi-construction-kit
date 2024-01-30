@@ -21,7 +21,7 @@
 ; RUN:   --passes "run-vecz,verify-reqd-sub-group-satisfied" %s 2>&1 \
 ; RUN: | FileCheck %s
 
-; CHECK: kernel.cl:10:0: kernel has required sub-group size 8 but the compiler was unable to sastify this constraint
+; CHECK: kernel.cl:10:0: kernel 'foo_sg8' has required sub-group size 8 but the compiler was unable to sastify this constraint
 define void @foo_sg8() #0 !dbg !5 !intel_reqd_sub_group_size !2 {
   ret void
 }

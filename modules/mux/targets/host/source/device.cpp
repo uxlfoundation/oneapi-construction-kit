@@ -108,7 +108,7 @@ uint32_t os_cpu_frequency() {
   const uint32_t size = 256;
   char buffer[size];
 
-  cargo::string_view wanted = "cpu MHz";
+  const cargo::string_view wanted = "cpu MHz";
 
   while (fgets(buffer, size, file)) {
     if (cargo::string_view(buffer, wanted.size()) == wanted) {
@@ -317,7 +317,7 @@ uint64_t os_cacheline_size() {
 /// The function is like @p os_memory_total_size, but it will bound the
 /// reported memory by what can be addressed by a pointer.
 uint64_t os_memory_bounded_size() {
-  uint64_t size = os_memory_total_size();
+  const uint64_t size = os_memory_total_size();
   // Limit the memory size to what fits in a size_t, this is necessary when
   // compiling for 32 bits on a 64 bits host
   return std::numeric_limits<size_t>::max() >= size
@@ -530,8 +530,8 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
 
   // A list of sub-group sizes we report. Roughly ordered according to
   // desirability.
-  static std::array<size_t, 4> sg_sizes = {
-      8, 4, 16,
+  static std::array<size_t, 5> sg_sizes = {
+      8, 4, 16, 32,
       1,  // we can always produce a 'trivial' sub-group if asked.
   };
   this->sub_group_sizes = sg_sizes.data();

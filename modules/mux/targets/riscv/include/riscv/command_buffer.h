@@ -120,7 +120,7 @@ struct command_begin_query_s {
   uint32_t index;
   uint32_t count;
 
-  CARGO_NODISCARD mux_query_duration_result_t operator()(
+  [[nodiscard]] mux_query_duration_result_t operator()(
       riscv::device_s *device, mux_query_duration_result_t duration_query);
 };
 
@@ -129,7 +129,7 @@ struct command_end_query_s {
   uint32_t index;
   uint32_t count;
 
-  CARGO_NODISCARD mux_query_duration_result_t operator()(
+  [[nodiscard]] mux_query_duration_result_t operator()(
       riscv::device_s *device, mux_query_duration_result_t duration_query);
 };
 

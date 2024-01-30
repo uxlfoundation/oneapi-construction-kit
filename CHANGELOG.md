@@ -25,7 +25,15 @@ Upgrade guidance:
   IV names via a second `CreateLoopOpts` field.
 * Support for LLVM versions is now limited to LLVM 16 and LLVM 17. Support for
   earlier LLVM versions has been removed.
-
+* Support for FMA (fused multiply-add) is required for the device. For the host
+  device for x86-64, this means only x86-64-v3 and newer are supported. This
+  roughly translates to 2015 or newer, both for Intel and for AMD.
+  * Although hardware support for FMA is available on all platforms we currently
+    test, if you are using OCK on a platform we do not test and encounter
+    issues, please let us know by opening an issue!
+* `compiler-utils` library has been split into `compiler-pipeline` and
+  `compiler-binary-metadata` to  allow use of compiler pipeline utilities without
+   the binary metadata requirements. Both will be needed for `mux` targets.
 ## Version 3.0.0
 
 Upgrade guidance:
@@ -1455,7 +1463,6 @@ Bug fixes:
 ## Version 1.70.0 - 2022-06-07
 
 Upgrade guidance:
-
 * Headers in the `mux/utils` directory have been moved out of the `mux` target
   and into a separate `mux-utils` target, if using these headers update CMake to
   link against `mux-utils`.

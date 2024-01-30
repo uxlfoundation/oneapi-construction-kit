@@ -22,7 +22,7 @@ namespace binary {
 cargo::optional<compiler::ProgramInfo> kernelDeclsToProgramInfo(
     const cargo::small_vector<std::string, 8> &decls, bool store_arg_metadata) {
   compiler::ProgramInfo program_info;
-  if (size_t num_kernels = decls.size()) {
+  if (const size_t num_kernels = decls.size()) {
     if (!program_info.resizeFromNumKernels(num_kernels)) {
       return cargo::nullopt;
     }

@@ -41,7 +41,7 @@ TEST(allocator, unique_ptr_deleter) {
     ASSERT_TRUE(raw);
     LeafType *leaf = new (raw) LeafType(was_destructed);
     ASSERT_TRUE(leaf);
-    std::unique_ptr<RootType, cargo::deleter<RootType>> ptr(leaf);
+    const std::unique_ptr<RootType, cargo::deleter<RootType>> ptr(leaf);
   }
 
   EXPECT_TRUE(was_destructed);
