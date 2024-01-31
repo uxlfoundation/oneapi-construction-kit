@@ -116,7 +116,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 
 target_include_directories(compiler-pipeline PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_definitions(compiler-pipeline PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
@@ -139,7 +139,7 @@ add_ca_library(compiler-binary-metadata STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp)
 
 target_include_directories(compiler-binary-metadata PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_definitions(compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
@@ -172,7 +172,7 @@ if (LLDELF_LIB)
   )
 
   target_include_directories(compiler-linker-utils PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
   # The lld libraries require all llvm targets that are built under llvm to
   # link their Codegen and AsmParser libraries.

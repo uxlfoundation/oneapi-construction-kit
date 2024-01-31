@@ -78,7 +78,7 @@ add_ca_executable(UnitMux
   $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>
   )
 
-target_include_directories(UnitMux PRIVATE ${MUX_SOURCE_DIR}/include)
+target_include_directories(UnitMux PRIVATE $<BUILD_INTERFACE:${MUX_SOURCE_DIR}/include>)
 target_link_libraries(UnitMux PRIVATE mux ca_gtest_main compiler-loader)
 target_resources(UnitMux NAMESPACES ${BUILTINS_NAMESPACES})
 

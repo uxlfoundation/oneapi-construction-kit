@@ -186,8 +186,8 @@ else()
 endif()
 
 target_include_directories(vecz
-  PUBLIC ${VECZ_PUBLIC_INCLUDE_DIR}
-  PRIVATE ${VECZ_PRIVATE_INCLUDE_DIR})
+  PUBLIC $<BUILD_INTERFACE:${VECZ_PUBLIC_INCLUDE_DIR}>
+  PRIVATE $<BUILD_INTERFACE:${VECZ_PRIVATE_INCLUDE_DIR}>)
 target_compile_options(vecz PRIVATE ${VECZ_COMPILE_OPTIONS})
 target_compile_definitions(vecz PRIVATE
   ${VECZ_COMPILE_DEFINITIONS})

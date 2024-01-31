@@ -25,7 +25,7 @@ target_compile_definitions(clc PRIVATE
   CLC_VERSION="${PROJECT_VERSION}"
   CLC_LLVM_VERSION="${LLVM_PACKAGE_VERSION}")
 target_include_directories(clc PUBLIC
-  ${PROJECT_SOURCE_DIR}/source/cl/source/compiler/include)
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/cl/source/compiler/include>)
 target_link_libraries(clc PRIVATE CL-binary compiler-static builtins cargo)
 target_resources(clc NAMESPACES ${BUILTINS_NAMESPACES})
 

@@ -131,7 +131,7 @@ add_ca_library(host STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/thread_pool.cpp)
 
 target_include_directories(host PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_compile_definitions(host PUBLIC
   $<$<BOOL:${CA_HOST_ENABLE_BUILTIN_KERNEL}>:CA_HOST_ENABLE_BUILTIN_KERNEL>)
 target_compile_options(host PRIVATE

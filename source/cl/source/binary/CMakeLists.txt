@@ -29,8 +29,8 @@ set(BINARY_SOURCES
 add_ca_library(CL-binary STATIC ${BINARY_SOURCES})
 
 target_include_directories(CL-binary PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/source/cl/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/cl/include>)
 
 target_link_libraries(CL-binary PUBLIC
   builtins cargo compiler-loader mux utils)

@@ -27,8 +27,8 @@ add_ca_executable(UnitCompiler
   $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>)
 
 target_include_directories(UnitCompiler PRIVATE
-  ${PROJECT_SOURCE_DIR}/modules/mux/include
-  ${PROJECT_SOURCE_DIR}/modules/compiler/include)
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/mux/include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/include>)
 
 target_link_libraries(UnitCompiler PRIVATE cargo
   compiler-static mux ca_gtest_main compiler-base compiler-pipeline compiler-binary-metadata)
