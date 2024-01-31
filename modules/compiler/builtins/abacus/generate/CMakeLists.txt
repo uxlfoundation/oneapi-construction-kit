@@ -31,6 +31,7 @@ function(generate target ...)
     ${CMAKE_CURRENT_SOURCE_DIR}/${target}/generate.cmakescript)
 
   list(APPEND GENERATE_DEPENDENCIES
+    ${GENERATE_CMAKE_FILE}
     ${CMAKE_CURRENT_SOURCE_DIR}/${target}/${target}.in)
   foreach(arg ${ARGN})
     list(APPEND GENERATE_DEPENDENCIES

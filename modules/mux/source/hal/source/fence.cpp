@@ -23,7 +23,7 @@
 
 namespace mux {
 namespace hal {
-fence::fence(mux_device_t device) { this->device = device; };
+fence::fence(mux_device_t device) { this->device = device; }
 
 void fence::signal(mux_result_t result) {
   std::unique_lock<std::mutex> lock(mutex);

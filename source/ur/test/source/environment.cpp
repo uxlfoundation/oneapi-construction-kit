@@ -19,6 +19,13 @@
 #include "cargo/string_view.h"
 #include "cargo/utility.h"
 
+// ColoredPrintf is internal to GoogleTest and we have to patch GoogleTest to be
+// able to refer to it at all. Still, it is easier than reinventing the wheel.
+namespace testing::internal {
+enum class GTestColor { kDefault, kRed, kGreen, kYellow };
+void ColoredPrintf(GTestColor color, const char *fmt, ...);
+}  // namespace testing::internal
+
 // This assumes to be run from build folder
 const char *const KERNELS_BIN_RELATIVE_PATH = "../source/ur/test/kernels";
 
@@ -140,18 +147,18 @@ void printHelp(const char *arg0) {
 
   printf("Platform Selection:\n");
 
-  ColoredPrintf(COLOR_GREEN, "  --platform=");
-  ColoredPrintf(COLOR_YELLOW, "NAME\n");
+  ColoredPrintf(GTestColor::kGreen, "  --platform=");
+  ColoredPrintf(GTestColor::kYellow, "NAME\n");
   printf(
       "      Run the tests on the specified platform, if there are multiple\n"
       "      platforms this option is required to select a single platform.\n");
 
-  ColoredPrintf(COLOR_GREEN, "  --kernel_directory=");
-  ColoredPrintf(COLOR_YELLOW, "PATH\n");
+  ColoredPrintf(GTestColor::kGreen, "  --kernel_directory=");
+  ColoredPrintf(GTestColor::kYellow, "PATH\n");
   printf(
       "      Provide the path to the supplied 'kernels' directory. "
       "Default:\n");
-  ColoredPrintf(COLOR_YELLOW, "      %s\n", KERNELS_BIN_RELATIVE_PATH);
+  ColoredPrintf(GTestColor::kYellow, "      %s\n", KERNELS_BIN_RELATIVE_PATH);
 
   printf("\n");
 }

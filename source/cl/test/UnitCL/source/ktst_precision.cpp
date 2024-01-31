@@ -272,7 +272,7 @@ TEST_P(DenormalsTest, Precision_02_Denorms) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(DenormalsTest, testing::Values(OPENCL_C),
-                           testing::Values(true, false));
+                           testing::Values(true, false))
 
 TEST_P(ExecutionSPIRV, Precision_02_Denorms) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
@@ -409,7 +409,7 @@ TEST_P(HalfOperatorTest, Precision_07_Half_Recip) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(HalfOperatorTest, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 3, 4, 8, 16));
+                           testing::Values(1, 2, 3, 4, 8, 16))
 
 using HalfMathBuiltins = HalfParamExecution;
 
@@ -1909,9 +1909,9 @@ TEST_P(HalfMathBuiltins, Precision_83_Half_rootn) {
 
 // Miss out half3 to avoid complications with having sizeof(half4)
 UCL_EXECUTION_TEST_SUITE_P(HalfMathBuiltins, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 4, 8, 16));
+                           testing::Values(1, 2, 4, 8, 16))
 UCL_EXECUTION_TEST_SUITE_P(HalfMathBuiltinsPow, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 4, 8, 16));
+                           testing::Values(1, 2, 4, 8, 16))
 
 TEST_P(Execution, Precision_84_Double_Remquo) {
   // Whether or not the kernel will be vectorized at a global size of 1 is

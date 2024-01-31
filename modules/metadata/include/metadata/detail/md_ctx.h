@@ -218,8 +218,8 @@ class basic_context {
     }
 
     size_t bin_size;
-    uint8_t *bin_start =
-        static_cast<uint8_t *>(hooks->map(userdata, &bin_size));
+    const uint8_t *bin_start =
+        static_cast<const uint8_t *>(hooks->map(userdata, &bin_size));
 
     // Decode the header.
     CAMD_Header header;
@@ -264,7 +264,8 @@ class basic_context {
   /// @return MD_SUCCESS if the block was added successfully, otherwise
   /// MD_INVALID_BINARY is returned.
   md_err add_block_from_block_info(const CAMD_BlockInfo &info,
-                                   uint8_t *bin_start, MD_ENDIAN endianness) {
+                                   const uint8_t *bin_start,
+                                   MD_ENDIAN endianness) {
     const auto fmt = utils::get_fmt(info.flags);
     if (!fmt.has_value()) {
       return md_err::MD_E_INVALID_BINARY;

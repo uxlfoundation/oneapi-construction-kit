@@ -21,7 +21,7 @@
 namespace md {
 namespace utils {
 
-cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
+cargo::expected<int, std::string> decode_md_header(const uint8_t *header_start,
                                                    CAMD_Header &header,
                                                    size_t bin_size) {
   // check the binary size is sensible
@@ -71,20 +71,23 @@ cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
   return md_err::MD_SUCCESS;
 }
 
-uint8_t *get_block_list_start(uint8_t *data, const CAMD_Header &header) {
+const uint8_t *get_block_list_start(const uint8_t *data,
+                                    const CAMD_Header &header) {
   return data + header.block_list_offset;
 }
 
-uint8_t *get_block_start(uint8_t *binary, const CAMD_BlockInfo &info) {
+const uint8_t *get_block_start(const uint8_t *binary,
+                               const CAMD_BlockInfo &info) {
   return binary + info.offset;
 }
 
-uint8_t *get_block_end(uint8_t *binary, const CAMD_BlockInfo &info) {
+const uint8_t *get_block_end(const uint8_t *binary,
+                             const CAMD_BlockInfo &info) {
   return binary + info.offset + info.size;
 }
 
 cargo::expected<int, std::string> decode_md_block_info(
-    uint8_t *block_info_start, const CAMD_Header &header,
+    const uint8_t *block_info_start, const CAMD_Header &header,
     CAMD_BlockInfo &block_info, size_t bin_size) {
   // read the offset
   const uint64_t offset =
@@ -124,11 +127,11 @@ cargo::expected<int, std::string> decode_md_block_info(
 }
 
 cargo::expected<int, std::string> decode_md_block_info_list(
-    uint8_t *block_list_start, const CAMD_Header &header,
+    const uint8_t *block_list_start, const CAMD_Header &header,
     std::vector<CAMD_BlockInfo> &blocks, size_t bin_size) {
   for (size_t i = 0; i < header.n_blocks; ++i) {
     CAMD_BlockInfo block_info;
-    uint8_t *block_info_start = &block_list_start[i * MD_BLOCK_INFO_SIZE];
+    const uint8_t *block_info_start = &block_list_start[i * MD_BLOCK_INFO_SIZE];
     auto decoded =
         decode_md_block_info(block_info_start, header, block_info, bin_size);
     if (!decoded.has_value()) {
@@ -140,7 +143,7 @@ cargo::expected<int, std::string> decode_md_block_info_list(
   return md_err::MD_SUCCESS;
 }
 
-const char *get_block_info_name(uint8_t *binary_data,
+const char *get_block_info_name(const uint8_t *binary_data,
                                 const CAMD_BlockInfo &bi) {
   return reinterpret_cast<const char *>(binary_data + bi.name_idx);
 }

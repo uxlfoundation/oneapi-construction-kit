@@ -33,9 +33,9 @@
 
 using namespace kts::ucl;
 
-UCL_EXECUTION_TEST_SUITE(PrintfExecution, testing::ValuesIn(getSourceTypes()));
+UCL_EXECUTION_TEST_SUITE(PrintfExecution, testing::ValuesIn(getSourceTypes()))
 UCL_EXECUTION_TEST_SUITE(PrintfExecutionSPIRV,
-                         testing::Values(SPIRV, OFFLINESPIRV));
+                         testing::Values(SPIRV, OFFLINESPIRV))
 
 BasePrintfExecution::BasePrintfExecution() : BaseExecution() {}
 
@@ -119,7 +119,7 @@ TEST_P(PrintfExecution, Printf_01_Hello) {
 using PrintfExecutionWorkItems = PrintfExecutionWithParam<size_t>;
 UCL_EXECUTION_TEST_SUITE_P(PrintfExecutionWorkItems, testing::Values(OPENCL_C),
                            testing::Values(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                           kts::N));
+                                           kts::N))
 
 // Run N threads of a kernel N times, except that each time only a
 // single (different) thread will print anything.

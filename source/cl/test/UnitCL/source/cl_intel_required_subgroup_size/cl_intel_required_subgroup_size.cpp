@@ -155,4 +155,4 @@ static const kts::ucl::SourceType source_types[] = {
     kts::ucl::OFFLINESPIRV};
 
 UCL_EXECUTION_TEST_SUITE(cl_intel_required_subgroup_size_KernelTest,
-                         testing::ValuesIn(source_types));
+                         testing::ValuesIn(source_types))

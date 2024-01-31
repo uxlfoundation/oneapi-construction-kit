@@ -153,7 +153,7 @@ class RawStackSerializer {
   /// added.
   /// @param block_start A pointer to the start of the block.
   /// @param block_len The length of the block.
-  static void deserialize(StackType &stack, uint8_t *block_start,
+  static void deserialize(StackType &stack, const uint8_t *block_start,
                           size_t block_len, MD_ENDIAN) {
     stack.push_bytes(block_start, block_len);
   }
@@ -194,8 +194,9 @@ class BasicMsgPackStackSerializer {
   /// @param data A pointer to the element.
   /// @param fmt The message pack format of the element.
   /// @return Pointer in the binary to the next element.
-  static uint8_t *deserialize_element(StackType &stack, uint8_t *data,
-                                      MsgPackFmt fmt) {
+  static const uint8_t *deserialize_element(StackType &stack,
+                                            const uint8_t *data,
+                                            MsgPackFmt fmt) {
     switch (fmt) {
       case MsgPackFmt::MSG_PACK_UINT_64: {
         auto val = md::utils::read_value<uint64_t>(data, MD_ENDIAN::BIG);
@@ -231,7 +232,7 @@ class BasicMsgPackStackSerializer {
             md::utils::read_value<uint16_t>(data, MD_ENDIAN::BIG);
         data += sizeof(uint16_t);
         const typename StackType::string_t str(
-            (char *)data, str_len,
+            (const char *)data, str_len,
             stack.get_alloc_helper().template get_allocator<char>());
         stack.push_zstr(str.c_str());
         return data += str_len * sizeof(uint8_t);
@@ -357,7 +358,7 @@ class BasicMsgPackStackSerializer {
   /// be added.
   /// @param block_start A pointer to the start of the block.
   /// @param block_len The length of the block.
-  static void deserialize(StackType &stack, uint8_t *block_start,
+  static void deserialize(StackType &stack, const uint8_t *block_start,
                           size_t block_len, const MD_ENDIAN) {
     const uint8_t *origin = block_start;
     while (((origin + block_len) - block_start) > 0) {

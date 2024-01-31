@@ -156,7 +156,7 @@ TEST_P(BuiltinIDParameterTests, Regression_79_Global_Id_Self_Parameter) {
 
 UCL_EXECUTION_TEST_SUITE_P(BuiltinIDParameterTests,
                            testing::ValuesIn(getSourceTypes()),
-                           testing::Values(0u, 1u, 2u, 3u));
+                           testing::Values(0u, 1u, 2u, 3u))
 
 TEST_P(Execution, Regression_79_Global_Id_Zero_Parameter) {
   kts::Reference1D<cl_uint> refOut = [](size_t) { return 0u; };

@@ -30,8 +30,8 @@ To access the following commands and variables in this module:
 #]=======================================================================]
 include(CMakeParseArguments)
 
-set(CMAKE_C_STANDARD 99)              # Enable C99 mode
-set(CMAKE_C_STANDARD_REQUIRED ON)     # Require C99 support
+set(CMAKE_C_STANDARD 11)              # Enable C11 mode
+set(CMAKE_C_STANDARD_REQUIRED ON)     # Require C11 support
 set(CMAKE_C_EXTENSIONS OFF)           # Disable C language extensions
 
 set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode
@@ -141,8 +141,9 @@ set(CA_COMPILE_OPTIONS
     >
     -Wno-error=deprecated-declarations  # Disable: use of deprecated functions
 
+    -pedantic             # Enable warnings required by the C++ standard
     -Wall -Wextra         # Enable more warnings
-    -Wno-variadic-macros  # Disable: warnings about variadic macros
+    -Wcast-qual           # Enable warnings for casting away const
     -Wformat              # Enable printf format warnings
 
     $<$<NOT:$<BOOL:${MINGW}>>:
@@ -691,8 +692,11 @@ macro(get_target_link_libraries variable target)
   get_target_link_libraries_recursive(${target})
 endmacro()
 
-# Add the check target to run all registered checks, see add_ca_check() below.
-add_custom_target(check-ca COMMENT "ComputeAorta checks.")
+# Add the check target to run all registered checks, see add_ca_check() below, if
+# cmake:variable:`CA_ENABLE_TESTS` is enabled.
+if (CA_ENABLE_TESTS)
+  add_custom_target(check COMMENT "ComputeAorta checks.")
+endif()
 
 if(CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING_EMULATOR)
   message(WARNING "ComputeAorta check targets disabled as "
@@ -709,6 +713,11 @@ endif()
   build the ``check`` target. All checks are executed with a working directory
   of ``${PROJECT_SOURCE_DIR}`` and a comment of the form "Running ${name}
   checks" is displayed by the build system during execution.
+
+  .. note::
+
+    If  :cmake:variable:`CA_ENABLE_TESTS` is set to ``OFF`` this function does
+    nothing.
 
   Arguments:
     * ``name`` - Target name suffix for the check, this will create a target
@@ -736,6 +745,9 @@ endif()
       can be specified, each must be of the form: "VAR=<value>"
 #]=======================================================================]
 function(add_ca_check name)
+  if (NOT CA_ENABLE_TESTS)
+    return()
+  endif()
   cmake_parse_arguments(args
     "NOEMULATE;NOGLOBAL;GTEST;USES_TERMINAL" ""
     "CLEAN;COMMAND;DEPENDS;ENVIRONMENT" ${ARGN})
@@ -787,19 +799,22 @@ function(add_ca_check name)
     set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY
       ADDITIONAL_CLEAN_FILES ${args_CLEAN} APPEND)
   endif()
-  # Add a custom target, which runs the test, to the test target.
-  if(args_USES_TERMINAL)
-    add_custom_target(check-${name}
-      COMMAND ${command} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-      USES_TERMINAL
-      DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
-  else()
-    add_custom_target(check-${name}
-      COMMAND ${command} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-      DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
-  endif()
-  if(NOT args_NOGLOBAL)
-    add_dependencies(check-ca check-${name})
+  # Add a custom target, which runs the test, to the test target,  if
+  # cmake:variable:`CA_ENABLE_TESTS` is enabled.
+  if (CA_ENABLE_TESTS)
+    if(args_USES_TERMINAL)
+      add_custom_target(check-${name}
+        COMMAND ${command} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        USES_TERMINAL
+        DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
+    else()
+      add_custom_target(check-${name}
+        COMMAND ${command} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
+    endif()
+    if(NOT args_NOGLOBAL)
+      add_dependencies(check check-${name})
+    endif()
   endif()
   if(CA_ENABLE_COVERAGE AND (CA_RUNTIME_COMPILER_ENABLED OR
       (NOT CA_RUNTIME_COMPILER_ENABLED AND ${name} STREQUAL "UnitCL")))
@@ -817,6 +832,11 @@ endfunction()
   having a single named check for a set of disparate test suites. As with
   :cmake:command:`add_ca_check` the name is used to generate a target called
   ``check-${name}``.
+
+  .. note::
+
+    If  :cmake:variable:`CA_ENABLE_TESTS` is set to ``OFF`` this function does
+    nothing.
 
   Arguments:
     * ``name`` - Target name suffix for the check group, this will create a
@@ -837,6 +857,9 @@ endfunction()
     add_ca_check_group(foo DEPENDS bar check-foo)
 #]=======================================================================]
 function(add_ca_check_group name)
+  if (NOT CA_ENABLE_TESTS)
+    return()
+  endif()
   cmake_parse_arguments(args "" "" "DEPENDS" ${ARGN})
   if(args_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR

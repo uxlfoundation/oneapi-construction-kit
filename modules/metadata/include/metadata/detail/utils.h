@@ -43,7 +43,7 @@ namespace utils {
 /// @param it An encoded integer byte-array value.
 /// @param endianness The source endianness.
 template <class T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-T read_value(uint8_t *it, uint8_t endianness) {
+T read_value(const uint8_t *it, uint8_t endianness) {
   T out;
   if (endianness == MD_ENDIAN::BIG) {
     cargo::read_big_endian(&out, it);
@@ -60,7 +60,7 @@ T read_value(uint8_t *it, uint8_t endianness) {
 /// data.
 /// @param bin_size The size of the binary.
 /// @return MD_SUCCESS or MD_INVALID_BINARY if the header is ill-formed.
-cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
+cargo::expected<int, std::string> decode_md_header(const uint8_t *header_start,
                                                    CAMD_Header &header,
                                                    size_t bin_size);
 
@@ -69,7 +69,8 @@ cargo::expected<int, std::string> decode_md_header(uint8_t *header_start,
 /// @param data Pointer to the start of the binary.
 /// @param header Reference to a decoded header.
 /// @return Pointer to the start of the block info list.
-uint8_t *get_block_list_start(uint8_t *data, const CAMD_Header &header);
+const uint8_t *get_block_list_start(const uint8_t *data,
+                                    const CAMD_Header &header);
 
 /// @brief Decode a binary block info.
 ///
@@ -79,7 +80,7 @@ uint8_t *get_block_list_start(uint8_t *data, const CAMD_Header &header);
 /// @param bin_size The size of the binary.
 /// @return MD_SUCCESS or MD_INVALID_BINARY if the block info is ill-formed.
 cargo::expected<int, std::string> decode_md_block_info(
-    uint8_t *block_info_start, const CAMD_Header &header,
+    const uint8_t *block_info_start, const CAMD_Header &header,
     CAMD_BlockInfo &block_info, size_t bin_size);
 
 /// @brief Get a pointer to the start of a block.
@@ -87,14 +88,15 @@ cargo::expected<int, std::string> decode_md_block_info(
 /// @param binary Pointer to the start of the binary.
 /// @param info Reference to the associated block info.
 /// @return Pointer to the start of the block.
-uint8_t *get_block_start(uint8_t *binary, const CAMD_BlockInfo &info);
+const uint8_t *get_block_start(const uint8_t *binary,
+                               const CAMD_BlockInfo &info);
 
 /// @brief Get a pointer to the end of a block.
 ///
 /// @param binary Pointer to the start of the binary.
 /// @param info Reference to the associated block info.
 /// @return Pointer to the end of the block.
-uint8_t *get_block_end(uint8_t *binary, const CAMD_BlockInfo &info);
+const uint8_t *get_block_end(const uint8_t *binary, const CAMD_BlockInfo &info);
 
 /// @brief Decode the full block info list.
 ///
@@ -105,7 +107,7 @@ uint8_t *get_block_end(uint8_t *binary, const CAMD_BlockInfo &info);
 /// @param bin_size The size of the binary.
 /// @return MD_SUCCESS or MD_INVALID_BINARY if the block info is ill-formed.
 cargo::expected<int, std::string> decode_md_block_info_list(
-    uint8_t *block_list_start, const CAMD_Header &header,
+    const uint8_t *block_list_start, const CAMD_Header &header,
     std::vector<CAMD_BlockInfo> &blocks, size_t bin_size);
 
 /// @brief Get the name of a block.
@@ -113,7 +115,8 @@ cargo::expected<int, std::string> decode_md_block_info_list(
 /// @param binary_data Pointer to the start of the binary.
 /// @param bi Initialized block info reference.
 /// @return Block info name.
-const char *get_block_info_name(uint8_t *binary_data, const CAMD_BlockInfo &bi);
+const char *get_block_info_name(const uint8_t *binary_data,
+                                const CAMD_BlockInfo &bi);
 
 /// @brief Serialize a md header object into raw bytes.
 ///

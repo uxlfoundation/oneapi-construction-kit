@@ -208,6 +208,7 @@ Checks: "bugprone-*,\
          -clang-analyzer-cplusplus.NewDelete,\
          -clang-analyzer-cplusplus.NewDeleteLeaks,\
          -clang-analyzer-optin.performance.Padding,\
+         -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,\
          *googletest*,\
          -google-readability-avoid-underscore-in-googletest-name,\
          concurrency-*,\

@@ -232,9 +232,9 @@ int main(const int argc, const char **argv) {
   /* Get the extension entry point */
   clSetNumThreadsCODEPLAY_fn clSetNumThreadsCODEPLAY_ptr;
 
-  clSetNumThreadsCODEPLAY_ptr =
-      (clSetNumThreadsCODEPLAY_fn)clGetExtensionFunctionAddressForPlatform(
-          selected_platform, "clSetNumThreadsCODEPLAY");
+  clSetNumThreadsCODEPLAY_ptr = (clSetNumThreadsCODEPLAY_fn)(intptr_t)
+      clGetExtensionFunctionAddressForPlatform(selected_platform,
+                                               "clSetNumThreadsCODEPLAY");
   if (clSetNumThreadsCODEPLAY_ptr == NULL) {
     printf("Failed to get the entry point to cl_codeplay_set_threads\n");
     return 0;

@@ -60,7 +60,7 @@ TEST_F(DecodeTest, GetBLockListStart) {
   auto decoded =
       md::utils::decode_md_header(get_start(), header, get_bin_size());
   EXPECT_TRUE(decoded.has_value());
-  uint8_t *block_list_start =
+  const uint8_t *block_list_start =
       md::utils::get_block_list_start(get_start(), header);
   EXPECT_EQ(block_list_start, &example_md_bin[40]);
 }
@@ -70,7 +70,7 @@ TEST_F(DecodeTest, DecodeBlockInfo) {
       md::utils::decode_md_header(get_start(), header, get_bin_size());
   EXPECT_TRUE(decoded.has_value());
 
-  uint8_t *block_list_start =
+  const uint8_t *block_list_start =
       md::utils::get_block_list_start(get_start(), header);
   md::CAMD_BlockInfo info;
   decoded = md::utils::decode_md_block_info(block_list_start, header, info,
@@ -111,7 +111,7 @@ TEST_F(DecodeTest, GetBlockStartEnd) {
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
 
-  uint8_t *block_list_start =
+  const uint8_t *block_list_start =
       md::utils::get_block_list_start(get_start(), header);
   md::CAMD_BlockInfo info;
   decoded = md::utils::decode_md_block_info(block_list_start, header, info,
@@ -119,9 +119,9 @@ TEST_F(DecodeTest, GetBlockStartEnd) {
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
 
-  uint8_t *block_start = md::utils::get_block_start(get_start(), info);
+  const uint8_t *block_start = md::utils::get_block_start(get_start(), info);
   EXPECT_EQ(block_start, &example_md_bin[88]);
-  uint8_t *block_end = md::utils::get_block_end(get_start(), info);
+  const uint8_t *block_end = md::utils::get_block_end(get_start(), info);
   EXPECT_EQ(block_end, &example_md_bin[108]);
 }
 
@@ -130,7 +130,7 @@ TEST_F(DecodeTest, DecodeBlockInfoList) {
       md::utils::decode_md_header(get_start(), header, get_bin_size());
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
-  uint8_t *block_list_start =
+  const uint8_t *block_list_start =
       md::utils::get_block_list_start(get_start(), header);
   decoded = md::utils::decode_md_block_info_list(block_list_start, header,
                                                  infos, get_bin_size());
@@ -145,7 +145,7 @@ TEST_F(DecodeTest, GetBlockInfoName) {
       md::utils::decode_md_header(get_start(), header, get_bin_size());
   EXPECT_TRUE(decoded.has_value());
   EXPECT_FALSE(MD_CHECK_ERR(decoded.value()));
-  uint8_t *block_list_start =
+  const uint8_t *block_list_start =
       md::utils::get_block_list_start(get_start(), header);
   decoded = md::utils::decode_md_block_info_list(block_list_start, header,
                                                  infos, get_bin_size());

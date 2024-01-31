@@ -50,7 +50,7 @@ namespace detail {
 namespace geometric {
 
 template <typename T>
-T cross(const T& x, const T& y) {
+T cross(const T &x, const T &y) {
   // We need to initialize the result to 0 because for vec4, the fourth element
   // must be set to 0.
   T result(0);
@@ -64,7 +64,7 @@ T cross(const T& x, const T& y) {
 
 template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
 struct dot_helper {
-  static typename TypeTraits<T>::ElementType _(const T& x, const T& y) {
+  static typename TypeTraits<T>::ElementType _(const T &x, const T &y) {
     const T sum = x * y;
 
     typename TypeTraits<T>::ElementType result = sum[0];
@@ -79,13 +79,13 @@ struct dot_helper {
 
 template <typename T>
 struct dot_helper<T, true> {
-  static typename TypeTraits<T>::ElementType _(const T& x, const T& y) {
+  static typename TypeTraits<T>::ElementType _(const T &x, const T &y) {
     return x * y;
   }
 };
 
 template <typename T>
-typename TypeTraits<T>::ElementType dot(const T& x, const T& y) {
+typename TypeTraits<T>::ElementType dot(const T &x, const T &y) {
   return dot_helper<T>::_(x, y);
 }
 
@@ -95,7 +95,7 @@ struct length_typed_helper;
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <typename T>
 struct length_typed_helper<T, abacus_half> {
-  static abacus_half _(const T& x) {
+  static abacus_half _(const T &x) {
     // 2^-11
     const abacus_half reducingFactor = 0.00048828125f16;
     // 2^11
@@ -120,7 +120,7 @@ struct length_typed_helper<T, abacus_half> {
 
 template <typename T>
 struct length_typed_helper<T, abacus_float> {
-  static abacus_float _(const T& x) {
+  static abacus_float _(const T &x) {
     // 1.2924697E-26, 2^-86
     const abacus_float reducingFactor = cast::as<abacus_float>(0x14800000);
     // 7.7371252E25, 2^86
@@ -145,7 +145,7 @@ struct length_typed_helper<T, abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T>
 struct length_typed_helper<T, abacus_double> {
-  static abacus_double _(const T& x) {
+  static abacus_double _(const T &x) {
     // 1.8645851828000517e-155, 2^-514
     const abacus_double reducingFactor =
         cast::as<abacus_double>(0x1fd0000000000000);
@@ -172,7 +172,7 @@ struct length_typed_helper<T, abacus_double> {
 
 template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
 struct length_untyped_helper {
-  static typename TypeTraits<T>::ElementType _(const T& x) {
+  static typename TypeTraits<T>::ElementType _(const T &x) {
     return length_typed_helper<T>::_(x);
   }
 };
@@ -185,32 +185,32 @@ struct length_untyped_helper<T, true> {
 };
 
 template <typename T>
-typename TypeTraits<T>::ElementType length(const T& p) {
+typename TypeTraits<T>::ElementType length(const T &p) {
   return length_untyped_helper<T>::_(p);
 }
 
 template <typename T>
-typename TypeTraits<T>::ElementType distance(const T& x, const T& y) {
+typename TypeTraits<T>::ElementType distance(const T &x, const T &y) {
   return geometric::length<T>(x - y);
 }
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct fast_length_typed_helper {
-  static typename TypeTraits<T>::ElementType _(const T& p) {
+  static typename TypeTraits<T>::ElementType _(const T &p) {
     return __abacus_sqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T>
 struct fast_length_typed_helper<T, abacus_float> {
-  static typename TypeTraits<T>::ElementType _(const T& p) {
+  static typename TypeTraits<T>::ElementType _(const T &p) {
     return __abacus_half_sqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T, bool SCALAR = 1 == TypeTraits<T>::num_elements>
 struct fast_length_untyped_helper {
-  static typename TypeTraits<T>::ElementType _(const T& x) {
+  static typename TypeTraits<T>::ElementType _(const T &x) {
     return fast_length_typed_helper<T>::_(x);
   }
 };
@@ -223,56 +223,101 @@ struct fast_length_untyped_helper<T, true> {
 };
 
 template <typename T>
-typename TypeTraits<T>::ElementType fast_length(const T& p) {
+typename TypeTraits<T>::ElementType fast_length(const T &p) {
   return fast_length_untyped_helper<T>::_(p);
 }
 
 template <typename T>
-typename TypeTraits<T>::ElementType fast_distance(const T& x, const T& y) {
+typename TypeTraits<T>::ElementType fast_distance(const T &x, const T &y) {
   return geometric::fast_length<T>(x - y);
 }
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct fast_normalize_helper {
-  static T _(const T& p) { return p * __abacus_rsqrt(geometric::dot<T>(p, p)); }
+  static T _(const T &p) { return p * __abacus_rsqrt(geometric::dot<T>(p, p)); }
 };
 
 template <typename T>
 struct fast_normalize_helper<T, abacus_float> {
-  static T _(const T& p) {
+  static T _(const T &p) {
     return p * __abacus_half_rsqrt(geometric::dot<T>(p, p));
   }
 };
 
 template <typename T>
-T fast_normalize(const T& p) {
+T fast_normalize(const T &p) {
   return fast_normalize_helper<T>::_(p);
 }
 
 template <typename T>
-T normalize(const T& p) {
-  using IntType = typename TypeTraits<T>::SignedType;
+T normalize(T p) {
+  constexpr size_t num_elements = TypeTraits<T>::num_elements;
+  static_assert(num_elements >= 1 && num_elements <= 16);
+  if constexpr (num_elements == 1) {  // NOLINT
+    if (p > 0) return 1;
+    if (p < 0) return -1;
+    return p;
+  } else {  // NOLINT
+    using ElementType = typename TypeTraits<T>::ElementType;
+    using UnsignedType = typename TypeTraits<T>::UnsignedType;
+    using ScalarUnsignedType = typename FPShape<T>::ScalarUnsignedType;
 
-  // Check if *any* vector lane is INF.
-  const IntType isInf = __abacus_isinf(p);
+    // Determine the largest element by absolute magnitude. Sign is ignored, and
+    // NaN compares as higher than any other value.
+    const UnsignedType au = detail::cast::as<UnsignedType>(p);
+    const UnsignedType abs_au = au & FPShape<T>::InverseSignMask();
+    ScalarUnsignedType max_mag_au = abs_au[0];
+    for (size_t i = 1; i < num_elements; ++i) {
+      ScalarUnsignedType absElem_au = abs_au[i];
+      if (max_mag_au < absElem_au) max_mag_au = absElem_au;
+    }
+    const ElementType max_mag = detail::cast::as<ElementType>(max_mag_au);
 
-  // Broadcasts scalar abacus_int to vector type since `__abacus_any()` returns
-  // scalar 1 if any vector lane has a sign bit set.
-  const IntType isAnyInf = __abacus_any(isInf) == 1;
+    if (max_mag == 0) {
+      // If all elements were zero, handle this specially by returning the
+      // vector unmodified.
+      return p;
+    }
 
-  // Flush non-INFs to zero if any other lane is INF.
-  T infsFlushed = __abacus_select(p, T(0.0), __abacus_isfinite(p) & isAnyInf);
+    if (__abacus_isinf(max_mag)) {
+      // If any element was infinity, and no element was NaN, handle this
+      // specially by flushing each finite element to zero, and each infinite
+      // element to one.
+      p = __abacus_copysign(__abacus_select(T(0.0), T(1.0), __abacus_isinf(p)),
+                            p);
+    } else {
+      // Otherwise, take the largest exponent that guarantees no overflow will
+      // occur, and try to scale p so that its largest element will have that
+      // exponent.
+      constexpr ElementType max = TypeTraits<ElementType>::max();
+      constexpr ElementType elem_upper_limit =
+          sizeof(ElementType) == 2   ? 0x1.ffcp6
+          : sizeof(ElementType) == 4 ? 0x1.fffffep62
+          : sizeof(ElementType) == 8 ? 0x1.fffffffffffffp510
+                                     : max;
+      static_assert(elem_upper_limit * elem_upper_limit * num_elements <= max);
+      const ScalarUnsignedType max_au =
+          detail::cast::as<ScalarUnsignedType>(max);
+      ScalarUnsignedType scale_factor_au =
+          detail::cast::as<ScalarUnsignedType>(elem_upper_limit) - max_mag_au +
+          detail::cast::as<ScalarUnsignedType>(ElementType(1.0));
 
-  // Flush positive INF to 1.
-  const IntType isPosInf = isInf & ~__abacus_signbit(p);
-  infsFlushed = __abacus_select(infsFlushed, T(1.0), isPosInf);
+      // If max_mag is tiny, just go for the largest scale factor we can use.
+      if (scale_factor_au > max_au) {
+        scale_factor_au = max_au;
+      }
 
-  // Flush negative INF to -1.
-  const IntType isNegInf = isInf & __abacus_signbit(p);
-  infsFlushed = __abacus_select(infsFlushed, T(-1.0), isNegInf);
+      // Ensure we have a power of two so that the multiplication is exact.
+      scale_factor_au &= FPShape<T>::ExponentMask();
 
-  const T tmp = geometric::fast_normalize<T>(infsFlushed);
-  return tmp * __abacus_rsqrt(geometric::dot<T>(tmp, tmp));
+      const ElementType scale_factor =
+          detail::cast::as<ElementType>(scale_factor_au);
+      p *= scale_factor;
+    }
+
+    p = geometric::fast_normalize<T>(p);
+    return p * __abacus_rsqrt(geometric::dot<T>(p, p));
+  }
 }
 
 }  // namespace geometric

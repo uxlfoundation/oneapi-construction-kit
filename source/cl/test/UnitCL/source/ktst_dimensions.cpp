@@ -164,7 +164,7 @@ UCL_EXECUTION_TEST_SUITE_P(
         NDimensions({32u}, {16u}, {1u}), NDimensions({32u}, {32u}, {0u}),
         NDimensions({4096u}, {1u}, {7u}), NDimensions({4096u}, {2u}, {7u}),
         NDimensions({4096u}, {4u}, {7u}), NDimensions({4096u}, {8u}, {7u}),
-        NDimensions({4096u}, {16u}, {7u}), NDimensions({4096u}, {32u}, {7u})));
+        NDimensions({4096u}, {16u}, {7u}), NDimensions({4096u}, {32u}, {7u})))
 
 UCL_EXECUTION_TEST_SUITE_P(
     LocalDimensionTests2D, testing::Values(kts::ucl::OPENCL_C),
@@ -186,7 +186,7 @@ UCL_EXECUTION_TEST_SUITE_P(
                     NDimensions({128u, 64u}, {8u, 4u}, {3u, 3u}),
                     NDimensions({128u, 64u}, {16u, 8u}, {3u, 3u}),
                     NDimensions({128u, 64u}, {32u, 16u}, {3u, 3u}),
-                    NDimensions({16u, 8u}, {2u, 4u}, {1u, 1u})));
+                    NDimensions({16u, 8u}, {2u, 4u}, {1u, 1u})))
 
 UCL_EXECUTION_TEST_SUITE_P(
     LocalDimensionTests3D, testing::Values(kts::ucl::OPENCL_C),
@@ -205,7 +205,7 @@ UCL_EXECUTION_TEST_SUITE_P(
                     NDimensions({32u, 32u, 32u}, {1u, 1u, 1u}, {17u, 13u, 21u}),
                     NDimensions({32u, 32u, 32u}, {2u, 2u, 2u}, {1u, 1u, 1u}),
                     NDimensions({32u, 32u, 32u}, {4u, 4u, 4u}, {1u, 1u, 1u}),
-                    NDimensions({32u, 32u, 32u}, {8u, 8u, 8u}, {1u, 1u, 1u})));
+                    NDimensions({32u, 32u, 32u}, {8u, 8u, 8u}, {1u, 1u, 1u})))
 
 // This test is intended to check that the total number of work-items executed
 // is as it should be.
@@ -287,4 +287,4 @@ UCL_EXECUTION_TEST_SUITE_P(
         NDimensions({23, 19 * 17, 1}, {1, 19, 1}),
         NDimensions({17, 19, 23}, {1, 1, 1}),
         NDimensions({17, 19, 23}, {1, 1, 23}),
-        NDimensions({1, 19, 23 * 17}, {1, 1, 23})));
+        NDimensions({1, 19, 23 * 17}, {1, 1, 23})))

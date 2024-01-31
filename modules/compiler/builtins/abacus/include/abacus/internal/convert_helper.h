@@ -622,26 +622,7 @@ struct convert_sat_choice<T, U, C, E, NotFromInt, NotToInt, IsUpscale> {
 // lower precision
 template <typename T, typename U, typename C, typename E>
 struct convert_sat_choice<T, U, C, E, NotFromInt, NotToInt, NotUpscale> {
-  static T _(const U &u) {
-    using TSigned = typename TypeTraits<T>::SignedType;
-    using TElement = typename TypeTraits<T>::ElementType;
-
-    T result = C::_(u);
-
-    // Squash the value into the desired range.
-    const T min_out = TypeTraits<TElement>::min();
-    const U min_in = ConvertHelper<U, T, RTZHelper>::_(min_out);
-
-    result = __abacus_select(
-        result, min_out, abacus::detail::cast::convert<TSigned>(u < min_in));
-
-    const T max_out = TypeTraits<TElement>::max();
-    const U max_in = ConvertHelper<U, T, RTZHelper>::_(max_out);
-
-    result = __abacus_select(
-        result, max_out, abacus::detail::cast::convert<TSigned>(u > max_in));
-    return result;
-  }
+  static T _(const U &u) { return C::_(u); }
 };
 
 // U is a floating point, T is an integer type

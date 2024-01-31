@@ -23,7 +23,7 @@
 
 namespace InputType {
 enum Type { NOP = 0, NOBUILTINS, MATHBUILTINS };
-};
+}
 
 struct CreateProgramData {
   cl_platform_id platform;

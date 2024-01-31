@@ -30,8 +30,8 @@ struct ElfUserdata {
 md_hooks getHostMdReadHooks() {
   md_hooks md_hooks{};
 
-  md_hooks.map = [](void *userdata, size_t *n) -> void * {
-    auto *elfUserdata = static_cast<ElfUserdata *>(userdata);
+  md_hooks.map = [](const void *userdata, size_t *n) -> const void * {
+    auto *elfUserdata = static_cast<const ElfUserdata *>(userdata);
     auto *elf = elfUserdata->elf;
     auto notes_section = elf->section(host::MD_NOTES_SECTION);
     if (!notes_section.has_value()) {

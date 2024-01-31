@@ -272,6 +272,6 @@ const llvm::LLVMContext &HostTarget::getLLVMContext() const {
   return *llvm_ts_context.getContext();
 }
 
-llvm::Module *HostTarget::getBuiltins() const { return builtins.get(); };
+llvm::Module *HostTarget::getBuiltins() const { return builtins.get(); }
 
 }  // namespace host

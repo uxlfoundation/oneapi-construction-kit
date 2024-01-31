@@ -296,14 +296,16 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     // @brief Type of the argument.
     compiler::ArgumentType type;
 
+    struct value_t {
+      void *data;
+      size_t size;
+    };
+
     union {
       size_t local_memory_size;
       cl_mem memory_buffer;
       cl_uint sampler_value;
-      struct {
-        void *data;
-        size_t size;
-      } value;
+      value_t value;
     };
 
     using info = compiler::KernelInfo::ArgumentInfo;

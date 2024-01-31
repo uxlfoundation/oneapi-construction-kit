@@ -100,19 +100,18 @@ struct ULPErrValidator final {
   }
 
   void print(std::stringstream &s, const cl_half value) {
-    s << "[half] 0x" << std::hex << matchingType(value);
     const cl_float as_float = ConvertHalfToFloat(value);
-    s << ", as float 0x" << matchingType(as_float) << std::dec;
+    s << "half " << as_float << "[0x" << std::hex << value << "]" << std::dec;
 
     if (previous_set) {
-      s << ", ulp: " << calcHalfPrecisionULP(previous, as_float);
+      s << ", ulp: " << calcHalfPrecisionULP(previous, value);
     }
   }
 
   void print(std::stringstream &s, const cl_float value) {
-    s << "[float] 0x" << std::hex << matchingType(value) << std::dec;
     const cl_half as_half = ConvertFloatToHalf(value);
-    s << ", as half 0x" << std::hex << as_half << std::dec;
+    s << value << " (half " << ConvertHalfToFloat(as_half) << "[0x" << std::hex
+      << as_half << std::dec << "])";
     if (!previous_set) {
       previous_set = true;
       previous = value;
@@ -437,7 +436,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_03_Half_Distance) {
   this->RunGeneric1D(work_items);
 }
 
-TEST_P(HalfGeometricBuiltins, DISABLED_Geometric_04_Half_Normalize) {
+TEST_P(HalfGeometricBuiltins, Geometric_04_Half_Normalize) {
   if (!UCL::hasHalfSupport(device)) {
     GTEST_SKIP();
   }
@@ -456,23 +455,29 @@ TEST_P(HalfGeometricBuiltins, DISABLED_Geometric_04_Half_Normalize) {
     const size_t vector_group = id / vec_width;
     cl_float input = ConvertHalfToFloat(ref_buffer(id));
 
-    if ((vec_width == 1) && (input == 0.0f)) {
-      return 0.0f;
-    }
-
+    // We need to check if ALL of the fields are zero as in that case we need to
+    // return the input.
     // We need to check if ANY of the fields are INF as that changes the
     // behaviour of the test. The spec says that if any vector lanes are INF all
     // INF fields should be flushed to 1 and all others to 0.
+    bool all_zero = true;
     bool has_inf = false;
     for (unsigned i = 0; i < vec_width; i++) {
       const size_t offset = (vector_group * vec_width) + i;
       const cl_float as_float = ConvertHalfToFloat(ref_buffer(offset));
+      if (as_float != 0) {
+        all_zero = false;
+      }
       if (std::isinf(as_float)) {
         has_inf = true;
       }
     }
 
-    cl_float dot = 0.0f;
+    if (all_zero) {
+      return input;
+    }
+
+    cl_double dot = 0.0f;
     for (unsigned i = 0; i < vec_width; i++) {
       const size_t offset = (vector_group * vec_width) + i;
       const cl_float as_float = ConvertHalfToFloat(ref_buffer(offset));
@@ -490,108 +495,13 @@ TEST_P(HalfGeometricBuiltins, DISABLED_Geometric_04_Half_Normalize) {
       }
     }
 
-    // CTS tests handle this case, but it's not in the spec anywhere
-    if (std::isinf(dot)) {
-      return NAN;
-    }
-
     const cl_float rsqrt_dot = 1.0f / std::sqrt(dot);
     if (std::isinf(input)) {
       return std::copysign(rsqrt_dot, input);
     } else if (has_inf) {
-      input = 0.0f * input;  // evaluates to 0.0f or NAN
+      input = 0.0f * input;  // evaluates to 0.0f or -0.0f or NAN
     }
     return input * rsqrt_dot;
-  };
-
-  const bool denormSupport =
-      UCL::hasDenormSupport(device, CL_DEVICE_HALF_FP_CONFIG);
-  // Undefined behaviour if dot product calculation {over,under}flows
-  auto undef_callback = [&ref_buffer, vec_width,
-                         denormSupport](size_t index) -> bool {
-    const size_t vector_group = index / vec_width;
-    cl_float dot = 0.0f;
-    for (unsigned i = 0; i < vec_width; i++) {
-      const size_t offset = (vector_group * vec_width) + i;
-      const cl_half half_val = ref_buffer(offset);
-      const cl_float as_float = ConvertHalfToFloat(half_val);
-
-      const cl_float intermediate = as_float * as_float;
-
-      dot += intermediate;
-
-      if (!std::isinf(dot) && dot > TypeInfo<cl_half>::max) {
-        return true;
-      }
-
-      // Dot product has underflowed
-      if (dot != 0.0f) {
-        if (dot < TypeInfo<cl_half>::lowest) {
-          return true;
-        }
-        if (!denormSupport &&
-            (IsDenormalAsHalf(dot) || IsDenormalAsHalf(intermediate))) {
-          return true;
-        }
-      }
-    }
-
-    /*
-      Currently we are checking if the second stage of our implementation
-      produces a denormal as an intermediate result. This is overfitting to our
-      implementation.
-
-      An example failing of FTZ hardware:
-
-      First pass:
-      In: (-1.3623, -164.625, 0.0154877)
-      Dot: 27103.2
-      rsqrt(Dot): 0.0060742
-
-      We then multiply the input by 0.0060742.
-
-      Second pass:
-
-      NewIn: (-0.00827492, -0.999966,  9.40753e-05)
-
-      When doing the dot product we produce a denormal in the multiplication of
-      9.40753e-05 which means we no longer get the desired result.
-
-      The CTS has a bug at time of writing, where the ULP is calculated as NaN
-      and then compared against using ULP < UPL_Limit, which in the case of NaN
-      returns false so the tests pass for the above case on 32bit in the CTS.
-    */
-    const cl_float sq = std::sqrt(dot);
-    const cl_float rsq = 1.0f / sq;
-
-    cl_float second_dot = 0.0f;
-
-    for (unsigned i = 0; i < vec_width; i++) {
-      const size_t offset = (vector_group * vec_width) + i;
-      const cl_half half_val = ref_buffer(offset);
-      const cl_float as_float = ConvertHalfToFloat(half_val) * rsq;
-
-      const cl_float intermediate = (as_float * as_float);
-      second_dot += intermediate;
-
-      // Dot product has overflowed
-      if (!std::isinf(second_dot) && second_dot > TypeInfo<cl_half>::max) {
-        return true;
-      }
-
-      // Dot product has underflowed
-      if (second_dot != 0.0f) {
-        if (second_dot < TypeInfo<cl_half>::lowest) {
-          return true;
-        }
-        if (!denormSupport &&
-            (IsDenormalAsHalf(second_dot) || IsDenormalAsHalf(intermediate))) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   };
 
   // Function used to determine ULP error threshold, which is dependent on
@@ -644,18 +554,16 @@ TEST_P(HalfGeometricBuiltins, DISABLED_Geometric_04_Half_Normalize) {
 
   // FTZ fallback reference if device doesn't support denormals
   // Normalize is the only CTS geometric single-precision test to check FTZ
+  const bool denormSupport =
+      UCL::hasDenormSupport(device, CL_DEVICE_HALF_FP_CONFIG);
   if (denormSupport) {
     auto ref_streamer =
         std::make_shared<ULPErrStreamer>(ref_lambda, err_callback, device);
-
-    ref_streamer->SetUndefCallback(std::move(undef_callback));
     this->AddOutputBuffer(N, ref_streamer);
   } else {
     const std::vector<kts::Reference1D<cl_float>> fallbacks{ftz_lambda};
     auto ref_streamer = std::make_shared<ULPErrStreamer>(
         ref_lambda, err_callback, std::move(fallbacks), device);
-
-    ref_streamer->SetUndefCallback(std::move(undef_callback));
     this->AddOutputBuffer(N, ref_streamer);
   }
 
@@ -665,7 +573,7 @@ TEST_P(HalfGeometricBuiltins, DISABLED_Geometric_04_Half_Normalize) {
 
 // No vector widths 8 or 16 defined for geometrics
 UCL_EXECUTION_TEST_SUITE_P(HalfGeometricBuiltins, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 3, 4));
+                           testing::Values(1, 2, 3, 4))
 
 using HalfGeometricCross = GeometricParamExecution;
 TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
@@ -773,4 +681,4 @@ TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
 
 // Cross is only defined for vector widths 3 and 4
 UCL_EXECUTION_TEST_SUITE_P(HalfGeometricCross, testing::Values(OPENCL_C),
-                           testing::Values(3, 4));
+                           testing::Values(3, 4))
