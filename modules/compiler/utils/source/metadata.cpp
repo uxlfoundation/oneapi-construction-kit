@@ -72,7 +72,7 @@ static std::optional<VectorizationInfo> extractVectorizationInfo(MDTuple *md) {
   info.IsVectorPredicated = isVPMD->equalsInt(1);
 
   return info;
-};
+}
 
 static std::optional<LinkMetadataResult> parseVectorLinkMD(MDNode *mdnode) {
   if (auto info =

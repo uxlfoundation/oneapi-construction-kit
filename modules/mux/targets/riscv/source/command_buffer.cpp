@@ -907,7 +907,7 @@ mux_result_t riscvUpdateDescriptors(mux_command_buffer_t command_buffer,
       case mux_descriptor_info_type_plain_old_data: {
         mux_descriptor_info_plain_old_data_s info =
             descriptors[i].plain_old_data_descriptor;
-        std::memcpy((void *)arg.pod_data, info.data, arg.size);
+        std::memcpy(arg.pod_data, info.data, arg.size);
       } break;
       case mux_descriptor_info_type_shared_local_buffer: {
         mux_descriptor_info_shared_local_buffer_s info =

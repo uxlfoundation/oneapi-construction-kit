@@ -48,4 +48,4 @@ void CL_CALLBACK ucl::buildLogCallback(cl_program program, void *) {
       return;
     }
   }
-};
+}

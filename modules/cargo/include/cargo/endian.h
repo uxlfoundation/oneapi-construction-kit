@@ -65,9 +65,8 @@ constexpr bool is_little_endian() { return detail::endianness_helper::little; }
 /// byte iterator.
 template <typename InputIterator>
 typename std::enable_if_t<
-    std::is_same_v<std::remove_const_t<
-                       typename std::iterator_traits<InputIterator>::reference>,
-                   uint8_t &>,
+    std::is_same_v<typename std::iterator_traits<InputIterator>::value_type,
+                   uint8_t>,
     InputIterator>
 read_little_endian(uint8_t *v, InputIterator it) {
   *v = *it++;
@@ -78,9 +77,8 @@ read_little_endian(uint8_t *v, InputIterator it) {
 /// byte iterator.
 template <typename InputIterator>
 typename std::enable_if_t<
-    std::is_same_v<std::remove_const_t<
-                       typename std::iterator_traits<InputIterator>::reference>,
-                   uint8_t &>,
+    std::is_same_v<typename std::iterator_traits<InputIterator>::value_type,
+                   uint8_t>,
     InputIterator>
 read_little_endian(uint16_t *v, InputIterator it) {
   *v = *it++;
@@ -92,9 +90,8 @@ read_little_endian(uint16_t *v, InputIterator it) {
 /// byte iterator.
 template <typename InputIterator>
 typename std::enable_if_t<
-    std::is_same_v<std::remove_const_t<
-                       typename std::iterator_traits<InputIterator>::reference>,
-                   uint8_t &>,
+    std::is_same_v<typename std::iterator_traits<InputIterator>::value_type,
+                   uint8_t>,
     InputIterator>
 read_little_endian(uint32_t *v, InputIterator it) {
   *v = *it++;
@@ -108,9 +105,8 @@ read_little_endian(uint32_t *v, InputIterator it) {
 /// byte iterator.
 template <typename InputIterator>
 typename std::enable_if_t<
-    std::is_same_v<std::remove_const_t<
-                       typename std::iterator_traits<InputIterator>::reference>,
-                   uint8_t &>,
+    std::is_same_v<typename std::iterator_traits<InputIterator>::value_type,
+                   uint8_t>,
     InputIterator>
 read_little_endian(uint64_t *v, InputIterator it) {
   *v = *it++;
@@ -128,9 +124,8 @@ read_little_endian(uint64_t *v, InputIterator it) {
 /// byte iterator.
 template <typename Integer, typename InputIterator>
 typename std::enable_if_t<
-    std::is_same_v<std::remove_const_t<
-                       typename std::iterator_traits<InputIterator>::reference>,
-                   uint8_t &>,
+    std::is_same_v<typename std::iterator_traits<InputIterator>::value_type,
+                   uint8_t>,
     InputIterator>
 read_big_endian(Integer *v, InputIterator it) {
   // read from little-endian to native and swap to achieve the same effect as a

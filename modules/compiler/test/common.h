@@ -368,8 +368,10 @@ struct CompilerLLVMModuleTest : ::testing::Test {
 ///
 /// @param[in] FIXTURE Test fixture to instantiate, must be derived from
 /// CompilerContextTest.
-#define INSTANTIATE_DEFERRABLE_COMPILER_TARGET_TEST_SUITE_P(FIXTURE) \
-  INSTANTIATE_TEST_SUITE_P(                                          \
-      , FIXTURE, testing::ValuesIn(deferrableCompilers()), printDeviceName)
+#define INSTANTIATE_DEFERRABLE_COMPILER_TARGET_TEST_SUITE_P(FIXTURE)         \
+  INSTANTIATE_TEST_SUITE_P(                                                  \
+      , FIXTURE, testing::ValuesIn(deferrableCompilers()), printDeviceName); \
+  /* We do not know whether there are any deferrable compilers. */           \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
 #endif  // COMPILER_UNITCOMPILER_COMMON_H_INCLUDED

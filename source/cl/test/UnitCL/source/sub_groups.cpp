@@ -2374,4 +2374,4 @@ UCL_EXECUTION_TEST_SUITE_P(
                     // 2D edge case.
                     LocalSizes(67, 3, 1),
                     // 3D edge case.
-                    LocalSizes(67, 2, 3)));
+                    LocalSizes(67, 2, 3)))

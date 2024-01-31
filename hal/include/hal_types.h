@@ -114,7 +114,7 @@ struct hal_arg_t {
   hal_size_t size;
   union {
     hal_addr_t address;
-    const void *pod_data;
+    void *pod_data;
   };
 };
 

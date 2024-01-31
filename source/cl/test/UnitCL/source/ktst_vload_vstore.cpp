@@ -165,4 +165,4 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_04_Half_Constant) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(HalfVloadVstoreTests, testing::Values(OPENCL_C),
-                           testing::Values(2u, 3u, 4u, 8u, 16u));
+                           testing::Values(2u, 3u, 4u, 8u, 16u))

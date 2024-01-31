@@ -731,25 +731,25 @@ TEST_P(HalfToBoolConversions, Conversion_01_Implicit_Cast) { Run<CLbool>(); }
 TEST_P(HalfToBoolConversions, Conversion_02_Explicit_Cast) { Run<CLbool>(); }
 // Bool is a scalar type, so don't need to test across vector widths
 UCL_EXECUTION_TEST_SUITE_P(HalfToBoolConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(std::array<unsigned, 1>({1})));
+                           testing::ValuesIn(std::array<unsigned, 1>({1})))
 
 using HalfToCharConversions = HalfToGentypeConversions;
 TEST_P(HalfToCharConversions, Conversion_01_Implicit_Cast) { Run<CLchar>(); }
 TEST_P(HalfToCharConversions, Conversion_02_Explicit_Cast) { Run<CLchar>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToCharConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToUcharConversions = HalfToGentypeConversions;
 TEST_P(HalfToUcharConversions, Conversion_01_Implicit_Cast) { Run<CLuchar>(); }
 TEST_P(HalfToUcharConversions, Conversion_02_Explicit_Cast) { Run<CLuchar>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUcharConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToShortConversions = HalfToGentypeConversions;
 TEST_P(HalfToShortConversions, Conversion_01_Implicit_Cast) { Run<CLshort>(); }
 TEST_P(HalfToShortConversions, Conversion_02_Explicit_Cast) { Run<CLshort>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToShortConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToUshortConversions = HalfToGentypeConversions;
 TEST_P(HalfToUshortConversions, Conversion_01_Implicit_Cast) {
@@ -759,37 +759,37 @@ TEST_P(HalfToUshortConversions, Conversion_02_Explicit_Cast) {
   Run<CLushort>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUshortConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToIntConversions = HalfToGentypeConversions;
 TEST_P(HalfToIntConversions, Conversion_01_Implicit_Cast) { Run<CLint>(); }
 TEST_P(HalfToIntConversions, Conversion_02_Explicit_Cast) { Run<CLint>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToIntConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToUintConversions = HalfToGentypeConversions;
 TEST_P(HalfToUintConversions, Conversion_01_Implicit_Cast) { Run<CLuint>(); }
 TEST_P(HalfToUintConversions, Conversion_02_Explicit_Cast) { Run<CLuint>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUintConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToLongConversions = HalfToGentypeConversions;
 TEST_P(HalfToLongConversions, Conversion_01_Implicit_Cast) { Run<CLlong>(); }
 TEST_P(HalfToLongConversions, Conversion_02_Explicit_Cast) { Run<CLlong>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToLongConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToUlongConversions = HalfToGentypeConversions;
 TEST_P(HalfToUlongConversions, Conversion_01_Implicit_Cast) { Run<CLulong>(); }
 TEST_P(HalfToUlongConversions, Conversion_02_Explicit_Cast) { Run<CLulong>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUlongConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToFloatConversions = HalfToGentypeConversions;
 TEST_P(HalfToFloatConversions, Conversion_01_Implicit_Cast) { Run<CLfloat>(); }
 TEST_P(HalfToFloatConversions, Conversion_02_Explicit_Cast) { Run<CLfloat>(); }
 UCL_EXECUTION_TEST_SUITE_P(HalfToFloatConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToDoubleConversions = HalfToGentypeConversions;
 TEST_P(HalfToDoubleConversions, Conversion_01_Implicit_Cast) {
@@ -806,31 +806,31 @@ TEST_P(HalfToDoubleConversions, Conversion_02_Explicit_Cast) {
   Run<CLdouble>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToDoubleConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using BoolToHalfConversions = GentypeToHalfConversions;
 TEST_P(BoolToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLbool>(); }
 TEST_P(BoolToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLbool>(); }
 UCL_EXECUTION_TEST_SUITE_P(BoolToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using CharToHalfConversions = GentypeToHalfConversions;
 TEST_P(CharToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLchar>(); }
 TEST_P(CharToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLchar>(); }
 UCL_EXECUTION_TEST_SUITE_P(CharToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using UcharToHalfConversions = GentypeToHalfConversions;
 TEST_P(UcharToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLuchar>(); }
 TEST_P(UcharToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLuchar>(); }
 UCL_EXECUTION_TEST_SUITE_P(UcharToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using ShortToHalfConversions = GentypeToHalfConversions;
 TEST_P(ShortToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLshort>(); }
 TEST_P(ShortToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLshort>(); }
 UCL_EXECUTION_TEST_SUITE_P(ShortToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using UshortToHalfConversions = GentypeToHalfConversions;
 TEST_P(UshortToHalfConversions, Conversion_01_Implicit_Cast) {
@@ -840,37 +840,37 @@ TEST_P(UshortToHalfConversions, Conversion_02_Explicit_Cast) {
   Run<CLushort>();
 }
 UCL_EXECUTION_TEST_SUITE_P(UshortToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using IntToHalfConversions = GentypeToHalfConversions;
 TEST_P(IntToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLint>(); }
 TEST_P(IntToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLint>(); }
 UCL_EXECUTION_TEST_SUITE_P(IntToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using UintToHalfConversions = GentypeToHalfConversions;
 TEST_P(UintToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLuint>(); }
 TEST_P(UintToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLuint>(); }
 UCL_EXECUTION_TEST_SUITE_P(UintToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using LongToHalfConversions = GentypeToHalfConversions;
 TEST_P(LongToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLlong>(); }
 TEST_P(LongToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLlong>(); }
 UCL_EXECUTION_TEST_SUITE_P(LongToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using UlongToHalfConversions = GentypeToHalfConversions;
 TEST_P(UlongToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLulong>(); }
 TEST_P(UlongToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLulong>(); }
 UCL_EXECUTION_TEST_SUITE_P(UlongToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using FloatToHalfConversions = GentypeToHalfConversions;
 TEST_P(FloatToHalfConversions, Conversion_01_Implicit_Cast) { Run<CLfloat>(); }
 TEST_P(FloatToHalfConversions, Conversion_02_Explicit_Cast) { Run<CLfloat>(); }
 UCL_EXECUTION_TEST_SUITE_P(FloatToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using DoubleToHalfConversions = GentypeToHalfConversions;
 TEST_P(DoubleToHalfConversions, Conversion_01_Implicit_Cast) {
@@ -895,7 +895,7 @@ TEST_P(DoubleToHalfConversions, Conversion_02_Explicit_Cast) {
   Run<CLdouble>();
 }
 UCL_EXECUTION_TEST_SUITE_P(DoubleToHalfConversions, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToShortReinterpret = ReinterpretAllVecWidthsTest;
 TEST_P(HalfToShortReinterpret, Conversion_03_Reinterpret) {
@@ -905,7 +905,7 @@ TEST_P(HalfToShortReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLshort>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToShortReinterpret, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using HalfToUshortReinterpret = ReinterpretAllVecWidthsTest;
 TEST_P(HalfToUshortReinterpret, Conversion_03_Reinterpret) {
@@ -915,7 +915,7 @@ TEST_P(HalfToUshortReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLushort>();
 }
 UCL_EXECUTION_TEST_SUITE_P(HalfToUshortReinterpret, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using ShortToHalfReinterpret = ReinterpretAllVecWidthsTest;
 TEST_P(ShortToHalfReinterpret, Conversion_03_Reinterpret) {
@@ -925,7 +925,7 @@ TEST_P(ShortToHalfReinterpret, Conversion_03_Reinterpret) {
   Run<CLshort, CLhalf>();
 }
 UCL_EXECUTION_TEST_SUITE_P(ShortToHalfReinterpret, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using UshortToHalfReinterpret = ReinterpretAllVecWidthsTest;
 TEST_P(UshortToHalfReinterpret, Conversion_03_Reinterpret) {
@@ -935,92 +935,109 @@ TEST_P(UshortToHalfReinterpret, Conversion_03_Reinterpret) {
   Run<CLushort, CLhalf>();
 }
 UCL_EXECUTION_TEST_SUITE_P(UshortToHalfReinterpret, testing::Values(OPENCL_C),
-                           testing::ValuesIn(vector_widths));
+                           testing::ValuesIn(vector_widths))
 
 using Half4toHalf3Reinterpret = ReinterpretSingleTest;
 TEST_P(Half4toHalf3Reinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLhalf, 4, 3>();
 }
+UCL_EXECUTION_TEST_SUITE(Half4toHalf3Reinterpret, testing::Values(OPENCL_C))
 
 using Half4toShort3Reinterpret = ReinterpretSingleTest;
 TEST_P(Half4toShort3Reinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLshort, 4, 3>();
 }
+UCL_EXECUTION_TEST_SUITE(Half4toShort3Reinterpret, testing::Values(OPENCL_C))
 
 using Half4toUshort3Reinterpret = ReinterpretSingleTest;
 TEST_P(Half4toUshort3Reinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLushort, 4, 3>();
 }
+UCL_EXECUTION_TEST_SUITE(Half4toUshort3Reinterpret, testing::Values(OPENCL_C))
 
 using Short4toHalf3Reinterpret = ReinterpretSingleTest;
 TEST_P(Short4toHalf3Reinterpret, Conversion_03_Reinterpret) {
   Run<CLshort, CLhalf, 4, 3>();
 }
+UCL_EXECUTION_TEST_SUITE(Short4toHalf3Reinterpret, testing::Values(OPENCL_C))
 
 using Ushort4toHalf3Reinterpret = ReinterpretSingleTest;
 TEST_P(Ushort4toHalf3Reinterpret, Conversion_03_Reinterpret) {
   Run<CLushort, CLhalf, 4, 3>();
 }
+UCL_EXECUTION_TEST_SUITE(Ushort4toHalf3Reinterpret, testing::Values(OPENCL_C))
 
 using IntToHalf2Reinterpret = ReinterpretSingleTest;
 TEST_P(IntToHalf2Reinterpret, Conversion_03_Reinterpret) {
   Run<CLint, CLhalf, 1, 2>();
 }
+UCL_EXECUTION_TEST_SUITE(IntToHalf2Reinterpret, testing::Values(OPENCL_C))
 
 using Half2ToIntReinterpret = ReinterpretSingleTest;
 TEST_P(Half2ToIntReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLint, 2, 1>();
 }
+UCL_EXECUTION_TEST_SUITE(Half2ToIntReinterpret, testing::Values(OPENCL_C))
 
 using UintToHalf2Reinterpret = ReinterpretSingleTest;
 TEST_P(UintToHalf2Reinterpret, Conversion_03_Reinterpret) {
   Run<CLuint, CLhalf, 1, 2>();
 }
+UCL_EXECUTION_TEST_SUITE(UintToHalf2Reinterpret, testing::Values(OPENCL_C))
 
 using Half2ToUintReinterpret = ReinterpretSingleTest;
 TEST_P(Half2ToUintReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLuint, 2, 1>();
 }
+UCL_EXECUTION_TEST_SUITE(Half2ToUintReinterpret, testing::Values(OPENCL_C))
 
 using FloatToHalf2Reinterpret = ReinterpretSingleTest;
 TEST_P(FloatToHalf2Reinterpret, Conversion_03_Reinterpret) {
   Run<CLfloat, CLhalf, 1, 2>();
 }
+UCL_EXECUTION_TEST_SUITE(FloatToHalf2Reinterpret, testing::Values(OPENCL_C))
 
 using Half2ToFloatReinterpret = ReinterpretSingleTest;
 TEST_P(Half2ToFloatReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLfloat, 2, 1>();
 }
+UCL_EXECUTION_TEST_SUITE(Half2ToFloatReinterpret, testing::Values(OPENCL_C))
 
 using LongToHalf4Reinterpret = ReinterpretSingleTest;
 TEST_P(LongToHalf4Reinterpret, Conversion_03_Reinterpret) {
   Run<CLlong, CLhalf, 1, 4>();
 }
+UCL_EXECUTION_TEST_SUITE(LongToHalf4Reinterpret, testing::Values(OPENCL_C))
 
 using Half4ToLongReinterpret = ReinterpretSingleTest;
 TEST_P(Half4ToLongReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLlong, 4, 1>();
 }
+UCL_EXECUTION_TEST_SUITE(Half4ToLongReinterpret, testing::Values(OPENCL_C))
 
 using UlongToHalf4Reinterpret = ReinterpretSingleTest;
 TEST_P(UlongToHalf4Reinterpret, Conversion_03_Reinterpret) {
   Run<CLulong, CLhalf, 1, 4>();
 }
+UCL_EXECUTION_TEST_SUITE(UlongToHalf4Reinterpret, testing::Values(OPENCL_C))
 
 using Half4ToUlongReinterpret = ReinterpretSingleTest;
 TEST_P(Half4ToUlongReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLulong, 4, 1>();
 }
+UCL_EXECUTION_TEST_SUITE(Half4ToUlongReinterpret, testing::Values(OPENCL_C))
 
 using DoubleToHalf4Reinterpret = ReinterpretSingleTest;
 TEST_P(DoubleToHalf4Reinterpret, Conversion_03_Reinterpret) {
   Run<CLdouble, CLhalf, 1, 4>();
 }
+UCL_EXECUTION_TEST_SUITE(DoubleToHalf4Reinterpret, testing::Values(OPENCL_C))
 
 using Half4ToDoubleReinterpret = ReinterpretSingleTest;
 TEST_P(Half4ToDoubleReinterpret, Conversion_03_Reinterpret) {
   Run<CLhalf, CLdouble, 4, 1>();
 }
+UCL_EXECUTION_TEST_SUITE(Half4ToDoubleReinterpret, testing::Values(OPENCL_C))
 
 using HalfToCharExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToCharExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1032,7 +1049,7 @@ TEST_P(HalfToCharExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(HalfToCharExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using CharToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(CharToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1044,7 +1061,7 @@ TEST_P(CharToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(CharToHalfExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToUcharExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToUcharExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1057,7 +1074,7 @@ UCL_EXECUTION_TEST_SUITE_P(HalfToUcharExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using UcharToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(UcharToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1070,7 +1087,7 @@ UCL_EXECUTION_TEST_SUITE_P(UcharToHalfExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToShortExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToShortExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1083,7 +1100,7 @@ UCL_EXECUTION_TEST_SUITE_P(HalfToShortExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using ShortToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(ShortToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1096,7 +1113,7 @@ UCL_EXECUTION_TEST_SUITE_P(ShortToHalfExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToUshortExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToUshortExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1109,7 +1126,7 @@ UCL_EXECUTION_TEST_SUITE_P(HalfToUshortExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using UshortToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(UshortToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1122,7 +1139,7 @@ UCL_EXECUTION_TEST_SUITE_P(UshortToHalfExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToIntExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToIntExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1134,7 +1151,7 @@ TEST_P(HalfToIntExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(HalfToIntExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using IntToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(IntToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1146,7 +1163,7 @@ TEST_P(IntToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(IntToHalfExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToUintExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToUintExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1158,7 +1175,7 @@ TEST_P(HalfToUintExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(HalfToUintExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using UintToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(UintToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1170,7 +1187,7 @@ TEST_P(UintToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(UintToHalfExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToLongExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToLongExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1182,7 +1199,7 @@ TEST_P(HalfToLongExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(HalfToLongExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using LongToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(LongToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1194,7 +1211,7 @@ TEST_P(LongToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(LongToHalfExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToUlongExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToUlongExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1207,7 +1224,7 @@ UCL_EXECUTION_TEST_SUITE_P(HalfToUlongExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using UlongToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(UlongToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1220,7 +1237,7 @@ UCL_EXECUTION_TEST_SUITE_P(UlongToHalfExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1232,7 +1249,7 @@ TEST_P(HalfToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
 UCL_EXECUTION_TEST_SUITE_P(HalfToHalfExplicitConvert, testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToFloatExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToFloatExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1245,7 +1262,7 @@ UCL_EXECUTION_TEST_SUITE_P(HalfToFloatExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using FloatToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(FloatToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1258,7 +1275,7 @@ UCL_EXECUTION_TEST_SUITE_P(FloatToHalfExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using HalfToDoubleExplicitConvert = ExplicitConvertTest;
 TEST_P(HalfToDoubleExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1271,7 +1288,7 @@ UCL_EXECUTION_TEST_SUITE_P(HalfToDoubleExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))
 
 using DoubleToHalfExplicitConvert = ExplicitConvertTest;
 TEST_P(DoubleToHalfExplicitConvert, Conversion_04_Explicit_Convert) {
@@ -1288,4 +1305,4 @@ UCL_EXECUTION_TEST_SUITE_P(DoubleToHalfExplicitConvert,
                            testing::Values(OPENCL_C),
                            testing::Combine(testing::ValuesIn(vector_widths),
                                             testing::ValuesIn(sat),
-                                            testing::ValuesIn(roundings)));
+                                            testing::ValuesIn(roundings)))

@@ -495,7 +495,8 @@ TEST_F(MDApiStackTest, md_finalize_ctx_FailAfterFinalize) {
 TEST_F(MDApiStackTest, SerializeMsgPack) {
   static std::vector<uint8_t> binary;
   hooks.write = [](void *, const void *data, size_t n) -> md_err {
-    binary.insert(binary.end(), (uint8_t *)data, (uint8_t *)data + n);
+    binary.insert(binary.end(), (const uint8_t *)data,
+                  (const uint8_t *)data + n);
     return MD_SUCCESS;
   };
   hooks.finalize = [](void *) {};
@@ -517,7 +518,7 @@ TEST_F(MDApiStackTest, SerializeMsgPack) {
   // Deserialize the bytes
   {
     md_hooks read_hooks{};
-    read_hooks.map = [](void *, size_t *n) -> void * {
+    read_hooks.map = [](const void *, size_t *n) -> const void * {
       *n = binary.size();
       return binary.data();
     };
@@ -585,7 +586,7 @@ TEST_F(MDApiCtxTest, finalizeCtx) {
   // attempt to read back the binary
 
   md_hooks read_hooks{};
-  read_hooks.map = [](void *, size_t *n) -> void * {
+  read_hooks.map = [](const void *, size_t *n) -> const void * {
     *n = out_binary.size();
     return out_binary.data();
   };
@@ -638,9 +639,9 @@ TEST_F(MDApiCtxTest, finalizeCtx) {
 }
 
 TEST_F(MDAllocatorTest, DecodeBinary) {
-  hooks.map = [](void *, size_t *n) -> void * {
+  hooks.map = [](const void *, size_t *n) -> const void * {
     *n = sizeof(example_md_bin);
-    return (void *)&example_md_bin[0];
+    return &example_md_bin[0];
   };
 
   md_ctx ctx = md_init(&hooks, &userdata);
@@ -671,7 +672,7 @@ TEST_F(MDAllocatorTest, DecodeBinary) {
 }
 
 TEST_F(MDAllocatorTest, DecodeInvalidBinary) {
-  hooks.map = [](void *, size_t *n) -> void * {
+  hooks.map = [](const void *, size_t *n) -> const void * {
     *n = 0;
     return nullptr;
   };

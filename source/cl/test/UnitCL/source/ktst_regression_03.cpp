@@ -181,9 +181,9 @@ TEST_P(Execution, Regression_58_Nested_Structs) {
   struct PACKED s_loops {
     struct long_array loops;
     struct PACKED {
-      cl_char unused2;
-    };
-    cl_char unused[7];
+      cl_char unused;
+    } unused2;
+    cl_char unused3[7];
   };
 
   struct PACKED s_step {
@@ -199,14 +199,14 @@ TEST_P(Execution, Regression_58_Nested_Structs) {
   struct PACKED s_wrapper {
     struct PACKED {
       struct long_array unused;
-    };
+    } unused2;
     struct s_scheduling sched;
   };
 
   struct PACKED s_top_level {
     struct PACKED {
       cl_char unused[2];
-    };
+    } unused2;
     struct s_wrapper wrap;
   };
 
@@ -309,7 +309,7 @@ UCL_EXECUTION_TEST_SUITE_P(
                     GlobalRangeAndLocalRange(2, 6, 1, 2),
                     GlobalRangeAndLocalRange(6, 2, 3, 2),
                     GlobalRangeAndLocalRange(4, 3, 4, 1),
-                    GlobalRangeAndLocalRange(4, 3, 2, 1)));
+                    GlobalRangeAndLocalRange(4, 3, 2, 1)))
 
 // Both Regression_61 and Regression_62 were added when tracking down an issue
 // involving barriers in SYCL programs, hence the presense of SPIR-V versions
@@ -383,7 +383,7 @@ TEST_P(MultipleLocalDimensionsTests,
 
 UCL_EXECUTION_TEST_SUITE_P(MultipleLocalDimensionsTests,
                            testing::ValuesIn(getSourceTypes()),
-                           testing::Values(1u, 2u, 4u, 8u, 16u, 32u));
+                           testing::Values(1u, 2u, 4u, 8u, 16u, 32u))
 
 TEST_P(Execution, Regression_65_Fract_Double) {
   if (!UCL::hasDoubleSupport(device)) {

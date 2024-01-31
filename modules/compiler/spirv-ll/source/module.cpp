@@ -209,7 +209,7 @@ llvm::DICompileUnit *spirv_ll::Module::getCompileUnit() const {
   return CompileUnit;
 }
 
-void spirv_ll::Module::setDIFile(llvm::DIFile *file) { File = file; };
+void spirv_ll::Module::setDIFile(llvm::DIFile *file) { File = file; }
 
 llvm::DIFile *spirv_ll::Module::getDIFile() const { return File; }
 

@@ -164,11 +164,19 @@ endif()
   drivers from being found. If :cmake:variable:`CA_CL_ENABLE_INTERCEPT_LAYER`
   is ``ON`` the :envvar:`CLI_OpenCLFileName` environment variable is set.
 
+    .. note::
+    
+      If  :cmake:variable:`CA_ENABLE_TESTS` is set to ``OFF`` this function does
+      nothing.
+
   Arguments:
     * ``name`` A unique name for the check, should include the name of the
       target being checked.
 #]=======================================================================]
 function(add_ca_cl_check name)
+  if (NOT CA_ENABLE_TESTS)
+    return()
+  endif()
   cmake_parse_arguments(args "" "" "ENVIRONMENT" ${ARGN})
   set(environment ${args_ENVIRONMENT})
   if(CA_CL_ENABLE_ICD_LOADER)

@@ -915,8 +915,8 @@ md_hooks getOpenCLMetadataWriteHooks() {
 
 md_hooks getOpenCLMetadataReadHooks() {
   md_hooks cl_hooks{};
-  cl_hooks.map = [](void *userdata, size_t *n) -> void * {
-    auto *cl_userdata = static_cast<OpenCLReadUserdata *>(userdata);
+  cl_hooks.map = [](const void *userdata, size_t *n) -> const void * {
+    auto *cl_userdata = static_cast<const OpenCLReadUserdata *>(userdata);
     *n = cl_userdata->binary.size();
     return const_cast<uint8_t *>(cl_userdata->binary.data());
   };

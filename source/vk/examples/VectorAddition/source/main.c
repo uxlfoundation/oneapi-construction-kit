@@ -222,8 +222,8 @@ void buildAndRunShader(VkDevice device, uint32_t compute_queue_family,
   // Create our shader module, containing SPIR-V defined in header include
   const VkShaderModuleCreateInfo shader_module_info = {
       VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, 0, 0,
-      vector_add_shader_size,       // Code size
-      (uint32_t*)vector_add_shader  // Pointer to SPIR-V code
+      vector_add_shader_size,              // Code size
+      (const uint32_t *)vector_add_shader  // Pointer to SPIR-V code
   };
 
   VkShaderModule shader_module;

@@ -150,7 +150,7 @@ struct input_t {
       return 0;
     }
   }
-};  // namespace fuzzcl
+};
 
 /// @brief Declaration of context_t defined below
 struct context_t;

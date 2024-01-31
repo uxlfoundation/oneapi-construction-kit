@@ -326,7 +326,7 @@ struct Shape {
       UInt Mantissa : 10;
       UInt Exponent : 5;
       UInt Sign : 1;
-    };
+    } r;
   };
   union Float32 {
     Float f;
@@ -334,33 +334,33 @@ struct Shape {
       UInt Mantissa : 23;
       UInt Exponent : 8;
       UInt Sign : 1;
-    };
+    } r;
   };
   const static UInt Float16Bias = 15;
   const static UInt Float32Bias = 127;
   static inline bool Zero(Float16 x) {
-    return ((x.Exponent == 0) && (x.Mantissa == 0));
+    return ((x.r.Exponent == 0) && (x.r.Mantissa == 0));
   }
   static inline bool Zero(Float32 x) {
-    return ((x.Exponent == 0) && (x.Mantissa == 0));
+    return ((x.r.Exponent == 0) && (x.r.Mantissa == 0));
   }
   static inline bool Denormal(Float16 x) {
-    return ((x.Exponent == 0) && (x.Mantissa != 0));
+    return ((x.r.Exponent == 0) && (x.r.Mantissa != 0));
   }
   static inline bool Denormal(Float32 x) {
-    return ((x.Exponent == 0) && (x.Mantissa != 0));
+    return ((x.r.Exponent == 0) && (x.r.Mantissa != 0));
   }
   static inline bool Inf(Float16 x) {
-    return ((x.Exponent == 0x1f) && (x.Mantissa == 0));
+    return ((x.r.Exponent == 0x1f) && (x.r.Mantissa == 0));
   }
   static inline bool Inf(Float32 x) {
-    return ((x.Exponent == 0xff) && (x.Mantissa == 0));
+    return ((x.r.Exponent == 0xff) && (x.r.Mantissa == 0));
   }
   static inline bool NaN(Float16 x) {
-    return ((x.Exponent == 0x1f) && (x.Mantissa != 0));
+    return ((x.r.Exponent == 0x1f) && (x.r.Mantissa != 0));
   }
   static inline bool NaN(Float32 x) {
-    return ((x.Exponent == 0xff) && (x.Mantissa != 0));
+    return ((x.r.Exponent == 0xff) && (x.r.Mantissa != 0));
   }
 };
 
@@ -371,9 +371,9 @@ struct HalfConvertHelper_rte<UShort, Float> {
   static inline UShort RoundNearInfinity(bool sign) {
     Shape::Float16 out;
 
-    out.Mantissa = 0;
-    out.Exponent = 0x1f;
-    out.Sign = sign;
+    out.r.Mantissa = 0;
+    out.r.Exponent = 0x1f;
+    out.r.Sign = sign;
 
     return out.f;
   }
@@ -405,48 +405,49 @@ static inline UShort HalfDownConvertHelper_rte(const Float payload) {
   in.f = payload;
 
   if (Shape::Zero(in)) {
-    out.Mantissa = 0;
-    out.Exponent = 0;
-    out.Sign = in.Sign;
+    out.r.Mantissa = 0;
+    out.r.Exponent = 0;
+    out.r.Sign = in.r.Sign;
   } else if (Shape::NaN(in)) {
-    out.Mantissa = (in.Mantissa >> (23 - 10)) | 0x1;
-    out.Exponent = 0x1f;
-    out.Sign = in.Sign;
+    out.r.Mantissa = (in.r.Mantissa >> (23 - 10)) | 0x1;
+    out.r.Exponent = 0x1f;
+    out.r.Sign = in.r.Sign;
   } else if (Shape::Inf(in)) {
-    out.Mantissa = 0;
-    out.Exponent = 0x1f;
-    out.Sign = in.Sign;
-  } else if ((in.Exponent + Shape::Float16Bias) <= Shape::Float32Bias) {
+    out.r.Mantissa = 0;
+    out.r.Exponent = 0x1f;
+    out.r.Sign = in.r.Sign;
+  } else if ((in.r.Exponent + Shape::Float16Bias) <= Shape::Float32Bias) {
     const Int bias_exponent =
-        in.Exponent + Shape::Float16Bias - Shape::Float32Bias;
+        in.r.Exponent + Shape::Float16Bias - Shape::Float32Bias;
     const UInt shift = 23u - 10u - bias_exponent + 1u;
     const UInt mantissa =
         HalfConvertHelper_rte<UShort, Float>::ShiftRightLogical(
-            in.Mantissa | (1u << 23), shift, in.Sign);
+            in.r.Mantissa | (1u << 23), shift, in.r.Sign);
     if (mantissa == (1u << 10)) {
-      out.Mantissa = 0;
-      out.Exponent = 0x1;
-      out.Sign = in.Sign;
+      out.r.Mantissa = 0;
+      out.r.Exponent = 0x1;
+      out.r.Sign = in.r.Sign;
     } else {
-      out.Mantissa = mantissa;
-      out.Exponent = 0;
-      out.Sign = in.Sign;
+      out.r.Mantissa = mantissa;
+      out.r.Exponent = 0;
+      out.r.Sign = in.r.Sign;
     }
   } else {
     const UInt shift = 23u - 10u;
     UInt mantissa = HalfConvertHelper_rte<UShort, Float>::ShiftRightLogical(
-        in.Mantissa, shift, in.Sign);
-    UInt exponent = Shape::Float16Bias - Shape::Float32Bias + in.Exponent;
+        in.r.Mantissa, shift, in.r.Sign);
+    UInt exponent = Shape::Float16Bias - Shape::Float32Bias + in.r.Exponent;
     if (mantissa == (1u << 10)) {
       mantissa = 0;
       ++exponent;
     }
     if (exponent > 0x1e) {
-      out.f = HalfConvertHelper_rte<UShort, Float>::RoundNearInfinity(in.Sign);
+      out.f =
+          HalfConvertHelper_rte<UShort, Float>::RoundNearInfinity(in.r.Sign);
     } else {
-      out.Mantissa = mantissa;
-      out.Exponent = exponent;
-      out.Sign = in.Sign;
+      out.r.Mantissa = mantissa;
+      out.r.Exponent = exponent;
+      out.r.Sign = in.r.Sign;
     }
   }
   return out.f;
