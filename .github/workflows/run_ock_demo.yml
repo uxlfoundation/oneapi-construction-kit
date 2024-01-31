@@ -105,7 +105,7 @@ jobs:
 
       - name: Package Build Artifacts
         run: |
-          tar -cvzf ock_demo_artifacts.tar.gz install portDNN_build_dir portBLAS_build_dir build_riscv_tests  examples/technical_blogs/ock_demo_blog/envvars
+          tar -cvzf ock_demo_artifacts.tar.gz install portDNN_build_dir portBLAS_build_dir build_riscv_tests vect examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
