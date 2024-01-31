@@ -22,7 +22,7 @@ using namespace kts::ucl;
 
 // Used for tests which can only be tested with SPIR-V input.
 using SpirvExecution = Execution;
-UCL_EXECUTION_TEST_SUITE(SpirvExecution, testing::Values(SPIRV, OFFLINESPIRV));
+UCL_EXECUTION_TEST_SUITE(SpirvExecution, testing::Values(SPIRV, OFFLINESPIRV))
 
 TEST_P(Execution, Spirv_01_Copy) {
   AddInputBuffer(kts::N, kts::Ref_A);

@@ -82,7 +82,7 @@ typedef ::testing::Types<
 typedef ::testing::Types<ucl::Int> TestTypes;
 #endif
 
-TYPED_TEST_SUITE(KernelArgumentTypesTest, TestTypes);
+TYPED_TEST_SUITE(KernelArgumentTypesTest, TestTypes, );
 
 TYPED_TEST(KernelArgumentTypesTest, ByGlobalPointer) {
   if (TestFixture::isDoubleType() && TestFixture::doubleFPConfig == 0) {

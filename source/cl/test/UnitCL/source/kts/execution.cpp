@@ -45,11 +45,9 @@ const std::array<SourceType, 2> &kts::ucl::getOfflineSourceTypes() {
   return source_types;
 }
 
-UCL_EXECUTION_TEST_SUITE(Execution, testing::ValuesIn(getSourceTypes()));
+UCL_EXECUTION_TEST_SUITE(Execution, testing::ValuesIn(getSourceTypes()))
 UCL_EXECUTION_TEST_SUITE(ExecutionOnline,
-                         testing::ValuesIn(getOnlineSourceTypes()));
-UCL_EXECUTION_TEST_SUITE(ExecutionOffline,
-                         testing::ValuesIn(getOfflineSourceTypes()));
+                         testing::ValuesIn(getOnlineSourceTypes()))
 UCL_EXECUTION_TEST_SUITE(ExecutionOpenCLC, testing::Values(OPENCL_C, OFFLINE))
 UCL_EXECUTION_TEST_SUITE(ExecutionSPIRV, testing::Values(SPIRV, OFFLINESPIRV))
 

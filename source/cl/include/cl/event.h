@@ -183,7 +183,7 @@ namespace cl {
 /// @return Returns `true` if this event is a user event, `false` otherwise.
 inline bool isUserEvent(const cl_event event) {
   return CL_COMMAND_USER == event->command_type;
-};
+}
 
 /// @brief Create an OpenCL user event object.
 ///

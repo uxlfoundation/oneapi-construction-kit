@@ -107,7 +107,7 @@ using InterpolateAtOffset = ExtInst<INTERPOLANT, OFFSET>;
 using NMin = ExtInst<X, Y>;
 using NMax = ExtInst<X, Y>;
 using NClamp = ExtInst<X, MINVAL, MAXVAL>;
-};  // namespace GLSLstd450
+}  // namespace GLSLstd450
 
 template <>
 llvm::Error spirv_ll::GLSLBuilder::create<GLSLstd450Round>(

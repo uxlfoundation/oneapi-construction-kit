@@ -21,6 +21,13 @@
 
 #include "Common.h"
 
+// ColoredPrintf is internal to GoogleTest and we have to patch GoogleTest to be
+// able to refer to it at all. Still, it is easier than reinventing the wheel.
+namespace testing::internal {
+enum class GTestColor { kDefault, kRed, kGreen, kYellow };
+void ColoredPrintf(GTestColor color, const char *fmt, ...);
+}  // namespace testing::internal
+
 #ifdef _WIN32
 #include <windows.h>
 
@@ -185,67 +192,64 @@ struct ArgumentParser {
   }
 
   void printHelp(const char *arg0) {
-    // ColoredPrintf is in the testing::internal namespace but is in the public
-    // header, easier to make use of it here than reinvent the wheel. Import
-    // the namespace locally for ease of use.
     using namespace testing::internal;
 
     printf("%s (v%s)\n\n", arg0, STR(CA_VERSION));
 
     printf("UnitCL Options:\n");
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_test_include=");
-    ColoredPrintf(COLOR_YELLOW, "DIRECTORY_PATH\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_test_include=");
+    ColoredPrintf(GTestColor::kYellow, "DIRECTORY_PATH\n");
     printf(
         "      Provide the path to the supplied 'test_include' directory. "
         "Default:\n");
-    ColoredPrintf(COLOR_YELLOW, "      %s\n", includePath.c_str());
+    ColoredPrintf(GTestColor::kYellow, "      %s\n", includePath.c_str());
 
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_platform=");
-    ColoredPrintf(COLOR_YELLOW, "VENDOR\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_platform=");
+    ColoredPrintf(GTestColor::kYellow, "VENDOR\n");
     printf("      Provide an OpenCL platform vendor to use for testing.\n");
 
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_device=");
-    ColoredPrintf(COLOR_YELLOW, "DEVICE_NAME\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_device=");
+    ColoredPrintf(GTestColor::kYellow, "DEVICE_NAME\n");
     printf("      Provide an OpenCL device name to use for testing.\n");
 
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_kernel_directory=");
-    ColoredPrintf(COLOR_YELLOW, "PATH\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_kernel_directory=");
+    ColoredPrintf(GTestColor::kYellow, "PATH\n");
     printf(
         "      Provide the path to the supplied 'kernels' directory. "
         "Default:\n");
-    ColoredPrintf(COLOR_YELLOW, "      %s\n",
+    ColoredPrintf(GTestColor::kYellow, "      %s\n",
                   get_path_relative_to_exe(KERNELS_EXE_RELATIVE_PATH).c_str());
 
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_build_options=");
-    ColoredPrintf(COLOR_YELLOW, "OPTION_STRING\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_build_options=");
+    ColoredPrintf(GTestColor::kYellow, "OPTION_STRING\n");
     printf(
         "      Provide compilation options to pass to clBuildProgram() when\n"
         "      compiling kernels in the 'kernels' directory.\n");
 
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_seed=");
-    ColoredPrintf(COLOR_YELLOW, "NUMBER\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_seed=");
+    ColoredPrintf(GTestColor::kYellow, "NUMBER\n");
     printf(
         "      Provide an unsigned integer to seed the random number "
         "generator with.\n");
 
-    ColoredPrintf(COLOR_GREEN, "  --unitcl_math=");
-    ColoredPrintf(COLOR_YELLOW, "(");
-    ColoredPrintf(COLOR_GREEN, "quick");
-    ColoredPrintf(COLOR_YELLOW, "|");
-    ColoredPrintf(COLOR_GREEN, "wimpy");
-    ColoredPrintf(COLOR_YELLOW, "|");
-    ColoredPrintf(COLOR_GREEN, "full");
-    ColoredPrintf(COLOR_YELLOW, ")\n");
+    ColoredPrintf(GTestColor::kGreen, "  --unitcl_math=");
+    ColoredPrintf(GTestColor::kYellow, "(");
+    ColoredPrintf(GTestColor::kGreen, "quick");
+    ColoredPrintf(GTestColor::kYellow, "|");
+    ColoredPrintf(GTestColor::kGreen, "wimpy");
+    ColoredPrintf(GTestColor::kYellow, "|");
+    ColoredPrintf(GTestColor::kGreen, "full");
+    ColoredPrintf(GTestColor::kYellow, ")\n");
     printf(
         "      Run math builtins tests over an increasing data size, "
         "defaults to wimpy.\n");
 
-    ColoredPrintf(COLOR_GREEN, "  --vecz-check\n");
+    ColoredPrintf(GTestColor::kGreen, "  --vecz-check\n");
     printf(
         "      Mark tests as failed if the vectorizer did not vectorize "
         "them.\n");
 
-    ColoredPrintf(COLOR_GREEN, "  --opencl_info\n");
+    ColoredPrintf(GTestColor::kGreen, "  --opencl_info\n");
     printf("      Print OpenCL platform and platform devices info.\n\n");
   }
 

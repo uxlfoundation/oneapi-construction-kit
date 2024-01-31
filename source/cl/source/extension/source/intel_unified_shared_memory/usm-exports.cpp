@@ -159,7 +159,7 @@ mux_result_t ExamineUSMAlloc(extension::usm::allocation_info *usm_alloc,
   // Record the event associated with this enqueue command so that we
   // can wait on it in blocking free USM calls.
   return usm_alloc->record_event(return_event);
-};
+}
 
 // Calculates the byte offset between a pointer and start of USM memory
 // allocation

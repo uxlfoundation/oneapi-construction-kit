@@ -60,6 +60,8 @@ struct muxCommandWriteBufferTest : DeviceTest {
   }
 };
 
+INSTANTIATE_DEVICE_TEST_SUITE_P(muxCommandWriteBufferTest);
+
 TEST_P(muxCommandWriteBufferTest, Default) {
   char data[MEMORY_SIZE] = {0};
 

@@ -923,7 +923,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
       this->m_has_value = false;
     }
   }
-};  // namespace cargo
+};
 
 /// @brief Compares two optional objects
 ///

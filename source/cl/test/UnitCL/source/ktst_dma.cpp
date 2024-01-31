@@ -72,17 +72,17 @@ cl_half HalfTypeParam::InA(size_t x) {
   cl_ushort id = static_cast<cl_ushort>((kts::Ref_Identity(x) * 3 + 27) % 256);
   cl_ushort as_ushort = TypeInfo<cl_half>::low_exp_mask + id;
   return cargo::bit_cast<cl_half>(as_ushort);
-};
+}
 
 cl_half HalfTypeParam::InB(size_t x) {
   cl_ushort id = static_cast<cl_ushort>((kts::Ref_Identity(x) * 7 + 41) % 256);
   cl_ushort as_ushort = TypeInfo<cl_half>::low_exp_mask + id;
   return cargo::bit_cast<cl_half>(as_ushort);
-};
+}
 
 cl_half HalfTypeParam::OutC(size_t x) {
   return std::max(HalfTypeParam::InA(x), HalfTypeParam::InB(x));
-};
+}
 
 // Validates results from an output buffer contain half3 types. Since the
 // `cl_half3` typedef aliases `cl_half4`, it's useful to define this without
@@ -226,7 +226,7 @@ class DmaAutoConvolutionExecute : public Execution {
 };
 
 UCL_EXECUTION_TEST_SUITE(DmaAutoConvolutionExecute,
-                         testing::ValuesIn(getSourceTypes()));
+                         testing::ValuesIn(getSourceTypes()))
 
 TEST_P(DmaAutoConvolutionExecute, Dma_06_auto_dma_convolution) {
   this->DmaAutoConvolution(false, 8, 7, 7, false);
@@ -366,7 +366,7 @@ UCL_EXECUTION_TEST_SUITE_P(AsyncCopyTests, testing::Values(OPENCL_C),
                                            HalfTypeParam(sizeof(cl_half4), 4),
                                            HalfTypeParam(sizeof(cl_half8), 8),
                                            HalfTypeParam(sizeof(cl_half16),
-                                                         16)));
+                                                         16)))
 
 TEST_P(Execution, Dma_13_wait_event_is_barrier) {
   kts::Reference1D<cl_int> rotateB = [](size_t x) {

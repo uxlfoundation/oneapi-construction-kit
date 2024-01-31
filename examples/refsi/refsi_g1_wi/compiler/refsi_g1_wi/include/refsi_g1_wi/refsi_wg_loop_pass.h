@@ -30,6 +30,6 @@ class RefSiWGLoopPass final : public llvm::PassInfoMixin<RefSiWGLoopPass> {
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
 
-};  // namespace refsi_g1_wi
+}  // namespace refsi_g1_wi
 
 #endif  // RISCV_REFSI_WG_LOOP_PASS_H_INCLUDED

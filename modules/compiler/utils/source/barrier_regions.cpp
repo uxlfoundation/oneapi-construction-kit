@@ -754,7 +754,7 @@ void compiler::utils::Barrier::GatherBarrierRegionUses(
   }
   DT.reset();
   fake_func->eraseFromParent();
-};
+}
 
 /// @brief Find livein and liveout variables per each basic block.
 void compiler::utils::Barrier::FindLiveVariables() {

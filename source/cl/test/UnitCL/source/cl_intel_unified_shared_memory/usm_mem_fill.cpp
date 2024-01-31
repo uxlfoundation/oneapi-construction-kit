@@ -175,7 +175,7 @@ using OpenCLTypes = ::testing::Types<
 // long time to analyze all of them.
 using OpenCLTypes = ::testing::Types<cl_int>;
 #endif
-TYPED_TEST_SUITE(USMMemFillTest, OpenCLTypes);
+TYPED_TEST_SUITE(USMMemFillTest, OpenCLTypes, );
 
 template <typename TypeParam>
 void USMMemFillTest<TypeParam>::validateResults(TypeParam *ptr) {

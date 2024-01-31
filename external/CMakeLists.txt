@@ -21,7 +21,7 @@ if(CA_ENABLE_TESTS)
   # Link against ca_gtest if the test suite defines it's own main function, e.g.
   # if custom command line arguments are required.
   add_ca_library(ca_gtest STATIC googletest/src/gtest-all.cc)
-  set_target_properties(ca_gtest PROPERTIES CXX_STANDARD 11)
+  set_target_properties(ca_gtest PROPERTIES CXX_STANDARD 14)
   target_include_directories(ca_gtest SYSTEM
     PUBLIC googletest/include PRIVATE googletest)
   target_compile_definitions(ca_gtest PUBLIC GTEST_HAS_TR1_TUPLE=0)
@@ -31,7 +31,7 @@ if(CA_ENABLE_TESTS)
 
   # Link against ca_gtest_main if the test suite doesn't need customization.
   add_ca_library(ca_gtest_main STATIC googletest/src/gtest_main.cc)
-  set_target_properties(ca_gtest_main PROPERTIES CXX_STANDARD 11)
+  set_target_properties(ca_gtest_main PROPERTIES CXX_STANDARD 14)
   target_link_libraries(ca_gtest_main PUBLIC ca_gtest)
 endif()
 
@@ -71,7 +71,7 @@ if(NOT (CMAKE_CROSSCOMPILING AND CA_PLATFORM_WINDOWS AND
     benchmark/src/sysinfo.cc
     benchmark/src/timers.cc)
   set_target_properties(ca-benchmark PROPERTIES
-    CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+    CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
   target_include_directories(ca-benchmark SYSTEM
     PUBLIC benchmark/include PRIVATE benchmark/src)
   target_compile_definitions(ca-benchmark PRIVATE HAVE_STD_REGEX)

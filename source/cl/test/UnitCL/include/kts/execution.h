@@ -213,7 +213,6 @@ struct Execution : BaseExecution, testing::WithParamInterface<SourceType> {
 using ExecutionOpenCLC = Execution;
 using ExecutionSPIRV = Execution;
 using ExecutionOnline = Execution;
-using ExecutionOffline = Execution;
 
 template <typename T>
 struct ExecutionWithParam

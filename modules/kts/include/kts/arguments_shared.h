@@ -234,7 +234,7 @@ class Reference1D {
   template <typename F>
   struct ReferenceFun : public ReferenceFunBase {
     template <typename FF>
-    ReferenceFun(FF &&f) : Fun(std::forward<FF>(f)){};
+    ReferenceFun(FF &&f) : Fun(std::forward<FF>(f)) {}
     std::function<F> Fun;
   };
 

@@ -33,7 +33,7 @@ uint64_t getTargetIndex(mux_id_t id) {
   // deviceIndex is masked out, targetIndex is mux_target_id* - 1
   return (mux_target_id_device_mask & id) - 1;
 }
-};  // namespace
+}  // namespace
 
 mux_result_t muxGetDeviceInfos(uint32_t device_types,
                                uint64_t device_infos_length,

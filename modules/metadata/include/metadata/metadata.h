@@ -151,7 +151,7 @@ struct md_hooks {
   /// and return a pointer to that buffer. `n` should be filled in to the total
   /// length of the deserialized buffer. The target should keep the returned
   /// pointer alive until `finalize` is called.
-  void *(*map)(void *userdata, size_t *n);
+  const void *(*map)(const void *userdata, size_t *n);
 
   /// @brief Write a block of data into the target's datastore.
   ///

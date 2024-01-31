@@ -32,7 +32,7 @@ class CreateComputePipelines : public uvk::PipelineLayoutTest {
 
     const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
     shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    shaderCreateInfo.pCode = (uint32_t *)shaderCode.code;
+    shaderCreateInfo.pCode = (const uint32_t *)shaderCode.code;
     shaderCreateInfo.codeSize = shaderCode.size;
 
     vkCreateShaderModule(device, &shaderCreateInfo, nullptr, &shaderModule);
