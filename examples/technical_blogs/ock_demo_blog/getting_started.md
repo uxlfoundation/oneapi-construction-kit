@@ -16,8 +16,6 @@ The release package contains a number of different directories:
     the performance of OCK and oneAPI on RISC-V.
 - portDNN and portBLAS network sample project that executes VGG and Resnet50 networks
 
-`Note: cuda-to-sycl-nbody is in the process of being included to the new OCK demo package`
-
 For dpc++ support, Intel oneAPI nightly releases can be downloaded from [here](https://github.com/intel/llvm/releases). A few sycl examples can be used for testing from [oneAPI-Samples](https://github.com/oneapi-src/oneAPI-samples).
 
 You can run SYCL code using the `vector-add` from oneAPI-samples and samples from
@@ -34,9 +32,7 @@ OCK demo package contains the build and install directories of all components. A
 - [oneAPI Construction Kit](https://github.com/codeplaysoftware/oneapi-construction-kit.git)
 - [portDNN](https://github.com/codeplaysoftware/portDNN.git)
 - [portBLAS](https://github.com/codeplaysoftware/portBLAS.git)
-- [oneAPI Samples](https://github.com/oneapi-src/oneAPI-samples)
 - [oneAPI toolkit](https://github.com/intel/llvm/releases)
-- [cuda-to-sycl-nbody](https://github.com/codeplaysoftware/cuda-to-sycl-nbody.git)
 
 The above repositories can be built for dpc++ following their respective build instructions.
 All of the following instructions have been tested on Ubuntu:20.04.
@@ -62,7 +58,7 @@ hierarchy that looks like this:
 
 ```
 - WORKDIR: $RELEASE_DIR
-    - DIR: build_riscv_test/
+    - DIR: ock_example_tests/
     - DIR: install/
     - DIR: portBLAS_build_dir/
     - DIR: portDNN_build_dir/
@@ -101,34 +97,97 @@ Following is the expected output:
   Platform Host timer resolution                  0ns
   Platform Name                                   ComputeAorta
 ```
+
 ## Running the examples
 
 Once you have followed either the local installation or untared prebuilt OCK demo, you are ready to run some OpenCL and SYCL code.
 
 This section will be split in four parts:
 
-- Running the vector-add from oneAPI-samples.
-- Running the VGG16 and ResNet50 neural networks.
 - Running the samples from OCK.
+- Running the VGG16 and ResNet50 neural networks.
 
-### oneAPI-Samples
+### Running simple-vector-add
 
-oneAPI-samples is a comprehensive repository containing a lot of non-sycl examples, but for the sake of our example, we will be only focusing on the `vector-add` one. This sample does what it says, it implements adding two vectors together using SYCL.
+OCK demo contains more than one executable, but for the sake of our example, we will be only focusing on the ```simple-vector-add``` one. This sample does what it says, it implements adding two vectors together
+using SYCL.
 
 ```sh
-    cd $RELEASE_DIR
-    CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME="" ./vect
+    cd $RELEASE_DIR/ock_example_tests/bin/
+    ./simple-vector-add
 ```
 
 This is the expected output you should have:
 
 ```
-refsi_hal_device::mem_alloc(size=40000, align=128) -> 0xb8006300
-refsi_hal_device::mem_write(dst=0xb8006300, size=40000)
-refsi_hal_device::mem_alloc(size=40000, align=128) -> 0xb7ffc680
-refsi_hal_device::mem_write(dst=0xb7ffc680, size=40000)
-refsi_hal_device::mem_alloc(size=40000, align=128) -> 0xb7ff2a00
-refsi_hal_device::mem_write(dst=0xb7ff2a00, size=40000)
+The results are correct!
+```
+
+Debug tracing can be enabled by setting the `CA_HAL_DEBUG` environment variable to
+`1` prior to executing the program to troubleshoot.
+
+```sh
+    CA_HAL_DEBUG=1 ./simple-vector-add
+```
+
+The output should be:
+
+```
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff80
+refsi_hal_device::mem_write(dst=0xb800ff80, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff00
+refsi_hal_device::mem_write(dst=0xb800ff00, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800fe80
+refsi_hal_device::mem_write(dst=0xb800fe80, size=16)
+refsi_hal_device::program_find_kernel(name='_ZTS10SimpleVaddIiE.mux-kernel-wrapper') -> 0x000101b2
+refsi_hal_device::kernel_exec(kernel=0x000101b2, num_args=6, global=<4:1:1>, local=<4:1:1>)
+refsi_hal_device::mem_read(src=0xb800fe80, size=16)
+refsi_hal_device::mem_free(address=0xb800fe80)
+refsi_hal_device::mem_free(address=0xb800ff00)
+refsi_hal_device::mem_free(address=0xb800ff80)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff80
+refsi_hal_device::mem_write(dst=0xb800ff80, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff00
+refsi_hal_device::mem_write(dst=0xb800ff00, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800fe80
+refsi_hal_device::mem_write(dst=0xb800fe80, size=16)
+refsi_hal_device::program_find_kernel(name='_ZTS10SimpleVaddIfE.mux-kernel-wrapper') -> 0x00010544
+refsi_hal_device::kernel_exec(kernel=0x00010544, num_args=6, global=<4:1:1>, local=<4:1:1>)
+refsi_hal_device::mem_read(src=0xb800fe80, size=16)
+refsi_hal_device::mem_free(address=0xb800fe80)
+refsi_hal_device::mem_free(address=0xb800ff00)
+refsi_hal_device::mem_free(address=0xb800ff80)
+The results are correct!
+```
+
+### Emitting IR
+
+An environment variable can be used to dump the LLVM intermediate representation
+created at build time.
+Setting the ```CA_RISCV_DUMP_IR``` will display the IR on stderr.
+
+First, check you are in the right directory to run the sample:
+
+```sh
+    cd $RELEASE_DIR/ock_example_tests/bin
+```
+
+Here's how to dump the IR of the ```simple-vector-add``` kernel:
+
+
+```sh
+    CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME="" ./simple-vector-add
+```
+
+This is the expected output you should have:
+
+```
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff80
+refsi_hal_device::mem_write(dst=0xb800ff80, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff00
+refsi_hal_device::mem_write(dst=0xb800ff00, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800fe80
+refsi_hal_device::mem_write(dst=0xb800fe80, size=16)
 ; ModuleID = 'SPIR-V'
 source_filename = "SPIR-V"
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
@@ -138,34 +197,34 @@ target triple = "riscv64-unknown-unknown-elf"
 %"class.sycl::_V1::detail::array" = type { [1 x i64] }
 
 ; Function Attrs: nofree norecurse nounwind memory(read, argmem: readwrite)
-define spir_kernel void @_ZTSN4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS0_5queueERKSt6vectorIiSaIiEESB_RS9_ENKUlRNS0_7handlerEE_clESE_EUlT_E_EE(ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_UserRange, ptr addrspace(1) nocapture writeonly %_arg_sum, ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_sum3, ptr addrspace(1) nocapture readonly %_arg_a, ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_a6, ptr addrspace(1) nocapture readonly %_arg_b, ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_b9) local_unnamed_addr #0 {
+define spir_kernel void @_ZTSN4sycl3_V16detail19__pf_kernel_wrapperI10SimpleVaddIiEEE(ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_UserRange, ptr addrspace(1) nocapture noundef writeonly %_arg_accessorC, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorC3, ptr addrspace(1) nocapture noundef readonly %_arg_accessorA, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorA6, ptr addrspace(1) nocapture noundef readonly %_arg_accessorB, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorB9) local_unnamed_addr #0 {
 entry:
   %0 = load i64, ptr %_arg_UserRange, align 8
-  %1 = load i64, ptr %_arg_sum3, align 8
-  %add.ptr.i = getelementptr inbounds i32, ptr addrspace(1) %_arg_sum, i64 %1
-  %2 = load i64, ptr %_arg_a6, align 8
-  %add.ptr.i36 = getelementptr inbounds i32, ptr addrspace(1) %_arg_a, i64 %2
-  %3 = load i64, ptr %_arg_b9, align 8
-  %add.ptr.i45 = getelementptr inbounds i32, ptr addrspace(1) %_arg_b, i64 %3
-  %4 = tail call i64 @__mux_get_global_id(i32 0) #5
-  %5 = tail call i64 @__mux_get_global_size(i32 0) #5
+  %1 = load i64, ptr %_arg_accessorC3, align 8
+  %add.ptr.i = getelementptr inbounds i32, ptr addrspace(1) %_arg_accessorC, i64 %1
+  %2 = load i64, ptr %_arg_accessorA6, align 8
+  %add.ptr.i36 = getelementptr inbounds i32, ptr addrspace(1) %_arg_accessorA, i64 %2
+  %3 = load i64, ptr %_arg_accessorB9, align 8
+  %add.ptr.i45 = getelementptr inbounds i32, ptr addrspace(1) %_arg_accessorB, i64 %3
+  %4 = tail call i64 @__mux_get_global_id(i32 0) #7
+  %5 = tail call i64 @__mux_get_global_size(i32 0) #7
   %cmp6.not.i.not.i = icmp ult i64 %4, %0
-  br i1 %cmp6.not.i.not.i, label %for.body.i, label %_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS0_5queueERKSt6vectorIiSaIiEESB_RS9_ENKUlRNS0_7handlerEE_clESE_EUlT_E_EclES4_.exit
+  br i1 %cmp6.not.i.not.i, label %for.body.i, label %_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ11simple_vaddIiLm4EEvRKSt5arrayIT_XT0_EESA_RS8_ENKUlRNS0_7handlerEE_clESD_EUlNS0_2idILi1EEEE_EclES4_.exit
 
 for.body.i:                                       ; preds = %entry, %for.body.i
-  %Gen.sroa.0.0.i1 = phi i64 [ %add.i17.i, %for.body.i ], [ %4, %entry ]
+  %Gen.sroa.0.0.i1 = phi i64 [ %add.i13.i, %for.body.i ], [ %4, %entry ]
   %arrayidx.i.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i36, i64 %Gen.sroa.0.0.i1
   %6 = load i32, ptr addrspace(1) %arrayidx.i.i, align 4
-  %arrayidx.i9.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i45, i64 %Gen.sroa.0.0.i1
-  %7 = load i32, ptr addrspace(1) %arrayidx.i9.i, align 4
+  %arrayidx.i7.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i45, i64 %Gen.sroa.0.0.i1
+  %7 = load i32, ptr addrspace(1) %arrayidx.i7.i, align 4
   %add.i.i = add nsw i32 %7, %6
-  %arrayidx.i15.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i, i64 %Gen.sroa.0.0.i1
-  store i32 %add.i.i, ptr addrspace(1) %arrayidx.i15.i, align 4
-  %add.i17.i = add i64 %Gen.sroa.0.0.i1, %5
-  %cmp6.i.i = icmp ult i64 %add.i17.i, %0
-  br i1 %cmp6.i.i, label %for.body.i, label %_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS0_5queueERKSt6vectorIiSaIiEESB_RS9_ENKUlRNS0_7handlerEE_clESE_EUlT_E_EclES4_.exit
+  %arrayidx.i11.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i, i64 %Gen.sroa.0.0.i1
+  store i32 %add.i.i, ptr addrspace(1) %arrayidx.i11.i, align 4
+  %add.i13.i = add i64 %Gen.sroa.0.0.i1, %5
+  %cmp6.i.i = icmp ult i64 %add.i13.i, %0
+  br i1 %cmp6.i.i, label %for.body.i, label %_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ11simple_vaddIiLm4EEvRKSt5arrayIT_XT0_EESA_RS8_ENKUlRNS0_7handlerEE_clESD_EUlNS0_2idILi1EEEE_EclES4_.exit
 
-_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS0_5queueERKSt6vectorIiSaIiEESB_RS9_ENKUlRNS0_7handlerEE_clESE_EUlT_E_EclES4_.exit: ; preds = %for.body.i, %entry
+_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ11simple_vaddIiLm4EEvRKSt5arrayIT_XT0_EESA_RS8_ENKUlRNS0_7handlerEE_clESD_EUlNS0_2idILi1EEEE_EclES4_.exit: ; preds = %for.body.i, %entry
   ret void
 }
 
@@ -173,10 +232,171 @@ _ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS
 declare void @llvm.assume(i1 noundef) #1
 
 ; Function Attrs: nofree nounwind memory(read, argmem: readwrite, inaccessiblemem: readwrite)
-define spir_kernel void @_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_(ptr addrspace(1) nocapture writeonly %_arg_sum, ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_sum3, ptr addrspace(1) nocapture readonly %_arg_a, ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_a6, ptr addrspace(1) nocapture readonly %_arg_b, ptr nocapture readonly byval(%"class.sycl::_V1::range") %_arg_b9) local_unnamed_addr #2 {
+define spir_kernel void @_ZTS10SimpleVaddIiE(ptr addrspace(1) nocapture noundef writeonly %_arg_accessorC, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorC3, ptr addrspace(1) nocapture noundef readonly %_arg_accessorA, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorA6, ptr addrspace(1) nocapture noundef readonly %_arg_accessorB, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorB9) local_unnamed_addr #2 {
 entry:
-  %0 = load i64, ptr %_arg_sum3, align 8
-  %add.ptr.i = get### RVV instructions
+  %0 = load i64, ptr %_arg_accessorC3, align 8
+  %add.ptr.i = getelementptr inbounds i32, ptr addrspace(1) %_arg_accessorC, i64 %0
+  %1 = load i64, ptr %_arg_accessorA6, align 8
+  %add.ptr.i34 = getelementptr inbounds i32, ptr addrspace(1) %_arg_accessorA, i64 %1
+  %2 = load i64, ptr %_arg_accessorB9, align 8
+  %add.ptr.i43 = getelementptr inbounds i32, ptr addrspace(1) %_arg_accessorB, i64 %2
+  %3 = tail call i64 @__mux_get_global_id(i32 0) #7
+  %cmp.i.i = icmp ult i64 %3, 2147483648
+  tail call void @llvm.assume(i1 %cmp.i.i)
+  %arrayidx.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i34, i64 %3
+  %4 = load i32, ptr addrspace(1) %arrayidx.i, align 4
+  %arrayidx.i47 = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i43, i64 %3
+  %5 = load i32, ptr addrspace(1) %arrayidx.i47, align 4
+  %add.i = add nsw i32 %5, %4
+  %arrayidx.i51 = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i, i64 %3
+  store i32 %add.i, ptr addrspace(1) %arrayidx.i51, align 4
+  ret void
+}
+
+; Function Attrs: nofree norecurse nounwind memory(read, argmem: readwrite)
+define spir_kernel void @_ZTSN4sycl3_V16detail19__pf_kernel_wrapperI10SimpleVaddIfEEE(ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_UserRange, ptr addrspace(1) nocapture noundef writeonly %_arg_accessorC, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorC3, ptr addrspace(1) nocapture noundef readonly %_arg_accessorA, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorA6, ptr addrspace(1) nocapture noundef readonly %_arg_accessorB, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorB9) local_unnamed_addr #3 {
+entry:
+  %0 = load i64, ptr %_arg_UserRange, align 8
+  %1 = load i64, ptr %_arg_accessorC3, align 8
+  %add.ptr.i = getelementptr inbounds float, ptr addrspace(1) %_arg_accessorC, i64 %1
+  %2 = load i64, ptr %_arg_accessorA6, align 8
+  %add.ptr.i36 = getelementptr inbounds float, ptr addrspace(1) %_arg_accessorA, i64 %2
+  %3 = load i64, ptr %_arg_accessorB9, align 8
+  %add.ptr.i45 = getelementptr inbounds float, ptr addrspace(1) %_arg_accessorB, i64 %3
+  %4 = tail call i64 @__mux_get_global_id(i32 0) #7
+  %5 = tail call i64 @__mux_get_global_size(i32 0) #7
+  %cmp6.not.i.not.i = icmp ult i64 %4, %0
+  br i1 %cmp6.not.i.not.i, label %for.body.i, label %_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ11simple_vaddIfLm4EEvRKSt5arrayIT_XT0_EESA_RS8_ENKUlRNS0_7handlerEE_clESD_EUlNS0_2idILi1EEEE_EclES4_.exit
+
+for.body.i:                                       ; preds = %entry, %for.body.i
+  %Gen.sroa.0.0.i1 = phi i64 [ %add.i13.i, %for.body.i ], [ %4, %entry ]
+  %arrayidx.i.i = getelementptr inbounds float, ptr addrspace(1) %add.ptr.i36, i64 %Gen.sroa.0.0.i1
+  %6 = load float, ptr addrspace(1) %arrayidx.i.i, align 4
+  %arrayidx.i7.i = getelementptr inbounds float, ptr addrspace(1) %add.ptr.i45, i64 %Gen.sroa.0.0.i1
+  %7 = load float, ptr addrspace(1) %arrayidx.i7.i, align 4
+  %add.i.i = fadd float %6, %7
+  %arrayidx.i11.i = getelementptr inbounds float, ptr addrspace(1) %add.ptr.i, i64 %Gen.sroa.0.0.i1
+  store float %add.i.i, ptr addrspace(1) %arrayidx.i11.i, align 4
+  %add.i13.i = add i64 %Gen.sroa.0.0.i1, %5
+  %cmp6.i.i = icmp ult i64 %add.i13.i, %0
+  br i1 %cmp6.i.i, label %for.body.i, label %_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ11simple_vaddIfLm4EEvRKSt5arrayIT_XT0_EESA_RS8_ENKUlRNS0_7handlerEE_clESD_EUlNS0_2idILi1EEEE_EclES4_.exit
+
+_ZNK4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ11simple_vaddIfLm4EEvRKSt5arrayIT_XT0_EESA_RS8_ENKUlRNS0_7handlerEE_clESD_EUlNS0_2idILi1EEEE_EclES4_.exit: ; preds = %for.body.i, %entry
+  ret void
+}
+
+; Function Attrs: nofree nounwind memory(read, argmem: readwrite, inaccessiblemem: readwrite)
+define spir_kernel void @_ZTS10SimpleVaddIfE(ptr addrspace(1) nocapture noundef writeonly %_arg_accessorC, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorC3, ptr addrspace(1) nocapture noundef readonly %_arg_accessorA, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorA6, ptr addrspace(1) nocapture noundef readonly %_arg_accessorB, ptr nocapture noundef readonly byval(%"class.sycl::_V1::range") %_arg_accessorB9) local_unnamed_addr #4 {
+entry:
+  %0 = load i64, ptr %_arg_accessorC3, align 8
+  %add.ptr.i = getelementptr inbounds float, ptr addrspace(1) %_arg_accessorC, i64 %0
+  %1 = load i64, ptr %_arg_accessorA6, align 8
+  %add.ptr.i34 = getelementptr inbounds float, ptr addrspace(1) %_arg_accessorA, i64 %1
+  %2 = load i64, ptr %_arg_accessorB9, align 8
+  %add.ptr.i43 = getelementptr inbounds float, ptr addrspace(1) %_arg_accessorB, i64 %2
+  %3 = tail call i64 @__mux_get_global_id(i32 0) #7
+  %cmp.i.i = icmp ult i64 %3, 2147483648
+  tail call void @llvm.assume(i1 %cmp.i.i)
+  %arrayidx.i = getelementptr inbounds float, ptr addrspace(1) %add.ptr.i34, i64 %3
+  %4 = load float, ptr addrspace(1) %arrayidx.i, align 4
+  %arrayidx.i47 = getelementptr inbounds float, ptr addrspace(1) %add.ptr.i43, i64 %3
+  %5 = load float, ptr addrspace(1) %arrayidx.i47, align 4
+  %add.i = fadd float %4, %5
+  %arrayidx.i51 = getelementptr inbounds float, ptr addrspace(1) %add.ptr.i, i64 %3
+  store float %add.i, ptr addrspace(1) %arrayidx.i51, align 4
+  ret void
+}
+
+; Function Attrs: noinline nounwind optnone
+define spir_func void @__itt_offload_wi_start_stub(ptr addrspace(4) %group_id, i64 %wi_id, i32 %wg_size) local_unnamed_addr #5 {
+entry:
+  %group_id.addr = alloca ptr addrspace(4), align 8
+  %wi_id.addr = alloca i64, align 8
+  %wg_size.addr = alloca i32, align 4
+  %group_id.addr.ascast = addrspacecast ptr %group_id.addr to ptr addrspace(4)
+  %wi_id.addr.ascast = addrspacecast ptr %wi_id.addr to ptr addrspace(4)
+  %wg_size.addr.ascast = addrspacecast ptr %wg_size.addr to ptr addrspace(4)
+  store ptr addrspace(4) %group_id, ptr addrspace(4) %group_id.addr.ascast, align 8
+  store i64 %wi_id, ptr addrspace(4) %wi_id.addr.ascast, align 8
+  store i32 %wg_size, ptr addrspace(4) %wg_size.addr.ascast, align 4
+  ret void
+}
+
+; Function Attrs: noinline nounwind optnone
+define spir_func void @__itt_offload_wi_finish_stub(ptr addrspace(4) %group_id, i64 %wi_id) local_unnamed_addr #5 {
+entry:
+  %group_id.addr = alloca ptr addrspace(4), align 8
+  %wi_id.addr = alloca i64, align 8
+  %group_id.addr.ascast = addrspacecast ptr %group_id.addr to ptr addrspace(4)
+  %wi_id.addr.ascast = addrspacecast ptr %wi_id.addr to ptr addrspace(4)
+  store ptr addrspace(4) %group_id, ptr addrspace(4) %group_id.addr.ascast, align 8
+  store i64 %wi_id, ptr addrspace(4) %wi_id.addr.ascast, align 8
+  ret void
+}
+
+; Function Attrs: alwaysinline norecurse nounwind memory(read)
+declare i64 @__mux_get_global_size(i32) #6
+
+; Function Attrs: alwaysinline norecurse nounwind memory(read)
+declare i64 @__mux_get_global_id(i32) #6
+
+attributes #0 = { nofree norecurse nounwind memory(read, argmem: readwrite) "mux-kernel"="entry-point" "mux-orig-fn"="_ZTSN4sycl3_V16detail19__pf_kernel_wrapperI10SimpleVaddIiEEE" "vecz-mode"="auto" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind willreturn memory(inaccessiblemem: readwrite) "vecz-mode"="auto" }
+attributes #2 = { nofree nounwind memory(read, argmem: readwrite, inaccessiblemem: readwrite) "mux-kernel"="entry-point" "mux-orig-fn"="_ZTS10SimpleVaddIiE" "vecz-mode"="auto" }
+attributes #3 = { nofree norecurse nounwind memory(read, argmem: readwrite) "mux-kernel"="entry-point" "mux-orig-fn"="_ZTSN4sycl3_V16detail19__pf_kernel_wrapperI10SimpleVaddIfEEE" "vecz-mode"="auto" }
+attributes #4 = { nofree nounwind memory(read, argmem: readwrite, inaccessiblemem: readwrite) "mux-kernel"="entry-point" "mux-orig-fn"="_ZTS10SimpleVaddIfE" "vecz-mode"="auto" }
+attributes #5 = { noinline nounwind optnone "vecz-mode"="auto" }
+attributes #6 = { alwaysinline norecurse nounwind memory(read) "vecz-mode"="auto" }
+attributes #7 = { alwaysinline norecurse nounwind memory(read) }
+
+!llvm.ident = !{!0}
+!opencl.kernels = !{!1, !8, !15, !18}
+!opencl.ocl.version = !{!21}
+
+!0 = !{!"Source language: OpenCL C++, Version: 100000"}
+!1 = !{ptr @_ZTSN4sycl3_V16detail19__pf_kernel_wrapperI10SimpleVaddIiEEE, !2, !3, !4, !5, !6, !7}
+!2 = !{!"kernel_arg_addr_space", i32 0, i32 1, i32 0, i32 1, i32 0, i32 1, i32 0}
+!3 = !{!"kernel_arg_access_qual", !"none", !"none", !"none", !"none", !"none", !"none", !"none"}
+!4 = !{!"kernel_arg_type", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
+!5 = !{!"kernel_arg_base_type", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
+!6 = !{!"kernel_arg_type_qual", !"", !"", !"", !"", !"", !"", !""}
+!7 = !{!"kernel_arg_name", !"_arg_UserRange", !"_arg_accessorC", !"_arg_accessorC3", !"_arg_accessorA", !"_arg_accessorA6", !"_arg_accessorB", !"_arg_accessorB9"}
+!8 = !{ptr @_ZTS10SimpleVaddIiE, !9, !10, !11, !12, !13, !14}
+!9 = !{!"kernel_arg_addr_space", i32 1, i32 0, i32 1, i32 0, i32 1, i32 0}
+!10 = !{!"kernel_arg_access_qual", !"none", !"none", !"none", !"none", !"none", !"none"}
+!11 = !{!"kernel_arg_type", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
+!12 = !{!"kernel_arg_base_type", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
+!13 = !{!"kernel_arg_type_qual", !"", !"", !"", !"", !"", !""}
+!14 = !{!"kernel_arg_name", !"_arg_accessorC", !"_arg_accessorC3", !"_arg_accessorA", !"_arg_accessorA6", !"_arg_accessorB", !"_arg_accessorB9"}
+!15 = !{ptr @_ZTSN4sycl3_V16detail19__pf_kernel_wrapperI10SimpleVaddIfEEE, !2, !3, !16, !17, !6, !7}
+!16 = !{!"kernel_arg_type", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*"}
+!17 = !{!"kernel_arg_base_type", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*"}
+!18 = !{ptr @_ZTS10SimpleVaddIfE, !9, !10, !19, !20, !13, !14}
+!19 = !{!"kernel_arg_type", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*"}
+!20 = !{!"kernel_arg_base_type", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*", !"float*", !"class sycl::_V1::range*"}
+!21 = !{i32 3, i32 0}
+refsi_hal_device::program_find_kernel(name='_ZTS10SimpleVaddIiE.mux-kernel-wrapper') -> 0x000101b2
+refsi_hal_device::kernel_exec(kernel=0x000101b2, num_args=6, global=<4:1:1>, local=<4:1:1>)
+refsi_hal_device::mem_read(src=0xb800fe80, size=16)
+refsi_hal_device::mem_free(address=0xb800fe80)
+refsi_hal_device::mem_free(address=0xb800ff00)
+refsi_hal_device::mem_free(address=0xb800ff80)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff80
+refsi_hal_device::mem_write(dst=0xb800ff80, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff00
+refsi_hal_device::mem_write(dst=0xb800ff00, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800fe80
+refsi_hal_device::mem_write(dst=0xb800fe80, size=16)
+refsi_hal_device::program_find_kernel(name='_ZTS10SimpleVaddIfE.mux-kernel-wrapper') -> 0x00010544
+refsi_hal_device::kernel_exec(kernel=0x00010544, num_args=6, global=<4:1:1>, local=<4:1:1>)
+refsi_hal_device::mem_read(src=0xb800fe80, size=16)
+refsi_hal_device::mem_free(address=0xb800fe80)
+refsi_hal_device::mem_free(address=0xb800ff00)
+refsi_hal_device::mem_free(address=0xb800ff80)
+The results are correct!
+```
+
+### RVV instructions
 
 The RISC-V Vector extension (RVV) enables processor cores based on the RISC-V
 instruction set architecture to process data arrays, alongside traditional
@@ -195,7 +415,7 @@ setting the previously shown environment variables:
 First, check you are in the right directory to run the sample:
 
 ```sh
-    cd $RELEASE_DIR/RISCV-examples/bin
+    cd $RELEASE_DIR/ock_example_tests/bin
 ```
 
 Then run the command:
@@ -212,163 +432,39 @@ The CA_RISCV_VF variable is the vectorization factor that set the number of
 elements for the width of the vector.
 
 To see the generated code, you can use the environment variables
-to emit IR or assembly. The following sections [Emitting IR](#emitting-ir) and
-[Emitting ASM](#emitting-asm) will show you how to it.
+to emit IR or assembly.
 
 Furthermore, you can also use the interactive debug mode to see at runtime the
-executed instructions which in this case will show you some RVV instructions.elementptr inbounds i32, ptr addrspace(1) %_arg_sum, i64 %0
-  %1 = load i64, ptr %_arg_a6, align 8
-  %add.ptr.i34 = getelementptr inbounds i32, ptr addrspace(1) %_arg_a, i64 %1
-  %2 = load i64, ptr %_arg_b9, align 8
-  %add.ptr.i43 = getelementptr inbounds i32, ptr addrspace(1) %_arg_b, i64 %2
-  %3 = tail call i64 @__mux_get_global_id(i32 0) #5
-  %arrayidx.i = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i34, i64 %3
-  %4 = load i32, ptr addrspace(1) %arrayidx.i, align 4
-  %arrayidx.i49 = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i43, i64 %3
-  %5 = load i32, ptr addrspace(1) %arrayidx.i49, align 4
-  %add.i = add nsw i32 %5, %4
-  %cmp.i.i52 = icmp ult i64 %3, 2147483648
-  tail call void @llvm.assume(i1 %cmp.i.i52)
-  %arrayidx.i55 = getelementptr inbounds i32, ptr addrspace(1) %add.ptr.i, i64 %3
-  store i32 %add.i, ptr addrspace(1) %arrayidx.i55, align 4
-  ret void
-}
-
-; Function Attrs: noinline nounwind optnone
-define spir_func void @__itt_offload_wi_start_stub(ptr addrspace(4) %group_id, i64 %wi_id, i32 %wg_size) local_unnamed_addr #3 {
-entry:
-  %group_id.addr = alloca ptr addrspace(4), align 8
-  %wi_id.addr = alloca i64, align 8
-  %wg_size.addr = alloca i32, align 4
-  %group_id.addr.ascast = addrspacecast ptr %group_id.addr to ptr addrspace(4)
-  %wi_id.addr.ascast = addrspacecast ptr %wi_id.addr to ptr addrspace(4)
-  %wg_size.addr.ascast = addrspacecast ptr %wg_size.addr to ptr addrspace(4)
-  store ptr addrspace(4) %group_id, ptr addrspace(4) %group_id.addr.ascast, align 8
-  store i64 %wi_id, ptr addrspace(4) %wi_id.addr.ascast, align 8
-  store i32 %wg_size, ptr addrspace(4) %wg_size.addr.ascast, align 4
-  ret void
-}
-
-; Function Attrs: noinline nounwind optnone
-define spir_func void @__itt_offload_wi_finish_stub(ptr addrspace(4) %group_id, i64 %wi_id) local_unnamed_addr #3 {
-entry:
-  %group_id.addr = alloca ptr addrspace(4), align 8
-  %wi_id.addr = alloca i64, align 8
-  %group_id.addr.ascast = addrspacecast ptr %group_id.addr to ptr addrspace(4)
-  %wi_id.addr.ascast = addrspacecast ptr %wi_id.addr to ptr addrspace(4)
-  store ptr addrspace(4) %group_id, ptr addrspace(4) %group_id.addr.ascast, align 8
-  store i64 %wi_id, ptr addrspace(4) %wi_id.addr.ascast, align 8
-  ret void
-}
-
-; Function Attrs: alwaysinline norecurse nounwind memory(read)
-declare i64 @__mux_get_global_size(i32) #4
-
-; Function Attrs: alwaysinline norecurse nounwind memory(read)
-declare i64 @__mux_get_global_id(i32) #4
-
-attributes #0 = { nofree norecurse nounwind memory(read, argmem: readwrite) "mux-kernel"="entry-point" "mux-orig-fn"="_ZTSN4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS0_5queueERKSt6vectorIiSaIiEESB_RS9_ENKUlRNS0_7handlerEE_clESE_EUlT_E_EE" "vecz-mode"="auto" }
-attributes #1 = { mustprogress nocallback nofree nosync nounwind willreturn memory(inaccessiblemem: readwrite) "vecz-mode"="auto" }
-attributes #2 = { nofree nounwind memory(read, argmem: readwrite, inaccessiblemem: readwrite) "mux-kernel"="entry-point" "mux-orig-fn"="_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_" "vecz-mode"="auto" }
-attributes #3 = { noinline nounwind optnone "vecz-mode"="auto" }
-attributes #4 = { alwaysinline norecurse nounwind memory(read) "vecz-mode"="auto" }
-attributes #5 = { alwaysinline norecurse nounwind memory(read) }
-
-!llvm.ident = !{!0}
-!opencl.kernels = !{!1, !8}
-!opencl.ocl.version = !{!15}
-
-!0 = !{!"Source language: OpenCL C++, Version: 100000"}
-!1 = !{ptr @_ZTSN4sycl3_V16detail18RoundedRangeKernelINS0_4itemILi1ELb1EEELi1EZZ9VectorAddRNS0_5queueERKSt6vectorIiSaIiEESB_RS9_ENKUlRNS0_7handlerEE_clESE_EUlT_E_EE, !2, !3, !4, !5, !6, !7}
-!2 = !{!"kernel_arg_addr_space", i32 0, i32 1, i32 0, i32 1, i32 0, i32 1, i32 0}
-!3 = !{!"kernel_arg_access_qual", !"none", !"none", !"none", !"none", !"none", !"none", !"none"}
-!4 = !{!"kernel_arg_type", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
-!5 = !{!"kernel_arg_base_type", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
-!6 = !{!"kernel_arg_type_qual", !"", !"", !"", !"", !"", !"", !""}
-!7 = !{!"kernel_arg_name", !"_arg_UserRange", !"_arg_sum", !"_arg_sum3", !"_arg_a", !"_arg_a6", !"_arg_b", !"_arg_b9"}
-!8 = !{ptr @_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_, !9, !10, !11, !12, !13, !14}
-!9 = !{!"kernel_arg_addr_space", i32 1, i32 0, i32 1, i32 0, i32 1, i32 0}
-!10 = !{!"kernel_arg_access_qual", !"none", !"none", !"none", !"none", !"none", !"none"}
-!11 = !{!"kernel_arg_type", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
-!12 = !{!"kernel_arg_base_type", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*", !"uint*", !"class sycl::_V1::range*"}
-!13 = !{!"kernel_arg_type_qual", !"", !"", !"", !"", !"", !""}
-!14 = !{!"kernel_arg_name", !"_arg_sum", !"_arg_sum3", !"_arg_a", !"_arg_a6", !"_arg_b", !"_arg_b9"}
-!15 = !{i32 3, i32 0}
-refsi_hal_device::program_find_kernel(name='_ZTSZZ9VectorAddRN4sycl3_V15queueERKSt6vectorIiSaIiEES7_RS5_ENKUlRNS0_7handlerEE_clESA_EUlT_E_.mux-kernel-wrapper') -> 0x000101b2
-refsi_hal_device::kernel_exec(kernel=0x000101b2, num_args=6, global=<10000:1:1>, local=<16:1:1>)
-refsi_hal_device::mem_read(src=0xb7ff2a00, size=40000)
-refsi_hal_device::mem_free(address=0xb7ff2a00)
-refsi_hal_device::mem_free(address=0xb7ffc680)
-refsi_hal_device::mem_free(address=0xb8006300)
-Running on device: RefSi M1
-Vector size: 10000
-[0]: 0 + 0 = 0
-[1]: 1 + 1 = 2
-[2]: 2 + 2 = 4
-...
-[9999]: 9999 + 9999 = 19998
-Vector add successfully completed on device.
+executed instructions which in this case will show you some RVV instructions.
+```sh
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff80
+refsi_hal_device::mem_write(dst=0xb800ff80, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff00
+refsi_hal_device::mem_write(dst=0xb800ff00, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800fe80
+refsi_hal_device::mem_write(dst=0xb800fe80, size=16)
+refsi_hal_device::program_find_kernel(name='__vecz_v4__ZTS10SimpleVaddIiE.mux-kernel-wrapper') -> 0x000102ac
+refsi_hal_device::kernel_exec(kernel=0x000102ac, num_args=6, global=<4:1:1>, local=<4:1:1>)
+refsi_hal_device::mem_read(src=0xb800fe80, size=16)
+refsi_hal_device::mem_free(address=0xb800fe80)
+refsi_hal_device::mem_free(address=0xb800ff00)
+refsi_hal_device::mem_free(address=0xb800ff80)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff80
+refsi_hal_device::mem_write(dst=0xb800ff80, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800ff00
+refsi_hal_device::mem_write(dst=0xb800ff00, size=16)
+refsi_hal_device::mem_alloc(size=16, align=128) -> 0xb800fe80
+refsi_hal_device::mem_write(dst=0xb800fe80, size=16)
+refsi_hal_device::program_find_kernel(name='__vecz_v4__ZTS10SimpleVaddIfE.mux-kernel-wrapper') -> 0x000106fe
+refsi_hal_device::kernel_exec(kernel=0x000106fe, num_args=6, global=<4:1:1>, local=<4:1:1>)
+refsi_hal_device::mem_read(src=0xb800fe80, size=16)
+refsi_hal_device::mem_free(address=0xb800fe80)
+refsi_hal_device::mem_free(address=0xb800ff00)
+refsi_hal_device::mem_free(address=0xb800ff80)
+The results are correct!
 ```
 
-### VGG16 and ResNet50
-
-The `portDNN` directory contains two implementations of VGG16 and
-ResNet50, one in C++ and one in Python. Example input image and its pre-processed
-version are provided in `$RELEASE_DIR`. Also VGG16 and ResNet50 modles are pre-downloaded
-in `$RELEASE_DIR/vgg_data` and `$RELEASE_DIR\resnet_data` respectively.
-
-#### Running VGG16 & ResNet50
-```
-    # Testing on image for VGG16
-    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/vgg/vgg vgg_data/ $RELEASE_DIR/Labrador_Retriever_Molly.jpg.bin
-    
-    # Testing on image for Resnet50
-    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/resnet50/resnet50 resnet_data/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
-```
-
-This may take a few minutes and the expected output should end like this:
-
-```
-refsi_hal_device::mem_free(address=0x72bc9a80)
-refsi_hal_device::mem_free(address=0xb475ba80)
-refsi_hal_device::mem_free(address=0x75209a80)
-refsi_hal_device::mem_free(address=0xb475b280)
-refsi_hal_device::mem_free(address=0x72b67a80)
-refsi_hal_device::mem_free(address=0x72b05a80)
-refsi_hal_device::mem_free(address=0x72aa3a80)
-refsi_hal_device::mem_free(address=0x9bf5b280)
-refsi_hal_device::mem_free(address=0x72a8b280)
-refsi_hal_device::mem_free(address=0x9bf57280)
-refsi_hal_device::mem_free(address=0x72a87280)
-refsi_hal_device::mem_free(address=0x72a83280)
-refsi_hal_device::mem_free(address=0x97f57280)
-refsi_hal_device::mem_free(address=0x72a7f280)
-refsi_hal_device::mem_free(address=0x97f53280)
-refsi_hal_device::mem_free(address=0x72a7b280)
-refsi_hal_device::mem_free(address=0x72a77280)
-refsi_hal_device::mem_free(address=0x96fb3280)
-refsi_hal_device::mem_free(address=0x72a73280)
-refsi_hal_device::mem_free(address=0x96fb2280)
-refsi_hal_device::mem_free(address=0x72a72280)
-refsi_hal_device::mem_free(address=0x72a70200)
-refsi_hal_device::mem_free(address=0x72a71200)
-refsi_hal_device::mem_free(address=0x72a71280)
-refsi_hal_device::mem_free(address=0xb7f7cf80)
-1332923491164 ns
-1333565282439 ns
-1332118203098 ns
-1331295811286 ns
-1330008188846 ns
-1332405637563 ns
-1332031223909 ns
-1332465310963 ns
-[+] total retired instructions: 78097436433
-[+] total elapsed cycles: 78097436433
-[+] total direct memory write access: 579MB
-[+] total direct memory read access: 3KB
-```
-
-### OCK-Examples
+### Running clVectorAddition
 
 The OCK examples/applications directory contains examples and benchmarks that are useful
 for analyzing and demonstrating the performance of OCK on RISC-V.
@@ -380,53 +476,37 @@ We will focus on ```clVectorAddition``` in this subsection.
 Here's how to run ```clVectorAddition```:
 
 ```sh
-    cd $RELEASE_DIR/build_riscv_tests/bin
-    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ./clVectorAddition
+    cd $RELEASE_DIR/ock_example_tests/bin
+    ./clVectorAddition
 ```
 
 This is the expected output you should have:
 
 ```
-1: Test timeout computed to be: 10000000
-1: refsi_hal_device::mem_alloc(size=256, align=128) -> 0xb800fe80
-1: refsi_hal_device::mem_alloc(size=256, align=128) -> 0xb800fd80
-1: refsi_hal_device::mem_alloc(size=256, align=128) -> 0xb800fc80
-1: refsi_hal_device::mem_write(dst=0xb800fe80, size=256)
-1: refsi_hal_device::mem_write(dst=0xb800fd80, size=256)
-1: refsi_hal_device::program_find_kernel(name='vector_addition.mux-kernel-wrapper') -> 0x00010000
-1: refsi_hal_device::kernel_exec(kernel=0x00010000, num_args=3, global=<64:1:1>, local=<64:1:1>)
-1: refsi_hal_device::mem_read(src=0xb800fc80, size=256)
-1: refsi_hal_device::mem_free(address=0xb800fe80)
-1: refsi_hal_device::mem_free(address=0xb800fd80)
-1: refsi_hal_device::mem_free(address=0xb800fc80)
-1: Available platforms are:
-1:   1. ComputeAorta
-1: 
-1: Selected platform 1
-1: 
-1: Running example on platform 1
-1: Available devices are:
-1:   1. RefSi M1
-1: 
-1: Selected device 1
-1: 
-1: Running example on device 1
-1:  * Created context
-1:  * Built program
-1:  * Created buffers
-1:  * Created kernel and set arguments
-1:  * Created command queue
-1:  * Enqueued writes to source buffers
-1:  * Enqueued NDRange kernel
-1:  * Enqueued read from destination buffer
-1:  * Result verified
-1:  * Released all created OpenCL objects
-1: 
-1: Example ran successfully, exiting
-1: [+] total retired instructions: 98
-1: [+] total elapsed cycles: 98
-1: [+] total direct memory write access: 1KB
-1: [+] total direct memory read access: 256B
+Available platforms are:
+  1. ComputeAorta
+
+Selected platform 1
+
+Running example on platform 1
+Available devices are:
+  1. RefSi G1 RV64
+
+Selected device 1
+
+Running example on device 1
+ * Created context
+ * Built program
+ * Created buffers
+ * Created kernel and set arguments
+ * Created command queue
+ * Enqueued writes to source buffers
+ * Enqueued NDRange kernel
+ * Enqueued read from destination buffer
+ * Result verified
+ * Released all created OpenCL objects
+
+Example ran successfully, exiting
 ```
 
 ## Debugging, profiling and examining low level instructions
@@ -436,18 +516,14 @@ level instructions emitted during program execution using the samples and
 benchmarks we previously built.
 
 The following examples will be using the ```simple-vector-add``` kernel from
-the RISCV-examples directory.
-
-```sh
-    cd $RELEASE_DIR/RISCV-examples/bin
-```
+the ock_example_tests directory.
 
 ### Profiler
 
 First, check you are in the right directory to run the sample:
 
 ```sh
-    cd $RELEASE_DIR/RISCV-examples/bin
+    cd $RELEASE_DIR/ock_example_tests/bin
 ```
 
 The profiler is a built-in feature that enables you to profile or track
@@ -558,4 +634,62 @@ to your given file path:
 
 ```sh
     env CA_PROFILE_LEVEL=3 CA_PROFILE_CSV_PATH=<filepath> ./simple-vector-add
+```
+
+### VGG16 and ResNet50
+
+The `portDNN` directory contains two implementations of VGG16 and
+ResNet50, one in C++ and one in Python. Example input image and its pre-processed
+version are provided in `$RELEASE_DIR`. Also VGG16 and ResNet50 modles are pre-downloaded
+in `$RELEASE_DIR/vgg_data` and `$RELEASE_DIR\resnet_data` respectively.
+
+#### Running VGG16 & ResNet50
+```
+    # Testing on image for VGG16
+    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/vgg/vgg vgg_data/ $RELEASE_DIR/Labrador_Retriever_Molly.jpg.bin
+
+    # Testing on image for Resnet50
+    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/resnet50/resnet50 resnet_data/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
+```
+
+This may take a few minutes and the expected output should end like this:
+
+```
+refsi_hal_device::mem_free(address=0x72bc9a80)
+refsi_hal_device::mem_free(address=0xb475ba80)
+refsi_hal_device::mem_free(address=0x75209a80)
+refsi_hal_device::mem_free(address=0xb475b280)
+refsi_hal_device::mem_free(address=0x72b67a80)
+refsi_hal_device::mem_free(address=0x72b05a80)
+refsi_hal_device::mem_free(address=0x72aa3a80)
+refsi_hal_device::mem_free(address=0x9bf5b280)
+refsi_hal_device::mem_free(address=0x72a8b280)
+refsi_hal_device::mem_free(address=0x9bf57280)
+refsi_hal_device::mem_free(address=0x72a87280)
+refsi_hal_device::mem_free(address=0x72a83280)
+refsi_hal_device::mem_free(address=0x97f57280)
+refsi_hal_device::mem_free(address=0x72a7f280)
+refsi_hal_device::mem_free(address=0x97f53280)
+refsi_hal_device::mem_free(address=0x72a7b280)
+refsi_hal_device::mem_free(address=0x72a77280)
+refsi_hal_device::mem_free(address=0x96fb3280)
+refsi_hal_device::mem_free(address=0x72a73280)
+refsi_hal_device::mem_free(address=0x96fb2280)
+refsi_hal_device::mem_free(address=0x72a72280)
+refsi_hal_device::mem_free(address=0x72a70200)
+refsi_hal_device::mem_free(address=0x72a71200)
+refsi_hal_device::mem_free(address=0x72a71280)
+refsi_hal_device::mem_free(address=0xb7f7cf80)
+1332923491164 ns
+1333565282439 ns
+1332118203098 ns
+1331295811286 ns
+1330008188846 ns
+1332405637563 ns
+1332031223909 ns
+1332465310963 ns
+[+] total retired instructions: 78097436433
+[+] total elapsed cycles: 78097436433
+[+] total direct memory write access: 579MB
+[+] total direct memory read access: 3KB
 ```

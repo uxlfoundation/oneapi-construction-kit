@@ -57,18 +57,6 @@ jobs:
           mkdir linux_nightly_release
           tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
-      - name: Clone oneAPI-samples
-        run: git clone https://github.com/oneapi-src/oneAPI-samples.git
-
-      - name: Setup environment and test Vector Add
-        run: |
-          export ONEAPI_ROOT=$(pwd)/linux_nightly_release
-          export PATH=$(pwd)/linux_nightly_release/bin:$PATH
-          export LD_LIBRARY_PATH=$(pwd)/linux_nightly_release/lib:$(pwd)/install/lib:$LD_LIBRARY_PATH
-
-          $(pwd)/linux_nightly_release/bin/clang++ -fsycl $(pwd)/oneAPI-samples/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o vect
-          CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME="" ./vect
-
       - name: Test RSICV examples
         run: |
           # Set environment variables
@@ -84,12 +72,12 @@ jobs:
           # This way it doesn't set the default sycl.conf.
           export SYCL_CONFIG_FILE_NAME=""
 
-          mkdir build_riscv_tests
-          cmake -GNinja -Bbuild_riscv_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
-          ninja -C build_riscv_tests
+          mkdir ock_example_tests
+          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          ninja -C ock_example_tests
 
           # Run tests
-          cd build_riscv_tests
+          cd ock_example_tests
           ctest bin/ --verbose
           cd ..
 
@@ -105,7 +93,8 @@ jobs:
 
       - name: Package Build Artifacts
         run: |
-          tar -cvzf ock_demo_artifacts.tar.gz install portDNN_build_dir portBLAS_build_dir build_riscv_tests vect examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
+          mv install ock_install_dir
+          tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir portDNN_build_dir portBLAS_build_dir ock_example_tests examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

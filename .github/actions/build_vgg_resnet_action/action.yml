@@ -42,13 +42,13 @@ runs:
     - name: Set up environment and build networks
       shell: bash
       run: |
-        export LD_LIBRARY_PATH=${{ inputs.workspace }}/install/lib:${{ inputs.workspace }}/linux_nightly_release/lib/libsycl.so:${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=${{ inputs.workspace }}/ock_install_dir/lib:${{ inputs.workspace }}/linux_nightly_release/lib/libsycl.so:${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
         export CMAKE_CXX_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
         export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
         export CA_HAL_DEBUG=1
         export CA_PROFILE_LEVEL=3
         export ONEAPI_DEVICE_SELECTOR=opencl:acc
-        export OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so
+        export OCL_ICD_FILENAMES=${{ inputs.workspace }}/ock_install_dir/lib/libCL.so
         # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
         # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
         # This way it doesn't set the default sycl.conf.
@@ -76,9 +76,9 @@ runs:
         python $portDNN_source/samples/networks/img2bin.py $(pwd)/Labrador_Retriever_Molly.jpg
 
         # Testing on image for VGG16
-        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/vgg/vgg vdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
+        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/ock_install_dir/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/vgg/vgg vdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
         # Testing on image for Resnet50
-        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/resnet50/resnet50 rdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
+        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/ock_install_dir/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/resnet50/resnet50 rdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
 
     - name: Package artifacts
       shell: bash
