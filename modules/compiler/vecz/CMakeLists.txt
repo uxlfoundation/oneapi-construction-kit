@@ -202,9 +202,9 @@ target_compile_definitions(vecz PRIVATE
   ${VECZ_COMPILE_DEFINITIONS})
 
 if(CA_NATIVE_CPU)
-  target_link_libraries(vecz PRIVATE compiler-utils PUBLIC ${LLVM_LIBS})
+  target_link_libraries(vecz PRIVATE compiler-pipeline PUBLIC ${LLVM_LIBS})
 else()
-  target_link_libraries(vecz PRIVATE compiler-utils multi_llvm PUBLIC ${LLVM_LIBS})
+  target_link_libraries(vecz PRIVATE compiler-pipeline multi_llvm PUBLIC ${LLVM_LIBS})
 endif()
 
 # intrinsics_gen uses tablegen to generate Attributes.inc, which is
