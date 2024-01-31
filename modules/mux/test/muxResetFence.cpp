@@ -18,6 +18,8 @@
 
 using muxResetFenceTest = DeviceTest;
 
+INSTANTIATE_DEVICE_TEST_SUITE_P(muxResetFenceTest);
+
 TEST_P(muxResetFenceTest, Default) {
   mux_semaphore_t semaphore;
 
