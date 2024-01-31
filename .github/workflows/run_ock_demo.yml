@@ -80,11 +80,27 @@ jobs:
           cd build_riscv_tests
           ctest bin/ --verbose
           cd ..
-      
+       - name: Get Intel OneAPI BaseToolkit
+        run: |
+          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/163da6e4-56eb-4948-aba3-debcec61c064/l_BaseKit_p_2024.0.1.46.sh
+          export TERMINFO=/usr/lib/terminfo
+          oneapi_dir="/opt/intel/oneapi"
+          if [ -d "$oneapi_dir" ]; then
+            echo "Directory exists. Removing..."
+            sudo rm -r /opt/intel/oneapi
+            echo "Directory removed"
+          fi
+          ls
+          sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler'
+          sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-ct'
+          sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp_dbg'
+          sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpl'
+          sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.tbb.devel'
+
       - name: Build sycl_nbody
         uses: ./.github/actions/build_sycl_nbody_action
         with:
-          workspace: ${{ github.workspace }}
+          workspace: ${{ github.workspace }}      
       - name: Build portBLAS
         uses: ./.github/actions/build_portBLAS_action
         with:
