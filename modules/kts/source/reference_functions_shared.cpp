@@ -27,19 +27,19 @@ float kts::Ref_Float(size_t x) { return x * 2.0f; }
 float kts::Ref_Abs(size_t x) { return std::fabs(Ref_NegativeOffset(x)); }
 
 float kts::Ref_Dot(size_t x) {
-  float a = Ref_NegativeOffset(x);
-  float b = Ref_Float(x);
+  const float a = Ref_NegativeOffset(x);
+  const float b = Ref_Float(x);
   return a * b;
 }
 
 float kts::Ref_Distance(size_t x) {
-  float a = Ref_NegativeOffset(x);
-  float b = Ref_Float(x);
+  const float a = Ref_NegativeOffset(x);
+  const float b = Ref_Float(x);
   return sqrtf((a - b) * (a - b));
 }
 
 float kts::Ref_Length(size_t x) {
-  float a = Ref_Float(x);
+  const float a = Ref_Float(x);
   return sqrtf(a * a);
 }
 

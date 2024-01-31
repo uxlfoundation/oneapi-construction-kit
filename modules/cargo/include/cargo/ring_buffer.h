@@ -57,7 +57,7 @@ class ring_buffer final {
   /// @param t The item to add.
   /// @return Returns `cargo::overflow` if ring buffer is full,
   /// `cargo::success` otherwise.
-  CARGO_NODISCARD cargo::result enqueue(value_type &&t) {
+  [[nodiscard]] cargo::result enqueue(value_type &&t) {
     // Check if our indices match (which means we're either empty or full)
     if (enqueue_index == dequeue_index) {
       if (empty) {
@@ -82,7 +82,7 @@ class ring_buffer final {
   /// @param t The item to add.
   /// @return Returns `cargo::out_of_bounds` if ring buffer is full,
   /// `cargo::success` otherwise.
-  CARGO_NODISCARD cargo::result enqueue(const_reference t) {
+  [[nodiscard]] cargo::result enqueue(const_reference t) {
     // Check if our indices match (which means we're either empty or full)
     if (enqueue_index == dequeue_index) {
       if (empty) {
@@ -106,7 +106,7 @@ class ring_buffer final {
   /// @brief Remove an item from the ring buffer.
   /// @return Returns an item if succeeded, otherwise
   /// cargo::result::out_of_bounds.
-  CARGO_NODISCARD cargo::error_or<value_type> dequeue() {
+  [[nodiscard]] cargo::error_or<value_type> dequeue() {
     // if we're empty, bail out
     if (empty) {
       return cargo::result::out_of_bounds;

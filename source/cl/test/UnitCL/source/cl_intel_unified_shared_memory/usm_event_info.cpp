@@ -27,18 +27,9 @@ struct USMEventInfoTest : public cl_intel_unified_shared_memory_Test {
         device, CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL,
         sizeof(host_capabilities), &host_capabilities, nullptr));
 
+    initPointers(bytes, align);
+
     cl_int err;
-    if (host_capabilities) {
-      host_ptr = clHostMemAllocINTEL(context, nullptr, bytes, align, &err);
-      ASSERT_SUCCESS(err);
-      ASSERT_TRUE(host_ptr != nullptr);
-    }
-
-    device_ptr =
-        clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
-    ASSERT_SUCCESS(err);
-    ASSERT_TRUE(device_ptr != nullptr);
-
     queue = clCreateCommandQueue(context, device, 0, &err);
     ASSERT_TRUE(queue != nullptr);
     ASSERT_SUCCESS(err);
@@ -67,16 +58,6 @@ struct USMEventInfoTest : public cl_intel_unified_shared_memory_Test {
   }
 
   void TearDown() override {
-    if (device_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
-      EXPECT_SUCCESS(err);
-    }
-
-    if (host_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
-      EXPECT_SUCCESS(err);
-    }
-
     if (queue) {
       EXPECT_SUCCESS(clReleaseCommandQueue(queue));
     }
@@ -87,9 +68,6 @@ struct USMEventInfoTest : public cl_intel_unified_shared_memory_Test {
   static const size_t bytes = 512;
   static const cl_uint align = 4;
 
-  void *host_ptr = nullptr;
-  void *device_ptr = nullptr;
-
   cl_command_queue queue = nullptr;
 };
 
@@ -99,155 +77,130 @@ TEST_F(USMEventInfoTest, clEnqueueMemFillINTEL_EventInfo) {
 
   cl_int err;
 
-  std::array<cl_event, 2> wait_events;
-  err = clEnqueueMemFillINTEL(queue, device_ptr, pattern, sizeof(pattern),
-                              sizeof(pattern) * 2, 0, nullptr, &wait_events[0]);
-  EXPECT_SUCCESS(err);
-
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      wait_events[0], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
-
-  ASSERT_SUCCESS(clWaitForEvents(1, &wait_events[0]));
-
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      wait_events[0], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
-
-  ASSERT_SUCCESS(GetEventInfoHelper(wait_events[0], CL_EVENT_COMMAND_TYPE,
-                                    CL_COMMAND_MEMFILL_INTEL));
-
-  if (host_ptr) {
-    err =
-        clEnqueueMemFillINTEL(queue, host_ptr, pattern, sizeof(pattern),
-                              sizeof(pattern) * 2, 0, nullptr, &wait_events[1]);
+  for (auto ptr : allPointers()) {
+    cl_event wait_event;
+    err = clEnqueueMemFillINTEL(queue, ptr, pattern, sizeof(pattern),
+                                sizeof(pattern) * 2, 0, nullptr, &wait_event);
     EXPECT_SUCCESS(err);
 
     ASSERT_SUCCESS(GetEventInfoHelper(
-        wait_events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
+        wait_event, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
 
-    ASSERT_SUCCESS(clWaitForEvents(1, &wait_events[1]));
+    ASSERT_SUCCESS(clWaitForEvents(1, &wait_event));
 
     ASSERT_SUCCESS(GetEventInfoHelper(
-        wait_events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
+        wait_event, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
 
-    ASSERT_SUCCESS(GetEventInfoHelper(wait_events[1], CL_EVENT_COMMAND_TYPE,
+    ASSERT_SUCCESS(GetEventInfoHelper(wait_event, CL_EVENT_COMMAND_TYPE,
                                       CL_COMMAND_MEMFILL_INTEL));
-  }
 
-  EXPECT_SUCCESS(clReleaseEvent(wait_events[0]));
-  if (host_ptr) {
-    EXPECT_SUCCESS(clReleaseEvent(wait_events[1]));
+    EXPECT_SUCCESS(clReleaseEvent(wait_event));
   }
 }
 
 TEST_F(USMEventInfoTest, clEnqueueMemcpyINTEL_EventInfo) {
-  std::array<cl_event, 2> events;
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
-  cl_int err =
-      clEnqueueMemcpyINTEL(queue, CL_TRUE, offset_device_ptr, device_ptr,
-                           sizeof(cl_int), 0, nullptr, &events[0]);
-  EXPECT_SUCCESS(err);
+  std::array<std::pair<void *, void *>, 6> pairs = {{
+      {host_ptr, device_ptr},
+      {host_ptr, shared_ptr},
+      {device_ptr, host_ptr},
+      {shared_ptr, host_ptr},
+      {shared_ptr, device_ptr},
+      {device_ptr, shared_ptr},
+  }};
 
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      events[0], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
+  for (auto pair : pairs) {
+    auto *ptr_a = pair.first;
+    auto *ptr_b = pair.second;
+    if (!ptr_a) {
+      continue;
+    }
 
-  ASSERT_SUCCESS(GetEventInfoHelper(events[0], CL_EVENT_COMMAND_TYPE,
-                                    CL_COMMAND_MEMCPY_INTEL));
-
-  if (host_ptr) {
-    err = clEnqueueMemcpyINTEL(queue, CL_FALSE, device_ptr, host_ptr,
-                               sizeof(cl_int), 0, nullptr, &events[1]);
+    std::array<cl_event, 2> events;
+    void *offset_ptr = getPointerOffset(ptr_a, sizeof(cl_int));
+    cl_int err = clEnqueueMemcpyINTEL(queue, CL_TRUE, offset_ptr, ptr_a,
+                                      sizeof(cl_int), 0, nullptr, &events[0]);
     EXPECT_SUCCESS(err);
 
     ASSERT_SUCCESS(GetEventInfoHelper(
-        events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
+        events[0], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
 
-    ASSERT_SUCCESS(clWaitForEvents(1, &events[1]));
-
-    ASSERT_SUCCESS(GetEventInfoHelper(
-        events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
-
-    ASSERT_SUCCESS(GetEventInfoHelper(events[1], CL_EVENT_COMMAND_TYPE,
+    ASSERT_SUCCESS(GetEventInfoHelper(events[0], CL_EVENT_COMMAND_TYPE,
                                       CL_COMMAND_MEMCPY_INTEL));
 
-    EXPECT_SUCCESS(clReleaseEvent(events[1]));
+    if (ptr_b) {
+      err = clEnqueueMemcpyINTEL(queue, CL_FALSE, ptr_a, ptr_b, sizeof(cl_int),
+                                 0, nullptr, &events[1]);
+      EXPECT_SUCCESS(err);
+
+      ASSERT_SUCCESS(GetEventInfoHelper(
+          events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
+
+      ASSERT_SUCCESS(clWaitForEvents(1, &events[1]));
+
+      ASSERT_SUCCESS(GetEventInfoHelper(
+          events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
+
+      ASSERT_SUCCESS(GetEventInfoHelper(events[1], CL_EVENT_COMMAND_TYPE,
+                                        CL_COMMAND_MEMCPY_INTEL));
+
+      EXPECT_SUCCESS(clReleaseEvent(events[1]));
+    }
+    EXPECT_SUCCESS(clReleaseEvent(events[0]));
   }
-  EXPECT_SUCCESS(clReleaseEvent(events[0]));
 }
 
 TEST_F(USMEventInfoTest, clEnqueueMigrateMemINTEL_EventInfo) {
-  std::array<cl_event, 2> events;
-  cl_int err = clEnqueueMigrateMemINTEL(queue, device_ptr, bytes,
-                                        CL_MIGRATE_MEM_OBJECT_HOST, 0, nullptr,
-                                        &events[0]);
-  EXPECT_SUCCESS(err);
-
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      events[0], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
-
-  ASSERT_SUCCESS(clWaitForEvents(1, &events[0]));
-
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      events[0], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
-
-  ASSERT_SUCCESS(GetEventInfoHelper(events[0], CL_EVENT_COMMAND_TYPE,
-                                    CL_COMMAND_MIGRATEMEM_INTEL));
-
-  if (host_ptr) {
-    err = clEnqueueMigrateMemINTEL(queue, host_ptr, bytes,
-                                   CL_MIGRATE_MEM_OBJECT_HOST, 0, nullptr,
-                                   &events[1]);
+  for (auto ptr : allPointers()) {
+    cl_event event;
+    cl_int err = clEnqueueMigrateMemINTEL(
+        queue, ptr, bytes, CL_MIGRATE_MEM_OBJECT_HOST, 0, nullptr, &event);
     EXPECT_SUCCESS(err);
 
-    ASSERT_SUCCESS(GetEventInfoHelper(
-        events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
+    ASSERT_SUCCESS(GetEventInfoHelper(event, CL_EVENT_COMMAND_EXECUTION_STATUS,
+                                      CL_QUEUED));
 
-    ASSERT_SUCCESS(clWaitForEvents(1, &events[1]));
+    ASSERT_SUCCESS(clWaitForEvents(1, &event));
 
-    ASSERT_SUCCESS(GetEventInfoHelper(events[1], CL_EVENT_COMMAND_TYPE,
+    ASSERT_SUCCESS(GetEventInfoHelper(event, CL_EVENT_COMMAND_EXECUTION_STATUS,
+                                      CL_COMPLETE));
+
+    ASSERT_SUCCESS(GetEventInfoHelper(event, CL_EVENT_COMMAND_TYPE,
                                       CL_COMMAND_MIGRATEMEM_INTEL));
 
-    ASSERT_SUCCESS(GetEventInfoHelper(
-        events[1], CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
-  }
-
-  EXPECT_SUCCESS(clReleaseEvent(events[0]));
-  if (host_ptr) {
-    EXPECT_SUCCESS(clReleaseEvent(events[1]));
+    EXPECT_SUCCESS(clReleaseEvent(event));
   }
 }
 
 TEST_F(USMEventInfoTest, clEnqueueMemAdviseINTEL_EventInfo) {
-  if (!device_ptr) {
-    GTEST_SKIP();
+  for (auto ptr : allPointers()) {
+    // Create a user event to block advise command happening immediately
+    cl_int err;
+    cl_event user_event = clCreateUserEvent(context, &err);
+    cl_event wait_event;
+    ASSERT_SUCCESS(err);
+
+    // Enqueue a no-op advise command
+    const cl_mem_advice_intel advice = 0;
+    err = clEnqueueMemAdviseINTEL(queue, ptr, bytes, advice, 1, &user_event,
+                                  &wait_event);
+    EXPECT_SUCCESS(err);
+
+    ASSERT_SUCCESS(GetEventInfoHelper(
+        wait_event, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
+
+    // Set status event status to allow advise command to be dispatched
+    EXPECT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));
+
+    EXPECT_SUCCESS(clReleaseEvent(user_event));
+
+    ASSERT_SUCCESS(clWaitForEvents(1, &wait_event));
+
+    ASSERT_SUCCESS(GetEventInfoHelper(
+        wait_event, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
+
+    ASSERT_SUCCESS(GetEventInfoHelper(wait_event, CL_EVENT_COMMAND_TYPE,
+                                      CL_COMMAND_MEMADVISE_INTEL));
+
+    EXPECT_SUCCESS(clReleaseEvent(wait_event));
   }
-
-  // Create a user event to block advise command happening immediately
-  cl_int err;
-  cl_event user_event = clCreateUserEvent(context, &err);
-  cl_event wait_event;
-  ASSERT_SUCCESS(err);
-
-  // Enqueue a no-op advise command
-  const cl_mem_advice_intel advice = 0;
-  err = clEnqueueMemAdviseINTEL(queue, device_ptr, bytes, advice, 1,
-                                &user_event, &wait_event);
-  EXPECT_SUCCESS(err);
-
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      wait_event, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_QUEUED));
-
-  // Set status event status to allow advise command to be dispatched
-  EXPECT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));
-
-  EXPECT_SUCCESS(clReleaseEvent(user_event));
-
-  ASSERT_SUCCESS(clWaitForEvents(1, &wait_event));
-
-  ASSERT_SUCCESS(GetEventInfoHelper(
-      wait_event, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_COMPLETE));
-
-  ASSERT_SUCCESS(GetEventInfoHelper(wait_event, CL_EVENT_COMMAND_TYPE,
-                                    CL_COMMAND_MEMADVISE_INTEL));
-
-  EXPECT_SUCCESS(clReleaseEvent(wait_event));
 }

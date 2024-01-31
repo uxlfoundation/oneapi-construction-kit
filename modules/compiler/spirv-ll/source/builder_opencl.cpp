@@ -187,7 +187,7 @@ using Prefetch = ExtInst<PTR, NUM_ELEMENTS>;
 
 class Printf : public OpExtInst {
  public:
-  Printf(OpCode const &other) : OpExtInst(other) {}
+  Printf(const OpCode &other) : OpExtInst(other) {}
   spv::Id format() const { return getOpExtInstOperand(0); }
   llvm::SmallVector<spv::Id, 8> AdditionalArguments() const {
     llvm::SmallVector<spv::Id, 8> additionalArguments;
@@ -200,7 +200,7 @@ class Printf : public OpExtInst {
 
 }  // namespace OpenCLstd
 
-static llvm::Error createPrintf(OpExtInst const &opc, Module &module,
+static llvm::Error createPrintf(const OpExtInst &opc, Module &module,
                                 Builder &builder) {
   auto *op = module.create<OpenCLstd::Printf>(opc);
 
@@ -243,7 +243,7 @@ static llvm::Error createPrintf(OpExtInst const &opc, Module &module,
 }
 
 template <>
-llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X>>(OpExtInst const &opc) {
+llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X>>(const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -256,7 +256,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X>>(OpExtInst const &opc) {
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, Y>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -269,7 +269,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, Z>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, Y, Z>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -282,7 +282,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, Z>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, PTR>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, PTR>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -295,7 +295,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, PTR>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, EXP>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, EXP>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -308,7 +308,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, EXP>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, K>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, K>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -321,7 +321,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, K>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, SIGNP>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, SIGNP>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -334,7 +334,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, SIGNP>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<Y, X>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<Y, X>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -347,7 +347,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<Y, X>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<A, B, C>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<A, B, C>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -360,7 +360,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<A, B, C>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, IPTR>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, IPTR>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -373,7 +373,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, IPTR>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<NANCODE>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<NANCODE>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -386,7 +386,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<NANCODE>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, QUO>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, Y, QUO>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -399,7 +399,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, QUO>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, COSVAL>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, COSVAL>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -412,7 +412,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, COSVAL>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, MINVAL, MAXVAL>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, MINVAL, MAXVAL>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -425,7 +425,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, MINVAL, MAXVAL>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<V, I>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<V, I>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -438,7 +438,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<V, I>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<HI, LO>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<HI, LO>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -451,7 +451,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<HI, LO>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<DEGREES>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<DEGREES>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -464,7 +464,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<DEGREES>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<RADIANS>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<RADIANS>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -477,7 +477,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<RADIANS>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, A>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, Y, A>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -489,7 +489,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, A>>(
 }
 
 template <>
-llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<P>>(OpExtInst const &opc) {
+llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<P>>(const OpExtInst &opc) {
   auto *op = module.create<ExtInst<P>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -502,7 +502,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<P>>(OpExtInst const &opc) {
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<P0, P1>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<P0, P1>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -515,7 +515,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<P0, P1>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<EDGE, X>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<EDGE, X>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -528,7 +528,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<EDGE, X>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<EDGE0, EDGE1, X>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<EDGE0, EDGE1, X>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -541,7 +541,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<EDGE0, EDGE1, X>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, SHUFFLEMASK>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, SHUFFLEMASK>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -554,7 +554,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, SHUFFLEMASK>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, SHUFFLEMASK>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<X, Y, SHUFFLEMASK>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -567,7 +567,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<X, Y, SHUFFLEMASK>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<PTR, NUM_ELEMENTS>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<PTR, NUM_ELEMENTS>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -580,7 +580,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<PTR, NUM_ELEMENTS>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<OFFSET, P>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<OFFSET, P, N>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -593,7 +593,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<OFFSET, P>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<OFFSET, P, N>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<OFFSET, P, N>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -606,7 +606,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<OFFSET, P, N>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<DATA, OFFSET, P>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<DATA, OFFSET, P>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -619,7 +619,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<DATA, OFFSET, P>>(
 
 template <>
 llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<DATA, OFFSET, P, MODE>>(
-    OpExtInst const &opc) {
+    const OpExtInst &opc) {
   auto *op = module.create<ExtInst<DATA, OFFSET, P, MODE>>(opc);
 
   auto *const result = builder.createOCLBuiltinCall(
@@ -635,7 +635,7 @@ llvm::Error spirv_ll::OpenCLBuilder::create<ExtInst<DATA, OFFSET, P, MODE>>(
   case Opcode:                \
     return create<ExtInst>(opc);
 
-llvm::Error spirv_ll::OpenCLBuilder::create(OpExtInst const &opc) {
+llvm::Error spirv_ll::OpenCLBuilder::create(const OpExtInst &opc) {
   switch (opc.Instruction()) {
     CASE(OpenCLLIB::Acos, OpenCLstd::Acos)
     CASE(OpenCLLIB::Acosh, OpenCLstd::Acosh)

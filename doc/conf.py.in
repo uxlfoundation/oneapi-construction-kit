@@ -114,9 +114,6 @@ myst_enable_extensions = [
 cpp_id_attributes = [
     'ABACUS_API',
     'ABACUS_EXPORT_API',
-    'CARGO_CXX14_CONSTEXPR',
-    'CARGO_FALLTHROUGH',
-    'CARGO_NODISCARD',
     'CARGO_REINITIALIZES'
     'CL_API_CALL',
     'CL_API_ENTRY',

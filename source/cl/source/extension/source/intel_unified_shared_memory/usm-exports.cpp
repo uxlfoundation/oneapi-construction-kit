@@ -175,7 +175,7 @@ CL_API_ENTRY
 void *clHostMemAllocINTEL(cl_context context,
                           const cl_mem_properties_intel *properties,
                           size_t size, cl_uint alignment, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
@@ -199,7 +199,7 @@ void *clHostMemAllocINTEL(cl_context context,
   }
 
   // Lock context for pushing to list of usm allocations
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -215,7 +215,7 @@ void *clDeviceMemAllocINTEL(cl_context context, cl_device_id device,
                             const cl_mem_properties_intel *properties,
                             size_t size, cl_uint alignment,
                             cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
 
@@ -232,7 +232,7 @@ void *clDeviceMemAllocINTEL(cl_context context, cl_device_id device,
   }
 
   // Lock context for pushing to list of usm allocations
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -247,7 +247,7 @@ void *clSharedMemAllocINTEL(cl_context context, cl_device_id device,
                             const cl_mem_properties_intel *properties,
                             size_t size, cl_uint alignment,
                             cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
@@ -256,54 +256,53 @@ void *clSharedMemAllocINTEL(cl_context context, cl_device_id device,
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_DEVICE);
             return nullptr);
 
-  OCL_CHECK(size == 0, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
-            return nullptr);
+  if (device) {
+    if (!extension::usm::deviceSupportsSharedAllocations(device)) {
+      OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
+      return nullptr;
+    }
+  } else {
+    // If no device is given, we fail if no device in the context supports
+    // shared USM
+    const bool no_host_support = std::none_of(
+        context->devices.cbegin(), context->devices.cend(),
+        [](cl_device_id device) {
+          return extension::usm::deviceSupportsSharedAllocations(device);
+        });
 
-  auto alloc_flags = extension::usm::parseProperties(properties);
-  if (!alloc_flags) {
-    OCL_SET_IF_NOT_NULL(errcode_ret, alloc_flags.error());
+    OCL_CHECK(no_host_support,
+              OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
+              return nullptr);
+  }
+
+  auto new_usm_allocation = extension::usm::shared_allocation_info::create(
+      context, device, properties, size, alignment);
+
+  if (!new_usm_allocation) {
+    OCL_SET_IF_NOT_NULL(errcode_ret, new_usm_allocation.error());
     return nullptr;
   }
 
-  if (device) {
-    OCL_CHECK(size > device->max_mem_alloc_size,
-              OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
-              return nullptr);
-    OCL_CHECK(alignment > device->mux_device->info->buffer_alignment,
-              OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
-              return nullptr);
-
-  } else {
-    for (auto device : context->devices) {
-      const auto device_align = device->mux_device->info->buffer_alignment;
-
-      OCL_CHECK(size > device->max_mem_alloc_size,
-                OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
-                return nullptr);
-      OCL_CHECK(alignment > device_align,
-                OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
-                return nullptr);
-    }
+  // Lock context for pushing to list of usm allocations
+  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  if (context->usm_allocations.push_back(
+          std::move(new_usm_allocation.value()))) {
+    OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
+    return nullptr;
   }
-
-  OCL_CHECK((alignment & (alignment - 1)) != 0,
-            OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
-            return nullptr);
-
-  OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
-
-  return nullptr;
+  OCL_SET_IF_NOT_NULL(errcode_ret, CL_SUCCESS);
+  return context->usm_allocations.back()->base_ptr;
 }
 
 CL_API_ENTRY
 cl_int clMemFreeINTEL(cl_context context, void *ptr) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
   OCL_CHECK(ptr == NULL, return CL_SUCCESS);
 
   // Lock context to ensure usm allocation iterators are valid
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
 
   auto isUsmPtr =
       [ptr](const std::unique_ptr<extension::usm::allocation_info> &usm_alloc) {
@@ -314,23 +313,23 @@ cl_int clMemFreeINTEL(cl_context context, void *ptr) {
       std::find_if(context->usm_allocations.begin(),
                    context->usm_allocations.end(), isUsmPtr);
 
-  OCL_CHECK(context->usm_allocations.end() == usm_alloc_iterator,
-            return CL_INVALID_VALUE);
+  if (context->usm_allocations.end() != usm_alloc_iterator) {
+    // Remove now empty shared pointer from list
+    context->usm_allocations.erase(usm_alloc_iterator);
+  }
 
-  // Remove now empty shared pointer from list
-  context->usm_allocations.erase(usm_alloc_iterator);
   return CL_SUCCESS;
 }
 
 CL_API_ENTRY
 cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
   OCL_CHECK(ptr == NULL, return CL_SUCCESS);
 
   // Lock context to ensure usm allocation iterators are valid
-  std::lock_guard<std::mutex> context_guard(context->mutex);
+  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
 
   auto isUsmPtr =
       [ptr](const std::unique_ptr<extension::usm::allocation_info> &usm_alloc) {
@@ -341,8 +340,9 @@ cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
       std::find_if(context->usm_allocations.begin(),
                    context->usm_allocations.end(), isUsmPtr);
 
-  OCL_CHECK(context->usm_allocations.end() == usm_alloc_iterator,
-            return CL_INVALID_VALUE);
+  if (context->usm_allocations.end() == usm_alloc_iterator) {
+    return CL_SUCCESS;
+  }
 
   // Implicitly flush all the queues that the events belong to
   std::unordered_set<_cl_command_queue *> flushed_queues;
@@ -354,10 +354,10 @@ cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
     if (event->command_status == CL_QUEUED) {
       // Don't repeatedly flush queues we've already seen
       if (flushed_queues.count(queue) == 0) {
-        std::lock_guard<std::mutex> lock(
+        const std::lock_guard<std::mutex> lock(
             queue->context->getCommandQueueMutex());
 
-        cl_int result = queue->flush();
+        const cl_int result = queue->flush();
 
         if (CL_SUCCESS != result) {
           return result;
@@ -390,9 +390,10 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
                               cl_mem_info_intel param_name,
                               size_t param_value_size, void *param_value,
                               size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
+  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
 
   const extension::usm::allocation_info *const usm_alloc =
       extension::usm::findAllocation(context, ptr);
@@ -401,8 +402,7 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
     case CL_MEM_ALLOC_TYPE_INTEL: {
       cl_unified_shared_memory_type_intel result = CL_MEM_TYPE_UNKNOWN_INTEL;
       if (usm_alloc) {
-        result = usm_alloc->getDevice() ? CL_MEM_TYPE_DEVICE_INTEL
-                                        : CL_MEM_TYPE_HOST_INTEL;
+        result = usm_alloc->getMemoryType();
       }
 
       if (nullptr != param_value) {
@@ -422,10 +422,11 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
       break;
     }
     case CL_MEM_ALLOC_SIZE_INTEL: {
-      size_t result = usm_alloc ? usm_alloc->size : 0;
+      const size_t result = usm_alloc ? usm_alloc->size : 0;
       if (nullptr != param_value) {
         OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-        *static_cast<decltype(result) *>(param_value) = result;
+        *static_cast<std::remove_cv_t<decltype(result)> *>(param_value) =
+            result;
       }
       OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
       break;
@@ -440,10 +441,12 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
       break;
     }
     case CL_MEM_ALLOC_FLAGS_INTEL: {
-      cl_mem_alloc_flags_intel result = usm_alloc ? usm_alloc->alloc_flags : 0;
+      const cl_mem_alloc_flags_intel result =
+          usm_alloc ? usm_alloc->alloc_flags : 0;
       if (nullptr != param_value) {
         OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-        *static_cast<decltype(result) *>(param_value) = result;
+        *static_cast<std::remove_cv_t<decltype(result)> *>(param_value) =
+            result;
       }
       OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
       break;
@@ -458,7 +461,7 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
 CL_API_ENTRY
 cl_int clSetKernelArgMemPointerINTEL(cl_kernel kernel, cl_uint arg_index,
                                      const void *arg_value) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!kernel, return CL_INVALID_KERNEL);
 
@@ -500,6 +503,9 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
   }
   cl_event return_event = *new_event;
 
+  const std::lock_guard<std::mutex> context_guard(
+      command_queue->context->usm_mutex);
+
   // Find USM allocation from pointer
   extension::usm::allocation_info *usm_alloc =
       extension::usm::findAllocation(command_queue->context, dst_ptr);
@@ -507,30 +513,40 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
+    mux_buffer_t mux_buffer = nullptr;
+    const cl_device_id device = command_queue->device;
+
+    uint64_t offset = 0;
+    std::unique_ptr<UserDataWrapper> dst_user_data;
     // TODO CA-3084 Unresolved issue in extension doc whether fill on arbitrary
     // host pointer should be allowed.
-    OCL_CHECK(usm_alloc == nullptr, return CL_INVALID_VALUE);
+    if (usm_alloc == nullptr) {
+      // Source pointer is to arbitrary user data, heap allocate a wrapper class
+      // so we can use Mux memory constructs to work with it.
+      auto wrapper = UserDataWrapper::create(device, size, dst_ptr);
+      OCL_CHECK(!wrapper, return CL_OUT_OF_RESOURCES);
+      dst_user_data.reset(*wrapper);
+      mux_buffer = dst_user_data->mux_buffer;
+    } else {
+      // Push Mux fill buffer operation
+      auto mux_error =
+          ExamineUSMAlloc(usm_alloc, device, return_event, mux_buffer);
+      OCL_CHECK(mux_error, return CL_OUT_OF_RESOURCES);
+      offset = getUSMOffset(dst_ptr, usm_alloc);
+    }
 
-    auto mux_error = usm_alloc->record_event(return_event);
-    OCL_CHECK(mux_error, return CL_OUT_OF_RESOURCES);
+    // TODO CA-2863 Define correct return code for this situation where device
+    // USM allocation device is not the same as command queue device
+    OCL_CHECK(mux_buffer == nullptr, return CL_INVALID_COMMAND_QUEUE);
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);
     OCL_CHECK(!mux_command_buffer, return CL_OUT_OF_RESOURCES);
 
-    // Push Mux fill buffer operation
-    const cl_device_id device = command_queue->device;
-    mux_buffer_t mux_buffer = usm_alloc->getMuxBufferForDevice(device);
-
-    // TODO CA-2863 Define correct return code for this situation where device
-    // USM allocation device is not the same as command queue device
-    OCL_CHECK(mux_buffer == nullptr, return CL_INVALID_COMMAND_QUEUE);
-
-    const uint64_t offset = getUSMOffset(dst_ptr, usm_alloc);
-    mux_error =
+    auto mux_error =
         muxCommandFillBuffer(*mux_command_buffer, mux_buffer, offset, size,
                              pattern, pattern_size, 0, nullptr, nullptr);
     if (mux_error) {
@@ -538,6 +554,38 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
       if (return_event) {
         return_event->complete(error);
       }
+      return error;
+    }
+
+    // If the destination operand was user data, we need to manually copy
+    // the destination Mux buffer back to the user supplied `dst_ptr` by
+    // mapping the buffer.
+    if (dst_user_data) {
+      mux_error = muxCommandUserCallback(
+          *mux_command_buffer,
+          [](mux_queue_t, mux_command_buffer_t, void *user_data) {
+            static_cast<UserDataWrapper *>(user_data)->readFromDevice();
+          },
+          dst_user_data.get(), 0, nullptr, nullptr);
+
+      if (mux_error) {
+        auto error = cl::getErrorFrom(mux_error);
+        if (return_event) {
+          return_event->complete(error);
+        }
+        return error;
+      }
+    }
+
+    // UserDataWrapper objects used to encapsulate user pointer operands are
+    // heap allocated. Free them once the command has completed.
+    auto raw_dst_user_data = dst_user_data.release();
+    if (auto error = command_queue->registerDispatchCallback(
+            *mux_command_buffer, return_event, [raw_dst_user_data]() {
+              if (raw_dst_user_data) {
+                delete raw_dst_user_data;
+              }
+            })) {
       return error;
     }
   }
@@ -555,7 +603,7 @@ cl_int clEnqueueMemFillINTEL(cl_command_queue command_queue, void *dst_ptr,
                              const void *pattern, size_t pattern_size,
                              size_t size, cl_uint num_events_in_wait_list,
                              const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!dst_ptr, return CL_INVALID_VALUE);
@@ -582,7 +630,7 @@ cl_int clEnqueueMemsetINTEL(cl_command_queue command_queue, void *dst_ptr,
                             cl_int value, size_t size,
                             cl_uint num_events_in_wait_list,
                             const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!dst_ptr, return CL_INVALID_VALUE);
@@ -597,7 +645,7 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
                             void *dst_ptr, const void *src_ptr, size_t size,
                             cl_uint num_events_in_wait_list,
                             const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!dst_ptr || !src_ptr, return CL_INVALID_VALUE);
@@ -620,7 +668,8 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     return new_event.error();
   }
   cl_event return_event = *new_event;
-
+  const std::lock_guard<std::mutex> context_guard(
+      command_queue->context->usm_mutex);
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
@@ -632,7 +681,7 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     extension::usm::allocation_info *usm_src_alloc =
         extension::usm::findAllocation(command_queue->context, src_ptr);
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -762,7 +811,7 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
                                 cl_uint num_events_in_wait_list,
                                 const cl_event *event_wait_list,
                                 cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!ptr, return CL_INVALID_VALUE);
@@ -785,6 +834,8 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
+    const std::lock_guard<std::mutex> context_guard(
+        command_queue->context->usm_mutex);
     const cl_context context = command_queue->context;
     extension::usm::allocation_info *const usm_alloc =
         extension::usm::findAllocation(context, ptr);
@@ -796,7 +847,7 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
     const intptr_t bytes_till_end = usm_alloc->size - ptr_offset;
     OCL_CHECK(intptr_t(size) > bytes_till_end, return CL_INVALID_VALUE);
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -820,7 +871,7 @@ cl_int clEnqueueMemAdviseINTEL(cl_command_queue command_queue, const void *ptr,
                                cl_uint num_events_in_wait_list,
                                const cl_event *event_wait_list,
                                cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> trace(__func__);
+  const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!ptr, return CL_INVALID_VALUE);
@@ -840,12 +891,14 @@ cl_int clEnqueueMemAdviseINTEL(cl_command_queue command_queue, const void *ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
+    const std::lock_guard<std::mutex> context_guard(
+        command_queue->context->usm_mutex);
     const cl_context context = command_queue->context;
     extension::usm::allocation_info *const usm_alloc =
         extension::usm::findAllocation(context, ptr);
     OCL_CHECK(nullptr == usm_alloc, return CL_INVALID_VALUE);
 
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(

@@ -21,7 +21,6 @@
 #ifndef COMPILER_UTILS_PASS_FUNCTIONS_H_INCLUDED
 #define COMPILER_UTILS_PASS_FUNCTIONS_H_INCLUDED
 
-#include <cargo/optional.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Analysis/IVDescriptors.h>
 #include <llvm/IR/Constants.h>
@@ -189,8 +188,6 @@ struct CreateLoopOpts {
   /// then it is created as the constant 1, based on type of `indexStart`,
   /// which is a parameter to compiler::utils::createLoop proper.
   llvm::Value *indexInc = nullptr;
-  /// @brief attemptUnroll Attempt to unroll the loop if possible.
-  bool attemptUnroll = false;
   /// @brief disableVectorize Sets loop metadata disabling further
   /// vectorization.
   bool disableVectorize = false;
@@ -217,11 +214,9 @@ struct CreateLoopOpts {
 /// user-specified amount. The loop thus has a trip count equal to the
 /// following C-style loop: `for (auto i = start; i < end; i += incr)`.
 ///
-/// Note that this helper does not always create a CFG loop. Users should be
-/// careful not to rely on CFG structure, for example, creating PHIs in the
-/// body function when passing attemptUnroll. In this instance, when unrolling,
-/// the body function may be called *multiple times* in a straight line. Simple
-/// induction variables can instead be created with the IV parameters.
+/// Note that this helper always creates a CFG loop, even if the loop bounds
+/// are known not to produce a loop at compile time. Users can use stock LLVM
+/// optimizations to eliminate/simplify the loop in such a case.
 ///
 /// @param entry Loop pre-header block. This block will be rewired to jump into
 /// the new loop.

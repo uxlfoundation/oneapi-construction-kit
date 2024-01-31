@@ -72,33 +72,33 @@ abacus_half tgamma_poly(abacus_half x, abacus_half *exp_neg_x,
     // over range [0.5, 1]
     const abacus_half coeffs[4] = {4.9140625f16, -6.76171875f16, 6.5390625f16,
                                    -1.974609375f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 1.6f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
     // over range [1, 1.6]
     const abacus_half coeffs[4] = {3.326171875f16, -1.673828125f16,
                                    1.0390625f16, 2.6641845703125e-2f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 1.7998f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
     // over range [1.6, 1.8]
     const abacus_half coeffs[4] = {2.099609375f16, 0.751953125f16,
                                    -0.56494140625f16, 0.381103515625f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 3.0f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^(x - 0.5))
     // over range [1.8, 3]
     const abacus_half coeffs[4] = {2.87890625f16, -0.2421875f16,
                                    6.9091796875e-2f16,
                                    -7.305145263671875e-3f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else if (x < 6.0f16) {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^(x - 0.5))
     // over range [3, 6]
     const abacus_half coeffs[4] = {2.708984375f16, -7.110595703125e-2f16,
                                    1.08489990234375e-2f16,
                                    -6.07967376708984375e-4f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   } else {
     // Polynomial approximation of gamma(x) / (exp(-x) * x^(x - 2))
     // over range [6, 9.2]
@@ -109,7 +109,7 @@ abacus_half tgamma_poly(abacus_half x, abacus_half *exp_neg_x,
     *pow_sqrt = __abacus_powr(x, (x - 2.0f16) * 0.5f16);
     const abacus_half coeffs[4] = {-2.876953125f16, 3.875f16, 0.5185546875f16,
                                    -7.808685302734375e-3f16};
-    return abacus::internal::horner_polynomial<abacus_half, 4>(x, coeffs);
+    return abacus::internal::horner_polynomial(x, coeffs);
   }
 }
 
@@ -186,50 +186,38 @@ abacus_half ABACUS_API __abacus_tgamma(abacus_half x) {
   switch (x_ushort) {
     default:
       break;
-    case 0x3F5E:  // 1.841796875f16
-      return 0.943359375f16;
-    case 0x3FC1:  // 1.9384765625f16
-      return 0.9755859375f16;
     case 0x4530:  // 5.1875f16
       return 31.953125f16;
-    case 0xB58D:  // -0.346923828125f16
-      return -3.974609375f16;
-    case 0xB6E9:  // -0.431884765625f16
-      return -3.62890625f16;
-    case 0xBAE3:  // -0.86083984375f16
-      return -7.8203125f16;
-    case 0xBF5E:  // -1.841796875f16
-      return 3.79296875f16;
-    case 0xC0F3:  // -2.474609375f16
-      return -0.97509765625f16;
-    case 0xC135:  // -2.603515625f16
-      return -0.88818359375f16;
-    case 0xC144:  // -2.6328125f16
-      return -0.890625f16;
-    case 0xC17D:  // -2.744140625f16
-      return -0.9931640625f16;
-    case 0xC28E:  // -3.27734375f16
-      return 0.477783203125f16;
-    case 0xC351:  // -3.658203125f16
-      return 0.245849609375f16;
-    case 0xC361:  // -3.689453125f16
-      return 0.2496337890625f16;
-    case 0xC534:  // -5.203125f16
-      return 0.0309600830078125f16;
-    case 0xC5FA:  // -5.9765625f16
-      return 0.061981201171875f16;
-    case 0xC67B:  // -6.48046875f16
-      return -0.00174713134765625f16;
-    case 0xC69D:  // -6.61328125f16
-      return -0.00143527984619140625f16;
-    case 0xC6D9:  // -6.84765625f16
-      return -0.0018367767333984375f16;
-    case 0xC718:  // -7.09375f16
-      return 0.00177669525146484375f16;
-    case 0xC786:  // -7.5234375f16
-      return 0.00021374225616455078125f16;
-    case 0xC7D3:  // -7.82421875f16
-      return 0.000216007232666015625f16;
+    case 0xb5e9:  // -0.369385f16
+      return -3.85156f16;
+    case 0xb6c8:  // -0.423828f16
+      return -3.64844f16;
+    case 0xb6e9:  // -0.431885f16
+      return -3.62891f16;
+    case 0xb7cb:  // -0.487061f16
+      return -3.54883f16;
+    case 0xb834:  // -0.525391f16
+      return -3.55273f16;
+    case 0xbade:  // -0.858398f16
+      return -7.69922f16;
+    case 0xbfd4:  // -1.95703f16
+      return 12.1406f16;
+    case 0xc0f3:  // -2.47461f16
+      return -0.975098f16;
+    case 0xc135:  // -2.60352f16
+      return -0.888184f16;
+    case 0xc586:  // -5.52344f16
+      return 0.0104904f16;
+    case 0xc5e1:  // -5.87891f16
+      return 0.0147247f16;
+    case 0xc5fa:  // -5.97656f16
+      return 0.0619812f16;
+    case 0xc67b:  // -6.48047f16
+      return -0.00174713f16;
+    case 0xc69d:  // -6.61328f16
+      return -0.00143528f16;
+    case 0xc814:  // -8.15625f16
+      return -0.000118136f16;
   }
 
   const abacus_half xAbs = __abacus_fabs(x);
@@ -477,12 +465,12 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
 
   const abacus_float xx = (xAbs >= 3.0f) ? xAbs : (xAbs + 3.0f);
 
-  abacus_float pow_sqrt = __abacus_powr(xx, (xx - 0.5f) * 0.5f);
+  const abacus_float pow_sqrt = __abacus_powr(xx, (xx - 0.5f) * 0.5f);
 
   abacus_float result = pow_sqrt * __abacus_exp(-xx);
 
   // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
-  abacus_float polynomial_extension =
+  const abacus_float polynomial_extension =
       (1.0f +
        (-139.0f + (180.0f + 4320.0f * xx) * xx) / ((51840.f * xx) * (xx * xx)));
 
@@ -499,7 +487,7 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
   if (xAbs < 3.0f) {
     // We need to be slightly more accurate
     // This estimates pow(xx, (xx - 0.5f) * 0.5f) * exp(-xx) accurately:
-    abacus_float est =
+    const abacus_float est =
         abacus::internal::horner_polynomial(xAbs, __codeplay_tgamma_coeff, 10);
 
     result = est * polynomial_extension * 2.506628274631000502415765f;
@@ -575,7 +563,7 @@ abacus_double16 ABACUS_API __abacus_tgamma(abacus_double16 x) {
 namespace {
 abacus_double tgamma_positive_only(abacus_double x) {
   // Return tgamma(x) for x > 0 only
-  abacus_double orig = x;
+  const abacus_double orig = x;
 
   if (0.0 < orig && orig <= 1.0) {
     x += 2.0;
@@ -756,7 +744,7 @@ abacus_double tgamma_positive_only(abacus_double x) {
                 x);
   }
 
-  abacus_double pow_sqrt = __abacus_powr(x, (x - 0.5) * 0.5);
+  const abacus_double pow_sqrt = __abacus_powr(x, (x - 0.5) * 0.5);
   abacus_double ans = poly * (__abacus_exp(-x) * pow_sqrt) * pow_sqrt;
 
   if (1.0 < orig && orig <= 2.0) {
@@ -788,14 +776,14 @@ abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
     return ABACUS_NAN;
   }
 
-  abacus_double xAbs = __abacus_fabs(x);
+  const abacus_double xAbs = __abacus_fabs(x);
 
   // Solves a slew of overflow problems
   if (xAbs < 1.0e-15) {
     return 1.0 / x;
   }
 
-  abacus_double posVal = tgamma_positive_only(xAbs);
+  const abacus_double posVal = tgamma_positive_only(xAbs);
 
   if (x > 0.0) {
     return posVal;
@@ -804,16 +792,16 @@ abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
   // Reflection identity:
   // T(x)T(-x) = pi/(-x*sinpi(x))
 
-  abacus_double sinpi = __abacus_sinpi(x);
+  const abacus_double sinpi = __abacus_sinpi(x);
   // TODO replace with proper constant
-  abacus_double c_Pi =
+  const abacus_double c_Pi =
       3.141592653589793238462643383279502884197169399375105820974944;
 
   // if x < -172 posVal overflows to infinity, but the resulting product makes
   // sense, so we need to work round it.
   abacus_double ans = c_Pi / (sinpi * posVal * xAbs);
 
-  abacus_double c_pow_2_m500 = 3.05493636349960468205197939321E-151;
+  const abacus_double c_pow_2_m500 = 3.05493636349960468205197939321E-151;
 
   if (x < -172.0) {
     ans *= c_pow_2_m500;

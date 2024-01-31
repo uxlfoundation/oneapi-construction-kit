@@ -115,9 +115,10 @@ struct fmod_helper {
     result = __abacus_select(result, xAbs, xAbs < mAbs);
 
     if (USE_QUOTIENT) {
-      IntType cond = abacus::detail::cast::convert<IntType>(xAbs < mAbs);
+      const IntType cond = abacus::detail::cast::convert<IntType>(xAbs < mAbs);
       // 0x7F since OpenCL spec mandates 7-bits of precision in quotient
-      IntType quot = abacus::detail::cast::convert<IntType>(quotient) & 0x7f;
+      const IntType quot =
+          abacus::detail::cast::convert<IntType>(quotient) & 0x7f;
       *out_quotient = __abacus_select(quot, (IntType)0, cond);
     }
 

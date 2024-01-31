@@ -37,7 +37,7 @@
 ; All functions
     %prefetch_v2float = OpFunction %void_t None %prefetch_fn_t
               %in_ptr = OpFunctionParameter %v2float_ptr_t
-; CHECK: define spir_kernel void @prefetch_v2float(ptr addrspace(1) %in_ptr)
+; CHECK: define spir_kernel void @prefetch_v2float(ptr addrspace(1) noundef %in_ptr)
                    %2 = OpLabel
                    %3 = OpExtInst %void_t %1 prefetch %in_ptr %i32_1
 ; CHECK: call spir_func void @_Z8prefetchPU3AS1KDv2_fj(ptr addrspace(1) %in_ptr, i32 2)

@@ -21,7 +21,7 @@ struct FloatingPoint {
 
   FloatingPoint() = default;
   FloatingPoint(Type x) {
-    UnsignedType ux = abacus::detail::cast::as<UnsignedType>(x);
+    const UnsignedType ux = abacus::detail::cast::as<UnsignedType>(x);
 
     Exponent = (ux & Shape::ExponentMask()) >> Shape::Mantissa();
     Mantissa = ux & Shape::MantissaMask();
@@ -29,8 +29,9 @@ struct FloatingPoint {
   }
 
   Type Get() const {
-    UnsignedType result = (Sign << (Shape::Mantissa() + Shape::Exponent())) |
-                          (Exponent << Shape::Mantissa()) | Mantissa;
+    const UnsignedType result =
+        (Sign << (Shape::Mantissa() + Shape::Exponent())) |
+        (Exponent << Shape::Mantissa()) | Mantissa;
     return abacus::detail::cast::as<Type>(result);
   }
 

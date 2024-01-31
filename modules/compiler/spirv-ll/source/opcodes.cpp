@@ -362,7 +362,7 @@ spv::Decoration OpDecorateBase::getDecoration() const {
 }
 
 llvm::StringRef OpSourceContinued::ContinuedSource() const {
-  return reinterpret_cast<char const *>(data + 1);
+  return reinterpret_cast<const char *>(data + 1);
 }
 
 spv::SourceLanguage OpSource::SourceLanguage() const {
@@ -374,17 +374,17 @@ uint32_t OpSource::Version() const { return getValueAtOffset(2); }
 spv::Id OpSource::File() const { return getValueAtOffset(3); }
 
 llvm::StringRef OpSource::Source() const {
-  return reinterpret_cast<char const *>(data + 4);
+  return reinterpret_cast<const char *>(data + 4);
 }
 
 llvm::StringRef OpSourceExtension::Extension() const {
-  return reinterpret_cast<char const *>(data + 1);
+  return reinterpret_cast<const char *>(data + 1);
 }
 
 spv::Id OpName::Target() const { return getValueAtOffset(1); }
 
 llvm::StringRef OpName::Name() const {
-  return reinterpret_cast<char const *>(data + 2);
+  return reinterpret_cast<const char *>(data + 2);
 }
 
 spv::Id OpMemberName::Type() const { return getValueAtOffset(1); }
@@ -392,13 +392,13 @@ spv::Id OpMemberName::Type() const { return getValueAtOffset(1); }
 uint32_t OpMemberName::Member() const { return getValueAtOffset(2); }
 
 llvm::StringRef OpMemberName::Name() const {
-  return reinterpret_cast<char const *>(data + 3);
+  return reinterpret_cast<const char *>(data + 3);
 }
 
 spv::Id OpString::IdResult() const { return getValueAtOffset(1); }
 
 llvm::StringRef OpString::String() const {
-  return reinterpret_cast<char const *>(data + 2);
+  return reinterpret_cast<const char *>(data + 2);
 }
 
 spv::Id OpLine::File() const { return getValueAtOffset(1); }
@@ -407,14 +407,18 @@ uint32_t OpLine::Line() const { return getValueAtOffset(2); }
 
 uint32_t OpLine::Column() const { return getValueAtOffset(3); }
 
+llvm::StringRef OpModuleProcessed::Process() const {
+  return reinterpret_cast<const char *>(data + 1);
+}
+
 llvm::StringRef OpExtension::Name() const {
-  return reinterpret_cast<char const *>(data + 1);
+  return reinterpret_cast<const char *>(data + 1);
 }
 
 spv::Id OpExtInstImport::IdResult() const { return getValueAtOffset(1); }
 
 llvm::StringRef OpExtInstImport::Name() const {
-  return reinterpret_cast<char const *>(data + 2);
+  return reinterpret_cast<const char *>(data + 2);
 }
 
 spv::Id OpExtInst::Set() const { return getValueAtOffset(3); }
@@ -454,7 +458,7 @@ spv::ExecutionModel OpEntryPoint::ExecutionModel() const {
 spv::Id OpEntryPoint::EntryPoint() const { return getValueAtOffset(2); }
 
 llvm::StringRef OpEntryPoint::Name() const {
-  return reinterpret_cast<char const *>(data + 3);
+  return reinterpret_cast<const char *>(data + 3);
 }
 
 llvm::SmallVector<spv::Id, 8> OpEntryPoint::Interface() const {
@@ -531,7 +535,7 @@ llvm::SmallVector<spv::Id, 8> OpTypeStruct::MemberTypes() const {
 }
 
 llvm::StringRef OpTypeOpaque::Name() const {
-  return reinterpret_cast<char const *>(data + 2);
+  return reinterpret_cast<const char *>(data + 2);
 }
 
 uint32_t OpTypePointer::StorageClass() const {
@@ -565,8 +569,8 @@ spv::StorageClass OpTypeForwardPointer::StorageClass() const {
 uint32_t OpConstant::Value32() const { return getValueAtOffset(3); }
 
 uint64_t OpConstant::Value64() const {
-  uint64_t lowWord = getValueAtOffset(3);
-  uint64_t highWord = getValueAtOffset(4);
+  const uint64_t lowWord = getValueAtOffset(3);
+  const uint64_t highWord = getValueAtOffset(4);
   return lowWord | (highWord << 32);
 }
 
@@ -591,8 +595,8 @@ spv::SamplerFilterMode OpConstantSampler::SamplerFilterMode() const {
 uint32_t OpSpecConstant::Value32() const { return getValueAtOffset(3); }
 
 uint64_t OpSpecConstant::Value64() const {
-  uint64_t lowWord = getValueAtOffset(3);
-  uint64_t highWord = getValueAtOffset(4);
+  const uint64_t lowWord = getValueAtOffset(3);
+  const uint64_t highWord = getValueAtOffset(4);
   return lowWord | (highWord << 32);
 }
 

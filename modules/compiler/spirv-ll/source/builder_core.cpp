@@ -19,6 +19,7 @@
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/DebugLoc.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
@@ -72,6 +73,15 @@ template <>
 llvm::Error Builder::create<OpSourceExtension>(const OpSourceExtension *) {
   // This instruction has no semantic impact and doesn't represent any
   // information that is currently relevant to us.
+  return llvm::Error::success();
+}
+
+template <>
+llvm::Error Builder::create<OpModuleProcessed>(const OpModuleProcessed *op) {
+  // This instruction has no semantic impact. Take and store the 'Process' in
+  // case it it's useful for debug information. We only store the one; any
+  // subsequent ones will overwrite this.
+  module.setModuleProcess(op->Process().str());
   return llvm::Error::success();
 }
 
@@ -139,9 +149,11 @@ llvm::DIFile *Builder::getOrCreateDIFile(const OpLine *op_line) {
     return file;
   }
 
-  std::string filePath = module.getDebugString(op_line->File()).value_or("");
-  std::string fileName = filePath.substr(filePath.find_last_of("\\/") + 1);
-  std::string fileDir = filePath.substr(0, filePath.find_last_of("\\/"));
+  const std::string filePath =
+      module.getDebugString(op_line->File()).value_or("");
+  const std::string fileName =
+      filePath.substr(filePath.find_last_of("\\/") + 1);
+  const std::string fileDir = filePath.substr(0, filePath.find_last_of("\\/"));
 
   llvm::DIFile *file = DIBuilder.createFile(fileName, fileDir);
 
@@ -163,22 +175,30 @@ llvm::DICompileUnit *Builder::getOrCreateDICompileUnit(const OpLine *op_line) {
   return compile_unit;
 }
 
-llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
-    llvm::Function *function, const OpLine *op_line) {
-  if (!function) {
-    return nullptr;
+llvm::DILexicalBlock *Builder::getOrCreateDebugBasicBlockScope(
+    llvm::BasicBlock &bb, const OpLine *op_line) {
+  if (auto *const di_block = module.getLexicalBlock(&bb)) {
+    return di_block;
   }
-  const OpFunction *opFunction = module.get<OpFunction>(function);
+
+  auto *const di_file = getOrCreateDIFile(op_line);
+  auto *const function_scope =
+      getOrCreateDebugFunctionScope(*bb.getParent(), op_line);
+  auto *const di_block = DIBuilder.createLexicalBlock(
+      function_scope, di_file, op_line->Line(), op_line->Column());
+  module.addLexicalBlock(&bb, di_block);
+
+  return di_block;
+}
+
+llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
+    llvm::Function &function, const OpLine *op_line) {
+  const OpFunction *opFunction = module.get<OpFunction>(&function);
   // If we have a llvm::Function we should have an OpFunction.
   SPIRV_LL_ASSERT_PTR(opFunction);
-  spv::Id function_id = opFunction->IdResult();
+  const spv::Id function_id = opFunction->IdResult();
 
   if (auto *function_scope = module.getDebugFunctionScope(function_id)) {
-    // If we've created the scope before creating the function, link the two
-    // together here if we haven't already.
-    if (!function->getSubprogram()) {
-      function->setSubprogram(function_scope);
-    }
     return function_scope;
   }
 
@@ -199,12 +219,12 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
 
   // TODO: pass mangled name here when we're mangling names
   auto *function_scope = DIBuilder.createFunction(
-      di_compile_unit, function->getName(), function->getName(), di_file,
+      di_compile_unit, function.getName(), function.getName(), di_file,
       op_line->Line(), dbg_function_type, 1, llvm::DINode::FlagZero,
       llvm::DISubprogram::SPFlagDefinition);
 
   // Set the function's debug sub-program
-  function->setSubprogram(function_scope);
+  function.setSubprogram(function_scope);
 
   // Track this sub-program for later
   module.addDebugFunctionScope(function_id, function_scope);
@@ -212,93 +232,103 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
   return function_scope;
 }
 
-Module::LineRangeBeginTy Builder::createLineRangeBegin(const OpLine *op_line,
-                                                       llvm::BasicBlock &bb) {
-  // Get or create the DILexicalBlock for this basic block.
-  llvm::DILexicalBlock *di_block = module.getLexicalBlock(&bb);
+template <>
+llvm::Error Builder::create<OpLine>(const OpLine *op) {
+  // Close the current range, if applicable.
+  // Note we don't close the current range afterwards, since we'll just
+  // overwrite it with a new one a few lines down.
+  applyDebugInfoAtClosedRangeOrScope();
 
-  if (!di_block) {
-    auto *di_file = getOrCreateDIFile(op_line);
-    auto *function_scope =
-        getOrCreateDebugFunctionScope(bb.getParent(), op_line);
-    di_block = DIBuilder.createLexicalBlock(function_scope, di_file,
-                                            op_line->Line(), op_line->Column());
+  llvm::Function *current_function = getCurrentFunction();
 
-    module.addLexicalBlock(&bb, di_block);
+  if (!current_function || !IRBuilder.GetInsertBlock()) {
+    setCurrentOpLineRange(LineRangeBeginTy{op, /*range_begin*/ std::nullopt});
+    return llvm::Error::success();
   }
+
+  llvm::BasicBlock &bb = *IRBuilder.GetInsertBlock();
 
   // If there aren't any instructions in the basic block yet just go from the
   // start of the block.
   llvm::BasicBlock::iterator iter =
       bb.empty() ? bb.begin() : bb.back().getIterator();
 
-  auto *di_loc = llvm::DILocation::get(di_block->getContext(), op_line->Line(),
-                                       op_line->Column(), di_block);
-
-  return Module::LineRangeBeginTy{op_line, di_loc, iter};
-}
-
-template <>
-llvm::Error Builder::create<OpLine>(const OpLine *op) {
-  // Close the current range, if applicable.
-  checkEndOpLineRange();
-
-  llvm::Function *current_function = getCurrentFunction();
-
-  // Having an OpLine before you start a function is valid. We'll attach the
-  // current range onto the function when we create it.
-  if (!current_function) {
-    // Create a location within the current file
-    auto *loc = llvm::DILocation::get(*context.llvmContext, op->Line(),
-                                      op->Column(), module.getDIFile());
-    module.setCurrentOpLineRange(Module::LineRangeBeginTy{op, loc});
-
-    return llvm::Error::success();
-  }
-
-  llvm::DISubprogram *function_scope =
-      getOrCreateDebugFunctionScope(current_function, op);
-
-  auto *current_block = IRBuilder.GetInsertBlock();
-
-  // Having an OpLine before you start a block is valid. We'll attach the
-  // current range onto the block when we create it.
-  if (!current_block) {
-    // Create a location within the current function.
-    auto *loc = llvm::DILocation::get(*context.llvmContext, op->Line(),
-                                      op->Column(), function_scope);
-    module.setCurrentOpLineRange(Module::LineRangeBeginTy{op, loc});
-
-    return llvm::Error::success();
-  }
-
-  module.setCurrentOpLineRange(createLineRangeBegin(op, *current_block));
+  setCurrentOpLineRange(LineRangeBeginTy{op, iter});
 
   return llvm::Error::success();
 }
 
-void Builder::checkEndOpLineRange() {
-  auto line_range = module.getCurrentOpLineRange();
+void Builder::closeCurrentLexicalScope(bool closing_line_range) {
+  // Apply debug info to the previous scope.
+  applyDebugInfoAtClosedRangeOrScope();
+  // Close the current op line range, unless this is a lexical scope. In this
+  // case, we keep any OpLine/OpNoLine range that's active, as we may later
+  // open a new lexical scope inside the same range:
+  //  OpLine
+  //    DebugScope
+  //    DebugNoScope <- we may be here
+  //    ...
+  //    DebugScope
+  //    DebugNoScope
+  //  OpNoLine
+  if (closing_line_range) {
+    setCurrentOpLineRange(std::nullopt);
+  }
+  // Close any lexical scope that's active
+  setCurrentFunctionLexicalScope(std::nullopt);
+}
+
+void Builder::applyDebugInfoAtClosedRangeOrScope() {
+  auto line_range = getCurrentOpLineRange();
+  // If we don't have line information, we can bail here.
   if (!line_range) {
     return;
   }
 
-  auto [op_line, loc, begin_iter] = *line_range;
+  const auto *op_line = line_range->op_line;
+  llvm::BasicBlock *bb = IRBuilder.GetInsertBlock();
 
-  llvm::BasicBlock *current_block = IRBuilder.GetInsertBlock();
-
-  // A closed range on an empty block means nothing.
-  if (current_block && !current_block->empty()) {
-    llvm::BasicBlock::iterator end_iter =
-        IRBuilder.GetInsertBlock()->back().getIterator();
-
-    auto range = std::make_pair(begin_iter, end_iter);
-
-    module.addCompleteOpLineRange(loc, range);
+  // If we don't have a block of instructions to apply
+  // debug information to, we can bail here.
+  if (!bb || bb->empty()) {
+    // If we have a function but haven't attached a sub-program to it, manifest
+    // and attach one now. It's arguable how useful this is (in the case that
+    // we only have empty line ranges in a function but attach a sub-program to
+    // it anyway).
+    if (auto *f = getCurrentFunction()) {
+      getOrCreateDebugFunctionScope(*f, op_line);
+    }
+    return;
   }
 
-  // Close off the current range.
-  module.closeCurrentOpLineRange();
+  const llvm::BasicBlock::iterator range_begin =
+      std::next(line_range->range_begin.value_or(bb->begin()));
+  const llvm::BasicBlock::iterator range_end = IRBuilder.GetInsertPoint();
+
+  llvm::Metadata *scope = nullptr;
+  llvm::Metadata *inlined_at = nullptr;
+
+  if (auto lexical_scope = getCurrentFunctionLexicalScope()) {
+    scope = lexical_scope->scope;
+    inlined_at = lexical_scope->inlined_at;
+  } else if (module.useImplicitDebugScopes()) {
+    scope = getOrCreateDebugBasicBlockScope(*bb, op_line);
+  }
+
+  if (scope) {
+    auto *const di_loc =
+        llvm::DILocation::get(*context.llvmContext, op_line->Line(),
+                              op_line->Column(), scope, inlined_at);
+
+    for (auto &inst : make_range(range_begin, range_end)) {
+      inst.setDebugLoc(di_loc);
+    }
+  }
+
+  // Update the current line range to start where the range currently ends -
+  // we've added debug info to everything before this point.
+  setCurrentOpLineRange(
+      LineRangeBeginTy{line_range->op_line, std::prev(range_end)});
 }
 
 template <>
@@ -331,12 +361,21 @@ llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::GroupAsyncCopies);
   } else if (name == "DebugInfo") {
-    registerExtInstHandler<DebugInfoBuilder>(ExtendedInstrSet::DebugInfo);
+    // Work around a known llvm-spirv bug, until it's generally fixed upstream.
+    registerExtInstHandler<DebugInfoBuilder>(
+        ExtendedInstrSet::DebugInfo,
+        DebugInfoBuilder::Workarounds::
+            TemplateTemplateSwappedWithParameterPack);
+    module.disableImplicitDebugScopes();
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::DebugInfo);
   } else if (name == "OpenCL.DebugInfo.100") {
+    // Work around a known llvm-spirv bug, until it's generally fixed upstream.
     registerExtInstHandler<DebugInfoBuilder>(
-        ExtendedInstrSet::OpenCLDebugInfo100);
+        ExtendedInstrSet::OpenCLDebugInfo100,
+        DebugInfoBuilder::Workarounds::
+            TemplateTemplateSwappedWithParameterPack);
+    module.disableImplicitDebugScopes();
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::OpenCLDebugInfo100);
   } else {
@@ -704,7 +743,7 @@ llvm::Error Builder::create<OpTypeOpaque>(const OpTypeOpaque *op) {
 
 template <>
 llvm::Error Builder::create<OpTypePointer>(const OpTypePointer *op) {
-  spv::Id typeId = op->Type();
+  const spv::Id typeId = op->Type();
   if (module.isForwardPointer(typeId)) {
     module.addIncompletePointer(op, typeId);
   } else {
@@ -932,9 +971,9 @@ llvm::Error Builder::create<OpConstantSampler>(const OpConstantSampler *op) {
       0x0010,  // CLK_FILTER_NEAREST
       0x0020,  // CLK_FILTER_LINEAR
   };
-  uint32_t samplerValue = addressingModes[op->SamplerAddressingMode()] |
-                          normalizedCoords[op->Param()] |
-                          filterModes[op->SamplerFilterMode()];
+  const uint32_t samplerValue = addressingModes[op->SamplerAddressingMode()] |
+                                normalizedCoords[op->Param()] |
+                                filterModes[op->SamplerFilterMode()];
 
   // Note that samplers should actually be pointers to target extension types
   // (or opaque structure types before LLVM 17).
@@ -1189,7 +1228,7 @@ llvm::Error Builder::create<OpSpecConstantComposite>(
 
   if (auto op_decorate =
           module.getFirstDecoration(op->IdResult(), spv::DecorationBuiltIn)) {
-    spv::BuiltIn builtin = spv::BuiltIn(op_decorate->getValueAtOffset(3));
+    const spv::BuiltIn builtin = spv::BuiltIn(op_decorate->getValueAtOffset(3));
     if (builtin == spv::BuiltInWorkgroupSize) {
       SPIRV_LL_ASSERT(constituents.size() == 3,
                       "OpSpecConstantComposite invalid number of constituents");
@@ -1303,18 +1342,19 @@ llvm::Error Builder::create<OpSpecConstantOp>(const OpSpecConstantOp *op) {
       break;
     }
     case spv::OpSMod: {
-      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+      llvm::Value *num = module.getValue(op->getValueAtOffset(firstArgIndex));
 
-      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+      llvm::Value *denom =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
 
       llvm::Constant *zero = llvm::ConstantInt::getSigned(result_type, 0);
-      llvm::Value *cmp = IRBuilder.CreateICmpSLT(rhs, zero);
-      llvm::Value *absRhs =
-          IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(rhs), rhs);
+      llvm::Value *cmp = IRBuilder.CreateICmpSLT(denom, zero);
+      llvm::Value *absDenom =
+          IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(denom), denom);
 
-      llvm::Value *sRem = IRBuilder.CreateSRem(lhs, rhs);
-      result =
-          IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absRhs), sRem);
+      llvm::Value *sRem = IRBuilder.CreateSRem(num, denom);
+      result = IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absDenom),
+                                      sRem);
       break;
     }
     case spv::OpShiftRightLogical: {
@@ -1393,14 +1433,14 @@ llvm::Error Builder::create<OpSpecConstantOp>(const OpSpecConstantOp *op) {
           module.getValue(op->getValueAtOffset(firstArgIndex));
 
       if (composite->getType()->isVectorTy()) {
-        uint32_t index = op->getValueAtOffset(secondArgIndex);
+        const uint32_t index = op->getValueAtOffset(secondArgIndex);
 
         result = IRBuilder.CreateExtractElement(composite, index);
       } else {
         llvm::SmallVector<uint32_t, 2> indexes;
 
         for (int i = 0; i < op->wordCount() - secondArgIndex; i++) {
-          uint32_t index = op->getValueAtOffset(secondArgIndex + i);
+          const uint32_t index = op->getValueAtOffset(secondArgIndex + i);
 
           indexes.push_back(index);
         }
@@ -1417,14 +1457,14 @@ llvm::Error Builder::create<OpSpecConstantOp>(const OpSpecConstantOp *op) {
           module.getValue(op->getValueAtOffset(secondArgIndex));
 
       if (result_type->isVectorTy()) {
-        uint32_t index = op->getValueAtOffset(thirdArgIndex);
+        const uint32_t index = op->getValueAtOffset(thirdArgIndex);
 
         result = IRBuilder.CreateInsertElement(composite, object, index);
       } else {
         llvm::SmallVector<uint32_t, 2> indexes;
 
         for (int i = 0; i < op->wordCount() - thirdArgIndex; i++) {
-          uint32_t index = op->getValueAtOffset(thirdArgIndex + i);
+          const uint32_t index = op->getValueAtOffset(thirdArgIndex + i);
 
           indexes.push_back(index);
         }
@@ -1808,14 +1848,15 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
     // name we'll actually use in the LLVM IR.
     // FIXME: This appears to just be a required workaround for the SPIR-V
     // generated by glslangValidator?
-    std::string entry_point_name = name.substr(0, name.find_first_of('('));
+    const std::string entry_point_name =
+        name.substr(0, name.find_first_of('('));
 
     switch (ep_op->ExecutionModel()) {
       case spv::ExecutionModelGLCompute: {
         // deal with descriptor sets
 
         // get the sorted list of descriptor bindings
-        llvm::SmallVector<spv::Id, 4> binding_list =
+        const llvm::SmallVector<spv::Id, 4> binding_list =
             module.getDescriptorBindingList();
 
         llvm::SmallVector<llvm::Type *, 4> arg_types;
@@ -1877,11 +1918,11 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
         // number of interfaces in an OpEntryPoint is its word count minus the
         // base word count (4) and the length of name in 32 bit words
         // TODO CA-2650: This divide rounds down, but should round up.
-        uint32_t num_interfaces =
+        const uint32_t num_interfaces =
             ep_op->wordCount() - (4 + (entry_point_name.size() / 4));
 
         if (num_interfaces) {
-          llvm::SmallVector<llvm::Function *, 2> initializers;
+          const llvm::SmallVector<llvm::Function *, 2> initializers;
 
           // for each input builtin used in the entry point push its ID to a
           // list of IDs that will be iterated through and used to lookup the
@@ -1950,7 +1991,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
                       }));
               break;
             case spv::ExecutionModeVecTypeHint: {
-              uint32_t vectorType = executionMode->getValueAtOffset(3);
+              const uint32_t vectorType = executionMode->getValueAtOffset(3);
               //  The 16 high-order bits of Vector Type operand specify the
               //  number of components of the vector.
               uint16_t numElements = (vectorType & 0xFFFF0000) >> 16;
@@ -1963,7 +2004,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
                   "OpExecutionMode VecTypeHint invalid number of components");
               // The 16 low-order bits of Vector Type operand specify the data
               // type of the vector.
-              uint16_t dataType = vectorType & 0x0000FFFF;
+              const uint16_t dataType = vectorType & 0x0000FFFF;
               // llvm-spirv encodes scalar hints as vectors of length 0 rather
               // than 1. This is an upsteam bug that may be resolved to encode
               // the legnth as 1, so here we handle both cases.
@@ -2034,7 +2075,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
               }
               break;
             case spv::ExecutionModeMaxWorkDimINTEL: {
-              uint32_t maxDim = executionMode->getValueAtOffset(3);
+              const uint32_t maxDim = executionMode->getValueAtOffset(3);
               // Specify the max work group dim.
               function->setMetadata(
                   "max_work_dim",
@@ -2043,7 +2084,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
                                         IRBuilder.getInt32(maxDim))}));
             } break;
             case spv::ExecutionModeSubgroupSize: {
-              uint32_t sgSize = executionMode->getValueAtOffset(3);
+              const uint32_t sgSize = executionMode->getValueAtOffset(3);
               // Specify the required sub group size.
               function->setMetadata(
                   "intel_reqd_sub_group_size",
@@ -2103,6 +2144,24 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
     function->addFnAttr(llvm::Attribute::NoInline);
   }
 
+  // For kernel entry points, all parameters can be decorated with noundef; it
+  // is not valid for the host to pass undefined/poison bits to kernels. Note
+  // that in a correct SPIR-V module, it is invalid for a function to call an
+  // entry point, so entry points are truly reserved only for calling from the
+  // host.
+  // FIXME: This would ideally be done on all functions. However, we're
+  // currently translating some well-defined programs SPIR-V to a "more
+  // poisonous" LLVM IR (e.g., see how OpShiftRightLogical produces an
+  // "undefined value" for out-of-bounds shifts, whereas LLVM's lshr produces a
+  // poison value). We don't want to pass poison to a 'noundef' function
+  // parameter when translating an otherwise correct SPIR-V module.
+  if (auto ep_op = module.getEntryPoint(op->IdResult());
+      ep_op && ep_op->ExecutionModel() == spv::ExecutionModelKernel) {
+    for (auto &arg : function->args()) {
+      arg.addAttr(llvm::Attribute::NoUndef);
+    }
+  }
+
   function->setCallingConv(CC);
   setCurrentFunction(function);
 
@@ -2110,11 +2169,17 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
   // easily retrieve the OpFunction directly from the function.
   module.addID(op->IdResult(), op, function);
 
-  // If there's a line range currently open at this point, create and attach
-  // the DISubprogram for this function. If there isn't, we'll generate one on
-  // the fly when we hit an OpLine.
-  if (auto current_range = module.getCurrentOpLineRange()) {
-    getOrCreateDebugFunctionScope(function, current_range->op_line);
+  if (auto *function_scope = module.getDebugFunctionScope(op->IdResult())) {
+    // If we've created the scope before creating the function, link the two
+    // together here
+    function->setSubprogram(function_scope);
+  } else if (auto current_range = getCurrentOpLineRange();
+             current_range && module.useImplicitDebugScopes()) {
+    // Else, if there's a line range currently open at this point, create and
+    // attach a synthetic DISubprogram for this function. If there isn't, we'll
+    // generate one on the fly when we hit an OpLine but it'll have that
+    // OpLine's line/column information.
+    getOrCreateDebugFunctionScope(*function, current_range->op_line);
   }
 
   return llvm::Error::success();
@@ -2244,7 +2309,7 @@ std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
 
 std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
                                   spv::Id argTyID, bool isBaseTyName) {
-  std::optional<std::string> argBaseTy;
+  const std::optional<std::string> argBaseTy;
   if (argTy->isPointerTy()) {
 #if LLVM_VERSION_LESS(17, 0)
     // Check for special built-in types, which are found as pointers to
@@ -2274,9 +2339,9 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
   }
   if (argTy->isVectorTy()) {
     auto *const elemTy = multi_llvm::getVectorElementType(argTy);
-    auto const opElem = module.getFromLLVMTy<OpCode>(elemTy);
-    auto const name = getScalarTypeName(elemTy, opElem);
-    auto const numElements =
+    const auto opElem = module.getFromLLVMTy<OpCode>(elemTy);
+    const auto name = getScalarTypeName(elemTy, opElem);
+    const auto numElements =
         std::to_string(multi_llvm::getVectorNumElements(argTy));
     return isBaseTyName
                ? name + " __attribute__((ext_vector_type(" + numElements + ")))"
@@ -2356,16 +2421,16 @@ llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
       }
       const spv::Id typeID = argTyOr.value();
 
-      std::string argTyName =
+      const std::string argTyName =
           retrieveArgTyMetadata(module, argTy, typeID, /*isBaseTyName*/ false);
-      std::string argBaseTyName =
+      const std::string argBaseTyName =
           retrieveArgTyMetadata(module, argTy, typeID, /*isBaseTyName*/ true);
 
       // Address space
-      uint32_t argAddrSpace =
+      const uint32_t argAddrSpace =
           argTy->isPointerTy() ? argTy->getPointerAddressSpace() : 0;
       // We don't set this field.
-      std::string argTyQualName = "";
+      const std::string argTyQualName = "";
       // Set access qualifiers
       std::string argAccessQual = "none";
       if (module.get<OpType>(typeID)->isImageType()) {
@@ -2435,7 +2500,7 @@ llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
   }
 
   setCurrentFunction(nullptr);
-  checkEndOpLineRange();
+
   return llvm::Error::success();
 }
 
@@ -2477,7 +2542,7 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
         llvm::FunctionType::get(resultType, paramTypes, /*isVarArg*/ false);
     // Generate a special dummy name here, so that the 'real' function's name
     // isn't taken when it comes to creating it.
-    std::string dummyFnName =
+    const std::string dummyFnName =
         "__spirv.ll.forwardref." + module.getName(op->Function());
     callee = cast<llvm::Function>(
         module.llvmModule->getOrInsertFunction(dummyFnName, functionType)
@@ -2579,7 +2644,7 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
 
   llvm::Value *value = nullptr;
 
-  std::string name = module.getName(op->IdResult());
+  const std::string name = module.getName(op->IdResult());
 
   if (module.hasCapability(spv::CapabilityKernel)) {
     // FIXME: First check if the variable has the BuiltIn decoration since it
@@ -2665,11 +2730,12 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
                 "invalid SPIR-V: variables can not have a function[7] "
                 "storage class outside of a function");
           }
-          value = IRBuilder.CreateAlloca(varTy);
-          value->setName(name);
+          auto *alloca = IRBuilder.CreateAlloca(varTy);
+          alloca->setName(name);
           if (initializer) {
-            IRBuilder.CreateStore(initializer, value);
+            IRBuilder.CreateStore(initializer, alloca);
           }
+          value = alloca;
         } break;
         case spv::StorageClassGeneric: {
           if (module.isExtensionEnabled(
@@ -2690,11 +2756,12 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
               );
               value = globalValue;
             } else {
-              value = IRBuilder.CreateAlloca(varTy);
-              value->setName(name);
+              auto *alloca = IRBuilder.CreateAlloca(varTy);
+              alloca->setName(name);
               if (initializer) {
-                IRBuilder.CreateStore(initializer, value);
+                IRBuilder.CreateStore(initializer, alloca);
               }
+              value = alloca;
             }
           } else {
             // This requires the GenericPointer capability, which we do not
@@ -2725,11 +2792,12 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
     switch (op->StorageClass()) {
       case spv::StorageClassFunction: {
         SPIRV_LL_ASSERT_PTR(getCurrentFunction());
-        value = IRBuilder.CreateAlloca(varTy);
+        auto *alloca = IRBuilder.CreateAlloca(varTy);
+        alloca->setName(name);
         if (initializer) {
-          IRBuilder.CreateStore(initializer, value);
+          IRBuilder.CreateStore(initializer, alloca);
         }
-        value->setName(name);
+        value = alloca;
       } break;
       case spv::StorageClassPrivate: {
         value = new llvm::GlobalVariable(
@@ -2932,14 +3000,14 @@ llvm::Error Builder::create<OpCopyMemory>(const OpCopyMemory *op) {
                       targetOpType->getTypePointer()->Type(),
                   "Source and Target don't point to the same type");
 
-  size_t size =
+  const size_t size =
       module.llvmModule->getDataLayout().getTypeStoreSize(pointeeType);
 
   bool isVolatile = false;
   uint32_t alignment = 0;
 
   if (op->wordCount() > 3) {
-    uint32_t memoryAccess = op->MemoryAccess();
+    const uint32_t memoryAccess = op->MemoryAccess();
 
     if (spv::MemoryAccessVolatileMask & memoryAccess) {
       isVolatile = true;
@@ -2969,7 +3037,7 @@ llvm::Error Builder::create<OpCopyMemorySized>(const OpCopyMemorySized *op) {
   uint32_t alignment = 0;
 
   if (op->wordCount() > 4) {
-    uint32_t memoryAccess = op->MemoryAccess();
+    const uint32_t memoryAccess = op->MemoryAccess();
 
     if (spv::MemoryAccessVolatileMask & memoryAccess) {
       isVolatile = true;
@@ -3127,7 +3195,7 @@ llvm::Error Builder::create<OpArrayLength>(const OpArrayLength *op) {
       // the last element has to be the array we are getting the size of, so
       // skip it
       if (type != blockStructType->elements().back()) {
-        uint64_t typeSizeInBits =
+        const uint64_t typeSizeInBits =
             module.llvmModule->getDataLayout().getTypeSizeInBits(type);
         // we want the size in bytes
         blockMembersSize += typeSizeInBits / 8;
@@ -3149,7 +3217,7 @@ llvm::Error Builder::create<OpArrayLength>(const OpArrayLength *op) {
         "Struct ID provided to OpArrayLength wasn't a descriptor binding!");
 
     // and figure out where in the list it is
-    uint32_t bindingIndex =
+    const uint32_t bindingIndex =
         std::distance(descriptorBindingList.begin(), bindingIter);
 
     // create a load to get the total size of the buffer that backs our block
@@ -3171,7 +3239,7 @@ llvm::Error Builder::create<OpArrayLength>(const OpArrayLength *op) {
     // use data layout to get the size of the array element type of the last
     // member of the block struct type (this instruction must be called on the
     // last member of the struct, which must be an array)
-    uint32_t arrayElementSize =
+    const uint32_t arrayElementSize =
         module.llvmModule->getDataLayout().getTypeAllocSize(
             blockStructType->elements().back()->getArrayElementType());
 
@@ -3315,7 +3383,7 @@ llvm::Error Builder::create<OpVectorShuffle>(const OpVectorShuffle *op) {
   llvm::SmallVector<llvm::Constant *, 4> components;
 
   for (int16_t compIndex = 0; compIndex < op->wordCount() - 5; compIndex++) {
-    uint32_t component = op->Components()[compIndex];
+    const uint32_t component = op->Components()[compIndex];
     if (component == 0xFFFFFFFF) {
       components.push_back(llvm::UndefValue::get(IRBuilder.getInt32Ty()));
     } else {
@@ -3389,7 +3457,7 @@ llvm::Error Builder::create<OpCompositeExtract>(const OpCompositeExtract *op) {
   llvm::Type *type = composite->getType();
 
   if (type->isVectorTy()) {
-    uint32_t index = op->Indexes()[0];
+    const uint32_t index = op->Indexes()[0];
 
     llvm::Value *element = IRBuilder.CreateExtractElement(composite, index);
     element->setName(module.getName(op->IdResult()));
@@ -3418,7 +3486,7 @@ llvm::Error Builder::create<OpCompositeInsert>(const OpCompositeInsert *op) {
   SPIRV_LL_ASSERT_PTR(object);
 
   if (composite->getType()->getTypeID() == llvm::Type::FixedVectorTyID) {
-    uint32_t index = op->getValueAtOffset(5);
+    const uint32_t index = op->getValueAtOffset(5);
 
     llvm::Value *new_vec =
         IRBuilder.CreateInsertElement(composite, object, index);
@@ -3526,7 +3594,7 @@ llvm::Error Builder::create<OpImageSampleExplicitLod>(
   auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
-  Module::SampledImage sampledImage =
+  const Module::SampledImage sampledImage =
       module.getSampledImage(op->SampledImage());
 
   const OpSampledImage *sampledImageOp =
@@ -3710,15 +3778,15 @@ llvm::Error Builder::create<OpImageQuerySizeLod>(
 #if LLVM_VERSION_GREATER_EQUAL(17, 0)
   SPIRV_LL_ASSERT(image->getType()->isTargetExtTy(), "Unknown image type");
   auto *const imgTy = llvm::cast<llvm::TargetExtType>(image->getType());
-  bool isArray =
+  const bool isArray =
       imgTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx) ==
       compiler::utils::tgtext::ImageArrayed;
-  bool is2D = imgTy->getIntParameter(
-                  compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
-              compiler::utils::tgtext::ImageDim2D;
-  bool is3D = imgTy->getIntParameter(
-                  compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
-              compiler::utils::tgtext::ImageDim3D;
+  const bool is2D = imgTy->getIntParameter(
+                        compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
+                    compiler::utils::tgtext::ImageDim2D;
+  const bool is3D = imgTy->getIntParameter(
+                        compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
+                    compiler::utils::tgtext::ImageDim3D;
 #else
   auto opFunctionParameter = module.get<OpFunctionParameter>(op->Image());
 
@@ -3726,11 +3794,11 @@ llvm::Error Builder::create<OpImageQuerySizeLod>(
       module.getInternalStructType(opFunctionParameter->IdResultType());
   SPIRV_LL_ASSERT(imgTy, "Unknown/untracked image type");
 
-  llvm::StringRef imageTypeName = imgTy->getStructName();
+  const llvm::StringRef imageTypeName = imgTy->getStructName();
 
-  bool isArray = imageTypeName.contains("array");
-  bool is2D = imageTypeName.contains("2d");
-  bool is3D = imageTypeName.contains("3d");
+  const bool isArray = imageTypeName.contains("array");
+  const bool is2D = imageTypeName.contains("2d");
+  const bool is3D = imageTypeName.contains("3d");
 #endif
 
   llvm::Value *result = llvm::UndefValue::get(returnType);
@@ -4264,21 +4332,21 @@ llvm::Error Builder::create<OpSMod>(const OpSMod *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
-  llvm::Value *lhs = module.getValue(op->Operand1());
-  SPIRV_LL_ASSERT_PTR(lhs);
+  llvm::Value *num = module.getValue(op->Operand1());
+  SPIRV_LL_ASSERT_PTR(num);
 
-  llvm::Value *rhs = module.getValue(op->Operand2());
-  SPIRV_LL_ASSERT_PTR(rhs);
+  llvm::Value *denom = module.getValue(op->Operand2());
+  SPIRV_LL_ASSERT_PTR(denom);
 
-  llvm::Constant *zero = llvm::ConstantInt::getSigned(type, 0);
-  llvm::Value *cmp = IRBuilder.CreateICmpSLT(rhs, zero);
-  llvm::Value *absRhs = nullptr;
-  llvm::Value *result = nullptr;
+  llvm::Constant *const zero = llvm::ConstantInt::getSigned(type, 0);
+  llvm::Value *const cmp = IRBuilder.CreateICmpSLT(denom, zero);
 
-  absRhs = IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(rhs), rhs);
+  llvm::Value *const absDenom =
+      IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(denom), denom);
 
-  llvm::Value *sRem = IRBuilder.CreateSRem(lhs, rhs);
-  result = IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absRhs), sRem);
+  llvm::Value *const sRem = IRBuilder.CreateSRem(num, denom);
+  llvm::Value *const result =
+      IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absDenom), sRem);
 
   module.addID(op->IdResult(), op, result);
   return llvm::Error::success();
@@ -4524,8 +4592,8 @@ llvm::Error Builder::create<OpUMulExtended>(const OpUMulExtended *op) {
 
   llvm::Value *mul = IRBuilder.CreateMul(lhs, rhs);
 
-  unsigned nbBits = operandType->getPrimitiveSizeInBits();
-  uint64_t mask = (1 << (nbBits / 2)) - 1;
+  const unsigned nbBits = operandType->getPrimitiveSizeInBits();
+  const uint64_t mask = (1 << (nbBits / 2)) - 1;
   llvm::Constant *lowOrderBitsMask = IRBuilder.getInt32(mask);
   llvm::Constant *highOrderBitsMask = IRBuilder.getInt32(~mask);
 
@@ -4559,8 +4627,8 @@ llvm::Error Builder::create<OpSMulExtended>(const OpSMulExtended *op) {
 
   llvm::Value *mul = IRBuilder.CreateMul(lhs, rhs);
 
-  unsigned nbBits = operandType->getPrimitiveSizeInBits();
-  uint64_t mask = (1 << (nbBits / 2)) - 1;
+  const unsigned nbBits = operandType->getPrimitiveSizeInBits();
+  const uint64_t mask = (1 << (nbBits / 2)) - 1;
   llvm::Constant *lowOrderBitsMask = IRBuilder.getInt32(mask);
   llvm::Constant *highOrderBitsMask = IRBuilder.getInt32(~mask);
 
@@ -4600,7 +4668,7 @@ llvm::Error Builder::create<OpAny>(const OpAny *op) {
   // The OpenCL version of 'any' takes an int type vector.
   // Custom mangle the builtin we're calling, so we mangle the arguments as a
   // vector of i32s. Ideally our mangling APIs would be able to handle this.
-  std::string mangledTy =
+  const std::string mangledTy =
       getMangledVecPrefix(extVectorType) +
       getMangledIntName(IRBuilder.getInt32Ty(), /*isSigned*/ true);
 
@@ -4631,7 +4699,7 @@ llvm::Error Builder::create<OpAll>(const OpAll *op) {
   // The OpenCL version of 'all' takes an int type vector.
   // Custom mangle the builtin we're calling, so we mangle the arguments as a
   // vector of i32s. Ideally our mangling APIs would be able to handle this.
-  std::string mangledTy =
+  const std::string mangledTy =
       getMangledVecPrefix(extVectorType) +
       getMangledIntName(IRBuilder.getInt32Ty(), /*isSigned*/ true);
 
@@ -5551,8 +5619,8 @@ llvm::Error Builder::create<OpControlBarrier>(const OpControlBarrier *op) {
   // The mux enumeration values for 'scope' and 'semantics' are identical to
   // the SPIR-V ones, so we can just pass operands straight through.
 
-  auto const wgBarrierName = "__mux_work_group_barrier";
-  auto const sgBarrierName = "__mux_sub_group_barrier";
+  const auto wgBarrierName = "__mux_work_group_barrier";
+  const auto sgBarrierName = "__mux_sub_group_barrier";
   // If it's constant (which is most likely is) emit the right barrier
   // directly.
   if (auto *exe_const = dyn_cast<llvm::ConstantInt>(execution)) {
@@ -5802,7 +5870,7 @@ void Builder::generateBinaryAtomic(const OpResult *op, spv::Id pointerID,
   SPIRV_LL_ASSERT_PTR(retTy);
 
   llvm::Type *value_type = value->getType();
-  std::string mangled_value_type =
+  const std::string mangled_value_type =
       value_type->isIntegerTy()
           ? getMangledIntName(value_type, args_are_signed)
           : getMangledTypeName(value_type, MangleInfo(valueID), {});
@@ -5916,7 +5984,7 @@ llvm::Error Builder::create<OpPhi>(const OpPhi *op) {
   return llvm::Error::success();
 }
 
-void Builder::populatePhi(OpPhi const &op) {
+void Builder::populatePhi(const OpPhi &op) {
   llvm::Value *value = module.getValue(op.IdResult());
   SPIRV_LL_ASSERT_PTR(value);
   llvm::PHINode *phi = llvm::dyn_cast<llvm::PHINode>(value);
@@ -6022,9 +6090,21 @@ llvm::Error Builder::create<OpLabel>(const OpLabel *op) {
     generateSpecConstantOps();
   }
 
-  if (auto current_range = module.getCurrentOpLineRange()) {
-    module.setCurrentOpLineRange(
-        createLineRangeBegin(current_range->op_line, *bb));
+  // If there's a line range currently open at this point, create and register
+  // a DILexicalBlock for this function. If there isn't, we'll generate one on
+  // the fly when we hit an OpLine but it'll have that OpLine's line/column
+  // information.
+  // Note that it's legal for there to be an open line range before the first
+  // basic block in a function, but not any subsequent ones, because all blocks
+  // must end in a block termination instruction, and those close line ranges.
+  //   OpLine           <- new line range opens here
+  //     OpFunction
+  //       OpLine       <- new line range opens here; old one closes
+  //         OpLabel
+  //         OpBranch   <- line range closes here
+  if (auto current_range = getCurrentOpLineRange();
+      current_range && module.useImplicitDebugScopes()) {
+    getOrCreateDebugBasicBlockScope(*bb, current_range->op_line);
   }
 
   module.addID(op->IdResult(), op, bb);
@@ -6038,8 +6118,8 @@ llvm::Error Builder::create<OpBranch>(const OpBranch *op) {
 
   IRBuilder.CreateBr(bb);
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6062,7 +6142,7 @@ llvm::Error Builder::create<OpBranchConditional>(
   // check for branch weights
   auto branchWeights = op->BranchWeights();
   if (branchWeights.size() == 2) {
-    llvm::SmallVector<llvm::Metadata *, 3> mds = {
+    const llvm::SmallVector<llvm::Metadata *, 3> mds = {
         llvm::MDString::get(*context.llvmContext, "branch_weights"),
         llvm::ConstantAsMetadata::get(IRBuilder.getInt32(branchWeights[0])),
         llvm::ConstantAsMetadata::get(IRBuilder.getInt32(branchWeights[1]))};
@@ -6078,16 +6158,16 @@ llvm::Error Builder::create<OpBranchConditional>(
       branch_inst->setMetadata(md_nodes.front().second, md_nodes.front().first);
     } else {
       // if both possible nodes are needed create an `MDTuple` out of them
-      llvm::ArrayRef<llvm::Metadata *> md_arr = {md_nodes[0].first,
-                                                 md_nodes[1].first};
+      const llvm::ArrayRef<llvm::Metadata *> md_arr = {md_nodes[0].first,
+                                                       md_nodes[1].first};
 
       branch_inst->setMetadata(
           "MDTuple", llvm::MDTuple::get(*context.llvmContext, md_arr));
     }
   }
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6115,8 +6195,8 @@ llvm::Error Builder::create<OpSwitch>(const OpSwitch *op) {
     switchInst->addCase(llvm::cast<llvm::ConstantInt>(caseVal), caseBB);
   }
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6126,8 +6206,8 @@ llvm::Error Builder::create<OpKill>(const OpKill *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6137,8 +6217,8 @@ llvm::Error Builder::create<OpReturn>(const OpReturn *) {
   SPIRV_LL_ASSERT_PTR(getCurrentFunction());
   IRBuilder.CreateRetVoid();
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6152,8 +6232,8 @@ llvm::Error Builder::create<OpReturnValue>(const OpReturnValue *op) {
 
   IRBuilder.CreateRet(value);
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6162,8 +6242,8 @@ template <>
 llvm::Error Builder::create<OpUnreachable>(const OpUnreachable *) {
   IRBuilder.CreateUnreachable();
 
-  // This instruction ends a block.
-  checkEndOpLineRange();
+  // This instruction ends a block, and thus a scope.
+  closeCurrentLexicalScope();
 
   return llvm::Error::success();
 }
@@ -6173,7 +6253,7 @@ llvm::Error Builder::create<OpLifetimeStart>(const OpLifetimeStart *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
-  uint32_t size = op->Size();
+  const uint32_t size = op->Size();
 
   // IRBuilder handles size == nullptr as size of variable.
   llvm::ConstantInt *sizeConstant = nullptr;
@@ -6190,7 +6270,7 @@ llvm::Error Builder::create<OpLifetimeStop>(const OpLifetimeStop *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
-  uint32_t size = op->Size();
+  const uint32_t size = op->Size();
 
   // IRBuilder handles size == nullptr as size of variable.
   llvm::ConstantInt *sizeConstant = nullptr;
@@ -6243,7 +6323,7 @@ llvm::Error Builder::create<OpGroupWaitEvents>(const OpGroupWaitEvents *op) {
 
   SPIRV_LL_ASSERT(eventsList->getType()->isPointerTy(),
                   "Events List must be pointer to OpTypeEvent");
-  unsigned AS = eventsList->getType()->getPointerAddressSpace();
+  const unsigned AS = eventsList->getType()->getPointerAddressSpace();
   SPIRV_LL_ASSERT(AS == 0 || AS == 4, "Only expecting address space 0 or 4");
 
   createBuiltinCall(AS == 0 ? "_Z17wait_group_eventsiP9ocl_event"
@@ -6296,7 +6376,7 @@ void Builder::generateReduction(const T *op, const std::string &opName,
   // Add in any required mangle information before we cache the reduction
   // wrapper. This is important for distinguishing between smin/smax, for
   // example.
-  std::string cacheName =
+  const std::string cacheName =
       (signInfo == MangleInfo::ForceSignInfo::ForceSigned
            ? "s"
            : (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned ? "u"
@@ -7205,7 +7285,8 @@ llvm::Error Builder::create<OpImageSparseTexelsResident>(
 
 template <>
 llvm::Error Builder::create<OpNoLine>(const OpNoLine *) {
-  checkEndOpLineRange();
+  applyDebugInfoAtClosedRangeOrScope();
+  setCurrentOpLineRange(std::nullopt);
   return llvm::Error::success();
 }
 

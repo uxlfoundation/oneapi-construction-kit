@@ -37,7 +37,7 @@
           %fcn_ty = OpTypeFunction %void_ty %uint_ty %uint3_ty
 %work_group_scope = OpConstant %uint_ty 2
 
-; CHECK: define spir_kernel void @broadcast(i32 [[VAL:%.*]], <3 x i32> [[XYZ:%.*]])
+; CHECK: define spir_kernel void @broadcast(i32 noundef [[VAL:%.*]], <3 x i32> noundef [[XYZ:%.*]])
 ; CHECK:  [[X:%.*]] = extractelement <3 x i32> [[XYZ]], i64 0
 ; CHECK:  [[Y:%.*]] = extractelement <3 x i32> [[XYZ]], i64 1
 ; CHECK:  [[Z:%.*]] = extractelement <3 x i32> [[XYZ]], i64 2

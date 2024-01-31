@@ -21,29 +21,31 @@
 #ifndef COMPILER_UTILS_PIPELINE_PARSE_HELPERS_H_INCLUDED
 #define COMPILER_UTILS_PIPELINE_PARSE_HELPERS_H_INCLUDED
 
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/Error.h>
 #include <llvm/Support/FormatVariadic.h>
 
 namespace compiler {
 namespace utils {
-using namespace llvm;
 
 // Note that parseSinglePassOption(), parsePassParameters() and
 // checkParametrizedPassName() helper functions come from llvm's PassBuilder.cpp
-static Expected<bool> parseSinglePassOption(StringRef Params,
-                                            StringRef OptionName,
-                                            StringRef PassName) {
+static llvm::Expected<bool> parseSinglePassOption(llvm::StringRef Params,
+                                                  llvm::StringRef OptionName,
+                                                  llvm::StringRef PassName) {
   bool Result = false;
   while (!Params.empty()) {
-    StringRef ParamName;
+    llvm::StringRef ParamName;
     std::tie(ParamName, Params) = Params.split(';');
 
     if (ParamName == OptionName) {
       Result = true;
     } else {
-      return make_error<StringError>(
-          formatv("invalid {1} pass parameter '{0}' ", ParamName, PassName)
+      return llvm::make_error<llvm::StringError>(
+          llvm::formatv("invalid {1} pass parameter '{0}' ", ParamName,
+                        PassName)
               .str(),
-          inconvertibleErrorCode());
+          llvm::inconvertibleErrorCode());
     }
   }
   return Result;
@@ -51,11 +53,11 @@ static Expected<bool> parseSinglePassOption(StringRef Params,
 
 template <typename ParametersParseCallableT>
 static auto parsePassParameters(ParametersParseCallableT &&Parser,
-                                StringRef Name, StringRef PassName)
-    -> decltype(Parser(StringRef{})) {
-  using ParametersT = typename decltype(Parser(StringRef{}))::value_type;
+                                llvm::StringRef Name, llvm::StringRef PassName)
+    -> decltype(Parser(llvm::StringRef{})) {
+  using ParametersT = typename decltype(Parser(llvm::StringRef{}))::value_type;
 
-  StringRef Params = Name;
+  llvm::StringRef Params = Name;
   if (!Params.consume_front(PassName)) {
     assert(false &&
            "unable to strip pass name from parametrized pass specification");
@@ -65,23 +67,25 @@ static auto parsePassParameters(ParametersParseCallableT &&Parser,
     assert(false && "invalid format for parametrized pass name");
   }
 
-  Expected<ParametersT> Result = Parser(Params);
-  assert((Result || Result.template errorIsA<StringError>()) &&
+  llvm::Expected<ParametersT> Result = Parser(Params);
+  assert((Result || Result.template errorIsA<llvm::StringError>()) &&
          "Pass parameter parser can only return StringErrors.");
   return Result;
 }
 
-static bool checkParametrizedPassName(StringRef Name, StringRef PassName) {
+static bool checkParametrizedPassName(llvm::StringRef Name,
+                                      llvm::StringRef PassName) {
   if (!Name.consume_front(PassName)) return false;
   // normal pass name w/o parameters == default parameters
   if (Name.empty()) return true;
-  return Name.startswith("<") && Name.endswith(">");
+  return Name.starts_with("<") && Name.ends_with(">");
 }
 
-inline Expected<StringRef> parseSinglePassStringRef(StringRef Params) {
-  StringRef Result = "";
+inline llvm::Expected<llvm::StringRef> parseSinglePassStringRef(
+    llvm::StringRef Params) {
+  llvm::StringRef Result = "";
   while (!Params.empty()) {
-    StringRef ParamName;
+    llvm::StringRef ParamName;
     std::tie(ParamName, Params) = Params.split(';');
 
     Result = ParamName;

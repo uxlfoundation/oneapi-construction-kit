@@ -160,8 +160,8 @@ abacus_double ABACUS_API __abacus_lgamma_r(abacus_double x,
     return -1.0 * __abacus_log(-x);
   }
 
-  abacus_double xAbs = __abacus_fabs(x);
-  abacus_double posResult = abacus::internal::lgamma_positive(xAbs);
+  const abacus_double xAbs = __abacus_fabs(x);
+  const abacus_double posResult = abacus::internal::lgamma_positive(xAbs);
 
   if (x > 0.0) {
     return posResult;

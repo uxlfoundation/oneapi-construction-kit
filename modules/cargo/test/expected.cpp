@@ -23,9 +23,9 @@
 TEST(expected, assignment_simple) {
   cargo::expected<int, int> e1 = 42;
   cargo::expected<int, int> e2 = 17;
-  cargo::expected<int, int> e3 = 21;
+  const cargo::expected<int, int> e3 = 21;
   cargo::expected<int, int> e4 = cargo::make_unexpected(42);
-  cargo::expected<int, int> e5 = cargo::make_unexpected(17);
+  const cargo::expected<int, int> e5 = cargo::make_unexpected(17);
   cargo::expected<int, int> e6 = cargo::make_unexpected(21);
 
   e1 = e2;
@@ -68,7 +68,7 @@ TEST(expected, assignment_simple) {
   ASSERT_TRUE(*e4 == 21);
 
   const bool expectedRefIsDefaultConstructible =
-      std::is_default_constructible<cargo::expected<int &, int>>::value;
+      std::is_default_constructible_v<cargo::expected<int &, int>>;
   ASSERT_FALSE(expectedRefIsDefaultConstructible);
 }
 
@@ -144,7 +144,7 @@ TEST(expected, assignment_deletion) {
   };
 
   cargo::expected<has_all, has_all> e1 = {};
-  cargo::expected<has_all, has_all> e2 = {};
+  const cargo::expected<has_all, has_all> e2 = {};
   e1 = e2;
 }
 
@@ -160,7 +160,7 @@ struct takes_init_and_variadic {
 
 TEST(expected, constructors) {
   {
-    cargo::expected<int, int> e;
+    const cargo::expected<int, int> e;
     ASSERT_TRUE(bool(e));
     ASSERT_TRUE(e == 0);
   }
@@ -178,7 +178,7 @@ TEST(expected, constructors) {
   }
 
   {
-    cargo::expected<int, int> e(cargo::in_place, 42);
+    const cargo::expected<int, int> e(cargo::in_place, 42);
     ASSERT_TRUE(bool(e));
     ASSERT_TRUE(e == 42);
   }
@@ -208,67 +208,59 @@ TEST(expected, constructors) {
   }
 
   {
-    cargo::expected<int, int> e;
-    ASSERT_TRUE(std::is_default_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_assignable<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
-    ASSERT_TRUE(cargo::is_trivially_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
-    ASSERT_TRUE(std::is_trivially_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
+    using e = cargo::expected<int, int>;
+    ASSERT_TRUE(std::is_default_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_constructible_v<e>);
+    ASSERT_TRUE(std::is_move_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_assignable_v<e>);
+    ASSERT_TRUE(std::is_move_assignable_v<e>);
+    ASSERT_TRUE(std::is_trivially_copy_constructible_v<e>);
+    ASSERT_TRUE(std::is_trivially_copy_assignable_v<e>);
+    ASSERT_TRUE(std::is_trivially_move_constructible_v<e>);
+    ASSERT_TRUE(std::is_trivially_move_assignable_v<e>);
   }
 
   {
-    cargo::expected<int, std::string> e;
-    ASSERT_TRUE(std::is_default_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_assignable<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
-    ASSERT_TRUE(!cargo::is_trivially_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(!cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
-    ASSERT_TRUE(!std::is_trivially_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(!std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
+    using e = cargo::expected<int, std::string>;
+    ASSERT_TRUE(std::is_default_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_constructible_v<e>);
+    ASSERT_TRUE(std::is_move_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_assignable_v<e>);
+    ASSERT_TRUE(std::is_move_assignable_v<e>);
+    ASSERT_TRUE(!std::is_trivially_copy_constructible_v<e>);
+    ASSERT_TRUE(!std::is_trivially_copy_assignable_v<e>);
+    ASSERT_TRUE(!std::is_trivially_move_constructible_v<e>);
+    ASSERT_TRUE(!std::is_trivially_move_assignable_v<e>);
   }
 
   {
-    cargo::expected<std::string, int> e;
-    ASSERT_TRUE(std::is_default_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_assignable<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
-    ASSERT_TRUE(!cargo::is_trivially_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(!cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
-    ASSERT_TRUE(!std::is_trivially_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(!std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
+    using e = cargo::expected<std::string, int>;
+    ASSERT_TRUE(std::is_default_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_constructible_v<e>);
+    ASSERT_TRUE(std::is_move_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_assignable_v<e>);
+    ASSERT_TRUE(std::is_move_assignable_v<e>);
+    ASSERT_TRUE(!std::is_trivially_copy_constructible_v<e>);
+    ASSERT_TRUE(!std::is_trivially_copy_assignable_v<e>);
+    ASSERT_TRUE(!std::is_trivially_move_constructible_v<e>);
+    ASSERT_TRUE(!std::is_trivially_move_assignable_v<e>);
   }
 
   {
-    cargo::expected<std::string, std::string> e;
-    ASSERT_TRUE(std::is_default_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(std::is_copy_assignable<decltype(e)>::value);
-    ASSERT_TRUE(std::is_move_assignable<decltype(e)>::value);
-    ASSERT_TRUE(!cargo::is_trivially_copy_constructible<decltype(e)>::value);
-    ASSERT_TRUE(!cargo::is_trivially_copy_assignable<decltype(e)>::value);
-#if !defined(CARGO_GCC49)
-    ASSERT_TRUE(!std::is_trivially_move_constructible<decltype(e)>::value);
-    ASSERT_TRUE(!std::is_trivially_move_assignable<decltype(e)>::value);
-#endif
+    using e = cargo::expected<std::string, std::string>;
+    ASSERT_TRUE(std::is_default_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_constructible_v<e>);
+    ASSERT_TRUE(std::is_move_constructible_v<e>);
+    ASSERT_TRUE(std::is_copy_assignable_v<e>);
+    ASSERT_TRUE(std::is_move_assignable_v<e>);
+    ASSERT_TRUE(!std::is_trivially_copy_constructible_v<e>);
+    ASSERT_TRUE(!std::is_trivially_copy_assignable_v<e>);
+    ASSERT_TRUE(!std::is_trivially_move_constructible_v<e>);
+    ASSERT_TRUE(!std::is_trivially_move_assignable_v<e>);
   }
 
   {
-    cargo::expected<void, int> e;
+    const cargo::expected<void, int> e;
     ASSERT_TRUE(bool(e));
   }
 
@@ -411,64 +403,56 @@ TEST(expected, extensions_map) {
     cargo::expected<int, int> e = 21;
     auto ret = e.map(ret_void);
     ASSERT_TRUE(bool(ret));
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     const cargo::expected<int, int> e = 21;
     auto ret = e.map(ret_void);
     ASSERT_TRUE(bool(ret));
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     cargo::expected<int, int> e = 21;
     auto ret = std::move(e).map(ret_void);
     ASSERT_TRUE(bool(ret));
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     const cargo::expected<int, int> e = 21;
     auto ret = std::move(e).map(ret_void);
     ASSERT_TRUE(bool(ret));
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     cargo::expected<int, int> e(cargo::unexpect, 21);
     auto ret = e.map(ret_void);
     ASSERT_TRUE(!ret);
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     const cargo::expected<int, int> e(cargo::unexpect, 21);
     auto ret = e.map(ret_void);
     ASSERT_TRUE(!ret);
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     cargo::expected<int, int> e(cargo::unexpect, 21);
     auto ret = std::move(e).map(ret_void);
     ASSERT_TRUE(!ret);
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   {
     const cargo::expected<int, int> e(cargo::unexpect, 21);
     auto ret = std::move(e).map(ret_void);
     ASSERT_TRUE(!ret);
-    ASSERT_TRUE(
-        (std::is_same<decltype(ret), cargo::expected<void, int>>::value));
+    ASSERT_TRUE((std::is_same_v<decltype(ret), cargo::expected<void, int>>));
   }
 
   // mapping functions which return references
@@ -924,10 +908,10 @@ TEST(expected, and_then_std_string) { getInt1(); }
 
 cargo::expected<int, int> operation1() { return 42; }
 
-cargo::expected<std::string, int> operation2(int const) { return "Bananas"; }
+cargo::expected<std::string, int> operation2(const int) { return "Bananas"; }
 
 TEST(expected, and_then_non_constexpr) {
-  auto const intermediate_result = operation1();
+  const auto intermediate_result = operation1();
 
   intermediate_result.and_then(operation2);
 }
@@ -936,7 +920,8 @@ struct a {};
 struct b : a {};
 
 TEST(expected, constructors_converting) {
-  cargo::expected<a, int> exp = cargo::expected<b, int>(cargo::unexpect, 0);
+  const cargo::expected<a, int> exp =
+      cargo::expected<b, int>(cargo::unexpect, 0);
   ASSERT_TRUE(!exp.has_value());
 }
 
@@ -956,20 +941,18 @@ TEST(expected, observers) {
   ASSERT_TRUE(o2.value_or(42) == 42);
   ASSERT_TRUE(o2.error() == 0);
   ASSERT_TRUE(o3.value() == 42);
-  auto success = std::is_same<decltype(o1.value()), int &>::value;
+  auto success = std::is_same_v<decltype(o1.value()), int &>;
   ASSERT_TRUE(success);
-  success = std::is_same<decltype(o3.value()), const int &>::value;
+  success = std::is_same_v<decltype(o3.value()), const int &>;
   ASSERT_TRUE(success);
-  success = std::is_same<decltype(std::move(o1).value()), int &&>::value;
+  success = std::is_same_v<decltype(std::move(o1).value()), int &&>;
   ASSERT_TRUE(success);
 
-#ifndef CARGO_NO_CONSTRR
-  success = std::is_same<decltype(std::move(o3).value()), const int &&>::value;
+  success = std::is_same_v<decltype(std::move(o3).value()), const int &&>;
   ASSERT_TRUE(success);
-#endif
 
   cargo::expected<move_detector, int> o4{cargo::in_place};
-  move_detector o5 = std::move(o4).value();
+  const move_detector o5 = std::move(o4).value();
   ASSERT_TRUE(o4->been_moved);
   ASSERT_TRUE(!o5.been_moved);
 }

@@ -18,7 +18,7 @@
 #include <abacus/abacus_geometric.h>
 
 #define DEF(TYPE)                                  \
-  TYPE __abacus_cross(TYPE x, TYPE y) {            \
+  TYPE ABACUS_API __abacus_cross(TYPE x, TYPE y) { \
     return abacus::detail::geometric::cross(x, y); \
   }
 

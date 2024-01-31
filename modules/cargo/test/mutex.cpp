@@ -26,13 +26,13 @@
 TEST(lock_guard, thread_safety) {
   // Compile time test with clang and -Wthread-safety
   cargo::mutex mutex;
-  cargo::lock_guard<cargo::mutex> lock{mutex};
+  const cargo::lock_guard<cargo::mutex> lock{mutex};
 }
 
 TEST(unique_lock, thread_safety) {
   // Compile time test with clang and -Wthread-safety
   cargo::mutex mutex;
-  cargo::unique_lock<cargo::mutex> lock{mutex};
+  const cargo::unique_lock<cargo::mutex> lock{mutex};
 }
 
 TEST(ostream_lock_guard, construct_value) {

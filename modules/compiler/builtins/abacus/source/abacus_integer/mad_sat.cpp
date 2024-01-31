@@ -179,7 +179,7 @@ template <>
 abacus_long mad_sat(const abacus_long x, const abacus_long y,
                     const abacus_long z) {
   const abacus_long mulSign = (x ^ y) & 0x8000000000000000;
-  const abacus_long zSign = (z)&0x8000000000000000;
+  const abacus_long zSign = (z) & 0x8000000000000000;
 
   const ulonger bX(__abacus_abs(x));
   const ulonger bY(__abacus_abs(y));
@@ -348,8 +348,10 @@ abacus_ulong16 mad_sat(const abacus_ulong16 x, const abacus_ulong16 y,
 }
 }  // namespace
 
-#define DEF(TYPE) \
-  TYPE __abacus_mad_sat(TYPE x, TYPE y, TYPE z) { return mad_sat<>(x, y, z); }
+#define DEF(TYPE)                                            \
+  TYPE ABACUS_API __abacus_mad_sat(TYPE x, TYPE y, TYPE z) { \
+    return mad_sat<>(x, y, z);                               \
+  }
 
 DEF(abacus_char);
 DEF(abacus_char2);

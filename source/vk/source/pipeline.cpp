@@ -123,13 +123,15 @@ VkResult CreateComputePipelines(vk::device device,
       // Map constant ID to its corresponding offset into spec_data.
       compiler::spirv::SpecializationInfo spvSpecInfo;
       if (spec_info) {
-        uint32_t map_entry_count = spec_info->mapEntryCount;
+        const uint32_t map_entry_count = spec_info->mapEntryCount;
         size_t dataSize = 0;
         for (uint32_t map_entry_index = 0; map_entry_index < map_entry_count;
              map_entry_index++) {
-          uint32_t id = spec_info->pMapEntries[map_entry_index].constantID;
-          uint32_t offset = spec_info->pMapEntries[map_entry_index].offset;
-          size_t size = spec_info->pMapEntries[map_entry_index].size;
+          const uint32_t id =
+              spec_info->pMapEntries[map_entry_index].constantID;
+          const uint32_t offset =
+              spec_info->pMapEntries[map_entry_index].offset;
+          const size_t size = spec_info->pMapEntries[map_entry_index].size;
 
           spvSpecInfo.entries.insert(std::make_pair(
               id, compiler::spirv::SpecializationInfo::Entry{offset, size}));
@@ -155,14 +157,15 @@ VkResult CreateComputePipelines(vk::device device,
       if (pipelineCache) {
         // Pipeline cache isn't externally synchronized according to the spec.
         {
-          std::lock_guard<std::mutex> lock(pipelineCache->mutex);
+          const std::lock_guard<std::mutex> lock(pipelineCache->mutex);
           cache_entry_iter = std::find(pipelineCache->cache_entries.begin(),
                                        pipelineCache->cache_entries.end(),
                                        shader_module->module_checksum);
         }
       }
 
-      cargo::string_view stageName(pCreateInfos[pipelineIndex].stage.pName);
+      const cargo::string_view stageName(
+          pCreateInfos[pipelineIndex].stage.pName);
 
       if (cache_entry_iter &&
           cache_entry_iter != pipelineCache->cache_entries.end()) {
@@ -295,7 +298,7 @@ VkResult CreateComputePipelines(vk::device device,
               shader.binary.size();
 
           {
-            std::lock_guard<std::mutex> lock(pipelineCache->mutex);
+            const std::lock_guard<std::mutex> lock(pipelineCache->mutex);
 
             if (std::find(pipelineCache->cache_entries.begin(),
                           pipelineCache->cache_entries.end(),

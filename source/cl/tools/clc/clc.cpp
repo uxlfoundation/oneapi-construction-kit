@@ -477,7 +477,7 @@ result driver::parseArguments(int argc, char **argv) {
   if (output_file.empty()) {
     if (input_file != "-") {
       output_file = input_file;
-      size_t lastdot = output_file.find_last_of('.');
+      const size_t lastdot = output_file.find_last_of('.');
       if (lastdot != cargo::string_view::npos) {
         generated_output_file =
             std::string(output_file.data(), lastdot) + ".bin";
@@ -517,7 +517,7 @@ result ReadWholeFile(std::istream &fp, std::vector<char> &output) {
   fp.seekg(0, std::ios_base::end);
 
   if (!fp.fail()) {
-    long file_length = fp.tellg();
+    const long file_length = fp.tellg();
     if (file_length < 0) {
       (void)std::fprintf(stderr,
                          "error: Could not determine input file size\n");
@@ -545,7 +545,7 @@ result driver::buildProgram() {
 
   std::vector<char> source_vec;
   {
-    bool use_stdin = (input_file == "-");
+    const bool use_stdin = (input_file == "-");
     std::ifstream file_instream;
     if (!use_stdin) {
       file_instream.open(input_file, std::ios_base::binary | std::ios_base::in);
@@ -586,7 +586,7 @@ result driver::buildProgram() {
         source_type_name = "SPIR-V";
         break;
       case input_type::opencl_c:
-        CARGO_FALLTHROUGH;
+        [[fallthrough]];
       default:
         source_type_name = "OpenCL C";
         break;
@@ -609,7 +609,7 @@ result driver::buildProgram() {
                  static_cast<int>(cl_options.size() - 1), cl_options.data());
   }
 
-  cargo::string_view device_profile =
+  const cargo::string_view device_profile =
       cl::binary::detectMuxDeviceProfile(CL_TRUE, compiler_info->device_info);
   compiler::Result errcode = compiler::Result::SUCCESS;
   switch (source_type) {
@@ -623,7 +623,7 @@ result driver::buildProgram() {
       }
     } break;
     case input_type::opencl_c:
-      CARGO_FALLTHROUGH;
+      [[fallthrough]];
     default: {
       if (module->parseOptions({cl_options.data(), cl_options.size() - 1},
                                compiler::Options::Mode::BUILD) !=
@@ -700,31 +700,34 @@ result driver::saveBinary() {
     binary = binary_storage;
   }
 
+  FILE *fp = nullptr;
+  bool owns_fp = false;
   if (output_file == "-") {
-    if (!dry_run) {
-      if (fwrite(binary.data(), 1, binary.size(), stdout) != binary.size()) {
-        perror("error: Could not write all of the binary to the output file");
-        return result::failure;
-      }
-      fflush(stdout);
-    }
-  } else {
-    if (verbose) {
-      std::fprintf(stderr, "info: writing binary to %s\n",
-                   generated_output_file.c_str());
-    }
-    if (!dry_run) {
-      FILE *fp = fopen(generated_output_file.c_str(), "wb");
+    fp = stdin;
+  } else if (verbose) {
+    (void)std::fprintf(stderr, "info: writing binary to %s\n",
+                       generated_output_file.c_str());
+  }
+  if (!dry_run) {
+    if (fp == nullptr) {
+      fp = fopen(generated_output_file.c_str(), "wb");
       if (fp == nullptr) {
-        perror("error: Could not open output file");
+        (void)perror("error: Could not open output file");
         return result::failure;
       }
-      if (fwrite(binary.data(), 1, binary.size(), fp) != binary.size()) {
-        perror("error: Could not write all of the binary to the output file");
-        fclose(fp);
-        return result::failure;
-      }
-      fclose(fp);
+      owns_fp = true;
+    }
+    bool write_error =
+        fwrite(binary.data(), 1, binary.size(), fp) != binary.size();
+    if (owns_fp) {
+      write_error |= fclose(fp);
+    } else {
+      write_error |= fflush(fp);
+    }
+    if (write_error) {
+      (void)perror(
+          "error: Could not write all of the binary to the output file");
+      return result::failure;
     }
   }
 

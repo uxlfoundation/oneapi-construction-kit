@@ -102,7 +102,7 @@ class array_view {
   /// @tparam Container Type of the array like container.
   /// @param container Reference to the container to view.
   template <class Container,
-            enable_if_t<
+            std::enable_if_t<
 #if !defined(_MSC_VER) || \
     (defined(_MSC_VER) && !(_MSC_VER >= 1910 && _MSC_VER < 1921))
                 // Disabled for Visual Studio 2017 due to a regression

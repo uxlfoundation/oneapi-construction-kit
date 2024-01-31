@@ -39,8 +39,8 @@ std::string NameMangler::mangleName(StringRef Name, ArrayRef<Type *> Tys,
   raw_string_ostream O(MangledName);
   O << "_Z" << Name.size() << Name;
   for (unsigned i = 0; i < Tys.size(); i++) {
-    ArrayRef<Type *> PrevTys = Tys.slice(0, i);
-    ArrayRef<TypeQualifiers> PrevQuals = Quals.slice(0, i);
+    const ArrayRef<Type *> PrevTys = Tys.slice(0, i);
+    const ArrayRef<TypeQualifiers> PrevQuals = Quals.slice(0, i);
     if (!mangleType(O, Tys[i], Quals[i], PrevTys, PrevQuals)) {
       return std::string();
     }
@@ -168,7 +168,7 @@ bool NameMangler::isTypeBuiltin(Type *Ty, TypeQualifiers &Quals) {
 }
 
 const char *NameMangler::mangleSimpleType(Type *Ty, TypeQualifier Qual) {
-  bool IsSigned = (Qual & eTypeQualSignedInt);
+  const bool IsSigned = (Qual & eTypeQualSignedInt);
   switch (Ty->getTypeID()) {
     default:
       break;
@@ -227,7 +227,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
     return true;
   }
 
-  TypeQualifier Qual = Quals.pop_front();
+  const TypeQualifier Qual = Quals.pop_front();
   if (const char *SimpleName = mangleSimpleType(Ty, Qual)) {
     O << SimpleName;
     return true;
@@ -248,7 +248,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
     return mangleType(O, VecTy->getElementType(), Quals, PrevTys, PrevQuals);
   } else if (Ty->isPointerTy()) {
     PointerType *PtrTy = cast<PointerType>(Ty);
-    unsigned AddressSpace = PtrTy->getAddressSpace();
+    const unsigned AddressSpace = PtrTy->getAddressSpace();
 #if LLVM_VERSION_LESS(17, 0)
     assert(PtrTy->isOpaque() && "No support for typed pointers past LLVM 15");
 #endif
@@ -269,7 +269,7 @@ bool NameMangler::mangleType(raw_ostream &O, Type *Ty, TypeQualifiers Quals,
 }
 
 bool NameMangler::demangleSimpleType(Lexer &L, Type *&Ty, TypeQualifier &Qual) {
-  int c = L.Current();
+  const int c = L.Current();
   Ty = nullptr;
   Qual = eTypeQualNone;
   if ((c < 0) || !Context) {
@@ -343,7 +343,7 @@ std::optional<std::string> NameMangler::mangleBuiltinType(Type *Ty) {
   return nullptr;
 #else
   auto *const TgtTy = cast<TargetExtType>(Ty);
-  StringRef Name = TgtTy->getName();
+  const StringRef Name = TgtTy->getName();
 
   if (Name == "spirv.Event") {
     return "9ocl_event";
@@ -569,7 +569,7 @@ bool NameMangler::demangleType(Lexer &L, Type *&Ty, Type **PointerEltTy,
 
   // Match vector types.
   if (L.Consume("Dv")) {
-    TypeQualifier VectorQual = eTypeQualNone;
+    const TypeQualifier VectorQual = eTypeQualNone;
     unsigned NumElements = 0;
     Quals.push_back(VectorQual);
     if (!L.ConsumeInteger(NumElements) || !L.Consume("_")) {
@@ -604,7 +604,7 @@ bool NameMangler::demangleType(Lexer &L, Type *&Ty, Type **PointerEltTy,
     if (TypeNameLength > L.Left()) {
       return false;
     }
-    TypeQualifier VectorQual = eTypeQualNone;
+    const TypeQualifier VectorQual = eTypeQualNone;
     unsigned NumElements = 0;
     Quals.push_back(VectorQual);
     if (!L.ConsumeInteger(NumElements)) {
@@ -665,7 +665,7 @@ bool NameMangler::demangleType(Lexer &L, Type *&Ty, Type **PointerEltTy,
     }
 
     // Resolve it, using a previous type and qualifier.
-    int entryIndex = resolveSubstitution(SubID, CtxTypes, CtxQuals);
+    const int entryIndex = resolveSubstitution(SubID, CtxTypes, CtxQuals);
     if ((entryIndex < 0) || ((unsigned)entryIndex >= CtxTypes.size())) {
       return false;
     }
@@ -717,12 +717,12 @@ TypeQualifiers::TypeQualifiers(unsigned Qual1, unsigned Qual2) : storage_(0) {
 }
 
 TypeQualifiers::StorageT TypeQualifiers::getCount() const {
-  StorageT Mask = ((1 << NumCountBits) - 1);
+  const StorageT Mask = ((1 << NumCountBits) - 1);
   return storage_ & Mask;
 }
 
 void TypeQualifiers::setCount(StorageT NewCount) {
-  StorageT Mask = ((1 << NumCountBits) - 1);
+  const StorageT Mask = ((1 << NumCountBits) - 1);
   // Clear the old count.
   storage_ &= ~Mask;
   // Set the new count.
@@ -730,18 +730,18 @@ void TypeQualifiers::setCount(StorageT NewCount) {
 }
 
 TypeQualifier TypeQualifiers::front() const {
-  StorageT Size = getCount();
+  const StorageT Size = getCount();
   if (Size == 0) {
     return eTypeQualNone;
   }
-  unsigned Mask = ((1 << NumQualBits) - 1);
-  unsigned Field = (storage_ >> NumCountBits) & Mask;
+  const unsigned Mask = ((1 << NumQualBits) - 1);
+  const unsigned Field = (storage_ >> NumCountBits) & Mask;
   return (TypeQualifier)Field;
 }
 
 TypeQualifier TypeQualifiers::pop_front() {
-  TypeQualifier Qual = front();
-  StorageT Size = getCount();
+  const TypeQualifier Qual = front();
+  const StorageT Size = getCount();
   if (Size > 0) {
     // Pop the field bits.
     storage_ >>= NumQualBits;
@@ -752,22 +752,22 @@ TypeQualifier TypeQualifiers::pop_front() {
 }
 
 TypeQualifier TypeQualifiers::at(unsigned Idx) const {
-  StorageT Size = getCount();
+  const StorageT Size = getCount();
   if (Idx >= Size) {
     return eTypeQualNone;
   }
-  unsigned ShAmt = NumCountBits + (Idx * NumQualBits);
-  unsigned Field = (storage_ >> ShAmt) & ((1 << NumQualBits) - 1);
+  const unsigned ShAmt = NumCountBits + (Idx * NumQualBits);
+  const unsigned Field = (storage_ >> ShAmt) & ((1 << NumQualBits) - 1);
   return TypeQualifier(Field);
 }
 
 bool TypeQualifiers::push_back(TypeQualifier Qual) {
-  StorageT Size = getCount();
+  const StorageT Size = getCount();
   if (Size == MaxSize) {
     return false;
   }
-  unsigned Offset = NumCountBits + (Size * NumQualBits);
-  unsigned Field = Qual & ((1 << NumQualBits) - 1);
+  const unsigned Offset = NumCountBits + (Size * NumQualBits);
+  const unsigned Field = Qual & ((1 << NumQualBits) - 1);
   storage_ |= (static_cast<StorageT>(Field) << Offset);
   setCount(Size + 1);
   return true;
@@ -811,7 +811,7 @@ bool Lexer::Consume(unsigned Size) {
 bool Lexer::Consume(StringRef Pattern) {
   if (Left() < Pattern.size()) {
     return false;
-  } else if (!TextLeft().startswith(Pattern)) {
+  } else if (!TextLeft().starts_with(Pattern)) {
     return false;
   }
   Pos += Pattern.size();
@@ -825,7 +825,7 @@ bool Lexer::ConsumeInteger(unsigned &Result) {
     i++;
     NumDigits++;
   }
-  StringRef NumText = Text.substr(Pos, NumDigits);
+  const StringRef NumText = Text.substr(Pos, NumDigits);
   if (NumText.size() == 0) {
     return false;
   }
@@ -847,7 +847,7 @@ bool Lexer::ConsumeSignedInteger(int &Result) {
     i++;
     NumChars++;
   }
-  StringRef NumText = Text.substr(Pos, NumChars);
+  const StringRef NumText = Text.substr(Pos, NumChars);
   if (NumText.size() == 0) {
     return false;
   }
@@ -889,7 +889,7 @@ bool Lexer::ConsumeAlphanumeric(StringRef &Result) {
 }
 
 bool Lexer::ConsumeUntil(char C, StringRef &Result) {
-  size_t CPos = Text.find_first_of(C, Pos);
+  const size_t CPos = Text.find_first_of(C, Pos);
   if (CPos == std::string::npos) {
     Result = StringRef();
     return false;

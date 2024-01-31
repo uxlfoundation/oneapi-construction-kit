@@ -21,6 +21,7 @@
 #include <compiler/utils/cl_builtin_info.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
+#include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
 #include <compiler/utils/replace_local_module_scope_variables_pass.h>
@@ -158,6 +159,9 @@ llvm::ModulePassManager RefSiM1PassMachinery::getLateTargetPasses() {
              handler::VectorizeInfoMetadataHandler>());
 
   addLLVMDefaultPerModulePipeline(PM, getPB(), options);
+
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::ManualTypeLegalizationPass()));
 
   if (env_debug_prefix) {
     // With all passes scheduled, add a callback pass to view the

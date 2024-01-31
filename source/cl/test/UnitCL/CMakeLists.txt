@@ -47,13 +47,18 @@ foreach(TARGET ${MUX_TARGET_LIBRARIES})
 endforeach()
 
 configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/Common.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/include/Common.h
+  @ONLY)
+
+configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/include/Device.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/Device.h
   @ONLY)
 
 add_ca_cl_executable(UnitCL
   # General testing machinery
-  include/Common.h source/Common.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/include/Common.h source/Common.cpp
   include/EventWaitList.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/Device.h
   source/main.cpp

@@ -24,7 +24,7 @@
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/atan_unsafe.h>
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 
 // see maple worksheet for how coefficients were derived.
 static ABACUS_CONSTANT abacus_float __codeplay_asin_coeff[80] = {
@@ -115,16 +115,17 @@ static ABACUS_CONSTANT abacus_float intervals[16] = {
     ABACUS_INFINITY, 0.9999f, 0.998f, 0.97f, 0.93f, 0.895f, 0.85f, 0.77f,
     0.71f,           0.62f,   0.53f,  0.42f, 0.35f, 0.25f,  0.16f, 0.07f};
 
-abacus_float __abacus_asin(abacus_float x) {
+abacus_float ABACUS_API __abacus_asin(abacus_float x) {
   if (__abacus_isinf(x)) {
     return __abacus_copysign(ABACUS_NAN, x);
   }
-  abacus_float xAbs = __abacus_fabs(x);
+  const abacus_float xAbs = __abacus_fabs(x);
 
-  int high_eight = (xAbs < intervals[8]) ? 8 : 0;
-  int high_four = high_eight + ((xAbs < intervals[high_eight + 4]) ? 4 : 0);
-  int high_two = high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
-  int interval = high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
+  const int high_eight = (xAbs < intervals[8]) ? 8 : 0;
+  const int high_four =
+      high_eight + ((xAbs < intervals[high_eight + 4]) ? 4 : 0);
+  const int high_two = high_four + ((xAbs < intervals[high_four + 2]) ? 2 : 0);
+  const int interval = high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
 
   float ans = (interval < 9) ? xAbs - 1.0f : xAbs;
 
@@ -136,7 +137,7 @@ abacus_float __abacus_asin(abacus_float x) {
 #endif
 
   if (interval < 9) {
-    ans = -abacus::internal::sqrt_unsafe(ans);
+    ans = -abacus::internal::sqrt(ans);
     ans += ABACUS_PI_2_F;
   }
 
@@ -161,14 +162,14 @@ T asin_half(const T x) {
   // around x = 1 we want to estimate (asin(x) - pi/2)^2
   SignedType xBig = (xAbs > T(5.9375E-1f16));
   const T x2 = x * x;
-  T ans = x * abacus::internal::horner_polynomial<T, 3>(x2, __codeplay_asin_2);
+  T ans = x * abacus::internal::horner_polynomial(x2, __codeplay_asin_2);
 
   xAbs = xAbs - T(1.0f16);
 
   T ansBig =
-      xAbs * abacus::internal::horner_polynomial<T, 3>(xAbs, __codeplay_asin_1);
+      xAbs * abacus::internal::horner_polynomial(xAbs, __codeplay_asin_1);
 
-  ansBig = -abacus::internal::sqrt_unsafe(ansBig) + ABACUS_PI_2_H;
+  ansBig = -abacus::internal::sqrt(ansBig) + ABACUS_PI_2_H;
   ansBig = __abacus_copysign(ansBig, x);
 
   ans = __abacus_select(ans, ansBig, xBig);
@@ -197,17 +198,15 @@ abacus_half asin_half(const abacus_half x) {
 
     // Estimate (asin(x + 1) - pi / 2)^2 (see solly script)
     abacus_half ans =
-        xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
-                   xAbs, __codeplay_asin_1);
+        xAbs * abacus::internal::horner_polynomial(xAbs, __codeplay_asin_1);
 
-    ans = -abacus::internal::sqrt_unsafe(ans) + ABACUS_PI_2_H;
+    ans = -abacus::internal::sqrt(ans) + ABACUS_PI_2_H;
     return __abacus_copysign(ans, x);
   }
 
   // Estimate the remaining values
   const abacus_half x2 = x * x;
-  return x * abacus::internal::horner_polynomial<abacus_half, 3>(
-                 x2, __codeplay_asin_2);
+  return x * abacus::internal::horner_polynomial(x2, __codeplay_asin_2);
 }
 }  // namespace
 
@@ -229,14 +228,14 @@ T asin(const T x) {
     const SignedType cond = xAbs < intervals[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 5>(
-        i < 9 ? oneMinusXAbs : xAbs, __codeplay_asin_coeff + i * 5);
+    const T poly = abacus::internal::horner_polynomial(
+        i < 9 ? oneMinusXAbs : xAbs, __codeplay_asin_coeff + i * 5, 5);
 
     ans = __abacus_select(ans, poly, cond);
   }
 
-  T result = __abacus_select(
-      ans, -abacus::internal::sqrt_unsafe(ans) + ABACUS_PI_2_F, (interval < 9));
+  T result = __abacus_select(ans, -abacus::internal::sqrt(ans) + ABACUS_PI_2_F,
+                             (interval < 9));
 
   result = __abacus_select(-result, result, x > 0);
 

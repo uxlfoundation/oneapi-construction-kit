@@ -26,8 +26,7 @@
 // Namespace used to store types and helper functions
 namespace glsl {
 
-template <typename T,
-          typename En = std::enable_if<std::is_arithmetic<T>::value>>
+template <typename T, typename En = std::enable_if<std::is_arithmetic_v<T>>>
 T abs(T x) {
   return (x >= 0) ? x : -x;
 }
@@ -296,7 +295,7 @@ template <typename T, size_t Columns, size_t Rows, Order O>
 inline bool fuzzyEq(const glsl_mat<T, Columns, Rows, O> &lhs,
                     const glsl_mat<T, Columns, Rows, O> &rhs,
                     T max_error = static_cast<T>(0.001)) {
-  int arrSize = (O == Order::ColumnMajor) ? Columns : Rows;
+  const int arrSize = (O == Order::ColumnMajor) ? Columns : Rows;
   bool eq = true;
   for (int i = 0; i < arrSize; i++) {
     eq &= fuzzyEq(lhs.data[i], rhs.data[i], max_error);
@@ -384,18 +383,17 @@ struct is_double_struct<glsl_ModfStruct<glsl_vec<doubleTy, N>>>
 
 template <class T>
 struct is_double_type
-    : std::conditional<std::is_same<T, double>::value ||
-                           is_double_vec<T>::value ||
-                           is_double_struct<T>::value,
-                       std::true_type, std::false_type>::type {};
+    : std::conditional_t<std::is_same_v<T, double> || is_double_vec<T>::value ||
+                             is_double_struct<T>::value,
+                         std::true_type, std::false_type> {};
 
 template <class... Ts>
 struct has_double_type : std::false_type {};
 
 template <class T, class... Ts>
 struct has_double_type<T, Ts...>
-    : std::conditional<is_double_type<T>::value, std::true_type,
-                       has_double_type<Ts...>>::type {};
+    : std::conditional_t<is_double_type<T>::value, std::true_type,
+                         has_double_type<Ts...>> {};
 }  // namespace glsl
 
 /// @brief Generic class used as base test fixture for all GLSL builtins

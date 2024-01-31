@@ -22,11 +22,17 @@
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/Statistic.h>
 #include <llvm/IR/Attributes.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/InstrTypes.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/Support/AtomicOrdering.h>
 #include <llvm/Target/TargetMachine.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <algorithm>
 #include <cassert>
+#include <optional>
 
 #include "analysis/vectorization_unit_analysis.h"
 #include "debugging.h"
@@ -120,15 +126,15 @@ bool VectorizationContext::canExpandBuiltin(const Function *ScalarFn) const {
 VectorizationResult &VectorizationContext::getOrCreateBuiltin(
     llvm::Function &F, unsigned SimdWidth) {
   compiler::utils::BuiltinInfo &BI = builtins();
-  auto const Cached = VectorizedBuiltins.find(&F);
+  const auto Cached = VectorizedBuiltins.find(&F);
   if (Cached != VectorizedBuiltins.end()) {
-    auto const Found = Cached->second.find(SimdWidth);
+    const auto Found = Cached->second.find(SimdWidth);
     if (Found != Cached->second.end()) {
       return Found->second;
     }
   }
 
-  auto const Builtin = BI.analyzeBuiltin(F);
+  const auto Builtin = BI.analyzeBuiltin(F);
 
   // Try to find a vector equivalent for the builtin.
   Function *const VectorCallee =
@@ -145,9 +151,9 @@ VectorizationResult &VectorizationContext::getOrCreateBuiltin(
   result.func = VectorCallee;
 
   // Gather information about the function's arguments.
-  auto const Props = Builtin.properties;
+  const auto Props = Builtin.properties;
   unsigned i = 0;
-  for (Argument &Arg : F.args()) {
+  for (const Argument &Arg : F.args()) {
     Type *pointerRetPointeeTy = nullptr;
     VectorizationResult::Arg::Kind kind = VectorizationResult::Arg::SCALAR;
 
@@ -175,7 +181,7 @@ VectorizationResult VectorizationContext::getVectorizedFunction(
 
   auto simdWidth = factor.getFixedValue();
   if (auto *vecTy = dyn_cast<FixedVectorType>(callee.getReturnType())) {
-    auto const Builtin = BI.analyzeBuiltin(callee);
+    const auto Builtin = BI.analyzeBuiltin(callee);
     Function *scalarEquiv = builtins().getScalarEquivalent(Builtin, &Module);
     if (!scalarEquiv) {
       ++VeczContextFailScalarizeCall;
@@ -192,7 +198,7 @@ VectorizationResult VectorizationContext::getVectorizedFunction(
 }
 
 bool VectorizationContext::isInternalBuiltin(const Function *F) {
-  return F->getName().startswith(VectorizationContext::InternalBuiltinPrefix);
+  return F->getName().starts_with(VectorizationContext::InternalBuiltinPrefix);
 }
 
 Function *VectorizationContext::getOrCreateInternalBuiltin(StringRef Name,
@@ -201,6 +207,13 @@ Function *VectorizationContext::getOrCreateInternalBuiltin(StringRef Name,
   if (!F && FT) {
     F = dyn_cast_or_null<Function>(
         Module.getOrInsertFunction(Name, FT).getCallee());
+    if (F) {
+      // Set some default attributes on the function.
+      // We never use exceptions
+      F->addFnAttr(Attribute::NoUnwind);
+      // Recursion is not supported in ComputeMux
+      F->addFnAttr(Attribute::NoRecurse);
+    }
   }
 
   return F;
@@ -218,13 +231,13 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
   // function can become a bit too complex, among other things because name
   // mangling with arbitrary types can become a bit complex. printf is the only
   // vararg OpenCL builtin, so only user functions are affected by this.
-  bool isVarArg = F->isVarArg();
+  const bool isVarArg = F->isVarArg();
   VECZ_FAIL_IF(isVarArg && F->getName() != "printf");
   // Copy the argument types. This is done from the CallInst instead of the
   // called Function because the called Function might be a VarArg function, in
   // which case we need to create the wrapper with the expanded argument list.
   SmallVector<Type *, 8> argTys;
-  for (auto const &U : CI->args()) {
+  for (const auto &U : CI->args()) {
     argTys.push_back(U->getType());
   }
   AttributeList fnAttrs = F->getAttributes();
@@ -253,7 +266,7 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
   argTys.push_back(Type::getInt1Ty(ctx));
   // Generate the function name
   compiler::utils::NameMangler mangler(&ctx);
-  SmallVector<compiler::utils::TypeQualifiers, 8> quals(
+  const SmallVector<compiler::utils::TypeQualifiers, 8> quals(
       argTys.size(), compiler::utils::TypeQualifiers());
   std::string newFName;
   raw_string_ostream O(newFName);
@@ -299,32 +312,32 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
   CIArgs.pop_back();
 
   FunctionType *FTy = CI->getFunctionType();
-  AttributeList callAttrs = CI->getAttributes();
+  const AttributeList callAttrs = CI->getAttributes();
   SmallVector<std::pair<Value *, BasicBlock *>, 4> PhiOperands;
   if (hasImmArg) {
     Value *immArg = newFunction->getArg(firstImmArg);
-    BasicBlock *immTrue =
+    BasicBlock *const immTrueBB =
         BasicBlock::Create(ctx, "active.imm.1", newFunction, mergeBlock);
     CIArgs[firstImmArg] = ConstantInt::getTrue(ctx);
     CallInst *c0 =
-        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", immTrue);
+        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", immTrueBB);
     c0->setCallingConv(cc);
     c0->setAttributes(callAttrs);
-    BranchInst::Create(mergeBlock, immTrue);
+    BranchInst::Create(mergeBlock, immTrueBB);
 
     CIArgs[firstImmArg] = ConstantInt::getFalse(ctx);
     // Now the false half
-    BasicBlock *immFalse =
+    BasicBlock *const immFalseBB =
         BasicBlock::Create(ctx, "active.imm.0", newFunction, mergeBlock);
 
     CallInst *c1 =
-        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", immFalse);
+        CallInst::Create(FTy, CI->getCalledOperand(), CIArgs, "", immFalseBB);
     c1->setCallingConv(cc);
     c1->setAttributes(callAttrs);
-    BranchInst::Create(mergeBlock, immFalse);
-    BranchInst::Create(immTrue, immFalse, immArg, activeBlock);
-    PhiOperands.push_back({c0, immTrue});
-    PhiOperands.push_back({c1, immFalse});
+    BranchInst::Create(mergeBlock, immFalseBB);
+    BranchInst::Create(immTrueBB, immFalseBB, immArg, activeBlock);
+    PhiOperands.push_back({c0, immTrueBB});
+    PhiOperands.push_back({c1, immFalseBB});
 
     // Now fix up the new function's signature. It can't be inheriting illegal
     // attributes; only intrinsics may have the `ImmArg` Attribute. The verifier
@@ -368,6 +381,278 @@ Function *VectorizationContext::getOrCreateMaskedFunction(CallInst *CI) {
   return newFunction;
 }
 
+std::optional<VectorizationContext::MaskedAtomic>
+VectorizationContext::isMaskedAtomicFunction(const Function &F) const {
+  auto VFInfo = decodeVectorizedFunctionName(F.getName());
+  if (!VFInfo) {
+    return std::nullopt;
+  }
+  auto [FnNameStr, VF, Choices] = *VFInfo;
+
+  llvm::StringRef FnName = FnNameStr;
+  if (!FnName.consume_front("masked_")) {
+    return std::nullopt;
+  }
+  const bool IsCmpXchg = FnName.consume_front("cmpxchg_");
+  if (!IsCmpXchg && !FnName.consume_front("atomicrmw_")) {
+    return std::nullopt;
+  }
+  VectorizationContext::MaskedAtomic AtomicInfo;
+
+  AtomicInfo.VF = VF;
+  AtomicInfo.IsVectorPredicated = Choices.vectorPredication();
+
+  if (IsCmpXchg) {
+    AtomicInfo.IsWeak = FnName.consume_front("weak_");
+  }
+  AtomicInfo.IsVolatile = FnName.consume_front("volatile_");
+
+  if (IsCmpXchg) {
+    AtomicInfo.BinOp = AtomicRMWInst::BinOp::BAD_BINOP;
+  } else {
+    if (FnName.consume_front("xchg")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Xchg;
+    } else if (FnName.consume_front("add")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Add;
+    } else if (FnName.consume_front("sub")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Sub;
+    } else if (FnName.consume_front("and")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::And;
+    } else if (FnName.consume_front("nand")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Nand;
+    } else if (FnName.consume_front("or")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Or;
+    } else if (FnName.consume_front("xor")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Xor;
+    } else if (FnName.consume_front("max")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Max;
+    } else if (FnName.consume_front("min")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::Min;
+    } else if (FnName.consume_front("umax")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::UMax;
+    } else if (FnName.consume_front("umin")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::UMin;
+    } else if (FnName.consume_front("fadd")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::FAdd;
+    } else if (FnName.consume_front("fsub")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::FSub;
+    } else if (FnName.consume_front("fmax")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::FMax;
+    } else if (FnName.consume_front("fmin")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::FMin;
+    } else if (FnName.consume_front("uincwrap")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::UIncWrap;
+    } else if (FnName.consume_front("udecwrap")) {
+      AtomicInfo.BinOp = AtomicRMWInst::BinOp::UDecWrap;
+    } else {
+      return std::nullopt;
+    }
+    if (!FnName.consume_front("_")) {
+      return std::nullopt;
+    }
+  }
+
+  if (!FnName.consume_front("align")) {
+    return std::nullopt;
+  }
+
+  uint64_t Alignment = 0;
+  if (FnName.consumeInteger(/*Radix=*/10, Alignment)) {
+    return std::nullopt;
+  }
+
+  AtomicInfo.Align = Align(Alignment);
+
+  if (!FnName.consume_front("_")) {
+    return std::nullopt;
+  }
+
+  auto demangleOrdering = [&FnName]() -> std::optional<AtomicOrdering> {
+    if (FnName.consume_front("acquire_")) {
+      return AtomicOrdering::Acquire;
+    } else if (FnName.consume_front("acqrel_")) {
+      return AtomicOrdering::AcquireRelease;
+    } else if (FnName.consume_front("monotonic_")) {
+      return AtomicOrdering::Monotonic;
+    } else if (FnName.consume_front("notatomic_")) {
+      return AtomicOrdering::NotAtomic;
+    } else if (FnName.consume_front("release_")) {
+      return AtomicOrdering::Release;
+    } else if (FnName.consume_front("seqcst_")) {
+      return AtomicOrdering::SequentiallyConsistent;
+    } else if (FnName.consume_front("unordered_")) {
+      return AtomicOrdering::Unordered;
+    } else {
+      return std::nullopt;
+    }
+  };
+
+  if (auto Ordering = demangleOrdering()) {
+    AtomicInfo.Ordering = *Ordering;
+  } else {
+    return std::nullopt;
+  }
+
+  if (IsCmpXchg) {
+    if (auto Ordering = demangleOrdering()) {
+      AtomicInfo.CmpXchgFailureOrdering = *Ordering;
+    } else {
+      return std::nullopt;
+    }
+  }
+
+  unsigned SyncScopeID = 0;
+  if (FnName.consumeInteger(/*Radix=*/10, SyncScopeID)) {
+    return std::nullopt;
+  }
+
+  AtomicInfo.SyncScope = static_cast<SyncScope::ID>(SyncScopeID);
+
+  if (!FnName.consume_front("_")) {
+    return std::nullopt;
+  }
+
+  // Note - we just assume the rest of the builtin name is okay, here. It
+  // should be mangled types, but vecz builtins use a strange mangling system,
+  // purely for uniqueness and not to infer types. Types are always assumed to
+  // be inferrable from the function parameters.
+  AtomicInfo.PointerTy = F.getFunctionType()->getParamType(0);
+  AtomicInfo.ValTy = F.getFunctionType()->getParamType(1);
+
+  return AtomicInfo;
+}
+
+Function *VectorizationContext::getOrCreateMaskedAtomicFunction(
+    MaskedAtomic &I, const VectorizationChoices &Choices, ElementCount VF) {
+  const bool isCmpXchg = I.isCmpXchg();
+  LLVMContext &ctx = I.ValTy->getContext();
+
+  SmallVector<Type *, 8> argTys;
+
+  argTys.push_back(I.PointerTy);
+  argTys.push_back(I.ValTy);
+  if (isCmpXchg) {
+    argTys.push_back(I.ValTy);
+  }
+  // Add one extra argument for the mask, which is always the same length
+  // (scalar or vector) as the value type.
+  auto *i1Ty = Type::getInt1Ty(ctx);
+  auto *maskTy =
+      !I.ValTy->isVectorTy()
+          ? dyn_cast<Type>(i1Ty)
+          : VectorType::get(i1Ty, cast<VectorType>(I.ValTy)->getElementCount());
+  argTys.push_back(maskTy);
+  if (Choices.vectorPredication()) {
+    argTys.push_back(Type::getInt32Ty(ctx));
+  }
+
+  std::string maskedFnName;
+  raw_string_ostream O(maskedFnName);
+  O << (isCmpXchg ? "masked_cmpxchg_" : "masked_atomicrmw_");
+
+  if (I.IsWeak) {
+    assert(isCmpXchg && "Bad MaskedAtomic state");
+    O << "weak_";
+  }
+
+  if (I.IsVolatile) {
+    O << "volatile_";
+  }
+
+  if (!isCmpXchg) {
+#define BINOP_CASE(BINOP, STR) \
+  case AtomicRMWInst::BINOP:   \
+    O << (STR);                \
+    break
+
+    switch (I.BinOp) {
+      BINOP_CASE(Xchg, "xchg");
+      BINOP_CASE(Add, "add");
+      BINOP_CASE(Sub, "sub");
+      BINOP_CASE(And, "and");
+      BINOP_CASE(Nand, "nand");
+      BINOP_CASE(Or, "or");
+      BINOP_CASE(Xor, "xor");
+      BINOP_CASE(Max, "max");
+      BINOP_CASE(Min, "min");
+      BINOP_CASE(UMax, "umax");
+      BINOP_CASE(UMin, "umin");
+      BINOP_CASE(FAdd, "fadd");
+      BINOP_CASE(FSub, "fsub");
+      BINOP_CASE(FMax, "fmax");
+      BINOP_CASE(FMin, "fmin");
+      BINOP_CASE(UIncWrap, "uincwrap");
+      BINOP_CASE(UDecWrap, "udecwrap");
+      case llvm::AtomicRMWInst::BAD_BINOP:
+        return nullptr;
+    }
+
+#undef BINOP_CASE
+    O << "_";
+  }
+
+  O << "align" << I.Align.value() << "_";
+
+  // Mangle ordering
+  auto mangleOrdering = [&O](AtomicOrdering Ordering) {
+    switch (Ordering) {
+      default:
+        O << static_cast<unsigned>(Ordering);
+        break;
+      case AtomicOrdering::Acquire:
+        O << "acquire";
+        break;
+      case AtomicOrdering::AcquireRelease:
+        O << "acqrel";
+        break;
+      case AtomicOrdering::Monotonic:
+        O << "monotonic";
+        break;
+      case AtomicOrdering::NotAtomic:
+        O << "notatomic";
+        break;
+      case AtomicOrdering::Release:
+        O << "release";
+        break;
+      case AtomicOrdering::SequentiallyConsistent:
+        O << "seqcst";
+        break;
+      case AtomicOrdering::Unordered:
+        O << "unordered";
+        break;
+    }
+  };
+
+  mangleOrdering(I.Ordering);
+  // Failure Ordering
+  if (I.CmpXchgFailureOrdering) {
+    O << "_";
+    mangleOrdering(*I.CmpXchgFailureOrdering);
+  }
+
+  // Syncscope
+  O << "_" << static_cast<unsigned>(I.SyncScope) << "_";
+
+  // Mangle types
+  compiler::utils::NameMangler mangler(&ctx);
+  for (auto *ty : argTys) {
+    VECZ_FAIL_IF(!mangler.mangleType(
+        O, ty,
+        compiler::utils::TypeQualifiers(compiler::utils::eTypeQualNone)));
+  }
+
+  maskedFnName =
+      getVectorizedFunctionName(maskedFnName, VF, Choices, /*IsBuiltin=*/true);
+
+  Type *maskedFnRetTy = isCmpXchg ? StructType::get(I.ValTy, maskTy) : I.ValTy;
+
+  // Create the function type
+  FunctionType *maskedFnTy =
+      FunctionType::get(maskedFnRetTy, argTys, /*isVarArg=*/false);
+
+  return getOrCreateInternalBuiltin(maskedFnName, maskedFnTy);
+}
+
 namespace {
 std::optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
     StringRef fnName, Type *const ty) {
@@ -378,8 +663,8 @@ std::optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
   if (!L.Consume("sub_group_scan_")) {
     return std::nullopt;
   }
-  bool isInt = ty->isIntOrIntVectorTy();
-  bool isInclusive = L.Consume("inclusive_");
+  const bool isInt = ty->isIntOrIntVectorTy();
+  const bool isInclusive = L.Consume("inclusive_");
   if (isInclusive || L.Consume("exclusive_")) {
     StringRef OpKind;
     if (L.ConsumeAlpha(OpKind)) {
@@ -414,7 +699,7 @@ std::optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
       } else {
         return std::nullopt;
       }
-      bool isVP = L.Consume("_vp");
+      const bool isVP = L.Consume("_vp");
       return std::make_tuple(isInclusive, opKind, isVP);
     }
   }
@@ -454,17 +739,21 @@ bool VectorizationContext::defineInternalBuiltin(Function *F) {
 
   // Handle subgroup scan operations.
   if (auto scanInfo = isSubgroupScan(F->getName(), F->getReturnType())) {
-    bool isInclusive = std::get<0>(*scanInfo);
-    RecurKind opKind = std::get<1>(*scanInfo);
-    bool isVP = std::get<2>(*scanInfo);
+    const bool isInclusive = std::get<0>(*scanInfo);
+    const RecurKind opKind = std::get<1>(*scanInfo);
+    const bool isVP = std::get<2>(*scanInfo);
     return emitSubgroupScanBody(*F, isInclusive, opKind, isVP);
+  }
+
+  if (auto AtomicInfo = isMaskedAtomicFunction(*F)) {
+    return emitMaskedAtomicBody(*F, *AtomicInfo);
   }
 
   return false;
 }
 
 bool VectorizationContext::emitMaskedMemOpBody(Function &F,
-                                               MemOpDesc const &Desc) const {
+                                               const MemOpDesc &Desc) const {
   Value *Data = Desc.getDataOperand(&F);
   Value *Ptr = Desc.getPointerOperand(&F);
   Value *Mask = Desc.getMaskOperand(&F);
@@ -487,20 +776,20 @@ bool VectorizationContext::emitMaskedMemOpBody(Function &F,
 }
 
 bool VectorizationContext::emitInterleavedMemOpBody(
-    Function &F, MemOpDesc const &Desc) const {
+    Function &F, const MemOpDesc &Desc) const {
   return emitMaskedInterleavedMemOpBody(F, Desc);
 }
 
 bool VectorizationContext::emitMaskedInterleavedMemOpBody(
-    Function &F, MemOpDesc const &Desc) const {
+    Function &F, const MemOpDesc &Desc) const {
   Value *Data = Desc.getDataOperand(&F);
   auto *const Ptr = Desc.getPointerOperand(&F);
   VECZ_FAIL_IF(!isa<VectorType>(Desc.getDataType()) || !Ptr);
 
   auto *const Mask = Desc.getMaskOperand(&F);
   auto *const VL = Desc.isVLOp() ? Desc.getVLOperand(&F) : nullptr;
-  auto const Align = Desc.getAlignment();
-  auto const Stride = Desc.getStride();
+  const auto Align = Desc.getAlignment();
+  const auto Stride = Desc.getStride();
 
   BasicBlock *Entry = BasicBlock::Create(F.getContext(), "entry", &F);
   IRBuilder<> B(Entry);
@@ -527,12 +816,12 @@ bool VectorizationContext::emitMaskedInterleavedMemOpBody(
 }
 
 bool VectorizationContext::emitScatterGatherMemOpBody(
-    Function &F, MemOpDesc const &Desc) const {
+    Function &F, const MemOpDesc &Desc) const {
   return emitMaskedScatterGatherMemOpBody(F, Desc);
 }
 
 bool VectorizationContext::emitMaskedScatterGatherMemOpBody(
-    Function &F, MemOpDesc const &Desc) const {
+    Function &F, const MemOpDesc &Desc) const {
   Value *Data = Desc.getDataOperand(&F);
   auto *const VecDataTy = dyn_cast<VectorType>(Desc.getDataType());
   auto *const Ptr = Desc.getPointerOperand(&F);
@@ -540,7 +829,7 @@ bool VectorizationContext::emitMaskedScatterGatherMemOpBody(
 
   auto *const Mask = Desc.getMaskOperand(&F);
   auto *const VL = Desc.isVLOp() ? Desc.getVLOperand(&F) : nullptr;
-  auto const Align = Desc.getAlignment();
+  const auto Align = Desc.getAlignment();
 
   BasicBlock *Entry = BasicBlock::Create(F.getContext(), "entry", &F);
   IRBuilder<> B(Entry);
@@ -615,7 +904,7 @@ bool VectorizationContext::emitSubgroupScanBody(Function &F, bool IsInclusive,
 
   Type *const VecTy = F.getReturnType();
   Type *const EltTy = multi_llvm::getVectorElementType(VecTy);
-  ElementCount EC = multi_llvm::getVectorElementCount(VecTy);
+  const ElementCount EC = multi_llvm::getVectorElementCount(VecTy);
 
   Function::arg_iterator Arg = F.arg_begin();
 
@@ -625,7 +914,7 @@ bool VectorizationContext::emitSubgroupScanBody(Function &F, bool IsInclusive,
   // If it's not a scalable vector, we can do it the fast way.
   if (!EC.isScalable() && !IsVP) {
     auto *const NeutralVal = compiler::utils::getNeutralVal(OpKind, EltTy);
-    auto const Width = EC.getFixedValue();
+    const auto Width = EC.getFixedValue();
     auto *const UndefVal = UndefValue::get(VecTy);
 
     // Put the Neutral element in a vector so we can shuffle it in.
@@ -647,14 +936,14 @@ bool VectorizationContext::emitSubgroupScanBody(Function &F, bool IsInclusive,
       // xxxx3333xxxxBBBB
       // xxxxxxxx77777777
       //
-      auto const N2 = N << 1u;
+      const auto N2 = N << 1u;
       auto MaskIt = mask.begin();
       for (size_t i = 0; i < Width; i += N2) {
         for (size_t j = 0; j < N; ++j) {
           *MaskIt++ = Width;
         }
 
-        auto const k = i + N - 1;
+        const auto k = i + N - 1;
         for (size_t j = 0; j < N; ++j) {
           *MaskIt++ = k;
         }
@@ -777,6 +1066,165 @@ bool VectorizationContext::emitSubgroupScanBody(Function &F, bool IsInclusive,
   return true;
 }
 
+bool VectorizationContext::emitMaskedAtomicBody(
+    Function &F, const VectorizationContext::MaskedAtomic &MA) const {
+  LLVMContext &Ctx = F.getContext();
+  const bool IsCmpXchg = MA.isCmpXchg();
+
+  auto *const EntryBB = BasicBlock::Create(Ctx, "entry", &F);
+
+  IRBuilder<> B(EntryBB);
+
+  BasicBlock *LoopEntryBB = EntryBB;
+  if (MA.IsVectorPredicated) {
+    auto *const VL = F.getArg(3 + IsCmpXchg);
+    // Early exit if the vector length is zero. We're going to unconditionally
+    // jump into the loop after this.
+    auto *const EarlyExitBB = BasicBlock::Create(Ctx, "earlyexit", &F);
+    auto *const CmpZero =
+        B.CreateICmpEQ(VL, ConstantInt::get(VL->getType(), 0));
+
+    LoopEntryBB = BasicBlock::Create(Ctx, "loopentry", &F);
+
+    B.CreateCondBr(CmpZero, EarlyExitBB, LoopEntryBB);
+
+    B.SetInsertPoint(EarlyExitBB);
+    B.CreateRet(PoisonValue::get(F.getReturnType()));
+  }
+
+  B.SetInsertPoint(LoopEntryBB);
+
+  auto *const ExitBB = BasicBlock::Create(Ctx, "exit", &F);
+
+  auto *const PtrArg = F.getArg(0);
+  auto *const ValArg = F.getArg(1);
+  Value *MaskArg = F.getArg(2 + IsCmpXchg);
+
+  const bool IsVector = ValArg->getType()->isVectorTy();
+
+  Value *const IdxStart = B.getInt32(0);
+  ConstantInt *const KnownMin = B.getInt32(MA.VF.getKnownMinValue());
+  Value *IdxEnd =
+      MA.IsVectorPredicated
+          ? F.getArg(3 + IsCmpXchg)
+          : (!MA.VF.isScalable() ? KnownMin : B.CreateVScale(KnownMin));
+
+  Value *RetVal = nullptr;
+  Value *RetSuccessVal = nullptr;
+
+  auto CreateLoopBody = [&MA, &F, &ExitBB, PtrArg, ValArg, MaskArg, &RetVal,
+                         &RetSuccessVal, IsVector, IsCmpXchg](
+                            BasicBlock *BB, Value *Idx, ArrayRef<Value *> IVs,
+                            MutableArrayRef<Value *> IVsNext) -> BasicBlock * {
+    IRBuilder<> IRB(BB);
+
+    Value *MaskElt = MaskArg;
+    if (IsVector) {
+      MaskElt = IRB.CreateExtractElement(MaskArg, Idx, "mask");
+    }
+    auto *const MaskCmp =
+        IRB.CreateICmpNE(MaskElt, IRB.getInt1(false), "mask.cmp");
+
+    auto *const IfBB = BasicBlock::Create(F.getContext(), "if.then", &F);
+    auto *const ElseBB = BasicBlock::Create(F.getContext(), "if.else", &F);
+
+    IRB.CreateCondBr(MaskCmp, IfBB, ElseBB);
+
+    {
+      IRB.SetInsertPoint(IfBB);
+      Value *Ptr = PtrArg;
+      Value *Val = ValArg;
+      if (IsVector) {
+        Ptr = IRB.CreateExtractElement(PtrArg, Idx, "ptr");
+        Val = IRB.CreateExtractElement(ValArg, Idx, "val");
+      }
+
+      if (IsCmpXchg) {
+        Value *NewValArg = F.getArg(2);
+        Value *NewVal = NewValArg;
+        if (IsVector) {
+          NewVal = IRB.CreateExtractElement(NewValArg, Idx, "newval");
+        }
+        auto *const CmpXchg =
+            IRB.CreateAtomicCmpXchg(Ptr, Val, NewVal, MA.Align, MA.Ordering,
+                                    *MA.CmpXchgFailureOrdering, MA.SyncScope);
+        CmpXchg->setWeak(MA.IsWeak);
+        CmpXchg->setVolatile(MA.IsVolatile);
+
+        if (IsVector) {
+          RetVal = IRB.CreateInsertElement(
+              IVs[0], IRB.CreateExtractValue(CmpXchg, 0), Idx, "retvec");
+          RetSuccessVal = IRB.CreateInsertElement(
+              IVs[1], IRB.CreateExtractValue(CmpXchg, 1), Idx, "retsuccess");
+        } else {
+          RetVal = IRB.CreateExtractValue(CmpXchg, 0);
+          RetSuccessVal = IRB.CreateExtractValue(CmpXchg, 1);
+        }
+
+      } else {
+        auto *const AtomicRMW = IRB.CreateAtomicRMW(
+            MA.BinOp, Ptr, Val, MA.Align, MA.Ordering, MA.SyncScope);
+        AtomicRMW->setVolatile(MA.IsVolatile);
+
+        if (IsVector) {
+          RetVal = IRB.CreateInsertElement(IVs[0], AtomicRMW, Idx, "retvec");
+        } else {
+          RetVal = AtomicRMW;
+        }
+      }
+
+      IRB.CreateBr(ElseBB);
+    }
+
+    {
+      IRB.SetInsertPoint(ElseBB);
+
+      auto *MergePhi = IRB.CreatePHI(RetVal->getType(), 2, "merge");
+      MergePhi->addIncoming(IVs[0], BB);
+      MergePhi->addIncoming(RetVal, IfBB);
+      RetVal = MergePhi;
+    }
+    IVsNext[0] = RetVal;
+
+    if (IsCmpXchg) {
+      auto *MergePhi =
+          IRB.CreatePHI(RetSuccessVal->getType(), 2, "mergesuccess");
+      MergePhi->addIncoming(IVs[1], BB);
+      MergePhi->addIncoming(RetSuccessVal, IfBB);
+      RetSuccessVal = MergePhi;
+      IVsNext[1] = RetSuccessVal;
+    }
+
+    // Move the exit block right to the end of the function.
+    ExitBB->moveAfter(ElseBB);
+
+    return ElseBB;
+  };
+
+  compiler::utils::CreateLoopOpts Opts;
+  {
+    Opts.IVs.push_back(PoisonValue::get(MA.ValTy));
+    Opts.loopIVNames.push_back("retvec.prev");
+  }
+  if (IsCmpXchg) {
+    Opts.IVs.push_back(PoisonValue::get(MaskArg->getType()));
+    Opts.loopIVNames.push_back("retsuccess.prev");
+  }
+  compiler::utils::createLoop(LoopEntryBB, ExitBB, IdxStart, IdxEnd, Opts,
+                              CreateLoopBody);
+
+  B.SetInsertPoint(ExitBB);
+  if (IsCmpXchg) {
+    Value *RetStruct = PoisonValue::get(F.getReturnType());
+    RetStruct = B.CreateInsertValue(RetStruct, RetVal, 0);
+    RetStruct = B.CreateInsertValue(RetStruct, RetSuccessVal, 1);
+    B.CreateRet(RetStruct);
+  } else {
+    B.CreateRet(RetVal);
+  }
+  return true;
+}
+
 Function *VectorizationContext::getInternalVectorEquivalent(
     Function *ScalarFn, unsigned SimdWidth) {
   // Handle masked memory loads and stores.
@@ -842,7 +1290,7 @@ PreservedAnalyses DefineInternalBuiltinsPass::run(Module &M,
       continue;
     }
     llvm::SmallPtrSet<VectorizationUnit *, 1> UserVUs;
-    for (Use &U : F.uses()) {
+    for (const Use &U : F.uses()) {
       if (CallInst *CI = dyn_cast<CallInst>(U.getUser())) {
         auto R = FAM.getResult<VectorizationUnitAnalysis>(*CI->getFunction());
         if (R.hasResult()) {
@@ -860,7 +1308,7 @@ PreservedAnalyses DefineInternalBuiltinsPass::run(Module &M,
     }
 
     VectorizationContext &Ctx = (*UserVUs.begin())->context();
-    bool DefinedBuiltin = Ctx.defineInternalBuiltin(&F);
+    const bool DefinedBuiltin = Ctx.defineInternalBuiltin(&F);
     if (!DefinedBuiltin) {
       // If we've failed to define this builtin, ensure we clean up the
       // half-complete body. We can't simply delete it because it will have

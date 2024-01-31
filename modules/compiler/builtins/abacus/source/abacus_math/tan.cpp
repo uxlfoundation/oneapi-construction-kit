@@ -50,7 +50,7 @@ struct helper<T, abacus_double> {
         2.0758861431786944948715354363504356e-8,
         -5.9926098258796618469322956805282730e-12};
 
-    const T y = abacus::internal::horner_polynomial<T, 5>(xSq, polynomial);
+    const T y = abacus::internal::horner_polynomial(xSq, polynomial);
     return x * .78539816339744830961566084582040377 +
            x * xSq * .85737772729049709971879473936502462 * y;
   }
@@ -65,7 +65,7 @@ struct helper<T, abacus_double> {
         5.5444607846133240887999568049688666e-7,
         -5.0244514118826496404940417101797213e-10};
 
-    const T y = abacus::internal::horner_polynomial<T, 5>(xSq, polynomial);
+    const T y = abacus::internal::horner_polynomial(xSq, polynomial);
     return xSq * y * .85737772729049709971879473936502462 + 1.0;
   }
 };
@@ -204,7 +204,7 @@ T tan_half(const T x) {
 
   T poly_add_lo = 0;
   const T poly_add_hi = abacus::internal::add_exact(
-      abacus::internal::horner_polynomial<T, 5>(x2, _tan1H),
+      abacus::internal::horner_polynomial(x2, _tan1H),
       poly1_extra_precision_term1, &poly_add_lo);
 
   T tanX = 0;
@@ -233,8 +233,7 @@ T tan_half(const T x) {
   }
 
   // Calculate cot(xReduced):
-  const T cotX =
-      abacus::internal::horner_polynomial<T, 5>(x2, _tan2H) / xReduced;
+  const T cotX = abacus::internal::horner_polynomial(x2, _tan2H) / xReduced;
 
   // Select either tan(xReduced) or cot(xReduced) depending on the section of
   // the unit circle that x resides in. tan has a period of 'pi', so we only

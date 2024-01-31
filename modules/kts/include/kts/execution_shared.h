@@ -65,9 +65,9 @@ class SharedExecution {
 
     // Find where the test number is in `test_name`, we use this to split the
     // string into a test set prefix and test name.
-    std::regex test_num_pattern("_([0-9]+_)+");
+    const std::regex test_num_pattern("_([0-9]+_)+");
     std::smatch test_num_match;
-    bool matched =
+    const bool matched =
         std::regex_search(test_name, test_num_match, test_num_pattern);
 
     if (!matched) {

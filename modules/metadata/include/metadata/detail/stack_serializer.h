@@ -38,8 +38,8 @@ namespace {
 /// @param output The output binary.
 /// @param endianness The desired endianness.
 template <class NumberTy,
-          std::enable_if_t<std::is_integral<NumberTy>::value ||
-                               std::is_floating_point<NumberTy>::value,
+          std::enable_if_t<std::is_integral_v<NumberTy> ||
+                               std::is_floating_point_v<NumberTy>,
                            bool> = true>
 void serialize_number(NumberTy num, std::vector<uint8_t> &output,
                       MD_ENDIAN endianness) {
@@ -142,7 +142,7 @@ class RawStackSerializer {
   /// @param endianness The desired output endianness.
   static void serialize(StackType &stack, std::vector<uint8_t> &output,
                         MD_ENDIAN endianness) {
-    for (element_t &elem : stack) {
+    for (const element_t &elem : stack) {
       serialize(elem, output, endianness);
     }
   }
@@ -213,34 +213,34 @@ class BasicMsgPackStackSerializer {
         return data += sizeof(uint64_t);
       }
       case MsgPackFmt::MSG_PACK_BIN_16: {
-        uint16_t bin_len =
+        const uint16_t bin_len =
             md::utils::read_value<uint16_t>(data, MD_ENDIAN::BIG);
         data += sizeof(uint16_t);
         stack.push_bytes(data, bin_len);
         return data += bin_len * sizeof(uint8_t);
       }
       case MsgPackFmt::MSG_PACK_BIN_32: {
-        uint32_t bin_len =
+        const uint32_t bin_len =
             md::utils::read_value<uint32_t>(data, MD_ENDIAN::BIG);
         data += sizeof(uint32_t);
         stack.push_bytes(data, bin_len);
         return data += bin_len * sizeof(uint8_t);
       }
       case MsgPackFmt::MSG_PACK_STR_16: {
-        uint16_t str_len =
+        const uint16_t str_len =
             md::utils::read_value<uint16_t>(data, MD_ENDIAN::BIG);
         data += sizeof(uint16_t);
-        typename StackType::string_t str(
+        const typename StackType::string_t str(
             (char *)data, str_len,
             stack.get_alloc_helper().template get_allocator<char>());
         stack.push_zstr(str.c_str());
         return data += str_len * sizeof(uint8_t);
       }
       case MsgPackFmt::MSG_PACK_ARR_16: {
-        uint16_t arr_len =
+        const uint16_t arr_len =
             md::utils::read_value<uint16_t>(data, MD_ENDIAN::BIG);
         data += sizeof(uint16_t);
-        size_t arr_idx = stack.push_arr(arr_len).value();
+        const size_t arr_idx = stack.push_arr(arr_len).value();
         for (size_t i = 0; i < arr_len; ++i) {
           auto type = static_cast<MsgPackFmt>(*data);
           data += sizeof(MsgPackFmt);
@@ -251,10 +251,10 @@ class BasicMsgPackStackSerializer {
         return data;
       }
       case MsgPackFmt::MSG_PACK_MAP_16: {
-        uint16_t map_len =
+        const uint16_t map_len =
             md::utils::read_value<uint16_t>(data, MD_ENDIAN::BIG);
         data += sizeof(uint16_t);
-        size_t map_idx = stack.push_map(map_len).value();
+        const size_t map_idx = stack.push_map(map_len).value();
         for (size_t i = 0; i < map_len; ++i) {
           auto key_type = static_cast<MsgPackFmt>(*data);
           data += sizeof(MsgPackFmt);
@@ -304,7 +304,7 @@ class BasicMsgPackStackSerializer {
       case md_value_type::MD_TYPE_ZSTR: {
         output.emplace_back(MsgPackFmt::MSG_PACK_STR_16);
         auto *val = elem.template get<typename StackType::string_t>();
-        uint16_t str_len = val->size();
+        const uint16_t str_len = val->size();
         serialize_number(str_len, output, MD_ENDIAN::BIG);
         output.insert(output.end(), val->begin(), val->end());
         break;
@@ -313,11 +313,11 @@ class BasicMsgPackStackSerializer {
         auto *val = elem.template get<typename StackType::byte_arr_t>();
         if (val->size() >= std::numeric_limits<uint16_t>::max()) {
           output.emplace_back(MsgPackFmt::MSG_PACK_BIN_32);
-          uint32_t byte_str_len = val->size();
+          const uint32_t byte_str_len = val->size();
           serialize_number(byte_str_len, output, MD_ENDIAN::BIG);
         } else {
           output.emplace_back(MsgPackFmt::MSG_PACK_BIN_16);
-          uint16_t byte_str_len = val->size();
+          const uint16_t byte_str_len = val->size();
           serialize_number(byte_str_len, output, MD_ENDIAN::BIG);
         }
         output.insert(output.end(), val->begin(), val->end());
@@ -326,7 +326,7 @@ class BasicMsgPackStackSerializer {
       case md_value_type::MD_TYPE_ARRAY: {
         output.emplace_back(MsgPackFmt::MSG_PACK_ARR_16);
         auto *val = elem.template get<typename StackType::array_t>();
-        uint16_t arr_len = val->size();
+        const uint16_t arr_len = val->size();
         serialize_number(arr_len, output, MD_ENDIAN::BIG);
         for (const auto &item : *val) {
           serialize_element(item, output);
@@ -336,7 +336,7 @@ class BasicMsgPackStackSerializer {
       case md_value_type::MD_TYPE_HASH: {
         output.emplace_back(MsgPackFmt::MSG_PACK_MAP_16);
         auto *val = elem.template get<typename StackType::map_t>();
-        uint16_t map_len = val->size();
+        const uint16_t map_len = val->size();
         serialize_number(map_len, output, MD_ENDIAN::BIG);
         for (const auto &kv : *val) {
           serialize_element(kv.first, output);

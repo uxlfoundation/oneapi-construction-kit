@@ -122,7 +122,7 @@ class Reference1D {
   Reference1D() : Ref(nullptr), Type(Empty) {}
   /// @brief Copy constructor
   /// @param Other The reference to copy
-  Reference1D(Reference1D const &Other) : Ref(Other.Ref), Type(Other.Type) {}
+  Reference1D(const Reference1D &Other) : Ref(Other.Ref), Type(Other.Type) {}
   /// @brief Copy constructor
   /// @param Other The reference to copy
   Reference1D(Reference1D &Other) : Ref(Other.Ref), Type(Other.Type) {}
@@ -137,7 +137,7 @@ class Reference1D {
   /// @brief Copy assignment
   /// @param Other The reference to copy
   /// @return `*this`
-  Reference1D &operator=(Reference1D const &Other) {
+  Reference1D &operator=(const Reference1D &Other) {
     if (this != &Other) {
       Ref = Other.Ref;
       Type = Other.Type;
@@ -164,11 +164,8 @@ class Reference1D {
   /// will construct a reference from it. The second argument is used purely to
   /// trigger SFINAE.
   template <typename F>
-  Reference1D(
-      F &&f,
-      typename std::enable_if<HasOperatorSizeT<F>::value,
-                              typename std::remove_reference<F>::type>::type * =
-          0) {
+  Reference1D(F &&f, std::enable_if_t<HasOperatorSizeT<F>::value,
+                                      std::remove_reference_t<F>> * = 0) {
     Ref = std::make_shared<ReferenceFun<T(size_t)>>(f);
     Type = Value;
   }
@@ -181,11 +178,8 @@ class Reference1D {
   /// will construct a reference from it. The second argument is used purely to
   /// trigger SFINAE.
   template <typename F>
-  Reference1D(
-      F &&f,
-      typename std::enable_if<HasOperatorSizeTT<F>::value,
-                              typename std::remove_reference<F>::type>::type * =
-          0) {
+  Reference1D(F &&f, std::enable_if_t<HasOperatorSizeTT<F>::value,
+                                      std::remove_reference_t<F>> * = 0) {
     Ref = std::make_shared<ReferenceFun<bool(size_t, T &)>>(f);
     Type = Boolean;
   }

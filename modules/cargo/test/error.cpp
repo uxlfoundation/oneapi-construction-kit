@@ -20,7 +20,7 @@
 #include "common.h"
 
 TEST(error_or, construct_error) {
-  cargo::error_or<int> eo(cargo::bad_alloc);
+  const cargo::error_or<int> eo(cargo::bad_alloc);
   ASSERT_FALSE(bool(eo));
   ASSERT_EQ(cargo::bad_alloc, eo.error());
 }
@@ -32,14 +32,14 @@ TEST(error_or, construct_value) {
 }
 
 TEST(error_or, construct_copyable) {
-  copyable_t c(42);
+  const copyable_t c(42);
   cargo::error_or<copyable_t> eo(c);
   ASSERT_TRUE(bool(eo));
   ASSERT_EQ(42, eo->get());
 }
 
 TEST(error_or, construct_copyable_rvalue) {
-  copyable_t c(42);
+  const copyable_t c(42);
   cargo::error_or<copyable_t> eo(c);
   ASSERT_TRUE(bool(eo));
   ASSERT_EQ(42, eo->get());

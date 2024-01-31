@@ -57,7 +57,7 @@ class UpdateDescriptorSets : public uvk::PipelineTest,
 
     RETURN_ON_FATAL_FAILURE(PipelineTest::SetUp());
 
-    std::vector<VkDescriptorPoolSize> sizes = {
+    const std::vector<VkDescriptorPoolSize> sizes = {
         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 4}};
 
     DescriptorPoolTest::poolSizes = sizes;
@@ -73,7 +73,7 @@ class UpdateDescriptorSets : public uvk::PipelineTest,
                                                           &descriptorSet));
 
     uint32_t bufferSize = sizeof(uint32_t) * testVals.size();
-    uint32_t queueFamilyIndex = 0;
+    const uint32_t queueFamilyIndex = 0;
 
     VkBufferCreateInfo bufferCreateInfo = {};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -119,7 +119,8 @@ class UpdateDescriptorSets : public uvk::PipelineTest,
     write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     write.dstArrayElement = 0;
     write.dstBinding = 0;
-    write.pBufferInfo = &bufferInfo[0];
+    write.pBufferInfo =
+        &bufferInfo[0];  // NOLINT(readability-container-data-pointer)
     write.dstSet = descriptorSet;
 
     writes.push_back(write);

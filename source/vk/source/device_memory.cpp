@@ -28,7 +28,7 @@ device_memory_t::~device_memory_t() {}
 VkResult AllocateMemory(vk::device device,
                         const VkMemoryAllocateInfo *pAllocateInfo,
                         vk::allocator allocator, vk::device_memory *pMemory) {
-  VkMemoryType type =
+  const VkMemoryType type =
       device->memory_properties.memoryTypes[pAllocateInfo->memoryTypeIndex];
   mux_memory_t mux_memory;
   mux_result_t error = mux_success;
@@ -92,7 +92,7 @@ void FreeMemory(vk::device device, vk::device_memory memory,
 
 VkResult BindBufferMemory(vk::device device, vk::buffer buffer,
                           vk::device_memory memory, VkDeviceSize memoryOffset) {
-  mux_result_t error = muxBindBufferMemory(
+  const mux_result_t error = muxBindBufferMemory(
       device->mux_device, memory->mux_memory, buffer->mux_buffer, memoryOffset);
 
   if (error) {
@@ -141,11 +141,11 @@ VkResult FlushMemoryMappedRanges(vk::device device, uint32_t memoryRangeCount,
     mux_memory_t &mux_mem =
         vk::cast<vk::device_memory>(pMemoryRanges[i].memory)->mux_memory;
 
-    size_t size = pMemoryRanges[i].size == VK_WHOLE_SIZE
-                      ? mux_mem->size - pMemoryRanges[i].offset
-                      : pMemoryRanges[i].size;
+    const size_t size = pMemoryRanges[i].size == VK_WHOLE_SIZE
+                            ? mux_mem->size - pMemoryRanges[i].offset
+                            : pMemoryRanges[i].size;
 
-    mux_result_t err = muxFlushMappedMemoryToDevice(
+    const mux_result_t err = muxFlushMappedMemoryToDevice(
         device->mux_device, mux_mem, pMemoryRanges[i].offset, size);
 
     if (err != mux_success) {
@@ -163,11 +163,11 @@ VkResult InvalidateMemoryMappedRanges(
     mux_memory_t &mux_mem =
         vk::cast<vk::device_memory>(pMemoryRanges[i].memory)->mux_memory;
 
-    size_t size = pMemoryRanges[i].size == VK_WHOLE_SIZE
-                      ? mux_mem->size - pMemoryRanges[i].offset
-                      : pMemoryRanges[i].size;
+    const size_t size = pMemoryRanges[i].size == VK_WHOLE_SIZE
+                            ? mux_mem->size - pMemoryRanges[i].offset
+                            : pMemoryRanges[i].size;
 
-    mux_result_t err = muxFlushMappedMemoryFromDevice(
+    const mux_result_t err = muxFlushMappedMemoryFromDevice(
         device->mux_device, mux_mem, pMemoryRanges[i].offset, size);
 
     if (err != mux_success) {

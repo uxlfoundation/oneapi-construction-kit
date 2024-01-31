@@ -42,7 +42,7 @@ TEST(thread, get_name) {
       ;
     }
   }};
-  std::string name{"name set"};
+  const std::string name{"name set"};
   auto result = thread.set_name(name);
   if (cargo::unsupported != result) {
     ASSERT_EQ(cargo::success, result);

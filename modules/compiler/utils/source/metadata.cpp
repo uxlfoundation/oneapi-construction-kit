@@ -29,9 +29,9 @@ uint32_t getOpenCLVersion(const llvm::Module &m) {
     if (md->getNumOperands() == 1) {
       auto *const op = md->getOperand(0);
       if (op->getNumOperands() == 2) {
-        auto const major =
+        const auto major =
             mdconst::extract<ConstantInt>(op->getOperand(0))->getZExtValue();
-        auto const minor =
+        const auto minor =
             mdconst::extract<ConstantInt>(op->getOperand(1))->getZExtValue();
         return (major * 100 + minor) * 1000;
       }

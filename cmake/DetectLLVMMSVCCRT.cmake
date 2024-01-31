@@ -32,6 +32,19 @@ if(NOT MSVC)
   return()
 endif()
 
+# LLVM 18 uses the CMake default setting, which depends on the mode LLVM
+# was built in, not the mode we were built in.
+if(LLVM_VERSION_MAJOR GREATER_EQUAL 18)
+  if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+    if(LLVM_BUILD_TYPE STREQUAL "Debug")
+      set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
+    else()
+      set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+    endif()
+  endif()
+  return()
+endif()
+
 # Get the directory of cl.exe
 get_filename_component(tools_dir "${CMAKE_C_COMPILER}" DIRECTORY)
 

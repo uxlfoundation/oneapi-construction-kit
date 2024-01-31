@@ -34,9 +34,9 @@ inline T half_sincos_approx(const T &x, T *cosVal) {
 
   // minimax polynomials from 0 -> PI/4
   const T xx = x * x;
-  *cosVal = abacus::internal::horner_polynomial<T, 4>(xx, _half_sincos_coefc);
+  *cosVal = abacus::internal::horner_polynomial(xx, _half_sincos_coefc);
 
-  return x * abacus::internal::horner_polynomial<T, 4>(xx, _half_sincos_coefs);
+  return x * abacus::internal::horner_polynomial(xx, _half_sincos_coefs);
 }
 }  // namespace internal
 }  // namespace abacus

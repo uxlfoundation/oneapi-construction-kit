@@ -83,10 +83,10 @@ TEST_F(clCreateCommandQueueWithPropertiesKHRTest, InvalidDevice) {
 
 TEST_F(clCreateCommandQueueWithPropertiesKHRTest, InvalidQueueProperties) {
   cl_int error;
-  // We don't currently support CL_QUEUE_OUT_OF_ORDER and to get this return
+  // We don't currently support CL_QUEUE_ON_DEVICE and to get this return
   // value the properties need to be valid but unsupported by the device.
   std::array<cl_queue_properties_khr, 3> properties{
-      {CL_QUEUE_PROPERTIES, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, 0}};
+      {CL_QUEUE_PROPERTIES, CL_QUEUE_ON_DEVICE, 0}};
   cl_command_queue command_queue = clCreateCommandQueueWithPropertiesKHR(
       context, device, properties.data(), &error);
   ASSERT_EQ_ERRCODE(CL_INVALID_QUEUE_PROPERTIES, error);

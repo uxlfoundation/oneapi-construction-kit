@@ -108,7 +108,7 @@ cargo::result loader::PageRange::allocate(size_t bytes) {
   if (pages_end != nullptr) {
     return cargo::bad_argument;
   }
-  size_t page_count = (bytes + getPageSize() - 1) / getPageSize();
+  const size_t page_count = (bytes + getPageSize() - 1) / getPageSize();
   // round up to whole pages
   bytes = page_count * getPageSize();
 #ifdef _WIN32

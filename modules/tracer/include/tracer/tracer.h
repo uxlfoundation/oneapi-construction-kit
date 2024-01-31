@@ -104,7 +104,7 @@ struct TraceGuard {
 
   ~TraceGuard() {
     if (Category::enabled) {
-      uint64_t end_time = getCurrentTimestamp();
+      const uint64_t end_time = getCurrentTimestamp();
       const char *cat_name = getCategoryName<Category>();
       recordTrace(trace_name, cat_name, start_time, end_time);
     }

@@ -21,7 +21,7 @@
 mux_result_t muxCreateBuffer(mux_device_t device, size_t size,
                              mux_allocator_info_t allocator_info,
                              mux_buffer_t *out_memory) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -39,7 +39,7 @@ mux_result_t muxCreateBuffer(mux_device_t device, size_t size,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error =
+  const mux_result_t error =
       muxSelectCreateBuffer(device, size, allocator_info, out_memory);
 
   if (mux_success == error) {
@@ -51,7 +51,7 @@ mux_result_t muxCreateBuffer(mux_device_t device, size_t size,
 
 void muxDestroyBuffer(mux_device_t device, mux_buffer_t memory,
                       mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;
@@ -70,7 +70,7 @@ void muxDestroyBuffer(mux_device_t device, mux_buffer_t memory,
 
 mux_result_t muxBindBufferMemory(mux_device_t device, mux_memory_t memory,
                                  mux_buffer_t buffer, uint64_t offset) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;

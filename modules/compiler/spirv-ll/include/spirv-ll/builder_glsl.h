@@ -32,7 +32,7 @@ class GLSLBuilder : public ExtInstSetHandler {
       : ExtInstSetHandler(builder, module) {}
 
   /// @see ExtendedInstrSet::create
-  virtual llvm::Error create(OpExtInst const &opc) override;
+  virtual llvm::Error create(const OpExtInst &opc) override;
 
  private:
   /// @brief Create a GLSL extended instruction transformation to LLVM IR.
@@ -43,7 +43,7 @@ class GLSLBuilder : public ExtInstSetHandler {
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
   template <enum GLSLstd450 inst>
-  llvm::Error create(OpExtInst const &opc);
+  llvm::Error create(const OpExtInst &opc);
 };
 
 }  // namespace spirv_ll

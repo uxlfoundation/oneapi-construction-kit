@@ -1031,10 +1031,11 @@ Declarations matching each of these function names are searched for by
 ``ReplaceMuxMathDeclsPass``, and if found, a function body is created returning
 a constant value. These constant return values are set from ``bool`` parameters
 passed by the runtime on pass creation, and may be derived from hardware
-features like denormal support, or from compilation flags like fast-math. Later
-generic optimization passes, such as Dead Code Elimination, should be able
-remove the unused control-flow in kernel code once the definitions of these
-builtins have been inlined.
+features like denormal support, or from compilation flags like fast-math. These
+functions must not be declared with the ``noinline`` attribute: later generic
+optimization passes, such as Dead Code Elimination, should be able remove the
+unused control-flow in kernel code once the definitions of these builtins have
+been inlined.
 
 UniqueOpaqueStructsPass
 -----------------------
@@ -1139,13 +1140,6 @@ Removing this information is useful for debugging since the backend is less
 likely to optimize away variables in the stack no longer used, as a result this
 pass should only be run on debug builds of the module.
 
-RemoveFencesPass
-----------------
-
-Removing memory fences can result in invalid code or incorrect behaviour in
-general. This pass is a workaround for backends that do not yet support memory
-fences.
-
 RemoveExceptionsPass
 --------------------
 
@@ -1198,6 +1192,20 @@ about some of the above types, such as the type of images passed to any of the
 :doc:`/modules/builtins/libimg` functions. This means that in such a situation,
 it may be required to skip other passes such as the
 ``compiler::ImageArgumentSubstitutionPass``.
+
+ManualTypeLegalizationPass
+--------------------------
+
+The ``ManualTypeLegalizationPass`` pass replaces ``half`` operations with
+``float`` operations, inserting conversions as needed. It does this to work
+around LLVM issue 73805, where LLVM's own legalization replaces whole chains of
+operations rather than each operation individually, thus leaving out rounding
+operations implied by the LLVM IR.
+
+This replacement is only done on targets that promote ``half`` to ``float``
+during type legalization. On targets where ``half`` is a native type, or where
+``half`` is known to be promoted using "soft-promotion" rules, LLVM is presumed
+to translate ``half`` correctly.
 
 Metadata Utilities
 ------------------

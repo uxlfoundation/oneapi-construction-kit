@@ -169,9 +169,9 @@ void PrintFloatingPoint(std::string partial, T d) {
     bool plus;
     bool space;
     bool alternate;
-    size_t start = FindNextSpecifier(partial);
-    size_t end = ParseSpecifier(partial, start, min_width, precision, minus,
-                                plus, space, alternate);
+    const size_t start = FindNextSpecifier(partial);
+    const size_t end = ParseSpecifier(partial, start, min_width, precision,
+                                      minus, plus, space, alternate);
 
     // add the sign or the sign padding
     if (std::signbit(d)) {

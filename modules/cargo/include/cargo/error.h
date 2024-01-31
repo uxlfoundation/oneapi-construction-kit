@@ -97,7 +97,7 @@ enum result : int32_t {
 template <class T>
 class error_or {
  public:
-  using value_type = typename std::remove_reference<T>::type;
+  using value_type = std::remove_reference_t<T>;
   using pointer = value_type *;
   using const_pointer = const value_type *;
   using reference = value_type &;
@@ -129,9 +129,9 @@ class error_or {
   /// @param first First argument.
   /// @param args Variadic arguments.
   template <class First, class... Args,
-            class = enable_if_t<
+            class = std::enable_if_t<
                 !(sizeof...(Args) == 0 &&
-                  std::is_same<error_or, remove_reference_t<First>>::value)>>
+                  std::is_same_v<error_or, std::remove_reference_t<First>>)>>
   error_or(First &&first, Args &&...args) : HasError(false) {
     new (&ValueStorage) value_storage_type(std::forward<First>(first),
                                            std::forward<Args>(args)...);

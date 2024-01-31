@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                                         \
-  TYPE __abacus_smoothstep(TYPE e0, TYPE e1, TYPE x) {    \
-    return abacus::detail::common::smoothstep(e0, e1, x); \
+#define DEF(TYPE)                                                 \
+  TYPE ABACUS_API __abacus_smoothstep(TYPE e0, TYPE e1, TYPE x) { \
+    return abacus::detail::common::smoothstep(e0, e1, x);         \
   }
-#define DEF2(TYPE, TYPE2)                                 \
-  TYPE __abacus_smoothstep(TYPE2 e0, TYPE2 e1, TYPE x) {  \
-    return abacus::detail::common::smoothstep(e0, e1, x); \
+#define DEF2(TYPE, TYPE2)                                           \
+  TYPE ABACUS_API __abacus_smoothstep(TYPE2 e0, TYPE2 e1, TYPE x) { \
+    return abacus::detail::common::smoothstep(e0, e1, x);           \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT

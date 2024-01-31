@@ -52,7 +52,7 @@ bool IRToBuiltinReplacementPass::replaceInstruction(Module &module,
                "Mangler not good enough for this instruction");
 
         std::string mangledName = name.str();
-        std::string baseTypeName = scalarType->isDoubleTy() ? "d" : "f";
+        const std::string baseTypeName = scalarType->isDoubleTy() ? "d" : "f";
 
         if (ins.getType()->isVectorTy()) {
           auto numElements = multi_llvm::getVectorNumElements(ins.getType());
@@ -81,7 +81,7 @@ bool IRToBuiltinReplacementPass::replaceInstruction(Module &module,
                   .getCallee());
           builtin->setCallingConv(CallingConv::SPIR_FUNC);
         }
-        SmallVector<Value *, 4> callArgs(ins.operand_values());
+        const SmallVector<Value *, 4> callArgs(ins.operand_values());
         ir.SetInsertPoint(&ins);
         CallInst *call = ir.CreateCall(builtin, callArgs);
         call->setCallingConv(CallingConv::SPIR_FUNC);
@@ -99,7 +99,8 @@ PreservedAnalyses IRToBuiltinReplacementPass::run(
   // Replace frem with call to demangled fmod.
   // Note that if other instruction are added, the demangler will need
   // improving
-  bool Changed = replaceInstruction(module, llvm::Instruction::FRem, "_Z4fmod");
+  const bool Changed =
+      replaceInstruction(module, llvm::Instruction::FRem, "_Z4fmod");
 
   return Changed ? PreservedAnalyses::none() : PreservedAnalyses::all();
 }

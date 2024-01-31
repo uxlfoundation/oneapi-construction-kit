@@ -67,7 +67,7 @@ Type *getNewType(Type *type, const StructReplacementMap &map) {
   }
 
   // 'type' is an old struct type, return the matching padded struct
-  if (ReplacementStructSP newStructDetails = map.lookup(type)) {
+  if (const ReplacementStructSP newStructDetails = map.lookup(type)) {
     return newStructDetails->newStructType;
   }
 
@@ -215,7 +215,8 @@ void fixupGepIndices(GetElementPtrInst *gepInst,
 
     Value *nextIdx = gepInst->getOperand(newIndices.size() + 1);
     Value *newIdx = nextIdx;
-    if (ReplacementStructSP newStructDetails = typeMap.lookup(indexedTy)) {
+    if (const ReplacementStructSP newStructDetails =
+            typeMap.lookup(indexedTy)) {
       // Check the mapping of indices from old to new structs
       const DenseMap<unsigned int, unsigned int> &indexMap =
           newStructDetails->memberIndexMap;
@@ -449,7 +450,7 @@ void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
       continue;
     }
 
-    for (Argument &arg : func.args()) {
+    for (const Argument &arg : func.args()) {
       if (nullptr != getNewType(arg.getType(), typeMap)) {
         funcs.push_back(&func);
         break;
@@ -567,10 +568,10 @@ void compiler::utils::AlignModuleStructsPass::generateNewStructType(
   // we can infer it from the current data layout.
   assert((DL.getPointerSizeInBits() == 32 || DL.getPointerSizeInBits() == 64) &&
          "Only support compilation for 32-bit or 64-bit targets");
-  DataLayout SPIRDL(std::string(DL.getPointerSizeInBits() == 32
-                                    ? SPIR32DLStart
-                                    : SPIR64DLStart) +
-                    SPIRDLSuffix);
+  const DataLayout SPIRDL(std::string(DL.getPointerSizeInBits() == 32
+                                          ? SPIR32DLStart
+                                          : SPIR64DLStart) +
+                          SPIRDLSuffix);
 
   bool changed = false;
   uint64_t cumulativePadding = 0;
@@ -582,7 +583,7 @@ void compiler::utils::AlignModuleStructsPass::generateNewStructType(
     // so we still need to replace their members in this function, but don't
     // do the padding here.
     if (!unpadded->isPacked()) {
-      uint64_t thisDLEltOffset =
+      const uint64_t thisDLEltOffset =
           thisLayout->getElementOffset(i) + cumulativePadding;
 
       const Align reqdTyAlign = SPIRDL.getABITypeAlign(memberType);
@@ -622,7 +623,7 @@ void compiler::utils::AlignModuleStructsPass::generateNewStructType(
   // Create an opaque struct type and wrap all the details we've computed
   // into a ReplacementStructDetails object
   auto *const paddedStructTy = StructType::create(Ctx, unpadded->getName());
-  ReplacementStructSP structSP(new ReplacementStructDetails(
+  const ReplacementStructSP structSP(new ReplacementStructDetails(
       paddedStructTy, indexMap, structElementTypes));
   if (structSP) {
     originalStructMap.insert(std::make_pair(unpadded, structSP));
@@ -633,7 +634,7 @@ void compiler::utils::AlignModuleStructsPass::fixupStructReferences() {
   // Iterate over all the structs in our map
   for (auto &mapItr : originalStructMap) {
     // Get the padding struct type and iterate over members
-    ReplacementStructSP paddedStructDetails = mapItr.getSecond();
+    const ReplacementStructSP paddedStructDetails = mapItr.getSecond();
     if (!paddedStructDetails) {
       continue;
     }

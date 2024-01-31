@@ -2122,7 +2122,7 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
                   std::end(opencl_c_all_versions));
       } break;
       case CL_MAKE_VERSION_KHR(2, 2, 0):
-        CARGO_FALLTHROUGH;
+        [[fallthrough]];
       case CL_MAKE_VERSION_KHR(2, 1, 0): {
         // Support for OpenCL C 2.0, OpenCL C 1.2, OpenCL C 1.1, and OpenCL
         // C 1.0 is required for an OpenCL 2.0, OpenCL 2.1, or OpenCL 2.2

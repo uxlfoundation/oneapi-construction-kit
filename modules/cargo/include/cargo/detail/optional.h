@@ -25,7 +25,6 @@
 
 #include <cargo/detail/sfinae_bases.h>
 #include <cargo/functional.h>
-#include <cargo/platform_defines.h>
 #include <cargo/type_traits.h>
 #include <cargo/utility.h>
 
@@ -40,11 +39,11 @@ struct is_optional_impl : std::false_type {};
 template <class T>
 struct is_optional_impl<optional<T>> : std::true_type {};
 template <class T>
-using is_optional = is_optional_impl<decay_t<T>>;
+using is_optional = is_optional_impl<std::decay_t<T>>;
 
 // Change void to cargo::monostate
 template <class U>
-using fixup_void = conditional_t<std::is_void<U>::value, monostate, U>;
+using fixup_void = std::conditional_t<std::is_void_v<U>, monostate, U>;
 
 template <class F, class U, class = invoke_result_t<F, U>>
 using get_map_return = optional<fixup_void<invoke_result_t<F, U>>>;
@@ -53,62 +52,62 @@ using get_map_return = optional<fixup_void<invoke_result_t<F, U>>>;
 template <class F, class = void, class... U>
 struct returns_void_impl;
 template <class F, class... U>
-struct returns_void_impl<F, void_t<invoke_result_t<F, U...>>, U...>
+struct returns_void_impl<F, std::void_t<invoke_result_t<F, U...>>, U...>
     : std::is_void<invoke_result_t<F, U...>> {};
 template <class F, class... U>
 using returns_void = returns_void_impl<F, void, U...>;
 
 template <class T, class... U>
-using enable_if_ret_void = enable_if_t<returns_void<T &&, U...>::value>;
+using enable_if_ret_void = std::enable_if_t<returns_void<T &&, U...>::value>;
 
 template <class T, class... U>
-using disable_if_ret_void = enable_if_t<!returns_void<T &&, U...>::value>;
+using disable_if_ret_void = std::enable_if_t<!returns_void<T &&, U...>::value>;
 
 template <class T, class U>
 using enable_forward_value =
-    enable_if_t<std::is_constructible<T, U &&>::value &&
-                !std::is_same<decay_t<U>, in_place_t>::value &&
-                !std::is_same<optional<T>, decay_t<U>>::value>;
+    std::enable_if_t<std::is_constructible_v<T, U &&> &&
+                     !std::is_same_v<std::decay_t<U>, in_place_t> &&
+                     !std::is_same_v<optional<T>, std::decay_t<U>>>;
 
 template <class T, class U, class Other>
 using enable_from_other =
-    enable_if_t<std::is_constructible<T, Other>::value &&
-                !std::is_constructible<T, optional<U> &>::value &&
-                !std::is_constructible<T, optional<U> &&>::value &&
-                !std::is_constructible<T, const optional<U> &>::value &&
-                !std::is_constructible<T, const optional<U> &&>::value &&
-                !std::is_convertible<optional<U> &, T>::value &&
-                !std::is_convertible<optional<U> &&, T>::value &&
-                !std::is_convertible<const optional<U> &, T>::value &&
-                !std::is_convertible<const optional<U> &&, T>::value>;
+    std::enable_if_t<std::is_constructible_v<T, Other> &&
+                     !std::is_constructible_v<T, optional<U> &> &&
+                     !std::is_constructible_v<T, optional<U> &&> &&
+                     !std::is_constructible_v<T, const optional<U> &> &&
+                     !std::is_constructible_v<T, const optional<U> &&> &&
+                     !std::is_convertible_v<optional<U> &, T> &&
+                     !std::is_convertible_v<optional<U> &&, T> &&
+                     !std::is_convertible_v<const optional<U> &, T> &&
+                     !std::is_convertible_v<const optional<U> &&, T>>;
 
 template <class T, class U>
-using enable_assign_forward = enable_if_t<
-    !std::is_same<optional<T>, decay_t<U>>::value &&
-    !conjunction<std::is_scalar<T>, std::is_same<T, decay_t<U>>>::value &&
-    std::is_constructible<T, U>::value && std::is_assignable<T &, U>::value>;
+using enable_assign_forward = std::enable_if_t<
+    !std::is_same_v<optional<T>, std::decay_t<U>> &&
+    !conjunction<std::is_scalar<T>, std::is_same<T, std::decay_t<U>>>::value &&
+    std::is_constructible_v<T, U> && std::is_assignable_v<T &, U>>;
 
 template <class T, class U, class Other>
 using enable_assign_from_other =
-    enable_if_t<std::is_constructible<T, Other>::value &&
-                std::is_assignable<T &, Other>::value &&
-                !std::is_constructible<T, optional<U> &>::value &&
-                !std::is_constructible<T, optional<U> &&>::value &&
-                !std::is_constructible<T, const optional<U> &>::value &&
-                !std::is_constructible<T, const optional<U> &&>::value &&
-                !std::is_convertible<optional<U> &, T>::value &&
-                !std::is_convertible<optional<U> &&, T>::value &&
-                !std::is_convertible<const optional<U> &, T>::value &&
-                !std::is_convertible<const optional<U> &&, T>::value &&
-                !std::is_assignable<T &, optional<U> &>::value &&
-                !std::is_assignable<T &, optional<U> &&>::value &&
-                !std::is_assignable<T &, const optional<U> &>::value &&
-                !std::is_assignable<T &, const optional<U> &&>::value>;
+    std::enable_if_t<std::is_constructible_v<T, Other> &&
+                     std::is_assignable_v<T &, Other> &&
+                     !std::is_constructible_v<T, optional<U> &> &&
+                     !std::is_constructible_v<T, optional<U> &&> &&
+                     !std::is_constructible_v<T, const optional<U> &> &&
+                     !std::is_constructible_v<T, const optional<U> &&> &&
+                     !std::is_convertible_v<optional<U> &, T> &&
+                     !std::is_convertible_v<optional<U> &&, T> &&
+                     !std::is_convertible_v<const optional<U> &, T> &&
+                     !std::is_convertible_v<const optional<U> &&, T> &&
+                     !std::is_assignable_v<T &, optional<U> &> &&
+                     !std::is_assignable_v<T &, optional<U> &&> &&
+                     !std::is_assignable_v<T &, const optional<U> &> &&
+                     !std::is_assignable_v<T &, const optional<U> &&>>;
 
 // The storage base manages the actual storage, and correctly propagates
 // trivial destruction from T This case is for when T is trivially
 // destructible
-template <class T, bool = std::is_trivially_destructible<T>::value>
+template <class T, bool = std::is_trivially_destructible_v<T>>
 struct optional_storage_base {
   constexpr optional_storage_base() : m_dummy(0), m_has_value(false) {}
 
@@ -185,17 +184,15 @@ struct optional_operations_base : optional_storage_base<T> {
 
   bool has_value() const { return this->m_has_value; }
 
-  CARGO_CXX14_CONSTEXPR T &get() & { return this->m_value; }
-  CARGO_CXX14_CONSTEXPR const T &get() const & { return this->m_value; }
-  CARGO_CXX14_CONSTEXPR T &&get() && { return std::move(this->m_value); }
-#ifndef CARGO_NO_CONSTRR
+  constexpr T &get() & { return this->m_value; }
+  constexpr const T &get() const & { return this->m_value; }
+  constexpr T &&get() && { return std::move(this->m_value); }
   constexpr const T &&get() const && { return std::move(this->m_value); }
-#endif
 };
 
 // This class manages conditionally having a trivial copy constructor
 // This specialization is for when T is trivially copy constructible
-template <class T, bool = is_trivially_copy_constructible<T>::value>
+template <class T, bool = std::is_trivially_copy_constructible_v<T>>
 struct optional_copy_base : optional_operations_base<T> {
   using optional_operations_base<T>::optional_operations_base;
 };
@@ -221,19 +218,10 @@ struct optional_copy_base<T, false> : optional_operations_base<T> {
 };
 
 // This class manages conditionally having a trivial move constructor
-// Unfortunately there's no way to achieve this in GCC < 5 AFAIK, since it
-// doesn't implement an analogue to std::is_trivially_move_constructible. We
-// have to make do with a non-trivial move constructor even if T is trivially
-// move constructible
-#ifndef CARGO_GCC49
-template <class T, bool = std::is_trivially_move_constructible<T>::value>
+template <class T, bool = std::is_trivially_move_constructible_v<T>>
 struct optional_move_base : optional_copy_base<T> {
   using optional_copy_base<T>::optional_copy_base;
 };
-#else
-template <class T, bool = false>
-struct optional_move_base;
-#endif
 
 template <class T>
 struct optional_move_base<T, false> : optional_copy_base<T> {
@@ -254,9 +242,9 @@ struct optional_move_base<T, false> : optional_copy_base<T> {
 };
 
 // This class manages conditionally having a trivial copy assignment operator
-template <class T, bool = is_trivially_copy_assignable<T>::value
-                       &&is_trivially_copy_constructible<T>::value
-                           &&std::is_trivially_destructible<T>::value>
+template <class T, bool = std::is_trivially_copy_assignable_v<T> &&
+                          std::is_trivially_copy_constructible_v<T> &&
+                          std::is_trivially_destructible_v<T>>
 struct optional_copy_assign_base : optional_move_base<T> {
   using optional_move_base<T>::optional_move_base;
 };
@@ -278,21 +266,12 @@ struct optional_copy_assign_base<T, false> : optional_move_base<T> {
 };
 
 // This class manages conditionally having a trivial move assignment operator
-// Unfortunately there's no way to achieve this in GCC < 5 AFAIK, since it
-// doesn't implement an analogue to std::is_trivially_move_assignable. We have
-// to make do with a non-trivial move assignment operator even if T is trivially
-// move assignable
-#ifndef CARGO_GCC49
-template <class T, bool = std::is_trivially_destructible<T>::value
-                       &&std::is_trivially_move_constructible<T>::value
-                           &&std::is_trivially_move_assignable<T>::value>
+template <class T, bool = std::is_trivially_destructible_v<T> &&
+                          std::is_trivially_move_constructible_v<T> &&
+                          std::is_trivially_move_assignable_v<T>>
 struct optional_move_assign_base : optional_copy_assign_base<T> {
   using optional_copy_assign_base<T>::optional_copy_assign_base;
 };
-#else
-template <class T, bool = false>
-struct optional_move_assign_base;
-#endif
 
 template <class T>
 struct optional_move_assign_base<T, false> : optional_copy_assign_base<T> {

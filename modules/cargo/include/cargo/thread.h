@@ -145,7 +145,7 @@ struct thread {
   /// @return Returns the thread name or an error.
   /// @retval `cargo::unknown_error` if an OS specific error occurs.
   /// @retval `cargo::unsupported` if not supported.
-  CARGO_NODISCARD cargo::error_or<std::string> get_name() noexcept;
+  [[nodiscard]] cargo::error_or<std::string> get_name() noexcept;
 
   /// @brief Operator for implict conversion to std::thread.
   operator std::thread &() { return Thread; }

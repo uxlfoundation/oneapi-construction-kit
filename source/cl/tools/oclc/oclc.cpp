@@ -359,19 +359,21 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
       SplitAndExpandList(arg_str, '\0', localList);
       failed = (ParseSizeInfo("local", localList) == oclc::failure);
     } else if ((arg_str = args.TakeKeyValue("-seed", failed))) {
-      unsigned long seed =
+      const unsigned long seed =
           static_cast<unsigned long>(strtoull(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(seed == 0 && (strcmp(arg_str, "0") != 0),
                      "error: seed '%s' is an invalid value.\n", arg_str);
       engine_.seed(seed);
     } else if ((arg_str = args.TakeKeyValue("-ulp-error", failed))) {
-      cl_ulong ulpVal = static_cast<cl_ulong>(strtol(arg_str, nullptr, 10));
+      const cl_ulong ulpVal =
+          static_cast<cl_ulong>(strtol(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(ulpVal == 0 && (strcmp(arg_str, "0") != 0),
                      "error: ulp tolerance '%s' is an invalid value.\n",
                      arg_str);
       ulp_tolerance_ = ulpVal;
     } else if ((arg_str = args.TakeKeyValue("-char-error", failed))) {
-      cl_uchar charErrVal = static_cast<cl_uchar>(strtol(arg_str, nullptr, 10));
+      const cl_uchar charErrVal =
+          static_cast<cl_uchar>(strtol(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(charErrVal == 0 && (strcmp(arg_str, "0") != 0),
                      "error: char error tolerance '%s' is an invalid value.\n",
                      arg_str);
@@ -379,7 +381,7 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
     } else if ((arg_str = args.TakeKeyValue("-compare", failed))) {
       failed = ParseArgumentCompareInfo(arg_str) == oclc::failure;
     } else if ((arg_str = args.TakeKeyValue("-repeat-execution", failed))) {
-      size_t limit = static_cast<size_t>(strtoull(arg_str, nullptr, 10));
+      const size_t limit = static_cast<size_t>(strtoull(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(limit == 0, "error: seed '%s' is an invalid value.\n",
                      arg_str);
       execution_limit_ = limit;
@@ -413,7 +415,7 @@ bool oclc::Driver::ParseArguments(int argc, char **argv) {
     return oclc::failure;
   }
 
-  for (std::string &s : argument_queue_) {
+  for (const std::string &s : argument_queue_) {
     if (ParseKernelArgument(s.c_str()) == oclc::failure) {
       return oclc::failure;
     }
@@ -490,7 +492,7 @@ vector2d<std::string> oclc::Driver::GetRepeatExecutionValues(
 
 void oclc::Driver::FillSizeInfo(vector2d<size_t> &workSize) {
   for (auto &el : workSize) {
-    size_t currentSize = el.size();
+    const size_t currentSize = el.size();
     if (currentSize < work_dim_) {
       el.resize(work_dim_);
       for (size_t dimIndex = currentSize; dimIndex < work_dim_; ++dimIndex) {
@@ -503,14 +505,14 @@ void oclc::Driver::FillSizeInfo(vector2d<size_t> &workSize) {
 bool oclc::Driver::ParseSizeInfo(const std::string &argName,
                                  const std::vector<std::string> &vec) {
   vector2d<std::string> repeatVec = GetRepeatExecutionValues(vec);
-  size_t repeatCount = repeatVec.size();
+  const size_t repeatCount = repeatVec.size();
   for (size_t count = 0; count < repeatCount; ++count) {
     OCLC_CHECK_FMT(!VerifyGreaterThanZero(repeatVec[count]),
                    "error: work size '%s' was not described as a list of "
                    "unsigned integers greater than 0\n",
                    argName.c_str());
 
-    cl_uint current_work_dim = (cl_uint)repeatVec[count].size();
+    const cl_uint current_work_dim = (cl_uint)repeatVec[count].size();
     if (current_work_dim > work_dim_) {
       work_dim_ = current_work_dim;
     }
@@ -537,7 +539,7 @@ size_t oclc::Driver::ParseListElement(
     const char *elementEnd, std::string &rawArg, char expectedEnd,
     std::vector<std::string> &splitVals, size_t &listSize,
     const std::vector<std::string> &elementVals) {
-  size_t elementSize = elementEnd - rawArg.c_str();
+  const size_t elementSize = elementEnd - rawArg.c_str();
   splitVals.insert(splitVals.end(), elementVals.begin(), elementVals.end());
   listSize += elementSize;
   if (*elementEnd == expectedEnd) {
@@ -563,8 +565,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     const char *elementEnd = VerifyDouble(rawArg);
     if (elementEnd) {
       elementVals.push_back(rawArg.substr(0, elementEnd - rawArg.c_str()));
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -575,8 +577,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     elementEnd = VerifyRand(rawArg.c_str());
     if (elementEnd) {
       elementVals.push_back(rawArg.substr(0, elementEnd - rawArg.c_str()));
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -587,8 +589,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     elementEnd = VerifyRandInt(rawArg.c_str());
     if (elementEnd) {
       elementVals.push_back(rawArg.substr(0, elementEnd - rawArg.c_str()));
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -599,8 +601,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     elementEnd = VerifyRepeatExec(rawArg.c_str());
     if (elementEnd) {
       elementVals.push_back(rawArg.substr(1, elementEnd - rawArg.c_str() - 1));
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -610,8 +612,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     // next check if it is a repeat() function
     elementEnd = VerifyRepeat(rawArg.c_str(), elementVals);
     if (elementEnd) {
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -621,8 +623,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     // next check if it is a sampler_t function
     elementEnd = VerifySampler(rawArg.c_str(), elementVals);
     if (elementEnd) {
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -632,8 +634,8 @@ size_t oclc::Driver::SplitAndExpandList(std::string rawArg, char expectedEnd,
     // next check if it is a range() function
     elementEnd = VerifyRange(rawArg.c_str(), elementVals);
     if (elementEnd) {
-      size_t elementSize = ParseListElement(elementEnd, rawArg, expectedEnd,
-                                            splitVals, listSize, elementVals);
+      const size_t elementSize = ParseListElement(
+          elementEnd, rawArg, expectedEnd, splitVals, listSize, elementVals);
       if (elementSize == -1u || elementSize == listSize) {
         return elementSize;
       }
@@ -764,7 +766,8 @@ char *oclc::Driver::VerifyRandInt(const char *arg) {
 
 template <typename T>
 T oclc::Driver::NextUniform(T min, T max) {
-  double dScale = (1 + max - min) / (double)(engine_.max() - engine_.min());
+  const double dScale =
+      (1 + max - min) / (double)(engine_.max() - engine_.min());
   return (engine_() - engine_.min()) * dScale + min;
 }
 
@@ -773,12 +776,12 @@ bool oclc::Driver::ExpandRandVec(std::vector<std::string> &vec) {
     if (str.substr(0, sizeof("rand(") - 1) == "rand(") {
       char *valueTracker =
           const_cast<char *>(str.c_str()) + sizeof("rand(") - 1;
-      double min = strtod(valueTracker, &valueTracker);
-      double max = strtod(valueTracker + 1, nullptr);
+      const double min = strtod(valueTracker, &valueTracker);
+      const double max = strtod(valueTracker + 1, nullptr);
       if (min > max) {
         return false;
       }
-      double randVal = NextUniform<double>(min, max);
+      const double randVal = NextUniform<double>(min, max);
       str = ToStringPrecise(randVal);
     }
   }
@@ -790,12 +793,12 @@ bool oclc::Driver::ExpandRandIntVec(std::vector<std::string> &vec) {
     if (str.substr(0, sizeof("randint(") - 1) == "randint(") {
       char *valueTracker =
           const_cast<char *>(str.c_str()) + sizeof("randint(") - 1;
-      long long int min = strtoll(valueTracker, &valueTracker, 10);
-      long long int max = strtoll(valueTracker + 1, nullptr, 10);
+      const long long int min = strtoll(valueTracker, &valueTracker, 10);
+      const long long int max = strtoll(valueTracker + 1, nullptr, 10);
       if (min > max) {
         return false;
       }
-      long long int randVal = NextUniform<long long int>(min, max);
+      const long long int randVal = NextUniform<long long int>(min, max);
       str = std::to_string(randVal);
     }
   }
@@ -840,9 +843,9 @@ const char *oclc::Driver::VerifyRange(const char *arg,
   bool possibleLongLong = true;
 
   char *cEndD = nullptr;
-  double aD = strtod(arg, &cEndD);
+  const double aD = strtod(arg, &cEndD);
   char *cEndLL = nullptr;
-  long long int aLL = strtoll(arg, &cEndLL, 10);
+  const long long int aLL = strtoll(arg, &cEndLL, 10);
 
   if ((cEndD == arg || *cEndD != ',') && (cEndLL == arg || *cEndD != ',')) {
     return nullptr;
@@ -859,8 +862,8 @@ const char *oclc::Driver::VerifyRange(const char *arg,
 
   cEndD = nullptr;
   cEndLL = nullptr;
-  double bD = strtod(arg, &cEndD);
-  long long int bLL = strtoll(arg, &cEndLL, 10);
+  const double bD = strtod(arg, &cEndD);
+  const long long int bLL = strtoll(arg, &cEndLL, 10);
   if ((cEndD == arg || !(*cEndD == ')' || *cEndD == ',')) &&
       (cEndD == arg || !(*cEndD == ')' || *cEndD == ','))) {
     return nullptr;
@@ -883,8 +886,8 @@ const char *oclc::Driver::VerifyRange(const char *arg,
 
   cEndD = nullptr;
   cEndLL = nullptr;
-  double strideD = strtod(arg, &cEndD);
-  long long int strideLL = strtoll(arg, &cEndLL, 10);
+  const double strideD = strtod(arg, &cEndD);
+  const long long int strideLL = strtoll(arg, &cEndLL, 10);
 
   if (cEndD == arg || *cEndD != ')' || errno != 0) {
     return nullptr;
@@ -906,7 +909,7 @@ const char *oclc::Driver::VerifyRepeat(const char *arg,
   arg += sizeof("repeat(") - 1;
 
   char *cEnd = nullptr;
-  size_t count = static_cast<size_t>(strtoll(arg, &cEnd, 10));
+  const size_t count = static_cast<size_t>(strtoll(arg, &cEnd, 10));
 
   if (cEnd == arg || *cEnd != ',') {
     return nullptr;
@@ -935,7 +938,7 @@ const char *oclc::Driver::VerifyRepeat(const char *arg,
 bool oclc::Driver::ParseKernelArgument(const char *rawArg) {
   std::vector<std::string> argVal;
   std::string argName;
-  bool listFound = ReadListOrFile(rawArg, argName, argVal);
+  const bool listFound = ReadListOrFile(rawArg, argName, argVal);
   if (!listFound) {
     return oclc::failure;
   }
@@ -958,7 +961,7 @@ bool oclc::Driver::ParseKernelArgument(const char *rawArg) {
 
 template <typename T>
 std::string oclc::Driver::ToStringPrecise(T floating) {
-  std::stringstream stream;
+  std::stringstream stream;  // NOLINT(misc-const-correctness)
   stream << std::setprecision(std::numeric_limits<T>::digits10 + 1);
   stream << floating;
   return stream.str();
@@ -978,9 +981,9 @@ bool oclc::Driver::ReadListOrFile(const char *rawArg, std::string &argName,
 
   if (colonPos) {
     argName = std::string(rawArg, colonPos);
-    std::string fileName(colonPos + 1);
+    const std::string fileName(colonPos + 1);
     std::string argNameAndValue;
-    bool found = GetArgumentFromFile(fileName, argName, argNameAndValue);
+    const bool found = GetArgumentFromFile(fileName, argName, argNameAndValue);
     OCLC_CHECK_FMT(!found,
                    "error: command line argument '%s' could not be parsed into "
                    "the name of a file containing a list of numbers.\n",
@@ -1002,7 +1005,7 @@ bool oclc::Driver::ReadListOrFile(const char *rawArg, std::string &argName,
 bool oclc::Driver::ParseArgumentCompareInfo(const char *rawArg) {
   std::vector<std::string> splitVals;
   std::string argName;
-  bool listFound = ReadListOrFile(rawArg, argName, splitVals);
+  const bool listFound = ReadListOrFile(rawArg, argName, splitVals);
   if (!listFound) {
     return oclc::failure;
   }
@@ -1027,12 +1030,12 @@ bool oclc::Driver::GetArgumentFromFile(const std::string &fileName,
 
   // find the size of the file in bytes, so we can allocate a large enough read
   // buffer
-  std::streampos fileBegin = fin.tellg();
+  const std::streampos fileBegin = fin.tellg();
   fin.seekg(0, std::ios_base::end);
-  std::streampos fileEnd = fin.tellg();
+  const std::streampos fileEnd = fin.tellg();
   fin.seekg(0, std::ios_base::beg);
 
-  size_t fileSize = static_cast<size_t>(fileEnd - fileBegin);
+  const size_t fileSize = static_cast<size_t>(fileEnd - fileBegin);
   char *kernelArgBuffer = new char[fileSize];
   bool found = false;
   while (!fin.eof() && !found) {
@@ -1053,7 +1056,7 @@ bool oclc::Driver::GetArgumentFromFile(const std::string &fileName,
 
 bool oclc::Driver::ParseArgumentImageShowInfo(const char *rawArg) {
   std::string arg(rawArg);
-  uint8_t dimensions =
+  const uint8_t dimensions =
       static_cast<uint8_t>(std::count(arg.begin(), arg.end(), ','));
   OCLC_CHECK_FMT(dimensions < 1 || dimensions > 3,
                  "error: command line argument '%s' is incorrectly formatted. "
@@ -1069,10 +1072,11 @@ bool oclc::Driver::ParseArgumentImageShowInfo(const char *rawArg) {
                   ? 0
                   : static_cast<size_t>(strtoull(commas[i] + 1, nullptr, 10));
   }
-  std::string imageName(rawArg, commas[0]);
+  const std::string imageName(rawArg, commas[0]);
   const char *colonPos = strchr(rawArg, ':');
   // If the user has not explicitly declared a destination file, print to stdout
-  std::string destinationFileName = colonPos ? std::string(colonPos + 1) : "-";
+  const std::string destinationFileName =
+      colonPos ? std::string(colonPos + 1) : "-";
 
   auto destinationFileMap = shown_image_map_.find(destinationFileName);
   if (destinationFileMap == shown_image_map_.end()) {
@@ -1091,7 +1095,7 @@ bool oclc::Driver::ParseArgumentPrintInfo(const char *rawArg) {
                  "error: command line argument '%s' is incorrectly formatted. "
                  "It may be missing a commma.\n",
                  rawArg);
-  std::string printValName(rawArg, firstCommaPos);
+  const std::string printValName(rawArg, firstCommaPos);
   // if there is a second comma, the user has specified a print offset
   const char *secondCommaPos = strchr(firstCommaPos + 1, ',');
 
@@ -1125,7 +1129,8 @@ bool oclc::Driver::ParseArgumentPrintInfo(const char *rawArg) {
 
   const char *colonPos = strchr(rawArg, ':');
   // If the user has not explicitly declared a destination file, print to stdout
-  std::string destinationFileName = colonPos ? std::string(colonPos + 1) : "-";
+  const std::string destinationFileName =
+      colonPos ? std::string(colonPos + 1) : "-";
 
   auto destinationFileMap = printed_argument_map_.find(destinationFileName);
   if (destinationFileMap == printed_argument_map_.end()) {
@@ -1159,13 +1164,13 @@ bool oclc::Driver::InitCL() {
     OCLC_CHECK_CL(err, "Getting the platform name size failed");
     platform_name.resize(name_size);
     err = clGetPlatformInfo(platform_, CL_PLATFORM_NAME, name_size,
-                            &platform_name[0], nullptr);
+                            platform_name.data(), nullptr);
     OCLC_CHECK_CL(err, "Getting the platform name failed");
     fprintf(stderr, "Platform: %s\n", platform_name.c_str());
   }
 
   // Choose a device.
-  cl_device_type device_type = CL_DEVICE_TYPE_ALL;
+  const cl_device_type device_type = CL_DEVICE_TYPE_ALL;
   cl_uint num_devices = 0;
   std::vector<cl_device_id> devices;
   err = clGetDeviceIDs(platform_, device_type, 0, nullptr, &num_devices);
@@ -1187,7 +1192,7 @@ bool oclc::Driver::InitCL() {
     err = clGetDeviceInfo(device, CL_DEVICE_NAME, 0, nullptr, &name_size);
     OCLC_CHECK_CL(err, "Getting the device name size failed");
     device_name.resize(name_size);
-    err = clGetDeviceInfo(device, CL_DEVICE_NAME, name_size, &device_name[0],
+    err = clGetDeviceInfo(device, CL_DEVICE_NAME, name_size, device_name.data(),
                           nullptr);
     OCLC_CHECK_CL(err, "Getting the device name failed");
 
@@ -1251,22 +1256,23 @@ bool oclc::Driver::BuildProgram() {
     char buffer[256];
     fin = stdin;
     while (true) {
-      size_t bytes_read = fread(buffer, 1, sizeof(buffer), fin);
+      const size_t bytes_read = fread(buffer, 1, sizeof(buffer), fin);
       if (bytes_read == 0) break;
       source_.append(buffer, buffer + bytes_read);
     }
   } else {
     fin = fopen(input_file_.c_str(), mode);
     OCLC_CHECK(!fin, "Could not open input file");
-    fseek(fin, 0, SEEK_END);
-    source_.resize(ftell(fin));
-    rewind(fin);
-    if (source_.size() != fread(&source_[0], 1, source_.size(), fin)) {
-      fclose(fin);
-      OCLC_CHECK(true, "Could not read input file");
-    }
+    bool read_error = [&] {
+      if (fseek(fin, 0, SEEK_END)) return true;
+      source_.resize(ftell(fin));
+      if (fseek(fin, 0, SEEK_SET)) return true;
+      const size_t bytes_read = fread(source_.data(), 1, source_.size(), fin);
+      return source_.size() != bytes_read;
+    }();
+    if (fclose(fin)) read_error = true;
+    OCLC_CHECK(read_error, "Could not read input file");
   }
-  fclose(fin);
 
   // Detect the source file type.
   SourceFileType source_file_type = SourceFileType::OpenCL_C;
@@ -1345,7 +1351,7 @@ bool oclc::Driver::BuildProgram() {
 
 bool oclc::Driver::WriteToFile(const char *data, const size_t length,
                                bool binary) {
-  bool ownsFount = false;
+  bool ownsFout = false;
   FILE *fout = nullptr;
   if (output_file_.empty()) {
     output_file_ = !binary ? "-" : input_file_ + ".bin";
@@ -1357,13 +1363,17 @@ bool oclc::Driver::WriteToFile(const char *data, const size_t length,
     // Klocwork doesn't realize c_str() returns a null-terminated string
     fout = fopen(output_file_.c_str(), "wb");
     OCLC_CHECK(!fout, "Could not open output file");
-    ownsFount = true;
+    ownsFout = true;
   }
-  fwrite(data, sizeof(char), length, fout);
-  fflush(fout);
-  if (ownsFount) fclose(fout);
+  bool success = fwrite(data, sizeof(char), length, fout) == length;
+  if (ownsFout) {
+    success &= fclose(fout) == 0;
+  } else {
+    success &= fflush(fout) == 0;
+  }
+  OCLC_CHECK(!success, "Could not write data to output file");
 
-  return oclc::success;
+  return success;
 }
 
 bool oclc::Driver::GetProgramBinary() {
@@ -1380,7 +1390,7 @@ bool oclc::Driver::GetProgramBinary() {
   std::vector<std::string> binaries(binary_sizes.size());
   std::vector<char *> binary_refs;
   for (unsigned i = 0; i < binary_sizes.size(); i++) {
-    size_t binary_size = binary_sizes[i];
+    const size_t binary_size = binary_sizes[i];
     std::string &binary = binaries[i];
     binary.resize(binary_size);
     binary_refs.push_back((char *)binary.data());
@@ -1558,7 +1568,7 @@ bool oclc::Driver::CreateImage(
   desc.num_mip_levels = 0;
   desc.num_samples = 0;
   desc.buffer = nullptr;
-  cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
+  const cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
 
   size_t size = 0;
   void *data = CastToTypeInteger<cl_uchar>(
@@ -1578,8 +1588,8 @@ bool oclc::Driver::CreateImage(
 template <typename T>
 cl_ulong oclc::Driver::CalculateULP(const T &expected, const T &actual) {
   typedef typename TypeConverter<T>::type IntTy;
-  IntTy e = cargo::bit_cast<IntTy>(expected);
-  IntTy a = cargo::bit_cast<IntTy>(actual);
+  const IntTy e = cargo::bit_cast<IntTy>(expected);
+  const IntTy a = cargo::bit_cast<IntTy>(actual);
 
   if (std::isnan(expected) && std::isnan(actual)) {
     return 0;
@@ -1602,7 +1612,7 @@ template <typename T>
 bool oclc::Driver::CompareEqualFloat(
     const std::vector<std::string> &expectedVec,
     const std::vector<unsigned char> &compareBuffer) {
-  size_t bufferSize = expectedVec.size();
+  const size_t bufferSize = expectedVec.size();
   std::vector<T> referenceVec(bufferSize);
   for (size_t i = 0; i < bufferSize; ++i) {
     referenceVec[i] = static_cast<T>(strtod(expectedVec[i].c_str(), nullptr));
@@ -1621,7 +1631,7 @@ template <typename T>
 bool oclc::Driver::CompareEqualChar(
     const std::vector<std::string> &expectedVec,
     const std::vector<unsigned char> &compareBuffer) {
-  size_t bufferSize = expectedVec.size();
+  const size_t bufferSize = expectedVec.size();
   std::vector<T> referenceVec(bufferSize);
   for (size_t i = 0; i < bufferSize; ++i) {
     referenceVec[i] =
@@ -1642,10 +1652,10 @@ std::map<std::string, std::string> oclc::Driver::FindTypedefs() {
   size_t typedefIdx = source_.find("typedef", 0);
   while (typedefIdx != source_.npos) {
     std::string unsupportedKeywords[] = {"struct", "union"};
-    size_t scIdx = source_.find(';', typedefIdx);
+    const size_t scIdx = source_.find(';', typedefIdx);
     bool supportedTypedef = true;
     for (auto &keyword : unsupportedKeywords) {
-      size_t wordIdx = source_.find(keyword, typedefIdx);
+      const size_t wordIdx = source_.find(keyword, typedefIdx);
       // if an unsupported keyword is closer than the closest semicolon then
       // it's part of the typedef
       if (scIdx == source_.npos ||
@@ -1656,12 +1666,13 @@ std::map<std::string, std::string> oclc::Driver::FindTypedefs() {
     }
 
     if (supportedTypedef) {
-      std::string typedefString =
+      const std::string typedefString =
           source_.substr(typedefIdx, scIdx - typedefIdx);
 
       std::vector<cargo::string_view> components =
           cargo::split_of(typedefString);
-      std::string alias(components.back().data(), components.back().size());
+      const std::string alias(components.back().data(),
+                              components.back().size());
       std::string trueType = "";
       for (size_t i = 1; i < components.size() - 1; ++i) {
         trueType += std::string(components[i].data(), components[i].size());
@@ -1705,9 +1716,9 @@ bool oclc::Driver::EnqueueKernel() {
       {"ulong", sizeof(cl_ulong)},
   };
 
-  size_t local_work_size_index =
+  const size_t local_work_size_index =
       (local_work_size_.size() > execution_count_) ? execution_count_ : 0;
-  size_t global_work_size_index =
+  const size_t global_work_size_index =
       (global_work_size_.size() > execution_count_) ? execution_count_ : 0;
 
   std::map<std::string, std::pair<cl_mem, std::string>> buffer_map;
@@ -1753,7 +1764,7 @@ bool oclc::Driver::EnqueueKernel() {
     std::string arg_name;
     arg_name.resize(arg_name_size - 1);
     err = clGetKernelArgInfo(kernel, i, CL_KERNEL_ARG_NAME, arg_name_size,
-                             &arg_name[0], nullptr);
+                             arg_name.data(), nullptr);
     OCLC_CHECK_CL(err, "clGetKernelInfo failed");
 
     auto input = kernel_arg_map_.find(arg_name);
@@ -1769,8 +1780,8 @@ bool oclc::Driver::EnqueueKernel() {
     if (is_buf) {
       raw_type_name = raw_type_name.substr(0, (is_buf - param_type_name));
     }
-    std::map<std::string, std::string> typedefs = FindTypedefs();
-    for (auto &pair : typedefs) {
+    const std::map<std::string, std::string> typedefs = FindTypedefs();
+    for (const auto &pair : typedefs) {
       if (raw_type_name == pair.first) {
         raw_type_name = pair.second;
         break;
@@ -1785,14 +1796,14 @@ bool oclc::Driver::EnqueueKernel() {
     char *is_image2d = strstr(param_type_name, "image2d_t");
     char *is_image3d = strstr(param_type_name, "image3d_t");
     char *is_sampler = strstr(param_type_name, "sampler_t");
-    bool is_scalar = type_name_to_size_map.count(raw_type_name) != 0;
+    const bool is_scalar = type_name_to_size_map.count(raw_type_name) != 0;
 
-    size_t vecSizeIndex = raw_type_name.find_first_of("1248");
-    bool is_vector =
+    const size_t vecSizeIndex = raw_type_name.find_first_of("1248");
+    const bool is_vector =
         vecSizeIndex != std::string::npos &&
         type_name_to_size_map.count(raw_type_name.substr(0, vecSizeIndex)) != 0;
 
-    size_t vec_length =
+    const size_t vec_length =
         is_vector
             ? static_cast<size_t>(strtoull(
                   raw_type_name.substr(vecSizeIndex).c_str(), nullptr, 10))
@@ -1811,7 +1822,7 @@ bool oclc::Driver::EnqueueKernel() {
         type_name = raw_type_name;
       }
       if (input != kernel_arg_map_.end()) {
-        std::vector<std::string> source = input->second[kernelArgIndex];
+        const auto &source = input->second[kernelArgIndex];
         if (type_name == "float") {
           data = CastToTypeFloat<cl_float>(source, cl_float_buffers, data_size);
         } else if (type_name == "double") {
@@ -1869,7 +1880,7 @@ bool oclc::Driver::EnqueueKernel() {
         // Unless otherwise specified, set the size of output buffers to the
         // product of each dimension of the global work size.
         size_t maxWriteIndex = 1;
-        for (size_t g : global_work_size_[global_work_size_index]) {
+        for (const size_t g : global_work_size_[global_work_size_index]) {
           maxWriteIndex *= g;
         }
 
@@ -1966,7 +1977,7 @@ bool oclc::Driver::EnqueueKernel() {
         desc.num_mip_levels = 0;
         desc.num_samples = 0;
         desc.buffer = nullptr;
-        cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
+        const cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
         image = clCreateImage(context_, CL_MEM_READ_WRITE, &format, &desc,
                               nullptr, &err);
         OCLC_CHECK_CL(err, "Creating image failed");
@@ -1980,11 +1991,11 @@ bool oclc::Driver::EnqueueKernel() {
       cl_sampler sampler;
       if (input != kernel_arg_map_.end()) {
         std::vector<std::string> samplerParams = input->second[kernelArgIndex];
-        cl_bool normalized_coords =
+        const cl_bool normalized_coords =
             samplerParams[0] == "CL_TRUE" ? CL_TRUE : CL_FALSE;
-        cl_filter_mode filter_mode = samplerParams[2] == "CL_FILTER_NEAREST"
-                                         ? CL_FILTER_NEAREST
-                                         : CL_FILTER_LINEAR;
+        const cl_filter_mode filter_mode =
+            samplerParams[2] == "CL_FILTER_NEAREST" ? CL_FILTER_NEAREST
+                                                    : CL_FILTER_LINEAR;
         cl_addressing_mode addressing_mode;
         if (samplerParams[1] == "CL_ADDRESS_MIRRORED_REPEAT") {
           addressing_mode = CL_ADDRESS_MIRRORED_REPEAT;
@@ -2014,8 +2025,9 @@ bool oclc::Driver::EnqueueKernel() {
             kernel, i, type_name_to_size_map.find(raw_type_name)->second, data);
       } else {
         // Use dummy data if the user did not specify this scalar argument
-        size_t sizeType = type_name_to_size_map.find(raw_type_name)->second;
-        size_t vec_length = 1;
+        const size_t sizeType =
+            type_name_to_size_map.find(raw_type_name)->second;
+        const size_t vec_length = 1;
         err = clSetKernelArg(kernel, i, sizeType * vec_length, &argSpace);
       }
     } else if (is_vector) {
@@ -2027,7 +2039,7 @@ bool oclc::Driver::EnqueueKernel() {
                 vec_length,
             data);
       } else {
-        size_t sizeType =
+        const size_t sizeType =
             type_name_to_size_map.find(raw_type_name.substr(0, vecSizeIndex))
                 ->second;
         err = clSetKernelArg(kernel, i, sizeType * vec_length, &argSpace);
@@ -2038,7 +2050,7 @@ bool oclc::Driver::EnqueueKernel() {
       size_t vec_length = 1;
       // Split into string and optional number to catch vectors
       std::string param_type_as_string(param_type_name);
-      size_t len = param_type_as_string.length();
+      const size_t len = param_type_as_string.length();
       for (size_t index = 0; index < len; index++) {
         if (isdigit(param_type_as_string[index])) {
           vec_length = std::stoi(param_type_as_string.substr(index));
@@ -2085,25 +2097,25 @@ bool oclc::Driver::EnqueueKernel() {
   if (execute_) {
     // display the output from -compare flags
     for (auto &pair : compared_argument_map_) {
-      std::string name = pair.first;
+      const auto &name = pair.first;
       std::string kernelOutput = "";
 
       auto bufferPair = buffer_map.find(name);
       if (bufferPair != buffer_map.end()) {
         std::string expectedValue = pair.second;
         // only compare as many digits as are given in the expected value
-        size_t bufferSize =
+        const size_t bufferSize =
             std::count(expectedValue.begin(), expectedValue.end(), ',') + 1;
         cl_mem compareBuff = bufferPair->second.first;
-        std::string rawType = bufferPair->second.second;
-        size_t dataSize = type_name_to_size_map.find(rawType)->second;
+        const auto &rawType = bufferPair->second.second;
+        const size_t dataSize = type_name_to_size_map.find(rawType)->second;
 
         std::vector<unsigned char> compareBuffer(bufferSize * dataSize);
         err = clEnqueueReadBuffer(queue, compareBuff, CL_TRUE, 0,
                                   bufferSize * dataSize, compareBuffer.data(),
                                   0, nullptr, nullptr);
         OCLC_CHECK_CL(err, "Enqueuing read buffer failed");
-        std::string bufferString =
+        const std::string bufferString =
             BufferToString(compareBuffer.data(), bufferSize, rawType);
         bool almostMatch = false;
         if (rawType == "float" || rawType == "double" || rawType == "char" ||
@@ -2142,23 +2154,23 @@ bool oclc::Driver::EnqueueKernel() {
       std::string kernelOutput = "";
 
       for (auto &pair : printMap.second) {
-        std::string name = pair.first;
+        const auto &name = pair.first;
 
         auto bufferPair = buffer_map.find(name);
         auto scalarPair = kernel_arg_map_.find(name);
         if (bufferPair != buffer_map.end()) {
-          size_t printOffset = pair.second.first;
-          size_t printSize = pair.second.second;
+          const size_t printOffset = pair.second.first;
+          const size_t printSize = pair.second.second;
           cl_mem printBuff = bufferPair->second.first;
-          std::string rawType = bufferPair->second.second;
-          size_t dataSize = type_name_to_size_map.find(rawType)->second;
+          const auto &rawType = bufferPair->second.second;
+          const size_t dataSize = type_name_to_size_map.find(rawType)->second;
 
           std::vector<unsigned char> printBuffer(printSize * dataSize);
           err = clEnqueueReadBuffer(
               queue, printBuff, CL_TRUE, printOffset * dataSize,
               printSize * dataSize, printBuffer.data(), 0, nullptr, nullptr);
           OCLC_CHECK_CL(err, "Enqueuing read buffer failed");
-          std::string bufferString =
+          const std::string bufferString =
               BufferToString(printBuffer.data(), printSize, rawType);
 
           kernelOutput += name;
@@ -2168,9 +2180,9 @@ bool oclc::Driver::EnqueueKernel() {
         } else if (scalarPair != kernel_arg_map_.end()) {
           // we may want to print out the values of scalar inputs, i.e. if they
           // are a random number
-          size_t kernelArgIndex = (scalarPair->second.size() > execution_count_)
-                                      ? execution_count_
-                                      : 0;
+          const size_t kernelArgIndex =
+              (scalarPair->second.size() > execution_count_) ? execution_count_
+                                                             : 0;
           kernelOutput +=
               name + "," + scalarPair->second[kernelArgIndex][0] + "\n";
         }
@@ -2182,7 +2194,7 @@ bool oclc::Driver::EnqueueKernel() {
       std::string kernelOutput = "";
 
       for (auto &pair : showMap.second) {
-        std::string name = pair.first;
+        const std::string name = pair.first;
         auto bufferPair = buffer_map.find(name);
         if (bufferPair != buffer_map.end()) {
           std::array<size_t, 3> region = pair.second;
@@ -2194,7 +2206,8 @@ bool oclc::Driver::EnqueueKernel() {
           cl_mem showBuff = bufferPair->second.first;
           // number of channels per pixel for CL_RGBA
           const size_t channel_count = 4;
-          size_t printSize = region[0] * region[1] * region[2] * channel_count;
+          const size_t printSize =
+              region[0] * region[1] * region[2] * channel_count;
           std::vector<unsigned char> showBuffer(printSize);
 
           size_t origin[3] = {0, 0, 0};
@@ -2202,7 +2215,7 @@ bool oclc::Driver::EnqueueKernel() {
                                    region.data(), 0, 0, showBuffer.data(), 0,
                                    nullptr, nullptr);
           OCLC_CHECK_CL(err, "Enqueuing read buffer failed");
-          std::string bufferString =
+          const std::string bufferString =
               BufferToString(showBuffer.data(), printSize, "uchar");
 
           kernelOutput += name;

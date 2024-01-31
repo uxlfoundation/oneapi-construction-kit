@@ -51,7 +51,7 @@
            %numPlanes = OpConstant %int64T 2
            %planeArea = OpConstant %int64T 32   ; %lineLength * %numLines
 
-; CHECK: define spir_kernel void @test(ptr addrspace(1) [[in:%.*]], ptr addrspace(3) [[scratch:%.*]], ptr addrspace(1) [[out:%.*]])
+; CHECK: define spir_kernel void @test(ptr addrspace(1) noundef [[in:%.*]], ptr addrspace(3) noundef [[scratch:%.*]], ptr addrspace(1) noundef [[out:%.*]])
               %testFn = OpFunction %voidT DontInline %testFnT
                   %in = OpFunctionParameter %intGlobalPtrT
              %scratch = OpFunctionParameter %intLocalPtrT

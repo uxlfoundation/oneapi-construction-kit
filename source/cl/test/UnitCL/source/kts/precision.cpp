@@ -370,8 +370,7 @@ cl_half ConvertFloatToHalf(const T x, RoundingMode rounding) {
 template cl_half ConvertFloatToHalf<cl_float>(const cl_float, RoundingMode);
 template cl_half ConvertFloatToHalf<cl_double>(const cl_double, RoundingMode);
 
-cl_float calcHalfPrecisionULP(const cl_float reference, const cl_half test,
-                              bool denorm_support) {
+cl_float calcHalfPrecisionULP(const cl_float reference, const cl_half test) {
   cl_float test_as_float = ConvertHalfToFloat(test);
   const cl_half ref_as_half = ConvertFloatToHalf(reference);
 
@@ -400,7 +399,6 @@ cl_float calcHalfPrecisionULP(const cl_float reference, const cl_half test,
     test_as_float = std::copysign(65536.0f, test_as_float);
   }
 
-  (void)denorm_support;
   int reference_exp = std::ilogb(reference);
   if (0 == (cargo::bit_cast<uint32_t>(reference) &
             TypeInfo<cl_float>::mantissa_mask)) {
@@ -416,8 +414,7 @@ cl_float calcHalfPrecisionULP(const cl_float reference, const cl_half test,
   return std::scalbn(test_as_float - reference, ulp_exp);
 }
 
-cl_double calcHalfPrecisionULP(const cl_double reference, const cl_half test,
-                               bool denorm_support) {
+cl_double calcHalfPrecisionULP(const cl_double reference, const cl_half test) {
   cl_double test_as_float = ConvertHalfToFloat(test);
   const cl_half ref_as_half = ConvertFloatToHalf(reference);
 
@@ -446,7 +443,6 @@ cl_double calcHalfPrecisionULP(const cl_double reference, const cl_half test,
     test_as_float = std::copysign(65536.0f, test_as_float);
   }
 
-  (void)denorm_support;
   int reference_exp = std::ilogb(reference);
   if (0 == (cargo::bit_cast<uint64_t>(reference) &
             TypeInfo<cl_double>::mantissa_mask)) {

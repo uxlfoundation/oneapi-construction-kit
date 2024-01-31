@@ -55,6 +55,7 @@
 #include "memory_operations.h"
 #include "transform/instantiation_pass.h"
 #include "transform/packetization_helpers.h"
+#include "vectorization_context.h"
 #include "vectorization_unit.h"
 #include "vecz/vecz_choices.h"
 #include "vecz/vecz_target_info.h"
@@ -301,6 +302,14 @@ class Packetizer::Impl : public Packetizer {
   ///
   /// @return Packetized instruction.
   ValuePacket packetizeMemOp(MemOp &Op);
+  /// @brief Packetize a masked atomicrmw or cmpxchg operation.
+  ///
+  /// @param[in] CI Masked atomic builtin call to packetize.
+  /// @param[in] AtomicInfo Information about the masked atomic.
+  ///
+  /// @return Packetized instruction.
+  ValuePacket packetizeMaskedAtomic(
+      CallInst &CI, VectorizationContext::MaskedAtomic AtomicInfo);
   /// @brief Packetize a GEP instruction.
   ///
   /// @param[in] GEP Instruction to packetize.
@@ -325,6 +334,12 @@ class Packetizer::Impl : public Packetizer {
   ///
   /// @return Packetized instruction.
   ValuePacket packetizeFreeze(FreezeInst *FreezeI);
+  /// @brief Packetize an atomic cmpxchg instruction.
+  ///
+  /// @param[in] AtomicI Instruction to packetize.
+  ///
+  /// @return Packetized instruction.
+  ValuePacket packetizeAtomicCmpXchg(AtomicCmpXchgInst *AtomicI);
   /// @brief Packetize a unary operator instruction.
   ///
   /// @param[in] UnOp Instruction to packetize.
@@ -368,7 +383,7 @@ class Packetizer::Impl : public Packetizer {
   ///
   /// @return Packetized instruction.
   Value *vectorizeWorkGroupCall(CallInst *CI,
-                                compiler::utils::BuiltinCall const &Builtin);
+                                const compiler::utils::BuiltinCall &Builtin);
   /// @brief Packetize an alloca instruction.
   ///
   /// @param[in] Alloca Instruction to packetize.
@@ -393,6 +408,22 @@ class Packetizer::Impl : public Packetizer {
   ///
   /// @return Packetized instruction.
   ValuePacket packetizeExtractElement(ExtractElementInst *ExtractElement);
+  /// @brief Packetize an insert value instruction.
+  ///
+  /// Only packetizes inserts into literal struct types.
+  ///
+  /// @param[in] InsertValue Instruction to packetize.
+  ///
+  /// @return Packetized instruction.
+  ValuePacket packetizeInsertValue(InsertValueInst *InsertValue);
+  /// @brief Packetize an extract value instruction.
+  ///
+  /// Only packetizes extracts from literal struct types.
+  ///
+  /// @param[in] ExtractValue Instruction to packetize.
+  ///
+  /// @return Packetized instruction.
+  ValuePacket packetizeExtractValue(ExtractValueInst *ExtractValue);
   /// @brief Packetize a shuffle vector instruction.
   ///
   /// @param[in] Shuffle Instruction to packetize.
@@ -441,7 +472,7 @@ Packetizer::Impl::~Impl() = default;
 bool Packetizer::packetize(llvm::Function &F, llvm::FunctionAnalysisManager &AM,
                            ElementCount Width, unsigned Dim) {
   Impl impl(F, AM, Width, Dim);
-  bool Res = impl.packetize();
+  const bool Res = impl.packetize();
   if (!Res) {
     impl.onFailure();
   }
@@ -658,7 +689,7 @@ bool Packetizer::Impl::packetize() {
       // back to vector type for contiguous loads/stores)
       bool needCast = false;
       auto *const newTy = newAlloca->getType();
-      for (Use &U : alloca->uses()) {
+      for (const Use &U : alloca->uses()) {
         auto *const user = dyn_cast<BitCastInst>(U.getUser());
         if (!user) {
           needCast = true;
@@ -687,7 +718,7 @@ bool Packetizer::Impl::packetize() {
     } else {
       // We couldn't vectorize the type, so create an array instead.
       VECZ_FAIL_IF(SimdWidth.isScalable());
-      unsigned const fixedWidth = SimdWidth.getFixedValue();
+      const unsigned fixedWidth = SimdWidth.getFixedValue();
 
       AllocaInst *const wideAlloca =
           B.CreateAlloca(dataTy, getSizeInt(B, fixedWidth), alloca->getName());
@@ -696,17 +727,17 @@ bool Packetizer::Impl::packetize() {
       // Make sure the alloca has an alignment at least as wide as any of the
       // packetized loads or stores using it.
       SmallVector<Instruction *, 8> users;
-      for (Use &U : alloca->uses()) {
+      for (const Use &U : alloca->uses()) {
         users.push_back(cast<Instruction>(U.getUser()));
       }
       while (!users.empty()) {
         auto *const user = users.pop_back_val();
         if (isa<BitCastInst>(user) || isa<GetElementPtrInst>(user)) {
-          for (Use &U : user->uses()) {
+          for (const Use &U : user->uses()) {
             users.push_back(cast<Instruction>(U.getUser()));
           }
         } else if (auto memop = MemOp::get(user)) {
-          auto const memAlign = memop->getAlignment();
+          const auto memAlign = memop->getAlignment();
           if (memAlign > align.value()) {
             align = Align(memAlign);
           }
@@ -727,7 +758,7 @@ bool Packetizer::Impl::packetize() {
     IC.deleteInstructionLater(alloca);
   }
 
-  compiler::utils::NameMangler Mangler(&F.getContext());
+  const compiler::utils::NameMangler Mangler(&F.getContext());
 
   // Handle __mux_get_sub_group_size specially (i.e., not in BuiltinInfo) since
   // inlining it requires extra vectorization context, such as the vectorization
@@ -864,7 +895,7 @@ Value *Packetizer::Impl::reduceBranchCond(Value *cond, Instruction *terminator,
   // only if the original condition is true for any lane (or for all lanes if
   // the condition is used in a BOSCC block indirection.)
   IRBuilder<> B(terminator);
-  auto const name = cond->getName();
+  const auto name = cond->getName();
 
   // Reduce the packet to a single value
   auto w = conds.size();
@@ -883,7 +914,7 @@ Value *Packetizer::Impl::reduceBranchCond(Value *cond, Instruction *terminator,
     }
   }
 
-  RecurKind kind = allOf ? RecurKind::And : RecurKind::Or;
+  const RecurKind kind = allOf ? RecurKind::And : RecurKind::Or;
 
   // VP reduction intrinsics didn't make it into LLVM 13 so we have to make do
   // by pre-sanitizing the input such that elements past VL get the identity
@@ -944,7 +975,7 @@ Packetizer::Result Packetizer::Impl::packetize(Value *V) {
       // a divergence reduction so it will need reducing manually here.
       if (newCond->getType()->isVectorTy()) {
         IRBuilder<> B(Branch);
-        RecurKind kind = RecurKind::Or;
+        const RecurKind kind = RecurKind::Or;
         newCond = createMaybeVPTargetReduction(B, TTI, newCond, kind, VL);
       }
 
@@ -1148,11 +1179,20 @@ Packetizer::Result Packetizer::Impl::packetizeInstruction(Instruction *Ins) {
     case Instruction::ExtractElement:
       results = packetizeExtractElement(cast<ExtractElementInst>(Ins));
       break;
+    case Instruction::InsertValue:
+      results = packetizeInsertValue(cast<InsertValueInst>(Ins));
+      break;
+    case Instruction::ExtractValue:
+      results = packetizeExtractValue(cast<ExtractValueInst>(Ins));
+      break;
     case Instruction::ShuffleVector:
       results = packetizeShuffleVector(cast<ShuffleVectorInst>(Ins));
       break;
     case Instruction::Freeze:
       results = packetizeFreeze(cast<FreezeInst>(Ins));
+      break;
+    case Instruction::AtomicCmpXchg:
+      results = packetizeAtomicCmpXchg(cast<AtomicCmpXchgInst>(Ins));
       break;
   }
 
@@ -1172,19 +1212,19 @@ Value *Packetizer::Impl::packetizeGroupReduction(Instruction *I) {
   if (!CI || !CI->getCalledFunction()) {
     return nullptr;
   }
-  compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+  const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
   Function *callee = CI->getCalledFunction();
 
-  auto const Builtin = BI.analyzeBuiltin(*callee);
-  auto const Info = BI.isMuxGroupCollective(Builtin.ID);
+  const auto Builtin = BI.analyzeBuiltin(*callee);
+  const auto Info = BI.isMuxGroupCollective(Builtin.ID);
 
   if (!Info || (!Info->isSubGroupScope() && !Info->isWorkGroupScope()) ||
       (!Info->isAnyAll() && !Info->isReduction())) {
     return nullptr;
   }
 
-  bool isWorkGroup = Info->isWorkGroupScope();
-  unsigned argIdx = isWorkGroup ? 1 : 0;
+  const bool isWorkGroup = Info->isWorkGroupScope();
+  const unsigned argIdx = isWorkGroup ? 1 : 0;
 
   SmallVector<Value *, 16> opPackets;
   IRBuilder<> B(CI);
@@ -1245,9 +1285,9 @@ Value *Packetizer::Impl::packetizeGroupBroadcast(Instruction *I) {
   if (!CI || !CI->getCalledFunction()) {
     return nullptr;
   }
-  compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+  const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
   Function *callee = CI->getCalledFunction();
-  auto const Builtin = BI.analyzeBuiltin(*callee);
+  const auto Builtin = BI.analyzeBuiltin(*callee);
 
   bool isWorkGroup = false;
   if (auto Info = BI.isMuxGroupCollective(Builtin.ID)) {
@@ -1262,7 +1302,7 @@ Value *Packetizer::Impl::packetizeGroupBroadcast(Instruction *I) {
 
   IRBuilder<> B(CI);
 
-  unsigned argIdx = isWorkGroup ? 1 : 0;
+  const unsigned argIdx = isWorkGroup ? 1 : 0;
   auto *const src = CI->getArgOperand(argIdx);
 
   auto op = packetize(src);
@@ -1295,6 +1335,7 @@ Value *Packetizer::Impl::packetizeGroupBroadcast(Instruction *I) {
     op.getPacketValues(opPackets);
     auto factor = SimdWidth.divideCoefficientBy(opPackets.size());
     const unsigned subvecSize = factor.getFixedValue();
+    assert(subvecSize > 0 && "Subvector size cannot be zero");
     const unsigned idxVal = cast<ConstantInt>(vecIdx)->getZExtValue();
     // If individual elements are scalar (through instantiation, say) then just
     // use the desired packet directly.
@@ -1345,11 +1386,11 @@ Packetizer::Impl::isSubgroupShuffleLike(Instruction *I) {
   if (!CI || !CI->getCalledFunction()) {
     return std::nullopt;
   }
-  compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+  const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
   Function *callee = CI->getCalledFunction();
 
-  auto const Builtin = BI.analyzeBuiltin(*callee);
-  auto const Info = BI.isMuxGroupCollective(Builtin.ID);
+  const auto Builtin = BI.analyzeBuiltin(*callee);
+  const auto Info = BI.isMuxGroupCollective(Builtin.ID);
 
   if (Info && Info->isSubGroupScope() && Info->isShuffleLike()) {
     return Info;
@@ -1391,7 +1432,7 @@ Value *Packetizer::Impl::packetizeSubgroupShuffle(Instruction *I) {
 
   // We need to sanitize the input index so that it stays within the range of
   // one vectorized group.
-  unsigned const VF = SimdWidth.getFixedValue();
+  const unsigned VF = SimdWidth.getFixedValue();
   auto *const VecIdxFactor = ConstantInt::get(Idx->getType(), VF);
   // This index is the element of the vector-group which holds the desired
   // data, per mux sub-group.
@@ -1449,7 +1490,7 @@ Value *Packetizer::Impl::packetizeSubgroupShuffle(Instruction *I) {
     // width and vectorization factor, that going through memory would be
     // faster.
     Value *ExtractedVec = UndefValue::get(DataVecTy);
-    unsigned const DataNumElts = DataVecTy->getElementCount().getFixedValue();
+    const unsigned DataNumElts = DataVecTy->getElementCount().getFixedValue();
     auto *const BaseIdx = B.CreateMul(VecIdx, B.getInt32(DataNumElts));
     for (unsigned i = 0; i < DataNumElts; i++) {
       auto *const SubIdx = B.CreateAdd(BaseIdx, B.getInt32(i));
@@ -1476,7 +1517,7 @@ Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleXor(
   if (SimdWidth.isScalable()) {
     return Packetizer::Result(*this);
   }
-  unsigned const VF = SimdWidth.getFixedValue();
+  const unsigned VF = SimdWidth.getFixedValue();
 
   auto *const Data = CI->getArgOperand(0);
   auto *const Val = CI->getArgOperand(1);
@@ -1528,7 +1569,7 @@ Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleXor(
 
   auto *const SubgroupLocalID =
       B.CreateCall(SubgroupLocalIDFn, {}, "sg.local.id");
-  auto const Builtin =
+  const auto Builtin =
       Ctx.builtins().analyzeBuiltinCall(*SubgroupLocalID, Dimension);
 
   // Vectorize the sub-group local ID
@@ -1625,7 +1666,7 @@ Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleXor(
 
 Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleUpDown(
     Instruction *I, compiler::utils::GroupCollective ShuffleUpDown) {
-  bool IsDown =
+  const bool IsDown =
       ShuffleUpDown.Op == compiler::utils::GroupCollective::OpKind::ShuffleDown;
   assert((IsDown || ShuffleUpDown.Op ==
                         compiler::utils::GroupCollective::OpKind::ShuffleUp) &&
@@ -1637,7 +1678,7 @@ Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleUpDown(
   if (SimdWidth.isScalable()) {
     return Packetizer::Result(*this);
   }
-  unsigned const VF = SimdWidth.getFixedValue();
+  const unsigned VF = SimdWidth.getFixedValue();
 
   // LHS is 'current' for a down-shuffle, and 'previous' for an up-shuffle.
   auto *const LHSOp = CI->getArgOperand(0);
@@ -1708,7 +1749,7 @@ Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleUpDown(
 
   auto *const SubgroupLocalID =
       B.CreateCall(SubgroupLocalIDFn, {}, "sg.local.id");
-  auto const Builtin =
+  const auto Builtin =
       Ctx.builtins().analyzeBuiltinCall(*SubgroupLocalID, Dimension);
 
   // Vectorize the sub-group local ID
@@ -1870,8 +1911,8 @@ Value *Packetizer::Impl::packetizeMaskVarying(Instruction *I) {
 
     Value *vecMask = nullptr;
 
-    MemOpDesc desc = memop->getDesc();
-    bool isVector = desc.getDataType()->isVectorTy();
+    const MemOpDesc desc = memop->getDesc();
+    const bool isVector = desc.getDataType()->isVectorTy();
 
     // If only the mask operand is varying, we do not need to vectorize the
     // MemOp itself, only reduce the mask with an OR.
@@ -2001,9 +2042,9 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
       if (auto *const alloca = dyn_cast<AllocaInst>(ptr)) {
         if (!needsInstantiation(Ctx, *alloca)) {
           // If it's an alloca we can widen, we can just change the size
-          llvm::TypeSize const allocSize =
+          const llvm::TypeSize allocSize =
               Ctx.dataLayout()->getTypeAllocSize(alloca->getAllocatedType());
-          auto const lifeSize =
+          const auto lifeSize =
               allocSize.isScalable() || SimdWidth.isScalable()
                   ? -1
                   : allocSize.getKnownMinValue() * SimdWidth.getKnownMinValue();
@@ -2015,7 +2056,7 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
       return results;
     }
 
-    auto const Props = Ctx.builtins().analyzeBuiltin(*Callee).properties;
+    const auto Props = Ctx.builtins().analyzeBuiltin(*Callee).properties;
     if (!(Props & compiler::utils::eBuiltinPropertyVectorEquivalent)) {
       return results;
     }
@@ -2049,7 +2090,7 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
     auto *const wideTy =
         getWideType(ty, SimdWidth.divideCoefficientBy(packetWidth));
 
-    auto const n = CI->arg_size();
+    const auto n = CI->arg_size();
     assert(n <= maxOperands && "Intrinsic has too many arguments");
 
     SmallVector<Value *, 16> opPackets[maxOperands];
@@ -2070,7 +2111,7 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
       }
     }
 
-    auto const name = CI->getName();
+    const auto name = CI->getName();
     Type *const types[1] = {wideTy};  // because LLVM 13 is a numpty
     Value *opVals[maxOperands];
     for (unsigned i = 0; i < packetWidth; ++i) {
@@ -2092,9 +2133,12 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
         return packetizeMemOp(*MaskedOp);
       }
     }
+    if (auto AtomicInfo = Ctx.isMaskedAtomicFunction(*Callee)) {
+      return packetizeMaskedAtomic(*CI, *AtomicInfo);
+    }
   }
 
-  auto const Builtin = Ctx.builtins().analyzeBuiltin(*Callee);
+  const auto Builtin = Ctx.builtins().analyzeBuiltin(*Callee);
 
   // Handle scans, which defer to internal builtins.
   if (auto Info = Ctx.builtins().isMuxGroupCollective(Builtin.ID)) {
@@ -2104,7 +2148,7 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
   }
 
   // Handle external builtins.
-  auto const Props = Builtin.properties;
+  const auto Props = Builtin.properties;
   if (Props & compiler::utils::eBuiltinPropertyExecutionFlow ||
       Props & compiler::utils::eBuiltinPropertyWorkItem) {
     return results;
@@ -2140,7 +2184,7 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
   }
 
   auto *const vecTy = dyn_cast<FixedVectorType>(ty);
-  unsigned const scalarWidth = vecTy ? vecTy->getNumElements() : 1;
+  const unsigned scalarWidth = vecTy ? vecTy->getNumElements() : 1;
   unsigned i = 0;
   SmallVector<SmallVector<Value *, 16>, 4> opPackets;
   for (const auto &TargetArg : CalleeVec.args) {
@@ -2213,14 +2257,14 @@ ValuePacket Packetizer::Impl::packetizeGroupScan(
 
   compiler::utils::NameMangler mangler(&CI->getContext());
 
-  unsigned ArgOffset = Scan.isWorkGroupScope() ? 1 : 0;
+  const unsigned ArgOffset = Scan.isWorkGroupScope() ? 1 : 0;
 
   // The operands and types for the internal builtin
   SmallVector<Value *, 2> Ops = {
       packetize(CI->getArgOperand(ArgOffset)).getAsValue()};
   SmallVector<Type *, 2> Tys = {getWideType(CI->getType(), SimdWidth)};
 
-  bool isInclusive =
+  const bool isInclusive =
       Scan.Op == compiler::utils::GroupCollective::OpKind::ScanInclusive;
   StringRef op = "add";
   // min/max scans are prefixed with s/u if they are signed/unsigned integer
@@ -2278,13 +2322,13 @@ ValuePacket Packetizer::Impl::packetizeGroupScan(
 
   // We don't bother with VP for fixed vectors, because it doesn't save us
   // anything.
-  bool const VP = VL && SimdWidth.isScalable();
+  const bool VP = VL && SimdWidth.isScalable();
 
   O << VectorizationContext::InternalBuiltinPrefix << "sub_group_scan_"
     << (isInclusive ? "inclusive" : "exclusive") << "_" << op
     << (VP ? "_vp" : "") << "_";
 
-  compiler::utils::TypeQualifiers VecQuals(
+  const compiler::utils::TypeQualifiers VecQuals(
       compiler::utils::eTypeQualNone, opIsSignedInt
                                           ? compiler::utils::eTypeQualSignedInt
                                           : compiler::utils::eTypeQualNone);
@@ -2296,7 +2340,8 @@ ValuePacket Packetizer::Impl::packetizeGroupScan(
   if (VP) {
     Ops.push_back(VL);
     Tys.push_back(VL->getType());
-    compiler::utils::TypeQualifiers VLQuals(compiler::utils::eTypeQualNone);
+    const compiler::utils::TypeQualifiers VLQuals(
+        compiler::utils::eTypeQualNone);
     if (!mangler.mangleType(O, Tys[1], VLQuals)) {
       return results;
     }
@@ -2399,13 +2444,17 @@ Value *Packetizer::Impl::vectorizeInstruction(Instruction *Ins) {
 }
 
 ValuePacket Packetizer::Impl::packetizeLoad(LoadInst *Load) {
-  auto Op = *MemOp::get(Load);
-  return packetizeMemOp(Op);
+  if (auto Op = MemOp::get(Load)) {
+    return packetizeMemOp(*Op);
+  }
+  return ValuePacket{};
 }
 
 ValuePacket Packetizer::Impl::packetizeStore(StoreInst *Store) {
-  auto Op = *MemOp::get(Store);
-  return packetizeMemOp(Op);
+  if (auto Op = MemOp::get(Store)) {
+    return packetizeMemOp(*Op);
+  }
+  return ValuePacket{};
 }
 
 ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
@@ -2422,7 +2471,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
   }
 
   if (auto *const vecTy = dyn_cast<FixedVectorType>(dataTy)) {
-    auto const elts = vecTy->getNumElements();
+    const auto elts = vecTy->getNumElements();
     if (elts & (elts - 1)) {
       // If the data type is a vector with number of elements not a power of 2,
       // it is not safe to widen, because of alignment padding. Reject it and
@@ -2431,7 +2480,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     }
   }
 
-  auto const packetWidth = getPacketWidthForType(dataTy);
+  const auto packetWidth = getPacketWidthForType(dataTy);
   // Note: NOT const because LLVM 11 can't multiply a const ElementCount.
   auto factor = SimdWidth.divideCoefficientBy(packetWidth);
 
@@ -2449,7 +2498,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
   IRBuilder<> B(op.getInstr());
   IC.deleteInstructionLater(op.getInstr());
 
-  auto const name = op.getInstr()->getName();
+  const auto name = op.getInstr()->getName();
   auto *const mask = op.getMaskOperand();
   auto *const data = op.getDataOperand();
   auto *const stride = SAR.buildMemoryStride(B, ptr, dataTy);
@@ -2465,9 +2514,10 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
   }
 
   auto *const constantStrideVal = dyn_cast_or_null<ConstantInt>(stride);
-  int constantStride =
+  const int constantStride =
       constantStrideVal ? constantStrideVal->getSExtValue() : 0;
-  bool validStride = stride && (!constantStrideVal || constantStride != 0);
+  const bool validStride =
+      stride && (!constantStrideVal || constantStride != 0);
   if (!validStride) {
     if (dataTy->isPointerTy()) {
       // We do not have vector-of-pointers support in Vecz builtins, hence
@@ -2475,7 +2525,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
       return results;
     }
 
-    bool const scalable = SimdWidth.isScalable();
+    const bool scalable = SimdWidth.isScalable();
     if (!mask && dataTy->isVectorTy() && !scalable) {
       // unmasked scatter/gathers are better off instantiated..
       return results;
@@ -2506,12 +2556,12 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
       // is the same.
       // We only handle the one packet right now.
       PACK_FAIL_IF(ptrPacket.size() != 1);
-      auto const scalarWidth = vecPtrTy->getNumElements();
+      const auto scalarWidth = vecPtrTy->getNumElements();
       Value *&vecPtr = ptrPacket.front();
-      ElementCount const wideEC = factor * scalarWidth;
+      const ElementCount wideEC = factor * scalarWidth;
       // Sub-splat the pointers such that we get, e.g.:
       // <A, B> -> x4 -> <A, A, A, A, B, B, B, B>
-      bool const success =
+      const bool success =
           createSubSplats(Ctx.targetInfo(), B, ptrPacket, scalarWidth);
       PACK_FAIL_IF(!success);
       auto *const newPtrTy = llvm::VectorType::get(
@@ -2532,8 +2582,8 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
       // <A, A+1, A+2, A+3, B, B+1, B+2, B+3>
       vecPtr = B.CreateInBoundsGEP(scalarTy, vecPtr, idxVector);
     } else if (vecPtrTy && !scalable) {
-      auto const simdWidth = factor.getFixedValue();
-      auto const scalarWidth = vecPtrTy->getNumElements();
+      const auto simdWidth = factor.getFixedValue();
+      const auto scalarWidth = vecPtrTy->getNumElements();
 
       // Build shuffle mask to widen the pointer
       SmallVector<Constant *, 16> indices;
@@ -2615,7 +2665,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     Value *packetStride = nullptr;
     if (packetWidth != 1) {
       // Make sure the stride is at least as wide as a GEP index needs to be
-      unsigned const indexBits = Ctx.dataLayout()->getIndexSizeInBits(
+      const unsigned indexBits = Ctx.dataLayout()->getIndexSizeInBits(
           ptr->getType()->getPointerAddressSpace());
       unsigned strideBits = stride->getType()->getPrimitiveSizeInBits();
       auto *const elementStride =
@@ -2623,7 +2673,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
               ? B.CreateSExt(stride, B.getIntNTy((strideBits = indexBits)))
               : stride;
 
-      auto const simdWidth = factor.getFixedValue();
+      const auto simdWidth = factor.getFixedValue();
       packetStride =
           B.CreateMul(elementStride, B.getIntN(strideBits, simdWidth),
                       Twine(name, ".packet_stride"));
@@ -2674,7 +2724,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
 
     Value *packetStride = nullptr;
     if (packetWidth != 1) {
-      auto const simdWidth = factor.getFixedValue();
+      const auto simdWidth = factor.getFixedValue();
       packetStride = B.getInt64(simdWidth);
     }
 
@@ -2682,12 +2732,13 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
     // alignment, but may be overaligned. After vectorization it can't be
     // larger than the pointee element type.
     unsigned alignment = op.getAlignment();
-    unsigned sizeInBits = dataTy->getPrimitiveSizeInBits().getKnownMinValue();
+    const unsigned sizeInBits =
+        dataTy->getPrimitiveSizeInBits().getKnownMinValue();
     alignment = std::min(alignment, std::max(sizeInBits, 8u) / 8u);
 
     // Regular load or store.
     if (mask) {
-      bool isVectorMask = mask->getType()->isVectorTy();
+      const bool isVectorMask = mask->getType()->isVectorTy();
       auto maskPacket = packetizeAndGet(mask, packetWidth);
       PACK_FAIL_IF(maskPacket.empty());
 
@@ -2696,8 +2747,8 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
       auto *const vecTy = dyn_cast<FixedVectorType>(dataTy);
       if (vecTy && !isVectorMask) {
         PACK_FAIL_IF(factor.isScalable());
-        unsigned simdWidth = factor.getFixedValue();
-        unsigned scalarWidth = vecTy->getNumElements();
+        const unsigned simdWidth = factor.getFixedValue();
+        const unsigned scalarWidth = vecTy->getNumElements();
 
         // Build shuffle mask to widen the vector condition.
         SmallVector<int, 16> widenMask;
@@ -2729,7 +2780,7 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
         }
       }
     } else {
-      TargetInfo &VTI = Ctx.targetInfo();
+      const TargetInfo &VTI = Ctx.targetInfo();
       if (op.isLoad()) {
         auto *const one = B.getInt64(1);
         for (unsigned i = 0; i != packetWidth; ++i) {
@@ -2765,6 +2816,81 @@ ValuePacket Packetizer::Impl::packetizeMemOp(MemOp &op) {
   return results;
 }
 
+ValuePacket Packetizer::Impl::packetizeMaskedAtomic(
+    CallInst &CI, VectorizationContext::MaskedAtomic AtomicInfo) {
+  ValuePacket results;
+
+  const bool IsCmpXchg = AtomicInfo.isCmpXchg();
+
+  Value *const ptrArg = CI.getArgOperand(0);
+  Value *const valOrCmpArg = CI.getArgOperand(1);
+  Value *const maskArg = CI.getArgOperand(2 + IsCmpXchg);
+
+  assert(AtomicInfo.ValTy == valOrCmpArg->getType() && "AtomicInfo mismatch");
+  const auto packetWidth = getPacketWidthForType(valOrCmpArg->getType());
+
+  if (VL && packetWidth != 1) {
+    emitVeczRemarkMissed(&F, &CI,
+                         "Can not vector-predicate packets larger than 1");
+    return {};
+  }
+
+  ValuePacket valOrCmpPacket;
+  const Result valResult = packetize(valOrCmpArg);
+  PACK_FAIL_IF(!valResult);
+  valResult.getPacketValues(packetWidth, valOrCmpPacket);
+  PACK_FAIL_IF(valOrCmpPacket.empty());
+
+  ValuePacket newValPacket;
+  if (IsCmpXchg) {
+    Value *const newValArg = CI.getArgOperand(2);
+    const Result newValResult = packetize(newValArg);
+    PACK_FAIL_IF(!newValResult);
+    newValResult.getPacketValues(packetWidth, newValPacket);
+    PACK_FAIL_IF(newValPacket.empty());
+  }
+
+  ValuePacket ptrPacket;
+  const Result ptrResult = packetize(ptrArg);
+  PACK_FAIL_IF(!ptrResult);
+  ptrResult.getPacketValues(packetWidth, ptrPacket);
+  PACK_FAIL_IF(ptrPacket.empty());
+
+  ValuePacket maskPacket;
+  const Result maskResult = packetize(maskArg);
+  PACK_FAIL_IF(!maskResult);
+  maskResult.getPacketValues(packetWidth, maskPacket);
+  PACK_FAIL_IF(maskPacket.empty());
+
+  IRBuilder<> B(&CI);
+  IC.deleteInstructionLater(&CI);
+
+  for (unsigned i = 0; i != packetWidth; ++i) {
+    auto *const ptr = ptrPacket[i];
+    auto *const valOrCmp = valOrCmpPacket[i];
+
+    AtomicInfo.ValTy = valOrCmp->getType();
+    AtomicInfo.PointerTy = ptr->getType();
+    auto *maskedAtomicF =
+        Ctx.getOrCreateMaskedAtomicFunction(AtomicInfo, Choices, SimdWidth);
+    PACK_FAIL_IF(!maskedAtomicF);
+
+    SmallVector<Value *, 4> args = {ptr, valOrCmp};
+    if (IsCmpXchg) {
+      args.push_back(newValPacket[i]);
+    }
+    args.push_back(maskPacket[i]);
+    if (AtomicInfo.IsVectorPredicated) {
+      assert(VL && "Missing vector length");
+      args.push_back(VL);
+    }
+
+    results.push_back(B.CreateCall(maskedAtomicF, args));
+  }
+
+  return results;
+}
+
 void Packetizer::Impl::vectorizeDI(Instruction *, Value *) {
   // FIXME: Reinstate support for vectorizing debug info
   return;
@@ -2785,7 +2911,7 @@ ValuePacket Packetizer::Impl::packetizeGEP(GetElementPtrInst *GEP) {
   // Work out the packet width from the pointed to type, rather than the
   // pointer type itself, because this is the width the memops will be using.
   auto *const ty = GEP->getSourceElementType();
-  auto const packetWidth = getPacketWidthForType(ty);
+  const auto packetWidth = getPacketWidthForType(ty);
 
   // It is legal to create a GEP with a mixture of scalar and vector operands.
   // If any operand is a vector, the result will be a vector of pointers.
@@ -2823,10 +2949,10 @@ ValuePacket Packetizer::Impl::packetizeGEP(GetElementPtrInst *GEP) {
   IRBuilder<> B(GEP);
   IC.deleteInstructionLater(GEP);
 
-  bool inBounds = GEP->isInBounds();
-  auto const name = GEP->getName();
+  const bool inBounds = GEP->isInBounds();
+  const auto name = GEP->getName();
 
-  auto const numIndices = opPackets.size();
+  const auto numIndices = opPackets.size();
   SmallVector<Value *, 4> opVals;
   opVals.resize(numIndices);
   for (unsigned i = 0; i < packetWidth; ++i) {
@@ -2908,13 +3034,56 @@ ValuePacket Packetizer::Impl::packetizeFreeze(FreezeInst *FreezeI) {
   resC.getPacketValues(src);
   PACK_FAIL_IF(src.empty());
 
-  auto const packetWidth = src.size();
-  auto const name = FreezeI->getName();
+  const auto packetWidth = src.size();
+  const auto name = FreezeI->getName();
 
   IRBuilder<> B(FreezeI);
   for (unsigned i = 0; i < packetWidth; ++i) {
     results.push_back(B.CreateFreeze(src[i], name));
   }
+  return results;
+}
+
+ValuePacket Packetizer::Impl::packetizeAtomicCmpXchg(
+    AtomicCmpXchgInst *AtomicI) {
+  ValuePacket results;
+
+  VectorizationContext::MaskedAtomic MA;
+  MA.VF = SimdWidth;
+  MA.IsVectorPredicated = VU.choices().vectorPredication();
+
+  MA.Align = AtomicI->getAlign();
+  MA.BinOp = AtomicRMWInst::BAD_BINOP;
+  MA.IsWeak = AtomicI->isWeak();
+  MA.IsVolatile = AtomicI->isVolatile();
+  MA.Ordering = AtomicI->getSuccessOrdering();
+  MA.CmpXchgFailureOrdering = AtomicI->getFailureOrdering();
+  MA.SyncScope = AtomicI->getSyncScopeID();
+
+  IRBuilder<> B(AtomicI);
+
+  // Set up the arguments to this function
+  Value *Ptr = packetize(AtomicI->getPointerOperand()).getAsValue();
+  Value *Cmp = packetize(AtomicI->getCompareOperand()).getAsValue();
+  Value *New = packetize(AtomicI->getNewValOperand()).getAsValue();
+
+  MA.ValTy = Cmp->getType();
+  MA.PointerTy = Ptr->getType();
+
+  auto *const TrueMask = createAllTrueMask(B, SimdWidth);
+  SmallVector<Value *, 8> MaskedFnArgs = {Ptr, Cmp, New, TrueMask};
+  if (VL) {
+    MaskedFnArgs.push_back(VL);
+  }
+
+  Function *MaskedAtomicFn =
+      Ctx.getOrCreateMaskedAtomicFunction(MA, VU.choices(), SimdWidth);
+  PACK_FAIL_IF(!MaskedAtomicFn);
+
+  CallInst *MaskedCI = B.CreateCall(MaskedAtomicFn, MaskedFnArgs);
+
+  results.push_back(MaskedCI);
+
   return results;
 }
 
@@ -3016,7 +3185,7 @@ ValuePacket Packetizer::Impl::packetizeSelect(SelectInst *Select) {
   PACK_FAIL_IF(!resC);
 
   IRBuilder<> B(Select);
-  bool isVectorSelect = cond->getType()->isVectorTy();
+  const bool isVectorSelect = cond->getType()->isVectorTy();
   SmallVector<Value *, 16> vecC;
   if (UVR.isVarying(cond)) {
     resC.getPacketValues(packetWidth, vecC);
@@ -3098,8 +3267,8 @@ Value *Packetizer::Impl::vectorizeCall(CallInst *CI) {
   }
 
   // Handle external builtins.
-  compiler::utils::BuiltinInfo &BI = Ctx.builtins();
-  auto const Builtin = BI.analyzeBuiltinCall(*CI, Dimension);
+  const compiler::utils::BuiltinInfo &BI = Ctx.builtins();
+  const auto Builtin = BI.analyzeBuiltinCall(*CI, Dimension);
 
   if (Builtin.properties & compiler::utils::eBuiltinPropertyExecutionFlow) {
     return nullptr;
@@ -3207,7 +3376,7 @@ Value *Packetizer::Impl::vectorizeCall(CallInst *CI) {
 }
 
 Value *Packetizer::Impl::vectorizeWorkGroupCall(
-    CallInst *CI, compiler::utils::BuiltinCall const &Builtin) {
+    CallInst *CI, const compiler::utils::BuiltinCall &Builtin) {
   // Insert instructions after the call to the builtin, since they reference
   // the result of that call.
   IRBuilder<> B(buildAfter(CI, F));
@@ -3234,7 +3403,7 @@ Value *Packetizer::Impl::vectorizeWorkGroupCall(
   Value *Splat = B.CreateVectorSplat(SimdWidth, IDToSplat);
 
   // Add an index sequence [0, 1, 2, ...] to the value unless uniform.
-  auto const Uniformity = Builtin.uniformity;
+  const auto Uniformity = Builtin.uniformity;
   if (Uniformity == compiler::utils::eBuiltinUniformityInstanceID ||
       Uniformity == compiler::utils::eBuiltinUniformityMaybeInstanceID) {
     Value *StepVector =
@@ -3283,7 +3452,7 @@ Value *Packetizer::Impl::vectorizeAlloca(AllocaInst *alloca) {
   // case" is actually the most likely.
   //
   VECZ_FAIL_IF(SimdWidth.isScalable());
-  unsigned fixedWidth = SimdWidth.getFixedValue();
+  const unsigned fixedWidth = SimdWidth.getFixedValue();
   IRBuilder<> B(alloca);
   auto *const ty = alloca->getAllocatedType();
   AllocaInst *wideAlloca =
@@ -3643,6 +3812,70 @@ ValuePacket Packetizer::Impl::packetizeExtractElement(
   return results;
 }
 
+ValuePacket Packetizer::Impl::packetizeInsertValue(
+    InsertValueInst *InsertValue) {
+  ValuePacket results;
+
+  Value *const Val = InsertValue->getInsertedValueOperand();
+  Value *const Aggregate = InsertValue->getAggregateOperand();
+
+  // We can only packetize literal struct types
+  if (auto *StructTy = dyn_cast<StructType>(Aggregate->getType());
+      !StructTy || !StructTy->isLiteral()) {
+    return results;
+  }
+
+  Value *PackAggregate = packetizeIfVarying(Aggregate);
+  PACK_FAIL_IF(!PackAggregate);
+
+  Value *PackVal = packetizeIfVarying(Val);
+  PACK_FAIL_IF(!PackVal);
+
+  const bool IsValVarying = Val != PackVal;
+  const bool IsAggregateVarying = Aggregate != PackAggregate;
+  if (!IsAggregateVarying && IsValVarying) {
+    // If the aggregate wasn't varying but the value was
+    PackAggregate = packetize(Aggregate).getAsValue();
+  } else if (IsAggregateVarying && !IsValVarying) {
+    // If the aggregate was varying but the value wasn't
+    PackVal = packetize(Val).getAsValue();
+  } else if (!IsAggregateVarying && !IsValVarying) {
+    // If both were uniform
+    return results;
+  }
+
+  IRBuilder<> B(buildAfter(InsertValue, F));
+
+  results.push_back(
+      B.CreateInsertValue(PackAggregate, PackVal, InsertValue->getIndices()));
+
+  IC.deleteInstructionLater(InsertValue);
+  return results;
+}
+
+ValuePacket Packetizer::Impl::packetizeExtractValue(
+    ExtractValueInst *ExtractValue) {
+  ValuePacket results;
+
+  Value *const Aggregate = ExtractValue->getAggregateOperand();
+  // We can only packetize literal struct types
+  if (auto *StructTy = dyn_cast<StructType>(Aggregate->getType());
+      !StructTy || !StructTy->isLiteral()) {
+    return results;
+  }
+
+  Value *PackAggregate = packetizeIfVarying(Aggregate);
+  PACK_FAIL_IF(!PackAggregate);
+
+  IRBuilder<> B(buildAfter(ExtractValue, F));
+
+  results.push_back(
+      B.CreateExtractValue(PackAggregate, ExtractValue->getIndices()));
+
+  IC.deleteInstructionLater(ExtractValue);
+  return results;
+}
+
 ValuePacket Packetizer::Impl::packetizeShuffleVector(
     ShuffleVectorInst *Shuffle) {
   Value *const srcA = Shuffle->getOperand(0);
@@ -3656,7 +3889,7 @@ ValuePacket Packetizer::Impl::packetizeShuffleVector(
 
   ValuePacket results;
   IRBuilder<> B(buildAfter(Shuffle, F));
-  auto const scalarWidth = multi_llvm::getVectorNumElements(tyA);
+  const auto scalarWidth = multi_llvm::getVectorNumElements(tyA);
 
   if (SimdWidth.isScalable()) {
     PACK_FAIL_IF(packetWidth != 1);
@@ -3668,10 +3901,10 @@ ValuePacket Packetizer::Impl::packetizeShuffleVector(
     } else {
       // It isn't safe to do it if it's not a power of 2.
       PACK_FAIL_IF(!isPowerOf2_32(scalarWidth));
-      TargetInfo &VTI = Ctx.targetInfo();
+      const TargetInfo &VTI = Ctx.targetInfo();
 
-      auto const dstScalarWidth = multi_llvm::getVectorNumElements(ty);
-      auto const fullWidth = SimdWidth * dstScalarWidth;
+      const auto dstScalarWidth = multi_llvm::getVectorNumElements(ty);
+      const auto fullWidth = SimdWidth * dstScalarWidth;
 
       // If we're vector-predicating a vector access, scale the vector length
       // up by the original number of vector elements.

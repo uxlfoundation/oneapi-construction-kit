@@ -24,7 +24,7 @@ struct MDAllocatorTypeTest : MDAllocatorTest {};
 TYPED_TEST_SUITE_P(MDAllocatorTypeTest);
 
 TYPED_TEST_P(MDAllocatorTypeTest, ManualAllocation) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   EXPECT_FALSE(this->userdata.allocated);
 
   auto alloc = helper.get_allocator<TypeParam>();
@@ -38,11 +38,11 @@ TYPED_TEST_P(MDAllocatorTypeTest, ManualAllocation) {
 }
 
 TYPED_TEST_P(MDAllocatorTypeTest, ManualArrayAllocation) {
-  md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
+  const md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   EXPECT_FALSE(this->userdata.allocated);
 
   auto alloc = helper.get_allocator<TypeParam>();
-  size_t arr_size = 8;
+  const size_t arr_size = 8;
   TypeParam *i = alloc.allocate(arr_size);
   EXPECT_NE(i, nullptr);
   EXPECT_TRUE(this->userdata.allocated);
@@ -55,7 +55,7 @@ TYPED_TEST_P(MDAllocatorTypeTest, ManualArrayAllocation) {
 TYPED_TEST_P(MDAllocatorTypeTest, DefaultCallback) {
   this->hooks.allocate = nullptr;
   this->hooks.deallocate = nullptr;
-  md::AllocatorHelper<> default_alloc(&this->hooks, nullptr);
+  const md::AllocatorHelper<> default_alloc(&this->hooks, nullptr);
   auto alloc = default_alloc.get_allocator<TypeParam>();
   TypeParam *i = alloc.allocate(1);
   EXPECT_NE(i, nullptr);
@@ -66,7 +66,8 @@ TYPED_TEST_P(MDAllocatorTypeTest, AllocateShared) {
   md::AllocatorHelper<> helper(&this->hooks, &this->userdata);
   {
     EXPECT_FALSE(this->userdata.allocated);
-    std::shared_ptr<TypeParam> intptr = helper.allocate_shared<TypeParam>(22);
+    const std::shared_ptr<TypeParam> intptr =
+        helper.allocate_shared<TypeParam>(22);
     EXPECT_TRUE(this->userdata.allocated);
     EXPECT_FALSE(this->userdata.deallocated);
   }

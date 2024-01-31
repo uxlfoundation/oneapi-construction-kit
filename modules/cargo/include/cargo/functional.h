@@ -40,8 +40,9 @@ namespace cargo {
 /// @param args Arguments to call the function with
 ///
 /// @return The result of calling `f` with the given arguments.
-template <typename Fn, typename... Args,
-          enable_if_t<std::is_member_pointer<decay_t<Fn>>::value> * = nullptr>
+template <
+    typename Fn, typename... Args,
+    std::enable_if_t<std::is_member_pointer_v<std::decay_t<Fn>>> * = nullptr>
 constexpr auto invoke(Fn &&f, Args &&...args) noexcept(
     noexcept(std::mem_fn(f)(std::forward<Args>(args)...)))
     -> decltype(std::mem_fn(f)(std::forward<Args>(args)...)) {
@@ -57,8 +58,9 @@ constexpr auto invoke(Fn &&f, Args &&...args) noexcept(
 /// @param args Arguments to call the function with
 ///
 /// @return The result of calling `f` with the given arguments.
-template <typename Fn, typename... Args,
-          enable_if_t<!std::is_member_pointer<decay_t<Fn>>::value> * = nullptr>
+template <
+    typename Fn, typename... Args,
+    std::enable_if_t<!std::is_member_pointer_v<std::decay_t<Fn>>> * = nullptr>
 constexpr auto invoke(Fn &&f, Args &&...args) noexcept(
     noexcept(std::forward<Fn>(f)(std::forward<Args>(args)...)))
     -> decltype(std::forward<Fn>(f)(std::forward<Args>(args)...)) {
@@ -119,8 +121,8 @@ using is_invocable_r =
 /// @tparam T Type to wrap if it is a reference.
 template <class T>
 using wrap_reference_t =
-    conditional_t<std::is_reference<T>::value,
-                  std::reference_wrapper<remove_reference_t<T>>, T>;
+    std::conditional_t<std::is_reference_v<T>,
+                       std::reference_wrapper<std::remove_reference_t<T>>, T>;
 
 /// @}
 }  // namespace cargo

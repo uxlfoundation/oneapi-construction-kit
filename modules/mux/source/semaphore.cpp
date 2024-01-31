@@ -21,7 +21,7 @@
 mux_result_t muxCreateSemaphore(mux_device_t device,
                                 mux_allocator_info_t allocator_info,
                                 mux_semaphore_t *out_semaphore) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return mux_error_invalid_value;
@@ -35,7 +35,7 @@ mux_result_t muxCreateSemaphore(mux_device_t device,
     return mux_error_null_out_parameter;
   }
 
-  mux_result_t error =
+  const mux_result_t error =
       muxSelectCreateSemaphore(device, allocator_info, out_semaphore);
 
   if (mux_success == error) {
@@ -47,7 +47,7 @@ mux_result_t muxCreateSemaphore(mux_device_t device,
 
 void muxDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
                          mux_allocator_info_t allocator_info) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(device)) {
     return;
@@ -65,7 +65,7 @@ void muxDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
 }
 
 mux_result_t muxResetSemaphore(mux_semaphore_t semaphore) {
-  tracer::TraceGuard<tracer::Mux> guard(__func__);
+  const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(semaphore)) {
     return mux_error_invalid_value;

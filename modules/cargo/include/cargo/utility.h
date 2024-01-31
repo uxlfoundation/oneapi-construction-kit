@@ -79,9 +79,9 @@ template <typename Dest, typename Source>
 inline Dest bit_cast(const Source &source) {
   static_assert(sizeof(Dest) == sizeof(Source),
                 "Dest and Source must be the same size");
-  static_assert(std::is_trivial<Dest>::value, "Dest must be a trivial type");
+  static_assert(std::is_trivial_v<Dest>, "Dest must be a trivial type");
   // Older versions of GCC we support do not have std::is_trivially_copyable.
-  static_assert(is_trivially_copyable<Source>::value,
+  static_assert(std::is_trivially_copyable_v<Source>,
                 "Source must be trivially copyable");
   // KLOCWORK "UNINIT.STACK.MUST" possible false positive
   // Initialization of dest looks like an uninitialized access to Klocwork
@@ -113,17 +113,18 @@ inline Dest bit_cast(const Source &source) {
 /// @param[in] source Cargo container to construct from.
 ///
 /// @return Returns the contents of `source` copied into a `Dest` object.
-template <class Dest, class Src,
-          enable_if_t<is_detected<detail::data_member_fn, Src>::value &&
-                      is_detected<detail::size_member_fn, Src>::value &&
-                      is_detected<detail::subscript_member_fn, Src>::value &&
-                      is_detected<detail::subscript_member_fn, Dest>::value &&
-                      is_detected<detail::ptr_len_constructor, Dest,
-                                  typename Src::const_pointer>::value &&
-                      has_value_type_convertible_to<typename Src::value_type,
-                                                    Dest>::value> * = nullptr>
+template <
+    class Dest, class Src,
+    std::enable_if_t<is_detected<detail::data_member_fn, Src>::value &&
+                     is_detected<detail::size_member_fn, Src>::value &&
+                     is_detected<detail::subscript_member_fn, Src>::value &&
+                     is_detected<detail::subscript_member_fn, Dest>::value &&
+                     is_detected<detail::ptr_len_constructor, Dest,
+                                 typename Src::const_pointer>::value &&
+                     has_value_type_convertible_to<typename Src::value_type,
+                                                   Dest>::value> * = nullptr>
 Dest as(const Src &source) {
-  static_assert(!std::is_reference<Dest>::value,
+  static_assert(!std::is_reference_v<Dest>,
                 "cargo::as cannot convert to a reference");
   return Dest(source.data(), source.size());
 }
@@ -144,28 +145,29 @@ Dest as(const Src &source) {
 /// @param[in] source Cargo container to construct from.
 ///
 /// @return Returns the contents of `source` copied into a `Dest` object.
-template <class Dest, class Src,
-          enable_if_t<is_detected<detail::subscript_member_fn, Src>::value &&
-                      is_detected<detail::subscript_member_fn, Dest>::value &&
-                      is_detected<detail::iterator_constructor, Dest,
-                                  typename Src::value_type *>::value &&
-                      !is_detected<detail::ptr_len_constructor, Dest,
-                                   typename Src::const_pointer>::value &&
-                      has_value_type_convertible_to<typename Src::value_type,
-                                                    Dest>::value> * = nullptr>
+template <
+    class Dest, class Src,
+    std::enable_if_t<is_detected<detail::subscript_member_fn, Src>::value &&
+                     is_detected<detail::subscript_member_fn, Dest>::value &&
+                     is_detected<detail::iterator_constructor, Dest,
+                                 typename Src::value_type *>::value &&
+                     !is_detected<detail::ptr_len_constructor, Dest,
+                                  typename Src::const_pointer>::value &&
+                     has_value_type_convertible_to<typename Src::value_type,
+                                                   Dest>::value> * = nullptr>
 Dest as(const Src &source) {
-  static_assert(!std::is_reference<Dest>::value,
+  static_assert(!std::is_reference_v<Dest>,
                 "cargo::as cannot convert to a reference");
   return Dest(source.cbegin(), source.cend());
 }
 
 /// @brief Catch-all specialization that produces a compiler error.
-template <
-    class Dest, class Src,
-    enable_if_t<!is_detected<detail::iterator_constructor, Dest,
-                             typename Src::value_type *>::value &&
-                !is_detected<detail::ptr_len_constructor, Dest,
-                             typename Src::const_pointer>::value> * = nullptr>
+template <class Dest, class Src,
+          std::enable_if_t<!is_detected<detail::iterator_constructor, Dest,
+                                        typename Src::value_type *>::value &&
+                           !is_detected<detail::ptr_len_constructor, Dest,
+                                        typename Src::const_pointer>::value> * =
+              nullptr>
 Dest as(const Src) {
   // This assertion is just the opposite of the enable_if_t above, so it will
   // always trigger when this specialization is selected.

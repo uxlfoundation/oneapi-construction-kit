@@ -64,7 +64,7 @@ class GlobalSubgroupInfo {
   ///
   /// The function must already exist in the map.
   inline const SubgroupInfo *operator[](const llvm::Function *F) const {
-    const_iterator I = FunctionMap.find(F);
+    const const_iterator I = FunctionMap.find(F);
     assert(I != FunctionMap.end() && "Function not in sub-group info!");
     return I->second.get();
   }

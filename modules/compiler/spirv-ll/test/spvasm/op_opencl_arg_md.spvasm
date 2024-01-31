@@ -58,11 +58,11 @@
                 OpFunctionEnd
 
 
-; CHECK: define spir_kernel void @my_kernel(ptr addrspace(1) %a,
-; CHECK-SAME:                              [3 x ptr addrspace(1)] %b, ptr addrspace(3) %c,
-; CHECK-GE17-SAME:                         target("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0) %d
-; CHECK-LT17-SAME:                         ptr addrspace(1) %d
-; CHECK-SAME:                              ptr addrspace(1) %e)
+; CHECK: define spir_kernel void @my_kernel(ptr addrspace(1) noundef %a,
+; CHECK-SAME:                              [3 x ptr addrspace(1)] noundef %b, ptr addrspace(3) noundef %c,
+; CHECK-GE17-SAME:                         target("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0) noundef %d
+; CHECK-LT17-SAME:                         ptr addrspace(1) noundef %d
+; CHECK-SAME:                              ptr addrspace(1) noundef %e)
 
 ; CHECK-SAME: !kernel_arg_addr_space !0 !kernel_arg_access_qual !1 !kernel_arg_type !2 !kernel_arg_base_type !2 !kernel_arg_type_qual !3 !kernel_arg_name !4 {
 

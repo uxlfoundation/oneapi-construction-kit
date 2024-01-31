@@ -16,9 +16,9 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                                  \
-  TYPE __abacus_add_sat(TYPE x, TYPE y) {          \
-    return abacus::detail::integer::add_sat(x, y); \
+#define DEF(TYPE)                                    \
+  TYPE ABACUS_API __abacus_add_sat(TYPE x, TYPE y) { \
+    return abacus::detail::integer::add_sat(x, y);   \
   }
 
 DEF(abacus_char);

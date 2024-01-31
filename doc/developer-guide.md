@@ -1001,6 +1001,63 @@ gotchas:
    they are passed though the C preprocessor before testing them, since this
    will eliminate all the include directives.
 
+### Testing oneapi-construction-kit application examples using official Intel oneAPI Base Toolkit
+
+Download the official Intel OneAPI Base Toolkit following the instructions mentioned [here](../README.md#compiling-oneapi-samples-vector-add-using-official-intel-oneapi-base-toolkit).
+
+To compile the tests follow the steps below:
+
+```sh
+mkdir build_tests
+cmake -GNinja -Bbuild_tests -DCMAKE_CXX_COMPILER=/path/to/intel_oneapi/bin/clang++ /path/to/oneapi-construction-kit/examples/applications -DOpenCL_LIBRARY=/path/to/build/lib/libCL.so -DOpenCL_INCLUDE_DIR=/path/to/build-riscv/include
+ninja -C build_tests
+```
+
+To test the binaries compiled above, set the environment variables as follows:
+
+```sh
+export LD_LIBRARY_PATH=/path/to/build/lib:/path/to/intel_oneapi/lib/libsycl.so:/path/to/intel_oneapi/lib:$LD_LIBRARY_PATH
+export CMAKE_CXX_COMPILER=/path/to/intel_oneapi/bin/clang++
+export CMAKE_C_COMPILER=/path/to/intel_oneapi/bin/clang
+export CA_HAL_DEBUG=1
+export CA_PROFILE_LEVEL=3
+export ONEAPI_DEVICE_SELECTOR=opencl:acc
+export OCL_ICD_FILENAMES=/path/to/build/lib/libCL.so
+# As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+# To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+# This way it doesn't set the default sycl.conf.
+export SYCL_CONFIG_FILE_NAME=""
+```
+
+The tests can be run using `ctest` command.
+```sh
+cd build_tests
+ctest
+```
+
+The generated output should be as follows:
+```sh
+Test project /path/to/build_tests
+    Start 1: simple_vector_add
+1/7 Test #1: simple_vector_add ..................   Passed    0.06 sec
+    Start 2: vector_addition-load-store
+2/7 Test #2: vector_addition-load-store .........   Passed    0.04 sec
+    Start 3: vector_addition-predicated
+3/7 Test #3: vector_addition-predicated .........   Passed    0.03 sec
+    Start 4: vector_addition-masked-store
+4/7 Test #4: vector_addition-masked-store .......   Passed    0.04 sec
+    Start 5: vector_addition-tiled-load-store
+5/7 Test #5: vector_addition-tiled-load-store ...   Passed    0.03 sec
+    Start 6: syclAvgPooling
+6/7 Test #6: syclAvgPooling .....................   Passed    0.03 sec
+    Start 7: clVectorAddition
+7/7 Test #7: clVectorAddition ...................   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 7
+```
+
+More information can be gathered by passing `--verbose` to the `ctest` command.
+
 ## Providing extra options
 
 The following environment variables are mostly used for testing and trying out

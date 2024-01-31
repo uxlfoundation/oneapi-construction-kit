@@ -36,8 +36,8 @@
       %uint_0 = OpConstant %uint_t 0
      %image1d = OpFunction %void_t None %foo_t
        %image = OpFunctionParameter %image1d_t
-; CHECK-GE17: define spir_kernel void @image1d([[TY:target\("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0\)]] %image)
-; CHECK-LT17: define spir_kernel void @image1d([[TY:ptr addrspace\(1\)]] %image)
+; CHECK-GE17: define spir_kernel void @image1d([[TY:target\("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0\)]] noundef %image)
+; CHECK-LT17: define spir_kernel void @image1d([[TY:ptr addrspace\(1\)]] noundef %image)
            %1 = OpLabel
            %3 = OpImageRead %uint4_t %image %uint_0
 ; CHECK: = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1di([[TY]] %image, i32 0)

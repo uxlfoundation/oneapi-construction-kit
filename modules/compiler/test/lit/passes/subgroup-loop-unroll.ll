@@ -65,17 +65,18 @@ attributes #4 = { alwaysinline norecurse nounwind  }
 !13 = !{i32 32, i32 0, i32 0, i32 0}
 !20 = !{!13, ptr @sub_group_all_builtin}
 
-;CHECK-LABEL: sw.bb2:
-;CHECK: %[[BARRIER0:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %live_variables, i64 0
-;CHECK: %[[ITEM0:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %[[BARRIER0]], i32 0, i32 0
-;CHECK: %[[LD0:.+]] = load i1, ptr %[[ITEM0]], align 1
-;CHECK: %[[ACCUM0:.+]] = and i1 true, %[[LD0]]
-;CHECK: %[[BARRIER1:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %live_variables, i64 1
-;CHECK: %[[ITEM1:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %[[BARRIER1]], i32 0, i32 0
-;CHECK: %[[LD1:.+]] = load i1, ptr %[[ITEM1]], align 1
-;CHECK: %[[ACCUM1:.+]] = and i1 %[[ACCUM0]], %[[LD1]]
-;CHECK: br label %loopIR5
+; CHECK-LABEL: sw.bb2:
+; CHECK: br label %loopIR13
 
-;CHECK-LABEL: loopIR5:
-;CHECK: %18 = phi i1 [ %[[ACCUM1]], %sw.bb2 ], [ %{{.+}}, %loopIR5 ]
+; CHECK-LABEL: loopIR13:
+; CHECK: %[[PHI:.+]] = phi i64 [ 0, %sw.bb2 ], [ %[[INC:.+]], %loopIR13 ]
+; CHECK: %[[PHI_ACCUM:.+]] = phi i1 [ true, %sw.bb2 ], [ %[[ACCUM:.+]], %loopIR13 ]
+; CHECK: %[[BARRIER:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %live_variables, i64 %[[PHI]]
+; CHECK: %[[ITEM:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %[[BARRIER]], i32 0, i32 0
+; CHECK: %[[LD:.+]] = load i1, ptr %[[ITEM]], align 1
+; CHECK: %[[ACCUM]] = and i1 %[[PHI_ACCUM]], %[[LD]]
+; CHECK: %[[CMP:.+]] = icmp ult i64 %[[INC]], 2
+; CHECK: br i1 %[[CMP]], label %loopIR13, label %exitIR14
 
+; CHECK-LABEL: exitIR14:
+; CHECK: %WGC_reduce = phi i1 [ %[[ACCUM]], %loopIR13 ]

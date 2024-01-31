@@ -17,8 +17,10 @@
 #include <abacus/abacus_detail_relational.h>
 #include <abacus/abacus_relational.h>
 
-#define DEF(TYPE) \
-  abacus_int __abacus_any(TYPE x) { return abacus::detail::relational::any(x); }
+#define DEF(TYPE)                              \
+  abacus_int ABACUS_API __abacus_any(TYPE x) { \
+    return abacus::detail::relational::any(x); \
+  }
 
 DEF(abacus_char);
 DEF(abacus_char2);

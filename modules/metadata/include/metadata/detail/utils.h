@@ -42,7 +42,7 @@ namespace utils {
 /// @param in The value to be written to.
 /// @param it An encoded integer byte-array value.
 /// @param endianness The source endianness.
-template <class T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+template <class T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 T read_value(uint8_t *it, uint8_t endianness) {
   T out;
   if (endianness == MD_ENDIAN::BIG) {

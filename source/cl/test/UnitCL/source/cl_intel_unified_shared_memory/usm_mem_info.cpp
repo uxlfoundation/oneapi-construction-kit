@@ -37,6 +37,17 @@ struct USMMemInfoTest : public cl_intel_unified_shared_memory_Test {
       ASSERT_TRUE(host_ptr != nullptr);
     }
 
+    cl_device_unified_shared_memory_capabilities_intel shared_capabilities;
+    ASSERT_SUCCESS(clGetDeviceInfo(
+        device, CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
+        sizeof(shared_capabilities), &shared_capabilities, nullptr));
+    if (shared_capabilities != 0) {
+      shared_ptr =
+          clSharedMemAllocINTEL(context, device, {}, bytes, align, &err);
+      ASSERT_SUCCESS(err);
+      ASSERT_TRUE(shared_ptr != nullptr);
+    }
+
     device_ptr =
         clDeviceMemAllocINTEL(context, device, properties, bytes, align, &err);
     ASSERT_SUCCESS(err);
@@ -55,6 +66,11 @@ struct USMMemInfoTest : public cl_intel_unified_shared_memory_Test {
       EXPECT_SUCCESS(err);
     }
 
+    if (shared_ptr) {
+      cl_int err = clMemBlockingFreeINTEL(context, shared_ptr);
+      EXPECT_SUCCESS(err);
+    }
+
     if (host_ptr) {
       cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
       EXPECT_SUCCESS(err);
@@ -66,8 +82,6 @@ struct USMMemInfoTest : public cl_intel_unified_shared_memory_Test {
   const cl_uint align = 4;
 
   void *user_ptr = nullptr;
-  void *host_ptr = nullptr;
-  void *device_ptr = nullptr;
 };
 
 // Test for invalid API usage of clGetMemAllocInfoINTEL()
@@ -108,6 +122,21 @@ TEST_F(USMMemInfoTest, AllocType) {
         sizeof(host_alloc_type), &host_alloc_type, nullptr);
     EXPECT_SUCCESS(err);
     EXPECT_EQ(CL_MEM_TYPE_HOST_INTEL, host_alloc_type);
+  }
+
+  if (shared_ptr) {
+    err = clGetMemAllocInfoINTEL(context, shared_ptr, CL_MEM_ALLOC_TYPE_INTEL,
+                                 0, nullptr, &param_size);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(sizeof(cl_unified_shared_memory_type_intel), param_size);
+
+    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    cl_unified_shared_memory_type_intel shared_alloc_type = 0;
+    err = clGetMemAllocInfoINTEL(
+        context, offset_shared_ptr, CL_MEM_ALLOC_TYPE_INTEL,
+        sizeof(shared_alloc_type), &shared_alloc_type, nullptr);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(CL_MEM_TYPE_SHARED_INTEL, shared_alloc_type);
   }
 
   void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
@@ -155,6 +184,24 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
     EXPECT_EQ(host_ptr, host_alloc_base_addr);
   }
 
+  if (shared_ptr) {
+    err =
+        clGetMemAllocInfoINTEL(context, shared_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
+                               0, nullptr, &param_size);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(sizeof(void *), param_size);
+
+    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    void *shared_alloc_base_addr = nullptr;
+
+    err = clGetMemAllocInfoINTEL(
+        context, offset_shared_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
+        sizeof(shared_alloc_base_addr), &shared_alloc_base_addr, nullptr);
+
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(shared_ptr, shared_alloc_base_addr);
+  }
+
   void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
   void *alloc_base_addr = nullptr;
 
@@ -200,6 +247,23 @@ TEST_F(USMMemInfoTest, AllocSize) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(bytes, host_alloc_size);
   }
+
+  if (shared_ptr) {
+    err = clGetMemAllocInfoINTEL(context, shared_ptr, CL_MEM_ALLOC_SIZE_INTEL,
+                                 0, nullptr, &param_size);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(sizeof(size_t), param_size);
+
+    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    size_t shared_alloc_size = 0;
+
+    err = clGetMemAllocInfoINTEL(
+        context, offset_shared_ptr, CL_MEM_ALLOC_SIZE_INTEL,
+        sizeof(shared_alloc_size), &shared_alloc_size, nullptr);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(bytes, shared_alloc_size);
+  }
+
   void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
 
   size_t alloc_size = 0;
@@ -241,6 +305,21 @@ TEST_F(USMMemInfoTest, AllocDevice) {
         sizeof(host_alloc_device), &host_alloc_device, nullptr);
     EXPECT_SUCCESS(err);
     EXPECT_EQ(NULL, host_alloc_device);
+  }
+
+  if (shared_ptr) {
+    err = clGetMemAllocInfoINTEL(context, shared_ptr, CL_MEM_ALLOC_DEVICE_INTEL,
+                                 0, nullptr, &param_size);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(sizeof(cl_device_id), param_size);
+    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+
+    cl_device_id shared_alloc_device = device;
+    err = clGetMemAllocInfoINTEL(
+        context, offset_shared_ptr, CL_MEM_ALLOC_DEVICE_INTEL,
+        sizeof(shared_alloc_device), &shared_alloc_device, nullptr);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(device, shared_alloc_device);
   }
 
   void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
@@ -285,6 +364,23 @@ TEST_F(USMMemInfoTest, AllocFlags) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(CL_MEM_ALLOC_WRITE_COMBINED_INTEL, host_alloc_flags);
   }
+
+  if (shared_ptr) {
+    err = clGetMemAllocInfoINTEL(context, shared_ptr, CL_MEM_ALLOC_FLAGS_INTEL,
+                                 0, nullptr, &param_size);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(sizeof(cl_mem_alloc_flags_intel), param_size);
+
+    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+
+    cl_mem_alloc_flags_intel shared_alloc_flags = 0;
+    err = clGetMemAllocInfoINTEL(
+        context, offset_shared_ptr, CL_MEM_ALLOC_FLAGS_INTEL,
+        sizeof(shared_alloc_flags), &shared_alloc_flags, nullptr);
+    EXPECT_SUCCESS(err);
+    EXPECT_EQ(0, shared_alloc_flags);
+  }
+
   void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
 
   cl_mem_alloc_flags_intel alloc_flags = 0;

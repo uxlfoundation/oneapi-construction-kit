@@ -91,12 +91,12 @@ PreservedAnalyses compiler::CombineFPExtFPTruncPass::run(
         } else if (fpext->getDestTy()->isDoubleTy()) {
           // we might have multiple fptruncs from the same fpext sometimes
           unsigned remaining = fpext->getNumUses();
-          unsigned src_bits = fpext->getSrcTy()->getPrimitiveSizeInBits();
+          const unsigned src_bits = fpext->getSrcTy()->getPrimitiveSizeInBits();
           auto *fp_op = fpext->getOperand(0);
           for (auto *user : fpext->users()) {
             if (auto *fptrunc = dyn_cast<FPTruncInst>(user)) {
               // and if the operation is lossless
-              unsigned dst_bits =
+              const unsigned dst_bits =
                   fptrunc->getDestTy()->getPrimitiveSizeInBits();
 
               if (src_bits <= dst_bits) {

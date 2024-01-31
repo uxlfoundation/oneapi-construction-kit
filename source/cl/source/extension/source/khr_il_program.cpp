@@ -81,7 +81,7 @@ cl_int extension::khr_il_program::GetProgramInfo(
       if (program->type == cl::program_type::SPIRV) {
         // Returns the program IL for programs created with
         // clCreateProgramWithILKHR.
-        size_t size = program->spirv.code.size() * sizeof(uint32_t);
+        const size_t size = program->spirv.code.size() * sizeof(uint32_t);
         if (nullptr != param_value) {
           OCL_CHECK(param_value_size < size, return CL_INVALID_VALUE);
           std::copy(program->spirv.code.begin(), program->spirv.code.end(),

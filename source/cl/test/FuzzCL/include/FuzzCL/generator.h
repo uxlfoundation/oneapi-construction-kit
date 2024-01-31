@@ -114,7 +114,7 @@ struct code_generator_t {
   /// @param[in] callback_id ID of the callback
   void gen_read_buffer(size_t buffer_id, cl_bool blocking_read, size_t offset,
                        size_t size, cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("READ_BUFFER");
 
@@ -133,7 +133,7 @@ struct code_generator_t {
   /// @param[in] callback_id ID of the callback
   void gen_write_buffer(size_t buffer_id, cl_bool blocking_write, size_t offset,
                         size_t size, cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("WRITE_BUFFER");
 
@@ -162,7 +162,7 @@ struct code_generator_t {
                             size_t buffer_row_pitch, size_t buffer_slice_pitch,
                             size_t host_row_pitch, size_t host_slice_pitch,
                             cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("READ_BUFFER_RECT");
 
@@ -203,7 +203,7 @@ struct code_generator_t {
                              size_t buffer_row_pitch, size_t buffer_slice_pitch,
                              size_t host_row_pitch, size_t host_slice_pitch,
                              cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("WRITE_BUFFER_RECT");
 
@@ -236,7 +236,7 @@ struct code_generator_t {
   void gen_fill_buffer(size_t buffer_id, std::vector<cl_int> pattern,
                        size_t pattern_size, size_t offset, size_t size,
                        cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("FILL_BUFFER");
 
@@ -266,7 +266,7 @@ struct code_generator_t {
   void gen_copy_buffer(size_t src_buffer_id, size_t dst_buffer_id,
                        size_t src_offset, size_t dst_offset, size_t size,
                        cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("COPY_BUFFER");
 
@@ -298,7 +298,7 @@ struct code_generator_t {
                             size_t src_slice_pitch, size_t dst_row_pitch,
                             size_t dst_slice_pitch,
                             cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("COPY_BUFFER_RECT");
 
@@ -332,7 +332,7 @@ struct code_generator_t {
   void gen_map_buffer(size_t buffer_id, cl_bool blocking_map,
                       cl_map_flags map_flag, size_t offset, size_t size,
                       cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("MAP_BUFFER");
 
@@ -366,7 +366,7 @@ struct code_generator_t {
                       std::array<size_t, 3> origin,
                       std::array<size_t, 3> region, size_t row_pitch,
                       size_t slice_pitch, cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("READ_IMAGE");
 
@@ -399,7 +399,7 @@ struct code_generator_t {
                        std::array<size_t, 3> region, size_t row_pitch,
                        size_t slice_pitch,
                        cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("WRITE_IMAGE");
     p->image_ids.push_back(std::to_string(image_id));
@@ -428,7 +428,7 @@ struct code_generator_t {
                       std::array<size_t, 3> origin,
                       std::array<size_t, 3> region,
                       cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("FILL_IMAGE");
 
@@ -459,7 +459,7 @@ struct code_generator_t {
                       std::array<size_t, 3> dst_origin,
                       std::array<size_t, 3> region,
                       cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("COPY_IMAGE");
 
@@ -489,7 +489,7 @@ struct code_generator_t {
                                 std::array<size_t, 3> src_origin,
                                 std::array<size_t, 3> region, size_t dst_offset,
                                 cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("COPY_IMAGE_TO_BUFFER");
 
@@ -518,7 +518,7 @@ struct code_generator_t {
                                 std::array<size_t, 3> dst_origin,
                                 std::array<size_t, 3> region,
                                 cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("COPY_BUFFER_TO_IMAGE");
 
@@ -547,7 +547,7 @@ struct code_generator_t {
                      cl_map_flags map_flag, std::array<size_t, 3> origin,
                      std::array<size_t, 3> region,
                      cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("MAP_IMAGE");
 
@@ -577,7 +577,7 @@ struct code_generator_t {
   /// @param[in] callback_id ID of the callback
   void gen_unmap_mem_object(size_t map_ptr_index,
                             cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("UNMAP_MEM_OBJECT");
 
@@ -589,7 +589,7 @@ struct code_generator_t {
   /// @param[in] is_callback Is this called from a callback
   /// @param[in] callback_id ID of the callback
   void gen_nd_range_kernel(cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("ND_RANGE_KERNEL");
   }
@@ -598,7 +598,7 @@ struct code_generator_t {
   ///
   /// @param[in] callback_id ID of the callback
   void gen_task(cargo::optional<size_t> callback_id) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
     fuzzcl::exec_params_t *p = get_exec_params(callback_id);
     p->commands.push_back("TASK");
   }

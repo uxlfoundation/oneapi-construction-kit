@@ -40,7 +40,7 @@ T _(const T x) {
 
   xMant -= (T)1.0f;
 
-  T log2_xMant = xMant * abacus::internal::horner_polynomial<T, 4>(
+  T log2_xMant = xMant * abacus::internal::horner_polynomial(
                              xMant, __codeplay_half_log2_coeff);
 
   T result = abacus::detail::cast::convert<T>(xExp) + log2_xMant;

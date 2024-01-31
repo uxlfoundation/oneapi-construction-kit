@@ -225,7 +225,7 @@ struct deleter<mux_kernel_t> {
 ///
 /// @tparam T Type of the Mux API object.
 template <class T>
-using unique_ptr = std::unique_ptr<cargo::remove_pointer_t<T>, mux::deleter<T>>;
+using unique_ptr = std::unique_ptr<std::remove_pointer_t<T>, mux::deleter<T>>;
 }  // namespace mux
 
 #endif  // MUX_MUX_HPP_INCLUDED

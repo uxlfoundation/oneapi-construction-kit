@@ -20,14 +20,15 @@ diff --git a/include/refsi_hal.h b/include/refsi_hal.h
 index a2aaa02..34b3bc1 100644
 --- a/include/refsi_hal.h
 +++ b/include/refsi_hal.h
-@@ -7,12 +7,15 @@
+@@ -22,6 +22,7 @@
  #include <string>
  #include <vector>
  
 +#include "common_devices.h"
+ #include "elf_loader.h"
  #include "hal.h"
  #include "hal_riscv.h"
- #include "refsidrv/refsidrv.h"
+@@ -29,6 +30,8 @@
  
  using refsi_locker = std::lock_guard<std::recursive_mutex>;
  
@@ -36,7 +37,7 @@ index a2aaa02..34b3bc1 100644
  struct refsi_hal_kernel {
    refsi_hal_kernel(hal::hal_addr_t symbol, std::string name)
        : symbol(symbol), name(std::move(name)) {}
-@@ -68,9 +71,38 @@ class refsi_hal_device : public hal::hal_device_t {
+@@ -92,9 +95,38 @@ class refsi_hal_device : public hal::hal_device_t {
                   hal::hal_size_t size) override;
  
   private:
@@ -97,8 +98,8 @@ diff --git a/source/refsi_hal.cpp b/source/refsi_hal.cpp
 index 4bb197a..f6ff7bc 100644
 --- a/source/refsi_hal.cpp
 +++ b/source/refsi_hal.cpp
-@@ -9,6 +9,12 @@
- #include "elf_loader.h"
+@@ -19,6 +19,12 @@
+ #include <string.h>
  #include "refsi_command_buffer.h"
  
 +// Default memory area for storing kernel ELF binaries. When the RefSi device
@@ -110,11 +111,12 @@ index 4bb197a..f6ff7bc 100644
  refsi_hal_device::refsi_hal_device(riscv::hal_device_info_riscv_t *info,
                                     refsi_device_t device,
                                     std::recursive_mutex &hal_lock)
-@@ -60,11 +66,21 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
+@@ -81,11 +87,22 @@ bool refsi_hal_device::kernel_exec(hal::hal_program_t program,
                                     uint32_t num_args, uint32_t work_dim) {
    refsi_locker locker(hal_lock);
  
-+  ELFProgram *elf = (ELFProgram *)program;
++  refsi_hal_program *refsi_program = (refsi_hal_program *)program;
++  ELFProgram *elf = refsi_program->elf.get();
    refsi_hal_kernel *kernel_wrapper = (refsi_hal_kernel *)kernel;
  
 +  // Load ELF into the RefSi device's memory.
@@ -132,7 +134,7 @@ index 4bb197a..f6ff7bc 100644
    cb.addFINISH();
  
    // Execute the command buffer.
-@@ -108,4 +124,61 @@ bool refsi_hal_device::mem_write(hal::hal_addr_t dst, const void *src,
+@@ -129,4 +146,61 @@ bool refsi_hal_device::mem_write(hal::hal_addr_t dst, const void *src,
    return true;
  }
  

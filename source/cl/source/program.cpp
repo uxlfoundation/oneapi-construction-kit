@@ -61,7 +61,7 @@ cargo::expected<mux_kernel_t, mux_result_t>
 cl::mux_kernel_cache::getOrCreateKernel(cl_device_id device,
                                         const std::string &name) {
   {
-    std::lock_guard<std::mutex> guard{kernel_map_mutex};
+    const std::lock_guard<std::mutex> guard{kernel_map_mutex};
     auto kernel_it = kernel_map.find(name);
     if (kernel_it != kernel_map.end()) {
       return kernel_it->second.get();
@@ -84,7 +84,7 @@ cl::mux_kernel_cache::getOrCreateKernel(cl_device_id device,
   }
 
   {
-    std::lock_guard<std::mutex> guard{kernel_map_mutex};
+    const std::lock_guard<std::mutex> guard{kernel_map_mutex};
     kernel_map.emplace(
         name, mux::unique_ptr<mux_kernel_t>(
                   kernel, {device->mux_device, device->mux_allocator}));
@@ -290,7 +290,7 @@ cargo::array_view<uint8_t> cl::device_program::binarySerialize() {
 
   if (!compiler_module.cached_binary.has_value()) {
     auto &cached_binary = compiler_module.cached_binary.emplace();
-    bool is_executable =
+    const bool is_executable =
         compiler_module.module->getState() == compiler::ModuleState::EXECUTABLE;
     if (is_executable) {
       auto mux_binary_result = compiler_module.getOrCreateMuxBinary();
@@ -405,7 +405,7 @@ cl::device_program::CompilerModule::getOrCreateMuxBinary() {
   }
 
   cargo::array_view<uint8_t> executable;
-  compiler::Result result = module->createBinary(executable);
+  const compiler::Result result = module->createBinary(executable);
   if (compiler::Result::SUCCESS != result) {
     return cargo::make_unexpected(result);
   }
@@ -542,13 +542,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
           context->getCompilerTarget(device));
     }
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clCreateProgramWithIL, clCreateProgramWithILKHR.
@@ -583,13 +577,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
           context->getCompilerTarget(device));
     }
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clCreateProgramWithBinary.
@@ -617,7 +605,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
       continue;
     }
     {
-      std::lock_guard<std::mutex> guard(context->mutex);
+      const std::lock_guard<std::mutex> guard(context->mutex);
 
       _cl_device_id *device = device_list[i];
       cl::device_program &device_program = program->programs[device];
@@ -650,13 +638,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
     return cargo::make_unexpected(error);
   }
   program->type = cl::program_type::BINARY;
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clCreateProgramWithBuiltInKernels.
@@ -752,13 +734,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
   if (!program->finalize({device_list, num_devices})) {
     return cargo::make_unexpected(CL_INVALID_VALUE);
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 // Used by clLinkProgram.
@@ -787,13 +763,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
   if (!program->finalize(devices)) {
     return cargo::make_unexpected(CL_LINK_PROGRAM_FAILURE);
   }
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(program);
-#else
   return program;
-#endif
 }
 
 cl_int _cl_program::compile(
@@ -849,7 +819,7 @@ cl_int _cl_program::link(cargo::array_view<const cl_device_id> devices,
   for (auto device : devices) {
     // This guard needs a variable name, otherwise it is destroyed just after
     // being created.
-    std::lock_guard<std::mutex> guard(context->mutex);
+    const std::lock_guard<std::mutex> guard(context->mutex);
     cargo::small_vector<compiler::Module *, 8> input_modules;
     for (auto input_program : input_programs) {
       // Note: cl::LinkProgram already checks that the input program is a
@@ -871,7 +841,7 @@ cl_int _cl_program::link(cargo::array_view<const cl_device_id> devices,
 }
 
 bool _cl_program::finalize(cargo::array_view<const cl_device_id> devices) {
-  std::lock_guard<std::mutex> lock(context->mutex);
+  const std::lock_guard<std::mutex> lock(context->mutex);
   for (auto device : devices) {
     if (hasOption(device, "-create-library")) {
       continue;  // don't finalize a library, it's only used for linking.
@@ -1075,7 +1045,7 @@ cl_int _cl_program::setOptions(cargo::array_view<const cl_device_id> devices,
 CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithSource(
     cl_context context, cl_uint count, const char *const *strings,
     const size_t *lengths, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateProgramWithSource");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateProgramWithSource");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   OCL_CHECK(0 == count, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
@@ -1100,7 +1070,7 @@ CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithBinary(
     cl_context context, cl_uint num_devices, const cl_device_id *device_list,
     const size_t *lengths, const unsigned char *const *binaries,
     cl_int *binary_status, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateProgramWithBinary");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateProgramWithBinary");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   OCL_CHECK(!device_list, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
@@ -1131,7 +1101,8 @@ CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithBinary(
 CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithBuiltInKernels(
     cl_context context, cl_uint num_devices, const cl_device_id *device_list,
     const char *kernel_names, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateProgramWithBuiltInKernels");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clCreateProgramWithBuiltInKernels");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
   OCL_CHECK(!device_list || num_devices == 0,
@@ -1160,14 +1131,14 @@ CL_API_ENTRY cl_program CL_API_CALL cl::CreateProgramWithBuiltInKernels(
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainProgram(cl_program program) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainProgram");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainProgram");
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
 
   return cl::retainExternal(program);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseProgram(cl_program program) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseProgram");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseProgram");
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
 
   return cl::releaseExternal(program);
@@ -1179,9 +1150,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::CompileProgram(
     const cl_program *input_headers, const char *const *header_include_names,
     void(CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
     void *user_data) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCompileProgram");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCompileProgram");
   OCL_CHECK(!pfn_notify && user_data, return CL_INVALID_VALUE);
-  _cl_program::callback callback(program, pfn_notify, user_data);
+  const _cl_program::callback callback(program, pfn_notify, user_data);
 
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
   OCL_CHECK(program->num_external_kernels > 0, return CL_INVALID_OPERATION);
@@ -1248,7 +1219,7 @@ CL_API_ENTRY cl_program CL_API_CALL cl::LinkProgram(
     const cl_program *input_programs,
     void(CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
     void *user_data, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clLinkProgram");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clLinkProgram");
   OCL_CHECK(!pfn_notify && user_data,
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
             return nullptr);
@@ -1326,10 +1297,10 @@ CL_API_ENTRY cl_int CL_API_CALL cl::BuildProgram(
     const char *options,
     void(CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
     void *user_data) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clBuildProgram");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clBuildProgram");
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
   OCL_CHECK(!pfn_notify && user_data, return CL_INVALID_VALUE);
-  _cl_program::callback callback(program, pfn_notify, user_data);
+  const _cl_program::callback callback(program, pfn_notify, user_data);
 
   OCL_CHECK(program->num_external_kernels > 0, return CL_INVALID_OPERATION);
   OCL_CHECK(device_list && num_devices == 0, return CL_INVALID_VALUE);
@@ -1380,20 +1351,20 @@ CL_API_ENTRY cl_int CL_API_CALL cl::BuildProgram(
 CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
     cl_program program, cl_program_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetProgramInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetProgramInfo");
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
   OCL_CHECK(!param_value && !param_value_size_ret, return CL_INVALID_VALUE);
 
-#define PROGRAM_INFO_CASE(ENUM, VALUE)                                        \
-  case ENUM: {                                                                \
-    const size_t typeSize = sizeof(VALUE);                                    \
-    OCL_CHECK(param_value && (param_value_size < typeSize),                   \
-              return CL_INVALID_VALUE);                                       \
-    if (param_value) {                                                        \
-      *static_cast<std::remove_const<decltype(VALUE)>::type *>(param_value) = \
-          VALUE;                                                              \
-    }                                                                         \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                      \
+#define PROGRAM_INFO_CASE(ENUM, VALUE)                                    \
+  case ENUM: {                                                            \
+    const size_t typeSize = sizeof(VALUE);                                \
+    OCL_CHECK(param_value && (param_value_size < typeSize),               \
+              return CL_INVALID_VALUE);                                   \
+    if (param_value) {                                                    \
+      *static_cast<std::remove_const_t<decltype(VALUE)> *>(param_value) = \
+          VALUE;                                                          \
+    }                                                                     \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                  \
   } break
 
 #define PROGRAM_INFO_CASE_WITH_TYPE(ENUM, VALUE, TYPE)      \
@@ -1578,7 +1549,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramBuildInfo(
     cl_program program, cl_device_id device_id,
     cl_program_build_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetProgramBuildInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetProgramBuildInfo");
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
   OCL_CHECK(!device_id, return CL_INVALID_DEVICE);
   OCL_CHECK(!program->context->hasDevice(device_id), return CL_INVALID_DEVICE);
@@ -1678,7 +1649,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramBuildInfo(
 // guarantee from the programmer that the compiler will not be used again.  So
 // for now we just ignore the hint.
 CL_API_ENTRY cl_int CL_API_CALL cl::UnloadCompiler() {
-  tracer::TraceGuard<tracer::OpenCL> guard("clUnloadCompiler");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clUnloadCompiler");
   return CL_SUCCESS;
 }
 
@@ -1686,7 +1657,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::UnloadCompiler() {
 // the compiler will not be used again.  So for now we just ignore the hint.
 CL_API_ENTRY cl_int CL_API_CALL
 cl::UnloadPlatformCompiler(cl_platform_id platform) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clUnloadPlatformCompiler");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clUnloadPlatformCompiler");
   OCL_CHECK(!platform, return CL_INVALID_PLATFORM);
   return CL_SUCCESS;
 }

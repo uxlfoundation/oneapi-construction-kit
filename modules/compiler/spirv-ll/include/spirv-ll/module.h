@@ -39,6 +39,7 @@
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace spirv_ll {
 /// @brief Enum class used to represent an Extended Instruction Set.
@@ -295,7 +296,7 @@ class Module : public ModuleHeader {
   ///
   /// @param Op `OpResult` object with the ID whose value will be replaced.
   /// @param V `Value` object to replace the old value with.
-  void replaceID(OpResult const *Op, llvm::Value *V);
+  void replaceID(const OpResult *Op, llvm::Value *V);
 
   /// @brief Add a specified execution mode to the module.
   ///
@@ -362,6 +363,26 @@ class Module : public ModuleHeader {
   ///
   const std::string &getSourceMetadataString() const;
 
+  /// @brief Sets the string used to hold the process/processor
+  void setModuleProcess(const std::string &str);
+
+  /// @brief Gets the string used to hold the process/processor
+  const std::string &getModuleProcess() const;
+
+  /// @brief Check if this ID is an OpExtInst with the given opcode.
+  ///
+  /// @return Returns true if this opcode is an OpExtInst with the given
+  /// opcode, false otherwise.
+  bool isOpExtInst(spv::Id id, uint32_t opcode,
+                   const std::unordered_set<ExtendedInstrSet> &sets) const;
+
+  /// @brief Check if this ID is an OpExtInst with any of the given opcodes.
+  ///
+  /// @return Returns true if this opcode is an OpExtInst with any of the given
+  /// opcodes, false otherwise.
+  bool isOpExtInst(spv::Id id, const std::unordered_set<uint32_t> &opcodes,
+                   const std::unordered_set<ExtendedInstrSet> &sets) const;
+
   /// @brief Set the DICompileUnit for this module.
   void setCompileUnit(llvm::DICompileUnit *compile_unit);
 
@@ -394,50 +415,6 @@ class Module : public ModuleHeader {
   ///
   /// @return The string or std::nullopt if the ID isn't found.
   std::optional<std::string> getDebugString(spv::Id id) const;
-
-  /// @brief A type containing an LLVM debug location and the beginning of the
-  /// range it corresponds to.
-  struct LineRangeBeginTy {
-    const OpLine *op_line;
-    llvm::DILocation *loc;
-    llvm::BasicBlock::iterator range_begin = llvm::BasicBlock::iterator();
-  };
-
-  /// @brief Opens up a new OpLine range, setting it to the current one.
-  ///
-  /// Does *not* close the current one. Call closeCurrentOpLineRange() first.
-  ///
-  /// @param range_begin LineRangeBeginTy information about the range to begin.
-  void setCurrentOpLineRange(const LineRangeBeginTy &range_begin);
-
-  /// @brief Closes (i.e., clears) the current OpLine range.
-  void closeCurrentOpLineRange();
-
-  /// @brief Add a completed OpLine range to the module.
-  ///
-  /// @param location DILocation that represents the OpLine instruction.
-  /// @param range Iterator range over which the debug metadata will be applied.
-  void addCompleteOpLineRange(
-      llvm::DILocation *location,
-      std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator> range);
-
-  /// @brief A list of basic block ranges (begin/end).
-  using OpLineRangeVec = std::vector<
-      std::pair<llvm::BasicBlock::iterator, llvm::BasicBlock::iterator>>;
-
-  /// @brief A map from a debug location to the list of ranges it covers.
-  using OpLineRangeMap = llvm::MapVector<llvm::DILocation *, OpLineRangeVec>;
-
-  /// @brief Get reference to complete OpLine range list.
-  ///
-  /// @return Reference to map of `DILocation`/iterator range pairs
-  OpLineRangeMap &getOpLineRanges();
-
-  /// @brief Get `DILocation`/iterator pair for current OpLine range
-  ///
-  /// @return Pair containing `DILocation` and iterator range, location will be
-  /// nullptr if there isn't an ongoing range
-  std::optional<LineRangeBeginTy> getCurrentOpLineRange() const;
 
   /// @brief Add a basic block and associated lexical block to the module.
   ///
@@ -661,7 +638,7 @@ class Module : public ModuleHeader {
   /// @param[in] T The LLVM value for the given Op.
   ///
   /// @return true on success, false if the ID already exists
-  bool addID(spv::Id id, OpCode const *Op, llvm::Type *T);
+  bool addID(spv::Id id, const OpCode *Op, llvm::Type *T);
 
   /// @brief track the original SPIR-V type ids for the OpFunctionType `func`
   ///
@@ -819,7 +796,7 @@ class Module : public ModuleHeader {
   /// @param[in] V The LLVM value for the given Op.
   ///
   /// @return true on success, false if the ID already exists
-  bool addID(spv::Id id, OpCode const *Op, llvm::Value *V);
+  bool addID(spv::Id id, const OpCode *Op, llvm::Value *V);
 
   /// @brief Get the LLVM Value for the given SPIR-V ID.
   ///
@@ -837,13 +814,14 @@ class Module : public ModuleHeader {
   ///
   /// @return A pointer to the Op or nullptr if not found.
   template <class Op = OpCode>
-  const Op *get(spv::Id id) const {
-    auto ty = Types.find(id);
-    if (ty != Types.end()) {
+  const Op *get_or_null(spv::Id id) const {
+    if (!id) {
+      return nullptr;
+    }
+    if (auto ty = Types.find(id); ty != Types.end()) {
       return cast<Op>(ty->second.Op);
     }
-    auto val = Values.find(id);
-    if (val != Values.end()) {
+    if (auto val = Values.find(id); val != Values.end()) {
       return cast<Op>(val->second.Op);
     }
     auto found = std::find_if(
@@ -857,8 +835,22 @@ class Module : public ModuleHeader {
           }
           return false;
         });
-    SPIRV_LL_ASSERT(found != OpCodes.end(), "OpCode for ID not found");
-    return cast<Op>(found->get());
+    return found == OpCodes.end() ? nullptr : cast<Op>(found->get());
+  }
+
+  /// @brief Get the SPIR-V Op for the given ID.
+  ///
+  /// The function will search both the Types and the Values to try and find
+  /// the given ID. Asserts that the op was found.
+  ///
+  /// @param[in] id The ID for the Op to get.
+  ///
+  /// @return A pointer to the Op.
+  template <class Op = OpCode>
+  const Op *get(spv::Id id) const {
+    auto *const op = get_or_null<Op>(id);
+    SPIRV_LL_ASSERT(op, "OpCode for ID not found");
+    return op;
   }
 
   /// @brief Get the SpirV Op for the given LLVM Value.
@@ -1006,6 +998,13 @@ class Module : public ModuleHeader {
                          std::unordered_map<const OpType *, llvm::Function *>>>
       reductionWrapperMap;
 
+  /// @brief Turn off the use of implicit debug scopes across the module.
+  void disableImplicitDebugScopes();
+
+  /// @brief Returns true if implicit debug scopes should be created to handle
+  /// debug information.
+  bool useImplicitDebugScopes() const;
+
  private:
   /// @brief The set of enabled capabilities.
   llvm::SmallSet<spv::Capability, 16> capabilities;
@@ -1047,16 +1046,6 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, std::string> DebugStrings;
   /// @brief `DIFile` object specified by the module currently being translated.
   llvm::DIFile *File;
-  /// @brief Map of DILocation to sets of basic block iterator ranges.
-  ///
-  /// Storing `std::pair`s of iterators instead of `llvm::iterator_range`
-  /// because the iterators need to be manipulated after the module has been
-  /// translated in its entirety, so we can't construct the `iterator_range`
-  /// until that's happened but we still need to store the range.
-  OpLineRangeMap OpLineRanges;
-  /// @brief DILocation/basic block iterator pair to store the beginning of the
-  /// current OpLine range.
-  std::optional<LineRangeBeginTy> CurrentOpLineRange;
   /// @brief Map of BasicBlock to associated `DILexicalBlock`.
   llvm::DenseMap<llvm::BasicBlock *, llvm::DILexicalBlock *> LexicalBlocks;
   /// @brief Map of function IDs to their associated `DISubprogram`s.
@@ -1093,7 +1082,7 @@ class Module : public ModuleHeader {
     /// @brief Empty constructor, initializes everything to nullptr.
     TypePair() : Op(nullptr), Type(nullptr) {}
     /// @brief Constructor with initializers
-    TypePair(OpCode const *Op, llvm::Type *Type) : Op(Op), Type(Type) {}
+    TypePair(const OpCode *Op, llvm::Type *Type) : Op(Op), Type(Type) {}
     /// @brief Pointer to the SPIR-V Op.
     const OpCode *Op;
     /// @brief Pointer to the LLVM Type defined by the SPIR-V Op.
@@ -1120,7 +1109,7 @@ class Module : public ModuleHeader {
     /// @brief Empty constructor, initializes everything to nullptr.
     ValuePair() : Op(nullptr), Value(nullptr) {}
     /// @brief Constructor with initializers
-    ValuePair(OpCode const *Op, llvm::Value *Value) : Op(Op), Value(Value) {}
+    ValuePair(const OpCode *Op, llvm::Value *Value) : Op(Op), Value(Value) {}
     /// @brief Pointer to the SPIR-V Op.
     const OpCode *Op;
     /// @brief Pointer to the LLVM Value defined by the SPIR-V Op.
@@ -1149,8 +1138,15 @@ class Module : public ModuleHeader {
   llvm::Value *BufferSizeArray;
   /// @brief List of `OpSpecConstantOp` instructions whose translation had to be
   /// deferred.
-  llvm::SmallVector<spirv_ll::OpSpecConstantOp const *, 2>
+  llvm::SmallVector<const spirv_ll::OpSpecConstantOp *, 2>
       deferredSpecConstantOps;
+  std::string ModuleProcess;
+  /// @brief True if debug scopes should be inferred and generated when
+  /// processing debug information.
+  ///
+  /// False if a DebugInfo-like extension is enabled, and only explicit scope
+  /// instructions are to be obeyed.
+  bool ImplicitDebugScopes = true;
 };
 
 /// @brief Less than operator that compares the descriptor binding in each `ID`

@@ -92,13 +92,13 @@ cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int> _cl_mem_buffer::create(
     mux_buffer_t mux_buffer = buffer->mux_buffers[index];
 
     mux_memory_t mux_memory;
-    cl_int error = buffer->allocateMemory(
+    const cl_int error = buffer->allocateMemory(
         mux_device, mux_buffer->memory_requirements.supported_heaps,
         device->mux_allocator, &mux_memory);
     OCL_CHECK(error, return cargo::make_unexpected(error));
     buffer->mux_memories[index] = mux_memory;
 
-    uint64_t offset = 0;
+    const uint64_t offset = 0;
     auto mux_error =
         muxBindBufferMemory(mux_device, mux_memory, mux_buffer, offset);
     OCL_CHECK(mux_error,
@@ -121,13 +121,7 @@ cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int> _cl_mem_buffer::create(
     }
   }
 
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
-  // GCC <9 requires this redundant move, this branch of the #if can be
-  // deleted once the minimum supported version of GCC is at least 9.
-  return std::move(buffer);
-#else
   return buffer;
-#endif
 }
 
 cl_int _cl_mem_buffer::synchronize(cl_command_queue command_queue) {
@@ -154,7 +148,7 @@ cl_int _cl_mem_buffer::synchronize(cl_command_queue command_queue) {
       const auto dest_mux_memory = mux_memories[dest_device_index];
 
       // Take a lock on this buffers mutex.
-      std::lock_guard<std::mutex> lock_guard(mutex);
+      const std::lock_guard<std::mutex> lock_guard(mutex);
 
       // Perform the synchronization.
       if (auto mux_error = mux::synchronizeMemory(
@@ -176,11 +170,11 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateBuffer(cl_context context,
                                                  cl_mem_flags flags,
                                                  size_t size, void *host_ptr,
                                                  cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateBuffer");
   OCL_CHECK(!context, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_CONTEXT);
             return nullptr);
 
-  cl_int error = cl::validate::MemFlags(flags, host_ptr);
+  const cl_int error = cl::validate::MemFlags(flags, host_ptr);
   OCL_CHECK(error, OCL_SET_IF_NOT_NULL(errcode_ret, error); return nullptr);
 
   OCL_CHECK(0 == size, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_BUFFER_SIZE);
@@ -201,7 +195,7 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateBuffer(cl_context context,
 CL_API_ENTRY cl_mem CL_API_CALL cl::CreateSubBuffer(
     cl_mem buffer, cl_mem_flags flags, cl_buffer_create_type buffer_create_type,
     const void *buffer_create_info, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateSubBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateSubBuffer");
   OCL_CHECK(!buffer, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_MEM_OBJECT);
             return nullptr);
   const cl_mem_flags rwMask =
@@ -332,7 +326,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteBufferRect(
     size_t host_row_pitch, size_t host_slice_pitch, const void *ptr,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWriteBufferRect");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWriteBufferRect");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!buffer, return CL_INVALID_MEM_OBJECT);
   OCL_CHECK(!buffer_origin || !host_origin || !region || !ptr,
@@ -410,7 +404,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteBufferRect(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -431,7 +425,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteBufferRect(
         {host_row_pitch, host_slice_pitch},
     };
 
-    mux_result_t mux_error = muxCommandWriteBufferRegions(
+    const mux_result_t mux_error = muxCommandWriteBufferRegions(
         *mux_command_buffer, mux_buffer, ptr, &r_info, 1, 0, nullptr, nullptr);
 
     if (mux_success != mux_error) {
@@ -477,7 +471,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBufferRect(
     size_t host_row_pitch, size_t host_slice_pitch, void *ptr,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueReadBufferRect");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueReadBufferRect");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!buffer, return CL_INVALID_MEM_OBJECT);
   OCL_CHECK(!buffer_origin || !host_origin || !region || !ptr,
@@ -555,7 +549,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBufferRect(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -620,7 +614,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyBufferRect(
     size_t src_row_pitch, size_t src_slice_pitch, size_t dst_row_pitch,
     size_t dst_slice_pitch, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyBufferRect");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyBufferRect");
 
   // Set pitch defaults if needed before we validate.
   if (src_row_pitch == 0) {
@@ -657,7 +651,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyBufferRect(
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -680,7 +674,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyBufferRect(
       {dst_row_pitch, dst_slice_pitch},
   };
 
-  mux_result_t mux_error = muxCommandCopyBufferRegions(
+  const mux_result_t mux_error = muxCommandCopyBufferRegions(
       *mux_command_buffer, mux_src_buffer, mux_dst_buffer, &r_info, 1, 0,
       nullptr, nullptr);
 
@@ -713,7 +707,7 @@ CL_API_ENTRY void *CL_API_CALL cl::EnqueueMapBuffer(
     cl_map_flags map_flags, size_t offset, size_t size,
     cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
     cl_event *event, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMapBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueMapBuffer");
   OCL_CHECK(!command_queue,
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_COMMAND_QUEUE);
             return nullptr);
@@ -838,7 +832,7 @@ cl::EnqueueWriteBuffer(cl_command_queue command_queue, cl_mem buffer,
                        cl_bool blocking_write, size_t offset, size_t size,
                        const void *ptr, cl_uint num_events_in_wait_list,
                        const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWriteBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueWriteBuffer");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!buffer, return CL_INVALID_MEM_OBJECT);
   OCL_CHECK(!(command_queue->context), return CL_INVALID_CONTEXT);
@@ -870,7 +864,7 @@ cl::EnqueueWriteBuffer(cl_command_queue command_queue, cl_mem buffer,
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -925,7 +919,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBuffer(
     cl_command_queue command_queue, cl_mem buffer, cl_bool blocking_read,
     size_t offset, size_t size, void *ptr, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueReadBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueReadBuffer");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!buffer, return CL_INVALID_MEM_OBJECT);
   OCL_CHECK(!(command_queue->context), return CL_INVALID_CONTEXT);
@@ -957,7 +951,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBuffer(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    std::lock_guard<std::mutex> lock(
+    const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -1009,7 +1003,7 @@ cl::EnqueueCopyBuffer(cl_command_queue command_queue, cl_mem src_buffer,
                       cl_mem dst_buffer, size_t src_offset, size_t dst_offset,
                       size_t size, cl_uint num_events_in_wait_list,
                       const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCopyBuffer");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
   cl_int error = cl::validate::CopyBufferArguments(
@@ -1035,7 +1029,7 @@ cl::EnqueueCopyBuffer(cl_command_queue command_queue, cl_mem src_buffer,
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
@@ -1081,7 +1075,7 @@ cl::EnqueueFillBuffer(cl_command_queue command_queue, cl_mem buffer,
                       const void *pattern, size_t pattern_size, size_t offset,
                       size_t size, cl_uint num_events_in_wait_list,
                       const cl_event *event_wait_list, cl_event *event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueFillBuffer");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueFillBuffer");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   cl_int error = cl::validate::FillBufferArguments(
       command_queue, buffer, pattern, pattern_size, offset, size);
@@ -1101,7 +1095,7 @@ cl::EnqueueFillBuffer(cl_command_queue command_queue, cl_mem buffer,
     *event = return_event;
   }
 
-  std::lock_guard<std::mutex> lock(
+  const std::lock_guard<std::mutex> lock(
       command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(

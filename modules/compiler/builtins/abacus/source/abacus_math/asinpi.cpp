@@ -16,8 +16,9 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
+#include <abacus/abacus_relational.h>
 #include <abacus/internal/horner_polynomial.h>
-#include <abacus/internal/sqrt_unsafe.h>
+#include <abacus/internal/sqrt.h>
 
 namespace {
 template <typename T>
@@ -42,7 +43,7 @@ T asinpi_half(const T x) {
   T xAbs = __abacus_fabs(x);
   const T x2 = x * x;
 
-  T ans = x * abacus::internal::horner_polynomial<T, 3>(
+  T ans = x * abacus::internal::horner_polynomial(
                   x2, __codeplay_asinpi_coeff_halfH2);
 
   const SignedType cond1 = (xAbs > 5.9375E-1f16);
@@ -51,9 +52,9 @@ T asinpi_half(const T x) {
 
   xAbs = xAbs - 1.0f16;
 
-  T ansCond = xAbs * abacus::internal::horner_polynomial<T, 3>(
+  T ansCond = xAbs * abacus::internal::horner_polynomial(
                          xAbs, __codeplay_asinpi_coeff_halfH1);
-  ansCond = -abacus::internal::sqrt_unsafe(ansCond) + 0.5f16;
+  ansCond = -abacus::internal::sqrt(ansCond) + 0.5f16;
   ansCond = __abacus_copysign(ansCond, x);
 
   ans = __abacus_select(ans, ansCond, cond1);
@@ -71,16 +72,15 @@ abacus_half asinpi_half(const abacus_half x) {
   if (xAbs > 5.9375E-1f16) {
     xAbs = xAbs - 1.0f16;
 
-    abacus_half ans =
-        xAbs * abacus::internal::horner_polynomial<abacus_half, 3>(
-                   xAbs, __codeplay_asinpi_coeff_halfH1);
+    abacus_half ans = xAbs * abacus::internal::horner_polynomial(
+                                 xAbs, __codeplay_asinpi_coeff_halfH1);
 
-    ans = -abacus::internal::sqrt_unsafe(ans) + 0.5f16;
+    ans = -abacus::internal::sqrt(ans) + 0.5f16;
     return __abacus_copysign(ans, x);
   }
 
   const abacus_half x2 = x * x;
-  return x * abacus::internal::horner_polynomial<abacus_half, 3>(
+  return x * abacus::internal::horner_polynomial(
                  x2, __codeplay_asinpi_coeff_halfH2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT

@@ -82,12 +82,13 @@ cargo::optional<kernel_variant_map> readBinaryMetadata(loader::ElfFile *elf,
         md.pref_work_item_factor.isScalable()) {
       return cargo::nullopt;
     }
-    host::binary_kernel_s kernel{/*hook*/ 0,
-                                 std::move(md.kernel_name),
-                                 static_cast<uint32_t>(md.local_memory_usage),
-                                 md.min_work_item_factor.getFixedValue(),
-                                 md.pref_work_item_factor.getFixedValue(),
-                                 md.sub_group_size.getFixedValue()};
+    const host::binary_kernel_s kernel{
+        /*hook*/ 0,
+        std::move(md.kernel_name),
+        static_cast<uint32_t>(md.local_memory_usage),
+        md.min_work_item_factor.getFixedValue(),
+        md.pref_work_item_factor.getFixedValue(),
+        md.sub_group_size.getFixedValue()};
     auto it = kernels.find(md.source_name);
     if (it != kernels.end()) {
       it->second.push_back(kernel);

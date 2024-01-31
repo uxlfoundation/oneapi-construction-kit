@@ -43,7 +43,7 @@
          %22 = OpConstantComposite %_arr_uchar_ulong_4 %uchar_42 %uchar_42 %uchar_42 %uchar_42
          %24 = OpVariable %_ptr_UniformConstant__arr_uchar_ulong_16 UniformConstant %22
           %6 = OpFunction %void None %5
-; CHECK: define spir_kernel void @memset(ptr addrspace(1) %out)
+; CHECK: define spir_kernel void @memset(ptr addrspace(1) noundef %out)
         %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
       %entry = OpLabel
          %16 = OpConvertPtrToU %ulong %out

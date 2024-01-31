@@ -22,7 +22,7 @@ namespace {
 template <typename T>
 inline T nan_helper() {
   // Return NaN with all exponent bits and least significant bit set
-  typename TypeTraits<T>::UnsignedType nanVal =
+  const typename TypeTraits<T>::UnsignedType nanVal =
       FPShape<T>::ExponentMask() | 0x1;
   return abacus::detail::cast::as<T>(nanVal);
 }

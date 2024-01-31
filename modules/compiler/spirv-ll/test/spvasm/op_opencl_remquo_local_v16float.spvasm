@@ -42,7 +42,7 @@
 ; All functions
      %remquo_v16float = OpFunction %void_t None %remquo_fn_t
               %in_quo = OpFunctionParameter %v16int_ptr_t
-; CHECK: define spir_kernel void @remquo_v16float(ptr addrspace(3) %in_quo)
+; CHECK: define spir_kernel void @remquo_v16float(ptr addrspace(3) noundef %in_quo)
                    %2 = OpLabel
                    %3 = OpExtInst %v16float_t %1 remquo %v16float_2 %v16float_1 %in_quo
 ; CHECK: = call spir_func <16 x float> @_Z6remquoDv16_fS_PU3AS3Dv16_i(<16 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <16 x float> <float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00, float 1.500000e+00>, ptr addrspace(3) %in_quo)

@@ -2,7 +2,7 @@ diff --git a/cmake/CompileKernel.cmake b/cmake/CompileKernel.cmake
 index d369b7c..166179e 100644
 --- a/cmake/CompileKernel.cmake
 +++ b/cmake/CompileKernel.cmake
-@@ -7,7 +7,17 @@ function(hal_refsi_tutorial_compile_kernel_source OBJECT SRC)
+@@ -21,7 +21,17 @@ function(hal_refsi_tutorial_compile_kernel_source OBJECT SRC)
    get_property(ROOT_DIR GLOBAL PROPERTY HAL_REFSI_TUTORIAL_DIR)
    get_target_property(REFSIDRV_SRC_DIR refsidrv SOURCE_DIR)
  
@@ -21,7 +21,7 @@ index d369b7c..166179e 100644
  endfunction()
  
  function(hal_refsi_tutorial_link_kernel BINARY)
-@@ -21,5 +31,9 @@ function(hal_refsi_tutorial_link_kernel BINARY)
+@@ -35,5 +45,9 @@ function(hal_refsi_tutorial_link_kernel BINARY)
    get_property(RISCV_LINKER_FLAGS GLOBAL PROPERTY RISCV_LINKER_FLAGS)
    get_property(ROOT_DIR GLOBAL PROPERTY HAL_REFSI_TUTORIAL_DIR)
  

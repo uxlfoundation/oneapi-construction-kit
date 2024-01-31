@@ -46,8 +46,8 @@
            %4 = OpImageRead %float4_t %get_image %int_0
                 OpReturn
                 OpFunctionEnd
-; CHECK-GE17: define spir_kernel void @image1d([[IMG_TY:target\("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0\)]] %image, target("spirv.Sampler"){{( %0)?}})
-; CHECK-LT17: define spir_kernel void @image1d([[IMG_TY:ptr addrspace\(1\)]] %image, ptr{{( %0)?}})
+; CHECK-GE17: define spir_kernel void @image1d([[IMG_TY:target\("spirv.Image", void, 0, 0, 0, 0, 0, 0, 0\)]] noundef %image, target("spirv.Sampler") noundef{{( %0)?}})
+; CHECK-LT17: define spir_kernel void @image1d([[IMG_TY:ptr addrspace\(1\)]] noundef %image, ptr noundef{{( %0)?}})
 ; CHECK: = call spir_func <4 x i32> @_Z12read_imageui11ocl_image1di([[IMG_TY]] %image, i32 0)
 ; CHECK: = call spir_func <4 x float> @_Z11read_imagef11ocl_image1di([[IMG_TY]] %image, i32 0)
 ; CHECK: ret void

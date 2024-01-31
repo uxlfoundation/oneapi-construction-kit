@@ -190,9 +190,9 @@ PreservedAnalyses ScalarizationPass::run(llvm::Function &F,
   const auto *DI =
       MAMProxy.getCachedResult<compiler::utils::DeviceInfoAnalysis>(
           *F.getParent());
-  bool DoubleSupport = DI && DI->double_capabilities != 0;
+  const bool DoubleSupport = DI && DI->double_capabilities != 0;
 
-  bool FullScalarization =
+  const bool FullScalarization =
       VU.choices().isEnabled(VectorizationChoices::eFullScalarization);
   bool NeedsScalarization = false;
   Scalarizer SR(F, Ctx, DoubleSupport);
@@ -228,7 +228,7 @@ PreservedAnalyses ScalarizationPass::run(llvm::Function &F,
     // operands, scalarization can produce dead code, which will get removed
     // by later cleanup optimizations. Reductions are generally much better
     // off scalarized.
-    bool const scalable = VU.width().isScalable();
+    const bool scalable = VU.width().isScalable();
 
     OperandTracer tracer(UVR, scalable);
     for (Instruction *Leaf : Leaves) {

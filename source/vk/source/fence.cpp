@@ -88,7 +88,7 @@ void DestroyFence(vk::device device, vk::fence fence, vk::allocator allocator) {
 VkResult GetFenceStatus(vk::device device, vk::fence fence) {
   // First see if we are already signaled.
   {
-    std::unique_lock<std::mutex> lock(fence->signaled_mutex);
+    const std::unique_lock<std::mutex> lock(fence->signaled_mutex);
     if (fence->signaled) {
       return VK_SUCCESS;
     }
@@ -100,7 +100,7 @@ VkResult GetFenceStatus(vk::device device, vk::fence fence) {
   if (mux_success == error) {
     // If the fence has been signaled we need to make sure we set the signal.
     {
-      std::unique_lock<std::mutex> lock(fence->signaled_mutex);
+      const std::unique_lock<std::mutex> lock(fence->signaled_mutex);
       fence->signaled = true;
     }
     return VK_SUCCESS;
@@ -127,7 +127,7 @@ VkResult ResetFences(vk::device device, uint32_t fenceCount,
     }
     // If that was successful then we can reset the signal
     {
-      std::unique_lock<std::mutex> lock(fence->signaled_mutex);
+      const std::unique_lock<std::mutex> lock(fence->signaled_mutex);
       fence->signaled = false;
     }
   }
@@ -166,7 +166,7 @@ VkResult WaitForFences(vk::device device, uint32_t fenceCount,
       // case we only need one fence to signal.
       if (mux_success == error) {
         {
-          std::unique_lock<std::mutex> lock(fence->signaled_mutex);
+          const std::unique_lock<std::mutex> lock(fence->signaled_mutex);
           fence->signaled = true;
         }
         if (VK_TRUE == waitAll) {

@@ -303,7 +303,7 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
       cargo::split(mux_device->info->builtin_kernel_declarations, ";");
 
   for (const auto &builtin : builtins) {
-    size_t pos = builtin.find("(");
+    const size_t pos = builtin.find("(");
 
     if (pos != cargo::string_view::npos) {
       if (!builtin_kernel_names.empty()) {
@@ -317,7 +317,7 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
     }
   }
 #if defined(CL_VERSION_3_0)
-  for (cl_version_khr version :
+  for (const cl_version_khr version :
        {CL_MAKE_VERSION_KHR(1, 2, 0), CL_MAKE_VERSION_KHR(1, 1, 0),
         CL_MAKE_VERSION_KHR(1, 0, 0), CL_MAKE_VERSION_KHR(3, 0, 0)}) {
     cl_name_version_khr name_version{};
@@ -346,7 +346,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceIDs(cl_platform_id platform,
                                                  cl_uint num_entries,
                                                  cl_device_id *devices,
                                                  cl_uint *num_devices) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetDeviceIDs");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetDeviceIDs");
   OCL_CHECK(!platform, return CL_INVALID_PLATFORM);
   OCL_CHECK(!device_type, return CL_INVALID_DEVICE_TYPE);
   const cl_device_type validDeviceMask =
@@ -417,7 +417,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceIDs(cl_platform_id platform,
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::RetainDevice(cl_device_id device) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainDevice");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainDevice");
   // The OpenCL spec says that this function does nothing for root level
   // devices (because such devices are not created, they are retrieved via
   // clGetDeviceIDs). We don't support sub devices yet, so there is no actual
@@ -441,7 +441,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::RetainDevice(cl_device_id device) {
 }
 
 CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseDevice(cl_device_id device) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseDevice");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseDevice");
   // This function does not release anything, see cl::RetainDevice.
   auto platform = _cl_platform_id::getInstance();
   if (!platform) {
@@ -457,7 +457,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::ReleaseDevice(cl_device_id device) {
 CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
     cl_device_id device, cl_device_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetDeviceInfo");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetDeviceInfo");
   if (!device) {
     return CL_INVALID_DEVICE;
   }
@@ -502,16 +502,15 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
     OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);         \
   } break
 
-#define DEVICE_INFO_CASE(ENUM, TYPE)                                         \
-  case ENUM: {                                                               \
-    const size_t typeSize = sizeof(TYPE);                                    \
-    OCL_CHECK(param_value && (param_value_size < typeSize),                  \
-              return CL_INVALID_VALUE);                                      \
-    if (param_value) {                                                       \
-      *static_cast<std::remove_const<decltype(TYPE)>::type *>(param_value) = \
-          TYPE;                                                              \
-    }                                                                        \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                     \
+#define DEVICE_INFO_CASE(ENUM, TYPE)                                           \
+  case ENUM: {                                                                 \
+    const size_t typeSize = sizeof(TYPE);                                      \
+    OCL_CHECK(param_value && (param_value_size < typeSize),                    \
+              return CL_INVALID_VALUE);                                        \
+    if (param_value) {                                                         \
+      *static_cast<std::remove_const_t<decltype(TYPE)> *>(param_value) = TYPE; \
+    }                                                                          \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                       \
   } break
 
   switch (param_name) {
@@ -730,7 +729,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
       OCL_CHECK(param_value && (param_value_size < sizeof(cl_version)),
                 return CL_INVALID_VALUE);
       if (param_value) {
-        cargo::string_view version_string{device->version};
+        const cargo::string_view version_string{device->version};
         *static_cast<cl_version_khr *>(param_value) = CL_MAKE_VERSION_KHR(
             CA_CL_PLATFORM_VERSION_MAJOR, CA_CL_PLATFORM_VERSION_MINOR, 0);
       }
@@ -934,7 +933,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
 CL_API_ENTRY cl_int CL_API_CALL cl::CreateSubDevices(
     cl_device_id in_device, const cl_device_partition_property *properties,
     cl_uint num_devices, cl_device_id *out_devices, cl_uint *num_devices_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateSubDevices");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateSubDevices");
   OCL_CHECK(!in_device, return CL_INVALID_DEVICE);
 
   OCL_UNUSED(out_devices);
@@ -942,7 +941,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::CreateSubDevices(
   if (properties) {
     switch (properties[0]) {
       case CL_DEVICE_PARTITION_EQUALLY: {
-        cl_uint num_sub_devices = static_cast<cl_uint>(properties[1]);
+        const cl_uint num_sub_devices = static_cast<cl_uint>(properties[1]);
         OCL_CHECK(num_sub_devices > num_devices, return CL_INVALID_VALUE);
         return CL_INVALID_VALUE;  // Sub devices not supported
       }

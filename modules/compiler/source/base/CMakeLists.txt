@@ -75,21 +75,27 @@ target_include_directories(compiler-base SYSTEM PUBLIC
 # 'clangCodeGen' library target brings in the 'LLVM' dynamic library. It is
 # not safe for us to link with LLVM's dynamic library, due to LLVM's use of
 # global/static state.
-foreach(CLANG_LIB "clangCodeGen" "clangFrontend" "clangDriver"
-                  "clangParse" "clangSerialization" "clangSema"
-                  "clangAnalysis" "clangAST" "clangEdit" "clangASTMatchers"
-                  "clangLex" "clangBasic" "clangSupport")
-  list(APPEND CLANG_LIBS
-    "${CA_LLVM_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${CLANG_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-endforeach()
+set(CLANG_LIBS "clangCodeGen" "clangFrontend" "clangDriver"
+               "clangParse" "clangSerialization" "clangSema"
+               "clangAnalysis" "clangAST" "clangEdit" "clangASTMatchers"
+               "clangLex" "clangBasic" "clangSupport")
+set(LLVM_LIBS "LLVMCodeGen" "LLVMOption" "LLVMCoroutines" "LLVMCoverage"
+              "LLVMLTO" "LLVMWindowsDriver" "LLVMFrontendHLSL")
+if(LLVM_VERSION_MAJOR GREATER_EQUAL 18)
+  list(APPEND CLANG_LIBS "clangAPINotes" "clangBasic")
+  list(APPEND LLVM_LIBS "LLVMFrontendDriver")
+endif()
+list(TRANSFORM CLANG_LIBS
+     PREPEND "${CA_LLVM_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}")
+list(TRANSFORM CLANG_LIBS
+     APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 target_link_libraries(compiler-base PUBLIC
-  builtins cargo mux spirv-ll compiler-utils vecz
+  builtins cargo mux spirv-ll compiler-pipeline compiler-binary-metadata vecz
   "${CLANG_LIBS}"
   # Link against version (for clang) on Windows.
   $<$<BOOL:${WIN32}>:version>
-  LLVMCodeGen LLVMOption LLVMCoroutines LLVMCoverage LLVMLTO LLVMWindowsDriver
-  LLVMFrontendHLSL
+  "${LLVM_LIBS}"
 )
 
 target_compile_definitions(compiler-base PRIVATE

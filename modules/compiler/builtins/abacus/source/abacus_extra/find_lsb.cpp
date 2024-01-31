@@ -34,7 +34,7 @@ typename TypeTraits<T>::SignedType find_lsb(const T t) {
   // lsb(0) = -1.
   // So here we use ctz to implement the non zero case and otherwise special
   // case 0.
-  SignedType c0 = t != 0;
+  const SignedType c0 = t != 0;
   return __abacus_select((SignedType)(-1), integer::ctz(t), c0);
 }
 }  // namespace

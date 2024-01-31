@@ -55,7 +55,7 @@ cargo::expected<host::query_pool_s *, mux_result_t> host::query_pool_s::create(
     query_align = alignof(host_papi_event_info_s);
 #endif
   }
-  size_t alloc_size = query_data_offset + query_size;
+  const size_t alloc_size = query_data_offset + query_size;
   // Using a single allocation with storage for the query pool results appended
   // to the end of the query_pool_s.
   auto memory =

@@ -41,7 +41,7 @@
 ; All functions
       %remquo_v2float = OpFunction %void_t None %remquo_fn_t
               %in_quo = OpFunctionParameter %v2int_ptr_t
-; CHECK: define spir_kernel void @remquo_v2float(ptr addrspace(1) %in_quo)
+; CHECK: define spir_kernel void @remquo_v2float(ptr addrspace(1) noundef %in_quo)
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 remquo %v2float_2 %v2float_1 %in_quo
 ; CHECK: = call spir_func <2 x float> @_Z6remquoDv2_fS_PU3AS1Dv2_i(<2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x float> <float 1.500000e+00, float 1.500000e+00>, ptr addrspace(1) %in_quo)

@@ -272,7 +272,7 @@ Function *BIMuxInfoConcept::defineGetGlobalId(Module &M) {
   // Pass on all arguments through to dependent builtins. We expect that each
   // function has identical prototypes, regardless of whether scheduling
   // parameters have been added
-  SmallVector<Value *, 4> Args(make_pointer_range(F->args()));
+  const SmallVector<Value *, 4> Args(make_pointer_range(F->args()));
 
   auto *const GetGroupIdCall = createCallHelper(B, *MuxGetGroupIdFn, Args);
   auto *const GetGlobalOffsetCall =
@@ -338,7 +338,7 @@ Function *BIMuxInfoConcept::defineGetGlobalSize(Module &M) {
   // Pass on all arguments through to dependent builtins. We expect that each
   // function has identical prototypes, regardless of whether scheduling
   // parameters have been added
-  SmallVector<Value *, 4> Args(make_pointer_range(F->args()));
+  const SmallVector<Value *, 4> Args(make_pointer_range(F->args()));
 
   // call get_num_groups
   auto *const GetNumGroupsCall = createCallHelper(B, *MuxGetNumGroupsFn, Args);
@@ -512,7 +512,7 @@ Function *BIMuxInfoConcept::defineGetEnqueuedLocalSize(Module &M) {
   // Pass on all arguments through to dependent builtins. We expect that each
   // function has identical prototypes, regardless of whether scheduling
   // parameters have been added
-  SmallVector<Value *, 4> Args(make_pointer_range(F->args()));
+  const SmallVector<Value *, 4> Args(make_pointer_range(F->args()));
 
   // Since we don't support non-uniform subgroups
   // get_enqueued_local_size(x) == get_local_size(x).
@@ -546,7 +546,7 @@ Function *BIMuxInfoConcept::defineMemBarrier(Function &F, unsigned,
       BasicBlock::Create(M.getContext(), "case.default", &F);
   auto *const Switch = B.CreateSwitch(Semantics, DefaultBB);
 
-  struct {
+  const struct {
     StringRef Name;
     unsigned SwitchVal;
     AtomicOrdering Ordering;
@@ -1015,7 +1015,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
       assert(!OverloadInfo.empty() && "Missing event type");
       auto *const EventTy = OverloadInfo[0];
       RetTy = EventTy;
-      bool IsRead = ID == eMuxBuiltinDMARead1D;
+      const bool IsRead = ID == eMuxBuiltinDMARead1D;
 
       PointerType *const LocalPtrTy =
           PointerType::get(Ctx, AddressSpace::Local);
@@ -1041,7 +1041,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
       assert(!OverloadInfo.empty() && "Missing event type");
       auto *const EventTy = OverloadInfo[0];
       RetTy = EventTy;
-      bool IsRead = ID == eMuxBuiltinDMARead2D;
+      const bool IsRead = ID == eMuxBuiltinDMARead2D;
 
       PointerType *const LocalPtrTy =
           PointerType::get(Ctx, AddressSpace::Local);
@@ -1069,7 +1069,7 @@ Function *BIMuxInfoConcept::getOrDeclareMuxBuiltin(
       assert(!OverloadInfo.empty() && "Missing event type");
       auto *const EventTy = OverloadInfo[0];
       RetTy = EventTy;
-      bool IsRead = ID == eMuxBuiltinDMARead3D;
+      const bool IsRead = ID == eMuxBuiltinDMARead3D;
 
       PointerType *const LocalPtrTy =
           PointerType::get(Ctx, AddressSpace::Local);
@@ -1307,19 +1307,22 @@ std::optional<llvm::ConstantRange> BIMuxInfoConcept::getBuiltinRange(
       if (!isa<ConstantInt>(DimIdx)) {
         return std::nullopt;
       }
-      uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
-      if (DimVal >= SizesPtr->size() || !(*SizesPtr)[DimVal]) {
+      const uint64_t DimVal = cast<ConstantInt>(DimIdx)->getZExtValue();
+      if (DimVal >= SizesPtr->size()) {
+        return std::nullopt;
+      }
+      const std::optional<uint64_t> Size = (*SizesPtr)[DimVal];
+      if (!Size) {
         return std::nullopt;
       }
       // ID builtins range [0,size) (exclusive), and size builtins [1,size]
       // (inclusive). Thus offset the range by 1 at each low/high end when
       // returning the range for a size builtin.
-      int const SizeAdjust = ID == eMuxBuiltinGetLocalSize ||
+      const int SizeAdjust = ID == eMuxBuiltinGetLocalSize ||
                              ID == eMuxBuiltinGetEnqueuedLocalSize ||
                              ID == eMuxBuiltinGetGlobalSize;
-      return ConstantRange::getNonEmpty(
-          APInt(Bits, SizeAdjust),
-          APInt(Bits, *(*SizesPtr)[DimVal] + SizeAdjust));
+      return ConstantRange::getNonEmpty(APInt(Bits, SizeAdjust),
+                                        APInt(Bits, Size.value() + SizeAdjust));
     }
   }
 }

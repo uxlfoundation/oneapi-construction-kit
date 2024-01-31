@@ -43,7 +43,7 @@ TEST_P(muxCreateExecutableTest, Default) {
 
 TEST_P(muxCreateExecutableTest, InvalidSource) {
   mux_executable_t executable;
-  uint64_t length = 1;
+  const uint64_t length = 1;
 
   ASSERT_ERROR_EQ(
       mux_error_invalid_value,

@@ -1,0 +1,98 @@
+name: Build and Package
+on:
+  push:
+    branches:
+      - stable
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run for RISCV
+  run_riscv_m1_nightly_package:
+    runs-on: ubuntu-22.04
+
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+       # installs tools, ninja, installs llvm and sets up sccache
+      - name: Setup ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 17
+          llvm_build_type: Release
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: Build riscv M1
+        uses: ./.github/actions/do_build_ock/do_build_m1
+        with:
+          build_type: Release
+          extra_flags: '-DCA_REFSI_M1_DEMO_MODE=ON'
+
+      - name: Create OCK install
+        run: |
+          ninja -C $(pwd)/build install
+
+      - name: Download Daily Release
+        run: |
+          # TODO: Update the nightly release from intel/llvm from 2023-12-18 to daily once
+          # everything has stablised
+          wget "https://github.com/intel/llvm/releases/download/nightly-2023-12-18/sycl_linux.tar.gz"
+          mkdir linux_nightly_release
+          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+
+      - name: Clone oneAPI-samples
+        run: git clone https://github.com/oneapi-src/oneAPI-samples.git
+
+      - name: Setup environment and test Vector Add
+        run: |
+          export ONEAPI_ROOT=$(pwd)/linux_nightly_release
+          export PATH=$(pwd)/linux_nightly_release/bin:$PATH
+          export LD_LIBRARY_PATH=$(pwd)/linux_nightly_release/lib:$(pwd)/install/lib:$LD_LIBRARY_PATH
+
+          $(pwd)/linux_nightly_release/bin/clang++ -fsycl $(pwd)/oneAPI-samples/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o vect
+          CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME="" ./vect
+
+      - name: Package Artifacts
+        run: |
+          tar -czf ock_install.tar.gz install
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: riscv-build
+          path: ock_install.tar.gz
+
+      - name: Compute tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name == 'schedule' }}" == "true" ]; then
+            echo "TAG=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          else
+            # TODO: Use date of the commit?
+            echo "TAG=$(date +'%Y-%m-%d')-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create OCK pre-release
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          files:
+            ock_install.tar.gz
+          tag_name: nightly-${{ steps.tag.outputs.TAG }}
+          name: OCK daily ${{ steps.tag.outputs.TAG }}
+          prerelease: true
+          body: "Daily build ${{ steps.tag.outputs.TAG }}"
+          target_commitish: ${{ github.sha }}

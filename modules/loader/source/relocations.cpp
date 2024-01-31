@@ -77,8 +77,8 @@ inline Integer setBitRange(Integer value, Integer subvalue, int first,
 }
 
 bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
-  uint32_t relocation_offset = r.offset & 0xFFFFFFFF;
-  int32_t addend = static_cast<int32_t>(r.addend);
+  const uint32_t relocation_offset = r.offset & 0xFFFFFFFF;
+  const int32_t addend = static_cast<int32_t>(r.addend);
 
   uint32_t symbol_target_address = static_cast<uint32_t>(
       map.getSymbolTargetAddress(r.symbol_index).value_or(0));
@@ -91,7 +91,7 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
     return false;
   }
   symbol_target_address += addend;
-  uint32_t relocated_section_base = static_cast<uint32_t>(
+  const uint32_t relocated_section_base = static_cast<uint32_t>(
       map.getSectionTargetAddress(r.section_index).value_or(0));
   if (relocated_section_base == 0) {
     return false;
@@ -126,7 +126,7 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
                       "WARNING: Relocation with possibly negative offset\n");
       }
 #endif
-      uint32_t value = symbol_target_address + implicit_addend;
+      const uint32_t value = symbol_target_address + implicit_addend;
       cargo::write_little_endian(value, relocation_address);
       break;
     }
@@ -135,15 +135,16 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
       // R_386_PC32 stores an addend at the relocation target as an int8_t
       uint8_t implicit_addend;
       cargo::read_little_endian(&implicit_addend, relocation_address);
-      uint32_t value = symbol_target_address - relocated_section_base -
-                       relocation_offset + static_cast<int8_t>(implicit_addend);
+      const uint32_t value = symbol_target_address - relocated_section_base -
+                             relocation_offset +
+                             static_cast<int8_t>(implicit_addend);
       cargo::write_little_endian(value, relocation_address);
       break;
     }
     case R_386_PC16: {
-      uint32_t real_value =
+      const uint32_t real_value =
           symbol_target_address - relocated_section_base - relocation_offset;
-      uint16_t trunc_value = real_value & 0xFFFF;
+      const uint16_t trunc_value = real_value & 0xFFFF;
       if (static_cast<int32_t>(real_value) !=
           static_cast<int16_t>(trunc_value)) {
         return false;
@@ -152,9 +153,9 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
       break;
     }
     case R_386_PC8: {
-      uint32_t real_value =
+      const uint32_t real_value =
           symbol_target_address - relocated_section_base - relocation_offset;
-      uint8_t trunc_value = real_value & 0xFF;
+      const uint8_t trunc_value = real_value & 0xFF;
       if (static_cast<int32_t>(real_value) !=
           static_cast<int8_t>(trunc_value)) {
         return false;
@@ -167,8 +168,8 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
 }
 
 bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
-  uint64_t relocation_offset = r.offset & 0xFFFFFFFF;
-  int64_t addend = r.addend;
+  const uint64_t relocation_offset = r.offset & 0xFFFFFFFF;
+  const int64_t addend = r.addend;
 
   uint64_t symbol_target_address =
       map.getSymbolTargetAddress(r.symbol_index).value_or(0);
@@ -181,7 +182,7 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     return false;
   }
   symbol_target_address += addend;
-  uint64_t relocated_section_base =
+  const uint64_t relocated_section_base =
       map.getSectionTargetAddress(r.section_index).value_or(0);
   if (relocated_section_base == 0) {
     return false;
@@ -209,15 +210,15 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     }
     // PC-relative 64-bit relocation
     case R_X86_64_PC64: {
-      uint64_t value =
+      const uint64_t value =
           symbol_target_address - relocated_section_base - relocation_offset;
       cargo::write_little_endian(value, relocation_address);
       break;
     }
     // absolute 32-bit relocation asserting its zero-extension is valid
     case R_X86_64_32: {
-      uint64_t real_value = symbol_target_address;
-      uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      const uint64_t real_value = symbol_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
       if (real_value != trunc_value) {
         return false;
       }
@@ -226,8 +227,8 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     }
     // absolute 32-bit relocation asserting its sign-extension is valid
     case R_X86_64_32S: {
-      uint64_t real_value = symbol_target_address;
-      uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      const uint64_t real_value = symbol_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int32_t>(trunc_value)) {
         return false;
@@ -238,9 +239,9 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     // 32-, 16- and 8-bit PC-relative relocations asserting their
     // sign-extensions are valid
     case R_X86_64_PC32: {
-      uint64_t real_value =
+      const uint64_t real_value =
           symbol_target_address - relocated_section_base - relocation_offset;
-      uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int32_t>(trunc_value)) {
         return false;
@@ -249,9 +250,9 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
       break;
     }
     case R_X86_64_PC16: {
-      uint64_t real_value =
+      const uint64_t real_value =
           symbol_target_address - relocated_section_base - relocation_offset;
-      uint16_t trunc_value = real_value & 0xFFFF;
+      const uint16_t trunc_value = real_value & 0xFFFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int16_t>(trunc_value)) {
         return false;
@@ -260,9 +261,9 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
       break;
     }
     case R_X86_64_PC8: {
-      uint64_t real_value =
+      const uint64_t real_value =
           symbol_target_address - relocated_section_base - relocation_offset;
-      uint8_t trunc_value = real_value & 0xFF;
+      const uint8_t trunc_value = real_value & 0xFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int8_t>(trunc_value)) {
         return false;
@@ -277,8 +278,8 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
 // assumes little-endian Arm, because big-endian is extremely rare
 bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
                 loader::Relocation::StubMap &stubs) {
-  uint32_t relocation_offset = r.offset & 0xFFFFFFFF;
-  int32_t addend = static_cast<int32_t>(r.addend);
+  const uint32_t relocation_offset = r.offset & 0xFFFFFFFF;
+  const int32_t addend = static_cast<int32_t>(r.addend);
 
   uint32_t symbol_target_address = static_cast<uint32_t>(
       map.getSymbolTargetAddress(r.symbol_index).value_or(0));
@@ -291,7 +292,7 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
     return false;
   }
   symbol_target_address += addend;
-  uint32_t relocated_section_base = static_cast<uint32_t>(
+  const uint32_t relocated_section_base = static_cast<uint32_t>(
       map.getSectionTargetAddress(r.section_index).value_or(0));
   if (relocated_section_base == 0) {
     return false;
@@ -302,7 +303,7 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
     return false;
   }
   uint8_t *relocation_address = relocated_section_begin + relocation_offset;
-  uint32_t relocation_target_address =
+  const uint32_t relocation_target_address =
       relocated_section_base + relocation_offset;
   uint32_t value;
   cargo::read_little_endian(&value, relocation_address);
@@ -355,9 +356,9 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
     // 32-bit address
     case R_ARM_MOVW_ABS_NC:
     case R_ARM_MOVT_ABS: {
-      uint32_t bits = (r.type == R_ARM_MOVW_ABS_NC)
-                          ? getBitRange(symbol_target_address, 0, 16)
-                          : getBitRange(symbol_target_address, 16, 16);
+      const uint32_t bits = (r.type == R_ARM_MOVW_ABS_NC)
+                                ? getBitRange(symbol_target_address, 0, 16)
+                                : getBitRange(symbol_target_address, 16, 16);
       value = setBitRange(value, bits >> 12, 16, 4);
       value = setBitRange(value, bits, 0, 12);
       cargo::write_little_endian(value, relocation_address);
@@ -367,7 +368,7 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
     case R_ARM_PC24:
     case R_ARM_CALL:
     case R_ARM_JUMP24: {
-      uint32_t stub_target = getOrCreateStub();
+      const uint32_t stub_target = getOrCreateStub();
       int32_t relative_value =
           static_cast<int32_t>(stub_target - relocation_target_address - 8);
       // ARM branch target encoding: 24 bits to store a 4-byte-granular address
@@ -393,8 +394,8 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
 #endif
 
-  uint64_t relocation_offset = r.offset;
-  int64_t addend = r.addend;
+  const uint64_t relocation_offset = r.offset;
+  const int64_t addend = r.addend;
 
   uint64_t symbol_target_address =
       map.getSymbolTargetAddress(r.symbol_index).value_or(0);
@@ -406,7 +407,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
     return false;
   }
   symbol_target_address += addend;
-  uint64_t relocated_section_base =
+  const uint64_t relocated_section_base =
       map.getSectionTargetAddress(r.section_index).value_or(0);
   if (relocated_section_base == 0) {
     return false;
@@ -417,7 +418,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
     return false;
   }
   uint8_t *relocation_address = relocated_section_begin + relocation_offset;
-  uint64_t relocation_target_address =
+  const uint64_t relocation_target_address =
       relocated_section_base + relocation_offset;
   uint64_t value;
   cargo::read_little_endian(&value, relocation_address);
@@ -479,8 +480,8 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       break;
     // absolute 16-bit relocation asserting validity of sign-extension
     case R_AARCH64_ABS16: {
-      uint64_t real_value = symbol_target_address;
-      uint16_t trunc_value = real_value & 0xFFFF;
+      const uint64_t real_value = symbol_target_address;
+      const uint16_t trunc_value = real_value & 0xFFFF;
       if (static_cast<int16_t>(trunc_value) !=
           static_cast<int64_t>(real_value)) {
         return false;
@@ -490,8 +491,8 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
     }
     // absolute 32-bit relocation asserting validity of sign-extension
     case R_AARCH64_ABS32: {
-      uint64_t real_value = symbol_target_address;
-      uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      const uint64_t real_value = symbol_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
       if (static_cast<int32_t>(trunc_value) !=
           static_cast<int64_t>(real_value)) {
         return false;
@@ -511,8 +512,9 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       break;
     // PC-relative 32-/16-bit relocations asserting sign-extension validity
     case R_AARCH64_PREL32: {
-      uint64_t real_value = symbol_target_address - relocation_target_address;
-      uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      const uint64_t real_value =
+          symbol_target_address - relocation_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
       if (static_cast<int32_t>(trunc_value) !=
           static_cast<int64_t>(real_value)) {
         return false;
@@ -521,8 +523,9 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       break;
     }
     case R_AARCH64_PREL16: {
-      uint64_t real_value = symbol_target_address - relocation_target_address;
-      uint16_t trunc_value = real_value & 0xFFFF;
+      const uint64_t real_value =
+          symbol_target_address - relocation_target_address;
+      const uint16_t trunc_value = real_value & 0xFFFF;
       if (static_cast<int16_t>(trunc_value) !=
           static_cast<int64_t>(real_value)) {
         return false;
@@ -541,14 +544,14 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
           static_cast<int64_t>(relative_value) < (1LL << 27)) {
         // The jump is stored as 26-bit signed integer. It can jump to 4B
         // boundaries, hence the `>> 2u`.
-        uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
+        const uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
         value32 |= imm26;
         cargo::write_little_endian(value32, relocation_address);
         break;
       }
       // If that fails because the target is too far, generate a stub (a small
       // section of code that sets up an absolute jump to a 64-bit location)
-      uint64_t stub_target = getOrCreateStub(symbol_target_address);
+      const uint64_t stub_target = getOrCreateStub(symbol_target_address);
       if (0LU == stub_target) {
 #ifndef NDEBUG
         (void)fprintf(
@@ -572,7 +575,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
         return false;
       }
       // Jump to the stub
-      uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
+      const uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
       value32 |= imm26;
       cargo::write_little_endian(value32, relocation_address);
       break;
@@ -689,7 +692,7 @@ bool loader::resolveRelocations(loader::ElfFile &file, loader::ElfMap &map) {
       if (!sname) {
         continue;
       }
-      cargo::string_view rel_section = *sname;
+      const cargo::string_view rel_section = *sname;
       auto rel_section_id =
           file.section(rel_section).map(&ElfFile::Section::index);
       if (!rel_section_id) {
@@ -722,7 +725,7 @@ bool loader::resolveRelocations(loader::ElfFile &file, loader::ElfMap &map) {
       if (!sname) {
         continue;
       }
-      cargo::string_view rel_section = *sname;
+      const cargo::string_view rel_section = *sname;
       auto rel_section_id =
           file.section(rel_section).map(&ElfFile::Section::index);
       if (!rel_section_id) {

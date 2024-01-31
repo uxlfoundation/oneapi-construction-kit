@@ -37,7 +37,7 @@ T native_log(const T x) {
                                       .676185676420138f};
 
   // helper calculates log(f + 1) / f
-  const T logf = abacus::internal::horner_polynomial<T, 3>(f - 1, polynomial);
+  const T logf = abacus::internal::horner_polynomial(f - 1, polynomial);
 
   const T oneOverlog2e = 0.693147180559945309417232121458;
   return f * logf + abacus::detail::cast::convert<T>(n) * oneOverlog2e;

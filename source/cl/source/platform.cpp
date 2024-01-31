@@ -66,7 +66,8 @@ cargo::expected<cl_platform_id, cl_int> _cl_platform_id::getInstance() {
 
     // Core allocator information, will be copied to each device, this is not
     // owned by the platform due to global tear down issues in the CTS.
-    mux_allocator_info_t mux_allocator = {default_alloc, default_free, nullptr};
+    const mux_allocator_info_t mux_allocator = {default_alloc, default_free,
+                                                nullptr};
 
     // Find out how many mux devices have been registered.
     uint64_t num_devices;
@@ -157,7 +158,7 @@ cargo::optional<std::string> _cl_platform_id::getCompilerLibraryLoaderError() {
 CL_API_ENTRY cl_int CL_API_CALL
 cl::GetPlatformIDs(const cl_uint num_entries, cl_platform_id *platforms,
                    cl_uint *const num_platforms) {
-  tracer::TraceGuard<tracer::OpenCL> trace("clGetPlatformIDs");
+  const tracer::TraceGuard<tracer::OpenCL> trace("clGetPlatformIDs");
   OCL_CHECK(platforms && (0 == num_entries), return CL_INVALID_VALUE);
   OCL_CHECK(!platforms && (0 < num_entries), return CL_INVALID_VALUE);
   OCL_CHECK(!platforms && !num_platforms, return CL_INVALID_VALUE);
@@ -174,7 +175,7 @@ CL_API_ENTRY cl_int CL_API_CALL
 cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
                     size_t param_value_size, void *param_value,
                     size_t *const param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> trace("clGetPlatformInfo");
+  const tracer::TraceGuard<tracer::OpenCL> trace("clGetPlatformInfo");
   OCL_CHECK(platform != _cl_platform_id::getInstance(),
             return CL_INVALID_PLATFORM);
 
@@ -205,7 +206,7 @@ cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
       // If any of the cl_device_id's are FULL_PROFILE the platform is
       // FULL_PROFILE, if all cl_device_id's are EMBEDDED_PROFILE the platform
       // is EMBEDDED_PROFILE.
-      bool full_profile =
+      const bool full_profile =
           std::any_of(platform->devices.begin(), platform->devices.end(),
                       [](const cl_device_id device) {
                         return device->profile == "FULL_PROFILE";
@@ -237,7 +238,7 @@ cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
 #endif
     case CL_PLATFORM_EXTENSIONS: {
       size_t value_size;
-      cl_int error = extension::GetPlatformInfo(
+      const cl_int error = extension::GetPlatformInfo(
           platform, CL_PLATFORM_EXTENSIONS, 0, nullptr, &value_size);
       OCL_CHECK(error, return error);
       OCL_CHECK(param_value && (param_value_size < value_size),
@@ -257,7 +258,7 @@ cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
 
 CL_API_ENTRY void *CL_API_CALL cl::GetExtensionFunctionAddressForPlatform(
     cl_platform_id platform, const char *func_name) {
-  tracer::TraceGuard<tracer::OpenCL> trace(
+  const tracer::TraceGuard<tracer::OpenCL> trace(
       "clGetExtensionFunctionAddressForPlatform");
   OCL_CHECK(platform != _cl_platform_id::getInstance(), return nullptr);
   return extension::GetExtensionFunctionAddressForPlatform(platform, func_name);
@@ -265,7 +266,8 @@ CL_API_ENTRY void *CL_API_CALL cl::GetExtensionFunctionAddressForPlatform(
 
 CL_API_ENTRY void *CL_API_CALL
 cl::GetExtensionFunctionAddress(const char *func_name) {
-  tracer::TraceGuard<tracer::OpenCL> trace("clGetExtensionFunctionAddress");
+  const tracer::TraceGuard<tracer::OpenCL> trace(
+      "clGetExtensionFunctionAddress");
   if (auto platform = _cl_platform_id::getInstance()) {
     return extension::GetExtensionFunctionAddressForPlatform(*platform,
                                                              func_name);

@@ -169,7 +169,7 @@ class InstanceTest : public testing::Test {
   }
 
   virtual void SetUp() {
-    std::array<const char *, 5> validationLayers{
+    const std::array<const char *, 5> validationLayers{
         {"VK_LAYER_GOOGLE_threading", "VK_LAYER_LUNARG_parameter_validation",
          "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_core_validation",
          "VK_LAYER_GOOGLE_unique_objects"}};
@@ -193,7 +193,7 @@ class InstanceTest : public testing::Test {
     instanceCreateInfo.ppEnabledLayerNames = enabledLayerNames.data();
     instanceCreateInfo.enabledLayerCount = enabledLayerNames.size();
 
-    std::array<const char *, 1> extensions{
+    const std::array<const char *, 1> extensions{
         {"VK_KHR_get_physical_device_properties2"},
     };
 
@@ -208,7 +208,7 @@ class InstanceTest : public testing::Test {
                                      extensionProperties.data()));
 
     for (const char *extensionNameCstr : extensions) {
-      std::string extensionName(extensionNameCstr);
+      const std::string extensionName(extensionNameCstr);
       for (VkExtensionProperties properties : extensionProperties) {
         if (extensionName == properties.extensionName) {
           enabledInstanceExtensionNames.push_back(extensionNameCstr);
@@ -314,7 +314,7 @@ class DeviceTest : public PhysicalDeviceTest {
     queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
-    std::array<std::pair<const char *, bool *>, 2> deviceExtensions{
+    const std::array<std::pair<const char *, bool *>, 2> deviceExtensions{
         {{"VK_KHR_storage_buffer_storage_class", &clspvSupported_},
          {"VK_KHR_variable_pointers", &clspvSupported_}}};
 
@@ -808,7 +808,7 @@ class PipelineTest : public RecordCommandBufferTest {
                        vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo,
                                               nullptr, &pipelineLayout));
     }
-    uvk::ShaderCode shaderCode = uvk::getShader(shader);
+    const uvk::ShaderCode shaderCode = uvk::getShader(shader);
 
     VkShaderModuleCreateInfo shaderCreateInfo = {};
     shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -936,7 +936,7 @@ class SimpleKernelTest : public uvk::PipelineTest,
       // BufferTest::SetUp() has found buffer memory requirements
       // TODO: *should* really be doing more requirement checking here
 
-      VkDeviceSize required_mem_size =
+      const VkDeviceSize required_mem_size =
           alignedDeviceSize(bufferMemoryRequirements);
 
       // Reserve continous memory region for both buffers

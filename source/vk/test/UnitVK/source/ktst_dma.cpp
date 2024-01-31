@@ -59,19 +59,19 @@ class DmaAutoConvolutionExecute : public Execution {
     const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D};
     const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D};
 
-    unsigned srcWidth = GLOBAL_ITEMS_1D + 16;
-    unsigned srcHeight = GLOBAL_ITEMS_2D + 8;
+    const unsigned srcWidth = GLOBAL_ITEMS_1D + 16;
+    const unsigned srcHeight = GLOBAL_ITEMS_2D + 8;
     kts::Reference1D<cl_uint> inA = [](size_t x) {
       return kts::Ref_Identity(x);
     };
     kts::Reference1D<cl_uint> RefOutput = [&](size_t x) {
       // First of all work out gidY and gidX
-      cl_uint gidX = kts::Ref_Identity(x) % GLOBAL_ITEMS_1D;
-      cl_uint gidY = kts::Ref_Identity(x) / GLOBAL_ITEMS_1D;
-      cl_uint gsizeX = GLOBAL_ITEMS_1D;
+      const cl_uint gidX = kts::Ref_Identity(x) % GLOBAL_ITEMS_1D;
+      const cl_uint gidY = kts::Ref_Identity(x) / GLOBAL_ITEMS_1D;
+      const cl_uint gsizeX = GLOBAL_ITEMS_1D;
       cl_uint total = totalStart;
-      cl_uint dstYStride = gsizeX;
-      cl_uint srcYStride = dstYStride + 16;
+      const cl_uint dstYStride = gsizeX;
+      const cl_uint srcYStride = dstYStride + 16;
       cl_uint srcIndex = gidY * srcYStride + gidX + 8;
       srcIndex += srcYStride;
       for (uint32_t yy = 0; yy < 3; yy++) {
@@ -80,7 +80,7 @@ class DmaAutoConvolutionExecute : public Execution {
             continue;
           }
           if (((1 << xx) & maskLoop1) && ((1 << xx) & maskLoop2)) {
-            cl_uint srcIndexLoop = yy * srcYStride + srcIndex + xx - 1;
+            const cl_uint srcIndexLoop = yy * srcYStride + srcIndex + xx - 1;
             total = total + inA(srcIndexLoop);
           }
         }

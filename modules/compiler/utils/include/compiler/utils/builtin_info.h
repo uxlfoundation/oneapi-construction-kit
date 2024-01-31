@@ -228,11 +228,11 @@ enum BuiltinProperties : int32_t {
 /// @brief struct to hold information about a builtin function
 struct Builtin {
   /// @brief the builtin Function
-  llvm::Function const &function;
+  const llvm::Function &function;
   /// @brief ID for internal use
-  BuiltinID const ID;
+  const BuiltinID ID;
   /// @brief the Builtin Properties
-  BuiltinProperties const properties;
+  const BuiltinProperties properties;
   /// @brief list of types used in overloading this builtin (only relevant for
   /// overloadable mux builtins)
   std::vector<llvm::Type *> mux_overload_info = {};
@@ -247,12 +247,12 @@ struct Builtin {
 /// @brief struct to hold information about a builtin function call
 struct BuiltinCall : public Builtin {
   /// @brief the call instruction
-  llvm::CallInst const &call;
+  const llvm::CallInst &call;
   /// @brief the uniformity of the builtin call
-  BuiltinUniformity const uniformity;
+  const BuiltinUniformity uniformity;
 
   /// @brief constructor
-  BuiltinCall(Builtin const &B, llvm::CallInst const &CI, BuiltinUniformity U)
+  BuiltinCall(const Builtin &B, const llvm::CallInst &CI, BuiltinUniformity U)
       : Builtin(B), call(CI), uniformity(U) {}
 };
 
@@ -362,12 +362,12 @@ class BuiltinInfo {
   /// @brief Determine general properties for the given builtin function.
   /// @param[in] F Function to analyze.
   /// @return Analyzed properties for the builtin.
-  Builtin analyzeBuiltin(llvm::Function const &F) const;
+  Builtin analyzeBuiltin(const llvm::Function &F) const;
 
   /// @brief Determine general properties for the given builtin function.
   /// @param[in] CI Call instruction to analyze.
   /// @return Analyzed properties for the builtin call.
-  BuiltinCall analyzeBuiltinCall(llvm::CallInst const &CI,
+  BuiltinCall analyzeBuiltinCall(const llvm::CallInst &CI,
                                  unsigned SimdDimIdx) const;
 
   /// @brief Try to find a builtin function that is a vector equivalent of the
@@ -377,7 +377,7 @@ class BuiltinInfo {
   /// @param[in] M Optional module where the vector equivalent should be
   /// declared.
   /// @return Equivalent vector builtin function on success.
-  llvm::Function *getVectorEquivalent(Builtin const &B, unsigned Width,
+  llvm::Function *getVectorEquivalent(const Builtin &B, unsigned Width,
                                       llvm::Module *M = nullptr);
 
   /// @brief Try to find a builtin function that is a scalar equivalent of the
@@ -386,7 +386,7 @@ class BuiltinInfo {
   /// @param[in] M Optional module where the vector equivalent should be
   /// declared.
   /// @return Equivalent scalar builtin function on success.
-  llvm::Function *getScalarEquivalent(Builtin const &B, llvm::Module *M);
+  llvm::Function *getScalarEquivalent(const Builtin &B, llvm::Module *M);
 
   /// @brief Emit an inline implementation of the builtin function F.
   /// @param[in] Builtin Builtin function to emit an implementation for.
@@ -650,7 +650,7 @@ class BuiltinInfo {
   /// @return Valid builtin ID if the name was identified, as well as any types
   /// required to overload the builtin ID.
   std::pair<BuiltinID, std::vector<llvm::Type *>> identifyMuxBuiltin(
-      llvm::Function const &F) const;
+      const llvm::Function &F) const;
 
   /// @brief Determine whether the given builtin function returns uniform values
   /// or not. An optional call instruction can be passed for more accuracy.
@@ -658,7 +658,7 @@ class BuiltinInfo {
   /// @param[in] CI Optional argument list from a call instruction.
   /// @param[in] SimdDimIdx Index of current vectorization dimension.
   /// @return Uniformity value for the builtin.
-  BuiltinUniformity isBuiltinUniform(Builtin const &B, const llvm::CallInst *CI,
+  BuiltinUniformity isBuiltinUniform(const Builtin &B, const llvm::CallInst *CI,
                                      unsigned SimdDimIdx) const;
 
   std::unique_ptr<BIMuxInfoConcept> MuxImpl;
@@ -792,16 +792,16 @@ class BILangInfoConcept {
   /// @see BuiltinInfo::getBuiltinsModule
   virtual llvm::Module *getBuiltinsModule() { return nullptr; }
   /// @see BuiltinInfo::analyzeBuiltin
-  virtual Builtin analyzeBuiltin(llvm::Function const &F) const = 0;
+  virtual Builtin analyzeBuiltin(const llvm::Function &F) const = 0;
   /// @see BuiltinInfo::isBuiltinUniform
-  virtual BuiltinUniformity isBuiltinUniform(Builtin const &B,
+  virtual BuiltinUniformity isBuiltinUniform(const Builtin &B,
                                              const llvm::CallInst *,
                                              unsigned) const = 0;
   /// @see BuiltinInfo::getVectorEquivalent
-  virtual llvm::Function *getVectorEquivalent(Builtin const &B, unsigned Width,
+  virtual llvm::Function *getVectorEquivalent(const Builtin &B, unsigned Width,
                                               llvm::Module *M = nullptr) = 0;
   /// @see BuiltinInfo::getScalarEquivalent
-  virtual llvm::Function *getScalarEquivalent(Builtin const &B,
+  virtual llvm::Function *getScalarEquivalent(const Builtin &B,
                                               llvm::Module *M) = 0;
   /// @see BuiltinInfo::emitBuiltinInline
   virtual llvm::Value *emitBuiltinInline(

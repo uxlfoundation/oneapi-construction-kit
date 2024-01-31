@@ -43,7 +43,7 @@ struct helper<T, abacus_half> {
                                         -6.186962127685546875e-5f16};
 
     // Use polynomial within bound [-0.6, 1.7] where we need to be more precise
-    T result = abacus::internal::horner_polynomial<T, 10>(x, polynomial);
+    T result = abacus::internal::horner_polynomial(x, polynomial);
 
     // Use naive `exp() - 1` implementation outwith bounds [-0.6, 1.7]
     const T naive = __abacus_exp(x) - 1.0f16;
@@ -69,7 +69,7 @@ struct helper<T, abacus_float> {
                                          0.2259264801e-4f,
                                          0.4331310997e-5f};
 
-    const T result = abacus::internal::horner_polynomial<T, 10>(x, polynomial);
+    const T result = abacus::internal::horner_polynomial(x, polynomial);
 
     return __abacus_select(result, __abacus_exp(x) - 1.0f,
                            (x < -0.6f) | (x > 1.60809791088104248046875f));
@@ -116,19 +116,17 @@ struct helper<T, abacus_double> {
 
     T result = __abacus_select(
         __abacus_exp(x) - 1.0,
-        x * abacus::internal::horner_polynomial<T, 15>(x, polynomial1), cond1);
+        x * abacus::internal::horner_polynomial(x, polynomial1), cond1);
 
     const SignedType cond2 = (x > 0.0) & (x <= 0.8);
 
     result = __abacus_select(
-        result, x * abacus::internal::horner_polynomial<T, 14>(x, polynomial2),
-        cond2);
+        result, x * abacus::internal::horner_polynomial(x, polynomial2), cond2);
 
     const SignedType cond3 = (x > 0.8) & (x < 1.7);
 
     result = __abacus_select(
-        result, abacus::internal::horner_polynomial<T, 15>(x, polynomial3),
-        cond3);
+        result, abacus::internal::horner_polynomial(x, polynomial3), cond3);
 
     return result;
   }

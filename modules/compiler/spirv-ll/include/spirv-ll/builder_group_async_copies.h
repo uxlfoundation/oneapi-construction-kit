@@ -41,7 +41,7 @@ class GroupAsyncCopiesBuilder : public ExtInstSetHandler {
   };
 
   /// @see ExtInstSetHandler::create
-  virtual llvm::Error create(OpExtInst const &opc) override;
+  virtual llvm::Error create(const OpExtInst &opc) override;
 
  private:
   /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
@@ -54,7 +54,7 @@ class GroupAsyncCopiesBuilder : public ExtInstSetHandler {
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
   template <Instruction inst>
-  llvm::Error create(OpExtInst const &opc);
+  llvm::Error create(const OpExtInst &opc);
 };
 
 }  // namespace spirv_ll

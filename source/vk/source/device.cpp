@@ -538,7 +538,8 @@ VkResult CreateDevice(vk::physical_device physicalDevice,
 #ifndef NDEBUG
   std::call_once(parseEnvironmentOptionsFlag, []() {
     const char *argv[] = {"ComputeAortaVK"};
-    std::lock_guard<std::mutex> lock(compiler::utils::getLLVMGlobalMutex());
+    const std::lock_guard<std::mutex> lock(
+        compiler::utils::getLLVMGlobalMutex());
     llvm::cl::ParseCommandLineOptions(1, argv, "", nullptr, "CA_LLVM_OPTIONS");
   });
 #endif
@@ -556,7 +557,7 @@ void DestroyDevice(vk::device device, const vk::allocator allocator) {
 
 VkResult DeviceWaitIdle(vk::device device) {
   // TODO: when/if we support multiple queues make this wait for each queue
-  mux_result_t error = muxWaitAll(device->queue->mux_queue);
+  const mux_result_t error = muxWaitAll(device->queue->mux_queue);
   if (mux_success != error) {
     return vk::getVkResult(error);
   }

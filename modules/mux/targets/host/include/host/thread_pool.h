@@ -107,7 +107,7 @@ struct thread_pool_s final {
   void enqueue_range(function_t function, void *user_data, void *user_data2,
                      std::array<std::atomic<bool>, N> &signals,
                      std::atomic<uint32_t> *count, size_t slices) {
-    tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
+    const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
     {
       std::unique_lock<std::mutex> lock(mutex);

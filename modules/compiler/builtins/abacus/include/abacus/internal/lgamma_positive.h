@@ -138,7 +138,7 @@ inline abacus_half lgamma_positive(abacus_half x) {
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
 inline abacus_float lgamma_positive(abacus_float x) {
-  abacus_float logx = __abacus_log(x);
+  const abacus_float logx = __abacus_log(x);
 
   if (x > 20.0f) {
     if (x >= abacus::detail::cast::as<abacus_float>(abacus_uint(0x7c42613a))) {
@@ -148,13 +148,13 @@ inline abacus_float lgamma_positive(abacus_float x) {
     return ((((x - 0.5f) * logx) - x) +
             (0.08333333333f / x + 0.91893851757049560546875f));
   }
-  abacus_int high_four = 4 * (x > _intervals[4]);
-  abacus_int high_two = high_four + 2 * (x > _intervals[high_four + 2]);
-  abacus_int interval = high_two + (x > _intervals[high_two + 1]);
+  const abacus_int high_four = 4 * (x > _intervals[4]);
+  const abacus_int high_two = high_four + 2 * (x > _intervals[high_four + 2]);
+  const abacus_int interval = high_two + (x > _intervals[high_two + 1]);
 
   x -= _lgamma_translation[interval];
 
-  abacus_float semi = abacus::internal::horner_polynomial(
+  const abacus_float semi = abacus::internal::horner_polynomial(
       x, __codeplay_lgamma_positive_coeff + interval * 8, 8);
 
   return (interval) ? semi : semi - logx;
@@ -175,8 +175,9 @@ inline T lgamma_positive(const T &x) {
     const SignedType cond = x > _intervals[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 8>(
-        x - _lgamma_translation[i], __codeplay_lgamma_positive_coeff + i * 8);
+    const T poly = abacus::internal::horner_polynomial(
+        x - _lgamma_translation[i], __codeplay_lgamma_positive_coeff + i * 8,
+        8);
 
     ans = __abacus_select(ans, poly, cond);
   }
@@ -212,9 +213,9 @@ inline T lgamma_positive_half(const T &x) {
     const SignedType cond = x > _intervals_half[i];
     interval = __abacus_select(interval, i, cond);
 
-    const T poly = abacus::internal::horner_polynomial<T, 8>(
+    const T poly = abacus::internal::horner_polynomial(
         x - _lgamma_translation_half[i],
-        __codeplay_lgamma_positive_coeff_half + i * 8);
+        __codeplay_lgamma_positive_coeff_half + i * 8, 8);
 
     ans = __abacus_select(ans, poly, cond);
   }
@@ -256,7 +257,7 @@ inline abacus_half16 lgamma_positive(const abacus_half16 &x) {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 // Gets the value of lgamma in the range [1,2]
 inline abacus_double lgamma_1to2(abacus_double x) {
-  abacus_double orig = x;
+  const abacus_double orig = x;
   abacus_double ans = ABACUS_NAN;
   if (1.0 <= orig && orig <= 1.5) {
     // About 1 ulp compared to std:
@@ -264,7 +265,7 @@ inline abacus_double lgamma_1to2(abacus_double x) {
     // lgamma is basically a random number generator, with no reference
     // function in the CTS. So we don't need to worry about error accumulation
     // in this large expression.
-    abacus_double poly =
+    const abacus_double poly =
         -0.577215664901532860606399608944e0 +
         (0.822467033424113218033719309828e0 +
          (-0.400685634386531367842803708273e0 +
@@ -311,7 +312,7 @@ inline abacus_double lgamma_1to2(abacus_double x) {
   if (1.5 < orig && orig <= 2.0) {
     // About 1 ulp compared to std:
     x = 2.0 - x;
-    abacus_double poly =
+    const abacus_double poly =
         -0.422784335098467139393487866219e0 +
         (0.322467033424113218236131449144e0 +
          (0.673523010531980951553028283174e-1 +
@@ -365,9 +366,9 @@ inline abacus_double lgamma_positive(abacus_double x) {
 
   if (x >= 10.0) {
     // Stirlings approximation:
-    abacus_double ln2pi =
+    const abacus_double ln2pi =
         1.837877066409345483560659472811235279722794947275566825634303 * 0.5;
-    abacus_double xx = x * x;
+    const abacus_double xx = x * x;
     return (x - 0.5) * __abacus_log(x) - x + ln2pi +
            ((((6930.0 * xx - 231.0) * xx + 66.0) * xx - 49.5) * xx + 70.0) /
                (83160.0 * xx * xx * xx * xx * x);
