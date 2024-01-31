@@ -341,7 +341,7 @@ add_to_group(ComputeAorta
   clVectorAddition vkVectorAddition veczc UnitUR urVectorAddition)
 
 # Create a check-ComputeAorta target to build+test.
-add_ca_check_group(ComputeAorta DEPENDS ComputeAorta check-ca)
+add_ca_check_group(ComputeAorta DEPENDS ComputeAorta check)
 
 # Create a check-tidy-ComputeAorta target to build+test+tidy.
 add_ca_check_group(tidy-ComputeAorta DEPENDS check-ComputeAorta tidy)
