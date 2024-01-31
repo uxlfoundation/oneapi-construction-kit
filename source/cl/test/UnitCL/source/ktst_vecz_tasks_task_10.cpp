@@ -222,7 +222,7 @@ UCL_EXECUTION_TEST_SUITE_P(
                     TypeAndFunctionParam{"float", "signbit"},
                     TypeAndFunctionParam{"double", "signbit"},
                     TypeAndFunctionParam{"float4", "signbit"},
-                    TypeAndFunctionParam{"double4", "signbit"}));
+                    TypeAndFunctionParam{"double4", "signbit"}))
 
 // Set local workgroup size to be the same as global work size, otherwise the
 // test is assuming that atomic operations have global scope, which is not

@@ -166,7 +166,7 @@ UCL_EXECUTION_TEST_SUITE_P(
         ArraySizeAndTypeParam(8, "double"), ArraySizeAndTypeParam(9, "short"),
         ArraySizeAndTypeParam(9, "int"), ArraySizeAndTypeParam(9, "double"),
         ArraySizeAndTypeParam(10, "short"), ArraySizeAndTypeParam(10, "int"),
-        ArraySizeAndTypeParam(10, "double")));
+        ArraySizeAndTypeParam(10, "double")))
 
 using AlignmentParam = unsigned int;
 using LocalStructAlignmentTests = ExecutionWithParam<AlignmentParam>;
@@ -249,7 +249,7 @@ UCL_EXECUTION_TEST_SUITE_P(
     LocalStructAlignmentTests, testing::Values(OPENCL_C),
     testing::Values(AlignmentParam(8), AlignmentParam(16), AlignmentParam(32),
                     AlignmentParam(64), AlignmentParam(128),
-                    AlignmentParam(256)));
+                    AlignmentParam(256)))
 
 using TypeParam = std::string;
 using StructMemberAlignmentTests = ExecutionWithParam<TypeParam>;
@@ -309,7 +309,7 @@ UCL_EXECUTION_TEST_SUITE_P(
     testing::Values(TypeParam("char16"), TypeParam("char8"),
                     TypeParam("short3"), TypeParam("short4"), TypeParam("int3"),
                     TypeParam("int8"), TypeParam("double3"),
-                    TypeParam("double8")));
+                    TypeParam("double8")))
 
 // The following struct template triggers clang-tidy data layout warnings which
 // are being used deliberately to test the interoperation with a kernel so mark
@@ -590,7 +590,7 @@ UCL_EXECUTION_TEST_SUITE_P(
     StructAttributeAlignmentTests, testing::Values(OPENCL_C),
     testing::Values(AlignmentParam(8), AlignmentParam(16), AlignmentParam(32),
                     AlignmentParam(64), AlignmentParam(128),
-                    AlignmentParam(256)));
+                    AlignmentParam(256)))
 
 TEST_P(Execution, Regression_39_Struct_Helper_Func) {
   const unsigned int outputSize = 2;  // Two helper functions
@@ -797,14 +797,14 @@ UCL_EXECUTION_TEST_SUITE_P(
                     "convert_short3_rtz", "convert_short3_rtn",
                     "convert_short3_rtp", "convert_short3_sat",
                     "convert_short3_sat_rte", "convert_short3_sat_rtz",
-                    "convert_short3_sat_rtn", "convert_short3_sat_rtp"));
+                    "convert_short3_sat_rtn", "convert_short3_sat_rtp"))
 UCL_EXECUTION_TEST_SUITE_P(
     Ushort3CodegenTests, testing::Values(OPENCL_C),
     testing::Values("convert_ushort3", "convert_ushort3_rte",
                     "convert_ushort3_rtz", "convert_ushort3_rtn",
                     "convert_ushort3_rtp", "convert_ushort3_sat",
                     "convert_ushort3_sat_rte", "convert_ushort3_sat_rtz",
-                    "convert_ushort3_sat_rtn", "convert_ushort3_sat_rtp"));
+                    "convert_ushort3_sat_rtn", "convert_ushort3_sat_rtp"))
 
 // With LLVM 3.9 sign extending short3 vectors to int3 vectors is causing
 // selection DAG errors, this can't be done directly in OpenCL C but the

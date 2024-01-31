@@ -218,7 +218,7 @@ enum mux_object_id_e {
   mux_object_id_fence = (13 << 16),
   /// @brief Mask for ID values which are always help in the upper 16 bits of
   /// the 32 bit `::mux_id_t`.
-  mux_object_id_mask = 0xffff0000
+  mux_object_id_mask = (int)0xffff0000
 };
 
 /// @brief All possible device types.
@@ -241,7 +241,7 @@ enum mux_device_type_e {
   /// @brief Device is a mysterious custom type.
   mux_device_type_custom = (0x1 << 5),
   /// @brief Mask to match all device types.
-  mux_device_type_all = 0xFFFFFFFF
+  mux_device_type_all = (int)0xFFFFFFFF
 };
 
 /// @brief All possible queue types that can be supported.

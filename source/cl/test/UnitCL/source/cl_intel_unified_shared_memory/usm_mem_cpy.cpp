@@ -222,7 +222,7 @@ using OpenCLTypes = ::testing::Types<
 // long time to analyze all of them.
 using OpenCLTypes = ::testing::Types<cl_int>;
 #endif
-TYPED_TEST_SUITE(USMMemCpyTest, OpenCLTypes);
+TYPED_TEST_SUITE(USMMemCpyTest, OpenCLTypes, );
 
 // Test for expected behaviour of source device USM allocation
 // clEnqueueMemcpyINTEL to a destination device USM allocation

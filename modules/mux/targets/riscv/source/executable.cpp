@@ -34,8 +34,8 @@ constexpr const char MD_NOTES_SECTION[] = "notes";
 md_hooks getElfMetadataReadHooks() {
   md_hooks md_hooks{};
 
-  md_hooks.map = [](void *userdata, size_t *n) -> void * {
-    const auto *const elfUserdata = static_cast<ElfUserdata *>(userdata);
+  md_hooks.map = [](const void *userdata, size_t *n) -> const void * {
+    const auto *const elfUserdata = static_cast<const ElfUserdata *>(userdata);
     const auto section = elfUserdata->elf->section(MD_NOTES_SECTION);
     if (!section.has_value()) {
       *n = 0;
@@ -43,7 +43,7 @@ md_hooks getElfMetadataReadHooks() {
     }
     auto sec_data = section.value().data();
     *n = sec_data.size();
-    return static_cast<void *>(sec_data.begin());
+    return sec_data.begin();
   };
 
   md_hooks.allocate = [](size_t size, size_t align, void *userdata) {

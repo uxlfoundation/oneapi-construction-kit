@@ -41,7 +41,7 @@ void PerformPrintf(mux_queue_t, mux_command_buffer_t, void *const user_data) {
 
   error = muxUnmapMemory(mux_device, printf_info->memory);
   OCL_ASSERT(mux_success == error, "muxUnmapMemory failed!");
-};
+}
 
 // Callback function for printing data using PerformPrintf, and then freeing
 // the printf resources afterwards. We can do this when we know the callback
@@ -55,7 +55,7 @@ void PrintfAndFree(mux_queue_t queue, mux_command_buffer_t command_buffer,
   // Destroy resources as part of callback
   auto printf_info = static_cast<printf_info_t *>(user_data);
   delete printf_info;
-};
+}
 }  // namespace
 
 printf_info_t::~printf_info_t() {

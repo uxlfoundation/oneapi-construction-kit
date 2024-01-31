@@ -223,4 +223,4 @@ TEST_F(clEnqueueFillBufferTest, CopyPatternData) {
   ASSERT_SUCCESS(clReleaseEvent(user_event));
 }
 
-GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueFillBufferTest);
+GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueFillBufferTest)

@@ -573,7 +573,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_04_Half_Normalize) {
 
 // No vector widths 8 or 16 defined for geometrics
 UCL_EXECUTION_TEST_SUITE_P(HalfGeometricBuiltins, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 3, 4));
+                           testing::Values(1, 2, 3, 4))
 
 using HalfGeometricCross = GeometricParamExecution;
 TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
@@ -681,4 +681,4 @@ TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
 
 // Cross is only defined for vector widths 3 and 4
 UCL_EXECUTION_TEST_SUITE_P(HalfGeometricCross, testing::Values(OPENCL_C),
-                           testing::Values(3, 4));
+                           testing::Values(3, 4))

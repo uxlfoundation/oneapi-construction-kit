@@ -95,7 +95,7 @@ UCL_EXECUTION_TEST_SUITE_P(
         32, 64, 128, 256, 512, 1024, 2048, 4096,
         // Test a power of numbers that are not powers of two, but are
         // divisible by powers of two (other than 1), i.e. vectorizable.
-        20, 40, 60, 120, 240, 480));
+        20, 40, 60, 120, 240, 480))
 
 TEST_P(Execution, Compiler_Barrier_04_Mutually_Exclusive_Barriers) {
   const size_t offset = 5;

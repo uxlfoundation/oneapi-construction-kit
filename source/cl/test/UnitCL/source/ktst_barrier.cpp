@@ -34,7 +34,7 @@ cl_int refOut(size_t x) {
   } else {
     return idx + 1;
   }
-};
+}
 }  // namespace
 
 TEST_P(Execution, Barrier_02_Barrier_No_Duplicates) {
@@ -197,7 +197,7 @@ TEST_P(Execution, Barrier_07_Barrier_In_Loop_4) {
 
 using BarrierDebugTests = kts::ucl::ExecutionWithParam<bool>;
 UCL_EXECUTION_TEST_SUITE_P(BarrierDebugTests, testing::Values(OPENCL_C),
-                           testing::Values(true, false));
+                           testing::Values(true, false))
 
 TEST_P(BarrierDebugTests, Barrier_08_Barrier_Debug) {
   fail_if_not_vectorized_ = false;
@@ -247,7 +247,7 @@ TEST_P(Execution, Barrier_10_Barriers_With_Alias) {
 
 using MultipleLocalDimensions = ExecutionWithParam<size_t>;
 UCL_EXECUTION_TEST_SUITE_P(MultipleLocalDimensions, testing::Values(OPENCL_C),
-                           testing::Values(2u, 4u, 8u, 16u, 32u));
+                           testing::Values(2u, 4u, 8u, 16u, 32u))
 
 TEST_P(MultipleLocalDimensions, Barrier_10_Barriers_With_Alias) {
   const cl_int global = 32;
@@ -385,7 +385,7 @@ TEST_P(Execution, Barrier_15_Vector_Barriers_With_Alias) {
 using MemFenceTests = kts::ucl::ExecutionWithParam<const char *>;
 UCL_EXECUTION_TEST_SUITE_P(MemFenceTests, testing::Values(OPENCL_C),
                            testing::Values("mem_fence", "read_mem_fence",
-                                           "write_mem_fence", "barrier"));
+                                           "write_mem_fence", "barrier"))
 TEST_P(MemFenceTests, Barrier_16_Memory_Fence_Global) {
   AddMacro("FENCE_OP", getParam());
   AddInputBuffer(kts::N, kts::Ref_Identity);

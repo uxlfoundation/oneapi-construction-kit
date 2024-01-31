@@ -37,7 +37,7 @@ constexpr bool isAlignmentValid(cl_uint alignment) {
 template <typename T>
 constexpr bool areMultipleBitsSet(T value) {
   return value && (value & (value - 1)) != 0;
-};
+}
 
 cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
     const cl_mem_properties_intel *properties, bool is_shared) {
@@ -227,7 +227,7 @@ host_allocation_info::~host_allocation_info() {
   if (base_ptr) {
     cargo::free(base_ptr);
   }
-};
+}
 
 cargo::expected<std::unique_ptr<host_allocation_info>, cl_int>
 host_allocation_info::create(cl_context context,
@@ -336,7 +336,7 @@ device_allocation_info::device_allocation_info(const cl_context context,
       mux_memory(nullptr),
       mux_buffer(nullptr) {
   cl::retainInternal(device);
-};
+}
 
 device_allocation_info::~device_allocation_info() {
   if (mux_buffer) {
@@ -349,7 +349,7 @@ device_allocation_info::~device_allocation_info() {
   }
 
   cl::releaseInternal(device);
-};
+}
 
 cargo::expected<std::unique_ptr<device_allocation_info>, cl_int>
 device_allocation_info::create(cl_context context, cl_device_id device,
@@ -435,7 +435,7 @@ shared_allocation_info::shared_allocation_info(const cl_context context,
   if (device) {
     cl::retainInternal(device);
   }
-};
+}
 
 shared_allocation_info::~shared_allocation_info() {
   if (mux_buffer) {
@@ -457,7 +457,7 @@ shared_allocation_info::~shared_allocation_info() {
   if (device) {
     cl::releaseInternal(device);
   }
-};
+}
 
 cargo::expected<std::unique_ptr<shared_allocation_info>, cl_int>
 shared_allocation_info::create(cl_context context, cl_device_id device,

@@ -117,7 +117,7 @@ TEST_P(InitTest, C11Atomics_02_Init_Local_Double) {
   doTest<cl_double>(/*local*/ true);
 }
 
-UCL_EXECUTION_TEST_SUITE(InitTest, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(InitTest, testing::ValuesIn(source_types))
 
 class FenceTest : public C11AtomicTestBase {};
 
@@ -188,7 +188,7 @@ TEST_P(FenceTest, C11Atomics_08_Fence_Local) {
   this->RunGeneric1D(kts::N, kts::localN);
 }
 
-UCL_EXECUTION_TEST_SUITE(FenceTest, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(FenceTest, testing::ValuesIn(source_types))
 
 class LoadStoreTest : public C11AtomicTestBase {
  public:
@@ -314,7 +314,7 @@ TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Double) {
   doTest<cl_double>();
 }
 
-UCL_EXECUTION_TEST_SUITE(LoadStoreTest, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(LoadStoreTest, testing::ValuesIn(source_types))
 
 class ExchangeTest : public C11AtomicTestBase {
  public:
@@ -405,7 +405,7 @@ TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Double) {
   doTest<cl_double>();
 }
 
-UCL_EXECUTION_TEST_SUITE(ExchangeTest, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(ExchangeTest, testing::ValuesIn(source_types))
 
 class FlagTest : public kts::ucl::Execution {
  protected:
@@ -495,7 +495,7 @@ TEST_P(FlagTest, C11Atomics_20_Flag_Global_Set_Once) {
   this->RunGeneric1D(kts::N);
 }
 
-UCL_EXECUTION_TEST_SUITE(FlagTest, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(FlagTest, testing::ValuesIn(source_types))
 
 class FetchTest : public C11AtomicTestBase {
  protected:
@@ -1427,7 +1427,7 @@ TEST_P(FetchTest, C11Atomics_48_Fetch_Local_Max_Ulong) {
   doLocalTest<cl_ulong>(nullptr, max_ref);
 }
 
-UCL_EXECUTION_TEST_SUITE(FetchTest, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(FetchTest, testing::ValuesIn(source_types))
 
 using TruthTableInputs = std::pair<unsigned, unsigned>;
 
@@ -1648,7 +1648,7 @@ static const TruthTableInputs truth_table_domain[] = {
 UCL_EXECUTION_TEST_SUITE(
     FetchTruthTableTest,
     testing::Combine(testing::ValuesIn(source_types),
-                     testing::ValuesIn(truth_table_domain)));
+                     testing::ValuesIn(truth_table_domain)))
 
 class Strong : public C11AtomicTestBase {
  public:
@@ -1813,7 +1813,7 @@ TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Ulong) {
   doTest<cl_ulong>(/*local*/ true);
 }
 
-UCL_EXECUTION_TEST_SUITE(Strong, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(Strong, testing::ValuesIn(source_types))
 
 class StrongGlobalSingle : public C11AtomicTestBase {
  public:
@@ -1953,7 +1953,7 @@ TEST_P(StrongGlobalSingle,
   doTest<cl_ulong>();
 }
 
-UCL_EXECUTION_TEST_SUITE(StrongGlobalSingle, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(StrongGlobalSingle, testing::ValuesIn(source_types))
 
 class StrongLocalSingle : public C11AtomicTestBase {
  public:
@@ -2114,7 +2114,7 @@ TEST_P(StrongLocalSingle,
   doTest<cl_ulong>();
 }
 
-UCL_EXECUTION_TEST_SUITE(StrongLocalSingle, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(StrongLocalSingle, testing::ValuesIn(source_types))
 
 class Weak : public C11AtomicTestBase {
  public:
@@ -2307,7 +2307,7 @@ TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Ulong) {
   doTest<cl_ulong>(/*local*/ true);
 }
 
-UCL_EXECUTION_TEST_SUITE(Weak, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(Weak, testing::ValuesIn(source_types))
 
 class WeakGlobalSingle : public C11AtomicTestBase {
  public:
@@ -2452,7 +2452,7 @@ TEST_P(WeakGlobalSingle,
   doTest<cl_ulong>();
 }
 
-UCL_EXECUTION_TEST_SUITE(WeakGlobalSingle, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(WeakGlobalSingle, testing::ValuesIn(source_types))
 
 class WeakLocalSingle : public C11AtomicTestBase {
  public:
@@ -2620,4 +2620,4 @@ TEST_P(WeakLocalSingle,
   doTest<cl_ulong>();
 }
 
-UCL_EXECUTION_TEST_SUITE(WeakLocalSingle, testing::ValuesIn(source_types));
+UCL_EXECUTION_TEST_SUITE(WeakLocalSingle, testing::ValuesIn(source_types))

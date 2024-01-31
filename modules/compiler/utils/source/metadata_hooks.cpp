@@ -42,7 +42,7 @@ md_hooks getElfMetadataWriteHooks() {
 
       // Append data
       llvm::SmallVector<uint8_t, 100> Data{OldBytes.begin(), OldBytes.end()};
-      Data.insert(Data.end(), (uint8_t *)src, (uint8_t *)src + n);
+      Data.insert(Data.end(), (const uint8_t *)src, (const uint8_t *)src + n);
 
       GlobalMD->eraseFromParent();
 
@@ -55,7 +55,7 @@ md_hooks getElfMetadataWriteHooks() {
           M->getOrInsertGlobal(globalName, MDTy));
       GlobalMD->setInitializer(MDInit);
     } else {
-      auto MDDataArr = llvm::ArrayRef((uint8_t *)src, n);
+      auto MDDataArr = llvm::ArrayRef((const uint8_t *)src, n);
       auto *MDTy =
           llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), MDDataArr.size());
       auto *MDInit = llvm::ConstantDataArray::get(Ctx, MDDataArr);

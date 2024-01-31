@@ -182,7 +182,7 @@ struct TracerVirtualMemFileImpl {
     const uint64_t insert_pt = offset.fetch_add(size);
 
     if ((insert_pt + size) < max_offset) {
-      std::memcpy((void *)&map[insert_pt], (void *)buf, size);
+      std::memcpy((void *)&map[insert_pt], (const void *)buf, size);
     }
   }
 

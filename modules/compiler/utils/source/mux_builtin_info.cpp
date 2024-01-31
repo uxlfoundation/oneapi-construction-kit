@@ -1265,7 +1265,7 @@ BIMuxInfoConcept::getFunctionSchedulingParameters(Function &F) {
   }
 
   return SchedParamInfo;
-};
+}
 
 Value *BIMuxInfoConcept::initializeSchedulingParamForWrappedKernel(
     const BuiltinInfo::SchedParamInfo &Info, IRBuilder<> &B, Function &IntoF,

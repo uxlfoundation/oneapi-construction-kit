@@ -206,7 +206,7 @@ HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
   }
 
   return {{0, 0, 0}};
-};
+}
 
 cargo::expected<size_t, compiler::Result> HostKernel::queryMaxSubGroupCount() {
   // Without compiling this kernel, we can't determine the actual maximum

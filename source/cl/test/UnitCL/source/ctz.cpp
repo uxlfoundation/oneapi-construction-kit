@@ -183,7 +183,7 @@ using ScalarIntegerTypes =
 using IntegerTypes = testing::Types<ucl::Int>;
 using ScalarIntegerTypes = testing::Types<ucl::Int>;
 #endif
-INSTANTIATE_TYPED_TEST_SUITE_P(SingleIntger, CtzTest, IntegerTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(SingleIntger, CtzTest, IntegerTypes, );
 
 template <typename T>
 class CtzEdgeCaseTest : public CtzTest<T> {};
@@ -201,4 +201,4 @@ TYPED_TEST_P(CtzEdgeCaseTest, EdgeCase) {
 }
 
 REGISTER_TYPED_TEST_SUITE_P(CtzEdgeCaseTest, EdgeCase);
-INSTANTIATE_TYPED_TEST_SUITE_P(EdgeCase, CtzEdgeCaseTest, ScalarIntegerTypes);
+INSTANTIATE_TYPED_TEST_SUITE_P(EdgeCase, CtzEdgeCaseTest, ScalarIntegerTypes, );
