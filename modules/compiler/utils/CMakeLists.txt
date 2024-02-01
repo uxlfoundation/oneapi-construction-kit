@@ -160,6 +160,10 @@ else()
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 endif()
 
+if(CA_NATIVE_CPU)
+  target_include_directories(compiler-binary-metadata PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
+endif()
+
 target_compile_definitions(compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
   $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
