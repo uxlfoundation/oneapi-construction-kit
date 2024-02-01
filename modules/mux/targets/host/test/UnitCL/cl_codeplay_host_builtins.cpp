@@ -42,7 +42,7 @@ TEST_F(cl_codeplay_host_builtins_test, KernelWithBuiltin) {
   EXPECT_SUCCESS(errorcode);
 
   // Build should fail if the force header is missing
-  bool has_force_header =
+  const bool has_force_header =
       UCL::hasDeviceExtensionSupport(device, "cl_codeplay_host_builtins");
   if (has_force_header) {
     EXPECT_SUCCESS(

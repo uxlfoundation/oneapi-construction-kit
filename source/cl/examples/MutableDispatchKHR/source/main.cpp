@@ -45,7 +45,7 @@ int main(const int argc, const char **argv) {
   std::string extension_names(extension_names_size, '\0');
 
   CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extension_names.size(),
-                           &extension_names[0], nullptr));
+                           extension_names.data(), nullptr));
 
   // Mutable-dispatch extension is only reported when cl_khr_command_buffer is
   // also enabled, so don't need to check for cl_khr_command_buffer as well.
@@ -209,11 +209,14 @@ int main(const int argc, const char **argv) {
     // If not executing the first frame
     if (i != 0) {
       // Configure the mutable configuration to update the kernel arguments
-      cl_mutable_dispatch_arg_khr arg_0{0, sizeof(cl_mem), &input_A_buffer};
-      cl_mutable_dispatch_arg_khr arg_1{1, sizeof(cl_mem), &input_B_buffer};
-      cl_mutable_dispatch_arg_khr arg_2{2, sizeof(cl_mem), &output_buffer};
-      cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
-      cl_mutable_dispatch_config_khr dispatch_config{
+      const cl_mutable_dispatch_arg_khr arg_0{0, sizeof(cl_mem),
+                                              &input_A_buffer};
+      const cl_mutable_dispatch_arg_khr arg_1{1, sizeof(cl_mem),
+                                              &input_B_buffer};
+      const cl_mutable_dispatch_arg_khr arg_2{2, sizeof(cl_mem),
+                                              &output_buffer};
+      const cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
+      const cl_mutable_dispatch_config_khr dispatch_config{
           CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
           nullptr,
           command_handle,
@@ -227,7 +230,7 @@ int main(const int argc, const char **argv) {
           nullptr /* global_work_offset */,
           nullptr /* global_work_size */,
           nullptr /* local_work_size */};
-      cl_mutable_base_config_khr mutable_config{
+      const cl_mutable_base_config_khr mutable_config{
           CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1,
           &dispatch_config};
 
@@ -258,7 +261,7 @@ int main(const int argc, const char **argv) {
       const cl_int result = input_a[i] + input_b[i];
       if (output[i] != result) {
         std::cerr << "Error: Incorrect result at index " << i << " - Expected "
-                  << output[i] << " was " << result << std::endl;
+                  << output[i] << " was " << result << '\n';
         std::exit(1);
       }
     }

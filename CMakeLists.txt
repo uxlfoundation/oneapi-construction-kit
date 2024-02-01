@@ -177,8 +177,7 @@ find_package(PythonInterp 3.6 REQUIRED)
 # which perform static analysis and style checking on source files.
 # When updating the version here, also update that used in the merge request
 # config
-find_package(ClangTools 17 COMPONENTS clang-format)
-find_package(ClangTools 9 COMPONENTS clang-tidy)
+find_package(ClangTools 17 COMPONENTS clang-format clang-tidy)
 if(TARGET ClangTools::clang-tidy)
   ca_option(CA_CLANG_TIDY_FLAGS STRING
     "Semi-color separated list of clang-tidy flags" "")

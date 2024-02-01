@@ -20,7 +20,7 @@
 
 #include "common.h"
 
-enum { MEMORY_SIZE = 128 };
+const size_t MEMORY_SIZE = 128;
 
 struct muxBindBufferMemoryTest : public DeviceTest {
   mux_memory_t memory = nullptr;

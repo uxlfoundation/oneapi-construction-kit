@@ -247,6 +247,7 @@ Checks: "bugprone-*,\
          misc-*,\
          -misc-definitions-in-headers,\
          -misc-forwarding-reference-overload,\
+         -misc-include-cleaner,\
          -misc-macro-parentheses,\
          -misc-misplaced-const,\
          -misc-non-private-member-variables-in-classes,\
@@ -255,12 +256,14 @@ Checks: "bugprone-*,\
          -misc-string-compare,\
          -misc-unconventional-assign-operator,\
          -misc-unused-parameters,\
+         -misc-use-anonymous-namespace,\
          modernize-*,\
          -modernize-avoid-bind,\
          -modernize-avoid-c-arrays,\
          -modernize-concat-nested-namespaces,\
          -modernize-deprecated-headers,\
          -modernize-loop-convert,\
+         -modernize-macro-to-enum,\
          -modernize-make-unique,\
          -modernize-pass-by-value,\
          -modernize-redundant-void-arg,\
@@ -311,6 +314,7 @@ Checks: "bugprone-*,\
          -readability-string-compare,\
          -readability-uppercase-literal-suffix,\
          -readability-use-anyofallof"
+
 # -UNDEBUG so that clang-tidy always sees asserts, whatever the build type.
 # -fno-caret-diagnostics to silence warning counts from headers.
 # -Wno-unknown-warning-option so we can use compilation database on GCC configs

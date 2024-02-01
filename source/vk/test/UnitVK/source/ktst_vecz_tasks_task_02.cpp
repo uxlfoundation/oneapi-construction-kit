@@ -87,8 +87,8 @@ TEST_F(Execution, Task_02_07_Length_Builtin) {
 
 TEST_F(Execution, Task_02_08_Barrier_Add) {
   if (clspvSupported_) {
-    const cl_int array_size = 16;
-    const unsigned groupSize = array_size / 2;
+    const size_t array_size = 16;
+    const size_t groupSize = array_size / 2;
     kts::Reference1D<cl_int> refOut = [](size_t) { return 1; };
     AddInputBuffer(2 * groupSize, kts::Ref_A);
     AddInputBuffer(2 * groupSize, kts::Ref_B);

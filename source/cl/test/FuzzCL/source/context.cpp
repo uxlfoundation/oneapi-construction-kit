@@ -242,9 +242,11 @@ void fuzzcl::enqueueReadBufferRect(fuzzcl::context_t &fc,
   const size_t host_row_pitch = region[0] * sizeof(cl_int);
   const size_t host_slice_pitch = region[1] * host_row_pitch;
 
-  assert(buffer_origin[2] * buffer_slice_pitch +
-             buffer_origin[1] * buffer_row_pitch + buffer_origin[0] +
-             region[0] * region[1] * region[2] * sizeof(cl_int) <=
+  assert(static_cast<size_t>(buffer_origin[2]) * buffer_slice_pitch +
+             static_cast<size_t>(buffer_origin[1]) * buffer_row_pitch +
+             static_cast<size_t>(buffer_origin[0]) +
+             static_cast<size_t>(region[0]) * static_cast<size_t>(region[1]) *
+                 static_cast<size_t>(region[2]) * sizeof(cl_int) <=
          BUFFER_SIZE * sizeof(cl_int));
 
   std::vector<cl_int> *host_buffer_ptr = new std::vector<cl_int>(BUFFER_SIZE);
@@ -311,23 +313,27 @@ void fuzzcl::enqueueWriteBufferRect(fuzzcl::context_t &fc,
 
   // in bytes
   std::array<size_t, 3> *buffer_origin_ptr = new std::array<size_t, 3>{
-      {buffer_origin[0] * sizeof(cl_int), static_cast<size_t>(buffer_origin[1]),
+      {static_cast<size_t>(buffer_origin[0]) * sizeof(cl_int),
+       static_cast<size_t>(buffer_origin[1]),
        static_cast<size_t>(buffer_origin[2])}};
   std::array<size_t, 3> *host_origin_ptr = new std::array<size_t, 3>{
-      {host_origin[0] * sizeof(cl_int), static_cast<size_t>(host_origin[1]),
+      {static_cast<size_t>(host_origin[0]) * sizeof(cl_int),
+       static_cast<size_t>(host_origin[1]),
        static_cast<size_t>(host_origin[2])}};
   std::array<size_t, 3> *region_ptr = new std::array<size_t, 3>{
-      {region[0] * sizeof(cl_int), static_cast<size_t>(region[1]),
-       static_cast<size_t>(region[2])}};
+      {static_cast<size_t>(region[0]) * sizeof(cl_int),
+       static_cast<size_t>(region[1]), static_cast<size_t>(region[2])}};
 
   const size_t buffer_row_pitch = BUFFER_WIDTH * sizeof(cl_int);
   const size_t buffer_slice_pitch = BUFFER_HEIGHT * buffer_row_pitch;
   const size_t host_row_pitch = region[0] * sizeof(cl_int);
   const size_t host_slice_pitch = region[1] * host_row_pitch;
 
-  assert(buffer_origin[2] * buffer_slice_pitch +
-             buffer_origin[1] * buffer_row_pitch + buffer_origin[0] +
-             region[0] * region[1] * region[2] * sizeof(cl_int) <=
+  assert(static_cast<size_t>(buffer_origin[2]) * buffer_slice_pitch +
+             static_cast<size_t>(buffer_origin[1]) * buffer_row_pitch +
+             static_cast<size_t>(buffer_origin[0]) +
+             static_cast<size_t>(region[0]) * static_cast<size_t>(region[1]) *
+                 static_cast<size_t>(region[2]) * sizeof(cl_int) <=
          BUFFER_SIZE * sizeof(cl_int));
 
   std::vector<cl_int> *host_buffer_ptr = new std::vector<cl_int>(BUFFER_SIZE);

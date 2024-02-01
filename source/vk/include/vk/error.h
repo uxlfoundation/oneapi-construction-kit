@@ -26,10 +26,10 @@
 /// @brief Display MESSAGE then abort due to catastrophic failure.
 ///
 /// @param MESSAGE Message to display.
-#define VK_ABORT(MESSAGE)                                        \
-  {                                                              \
-    fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, MESSAGE); \
-    abort();                                                     \
+#define VK_ABORT(MESSAGE)                                              \
+  {                                                                    \
+    (void)fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, MESSAGE); \
+    abort();                                                           \
   }
 
 /// @brief Check CONDITION and display MESSAGE then abort due to exceptional

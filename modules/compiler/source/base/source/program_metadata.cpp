@@ -75,6 +75,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
           return {ArgumentKind::INT32};
         case 64:
           return {ArgumentKind::INT64};
+        default:
+          break;
       }
       break;
     case 2:
@@ -87,6 +89,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
           return {ArgumentKind::INT32_2};
         case 64:
           return {ArgumentKind::INT64_2};
+        default:
+          break;
       }
       break;
     case 3:
@@ -99,6 +103,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
           return {ArgumentKind::INT32_3};
         case 64:
           return {ArgumentKind::INT64_3};
+        default:
+          break;
       }
       break;
     case 4:
@@ -111,6 +117,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
           return {ArgumentKind::INT32_4};
         case 64:
           return {ArgumentKind::INT64_4};
+        default:
+          break;
       }
       break;
     case 8:
@@ -123,6 +131,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
           return {ArgumentKind::INT32_8};
         case 64:
           return {ArgumentKind::INT64_8};
+        default:
+          break;
       }
       break;
     case 16:
@@ -135,7 +145,11 @@ compiler::ArgumentType createIntegerOrSamplerType(
           return {ArgumentKind::INT32_16};
         case 64:
           return {ArgumentKind::INT64_16};
+        default:
+          break;
       }
+      break;
+    default:
       break;
   }
 
@@ -160,6 +174,8 @@ ArgumentType createFloatingPointType(uint32_t num_elements,
         return {ArgumentKind::HALF_8};
       case 16:
         return {ArgumentKind::HALF_16};
+      default:
+        break;
     }
   } else if (element_width == 32) {
     switch (num_elements) {
@@ -175,6 +191,8 @@ ArgumentType createFloatingPointType(uint32_t num_elements,
         return {ArgumentKind::FLOAT_8};
       case 16:
         return {ArgumentKind::FLOAT_16};
+      default:
+        break;
     }
   } else if (element_width == 64) {
     switch (num_elements) {
@@ -190,6 +208,8 @@ ArgumentType createFloatingPointType(uint32_t num_elements,
         return {ArgumentKind::DOUBLE_8};
       case 16:
         return {ArgumentKind::DOUBLE_16};
+      default:
+        break;
     }
   }
 

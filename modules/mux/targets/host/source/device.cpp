@@ -118,13 +118,13 @@ uint32_t os_cpu_frequency() {
         ;
       }
 
-      fclose(file);
+      (void)fclose(file);
       const float mhz = atof(buffer + i);
       return static_cast<uint32_t>(mhz);
     }
   }
 
-  fclose(file);
+  (void)fclose(file);
   return 0;  // could not find mhz value!
 #elif defined(__MCOS_POSIX__)
   return 0;
@@ -231,7 +231,7 @@ uint64_t os_cache_size() {
     assert(0 && "Reading from the cache file failed!");
   }
 
-  fclose(file);
+  (void)fclose(file);
 
   // caches are described in kilobytes, so multiply the cache size
   return static_cast<uint64_t>(atoi(data)) * 1024;
@@ -301,7 +301,7 @@ uint64_t os_cacheline_size() {
     assert(0 && "Reading from the cache file failed!");
   }
 
-  fclose(file);
+  (void)fclose(file);
 
   // caches are described in bytes
   return static_cast<uint64_t>(atoi(data));
@@ -440,7 +440,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   this->cacheline_size = native ? os_cacheline_size() : 0;
 
   // See redmine #4947
-  this->shared_local_memory_size = 32 * 1024;
+  this->shared_local_memory_size = 32L * 1024L;
 
   // default to 128 bit (16 bytes)
   this->native_vector_width = 128 / (8 * sizeof(uint8_t));

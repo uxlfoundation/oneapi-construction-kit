@@ -133,7 +133,7 @@ cargo::expected<cl_platform_id, cl_int> _cl_platform_id::getInstance() {
     // Windows because DLL's which we rely on are not guarenteed to be loaded
     // when atexit handlers are invoked, the advice given by Microsoft is not
     // to perform any tear down at all.
-    atexit([]() {
+    (void)atexit([]() {
       for (auto device : platform.value()->devices) {
         cl::releaseInternal(device);
       }

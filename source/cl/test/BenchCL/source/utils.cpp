@@ -67,16 +67,16 @@ cl_uint benchcl::get_device(cargo::string_view device_name,
   }
 
   if (device_name == nullptr) {
-    fprintf(stderr,
-            "error: multiple devices found but no device name specified, "
-            "please use '--benchcl_device='\n");
+    (void)fprintf(stderr,
+                  "error: multiple devices found but no device name specified, "
+                  "please use '--benchcl_device='\n");
   } else {
-    fprintf(stderr, "error: device '%s' not found\n", device_name.data());
+    (void)fprintf(stderr, "error: device '%s' not found\n", device_name.data());
   }
 
-  fprintf(stderr, "Available devices:\n");
+  (void)fprintf(stderr, "Available devices:\n");
   for (const std::string &name : names) {
-    fprintf(stderr, "  - '%s'\n", name.c_str());
+    (void)fprintf(stderr, "  - '%s'\n", name.c_str());
   }
 
   return CL_DEVICE_NOT_FOUND;
