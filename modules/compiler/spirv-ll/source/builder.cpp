@@ -1247,9 +1247,9 @@ std::string spirv_ll::Builder::getMangledTypeName(
       } else if (structName.contains("event_t")) {
         return "9ocl_event";
       } else {
-        std::fprintf(stderr,
-                     "mangler: unknown pointer to struct argument type: %.*s\n",
-                     static_cast<int>(structName.size()), structName.data());
+        (void)std::fprintf(
+            stderr, "mangler: unknown pointer to struct argument type: %.*s\n",
+            static_cast<int>(structName.size()), structName.data());
         std::abort();
       }
     }

@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
     for (const std::string &file : files) {
       // a flush is specifically needed so a python wrapper can get an
       // unbuffered output
-      std::cout << file << std::endl;
+      std::cout << file << '\n' << std::flush;
       std::vector<uint8_t> data =
           fuzzcl::read_file<uint8_t>(arguments.corpus + file);
 

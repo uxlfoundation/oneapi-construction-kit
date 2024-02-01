@@ -2693,6 +2693,8 @@ static std::optional<unsigned> parseMemFenceFlagsParam(Value *const P) {
       case CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE:
         return (BIMuxInfoConcept::MemSemanticsWorkGroupMemory |
                 BIMuxInfoConcept::MemSemanticsCrossWorkGroupMemory);
+      default:
+        llvm_unreachable("unhandled memory fence flags");
     }
   }
   return std::nullopt;
@@ -2714,6 +2716,8 @@ static std::optional<unsigned> parseMemoryScopeParam(Value *const P) {
       case memory_scope_all_devices:
       case memory_scope_all_svm_devices:
         return BIMuxInfoConcept::MemScopeCrossDevice;
+      default:
+        llvm_unreachable("unhandled memory scope");
     }
   }
   return std::nullopt;
@@ -2732,6 +2736,8 @@ static std::optional<unsigned> parseMemoryOrderParam(Value *const P) {
         return BIMuxInfoConcept::MemSemanticsAcquireRelease;
       case memory_order_seq_cst:
         return BIMuxInfoConcept::MemSemanticsSequentiallyConsistent;
+      default:
+        llvm_unreachable("unhandled memory order");
     }
   }
   return std::nullopt;

@@ -271,10 +271,16 @@ void replaceFetchKey(CallInst *C11FetchKey) {
     auto OpTypeMangledIndex =
         BuiltinName.find("Atomic", KeyEndIndex) + std::strlen("Atomic");
     switch (BuiltinName[OpTypeMangledIndex]) {
+      case 'i':
+      case 'l':
+        break;
       case 'j':
       case 'm':
         KeyOpCode = (KeyOpCode == AtomicRMWInst::Min) ? AtomicRMWInst::UMin
                                                       : AtomicRMWInst::UMax;
+        break;
+      default:
+        llvm_unreachable("unhandled atomic type");
     }
   }
 

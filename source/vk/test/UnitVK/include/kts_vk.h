@@ -558,13 +558,14 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
       std::string name, prefix;
       const testing::UnitTest *test = testing::UnitTest::GetInstance();
       if (nullptr == test) {
-        std::fprintf(stderr, "Could not get a reference to the current test.");
+        (void)std::fprintf(stderr,
+                           "Could not get a reference to the current test.");
         std::abort();
       }
       const testing::TestInfo *test_info = test->current_test_info();
       if (nullptr == test_info) {
-        std::fprintf(stderr,
-                     "Could not get a reference to the current test info.");
+        (void)std::fprintf(
+            stderr, "Could not get a reference to the current test info.");
         std::abort();
       }
       GetKernelPrefixAndName(test_info->name(), prefix, name);

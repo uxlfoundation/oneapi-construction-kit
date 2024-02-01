@@ -17,6 +17,7 @@
 #include <cargo/array_view.h>
 #include <cargo/expected.h>
 #include <cl/buffer.h>
+#include <cl/command_queue.h>
 #include <cl/context.h>
 #include <cl/device.h>
 #include <cl/event.h>
@@ -219,7 +220,7 @@ _cl_command_buffer_khr::create(
 
     auto current = properties;
     do {
-      cl_command_buffer_properties_khr property = current[0];
+      const cl_command_buffer_properties_khr property = current[0];
       switch (property) {
         case CL_COMMAND_BUFFER_FLAGS_KHR:
           if (0 == (seen & CL_COMMAND_BUFFER_FLAGS_KHR)) {
@@ -274,7 +275,7 @@ cl_command_buffer_state_khr _cl_command_buffer_khr::getState() const {
 }
 
 cl_int _cl_command_buffer_khr::finalize() {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   if (is_finalized) {
     return CL_INVALID_OPERATION;
@@ -334,7 +335,7 @@ _cl_command_buffer_khr::convertWaitList(
 cl_int _cl_command_buffer_khr::commandBarrierWithWaitList(
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   auto command_wait_list = convertWaitList(cl_wait_list);
   if (!command_wait_list) {
@@ -374,7 +375,7 @@ cl_int _cl_command_buffer_khr::commandCopyBuffer(
     cl_mem src_buffer, cl_mem dst_buffer, size_t src_offset, size_t dst_offset,
     size_t size, cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add references to the buffers.
   if (auto error = retain(src_buffer)) {
@@ -426,7 +427,7 @@ cl_int _cl_command_buffer_khr::commandCopyImage(
     const size_t *dst_origin, const size_t *region,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add references to the images.
   if (auto error = retain(src_image)) {
@@ -487,7 +488,7 @@ cl_int _cl_command_buffer_khr::commandCopyBufferRect(
     size_t src_slice_pitch, size_t dst_row_pitch, size_t dst_slice_pitch,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add a references to the buffers.
   if (auto error = retain(src_buffer)) {
@@ -520,7 +521,7 @@ cl_int _cl_command_buffer_khr::commandCopyBufferRect(
 
   mux_sync_point_t mux_sync_point = nullptr;
   mux_sync_point_t *out_sync_point = cl_sync_point ? &mux_sync_point : nullptr;
-  mux_result_t mux_error = muxCommandCopyBufferRegions(
+  const mux_result_t mux_error = muxCommandCopyBufferRegions(
       mux_command_buffer, mux_src_buffer, mux_dst_buffer, &r_info, 1,
       wait_list_length, wait_list_length ? command_wait_list->data() : nullptr,
       out_sync_point);
@@ -553,7 +554,7 @@ cl_int _cl_command_buffer_khr::commandFillBuffer(
     cl_mem buffer, const void *pattern, size_t pattern_size, size_t offset,
     size_t size, cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add a reference to the buffer.
   if (auto error = retain(buffer)) {
@@ -605,7 +606,7 @@ cl_int _cl_command_buffer_khr::commandFillImage(
     const size_t *region,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add a reference to the image.
   if (auto error = retain(image)) {
@@ -654,7 +655,7 @@ cl_int _cl_command_buffer_khr::commandCopyBufferToImage(
     const size_t *dst_origin, const size_t *region,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add references to the memory objects.
   if (auto error = retain(src_buffer)) {
@@ -711,7 +712,7 @@ cl_int _cl_command_buffer_khr::commandCopyImageToBuffer(
     const size_t *region, size_t dst_offset,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Add references to the memory objects.
   if (auto error = retain(src_image)) {
@@ -769,7 +770,7 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
     const size_t *global_work_size, const size_t *local_work_size,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point, cl_mutable_command_khr *mutable_handle) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
 
   // Check the required work group size (if it exists).
   if (auto error = kernel->checkReqdWorkGroupSize(work_dim, local_work_size)) {
@@ -828,7 +829,7 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
 
   auto &device_program = kernel->program->programs[device];
   if (device_program.printf_calls.size() != 0) {
-    cl_int err = createPrintfBuffer(
+    const cl_int err = createPrintfBuffer(
         device, final_local_work_size, final_global_size, num_groups,
         buffer_group_size, printf_memory, printf_buffer);
     if (err) {
@@ -837,7 +838,7 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
   }
 
   const cl_uint device_index = kernel->program->context->getDeviceIndex(device);
-  mux_ndrange_options_t mux_execution_options =
+  const mux_ndrange_options_t mux_execution_options =
       kernel->createKernelExecutionOptions(
           device, device_index, work_dim, final_local_work_size,
           final_global_offset, final_global_size, printf_buffer,
@@ -1072,10 +1073,10 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
 
 [[nodiscard]] cl_int _cl_command_buffer_khr::updateCommandBuffer(
     const cl_mutable_base_config_khr &mutable_config) {
-  std::lock_guard<std::mutex> guard(mutex);
+  const std::lock_guard<std::mutex> guard(mutex);
   const cl_device_id device = command_queue->device;
 
-  cargo::array_view<const cl_mutable_dispatch_config_khr>
+  const cargo::array_view<const cl_mutable_dispatch_config_khr>
       mutable_dispatch_configs(mutable_config.mutable_dispatch_list,
                                mutable_config.num_mutable_dispatch);
 
@@ -1194,7 +1195,7 @@ bool _cl_command_buffer_khr::isQueueCompatible(
 CL_API_ENTRY cl_command_buffer_khr CL_API_CALL clCreateCommandBufferKHR(
     cl_uint num_queues, const cl_command_queue *queues,
     const cl_command_buffer_properties_khr *properties, cl_int *errcode_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCreateCommandBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCreateCommandBufferKHR");
 
   OCL_CHECK(!queues, OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_VALUE);
             return nullptr);
@@ -1221,7 +1222,7 @@ CL_API_ENTRY cl_command_buffer_khr CL_API_CALL clCreateCommandBufferKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL
 clReleaseCommandBufferKHR(cl_command_buffer_khr command_buffer) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clReleaseCommandBufferKHR");
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
 
   return cl::releaseExternal(command_buffer);
@@ -1229,7 +1230,7 @@ clReleaseCommandBufferKHR(cl_command_buffer_khr command_buffer) {
 
 CL_API_ENTRY cl_int CL_API_CALL
 clRetainCommandBufferKHR(cl_command_buffer_khr command_buffer) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clRetainCommandBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clRetainCommandBufferKHR");
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
 
   return cl::retainExternal(command_buffer);
@@ -1237,7 +1238,7 @@ clRetainCommandBufferKHR(cl_command_buffer_khr command_buffer) {
 
 CL_API_ENTRY cl_int CL_API_CALL
 clFinalizeCommandBufferKHR(cl_command_buffer_khr command_buffer) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clFinalizeCommandBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clFinalizeCommandBufferKHR");
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
 
   return command_buffer->finalize();
@@ -1247,7 +1248,7 @@ CL_API_ENTRY cl_int CL_API_CALL clEnqueueCommandBufferKHR(
     cl_uint num_queues, cl_command_queue *queues,
     cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *return_event) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCommandBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCommandBufferKHR");
 
   // Verify queue arguments.
   OCL_CHECK(!queues ^ !num_queues, return CL_INVALID_COMMAND_QUEUE);
@@ -1278,7 +1279,8 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandBarrierWithWaitListKHR(
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandBarrierWithWaitListKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clCommandBarrierWithWaitListKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1304,7 +1306,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferKHR(
     size_t size, cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyBufferKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1315,7 +1317,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cl_int error = cl::validate::CopyBufferArguments(
+  const cl_int error = cl::validate::CopyBufferArguments(
       command_buffer->command_queue, src_buffer, dst_buffer, src_offset,
       dst_offset, size);
   OCL_CHECK(error, return error);
@@ -1339,7 +1341,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferRectKHR(
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyBufferRectKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyBufferRectKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1364,7 +1366,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferRectKHR(
     dst_slice_pitch = region[1] * dst_row_pitch;
   }
 
-  cl_int error = cl::validate::CopyBufferRectArguments(
+  const cl_int error = cl::validate::CopyBufferRectArguments(
       command_buffer->command_queue, src_buffer, dst_buffer, src_origin,
       dst_origin, region, src_row_pitch, src_slice_pitch, dst_row_pitch,
       dst_slice_pitch);
@@ -1388,7 +1390,8 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferToImageKHR(
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyBufferToImageKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clCommandCopyBufferToImageKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1399,7 +1402,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferToImageKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cl_int error = cl::validate::CopyBufferToImageArguments(
+  const cl_int error = cl::validate::CopyBufferToImageArguments(
       command_buffer->command_queue, src_buffer, dst_image, src_offset,
       dst_origin, region);
   OCL_CHECK(error, return error);
@@ -1422,7 +1425,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageKHR(
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyImageKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyImageKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1433,7 +1436,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cl_int error = cl::validate::CopyImageArguments(
+  const cl_int error = cl::validate::CopyImageArguments(
       command_buffer->command_queue, src_image, dst_image, src_origin,
       dst_origin, region);
   OCL_CHECK(error, return error);
@@ -1456,7 +1459,8 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageToBufferKHR(
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyImageToBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard(
+      "clCommandCopyImageToBufferKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1467,7 +1471,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageToBufferKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cl_int error = cl::validate::CopyImageToBufferArguments(
+  const cl_int error = cl::validate::CopyImageToBufferArguments(
       command_buffer->command_queue, src_image, dst_buffer, src_origin, region,
       dst_offset);
   OCL_CHECK(error, return error);
@@ -1489,7 +1493,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillBufferKHR(
     size_t size, cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandFillBufferKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCommandFillBufferKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1500,7 +1504,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillBufferKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cl_int error =
+  const cl_int error =
       cl::validate::FillBufferArguments(command_buffer->command_queue, buffer,
                                         pattern, pattern_size, offset, size);
   OCL_CHECK(error, return error);
@@ -1521,7 +1525,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillImageKHR(
     const size_t *region, cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandFillImageKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCommandFillImageKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1532,7 +1536,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillImageKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cl_int error = cl::validate::FillImageArguments(
+  const cl_int error = cl::validate::FillImageArguments(
       command_buffer->command_queue, image, fill_color, origin, region);
   OCL_CHECK(error, return error);
 
@@ -1554,7 +1558,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clCommandNDRangeKernelKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clCommandNDRangeKernelKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(command_buffer->is_finalized, return CL_INVALID_OPERATION);
@@ -1585,7 +1589,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
     cl_ndrange_kernel_command_properties_khr seen = 0;
     auto current = properties;
     do {
-      cl_command_buffer_properties_khr property = current[0];
+      const cl_command_buffer_properties_khr property = current[0];
       switch (property) {
         case CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR:
           if (0 == (seen & CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR)) {
@@ -1661,7 +1665,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
 CL_API_ENTRY cl_int CL_API_CALL clGetCommandBufferInfoKHR(
     cl_command_buffer_khr command_buffer, cl_command_buffer_info_khr param_name,
     size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandBufferInfoKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandBufferInfoKHR");
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
 

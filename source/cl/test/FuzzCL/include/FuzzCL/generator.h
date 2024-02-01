@@ -17,9 +17,8 @@
 #ifndef FUZZCL_GENERATOR_H_INCLUDED
 #define FUZZCL_GENERATOR_H_INCLUDED
 
+#include <cassert>
 #include <fstream>
-
-#include "FuzzCL/context.h"
 
 namespace fuzzcl {
 /// @brief Type containing test execution parameters
@@ -347,6 +346,8 @@ struct code_generator_t {
       case CL_MAP_WRITE:
         p->map_flags.push_back("CL_MAP_WRITE");
         break;
+      default:
+        assert(0 && "invalid map flag");
     }
 
     p->offsets.push_back(std::to_string(offset));
@@ -561,6 +562,8 @@ struct code_generator_t {
       case CL_MAP_WRITE:
         p->map_flags.push_back("CL_MAP_WRITE");
         break;
+      default:
+        assert(0 && "invalid map flag");
     }
 
     p->image_origins.push_back('{' + std::to_string(origin[0]) + ", " +

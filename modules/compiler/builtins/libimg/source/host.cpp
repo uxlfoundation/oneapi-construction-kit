@@ -706,6 +706,9 @@ void libimg::HostFillImage(HostImage *image, const void *fill_color,
     case CLK_FLOAT: {
       std::memcpy(final_color, &shuffled_color, desc.pixel_size);
     } break;
+    default: {
+      IMG_UNREACHABLE("unhandled channel type");
+    }
   }
 
   uint8_t *dst = image->image.raw_data + origin[0] * desc.pixel_size +

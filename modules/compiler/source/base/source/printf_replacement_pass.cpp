@@ -346,6 +346,8 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
             var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
           }
           break;
+        default:
+          break;
       }
     } else if (auto gep_string = dyn_cast<GetElementPtrInst>(op)) {
       var = dyn_cast<GlobalVariable>(gep_string->getPointerOperand());
@@ -359,13 +361,14 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
             // We only expect a direct store of a global variable or a GEP of
             // one.
             auto *const store_val = store_string->getValueOperand();
-            if ((var = dyn_cast<GlobalVariable>(store_val))) {
+            var = dyn_cast<GlobalVariable>(store_val);
+            if (var) {
               break;
             }
             if (auto const_string = dyn_cast<ConstantExpr>(store_val)) {
               if (const_string->getOpcode() == Instruction::GetElementPtr) {
-                if (nullptr != (var = dyn_cast<GlobalVariable>(
-                                    const_string->getOperand(0)))) {
+                var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
+                if (var) {
                   break;
                 }
               }

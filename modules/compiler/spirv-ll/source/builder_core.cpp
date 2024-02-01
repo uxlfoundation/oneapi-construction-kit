@@ -602,9 +602,10 @@ llvm::Error Builder::create<OpTypeImage>(const OpTypeImage *op) {
       imageTypeName += "image1d_buffer_t";
       break;
     default:
-      fprintf(stderr,
-              "Unsupported type (Dim = %d) passed to 'create<OpTypeImage>'\n",
-              op->Dim());
+      (void)fprintf(
+          stderr,
+          "Unsupported type (Dim = %d) passed to 'create<OpTypeImage>'\n",
+          op->Dim());
       std::abort();
       break;
   }
@@ -1143,6 +1144,8 @@ llvm::Error Builder::create<OpSpecConstant>(const OpSpecConstant *op) {
               // Vulkan SPIR-V does not support 8 bit integers.
               size = -1;
             }
+            break;
+          default:
             break;
         }
         // SpecializationInfo::getValue does not require the type to match, it
@@ -1871,8 +1874,9 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
           arg_types.push_back(type);
         }
 
-        llvm::Type *push_constant_struct_type = nullptr;
-        if ((push_constant_struct_type = module.getPushConstantStructType())) {
+        llvm::Type *push_constant_struct_type =
+            module.getPushConstantStructType();
+        if (push_constant_struct_type) {
           arg_types.push_back(push_constant_struct_type);
         }
 
@@ -2009,7 +2013,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
               // than 1. This is an upsteam bug that may be resolved to encode
               // the legnth as 1, so here we handle both cases.
               numElements = std::max(numElements, static_cast<uint16_t>(1));
-              llvm::Type *vecTypeHint = nullptr;
+              llvm::Type *vecTypeHint;
               switch (dataType) {
                 case 0:  // 8-bit integer value
                   vecTypeHint = llvm::FixedVectorType::get(
@@ -2045,11 +2049,11 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
                       llvm::Type::getDoubleTy(*context.llvmContext),
                       numElements);
                   break;
+                default:
+                  llvm_unreachable(
+                      "OpExecutionMode VecTypeHint invalid vector type");
               }
 
-              SPIRV_LL_ASSERT(
-                  nullptr != vecTypeHint,
-                  "OpExecutionMode VecTypeHint invalid vector type");
               function->setMetadata(
                   "vec_type_hint",
                   llvm::MDNode::get(

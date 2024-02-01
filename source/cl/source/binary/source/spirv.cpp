@@ -47,8 +47,6 @@ const std::array<const std::string, 11> supported_extensions = {
 cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     mux_device_info_t device_info, cargo::string_view profile) {
   compiler::spirv::DeviceInfo spvDeviceInfo;
-  cargo::result result = cargo::result::success;
-
   auto &spvCapabilities = spvDeviceInfo.capabilities;
 
   // A set of capabilities shared between the OpenCL profiles we support.
@@ -77,11 +75,12 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     if (!error_or) {
       return cargo::make_unexpected(error_or.error());
     }
-    if ((result = spvCapabilities.push_back(spv::CapabilityInt64))) {
+    if (auto result = spvCapabilities.push_back(spv::CapabilityInt64)) {
       return cargo::make_unexpected(result);
     }
     if (device_info->atomic_capabilities & mux_atomic_capabilities_64bit) {
-      if ((result = spvCapabilities.push_back(spv::CapabilityInt64Atomics))) {
+      if (auto result =
+              spvCapabilities.push_back(spv::CapabilityInt64Atomics)) {
         return cargo::make_unexpected(result);
       }
     }
@@ -93,11 +92,12 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
       return cargo::make_unexpected(error_or.error());
     }
     if (device_info->integer_capabilities & mux_integer_capabilities_64bit) {
-      if ((result = spvCapabilities.push_back(spv::CapabilityInt64))) {
+      if (auto result = spvCapabilities.push_back(spv::CapabilityInt64)) {
         return cargo::make_unexpected(result);
       }
       if (device_info->atomic_capabilities & mux_atomic_capabilities_64bit) {
-        if ((result = spvCapabilities.push_back(spv::CapabilityInt64Atomics))) {
+        if (auto result =
+                spvCapabilities.push_back(spv::CapabilityInt64Atomics)) {
           return cargo::make_unexpected(result);
         }
       }
@@ -118,7 +118,7 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     }
   }
   if (device_info->half_capabilities) {
-    if ((result = spvCapabilities.push_back(spv::CapabilityFloat16))) {
+    if (auto result = spvCapabilities.push_back(spv::CapabilityFloat16)) {
       return cargo::make_unexpected(result);
     }
   }
@@ -144,7 +144,8 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     }
   }
   if (device_info->supports_generic_address_space) {
-    if ((result = spvCapabilities.push_back(spv::CapabilityGenericPointer))) {
+    if (auto result =
+            spvCapabilities.push_back(spv::CapabilityGenericPointer)) {
       return cargo::make_unexpected(result);
     }
   }
@@ -152,12 +153,13 @@ cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
     // Note: This is something of a lie, as we don't support DeviceEnqueue,
     // but we must support the 'SubgroupSize' ExecutionMode for SYCL 2020 and
     // that is lumped in with SubgroupDispatch.
-    if ((result = spvCapabilities.push_back(spv::CapabilitySubgroupDispatch))) {
+    if (auto result =
+            spvCapabilities.push_back(spv::CapabilitySubgroupDispatch)) {
       return cargo::make_unexpected(result);
     }
   }
   for (const std::string &extension : supported_extensions) {
-    if ((result = spvDeviceInfo.extensions.push_back(extension))) {
+    if (auto result = spvDeviceInfo.extensions.push_back(extension)) {
       return cargo::make_unexpected(result);
     }
   }

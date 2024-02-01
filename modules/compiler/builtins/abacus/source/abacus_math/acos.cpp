@@ -125,10 +125,11 @@ abacus_float ABACUS_API __abacus_acos(abacus_float x) {
 
 // approximate acos*acos:
 #ifdef __CODEPLAY_USE_ESTRIN_POLYNOMIAL_REDUCTION__
-  abacus_float ans = __Codeplay__estrin_4coeff(xAbs, polynomial + interval * 4);
+  abacus_float ans =
+      __Codeplay__estrin_4coeff(xAbs, polynomial + interval * (size_t)4);
 #else
-  const abacus_float ans =
-      abacus::internal::horner_polynomial(xAbs, polynomial + interval * 4, 4);
+  const abacus_float ans = abacus::internal::horner_polynomial(
+      xAbs, polynomial + interval * (size_t)4, 4);
 #endif
 
   // get acos:
@@ -157,7 +158,7 @@ T acos(const T x) {
     interval = __abacus_select(interval, i, cond);
 
     const T poly = abacus::internal::horner_polynomial(
-        i < 12 ? oneMinusXAbs : xAbs, polynomial + i * 4, 4);
+        i < 12 ? oneMinusXAbs : xAbs, polynomial + i * (size_t)4, 4);
 
     ans = __abacus_select(ans, poly, cond);
   }
