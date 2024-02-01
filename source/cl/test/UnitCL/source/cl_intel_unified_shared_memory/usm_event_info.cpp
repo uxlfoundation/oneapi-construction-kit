@@ -78,6 +78,11 @@ TEST_F(USMEventInfoTest, clEnqueueMemFillINTEL_EventInfo) {
   cl_int err;
 
   for (auto ptr : allPointers()) {
+    if (ptr == host_shared_ptr) {
+      // The host shared_ptr isn't valid for this queue's device
+      continue;
+    }
+
     cl_event wait_event{};
     err = clEnqueueMemFillINTEL(queue, ptr, pattern, sizeof(pattern),
                                 sizeof(pattern) * 2, 0, nullptr, &wait_event);

@@ -54,6 +54,18 @@ TEST_F(USMCommandQueueTest, MemFill_InvalidUsage) {
         {{0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD,
           0xE, 0xF}}};
 
+    if (ptr == host_shared_ptr) {
+      // In our test suite, `host_shared_ptr` is a shared USM pointer with no
+      // associated device. This means that no device is able to read it (we
+      // currently don't support devices with cross-device access capability).
+      // The spec doesn't say what to return when the queue is for an incorrect
+      // device, so we return CL_INVALID_COMMAND_QUEUE.
+      cl_int err = clEnqueueMemFillINTEL(queue, ptr, pattern, sizeof(pattern),
+                                         sizeof(pattern), 0, nullptr, nullptr);
+      EXPECT_EQ_ERRCODE(err, CL_INVALID_COMMAND_QUEUE);
+      continue;
+    }
+
     // Null command queue argument
     cl_int err = clEnqueueMemFillINTEL(nullptr, ptr, pattern, sizeof(pattern),
                                        sizeof(pattern), 0, nullptr, nullptr);
@@ -155,6 +167,11 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
   const std::array<size_t, 8> valid_pattern_sizes{1, 2, 4, 8, 16, 32, 64, 128};
 
   for (auto ptr : allPointers()) {
+    if (ptr == host_shared_ptr) {
+      // The host shared_ptr isn't valid for this queue's device
+      continue;
+    }
+
     for (size_t pattern_size : valid_pattern_sizes) {
       // Check if allocation already aligned, or we need a new aligned
       // allocation
@@ -196,6 +213,9 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
   size_t num_events = 0;
 
   for (auto ptr : allPointers()) {
+    if (ptr == host_shared_ptr) {
+      continue;
+    }
     err = clEnqueueMemFillINTEL(queue, ptr, pattern, sizeof(pattern),
                                 sizeof(pattern) * 2, 0, nullptr,
                                 &wait_events[num_events]);
@@ -204,6 +224,9 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
   }
 
   for (auto ptr : allPointers()) {
+    if (ptr == host_shared_ptr) {
+      continue;
+    }
     void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int));
     err = clEnqueueMemFillINTEL(queue, offset_ptr, pattern, sizeof(pattern),
                                 sizeof(pattern), num_events, wait_events.data(),

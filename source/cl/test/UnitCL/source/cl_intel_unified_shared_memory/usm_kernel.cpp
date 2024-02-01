@@ -174,7 +174,7 @@ TEST_P(USMSetKernelExecInfoTest, ValidUsage) {
   const cl_kernel_exec_info param_name = GetParam();
 
   if (CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL == param_name) {
-    cargo::small_vector<void *, 3> indirect_usm_pointers = allPointers();
+    auto indirect_usm_pointers = allPointers();
 
     EXPECT_SUCCESS(
         clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
@@ -202,7 +202,7 @@ TEST_P(USMSetKernelExecInfoTest, InvalidUsage) {
     cl_int err = clSetKernelExecInfo(nullptr, param_name, 0, nullptr);
     EXPECT_EQ_ERRCODE(err, CL_INVALID_KERNEL);
 
-    cargo::small_vector<void *, 3> indirect_usm_pointers = allPointers();
+    auto indirect_usm_pointers = allPointers();
 
     // Invalid param_value_size
     err = clSetKernelExecInfo(kernel, param_name, 0,
