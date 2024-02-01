@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <CL/cl.h>
 #include <extension/intel_unified_shared_memory.h>
 
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
@@ -531,20 +532,37 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
       // Push Mux fill buffer operation
       auto mux_error =
           ExamineUSMAlloc(usm_alloc, device, return_event, mux_buffer);
-      OCL_CHECK(mux_error, return CL_OUT_OF_RESOURCES);
+      if (mux_error) {
+        auto error = cl::getErrorFrom(mux_error);
+        if (return_event) {
+          return_event->complete(error);
+        }
+        return error;
+      }
       offset = getUSMOffset(dst_ptr, usm_alloc);
     }
 
     // TODO CA-2863 Define correct return code for this situation where device
     // USM allocation device is not the same as command queue device
-    OCL_CHECK(mux_buffer == nullptr, return CL_INVALID_COMMAND_QUEUE);
+    if (mux_buffer == nullptr) {
+      if (return_event) {
+        return_event->complete(CL_INVALID_COMMAND_QUEUE);
+      }
+      return CL_INVALID_COMMAND_QUEUE;
+    }
 
     const std::lock_guard<std::mutex> lock(
         command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);
-    OCL_CHECK(!mux_command_buffer, return CL_OUT_OF_RESOURCES);
+    if (!mux_command_buffer) {
+      auto error = cl::getErrorFrom(mux_command_buffer.error());
+      if (return_event) {
+        return_event->complete(error);
+      }
+      return error;
+    }
 
     auto mux_error =
         muxCommandFillBuffer(*mux_command_buffer, mux_buffer, offset, size,

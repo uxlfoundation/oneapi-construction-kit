@@ -316,7 +316,7 @@ TYPED_TEST(USMMemCpyTest, DeviceToHost) {
   if (!host_ptr) {
     GTEST_SKIP();
   }
-  std::array<cl_event, 3> events;
+  std::array<cl_event, 3> events{};
 
   // Zero initialize device buffer
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
@@ -434,7 +434,7 @@ TYPED_TEST(USMMemCpyTest, HostToDevice) {
   std::memset(host_ptr, 0, bytes);
 
   // Reset device allocation before use as copy destination
-  std::array<cl_event, 3> events;
+  std::array<cl_event, 3> events{};
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, device_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
@@ -540,7 +540,7 @@ TYPED_TEST(USMMemCpyTest, HostToHost) {
     GTEST_SKIP();
   }
 
-  std::array<cl_event, 2> events;
+  std::array<cl_event, 2> events{};
 
   // Initialize host allocation A
   const TypeParam pattern1 = test_patterns<TypeParam>::pattern1;
