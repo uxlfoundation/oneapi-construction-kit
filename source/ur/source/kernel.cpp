@@ -97,7 +97,7 @@ urKernelCreate(ur_program_handle_t hProgram, const char *pKernelName,
 
 UR_APIEXPORT ur_result_t UR_APICALL urKernelRetain(ur_kernel_handle_t hKernel) {
   if (!hKernel) {
-    return UR_RESULT_ERROR_INVALID_NULL_POINTER;
+    return UR_RESULT_ERROR_INVALID_NULL_HANDLE;
   }
   return ur::retain(hKernel);
 }
