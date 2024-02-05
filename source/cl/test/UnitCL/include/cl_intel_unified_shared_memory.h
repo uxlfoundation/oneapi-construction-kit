@@ -85,23 +85,27 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
     cl_int err;
 
     if (host_capabilities) {
+      ASSERT_TRUE(host_ptr == nullptr);
       host_ptr = clHostMemAllocINTEL(context, {}, bytes, align, &err);
       ASSERT_SUCCESS(err);
       ASSERT_TRUE(host_ptr != nullptr);
     }
 
     if (shared_capabilities != 0) {
+      ASSERT_TRUE(shared_ptr == nullptr);
       shared_ptr =
           clSharedMemAllocINTEL(context, device, {}, bytes, align, &err);
       ASSERT_SUCCESS(err);
       ASSERT_TRUE(shared_ptr != nullptr);
 
+      ASSERT_TRUE(host_shared_ptr == nullptr);
       host_shared_ptr =
           clSharedMemAllocINTEL(context, nullptr, {}, bytes, align, &err);
       ASSERT_SUCCESS(err);
       ASSERT_TRUE(host_shared_ptr != nullptr);
     }
 
+    ASSERT_TRUE(device_ptr == nullptr);
     device_ptr =
         clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
     ASSERT_SUCCESS(err);
