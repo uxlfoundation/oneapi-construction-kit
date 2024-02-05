@@ -58,14 +58,14 @@ PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
     return PreservedAnalyses::all();
   }
 
-  DenseMap<Value *, Value *> FPExtVals;
+  DenseMap<std::pair<Value *, Type *>, Value *> FPExtVals;
   IRBuilder<> B(F.getContext());
 
   auto CreateFPExt = [&](Value *V, Type *Ty, Type *ExtTy) {
     (void)Ty;
     assert(V->getType() == Ty &&
            "Expected matching types for floating point operation");
-    auto *&FPExt = FPExtVals[V];
+    auto *&FPExt = FPExtVals[{V, ExtTy}];
     if (!FPExt) {
       if (auto *I = dyn_cast<Instruction>(V)) {
 #if LLVM_VERSION_GREATER_EQUAL(18, 0)
