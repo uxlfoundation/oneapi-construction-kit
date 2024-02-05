@@ -295,7 +295,6 @@ struct USMVectorAddKernelTest : public USMKernelTest {
     ASSERT_SUCCESS(err);
     ASSERT_NE(cl_mem_buffer, nullptr);
 
-    initPointers(bytes, align);
     BuildKernel(source);
 
     queue = clCreateCommandQueue(context, device, 0, &err);
