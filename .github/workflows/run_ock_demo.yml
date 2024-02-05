@@ -18,6 +18,7 @@ jobs:
   # build and run for RISCV
   run_riscv_m1_ock_demo:
     runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
