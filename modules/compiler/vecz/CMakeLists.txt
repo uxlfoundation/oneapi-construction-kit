@@ -170,17 +170,10 @@ if(CA_VECZ_ONLY)
     add_llvm_loadable_module(vecz ${COMMON_SRCS})
   else()
     add_llvm_library(vecz ${COMMON_SRCS})
-    target_include_directories(vecz PUBLIC
-      "${LLVM_INCLUDE_DIRS}")
   endif()
 else()
   # We want a static library for linking with libOpenCL
   add_ca_library(vecz STATIC ${MODULES_LIBRARY_TYPE} ${COMMON_SRCS})
-  target_include_directories(vecz PUBLIC
-    "${LLVM_INCLUDE_DIRS}")
-  target_include_directories(vecz SYSTEM PUBLIC
-    ${CA_LLVM_INSTALL_DIR}/include)
-
   llvm_map_components_to_libnames(LLVM_LIBS
     support core analysis instcombine transformutils scalaropts ipo passes)
 endif()

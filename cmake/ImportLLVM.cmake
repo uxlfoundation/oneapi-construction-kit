@@ -16,7 +16,9 @@
 
 #[=======================================================================[.rst:
 Module imports LLVM into the ComputeAorta build by pulling in LLVM CMake
-modules from the ``install`` directory of a build.
+modules from the ``install`` directory of a build. It only does this if
+LLVM_VERSION_MAJOR is not set already which will be the case if for example we
+include the oneAPI Construction Kit from LLVM.
 
 User option :cmake:variable:`CA_LLVM_INSTALL_DIR` is required to be set
 to the filepath of the LLVM install before including this module. The option
@@ -38,6 +40,12 @@ to :cmake-variable:`CMAKE_MODULE_PATH`, and import the following LLVM modules:
 Once the modules are included we verify the LLVM version is supported and set
 some additional compile definitions.
 #]=======================================================================]
+
+# If we already have the LLVM CMake variables set then we don't need to include from
+# CA_LLVM_INSTALL_DIR
+if (DEFINED LLVM_VERSION_MAJOR)
+  return()
+endif()
 
 if(CA_RUNTIME_COMPILER_ENABLED AND NOT CA_LLVM_INSTALL_DIR)
   message(FATAL_ERROR
@@ -105,3 +113,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4 OR CA_BUILD_32_BITS OR
   add_definitions(-D_LARGEFILE_SOURCE)
   add_definitions(-D_FILE_OFFSET_BITS=64)
 endif()
+
+# Set LLVM Include directories for all targets
+include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
