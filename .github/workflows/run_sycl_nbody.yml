@@ -1,5 +1,5 @@
 
-name: Build and Run OCK Demo
+name: Build and Run OCK Demo sycl_nbody
 on:
   pull_request:
     paths:
