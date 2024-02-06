@@ -1,9 +1,6 @@
 # Build, Run and Test OCK Demo EcoSystem
 name: Build and Run OCK Demo
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/run_ock_demo.yml'
   schedule:
     - cron: '59 23 * * 5'  # Run every Friday at 11:59 PM
   # Allows you to run this workflow manually from the Actions tab
