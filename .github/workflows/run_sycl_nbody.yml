@@ -35,32 +35,31 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Install Python libraries and system dependencies
-        run: |
-          pip install --user requests numpy h5py Pillow
-          sudo add-apt-repository universe
-          sudo apt-get update
-          sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
+      # - name: Install Python libraries and system dependencies
+      #   run: |
+      #     pip install --user requests numpy h5py Pillow
+      #     sudo add-apt-repository universe
+      #     sudo apt-get update
+      #     sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
 
-      - name: Build riscv M1
-        uses: ./.github/actions/do_build_ock/do_build_m1
-        with:
-          build_type: Release
-          extra_flags: '-DCA_REFSI_M1_DEMO_MODE=ON'
+      # - name: Build riscv M1
+      #   uses: ./.github/actions/do_build_ock/do_build_m1
+      #   with:
+      #     build_type: Release
+      #     extra_flags: '-DCA_REFSI_M1_DEMO_MODE=ON'
 
-      - name: Create OCK install
-        run: |
-          ninja -C $(pwd)/build install
+      # - name: Create OCK install
+      #   run: |
+      #     ninja -C $(pwd)/build install
 
       - name: Get Intel OneAPI BaseToolkit
         run: |
           wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/163da6e4-56eb-4948-aba3-debcec61c064/l_BaseKit_p_2024.0.1.46.sh
           export TERMINFO=/usr/lib/terminfo
-          oneapi_dir="/opt/intel/oneapi"
-          if [ -d "$oneapi_dir" ]; then
-            echo "Directory exists. Removing..."
-            sudo rm -r /opt/intel/oneapi
-            echo "Directory removed"
+          if [ -d "/opt/intel/oneapi" ]; then
+            echo "Intel oneAPI Base Toolkit is installed."
+          else
+            echo "Intel oneAPI Base Toolkit is not installed."
           fi
           ls
           sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler'
@@ -69,7 +68,7 @@ jobs:
           sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpl'
           sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.tbb.devel'
 
-      - name: Build sycl_nbody
-        uses: ./.github/actions/build_sycl_nbody_action
-        with:
-          workspace: ${{ github.workspace }}
+      # - name: Build sycl_nbody
+      #   uses: ./.github/actions/build_sycl_nbody_action
+      #   with:
+      #     workspace: ${{ github.workspace }}
