@@ -51,9 +51,9 @@ jobs:
 
       - name: Download Daily Release
         run: |
-          # TODO: Update the nightly release from intel/llvm from 2023-12-18 to daily once
+          # Update the nightly release from intel/llvm from 2024-01-30 to daily once
           # everything has stablised
-          wget "https://github.com/intel/llvm/releases/download/nightly-2023-12-18/sycl_linux.tar.gz"
+          wget "https://github.com/intel/llvm/releases/download/nightly-2024-01-30/sycl_linux.tar.gz"
           mkdir linux_nightly_release
           tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
@@ -65,19 +65,19 @@ jobs:
           export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
           export CA_HAL_DEBUG=1
           export CA_PROFILE_LEVEL=3
-          export ONEAPI_DEVICE_SELECTOR=opencl:acc
+          export ONEAPI_DEVICE_SELECTOR=opencl:fpga
           export OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so
           # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
           # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
           # This way it doesn't set the default sycl.conf.
           export SYCL_CONFIG_FILE_NAME=""
 
-          mkdir build_riscv_tests
-          cmake -GNinja -Bbuild_riscv_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
-          ninja -C build_riscv_tests
+          mkdir ock_example_tests
+          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          ninja -C ock_example_tests
 
           # Run tests
-          cd build_riscv_tests
+          cd ock_example_tests
           ctest bin/ --verbose
           cd ..
 
@@ -93,7 +93,8 @@ jobs:
 
       - name: Package Build Artifacts
         run: |
-          tar -cvzf ock_demo_artifacts.tar.gz install portDNN_build_dir portBLAS_build_dir build_riscv_tests
+          mv install ock_install_dir
+          tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir portDNN_build_dir portBLAS_build_dir ock_example_tests examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
