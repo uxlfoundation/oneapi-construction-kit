@@ -158,7 +158,7 @@ jobs:
             ock_demo_artifacts.tar.gz
             network_artifacts.tar.gz
           tag_name: nightly-${{ steps.tag.outputs.TAG }}
-          name: OCK daily ${{ steps.tag.outputs.TAG }}
+          name: OCK Demo Package ${{ steps.tag.outputs.TAG }}
           prerelease: true
-          body: "Daily build ${{ steps.tag.outputs.TAG }}"
+          body: "ock-demo build ${{ steps.tag.outputs.TAG }}"
           target_commitish: ${{ github.sha }}
