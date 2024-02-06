@@ -210,7 +210,7 @@ def main():
     # Set the environment variables
     os.environ["CA_HAL_DEBUG"] =  os.environ.get("CA_HAL_DEBUG", "1")
     os.environ["CA_PROFILE_LEVEL"] = os.environ.get("CA_PROFILE_LEVEL", "3")
-    os.environ["ONEAPI_DEVICE_SELECTOR"] = os.environ.get("ONEAPI_DEVICE_SELECTOR", "opencl::acc")
+    os.environ["ONEAPI_DEVICE_SELECTOR"] = os.environ.get("ONEAPI_DEVICE_SELECTOR", "opencl::fpga")
     # To whitelist oneapi-construction-kit for the official Intel oneAPI basetoolkit,
     # SYCL_CONFIG_FILE_NAME needs to be overridden
     os.environ["SYCL_CONFIG_FILE_NAME"] = ""
