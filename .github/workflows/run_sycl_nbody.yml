@@ -35,12 +35,12 @@ jobs:
         with:
           python-version: '3.8'
 
-      # - name: Install Python libraries and system dependencies
-      #   run: |
-      #     pip install --user requests numpy h5py Pillow
-      #     sudo add-apt-repository universe
-      #     sudo apt-get update
-      #     sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
+      - name: Install Python libraries and system dependencies
+        run: |
+          pip install --user requests numpy h5py Pillow
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
 
       # - name: Build riscv M1
       #   uses: ./.github/actions/do_build_ock/do_build_m1
