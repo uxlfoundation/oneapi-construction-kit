@@ -33,6 +33,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_builtin_range_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_kernel_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/fixup_calling_convention_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/gdb_registration_listener.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/group_collective_helpers.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/link_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/llvm_global_mutex.h
@@ -83,6 +84,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_builtin_range_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_kernel_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fixup_calling_convention_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/gdb_registration_listener.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/group_collective_helpers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/link_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/llvm_global_mutex.cpp
