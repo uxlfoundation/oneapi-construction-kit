@@ -1,8 +1,5 @@
 name: Build and Package
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/create_publish_artifacts.yml'
   push:
     branches:
       - stable
