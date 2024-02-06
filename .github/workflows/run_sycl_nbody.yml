@@ -16,7 +16,7 @@ concurrency:
 jobs:
 
   # build and run for RISCV
-  run_riscv_m1_ock_demo:
+  run_riscv_m1_ock_demo_sycl_nbody:
     runs-on: ubuntu-22.04
 
     steps:
