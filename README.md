@@ -109,7 +109,7 @@ Now to compile the vector add from oneAPI samples, set the environment variables
 ```sh
 export OCL_ICD_FILENAMES=$ONEAPI_CON_KIT_INSTALL_DIR/lib/libCL.so
 export LD_LIBRARY_PATH=/path/to/intel/oneapi/compiler/2023.2.0/linux/lib:/path/to/intel/oneapi/compiler/2023.2.0/linux/compiler/lib/intel64_lin:/path/to/intel/oneapi/compiler/2023.2.0/linux/compiler/lib/:$LD_LIBRARY_PATH
-export ONEAPI_DEVICE_SELECTOR="*:acc"
+export ONEAPI_DEVICE_SELECTOR="*:fpga"
 
 /path/to/intel/oneapi/compiler/2023.2.0/linux/bin-llvm/clang++ -fsycl /path/to/oneAPI-samples/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o vector-add-buffers
 CA_HAL_DEBUG=1 SYCL_CONFIG_FILE_NAME=  ./vector-add-buffers
@@ -158,7 +158,7 @@ Set the environment variables:
 ```sh
 export OCL_ICD_FILENAMES=$ONEAPI_CON_KIT_INSTALL_DIR/lib/libCL.so
 export LD_LIBRARY_PATH=/path/to/dpcpp_compiler/lib:$ONEAPI_CONKIT_INSTALL_DIR/lib:$LD_LIBRARY_PATH
-export ONEAPI_DEVICE_SELECTOR="*:acc"
+export ONEAPI_DEVICE_SELECTOR="*:fpga"
 ```
 
 Now to compile the vector add using the downloaded dpc++, follow the steps below:
@@ -303,7 +303,7 @@ Set the environment variables before compiling the code:
 ```sh
 export OCL_ICD_FILENAMES=$ONEAPI_CON_KIT_INSTALL_DIR/lib/libCL.so
 export LD_LIBRARY_PATH=$ONEAPI_TOOLKIT_BUILD_DIR/lib:$LD_LIBRARY_PATH
-export ONEAPI_DEVICE_SELECTOR="*:acc"
+export ONEAPI_DEVICE_SELECTOR="*:fpga"
 
 ```
 Compile the code using the `clang++` from the oneAPI toolkit.

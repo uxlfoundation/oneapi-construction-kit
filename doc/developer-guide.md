@@ -1021,7 +1021,7 @@ export CMAKE_CXX_COMPILER=/path/to/intel_oneapi/bin/clang++
 export CMAKE_C_COMPILER=/path/to/intel_oneapi/bin/clang
 export CA_HAL_DEBUG=1
 export CA_PROFILE_LEVEL=3
-export ONEAPI_DEVICE_SELECTOR=opencl:acc
+export ONEAPI_DEVICE_SELECTOR=opencl:fpga
 export OCL_ICD_FILENAMES=/path/to/build/lib/libCL.so
 # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
 # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.

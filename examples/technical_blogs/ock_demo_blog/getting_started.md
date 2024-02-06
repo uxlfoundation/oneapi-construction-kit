@@ -176,7 +176,7 @@ Here's how to dump the IR of the ```simple-vector-add``` kernel:
 
 
 ```sh
-    CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME="" ./simple-vector-add
+    CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:fpga SYCL_CONFIG_FILE_NAME="" ./simple-vector-add
 ```
 
 This is the expected output you should have:
@@ -646,10 +646,10 @@ in `$RELEASE_DIR/vgg_data` and `$RELEASE_DIR\resnet_data` respectively.
 #### Running VGG16 & ResNet50
 ```
     # Testing on image for VGG16
-    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/vgg/vgg vgg_data/ $RELEASE_DIR/Labrador_Retriever_Molly.jpg.bin
+    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:fpga SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/vgg/vgg vgg_data/ $RELEASE_DIR/Labrador_Retriever_Molly.jpg.bin
 
     # Testing on image for Resnet50
-    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/resnet50/resnet50 resnet_data/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
+    CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=$RELEASE_DIR/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:fpga SYCL_CONFIG_FILE_NAME=  $RELEASE_DIR/portDNN_build_dir/samples/networks/resnet50/resnet50 resnet_data/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
 ```
 
 This may take a few minutes and the expected output should end like this:
