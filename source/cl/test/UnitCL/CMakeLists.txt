@@ -417,7 +417,7 @@ function(add_ca_unitcl_check name)
     # our testing by minimising duplication.
     # Allow users to tack on any extra tests to run. They may also disable any
     # tests that we run by default.
-    set(filter "--gtest_filter=*Compile*:*Link*:*Build*:*Execution*:*print*:*WorkGroupCollective*:*SubGroup*:${args_FILTER}")
+    set(filter "--gtest_filter=*Compile*:*Link*:*Build*:*Execution*:*Half*:*print*:*WorkGroupCollective*:*SubGroup*:${args_FILTER}")
   elseif(args_FILTER)
     set(filter "--gtest_filter=${args_FILTER}")
   endif()
