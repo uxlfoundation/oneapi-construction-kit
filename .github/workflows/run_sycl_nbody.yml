@@ -46,7 +46,8 @@ jobs:
         run: |
           wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/bb99984f-370f-413d-bbec-38928d2458f2/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh
           sh ./l_dpcpp-cpp-compiler_p_2024.0.2.29.sh -a --silent --eula accept
-          
+          ls -laR /home/runner/intel/oneapi
+
       # - name: Build riscv M1
       #   uses: ./.github/actions/do_build_ock/do_build_m1
       #   with:
