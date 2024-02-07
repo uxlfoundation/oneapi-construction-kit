@@ -37,7 +37,7 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
         ReplaceSamplers(ReplaceSamplers),
         ReplaceEvents(ReplaceEvents) {}
 
-  Type *remapType(Type *Ty) {
+  Type *remapType(Type *Ty) override {
     // Look up the cache in case we've seen this type before.
     if (auto I = TyReplacementCache.find(Ty); I != TyReplacementCache.end()) {
       return I->getSecond();
