@@ -41,11 +41,13 @@ You'll need to extract the files from the archive file and and oneAPI nighlty re
 downloaded from `intel/llvm`:
 
 ```sh
+    # TODO: Add wget commands for ock_build_artifacts, ock_demo_components and network_artifacts.
     mkdir Release
     cd Release
     tar -xf ../ock_demo_artifacts.tar.gz
+    tar -xf ../ock_demo_components.tar.gz
     tar -xf ../network_artifacts.tar.gz
-    As of the current documentation, the latest nightly release available is dated 2024-01-30.
+    # As of the current documentation, the latest nightly release available is dated 2024-01-30.
     wget "https://github.com/intel/llvm/releases/download/nightly-2024-01-30/sycl_linux.tar.gz"
     mkdir linux_nightly_release
     tar -xzf sycl_linux.tar.gz -C linux_nightly_release
@@ -58,8 +60,7 @@ hierarchy that looks like this:
 
 ```
 - WORKDIR: $RELEASE_DIR
-    - DIR: ock_example_tests/
-    - DIR: install/
+    - DIR: ock_install_dir/
     - DIR: portBLAS_build_dir/
     - DIR: portDNN_build_dir/
     - DIR: resnet_data
@@ -68,7 +69,7 @@ hierarchy that looks like this:
     - FILE: Labrador_Retriever_Molly.jpg
     - FILE: Labrador_Retriever_Molly.jpg.bin
     - FILE: get-started.md
-    - FILE: vect
+    - FILE: envvars
 ```
 
 Then, you'll need to set the environment variables that will be used during this
@@ -113,7 +114,7 @@ OCK demo contains more than one executable, but for the sake of our example, we 
 using SYCL.
 
 ```sh
-    cd $RELEASE_DIR/ock_example_tests/bin/
+    cd $RELEASE_DIR/ock_install_dir/tests/
     ./simple-vector-add
 ```
 
@@ -169,7 +170,7 @@ Setting the ```CA_RISCV_DUMP_IR``` will display the IR on stderr.
 First, check you are in the right directory to run the sample:
 
 ```sh
-    cd $RELEASE_DIR/ock_example_tests/bin
+    cd $RELEASE_DIR/ock_install_dir/tests
 ```
 
 Here's how to dump the IR of the ```simple-vector-add``` kernel:
@@ -415,7 +416,7 @@ setting the previously shown environment variables:
 First, check you are in the right directory to run the sample:
 
 ```sh
-    cd $RELEASE_DIR/ock_example_tests/bin
+    cd $RELEASE_DIR/ock_install_dir/tests
 ```
 
 Then run the command:
@@ -476,7 +477,7 @@ We will focus on ```clVectorAddition``` in this subsection.
 Here's how to run ```clVectorAddition```:
 
 ```sh
-    cd $RELEASE_DIR/ock_example_tests/bin
+    cd $RELEASE_DIR/ock_install_dir/tests
     ./clVectorAddition
 ```
 
@@ -516,14 +517,14 @@ level instructions emitted during program execution using the samples and
 benchmarks we previously built.
 
 The following examples will be using the ```simple-vector-add``` kernel from
-the ock_example_tests directory.
+the `ock_install_dir/tests` directory.
 
 ### Profiler
 
 First, check you are in the right directory to run the sample:
 
 ```sh
-    cd $RELEASE_DIR/ock_example_tests/bin
+    cd $RELEASE_DIR/ock_install_dir/tests
 ```
 
 The profiler is a built-in feature that enables you to profile or track
