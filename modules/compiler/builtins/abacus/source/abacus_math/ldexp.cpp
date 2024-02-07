@@ -37,11 +37,12 @@ inline T ldexp(const T x, const S n) {
   // n_1) to be exact so that we do not introduce errors due to double rounding,
   // which requires avoiding turning normals into subnormals early.
   const SignedType n_1_min =
-      SignedType(1) - (SignedType(((abacus::detail::cast::as<UnsignedType>(x) &
+      (SignedType(1) - SignedType(((abacus::detail::cast::as<UnsignedType>(x) &
                                     Shape::ExponentMask()) >>
-                                   Shape::Mantissa())) /
-                       2);
-  const SignedType n_1 = __abacus_max(SignedType(n_c / 3), n_1_min);
+                                   Shape::Mantissa()))) /
+      2;
+  const SignedType n_1 =
+      __abacus_max(SignedType(n_c - ((n_c / 3) << 1)), n_1_min);
   const SignedType n_2 = n_c - (n_1 << 1);
 
   // Construct pow(2, n_1) and pow(2, n_2) by building the floating point
