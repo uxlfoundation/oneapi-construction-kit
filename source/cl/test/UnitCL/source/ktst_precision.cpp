@@ -2235,7 +2235,7 @@ TEST_P(ExecutionOpenCLC, Precision_90_Half_Ldexp_Edgecases) {
     GTEST_SKIP();
   }
 
-  const size_t N = 17;
+  const size_t N = 18;
   const std::pair<cl_half, cl_int> inputs[N] = {
       {0x21f8 /* 0.01165772 */, -17},
       {0x11f8 /* 0.0007286075 */, -13},
@@ -2254,6 +2254,7 @@ TEST_P(ExecutionOpenCLC, Precision_90_Half_Ldexp_Edgecases) {
       {0x78ae /* 38336 */, -40},
       {0xfb93 /* -62048 */, -40},
       {0x7bed /* 64928 */, -40},
+      {0xf934 /* -42624 */, -41},
   };
 
   const cl_half outputs[N] = {
@@ -2304,6 +2305,8 @@ TEST_P(ExecutionOpenCLC, Precision_90_Half_Ldexp_Edgecases) {
       // Although this result is too low to be representable in half we expect
       // the lowest representable half rather than zero due to rounding.
       0x1, /* 5.960464477539063e-08 */
+      // ldexp(-42624, -41) is too small to represent.
+      0x8000,
   };
 
   AddInputBuffer(N, kts::Reference1D<cl_half>([&inputs](size_t i) {
