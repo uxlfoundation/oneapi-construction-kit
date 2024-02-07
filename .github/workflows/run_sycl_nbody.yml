@@ -88,9 +88,9 @@ jobs:
       - name: Set up Environment and build
         run: |
           # Set environment variables
-          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
-          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
-          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:/home/runner/intel/oneapi/compiler/2024.0/lib/libsycl.so:/home/runner/intel/oneapi/compiler/2024.0/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang++
+          export CMAKE_C_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang
           export CA_HAL_DEBUG=1
           export CA_PROFILE_LEVEL=3
           export ONEAPI_DEVICE_SELECTOR=opencl:fpga
@@ -102,8 +102,8 @@ jobs:
 
 
           export OCL_ICD_VENDORS=/dev/null
-          export dpct_INCLUDE_DIR=$(pwd)/linux_nightly_release/include
-          export dpct_LOCATION=$(pwd)/linux_nightly_release
+          # export dpct_INCLUDE_DIR=$(pwd)/linux_nightly_release/include
+          # export dpct_LOCATION=$(pwd)/linux_nightly_release
 
           cd cuda-to-sycl-nbody
           ls scripts
