@@ -157,7 +157,18 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
   endif()
 endforeach()
 
-if(CA_RUNTIME_COMPILER_ENABLED)
+# Check if we are in an LLVM Tree.
+# This is done by checking for the LLVMCore target which does not exist
+# until we import LLVM.
+# This only happens of we have not imported or are fetched by LLVM via
+# FetchContent or as an external project. In this case we set a cmake
+# variable OCK_IN_LLVM_TREE to TRUE.
+set(OCK_IN_LLVM_TREE FALSE)
+if (TARGET LLVMCore)
+  set(OCK_IN_LLVM_TREE TRUE)
+endif()
+
+if(CA_RUNTIME_COMPILER_ENABLED AND NOT OCK_IN_LLVM_TREE)
   include(ImportLLVM)
 endif()
 

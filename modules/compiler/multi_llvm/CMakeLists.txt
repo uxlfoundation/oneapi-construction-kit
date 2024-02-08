@@ -18,7 +18,15 @@ add_ca_interface_library(multi_llvm)
 
 target_include_directories(multi_llvm INTERFACE
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(multi_llvm SYSTEM INTERFACE
-  ${LLVM_INCLUDE_DIR})
+
+# If we are in-tree LLVM then we already have the include_directories available
+# for LLVM_INCLUDE_DIR. Otherwise they are not set regardless of which LLVM
+# targets we depend on, so we set it as part of the interface for multi_llvm
+# which all compiler libraries that need llvm depend on.
+# TODO: Review whether there is a better way to do this.
+if (NOT OCK_IN_LLVM_TREE)
+  target_include_directories(multi_llvm SYSTEM INTERFACE
+    ${LLVM_INCLUDE_DIR})
+endif()
 
 # No need to append interface libraries to MODULES_LIBRARIES variable
