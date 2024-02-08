@@ -1,8 +1,12 @@
 # Build, Run and Test OCK Demo EcoSystem
 name: Build and Run OCK Demo
 on:
-  schedule:
-    - cron: '59 23 * * 5'  # Run every Friday at 11:59 PM
+  pull_request:
+    paths:
+      - '.github/workflows/run_ock_demo.yml'
+  push:
+    branches:
+      - stable
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -18,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
        # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup ubuntu
@@ -80,6 +84,7 @@ jobs:
           cd ock_example_tests
           ctest bin/ --verbose
           cd ..
+          mv ock_example_tests/bin install/tests
 
       - name: Build portBLAS
         uses: ./.github/actions/build_portBLAS_action
@@ -91,16 +96,23 @@ jobs:
         with:
           workspace: ${{ github.workspace }}
 
-      - name: Package Build Artifacts
+      - name: Package build artifacts
         run: |
           mv install ock_install_dir
-          tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir portDNN_build_dir portBLAS_build_dir ock_example_tests examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
+          tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir
+          tar -cvzf ock_demo_components.tar.gz portDNN_build_dir portBLAS_build_dir examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
 
-      - name: Upload Artifacts
+      - name: Upload OCK artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ock_demo_build
           path: ock_demo_artifacts.tar.gz
+
+      - name: Upload OCK demo components artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ock_demo_components
+          path: ock_demo_components.tar.gz
 
   build_and_run_networks:
     runs-on: ubuntu-22.04
@@ -109,14 +121,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Download artifacts
+      - name: Download OCK artifacts
         uses: actions/download-artifact@v4
         with:
           name: ock_demo_build
 
+      - name: Download OCK components artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ock_demo_components
+
       - name: Untar artifacts
         run: |
           tar -xvzf ock_demo_artifacts.tar.gz
+          tar -xvzf ock_demo_components.tar.gz
 
       - name: Build vgg and resnet
         uses: ./.github/actions/build_vgg_resnet_action
@@ -129,10 +147,15 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
-      - name: Download artifacts
+      - name: Download OCK artifacts
         uses: actions/download-artifact@v4
         with:
           name: ock_demo_build
+
+      - name: Download OCK components artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ock_demo_components
 
       - name: Download network artifacts
         uses: actions/download-artifact@v4
@@ -156,8 +179,9 @@ jobs:
         with:
           files: |
             ock_demo_artifacts.tar.gz
+            ock_demo_components.tar.gz
             network_artifacts.tar.gz
-          tag_name: nightly-${{ steps.tag.outputs.TAG }}
+          tag_name: ock-demo-${{ steps.tag.outputs.TAG }}
           name: OCK Demo Package ${{ steps.tag.outputs.TAG }}
           prerelease: true
           body: "ock-demo build ${{ steps.tag.outputs.TAG }}"
