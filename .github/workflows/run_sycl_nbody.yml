@@ -99,7 +99,7 @@ jobs:
           # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
           # This way it doesn't set the default sycl.conf.
           export SYCL_CONFIG_FILE_NAME=""
-          export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:$PATH
+          export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
 
           export OCL_ICD_VENDORS=/dev/null
           # export dpct_INCLUDE_DIR=$(pwd)/linux_nightly_release/include
@@ -108,7 +108,7 @@ jobs:
           cd cuda-to-sycl-nbody
           ls scripts
           chmod +x scripts/build_dpcpp.sh
-          CXX=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx sh scripts/build_dpcpp.sh #-DBACKEND=DPCP #-DDPCPP_CUDA_SUPPORT=off -nocudalib
+          sh scripts/build_dpcpp.sh #-DBACKEND=DPCP #-DDPCPP_CUDA_SUPPORT=off -nocudalib
           #CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ./nbody_dpcpp 1
 
       # - name: Build sycl_nbody

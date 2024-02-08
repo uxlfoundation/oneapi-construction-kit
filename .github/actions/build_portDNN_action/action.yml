@@ -23,5 +23,5 @@ runs:
         export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
         export OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so
 
-        cmake -B portDNN_build_dir portDNN -GNinja -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DSNN_BUILD_BENCHMARKS=OFF -DSNN_BENCH_SYCLBLAS=OFF -DSNN_BUILD_DOCUMENTATION=OFF
-        ninja -C portDNN_build_dir
+        cmake -B portDNN_build_dir portDNN -GNinja -DCMAKE_INSTALL_PREFIX=portDNN_install_dir -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DSNN_BUILD_BENCHMARKS=OFF -DSNN_BENCH_SYCLBLAS=OFF -DSNN_BUILD_DOCUMENTATION=OFF
+        ninja -C portDNN_build_dir install
