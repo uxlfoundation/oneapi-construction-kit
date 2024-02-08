@@ -18,9 +18,9 @@
 #include <abacus/internal/convert_helper.h>
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-DEF(half);
+DEF(half)
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-DEF(float);
+DEF(float)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-DEF(double);
+DEF(double)
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

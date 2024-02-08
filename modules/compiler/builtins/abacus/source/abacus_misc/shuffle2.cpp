@@ -69,15 +69,15 @@ R shuffle2(const T x, const T y, const M m) {
   DEF_WITH_SIZE(TYPE, 8) \
   DEF_WITH_SIZE(TYPE, 16)
 
-DEF(abacus_char);
-DEF(abacus_uchar);
-DEF(abacus_short);
-DEF(abacus_ushort);
-DEF(abacus_int);
-DEF(abacus_uint);
-DEF(abacus_long);
-DEF(abacus_ulong);
-DEF(abacus_float);
+DEF(abacus_char)
+DEF(abacus_uchar)
+DEF(abacus_short)
+DEF(abacus_ushort)
+DEF(abacus_int)
+DEF(abacus_uint)
+DEF(abacus_long)
+DEF(abacus_ulong)
+DEF(abacus_float)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-DEF(abacus_double);
+DEF(abacus_double)
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

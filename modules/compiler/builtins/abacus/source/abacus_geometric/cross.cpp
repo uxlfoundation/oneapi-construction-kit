@@ -23,14 +23,14 @@
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-DEF(abacus_half3);
-DEF(abacus_half4);
+DEF(abacus_half3)
+DEF(abacus_half4)
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-DEF(abacus_float3);
-DEF(abacus_float4);
+DEF(abacus_float3)
+DEF(abacus_float4)
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-DEF(abacus_double3);
-DEF(abacus_double4);
+DEF(abacus_double3)
+DEF(abacus_double4)
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
