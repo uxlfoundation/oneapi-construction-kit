@@ -40,7 +40,7 @@ jobs:
           pip install --user requests numpy h5py Pillow
           sudo add-apt-repository universe
           sudo apt-get update
-          sudo apt-get install -y libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
+          sudo apt-get install -y libglew-dev libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
 
       - name: oneapi base toolkit
         run: |
@@ -105,10 +105,14 @@ jobs:
           # export dpct_INCLUDE_DIR=$(pwd)/linux_nightly_release/include
           # export dpct_LOCATION=$(pwd)/linux_nightly_release
 
-          cd cuda-to-sycl-nbody
-          ls scripts
-          chmod +x scripts/build_dpcpp.sh
-          sh scripts/build_dpcpp.sh #-DBACKEND=DPCP #-DDPCPP_CUDA_SUPPORT=off -nocudalib
+
+          export CXX=icpx
+          export CC=icpx
+          cmake cuda-to-sycl-nbody -GNinja -bsycl_nbody_build -DRENDER=on -DGLEW_LIBRARY=/usr/lib/x86_64-linux-gnu/libGLEW.so -DBACKEND=DPCPP -DDPCPP_CUDA_SUPPORT=on
+          ninja -C sycl_nbody_build
+          #ls scripts
+          #chmod +x scripts/build_dpcpp.sh
+          #sh scripts/build_dpcpp.sh #-DBACKEND=DPCP #-DDPCPP_CUDA_SUPPORT=off -nocudalib
           #CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ./nbody_dpcpp 1
 
       # - name: Build sycl_nbody
