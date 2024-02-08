@@ -45,9 +45,7 @@ set(abacus_math_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/fmax.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/fmin.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/fmod.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/fract.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/fract.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/frexp.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/frexp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/half_cos.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/half_divide.cpp
@@ -67,7 +65,6 @@ set(abacus_math_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/ilogb.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ldexp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/lgamma.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/lgamma_r.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/lgamma_r.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/log10.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/log1p.cpp
@@ -77,7 +74,6 @@ set(abacus_math_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/mad.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/maxmag.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/minmag.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/modf.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/modf.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/nan.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/native_cos.cpp
@@ -99,13 +95,11 @@ set(abacus_math_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/pown.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/powr.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/remainder.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/remquo.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/remquo.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rint.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rootn.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/round.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rsqrt.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/sincos.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/sincos.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/sin.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/sinh.cpp
@@ -121,6 +115,12 @@ set(abacus_math_sources_host ${abacus_math_sources}
   ${CMAKE_CURRENT_SOURCE_DIR}/inplace_sqrt.cpp
   PARENT_SCOPE)
 set(abacus_math_sources_device ${abacus_math_sources}
+  ${CMAKE_CURRENT_SOURCE_DIR}/fract.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/frexp.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/inplace_fma.ll.in
   ${CMAKE_CURRENT_SOURCE_DIR}/inplace_sqrt.ll.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/lgamma_r.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/modf.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/remquo.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/sincos.cl
   PARENT_SCOPE)
