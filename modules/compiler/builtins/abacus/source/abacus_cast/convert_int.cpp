@@ -17,5 +17,5 @@
 #include <abacus/abacus_cast.h>
 #include <abacus/internal/convert_helper.h>
 
-DEF(int);
-DEF(uint);
+DEF(int)
+DEF(uint)

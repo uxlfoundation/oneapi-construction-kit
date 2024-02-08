@@ -17,5 +17,5 @@
 #include <abacus/abacus_cast.h>
 #include <abacus/internal/convert_helper.h>
 
-DEF(char);
-DEF(uchar);
+DEF(char)
+DEF(uchar)
