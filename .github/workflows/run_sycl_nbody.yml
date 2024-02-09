@@ -85,6 +85,12 @@ jobs:
       #     mkdir linux_nightly_release
       #     tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
+      - name: syclomatic
+        run: |
+        wget https://github.com/oneapi-src/SYCLomatic/releases/download/20240208/linux_release.tgz
+        mkdir syclomatic
+        tar -xzf linux_release.tar.gz -C syclomatic
+
       - name: Set up Environment and build
         run: |
           # Set environment variables
@@ -102,8 +108,8 @@ jobs:
           export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
 
           export OCL_ICD_VENDORS=/dev/null
-          # export dpct_INCLUDE_DIR=$(pwd)/linux_nightly_release/include
-          # export dpct_LOCATION=$(pwd)/linux_nightly_release
+          export dpct_INCLUDE_DIR=$(pwd)/syclomatic/include
+          export dpct_LOCATION=$(pwd)/syclomatic
 
 
           export CXX=icpx
