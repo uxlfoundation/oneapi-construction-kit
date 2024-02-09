@@ -1,9 +1,6 @@
 # Build, Run and Test OCK Demo EcoSystem
 name: Build and Run OCK Demo
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/run_ock_demo.yml'
   push:
     branches:
       - stable
@@ -32,7 +29,7 @@ jobs:
           llvm_build_type: RelAssert
 
       - name: setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8'
 
@@ -57,7 +54,7 @@ jobs:
         run: |
           # Update the nightly release from intel/llvm from 2024-01-30 to daily once
           # everything has stablised
-          wget "https://github.com/intel/llvm/releases/download/nightly-2024-01-30/sycl_linux.tar.gz"
+          wget "https://github.com/intel/llvm/releases/download/nightly-2024-02-12/sycl_linux.tar.gz"
           mkdir linux_nightly_release
           tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
@@ -100,7 +97,7 @@ jobs:
         run: |
           mv install ock_install_dir
           tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir
-          tar -cvzf ock_demo_components.tar.gz portDNN_build_dir portBLAS_build_dir examples/technical_blogs/ock_demo_blog/getting_started.md examples/technical_blogs/ock_demo_blog/envvars
+          tar -cvzf ock_demo_components.tar.gz portDNN_build_dir portBLAS_build_dir -C examples/technical_blogs/ock_demo_blog getting_started.md envvars
 
       - name: Upload OCK artifacts
         uses: actions/upload-artifact@v4
@@ -119,7 +116,7 @@ jobs:
     needs: run_riscv_m1_ock_demo
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download OCK artifacts
         uses: actions/download-artifact@v4
@@ -173,7 +170,7 @@ jobs:
           fi
 
       - name: Create OCK demo release
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
