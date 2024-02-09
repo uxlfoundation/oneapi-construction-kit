@@ -40,7 +40,7 @@ jobs:
           pip install --user requests numpy h5py Pillow
           sudo add-apt-repository universe
           sudo apt-get update
-          sudo apt-get install -y libglm-dev libglew-dev libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
+          sudo apt-get install -y libglfw3-dev libglm-dev libglew-dev libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
 
       - name: oneapi base toolkit
         run: |
