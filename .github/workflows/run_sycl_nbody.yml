@@ -108,7 +108,7 @@ jobs:
 
           export CXX=icpx
           export CC=icpx
-          cmake cuda-to-sycl-nbody -GNinja -bsycl_nbody_build -DRENDER=on -DGLEW_LIBRARY=/usr/lib/x86_64-linux-gnu/libGLEW.so -DBACKEND=DPCPP -DDPCPP_CUDA_SUPPORT=on
+          cmake cuda-to-sycl-nbody -GNinja -B sycl_nbody_build -DRENDER=on -DGLEW_LIBRARY=/usr/lib/x86_64-linux-gnu/libGLEW.so -DBACKEND=DPCPP -DDPCPP_CUDA_SUPPORT=on
           ninja -C sycl_nbody_build
           #ls scripts
           #chmod +x scripts/build_dpcpp.sh
