@@ -87,9 +87,9 @@ jobs:
 
       - name: syclomatic
         run: |
-        wget https://github.com/oneapi-src/SYCLomatic/releases/download/20240208/linux_release.tgz
-        mkdir syclomatic
-        tar -xzf linux_release.tar.gz -C syclomatic
+          wget https://github.com/oneapi-src/SYCLomatic/releases/download/20240208/linux_release.tgz
+          mkdir syclomatic
+          tar -xzf linux_release.tar.gz -C syclomatic
 
       - name: Set up Environment and build
         run: |
