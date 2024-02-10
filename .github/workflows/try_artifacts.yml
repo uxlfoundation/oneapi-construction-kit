@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Package Build Artifacts
         run: |
-          tar -cvzf ock_test_doc.tar.gz getting_started.md envvars
+          tar -cvzf ock_test_doc.tar.gz -C examples/technical_blogs/ock_demo_blog getting_started.md envvars
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
