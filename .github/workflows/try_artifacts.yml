@@ -1,5 +1,5 @@
 
-name: Build and Run OCK Demo sycl_nbody
+name: Upload test artifacts
 on:
   pull_request:
     paths:
@@ -13,7 +13,7 @@ concurrency:
 jobs:
 
   # build and run for RISCV
-  run_riscv_m1_ock_demo_sycl_nbody:
+  run_upload_artiafcats:
     runs-on: ubuntu-22.04
 
     steps:
