@@ -1,0 +1,31 @@
+
+name: Build and Run OCK Demo sycl_nbody
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/try_artifacts.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run for RISCV
+  run_riscv_m1_ock_demo_sycl_nbody:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Package Build Artifacts
+        run: |
+          mv install ock_testdoc_dir
+          tar -cvzf ock_test_doc.tar.gz getting_started.md envvars
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ock_test_doc
+          path: ock_test_doc.tar.gz
