@@ -108,7 +108,7 @@ jobs:
           export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
 
           export OCL_ICD_VENDORS=/dev/null
-          export dpct_INCLUDE_DIR=$(pwd)/syclomatic/include
+          export dpct_INCLUDE_DIR=/home/runner/intel/oneapi/compiler/2024.0/include
           export dpct_LOCATION=$(pwd)/syclomatic
 
 
