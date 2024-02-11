@@ -109,7 +109,7 @@ jobs:
 
           export OCL_ICD_VENDORS=/dev/null
           export dpct_INCLUDE_DIR=/home/runner/intel/oneapi/compiler/2024.0/include
-          #export dpct_LOCATION=$(pwd)/syclomatic
+          export dpct_LOCATION=$(pwd)/syclomatic
 
 
           export CXX=icpx
