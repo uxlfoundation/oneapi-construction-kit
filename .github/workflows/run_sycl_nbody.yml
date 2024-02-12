@@ -42,11 +42,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libglfw3-dev libglm-dev libglew-dev libblas-dev libopenblas64-dev libopenblas-dev libpthread-stubs0-dev libboost-all-dev
 
-      - name: oneapi base toolkit
-        run: |
-          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/bb99984f-370f-413d-bbec-38928d2458f2/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh
-          sh ./l_dpcpp-cpp-compiler_p_2024.0.2.29.sh -a --silent --eula accept
-          ls -laR /home/runner/intel/oneapi
+      # - name: oneapi base toolkit
+      #   run: |
+      #     wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/bb99984f-370f-413d-bbec-38928d2458f2/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh
+      #     sh ./l_dpcpp-cpp-compiler_p_2024.0.2.29.sh -a --silent --eula accept
+      #     ls -laR /home/runner/intel/oneapi
 
       - name: Get Intel OneAPI BaseToolkit
         run: |
@@ -58,8 +58,7 @@ jobs:
           #   echo "Intel oneAPI Base Toolkit is not installed."
           # fi
           #sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler'
-          sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-ct'
-          ls -laR /home/runner/intel/oneapi
+          sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler':'intel.oneapi.lin.dpcpp-ct'
 
       - name: Build riscv M1
         uses: ./.github/actions/do_build_ock/do_build_m1
@@ -98,11 +97,11 @@ jobs:
       #     mkdir linux_nightly_release
       #     tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
-      - name: syclomatic
-        run: |
-          wget https://github.com/oneapi-src/SYCLomatic/releases/download/20240208/linux_release.tgz
-          mkdir syclomatic
-          tar -xzf linux_release.tgz -C syclomatic
+      # - name: syclomatic
+      #   run: |
+      #     wget https://github.com/oneapi-src/SYCLomatic/releases/download/20240208/linux_release.tgz
+      #     mkdir syclomatic
+      #     tar -xzf linux_release.tgz -C syclomatic
 
       - name: Set up Environment and build
         run: |
@@ -118,11 +117,11 @@ jobs:
           # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
           # This way it doesn't set the default sycl.conf.
           export SYCL_CONFIG_FILE_NAME=""
-          export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/include/sycl/ext/oneapi/:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$(pwd)/syclomatic/include:$PATH
+          export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
 
           export OCL_ICD_VENDORS=/dev/null
           export dpct_INCLUDE_DIR=/home/runner/intel/oneapi/compiler/2024.0/include
-          export dpct_LOCATION=$(pwd)/syclomatic
+          export dpct_LOCATION=/home/runner/intel/oneapi/2024.0/
 
 
           export CXX=icpx
