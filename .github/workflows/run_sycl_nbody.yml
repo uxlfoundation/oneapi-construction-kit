@@ -48,6 +48,19 @@ jobs:
           sh ./l_dpcpp-cpp-compiler_p_2024.0.2.29.sh -a --silent --eula accept
           ls -laR /home/runner/intel/oneapi
 
+      - name: Get Intel OneAPI BaseToolkit
+        run: |
+          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/163da6e4-56eb-4948-aba3-debcec61c064/l_BaseKit_p_2024.0.1.46.sh
+          export TERMINFO=/usr/lib/terminfo
+          # if [ -d "/opt/intel/oneapi" ]; then
+          #   echo "Intel oneAPI Base Toolkit is installed."
+          # else
+          #   echo "Intel oneAPI Base Toolkit is not installed."
+          # fi
+          #sudo sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler'
+          sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-ct'
+          ls -laR /home/runner/intel/oneapi
+
       - name: Build riscv M1
         uses: ./.github/actions/do_build_ock/do_build_m1
         with:
@@ -109,7 +122,7 @@ jobs:
 
           export OCL_ICD_VENDORS=/dev/null
           export dpct_INCLUDE_DIR=/home/runner/intel/oneapi/compiler/2024.0/include
-          export dpct_LOCATION=/home/runner/intel/oneapi/compiler/2024.0#$(pwd)/syclomatic
+          export dpct_LOCATION=$(pwd)/syclomatic
 
 
           export CXX=icpx
