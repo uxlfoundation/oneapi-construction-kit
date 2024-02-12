@@ -90,6 +90,11 @@ target_include_directories(VK PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(VK SYSTEM PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/external/Khronos/include)
+
+# TODO: has some llvm dependencies via spirv-ll/module.h. This should be looked at
+target_include_directories(VK SYSTEM PRIVATE
+  ${LLVM_INCLUDE_DIR})
+
 # TODO(CA-1643): Add fully configurable extension options.
 target_compile_definitions(VK PRIVATE
   CA_VK_KHR_get_physical_device_properties2=1
