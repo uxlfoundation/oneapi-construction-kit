@@ -70,6 +70,23 @@ target_include_directories(compiler-base PUBLIC
 target_include_directories(compiler-base SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include)
 
+if(OCK_IN_LLVM_TREE)
+  # When in-tree, we must explicitly specify the clang include directories, as
+  # they are not in the same place as the generic LLVM includes, as in a
+  # pre-installed LLVM.
+  if(NOT "clang" IN_LIST LLVM_ENABLE_PROJECTS
+      OR "${LLVM_EXTERNAL_CLANG_SOURCE_DIR}" STREQUAL "")
+    message(FATAL_ERROR "The 'clang' project is not enabled")
+  endif()
+  target_include_directories(compiler-base PUBLIC
+    ${LLVM_EXTERNAL_CLANG_SOURCE_DIR}/include)
+  # Clang also generates some header files at configure time - we must also
+  # include those. There's no direct way of accessing this, so assume some
+  # knowledge of the LLVM source tree.
+  target_include_directories(compiler-base PUBLIC
+    ${LLVM_BINARY_DIR}/tools/clang/include)
+endif()
+
 # Explicitly link against the individual static versions of the clang
 # libraries, as if clang was built with LLVM_LINK_LLVM_DYLIB=ON, then the
 # 'clangCodeGen' library target brings in the 'LLVM' dynamic library. It is
@@ -85,10 +102,15 @@ if(LLVM_VERSION_MAJOR GREATER_EQUAL 18)
   list(APPEND CLANG_LIBS "clangAPINotes" "clangBasic")
   list(APPEND LLVM_LIBS "LLVMFrontendDriver")
 endif()
-list(TRANSFORM CLANG_LIBS
-     PREPEND "${CA_LLVM_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}")
-list(TRANSFORM CLANG_LIBS
-     APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+# In-tree, we should have each of these library targets available.
+# Otherwise, we have to provide the full path to them.
+if(NOT OCK_IN_LLVM_TREE)
+  list(TRANSFORM CLANG_LIBS
+       PREPEND "${CA_LLVM_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}")
+  list(TRANSFORM CLANG_LIBS
+       APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif()
 
 target_link_libraries(compiler-base PUBLIC
   builtins cargo mux spirv-ll compiler-pipeline compiler-binary-metadata vecz
