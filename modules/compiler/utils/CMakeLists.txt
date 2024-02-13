@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_ca_library(compiler-pipeline STATIC
+add_ca_library(ock-compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/StructTypeRemapper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_kernel_wrapper_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_scheduling_parameters_pass.h
@@ -117,43 +117,43 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
 
-target_include_directories(compiler-pipeline PUBLIC
+target_include_directories(ock-compiler-pipeline PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-target_compile_definitions(compiler-pipeline PRIVATE
+target_compile_definitions(ock-compiler-pipeline PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
   $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
   $<$<BOOL:${CA_PLATFORM_MAC}>:CA_PLATFORM_MAC>
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-target_link_libraries(compiler-pipeline PUBLIC
+target_link_libraries(ock-compiler-pipeline PUBLIC
  multi_llvm LLVMPasses LLVMTransformUtils)
 if(TARGET LLVMCore)
-  target_link_libraries(compiler-pipeline PUBLIC LLVMCore)
+  target_link_libraries(ock-compiler-pipeline PUBLIC LLVMCore)
 endif()
 
-add_ca_library(compiler-binary-metadata STATIC
+add_ca_library(ock-compiler-binary-metadata STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/add_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_analysis.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/metadata_hooks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp)
 
-target_include_directories(compiler-binary-metadata PUBLIC
+target_include_directories(ock-compiler-binary-metadata PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-target_compile_definitions(compiler-binary-metadata PRIVATE
+target_compile_definitions(ock-compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
   $<$<BOOL:${CA_PLATFORM_WINDOWS}>:CA_PLATFORM_WINDOWS>
   $<$<BOOL:${CA_PLATFORM_MAC}>:CA_PLATFORM_MAC>
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-target_link_libraries(compiler-binary-metadata PUBLIC
+target_link_libraries(ock-compiler-binary-metadata PUBLIC
   md_handler multi_llvm LLVMPasses LLVMTransformUtils)
 if(TARGET LLVMCore)
-  target_link_libraries(compiler-binary-metadata PUBLIC LLVMCore)
+  target_link_libraries(ock-compiler-binary-metadata PUBLIC LLVMCore)
 endif()
 
 

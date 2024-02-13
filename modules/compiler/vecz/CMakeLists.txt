@@ -167,32 +167,32 @@ endif()
 
 if(CA_VECZ_ONLY)
   if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    add_llvm_loadable_module(vecz ${COMMON_SRCS})
+    add_llvm_loadable_module(ock-vecz ${COMMON_SRCS})
   else()
-    add_llvm_library(vecz ${COMMON_SRCS})
+    add_llvm_library(ock-vecz ${COMMON_SRCS})
   endif()
 else()
   # We want a static library for linking with libOpenCL
-  add_ca_library(vecz STATIC ${MODULES_LIBRARY_TYPE} ${COMMON_SRCS})
+  add_ca_library(ock-vecz STATIC ${MODULES_LIBRARY_TYPE} ${COMMON_SRCS})
 
   llvm_map_components_to_libnames(LLVM_LIBS
     support core analysis instcombine transformutils scalaropts ipo passes)
 endif()
 
-target_include_directories(vecz
+target_include_directories(ock-vecz
   PUBLIC $<BUILD_INTERFACE:${VECZ_PUBLIC_INCLUDE_DIR}>
   PRIVATE $<BUILD_INTERFACE:${VECZ_PRIVATE_INCLUDE_DIR}>)
-target_compile_options(vecz PRIVATE ${VECZ_COMPILE_OPTIONS})
-target_compile_definitions(vecz PRIVATE
+target_compile_options(ock-vecz PRIVATE ${VECZ_COMPILE_OPTIONS})
+target_compile_definitions(ock-vecz PRIVATE
   ${VECZ_COMPILE_DEFINITIONS})
 
-target_link_libraries(vecz PRIVATE compiler-pipeline multi_llvm PUBLIC ${LLVM_LIBS})
+target_link_libraries(ock-vecz PRIVATE ock-compiler-pipeline multi_llvm PUBLIC ${LLVM_LIBS})
 
 # intrinsics_gen uses tablegen to generate Attributes.inc, which is
 # (recursively) included by 'llvm/IR/Module.h', therefore this module depends
 # on that target.
 if(TARGET intrinsics_gen)
-  add_dependencies(vecz intrinsics_gen)
+  add_dependencies(ock-vecz intrinsics_gen)
 endif()
 
 if(NOT CA_VECZ_ONLY)
@@ -203,6 +203,6 @@ if(NOT CA_VECZ_ONLY)
 endif()
 
 # Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES vecz)
+list(APPEND MODULES_LIBRARIES ock-vecz)
 set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
   CACHE INTERNAL "List of module libraries.")

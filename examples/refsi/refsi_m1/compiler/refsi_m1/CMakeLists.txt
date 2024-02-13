@@ -50,8 +50,8 @@ if(CA_RUNTIME_COMPILER_ENABLED)
 
   target_link_libraries(compiler-refsi-m1 PUBLIC
     compiler-riscv-utils
-    compiler-pipeline
-    compiler-binary-metadata
+    ock-compiler-pipeline
+    ock-compiler-binary-metadata
     compiler-linker-utils      
     refsidrv
     compiler-base
