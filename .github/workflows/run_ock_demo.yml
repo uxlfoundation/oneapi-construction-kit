@@ -1,6 +1,9 @@
 # Build, Run and Test OCK Demo EcoSystem
 name: Build and Run OCK Demo
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/run_ock_demo.yml'
   schedule:
     - cron: '59 23 * * 5'  # Run every Friday at 11:59 PM
   # Allows you to run this workflow manually from the Actions tab
@@ -49,20 +52,37 @@ jobs:
         run: |
           ninja -C $(pwd)/build install
 
-      - name: Download Daily Release
+      # - name: Download Daily Release
+      #   run: |
+      #     # Update the nightly release from intel/llvm from 2024-01-30 to daily once
+      #     # everything has stablised
+      #     wget "https://github.com/intel/llvm/releases/download/nightly-2024-01-30/sycl_linux.tar.gz"
+      #     mkdir linux_nightly_release
+      #     tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+      - name: Get Intel OneAPI BaseToolkit
         run: |
-          # Update the nightly release from intel/llvm from 2024-01-30 to daily once
-          # everything has stablised
-          wget "https://github.com/intel/llvm/releases/download/nightly-2024-01-30/sycl_linux.tar.gz"
-          mkdir linux_nightly_release
-          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/163da6e4-56eb-4948-aba3-debcec61c064/l_BaseKit_p_2024.0.1.46.sh
+          export TERMINFO=/usr/lib/terminfo
+          sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler':'intel.oneapi.lin.dpcpp-ct'
 
       - name: Test RSICV examples
         run: |
           # Set environment variables
-          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
-          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
-          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          # export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
+          # export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
+          # export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          # export CA_HAL_DEBUG=1
+          # export CA_PROFILE_LEVEL=3
+          # export ONEAPI_DEVICE_SELECTOR=opencl:fpga
+          # export OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so
+          # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+          # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+          # This way it doesn't set the default sycl.conf.
+          #export SYCL_CONFIG_FILE_NAME=""
+
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:/home/runner/intel/oneapi/compiler/2024.0/lib/libsycl.so:/home/runner/intel/oneapi/compiler/2024.0/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang++
+          export CMAKE_C_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang
           export CA_HAL_DEBUG=1
           export CA_PROFILE_LEVEL=3
           export ONEAPI_DEVICE_SELECTOR=opencl:fpga
@@ -71,9 +91,12 @@ jobs:
           # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
           # This way it doesn't set the default sycl.conf.
           export SYCL_CONFIG_FILE_NAME=""
+          export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
+
 
           mkdir ock_example_tests
-          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+#          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang++ -DCMAKE_C_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=/home/runner/intel/oneapi/compiler/2024.0/include/sycl $(pwd)/examples/applications
           ninja -C ock_example_tests
 
           # Run tests

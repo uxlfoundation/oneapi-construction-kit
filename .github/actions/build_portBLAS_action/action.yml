@@ -18,11 +18,26 @@ runs:
       shell: bash
       run: |
         ls
-        export LD_LIBRARY_PATH=${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
-        export CMAKE_CXX_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
-        export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
+        # export LD_LIBRARY_PATH=${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
+        # export CMAKE_CXX_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        # export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
+        # export OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so
+        # export CXX=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+
         export OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so
-        export CXX=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
+        export LD_LIBRARY_PATH=$(pwd)/install/lib:/home/runner/intel/oneapi/compiler/2024.0/lib/libsycl.so:/home/runner/intel/oneapi/compiler/2024.0/lib:$LD_LIBRARY_PATH
+        export CMAKE_CXX_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang++
+        export CMAKE_C_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang
+        export CXX=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang++
+        export CA_HAL_DEBUG=1
+        export CA_PROFILE_LEVEL=3
+        export ONEAPI_DEVICE_SELECTOR=opencl:fpga
+        # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+        # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+        # This way it doesn't set the default sycl.conf.
+        export SYCL_CONFIG_FILE_NAME=""
+        export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
+
         # Note: With default options enabled, portBLAS supports complex math using
         # <ext/oneapi/experimental/sycl_complex.hpp>. It was removed in DPC++ in 0b5757bf.
         # To disable this -DBLAS_ENABLE_COMPLEX=OFF needs to added to cmake command line.
