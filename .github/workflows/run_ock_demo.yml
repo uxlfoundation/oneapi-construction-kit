@@ -50,20 +50,19 @@ jobs:
         run: |
           ninja -C $(pwd)/build install
 
-      - name: Download Daily Release
+      - name: Get Intel OneAPI BaseToolkit
         run: |
-          # Update the nightly release from intel/llvm from 2024-01-30 to daily once
-          # everything has stablised
-          wget "https://github.com/intel/llvm/releases/download/nightly-2024-02-12/sycl_linux.tar.gz"
-          mkdir linux_nightly_release
-          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/bb99984f-370f-413d-bbec-38928d2458f2/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh
+          export TERMINFO=/usr/lib/terminfo
+          sh $(pwd)/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh -a --silent --eula accept
+          mv /home/runner/intel $(pwd)
 
       - name: Test RSICV examples
         run: |
           # Set environment variables
-          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
-          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
-          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/intel/oneapi/compiler/2024.0/lib/libsycl.so:$(pwd)/intel/oneapi/compiler/2024.0/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang++
+          export CMAKE_C_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang
           export CA_HAL_DEBUG=1
           export CA_PROFILE_LEVEL=3
           export ONEAPI_DEVICE_SELECTOR=opencl:fpga
@@ -74,7 +73,7 @@ jobs:
           export SYCL_CONFIG_FILE_NAME=""
 
           mkdir ock_example_tests
-          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang++ -DCMAKE_C_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/intel/oneapi/compiler/2024.0/include/sycl $(pwd)/examples/applications
           ninja -C ock_example_tests
 
           # Run tests
@@ -83,21 +82,10 @@ jobs:
           cd ..
           mv ock_example_tests/bin install/tests
 
-      - name: Build portBLAS
-        uses: ./.github/actions/build_portBLAS_action
-        with:
-          workspace: ${{ github.workspace }}
-
-      - name: Build portDNN
-        uses: ./.github/actions/build_portDNN_action
-        with:
-          workspace: ${{ github.workspace }}
-
       - name: Package build artifacts
         run: |
           mv install ock_install_dir
           tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir
-          tar -cvzf ock_demo_components.tar.gz portDNN_build_dir portBLAS_build_dir -C examples/technical_blogs/ock_demo_blog getting_started.md envvars
 
       - name: Upload OCK artifacts
         uses: actions/upload-artifact@v4
@@ -105,13 +93,7 @@ jobs:
           name: ock_demo_build
           path: ock_demo_artifacts.tar.gz
 
-      - name: Upload OCK demo components artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ock_demo_components
-          path: ock_demo_components.tar.gz
-
-  build_and_run_networks:
+  build_portBLAS:
     runs-on: ubuntu-22.04
     needs: run_riscv_m1_ock_demo
     steps:
@@ -123,15 +105,59 @@ jobs:
         with:
           name: ock_demo_build
 
-      - name: Download OCK components artifacts
+      - name: Untar artifacts
+        run: |
+          tar -xvzf ock_demo_artifacts.tar.gz
+
+      - name: Build portBLAS
+        uses: ./.github/actions/build_portBLAS_action
+        with:
+          workspace: ${{ github.workspace }}
+
+  build_portDNN:
+    runs-on: ubuntu-22.04
+    needs: run_riscv_m1_ock_demo
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download OCK artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ock_demo_components
+          name: ock_demo_build
 
       - name: Untar artifacts
         run: |
           tar -xvzf ock_demo_artifacts.tar.gz
-          tar -xvzf ock_demo_components.tar.gz
+          rm ock_demo_artifacts.tar.gz
+          df .
+
+      - name: Build portDNN
+        uses: ./.github/actions/build_portDNN_action
+        with:
+          workspace: ${{ github.workspace }}
+
+  build_and_run_networks:
+    runs-on: ubuntu-22.04
+    needs: [run_riscv_m1_ock_demo, build_portDNN]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download OCK artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ock_demo_build
+
+      - name: Download portDNN build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: portDNN_build
+
+      - name: Untar artifacts
+        run: |
+          tar -xvzf ock_demo_artifacts.tar.gz
+          tar -xvzf portDNN_build.tar.gz
 
       - name: Build vgg and resnet
         uses: ./.github/actions/build_vgg_resnet_action
@@ -140,7 +166,7 @@ jobs:
 
   publish_OCK_demo_artifacts:
     runs-on: ubuntu-22.04
-    needs: [run_riscv_m1_ock_demo, build_and_run_networks]
+    needs: [run_riscv_m1_ock_demo, build_portBLAS, build_portDNN, build_and_run_networks]
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
@@ -149,10 +175,15 @@ jobs:
         with:
           name: ock_demo_build
 
-      - name: Download OCK components artifacts
+      - name: Download portDNN build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ock_demo_components
+          name: portDNN_build
+
+      - name: Download portBLAS build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: portBLAS_build
 
       - name: Download network artifacts
         uses: actions/download-artifact@v4
@@ -168,6 +199,10 @@ jobs:
             # TODO: Use date of the commit?
             echo "TAG=$(date +'%Y-%m-%d')-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Concatenate the tars to create OCK components
+        run: |
+          tar --concatenate --file=ock_demo_components.tar.gz portDNN_build.tar.gz portBLAS_build.tar.gz
 
       - name: Create OCK demo release
         uses: softprops/action-gh-release@v1
