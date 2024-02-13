@@ -65,7 +65,6 @@ jobs:
           export TERMINFO=/usr/lib/terminfo
           sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler':'intel.oneapi.lin.dpcpp-ct'
 
-
       - name: Test RSICV examples
         run: |
           # Set environment variables
@@ -93,7 +92,6 @@ jobs:
           # This way it doesn't set the default sycl.conf.
           export SYCL_CONFIG_FILE_NAME=""
           export PATH=/home/runner/intel/oneapi/compiler/2024.0/bin/icpx:/home/runner/intel/oneapi/compiler/2024.0/bin:/home/runner/intel/oneapi/compiler/2024.0/lib:$PATH
-
 
           mkdir ock_example_tests
 #          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
