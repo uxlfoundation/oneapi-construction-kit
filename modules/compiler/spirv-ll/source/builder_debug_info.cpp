@@ -929,6 +929,8 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
                               flags, llvm::DINodeArray(),
                               /*RunTimeLang*/ 0, linkage_name);
       break;
+    default:
+      break;
   }
 
   // Make a note of this composite type, so that we'll come back to it later
@@ -2286,6 +2288,8 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translateDebugInstImpl(
       }
       return translate(cast<DebugTypeTemplateParameterPack>(op));
     }
+    default:
+      break;
   }
 
 #undef TRANSLATE_CASE
@@ -2367,6 +2371,8 @@ llvm::Error DebugInfoBuilder::create(const OpExtInst &opc) {
       // the very end. If any are referenced by other nodes in the mean time
       // we'll process them, but if those are forward referenced, we'll crash.
       template_types.push_back(opc.IdResult());
+      break;
+    default:
       break;
   }
 

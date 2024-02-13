@@ -43,14 +43,11 @@ TEST_F(Execution, Dma_01_Direct) {
   }
 }
 
-#define GLOBAL_ITEMS_1D 4
-#define GLOBAL_ITEMS_2D 4
-#define LOCAL_ITEMS_1D 2
-#define LOCAL_ITEMS_2D 2
-#define GROUP_RANGE_1D (GLOBAL_ITEMS_1D / LOCAL_ITEMS_1D)
-#define GLOBAL_ITEMS_TOTAL (GLOBAL_ITEMS_1D * GLOBAL_ITEMS_2D)
-#define LOCAL_ITEMS_TOTAL (LOCAL_ITEMS_1D * LOCAL_ITEMS_2D)
-#define GROUP_RANGE_TOTAL (GLOBAL_ITEMS_TOTAL / LOCAL_ITEMS_TOTAL)
+const size_t GLOBAL_ITEMS_1D = 4;
+const size_t GLOBAL_ITEMS_2D = 4;
+const size_t LOCAL_ITEMS_1D = 2;
+const size_t LOCAL_ITEMS_2D = 2;
+const size_t GLOBAL_ITEMS_TOTAL = GLOBAL_ITEMS_1D * GLOBAL_ITEMS_2D;
 
 class DmaAutoConvolutionExecute : public Execution {
  public:
@@ -59,8 +56,8 @@ class DmaAutoConvolutionExecute : public Execution {
     const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D};
     const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D};
 
-    const unsigned srcWidth = GLOBAL_ITEMS_1D + 16;
-    const unsigned srcHeight = GLOBAL_ITEMS_2D + 8;
+    const size_t srcWidth = GLOBAL_ITEMS_1D + 16;
+    const size_t srcHeight = GLOBAL_ITEMS_2D + 8;
     kts::Reference1D<cl_uint> inA = [](size_t x) {
       return kts::Ref_Identity(x);
     };

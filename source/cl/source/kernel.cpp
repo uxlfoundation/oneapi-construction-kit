@@ -211,6 +211,8 @@ cl_int _cl_kernel::retainMems(cl_command_queue command_queue,
         case CL_MEM_OBJECT_IMAGE3D: {
           // TODO: Add synchronization of cl_mem_image objects once implemented.
         } break;
+        default:
+          return CL_INVALID_OPERATION;
       }
     }
   }

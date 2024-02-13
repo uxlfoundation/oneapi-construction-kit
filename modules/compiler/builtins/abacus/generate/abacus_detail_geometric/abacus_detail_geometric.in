@@ -253,11 +253,11 @@ template <typename T>
 T normalize(T p) {
   constexpr size_t num_elements = TypeTraits<T>::num_elements;
   static_assert(num_elements >= 1 && num_elements <= 16);
-  if constexpr (num_elements == 1) {  // NOLINT
+  if constexpr (num_elements == 1) {
     if (p > 0) return 1;
     if (p < 0) return -1;
     return p;
-  } else {  // NOLINT
+  } else {
     using ElementType = typename TypeTraits<T>::ElementType;
     using UnsignedType = typename TypeTraits<T>::UnsignedType;
     using ScalarUnsignedType = typename FPShape<T>::ScalarUnsignedType;
@@ -268,7 +268,7 @@ T normalize(T p) {
     const UnsignedType abs_au = au & FPShape<T>::InverseSignMask();
     ScalarUnsignedType max_mag_au = abs_au[0];
     for (size_t i = 1; i < num_elements; ++i) {
-      ScalarUnsignedType absElem_au = abs_au[i];
+      const ScalarUnsignedType absElem_au = abs_au[i];
       if (max_mag_au < absElem_au) max_mag_au = absElem_au;
     }
     const ElementType max_mag = detail::cast::as<ElementType>(max_mag_au);

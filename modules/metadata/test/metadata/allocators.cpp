@@ -79,4 +79,4 @@ REGISTER_TYPED_TEST_SUITE_P(MDAllocatorTypeTest, ManualAllocation,
                             ManualArrayAllocation, DefaultCallback,
                             AllocateShared);
 INSTANTIATE_TYPED_TEST_SUITE_P(AllocationHelperTests, MDAllocatorTypeTest,
-                               AllocTypes);
+                               AllocTypes, );

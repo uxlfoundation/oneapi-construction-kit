@@ -17,6 +17,12 @@
 add_subdirectory(builtins)
 
 if(CA_RUNTIME_COMPILER_ENABLED)
+  # Apply LLVM_INCLUDE_DIR to everything under compilers. This will include
+  # things like loader which technically does not need it, but we test this
+  # path anyway for no llvm. If we are in tree LLVM this is done already
+  if (NOT OCK_IN_LLVM_TREE)
+    include_directories(SYSTEM ${LLVM_INCLUDE_DIR})
+  endif()
   if(CA_ENABLE_TESTS)
     # Open up an active set of 'compiler' lit suites
     ca_umbrella_lit_testsuite_open(compiler)
@@ -46,9 +52,9 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     ${CMAKE_CURRENT_SOURCE_DIR}/library/source/library.cpp
     ${COMPILER_CONFIG_SOURCE})
   target_include_directories(compiler-static PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/library/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/utils/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/library/include>
     SYSTEM PUBLIC
     ${spirv-headers_SOURCE_DIR}/include)
   target_link_libraries(compiler-static

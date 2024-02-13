@@ -157,7 +157,18 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
   endif()
 endforeach()
 
-if(CA_RUNTIME_COMPILER_ENABLED)
+# Check if we are in an LLVM Tree.
+# This is done by checking for the LLVMCore target which does not exist
+# until we import LLVM.
+# This only happens of we have not imported or are fetched by LLVM via
+# FetchContent or as an external project. In this case we set a cmake
+# variable OCK_IN_LLVM_TREE to TRUE.
+set(OCK_IN_LLVM_TREE FALSE)
+if (TARGET LLVMCore)
+  set(OCK_IN_LLVM_TREE TRUE)
+endif()
+
+if(CA_RUNTIME_COMPILER_ENABLED AND NOT OCK_IN_LLVM_TREE)
   include(ImportLLVM)
 endif()
 
@@ -177,8 +188,7 @@ find_package(PythonInterp 3.6 REQUIRED)
 # which perform static analysis and style checking on source files.
 # When updating the version here, also update that used in the merge request
 # config
-find_package(ClangTools 17 COMPONENTS clang-format)
-find_package(ClangTools 9 COMPONENTS clang-tidy)
+find_package(ClangTools 17 COMPONENTS clang-format clang-tidy)
 if(TARGET ClangTools::clang-tidy)
   ca_option(CA_CLANG_TIDY_FLAGS STRING
     "Semi-color separated list of clang-tidy flags" "")
@@ -245,18 +255,6 @@ endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-
-if(NOT CMAKE_CROSSCOMPILING AND "${CA_BUILTINS_TOOLS_DIR}" STREQUAL "")
-  set(CA_BUILTINS_TOOLS_DIR ${CA_LLVM_INSTALL_DIR}/bin)
-endif()
-
-if(CMAKE_CROSSCOMPILING AND CA_RUNTIME_COMPILER_ENABLED)
-  if(NOT CA_EXTERNAL_BUILTINS AND NOT DEFINED CA_BUILTINS_TOOLS_DIR)
-    message(FATAL_ERROR
-      "Cross compiled builds requires CA_EXTERNAL_BUILTINS or "
-      "CA_BUILTINS_TOOLS_DIR to be set!")
-  endif()
-endif()
 
 set(CA_INTERNAL_BUILTINS_DIR ${PROJECT_BINARY_DIR}/modules/compiler/builtins)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/modules/compiler/builtins)

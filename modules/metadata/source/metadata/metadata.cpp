@@ -79,7 +79,7 @@ int md_push_sint(md_stack block, int64_t val) {
 }
 
 int md_push_bytes(md_stack stack, const void *bytes, size_t len) {
-  const auto result = stack->push_bytes((uint8_t *)bytes, len);
+  const auto result = stack->push_bytes((const uint8_t *)bytes, len);
   return result.value_or(result.error());
 }
 

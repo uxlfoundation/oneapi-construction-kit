@@ -33,7 +33,7 @@ uint64_t getTargetIndex(mux_id_t id) {
   // deviceIndex is masked out, targetIndex is mux_target_id* - 1
   return (mux_target_id_device_mask & id) - 1;
 }
-};  // namespace
+}  // namespace
 
 mux_result_t muxGetDeviceInfos(uint32_t device_types,
                                uint64_t device_infos_length,
@@ -72,8 +72,9 @@ mux_result_t muxGetDeviceInfos(uint32_t device_types,
       auto targetGetDeviceInfos = targetGetDeviceInfosHooks[targetIndex];
 
       uint64_t devicesLength = 0;
-      if ((error = targetGetDeviceInfos(mux_device_type_all, 0, nullptr,
-                                        &devicesLength))) {
+      error =
+          targetGetDeviceInfos(mux_device_type_all, 0, nullptr, &devicesLength);
+      if (error) {
         return;
       }
 
@@ -84,8 +85,9 @@ mux_result_t muxGetDeviceInfos(uint32_t device_types,
       assert(devicesLength <= deviceInfos.size() &&
              "mux target has more than 16 devices, increase array size");
 
-      if ((error = (targetGetDeviceInfos(mux_device_type_all, devicesLength,
-                                         deviceInfos.data(), nullptr)))) {
+      error = targetGetDeviceInfos(mux_device_type_all, devicesLength,
+                                   deviceInfos.data(), nullptr);
+      if (error) {
         return;
       }
 

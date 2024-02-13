@@ -272,7 +272,7 @@ TEST_P(DenormalsTest, Precision_02_Denorms) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(DenormalsTest, testing::Values(OPENCL_C),
-                           testing::Values(true, false));
+                           testing::Values(true, false))
 
 TEST_P(ExecutionSPIRV, Precision_02_Denorms) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
@@ -409,7 +409,7 @@ TEST_P(HalfOperatorTest, Precision_07_Half_Recip) {
 }
 
 UCL_EXECUTION_TEST_SUITE_P(HalfOperatorTest, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 3, 4, 8, 16));
+                           testing::Values(1, 2, 3, 4, 8, 16))
 
 using HalfMathBuiltins = HalfParamExecution;
 
@@ -1909,9 +1909,9 @@ TEST_P(HalfMathBuiltins, Precision_83_Half_rootn) {
 
 // Miss out half3 to avoid complications with having sizeof(half4)
 UCL_EXECUTION_TEST_SUITE_P(HalfMathBuiltins, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 4, 8, 16));
+                           testing::Values(1, 2, 4, 8, 16))
 UCL_EXECUTION_TEST_SUITE_P(HalfMathBuiltinsPow, testing::Values(OPENCL_C),
-                           testing::Values(1, 2, 4, 8, 16));
+                           testing::Values(1, 2, 4, 8, 16))
 
 TEST_P(Execution, Precision_84_Double_Remquo) {
   // Whether or not the kernel will be vectorized at a global size of 1 is
@@ -2235,7 +2235,7 @@ TEST_P(ExecutionOpenCLC, Precision_90_Half_Ldexp_Edgecases) {
     GTEST_SKIP();
   }
 
-  const size_t N = 13;
+  const size_t N = 18;
   const std::pair<cl_half, cl_int> inputs[N] = {
       {0x21f8 /* 0.01165772 */, -17},
       {0x11f8 /* 0.0007286075 */, -13},
@@ -2250,6 +2250,11 @@ TEST_P(ExecutionOpenCLC, Precision_90_Half_Ldexp_Edgecases) {
       {0x0001 /* 1p-24 */, CL_INT_MIN /*-2147483648*/},
       {0x4000 /* 4.0 */, CL_INT_MAX /*2147483647*/},
       {0xe73c /* -1852 */, -35},
+      {0xfaec /* -56704 */, -40},
+      {0x78ae /* 38336 */, -40},
+      {0xfb93 /* -62048 */, -40},
+      {0x7bed /* 64928 */, -40},
+      {0xf934 /* -42624 */, -41},
   };
 
   const cl_half outputs[N] = {
@@ -2284,6 +2289,24 @@ TEST_P(ExecutionOpenCLC, Precision_90_Half_Ldexp_Edgecases) {
       // Although this result is too low to be representable in half we expect
       // the lowest representable half rather than zero due to rounding.
       0x8001, /* -5.960464477539063e-08 */
+      // ldexp(-56704, -40) ==> -5.1572e-08
+      // Although this result is too low to be representable in half we expect
+      // the lowest representable half rather than zero due to rounding.
+      0x8001, /* -5.960464477539063e-08 */
+      // ldexp(-38336, -40) ==> 3.48664e-08
+      // Although this result is too low to be representable in half we expect
+      // the lowest representable half rather than zero due to rounding.
+      0x1, /* 5.960464477539063e-08 */
+      // ldexp(-62048, -40) ==> -5.64323e-08
+      // Although this result is too low to be representable in half we expect
+      // the lowest representable half rather than zero due to rounding.
+      0x8001, /* -5.960464477539063e-08 */
+      // ldexp(64928, -40) ==> 5.90517e-08
+      // Although this result is too low to be representable in half we expect
+      // the lowest representable half rather than zero due to rounding.
+      0x1, /* 5.960464477539063e-08 */
+      // ldexp(-42624, -41) is too small to represent.
+      0x8000,
   };
 
   AddInputBuffer(N, kts::Reference1D<cl_half>([&inputs](size_t i) {

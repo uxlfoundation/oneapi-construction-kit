@@ -52,18 +52,18 @@ void vstore(const T data, const size_t offset, U p) {
   DEF_WITH_TYPE_AND_SIZE(TYPE, 8) \
   DEF_WITH_TYPE_AND_SIZE(TYPE, 16)
 
-DEF(abacus_char);
-DEF(abacus_uchar);
-DEF(abacus_short);
-DEF(abacus_ushort);
-DEF(abacus_int);
-DEF(abacus_uint);
-DEF(abacus_long);
-DEF(abacus_ulong);
+DEF(abacus_char)
+DEF(abacus_uchar)
+DEF(abacus_short)
+DEF(abacus_ushort)
+DEF(abacus_int)
+DEF(abacus_uint)
+DEF(abacus_long)
+DEF(abacus_ulong)
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-DEF(abacus_half);
+DEF(abacus_half)
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-DEF(abacus_float);
+DEF(abacus_float)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-DEF(abacus_double);
+DEF(abacus_double)
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

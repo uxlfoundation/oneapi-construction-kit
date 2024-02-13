@@ -45,7 +45,7 @@ if (LLVMRISCVCODEGEN)
 
 
     target_include_directories(compiler-riscv-utils PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/include
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     )
 
     target_link_libraries(compiler-riscv-utils PUBLIC

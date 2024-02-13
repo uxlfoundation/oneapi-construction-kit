@@ -30,8 +30,8 @@ To access the following commands and variables in this module:
 #]=======================================================================]
 include(CMakeParseArguments)
 
-set(CMAKE_C_STANDARD 99)              # Enable C99 mode
-set(CMAKE_C_STANDARD_REQUIRED ON)     # Require C99 support
+set(CMAKE_C_STANDARD 11)              # Enable C11 mode
+set(CMAKE_C_STANDARD_REQUIRED ON)     # Require C11 support
 set(CMAKE_C_EXTENSIONS OFF)           # Disable C language extensions
 
 set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode
@@ -141,8 +141,9 @@ set(CA_COMPILE_OPTIONS
     >
     -Wno-error=deprecated-declarations  # Disable: use of deprecated functions
 
+    -pedantic             # Enable warnings required by the C++ standard
     -Wall -Wextra         # Enable more warnings
-    -Wno-variadic-macros  # Disable: warnings about variadic macros
+    -Wcast-qual           # Enable warnings for casting away const
     -Wformat              # Enable printf format warnings
 
     $<$<NOT:$<BOOL:${MINGW}>>:

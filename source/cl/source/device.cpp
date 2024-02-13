@@ -118,8 +118,8 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
                          : CL_GLOBAL),
       max_clock_frequency(mux_device->info->clock_frequency),
       max_compute_units(mux_device->info->compute_units),
-      max_constant_args(8),                 // 8 is spec mandated minimum
-      max_constant_buffer_size(64 * 1024),  // 64k is spec mandated minimum
+      max_constant_args(8),                   // 8 is spec mandated minimum
+      max_constant_buffer_size(64L * 1024L),  // 64k is spec mandated minimum
       max_mem_alloc_size(mux_device->info->allocation_size),
       max_parameter_size(1024),  // 1024 is spec mandated minimum
       max_read_image_args(mux_device->info->max_sampled_images),
@@ -297,6 +297,8 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
     case mux_device_type_custom:
       type = CL_DEVICE_TYPE_CUSTOM;
       break;
+    default:
+      OCL_ABORT("Unsupported device type");
   }
 
   auto builtins =

@@ -27,7 +27,7 @@ add_ca_library(tracer STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/tracer/tracer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/tracer.cpp)
 
-target_include_directories(tracer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(tracer PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 # Toggle various tracing options
 ca_option(CA_TRACE_CL BOOL "Enable tracing OpenCL entry points" OFF)

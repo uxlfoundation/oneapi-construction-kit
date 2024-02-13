@@ -894,9 +894,9 @@ void CmdDispatch(vk::command_buffer commandBuffer, uint32_t x, uint32_t y,
     recorded_kernel.local_size = {commandBuffer->wgs[0], commandBuffer->wgs[1],
                                   commandBuffer->wgs[2]};
     recorded_kernel.global_offset = {0, 0, 0};
-    recorded_kernel.global_size = {x * (commandBuffer->wgs[0]),
-                                   y * (commandBuffer->wgs[1]),
-                                   z * (commandBuffer->wgs[2])};
+    recorded_kernel.global_size = {(size_t)x * (size_t)commandBuffer->wgs[0],
+                                   (size_t)y * (size_t)commandBuffer->wgs[1],
+                                   (size_t)z * (size_t)commandBuffer->wgs[2]};
     if (commandBuffer->mux_binary_kernel) {
       recorded_kernel.mux_binary_kernel = commandBuffer->mux_binary_kernel;
     } else {

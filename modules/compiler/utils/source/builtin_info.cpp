@@ -1130,6 +1130,8 @@ std::optional<GroupCollective> BuiltinInfo::isMuxGroupCollective(BuiltinID ID) {
       case CASE_GROUP_OP_ALL_SCOPES(ScanLogicalXorExclusive):
         Collective.Recurrence = RecurKind::Xor;
         break;
+      default:
+        llvm_unreachable("Unhandled mux group operation");
     }
   } else if (!Collective.isBroadcast() && !Collective.isShuffleLike()) {
     llvm_unreachable("Unhandled mux group operation");

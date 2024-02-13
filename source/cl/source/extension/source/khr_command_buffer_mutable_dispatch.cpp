@@ -85,7 +85,7 @@ cl_int extension::khr_command_buffer_mutable_dispatch::GetDeviceInfo(
 CL_API_ENTRY cl_int CL_API_CALL
 clUpdateMutableCommandsKHR(cl_command_buffer_khr command_buffer,
                            const cl_mutable_base_config_khr *mutable_config) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clUpdateMutableCommandsKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clUpdateMutableCommandsKHR");
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(!command_buffer->is_finalized, return CL_INVALID_OPERATION);
 
@@ -121,7 +121,7 @@ clUpdateMutableCommandsKHR(cl_command_buffer_khr command_buffer,
 CL_API_ENTRY cl_int CL_API_CALL clGetMutableCommandInfoKHR(
     cl_mutable_command_khr command, cl_mutable_command_info_khr param_name,
     size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clGetMutableCommandInfoKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clGetMutableCommandInfoKHR");
 
   OCL_CHECK(!command, return CL_INVALID_MUTABLE_COMMAND_KHR);
 

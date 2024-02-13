@@ -165,6 +165,8 @@ cl_int CL_API_CALL clGetKernelWFVInfoCODEPLAY(
     }();
 
     switch (param_name) {
+      default:
+        return CL_INVALID_VALUE;
       case CL_KERNEL_WFV_STATUS_CODEPLAY: {
         cl_kernel_wfv_status_codeplay *result =
             static_cast<cl_kernel_wfv_status_codeplay *>(param_value);

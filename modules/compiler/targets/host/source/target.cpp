@@ -39,10 +39,12 @@
 #include <llvm/Support/Host.h>
 #endif
 
+#include <compiler/utils/gdb_registration_listener.h>
+#include <compiler/utils/llvm_global_mutex.h>
+
 #include "host/device.h"
 #include "host/info.h"
 #include "host/module.h"
-
 #ifdef CA_ENABLE_HOST_BUILTINS
 #include "compiler/utils/memory_buffer.h"
 #include "host/resources.h"
@@ -58,6 +60,7 @@ HostTarget::HostTarget(const HostInfo *compiler_info,
 compiler::Result HostTarget::initWithBuiltins(
     std::unique_ptr<llvm::Module> builtins_module) {
   builtins = std::move(builtins_module);
+  gdb_registration_listener = compiler::utils::createGDBRegistrationListener();
 
 #ifdef CA_ENABLE_HOST_BUILTINS
   auto loadedModule = llvm::getOwningLazyBitcodeModule(
@@ -219,9 +222,8 @@ compiler::Result HostTarget::initWithBuiltins(
             std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(
                 ES, std::move(GetMemMgr));
 
-        // Register the event listener.
-        ObjLinkingLayer->registerJITEventListener(
-            *llvm::JITEventListener::createGDBRegistrationListener());
+        // Register the GDB JIT event listener.
+        ObjLinkingLayer->registerJITEventListener(*gdb_registration_listener);
 
         // Make sure the debug info sections aren't stripped.
         ObjLinkingLayer->setProcessAllSections(true);
@@ -272,6 +274,6 @@ const llvm::LLVMContext &HostTarget::getLLVMContext() const {
   return *llvm_ts_context.getContext();
 }
 
-llvm::Module *HostTarget::getBuiltins() const { return builtins.get(); };
+llvm::Module *HostTarget::getBuiltins() const { return builtins.get(); }
 
 }  // namespace host

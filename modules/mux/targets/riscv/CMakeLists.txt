@@ -94,7 +94,7 @@ add_ca_library(riscv STATIC
 "${CMAKE_CURRENT_SOURCE_DIR}/include/riscv/fence.h"
 )
 
-target_include_directories(riscv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(riscv PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_options(riscv PRIVATE
   $<$<BOOL:${UNIX}>:-Wno-unused-parameter>)

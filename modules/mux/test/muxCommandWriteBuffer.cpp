@@ -18,7 +18,7 @@
 
 #include "common.h"
 
-enum { MEMORY_SIZE = 128 };
+const size_t MEMORY_SIZE = 128;
 
 struct muxCommandWriteBufferTest : DeviceTest {
   mux_memory_t memory = nullptr;
@@ -59,6 +59,8 @@ struct muxCommandWriteBufferTest : DeviceTest {
     DeviceTest::TearDown();
   }
 };
+
+INSTANTIATE_DEVICE_TEST_SUITE_P(muxCommandWriteBufferTest);
 
 TEST_P(muxCommandWriteBufferTest, Default) {
   char data[MEMORY_SIZE] = {0};

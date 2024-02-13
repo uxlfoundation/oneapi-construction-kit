@@ -107,7 +107,7 @@ struct hal_device_t {
   ///
   /// @return Returns `false` if the operation fails otherwise `true`.
   virtual bool mem_copy(hal_addr_t dst, hal_addr_t src, hal_size_t size) {
-    const constexpr hal_size_t max_malloc_size = 1024 * 1024;
+    const constexpr hal_size_t max_malloc_size = 1024L * 1024L;
     const std::unique_ptr<uint8_t[]> temp_ptr(new uint8_t[max_malloc_size]);
     void *temp = temp_ptr.get();
 

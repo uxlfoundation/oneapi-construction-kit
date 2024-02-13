@@ -23,14 +23,15 @@
 
 #include "ur_api.h"
 
-#define IS_UR_SUCCESS(X)                                                    \
-  {                                                                         \
-    ur_result_t ret_val = X;                                                \
-    if (UR_RESULT_SUCCESS != ret_val) {                                     \
-      fprintf(stderr, "Unified Runtime error occurred: %s returned 0x%x\n", \
-              #X, ret_val);                                                 \
-      exit(1);                                                              \
-    }                                                                       \
+#define IS_UR_SUCCESS(X)                                                      \
+  {                                                                           \
+    const ur_result_t ret_val = X;                                            \
+    if (UR_RESULT_SUCCESS != ret_val) {                                       \
+      (void)fprintf(stderr,                                                   \
+                    "Unified Runtime error occurred: %s returned 0x%x\n", #X, \
+                    ret_val);                                                 \
+      exit(1);                                                                \
+    }                                                                         \
   }
 
 /// @brief Print help message on executable usage
@@ -60,7 +61,7 @@ void parseArguments(const int argc, const char **argv,
       argi++;
       if (argi == argc) {
         printUsage(argv[0]);
-        fprintf(stderr, "expected platform name\n");
+        (void)fprintf(stderr, "expected platform name\n");
         exit(1);
       }
       *platform_name = argv[argi];
@@ -68,13 +69,13 @@ void parseArguments(const int argc, const char **argv,
       argi++;
       if (argi == argc) {
         printUsage(argv[0]);
-        fprintf(stderr, "error: expected device name\n");
+        (void)fprintf(stderr, "error: expected device name\n");
         exit(1);
       }
       *device_name = argv[argi];
     } else {
       printUsage(argv[0]);
-      fprintf(stderr, "error: invalid argument: %s\n", argv[argi]);
+      (void)fprintf(stderr, "error: invalid argument: %s\n", argv[argi]);
       exit(1);
     }
   }
@@ -94,14 +95,14 @@ ur_platform_handle_t selectPlatform(const char *platform_name_arg) {
   IS_UR_SUCCESS(urPlatformGet(0, NULL, &num_platforms));
 
   if (0 == num_platforms) {
-    fprintf(stderr, "No Unified Runtime platforms found, exiting\n");
+    (void)fprintf(stderr, "No Unified Runtime platforms found, exiting\n");
     exit(1);
   }
 
   ur_platform_handle_t *platforms = (ur_platform_handle_t *)malloc(
       sizeof(ur_platform_handle_t) * num_platforms);
   if (NULL == platforms) {
-    fprintf(stderr, "\nCould not allocate memory for platform ids\n");
+    (void)fprintf(stderr, "\nCould not allocate memory for platform ids\n");
     exit(1);
   }
   IS_UR_SUCCESS(urPlatformGet(num_platforms, platforms, NULL));
@@ -119,7 +120,8 @@ ur_platform_handle_t selectPlatform(const char *platform_name_arg) {
     } else {
       char *platform_name = (char *)malloc(platform_name_size);
       if (NULL == platform_name) {
-        fprintf(stderr, "\nCould not allocate memory for platform name\n");
+        (void)fprintf(stderr,
+                      "\nCould not allocate memory for platform name\n");
         exit(1);
       }
       IS_UR_SUCCESS(urPlatformGetInfo(platforms[i], UR_PLATFORM_INFO_NAME,
@@ -133,8 +135,8 @@ ur_platform_handle_t selectPlatform(const char *platform_name_arg) {
   }
 
   if (platform_name_arg != NULL && selected_platform == 0) {
-    fprintf(stderr, "Platform name matching '--platform %s' not found\n",
-            platform_name_arg);
+    (void)fprintf(stderr, "Platform name matching '--platform %s' not found\n",
+                  platform_name_arg);
     exit(1);
   }
 
@@ -147,7 +149,7 @@ ur_platform_handle_t selectPlatform(const char *platform_name_arg) {
   } else {
     printf("\nPlease select a platform: ");
     if (1 != scanf("%u", &selected_platform)) {
-      fprintf(stderr, "\nCould not parse provided input, exiting\n");
+      (void)fprintf(stderr, "\nCould not parse provided input, exiting\n");
       exit(1);
     }
   }
@@ -155,7 +157,7 @@ ur_platform_handle_t selectPlatform(const char *platform_name_arg) {
   selected_platform -= 1;
 
   if (num_platforms <= selected_platform) {
-    fprintf(stderr, "\nSelected unknown platform, exiting\n");
+    (void)fprintf(stderr, "\nSelected unknown platform, exiting\n");
     exit(1);
   } else {
     printf("\nRunning example on platform %u\n", selected_platform + 1);
@@ -185,14 +187,14 @@ ur_device_handle_t selectDevice(ur_platform_handle_t selected_platform,
                             &num_devices));
 
   if (0 == num_devices) {
-    fprintf(stderr, "No Unified Runtime devices found, exiting\n");
+    (void)fprintf(stderr, "No Unified Runtime devices found, exiting\n");
     exit(1);
   }
 
   ur_device_handle_t *devices =
       (ur_device_handle_t *)malloc(sizeof(ur_device_handle_t) * num_devices);
   if (NULL == devices) {
-    fprintf(stderr, "\nCould not allocate memory for device ids\n");
+    (void)fprintf(stderr, "\nCould not allocate memory for device ids\n");
     exit(1);
   }
   IS_UR_SUCCESS(urDeviceGet(selected_platform, UR_DEVICE_TYPE_ALL, num_devices,
@@ -211,7 +213,7 @@ ur_device_handle_t selectDevice(ur_platform_handle_t selected_platform,
     } else {
       char *device_name = (char *)malloc(device_name_size);
       if (NULL == device_name) {
-        fprintf(stderr, "\nCould not allocate memory for device name\n");
+        (void)fprintf(stderr, "\nCould not allocate memory for device name\n");
         exit(1);
       }
       IS_UR_SUCCESS(urDeviceGetInfo(devices[i], UR_DEVICE_INFO_NAME,
@@ -225,8 +227,8 @@ ur_device_handle_t selectDevice(ur_platform_handle_t selected_platform,
   }
 
   if (device_name_arg != NULL && selected_device == 0) {
-    fprintf(stderr, "Device name matching '--device %s' not found\n",
-            device_name_arg);
+    (void)fprintf(stderr, "Device name matching '--device %s' not found\n",
+                  device_name_arg);
     exit(1);
   }
 
@@ -239,7 +241,7 @@ ur_device_handle_t selectDevice(ur_platform_handle_t selected_platform,
   } else {
     printf("\nPlease select a device: ");
     if (1 != scanf("%u", &selected_device)) {
-      fprintf(stderr, "\nCould not parse provided input, exiting\n");
+      (void)fprintf(stderr, "\nCould not parse provided input, exiting\n");
       exit(1);
     }
   }
@@ -247,7 +249,7 @@ ur_device_handle_t selectDevice(ur_platform_handle_t selected_platform,
   selected_device -= 1;
 
   if (num_devices <= selected_device) {
-    fprintf(stderr, "\nSelected unknown device, exiting\n");
+    (void)fprintf(stderr, "\nSelected unknown device, exiting\n");
     exit(1);
   } else {
     printf("\nRunning example on device %u\n", selected_device + 1);

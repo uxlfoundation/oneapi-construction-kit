@@ -262,7 +262,8 @@ struct helper<abacus_float, abacus_float> {
     }
 
     const abacus_float poly_approx = abacus::internal::horner_polynomial(
-        significand, __codeplay_log1p_coeff + polynomial_select * 10, 10);
+        significand, __codeplay_log1p_coeff + polynomial_select * (size_t)10,
+        10);
 
     if (polynomial_select != 0) {
       return poly_approx;

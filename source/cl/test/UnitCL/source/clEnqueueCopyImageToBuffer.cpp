@@ -348,7 +348,7 @@ TEST_F(clEnqueueCopyImageToBuffer1DBufferTest,
   EXPECT_SUCCESS(clReleaseMemObject(sub_buff));
 }
 
-GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueCopyImageToBufferInvalidTest);
+GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueCopyImageToBufferInvalidTest)
 
 TEST_F(clEnqueueCopyImageToBuffer1DTest, Default) { test_body(); }
 TEST_F(clEnqueueCopyImageToBuffer1DBufferTest, Default) { test_body(); }

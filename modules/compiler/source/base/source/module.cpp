@@ -1125,8 +1125,8 @@ std::string BaseModule::debugDumpKernelSource(
         // Definitions are in the form of "macro" or "macro=value"
         auto pos = definition.find_first_of('=');
         if (pos != definition.npos) {
-          std::string macro = definition.substr(0, pos);
-          std::string value = definition.substr(pos + 1);
+          const std::string macro = definition.substr(0, pos);
+          const std::string value = definition.substr(pos + 1);
           dbg_fout << "#ifndef " << macro << "\n#define " << macro << " "
                    << value << "\n"
                    << "#endif // " << macro << "\n";
@@ -1154,8 +1154,8 @@ std::string BaseModule::printKernelSource(llvm::StringRef source,
 
   llvm::SmallString<128> absPath(path);
   if (!absPath.empty()) {
-    // Make file path absolute
-    llvm::sys::fs::make_absolute(absPath);
+    // Try to make file path absolute
+    (void)llvm::sys::fs::make_absolute(absPath);
 
     // Split path into directory and filename.
     const size_t delimiter = absPath.find_last_of(PATH_SEPARATOR);

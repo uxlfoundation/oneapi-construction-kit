@@ -65,6 +65,7 @@ jobs:
           export TERMINFO=/usr/lib/terminfo
           sh $(pwd)/l_BaseKit_p_2024.0.1.46.sh -a --silent --eula accept --action install --components 'intel.oneapi.lin.dpcpp-cpp-compiler':'intel.oneapi.lin.dpcpp-ct'
 
+
       - name: Test RSICV examples
         run: |
           # Set environment variables
@@ -97,6 +98,7 @@ jobs:
           mkdir ock_example_tests
 #          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
           cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang++ -DCMAKE_C_COMPILER=/home/runner/intel/oneapi/compiler/2024.0/bin/compiler/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=/home/runner/intel/oneapi/compiler/2024.0/include/sycl $(pwd)/examples/applications
+
           ninja -C ock_example_tests
 
           # Run tests
@@ -181,7 +183,7 @@ jobs:
             ock_demo_artifacts.tar.gz
             network_artifacts.tar.gz
           tag_name: nightly-${{ steps.tag.outputs.TAG }}
-          name: OCK daily ${{ steps.tag.outputs.TAG }}
+          name: OCK Demo Package ${{ steps.tag.outputs.TAG }}
           prerelease: true
-          body: "Daily build ${{ steps.tag.outputs.TAG }}"
+          body: "ock-demo build ${{ steps.tag.outputs.TAG }}"
           target_commitish: ${{ github.sha }}

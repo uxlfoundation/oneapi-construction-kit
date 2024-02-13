@@ -24,13 +24,14 @@
 
 #include <CL/cl_ext.h>
 #include <cargo/dynamic_array.h>
+#include <cargo/expected.h>
 #include <cargo/small_vector.h>
 #include <cl/base.h>
-#include <cl/command_queue.h>
 #include <cl/limits.h>
 #include <cl/mux.h>
 #include <extension/extension.h>
 
+#include <array>
 #include <atomic>
 #include <mutex>
 

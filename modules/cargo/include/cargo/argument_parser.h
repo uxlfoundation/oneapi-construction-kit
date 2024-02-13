@@ -214,16 +214,17 @@ class argument {
   }
 
  private:
+  struct ChoiceT {
+    cargo::string_view *Value;
+    cargo::array_view<cargo::string_view> Choices;
+  };
   union {
     bool *Bool;
     cargo::string_view *Value;
-    struct {
-      cargo::string_view *Value;
-      cargo::array_view<cargo::string_view> Choices;
-    } Choice;
+    ChoiceT Choice;
     cargo::small_vector<cargo::string_view, 4> *Values;
   };
-  struct {
+  struct CustomHandlerT {
     custom_handler_function ParseArgument;
     custom_handler_function ParseValue;
   } CustomHandler;

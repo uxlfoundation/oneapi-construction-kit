@@ -18,6 +18,8 @@
 
 using urKernelRetainTest = uur::KernelTest;
 
+UUR_INSTANTIATE_DEVICE_TEST_SUITE_P(urKernelRetainTest);
+
 TEST_P(urKernelRetainTest, Success) {
   ASSERT_SUCCESS(urKernelRetain(kernel));
   EXPECT_SUCCESS(urKernelRelease(kernel));

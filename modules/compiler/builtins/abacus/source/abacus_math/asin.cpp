@@ -130,10 +130,11 @@ abacus_float ABACUS_API __abacus_asin(abacus_float x) {
   float ans = (interval < 9) ? xAbs - 1.0f : xAbs;
 
 #ifdef __CODEPLAY_USE_ESTRIN_POLYNOMIAL_REDUCTION__
-  ans = __Codeplay__estrin_5coeff(ans, __codeplay_asin_coeff + interval * 5);
+  ans = __Codeplay__estrin_5coeff(ans,
+                                  __codeplay_asin_coeff + interval * (size_t)5);
 #else
   ans = abacus::internal::horner_polynomial(
-      ans, __codeplay_asin_coeff + interval * 5, 5);
+      ans, __codeplay_asin_coeff + interval * (size_t)5, 5);
 #endif
 
   if (interval < 9) {
@@ -229,7 +230,7 @@ T asin(const T x) {
     interval = __abacus_select(interval, i, cond);
 
     const T poly = abacus::internal::horner_polynomial(
-        i < 9 ? oneMinusXAbs : xAbs, __codeplay_asin_coeff + i * 5, 5);
+        i < 9 ? oneMinusXAbs : xAbs, __codeplay_asin_coeff + i * (size_t)5, 5);
 
     ans = __abacus_select(ans, poly, cond);
   }

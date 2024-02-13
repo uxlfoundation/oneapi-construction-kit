@@ -93,7 +93,7 @@ TEST_P(Execution, Offline_04_MultiKernel) {
 }
 
 TEST_P(Execution, Offline_04_MultiKernel_WGS) {
-  const size_t N = 8 * 64;
+  const size_t N = 8 * 64L;
   AddInputBuffer(N, kts::Ref_A);
   AddInputBuffer(N, kts::Ref_B);
   AddOutputBuffer(N, kts::Ref_Add);
@@ -110,7 +110,7 @@ TEST_P(Execution, DISABLED_Offline_04_MultiKernel_WGS_VecZ) {
     GTEST_SKIP();
   }
   this->fail_if_not_vectorized_ = true;
-  const size_t N = 8 * 64;
+  const size_t N = 8 * 64L;
   AddInputBuffer(N, kts::Ref_A);
   AddInputBuffer(N, kts::Ref_B);
   AddOutputBuffer(N, kts::Ref_Add);

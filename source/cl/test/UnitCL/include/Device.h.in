@@ -33,6 +33,6 @@ inline bool isDevice_Oclgrind(cl_device_id device) {
 // Begin auto-generated boilerplate
 @device_check_boilerplate@
 // End auto-generated boilerplate
-};  // namespace UCL
+}  // namespace UCL
 
 #endif  // UNITCL_DEVICE_H

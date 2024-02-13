@@ -175,7 +175,7 @@ using OpenCLTypes = ::testing::Types<
 // long time to analyze all of them.
 using OpenCLTypes = ::testing::Types<cl_int>;
 #endif
-TYPED_TEST_SUITE(USMMemFillTest, OpenCLTypes);
+TYPED_TEST_SUITE(USMMemFillTest, OpenCLTypes, );
 
 template <typename TypeParam>
 void USMMemFillTest<TypeParam>::validateResults(TypeParam *ptr) {
@@ -257,7 +257,7 @@ TYPED_TEST(USMMemFillTest, DeviceAllocation) {
     std::memset(host_ptr, 0, bytes);
   }
 
-  std::array<cl_event, 3> wait_events;
+  std::array<cl_event, 3> wait_events{};
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, device_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
@@ -320,7 +320,7 @@ TYPED_TEST(USMMemFillTest, SharedAllocation) {
     std::memset(host_ptr, 0, bytes);
   }
 
-  std::array<cl_event, 3> wait_events;
+  std::array<cl_event, 3> wait_events{};
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, shared_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
@@ -375,7 +375,7 @@ TYPED_TEST(USMMemFillTest, UserAllocation) {
   std::vector<TypeParam, UCL::aligned_allocator<TypeParam, sizeof(TypeParam)>>
       user_data(elements);
 
-  std::array<cl_event, 3> wait_events;
+  std::array<cl_event, 3> wait_events{};
   // Zero initialize user memory containing 8 TypeParam elements before
   // beginning testing
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;

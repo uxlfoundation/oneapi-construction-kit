@@ -60,7 +60,8 @@ else()
 endif()
 
 target_include_directories(mux PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>)
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include/mux)
 set(MUX_CONFIG_HEADER ${PROJECT_BINARY_DIR}/include/mux/config.h)

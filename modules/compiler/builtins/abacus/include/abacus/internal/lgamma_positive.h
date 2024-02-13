@@ -130,7 +130,7 @@ inline abacus_half lgamma_positive(abacus_half x) {
   x -= _lgamma_translation_half[interval];
 
   ABACUS_CONSTANT abacus_half *coef_ptr =
-      __codeplay_lgamma_positive_coeff_half + interval * 8;
+      __codeplay_lgamma_positive_coeff_half + interval * (size_t)8;
   abacus_half semi = abacus::internal::horner_polynomial(x, coef_ptr, 8);
 
   return (interval) ? semi : semi - logx;
@@ -155,7 +155,7 @@ inline abacus_float lgamma_positive(abacus_float x) {
   x -= _lgamma_translation[interval];
 
   const abacus_float semi = abacus::internal::horner_polynomial(
-      x, __codeplay_lgamma_positive_coeff + interval * 8, 8);
+      x, __codeplay_lgamma_positive_coeff + interval * (size_t)8, 8);
 
   return (interval) ? semi : semi - logx;
 }
@@ -176,8 +176,8 @@ inline T lgamma_positive(const T &x) {
     interval = __abacus_select(interval, i, cond);
 
     const T poly = abacus::internal::horner_polynomial(
-        x - _lgamma_translation[i], __codeplay_lgamma_positive_coeff + i * 8,
-        8);
+        x - _lgamma_translation[i],
+        __codeplay_lgamma_positive_coeff + i * (size_t)8, 8);
 
     ans = __abacus_select(ans, poly, cond);
   }
@@ -215,7 +215,7 @@ inline T lgamma_positive_half(const T &x) {
 
     const T poly = abacus::internal::horner_polynomial(
         x - _lgamma_translation_half[i],
-        __codeplay_lgamma_positive_coeff_half + i * 8, 8);
+        __codeplay_lgamma_positive_coeff_half + i * (size_t)8, 8);
 
     ans = __abacus_select(ans, poly, cond);
   }
