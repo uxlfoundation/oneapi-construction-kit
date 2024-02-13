@@ -55,6 +55,14 @@ TEST_F(host_clGetDeviceInfoTest, Name) {
   const char *arch = "x86";
 #elif defined(__x86_64__) || defined(_M_X64)
   const char *arch = "x86_64";
+#elif defined(__riscv)
+#if __riscv_xlen == 64
+  const char *arch = "riscv64";
+#elif __riscv_xlen == 32
+  const char *arch = "riscv32";
+#else
+#error "32 bit or 64 bit xlen not defined for RISC-V"
+#endif
 #else
 #error Unknown host system being compiled for!
 #endif

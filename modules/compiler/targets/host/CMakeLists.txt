@@ -111,6 +111,19 @@ if(TARGET LLVMAArch64CodeGen AND TARGET LLVMAArch64AsmParser)
   endif()
 endif()
 
+if(TARGET LLVMRISCVCodeGen)
+  # link with LLVM if it was built with the RISCV target
+  target_link_libraries(compiler-host PUBLIC LLVMRISCVCodeGen)
+  target_compile_definitions(compiler-host PRIVATE HOST_LLVM_RISCV)
+  # TODO(CA-1894,CA-1865): 32-bit and 64-bit builtins in the same build are not
+  # yet supported.
+  if(CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4)
+    list(APPEND hostCrossCompilers riscv32)
+  else()
+    list(APPEND hostCrossCompilers riscv64)
+  endif()
+endif()
+
 if(TARGET LLVMX86CodeGen)
   # link with LLVM if it was built with the X86 target
   target_link_libraries(compiler-host PUBLIC LLVMX86CodeGen)
@@ -165,7 +178,7 @@ if(CA_HOST_CROSS_COMPILERS)
     foreach(CrossCompiler ${hostCrossCompilers})
       set(found FALSE)
       # Loop over all possible host cross-compilers to enable.
-      set(ValidCrossCompilers arm aarch64 x86 x86_64)
+      set(ValidCrossCompilers arm aarch64 x86 x86_64 riscv32 riscv64)
       foreach(ValidName ${ValidCrossCompilers})
         if(CrossCompiler STREQUAL ValidName)
           set(found TRUE)

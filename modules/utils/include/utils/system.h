@@ -39,7 +39,7 @@
 #elif defined(__i386__) || defined(_M_IX86) || defined(__x86_64__) || \
     defined(_M_X64)
 #define UTILS_SYSTEM_X86 1
-#elif defined(__riscv) || defined(__riscv__)
+#elif defined(__riscv)
 #define UTILS_SYSTEM_RISCV 1
 #else
 #error Unknown host system being compiled for!
