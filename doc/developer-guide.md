@@ -352,6 +352,8 @@ The builtin CMake options used when invoking CMake on the command line.
   selection of testing is used by continuous integration to verify a baseline of
   correctness, individual test suites can also be tested in isolation by
   specifying the target to test.
+  * Note that when building inside an LLVM tree, all `check-*` targets are
+    instead names `check-ock-*`.
 * `internal_builtins`: Builds the compiler builtins functions, this target can
   be used even if automatically building the builtins was disabled with
   `CA_EXTERNAL_BUILTINS`, although this target will fail in cross compile

@@ -19,4 +19,7 @@ set(VK_TEST_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/UnitVK)
 
-add_ca_check_group(vk DEPENDS check-spirv-ll-lit check-UnitVK)
+get_ock_check_name(unitvk_check_name UnitVK)
+get_ock_check_name(spirv_ll_check_name spirv-ll-lit)
+add_ca_check_group(vk NOGLOBAL
+  DEPENDS ${unitvk_check_name} ${spirv_ll_check_name})

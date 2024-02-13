@@ -222,6 +222,12 @@ convention. It is possible that additional tests are added by a customer team
 for a specific ComputeMux target that *do* test the compiler but *do not* match
 any of the filter words.
 
+.. note::
+
+  When building the oneAPI Construction Kit inside an LLVM tree, the
+  ``check-*`` targets are instead prefixed ``check-ock-``: `check-ock-UnitCL`,
+  etc.
+
 .. warning::
 
   If the intent of a UnitCL test is to test the compiler and the various
