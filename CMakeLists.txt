@@ -318,17 +318,24 @@ add_to_group(ComputeAorta
   UnitCL UnitCargo UnitCore UnitMux UnitCompiler UnitVK UnitMD FuzzCL
   clVectorAddition vkVectorAddition veczc UnitUR urVectorAddition)
 
-# Create a check-ComputeAorta target to build+test.
-add_ca_check_group(ComputeAorta DEPENDS ComputeAorta check)
+# Create a ComputeAorta check target to alias the global build+test check
+# target.
+add_ca_check_group(ComputeAorta NOGLOBAL
+  DEPENDS ${OCK_CHECK_TARGET} ComputeAorta)
 
-# Create a check-tidy-ComputeAorta target to build+test+tidy.
-add_ca_check_group(tidy-ComputeAorta DEPENDS check-ComputeAorta tidy)
+# Create a tidy-ComputeAorta check target to build+test+tidy.
+get_ock_check_name(check_ComputeAorta_name ComputeAorta)
+add_ca_check_group(tidy-ComputeAorta NOGLOBAL
+  DEPENDS ${check_ComputeAorta_name} tidy)
 
 if(CMAKE_CROSSCOMPILING)
-  # Create a check-cross-ComputeAorta target to build+test fast subset of checks.
-  add_ca_check_group(cross-ComputeAorta DEPENDS ComputeAorta
-    check-host-lit check-spirv-ll-lit check-vecz-lit check-UnitCargo
-    check-UnitMux check-UnitCL-offline)
+  # Create a cross-ComputeAorta check target to build+test fast subset of checks.
+  set(check_deps ComputeAorta)
+  foreach(target host-lit;spirv-ll-lit;vecz-lit;UnitCargo;UnitMux;UnitCL-offline)
+    get_ock_check_name(check_name ${target})
+    list(APPEND check_deps ${check_name})
+  endforeach()
+  add_ca_check_group(cross-ComputeAorta DEPENDS ${check_deps})
 endif()
 
 if(CA_ENABLE_TESTS)

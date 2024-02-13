@@ -148,8 +148,9 @@ function(add_ca_cl_icd_file target)
   install(FILES DESTINATION share/OpenCL/vendors COMPONENT CLIcd)
 endfunction()
 
-if(NOT TARGET check-cl)
-  add_ca_check_group(cl)
+get_ock_check_name(check_cl_name cl)
+if(NOT TARGET ${check_cl_name})
+  add_ca_check_group(cl NOGLOBAL)
 endif()
 
 #[=======================================================================[.rst:
@@ -177,6 +178,7 @@ function(add_ca_cl_check name)
   if (NOT CA_ENABLE_TESTS)
     return()
   endif()
+  get_ock_check_name(check_name ${name})
   cmake_parse_arguments(args "" "" "ENVIRONMENT" ${ARGN})
   set(environment ${args_ENVIRONMENT})
   if(CA_CL_ENABLE_ICD_LOADER)
@@ -218,22 +220,22 @@ function(add_ca_cl_check name)
       # to the Inject subdirectory of DumpDir and renamed.
       set(injectPrepareBins
         ${PROJECT_SOURCE_DIR}/scripts/testing/inject-prepare-bins.py)
-      add_custom_target(check-${name}-prepare
+      add_custom_target(${check_name}-prepare
         COMMAND ${PYTHON_EXECUTABLE}
           ${injectPrepareBins} --clean ${dumpDirectory}
-        DEPENDS check-${name}-dump
+        DEPENDS ${check_name}-dump
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Running ${name}-prepare checks")
 
-      # Enable injecting program binaries for check-${name}, this is stage 3
+      # Enable injecting program binaries for the check target. This is stage 3
       # which uses the same target as the non OpenCL-Intercept-Layer path.
       list(INSERT environment 0 "CLI_InjectProgramBinaries=1")
     endif()
   endif()
   add_ca_check(${name}
     ${args_UNPARSED_ARGUMENTS} ENVIRONMENT ${environment})
-  add_dependencies(check-cl check-${name})
+  add_dependencies(${check_cl_name} ${check_name})
   if(CA_CL_ENABLE_INTERCEPT_LAYER)
-    add_dependencies(check-${name} check-${name}-prepare)
+    add_dependencies(${check_name} ${check_name}-prepare)
   endif()
 endfunction()

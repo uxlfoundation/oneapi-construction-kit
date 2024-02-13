@@ -43,6 +43,23 @@ set(CA_CL_STANDARD_INTERNAL 300)
 set(CA_CL_PLATFORM_VERSION_MAJOR 3)
 set(CA_CL_PLATFORM_VERSION_MINOR 0)
 
+# Set up a variable which both defines the global check target *and* the prefix
+# with which all of our sub-check targets are named.
+#
+# This variable is usually `check` - `check`, `check-UnitCL`, etc., as that is
+# familiar to most developers.
+#
+# However, if we build inside an LLVM tree, we define `check-ock` -
+# `check-ock`, `check-ock-UnitCL`, etc. While we may wish to add our tests to
+# the global set in an ideal world, LLVM calls into our code and then tries to
+# unconditionally define a 'check' target. This errors if we have already
+# created one.
+if (NOT OCK_IN_LLVM_TREE)
+  set(OCK_CHECK_TARGET check)
+else()
+  set(OCK_CHECK_TARGET check-ock)
+endif()
+
 if(NOT MSVC AND (CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4) AND
     (CMAKE_SYSTEM_PROCESSOR STREQUAL x86 OR
         CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR
@@ -689,7 +706,7 @@ endmacro()
 # Add the check target to run all registered checks, see add_ca_check() below, if
 # cmake:variable:`CA_ENABLE_TESTS` is enabled.
 if (CA_ENABLE_TESTS)
-  add_custom_target(check COMMENT "ComputeAorta checks.")
+  add_custom_target(${OCK_CHECK_TARGET} COMMENT "ComputeAorta checks.")
 endif()
 
 if(CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING_EMULATOR)
@@ -698,15 +715,33 @@ if(CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING_EMULATOR)
 endif()
 
 #[=======================================================================[.rst:
+.. cmake:command:: get_ock_check_name
+
+  The ``get_ock_check_name`` function returns the name of a check target or
+  group defined with the provided ``$name`` component.  This naming scheme is
+  used internally for naming all such targets and thus the final targets that
+  users can 'build' to run tests.
+
+  Arguments:
+    * ``check_name``: The name of the output variable to set the check name.
+    * ``name``: The check name component
+#]=======================================================================]
+function(get_ock_check_name check_name name)
+  set(${check_name} ${OCK_CHECK_TARGET}-${name} PARENT_SCOPE)
+endfunction()
+
+#[=======================================================================[.rst:
 .. cmake:command:: add_ca_check
 
   The ``add_ca_check()`` macro takes a list of arguments which form a command
-  to run a check. A new target called ``check-${name}`` is created and a
-  dependency for ``check-${name}`` is added to the check target. To run an
-  individual check build the ``check-${name}`` target and to run all checks
-  build the ``check`` target. All checks are executed with a working directory
-  of ``${PROJECT_SOURCE_DIR}`` and a comment of the form "Running ${name}
-  checks" is displayed by the build system during execution.
+  to run a check. A new target is created and a
+  dependency for that target is added to the project-level check target. The
+  name of the new target is determined by calling the ``get_ock_check_name``
+  function on the parameter ``${name}``. To run an individual check build the
+  specific target and to run all checks build the global check target. All
+  checks are executed with a working directory of ``${PROJECT_SOURCE_DIR}`` and
+  a comment of the form "Running ${name} checks" is displayed by the build
+  system during execution.
 
   .. note::
 
@@ -715,14 +750,14 @@ endif()
 
   Arguments:
     * ``name`` - Target name suffix for the check, this will create a target
-      called ``check-${name}``.
+      named via ``get_ock_check_name(target ${name})``.
 
   Keyword Arguments:
     * ``NOEMULATE`` - Flag to specify that the first argument of the
       ``COMMAND`` should not be emulated using
       :cmake-variable:`CMAKE_CROSSCOMPILING_EMULATOR`, this should be set if
       the executable driving the check is not cross-compiled.
-    * ``NOGLOBAL`` - Flag to specify that ``check-${name}`` should not be added
+    * ``NOGLOBAL`` - Flag to specify that the target check should not be added
       to the global check target.
     * ``GTEST`` - Flag to specify that this check uses GoogleTest and that
       :cmake-variable:`CA_GTEST_LAUNCHER` should be used, if set, to launch the
@@ -796,18 +831,19 @@ function(add_ca_check name)
   # Add a custom target, which runs the test, to the test target,  if
   # cmake:variable:`CA_ENABLE_TESTS` is enabled.
   if (CA_ENABLE_TESTS)
+    get_ock_check_name(check_name ${name})
     if(args_USES_TERMINAL)
-      add_custom_target(check-${name}
+      add_custom_target(${check_name}
         COMMAND ${command} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         USES_TERMINAL
         DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
     else()
-      add_custom_target(check-${name}
+      add_custom_target(${check_name}
         COMMAND ${command} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         DEPENDS ${args_DEPENDS} COMMENT "Running ${name} checks")
     endif()
     if(NOT args_NOGLOBAL)
-      add_dependencies(check check-${name})
+      add_dependencies(${OCK_CHECK_TARGET} ${check_name})
     endif()
   endif()
   if(CA_ENABLE_COVERAGE AND (CA_RUNTIME_COMPILER_ENABLED OR
@@ -824,8 +860,8 @@ endfunction()
   The ``add_ca_check_group()`` function creates a named target for a group of
   targets and/or checks, this is useful to setup check dependencies and for
   having a single named check for a set of disparate test suites. As with
-  :cmake:command:`add_ca_check` the name is used to generate a target called
-  ``check-${name}``.
+  :cmake:command:`add_ca_check` the name is used to generate a target named by
+  calling ``get_ock_check_name(target ${name})``.
 
   .. note::
 
@@ -834,17 +870,19 @@ endfunction()
 
   Arguments:
     * ``name`` - Target name suffix for the check group, this will create a
-      target called ``check-${name}``.
+      target named by calling ``get_ock_check_name(target ${name})``.
 
   Keyword Arguments:
+    * ``NOGLOBAL`` - Flag to specify that the new target should not be
+      added to the global check target.
     * ``DEPENDS`` - A list of targets this check group will depends on, any
       CMake target can be specified.
 
       .. note::
-        The full target name including the ``check-`` prefix should be
+        The full target name including the global check prefix should be
         specified for dependent check targets.
 
-  Here's an example:
+  Example:
 
   .. code:: CMake
 
@@ -854,15 +892,19 @@ function(add_ca_check_group name)
   if (NOT CA_ENABLE_TESTS)
     return()
   endif()
-  cmake_parse_arguments(args "" "" "DEPENDS" ${ARGN})
+  cmake_parse_arguments(args "NOGLOBAL" "" "DEPENDS" ${ARGN})
   if(args_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
       "add_ca_check_group invalid arguments: ${args_UNPARSED_ARGUMENTS}")
   endif()
   # Add a custom target, which depends on all listed targets.
-  add_custom_target(check-${name}
+  get_ock_check_name(check_name ${name})
+  add_custom_target(${check_name}
     DEPENDS ${args_DEPENDS}
     COMMENT "Running ${name} group checks")
+  if(NOT args_NOGLOBAL)
+    add_dependencies(${OCK_CHECK_TARGET} ${check_name})
+  endif()
 endfunction()
 
 #[=======================================================================[.rst:
@@ -1333,13 +1375,14 @@ endfunction()
 
   Arguments:
     * ``target`` - Named target to set output directory properties on. A target
-      ``check-${target}-lit`` will be created which runs LIT tests producing XML
-      results in ``${target}-lit.xml``.
+      named by calling ``get_ock_check_name(check_target ${target}-lit)`` will
+      be created which runs LIT tests producing XML results in
+      ``${target}-lit.xml``.
     * ``comment`` - A comment to display to the terminal when running the check
       target.
 
   Keyword Arguments:
-    * ``NOGLOBAL`` - Flag to specify that ``check-${target}`` should not be
+    * ``NOGLOBAL`` - Flag to specify that the new target should not be
       added to the global check target.
     * ``PARAMS`` - Keyword after which one or more additional parameters to the
       llvm-lit command can be specified. Each parameter is automatically
@@ -1403,12 +1446,12 @@ endfunction()
 .. cmake:command:: add_ca_lit_testsuite
 
   The ``add_ca_lit_testsuite(name)`` function creates a new lit test suite. A
-  new target called ``check-${name}-lit`` is created and a dependency for
-  ``check-${name}-lit`` is added to the global check target. To run an
-  individual check build the ``check-${name}-lit`` target and to run all checks
-  build the ``check`` target. All checks are executed with a working directory
-  of ``${PROJECT_SOURCE_DIR}`` and a comment of the form "Running ${name}
-  checks" is displayed by the build system during execution.
+  new target, named by calling ``get_ock_check_name(target ${name}-lit)``, is
+  created and a dependency for that new target is added to the global check
+  target. To run an individual check build the new target and to run all checks
+  build the global check target. All checks are executed with a working
+  directory of ``${PROJECT_SOURCE_DIR}`` and a comment of the form "Running
+  ${name} checks" is displayed by the build system during execution.
 
   If ``EXCLUDE_FROM_UMBRELLAS`` is not set, the test suite will also be added
   to all open umbrella targets (see ``ca_umbrella_lit_testsuite_open()`` and
@@ -1416,18 +1459,18 @@ endfunction()
 
   Arguments:
     * ``name`` - Target name suffix for the check, this will create a target
-      called ``check-${name}-lit``.
+      named as described above.
 
   Keyword Arguments:
-    * ``NOGLOBAL`` - Flag to specify that ``check-${target}-lit`` should not be
+    * ``NOGLOBAL`` - Flag to specify that the new target should not be
       added to the global check target.
     * ``EXCLUDE_FROM_UMBRELLAS`` - Flag to specify that ``${name}``
       should not be added to any currently open test-suite umbrellas.
     * ``TARGET`` - Keyword after which a target name can be specified. If
       set, the test suite will be appended to a global set of test suites
-      relating to that target. A global ``check-${target}-lit`` target will be
-      created, comprised of all test suites relating to ``target``. Has no
-      effect if ``EXCLUDE_FROM_UMBRELLAS`` is set.
+      relating to that target. A global target will be created, comprised of
+      all test suites relating to ``target``. Has no effect if
+      ``EXCLUDE_FROM_UMBRELLAS`` is set.
     * ``PARAMS`` - Keyword after which one or more additional parameters to the
       llvm-lit command can be specified. Each parameter is automatically
       prepended with --param.
@@ -1531,9 +1574,9 @@ endfunction()
   The ``ca_umbrella_lit_testsuite_close(target)`` function closes an open umbrella
   lit test suite.
 
-  A new check target with the name ``check-${target}-lit`` will be created
-  using test suites previously registered with ``add_ca_lit_testsuite`` while
-  the umbrella was open.
+  A new check target named by calling ``get_ock_check_name(check_target
+  ${target}-lit)`` will be created using test suites previously registered with
+  ``add_ca_lit_testsuite`` while the umbrella was open.
 
   See ``ca_umbrella_lit_testsuite_open`` for more details.
 
