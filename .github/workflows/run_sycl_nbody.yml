@@ -131,7 +131,7 @@ jobs:
           ls -laR sycl_nbody_build
           #chmod +x scripts/build_dpcpp.sh
           #sh scripts/build_dpcpp.sh #-DBACKEND=DPCP #-DDPCPP_CUDA_SUPPORT=off -nocudalib
-          CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=${{ inputs.workspace }}/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  cuda-to-sycl-nbody/nbody_dpcpp 1
+          CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$(pwd)/build/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:fpga SYCL_CONFIG_FILE_NAME=  cuda-to-sycl-nbody/nbody_dpcpp 1
 
       # - name: Build sycl_nbody
       #   uses: ./.github/actions/build_sycl_nbody_action
