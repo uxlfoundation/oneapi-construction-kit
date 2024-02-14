@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
        # installs tools, ninja, installs llvm and sets up sccache
       - name: Setup ubuntu
@@ -30,7 +30,7 @@ jobs:
           llvm_build_type: Release
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8'
 
@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Create OCK pre-release
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:

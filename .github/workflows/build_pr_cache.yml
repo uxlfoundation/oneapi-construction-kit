@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
       - name: setup-ubuntu
