@@ -348,12 +348,10 @@ The builtin CMake options used when invoking CMake on the command line.
 
 * `ComputeAorta`: Build the OpenCL and Vulkan libraries, if present, and all
   their test suites.
-* `check`/`check-<target>`: Build and run all short running test suites, this
-  selection of testing is used by continuous integration to verify a baseline of
-  correctness, individual test suites can also be tested in isolation by
-  specifying the target to test.
-  * Note that when building inside an LLVM tree, all `check-*` targets are
-    instead names `check-ock-*`.
+* `check-ock`/`check-ock-<target>`: Build and run all short running test
+  suites, this selection of testing is used by continuous integration to verify
+  a baseline of correctness, individual test suites can also be tested in
+  isolation by specifying the target to test.
 * `internal_builtins`: Builds the compiler builtins functions, this target can
   be used even if automatically building the builtins was disabled with
   `CA_EXTERNAL_BUILTINS`, although this target will fail in cross compile
@@ -378,7 +376,7 @@ The builtin CMake options used when invoking CMake on the command line.
 * `CL`: Build only the OpenCL library, only available when OpenCL is enabled.
 * `UnitCL`: Build the UnitCL test suite, as well as the OpenCL library.
 * `OpenCLCTS`: Build the OpenCL library and all the CTS binaries.
-* `check-cl`: Build and run various OpenCL test suites, primarily UnitCL and
+* `check-ock-cl`: Build and run various OpenCL test suites, primarily UnitCL and
   selected short running OpenCL CTS tests.
 
 ##### oneAPI Construction Kit Vulkan CMake Build Targets
@@ -386,7 +384,7 @@ The builtin CMake options used when invoking CMake on the command line.
 * `VK`: Build only the Vulkan library, only available when Vulkan is enabled.
 * `UnitVK`: Build the UnitVK test suite, as well as the Vulkan library.
 * `VKICDManifest`: Generates the Vulkan ICD manifest, Linux only.
-* `check-vk`: Build and run UnitVK and spirv-ll lit tests.
+* `check-ock-vk`: Build and run UnitVK and spirv-ll lit tests.
 
 ## Compiling
 

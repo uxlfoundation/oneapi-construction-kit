@@ -318,27 +318,48 @@ add_to_group(ComputeAorta
   UnitCL UnitCargo UnitCore UnitMux UnitCompiler UnitVK UnitMD FuzzCL
   clVectorAddition vkVectorAddition veczc UnitUR urVectorAddition)
 
-# Create a ComputeAorta check target to alias the global build+test check
-# target.
-add_ca_check_group(ComputeAorta NOGLOBAL
-  DEPENDS ${OCK_CHECK_TARGET} ComputeAorta)
-
-# Create a tidy-ComputeAorta check target to build+test+tidy.
-get_ock_check_name(check_ComputeAorta_name ComputeAorta)
-add_ca_check_group(tidy-ComputeAorta NOGLOBAL
-  DEPENDS ${check_ComputeAorta_name} tidy)
-
-if(CMAKE_CROSSCOMPILING)
-  # Create a cross-ComputeAorta check target to build+test fast subset of checks.
-  set(check_deps ComputeAorta)
-  foreach(target host-lit;spirv-ll-lit;vecz-lit;UnitCargo;UnitMux;UnitCL-offline)
-    get_ock_check_name(check_name ${target})
-    list(APPEND check_deps ${check_name})
-  endforeach()
-  add_ca_check_group(cross-ComputeAorta NOGLOBAL DEPENDS ${check_deps})
-endif()
-
 if(CA_ENABLE_TESTS)
+  # Ensure we've created the global check target
+  if(NOT TARGET ${OCK_CHECK_TARGET})
+    message(FATAL_ERROR
+      "CA_ENABLE_TESTS is enabled but no OCK check target was created")
+  endif()
+
+  # Inject an extra dependency into the OCK global check target so that it
+  # builds the ComputeAorta target. This turns it into more of a build+test
+  # target than a pure test target.
+  add_dependencies(${OCK_CHECK_TARGET} ComputeAorta)
+  # Add a legacy target called 'check-ComputeAorta' which aliases the OCK
+  # global check target. This should be considered deprecated.
+  add_custom_target(check-ComputeAorta DEPENDS ${OCK_CHECK_TARGET})
+
+  if(TARGET tidy)
+    # Add an extra 'tidy' target which additionally depends on the tidy target
+    add_ca_check_group(tidy NOGLOBAL DEPENDS ${OCK_CHECK_TARGET} tidy)
+
+    # Add a legacy target called 'check-tidy-ComputeAorta' which aliases the OCK
+    # tidy target. This should be considered deprecated.
+    get_ock_check_name(tidy_check_name tidy)
+    add_custom_target(check-tidy-ComputeAorta DEPENDS ${tidy_check_name})
+  endif()
+
+  if(CMAKE_CROSSCOMPILING)
+    # Create an OCK cross check target to build+test fast subset of checks.
+    set(check_deps ComputeAorta)
+    foreach(target host-lit;spirv-ll-lit;vecz-lit;UnitCargo;UnitMux;UnitCL-offline)
+      if(TARGET ${target})
+        get_ock_check_name(check_name ${target})
+        list(APPEND check_deps ${check_name})
+      endif()
+    endforeach()
+    add_ca_check_group(cross NOGLOBAL DEPENDS ${check_deps})
+
+    # Add a legacy target called 'check-cross-ComputeAorta' which aliases the OCK
+    # cross target. This should be considered deprecated.
+    get_ock_check_name(cross_check_name cross)
+    add_custom_target(check-cross-ComputeAorta DEPENDS ${cross_check_name})
+  endif()
+
   # Close off the active set of 'all' lit suites
   ca_umbrella_lit_testsuite_close(all)
 
@@ -355,4 +376,3 @@ if(${CA_ENABLE_COVERAGE})
   add_coverage_xml_input()
   add_coverage_custom_target()
 endif()
-

@@ -374,6 +374,7 @@ way to how the LLVM tool ``opt`` can be used. Create the following file
 intrinsics ``llvm.riscv.clmul*``.
 
 All of the lit tests for the ``refsi-tutorial`` target can be run with building the
-``check-refsi-tutorial-lit`` target. If you use the create script for building new
-targets the target name will be used instead of ``refsi-tutorial``.
+``check-ock-refsi-tutorial-lit`` target. If you use the create script for
+building new targets the target name will be used instead of
+``refsi-tutorial``.
 

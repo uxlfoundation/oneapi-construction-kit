@@ -45,19 +45,18 @@ set(CA_CL_PLATFORM_VERSION_MINOR 0)
 
 # Set up a variable which both defines the global check target *and* the prefix
 # with which all of our sub-check targets are named.
-#
-# This variable is usually `check` - `check`, `check-UnitCL`, etc., as that is
-# familiar to most developers.
-#
-# However, if we build inside an LLVM tree, we define `check-ock` -
-# `check-ock`, `check-ock-UnitCL`, etc. While we may wish to add our tests to
-# the global set in an ideal world, LLVM calls into our code and then tries to
-# unconditionally define a 'check' target. This errors if we have already
-# created one.
-if (NOT OCK_IN_LLVM_TREE)
-  set(OCK_CHECK_TARGET check)
-else()
-  set(OCK_CHECK_TARGET check-ock)
+set(OCK_CHECK_TARGET check-ock)
+
+# Add the check-ock target to run all registered checks, see add_ca_check()
+# below, if cmake:variable:`CA_ENABLE_TESTS` is enabled.
+if (CA_ENABLE_TESTS)
+  add_custom_target(${OCK_CHECK_TARGET} COMMENT "OCK checks.")
+  # Add 'check' as an alias for 'check-ock', unless we're in tree, in which
+  # case the parent project may be defining its own top-level 'check' target.
+  if (NOT OCK_IN_LLVM_TREE)
+    add_custom_target(check)
+    add_dependencies(check check-ock)
+  endif()
 endif()
 
 if(NOT MSVC AND (CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4) AND
@@ -703,12 +702,6 @@ macro(get_target_link_libraries variable target)
   get_target_link_libraries_recursive(${target})
 endmacro()
 
-# Add the check target to run all registered checks, see add_ca_check() below, if
-# cmake:variable:`CA_ENABLE_TESTS` is enabled.
-if (CA_ENABLE_TESTS)
-  add_custom_target(${OCK_CHECK_TARGET} COMMENT "ComputeAorta checks.")
-endif()
-
 if(CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING_EMULATOR)
   message(WARNING "ComputeAorta check targets disabled as "
     "CMAKE_CROSSCOMPILING_EMULATOR was not specified")
@@ -886,7 +879,7 @@ endfunction()
 
   .. code:: CMake
 
-    add_ca_check_group(foo DEPENDS bar check-foo)
+    add_ca_check_group(foo DEPENDS bar check-ock-foo)
 #]=======================================================================]
 function(add_ca_check_group name)
   if (NOT CA_ENABLE_TESTS)
@@ -1549,17 +1542,17 @@ endfunction()
 
   Produces the following check targets, from most outermost to innermost:
 
-  ``check-all-lit:      foo, bar, baz``
+  ``check-ock-all-lit:      foo, bar, baz``
 
-  ``check-compiler-lit: bar, baz``
+  ``check-ock-compiler-lit: bar, baz``
 
-  ``check-foo-lit:      foo``
+  ``check-ock-foo-lit:      foo``
 
-  ``check-bar-lit:      bar``
+  ``check-ock-bar-lit:      bar``
 
-  ``check-baz-lit:      baz``
+  ``check-ock-baz-lit:      baz``
 
-  ``check-special-lit:  special``
+  ``check-ock-special-lit:  special``
 
 #]=======================================================================]
 

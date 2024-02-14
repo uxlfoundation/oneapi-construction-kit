@@ -81,7 +81,7 @@ A third way is by invoking the CMake `check` target.
 Sample usage:
 
 ```console
-$ ninja check-host-lit
+$ ninja check-ock-host-lit
 [1/1] Running host-lit checks
 ```
 

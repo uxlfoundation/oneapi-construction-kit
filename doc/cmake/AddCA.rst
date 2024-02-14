@@ -65,12 +65,12 @@ parameterized ``prefix``.
 
 
 A case study of this is our helper function :cmake:command:`add_ca_check`,
-generating ``check`` and ``check-<name>`` build targets used by continuous
-integration to verify a baseline of correctness. :cmake:command:`add_ca_check`
-takes a single positional argument ``name``, for the target to generate a test
-for. A new testing target called ``check-${name}`` is created from the ``name``
-argument and a dependency on ``check-${name}`` is added to the ``check``
-target.
+generating ``check-ock`` and ``check-ock-<name>`` build targets used by
+continuous integration to verify a baseline of correctness.
+:cmake:command:`add_ca_check` takes a single positional argument ``name``, for
+the target to generate a test for. A new testing target called
+``check-ock-${name}`` is created from the ``name`` argument and a dependency on
+``check-ock-${name}`` is added to the ``check`` target.
 
 Additional :cmake:command:`add_ca_check` options to configure the testing
 target are parsed by forwarding on ``$ARGN`` `arguments`_ to
