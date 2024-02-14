@@ -263,7 +263,7 @@ external OpenCL-Headers repository.
 
 USM functionality is tested in UnitCL by the tests found in the directory
 ``source/cl_intel_unified_shared_memory`` of UnitCL, which can be run with
-``--gtest_filter=*USM*`` or build target ``ninja check-UnitCL-USM``.
+``--gtest_filter=*USM*`` or build target ``ninja check-ock-UnitCL-USM``.
 
 Support for ``clHostMemAllocINTEL()`` is an optional feature of the extension
 which may be queried for using ``CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL``.

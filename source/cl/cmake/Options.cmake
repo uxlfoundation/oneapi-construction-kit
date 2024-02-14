@@ -116,7 +116,7 @@ ca_option(CA_CL_EXTERNAL_INTERCEPT_LAYER_SOURCE_DIR PATH
 .. cmake:variable:: CA_CL_ENABLE_VECZ_VP_CHECK
 
   A boolean CMake option to enable vector-predication checks, including the
-  `check-UnitCL-prevec-vecz-vp-partial-scalarization` target.
+  `check-ock-UnitCL-prevec-vecz-vp-partial-scalarization` target.
 
   Default value
     ``OFF``
@@ -125,7 +125,7 @@ ca_option(CA_CL_EXTERNAL_INTERCEPT_LAYER_SOURCE_DIR PATH
 # and below (meaning it's not interesting) but on LLVM 13 it crashes the LLVM
 # (RVV) backend. We need to build LLVM with extra patches for this to work.
 ca_option(CA_CL_ENABLE_VECZ_VP_CHECK BOOL
-        "Enable check-UnitCL targets covering vecz vector predication" OFF)
+        "Enable check-ock-UnitCL targets covering vecz vector predication" OFF)
 
 #[=======================================================================[.rst:
 .. cmake:variable:: CA_CL_ENABLE_OFFLINE_KERNEL_TESTS
