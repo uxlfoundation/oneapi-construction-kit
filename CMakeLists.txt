@@ -335,7 +335,7 @@ if(CMAKE_CROSSCOMPILING)
     get_ock_check_name(check_name ${target})
     list(APPEND check_deps ${check_name})
   endforeach()
-  add_ca_check_group(cross-ComputeAorta DEPENDS ${check_deps})
+  add_ca_check_group(cross-ComputeAorta NOGLOBAL DEPENDS ${check_deps})
 endif()
 
 if(CA_ENABLE_TESTS)
