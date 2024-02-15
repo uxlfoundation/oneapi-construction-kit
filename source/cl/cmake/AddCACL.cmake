@@ -173,13 +173,17 @@ endif()
   Arguments:
     * ``name`` A unique name for the check, should include the name of the
       target being checked.
+
+  Keyword Arguments:
+    * ``NOGLOBALCL`` - Flag to specify that the new target should not be
+      added to the CL-wide check target.
 #]=======================================================================]
 function(add_ca_cl_check name)
   if (NOT CA_ENABLE_TESTS)
     return()
   endif()
   get_ock_check_name(check_name ${name})
-  cmake_parse_arguments(args "" "" "ENVIRONMENT" ${ARGN})
+  cmake_parse_arguments(args "NOGLOBALCL" "" "ENVIRONMENT" ${ARGN})
   set(environment ${args_ENVIRONMENT})
   if(CA_CL_ENABLE_ICD_LOADER)
     # Disable detection of system ICD vendors and specify the path to the CL
@@ -234,7 +238,9 @@ function(add_ca_cl_check name)
   endif()
   add_ca_check(${name}
     ${args_UNPARSED_ARGUMENTS} ENVIRONMENT ${environment})
-  add_dependencies(${check_cl_name} ${check_name})
+  if(NOT ${args_NOGLOBALCL})
+    add_dependencies(${check_cl_name} ${check_name})
+  endif()
   if(CA_CL_ENABLE_INTERCEPT_LAYER)
     add_dependencies(${check_name} ${check_name}-prepare)
   endif()
