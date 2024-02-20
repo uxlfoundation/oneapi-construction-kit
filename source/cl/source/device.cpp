@@ -189,7 +189,8 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
       profiling_timer_resolution(5),                // Get from Mux?
       queue_properties(CL_QUEUE_PROFILING_ENABLE),  // Get from Mux?
       reference_count(1),  // All devices are root devices.
-      single_fp_config(setOpenCLFromMux(mux_device->info->float_capabilities)),
+      single_fp_config(setOpenCLFromMux(mux_device->info->float_capabilities) |
+                       CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT),
       type(),
       vendor_id(mux_device->info->khronos_vendor_id)
 #if defined(CL_VERSION_3_0)
