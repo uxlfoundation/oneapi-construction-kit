@@ -16,6 +16,7 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_detail_cast.h>
+#include <abacus/abacus_detail_integer.h>
 #include <abacus/abacus_integer.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
@@ -32,18 +33,35 @@ inline T ldexp(const T x, const S n) {
 
   const SignedType n_c = convert_sat<SignedType>(n);
 
-  // We split n into n_1 and n_2 with n_1 + n_1 + n_2 == n and compute ldexp(x,
-  // n) as ldexp(ldexp(ldexp(x, n_1), n_1), n_2). We need ldexp(ldexp(x, n_1),
-  // n_1) to be exact so that we do not introduce errors due to double rounding,
-  // which requires avoiding turning normals into subnormals early.
+  // Compute the sign of n_c (-1, +1). Beware: relational operators behave
+  // differently for scalar (return 1 if true) and vector (return -1 if true).
+  const SignedType n_s = [&]() -> SignedType {
+    if constexpr (TypeTraits<T>::num_elements == 1) {
+      return -(n_c < 0) | 1;
+    } else {
+      return (n_c < 0) | 1;
+    }
+  }();
+
+  // We split n into n_1 and n_2 with n_1 + n_1 + n_2 == n and |n_1 - n_2| <= 1,
+  // if possible, so that we are assured we do not have n_1 > 0 and n_2 < 0,
+  // which could result in overflow in an intermediate result, and so that we do
+  // not end up with either n_1 or n_2 large enough that pow(2, n) overflows or
+  // underflows except when we want an infinite or zero result anyway. For this,
+  // we calculate n_1 = round(n_c / 3.0) = (n_c + n_s) / 3.
+  // However, we also need to ensure that ldexp(ldexp(x, n_1), n_1) does not
+  // reduce precision due to a subnormal intermediate result, so we have a
+  // minimum value for n_1 even if that results in |n_1 - n_2| > 1; the cases
+  // that we need to avoid in the general case cannot arise here. Then compute
+  // ldexp(x, n) as ldexp(ldexp(ldexp(x, n_1), n_1), n_2).
   const SignedType n_1_min =
       (SignedType(1) - SignedType(((abacus::detail::cast::as<UnsignedType>(x) &
                                     Shape::ExponentMask()) >>
                                    Shape::Mantissa()))) /
       2;
-  const SignedType n_1 =
-      __abacus_max(SignedType(n_c - ((n_c / 3) << 1)), n_1_min);
-  const SignedType n_2 = n_c - (n_1 << 1);
+  const SignedType n_1 = __abacus_max(
+      SignedType(abacus::detail::integer::add_sat(n_c, n_s) / 3), n_1_min);
+  const SignedType n_2 = n_c - (n_1 * 2);
 
   // Construct pow(2, n_1) and pow(2, n_2) by building the floating point
   // representation directly, but clamp to the lowest and highest representable
