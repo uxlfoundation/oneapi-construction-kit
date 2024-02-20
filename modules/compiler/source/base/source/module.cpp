@@ -711,13 +711,6 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
     options.mad_enable = true;
   }
 
-  // TODO: CA-669 Change when we add support for this flag
-  if (options.fp32_correctly_rounded_divide_sqrt) {
-    addBuildError(
-        "Error compiling -cl-fp32-correctly-rounded-divide-sqrt not supported "
-        "on device.");
-    return invalid_options;
-  }
   return Result::SUCCESS;
 }
 
@@ -893,8 +886,6 @@ void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const {
     codeGenOpts.FP32DenormalMode = llvm::DenormalMode::getPositiveZero();
     codeGenOpts.FPDenormalMode = llvm::DenormalMode::getPositiveZero();
   }
-  // Currently this will always be true as we don't report support for the
-  // flag, and have not implemented the required sqrt builtin.  See CA-669.
   codeGenOpts.OpenCLCorrectlyRoundedDivSqrt =
       options.fp32_correctly_rounded_divide_sqrt;
 
