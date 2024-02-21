@@ -359,6 +359,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   switch (arch) {
     case host::arch::ARM:
     case host::arch::X86:
+    case host::arch::RISCV32:
       this->address_capabilities |= mux_address_capabilities_bits32;
       this->atomic_capabilities = mux_atomic_capabilities_8bit |
                                   mux_atomic_capabilities_16bit |
@@ -366,6 +367,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
       break;
     case host::arch::AARCH64:
     case host::arch::X86_64:
+    case host::arch::RISCV64:
       this->address_capabilities |= mux_address_capabilities_bits64;
       this->atomic_capabilities =
           mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
@@ -551,6 +553,12 @@ host::arch device_info_s::detectHostArch() {
   arch = host::arch::X86;
 #elif defined(UTILS_SYSTEM_64_BIT)
   arch = host::arch::X86_64;
+#endif
+#elif defined(UTILS_SYSTEM_RISCV)
+#ifdef UTILS_SYSTEM_32_BIT
+  arch = host::arch::RISCV32;
+#elif defined(UTILS_SYSTEM_64_BIT)
+  arch = host::arch::RISCV64;
 #endif
 #else
 #error cant detect host architecture
