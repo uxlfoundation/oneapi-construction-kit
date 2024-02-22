@@ -14,16 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: oclc -execute -enqueue vector_addition_half -arg src1,1,2,3,4 \
-// RUN:   -arg src2,10,20,30,90 -print dst,4 -global 4 -local 4 %s | FileCheck %s
+// RUN: oclc -execute -enqueue halfMul -arg in,1.0,2.0,3.0,4.0 \
+// RUN:   -print out,4 -global 4,1,1 -local 4,1,1 %s | FileCheck %s
 
-__kernel void vector_addition_half(__global half *src1, __global half *src2,
- __global half *dst) {
-	size_t gid = get_global_id(0);
-	float f1 = vload_half(gid, src1);
-	float f2 = vload_half(gid, src2);
-	float fd = f1 + f2;
-	vstore_half(fd, gid, dst);
+__kernel void halfMul(global half *in, global half *out) {
+  size_t gid = get_global_id(0);
+  float x = vload_half(gid, in) * 2.0;
+  vstore_half(x, gid, out);
 }
 
-// CHECK: 11.000000,22.000000,33.000000,94.000000
+// CHECK: out,2.000000,4.000000,6.000000,8.000000
