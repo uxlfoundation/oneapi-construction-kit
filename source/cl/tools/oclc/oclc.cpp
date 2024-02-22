@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // System headers
+#include <CL/cl_half.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1348,7 +1349,7 @@ std::string oclc::Driver::BufferToString(const unsigned char *buffer, size_t n,
   } else if (dataType == "half") {
     const cl_half *halfBuffer = reinterpret_cast<const cl_half *>(buffer);
     for (size_t i = 0; i < n; ++i) {
-      stringVal += (std::to_string(halfBuffer[i]) + ",");
+      stringVal += (std::to_string(cl_half_to_float(halfBuffer[i])) + ",");
     }
   } else {
     (void)fprintf(stderr, "error printing buffer: unsupported data type (%s)\n",
@@ -1384,7 +1385,12 @@ T *oclc::Driver::CastToTypeFloat(const std::vector<std::string> &source,
                                  vector2d<T> &casted_buffers, size_t &size) {
   std::vector<T> data(source.size());
   for (size_t i = 0; i < source.size(); ++i) {
-    data[i] = static_cast<T>(atof(source[i].c_str()));
+    auto f = atof(source[i].c_str());
+    if constexpr (std::is_same_v<T, cl_half>) {
+      data[i] = cl_half_from_float(f, cl_half_rounding_mode::CL_HALF_RTE);
+    } else {
+      data[i] = static_cast<T>(f);
+    }
   }
   casted_buffers.push_back(data);
   size = casted_buffers.back().size() * sizeof(T);
