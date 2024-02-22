@@ -302,23 +302,28 @@ The builtin CMake options used when invoking CMake on the command line.
   to specify `LD_LIBRARY_PATH` to correctly execute a test binary in order to
   use the installed OpenCL or Vulkan library. Do disable this behaviour set
   `-DCMAKE_SKIP_RPATH=ON` when configuring CMake in build directory.
-- `CA_HOST_TARGET_CPU`: This option is used by host to optimize for performance
-  on a given CPU. If set to "native" host will optimize for the CPU being used
-  to compile it. Otherwise a CPU name can be provided, for example "skylake",
-  but be warned that this string will be passed directly to the llvm backend so
-  make sure it's a valid CPU name. Information about your host CPU can be found
-  by running `llc --version`, and a list of host CPUs supported by your
-  installed version of LLVM can be found by running
-  `llc --march=[your-arch] --mcpu=help`. Beware that if host is compiled with
-  this option set, running it on a different CPU from the one specified (or the
-  one compiled with if "native" was specified) isn't supported and bad things
-  may happen. When the oneAPI Construction Kit is built in debug mode, the
-  environment variable `CA_HOST_TARGET_CPU` is also respected, which can help
-  track down codegen differences among different machine targets. The caveats
-  above apply, and this may result in an illegal instruction crash if your CPU
-  doesn't support the generated instructions.
+
+- `CA_HOST_TARGET_<arch>_CPU`: This option is used by the `host`` target to
+  optimize for performance on a given CPU. `arch` should be a capitalized
+  version of the `host` target architecture e.g. `X86_64`, `RISCV64` or
+  `AARCH64`. If set to "native" host will optimize for the CPU being used to
+  compile it. Otherwise a CPU name can be provided, for example "skylake", but
+  be warned that this string will be passed directly to the llvm backend so make
+  sure it's a valid CPU name. Information about your host CPU can be found by
+  running `llc --version`, and a list of host CPUs supported by your installed
+  version of LLVM can be found by running `llc --march=[your-arch] --mcpu=help`.
+  
+  Be aware that if `host` is compiled with this option set, running it on a
+  different CPU from the one specified (or the one compiled with if "native" was
+  specified) isn't supported and bad things may happen. When the oneAPI
+  Construction Kit is built in debug mode, the environment variable
+  `CA_HOST_TARGET_CPU` is also respected across all `host` targets, which can
+  help track down codegen differences among different machine targets. The
+  caveats above apply, and this may result in an illegal instruction crash if
+  your CPU doesn't support the generated instructions.
+
 - `CA_USE_SPLIT_DWARF`: When building with gcc, enable split dwarf debuginfo.
-  This significantly reduces binary size (especially when static linkning) and
+  This significantly reduces binary size (especially when static linking) and
   speeds up the link step. Requires a non-ancient toolchain.
 - `CA_CL_TEST_STATIC_LIB`: Forces all of our CL executable targets to link the
   static CL library rather than the normal dynamic one, to force testing with

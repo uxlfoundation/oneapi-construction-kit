@@ -34,6 +34,12 @@ Upgrade guidance:
 * `compiler-utils` library has been split into `compiler-pipeline` and
   `compiler-binary-metadata` to  allow use of compiler pipeline utilities without
    the binary metadata requirements. Both will be needed for `mux` targets.
+* The cmake variable `CA_HOST_TARGET_CPU` has been split into capitalized architecture
+  variants of the form `CA_HOST_TARGET_<ARCH>_CPU` e.g  `CA_HOST_TARGET_X86_64_CPU`,
+  `CA_HOST_TARGET_AARCH64_CPU` and `CA_HOST_TARGET_RISCV64_CPU`. The environment variable
+  `CA_HOST_TARGET_CPU` remains the same name. Note that `CA_HOST_TARGET_CPU_NATIVE` is no longer
+  supported but can be achieved by using `native` as a value for the variants.
+
 ## Version 3.0.0
 
 Upgrade guidance:
