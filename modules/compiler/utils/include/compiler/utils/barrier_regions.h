@@ -29,6 +29,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/PassManager.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
+#include <multi_llvm/llvm_version.h>
 
 #include "pass_functions.h"
 
@@ -154,6 +155,12 @@ class Barrier {
     return debug_intrinsics_;
   }
 
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+  using debug_dp_values_t =
+      llvm::SmallVector<std::pair<llvm::DPValue *, unsigned>, 4>;
+  const debug_dp_values_t &getDebugDPValues() const { return debug_dp_values_; }
+#endif
+
   /// @brief gets the original function
   llvm::Function &getFunc() { return func_; }
   const llvm::Function &getFunc() const { return func_; }
@@ -256,6 +263,10 @@ class Barrier {
   debug_stub_map_t barrier_stub_call_map_;
   /// @brief List of debug intrinsics and byte offsets into live variable struct
   debug_intrinsics_t debug_intrinsics_;
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+  /// @brief List of debug DPValues and byte offsets into live variable struct
+  debug_dp_values_t debug_dp_values_;
+#endif
 
   size_t size_t_bytes;
 

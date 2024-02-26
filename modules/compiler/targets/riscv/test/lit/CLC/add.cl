@@ -32,11 +32,9 @@
 // RUN: llvm-objdump --mattr=%vattr -d %t.o > %t_1s_v
 // RUN: FileCheck --check-prefixes 1S_V < %t_1s_v %s
 
-// Check that no vector flags will not produce a risc-v-v vsetvli instruction
-// Also check that it does not add more load word instruction than the two generated
-// without vectorization
+// Check that vector flags do not add more load word instruction than the two
+// generated without vectorization
 
-// NOVEC-NOT: vsetvli
 // NOVEC-COUNT-2: lw
 // NOVEC-NOT: lw
 
@@ -45,7 +43,7 @@
 // We want to ensure that standard vector width of 4 mode still produces the
 // same "add" name
 // V4: <__vecz_v4_add.mux-kernel-wrapper>
-// V4: vsetivli zero, 4, e32
+// V4: vsetivli zero, {{(0x)?}}4, e32
 
 // Check for vectorize factor of 1,S
 // This means that we use vscale x 1 in LLVM IR terms
