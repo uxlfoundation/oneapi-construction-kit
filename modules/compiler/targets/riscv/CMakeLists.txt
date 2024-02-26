@@ -35,11 +35,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   )
 
-  target_link_libraries(compiler-riscv PUBLIC
-    compiler-riscv-utils
-    compiler-linker-utils
-    LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
-    LLVMVectorize LLVMipo multi_llvm)
+  target_link_libraries(compiler-riscv PUBLIC compiler-riscv-utils)
 
   add_mux_compiler_target(compiler-riscv
      COMPILER_INFO riscv::getInfos
