@@ -69,6 +69,11 @@ HostInfo::HostInfo(host::arch arch, host::os os,
   // supports runtime compilation, otherwise it's a cross compiler.
   device_info = host_device_info;
   supports_deferred_compilation = host_device_info->native;
+
+  // JIT compilation is not yet supported on RISC-V
+  if (arch == host::arch::RISCV32 || arch == host::arch::RISCV64) {
+    supports_deferred_compilation = false;
+  }
   vectorizable = true;
   dma_optimizable = true;
   scalable_vector_support = false;
@@ -117,6 +122,14 @@ void HostInfo::get(compiler::AddCompilerFn add_compiler) {
 #ifdef HOST_CROSS_X86_64
   add_compiler(getCrossCompilerInfo<host::arch::X86_64, HOST_OS>(
       HOST_CROSS_DEVICE_NAME_X86_64));
+#endif
+#ifdef HOST_CROSS_RISCV32
+  add_compiler(getCrossCompilerInfo<host::arch::RISCV32, host::os::LINUX>(
+      HOST_CROSS_DEVICE_NAME_RISCV32));
+#endif
+#ifdef HOST_CROSS_RISCV64
+  add_compiler(getCrossCompilerInfo<host::arch::RISCV64, host::os::LINUX>(
+      HOST_CROSS_DEVICE_NAME_RISCV64));
 #endif
 }
 }  // namespace host

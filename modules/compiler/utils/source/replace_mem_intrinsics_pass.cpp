@@ -46,6 +46,8 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
               CallsToProcess.push_back(CI);
             }
             break;
+          default:
+            break;
         }
       }
     }
@@ -65,6 +67,8 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
 #else
         expandMemMoveAsLoop(cast<MemMoveInst>(CI));
 #endif
+        break;
+      default:
         break;
     }
     CI->eraseFromParent();

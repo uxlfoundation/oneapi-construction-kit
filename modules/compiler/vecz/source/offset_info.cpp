@@ -22,6 +22,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/KnownBits.h>
+#include <llvm/Support/MathExtras.h>
 
 #include "analysis/instantiation_analysis.h"
 #include "analysis/stride_analysis.h"
@@ -40,7 +41,7 @@ inline uint64_t SizeOrZero(TypeSize &&T) {
 }
 
 uint8_t highbit(const uint32_t x) {
-  assert((x & (x - 1)) == 0 && "Value must be a power of two");
+  assert(isPowerOf2_32(x) && "Value must be a power of two");
   // This is a De Bruijn hash table, it returns the index of the highest
   // bit, which works when x is a power of 2. For details, see
   // https://en.wikipedia.org/wiki/De_Bruijn_sequence#Uses
@@ -274,6 +275,8 @@ OffsetInfo &OffsetInfo::analyze(Value *Offset, StrideAnalysisResult &SAR) {
     const auto RHS = SAR.analyze(Select->getOperand(2));
     if (LHS.hasStride() && RHS.hasStride() && LHS.StrideInt == RHS.StrideInt &&
         LHS.isStrideConstantInt()) {
+      // Merge the bitmasks from either source - we are selecting one of them.
+      BitMask = LHS.BitMask | RHS.BitMask;
       return copyStrideFrom(LHS);
     }
     return setMayDiverge();
@@ -281,13 +284,13 @@ OffsetInfo &OffsetInfo::analyze(Value *Offset, StrideAnalysisResult &SAR) {
 
   if (auto *Phi = dyn_cast<PHINode>(Offset)) {
     if (auto *const CVal = Phi->hasConstantValue()) {
-      return copyStrideFrom(SAR.analyze(CVal));
+      return copyStrideAndBitMaskFrom(SAR.analyze(CVal));
     }
 
     auto NumIncoming = Phi->getNumIncomingValues();
     if (NumIncoming == 1) {
       // LCSSA Phi, just go right through it..
-      return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
+      return copyStrideAndBitMaskFrom(SAR.analyze(Phi->getIncomingValue(0)));
     } else if (NumIncoming == 2) {
       auto identifyIncrement = [&](Value *incoming) -> bool {
         if (auto *BOp = dyn_cast<BinaryOperator>(incoming)) {
@@ -305,9 +308,9 @@ OffsetInfo &OffsetInfo::analyze(Value *Offset, StrideAnalysisResult &SAR) {
 
       // Try the PHI node's incoming values both ways round.
       if (identifyIncrement(Phi->getIncomingValue(1))) {
-        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
+        return copyStrideAndBitMaskFrom(SAR.analyze(Phi->getIncomingValue(0)));
       } else if (identifyIncrement(Phi->getIncomingValue(0))) {
-        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(1)));
+        return copyStrideAndBitMaskFrom(SAR.analyze(Phi->getIncomingValue(1)));
       }
     }
     return setMayDiverge();
@@ -328,10 +331,10 @@ OffsetInfo &OffsetInfo::analyze(Value *Offset, StrideAnalysisResult &SAR) {
         return setKind(eOffsetUniformVariable);
       case compiler::utils::eBuiltinUniformityInstanceID:
         if (Builtin.properties & compiler::utils::eBuiltinPropertyLocalID) {
-          // If the local size is unknown (represented by zero), the
-          // resulting mask will be ~0ULL (all ones). Potentially, it is
-          // possible to use the CL_​DEVICE_​MAX_​WORK_​ITEM_​SIZES
-          // property as an upper bound in this case.
+          // If the local size is unknown (represented by zero), the resulting
+          // mask will be ~0ULL (all ones). Potentially, it is possible to use
+          // the CL_DEVICE_MAX_WORK_ITEM_SIZES property as an upper bound in
+          // this case.
           uint64_t LocalBitMask = SAR.UVR.VU.getLocalSize() - 1;
           LocalBitMask |= LocalBitMask >> 32;
           LocalBitMask |= LocalBitMask >> 16;
@@ -350,11 +353,11 @@ OffsetInfo &OffsetInfo::analyze(Value *Offset, StrideAnalysisResult &SAR) {
 
 OffsetInfo &OffsetInfo::analyzePtr(Value *Address, StrideAnalysisResult &SAR) {
   if (BitCastInst *BCast = dyn_cast<BitCastInst>(Address)) {
-    return copyStrideFrom(SAR.analyze(BCast->getOperand(0)));
+    return copyStrideAndBitMaskFrom(SAR.analyze(BCast->getOperand(0)));
   } else if (auto *ASCast = dyn_cast<AddrSpaceCastInst>(Address)) {
-    return copyStrideFrom(SAR.analyze(ASCast->getOperand(0)));
+    return copyStrideAndBitMaskFrom(SAR.analyze(ASCast->getOperand(0)));
   } else if (auto *IntPtr = dyn_cast<IntToPtrInst>(Address)) {
-    return copyStrideFrom(SAR.analyze(IntPtr->getOperand(0)));
+    return copyStrideAndBitMaskFrom(SAR.analyze(IntPtr->getOperand(0)));
   } else if (auto *Arg = dyn_cast<Argument>(Address)) {
     // 'Pointer return' arguments should be treated as having an implicit ItemID
     // offset. This allows memory operations to be packetized instead of
@@ -394,7 +397,7 @@ OffsetInfo &OffsetInfo::analyzePtr(Value *Address, StrideAnalysisResult &SAR) {
     // the IRBuilder insert point, we might not even be able to build the
     // offset expression instructions there.
     if (auto *const CVal = Phi->hasConstantValue()) {
-      return copyStrideFrom(SAR.analyze(CVal));
+      return copyStrideAndBitMaskFrom(SAR.analyze(CVal));
     }
 
     // In the simple case of a loop-incremented pointer using a GEP, we can
@@ -415,7 +418,7 @@ OffsetInfo &OffsetInfo::analyzePtr(Value *Address, StrideAnalysisResult &SAR) {
             return setMayDiverge();
           }
         }
-        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(0)));
+        return copyStrideAndBitMaskFrom(SAR.analyze(Phi->getIncomingValue(0)));
       }
     } else if (auto *const GEP =
                    dyn_cast<GetElementPtrInst>(Phi->getIncomingValue(0))) {
@@ -427,7 +430,7 @@ OffsetInfo &OffsetInfo::analyzePtr(Value *Address, StrideAnalysisResult &SAR) {
             return setMayDiverge();
           }
         }
-        return copyStrideFrom(SAR.analyze(Phi->getIncomingValue(1)));
+        return copyStrideAndBitMaskFrom(SAR.analyze(Phi->getIncomingValue(1)));
       }
     }
 
@@ -512,6 +515,8 @@ OffsetInfo &OffsetInfo::analyzePtr(Value *Address, StrideAnalysisResult &SAR) {
     // constant stride, the result will also have the same constant stride.
     if (LHS.hasStride() && RHS.hasStride() && LHS.StrideInt == RHS.StrideInt &&
         LHS.isStrideConstantInt()) {
+      // Merge the bitmasks from either source - we are selecting one of them.
+      BitMask = LHS.BitMask | RHS.BitMask;
       return copyStrideFrom(LHS);
     }
     return setMayDiverge();
@@ -636,7 +641,7 @@ OffsetInfo &OffsetInfo::manifest(IRBuilder<> &B, StrideAnalysisResult &SAR) {
         // Don't need to do anything if the size is 1
         idxStride = idxOffset.ManifestStride;
       } else {
-        if ((MemSize & (MemSize - 1)) == 0) {
+        if (isPowerOf2_64(MemSize)) {
           // the size is a power of two, so shift to get the offset in bytes
           auto *const SizeVal = getSizeInt(B, highbit(MemSize));
           idxStride = B.CreateShl(idxOffset.ManifestStride, SizeVal);
@@ -694,7 +699,7 @@ Value *OffsetInfo::buildMemoryStride(IRBuilder<> &B, Type *PtrEleTy,
     return nullptr;
   }
 
-  if ((PtrEleSize & (PtrEleSize - 1)) == 0) {
+  if (isPowerOf2_64(PtrEleSize)) {
     auto ShiftVal = highbit(PtrEleSize);
     if (auto *BinOp = dyn_cast<BinaryOperator>(ManifestStride)) {
       if (BinOp->getOpcode() == Instruction::Shl) {
@@ -1056,4 +1061,9 @@ OffsetInfo &OffsetInfo::copyStrideFrom(const OffsetInfo &Other) {
   StrideInt = Other.StrideInt;
   ManifestStride = Other.ManifestStride;
   return *this;
+}
+
+OffsetInfo &OffsetInfo::copyStrideAndBitMaskFrom(const OffsetInfo &Other) {
+  BitMask = Other.BitMask;
+  return copyStrideFrom(Other);
 }

@@ -115,8 +115,8 @@ host::builtin_kernel_map host::getBuiltinKernels(
   // Loop over all type combinations.
   for (auto &scalar_type : scalar_types) {
     for (auto &vector_size : vector_sizes) {
-      std::string type(scalar_type + vector_size);
-      std::string typeptr(type + get_spaces() + '*');
+      const std::string type(scalar_type + vector_size);
+      const std::string typeptr(type + get_spaces() + '*');
       std::string kernel_decl(get_spaces() + "args_" + type + get_spaces() +
                               '(');
 
@@ -128,7 +128,7 @@ host::builtin_kernel_map host::getBuiltinKernels(
 
       // Create pointer arguments with address space qualifiers.
       for (auto &address_space_qualifier : address_space_qualifiers) {
-        std::string addrspace(address_space_qualifier.data(), 2);
+        const std::string addrspace(address_space_qualifier.data(), 2);
         add_argument(kernel_decl,
                      {address_space_qualifier, typeptr, addrspace + "p"});
         add_argument(kernel_decl, {address_space_qualifier, "const", typeptr,
@@ -153,12 +153,12 @@ host::builtin_kernel_map host::getBuiltinKernels(
 
   {
     // `void*` types are special: there are no vector or value versions
-    std::string typeptr("void" + get_spaces() + '*');
+    const std::string typeptr("void" + get_spaces() + '*');
     std::string kernel_decl(get_spaces() + "args_void" + get_spaces() + '(');
 
     // Create pointer arguments with address space qualifiers.
     for (auto &address_space_qualifier : address_space_qualifiers) {
-      std::string addrspace(address_space_qualifier.data(), 2);
+      const std::string addrspace(address_space_qualifier.data(), 2);
       add_argument(kernel_decl,
                    {address_space_qualifier, typeptr, addrspace + "p"});
       add_argument(kernel_decl, {address_space_qualifier, "const", typeptr,

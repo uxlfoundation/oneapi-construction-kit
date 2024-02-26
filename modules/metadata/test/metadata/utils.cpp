@@ -22,7 +22,7 @@
 
 TEST(UtilsTest, ReadValueBigEndianUint32) {
   // 4321 in BIG-ENDIAN -> uint32
-  uint8_t val[] = {0x00, 0x00, 0x10, 0xe1};
+  const uint8_t val[] = {0x00, 0x00, 0x10, 0xe1};
   const uint32_t read_val =
       md::utils::read_value<uint32_t>(&val[0], MD_ENDIAN::BIG);
   EXPECT_EQ(read_val, 4321);
@@ -30,14 +30,14 @@ TEST(UtilsTest, ReadValueBigEndianUint32) {
 
 TEST(UtilsTest, ReadValueLittleEndianUint32) {
   // 15432 in LITTLE-ENDIAN -> uint32
-  uint8_t val[] = {0x48, 0x3c, 0x00, 0x00};
+  const uint8_t val[] = {0x48, 0x3c, 0x00, 0x00};
   const uint32_t read_val =
       md::utils::read_value<uint32_t>(&val[0], MD_ENDIAN::LITTLE);
   EXPECT_EQ(read_val, 15432);
 }
 
 struct DecodeTest : ::testing::Test {
-  uint8_t *get_start() { return const_cast<uint8_t *>(&example_md_bin[0]); }
+  const uint8_t *get_start() { return &example_md_bin[0]; }
   size_t get_bin_size() {
     return sizeof(example_md_bin) / sizeof(example_md_bin[0]);
   }

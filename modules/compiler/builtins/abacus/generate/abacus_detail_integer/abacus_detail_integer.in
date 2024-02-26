@@ -86,14 +86,18 @@ static T _(const T& x, const T& y) {
 
 template <typename T>
 struct add_sat_helper<T, true> {
-static T _(const T& x, const T& y) {
-  const T min = TypeTraits<T>::min();
-  const T max = TypeTraits<T>::max();
-  const T cond1 = (T)(x < (T)0) & (T)(y < (min - x));
-  const T cond2 = (T)(x >= (T)0) & (T)((max - x) < y);
-  const T add = x + y;
-  return relational::select(relational::select(add, min, cond1), max, cond2);
-}
+  static T _(const T &x, const T &y) {
+    typedef typename TypeTraits<T>::UnsignedType U;
+    const T min = TypeTraits<T>::min();
+    const T max = TypeTraits<T>::max();
+    // Unsigned subtraction cast back to signed is equivalent to signed
+    // subtraction with wraparound; use it to avoid undefined behavior that we
+    // cannot mask out.
+    const T cond1 = (T)(x < (T)0) & (T)(y < (T)((U)min - (U)x));
+    const T cond2 = (T)(x >= (T)0) & (T)((T)((U)max - (U)x) < y);
+    const T add = x + y;
+    return relational::select(relational::select(add, min, cond1), max, cond2);
+  }
 };
 
 template <typename T>

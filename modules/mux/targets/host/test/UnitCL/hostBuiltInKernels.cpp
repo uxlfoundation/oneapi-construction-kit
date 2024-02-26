@@ -32,7 +32,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, ValidNameWithEmptyName) {
     GTEST_SKIP() << "Not running on host device, skipping test.\n";
   }
   cl_int status;
-  std::string empty_kernel_name = "copy_buffer;";
+  const std::string empty_kernel_name = "copy_buffer;";
 
   ASSERT_FALSE(clCreateProgramWithBuiltInKernels(
       context, 1, &device, empty_kernel_name.c_str(), &status));
@@ -62,7 +62,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, BuildBuiltInProgram) {
   ASSERT_EQ(kernel_names_len + 1, size);
 
   auto split_device_names =
-      cargo::split_all(cargo::string_view(&kernel_names[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_names.data()), ";");
 
   ASSERT_FALSE(std::none_of(
       split_device_names.begin(), split_device_names.end(),
@@ -108,7 +108,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, CopyBuffer) {
   ASSERT_EQ(kernel_names_len + 1, size);
 
   auto split_device_names =
-      cargo::split_all(cargo::string_view(&kernel_names[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_names.data()), ";");
 
   ASSERT_FALSE(std::none_of(
       split_device_names.begin(), split_device_names.end(),
@@ -128,7 +128,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, CopyBuffer) {
   EXPECT_TRUE(kernel);
   EXPECT_SUCCESS(status);
   // START
-  cl_int NUM = 24;
+  const cl_int NUM = 24;
   cl_mem inMem =
       clCreateBuffer(context, 0, NUM * sizeof(cl_int), nullptr, &status);
   cl_mem outMem =
@@ -196,7 +196,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, Printf) {
   ASSERT_EQ(kernel_names_len + 1, size);
 
   auto split_device_names =
-      cargo::split_all(cargo::string_view(&kernel_names[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_names.data()), ";");
 
   ASSERT_FALSE(std::none_of(
       split_device_names.begin(), split_device_names.end(),
@@ -253,9 +253,9 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, TwoKernelsFirstKernel) {
   ASSERT_EQ(kernel_names_len + 1, size);
 
   auto split_device_names =
-      cargo::split_all(cargo::string_view(&kernel_names[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_names.data()), ";");
   auto split_kernel_name =
-      cargo::split_all(cargo::string_view(&kernel_name[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_name.data()), ";");
   for (const auto &test_kernel_name : split_kernel_name) {
     ASSERT_FALSE(std::none_of(
         split_device_names.begin(), split_device_names.end(),
@@ -277,7 +277,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, TwoKernelsFirstKernel) {
   EXPECT_TRUE(kernel);
   EXPECT_SUCCESS(status);
   // START
-  cl_int NUM = 24;
+  const cl_int NUM = 24;
   cl_mem inMem =
       clCreateBuffer(context, 0, NUM * sizeof(cl_int), nullptr, &status);
   cl_mem outMem =
@@ -346,9 +346,9 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, TwoKernelsSecondKernel) {
   ASSERT_EQ(kernel_names_len + 1, size);
 
   auto split_device_names =
-      cargo::split_all(cargo::string_view(&kernel_names[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_names.data()), ";");
   auto split_kernel_name =
-      cargo::split_all(cargo::string_view(&kernel_name[0]), ";");
+      cargo::split_all(cargo::string_view(kernel_name.data()), ";");
   for (const auto &test_kernel_name : split_kernel_name) {
     ASSERT_FALSE(std::none_of(
         split_device_names.begin(), split_device_names.end(),
@@ -370,7 +370,7 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, TwoKernelsSecondKernel) {
   EXPECT_TRUE(kernel);
   EXPECT_SUCCESS(status);
   // START
-  cl_int NUM = 24;
+  const cl_int NUM = 24;
   cl_mem inMem =
       clCreateBuffer(context, 0, NUM * sizeof(cl_int), nullptr, &status);
   cl_mem outMem =
@@ -426,7 +426,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
     if (size) {
       builtin_kernels.resize(size);
       ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_BUILT_IN_KERNELS, size,
-                                     &builtin_kernels[0], nullptr));
+                                     builtin_kernels.data(), nullptr));
     }
   }
 
@@ -533,7 +533,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
     if (!test_value_types) {
       (void)type_size;
     }
-    std::string kernel_name = "args_" + type;
+    const std::string kernel_name = "args_" + type;
     if (std::string::npos != type.find("half") &&
         !UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
       GTEST_SKIP();
@@ -636,6 +636,8 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         case CL_KERNEL_ARG_ADDRESS_CONSTANT:
           addrspace = "co";
           break;
+        default:
+          FAIL() << "Unexpected address qualifier.";
       }
 
       {  // <address_qualifier> <type>* <addrspace>p
@@ -814,7 +816,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
     if (!UCL::isDevice_host(device)) {
       GTEST_SKIP() << "Not running on host device, skipping test.\n";
     }
-    std::string kernel_name = "args_" + image_type;
+    const std::string kernel_name = "args_" + image_type;
     ASSERT_TRUE(hasBuiltinKernel(kernel_name))
         << "'" << kernel_name << "' kernel is not present";
     ASSERT_SUCCESS(createProgramAndKernel(kernel_name));
@@ -854,7 +856,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
     }
 
     {  // write_only <image_type> woi
-      bool image3d_writes =
+      const bool image3d_writes =
           UCL::hasDeviceExtensionSupport(device, "cl_khr_3d_image_writes");
       size_t size;
       ASSERT_EQ(CL_SUCCESS, clGetPlatformInfo(platform, CL_PLATFORM_PROFILE, 0,
@@ -862,7 +864,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
       std::string platform_profile(size, '\0');
       ASSERT_EQ(CL_SUCCESS,
                 clGetPlatformInfo(platform, CL_PLATFORM_PROFILE, size,
-                                  &platform_profile[0], nullptr));
+                                  platform_profile.data(), nullptr));
       bool image2d_array_writes = true;
       if (platform_profile == "EMBEDDED") {
         image2d_array_writes = UCL::hasDeviceExtensionSupport(
@@ -940,7 +942,7 @@ TEST_F(hostBuiltInKernelsArgsTest, args_address_qualifiers) {
   if (!UCL::isDevice_host(device)) {
     GTEST_SKIP() << "Not running on host device, skipping test.\n";
   }
-  std::string kernel_name = "args_address_qualifiers";
+  const std::string kernel_name = "args_address_qualifiers";
   ASSERT_TRUE(hasBuiltinKernel(kernel_name))
       << "'" << kernel_name << "' kernel is not present.";
   ASSERT_SUCCESS(createProgramAndKernel(kernel_name));
@@ -1004,7 +1006,7 @@ TEST_F(hostBuiltInKernelsArgsTest, args_sampler_t) {
   if (!UCL::isDevice_host(device)) {
     GTEST_SKIP() << "Not running on host device, skipping test.\n";
   }
-  std::string kernel_name = "args_sampler_t";
+  const std::string kernel_name = "args_sampler_t";
 
   ASSERT_TRUE(hasBuiltinKernel(kernel_name))
       << "'" << kernel_name << "' kernel is not present.";

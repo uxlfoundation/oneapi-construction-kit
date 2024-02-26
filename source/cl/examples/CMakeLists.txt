@@ -31,9 +31,45 @@ function(add_ca_cl_example)
   target_include_directories(${ARGV0} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-  add_ca_cl_check(${ARGV0}
-    COMMAND ${ARGV0} --platform ComputeAorta
-    DEPENDS ${ARGV0})
+  if (CA_ENABLE_TESTS)
+    # Create a specific check target for each known device and add those to a
+    # group created for that example:
+    # * check-ock (and check-ock-cl)
+    #   * check-ock-example
+    #     * check-ock-example-device0
+    #     * check-ock-example-device1
+    # This way the example runs on each device when building the global check
+    # target, or the example's check target, but each device can be run
+    # individually if desired.
+    add_ca_check_group(${ARGV0})
+    get_ock_check_name(example_group_name ${ARGV0})
+
+    foreach(target ${MUX_TARGET_LIBRARIES})
+      foreach(device_name ${${target}_DEVICE_NAMES})
+        # Device names may have spaces and other awkward characters in them -
+        # convert to a name containing underscores.
+        string(REGEX REPLACE "[^A-Za-z0-9]" "_" underscore_device_name "${device_name}")
+        # Do not automatically add this check to the global check target
+        # (NOGLOBAL) nor to the combined CL check target (NOGLOBALCL)
+        get_ock_check_name(device_example_name "${ARGV0}-${underscore_device_name}")
+        add_ca_cl_check("${ARGV0}-${underscore_device_name}"
+          NOGLOBAL NOGLOBALCL
+          COMMAND ${ARGV0} --platform ComputeAorta --device "${device_name}"
+          DEPENDS ${ARGV0})
+
+        # Add this device-specific example to the more general group of this
+        # example on all devices.
+        add_dependencies(${example_group_name} ${device_example_name})
+      endforeach()
+    endforeach()
+
+    # Add this example's group to the CL-specific group
+    # Note that the CL-specific isn't a dependency of the global check target,
+    # but the example group is.
+    get_ock_check_name(check_cl_name cl)
+    add_dependencies(${check_cl_name} ${example_group_name})
+
+  endif()
 
   install(TARGETS ${ARGV0}
     RUNTIME DESTINATION bin COMPONENT OCLExamples)

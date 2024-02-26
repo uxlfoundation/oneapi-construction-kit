@@ -26,13 +26,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define IS_CL_SUCCESS(X)                                                       \
-  {                                                                            \
-    const cl_int ret_val = X;                                                  \
-    if (CL_SUCCESS != ret_val) {                                               \
-      fprintf(stderr, "OpenCL error occurred: %s returned %d\n", #X, ret_val); \
-      exit(1);                                                                 \
-    }                                                                          \
+#define IS_CL_SUCCESS(X)                                                   \
+  {                                                                        \
+    const cl_int ret_val = X;                                              \
+    if (CL_SUCCESS != ret_val) {                                           \
+      (void)fprintf(stderr, "OpenCL error occurred: %s returned %d\n", #X, \
+                    ret_val);                                              \
+      exit(1);                                                             \
+    }                                                                      \
   }
 
 /// @brief Print help message on executable usage
@@ -62,7 +63,7 @@ void parseArguments(const int argc, const char **argv,
       argi++;
       if (argi == argc) {
         printUsage(argv[0]);
-        fprintf(stderr, "expected platform name\n");
+        (void)fprintf(stderr, "expected platform name\n");
         exit(1);
       }
       *platform_name = argv[argi];
@@ -70,13 +71,13 @@ void parseArguments(const int argc, const char **argv,
       argi++;
       if (argi == argc) {
         printUsage(argv[0]);
-        fprintf(stderr, "error: expected device name\n");
+        (void)fprintf(stderr, "error: expected device name\n");
         exit(1);
       }
       *device_name = argv[argi];
     } else {
       printUsage(argv[0]);
-      fprintf(stderr, "error: invalid argument: %s\n", argv[argi]);
+      (void)fprintf(stderr, "error: invalid argument: %s\n", argv[argi]);
       exit(1);
     }
   }
@@ -96,14 +97,14 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
   IS_CL_SUCCESS(clGetPlatformIDs(0, NULL, &num_platforms));
 
   if (0 == num_platforms) {
-    fprintf(stderr, "No OpenCL platforms found, exiting\n");
+    (void)fprintf(stderr, "No OpenCL platforms found, exiting\n");
     exit(1);
   }
 
   cl_platform_id *platforms =
       (cl_platform_id *)malloc(sizeof(cl_platform_id) * num_platforms);
   if (NULL == platforms) {
-    fprintf(stderr, "\nCould not allocate memory for platform ids\n");
+    (void)fprintf(stderr, "\nCould not allocate memory for platform ids\n");
     exit(1);
   }
   IS_CL_SUCCESS(clGetPlatformIDs(num_platforms, platforms, NULL));
@@ -121,7 +122,8 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
     } else {
       char *platform_name = (char *)malloc(platform_name_size);
       if (NULL == platform_name) {
-        fprintf(stderr, "\nCould not allocate memory for platform name\n");
+        (void)fprintf(stderr,
+                      "\nCould not allocate memory for platform name\n");
         exit(1);
       }
       IS_CL_SUCCESS(clGetPlatformInfo(platforms[i], CL_PLATFORM_NAME,
@@ -135,8 +137,8 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
   }
 
   if (platform_name_arg != NULL && selected_platform == 0) {
-    fprintf(stderr, "Platform name matching '--platform %s' not found\n",
-            platform_name_arg);
+    (void)fprintf(stderr, "Platform name matching '--platform %s' not found\n",
+                  platform_name_arg);
     exit(1);
   }
 
@@ -149,7 +151,7 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
   } else {
     printf("\nPlease select a platform: ");
     if (1 != scanf("%u", &selected_platform)) {
-      fprintf(stderr, "\nCould not parse provided input, exiting\n");
+      (void)fprintf(stderr, "\nCould not parse provided input, exiting\n");
       exit(1);
     }
   }
@@ -157,7 +159,7 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
   selected_platform -= 1;
 
   if (num_platforms <= selected_platform) {
-    fprintf(stderr, "\nSelected unknown platform, exiting\n");
+    (void)fprintf(stderr, "\nSelected unknown platform, exiting\n");
     exit(1);
   } else {
     printf("\nRunning example on platform %u\n", selected_platform + 1);
@@ -187,14 +189,14 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
                                &num_devices));
 
   if (0 == num_devices) {
-    fprintf(stderr, "No OpenCL devices found, exiting\n");
+    (void)fprintf(stderr, "No OpenCL devices found, exiting\n");
     exit(1);
   }
 
   cl_device_id *devices =
       (cl_device_id *)malloc(sizeof(cl_device_id) * num_devices);
   if (NULL == devices) {
-    fprintf(stderr, "\nCould not allocate memory for device ids\n");
+    (void)fprintf(stderr, "\nCould not allocate memory for device ids\n");
     exit(1);
   }
   IS_CL_SUCCESS(clGetDeviceIDs(selected_platform, CL_DEVICE_TYPE_ALL,
@@ -213,7 +215,7 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
     } else {
       char *device_name = (char *)malloc(device_name_size);
       if (NULL == device_name) {
-        fprintf(stderr, "\nCould not allocate memory for device name\n");
+        (void)fprintf(stderr, "\nCould not allocate memory for device name\n");
         exit(1);
       }
       IS_CL_SUCCESS(clGetDeviceInfo(devices[i], CL_DEVICE_NAME,
@@ -227,8 +229,8 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
   }
 
   if (device_name_arg != NULL && selected_device == 0) {
-    fprintf(stderr, "Device name matching '--device %s' not found\n",
-            device_name_arg);
+    (void)fprintf(stderr, "Device name matching '--device %s' not found\n",
+                  device_name_arg);
     exit(1);
   }
 
@@ -241,7 +243,7 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
   } else {
     printf("\nPlease select a device: ");
     if (1 != scanf("%u", &selected_device)) {
-      fprintf(stderr, "\nCould not parse provided input, exiting\n");
+      (void)fprintf(stderr, "\nCould not parse provided input, exiting\n");
       exit(1);
     }
   }
@@ -249,7 +251,7 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
   selected_device -= 1;
 
   if (num_devices <= selected_device) {
-    fprintf(stderr, "\nSelected unknown device, exiting\n");
+    (void)fprintf(stderr, "\nSelected unknown device, exiting\n");
     exit(1);
   } else {
     printf("\nRunning example on device %u\n", selected_device + 1);

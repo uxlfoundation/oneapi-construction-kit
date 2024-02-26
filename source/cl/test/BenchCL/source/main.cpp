@@ -41,7 +41,8 @@ int main(int argc, char *argv[]) {
 
   if (help) {
     // If --help was passed print usage messages and exit.
-    fprintf(stdout, "benchcl   [--benchcl_device=<OpenCL device name>]\n");
+    (void)fprintf(stdout,
+                  "benchcl   [--benchcl_device=<OpenCL device name>]\n");
     benchmark::Initialize(&argc, argv);
     return 0;
   }

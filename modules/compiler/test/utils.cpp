@@ -127,3 +127,34 @@ TEST_F(CompilerUtilsTest, ReplaceFunctionInMetadata) {
   ASSERT_EQ(Kernels.size(), 1);
   ASSERT_EQ(Kernels[0].Name, Bar->getName());
 }
+
+TEST_F(CompilerUtilsTest, ParseReqWGSize) {
+  auto M = parseModule(R"(
+  define void @foo() !reqd_work_group_size !1 {
+  entry:
+    ret void
+  }
+
+  define void @bar() !reqd_work_group_size !2 {
+  entry:
+    ret void
+  }
+
+  !1 = !{i32 30}
+  !2 = !{i32 30, i32 20}
+  )");
+
+  auto check = [&M](llvm::StringRef Name, const std::array<uint64_t, 3> &Res) {
+    auto *const F = M->getFunction(Name);
+    if (auto Parsed = parseRequiredWGSMetadata(*F)) {
+      for (auto [El, Exp] : llvm::zip(*Parsed, Res)) {
+        EXPECT_EQ(El, Exp);
+      }
+    } else {
+      GTEST_FAIL();
+    }
+  };
+
+  check("foo", {30, 1, 1});
+  check("bar", {30, 20, 1});
+}

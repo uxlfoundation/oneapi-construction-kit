@@ -182,7 +182,7 @@ ur::device_allocation_info::~device_allocation_info() {
     muxFreeMemory(device->mux_device, mux_memory,
                   device->platform->mux_allocator_info);
   }
-};
+}
 
 cargo::expected<ur_context_handle_t, ur_result_t> ur_context_handle_t_::create(
     ur_platform_handle_t platform,

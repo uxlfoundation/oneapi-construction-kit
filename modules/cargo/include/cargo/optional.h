@@ -1267,7 +1267,7 @@ auto optional_map_impl(Opt &&opt, F &&f) -> optional<monostate> {
 
 namespace std {
 template <class T>
-struct hash<cargo::optional<T>> {
+struct hash<cargo::optional<T>> {  // NOLINT(cert-dcl58-cpp)
   ::std::size_t operator()(const cargo::optional<T> &o) const {
     if (!o.has_value()) return 0;
     return std::hash<std::remove_const_t<T>>()(*o);

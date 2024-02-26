@@ -348,10 +348,10 @@ The builtin CMake options used when invoking CMake on the command line.
 
 * `ComputeAorta`: Build the OpenCL and Vulkan libraries, if present, and all
   their test suites.
-* `check`/`check-<target>`: Build and run all short running test suites, this
-  selection of testing is used by continuous integration to verify a baseline of
-  correctness, individual test suites can also be tested in isolation by
-  specifying the target to test.
+* `check-ock`/`check-ock-<target>`: Build and run all short running test
+  suites, this selection of testing is used by continuous integration to verify
+  a baseline of correctness, individual test suites can also be tested in
+  isolation by specifying the target to test.
 * `internal_builtins`: Builds the compiler builtins functions, this target can
   be used even if automatically building the builtins was disabled with
   `CA_EXTERNAL_BUILTINS`, although this target will fail in cross compile
@@ -376,7 +376,7 @@ The builtin CMake options used when invoking CMake on the command line.
 * `CL`: Build only the OpenCL library, only available when OpenCL is enabled.
 * `UnitCL`: Build the UnitCL test suite, as well as the OpenCL library.
 * `OpenCLCTS`: Build the OpenCL library and all the CTS binaries.
-* `check-cl`: Build and run various OpenCL test suites, primarily UnitCL and
+* `check-ock-cl`: Build and run various OpenCL test suites, primarily UnitCL and
   selected short running OpenCL CTS tests.
 
 ##### oneAPI Construction Kit Vulkan CMake Build Targets
@@ -384,7 +384,7 @@ The builtin CMake options used when invoking CMake on the command line.
 * `VK`: Build only the Vulkan library, only available when Vulkan is enabled.
 * `UnitVK`: Build the UnitVK test suite, as well as the Vulkan library.
 * `VKICDManifest`: Generates the Vulkan ICD manifest, Linux only.
-* `check-vk`: Build and run UnitVK and spirv-ll lit tests.
+* `check-ock-vk`: Build and run UnitVK and spirv-ll lit tests.
 
 ## Compiling
 
@@ -1021,7 +1021,7 @@ export CMAKE_CXX_COMPILER=/path/to/intel_oneapi/bin/clang++
 export CMAKE_C_COMPILER=/path/to/intel_oneapi/bin/clang
 export CA_HAL_DEBUG=1
 export CA_PROFILE_LEVEL=3
-export ONEAPI_DEVICE_SELECTOR=opencl:acc
+export ONEAPI_DEVICE_SELECTOR=opencl:fpga
 export OCL_ICD_FILENAMES=/path/to/build/lib/libCL.so
 # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
 # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.

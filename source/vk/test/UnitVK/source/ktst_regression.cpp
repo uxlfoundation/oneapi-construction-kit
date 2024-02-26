@@ -422,7 +422,7 @@ TEST_F(ktst_regression_workgroup_spec, RegressionTest) {
 using ktst_regression_workgroup_spec_mixed =
     kts::uvk::GenericKernelTest<uvk::Shader::kts_workgroup_spec_mixed>;
 TEST_F(ktst_regression_workgroup_spec_mixed, RegressionTest) {
-  const int localY = 2;
+  const size_t localY = 2;
   glsl::uintTy specData[2] = {2, 2};
   uint32_t global[3] = {8, 1, 1};
 

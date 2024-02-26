@@ -47,30 +47,30 @@ typename TypeTraits<T>::SignedType find_lsb(const T t) {
     return find_lsb<>(x);                                        \
   }
 
-DEF(char);
-DEF(char2);
-DEF(char3);
-DEF(char4);
-DEF(char8);
-DEF(char16);
+DEF(char)
+DEF(char2)
+DEF(char3)
+DEF(char4)
+DEF(char8)
+DEF(char16)
 
-DEF(short);
-DEF(short2);
-DEF(short3);
-DEF(short4);
-DEF(short8);
-DEF(short16);
+DEF(short)
+DEF(short2)
+DEF(short3)
+DEF(short4)
+DEF(short8)
+DEF(short16)
 
-DEF(int);
-DEF(int2);
-DEF(int3);
-DEF(int4);
-DEF(int8);
-DEF(int16);
+DEF(int)
+DEF(int2)
+DEF(int3)
+DEF(int4)
+DEF(int8)
+DEF(int16)
 
-DEF(long);
-DEF(long2);
-DEF(long3);
-DEF(long4);
-DEF(long8);
-DEF(long16);
+DEF(long)
+DEF(long2)
+DEF(long3)
+DEF(long4)
+DEF(long8)
+DEF(long16)

@@ -161,17 +161,18 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
   endif()
 endforeach()
 
-if(CA_NATIVE_CPU)
-  # For Native CPU, we disable the runtime compiler and manually re-enable
-  # only the components that we need for our integration.
-  # Todo: consider defining a CMake option that allows to specify which
-  # components to build without editing the CMake files.
-  set(CA_RUNTIME_COMPILER_ENABLED Off)
-  # We also disable directly testing the Construction Kit since the used
-  # compoenents will be tested as part of the DPC++ integration.
-  set(CA_ENABLE_TESTS Off)
+# Check if we are in an LLVM Tree.
+# This is done by checking for the LLVMCore target which does not exist
+# until we import LLVM.
+# This only happens of we have not imported or are fetched by LLVM via
+# FetchContent or as an external project. In this case we set a cmake
+# variable OCK_IN_LLVM_TREE to TRUE.
+set(OCK_IN_LLVM_TREE FALSE)
+if (TARGET LLVMCore)
+  set(OCK_IN_LLVM_TREE TRUE)
 endif()
-if(CA_RUNTIME_COMPILER_ENABLED)
+
+if(CA_RUNTIME_COMPILER_ENABLED AND NOT OCK_IN_LLVM_TREE)
   include(ImportLLVM)
 endif()
 
@@ -191,8 +192,7 @@ find_package(PythonInterp 3.6 REQUIRED)
 # which perform static analysis and style checking on source files.
 # When updating the version here, also update that used in the merge request
 # config
-find_package(ClangTools 17 COMPONENTS clang-format)
-find_package(ClangTools 9 COMPONENTS clang-tidy)
+find_package(ClangTools 17 COMPONENTS clang-format clang-tidy)
 if(TARGET ClangTools::clang-tidy)
   ca_option(CA_CLANG_TIDY_FLAGS STRING
     "Semi-color separated list of clang-tidy flags" "")
@@ -259,18 +259,6 @@ endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-
-if(NOT CMAKE_CROSSCOMPILING AND "${CA_BUILTINS_TOOLS_DIR}" STREQUAL "")
-  set(CA_BUILTINS_TOOLS_DIR ${CA_LLVM_INSTALL_DIR}/bin)
-endif()
-
-if(CMAKE_CROSSCOMPILING AND CA_RUNTIME_COMPILER_ENABLED)
-  if(NOT CA_EXTERNAL_BUILTINS AND NOT DEFINED CA_BUILTINS_TOOLS_DIR)
-    message(FATAL_ERROR
-      "Cross compiled builds requires CA_EXTERNAL_BUILTINS or "
-      "CA_BUILTINS_TOOLS_DIR to be set!")
-  endif()
-endif()
 
 set(CA_INTERNAL_BUILTINS_DIR ${PROJECT_BINARY_DIR}/modules/compiler/builtins)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/modules/compiler/builtins)
@@ -340,20 +328,48 @@ add_to_group(ComputeAorta
   UnitCL UnitCargo UnitCore UnitMux UnitCompiler UnitVK UnitMD FuzzCL
   clVectorAddition vkVectorAddition veczc UnitUR urVectorAddition)
 
-# Create a check-ComputeAorta target to build+test.
-add_ca_check_group(ComputeAorta DEPENDS ComputeAorta check)
-
-# Create a check-tidy-ComputeAorta target to build+test+tidy.
-add_ca_check_group(tidy-ComputeAorta DEPENDS check-ComputeAorta tidy)
-
-if(CMAKE_CROSSCOMPILING)
-  # Create a check-cross-ComputeAorta target to build+test fast subset of checks.
-  add_ca_check_group(cross-ComputeAorta DEPENDS ComputeAorta
-    check-host-lit check-spirv-ll-lit check-vecz-lit check-UnitCargo
-    check-UnitMux check-UnitCL-offline)
-endif()
-
 if(CA_ENABLE_TESTS)
+  # Ensure we've created the global check target
+  if(NOT TARGET ${OCK_CHECK_TARGET})
+    message(FATAL_ERROR
+      "CA_ENABLE_TESTS is enabled but no OCK check target was created")
+  endif()
+
+  # Inject an extra dependency into the OCK global check target so that it
+  # builds the ComputeAorta target. This turns it into more of a build+test
+  # target than a pure test target.
+  add_dependencies(${OCK_CHECK_TARGET} ComputeAorta)
+  # Add a legacy target called 'check-ComputeAorta' which aliases the OCK
+  # global check target. This should be considered deprecated.
+  add_custom_target(check-ComputeAorta DEPENDS ${OCK_CHECK_TARGET})
+
+  if(TARGET tidy)
+    # Add an extra 'tidy' target which additionally depends on the tidy target
+    add_ca_check_group(tidy NOGLOBAL DEPENDS ${OCK_CHECK_TARGET} tidy)
+
+    # Add a legacy target called 'check-tidy-ComputeAorta' which aliases the OCK
+    # tidy target. This should be considered deprecated.
+    get_ock_check_name(tidy_check_name tidy)
+    add_custom_target(check-tidy-ComputeAorta DEPENDS ${tidy_check_name})
+  endif()
+
+  if(CMAKE_CROSSCOMPILING)
+    # Create an OCK cross check target to build+test fast subset of checks.
+    set(check_deps ComputeAorta)
+    foreach(target host-lit;spirv-ll-lit;vecz-lit;UnitCargo;UnitMux;UnitCL-offline)
+      if(TARGET ${target})
+        get_ock_check_name(check_name ${target})
+        list(APPEND check_deps ${check_name})
+      endif()
+    endforeach()
+    add_ca_check_group(cross NOGLOBAL DEPENDS ${check_deps})
+
+    # Add a legacy target called 'check-cross-ComputeAorta' which aliases the OCK
+    # cross target. This should be considered deprecated.
+    get_ock_check_name(cross_check_name cross)
+    add_custom_target(check-cross-ComputeAorta DEPENDS ${cross_check_name})
+  endif()
+
   # Close off the active set of 'all' lit suites
   ca_umbrella_lit_testsuite_close(all)
 
@@ -370,4 +386,3 @@ if(${CA_ENABLE_COVERAGE})
   add_coverage_xml_input()
   add_coverage_custom_target()
 endif()
-

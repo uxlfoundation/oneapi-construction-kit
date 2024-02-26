@@ -219,7 +219,7 @@ optional arguments:
 
   // Make sure everything is in order
   if (llvm::verifyModule(*spvModule->llvmModule, &llvm::errs())) {
-    std::cerr << "warning: module verification failed" << std::endl;
+    std::cerr << "warning: module verification failed\n";
   }
 
   return 0;

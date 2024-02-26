@@ -63,7 +63,6 @@ void DestroyCommandPool(vk::device device, vk::command_pool commandPool,
 VkResult ResetCommandPool(vk::device device, vk::command_pool commandPool,
                           VkCommandPoolResetFlags flags) {
   (void)flags;
-  mux_result_t error;
   for (vk::command_buffer command_buffer : commandPool->command_buffers) {
     command_buffer->descriptor_sets.clear();
 
@@ -76,11 +75,12 @@ VkResult ResetCommandPool(vk::device device, vk::command_pool commandPool,
 
     command_buffer->barrier_group_infos.clear();
 
-    if ((error = muxResetCommandBuffer(command_buffer->main_command_buffer))) {
+    if (auto error =
+            muxResetCommandBuffer(command_buffer->main_command_buffer)) {
       return vk::getVkResult(error);
     }
 
-    if ((error = muxResetSemaphore(command_buffer->main_semaphore))) {
+    if (auto error = muxResetSemaphore(command_buffer->main_semaphore)) {
       return vk::getVkResult(error);
     }
 

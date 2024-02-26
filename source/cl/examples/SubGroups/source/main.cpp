@@ -137,7 +137,7 @@ kernel void reduction(global int *in, local int *tmp, global int *out) {
       kernel, device, CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE, sizeof(size_t),
       &local_size, sizeof(size_t), &sub_group_count, nullptr));
   std::cout << "Sub-group count for local size (" << local_size
-            << ", 1, 1): " << sub_group_count << std::endl;
+            << ", 1, 1): " << sub_group_count << '\n';
   constexpr size_t input_buffer_size = global_size * sizeof(cl_int);
   constexpr size_t output_buffer_size = work_group_count * sizeof(cl_int);
   const size_t local_buffer_size = sub_group_count * sizeof(cl_int);

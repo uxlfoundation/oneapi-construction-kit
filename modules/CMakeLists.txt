@@ -50,7 +50,7 @@ include(FetchContent)
 FetchContent_Declare(
   SPIRV-Headers
   GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-  GIT_TAG        sdk-1.3.239.0
+  GIT_TAG        1c6bb2743599e6eb6f37b2969acc0aef812e32e3
 )
 FetchContent_MakeAvailable(SPIRV-Headers)
 

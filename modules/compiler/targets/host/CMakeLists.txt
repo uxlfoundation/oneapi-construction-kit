@@ -67,15 +67,15 @@ set(HOST_SOURCES
 add_ca_library(compiler-host STATIC ${HOST_SOURCES})
 
 target_include_directories(compiler-host PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/builtins/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/source/base/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/builtins/include
-    ${CMAKE_SOURCE_DIR}/modules/utils/include
-    ${CMAKE_SOURCE_DIR}/modules/debug/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/multi_llvm/include
-    ${CMAKE_SOURCE_DIR}/modules/mux/source/host/include
-    ${CMAKE_SOURCE_DIR}/modules/mux/include)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/builtins/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/source/base/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/builtins/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/utils/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/debug/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/multi_llvm/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/mux/source/host/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/mux/include>)
 
 target_compile_definitions(compiler-host PUBLIC
   $<$<TARGET_EXISTS:resources-host>:CA_ENABLE_HOST_BUILTINS>)
@@ -108,6 +108,19 @@ if(TARGET LLVMAArch64CodeGen AND TARGET LLVMAArch64AsmParser)
   # yet supported.
   if(NOT (CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4))
     list(APPEND hostCrossCompilers aarch64)
+  endif()
+endif()
+
+if(TARGET LLVMRISCVCodeGen)
+  # link with LLVM if it was built with the RISCV target
+  target_link_libraries(compiler-host PUBLIC LLVMRISCVCodeGen)
+  target_compile_definitions(compiler-host PRIVATE HOST_LLVM_RISCV)
+  # TODO(CA-1894,CA-1865): 32-bit and 64-bit builtins in the same build are not
+  # yet supported.
+  if(CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4)
+    list(APPEND hostCrossCompilers riscv32)
+  else()
+    list(APPEND hostCrossCompilers riscv64)
   endif()
 endif()
 
@@ -165,7 +178,7 @@ if(CA_HOST_CROSS_COMPILERS)
     foreach(CrossCompiler ${hostCrossCompilers})
       set(found FALSE)
       # Loop over all possible host cross-compilers to enable.
-      set(ValidCrossCompilers arm aarch64 x86 x86_64)
+      set(ValidCrossCompilers arm aarch64 x86 x86_64 riscv32 riscv64)
       foreach(ValidName ${ValidCrossCompilers})
         if(CrossCompiler STREQUAL ValidName)
           set(found TRUE)

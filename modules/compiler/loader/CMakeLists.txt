@@ -40,8 +40,8 @@ set(COMPILER_LOADER_SOURCES
 add_ca_library(compiler-loader STATIC
   ${COMPILER_HEADERS} ${COMPILER_LOADER_SOURCES})
 target_include_directories(compiler-loader PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/modules/compiler/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/include>)
 target_include_directories(compiler-loader SYSTEM PUBLIC
   ${spirv-headers_SOURCE_DIR}/include)
 target_link_libraries(compiler-loader PUBLIC mux cargo)

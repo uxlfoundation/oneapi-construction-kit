@@ -32,7 +32,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
   endif()
 
   target_include_directories(compiler-riscv PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   )
 
   target_link_libraries(compiler-riscv PUBLIC

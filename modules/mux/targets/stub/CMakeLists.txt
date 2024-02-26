@@ -25,7 +25,7 @@ endif()
 add_ca_library(stub STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/stub/stub.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/stub.cpp)
-target_include_directories(stub PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(stub PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_compile_options(stub PRIVATE
   $<$<BOOL:${UNIX}>:-Wno-unused-parameter>)
 target_link_libraries(stub PUBLIC mux-headers)

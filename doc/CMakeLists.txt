@@ -79,6 +79,7 @@ add_custom_target(doxygen
   COMMAND ${DOXYGEN}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   USES_TERMINAL COMMENT "Generate Doxygen XML")
+add_dependencies(doxygen abacus_generate)
 
 # Copy out-of-tree documentation sources to the doc directory.
 add_custom_target(doc-copy
