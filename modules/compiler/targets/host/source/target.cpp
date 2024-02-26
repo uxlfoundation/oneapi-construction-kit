@@ -73,9 +73,19 @@ static llvm::TargetMachine *createTargetMachine(llvm::StringRef CPU,
     Options.MCOptions.ABIName = ABI;
   }
 
+  // Aarch64 fails on UnitCL test
+  // Execution/Execution.Barrier_02_Barrier_No_Duplicates/OfflineOpenCLC if we
+  // don't set `JIT` to true. JIT for x86_64 and Aarch64 set the large code
+  // model, which seems to be to do with lack of guarantees of how far away the
+  // JIT memory managers find a new page. Because we use a similar mechanism for
+  // loading on Host regardless of JIT, we set the flag here to set up the code
+  // models for the architecture.
+  // TODO: Investigate whether we can use a loader that does not have this
+  // issue.
   return LLVMTarget->createTargetMachine(
-      Triple, CPU, Features, Options, llvm::Reloc::Model::Static,
-      llvm::CodeModel::Small, multi_llvm::CodeGenOptLevel::Aggressive);
+      Triple, CPU, Features, Options, /*RM=*/std::nullopt,
+      /*CM=*/std::nullopt, multi_llvm::CodeGenOptLevel::Aggressive,
+      /*JIT=*/true);
 }
 
 HostTarget::HostTarget(const HostInfo *compiler_info,
