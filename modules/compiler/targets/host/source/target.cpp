@@ -62,7 +62,7 @@ static llvm::TargetMachine *createTargetMachine(llvm::StringRef CPU,
   // Init the llvm target machine.
   llvm::TargetOptions Options;
   std::string Error;
-  std::string TripleStr = Triple.str();
+  const std::string TripleStr = Triple.str();
   const llvm::Target *LLVMTarget =
       llvm::TargetRegistry::lookupTarget(TripleStr, Error);
   if (nullptr == LLVMTarget) {
