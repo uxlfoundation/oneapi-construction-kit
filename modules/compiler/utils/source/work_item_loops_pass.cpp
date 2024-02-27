@@ -273,10 +273,8 @@ struct ScheduleGenerator {
       const compiler::utils::BarrierWithLiveVars &barrier, BasicBlock *block,
       StoreInst *SI) {
     DIBuilder DIB(module, /*AllowUnresolved*/ false);
-    for (auto debug_pair : barrier.getDebugIntrinsics()) {
-      auto *old_dbg_declare = debug_pair.first;
-      const unsigned live_var_offset = debug_pair.second;
-
+    auto RecreateDebugIntrinsic = [&](DILocalVariable *const old_var,
+                                      const unsigned live_var_offset) {
       const uint64_t dwPlusOp = dwarf::DW_OP_plus_uconst;
       // Use a DWARF expression to point to byte offset in struct where
       // the variable lives. This involves dereferencing the pointer
@@ -286,7 +284,6 @@ struct ScheduleGenerator {
       auto expr = DIB.createExpression(
           ArrayRef<uint64_t>{dwarf::DW_OP_deref, dwPlusOp, live_var_offset});
       // Remap this debug variable to its new scope.
-      auto *old_var = old_dbg_declare->getVariable();
       auto *new_var = DIB.createAutoVariable(
           block->getParent()->getSubprogram(), old_var->getName(),
           old_var->getFile(), old_var->getLine(), old_var->getType(),
@@ -300,7 +297,17 @@ struct ScheduleGenerator {
       // pass used to do.
       auto *const DVIntrinsic = cast<DbgVariableIntrinsic>(DII);
       ConvertDebugDeclareToDebugValue(DVIntrinsic, SI, DIB);
+    };
+    for (auto debug_pair : barrier.getDebugIntrinsics()) {
+      RecreateDebugIntrinsic(debug_pair.first->getVariable(),
+                             debug_pair.second);
     }
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+    for (auto debug_pair : barrier.getDebugDPValues()) {
+      RecreateDebugIntrinsic(debug_pair.first->getVariable(),
+                             debug_pair.second);
+    }
+#endif
   }
 
   void createWorkItemLoopBody(

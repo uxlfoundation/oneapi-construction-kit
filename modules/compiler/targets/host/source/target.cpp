@@ -99,6 +99,12 @@ compiler::Result HostTarget::initWithBuiltins(
     return compiler::Result::FAILURE;
   }
   builtins_host = std::move(loadedModule.get());
+
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+  if (UseNewDbgInfoFormat && !builtins_host->IsNewDbgInfoFormat) {
+    builtins_host->convertToNewDbgValues();
+  }
+#endif
 #endif
 
   // initialize LLVM targets
@@ -229,17 +235,39 @@ compiler::Result HostTarget::initWithBuiltins(
     if (host_device_info.half_capabilities) {
       FeatureMap["fp16"] = true;
     }
+#if defined(CA_HOST_TARGET_ARM_CPU)
+    CPUName = CA_HOST_TARGET_ARM_CPU;
+#endif
+  } else if (llvm::Triple::aarch64 == triple.getArch()) {
+#if defined(CA_HOST_TARGET_AARCH64_CPU)
+    CPUName = CA_HOST_TARGET_AARCH64_CPU;
+#endif
   } else if (triple.isX86()) {
     CPUName = "x86-64-v3";  // Default only, may be overridden below.
+    if (triple.isArch32Bit()) {
+#if defined(CA_HOST_TARGET_X86_CPU)
+      CPUName = CA_HOST_TARGET_X86_CPU;
+#endif
+    } else {
+#if defined(CA_HOST_TARGET_X86_64_CPU)
+      CPUName = CA_HOST_TARGET_X86_64_CPU;
+#endif
+    }
   } else if (triple.isRISCV()) {
     // These are reasonable defaults, which has been used for various RISC-V
     // target so far. We should allow overriding of the ABI in the future
     if (triple.isArch32Bit()) {
       ABI = "ilp32d";
       CPUName = "generic-rv32";
+#if defined(CA_HOST_TARGET_RISCV32_CPU)
+      CPUName = CA_HOST_TARGET_RISCV32_CPU;
+#endif
     } else {
       ABI = "lp64d";
       CPUName = "generic-rv64";
+#if defined(CA_HOST_TARGET_RISCV64_CPU)
+      CPUName = CA_HOST_TARGET_RISCV64_CPU;
+#endif
     }
     // The following features are important for OpenCL, and generally constitute
     // a minimum requirement for non-embedded profile. Without these features,
@@ -255,12 +283,6 @@ compiler::Result HostTarget::initWithBuiltins(
   if (const char *E = getenv("CA_HOST_TARGET_CPU")) {
     CPUName = E;
   }
-#endif
-
-#ifdef CA_HOST_TARGET_CPU_NATIVE
-  CPUName = "native";
-#elif defined(CA_HOST_TARGET_CPU)
-  CPUName = CA_HOST_TARGET_CPU;
 #endif
 
   if (CPUName == "native") {
