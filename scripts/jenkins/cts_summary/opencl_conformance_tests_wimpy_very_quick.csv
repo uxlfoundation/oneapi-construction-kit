@@ -2,8 +2,7 @@
 # The following are very quick, take less that a minute
 #######################################################
 
-Basic,basic/test_basic explicit_s2v_long
-Basic,basic/test_basic explicit_s2v_ulong
+Basic,basic/test_basic explicit_s2v
 
 Common Functions,commonfns/test_commonfns maxf
 Common Functions,commonfns/test_commonfns minf
