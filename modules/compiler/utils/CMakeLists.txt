@@ -33,6 +33,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_builtin_range_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_kernel_metadata_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/fixup_calling_convention_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/gdb_registration_listener.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/group_collective_helpers.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/link_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/llvm_global_mutex.h
@@ -83,6 +84,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_builtin_range_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_kernel_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fixup_calling_convention_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/gdb_registration_listener.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/group_collective_helpers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/link_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/llvm_global_mutex.cpp
@@ -118,13 +120,8 @@ if(CA_NATIVE_CPU)
   target_include_directories(compiler-pipeline PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
 endif()
 
-if(CA_NATIVE_CPU)
-  target_include_directories(compiler-pipeline PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-else()
-  target_include_directories(compiler-pipeline PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
-endif()
+target_include_directories(compiler-pipeline PUBLIC
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_definitions(compiler-pipeline PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
@@ -152,13 +149,8 @@ add_ca_library(compiler-binary-metadata STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata_hooks.cpp)
 
-if(CA_NATIVE_CPU)
-  target_include_directories(compiler-binary-metadata PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-else()
-  target_include_directories(compiler-binary-metadata PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
-endif()
+target_include_directories(compiler-binary-metadata PUBLIC
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_definitions(compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_LINUX}>:CA_PLATFORM_LINUX>
@@ -182,14 +174,9 @@ endif()
 
 # Determine whether LLVM was built with LLD, in which case add a support
 # library that exposes lld to ComputeMux compiler targets.
-find_library(LLDELF_LIB lldELF PATHS
-            "${LLVM_INSTALL_PREFIX}/lib" NO_DEFAULT_PATH)
-
-if (LLDELF_LIB)
-  find_library(LLVMLTO_LIB LLVMLTO PATHS
-              "${LLVM_INSTALL_PREFIX}/lib" NO_DEFAULT_PATH)
-  find_library(LLDCOMMON_LIB lldCommon PATHS
-              "${LLVM_INSTALL_PREFIX}/lib" NO_DEFAULT_PATH)
+if(EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/lld/LLDConfig.cmake")
+  list(APPEND CMAKE_MODULE_PATH ${CA_LLVM_INSTALL_DIR}/lib/cmake/lld)
+  include(LLDConfig)
 
   add_ca_library(compiler-linker-utils STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/lld_linker.h
@@ -197,21 +184,10 @@ if (LLDELF_LIB)
   )
 
   target_include_directories(compiler-linker-utils PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-  # The lld libraries require all llvm targets that are built under llvm to
-  # link their Codegen and AsmParser libraries.
-  set(lld_target_libs "")
-  foreach(llvm_sub_target ${LLVM_TARGETS_TO_BUILD})
-    foreach(component CodeGen AsmParser)
-      if("LLVM${llvm_sub_target}${component}" IN_LIST LLVM_AVAILABLE_LIBS)
-        list(APPEND lld_target_libs "LLVM${llvm_sub_target}${component}")
-      endif()
-    endforeach()
-  endforeach()
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  )
 
   target_link_libraries(compiler-linker-utils PUBLIC
-    cargo multi_llvm
-    ${LLDELF_LIB} ${LLDCOMMON_LIB} LLVMSupport ${lld_target_libs}
+    cargo multi_llvm lldELF lldCommon
   )
 endif()

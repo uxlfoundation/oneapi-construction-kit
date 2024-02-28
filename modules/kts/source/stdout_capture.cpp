@@ -117,7 +117,7 @@ void StdoutCapture::RestoreStdout() {
 }
 
 std::string StdoutCapture::ReadBuffer() {
-  std::fseek(stdout_tmp, 0, SEEK_SET);
+  (void)std::fseek(stdout_tmp, 0, SEEK_SET);
 
   // Read in the buffer.
   std::string str("");
@@ -128,7 +128,7 @@ std::string StdoutCapture::ReadBuffer() {
 
   // Now that we have read our output we can close the temporary file (it
   // will be deleted automatically).
-  std::fclose(stdout_tmp);
+  (void)std::fclose(stdout_tmp);
   stdout_tmp = NULL;
 
   return str;

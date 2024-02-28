@@ -18,24 +18,15 @@ add_ca_library(md_api STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/metadata.cpp)
 target_link_libraries(md_api PUBLIC cargo)
+target_include_directories(md_api
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/metadata/detail>)
 
 add_ca_library(md_handler STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/handler/generic_metadata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata/handler/vectorize_info_metadata.cpp)
 target_link_libraries(md_handler PUBLIC cargo md_api)
-
-if(CA_NATIVE_CPU)
-  target_include_directories(md_handler PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-  target_include_directories(md_api
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/metadata/detail)
-else()
-  target_include_directories(md_handler PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-  target_include_directories(md_api
-      PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/metadata/detail)
-endif()
+target_include_directories(md_handler PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 if(CA_ENABLE_TESTS)
   # UnitMD
@@ -50,8 +41,8 @@ if(CA_ENABLE_TESTS)
       ${CMAKE_CURRENT_SOURCE_DIR}/test/metadata/api.cpp)
   
   target_include_directories(UnitMD PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}/include
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/metadata/detail)
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/metadata/detail>)
 
   target_link_libraries(UnitMD PRIVATE ca_gtest_main md_api)
   

@@ -16,6 +16,7 @@
 
 #include "host/target.h"
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/ExecutionEngine/JITLink/EHFrameSupport.h>
 #include <llvm/ExecutionEngine/Orc/EPCEHFrameRegistrar.h>
@@ -31,6 +32,7 @@
 #include <llvm/Support/CodeGen.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetOptions.h>
 #include <multi_llvm/multi_llvm.h>
 
 #if LLVM_VERSION_GREATER_EQUAL(18, 0)
@@ -39,16 +41,43 @@
 #include <llvm/Support/Host.h>
 #endif
 
+#include <compiler/utils/gdb_registration_listener.h>
+#include <compiler/utils/llvm_global_mutex.h>
+
 #include "host/device.h"
 #include "host/info.h"
 #include "host/module.h"
-
 #ifdef CA_ENABLE_HOST_BUILTINS
 #include "compiler/utils/memory_buffer.h"
 #include "host/resources.h"
 #endif
 
 namespace host {
+
+// Create a target machine, `abi` is optional and may be empty
+static llvm::TargetMachine *createTargetMachine(llvm::StringRef CPU,
+                                                llvm::StringRef Triple,
+                                                llvm::StringRef Features,
+                                                llvm::StringRef ABI) {
+  // Init the llvm target machine.
+  llvm::TargetOptions Options;
+  std::string Error;
+  const std::string TripleStr = Triple.str();
+  const llvm::Target *LLVMTarget =
+      llvm::TargetRegistry::lookupTarget(TripleStr, Error);
+  if (nullptr == LLVMTarget) {
+    return nullptr;
+  }
+
+  if (!ABI.empty()) {
+    Options.MCOptions.ABIName = ABI;
+  }
+
+  return LLVMTarget->createTargetMachine(
+      Triple, CPU, Features, Options, llvm::Reloc::Model::Static,
+      llvm::CodeModel::Small, multi_llvm::CodeGenOptLevel::Aggressive);
+}
+
 HostTarget::HostTarget(const HostInfo *compiler_info,
                        compiler::Context *context,
                        compiler::NotifyCallbackFn callback)
@@ -58,6 +87,7 @@ HostTarget::HostTarget(const HostInfo *compiler_info,
 compiler::Result HostTarget::initWithBuiltins(
     std::unique_ptr<llvm::Module> builtins_module) {
   builtins = std::move(builtins_module);
+  gdb_registration_listener = compiler::utils::createGDBRegistrationListener();
 
 #ifdef CA_ENABLE_HOST_BUILTINS
   auto loadedModule = llvm::getOwningLazyBitcodeModule(
@@ -69,6 +99,12 @@ compiler::Result HostTarget::initWithBuiltins(
     return compiler::Result::FAILURE;
   }
   builtins_host = std::move(loadedModule.get());
+
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+  if (UseNewDbgInfoFormat && !builtins_host->IsNewDbgInfoFormat) {
+    builtins_host->convertToNewDbgValues();
+  }
+#endif
 #endif
 
   // initialize LLVM targets
@@ -109,6 +145,17 @@ compiler::Result HostTarget::initWithBuiltins(
       llvm_unreachable("X86 backend requested with no LLVM support");
 #endif
     }
+
+    if (HostInfo::arches & (host::arch::RISCV32 | host::arch::RISCV64)) {
+#ifdef HOST_LLVM_RISCV
+      LLVMInitializeRISCVTarget();
+      LLVMInitializeRISCVTargetInfo();
+      LLVMInitializeRISCVAsmPrinter();
+      LLVMInitializeRISCVTargetMC();
+#else
+      llvm_unreachable("RISCV backend requested with no LLVM support");
+#endif
+    }
   });
 
   llvm::Triple triple;
@@ -128,6 +175,18 @@ compiler::Result HostTarget::initWithBuiltins(
       assert(host::os::LINUX == host_device_info.os &&
              "AArch64 cross-compile only supports Linux");
       triple = llvm::Triple("aarch64-linux-gnu-elf");
+      break;
+    case host::arch::RISCV32:
+      assert(host::os::LINUX == host_device_info.os &&
+             "RISCV cross-compile only supports Linux");
+      // For cross compiled RISCV builds, we can't rely on sys::getProcessTriple
+      // to determine our target. Instead, we set it to a known working triple.
+      triple = llvm::Triple("riscv32-unknown-elf");
+      break;
+    case host::arch::RISCV64:
+      assert(host::os::LINUX == host_device_info.os &&
+             "RISCV cross-compile only supports Linux");
+      triple = llvm::Triple("riscv64-unknown-elf");
       break;
     case host::arch::X86:
     case host::arch::X86_64:
@@ -156,6 +215,7 @@ compiler::Result HostTarget::initWithBuiltins(
       break;
   }
 
+  llvm::StringRef ABI = "";
   llvm::StringRef CPUName = "";
   llvm::StringMap<bool> FeatureMap;
 
@@ -175,8 +235,48 @@ compiler::Result HostTarget::initWithBuiltins(
     if (host_device_info.half_capabilities) {
       FeatureMap["fp16"] = true;
     }
+#if defined(CA_HOST_TARGET_ARM_CPU)
+    CPUName = CA_HOST_TARGET_ARM_CPU;
+#endif
+  } else if (llvm::Triple::aarch64 == triple.getArch()) {
+#if defined(CA_HOST_TARGET_AARCH64_CPU)
+    CPUName = CA_HOST_TARGET_AARCH64_CPU;
+#endif
   } else if (triple.isX86()) {
     CPUName = "x86-64-v3";  // Default only, may be overridden below.
+    if (triple.isArch32Bit()) {
+#if defined(CA_HOST_TARGET_X86_CPU)
+      CPUName = CA_HOST_TARGET_X86_CPU;
+#endif
+    } else {
+#if defined(CA_HOST_TARGET_X86_64_CPU)
+      CPUName = CA_HOST_TARGET_X86_64_CPU;
+#endif
+    }
+  } else if (triple.isRISCV()) {
+    // These are reasonable defaults, which has been used for various RISC-V
+    // target so far. We should allow overriding of the ABI in the future
+    if (triple.isArch32Bit()) {
+      ABI = "ilp32d";
+      CPUName = "generic-rv32";
+#if defined(CA_HOST_TARGET_RISCV32_CPU)
+      CPUName = CA_HOST_TARGET_RISCV32_CPU;
+#endif
+    } else {
+      ABI = "lp64d";
+      CPUName = "generic-rv64";
+#if defined(CA_HOST_TARGET_RISCV64_CPU)
+      CPUName = CA_HOST_TARGET_RISCV64_CPU;
+#endif
+    }
+    // The following features are important for OpenCL, and generally constitute
+    // a minimum requirement for non-embedded profile. Without these features,
+    // we'd need compiler-rt support. Atomics are absolutely essential.
+    // TODO: Allow overriding of the input features.
+    FeatureMap["m"] = true;  // Integer multiplication and division
+    FeatureMap["f"] = true;  // Floating point support
+    FeatureMap["a"] = true;  // Atomics
+    FeatureMap["d"] = true;  // Double support
   }
 
 #ifndef NDEBUG
@@ -185,73 +285,86 @@ compiler::Result HostTarget::initWithBuiltins(
   }
 #endif
 
-#ifdef CA_HOST_TARGET_CPU_NATIVE
-  CPUName = "native";
-#elif defined(CA_HOST_TARGET_CPU)
-  CPUName = CA_HOST_TARGET_CPU;
-#endif
-
   if (CPUName == "native") {
     CPUName = llvm::sys::getHostCPUName();
     FeatureMap.clear();
     llvm::sys::getHostCPUFeatures(FeatureMap);
   }
 
-  llvm::orc::JITTargetMachineBuilder TMBuilder(triple);
-  TMBuilder.setCPU(CPUName.str());
-  TMBuilder.setCodeGenOptLevel(multi_llvm::CodeGenOptLevel::Aggressive);
-  for (auto &Feature : FeatureMap) {
-    TMBuilder.getFeatures().AddFeature(Feature.first(), Feature.second);
-  }
-  auto Builder = llvm::orc::LLJITBuilder();
-
-  Builder.setJITTargetMachineBuilder(TMBuilder);
-
-  // Customize the JIT linking layer to provide better profiler/debugger
-  // integration.
-  Builder.setObjectLinkingLayerCreator(
-      [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &)
-          -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
-        auto GetMemMgr = []() {
-          return std::make_unique<llvm::SectionMemoryManager>();
-        };
-        auto ObjLinkingLayer =
-            std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(
-                ES, std::move(GetMemMgr));
-
-        // Register the event listener.
-        ObjLinkingLayer->registerJITEventListener(
-            *llvm::JITEventListener::createGDBRegistrationListener());
-
-        // Make sure the debug info sections aren't stripped.
-        ObjLinkingLayer->setProcessAllSections(true);
-
-        return std::move(ObjLinkingLayer);
-      });
-
-  auto JIT = Builder.create();
-  if (auto err = JIT.takeError()) {
-    if (auto callback = getNotifyCallbackFn()) {
-      callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
-               /*data_size*/ 0);
-    } else {
-      llvm::consumeError(std::move(err));
+  if (compiler_info->supports_deferred_compilation) {
+    llvm::orc::JITTargetMachineBuilder TMBuilder(triple);
+    TMBuilder.setCPU(CPUName.str());
+    TMBuilder.setCodeGenOptLevel(multi_llvm::CodeGenOptLevel::Aggressive);
+    for (auto &Feature : FeatureMap) {
+      TMBuilder.getFeatures().AddFeature(Feature.first(), Feature.second);
     }
-    return compiler::Result::OUT_OF_MEMORY;
-  }
-  orc_engine = std::move(*JIT);
+    auto Builder = llvm::orc::LLJITBuilder();
 
-  auto TM = TMBuilder.createTargetMachine();
-  if (auto err = TM.takeError()) {
-    if (auto callback = getNotifyCallbackFn()) {
-      callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
-               /*data_size*/ 0);
-    } else {
-      llvm::consumeError(std::move(err));
+    Builder.setJITTargetMachineBuilder(TMBuilder);
+
+    // Customize the JIT linking layer to provide better profiler/debugger
+    // integration.
+    Builder.setObjectLinkingLayerCreator(
+        [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &)
+            -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+          auto GetMemMgr = []() {
+            return std::make_unique<llvm::SectionMemoryManager>();
+          };
+          auto ObjLinkingLayer =
+              std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(
+                  ES, std::move(GetMemMgr));
+
+          // Register the GDB JIT event listener.
+          ObjLinkingLayer->registerJITEventListener(*gdb_registration_listener);
+
+          // Make sure the debug info sections aren't stripped.
+          ObjLinkingLayer->setProcessAllSections(true);
+
+          return std::move(ObjLinkingLayer);
+        });
+
+    auto JIT = Builder.create();
+    if (auto err = JIT.takeError()) {
+      if (auto callback = getNotifyCallbackFn()) {
+        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                 /*data_size*/ 0);
+      } else {
+        llvm::consumeError(std::move(err));
+      }
+      return compiler::Result::OUT_OF_MEMORY;
     }
-    return compiler::Result::FAILURE;
+
+    orc_engine = std::move(*JIT);
+    auto TM = TMBuilder.createTargetMachine();
+    if (auto err = TM.takeError()) {
+      if (auto callback = getNotifyCallbackFn()) {
+        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                 /*data_size*/ 0);
+      } else {
+        llvm::consumeError(std::move(err));
+      }
+      return compiler::Result::FAILURE;
+    }
+    target_machine = std::move(*TM);
+  } else {
+    // No JIT support so create target machine directly.
+    std::string Features;
+    bool first = true;
+    for (auto &[FeatureName, IsEnabled] : FeatureMap) {
+      if (first) {
+        first = false;
+      } else {
+        Features += ",";
+      }
+      if (IsEnabled) {
+        Features += '+' + FeatureName.str();
+      } else {
+        Features += '-' + FeatureName.str();
+      }
+    }
+    target_machine.reset(
+        createTargetMachine(CPUName, triple.str(), Features, ABI));
   }
-  target_machine = std::move(*TM);
 
   return compiler::Result::SUCCESS;
 }

@@ -32,14 +32,14 @@
 
 #include "FuzzCL/error.h"
 
-#define BUFFER_WIDTH 16
-#define BUFFER_HEIGHT 16
-#define BUFFER_DEPTH 16
-#define BUFFER_SIZE BUFFER_WIDTH *BUFFER_HEIGHT *BUFFER_DEPTH
+const size_t BUFFER_WIDTH = 16;
+const size_t BUFFER_HEIGHT = 16;
+const size_t BUFFER_DEPTH = 16;
+const size_t BUFFER_SIZE = BUFFER_WIDTH * BUFFER_HEIGHT * BUFFER_DEPTH;
 
-#define INT_PER_PIXEL 4
-#define IMAGE_WIDTH (BUFFER_WIDTH / INT_PER_PIXEL)
-#define IMAGE_HEIGHT BUFFER_HEIGHT
+const size_t INT_PER_PIXEL = 4;
+const size_t IMAGE_WIDTH = BUFFER_WIDTH / INT_PER_PIXEL;
+const size_t IMAGE_HEIGHT = BUFFER_HEIGHT;
 
 #define STR_EXPAND(...) #__VA_ARGS__
 #define STR(s) STR_EXPAND(s)
@@ -55,8 +55,6 @@
 
 #define MAX_CALLBACK_INPUT_SIZE 10
 
-#include "FuzzCL/generator.h"
-
 #define IS_CL_SUCCESS(X)                                                     \
   {                                                                          \
     const cl_int ret_val = X;                                                \
@@ -67,6 +65,8 @@
       exit(1);                                                               \
     }                                                                        \
   }
+
+#include "FuzzCL/generator.h"
 
 namespace fuzzcl {
 

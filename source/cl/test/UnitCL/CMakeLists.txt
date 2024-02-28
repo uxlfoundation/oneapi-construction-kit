@@ -417,7 +417,7 @@ function(add_ca_unitcl_check name)
     # our testing by minimising duplication.
     # Allow users to tack on any extra tests to run. They may also disable any
     # tests that we run by default.
-    set(filter "--gtest_filter=*Compile*:*Link*:*Build*:*Execution*:*print*:*WorkGroupCollective*:*SubGroup*:${args_FILTER}")
+    set(filter "--gtest_filter=*Compile*:*Link*:*Build*:*Execution*:*Half*:*print*:*WorkGroupCollective*:*SubGroup*:${args_FILTER}")
   elseif(args_FILTER)
     set(filter "--gtest_filter=${args_FILTER}")
   endif()
@@ -428,8 +428,9 @@ function(add_ca_unitcl_check name)
     COMMAND UnitCL "--unitcl_platform=Codeplay Software Ltd."
     --gtest_output=xml:${PROJECT_BINARY_DIR}/${name}.xml ${args_ARGS} ${filter}
     ${environment} CLEAN ${PROJECT_BINARY_DIR}/${name}.xml NOGLOBAL DEPENDS UnitCL)
+  get_ock_check_name(check_name ${name})
   if (args_GROUP)
-    add_dependencies(${args_GROUP} check-${name})
+    add_dependencies(${args_GROUP} ${check_name})
   endif()
 endfunction()
 
@@ -440,12 +441,14 @@ add_ca_check_group(UnitCL-group-vecz)
 
 # Convenience function to add a UnitCL check in the default group
 function(add_ca_default_unitcl_check name)
-  add_ca_unitcl_check(${name} ${ARGV} GROUP check-UnitCL-group)
+  get_ock_check_name(group_check_name UnitCL-group)
+  add_ca_unitcl_check(${name} ${ARGV} GROUP ${group_check_name})
 endfunction()
 
 # Convenience function to add a UnitCL check in the vecz group
 function(add_ca_vecz_unitcl_check name)
-  add_ca_unitcl_check(${name} ${ARGV} GROUP check-UnitCL-group-vecz)
+  get_ock_check_name(group_check_name UnitCL-group-vecz)
+  add_ca_unitcl_check(${name} ${ARGV} GROUP ${group_check_name})
 endfunction()
 
 
@@ -492,9 +495,6 @@ add_ca_default_unitcl_check(UnitCL-prevec-vecz-full-scalarization COMPILER
 # At least one kernel is known not to vectorize in this config.
 add_ca_default_unitcl_check(UnitCL-prevec-opt-disable COMPILER
   ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-opt-disable")
-
-# Add this group to the global check target
-add_dependencies(check check-UnitCL-group)
 
 if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
   add_ca_vecz_unitcl_check(UnitCL-vecz COMPILER
@@ -556,9 +556,6 @@ if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
     ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
                 "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=always"
     ARGS --vecz-check)
-
-  # Add this group to the global check target
-  add_dependencies(check check-UnitCL-group-vecz)
 endif()
 
 if(OCL_EXTENSION_cl_intel_unified_shared_memory)

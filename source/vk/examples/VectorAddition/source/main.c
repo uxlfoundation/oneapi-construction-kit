@@ -21,20 +21,21 @@
 
 #include "vector_add.h"  // Contains shader SPIR-V
 
-#define IS_VK_SUCCESS(X)                                                       \
-  {                                                                            \
-    const VkResult ret_val = X;                                                \
-    if (VK_SUCCESS != ret_val) {                                               \
-      fprintf(stderr, "Vulkan error occurred: %s returned %d\n", #X, ret_val); \
-      exit(1);                                                                 \
-    }                                                                          \
+#define IS_VK_SUCCESS(X)                                                   \
+  {                                                                        \
+    const VkResult ret_val = X;                                            \
+    if (VK_SUCCESS != ret_val) {                                           \
+      (void)fprintf(stderr, "Vulkan error occurred: %s returned %d\n", #X, \
+                    ret_val);                                              \
+      exit(1);                                                             \
+    }                                                                      \
   }
 
 #define NUM_WORK_ITEMS 64
 
 // There is no global state in Vulkan. Create and return a VkInstance object
 // which initializes the Vulkan library and encapsulates per-application state.
-VkInstance createVkInstance() {
+VkInstance createVkInstance(void) {
   const VkApplicationInfo app_info = {
       VK_STRUCTURE_TYPE_APPLICATION_INFO,
       NULL,
@@ -92,9 +93,9 @@ uint32_t getMemoryTypeIndex(VkPhysicalDevice device, VkDeviceSize memory_size) {
   }
 
   if (mem_type_index == UINT32_MAX) {
-    fprintf(stderr,
-            "Couldn't find suitable memory of a least %" PRIu64 " bytes\n",
-            memory_size);
+    (void)fprintf(
+        stderr, "Couldn't find suitable memory of a least %" PRIu64 " bytes\n",
+        memory_size);
     exit(1);
   }
 
@@ -126,7 +127,7 @@ uint32_t getComputeQueueFamilyIndex(VkPhysicalDevice device) {
   }
 
   if (compute_queue_index == UINT32_MAX) {
-    fputs("Couldn't find a compute queue on device, exiting\n", stderr);
+    (void)fputs("Couldn't find a compute queue on device, exiting\n", stderr);
     exit(1);
   }
 
@@ -143,7 +144,7 @@ void createVkDevice(VkInstance instance, VkDevice* device,
   IS_VK_SUCCESS(vkEnumeratePhysicalDevices(instance, &num_devices, 0));
 
   if (0 == num_devices) {
-    fputs("No Vulkan devices found, exiting\n", stderr);
+    (void)fputs("No Vulkan devices found, exiting\n", stderr);
     exit(1);
   }
 
@@ -170,7 +171,7 @@ void createVkDevice(VkInstance instance, VkDevice* device,
   }
 
   if (NULL == codeplay_cpu_device) {
-    fputs("Couldn't find Codeplay Vulkan CPU device, exiting\n", stderr);
+    (void)fputs("Couldn't find Codeplay Vulkan CPU device, exiting\n", stderr);
     exit(1);
   }
 
@@ -446,7 +447,7 @@ void buildAndRunShader(VkDevice device, uint32_t compute_queue_family,
 }
 
 // Sample Vulkan compute application performing a vector add
-int main() {
+int main(void) {
   puts("Vector add Vulkan compute example:");
   // Initialize the Vulkan library
   VkInstance instance = createVkInstance();
@@ -457,7 +458,7 @@ int main() {
   createVkDevice(instance, &device, &physical_device);
 
   // We will have 3 buffers, each containing a single int32_t per work item
-  const uint32_t buffer_size = sizeof(int32_t) * NUM_WORK_ITEMS;
+  const VkDeviceSize buffer_size = sizeof(int32_t) * NUM_WORK_ITEMS;
   const VkDeviceSize memory_size = buffer_size * 3;
 
   // Type and amount of memory we want to allocate

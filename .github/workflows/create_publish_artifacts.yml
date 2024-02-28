@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
        # installs tools, ninja, installs llvm and sets up sccache
       - name: Setup ubuntu
@@ -30,7 +30,7 @@ jobs:
           llvm_build_type: Release
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8'
 
@@ -52,17 +52,31 @@ jobs:
           mkdir linux_nightly_release
           tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
-      - name: Clone oneAPI-samples
-        run: git clone https://github.com/oneapi-src/oneAPI-samples.git
-
-      - name: Setup environment and test Vector Add
+      - name: Test RSICV examples
         run: |
-          export ONEAPI_ROOT=$(pwd)/linux_nightly_release
+          # Set environment variables
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
+          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
+          export CA_HAL_DEBUG=1
+          export CA_PROFILE_LEVEL=3
+          export ONEAPI_DEVICE_SELECTOR=opencl:fpga
+          export OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so
           export PATH=$(pwd)/linux_nightly_release/bin:$PATH
-          export LD_LIBRARY_PATH=$(pwd)/linux_nightly_release/lib:$(pwd)/install/lib:$LD_LIBRARY_PATH
+          # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+          # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+          # This way it doesn't set the default sycl.conf.
+          export SYCL_CONFIG_FILE_NAME=""
 
-          $(pwd)/linux_nightly_release/bin/clang++ -fsycl $(pwd)/oneAPI-samples/DirectProgramming/C++SYCL/DenseLinearAlgebra/vector-add/src/vector-add-buffers.cpp -o vect
-          CA_RISCV_DUMP_IR=1 CA_HAL_DEBUG=1 OCL_ICD_FILENAMES=$(pwd)/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME="" ./vect
+          mkdir build_ock_tests
+          cmake -GNinja -Bbuild_ock_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
+          ninja -C build_ock_tests
+          cd build_ock_tests
+
+          # Run tests
+
+          ctest bin/ --verbose
+          cd ..
 
       - name: Package Artifacts
         run: |
@@ -85,7 +99,7 @@ jobs:
           fi
 
       - name: Create OCK pre-release
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:

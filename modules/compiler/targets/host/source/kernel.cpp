@@ -56,6 +56,12 @@ HostKernel::HostKernel(HostTarget &target, compiler::Options &build_options,
 
 HostKernel::~HostKernel() {
   if (target.orc_engine) {
+    // Removing the JIT dynamic libraries notifies the GDB debugger
+    // registration listener, which accesses/modifies GDB global variables.
+    // These global variables are also modified/accessed when jitting kernels,
+    // where we also lock with the same LLVM global mutex (see below).
+    const std::lock_guard<std::mutex> globalLock(
+        compiler::utils::getLLVMGlobalMutex());
     auto &es = target.orc_engine->getExecutionSession();
     for (const auto &name : kernel_jit_dylibs) {
       if (auto *jit = es.getJITDylibByName(name)) {
@@ -448,7 +454,8 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
           callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
                    /*data_size*/ 0);
         } else {
-          llvm::consumeError(std::move(err));
+          llvm::consumeError(
+              std::move(err));  // NOLINT(clang-analyzer-cplusplus.Move)
         }
         return cargo::make_unexpected(
             compiler::Result::FINALIZE_PROGRAM_FAILURE);

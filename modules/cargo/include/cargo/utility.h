@@ -87,7 +87,7 @@ inline Dest bit_cast(const Source &source) {
   // Initialization of dest looks like an uninitialized access to Klocwork
   Dest dest;
   std::memcpy(std::addressof(dest), std::addressof(source), sizeof(Source));
-  return dest;
+  return dest;  // NOLINT(clang-analyzer-core.uninitialized.UndefReturn)
 }
 
 /// @brief Construct a `std::string`-like object from a cargo container.

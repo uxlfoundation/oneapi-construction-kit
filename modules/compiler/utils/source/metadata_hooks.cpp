@@ -35,6 +35,8 @@ md_hooks getElfMetadataWriteHooks() {
     const std::string globalName = std::string(MD_NOTES_SECTION) + "_global";
 
     auto *GlobalMD = M->getGlobalVariable(globalName);
+    llvm::Type *MDTy;
+    llvm::Constant *MDInit;
     if (GlobalMD) {
       auto *OldData =
           llvm::dyn_cast<llvm::ConstantDataArray>(GlobalMD->getInitializer());
@@ -46,23 +48,18 @@ md_hooks getElfMetadataWriteHooks() {
 
       GlobalMD->eraseFromParent();
 
-      auto *MDTy =
-          llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), Data.size());
-      auto *MDInit = llvm::ConstantDataArray::get(
+      MDTy = llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), Data.size());
+      MDInit = llvm::ConstantDataArray::get(
           Ctx, llvm::ArrayRef(Data.data(), Data.size()));
 
-      GlobalMD = llvm::dyn_cast_or_null<llvm::GlobalVariable>(
-          M->getOrInsertGlobal(globalName, MDTy));
-      GlobalMD->setInitializer(MDInit);
     } else {
       auto MDDataArr = llvm::ArrayRef((const uint8_t *)src, n);
-      auto *MDTy =
-          llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), MDDataArr.size());
-      auto *MDInit = llvm::ConstantDataArray::get(Ctx, MDDataArr);
-      GlobalMD = llvm::dyn_cast_or_null<llvm::GlobalVariable>(
-          M->getOrInsertGlobal(globalName, MDTy));
-      GlobalMD->setInitializer(MDInit);
+      MDTy = llvm::ArrayType::get(llvm::Type::getInt8Ty(Ctx), MDDataArr.size());
+      MDInit = llvm::ConstantDataArray::get(Ctx, MDDataArr);
     }
+    GlobalMD = llvm::cast<llvm::GlobalVariable>(
+        M->getOrInsertGlobal(globalName, MDTy));
+    GlobalMD->setInitializer(MDInit);
 
     GlobalMD->setAlignment(llvm::Align(1));
     GlobalMD->setSection(MD_NOTES_SECTION);

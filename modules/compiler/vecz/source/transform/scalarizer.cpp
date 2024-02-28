@@ -486,8 +486,8 @@ Value *Scalarizer::scalarizeOperandsBitCast(BitCastInst *BC) {
   Type *DstAsIntTy = DstTy;
   Type *SrcEleTy = VecSrcTy->getElementType();
   Type *SrcEleAsIntTy = SrcEleTy;
-  const unsigned SrcEleBits = SrcEleTy->getScalarSizeInBits();
-  const unsigned DstBits = DstTy->getPrimitiveSizeInBits();
+  const uint64_t SrcEleBits = SrcEleTy->getScalarSizeInBits();
+  const uint64_t DstBits = DstTy->getPrimitiveSizeInBits();
   if (!DstTy->isIntegerTy()) {
     DstAsIntTy = IntegerType::get(BC->getContext(), DstBits);
   }
@@ -688,33 +688,13 @@ void Scalarizer::scalarizeDI(Instruction *Original, const SimdPacket *Packet,
     return;
   }
 
-  auto *const MDV = MetadataAsValue::getIfExists(Original->getContext(), LAM);
-  if (!MDV) {
-    return;
-  }
-
   // Contains processed SIMD values for which we create scalar debug
   // instructions and is used to avoid duplicate LLVM dbg.value's.
   SmallPtrSet<Value *, 4> VectorElements;
 
   DIBuilder DIB(*Original->getModule(), false);
-  for (User *U : MDV->users()) {
-    DILocalVariable *DILocal = nullptr;
-    DebugLoc DILoc;
 
-    // These methods aren't virtual in DbgInfoIntrinsic for some reason
-    // TODO CA-1115 - Support llvm.dbg.addr() intrinsic
-    if (DbgValueInst *const DVI = dyn_cast<DbgValueInst>(U)) {
-      DILocal = DVI->getVariable();
-      DILoc = DVI->getDebugLoc();
-    } else if (DbgDeclareInst *const DDI = dyn_cast<DbgDeclareInst>(U)) {
-      DILocal = DDI->getVariable();
-      DILoc = DDI->getDebugLoc();
-    } else {
-      continue;
-    }
-
-    // Create new llvm.dbg.value() intrinsic across enabled SIMD lanes
+  auto CreateAndInsertDIExpr = [&](auto InsertDIExpr) {
     const auto bitSize = Original->getType()->getScalarSizeInBits();
     for (unsigned lane = 0; lane < Width; ++lane) {
       Value *LaneVal = Packet->at(lane);
@@ -732,12 +712,61 @@ void Scalarizer::scalarizeDI(Instruction *Original, const SimdPacket *Packet,
             DIExpression::createFragmentExpression(DIB.createExpression(),
                                                    lane * bitSize, bitSize);
         if (DIExpr) {
-          DIB.insertDbgValueIntrinsic(LaneVal, DILocal, *DIExpr, DILoc,
-                                      Original);
+          InsertDIExpr(LaneVal, *DIExpr);
           VectorElements.insert(LaneVal);
         }
       }
     }
+  };
+
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+  for (DPValue *const DPV : LAM->getAllDPValueUsers()) {
+    DILocalVariable *DILocal = nullptr;
+    DebugLoc DILoc;
+
+    switch (DPV->getType()) {
+      case DPValue::LocationType::Value:
+      case DPValue::LocationType::Declare:
+        DILocal = DPV->getVariable();
+        DILoc = DPV->getDebugLoc();
+        break;
+      default:
+        continue;
+    }
+
+    // Create new DPValue across enabled SIMD lanes
+    CreateAndInsertDIExpr([&](Value *LaneVal, DIExpression *DIExpr) {
+      DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc, Original);
+    });
+  }
+#endif
+
+  auto *const MDV = MetadataAsValue::getIfExists(Original->getContext(), LAM);
+  if (!MDV) {
+    return;
+  }
+
+  for (User *U : MDV->users()) {
+    DILocalVariable *DILocal = nullptr;
+    DebugLoc DILoc;
+
+    // These methods aren't virtual in DbgInfoIntrinsic for some reason
+    // TODO CA-1115 - Support llvm.dbg.addr() intrinsic
+    if (DbgValueInst *const DVI = dyn_cast<DbgValueInst>(U)) {
+      DILocal = DVI->getVariable();
+      DILoc = DVI->getDebugLoc();
+    } else if (DbgDeclareInst *const DDI = dyn_cast<DbgDeclareInst>(U)) {
+      DILocal = DDI->getVariable();
+      DILoc = DDI->getDebugLoc();
+    } else {
+      continue;
+    }
+
+    // Create new llvm.dbg.value() intrinsic across enabled SIMD lanes
+    CreateAndInsertDIExpr([&](Value *const LaneVal,
+                              DIExpression *const DIExpr) {
+      DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc, Original);
+    });
   }
 }
 
@@ -1068,8 +1097,8 @@ SimdPacket *Scalarizer::scalarizeBitCast(BitCastInst *BC, PacketMask PM) {
     Value *SrcAsInt = Src;
     Type *DstEleTy = VecDstTy->getElementType();
     Type *DstEleAsIntTy = DstEleTy;
-    const unsigned SrcBits = SrcTy->getPrimitiveSizeInBits();
-    const unsigned LaneBits = DstEleTy->getPrimitiveSizeInBits();
+    const uint64_t SrcBits = SrcTy->getPrimitiveSizeInBits();
+    const uint64_t LaneBits = DstEleTy->getPrimitiveSizeInBits();
     if (!SrcTy->isIntegerTy()) {
       SrcAsIntTy = SrcTy->getIntNTy(BC->getContext(), SrcBits);
       SrcAsInt = B.CreateBitCast(SrcAsInt, SrcAsIntTy);

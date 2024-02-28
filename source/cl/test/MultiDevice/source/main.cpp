@@ -28,16 +28,16 @@ int main(int argc, char **argv) {
   // Get OpenCL platforms.
   cl_uint numPlatforms = 0;
   if (auto error = clGetPlatformIDs(0, nullptr, &numPlatforms)) {
-    std::fprintf(stderr, "error: call to clGetDeviceIDs failed\n");
+    (void)std::fprintf(stderr, "error: call to clGetDeviceIDs failed\n");
     return error;
   }
   if (numPlatforms == 0) {
-    std::fprintf(stderr, "error: could not find any OpenCL platforms\n");
+    (void)std::fprintf(stderr, "error: could not find any OpenCL platforms\n");
     return -1;
   }
   std::vector<cl_platform_id> platforms(numPlatforms);
   if (auto error = clGetPlatformIDs(numPlatforms, platforms.data(), nullptr)) {
-    std::fprintf(stderr, "error: call to clGetDeviceIDs failed\n");
+    (void)std::fprintf(stderr, "error: call to clGetDeviceIDs failed\n");
     return error;
   }
 
@@ -48,13 +48,13 @@ int main(int argc, char **argv) {
     size_t size;
     if (auto error =
             clGetPlatformInfo(platform, CL_PLATFORM_NAME, 0, nullptr, &size)) {
-      std::fprintf(stderr, "error: could not get platform name\n");
+      (void)std::fprintf(stderr, "error: could not get platform name\n");
       return error;
     }
     std::vector<char> platformName(size, '\0');
     if (auto error = clGetPlatformInfo(platform, CL_PLATFORM_NAME, size,
                                        platformName.data(), nullptr)) {
-      std::fprintf(stderr, "error: could not get platform name\n");
+      (void)std::fprintf(stderr, "error: could not get platform name\n");
       return error;
     }
     platformNames.emplace_back(
@@ -83,12 +83,12 @@ MultiDevice (version %s) - Options:
         }
       }
       if (selectedPlatform == nullptr) {
-        std::fprintf(stderr, "error: could not find platform name: %s\n",
-                     platformName.c_str());
+        (void)std::fprintf(stderr, "error: could not find platform name: %s\n",
+                           platformName.c_str());
         return -1;
       }
     } else {
-      std::fprintf(stderr, "error: invalid platform: %s\n", arg.c_str());
+      (void)std::fprintf(stderr, "error: invalid platform: %s\n", arg.c_str());
       return -1;
     }
   }
@@ -98,12 +98,12 @@ MultiDevice (version %s) - Options:
     if (platforms.size() == 1) {
       selectedPlatform = platforms[0];
     } else if (platforms.size() > 1) {
-      std::fprintf(
+      (void)std::fprintf(
           stderr,
           "error: multiple OpenCL platforms, use --opencl-platform=<name>\n");
-      std::fprintf(stderr, "choose for the following:\n");
+      (void)std::fprintf(stderr, "choose for the following:\n");
       for (const auto &platformName : platformNames) {
-        std::fprintf(stderr, "* %s\n", platformName.c_str());
+        (void)std::fprintf(stderr, "* %s\n", platformName.c_str());
       }
     }
   }

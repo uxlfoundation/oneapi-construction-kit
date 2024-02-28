@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-// RUN: oclc -execute -enqueue vector_addition_half          -arg src1,1,2,3,4 -arg src2,10,20,30,90               -print dst,4 -global 4 -local 4 %s > %t
-// RUN: FileCheck < %t %s
+// RUN: oclc -execute -enqueue vector_addition_half -arg src1,1,2,3,4 \
+// RUN:   -arg src2,10,20,30,90 -print dst,4 -global 4 -local 4 %s | FileCheck %s
 
 __kernel void vector_addition_half(__global half *src1, __global half *src2,
  __global half *dst) {
@@ -26,4 +26,4 @@ __kernel void vector_addition_half(__global half *src1, __global half *src2,
 	vstore_half(fd, gid, dst);
 }
 
-// CHECK: 11,22,33,94
+// CHECK: 11.000000,22.000000,33.000000,94.000000

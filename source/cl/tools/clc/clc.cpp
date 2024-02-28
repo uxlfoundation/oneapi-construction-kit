@@ -139,8 +139,8 @@ bool matchSubstring(cargo::string_view big_string, cargo::string_view filter) {
 
 result printMuxCompilers(cargo::array_view<const compiler::Info *> compilers) {
   for (cl_uint i = 0; i < compilers.size(); i++) {
-    std::fprintf(stderr, "device %u: %s\n", i + 1,
-                 compilers[i]->device_info->device_name);
+    (void)std::fprintf(stderr, "device %u: %s\n", i + 1,
+                       compilers[i]->device_info->device_name);
   }
   return result::success;
 }
@@ -591,8 +591,8 @@ result driver::buildProgram() {
         source_type_name = "OpenCL C";
         break;
     }
-    std::fprintf(stderr, "info: Input file detected to be in %s format\n",
-                 source_type_name);
+    (void)std::fprintf(stderr, "info: Input file detected to be in %s format\n",
+                       source_type_name);
   }
 
   std::vector<char> cl_options;
@@ -605,8 +605,9 @@ result driver::buildProgram() {
   cl_options.push_back('\0');
 
   if (verbose) {
-    std::fprintf(stderr, "info: Compilation options: %.*s\n",
-                 static_cast<int>(cl_options.size() - 1), cl_options.data());
+    (void)std::fprintf(stderr, "info: Compilation options: %.*s\n",
+                       static_cast<int>(cl_options.size() - 1),
+                       cl_options.data());
   }
 
   const cargo::string_view device_profile =
@@ -656,16 +657,16 @@ result driver::buildProgram() {
   if (compiler::Result::SUCCESS !=
       module->finalize(&program_info, printf_calls)) {
     if (!module_log.empty() && module_log.front() != '\0') {
-      std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
-                   module_log.data());
+      (void)std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
+                         module_log.data());
       return result::failure;
     }
-    std::fprintf(stderr, "Unknown compilation error in 'finalize'.\n");
+    (void)std::fprintf(stderr, "Unknown compilation error in 'finalize'.\n");
     return result::failure;
   }
 
   if (verbose) {
-    std::fprintf(stderr, "info: Build successful\n");
+    (void)std::fprintf(stderr, "info: Build successful\n");
   }
 
   return result::success;
@@ -679,8 +680,8 @@ result driver::saveBinary() {
   cargo::array_view<uint8_t> module_executable;
   if (compiler::Result::SUCCESS != module->createBinary(module_executable)) {
     if (!module_log.empty() && module_log.front() != '\0') {
-      std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
-                   module_log.data());
+      (void)std::fprintf(stderr, "%.*s", static_cast<int>(module_log.size()),
+                         module_log.data());
     } else {
       (void)std::fprintf(stderr,
                          "Unknown compilation error in 'createBinary'.\n");
@@ -776,8 +777,8 @@ result driver::findDevice() {
   }
 
   if (verbose) {
-    std::fprintf(stderr, "info: Using device %s\n",
-                 compiler_info->device_info->device_name);
+    (void)std::fprintf(stderr, "info: Using device %s\n",
+                       compiler_info->device_info->device_name);
   }
 
   return result::success;

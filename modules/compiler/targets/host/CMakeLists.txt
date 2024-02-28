@@ -34,14 +34,15 @@ ca_option(CA_HOST_CROSS_COMPILERS STRING
   "Semi-colon separated list of host cross-compilers, or 'all'" "all")
 
 #[=======================================================================[.rst:
-.. cmake:variable:: CA_HOST_TARGET_CPU
+.. cmake:variable:: CA_HOST_TARGET_<ARCH>_CPU
 
-  Name of the CPU that host should optimize for, or ``"native"`` to optimize for
-  the CPU that's being used to build it. Defaults to unset because setting can
-  break compatibility of the build with other CPUs than the one specified.
+  Name of the CPU that the host target `<ARCH>` should optimize for, or
+  ``"native"`` to optimize for the CPU that's being used to build it. Defaults
+  to unset because setting can break compatibility of the build with other CPUs
+  than the one specified. This can be used for all host compiler variants that
+  are enabled e.g. X86_64, AARCH64, RISCV64. Note the `<ARCH>` part is in
+  capitals.
 #]=======================================================================]
-ca_option(CA_HOST_TARGET_CPU STRING
-  "Name of the CPU that host should optimize for, or 'native'" "")
 
 add_subdirectory(builtins)
 
@@ -67,15 +68,15 @@ set(HOST_SOURCES
 add_ca_library(compiler-host STATIC ${HOST_SOURCES})
 
 target_include_directories(compiler-host PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/builtins/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/source/base/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/builtins/include
-    ${CMAKE_SOURCE_DIR}/modules/utils/include
-    ${CMAKE_SOURCE_DIR}/modules/debug/include
-    ${CMAKE_SOURCE_DIR}/modules/compiler/multi_llvm/include
-    ${CMAKE_SOURCE_DIR}/modules/mux/source/host/include
-    ${CMAKE_SOURCE_DIR}/modules/mux/include)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/builtins/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/source/base/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/builtins/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/utils/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/debug/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/multi_llvm/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/mux/source/host/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/mux/include>)
 
 target_compile_definitions(compiler-host PUBLIC
   $<$<TARGET_EXISTS:resources-host>:CA_ENABLE_HOST_BUILTINS>)
@@ -111,6 +112,19 @@ if(TARGET LLVMAArch64CodeGen AND TARGET LLVMAArch64AsmParser)
   endif()
 endif()
 
+if(TARGET LLVMRISCVCodeGen)
+  # link with LLVM if it was built with the RISCV target
+  target_link_libraries(compiler-host PUBLIC LLVMRISCVCodeGen)
+  target_compile_definitions(compiler-host PRIVATE HOST_LLVM_RISCV)
+  # TODO(CA-1894,CA-1865): 32-bit and 64-bit builtins in the same build are not
+  # yet supported.
+  if(CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4)
+    list(APPEND hostCrossCompilers riscv32)
+  else()
+    list(APPEND hostCrossCompilers riscv64)
+  endif()
+endif()
+
 if(TARGET LLVMX86CodeGen)
   # link with LLVM if it was built with the X86 target
   target_link_libraries(compiler-host PUBLIC LLVMX86CodeGen)
@@ -122,14 +136,6 @@ if(TARGET LLVMX86CodeGen)
   else()
     list(APPEND hostCrossCompilers x86_64)
   endif()
-endif()
-
-if(CA_HOST_TARGET_CPU STREQUAL native)
-  target_compile_definitions(compiler-host PRIVATE CA_HOST_TARGET_CPU_NATIVE)
-elseif(CA_HOST_TARGET_CPU)
-  message(STATUS "CPU name ${CA_HOST_TARGET_CPU}")
-  target_compile_definitions(compiler-host PRIVATE
-    CA_HOST_TARGET_CPU="${CA_HOST_TARGET_CPU}")
 endif()
 
 # A cross-compiler has been requested
@@ -155,9 +161,25 @@ if(CA_HOST_CROSS_COMPILERS)
     else()
       set(HostArchitecture aarch64)
     endif()
+  elseif(CMAKE_SYSTEM_PROCESSOR_TOUPPER STREQUAL RISCV32 OR
+         CMAKE_SYSTEM_PROCESSOR_TOUPPER STREQUAL RISCV64)
+      if(CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(HostArchitecture riscv32)
+      else()
+        set(HostArchitecture riscv64)
+      endif()
   else()
     message(FATAL_ERROR
       "host: unknown CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}.")
+  endif()
+
+  string(TOUPPER ${HostArchitecture} HOST_ARCH_UPPER)
+  ca_option(CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU STRING
+    "Name of the CPU that host ${HOST_ARCH_UPPER} should optimize for, or 'native'" "")  
+  if(CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU)
+    message(STATUS "CPU ${HOST_ARCH_UPPER} name ${CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU}")
+    target_compile_definitions(compiler-host PRIVATE
+    CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU="${CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU}")
   endif()
 
   if(hostCrossCompilers)
@@ -165,7 +187,7 @@ if(CA_HOST_CROSS_COMPILERS)
     foreach(CrossCompiler ${hostCrossCompilers})
       set(found FALSE)
       # Loop over all possible host cross-compilers to enable.
-      set(ValidCrossCompilers arm aarch64 x86 x86_64)
+      set(ValidCrossCompilers arm aarch64 x86 x86_64 riscv32 riscv64)
       foreach(ValidName ${ValidCrossCompilers})
         if(CrossCompiler STREQUAL ValidName)
           set(found TRUE)
@@ -194,6 +216,13 @@ if(CA_HOST_CROSS_COMPILERS)
       set(crossDeviceName ${cross_${CrossCompiler}_CA_HOST_CL_DEVICE_NAME})
       target_compile_definitions(compiler-host PUBLIC
         HOST_CROSS_DEVICE_NAME_${CROSS_COMPILER}="${crossDeviceName}")
+        ca_option(CA_HOST_TARGET_${CROSS_COMPILER}_CPU STRING
+        "Name of the CPU that host ${CROSS_COMPILER} should optimize for, or 'native'" "")  
+          if(CA_HOST_TARGET_${CROSS_COMPILER}_CPU)
+            message(STATUS "CPU ${CROSS_COMPILER} name ${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
+            target_compile_definitions(compiler-host PRIVATE
+            CA_HOST_TARGET_${CROSS_COMPILER}_CPU="${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
+          endif()
     endforeach()
   endif()
 endif()

@@ -65,10 +65,10 @@ add_ca_library(spirv-ll STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/opcodes.cpp)
 
 target_include_directories(spirv-ll PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/source)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/source>)
 target_include_directories(spirv-ll SYSTEM PUBLIC
-  ${spirv-headers_SOURCE_DIR}/include ${LLVM_INCLUDE_DIR})
+  ${spirv-headers_SOURCE_DIR}/include)
 target_link_libraries(spirv-ll PUBLIC cargo multi_llvm compiler-pipeline LLVMCore LLVMBitWriter)
 
 add_subdirectory(tools)

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+export LD_LIBRARY_PATH=$RELEASE_DIR/ock_install_dir/lib:$RELEASE_DIR/linux_nightly_release/lib/libsycl.so:$RELEASE_DIR/linux_nightly_release/lib:$LD_LIBRARY_PATH
+export CMAKE_CXX_COMPILER=$RELEASE_DIR/linux_nightly_release/bin/clang++
+export CMAKE_C_COMPILER=$RELEASE_DIR/linux_nightly_release/bin/clang
+export OCL_ICD_VENDORS=/dev/null
+export ONEAPI_DEVICE_SELECTOR=opencl:fpga
+export OCL_ICD_FILENAMES=$RELEASE_DIR/ock_install_dir/lib/libCL.so
+# As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
+# To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
+# This way it doesn't set the default sycl.conf.
+export SYCL_CONFIG_FILE_NAME=""

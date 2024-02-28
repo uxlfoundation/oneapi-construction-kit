@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 // System headers
+#include <CL/cl_half.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -124,263 +125,145 @@ oclc::Driver::~Driver() {
 void oclc::Driver::PrintUsage(int argc, char **argv) {
   (void)argc;
 
-  fprintf(stderr, "usage: %s [options] <CL kernel file>\n", argv[0]);
+  (void)fprintf(stderr, R"-(usage: %s [options] <CL kernel file>
 
-  fprintf(stderr, "\noptions:\n");
-  fprintf(stderr,
-          "-o <output_file>                                        Set the "
-          "output file to write the binary to.\n");
-  fprintf(stderr,
-          "-v                                                      Run oclc in "
-          "verbose mode.\n");
-  fprintf(stderr,
-          "-format <output_format>                                 Set the "
-          "output file format.\n");
-  fprintf(stderr,
-          "                                                        Matches the "
-          "first occurrence of stage as a substring\n");
-  fprintf(stderr,
-          "                                                        against "
-          "options from '-list'.\n");
-  fprintf(stderr,
-          "-cl-options 'options...'                                OpenCL "
-          "options to use when compiling the kernel.\n");
-  fprintf(stderr,
-          "-cl-device '<device name>'                              OpenCL "
-          "device to use when compiling the kernel.\n");
-  fprintf(stderr,
-          "-enqueue <kernel name>                                  Enqueues a "
-          "kernel to enqueue on work-group\n");
-  fprintf(stderr,
-          "                                                        size "
-          "specific transformations.\n");
-  fprintf(stderr,
-          "-execute                                                Executes "
-          "the enqueued kernel.\n");
-  fprintf(stderr,
-          "-seed <value>                                           Set the "
-          "seed of the random number engine used in rand() calls.\n");
-  fprintf(stderr,
-          "                                                        The seed is "
-          "set to a default value if this is not set.\n");
-  fprintf(stderr,
-          "-arg <name>[,<width>[,<height>]],<list>                 Assigns a "
-          "list value (as described below) to the\n");
-  fprintf(stderr,
-          "                                                        named "
-          "argument when the kernel is executed.\n");
-  fprintf(stderr,
-          "                                                        If the "
-          "argument is a 2D image, a width in pixels must be provided.\n");
-  fprintf(stderr,
-          "                                                        if the "
-          "argument is a 3D image, a height in pixels must also be "
-          "provided.\n");
-  fprintf(stderr,
-          "                                                        If the "
-          "argument is an image, 4 values must be provided per pixel,\n");
-  fprintf(stderr,
-          "                                                        as images "
-          "are treated as unsigned 8 bit RGBA arrays by default.\n");
-  fprintf(stderr,
-          "                                                        If the "
-          "argument is declared with the __local qualifier, the\n");
-  fprintf(stderr,
-          "                                                        first "
-          "integer specified will be used to denote the size of the\n");
-  fprintf(stderr,
-          "                                                        local "
-          "argument in bytes, and subsequent values will be ignored.\n");
-  fprintf(stderr,
-          "-arg <name>[,<width>[,<height>]],<list>:<filename>      Assigns a "
-          "list value (as described below), held in a\n");
-  fprintf(stderr,
-          "                                                        file, to "
-          "the named argument when the kernel is executed.\n");
-  fprintf(stderr,
-          "-print <name>[,<offset>],<size>                         Prints a "
-          "given number of elements from the given\n");
-  fprintf(stderr,
-          "                                                        named "
-          "argument after execution to stdout, possibly\n");
-  fprintf(stderr,
-          "                                                        starting "
-          "from some offset.\n");
-  fprintf(stderr,
-          "-print <name>[,<offset>],<size>:<filename>              Prints a "
-          "given number of elements from the given\n");
-  fprintf(stderr,
-          "                                                        named "
-          "argument after execution to a file, possibly\n");
-  fprintf(stderr,
-          "                                                        starting "
-          "from some offset.\n");
-  fprintf(stderr,
-          "-show <name>,<width>,[,<height>[,<depth>]][:<filename>] Prints the "
-          "named image argument of the specified size to stdout,\n");
-  fprintf(stderr,
-          "                                                        or a file, "
-          "if one is provided.\n");
-  fprintf(stderr,
-          "-compare <name>,<expected>                              Compares "
-          "the named buffer to an expected list.\n");
-  fprintf(stderr,
-          "-compare <name>:<filename>                              Compares "
-          "the named buffer to an expected list, held in a file.\n");
-  fprintf(stderr,
-          "-global <g1>,<g2>,...                                   Sets the "
-          "global work size to the given array of values.\n");
-  fprintf(stderr,
-          "-local <l1>,<l2>,...                                    Sets the "
-          "local work size to the given array of values.\n");
-  fprintf(stderr,
-          "-ulp-error <tolerance>                                  Sets the "
-          "maximum ULP error between the actual and target values accepted.\n");
-  fprintf(stderr,
-          "                                                        as a "
-          "'match' when -compare is applied to float or double values. "
-          "Defaults to 0.\n");
-  fprintf(stderr,
-          "-char-error <tolerance>                                 Sets the "
-          "maximum difference between the actual and target values accepted\n");
-  fprintf(stderr,
-          "                                                        as a "
-          "'match' when -compare is applied to char or uchar values. Defaults "
-          "to 0.\n");
-  fprintf(stderr,
-          "-repeat-execution <N>                                   Executes "
-          "the kernel N times. -global, -local, and -arg\n");
-  fprintf(stderr,
-          "                                                        arguments "
-          "may be set to {<list>},{<list>},... to take on\n");
-  fprintf(stderr,
-          "                                                        different "
-          "values on each execution.\n");
+options:
+-o <output_file>                                        Set the output file to write the binary to.
+-v                                                      Run oclc in verbose mode.
+-format <output_format>                                 Set the output file format.
+                                                        Matches the first occurrence of stage as a substring
+                                                        against options from '-list'.
+-cl-options 'options...'                                OpenCL options to use when compiling the kernel.
+-cl-device '<device name>'                              OpenCL device to use when compiling the kernel.
+-enqueue <kernel name>                                  Enqueues a kernel to enqueue on work-group
+                                                        size specific transformations.
+-execute                                                Executes the enqueued kernel.
+-seed <value>                                           Set the seed of the random number engine used in rand() calls.
+                                                        The seed is set to a default value if this is not set.
+-arg <name>[,<width>[,<height>]],<list>                 Assigns a list value (as described below) to the
+                                                        named argument when the kernel is executed.
+                                                        If the argument is a 2D image, a width in pixels must be provided.
+                                                        if the argument is a 3D image, a height in pixels must also be provided.
+                                                        If the argument is an image, 4 values must be provided per pixel,
+                                                        as images are treated as unsigned 8 bit RGBA arrays by default.
+                                                        If the argument is declared with the __local qualifier, the
+                                                        first integer specified will be used to denote the size of the
+                                                        local argument in bytes, and subsequent values will be ignored.
+-arg <name>[,<width>[,<height>]],<list>:<filename>      Assigns a list value (as described below), held in a
+                                                        file, to the named argument when the kernel is executed.
+-print <name>[,<offset>],<size>                         Prints a given number of elements from the given
+                                                        named argument after execution to stdout, possibly
+                                                        starting from some offset.
+-print <name>[,<offset>],<size>:<filename>              Prints a given number of elements from the given
+                                                        named argument after execution to a file, possibly
+                                                        starting from some offset.
+-show <name>,<width>,[,<height>[,<depth>]][:<filename>] Prints the named image argument of the specified size to stdout,
+                                                        or a file, if one is provided.
+-compare <name>,<expected>                              Compares the named buffer to an expected list.
+-compare <name>:<filename>                              Compares the named buffer to an expected list, held in a file.
+-global <g1>,<g2>,...                                   Sets the global work size to the given array of values.
+-local <l1>,<l2>,...                                    Sets the local work size to the given array of values.
+-ulp-error <tolerance>                                  Sets the maximum ULP error between the actual and target values accepted.
+                                                        as a 'match' when -compare is applied to float or double values. Defaults to 0.
+-char-error <tolerance>                                 Sets the maximum difference between the actual and target values accepted
+                                                        as a 'match' when -compare is applied to char or uchar values. Defaults to 0.
+-repeat-execution <N>                                   Executes the kernel N times. -global, -local, and -arg
+                                                        arguments may be set to {<list>},{<list>},... to take on
+                                                        different values on each execution.
 
-  fprintf(stderr, "\nAvailable output formats:\n");
-  fprintf(stderr,
-          "  text                                                  "
-          "  textual format such as LLVM IR or assembly\n");
-  fprintf(stderr,
-          "  binary                                                "
-          "  binary format such as LLVM BC or ELF\n");
+Available output formats:
+  text                                                    textual format such as LLVM IR or assembly
+  binary                                                  binary format such as LLVM BC or ELF
 
-  fprintf(stderr, "\nPossible kernel argument values:\n");
-  fprintf(stderr, "  <list>   ::= <el>\n");
-  fprintf(stderr, "            |  <el> \",\" <list>\n");
-  fprintf(stderr,
-          "            |  <cl_bool> \",\" <cl_addressing_mode> \",\" "
-          "<cl_filter_mode>\" (for specifying sampler_t only)\n\n");
-  fprintf(stderr, "  <el>     ::= <integer or decimal>\n");
-  fprintf(stderr,
-          "            |  \"repeat(\" <unsigned integer> \",\" <list> \")\"\n");
-  fprintf(stderr, "            |  \"rand(\" <decimal> \",\" <decimal> \")\"\n");
-  fprintf(stderr,
-          "            |  \"randint(\" <integer> \",\" <integer> \")\"\n");
-  fprintf(stderr,
-          "            |  \"range(\" <integer or decimal> \",\" <integer or "
-          "decimal> \")\"\n");
-  fprintf(stderr,
-          "            |  \"range(\" <integer or decimal> \",\" <integer or "
-          "decimal> \",\" <integer or decimal> \")\"\n\n");
+Possible kernel argument values:
+  <list>   ::= <el>
+            |  <el> "," <list>
+            |  <cl_bool> "," <cl_addressing_mode> "," <cl_filter_mode>" (for specifying sampler_t only)
 
-  fprintf(stderr, "  <cl_bool>            ::= \"CL_TRUE\" | \"CL_FALSE\"\n");
-  fprintf(stderr,
-          "  <cl_addressing_mode> ::= \"CL_ADDRESS_NONE\" | "
-          "\"CL_ADDRESS_CLAMP_TO_EDGE\" | \"CL_ADDRESS_CLAMP\"\n");
-  fprintf(stderr,
-          "                        |  \"CL_ADDRESS_REPEAT\" | "
-          "\"CL_ADDRESS_MIRRORED_REPEAT\"\n");
-  fprintf(stderr,
-          "  <cl_filter_mode>     ::= \"CL_FILTER_NEAREST\" | "
-          "\"CL_FILTER_LINEAR\"\n");
+  <el>     ::= <integer or decimal>
+            |  "repeat(" <unsigned integer> "," <list> ")"
+            |  "rand(" <decimal> "," <decimal> ")"
+            |  "randint(" <integer> "," <integer> ")"
+            |  "range(" <integer or decimal> "," <integer or decimal> ")"
+            |  "range(" <integer or decimal> "," <integer or decimal> "," <integer or decimal> ")"
 
-  fprintf(stderr, "\nSpecial kernel argument values:\n");
-  fprintf(stderr,
-          "  repeat(N,list)                              creates a list "
-          "containing `list` repeated `N` times\n");
-  fprintf(stderr,
-          "                                              repeat(3,2,4) => "
-          "2,4,2,4,2,4\n");
-  fprintf(stderr,
-          "  rand(min,max)                               creates a random "
-          "floating point number in [min,max]\n");
-  fprintf(stderr,
-          "                                              rand(1.2,4) => "
-          "3.195201 (potentially)\n");
-  fprintf(stderr,
-          "  randint(min,max)                            creates a random "
-          "integer number in [min,max]\n");
-  fprintf(stderr,
-          "                                              randint(1,4) => 3 "
-          "(potentially)\n");
-  fprintf(stderr,
-          "  range(a,b,stride)                           produces a list "
-          "beginning at `a`, moving in the direction of `b`\n"
-          "                                              by `stride` units. if "
-          "`stride` is not stated, it defaults to 1.\n");
-  fprintf(stderr,
-          "                                              range(-4,21,5) => "
-          "-4,1,6,11,16,21\n\n");
+  <cl_bool>            ::= "CL_TRUE" | "CL_FALSE"
+  <cl_addressing_mode> ::= "CL_ADDRESS_NONE" | "CL_ADDRESS_CLAMP_TO_EDGE" | "CL_ADDRESS_CLAMP"
+                        |  "CL_ADDRESS_REPEAT" | "CL_ADDRESS_MIRRORED_REPEAT"
+  <cl_filter_mode>     ::= "CL_FILTER_NEAREST" | "CL_FILTER_LINEAR"
+
+Special kernel argument values:
+  repeat(N,list)                              creates a list containing `list` repeated `N` times
+                                              repeat(3,2,4) => 2,4,2,4,2,4
+  rand(min,max)                               creates a random floating point number in [min,max]
+                                              rand(1.2,4) => 3.195201 (potentially)
+  randint(min,max)                            creates a random integer number in [min,max]
+                                              randint(1,4) => 3 (potentially)
+  range(a,b,stride)                           produces a list beginning at `a`, moving in the direction of `b`
+                                              by `stride` units. if `stride` is not stated, it defaults to 1.
+                                              range(-4,21,5) => -4,1,6,11,16,21
+
+)-",
+                argv[0]);
 }
 
 bool oclc::Driver::ParseArguments(int argc, char **argv) {
   Arguments args(argc, argv);
   std::vector<const char *> positional_args;
   while (args.HasMore()) {
-    const char *arg_str = nullptr;
     bool failed = false;
-    if ((arg_str = args.TakePositional(failed))) {
+    if (const char *arg_str = args.TakePositional(failed)) {
       positional_args.push_back(arg_str);
-    } else if ((arg_str = args.TakeKeyValue("-o", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-o", failed)) {
       output_file_ = arg_str;
     } else if (args.TakeKey("-v", failed)) {
       verbose_ = true;
-    } else if ((arg_str = args.TakeKeyValue("-cl-options", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-cl-options", failed)) {
       cl_options_ = arg_str;
-    } else if ((arg_str = args.TakeKeyValue("-cl-device", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-cl-device", failed)) {
       cl_device_name_ = arg_str;
-    } else if ((arg_str = args.TakeKeyValue("-enqueue", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-enqueue", failed)) {
       enqueue_kernel_ = arg_str;
     } else if (args.TakeKey("-execute", failed)) {
       execute_ = true;
-    } else if ((arg_str = args.TakeKeyValue("-arg", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-arg", failed)) {
       argument_queue_.push_back(std::string(arg_str));
-    } else if ((arg_str = args.TakeKeyValue("-print", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-print", failed)) {
       failed = (ParseArgumentPrintInfo(arg_str) == oclc::failure);
-    } else if ((arg_str = args.TakeKeyValue("-show", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-show", failed)) {
       failed = (ParseArgumentImageShowInfo(arg_str) == oclc::failure);
-    } else if ((arg_str = args.TakeKeyValue("-global", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-global", failed)) {
       std::vector<std::string> globalList;
       SplitAndExpandList(arg_str, '\0', globalList);
       failed = (ParseSizeInfo("global", globalList) == oclc::failure);
-    } else if ((arg_str = args.TakeKeyValue("-local", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-local", failed)) {
       std::vector<std::string> localList;
       SplitAndExpandList(arg_str, '\0', localList);
       failed = (ParseSizeInfo("local", localList) == oclc::failure);
-    } else if ((arg_str = args.TakeKeyValue("-seed", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-seed", failed)) {
       const unsigned long seed =
           static_cast<unsigned long>(strtoull(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(seed == 0 && (strcmp(arg_str, "0") != 0),
                      "error: seed '%s' is an invalid value.\n", arg_str);
       engine_.seed(seed);
-    } else if ((arg_str = args.TakeKeyValue("-ulp-error", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-ulp-error", failed)) {
       const cl_ulong ulpVal =
           static_cast<cl_ulong>(strtol(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(ulpVal == 0 && (strcmp(arg_str, "0") != 0),
                      "error: ulp tolerance '%s' is an invalid value.\n",
                      arg_str);
       ulp_tolerance_ = ulpVal;
-    } else if ((arg_str = args.TakeKeyValue("-char-error", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-char-error", failed)) {
       const cl_uchar charErrVal =
           static_cast<cl_uchar>(strtol(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(charErrVal == 0 && (strcmp(arg_str, "0") != 0),
                      "error: char error tolerance '%s' is an invalid value.\n",
                      arg_str);
       char_tolerance_ = charErrVal;
-    } else if ((arg_str = args.TakeKeyValue("-compare", failed))) {
+    } else if (const char *arg_str = args.TakeKeyValue("-compare", failed)) {
       failed = ParseArgumentCompareInfo(arg_str) == oclc::failure;
-    } else if ((arg_str = args.TakeKeyValue("-repeat-execution", failed))) {
+    } else if (const char *arg_str =
+                   args.TakeKeyValue("-repeat-execution", failed)) {
       const size_t limit = static_cast<size_t>(strtoull(arg_str, nullptr, 10));
       OCLC_CHECK_FMT(limit == 0, "error: seed '%s' is an invalid value.\n",
                      arg_str);
@@ -464,7 +347,7 @@ bool oclc::Driver::VerifyDoubleVec(const std::vector<std::string> &vec) {
 char *oclc::Driver::VerifyDouble(const std::string &str) {
   char *end = nullptr;
   errno = 0;
-  strtod(str.c_str(), &end);
+  (void)strtod(str.c_str(), &end);
 
   return (end != str.c_str() && errno == 0) ? end : nullptr;
 }
@@ -722,7 +605,7 @@ char *oclc::Driver::VerifyRand(const char *arg) {
 
   errno = 0;
   char *cEnd = nullptr;
-  strtod(arg, &cEnd);
+  (void)strtod(arg, &cEnd);
 
   if (cEnd == arg || *cEnd != ',' || errno != 0) {
     return nullptr;
@@ -731,7 +614,7 @@ char *oclc::Driver::VerifyRand(const char *arg) {
   arg = cEnd + 1;  // move past comma
 
   cEnd = nullptr;
-  strtod(arg, &cEnd);
+  (void)strtod(arg, &cEnd);
 
   if (cEnd == arg || *cEnd != ')' || errno != 0) {
     return nullptr;
@@ -747,7 +630,7 @@ char *oclc::Driver::VerifyRandInt(const char *arg) {
 
   errno = 0;
   char *cEnd = nullptr;
-  strtoll(arg, &cEnd, 10);
+  (void)strtoll(arg, &cEnd, 10);
 
   if (cEnd == arg || *cEnd != ',' || errno != 0) {
     return nullptr;
@@ -756,7 +639,7 @@ char *oclc::Driver::VerifyRandInt(const char *arg) {
   arg = cEnd + 1;  // move past comma
 
   cEnd = nullptr;
-  strtoll(arg, &cEnd, 10);
+  (void)strtoll(arg, &cEnd, 10);
 
   if (cEnd == arg || *cEnd != ')' || errno != 0) {
     return nullptr;
@@ -1166,7 +1049,7 @@ bool oclc::Driver::InitCL() {
     err = clGetPlatformInfo(platform_, CL_PLATFORM_NAME, name_size,
                             platform_name.data(), nullptr);
     OCLC_CHECK_CL(err, "Getting the platform name failed");
-    fprintf(stderr, "Platform: %s\n", platform_name.c_str());
+    (void)fprintf(stderr, "Platform: %s\n", platform_name.c_str());
   }
 
   // Choose a device.
@@ -1204,9 +1087,9 @@ bool oclc::Driver::InitCL() {
 
     if (verbose_) {
       if (i == 0) {
-        fprintf(stderr, "Device list:\n");
+        (void)fprintf(stderr, "Device list:\n");
       }
-      fprintf(stderr, "\tDevice: %s\n", device_name.c_str());
+      (void)fprintf(stderr, "\tDevice: %s\n", device_name.c_str());
     }
 
     // if -cl-device was specified pick that device
@@ -1219,14 +1102,14 @@ bool oclc::Driver::InitCL() {
   OCLC_CHECK_FMT(!cl_device_name_.empty() && device_ == nullptr,
                  "Device \'%s\' not found.", cl_device_name_.c_str());
   if (verbose_ && !cl_device_name_.empty()) {
-    fprintf(stderr, "Using device: %s\n", picked_device_name.c_str());
+    (void)fprintf(stderr, "Using device: %s\n", picked_device_name.c_str());
   }
 
   // Create a context.
   context_ = clCreateContext(
       nullptr, 1, &device_,
       [](const char *errinfo, const void *, size_t, void *) {
-        std::fprintf(stderr, "%s\n", errinfo);
+        (void)std::fprintf(stderr, "%s\n", errinfo);
       },
       nullptr, &err);
   OCLC_CHECK_CL(err, "Could not create an OpenCL context (%d).\n");
@@ -1327,8 +1210,8 @@ bool oclc::Driver::BuildProgram() {
                                     nullptr);
     OCLC_CHECK_CL(err_log, "Requesting the build log failed");
 
-    fprintf(stderr, "Build log:\n\n");
-    fprintf(stderr, "%s", build_log.c_str());
+    (void)fprintf(stderr, "Build log:\n\n");
+    (void)fprintf(stderr, "%s", build_log.c_str());
 
     if (CL_SUCCESS != err) {
       (void)fprintf(stderr, "Build program failed with error: %s (%d)\n",
@@ -1466,7 +1349,7 @@ std::string oclc::Driver::BufferToString(const unsigned char *buffer, size_t n,
   } else if (dataType == "half") {
     const cl_half *halfBuffer = reinterpret_cast<const cl_half *>(buffer);
     for (size_t i = 0; i < n; ++i) {
-      stringVal += (std::to_string(halfBuffer[i]) + ",");
+      stringVal += (std::to_string(cl_half_to_float(halfBuffer[i])) + ",");
     }
   } else {
     (void)fprintf(stderr, "error printing buffer: unsupported data type (%s)\n",
@@ -1502,7 +1385,12 @@ T *oclc::Driver::CastToTypeFloat(const std::vector<std::string> &source,
                                  vector2d<T> &casted_buffers, size_t &size) {
   std::vector<T> data(source.size());
   for (size_t i = 0; i < source.size(); ++i) {
-    data[i] = static_cast<T>(atof(source[i].c_str()));
+    auto f = atof(source[i].c_str());
+    if constexpr (std::is_same_v<T, cl_half>) {
+      data[i] = cl_half_from_float(f, cl_half_rounding_mode::CL_HALF_RTE);
+    } else {
+      data[i] = static_cast<T>(f);
+    }
   }
   casted_buffers.push_back(data);
   size = casted_buffers.back().size() * sizeof(T);

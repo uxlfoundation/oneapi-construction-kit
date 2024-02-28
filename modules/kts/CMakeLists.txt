@@ -29,7 +29,7 @@ target_compile_options(kts PRIVATE
     -wd4996  # Disable warning on deprecated declarations
   >)
 
-target_include_directories(kts PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(kts PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(kts PUBLIC ca_gtest)
 
 # Append to the list of module libraries, the cache MUST be updated.

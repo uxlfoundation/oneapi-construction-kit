@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -45,11 +45,11 @@ jobs:
 
       - name: run just online lit
         run:
-          ninja -C build check-all-lit
+          ninja -C build check-ock-all-lit
 
       - name: run host online check
         run:
-          ninja -C build check-UnitCL
+          ninja -C build check-ock-UnitCL
 
       # use the previous build for online to get clc
       - name: build host x86_64 offline release
@@ -63,7 +63,7 @@ jobs:
 
       - name: run host x86_64 offline
         run:
-          ninja -C build_offline check-UnitCL
+          ninja -C build_offline check-ock-UnitCL
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:  
@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -86,11 +86,11 @@ jobs:
 
       - name: run riscv M1 lit
         run:
-          ninja -C build check-all-lit
+          ninja -C build check-ock-all-lit
 
       - name: run riscv M1 UnitCL tests
         run:
-          ninja -C build check-UnitCL
+          ninja -C build check-ock-UnitCL
 
   # run clang-format-diff on the repo
   run_clang_format:
@@ -99,7 +99,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: setup-ubuntu-clang-format
         run:

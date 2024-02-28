@@ -71,15 +71,15 @@ struct TracerVirtualMemFileImpl {
       return;
     }
 
-    int requested_mb = 1024;
+    size_t requested_mb = 1024;
 
     const char *mb_str = std::getenv("CA_TRACE_FILE_BUFFER_MB");
 
     if (nullptr != mb_str && std::strlen(mb_str)) {
       /* seems good to have a max, 75GB */
-      constexpr int max_mb = 76800;
-      requested_mb = std::min(std::stoi(mb_str), max_mb);
-      requested_mb = std::max(requested_mb, 0);
+      constexpr size_t max_mb = 76800;
+      requested_mb = std::min<size_t>(std::stoul(mb_str), max_mb);
+      requested_mb = std::max<size_t>(requested_mb, 0);
     }
 
     // MB to bytes
@@ -145,17 +145,18 @@ struct TracerVirtualMemFileImpl {
       FILE *file = fopen(export_file, "w");
 
       if (nullptr != file) {
-        const size_t idx = fwrite(map, sizeof(map[0]), offset.load(), file);
-        fclose(file);
+        bool write_error =
+            fwrite(map, sizeof(map[0]), offset.load(), file) != offset.load();
+        write_error |= fclose(file);
 
-        if (idx != offset.load()) {
+        if (write_error) {
           (void)fprintf(stderr, "Trace file could not be shrunk down.");
         }
       }
 
       munmap(map, max_offset);
       map = nullptr;
-      remove(tmp_name.c_str());
+      (void)remove(tmp_name.c_str());
     }
   }
 

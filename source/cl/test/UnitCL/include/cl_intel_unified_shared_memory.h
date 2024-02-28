@@ -65,7 +65,7 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
       cl_int err = clMemBlockingFreeINTEL(context, ptr);
       EXPECT_SUCCESS(err);
     }
-    device_ptr = shared_ptr = host_ptr = nullptr;
+    device_ptr = shared_ptr = host_shared_ptr = host_ptr = nullptr;
 
     ucl::ContextTest::TearDown();
   }
@@ -85,18 +85,27 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
     cl_int err;
 
     if (host_capabilities) {
+      ASSERT_TRUE(host_ptr == nullptr);
       host_ptr = clHostMemAllocINTEL(context, {}, bytes, align, &err);
       ASSERT_SUCCESS(err);
       ASSERT_TRUE(host_ptr != nullptr);
     }
 
     if (shared_capabilities != 0) {
+      ASSERT_TRUE(shared_ptr == nullptr);
       shared_ptr =
           clSharedMemAllocINTEL(context, device, {}, bytes, align, &err);
       ASSERT_SUCCESS(err);
       ASSERT_TRUE(shared_ptr != nullptr);
+
+      ASSERT_TRUE(host_shared_ptr == nullptr);
+      host_shared_ptr =
+          clSharedMemAllocINTEL(context, nullptr, {}, bytes, align, &err);
+      ASSERT_SUCCESS(err);
+      ASSERT_TRUE(host_shared_ptr != nullptr);
     }
 
+    ASSERT_TRUE(device_ptr == nullptr);
     device_ptr =
         clDeviceMemAllocINTEL(context, device, nullptr, bytes, align, &err);
     ASSERT_SUCCESS(err);
@@ -107,14 +116,17 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
   ///
   /// This will return an array containing up to 3 pointers, one of each device,
   /// host and shared, depending on the capabilities of the device.
-  cargo::small_vector<void *, 3> allPointers() {
-    cargo::small_vector<void *, 3> to_return{};
+  cargo::small_vector<void *, 4> allPointers() {
+    cargo::small_vector<void *, 4> to_return{};
 
     if (device_ptr) {
       (void)to_return.push_back(device_ptr);
     }
     if (shared_ptr) {
       (void)to_return.push_back(shared_ptr);
+    }
+    if (host_shared_ptr) {
+      (void)to_return.push_back(host_shared_ptr);
     }
     if (host_ptr) {
       (void)to_return.push_back(host_ptr);
@@ -126,6 +138,7 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
   constexpr static size_t MAX_NUM_POINTERS = 3;
   void *host_ptr = nullptr;
   void *shared_ptr = nullptr;
+  void *host_shared_ptr = nullptr;
   void *device_ptr = nullptr;
 
   cl_device_unified_shared_memory_capabilities_intel host_capabilities = 0;

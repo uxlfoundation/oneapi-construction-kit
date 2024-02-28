@@ -4,4 +4,4 @@
 // unit to verify that it compiles correctly enabling a client to implement
 // Mux using the C language. This stub function is here to silence linker
 // warnings about empty translation units on some platforms.
-void stub() {}
+void stub(void) {}

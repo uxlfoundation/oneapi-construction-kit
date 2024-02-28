@@ -72,7 +72,7 @@ void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
   pMemory = _aligned_malloc(size, alignment);
 #elif defined(__linux__) || defined(__APPLE__)
   if (posix_memalign(&pMemory, alignment, size)) {
-    fprintf(stderr, "posix_memalign failed!\n");
+    (void)fprintf(stderr, "posix_memalign failed!\n");
     abort();
   }
 #endif
@@ -151,7 +151,7 @@ void *VKAPI_CALL oneUseAlloc(void *pUserData, size_t size, size_t alignment,
     pMemory = _aligned_malloc(size, alignment);
 #elif defined(__linux__) || defined(__APPLE__)
     if (posix_memalign(&pMemory, alignment, size)) {
-      fprintf(stderr, "posix_memalign failed!\n");
+      (void)fprintf(stderr, "posix_memalign failed!\n");
       abort();
     }
 #endif

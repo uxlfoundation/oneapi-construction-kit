@@ -31,5 +31,5 @@ add_ca_library(loader STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/relocations.cpp)
 
 target_include_directories(loader PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(loader PUBLIC cargo)

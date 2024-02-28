@@ -26,13 +26,11 @@ target_compile_definitions(muxc PRIVATE
   muxc_VERSION="${PROJECT_VERSION}"
   muxc_LLVM_VERSION="${LLVM_PACKAGE_VERSION}"
   muxc_CL_STD_30=$<BOOL:${muxc_CL_STD_30}>)
-target_include_directories(muxc SYSTEM PUBLIC ${LLVM_INCLUDE_DIR})
 target_include_directories(muxc PUBLIC
-  ${PROJECT_SOURCE_DIR}/modules/compiler/source/base/include
-  ${PROJECT_SOURCE_DIR}/source/cl/source/compiler/include
-  ${PROJECT_SOURCE_DIR}/modules/compiler/multi_llvm/include)
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/cl/source/compiler/include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/multi_llvm/include>)
 target_link_libraries(muxc PRIVATE
-  compiler-static mux builtins cargo LLVMBitWriter LLVMIRReader)
+  compiler-static compiler-base LLVMBitWriter LLVMIRReader)
 target_resources(muxc NAMESPACES ${BUILTINS_NAMESPACES})
 
 install(TARGETS muxc RUNTIME DESTINATION bin COMPONENT muxc)

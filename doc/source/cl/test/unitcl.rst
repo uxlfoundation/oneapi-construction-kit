@@ -205,16 +205,16 @@ Test provides:
 Default Test Variations
 -----------------------
 
-When running UnitCL via the oneAPI Construction Kit ``check-UnitCL*`` CMake
+When running UnitCL via the oneAPI Construction Kit ``check-ock-UnitCL*`` CMake
 targets, various compiler configurations will be run. For example, there is a
-configuration that sets ``-cl-opt-disable`` (``check-UnitCL-opt-disable``), one
-that sets ``-cl-wfv=always`` (``check-UnitCL-vecz``), etc. Some of these
-variations may have no effect on some customer targets. E.g., if a ComputeMux
-target does not use Vecz, then the ``check-UnitCL*`` CMake targets testing Vecz
-will effectively duplicate the ``check-UnitCL*`` CMake targets that don't test
-Vecz.
+configuration that sets ``-cl-opt-disable`` (``check-ock-UnitCL-opt-disable``),
+one that sets ``-cl-wfv=always`` (``check-ock-UnitCL-vecz``), etc. Some of
+these variations may have no effect on some customer targets. E.g., if a
+ComputeMux target does not use Vecz, then the ``check-ock-UnitCL*`` CMake
+targets testing Vecz will effectively duplicate the ``check-ock-UnitCL*`` CMake
+targets that don't test Vecz.
 
-To reduce the amount of duplicated testing, many of these ``check-UnitCL*``
+To reduce the amount of duplicated testing, many of these ``check-ock-UnitCL*``
 CMake targets run UnitCL with a filter of common compiler-related words.  This
 way, only tests that match one of these keywords are run more than once.  The
 filter used is a good match for the default UnitCL tests, but it is only
@@ -226,7 +226,7 @@ any of the filter words.
 
   If the intent of a UnitCL test is to test the compiler and the various
   compiler configurations, then the test name **must** include one of the
-  compiler-related keywords. Otherwise, the ``check-UnitCL*`` CMake targets
+  compiler-related keywords. Otherwise, the ``check-ock-UnitCL*`` CMake targets
   will not run the test.
 
 .. note::

@@ -11,7 +11,7 @@ runs:
   using: "composite"
   steps:
     - name: setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.8'
 
@@ -27,10 +27,10 @@ runs:
       shell: bash
       run: git clone --recursive --depth 1 --single-branch https://github.com/codeplaysoftware/portDNN.git
 
-    - name: Download Daily Release
+    - name: Get Intel OneAPI Nightly Release
       shell: bash
       run: |
-        wget "https://github.com/intel/llvm/releases/download/nightly-2023-12-18/sycl_linux.tar.gz"
+        wget "https://github.com/intel/llvm/releases/download/nightly-2024-02-08/sycl_linux.tar.gz"
         mkdir linux_nightly_release
         tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
@@ -42,19 +42,21 @@ runs:
     - name: Set up environment and build networks
       shell: bash
       run: |
-        export LD_LIBRARY_PATH=${{ inputs.workspace }}/install/lib:${{ inputs.workspace }}/linux_nightly_release/lib/libsycl.so:${{ inputs.workspace }}/linux_nightly_release/lib:$LD_LIBRARY_PATH
-        export CMAKE_CXX_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang++
-        export CMAKE_C_COMPILER=${{ inputs.workspace }}/linux_nightly_release/bin/clang
+        export LD_LIBRARY_PATH=${{ inputs.workspace }}/ock_install_dir/lib:$(pwd)/linux_nightly_release/lib/libsycl.so:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
+        export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
+        export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
         export CA_HAL_DEBUG=1
         export CA_PROFILE_LEVEL=3
-        export ONEAPI_DEVICE_SELECTOR=opencl:acc
-        export OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so
+        export ONEAPI_DEVICE_SELECTOR=opencl:fpga
+        export OCL_ICD_FILENAMES=${{ inputs.workspace }}/ock_install_dir/lib/libCL.so
         # As the oneAPI basetoolkit release has a whitelist of devices, it filters out RefSi.
         # To override it, as a temporary solution we can point SYCL_CONFIG_FILE_NAME to ``.
         # This way it doesn't set the default sycl.conf.
         export SYCL_CONFIG_FILE_NAME=""
         export portDNN_source=$(pwd)/portDNN
         export OCL_ICD_VENDORS=/dev/null
+        export CXX=icpx
+        export CC=icpx
 
         # VGG16
         mkdir vdata
@@ -62,6 +64,7 @@ runs:
         wget --no-verbose https://storage.googleapis.com/tensorflow/keras-applications/vgg16/vgg16_weights_tf_dim_ordering_tf_kernels.h5
         python $portDNN_source/samples/networks/vgg/h5toBin.py vgg16_weights_tf_dim_ordering_tf_kernels.h5
         cd ..
+        mkdir vgg_data && cp -r vdata/* vgg_data/
 
         # Resnet50
         mkdir rdata
@@ -69,19 +72,20 @@ runs:
         wget --no-verbose https://storage.googleapis.com/tensorflow/keras-applications/resnet/resnet50_weights_tf_dim_ordering_tf_kernels.h5
         python $portDNN_source/samples/networks/resnet50/h5toBin.py resnet50_weights_tf_dim_ordering_tf_kernels.h5
         cd ..
+        mkdir resnet_data && cp -r rdata/* resnet_data/
 
         # Preparing an image
         python $portDNN_source/samples/networks/img2bin.py $(pwd)/Labrador_Retriever_Molly.jpg
 
         # Testing on image for VGG16
-        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/vgg/vgg vdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
+        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${OCL_ICD_FILENAMES} ONEAPI_DEVICE_SELECTOR=opencl:fpga SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/vgg/vgg vdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
         # Testing on image for Resnet50
-        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${{ inputs.workspace }}/install/lib/libCL.so ONEAPI_DEVICE_SELECTOR=opencl:acc SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/resnet50/resnet50 rdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
+        CA_HAL_DEBUG=1 CA_PROFILE_LEVEL=3 OCL_ICD_FILENAMES=${OCL_ICD_FILENAMES} ONEAPI_DEVICE_SELECTOR=opencl:fpga SYCL_CONFIG_FILE_NAME=  ${{ inputs.workspace }}/portDNN_build_dir/samples/networks/resnet50/resnet50 rdata/ $(pwd)/Labrador_Retriever_Molly.jpg.bin
 
     - name: Package artifacts
       shell: bash
       run: |
-        tar -cvzf network_artifacts.tar.gz vdata rdata Labrador_Retriever_Molly.jpg Labrador_Retriever_Molly.jpg.bin
+        tar -cvzf network_artifacts.tar.gz vgg_data resnet_data Labrador_Retriever_Molly.jpg Labrador_Retriever_Molly.jpg.bin
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4

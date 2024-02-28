@@ -45,7 +45,7 @@ int main(const int argc, const char **argv) {
   std::string extension_names(extension_names_size, '\0');
 
   CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extension_names.size(),
-                           &extension_names[0], nullptr));
+                           extension_names.data(), nullptr));
 
   if (std::string::npos == extension_names.find("cl_khr_command_buffer")) {
     std::cerr << "cl_khr_command_buffer not supported by device, skipping "

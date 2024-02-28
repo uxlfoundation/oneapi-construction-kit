@@ -23,7 +23,7 @@ set(HOST_UTILS_SOURCES
 add_ca_library(host-utils STATIC ${HOST_UTILS_SOURCES})
 
 target_include_directories(host-utils PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/modules/utils/include)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/utils/include>)
 
 target_link_libraries(host-utils PUBLIC cargo)

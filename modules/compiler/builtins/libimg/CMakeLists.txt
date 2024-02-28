@@ -84,7 +84,7 @@ if(COMMAND add_ca_tidy)
 endif()
 
 target_include_directories(image_library_host PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   ${CODEPLAY_IMG_INTEGRATION_INCLUDE_DIRS}
   "${CODEPLAY_IMG_INCLUDE_DIRS}")
 target_include_directories(image_library_host SYSTEM PUBLIC

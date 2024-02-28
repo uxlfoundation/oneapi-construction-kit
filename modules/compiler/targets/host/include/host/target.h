@@ -31,6 +31,7 @@
 
 namespace llvm {
 class Module;
+class JITEventListener;
 }  // namespace llvm
 
 namespace host {
@@ -57,6 +58,9 @@ class HostTarget : public compiler::BaseTarget {
 
   /// @see BaseTarget::getBuiltins
   llvm::Module *getBuiltins() const override;
+
+  /// @brief GDB Registration Event listener. Must outlive the LLJIT.
+  std::unique_ptr<llvm::JITEventListener> gdb_registration_listener;
 
   /// @brief LLVM context.
   llvm::orc::ThreadSafeContext llvm_ts_context;

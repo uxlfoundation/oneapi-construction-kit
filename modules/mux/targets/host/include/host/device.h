@@ -39,6 +39,8 @@ enum arch : uint8_t {
   AARCH64 = 0x1 << 1,
   X86 = 0x1 << 2,
   X86_64 = 0x1 << 3,
+  RISCV32 = 0x1 << 4,
+  RISCV64 = 0x1 << 5,
 };
 
 enum os : uint8_t {

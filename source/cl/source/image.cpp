@@ -68,6 +68,8 @@ _cl_mem_image::_cl_mem_image(_cl_context *context, cl_mem_flags validated_flags,
       case CL_MEM_OBJECT_IMAGE1D_ARRAY:
         image_desc.image_slice_pitch = image_desc.image_row_pitch;
         break;
+      default:
+        break;
     }
   }
 
@@ -88,6 +90,8 @@ _cl_mem_image::_cl_mem_image(_cl_context *context, cl_mem_flags validated_flags,
       break;
     case CL_MEM_OBJECT_IMAGE2D_ARRAY:
       size = image_desc.image_slice_pitch * image_desc.image_array_size;
+      break;
+    default:
       break;
   }
 }

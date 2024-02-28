@@ -118,13 +118,13 @@ uint32_t os_cpu_frequency() {
         ;
       }
 
-      fclose(file);
+      (void)fclose(file);
       const float mhz = atof(buffer + i);
       return static_cast<uint32_t>(mhz);
     }
   }
 
-  fclose(file);
+  (void)fclose(file);
   return 0;  // could not find mhz value!
 #elif defined(__MCOS_POSIX__)
   return 0;
@@ -231,7 +231,7 @@ uint64_t os_cache_size() {
     assert(0 && "Reading from the cache file failed!");
   }
 
-  fclose(file);
+  (void)fclose(file);
 
   // caches are described in kilobytes, so multiply the cache size
   return static_cast<uint64_t>(atoi(data)) * 1024;
@@ -301,7 +301,7 @@ uint64_t os_cacheline_size() {
     assert(0 && "Reading from the cache file failed!");
   }
 
-  fclose(file);
+  (void)fclose(file);
 
   // caches are described in bytes
   return static_cast<uint64_t>(atoi(data));
@@ -359,6 +359,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   switch (arch) {
     case host::arch::ARM:
     case host::arch::X86:
+    case host::arch::RISCV32:
       this->address_capabilities |= mux_address_capabilities_bits32;
       this->atomic_capabilities = mux_atomic_capabilities_8bit |
                                   mux_atomic_capabilities_16bit |
@@ -366,6 +367,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
       break;
     case host::arch::AARCH64:
     case host::arch::X86_64:
+    case host::arch::RISCV64:
       this->address_capabilities |= mux_address_capabilities_bits64;
       this->atomic_capabilities =
           mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
@@ -440,7 +442,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   this->cacheline_size = native ? os_cacheline_size() : 0;
 
   // See redmine #4947
-  this->shared_local_memory_size = 32 * 1024;
+  this->shared_local_memory_size = 32L * 1024L;
 
   // default to 128 bit (16 bytes)
   this->native_vector_width = 128 / (8 * sizeof(uint8_t));
@@ -551,6 +553,12 @@ host::arch device_info_s::detectHostArch() {
   arch = host::arch::X86;
 #elif defined(UTILS_SYSTEM_64_BIT)
   arch = host::arch::X86_64;
+#endif
+#elif defined(UTILS_SYSTEM_RISCV)
+#ifdef UTILS_SYSTEM_32_BIT
+  arch = host::arch::RISCV32;
+#elif defined(UTILS_SYSTEM_64_BIT)
+  arch = host::arch::RISCV64;
 #endif
 #else
 #error cant detect host architecture

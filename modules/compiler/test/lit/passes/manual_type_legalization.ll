@@ -20,7 +20,9 @@
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "spir64-unknown-unknown"
 
-; CHECK-LABEL: define half @f
+declare half @llvm.fma.f16(half, half, half)
+
+; CHECK-LABEL: define half @fadd
 ; CHECK-DAG: [[AEXT:%.*]] = fpext half %a to float
 ; CHECK-DAG: [[BEXT:%.*]] = fpext half %b to float
 ; CHECK-DAG: [[CEXT:%.*]] = fpext half %c to float
@@ -30,9 +32,40 @@ target triple = "spir64-unknown-unknown"
 ; CHECK-DAG: [[EADD:%.*]] = fadd float [[DEXT]], [[CEXT]]
 ; CHECK-DAG: [[ETRUNC:%.*]] = fptrunc float [[EADD]] to half
 ; CHECK: ret half [[ETRUNC]]
-define half @f(half %a, half %b, half %c) {
+define half @fadd(half %a, half %b, half %c) {
 entry:
   %d = fadd half %a, %b
+  %e = fadd half %d, %c
+  ret half %e
+}
+
+; CHECK-LABEL: define half @ffma
+; CHECK-DAG: [[AEXT:%.*]] = fpext half %a to double
+; CHECK-DAG: [[BEXT:%.*]] = fpext half %b to double
+; CHECK-DAG: [[CEXT:%.*]] = fpext half %c to double
+; CHECK-DAG: [[DFMA:%.*]] = call double @llvm.fmuladd.f64(double [[AEXT]], double [[BEXT]], double [[CEXT]])
+; CHECK-DAG: [[DTRUNC:%.*]] = fptrunc double [[DADD]] to half
+; CHECK: ret half [[DTRUNC]]
+define half @ffma(half %a, half %b, half %c) {
+entry:
+  %d = call half @llvm.fma.f16(half %a, half %b, half %c)
+  ret half %d
+}
+
+; CHECK-LABEL: define half @ffmaadd
+; CHECK-DAG: [[AEXTD:%.*]] = fpext half %a to double
+; CHECK-DAG: [[BEXTD:%.*]] = fpext half %b to double
+; CHECK-DAG: [[CEXTD:%.*]] = fpext half %c to double
+; CHECK-DAG: [[DFMAD:%.*]] = call double @llvm.fmuladd.f64(double [[AEXTD]], double [[BEXTD]], double [[CEXTD]])
+; CHECK-DAG: [[DTRUNC:%.*]] = fptrunc double [[DADD]] to half
+; CHECK-DAG: [[CEXTF:%.*]] = fpext half %c to float
+; CHECK-DAG: [[DEXTF:%.*]] = fpext half %d to float
+; CHECK-DAG: [[EADD:%.*]] = fadd float [[DEXTF]], [[CEXTF]]
+; CHECK-DAG: [[ETRUNC:%.*]] = fptrunc float [[EADD]] to half
+; CHECK: ret half [[ETRUNC]]
+define half @ffmaadd(half %a, half %b, half %c) {
+entry:
+  %d = call half @llvm.fma.f16(half %a, half %b, half %c)
   %e = fadd half %d, %c
   ret half %e
 }

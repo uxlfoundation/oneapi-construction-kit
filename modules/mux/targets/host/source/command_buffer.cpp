@@ -38,7 +38,7 @@ size_t calcPackedArgsAllocSize(
   size_t offset = 0;
   for (unsigned i = 0; i < descriptors.size(); i++) {
     const auto descriptor = descriptors[i];
-    size_t size = 0;
+    size_t size;
     switch (descriptor.type) {
       case mux_descriptor_info_type_sampler:
         size = sizeof(size_t);
@@ -53,6 +53,9 @@ size_t calcPackedArgsAllocSize(
       } break;
       case mux_descriptor_info_type_shared_local_buffer: {
         size = sizeof(size_t);
+      } break;
+      default: {
+        size = 0;
       } break;
     }
     offsets[i] = offset;
@@ -154,6 +157,8 @@ void populatePackedArgs(
         std::memcpy(packed_args_alloc + offset, &nullvar, sizeof(void *));
         offset += sizeof(void *);
       } break;
+      default:
+        break;
     }
   }
 }

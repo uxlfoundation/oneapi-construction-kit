@@ -27,12 +27,24 @@ set(BUILTINS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
 
 # Find suitable tools to build the builtins
 include(cmake/FindBuiltinsTools.cmake)
-# Debug builds are significantly slower due to using in tree builds of clang,
-# opt, and llvm-link; to alleviate slow build times it is possible to external
-# release build of these executables by setting
-# -DCA_BUILTINS_TOOLS_DIR:PATH=<path> to the path containing the clang, opt,
-# and llvm-link binaries.
+# Debug builds are significantly slower due to using in-tree builds of clang
+# and llvm-link; to alleviate slow build times it is possible to use an
+# external release build of these executables by setting
+# -DCA_BUILTINS_TOOLS_DIR:PATH=<path> to the path containing the clang and
+# llvm-link binaries.
 if(NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED)
+  if(NOT DEFINED CA_BUILTINS_TOOLS_DIR)
+    if(CMAKE_CROSSCOMPILING)
+      message(FATAL_ERROR
+        "Cross compiled builds requires CA_EXTERNAL_BUILTINS or "
+        "CA_BUILTINS_TOOLS_DIR to be set!")
+    # We might be in-tree and not be importing an LLVM directory, in which case
+    # don't assume any builtins directory - we'll take the tools required to
+    # build the builtins directly from the corresponding LLVM targets.
+    elseif(NOT ${CA_LLVM_INSTALL_DIR} STREQUAL "")
+      set(CA_BUILTINS_TOOLS_DIR ${CA_LLVM_INSTALL_DIR}/bin)
+    endif()
+  endif()
   find_builtins_tools("${CA_BUILTINS_TOOLS_DIR}")
   # ABACUS_BUILD_WITH_RUNTIME_TOOLS is mis-named. When ON, abacus is built with
   # builtins tools (if available) or tools in CA_LLVM_INSTALL_DIR otherwise.
@@ -116,8 +128,9 @@ add_custom_target(internal_builtins)
 #                 Note that the file passed as input is automatically added to
 #                 the dependencies.
 #
+# Targets expected to exist:
+# * builtins::compiler: compiler binary with which to build the builtins.
 # Variables expected to exist:
-# * BUILTINS_COMPILER: compiler binary with which to build the builtins.
 # * BUILTINS_OPTIONS: options with which to compile the builtins.
 # * ALL_BCS: list to which the output bitcode file will be added.
 macro(build_cl_bc_cmd)
@@ -154,8 +167,9 @@ endmacro()
 #                 Note that the file passed as input is automatically added to
 #                 the dependencies.
 #
-# Variables expected to exist:
+# Targets expected to exist:
 # * builtins::compiler: compiler binary with which to build the builtins.
+# Variables expected to exist:
 # * BUILTINS_OPTIONS: options with which to compile the builtins.
 # * ALL_BCS: list to which the output bitcode file will be added.
 macro(build_cxx_bc_cmd)
@@ -618,11 +632,11 @@ add_ca_library(builtins STATIC
   ${BUILTINS_EXTRA_SOURCES})
 
 target_include_directories(builtins PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}/include
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   ${CODEPLAY_IMG_INTEGRATION_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/libimg/include)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libimg/include>)
 target_include_directories(builtins SYSTEM PUBLIC
   ${CODEPLAY_IMG_OPENCL_INCLUDE_DIR})
 

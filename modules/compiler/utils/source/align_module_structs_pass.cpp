@@ -399,17 +399,20 @@ void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
         if (auto *alloca = dyn_cast<AllocaInst>(&inst)) {
           newType = getNewType(alloca->getAllocatedType(), typeMap);
         } else if (auto *GEP = dyn_cast<GetElementPtrInst>(&inst)) {
-          if (!(newType = getNewType(GEP->getSourceElementType(), typeMap))) {
+          newType = getNewType(GEP->getSourceElementType(), typeMap);
+          if (!newType) {
             newType = getNewType(GEP->getPointerOperand(), typeMap);
           }
         } else if (auto *cast = dyn_cast<CastInst>(&inst)) {
           newType = getNewType(cast->getOperand(0), typeMap);
         } else if (auto *load = dyn_cast<LoadInst>(&inst)) {
-          if (!(newType = getNewType(inst.getType(), typeMap))) {
+          newType = getNewType(inst.getType(), typeMap);
+          if (!newType) {
             newType = getNewType(load->getPointerOperand(), typeMap);
           }
         } else if (auto *store = dyn_cast<StoreInst>(&inst)) {
-          if (!(newType = getNewType(store->getValueOperand(), typeMap))) {
+          newType = getNewType(store->getValueOperand(), typeMap);
+          if (!newType) {
             newType = getNewType(store->getPointerOperand(), typeMap);
           }
         } else if (auto *cmpxchg = dyn_cast<AtomicCmpXchgInst>(&inst)) {
@@ -417,18 +420,21 @@ void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
         } else if (auto *atomicrmw = dyn_cast<AtomicRMWInst>(&inst)) {
           newType = getNewType(atomicrmw->getPointerOperand(), typeMap);
         } else if (auto *sel = dyn_cast<SelectInst>(&inst)) {
-          if (!(newType = getNewType(sel->getTrueValue(), typeMap))) {
+          newType = getNewType(sel->getTrueValue(), typeMap);
+          if (!newType) {
             newType = getNewType(sel->getFalseValue(), typeMap);
           }
         } else if (auto *phi = dyn_cast<PHINode>(&inst)) {
           for (auto &op : phi->incoming_values()) {
-            if ((newType = getNewType(op, typeMap))) {
+            newType = getNewType(op, typeMap);
+            if (newType) {
               break;
             }
           }
         } else if (auto *call = dyn_cast<CallInst>(&inst)) {
           for (auto &op : call->operands()) {
-            if ((newType = getNewType(op, typeMap))) {
+            newType = getNewType(op, typeMap);
+            if (newType) {
               break;
             }
           }

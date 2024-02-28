@@ -55,16 +55,48 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
     const ArrayRef<uint8_t> rawBinary, const std::string &linkerScriptStr,
     const uint8_t *linkerLib, unsigned int linkerLibBytes,
     const SmallVectorImpl<std::string> &additionalLinkArgs) {
-  SmallString<128> objFileName;
-  SmallString<128> elfFileName;
-  SmallString<128> linkerScriptFileName;
-  SmallString<128> linkRTFileName;
-  sys::fs::createTemporaryFile("lld", "o", objFileName);
-  sys::fs::createTemporaryFile("lld", "elf", elfFileName);
-  sys::fs::createTemporaryFile("lld", "ld", linkerScriptFileName);
+  struct TemporaryFile {
+    TemporaryFile() = default;
+    TemporaryFile(const Twine &Prefix, StringRef Suffix) {
+      ErrorCode = sys::fs::createTemporaryFile(Prefix, Suffix, FileName);
+    }
+    TemporaryFile(const TemporaryFile &) = delete;
+    TemporaryFile(TemporaryFile &&other) {
+      std::swap(FileName, other.FileName);
+      std::swap(ErrorCode, other.ErrorCode);
+    }
+    ~TemporaryFile() {
+      if (!getErrorCode() && FileName.size()) {
+        (void)sys::fs::remove(FileName);
+      }
+    }
+    TemporaryFile &operator=(const TemporaryFile &) = delete;
+    TemporaryFile &operator=(TemporaryFile &&other) {
+      std::swap(FileName, other.FileName);
+      std::swap(ErrorCode, other.ErrorCode);
+      return *this;
+    }
+    const char *getFileName() const { return FileName.c_str(); }
+    std::error_code getErrorCode() const { return ErrorCode; }
+    explicit operator bool() const { return bool(ErrorCode); }
+
+   private:
+    // mutable in order to allow calling c_str().
+    mutable SmallString<128> FileName;
+    std::error_code ErrorCode;
+  };
+
+  const TemporaryFile objFile("lld", "o");
+  if (objFile) return errorCodeToError(objFile.getErrorCode());
+  const TemporaryFile elfFile("lld", "elf");
+  if (elfFile) return errorCodeToError(elfFile.getErrorCode());
+  const TemporaryFile linkerScript("lld", "ld");
+  if (linkerScript) return errorCodeToError(linkerScript.getErrorCode());
+  TemporaryFile linkRTFile;
   if (linkerLib) {
-    sys::fs::createTemporaryFile("lld_rt", "a", linkRTFileName);
-    FILE *flinklib = fopen(linkRTFileName.data(), "wb+");
+    linkRTFile = TemporaryFile("lld_rt", "a");
+    if (linkRTFile) return errorCodeToError(linkRTFile.getErrorCode());
+    FILE *flinklib = fopen(linkRTFile.getFileName(), "wb+");
     if (nullptr != flinklib) {
       if (fwrite(linkerLib, 1, linkerLibBytes, flinklib) != linkerLibBytes) {
         return createStringError(
@@ -77,7 +109,7 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
       }
     }
   }
-  FILE *f = fopen(objFileName.data(), "wb+");
+  FILE *f = fopen(objFile.getFileName(), "wb+");
   if (!f) {
     return createStringError(inconvertibleErrorCode(),
                              "unable to open temporary object file");
@@ -91,7 +123,7 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
                              "unable to close temporary object file");
   }
 
-  FILE *fl = fopen(linkerScriptFileName.data(), "w+");
+  FILE *fl = fopen(linkerScript.getFileName(), "w+");
   if (!fl) {
     return createStringError(inconvertibleErrorCode(),
                              "unable to open temporary linker script file");
@@ -106,10 +138,7 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
                              "unable to close temporary linker script file");
   }
 
-  std::vector<std::string> args = {
-      "ld.lld",
-      objFileName.data(),
-  };
+  std::vector<std::string> args = {"ld.lld", objFile.getFileName()};
 
 #if !defined(NDEBUG) || defined(CA_ENABLE_LLVM_OPTIONS_IN_RELEASE)
   if (auto *env = std::getenv("CA_LLVM_OPTIONS")) {
@@ -121,12 +150,12 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
   for (const auto &arg : additionalLinkArgs) {
     args.push_back(arg);
   }
-  args.push_back((Twine("--script=") + linkerScriptFileName).str());
+  args.push_back((Twine("--script=") + linkerScript.getFileName()).str());
   if (linkerLib) {
-    args.push_back(linkRTFileName.data());
+    args.push_back(linkRTFile.getFileName());
   }
   args.push_back("-o");
-  args.push_back(elfFileName.data());
+  args.push_back(elfFile.getFileName());
 
   std::vector<const char *> lld_args(args.size());
   for (unsigned i = 0, e = lld_args.size(); i != e; i++) {
@@ -147,19 +176,12 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
   lld::CommonLinkerContext::destroy();
 #endif
 
-  if (linkerLib) {
-    sys::fs::remove(linkRTFileName);
-  }
-  sys::fs::remove(linkerScriptFileName);
-  sys::fs::remove(objFileName);
   if (!linkResult) {
     return createStringError(inconvertibleErrorCode(), stderrStr.c_str());
   }
 
   // Read the output file size
-  auto bufferOrError = MemoryBuffer::getFile(elfFileName.c_str());
-
-  sys::fs::remove(elfFileName);
+  auto bufferOrError = MemoryBuffer::getFile(elfFile.getFileName());
 
   if (!bufferOrError) {
     return errorCodeToError(bufferOrError.getError());
