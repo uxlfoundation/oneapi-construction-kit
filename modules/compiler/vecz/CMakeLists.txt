@@ -188,6 +188,7 @@ target_compile_definitions(vecz PRIVATE
 
 if(CA_NATIVE_CPU)
   target_link_libraries(vecz PRIVATE compiler-pipeline PUBLIC ${LLVM_LIBS})
+  target_include_directories(vecz PRIVATE ../multi_llvm/include)
 else()
   target_link_libraries(vecz PRIVATE compiler-pipeline multi_llvm PUBLIC ${LLVM_LIBS})
 endif()
