@@ -85,7 +85,7 @@ jobs:
       - name: Package build artifacts
         run: |
           mv install ock_install_dir
-          tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir
+          tar -cvzf ock_demo_artifacts.tar.gz ock_install_dir -C examples/technical_blogs/ock_demo_blog getting_started.md envvars
 
       - name: Upload OCK artifacts
         uses: actions/upload-artifact@v4
@@ -202,7 +202,7 @@ jobs:
 
       - name: Concatenate the tars to create OCK components
         run: |
-          tar --concatenate --file=ock_demo_components.tar.gz portDNN_build.tar.gz portBLAS_build.tar.gz
+          tar -rf ock_demo_components.tar.gz portDNN_build.tar.gz portBLAS_build.tar.gz
 
       - name: Create OCK demo release
         uses: softprops/action-gh-release@v1
