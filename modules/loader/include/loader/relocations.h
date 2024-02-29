@@ -51,6 +51,7 @@ struct Relocation {
       uint64_t value;
       uint64_t target;
     };
+    void reset() { stubs.clear(); }
     cargo::small_vector<Entry, 4> stubs;
     cargo::optional<uint64_t> getTarget(uint64_t value) const;
   };
@@ -78,7 +79,8 @@ struct Relocation {
   /// @note @p map must contain host CPU addresses to writable memory.
   ///
   /// @return Returns whether the relocation succeeded.
-  bool resolve(ElfFile &file, ElfMap &map, StubMap &stubs);
+  bool resolve(ElfFile &file, ElfMap &map, StubMap &stubs,
+               const std::vector<loader::Relocation> &relocations);
 };
 
 template <>
@@ -103,6 +105,15 @@ Relocation Relocation::fromElfEntry<Relocation::EntryType::Elf64RelA>(
 ///
 /// @return Returns whether all the relocations succeeded.
 bool resolveRelocations(ElfFile &file, ElfMap &map);
+
+/// @brief Returns the relocations for the given section.
+
+/// @return The (possibly empty) list of relocations from the section
+template <loader::Relocation::EntryType ET32,
+          loader::Relocation::EntryType ET64>
+std::vector<Relocation> collectSectionRelocations(
+    ElfFile &file, ElfMap &map, const loader::ElfFile::Section &section,
+    cargo::string_view prefix, ElfFields::SectionType type);
 
 }  // namespace loader
 

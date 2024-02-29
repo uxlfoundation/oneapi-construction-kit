@@ -54,7 +54,8 @@ enum class Machine : uint16_t {
   MIPS = 0x08,
   ARM = 0x28,
   X86_64 = 0x3E,
-  AARCH64 = 0xB7
+  AARCH64 = 0xB7,
+  RISCV = 0xF3,
 };
 /// @brief Type of code the file contains.
 enum class Type : uint16_t {
