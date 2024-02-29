@@ -116,9 +116,6 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/unique_opaque_structs_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/verify_reqd_sub_group_size_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/work_item_loops_pass.cpp)
-if(CA_NATIVE_CPU)
-  target_include_directories(compiler-pipeline PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../multi_llvm/include)
-endif()
 
 target_include_directories(compiler-pipeline PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
@@ -130,13 +127,8 @@ target_compile_definitions(compiler-pipeline PRIVATE
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-if(CA_NATIVE_CPU)
-  target_link_libraries(compiler-pipeline PUBLIC
-    cargo md_handler LLVMPasses LLVMTransformUtils)
-else()
-  target_link_libraries(compiler-pipeline PUBLIC
-    cargo md_handler multi_llvm LLVMPasses LLVMTransformUtils)
-endif()
+target_link_libraries(compiler-pipeline PUBLIC
+  cargo md_handler multi_llvm LLVMPasses LLVMTransformUtils)
 
 if(TARGET LLVMCore)
   target_link_libraries(compiler-pipeline PUBLIC LLVMCore)
@@ -159,13 +151,8 @@ target_compile_definitions(compiler-binary-metadata PRIVATE
   $<$<BOOL:${CA_PLATFORM_ANDROID}>:CA_PLATFORM_ANDROID>
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 
-if(CA_NATIVE_CPU)
-  target_link_libraries(compiler-binary-metadata PUBLIC
-    md_handler LLVMPasses LLVMTransformUtils)
-else()
-  target_link_libraries(compiler-binary-metadata PUBLIC
-    md_handler multi_llvm LLVMPasses LLVMTransformUtils)
-endif()
+target_link_libraries(compiler-binary-metadata PUBLIC
+  md_handler multi_llvm LLVMPasses LLVMTransformUtils)
 
 if(TARGET LLVMCore)
   target_link_libraries(compiler-binary-metadata PUBLIC LLVMCore)
