@@ -19,6 +19,8 @@
 #include <loader/relocations.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <optional>
 
 // There are many relocation types, but LLVM only emits a few, only those
 // present in lib/ExecutionEngine/RuntimeDyld/RuntimeDyldELF.cpp are implemented
@@ -76,32 +78,57 @@ inline Integer setBitRange(Integer value, Integer subvalue, int first,
   return (value & ~mask) | ((subvalue << first) & mask);
 }
 
-bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
-  const uint32_t relocation_offset = r.offset & 0xFFFFFFFF;
-  const int32_t addend = static_cast<int32_t>(r.addend);
+// Returns a triple of common variables used in relocation calculation:
+// * Writable position in for relocations (host memory)
+// * P - position of the relocation (target memory)
+// * S - value of the symbol in the symbol table (target memory)
+template <typename T>
+std::optional<std::tuple<uint8_t *, T, T>> decomposeRelocation(
+    const loader::Relocation &r, loader::ElfMap &map) {
+  static_assert(std::is_same_v<T, uint32_t> || std::is_same_v<T, uint64_t>,
+                "Invalid relocation size");
+  using SignedT = std::make_signed_t<T>;
+  const T relocation_offset = r.offset & 0xFFFFFFFF;
+  const SignedT addend = static_cast<SignedT>(r.addend);
 
-  uint32_t symbol_target_address = static_cast<uint32_t>(
-      map.getSymbolTargetAddress(r.symbol_index).value_or(0));
+  T symbol_target_address =
+      static_cast<T>(map.getSymbolTargetAddress(r.symbol_index).value_or(0));
   if (symbol_target_address == 0) {
 #ifndef NDEBUG
     auto name = map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
     (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(),
                   name.data());
 #endif
-    return false;
+    return std::nullopt;
   }
   symbol_target_address += addend;
-  const uint32_t relocated_section_base = static_cast<uint32_t>(
-      map.getSectionTargetAddress(r.section_index).value_or(0));
+  const T relocated_section_base =
+      static_cast<T>(map.getSectionTargetAddress(r.section_index).value_or(0));
   if (relocated_section_base == 0) {
-    return false;
+    return std::nullopt;
   }
   uint8_t *relocated_section_begin =
       map.getSectionWritableAddress(r.section_index).value_or(nullptr);
   if (relocated_section_begin == nullptr) {
+    return std::nullopt;
+  }
+
+  uint8_t *relocation_address = relocated_section_begin + relocation_offset;
+
+  const T relocation_target_address =
+      relocated_section_base + relocation_offset;
+
+  return std::make_tuple(relocation_address, relocation_target_address,
+                         symbol_target_address);
+}
+
+bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
+  auto relocation_data = decomposeRelocation<uint32_t>(r, map);
+  if (!relocation_data) {
     return false;
   }
-  uint8_t *relocation_address = relocated_section_begin + relocation_offset;
+  auto [relocation_address, relocated_target_address, symbol_target_address] =
+      *relocation_data;
 
   using namespace loader::RelocationTypes::X86_32;
   switch (r.type) {
@@ -135,15 +162,14 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
       // R_386_PC32 stores an addend at the relocation target as an int8_t
       uint8_t implicit_addend;
       cargo::read_little_endian(&implicit_addend, relocation_address);
-      const uint32_t value = symbol_target_address - relocated_section_base -
-                             relocation_offset +
+      const uint32_t value = symbol_target_address - relocated_target_address +
                              static_cast<int8_t>(implicit_addend);
       cargo::write_little_endian(value, relocation_address);
       break;
     }
     case R_386_PC16: {
       const uint32_t real_value =
-          symbol_target_address - relocated_section_base - relocation_offset;
+          symbol_target_address - relocated_target_address;
       const uint16_t trunc_value = real_value & 0xFFFF;
       if (static_cast<int32_t>(real_value) !=
           static_cast<int16_t>(trunc_value)) {
@@ -154,7 +180,7 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
     }
     case R_386_PC8: {
       const uint32_t real_value =
-          symbol_target_address - relocated_section_base - relocation_offset;
+          symbol_target_address - relocated_target_address;
       const uint8_t trunc_value = real_value & 0xFF;
       if (static_cast<int32_t>(real_value) !=
           static_cast<int8_t>(trunc_value)) {
@@ -168,31 +194,12 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
 }
 
 bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
-  const uint64_t relocation_offset = r.offset & 0xFFFFFFFF;
-  const int64_t addend = r.addend;
-
-  uint64_t symbol_target_address =
-      map.getSymbolTargetAddress(r.symbol_index).value_or(0);
-  if (symbol_target_address == 0) {
-#ifndef NDEBUG
-    auto name = map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(),
-                  name.data());
-#endif
+  auto relocation_data = decomposeRelocation<uint64_t>(r, map);
+  if (!relocation_data) {
     return false;
   }
-  symbol_target_address += addend;
-  const uint64_t relocated_section_base =
-      map.getSectionTargetAddress(r.section_index).value_or(0);
-  if (relocated_section_base == 0) {
-    return false;
-  }
-  uint8_t *relocated_section_begin =
-      map.getSectionWritableAddress(r.section_index).value_or(nullptr);
-  if (relocated_section_begin == nullptr) {
-    return false;
-  }
-  uint8_t *relocation_address = relocated_section_begin + relocation_offset;
+  auto [relocation_address, relocated_target_address, symbol_target_address] =
+      *relocation_data;
 
   using namespace loader::RelocationTypes::X86_64;
   switch (r.type) {
@@ -210,8 +217,7 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     }
     // PC-relative 64-bit relocation
     case R_X86_64_PC64: {
-      const uint64_t value =
-          symbol_target_address - relocated_section_base - relocation_offset;
+      const uint64_t value = symbol_target_address - relocated_target_address;
       cargo::write_little_endian(value, relocation_address);
       break;
     }
@@ -240,7 +246,7 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     // sign-extensions are valid
     case R_X86_64_PC32: {
       const uint64_t real_value =
-          symbol_target_address - relocated_section_base - relocation_offset;
+          symbol_target_address - relocated_target_address;
       const uint32_t trunc_value = real_value & 0xFFFFFFFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int32_t>(trunc_value)) {
@@ -251,7 +257,7 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     }
     case R_X86_64_PC16: {
       const uint64_t real_value =
-          symbol_target_address - relocated_section_base - relocation_offset;
+          symbol_target_address - relocated_target_address;
       const uint16_t trunc_value = real_value & 0xFFFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int16_t>(trunc_value)) {
@@ -262,7 +268,7 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
     }
     case R_X86_64_PC8: {
       const uint64_t real_value =
-          symbol_target_address - relocated_section_base - relocation_offset;
+          symbol_target_address - relocated_target_address;
       const uint8_t trunc_value = real_value & 0xFF;
       if (static_cast<int64_t>(real_value) !=
           static_cast<int8_t>(trunc_value)) {
@@ -278,33 +284,16 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
 // assumes little-endian Arm, because big-endian is extremely rare
 bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
                 loader::Relocation::StubMap &stubs) {
-  const uint32_t relocation_offset = r.offset & 0xFFFFFFFF;
-  const int32_t addend = static_cast<int32_t>(r.addend);
+  auto relocation_data = decomposeRelocation<uint32_t>(r, map);
+  if (!relocation_data) {
+    return false;
+  }
+  auto [relocation_address, relocation_target_address, symbol_tgt_address] =
+      *relocation_data;
+  // We can't auto-capture structured bindings (lambda, below) so make an
+  // explicit copy of it here.
+  auto symbol_target_address = symbol_tgt_address;
 
-  uint32_t symbol_target_address = static_cast<uint32_t>(
-      map.getSymbolTargetAddress(r.symbol_index).value_or(0));
-  if (symbol_target_address == 0) {
-#ifndef NDEBUG
-    auto name = map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)name.size(),
-                  name.data());
-#endif
-    return false;
-  }
-  symbol_target_address += addend;
-  const uint32_t relocated_section_base = static_cast<uint32_t>(
-      map.getSectionTargetAddress(r.section_index).value_or(0));
-  if (relocated_section_base == 0) {
-    return false;
-  }
-  uint8_t *relocated_section_begin =
-      map.getSectionWritableAddress(r.section_index).value_or(nullptr);
-  if (relocated_section_begin == nullptr) {
-    return false;
-  }
-  uint8_t *relocation_address = relocated_section_begin + relocation_offset;
-  const uint32_t relocation_target_address =
-      relocated_section_base + relocation_offset;
   uint32_t value;
   cargo::read_little_endian(&value, relocation_address);
 
@@ -394,38 +383,18 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
       map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
 #endif
 
-  const uint64_t relocation_offset = r.offset;
-  const int64_t addend = r.addend;
+  auto relocation_data = decomposeRelocation<uint64_t>(r, map);
+  if (!relocation_data) {
+    return false;
+  }
+  auto [relocation_address, relocation_target_address, symbol_target_address] =
+      *relocation_data;
 
-  uint64_t symbol_target_address =
-      map.getSymbolTargetAddress(r.symbol_index).value_or(0);
-  if (symbol_target_address == 0) {
-#ifndef NDEBUG
-    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)symbol_name.size(),
-                  symbol_name.data());
-#endif
-    return false;
-  }
-  symbol_target_address += addend;
-  const uint64_t relocated_section_base =
-      map.getSectionTargetAddress(r.section_index).value_or(0);
-  if (relocated_section_base == 0) {
-    return false;
-  }
-  uint8_t *relocated_section_begin =
-      map.getSectionWritableAddress(r.section_index).value_or(nullptr);
-  if (relocated_section_begin == nullptr) {
-    return false;
-  }
-  uint8_t *relocation_address = relocated_section_begin + relocation_offset;
-  const uint64_t relocation_target_address =
-      relocated_section_base + relocation_offset;
   uint64_t value;
   cargo::read_little_endian(&value, relocation_address);
   uint32_t value32;
   cargo::read_little_endian(&value32, relocation_address);
 
-  using namespace loader::RelocationTypes::AArch64;
   // returns the address of the stub to jump to
   auto getOrCreateStub = [&](uint64_t symbol_target_address) -> uint64_t {
     auto found_stub_target = stubs.getTarget(symbol_target_address);
@@ -472,6 +441,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
     return target + 4;
   };
 
+  using namespace loader::RelocationTypes::AArch64;
   switch (r.type) {
     default:
       CARGO_ASSERT(0, "Unsupported relocation type.");
