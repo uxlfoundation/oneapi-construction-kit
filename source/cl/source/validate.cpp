@@ -124,7 +124,9 @@ cl_int CopyBufferArguments(cl_command_queue command_queue, cl_mem src_buffer,
             return CL_INVALID_VALUE);
   OCL_CHECK(src_offset + size > src_buffer->size, return CL_INVALID_VALUE);
   OCL_CHECK(dst_offset + size > dst_buffer->size, return CL_INVALID_VALUE);
+#if CL_TARGET_OPENCL_VERSION < 210
   OCL_CHECK(size == 0, return CL_INVALID_VALUE);
+#endif
   size_t src_start = src_offset;
   size_t dst_start = dst_offset;
   size_t src_buffer_size = 0;

@@ -841,7 +841,9 @@ cl::EnqueueWriteBuffer(cl_command_queue command_queue, cl_mem buffer,
             return CL_INVALID_CONTEXT);
   OCL_CHECK(buffer->size < (offset + size), return CL_INVALID_VALUE);
   OCL_CHECK(!ptr, return CL_INVALID_VALUE);
+#if CL_TARGET_OPENCL_VERSION < 210
   OCL_CHECK(0 == size, return CL_INVALID_VALUE);
+#endif
   OCL_CHECK(cl::validate::IsInBitSet(buffer->flags, CL_MEM_HOST_READ_ONLY),
             return CL_INVALID_OPERATION);
   OCL_CHECK(cl::validate::IsInBitSet(buffer->flags, CL_MEM_HOST_NO_ACCESS),
@@ -928,7 +930,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBuffer(
             return CL_INVALID_CONTEXT);
   OCL_CHECK(buffer->size < (offset + size), return CL_INVALID_VALUE);
   OCL_CHECK(!ptr, return CL_INVALID_VALUE);
+#if CL_TARGET_OPENCL_VERSION < 210
   OCL_CHECK(0 == size, return CL_INVALID_VALUE);
+#endif
   OCL_CHECK(cl::validate::IsInBitSet(buffer->flags, CL_MEM_HOST_WRITE_ONLY),
             return CL_INVALID_OPERATION);
   OCL_CHECK(cl::validate::IsInBitSet(buffer->flags, CL_MEM_HOST_NO_ACCESS),

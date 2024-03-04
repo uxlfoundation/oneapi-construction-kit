@@ -160,10 +160,6 @@ mux_result_t muxCommandCopyBuffer(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  if (0 == size) {
-    return mux_error_invalid_value;
-  }
-
   if ((size + src_offset) > src_buffer->memory_requirements.size) {
     return mux_error_invalid_value;
   }
@@ -350,10 +346,6 @@ mux_result_t muxCommandFillBuffer(mux_command_buffer_t command_buffer,
     return mux_error_invalid_value;
   }
 
-  if (0 == size) {
-    return mux_error_invalid_value;
-  }
-
   if ((size + offset) > buffer->memory_requirements.size) {
     return mux_error_invalid_value;
   }
@@ -394,10 +386,6 @@ mux_result_t muxCommandReadBuffer(mux_command_buffer_t command_buffer,
   }
 
   if (mux::objectIsInvalid(buffer)) {
-    return mux_error_invalid_value;
-  }
-
-  if (0 == size) {
     return mux_error_invalid_value;
   }
 
@@ -549,10 +537,6 @@ mux_result_t muxCommandWriteBuffer(mux_command_buffer_t command_buffer,
   }
 
   if (mux::objectIsInvalid(buffer)) {
-    return mux_error_invalid_value;
-  }
-
-  if (0 == size) {
     return mux_error_invalid_value;
   }
 

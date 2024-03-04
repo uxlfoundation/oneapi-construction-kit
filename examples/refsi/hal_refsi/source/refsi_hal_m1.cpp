@@ -455,6 +455,10 @@ bool refsi_m1_hal_device::mem_copy(hal::hal_addr_t dst, hal::hal_addr_t src,
             dst, src, size);
   }
 
+  if (!size) {
+    return true;
+  }
+
   refsi_command_buffer cb;
 
   // Start a 1D DMA transfer to copy data from one buffer to another.

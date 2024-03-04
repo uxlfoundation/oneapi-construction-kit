@@ -104,10 +104,16 @@ TEST_F(clEnqueueWriteBufferTest, InvalidBuffer) {
                                          nullptr, 0, nullptr, nullptr));
 }
 
-TEST_F(clEnqueueWriteBufferTest, InvalidSize) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueWriteBuffer(command_queue, mem, true, 0, 0,
-                                         &buffer[0], 0, nullptr, nullptr));
+TEST_F(clEnqueueWriteBufferTest, SizeZero) {
+  // An error when size == 0 was removed starting with OpenCL 2.1.
+  if (UCL::isDeviceVersionAtLeast({2, 1})) {
+    ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, mem, true, 0, 0,
+                                        &buffer[0], 0, nullptr, nullptr));
+  } else {
+    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                      clEnqueueWriteBuffer(command_queue, mem, true, 0, 0,
+                                           &buffer[0], 0, nullptr, nullptr));
+  }
 }
 
 TEST_F(clEnqueueWriteBufferTest, WriteToReadOnly) {

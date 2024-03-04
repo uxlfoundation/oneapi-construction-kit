@@ -273,12 +273,14 @@ bool refsi_g1_hal_device::mem_copy(hal::hal_addr_t dst, hal::hal_addr_t src,
             dst, src, size);
   }
 
-  std::vector<uint8_t> temp(size);
-  if (!mem_read(temp.data(), src, size, locker)) {
-    return false;
-  }
-  if (!mem_write(dst, temp.data(), size, locker)) {
-    return false;
+  if (size) {
+    std::vector<uint8_t> temp(size);
+    if (!mem_read(temp.data(), src, size, locker)) {
+      return false;
+    }
+    if (!mem_write(dst, temp.data(), size, locker)) {
+      return false;
+    }
   }
 
   return true;
