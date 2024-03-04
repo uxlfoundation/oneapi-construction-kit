@@ -432,10 +432,10 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   this->clock_frequency = native ? os_cpu_frequency() : 0;
   this->compute_units = native ? os_num_cpus() : 0;
   this->buffer_alignment = sizeof(uint64_t) * 16;
-  // TODO redmine(8386): Reported memory size is quartered in order to pass the
+  // TODO Reported memory size is quartered (rounded up) in order to pass the
   // OpenCL CTS however this probably should be an OCL specific fix and not in
   // the host target.
-  this->memory_size = native ? os_memory_bounded_size() / 4 : 0;
+  this->memory_size = native ? (os_memory_bounded_size() - 1) / 4 + 1 : 0;
   // All memory could be allocated at once.
   this->allocation_size = this->memory_size;
   this->cache_size = native ? os_cache_size() : 0;
