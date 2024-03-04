@@ -36,16 +36,21 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 # Fetch the official SPIR-V headers. These are required by some up our public
 # compiler headers, which are also included by mux, so this must take place
 # before including both mux and compiler modules.
-include(FetchContent)
-FetchContent_Declare(
-  SPIRV-Headers
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-  GIT_TAG        1c6bb2743599e6eb6f37b2969acc0aef812e32e3
-)
-FetchContent_MakeAvailable(SPIRV-Headers)
+# We skip the FetchContent if we are building in LLVM's tree and llvm-spirv
+# is among the enabled projects, since this FetchContent call conflicts with
+# the one in llvm-spirv.
+if(NOT (OCK_IN_LLVM_TREE AND "llvm-spirv" IN_LIST LLVM_ENABLE_PROJECTS))
+  include(FetchContent)
+  FetchContent_Declare(
+    SPIRV-Headers
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+    GIT_TAG        1c6bb2743599e6eb6f37b2969acc0aef812e32e3
+  )
+  FetchContent_MakeAvailable(SPIRV-Headers)
 
-if(NOT spirv-headers_POPULATED)
-  message(FATAL_ERROR "No SPIRV-Headers found.")
+  if(NOT spirv-headers_POPULATED)
+    message(FATAL_ERROR "No SPIRV-Headers found.")
+  endif()
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mux)
