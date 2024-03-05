@@ -50,19 +50,20 @@ jobs:
         run: |
           ninja -C $(pwd)/build install
 
-      - name: Get Intel OneAPI BaseToolkit
+      - name: Get Intel OneAPI Nightly Release
         run: |
-          wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/bb99984f-370f-413d-bbec-38928d2458f2/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh
-          export TERMINFO=/usr/lib/terminfo
-          sh $(pwd)/l_dpcpp-cpp-compiler_p_2024.0.2.29.sh -a --silent --eula accept
-          mv /home/runner/intel $(pwd)
+        # Update the nightly release from intel/llvm from 2024-03-04 to daily once
+        # everything has stablized
+        wget "https://github.com/intel/llvm/releases/download/nightly-2024-03-04/sycl_linux.tar.gz"
+        mkdir linux_nightly_release
+        tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
       - name: Test RSICV examples
         run: |
           # Set environment variables
-          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/intel/oneapi/compiler/2024.0/lib/libsycl.so:$(pwd)/intel/oneapi/compiler/2024.0/lib:$LD_LIBRARY_PATH
-          export CMAKE_CXX_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang++
-          export CMAKE_C_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang
+          export LD_LIBRARY_PATH=$(pwd)/install/lib:$(pwd)/linux_nightly_release/lib:$LD_LIBRARY_PATH
+          export CMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++
+          export CMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang
           export CA_HAL_DEBUG=1
           export CA_PROFILE_LEVEL=3
           export ONEAPI_DEVICE_SELECTOR=opencl:fpga

@@ -25,9 +25,9 @@ runs:
     - name: Get Intel OneAPI Nightly Release
       shell: bash
       run: |
-        # Update the nightly release from intel/llvm from 2024-02-12 to daily once
+        # Update the nightly release from intel/llvm from 2024-03-04 to daily once
         # everything has stablised
-        wget "https://github.com/intel/llvm/releases/download/nightly-2024-02-12/sycl_linux.tar.gz"
+        wget "https://github.com/intel/llvm/releases/download/nightly-2024-03-04/sycl_linux.tar.gz"
         mkdir linux_nightly_release
         tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 

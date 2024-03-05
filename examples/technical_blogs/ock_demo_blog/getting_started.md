@@ -41,17 +41,27 @@ You'll need to extract the files from the archive file and and oneAPI nighlty re
 downloaded from `intel/llvm`:
 
 ```sh
-    # TODO: Add wget commands for ock_build_artifacts, ock_demo_components and network_artifacts.
     mkdir Release
     cd Release
-    tar -xf ../ock_demo_artifacts.tar.gz
-    tar -xf ../ock_demo_components.tar.gz
-    tar -xf ../network_artifacts.tar.gz
-    # As of the current documentation, the latest nightly release available is dated 2024-01-30.
-    wget "https://github.com/intel/llvm/releases/download/nightly-2024-01-30/sycl_linux.tar.gz"
+
+    # As the current documentation, the latest ock-demo artifacts available is dated 2024-02-29.
+    wget https://github.com/codeplaysoftware/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/ock_demo_artifacts.tar.gz
+    wget https://github.com/codeplaysoftware/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/ock_demo_components.tar.gz
+    wget https://github.com/codeplaysoftware/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/network_artifacts.tar.gz
+
+    tar -xf ock_demo_artifacts.tar.gz
+    tar -xf ock_demo_components.tar.gz
+    # ock_demo_components comprises of portBLAS.tar.gz and portDNN.tar.gz
+    tar -xf portBLAS.tar.gz
+    tar -xf portDNN.tar.gz
+    tar -xf network_artifacts.tar.gz
+
+    # As of the current documentation, the latest nightly release available is dated 2024-03-04.
+    wget "https://github.com/intel/llvm/releases/download/nightly-2024-03-04/sycl_linux.tar.gz"
     mkdir linux_nightly_release
     tar -xzf sycl_linux.tar.gz -C linux_nightly_release
-    rm sycl_linux.tar.gz
+    rm sycl_linux.tar.gz ock_demo_artifacts.tar.gz ock_demo_components.tar.gz network_artifacts.tar.gz portBLAS_build.tar.gz portDNN_build.tar.gz
+
     export RELEASE_DIR=$PWD
 ```
 
