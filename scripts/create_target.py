@@ -49,6 +49,7 @@ Optional overrides:
         "bit_width"                 : 32 or 64 bits.
         "capabilities_fp16"         : true if has fp16 capability else false.
         "capabilities_fp64"         : true if has fp64 capability else false.
+        "capabilities_atomic64"     : true if has atomic64 capability else false (true default).
         "feature"                   : A list of features (normally tutorials) to enable as a ';' separated string
                                       Tutorials can be part finished e.g. clmul_1 or just clmul
                                       Current list is "replace_mem", "refsi_wrapper_pass" and "clmul"
