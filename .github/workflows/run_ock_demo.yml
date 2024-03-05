@@ -52,11 +52,11 @@ jobs:
 
       - name: Get Intel OneAPI Nightly Release
         run: |
-        # Update the nightly release from intel/llvm from 2024-03-04 to daily once
-        # everything has stablized
-        wget "https://github.com/intel/llvm/releases/download/nightly-2024-03-04/sycl_linux.tar.gz"
-        mkdir linux_nightly_release
-        tar -xzf sycl_linux.tar.gz -C linux_nightly_release
+          # Update the nightly release from intel/llvm from 2024-03-04 to daily once
+          # everything has stablized
+          wget "https://github.com/intel/llvm/releases/download/nightly-2024-03-04/sycl_linux.tar.gz"
+          mkdir linux_nightly_release
+          tar -xzf sycl_linux.tar.gz -C linux_nightly_release
 
       - name: Test RSICV examples
         run: |
