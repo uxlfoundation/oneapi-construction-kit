@@ -130,9 +130,7 @@ target_link_libraries({{cookiecutter.target_name}}
   PUBLIC
   cargo
   tracer
-  compiler-pipeline
-  compiler-binary-metadata
-  utils
+  md_handler
 )
 target_link_libraries({{cookiecutter.target_name}} PUBLIC loader)
 if(NOT CA_HAL_{{cookiecutter.target_name_capitals}}_NAME STREQUAL "" AND TARGET "hal_${CA_HAL_{{cookiecutter.target_name_capitals}}_NAME}")
@@ -152,6 +150,9 @@ if({{cookiecutter.target_name_capitals}}_32_BITS)
 else()
   list(APPEND {{cookiecutter.target_name}}Capabilities "64bit")
 endif()
+{%- if cookiecutter.capabilities_atomic64 == "true" %}
+list(APPEND {{cookiecutter.target_name}}Capabilities "atomic64")
+{%- endif %}  
 
 if({{cookiecutter.target_name_capitals}}_FP64)
   list(APPEND {{cookiecutter.target_name}}Capabilities "fp64")

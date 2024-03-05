@@ -33,6 +33,9 @@ def copy_file_replace_riscv(src_dir, src_file, dst_dir, dst_file=None):
                 line = ("/// Copyright (C) Codeplay Software Limited. All Rights Reserved.\n")
                 if "{{cookiecutter.copyright_name}}" != "":
                     line += ("/// Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights\n/// Reserved.\n")
+            # Replace 64 bit for device_info.cpp since we currently copy risc-v base file
+            if "{{cookiecutter.capabilities_atomic64}}" == "false" and "device_info.cpp" in src_path:
+                line = line.replace(" | mux_atomic_capabilities_64bit", "")
             fout.write(line)
         #close input and output files
         fin.close()

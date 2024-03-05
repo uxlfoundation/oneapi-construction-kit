@@ -11,6 +11,7 @@
   "bit_width": "64",
   "capabilities_fp16": "false",
   "capabilities_fp64": "true",
+  "capabilities_atomic64": "true",
   "feature" : "",
   "copyright_name" : ""
 }
