@@ -209,6 +209,8 @@ class ElfFile {
   };
   using Header32 = Header<uint32_t>;
   using Header64 = Header<uint64_t>;
+  static_assert(sizeof(Header32) == 0x34, "Wrong Header size");
+  static_assert(sizeof(Header64) == 0x40, "Wrong Header size");
 
   /// @brief Field accessors, choosing the right bitness and converting
   /// endianness if needed.
@@ -234,7 +236,7 @@ class ElfFile {
                   "Wrong addr_t type.");
     uint32_t name_offset;
     ElfFields::SectionType type;
-    ElfFields::SectionFlags::Type flags;
+    addr_t flags;
     addr_t virtual_address;
     addr_t file_offset;
     addr_t size;
@@ -245,6 +247,8 @@ class ElfFile {
   };
   using SectionHeader32 = SectionHeader<uint32_t>;
   using SectionHeader64 = SectionHeader<uint64_t>;
+  static_assert(sizeof(SectionHeader32) == 0x28, "Wrong SectionHeader size");
+  static_assert(sizeof(SectionHeader64) == 0x40, "Wrong SectionHeader size");
 
   /// @brief ELF32 symbol table entry
   struct Symbol32 {
@@ -256,6 +260,7 @@ class ElfFile {
     uint8_t other;
     uint16_t section;
   };
+  static_assert(sizeof(Symbol32) == 0x10, "Wrong Symbol size");
   /// @brief ELF64 symbol table entry
   struct Symbol64 {
     using addr_t = uint64_t;
@@ -266,6 +271,7 @@ class ElfFile {
     addr_t value;
     addr_t size;
   };
+  static_assert(sizeof(Symbol64) == 0x18, "Wrong Symbol size");
 
   /// @brief Wrapper for a section in the ELF file.
   struct Section {
@@ -306,8 +312,8 @@ class ElfFile {
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
     inline ElfFields::SectionFlags::Type flags() const {
-      return file->field(file->is32Bit() ? header32()->flags
-                                         : header64()->flags);
+      return static_cast<ElfFields::SectionFlags::Type>(
+          file->field(file->is32Bit() ? header32()->flags : header64()->flags));
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
