@@ -465,6 +465,23 @@ enum Type : uint32_t {
   R_AARCH64_P32_IRELATIVE = 0x0bc,
 };
 }
+
+// https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#relocations
+namespace RISCV {
+enum Type : uint32_t {
+  R_RISCV_NONE = 0,
+  R_RISCV_64 = 2,
+  R_RISCV_CALL = 18,
+  R_RISCV_CALL_PLT = 19,
+  R_RISCV_PCREL_HI20 = 23,
+  R_RISCV_PCREL_LO12_I = 24,
+  R_RISCV_HI20 = 26,
+  R_RISCV_LO12_I = 27,
+  R_RISCV_ADD32 = 35,
+  R_RISCV_SUB32 = 39,
+};
+}  // namespace RISCV
+
 }  // namespace RelocationTypes
 }  // namespace loader
 

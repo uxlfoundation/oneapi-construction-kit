@@ -55,14 +55,14 @@
 namespace host {
 
 // Create a target machine, `abi` is optional and may be empty
-static llvm::TargetMachine *createTargetMachine(llvm::StringRef CPU,
-                                                llvm::StringRef Triple,
+static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
+                                                llvm::StringRef CPU,
                                                 llvm::StringRef Features,
                                                 llvm::StringRef ABI) {
   // Init the llvm target machine.
   llvm::TargetOptions Options;
   std::string Error;
-  const std::string TripleStr = Triple.str();
+  const std::string &TripleStr = TT.str();
   const llvm::Target *LLVMTarget =
       llvm::TargetRegistry::lookupTarget(TripleStr, Error);
   if (nullptr == LLVMTarget) {
@@ -73,6 +73,14 @@ static llvm::TargetMachine *createTargetMachine(llvm::StringRef CPU,
     Options.MCOptions.ABIName = ABI;
   }
 
+  std::optional<llvm::CodeModel::Model> CM;
+  // RISC-V needs the 'medium' code model as we don't ensure that the code and
+  // its statically defined symbols are loaded somewhere in the range of
+  // absolute addresses -2GB and +2GB, which is a requirement of the 'low' code
+  // model.
+  if (TT.isRISCV()) {
+    CM = llvm::CodeModel::Medium;
+  }
   // Aarch64 fails on UnitCL test
   // Execution/Execution.Barrier_02_Barrier_No_Duplicates/OfflineOpenCLC if we
   // don't set `JIT` to true. JIT for x86_64 and Aarch64 set the large code
@@ -83,8 +91,8 @@ static llvm::TargetMachine *createTargetMachine(llvm::StringRef CPU,
   // TODO: Investigate whether we can use a loader that does not have this
   // issue.
   return LLVMTarget->createTargetMachine(
-      Triple, CPU, Features, Options, /*RM=*/std::nullopt,
-      /*CM=*/std::nullopt, multi_llvm::CodeGenOptLevel::Aggressive,
+      TripleStr, CPU, Features, Options, /*RM=*/std::nullopt, CM,
+      multi_llvm::CodeGenOptLevel::Aggressive,
       /*JIT=*/true);
 }
 
@@ -372,8 +380,7 @@ compiler::Result HostTarget::initWithBuiltins(
         Features += '-' + FeatureName.str();
       }
     }
-    target_machine.reset(
-        createTargetMachine(CPUName, triple.str(), Features, ABI));
+    target_machine.reset(createTargetMachine(triple, CPUName, Features, ABI));
   }
 
   return compiler::Result::SUCCESS;
