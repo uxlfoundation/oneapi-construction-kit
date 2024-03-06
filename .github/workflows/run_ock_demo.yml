@@ -74,7 +74,7 @@ jobs:
           export SYCL_CONFIG_FILE_NAME=""
 
           mkdir ock_example_tests
-          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang++ -DCMAKE_C_COMPILER=$(pwd)/intel/oneapi/compiler/2024.0/bin/compiler/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/intel/oneapi/compiler/2024.0/include/sycl $(pwd)/examples/applications
+          cmake -GNinja -Bock_example_tests -DCMAKE_CXX_COMPILER=$(pwd)/linux_nightly_release/bin/clang++ -DCMAKE_C_COMPILER=$(pwd)/linux_nightly_release/bin/clang -DOpenCL_LIBRARY=$(pwd)/install/lib/libCL.so -DOpenCL_INCLUDE_DIR=$(pwd)/linux_nightly_release/include/sycl $(pwd)/examples/applications
           ninja -C ock_example_tests
 
           # Run tests
