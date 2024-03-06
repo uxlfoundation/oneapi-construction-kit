@@ -415,7 +415,8 @@ struct ScheduleGenerator {
       preheader->moveAfter(block);
       exitBlock->moveAfter(preheader);
 
-      auto needLoop = new ICmpInst(*block, CmpInst::ICMP_NE, zero, totalSize);
+      auto *const needLoop = CmpInst::Create(
+          Instruction::ICmp, CmpInst::ICMP_NE, zero, totalSize, "", block);
 
       BranchInst::Create(preheader, exitBlock, needLoop, block);
 
@@ -551,8 +552,8 @@ struct ScheduleGenerator {
           tailUniformBlock =
               BasicBlock::Create(context, "ca_tail_uniform_load", func);
 
-          auto *const needTail =
-              new ICmpInst(*block, CmpInst::ICMP_EQ, totalSize, zero);
+          auto *const needTail = CmpInst::Create(
+              Instruction::ICmp, CmpInst::ICMP_EQ, totalSize, zero, "", block);
           BranchInst::Create(tailUniformBlock, mainUniformBlock, needTail,
                              block);
         }
@@ -694,8 +695,9 @@ struct ScheduleGenerator {
         subgroupMergePhi = PHINode::Create(i32Ty, 2, "", mainExitBB);
         subgroupMergePhi->addIncoming(i32Zero, block);
 
-        auto needMain =
-            new ICmpInst(*block, CmpInst::ICMP_NE, zero, mainLoopLimit);
+        auto *const needMain =
+            CmpInst::Create(Instruction::ICmp, CmpInst::ICMP_NE, zero,
+                            mainLoopLimit, "", block);
 
         BranchInst::Create(mainPreheaderBB, mainExitBB, needMain, block);
       }
@@ -806,8 +808,8 @@ struct ScheduleGenerator {
         tailPreheaderBB->moveAfter(mainExitBB);
         tailExitBB->moveAfter(tailPreheaderBB);
 
-        auto needPeeling =
-            new ICmpInst(*mainExitBB, CmpInst::ICMP_NE, zero, peel);
+        auto *const needPeeling = CmpInst::Create(
+            Instruction::ICmp, CmpInst::ICMP_NE, zero, peel, "", mainExitBB);
 
         BranchInst::Create(tailPreheaderBB, tailExitBB, needPeeling,
                            mainExitBB);
@@ -1007,8 +1009,9 @@ struct ScheduleGenerator {
                       scanMergePhi->addIncoming(ivs1[1], block);
                     }
 
-                    auto needMain = new ICmpInst(*block, CmpInst::ICMP_NE, zero,
-                                                 mainLoopLimit);
+                    auto *const needMain =
+                        CmpInst::Create(Instruction::ICmp, CmpInst::ICMP_NE,
+                                        zero, mainLoopLimit, "", block);
 
                     BranchInst::Create(mainPreheaderBB, mainExitBB, needMain,
                                        block);
@@ -1118,8 +1121,9 @@ struct ScheduleGenerator {
                     tailPreheaderBB->moveAfter(mainExitBB);
                     tailExitBB->moveAfter(tailPreheaderBB);
 
-                    auto needPeeling =
-                        new ICmpInst(*mainExitBB, CmpInst::ICMP_NE, zero, peel);
+                    auto *const needPeeling =
+                        CmpInst::Create(Instruction::ICmp, CmpInst::ICMP_NE,
+                                        zero, peel, "", mainExitBB);
 
                     BranchInst::Create(tailPreheaderBB, tailExitBB, needPeeling,
                                        mainExitBB);
@@ -1642,7 +1646,8 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
             BasicBlock::Create(context, "barrier.branch", new_wrapper);
         auto *const ld_next_id = new LoadInst(index_type, nextID, "", br_block);
         auto *const cmp_id =
-            new ICmpInst(*br_block, CmpInst::ICMP_EQ, ld_next_id, bb_id);
+            CmpInst::Create(Instruction::ICmp, CmpInst::ICMP_EQ, ld_next_id,
+                            bb_id, "", br_block);
         BranchInst::Create(bbs[successors[0]], bbs[successors[1]], cmp_id,
                            br_block);
 
