@@ -189,6 +189,8 @@ CL_DEVICE_TYPE_CPU, Images (Kernel CL_FILTER_LINEAR max size),images/kernel_read
 CL_DEVICE_TYPE_CPU, Images (Kernel CL_FILTER_LINEAR max size),images/kernel_read_write/test_image_streams max_images CL_FILTER_LINEAR 1Darray
 CL_DEVICE_TYPE_CPU, Images (Kernel CL_FILTER_LINEAR max size),images/kernel_read_write/test_image_streams max_images CL_FILTER_LINEAR 2Darray
 
+OpenCL-GL Sharing,gl/test_gl
+
 Select,select/test_select select_double_ulong -w
 Select,select/test_select select_double_long -w
 Conversions,conversions/test_conversions char_uchar -w
