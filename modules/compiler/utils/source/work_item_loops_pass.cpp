@@ -1664,6 +1664,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
 
       const auto &successors = barrierMain.getSuccessorIds(i);
       const auto num_succ = successors.size();
+
       if (num_succ == 1) {
         // If there is only one successor, we can branch directly to it
         exitIR.CreateBr(bbs[successors.front()]);
@@ -1680,6 +1681,22 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
                            br_block);
 
         exitIR.CreateBr(br_block);
+      } else if (num_succ == 0) {
+        // If a barrier region has no successor, we just emit a call to
+        // llvm.trap and unreachable. A barrier region can have zero successors
+        // if all its terminators end in unreachable. Since there are no
+        // successors, it is not possible to continue and therefore we emit an
+        // unreachable here.
+
+        // TODO: we should be flagging up unreachables sooner, so that we avoid
+        // wrapping barrier regions with no successors with work item loops,
+        // and we should also make sure that the barrier region has no
+        // successors because of all its terminators ending in unreachable.
+        // If it's not the case we may want to handle that differently.
+        auto trap =
+            M.getOrInsertFunction("llvm.trap", Type::getVoidTy(context));
+        exitIR.CreateCall(trap);
+        exitIR.CreateUnreachable();
       } else {
         // Make a basic block with a switch to jump to the next subkernel
         auto *const switch_body =
