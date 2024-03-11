@@ -25,6 +25,9 @@ if(CLIK_HAL_DIR STREQUAL "")
   endif()
 endif()
 
+# Clik currently only works with hal cpu in WI mode so disable WG mode
+option(HAL_CPU_WG_MODE "Build Hal CPU in workgroup mode" OFF)
+
 set(HAL_SCRIPT ${CLIK_HAL_DIR}/CMakeLists.txt)
 if (NOT EXISTS ${HAL_SCRIPT})
   message(FATAL_ERROR "Could not find ${HAL_SCRIPT}. hal needs to be either in external or passed in via CLIK_HAL_DIR (${CLIK_HAL_DIR}. ")

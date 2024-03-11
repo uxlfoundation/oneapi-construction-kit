@@ -16,6 +16,7 @@
 
 #include "cpu_hal.h"
 
+#include <arg_pack.h>
 #include <dlfcn.h>
 #include <malloc.h>
 #if defined(_WIN32)
@@ -23,6 +24,8 @@
 #else
 #include <unistd.h>
 #endif
+
+#include <stdlib.h>
 
 #include <cstring>
 #include <iomanip>
@@ -34,10 +37,24 @@
 
 cpu_hal::cpu_hal(hal::hal_device_info_t *info, std::mutex &hal_lock)
     : hal::hal_device_t(info), hal_lock(hal_lock) {
-  local_mem = (uint8_t *)malloc(local_mem_size);
+#if HAL_CPU_MODE == HAL_CPU_WI_MODE
+  // Align local memory to 128 bytes as that is the largest data type
+  // in OpenCL and we need any values placed in local memory to fit that
+  // alignment.
+  local_mem = (uint8_t *)std::aligned_alloc(128, local_mem_size);
+#endif
+  if (const char *val = getenv("CA_HAL_DEBUG")) {
+    if (strcmp(val, "0") != 0) {
+      debug = true;
+    }
+  }
 }
 
-cpu_hal::~cpu_hal() { free(local_mem); }
+#if HAL_CPU_MODE == HAL_CPU_WI_MODE
+cpu_hal::~cpu_hal() {
+  std::free(local_mem);
+}
+#endif
 
 hal::hal_kernel_t cpu_hal::program_find_kernel(hal::hal_program_t program,
                                                const char *name) {
@@ -147,10 +164,47 @@ void cpu_barrier::wait(int num_threads) {
   }
 }
 
+#if HAL_CPU_MODE == HAL_CPU_WI_MODE
 void cpu_hal::kernel_entry(exec_state *exec) {
   direct_kernel_fn kernel = (direct_kernel_fn)exec->kernel_entry;
-  kernel((void *)exec->packed_args, exec);
+  kernel(exec->packed_args, exec);
 }
+#else
+void cpu_hal::kernel_entry(exec_state *exec) {
+  direct_kernel_fn kernel = (direct_kernel_fn)exec->kernel_entry;
+
+  // Simple split across x axis (first )by dividing the num groups by the
+  // threads and rounding up. Some threads may get zero due to the x dimension
+  // being smaller that the total threads or the total size not fitting the number
+  // of threads exactly
+
+  // First work out the ideal number of groups per thread by rounding up to the
+  // number of threads. We may later reduce the size on a thread basis due to a
+  // poor fit.
+  uint32_t num_groups_per_thread =
+      (exec->wg.num_groups[0] + exec->num_threads - 1) / exec->num_threads;
+
+  // Calculate the start x per thread
+  uint32_t group_x_start = num_groups_per_thread * exec->thread_id;
+
+  // Calculate the minumum of the next thread's group start and the max groups,
+  // so we know when to stop. This means some thread's may get less work items
+  // in order to fit the work group size.
+  uint32_t group_x_next = std::min(group_x_start + num_groups_per_thread,
+                                   (uint32_t)(exec->wg.num_groups[0]));
+
+  for (uint32_t wg_z = 0; wg_z < exec->wg.num_groups[2]; wg_z++) {
+    exec->wg.group_id[2] = wg_z;
+    for (uint32_t wg_y = 0; wg_y < exec->wg.num_groups[1]; wg_y++) {
+      exec->wg.group_id[1] = wg_y;
+      for (uint32_t wg_x = group_x_start; wg_x < group_x_next; wg_x++) {
+        exec->wg.group_id[0] = wg_x;
+        kernel(exec->packed_args, exec);
+      }
+    }
+  }
+}
+#endif
 
 bool cpu_hal::kernel_exec(hal::hal_program_t program, hal::hal_kernel_t kernel,
                           const hal::hal_ndrange_t *nd_range,
@@ -190,20 +244,32 @@ bool cpu_hal::kernel_exec(hal::hal_program_t program, hal::hal_kernel_t kernel,
   }
   exec.kernel_entry = (entry_point_fn)kernel;
   exec.flags = flags;
+
+  hal::util::hal_argpack_t pack(get_word_size() * 8);
+#if HAL_CPU_MODE == HAL_CPU_WI_MODE
+  // If work item mode pack needs to be updated to know where local_mem is
+  // and we need a thread barrier (for clik)
+  pack.setWorkItemMode(reinterpret_cast<uintptr_t>(local_mem), local_mem_size);
   exec.barrier = [](exec_state *exec) {
     exec->hal->barrier.wait(exec->num_threads);
   };
-  exec.hal = this;
-
-  // Pack arguments.
-  std::vector<uint8_t> packed_args;
-  if (!pack_args(packed_args, args, num_args, elf, exec.flags)) {
+#endif
+  if (!pack.build(args, num_args)) {
     return false;
   }
-  exec.packed_args = (kernel_args_ptr)packed_args.data();
+  exec.hal = this;
+
+  exec.packed_args = (kernel_args_ptr)pack.data();
 
   // Specialize the execution state struct for each thread.
+#if HAL_CPU_MODE == HAL_CPU_WG_MODE
+  size_t num_threads = std::thread::hardware_concurrency();
+#elif HAL_CPU_MODE == HAL_CPU_WI_MODE
   size_t num_threads = work_group_size;
+#else
+#error HAL_CPU_MODE must be HAL_CPU_MODE_WG or HAL_CPU_MODE_WI.
+#endif
+
   std::vector<exec_state_t> exec_for_thread(num_threads);
   exec.num_threads = num_threads;
   for (size_t thread_id = 0; thread_id < num_threads; thread_id++) {
@@ -225,83 +291,9 @@ bool cpu_hal::kernel_exec(hal::hal_program_t program, hal::hal_kernel_t kernel,
       delete t;
     }
   } else {
-    kernel_entry(&exec_for_thread[0]);
+    cpu_hal::kernel_entry(&exec_for_thread[0]);
   }
 
-  return true;
-}
-
-// Pack a value of arbitrary size into an argument buffer.
-void cpu_hal::pack_arg(std::vector<uint8_t> &packed_data, const void *value,
-                       size_t size, size_t align) {
-  if (!align) {
-    align = size;
-  }
-  size_t offset = packed_data.size();
-  offset = (offset + align - 1) / align * align;
-  size_t new_size = offset + size;
-  packed_data.resize(new_size, 0);
-  memcpy(&packed_data[offset], value, size);
-  if (hal_debug()) {
-    fprintf(stderr, "cpu_hal::pack_arg(offset=%zu, align=%zu, value=0x", offset,
-            align);
-    for (size_t i = offset; i < new_size; i++) {
-      fprintf(stderr, "%02x", packed_data[new_size + offset - (i + 1)]);
-    }
-    fprintf(stderr, ")\n");
-  }
-}
-
-// Pack a 32-bit value into an argument buffer.
-void cpu_hal::pack_uint32_arg(std::vector<uint8_t> &packed_data, uint32_t value,
-                              size_t align) {
-  pack_arg(packed_data, &value, sizeof(uint32_t), align);
-}
-
-// Pack a 64-bit value into an argument buffer.
-void cpu_hal::pack_uint64_arg(std::vector<uint8_t> &packed_data, uint64_t value,
-                              size_t align) {
-  pack_arg(packed_data, &value, sizeof(uint64_t), align);
-}
-
-// Pack a word-sized value into an argument buffer.
-void cpu_hal::pack_word_arg(std::vector<uint8_t> &packed_data, uint64_t value,
-                            uint32_t hal_flags) {
-  size_t align = get_word_size();
-  if (get_word_size() == sizeof(uint64_t)) {
-    pack_uint64_arg(packed_data, value, align);
-  } else {
-    pack_uint32_arg(packed_data, (uint32_t)value, align);
-  }
-}
-
-bool cpu_hal::pack_args(std::vector<uint8_t> &packed_data,
-                        const hal::hal_arg_t *args, uint32_t num_args,
-                        elf_program program, uint32_t hal_flags) {
-  // Determine the area we can use to allocate local memory arguments.
-  uint8_t *local_mem_start = local_mem;
-  uint8_t *local_mem_end = local_mem_start + local_mem_size;
-
-  // Translate arguments.
-  for (uint32_t i = 0; i < num_args; i++) {
-    const hal::hal_arg_t &arg(args[i]);
-    switch (arg.kind) {
-      case hal::hal_arg_address:
-        if (arg.space == hal::hal_space_local) {
-          pack_word_arg(packed_data, (uint64_t)local_mem_start, hal_flags);
-          local_mem_start += arg.size;
-          if (local_mem_start > local_mem_end) {
-            return false;
-          }
-        } else {
-          pack_word_arg(packed_data, arg.address, hal_flags);
-        }
-        break;
-      case hal::hal_arg_value:
-        pack_arg(packed_data, arg.pod_data, arg.size, arg.size);
-        break;
-    }
-  }
   return true;
 }
 
@@ -369,6 +361,12 @@ bool cpu_hal::mem_write(hal::hal_addr_t dst, const void *src,
 
 bool cpu_hal::mem_fill(hal::hal_addr_t dst, const void *pattern,
                        hal::hal_size_t pattern_size, hal::hal_size_t size) {
+  if (hal_debug()) {
+    fprintf(stderr,
+            "cpu_hal::mem_fill(dst=0x%08lx, pattern=%p pattern_size=%ld "
+            "size=%ld)\n",
+            dst, pattern, pattern_size, size);
+  }
   if (!pattern) {
     return false;
   }
@@ -376,7 +374,7 @@ bool cpu_hal::mem_fill(hal::hal_addr_t dst, const void *pattern,
   while (size >= pattern_size) {
     memcpy(pdst, pattern, pattern_size);
     size -= pattern_size;
-    dst += pattern_size;
+    pdst += pattern_size;
   }
   return true;
 }

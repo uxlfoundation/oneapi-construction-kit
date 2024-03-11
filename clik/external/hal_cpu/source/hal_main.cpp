@@ -62,16 +62,24 @@ class cpu_hal_platform : public hal::hal_t {
     const uint64_t local_ram_size = 8 << 20;
     hal_device_info.type = hal::hal_device_type_riscv;
     hal_device_info.word_size = sizeof(uintptr_t) * 8;
-    hal_device_info.target_name = "CPU";
+    hal_device_info.target_name = "ock cpu";
     hal_device_info.global_memory_avail =
         global_ram_size - global_mem_max_over_allocation;
     hal_device_info.shared_local_memory_size = local_ram_size;
     hal_device_info.should_link = true;
     hal_device_info.should_vectorize = false;
-    hal_device_info.preferred_vector_width = 0;
+    // TODO: This is slightly arbitrary and based on the "host" target
+    // default to 128 bit (16 bytes)
+    hal_device_info.preferred_vector_width = 128 / (8 * sizeof(uint8_t));
     hal_device_info.supports_fp16 = false;
     hal_device_info.supports_doubles = true;
+#if HAL_CPU_MODE == HAL_CPU_WG_MODE
+    hal_device_info.max_workgroup_size = 1024;
+#elif HAL_CPU_MODE == HAL_CPU_WI_MODE    
     hal_device_info.max_workgroup_size = 16;
+#else
+#error HAL_CPU_MODE must be HAL_CPU_MODE_WG or HAL_CPU_MODE_WI.
+#endif
     hal_device_info.is_little_endian = true;
     hal_device_info.linker_script =
         std::string(hal_cpu_linker_script, hal_cpu_linker_script_size);

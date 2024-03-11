@@ -21,6 +21,12 @@ add_library(hal_cpu SHARED
 
 target_compile_definitions(hal_cpu PUBLIC -DBUILD_HAL_DLL)
 
+if(HAL_CPU_WG_MODE)
+  target_compile_definitions(hal_cpu PUBLIC -DHAL_CPU_MODE=HAL_CPU_WG_MODE)
+else()
+  target_compile_definitions(hal_cpu PUBLIC -DHAL_CPU_MODE=HAL_CPU_WI_MODE)
+endif()
+
 target_include_directories(hal_cpu PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}
     ${HAL_CPU_SOURCE_DIR}/include
@@ -33,6 +39,9 @@ hal_add_baked_data(hal_cpu
     linker_script.h
     ${HAL_CPU_SOURCE_DIR}/include/device/program.lds)
 
+set_target_properties(hal_cpu PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+  
 install(TARGETS hal_cpu
         LIBRARY DESTINATION lib
 )
