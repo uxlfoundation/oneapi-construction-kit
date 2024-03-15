@@ -136,6 +136,16 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
 
     assert(!Error && "Bitcode materialization failed!");
 
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+    if (BuiltinFn->IsNewDbgInfoFormat != BuiltinsModule.IsNewDbgInfoFormat) {
+      if (BuiltinsModule.IsNewDbgInfoFormat) {
+        BuiltinFn->convertToNewDbgValues();
+      } else {
+        BuiltinFn->convertFromNewDbgValues();
+      }
+    }
+#endif
+
     // Find any callees in the function and add them to the list.
     for (auto &BB : *BuiltinFn) {
       for (auto &I : BB) {
