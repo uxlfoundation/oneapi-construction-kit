@@ -94,6 +94,10 @@ void commandWriteBuffer(host::command_info_s *info) {
 void commandFillBuffer(host::command_info_s *info) {
   host::command_info_fill_buffer_s *const fill = &(info->fill_command);
 
+  if (!fill->size) {
+    return;
+  }
+
   auto buffer = static_cast<host::buffer_s *>(fill->buffer);
 
   size_t size = fill->pattern_size;

@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <CL/cl.h>
+
 #include <array>
 
 #include "Common.h"
@@ -120,6 +122,11 @@ TEST_F(clEnqueueFillBufferTest, ZeroPatternSize) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clEnqueueFillBuffer(command_queue, buffer, &pattern, 0, 0,
                                         size, 0, nullptr, nullptr));
+}
+
+TEST_F(clEnqueueFillBufferTest, SizeZero) {
+  ASSERT_SUCCESS(clEnqueueFillBuffer(command_queue, buffer, &pattern,
+                                     pattern_size, 0, 0, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueFillBufferTest, BadPatternSizes) {

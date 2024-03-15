@@ -16,6 +16,7 @@
 
 #include "Common.h"
 #include "EventWaitList.h"
+#include "ucl/checks.h"
 
 class clEnqueueCopyBufferCheckTest : public ucl::CommandQueueTest {
  protected:
@@ -296,9 +297,15 @@ TEST_F(clEnqueueCopyBufferCheckTest, dst_bufferSizePlusOffsetTooLarge) {
 }
 
 TEST_F(clEnqueueCopyBufferCheckTest, BufferSizeZero) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
-                                        0, 0, 0, 0, nullptr, nullptr));
+  // An error when size == 0 was removed starting with OpenCL 2.1.
+  if (UCL::isDeviceVersionAtLeast({2, 1})) {
+    ASSERT_SUCCESS(clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, 0,
+                                       0, 0, 0, nullptr, nullptr));
+  } else {
+    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                          0, 0, 0, 0, nullptr, nullptr));
+  }
 }
 
 TEST_F(clEnqueueCopyBufferTest, CopyBufferNoEvents) {
