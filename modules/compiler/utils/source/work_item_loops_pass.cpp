@@ -290,6 +290,33 @@ struct ScheduleGenerator {
           /*AlwaysPreserve=*/false, DINode::FlagZero,
           old_var->getAlignInBits());
       // Create intrinsic
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+      if (!module.IsNewDbgInfoFormat) {
+        auto *const DII = DIB.insertDeclare(barrier.getDebugAddr(), new_var,
+                                            expr, wrapperDbgLoc, block)
+                              .get<Instruction *>();
+
+        // Bit of a HACK to produce the same debug output as the Mem2Reg
+        // pass used to do.
+        auto *const DVIntrinsic = cast<DbgVariableIntrinsic>(DII);
+        ConvertDebugDeclareToDebugValue(DVIntrinsic, SI, DIB);
+      } else {
+        auto *const DPV = static_cast<DPValue *>(
+            DIB.insertDeclare(barrier.getDebugAddr(), new_var, expr,
+                              wrapperDbgLoc, block)
+                .get<DbgRecord *>());
+
+        // This is nasty, but LLVM errors out on trailing debug info, we need a
+        // subsequent instruction even if we delete it immediately afterwards.
+        auto *DummyInst = new UnreachableInst(module.getContext(), block);
+
+        // Bit of a HACK to produce the same debug output as the Mem2Reg
+        // pass used to do.
+        ConvertDebugDeclareToDebugValue(DPV, SI, DIB);
+
+        DummyInst->eraseFromParent();
+      }
+#else
       auto *const DII = DIB.insertDeclare(barrier.getDebugAddr(), new_var, expr,
                                           wrapperDbgLoc, block);
 
@@ -297,6 +324,7 @@ struct ScheduleGenerator {
       // pass used to do.
       auto *const DVIntrinsic = cast<DbgVariableIntrinsic>(DII);
       ConvertDebugDeclareToDebugValue(DVIntrinsic, SI, DIB);
+#endif
     };
     for (auto debug_pair : barrier.getDebugIntrinsics()) {
       RecreateDebugIntrinsic(debug_pair.first->getVariable(),
