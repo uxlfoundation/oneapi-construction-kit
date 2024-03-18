@@ -36,7 +36,7 @@ class Profile(object):
         self.add_options(parser)
         args = parser.parse_args(argv)
         if args.timeout:
-            m = re.match("^(?:(\d{2,}):)?(\d{2}):(\d{2})$", args.timeout)
+            m = re.match("^(?:(\\d{2,}):)?(\\d{2}):(\\d{2})$", args.timeout)
             if not m:
                 raise Exception("Invalid timeout value. Format: [HH:]MM:SS")
             hours = int(m.group(1) or 0)

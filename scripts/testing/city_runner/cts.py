@@ -43,11 +43,11 @@ class CTSTestRun(TestRunBase):
         stream = io.BytesIO(self.output)
         # Extended pass_single_pattern. See Redmine issue #6542.
         pass_single_pattern = re.compile(
-            b"^(PASSED .+\.|.+PASSED\.?|passed .+\.|.+passed\.?)$")
-        pass_pair_pattern = re.compile(b"^PASSED (\d+) of (\d+) tests\.$")
-        fail_single_pattern = re.compile(b"^(FAILED .+\.|.+FAILED\.?)$")
-        fail_pair_pattern = re.compile(b"^FAILED (\d+) of (\d+) tests\.$")
-        doubles_unsupported_pattern = re.compile(b".*Has Double\? NO$")
+            b"^(PASSED .+\\.|.+PASSED\\.?|passed .+\\.|.+passed\\.?)$")
+        pass_pair_pattern = re.compile(b"^PASSED (\\d+) of (\\d+) tests\\.$")
+        fail_single_pattern = re.compile(b"^(FAILED .+\\.|.+FAILED\\.?)$")
+        fail_pair_pattern = re.compile(b"^FAILED (\\d+) of (\\d+) tests\\.$")
+        doubles_unsupported_pattern = re.compile(b".*Has Double\\? NO$")
 
         # Individual SPIR tests use yet another format to report test results.
         # To avoid false positive we want to match the current test name.
@@ -59,7 +59,7 @@ class CTSTestRun(TestRunBase):
                     spir_test_name = argument
                     break
             if spir_test_name:
-                spir_pass_expr = "^%s passed\.$" % spir_test_name
+                spir_pass_expr = "^%s passed\\.$" % spir_test_name
                 spir_pass_pattern = re.compile(spir_pass_expr.encode("utf8"))
 
         self.status = "SKIP"

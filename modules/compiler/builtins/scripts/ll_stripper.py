@@ -47,13 +47,13 @@ def strip(in_file, out_file, half_support):
     replace_hidden = compile('define hidden')
     replace_df16 = compile('DF16_')
     replace_spir_version = compile(
-        '!opencl\.spir\.version = !{!([0-9]*), [!0-9, ]*}')
+        '!opencl\\.spir\\.version = !{!([0-9]*), [!0-9, ]*}')
     replace_ocl_version = compile(
-        '!opencl\.ocl\.version = !{!([0-9]*), [!0-9, ]*}')
-    replace_llvm_metadata = compile('!llvm\.ident = !{!([0-9]*), [!0-9, ]*}')
+        '!opencl\\.ocl\\.version = !{!([0-9]*), [!0-9, ]*}')
+    replace_llvm_metadata = compile('!llvm\\.ident = !{!([0-9]*), [!0-9, ]*}')
     find_spirfuncDF16 = compile('spir_func .*DF16_[^(]*')
     find_spirfuncDecl = compile('declare (hidden )?spir_func .*Dh[^(]*')
-    find_comdatDF16 = compile('\$.*DF16_[^ ]* = comdat any')
+    find_comdatDF16 = compile('\\$.*DF16_[^ ]* = comdat any')
 
     with open(out_file, 'w') as f:
         for line in in_file:

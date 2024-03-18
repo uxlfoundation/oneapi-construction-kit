@@ -174,7 +174,7 @@ class Extract_Asm(Disassembly):
     #list of lines for that function from the object file
     def pickle_asm(self):
         func_hdr_match = re.compile(
-            '^\s*(?P<address>[0-9a-fA-F]+)\s+<(?P<symbol>[^>]*)>:\s*$')
+            '^\\s*(?P<address>[0-9a-fA-F]+)\\s+<(?P<symbol>[^>]*)>:\\s*$')
         search_for_function = True
         func_name = None
         func_address = None
