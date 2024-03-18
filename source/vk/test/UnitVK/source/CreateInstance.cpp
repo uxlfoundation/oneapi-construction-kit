@@ -85,10 +85,22 @@ TEST_F(CreateInstance, DefaultExtension) {
                                    nullptr, &extensionCount, nullptr));
 
   if (0 < extensionCount) {
+    uint32_t storedExtensionCount;
     std::vector<VkExtensionProperties> extensionProperties(extensionCount);
-    ASSERT_EQ_RESULT(VK_SUCCESS,
-                     vkEnumerateInstanceExtensionProperties(
-                         nullptr, &extensionCount, extensionProperties.data()));
+
+    storedExtensionCount = 0;
+    ASSERT_EQ_RESULT(VK_INCOMPLETE, vkEnumerateInstanceExtensionProperties(
+                                        nullptr, &storedExtensionCount,
+                                        extensionProperties.data()));
+    ASSERT_EQ(0, storedExtensionCount);
+
+    // Test that we do not overflow, not even on 32-bit platforms, by
+    // effectively treating this as -1.
+    storedExtensionCount = 0xffffffff;
+    ASSERT_EQ_RESULT(VK_SUCCESS, vkEnumerateInstanceExtensionProperties(
+                                     nullptr, &storedExtensionCount,
+                                     extensionProperties.data()));
+    ASSERT_EQ(extensionCount, storedExtensionCount);
 
     createInfo.enabledExtensionCount = 1;
     const char *enabledExtensionNames[] = {
