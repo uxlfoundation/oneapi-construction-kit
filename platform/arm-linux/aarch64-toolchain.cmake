@@ -27,7 +27,7 @@ endif()
 
 set(CMAKE_SYSTEM_NAME Linux
   CACHE STRING "operating system" FORCE)
-set(CMAKE_SYSTEM_PROCESSOR ARM64
+set(CMAKE_SYSTEM_PROCESSOR aarch64
   CACHE STRING "processor architecture" FORCE)
 
 find_program(CMAKE_C_COMPILER NAMES
