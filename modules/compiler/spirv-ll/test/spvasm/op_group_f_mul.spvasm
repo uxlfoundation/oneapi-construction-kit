@@ -17,16 +17,19 @@
 ; REQUIRES: spirv-as-v2023.5+
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c GroupUniformArithmeticKHR %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c GroupUniformArithmeticKHR -e SPV_KHR_uniform_group_instructions %spv_file_s | FileCheck %s
 
                                OpCapability Addresses
                                OpCapability Kernel
                                OpCapability Groups
                                OpCapability GroupUniformArithmeticKHR
+                               OpExtension "SPV_KHR_uniform_group_instructions"
 
                                OpMemoryModel Physical64 OpenCL
 
                                OpEntryPoint Kernel %sub_group_reduction_fcn "sub_group_reduction"
+
+                               OpName %sub_group_reduction_in "a"
 
                   %float_ty  = OpTypeFloat 32
                   %uint_ty   = OpTypeInt 32 0
@@ -35,8 +38,6 @@
                      %fcn_ty = OpTypeFunction %void_ty %ptr_CrossWorkgroup_float_ty
 
             %sub_group_scope = OpConstant %uint_ty 3
-
-                               OpName %sub_group_reduction_in "a"
 
 ; CHECK-LABEL: define spir_kernel void @sub_group_reduction(
     %sub_group_reduction_fcn = OpFunction %void_ty None %fcn_ty
