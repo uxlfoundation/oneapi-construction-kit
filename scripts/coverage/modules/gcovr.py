@@ -48,7 +48,7 @@ def gcovrGenerateXmlFile(args, obj_path, source_path):
     else:
         # else set the source filter from ".." where all other source lives
         source_path_filter = os.path.relpath(source_path, '..')
-        source_path_filter = '^\.\./' + source_path_filter + '/.*'
+        source_path_filter = '^\\.\\./' + source_path_filter + '/.*'
 
     gcovr_output_file = os.path.join('coverage_' + gcovr_file_tag + '_' +
                  v.TEST_SUITE_NAME + '-' + str(v.TEST_SUITE_NAME_COUNTER) +

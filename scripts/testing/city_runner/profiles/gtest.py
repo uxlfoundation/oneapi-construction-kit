@@ -141,7 +141,7 @@ class GTestProfile(SSHProfile):
         test_bin_args = bin_args[:] + ["--gtest_filter=%s" % test_name]
 
         # Expand special patterns in the ccommand line options
-        test_name_subbed = re.sub(r'/|\.', '_', test_name)
+        test_name_subbed = re.sub(r'/|\\.', '_', test_name)
         test_bin_args_expanded = [
             arg.replace("${TEST_NAME}", test_name_subbed)
             for arg in test_bin_args
@@ -301,9 +301,9 @@ class GoogleTestRun(SSHTestRun):
 
         # Regex expressions to match
         total_tests_pattern = re.compile(
-               b".*?(\d+) (test cases?|tests? from \d+ test suites?) ran\." )
-        pass_pattern = re.compile(b"^\[  PASSED  \] (\d+) tests?\.$")
-        skip_pattern = re.compile(b"^\[  SKIPPED \] (\d+) tests?")
+               b".*?(\\d+) (test cases?|tests? from \\d+ test suites?) ran\\." )
+        pass_pattern = re.compile(b"^\\[  PASSED  \\] (\\d+) tests?\\.$")
+        skip_pattern = re.compile(b"^\\[  SKIPPED \\] (\\d+) tests?")
 
         total_tests = 0
         pass_num = 0
