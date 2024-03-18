@@ -177,15 +177,21 @@ void DestroyInstance(vk::instance instance, const vk::allocator allocator) {
 VkResult EnumerateInstanceExtensionProperties(
     const char *, uint32_t *pPropertyCount,
     VkExtensionProperties *pProperties) {
+  VkResult result = VK_SUCCESS;
+  uint32_t propertyCount;
   if (pProperties) {
+    propertyCount = *pPropertyCount;
+    if (propertyCount >= vk::instance_extensions.size()) {
+      propertyCount = vk::instance_extensions.size();
+    } else {
+      result = VK_INCOMPLETE;
+    }
     std::copy(vk::instance_extensions.begin(),
-              std::min(vk::instance_extensions.begin() + *pPropertyCount,
-                       vk::instance_extensions.end()),
-              pProperties);
-
+              vk::instance_extensions.begin() + propertyCount, pProperties);
   } else {
-    *pPropertyCount = vk::instance_extensions.size();
+    propertyCount = vk::instance_extensions.size();
   }
-  return VK_SUCCESS;
+  *pPropertyCount = propertyCount;
+  return result;
 }
 }  // namespace vk
