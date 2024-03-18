@@ -16,6 +16,8 @@
 
 #include <common.h>
 
+#include <algorithm>
+
 namespace {
 static cl_platform_id selectedPlatform = nullptr;
 }  // namespace

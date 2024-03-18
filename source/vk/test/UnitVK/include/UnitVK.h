@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 #include <vulkan/vulkan.h>
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <fstream>
