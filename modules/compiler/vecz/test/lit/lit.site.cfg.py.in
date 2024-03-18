@@ -29,9 +29,9 @@ common_lit_cfg_path = os.path.join('@CA_COMMON_LIT_BINARY_PATH@', 'lit.common.cf
 
 lit_config.load_config(config, common_lit_cfg_path)
 
-if '@CMAKE_SYSTEM_PROCESSOR@' == 'ARM64':
+if '@CMAKE_SYSTEM_PROCESSOR@'.casefold() in ['aarch64', 'arm64']:
     config.available_features.add('aarch64')
-elif '@CMAKE_SYSTEM_PROCESSOR@' == 'ARM':
+elif '@CMAKE_SYSTEM_PROCESSOR@'.casefold() == 'arm':
     config.available_features.add('arm')
 
 # Some lit tests may fail when cross-compiled, so add the native feature if not
