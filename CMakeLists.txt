@@ -59,6 +59,27 @@ endif()
 # Add cmake modules directory to the path.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+set(CA_CMAKE_VERBOSE_LEVEL ""  CACHE STRING "cmake verbosity level 2 detailed (default), 1 summary, 0 none")
+set(OCK_CMAKE_VERBOSE_LEVEL "2")
+
+# Check if we are in an LLVM Tree.
+# This is done by checking for the LLVMCore target which does not exist
+# until we import LLVM.
+# This only happens of we have not imported or are fetched by LLVM via
+# FetchContent or as an external project. In this case we set a cmake
+# variable OCK_IN_LLVM_TREE to TRUE.
+set(OCK_IN_LLVM_TREE FALSE)
+if (TARGET LLVMCore)
+  set(OCK_IN_LLVM_TREE TRUE)
+  # We always reduce verbosity level if included in LLVM tree
+  set(OCK_CMAKE_VERBOSE_LEVEL "0")
+endif()
+
+# Even if in LLVM tree we support overriding of the verbosity level
+if (NOT CA_CMAKE_VERBOSE_LEVEL STREQUAL "")
+  set(OCK_CMAKE_VERBOSE_LEVEL ${CA_CMAKE_VERBOSE_LEVEL})
+endif()
+
 # Bring in our ca_option macro for declaring options.
 include(CAOption)
 
@@ -156,17 +177,6 @@ foreach(OPTIONS_MODULE ${OPTIONS_MODULES})
     include(${OPTIONS_MODULE})
   endif()
 endforeach()
-
-# Check if we are in an LLVM Tree.
-# This is done by checking for the LLVMCore target which does not exist
-# until we import LLVM.
-# This only happens of we have not imported or are fetched by LLVM via
-# FetchContent or as an external project. In this case we set a cmake
-# variable OCK_IN_LLVM_TREE to TRUE.
-set(OCK_IN_LLVM_TREE FALSE)
-if (TARGET LLVMCore)
-  set(OCK_IN_LLVM_TREE TRUE)
-endif()
 
 if(CA_RUNTIME_COMPILER_ENABLED AND NOT OCK_IN_LLVM_TREE)
   include(ImportLLVM)

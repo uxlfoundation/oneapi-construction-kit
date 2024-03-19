@@ -29,6 +29,7 @@ must be included like so:
 The following :cmake-command:`CMake macros<macro>` are defined by the module:
 #]=======================================================================]
 
+include(CAUtils)
 
 #[=======================================================================[.rst:
 .. cmake:command:: ca_option
@@ -71,11 +72,11 @@ macro(ca_option name type description default)
   # Setup the main option of this macro.
   if(${type} STREQUAL "BOOL")
     option(${name} ${description} ${default})
-    message(STATUS "oneAPI Construction Kit ${description}: ${${name}}")
+    ca_message(STATUS CA_VERBOSE_DETAIL "oneAPI Construction Kit ${description}: ${${name}}")
   else()
     set(${name} ${default} CACHE ${type} "${description}")
     if(NOT "${${name}}" STREQUAL "${default}")
-      message(STATUS "oneAPI Construction Kit ${description}: ${${name}}")
+      ca_message(STATUS CA_VERBOSE_DETAIL "oneAPI Construction Kit ${description}: ${${name}}")
     endif()
   endif()
 endmacro()
