@@ -14,6 +14,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+option(HAL_CPU_WG_MODE "Build Hal CPU in workgroup mode" ON)
+
 set(HAL_CPU_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 list(APPEND CMAKE_MODULE_PATH ${HAL_CPU_SOURCE_DIR}/cmake)
 
@@ -24,6 +26,8 @@ set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fvisibility=hidden)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fvisibility=hidden)
 
 set_property(GLOBAL APPEND PROPERTY KNOWN_HAL_DEVICES "cpu")
+set_property(GLOBAL PROPERTY HAL_CPU_NAME "cpu")
+set_property(GLOBAL PROPERTY HAL_CPU_DEVICE_NAME "ock cpu")
 set_property(GLOBAL PROPERTY HAL_CPU_DIR "${HAL_CPU_SOURCE_DIR}")
 set_property(GLOBAL PROPERTY HAL_CPU_EXAMPLE_DIR "${HAL_CPU_SOURCE_DIR}/examples/wi")
 

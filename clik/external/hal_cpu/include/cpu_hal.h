@@ -25,6 +25,9 @@
 
 #include "hal.h"
 
+#define HAL_CPU_WI_MODE 1
+#define HAL_CPU_WG_MODE 2
+
 using elf_program = void *;
 struct exec_state;
 
@@ -38,10 +41,12 @@ struct cpu_barrier {
   void wait(int num_threads);
 };
 
-class cpu_hal : public hal::hal_device_t {
+class cpu_hal final : public hal::hal_device_t {
  public:
   cpu_hal(hal::hal_device_info_t *info, std::mutex &hal_lock);
-  virtual ~cpu_hal();
+#if HAL_CPU_MODE == HAL_CPU_WI_MODE
+  ~cpu_hal();
+#endif
 
   size_t get_word_size() const { return sizeof(uintptr_t); }
 
@@ -90,17 +95,6 @@ class cpu_hal : public hal::hal_device_t {
                  hal::hal_size_t size) override;
 
  private:
-  bool pack_args(std::vector<uint8_t> &packed_data, const hal::hal_arg_t *args,
-                 uint32_t num_args, elf_program program, uint32_t hal_flags);
-  void pack_arg(std::vector<uint8_t> &packed_data, const void *value,
-                size_t size, size_t align = 0);
-  void pack_word_arg(std::vector<uint8_t> &packed_data, uint64_t value,
-                     uint32_t hal_flags);
-  void pack_uint32_arg(std::vector<uint8_t> &packed_data, uint32_t value,
-                       size_t align = 0);
-  void pack_uint64_arg(std::vector<uint8_t> &packed_data, uint64_t value,
-                       size_t align = 0);
-
   void kernel_entry(exec_state *state);
 
   bool hal_debug() const { return debug; }
@@ -108,9 +102,11 @@ class cpu_hal : public hal::hal_device_t {
   std::mutex &hal_lock;
   hal::hal_device_info_t *info;
   bool debug = false;
+#if HAL_CPU_MODE == HAL_CPU_WI_MODE
   uint32_t local_mem_size = 8 << 20;
   uint8_t *local_mem = nullptr;
   cpu_barrier barrier;
+#endif
   std::map<hal::hal_program_t, std::string> binary_files;
 };
 

@@ -38,7 +38,7 @@ namespace {{cookiecutter.target_name}} {
   dma_optimizable = true;
   supports_deferred_compilation = false;
   scalable_vector_support = {{cookiecutter.scalable_vector}};
-  kernel_debug = false;
+  kernel_debug = true;
 
   static std::once_flag llvm_initialized;
   std::call_once(llvm_initialized, [&]() {

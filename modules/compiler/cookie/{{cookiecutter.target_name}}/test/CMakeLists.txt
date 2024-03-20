@@ -17,8 +17,9 @@
 # Additional changes Copyright (C) {{cookiecutter.copyright_name}}. All Rights
 # Reserved.
 {% endif -%}
-set(SUITE "{{cookiecutter.target_name}}")
 
+{% if "clmul" in cookiecutter.feature.split(";") or "refsi_wrapper_pass" in cookiecutter.feature.split(";") -%}
+set(SUITE "{{cookiecutter.target_name}}")
 add_ca_configure_lit_site_cfg(
   ${SUITE}
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
@@ -30,3 +31,6 @@ if(TARGET ${SUITE}-lit)
     ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS muxc ${SUITE}-lit)
 endif()
+{% else -%}
+# Use add_ca_configure_lit_site_cfg and add_ca_lit_testsuite to add lit tests
+{% endif -%}

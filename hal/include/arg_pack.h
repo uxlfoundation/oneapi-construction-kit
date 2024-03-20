@@ -42,8 +42,20 @@ namespace util {
 struct hal_argpack_t {
   /// @brief Constructor
   ///
-  /// @param word_size target processor word size (32 or 64).
-  hal_argpack_t(uint32_t word_size) : word_size(word_size) {}
+  /// @param word_size_in_bits target processor word size (32 or 64).
+  hal_argpack_t(uint32_t word_size_in_bits)
+      : word_size_in_bits(word_size_in_bits) {}
+
+  ~hal_argpack_t();
+
+  /// @brief Use work item mode
+  /// @param start Start address of local memory on the device.
+  /// @param size  Size of local memory on the device.
+  void setWorkItemMode(uint64_t start, uint64_t size) {
+    wg_mode = false;
+    local_start = start;
+    local_size = size;
+  }
 
   /// @brief Parse the list of provided argument descriptors and build a packed
   /// argument structure.
@@ -57,15 +69,15 @@ struct hal_argpack_t {
   /// @brief Returns the size in bytes of the packed argument structure.
   ///
   /// @return Return the size in bytes of the packet argument structure.
-  const uint64_t size() const { return pack.size(); }
+  const uint64_t size() const { return write_point; }
 
   /// @brief Returns a pointer to the start of the packed argument structure.
   ///
   /// @return Return a pointer to the start of the packed argument structure.
-  const void *data() const { return pack.data(); }
+  const void *data() const { return pack; }
 
   /// @brief Clear the packet argument structure entirely.
-  void clear() { pack.clear(); }
+  void clear();
 
  protected:
   /// @brief Append a single argument to the packed argument structure.
@@ -78,13 +90,35 @@ struct hal_argpack_t {
   /// @brief Expand the packed argument structure by a number of bytes.
   ///
   /// @param num_bytes is the number of bytes to expand by.
-  void expand(size_t num_bytes) { pack.resize(pack.size() + num_bytes); }
+  /// @return true if able to expand
+  bool expand(size_t num_bytes);
 
   /// @brief Raw packed data of the argument pack.
-  std::vector<uint8_t> pack;
+  uint8_t *pack = nullptr;
 
-  /// @brief Target processor word size.
-  const uint32_t word_size;
+  /// @brief Currently allocated memory for the argument pack
+  uint32_t pack_alloc_size = 0;
+
+  /// @brief Current write point at the end of the pack
+  unsigned int write_point = 0;
+
+  /// @brief Target processor word size in bits.
+  const uint32_t word_size_in_bits;
+
+  /// @brief work group mode if true else work item mode (requires different
+  /// packing of local data for work item mode)
+  bool wg_mode = true;
+
+  /// @brief represents a local address start in device memory - only relevant
+  /// for work item mode
+  uint64_t local_start = 0;
+
+  /// @brief Total size of local memory in bytes - only relevant for work item
+  /// mode
+  uint64_t local_size = 0;
+
+  // @brief Used as an address index as we go through build() for WI mode.
+  uint64_t local_current_ptr;
 };
 
 /// @}
