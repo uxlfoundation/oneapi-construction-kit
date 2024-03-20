@@ -41,7 +41,6 @@
 #include <compiler/utils/work_item_loops_pass.h>
 #include <host/add_entry_hook_pass.h>
 #include <host/add_floating_point_control_pass.h>
-#include <host/disable_neon_attribute_pass.h>
 #include <host/host_pass_machinery.h>
 #include <host/remove_byval_attributes_pass.h>
 #include <host/target.h>
@@ -297,10 +296,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
       compiler::utils::RemoveExceptionsPass()));
 
   addLLVMDefaultPerModulePipeline(PM, PB, options);
-
-  // createDisableNeonAttributePass only does work on 64-bit ARM to fix a Neon
-  // correctness issue.
-  PM.addPass(DisableNeonAttributePass());
 
   // Workaround an x86-64 codegen bug in LLVM.
   PM.addPass(RemoveByValAttributesPass());
