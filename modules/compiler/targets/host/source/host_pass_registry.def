@@ -33,7 +33,6 @@ MODULE_ANALYSIS("host-vecz-pass-opts",
                 vecz::VeczPassOptionsAnalysis(hostVeczPassOpts))
 
 MODULE_PASS("add-entry-hook", AddEntryHookPass())
-MODULE_PASS("disable-neon-attr", host::DisableNeonAttributePass())
 MODULE_PASS("remove-byval-attrs", host::RemoveByValAttributesPass())
 
 MODULE_PASS_WITH_PARAMS(

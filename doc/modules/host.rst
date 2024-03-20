@@ -274,19 +274,3 @@ X86
 
 On x86 and x86_64 the MXCSR register is used to configure the behaviour of
 the SSE instructions where we are running floating point computations.
-
-DisableNeonAttributePass
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Module pass `DisableNeonAttribute` is a 64-bit Arm specific pass, which exits
-straight away for other targets. Its purpose is to detect if there are any
-`llvm::UIToFP` or `llvm::SIToFP` vector cast instructions from `[u]long` to
-`float`. If so all the functions in the module are marked with the attribute
-`-neon` to disable Neon in the backend. We have to do this for all functions,
-rather than just the function containing the instruction, to prevent a calling
-convention ABI mismatch.
-
-Disabling Neon is needed to fix a failing CTS conversions test from `[u]long` to
-`float`. Where the AArch64 Neon backend does the conversion in two stages, `i64`
-to `double` then `double` to `float`. Losing precision because of incorrect
-rounding in the intermediate value.

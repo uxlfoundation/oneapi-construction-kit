@@ -57,7 +57,6 @@ set(HOST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/source/kernel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/AddEntryHook.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/AddFloatingPointControl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/DisableNeonAttribute.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/HostMuxBuiltinInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/HostPassMachinery.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/RemoveByValAttributes.cpp
