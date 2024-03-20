@@ -115,9 +115,8 @@ void configAarch64FP(Function &wrapper, Function &function) {
   }
 
   // call the function we are wrapping
-  auto *const ci = ir.CreateCall(&function, args);
-  ci->setCallingConv(function.getCallingConv());
-  ci->setAttributes(compiler::utils::getCopiedFunctionAttrs(function));
+  compiler::utils::createCallToWrappedFunction(
+      function, args, ir.GetInsertBlock(), ir.GetInsertPoint());
 
   // reset the FPCR to the original value
   ir.CreateCall(set_fpcr_asm, {original_fpcr});
@@ -166,9 +165,8 @@ void configArmFP(Function &wrapper, Function &function) {
   }
 
   // call the function we are wrapping
-  auto *const ci = ir.CreateCall(&function, args);
-  ci->setCallingConv(function.getCallingConv());
-  ci->setAttributes(compiler::utils::getCopiedFunctionAttrs(function));
+  compiler::utils::createCallToWrappedFunction(
+      function, args, ir.GetInsertBlock(), ir.GetInsertPoint());
 
   // reset the fpscr to the original
   ir.CreateCall(set_fpscr, {original_fpscr})
