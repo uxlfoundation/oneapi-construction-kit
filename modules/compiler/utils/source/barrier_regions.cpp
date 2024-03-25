@@ -983,9 +983,9 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
       }
     }
 #if LLVM_VERSION_GREATER_EQUAL(19, 0)
-    const auto DPVDeclares = findDPVDeclares(member.value);
-    for (auto *const DPVDeclare : DPVDeclares) {
-      debug_dp_values_.push_back(std::make_pair(DPVDeclare, offset));
+    const auto DVRDeclares = findDVRDeclares(member.value);
+    for (auto *const DVRDeclare : DVRDeclares) {
+      debug_variable_records_.push_back(std::make_pair(DVRDeclare, offset));
     }
 #endif
     offset += member.size;
