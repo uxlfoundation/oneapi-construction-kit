@@ -151,7 +151,7 @@ TEST_F(USMTests, HostMemAlloc_ValidUsage) {
   }
 
   if (host_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -165,7 +165,7 @@ TEST_F(USMTests, HostMemAlloc_ValidUsage) {
   }
 
   if (host_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -180,7 +180,7 @@ TEST_F(USMTests, HostMemAlloc_ValidUsage) {
   }
 
   if (host_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -195,7 +195,7 @@ TEST_F(USMTests, HostMemAlloc_ValidUsage) {
   }
 
   if (host_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
     EXPECT_SUCCESS(err);
   }
 }
@@ -292,7 +292,7 @@ TEST_F(USMTests, DeviceMemAlloc_ValidUsage) {
   EXPECT_TRUE(device_ptr != nullptr);
 
   if (device_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -301,7 +301,7 @@ TEST_F(USMTests, DeviceMemAlloc_ValidUsage) {
   EXPECT_TRUE(device_ptr != nullptr);
 
   if (device_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -312,7 +312,7 @@ TEST_F(USMTests, DeviceMemAlloc_ValidUsage) {
   EXPECT_TRUE(device_ptr != nullptr);
 
   if (device_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
     EXPECT_SUCCESS(err);
   }
 
@@ -323,7 +323,7 @@ TEST_F(USMTests, DeviceMemAlloc_ValidUsage) {
   EXPECT_TRUE(device_ptr != nullptr);
 
   if (device_ptr) {
-    cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
+    const cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
     EXPECT_SUCCESS(err);
   }
 }
@@ -657,7 +657,7 @@ TEST_F(USMTests, CrossSharedMemAlloc_ValidUsage) {
 
 using USMAllocFlagTest = USMWithParam<cl_mem_alloc_flags_intel>;
 TEST_P(USMAllocFlagTest, DeviceAlloc) {
-  cl_mem_alloc_flags_intel alloc_flags = GetParam();
+  const cl_mem_alloc_flags_intel alloc_flags = GetParam();
 
   const cl_mem_properties_intel properties[] = {CL_MEM_ALLOC_FLAGS_INTEL,
                                                 alloc_flags, 0};
@@ -690,7 +690,7 @@ TEST_P(USMAllocFlagTest, HostAlloc) {
     GTEST_SKIP();
   }
 
-  cl_mem_alloc_flags_intel alloc_flags = GetParam();
+  const cl_mem_alloc_flags_intel alloc_flags = GetParam();
 
   const cl_mem_properties_intel properties[] = {CL_MEM_ALLOC_FLAGS_INTEL,
                                                 alloc_flags, 0};
@@ -724,7 +724,7 @@ TEST_P(USMAllocFlagTest, SharedAlloc) {
     GTEST_SKIP();
   }
 
-  cl_mem_alloc_flags_intel alloc_flags = GetParam();
+  const cl_mem_alloc_flags_intel alloc_flags = GetParam();
 
   const cl_mem_properties_intel properties[] = {CL_MEM_ALLOC_FLAGS_INTEL,
                                                 alloc_flags, 0};

@@ -113,7 +113,7 @@ struct sampler_args {
 };
 
 std::ostream &operator<<(std::ostream &out, sampler_args params) {
-  std::string normalized_coords =
+  const std::string normalized_coords =
       params.normalized_coords ? "CL_TRUE" : "CL_FALSE";
   out << "sampler_args{"
       << ".normalized_coords{" << normalized_coords << "}, "

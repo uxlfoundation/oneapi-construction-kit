@@ -30,12 +30,12 @@ uint32_t mux::findFirstSupportedHeap(uint32_t heaps) {
 cargo::string_view mux::detectOpenCLProfile(mux_device_info_t device) {
   bool is_full_profile = true;
   // CL_DEVICE_MAX_MEM_ALLOC_SIZE
-  is_full_profile &= device->allocation_size >= 128 * 1024 * 1024;
+  is_full_profile &= device->allocation_size >= 128 * 1024L * 1024L;
   // CL_DEVICE_MAX_PARAMETER_SIZE - not in mux
   // CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE - not in mux
   // CL_DEVICE_MAX_CONSTANT_ARGS - not in mux
   // CL_DEVICE_LOCAL_MEM_SIZE
-  is_full_profile &= device->shared_local_memory_size >= 32 * 1024;
+  is_full_profile &= device->shared_local_memory_size >= 32 * 1024L;
   // CL_DEVICE_PRINTF_BUFFER_SIZE - not in mux
   if (device->image_support) {
     // CL_DEVICE_MAX_READ_IMAGE_ARGS

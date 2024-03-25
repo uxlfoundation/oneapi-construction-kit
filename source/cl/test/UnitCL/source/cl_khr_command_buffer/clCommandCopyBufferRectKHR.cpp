@@ -43,11 +43,11 @@ void copyBufferRect(const byte_vector &src_buffer, byte_vector &dst_buffer,
                     const Region &region, size_t src_row_pitch,
                     size_t src_slice_pitch, size_t dst_row_pitch,
                     size_t dst_slice_pitch) {
-  size_t src_offset = src_origin[2] * src_slice_pitch +
-                      src_origin[1] * src_row_pitch + src_origin[0];
+  const size_t src_offset = src_origin[2] * src_slice_pitch +
+                            src_origin[1] * src_row_pitch + src_origin[0];
 
-  size_t dst_offset = dst_origin[2] * dst_slice_pitch +
-                      dst_origin[1] * dst_row_pitch + dst_origin[0];
+  const size_t dst_offset = dst_origin[2] * dst_slice_pitch +
+                            dst_origin[1] * dst_row_pitch + dst_origin[0];
 
   auto src_position = src_buffer.data() + src_offset;
   auto dst_position = dst_buffer.data() + dst_offset;
@@ -152,14 +152,14 @@ TEST_P(CommandCopyBufferRectParamTest, CopyArbitraryRect) {
 // Choose parameters so that we get good coverage and catch some edge cases.
 std::vector<test_parameters> generateParameterizations() {
   std::vector<test_parameters> parameterizations;
-#define PARAMETERIZATION(name, src_buffer_size, dst_buffer_size, src_origin, \
-                         dst_origin, region, src_row_pitch, src_slice_pitch, \
-                         dst_row_pitch, dst_slice_pitch)                     \
-  test_parameters name{#name,          src_buffer_size, dst_buffer_size,     \
-                       src_origin,     dst_origin,      region,              \
-                       src_row_pitch,  src_slice_pitch, dst_row_pitch,       \
-                       dst_slice_pitch};                                     \
-  parameterizations.push_back(name);                                         \
+#define PARAMETERIZATION(name, src_buffer_size, dst_buffer_size, src_origin,   \
+                         dst_origin, region, src_row_pitch, src_slice_pitch,   \
+                         dst_row_pitch, dst_slice_pitch)                       \
+  const test_parameters name{#name,          src_buffer_size, dst_buffer_size, \
+                             src_origin,     dst_origin,      region,          \
+                             src_row_pitch,  src_slice_pitch, dst_row_pitch,   \
+                             dst_slice_pitch};                                 \
+  parameterizations.push_back(name);                                           \
   (void)0
 
   PARAMETERIZATION(whole_buffer_2D, 256, 256, (Position{0, 0, 0}),
@@ -236,8 +236,8 @@ TEST_F(CommandCopyBufferRectTest, Sync) {
   Position src_origin{0, 0, 0};
   Position dst_origin{0, 0, 0};
   Region region{16, 16, 1};
-  size_t row_pitch = 16;
-  size_t slice_pitch = 256;
+  const size_t row_pitch = 16;
+  const size_t slice_pitch = 256;
 
   cl_sync_point_khr sync_points[2] = {
       std::numeric_limits<cl_sync_point_khr>::max(),
@@ -948,7 +948,7 @@ TEST_F(CommandCopyBufferRectErrorTest, InvalidSlicePitch) {
 }
 
 TEST_F(CommandCopyBufferRectErrorTest, InvalidSameBufferPitchMismatch) {
-  size_t dst_row_pitch = row_pitch - 1;
+  const size_t dst_row_pitch = row_pitch - 1;
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
@@ -957,7 +957,7 @@ TEST_F(CommandCopyBufferRectErrorTest, InvalidSameBufferPitchMismatch) {
           dst_origin.data(), region.data(), row_pitch, slice_pitch,
           dst_row_pitch, slice_pitch, 0, nullptr, nullptr, nullptr));
 
-  size_t dst_slice_pitch = slice_pitch - 1;
+  const size_t dst_slice_pitch = slice_pitch - 1;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
       clCommandCopyBufferRectKHR(

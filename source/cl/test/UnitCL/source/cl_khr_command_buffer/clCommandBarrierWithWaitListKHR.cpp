@@ -131,7 +131,7 @@ TEST_F(clCommandBarrierWithWaitListTest, FillAndCopy) {
                                            nullptr, nullptr));
   EXPECT_SUCCESS(clFinish(command_queue));
 
-  std::vector<cl_uint> result(elements, 42);
+  const std::vector<cl_uint> result(elements, 42);
   std::vector<cl_uint> output_data(elements);
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, dst_buffer, CL_TRUE, 0,
                                      data_size, output_data.data(), 0, nullptr,

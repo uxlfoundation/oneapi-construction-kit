@@ -32,15 +32,15 @@ struct File {
     }
   }
 
-  ~File() { std::fclose(file); }
+  ~File() { (void)std::fclose(file); }
 
   template <class Container>
   Container read() {
     Container content;
     using value_type = typename Container::value_type;
     std::array<value_type, 256> buffer;
-    while (size_t objects = std::fread(buffer.data(), sizeof(value_type),
-                                       buffer.size(), file)) {
+    while (const size_t objects = std::fread(buffer.data(), sizeof(value_type),
+                                             buffer.size(), file)) {
       content.insert(content.end(), buffer.data(), buffer.data() + objects);
     }
     return content;

@@ -261,12 +261,12 @@ TYPED_TEST(USMMemFillTest, DeviceAllocation) {
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, device_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
-                                     &wait_events[0]);
+                                     wait_events.data());
 
   // Fill first two elements
   const TypeParam pattern = test_patterns<TypeParam>::pattern1;
   err = clEnqueueMemFillINTEL(queue, device_ptr, &pattern, sizeof(pattern),
-                              sizeof(pattern) * 2, 1, &wait_events[0],
+                              sizeof(pattern) * 2, 1, wait_events.data(),
                               &wait_events[1]);
   EXPECT_SUCCESS(err);
 
@@ -277,7 +277,7 @@ TYPED_TEST(USMMemFillTest, DeviceAllocation) {
   void *offset_device_ptr = getPointerOffset(device_ptr, offset);
   err = clEnqueueMemFillINTEL(queue, offset_device_ptr, &pattern2,
                               sizeof(pattern2), sizeof(pattern2), 1,
-                              &wait_events[0], &wait_events[2]);
+                              wait_events.data(), &wait_events[2]);
   EXPECT_SUCCESS(err);
 
   if (host_ptr) {
@@ -324,12 +324,12 @@ TYPED_TEST(USMMemFillTest, SharedAllocation) {
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, shared_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
-                                     &wait_events[0]);
+                                     wait_events.data());
 
   // Fill first two elements
   const TypeParam pattern = test_patterns<TypeParam>::pattern1;
   err = clEnqueueMemFillINTEL(queue, shared_ptr, &pattern, sizeof(pattern),
-                              sizeof(pattern) * 2, 1, &wait_events[0],
+                              sizeof(pattern) * 2, 1, wait_events.data(),
                               &wait_events[1]);
   EXPECT_SUCCESS(err);
 
@@ -340,7 +340,7 @@ TYPED_TEST(USMMemFillTest, SharedAllocation) {
   void *offset_shared_ptr = getPointerOffset(shared_ptr, offset);
   err = clEnqueueMemFillINTEL(queue, offset_shared_ptr, &pattern2,
                               sizeof(pattern2), sizeof(pattern2), 1,
-                              &wait_events[0], &wait_events[2]);
+                              wait_events.data(), &wait_events[2]);
   EXPECT_SUCCESS(err);
 
   if (host_ptr) {
@@ -381,13 +381,13 @@ TYPED_TEST(USMMemFillTest, UserAllocation) {
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, user_data.data(), &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
-                                     &wait_events[0]);
+                                     wait_events.data());
 
   // Fill first two elements
   const TypeParam pattern = test_patterns<TypeParam>::pattern1;
   err = clEnqueueMemFillINTEL(queue, user_data.data(), &pattern,
                               sizeof(pattern), sizeof(pattern) * 2, 1,
-                              &wait_events[0], &wait_events[1]);
+                              wait_events.data(), &wait_events[1]);
   EXPECT_SUCCESS(err);
 
   // Fill last element
@@ -397,7 +397,7 @@ TYPED_TEST(USMMemFillTest, UserAllocation) {
   void *offset_device_ptr = getPointerOffset(user_data.data(), offset);
   err = clEnqueueMemFillINTEL(queue, offset_device_ptr, &pattern2,
                               sizeof(pattern2), sizeof(pattern2), 1,
-                              &wait_events[0], &wait_events[2]);
+                              wait_events.data(), &wait_events[2]);
   EXPECT_SUCCESS(err);
 
   EXPECT_SUCCESS(clFinish(queue));

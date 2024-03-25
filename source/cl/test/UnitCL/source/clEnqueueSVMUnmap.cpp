@@ -37,7 +37,7 @@ TEST_F(clEnqueueSVMUnmapTest, NotImplemented) {
     GTEST_SKIP();
   }
   void *svm_ptr{};
-  cl_uint num_events_in_wait_list{};
+  const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
   EXPECT_EQ_ERRCODE(

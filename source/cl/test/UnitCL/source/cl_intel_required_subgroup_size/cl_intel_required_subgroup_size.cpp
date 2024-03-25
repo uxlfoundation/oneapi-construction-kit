@@ -38,7 +38,7 @@ static std::vector<size_t> getSubgroupSizes(cl_device_id device) {
   EXPECT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_SUB_GROUP_SIZES_INTEL, 0,
                                  nullptr, &sub_groups_num_bytes));
 
-  size_t num_sub_groups = sub_groups_num_bytes / sizeof(size_t);
+  const size_t num_sub_groups = sub_groups_num_bytes / sizeof(size_t);
   std::vector<size_t> sub_groups(num_sub_groups);
   EXPECT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_SUB_GROUP_SIZES_INTEL,
                                  sub_groups_num_bytes, sub_groups.data(),
@@ -55,7 +55,7 @@ TEST_F(cl_intel_required_subgroup_size_Test, DeviceInfoBadParamValue) {
   EXPECT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_SUB_GROUP_SIZES_INTEL, 0,
                                  nullptr, &sub_groups_num_bytes));
 
-  size_t num_sub_groups = sub_groups_num_bytes / sizeof(size_t);
+  const size_t num_sub_groups = sub_groups_num_bytes / sizeof(size_t);
   std::vector<size_t> sub_groups(num_sub_groups);
 
   // It's valid to pass in *more* bytes than required.

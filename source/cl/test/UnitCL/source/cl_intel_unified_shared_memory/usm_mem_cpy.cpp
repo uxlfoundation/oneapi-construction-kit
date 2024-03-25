@@ -61,22 +61,22 @@ struct USMMemCpyTest : public cl_intel_unified_shared_memory_Test {
 
   void TearDown() override {
     if (device_ptr_A) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr_A);
+      const cl_int err = clMemBlockingFreeINTEL(context, device_ptr_A);
       EXPECT_SUCCESS(err);
     }
 
     if (device_ptr_B) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr_B);
+      const cl_int err = clMemBlockingFreeINTEL(context, device_ptr_B);
       EXPECT_SUCCESS(err);
     }
 
     if (host_ptr_A) {
-      cl_int err = clMemBlockingFreeINTEL(context, host_ptr_A);
+      const cl_int err = clMemBlockingFreeINTEL(context, host_ptr_A);
       EXPECT_SUCCESS(err);
     }
 
     if (host_ptr_B) {
-      cl_int err = clMemBlockingFreeINTEL(context, host_ptr_B);
+      const cl_int err = clMemBlockingFreeINTEL(context, host_ptr_B);
       EXPECT_SUCCESS(err);
     }
 
@@ -322,13 +322,14 @@ TYPED_TEST(USMMemCpyTest, DeviceToHost) {
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, device_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
-                                     &events[0]);
+                                     events.data());
   EXPECT_SUCCESS(err);
 
   // Initialize first two elements of device allocation
   const TypeParam pattern1 = test_patterns<TypeParam>::pattern1;
-  err = clEnqueueMemFillINTEL(queue, device_ptr, &pattern1, sizeof(pattern1),
-                              sizeof(pattern1) * 2, 1, &events[0], &events[1]);
+  err =
+      clEnqueueMemFillINTEL(queue, device_ptr, &pattern1, sizeof(pattern1),
+                            sizeof(pattern1) * 2, 1, events.data(), &events[1]);
   EXPECT_SUCCESS(err);
 
   // Initialize last 3 elements of device allocation
@@ -338,7 +339,7 @@ TYPED_TEST(USMMemCpyTest, DeviceToHost) {
   void *offset_device_ptr = getPointerOffset(device_ptr, offset);
   err = clEnqueueMemFillINTEL(queue, offset_device_ptr, &pattern2,
                               sizeof(pattern2), sizeof(pattern2) * 3, 1,
-                              &events[0], &events[2]);
+                              events.data(), &events[2]);
   EXPECT_SUCCESS(err);
 
   // Reset host copy before use as destination
@@ -348,7 +349,7 @@ TYPED_TEST(USMMemCpyTest, DeviceToHost) {
   // allocation device[1,2] -> host[0,1]
   offset_device_ptr = getPointerOffset(device_ptr, sizeof(TypeParam));
   err = clEnqueueMemcpyINTEL(queue, CL_FALSE, host_ptr, offset_device_ptr,
-                             sizeof(TypeParam) * 2, 1, &events[0], nullptr);
+                             sizeof(TypeParam) * 2, 1, events.data(), nullptr);
   EXPECT_SUCCESS(err);
 
   // Copy last 4 elements of device allocation into next elements host
@@ -438,7 +439,7 @@ TYPED_TEST(USMMemCpyTest, HostToDevice) {
   const TypeParam zero_pattern = test_patterns<TypeParam>::zero_pattern;
   cl_int err = clEnqueueMemFillINTEL(queue, device_ptr, &zero_pattern,
                                      sizeof(zero_pattern), bytes, 0, nullptr,
-                                     &events[0]);
+                                     events.data());
   EXPECT_SUCCESS(err);
 
   // Initialize first two elements of source host allocation to pattern 1, and
@@ -454,8 +455,9 @@ TYPED_TEST(USMMemCpyTest, HostToDevice) {
 
   // Copy second and third element from host allocation to start of device
   // allocation host[1,2] -> device[0,1]
-  err = clEnqueueMemcpyINTEL(queue, CL_FALSE, device_ptr, &host_ptr_cast[1],
-                             sizeof(TypeParam) * 2, 1, &events[0], &events[1]);
+  err =
+      clEnqueueMemcpyINTEL(queue, CL_FALSE, device_ptr, &host_ptr_cast[1],
+                           sizeof(TypeParam) * 2, 1, events.data(), &events[1]);
   EXPECT_SUCCESS(err);
 
   // Copy last 4 elements of host allocation into next elements in device
@@ -546,7 +548,7 @@ TYPED_TEST(USMMemCpyTest, HostToHost) {
   const TypeParam pattern1 = test_patterns<TypeParam>::pattern1;
   cl_int err =
       clEnqueueMemFillINTEL(queue, host_ptr_A, &pattern1, sizeof(TypeParam),
-                            bytes, 0, nullptr, &events[0]);
+                            bytes, 0, nullptr, events.data());
   EXPECT_SUCCESS(err);
 
   // Initialize host allocation B
@@ -562,7 +564,7 @@ TYPED_TEST(USMMemCpyTest, HostToHost) {
 
   // Copy first half from allocation A into second half of allocation B
   err = clEnqueueMemcpyINTEL(queue, CL_FALSE, offset_B_ptr, host_ptr_A, offset,
-                             1, &events[0], nullptr);
+                             1, events.data(), nullptr);
   EXPECT_SUCCESS(err);
 
   // Copy half bytes from allocation B into second half of allocation A
@@ -715,8 +717,8 @@ TYPED_TEST(USMMemCpyTest, UserToUser) {
   std::memset(out_data, 0, bytes);
 
   // Copy user pointer source to user pointer destination
-  cl_int err = clEnqueueMemcpyINTEL(queue, CL_TRUE, out_data, in_data, bytes, 0,
-                                    nullptr, nullptr);
+  const cl_int err = clEnqueueMemcpyINTEL(queue, CL_TRUE, out_data, in_data,
+                                          bytes, 0, nullptr, nullptr);
   EXPECT_SUCCESS(err);
 
   // Verify copy occurred correctly

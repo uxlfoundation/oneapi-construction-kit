@@ -1895,6 +1895,10 @@ TEST_P(HalfMathBuiltins, Precision_83_Half_rootn) {
         // x is +/0 zero and y is odd < 0.
         case 0x80000001:
           return std::copysign(INFINITY, x);
+
+        // not possible
+        default:
+          return NAN;
       }
     }
 
@@ -1924,8 +1928,8 @@ TEST_P(Execution, Precision_84_Double_Remquo) {
 
   const uint64_t N = 1;
 
-  cl_double x = -4.1757451841279743e+225;
-  cl_double y = std::numeric_limits<cl_double>::infinity();
+  const cl_double x = -4.1757451841279743e+225;
+  const cl_double y = std::numeric_limits<cl_double>::infinity();
 
   // This test checks we correctly set the quotient to 0 if `y` is infinite.
   AddOutputBuffer(N, kts::Reference1D<cl_int>([x, y](size_t) {

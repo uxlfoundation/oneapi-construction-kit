@@ -81,8 +81,8 @@ TEST_P(OneArgRelationals, Task_10_04_OneArg_Relationals) {
     GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   auto Param = getParam();
-  std::string InTy = Param.first;
-  std::string Function = Param.second;
+  const std::string InTy = Param.first;
+  const std::string Function = Param.second;
 
   // Skip the double tests if we don't have doubles support
   if (InTy.find("double") != InTy.npos && !UCL::hasDoubleSupport(device)) {

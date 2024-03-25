@@ -36,7 +36,7 @@ struct fence : mux_fence_s {
   template <class Fence>
   static cargo::expected<Fence *, mux_result_t> create(
       mux_device_t device, mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::fence, Fence>::value,
+    static_assert(std::is_base_of_v<mux::hal::fence, Fence>,
                   "template type Fence must derive from mux::hal::fence");
     const auto fence = allocator.create<Fence>(device);
     if (!fence) {
@@ -49,7 +49,7 @@ struct fence : mux_fence_s {
   template <class Fence>
   static void destroy(mux_device_t device, Fence *fence,
                       mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::fence, Fence>::value,
+    static_assert(std::is_base_of_v<mux::hal::fence, Fence>,
                   "template type Fence must derive from mux::hal::fence");
     (void)device;
     allocator.destroy(fence);

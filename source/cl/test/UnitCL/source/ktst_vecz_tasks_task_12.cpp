@@ -27,7 +27,7 @@ using namespace kts::ucl;
 TEST_P(Execution, Task_12_01_Interleaved_Load_4) {
   const size_t global_range[] = {4, 4};
   const size_t local_range[] = {4, 4};
-  cl_int Stride = 4;
+  const cl_int Stride = 4;
 
   // it is just a bunch of "random" numbers
   int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
@@ -54,7 +54,7 @@ TEST_P(Execution, Task_12_01_Interleaved_Load_4) {
 TEST_P(Execution, Task_12_02_Interleaved_Load_5) {
   const size_t global_range[] = {4, 4};
   const size_t local_range[] = {4, 4};
-  cl_int Stride = 4;
+  const cl_int Stride = 4;
 
   // it is just a bunch of "random" numbers
   // there are two extra elements in the input buffer so
@@ -85,7 +85,7 @@ TEST_P(Execution, Task_12_02_Interleaved_Load_5) {
 TEST_P(Execution, Task_12_03_Interleaved_Load_6) {
   const size_t global_range[] = {4, 4};
   const size_t local_range[] = {4, 4};
-  cl_int Stride = 4;
+  const cl_int Stride = 4;
 
   // it is just a bunch of "random" numbers
   // there are two extra elements in the input buffer so

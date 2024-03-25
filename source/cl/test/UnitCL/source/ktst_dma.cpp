@@ -69,14 +69,16 @@ struct HalfTypeParam final {
 };
 
 cl_half HalfTypeParam::InA(size_t x) {
-  cl_ushort id = static_cast<cl_ushort>((kts::Ref_Identity(x) * 3 + 27) % 256);
-  cl_ushort as_ushort = TypeInfo<cl_half>::low_exp_mask + id;
+  const cl_ushort id =
+      static_cast<cl_ushort>((kts::Ref_Identity(x) * 3 + 27) % 256);
+  const cl_ushort as_ushort = TypeInfo<cl_half>::low_exp_mask + id;
   return cargo::bit_cast<cl_half>(as_ushort);
 }
 
 cl_half HalfTypeParam::InB(size_t x) {
-  cl_ushort id = static_cast<cl_ushort>((kts::Ref_Identity(x) * 7 + 41) % 256);
-  cl_ushort as_ushort = TypeInfo<cl_half>::low_exp_mask + id;
+  const cl_ushort id =
+      static_cast<cl_ushort>((kts::Ref_Identity(x) * 7 + 41) % 256);
+  const cl_ushort as_ushort = TypeInfo<cl_half>::low_exp_mask + id;
   return cargo::bit_cast<cl_half>(as_ushort);
 }
 
@@ -169,14 +171,11 @@ TEST_P(Execution, Dma_05_async_double_buffer) {
   RunGeneric1D(kts::N, local_wg_size);
 }
 
-#define GLOBAL_ITEMS_1D 4
-#define GLOBAL_ITEMS_2D 4
-#define LOCAL_ITEMS_1D 2
-#define LOCAL_ITEMS_2D 2
-#define GROUP_RANGE_1D (GLOBAL_ITEMS_1D / LOCAL_ITEMS_1D)
-#define GLOBAL_ITEMS_TOTAL (GLOBAL_ITEMS_1D * GLOBAL_ITEMS_2D)
-#define LOCAL_ITEMS_TOTAL (LOCAL_ITEMS_1D * LOCAL_ITEMS_2D)
-#define GROUP_RANGE_TOTAL (GLOBAL_ITEMS_TOTAL / LOCAL_ITEMS_TOTAL)
+static constexpr size_t GLOBAL_ITEMS_1D = 4;
+static constexpr size_t GLOBAL_ITEMS_2D = 4;
+static constexpr size_t LOCAL_ITEMS_1D = 2;
+static constexpr size_t LOCAL_ITEMS_2D = 2;
+static constexpr size_t GLOBAL_ITEMS_TOTAL = GLOBAL_ITEMS_1D * GLOBAL_ITEMS_2D;
 
 class DmaAutoConvolutionExecute : public Execution {
  public:
@@ -186,19 +185,19 @@ class DmaAutoConvolutionExecute : public Execution {
     const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D};
     const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D};
 
-    unsigned srcWidth = GLOBAL_ITEMS_1D + 16;
-    unsigned srcHeight = GLOBAL_ITEMS_2D + 8;
+    const size_t srcWidth = GLOBAL_ITEMS_1D + 16;
+    const size_t srcHeight = GLOBAL_ITEMS_2D + 8;
     kts::Reference1D<cl_uint> inA = [](size_t x) {
       return kts::Ref_Identity(x);
     };
     kts::Reference1D<cl_uint> RefOutput = [&](size_t x) {
       // First of all work out gidY and gidX
-      cl_uint gidX = kts::Ref_Identity(x) % GLOBAL_ITEMS_1D;
-      cl_uint gidY = kts::Ref_Identity(x) / GLOBAL_ITEMS_1D;
-      cl_uint gsizeX = GLOBAL_ITEMS_1D;
+      const cl_uint gidX = kts::Ref_Identity(x) % GLOBAL_ITEMS_1D;
+      const cl_uint gidY = kts::Ref_Identity(x) / GLOBAL_ITEMS_1D;
+      const cl_uint gsizeX = GLOBAL_ITEMS_1D;
       cl_uint total = totalStart;
-      cl_uint dstYStride = gsizeX;
-      cl_uint srcYStride = dstYStride + 16;
+      const cl_uint dstYStride = gsizeX;
+      const cl_uint srcYStride = dstYStride + 16;
       cl_uint srcIndex = gidY * srcYStride + gidX + 8;
       srcIndex += srcYStride;
       for (uint32_t yy = 0; yy < 3; yy++) {
@@ -207,7 +206,7 @@ class DmaAutoConvolutionExecute : public Execution {
             continue;
           }
           if (((1 << xx) & maskLoop1) && ((1 << xx) & maskLoop2)) {
-            cl_uint srcIndexLoop = yy * srcYStride + srcIndex + xx - 1;
+            const cl_uint srcIndexLoop = yy * srcYStride + srcIndex + xx - 1;
             total = total + inA(srcIndexLoop);
           }
         }
@@ -310,7 +309,7 @@ TEST_P(AsyncCopyTests, Dma_11_half_async_strided_copy) {
     // Like HalfTypeParam::OutC, but aware of a stride of 2 used by the kernel.
     half_ref_functor outC = [](size_t x) {
       const size_t type_width = 3;
-      size_t gid = ((x / type_width) * type_width * 2) + (x % type_width);
+      const size_t gid = ((x / type_width) * type_width * 2) + (x % type_width);
       return std::max(HalfTypeParam::InA(gid), HalfTypeParam::InB(gid));
     };
     AddOutputBuffer(kts::N, makeHalf3Streamer(outC));
@@ -319,7 +318,7 @@ TEST_P(AsyncCopyTests, Dma_11_half_async_strided_copy) {
 
     // Like HalfTypeParam::OutC, but aware of a stride of 2 used by the kernel.
     auto outC = [&type_width](size_t x) -> cl_half {
-      size_t gid = ((x / type_width) * type_width * 2) + (x % type_width);
+      const size_t gid = ((x / type_width) * type_width * 2) + (x % type_width);
       return std::max(HalfTypeParam::InA(gid), HalfTypeParam::InB(gid));
     };
 

@@ -92,7 +92,8 @@ struct SoftMathTest : ucl::CommandQueueTest,
   }
 
   void setMemArg(cl_kernel kernel, cl_uint i, cl_mem mem) const {
-    cl_int errorcode = clSetKernelArg(kernel, i, sizeof(mem), (void *)&mem);
+    const cl_int errorcode =
+        clSetKernelArg(kernel, i, sizeof(mem), (void *)&mem);
     ASSERT_SUCCESS(errorcode);
   }
 
@@ -162,7 +163,7 @@ template <bool verify>
 struct SoftMathTestOneArg : public SoftMathTest {
   static const char *program_str;
   static const char *program_vec3_str;
-  static constexpr size_t bytes = 128 * 1024 * 3;
+  static constexpr size_t bytes = 128L * 1024L * 3L;
 
   virtual void SetUp() override {
     SoftMathTest::SetUp();
@@ -240,7 +241,7 @@ template <bool verify>
 struct SoftMathTestTwoArg : public SoftMathTest {
   static const char *program_str;
   static const char *program_vec3_str;
-  static constexpr size_t bytes = 128 * 1024 * 3;
+  static constexpr size_t bytes = 128L * 1024L * 3L;
 
   virtual void SetUp() override {
     SoftMathTest::SetUp();

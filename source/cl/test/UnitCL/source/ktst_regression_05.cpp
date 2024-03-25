@@ -63,14 +63,14 @@ TEST_P(Execution, Regression_103_Byval_Struct_Align) {
   my_struct ms1 = {2, 1, 2};
   my_struct ms2 = {4, 3, 5};
   my_struct ms3 = {6, 9, 7};
-  cl_ulong long1 = 0xffffffffffffffffull;
-  cl_uint int1 = 0xfefefefeull;
+  const cl_ulong long1 = 0xffffffffffffffffull;
+  const cl_uint int1 = 0xfefefefeull;
 
   kts::Reference1D<cl_int> refOut = [&ms1, &ms2, &ms3](size_t idx) {
-    int r1 = (ms1.foo - ms1.bar) * ms1.gee;  // (2 - 1) * 2 = 2
-    int r2 = (ms2.foo - ms2.bar) * ms2.gee;  // (4 - 3) * 5 = 5
-    int r3 = (ms3.foo - ms3.bar) * ms3.gee;  // (6 - 9) * 7 = -21
-    int out = (idx * r1) + (r2 * 10 - r3);   // idx * 2 + (5 *10 - (-21))
+    const int r1 = (ms1.foo - ms1.bar) * ms1.gee;  // (2 - 1) * 2 = 2
+    const int r2 = (ms2.foo - ms2.bar) * ms2.gee;  // (4 - 3) * 5 = 5
+    const int r3 = (ms3.foo - ms3.bar) * ms3.gee;  // (6 - 9) * 7 = -21
+    const int out = (idx * r1) + (r2 * 10 - r3);   // idx * 2 + (5 *10 - (-21))
     return out;
   };
 
@@ -156,13 +156,13 @@ TEST_P(ExecutionOpenCLC, Regression_107_Byval_Struct_Align) {
   };
   my_struct s1 = {{{{2}}}, {{{5}}, {2}}};
   my_struct s2 = {{{{4}}}, {{{6}}, {5}}};
-  cl_int v = 7;
-  cl_int w = 9;
+  static constexpr cl_int v = 7;
+  static constexpr cl_int w = 9;
 
-  kts::Reference1D<cl_int> refOutS1 = [&s1, v, w](size_t) {
+  kts::Reference1D<cl_int> refOutS1 = [&s1](size_t) {
     return s1.t.t.a + v + w;
   };
-  kts::Reference1D<cl_int> refOutS2 = [&s2, v, w](size_t) {
+  kts::Reference1D<cl_int> refOutS2 = [&s2](size_t) {
     return s2.t.s.s.s.a + v + w;
   };
 

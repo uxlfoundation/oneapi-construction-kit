@@ -37,7 +37,7 @@ struct CommandBufferFillImageTest : cl_khr_command_buffer_Test {
 
     for (size_t x = 0; x < dimension_length; x++) {
       const cl_uint index = x;
-      cl_uint4 element = {{index, index + 1, index + 2, index + 3}};
+      const cl_uint4 element = {{index, index + 1, index + 2, index + 3}};
       test_data[index] = element;
     }
     // 1D image

@@ -168,10 +168,10 @@ TEST_P(SpirvExecution, DISABLED_Spirv_14_Query_Image_Size) {
     GTEST_SKIP();
   }
 
-  size_t width = 1;
-  size_t height = 2;
-  size_t depth = 3;
-  const uint32_t size = 1;
+  static constexpr size_t width = 1;
+  static constexpr size_t height = 2;
+  static constexpr size_t depth = 3;
+  static constexpr size_t size = 1;
 
   cl_image_format format = {};
   format.image_channel_order = CL_RGBA;
@@ -197,8 +197,7 @@ TEST_P(SpirvExecution, DISABLED_Spirv_14_Query_Image_Size) {
     return cl_int3({{0, 0, 0}});
   };
 
-  kts::Reference1D<cl_int3> refBufferOut = [width, height,
-                                            depth](size_t) -> cl_int3 {
+  kts::Reference1D<cl_int3> refBufferOut = [](size_t) -> cl_int3 {
     return cl_int3({{static_cast<cl_int>(width), static_cast<cl_int>(height),
                      static_cast<cl_int>(depth)}});
   };
@@ -217,14 +216,14 @@ TEST_P(SpirvExecution, Spirv_15_Work_Dim) {
 
   // Running this work item function from a SPIR-V module must be tested with
   // the CL runtime as it doesn't have a glsl equivalent.
-  size_t dimensions = 2;
-  const size_t size = 1;
-  const size_t global_dim[] = {size, size};
-  const size_t local_dim[] = {size, size};
+  static constexpr size_t dimensions = 2;
+  static constexpr size_t size = 1;
+  static constexpr size_t global_dim[] = {size, size};
+  static constexpr size_t local_dim[] = {size, size};
 
   kts::Reference1D<cl_uint> refBufferIn = [](size_t) -> cl_uint { return 0; };
 
-  kts::Reference1D<cl_uint> refBufferOut = [dimensions](size_t) -> cl_uint {
+  kts::Reference1D<cl_uint> refBufferOut = [](size_t) -> cl_uint {
     return dimensions;
   };
 
@@ -242,7 +241,7 @@ TEST_P(Execution, Spirv_16_Frexp_Smoke) {
   // for this builtin, which isn't as easy as it sounds because the builtin only
   // takes signed int for a parameter while OpenCL SPIR-V can only encode
   // unsigned int.
-  size_t size = 1;
+  const size_t size = 1;
 
   // In this kernel we returnt the int* result, which is the exp component of
   // the input float. Since the input is 42.42 our exponent is 6.
@@ -262,7 +261,7 @@ TEST_P(Execution, Spirv_17_Ldexp_Smoke) {
   // for this builtin, which isn't as easy as it sounds because the builtin only
   // takes signed int for a parameter while OpenCL SPIR-V can only encode
   // unsigned int.
-  size_t size = 1;
+  const size_t size = 1;
 
   // The ldexp function constructs a float from the given exponent and
   // significand, in this case our inputs are 1.0 and 5, so our result should be
@@ -285,7 +284,7 @@ TEST_P(Execution, Spirv_18_Lgammar_Smoke) {
   // for this builtin, which isn't as easy as it sounds because the builtin only
   // takes signed int for a parameter while OpenCL SPIR-V can only encode
   // unsigned int.
-  size_t size = 1;
+  const size_t size = 1;
 
   // Here we return the int*, which for lgamma_r is the sign of the result,
   // which should be positive for an input of 42.42.
@@ -305,7 +304,7 @@ TEST_P(Execution, Spirv_19_Pown_Smoke) {
   // for this builtin, which isn't as easy as it sounds because the builtin only
   // takes signed int for a parameter while OpenCL SPIR-V can only encode
   // unsigned int.
-  size_t size = 1;
+  const size_t size = 1;
 
   // This raises the first input to the power of the second, our inputs are 0.5
   // and 2 so our result is 0.25.
@@ -327,7 +326,7 @@ TEST_P(Execution, Spirv_20_Remquo_Smoke) {
   // for this builtin, which isn't as easy as it sounds because the builtin only
   // takes signed int for a parameter while OpenCL SPIR-V can only encode
   // unsigned int.
-  size_t size = 1;
+  const size_t size = 1;
 
   // This function returns the remainder from the division between the two
   // inputs as well as returning the actual quotient (rounded result) in an int*
@@ -348,7 +347,7 @@ TEST_P(Execution, Spirv_21_Rootn_Smoke) {
   // for this builtin, which isn't as easy as it sounds because the builtin only
   // takes signed int for a parameter while OpenCL SPIR-V can only encode
   // unsigned int.
-  size_t size = 1;
+  const size_t size = 1;
 
   // This function returns x^1/y, our x is 42.42 and our y is 1 so we expect a
   // result of 42.42.

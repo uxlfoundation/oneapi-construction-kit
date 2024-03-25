@@ -47,7 +47,7 @@ TEST_P(Execution, Task_15_02_convert2) {
   kts::Reference1D<cl_long2> refIn = [](size_t x) -> cl_long2 {
     cl_long2 input;
     for (size_t i = 0; i < 2; ++i) {
-      input.s[i] = static_cast<cl_long>(kts::Ref_B(x) * 2 - i);
+      input.s[i] = static_cast<cl_long>(kts::Ref_B(x)) * 2 - i;
     }
     return input;
   };
@@ -89,7 +89,7 @@ TEST_P(Execution, Task_15_04_convert4) {
   kts::Reference1D<cl_long4> refIn = [](size_t x) -> cl_long4 {
     cl_long4 input;
     for (size_t i = 0; i < 4; ++i) {
-      input.s[i] = static_cast<cl_long>(kts::Ref_B(x) * 4 - i);
+      input.s[i] = static_cast<cl_long>(kts::Ref_B(x)) * 4 - i;
     }
     return input;
   };
@@ -114,7 +114,7 @@ TEST_P(Execution, Task_15_05_convert3) {
   kts::Reference1D<ucl::Long3> refIn = [](size_t x) -> ucl::Long3 {
     ucl::Long3 input;
     for (size_t i = 0; i < 3; ++i) {
-      input[i] = static_cast<cl_long>(kts::Ref_B(x) * 3 - i);
+      input[i] = static_cast<cl_long>(kts::Ref_B(x)) * 3 - i;
     }
     return input;
   };

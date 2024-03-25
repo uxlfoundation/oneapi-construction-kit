@@ -155,7 +155,7 @@ struct GeometricStreamer final : public kts::GenericStreamer<cl_float> {
         if (std::any_of(this->fallbacks_.begin(), this->fallbacks_.end(),
                         [this, actual, j,
                          error_tolerance](const kts::Reference1D<cl_float> &r) {
-                          cl_float fallback = r(j);
+                          const cl_float fallback = r(j);
                           return validator.validate(fallback, actual,
                                                     error_tolerance);
                         })) {
@@ -524,7 +524,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_04_Half_Normalize) {
 
       const cl_half half_val = ref_buffer(offset);
 
-      cl_float as_float = ConvertHalfToFloat(half_val);
+      const cl_float as_float = ConvertHalfToFloat(half_val);
       if (IsDenormalAsHalf(as_float)) {
         continue;
       }
@@ -625,7 +625,7 @@ TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
   // Function used to determine absolute error threshold, which is dependent on
   // operation inputs.
   const auto err_callback = [&ref_A, ref_B, &vec_width](size_t id) -> cl_float {
-    size_t offset = id % vec_width;
+    const size_t offset = id % vec_width;
     if (3 == offset) {
       return 0.0f;  // 4th element of vec4 is defined as zero
     }

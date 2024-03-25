@@ -85,7 +85,7 @@ class clCreateProgramWithILTest : public ucl::ContextTest {
         clGetDeviceInfo(device, CL_DEVICE_IL_VERSION, 0, nullptr, &size));
     std::string il_version(size, '\0');
     ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_IL_VERSION, size,
-                                   &il_version[0], nullptr));
+                                   il_version.data(), nullptr));
     ASSERT_STREQ("SPIR-V_1.0", il_version.c_str());
 
     cl_int error;
@@ -135,7 +135,7 @@ TEST_F(clCreateProgramWithILTest, clGetProgramInfo) {
       clGetDeviceInfo(device, CL_DEVICE_IL_VERSION, 0, nullptr, &size));
   std::string il_version(size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_IL_VERSION, size,
-                                 &il_version[0], nullptr));
+                                 il_version.data(), nullptr));
   ASSERT_STREQ("SPIR-V_1.0", il_version.c_str());
 
   cl_int error;

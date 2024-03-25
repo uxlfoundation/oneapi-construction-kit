@@ -27,7 +27,7 @@ std::string getPlatformInfo(cl_platform_id platform, cl_platform_info info) {
   }
   std::string value(size, '\0');
   if (auto error =
-          clGetPlatformInfo(platform, info, size, &value[0], nullptr)) {
+          clGetPlatformInfo(platform, info, size, value.data(), nullptr)) {
     UCL_ABORT("clGetPlatformInfo failed: %d", error);
   }
   return value;
@@ -115,7 +115,7 @@ std::string getDeviceInfo<std::string>(cl_device_id device,
     UCL_ABORT("clGetDeviceInfo failed: %d", error);
   }
   std::string value(size - 1, '\0');  // account for null terminator
-  if (auto error = clGetDeviceInfo(device, info, size, &value[0], nullptr)) {
+  if (auto error = clGetDeviceInfo(device, info, size, value.data(), nullptr)) {
     UCL_ABORT("clGetDeviceInfo failed: %d", error);
   }
   return value;
@@ -714,6 +714,9 @@ std::vector<uint32_t> ucl::DeviceTest::getDeviceSpirvFromFile(
     case 64:
       name += ".spv64";
       break;
+    default:
+      UCL_ABORT("Must have either 32 or 64 bits, have %ld",
+                (long)getDeviceAddressBits());
   }
   return File{name}.read<std::vector<uint32_t>>();
 }

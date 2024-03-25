@@ -99,13 +99,14 @@ std::string get_path_relative_to_exe(const std::string &relative_path) {
     exit(1);
   }
   if (sz > static_cast<ssize_t>(lnpath.size() - 1)) {
-    fprintf(stderr, "Executable path longer than %zu bytes\n", lnpath.size());
+    (void)fprintf(stderr, "Executable path longer than %zu bytes\n",
+                  lnpath.size());
     exit(1);
   }
   std::string path(lnpath.begin(), lnpath.begin() + sz);
 #endif
   // trim to last / (e.g. "/a/b/c" to "/a/b/"), to get UnitCL's directory
-  size_t idx = path.find_last_of('/');
+  const size_t idx = path.find_last_of('/');
   if (idx != std::string::npos) {
     path.resize(idx + 1);
   } else {
@@ -160,16 +161,16 @@ struct ArgumentParser {
       } else if (is_opt(argv[i], "--unitcl_build_options=")) {
         build_options = argv[i] + strlen("--unitcl_build_options=");
       } else if (is_opt(argv[i], "--unitcl_seed=")) {
-        std::string seed_str = argv[i] + strlen("--unitcl_seed=");
+        const std::string seed_str = argv[i] + strlen("--unitcl_seed=");
         rand_seed = std::stoul(seed_str);
       } else if (is_opt(argv[i], "--unitcl_math=")) {
-        std::string value = argv[i] + strlen("--unitcl_math=");
+        const std::string value = argv[i] + strlen("--unitcl_math=");
         if (0 == value.compare("quick")) {
           math_mode = ucl::MathMode::QUICK;
         } else if (0 == value.compare("full")) {
           math_mode = ucl::MathMode::FULL;
         } else if (0 != value.compare("wimpy")) {
-          fprintf(stderr, "ERROR: invalid math mode selected\n");
+          (void)fprintf(stderr, "ERROR: invalid math mode selected\n");
           exit(-1);
         }
       } else if (is_opt(argv[i], "--vecz-check")) {
@@ -178,13 +179,14 @@ struct ArgumentParser {
         const bool print_ok = UCL::print_opencl_platform_and_device_info(
             CL_DEVICE_TYPE_ALL | CL_DEVICE_TYPE_CUSTOM);
         if (!print_ok) {
-          fprintf(stderr,
-                  "WARNING: Unable to query and print OpenCL platform and "
-                  "device info.\n");
+          (void)fprintf(
+              stderr,
+              "WARNING: Unable to query and print OpenCL platform and "
+              "device info.\n");
         }
         exit(0);  // Don't run any tests, just exit now we've dumped the info
       } else if (!starts_with(argv[i], "--gtest")) {
-        fprintf(stderr, "ERROR : Unknown argument '%s'.\n", argv[i]);
+        (void)fprintf(stderr, "ERROR : Unknown argument '%s'.\n", argv[i]);
         printHelp(argv[0]);
         exit(1);  // Don't run any tests, just exit
       }
@@ -269,7 +271,7 @@ struct ArgumentParser {
 
 int main(int argc, char **argv) {
   // First parse UnitCL specific arguments.
-  ArgumentParser parser(argc, argv);
+  const ArgumentParser parser(argc, argv);
 
   // Create our global environment, this must happen before
   // testing::InitGoogleTest() in order to support multi-device testing.
@@ -278,7 +280,8 @@ int main(int argc, char **argv) {
       parser.math_mode, parser.build_options, parser.kernel_directory,
       parser.vecz_check);
   if (!(ucl::Environment::instance)) {
-    fprintf(stderr, "ERROR: Could not initialize UnitCL global environment!\n");
+    (void)fprintf(stderr,
+                  "ERROR: Could not initialize UnitCL global environment!\n");
     return -1;
   }
 
@@ -289,9 +292,9 @@ int main(int argc, char **argv) {
       testing::AddGlobalTestEnvironment(ucl::Environment::instance);
 
   if (environment != ucl::Environment::instance) {
-    fprintf(stderr,
-            "ERROR: UnitCL global environment did not match GoogleTest's "
-            "returned environment!\n");
+    (void)fprintf(stderr,
+                  "ERROR: UnitCL global environment did not match GoogleTest's "
+                  "returned environment!\n");
     return -1;
   }
 

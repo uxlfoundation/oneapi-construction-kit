@@ -74,7 +74,7 @@ TEST_P(urEnqueueMemBufferWriteTest, InvalidNullHandleEvent) {
 }
 
 TEST_P(urEnqueueMemBufferWriteTest, InvalidNullPointerSrc) {
-  std::vector<uint32_t> input(count, 42);
+  const std::vector<uint32_t> input(count, 42);
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
                    urEnqueueMemBufferWrite(queue, buffer, true, 0, size,
                                            nullptr, 0, nullptr, nullptr));

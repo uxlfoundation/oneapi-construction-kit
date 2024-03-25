@@ -37,7 +37,7 @@ struct MutableDispatchTest : public cl_khr_command_buffer_Test {
     }
 
     cl_mutable_dispatch_fields_khr mutable_capabilities;
-    cl_int err = clGetDeviceInfo(
+    const cl_int err = clGetDeviceInfo(
         device, CL_DEVICE_MUTABLE_DISPATCH_CAPABILITIES_KHR,
         sizeof(cl_mutable_dispatch_fields_khr), &mutable_capabilities, nullptr);
     ASSERT_SUCCESS(err);

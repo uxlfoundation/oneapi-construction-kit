@@ -349,7 +349,7 @@ TEST_F(clGetProgramBuildInfoBadTest, ProgramBinaryTypeCompiled) {
   cl_program_binary_type binaryType;
   ASSERT_SUCCESS(clGetProgramBuildInfo(program, device, CL_PROGRAM_BINARY_TYPE,
                                        size, &binaryType, nullptr));
-  cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT;
+  const cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT;
   ASSERT_EQ(expect, binaryType);
 
   ASSERT_SUCCESS(clReleaseProgram(program));
@@ -371,7 +371,7 @@ TEST_F(clGetProgramBuildInfoBadTest, ProgramBinaryTypeNone) {
   cl_program_binary_type binaryType;
   ASSERT_SUCCESS(clGetProgramBuildInfo(program, device, CL_PROGRAM_BINARY_TYPE,
                                        size, &binaryType, nullptr));
-  cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_NONE;
+  const cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_NONE;
   ASSERT_EQ(expect, binaryType);
 
   ASSERT_SUCCESS(clReleaseProgram(program));
@@ -384,7 +384,7 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBinaryTypeExecutable) {
   cl_program_binary_type binaryType;
   ASSERT_SUCCESS(clGetProgramBuildInfo(program, device, CL_PROGRAM_BINARY_TYPE,
                                        size, &binaryType, nullptr));
-  cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
+  const cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
   ASSERT_EQ(expect, binaryType);
 }
 #if defined(CL_VERSION_3_0)

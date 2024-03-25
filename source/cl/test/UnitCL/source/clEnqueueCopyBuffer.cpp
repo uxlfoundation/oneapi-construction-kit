@@ -192,7 +192,7 @@ TEST_F(clEnqueueCopyBufferCheckTest, CopyOverlap) {
 TEST_F(clEnqueueCopyBufferCheckTest, SubBufferCopyOverlap) {
   static_assert(buffer_size == 4, "This test assumes a buffer size of 4");
 
-  size_t halfSize = buffer_size / 2;
+  const size_t halfSize = buffer_size / 2;
   cl_buffer_region region = {0, halfSize};
   cl_int error;
 

@@ -693,7 +693,7 @@ TEST_F(CommandBufferEnqueueTest, EnqueueInLoopWithBlockingRead) {
     EXPECT_SUCCESS(clEnqueueReadBuffer(
         command_queue, accumulator_buffer, CL_TRUE, 0, data_size_in_bytes,
         output_data.data(), 0, nullptr, nullptr));
-    std::vector<cl_int> expected_result(global_size, i + 1);
+    const std::vector<cl_int> expected_result(global_size, i + 1);
     EXPECT_EQ(expected_result, output_data)
         << "Result mismatch on iteration " << i;
   }
@@ -766,7 +766,7 @@ TEST_F(CommandBufferEnqueueTest, EnqueueInLoopWithoutBlockingRead) {
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, accumulator_buffer, CL_TRUE,
                                      0, data_size_in_bytes, output_data.data(),
                                      0, nullptr, nullptr));
-  std::vector<cl_int> expected_result(global_size, iterations);
+  const std::vector<cl_int> expected_result(global_size, iterations);
   EXPECT_EQ(expected_result, output_data);
 
   // Clean up.
@@ -946,8 +946,7 @@ TEST_F(SubstituteCommandQueueTest, IncompatibleQueueProperties) {
 }
 
 // TODO: This is a ucl::MultiDeviceTest
-#if 0
-TEST_F(SubstituteCommandQueueTest, IncompatibleQueueDevice) {
+TEST_F(SubstituteCommandQueueTest, DISABLED_IncompatibleQueueDevice) {
   // This test may have to be skipped if there is only one device on the
   // platform.
   if (UCL::getNumDevices() < 2) {
@@ -990,7 +989,6 @@ TEST_F(SubstituteCommandQueueTest, IncompatibleQueueDevice) {
   EXPECT_SUCCESS(clReleaseCommandQueue(initial_command_queue));
   EXPECT_SUCCESS(clReleaseContext(shared_context));
 }
-#endif
 
 TEST_F(SubstituteCommandQueueTest, IncompatibleQueueContext) {
   // Create an incompatible queue from a different context targeting the same

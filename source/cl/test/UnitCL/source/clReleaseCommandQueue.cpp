@@ -60,7 +60,7 @@ TEST_F(clReleaseCommandQueueTest, TestEventFlush) {
   EXPECT_SUCCESS(errorcode);
 
   // Enqueue the kernel
-  size_t global_size = 1;
+  const size_t global_size = 1;
   cl_event event;
   EXPECT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &global_size,
                                         nullptr, 0, nullptr, &event));
@@ -73,8 +73,8 @@ TEST_F(clReleaseCommandQueueTest, TestEventFlush) {
   // Repeatedly check the event until it is complete or 2s has passed
   for (unsigned int i = 0; i < 20; i++) {
     // Wait for kernel to execute since the queue must flush on release
-    cl_int err = clGetEventInfo(event, CL_EVENT_COMMAND_EXECUTION_STATUS,
-                                sizeof(cl_int), &status, nullptr);
+    const cl_int err = clGetEventInfo(event, CL_EVENT_COMMAND_EXECUTION_STATUS,
+                                      sizeof(cl_int), &status, nullptr);
     if ((err == CL_SUCCESS) && (status == CL_COMPLETE)) {
       break;
     }

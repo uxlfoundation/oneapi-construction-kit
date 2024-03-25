@@ -26,8 +26,8 @@ TEST_P(Execution, Barrier_01_Barrier_In_Function) { RunGeneric1D(kts::N, 2); }
 
 namespace {
 cl_int refOut(size_t x) {
-  cl_int idx = kts::Ref_Identity(x);
-  cl_int pos = idx & 1;
+  const cl_int idx = kts::Ref_Identity(x);
+  const cl_int pos = idx & 1;
 
   if (pos) {
     return idx - 1;
@@ -222,8 +222,8 @@ TEST_P(Execution, Barrier_09_Barrier_With_Alias) {
   const cl_int global = 32;
   const cl_int read_local = 4;
   AddOutputBuffer(global, kts::Reference1D<cl_int>([](size_t i) {
-                    cl_int global_id = static_cast<cl_int>(i);
-                    cl_int res = 4 + global_id;
+                    const cl_int global_id = static_cast<cl_int>(i);
+                    const cl_int res = 4 + global_id;
                     return res;
                   }));
 
@@ -234,7 +234,7 @@ TEST_P(Execution, Barrier_10_Barriers_With_Alias) {
   const cl_int global = 32;
   const cl_int read_local = 4;
   AddOutputBuffer(global, kts::Reference1D<cl_int>([](size_t i) {
-                    cl_int global_id = static_cast<cl_int>(i);
+                    const cl_int global_id = static_cast<cl_int>(i);
 
                     cl_int res = global_id;
                     res = res + ((global_id & 1) ? 22 : 1);
@@ -253,7 +253,7 @@ TEST_P(MultipleLocalDimensions, Barrier_10_Barriers_With_Alias) {
   const cl_int global = 32;
   const cl_int read_local = getParam();
   AddOutputBuffer(global, kts::Reference1D<cl_int>([](size_t i) {
-                    cl_int global_id = static_cast<cl_int>(i);
+                    const cl_int global_id = static_cast<cl_int>(i);
 
                     cl_int res = global_id;
                     res = res + ((global_id & 1) ? 22 : 1);
@@ -268,7 +268,7 @@ TEST_P(MultipleLocalDimensions, Barrier_10_Barriers_With_Alias_2) {
   const cl_int global = 32;
   const cl_int read_local = getParam();
   AddOutputBuffer(global, kts::Reference1D<cl_int>([](size_t i) {
-                    cl_int global_id = static_cast<cl_int>(i);
+                    const cl_int global_id = static_cast<cl_int>(i);
 
                     cl_int res = global_id;
                     res = res + ((global_id & 1) ? 22 : 1);
@@ -280,17 +280,17 @@ TEST_P(MultipleLocalDimensions, Barrier_10_Barriers_With_Alias_2) {
 }
 
 TEST_P(MultipleLocalDimensions, Barrier_11_Barrier_With_Align) {
-  const cl_uint global = 32;
-  const cl_uint read_local = getParam();
-  const cl_uint num_out_per_id = 6;
+  static constexpr size_t global = 32;
+  static constexpr size_t num_out_per_id = 6;
+  const size_t read_local = getParam();
   AddPrimitive(0x3);
   AddPrimitive(0x7);
   AddPrimitive(0x3ff);
   AddOutputBuffer(global * num_out_per_id,
                   kts::Reference1D<cl_uint>([=](size_t i) {
-                    cl_uint id = static_cast<cl_uint>(i);
-                    cl_uint global_id = id / num_out_per_id;
-                    cl_uint sub_index = id % num_out_per_id;
+                    const cl_uint id = static_cast<cl_uint>(i);
+                    const cl_uint global_id = id / num_out_per_id;
+                    const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
                       case 0:
                         // 32 bit align - bottom 2 bits set as we invert
@@ -341,13 +341,13 @@ TEST_P(Execution, Barrier_13_Barrier_Shift_loop) {
 
   kts::Reference1D<cl_uchar> refOut = [](size_t) { return 'A'; };
 
-  const cl_int columns = local_size * 2;
-  const cl_int rows = local_size * 2;
+  const size_t columns = local_size * 2;
+  const size_t rows = local_size * 2;
   const size_t buffer_size = rows * columns;
 
   AddOutputBuffer(buffer_size, refOut);
-  AddPrimitive(rows);
-  AddPrimitive(columns);
+  AddPrimitive(cl_int(rows));
+  AddPrimitive(cl_int(columns));
   RunGenericND(2, global_range, local_range);
 }
 
@@ -373,7 +373,7 @@ TEST_P(Execution, Barrier_15_Vector_Barriers_With_Alias) {
   const cl_int read_local = 4;
 
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([=](size_t i) {
-                    cl_uint global_id = i;
+                    const cl_uint global_id = i;
                     cl_int res = global_id;
                     res = res + ((global_id & 1) ? 22 : 1);
                     return res;
@@ -413,15 +413,15 @@ TEST_P(MultipleLocalDimensions, Barrier_17_Barrier_Store_Mask) {
 }
 
 TEST_P(MultipleLocalDimensions, Barrier_18_Barrier_Store_Mask) {
-  const cl_uint global = 32;
-  const cl_uint read_local = getParam();
-  const cl_uint num_out_per_id = 2;
+  const size_t global = 32;
+  const size_t read_local = getParam();
+  const size_t num_out_per_id = 2;
   AddPrimitive(0x3);
   AddOutputBuffer(global * num_out_per_id,
                   kts::Reference1D<cl_uint>([=](size_t i) {
-                    cl_uint id = static_cast<cl_uint>(i);
-                    cl_uint global_id = id / num_out_per_id;
-                    cl_uint sub_index = id % num_out_per_id;
+                    const cl_uint id = static_cast<cl_uint>(i);
+                    const cl_uint global_id = id / num_out_per_id;
+                    const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
                       case 0:
                         return static_cast<cl_uint>(0x3);
@@ -437,15 +437,15 @@ TEST_P(MultipleLocalDimensions, Barrier_18_Barrier_Store_Mask) {
 }
 
 TEST_P(MultipleLocalDimensions, Barrier_19_Barrier_Store_Mask) {
-  const cl_uint global = 32;
-  const cl_uint read_local = getParam();
-  const cl_uint num_out_per_id = 2;
+  const size_t global = 32;
+  const size_t read_local = getParam();
+  const size_t num_out_per_id = 2;
   AddPrimitive(0x3);
   AddOutputBuffer(global * num_out_per_id,
                   kts::Reference1D<cl_uint>([=](size_t i) {
-                    cl_uint id = static_cast<cl_uint>(i);
-                    cl_uint global_id = id / num_out_per_id;
-                    cl_uint sub_index = id % num_out_per_id;
+                    const cl_uint id = static_cast<cl_uint>(i);
+                    const cl_uint global_id = id / num_out_per_id;
+                    const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
                       case 0:
                         // 32 bit align - bottom 2 bits set as we invert
@@ -468,7 +468,7 @@ TEST_P(MultipleLocalDimensions, Barrier_20_Barriers_With_Alias) {
   const cl_int global = 32;
   const cl_int read_local = getParam();
   AddOutputBuffer(global, kts::Reference1D<cl_int>([](size_t i) {
-                    cl_int global_id = static_cast<cl_int>(i);
+                    const cl_int global_id = static_cast<cl_int>(i);
 
                     cl_int res = global_id;
                     res = res + ((global_id & 1) ? 22 : 20);

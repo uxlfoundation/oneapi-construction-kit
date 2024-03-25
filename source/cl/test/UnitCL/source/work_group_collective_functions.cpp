@@ -577,7 +577,7 @@ struct WorkGroupCollectiveScanReductionTestBase
         global_sizes[0] * global_sizes[1] * global_sizes[2];
 
     std::vector<T> input_data(global_size);
-    std::vector<T> output_data(global_size);
+    const std::vector<T> output_data(global_size);
 
     kts::Reference1D<T> input_ref = [&input_data](size_t id) {
       return input_data[id];

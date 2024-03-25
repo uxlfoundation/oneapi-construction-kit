@@ -26,14 +26,14 @@ namespace hal {
 fence::fence(mux_device_t device) { this->device = device; }
 
 void fence::signal(mux_result_t result) {
-  std::unique_lock<std::mutex> lock(mutex);
+  const std::unique_lock<std::mutex> lock(mutex);
   completed = true;
   this->result = result;
   condition_variable.notify_all();
 }
 
 void fence::reset() {
-  std::lock_guard<std::mutex> lock(mutex);
+  const std::lock_guard<std::mutex> lock(mutex);
   completed = false;
   result = mux_fence_not_ready;
 }

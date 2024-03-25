@@ -53,7 +53,7 @@ TEST_P(Execution, Regression_03_Shuffle_Cast) {
   };
 
   kts::Reference1D<cl_short> refOut = [](size_t x) {
-    cl_int ix = kts::Ref_Identity(x);
+    const cl_int ix = kts::Ref_Identity(x);
     // This is testing a particular vector shuffle, so the expected output is a
     // little bit convoluted.
     return static_cast<cl_short>(((ix % 8) == 3) ? 7 : 0);
@@ -68,7 +68,7 @@ TEST_P(Execution, Regression_03_Shuffle_Cast) {
 // upstream changes that fixed the above test-case.
 TEST_P(Execution, Regression_04_Shuffle_Copy) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int ix = kts::Ref_Identity(x);
+    const cl_int ix = kts::Ref_Identity(x);
     // This is testing a particular vector shuffle, so the expected output is a
     // little bit convoluted.
     return ((ix % 8) == 0) ? (ix / 8) * 2 : 0;
@@ -190,7 +190,7 @@ TEST_P(Execution, Regression_10_Dont_Mask_Workitem_Builtins) {
     return kts::Ref_Identity(x + 2) * 3;
   };
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    size_t local_id = x % kts::localN;
+    const size_t local_id = x % kts::localN;
     if (local_id > 0) {
       return (kts::Ref_Identity(x) + 2) * 3;
     } else {
@@ -266,7 +266,7 @@ TEST_P(Execution, Regression_12_Isgreater_Double3_Vloadstore) {
 }
 
 TEST_P(Execution, Regression_13_Varying_Alloca) {
-  cl_int N = 64;
+  const cl_int N = 64;
   kts::Reference1D<cl_int4> refIn = [](size_t x) {
     cl_int v = kts::Ref_Identity(x);
     return cl_int4{{v, v + 1, v - 1, v * 2}};
@@ -282,12 +282,12 @@ TEST_P(Execution, Regression_13_Varying_Alloca) {
 }
 
 TEST_P(Execution, Regression_14_Argument_Stride) {
-  cl_int Stride = 3;
-  cl_int Max = 1 << 30;
-  kts::Reference1D<cl_int> refIn = [Max](size_t x) {
+  static constexpr cl_int Stride = 3;
+  static constexpr cl_int Max = 1 << 30;
+  kts::Reference1D<cl_int> refIn = [](size_t x) {
     return kts::Ref_Identity(x) % Max;
   };
-  kts::Reference1D<cl_int> refOut = [Stride, &refIn](size_t x) {
+  kts::Reference1D<cl_int> refOut = [&refIn](size_t x) {
     return kts::Ref_Identity(x) % Stride == 0 ? refIn(x) : 1;
   };
 
@@ -298,7 +298,7 @@ TEST_P(Execution, Regression_14_Argument_Stride) {
 }
 
 TEST_P(Execution, Regression_15_Negative_Stride) {
-  cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
+  const cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
   kts::Reference1D<cl_int> refIn = [](size_t x) {
     return static_cast<cl_int>(x * x);
   };
@@ -313,7 +313,7 @@ TEST_P(Execution, Regression_15_Negative_Stride) {
 }
 
 TEST_P(Execution, Regression_16_Negative_Argument_Stride) {
-  cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
+  const cl_int MaxIndex = static_cast<cl_int>(kts::N) - 1;
   kts::Reference1D<cl_int> refIn = [](size_t x) {
     return static_cast<cl_int>(x * x);
   };
@@ -461,9 +461,9 @@ static cl_int calc_group_barrier(size_t x, int vector_width) {
   for (int k = 0; k < GROUP_RANGE_1D; ++k) {
     for (int j = 0; j < GROUP_RANGE_2D; ++j) {
       for (int i = 0; i < GROUP_RANGE_3D; ++i) {
-        int linearIndex =
+        const int linearIndex =
             (k * GROUP_RANGE_2D * GROUP_RANGE_1D) + (j * GROUP_RANGE_1D) + i;
-        int g = linearIndex * vector_width;
+        const int g = linearIndex * vector_width;
         switch (x - g) {
           case 0:
             return i;
@@ -502,7 +502,7 @@ TEST_P(Execution, Regression_20_Group_Barrier_0) {
   const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D,
                                  GLOBAL_ITEMS_3D};
   const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D, LOCAL_ITEMS_3D};
-  const int vector_width = 4;
+  const size_t vector_width = 4;
 
   kts::Reference1D<cl_int> refOut = [=](size_t x) -> cl_int {
     return calc_group_barrier(x, vector_width);
@@ -519,7 +519,7 @@ TEST_P(Execution, Regression_20_Group_Barrier_1) {
   const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D,
                                  GLOBAL_ITEMS_3D};
   const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D, LOCAL_ITEMS_3D};
-  const int vector_width = 4;
+  const size_t vector_width = 4;
 
   AddMacro("GROUP_RANGE_1D", GROUP_RANGE_1D);
   AddMacro("GROUP_RANGE_2D", GROUP_RANGE_2D);
@@ -536,7 +536,7 @@ TEST_P(Execution, Regression_20_Group_Barrier_2) {
   const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D,
                                  GLOBAL_ITEMS_3D};
   const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D, LOCAL_ITEMS_3D};
-  const int vector_width = 8;
+  const size_t vector_width = 8;
 
   AddMacro("LOCAL_ITEMS_1D", LOCAL_ITEMS_1D);
   AddMacro("LOCAL_ITEMS_2D", LOCAL_ITEMS_2D);
@@ -555,7 +555,7 @@ TEST_P(Execution, Regression_20_Group_Barrier_3) {
   const size_t global_range[] = {GLOBAL_ITEMS_1D, GLOBAL_ITEMS_2D,
                                  GLOBAL_ITEMS_3D};
   const size_t local_range[] = {LOCAL_ITEMS_1D, LOCAL_ITEMS_2D, LOCAL_ITEMS_3D};
-  const int vector_width = 8;
+  const size_t vector_width = 8;
 
   AddMacro("LOCAL_ITEMS_1D", LOCAL_ITEMS_1D);
   AddMacro("LOCAL_ITEMS_2D", LOCAL_ITEMS_2D);

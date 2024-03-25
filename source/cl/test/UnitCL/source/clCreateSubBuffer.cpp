@@ -26,7 +26,7 @@ class clCreateSubBufferTest : public ucl::CommandQueueTest {
                               sizeof(cl_uint), &mem_base_addr_align, nullptr));
     // NOTE: Ensure the buffer is large enough to create a sub buffer of any
     // scalar or vector type.
-    size = 3 * mem_base_addr_align;
+    size = 3 * static_cast<size_t>(mem_base_addr_align);
     region.origin = static_cast<size_t>(mem_base_addr_align);
     region.size = sizeof(cl_int);
   }

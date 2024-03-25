@@ -425,6 +425,7 @@ if(TARGET ClangTools::clang-tidy)
   function(add_ca_tidy)
     if(TARGET tidy)
       foreach(entry ${ARGN})
+        file(REAL_PATH "${entry}" entry BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         get_filename_component(ext ${entry} EXT)
         if(EXISTS ${entry} AND ext MATCHES "^\.c(pp)?$")
           # In order to create a dependency graph for clang-tidy targets we

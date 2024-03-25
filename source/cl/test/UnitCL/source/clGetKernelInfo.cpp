@@ -59,7 +59,7 @@ class clGetKernelInfoTest : public ucl::ContextTest {
                          attribute("vec_type_hint(ulong4)") +
                          "foo(global int * a, global int * b) {*a = *b;}";
     const char *csource = source.data();
-    size_t source_length = source.size();
+    const size_t source_length = source.size();
     program = clCreateProgramWithSource(context, 1, &csource, &source_length,
                                         &errcode);
     EXPECT_TRUE(program);
@@ -190,7 +190,7 @@ class clGetKernelInfoTwoKernelsTest : public ucl::ContextTest {
         "              __attribute__((reqd_work_group_size(1, 1, 1)))\n"
         "  boo(__global float * a, __global float * b, __global float * c)\n"
         "    {*a = *c; *b = *c;}\n";
-    size_t source_length = strlen(source);
+    const size_t source_length = strlen(source);
     program = clCreateProgramWithSource(context, 1, &source, &source_length,
                                         &errcode);
     EXPECT_TRUE(program);
@@ -223,7 +223,7 @@ TEST_F(clGetKernelInfoTwoKernelsTest, KernelFunctionName) {
   ASSERT_EQ(strlen("boo") + 1, size);
   std::string kernelFunctionName(size, 0);
   EXPECT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_FUNCTION_NAME, size,
-                                 &kernelFunctionName[0], nullptr));
+                                 kernelFunctionName.data(), nullptr));
   ASSERT_EQ(0, strcmp("boo", kernelFunctionName.c_str()));
 }
 
@@ -279,7 +279,7 @@ TEST_F(clGetKernelInfoTwoKernelsTest, KernelAttributes) {
 
   std::string kernelAttribute(size, 0);
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_ATTRIBUTES, size,
-                                 &kernelAttribute[0], nullptr));
+                                 kernelAttribute.data(), nullptr));
 
   ASSERT_NE(nullptr, strstr(kernelAttribute.c_str(), "vec_type_hint(ulong4)"));
   ASSERT_NE(nullptr,
@@ -333,7 +333,7 @@ TEST_P(clGetKernelInfoAttributeTest, Default) {
 
   std::string kernelAttribute(size, 0);
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_ATTRIBUTES, size,
-                                 &kernelAttribute[0], nullptr));
+                                 kernelAttribute.data(), nullptr));
 
   for (auto kernelAttributeName : GetParam().second) {
     ASSERT_NE(nullptr, strstr(kernelAttribute.c_str(), kernelAttributeName));

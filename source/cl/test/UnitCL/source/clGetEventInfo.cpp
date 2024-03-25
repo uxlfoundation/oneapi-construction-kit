@@ -57,7 +57,7 @@ class clGetEventInfoTest : public ucl::CommandQueueTest {
     origin[1] = 0;
     origin[2] = 0;
 
-    cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR;
+    const cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR;
 
     hasImageSupport = UCL::isImageFormatSupported(
         context, {flags}, image_desc.image_type, image_format);
@@ -185,7 +185,7 @@ TEST_F(clGetEventInfoTest, WriteBufferEvent) {
   UCL::vector<char> data(buffer_size, 0);
   cl_event event;
   ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, buffer, CL_FALSE, 0,
-                                      buffer_size, &data[0], 0, nullptr,
+                                      buffer_size, data.data(), 0, nullptr,
                                       &event));
 
   ASSERT_SUCCESS(clWaitForEvents(1, &event));
@@ -211,11 +211,11 @@ TEST_F(clGetEventInfoTest, ReadBufferEvent) {
   ASSERT_SUCCESS(errcode);
   UCL::vector<char> data(buffer_size, 0);
   ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, buffer, CL_TRUE, 0,
-                                      buffer_size, &data[0], 0, nullptr,
+                                      buffer_size, data.data(), 0, nullptr,
                                       nullptr));
   cl_event event = (cl_event)1;
   ASSERT_SUCCESS(clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0,
-                                     buffer_size, &data[0], 0, nullptr,
+                                     buffer_size, data.data(), 0, nullptr,
                                      &event));
 
   ASSERT_SUCCESS(

@@ -132,7 +132,7 @@ class CommandBufferParallelCopyBase : public CommandNDRangeKernelTest {
     const size_t kernel_source_length = std::strlen(kernel_source);
     program = clCreateProgramWithSource(context, 1, &kernel_source,
                                         &kernel_source_length, &error);
-    std::string reqd_work_group_attribute_define =
+    const std::string reqd_work_group_attribute_define =
         "-DREQD_WORK_GROUP_SIZE_ATTRIBUTE=" + reqd_work_group_attribute;
     EXPECT_SUCCESS(clBuildProgram(program, 1, &device,
                                   reqd_work_group_attribute_define.c_str(),
@@ -484,7 +484,7 @@ TEST_F(CommandNDRangeKernelTest, Printf) {
 
   // Read captured stdout
   capture.RestoreStdout();
-  std::string buf = capture.ReadBuffer();
+  const std::string buf = capture.ReadBuffer();
 
   // Build reference based on that we enqueue the command-buffer three times
   std::ostringstream reference;
@@ -562,7 +562,8 @@ TEST_F(CommandNDRangeKernelTest, PODargument) {
   EXPECT_SUCCESS(clFinish(command_queue));
 
   std::array<cl_int, work_items> output_data;
-  std::array<cl_int, work_items> expected_output = {data, data, data, data};
+  const std::array<cl_int, work_items> expected_output = {data, data, data,
+                                                          data};
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0,
                                      sizeof(cl_int) * work_items,
                                      output_data.data(), 0, nullptr, nullptr));

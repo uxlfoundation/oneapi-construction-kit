@@ -27,7 +27,7 @@ md_ctx md_init(md_hooks *hooks, void *userdata) {
   using AllocatorTraits = std::allocator_traits<decltype(alloc)>;
 
   md_ctx_ *ctx = AllocatorTraits::allocate(alloc, 1);
-  AllocatorTraits::construct(alloc, ctx, hooks, userdata);
+  ctx = new (ctx) md_ctx_(hooks, userdata);
   if (ctx->decode_binary() == md_err::MD_E_INVALID_BINARY) {
     md_release_ctx(ctx);
     return nullptr;

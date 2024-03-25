@@ -21,7 +21,7 @@ UUR_INSTANTIATE_DEVICE_TEST_SUITE_P(urEnqueueUSMMemcpyTest);
 
 TEST_P(urEnqueueUSMMemcpyTest, Success) {
   bool host_usm = false;
-  size_t size = sizeof(bool);
+  const size_t size = sizeof(bool);
   ASSERT_SUCCESS(urDeviceGetInfo(device, UR_DEVICE_INFO_HOST_UNIFIED_MEMORY,
                                  size, &host_usm, nullptr));
 
@@ -133,7 +133,7 @@ TEST_P(urEnqueueUSMMemcpyTest, InvalidMemObject) {
                                   reinterpret_cast<void **>(&valid_ptr)));
 
   // Random pointer which is not a usm allocation
-  intptr_t address = 0xDEADBEEF;
+  const intptr_t address = 0xDEADBEEF;
   int *bad_ptr = reinterpret_cast<int *>(address);
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_MEM_OBJECT,
                    urEnqueueUSMMemcpy(queue, false, bad_ptr, valid_ptr,

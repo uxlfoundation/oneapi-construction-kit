@@ -40,7 +40,7 @@ struct semaphore : mux_semaphore_s {
   static cargo::expected<Semaphore *, mux_result_t> create(
       mux_device_t device, mux::allocator allocator) {
     static_assert(
-        std::is_base_of<mux::hal::semaphore, Semaphore>::value,
+        std::is_base_of_v<mux::hal::semaphore, Semaphore>,
         "template type Semaphore must derive from mux::hal::semaphore");
     const auto semaphore = allocator.create<Semaphore>(device);
     if (!semaphore) {
@@ -54,7 +54,7 @@ struct semaphore : mux_semaphore_s {
   static void destroy(mux_device_t device, Semaphore *semaphore,
                       mux::allocator allocator) {
     static_assert(
-        std::is_base_of<mux::hal::semaphore, Semaphore>::value,
+        std::is_base_of_v<mux::hal::semaphore, Semaphore>,
         "template type Semaphore must derive from mux::hal::semaphore");
     (void)device;
     allocator.destroy(semaphore);

@@ -29,10 +29,10 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_01_Half_Global) {
 
   const size_t vec_width = getParam();
 
-  std::string type("half");
-  std::string load_func("vload");
-  std::string store_func("vstore");
-  std::string vec_str = std::to_string(vec_width);
+  const std::string type("half");
+  const std::string load_func("vload");
+  const std::string store_func("vstore");
+  const std::string vec_str = std::to_string(vec_width);
 
   AddMacro("HALFN", type + vec_str);
   AddMacro("LOADN", load_func + vec_str);
@@ -63,10 +63,10 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_02_Half_Local) {
 
   const size_t vec_width = getParam();
 
-  std::string type("half");
-  std::string load_func("vload");
-  std::string store_func("vstore");
-  std::string vec_str = std::to_string(vec_width);
+  const std::string type("half");
+  const std::string load_func("vload");
+  const std::string store_func("vstore");
+  const std::string vec_str = std::to_string(vec_width);
 
   AddMacro("HALFN", type + vec_str);
   AddMacro("LOADN", load_func + vec_str);
@@ -99,10 +99,10 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_03_Half_Private) {
 
   const size_t vec_width = getParam();
 
-  std::string type("half");
-  std::string load_func("vload");
-  std::string store_func("vstore");
-  std::string vec_str = std::to_string(vec_width);
+  const std::string type("half");
+  const std::string load_func("vload");
+  const std::string store_func("vstore");
+  const std::string vec_str = std::to_string(vec_width);
 
   AddMacro("HALFN", type + vec_str);
   AddMacro("LOADN", load_func + vec_str);
@@ -137,10 +137,10 @@ TEST_P(HalfVloadVstoreTests, Vloadvstore_04_Half_Constant) {
 
   const size_t vec_width = getParam();
 
-  std::string type("half");
-  std::string load_func("vload");
-  std::string store_func("vstore");
-  std::string vec_str = std::to_string(vec_width);
+  const std::string type("half");
+  const std::string load_func("vload");
+  const std::string store_func("vstore");
+  const std::string vec_str = std::to_string(vec_width);
 
   AddMacro("HALFN", type + vec_str);
   AddMacro("LOADN", load_func + vec_str);

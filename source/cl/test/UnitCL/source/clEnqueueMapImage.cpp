@@ -80,6 +80,9 @@ std::ostream &operator<<(std::ostream &out,
     CASE(CL_MEM_OBJECT_PIPE)
 #endif
 #undef CASE
+    default:
+      out << params.object_type;
+      break;
   }
   out << "}, .is_aligned{" << (params.is_aligned ? "true" : "false")
       << "}, .is_pitched{" << (params.is_pitched ? "true" : "false") << "}}";
@@ -147,7 +150,7 @@ struct clEnqueueMapImageTests
         write_imagef(dst_image, coord, color);
       }
       )";
-    size_t length = strlen(source);
+    const size_t length = strlen(source);
     cl_int error;
     program = clCreateProgramWithSource(context, 1, &source, &length, &error);
     ASSERT_SUCCESS(error);
@@ -259,6 +262,8 @@ struct clEnqueueMapImageTests
             expected_slice_pitch * image_desc.image_depth / sizeof(cl_float4);
         kernel = clCreateKernel(program, "img_copy3d", &error);
         break;
+      default:
+        UCL_ABORT("unknown object type %d", (int)object_type);
     }
   }
 
@@ -371,27 +376,27 @@ TEST_P(clEnqueueMapImageTests, MapImage) {
                                     &readEvent));
   ASSERT_NE(nullptr, readEvent);
   ASSERT_SUCCESS(clFinish(command_queue));
-  size_t num_slices = image_desc.image_type == CL_MEM_OBJECT_IMAGE3D
-                          ? image_desc.image_depth
-                          : image_desc.image_array_size;
+  const size_t num_slices = image_desc.image_type == CL_MEM_OBJECT_IMAGE3D
+                                ? image_desc.image_depth
+                                : image_desc.image_array_size;
 
-  size_t row_pitch_in_pixels = expected_row_pitch / sizeof(cl_float4);
-  size_t slice_pitch_in_pixels = expected_slice_pitch / sizeof(cl_float4);
+  const size_t row_pitch_in_pixels = expected_row_pitch / sizeof(cl_float4);
+  const size_t slice_pitch_in_pixels = expected_slice_pitch / sizeof(cl_float4);
 
   for (size_t slice = 0; slice < num_slices; slice++) {
     for (size_t row = 0; row < image_desc.image_height; row++) {
       for (size_t col = 0; col < image_desc.image_width; col++) {
-        size_t src_pixel_index =
+        const size_t src_pixel_index =
             slice * slice_pitch_in_pixels + row * row_pitch_in_pixels + col;
-        size_t dst_pixel_index =
+        const size_t dst_pixel_index =
             slice * (image_desc.image_width * image_desc.image_height) +
             row * image_desc.image_height + col;
         for (size_t element = 0; element < 4; element++) {
           ASSERT_EQ(src_pixels[src_pixel_index * 4 + element],
                     dst_pixels[dst_pixel_index * 4 + element])
-              << "At pixel : " << dst_pixel_index << std::endl
+              << "At pixel : " << dst_pixel_index << '\n'
               << src_pixels[src_pixel_index * 4 + element] << " vs "
-              << dst_pixels[dst_pixel_index * 4 + element] << std::endl
+              << dst_pixels[dst_pixel_index * 4 + element] << '\n'
               << "Total : " << numPixels;
         }
       }

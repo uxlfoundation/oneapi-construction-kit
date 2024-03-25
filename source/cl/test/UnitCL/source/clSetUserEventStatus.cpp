@@ -292,7 +292,7 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnUserEventWithCommandEvent) {
   EXPECT_SUCCESS(error);
 
   // Now we enqueue the kernels but have the second one wait on a user event.
-  size_t global_size = 1;
+  const size_t global_size = 1;
   cl_event command_event;
   EXPECT_SUCCESS(clEnqueueNDRangeKernel(command_queue, store, 1, nullptr,
                                         &global_size, nullptr, 0, nullptr,
@@ -428,7 +428,7 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnUserEvent) {
   EXPECT_SUCCESS(error);
 
   // Now we enqueue the kernels but have the second one wait on a user event.
-  size_t global_size = 1;
+  const size_t global_size = 1;
   EXPECT_SUCCESS(clEnqueueNDRangeKernel(command_queue, store, 1, nullptr,
                                         &global_size, nullptr, 0, nullptr,
                                         nullptr));
@@ -541,7 +541,7 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnTwoUserEvents) {
   EXPECT_SUCCESS(error);
 
   // Now we enqueue the kernels but have them wait on user events.
-  size_t global_size = 1;
+  const size_t global_size = 1;
   EXPECT_SUCCESS(clEnqueueNDRangeKernel(command_queue, store, 1, nullptr,
                                         &global_size, nullptr, 1, &user_event_a,
                                         nullptr));
@@ -658,7 +658,7 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnTwoUserEventsReversed) {
   EXPECT_SUCCESS(error);
 
   // Now we enqueue the kernels but have them wait on user events.
-  size_t global_size = 1;
+  const size_t global_size = 1;
   EXPECT_SUCCESS(clEnqueueNDRangeKernel(command_queue, store, 1, nullptr,
                                         &global_size, nullptr, 1, &user_event_a,
                                         nullptr));

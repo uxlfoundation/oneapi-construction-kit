@@ -36,12 +36,12 @@ TEST_F(clEnqueueSVMFreeTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_uint num_svm_pointers{};
+  const cl_uint num_svm_pointers{};
   void *svm_pointers[1]{};
   void(CL_CALLBACK * pfn_free_func)(cl_command_queue, cl_uint, void *[],
                                     void *){};
   void *user_data{};
-  cl_uint num_events_in_wait_list{};
+  const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
   EXPECT_EQ_ERRCODE(

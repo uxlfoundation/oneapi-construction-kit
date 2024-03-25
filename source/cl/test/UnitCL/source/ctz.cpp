@@ -25,7 +25,7 @@
 #include "Common.h"
 
 template <typename T>
-static std::enable_if_t<std::is_integral<T>::value, T> reference_ctz(T val) {
+static std::enable_if_t<std::is_integral_v<T>, T> reference_ctz(T val) {
   if (!val) {
     return sizeof(val) << 3;
   }
@@ -70,11 +70,12 @@ class CtzTest : public ucl::CommandQueueTest {
     EXPECT_TRUE(program);
     ASSERT_SUCCESS(error_code);
     auto device_version = ucl::Environment::instance->deviceOpenCLVersion;
-    std::string cl_std_option = "-cl-std=CL" +
-                                std::to_string(device_version.major()) + '.' +
-                                std::to_string(device_version.minor());
-    std::string type_definition = "-DTYPE=" + std::string{T::source_name()};
-    std::string compiler_options = cl_std_option + ' ' + type_definition;
+    const std::string cl_std_option =
+        "-cl-std=CL" + std::to_string(device_version.major()) + '.' +
+        std::to_string(device_version.minor());
+    const std::string type_definition =
+        "-DTYPE=" + std::string{T::source_name()};
+    const std::string compiler_options = cl_std_option + ' ' + type_definition;
     ASSERT_SUCCESS(clBuildProgram(program, 1, &device, compiler_options.c_str(),
                                   nullptr, nullptr));
     // Create the kernel.

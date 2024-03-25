@@ -48,7 +48,7 @@ uur::Environment::Environment(int argc, char **argv)
   Environment::instance = this;
   platform = cargo::make_unexpected("platform uninitialized"s);
   devices = cargo::make_unexpected("devices uninitialized"s);
-  ur_device_init_flags_t device_flags = 0;
+  const ur_device_init_flags_t device_flags = 0;
   if (urInit(device_flags)) {
     platform = cargo::make_unexpected("urInit() failed"s);
     return;
@@ -168,7 +168,7 @@ uur::Environment::Options uur::Environment::parseOptions(int argc,
                                                          char **argv) {
   uur::Environment::Options options;
   for (int argi = 1; argi < argc; argi++) {
-    cargo::string_view arg{argv[argi]};
+    const cargo::string_view arg{argv[argi]};
     if (arg == "-h" || arg == "--help") {
       printHelp(argv[0]);
       break;
@@ -189,13 +189,13 @@ std::string uur::Environment::getSupportedILPostfix(uint32_t device_index) {
   auto device = instance->getDevices()[device_index];
   size_t size;
   if (urDeviceGetInfo(device, UR_DEVICE_INFO_IL_VERSION, 0, nullptr, &size)) {
-    std::fprintf(stderr, "ERROR: Getting device IL version\n");
+    (void)std::fprintf(stderr, "ERROR: Getting device IL version\n");
     return "";
   }
   std::string IL_version(size, '\0');
-  if (urDeviceGetInfo(device, UR_DEVICE_INFO_IL_VERSION, size, &IL_version[0],
-                      nullptr)) {
-    std::fprintf(stderr, "ERROR: Getting device IL version\n");
+  if (urDeviceGetInfo(device, UR_DEVICE_INFO_IL_VERSION, size,
+                      IL_version.data(), nullptr)) {
+    (void)std::fprintf(stderr, "ERROR: Getting device IL version\n");
     return "";
   }
 
@@ -209,7 +209,7 @@ std::string uur::Environment::getSupportedILPostfix(uint32_t device_index) {
   if (IL_version.find("SPIR-V") != std::string::npos) {
     IL << ".spv";
   } else {
-    std::fprintf(stderr, "ERROR: Undefined IL version\n");
+    (void)std::fprintf(stderr, "ERROR: Undefined IL version\n");
     return "";
   }
 
@@ -222,10 +222,10 @@ std::string uur::Environment::getKernelSourcePath(
   path << instance->getKernelDirectory();
   // il_postfix = supported_IL(SPIRV-PTX-...) + IL_version + extension(.spv -
   // .ptx - ....)
-  std::string il_postfix = getSupportedILPostfix(device_index);
+  const std::string il_postfix = getSupportedILPostfix(device_index);
 
   if (il_postfix.empty()) {
-    std::fprintf(stderr, "ERROR: Getting device supported IL\n");
+    (void)std::fprintf(stderr, "ERROR: Getting device supported IL\n");
     return "";
   }
 
@@ -235,7 +235,8 @@ std::string uur::Environment::getKernelSourcePath(
   auto device = Environment::instance->getDevices()[device_index];
   if (urDeviceGetInfo(device, UR_DEVICE_INFO_ADDRESS_BITS, sizeof(uint32_t),
                       &address_bits, nullptr)) {
-    std::fprintf(stderr, "ERROR: Getting device address bits supported\n");
+    (void)std::fprintf(stderr,
+                       "ERROR: Getting device address bits supported\n");
     return "";
   }
   path << address_bits;
@@ -249,10 +250,10 @@ uur::Environment::KernelSource uur::Environment::LoadSource(
       instance->getKernelSourcePath(kernel_name, device_index);
 
   if (source_path.empty()) {
-    std::fprintf(stderr,
-                 "ERROR: Retrieving kernel source path for kernel: %s\n",
-                 kernel_name.data());
-    return KernelSource{&kernel_name[0], nullptr, 0,
+    (void)std::fprintf(stderr,
+                       "ERROR: Retrieving kernel source path for kernel: %s\n",
+                       kernel_name.data());
+    return KernelSource{kernel_name.data(), nullptr, 0,
                         UR_RESULT_ERROR_INVALID_BINARY};
   }
 
@@ -260,33 +261,43 @@ uur::Environment::KernelSource uur::Environment::LoadSource(
     return cached_kernels[source_path];
   }
 
-  FILE *source_file = fopen(&source_path[0], "rb");
+  FILE *source_file = fopen(source_path.data(), "rb");
 
   if (!source_file) {
-    std::fprintf(stderr, "ERROR: Opening the kernel path: %s\n",
-                 source_path.data());
-    return KernelSource{&kernel_name[0], nullptr, 0,
+    (void)std::fprintf(stderr, "ERROR: Opening the kernel path: %s\n",
+                       source_path.data());
+    return KernelSource{kernel_name.data(), nullptr, 0,
                         UR_RESULT_ERROR_INVALID_BINARY};
   }
 
-  fseek(source_file, 0, SEEK_END);
-  uint32_t source_size = ftell(source_file);
-  rewind(source_file);
+  const long source_size = [&] {
+    if (fseek(source_file, 0, SEEK_END)) return -1L;
+    const long source_size = ftell(source_file);
+    if (fseek(source_file, 0, SEEK_SET)) return -1L;
+    return source_size;
+  }();
+  if (source_size < 0) {
+    (void)std::fprintf(stderr, "ERROR: Determining kernel image size: %s\n",
+                       source_path.data());
+    return KernelSource{kernel_name.data(), nullptr, 0,
+                        UR_RESULT_ERROR_INVALID_BINARY};
+  }
 
   uint32_t *source = static_cast<uint32_t *>(malloc(source_size));
   if (fread(source, sizeof(uint32_t), source_size / sizeof(uint32_t),
             source_file) != source_size / sizeof(uint32_t)) {
-    fclose(source_file);
+    (void)fclose(source_file);
     free(source);
-    std::fprintf(stderr, "ERROR: Reading kernel source data from file: %s\n",
-                 source_path.data());
-    return KernelSource{&kernel_name[0], nullptr, 0,
+    (void)std::fprintf(stderr,
+                       "ERROR: Reading kernel source data from file: %s\n",
+                       source_path.data());
+    return KernelSource{kernel_name.data(), nullptr, 0,
                         UR_RESULT_ERROR_INVALID_BINARY};
   }
-  fclose(source_file);
+  (void)fclose(source_file);
 
-  KernelSource kernel_source =
-      KernelSource{&kernel_name[0], source, source_size, UR_RESULT_SUCCESS};
+  const KernelSource kernel_source = KernelSource{
+      kernel_name.data(), source, uint32_t(source_size), UR_RESULT_SUCCESS};
 
   return cached_kernels[source_path] = kernel_source;
 }

@@ -30,11 +30,11 @@
 // UnitCL assertions can only be triggered from the outer test scope. This
 // macro is intended to be used inside functions, where it prints the error and
 // returns.
-#define UCL_SUCCESS_OR_RETURN_ERR(ERRCODE)                   \
-  if ((ERRCODE) != CL_SUCCESS) {                             \
-    std::fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, \
-                 ucl::Error(ERRCODE).description().c_str()); \
-    return ERRCODE;                                          \
+#define UCL_SUCCESS_OR_RETURN_ERR(ERRCODE)                         \
+  if ((ERRCODE) != CL_SUCCESS) {                                   \
+    (void)std::fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, \
+                       ucl::Error(ERRCODE).description().c_str()); \
+    return ERRCODE;                                                \
   }
 
 /// @brief Return if a fatal failure or skip occured invoking an expression.

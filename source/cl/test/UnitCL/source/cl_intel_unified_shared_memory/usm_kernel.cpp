@@ -132,7 +132,7 @@ TEST_P(USMSetKernelArgMemPointerTest, InvalidUsage) {
   // The cl_intel_unified_shared_memory specification has an open question
   // whether invalid pointers should result in an error. We accept this as Intel
   // passes invalid pointers in valid SYCL code.
-  cl_uint usm_arg_index = GetParam();
+  const cl_uint usm_arg_index = GetParam();
   err = clSetKernelArgMemPointerINTEL(kernel, usm_arg_index, user_ptr);
   ASSERT_SUCCESS(err);
 
@@ -147,7 +147,7 @@ TEST_P(USMSetKernelArgMemPointerTest, InvalidUsage) {
 
 // Test for valid API usage of clSetKernelArgMemPointerINTEL()
 TEST_P(USMSetKernelArgMemPointerTest, ValidUsage) {
-  cl_uint arg_index = GetParam();
+  const cl_uint arg_index = GetParam();
 
   for (auto ptr : allPointers()) {
     void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int));

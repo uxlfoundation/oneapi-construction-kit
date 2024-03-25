@@ -111,7 +111,6 @@ class clGetKernelWorkGroupInfoTest : public ucl::ContextTest {
 // Redmine #5114: Check CL_OUT_OF_HOST_MEMORY
 
 // TODO: This is a ucl::MultiDeviceTest
-#if 0
 TEST_F(clGetKernelWorkGroupInfoTest, DISABLED_InvalidDevice) {
   size_t global_work_size[3];
   if (UCL::getNumDevices() > 1) {
@@ -121,7 +120,6 @@ TEST_F(clGetKernelWorkGroupInfoTest, DISABLED_InvalidDevice) {
                                  sizeof(size_t *), global_work_size, nullptr));
   }
 }
-#endif
 
 TEST_F(clGetKernelWorkGroupInfoTest, InvalidValueParamName) {
   size_t size;
@@ -198,7 +196,8 @@ TEST_F(clGetKernelWorkGroupInfoTestBuiltInKernel, GlobalWorkSize) {
                                  built_in_kernels, nullptr));
 
   const auto name_list = cargo::split_all(
-      cargo::string_view{static_cast<const char *>(&built_in_kernels[0])}, ";");
+      cargo::string_view{static_cast<const char *>(built_in_kernels.data())},
+      ";");
 
   if (name_list.size() == 0) {
     GTEST_SKIP();
@@ -247,7 +246,8 @@ TEST_F(clGetKernelWorkGroupInfoTestBuiltInKernel, GlobalWorkSizeInvalidDevice) {
                                  built_in_kernels, nullptr));
 
   const auto name_list = cargo::split_all(
-      cargo::string_view{static_cast<const char *>(&built_in_kernels[0])}, ";");
+      cargo::string_view{static_cast<const char *>(built_in_kernels.data())},
+      ";");
 
   if (name_list.size() == 0) {
     GTEST_SKIP();

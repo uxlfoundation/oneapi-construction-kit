@@ -27,7 +27,7 @@ struct urProgramLinkTest : uur::QueueTest {
 
     ASSERT_SUCCESS(urProgramCreateWithIL(context, kernel_foo_source.source,
                                          kernel_foo_source.source_length,
-                                         nullptr, &programs[0]));
+                                         nullptr, programs.data()));
     ASSERT_SUCCESS(urProgramCompile(context, programs[0], nullptr));
 
     kernel_goo_source =

@@ -38,7 +38,7 @@ TEST_P(Execution, Task_06_01_Copy_If_Constant) {
 
 TEST_P(Execution, Task_06_02_Copy_If_Even_Group) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    size_t gid = x / kts::localN;
+    const size_t gid = x / kts::localN;
     return ((gid & 1) == 0) ? kts::Ref_A(x) : -1;
   };
   AddInputBuffer(kts::N, kts::Ref_A);

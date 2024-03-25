@@ -102,7 +102,7 @@ struct USMKernelExecInfoCodeplayTest : public clSetKernelExecInfoCODEPLAYTest {
 
   void TearDown() override {
     if (device_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
+      const cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
       EXPECT_SUCCESS(err);
     }
 

@@ -87,7 +87,7 @@ cl_int clGetImageInfoParamTest::createImage<CL_MEM_OBJECT_IMAGE1D>() {
 template <>
 cl_int clGetImageInfoParamTest::createImage<CL_MEM_OBJECT_IMAGE1D_BUFFER>() {
   cl_int error;
-  size_t width = getDeviceImageMaxBufferSize() / scale;
+  const size_t width = getDeviceImageMaxBufferSize() / scale;
   buffer = clCreateBuffer(context, CL_MEM_READ_WRITE,
                           width * UCL::getPixelSize(format), nullptr, &error);
   if (CL_SUCCESS != error) {

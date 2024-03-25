@@ -26,10 +26,11 @@ static std::vector<uur::test_parameters_t> generateParameterizations() {
 #define PARAMETERIZATION(name, src_buffer_size, dst_buffer_size, src_origin, \
                          dst_origin, region, src_row_pitch, src_slice_pitch, \
                          dst_row_pitch, dst_slice_pitch)                     \
-  uur::test_parameters_t                                                     \
-      name{#name,         src_buffer_size, dst_buffer_size, src_origin,      \
-           dst_origin,    region,          src_row_pitch,   src_slice_pitch, \
-           dst_row_pitch, dst_slice_pitch};                                  \
+  const uur::test_parameters_t name{#name,           src_buffer_size,        \
+                                    dst_buffer_size, src_origin,             \
+                                    dst_origin,      region,                 \
+                                    src_row_pitch,   src_slice_pitch,        \
+                                    dst_row_pitch,   dst_slice_pitch};       \
   parameterizations.push_back(name);                                         \
   (void)0
   // Tests that a 16x16x1 region can be read from a 16x16x1 device buffer at
@@ -182,9 +183,9 @@ struct urEnqueueMemBufferCopyRectTest : uur::QueueTest {
 UUR_INSTANTIATE_DEVICE_TEST_SUITE_P(urEnqueueMemBufferCopyRectTest);
 
 TEST_P(urEnqueueMemBufferCopyRectTest, InvalidNullHandleQueue) {
-  ur_rect_region_t src_region{size, 1, 1};
-  ur_rect_offset_t src_origin{0, 0, 0};
-  ur_rect_offset_t dst_origin{0, 0, 0};
+  const ur_rect_region_t src_region{size, 1, 1};
+  const ur_rect_offset_t src_origin{0, 0, 0};
+  const ur_rect_offset_t dst_origin{0, 0, 0};
   ASSERT_EQ_RESULT(
       UR_RESULT_ERROR_INVALID_NULL_HANDLE,
       urEnqueueMemBufferCopyRect(nullptr, src_buffer, dst_buffer, src_origin,
@@ -193,9 +194,9 @@ TEST_P(urEnqueueMemBufferCopyRectTest, InvalidNullHandleQueue) {
 }
 
 TEST_P(urEnqueueMemBufferCopyRectTest, InvalidNullHandleBufferSrc) {
-  ur_rect_region_t src_region{size, 1, 1};
-  ur_rect_offset_t src_origin{0, 0, 0};
-  ur_rect_offset_t dst_origin{0, 0, 0};
+  const ur_rect_region_t src_region{size, 1, 1};
+  const ur_rect_offset_t src_origin{0, 0, 0};
+  const ur_rect_offset_t dst_origin{0, 0, 0};
   ASSERT_EQ_RESULT(
       UR_RESULT_ERROR_INVALID_NULL_HANDLE,
       urEnqueueMemBufferCopyRect(queue, nullptr, dst_buffer, src_origin,
@@ -204,9 +205,9 @@ TEST_P(urEnqueueMemBufferCopyRectTest, InvalidNullHandleBufferSrc) {
 }
 
 TEST_P(urEnqueueMemBufferCopyRectTest, InvalidNullHandleBufferDst) {
-  ur_rect_region_t src_region{size, 1, 1};
-  ur_rect_offset_t src_origin{0, 0, 0};
-  ur_rect_offset_t dst_origin{0, 0, 0};
+  const ur_rect_region_t src_region{size, 1, 1};
+  const ur_rect_offset_t src_origin{0, 0, 0};
+  const ur_rect_offset_t dst_origin{0, 0, 0};
   ASSERT_EQ_RESULT(
       UR_RESULT_ERROR_INVALID_NULL_HANDLE,
       urEnqueueMemBufferCopyRect(queue, src_buffer, nullptr, src_origin,

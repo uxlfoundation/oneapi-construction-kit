@@ -202,7 +202,7 @@ TEST_P(NDimMutableCommandInfoTest, MutableDispatchGlobalOffsetDefault) {
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       ndim_command_handle, CL_MUTABLE_DISPATCH_GLOBAL_WORK_OFFSET_KHR, size,
       command_handle_global_offset.data(), nullptr));
-  std::vector<size_t> reference_global_offset(work_dim, 0);
+  const std::vector<size_t> reference_global_offset(work_dim, 0);
   ASSERT_EQ(reference_global_offset, command_handle_global_offset);
 }
 
@@ -238,7 +238,7 @@ TEST_P(NDimMutableCommandInfoTest, MutableDispatchGlobalSize) {
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       ndim_command_handle, CL_MUTABLE_DISPATCH_GLOBAL_WORK_SIZE_KHR, size,
       command_handle_global_size.data(), nullptr));
-  std::vector<size_t> reference_global_size(work_dim, global_size);
+  const std::vector<size_t> reference_global_size(work_dim, global_size);
   ASSERT_EQ(reference_global_size, command_handle_global_size);
 }
 
@@ -252,7 +252,7 @@ TEST_P(NDimMutableCommandInfoTest, MutableDispatchLocalSizeImplicitNoFinalize) {
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       ndim_command_handle, CL_MUTABLE_DISPATCH_LOCAL_WORK_SIZE_KHR, size,
       command_handle_local_size.data(), nullptr));
-  std::vector<size_t> reference_local_size(work_dim, 0);
+  const std::vector<size_t> reference_local_size(work_dim, 0);
   ASSERT_EQ(reference_local_size, command_handle_local_size);
 }
 
@@ -268,7 +268,7 @@ TEST_P(NDimMutableCommandInfoTest, MutableDispatchLocalSizeImplicitFinalized) {
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       ndim_command_handle, CL_MUTABLE_DISPATCH_LOCAL_WORK_SIZE_KHR, size,
       command_handle_local_size.data(), nullptr));
-  std::vector<size_t> reference_local_size(work_dim, 0);
+  const std::vector<size_t> reference_local_size(work_dim, 0);
   ASSERT_EQ(reference_local_size, command_handle_local_size);
 }
 
@@ -292,7 +292,7 @@ TEST_P(NDimMutableCommandInfoTest, MutableDispatchLocalSizeExplicit) {
   EXPECT_SUCCESS(clGetMutableCommandInfoKHR(
       new_command_handle, CL_MUTABLE_DISPATCH_LOCAL_WORK_SIZE_KHR, size,
       command_handle_local_size.data(), nullptr));
-  std::vector<size_t> reference_local_size(work_dim, local_size);
+  const std::vector<size_t> reference_local_size(work_dim, local_size);
   EXPECT_EQ(reference_local_size, command_handle_local_size);
 }
 

@@ -66,12 +66,12 @@ struct query_pool : mux_query_pool_s {
     // Calculate the result storage offset past the end of the query_pool_s.
     // FIXME: This wastes sizeof(mux_query_duration_result_s) bytes when
     // sizeof(query_pool_s) has no remainder when divided by it.
-    size_t query_data_offset =
+    const size_t query_data_offset =
         sizeof(query_pool) + sizeof(mux_query_duration_result_s) -
         sizeof(query_pool) % sizeof(mux_query_duration_result_s);
     // Calculate the total size of the allocation.
-    size_t query_size = sizeof(mux_query_duration_result_s) * query_count;
-    size_t alloc_size = query_data_offset + query_size;
+    const size_t query_size = sizeof(mux_query_duration_result_s) * query_count;
+    const size_t alloc_size = query_data_offset + query_size;
     // Using a single allocation with storage for the query pool results
     // appended to the end of the query_pool_s.
     auto memory = allocator.alloc(

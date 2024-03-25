@@ -93,7 +93,8 @@ struct FastMathTest : ucl::CommandQueueTest,
   }
 
   void setMemArg(cl_kernel kernel, cl_uint i, cl_mem mem) const {
-    cl_int errorcode = clSetKernelArg(kernel, i, sizeof(mem), (void *)&mem);
+    const cl_int errorcode =
+        clSetKernelArg(kernel, i, sizeof(mem), (void *)&mem);
     ASSERT_SUCCESS(errorcode);
   }
 
@@ -128,17 +129,17 @@ TEST_P(FastMathTest, Logic) {
 
   ReplaceAll(source, "%s", GetParam());
 
-  ReleaseHelper<cl_program> program(createProgram(source.c_str()));
+  const ReleaseHelper<cl_program> program(createProgram(source.c_str()));
 
-  ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
+  const ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
 
   const size_t bytes = 128;
 
-  ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_c(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_d(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_e(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_c(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_d(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_e(createBuffer(bytes));
 
   setMemArg(kernel, 0, mem_a);
   setMemArg(kernel, 1, mem_b);
@@ -172,15 +173,15 @@ TEST_P(FastMathTest, GeometricDistance) {
 
   ReplaceAll(source, "%s", GetParam());
 
-  ReleaseHelper<cl_program> program(createProgram(source.c_str()));
+  const ReleaseHelper<cl_program> program(createProgram(source.c_str()));
 
-  ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
+  const ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
 
   const size_t bytes = 128;
 
-  ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_c(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_c(createBuffer(bytes));
 
   setMemArg(kernel, 0, mem_a);
   setMemArg(kernel, 1, mem_b);
@@ -211,14 +212,14 @@ TEST_P(FastMathTest, GeometricLength) {
 
   ReplaceAll(source, "%s", GetParam());
 
-  ReleaseHelper<cl_program> program(createProgram(source.c_str()));
+  const ReleaseHelper<cl_program> program(createProgram(source.c_str()));
 
-  ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
+  const ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
 
   const size_t bytes = 128;
 
-  ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
 
   setMemArg(kernel, 0, mem_a);
   setMemArg(kernel, 1, mem_b);
@@ -248,14 +249,14 @@ TEST_P(FastMathTest, GeometricNormalize) {
 
   ReplaceAll(source, "%s", GetParam());
 
-  ReleaseHelper<cl_program> program(createProgram(source.c_str()));
+  const ReleaseHelper<cl_program> program(createProgram(source.c_str()));
 
-  ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
+  const ReleaseHelper<cl_kernel> kernel(createKernel(program, "f"));
 
   const size_t bytes = 128;
 
-  ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
-  ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_a(createBuffer(bytes));
+  const ReleaseHelper<cl_mem> mem_b(createBuffer(bytes));
 
   setMemArg(kernel, 0, mem_a);
   setMemArg(kernel, 1, mem_b);

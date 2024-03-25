@@ -59,7 +59,7 @@ class clGetKernelArgInfoTest : public ucl::ContextTest {
           size_t i = get_global_id(0);
           a[i] = (int)verbose_variable_name[i].x;
         })";
-    size_t source_lens = strlen(source);
+    const size_t source_lens = strlen(source);
     cl_int status;
     auto program =
         clCreateProgramWithSource(context, 1, &source, &source_lens, &status);
@@ -177,13 +177,13 @@ TEST_F(clGetKernelArgInfoTest, DefaultArgName) {
         clGetKernelArgInfo(kernel, 0, CL_KERNEL_ARG_NAME, 0, nullptr, &size));
     std::string arg_name(size, 0);
     EXPECT_SUCCESS(clGetKernelArgInfo(kernel, 0, CL_KERNEL_ARG_NAME, size,
-                                      &arg_name[0], nullptr));
+                                      arg_name.data(), nullptr));
     EXPECT_STREQ("a", arg_name.c_str());
     ASSERT_SUCCESS(
         clGetKernelArgInfo(kernel, 1, CL_KERNEL_ARG_NAME, 0, nullptr, &size));
     arg_name.resize(size);
     EXPECT_SUCCESS(clGetKernelArgInfo(kernel, 1, CL_KERNEL_ARG_NAME, size,
-                                      &arg_name[0], nullptr));
+                                      arg_name.data(), nullptr));
     EXPECT_STREQ("verbose_variable_name", arg_name.c_str());
   }
 }
@@ -212,8 +212,9 @@ struct clGetKernelArgInfoTypeNameTest
     }
 
     const char *type_str = GetParam().input;
-    bool use_double = (0 == strncmp("double", type_str, strlen("double")));
-    bool use_half = (0 == strncmp("half", type_str, strlen("half")));
+    const bool use_double =
+        (0 == strncmp("double", type_str, strlen("double")));
+    const bool use_half = (0 == strncmp("half", type_str, strlen("half")));
 
     if (use_double && !UCL::hasDoubleSupport(device)) {
       GTEST_SKIP();
@@ -279,7 +280,7 @@ TEST_P(clGetKernelArgInfoTypeNameTest, Default) {
                                       nullptr, &size));
     std::string type_name(size, 0);
     EXPECT_SUCCESS(clGetKernelArgInfo(kernel, 0, CL_KERNEL_ARG_TYPE_NAME, size,
-                                      &type_name[0], nullptr));
+                                      type_name.data(), nullptr));
     EXPECT_STREQ(GetParam().expected, type_name.c_str());
 
     // Pointer type
@@ -287,7 +288,7 @@ TEST_P(clGetKernelArgInfoTypeNameTest, Default) {
                                       nullptr, &size));
     type_name.resize(size);
     EXPECT_SUCCESS(clGetKernelArgInfo(kernel, 1, CL_KERNEL_ARG_TYPE_NAME, size,
-                                      &type_name[0], nullptr));
+                                      type_name.data(), nullptr));
     std::string expected(GetParam().expected);
     expected.append("*");
     EXPECT_STREQ(expected.c_str(), type_name.c_str());

@@ -28,9 +28,9 @@ struct CommandBufferCopyImageTest : cl_khr_command_buffer_Test {
       GTEST_SKIP();
     }
 
-    cl_image_format image_format = {CL_RGBA, CL_SIGNED_INT32};
-    cl_mem_object_type image_type = CL_MEM_OBJECT_IMAGE1D;
-    cl_mem_flags image_flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
+    const cl_image_format image_format = {CL_RGBA, CL_SIGNED_INT32};
+    const cl_mem_object_type image_type = CL_MEM_OBJECT_IMAGE1D;
+    const cl_mem_flags image_flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
     if (!UCL::isImageFormatSupported(context, {image_flags}, image_type,
                                      image_format)) {
       GTEST_SKIP();

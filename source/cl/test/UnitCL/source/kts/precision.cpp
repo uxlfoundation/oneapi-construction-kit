@@ -25,7 +25,7 @@ namespace {
 /// @return rounded mantissa, or max unsigned type in the case of overflow
 template <class T, class U = typename kts::ucl::TypeInfo<T>::AsUnsigned>
 U RTEMantissa(U x) {
-  static_assert(std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point_v<T>,
                 "Function only applicable to cl_float and cl_double");
   using unsigned_t = typename kts::ucl::TypeInfo<T>::AsUnsigned;
   const unsigned mantissa_bit_diff = kts::ucl::TypeInfo<T>::mantissa_bits -
@@ -82,7 +82,7 @@ U RTEMantissa(U x) {
 /// @return rounded mantissa, or max unsigned type in the case of overflow
 template <class T, class U = typename kts::ucl::TypeInfo<T>::AsUnsigned>
 U RTZeroMantissa(U x, bool to_zero) {
-  static_assert(std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point_v<T>,
                 "Function only applicable to cl_float and cl_double");
   using unsigned_t = typename kts::ucl::TypeInfo<T>::AsUnsigned;
   const unsigned mantissa_bit_diff = kts::ucl::TypeInfo<T>::mantissa_bits -
@@ -119,7 +119,7 @@ bool IsNaN(cl_half x) {
   const cl_ushort exp_mask = TypeInfo<cl_half>::exponent_mask;
   const cl_ushort mantissa_mask = TypeInfo<cl_half>::mantissa_mask;
 
-  bool is_nan = (abs & mantissa_mask) && ((abs & exp_mask) == exp_mask);
+  const bool is_nan = (abs & mantissa_mask) && ((abs & exp_mask) == exp_mask);
   return is_nan;
 }
 
@@ -200,11 +200,11 @@ cl_float ConvertHalfToFloat(const cl_half x) {
 
 template <class T>
 cl_half ConvertFloatToHalf(const T x, RoundingMode rounding) {
-  static_assert(std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point_v<T>,
                 "Function only applicable to cl_float and cl_double");
   // Initialize return value to signed zero
   using unsigned_t = typename TypeInfo<T>::AsUnsigned;
-  unsigned_t as_unsigned = cargo::bit_cast<unsigned_t>(x);
+  const unsigned_t as_unsigned = cargo::bit_cast<unsigned_t>(x);
   const unsigned size_diff = (sizeof(T) - sizeof(cl_half)) * 8;
   cl_half fp16 = (as_unsigned >> size_diff) & TypeInfo<cl_half>::sign_bit;
 
@@ -509,7 +509,7 @@ void InputGenerator::GenerateFloatData(std::vector<cl_half> &buffer) {
     // We have enough space to represent the full range of half
     // precision, so make sure we do.
     for (size_t i = 0; i < N; i++) {
-      UInt asUnsigned = i % num_half_variants;
+      const UInt asUnsigned = i % num_half_variants;
       buffer[i] = cargo::bit_cast<cl_half>(asUnsigned);
     }
   } else {

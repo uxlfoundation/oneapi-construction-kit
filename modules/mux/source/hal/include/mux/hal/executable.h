@@ -40,7 +40,7 @@ struct executable : mux_executable_s {
       mux::hal::device *device, const void *binary, uint64_t binary_length,
       mux::allocator allocator) {
     static_assert(
-        std::is_base_of<mux::hal::executable, Executable>::value,
+        std::is_base_of_v<mux::hal::executable, Executable>,
         "template type Executable must derive from mux::hal::executable");
     mux::dynamic_array<uint8_t> object_code{allocator};
     if (object_code.alloc(binary_length)) {
@@ -61,7 +61,7 @@ struct executable : mux_executable_s {
                       mux::hal::executable *executable,
                       mux::allocator allocator) {
     static_assert(
-        std::is_base_of<mux::hal::executable, Executable>::value,
+        std::is_base_of_v<mux::hal::executable, Executable>,
         "template type Executable must derive from mux::hal::executable");
     (void)device;
     allocator.destroy(executable);

@@ -114,7 +114,7 @@ class SubGroupTest : public kts::ucl::ExecutionWithParam<LocalSizes> {
                           size_t local_size_z) {
     size_t local_size[]{local_size_x, local_size_y, local_size_z};
     size_t sub_group_count = 0;
-    cl_int err = clGetKernelSubGroupInfo(
+    const cl_int err = clGetKernelSubGroupInfo(
         kernel_, device, CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE,
         sizeof(local_size), local_size, sizeof(sub_group_count),
         &sub_group_count, nullptr);
@@ -129,7 +129,7 @@ class SubGroupTest : public kts::ucl::ExecutionWithParam<LocalSizes> {
                             size_t local_size_z) {
     size_t local_size[]{local_size_x, local_size_y, local_size_z};
     size_t sub_group_count = 0;
-    cl_int err = clGetKernelSubGroupInfo(
+    const cl_int err = clGetKernelSubGroupInfo(
         kernel_, device, CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE,
         sizeof(local_size), local_size, sizeof(sub_group_count),
         &sub_group_count, nullptr);
@@ -293,7 +293,7 @@ TEST_P(SubGroupTest, Sub_Group_07_Sub_Group_All_Builtin) {
   kts::Reference1D<cl_int> output_ref_b = [&sub_group_map, &input_data](
                                               size_t sgid, cl_int result) {
     cl_int expected = 1;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected &= !!input_data[gid];
     }
@@ -353,7 +353,7 @@ TEST_P(SubGroupTest, Sub_Group_08_Sub_Group_Any_Builtin) {
   kts::Reference1D<cl_int> output_ref_b = [&sub_group_map, &input_data](
                                               size_t sgid, cl_int result) {
     cl_int expected = 0;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected |= !!input_data[gid];
     }
@@ -609,7 +609,7 @@ TEST_P(SubGroupTest, Sub_Group_09_Sub_Group_Broadcast_Float) {
         const auto sub_group_local_id = sub_group_local_ids[sub_group_id];
         const auto expected = input_data[sub_group[sub_group_local_id]];
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
@@ -666,7 +666,7 @@ TEST_P(SubGroupTest, Sub_Group_10_Sub_Group_Reduce_Add_Uint) {
   kts::Reference1D<cl_uint> output_ref_b = [&sub_group_map, &input_data](
                                                size_t sgid, cl_uint result) {
     cl_uint expected = 0;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected += input_data[gid];
     }
@@ -720,7 +720,7 @@ TEST_P(SubGroupTest, Sub_Group_10_Sub_Group_Reduce_Add_Int) {
   kts::Reference1D<cl_int> output_ref_b = [&sub_group_map, &input_data](
                                               size_t sgid, cl_int result) {
     cl_int expected = 0;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected += input_data[gid];
     }
@@ -773,12 +773,12 @@ TEST_P(SubGroupTest, Sub_Group_10_Sub_Group_Reduce_Add_Float) {
   kts::Reference1D<cl_float> output_ref_b = [&sub_group_map, &input_data, this](
                                                 size_t sgid, cl_float result) {
     cl_float expected = 0;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected += input_data[gid];
     }
     return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-        .validate(result, expected);
+        .validate(expected, result);
   };
 
   GenerateOrderIndependentFloatData(input_data);
@@ -817,7 +817,7 @@ TEST_P(SubGroupTest, Sub_Group_11_Sub_Group_Reduce_Min_Uint) {
   kts::Reference1D<cl_uint> output_ref_b = [&sub_group_map, &input_data](
                                                size_t sgid, cl_uint result) {
     cl_uint expected = CL_UINT_MAX;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected = std::min(expected, input_data[gid]);
     }
@@ -861,7 +861,7 @@ TEST_P(SubGroupTest, Sub_Group_11_Sub_Group_Reduce_Min_Int) {
   kts::Reference1D<cl_int> output_ref_b = [&sub_group_map, &input_data](
                                               size_t sgid, cl_int result) {
     cl_int expected = CL_INT_MAX;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected = std::min(expected, input_data[gid]);
     }
@@ -908,12 +908,12 @@ TEST_P(SubGroupTest, Sub_Group_11_Sub_Group_Reduce_Min_Float) {
       return false;
     }
     cl_float expected = input_data[sub_group_map[sgid][0]];
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected = fmin(expected, input_data[gid]);
     }
     return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-        .validate(result, expected);
+        .validate(expected, result);
   };
 
   {
@@ -969,7 +969,7 @@ TEST_P(SubGroupTest, Sub_Group_12_Sub_Group_Reduce_Max_Uint) {
   kts::Reference1D<cl_uint> output_ref_b = [&sub_group_map, &input_data](
                                                size_t sgid, cl_uint result) {
     cl_uint expected = 0;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected = std::max(expected, input_data[gid]);
     }
@@ -1013,7 +1013,7 @@ TEST_P(SubGroupTest, Sub_Group_12_Sub_Group_Reduce_Max_Int) {
   kts::Reference1D<cl_int> output_ref_b = [&sub_group_map, &input_data](
                                               size_t sgid, cl_int result) {
     cl_int expected = CL_INT_MIN;
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected = std::max(expected, input_data[gid]);
     }
@@ -1060,12 +1060,12 @@ TEST_P(SubGroupTest, Sub_Group_12_Sub_Group_Reduce_Max_Float) {
       return false;
     }
     cl_float expected = input_data[sub_group_map[sgid][0]];
-    for (size_t gid : sub_group_map[sgid]) {
+    for (const size_t gid : sub_group_map[sgid]) {
       // Simulate the all operation on host.
       expected = fmax(expected, input_data[gid]);
     }
     return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-        .validate(result, expected);
+        .validate(expected, result);
   };
 
   ucl::Environment::instance->GetInputGenerator()
@@ -1295,7 +1295,7 @@ TEST_P(SubGroupTest, Sub_Group_13_Sub_Group_Scan_Exclusive_Add_Float) {
           expected += input_data[sub_group[i]];
         }
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   GenerateOrderIndependentFloatData(input_data);
@@ -1501,7 +1501,7 @@ TEST_P(SubGroupTest, Sub_Group_14_Sub_Group_Scan_Exclusive_Min_Float) {
           expected = fmin(expected, input_data[sub_group[i]]);
         }
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   ucl::Environment::instance->GetInputGenerator()
@@ -1708,7 +1708,7 @@ TEST_P(SubGroupTest, Sub_Group_15_Sub_Group_Scan_Exclusive_Max_Float) {
           expected = fmax(expected, input_data[sub_group[i]]);
         }
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   ucl::Environment::instance->GetInputGenerator()
@@ -1936,7 +1936,7 @@ TEST_P(SubGroupTest, Sub_Group_16_Sub_Group_Scan_Inclusive_Add_Float) {
           expected += input_data[sub_group[i]];
         }
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   GenerateOrderIndependentFloatData(input_data);
@@ -2141,7 +2141,7 @@ TEST_P(SubGroupTest, Sub_Group_17_Sub_Group_Scan_Inclusive_Min_Float) {
           expected = fmin(expected, input_data[sub_group[i]]);
         }
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   ucl::Environment::instance->GetInputGenerator()
@@ -2347,7 +2347,7 @@ TEST_P(SubGroupTest, Sub_Group_18_Sub_Group_Scan_Inclusive_Max_Float) {
           expected = fmax(expected, input_data[sub_group[i]]);
         }
         return kts::ucl::ULPValidator<cl_float, 1_ULP>(this->device)
-            .validate(result, expected);
+            .validate(expected, result);
       };
 
   ucl::Environment::instance->GetInputGenerator()

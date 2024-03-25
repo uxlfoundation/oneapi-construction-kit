@@ -25,13 +25,15 @@ std::string getPlatformVendor(cl_platform_id platform) {
   size_t size;
   if (auto error =
           clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, 0, nullptr, &size)) {
-    std::fprintf(stderr, "ERROR: Getting OpenCL platform vendor: %d\n", error);
+    (void)std::fprintf(stderr, "ERROR: Getting OpenCL platform vendor: %d\n",
+                       error);
     std::exit(-1);
   }
   std::string platformVendor(size, '\0');
   if (auto error = clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, size,
-                                     &platformVendor[0], nullptr)) {
-    std::fprintf(stderr, "ERROR: Getting OpenCL platform vendor: %d\n", error);
+                                     platformVendor.data(), nullptr)) {
+    (void)std::fprintf(stderr, "ERROR: Getting OpenCL platform vendor: %d\n",
+                       error);
     std::exit(-1);
   }
   return cargo::as<std::string>(cargo::trim(platformVendor));
@@ -40,13 +42,15 @@ std::string getPlatformVendor(cl_platform_id platform) {
 std::string getDeviceName(cl_device_id device) {
   size_t size;
   if (auto error = clGetDeviceInfo(device, CL_DEVICE_NAME, 0, nullptr, &size)) {
-    std::fprintf(stderr, "ERROR: Getting OpencL device name: %d\n", error);
+    (void)std::fprintf(stderr, "ERROR: Getting OpencL device name: %d\n",
+                       error);
     std::exit(-1);
   }
   std::string deviceName(size, '\0');
-  if (auto error = clGetDeviceInfo(device, CL_DEVICE_NAME, size, &deviceName[0],
-                                   nullptr)) {
-    std::fprintf(stderr, "ERROR: Getting OpencL device name: %d\n", error);
+  if (auto error = clGetDeviceInfo(device, CL_DEVICE_NAME, size,
+                                   deviceName.data(), nullptr)) {
+    (void)std::fprintf(stderr, "ERROR: Getting OpencL device name: %d\n",
+                       error);
     std::exit(-1);
   }
   return cargo::as<std::string>(cargo::trim(deviceName));
@@ -76,16 +80,16 @@ ucl::Environment::Environment(
   // Get the available platforms.
   cl_uint num_platforms;
   if (auto error = clGetPlatformIDs(0, nullptr, &num_platforms)) {
-    std::fprintf(stderr, "ERROR: Getting OpenCL platforms: %d\n", error);
+    (void)std::fprintf(stderr, "ERROR: Getting OpenCL platforms: %d\n", error);
     std::exit(-1);
   }
   if (num_platforms == 0) {
-    std::fprintf(stderr, "ERROR: No OpenCL platforms available\n");
+    (void)std::fprintf(stderr, "ERROR: No OpenCL platforms available\n");
     std::exit(-1);
   }
   platforms.resize(num_platforms);
   if (auto error = clGetPlatformIDs(num_platforms, platforms.data(), nullptr)) {
-    std::fprintf(stderr, "ERROR: Getting OpenCL platforms: %d\n", error);
+    (void)std::fprintf(stderr, "ERROR: Getting OpenCL platforms: %d\n", error);
     std::exit(-1);
   }
 
@@ -105,12 +109,14 @@ ucl::Environment::Environment(
   }
   // Check a platform was actually found.
   if (!platform) {
-    std::fprintf(stderr, "ERROR: OpenCL platform vendor not found: \"%s\"\n",
-                 platformVendor.c_str());
-    std::fprintf(stderr,
-                 "HINT: Use --unitcl_platform=VENDOR and choose from:\n");
+    (void)std::fprintf(stderr,
+                       "ERROR: OpenCL platform vendor not found: \"%s\"\n",
+                       platformVendor.c_str());
+    (void)std::fprintf(stderr,
+                       "HINT: Use --unitcl_platform=VENDOR and choose from:\n");
     for (auto platform : platforms) {
-      std::fprintf(stderr, "  \"%s\"\n", getPlatformVendor(platform).c_str());
+      (void)std::fprintf(stderr, "  \"%s\"\n",
+                         getPlatformVendor(platform).c_str());
     }
     std::exit(-1);
   }
@@ -119,17 +125,17 @@ ucl::Environment::Environment(
   cl_uint num_devices;
   if (auto error = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, nullptr,
                                   &num_devices)) {
-    std::fprintf(stderr, "ERROR: Getting OpenCL devices: %d\n", error);
+    (void)std::fprintf(stderr, "ERROR: Getting OpenCL devices: %d\n", error);
     std::exit(-1);
   }
   if (num_devices == 0) {
-    std::fprintf(stderr, "ERROR: No OpenCL devices are available\n");
+    (void)std::fprintf(stderr, "ERROR: No OpenCL devices are available\n");
     std::exit(-1);
   }
   devices.resize(num_devices);
   if (auto error = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, num_devices,
                                   devices.data(), nullptr)) {
-    std::fprintf(stderr, "ERROR: Getting OpenCL devices: %d\n", error);
+    (void)std::fprintf(stderr, "ERROR: Getting OpenCL devices: %d\n", error);
     std::exit(-1);
   }
 
@@ -143,11 +149,13 @@ ucl::Environment::Environment(
       }
     }
     if (!selectedDevice) {
-      std::fprintf(stderr, "ERROR: OpenCL device name not found: \"%s\"\n",
-                   deviceName.c_str());
-      std::fprintf(stderr, "HINT: Use --unitcl_device=NAME and choose from:\n");
+      (void)std::fprintf(stderr,
+                         "ERROR: OpenCL device name not found: \"%s\"\n",
+                         deviceName.c_str());
+      (void)std::fprintf(stderr,
+                         "HINT: Use --unitcl_device=NAME and choose from:\n");
       for (auto device : devices) {
-        std::fprintf(stderr, "  \"%s\"\n", getDeviceName(device).c_str());
+        (void)std::fprintf(stderr, "  \"%s\"\n", getDeviceName(device).c_str());
       }
       std::exit(-1);
     }
@@ -170,7 +178,7 @@ void ucl::Environment::SetUp() {
                                  &deviceVersionStringLength));
   deviceVersion = std::string(deviceVersionStringLength, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_VERSION,
-                                 deviceVersion.length(), &deviceVersion[0],
+                                 deviceVersion.length(), deviceVersion.data(),
                                  nullptr));
 
   // Device version string must be of the form "OpenCL [0-9]\.[0-9] .*".

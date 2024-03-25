@@ -21,7 +21,7 @@ UUR_INSTANTIATE_DEVICE_TEST_SUITE_P(urUSMHostAllocTest);
 
 TEST_P(urUSMHostAllocTest, Success) {
   bool host_usm{false};
-  size_t size{sizeof(bool)};
+  const size_t size{sizeof(bool)};
   ASSERT_SUCCESS(urDeviceGetInfo(device, UR_DEVICE_INFO_HOST_UNIFIED_MEMORY,
                                  size, &host_usm, nullptr));
   if (!host_usm) {  // Skip this test if device does not support Host USM

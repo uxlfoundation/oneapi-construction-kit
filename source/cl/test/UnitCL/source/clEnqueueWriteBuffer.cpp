@@ -42,7 +42,7 @@ class clEnqueueWriteBufferTest : public ucl::CommandQueueTest,
                             const cl_event *events, cl_event *event) override {
     ASSERT_EQ_ERRCODE(
         err, clEnqueueWriteBuffer(command_queue, mem, CL_TRUE, 0, size,
-                                  &buffer[0], num_events, events, event));
+                                  buffer.data(), num_events, events, event));
   }
 
   size_t size = 128;
@@ -52,13 +52,13 @@ class clEnqueueWriteBufferTest : public ucl::CommandQueueTest,
 
 TEST_F(clEnqueueWriteBufferTest, Default) {
   ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, mem, true, 0, size,
-                                      &buffer[0], 0, nullptr, nullptr));
+                                      buffer.data(), 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferTest, NonBlocking) {
   cl_event event;
   ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, mem, false, 0, size,
-                                      &buffer[0], 0, nullptr, &event));
+                                      buffer.data(), 0, nullptr, &event));
   ASSERT_TRUE(event);
   ASSERT_SUCCESS(clWaitForEvents(1, &event));
   ASSERT_SUCCESS(clReleaseEvent(event));
@@ -72,9 +72,9 @@ TEST_F(clEnqueueWriteBufferTest, ChainTwo) {
   ASSERT_SUCCESS(errorcode);
 
   ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, otherMem, false, 0, size,
-                                      &buffer[0], 0, nullptr, &event));
+                                      buffer.data(), 0, nullptr, &event));
   ASSERT_SUCCESS(clEnqueueWriteBuffer(command_queue, mem, true, 0, size,
-                                      &buffer[0], 1, &event, nullptr));
+                                      buffer.data(), 1, &event, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherMem));
   ASSERT_SUCCESS(clReleaseEvent(event));
@@ -83,19 +83,19 @@ TEST_F(clEnqueueWriteBufferTest, ChainTwo) {
 TEST_F(clEnqueueWriteBufferTest, InvalidCommandQueue) {
   ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
                     clEnqueueWriteBuffer(nullptr, mem, true, 0, size,
-                                         &buffer[0], 0, nullptr, nullptr));
+                                         buffer.data(), 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferTest, InvalidMemObject) {
   ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
                     clEnqueueWriteBuffer(command_queue, nullptr, true, 0, size,
-                                         &buffer[0], 0, nullptr, nullptr));
+                                         buffer.data(), 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferTest, InvalidBufferSize) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clEnqueueWriteBuffer(command_queue, mem, true, size, size,
-                                         &buffer[0], 0, nullptr, nullptr));
+                                         buffer.data(), 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferTest, InvalidBuffer) {
@@ -107,7 +107,7 @@ TEST_F(clEnqueueWriteBufferTest, InvalidBuffer) {
 TEST_F(clEnqueueWriteBufferTest, InvalidSize) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clEnqueueWriteBuffer(command_queue, mem, true, 0, 0,
-                                         &buffer[0], 0, nullptr, nullptr));
+                                         buffer.data(), 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferTest, WriteToReadOnly) {
@@ -119,7 +119,7 @@ TEST_F(clEnqueueWriteBufferTest, WriteToReadOnly) {
 
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
                     clEnqueueWriteBuffer(command_queue, otherMem, true, 0, size,
-                                         &buffer[0], 0, nullptr, nullptr));
+                                         buffer.data(), 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherMem));
 }
@@ -133,7 +133,7 @@ TEST_F(clEnqueueWriteBufferTest, WriteToHostNoAccess) {
 
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
                     clEnqueueWriteBuffer(command_queue, otherMem, true, 0, size,
-                                         &buffer[0], 0, nullptr, nullptr));
+                                         buffer.data(), 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherMem));
 }

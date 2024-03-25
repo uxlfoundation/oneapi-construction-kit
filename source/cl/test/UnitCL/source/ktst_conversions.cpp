@@ -147,7 +147,7 @@ struct ConvertRefHelper<CLhalf, StrongTo> {
 
     // Converting signed float to unsigned int
     const bool signed_to_unsigned =
-        std::is_unsigned<WeakTo>::value && std::signbit(as_float);
+        std::is_unsigned_v<WeakTo> && std::signbit(as_float);
 
     // Integral component is too large to be represented in the int type
     const WeakTo max_int = std::numeric_limits<WeakTo>::max();
@@ -174,7 +174,7 @@ struct ConvertRefHelper<StrongFrom, CLhalf> {
   // Signed integer types
   template <class T = WeakFrom>
   static bool undef(
-      const typename std::enable_if<std::is_signed<T>::value, T>::type x,
+      const typename std::enable_if<std::is_signed_v<T>, T>::type x,
       const bool) {
     // Signed 32 & 64 bit integer types which are too large to represent in
     // half precision have an undefined result, and saturation isn't valid
@@ -185,7 +185,7 @@ struct ConvertRefHelper<StrongFrom, CLhalf> {
   // Unsigned integer types
   template <class T = WeakFrom>
   static bool undef(
-      const typename std::enable_if<std::is_unsigned<T>::value, T>::type x,
+      const typename std::enable_if<std::is_unsigned_v<T>, T>::type x,
       const bool) {
     // Unsigned 32 & 64 bit integer types which are too large to represent in
     // half precision have an undefined result, and saturation isn't valid

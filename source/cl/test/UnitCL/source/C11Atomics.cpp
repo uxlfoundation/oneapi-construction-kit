@@ -1820,7 +1820,7 @@ class StrongGlobalSingle : public C11AtomicTestBase {
   template <typename T>
   void doTest(bool local = false) {
     // Set up references.
-    size_t success_index =
+    const size_t success_index =
         ucl::Environment::instance->GetInputGenerator().GenerateInt<T>(
             0, kts::N - 1);
 
@@ -2315,7 +2315,7 @@ class WeakGlobalSingle : public C11AtomicTestBase {
   void doTest(bool local = false) {
     bool weak_exchange_failed = false;
     // Set up references.
-    size_t success_index =
+    const size_t success_index =
         ucl::Environment::instance->GetInputGenerator().GenerateInt<T>(
             0, kts::N - 1);
 

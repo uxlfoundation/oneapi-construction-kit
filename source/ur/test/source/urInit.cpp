@@ -17,7 +17,7 @@
 #include "uur/checks.h"
 
 TEST(urInitTest, Success) {
-  ur_device_init_flags_t device_flags = 0;
+  const ur_device_init_flags_t device_flags = 0;
   ASSERT_SUCCESS(urInit(device_flags));
 }
 TEST(urInitTest, ErrorInvalidEnumuerationDeviceFlags) {

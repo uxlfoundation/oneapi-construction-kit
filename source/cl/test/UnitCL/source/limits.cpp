@@ -106,8 +106,8 @@ TEST_P(StackSizeTest, LargeStack) {
   if (UCL::isInterceptLayerPresent()) {
     GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
-  unsigned stack_size = GetParam();
-  std::string stack_arg =
+  const unsigned stack_size = GetParam();
+  const std::string stack_arg =
       std::string("-DSTACK_SIZE=").append(std::to_string(stack_size));
 
   cl_int err =
@@ -121,7 +121,7 @@ TEST_P(StackSizeTest, LargeStack) {
     return;
   }
 
-  ReleaseHelper<cl_kernel> kernel(clCreateKernel(program, "stack", &err));
+  const ReleaseHelper<cl_kernel> kernel(clCreateKernel(program, "stack", &err));
 
   if (CL_SUCCESS != err) {
     printf(
@@ -131,7 +131,7 @@ TEST_P(StackSizeTest, LargeStack) {
     return;
   }
 
-  size_t size = 256 * sizeof(cl_char);
+  const size_t size = 256 * sizeof(cl_char);
   ReleaseHelper<cl_mem> mem_a(clCreateBuffer(context, 0, size, nullptr, &err));
   ReleaseHelper<cl_mem> mem_b(clCreateBuffer(context, 0, size, nullptr, &err));
 
