@@ -301,7 +301,7 @@ struct ScheduleGenerator {
         auto *const DVIntrinsic = cast<DbgVariableIntrinsic>(DII);
         ConvertDebugDeclareToDebugValue(DVIntrinsic, SI, DIB);
       } else {
-        auto *const DPV = static_cast<DPValue *>(
+        auto *const DVR = static_cast<DbgVariableRecord *>(
             DIB.insertDeclare(barrier.getDebugAddr(), new_var, expr,
                               wrapperDbgLoc, block)
                 .get<DbgRecord *>());
@@ -312,7 +312,7 @@ struct ScheduleGenerator {
 
         // Bit of a HACK to produce the same debug output as the Mem2Reg
         // pass used to do.
-        ConvertDebugDeclareToDebugValue(DPV, SI, DIB);
+        ConvertDebugDeclareToDebugValue(DVR, SI, DIB);
 
         DummyInst->eraseFromParent();
       }
@@ -331,7 +331,7 @@ struct ScheduleGenerator {
                              debug_pair.second);
     }
 #if LLVM_VERSION_GREATER_EQUAL(19, 0)
-    for (auto debug_pair : barrier.getDebugDPValues()) {
+    for (auto debug_pair : barrier.getDebugDbgVariableRecords()) {
       RecreateDebugIntrinsic(debug_pair.first->getVariable(),
                              debug_pair.second);
     }
