@@ -112,7 +112,7 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D2D) {
   cl_image_desc desc1d = {};
   desc1d.image_type = CL_MEM_OBJECT_IMAGE1D;
   desc1d.image_width = 16;
-  size_t pixel_size = UCL::getPixelSize(format);
+  const size_t pixel_size = UCL::getPixelSize(format);
   UCL::vector<uint8_t> in(desc1d.image_width * pixel_size);
   generate_data(in);
   cl_int error;
@@ -140,9 +140,9 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D2D) {
   ASSERT_SUCCESS(clEnqueueReadImage(command_queue, dst_image, CL_TRUE,
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
-  size_t region_begin = pixel_size * dst_origin[0] +
-                        pixel_size * desc2d.image_width * dst_origin[1];
-  size_t region_end = region_begin + pixel_size * region[0] * region[1];
+  const size_t region_begin = pixel_size * dst_origin[0] +
+                              pixel_size * desc2d.image_width * dst_origin[1];
+  const size_t region_end = region_begin + pixel_size * region[0] * region[1];
   for (size_t i = 0; i < out.size(); ++i) {
     if (i >= region_begin && i < region_end) {
       ASSERT_EQ(in[i - region_begin], out[i]);
@@ -195,11 +195,11 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D3D) {
   ASSERT_SUCCESS(clEnqueueReadImage(command_queue, dst_image, CL_TRUE,
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
-  size_t region_begin =
+  const size_t region_begin =
       pixel_size * dst_origin[0] +
       pixel_size * desc3d.image_width * dst_origin[1] +
       pixel_size * desc3d.image_width * desc3d.image_height * dst_origin[2];
-  size_t region_end =
+  const size_t region_end =
       region_begin + pixel_size * region[0] * region[1] * region[2];
   for (size_t i = 0; i < out.size(); ++i) {
     if (i >= region_begin && i < region_end) {
@@ -255,11 +255,12 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D2DArray) {
   ASSERT_SUCCESS(clEnqueueReadImage(command_queue, dst_image, CL_TRUE,
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
-  size_t region_begin = pixel_size * dst_origin[0] +
-                        pixel_size * desc2darray.image_width * dst_origin[1] +
-                        pixel_size * desc2darray.image_width *
-                            desc2darray.image_height * dst_origin[2];
-  size_t region_end = pixel_size * region[0] * region[1] * region[2];
+  const size_t region_begin =
+      pixel_size * dst_origin[0] +
+      pixel_size * desc2darray.image_width * dst_origin[1] +
+      pixel_size * desc2darray.image_width * desc2darray.image_height *
+          dst_origin[2];
+  const size_t region_end = pixel_size * region[0] * region[1] * region[2];
   for (size_t i = 0; i < out.size(); ++i) {
     if (i >= region_begin && i < region_end) {
       ASSERT_EQ(in[i - region_begin], out[i]);
@@ -471,8 +472,9 @@ TEST_P(clEnqueueCopyImageParamTest, Default2D2DArray) {
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
 
-  size_t region_begin = pixel_size * region[0] * region[1] * dst_origin[2];
-  size_t region_end =
+  const size_t region_begin =
+      pixel_size * region[0] * region[1] * dst_origin[2];
+  const size_t region_end =
       (pixel_size * region[0] * region[1] * region[2]) + region_begin;
 
   for (size_t i = 0; i < out.size(); ++i) {
@@ -526,7 +528,7 @@ TEST_P(clEnqueueCopyImageParamTest, Default1DArray1D) {
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
 
-  size_t region_begin = pixel_size * region[0] * src_origin[1];
+  const size_t region_begin = pixel_size * region[0] * src_origin[1];
 
   for (size_t i = 0; i < out.size(); ++i) {
     ASSERT_EQ(in[region_begin + i], out[i]);
@@ -582,7 +584,8 @@ TEST_P(clEnqueueCopyImageParamTest, Default2DArray2D) {
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
 
-  size_t region_begin = pixel_size * region[0] * region[1] * src_origin[2];
+  const size_t region_begin =
+      pixel_size * region[0] * region[1] * src_origin[2];
 
   for (size_t i = 0; i < out.size(); ++i) {
     ASSERT_EQ(in[region_begin + i], out[i]);

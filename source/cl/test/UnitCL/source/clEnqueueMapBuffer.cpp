@@ -762,7 +762,7 @@ kernel void generate(global uint* ptr) {
   ptr[id] = 42 + id;
 }
 )OpenCLC";
-  size_t length = std::strlen(source);
+  const size_t length = std::strlen(source);
   program = clCreateProgramWithSource(context, 1, &source, &length, &error);
   ASSERT_SUCCESS(error);
   ASSERT_SUCCESS(

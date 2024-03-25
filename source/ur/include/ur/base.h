@@ -55,7 +55,7 @@ struct base {
 /// @return Error code indicating success of retain operation.
 template <class Handle>
 inline ur_result_t retain(Handle *object) {
-  static_assert(std::is_base_of<ur::base, Handle>::value,
+  static_assert(std::is_base_of_v<ur::base, Handle>,
                 "Handle must inerit from ur::base");
   object->count++;
   return UR_RESULT_SUCCESS;
@@ -70,7 +70,7 @@ inline ur_result_t retain(Handle *object) {
 /// @return Error code indicating success of retain operation.
 template <class Handle>
 ur_result_t release(Handle *object) {
-  static_assert(std::is_base_of<ur::base, Handle>::value,
+  static_assert(std::is_base_of_v<ur::base, Handle>,
                 "Handle must inerit from ur::base");
   auto count = --object->count;
   if (count == 0) {

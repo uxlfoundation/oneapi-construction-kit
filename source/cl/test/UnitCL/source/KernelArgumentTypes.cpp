@@ -38,7 +38,7 @@ class KernelArgumentTypesTest : public ucl::CommandQueueTest {
     // alignment of T or cl_ulong, whichever is greater.
     uint32_t align = (uint32_t)std::max(__alignof(cl_ulong), __alignof(T));
 #else
-    uint32_t align = alignof(KernelArgumentTypesTest<T>);
+    const uint32_t align = alignof(KernelArgumentTypesTest<T>);
 #endif
     return UCL::aligned_alloc(align, size);
   }
@@ -109,7 +109,7 @@ TYPED_TEST(KernelArgumentTypesTest, ByGlobalPointer) {
                                       sizeof(typename TestFixture::TestType),
                                       &(this->in), 0, nullptr, nullptr));
 
-  std::string typeName = TestFixture::TestType::source_name();
+  const std::string typeName = TestFixture::TestType::source_name();
   const char *kernelString[5] = {"void kernel foo(global ", typeName.c_str(),
                                  " * a, global ", typeName.c_str(),
                                  " * b) {*a = *b;}"};
@@ -171,7 +171,7 @@ TYPED_TEST(KernelArgumentTypesTest, ByConstantPointer) {
                                       sizeof(typename TestFixture::TestType),
                                       &(this->in), 0, nullptr, nullptr));
 
-  std::string typeName = TestFixture::TestType::source_name();
+  const std::string typeName = TestFixture::TestType::source_name();
   const char *kernelString[5] = {"void kernel foo(global ", typeName.c_str(),
                                  " * a, constant ", typeName.c_str(),
                                  " * b) {*a = *b;}"};
@@ -226,7 +226,7 @@ TYPED_TEST(KernelArgumentTypesTest, ByValue) {
   ASSERT_SUCCESS(status);
 
   // create program
-  std::string typeName = TestType::source_name();
+  const std::string typeName = TestType::source_name();
   const char *source[] = {"kernel void foo(global ", typeName.c_str(),
                           " *out, ", typeName.c_str(),
                           " value) { *out = value; }"};
@@ -285,7 +285,7 @@ TYPED_TEST(KernelArgumentTypesTest, NullByValue) {
   typedef typename TestFixture::TestType TestType;
 
   // create program
-  std::string typeName = TestType::source_name();
+  const std::string typeName = TestType::source_name();
   const char *source[] = {"kernel void foo(global ", typeName.c_str(),
                           " *out, ", typeName.c_str(),
                           " value) { *out = value; }"};
@@ -327,7 +327,7 @@ TYPED_TEST(KernelArgumentTypesTest, ByLocalPointer) {
   EXPECT_TRUE(outMem);
   ASSERT_SUCCESS(errorcode);
 
-  std::string typeName = TestFixture::TestType::source_name();
+  const std::string typeName = TestFixture::TestType::source_name();
   const char *kernelString[5] = {"void kernel foo(global ", typeName.c_str(),
                                  " * a, local ", typeName.c_str(),
                                  " * b) {*a = *b;}"};

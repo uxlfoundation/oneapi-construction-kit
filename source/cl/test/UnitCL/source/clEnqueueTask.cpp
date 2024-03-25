@@ -30,7 +30,7 @@ class clEnqueueTaskTest : public ucl::CommandQueueTest, TestWithEventWaitList {
         "  size_t i = get_global_id(0);"
         "  output[i] = input[i];"
         "}";
-    size_t source_length = strlen(source);
+    const size_t source_length = strlen(source);
     cl_int status;
     program =
         clCreateProgramWithSource(context, 1, &source, &source_length, &status);
@@ -58,7 +58,7 @@ class clEnqueueTaskTest : public ucl::CommandQueueTest, TestWithEventWaitList {
     EXPECT_SUCCESS(clReleaseProgram(program));
 
     cl_int status = CL_SUCCESS;
-    size_t source_length = strlen(source);
+    const size_t source_length = strlen(source);
     program =
         clCreateProgramWithSource(context, 1, &source, &source_length, &status);
     EXPECT_TRUE(program);
@@ -74,7 +74,7 @@ class clEnqueueTaskTest : public ucl::CommandQueueTest, TestWithEventWaitList {
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    size_t buffer_size = sizeof(cl_int);
+    const size_t buffer_size = sizeof(cl_int);
     cl_int status;
     cl_mem input_mem = clCreateBuffer(context, CL_MEM_READ_ONLY, buffer_size,
                                       nullptr, &status);
@@ -126,7 +126,7 @@ TEST_F(clEnqueueTaskTest, InvalidKernelArgs) {
 // Redmine #5123: Check CL_MEM_OBJECT_ALLOCATION_FAILURE
 
 TEST_F(clEnqueueTaskTest, DefaultNoEventWaitList) {
-  size_t buffer_size = sizeof(cl_int);
+  const size_t buffer_size = sizeof(cl_int);
   cl_int status;
   cl_mem input_mem =
       clCreateBuffer(context, CL_MEM_READ_ONLY, buffer_size, nullptr, &status);
@@ -156,7 +156,7 @@ TEST_F(clEnqueueTaskTest, DefaultNoEventWaitList) {
 }
 
 TEST_F(clEnqueueTaskTest, DefaultWithEventWaitList) {
-  size_t buffer_size = sizeof(cl_int);
+  const size_t buffer_size = sizeof(cl_int);
   cl_int status;
   cl_mem input_mem =
       clCreateBuffer(context, CL_MEM_READ_ONLY, buffer_size, nullptr, &status);
@@ -230,7 +230,7 @@ class clEnqueueTaskTestWithReqdWorkGroupSizeTest
  protected:
   cl_int SetUpProgram(const char *source) {
     cl_int status = CL_SUCCESS;
-    size_t source_length = strlen(source);
+    const size_t source_length = strlen(source);
     program =
         clCreateProgramWithSource(context, 1, &source, &source_length, &status);
     EXPECT_TRUE(program);

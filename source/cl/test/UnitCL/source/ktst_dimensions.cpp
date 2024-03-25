@@ -46,23 +46,23 @@ class NDimensions {
   cl_uint dims() const { return static_cast<cl_uint>(global.size()); }
 
   cl_int expected(size_t idx) const {
-    size_t idx_x = idx % global[0];
-    size_t group_x = idx_x / local[0];
+    const size_t idx_x = idx % global[0];
+    const size_t group_x = idx_x / local[0];
     if (group_x != active[0]) {
       return 0;
     }
 
     if (dims() > 1) {
-      size_t idx_y = (idx / global[0]) % global[1];
-      size_t group_y = idx_y / local[1];
+      const size_t idx_y = (idx / global[0]) % global[1];
+      const size_t group_y = idx_y / local[1];
       if (group_y != active[1]) {
         return 0;
       }
     }
 
     if (dims() > 2) {
-      size_t idx_z = (idx / (global[0] * global[1])) % global[2];
-      size_t group_z = idx_z / local[2];
+      const size_t idx_z = (idx / (global[0] * global[1])) % global[2];
+      const size_t group_z = idx_z / local[2];
       if (group_z != active[2]) {
         return 0;
       }
@@ -245,7 +245,7 @@ TEST_P(TotalWorkTests, Dimension_05_Total_Work_Many_Atomics) {
   // TODO: Investigate why this test doesn't vectorize (CA-4552).
   fail_if_not_vectorized_ = false;
 
-  NDimensions dim = getParam();
+  const NDimensions dim = getParam();
 
   kts::Reference1D<cl_uint> refOut = [&](size_t) {
     return static_cast<cl_uint>(1);
@@ -260,13 +260,13 @@ UCL_EXECUTION_TEST_SUITE_P(
     TotalWorkTests, testing::Values(kts::ucl::OPENCL_C),
     testing::Values(
         NDimensions({8192}, {1}), NDimensions({8192 / 4}, {4}),
-        NDimensions({17 * 19}, {1}), NDimensions({17 * 19}, {17}),
+        NDimensions({17L * 19L}, {1}), NDimensions({17L * 19L}, {17}),
         NDimensions({8192, 1}, {1, 1}), NDimensions({8192, 1}, {4, 1}),
         NDimensions({8192 / 4, 4}, {1, 1}), NDimensions({8192 / 4, 4}, {1, 2}),
         NDimensions({8192 / 4, 4}, {4, 1}), NDimensions({8192 / 4, 4}, {4, 2}),
-        NDimensions({17 * 19, 1}, {17, 1}), NDimensions({17 * 19, 1}, {1, 1}),
-        NDimensions({17, 19}, {17, 1}), NDimensions({17, 19}, {17, 19}),
-        NDimensions({8192, 1, 1}, {1, 1, 1}),
+        NDimensions({17L * 19L, 1}, {17, 1}),
+        NDimensions({17L * 19L, 1}, {1, 1}), NDimensions({17, 19}, {17, 1}),
+        NDimensions({17, 19}, {17, 19}), NDimensions({8192, 1, 1}, {1, 1, 1}),
         NDimensions({8192, 1, 1}, {8, 1, 1}),
         NDimensions({8192 / 2, 2, 1}, {1, 1, 1}),
         NDimensions({8192 / 2, 2, 1}, {1, 2, 1}),
@@ -280,11 +280,11 @@ UCL_EXECUTION_TEST_SUITE_P(
         NDimensions({8192 / 4, 2, 2}, {8, 1, 2}),
         NDimensions({8192 / 4, 2, 2}, {8, 2, 1}),
         NDimensions({8192 / 4, 2, 2}, {8, 2, 2}),
-        NDimensions({17 * 19 * 23, 1, 1}, {1, 1, 1}),
-        NDimensions({17 * 19 * 23, 1, 1}, {17, 1, 1}),
-        NDimensions({17 * 23, 19, 1}, {1, 1, 1}),
-        NDimensions({17 * 23, 19, 1}, {1, 19, 1}),
-        NDimensions({23, 19 * 17, 1}, {1, 19, 1}),
+        NDimensions({17L * 19L * 23L, 1, 1}, {1, 1, 1}),
+        NDimensions({17L * 19L * 23L, 1, 1}, {17, 1, 1}),
+        NDimensions({17L * 23L, 19, 1}, {1, 1, 1}),
+        NDimensions({17L * 23L, 19, 1}, {1, 19, 1}),
+        NDimensions({23, 19L * 17, 1}, {1, 19, 1}),
         NDimensions({17, 19, 23}, {1, 1, 1}),
         NDimensions({17, 19, 23}, {1, 1, 23}),
-        NDimensions({1, 19, 23 * 17}, {1, 1, 23})))
+        NDimensions({1, 19, 23L * 17L}, {1, 1, 23})))

@@ -69,7 +69,7 @@ TEST_F(clSetKernelArgSVMPointerTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_uint arg_index{};
+  const cl_uint arg_index{};
   const void *arg_value{};
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
                     clSetKernelArgSVMPointer(kernel, arg_index, arg_value));

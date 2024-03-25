@@ -40,7 +40,7 @@ TEST_F(clCreateCommandQueueWithPropertiesKHRTest, Default) {
       clCreateCommandQueueWithPropertiesKHR(context, device, nullptr, &error);
   EXPECT_SUCCESS(error);
   cl_command_queue_properties properties = 0;
-  size_t size = sizeof(properties);
+  const size_t size = sizeof(properties);
   EXPECT_SUCCESS(clGetCommandQueueInfo(command_queue, CL_QUEUE_PROPERTIES, size,
                                        &properties, nullptr));
   EXPECT_EQ(0, properties);

@@ -104,7 +104,7 @@ TEST_F(USMEventInfoTest, clEnqueueMemFillINTEL_EventInfo) {
 }
 
 TEST_F(USMEventInfoTest, clEnqueueMemcpyINTEL_EventInfo) {
-  std::array<std::pair<void *, void *>, 6> pairs = {{
+  const std::array<std::pair<void *, void *>, 6> pairs = {{
       {host_ptr, device_ptr},
       {host_ptr, shared_ptr},
       {device_ptr, host_ptr},
@@ -122,8 +122,9 @@ TEST_F(USMEventInfoTest, clEnqueueMemcpyINTEL_EventInfo) {
 
     std::array<cl_event, 2> events{};
     void *offset_ptr = getPointerOffset(ptr_a, sizeof(cl_int));
-    cl_int err = clEnqueueMemcpyINTEL(queue, CL_TRUE, offset_ptr, ptr_a,
-                                      sizeof(cl_int), 0, nullptr, &events[0]);
+    cl_int err =
+        clEnqueueMemcpyINTEL(queue, CL_TRUE, offset_ptr, ptr_a, sizeof(cl_int),
+                             0, nullptr, events.data());
     EXPECT_SUCCESS(err);
 
     ASSERT_SUCCESS(GetEventInfoHelper(
@@ -157,7 +158,7 @@ TEST_F(USMEventInfoTest, clEnqueueMemcpyINTEL_EventInfo) {
 TEST_F(USMEventInfoTest, clEnqueueMigrateMemINTEL_EventInfo) {
   for (auto ptr : allPointers()) {
     cl_event event;
-    cl_int err = clEnqueueMigrateMemINTEL(
+    const cl_int err = clEnqueueMigrateMemINTEL(
         queue, ptr, bytes, CL_MIGRATE_MEM_OBJECT_HOST, 0, nullptr, &event);
     EXPECT_SUCCESS(err);
 

@@ -52,8 +52,8 @@ TEST_P(Execution, Task_03_04_Dot4_Builtin) {
   auto refIn1 = kts::BuildVec4Reference1D<cl_float4>(kts::Ref_NegativeOffset);
   auto refIn2 = kts::BuildVec4Reference1D<cl_float4>(kts::Ref_Float);
   kts::Reference1D<cl_float> refOut = [refIn1, refIn2](size_t x) {
-    cl_float4 v1 = refIn1(x);
-    cl_float4 v2 = refIn2(x);
+    const cl_float4 v1 = refIn1(x);
+    const cl_float4 v2 = refIn2(x);
     return (v1.s[0] * v2.s[0]) + (v1.s[1] * v2.s[1]) + (v1.s[2] * v2.s[2]) +
            (v1.s[3] * v2.s[3]);
   };
@@ -68,12 +68,12 @@ TEST_P(Execution, Task_03_05_Distance4_Builtin) {
   auto refIn1 = kts::BuildVec4Reference1D<cl_float4>(kts::Ref_NegativeOffset);
   auto refIn2 = kts::BuildVec4Reference1D<cl_float4>(kts::Ref_Float);
   kts::Reference1D<cl_float> refOut = [refIn1, refIn2](size_t x) {
-    cl_float4 v1 = refIn1(x);
-    cl_float4 v2 = refIn2(x);
-    cl_float d0 = (v1.s[0] - v2.s[0]);
-    cl_float d1 = (v1.s[1] - v2.s[1]);
-    cl_float d2 = (v1.s[2] - v2.s[2]);
-    cl_float d3 = (v1.s[3] - v2.s[3]);
+    const cl_float4 v1 = refIn1(x);
+    const cl_float4 v2 = refIn2(x);
+    const cl_float d0 = (v1.s[0] - v2.s[0]);
+    const cl_float d1 = (v1.s[1] - v2.s[1]);
+    const cl_float d2 = (v1.s[2] - v2.s[2]);
+    const cl_float d3 = (v1.s[3] - v2.s[3]);
     return std::sqrt(d0 * d0 + d1 * d1 + d2 * d2 + d3 * d3);
   };
 
@@ -85,8 +85,8 @@ TEST_P(Execution, Task_03_05_Distance4_Builtin) {
 
 TEST_P(Execution, Task_03_06_Ternary4) {
   auto refIn1 = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_Odd);
-  cl_int4 one = {{1, 1, 1, 1}};
-  cl_int4 minusOne = {{-1, -1, -1, -1}};
+  const cl_int4 one = {{1, 1, 1, 1}};
+  const cl_int4 minusOne = {{-1, -1, -1, -1}};
   auto refOut = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_Ternary_OpenCL);
   AddInputBuffer(kts::N, refIn1);
   AddPrimitive(one);
@@ -98,9 +98,9 @@ TEST_P(Execution, Task_03_06_Ternary4) {
 TEST_P(Execution, Task_03_07_Transpose4) {
   auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
   kts::Reference1D<cl_int4> refOut = [](size_t x) {
-    cl_int ix = kts::Ref_Identity(x);
-    cl_int chunkID = ix % 4;
-    cl_int base = (ix - chunkID) * 4 + chunkID;
+    const cl_int ix = kts::Ref_Identity(x);
+    const cl_int chunkID = ix % 4;
+    const cl_int base = (ix - chunkID) * 4 + chunkID;
     cl_int4 v;
     v.s[0] = kts::Ref_A(base + 0);
     v.s[1] = kts::Ref_A(base + 4);
@@ -125,10 +125,10 @@ TEST_P(Execution, Task_03_09_Clamp4_Builtin) {
   const float low = 0.0f;
   const float high = 0.0f;
   kts::Reference1D<cl_float4> refOut = [low, high](size_t x) {
-    float v0 = kts::Ref_Float((x * 4) + 0);
-    float v1 = kts::Ref_Float((x * 4) + 1);
-    float v2 = kts::Ref_Float((x * 4) + 2);
-    float v3 = kts::Ref_Float((x * 4) + 3);
+    const float v0 = kts::Ref_Float((x * 4) + 0);
+    const float v1 = kts::Ref_Float((x * 4) + 1);
+    const float v2 = kts::Ref_Float((x * 4) + 2);
+    const float v3 = kts::Ref_Float((x * 4) + 3);
     cl_float4 v;
     v.s[0] = std::min(std::max(v0, low), high);
     v.s[1] = std::min(std::max(v1, low), high);
@@ -147,7 +147,7 @@ TEST_P(Execution, Task_03_09_Clamp4_Builtin) {
 
 TEST_P(Execution, Task_03_10_S2V_Int) {
   kts::Reference1D<cl_int4> refOut = [](size_t x) {
-    cl_int y = kts::Ref_A(x);
+    const cl_int y = kts::Ref_A(x);
     cl_int4 v;
     v.s[0] = y;
     v.s[1] = y;
@@ -163,10 +163,10 @@ TEST_P(Execution, Task_03_10_S2V_Int) {
 
 TEST_P(Execution, Task_03_11_Sum_Reduce4) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int i0 = kts::Ref_A((x * 4) + 0);
-    cl_int i1 = kts::Ref_A((x * 4) + 1);
-    cl_int i2 = kts::Ref_A((x * 4) + 2);
-    cl_int i3 = kts::Ref_A((x * 4) + 3);
+    const cl_int i0 = kts::Ref_A((x * 4) + 0);
+    const cl_int i1 = kts::Ref_A((x * 4) + 1);
+    const cl_int i2 = kts::Ref_A((x * 4) + 2);
+    const cl_int i3 = kts::Ref_A((x * 4) + 3);
     return i0 + i1 + i2 + i3;
   };
 
@@ -177,16 +177,16 @@ TEST_P(Execution, Task_03_11_Sum_Reduce4) {
 
 TEST_P(Execution, DISABLED_Task_03_12_V2S2V2S) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int i0 = kts::Ref_A((x * 4) + 0);
-    cl_int i1 = kts::Ref_A((x * 4) + 1);
-    cl_int i2 = kts::Ref_A((x * 4) + 2);
-    cl_int i3 = kts::Ref_A((x * 4) + 3);
-    unsigned sum = i0 + i1 + i2 + i3;
-    unsigned j0 = sum + 1;
-    unsigned j1 = sum + 2;
-    unsigned j2 = sum + 3;
-    unsigned j3 = sum + 4;
-    unsigned sum2 = j0 * j1 * j2 * j3;
+    const cl_int i0 = kts::Ref_A((x * 4) + 0);
+    const cl_int i1 = kts::Ref_A((x * 4) + 1);
+    const cl_int i2 = kts::Ref_A((x * 4) + 2);
+    const cl_int i3 = kts::Ref_A((x * 4) + 3);
+    const unsigned sum = i0 + i1 + i2 + i3;
+    const unsigned j0 = sum + 1;
+    const unsigned j1 = sum + 2;
+    const unsigned j2 = sum + 3;
+    const unsigned j3 = sum + 4;
+    const unsigned sum2 = j0 * j1 * j2 * j3;
     return sum2;
   };
 
@@ -232,7 +232,7 @@ TEST_P(Execution, Task_03_16_Add3) {
 TEST_P(Execution, Task_03_17_Length4_Builtin) {
   auto refIn = kts::BuildVec4Reference1D<cl_float4>(kts::Ref_Float);
   kts::Reference1D<cl_float> refOut = [&refIn](size_t x) {
-    cl_float4 v = refIn(x);
+    const cl_float4 v = refIn(x);
     return std::sqrt((v.s[0] * v.s[0]) + (v.s[1] * v.s[1]) + (v.s[2] * v.s[2]) +
                      (v.s[3] * v.s[3]));
   };
@@ -262,7 +262,7 @@ TEST_P(Execution, Task_03_20_All3) {
   };
   kts::Reference1D<cl_int> refOut = [&refIn](size_t x) {
     ucl::PackedInt3 input = refIn(x);
-    unsigned reduced =
+    const unsigned reduced =
         (unsigned)input[0] & (unsigned)input[1] & (unsigned)input[2];
     return (reduced >> 31);
   };
@@ -282,7 +282,7 @@ TEST_P(Execution, Task_03_21_Any3) {
   };
   kts::Reference1D<cl_int> refOut = [&refIn](size_t x) {
     ucl::PackedInt3 input = refIn(x);
-    unsigned reduced =
+    const unsigned reduced =
         (unsigned)input[0] | (unsigned)input[1] | (unsigned)input[2];
     return (reduced >> 31);
   };
@@ -374,11 +374,11 @@ TEST_P(Execution, DISABLED_Task_03_28_Normalize4_Builtin) {
       {{HFLOAT(0x1.2631f2p-54f), HFLOAT(0x1.f3c41ep-5f),
         HFLOAT(-0x1.a99012p-17f), HFLOAT(-0x1.ff0bdcp-1f)}}};
   kts::Reference1D<cl_float4> refIn = [=, &inputs](size_t x) {
-    cl_float4 zero = {{0.0f, 0.0f, 0.0f, 0.0f}};
+    const cl_float4 zero = {{0.0f, 0.0f, 0.0f, 0.0f}};
     return (x < numSamples) ? inputs[x] : zero;
   };
   kts::Reference1D<cl_float4> refOut = [=, &outputs](size_t x) {
-    cl_float4 zero = {{0.0f, 0.0f, 0.0f, 0.0f}};
+    const cl_float4 zero = {{0.0f, 0.0f, 0.0f, 0.0f}};
     return (x < numSamples) ? outputs[x] : zero;
   };
   AddInputBuffer(numSamples, refIn);

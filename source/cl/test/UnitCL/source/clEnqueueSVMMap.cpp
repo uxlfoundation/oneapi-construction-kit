@@ -36,11 +36,11 @@ TEST_F(clEnqueueSVMMapTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_bool blocking_map{};
-  cl_map_flags flags{};
+  const cl_bool blocking_map{};
+  const cl_map_flags flags{};
   void *svm_ptr{};
-  size_t size{};
-  cl_uint num_events_in_wait_list{};
+  const size_t size{};
+  const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
   EXPECT_EQ_ERRCODE(

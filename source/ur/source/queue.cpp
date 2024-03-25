@@ -157,7 +157,7 @@ ur_result_t ur_queue_handle_t_::flush() {
   if (auto error = cleanupCompletedCommandBuffers()) {
     return error;
   }
-  std::lock_guard<std::mutex> lock(mutex);
+  const std::lock_guard<std::mutex> lock(mutex);
   for (auto &dispatch : pending_dispatches) {
     auto mux_result = muxFinalizeCommandBuffer(dispatch.command_buffer);
     if (mux_result != mux_success) {
@@ -188,7 +188,7 @@ ur_result_t ur_queue_handle_t_::flush() {
 ur_result_t ur_queue_handle_t_::cleanupCompletedCommandBuffers() {
   // Check to see if there are any command buffers ready to be cleaned up.
   while (true) {
-    std::lock_guard<std::mutex> lock(mutex);
+    const std::lock_guard<std::mutex> lock(mutex);
 
     if (running_dispatches.empty()) {
       // There are no running command buffers so we can stop processing.
@@ -197,7 +197,7 @@ ur_result_t ur_queue_handle_t_::cleanupCompletedCommandBuffers() {
 
     // Check if the first running command buffer has completed.
     auto fence = running_dispatches.front().signal_event->mux_fence;
-    mux_result_t error = muxTryWait(mux_queue, 0, fence);
+    const mux_result_t error = muxTryWait(mux_queue, 0, fence);
     if (error != mux_success && error != mux_fence_not_ready &&
         error != mux_error_fence_failure) {
       return UR_RESULT_ERROR_INVALID_QUEUE;
@@ -385,7 +385,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferWrite(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -452,7 +452,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferRead(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -547,7 +547,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueKernelLaunch(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -606,7 +606,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferCopy(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -660,7 +660,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferFill(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -712,7 +712,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferMap(
   const auto mux_memory = hBuffer->buffers[hQueue->getDeviceIdx()].mux_memory;
 
   {
-    std::lock_guard<std::mutex> lock(hBuffer->mutex);
+    const std::lock_guard<std::mutex> lock(hBuffer->mutex);
     // First we check if there are already any active mappings to this buffer.
     if (!hBuffer->map_count) {
       // If there is no active mapping then call into mux.
@@ -745,7 +745,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferMap(
     void flushMemoryFromDevice() {
       mux_device_t device = mem->context->devices[device_index]->mux_device;
       mux_memory_t memory = mem->buffers[device_index].mux_memory;
-      mux_result_t error =
+      const mux_result_t error =
           muxFlushMappedMemoryFromDevice(device, memory, offset, size);
       assert(mux_success == error && "muxFlushMappedMemoryFromDevice failed!");
       (void)error;
@@ -760,7 +760,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferMap(
 
   auto callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
     auto mapping = static_cast<mapping_state_t *>(user_data);
-    std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+    std::lock_guard<std::mutex> const lock(mapping->mem->mutex);
     mapping->flushMemoryFromDevice();
     delete mapping;
   };
@@ -772,7 +772,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferMap(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -853,7 +853,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemUnmap(
 
   auto callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
     auto unmapping = static_cast<unmapping_state_t *>(user_data);
-    std::lock_guard<std::mutex> lock(unmapping->mem->mutex);
+    std::lock_guard<std::mutex> const lock(unmapping->mem->mutex);
     unmapping->unMapMemory();
     delete unmapping;
   };
@@ -865,7 +865,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemUnmap(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -930,7 +930,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferReadRect(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -1000,7 +1000,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferWriteRect(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -1077,7 +1077,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueMemBufferCopyRect(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -1120,7 +1120,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueEventsWait(
   // Enqueue an empty command buffer to block on the provided events, this
   // ensures that the wait works even for events from other queues.
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -1151,7 +1151,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueEventsWaitWithBarrier(
 
   // We can handle this identically to EventsWait (see above).
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -1206,7 +1206,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMFill(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, eventWaitList);
     if (!command_buffer_or_err) {
@@ -1274,7 +1274,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urEnqueueUSMMemcpy(
   }
 
   {
-    std::lock_guard<std::mutex> lock(hQueue->mutex);
+    const std::lock_guard<std::mutex> lock(hQueue->mutex);
     auto command_buffer_or_err =
         hQueue->getCommandBuffer(*event, numEventsInWaitList, phEventWaitList);
     if (!command_buffer_or_err) {

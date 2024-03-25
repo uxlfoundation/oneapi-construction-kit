@@ -62,17 +62,17 @@ struct USMMemInfoTest : public cl_intel_unified_shared_memory_Test {
     }
 
     if (device_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
+      const cl_int err = clMemBlockingFreeINTEL(context, device_ptr);
       EXPECT_SUCCESS(err);
     }
 
     if (shared_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, shared_ptr);
+      const cl_int err = clMemBlockingFreeINTEL(context, shared_ptr);
       EXPECT_SUCCESS(err);
     }
 
     if (host_ptr) {
-      cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
+      const cl_int err = clMemBlockingFreeINTEL(context, host_ptr);
       EXPECT_SUCCESS(err);
     }
 

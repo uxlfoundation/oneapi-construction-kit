@@ -96,7 +96,7 @@ int test_copy(cl_context context, cl_command_queue queue, cl_kernel kernel,
   EXPECT_SUCCESS(error);
 
   if (memcmp(inData, outData, global_buffer_size) != 0) {
-    fprintf(stderr, "Error: Output is incorrect\n");
+    (void)fprintf(stderr, "Error: Output is incorrect\n");
     ret_code = 1;
   }
 
@@ -169,7 +169,7 @@ struct Arm64KillerTest : public ucl::CommandQueueTest {
 TEST_F(Arm64KillerTest, Default) {
   int errors = 0;
 
-  size_t local_size = std::min((size_t)157, max_workgroup_size[0]);
+  const size_t local_size = std::min((size_t)157, max_workgroup_size[0]);
   // Need several iterations for issue to occur
   for (int i = 0; i < 10; i++) {
     errors += test_copy(context, command_queue, kernel, local_size);

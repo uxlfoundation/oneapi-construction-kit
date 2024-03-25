@@ -25,8 +25,8 @@ TEST_P(Execution, Task_05_01_Sum_Static_Trip) {
   kts::Reference1D<cl_int> refOut = [](size_t) {
     cl_int sum = 0;
     for (cl_int i = 0; i < (cl_int)TRIPS; i++) {
-      cl_int a = kts::Ref_A(i);
-      cl_int b = kts::Ref_B(i);
+      const cl_int a = kts::Ref_A(i);
+      const cl_int b = kts::Ref_B(i);
       sum += (a * i) + b;
     }
     return sum;
@@ -43,8 +43,8 @@ TEST_P(Execution, Task_05_02_SAXPY_Static_Trip) {
   kts::Reference1D<cl_float> refOut = [A](size_t) {
     cl_float sum = 0.0f;
     for (cl_int i = 0; i < (cl_int)TRIPS; i++) {
-      cl_float X = kts::Ref_NegativeOffset(i);
-      cl_float Y = kts::Ref_Float(i);
+      const cl_float X = kts::Ref_NegativeOffset(i);
+      const cl_float Y = kts::Ref_Float(i);
       sum += (A * X) + Y;
     }
     return sum;
@@ -60,12 +60,12 @@ TEST_P(Execution, Task_05_02_SAXPY_Static_Trip) {
 
 TEST_P(Execution, Task_05_03_Sum_Static_Trip_Uniform) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int localID = static_cast<cl_int>(x % kts::localN);
+    const cl_int localID = static_cast<cl_int>(x % kts::localN);
     cl_int sum = 0;
     for (cl_int i = 0; i < (cl_int)TRIPS; i++) {
-      cl_int p = localID + i;
-      cl_int a = kts::Ref_A(p);
-      cl_int b = kts::Ref_B(p);
+      const cl_int p = localID + i;
+      const cl_int a = kts::Ref_A(p);
+      const cl_int b = kts::Ref_B(p);
       sum += (a * i) + b;
     }
     return sum;
@@ -81,12 +81,12 @@ TEST_P(Execution, Task_05_03_Sum_Static_Trip_Uniform) {
 TEST_P(Execution, Task_05_04_SAXPY_Static_Trip_Uniform) {
   const cl_float A = 1.5f;
   kts::Reference1D<cl_float> refOut = [A](size_t x) {
-    cl_int localID = static_cast<cl_int>(x % kts::localN);
+    const cl_int localID = static_cast<cl_int>(x % kts::localN);
     cl_float sum = 0.0f;
     for (cl_int i = 0; i < (cl_int)TRIPS; i++) {
-      cl_int p = localID + i;
-      cl_float X = kts::Ref_NegativeOffset(p);
-      cl_float Y = kts::Ref_Float(p);
+      const cl_int p = localID + i;
+      const cl_float X = kts::Ref_NegativeOffset(p);
+      const cl_float Y = kts::Ref_Float(p);
       sum += (A * X) + Y;
     }
     return sum;

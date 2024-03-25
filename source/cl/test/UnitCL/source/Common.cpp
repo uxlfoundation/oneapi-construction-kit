@@ -35,11 +35,18 @@
 #include <malloc.h>
 #endif
 
-#define PRINT_PLATFORM_INFO(platform, param_name) \
-  print_platform_info(platform, param_name, #param_name)
+#define PRINT_PLATFORM_INFO(platform, param_name)                \
+  if (!print_platform_info(platform, param_name, #param_name)) { \
+    return false;                                                \
+  }
+
+#define PRINTF(...)              \
+  if (printf(__VA_ARGS__) < 0) { \
+    return false;                \
+  }
 
 namespace {
-void print_platform_info(cl_platform_id platform,
+bool print_platform_info(cl_platform_id platform,
                          const cl_platform_info param_name,
                          const char *param_name_str) {
   std::size_t param_value_size_ret = 0;
@@ -49,16 +56,19 @@ void print_platform_info(cl_platform_id platform,
 
   std::vector<char> param_value(param_value_size_ret, '\0');
   errcode = clGetPlatformInfo(platform, param_name, param_value_size_ret,
-                              &param_value[0], nullptr);
+                              param_value.data(), nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetPlatformInfo failed");
 
-  fprintf(stdout, "%s : %s\n", param_name_str, &param_value[0]);
+  PRINTF("%s : %s\n", param_name_str, param_value.data());
+  return true;
 }
 
-#define PRINT_DEVICE_INFO(device, param_name, print_fn) \
-  print_device_info_##print_fn(device, param_name, #param_name)
+#define PRINT_DEVICE_INFO(device, param_name, print_fn)                 \
+  if (!print_device_info_##print_fn(device, param_name, #param_name)) { \
+    return false;                                                       \
+  }
 
-void print_device_info_cl_device_type(cl_device_id device,
+bool print_device_info_cl_device_type(cl_device_id device,
                                       const cl_device_info param_name,
                                       const char *param_name_str) {
   cl_device_type param_value = 0;
@@ -66,17 +76,17 @@ void print_device_info_cl_device_type(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   bool matched = false;
 
 #define PRINT_MATCH(pname)     \
   if ((pname) & param_value) { \
     if (matched) {             \
-      fprintf(stdout, " | ");  \
+      PRINTF(" | ");           \
     }                          \
     matched = true;            \
-    fprintf(stdout, #pname);   \
+    PRINTF(#pname);            \
   }
 
   PRINT_MATCH(CL_DEVICE_TYPE_CPU);
@@ -87,13 +97,14 @@ void print_device_info_cl_device_type(cl_device_id device,
 #undef PRINT_MATCH
 
   if (!matched) {
-    fprintf(stdout, "UNKNOWN");
+    PRINTF("UNKNOWN");
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 
-void print_device_info_cl_uint(cl_device_id device,
+bool print_device_info_cl_uint(cl_device_id device,
                                const cl_device_info param_name,
                                const char *param_name_str) {
   cl_uint param_value = 0;
@@ -101,11 +112,11 @@ void print_device_info_cl_uint(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : %llu\n", param_name_str,
-          (unsigned long long)param_value);
+  PRINTF("%s : %llu\n", param_name_str, (unsigned long long)param_value);
+  return true;
 }
 
-void print_device_info_size_t_array(cl_device_id device,
+bool print_device_info_size_t_array(cl_device_id device,
                                     const cl_device_info param_name,
                                     const char *param_name_str) {
   size_t param_value_size_ret = 0;
@@ -116,22 +127,23 @@ void print_device_info_size_t_array(cl_device_id device,
   const std::size_t elem_count = param_value_size_ret / sizeof(std::size_t);
   std::vector<std::size_t> param_value(elem_count, 0);
   errcode = clGetDeviceInfo(device, param_name, param_value_size_ret,
-                            &param_value[0], nullptr);
+                            param_value.data(), nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : {", param_name_str);
+  PRINTF("%s : {", param_name_str);
 
   for (std::size_t i = 0; i < elem_count; ++i) {
     if (0u != i) {
-      fprintf(stdout, ", ");
+      PRINTF(", ");
     }
-    fprintf(stdout, "%llu", (unsigned long long)param_value[i]);
+    PRINTF("%llu", (unsigned long long)param_value[i]);
   }
 
-  fprintf(stdout, "}\n");
+  PRINTF("}\n");
+  return true;
 }
 
-void print_device_info_size_t(cl_device_id device,
+bool print_device_info_size_t(cl_device_id device,
                               const cl_device_info param_name,
                               const char *param_name_str) {
   size_t param_value = 0;
@@ -139,11 +151,11 @@ void print_device_info_size_t(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : %llu\n", param_name_str,
-          (unsigned long long)param_value);
+  PRINTF("%s : %llu\n", param_name_str, (unsigned long long)param_value);
+  return true;
 }
 
-void print_device_info_cl_ulong(cl_device_id device,
+bool print_device_info_cl_ulong(cl_device_id device,
                                 const cl_device_info param_name,
                                 const char *param_name_str) {
   cl_ulong param_value = 0;
@@ -151,11 +163,11 @@ void print_device_info_cl_ulong(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : %llu\n", param_name_str,
-          (unsigned long long)param_value);
+  PRINTF("%s : %llu\n", param_name_str, (unsigned long long)param_value);
+  return true;
 }
 
-void print_device_info_cl_bool(cl_device_id device,
+bool print_device_info_cl_bool(cl_device_id device,
                                const cl_device_info param_name,
                                const char *param_name_str) {
   cl_bool param_value = 0;
@@ -163,11 +175,11 @@ void print_device_info_cl_bool(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : %s\n", param_name_str,
-          (param_value ? "CL_TRUE" : "CL_FALSE"));
+  PRINTF("%s : %s\n", param_name_str, (param_value ? "CL_TRUE" : "CL_FALSE"));
+  return true;
 }
 
-void print_device_info_cl_device_fp_config(cl_device_id device,
+bool print_device_info_cl_device_fp_config(cl_device_id device,
                                            const cl_device_info param_name,
                                            const char *param_name_str) {
   cl_device_fp_config param_value = 0;
@@ -175,17 +187,17 @@ void print_device_info_cl_device_fp_config(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   bool matched = false;
 
 #define PRINT_MATCH(pname)     \
   if ((pname) & param_value) { \
     if (matched) {             \
-      fprintf(stdout, " | ");  \
+      PRINTF(" | ");           \
     }                          \
     matched = true;            \
-    fprintf(stdout, #pname);   \
+    PRINTF(#pname);            \
   }
 
   PRINT_MATCH(CL_FP_DENORM);
@@ -199,13 +211,14 @@ void print_device_info_cl_device_fp_config(cl_device_id device,
 #undef PRINT_MATCH
 
   if (!matched) {
-    fprintf(stdout, "0 - UNSUPPORTED");
+    PRINTF("0 - UNSUPPORTED");
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 
-void print_device_info_cl_device_mem_cache_type(cl_device_id device,
+bool print_device_info_cl_device_mem_cache_type(cl_device_id device,
                                                 const cl_device_info param_name,
                                                 const char *param_name_str) {
   cl_device_mem_cache_type param_value = 0;
@@ -213,31 +226,32 @@ void print_device_info_cl_device_mem_cache_type(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   switch (param_value) {
     case CL_NONE: {
-      fprintf(stdout, "CL_NONE");
+      PRINTF("CL_NONE");
       break;
     }
     case CL_READ_ONLY_CACHE: {
-      fprintf(stdout, "CL_READ_ONLY_CACHE");
+      PRINTF("CL_READ_ONLY_CACHE");
       break;
     }
     case CL_READ_WRITE_CACHE: {
-      fprintf(stdout, "CL_READ_WRITE_CACHE");
+      PRINTF("CL_READ_WRITE_CACHE");
       break;
     }
     default: {
-      fprintf(stdout, "UNKNOWN");
+      PRINTF("UNKNOWN");
       break;
     }
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 
-void print_device_info_cl_device_local_mem_type(cl_device_id device,
+bool print_device_info_cl_device_local_mem_type(cl_device_id device,
                                                 const cl_device_info param_name,
                                                 const char *param_name_str) {
   cl_device_local_mem_type param_value = 0;
@@ -245,31 +259,32 @@ void print_device_info_cl_device_local_mem_type(cl_device_id device,
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   switch (param_value) {
     case CL_LOCAL: {
-      fprintf(stdout, "CL_LOCAL");
+      PRINTF("CL_LOCAL");
       break;
     }
     case CL_GLOBAL: {
-      fprintf(stdout, "CL_GLOBAL");
+      PRINTF("CL_GLOBAL");
       break;
     }
     case CL_NONE: {
-      fprintf(stdout, "CL_NONE");
+      PRINTF("CL_NONE");
       break;
     }
     default: {
-      fprintf(stdout, "UNKNOWN");
+      PRINTF("UNKNOWN");
       break;
     }
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 
-void print_device_info_cl_device_exec_capabilities(
+bool print_device_info_cl_device_exec_capabilities(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   cl_device_exec_capabilities param_value = 0;
@@ -277,17 +292,17 @@ void print_device_info_cl_device_exec_capabilities(
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   bool matched = false;
 
 #define PRINT_MATCH(pname)     \
   if ((pname) & param_value) { \
     if (matched) {             \
-      fprintf(stdout, " | ");  \
+      PRINTF(" | ");           \
     }                          \
     matched = true;            \
-    fprintf(stdout, #pname);   \
+    PRINTF(#pname);            \
   }
 
   PRINT_MATCH(CL_EXEC_KERNEL);
@@ -295,13 +310,14 @@ void print_device_info_cl_device_exec_capabilities(
 #undef PRINT_MATCH
 
   if (!matched) {
-    fprintf(stdout, "UNKNOWN");
+    PRINTF("UNKNOWN");
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 
-void print_device_info_cl_command_queue_properties(
+bool print_device_info_cl_command_queue_properties(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   cl_command_queue_properties param_value = 0;
@@ -309,17 +325,17 @@ void print_device_info_cl_command_queue_properties(
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   bool matched = false;
 
 #define PRINT_MATCH(pname)     \
   if ((pname) & param_value) { \
     if (matched) {             \
-      fprintf(stdout, " | ");  \
+      PRINTF(" | ");           \
     }                          \
     matched = true;            \
-    fprintf(stdout, #pname);   \
+    PRINTF(#pname);            \
   }
 
   PRINT_MATCH(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);
@@ -327,13 +343,14 @@ void print_device_info_cl_command_queue_properties(
 #undef PRINT_MATCH
 
   if (!matched) {
-    fprintf(stdout, "UNKNOWN");
+    PRINTF("UNKNOWN");
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 
-void print_device_info_char_array(cl_device_id device,
+bool print_device_info_char_array(cl_device_id device,
                                   const cl_device_info param_name,
                                   const char *param_name_str) {
   size_t param_value_size_ret = 0;
@@ -343,13 +360,14 @@ void print_device_info_char_array(cl_device_id device,
 
   std::vector<char> param_value(param_value_size_ret, '\0');
   errcode = clGetDeviceInfo(device, param_name, param_value_size_ret,
-                            &param_value[0], nullptr);
+                            param_value.data(), nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : %s\n", param_name_str, &param_value[0]);
+  PRINTF("%s : %s\n", param_name_str, param_value.data());
+  return true;
 }
 
-void print_device_info_cl_device_partition_property_array(
+bool print_device_info_cl_device_partition_property_array(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   size_t param_value_size_ret = 0;
@@ -361,44 +379,45 @@ void print_device_info_cl_device_partition_property_array(
       param_value_size_ret / sizeof(cl_device_partition_property);
   std::vector<cl_device_partition_property> param_value(elem_count, 0);
   errcode = clGetDeviceInfo(device, param_name, param_value_size_ret,
-                            &param_value[0], nullptr);
+                            param_value.data(), nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : {", param_name_str);
+  PRINTF("%s : {", param_name_str);
 
   for (std::size_t i = 0; i < elem_count; ++i) {
     if (0u != i) {
-      fprintf(stdout, ", ");
+      PRINTF(", ");
     }
 
     const cl_device_partition_property property = param_value[i];
     switch (property) {
       case CL_DEVICE_PARTITION_EQUALLY: {
-        fprintf(stdout, "CL_DEVICE_PARTITION_EQUALLY");
+        PRINTF("CL_DEVICE_PARTITION_EQUALLY");
         break;
       }
       case CL_DEVICE_PARTITION_BY_COUNTS: {
-        fprintf(stdout, "CL_DEVICE_PARTITION_BY_COUNTS");
+        PRINTF("CL_DEVICE_PARTITION_BY_COUNTS");
         break;
       }
       case CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN: {
-        fprintf(stdout, "CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN");
+        PRINTF("CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN");
         break;
       }
       case 0: {
-        fprintf(stdout, "UNSUPPORTED");
+        PRINTF("UNSUPPORTED");
         break;
       }
       default: {
-        fprintf(stdout, "UNKNOWN");
+        PRINTF("UNKNOWN");
         break;
       }
     }
   }
-  fprintf(stdout, "}\n");
+  PRINTF("}\n");
+  return true;
 }
 
-void print_device_info_cl_device_affinity_domain(
+bool print_device_info_cl_device_affinity_domain(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   cl_device_affinity_domain param_value = 0;
@@ -406,17 +425,17 @@ void print_device_info_cl_device_affinity_domain(
       device, param_name, sizeof(param_value), &param_value, nullptr);
   UCL_ASSERT(CL_SUCCESS == errcode, "clGetDeviceInfo failed");
 
-  fprintf(stdout, "%s : ", param_name_str);
+  PRINTF("%s : ", param_name_str);
 
   bool matched = false;
 
 #define PRINT_MATCH(pname)     \
   if ((pname) & param_value) { \
     if (matched) {             \
-      fprintf(stdout, " | ");  \
+      PRINTF(" | ");           \
     }                          \
     matched = true;            \
-    fprintf(stdout, #pname);   \
+    PRINTF(#pname);            \
   }
 
   PRINT_MATCH(CL_DEVICE_AFFINITY_DOMAIN_NUMA);
@@ -428,10 +447,11 @@ void print_device_info_cl_device_affinity_domain(
 #undef PRINT_MATCH
 
   if (!matched) {
-    fprintf(stdout, "UNSUPPORTED");
+    PRINTF("UNSUPPORTED");
   }
 
-  fprintf(stdout, "\n");
+  PRINTF("\n");
+  return true;
 }
 }  // namespace
 
@@ -444,7 +464,7 @@ bool UCL::print_opencl_platform_and_device_info(
   }
 
   std::vector<cl_platform_id> platforms(num_platforms, nullptr);
-  errcode = clGetPlatformIDs(num_platforms, &platforms[0], nullptr);
+  errcode = clGetPlatformIDs(num_platforms, platforms.data(), nullptr);
   if (CL_SUCCESS != errcode) {
     return false;
   }
@@ -469,7 +489,7 @@ bool UCL::print_opencl_platform_and_device_info(
     }
 
     std::vector<cl_device_id> devices(num_devices, nullptr);
-    errcode = clGetDeviceIDs(platform, device_type, num_devices, &devices[0],
+    errcode = clGetDeviceIDs(platform, device_type, num_devices, devices.data(),
                              nullptr);
     if (CL_SUCCESS != errcode) {
       return false;
@@ -599,27 +619,6 @@ bool UCL::print_opencl_platform_and_device_info(
 
 // END TNEX
 
-void UCL::printDevicesImageSupport(const unsigned numDevices,
-                                   cl_device_id *devices) {
-  for (unsigned i = 0; i < numDevices; ++i) {
-    cl_device_id device = devices[i];
-    cl_uint deviceVendorId = 0;
-    ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_VENDOR_ID,
-                                   sizeof(deviceVendorId), &deviceVendorId,
-                                   nullptr));
-
-    cl_bool hasImageSupport = CL_FALSE;
-    ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_IMAGE_SUPPORT,
-                                   sizeof(hasImageSupport), &hasImageSupport,
-                                   nullptr));
-    const char *imageSupport = hasImageSupport ? "ON" : "OFF";
-    std::fprintf(stdout,
-                 "UnitCL device : %u CL_DEVICE_VENDOR_ID : %u "
-                 "CL_DEVICE_IMAGE_SUPPORT : %s\n",
-                 i, deviceVendorId, imageSupport);
-  }
-}
-
 cl_uint UCL::getNumPlatforms() {
   return static_cast<cl_uint>(ucl::Environment::instance->platforms.size());
 }
@@ -657,39 +656,39 @@ void UCL::checkTestIncludePath() {
   // This uses some internal Google Test API's, but as we manually update
   // Google Test this won't break by surprise.
   typedef testing::internal::FilePath Path;
-  std::string test_include = UCL::getTestIncludePath();
-  std::string msg =
+  const std::string test_include = UCL::getTestIncludePath();
+  const std::string msg =
       "You must set --unitcl_test_include to the supplied 'test_include/' "
       "directory.";
 
   // Check the main directory and files are where we will be looking for them.
-  Path dir1(test_include);
-  Path file1(test_include + "/test_include.h");
-  Path file2(test_include + "/test_empty_include.h");
-  Path file3(test_include + "/test_declare_only_include.h");
+  const Path dir1(test_include);
+  const Path file1(test_include + "/test_include.h");
+  const Path file2(test_include + "/test_empty_include.h");
+  const Path file3(test_include + "/test_declare_only_include.h");
   ASSERT_EQ(true, UCL::hasTestIncludePath()) << msg;
   ASSERT_EQ(true, dir1.DirectoryExists())
-      << msg << std::endl
+      << msg << '\n'
       << "'" << dir1.string() << "' is missing.";
   ASSERT_EQ(true, file1.FileOrDirectoryExists())
-      << msg << "'" << std::endl
+      << msg << "'" << '\n'
       << file1.string() << "' is missing.";
   ASSERT_EQ(true, file2.FileOrDirectoryExists())
-      << msg << "'" << std::endl
+      << msg << "'" << '\n'
       << file2.string() << "' is missing.";
   ASSERT_EQ(true, file3.FileOrDirectoryExists())
-      << msg << "'" << std::endl
+      << msg << "'" << '\n'
       << file3.string() << "' is missing.";
 
   // Also check that the test include directory contains the with-spaces test
   // directory and file.
-  Path dir2(test_include + "/directory with spaces");
-  Path file4(test_include + "/directory with spaces/test_include.h");
+  const Path dir2(test_include + "/directory with spaces");
+  const Path file4(test_include + "/directory with spaces/test_include.h");
   ASSERT_EQ(true, dir2.DirectoryExists())
-      << msg << std::endl
+      << msg << '\n'
       << "'" << dir2.string() << "' is missing.";
   ASSERT_EQ(true, file4.FileOrDirectoryExists())
-      << msg << "'" << std::endl
+      << msg << "'" << '\n'
       << file4.string() << "' is missing.";
 }
 
@@ -1110,7 +1109,8 @@ void *UCL::aligned_alloc(uint32_t align, size_t bytes) {
   // to the power two until this holds true.
   UCL_ASSERT(0 == (align & (align - 1)),
              "UCL::algned_alloc must be a power of two");
-  uint32_t alignment = std::max(align, static_cast<uint32_t>(sizeof(void *)));
+  const uint32_t alignment =
+      std::max(align, static_cast<uint32_t>(sizeof(void *)));
   void *ptr = nullptr;
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
   // NOTE: The MSVC documentation for _aligned_alloc states that the alignment
@@ -1123,7 +1123,7 @@ void *UCL::aligned_alloc(uint32_t align, size_t bytes) {
 #else
   // NOTE: The Open Group documentation for posix_memalign states that the
   // alignment must be a multiple of sizeof(void*).
-  int error = posix_memalign(&ptr, alignment, bytes);
+  const int error = posix_memalign(&ptr, alignment, bytes);
   UCL_ASSERT(!error, "posix_memalign failed!");
 #endif
   UCL_ASSERT(ptr, "UCL::aligned_alloc failed!");
@@ -1142,13 +1142,13 @@ size_t UCL::getPixelSize(const cl_image_format &format) {
 #define SIZE(ELEMENTS, DATA_TYPE) \
   switch (DATA_TYPE) {            \
     case CL_SNORM_INT8:           \
-      return (ELEMENTS) * 1;      \
+      return (ELEMENTS) * 1ul;    \
     case CL_SNORM_INT16:          \
-      return (ELEMENTS) * 2;      \
+      return (ELEMENTS) * 2ul;    \
     case CL_UNORM_INT8:           \
-      return (ELEMENTS) * 1;      \
+      return (ELEMENTS) * 1ul;    \
     case CL_UNORM_INT16:          \
-      return (ELEMENTS) * 2;      \
+      return (ELEMENTS) * 2ul;    \
     case CL_UNORM_SHORT_565:      \
       return 2;                   \
     case CL_UNORM_SHORT_555:      \
@@ -1156,23 +1156,23 @@ size_t UCL::getPixelSize(const cl_image_format &format) {
     case CL_UNORM_INT_101010:     \
       return 4;                   \
     case CL_SIGNED_INT8:          \
-      return (ELEMENTS) * 1;      \
+      return (ELEMENTS) * 1ul;    \
     case CL_SIGNED_INT16:         \
-      return (ELEMENTS) * 2;      \
+      return (ELEMENTS) * 2ul;    \
     case CL_SIGNED_INT32:         \
-      return (ELEMENTS) * 4;      \
+      return (ELEMENTS) * 4ul;    \
     case CL_UNSIGNED_INT8:        \
-      return (ELEMENTS) * 1;      \
+      return (ELEMENTS) * 1ul;    \
     case CL_UNSIGNED_INT16:       \
-      return (ELEMENTS) * 2;      \
+      return (ELEMENTS) * 2ul;    \
     case CL_UNSIGNED_INT32:       \
-      return (ELEMENTS) * 4;      \
+      return (ELEMENTS) * 4ul;    \
     case CL_HALF_FLOAT:           \
-      return (ELEMENTS) * 2;      \
+      return (ELEMENTS) * 2ul;    \
     case CL_FLOAT:                \
-      return (ELEMENTS) * 4;      \
+      return (ELEMENTS) * 4ul;    \
     default:                      \
-      return (ELEMENTS) * 0;      \
+      return (ELEMENTS) * 0ul;    \
   }
   switch (format.image_channel_order) {
     case CL_R:
@@ -1430,7 +1430,7 @@ bool UCL::isDevice(cl_device_id device, const char *check_device_prefix,
 
   std::string device_name(device_name_len, '\0');
   EXPECT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_NAME, device_name_len,
-                                 &device_name[0], nullptr));
+                                 device_name.data(), nullptr));
 
   cl_device_type device_type;
   EXPECT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_TYPE, sizeof(device_type),

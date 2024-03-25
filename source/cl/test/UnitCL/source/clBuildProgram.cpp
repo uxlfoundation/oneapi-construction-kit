@@ -250,12 +250,12 @@ TEST_F(clBuildProgramGoodTest, ConcurrentBuild) {
   // This error code is only overwritten if a non-success code is seen, thus
   // serialization should be avoided when there are no errors.
   std::atomic<cl_int> error{CL_SUCCESS};
-#define CHECK_ERROR(ERR_CODE)     \
-  {                               \
-    cl_int err_code = (ERR_CODE); \
-    if (CL_SUCCESS != err_code) { \
-      error = err_code;           \
-    }                             \
+#define CHECK_ERROR(ERR_CODE)           \
+  {                                     \
+    const cl_int err_code = (ERR_CODE); \
+    if (CL_SUCCESS != err_code) {       \
+      error = err_code;                 \
+    }                                   \
   }
 
   auto worker = [this, &src, &error]() {
@@ -625,7 +625,7 @@ class clBuildProgramIncludePathTest : public ucl::CommandQueueTest {
   }
 
   void TestGoodPath(const std::string &option, const std::string &path) {
-    std::string options = option + path;
+    const std::string options = option + path;
     ASSERT_SUCCESS(
         clBuildProgram(program, 0, nullptr, options.c_str(), nullptr, nullptr));
   }
@@ -675,8 +675,8 @@ TEST_F(clBuildProgramIncludePathTest, MissingHeader) {
   EXPECT_TRUE(missing_header);
   ASSERT_SUCCESS(status);
 
-  std::string option = "-I ";
-  std::string options = option + UCL::getTestIncludePath();
+  const std::string option = "-I ";
+  const std::string options = option + UCL::getTestIncludePath();
 
   ASSERT_EQ_ERRCODE(CL_BUILD_PROGRAM_FAILURE,
                     clBuildProgram(missing_header, 0, nullptr, options.c_str(),
@@ -697,8 +697,8 @@ TEST_F(clBuildProgramIncludePathTest, MissingDeclaration) {
   EXPECT_TRUE(missing_dec);
   ASSERT_SUCCESS(status);
 
-  std::string option = "-I ";
-  std::string options = option + UCL::getTestIncludePath();
+  const std::string option = "-I ";
+  const std::string options = option + UCL::getTestIncludePath();
 
   ASSERT_EQ_ERRCODE(CL_BUILD_PROGRAM_FAILURE,
                     clBuildProgram(missing_dec, 0, nullptr, options.c_str(),

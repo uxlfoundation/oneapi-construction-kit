@@ -136,15 +136,15 @@ TEST_P(Execution, Regression_56_Local_Vec_Mem) {
 }
 
 TEST_P(Execution, Regression_57_Attribute_Aligned) {
-  const cl_uint global = 32;
-  const cl_uint read_local = 4;
-  const cl_uint num_out_per_id = 2;
+  static constexpr size_t global = 32;
+  static constexpr size_t read_local = 4;
+  static constexpr size_t num_out_per_id = 2;
   AddPrimitive(0x3ff);
   AddOutputBuffer(global * num_out_per_id,
                   kts::Reference1D<cl_uint>([=](size_t i) {
-                    cl_uint id = i;
-                    cl_uint global_id = id / num_out_per_id;
-                    cl_uint sub_index = id % num_out_per_id;
+                    const cl_uint id = i;
+                    const cl_uint global_id = id / num_out_per_id;
+                    const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
                       case 0:
                         // 1024 byte align - bottom 10 bits set as we invert
@@ -317,7 +317,7 @@ UCL_EXECUTION_TEST_SUITE_P(
 // these tests have never been known to fail in this exact form.
 TEST_P(Execution, Regression_61_Sycl_Barrier) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    bool odd = x % 2;
+    const bool odd = x % 2;
     return kts::Ref_Identity(odd ? x - 1 : x + 1);
   };
 
@@ -329,7 +329,7 @@ TEST_P(Execution, Regression_61_Sycl_Barrier) {
 // See Regression_61 comment.
 TEST_P(Execution, Regression_62_Sycl_Barrier) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    bool odd = x % 2;
+    const bool odd = x % 2;
     return kts::Ref_Identity(odd ? x - 1 : x + 1);
   };
 
@@ -452,7 +452,7 @@ TEST_P(Execution, Regression_67_Check_Ore_Call) {
   desc.num_samples = 0;
   desc.buffer = nullptr;
 
-  cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
+  const cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
 
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([](size_t) { return 0; }));
   AddInputImage(format, desc, global, kts::Reference1D<cl_char4>([](size_t x) {
@@ -467,7 +467,7 @@ TEST_P(Execution, Regression_67_Check_Ore_Call) {
 TEST_P(Execution, Regression_68_Load16) {
   const size_t global_range[] = {4, 4};
   const size_t local_range[] = {4, 4};
-  cl_int Stride = 4;
+  const cl_int Stride = 4;
 
   // it is just a bunch of "random" numbers
   unsigned char InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
@@ -609,9 +609,18 @@ struct StrideMisaligned {
   cl_uint work_dim;
 
   bool operator==(const StrideMisaligned &rhs) {
-    return memcmp(this, &rhs, sizeof(StrideMisaligned)) == 0;
+    // clang-tidy does not realise that StrideMisaligned has unique object
+    // representations because of its global_size member: clang has an open
+    // FIXME for supporting vectors. The static_assert below should cover any
+    // scenario where the compiler still adds padding inside the struct, so we
+    // can suppress the clang-tidy warning.
+    return memcmp  // NOLINT(bugprone-suspicious-memory-comparison,cert-exp42-c,cert-flp37-c)
+           (this, &rhs, sizeof(StrideMisaligned)) == 0;
   }
 };
+
+static_assert(sizeof(StrideMisaligned) ==
+              4 * sizeof(cl_ulong) + sizeof(cl_uint));
 
 #pragma pack(4)
 struct StrideAligned {
@@ -1258,7 +1267,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                     if (id + 1 < read_local) {
                       ret = n;
                     } else if (id + 1 == read_local) {
-                      size_t leftovers = 1 + (read_local & 1);
+                      const size_t leftovers = 1 + (read_local & 1);
                       switch (leftovers) {
                         case 2:
                           ret = 2 * n + 1;
@@ -1266,6 +1275,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                         case 1:
                           ret += 3 * n - 1;
                           break;
+                        default:
+                          abort();
                       }
                       switch (leftovers) {
                         case 2:
@@ -1274,6 +1285,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                         case 1:
                           ret--;
                           break;
+                        default:
+                          abort();
                       }
                     }
                     return ret;
@@ -1316,7 +1329,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization14) {
 TEST_P(Execution, Regression_75_Partial_Linearization15) {
   const cl_uint global = 32;
   const cl_uint read_local = 4;
-  const cl_uint n = 11;
+  const size_t n = 11;
 
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([=](size_t id) {
                     int ret = 0;
@@ -1365,7 +1378,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization15) {
                   q:
                     return ret;
                   }));
-  AddPrimitive(n);
+  AddPrimitive(cl_int(n));
 
   RunGeneric1D(global, read_local);
 }
@@ -1377,7 +1390,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization16) {
 
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([=](size_t id) {
                     int ret = 0;
-                    int i = 0;
+                    const int i = 0;
                     if (n < 5) {
                       for (int i = 0; i < n + 10; i++) ret++;
                       goto h;

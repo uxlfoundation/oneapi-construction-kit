@@ -116,16 +116,16 @@ TEST_F(clGetDeviceInfoTest, BUILT_IN_KERNELS) {
   ASSERT_TRUE(size ? size == strlen(payload) + 1 : true);
 
   auto name_list = cargo::split_all(
-      cargo::string_view{static_cast<const char *>(&payload[0])}, ";");
+      cargo::string_view{static_cast<const char *>(payload.data())}, ";");
 
   for (auto name_view : name_list) {
-    std::string name(std::begin(name_view), std::end(name_view));
+    const std::string name(std::begin(name_view), std::end(name_view));
 
-    std::regex name_pattern{R"(^[_a-zA-Z][_a-zA-Z0-9]*$)"};
+    const std::regex name_pattern{R"(^[_a-zA-Z][_a-zA-Z0-9]*$)"};
     std::smatch result;
     ASSERT_TRUE(std::regex_search(name, result, name_pattern));
 
-    std::regex keywords{
+    const std::regex keywords{
         R"(\b[(kernel|__kernel|global|__global|local|__local|constant|__constant|read_only|__read_only|write_only|__write_only|read_write|__read_write|auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|inline|int|long|register|restrict|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|_Bool|_Complex|_Imaginary|_Pragma|asm|fortran)]\b)"};
     ASSERT_FALSE(std::regex_search(name, result, keywords));
   }
@@ -694,12 +694,12 @@ TEST_F(clGetDeviceInfoTest, MAX_MEM_ALLOC_SIZE) {
       // The OpenCL 1.2 spec requires that CL_DEVICE_MAX_MEM_ALLOC_SIZE be at
       // least max(memsize/4, 128MiB).
       ASSERT_GE(max_mem_alloc_size,
-                std::max<cl_ulong>(memsize / 4u, 128u * 1024u * 1024u));
+                std::max<cl_ulong>(memsize / 4u, 128ul * 1024ul * 1024ul));
       break;
     case cl::EMBEDDED_PROFILE:
       // Embedded profile changes the 128MiB to 1MiB.
       ASSERT_GE(max_mem_alloc_size,
-                std::max<cl_ulong>(memsize / 4u, 1u * 1024u * 1024u));
+                std::max<cl_ulong>(memsize / 4u, 1ul * 1024ul * 1024ul));
       break;
   }
 }
@@ -1180,8 +1180,8 @@ TEST_F(clGetDeviceInfoTest, PROFILE) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE, 0, nullptr, &size));
   std::string profile(size - 1,  // std::string allocates the null terminator
                       '\0');     // if not removed == fails due to wrong size
-  ASSERT_SUCCESS(
-      clGetDeviceInfo(device, CL_DEVICE_PROFILE, size, &profile[0], nullptr));
+  ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE, size,
+                                 profile.data(), nullptr));
   ASSERT_TRUE(size ? size == strlen(profile.data()) + 1 : true);
   ASSERT_TRUE(profile == "FULL_PROFILE" || profile == "EMBEDDED_PROFILE");
 }
@@ -1205,7 +1205,7 @@ TEST_F(clGetDeviceInfoTest, QUEUE_PROPERTIES) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_QUEUE_PROPERTIES, size,
                                  &payload, nullptr));
 
-  cl_command_queue_properties expect = CL_QUEUE_PROFILING_ENABLE;
+  const cl_command_queue_properties expect = CL_QUEUE_PROFILING_ENABLE;
   EXPECT_EQ(expect, CL_QUEUE_PROFILING_ENABLE & payload);
   payload &= ~CL_QUEUE_PROFILING_ENABLE;
   ASSERT_TRUE((0 == payload) ||
@@ -1229,7 +1229,7 @@ TEST_F(clGetDeviceInfoTest, QUEUE_ON_HOST_PROPERTIES) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_QUEUE_ON_HOST_PROPERTIES,
                                  size, &payload, nullptr));
 
-  cl_command_queue_properties expect = CL_QUEUE_PROFILING_ENABLE;
+  const cl_command_queue_properties expect = CL_QUEUE_PROFILING_ENABLE;
   EXPECT_EQ(expect, CL_QUEUE_PROFILING_ENABLE & payload);
   payload &= ~CL_QUEUE_PROFILING_ENABLE;
   ASSERT_TRUE((0 == payload) ||
@@ -1370,7 +1370,7 @@ TEST_F(clGetDeviceInfoTest, VerifyDeviceVersion) {
                                  &version_string_size));
   std::string version_string(version_string_size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_VERSION,
-                                 version_string.size(), &version_string[0],
+                                 version_string.size(), version_string.data(),
                                  nullptr));
   ASSERT_TRUE(UCL::verifyOpenCLVersionString(version_string))
       << "Malformed device OpenCL version, must be of form "
@@ -1383,7 +1383,7 @@ TEST_F(clGetDeviceInfoTest, VerifyDeviceOpenCLCVersion) {
                                  &version_string_size));
   std::string version_string(version_string_size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_OPENCL_C_VERSION,
-                                 version_string.size(), &version_string[0],
+                                 version_string.size(), version_string.data(),
                                  nullptr));
   ASSERT_TRUE(UCL::verifyOpenCLCVersionString(version_string))
       << "Malformed device OpenCL C version, must be of form "
@@ -1806,7 +1806,7 @@ TEST_F(clGetDeviceInfoTest, ValidateExtensionsWithVersion) {
 
   // Much easier to work with a string view into the space separated string from
   // now on
-  cargo::string_view device_extensions(device_extensions_buffer);
+  const cargo::string_view device_extensions(device_extensions_buffer);
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_extensions = cargo::split(device_extensions, " ");
@@ -1837,7 +1837,7 @@ TEST_F(clGetDeviceInfoTest, VerifyNumericVersion) {
   std::string device_version_string(device_version_string_size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_VERSION,
                                  device_version_string.size(),
-                                 &device_version_string[0], nullptr));
+                                 device_version_string.data(), nullptr));
 
   // Query for the value.
   cl_version numeric_version{};
@@ -1909,7 +1909,8 @@ TEST_F(clGetDeviceInfoTest, ValidateBuiltInKernelsWithVersion) {
 
   // Much easier to work with a string view into the space separated string from
   // now on
-  cargo::string_view device_built_in_kernels(device_built_in_kernels_buffer);
+  const cargo::string_view device_built_in_kernels(
+      device_built_in_kernels_buffer);
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_built_in_kernels = cargo::split(device_built_in_kernels, ";");
@@ -1946,13 +1947,13 @@ TEST_F(clGetDeviceInfoTest, ValidateILVersion) {
   std::string device_il_version(size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_IL_VERSION,
                                  device_il_version.length(),
-                                 &device_il_version[0], nullptr));
+                                 device_il_version.data(), nullptr));
   auto split_ils = cargo::split(device_il_version, " ");
   static const std::regex valid_il{R"(^[\w-]+_\d+\.\d+$)"};
   for (const auto &il : split_ils) {
     EXPECT_TRUE(std::regex_match(std::string(il.data(), il.length()), valid_il))
         << "Incorrectly formated IL reported by CL_DEVICE_IL_VERSION: "
-        << device_il_version << std::endl;
+        << device_il_version << '\n';
   }
 }
 
@@ -1996,7 +1997,7 @@ TEST_F(clGetDeviceInfoTest, ValidateILSWithVersion) {
 
   // Much easier to work with a string view into the space separated string from
   // now on
-  cargo::string_view device_il_version(device_il_version_buffer);
+  const cargo::string_view device_il_version(device_il_version_buffer);
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_device_il_version = cargo::split(device_il_version, " ");
@@ -2004,9 +2005,9 @@ TEST_F(clGetDeviceInfoTest, ValidateILSWithVersion) {
   ASSERT_EQ(split_device_il_version.size(), device_ils_with_version.size());
   // Check that every element in IL_VERSION is in ILS_WITH_VERSION.
   for (auto &il_version : split_device_il_version) {
-    std::regex ils_version_regex{R"(([\w-]+)_(\d+)\.(\d+))"};
+    const std::regex ils_version_regex{R"(([\w-]+)_(\d+)\.(\d+))"};
     std::smatch sm{};
-    std::string ils_version{il_version.data(), il_version.size()};
+    const std::string ils_version{il_version.data(), il_version.size()};
     ASSERT_TRUE(std::regex_search(ils_version, sm, ils_version_regex));
     auto il_prefix = sm.str(1);
     auto major_version = sm.str(2);
@@ -2062,10 +2063,10 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersions) {
                                  &opencl_c_version_size));
   std::string opencl_c_version(opencl_c_version_size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_OPENCL_C_VERSION,
-                                 opencl_c_version_size, &opencl_c_version[0],
+                                 opencl_c_version_size, opencl_c_version.data(),
                                  nullptr));
   // Extract the version.
-  std::regex version_string{R"(^OpenCL C (\d+)\.(\d+).*$)"};
+  const std::regex version_string{R"(^OpenCL C (\d+)\.(\d+).*$)"};
   std::smatch sm{};
   ASSERT_TRUE(std::regex_search(opencl_c_version, sm, version_string))
       << "Malformed OpenCL C version string";
@@ -2107,7 +2108,7 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
     switch (name_version.version) {
       default: {
         FAIL() << "Unhandled OpenCL C Version: " << name_version.version
-               << std::endl;
+               << '\n';
       }
       case CL_MAKE_VERSION_KHR(3, 0, 0): {
         // Because OpenCL 3.0 is backwards compatible with OpenCL C 1.2,

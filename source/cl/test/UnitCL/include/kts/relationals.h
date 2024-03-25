@@ -124,8 +124,11 @@ class OneArgRelational : public RelationalTest {
   /// @return kernel created, or nullptr on failure
   cl_kernel ConstructProgram(const char *, const std::string &);
 
-  /// @brief OpenCL-C source code for program
-  static const char *source_fmt_string;
+  /// @brief Build OpenCL-C source code for program
+  static std::string source_fmt_string(std::string extension,
+                                       std::string in_type,
+                                       std::string out_type,
+                                       std::string builtin);
 };
 
 /// @brief Tests builtins with a two input arguments
@@ -169,8 +172,11 @@ class TwoArgRelational : public RelationalTest {
   /// @return kernel created, or nullptr on failure
   cl_kernel ConstructProgram(const char *builtin, const std::string &type);
 
-  /// @brief OpenCL-C source code for program
-  static const char *source_fmt_string;
+  /// @brief Build OpenCL-C source code for program
+  static std::string source_fmt_string(std::string extension,
+                                       std::array<std::string, 2> in_types,
+                                       std::string out_type,
+                                       std::string builtin);
 };
 
 /// @brief Tests builtins with a three input arguments
@@ -179,8 +185,11 @@ class ThreeArgRelational : public RelationalTest {
   /// @brief Creates OpenCL buffers to use, and sets buffer_size_
   void SetUp() override;
 
-  /// @brief OpenCL-C source code for program
-  static const char *source_fmt_string;
+  /// @brief Build OpenCL-C source code for program
+  static std::string source_fmt_string(std::string extension,
+                                       std::array<std::string, 3> in_types,
+                                       std::string out_type,
+                                       std::string builtin);
 };
 
 /// @brief Tests the `bitselect()` builtin

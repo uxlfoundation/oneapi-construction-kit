@@ -45,7 +45,7 @@ struct memory : mux_memory_s {
       ::hal::hal_device_t *device, size_t size, uint32_t heap,
       uint32_t memory_properties, mux_allocation_type_e allocation_type,
       uint32_t alignment, mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::memory, Memory>::value,
+    static_assert(std::is_base_of_v<mux::hal::memory, Memory>,
                   "template type Memory must derive from mux::hal::memory");
     (void)allocation_type;
     // Ensure the specified heap is valid, as heaps are target specific the
@@ -79,7 +79,7 @@ struct memory : mux_memory_s {
   static cargo::expected<Memory *, mux_result_t> create(
       ::hal::hal_device_t *device, size_t size, void *pointer,
       mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::memory, Memory>::value,
+    static_assert(std::is_base_of_v<mux::hal::memory, Memory>,
                   "template type Memory must derive from mux::hal::memory");
     (void)device;
     (void)size;
@@ -92,7 +92,7 @@ struct memory : mux_memory_s {
   template <class Memory>
   static void destroy(::hal::hal_device_t *device, Memory *memory,
                       mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::memory, Memory>::value,
+    static_assert(std::is_base_of_v<mux::hal::memory, Memory>,
                   "template type Memory must derive from mux::hal::memory");
     if (memory->targetPtr != ::hal::hal_nullptr) {
       device->mem_free(memory->targetPtr);

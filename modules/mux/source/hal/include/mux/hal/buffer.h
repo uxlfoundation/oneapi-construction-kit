@@ -34,7 +34,7 @@ struct buffer : mux_buffer_s {
   template <class Buffer>
   static cargo::expected<Buffer *, mux_result_t> create(
       mux_device_t device, size_t size, mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::buffer, Buffer>::value,
+    static_assert(std::is_base_of_v<mux::hal::buffer, Buffer>,
                   "template type Buffer must derive from mux::hal::buffer");
     (void)device;
     mux_memory_requirements_s memory_requirements = {
@@ -50,7 +50,7 @@ struct buffer : mux_buffer_s {
   template <class Buffer>
   static void destroy(mux_device_t device, Buffer *buffer,
                       mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::buffer, Buffer>::value,
+    static_assert(std::is_base_of_v<mux::hal::buffer, Buffer>,
                   "template type Buffer must derive from mux::hal::buffer");
     (void)device;
     allocator.destroy(static_cast<Buffer *>(buffer));

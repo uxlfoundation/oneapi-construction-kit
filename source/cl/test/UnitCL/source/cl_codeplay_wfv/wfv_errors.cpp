@@ -52,7 +52,7 @@ TEST_F(cl_codeplay_wfv_Test, InvalidWorkDimension0) {
 
 TEST_F(cl_codeplay_wfv_Test, InvalidWorkDimensionN) {
   BuildKernel("__kernel void foo() {}", "foo", "-cl-wfv=never");
-  cl_uint invalid_dims = dims + 1;
+  const cl_uint invalid_dims = dims + 1;
   ASSERT_EQ(CL_INVALID_WORK_DIMENSION,
             clGetKernelWFVInfoCODEPLAY(kernel, device, invalid_dims, nullptr,
                                        nullptr, CL_KERNEL_WFV_STATUS_CODEPLAY,

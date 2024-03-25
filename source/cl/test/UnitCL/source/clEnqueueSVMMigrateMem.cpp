@@ -36,11 +36,11 @@ TEST_F(clEnqueueSVMMigrateMemTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_uint num_svm_pointers{};
+  const cl_uint num_svm_pointers{};
   const void **svm_pointers{};
   const size_t *sizes{};
-  cl_mem_migration_flags flags{};
-  cl_uint num_events_in_wait_list{};
+  const cl_mem_migration_flags flags{};
+  const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
   ASSERT_EQ_ERRCODE(

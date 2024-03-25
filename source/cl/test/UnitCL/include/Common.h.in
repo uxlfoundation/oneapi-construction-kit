@@ -274,8 +274,6 @@ inline std::ostream &operator<<(std::ostream &os,
   ASSERT_GE(UCL::ExecStatus(EXPECTED), UCL::ExecStatus(ACTUAL))
 #endif  // ASSERT_GE_EXECSTATUS
 
-void printDevicesImageSupport(const unsigned numDevices, cl_device_id *devices);
-
 cl_uint getNumPlatforms();
 
 cl_platform_id *getPlatforms();

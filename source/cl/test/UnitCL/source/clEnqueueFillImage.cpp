@@ -17,14 +17,13 @@
 #include "Common.h"
 
 namespace {
-enum : unsigned {
-  DIMENSIONS2D = 2,
-  DIMENSIONS = DIMENSIONS2D + 1,
-  QUARTER_DIMENSION_LENGTH = 4,
-  HALF_DIMENSION_LENGTH = QUARTER_DIMENSION_LENGTH + QUARTER_DIMENSION_LENGTH,
-  DIMENSION_LENGTH = HALF_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH,
-  TOTAL_LENGTH = DIMENSION_LENGTH * DIMENSION_LENGTH * DIMENSION_LENGTH
-};
+constexpr size_t QUARTER_DIMENSION_LENGTH = 4;
+constexpr size_t HALF_DIMENSION_LENGTH =
+    QUARTER_DIMENSION_LENGTH + QUARTER_DIMENSION_LENGTH;
+constexpr size_t DIMENSION_LENGTH =
+    HALF_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH;
+constexpr size_t TOTAL_LENGTH =
+    DIMENSION_LENGTH * DIMENSION_LENGTH * DIMENSION_LENGTH;
 
 static const cl_mem_object_type image_types[] = {
     CL_MEM_OBJECT_IMAGE1D,       CL_MEM_OBJECT_IMAGE2D,
@@ -53,7 +52,7 @@ struct clEnqueueFillImageTest
         for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
           const unsigned int index =
               x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
-          cl_uint4 element = {{index, index + 1, index + 2, index + 3}};
+          const cl_uint4 element = {{index, index + 1, index + 2, index + 3}};
           original[index] = element;
         }
       }
@@ -171,8 +170,8 @@ TEST_P(clEnqueueFillImageTest, FillFull) {
            z < zMax; z++) {
         const unsigned int index =
             x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
-        ucl::UInt4 result(mappedImage[index]);
-        ucl::UInt4 compare(fillColor);
+        const ucl::UInt4 result(mappedImage[index]);
+        const ucl::UInt4 compare(fillColor);
         ASSERT_EQ(compare, result) << "Coordinates (" << x << ", " << y << ", "
                                    << z << ") linearized to (" << index << ")";
       }
@@ -236,8 +235,8 @@ TEST_P(clEnqueueFillImageTest, FillStart) {
 
         const unsigned int index =
             x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
-        ucl::UInt4 result(mappedImage[index]);
-        ucl::UInt4 compare((inRegion) ? fillColor : original[index]);
+        const ucl::UInt4 result(mappedImage[index]);
+        const ucl::UInt4 compare((inRegion) ? fillColor : original[index]);
         ASSERT_EQ(result, compare) << "Coordinates (" << x << ", " << y << ", "
                                    << z << ") linearlized to (" << index << ")";
       }
@@ -306,8 +305,8 @@ TEST_P(clEnqueueFillImageTest, FillEnd) {
 
         const unsigned int index =
             x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
-        ucl::UInt4 result(mappedImage[index]);
-        ucl::UInt4 expect((inRegion) ? fillColor : original[index]);
+        const ucl::UInt4 result(mappedImage[index]);
+        const ucl::UInt4 expect((inRegion) ? fillColor : original[index]);
         ASSERT_EQ(expect, result) << "Coordinates (" << x << ", " << y << ", "
                                   << z << ") linearlized to (" << index << ")";
       }
@@ -380,8 +379,8 @@ TEST_P(clEnqueueFillImageTest, FillMiddle) {
 
         const unsigned int index =
             x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
-        ucl::UInt4 result(mappedImage[index]);
-        ucl::UInt4 expect((inRegion) ? fillColor : original[index]);
+        const ucl::UInt4 result(mappedImage[index]);
+        const ucl::UInt4 expect((inRegion) ? fillColor : original[index]);
         ASSERT_EQ(expect, result) << "Coordinates (" << x << ", " << y << ", "
                                   << z << ") linearlized to (" << index << ")";
       }

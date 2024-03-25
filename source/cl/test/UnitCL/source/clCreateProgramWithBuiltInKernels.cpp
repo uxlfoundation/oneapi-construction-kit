@@ -67,7 +67,7 @@ TEST_F(clCreateProgramWithBuiltInKernelsTest, BadDeviceInDevices) {
 
 TEST_F(clCreateProgramWithBuiltInKernelsTest, EmptyKernelNameSingle) {
   cl_int status;
-  std::string empty_kernel_name = "";
+  const std::string empty_kernel_name = "";
 
   // The OpenCL specification doesn't explicitly say whether passing the empty
   // string for kernel names should return an empty cl_program, or set
@@ -81,7 +81,7 @@ TEST_F(clCreateProgramWithBuiltInKernelsTest, EmptyKernelNameSingle) {
 
 TEST_F(clCreateProgramWithBuiltInKernelsTest, EmptyKernelNameDouble) {
   cl_int status;
-  std::string empty_kernel_name = ";";
+  const std::string empty_kernel_name = ";";
 
   ASSERT_FALSE(clCreateProgramWithBuiltInKernels(
       context, 1, &device, empty_kernel_name.c_str(), &status));
@@ -91,7 +91,7 @@ TEST_F(clCreateProgramWithBuiltInKernelsTest, EmptyKernelNameDouble) {
 
 TEST_F(clCreateProgramWithBuiltInKernelsTest, EmptyKernelNameTriple) {
   cl_int status;
-  std::string empty_kernel_name = ";;";
+  const std::string empty_kernel_name = ";;";
 
   ASSERT_FALSE(clCreateProgramWithBuiltInKernels(
       context, 1, &device, empty_kernel_name.c_str(), &status));
@@ -101,7 +101,7 @@ TEST_F(clCreateProgramWithBuiltInKernelsTest, EmptyKernelNameTriple) {
 
 TEST_F(clCreateProgramWithBuiltInKernelsTest, NonExistentKernelName) {
   cl_int status;
-  std::string non_kernel_name = "thiskernelnamedoesntexist";
+  const std::string non_kernel_name = "thiskernelnamedoesntexist";
 
   ASSERT_FALSE(clCreateProgramWithBuiltInKernels(
       context, 1, &device, non_kernel_name.c_str(), &status));

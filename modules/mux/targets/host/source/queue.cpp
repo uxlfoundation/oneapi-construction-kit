@@ -148,8 +148,8 @@ void commandWriteImage(host::command_info_s *info) {
   auto image = static_cast<host::image_s *>(write.image);
   size_t origin[3] = {write.offset.x, write.offset.y, write.offset.z};
   size_t region[3] = {write.extent.x, write.extent.y, write.extent.z};
-  size_t row_pitch = static_cast<size_t>(write.row_size);
-  size_t slice_pitch = static_cast<size_t>(write.slice_size);
+  const size_t row_pitch = static_cast<size_t>(write.row_size);
+  const size_t slice_pitch = static_cast<size_t>(write.slice_size);
   const uint8_t *pointer = static_cast<const uint8_t *>(write.pointer);
 
   libimg::HostWriteImage(&image->image, origin, region, row_pitch, slice_pitch,
@@ -203,7 +203,7 @@ void commandCopyImageToBuffer(host::command_info_s *info) {
   size_t srcOrigin[3] = {copy.src_offset.x, copy.src_offset.y,
                          copy.src_offset.z};
   size_t region[3] = {copy.extent.x, copy.extent.y, copy.extent.z};
-  size_t dstOffset = static_cast<size_t>(copy.dst_offset);
+  const size_t dstOffset = static_cast<size_t>(copy.dst_offset);
   libimg::HostCopyImageToBuffer(&srcImage->image, dstBuffer->data, srcOrigin,
                                 region, dstOffset);
 #else

@@ -70,10 +70,10 @@ TEST_P(Execution, Task_01_07_Mulhi) {
     return 0x43210000 + kts::Ref_B(x);
   };
   kts::Reference1D<cl_int> refOut = [&refIn1, &refIn2](size_t x) {
-    cl_int a = refIn1(x);
-    cl_int b = refIn2(x);
-    cl_int c = kts::Ref_Odd(x);
-    int64_t temp = (int64_t)a * (int64_t)b;
+    const cl_int a = refIn1(x);
+    const cl_int b = refIn2(x);
+    const cl_int c = kts::Ref_Odd(x);
+    const int64_t temp = (int64_t)a * (int64_t)b;
     return (cl_int)(temp >> 32) + c;
   };
   AddInputBuffer(kts::N, refIn1);

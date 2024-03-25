@@ -39,7 +39,8 @@ ur_mem_handle_t_::~ur_mem_handle_t_() {
       buffers.~small_vector();
       break;
     default:
-      std::fprintf(stderr, "ur_mem_handle_t unimplemented mem type destructor");
+      (void)std::fprintf(stderr,
+                         "ur_mem_handle_t unimplemented mem type destructor");
       std::abort();
   }
 }
@@ -108,8 +109,8 @@ cargo::expected<ur_mem_handle_t, ur_result_t> ur_mem_handle_t_::createBuffer(
     case UR_MEM_FLAG_ALLOC_COPY_HOST_POINTER:
     default:
       (void)hostPtr;
-      std::fprintf(stderr,
-                   "urMemBufferCreate ur_mem_flags_t not implemented\n");
+      (void)std::fprintf(stderr,
+                         "urMemBufferCreate ur_mem_flags_t not implemented\n");
       std::abort();
   }
 
@@ -244,7 +245,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMHostAlloc(ur_context_handle_t hContext,
     flags = pUSMDesc->flags;
   }
 
-  std::lock_guard<std::mutex> lock_guard(hContext->mutex);
+  const std::lock_guard<std::mutex> lock_guard(hContext->mutex);
   auto host_allocation =
       std::make_unique<ur::host_allocation_info>(hContext, flags, size, align);
   if (host_allocation->allocate()) {
@@ -272,7 +273,7 @@ UR_APIEXPORT ur_result_t UR_APICALL urUSMFree(ur_context_handle_t hContext,
     return usm_alloc->base_ptr == ptr;
   };
 
-  std::lock_guard<std::mutex> lock_guard(hContext->mutex);
+  const std::lock_guard<std::mutex> lock_guard(hContext->mutex);
   auto usm_alloc_iterator =
       std::find_if(hContext->usm_allocations.begin(),
                    hContext->usm_allocations.end(), is_usm_ptr);
@@ -325,7 +326,7 @@ urUSMDeviceAlloc(ur_context_handle_t hContext, ur_device_handle_t device,
     flags = pUSMDesc->flags;
   }
 
-  std::lock_guard<std::mutex> lock_guard(hContext->mutex);
+  const std::lock_guard<std::mutex> lock_guard(hContext->mutex);
   auto device_allocation = std::make_unique<ur::device_allocation_info>(
       hContext, device, flags, size, align);
   if (device_allocation->allocate()) {

@@ -333,12 +333,12 @@ TEST_F(clCompileProgramGoodTest, ConcurrentCompile) {
   // This error code is only overwritten if a non-success code is seen, thus
   // serialization should be avoided when there are no errors.
   std::atomic<cl_int> error{CL_SUCCESS};
-#define CHECK_ERROR(ERR_CODE)     \
-  {                               \
-    cl_int err_code = (ERR_CODE); \
-    if (CL_SUCCESS != err_code) { \
-      error = err_code;           \
-    }                             \
+#define CHECK_ERROR(ERR_CODE)           \
+  {                                     \
+    const cl_int err_code = (ERR_CODE); \
+    if (CL_SUCCESS != err_code) {       \
+      error = err_code;                 \
+    }                                   \
   }
 
   auto worker = [this, &src, &error]() {
@@ -610,7 +610,7 @@ class clCompileProgramIncludePathTest : public ucl::ContextTest {
   }
 
   void TestGoodPath(const std::string &option, const std::string &path) {
-    std::string options = option + path;
+    const std::string options = option + path;
     ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, options.c_str(), 0,
                                     nullptr, nullptr, nullptr, nullptr));
 
@@ -661,8 +661,8 @@ TEST_F(clCompileProgramIncludePathTest, MissingHeader) {
   EXPECT_TRUE(missing_header);
   ASSERT_SUCCESS(status);
 
-  std::string option = "-I ";
-  std::string options = option + UCL::getTestIncludePath();
+  const std::string option = "-I ";
+  const std::string options = option + UCL::getTestIncludePath();
   ASSERT_EQ_ERRCODE(
       CL_COMPILE_PROGRAM_FAILURE,
       clCompileProgram(missing_header, 0, nullptr, options.c_str(), 0, nullptr,
@@ -685,8 +685,8 @@ TEST_F(clCompileProgramIncludePathTest, MissingExternConstant) {
   EXPECT_TRUE(missing_dec);
   ASSERT_SUCCESS(status);
 
-  std::string option = "-I ";
-  std::string options = option + UCL::getTestIncludePath();
+  const std::string option = "-I ";
+  const std::string options = option + UCL::getTestIncludePath();
   ASSERT_EQ_ERRCODE(CL_COMPILE_PROGRAM_FAILURE,
                     clCompileProgram(missing_dec, 0, nullptr, options.c_str(),
                                      0, nullptr, nullptr, nullptr, nullptr));

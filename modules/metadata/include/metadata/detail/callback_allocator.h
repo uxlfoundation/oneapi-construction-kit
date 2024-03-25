@@ -93,17 +93,6 @@ struct callback_allocator {
     return static_cast<T *>(p);
   };
 
-  /// @brief Initialize an object.
-  ///
-  /// @param that The allocated memory.
-  /// @param val The value to initialize from.
-  void construct(pointer that, const_reference val) { new ((T *)that) T(val); }
-
-  /// @brief Destroy an object.
-  ///
-  /// @param that The object to destroy.
-  void destroy(pointer that) { that->~T(); }
-
   /// @brief Copy Assignment operator.
   ///
   /// @tparam U Type to be allocated.

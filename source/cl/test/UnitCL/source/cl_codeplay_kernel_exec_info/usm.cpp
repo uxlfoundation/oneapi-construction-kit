@@ -235,7 +235,7 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, IndirectDevicePointer) {
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
-  cl_int err = clSetKernelExecInfoCODEPLAY(
+  const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       indirect_usm_pointers);
   ASSERT_SUCCESS(err);
@@ -266,7 +266,7 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, OffsetDevicePointer) {
 
   // Pass base device USM pointer to runtime as used indirectly
   void *indirect_usm_pointers[1] = {device_ptr};
-  cl_int err = clSetKernelExecInfoCODEPLAY(
+  const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       indirect_usm_pointers);
   ASSERT_SUCCESS(err);
@@ -286,7 +286,7 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, DeviceAccessFlag) {
   // Set flag allowing the kernel to access any device USM allocation
   // indirectly.
   cl_bool indirect_device_pointers = CL_TRUE;
-  cl_int err = clSetKernelExecInfoCODEPLAY(
+  const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_INDIRECT_DEVICE_ACCESS_INTEL,
       sizeof(cl_bool), &indirect_device_pointers);
   ASSERT_SUCCESS(err);
@@ -317,7 +317,7 @@ using KernelExecInfoCodeplayUSMFlags =
 TEST_P(KernelExecInfoCodeplayUSMFlags, ValidUsage) {
   const cl_kernel_exec_info_codeplay param_name = GetParam();
   if (CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL == param_name) {
-    cl_int err =
+    const cl_int err =
         clSetKernelExecInfoCODEPLAY(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                                     sizeof(device_ptr), &device_ptr);
     ASSERT_SUCCESS(err);

@@ -45,9 +45,9 @@ cl_int getImageFormatsHelper(cl_context context, cl_mem_flags flags,
 
 void printImageFormats(cl_mem_object_type type,
                        UCL::vector<cl_image_format> &formats) {
-#define CASE(TYPE)     \
-  case TYPE:           \
-    printf(#TYPE " "); \
+#define CASE(TYPE)           \
+  case TYPE:                 \
+    (void)printf(#TYPE " "); \
     break;
   switch (type) {
     CASE(CL_MEM_OBJECT_IMAGE1D)
@@ -57,19 +57,18 @@ void printImageFormats(cl_mem_object_type type,
     CASE(CL_MEM_OBJECT_IMAGE1D_ARRAY)
     CASE(CL_MEM_OBJECT_IMAGE2D_ARRAY)
     default:
-      printf("Unknown image type!\n");
-      assert(false);
-      break;
+      (void)fprintf(stderr, "unknown image type!\n");
+      abort();
   }
 #undef CASE
   if (!formats.size()) {
-    printf("has no image formats supported.\n");
+    (void)printf("has no image formats supported.\n");
     return;
   }
   for (auto &format : formats) {
-#define CASE(DATA_TYPE)           \
-  case DATA_TYPE:                 \
-    printf("  %20s", #DATA_TYPE); \
+#define CASE(DATA_TYPE)                 \
+  case DATA_TYPE:                       \
+    (void)printf("  %20s", #DATA_TYPE); \
     break;
     switch (format.image_channel_data_type) {
       CASE(CL_SNORM_INT8)
@@ -87,11 +86,14 @@ void printImageFormats(cl_mem_object_type type,
       CASE(CL_UNSIGNED_INT32)
       CASE(CL_HALF_FLOAT)
       CASE(CL_FLOAT)
+      default:
+        (void)fprintf(stderr, "unknown image channel data type!\n");
+        abort();
     }
 #undef CASE
-#define CASE(ORDER)          \
-  case ORDER:                \
-    printf(" %s\n", #ORDER); \
+#define CASE(ORDER)                \
+  case ORDER:                      \
+    (void)printf(" %s\n", #ORDER); \
     break;
     switch (format.image_channel_order) {
       CASE(CL_R)
@@ -107,6 +109,9 @@ void printImageFormats(cl_mem_object_type type,
       CASE(CL_RGBA)
       CASE(CL_ARGB)
       CASE(CL_BGRA)
+      default:
+        (void)fprintf(stderr, "unknown image channel order!\n");
+        abort();
     }
 #undef CASE
   }

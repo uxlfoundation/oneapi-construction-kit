@@ -40,8 +40,8 @@ namespace ur {
 template <class T>
 inline ur_result_t setInfo(size_t propSize, void *pInfo, const T value,
                            size_t *pPropSizeRet) {
-  static_assert(std::is_trivial<T>::value, "T must be a trivial type");
-  static_assert(!std::is_same<T, char *>::value,
+  static_assert(std::is_trivial_v<T>, "T must be a trivial type");
+  static_assert(!std::is_same_v<T, char *>,
                 "T must not be 'char *', use 'const char *' instead");
   if (pInfo && propSize != sizeof(T)) {
     return UR_RESULT_ERROR_INVALID_SIZE;
@@ -60,7 +60,7 @@ template <>
 inline ur_result_t setInfo<const char *>(size_t propSize, void *pInfo,
                                          const char *str,
                                          size_t *pPropSizeRet) {
-  size_t size = std::strlen(str) + 1;
+  const size_t size = std::strlen(str) + 1;
   if (pInfo && size != propSize) {
     return UR_RESULT_ERROR_INVALID_SIZE;
   }

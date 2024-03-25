@@ -23,7 +23,7 @@ using namespace kts::ucl;
 
 TEST_P(Execution, Task_07_01_Copy_If_Even_Item) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int lid = static_cast<cl_int>(x % kts::localN);
+    const cl_int lid = static_cast<cl_int>(x % kts::localN);
     return ((lid & 1) == 0) ? kts::Ref_A(x) : -1;
   };
   AddInputBuffer(kts::N, kts::Ref_A);
@@ -33,11 +33,11 @@ TEST_P(Execution, Task_07_01_Copy_If_Even_Item) {
 
 TEST_P(Execution, Task_07_02_Copy_If_Nested_Item) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int lid = static_cast<cl_int>(x % kts::localN);
+    const cl_int lid = static_cast<cl_int>(x % kts::localN);
     return ((lid & 1) == 0) && ((lid & 2) == 0) ? -kts::Ref_A(x) : 0;
   };
   kts::Reference1D<cl_int> refOut2 = [](size_t x) {
-    cl_int lid = static_cast<cl_int>(x % kts::localN);
+    const cl_int lid = static_cast<cl_int>(x % kts::localN);
     return ((lid & 1) == 0) ? kts::Ref_A(x) : 0;
   };
   AddInputBuffer(kts::N, kts::Ref_A);
@@ -48,9 +48,9 @@ TEST_P(Execution, Task_07_02_Copy_If_Nested_Item) {
 
 TEST_P(Execution, Task_07_03_Add_no_NaN) {
   kts::Reference1D<cl_float> refOut = [](size_t x) {
-    cl_float a = kts::Ref_NegativeOffset(x);
-    cl_float b = kts::Ref_Float(x);
-    bool exclude = stdcompat::isnan(a) || stdcompat::isnan(b);
+    const cl_float a = kts::Ref_NegativeOffset(x);
+    const cl_float b = kts::Ref_Float(x);
+    const bool exclude = stdcompat::isnan(a) || stdcompat::isnan(b);
     return !exclude ? a + b : 0.0f;
   };
   AddInputBuffer(kts::N, kts::Ref_NegativeOffset);
@@ -62,14 +62,14 @@ TEST_P(Execution, Task_07_03_Add_no_NaN) {
 TEST_P(Execution, Task_07_04_Convolution) {
   const cl_int FILTER_SIZE = 1;
   kts::Reference1D<cl_float> refOut = [&](size_t x) {
-    cl_int v = kts::Ref_Identity(x);
+    const cl_int v = kts::Ref_Identity(x);
     if (((v - FILTER_SIZE) < 0) || ((v + FILTER_SIZE) >= (cl_int)kts::N)) {
       return 0.0f;
     }
     cl_float sum = 0.0f;
     cl_float totalWeight = 0.0f;
     for (cl_int i = -FILTER_SIZE; i <= FILTER_SIZE; i++) {
-      cl_float weight(static_cast<cl_float>(x - i));
+      const cl_float weight(static_cast<cl_float>(x - i));
       totalWeight += weight;
       sum += weight * kts::Ref_NegativeOffset(x + i);
     }
@@ -92,7 +92,7 @@ TEST_P(Execution, Task_07_05_Ternary_Pointer) {
 
 TEST_P(Execution, Task_07_06_Copy_If_Even_Item_Phi) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int lid = static_cast<cl_int>(x % kts::localN);
+    const cl_int lid = static_cast<cl_int>(x % kts::localN);
     return ((lid & 1) == 0) ? kts::Ref_A(x) : -1;
   };
   AddInputBuffer(kts::N, kts::Ref_A);
@@ -202,7 +202,7 @@ TEST_P(Execution, Task_07_10_Control_Dep_Scalarization) {
 
 TEST_P(Execution, Task_07_11_Copy_If_Even_Item_Early_Return) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
-    cl_int lid = static_cast<cl_int>(x % kts::localN);
+    const cl_int lid = static_cast<cl_int>(x % kts::localN);
     return ((lid & 1) == 0) ? kts::Ref_A(x) : -1;
   };
   AddInputBuffer(kts::N, kts::Ref_A);
@@ -367,7 +367,7 @@ TEST_P(Execution, Task_07_19_Nested_Loops) {
   };
   kts::Reference1D<cl_int> refOut = [&height, &width, &refStrides](size_t x) {
     cl_int sum = 0;
-    cl_int strideX = refStrides(x);
+    const cl_int strideX = refStrides(x);
     for (size_t j = 0; j < (size_t)height; j++) {
       for (size_t i = 0; i < (size_t)width; i += strideX) {
         sum += kts::Ref_A((cl_int)((j * width) + i));
@@ -386,7 +386,7 @@ TEST_P(Execution, Task_07_19_Nested_Loops) {
 TEST_P(Execution, Task_07_20_Sibling_Loops) {
   kts::Reference1D<cl_int> refOut = [](size_t x) {
     cl_int sum = 0;
-    cl_int ix = kts::Ref_Identity(x);
+    const cl_int ix = kts::Ref_Identity(x);
     for (cl_int i = 0; i <= ix; i++) {
       cl_int val;
       if (i & 1) {

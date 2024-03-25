@@ -182,7 +182,7 @@ TEST_F(clEnqueueFillBufferTest, Default) {
                                      &event));
   ASSERT_TRUE(event);
 
-  BufferRAII<cl_uint4> data(size / sizeof(cl_uint4));
+  const BufferRAII<cl_uint4> data(size / sizeof(cl_uint4));
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, buffer, CL_FALSE, 0, size,
                                      data.payload, 1, &event, nullptr));
   EXPECT_SUCCESS(clFinish(command_queue));

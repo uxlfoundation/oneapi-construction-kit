@@ -107,8 +107,9 @@ TEST_F(MutableDispatchThreadSafetyTest, UpdateInParallel) {
   auto update_input_value_and_enqueue = [&](size_t id) {
     const cl_int updated_input_value = id;
     // Create a mutable config.
-    cl_mutable_dispatch_arg_khr arg{0, sizeof(cl_int), &updated_input_value};
-    cl_mutable_dispatch_config_khr dispatch_config{
+    const cl_mutable_dispatch_arg_khr arg{0, sizeof(cl_int),
+                                          &updated_input_value};
+    const cl_mutable_dispatch_config_khr dispatch_config{
         CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
         nullptr,
         command_handle,
@@ -122,7 +123,7 @@ TEST_F(MutableDispatchThreadSafetyTest, UpdateInParallel) {
         nullptr,
         nullptr,
         nullptr};
-    cl_mutable_base_config_khr mutable_config{
+    const cl_mutable_base_config_khr mutable_config{
         CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1,
         &dispatch_config};
     // Update the nd range.

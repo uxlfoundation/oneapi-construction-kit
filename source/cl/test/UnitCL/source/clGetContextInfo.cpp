@@ -137,7 +137,7 @@ TEST_F(clGetContextInfoTest, GetProperties) {
 
   EXPECT_SUCCESS(clGetContextInfo(context, CL_CONTEXT_PROPERTIES, size,
                                   other_properties, nullptr));
-  cl_context_properties contextPlatform = CL_CONTEXT_PLATFORM;
+  const cl_context_properties contextPlatform = CL_CONTEXT_PLATFORM;
   EXPECT_EQ(contextPlatform, other_properties[0]);
   EXPECT_EQ(platform, reinterpret_cast<cl_platform_id>(other_properties[1]));
   EXPECT_EQ(0, other_properties[2]);
@@ -170,7 +170,7 @@ TEST_F(clGetContextInfoTest, GetPropertiesFromType) {
   EXPECT_SUCCESS(clGetContextInfo(context, CL_CONTEXT_PROPERTIES, size,
                                   other_properties, nullptr));
 
-  cl_context_properties contextPlatform = CL_CONTEXT_PLATFORM;
+  const cl_context_properties contextPlatform = CL_CONTEXT_PLATFORM;
   EXPECT_EQ(contextPlatform, other_properties[0]);
   EXPECT_EQ(reinterpret_cast<cl_context_properties>(platform),
             other_properties[1]);

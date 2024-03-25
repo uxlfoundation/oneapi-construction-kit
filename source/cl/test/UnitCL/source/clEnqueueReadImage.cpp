@@ -21,12 +21,10 @@ template <cl_mem_object_type image_type, size_t Width, size_t Height,
           size_t Depth>
 struct clEnqueueReadImageTestBase : ucl::CommandQueueTest,
                                     TestWithEventWaitList {
-  enum {
-    width = Width,
-    height = Height,
-    depth = Depth,
-    num_pixels = width * height * depth
-  };
+  static constexpr size_t width = Width;
+  static constexpr size_t height = Height;
+  static constexpr size_t depth = Depth;
+  static constexpr size_t num_pixels = width * height * depth;
 
   clEnqueueReadImageTestBase() : image_data(num_pixels) {}
 
@@ -44,7 +42,7 @@ struct clEnqueueReadImageTestBase : ucl::CommandQueueTest,
     for (size_t x = 0; x < width; ++x) {
       for (size_t y = 0; y < height; ++y) {
         for (size_t z = 0; z < depth; ++z) {
-          size_t i = x + width * y + width * height * z;
+          const size_t i = x + width * y + width * height * z;
           image_data[i].s[0] = static_cast<cl_uchar>(x);
           image_data[i].s[1] = static_cast<cl_uchar>(y);
           image_data[i].s[2] = static_cast<cl_uchar>(z);
@@ -166,7 +164,7 @@ TEST_F(clEnqueueReadImage3DTest, DefaultReadWholeImage) {
   for (size_t x = 0; x < width; ++x) {
     for (size_t y = 0; y < height; ++y) {
       for (size_t z = 0; z < depth; ++z) {
-        size_t i = x + width * y + width * height * z;
+        const size_t i = x + width * y + width * height * z;
         for (int j = 0; j < 4; ++j) {
           ASSERT_EQ(image_data[i].s[j], result_data[i].s[j])
               << "image_data and result_data differ at: "

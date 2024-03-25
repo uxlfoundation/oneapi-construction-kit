@@ -86,7 +86,7 @@ void BasePrintfExecution::RunPrintfNDConcurrent(cl_uint numDims,
   stdout_capture.CaptureStdout();
   RunGenericND(numDims, globalDims, localDims);
   stdout_capture.RestoreStdout();
-  std::string buf = stdout_capture.ReadBuffer();
+  const std::string buf = stdout_capture.ReadBuffer();
   // Don't run check the result if RunGenericND decided to skip the test
   if (IsSkipped()) {
     return;
@@ -125,18 +125,14 @@ UCL_EXECUTION_TEST_SUITE_P(PrintfExecutionWorkItems, testing::Values(OPENCL_C),
 // single (different) thread will print anything.
 TEST_P(PrintfExecutionWorkItems, Printf_02_Order) {
   fail_if_not_vectorized_ = false;
-  size_t work_items = getParam();
+  const size_t work_items = getParam();
   for (size_t i = 0; i < work_items; i++) {
     ReferencePrintfString ref = [i](size_t x) {
       if (x != i) {
         return std::string("");
       }
 
-      const size_t len = 21;  // "Execution DDDDDDDDD\n\0"
-      char buf[len];
-      snprintf(buf, len, "Execution %d\n", (cl_int)x);
-
-      return std::string(buf);
+      return "Execution " + std::to_string(x) + "\n";
     };
 
     AddPrimitive((cl_int)i);
@@ -300,7 +296,7 @@ TEST_P(PrintfExecution, Printf_11_print_inf) {
 
 TEST_P(PrintfExecution, Printf_12_multiple_workgroups) {
   fail_if_not_vectorized_ = false;
-  std::string stringPrinted =
+  const std::string stringPrinted =
       "(0, 0, 0)(1, 0, 0)(0, 1, 0)(1, 1, 0)(0, 0, "
       "1)(1, 0, 1)(0, 1, 1)(1, 1, 1)";
 
@@ -1688,7 +1684,7 @@ TEST_P(PrintfExecution, Printf_17_Float_Formatting_gG) {
 
 TEST_P(PrintfExecution, Printf_18_concurrent_printf) {
   fail_if_not_vectorized_ = false;
-  std::string stringPrinted = "Hello world!\n";
+  const std::string stringPrinted = "Hello world!\n";
   this->RunPrintf1DConcurrent(kts::N, kts::localN,
                               (size_t)stringPrinted.size() * kts::N);
 }

@@ -36,8 +36,8 @@ class clCreateImageTest : public ucl::ContextTest {
 };
 
 TEST_F(clCreateImageTest, InvalidContext) {
-  cl_image_format image_format = {};
-  cl_image_desc image_desc = {};
+  const cl_image_format image_format = {};
+  const cl_image_desc image_desc = {};
   cl_int errcode;
   EXPECT_EQ(nullptr, clCreateImage(nullptr, 0, &image_format, &image_desc,
                                    nullptr, &errcode));
@@ -47,8 +47,8 @@ TEST_F(clCreateImageTest, InvalidContext) {
 TEST_F(clCreateImageTest, InvalidValueFlags) {
   cl_mem_flags flags;
   memset(&flags, 0xff, sizeof(cl_mem_flags));
-  cl_image_format image_format = {};
-  cl_image_desc image_desc = {};
+  const cl_image_format image_format = {};
+  const cl_image_desc image_desc = {};
   cl_int errcode;
   image = clCreateImage(context, flags, &image_format, &image_desc, nullptr,
                         &errcode);
@@ -57,9 +57,9 @@ TEST_F(clCreateImageTest, InvalidValueFlags) {
 }
 
 TEST_F(clCreateImageTest, InvalidValueFlagsReadOnlyWriteOnly) {
-  cl_mem_flags flags = CL_MEM_READ_ONLY | CL_MEM_WRITE_ONLY;
-  cl_image_format image_format = {};
-  cl_image_desc image_desc = {};
+  const cl_mem_flags flags = CL_MEM_READ_ONLY | CL_MEM_WRITE_ONLY;
+  const cl_image_format image_format = {};
+  const cl_image_desc image_desc = {};
   cl_int errcode;
   image = clCreateImage(context, flags, &image_format, &image_desc, nullptr,
                         &errcode);
@@ -69,8 +69,8 @@ TEST_F(clCreateImageTest, InvalidValueFlagsReadOnlyWriteOnly) {
 
 TEST_F(clCreateImageTest, InvalidValueFlagsReadWriteReadOnly) {
   cl_mem_flags flags = CL_MEM_READ_ONLY | CL_MEM_WRITE_ONLY;
-  cl_image_format image_format = {};
-  cl_image_desc image_desc = {};
+  const cl_image_format image_format = {};
+  const cl_image_desc image_desc = {};
   cl_int errcode;
   flags = CL_MEM_READ_WRITE | CL_MEM_READ_ONLY;
   image = clCreateImage(context, flags, &image_format, &image_desc, nullptr,
@@ -99,7 +99,7 @@ TEST_F(clCreateImageTest, InvalidImageFormatDescriptor) {
 }
 
 TEST_F(clCreateImageTest, InvalidImageDesc) {
-  cl_image_format format = {CL_RGBA, CL_FLOAT};
+  const cl_image_format format = {CL_RGBA, CL_FLOAT};
   cl_int errorcode;
   EXPECT_FALSE(
       clCreateImage(context, 0, &format, nullptr, nullptr, &errorcode));
@@ -188,7 +188,7 @@ TEST_F(clCreateImageTest, InvalidImageSize3DDepth) {
 }
 
 TEST_F(clCreateImageTest, InvalidImageSizeBufferSize) {
-  size_t maxBufferSize = getDeviceImageMaxBufferSize();
+  const size_t maxBufferSize = getDeviceImageMaxBufferSize();
   ASSERT_NE(0u, maxBufferSize);
   cl_int error;
   cl_mem buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, maxBufferSize + 1,

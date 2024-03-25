@@ -259,9 +259,9 @@ TEST_F(USMBlockingFreeTest, SingleQueueMultipleAlloc) {
       const size_t offset = i * sizeof(pattern);
       void *device_offset_ptr = getPointerOffset(device_ptr, offset);
 
-      cl_int err = clEnqueueMemFillINTEL(fixture_queues[0], device_offset_ptr,
-                                         &pattern, sizeof(pattern),
-                                         sizeof(pattern), 0, nullptr, nullptr);
+      const cl_int err = clEnqueueMemFillINTEL(
+          fixture_queues[0], device_offset_ptr, &pattern, sizeof(pattern),
+          sizeof(pattern), 0, nullptr, nullptr);
       EXPECT_SUCCESS(err);
     }
 
@@ -306,9 +306,9 @@ TEST_F(USMBlockingFreeTest, MultipleQueueMultipleAlloc) {
   const cl_uint pattern_A = 42;
   auto &queue_A = fixture_queues[0];
   auto &device_ptr_A = fixture_device_ptrs[0];
-  cl_int err =
-      clEnqueueMemFillINTEL(queue_A, device_ptr_A, &pattern_A,
-                            sizeof(pattern_A), bytes, 0, nullptr, &events[0]);
+  cl_int err = clEnqueueMemFillINTEL(queue_A, device_ptr_A, &pattern_A,
+                                     sizeof(pattern_A), bytes, 0, nullptr,
+                                     events.data());
   EXPECT_SUCCESS(err);
 
   // Flush queue A manually, as flushing queue C won't propagate it's dependency
@@ -335,7 +335,7 @@ TEST_F(USMBlockingFreeTest, MultipleQueueMultipleAlloc) {
 
   // Copy bytes from the start of allocation A to start of allocation C
   err = clEnqueueMemcpyINTEL(queue_C, CL_FALSE, device_ptr_C, device_ptr_A,
-                             halfway_offset, 1, &events[0], nullptr);
+                             halfway_offset, 1, events.data(), nullptr);
   EXPECT_SUCCESS(err);
 
   // Copy bytes from the start allocation B to second half of allocation C

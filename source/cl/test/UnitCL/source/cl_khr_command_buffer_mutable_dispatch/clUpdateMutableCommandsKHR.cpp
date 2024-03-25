@@ -111,7 +111,7 @@ class CommandBufferUpdateNDKernel : public MutableDispatchTest {
 // Return CL_INVALID_COMMAND_BUFFER_KHR if command_buffer is not a valid
 // command-buffer.
 TEST_F(CommandBufferUpdateNDKernel, NullCommandBuffer) {
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 0, nullptr};
   ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
                     clUpdateMutableCommandsKHR(nullptr /* command_buffer */,
@@ -120,7 +120,7 @@ TEST_F(CommandBufferUpdateNDKernel, NullCommandBuffer) {
 
 // Return CL_INVALID_OPERATION if command_buffer has not been finalized.
 TEST_F(CommandBufferUpdateNDKernel, InvalidCommandBuffer) {
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 0, nullptr};
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION, clUpdateMutableCommandsKHR(
                                               command_buffer, &mutable_config));
@@ -136,7 +136,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidMutableFlag) {
 
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(immutable_command_buffer));
 
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       nullptr,
@@ -150,7 +150,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidMutableFlag) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config = {
+  const cl_mutable_base_config_khr mutable_config = {
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 0, &dispatch_config};
   EXPECT_EQ_ERRCODE(
       CL_INVALID_OPERATION,
@@ -169,7 +169,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidSimulataneousUse) {
   EXPECT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 1,
                                            &user_event, nullptr));
 
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       nullptr,
@@ -183,7 +183,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidSimulataneousUse) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config = {
+  const cl_mutable_base_config_khr mutable_config = {
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 0, &dispatch_config};
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, clUpdateMutableCommandsKHR(
                                               command_buffer, &mutable_config));
@@ -198,7 +198,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidSimulataneousUse) {
 // CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR.
 TEST_F(CommandBufferUpdateNDKernel, InvalidBaseConfigType) {
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       0xBAD /* type should be CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR */,
       nullptr, 0, nullptr};
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clUpdateMutableCommandsKHR(
@@ -219,7 +219,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidMutableDispatchList) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clUpdateMutableCommandsKHR(
                                           command_buffer, &mutable_config));
 
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       nullptr,
@@ -252,7 +252,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidNext) {
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   const cl_ulong next = 0xDEADBEEF;
-  cl_mutable_base_config_khr dispatch_config{
+  const cl_mutable_base_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, &next /* next is invalid */, 0,
       nullptr};
   ASSERT_EQ(CL_INVALID_VALUE,
@@ -278,7 +278,7 @@ TEST_F(CommandBufferUpdateNDKernel, NopUpdate) {
       nullptr, 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  cl_mutable_base_config_khr nop_update{
+  const cl_mutable_base_config_khr nop_update{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr /* next */, 0,
       nullptr /* mutable_dispatch_list */};
   ASSERT_EQ(CL_INVALID_VALUE,
@@ -289,7 +289,7 @@ TEST_F(CommandBufferUpdateNDKernel, NopUpdate) {
 // command object
 TEST_F(CommandBufferUpdateNDKernel, NullHandle) {
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       nullptr /* command */,
@@ -303,7 +303,7 @@ TEST_F(CommandBufferUpdateNDKernel, NullHandle) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   ASSERT_EQ_ERRCODE(
@@ -329,8 +329,8 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidHandle) {
       &global_size, nullptr, 0, nullptr, nullptr, &new_command_handle));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(new_command_buffer));
 
-  cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &dst_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &dst_buffer};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       new_command_handle /* command */,
@@ -344,7 +344,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidHandle) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   EXPECT_EQ_ERRCODE(
@@ -363,7 +363,7 @@ TEST_F(CommandBufferUpdateNDKernel, UnsupportedPropertyBit) {
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR | CL_MUTABLE_DISPATCH_EXEC_INFO_KHR;
 
   cl_mutable_dispatch_fields_khr device_capabilities;
-  cl_int err = clGetDeviceInfo(
+  const cl_int err = clGetDeviceInfo(
       device, CL_DEVICE_MUTABLE_DISPATCH_CAPABILITIES_KHR,
       sizeof(cl_mutable_dispatch_fields_khr), &device_capabilities, nullptr);
   ASSERT_SUCCESS(err);
@@ -408,7 +408,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidDispatchConfigStuctType) {
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       0 /* This field should be CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR*/,
       nullptr,
       command_handle,
@@ -422,7 +422,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidDispatchConfigStuctType) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clUpdateMutableCommandsKHR(
@@ -451,8 +451,8 @@ TEST_F(CommandBufferUpdateNDKernel, ImmutablePropertyBit) {
       &global_size, nullptr, 0, nullptr, nullptr, &command_handle));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &dst_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &dst_buffer};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -467,7 +467,7 @@ TEST_F(CommandBufferUpdateNDKernel, ImmutablePropertyBit) {
       nullptr,
       nullptr};
 
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION, clUpdateMutableCommandsKHR(
                                               command_buffer, &mutable_config));
@@ -499,13 +499,13 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgList) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clUpdateMutableCommandsKHR(
                                           command_buffer, &mutable_config));
 
-  cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &dst_buffer};
+  const cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &dst_buffer};
   dispatch_config = {CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
                      nullptr,
                      command_handle,
@@ -535,9 +535,9 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgIndex) {
       &global_size, nullptr, 0, nullptr, nullptr, &command_handle));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  cl_mutable_dispatch_arg_khr arg = {3 /* arg_index */, sizeof(cl_mem),
-                                     &src_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg = {3 /* arg_index */, sizeof(cl_mem),
+                                           &src_buffer};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -552,7 +552,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgIndex) {
       nullptr,
       nullptr};
 
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_EQ_ERRCODE(CL_INVALID_ARG_INDEX, clUpdateMutableCommandsKHR(
                                               command_buffer, &mutable_config));
@@ -566,9 +566,9 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgValue) {
     GTEST_SKIP();
   }
 
-  cl_image_format image_format = {CL_RGBA, CL_SIGNED_INT32};
-  cl_mem_object_type image_type = CL_MEM_OBJECT_IMAGE1D;
-  cl_mem_flags image_flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
+  const cl_image_format image_format = {CL_RGBA, CL_SIGNED_INT32};
+  const cl_mem_object_type image_type = CL_MEM_OBJECT_IMAGE1D;
+  const cl_mem_flags image_flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
   if (!UCL::isImageFormatSupported(context, {image_flags}, image_type,
                                    image_format)) {
     GTEST_SKIP();
@@ -602,8 +602,9 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgValue) {
       &global_size, nullptr, 0, nullptr, nullptr, &command_handle));
 
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  cl_mutable_dispatch_arg_khr arg = {0, sizeof(cl_mem), &image /* arg_value */};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg = {0, sizeof(cl_mem),
+                                           &image /* arg_value */};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -618,7 +619,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgValue) {
       nullptr,
       nullptr};
 
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   EXPECT_EQ_ERRCODE(CL_INVALID_ARG_VALUE, clUpdateMutableCommandsKHR(
                                               command_buffer, &mutable_config));
@@ -637,8 +638,8 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgSize) {
       &global_size, nullptr, 0, nullptr, nullptr, &command_handle));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  cl_mutable_dispatch_arg_khr arg = {0, 2 /* arg_size */, &src_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg = {0, 2 /* arg_size */, &src_buffer};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -653,7 +654,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgSize) {
       nullptr,
       nullptr};
 
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_EQ_ERRCODE(CL_INVALID_ARG_SIZE, clUpdateMutableCommandsKHR(
                                              command_buffer, &mutable_config));
@@ -707,7 +708,7 @@ TEST_F(CommandBufferUpdateNDKernel, IterativeArgumentUpdate) {
   // Update both the input and output buffer, reusing the same
   // cl_mutable_dispatch_arg_khr struct
   cl_mutable_dispatch_arg_khr arg{0, sizeof(cl_mem), &updated_src_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -721,7 +722,7 @@ TEST_F(CommandBufferUpdateNDKernel, IterativeArgumentUpdate) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   EXPECT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 
@@ -797,7 +798,7 @@ TEST_F(CommandBufferUpdateNDKernel, OverwriteArgumentUpdate) {
   // Update both the input and output buffer, reusing the same
   // cl_mutable_dispatch_arg_khr struct
   cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &unused_dst_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -811,7 +812,7 @@ TEST_F(CommandBufferUpdateNDKernel, OverwriteArgumentUpdate) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   EXPECT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 
@@ -872,8 +873,8 @@ TEST_F(CommandBufferUpdateNDKernel, NoMutablePropertiesSet) {
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Update the output buffer
-  cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &updated_dst_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{1, sizeof(cl_mem), &updated_dst_buffer};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -887,7 +888,7 @@ TEST_F(CommandBufferUpdateNDKernel, NoMutablePropertiesSet) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   EXPECT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 
@@ -1001,7 +1002,7 @@ TEST_F(CommandBufferSimultaneousUpdate, UpdatePending) {
   cl_mutable_dispatch_arg_khr args[2] = {
       {0, sizeof(cl_mem), &updated_src_buffer},
       {1, sizeof(cl_mem), &updated_dst_buffer}};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -1015,7 +1016,7 @@ TEST_F(CommandBufferSimultaneousUpdate, UpdatePending) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_SUCCESS(
       clUpdateMutableCommandsKHR(simultaneous_command_buffer, &mutable_config));
@@ -1056,8 +1057,8 @@ TEST_F(CommandBufferSimultaneousUpdate, ConsecutiveUpdate) {
       0, nullptr, simultaneous_command_buffer, 1, &user_event, nullptr));
 
   // Update the kernel input argument
-  cl_mutable_dispatch_arg_khr input_arg = {0, sizeof(cl_mem),
-                                           &updated_src_buffer};
+  const cl_mutable_dispatch_arg_khr input_arg = {0, sizeof(cl_mem),
+                                                 &updated_src_buffer};
   cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
@@ -1072,14 +1073,14 @@ TEST_F(CommandBufferSimultaneousUpdate, ConsecutiveUpdate) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_SUCCESS(
       clUpdateMutableCommandsKHR(simultaneous_command_buffer, &mutable_config));
 
   // Update the kernel output argument
-  cl_mutable_dispatch_arg_khr output_args = {1, sizeof(cl_mem),
-                                             &updated_dst_buffer};
+  const cl_mutable_dispatch_arg_khr output_args = {1, sizeof(cl_mem),
+                                                   &updated_dst_buffer};
   dispatch_config.arg_list = &output_args;
   ASSERT_SUCCESS(
       clUpdateMutableCommandsKHR(simultaneous_command_buffer, &mutable_config));
@@ -1138,15 +1139,17 @@ TEST_F(CommandBufferSimultaneousUpdate, MultipleCommands) {
       0, nullptr, simultaneous_command_buffer, 1, &user_event, nullptr));
 
   // Update the output of command 1 and input of command 2
-  cl_mutable_dispatch_arg_khr arg1 = {1, sizeof(cl_mem), &updated_dst_buffer};
-  cl_mutable_dispatch_arg_khr arg2 = {0, sizeof(cl_mem), &updated_dst_buffer};
+  const cl_mutable_dispatch_arg_khr arg1 = {1, sizeof(cl_mem),
+                                            &updated_dst_buffer};
+  const cl_mutable_dispatch_arg_khr arg2 = {0, sizeof(cl_mem),
+                                            &updated_dst_buffer};
   cl_mutable_dispatch_config_khr dispatch_configs[2] = {
       {CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR, nullptr, command_handle,
        1, 0, 0, 0, &arg1, nullptr, nullptr, nullptr, nullptr, nullptr},
       {CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR, nullptr, command_handle2,
        1, 0, 0, 0, &arg2, nullptr, nullptr, nullptr, nullptr, nullptr}};
 
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 2, dispatch_configs};
   ASSERT_SUCCESS(
       clUpdateMutableCommandsKHR(simultaneous_command_buffer, &mutable_config));

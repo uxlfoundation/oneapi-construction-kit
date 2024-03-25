@@ -90,7 +90,7 @@ TEST_F(clCreateProgramWithILKHRTest, Default) {
       clGetDeviceInfo(device, CL_DEVICE_IL_VERSION_KHR, 0, nullptr, &size));
   std::string il_version(size, '\0');
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_IL_VERSION_KHR, size,
-                                 &il_version[0], nullptr));
+                                 il_version.data(), nullptr));
   ASSERT_STREQ("SPIR-V_1.0", il_version.c_str());
 
   cl_int error;

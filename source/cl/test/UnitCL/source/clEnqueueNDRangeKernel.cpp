@@ -215,7 +215,7 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSize1D) {
   // the expected return code below, the first max local size may be less than
   // the total max.  In this case it is not possible to trigger
   // CL_INVALID_WORK_GROUP_SIZE with a single dimension.
-  cl_int expected =
+  const cl_int expected =
       (size <= max_work_group_size) ? CL_SUCCESS : CL_INVALID_WORK_GROUP_SIZE;
 
   // Note that even if we expect CL_SUCCESS, it is still safe to enqueue the
@@ -264,9 +264,9 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSizeBigCube) {
   // otherwise legal values:
   // (a) If the max work group size is 1, then 1^3 is also 1, which is valid.
   // (b) The product of the max local sizes may be less than the total max.
-  cl_int expected = (total_size <= max_work_group_size)
-                        ? CL_SUCCESS
-                        : CL_INVALID_WORK_GROUP_SIZE;
+  const cl_int expected = (total_size <= max_work_group_size)
+                              ? CL_SUCCESS
+                              : CL_INVALID_WORK_GROUP_SIZE;
 
   // Note that even if we expect CL_SUCCESS, it is still safe to enqueue the
   // large range because the kernel doesn't use get_global_id to index into
@@ -303,8 +303,8 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkItemSize) {
     // max_work_item_sizes is {N, N, N} then for a local work group size of
     // {N+1, 1, 1} then either CL_INVALID_WORK_GROUP_SIZE or
     // CL_DEVICE_MAX_WORK_ITEM_SIZES are valid return codes.
-    cl_int err = clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr, size,
-                                        size, 0, nullptr, nullptr);
+    const cl_int err = clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr,
+                                              size, size, 0, nullptr, nullptr);
     EXPECT_TRUE((err == CL_INVALID_WORK_ITEM_SIZE) ||
                 (err == CL_INVALID_WORK_GROUP_SIZE));
   }
@@ -406,7 +406,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ChangeKernelArgumentsPod) {
   ASSERT_SUCCESS(clEnqueueReadBuffer(command_queue, outMem, CL_TRUE, 0, SIZE,
                                      (void *)readBuffer, 0, nullptr, nullptr));
 
-  cl_int buf0 = reinterpret_cast<cl_int *>(buffer)[0];
+  const cl_int buf0 = reinterpret_cast<cl_int *>(buffer)[0];
 
   // The out buffer should contain the data of the original buffer and not the
   // data of the arguments set after the enqueueNDRangeKernel call. Only the
@@ -418,7 +418,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ChangeKernelArgumentsPod) {
 
   // The second out buffer should contain the data of the original buffer + 100,
   // due to the change of the third argument
-  cl_int expectedResult = buf0 + 100;
+  const cl_int expectedResult = buf0 + 100;
   ASSERT_EQ(expectedResult, readBuffer[0]);
 
   EXPECT_SUCCESS(clReleaseKernel(kernel_pod));
@@ -597,7 +597,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ConcurrentBuildDefines) {
     for (int i = 0; i < 16; i++) {
       cl_program program =
           clCreateProgramWithSource(ctx, 1, &src, nullptr, nullptr);
-      std::string define = std::string("-DVAL=") + std::to_string(i);
+      const std::string define = std::string("-DVAL=") + std::to_string(i);
       clBuildProgram(program, 0, nullptr, define.c_str(), nullptr, nullptr);
       cl_mem buf = clCreateBuffer(ctx, 0, sizeof(cl_int), nullptr, nullptr);
       cl_kernel kernel = clCreateKernel(program, "k", nullptr);
@@ -667,7 +667,8 @@ TEST_F(clEnqueueNDRangeKernelTest, ConcurrentBuildOptions) {
 
       cl_program program =
           clCreateProgramWithSource(ctx, 1, &src, nullptr, nullptr);
-      cl_int err = clBuildProgram(program, 0, nullptr, opt, nullptr, nullptr);
+      const cl_int err =
+          clBuildProgram(program, 0, nullptr, opt, nullptr, nullptr);
       if ((expect_error && CL_SUCCESS == err) ||
           (!expect_error && CL_SUCCESS != err)) {
         success = false;
@@ -1527,8 +1528,8 @@ struct clEnqueueNDRangeKernelWorkItemTest
     // about the buffer max_mem size.
     max_mem /= 8;
 
-    cl_ulong items = max_mem / sizeof(PerItemKernelInfo);
-    size_t possible_dimension_length = static_cast<size_t>(
+    const cl_ulong items = max_mem / sizeof(PerItemKernelInfo);
+    const size_t possible_dimension_length = static_cast<size_t>(
         std::floor(std::pow(static_cast<double>(items), 1.0 / NUM_DIMENSIONS)));
     dimension_length = std::min(possible_dimension_length,
                                 static_cast<size_t>(DEFAULT_DIMENSION_LENGTH));
@@ -1630,7 +1631,7 @@ struct clEnqueueNDRangeKernelWorkItemTest
 };
 
 TEST_P(clEnqueueNDRangeKernelWorkItemTest, Default) {
-  NDRangeValue val = GetParam();
+  const NDRangeValue val = GetParam();
   cl_event fillEvent, ndRangeEvent;
 
   if (nullptr == val.global_work_size) {
@@ -1874,7 +1875,7 @@ struct clEnqueueNDRangeImageTest
         write_imagef(dst_image, coord, color);
       }
       )";
-    size_t length = strlen(source);
+    const size_t length = strlen(source);
     cl_int error;
     program = clCreateProgramWithSource(context, 1, &source, &length, &error);
     ASSERT_SUCCESS(error);
@@ -1892,7 +1893,7 @@ struct clEnqueueNDRangeImageTest
       ASSERT_SUCCESS(clGetProgramBuildInfo(program, device,
                                            CL_PROGRAM_BUILD_LOG, logLength,
                                            log.data(), &logLength));
-      fprintf(stderr, "%s", log.data());
+      (void)fprintf(stderr, "%s", log.data());
       ASSERT_TRUE(false);
     }
 
@@ -1964,6 +1965,10 @@ struct clEnqueueNDRangeImageTest
         src_desc.image_depth = 8;
         kernel = clCreateKernel(program, "img_copy3d", &error);
         break;
+      default:
+        (void)fprintf(stderr, "unexpected object type %ld\n",
+                      (long)object_type);
+        ASSERT_TRUE(false);
     }
 
     if (!UCL::isImageFormatSupported(context,
@@ -2056,6 +2061,9 @@ TEST_P(clEnqueueNDRangeImageTest, DefaultCopyImage) {
     case CL_MEM_OBJECT_IMAGE3D:
       numPixels = desc.image_width * desc.image_height * desc.image_depth;
       break;
+    default:
+      (void)fprintf(stderr, "unexpected object type %ld\n", (long)object_type);
+      ASSERT_TRUE(false);
   }
 
   UCL::vector<cl_float4> srcPixels(numPixels);
@@ -2089,7 +2097,7 @@ TEST_P(clEnqueueNDRangeImageTest, DefaultCopyImage) {
   for (size_t pixel = 0; pixel < numPixels; pixel++) {
     for (size_t element = 0; element < 4; element++) {
       ASSERT_EQ(srcPixels[pixel].s[element], dstPixels[pixel].s[element])
-          << "At pixel : " << pixel << std::endl
+          << "At pixel : " << pixel << '\n'
           << "Total : " << numPixels;
     }
   }
@@ -2203,9 +2211,9 @@ class LinearIDTest
     EXPECT_TRUE(program);
     ASSERT_SUCCESS(error_code);
     auto device_version = ucl::Environment::instance->deviceOpenCLVersion;
-    std::string cl_std_option = "-cl-std=CL" +
-                                std::to_string(device_version.major()) + '.' +
-                                std::to_string(device_version.minor());
+    const std::string cl_std_option =
+        "-cl-std=CL" + std::to_string(device_version.major()) + '.' +
+        std::to_string(device_version.minor());
     ASSERT_SUCCESS(clBuildProgram(program, 1, &device, cl_std_option.c_str(),
                                   nullptr, nullptr));
   }
@@ -2237,7 +2245,7 @@ class LinearIDTest
       global_size *= global_work_size[i];
     }
     std::vector<size_t> output(global_size, 42);
-    size_t data_size_in_bytes =
+    const size_t data_size_in_bytes =
         sizeof(decltype(output)::value_type) * output.size();
     output_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                                    data_size_in_bytes, nullptr, &error_code);
@@ -2336,9 +2344,9 @@ class GetEnqueuedLocalSizeTest : public ucl::CommandQueueTest {
     EXPECT_TRUE(program);
     ASSERT_SUCCESS(error_code);
     auto device_version = ucl::Environment::instance->deviceOpenCLVersion;
-    std::string cl_std_option = "-cl-std=CL" +
-                                std::to_string(device_version.major()) + '.' +
-                                std::to_string(device_version.minor());
+    const std::string cl_std_option =
+        "-cl-std=CL" + std::to_string(device_version.major()) + '.' +
+        std::to_string(device_version.minor());
     ASSERT_SUCCESS(clBuildProgram(program, 1, &device, cl_std_option.c_str(),
                                   nullptr, nullptr));
   }

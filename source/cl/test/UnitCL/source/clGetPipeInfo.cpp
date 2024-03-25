@@ -48,8 +48,8 @@ TEST_F(clGetPipeInfoTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_pipe_info param_name{};
-  size_t param_value_size{};
+  const cl_pipe_info param_name{};
+  const size_t param_value_size{};
   void *param_value{};
   size_t *param_value_size_ret{};
   EXPECT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,

@@ -194,7 +194,7 @@ struct clSetProgramSpecializationConstantSuccessTest
     std::array<cl_event, 8> resultEvents{};
     ASSERT_SUCCESS(clEnqueueReadBuffer(commandQueue, boolBuffer, CL_FALSE, 0,
                                        sizeof(bool) * 2, boolResults.data(), 1,
-                                       &taskEvent, &resultEvents[0]));
+                                       &taskEvent, resultEvents.data()));
     ASSERT_SUCCESS(clEnqueueReadBuffer(commandQueue, charBuffer, CL_FALSE, 0,
                                        sizeof(cl_char), &charResult, 1,
                                        &taskEvent, &resultEvents[1]));

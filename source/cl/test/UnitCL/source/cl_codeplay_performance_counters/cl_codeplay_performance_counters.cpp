@@ -83,7 +83,7 @@ TEST_F(cl_codeplay_performance_counters_Test, Default) {
   cl_kernel kernel = clCreateKernel(program, "foo", &error);
   EXPECT_SUCCESS(error);
   cl_event event;
-  size_t global_work_size = 1;
+  const size_t global_work_size = 1;
   EXPECT_SUCCESS(clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr,
                                         &global_work_size, nullptr, 0, nullptr,
                                         &event));
@@ -118,6 +118,8 @@ TEST_F(cl_codeplay_performance_counters_Test, Default) {
     case CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT64_CODEPLAY:
       std::cout << counters[0].name << " has value: " << result.float64 << "\n";
       break;
+    default:
+      UCL_ABORT("invalid storage type %d", (int)counters[0].storage);
   }
   // Cleanup
   EXPECT_SUCCESS(clReleaseEvent(event));

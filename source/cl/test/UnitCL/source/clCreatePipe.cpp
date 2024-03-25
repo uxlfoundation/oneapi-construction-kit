@@ -35,9 +35,9 @@ TEST_F(clCreatePipeTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_mem_flags flags{};
-  cl_uint pipe_packet_size{};
-  cl_uint pipe_max_packets{};
+  const cl_mem_flags flags{};
+  const cl_uint pipe_packet_size{};
+  const cl_uint pipe_max_packets{};
   const cl_pipe_properties *properties{};
   cl_int errcode{};
   EXPECT_EQ(clCreatePipe(context, flags, pipe_packet_size, pipe_max_packets,

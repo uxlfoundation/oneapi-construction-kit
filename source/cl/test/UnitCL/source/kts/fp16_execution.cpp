@@ -134,7 +134,7 @@ unsigned HalfParamExecution::FillInputBuffers(
   // Insert edge cases at the beginning of input buffers in an ordering that
   // reflects the Cartesian product of edge cases across all input combinations
   for (input_details_t &input : inputs) {
-    unsigned arg_index = input.arg_index;
+    const unsigned arg_index = input.arg_index;
     for (size_t i = 0; i < cartesian_len; i++) {
       size_t edge_idx = i % edge_case_len;
       if (0 != arg_index) {
@@ -170,9 +170,9 @@ void HalfParamExecution::TestAgainstRef(
   // Use single precision host float for reference
   const input_details_t &half_input = inputs[0];
   const auto ref_lambda = [&half_input, &ref](size_t id) -> cl_float {
-    cl_half half_in = half_input(id);
-    cl_float float_in = ConvertHalfToFloat(half_in);
-    cl_float reference = ref(float_in);
+    const cl_half half_in = half_input(id);
+    const cl_float float_in = ConvertHalfToFloat(half_in);
+    const cl_float reference = ref(float_in);
     return reference;
   };
   auto ref_input_formatter = [&half_input](std::stringstream &ss, size_t id) {
@@ -250,8 +250,8 @@ void HalfParamExecution::TestAgainstIntReturn(
   // Use single precision host float for reference
   const input_details_t &half_input = inputs[0];
   auto ref_lambda = [&half_input, &ref](size_t id) -> cl_int {
-    cl_half half_in = half_input(id);
-    cl_float float_in = ConvertHalfToFloat(half_in);
+    const cl_half half_in = half_input(id);
+    const cl_float float_in = ConvertHalfToFloat(half_in);
     return ref(float_in);
   };
   auto ref_input_formatter = [&half_input](std::stringstream &ss, size_t id) {
@@ -330,18 +330,18 @@ void HalfParamExecution::TestAgainstRef(
 
   // Use single precision host float for reference
   const auto ref_lambda = [&ref_A, &ref_B, &ref](size_t id) -> cl_float {
-    cl_half half_A = ref_A(id);
-    cl_half half_B = ref_B(id);
+    const cl_half half_A = ref_A(id);
+    const cl_half half_B = ref_B(id);
 
-    cl_float float_A = ConvertHalfToFloat(half_A);
-    cl_float float_B = ConvertHalfToFloat(half_B);
-    cl_float reference = ref(float_A, float_B);
+    const cl_float float_A = ConvertHalfToFloat(half_A);
+    const cl_float float_B = ConvertHalfToFloat(half_B);
+    const cl_float reference = ref(float_A, float_B);
     return reference;
   };
   auto ref_input_formatter = [&ref_A, &ref_B](std::stringstream &ss,
                                               size_t id) {
-    cl_half half_A = ref_A(id);
-    cl_half half_B = ref_B(id);
+    const cl_half half_A = ref_A(id);
+    const cl_half half_B = ref_B(id);
 
     ss << "(half " << ConvertHalfToFloat(half_A);
     ss << "[0x" << std::hex << matchingType(half_A) << "]" << std::dec;
@@ -457,8 +457,8 @@ void HalfParamExecution::TestAgainstRef(
       return false;
     }
 
-    cl_float float_A = ConvertHalfToFloat(ref_A(id));
-    cl_float float_B = ConvertHalfToFloat(ref_B(id));
+    const cl_float float_A = ConvertHalfToFloat(ref_A(id));
+    const cl_float float_B = ConvertHalfToFloat(ref_B(id));
     return (*undef_ref)(float_A, float_B);
   };
 
@@ -538,21 +538,21 @@ void HalfParamExecution::TestAgainstRef(
   // Use single precision host float for reference
   const auto ref_lambda = [&ref_A, &ref_B, &ref_C,
                            &ref](size_t id) -> cl_float {
-    cl_half half_A = ref_A(id);
-    cl_half half_B = ref_B(id);
-    cl_half half_C = ref_C(id);
+    const cl_half half_A = ref_A(id);
+    const cl_half half_B = ref_B(id);
+    const cl_half half_C = ref_C(id);
 
-    cl_float float_A = ConvertHalfToFloat(half_A);
-    cl_float float_B = ConvertHalfToFloat(half_B);
-    cl_float float_C = ConvertHalfToFloat(half_C);
-    cl_float reference = ref(float_A, float_B, float_C);
+    const cl_float float_A = ConvertHalfToFloat(half_A);
+    const cl_float float_B = ConvertHalfToFloat(half_B);
+    const cl_float float_C = ConvertHalfToFloat(half_C);
+    const cl_float reference = ref(float_A, float_B, float_C);
     return reference;
   };
   auto ref_input_formatter = [&ref_A, &ref_B, &ref_C](std::stringstream &ss,
                                                       size_t id) {
-    cl_half half_A = ref_A(id);
-    cl_half half_B = ref_B(id);
-    cl_half half_C = ref_C(id);
+    const cl_half half_A = ref_A(id);
+    const cl_half half_B = ref_B(id);
+    const cl_half half_C = ref_C(id);
 
     ss << "(half " << ConvertHalfToFloat(half_A);
     ss << "[0x" << std::hex << matchingType(half_A) << "]" << std::dec;
@@ -869,9 +869,9 @@ void HalfParamExecution::TestAgainstRef(
       return false;
     }
 
-    cl_float float_A = ConvertHalfToFloat(ref_A(id));
-    cl_float float_B = ConvertHalfToFloat(ref_B(id));
-    cl_float float_C = ConvertHalfToFloat(ref_C(id));
+    const cl_float float_A = ConvertHalfToFloat(ref_A(id));
+    const cl_float float_B = ConvertHalfToFloat(ref_B(id));
+    const cl_float float_C = ConvertHalfToFloat(ref_C(id));
     return (*undef_ref)(float_A, float_B, float_C);
   };
 
@@ -983,18 +983,18 @@ void HalfParamExecution::TestAgainstIntArgRef(
   // Use single precision host float for reference
   const input_details_t ref_half = input_halfs[0];
   const auto ref_lambda = [&ref_int, &ref_half, &ref](size_t id) -> cl_float {
-    cl_half half_input = ref_half(id);
-    cl_int int_input = ref_int(id);
+    const cl_half half_input = ref_half(id);
+    const cl_int int_input = ref_int(id);
 
-    cl_float float_input = ConvertHalfToFloat(half_input);
+    const cl_float float_input = ConvertHalfToFloat(half_input);
 
-    cl_float reference = ref(float_input, int_input);
+    const cl_float reference = ref(float_input, int_input);
     return reference;
   };
   auto ref_input_formatter = [&ref_int, &ref_half](std::stringstream &ss,
                                                    size_t id) {
-    cl_half half_input = ref_half(id);
-    cl_int int_input = ref_int(id);
+    const cl_half half_input = ref_half(id);
+    const cl_int int_input = ref_int(id);
 
     ss << "(half " << ConvertHalfToFloat(half_input);
     ss << "[0x" << std::hex << matchingType(half_input) << "]" << std::dec;
@@ -1071,15 +1071,15 @@ void HalfParamExecution::TestAgainstIntReferenceArgRef(
   // Use single precision host float for reference
   const input_details_t &input_half = inputs[0];
   const auto ref_lambda = [&input_half, &ref](size_t id) -> cl_float {
-    cl_half half_input = input_half(id);
+    const cl_half half_input = input_half(id);
 
-    cl_float float_input = ConvertHalfToFloat(half_input);
+    const cl_float float_input = ConvertHalfToFloat(half_input);
     cl_int out_int{0};
-    cl_float reference = ref(float_input, out_int);
+    const cl_float reference = ref(float_input, out_int);
     return reference;
   };
   auto ref_input_formatter = [input_half](std::stringstream &ss, size_t id) {
-    cl_half half_input = input_half(id);
+    const cl_half half_input = input_half(id);
 
     ss << "half " << ConvertHalfToFloat(half_input);
     ss << "[0x" << std::hex << matchingType(half_input) << "]" << std::dec;
@@ -1143,8 +1143,8 @@ void HalfParamExecution::TestAgainstIntReferenceArgRef(
 
   // Reference lambdas for integer output argument
   auto ref_int_out = [&input_half, &ref](size_t id) -> cl_int {
-    cl_half half_input = input_half(id);
-    cl_float float_input = ConvertHalfToFloat(half_input);
+    const cl_half half_input = input_half(id);
+    const cl_float float_input = ConvertHalfToFloat(half_input);
     cl_int out_int{0};
     ref(float_input, out_int);
     return out_int;
@@ -1213,19 +1213,19 @@ void HalfParamExecution::TestAgainstIntReferenceArgRef(
   const input_details_t &input_halfs_B = inputs[1];
   const auto ref_lambda = [&input_halfs_A, &input_halfs_B,
                            &ref](size_t id) -> cl_float {
-    cl_half half_input_a = input_halfs_A(id);
-    cl_half half_input_b = input_halfs_B(id);
+    const cl_half half_input_a = input_halfs_A(id);
+    const cl_half half_input_b = input_halfs_B(id);
 
-    cl_float float_input_a = ConvertHalfToFloat(half_input_a);
-    cl_float float_input_b = ConvertHalfToFloat(half_input_b);
+    const cl_float float_input_a = ConvertHalfToFloat(half_input_a);
+    const cl_float float_input_b = ConvertHalfToFloat(half_input_b);
     cl_int out_int{0};
-    cl_float reference = ref(float_input_a, float_input_b, out_int);
+    const cl_float reference = ref(float_input_a, float_input_b, out_int);
     return reference;
   };
   auto ref_input_formatter = [&input_halfs_A, &input_halfs_B](
                                  std::stringstream &ss, size_t id) {
-    cl_half half_input_a = input_halfs_A(id);
-    cl_half half_input_b = input_halfs_B(id);
+    const cl_half half_input_a = input_halfs_A(id);
+    const cl_half half_input_b = input_halfs_B(id);
 
     ss << "(half " << ConvertHalfToFloat(half_input_a);
     ss << "[0x" << std::hex << matchingType(half_input_a) << "]" << std::dec;
@@ -1378,11 +1378,11 @@ void HalfParamExecution::TestAgainstIntReferenceArgRef(
   // Reference lambdas for integer output argument
   auto ref_int_out = [&input_halfs_A, &input_halfs_B,
                       &ref](size_t id) -> cl_int {
-    cl_half half_input_a = input_halfs_A(id);
-    cl_half half_input_b = input_halfs_B(id);
+    const cl_half half_input_a = input_halfs_A(id);
+    const cl_half half_input_b = input_halfs_B(id);
 
-    cl_float float_input_a = ConvertHalfToFloat(half_input_a);
-    cl_float float_input_b = ConvertHalfToFloat(half_input_b);
+    const cl_float float_input_a = ConvertHalfToFloat(half_input_a);
+    const cl_float float_input_b = ConvertHalfToFloat(half_input_b);
 
     cl_int out_int{0};
     ref(float_input_a, float_input_b, out_int);
@@ -1475,15 +1475,15 @@ void HalfParamExecution::TestAgainstFloatReferenceArgRef(
   // Use single precision host float for reference
   const input_details_t &input_halfs = inputs[0];
   const auto ref_lambda = [&input_halfs, &ref](size_t id) -> cl_float {
-    cl_half half_input = input_halfs(id);
+    const cl_half half_input = input_halfs(id);
 
-    cl_float float_input = ConvertHalfToFloat(half_input);
+    const cl_float float_input = ConvertHalfToFloat(half_input);
     cl_float out_float{0};
-    cl_float reference = ref(float_input, out_float);
+    const cl_float reference = ref(float_input, out_float);
     return reference;
   };
   auto ref_input_formatter = [&input_halfs](std::stringstream &ss, size_t id) {
-    cl_half half_input = input_halfs(id);
+    const cl_half half_input = input_halfs(id);
 
     ss << ConvertHalfToFloat(half_input);
     ss << "[0x" << std::hex << matchingType(half_input) << "]" << std::dec;
@@ -1543,8 +1543,8 @@ void HalfParamExecution::TestAgainstFloatReferenceArgRef(
 
   // Reference lambdas for float output argument
   const auto ref_float_out = [&input_halfs, &ref](size_t id) -> cl_float {
-    cl_half half_input = input_halfs(id);
-    cl_float float_input = ConvertHalfToFloat(half_input);
+    const cl_half half_input = input_halfs(id);
+    const cl_float float_input = ConvertHalfToFloat(half_input);
 
     cl_float out_float{0};
     ref(float_input, out_float);

@@ -63,7 +63,7 @@ struct PrintfStringReference final : PrintfReference {
     ASSERT_GE(buf.size(), ref.size());
 
     // Check kernel output starts with reference string
-    std::string cmp = buf.substr(0, ref.size());
+    const std::string cmp = buf.substr(0, ref.size());
     ASSERT_EQ(ref, cmp) << "Output buffer was: " << buf;
 
     // Remove reference string prefix from kernel output
@@ -82,7 +82,7 @@ struct PrintfRegexReference final : PrintfReference {
 
   void Verify(size_t index, std::string &buf) override {
     // Regex to use as reference for thread-id index
-    std::regex ref = regex_ref(index);
+    const std::regex ref = regex_ref(index);
 
     // Check regex is found in kernel output
     std::smatch match;

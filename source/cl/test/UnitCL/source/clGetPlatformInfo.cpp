@@ -85,7 +85,7 @@ TEST_F(clGetPlatformInfoTest, VerifyPlatformVersion) {
                                    &version_string_size));
   std::string version_string(version_string_size, '\0');
   ASSERT_SUCCESS(clGetPlatformInfo(platform, CL_PLATFORM_VERSION,
-                                   version_string.size(), &version_string[0],
+                                   version_string.size(), version_string.data(),
                                    nullptr));
   ASSERT_TRUE(UCL::verifyOpenCLVersionString(version_string))
       << "Malformed platform OpenCL version, must be of form "
@@ -168,7 +168,7 @@ TEST_F(clGetPlatformInfoTestOpenCL30, VerifyNumericVersion) {
   std::string platform_version_string(platform_version_string_size, '\0');
   ASSERT_SUCCESS(clGetPlatformInfo(platform, CL_PLATFORM_VERSION,
                                    platform_version_string.size(),
-                                   &platform_version_string[0], nullptr));
+                                   platform_version_string.data(), nullptr));
 
   // Query for the value.
   cl_version numeric_version{};
@@ -255,7 +255,7 @@ TEST_F(clGetPlatformInfoTest, ValidateExtensionsWithVersion) {
 
   // Much easier to work with a string view into the space separated string from
   // now on
-  cargo::string_view platform_extentions(platform_extentions_buffer);
+  const cargo::string_view platform_extentions(platform_extentions_buffer);
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_extensions = cargo::split(platform_extentions, " ");

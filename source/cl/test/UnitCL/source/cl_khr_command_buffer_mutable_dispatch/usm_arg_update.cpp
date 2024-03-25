@@ -152,13 +152,13 @@ TEST_F(MutableDispatchUSMTest, InvalidArgList) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clUpdateMutableCommandsKHR(
                                           command_buffer, &mutable_config));
 
-  cl_mutable_dispatch_arg_khr arg{0, 0, device_ptrs[1]};
+  const cl_mutable_dispatch_arg_khr arg{0, 0, device_ptrs[1]};
   dispatch_config = {CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
                      nullptr,
                      command_handle,
@@ -191,8 +191,8 @@ TEST_F(MutableDispatchUSMTest, InvalidArgIndex) {
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  cl_mutable_dispatch_arg_khr arg{2 /* arg index */, 0, device_ptrs[1]};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{2 /* arg index */, 0, device_ptrs[1]};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -206,7 +206,7 @@ TEST_F(MutableDispatchUSMTest, InvalidArgIndex) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   ASSERT_EQ_ERRCODE(CL_INVALID_ARG_INDEX, clUpdateMutableCommandsKHR(
@@ -225,8 +225,8 @@ TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  cl_mutable_dispatch_arg_khr arg{0, 0, &out_buffer};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{0, 0, &out_buffer};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -240,7 +240,7 @@ TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
 
   // The interaction between cl_intel_unified_shared_memory and
@@ -319,8 +319,8 @@ TEST_P(MutableDispatchUpdateUSMArgs, NoOffset) {
   ASSERT_EQ(inputA, output);
 
   // Update both the input and argument to second device USM allocation
-  cl_mutable_dispatch_arg_khr arg{0, 0, ptrB};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{0, 0, ptrB};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -334,7 +334,7 @@ TEST_P(MutableDispatchUpdateUSMArgs, NoOffset) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 
@@ -409,8 +409,8 @@ TEST_P(MutableDispatchUpdateUSMArgs, Offset) {
   ASSERT_EQ(inputA, output);
 
   // Update both the input and argument to second device USM allocation
-  cl_mutable_dispatch_arg_khr arg{0, 0, offset_ptrB};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{0, 0, offset_ptrB};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -424,7 +424,7 @@ TEST_P(MutableDispatchUpdateUSMArgs, Offset) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 
@@ -459,7 +459,7 @@ TEST_F(MutableDispatchUSMTest, DISABLED_BlockingFree) {
   ucl::Environment::instance->GetInputGenerator().GenerateIntData(input);
 
   void *usm_ptr = device_ptrs[0];
-  cl_int error =
+  const cl_int error =
       clEnqueueMemcpyINTEL(command_queue, CL_TRUE, usm_ptr, input.data(),
                            data_size_in_bytes, 0, nullptr, nullptr);
   ASSERT_SUCCESS(error);
@@ -534,8 +534,8 @@ TEST_F(MutableDispatchUSMTest, DISABLED_UpdateBlockingFree) {
   ASSERT_EQ(inputA, output);
 
   // Update both the input and argument to second device USM allocation
-  cl_mutable_dispatch_arg_khr arg{0, 0, usm_ptrB};
-  cl_mutable_dispatch_config_khr dispatch_config{
+  const cl_mutable_dispatch_arg_khr arg{0, 0, usm_ptrB};
+  const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,
       command_handle,
@@ -549,7 +549,7 @@ TEST_F(MutableDispatchUSMTest, DISABLED_UpdateBlockingFree) {
       nullptr,
       nullptr,
       nullptr};
-  cl_mutable_base_config_khr mutable_config{
+  const cl_mutable_base_config_khr mutable_config{
       CL_STRUCTURE_TYPE_MUTABLE_BASE_CONFIG_KHR, nullptr, 1, &dispatch_config};
   ASSERT_SUCCESS(clUpdateMutableCommandsKHR(command_buffer, &mutable_config));
 

@@ -333,7 +333,7 @@ bool IsDenormal(T x) {
   const IntTy exp_mask = TypeInfo<T>::exponent_mask;
   const IntTy mantissa_mask = TypeInfo<T>::mantissa_mask;
 
-  IntTy asInt = cargo::bit_cast<IntTy>(x);
+  const IntTy asInt = cargo::bit_cast<IntTy>(x);
   return (0 == (asInt & exp_mask)) && (asInt & mantissa_mask);
 }
 
@@ -355,7 +355,7 @@ struct ULPValidator final {
 
   using LargerType = typename TypeInfo<T>::LargerType;
   bool validate(const LargerType &expected, const T &actual) {
-    bool denormSupport =
+    const bool denormSupport =
         test_denormals &&
         UCL::hasDenormSupport(device, std::is_same_v<T, cl_float>
                                           ? CL_DEVICE_SINGLE_FP_CONFIG
@@ -465,7 +465,7 @@ struct ULPValidator<cl_half, ULP, test_denormals> final {
 template <typename T, cl_ulong ULP, bool test_denormals = true, typename F>
 auto makeULPStreamer(F &&f, cl_device_id device) {
   // Reference should be a more precise floating point type
-  using RefType = typename std::result_of<F(size_t)>::type;
+  using RefType = std::result_of_t<F(size_t)>;
   static_assert(
       sizeof(RefType) >= sizeof(T),
       "Reference type should be at least as precise as the actual type");
@@ -484,7 +484,7 @@ auto makeULPStreamer(
         &&fallbacks,
     cl_device_id device) {
   // Reference should be a more precise floating point type
-  using RefType = typename std::result_of<F(size_t)>::type;
+  using RefType = std::result_of_t<F(size_t)>;
   static_assert(
       sizeof(RefType) >= sizeof(T),
       "Reference type should be at least as precise as the actual type");

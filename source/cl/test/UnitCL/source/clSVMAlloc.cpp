@@ -36,8 +36,8 @@ TEST_F(clSVMAllocTest, NotImplemented) {
     // but we aren't actually testing the functionality, just skip.
     GTEST_SKIP();
   }
-  cl_svm_mem_flags flags{};
-  size_t size{};
-  cl_uint alignment{};
+  const cl_svm_mem_flags flags{};
+  const size_t size{};
+  const cl_uint alignment{};
   EXPECT_EQ(nullptr, clSVMAlloc(context, flags, size, alignment));
 }

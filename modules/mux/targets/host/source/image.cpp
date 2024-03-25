@@ -74,8 +74,8 @@ inline cl_image_desc getImageDesc(mux_image_type_e type, uint32_t width,
     default:
       abort();
   }
-  size_t rowPitch = static_cast<size_t>(row_size);
-  size_t slicePitch = static_cast<size_t>(slice_size);
+  const size_t rowPitch = static_cast<size_t>(row_size);
+  const size_t slicePitch = static_cast<size_t>(slice_size);
   return {imageType, width,      height, depth, array_layers,
           rowPitch,  slicePitch, 0,      0,     {/*nullptr*/}};
 }
@@ -93,11 +93,11 @@ mux_result_t hostCreateImage(mux_device_t device, mux_image_type_e type,
   (void)device;
   mux::allocator allocator(allocator_info);
 
-  cl_image_format imageFormat = getImageFormat(format);
-  cl_image_desc imageDesc = getImageDesc(type, width, height, depth,
-                                         array_layers, row_size, slice_size);
+  const cl_image_format imageFormat = getImageFormat(format);
+  const cl_image_desc imageDesc = getImageDesc(
+      type, width, height, depth, array_layers, row_size, slice_size);
 
-  uint64_t storageSize =
+  const uint64_t storageSize =
       libimg::HostGetImageStorageSize(imageFormat, imageDesc);
 
   // NOTE: Set the required alignment per image format, this may be too
@@ -240,10 +240,10 @@ mux_result_t hostCreateImage(mux_device_t device, mux_image_type_e type,
   }
 
   // TODO: Also report host::memory_s::HEAP_ANY
-  mux_memory_requirements_s memoryRequirements = {storageSize, alignment,
-                                                  host::memory_s::HEAP_IMAGE};
+  const mux_memory_requirements_s memoryRequirements = {
+      storageSize, alignment, host::memory_s::HEAP_IMAGE};
 
-  uint64_t pixelSize = libimg::HostGetPixelSize(imageFormat);
+  const uint64_t pixelSize = libimg::HostGetPixelSize(imageFormat);
 
   auto image = allocator.create<host::image_s>(
       memoryRequirements, type, format, pixelSize, width, height, depth,

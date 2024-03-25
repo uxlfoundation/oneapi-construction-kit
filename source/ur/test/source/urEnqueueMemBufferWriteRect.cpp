@@ -26,10 +26,11 @@ static std::vector<uur::test_parameters_t> generateParameterizations() {
 #define PARAMETERIZATION(name, src_buffer_size, dst_buffer_size, src_origin, \
                          dst_origin, region, src_row_pitch, src_slice_pitch, \
                          dst_row_pitch, dst_slice_pitch)                     \
-  uur::test_parameters_t                                                     \
-      name{#name,         src_buffer_size, dst_buffer_size, src_origin,      \
-           dst_origin,    region,          src_row_pitch,   src_slice_pitch, \
-           dst_row_pitch, dst_slice_pitch};                                  \
+  const uur::test_parameters_t name{#name,           src_buffer_size,        \
+                                    dst_buffer_size, src_origin,             \
+                                    dst_origin,      region,                 \
+                                    src_row_pitch,   src_slice_pitch,        \
+                                    dst_row_pitch,   dst_slice_pitch};       \
   parameterizations.push_back(name);                                         \
   (void)0
   // Tests that a 16x16x1 region can be written from a 16x16x1 host buffer at
@@ -144,9 +145,9 @@ UUR_INSTANTIATE_DEVICE_TEST_SUITE_P(urEnqueueMemBufferWriteRectTest);
 
 TEST_P(urEnqueueMemBufferWriteRectTest, InvalidNullHandleQueue) {
   std::vector<uint32_t> src(count);
-  ur_rect_region_t region{size, 1, 1};
-  ur_rect_offset_t buffer_offset{0, 0, 0};
-  ur_rect_offset_t host_offset{0, 0, 0};
+  const ur_rect_region_t region{size, 1, 1};
+  const ur_rect_offset_t buffer_offset{0, 0, 0};
+  const ur_rect_offset_t host_offset{0, 0, 0};
   ASSERT_EQ_RESULT(
       UR_RESULT_ERROR_INVALID_NULL_HANDLE,
       urEnqueueMemBufferWriteRect(nullptr, buffer, true, buffer_offset,
@@ -156,9 +157,9 @@ TEST_P(urEnqueueMemBufferWriteRectTest, InvalidNullHandleQueue) {
 
 TEST_P(urEnqueueMemBufferWriteRectTest, InvalidNullHandleBuffer) {
   std::vector<uint32_t> src(count);
-  ur_rect_region_t region{size, 1, 1};
-  ur_rect_offset_t buffer_offset{0, 0, 0};
-  ur_rect_offset_t host_offset{0, 0, 0};
+  const ur_rect_region_t region{size, 1, 1};
+  const ur_rect_offset_t buffer_offset{0, 0, 0};
+  const ur_rect_offset_t host_offset{0, 0, 0};
   ASSERT_EQ_RESULT(
       UR_RESULT_ERROR_INVALID_NULL_HANDLE,
       urEnqueueMemBufferWriteRect(queue, nullptr, true, buffer_offset,
@@ -167,10 +168,10 @@ TEST_P(urEnqueueMemBufferWriteRectTest, InvalidNullHandleBuffer) {
 }
 
 TEST_P(urEnqueueMemBufferWriteRectTest, InvalidNullPointersrc) {
-  std::vector<uint32_t> src(count);
-  ur_rect_region_t region{size, 1, 1};
-  ur_rect_offset_t buffer_offset{0, 0, 0};
-  ur_rect_offset_t host_offset{0, 0, 0};
+  const std::vector<uint32_t> src(count);
+  const ur_rect_region_t region{size, 1, 1};
+  const ur_rect_offset_t buffer_offset{0, 0, 0};
+  const ur_rect_offset_t host_offset{0, 0, 0};
   ASSERT_EQ_RESULT(UR_RESULT_ERROR_INVALID_NULL_POINTER,
                    urEnqueueMemBufferWriteRect(
                        queue, buffer, true, buffer_offset, host_offset, region,

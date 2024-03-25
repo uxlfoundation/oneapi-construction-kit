@@ -57,7 +57,7 @@ TEST_P(Execution, Task_02_06_Clamp_Builtin) {
   const cl_float low = 0.0f;
   const cl_float high = 0.0f;
   kts::Reference1D<cl_float> refOut = [low, high](size_t x) {
-    float v = kts::Ref_Float(x);
+    const float v = kts::Ref_Float(x);
     return std::min(std::max(v, low), high);
   };
   AddInputBuffer(kts::N, kts::Ref_Float);
@@ -74,7 +74,7 @@ TEST_P(Execution, Task_02_07_Length_Builtin) {
 }
 
 TEST_P(Execution, Task_02_08_Barrier_Add) {
-  const unsigned groupSize = ARRAY_SIZE / 2;
+  const size_t groupSize = ARRAY_SIZE / 2;
   kts::Reference1D<cl_int> refOut = [](size_t) { return 1; };
   AddMacro("ARRAY_SIZE", ARRAY_SIZE);
   AddInputBuffer(2 * groupSize, kts::Ref_A);

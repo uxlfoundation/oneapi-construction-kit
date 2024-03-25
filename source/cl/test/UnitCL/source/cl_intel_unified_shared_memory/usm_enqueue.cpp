@@ -60,8 +60,9 @@ TEST_F(USMCommandQueueTest, MemFill_InvalidUsage) {
       // currently don't support devices with cross-device access capability).
       // The spec doesn't say what to return when the queue is for an incorrect
       // device, so we return CL_INVALID_COMMAND_QUEUE.
-      cl_int err = clEnqueueMemFillINTEL(queue, ptr, pattern, sizeof(pattern),
-                                         sizeof(pattern), 0, nullptr, nullptr);
+      const cl_int err =
+          clEnqueueMemFillINTEL(queue, ptr, pattern, sizeof(pattern),
+                                sizeof(pattern), 0, nullptr, nullptr);
       EXPECT_EQ_ERRCODE(err, CL_INVALID_COMMAND_QUEUE);
       continue;
     }
@@ -97,7 +98,7 @@ TEST_F(USMCommandQueueTest, MemFill_InvalidUsage) {
     // Pattern sizes must be powers of two, we omit 1 here since offsets
     // from it will always have valid alignment/sizes.
     const std::array<size_t, 7> valid_pattern_sizes{2, 4, 8, 16, 32, 64, 128};
-    for (size_t pattern_size : valid_pattern_sizes) {
+    for (const size_t pattern_size : valid_pattern_sizes) {
       // dst_ptr not aligned to pattern_size
       void *offset_ptr = getPointerOffset(ptr, 1);
       err = clEnqueueMemFillINTEL(queue, offset_ptr, pattern, pattern_size,
@@ -161,7 +162,7 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
       {{0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD,
         0xE, 0xF}}};
 
-  cl_int err;
+  cl_int err = 0;
 
   // Pattern sizes must be powers of two
   const std::array<size_t, 8> valid_pattern_sizes{1, 2, 4, 8, 16, 32, 64, 128};
@@ -172,7 +173,7 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
       continue;
     }
 
-    for (size_t pattern_size : valid_pattern_sizes) {
+    for (const size_t pattern_size : valid_pattern_sizes) {
       // Check if allocation already aligned, or we need a new aligned
       // allocation
       if (reinterpret_cast<uintptr_t>(ptr) % pattern_size == 0) {
@@ -317,7 +318,7 @@ TEST_F(USMCommandQueueTest, Memcpy_ValidUsage) {
   EXPECT_SUCCESS(err);
 
   cl_uchar user_data[64] = {0};
-  std::array<std::pair<void *, void *>, 3> pairs = {{
+  const std::array<std::pair<void *, void *>, 3> pairs = {{
       {(void *)&user_data, device_ptr},
       {host_ptr, device_ptr},
       {host_ptr, shared_ptr},
@@ -381,7 +382,7 @@ TEST_F(USMCommandQueueTest, MigrateMem_InvalidUsage) {
     EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
 
     // Invalid Flags
-    cl_mem_migration_flags bad_flags = ~cl_mem_migration_flags(0);
+    const cl_mem_migration_flags bad_flags = ~cl_mem_migration_flags(0);
     err = clEnqueueMigrateMemINTEL(queue, ptr, bytes, bad_flags, 0, nullptr,
                                    nullptr);
     EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
@@ -404,13 +405,14 @@ TEST_F(USMCommandQueueTest, MigrateMem_InvalidUsage) {
 TEST_F(USMCommandQueueTest, MigrateMem_ValidUsage) {
   for (auto ptr : allPointers()) {
     std::array<cl_event, 1> events{};
-    cl_int err = clEnqueueMigrateMemINTEL(
-        queue, ptr, bytes, CL_MIGRATE_MEM_OBJECT_HOST, 0, nullptr, &events[0]);
+    cl_int err =
+        clEnqueueMigrateMemINTEL(queue, ptr, bytes, CL_MIGRATE_MEM_OBJECT_HOST,
+                                 0, nullptr, events.data());
     EXPECT_SUCCESS(err);
 
     err = clEnqueueMigrateMemINTEL(queue, ptr, bytes,
                                    CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED, 1,
-                                   &events[0], nullptr);
+                                   events.data(), nullptr);
     EXPECT_SUCCESS(err);
 
     err = clEnqueueMigrateMemINTEL(
@@ -427,7 +429,7 @@ TEST_F(USMCommandQueueTest, MigrateMem_ValidUsage) {
 TEST_F(USMCommandQueueTest, MemAdvise_InvalidUsage) {
   for (auto ptr : allPointers()) {
     // NULL command queue
-    cl_mem_advice_intel advice = 0;
+    const cl_mem_advice_intel advice = 0;
     cl_int err = clEnqueueMemAdviseINTEL(nullptr, ptr, bytes, advice, 0,
                                          nullptr, nullptr);
     EXPECT_EQ_ERRCODE(err, CL_INVALID_COMMAND_QUEUE);
@@ -455,7 +457,8 @@ TEST_F(USMCommandQueueTest, MemAdvise_InvalidUsage) {
     EXPECT_EQ_ERRCODE(err, CL_INVALID_EVENT_WAIT_LIST);
 
     // Advice flag not supported by device
-    cl_mem_advice_intel bad_advice = 0x4208;  // values reserved but not defined
+    const cl_mem_advice_intel bad_advice =
+        0x4208;  // values reserved but not defined
     if (host_ptr) {
       err = clEnqueueMemAdviseINTEL(queue, host_ptr, bytes, bad_advice, 0,
                                     nullptr, nullptr);

@@ -119,7 +119,7 @@ class FeatureMacroTest : public ucl::CommandQueueTest,
       ASSERT_SUCCESS(clGetDeviceInfo(
           device, CL_DEVICE_EXTENSIONS,
           sizeof(decltype(extensions)::value_type) * extensions.size(),
-          &extensions[0], nullptr));
+          extensions.data(), nullptr));
       is_defined =
           extensions.find("cl_khr_3d_image_writes") != std::string::npos;
       return;
@@ -157,8 +157,8 @@ class FeatureMacroTest : public ucl::CommandQueueTest,
       std::string profile(profile_size_in_bytes, '\0');
       ASSERT_SUCCESS(clGetDeviceInfo(
           device, CL_DEVICE_PROFILE,
-          sizeof(decltype(profile)::value_type) * profile.size(), &profile[0],
-          nullptr));
+          sizeof(decltype(profile)::value_type) * profile.size(),
+          profile.data(), nullptr));
       if (0 == std::strcmp(profile.c_str(), "FULL_PROFILE")) {
         is_defined = true;
         return;
@@ -170,7 +170,7 @@ class FeatureMacroTest : public ucl::CommandQueueTest,
         ASSERT_SUCCESS(clGetDeviceInfo(
             device, CL_DEVICE_EXTENSIONS,
             sizeof(decltype(extensions)::value_type) * extensions.size(),
-            &extensions[0], nullptr));
+            extensions.data(), nullptr));
         if (extensions.find("cles_khr_int64")) {
           is_defined = true;
           return;
@@ -179,10 +179,10 @@ class FeatureMacroTest : public ucl::CommandQueueTest,
           return;
         }
       } else {
-        FAIL() << "unhandled device profile " << profile << std::endl;
+        FAIL() << "unhandled device profile " << profile << '\n';
       }
     } else {
-      FAIL() << "unhandled feature macro " << macro << std::endl;
+      FAIL() << "unhandled feature macro " << macro << '\n';
     }
   }
 
@@ -224,13 +224,13 @@ class FeatureMacroTest : public ucl::CommandQueueTest,
                                         macro_name +
                                         " should not be defined.\n#endif";
     const char *fail_on_defined_kernel_source = fail_on_defined.c_str();
-    size_t fail_on_defined_kernel_length = fail_on_defined.length();
+    const size_t fail_on_defined_kernel_length = fail_on_defined.length();
 
     const std::string fail_on_undefined = "#ifndef " + macro_name +
                                           "\n#error " + macro_name +
                                           " should be defined.\n#endif";
     const char *fail_on_undefined_kernel_source = fail_on_undefined.c_str();
-    size_t fail_on_undefined_kernel_length = fail_on_undefined.length();
+    const size_t fail_on_undefined_kernel_length = fail_on_undefined.length();
 
     // Build kernels.
     cl_int error{};
@@ -244,11 +244,11 @@ class FeatureMacroTest : public ucl::CommandQueueTest,
     ASSERT_SUCCESS(error);
 
     // Try to compile them.
-    bool should_fail_if_defined =
+    const bool should_fail_if_defined =
         (CL_BUILD_PROGRAM_FAILURE == clBuildProgram(fail_on_defined_program, 1,
                                                     &device, "-cl-std=CL3.0",
                                                     nullptr, nullptr));
-    bool should_fail_if_undefined =
+    const bool should_fail_if_undefined =
         (CL_SUCCESS == clBuildProgram(fail_on_undefined_program, 1, &device,
                                       "-cl-std=CL3.0", nullptr, nullptr));
 

@@ -327,12 +327,12 @@ struct USMMultiIndirectAccessTest : public USMKernelTest {
 
   void TearDown() override {
     if (device_ptrA) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptrA);
+      const cl_int err = clMemBlockingFreeINTEL(context, device_ptrA);
       EXPECT_SUCCESS(err);
     }
 
     if (device_ptrB) {
-      cl_int err = clMemBlockingFreeINTEL(context, device_ptrB);
+      const cl_int err = clMemBlockingFreeINTEL(context, device_ptrB);
       EXPECT_SUCCESS(err);
     }
     USMKernelTest::TearDown();
@@ -397,8 +397,9 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePointer) {
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
-  cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+  const cl_int err =
+      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
+                          sizeof(void *), indirect_usm_pointers);
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -429,8 +430,9 @@ TEST_F(USMIndirectAccessTest, IndirectHostPointer) {
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {host_ptr};
-  cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+  const cl_int err =
+      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
+                          sizeof(void *), indirect_usm_pointers);
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -461,8 +463,9 @@ TEST_F(USMIndirectAccessTest, IndirectSharedPointer) {
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {shared_ptr};
-  cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+  const cl_int err =
+      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
+                          sizeof(void *), indirect_usm_pointers);
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -503,8 +506,9 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrInsideHostPtr) {
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
-  cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+  const cl_int err =
+      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
+                          sizeof(void *), indirect_usm_pointers);
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -592,8 +596,9 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrAndHostPtr) {
   // Pass both USM pointers to runtime as used indirectly, but only use one in
   // each execution
   void *indirect_usm_pointers[2] = {device_ptr, host_ptr};
-  cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+  const cl_int err =
+      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
+                          sizeof(void *), indirect_usm_pointers);
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -640,8 +645,9 @@ TEST_F(USMIndirectAccessTest, OffsetDevicePointer) {
 
   // Pass base device USM pointer to runtime as used indirectly
   void *indirect_usm_pointers[1] = {device_ptr};
-  cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+  const cl_int err =
+      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
+                          sizeof(void *), indirect_usm_pointers);
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of half the number of buffer elements
@@ -664,7 +670,7 @@ TEST_F(USMIndirectAccessTest, DeviceAccessFlag) {
   // Set flag allowing the kernel to access any device USM allocation
   // indirectly.
   cl_bool indirect_device_pointers = CL_TRUE;
-  cl_int err = clSetKernelExecInfo(
+  const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_INDIRECT_DEVICE_ACCESS_INTEL, sizeof(cl_bool),
       &indirect_device_pointers);
   EXPECT_SUCCESS(err);
@@ -699,7 +705,7 @@ TEST_F(USMIndirectAccessTest, HostAccessFlag) {
 
   // Set flag allowing the kernel to access any host USM allocation indirectly.
   cl_bool indirect_host_pointers = CL_TRUE;
-  cl_int err = clSetKernelExecInfo(
+  const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_INDIRECT_HOST_ACCESS_INTEL, sizeof(cl_bool),
       &indirect_host_pointers);
   EXPECT_SUCCESS(err);
@@ -951,7 +957,7 @@ TEST_F(USMMultiIndirectAccessTest, Default) {
 
   // Pass indirect USM pointers to runtime
   std::array<void *, 2> indirect_usm_pointers = {device_ptrA, device_ptrB};
-  cl_int err =
+  const cl_int err =
       clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                           sizeof(void *) * indirect_usm_pointers.size(),
                           indirect_usm_pointers.data());
@@ -983,7 +989,7 @@ TEST_F(USMMultiIndirectAccessTest, BlockingFree) {
 
   // Pass indirect USM pointers to runtime
   std::array<void *, 2> indirect_usm_pointers = {device_ptrA, device_ptrB};
-  cl_int err =
+  const cl_int err =
       clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                           sizeof(void *) * indirect_usm_pointers.size(),
                           indirect_usm_pointers.data());

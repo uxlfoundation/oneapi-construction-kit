@@ -371,7 +371,7 @@ struct Validator<UserStruct<DevicePtrT>> {
 }  // namespace kts
 
 TEST_P(Execution, Regression_33_Struct_Param_Alignment) {
-  cl_uint address_bits = UCL::getDeviceAddressBits(this->device);
+  const cl_uint address_bits = UCL::getDeviceAddressBits(this->device);
   ASSERT_TRUE((address_bits == 32) || (address_bits == 64));
 
   kts::Reference1D<UserStruct<cl_uint>> structIn32 = [](size_t) {
@@ -540,7 +540,7 @@ TEST_P(Execution, Regression_36_Struct_Sizeof) {
 TEST_P(Execution, Regression_37_CFC) {
   const cl_int limit = static_cast<cl_int>(kts::N / 2);
   kts::Reference1D<cl_int> refOut = [limit](size_t x) {
-    cl_int ix = kts::Ref_Identity(x);
+    const cl_int ix = kts::Ref_Identity(x);
     return ix < limit ? ix : kts::Ref_A(ix % 32);
   };
   AddMacro("CHUNK_SIZE", 32);
@@ -814,9 +814,10 @@ TEST_P(Execution, Regression_45_Mad_Sat_Short3_Codegen) {
     return static_cast<cl_short>((x % 65535) - 32768);
   };
   kts::Reference1D<cl_short> refOut = [&refIn](size_t x) {
-    cl_long y = static_cast<cl_long>(refIn(x));
-    cl_long mad = y * y + y;  // mad_sat == a*b+c
-    cl_long mad_sat = std::min<cl_long>(32767, std::max<cl_long>(-32768, mad));
+    const cl_long y = static_cast<cl_long>(refIn(x));
+    const cl_long mad = y * y + y;  // mad_sat == a*b+c
+    const cl_long mad_sat =
+        std::min<cl_long>(32767, std::max<cl_long>(-32768, mad));
     return static_cast<cl_short>(mad_sat);
   };
   AddInputBuffer(kts::N * 3, refIn);
@@ -831,9 +832,9 @@ TEST_P(Execution, Regression_45_Mad_Sat_Ushort3_Codegen) {
     return static_cast<cl_ushort>(x % 65535);
   };
   kts::Reference1D<cl_ushort> refOut = [&refIn](size_t x) {
-    cl_ulong y = static_cast<cl_ulong>(refIn(x));
-    cl_ulong mad = y * y + y;  // mad_sat == a*b+c
-    cl_ulong mad_sat = std::min<cl_ulong>(65535, mad);
+    const cl_ulong y = static_cast<cl_ulong>(refIn(x));
+    const cl_ulong mad = y * y + y;  // mad_sat == a*b+c
+    const cl_ulong mad_sat = std::min<cl_ulong>(65535, mad);
     return static_cast<cl_ushort>(mad_sat);
   };
   AddInputBuffer(kts::N * 3, refIn);
@@ -901,7 +902,7 @@ kts::Reference1D<cl_char4> refIn = [](size_t x) {
 };
 
 kts::Reference1D<cl_uint> refOut = [](size_t x) {
-  size_t index = x >> 1;
+  const size_t index = x >> 1;
 
   float normf = (static_cast<float>(index) + 0.05f) /
                 (static_cast<float>(global_size) / 2);
@@ -919,7 +920,7 @@ kts::Reference1D<cl_uint> refOut = [](size_t x) {
   // add 0.5 to get center of pixel
   coordf += 0.5;
 
-  cl_uint result = static_cast<cl_uint>(std::round(coordf) - 1);
+  const cl_uint result = static_cast<cl_uint>(std::round(coordf) - 1);
   return result;
 };
 }  // namespace Regression_48

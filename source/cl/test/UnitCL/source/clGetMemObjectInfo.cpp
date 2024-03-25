@@ -47,7 +47,7 @@ TEST_F(clGetMemObjectInfoTest, MemType) {
   ASSERT_EQ(sizeof(cl_mem_object_type), size);
   cl_mem_object_type type;
   ASSERT_SUCCESS(clGetMemObjectInfo(buffer, CL_MEM_TYPE, size, &type, nullptr));
-  cl_mem_object_type expect = CL_MEM_OBJECT_BUFFER;
+  const cl_mem_object_type expect = CL_MEM_OBJECT_BUFFER;
   ASSERT_EQ(expect, type);
   // Redmine #5125: Check: Test cl_image_desc.image_type when supported!
 
@@ -66,7 +66,7 @@ TEST_F(clGetMemObjectInfoTest, MemFlags) {
   cl_mem_flags flags;
   ASSERT_SUCCESS(
       clGetMemObjectInfo(buffer, CL_MEM_FLAGS, size, &flags, nullptr));
-  cl_mem_flags expect = CL_MEM_READ_WRITE;
+  const cl_mem_flags expect = CL_MEM_READ_WRITE;
   ASSERT_EQ(expect, flags);
 
   ASSERT_SUCCESS(clReleaseMemObject(buffer));

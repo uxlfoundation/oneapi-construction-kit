@@ -32,16 +32,17 @@
 using namespace kts::ucl;
 
 const std::array<SourceType, 4> &kts::ucl::getSourceTypes() {
-  static std::array<SourceType, 4> source_types = {
+  static const std::array<SourceType, 4> source_types = {
       {OPENCL_C, SPIRV, OFFLINE, OFFLINESPIRV}};
   return source_types;
 }
 const std::array<SourceType, 2> &kts::ucl::getOnlineSourceTypes() {
-  static std::array<SourceType, 2> source_types = {{OPENCL_C, SPIRV}};
+  static const std::array<SourceType, 2> source_types = {{OPENCL_C, SPIRV}};
   return source_types;
 }
 const std::array<SourceType, 2> &kts::ucl::getOfflineSourceTypes() {
-  static std::array<SourceType, 2> source_types = {{OFFLINE, OFFLINESPIRV}};
+  static const std::array<SourceType, 2> source_types = {
+      {OFFLINE, OFFLINESPIRV}};
   return source_types;
 }
 
@@ -116,14 +117,22 @@ bool kts::ucl::BaseExecution::LoadSource(const std::string &path) {
   if (!f) {
     return false;
   }
-  fseek(f, 0, SEEK_END);
-  source_.resize(ftell(f));
-  rewind(f);
-  if (fread(&source_[0], 1, source_.size(), f) != source_.size()) {
-    fclose(f);
+  if (fseek(f, 0, SEEK_END)) {
     return false;
   }
-  fclose(f);
+  const long size = ftell(f);
+  if (size < 0) {
+    return false;
+  }
+  source_.resize(size);
+  if (fseek(f, 0, SEEK_SET)) {
+    return false;
+  }
+  if (fread(source_.data(), 1, source_.size(), f) != source_.size()) {
+    (void)fclose(f);
+    return false;
+  }
+  (void)fclose(f);
   return true;
 }
 
@@ -161,7 +170,7 @@ bool kts::ucl::BaseExecution::BuildProgram() {
     return false;
   }
 
-  std::string test_name = test_info->name();
+  const std::string test_name = test_info->name();
   std::string file_prefix;
   std::string kernel_name;
   if (!GetKernelPrefixAndName(test_name, file_prefix, kernel_name)) {
@@ -179,7 +188,7 @@ bool kts::ucl::BaseExecution::BuildProgram() {
       Fail("Could not get the current devices CL_DEVICE_NAME info.");
     }
     std::string deviceName(size, '\0');
-    if (clGetDeviceInfo(device, CL_DEVICE_NAME, size, &deviceName[0],
+    if (clGetDeviceInfo(device, CL_DEVICE_NAME, size, deviceName.data(),
                         nullptr)) {
       Fail("Could not get the current devices CL_DEVICE_NAME info.");
     }
@@ -204,8 +213,8 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
                                            std::string kernel_name) {
   cl_int err = CL_SUCCESS;
 
-  bool offline = source_type == OFFLINE || source_type == OFFLINESPIRV;
-  bool spirv = source_type == SPIRV;
+  const bool offline = source_type == OFFLINE || source_type == OFFLINESPIRV;
+  const bool spirv = source_type == SPIRV;
 
   // We take the default case if the source_type is anything other than SPIRV.
   // if (source_type != spirv) {
@@ -249,7 +258,7 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
 
   // Load the kernel source if this is the first call to BuildProgram().
   if (source_.empty()) {
-    std::string path = GetSourcePath(file_prefix, kernel_name);
+    const std::string path = GetSourcePath(file_prefix, kernel_name);
     if (!LoadSource(path)) {
       // If loading the source failed try again one directory up, this fixes an
       // issue with relative paths when using the Visual Studio generator since
@@ -289,7 +298,7 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
     std::stringstream options;
     if (!offline) {
       // Add macro definitions to the option string.
-      for (MacroDef &macro : macros_) {
+      for (const MacroDef &macro : macros_) {
         options << "-D" << macro.first << "=" << macro.second << " ";
       }
 
@@ -380,7 +389,7 @@ void kts::ucl::BaseExecution::AddInOutBuffer(BufferDesc &&desc) {
 
 void kts::ucl::BaseExecution::AddLocalBuffer(size_t nelm, size_t elmsize) {
   assert(elmsize != 0 && "cannot allocate zero-sized elements");
-  size_t bytesize = nelm * elmsize;
+  const size_t bytesize = nelm * elmsize;
   assert(bytesize / elmsize == nelm && "overflow in size computation");
   // UnitCL AddLocalBuffer requires this to be allocated with cargo::alloc.
   void *raw = cargo::alloc(sizeof(PointerPrimitive), alignof(PointerPrimitive));
@@ -407,7 +416,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
     for (cl_uint i = 1; i < numDims; i++) {
       totalWorkGroupSize = totalWorkGroupSize * localDims[i];
     }
-    size_t maxWorkGroupSize = getDeviceMaxWorkGroupSize();
+    const size_t maxWorkGroupSize = getDeviceMaxWorkGroupSize();
     if (totalWorkGroupSize > maxWorkGroupSize) {
       // Skip test as the max work group size requested is too small for this
       // device
@@ -432,7 +441,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
     const std::size_t elem_count = paramValueSizeRet / sizeof(std::size_t);
     std::vector<std::size_t> maxValues(elem_count, 0);
     if (clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES,
-                        paramValueSizeRet, &maxValues[0],
+                        paramValueSizeRet, maxValues.data(),
                         nullptr) != CL_SUCCESS) {
       Fail(
           "clGetDeviceInfo returned an error on "
@@ -464,7 +473,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
     if ((arg->GetKind() == kts::eInputBuffer) ||
         (arg->GetKind() == kts::eOutputBuffer) ||
         (arg->GetKind() == kts::eInOutBuffer)) {
-      kts::BufferDesc desc = args->GetBufferDescForArg(i);
+      const kts::BufferDesc desc = args->GetBufferDescForArg(i);
       if (!desc.size_) {
         Fail("Empty buffer arguments are not supported");
         return;
@@ -477,7 +486,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
 
       cl_mem buffer = arg->GetBuffer();
       if (!buffer) {
-        cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
+        const cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
         buffer = clCreateBuffer(context, flags, arg->GetBufferStorageSize(),
                                 arg->GetBufferStoragePtr(), &err);
         if (!buffer || (CL_SUCCESS != err)) {
@@ -486,7 +495,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
         }
         arg->SetBuffer(buffer);
       } else {
-        cl_int err = clEnqueueWriteBuffer(
+        const cl_int err = clEnqueueWriteBuffer(
             command_queue, buffer, CL_TRUE, 0, arg->GetBufferStorageSize(),
             arg->GetBufferStoragePtr(), 0, nullptr, nullptr);
         if (CL_SUCCESS != err) {
@@ -511,8 +520,8 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
       arg->SetSampler(sampler);
     } else if (arg->GetKind() == kts::eInputImage) {
       const kts::ucl::ImageDesc &image_desc = arg->GetImageDesc();
-      cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
-      kts::BufferDesc buffer_desc = args->GetBufferDescForArg(i);
+      const cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR;
+      const kts::BufferDesc buffer_desc = args->GetBufferDescForArg(i);
       // Todo : Check that the size is big enough for the image description
       if (!buffer_desc.size_) {
         Fail("Empty buffer arguments are not supported");
@@ -568,13 +577,13 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
   // Read and validate output data.
   for (unsigned i = 0; i < args->GetCount(); i++) {
     kts::ucl::Argument &arg = *args->GetArg(i);
-    kts::BufferDesc desc = args->GetBufferDescForArg(i);
+    const kts::BufferDesc desc = args->GetBufferDescForArg(i);
     if ((arg.GetKind() != kts::eOutputBuffer) &&
         (arg.GetKind() != kts::eInOutBuffer)) {
       continue;
     }
 
-    cl_int err = clEnqueueReadBuffer(
+    const cl_int err = clEnqueueReadBuffer(
         command_queue, arg.GetBuffer(), CL_TRUE, 0, arg.GetBufferStorageSize(),
         arg.GetBufferStoragePtr(), 0, nullptr, nullptr);
     if (CL_SUCCESS != err) {
@@ -590,7 +599,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
       if (errors.size() > 0) {
         std::stringstream ss;
         ss << "Invalid data when validating buffer " << i << ":";
-        for (std::string &error : errors) {
+        for (const std::string &error : errors) {
           ss << "\n" << error;
         }
         Fail(ss.str());
@@ -623,8 +632,8 @@ bool kts::ucl::BaseExecution::CheckVectorized() {
   // Check if either the workgroup size is too small to vectorize, or if the
   // vectorizeable dimension is too small to vectorize (e.g. a workgroup size
   // of {1, N, 1} may be large, but is not vectorizable.
-  size_t max_work_group_size = getDeviceMaxWorkGroupSize();
-  size_t max_work_item_size_x = getDeviceMaxWorkItemSizes()[0];
+  const size_t max_work_group_size = getDeviceMaxWorkGroupSize();
+  const size_t max_work_item_size_x = getDeviceMaxWorkItemSizes()[0];
   if ((max_work_group_size < 2) || (max_work_item_size_x < 2)) {
     return true;
   } else if (isDeviceExtensionSupported("cl_codeplay_wfv")) {

@@ -38,9 +38,9 @@ TEST_F(clEnqueueSVMMemFillTest, NotImplemented) {
   }
   void *svm_ptr{};
   const void *pattern{};
-  size_t pattern_size{};
-  size_t size{};
-  cl_uint num_events_in_wait_list{};
+  const size_t pattern_size{};
+  const size_t size{};
+  const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
   EXPECT_EQ_ERRCODE(

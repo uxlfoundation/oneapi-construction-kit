@@ -380,7 +380,7 @@ TEST_F(clGetKernelSubGroupInfoTest, MaxNumSubGroupsCheckQuerySucceeds) {
 
 TEST_F(clGetKernelSubGroupInfoTest,
        MaxNumSubGroupsCheckIncorrectSizeQueryFails) {
-  size_t output_value_size = sizeof(size_t) - 1;
+  const size_t output_value_size = sizeof(size_t) - 1;
   size_t output_value = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetKernelSubGroupInfo(

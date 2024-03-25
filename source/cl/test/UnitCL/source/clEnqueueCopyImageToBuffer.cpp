@@ -114,7 +114,7 @@ class clEnqueueCopyImageToBufferTest : public ucl::CommandQueueTest,
                             const cl_event *events, cl_event *event) override {
     size_t origin[3] = {0, 0, 0};
     size_t region[3] = {width, height, depth};
-    size_t offset = 0;
+    const size_t offset = 0;
     ASSERT_EQ_ERRCODE(err, clEnqueueCopyImageToBuffer(
                                command_queue, image, buffer, origin, region,
                                offset, num_events, events, event));
@@ -179,7 +179,7 @@ typedef clEnqueueCopyImageToBufferTest<CL_MEM_OBJECT_IMAGE3D, 4, 4, 4, 1>
 TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidCommandQueue) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_COMMAND_QUEUE,
       clEnqueueCopyImageToBuffer(nullptr, image, buffer, origin, region, offset,
@@ -194,7 +194,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidContextCommandQueue) {
       clCreateCommandQueue(other_context, device, 0, &status);
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   EXPECT_EQ_ERRCODE(
       CL_INVALID_CONTEXT,
       clEnqueueCopyImageToBuffer(other_queue, image, buffer, origin, region,
@@ -214,7 +214,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidContextImage) {
   ASSERT_SUCCESS(status);
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   EXPECT_EQ_ERRCODE(
       CL_INVALID_CONTEXT,
       clEnqueueCopyImageToBuffer(command_queue, other_image, buffer, origin,
@@ -237,7 +237,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidContextBuffer) {
   ASSERT_SUCCESS(status);
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   EXPECT_EQ_ERRCODE(
       CL_INVALID_CONTEXT,
       clEnqueueCopyImageToBuffer(command_queue, image, other_buffer, origin,
@@ -249,7 +249,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidContextBuffer) {
 TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueSrcOrigin) {
   size_t origin[3] = {width + 1, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyImageToBuffer(
                                           command_queue, image, buffer, origin,
                                           region, offset, 0, nullptr, nullptr));
@@ -263,7 +263,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest,
        InvalidValueSrcOriginPlusSrcRegion) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width + 1, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyImageToBuffer(
                                           command_queue, image, buffer, origin,
                                           region, offset, 0, nullptr, nullptr));
@@ -272,7 +272,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest,
 TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueDstOffset) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = num_elements + 1;
+  const size_t offset = num_elements + 1;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyImageToBuffer(
                                           command_queue, image, buffer, origin,
                                           region, offset, 0, nullptr, nullptr));
@@ -281,7 +281,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueDstOffset) {
 TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueDstOffsetPlusDstCb) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 1;
+  const size_t offset = 1;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyImageToBuffer(
                                           command_queue, image, buffer, origin,
                                           region, offset, 0, nullptr, nullptr));
@@ -289,7 +289,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueDstOffsetPlusDstCb) {
 
 TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueNullRegion) {
   size_t origin[3] = {0, 0, 0};
-  size_t offset = 0;
+  const size_t offset = 0;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
       clEnqueueCopyImageToBuffer(command_queue, image, buffer, origin, nullptr,
@@ -299,7 +299,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueNullRegion) {
 TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueOriginRegionRules) {
   size_t origin[3] = {0, 1, 0};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyImageToBuffer(
                                           command_queue, image, buffer, origin,
                                           region, offset, 0, nullptr, nullptr));
@@ -309,7 +309,7 @@ TEST_F(clEnqueueCopyImageToBufferInvalidTest, InvalidValueOriginRegionRules) {
 TEST_F(clEnqueueCopyImageToBuffer2DTest, InvalidValueOriginRegionRules) {
   size_t origin[3] = {0, 0, 1};
   size_t region[3] = {width, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyImageToBuffer(
                                           command_queue, image, buffer, origin,
                                           region, offset, 0, nullptr, nullptr));
@@ -340,7 +340,7 @@ TEST_F(clEnqueueCopyImageToBuffer1DBufferTest,
 
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {width / 2, height, depth};
-  size_t offset = 0;
+  const size_t offset = 0;
   EXPECT_EQ_ERRCODE(
       CL_MISALIGNED_SUB_BUFFER_OFFSET,
       clEnqueueCopyImageToBuffer(command_queue, image, sub_buff, origin, region,

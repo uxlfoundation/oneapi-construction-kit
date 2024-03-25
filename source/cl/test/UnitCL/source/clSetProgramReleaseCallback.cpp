@@ -55,7 +55,7 @@ TEST_F(clSetProgramReleaseCallbackTest, NotImplemented) {
                                   CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT,
                                   sizeof(scope_global_ctors_present),
                                   &scope_global_ctors_present, nullptr));
-  cl_bool scope_global_dtors_present{};
+  const cl_bool scope_global_dtors_present{};
   ASSERT_SUCCESS(clGetProgramInfo(program,
                                   CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT,
                                   sizeof(scope_global_dtors_present),

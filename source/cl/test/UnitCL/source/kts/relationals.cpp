@@ -58,28 +58,34 @@ const std::unordered_map<std::string, std::string>
         {"double", "int"},    {"double2", "long2"}, {"double3", "long3"},
         {"double4", "long4"}, {"double8", "long8"}, {"double16", "long16"}};
 
-const char *OneArgRelational::source_fmt_string =
-    "%s\n"
-    "void kernel RelationalKernel(global %s *in, global %s *out) {\n"
-    "  size_t gid = get_global_id(0);\n"
-    "  out[gid] = %s(in[gid]);\n"
-    "}";
+std::string OneArgRelational::source_fmt_string(std::string extension,
+                                                std::string in_type,
+                                                std::string out_type,
+                                                std::string builtin) {
+  return extension + "\n" + "void kernel RelationalKernel(global " + in_type +
+         " *in, global " + out_type + " *out) {\n" +
+         "  size_t gid = get_global_id(0);\n" + "  out[gid] = " + builtin +
+         "(in[gid]);\n" + "}\n";
+}
 
-const char *TwoArgRelational::source_fmt_string =
-    "%s\n"
-    "void kernel RelationalKernel(global %s *in1, global %s *in2, global "
-    "%s *out) {\n"
-    "  size_t gid = get_global_id(0);\n"
-    "  out[gid] = %s(in1[gid], in2[gid]);\n"
-    "}";
+std::string TwoArgRelational::source_fmt_string(
+    std::string extension, std::array<std::string, 2> in_types,
+    std::string out_type, std::string builtin) {
+  return extension + "\n" + "void kernel RelationalKernel(global " +
+         in_types[0] + " *in1, global " + in_types[1] + " *in2, global " +
+         out_type + " *out) {\n" + "  size_t gid = get_global_id(0);\n" +
+         "  out[gid] = " + builtin + "(in1[gid], in2[gid]);\n" + "}\n";
+}
 
-const char *ThreeArgRelational::source_fmt_string =
-    "%s\n"
-    "void kernel RelationalKernel(global %s *in1, global %s *in2, global "
-    "%s *in3, global %s *out) {\n"
-    "  size_t gid = get_global_id(0);\n"
-    "  out[gid] = %s(in1[gid], in2[gid], in3[gid]);\n"
-    "}";
+std::string ThreeArgRelational::source_fmt_string(
+    std::string extension, std::array<std::string, 3> in_types,
+    std::string out_type, std::string builtin) {
+  return extension + "\n" + "void kernel RelationalKernel(global " +
+         in_types[0] + " *in1, global " + in_types[1] + " *in2, global " +
+         in_types[2] + " *in3, global " + out_type + " *out) {\n" +
+         "  size_t gid = get_global_id(0);\n" + "  out[gid] = " + builtin +
+         "(in1[gid], in2[gid], in3[gid]);\n" + "}\n";
+}
 
 namespace {
 unsigned GetVecWidth(const std::string &type) {
@@ -102,7 +108,7 @@ unsigned GetVecWidth(const std::string &type) {
 
 template <class T>
 void GetTestTypes(cargo::small_vector<std::string, 6> &types) {
-  std::string scalar_str(TypeInfo<T>::as_str);
+  const std::string scalar_str(TypeInfo<T>::as_str);
   cargo::small_vector<const char *, 6> vec_widths;
   ASSERT_EQ(cargo::success, vec_widths.assign({"", "2", "3", "4", "8", "16"}));
   for (auto w : vec_widths) {
@@ -132,7 +138,7 @@ bool VerifyResult(const cl_half reference, const cl_half kernel) {
 }  // namespace
 
 cl_ulong RelationalTest::GetBufferLimit() {
-  return HalfInputSizes::getInputSize(getEnvironment()->math_mode) * 2u;
+  return HalfInputSizes::getInputSize(getEnvironment()->math_mode) * 2ul;
 }
 
 cl_kernel RelationalTest::BuildKernel(cl_program program) {
@@ -153,9 +159,9 @@ cl_kernel RelationalTest::BuildKernel(cl_program program) {
                                     nullptr);
     CHECK_CL_SUCCESS(err_log);
 
-    fprintf(stderr, "Build program failed with error: %d\n", errcode);
-    fprintf(stderr, "Build log:\n\n");
-    fprintf(stderr, "%s", build_log.c_str());
+    (void)fprintf(stderr, "Build program failed with error: %d\n", errcode);
+    (void)fprintf(stderr, "Build log:\n\n");
+    (void)fprintf(stderr, "%s", build_log.c_str());
 
     return nullptr;
   }
@@ -265,11 +271,8 @@ cl_kernel OneArgRelational::ConstructProgram(const char *builtin,
       uses_half ? "#pragma OPENCL EXTENSION cl_khr_fp16 : enable" : "";
 
   // Substitute types and builtin name into OpenCL-C kernel string
-  std::string program_string;
-  program_string.reserve(std::strlen(OneArgRelational::source_fmt_string) +
-                         512);
-  sprintf((char *)program_string.data(), OneArgRelational::source_fmt_string,
-          extension_str, test_type.c_str(), out_type.c_str(), builtin);
+  std::string program_string = OneArgRelational::source_fmt_string(
+      extension_str, test_type, out_type, builtin);
   const char *program_cstr = program_string.data();
 
   // Call OpenCL APIs to compile kernel
@@ -332,20 +335,21 @@ void OneArgRelational::TestAgainstReference(const char *builtin,
       }
 
       // Run reference function
-      bool ref_result = ref(input[i]);
+      const bool ref_result = ref(input[i]);
 
       // Output type is different depending on input type
       if (vec_size == 1) {
         auto kernel_casted = (cl_int *)output;
-        cl_int kernel_result = kernel_casted[i];
+        const cl_int kernel_result = kernel_casted[i];
         if (ref_result != kernel_result) {
           FAIL() << type_str << " - Expected: " << ref_result << ", was "
                  << kernel_result << "\nInput: " << std::hex << input[i];
         }
       } else {
         auto kernel_casted = (typename TypeInfo<T>::AsSigned *)output;
-        typename TypeInfo<T>::AsSigned kernel_result = kernel_casted[i];
-        typename TypeInfo<T>::AsSigned expected_result = ref_result ? -1 : 0;
+        const typename TypeInfo<T>::AsSigned kernel_result = kernel_casted[i];
+        const typename TypeInfo<T>::AsSigned expected_result =
+            ref_result ? -1 : 0;
         if (expected_result != kernel_result) {
           FAIL() << type_str << " - Expected: " << expected_result << ", was "
                  << kernel_result << "\nInput: " << std::hex << input[i];
@@ -391,12 +395,8 @@ cl_kernel TwoArgRelational::ConstructProgram(const char *builtin,
       uses_half ? "#pragma OPENCL EXTENSION cl_khr_fp16 : enable" : "";
 
   // Substitute types and builtin name into OpenCL-C kernel string
-  std::string program_string;
-  program_string.reserve(std::strlen(TwoArgRelational::source_fmt_string) +
-                         512);
-  sprintf((char *)program_string.data(), TwoArgRelational::source_fmt_string,
-          extension_str, test_type.c_str(), test_type.c_str(), out_type.c_str(),
-          builtin);
+  std::string program_string = TwoArgRelational::source_fmt_string(
+      extension_str, {test_type, test_type}, out_type, builtin);
   const char *program_cstr = program_string.data();
 
   // Call OpenCL APIs to compile kernel
@@ -492,7 +492,7 @@ void TwoArgRelational::TestAgainstReference(
       // Output is different type depending on vector width
       if (vec_width == 1) {
         auto kernel_casted = (cl_int *)output;
-        cl_int kernel_result = kernel_casted[i];
+        const cl_int kernel_result = kernel_casted[i];
         if (ref_result != kernel_result) {
           // Try flushing denormal inputs to zero
           if (!denorms_supported &&
@@ -555,12 +555,8 @@ cl_kernel BitSelectTest::ConstructProgram(const char *test_type) {
   const char *extension_str =
       uses_half ? "#pragma OPENCL EXTENSION cl_khr_fp16 : enable" : "";
 
-  std::string program_string;
-  program_string.reserve(std::strlen(ThreeArgRelational::source_fmt_string) +
-                         512);
-  sprintf((char *)program_string.data(), ThreeArgRelational::source_fmt_string,
-          extension_str, test_type, test_type, test_type, test_type,
-          "bitselect");
+  std::string program_string = ThreeArgRelational::source_fmt_string(
+      extension_str, {test_type, test_type, test_type}, test_type, "bitselect");
   const char *program_cstr = program_string.data();
 
   // Call OpenCL APIs to compile kernel
@@ -654,12 +650,8 @@ cl_kernel SelectTest::ConstructProgram(const char *float_type,
   const char *extension_str =
       uses_half ? "#pragma OPENCL EXTENSION cl_khr_fp16 : enable" : "";
 
-  std::string program_string;
-  program_string.reserve(std::strlen(ThreeArgRelational::source_fmt_string) +
-                         512);
-  sprintf((char *)program_string.data(), ThreeArgRelational::source_fmt_string,
-          extension_str, float_type, float_type, int_type, float_type,
-          "select");
+  std::string program_string = ThreeArgRelational::source_fmt_string(
+      extension_str, {float_type, float_type, int_type}, float_type, "select");
   const char *program_cstr = program_string.data();
 
   // Call OpenCL APIs to compile kernel

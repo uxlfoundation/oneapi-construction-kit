@@ -27,9 +27,9 @@ struct CommandBufferCopyBufferToImageTest : cl_khr_command_buffer_Test {
       GTEST_SKIP();
     }
 
-    cl_image_format image_format = {CL_RGBA, CL_FLOAT};
-    cl_mem_flags image_flags = CL_MEM_READ_WRITE;
-    cl_mem_object_type image_type = CL_MEM_OBJECT_IMAGE2D;
+    const cl_image_format image_format = {CL_RGBA, CL_FLOAT};
+    const cl_mem_flags image_flags = CL_MEM_READ_WRITE;
+    const cl_mem_object_type image_type = CL_MEM_OBJECT_IMAGE2D;
     if (!UCL::isImageFormatSupported(context, {image_flags}, image_type,
                                      image_format)) {
       GTEST_SKIP();

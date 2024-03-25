@@ -52,10 +52,10 @@ inline ur_result_t resultFromMux(mux_result_t error) {
         // this may be naughty but if you find yourself here the error code in
         // question may need special casing in the usage code or translated to a
         // more generic error code.
-#define CASE(MUX_ENUM)                                          \
-  case MUX_ENUM:                                                \
-    std::fprintf(stderr, "ur::resultFromMux(" #MUX_ENUM         \
-                         ") unknown mapping to ur_result_t\n"); \
+#define CASE(MUX_ENUM)                                                \
+  case MUX_ENUM:                                                      \
+    (void)std::fprintf(stderr, "ur::resultFromMux(" #MUX_ENUM         \
+                               ") unknown mapping to ur_result_t\n"); \
     std::abort();
         CASE(mux_error_null_allocator_callback)
         CASE(mux_error_device_entry_hook_failed)
@@ -67,8 +67,8 @@ inline ur_result_t resultFromMux(mux_result_t error) {
         CASE(mux_fence_not_ready)
 #undef CASE
         default:
-          std::fprintf(stderr, "ur::resultFromMux(%d) unknown mux_result_t\n",
-                       error);
+          (void)std::fprintf(
+              stderr, "ur::resultFromMux(%d) unknown mux_result_t\n", error);
           std::abort();
       }
   }

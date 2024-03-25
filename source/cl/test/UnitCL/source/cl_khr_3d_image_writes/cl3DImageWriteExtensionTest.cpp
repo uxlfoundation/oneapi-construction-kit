@@ -193,7 +193,7 @@ class cl3DImageWriteExtensionTest : public ucl::CommandQueueTest {
     ASSERT_SUCCESS(errorcode);
 
     for (int i = 0; i < IMAGE_DATA_SIZE; ++i) {
-      data_t expected_value = A[i] + B[i];
+      const data_t expected_value = A[i] + B[i];
       ASSERT_EQ(expected_value, C[i])
           << "Index " << i << " is " << C[i] << " when " << expected_value
           << " was expected!";

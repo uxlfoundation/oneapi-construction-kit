@@ -283,7 +283,7 @@ class clEnqueueWriteImageTestBase : public ucl::CommandQueueTest {
     for (size_t x = 0; x < width; ++x) {
       for (size_t y = 0; y < region_y; ++y) {
         for (size_t z = 0; z < region_z; ++z) {
-          size_t i = x + width * y + width * region_y * z;
+          const size_t i = x + width * y + width * region_y * z;
           // Appease compiler warnings about subscript above array bounds.
           assert(i < num_pixels);
           if (i < num_pixels) {
@@ -417,7 +417,7 @@ TEST_P(clEnqueueWriteImageVerify, Image1D) {
   ASSERT_SUCCESS(error);
 
   const size_t pixel_size = UCL::getPixelSize(format);
-  size_t pixel_count = pixel_size * desc.image_width;
+  const size_t pixel_count = pixel_size * desc.image_width;
   UCL::vector<uint8_t> src_data(pixel_count);
   generate_write_data(src_data);
 
@@ -455,7 +455,8 @@ TEST_P(clEnqueueWriteImageVerify, Image1DArray) {
   ASSERT_SUCCESS(error);
 
   const size_t pixel_size = UCL::getPixelSize(format);
-  size_t pixel_count = pixel_size * desc.image_width * desc.image_array_size;
+  const size_t pixel_count =
+      pixel_size * desc.image_width * desc.image_array_size;
   UCL::vector<uint8_t> src_data(pixel_count);
   generate_write_data(src_data);
 
@@ -488,7 +489,7 @@ TEST_P(clEnqueueWriteImageVerify, Image1DBuffer) {
   desc.num_mip_levels = 0;
   desc.num_samples = 0;
 
-  size_t pixel_count = pixel_size * desc.image_width;
+  const size_t pixel_count = pixel_size * desc.image_width;
   cl_int error;
   desc.buffer =
       clCreateBuffer(context, CL_MEM_READ_WRITE, pixel_count, nullptr, &error);
@@ -537,7 +538,7 @@ TEST_P(clEnqueueWriteImageVerify, Image2D) {
   ASSERT_SUCCESS(error);
 
   const size_t pixel_size = UCL::getPixelSize(format);
-  size_t pixel_count = pixel_size * desc.image_width * desc.image_height;
+  const size_t pixel_count = pixel_size * desc.image_width * desc.image_height;
   UCL::vector<uint8_t> src_data(pixel_count);
   generate_write_data(src_data);
 
@@ -576,7 +577,7 @@ TEST_P(clEnqueueWriteImageVerify, Image2DArray) {
   ASSERT_SUCCESS(error);
 
   const size_t pixel_size = UCL::getPixelSize(format);
-  size_t pixel_count =
+  const size_t pixel_count =
       pixel_size * desc.image_width * desc.image_height * desc.image_array_size;
   UCL::vector<uint8_t> src_data(pixel_count);
   generate_write_data(src_data);
@@ -617,7 +618,7 @@ TEST_P(clEnqueueWriteImageVerify, Image3D) {
   ASSERT_SUCCESS(error);
 
   const size_t pixel_size = UCL::getPixelSize(format);
-  size_t pixel_count =
+  const size_t pixel_count =
       pixel_size * desc.image_width * desc.image_height * desc.image_depth;
   UCL::vector<uint8_t> src_data(pixel_count);
   generate_write_data(src_data);

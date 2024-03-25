@@ -106,7 +106,7 @@ TEST_F(cl_codeplay_extra_build_options_BuildFlags,
   EXPECT_SUCCESS(errorcode);
 
   // We precached a local size of 1 above, so this should hit the cached kernel.
-  size_t work_size = 1;
+  const size_t work_size = 1;
 
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr,
                                         &work_size, &work_size, 0, nullptr,

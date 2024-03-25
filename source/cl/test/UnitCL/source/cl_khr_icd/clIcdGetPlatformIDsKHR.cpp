@@ -29,7 +29,7 @@ class clIcdGetPlatformIDsKHRTest : public ucl::PlatformTest {
     std::string extensionString(size, '\0');
     ASSERT_SUCCESS(clGetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS,
                                      extensionString.length(),
-                                     &extensionString[0], nullptr));
+                                     extensionString.data(), nullptr));
     clIcdGetPlatformIDsKHRPtr = reinterpret_cast<clIcdGetPlatformIDsKHR_fn>(
         clGetExtensionFunctionAddressForPlatform(platform,
                                                  "clIcdGetPlatformIDsKHR"));

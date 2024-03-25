@@ -62,7 +62,7 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
 
   void TearDown() override {
     for (auto ptr : allPointers()) {
-      cl_int err = clMemBlockingFreeINTEL(context, ptr);
+      const cl_int err = clMemBlockingFreeINTEL(context, ptr);
       EXPECT_SUCCESS(err);
     }
     device_ptr = shared_ptr = host_shared_ptr = host_ptr = nullptr;

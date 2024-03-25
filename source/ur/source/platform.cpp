@@ -34,19 +34,18 @@ getSPIRVDeviceInfo(mux_device_info_t device_info) {
   };
 
   compiler::spirv::DeviceInfo spvDeviceInfo;
-  cargo::result result = cargo::result::success;
 
-  if ((result = spvDeviceInfo.capabilities.assign(
-           {spv::CapabilityAddresses, spv::CapabilityFloat16Buffer,
-            spv::CapabilityGroups, spv::CapabilityInt64, spv::CapabilityInt16,
-            spv::CapabilityInt8, spv::CapabilityKernel, spv::CapabilityLinkage,
-            spv::CapabilityVector16, spv::CapabilityKernelAttributesINTEL}))) {
+  if (auto result = spvDeviceInfo.capabilities.assign(
+          {spv::CapabilityAddresses, spv::CapabilityFloat16Buffer,
+           spv::CapabilityGroups, spv::CapabilityInt64, spv::CapabilityInt16,
+           spv::CapabilityInt8, spv::CapabilityKernel, spv::CapabilityLinkage,
+           spv::CapabilityVector16, spv::CapabilityKernelAttributesINTEL})) {
     return cargo::make_unexpected(result);
-    if (device_info->integer_capabilities & mux_integer_capabilities_64bit) {
-      if ((result =
-               spvDeviceInfo.capabilities.push_back(spv::CapabilityInt64))) {
-        return cargo::make_unexpected(result);
-      }
+  }
+  if (device_info->integer_capabilities & mux_integer_capabilities_64bit) {
+    if (auto result =
+            spvDeviceInfo.capabilities.push_back(spv::CapabilityInt64)) {
+      return cargo::make_unexpected(result);
     }
   }
 
@@ -65,19 +64,19 @@ getSPIRVDeviceInfo(mux_device_info_t device_info) {
     }
   }
   if (device_info->half_capabilities) {
-    if ((result =
-             spvDeviceInfo.capabilities.push_back(spv::CapabilityFloat16))) {
+    if (auto result =
+            spvDeviceInfo.capabilities.push_back(spv::CapabilityFloat16)) {
       return cargo::make_unexpected(result);
     }
   }
   if (device_info->double_capabilities) {
-    if ((result =
-             spvDeviceInfo.capabilities.push_back(spv::CapabilityFloat64))) {
+    if (auto result =
+            spvDeviceInfo.capabilities.push_back(spv::CapabilityFloat64)) {
       return cargo::make_unexpected(result);
     }
   }
   for (const std::string &extension : supported_extensions) {
-    if ((result = spvDeviceInfo.extensions.push_back(extension))) {
+    if (auto result = spvDeviceInfo.extensions.push_back(extension)) {
       return cargo::make_unexpected(result);
     }
   }

@@ -38,7 +38,7 @@ class clCreateProgramWithBinaryTest : public ucl::ContextTest {
         context, 1, &device, &src_size, &src_data, nullptr, &errcode);
 
     // Size in bytes
-    size_t binaryLengthsSize = 1 * sizeof(size_t);
+    const size_t binaryLengthsSize = 1 * sizeof(size_t);
     binaryLengths.resize(1);
     ASSERT_SUCCESS(clGetProgramInfo(originalProgram, CL_PROGRAM_BINARY_SIZES,
                                     binaryLengthsSize, binaryLengths.data(),
@@ -119,7 +119,7 @@ TEST_F(clCreateProgramWithBinaryTest, InvalidBinary) {
   const unsigned char **invalidbinaries =
       reinterpret_cast<const unsigned char **>(
           new char[sizeof(unsigned char *) * 1]);
-  size_t invalidBinLen = 64;
+  const size_t invalidBinLen = 64;
   for (unsigned i = 0; i < 1; ++i) {
     invalidbinaries[i] = new unsigned char[invalidBinLen];
     memset(const_cast<unsigned char **>(invalidbinaries)[i], 1, invalidBinLen);
@@ -200,8 +200,8 @@ TEST_F(clCreateProgramWithBinaryTest, DefaultNDRangeKernel) {
   EXPECT_TRUE(program);
   ASSERT_SUCCESS(errcode);
 
-  size_t elements = 64;
-  size_t buflen = elements * sizeof(cl_int);
+  const size_t elements = 64;
+  const size_t buflen = elements * sizeof(cl_int);
 
   cl_mem bufin =
       clCreateBuffer(context, CL_MEM_READ_ONLY, buflen, nullptr, &errcode);
@@ -268,8 +268,8 @@ TEST_F(clCreateProgramWithBinaryTest, ConcurrentNDRangeKernel) {
     EXPECT_TRUE(program);
     ASSERT_SUCCESS(errcode);
 
-    size_t elements = 64;
-    size_t buflen = elements * sizeof(cl_int);
+    const size_t elements = 64;
+    const size_t buflen = elements * sizeof(cl_int);
 
     cl_mem bufin =
         clCreateBuffer(context, CL_MEM_READ_ONLY, buflen, nullptr, &errcode);

@@ -368,13 +368,13 @@ TEST_F(clCreateBufferHostPtr, FourAligned) {
   // Get buffers A, B, and C that are 16-aligned, then add 4.
   // sz contains a return value, so it needs to be reset.
   size_t sz = buf_sz;
-  uintptr_t ptr_A = reinterpret_cast<uintptr_t>(
+  const uintptr_t ptr_A = reinterpret_cast<uintptr_t>(
       std::align(16, elements * sizeof(uintptr_t), buf_A, sz));
   sz = buf_sz;
-  uintptr_t ptr_B = reinterpret_cast<uintptr_t>(
+  const uintptr_t ptr_B = reinterpret_cast<uintptr_t>(
       std::align(16, elements * sizeof(uintptr_t), buf_B, sz));
   sz = buf_sz;
-  uintptr_t ptr_C = reinterpret_cast<uintptr_t>(
+  const uintptr_t ptr_C = reinterpret_cast<uintptr_t>(
       std::align(16, elements * sizeof(cl_float), buf_C, sz));
 
   ASSERT_NE(0, ptr_A) << "Failed to get 16-aligned buffer";

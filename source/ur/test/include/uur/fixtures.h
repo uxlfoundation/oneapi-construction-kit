@@ -59,7 +59,7 @@ inline std::string getDeviceNameFromDeviceIndex(uint32_t device_index) {
   size_t size;
   urDeviceGetInfo(device, UR_DEVICE_INFO_NAME, 0, nullptr, &size);
   std::string name(size, '\0');
-  urDeviceGetInfo(device, UR_DEVICE_INFO_NAME, size, &name[0], nullptr);
+  urDeviceGetInfo(device, UR_DEVICE_INFO_NAME, size, name.data(), nullptr);
   // Strip trailing null terminators.
   name.resize(name.find_first_of('\0'));
   // Make the device name a valid C identifier for use by gtest.

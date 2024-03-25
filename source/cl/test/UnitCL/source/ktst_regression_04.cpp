@@ -39,7 +39,7 @@ TEST_P(Execution, Regression_76_Boscc_Nested_Loops) {
                     int ret = 1;
                     if (gid < n) {
                       for (size_t i = 0; i < gid; ++i) {
-                        size_t x = n * gid;
+                        const size_t x = n * gid;
                         for (size_t j = 0; j < gid; ++j) {
                           ret += x * j;
                         }
@@ -167,10 +167,10 @@ TEST_P(Execution, Regression_79_Global_Id_Zero_Parameter) {
 }
 
 TEST_P(Execution, Regression_80_Varying_Load) {
-  const cl_uint global = 32;
-  const cl_uint read_local = 16;
-  const cl_int n = 10;
-  cl_int meta = 1;
+  static constexpr cl_uint global = 32;
+  static constexpr cl_uint read_local = 16;
+  static constexpr cl_int n = 10;
+  static constexpr cl_int meta = 1;
 
   AddOutputBuffer(global, kts::Reference1D<cl_int>([=](size_t id) {
                     int ret = 0;
@@ -178,8 +178,8 @@ TEST_P(Execution, Regression_80_Varying_Load) {
                       int sum = n;
                       if (meta == 0) {
                         int mul = n * id;
-                        int div = mul / n + id;
-                        int shl = div << 3;
+                        const int div = mul / n + id;
+                        const int shl = div << 3;
                         mul += shl;
                         sum = mul << 3;
                       }
@@ -191,7 +191,7 @@ TEST_P(Execution, Regression_80_Varying_Load) {
                     return ret;
                   }));
   AddPrimitive(n);
-  AddInputBuffer(1, kts::Reference1D<cl_int>([meta](size_t) { return meta; }));
+  AddInputBuffer(1, kts::Reference1D<cl_int>([](size_t) { return meta; }));
 
   RunGeneric1D(global, read_local);
 }
@@ -205,10 +205,10 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops1) {
                     int ret = 0;
                     if (id % 2 == 0) {
                       const bool cmp = n == 5;
-                      int mul = n * id;
-                      int div = mul / n + id;
-                      int shl = div << 3;
-                      int x = mul + div + shl;
+                      const int mul = n * id;
+                      const int div = mul / n + id;
+                      const int shl = div << 3;
+                      const int x = mul + div + shl;
                       for (int i = 0; i < n; ++i) {
                         if (cmp) {
                           ret += x;
@@ -218,17 +218,17 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops1) {
                             for (int j = 0; j < n; ++j) {
                               ret++;
                               if (id == 0) {
-                                int mul2 = mul * mul;
-                                int div2 = mul2 / n;
-                                int shl2 = div2 << 3;
+                                const int mul2 = mul * mul;
+                                const int div2 = mul2 / n;
+                                const int shl2 = div2 << 3;
                                 ret += shl2;
                               }
                               for (int k = 0; k < n; ++k) {
                                 ret += x;
                                 if (id == 4) {
-                                  int mul2 = mul * mul;
-                                  int div2 = mul2 / n;
-                                  int shl2 = div2 << 3;
+                                  const int mul2 = mul * mul;
+                                  const int div2 = mul2 / n;
+                                  const int shl2 = div2 << 3;
                                   ret += shl2;
                                 }
                               }
@@ -251,18 +251,18 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops2) {
   AddOutputBuffer(global, kts::Reference1D<cl_int>([=](size_t id) {
                     int ret = 0;
                     if (id < 16) {
-                      int mul = n * id;
-                      int div = mul / n + id;
-                      int shl = div << 3;
-                      int x = mul + div + shl;
+                      const int mul = n * id;
+                      const int div = mul / n + id;
+                      const int shl = div << 3;
+                      const int x = mul + div + shl;
                       for (int i = 0; i < n; ++i) {
                         if (id <= 8) {
                           int j = 0;
                           while (true) {
                             ret++;
-                            int mul2 = mul * mul;
-                            int div2 = mul2 / n;
-                            int shl2 = div2 << 3;
+                            const int mul2 = mul * mul;
+                            const int div2 = mul2 / n;
+                            const int shl2 = div2 << 3;
                             ret += shl2 + x;
                             if (id + j++ >= 4) {
                               break;
@@ -286,19 +286,19 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops3) {
                     int ret = 0;
                     if (id < n) {
                       for (size_t i = 0; i < n; ++i) {
-                        int mul = n * id;
-                        int div = mul / n + id;
-                        int shl = div << 3;
+                        const int mul = n * id;
+                        const int div = mul / n + id;
+                        const int shl = div << 3;
                         size_t x = mul + div + shl + i;
                         for (; i < n; ++i) {
-                          int add = x + id;
+                          const int add = x + id;
                           int j = 0;
                           while (true) {
                             ret++;
                             if (x < n) {
-                              int mul2 = mul * mul;
-                              int div2 = mul2 / n;
-                              int shl2 = div2 << 3;
+                              const int mul2 = mul * mul;
+                              const int div2 = mul2 / n;
+                              const int shl2 = div2 << 3;
                               ret += shl2 + add;
                             }
                             x++;
@@ -353,17 +353,17 @@ TEST_P(Execution, Regression_83_Vecz_Lcssa) {
   AddOutputBuffer(global, kts::Reference1D<cl_int>([=](size_t id) {
                     int ret = 0;
                     if (id % 2 == 0) {
-                      int mul = n * id;
-                      int div = mul / n + id;
-                      int shl = div << 3;
-                      int x = mul + div + shl;
+                      const int mul = n * id;
+                      const int div = mul / n + id;
+                      const int shl = div << 3;
+                      const int x = mul + div + shl;
                       for (int i = 0; i < n; ++i) {
                         if (id <= 8) {
                           for (size_t j = 0; j < id; ++j) {
                             ret++;
-                            int mul2 = mul * mul;
-                            int div2 = mul2 / n;
-                            int shl2 = div2 << 3;
+                            const int mul2 = mul * mul;
+                            const int div2 = mul2 / n;
+                            const int shl2 = div2 << 3;
                             ret += shl2 + x;
                             if (id >= 4) {
                               break;
@@ -577,7 +577,7 @@ TEST_P(Execution, Regression_92_Danger_Div_Hoist) {
 
   AddOutputBuffer(global, kts::Reference1D<cl_int>([=](size_t id) {
                     cl_int result = r;
-                    cl_int div = ((id * 237) & 0xF);
+                    const cl_int div = ((id * 237) & 0xF);
                     if (div != 0) {
                       result /= div;
                     }
@@ -596,7 +596,7 @@ TEST_P(Execution, Regression_92_Danger_Div_Hoist_Long) {
 
   AddOutputBuffer(global, kts::Reference1D<cl_int>([=](size_t id) {
                     cl_long result = r;
-                    cl_long div = ((id * 237) & 0xF);
+                    const cl_long div = ((id * 237) & 0xF);
                     if (div != 0) {
                       result /= div;
                     }
@@ -648,10 +648,10 @@ TEST_P(Execution, Regression_94_Boscc_Sese_Backdoor) {
   const size_t local_range[] = {16, 1};
 
   auto refOut = kts::Reference1D<cl_uint>([=](size_t id) {
-    size_t x = id & 0xFF;
-    size_t y = id >> 8;
-    cl_ushort scrambled_x = (cl_ushort(x) ^ 0x4785) * 0x8257;
-    cl_ushort scrambled_y = (cl_ushort(y) ^ 0x126C) * 0x1351;
+    const size_t x = id & 0xFF;
+    const size_t y = id >> 8;
+    const cl_ushort scrambled_x = (cl_ushort(x) ^ 0x4785) * 0x8257;
+    const cl_ushort scrambled_y = (cl_ushort(y) ^ 0x126C) * 0x1351;
 
     cl_uint route = 0;
     if (scrambled_y & 1) {
@@ -685,7 +685,7 @@ TEST_P(Execution, Regression_95_Illegal_Uniform_Stride) {
   const cl_uint read_local = 16;
 
   auto refOut = kts::Reference1D<cl_uint>([=](size_t x) {
-    cl_int y = x - 1;
+    const cl_int y = x - 1;
     if (y >= 0) {
       return kts::Ref_A(cl_uint(y));
     } else {
