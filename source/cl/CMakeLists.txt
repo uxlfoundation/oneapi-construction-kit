@@ -146,8 +146,10 @@ set(CL_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/exports-3.0.cpp)
 
 add_ca_library(CL SHARED
-  ${CL_SOURCE_FILES} $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>)
-add_ca_library(CL-static STATIC EXCLUDE_FROM_ALL ${CL_SOURCE_FILES})
+  ${CL_SOURCE_FILES} $<$<PLATFORM_ID:Windows>:${BUILTINS_RC_FILE}>
+  DEPENDS abacus_generate)
+add_ca_library(CL-static STATIC EXCLUDE_FROM_ALL ${CL_SOURCE_FILES}
+  DEPENDS abacus_generate)
 
 if(NOT CA_COMPILER_ENABLE_DYNAMIC_LOADER)
   target_resources(CL NAMESPACES ${BUILTINS_NAMESPACES})
@@ -324,7 +326,7 @@ if(CA_RUNTIME_COMPILER_ENABLED AND CA_COMPILER_ENABLE_DYNAMIC_LOADER)
 endif()
 
 if(TARGET tidy-CL)
-  add_dependencies(tidy-CL abacus_generate mux-config)
+  add_dependencies(tidy-CL mux-config)
 endif()
 
 install(TARGETS CL
