@@ -63,7 +63,7 @@ set(COMPILER_BASE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/program_metadata.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/target.cpp)
 
-add_ca_library(compiler-base STATIC ${COMPILER_BASE_SOURCES})
+add_ca_library(compiler-base STATIC ${COMPILER_BASE_SOURCES} DEPENDS abacus_generate)
 target_include_directories(compiler-base PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/include>)
@@ -132,10 +132,3 @@ if(NOT ${BUILD_TYPE_UPPER} MATCHES "RELEASE")
 endif()
 target_compile_definitions(compiler-base PUBLIC
   CA_COMPILER_LLVM_VERSION=\"${CA_COMPILER_LLVM_VERSION}\")
-
-# Compiler passes in this module include abacus headers, so ensure they are
-# generated before this module starts to build.
-add_dependencies(compiler-base abacus_generate)
-if(TARGET tidy-compiler-base)
-  add_dependencies(tidy-compiler-base abacus_generate)
-endif()

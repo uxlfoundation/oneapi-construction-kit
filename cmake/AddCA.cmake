@@ -423,8 +423,9 @@ if(TARGET ClangTools::clang-tidy)
     This function consumes the ``CA_CLANG_TIDY_FLAGS`` user option.
 #]=======================================================================]
   function(add_ca_tidy)
+    cmake_parse_arguments(ACT "" "" "DEPENDS" ${ARGN})
     if(TARGET tidy)
-      foreach(entry ${ARGN})
+      foreach(entry ${ACT_UNPARSED_ARGUMENTS})
         file(REAL_PATH "${entry}" entry BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         get_filename_component(ext ${entry} EXT)
         if(EXISTS ${entry} AND ext MATCHES "^\.c(pp)?$")
@@ -440,13 +441,14 @@ if(TARGET ClangTools::clang-tidy)
             COMMAND ClangTools::clang-tidy -quiet ${CA_CLANG_TIDY_FLAGS}
             -p ${CMAKE_BINARY_DIR}/compile_commands.json ${entry}
             WORKING_DIRECTORY ${PROJECT_BINARY_DIR} VERBATIM
-            DEPENDS ClangTools::clang-tidy COMMENT "Tidy ${ARGV0} ${relative}")
+            DEPENDS ClangTools::clang-tidy ${ACT_DEPENDS}
+            COMMENT "Tidy ${ARGV0} ${relative}")
         endif()
       endforeach()
       # Add the tidy-<target> target which depends on the list of symbolic
       # files to create a parallelizable dependency graph.
       add_custom_target(tidy-${ARGV0}
-        DEPENDS ${symbolic_files} COMMENT "Tidy ${ARGV0}")
+        DEPENDS ${symbolic_files} ${ACT_DEPENDS} COMMENT "Tidy ${ARGV0}")
       add_dependencies(tidy tidy-${ARGV0})
     endif()
   endfunction()
@@ -477,14 +479,18 @@ endmacro()
   project wide compiler options and definitions to the target.
 #]=======================================================================]
 macro(add_ca_library)
-  add_library(${ARGV})
+  cmake_parse_arguments(ACL "" "" "DEPENDS" ${ARGN})
+  add_library(${ACL_UNPARSED_ARGUMENTS})
+  if(ACL_DEPENDS)
+    add_dependencies(${ARGV0} ${ACL_DEPENDS})
+  endif()
   target_compile_options(${ARGV0}
     PRIVATE ${CA_COMPILE_OPTIONS})
   target_compile_definitions(${ARGV0}
     PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
   set_ca_target_output_directory(${ARGV0})
   if(COMMAND add_ca_tidy)
-    add_ca_tidy(${ARGV})
+    add_ca_tidy(${ACL_UNPARSED_ARGUMENTS} DEPENDS ${ACL_DEPENDS})
   endif()
   ca_target_link_options(${ARGV0} PRIVATE "${CA_LINK_OPTIONS}")
   if(CA_ENABLE_DEBUG_BACKTRACE AND NOT ${ARGV0} STREQUAL debug-backtrace)
@@ -558,7 +564,11 @@ endfunction()
   project wide compiler options and definitions to the target.
 #]=======================================================================]
 macro(add_ca_executable)
-  add_executable(${ARGV})
+  cmake_parse_arguments(ACE "" "" "DEPENDS" ${ARGN})
+  add_executable(${ACE_UNPARSED_ARGUMENTS})
+  if(ACE_DEPENDS)
+    add_dependencies(${ARGV0} ${ACE_DEPENDS})
+  endif()
   target_compile_options(${ARGV0}
     PRIVATE ${CA_COMPILE_OPTIONS})
   target_compile_definitions(${ARGV0}
@@ -566,7 +576,7 @@ macro(add_ca_executable)
   set_target_properties(${ARGV0} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
   if(COMMAND add_ca_tidy)
-    add_ca_tidy(${ARGV})
+    add_ca_tidy(${ACE_UNPARSED_ARGUMENTS} DEPENDS ${ACE_DEPENDS})
   endif()
   ca_target_link_options(${ARGV0} PRIVATE "${CA_LINK_OPTIONS}")
   if(CA_ENABLE_DEBUG_BACKTRACE)

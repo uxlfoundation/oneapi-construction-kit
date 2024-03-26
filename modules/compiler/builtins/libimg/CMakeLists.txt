@@ -77,10 +77,7 @@ add_library(image_library_host STATIC ${CODEPLAY_IMG_HOST_SOURCES})
 
 # If extra ComputeAorta commands exist, use them.
 if(COMMAND add_ca_tidy)
-  add_ca_tidy(image_library_host ${CODEPLAY_IMG_HOST_SOURCES})
-  if(TARGET tidy-image_library_host)
-    add_dependencies(tidy-image_library_host abacus_generate)
-  endif()
+  add_ca_tidy(image_library_host ${CODEPLAY_IMG_HOST_SOURCES} DEPENDS abacus_generate)
 endif()
 
 target_include_directories(image_library_host PUBLIC
