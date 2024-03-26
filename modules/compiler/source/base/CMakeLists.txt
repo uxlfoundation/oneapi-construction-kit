@@ -136,3 +136,6 @@ target_compile_definitions(compiler-base PUBLIC
 # Compiler passes in this module include abacus headers, so ensure they are
 # generated before this module starts to build.
 add_dependencies(compiler-base abacus_generate)
+if(TARGET tidy-compiler-base)
+  add_dependencies(tidy-compiler-base abacus_generate)
+endif()
