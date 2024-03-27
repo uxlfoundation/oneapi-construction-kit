@@ -32,9 +32,10 @@ using namespace llvm;
 
 PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
     Function &F, FunctionAnalysisManager &FAM) {
-  auto *HalfT = Type::getHalfTy(F.getContext());
-  auto *FloatT = Type::getFloatTy(F.getContext());
-  auto *DoubleT = Type::getDoubleTy(F.getContext());
+  auto &C = F.getContext();
+  auto *HalfT = Type::getHalfTy(C);
+  auto *FloatT = Type::getFloatTy(C);
+  auto *DoubleT = Type::getDoubleTy(C);
 
   // Targets where half is a legal type, and targets where half is promoted
   // using "soft promotion" rules, are assumed to implement basic operators
@@ -57,12 +58,13 @@ PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
 #endif
                                   TT.isX86() || TT.isRISCV();
   const bool HaveCorrectHalfFMA = TT.isRISCV();
-  if (HaveCorrectHalfOps && HaveCorrectHalfFMA) {
+  const bool HaveCorrectVecConvert = !TT.isAArch64();
+  if (HaveCorrectHalfOps && HaveCorrectHalfFMA && HaveCorrectVecConvert) {
     return PreservedAnalyses::all();
   }
 
   DenseMap<std::pair<Value *, Type *>, Value *> FPExtVals;
-  IRBuilder<> B(F.getContext());
+  IRBuilder<> B(C);
 
   auto CreateFPExt = [&](Value *V, Type *Ty, Type *ExtTy) {
     (void)Ty;
@@ -100,61 +102,91 @@ PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
       auto *VecT = dyn_cast<VectorType>(T);
       auto *ElT = VecT ? VecT->getElementType() : T;
 
-      if (ElT != HalfT) continue;
-
-      if (!HaveCorrectHalfOps) {
-        if (auto *BO = dyn_cast<BinaryOperator>(&I)) {
-          Type *const ExtElT = FloatT;
-          Type *const ExtT =
-              VecT ? VectorType::get(ExtElT, VecT->getElementCount()) : ExtElT;
-          Value *const PromotedOperands[] = {
-              CreateFPExt(BO->getOperand(0), T, ExtT),
-              CreateFPExt(BO->getOperand(1), T, ExtT),
-          };
-          B.SetInsertPoint(BO);
-          B.setFastMathFlags(BO->getFastMathFlags());
-          auto *const PromotedOperation =
-              B.CreateBinOp(BO->getOpcode(), PromotedOperands[0],
-                            PromotedOperands[1], BO->getName() + ".fpext");
-          B.clearFastMathFlags();
-
-          auto *const Trunc = B.CreateFPTrunc(PromotedOperation, T);
-          Trunc->takeName(BO);
-
-          BO->replaceAllUsesWith(Trunc);
-          BO->eraseFromParent();
-
-          Changed = true;
-          continue;
-        }
-      }
-
-      if (!HaveCorrectHalfFMA) {
-        if (auto *II = dyn_cast<IntrinsicInst>(&I)) {
-          if (II->getIntrinsicID() == Intrinsic::fma) {
-            Type *const ExtElT = DoubleT;
+      if (ElT == HalfT) {
+        if (!HaveCorrectHalfOps) {
+          if (auto *BO = dyn_cast<BinaryOperator>(&I)) {
+            Type *const ExtElT = FloatT;
             Type *const ExtT =
                 VecT ? VectorType::get(ExtElT, VecT->getElementCount())
                      : ExtElT;
-            Value *const PromotedArguments[] = {
-                CreateFPExt(II->getArgOperand(0), T, ExtT),
-                CreateFPExt(II->getArgOperand(1), T, ExtT),
-                CreateFPExt(II->getArgOperand(2), T, ExtT),
+            Value *const PromotedOperands[] = {
+                CreateFPExt(BO->getOperand(0), T, ExtT),
+                CreateFPExt(BO->getOperand(1), T, ExtT),
             };
-            B.SetInsertPoint(II);
-            // Because the arguments are promoted halfs, the multiplication in
-            // type double is exact and the result is the same even if multiply
-            // and add are kept as separate operations, so use FMulAdd rather
-            // than FMA.
+            B.SetInsertPoint(BO);
+            B.setFastMathFlags(BO->getFastMathFlags());
             auto *const PromotedOperation =
-                B.CreateIntrinsic(ExtT, Intrinsic::fmuladd, PromotedArguments,
-                                  II, II->getName() + ".fpext");
+                B.CreateBinOp(BO->getOpcode(), PromotedOperands[0],
+                              PromotedOperands[1], BO->getName() + ".fpext");
+            B.clearFastMathFlags();
 
             auto *const Trunc = B.CreateFPTrunc(PromotedOperation, T);
-            Trunc->takeName(II);
+            Trunc->takeName(BO);
 
-            II->replaceAllUsesWith(Trunc);
-            II->eraseFromParent();
+            BO->replaceAllUsesWith(Trunc);
+            BO->eraseFromParent();
+
+            Changed = true;
+            continue;
+          }
+        }
+
+        if (!HaveCorrectHalfFMA) {
+          if (auto *II = dyn_cast<IntrinsicInst>(&I)) {
+            if (II->getIntrinsicID() == Intrinsic::fma) {
+              Type *const ExtElT = DoubleT;
+              Type *const ExtT =
+                  VecT ? VectorType::get(ExtElT, VecT->getElementCount())
+                       : ExtElT;
+              Value *const PromotedArguments[] = {
+                  CreateFPExt(II->getArgOperand(0), T, ExtT),
+                  CreateFPExt(II->getArgOperand(1), T, ExtT),
+                  CreateFPExt(II->getArgOperand(2), T, ExtT),
+              };
+              B.SetInsertPoint(II);
+              // Because the arguments are promoted halfs, the multiplication in
+              // type double is exact and the result is the same even if
+              // multiply and add are kept as separate operations, so use
+              // FMulAdd rather than FMA.
+              auto *const PromotedOperation =
+                  B.CreateIntrinsic(ExtT, Intrinsic::fmuladd, PromotedArguments,
+                                    II, II->getName() + ".fpext");
+
+              auto *const Trunc = B.CreateFPTrunc(PromotedOperation, T);
+              Trunc->takeName(II);
+
+              II->replaceAllUsesWith(Trunc);
+              II->eraseFromParent();
+
+              Changed = true;
+              continue;
+            }
+          }
+        }
+      }
+
+      if (!HaveCorrectVecConvert) {
+        if (I.getOpcode() == Instruction::UIToFP ||
+            I.getOpcode() == Instruction::SIToFP) {
+          auto &CI = cast<CastInst>(I);
+          auto *const Op = CI.getOperand(0);
+          if (CI.getType()->isVectorTy() &&
+              CI.getType()->getScalarSizeInBits() <
+                  Op->getType()->getScalarSizeInBits()) {
+            auto *const VecTy = cast<FixedVectorType>(CI.getType());
+            auto *const EltTy = VecTy->getElementType();
+
+            Value *Replacement = PoisonValue::get(VecTy);
+            B.SetInsertPoint(&CI);
+            for (unsigned I = 0, E = VecTy->getNumElements(); I != E; ++I) {
+              auto *const EEI = B.CreateExtractElement(Op, I);
+              auto *const CastI = B.CreateCast(CI.getOpcode(), EEI, EltTy);
+              auto *const IEI = B.CreateInsertElement(Replacement, CastI, I);
+              Replacement = IEI;
+            }
+
+            CI.replaceAllUsesWith(Replacement);
+            CI.eraseFromParent();
 
             Changed = true;
             continue;
