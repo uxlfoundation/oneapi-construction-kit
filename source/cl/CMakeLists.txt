@@ -362,4 +362,8 @@ if(CA_ENABLE_TESTS)
     ${PROJECT_SOURCE_DIR}/scripts/jenkins/cts_summary
     DESTINATION share COMPONENT OCLTest
     FILES_MATCHING PATTERN *.csv)
+  install(DIRECTORY
+    scripts/
+    DESTINATION share/cts_summary COMPONENT OCLTest
+    FILES_MATCHING PATTERN *.csv)
 endif()
