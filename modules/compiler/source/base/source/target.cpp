@@ -36,10 +36,18 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
   getLLVMContext().setOpaquePointers(true);
 #endif
   if (callback) {
-    auto diag_handler_callback_thunk = [](const llvm::DiagnosticInfo &DI,
-                                          void *user_data) {
+    auto diag_handler_callback_thunk = [](
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+                                           const llvm::DiagnosticInfo *DI,
+#else
+                                           const llvm::DiagnosticInfo &DI_,
+#endif
+                                           void *user_data) {
+#if LLVM_VERSION_LESS(19, 0)
+      const llvm::DiagnosticInfo *DI = &DI_;
+#endif
       if (auto *Remark =
-              llvm::dyn_cast<llvm::DiagnosticInfoOptimizationBase>(&DI)) {
+              llvm::dyn_cast<llvm::DiagnosticInfoOptimizationBase>(DI)) {
         if (!Remark->isEnabled()) {
           return;
         }
@@ -47,9 +55,9 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
       std::string log;
       llvm::raw_string_ostream stream{log};
       llvm::DiagnosticPrinterRawOStream diagnosticPrinter{stream};
-      stream << llvm::LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity())
+      stream << llvm::LLVMContext::getDiagnosticMessagePrefix(DI->getSeverity())
              << ": ";
-      DI.print(diagnosticPrinter);
+      DI->print(diagnosticPrinter);
       stream << "\n";
       auto *function = static_cast<NotifyCallbackFn *>(user_data);
       (*function)(log.c_str(), nullptr, 0);
