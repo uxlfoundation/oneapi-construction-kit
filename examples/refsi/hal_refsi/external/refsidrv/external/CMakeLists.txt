@@ -14,6 +14,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+# The CMake default is to build with extensions enabled. We disable this in
+# AddCA.cmake, but cannot expect external projects to account for this.
+# Restore it for riscv-isa-sim.
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/riscv-isa-sim/CMakeLists.txt)
   add_subdirectory(riscv-isa-sim)
 else()
