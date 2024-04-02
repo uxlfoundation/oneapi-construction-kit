@@ -114,7 +114,11 @@ TEST_F(clCreateUserEventTest, SubsequentCommandsWaitOnUserEvents) {
   ASSERT_SUCCESS(clReleaseCommandQueue(queue));
 }
 
-TEST_F(clCreateUserEventTest, OutOfOrderQueue) {
+// This test assumes clSetUserEventStatus can happen before clEnqueueReadBuffer
+// completes. If it cannot, it deadlocks. While we would like to let the
+// clSetUserEventStatus happen first, this is not required, not what our
+// implementation does, and not what all other implementations do either.
+TEST_F(clCreateUserEventTest, DISABLED_OutOfOrderQueue) {
   cl_command_queue_properties properties = 0;
 
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_QUEUE_PROPERTIES,

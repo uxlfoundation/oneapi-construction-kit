@@ -1205,11 +1205,19 @@ TEST_F(clGetDeviceInfoTest, QUEUE_PROPERTIES) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_QUEUE_PROPERTIES, size,
                                  &payload, nullptr));
 
-  const cl_command_queue_properties expect = CL_QUEUE_PROFILING_ENABLE;
-  EXPECT_EQ(expect, CL_QUEUE_PROFILING_ENABLE & payload);
-  payload &= ~CL_QUEUE_PROFILING_ENABLE;
-  ASSERT_TRUE((0 == payload) ||
-              (CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE == payload));
+  {
+    const cl_command_queue_properties expect = CL_QUEUE_PROFILING_ENABLE;
+    EXPECT_EQ(expect, CL_QUEUE_PROFILING_ENABLE & payload);
+  }
+  {
+#ifdef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
+    const cl_command_queue_properties expect =
+        CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+#else
+    const cl_command_queue_properties expect = 0;
+#endif
+    EXPECT_EQ(expect, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE & payload);
+  }
 }
 
 #if defined(CL_VERSION_3_0)
