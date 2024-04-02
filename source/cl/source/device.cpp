@@ -186,8 +186,12 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
       printf_buffer_size(compiler::PRINTF_BUFFER_SIZE),
       preferred_interop_user_sync(CL_TRUE),
       profile(),
-      profiling_timer_resolution(5),                // Get from Mux?
-      queue_properties(CL_QUEUE_PROFILING_ENABLE),  // Get from Mux?
+      profiling_timer_resolution(5),  // Get from Mux?
+      queue_properties(CL_QUEUE_PROFILING_ENABLE
+#ifdef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
+                       | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
+#endif
+                       ),  // Get from Mux?
       reference_count(1),  // All devices are root devices.
       single_fp_config(setOpenCLFromMux(mux_device->info->float_capabilities) |
                        CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT),
