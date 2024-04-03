@@ -124,7 +124,8 @@ class GTestProfile(SSHProfile):
 
         if self.use_ssh():
             if not args.ssh_client:
-                raise Exception("A SSH client (--ssh-client) couldn't be found.")
+                raise Exception(
+                    "A SSH client (--ssh-client) couldn't be found.")
 
             # For SSH we want to default number of threads to 1
             if not args.jobs:
@@ -157,7 +158,8 @@ class GTestProfile(SSHProfile):
                              list_bin_args)
 
         test_list_info = TestInfo("", executable, list(filter_args))
-        test_list = GoogleTestRun(self, test_list_info, quiet=True).execute_and_output()
+        test_list = GoogleTestRun(
+            self, test_list_info, quiet=True).execute_and_output()
 
         # Parse output to create list of tests
         test_prefix = ""
@@ -193,7 +195,7 @@ class GTestProfile(SSHProfile):
 
         return test_names
 
-    def load_tests(self, csv_path, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path):
         """ Find the list of tests from CSV or fallback to gtest binary. """
         if disabled_path:
             print("Warning: disabled list not supported for gtest profile")
@@ -211,14 +213,15 @@ class GTestProfile(SSHProfile):
                 for test in tests:
                     f.write(test.name + "\n")
         # Load tests from CSV if one was provided
-        elif csv_path:
-            if not os.path.exists(csv_path):
-                raise Exception("Test list file does not exist")
+        elif csv_paths:
+            for csv_path in csv_paths:
+                if not os.path.exists(csv_path):
+                    raise Exception("Test list file does not exist")
 
-            tests = self.parse_gtest_csv(csv_path)
-            for test in tests:
-                parsed_tests.append(
-                    self.create_test_info(test, executable, bin_args))
+                tests = self.parse_gtest_csv(csv_path)
+                for test in tests:
+                    parsed_tests.append(
+                        self.create_test_info(test, executable, bin_args))
         else:
             parsed_tests = self.list_tests(executable, bin_args[:])
 
@@ -301,7 +304,7 @@ class GoogleTestRun(SSHTestRun):
 
         # Regex expressions to match
         total_tests_pattern = re.compile(
-               b".*?(\\d+) (test cases?|tests? from \\d+ test suites?) ran\\." )
+            b".*?(\\d+) (test cases?|tests? from \\d+ test suites?) ran\\.")
         pass_pattern = re.compile(b"^\\[  PASSED  \\] (\\d+) tests?\\.$")
         skip_pattern = re.compile(b"^\\[  SKIPPED \\] (\\d+) tests?")
 

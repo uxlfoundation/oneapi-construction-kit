@@ -108,7 +108,7 @@ class Profile(object):
          argument parser. """
         parser.add_argument(
             "-s",
-            "--test-source",
+            "--test-source", nargs="+",
             help="File containing a list of tests to run")
         parser.add_argument(
             "-d",
@@ -225,17 +225,17 @@ class Profile(object):
         """ Create a new test run from a test description.  """
         raise NotImplementedError()
 
-    def load_tests(self, csv_path, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path):
         """ Create the list of tests to run from a CSV. """
-        if not csv_path or not os.path.exists(csv_path):
+        if not csv_paths or any(not csv_path or not os.path.exists(csv_path) for csv_path in csv_paths):
             raise Exception("Test list file not specified or does not exist")
         if disabled_path and not os.path.exists(disabled_path):
             raise Exception("Disabled test list file does not exist")
         if ignored_path and not os.path.exists(ignored_path):
             raise Exception("Ignored test list file does not exist")
         tests = (TestList
-                   .from_file(csv_path, disabled_path, ignored_path, self.args.test_prefix)
-                   .filter(self.args.patterns))
+                 .from_file(csv_paths, disabled_path, ignored_path, self.args.test_prefix)
+                 .filter(self.args.patterns))
         return tests
 
     def init_workers_state(self, expected_num_entries):
