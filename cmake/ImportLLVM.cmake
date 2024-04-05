@@ -60,6 +60,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH
   ${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm
   ${CA_LLVM_INSTALL_DIR}/lib/cmake/clang)
+set(LLVM_DIR ${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm)
 
 # Include LLVM.
 include(LLVMConfig)
