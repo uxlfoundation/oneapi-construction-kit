@@ -1177,23 +1177,31 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
       num_events_in_wait_list, event_wait_list, command_queue->context, event);
   OCL_CHECK(error != CL_SUCCESS, return error);
 
+  cl_event return_event = nullptr;
   if (nullptr != event) {
     auto new_event = _cl_event::create(command_queue, CL_COMMAND_BARRIER);
     if (!new_event) {
       return new_event.error();
     }
-    *event = *new_event;
+    return_event = *new_event;
+  }
+  cl::release_guard<cl_event> event_release_guard(return_event,
+                                                  cl::ref_count_type::EXTERNAL);
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(
+      command_queue->context->getCommandQueueMutex());
 
-    // barriers are implicit in in-order queues, could mostly be a no-op
-    // (especially if we don't have a return event!)
-    auto command_buffer = command_queue->getCommandBuffer(
-        {event_wait_list, num_events_in_wait_list}, *event);
-    if (!command_buffer) {
-      return CL_OUT_OF_RESOURCES;
-    }
+  // barriers are implicit in in-order queues, could mostly be a no-op
+  // (especially if we don't have a return event!) but we may have cross-queue
+  // events to wait for
+  auto command_buffer = command_queue->getCommandBuffer(
+      {event_wait_list, num_events_in_wait_list}, return_event);
+  if (!command_buffer) {
+    return CL_OUT_OF_RESOURCES;
+  }
+
+  if (nullptr != event) {
+    *event = event_release_guard.dismiss();
   }
 
   return CL_SUCCESS;
@@ -1209,21 +1217,28 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
       num_events_in_wait_list, event_wait_list, command_queue->context, event);
   OCL_CHECK(error != CL_SUCCESS, return error);
 
+  cl_event return_event = nullptr;
   if (nullptr != event) {
     auto new_event = _cl_event::create(command_queue, CL_COMMAND_MARKER);
     if (!new_event) {
       return new_event.error();
     }
-    *event = *new_event;
+    return_event = *new_event;
+  }
+  cl::release_guard<cl_event> event_release_guard(return_event,
+                                                  cl::ref_count_type::EXTERNAL);
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+  const std::lock_guard<std::mutex> lock(
+      command_queue->context->getCommandQueueMutex());
 
-    auto mux_command_buffer = command_queue->getCommandBuffer(
-        {event_wait_list, num_events_in_wait_list}, *event);
-    if (!mux_command_buffer) {
-      return CL_OUT_OF_RESOURCES;
-    }
+  auto mux_command_buffer = command_queue->getCommandBuffer(
+      {event_wait_list, num_events_in_wait_list}, return_event);
+  if (!mux_command_buffer) {
+    return CL_OUT_OF_RESOURCES;
+  }
+
+  if (nullptr != event) {
+    *event = event_release_guard.dismiss();
   }
 
   return CL_SUCCESS;
@@ -1251,8 +1266,14 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
                       "does not support out of order execution"));
 #endif
 
-  // no-op, as our queue is in-order we guarantee that all events are executed
-  // before this could be!
+  const std::lock_guard<std::mutex> lock(
+      queue->context->getCommandQueueMutex());
+
+  auto mux_command_buffer =
+      queue->getCommandBuffer({event_list, num_events}, nullptr);
+  if (!mux_command_buffer) {
+    return CL_OUT_OF_RESOURCES;
+  }
 
   return CL_SUCCESS;
 }
