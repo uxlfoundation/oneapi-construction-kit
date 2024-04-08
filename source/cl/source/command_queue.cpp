@@ -737,11 +737,6 @@ _cl_command_queue::getCommandBufferPending(
       signal_semaphores_length = 1;
     }
 
-    // Set all events as running.
-    for (auto signal_event : finished.signal_events) {
-      signal_event->running();
-    }
-
     // Actually dispatch the command buffer.
     cargo::small_vector<mux_semaphore_t, 8> wait_semaphores_storage;
     for (auto s : dispatch.wait_semaphores) {
