@@ -35,6 +35,35 @@
 
 #include "device/device_if.h"
 
+hal::hal_device_info_t cpu_hal::setup_cpu_hal_device_info() {
+  const uint64_t global_ram_size = 256 << 20;
+  const uint64_t global_mem_max_over_allocation = 16 << 20;
+  const uint64_t local_ram_size = 8 << 20;
+  hal::hal_device_info_t hal_device_info;
+  hal_device_info.type = hal::hal_device_type_riscv;
+  hal_device_info.word_size = sizeof(uintptr_t) * 8;
+  hal_device_info.target_name = "ock cpu";
+  hal_device_info.global_memory_avail =
+      global_ram_size - global_mem_max_over_allocation;
+  hal_device_info.shared_local_memory_size = local_ram_size;
+  hal_device_info.should_link = true;
+  hal_device_info.should_vectorize = false;
+  // TODO: This is slightly arbitrary and based on the "host" target
+  hal_device_info.preferred_vector_width = 128 / (8 * sizeof(uint8_t));
+  hal_device_info.supports_fp16 = false;
+  hal_device_info.supports_doubles = true;
+#if HAL_CPU_MODE == HAL_CPU_WG_MODE
+  hal_device_info.max_workgroup_size = 1024;
+#elif HAL_CPU_MODE == HAL_CPU_WI_MODE
+  hal_device_info.max_workgroup_size = 16;
+#else
+#error HAL_CPU_MODE must be HAL_CPU_WG_MODE or HAL_CPU_WI_MODE.
+#endif
+  hal_device_info.is_little_endian = true;
+  hal_device_info.linker_script = "";
+  return hal_device_info;
+}
+
 cpu_hal::cpu_hal(hal::hal_device_info_t *info, std::mutex &hal_lock)
     : hal::hal_device_t(info), hal_lock(hal_lock) {
 #if HAL_CPU_MODE == HAL_CPU_WI_MODE
@@ -51,9 +80,7 @@ cpu_hal::cpu_hal(hal::hal_device_info_t *info, std::mutex &hal_lock)
 }
 
 #if HAL_CPU_MODE == HAL_CPU_WI_MODE
-cpu_hal::~cpu_hal() {
-  std::free(local_mem);
-}
+cpu_hal::~cpu_hal() { std::free(local_mem); }
 #endif
 
 hal::hal_kernel_t cpu_hal::program_find_kernel(hal::hal_program_t program,
@@ -175,8 +202,8 @@ void cpu_hal::kernel_entry(exec_state *exec) {
 
   // Simple split across x axis (first )by dividing the num groups by the
   // threads and rounding up. Some threads may get zero due to the x dimension
-  // being smaller that the total threads or the total size not fitting the number
-  // of threads exactly
+  // being smaller that the total threads or the total size not fitting the
+  // number of threads exactly
 
   // First work out the ideal number of groups per thread by rounding up to the
   // number of threads. We may later reduce the size on a thread basis due to a

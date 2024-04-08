@@ -34,11 +34,6 @@ target_include_directories(hal_cpu PRIVATE
 
 target_link_libraries(hal_cpu hal_common dl pthread)
 
-hal_add_baked_data(hal_cpu
-    hal_cpu_linker_script
-    linker_script.h
-    ${HAL_CPU_SOURCE_DIR}/include/device/program.lds)
-
 set_target_properties(hal_cpu PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
   
