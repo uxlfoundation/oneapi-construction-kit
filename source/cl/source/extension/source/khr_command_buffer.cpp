@@ -1251,14 +1251,23 @@ CL_API_ENTRY cl_int CL_API_CALL clEnqueueCommandBufferKHR(
   const tracer::TraceGuard<tracer::OpenCL> guard("clEnqueueCommandBufferKHR");
 
   // Verify queue arguments.
-  OCL_CHECK(!queues ^ !num_queues, return CL_INVALID_COMMAND_QUEUE);
+  OCL_CHECK(!queues ^ !num_queues, return CL_INVALID_VALUE);
   // We currently only support one queue associated with the command buffer.
-  OCL_CHECK(num_queues > 0 && num_queues != 1, return CL_INVALID_COMMAND_QUEUE);
-  OCL_CHECK(queues && !command_buffer->isQueueCompatible(*queues),
-            return CL_INVALID_COMMAND_QUEUE);
+  OCL_CHECK(num_queues > 0 && num_queues != 1, return CL_INVALID_VALUE);
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(!command_buffer->is_finalized, return CL_INVALID_OPERATION);
+
+  OCL_CHECK(queues && !(*queues), return CL_INVALID_COMMAND_QUEUE);
+
+  OCL_CHECK(queues && !command_buffer->isQueueCompatible(*queues),
+            return CL_INCOMPATIBLE_COMMAND_QUEUE_KHR);
+
+  if (auto error = cl::validate::EventWaitList(
+          num_events_in_wait_list, event_wait_list,
+          command_buffer->command_queue->context, return_event)) {
+    return error;
+  }
 
   // Command-buffer property needs to be set to support re-enqueue while
   // a previous instance is in flight
