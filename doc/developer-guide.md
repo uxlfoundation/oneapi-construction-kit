@@ -755,6 +755,7 @@ cmake . -GNinja \
   -DLLVM_HOST_TRIPLE=arm-unknown-linux-gnu \
   -DLLVM_DEFAULT_TARGET_TRIPLE=arm-unknown-linux-gnu \
   -DLLVM_ENABLE_ZLIB=OFF \
+  -DLLVM_ENABLE_ZSTD=OFF \
   -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
   -DCLANG_TABLEGEN=$LLVMNativeBuild/bin/clang-tblgen
 ```
@@ -782,6 +783,7 @@ cmake . -GNinja \
   -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu \
   -DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-unknown-linux-gnu \
   -DLLVM_ENABLE_ZLIB=OFF \
+  -DLLVM_ENABLE_ZSTD=OFF \
   -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
   -DCLANG_TABLEGEN=$LLVMNativeBuild/bin/clang-tblgen
 ```
