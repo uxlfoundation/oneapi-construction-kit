@@ -107,7 +107,7 @@ class CTSTestRun(TestRunBase):
                                      "inaccuracies in calculated pass percentage.")
 
                 total_tests = fail_pair[1]
-                passed_tests = self.total_tests - fail_pair[0]
+                passed_tests = total_tests - fail_pair[0]
             elif fail_single:
                 status = "FAIL"
                 passed_tests, total_tests = 0, 1
