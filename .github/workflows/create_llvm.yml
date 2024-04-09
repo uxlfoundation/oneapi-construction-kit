@@ -58,6 +58,7 @@ jobs:
               -DLLVM_ENABLE_DIA_SDK=OFF
               -DCMAKE_INSTALL_PREFIX=llvm_install
               -DLLVM_ENABLE_ZLIB=FALSE
+              -DLLVM_ENABLE_ZSTD=FALSE
               -DLLVM_ENABLE_Z3_SOLVER=FALSE
               -DLLVM_ENABLE_PROJECTS="clang;lld"
               -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64;RISCV"

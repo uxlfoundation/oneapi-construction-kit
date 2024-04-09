@@ -47,40 +47,41 @@ function(find_builtins_tools tools_dir)
 
   set(BUILTINS_COMPILER ${tools_dir}/clang${CA_HOST_EXECUTABLE_SUFFIX})
   set(BUILTINS_LINKER ${tools_dir}/llvm-link${CA_HOST_EXECUTABLE_SUFFIX})
-  if(NOT LLVM_ENABLE_ZLIB)
-    set(BUILTINS_COMPILER_ZLIB_ENABLED ON)
-    set(BUILTINS_LLVM_CONFIG
-      ${tools_dir}/llvm-config${CA_HOST_EXECUTABLE_SUFFIX})
-    execute_process(
-      COMMAND ${BUILTINS_LLVM_CONFIG} --cmakedir
-      OUTPUT_VARIABLE BUILTINS_LLVM_CMAKE
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    set(BUILTINS_LLVM_CMAKE ${BUILTINS_LLVM_CMAKE}/LLVMConfig.cmake)
-    if(EXISTS ${BUILTINS_LLVM_CMAKE})
-      file(STRINGS ${BUILTINS_LLVM_CMAKE} builtins_llvm_config
-        REGEX "LLVM_ENABLE_ZLIB (1|ON|YES|TRUE|Y|0|OFF|NO|FALSE|N)")
-      foreach(line ${builtins_llvm_config})
-        string(STRIP "${line}" line)
-        string(REGEX MATCHALL
-          "^set\\(LLVM_ENABLE_ZLIB (ON|OFF|0|1)\\)$" _ "${line}")
-        set(BUILTINS_COMPILER_ZLIB_ENABLED ${CMAKE_MATCH_1})
-      endforeach()
-      if(BUILTINS_COMPILER_ZLIB_ENABLED)
-        message(FATAL_ERROR "builtins compiler will generate zlib-compressed "
-          "bitcode, but the target compiler does not have zlib support")
-          return()
-      endif()
-    else()
+  set(BUILTINS_LLVM_CONFIG ${tools_dir}/llvm-config${CA_HOST_EXECUTABLE_SUFFIX})
+  foreach(option ZLIB ZSTD)
+    if(LLVM_ENABLE_${option})
+      continue()
+    endif()
+    if(NOT DEFINED BUILTINS_LLVM_CMAKE)
+      execute_process(
+        COMMAND ${BUILTINS_LLVM_CONFIG} --cmakedir
+        OUTPUT_VARIABLE BUILTINS_LLVM_CMAKE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+      set(BUILTINS_LLVM_CMAKE ${BUILTINS_LLVM_CMAKE}/LLVMConfig.cmake)
+    endif()
+    if(NOT EXISTS BUILTINS_LLVM_CMAKE)
       message(
         WARNING
         "builtins tools installation does not have necessary cmake modules; "
         "cannot determine whether the builtins compiler generates "
-        "zlib-compressed bitcode"
-      )
+        "${option}-compressed bitcode")
     endif()
-  endif()
+    file(STRINGS ${BUILTINS_LLVM_CMAKE} option_set
+      REGEX "^set\\(LLVM_ENABLE_${option} .*\\)$")
+    if(NOT option_set)
+      message(FATAL_ERROR "LLVMConfig.cmake found but lacks definition for "
+        "LLVM_ENABLE_${option}")
+    endif()
+    # CMake prior to 3.29 does not set capture groups in file REGEX, so do it
+    # again using string REGEX.
+    string(REGEX MATCH "^set\\(LLVM_ENABLE_${option} (.*)\\)$"
+      option_set "${option_set}")
+    if(CMAKE_MATCH_1)
+      message(FATAL_ERROR "builtins compiler will generate ${option}-compressed"
+        " bitcode, but the target compiler does not have ${option} support")
+    endif()
+  endforeach()
 
   # Create imported targets for the builtins tools
   if(NOT TARGET builtins::compiler)
