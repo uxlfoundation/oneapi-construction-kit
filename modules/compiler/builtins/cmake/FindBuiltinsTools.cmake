@@ -66,6 +66,7 @@ function(find_builtins_tools tools_dir)
         "builtins tools installation does not have necessary cmake modules; "
         "cannot determine whether the builtins compiler generates "
         "${option}-compressed bitcode")
+      continue()
     endif()
     file(STRINGS ${BUILTINS_LLVM_CMAKE} option_set
       REGEX "^set\\(LLVM_ENABLE_${option} .*\\)$")
