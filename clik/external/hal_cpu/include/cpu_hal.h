@@ -48,6 +48,10 @@ class cpu_hal final : public hal::hal_device_t {
   ~cpu_hal();
 #endif
 
+  // Set up the hal device info - this is done as a static so that other classes such
+  // as hal_client can set up the desired information directly
+  static hal::hal_device_info_t setup_cpu_hal_device_info();
+
   size_t get_word_size() const { return sizeof(uintptr_t); }
 
   // find a specific kernel function in a compiled program
