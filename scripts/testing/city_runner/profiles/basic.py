@@ -100,7 +100,7 @@ class BasicProfile(SSHProfile):
 
         return env
 
-    def load_tests(self, csv_path, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path):
         """ Find the list of tests from CSV. """
         if disabled_path:
             print("Warning: disabled list not supported for basic profile")
@@ -109,22 +109,24 @@ class BasicProfile(SSHProfile):
             print("Warning: ignored list not supported for basic profile")
 
         parsed_tests = []
-        # Load tests from CSV if one was provided
-        if csv_path:
-            if not os.path.exists(csv_path):
-                raise Exception("Test list file does not exist")
+        # Load tests from CSV if any were provided
+        if csv_paths:
+            for csv_path in csv_paths:
+                if not os.path.exists(csv_path):
+                    raise Exception("Test list file does not exist")
 
-            with open(csv_path, "r") as f:
-                for line in f:
-                    # Skip commented out lines
-                    if line.startswith('#'):
-                        continue
+                with open(csv_path, "r") as f:
+                    for line in f:
+                        # Skip commented out lines
+                        if line.startswith('#'):
+                            continue
 
-                    # The first field of the csv is the executable name, and
-                    # the following fields are the arguments
-                    test_binary = line.split(",")[0].strip()
-                    executable = TestExecutable(test_binary, test_binary)
-                    parsed_tests.append(TestInfo(test_binary, executable, line.split(",")[1:]))
+                        # The first field of the csv is the executable name, and
+                        # the following fields are the arguments
+                        test_binary = line.split(",")[0].strip()
+                        executable = TestExecutable(test_binary, test_binary)
+                        parsed_tests.append(
+                            TestInfo(test_binary, executable, line.split(",")[1:]))
 
         # Error if no tests were found
         if not parsed_tests:
@@ -168,7 +170,7 @@ class BasicRun(SSHTestRun):
         else:
             # Launch the binary locally
             exe_path = os.path.join(self.profile.args.binary_path,
-                self.test.executable.path)
+                                    self.test.executable.path)
             env_vars = self.profile.build_environment_vars()
             self.create_process(exe_path, self.test.arguments, env=env_vars)
 

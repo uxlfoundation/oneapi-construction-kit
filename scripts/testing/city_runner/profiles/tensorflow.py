@@ -118,7 +118,7 @@ class TensorflowProfile(SSHProfile):
 
         return args
 
-    def load_tests(self, csv_path, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path):
         """ 
         Find the list of tests from CSV or fallback to Tensorflow binary.
         """
@@ -142,19 +142,21 @@ class TensorflowProfile(SSHProfile):
             bin_args.append("--Tensorflow_color=no")
 
         parsed_tests = []
-        # Load tests from CSV if one was provided
-        if csv_path:
-            if not os.path.exists(csv_path):
-                raise Exception("Test list file does not exist")
+        # Load tests from CSV if any were provided
+        if csv_paths:
+            for csv_path in csv_paths:
+                if not os.path.exists(csv_path):
+                    raise Exception("Test list file does not exist")
 
-            with open(csv_path, "r") as f:
-                for line in f:
-                    # Assume for now that the first item in the CSV is the
-                    # fully qualified test name. This may change one we start
-                    # using this feature.
-                    test_name = os.path.join(self.args.tf_root[0], line.split(",")[0].strip())
-                    parsed_tests.append(
-                        TestInfo(test_name, executable, bin_args))
+                with open(csv_path, "r") as f:
+                    for line in f:
+                        # Assume for now that the first item in the CSV is the
+                        # fully qualified test name. This may change one we start
+                        # using this feature.
+                        test_name = os.path.join(
+                            self.args.tf_root[0], line.split(",")[0].strip())
+                        parsed_tests.append(
+                            TestInfo(test_name, executable, bin_args))
         else:
             raise Exception("Please provide a list of tests in CSV format")
 
@@ -185,7 +187,8 @@ class TensorflowRun(CTSTestRun):
 
         if self.profile.use_ssh():
             # Launch Tensorflow binary over ssh
-            exports = super(TensorflowProfile, self.profile).construct_cmd_env()
+            exports = super(TensorflowProfile,
+                            self.profile).construct_cmd_env()
             run_test_string = " ".join(run_test_cmd)
             if exports:
                 run_test_string = exports + " && " + run_test_string
@@ -204,7 +207,7 @@ class TensorflowRun(CTSTestRun):
     def analyze_process_output(self):
         timeout_reboot = False
         # Return code 143 refers to SIGTERM which means the process was killed
-        # in our case the usually is a result of a timeout. In some 
+        # in our case the usually is a result of a timeout. In some
         # circumstances an application killed can cause problems with a device
         # and as such we need to perform a reboot before continuing.
         if self.return_code == 143:

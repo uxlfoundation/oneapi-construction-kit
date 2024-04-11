@@ -103,7 +103,7 @@ class TestList(object):
         return TestList(new_tests, self.executables)
 
     @classmethod
-    def from_file(cls, list_file_path, disabled_file_path, ignored_file_path, prefix=""):
+    def from_file(cls, list_file_paths, disabled_file_path, ignored_file_path, prefix=""):
         """ Load a list of tests from a CTS list file. """
         tests = []
         disabled_tests = []
@@ -121,93 +121,99 @@ class TestList(object):
 
             with open(path, "r") as f:
                 stripped = (line.strip() for line in f)
-                filtered = (line for line in stripped if line and not line.startswith("#"))
+                filtered = (
+                    line for line in stripped if line and not line.startswith("#"))
                 chunked = csv.reader(filtered)
                 filter_tests.extend(json.dumps(chunks) for chunks in chunked)
 
-        with open(list_file_path, "r") as f:
-            stripped = (line.strip() for line in f)
-            filtered = (line for line in stripped if line and not line.startswith("#"))
-            chunked = csv.reader(filtered)
-            for chunks in chunked:
-                device_filter = None
-                if chunks and chunks[0].startswith("CL_DEVICE_TYPE_"):
-                    device_filter = chunks.pop(0)
-                if len(chunks) < 2:
-                    raise Exception("Not enough columns in the CSV file")
-                argv = chunks[1]
-                serialized = json.dumps(chunks)
-                ignored = serialized in ignored_tests
-                disabled = serialized in disabled_tests
-                unimplemented = False
+        for list_file_path in list_file_paths:
+            with open(list_file_path, "r") as f:
+                stripped = (line.strip() for line in f)
+                filtered = (
+                    line for line in stripped if line and not line.startswith("#"))
+                chunked = csv.reader(filtered)
+                for chunks in chunked:
+                    device_filter = None
+                    if chunks and chunks[0].startswith("CL_DEVICE_TYPE_"):
+                        device_filter = chunks.pop(0)
+                    if len(chunks) < 2:
+                        raise Exception("Not enough columns in the CSV file")
+                    argv = chunks[1]
+                    serialized = json.dumps(chunks)
+                    ignored = serialized in ignored_tests
+                    disabled = serialized in disabled_tests
+                    unimplemented = False
 
-                pool = Pool.NORMAL
-                if len(chunks) >= 4:
-                    pool_str = chunks[3]
-                    if pool_str == 'Thread':
-                        pool = Pool.THREAD
-                    elif pool_str == 'Memory':
-                        pool = Pool.MEMORY
-                    elif pool_str != 'Normal':
-                        raise Exception("Unknown pool '%s'" % pool_str)
+                    pool = Pool.NORMAL
+                    if len(chunks) >= 4:
+                        pool_str = chunks[3]
+                        if pool_str == 'Thread':
+                            pool = Pool.THREAD
+                        elif pool_str == 'Memory':
+                            pool = Pool.MEMORY
+                        elif pool_str != 'Normal':
+                            raise Exception("Unknown pool '%s'" % pool_str)
 
-                if len(chunks) >= 3:
-                    attribute = chunks[2]
-                    if attribute == 'Ignore':
-                        ignored = True
-                    elif attribute == 'Disabled':
-                        disabled = True
-                    elif attribute == 'Unimplemented':
-                        unimplemented = True
-                    elif attribute:
-                        raise Exception("Unknown attribute '%s'" % attribute)
-                executable_name_len = argv.find(" ")
-                if executable_name_len < 0:
-                    executable_name = argv
-                    arguments = []
-                else:
-                    executable_name = argv[:executable_name_len]
-                    arguments = shlex.split(argv[executable_name_len + 1:], False)
-                try:
-                    executable = executables[executable_name]
-                except KeyError:
-                    short_name = executable_name.replace(
-                        "conformance_test_", "")
-                    if prefix:
-                        short_name = "%s/%s" % (prefix, short_name)
-                    executable = TestExecutable(short_name, executable_name)
-                    executables[executable_name] = executable
-                if arguments:
-                    named_arguments = [
-                        arg for arg in arguments
-                        if arg and not arg.startswith("-")
-                    ]
-                    test_name = "%s/%s" % (executable.name,
-                                           "_".join(named_arguments))
-                    # Check for vector width argument and include it in test
-                    # name as a '/v{vector_width}' suffix.
-                    for arg in arguments:
-                        vector_width_arg = re.search("-([1-9]+)", arg)
-                        if vector_width_arg:
-                            vec_string = vector_width_arg.group(0)
-                            test_name += str("/v" + vec_string[1:])
-                else:
-                    test_name = executable.name
-                test = TestInfo(test_name, executable, arguments,
-                                device_filter)
-                test.ignore = ignored
-                test.disabled = disabled
-                test.unimplemented = unimplemented
+                    if len(chunks) >= 3:
+                        attribute = chunks[2]
+                        if attribute == 'Ignore':
+                            ignored = True
+                        elif attribute == 'Disabled':
+                            disabled = True
+                        elif attribute == 'Unimplemented':
+                            unimplemented = True
+                        elif attribute:
+                            raise Exception(
+                                "Unknown attribute '%s'" % attribute)
+                    executable_name_len = argv.find(" ")
+                    if executable_name_len < 0:
+                        executable_name = argv
+                        arguments = []
+                    else:
+                        executable_name = argv[:executable_name_len]
+                        arguments = shlex.split(
+                            argv[executable_name_len + 1:], False)
+                    try:
+                        executable = executables[executable_name]
+                    except KeyError:
+                        short_name = executable_name.replace(
+                            "conformance_test_", "")
+                        if prefix:
+                            short_name = "%s/%s" % (prefix, short_name)
+                        executable = TestExecutable(
+                            short_name, executable_name)
+                        executables[executable_name] = executable
+                    if arguments:
+                        named_arguments = [
+                            arg for arg in arguments
+                            if arg and not arg.startswith("-")
+                        ]
+                        test_name = "%s/%s" % (executable.name,
+                                               "_".join(named_arguments))
+                        # Check for vector width argument and include it in test
+                        # name as a '/v{vector_width}' suffix.
+                        for arg in arguments:
+                            vector_width_arg = re.search("-([1-9]+)", arg)
+                            if vector_width_arg:
+                                vec_string = vector_width_arg.group(0)
+                                test_name += str("/v" + vec_string[1:])
+                    else:
+                        test_name = executable.name
+                    test = TestInfo(test_name, executable, arguments,
+                                    device_filter)
+                    test.ignore = ignored
+                    test.disabled = disabled
+                    test.unimplemented = unimplemented
 
-                # Tests with predetermined pools based on resource usage
-                if test.match("allocations") or test.match("integer_ops"):
-                    test.pool = Pool.MEMORY
-                elif test.match("conversions") or test.match("bruteforce"):
-                    test.pool = Pool.THREAD
-                else:
-                    test.pool = pool
+                    # Tests with predetermined pools based on resource usage
+                    if test.match("allocations") or test.match("integer_ops"):
+                        test.pool = Pool.MEMORY
+                    elif test.match("conversions") or test.match("bruteforce"):
+                        test.pool = Pool.THREAD
+                    else:
+                        test.pool = pool
 
-                tests.append(test)
+                    tests.append(test)
         return cls(tests, executables)
 
     def filter(self, patterns):
