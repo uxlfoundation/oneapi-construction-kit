@@ -60,7 +60,7 @@ function(find_builtins_tools tools_dir)
       )
       set(BUILTINS_LLVM_CMAKE ${BUILTINS_LLVM_CMAKE}/LLVMConfig.cmake)
     endif()
-    if(NOT EXISTS BUILTINS_LLVM_CMAKE)
+    if(NOT EXISTS ${BUILTINS_LLVM_CMAKE})
       message(
         WARNING
         "builtins tools installation does not have necessary cmake modules; "
@@ -96,12 +96,13 @@ function(find_builtins_tools tools_dir)
       IMPORTED_LOCATION ${BUILTINS_LINKER})
   endif()
 
+  set(llvm_version "${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}.${LLVM_VERSION_PATCH}")
+
   # Check that the version of the compiler building the builtins matches the
   # version of the compiler linked into the runtime.
   execute_process(COMMAND ${BUILTINS_COMPILER} --version
     OUTPUT_VARIABLE version_string RESULT_VARIABLE result)
   if(result EQUAL 0)
-    string(REPLACE "svn" "" llvm_version ${LLVM_PACKAGE_VERSION})
     string(REGEX MATCH "clang version [0-9]+\\.[0-9]+\\.[0-9]"
       version_string ${version_string})
     string(REPLACE "clang version " "" version_string ${version_string})
