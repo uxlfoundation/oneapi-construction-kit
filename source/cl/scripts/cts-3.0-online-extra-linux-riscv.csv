@@ -1,0 +1,3 @@
+Thread Dimensions,thread_dimensions/test_thread_dimensions quick_1d\* quick_2d\*
+Select,select/test_select -w
+Math,math_brute_force/test_bruteforce -w\[512]
