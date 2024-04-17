@@ -35,9 +35,13 @@ include(cmake/FindBuiltinsTools.cmake)
 if(NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED)
   if(NOT DEFINED CA_BUILTINS_TOOLS_DIR)
     if(CMAKE_CROSSCOMPILING)
-      message(FATAL_ERROR
-        "Cross compiled builds requires CA_EXTERNAL_BUILTINS or "
-        "CA_BUILTINS_TOOLS_DIR to be set!")
+      if(EXISTS ${LLVM_NATIVE_TOOL_DIR})
+        set(CA_BUILTINS_TOOLS_DIR ${LLVM_NATIVE_TOOL_DIR})
+      else()
+        message(FATAL_ERROR
+          "Cross compiled builds requires CA_EXTERNAL_BUILTINS or "
+          "CA_BUILTINS_TOOLS_DIR to be set!")
+      endif()
     # We might be in-tree and not be importing an LLVM directory, in which case
     # don't assume any builtins directory - we'll take the tools required to
     # build the builtins directly from the corresponding LLVM targets.
