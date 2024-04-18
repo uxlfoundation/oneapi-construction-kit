@@ -16,11 +16,11 @@
 
 set(HAL_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_transmitter.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_socket_transmitter.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_socket_transmitter.h)
+  list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_socket_transmitter.cpp)
 endif()
 
 add_library(

@@ -16,39 +16,38 @@
 
 #include <hal_remote/hal_socket_transmitter.h>
 #include <hal_remote/hal_transmitter.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <cstdio>
+#include <cstring>
+#include <string>
 
 namespace hal {
-hal_socket_transmitter::~hal_socket_transmitter() {
-  if (sock) {
-    close(sock);
-  }
-  if (fd_to_use && fd_to_use != sock) {
-    close(fd_to_use);
-  }
-}
+hal_socket_transmitter::~hal_socket_transmitter() { shutdown(); }
 
 hal_socket_transmitter::error_code hal_socket_transmitter::start_server(
     bool print_port) {
   if (!setup_connection_done) {
-    hal_socket_transmitter::error_code res = setup_connection(true);
-    if (res != 0) {
+    const hal_socket_transmitter::error_code res = setup_connection(true);
+    if (res != hal_socket_transmitter::success) {
+      last_error = res;
       return res;
     }
     setup_connection_done = true;
   }
-  if (listen() != 0) {
+  if (!listen()) {
     last_error = hal_socket_transmitter::listen_failed;
     return last_error;
   }
   if (print_port) {
-    printf("Listening on port %d\n", get_port());
-    fflush(stdout);
+    (void)printf("Listening on port %d\n", get_port());
+    (void)fflush(stdout);
   }
-  if (accept() == -1) {
+  if (!accept()) {
     last_error = hal_socket_transmitter::accept_failed;
     return last_error;
   }
@@ -62,11 +61,19 @@ hal_socket_transmitter::error_code hal_socket_transmitter::make_connection() {
   if (!setup_connection_done) {
     last_error = setup_connection(false);
     if (last_error != hal_socket_transmitter::success) {
+      (void)fprintf(
+          stderr,
+          "Failed to set up connection to remote server (port=%d node=%s)\n",
+          port_requested, node.c_str());
       return last_error;
     }
     setup_connection_done = true;
   }
   last_error = connect();
+  if (last_error != hal_socket_transmitter::success) {
+    (void)fprintf(stderr, "Failed to connect to server (port=%d node=%s)\n",
+                  port_requested, node.c_str());
+  }
   return last_error;
 }
 
@@ -76,12 +83,12 @@ bool hal_socket_transmitter::receive(void *data, uint32_t size) {
 
   // repeatedly recv until `size` bytes is read.
   do {
-    int res = recv(fd_to_use, ((char *)data) + offset, data_to_read, 0);
+    const int res = recv(fd_to_use, ((char *)data) + offset, data_to_read, 0);
     // If recv returns 0, this indicates the connection has been dropped
     // It's not an error as such but we are not able to continue
     if (res == 0) {
       is_connected = false;
-      fd_to_use = 0;
+      fd_to_use = -1;
       last_error = hal_socket_transmitter::connection_closed;
       return false;
     }
@@ -108,8 +115,8 @@ bool hal_socket_transmitter::send(const void *data, uint32_t size, bool flush) {
 }
 
 hal_socket_transmitter::error_code hal_socket_transmitter::connect() {
-  int res = ::connect(sock, (struct sockaddr *)&server_address,
-                      sizeof(server_address));
+  const int res = ::connect(sock, (struct sockaddr *)&server_address,
+                            sizeof(server_address));
   if (res != -1) {
     fd_to_use = sock;
     is_connected = true;
@@ -121,43 +128,102 @@ hal_socket_transmitter::error_code hal_socket_transmitter::connect() {
 
 hal_socket_transmitter::error_code hal_socket_transmitter::setup_connection(
     bool server) {
-  // @return 0 if success, otherwise -1 and errno set
+  // don't support port 0
+  if (port_requested == 0) {
+    if (debug_enabled()) {
+      (void)fprintf(stderr,
+                    "port requested must be specified as a non-zero value\n");
+    }
+    return hal_socket_transmitter::port_0_requested;
+  }
   sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  server_address.sin_family = AF_INET;
-  server_address.sin_port = htons(port_requested);
-  server_address.sin_addr.s_addr = INADDR_ANY;
-  if (server) {
-    if (int res = bind(sock, (struct sockaddr *)&server_address,
-                       sizeof(server_address)) != 0) {
-      return hal_socket_transmitter::bind_failed;
-    }
 
-    struct sockaddr_in local_addr;
-    socklen_t len = sizeof(local_addr);
-    if (int res =
-            getsockname(sock, (struct sockaddr *)&local_addr, &len) != 0) {
-      return hal_socket_transmitter::getsockname_failed;
+  struct addrinfo hints;
+  struct addrinfo *result;
+  int sfd, s;
+  std::memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_family = AF_UNSPEC; /* Allow IPv4 or IPv6 */
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_NUMERICSERV;
+  hints.ai_protocol = IPPROTO_TCP;
+
+  const std::string port_str = std::to_string(port_requested);
+  s = getaddrinfo(node.c_str(), port_str.c_str(), &hints, &result);
+  // Use getaddrinfo on the node and port. This may return one or
+  // more entries we can bind to in priority order. We take the first
+  // one that matches.
+  if (s != 0) {
+    if (debug_enabled()) {
+      (void)fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
     }
-    current_port = ntohs(local_addr.sin_port);
+    return hal_socket_transmitter::getaddrinfo_failed;
   } else {
-    current_port = port_requested;
+    bool bind_failed = false;
+    bool socket_failed = false;
+    for (auto *rp = result; rp != NULL; rp = rp->ai_next) {
+      bind_failed = false;
+      socket_failed = false;
+      sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+      if (sock == -1) {
+        socket_failed = true;
+        continue;
+      }
+      server_address = *rp->ai_addr;
+      if (server) {
+        if (bind(sock, rp->ai_addr, rp->ai_addrlen) != 0) {
+          close(sock);
+          sock = -1;
+          bind_failed = true;
+          continue;
+        }
+
+        struct sockaddr_in local_addr;
+        socklen_t len = sizeof(local_addr);
+        if (getsockname(sock, (struct sockaddr *)&local_addr, &len) != 0) {
+          return hal_socket_transmitter::getsockname_failed;
+        }
+        current_port = ntohs(local_addr.sin_port);
+      }
+    }
+    if (sock == -1) {
+      if (bind_failed) {
+        return hal_socket_transmitter::bind_failed;
+      } else if (socket_failed) {
+        return hal_socket_transmitter::socket_failed;
+      }
+    }
+    if (!server) {
+      current_port = port_requested;
+    }
   }
   setup_connection_done = true;
   return hal_socket_transmitter::success;
 }
 
-int hal_socket_transmitter::listen() {
-  if (int res = ::listen(sock, 1) != 0) {
-    return res;
+bool hal_socket_transmitter::listen() {
+  if (::listen(sock, 1) == 0) {
+    return true;
   }
-  return 0;
+  return false;
 }
-int hal_socket_transmitter::accept() {
-  int res = ::accept(sock, nullptr, nullptr);
+
+bool hal_socket_transmitter::accept() {
+  const int res = ::accept(sock, nullptr, nullptr);
   if (res != -1) {
     fd_to_use = res;
   }
-  return res;
+  return (res != -1);
+}
+
+void hal_socket_transmitter::shutdown() {
+  if (fd_to_use != -1) {
+    close(fd_to_use);
+  }
+  if (sock != -1 && sock != fd_to_use) {
+    close(sock);
+  }
+  fd_to_use = -1;
+  sock = -1;
 }
 
 }  // namespace hal
