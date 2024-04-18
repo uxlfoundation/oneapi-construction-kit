@@ -15,10 +15,18 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 set(HAL_SOURCE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_binary_encoder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_binary_decoder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_client.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_device_client.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_server.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_transmitter.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_device_client.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_server.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_socket_client.h)
   list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_socket_transmitter.h)
   list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_socket_transmitter.cpp)
 endif()

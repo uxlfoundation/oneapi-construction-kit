@@ -85,28 +85,30 @@ hal_t *load_hal_library(const char *library_path, uint32_t expected_api_version,
   // https://stackoverflow.com/questions/51209268/using-stdthread-in-a-library-loaded-with-dlopen-leads-to-a-sigsev
   handle = dlopen(library_path, RTLD_LAZY | RTLD_GLOBAL);
   if (!handle) {
-    fprintf(stderr, "error: could not load '%s'\n", library_path);
+    (void)fprintf(stderr, "error: could not load '%s' : '%s'\n", library_path,
+                  dlerror());
     return nullptr;
   }
   create_hal_fn hal_entry_fn = (create_hal_fn)dlsym(handle, "get_hal");
   if (!hal_entry_fn) {
-    fprintf(stderr, "error: could not find the HAL entry point function\n");
+    (void)fprintf(stderr,
+                  "error: could not find the HAL entry point function\n");
     dlclose(handle);
     return nullptr;
   }
   uint32_t reported_api_version = 0;
   hal_t *hal = hal_entry_fn(reported_api_version);
   if (!hal) {
-    fprintf(stderr, "error: creating the HAL failed\n");
+    (void)fprintf(stderr, "error: creating the HAL failed\n");
     dlclose(handle);
     return nullptr;
   }
   if (expected_api_version != 0 &&
       reported_api_version != expected_api_version) {
-    fprintf(stderr,
-            "error: expected HAL API version %" PRIu32 ", but %" PRIu32
-            " is the version reported by the loaded HAL\n",
-            expected_api_version, reported_api_version);
+    (void)fprintf(stderr,
+                  "error: expected HAL API version %" PRIu32 ", but %" PRIu32
+                  " is the version reported by the loaded HAL\n",
+                  expected_api_version, reported_api_version);
     dlclose(handle);
     return nullptr;
   }
@@ -149,13 +151,13 @@ hal_t *load_hal(const char *default_device, uint32_t expected_api_version,
                                       expected_api_version, handle)) {
       return hal;
     } else {
-      fprintf(stderr, "error: unable to load hal library from '%s'\n",
-              library_path.c_str());
+      (void)fprintf(stderr, "error: unable to load hal library from '%s'\n",
+                    library_path.c_str());
     }
   } else {
-    fprintf(stderr,
-            "error: no default device was specified and couldn't load "
-            "CA_HAL_DEVICE\n");
+    (void)fprintf(stderr,
+                  "error: no default device was specified and couldn't load "
+                  "CA_HAL_DEVICE\n");
   }
   return nullptr;
 }
