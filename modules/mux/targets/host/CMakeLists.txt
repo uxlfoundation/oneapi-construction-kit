@@ -177,11 +177,13 @@ endif()
 if(CA_HOST_ENABLE_FP64)
   list(APPEND hostCapabilities "fp64")
   target_compile_definitions(host PRIVATE CA_HOST_ENABLE_FP64)
+  target_compile_definitions(host-utils PRIVATE CA_HOST_ENABLE_FP64)
 endif()
 
 if(CA_HOST_ENABLE_FP16)
   list(APPEND hostCapabilities "fp16")
   target_compile_definitions(host PRIVATE CA_HOST_ENABLE_FP16)
+  target_compile_definitions(host-utils PRIVATE CA_HOST_ENABLE_FP16)
 endif()
 
 set(host_CA_HOST_CL_DEVICE_NAME)

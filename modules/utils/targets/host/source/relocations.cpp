@@ -61,6 +61,12 @@ extern void __fixdfdi();
 extern void __floatdidf();
 extern void __floatdisf();
 #endif
+
+#if defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) && \
+    defined(CA_HOST_ENABLE_FP16)
+// Truncation of fp64 to fp16 is done in software.
+extern void __truncdfhf2();
+#endif
 }
 
 namespace {
@@ -178,6 +184,12 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
       {"fminf", reinterpret_cast<uint64_t>(&fminf)},
       {"fmaxf", reinterpret_cast<uint64_t>(&fmaxf)},
 #endif  // defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
+
+#if defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) && \
+    defined(CA_HOST_ENABLE_FP16)
+      {"__truncdfhf2", reinterpret_cast<uint64_t>(&__truncdfhf2)},
+#endif  // defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) &&
+        // defined(CA_HOST_ENABLE_FP16)
   }};
 }
 }  // namespace utils
