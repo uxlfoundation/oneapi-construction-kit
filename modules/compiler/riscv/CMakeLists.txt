@@ -21,8 +21,6 @@ find_library(LLVMRISCVCODEGEN LLVMRISCVCodeGen PATHS
 
 if (LLVMRISCVCODEGEN)
   if(CA_RUNTIME_COMPILER_ENABLED)
-    add_subdirectory(runtimelib)
-
     set(RISCV_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/passes/IRToBuiltinsPass.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/info.cpp
@@ -54,7 +52,5 @@ if (LLVMRISCVCODEGEN)
       compiler-linker-utils
       LLVMCoverage LLVMDebugInfoCodeView LLVMExecutionEngine
       LLVMVectorize LLVMipo multi_llvm)
-
-    target_link_libraries(compiler-riscv-utils PUBLIC riscvrt)
   endif()
 endif()

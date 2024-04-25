@@ -40,9 +40,10 @@ class LinkBuiltinsPass final : public llvm::PassInfoMixin<LinkBuiltinsPass> {
  private:
   void cloneStructs(llvm::Module &M, llvm::Module &BuiltinsModule,
                     compiler::utils::StructMap &Map);
-  void cloneBuiltins(llvm::Module &M, llvm::Module &BuiltinsModule,
-                     llvm::SmallVectorImpl<llvm::Function *> &BuiltinFnDecls,
-                     compiler::utils::StructTypeRemapper *StructMap);
+  void cloneBuiltins(
+      llvm::Module &M, llvm::Module &BuiltinsModule,
+      llvm::SmallVectorImpl<std::pair<llvm::Function *, bool>> &BuiltinFnDecls,
+      compiler::utils::StructTypeRemapper *StructMap);
 };
 }  // namespace utils
 }  // namespace compiler

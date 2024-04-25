@@ -25,6 +25,13 @@
 namespace host {
 namespace utils {
 
+#if defined(__riscv)
+#define HOST_UTILS_HAVE_RELOCATIONS 0
+inline std::vector<std::pair<std::string, uint64_t>> getRelocations() {
+  return {};
+}
+#else
+#define HOST_UTILS_HAVE_RELOCATIONS 1
 /// @brief Returns the function relocations required to execute host kernels.
 ///
 /// Returns a list of pairs of mangled function symbol name and function address
@@ -37,6 +44,7 @@ namespace utils {
 /// may possibly be called from a host-compiled kernel executable will be
 /// resolved.
 std::vector<std::pair<std::string, uint64_t>> getRelocations();
+#endif  //  !defined(__riscv)
 
 }  // namespace utils
 }  // namespace host
