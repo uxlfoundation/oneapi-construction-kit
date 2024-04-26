@@ -107,16 +107,6 @@ RiscvTarget::RiscvTarget(const compiler::Info *compiler_info,
 
   riscv_hal_device_info = hal_device_info;
 
-  if (riscv_hal_device_info->should_link) {
-    if (riscv_hal_device_info->word_size == 64) {
-      rt_lib = get_rtlib64_data();
-      rt_lib_size = get_rtlib64_size();
-    } else {
-      rt_lib = get_rtlib32_data();
-      rt_lib_size = get_rtlib32_size();
-    }
-  }
-
   setTargetFeatureString(riscv_hal_device_info, llvm_features);
 
   if (riscv_hal_device_info->word_size == 32) {

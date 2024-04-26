@@ -40,6 +40,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Transforms/Utils/Cloning.h>
+#include <llvm/Transforms/Utils/ModuleUtils.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
 #include <multi_llvm/multi_llvm.h>
 
@@ -119,16 +120,16 @@ void compiler::utils::LinkBuiltinsPass::cloneStructs(
 
 void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
     Module &M, Module &BuiltinsModule,
-    SmallVectorImpl<Function *> &BuiltinFnDecls,
+    SmallVectorImpl<std::pair<Function *, bool>> &BuiltinFnDecls,
     compiler::utils::StructTypeRemapper *StructMap) {
   // Clone the builtin and its callees.
-  DenseSet<Function *> Callees;
+  DenseMap<Function *, bool> Callees;
 
   while (!BuiltinFnDecls.empty()) {
-    Function *const BuiltinFn = BuiltinFnDecls.pop_back_val();
+    auto [BuiltinFn, IsImplicit] = BuiltinFnDecls.pop_back_val();
 
     // if we are already tracking the callee, we can skip the function
-    if (!Callees.insert(BuiltinFn).second) {
+    if (!Callees.insert({BuiltinFn, IsImplicit}).second) {
       continue;
     }
 
@@ -153,7 +154,9 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
         if (auto *const CI = dyn_cast<CallInst>(&I)) {
           // and the called function is known
           if (Function *Callee = CI->getCalledFunction()) {
-            BuiltinFnDecls.push_back(Callee);
+            // Assume that we have no calls in builtins to LLVM intrinsics that
+            // require libcalls.
+            BuiltinFnDecls.push_back({Callee, false});
           }
         }
       }
@@ -167,7 +170,7 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
   const auto DefaultLinkage = GlobalValue::LinkOnceAnyLinkage;
 
   // Declare the callees in the module if they don't already exist.
-  for (Function *Callee : Callees) {
+  for (auto [Callee, IsImplicit] : Callees) {
     const auto Linkage = Callee->isIntrinsic() || Callee->isDeclaration()
                              ? Callee->getLinkage()
                              : DefaultLinkage;
@@ -199,12 +202,16 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
 
     NewCallee->copyAttributesFrom(Callee);
     ValueMap[Callee] = NewCallee;
+
+    if (IsImplicit) {
+      llvm::appendToCompilerUsed(M, {NewCallee});
+    }
   }
 
   // Clone the callees' bodies into the module.
   GlobalVarMaterializer GVMaterializer(M);
 
-  for (Function *Callee : Callees) {
+  for (auto [Callee, IsImplicit] : Callees) {
     // if the function isn't an intrinsic or a declaration
     if (!Callee->isIntrinsic() && !Callee->isDeclaration()) {
       auto NewCallee = cast<Function>(ValueMap[Callee]);
@@ -236,12 +243,39 @@ PreservedAnalyses compiler::utils::LinkBuiltinsPass::run(
     return PreservedAnalyses::all();
   }
 
-  SmallVector<Function *, 8> BuiltinFnDecls;
+  SmallVector<std::pair<Function *, bool>> BuiltinFnDecls;
+
+  // Intrinsics that may be lowered to a libcall must ensure that the
+  // corresponding library function is pulled in. For RISC-V, we do that here.
+  // For other targets, the host version will be provided later.
+  const bool IncludeIntrinsicLibcalls =
+      llvm::Triple(M.getTargetTriple()).isRISCV();
 
   for (auto &F : M.functions()) {
-    auto BuiltinF = BuiltinsModule->getFunction(F.getName());
+    auto Name = F.getName();
+    if (F.isIntrinsic()) {
+      if (!IncludeIntrinsicLibcalls) {
+        continue;
+      }
+      switch (F.getIntrinsicID()) {
+        case Intrinsic::memcpy:
+          Name = "memcpy";
+          break;
+        case Intrinsic::memmove:
+          Name = "memmove";
+          break;
+        case Intrinsic::memset:
+          Name = "memset";
+          break;
+        default:
+          // Ignore other intrinsics.
+          continue;
+      }
+    }
+
+    auto BuiltinF = BuiltinsModule->getFunction(Name);
     if (F.isDeclaration() && nullptr != BuiltinF) {
-      BuiltinFnDecls.push_back(BuiltinF);
+      BuiltinFnDecls.push_back({BuiltinF, F.isIntrinsic()});
     }
   }
 

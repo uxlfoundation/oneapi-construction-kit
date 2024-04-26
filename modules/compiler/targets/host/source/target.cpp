@@ -74,11 +74,17 @@ static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
   }
 
   std::optional<llvm::CodeModel::Model> CM;
-  // RISC-V needs the 'medium' code model as we don't ensure that the code and
-  // its statically defined symbols are loaded somewhere in the range of
-  // absolute addresses -2GB and +2GB, which is a requirement of the 'low' code
-  // model.
-  if (TT.isRISCV()) {
+  // Unlike other architectures, RISC-V does not currently support a large code
+  // model and does not change the default code model as a result of setting
+  // JIT=true. The default "medium low" code model (CodeModel::Low) allows code
+  // to address the entire RV32 address space, or (roughly) the lowest and
+  // highest 2GiB of the RV64 address space. We do not ensure that the code and
+  // its symbols are loaded somewhere in this range, so we change the code model
+  // to "medium any" (CodeModel::Medium), which allows addressing roughly 2GiB
+  // above and below the current position. Beware that this means we cannot
+  // import any symbol from the host, as those may not be within 2GiB of the
+  // kernel. This means any function needs to be included in the kernel itself.
+  if (TT.isRISCV() && TT.isArch64Bit()) {
     CM = llvm::CodeModel::Medium;
   }
   // Aarch64 fails on UnitCL test

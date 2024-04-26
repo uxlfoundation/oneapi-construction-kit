@@ -649,6 +649,47 @@ int __attribute__((weak)) printf(const constant char *const restrict fmt, ...);
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
+void *memcpy(void *__restrict dst, const void *__restrict src, size_t num) {
+  auto *d = static_cast<unsigned char *>(dst);
+  auto *s = static_cast<const unsigned char *>(src);
+  while (num--) {
+    *(d++) = *(s++);
+  }
+  return dst;
+}
+
+void *memmove(void *dst, const void *src, size_t num) {
+  if (reinterpret_cast<uintptr_t>(static_cast<char *>(dst) + num) <=
+          reinterpret_cast<uintptr_t>(src) ||
+      reinterpret_cast<uintptr_t>(static_cast<const char *>(src) + num) <=
+          reinterpret_cast<uintptr_t>(dst)) {
+    return memcpy(dst, src, num);
+  }
+  if (reinterpret_cast<uintptr_t>(dst) < reinterpret_cast<uintptr_t>(src)) {
+    auto *d = static_cast<unsigned char *>(dst);
+    auto *s = static_cast<const unsigned char *>(src);
+    while (num--) {
+      *(d++) = *(s++);
+    }
+  }
+  if (reinterpret_cast<uintptr_t>(src) < reinterpret_cast<uintptr_t>(dst)) {
+    auto *d = static_cast<unsigned char *>(dst) + num;
+    auto *s = static_cast<const unsigned char *>(src) + num;
+    while (num--) {
+      *(--d) = *(--s);
+    }
+  }
+  return dst;
+}
+
+void *memset(void *ptr, int value, size_t num) {
+  unsigned char *dst = static_cast<unsigned char *>(ptr);
+  while (num--) {
+    *(dst++) = (unsigned char)value;
+  }
+  return ptr;
+}
+
 #ifdef __cplusplus
 };
 #endif

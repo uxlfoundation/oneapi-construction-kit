@@ -17,6 +17,12 @@
 #include <host/utils/relocations.h>
 #include <utils/system.h>
 
+#ifndef HOST_UTILS_HAVE_RELOCATIONS
+#error HOST_UTILS_HAVE_RELOCATIONS should have been defined by relocations.h.
+#endif
+
+#if HOST_UTILS_HAVE_RELOCATIONS
+
 #if !defined(NDEBUG) && !defined(_MSC_VER)
 // 'nix debug builds do extra file checks
 #include <fcntl.h>
@@ -194,3 +200,5 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
 }
 }  // namespace utils
 }  // namespace host
+
+#endif  // HOST_UTILS_HAVE_RELOCATIONS
