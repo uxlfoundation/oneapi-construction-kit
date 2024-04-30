@@ -138,7 +138,7 @@ class TestList(object):
                         device_filter = chunks.pop(0)
                     if len(chunks) < 2:
                         raise Exception("Not enough columns in the CSV file")
-                    argv = chunks[1]
+                    argv = chunks[1].strip()
                     serialized = json.dumps(chunks)
                     ignored = serialized in ignored_tests
                     disabled = serialized in disabled_tests
