@@ -79,6 +79,12 @@ target_include_directories(compiler-host PUBLIC
 
 target_compile_definitions(compiler-host PUBLIC
   $<$<TARGET_EXISTS:resources-host>:CA_ENABLE_HOST_BUILTINS>)
+if(CA_HOST_ENABLE_FP64)
+  target_compile_definitions(compiler-host PRIVATE CA_HOST_ENABLE_FP64)
+endif()
+if(CA_HOST_ENABLE_FP16)
+  target_compile_definitions(compiler-host PRIVATE CA_HOST_ENABLE_FP16)
+endif()
 
 if(TARGET builtins-host)
   add_dependencies(compiler-host builtins-host)

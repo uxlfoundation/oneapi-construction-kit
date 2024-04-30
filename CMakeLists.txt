@@ -98,6 +98,19 @@ ca_option(CA_ENABLE_COVERAGE BOOL
 ca_option(CA_EXTERNAL_BUILTINS BOOL
   "Enable external builtins, always on during cross compilation"
   CMAKE_CROSSCOMPILING)
+if(CA_PLATFORM_WINDOWS)
+  ca_option(CA_HOST_ENABLE_FP64 BOOL "Enable host cl_khr_fp64" OFF)
+else()
+  ca_option(CA_HOST_ENABLE_FP64 BOOL "Enable host cl_khr_fp64" ON)
+endif()
+ca_option(CA_HOST_ENABLE_FP16 BOOL "Enable host cl_khr_fp16" OFF)
+set(fp16_supported_arches ARM64;ARM)
+if(CA_HOST_ENABLE_FP16)
+  set(arch ${CMAKE_SYSTEM_PROCESSOR})
+  if(NOT ${arch} IN_LIST fp16_supported_arches)
+    message(WARNING "half-precision is not supported on ${arch} targets")
+  endif()
+endif()
 ca_option(CA_ENABLE_DOCUMENTATION BOOL
   "Enable documentation generation" ON)
 ca_option(CA_MUX_TARGETS_TO_ENABLE STRING

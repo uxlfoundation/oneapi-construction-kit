@@ -300,7 +300,12 @@ compiler::Result HostTarget::initWithBuiltins(
     FeatureMap["m"] = true;  // Integer multiplication and division
     FeatureMap["f"] = true;  // Floating point support
     FeatureMap["a"] = true;  // Atomics
+#if defined(CA_HOST_ENABLE_FP64)
     FeatureMap["d"] = true;  // Double support
+#endif
+#if defined(CA_HOST_ENABLE_FP16)
+    FeatureMap["zfh"] = true;  // Half support
+#endif
   }
 
 #ifndef NDEBUG

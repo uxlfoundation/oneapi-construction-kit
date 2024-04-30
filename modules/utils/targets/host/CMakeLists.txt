@@ -26,4 +26,11 @@ target_include_directories(host-utils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/utils/include>)
 
+if(CA_HOST_ENABLE_FP64)
+  target_compile_definitions(host-utils PRIVATE CA_HOST_ENABLE_FP64)
+endif()
+if(CA_HOST_ENABLE_FP16)
+  target_compile_definitions(host-utils PRIVATE CA_HOST_ENABLE_FP16)
+endif()
+
 target_link_libraries(host-utils PUBLIC cargo)
