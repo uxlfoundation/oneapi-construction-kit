@@ -177,11 +177,6 @@ compiler::Result HostModule::createBinary(
     return compiler::Result::FINALIZE_PROGRAM_FAILURE;
   }
 
-  if (!object_code.empty()) {
-    buffer = cargo::array_view<std::uint8_t>(object_code);
-    return compiler::Result::SUCCESS;
-  }
-
   auto &host_target = static_cast<HostTarget &>(target);
 
   std::unique_ptr<llvm::Module> clonedModule;
