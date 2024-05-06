@@ -73,7 +73,11 @@ spirv_ll::Module::Module(
       WorkgroupSize({{1, 1, 1}}),
       BufferSizeArray(nullptr),
       deferredSpecConstantOps(),
-      ImplicitDebugScopes(true) {}
+      ImplicitDebugScopes(true) {
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+  llvmModule->setIsNewDbgInfoFormat(false);
+#endif
+}
 
 spirv_ll::Module::Module(spirv_ll::Context &context,
                          llvm::ArrayRef<uint32_t> code)
