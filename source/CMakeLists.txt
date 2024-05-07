@@ -37,4 +37,3 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/modules ${PROJECT_BINARY_DIR}/modules)
 
 add_ca_api_subdirectory(cl)
 add_ca_api_subdirectory(vk)
-add_ca_api_subdirectory(ur)
