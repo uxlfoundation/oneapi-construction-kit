@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/create_llvm.yml'
   workflow_dispatch:
 
 jobs:
   create_llvm_cache:
     strategy:
       matrix:
-        version: [16, 17]
+        version: [17, 18]
         os: [ubuntu-22.04]
         build_type: [Release, RelAssert]
         include:
