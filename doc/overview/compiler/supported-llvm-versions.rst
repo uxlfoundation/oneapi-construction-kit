@@ -8,5 +8,5 @@ All targets
 
 .. rubric:: Supported - tested daily
 
-- 16.0.6+
-- 17.0.3
+- 17.0.3+
+- 18.1.5+

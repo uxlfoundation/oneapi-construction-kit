@@ -33,7 +33,7 @@ jobs:
         uses:  ./.github/actions/setup_ubuntu_build
         with:
           save: true
-          llvm_version: 17
+          llvm_version: 18
           llvm_build_type: RelAssert
 
       - name: build host x86_64 release
