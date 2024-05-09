@@ -180,14 +180,9 @@ static void startDmaTransfer3D(IRBuilder<> &B, Value *DstAddr, Value *SrcAddr,
 static void fetchAndReturnLastTransferID(IRBuilder<> &B, Function &F) {
   // Retrieve the transfer ID and convert it to an event.
   auto *XferId = readDmaReg(B, REFSI_REG_DMASTARTSEQ);
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   assert(F.getReturnType()->isIntegerTy() &&
          "Event target types should have been replaced with i32s");
   B.CreateRet(B.CreateZExtOrTrunc(XferId, F.getReturnType()));
-#else
-  auto *Event = B.CreateIntToPtr(XferId, F.getReturnType());
-  B.CreateRet(Event);
-#endif
 }
 
 static void defineRefSiDma1D(Function &F,
@@ -349,22 +344,9 @@ void defineRefSiDmaWait(Function &F) {
     MaxXferIdPhi->addIncoming(ZeroEventIdTy, EntryBB);
 
     // Retrieve the n-th event from the list.
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
-    // On LLVM 17, the event target type has already been replaced with size_t,
-    // so that is our event list.
     auto *EventTy = getTransferIDTy(M);
     auto *EventGep = BodyBuilder.CreateGEP(EventTy, EventList, LoopIVPhi);
     auto *EventID = BodyBuilder.CreateLoad(EventTy, EventGep, "xfer_id");
-#else
-    // Otherwise we have a list of opaque pointer types.
-    auto *CoreDMAEventTy =
-        compiler::utils::getOrCreateMuxDMAEventType(*F.getParent());
-    auto *EventPtrTy = CoreDMAEventTy->getPointerTo();
-    auto *EventGep = BodyBuilder.CreateGEP(EventPtrTy, EventList, LoopIVPhi);
-    auto *Event = BodyBuilder.CreateLoad(EventPtrTy, EventGep);
-    auto *EventID = BodyBuilder.CreatePtrToInt(Event, XferIdTy, "xfer_id");
-#endif
-
     auto *NewIV = BodyBuilder.CreateAdd(LoopIVPhi, One, "new_iv");
 
     // Find the higher value between the current maximum and n-th event ID.

@@ -32,9 +32,6 @@ BaseTarget::BaseTarget(const compiler::Info *compiler_info,
       callback{callback} {}
 
 Result BaseTarget::init(uint32_t builtins_capabilities) {
-#if LLVM_VERSION_LESS(17, 0)
-  getLLVMContext().setOpaquePointers(true);
-#endif
   if (callback) {
     auto diag_handler_callback_thunk = [](
 #if LLVM_VERSION_GREATER_EQUAL(19, 0)

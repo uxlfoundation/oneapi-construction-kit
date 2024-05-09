@@ -29,16 +29,6 @@ using namespace compiler::utils;
 using ManglingTest = CompilerLLVMModuleTest;
 
 TEST_F(ManglingTest, MangleBuiltinTypes) {
-  // With opaque pointers, before LLVM 17 we can't actually mangle OpenCL
-  // builtin types because our APIs don't expose the ability to mangle a pointer
-  // based on its element type.
-  // This is never a problem in the compiler as we don't generate such functions
-  // on the fly, but it is a weakness in the API. We could fix this, or wait it
-  // out until LLVM 17 becomes the minimum version, at which point target
-  // extension types save the day.
-#if LLVM_VERSION_LESS(17, 0)
-  GTEST_SKIP();
-#else
   NameMangler Mangler(&Context);
 
   std::pair<llvm::Type *, const char *> TypesToMangle[] = {
@@ -73,7 +63,6 @@ TEST_F(ManglingTest, MangleBuiltinTypes) {
     EXPECT_TRUE(Mangler.mangleType(OS, Ty, TypeQualifiers{}));
     EXPECT_EQ(Name, ExpName);
   }
-#endif
 }
 
 TEST_F(ManglingTest, DemangleImage1DTy) {
@@ -97,7 +86,6 @@ TEST_F(ManglingTest, DemangleImage1DTy) {
   auto *ImgTy = Tys[0];
   EXPECT_TRUE(ImgTy);
 
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   EXPECT_TRUE(ImgTy->isTargetExtTy());
   auto *TgtTy = llvm::cast<llvm::TargetExtType>(ImgTy);
   EXPECT_EQ(TgtTy->getName(), "spirv.Image");
@@ -113,8 +101,4 @@ TEST_F(ManglingTest, DemangleImage1DTy) {
             tgtext::ImageSampledRuntime);
   EXPECT_EQ(TgtTy->getIntParameter(tgtext::ImageTyAccessQualIdx),
             tgtext::ImageAccessQualReadOnly);
-#else
-  EXPECT_TRUE(ImgTy->isStructTy());
-  EXPECT_EQ(llvm::cast<llvm::StructType>(ImgTy)->getName(), "opencl.image1d_t");
-#endif
 }

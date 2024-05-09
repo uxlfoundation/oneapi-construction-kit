@@ -71,6 +71,7 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/AlwaysInliner.h>
 #include <llvm/Transforms/IPO/ForceFunctionAttrs.h>
@@ -88,7 +89,6 @@
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
-#include <multi_llvm/triple.h>
 #include <mux/mux.hpp>
 #include <spirv-ll/module.h>
 
@@ -891,15 +891,8 @@ void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const {
 
   codeGenOpts.EmitOpenCLArgMetadata = options.kernel_arg_info;
   if (options.debug_info) {
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
     codeGenOpts.setDebugInfo(llvm::codegenoptions::FullDebugInfo);
-#else
-    codeGenOpts.setDebugInfo(clang::codegenoptions::FullDebugInfo);
-#endif
   }
-#if LLVM_VERSION_LESS(17, 0)
-  codeGenOpts.OpaquePointers = true;
-#endif
 }
 
 void BaseModule::addDefaultOpenCLPreprocessorOpts(
@@ -1685,10 +1678,8 @@ Result BaseModule::finalize(
 
   pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());
 
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   const compiler::utils::ReplaceTargetExtTysOptions RTETOpts;
   pm.addPass(compiler::utils::ReplaceTargetExtTysPass(RTETOpts));
-#endif
 
   // Lower all language-level builtins with corresponding mux builtins
   pm.addPass(compiler::utils::LowerToMuxBuiltinsPass());

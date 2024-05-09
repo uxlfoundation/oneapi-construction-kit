@@ -541,7 +541,6 @@ llvm::Error Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
 
 template <>
 llvm::Error Builder::create<OpTypeImage>(const OpTypeImage *op) {
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   llvm::Type *imageType = nullptr;
   auto &ctx = *context.llvmContext;
 
@@ -577,87 +576,13 @@ llvm::Error Builder::create<OpTypeImage>(const OpTypeImage *op) {
   }
 
   module.addID(op->IdResult(), op, imageType);
-#else
-  std::string imageTypeName = "opencl.";
-
-  switch (op->Dim()) {
-    case spv::Dim::Dim1D:
-      if (op->Arrayed() == 1) {
-        imageTypeName += "image1d_array_t";
-      } else {
-        imageTypeName += "image1d_t";
-      }
-      break;
-    case spv::Dim::Dim2D:
-      if (op->Arrayed() == 1) {
-        imageTypeName += "image2d_array_t";
-      } else {
-        imageTypeName += "image2d_t";
-      }
-      break;
-    case spv::Dim::Dim3D:
-      imageTypeName += "image3d_t";
-      break;
-    case spv::Dim::DimBuffer:
-      imageTypeName += "image1d_buffer_t";
-      break;
-    default:
-      (void)fprintf(
-          stderr,
-          "Unsupported type (Dim = %d) passed to 'create<OpTypeImage>'\n",
-          op->Dim());
-      std::abort();
-      break;
-  }
-
-  llvm::StructType *structTy = nullptr;
-  // First do a lookup for the image type name as it may already exist in the
-  // llvm::Context, creating a new StructType when one already exists with the
-  // same name results in .1 being appended to the struct name causing issues.
-  auto *namedTy =
-      llvm::StructType::getTypeByName(*context.llvmContext, imageTypeName);
-  if (namedTy) {
-    structTy = namedTy;
-  } else {
-    // Since the lookup failed, create a StructType with the image name.
-    structTy = llvm::StructType::create(*context.llvmContext, imageTypeName);
-  }
-  SPIRV_LL_ASSERT_PTR(structTy);
-
-  // Now that we have a struct type with the correct name we create a pointer
-  // type to that struct, in the SPIR 1.2 spec an image is always dealt with as
-  // a pointer to an opaque struct type.
-  llvm::Type *imageType = llvm::PointerType::get(structTy, 1);
-
-  module.addID(op->IdResult(), op, imageType);
-
-  // Register this structure type - we pass pointers around but occasionally
-  // need to know the underlying type (e.g., for mangling)
-  module.addInternalStructType(op->IdResult(), structTy);
-#endif
   return llvm::Error::success();
 }
 
 template <>
 llvm::Error Builder::create<OpTypeSampler>(const OpTypeSampler *op) {
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   module.addID(op->IdResult(), op,
                compiler::utils::tgtext::getSamplerTy(*context.llvmContext));
-#else
-  llvm::StructType *sampler_struct;
-  if (auto *s = llvm::StructType::getTypeByName(*context.llvmContext,
-                                                "opencl.sampler_t")) {
-    sampler_struct = s;
-  } else {
-    sampler_struct =
-        llvm::StructType::create(*context.llvmContext, "opencl.sampler_t");
-  }
-  module.addID(op->IdResult(), op,
-               llvm::PointerType::getUnqual(sampler_struct));
-  // Register this structure type - we pass pointers around but occasionally
-  // need to know the underlying type (e.g., for mangling)
-  module.addInternalStructType(op->IdResult(), sampler_struct);
-#endif
   return llvm::Error::success();
 }
 
@@ -783,17 +708,8 @@ llvm::Error Builder::create<OpTypeFunction>(const OpTypeFunction *op) {
 
 template <>
 llvm::Error Builder::create<OpTypeEvent>(const OpTypeEvent *op) {
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   module.addID(op->IdResult(), op,
                compiler::utils::tgtext::getEventTy(*context.llvmContext));
-#else
-  auto event_struct =
-      llvm::StructType::create(*context.llvmContext, "opencl.event_t");
-  module.addID(op->IdResult(), op, llvm::PointerType::getUnqual(event_struct));
-  // Register this structure type - we pass pointers around but occasionally
-  // need to know the underlying type (e.g., for mangling)
-  module.addInternalStructType(op->IdResult(), event_struct);
-#endif
   return llvm::Error::success();
 }
 
@@ -1027,7 +943,6 @@ llvm::Error Builder::create<OpConstantNull>(const OpConstantNull *op) {
       constant =
           llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(type));
       break;
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
     case llvm::Type::TypeID::TargetExtTyID:
       // Only Events may be zero-initialized.
       if (llvm::cast<llvm::TargetExtType>(type)->getName() == "spirv.Event") {
@@ -1036,7 +951,6 @@ llvm::Error Builder::create<OpConstantNull>(const OpConstantNull *op) {
         break;
       }
       [[fallthrough]];
-#endif
     default:
       // TODO: the opencl types: device event, reservation ID and queue
       llvm_unreachable("Unsupported type provided to OpConstantNull");
@@ -2315,18 +2229,6 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
                                   spv::Id argTyID, bool isBaseTyName) {
   const std::optional<std::string> argBaseTy;
   if (argTy->isPointerTy()) {
-#if LLVM_VERSION_LESS(17, 0)
-    // Check for special built-in types, which are found as pointers to
-    // special struct types.
-    if (auto *const structTy = module.getInternalStructType(argTyID)) {
-      auto structName = structTy->getStructName();
-      if (!structName.consume_front("opencl.")) {
-        SPIRV_LL_ABORT(
-            "found an internal struct type that doesn't begin with 'opencl.'");
-      }
-      return structName.str();
-    }
-#endif
     // If we haven't found a known pointer, keep trying.
     auto argTyOp = module.get<OpTypePointer>(argTyID);
     auto pointeeTyID = argTyOp->getTypePointer()->Type();
@@ -2360,7 +2262,6 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     auto argTyOp = module.getFromLLVMTy<OpType>(argTy);
     return getScalarTypeName(argTy, argTyOp);
   }
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(argTy)) {
     auto tyName = tgtExtTy->getName();
     if (tyName == "spirv.Event") {
@@ -2390,7 +2291,6 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     }
     SPIRV_LL_ABORT("Unknown Target Extension Type");
   }
-#endif
   auto argOp = module.getFromLLVMTy<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
@@ -3567,14 +3467,8 @@ llvm::Error Builder::create<OpSampledImage>(const OpSampledImage *op) {
     auto *formalSamplerTy = module.getLLVMType(formalSamplerTyID);
     SPIRV_LL_ASSERT(sampler->getType() && sampler->getType()->isIntegerTy(32),
                     "Internal sampler error");
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
     SPIRV_LL_ASSERT(formalSamplerTy && formalSamplerTy->isTargetExtTy(),
                     "Internal sampler error");
-#else
-    SPIRV_LL_ASSERT(
-        formalSamplerTy && module.getInternalStructType(formalSamplerTyID),
-        "Internal sampler error");
-#endif
     auto translate_func = module.llvmModule->getOrInsertFunction(
         SAMPLER_INIT_FN, formalSamplerTy, sampler->getType());
     sampler = IRBuilder.CreateCall(translate_func, sampler);
@@ -3779,7 +3673,6 @@ llvm::Error Builder::create<OpImageQuerySizeLod>(
   llvm::Value *image = module.getValue(op->Image());
   SPIRV_LL_ASSERT_PTR(image);
 
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   SPIRV_LL_ASSERT(image->getType()->isTargetExtTy(), "Unknown image type");
   auto *const imgTy = llvm::cast<llvm::TargetExtType>(image->getType());
   const bool isArray =
@@ -3791,19 +3684,6 @@ llvm::Error Builder::create<OpImageQuerySizeLod>(
   const bool is3D = imgTy->getIntParameter(
                         compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
                     compiler::utils::tgtext::ImageDim3D;
-#else
-  auto opFunctionParameter = module.get<OpFunctionParameter>(op->Image());
-
-  auto *imgTy =
-      module.getInternalStructType(opFunctionParameter->IdResultType());
-  SPIRV_LL_ASSERT(imgTy, "Unknown/untracked image type");
-
-  const llvm::StringRef imageTypeName = imgTy->getStructName();
-
-  const bool isArray = imageTypeName.contains("array");
-  const bool is2D = imageTypeName.contains("2d");
-  const bool is3D = imageTypeName.contains("3d");
-#endif
 
   llvm::Value *result = llvm::UndefValue::get(returnType);
 

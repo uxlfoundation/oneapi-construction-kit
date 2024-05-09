@@ -1130,11 +1130,6 @@ std::string spirv_ll::Builder::getMangledFunctionName(
         auto *const spvPtrTy = module.get<OpType>(mangleInfo->id);
         if (spvPtrTy->isPointerType()) {
           pointeeTy = module.getLLVMType(spvPtrTy->getTypePointer()->Type());
-#if LLVM_VERSION_LESS(17, 0)
-        } else if (spvPtrTy->isImageType() || spvPtrTy->isEventType() ||
-                   spvPtrTy->isSamplerType()) {
-          pointeeTy = module.getInternalStructType(spvPtrTy->IdResult());
-#endif
         }
         SPIRV_LL_ASSERT_PTR(pointeeTy);
         if (!pointeeTy->isIntegerTy() && !pointeeTy->isFloatingPointTy()) {
@@ -1225,35 +1220,6 @@ std::string spirv_ll::Builder::getMangledTypeName(
     return getMangledVecPrefix(ty) +
            getMangledTypeName(elementTy, componentMangleInfo, subTys);
   } else if (ty->isPointerTy()) {
-#if LLVM_VERSION_LESS(17, 0)
-    SPIRV_LL_ASSERT(mangleInfo,
-                    "Must supply OpType to mangle pointer arguments");
-    if (auto *structTy = module.getInternalStructType(mangleInfo->id)) {
-      auto structName = structTy->getStructName();
-      if (structName.contains("image1d_t")) {
-        return "11ocl_image1d";
-      } else if (structName.contains("image1d_array_t")) {
-        return "16ocl_image1darray";
-      } else if (structName.contains("image1d_buffer_t")) {
-        return "17ocl_image1dbuffer";
-      } else if (structName.contains("image2d_t")) {
-        return "11ocl_image2d";
-      } else if (structName.contains("image2d_array_t")) {
-        return "16ocl_image2darray";
-      } else if (structName.contains("image3d_t")) {
-        return "11ocl_image3d";
-      } else if (structName.contains("sampler_t")) {
-        return "11ocl_sampler";
-      } else if (structName.contains("event_t")) {
-        return "9ocl_event";
-      } else {
-        (void)std::fprintf(
-            stderr, "mangler: unknown pointer to struct argument type: %.*s\n",
-            static_cast<int>(structName.size()), structName.data());
-        std::abort();
-      }
-    }
-#endif
     SPIRV_LL_ASSERT(
         mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
         "Parameter is not a pointer");
@@ -1276,7 +1242,6 @@ std::string spirv_ll::Builder::getMangledTypeName(
     }
     return "P" +
            getMangledTypeName(ty->getArrayElementType(), eltMangleInfo, subTys);
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   } else if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(ty)) {
     auto tyName = tgtExtTy->getName();
     if (tyName == "spirv.Event") {
@@ -1304,7 +1269,6 @@ std::string spirv_ll::Builder::getMangledTypeName(
           return "17ocl_image1dbuffer";
       }
     }
-#endif
   }
   llvm_unreachable("mangler: unsupported argument type");
 }

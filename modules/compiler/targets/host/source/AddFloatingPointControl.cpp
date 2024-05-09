@@ -25,7 +25,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IntrinsicsARM.h>
 #include <llvm/IR/IntrinsicsX86.h>
-#include <multi_llvm/triple.h>
+#include <llvm/TargetParser/Triple.h>
 
 using namespace llvm;
 

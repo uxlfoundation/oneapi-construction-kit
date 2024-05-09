@@ -19,7 +19,7 @@
 #include <compiler/utils/replace_mux_math_decls_pass.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
-#include <multi_llvm/triple.h>
+#include <llvm/TargetParser/Triple.h>
 
 using namespace llvm;
 
