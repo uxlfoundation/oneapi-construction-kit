@@ -56,15 +56,7 @@ class StructTypeRemapper final : public llvm::ValueMapTypeRemapper {
       if (newStructType) {
         return newStructType;
       }
-    } else if (auto *ptrType = llvm::dyn_cast<llvm::PointerType>(srcType)) {
-      (void)ptrType;
-#if LLVM_VERSION_LESS(17, 0)
-      // Nominally support opaque pointer remapping from LLVM 13 onwards.
-      if (ptrType->isOpaque()) {
-        return srcType;
-      }
-      assert(ptrType->isOpaque() && "Can only remap opaque pointers");
-#endif
+    } else if (llvm::isa<llvm::PointerType>(srcType)) {
       return srcType;
     } else if (auto *arrayType = llvm::dyn_cast<llvm::ArrayType>(srcType)) {
       auto *arrayElementType = arrayType->getElementType();

@@ -63,11 +63,7 @@ void setTargetFeatureString(const riscv::hal_device_info_riscv_t *info,
   if (info->extensions & riscv::rv_extension_Zfh) {
     addFeature(features, "+zfh", hasFeature);
     if (info->extensions & riscv::rv_extension_V) {
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
       addFeature(features, "+zvfh", hasFeature);
-#else
-      addFeature(features, "+experimental-zvfh", hasFeature);
-#endif
     }
   }
   if (info->extensions & riscv::rv_extension_Zba) {

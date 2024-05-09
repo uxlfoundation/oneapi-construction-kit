@@ -298,10 +298,6 @@ std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"X86_64_SysV", CallingConv::X86_64_SysV},
     {"Win64", CallingConv::Win64},
     {"X86_VectorCall", CallingConv::X86_VectorCall},
-#if LLVM_VERSION_LESS(17, 0)
-    {"HHVM", CallingConv::HHVM},
-    {"HHVM_C", CallingConv::HHVM_C},
-#endif
     {"X86_INTR", CallingConv::X86_INTR},
     {"AVR_INTR", CallingConv::AVR_INTR},
     {"AVR_SIGNAL", CallingConv::AVR_SIGNAL},

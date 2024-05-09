@@ -51,8 +51,8 @@
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/PassManager.h>
 #include <llvm/Support/CrashRecoveryContext.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Transforms/IPO/GlobalDCE.h>
-#include <multi_llvm/triple.h>
 #include <mux/mux.hpp>
 
 #include <cstdint>

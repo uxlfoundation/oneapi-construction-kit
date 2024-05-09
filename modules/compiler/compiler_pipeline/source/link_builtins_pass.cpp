@@ -39,6 +39,7 @@
 #include <llvm/ADT/StringSet.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/Error.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ModuleUtils.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>

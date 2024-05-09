@@ -267,9 +267,6 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
                  ->getLLVMContext()
           : LLVMCtx.get();
   assert(LLVMContextToUse && "Missing LLVM Context");
-#if LLVM_VERSION_LESS(17, 0)
-  LLVMContextToUse->setOpaquePointers(true);
-#endif
 
   // Assume that .bc and .ll files are already IR unless told otherwise.
   if (InputLanguage == "ir" ||

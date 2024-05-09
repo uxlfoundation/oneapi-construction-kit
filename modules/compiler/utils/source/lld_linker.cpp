@@ -24,9 +24,7 @@
 
 using namespace llvm;
 
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
 LLD_HAS_DRIVER(elf)
-#endif
 
 namespace compiler {
 namespace utils {
@@ -164,17 +162,10 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
 
   std::string stderrStr;
   raw_string_ostream stderrOS(stderrStr);
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   const ::lld::Result s = ::lld::lldMain(lld_args, outs(), stderrOS,
                                          {{::lld::Gnu, &lld::elf::link}});
   const bool linkResult = !s.retCode && s.canRunAgain;
   ::lld::CommonLinkerContext::destroy();
-#else
-  const bool linkResult =
-      lld::elf::link(lld_args, outs(), stderrOS,
-                     /*exitEarly*/ false, /*disableOutput*/ false);
-  lld::CommonLinkerContext::destroy();
-#endif
 
   if (!linkResult) {
     return createStringError(inconvertibleErrorCode(), stderrStr.c_str());

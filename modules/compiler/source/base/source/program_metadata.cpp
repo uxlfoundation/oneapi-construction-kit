@@ -292,7 +292,6 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
     }
   }
 
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
   if (auto *TgtTy = llvm::dyn_cast<llvm::TargetExtType>(Ty)) {
     auto TyName = TgtTy->getName();
     if (TyName == "spirv.Sampler") {
@@ -342,7 +341,6 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
 
     CPL_ABORT("Unknown target extension type");
   }
-#endif
 
   CPL_ABORT("Unknown argument type.");
 

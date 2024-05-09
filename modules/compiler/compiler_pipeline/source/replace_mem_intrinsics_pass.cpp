@@ -62,11 +62,7 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
         expandMemSetAsLoop(cast<MemSetInst>(CI));
         break;
       case Intrinsic::memmove:
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
         expandMemMoveAsLoop(cast<MemMoveInst>(CI), TTI);
-#else
-        expandMemMoveAsLoop(cast<MemMoveInst>(CI));
-#endif
         break;
       default:
         break;
