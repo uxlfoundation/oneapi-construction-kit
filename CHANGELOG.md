@@ -39,6 +39,8 @@ Upgrade guidance:
   `CA_HOST_TARGET_AARCH64_CPU` and `CA_HOST_TARGET_RISCV64_CPU`. The environment variable
   `CA_HOST_TARGET_CPU` remains the same name. Note that `CA_HOST_TARGET_CPU_NATIVE` is no longer
   supported but can be achieved by using `native` as a value for the variants.
+* The utility function `addParamToAllFunctions` has been moved to
+  `ReplaceLocalModuleScopeVariablesPass` and renamed as it is only used there.
 
 ## Version 3.0.0
 
