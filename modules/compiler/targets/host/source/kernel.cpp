@@ -68,6 +68,7 @@ HostKernel::~HostKernel() {
         llvm::cantFail(es.removeJITDylib(*jit));
       }
     }
+    es.getSymbolStringPool()->clearDeadEntries();
   }
 }
 

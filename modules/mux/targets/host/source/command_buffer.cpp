@@ -1189,6 +1189,9 @@ mux_result_t hostResetCommandBuffer(mux_command_buffer_t command_buffer) {
   const std::lock_guard<std::mutex> lock(host->mutex);
 
   host->commands.clear();
+  host->commands.shrink_to_fit();
+  host->ndranges.clear();
+  host->ndranges.shrink_to_fit();
 
   return mux_success;
 }
