@@ -100,7 +100,8 @@ add_ca_library(host STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/query_pool.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/queue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/semaphore.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/thread_pool.cpp)
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/thread_pool.cpp
+  DEPENDS mux-config abacus_generate)
 
 target_include_directories(host PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
