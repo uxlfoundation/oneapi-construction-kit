@@ -64,7 +64,8 @@ set(HOST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/source/target.cpp
     )
 
-add_ca_library(compiler-host STATIC ${HOST_SOURCES})
+add_ca_library(compiler-host STATIC ${HOST_SOURCES}
+  DEPENDS mux-config abacus_generate)
 
 target_include_directories(compiler-host PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
