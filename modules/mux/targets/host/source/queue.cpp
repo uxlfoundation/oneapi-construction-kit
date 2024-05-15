@@ -280,7 +280,7 @@ void commandNDRange(host::queue_s *queue, host::command_info_s *info) {
         schedule_info.work_dim =
             static_cast<uint32_t>(ndrange_info->dimensions);
 
-        kernel_variant->hook(ndrange_info->packed_args, &schedule_info);
+        kernel_variant->hook(ndrange_info->packed_args.data(), &schedule_info);
       },
       &variant, ndrange, signals, &queued, slices);
 
