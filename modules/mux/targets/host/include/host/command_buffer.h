@@ -40,13 +40,13 @@ namespace host {
 /// This struct later gets cast to `void*` and passed to the lambda that threads
 /// in the threadpool execute to actually run the range.
 struct ndrange_info_s {
-  ndrange_info_s(void *packed_args,
+  ndrange_info_s(mux::dynamic_array<uint8_t> &packed_args,
                  mux::dynamic_array<uint8_t *> &arg_addresses,
                  mux::dynamic_array<mux_descriptor_info_t> &descriptors,
                  std::array<size_t, 3> global_size,
                  std::array<size_t, 3> global_offset,
                  std::array<size_t, 3> local_size, size_t dimensions)
-      : packed_args(packed_args),
+      : packed_args(std::move(packed_args)),
         arg_addresses(std::move(arg_addresses)),
         descriptors(std::move(descriptors)),
         global_size(global_size),
@@ -55,7 +55,7 @@ struct ndrange_info_s {
         dimensions(dimensions) {}
 
   /// @brief Packed descriptors.
-  void *packed_args;
+  mux::dynamic_array<uint8_t> packed_args;
 
   /// @brief Addresses of arguments in packed descriptors.
   ///

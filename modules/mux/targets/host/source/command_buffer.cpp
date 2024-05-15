@@ -67,8 +67,9 @@ size_t calcPackedArgsAllocSize(
 // Iterates through the argument descriptors and for each argument sets the
 // location in the packed args location to the correct value.
 void populatePackedArgs(
-    uint8_t *packed_args_alloc,
+    mux::dynamic_array<uint8_t> &packed_args,
     const mux::dynamic_array<mux_descriptor_info_t> &descriptors) {
+  uint8_t *const packed_args_alloc = packed_args.data();
   size_t offset = 0;
   for (unsigned i = 0; i < descriptors.size(); i++) {
     const auto descriptor = descriptors[i];
@@ -188,7 +189,7 @@ sync_point_s::sync_point_s(mux_command_buffer_t command_buffer) {
 
 cargo::expected<std::unique_ptr<ndrange_info_s>, mux_result_t>
 ndrange_info_s::clone(mux_allocator_info_t allocator_info) const {
-  mux::allocator allocator(allocator_info);
+  const mux::allocator allocator(allocator_info);
 
   mux::dynamic_array<mux_descriptor_info_t> clone_descriptors{allocator};
   if (clone_descriptors.alloc(descriptors.size())) {
@@ -208,13 +209,12 @@ ndrange_info_s::clone(mux_allocator_info_t allocator_info) const {
 
   // Allocate data for packed arguments and record offset into it for each
   // argument
-  const uint64_t packed_args_alloc_size =
-      calcPackedArgsAllocSize(clone_descriptors, clone_offsets);
-  uint8_t *const packed_args_allocation =
-      static_cast<uint8_t *>(allocator.alloc(packed_args_alloc_size, 1));
-  if (nullptr == packed_args_allocation) {
+  mux::dynamic_array<uint8_t> clone_packed_args{allocator};
+  if (clone_packed_args.alloc(
+          calcPackedArgsAllocSize(clone_descriptors, clone_offsets))) {
     return cargo::make_unexpected(mux_error_out_of_memory);
   }
+  assert(clone_packed_args.size() == packed_args.size());
 
   // Store address of each argument
   mux::dynamic_array<uint8_t *> clone_arg_addresses{allocator};
@@ -222,7 +222,7 @@ ndrange_info_s::clone(mux_allocator_info_t allocator_info) const {
     return cargo::make_unexpected(mux_error_out_of_memory);
   }
   for (size_t i = 0; i < descriptors.size(); i++) {
-    clone_arg_addresses[i] = packed_args_allocation + clone_offsets[i];
+    clone_arg_addresses[i] = clone_packed_args.data() + clone_offsets[i];
   }
 
   // Populate packed args struct by copying original. We do this rather
@@ -230,11 +230,12 @@ ndrange_info_s::clone(mux_allocator_info_t allocator_info) const {
   // pointer will no longer be valid if the kernel argument has since been
   // overwritten with clSetKernelArg, freeing the original
   // _cl_kernel::argument.
-  std::memcpy(packed_args_allocation, packed_args, packed_args_alloc_size);
+  std::memcpy(clone_packed_args.begin(), packed_args.begin(),
+              packed_args.size());
 
   return std::make_unique<host::ndrange_info_s>(
-      packed_args_allocation, clone_arg_addresses, clone_descriptors,
-      global_size, global_offset, local_size, dimensions);
+      clone_packed_args, clone_arg_addresses, clone_descriptors, global_size,
+      global_offset, local_size, dimensions);
 }
 }  // namespace host
 
@@ -913,7 +914,7 @@ mux_result_t hostCommandNDRange(mux_command_buffer_t command_buffer,
   const std::lock_guard<std::mutex> lock(host->mutex);
 
   auto host_kernel = static_cast<host::kernel_s *>(kernel);
-  mux::allocator allocator(host_kernel->allocator_info);
+  const mux::allocator allocator(host_kernel->allocator_info);
 
   std::array<size_t, 3> global_size;
   std::array<size_t, 3> global_offset;
@@ -947,9 +948,8 @@ mux_result_t hostCommandNDRange(mux_command_buffer_t command_buffer,
   // into the allocation for each argument
   const uint64_t packed_args_alloc_size =
       calcPackedArgsAllocSize(descriptors, offsets);
-  uint8_t *const packed_args_allocation =
-      static_cast<uint8_t *>(allocator.alloc(packed_args_alloc_size, 1));
-  if (nullptr == packed_args_allocation) {
+  mux::dynamic_array<uint8_t> packed_args{allocator};
+  if (packed_args.alloc(packed_args_alloc_size)) {
     return mux_error_out_of_memory;
   }
 
@@ -959,15 +959,15 @@ mux_result_t hostCommandNDRange(mux_command_buffer_t command_buffer,
     return mux_error_out_of_memory;
   }
   for (size_t i = 0; i < descriptors.size(); i++) {
-    arg_addresses[i] = packed_args_allocation + offsets[i];
+    arg_addresses[i] = packed_args.data() + offsets[i];
   }
 
   // Store necessary argument information in the packed args allocation
-  populatePackedArgs(packed_args_allocation, descriptors);
+  populatePackedArgs(packed_args, descriptors);
 
   if (host->ndranges.emplace_back(std::make_unique<host::ndrange_info_s>(
-          packed_args_allocation, arg_addresses, descriptors, global_size,
-          global_offset, local_size, options.dimensions))) {
+          packed_args, arg_addresses, descriptors, global_size, global_offset,
+          local_size, options.dimensions))) {
     return mux_error_out_of_memory;
   }
 
@@ -1268,9 +1268,6 @@ void hostDestroyCommandBuffer(mux_device_t device,
   mux::allocator allocator(allocator_info);
 
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
-  for (auto &range : host->ndranges) {
-    allocator.free(range->packed_args);
-  }
 
   for (auto sync_point : host->sync_points) {
     allocator.destroy(sync_point);
