@@ -22,7 +22,8 @@ set(RISCV_TOOLCHAIN_DIR "${CA_LLVM_INSTALL_DIR}" CACHE PATH
   "Path to the clang RISC-V toolchain")
 
 # Iterate through all 'hal_*' sub-directories.
-file(GLOB HAL_DIR_NAMES FOLLOW_SYMLINKS LIST_DIRECTORIES true "hal_*")
+file(GLOB HAL_DIR_NAMES FOLLOW_SYMLINKS LIST_DIRECTORIES true "hal_*"
+     ${PROJECT_SOURCE_DIR}/examples/hals/hal_*)
 
 if (DEFINED CA_RISCV_EXTERNAL_HAL_DIR)
   list(APPEND HAL_DIR_NAMES ${CA_RISCV_EXTERNAL_HAL_DIR})

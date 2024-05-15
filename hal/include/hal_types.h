@@ -176,6 +176,9 @@ struct hal_device_info_t {
 
   /// @brief Array of counter descriptions. Can be null if num_counters == 0.
   hal_counter_description_t *counter_descriptions = nullptr;
+
+  /// @brief Used to dictate whether to link as dynamic library.
+  bool link_shared = false;
 };
 
 struct hal_info_t {

@@ -46,8 +46,22 @@ If you wish to run on a non RISC-V machine, then `qemu` and the RISC-V toolchain
 
 ## Building the client
 
-We are looking to simplify this process, but currently we need to create an out
-of tree target. This is done as follows (for RISC-V):
+The client can built in-tree (for risc-v) as follows:
+
+```
+  cmake -Bbuild_client -GNinja \
+    -DCA_MUX_TARGETS_TO_ENABLE="riscv" \
+    -DCA_RISCV_ENABLED=ON \
+    -DCA_ENABLE_API=cl \
+    -DCA_LLVM_INSTALL_DIR=<path_to_llvm_install> \
+    -DCA_CL_ENABLE_ICD_LOADER=ON  \
+    -DCA_HAL_NAME=cpu_client
+   ninja -Cbuild_client
+```
+
+It is also possible to build out of tree using `create_target.py` and
+`scripts/new_target_templates/cpu_client_riscv.json`. This could also be modified to work
+for different architectures. For example:
 
 ```
   python <path_to_ock>/scripts/create_target.py <path_to_ock> \
@@ -66,6 +80,9 @@ of tree target. This is done as follows (for RISC-V):
     -DCA_EXTERNAL_CPU_CLIENT_HAL_DIR=<path_to_ock>/examples/hals/hal_cpu_client
    ninja -Cbuild_client
 ```
+
+The llvm install must have LLVM_ENABLE_PROJECT="lld;clang" and
+LLVM_TARGETS_TO_BUILD shoul include `RISCV` for a `RISC-V` target.
 
 This assumes building the ICD, but it is possible to build without this. Note
 also the script requires cookiecutter to be installed with `pip install
@@ -120,14 +137,14 @@ ssh -L <local_port>:127.0.0.1:<remote_port> user@destmachine
 Running the client is done similar to any normal `OCK` OpenCL target (or via
 SYCL OpenCL plugin). The environment variable `HAL_REMOTE_PORT` should be set to
 the local port number. You will also need to set LD_LIBRARY_PATH to
-$PWD/oneAPIConstructionKit/lib if you do not have an OpenCL ICD on your machine.
+the `lib` build directory if you do not have an OpenCL ICD on your machine.
 
-As a simple test try running a simple UnitCL test:
+As a simple test try running a simple UnitCL test (using the in-tree version):
 
 ```
   cd build_client
-  HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWD/oneAPIConstructionKit/lib/libCL.so.4.0 \
-    ./oneAPIConstructionKit/bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
+  HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWDlib/libCL.so.4.0 \
+    ./bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 ```
 This should show as `PASSED`.
 
@@ -143,11 +160,11 @@ for more details). First of all start the server as above.
 Build and run simple-vector-add as follows from the build_client directory:-
 
 ```
-export LD_LIBRARY_PATH=<path_to_dpcpp_compiler_base>/lib:$PWD/oneAPIConstructionKit/lib:$LD_LIBRARY_PATH
-export OCL_ICD_FILENAMES=$PWD/oneAPIConstructionKit/lib/libCL.so
+export LD_LIBRARY_PATH=<path_to_dpcpp_compiler_base>/lib:$PWD/lib:$LD_LIBRARY_PATH
+export OCL_ICD_FILENAMES=$PWD/lib/libCL.so
 export ONEAPI_DEVICE_SELECTOR=*:fpga
 <path_to_dpcpp_compiler_base>/bin/clang++ -fsycl <path_to_ock>/examples/applications/simple-vector-add.cpp -o simple-vector-add
-HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWD/oneAPIConstructionKit/lib/libCL.so.4.0 ./simple-vector-add
+HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWD/lib/libCL.so.4.0 ./simple-vector-add
 ```
 
 This should show "The results are correct!".

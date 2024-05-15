@@ -35,7 +35,7 @@ class hal_client : public hal::hal_t {
   std::mutex lock;
   bool made_connection = false;
   hal::hal_info_t hal_info;
-  hal::hal_device_info_t hal_device_info;
+  hal::hal_device_info_t *hal_device_info;
   uint16_t required_port;
 
  public:
@@ -49,9 +49,9 @@ class hal_client : public hal::hal_t {
     // matches our own, as the data protocol assumes that endianness matches
     const uint32_t one = 1U;
     bool is_little_endian = reinterpret_cast<const char *>(&one)[0] == 1;
-    assert(is_little_endian == hal_device_info.is_little_endian);
+    assert(is_little_endian == hal_device_info->is_little_endian);
 
-    if (is_little_endian != hal_device_info.is_little_endian) {
+    if (is_little_endian != hal_device_info->is_little_endian) {
       return nullptr;
     }
     if (index > 0) {
@@ -83,7 +83,7 @@ class hal_client : public hal::hal_t {
       }
       if (decoder.decode(command, payload.data(), payload.size())) {
         if (decoder.message.device_create_reply) {
-          return new hal::hal_device_client(&hal_device_info, lock,
+          return new hal::hal_device_client(hal_device_info, lock,
                                             &get_transmitter());
         }
       }
