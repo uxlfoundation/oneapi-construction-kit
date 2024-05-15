@@ -176,7 +176,7 @@ else()
   add_ca_library(vecz STATIC ${MODULES_LIBRARY_TYPE} ${COMMON_SRCS})
 
   llvm_map_components_to_libnames(LLVM_LIBS
-    support core analysis instcombine transformutils scalaropts ipo passes)
+    support core analysis instcombine aggressiveinstcombine transformutils scalaropts ipo passes)
 endif()
 
 target_include_directories(vecz
