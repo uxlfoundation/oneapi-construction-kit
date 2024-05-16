@@ -1,0 +1,9 @@
+{
+  "target_name": "cpu_client",
+  "llvm_name": "RISCV",
+  "llvm_cpu": "'generic-rv64'",
+  "llvm_features": "'+m,+f,+a,+d'",  
+  "llvm_triple": "'riscv64-unknown-elf'",
+  "link" : "true",
+  "link_shared": "true"
+}
