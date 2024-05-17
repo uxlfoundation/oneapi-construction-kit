@@ -663,6 +663,15 @@ void writeITypeImm(uint32_t imm, uint8_t *insn_addr) {
   cargo::write_little_endian(insn, insn_addr);
 }
 
+// Sets the immediate field of an S-type instruction [31:25, 11:7]
+void writeSTypeImm(uint32_t imm, uint8_t *insn_addr) {
+  uint32_t insn;
+  cargo::read_little_endian(&insn, insn_addr);
+  insn = setBitRange(insn, imm >> 5, 25, 7);
+  insn = setBitRange(insn, imm, 7, 5);
+  cargo::write_little_endian(insn, insn_addr);
+}
+
 // Sets the immediate field of an U-type instruction [31:12]
 void writeUTypeImm(uint32_t imm, uint8_t *insn_addr) {
   uint32_t insn;
@@ -759,10 +768,11 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
       writeUTypeImm(*rel_hi20, relocation_address);
       break;
     }
-    case R_RISCV_PCREL_LO12_I: {
+    case R_RISCV_PCREL_LO12_I:
+    case R_RISCV_PCREL_LO12_S: {
       // Low 12 bits of 32-bit PC-relative reference -- S + A - P (A must be 0)
-      // -- in the immediate field of an I-type instruction
-      CARGO_ASSERT(r.addend == 0, "Invalid PCREL_LO12_I relocation");
+      // -- in the immediate field of an I-type or an S-type instruction
+      CARGO_ASSERT(r.addend == 0, "Invalid PCREL_LO12 relocation");
       // This relocation points to a label, for which there is a corresponding
       // PCREL_HI20 relocation pointing to the actual symbol. Find that
       // relocation now.
@@ -782,7 +792,16 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
           *hi20_reloc_data;
       const uint64_t hi20_relative_value =
           hi20_symbol_target_address - hi20_reloc_target_address;
-      writeITypeImm(getLo12(hi20_relative_value), relocation_address);
+      switch (r.type) {
+        case R_RISCV_PCREL_LO12_I:
+          writeITypeImm(getLo12(hi20_relative_value), relocation_address);
+          break;
+        case R_RISCV_PCREL_LO12_S:
+          writeSTypeImm(getLo12(hi20_relative_value), relocation_address);
+          break;
+        default:
+          CARGO_ASSERT(0, "Unexpected relocation type.");
+      }
       break;
     }
     case R_RISCV_HI20: {
