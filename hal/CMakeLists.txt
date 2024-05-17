@@ -63,5 +63,8 @@ target_compile_definitions(hal_common PRIVATE
 
 target_link_libraries(hal_common PUBLIC $<$<PLATFORM_ID:Linux>:dl>)
 
-add_subdirectory(hal_remote)
+if(CA_PLATFORM_LINUX)
+  add_subdirectory(hal_remote)
+endif()
+
 add_subdirectory(source/hal_null)
