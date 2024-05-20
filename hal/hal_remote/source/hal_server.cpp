@@ -21,6 +21,7 @@
 #include <hal_remote/hal_server.h>
 
 #include <cstring>
+#include <iostream>
 
 namespace hal {
 hal_server::hal_server(hal_transmitter *transmitter, hal::hal_t *hal)
@@ -87,9 +88,8 @@ hal_server::error_code hal_server::process_mem_alloc(uint32_t device) {
   auto res = hal_device->mem_alloc(decoder.message.alloc.size,
                                    decoder.message.alloc.alignment);
   if (debug) {
-    printf("Hal Server:: mem alloc %lu %lu -> %d\n", decoder.message.alloc.size,
-           decoder.message.alloc.alignment, (int)res);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: mem alloc " << decoder.message.alloc.size << " "
+              << decoder.message.alloc.alignment << " -> " << res << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_mem_alloc_reply(res);
@@ -116,9 +116,8 @@ hal_server::error_code hal_server::process_mem_free(uint32_t device) {
 
   auto res = hal_device->mem_free(decoder.message.free.addr);
   if (debug) {
-    printf("Hal Server:: mem free %lux -> %d\n", decoder.message.free.addr,
-           (int)res);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: mem free " << decoder.message.free.addr << " -> "
+              << res << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_mem_free_reply(res);
@@ -151,10 +150,9 @@ hal_server::error_code hal_server::process_mem_write(uint32_t device) {
   auto res = hal_device->mem_write(decoder.message.write.dst, src_data,
                                    decoder.message.write.size);
   if (debug) {
-    printf("Hal Server:: mem_write %lu %p %lu-> %d\n",
-           decoder.message.write.dst, src_data, decoder.message.write.size,
-           (int)res);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: mem_write " << decoder.message.write.dst << " "
+              << src_data << " " << decoder.message.write.size << " -> " << res
+              << "\n";
   }
 
   hal_binary_encoder encode_reply;
@@ -213,9 +211,9 @@ hal_server::error_code hal_server::process_mem_read(uint32_t device) {
   auto res = hal_device->mem_read(dst.data(), decoder.message.read.src,
                                   decoder.message.read.size);
   if (debug) {
-    printf("Hal Server:: mem_read %p %lux %lu-> %d\n", dst.data(),
-           decoder.message.read.src, decoder.message.read.size, res);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: mem_read " << dst.data() << " "
+              << decoder.message.read.src << " " << decoder.message.read.size
+              << " -> " << res << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_mem_read_reply(res);
@@ -270,9 +268,8 @@ hal_server::error_code hal_server::process_program_free(uint32_t device) {
   }
   auto res = hal_device->program_free(decoder.message.prog_free.program);
   if (debug) {
-    printf("Hal Server:: program_free %lu -> %d\n",
-           decoder.message.prog_free.program, (int)res);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: program_free "
+              << decoder.message.prog_free.program << " -> " << res << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_program_free_reply(res);
@@ -307,10 +304,9 @@ hal_server::error_code hal_server::process_find_kernel(uint32_t device) {
   auto res = hal_device->program_find_kernel(
       decoder.message.prog_find_kernel.program, (const char *)name_data);
   if (debug) {
-    printf("Hal Server:: program_find_kernel %lx %s -> %d\n",
-           decoder.message.prog_find_kernel.program, (const char *)name_data,
-           (int)res);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: program_find_kernel "
+              << decoder.message.prog_find_kernel.program << " "
+              << (const char *)name_data << " -> " << res << "\n";
   }
 
   hal_binary_encoder encode_reply;
@@ -344,8 +340,8 @@ hal_server::error_code hal_server::process_program_load(uint32_t device) {
 
   auto res = hal_device->program_load(data, decoder.message.prog_load.size);
   if (debug) {
-    printf("Hal Server:: program_load %lu (%p) -> %lux\n",
-           decoder.message.prog_load.size, data, res);
+    std::cerr << "Hal Server:: program_load " << decoder.message.prog_load.size
+              << " (" << data << ") -> " << res << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_program_load_reply(res);
@@ -389,19 +385,19 @@ hal_server::error_code hal_server::process_kernel_exec(uint32_t device) {
       decoder.message.kernel_exec.num_args,
       decoder.message.kernel_exec.work_dim);
   if (debug) {
-    printf(
-        "Hal Server:: kernel_exec (%d) %lux %lux (%lu %lu %lu):(%lu %lu "
-        "%lu) %p %d %d-> %d\n",
-        decoder.message.kernel_exec.args_data_size,
-        decoder.message.kernel_exec.program, decoder.message.kernel_exec.kernel,
-        decoder.message.kernel_exec.nd_range.global[0],
-        decoder.message.kernel_exec.nd_range.global[1],
-        decoder.message.kernel_exec.nd_range.global[2],
-        decoder.message.kernel_exec.nd_range.local[0],
-        decoder.message.kernel_exec.nd_range.local[1],
-        decoder.message.kernel_exec.nd_range.local[2],
-        decoder.kernel_args.data(), decoder.message.kernel_exec.num_args,
-        decoder.message.kernel_exec.work_dim, res);
+    std::cerr << "Hal Server:: kernel_exec "
+              << decoder.message.kernel_exec.args_data_size << " "
+              << decoder.message.kernel_exec.program << " "
+              << decoder.message.kernel_exec.kernel << " "
+              << decoder.message.kernel_exec.nd_range.global[0] << " "
+              << decoder.message.kernel_exec.nd_range.global[1] << " "
+              << decoder.message.kernel_exec.nd_range.global[2] << " "
+              << decoder.message.kernel_exec.nd_range.local[0] << " "
+              << decoder.message.kernel_exec.nd_range.local[1] << " "
+              << decoder.message.kernel_exec.nd_range.local[2] << " "
+              << decoder.kernel_args.data() << " "
+              << decoder.message.kernel_exec.num_args << " "
+              << decoder.message.kernel_exec.work_dim << " -> " << res << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_kernel_exec_reply(res);
@@ -429,7 +425,8 @@ hal_server::error_code hal_server::process_device_create(uint32_t device) {
   }
   hal_device = hal->device_create(device);
   if (debug) {
-    printf("Hal Server:: device_create %u-> %p\n", device, hal_device);
+    std::cerr << "Hal Server:: device_create " << device << " -> " << hal_device
+              << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_device_create_reply(hal_device ? true : false);
@@ -459,7 +456,7 @@ hal_server::error_code hal_server::process_device_delete(uint32_t device) {
   hal->device_delete(hal_device);
   hal_device = nullptr;
   if (debug) {
-    printf("Hal Server:: device_delete %u\n", device);
+    std::cerr << "Hal Server:: device_delete " << device << "\n";
   }
   hal_binary_encoder encode_reply;
   encode_reply.encode_device_delete_reply(true);
@@ -472,7 +469,7 @@ hal_server::error_code hal_server::process_device_delete(uint32_t device) {
 }
 
 hal_server::error_code hal_server::process_command() {
-  struct __attribute__((packed)) {
+  struct {
     hal_binary_encoder::COMMAND command;
     uint32_t device;
   } prefix;
@@ -483,8 +480,8 @@ hal_server::error_code hal_server::process_command() {
     return hal_server::status_transmitter_failed;
   }
   if (debug) {
-    printf("Hal Server:: received command %d\n", (int)prefix.command);
-    (void)fflush(stdout);
+    std::cerr << "Hal Server:: received command " << (uint32_t)prefix.command
+              << "\n";
   }
   assert(prefix.device == 0);
 

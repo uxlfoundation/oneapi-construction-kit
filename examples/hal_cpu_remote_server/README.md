@@ -112,7 +112,7 @@ consider using ssh port forwarding as suggested above. The recommended way of
 using port forwarding would be as follows:
 
 ```
-ssh -L <local_port>:destmachine:<remote_port> user@destmachine
+ssh -L <local_port>:127.0.0.1:<remote_port> user@destmachine
 ```
 
 Running the client is done similar to any normal `OCK` OpenCL target (or via

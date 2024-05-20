@@ -17,18 +17,19 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include <iostream>
+
 #include "hal_remote/hal_server.h"
 #include "hal_remote/hal_socket_client.h"
 #include "hal_remote/hal_socket_transmitter.h"
 
-void print_usage(FILE *f, const char *tool_name) {
-  fprintf(f, "usage: %s [-h] [-n node] port\n", tool_name);
-  fprintf(f,
-          "\tnote : node is an ip address or machine name e.g. \"127.0.0.1\" "
-          "(default) or \"localhost\"\n");
-  fprintf(f,
-          "\t       port is an integer non-zero address which will be listened "
-          "on\n");
+void print_usage(std::ostream &stream, const char *tool_name) {
+  stream << "usage: " << tool_name << " [-h] [-n node] port\n";
+  stream << "\tnote : node is an ip address or machine name e.g. \"127.0.0.1\" "
+            "(default) or \"localhost\"\n";
+  stream
+      << "\t       port is an integer non-zero address which will be listened "
+         "on\n";
 }
 
 hal::hal_socket_transmitter transmitter;
@@ -59,11 +60,11 @@ int main(int argc, char **argv) {
         continue;
 
       case 'h':
-        print_usage(stdout, argv[0]);
+        print_usage(std::cout, argv[0]);
         exit(0);
       default:
-        fprintf(stderr, "Error: Unexpected options '%c'\n", (char)opt);
-        print_usage(stderr, argv[0]);
+        std::cerr << "Error: Unexpected options '" << (char)opt << "'\n";
+        print_usage(std::cerr, argv[0]);
         exit(1);
 
       case -1:
@@ -74,8 +75,8 @@ int main(int argc, char **argv) {
   }
 
   if (optind >= argc) {
-    fprintf(stderr, "Error : requires port argument\n");
-    print_usage(stderr, argv[0]);
+    std::cerr << "Error : requires port argument\n";
+    print_usage(std::cerr, argv[0]);
     exit(1);
   }
   port = std::stoi(argv[optind]);
@@ -90,9 +91,8 @@ int main(int argc, char **argv) {
   hal::hal_server::error_code last_error = hal::hal_server::status_success;
   auto res = transmitter.start_server(true);
   if (res != hal::hal_socket_transmitter::success) {
-    (void)fprintf(stderr,
-                  "Unable to start server on requested port %d, node %s\n",
-                  port, node.c_str());
+    std::cerr << "Unable to start server on requested port " << port
+              << ", node " << node << "\n";
     return 1;
   }
 
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
   last_error = server.process_commands();
 
   if (process_terminated) {
-    fprintf(stderr, "Process Terminated\n");
+    std::cerr << "Process Terminated\n";
     exit(1);
   }
   // Check if the failure was due the transmitter, if so check if connection
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
   if (last_error == hal::hal_server::status_transmitter_failed) {
     if (transmitter.get_last_error() !=
         hal::hal_socket_transmitter::connection_closed) {
-      (void)fprintf(stderr, "Error with tcp/ip connection\n");
+      std::cerr << "Error with tcp/ip connection\n";
       return 1;
     } else {
       return 0;
