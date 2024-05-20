@@ -33,7 +33,7 @@ This can be done as follows:
 If cross-compilation (for example RISC-V) is needed the following additional arguments are needed:
 
 ```
-   -DCMAKE_TOOLCHAIN_FILE=<path_to_ock>/platform/riscv64-linux/riscv64-gcc-toolchain.cmake -DCMAKE_CROSSCOMPILING=TRUE
+   -DCMAKE_TOOLCHAIN_FILE=<path_to_ock>/platform/riscv64-linux/riscv64-gcc-toolchain.cmake
 ```
 
 Note this requires the RISC-V toolchain to be installed as follows on Ubuntu:
@@ -67,7 +67,9 @@ of tree target. This is done as follows (for RISC-V):
    ninja -Cbuild_client
 ```
 
-This assumes building the ICD, but it is possible to build without this.
+This assumes building the ICD, but it is possible to build without this. Note
+also the script requires cookiecutter to be installed with `pip install
+cookiecutter`.
 
 Note if we just wish a quick test then we could target `UnitCL` with the ninja
 line. Also if the server is running on a different architecture the LLVM build

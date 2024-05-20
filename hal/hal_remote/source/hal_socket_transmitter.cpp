@@ -62,7 +62,7 @@ hal_socket_transmitter::error_code hal_socket_transmitter::make_connection() {
     last_error = setup_connection(false);
     if (last_error != hal_socket_transmitter::success) {
       std::cerr << "Failed to set up connection to remote server (port="
-                << port_requested << " node=" << node << "\n";
+                << port_requested << " node=" << node << ")\n";
       return last_error;
     }
     setup_connection_done = true;
@@ -70,7 +70,7 @@ hal_socket_transmitter::error_code hal_socket_transmitter::make_connection() {
   last_error = connect();
   if (last_error != hal_socket_transmitter::success) {
     std::cerr << "Failed to connect to server (port=" << port_requested
-              << " node=" << node << "\n";
+              << " node=" << node << ")\n";
   }
   return last_error;
 }

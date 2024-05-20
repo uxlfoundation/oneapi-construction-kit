@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 project(hal_cpu_remote_server VERSION 1.0.0 LANGUAGES C CXX ASM)
-
+set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode
 set(HAL_CPU_REMOTE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../clik/external/hal_cpu)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../hal ${CMAKE_CURRENT_BINARY_DIR}/hal)
