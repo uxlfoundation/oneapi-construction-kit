@@ -21,6 +21,8 @@
 #include <hal_remote/hal_binary_encoder.h>
 #include <hal_types.h>
 
+#include <iostream>
+
 namespace hal {
 
 /// @brief Decoder for hal binary commands
@@ -93,7 +95,7 @@ class hal_binary_decoder {
       case hal_binary_encoder::COMMAND::DEVICE_DELETE_REPLY:
         return sizeof(uint32_t);  // bool as 32 bit
       default:
-        fprintf(stderr, "Unknown command : %d\n", (int)command);
+        std::cerr << "Unknown command : " << (uint32_t)command << "\n";
         return 0;
     }
     return data_required_unknown;

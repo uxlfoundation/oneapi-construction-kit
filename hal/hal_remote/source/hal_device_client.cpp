@@ -182,12 +182,12 @@ bool hal_device_client::kernel_exec(hal::hal_program_t program,
                                     uint32_t num_args, uint32_t work_dim) {
   const std::lock_guard<std::mutex> locker(hal_lock);
   if (hal_debug()) {
-    (void)fprintf(stderr,
-                  "hal_device_client::kernel_exec(kernel=0x%08lx, num_args=%d, "
-                  "global=<%ld:%ld:%ld>, local=<%ld:%ld:%ld>)\n",
-                  kernel, num_args, nd_range->global[0], nd_range->global[1],
-                  nd_range->global[2], nd_range->local[0], nd_range->local[1],
-                  nd_range->local[2]);
+    std::cerr << "hal_device_client::kernel_exec(kernel=" << kernel
+              << " num_args=" << num_args << " global = <"
+              << nd_range->global[0] << ":" << nd_range->global[1] << ":"
+              << nd_range->global[2] << "> local = <" << nd_range->local[0]
+              << ":" << nd_range->local[1] << ":" << nd_range->local[2]
+              << ">\n";
   }
   hal_binary_encoder encoder;
   hal_binary_decoder decoder;

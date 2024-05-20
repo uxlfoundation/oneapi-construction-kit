@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <cstring>
+#include <iostream>
 #include <string>
 
 namespace hal {
@@ -44,8 +45,7 @@ hal_socket_transmitter::error_code hal_socket_transmitter::start_server(
     return last_error;
   }
   if (print_port) {
-    (void)printf("Listening on port %d\n", get_port());
-    (void)fflush(stdout);
+    std::cerr << "Listening on port " << get_port() << "\n";
   }
   if (!accept()) {
     last_error = hal_socket_transmitter::accept_failed;
@@ -61,18 +61,16 @@ hal_socket_transmitter::error_code hal_socket_transmitter::make_connection() {
   if (!setup_connection_done) {
     last_error = setup_connection(false);
     if (last_error != hal_socket_transmitter::success) {
-      (void)fprintf(
-          stderr,
-          "Failed to set up connection to remote server (port=%d node=%s)\n",
-          port_requested, node.c_str());
+      std::cerr << "Failed to set up connection to remote server (port="
+                << port_requested << " node=" << node << "\n";
       return last_error;
     }
     setup_connection_done = true;
   }
   last_error = connect();
   if (last_error != hal_socket_transmitter::success) {
-    (void)fprintf(stderr, "Failed to connect to server (port=%d node=%s)\n",
-                  port_requested, node.c_str());
+    std::cerr << "Failed to connect to server (port=" << port_requested
+              << " node=" << node << "\n";
   }
   return last_error;
 }
@@ -131,8 +129,7 @@ hal_socket_transmitter::error_code hal_socket_transmitter::setup_connection(
   // don't support port 0
   if (port_requested == 0) {
     if (debug_enabled()) {
-      (void)fprintf(stderr,
-                    "port requested must be specified as a non-zero value\n");
+      std::cerr << "port requested must be specified as a non-zero value\n";
     }
     return hal_socket_transmitter::port_0_requested;
   }
@@ -154,7 +151,7 @@ hal_socket_transmitter::error_code hal_socket_transmitter::setup_connection(
   // one that matches.
   if (s != 0) {
     if (debug_enabled()) {
-      (void)fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+      std::cerr << "getaddrinfo: " << gai_strerror(s) << "\n";
     }
     return hal_socket_transmitter::getaddrinfo_failed;
   } else {

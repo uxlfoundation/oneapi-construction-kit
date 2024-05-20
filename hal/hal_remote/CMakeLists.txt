@@ -25,7 +25,7 @@ set(HAL_SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_server.cpp
 )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_socket_client.h)
   list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_remote/hal_socket_transmitter.h)
   list (APPEND HAL_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/source/hal_socket_transmitter.cpp)
