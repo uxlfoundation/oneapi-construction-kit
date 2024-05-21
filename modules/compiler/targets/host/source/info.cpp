@@ -74,6 +74,18 @@ HostInfo::HostInfo(host::arch arch, host::os os,
   if (arch == host::arch::RISCV32 || arch == host::arch::RISCV64) {
     supports_deferred_compilation = false;
   }
+
+  // If the user wants to override, let them. This may be useful for testing the
+  // non-deferred-compilation support, or may be useful for testing future LLVM
+  // improvements that may provide RISC-V JIT support.
+  if (const char *env = std::getenv("CA_HOST_DEFERRED_COMPILATION")) {
+    char *end;
+    const long val = std::strtol(env, &end, 10);
+    if (*env != '\0' && (val == 0 || val == 1) && *end == '\0') {
+      supports_deferred_compilation = val;
+    }
+  }
+
   vectorizable = true;
   dma_optimizable = true;
   scalable_vector_support = false;
