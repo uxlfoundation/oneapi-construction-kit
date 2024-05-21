@@ -84,7 +84,7 @@ try:
 except:
     print(
         "Error: cookiecutter not installed. Please use pip install cookiecutter",
-        file=stderr)
+        file=stderr, flush=True)
     os._exit(1)
 
 
