@@ -244,8 +244,9 @@ The following simple-vector-add sample code serves as an introductory example, s
 #include <array>
 #include <iostream>
 
-constexpr cl::sycl::access::mode sycl_read = cl::sycl::access::mode::read;
-constexpr cl::sycl::access::mode sycl_write = cl::sycl::access::mode::write;
+
+constexpr sycl::access::mode sycl_read = sycl::access::mode::read;
+constexpr sycl::access::mode sycl_write = sycl::access::mode::write;
 
 /* This is the class used to name the kernel for the runtime.
  * This must be done when the kernel is expressed as a lambda. */
@@ -261,12 +262,12 @@ void simple_vadd(const std::array<T, N> &VA, const std::array<T, N> &VB,
   cl::sycl::buffer<T, 1> bufferB(VB.data(), numOfItems);
   cl::sycl::buffer<T, 1> bufferC(VC.data(), numOfItems);
 
-  deviceQueue.submit([&](cl::sycl::handler &cgh) {
+  deviceQueue.submit([&](sycl::handler &cgh) {
     auto accessorA = bufferA.template get_access<sycl_read>(cgh);
     auto accessorB = bufferB.template get_access<sycl_read>(cgh);
     auto accessorC = bufferC.template get_access<sycl_write>(cgh);
 
-    auto kern = [=](cl::sycl::id<1> wiID) {
+    auto kern = [=](sycl::id<1> wiID) {
       accessorC[wiID] = accessorA[wiID] + accessorB[wiID];
     };
     cgh.parallel_for<class SimpleVadd<T>>(numOfItems, kern);
