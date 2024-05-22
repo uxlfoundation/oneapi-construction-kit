@@ -634,7 +634,7 @@ llvm::CallInst *spirv_ll::Builder::createBuiltinCall(
     function->setOnlyReadsMemory();
   }
   auto *const call = IRBuilder.CreateCall(function, args);
-  if (!name.equals(SAMPLER_INIT_FN)) {
+  if (name != SAMPLER_INIT_FN) {
     call->setCallingConv(llvm::CallingConv::SPIR_FUNC);
   }
   return call;
