@@ -259,13 +259,28 @@ mux_result_t hostQueryLocalSizeForSubGroupCount(mux_kernel_t kernel,
                                                 size_t *local_size_x,
                                                 size_t *local_size_y,
                                                 size_t *local_size_z) {
-  (void)kernel;
-  // FIXME: For a single sub-group, we know we can satisfy that with a
-  // work-group of 1,1,1. For any other sub-group count, we should ensure that
-  // the work-group size we report comes back through getKernelVariantForWGSize
-  // when it comes to run it. See CA-4784.
-  if (sub_group_count == 1) {
-    *local_size_x = 1;
+  host::kernel_variant_s variant;
+  auto host_kernel = static_cast<host::kernel_s *>(kernel);
+  const auto &info = *host_kernel->device->info;
+  const auto max_local_size_x = info.max_work_group_size_x;
+  auto err =
+      host_kernel->getKernelVariantForWGSize(max_local_size_x, 1, 1, &variant);
+  if (err != mux_success) {
+    return err;
+  }
+
+  // If we've compiled with degenerate sub-groups, the work-group size is the
+  // sub-group size.
+  const auto local_size = [&]() -> size_t {
+    if (variant.sub_group_size == 0) {
+      return sub_group_count == 1 ? max_local_size_x : 0;
+    } else {
+      const auto local_size = sub_group_count * variant.sub_group_size;
+      return local_size <= max_local_size_x ? local_size : 0;
+    }
+  }();
+  if (local_size) {
+    *local_size_x = local_size;
     *local_size_y = 1;
     *local_size_z = 1;
   } else {
