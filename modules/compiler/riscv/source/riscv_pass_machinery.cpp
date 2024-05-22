@@ -213,10 +213,6 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
                                        llvm::Module>());
 
-  // This potentially fixes up any structs to match the spir alignment
-  // before we change to the backend layout
-  PM.addPass(compiler::utils::AlignModuleStructsPass());
-
   // Handle the generic address space
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));

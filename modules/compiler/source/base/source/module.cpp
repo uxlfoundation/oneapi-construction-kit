@@ -44,6 +44,7 @@
 #include <clang/Serialization/ASTReader.h>
 #include <clang/Serialization/ASTRecordReader.h>
 #include <compiler/limits.h>
+#include <compiler/utils/align_module_structs_pass.h>
 #include <compiler/utils/encode_builtin_range_metadata_pass.h>
 #include <compiler/utils/llvm_global_mutex.h>
 #include <compiler/utils/lower_to_mux_builtins_pass.h>
@@ -1674,6 +1675,7 @@ Result BaseModule::finalize(
           m.setDataLayout(DL);
           m.setTargetTriple(triple);
         }));
+    pm.addPass(compiler::utils::AlignModuleStructsPass());
   }
 
   pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());

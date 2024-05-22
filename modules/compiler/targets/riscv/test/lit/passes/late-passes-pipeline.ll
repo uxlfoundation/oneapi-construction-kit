@@ -24,7 +24,6 @@
 
 ; CHECK: Running pass: compiler::utils::TransferKernelMetadataPass on [module]
 
-; CHECK: Running pass: compiler::utils::AlignModuleStructsPass on [module]
 ; CHECK: Running pass: compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass on add (1 instruction)
 ; CHECK: Running pass: riscv::IRToBuiltinReplacementPass on [module]
 

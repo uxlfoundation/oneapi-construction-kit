@@ -240,13 +240,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
                                        llvm::Module>());
 
-// Fix for alignment issues endemic on 32 bit ARM, but can also arise on 32 bit
-// X86. We want this pass to run early so it needs to process less instructions
-// and to avoid having to deal with the side effects of other passes.
-#if defined(UTILS_SYSTEM_32_BIT)
-  PM.addPass(compiler::utils::AlignModuleStructsPass());
-#endif
-
   // Handle the generic address space
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));
