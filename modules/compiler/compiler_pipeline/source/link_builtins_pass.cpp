@@ -107,7 +107,7 @@ void compiler::utils::LinkBuiltinsPass::cloneStructs(
 
       // check if the names match (minus the suffix LLVM sometimes adds to
       // struct types to differentiate between them)
-      if (StructName.rtrim(Suffix).equals(BuiltinStructName.rtrim(Suffix))) {
+      if (StructName.rtrim(Suffix) == BuiltinStructName.rtrim(Suffix)) {
         if (StructTy->isOpaque() && !BuiltinStructTy->isOpaque()) {
           StructTy->setBody(BuiltinStructTy->elements(),
                             BuiltinStructTy->isPacked());
