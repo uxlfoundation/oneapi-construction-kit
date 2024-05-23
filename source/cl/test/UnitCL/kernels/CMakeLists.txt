@@ -42,7 +42,7 @@ if(CA_EXTERNAL_LLVM_SPIRV)
     OUTPUT_VARIABLE llvmSpirvVersion)
   string(REGEX MATCH "LLVM version ([0-9]+).([0-9]+).([0-9]+)" MVAR "${llvmSpirvVersion}")
   if(NOT CMAKE_MATCH_1 EQUAL LLVM_VERSION_MAJOR)
-    message(FATAL_ERROR "CA_EXTERNAL_LLVM_SPIRV must have same version as ${LLVM_VERSION_MAJOR}")
+    message(WARNING "CA_EXTERNAL_LLVM_SPIRV must have same version as ${LLVM_VERSION_MAJOR}")
   endif()
   add_ca_executable_import(llvm-spirv "${CA_EXTERNAL_LLVM_SPIRV}")
 

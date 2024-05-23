@@ -1,0 +1,449 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 254
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Float16Buffer
+               OpCapability Int64
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical64 OpenCL
+               OpEntryPoint Kernel %8 "libm_native_half_input"
+               OpSource OpenCL_C 102000
+               OpName %in "in"
+               OpName %out "out"
+               OpName %entry "entry"
+               OpName %in_addr "in.addr"
+               OpName %out_addr "out.addr"
+               OpName %index "index"
+               OpName %idxprom "idxprom"
+               OpName %arrayidx "arrayidx"
+               OpName %conv "conv"
+               OpName %call "call"
+               OpName %cmp "cmp"
+               OpName %cond "cond"
+               OpName %idxprom2 "idxprom2"
+               OpName %arrayidx3 "arrayidx3"
+               OpName %inc "inc"
+               OpName %idxprom4 "idxprom4"
+               OpName %arrayidx5 "arrayidx5"
+               OpName %conv6 "conv6"
+               OpName %call7 "call7"
+               OpName %cmp8 "cmp8"
+               OpName %cond10 "cond10"
+               OpName %idxprom11 "idxprom11"
+               OpName %arrayidx12 "arrayidx12"
+               OpName %inc13 "inc13"
+               OpName %idxprom14 "idxprom14"
+               OpName %arrayidx15 "arrayidx15"
+               OpName %conv16 "conv16"
+               OpName %call17 "call17"
+               OpName %cmp18 "cmp18"
+               OpName %cond20 "cond20"
+               OpName %idxprom21 "idxprom21"
+               OpName %arrayidx22 "arrayidx22"
+               OpName %inc23 "inc23"
+               OpName %idxprom24 "idxprom24"
+               OpName %arrayidx25 "arrayidx25"
+               OpName %conv26 "conv26"
+               OpName %call27 "call27"
+               OpName %cmp28 "cmp28"
+               OpName %cond30 "cond30"
+               OpName %idxprom31 "idxprom31"
+               OpName %arrayidx32 "arrayidx32"
+               OpName %inc33 "inc33"
+               OpName %idxprom34 "idxprom34"
+               OpName %arrayidx35 "arrayidx35"
+               OpName %conv36 "conv36"
+               OpName %call37 "call37"
+               OpName %cmp38 "cmp38"
+               OpName %cond40 "cond40"
+               OpName %idxprom41 "idxprom41"
+               OpName %arrayidx42 "arrayidx42"
+               OpName %inc43 "inc43"
+               OpName %idxprom44 "idxprom44"
+               OpName %arrayidx45 "arrayidx45"
+               OpName %conv46 "conv46"
+               OpName %call47 "call47"
+               OpName %cmp48 "cmp48"
+               OpName %cond50 "cond50"
+               OpName %idxprom51 "idxprom51"
+               OpName %arrayidx52 "arrayidx52"
+               OpName %inc53 "inc53"
+               OpName %idxprom54 "idxprom54"
+               OpName %arrayidx55 "arrayidx55"
+               OpName %conv56 "conv56"
+               OpName %call57 "call57"
+               OpName %cmp58 "cmp58"
+               OpName %cond60 "cond60"
+               OpName %idxprom61 "idxprom61"
+               OpName %arrayidx62 "arrayidx62"
+               OpName %inc63 "inc63"
+               OpName %idxprom64 "idxprom64"
+               OpName %arrayidx65 "arrayidx65"
+               OpName %conv66 "conv66"
+               OpName %call67 "call67"
+               OpName %cmp68 "cmp68"
+               OpName %cond70 "cond70"
+               OpName %idxprom71 "idxprom71"
+               OpName %arrayidx72 "arrayidx72"
+               OpName %inc73 "inc73"
+               OpName %idxprom74 "idxprom74"
+               OpName %arrayidx75 "arrayidx75"
+               OpName %conv76 "conv76"
+               OpName %call77 "call77"
+               OpName %cmp78 "cmp78"
+               OpName %cond80 "cond80"
+               OpName %idxprom81 "idxprom81"
+               OpName %arrayidx82 "arrayidx82"
+               OpName %inc83 "inc83"
+               OpName %idxprom84 "idxprom84"
+               OpName %arrayidx85 "arrayidx85"
+               OpName %conv86 "conv86"
+               OpName %call87 "call87"
+               OpName %cmp88 "cmp88"
+               OpName %cond90 "cond90"
+               OpName %idxprom91 "idxprom91"
+               OpName %arrayidx92 "arrayidx92"
+               OpName %inc93 "inc93"
+               OpName %idxprom94 "idxprom94"
+               OpName %arrayidx95 "arrayidx95"
+               OpName %conv96 "conv96"
+               OpName %call97 "call97"
+               OpName %cmp98 "cmp98"
+               OpName %cond100 "cond100"
+               OpName %idxprom101 "idxprom101"
+               OpName %arrayidx102 "arrayidx102"
+               OpName %inc103 "inc103"
+               OpName %idxprom104 "idxprom104"
+               OpName %arrayidx105 "arrayidx105"
+               OpName %conv106 "conv106"
+               OpName %call107 "call107"
+               OpName %cmp108 "cmp108"
+               OpName %cond110 "cond110"
+               OpName %idxprom111 "idxprom111"
+               OpName %arrayidx112 "arrayidx112"
+               OpName %inc113 "inc113"
+               OpName %idxprom114 "idxprom114"
+               OpName %arrayidx115 "arrayidx115"
+               OpName %conv116 "conv116"
+               OpName %call117 "call117"
+               OpName %cmp118 "cmp118"
+               OpName %cond120 "cond120"
+               OpName %idxprom121 "idxprom121"
+               OpName %arrayidx122 "arrayidx122"
+               OpName %inc123 "inc123"
+               OpName %idxprom124 "idxprom124"
+               OpName %arrayidx125 "arrayidx125"
+               OpName %conv126 "conv126"
+               OpName %call127 "call127"
+               OpName %cmp128 "cmp128"
+               OpName %cond130 "cond130"
+               OpName %idxprom131 "idxprom131"
+               OpName %arrayidx132 "arrayidx132"
+               OpName %inc133 "inc133"
+               OpDecorate %in Alignment 2
+               OpDecorate %out Alignment 4
+               OpDecorate %in_addr Alignment 8
+               OpDecorate %out_addr Alignment 8
+               OpDecorate %index Alignment 4
+               OpDecorate %cmp FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp8 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp18 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp28 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp38 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp48 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp58 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp68 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp78 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp88 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp98 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp108 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp118 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+               OpDecorate %cmp128 FPFastMathMode NotNaN|NotInf|NSZ|AllowRecip
+       %uint = OpTypeInt 32 0
+      %ulong = OpTypeInt 64 0
+     %uint_0 = OpConstant %uint 0
+    %ulong_0 = OpConstant %ulong 0
+    %ulong_1 = OpConstant %ulong 1
+     %uint_1 = OpConstant %uint 1
+     %uint_2 = OpConstant %uint 2
+       %void = OpTypeVoid
+       %half = OpTypeFloat 16
+%_ptr_CrossWorkgroup_half = OpTypePointer CrossWorkgroup %half
+%_ptr_CrossWorkgroup_uint = OpTypePointer CrossWorkgroup %uint
+          %7 = OpTypeFunction %void %_ptr_CrossWorkgroup_half %_ptr_CrossWorkgroup_uint
+%_ptr_Function__ptr_CrossWorkgroup_half = OpTypePointer Function %_ptr_CrossWorkgroup_half
+%_ptr_Function__ptr_CrossWorkgroup_uint = OpTypePointer Function %_ptr_CrossWorkgroup_uint
+%_ptr_Function_uint = OpTypePointer Function %uint
+      %float = OpTypeFloat 32
+       %bool = OpTypeBool
+    %float_5 = OpConstant %float 5
+   %float_15 = OpConstant %float 15
+ %float_1000 = OpConstant %float 1000
+    %float_1 = OpConstant %float 1
+          %8 = OpFunction %void DontInline %7
+         %in = OpFunctionParameter %_ptr_CrossWorkgroup_half
+        %out = OpFunctionParameter %_ptr_CrossWorkgroup_uint
+      %entry = OpLabel
+    %in_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_half Function
+   %out_addr = OpVariable %_ptr_Function__ptr_CrossWorkgroup_uint Function
+      %index = OpVariable %_ptr_Function_uint Function
+               OpStore %in_addr %in Aligned 8
+               OpStore %out_addr %out Aligned 8
+               OpStore %index %uint_0 Aligned 4
+         %19 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+         %20 = OpLoad %uint %index Aligned 4
+    %idxprom = OpUConvert %ulong %20
+   %arrayidx = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %19 %idxprom
+         %24 = OpLoad %half %arrayidx Aligned 2
+       %conv = OpFConvert %float %24
+       %call = OpExtInst %float %1 native_cos %conv
+        %cmp = OpFOrdGreaterThanEqual %bool %call %float_5
+         %33 = OpSelect %ulong %cmp %ulong_1 %ulong_0
+       %cond = OpSelect %uint %cmp %uint_2 %uint_1
+         %37 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+         %38 = OpLoad %uint %index Aligned 4
+   %idxprom2 = OpUConvert %ulong %38
+  %arrayidx3 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %37 %idxprom2
+               OpStore %arrayidx3 %cond Aligned 4
+         %41 = OpLoad %uint %index Aligned 4
+        %inc = OpIAdd %uint %41 %uint_1
+               OpStore %index %inc Aligned 4
+         %43 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+         %44 = OpLoad %uint %index Aligned 4
+   %idxprom4 = OpUConvert %ulong %44
+  %arrayidx5 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %43 %idxprom4
+         %47 = OpLoad %half %arrayidx5 Aligned 2
+      %conv6 = OpFConvert %float %47
+      %call7 = OpExtInst %float %1 native_exp %conv6
+       %cmp8 = OpFOrdGreaterThanEqual %bool %call7 %float_5
+         %51 = OpSelect %ulong %cmp8 %ulong_1 %ulong_0
+     %cond10 = OpSelect %uint %cmp8 %uint_2 %uint_1
+         %53 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+         %54 = OpLoad %uint %index Aligned 4
+  %idxprom11 = OpUConvert %ulong %54
+ %arrayidx12 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %53 %idxprom11
+               OpStore %arrayidx12 %cond10 Aligned 4
+         %57 = OpLoad %uint %index Aligned 4
+      %inc13 = OpIAdd %uint %57 %uint_1
+               OpStore %index %inc13 Aligned 4
+         %59 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+         %60 = OpLoad %uint %index Aligned 4
+  %idxprom14 = OpUConvert %ulong %60
+ %arrayidx15 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %59 %idxprom14
+         %63 = OpLoad %half %arrayidx15 Aligned 2
+     %conv16 = OpFConvert %float %63
+     %call17 = OpExtInst %float %1 native_exp2 %conv16
+      %cmp18 = OpFOrdGreaterThanEqual %bool %call17 %float_5
+         %67 = OpSelect %ulong %cmp18 %ulong_1 %ulong_0
+     %cond20 = OpSelect %uint %cmp18 %uint_2 %uint_1
+         %69 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+         %70 = OpLoad %uint %index Aligned 4
+  %idxprom21 = OpUConvert %ulong %70
+ %arrayidx22 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %69 %idxprom21
+               OpStore %arrayidx22 %cond20 Aligned 4
+         %73 = OpLoad %uint %index Aligned 4
+      %inc23 = OpIAdd %uint %73 %uint_1
+               OpStore %index %inc23 Aligned 4
+         %75 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+         %76 = OpLoad %uint %index Aligned 4
+  %idxprom24 = OpUConvert %ulong %76
+ %arrayidx25 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %75 %idxprom24
+         %79 = OpLoad %half %arrayidx25 Aligned 2
+     %conv26 = OpFConvert %float %79
+     %call27 = OpExtInst %float %1 native_exp10 %conv26
+      %cmp28 = OpFOrdGreaterThanEqual %bool %call27 %float_15
+         %84 = OpSelect %ulong %cmp28 %ulong_1 %ulong_0
+     %cond30 = OpSelect %uint %cmp28 %uint_2 %uint_1
+         %86 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+         %87 = OpLoad %uint %index Aligned 4
+  %idxprom31 = OpUConvert %ulong %87
+ %arrayidx32 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %86 %idxprom31
+               OpStore %arrayidx32 %cond30 Aligned 4
+         %90 = OpLoad %uint %index Aligned 4
+      %inc33 = OpIAdd %uint %90 %uint_1
+               OpStore %index %inc33 Aligned 4
+         %92 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+         %93 = OpLoad %uint %index Aligned 4
+  %idxprom34 = OpUConvert %ulong %93
+ %arrayidx35 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %92 %idxprom34
+         %96 = OpLoad %half %arrayidx35 Aligned 2
+     %conv36 = OpFConvert %float %96
+     %call37 = OpExtInst %float %1 native_log %conv36
+      %cmp38 = OpFOrdGreaterThanEqual %bool %call37 %float_5
+        %100 = OpSelect %ulong %cmp38 %ulong_1 %ulong_0
+     %cond40 = OpSelect %uint %cmp38 %uint_2 %uint_1
+        %102 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %103 = OpLoad %uint %index Aligned 4
+  %idxprom41 = OpUConvert %ulong %103
+ %arrayidx42 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %102 %idxprom41
+               OpStore %arrayidx42 %cond40 Aligned 4
+        %106 = OpLoad %uint %index Aligned 4
+      %inc43 = OpIAdd %uint %106 %uint_1
+               OpStore %index %inc43 Aligned 4
+        %108 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %109 = OpLoad %uint %index Aligned 4
+  %idxprom44 = OpUConvert %ulong %109
+ %arrayidx45 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %108 %idxprom44
+        %112 = OpLoad %half %arrayidx45 Aligned 2
+     %conv46 = OpFConvert %float %112
+     %call47 = OpExtInst %float %1 native_log2 %conv46
+      %cmp48 = OpFOrdGreaterThanEqual %bool %call47 %float_5
+        %116 = OpSelect %ulong %cmp48 %ulong_1 %ulong_0
+     %cond50 = OpSelect %uint %cmp48 %uint_2 %uint_1
+        %118 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %119 = OpLoad %uint %index Aligned 4
+  %idxprom51 = OpUConvert %ulong %119
+ %arrayidx52 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %118 %idxprom51
+               OpStore %arrayidx52 %cond50 Aligned 4
+        %122 = OpLoad %uint %index Aligned 4
+      %inc53 = OpIAdd %uint %122 %uint_1
+               OpStore %index %inc53 Aligned 4
+        %124 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %125 = OpLoad %uint %index Aligned 4
+  %idxprom54 = OpUConvert %ulong %125
+ %arrayidx55 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %124 %idxprom54
+        %128 = OpLoad %half %arrayidx55 Aligned 2
+     %conv56 = OpFConvert %float %128
+     %call57 = OpExtInst %float %1 native_log10 %conv56
+      %cmp58 = OpFOrdGreaterThanEqual %bool %call57 %float_5
+        %132 = OpSelect %ulong %cmp58 %ulong_1 %ulong_0
+     %cond60 = OpSelect %uint %cmp58 %uint_2 %uint_1
+        %134 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %135 = OpLoad %uint %index Aligned 4
+  %idxprom61 = OpUConvert %ulong %135
+ %arrayidx62 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %134 %idxprom61
+               OpStore %arrayidx62 %cond60 Aligned 4
+        %138 = OpLoad %uint %index Aligned 4
+      %inc63 = OpIAdd %uint %138 %uint_1
+               OpStore %index %inc63 Aligned 4
+        %140 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %141 = OpLoad %uint %index Aligned 4
+  %idxprom64 = OpUConvert %ulong %141
+ %arrayidx65 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %140 %idxprom64
+        %144 = OpLoad %half %arrayidx65 Aligned 2
+     %conv66 = OpFConvert %float %144
+     %call67 = OpExtInst %float %1 native_rsqrt %conv66
+      %cmp68 = OpFOrdGreaterThanEqual %bool %call67 %float_5
+        %148 = OpSelect %ulong %cmp68 %ulong_1 %ulong_0
+     %cond70 = OpSelect %uint %cmp68 %uint_2 %uint_1
+        %150 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %151 = OpLoad %uint %index Aligned 4
+  %idxprom71 = OpUConvert %ulong %151
+ %arrayidx72 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %150 %idxprom71
+               OpStore %arrayidx72 %cond70 Aligned 4
+        %154 = OpLoad %uint %index Aligned 4
+      %inc73 = OpIAdd %uint %154 %uint_1
+               OpStore %index %inc73 Aligned 4
+        %156 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %157 = OpLoad %uint %index Aligned 4
+  %idxprom74 = OpUConvert %ulong %157
+ %arrayidx75 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %156 %idxprom74
+        %160 = OpLoad %half %arrayidx75 Aligned 2
+     %conv76 = OpFConvert %float %160
+     %call77 = OpExtInst %float %1 native_sin %conv76
+      %cmp78 = OpFOrdGreaterThanEqual %bool %call77 %float_5
+        %164 = OpSelect %ulong %cmp78 %ulong_1 %ulong_0
+     %cond80 = OpSelect %uint %cmp78 %uint_2 %uint_1
+        %166 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %167 = OpLoad %uint %index Aligned 4
+  %idxprom81 = OpUConvert %ulong %167
+ %arrayidx82 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %166 %idxprom81
+               OpStore %arrayidx82 %cond80 Aligned 4
+        %170 = OpLoad %uint %index Aligned 4
+      %inc83 = OpIAdd %uint %170 %uint_1
+               OpStore %index %inc83 Aligned 4
+        %172 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %173 = OpLoad %uint %index Aligned 4
+  %idxprom84 = OpUConvert %ulong %173
+ %arrayidx85 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %172 %idxprom84
+        %176 = OpLoad %half %arrayidx85 Aligned 2
+     %conv86 = OpFConvert %float %176
+     %call87 = OpExtInst %float %1 native_tan %conv86
+      %cmp88 = OpFOrdGreaterThanEqual %bool %call87 %float_5
+        %180 = OpSelect %ulong %cmp88 %ulong_1 %ulong_0
+     %cond90 = OpSelect %uint %cmp88 %uint_2 %uint_1
+        %182 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %183 = OpLoad %uint %index Aligned 4
+  %idxprom91 = OpUConvert %ulong %183
+ %arrayidx92 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %182 %idxprom91
+               OpStore %arrayidx92 %cond90 Aligned 4
+        %186 = OpLoad %uint %index Aligned 4
+      %inc93 = OpIAdd %uint %186 %uint_1
+               OpStore %index %inc93 Aligned 4
+        %188 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %189 = OpLoad %uint %index Aligned 4
+  %idxprom94 = OpUConvert %ulong %189
+ %arrayidx95 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %188 %idxprom94
+        %192 = OpLoad %half %arrayidx95 Aligned 2
+     %conv96 = OpFConvert %float %192
+     %call97 = OpExtInst %float %1 native_recip %conv96
+      %cmp98 = OpFOrdGreaterThanEqual %bool %call97 %float_5
+        %196 = OpSelect %ulong %cmp98 %ulong_1 %ulong_0
+    %cond100 = OpSelect %uint %cmp98 %uint_2 %uint_1
+        %198 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %199 = OpLoad %uint %index Aligned 4
+ %idxprom101 = OpUConvert %ulong %199
+%arrayidx102 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %198 %idxprom101
+               OpStore %arrayidx102 %cond100 Aligned 4
+        %202 = OpLoad %uint %index Aligned 4
+     %inc103 = OpIAdd %uint %202 %uint_1
+               OpStore %index %inc103 Aligned 4
+        %204 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %205 = OpLoad %uint %index Aligned 4
+ %idxprom104 = OpUConvert %ulong %205
+%arrayidx105 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %204 %idxprom104
+        %208 = OpLoad %half %arrayidx105 Aligned 2
+    %conv106 = OpFConvert %float %208
+    %call107 = OpExtInst %float %1 native_sqrt %conv106
+     %cmp108 = OpFOrdGreaterThanEqual %bool %call107 %float_5
+        %212 = OpSelect %ulong %cmp108 %ulong_1 %ulong_0
+    %cond110 = OpSelect %uint %cmp108 %uint_2 %uint_1
+        %214 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %215 = OpLoad %uint %index Aligned 4
+ %idxprom111 = OpUConvert %ulong %215
+%arrayidx112 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %214 %idxprom111
+               OpStore %arrayidx112 %cond110 Aligned 4
+        %218 = OpLoad %uint %index Aligned 4
+     %inc113 = OpIAdd %uint %218 %uint_1
+               OpStore %index %inc113 Aligned 4
+        %220 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %221 = OpLoad %uint %index Aligned 4
+ %idxprom114 = OpUConvert %ulong %221
+%arrayidx115 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %220 %idxprom114
+        %224 = OpLoad %half %arrayidx115 Aligned 2
+    %conv116 = OpFConvert %float %224
+    %call117 = OpExtInst %float %1 native_divide %conv116 %float_1000
+     %cmp118 = OpFOrdGreaterThanEqual %bool %call117 %float_5
+        %229 = OpSelect %ulong %cmp118 %ulong_1 %ulong_0
+    %cond120 = OpSelect %uint %cmp118 %uint_2 %uint_1
+        %231 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %232 = OpLoad %uint %index Aligned 4
+ %idxprom121 = OpUConvert %ulong %232
+%arrayidx122 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %231 %idxprom121
+               OpStore %arrayidx122 %cond120 Aligned 4
+        %235 = OpLoad %uint %index Aligned 4
+     %inc123 = OpIAdd %uint %235 %uint_1
+               OpStore %index %inc123 Aligned 4
+        %237 = OpLoad %_ptr_CrossWorkgroup_half %in_addr Aligned 8
+        %238 = OpLoad %uint %index Aligned 4
+ %idxprom124 = OpUConvert %ulong %238
+%arrayidx125 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_half %237 %idxprom124
+        %241 = OpLoad %half %arrayidx125 Aligned 2
+    %conv126 = OpFConvert %float %241
+    %call127 = OpExtInst %float %1 native_powr %conv126 %float_1
+     %cmp128 = OpFOrdGreaterThanEqual %bool %call127 %float_5
+        %246 = OpSelect %ulong %cmp128 %ulong_1 %ulong_0
+    %cond130 = OpSelect %uint %cmp128 %uint_2 %uint_1
+        %248 = OpLoad %_ptr_CrossWorkgroup_uint %out_addr Aligned 8
+        %249 = OpLoad %uint %index Aligned 4
+ %idxprom131 = OpUConvert %ulong %249
+%arrayidx132 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_uint %248 %idxprom131
+               OpStore %arrayidx132 %cond130 Aligned 4
+        %252 = OpLoad %uint %index Aligned 4
+     %inc133 = OpIAdd %uint %252 %uint_1
+               OpStore %index %inc133 Aligned 4
+               OpReturn
+               OpFunctionEnd
