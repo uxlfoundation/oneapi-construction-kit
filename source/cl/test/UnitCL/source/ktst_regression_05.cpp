@@ -191,5 +191,43 @@ TEST_P(Execution, Regression_108_AbsDiff_Int) {
   RunGeneric1D(1);
 }
 
+TEST_P(Execution, Regression_109_Libm_Native_Double_Input) {
+  // Whether or not the kernel will be vectorized at a global size of 1 is
+  // dependent on the target.
+  fail_if_not_vectorized_ = false;
+
+  if (!UCL::hasDoubleSupport(this->device)) {
+    GTEST_SKIP();
+  }
+
+  auto refOneDouble = kts::Reference1D<cl_double>([](size_t) { return 1.0; });
+  auto refOneUint = kts::Reference1D<cl_uint>([](size_t) { return 1; });
+
+  const size_t num_functions = 14;
+  AddBuildOption("-cl-fast-relaxed-math");
+  AddInputBuffer(num_functions, refOneDouble);
+  AddOutputBuffer(num_functions, refOneUint);
+  RunGeneric1D(1, 1);
+}
+
+TEST_P(Execution, Regression_110_Libm_Native_Half_Input) {
+  // Whether or not the kernel will be vectorized at a global size of 1 is
+  // dependent on the target.
+  fail_if_not_vectorized_ = false;
+
+  if (!UCL::hasHalfSupport(this->device)) {
+    GTEST_SKIP();
+  }
+
+  auto refOneHalf = kts::Reference1D<cl_half>([](size_t) { return 0x3c00; });
+  auto refOneUint = kts::Reference1D<cl_uint>([](size_t) { return 1; });
+
+  const size_t num_functions = 14;
+  AddBuildOption("-cl-fast-relaxed-math");
+  AddInputBuffer(num_functions, refOneHalf);
+  AddOutputBuffer(num_functions, refOneUint);
+  RunGeneric1D(1, 1);
+}
+
 // Do not add tests beyond Regression_125* here, or the file may become too
 // large to link. Instead, start a new ktst_regression_${NN}.cpp file.
