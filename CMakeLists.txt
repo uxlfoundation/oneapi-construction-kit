@@ -69,7 +69,7 @@ message(STATUS "oneAPI Construction Kit version: ${PROJECT_VERSION}")
 find_program(GIT_EXECUTABLE git${CA_HOST_EXECUTABLE_SUFFIX})
 if(NOT GIT_EXECUTABLE STREQUAL GIT_EXECUTABLE-NOTFOUND)
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    COMMAND ${GIT_EXECUTABLE} log -1 --no-show-signature --format=%h
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE CA_GIT_COMMIT)
   message(STATUS "oneAPI Construction Kit Git Commit: ${CA_GIT_COMMIT}")
