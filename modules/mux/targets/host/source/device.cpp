@@ -429,7 +429,10 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   this->max_work_group_size_y = this->max_concurrent_work_items;
   this->max_work_group_size_z = this->max_concurrent_work_items;
   this->max_work_width = 64;
-  this->clock_frequency = native ? os_cpu_frequency() : 0;
+  // Tests for CL_DEVICE_MAX_CLOCK_FREQUENCY check that it is non-zero. For lack
+  // of a better alternative, if we cannot figure it out, choose 1.
+  this->clock_frequency =
+      std::max<uint32_t>(native ? os_cpu_frequency() : 0, 1);
   this->compute_units = native ? os_num_cpus() : 0;
   this->buffer_alignment = sizeof(uint64_t) * 16;
   // TODO Reported memory size is quartered (rounded up) in order to pass the
