@@ -23,7 +23,7 @@ namespace {
 class cpu_hal_platform : public hal::hal_t {
  protected:
   hal::hal_info_t hal_info;
-  hal::hal_device_info_t hal_device_info;
+  hal::hal_device_info_t *hal_device_info;
   std::mutex lock;
 
  public:
@@ -36,7 +36,7 @@ class cpu_hal_platform : public hal::hal_t {
   // return generic target information
   const hal::hal_device_info_t *device_get_info(uint32_t index) override {
     std::lock_guard<std::mutex> locker(lock);
-    return &hal_device_info;
+    return hal_device_info;
   }
 
   // request the creation of a new hal
@@ -45,7 +45,7 @@ class cpu_hal_platform : public hal::hal_t {
     if (index > 0) {
       return nullptr;
     }
-    return new cpu_hal(&hal_device_info, lock);
+    return new cpu_hal(hal_device_info, lock);
   }
 
   // destroy a device instance
@@ -56,12 +56,12 @@ class cpu_hal_platform : public hal::hal_t {
   }
 
   cpu_hal_platform() {
-    hal_device_info = cpu_hal::setup_cpu_hal_device_info();
+    hal_device_info = &cpu_hal::setup_cpu_hal_device_info();
  
     constexpr static uint32_t implemented_api_version = 6;
     static_assert(implemented_api_version == hal_t::api_version,
                   "Implemented API version for CPU HAL does not match hal.h");
-    hal_info.platform_name = hal_device_info.target_name;
+    hal_info.platform_name = hal_device_info->target_name;
     hal_info.num_devices = 1;
     hal_info.api_version = implemented_api_version;
   }

@@ -50,7 +50,7 @@ class cpu_hal final : public hal::hal_device_t {
 
   // Set up the hal device info - this is done as a static so that other classes such
   // as hal_client can set up the desired information directly
-  static hal::hal_device_info_t setup_cpu_hal_device_info();
+  static hal::hal_device_info_t &setup_cpu_hal_device_info();
 
   size_t get_word_size() const { return sizeof(uintptr_t); }
 

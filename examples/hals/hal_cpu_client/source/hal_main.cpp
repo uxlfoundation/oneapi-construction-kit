@@ -25,8 +25,8 @@ class hal_cpu_socket_client : public hal::hal_socket_client {
     static_assert(
         implemented_api_version == hal_t::api_version,
         "Implemented API version for hal_socket_client does not match hal.h");
-    hal_device_info = cpu_hal::setup_cpu_hal_device_info();
-    hal_info.platform_name = hal_device_info.target_name;
+    hal_device_info = &cpu_hal::setup_cpu_hal_device_info();
+    hal_info.platform_name = hal_device_info->target_name;
     hal_info.num_devices = 1;
     hal_info.api_version = implemented_api_version;
     uint32_t port = 0;
@@ -41,7 +41,7 @@ class hal_cpu_socket_client : public hal::hal_socket_client {
 
   // return generic target information
   const hal::hal_device_info_t *device_get_info(uint32_t index) override {
-    return &hal_device_info;
+    return hal_device_info;
   }
 };
 }  // namespace hal
