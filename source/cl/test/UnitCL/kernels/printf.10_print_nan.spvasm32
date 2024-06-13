@@ -1,15 +1,15 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos LLVM/SPIR-V Translator; 14
-; Bound: 197
+; Bound: 213
 ; Schema: 0
                OpCapability Addresses
+               OpCapability Linkage
                OpCapability Kernel
                OpCapability Int8
           %1 = OpExtInstImport "OpenCL.std"
                OpMemoryModel Physical32 OpenCL
-               OpEntryPoint Kernel %106 "print_nan"
-        %193 = OpString "kernel_arg_type.print_nan."
+               OpEntryPoint Kernel %210 "print_nan"
                OpSource OpenCL_C 102000
                OpName %_str ".str"
                OpName %_str_1 ".str.1"
@@ -32,17 +32,95 @@
                OpName %_str_18 ".str.18"
                OpName %_str_19 ".str.19"
                OpName %_str_20 ".str.20"
-               OpDecorate %194 Constant
-        %194 = OpDecorationGroup
-               OpDecorate %195 Alignment 1
-        %195 = OpDecorationGroup
-               OpDecorate %196 Alignment 4
-        %196 = OpDecorationGroup
-               OpGroupDecorate %194 %_str %_str_1 %_str_2 %_str_3 %_str_4 %_str_5 %_str_6 %_str_7 %_str_8 %_str_9 %_str_10 %_str_11 %_str_12 %_str_13 %_str_14 %_str_15 %_str_16 %_str_17 %_str_18 %_str_19 %_str_20
-               OpGroupDecorate %195 %_str %_str_1 %_str_2 %_str_3 %_str_4 %_str_5 %_str_6 %_str_7 %_str_8 %_str_9 %_str_10 %_str_11 %_str_12 %_str_13 %_str_14 %_str_15 %_str_16 %_str_17 %_str_18 %_str_19 %_str_20
-               OpGroupDecorate %196 %110 %111
+               OpName %_str_21 ".str.21"
+               OpName %_str_22 ".str.22"
+               OpName %print_nan "print_nan"
+               OpName %entry "entry"
+               OpName %negative_nan "negative_nan"
+               OpName %positive_nan "positive_nan"
+               OpName %call "call"
+               OpName %call1 "call1"
+               OpName %call2 "call2"
+               OpName %call3 "call3"
+               OpName %call4 "call4"
+               OpName %call5 "call5"
+               OpName %call6 "call6"
+               OpName %call7 "call7"
+               OpName %call8 "call8"
+               OpName %call9 "call9"
+               OpName %call10 "call10"
+               OpName %call11 "call11"
+               OpName %call12 "call12"
+               OpName %call13 "call13"
+               OpName %call14 "call14"
+               OpName %call15 "call15"
+               OpName %call16 "call16"
+               OpName %call17 "call17"
+               OpName %call18 "call18"
+               OpName %call19 "call19"
+               OpName %call20 "call20"
+               OpName %call21 "call21"
+               OpName %call22 "call22"
+               OpName %call23 "call23"
+               OpName %call24 "call24"
+               OpName %call25 "call25"
+               OpName %call26 "call26"
+               OpName %call27 "call27"
+               OpName %call28 "call28"
+               OpName %call29 "call29"
+               OpName %call30 "call30"
+               OpDecorate %_str Constant
+               OpDecorate %_str Alignment 1
+               OpDecorate %_str_1 Constant
+               OpDecorate %_str_1 Alignment 1
+               OpDecorate %_str_2 Constant
+               OpDecorate %_str_2 Alignment 1
+               OpDecorate %_str_3 Constant
+               OpDecorate %_str_3 Alignment 1
+               OpDecorate %_str_4 Constant
+               OpDecorate %_str_4 Alignment 1
+               OpDecorate %_str_5 Constant
+               OpDecorate %_str_5 Alignment 1
+               OpDecorate %_str_6 Constant
+               OpDecorate %_str_6 Alignment 1
+               OpDecorate %_str_7 Constant
+               OpDecorate %_str_7 Alignment 1
+               OpDecorate %_str_8 Constant
+               OpDecorate %_str_8 Alignment 1
+               OpDecorate %_str_9 Constant
+               OpDecorate %_str_9 Alignment 1
+               OpDecorate %_str_10 Constant
+               OpDecorate %_str_10 Alignment 1
+               OpDecorate %_str_11 Constant
+               OpDecorate %_str_11 Alignment 1
+               OpDecorate %_str_12 Constant
+               OpDecorate %_str_12 Alignment 1
+               OpDecorate %_str_13 Constant
+               OpDecorate %_str_13 Alignment 1
+               OpDecorate %_str_14 Constant
+               OpDecorate %_str_14 Alignment 1
+               OpDecorate %_str_15 Constant
+               OpDecorate %_str_15 Alignment 1
+               OpDecorate %_str_16 Constant
+               OpDecorate %_str_16 Alignment 1
+               OpDecorate %_str_17 Constant
+               OpDecorate %_str_17 Alignment 1
+               OpDecorate %_str_18 Constant
+               OpDecorate %_str_18 Alignment 1
+               OpDecorate %_str_19 Constant
+               OpDecorate %_str_19 Alignment 1
+               OpDecorate %_str_20 Constant
+               OpDecorate %_str_20 Alignment 1
+               OpDecorate %_str_21 Constant
+               OpDecorate %_str_21 Alignment 1
+               OpDecorate %_str_22 Constant
+               OpDecorate %_str_22 Alignment 1
+               OpDecorate %print_nan LinkageAttributes "print_nan" Export
+               OpDecorate %negative_nan Alignment 4
+               OpDecorate %positive_nan Alignment 4
       %uchar = OpTypeInt 8 0
        %uint = OpTypeInt 32 0
+    %uint_23 = OpConstant %uint 23
   %uchar_102 = OpConstant %uchar 102
    %uchar_32 = OpConstant %uchar 32
    %uchar_97 = OpConstant %uchar 97
@@ -59,33 +137,34 @@
    %uchar_10 = OpConstant %uchar 10
    %uchar_37 = OpConstant %uchar 37
     %uchar_0 = OpConstant %uchar 0
-    %uint_23 = OpConstant %uint 23
      %uint_3 = OpConstant %uint 3
-   %uchar_69 = OpConstant %uchar 69
     %uint_24 = OpConstant %uint 24
+   %uchar_69 = OpConstant %uchar 69
   %uchar_103 = OpConstant %uchar 103
    %uchar_71 = OpConstant %uchar 71
    %uchar_65 = OpConstant %uchar 65
+    %uint_22 = OpConstant %uint 22
   %uchar_111 = OpConstant %uchar 111
   %uchar_109 = OpConstant %uchar 109
   %uchar_108 = OpConstant %uchar 108
   %uchar_120 = OpConstant %uchar 120
-    %uint_22 = OpConstant %uint 22
+     %uint_5 = OpConstant %uint 5
    %uchar_46 = OpConstant %uchar 46
    %uchar_50 = OpConstant %uchar 50
-     %uint_5 = OpConstant %uint 5
+     %uint_7 = OpConstant %uint 7
    %uchar_48 = OpConstant %uchar 48
    %uchar_56 = OpConstant %uchar 56
-     %uint_7 = OpConstant %uint 7
    %uchar_45 = OpConstant %uchar 45
+    %uint_10 = OpConstant %uint 10
    %uchar_35 = OpConstant %uchar 35
    %uchar_49 = OpConstant %uchar 49
    %uchar_53 = OpConstant %uchar 53
-    %uint_10 = OpConstant %uint 10
    %uchar_54 = OpConstant %uchar 54
      %uint_4 = OpConstant %uint 4
    %uchar_43 = OpConstant %uchar 43
-     %uint_0 = OpConstant %uint 0
+    %uint_30 = OpConstant %uint 30
+  %uchar_116 = OpConstant %uchar 116
+  %uchar_117 = OpConstant %uchar 117
 %_arr_uchar_uint_23 = OpTypeArray %uchar %uint_23
 %_ptr_UniformConstant__arr_uchar_uint_23 = OpTypePointer UniformConstant %_arr_uchar_uint_23
 %_arr_uchar_uint_3 = OpTypeArray %uchar %uint_3
@@ -102,19 +181,20 @@
 %_ptr_UniformConstant__arr_uchar_uint_10 = OpTypePointer UniformConstant %_arr_uchar_uint_10
 %_arr_uchar_uint_4 = OpTypeArray %uchar %uint_4
 %_ptr_UniformConstant__arr_uchar_uint_4 = OpTypePointer UniformConstant %_arr_uchar_uint_4
+%_arr_uchar_uint_30 = OpTypeArray %uchar %uint_30
+%_ptr_UniformConstant__arr_uchar_uint_30 = OpTypePointer UniformConstant %_arr_uchar_uint_30
        %void = OpTypeVoid
-        %105 = OpTypeFunction %void
+        %114 = OpTypeFunction %void
       %float = OpTypeFloat 32
 %_ptr_Function_float = OpTypePointer Function %float
-%_ptr_UniformConstant_uchar = OpTypePointer UniformConstant %uchar
-         %22 = OpConstantComposite %_arr_uchar_uint_23 %uchar_102 %uchar_32 %uchar_97 %uchar_110 %uchar_100 %uchar_32 %uchar_70 %uchar_32 %uchar_115 %uchar_112 %uchar_101 %uchar_99 %uchar_105 %uchar_102 %uchar_105 %uchar_101 %uchar_114 %uchar_115 %uchar_58 %uchar_10 %uchar_37 %uchar_102 %uchar_0
-       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_uint_23 UniformConstant %22
-         %27 = OpConstantComposite %_arr_uchar_uint_3 %uchar_37 %uchar_102 %uchar_0
-     %_str_1 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_3 UniformConstant %27
+         %23 = OpConstantComposite %_arr_uchar_uint_23 %uchar_102 %uchar_32 %uchar_97 %uchar_110 %uchar_100 %uchar_32 %uchar_70 %uchar_32 %uchar_115 %uchar_112 %uchar_101 %uchar_99 %uchar_105 %uchar_102 %uchar_105 %uchar_101 %uchar_114 %uchar_115 %uchar_58 %uchar_10 %uchar_37 %uchar_102 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_uint_23 UniformConstant %23
+         %28 = OpConstantComposite %_arr_uchar_uint_3 %uchar_37 %uchar_102 %uchar_0
+     %_str_1 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_3 UniformConstant %28
          %30 = OpConstantComposite %_arr_uchar_uint_3 %uchar_37 %uchar_70 %uchar_0
      %_str_2 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_3 UniformConstant %30
-         %35 = OpConstantComposite %_arr_uchar_uint_24 %uchar_10 %uchar_101 %uchar_32 %uchar_97 %uchar_110 %uchar_100 %uchar_32 %uchar_69 %uchar_32 %uchar_115 %uchar_112 %uchar_101 %uchar_99 %uchar_105 %uchar_102 %uchar_105 %uchar_101 %uchar_114 %uchar_115 %uchar_58 %uchar_10 %uchar_37 %uchar_101 %uchar_0
-     %_str_3 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_24 UniformConstant %35
+         %36 = OpConstantComposite %_arr_uchar_uint_24 %uchar_10 %uchar_101 %uchar_32 %uchar_97 %uchar_110 %uchar_100 %uchar_32 %uchar_69 %uchar_32 %uchar_115 %uchar_112 %uchar_101 %uchar_99 %uchar_105 %uchar_102 %uchar_105 %uchar_101 %uchar_114 %uchar_115 %uchar_58 %uchar_10 %uchar_37 %uchar_101 %uchar_0
+     %_str_3 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_24 UniformConstant %36
          %38 = OpConstantComposite %_arr_uchar_uint_3 %uchar_37 %uchar_101 %uchar_0
      %_str_4 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_3 UniformConstant %38
          %40 = OpConstantComposite %_arr_uchar_uint_3 %uchar_37 %uchar_69 %uchar_0
@@ -131,108 +211,127 @@
     %_str_10 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_3 UniformConstant %53
          %55 = OpConstantComposite %_arr_uchar_uint_3 %uchar_37 %uchar_65 %uchar_0
     %_str_11 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_3 UniformConstant %55
-         %63 = OpConstantComposite %_arr_uchar_uint_22 %uchar_10 %uchar_99 %uchar_111 %uchar_109 %uchar_112 %uchar_108 %uchar_101 %uchar_120 %uchar_32 %uchar_115 %uchar_112 %uchar_101 %uchar_99 %uchar_105 %uchar_102 %uchar_105 %uchar_101 %uchar_114 %uchar_115 %uchar_58 %uchar_10 %uchar_0
-    %_str_12 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_22 UniformConstant %63
-         %70 = OpConstantComposite %_arr_uchar_uint_5 %uchar_37 %uchar_46 %uchar_50 %uchar_102 %uchar_0
-    %_str_13 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_5 UniformConstant %70
-         %77 = OpConstantComposite %_arr_uchar_uint_7 %uchar_37 %uchar_48 %uchar_56 %uchar_46 %uchar_50 %uchar_102 %uchar_0
-    %_str_14 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_7 UniformConstant %77
+         %64 = OpConstantComposite %_arr_uchar_uint_22 %uchar_10 %uchar_99 %uchar_111 %uchar_109 %uchar_112 %uchar_108 %uchar_101 %uchar_120 %uchar_32 %uchar_115 %uchar_112 %uchar_101 %uchar_99 %uchar_105 %uchar_102 %uchar_105 %uchar_101 %uchar_114 %uchar_115 %uchar_58 %uchar_10 %uchar_0
+    %_str_12 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_22 UniformConstant %64
+         %71 = OpConstantComposite %_arr_uchar_uint_5 %uchar_37 %uchar_46 %uchar_50 %uchar_102 %uchar_0
+    %_str_13 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_5 UniformConstant %71
+         %78 = OpConstantComposite %_arr_uchar_uint_7 %uchar_37 %uchar_48 %uchar_56 %uchar_46 %uchar_50 %uchar_102 %uchar_0
+    %_str_14 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_7 UniformConstant %78
          %81 = OpConstantComposite %_arr_uchar_uint_7 %uchar_37 %uchar_45 %uchar_56 %uchar_46 %uchar_50 %uchar_102 %uchar_0
     %_str_15 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_7 UniformConstant %81
-         %88 = OpConstantComposite %_arr_uchar_uint_10 %uchar_37 %uchar_45 %uchar_35 %uchar_50 %uchar_48 %uchar_46 %uchar_49 %uchar_53 %uchar_101 %uchar_0
-    %_str_16 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_10 UniformConstant %88
+         %89 = OpConstantComposite %_arr_uchar_uint_10 %uchar_37 %uchar_45 %uchar_35 %uchar_50 %uchar_48 %uchar_46 %uchar_49 %uchar_53 %uchar_101 %uchar_0
+    %_str_16 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_10 UniformConstant %89
          %92 = OpConstantComposite %_arr_uchar_uint_5 %uchar_37 %uchar_46 %uchar_54 %uchar_97 %uchar_0
     %_str_17 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_5 UniformConstant %92
-         %96 = OpConstantComposite %_arr_uchar_uint_4 %uchar_37 %uchar_32 %uchar_71 %uchar_0
-    %_str_18 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_4 UniformConstant %96
+         %97 = OpConstantComposite %_arr_uchar_uint_4 %uchar_37 %uchar_32 %uchar_71 %uchar_0
+    %_str_18 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_4 UniformConstant %97
         %100 = OpConstantComposite %_arr_uchar_uint_4 %uchar_37 %uchar_43 %uchar_102 %uchar_0
     %_str_19 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_4 UniformConstant %100
         %102 = OpConstantComposite %_arr_uchar_uint_5 %uchar_37 %uchar_32 %uchar_43 %uchar_65 %uchar_0
     %_str_20 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_5 UniformConstant %102
+        %108 = OpConstantComposite %_arr_uchar_uint_30 %uchar_10 %uchar_97 %uchar_115 %uchar_32 %uchar_112 %uchar_97 %uchar_114 %uchar_116 %uchar_32 %uchar_111 %uchar_102 %uchar_32 %uchar_97 %uchar_32 %uchar_108 %uchar_111 %uchar_110 %uchar_103 %uchar_101 %uchar_114 %uchar_32 %uchar_102 %uchar_111 %uchar_114 %uchar_109 %uchar_97 %uchar_116 %uchar_58 %uchar_10 %uchar_0
+    %_str_21 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_30 UniformConstant %108
+        %111 = OpConstantComposite %_arr_uchar_uint_30 %uchar_108 %uchar_111 %uchar_114 %uchar_101 %uchar_109 %uchar_32 %uchar_105 %uchar_112 %uchar_115 %uchar_117 %uchar_109 %uchar_32 %uchar_37 %uchar_102 %uchar_32 %uchar_100 %uchar_111 %uchar_108 %uchar_111 %uchar_114 %uchar_32 %uchar_115 %uchar_105 %uchar_116 %uchar_32 %uchar_97 %uchar_109 %uchar_101 %uchar_116 %uchar_0
+    %_str_22 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_30 UniformConstant %111
 %float_0x1_fffffep_128 = OpConstant %float 0x1.fffffep+128
    %float_n1 = OpConstant %float -1
     %float_1 = OpConstant %float 1
-        %106 = OpFunction %void DontInline %105
-        %107 = OpLabel
-        %110 = OpVariable %_ptr_Function_float Function
-        %111 = OpVariable %_ptr_Function_float Function
-        %114 = OpExtInst %float %1 copysign %float_0x1_fffffep_128 %float_n1
-               OpStore %110 %114 Aligned 4
-        %116 = OpExtInst %float %1 copysign %float_0x1_fffffep_128 %float_1
-               OpStore %111 %116 Aligned 4
-        %117 = OpLoad %float %111 Aligned 4
-        %120 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str %uint_0 %uint_0
-        %121 = OpExtInst %uint %1 printf %120 %117
-        %122 = OpLoad %float %110 Aligned 4
-        %123 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_1 %uint_0 %uint_0
-        %124 = OpExtInst %uint %1 printf %123 %122
-        %125 = OpLoad %float %111 Aligned 4
-        %126 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_2 %uint_0 %uint_0
-        %127 = OpExtInst %uint %1 printf %126 %125
-        %128 = OpLoad %float %110 Aligned 4
-        %129 = OpExtInst %uint %1 printf %126 %128
-        %130 = OpLoad %float %111 Aligned 4
-        %131 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_3 %uint_0 %uint_0
-        %132 = OpExtInst %uint %1 printf %131 %130
-        %133 = OpLoad %float %110 Aligned 4
-        %134 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_4 %uint_0 %uint_0
-        %135 = OpExtInst %uint %1 printf %134 %133
-        %136 = OpLoad %float %111 Aligned 4
-        %137 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_5 %uint_0 %uint_0
-        %138 = OpExtInst %uint %1 printf %137 %136
-        %139 = OpLoad %float %110 Aligned 4
-        %140 = OpExtInst %uint %1 printf %137 %139
-        %141 = OpLoad %float %111 Aligned 4
-        %142 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_6 %uint_0 %uint_0
-        %143 = OpExtInst %uint %1 printf %142 %141
-        %144 = OpLoad %float %110 Aligned 4
-        %145 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_7 %uint_0 %uint_0
-        %146 = OpExtInst %uint %1 printf %145 %144
-        %147 = OpLoad %float %111 Aligned 4
-        %148 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_8 %uint_0 %uint_0
-        %149 = OpExtInst %uint %1 printf %148 %147
-        %150 = OpLoad %float %110 Aligned 4
-        %151 = OpExtInst %uint %1 printf %148 %150
-        %152 = OpLoad %float %111 Aligned 4
-        %153 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_9 %uint_0 %uint_0
-        %154 = OpExtInst %uint %1 printf %153 %152
-        %155 = OpLoad %float %110 Aligned 4
-        %156 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_10 %uint_0 %uint_0
-        %157 = OpExtInst %uint %1 printf %156 %155
-        %158 = OpLoad %float %111 Aligned 4
-        %159 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_11 %uint_0 %uint_0
-        %160 = OpExtInst %uint %1 printf %159 %158
-        %161 = OpLoad %float %110 Aligned 4
-        %162 = OpExtInst %uint %1 printf %159 %161
-        %163 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_12 %uint_0 %uint_0
-        %164 = OpExtInst %uint %1 printf %163
-        %165 = OpLoad %float %111 Aligned 4
-        %166 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_13 %uint_0 %uint_0
-        %167 = OpExtInst %uint %1 printf %166 %165
-        %168 = OpLoad %float %110 Aligned 4
-        %169 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_14 %uint_0 %uint_0
-        %170 = OpExtInst %uint %1 printf %169 %168
-        %171 = OpLoad %float %111 Aligned 4
-        %172 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_15 %uint_0 %uint_0
-        %173 = OpExtInst %uint %1 printf %172 %171
-        %174 = OpLoad %float %110 Aligned 4
-        %175 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_16 %uint_0 %uint_0
-        %176 = OpExtInst %uint %1 printf %175 %174
-        %177 = OpLoad %float %111 Aligned 4
-        %178 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_17 %uint_0 %uint_0
-        %179 = OpExtInst %uint %1 printf %178 %177
-        %180 = OpLoad %float %111 Aligned 4
-        %181 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_18 %uint_0 %uint_0
-        %182 = OpExtInst %uint %1 printf %181 %180
-        %183 = OpLoad %float %110 Aligned 4
-        %184 = OpExtInst %uint %1 printf %181 %183
-        %185 = OpLoad %float %111 Aligned 4
-        %186 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_19 %uint_0 %uint_0
-        %187 = OpExtInst %uint %1 printf %186 %185
-        %188 = OpLoad %float %110 Aligned 4
-        %189 = OpExtInst %uint %1 printf %186 %188
-        %190 = OpLoad %float %111 Aligned 4
-        %191 = OpInBoundsPtrAccessChain %_ptr_UniformConstant_uchar %_str_20 %uint_0 %uint_0
-        %192 = OpExtInst %uint %1 printf %191 %190
+  %print_nan = OpFunction %void DontInline %114
+      %entry = OpLabel
+%negative_nan = OpVariable %_ptr_Function_float Function
+%positive_nan = OpVariable %_ptr_Function_float Function
+       %call = OpExtInst %float %1 copysign %float_0x1_fffffep_128 %float_n1
+               OpStore %negative_nan %call Aligned 4
+      %call1 = OpExtInst %float %1 copysign %float_0x1_fffffep_128 %float_1
+               OpStore %positive_nan %call1 Aligned 4
+        %126 = OpLoad %float %positive_nan Aligned 4
+      %call2 = OpExtInst %uint %1 printf %_str %126
+        %128 = OpLoad %float %negative_nan Aligned 4
+        %129 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_1
+      %call3 = OpExtInst %uint %1 printf %129 %128
+        %131 = OpLoad %float %positive_nan Aligned 4
+        %132 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_2
+      %call4 = OpExtInst %uint %1 printf %132 %131
+        %134 = OpLoad %float %negative_nan Aligned 4
+        %135 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_2
+      %call5 = OpExtInst %uint %1 printf %135 %134
+        %137 = OpLoad %float %positive_nan Aligned 4
+        %138 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_3
+      %call6 = OpExtInst %uint %1 printf %138 %137
+        %140 = OpLoad %float %negative_nan Aligned 4
+        %141 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_4
+      %call7 = OpExtInst %uint %1 printf %141 %140
+        %143 = OpLoad %float %positive_nan Aligned 4
+        %144 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_5
+      %call8 = OpExtInst %uint %1 printf %144 %143
+        %146 = OpLoad %float %negative_nan Aligned 4
+        %147 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_5
+      %call9 = OpExtInst %uint %1 printf %147 %146
+        %149 = OpLoad %float %positive_nan Aligned 4
+        %150 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_6
+     %call10 = OpExtInst %uint %1 printf %150 %149
+        %152 = OpLoad %float %negative_nan Aligned 4
+        %153 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_7
+     %call11 = OpExtInst %uint %1 printf %153 %152
+        %155 = OpLoad %float %positive_nan Aligned 4
+        %156 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_8
+     %call12 = OpExtInst %uint %1 printf %156 %155
+        %158 = OpLoad %float %negative_nan Aligned 4
+        %159 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_8
+     %call13 = OpExtInst %uint %1 printf %159 %158
+        %161 = OpLoad %float %positive_nan Aligned 4
+        %162 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_9
+     %call14 = OpExtInst %uint %1 printf %162 %161
+        %164 = OpLoad %float %negative_nan Aligned 4
+        %165 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_10
+     %call15 = OpExtInst %uint %1 printf %165 %164
+        %167 = OpLoad %float %positive_nan Aligned 4
+        %168 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_11
+     %call16 = OpExtInst %uint %1 printf %168 %167
+        %170 = OpLoad %float %negative_nan Aligned 4
+        %171 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_11
+     %call17 = OpExtInst %uint %1 printf %171 %170
+        %173 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_12
+     %call18 = OpExtInst %uint %1 printf %173
+        %175 = OpLoad %float %positive_nan Aligned 4
+        %176 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_13
+     %call19 = OpExtInst %uint %1 printf %176 %175
+        %178 = OpLoad %float %negative_nan Aligned 4
+        %179 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_14
+     %call20 = OpExtInst %uint %1 printf %179 %178
+        %181 = OpLoad %float %positive_nan Aligned 4
+        %182 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_15
+     %call21 = OpExtInst %uint %1 printf %182 %181
+        %184 = OpLoad %float %negative_nan Aligned 4
+        %185 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_16
+     %call22 = OpExtInst %uint %1 printf %185 %184
+        %187 = OpLoad %float %positive_nan Aligned 4
+        %188 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_17
+     %call23 = OpExtInst %uint %1 printf %188 %187
+        %190 = OpLoad %float %positive_nan Aligned 4
+        %191 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_18
+     %call24 = OpExtInst %uint %1 printf %191 %190
+        %193 = OpLoad %float %negative_nan Aligned 4
+        %194 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_18
+     %call25 = OpExtInst %uint %1 printf %194 %193
+        %196 = OpLoad %float %positive_nan Aligned 4
+        %197 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_19
+     %call26 = OpExtInst %uint %1 printf %197 %196
+        %199 = OpLoad %float %negative_nan Aligned 4
+        %200 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_19
+     %call27 = OpExtInst %uint %1 printf %200 %199
+        %202 = OpLoad %float %positive_nan Aligned 4
+        %203 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_20
+     %call28 = OpExtInst %uint %1 printf %203 %202
+        %205 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_21
+     %call29 = OpExtInst %uint %1 printf %205
+        %207 = OpLoad %float %positive_nan Aligned 4
+        %208 = OpBitcast %_ptr_UniformConstant__arr_uchar_uint_23 %_str_22
+     %call30 = OpExtInst %uint %1 printf %208 %207
+               OpReturn
+               OpFunctionEnd
+        %210 = OpFunction %void DontInline %114
+        %211 = OpLabel
+        %212 = OpFunctionCall %void %print_nan
                OpReturn
                OpFunctionEnd
