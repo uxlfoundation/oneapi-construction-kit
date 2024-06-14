@@ -196,7 +196,7 @@ void PrintFloatingPoint(std::string partial, T d) {
         f.insert(0, " ");
       }
     }
-    partial.replace(start, end, f);
+    partial.replace(start, end - start, f);
     // KLOCWORK "NNTS.MUST" possible false positive
     // Klocwork doesn't realize c_str() returns a null-terminated string
     ::printf("%s", partial.c_str());
@@ -254,7 +254,7 @@ void PrintFloatingPoint(std::string partial, T d) {
         }
       }
 
-      partial.replace(start, end, f);
+      partial.replace(start, end - start, f);
       ::printf("%s", partial.c_str());
     } else {
       // All other cases work fine with MinGW printf.

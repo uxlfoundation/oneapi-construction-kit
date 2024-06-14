@@ -61,4 +61,7 @@ __kernel void print_nan(void) {
   printf("%+f", positive_nan);
   printf("%+f", negative_nan);
   printf("% +A", positive_nan);
+
+  printf("\nas part of a longer format:\n");
+  printf("lorem ipsum %f dolor sit amet", positive_nan);
 }

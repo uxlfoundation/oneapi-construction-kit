@@ -243,7 +243,9 @@ TEST_P(PrintfExecution, Printf_10_print_nan) {
        // can't guarantee that the sign is preserved, so accept either + or -
        << "(\\+|-)nan"
        << "(\\+|-)nan"
-       << "(\\+|-)NAN";
+       << "(\\+|-)NAN"
+       << "\nas part of a longer format:\n"
+       << "lorem ipsum nan dolor sit amet";
     return std::regex(ss.str());
   };
 
