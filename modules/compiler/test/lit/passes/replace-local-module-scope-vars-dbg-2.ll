@@ -21,7 +21,8 @@
 ; info entries should reference into that struct but retain the original
 ; function's scope.
 
-; RUN: muxc --passes "replace-module-scope-vars,verify" -S %s | FileCheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: muxc --passes "replace-module-scope-vars,verify" -S %s | FileCheck %t
 
 ; TODO: It's not clear why @helper_kernel has one dbg.declare but @local_array
 ; has two. See CA-4534.
@@ -40,10 +41,11 @@ declare void @llvm.dbg.declare(metadata, metadata, metadata) #0
 declare void @llvm.dbg.value(metadata, metadata, metadata) #0
 
 ; CHECK: define void @helper_kernel.mux-local-var-wrapper(
-; CHECK: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}}
-; CHECK-SAME: metadata [[HK_DI_CACHE_VAR:![0-9]+]],
-; CHECK-SAME: metadata !DIExpression(DW_OP_plus_uconst, 0)),
-; CHECK-SAME: !dbg [[HK_DI_CACHE_LOCATION:![0-9]+]]
+; CHECK-GE19: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}}
+; CHECK-LT19: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}}
+; CHECK-SAME: [[HK_DI_CACHE_VAR:![0-9]+]],
+; CHECK-SAME: !DIExpression(DW_OP_plus_uconst, 0)
+; CHECK-SAME: [[HK_DI_CACHE_LOCATION:![0-9]+]]
 
 ; Function Attrs: nounwind
 define void @helper_kernel() #1 !dbg !27 {
@@ -53,15 +55,17 @@ define void @helper_kernel() #1 !dbg !27 {
 }
 
 ; CHECK: define void @local_array.mux-local-var-wrapper(
-; CHECK: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
-; CHECK-SAME: metadata [[LA_DI_DATA_VAR:![0-9]+]],
-; CHECK-SAME: metadata !DIExpression(DW_OP_plus_uconst, 0)),
-; CHECK-SAME: !dbg [[LA_DI_DATA_LOCATION:![0-9]+]]
+; CHECK-GE19: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
+; CHECK-LT19: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
+; CHECK-SAME: [[LA_DI_DATA_VAR:![0-9]+]],
+; CHECK-SAME: !DIExpression(DW_OP_plus_uconst, 0)
+; CHECK-SAME: [[LA_DI_DATA_LOCATION:![0-9]+]]
 
-; CHECK: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
-; CHECK-SAME: metadata [[LA_DI_CACHE_VAR:![0-9]+]],
-; CHECK-SAME: metadata !DIExpression(DW_OP_plus_uconst, 16)),
-; CHECK-SAME: !dbg [[LA_DI_CACHE_LOCATION:![0-9]+]]
+; CHECK-GE19: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
+; CHECK-LT19: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
+; CHECK-SAME: [[LA_DI_CACHE_VAR:![0-9]+]],
+; CHECK-SAME: !DIExpression(DW_OP_plus_uconst, 16)
+; CHECK-SAME: [[LA_DI_CACHE_LOCATION:![0-9]+]]
 
 ; Function Attrs: nounwind
 define void @local_array() #1 !dbg !34 {
