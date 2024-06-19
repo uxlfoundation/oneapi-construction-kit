@@ -329,7 +329,13 @@ void builtins::printf::print(uint8_t *pack, size_t max_length,
 
       // if the call doesn't have any parameters just print the format string
       if (printf_desc.types.size() == 0) {
-        ::printf("%s", printf_desc.format_string.c_str());
+        // We cannot print using "%s" because the format string may contain
+        // "%%" which must be printed as "%", not as "%%". Calling printf with a
+        // non-constant format string results in a warning (and we build with
+        // warnings treated as errors). We have already checked that the format
+        // string does not consume any arguments though, so we can just add a
+        // dummy argument to suppress any warnings.
+        ::printf(printf_desc.format_string.c_str(), 0);
         continue;
       }
 
