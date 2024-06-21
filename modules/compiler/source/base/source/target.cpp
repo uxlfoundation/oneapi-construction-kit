@@ -100,12 +100,6 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
         builtins_module_from_file->getTargetTriple()) {
       return Result::FAILURE;
     }
-
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
-    if (UseNewDbgInfoFormat && !builtins_module_from_file->IsNewDbgInfoFormat) {
-      builtins_module_from_file->convertToNewDbgValues();
-    }
-#endif
   }
 
   return initWithBuiltins(std::move(builtins_module_from_file));

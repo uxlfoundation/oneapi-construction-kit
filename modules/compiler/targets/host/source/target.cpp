@@ -123,12 +123,6 @@ compiler::Result HostTarget::initWithBuiltins(
     return compiler::Result::FAILURE;
   }
   builtins_host = std::move(loadedModule.get());
-
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
-  if (UseNewDbgInfoFormat && !builtins_host->IsNewDbgInfoFormat) {
-    builtins_host->convertToNewDbgValues();
-  }
-#endif
 #endif
 
   // initialize LLVM targets
