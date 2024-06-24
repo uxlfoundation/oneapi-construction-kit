@@ -24,6 +24,8 @@
 #include <llvm/IR/PassManager.h>
 #include <llvm/Pass.h>
 
+#include <functional>
+
 namespace compiler {
 namespace utils {
 
@@ -44,7 +46,7 @@ class SimpleCallbackPass : public llvm::PassInfoMixin<SimpleCallbackPass> {
   }
 
  private:
-  llvm::unique_function<CallbackFnTy> Callback;
+  std::function<CallbackFnTy> Callback;
 };
 
 }  // namespace utils
