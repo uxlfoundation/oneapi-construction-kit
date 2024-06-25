@@ -60,7 +60,7 @@ endif()
 # Set properties required by abacus
 set(RUNTIME_CLHEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/builtins/builtins.h")
 set(BUILTINS_OPTIONS
-  -Werror -Wall -mstackrealign -O3 -fcolor-diagnostics
+  -Werror -Wall -mstackrealign -O3 -fcolor-diagnostics -fno-builtin
   -I ${CMAKE_BINARY_DIR}/include
   -I ${BUILTINS_SOURCE_DIR}/abacus/include
   -I ${BUILTINS_SOURCE_DIR}/include)
