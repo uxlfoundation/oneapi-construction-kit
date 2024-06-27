@@ -391,6 +391,8 @@ function all_atomic()
     for i in int long uint ulong float double
     do
       double_support_begin $i
+      echo "void __CL_BUILTIN_ATTRIBUTES atomic_store(volatile $k atomic_$i *object, $i desired);"
+      echo "void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile $k atomic_$i *object, $i desired, memory_order order);"
       echo "void __CL_BUILTIN_ATTRIBUTES atomic_store_explicit(volatile $k atomic_$i *object, $i desired, memory_order order, memory_scope scope);"
       double_support_end $i
     done
@@ -401,6 +403,8 @@ function all_atomic()
     for i in int long uint ulong float double
     do
       double_support_begin $i
+      echo "$i __CL_BUILTIN_ATTRIBUTES atomic_load(volatile $k atomic_$i *object);"
+      echo "$i __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(volatile $k atomic_$i *object, memory_order order);"
       echo "$i __CL_BUILTIN_ATTRIBUTES atomic_load_explicit(volatile $k atomic_$i *object, memory_order order, memory_scope scope);"
       double_support_end $i
     done
@@ -411,12 +415,14 @@ function all_atomic()
     for i in int long uint ulong float double
     do
       double_support_begin $i
+      echo "$i __CL_BUILTIN_ATTRIBUTES atomic_exchange(volatile $k atomic_$i *object, $i desired);"
+      echo "$i __CL_BUILTIN_ATTRIBUTES atomic_exchange_explicit(volatile $k atomic_$i *object, $i desired, memory_order order);"
       echo "$i __CL_BUILTIN_ATTRIBUTES atomic_exchange_explicit(volatile $k atomic_$i *object, $i desired, memory_order order, memory_scope scope);"
       double_support_end $i
     done
   done
 
-  for name in atomic_compare_exchange_strong_explicit atomic_compare_exchange_weak_explicit
+  for name in atomic_compare_exchange_strong atomic_compare_exchange_weak
   do
     for k1 in __local __global ""
     do
@@ -425,8 +431,9 @@ function all_atomic()
         double_support_begin $i
         for k2 in __local __global __private ""
         do
-          echo "bool __CL_BUILTIN_ATTRIBUTES $name(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired, memory_order success, memory_order failure);"
-          echo "bool __CL_BUILTIN_ATTRIBUTES $name(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired, memory_order success, memory_order failure, memory_scope scope);"
+          echo "bool __CL_BUILTIN_ATTRIBUTES $name(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired);"
+          echo "bool __CL_BUILTIN_ATTRIBUTES ${name}_explicit(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired, memory_order success, memory_order failure);"
+          echo "bool __CL_BUILTIN_ATTRIBUTES ${name}_explicit(volatile $k1 atomic_$i *object, $k2 $i *expected, $i desired, memory_order success, memory_order failure, memory_scope scope);"
         done
         double_support_end $i
       done
@@ -439,6 +446,8 @@ function all_atomic()
     do
       for addr in __local __global ""
       do
+        echo "$t __CL_BUILTIN_ATTRIBUTES atomic_fetch_${op}(volatile $addr atomic_$t *object, $t operand);"
+        echo "$t __CL_BUILTIN_ATTRIBUTES atomic_fetch_${op}_explicit(volatile $addr atomic_$t *object, $t operand, memory_order order);"
         echo "$t __CL_BUILTIN_ATTRIBUTES atomic_fetch_${op}_explicit(volatile $addr atomic_$t *object, $t operand, memory_order order, memory_scope scope);"
       done
     done
@@ -448,6 +457,8 @@ function all_atomic()
   do
     for addr in __local __global ""
     do
+      echo "bool __CL_BUILTIN_ATTRIBUTES atomic_flag_${op}(volatile $addr atomic_flag *object);"
+      echo "bool __CL_BUILTIN_ATTRIBUTES atomic_flag_${op}_explicit(volatile $addr atomic_flag *object, memory_order order);"
       echo "bool __CL_BUILTIN_ATTRIBUTES atomic_flag_${op}_explicit(volatile $addr atomic_flag *object, memory_order order, memory_scope scope);"
     done
   done

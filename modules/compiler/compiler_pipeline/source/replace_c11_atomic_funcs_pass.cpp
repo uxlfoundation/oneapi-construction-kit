@@ -232,32 +232,10 @@ void implementCompareExchangeWeak(Function *C11CompareExchangeWeakFunc) {
 /// instruction where key is in {add, sub, or, xor, and, min max}.
 ///
 /// @param[in] C11AtomicFetch atomic_fetch_key call to replace.
-void replaceFetchKey(CallInst *C11FetchKey) {
+void replaceFetchKey(CallInst *C11FetchKey, AtomicRMWInst::BinOp KeyOpCode,
+                     StringRef MangledParams) {
   auto *Object = C11FetchKey->getOperand(0);
   auto *Operand = C11FetchKey->getOperand(1);
-
-  // Since all the atomic_fetch_key buitins have the same signature we can
-  // handle them all at once if we switch on the key.
-  auto BuiltinName = C11FetchKey->getCalledFunction()->getName();
-  auto KeyStartIndex =
-      BuiltinName.find("atomic_fetch_") + std::strlen("atomic_fetch_");
-  auto KeyEndIndex = BuiltinName.find('_', KeyStartIndex);
-  auto Key = BuiltinName.substr(KeyStartIndex, KeyEndIndex - KeyStartIndex);
-
-  const bool IsFloat = C11FetchKey->getType()->isFloatingPointTy();
-  AtomicRMWInst::BinOp KeyOpCode{IsFloat
-                                     ? StringSwitch<AtomicRMWInst::BinOp>(Key)
-                                           .Case("add", AtomicRMWInst::FAdd)
-                                           .Case("min", AtomicRMWInst::FMin)
-                                           .Case("max", AtomicRMWInst::FMax)
-                                     : StringSwitch<AtomicRMWInst::BinOp>(Key)
-                                           .Case("add", AtomicRMWInst::Add)
-                                           .Case("sub", AtomicRMWInst::Sub)
-                                           .Case("or", AtomicRMWInst::Or)
-                                           .Case("xor", AtomicRMWInst::Xor)
-                                           .Case("and", AtomicRMWInst::And)
-                                           .Case("min", AtomicRMWInst::Min)
-                                           .Case("max", AtomicRMWInst::Max)};
 
   // We need to make sure we distinguish between signed and unsigned integer
   // comparisons for min and max since they are different operations in
@@ -268,9 +246,7 @@ void replaceFetchKey(CallInst *C11FetchKey) {
   // _Z25atomic_fetch_min_explicitPU3AS3VU7_Atomicii12memory_order12memory_scope
   // we just look for "Atomic"
   if (AtomicRMWInst::Min == KeyOpCode || AtomicRMWInst::Max == KeyOpCode) {
-    auto OpTypeMangledIndex =
-        BuiltinName.find("Atomic", KeyEndIndex) + std::strlen("Atomic");
-    switch (BuiltinName[OpTypeMangledIndex]) {
+    switch (MangledParams[MangledParams.find("Atomic") + 6]) {
       case 'i':
       case 'l':
         break;
@@ -350,25 +326,55 @@ void replaceFlagClear(CallInst *C11FlagClear) {
 bool runOnInstruction(CallInst *Call) {
   if (auto *Callee = Call->getCalledFunction()) {
     auto Name{Callee->getName()};
-    if (Name.contains("_Z11atomic_init")) {
+    if (!Name.starts_with("_Z")) return false;
+    Name = Name.drop_front(2);
+    unsigned KeyNameLength;
+    if (Name.consumeInteger(10, KeyNameLength)) return false;
+    const StringRef MangledParams = Name.drop_front(KeyNameLength);
+    Name = Name.take_front(KeyNameLength);
+    if (!Name.starts_with("atomic_")) return false;
+    Name = Name.drop_front(7);
+    const bool Explicit = Name.ends_with("_explicit");
+    if (Explicit) Name = Name.drop_back(9);
+    if (Name == "init") {
       replaceInit(Call);
       return true;
-    } else if (Name.contains("_Z20atomic_load_explicit")) {
+    }
+    if (Name == "load") {
       replaceLoad(Call);
       return true;
-    } else if (Name.contains("_Z21atomic_store_explicit")) {
+    }
+    if (Name == "store") {
       replaceStore(Call);
       return true;
-    } else if (Name.contains("_Z24atomic_exchange_explicit")) {
+    }
+    if (Name == "exchange") {
       replaceExchange(Call);
       return true;
-    } else if (Name.contains("atomic_fetch_")) {
-      replaceFetchKey(Call);
+    }
+    if (Name.starts_with("fetch_")) {
+      const bool IsFloat = Call->getType()->isFloatingPointTy();
+      const AtomicRMWInst::BinOp KeyOpCode{
+          IsFloat ? StringSwitch<AtomicRMWInst::BinOp>(Name.drop_front(6))
+                        .Case("add", AtomicRMWInst::FAdd)
+                        .Case("min", AtomicRMWInst::FMin)
+                        .Case("max", AtomicRMWInst::FMax)
+                  : StringSwitch<AtomicRMWInst::BinOp>(Name.drop_front(6))
+                        .Case("add", AtomicRMWInst::Add)
+                        .Case("sub", AtomicRMWInst::Sub)
+                        .Case("or", AtomicRMWInst::Or)
+                        .Case("xor", AtomicRMWInst::Xor)
+                        .Case("and", AtomicRMWInst::And)
+                        .Case("min", AtomicRMWInst::Min)
+                        .Case("max", AtomicRMWInst::Max)};
+      replaceFetchKey(Call, KeyOpCode, MangledParams);
       return true;
-    } else if (Name.contains("_Z33atomic_flag_test_and_set_explicit")) {
+    }
+    if (Name == "flag_test_and_set") {
       replaceFlagTestAndSet(Call);
       return true;
-    } else if (Name.contains("_Z26atomic_flag_clear_explicit")) {
+    }
+    if (Name == "flag_clear") {
       replaceFlagClear(Call);
       return true;
     }
@@ -431,14 +437,16 @@ PreservedAnalyses compiler::utils::ReplaceC11AtomicFuncsPass::run(
     // First see if the function is one of the special cases. Any builtin that
     // takes more than one instruction to implement we create a function body
     // for the call.
-    if (Function.getName().contains(
+    if (Function.getName().starts_with("_Z28atomic_compare_exchange_weak") ||
+        Function.getName().starts_with(
             "_Z37atomic_compare_exchange_weak_explicit")) {
       implementCompareExchangeWeak(&Function);
       Changed = true;
       continue;
     }
 
-    if (Function.getName().contains(
+    if (Function.getName().starts_with("_Z30atomic_compare_exchange_strong") ||
+        Function.getName().starts_with(
             "_Z39atomic_compare_exchange_strong_explicit")) {
       implementCompareExchangeStrong(&Function);
       Changed = true;
