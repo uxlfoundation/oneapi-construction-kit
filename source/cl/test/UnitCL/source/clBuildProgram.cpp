@@ -368,7 +368,9 @@ INSTANTIATE_TEST_CASE_P(
                       Pair(CL_SUCCESS, "-cl-std=CL1.2"),
                       Pair(CL_SUCCESS, "-cl-kernel-arg-info"),
                       Pair(CL_SUCCESS, "-cl-denorms-are-zero"),
-                      Pair(CL_SUCCESS, "-cl-no-signed-zeros")));
+                      Pair(CL_SUCCESS, "-cl-no-signed-zeros"),
+                      Pair(CL_SUCCESS, "-cl-uniform-work-group-size"),
+                      Pair(CL_SUCCESS, "-cl-no-subgroup-ifp")));
 
 TEST_F(BuildOptionsTest, CompileWithOptionFP32CorrectlyRoundedDivideSqrt) {
   if (UCL::isInterceptLayerPresent()) {

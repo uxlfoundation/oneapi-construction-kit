@@ -389,6 +389,12 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
   // -cl-strict-aliasing is deprecated in OpenCL 1.1, so accept the argument,
   // but do nothing with the result (i.e. do not record it in options).
   bool cl_strict_aliasing = false;
+
+  // -cl-uniform-work-group-size and -cl-no-subgroup-ifp are accepted but at the
+  // moment we just ignore so don't record it in the options.
+  bool cl_uniform_work_group_size = false;
+  bool cl_no_subgroup_ifp = false;
+
   const cargo::string_view spir_std;
   const cargo::string_view x;
 
@@ -473,6 +479,13 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
       return Result::OUT_OF_MEMORY;
     }
     if (parser.add_argument({"-cl-strict-aliasing", cl_strict_aliasing})) {
+      return Result::OUT_OF_MEMORY;
+    }
+    if (parser.add_argument(
+            {"-cl-uniform-work-group-size", cl_uniform_work_group_size})) {
+      return Result::OUT_OF_MEMORY;
+    }
+    if (parser.add_argument({"-cl-no-subgroup-ifp", cl_no_subgroup_ifp})) {
       return Result::OUT_OF_MEMORY;
     }
 
