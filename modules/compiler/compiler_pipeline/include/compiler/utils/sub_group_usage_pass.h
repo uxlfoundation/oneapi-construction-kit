@@ -23,6 +23,7 @@
 
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/sub_group_analysis.h>
+#include <llvm/IR/Module.h>
 #include <llvm/IR/PassManager.h>
 
 namespace compiler {

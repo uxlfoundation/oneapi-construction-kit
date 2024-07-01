@@ -18,6 +18,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <host/host_mux_builtin_info.h>
+#include <llvm/IR/Module.h>
 
 #include <optional>
 

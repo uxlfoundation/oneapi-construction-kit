@@ -21,6 +21,7 @@
 #ifndef COMPILER_UTILS_ALIGN_MODULE_STRUCTS_PASS_H_INCLUDED
 #define COMPILER_UTILS_ALIGN_MODULE_STRUCTS_PASS_H_INCLUDED
 
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/PassManager.h>
 
 namespace compiler {

@@ -20,6 +20,7 @@
 #include <compiler/utils/metadata.h>
 #include <llvm/ADT/PriorityWorklist.h>
 #include <llvm/Analysis/LazyCallGraph.h>
+#include <llvm/IR/Module.h>
 
 #define DEBUG_TYPE "compute-local-memory-usage"
 

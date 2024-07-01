@@ -18,6 +18,7 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/replace_target_ext_tys_pass.h>
 #include <compiler/utils/target_extension_types.h>
+#include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
 #include <multi_llvm/llvm_version.h>

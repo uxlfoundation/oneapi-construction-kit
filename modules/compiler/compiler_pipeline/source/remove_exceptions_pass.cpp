@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <compiler/utils/remove_exceptions_pass.h>
+#include <llvm/IR/Function.h>
 
 using namespace llvm;
 

@@ -19,6 +19,7 @@
 
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Module.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <riscv/ir_to_builtins_pass.h>

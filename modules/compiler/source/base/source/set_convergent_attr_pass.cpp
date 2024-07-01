@@ -19,6 +19,7 @@
 #include <llvm/ADT/PriorityWorklist.h>
 #include <llvm/IR/Attributes.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Module.h>
 
 #define DEBUG_TYPE "set-convergent-attr"
 

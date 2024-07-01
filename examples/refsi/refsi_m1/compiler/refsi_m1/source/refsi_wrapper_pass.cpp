@@ -19,6 +19,7 @@
 #include <compiler/utils/scheduling.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
 #include <refsi_m1/refsi_wrapper_pass.h>
 
 using namespace llvm;

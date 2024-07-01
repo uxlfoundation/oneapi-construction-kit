@@ -16,6 +16,7 @@
 
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
+#include <llvm/IR/Function.h>
 
 using namespace llvm;
 
