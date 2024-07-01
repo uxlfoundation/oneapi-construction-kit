@@ -21,6 +21,7 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
 #include <refsi_g1_wi/refsi_wg_loop_pass.h>
 
 using namespace llvm;

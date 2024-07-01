@@ -17,6 +17,7 @@
 #include <base/check_for_ext_funcs_pass.h>
 #include <llvm/IR/DiagnosticPrinter.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Module.h>
 
 using namespace llvm;
 

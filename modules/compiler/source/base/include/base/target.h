@@ -21,6 +21,7 @@
 #include <compiler/target.h>
 #include <llvm/IR/DiagnosticInfo.h>
 #include <llvm/IR/DiagnosticPrinter.h>
+#include <llvm/IR/Module.h>
 #include <mux/mux.h>
 
 namespace compiler {

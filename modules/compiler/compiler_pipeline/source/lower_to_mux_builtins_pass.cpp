@@ -16,6 +16,7 @@
 
 #include <compiler/utils/builtin_info.h>
 #include <compiler/utils/lower_to_mux_builtins_pass.h>
+#include <llvm/IR/Module.h>
 
 using namespace llvm;
 

@@ -38,6 +38,7 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringSet.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Module.h>
 #include <llvm/Support/Error.h>
 #include <llvm/TargetParser/Triple.h>
 #include <llvm/Transforms/Utils/Cloning.h>

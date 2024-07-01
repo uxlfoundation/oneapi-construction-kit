@@ -21,6 +21,7 @@
 #ifndef COMPILER_UTILS_FIXUP_CALLING_CONVENTION_PASS_H_INCLUDED
 #define COMPILER_UTILS_FIXUP_CALLING_CONVENTION_PASS_H_INCLUDED
 
+#include <llvm/IR/CallingConv.h>
 #include <llvm/IR/PassManager.h>
 
 namespace compiler {

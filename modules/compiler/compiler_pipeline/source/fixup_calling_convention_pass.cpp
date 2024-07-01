@@ -17,6 +17,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Module.h>
 
 using namespace llvm;
 

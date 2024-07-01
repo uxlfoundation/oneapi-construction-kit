@@ -17,6 +17,7 @@
 #include <compiler/utils/dma.h>
 #include <compiler/utils/pass_functions.h>
 #include <llvm/ADT/StringSwitch.h>
+#include <llvm/IR/Module.h>
 #include <llvm/IR/Operator.h>
 #include <multi_llvm/llvm_version.h>
 #include <refsi_m1/refsi_mux_builtin_info.h>

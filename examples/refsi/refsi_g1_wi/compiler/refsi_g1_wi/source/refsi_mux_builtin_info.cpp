@@ -18,6 +18,7 @@
 #include <compiler/utils/pass_functions.h>
 #include <compiler/utils/scheduling.h>
 #include <llvm/IR/InlineAsm.h>
+#include <llvm/IR/Module.h>
 #include <refsi_g1_wi/refsi_mux_builtin_info.h>
 
 #include <cstdint>
