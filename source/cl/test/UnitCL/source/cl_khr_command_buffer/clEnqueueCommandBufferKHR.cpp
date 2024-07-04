@@ -125,7 +125,7 @@ TEST_F(CommandBufferEnqueueTest, IncrementKernelTwiceDifferentQueues) {
   // We need something we can check was enqueued twice.
   const char *code = R"OpenCLC(
   __kernel void increment_kernel(global int *counter) {
-    ++(counter[0]);
+    atomic_inc(&counter[0]);
   }
 )OpenCLC";
   const size_t code_length = std::strlen(code);
