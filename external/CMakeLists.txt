@@ -26,7 +26,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 FetchContent_Declare(
   OpenCLHeaders
   GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-Headers.git
-  GIT_TAG        68d98613113259dbcd4c05b2039bb758766bf2ac
+  GIT_TAG        v2024.05.08
 )
 FetchContent_MakeAvailable(OpenCLHeaders)
 

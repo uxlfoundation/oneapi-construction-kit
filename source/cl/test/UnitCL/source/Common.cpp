@@ -778,7 +778,6 @@ bool UCL::isImageFormatSupported(cl_context context,
       CASE(CL_RGx);
       CASE(CL_RGBx);
       CASE(CL_DEPTH);
-      CASE(CL_DEPTH_STENCIL);
       default:
         return "UNKNOWN CHANNEL ORDER";
     }
@@ -801,7 +800,6 @@ bool UCL::isImageFormatSupported(cl_context context,
       CASE(CL_UNSIGNED_INT32);
       CASE(CL_HALF_FLOAT);
       CASE(CL_FLOAT);
-      CASE(CL_UNORM_INT24);
       default:
         return "UNKNOWN CHANNEL DATA TYPE";
     }

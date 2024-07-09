@@ -441,10 +441,6 @@ cl_int libimg::HostGetSupportedImageFormats(const cl_mem_flags flags,
       {CL_RGBx, CL_UNORM_SHORT_565},
       {CL_RGBx, CL_UNORM_SHORT_555},
       {CL_RGBx, CL_UNORM_INT_101010},
-      // {CL_DEPTH, CL_UNORM_INT16},
-      // {CL_DEPTH, CL_FLOAT},
-      // {CL_DEPTH_STENCIL, CL_UNORM_INT24},
-      // {CL_DEPTH_STENCIL, CL_FLOAT},
   };
 
   const size_t num_formats = sizeof(formats) / sizeof(formats[0]);
