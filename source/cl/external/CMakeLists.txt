@@ -98,7 +98,7 @@ if(CA_CL_ENABLE_ICD_LOADER)
       BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/OpenCL-ICD-Loader/build
       INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/OpenCL-ICD-Loader/install
       CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-      -DOPENCL_ICD_LOADER_HEADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/OpenCL-Headers
+      -DOPENCL_ICD_LOADER_HEADERS_DIR=${CL_INCLUDE_DIR}
       ${OpenCLICDLoaderExtraCMakeArgs})
 
     # Explicitly install the OpenCL-ICD-Loader's install directory in a
@@ -124,7 +124,7 @@ if(CA_CL_ENABLE_ICD_LOADER)
     set(CMAKE_C_EXTENSIONS ON)
     # Set the OpenCL include directories.
     set(OPENCL_ICD_LOADER_HEADERS_DIR
-      ${CMAKE_CURRENT_SOURCE_DIR}/OpenCL-Headers
+      ${CL_INCLUDE_DIR}
       CACHE PATH "Path to OpenCL Headers" FORCE)
     if(CA_PLATFORM_WINDOWS)
       # Disable integrity level checks so environment variables work on Windows.
