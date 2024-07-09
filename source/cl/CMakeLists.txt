@@ -84,15 +84,12 @@ message(STATUS "OpenCL device version: ${CA_CL_DEVICE_VERSION}")
 set(CA_CL_DEVICE_OPENCL_C_VERSION "OpenCL C 1.2 Clang ${LLVM_PACKAGE_VERSION}")
 message(STATUS "OpenCL C version: ${CA_CL_DEVICE_OPENCL_C_VERSION}")
 
-set(CL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenCL-Headers
-  CACHE PATH "OpenCL header include directory" FORCE)
-
 # If the online coverage is enabled we add the modules so that the XML file
 # can be generated automatically.
 if(${CA_ENABLE_COVERAGE} AND ${CA_RUNTIME_COMPILER_ENABLED})
   add_coverage_modules(${CMAKE_CURRENT_SOURCE_DIR}/source
     ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CL.dir/source
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenCL-Headers/CL
+    ${CL_INCLUDE_DIR}/CL
     ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CL.dir/source)
 endif()
 

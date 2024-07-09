@@ -86,8 +86,7 @@ set(CODEPLAY_IMG_INTEGRATION_INCLUDE_DIRS
   ${BUILTINS_SOURCE_DIR}/include/builtins
   ${BUILTINS_SOURCE_DIR}/abacus/include)
 # TODO(CA-600): libimg should not depend on the OpenCL headers
-set(CODEPLAY_IMG_OPENCL_INCLUDE_DIR
-  ${PROJECT_SOURCE_DIR}/source/cl/external/OpenCL-Headers)
+set(CODEPLAY_IMG_OPENCL_INCLUDE_DIR ${CL_INCLUDE_DIR})
 option(CODEPLAY_IMG_ENABLE_INSTALL "Enable libimg install target." OFF)
 add_ca_subdirectory(libimg)
 

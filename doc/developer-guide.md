@@ -18,8 +18,6 @@ Current directory layout:
   * `source/cl`: Encapsulates all source code which implements the OpenCL open
     standard, this is an optional component and may not be present dependent on
     license agreement.
-    * `source/cl/external/OpenCL-Headers/include`: This directory holds the
-      upstream headers in the sub-directory `external` (for example `CL/cl.h`).
     * `source/cl/source/extension/include`: This directory holds the headers
       for the Codeplay specific OpenCL extensions.
   * `source/vk`: Encapsulates all source code which implements the Vulkan open

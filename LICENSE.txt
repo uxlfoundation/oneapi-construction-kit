@@ -225,8 +225,8 @@ Software.
 Software from third parties included in the oneAPI Construction Kit
 ===================================================================
 
-The source/cl/external/OpenCL-Headers folder (Khronos OpenCL headers), if
-present, is held under its own licensing terms.
+The OpenCL Headers (https://github.com/KhronosGroup/OpenCL-Headers) may be
+fetched under the build directory and is held under its own licensing terms.
 
 The OpenCL ICD Loader (https://github.com/KhronosGroup/OpenCL-ICD-Loader) may
 be fetched under the build directory and is held under its own licensing terms.

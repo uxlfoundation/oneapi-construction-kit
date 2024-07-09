@@ -14,6 +14,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+include(FetchContent)
+
+# Enable C and C++ language extensions which we otherwise disable, as
+# external projects are entitled to assume CMake defaults.
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+# OpenCL Headers are used outside of source/cl, mostly in libimg, so make
+# them available here rather here rather than in source/cl/external.
+FetchContent_Declare(
+  OpenCLHeaders
+  GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-Headers.git
+  GIT_TAG        68d98613113259dbcd4c05b2039bb758766bf2ac
+)
+FetchContent_MakeAvailable(OpenCLHeaders)
+
+# TODO We should be using the OpenCL::Headers library rather than manually
+# adding the include directories everywhere.
+set(CL_INCLUDE_DIR "${openclheaders_SOURCE_DIR}" PARENT_SCOPE)
+
 # The googletest CMake does not set the project VERSION which causes verbose
 # warnings about CMake policies, instead create our own targets for googletest.
 

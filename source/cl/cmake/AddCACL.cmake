@@ -73,7 +73,8 @@ function(target_link_ca_cl target)
     target_link_libraries(${target} PRIVATE CL)
   endif()
   target_include_directories(${target}
-    PRIVATE ${CA_CL_EXTENSION_INCLUDE_DIRS}
+    PRIVATE ${CA_CL_EXTENSION_INCLUDE_DIRS})
+  target_include_directories(${target}
     SYSTEM PRIVATE ${CL_INCLUDE_DIR})
 endfunction()
 
