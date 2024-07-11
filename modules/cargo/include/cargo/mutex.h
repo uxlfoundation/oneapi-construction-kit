@@ -36,7 +36,7 @@ namespace cargo {
 /// multi-threaded code.
 struct CARGO_TS_CAPABILITY("mutex") mutex {
   /// @brief Constructs the mutex.
-  constexpr mutex() noexcept = default;
+  mutex() noexcept = default;
 
   mutex(const mutex &) = delete;
   mutex &operator=(const mutex &) = delete;

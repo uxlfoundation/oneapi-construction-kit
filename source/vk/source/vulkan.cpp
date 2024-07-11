@@ -110,7 +110,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties(
     return reinterpret_cast<PFN_vkVoidFunction>(function); \
   }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
+extern "C" VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
 vk_icdGetInstanceProcAddr(VkInstance instance, const char *pName) {
   if (instance) {
     RETURN_FUNCTION(vkCreateDevice, pName);
@@ -1427,7 +1427,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2(
       pPropertyCount, pProperties);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
+extern "C" VKAPI_ATTR VkResult VKAPI_CALL
 vk_icdNegotiateLoaderICDInterfaceVersion(uint32_t *pSupportedVersion) {
   if (static_cast<int>(*pSupportedVersion) <
       MIN_SUPPORTED_LOADER_ICD_INTERFACE_VERSION) {

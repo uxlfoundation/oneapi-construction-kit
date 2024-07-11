@@ -34,6 +34,12 @@
 #include "cargo/string_algorithm.h"
 #include "oclc.h"
 
+#ifdef __GNUC__
+#define CL_LAMBDA_CALLBACK CL_CALLBACK
+#else
+#define CL_LAMBDA_CALLBACK
+#endif  // __GNUC__
+
 namespace {
 template <typename T>
 struct TypeConverter;
@@ -1108,7 +1114,7 @@ bool oclc::Driver::InitCL() {
   // Create a context.
   context_ = clCreateContext(
       nullptr, 1, &device_,
-      [](const char *errinfo, const void *, size_t, void *) {
+      [](const char *errinfo, const void *, size_t, void *) CL_LAMBDA_CALLBACK {
         (void)std::fprintf(stderr, "%s\n", errinfo);
       },
       nullptr, &err);

@@ -377,9 +377,9 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// @param[in] user_event The user event that has completed.
   /// @param[in] event_command_exec_status The completion status of the event.
   /// @param[in] user_data User data to pass to the callback.
-  static void userEventDispatch(cl_event user_event,
-                                cl_int event_command_exec_status,
-                                void *user_data);
+  static void CL_CALLBACK userEventDispatch(cl_event user_event,
+                                            cl_int event_command_exec_status,
+                                            void *user_data);
 
   struct dispatch_state_t {
     /// @brief Add new wait events to this dispatch.

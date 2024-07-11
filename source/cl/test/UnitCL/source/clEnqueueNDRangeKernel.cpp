@@ -698,7 +698,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ConcurrentBuildOptions) {
 // if newly enqueued commands internally reuse the signaling primitive but
 // also depend on the earlier commands now waiting on them to complete.
 TEST_F(clEnqueueNDRangeKernelTest, NoDeadlockDueToInternalEventCaching) {
-  auto possible_deadlock_callback = [](cl_event, cl_int, void *user_data) {
+  auto possible_deadlock_callback = [](cl_event, cl_int, void *user_data) CL_LAMBDA_CALLBACK {
     // Event should be from the predecessing command.
     cl_event predecessing_command_event = *(static_cast<cl_event *>(user_data));
     cl_int status = CL_QUEUED;

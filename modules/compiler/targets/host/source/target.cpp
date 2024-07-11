@@ -218,9 +218,15 @@ compiler::Result HostTarget::initWithBuiltins(
         case host::os::WINDOWS:
           // Using windows here ensures that _chkstk() is called which is
           // important for paging in the stack.
+#if defined(__MINGW32__) || defined(__MINGW64__)
+          triple = llvm::Triple(host::arch::X86 == host_device_info.arch
+                                    ? "i386-pc-windows-gnu-elf"
+                                    : "x86_64-w64-windows-gnu-elf");
+#else
           triple = llvm::Triple(host::arch::X86 == host_device_info.arch
                                     ? "i386-pc-windows-msvc-elf"
                                     : "x86_64-pc-windows-msvc-elf");
+#endif
           break;
         case host::os::MACOS:
           assert(host_device_info.native &&

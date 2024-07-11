@@ -18,6 +18,17 @@
 #include <stdio.h>
 #include <string.h>
 
+// GCC lambdas are only convertible to function pointers of the specified
+// calling convention, and require the correct calling convention to be
+// specified. MSVC lambdas are convertible to function pointers of any calling
+// convention, and neither require nor allow the calling convention to be
+// specified.
+#ifdef __GNUC__
+#define VK_LAMBDA_CALLBACK VKAPI_PTR
+#else
+#define VK_LAMBDA_CALLBACK
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 #elif defined(__linux__) || defined(__APPLE__)
@@ -172,15 +183,21 @@ const VkAllocationCallbacks *defaultAllocator() {
 
 static const VkAllocationCallbacks nullAllocationCallBacks = {
     nullptr,
-    [](void *, size_t, size_t, VkSystemAllocationScope) -> void * {
+    [](void *, size_t, size_t, VkSystemAllocationScope)
+        VK_LAMBDA_CALLBACK -> void * {
       return nullptr;
     },
-    [](void *, void *, size_t, size_t, VkSystemAllocationScope) -> void * {
+    [](void *, void *, size_t, size_t, VkSystemAllocationScope)
+        VK_LAMBDA_CALLBACK -> void * {
       return nullptr;
     },
-    [](void *, void *) {},
-    [](void *, size_t, VkInternalAllocationType, VkSystemAllocationScope) {},
-    [](void *, size_t, VkInternalAllocationType, VkSystemAllocationScope) {}};
+    [](void *, void *) VK_LAMBDA_CALLBACK {},
+    [](void *, size_t, VkInternalAllocationType, VkSystemAllocationScope)
+        VK_LAMBDA_CALLBACK {
+    },
+    [](void *, size_t, VkInternalAllocationType, VkSystemAllocationScope)
+        VK_LAMBDA_CALLBACK {
+    }};
 
 static VkAllocationCallbacks oneUseAllocationCallbacks = {
     nullptr,    &uvk::oneUseAlloc, &uvk::realloc,

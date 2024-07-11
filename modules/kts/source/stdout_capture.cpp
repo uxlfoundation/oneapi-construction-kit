@@ -20,6 +20,8 @@
 #define DUP2 _dup2
 #else
 #include <unistd.h>
+
+#include <cstring>
 #define DUP dup
 #define DUP2 dup2
 #endif

@@ -41,6 +41,17 @@
 
 #cmakedefine CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
 
+// GCC lambdas are only convertible to function pointers of the specified
+// calling convention, and require the correct calling convention to be
+// specified. MSVC lambdas are convertible to function pointers of any calling
+// convention, and neither require nor allow the calling convention to be
+// specified.
+#ifdef __GNUC__
+#define CL_LAMBDA_CALLBACK CL_CALLBACK
+#else
+#define CL_LAMBDA_CALLBACK
+#endif  // __GNUC__
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 

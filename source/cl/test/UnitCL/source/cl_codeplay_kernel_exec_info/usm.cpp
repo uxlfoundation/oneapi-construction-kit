@@ -105,7 +105,7 @@ class KernelExecInfoCodeplayUSMPtrs : public USMKernelExecInfoCodeplayTest {
                                           nullptr, nullptr));
     }
 #elif INTPTR_MAX == INT32_MAX
-    const uint ptr_as_uint = reinterpret_cast<cl_uint>(usm_ptr);
+    const cl_uint ptr_as_uint = reinterpret_cast<cl_uint>(usm_ptr);
     if (device_pointer_size == 64u) {
       const cl_uint extended_ptr = static_cast<cl_ulong>(ptr_as_uint);
       SinglePointerWrapper64Bit ptr_wrapper = {extended_ptr};

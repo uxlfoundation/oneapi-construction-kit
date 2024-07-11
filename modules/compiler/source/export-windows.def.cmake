@@ -1,4 +1,4 @@
-LIBRARY compiler
+LIBRARY ${ExportLibraryName}
 EXPORTS
     caCompilerLLVMVersion
     caCompilers

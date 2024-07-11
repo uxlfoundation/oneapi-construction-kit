@@ -1,4 +1,4 @@
-LIBRARY VK
+LIBRARY ${ExportLibraryName}
 EXPORTS
   vk_icdNegotiateLoaderICDInterfaceVersion
   vk_icdGetInstanceProcAddr

@@ -102,7 +102,7 @@
 #include <sstream>
 #include <unordered_set>
 
-#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_MSC_VER)
 #define PATH_SEPARATOR "\\"
 #else
 #define PATH_SEPARATOR "/"

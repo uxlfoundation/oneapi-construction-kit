@@ -54,7 +54,7 @@ TEST_F(clSetUserEventStatusTest, FromAnotherEventsCallback) {
 
   ASSERT_SUCCESS(clSetEventCallback(
       markerEvent, CL_COMPLETE,
-      [](cl_event, cl_int, void *user_data) {
+      [](cl_event, cl_int, void *user_data) CL_LAMBDA_CALLBACK {
         clSetUserEventStatus(static_cast<cl_event>(user_data), CL_COMPLETE);
       },
       event));
@@ -149,7 +149,7 @@ TEST_F(clSetUserEventStatusTest, EnsureTerminatedDependentCommandDidNothing) {
 TEST_F(clSetUserEventStatusTest, ReleaseUserEventInItsCallback) {
   cl_int releaseStatus;
 
-  auto func = [](cl_event event, cl_int, void *user_data) {
+  auto func = [](cl_event event, cl_int, void *user_data) CL_LAMBDA_CALLBACK {
     *static_cast<cl_int *>(user_data) = clReleaseEvent(event);
   };
 
