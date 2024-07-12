@@ -67,7 +67,8 @@ TEST_P(clCreateContextFromTypeGoodTest, Default) {
 TEST_P(clCreateContextFromTypeGoodTest, DefaultCallback) {
   struct callback_data_t {
   } callback_data;
-  auto callback = [](const char *, const void *, size_t, void *) {};
+  auto callback = [](const char *, const void *, size_t, void *)
+                      CL_LAMBDA_CALLBACK {};
   cl_int errcode;
   cl_context context = clCreateContextFromType(properties, GetParam(), callback,
                                                &callback_data, &errcode);

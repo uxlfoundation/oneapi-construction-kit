@@ -122,10 +122,8 @@ if(CA_RUNTIME_COMPILER_ENABLED)
   # Debugging llvm becomes very frustrating without the `dump` methods which
   # are otherwise stripped. Don't strip public symbols for any *full* debug
   # builds
-  if(CA_PLATFORM_LINUX OR MINGW)
-    # Export API entry point symbols for Linux, or if we're using a GNU compiler
-    # on Windows.  I.e. a MinGW build on Windows uses the Linux symbol exports,
-    # not the Windows ones.
+  if(CA_PLATFORM_LINUX)
+    # Export API entry point symbols for Linux.
     set(COMPILER_EXPORT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/source/export-linux.sym)
     if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
       # Retain only the symbols listed in the file filename, discarding all others.
@@ -145,11 +143,20 @@ if(CA_RUNTIME_COMPILER_ENABLED)
       # libraries.
       string(APPEND COMPILER_LINK_FLAGS_RELEASE " -Xlinker --strip-debug")
     endif()
-  elseif(CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # Set exports definition file for MSVC Windows (not MinGW, that takes the
-    # Linux equivalent path) and link flags to use it.
-    set(COMPILER_EXPORT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/source/export-windows.def)
-    string(APPEND COMPILER_LINK_FLAGS " /DEF:${COMPILER_EXPORT_FILE}")
+  elseif(CA_PLATFORM_WINDOWS)
+    # Set exports definition file for Windows and link flags to use it.
+    set(COMPILER_EXPORT_FILE "export-windows.def")
+    set(ExportLibraryName "${CMAKE_STATIC_LIBRARY_PREFIX}compiler")
+    configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/source/${COMPILER_EXPORT_FILE}.cmake
+      ${CMAKE_CURRENT_BINARY_DIR}/source/${COMPILER_EXPORT_FILE})
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+      string(APPEND COMPILER_LINK_FLAGS
+        " /DEF:${CMAKE_CURRENT_BINARY_DIR}/source/${COMPILER_EXPORT_FILE}")
+    else()
+      string(APPEND COMPILER_LINK_FLAGS
+        " ${CMAKE_CURRENT_BINARY_DIR}/source/${COMPILER_EXPORT_FILE}")
+    endif()
   else()
     message(WARNING "Unhandled build environment.")
   endif()

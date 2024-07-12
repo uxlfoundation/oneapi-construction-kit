@@ -185,8 +185,8 @@ bool hal_argpack_t::expand(size_t num_bytes) {
     // Allocate in chunks so we don't continually reallocate
     pack_alloc_size =
         ((write_point + num_bytes) + chunk_size - 1) / chunk_size * chunk_size;
-#if defined(_MSC_VER)
-    // Visual studio does not properly support std::aligned_alloc
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+    // Visual Studio and MinGW do not properly support std::aligned_alloc
     uint8_t *replacement_pack =
         static_cast<uint8_t *>(_aligned_malloc(pack_alloc_size, alignment));
 #else
@@ -201,7 +201,7 @@ bool hal_argpack_t::expand(size_t num_bytes) {
         // copy from old to new and free old one
         std::memcpy(replacement_pack, pack, write_point);
       }
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
       _aligned_free(pack);
 #else
       std::free(pack);

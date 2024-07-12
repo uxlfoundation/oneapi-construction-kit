@@ -41,14 +41,22 @@
 // functions.
 extern "C" {
 
-#if defined(_MSC_VER)
 // Windows uses chkstk() to ensure there is enough stack space paged in.
+#if defined(_MSC_VER)
 #if defined(UTILS_SYSTEM_64_BIT)
 extern void __chkstk();
 #else
 extern void _chkstk();
 #endif
 #endif  // _MSC_VER
+
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(UTILS_SYSTEM_64_BIT)
+extern void ___chkstk_ms();
+#else
+extern void(_alloca)();
+#endif
+#endif
 
 #if defined(UTILS_SYSTEM_32_BIT)
 // On 32-bit (both x86 and Arm) long division is done in software.
@@ -162,6 +170,14 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
       {"__chkstk", reinterpret_cast<uint64_t>(&__chkstk)},
 #else
       {"_chkstk", reinterpret_cast<uint64_t>(&_chkstk)},
+#endif  // UTILS_SYSTEM_64_BIT
+#endif  // _MSC_VER
+
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(UTILS_SYSTEM_64_BIT)
+      {"___chkstk_ms", reinterpret_cast<uint64_t>(&___chkstk_ms)},
+#else
+      {"_alloca", reinterpret_cast<uint64_t>(&_alloca)},
 #endif  // UTILS_SYSTEM_64_BIT
 #endif  // _MSC_VER
 

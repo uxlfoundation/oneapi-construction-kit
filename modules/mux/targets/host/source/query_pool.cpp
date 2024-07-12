@@ -28,6 +28,9 @@ cargo::expected<host::query_pool_s *, mux_result_t> host::query_pool_s::create(
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
   auto host_device = static_cast<host::device_s *>(queue->device);
   auto thread_count = host_device->thread_pool.initialized_threads;
+#else
+  (void)query_configs;
+  (void)queue;
 #endif
   // Calculate the result storage offset past the end of the query_pool_s.
   // FIXME: This wastes sizeof(mux_query_duration_result_s) bytes when
@@ -378,6 +381,7 @@ mux_result_t hostGetQueryPoolResults(mux_queue_t queue,
                                      uint32_t query_index, uint32_t query_count,
                                      size_t size, void *data, size_t stride) {
   (void)queue;
+  (void)size;
   auto host_query_pool = static_cast<host::query_pool_s *>(query_pool);
 
   if (host_query_pool->type == mux_query_type_duration) {

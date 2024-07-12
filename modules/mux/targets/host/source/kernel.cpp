@@ -91,6 +91,7 @@ mux_result_t hostCreateBuiltInKernel(mux_device_t device, const char *name,
                                      uint64_t name_length,
                                      mux_allocator_info_t allocator_info,
                                      mux_kernel_t *out_kernel) {
+  (void)name_length;
   auto hostDeviceInfo = static_cast<host::device_info_s *>(device->info);
   mux::allocator allocator(allocator_info);
   const char *builtin_name = nullptr;

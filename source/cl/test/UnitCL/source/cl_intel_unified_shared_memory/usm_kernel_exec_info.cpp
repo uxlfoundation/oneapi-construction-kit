@@ -170,7 +170,7 @@ struct USMIndirectAccessTest : public USMKernelTest {
                                           nullptr, nullptr));
     }
 #elif INTPTR_MAX == INT32_MAX
-    const uint ptr_as_uint = reinterpret_cast<cl_uint>(usm_ptr);
+    const cl_uint ptr_as_uint = reinterpret_cast<cl_uint>(usm_ptr);
     if (device_pointer_size == 64u) {
       const cl_uint extended_ptr = static_cast<cl_ulong>(ptr_as_uint);
       SinglePointerWrapper64Bit ptr_wrapper = {extended_ptr};
@@ -277,8 +277,8 @@ struct USMMultiIndirectAccessTest : public USMKernelTest {
                                           nullptr, nullptr));
     }
 #elif INTPTR_MAX == INT32_MAX
-    const uint ptrA_as_uint = reinterpret_cast<cl_uint>(usm_ptrA);
-    const uint ptrB_as_uint = reinterpret_cast<cl_uint>(usm_ptrB);
+    const cl_uint ptrA_as_uint = reinterpret_cast<cl_uint>(usm_ptrA);
+    const cl_uint ptrB_as_uint = reinterpret_cast<cl_uint>(usm_ptrB);
     if (device_pointer_size == 64u) {
       const cl_uint extended_ptrA = static_cast<cl_ulong>(ptrA_as_uint);
       const cl_uint extended_ptrB = static_cast<cl_ulong>(ptrB_as_uint);

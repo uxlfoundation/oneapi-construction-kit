@@ -150,15 +150,6 @@ size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
 /// @param[in] d The floating point valule to print.
 template <typename T>
 void PrintFloatingPoint(std::string partial, T d) {
-#if defined(__MINGW32__) || defined(__MINGW64__)
-  // MinGW seems to follow MSVC pre-2015 formatting for %e/%E/%g/%G which did
-  // not match the C++11 specification.  There is however, this method to set
-  // conformant printing.  This method was removed in MSVC 2015 because it
-  // became conformant by default, so if a future version of MinGW removes this
-  // function then it is probably no longer required.
-  unsigned int old_printf_format = _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
-
   // manually format NaNs and Infinity as the system
   // printf doesn't format them properly on windows
   if (std::isnan(d) || std::isinf(d)) {
@@ -266,10 +257,6 @@ void PrintFloatingPoint(std::string partial, T d) {
     // Possible vulnerability when the printf format string comes from the user
     ::printf(partial.c_str(), d);
   }
-
-#if defined(__MINGW32__) || defined(__MINGW64__)
-  _set_output_format(old_printf_format);
-#endif
 }
 }  // namespace
 

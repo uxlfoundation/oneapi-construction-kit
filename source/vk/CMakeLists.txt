@@ -111,7 +111,7 @@ if(TARGET LLVMSupport)
 endif()
 
 # Choose library linker options.
-if(CA_PLATFORM_LINUX OR MINGW)
+if(CA_PLATFORM_LINUX)
   # Export API entry point symbols for Linux, or if we're using a GNU compiler
   # on Windows.  I.e. a MinGW build on Windows uses the Linux symbol exports,
   # not the Windows ones.
@@ -124,11 +124,19 @@ if(CA_PLATFORM_LINUX OR MINGW)
   # Use internal library defined functions, required for vkGetInstanceProcAddr,
   # vkGetDeviceProcAddr, overriding new and delete.
   set(VK_LINK_FLAGS "${VK_LINK_FLAGS} -Xlinker -Bsymbolic")
-elseif(CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # Set exports definition file for MSVC Windows (not MinGW, that takes the
-  # Linux equivalent path) and link flags to use it.
-  set(VK_EXPORT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/source/export-windows.def)
-  set(VK_LINK_FLAGS "${VK_LINK_FLAGS} /DEF:${VK_EXPORT_FILE}")
+elseif(CA_PLATFORM_WINDOWS)
+  set(CA_VK_LIBRARY_DEF_FILE export-windows.def)
+  set(ExportLibraryName ${CMAKE_STATIC_LIBRARY_PREFIX}${CA_VK_LIBRARY_NAME})
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/${CA_VK_LIBRARY_DEF_FILE}.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/source/${CA_VK_LIBRARY_DEF_FILE})
+  # Set exports definition file for Windows.
+  set(VK_EXPORT_FILE ${CMAKE_CURRENT_BINARY_DIR}/source/${CA_VK_LIBRARY_DEF_FILE})
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    string(APPEND VK_LINK_FLAGS " /DEF:\"${VK_EXPORT_FILE}\"")
+  else()
+    string(APPEND VK_LINK_FLAGS " \"${VK_EXPORT_FILE}\"")
+  endif()
 else()
   message(WARNING "Unhandled build environment.")
 endif()

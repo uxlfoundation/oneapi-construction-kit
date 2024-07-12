@@ -1074,8 +1074,9 @@ class SetEventCallbackTest : public cl_khr_command_buffer_Test {
     cl_event event;
     cl_int status;
   };
-  static void event_callback(cl_event event, cl_int event_command_status,
-                             void *user_data) {
+  static void CL_CALLBACK event_callback(cl_event event,
+                                         cl_int event_command_status,
+                                         void *user_data) {
     auto event_status = static_cast<event_status_pair *>(user_data);
     event_status->event = event;
     event_status->status = event_command_status;

@@ -226,7 +226,7 @@ typedef cl_int cl_kernel_wfv_status_codeplay;
 /// by the OpenCL implementation on the device.
 /// * CL_OUT_OF_HOST_MEMORY if there is a failure to allocate resources required
 /// by the OpenCL implementation on the host.
-extern cl_int clGetKernelWFVInfoCODEPLAY(
+extern cl_int CL_API_CALL clGetKernelWFVInfoCODEPLAY(
     cl_kernel kernel, cl_device_id device, cl_uint work_dim,
     const size_t *global_work_size, const size_t *local_work_size,
     cl_kernel_wfv_info_codeplay param_name, size_t param_value_size,

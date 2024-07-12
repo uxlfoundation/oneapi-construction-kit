@@ -137,7 +137,7 @@ if(CA_USE_LINKER)
     message(WARNING "CA_USE_LINKER ignored for non-unix targets")
   endif()
 endif()
-if(CMAKE_SYSTEM_NAME STREQUAL Linux OR ANDROID OR MINGW)
+if(CMAKE_SYSTEM_NAME STREQUAL Linux OR ANDROID)
   # 1. We don't need executable stacks and we don't want them infecting consuming
   # programs which might have strict security requirements. This ensures we're
   # not the cause of an executable stack further down the line
@@ -156,6 +156,8 @@ set(CA_COMPILE_OPTIONS
       -Werror             # Enable warnings as errors when not a subproject
     >
     -Wno-error=deprecated-declarations  # Disable: use of deprecated functions
+    -Wno-error=array-bounds  # Disable errors that vary heavily on compiler and
+    -Wno-error=uninitialized # optimization level and have false positives.
 
     -pedantic             # Enable warnings required by the C++ standard
     -Wall -Wextra         # Enable more warnings
@@ -233,11 +235,6 @@ set(CA_COMPILE_OPTIONS
 
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
     -Wthread-safety  # Enable clang thread safety analysis
-  >
-
-  $<$<BOOL:${MINGW}>:
-    -Wa,-mbig-obj              # Increase number of sections in .obj file.
-    -Wno-stringop-truncation   # Disable warnings on strncpy
   >
 
   $<$<BOOL:${MSVC}>:

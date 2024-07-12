@@ -157,7 +157,6 @@ set(CL_LINK_FLAGS)
 set(CL_LINK_FLAGS_RELEASE)
 
 if(CA_PLATFORM_LINUX OR CA_PLATFORM_ANDROID OR
-    (CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR
     CA_PLATFORM_QNX)
   # Set the OpenCL API entry point version map.
   string(APPEND CL_LINK_FLAGS " -Xlinker \
@@ -199,7 +198,7 @@ if(CA_PLATFORM_LINUX OR CA_PLATFORM_ANDROID OR
     string(APPEND CL_LINK_FLAGS_RELEASE
       " -Xlinker --icf=all -Xlinker --icf-iterations -Xlinker 5")
   endif()
-elseif(CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif(CA_PLATFORM_WINDOWS)
   # Detect whether or not LLVMExecutionEngine is linked into the target.
   # This knowledge is needed to export JIT debug symbols, which will
   # cause an unresolved error if the library is not linked.
@@ -215,14 +214,19 @@ elseif(CA_PLATFORM_WINDOWS AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # In order to avoid unnessesary duplication of .def files depending on the
   # OPENCL_LIBRARY_NAME name we use CMake to configure these files before use.
   set(CA_CL_LIBRARY_DEF_FILE "export-windows.def")
-  set(ExportLibraryName ${CA_CL_LIBRARY_NAME})
+  set(ExportLibraryName "${CMAKE_STATIC_LIBRARY_PREFIX}${CA_CL_LIBRARY_NAME}")
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/source/${CA_CL_LIBRARY_DEF_FILE}.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/source/${CA_CL_LIBRARY_DEF_FILE})
-  # Lastly tell the linker to use the configured .def file
-  string(APPEND CL_LINK_FLAGS
-    " /DEF:${CMAKE_CURRENT_BINARY_DIR}/source/${CA_CL_LIBRARY_DEF_FILE}")
-  string(APPEND CL_LINK_FLAGS_RELEASE " /OPT:REF /OPT:ICF=5")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Lastly tell the linker to use the configured .def file
+    string(APPEND CL_LINK_FLAGS
+      " /DEF:${CMAKE_CURRENT_BINARY_DIR}/source/${CA_CL_LIBRARY_DEF_FILE}")
+    string(APPEND CL_LINK_FLAGS_RELEASE " /OPT:REF /OPT:ICF=5")
+  else()
+    string(APPEND CL_LINK_FLAGS
+      " ${CMAKE_CURRENT_BINARY_DIR}/source/${CA_CL_LIBRARY_DEF_FILE}")
+  endif()
 else()
   message(WARNING "Unhandled build environment.")
 endif()

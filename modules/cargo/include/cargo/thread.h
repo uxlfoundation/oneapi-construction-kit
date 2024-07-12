@@ -27,6 +27,12 @@
 #include "cargo/error.h"
 #include "cargo/thread_safety.h"
 
+// Assume that std::thread is based on pthread if <pthread.h> is implicitly
+// included.
+#ifdef PTHREAD_ONCE_INIT
+#define CARGO_HAS_PTHREAD
+#endif
+
 namespace cargo {
 /// @brief A std::thread wrapper with benefits.
 ///

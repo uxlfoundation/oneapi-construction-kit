@@ -35,7 +35,8 @@ TEST_F(clCreateContextTest, Default) {
 TEST_F(clCreateContextTest, DefaultCallback) {
   struct callback_data_t {
   } callback_data;
-  auto callback = [](const char *, const void *, size_t, void *) {};
+  auto callback = [](const char *, const void *, size_t, void *)
+                      CL_LAMBDA_CALLBACK {};
   cl_int error;
   cl_context context =
       clCreateContext(nullptr, 1, &device, callback, &callback_data, &error);

@@ -13,4 +13,7 @@ IncludeCategories:
 DerivePointerAlignment: false
 QualifierAlignment: Left
 PointerAlignment: Right
+Macros:
+  - CL_LAMBDA_CALLBACK=[[]]
+  - VK_LAMBDA_CALLBACK=[[]]
 ...

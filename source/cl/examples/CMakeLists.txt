@@ -86,7 +86,9 @@ if(${OCL_EXTENSION_cl_khr_command_buffer})
 endif()
 
 if(${OCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch})
-  add_ca_cl_example(clMutableDispatchKHR
+  # Intentionally misnamed. Windows guesses that executables with "patch"
+  # in the file name are installers and need admin privileges.
+  add_ca_cl_example(clMutableDispathcKHR
     ${CMAKE_CURRENT_SOURCE_DIR}/MutableDispatchKHR/source/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/common.h)
 endif()
