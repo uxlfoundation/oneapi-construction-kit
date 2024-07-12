@@ -103,6 +103,16 @@ emitBinary(llvm::Module *module, llvm::TargetMachine *target_machine) {
   llvm::SmallVector<char, 1024> object_code_buffer;
   llvm::raw_svector_ostream stream(object_code_buffer);
 
+#ifndef NDEBUG
+  if (std::getenv("CA_HOST_DUMP_ASM")) {
+    auto result = compiler::emitCodeGenFile(
+        *module, target_machine, llvm::errs(), /*create_assembly=*/true);
+    if (result != compiler::Result::SUCCESS) {
+      return cargo::make_unexpected(result);
+    }
+  }
+#endif
+
   auto result = compiler::emitCodeGenFile(*module, target_machine, stream);
   if (result != compiler::Result::SUCCESS) {
     return cargo::make_unexpected(result);
