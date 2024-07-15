@@ -316,8 +316,12 @@ compiler::Result HostTarget::initWithBuiltins(
 
   if (CPUName == "native") {
     CPUName = llvm::sys::getHostCPUName();
+#if LLVM_VERSION_GREATER_EQUAL(19, 0)
+    FeatureMap = llvm::sys::getHostCPUFeatures();
+#else
     FeatureMap.clear();
     llvm::sys::getHostCPUFeatures(FeatureMap);
+#endif
   }
 
   if (compiler_info->supports_deferred_compilation) {
