@@ -85,9 +85,6 @@ target_compile_options(abacus_static
     /fp:precise   # enable precise floating point mode
     /fp:except-   # with no exceptions
   >
-  $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:
-    /RTCc         # enable reporting value assigned to smaller data type
-  >
   $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:
     /Gy           # enable function-level linking
     /Ox           # enable full optimization
