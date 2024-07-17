@@ -29,7 +29,6 @@
 // If defined the host platform is Mac OS X
 #cmakedefine CA_PLATFORM_MAC
 
-
 // OpenCL platform version
 #define CA_CL_PLATFORM_VERSION "@CA_CL_PLATFORM_VERSION@"
 
@@ -55,12 +54,18 @@
 // OpenCL C version
 #define CA_CL_DEVICE_OPENCL_C_VERSION "@CA_CL_DEVICE_OPENCL_C_VERSION@"
 
-// ComputeAorta version number
+// oneAPI Construction Kit version number
 #define CA_VERSION "@PROJECT_VERSION@"
 
-// ComputeAorta host device name prefix. All ComputeAorta host devices
-// will have this prefix, which enables detection if a host device is used
-// even though it might encode extra information in the name.
+// oneAPI Construction Kit build type
+#cmakedefine CA_BUILD_TYPE "@CA_BUILD_TYPE@"
+
+// oneAPI Construction Kit Git commit
+#cmakedefine CA_GIT_COMMIT "@CA_GIT_COMMIT@"
+
+// oneAPI Construction Kit host device name prefix. All oneAPI Construction
+// Kit host devices will have this prefix, which enables detection if a host
+// device is used even though it might encode extra information in the name.
 #define CA_HOST_CL_DEVICE_NAME_PREFIX "@CA_HOST_CL_DEVICE_NAME_PREFIX@"
 
 // Whether we support out of order execution mode. Note that at the moment, this
