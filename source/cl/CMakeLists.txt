@@ -40,12 +40,10 @@ if("${CA_CL_PLATFORM_VERSION}" STREQUAL "")
   # Version strings for non-release builds will have their build type and
   # shortened git commit hash in the version string.
   string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE_UPPER)
-  if(NOT ${BUILD_TYPE_UPPER} MATCHES "RELEASE")
-    string(APPEND CA_CL_PLATFORM_VERSION
-      " (${CMAKE_BUILD_TYPE}, ${CA_GIT_COMMIT})")
-  endif()
 endif()
 message(STATUS "OpenCL platform version: ${CA_CL_PLATFORM_VERSION}")
+
+set(CA_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 
 # Platform informations can be overriden
 if("${CA_CL_PLATFORM_NAME}" STREQUAL "")

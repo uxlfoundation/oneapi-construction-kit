@@ -426,6 +426,8 @@ function(add_ca_unitcl_check name)
   endif()
   add_ca_cl_check(${name} GTEST
     COMMAND UnitCL "--unitcl_platform=Codeplay Software Ltd."
+    "--unitcl_kernel_directory=${PROJECT_BINARY_DIR}/share/kernels"
+    "--unitcl_test_include=${PROJECT_BINARY_DIR}/share/test_include"
     --gtest_output=xml:${PROJECT_BINARY_DIR}/${name}.xml ${args_ARGS} ${filter}
     ${environment} CLEAN ${PROJECT_BINARY_DIR}/${name}.xml NOGLOBAL DEPENDS UnitCL)
   get_ock_check_name(check_name ${name})

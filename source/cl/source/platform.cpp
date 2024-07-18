@@ -220,7 +220,22 @@ cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
       }
       OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
     } break;
+#ifdef CA_BUILD_TYPE
+#ifdef CA_GIT_COMMIT
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION, CA_CL_PLATFORM_VERSION
+                         " (" CA_BUILD_TYPE ", " CA_GIT_COMMIT ")");
+#else
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION,
+                         CA_CL_PLATFORM_VERSION " (" CA_BUILD_TYPE ")");
+#endif  // CA_GIT_COMMIT
+#else   // CA_BUILD_TYPE
+#ifdef CA_GIT_COMMIT
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION,
+                         CA_CL_PLATFORM_VERSION " (" CA_GIT_COMMIT ")");
+#else
       PLATFORM_INFO_CASE(CL_PLATFORM_VERSION, CA_CL_PLATFORM_VERSION);
+#endif  // CA_GIT_COMMIT
+#endif  // CA_BUILD_TYPE
       PLATFORM_INFO_CASE(CL_PLATFORM_NAME, CA_CL_PLATFORM_NAME);
       PLATFORM_INFO_CASE(CL_PLATFORM_VENDOR, CA_CL_PLATFORM_VENDOR);
 #if defined(CL_VERSION_3_0)
