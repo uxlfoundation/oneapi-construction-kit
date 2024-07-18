@@ -357,7 +357,7 @@ set(CA_COMPILE_DEFINITIONS
     _CRT_SECURE_NO_WARNINGS   # Disable deprecation warnings for standard C.
     _SCL_SECURE_NO_WARNINGS   # Disable deprecation warnings for standard C++.
     WIN32_LEAN_AND_MEAN       # Reduces number of files included.
-    NOMINMAX                  # Removes Windows.h min and max macros.
+    NOMINMAX                  # Removes windows.h min and max macros.
     $<$<BOOL:${CA_DISABLE_DEBUG_ITERATOR}>:
       _ITERATOR_DEBUG_LEVEL=0 # Disable STL iterator debugging.
     >
