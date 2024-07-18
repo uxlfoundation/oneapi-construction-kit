@@ -301,7 +301,7 @@ The builtin CMake options used when invoking CMake on the command line.
   use the installed OpenCL or Vulkan library. Do disable this behaviour set
   `-DCMAKE_SKIP_RPATH=ON` when configuring CMake in build directory.
 
-- `CA_HOST_TARGET_<arch>_CPU`: This option is used by the `host`` target to
+- `CA_HOST_TARGET_<arch>_CPU`: This option is used by the `host` target to
   optimize for performance on a given CPU. `arch` should be a capitalized
   version of the `host` target architecture e.g. `X86_64`, `RISCV64` or
   `AARCH64`. If set to "native" host will optimize for the CPU being used to
@@ -412,9 +412,13 @@ cmake llvm -GNinja \
   -Bbuild-x86_64 \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-x86_64/install \
-  -DLLVM_ENABLE_PROJECTS=clang \
-  -DLLVM_TARGETS_TO_BUILD='X86;ARM;AArch64'
+  -DLLVM_ENABLE_PROJECTS=clang;lld \
+  -DLLVM_TARGETS_TO_BUILD='X86;ARM;AArch64;RISCV'
 ```
+
+Note that some of the above LLVM targets could be dropped depending on the
+target architecture. `lld` is only needed for most non "host" targets e.g.
+`refsi`.
 
 Now the build directory is configured, build the `install` target.
 
@@ -426,22 +430,19 @@ ninja -C build-x86_64 install
 
 Configure the build directory with CMake, ensuring to enable the `clang`
 project using `LLVM_ENABLE_PROJECTS`. Run this command from the root of the
-repository. The `LLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN` variable is needed when
-building LLVM version 8.0 or later on Visual Studio toolchains prior to MSVC
-version 19.1.
+repository.
 
 ```bat
-cmake llvm -G"Visual Studio 15 2017 Win64" ^
+cmake llvm -G"Visual Studio 16 2019 Win64" ^
   -Bbuild-x86_64 ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-x86_64\install ^
   -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64" ^
   -DLLVM_ENABLE_PROJECTS=clang ^
-  -DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=ON
 ```
 
 > Note that using the Ninja generator, `-GNinja`, on Windows may be preferable
-> for improve compilation times.
+> for improve compilation times. `Ninja` can also be used in conjunction with the IDE.
 
 Now the build directory is configured, build the `install` target. This can be
 done by opening the `llvm.sln` solution in Visual Studio and building the
@@ -513,6 +514,9 @@ cmake . -GNinja \
   -DCA_LLVM_INSTALL_DIR=$LLVMInstall
 ```
 
+This will build a `host` target, which will run device code on the same machine
+that the oneAPI Construction Kit runs on.
+
 Now the build directory is configured, build the `install` target.
 
 ```sh
@@ -545,7 +549,7 @@ cmake . -GNinja \
 ```
 
 Now the build directory is configured, you can build the oneAPI Construction Kit
-and run the dchecks as above.
+and run the checks as above.
 
 #### Compiling oneAPI Construction Kit on Windows
 
@@ -553,7 +557,7 @@ To configure a oneAPI Construction Kit build run the following command from the
 root of the oneAPI Construction Kit repository.
 
 ```bat
-cmake . -G"Visual Studio 15 2017 Win64" ^
+cmake . -G"Visual Studio 16 2019 Win64" ^
   -Bbuild-x86_64 ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-x86_64\install ^
@@ -589,7 +593,7 @@ point to a Release install of LLVM, here `%LLVMReleaseInstall%` specifies the
 path to the root of the install.
 
 ```bat
-cmake . -G"Visual Studio 15 2017 Win64" ^
+cmake . -G"Visual Studio 16 2019 Win64" ^
   -Bbuild-x86_64-Debug ^
   -DCMAKE_BUILD_TYPE=Debug ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-x86_64-Debug\install ^
@@ -654,7 +658,7 @@ The configure the oneAPI Construction Kit build without LLVM run the following
 command from the root of the oneAPI Construction Kit repository.
 
 ```bat
-cmake . -G"Visual Studio 15 2017 Win64" ^
+cmake . -G"Visual Studio 16 2019 Win64" ^
   -Bbuild-offline ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-offline\install ^
@@ -700,6 +704,8 @@ cmake --build %CD%\build-offline --target install --config Release
 > Note: MinGW must be installed with structured exception handling (SEH) and
 > POSIX threads. The `choco` command is
 > `choco install mingw -y -params "/exception:seh /threads:posix"`.
+
+Note that this is not part of the regular testing of OCK, but should work.
 
 ## Cross-compiling
 
@@ -865,8 +871,8 @@ ninja -C build-aarch64 check
 #### Cross-compiling the oneAPI Construction Kit for Windows with the MinGW toolchain
 
 oneAPI Construction Kit for Windows can be built on Linux using MinGW. This
-requires LLVM that has been built with MinGW. Note that offline-compiled
-kernels cannot be built, because there is no way to run the `clc` that is built.
+requires LLVM that has been built with MinGW. Note that MinGW kernels cannot be
+compiled offline using an external clc, so we disable their tests.
 
 ```console
 cmake -GNinja \
@@ -881,6 +887,8 @@ cmake -GNinja \
 
 cmake --build build-mingw --target ComputeAorta
 ```
+
+This is not part of the regular testing, but should work.
 
 ## Testing
 
