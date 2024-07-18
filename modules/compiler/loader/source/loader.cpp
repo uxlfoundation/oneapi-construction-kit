@@ -20,7 +20,7 @@
 #if defined(CA_RUNTIME_COMPILER_ENABLED)
 #if defined(CA_COMPILER_ENABLE_DYNAMIC_LOADER)
 #if defined(_WIN32)
-#include <Windows.h>
+#include <windows.h>
 #define DEFAULT_LIBRARY_NAME "compiler.dll"
 #else
 #include <dlfcn.h>
