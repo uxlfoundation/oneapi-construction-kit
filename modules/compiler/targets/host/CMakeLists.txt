@@ -188,7 +188,13 @@ if(CA_HOST_CROSS_COMPILERS)
     target_compile_definitions(compiler-host PRIVATE
     CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU="${CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU}")
   endif()
-
+  ca_option(CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES STRING
+    "Feature list that host ${HOST_ARCH_UPPER} should enable or disable as a comma separated + or - list e.g. '+v,+zfh'" "")
+  if(CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES)
+    message(STATUS "Features ${HOST_ARCH_UPPER} name ${CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES}")
+    target_compile_definitions(compiler-host PRIVATE
+    CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES="${CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES}")
+  endif()
   if(hostCrossCompilers)
     # Validate the user specified cross compiler list.
     foreach(CrossCompiler ${hostCrossCompilers})
@@ -225,11 +231,18 @@ if(CA_HOST_CROSS_COMPILERS)
         HOST_CROSS_DEVICE_NAME_${CROSS_COMPILER}="${crossDeviceName}")
         ca_option(CA_HOST_TARGET_${CROSS_COMPILER}_CPU STRING
         "Name of the CPU that host ${CROSS_COMPILER} should optimize for, or 'native'" "")  
-          if(CA_HOST_TARGET_${CROSS_COMPILER}_CPU)
-            message(STATUS "CPU ${CROSS_COMPILER} name ${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
-            target_compile_definitions(compiler-host PRIVATE
-            CA_HOST_TARGET_${CROSS_COMPILER}_CPU="${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
-          endif()
+        if(CA_HOST_TARGET_${CROSS_COMPILER}_CPU)
+          message(STATUS "CPU ${CROSS_COMPILER} name ${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
+          target_compile_definitions(compiler-host PRIVATE
+          CA_HOST_TARGET_${CROSS_COMPILER}_CPU="${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
+        endif()
+        ca_option(CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES STRING
+          "Feature list that host ${HOST_ARCH_UPPER} should enable or disable as a comma separated + or - list e.g. '+v,+zfh'" "")
+        if(CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES)
+          message(STATUS "Features ${CROSS_COMPILER} name ${CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES}")
+          target_compile_definitions(compiler-host PRIVATE
+          CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES="${CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES}")
+        endif()
     endforeach()
   endif()
 endif()
