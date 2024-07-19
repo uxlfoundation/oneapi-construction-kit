@@ -134,7 +134,8 @@ compiler::Result RiscvModule::createBinary(
   }
 
 // copy the generated ELF file to a specified path if desired
-#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_RISCV_DEMO_MODE)
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) || \
+    defined(CA_RISCV_DEMO_MODE)
   if (!getTarget().env_debug_prefix.empty()) {
     const std::string env_name =
         getTarget().env_debug_prefix + "_SAVE_ELF_PATH";

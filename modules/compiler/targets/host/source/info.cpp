@@ -78,6 +78,7 @@ HostInfo::HostInfo(host::arch arch, host::os os,
   // If the user wants to override, let them. This may be useful for testing the
   // non-deferred-compilation support, or may be useful for testing future LLVM
   // improvements that may provide RISC-V JIT support.
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT)
   if (const char *env = std::getenv("CA_HOST_DEFERRED_COMPILATION")) {
     char *end;
     const long val = std::strtol(env, &end, 10);
@@ -85,6 +86,7 @@ HostInfo::HostInfo(host::arch arch, host::os os,
       supports_deferred_compilation = val;
     }
   }
+#endif
 
   vectorizable = true;
   dma_optimizable = true;

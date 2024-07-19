@@ -1085,8 +1085,7 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
 std::string BaseModule::debugDumpKernelSource(
     llvm::StringRef source, llvm::ArrayRef<std::string> definitions) {
   std::string dbg_filename;
-
-#ifndef CA_ENABLE_DEBUG_SUPPORT
+#if defined(NDEBUG) && !defined(CA_ENABLE_DEBUG_SUPPORT)
   (void)source;
   (void)definitions;
 #else
@@ -1436,7 +1435,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
   // TODO(CA-608): Allow developers to inject LLVM options for debugging at
   // this point, formerly called OCL_LLVM_DEBUG was remove due to lack of use.
 
-#ifdef CA_ENABLE_DEBUG_SUPPORT
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT)
   const std::string dbg_filename =
       debugDumpKernelSource(source, options.definitions);
 #else

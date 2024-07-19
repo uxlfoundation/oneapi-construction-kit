@@ -152,7 +152,7 @@ llvm::ModulePassManager {{cookiecutter.target_name.capitalize()}}PassMachinery::
   llvm::ModulePassManager PM;
 
   std::optional<std::string> env_debug_prefix;
-#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_{{cookiecutter.target_name_capitals}}_DEMO_MODE)
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_{{cookiecutter.target_name_capitals}}_DEMO_MODE)
   env_debug_prefix = target.env_debug_prefix;
 #endif
 
