@@ -393,8 +393,9 @@ compiler::Result HostTarget::initWithBuiltins(
     llvm::StringMap<bool> FeatureMap;
     llvm::sys::getHostCPUFeatures(FeatureMap);
 #endif
-    for (auto &[FeatureName, IsEnabled] : FeatureMap)
+    for (auto &[FeatureName, IsEnabled] : FeatureMap) {
       NativeFeatures.AddFeature(FeatureName, IsEnabled);
+    }
 
     NativeFeatures.addFeaturesVector(Features.getFeatures());
     Features = std::move(NativeFeatures);
