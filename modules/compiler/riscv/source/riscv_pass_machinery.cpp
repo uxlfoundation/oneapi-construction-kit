@@ -188,7 +188,8 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   llvm::ModulePassManager PM;
 
   std::optional<std::string> env_debug_prefix;
-#if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_RISCV_DEMO_MODE)
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) || \
+    defined(CA_RISCV_DEMO_MODE)
   env_debug_prefix = target.env_debug_prefix;
 #endif
 

@@ -138,7 +138,8 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
 
   std::vector<std::string> args = {"ld.lld", objFile.getFileName()};
 
-#if !defined(NDEBUG) || defined(CA_ENABLE_LLVM_OPTIONS_IN_RELEASE)
+#if !defined(NDEBUG) || defined(CA_ENABLE_LLVM_OPTIONS_IN_RELEASE) || \
+    defined(CA_ENABLE_DEBUG_SUPPORT)
   if (auto *env = std::getenv("CA_LLVM_OPTIONS")) {
     auto split_llvm_options = cargo::split(env, " ");
     compiler::utils::appendMLLVMOptions(split_llvm_options, args);

@@ -1110,9 +1110,10 @@ options without having to modify the source.
   options in the same manner as `CA_EXTRA_COMPILE_OPTS`.
 * `CA_LLVM_OPTIONS`: This environment variable allows the injection of LLVM
   flags **only** when either `NDEBUG` is not defined (i.e. `Debug` and
-  `ReleaseAssert` build configurations) or when the
-  `CA_ENABLE_LLVM_OPTIONS_IN_RELEASE` option is set in CMake. See
-  [below](#debugging-the-llvm-compiler) for example of how this can be used.
+  `ReleaseAssert` build configurations) or when the cmake variables
+  `CA_ENABLE_LLVM_OPTIONS_IN_RELEASE` or `CA_ENABLE_DEBUG_SUPPORT` is set in
+  CMake. See [below](#debugging-the-llvm-compiler) for example of how this can
+  be used.
 * `CA_HOST_NUM_THREADS`: Sets the maximum number of threads the `host` device
   will create. `host` may create fewer threads than this value.
 
