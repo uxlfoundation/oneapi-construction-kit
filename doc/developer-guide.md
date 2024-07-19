@@ -318,24 +318,28 @@ The builtin CMake options used when invoking CMake on the command line.
   use the installed OpenCL or Vulkan library. Do disable this behaviour set
   `-DCMAKE_SKIP_RPATH=ON` when configuring CMake in build directory.
 
-* `CA_HOST_TARGET_<arch>_CPU`: This option is used by the `host` target to
-  optimize for performance on a given CPU.`arch` should be a capitalized
-  version of the `host` target architecture e.g. `X86_64`, `RISCV64` or
-  `AARCH64`. If set to "native" host will optimize for the CPU being used to
-  compile it. Otherwise a CPU name can be provided, for example "skylake", but
-  be warned that this string will be passed directly to the llvm backend so make
-  sure it's a valid CPU name. Information about your host CPU can be found by
-  running`llc --version`, and a list of host CPUs supported by your installed
-  version of LLVM can be found by running`llc --march=[your-arch] --mcpu=help`.
+* `CA_HOST_TARGET_<arch>_CPU`, `CA_HOST_TARGET_<arch>_FEATURES`: These options
+  are used by the `host` target to optimize for performance on a given CPU.
+  `arch` should be a capitalized version of the `host` target architecture e.g.
+  `X86_64`, `RISCV64` or `AARCH64`.
+
+  `CPU` can be set to `native` to optimize for the CPU being used to compile.
+  Otherwise a CPU name can be provided, e.g. `skylake`. This string will be
+  passed directly to the LLVM backend; it has to be a valid CPU name. A list of
+  CPUs supported by LLVM can be found by running `clang -mcpu=help`.
+
+  `FEATURES` should be a comma-separated list of features preceded by either `+`
+  or `-` to enable or disable them, e.g. `+v,-zfencei`. The features are the
+  same as those supported by the `-mattr` option in LLVM tools such as `llc` and
+  `opt` and add to the features supported by default.
+
+  If no `CPU` or `FEATURES` are specified, kernels will be compiled to run on
+  any CPU that meets our minimal assumptions.
   
-  Be aware that if `host` is compiled with this option set, running it on a
-  different CPU from the one specified (or the one compiled with if "native" was
-  specified) isn't supported and bad things may happen. When the oneAPI
-  Construction Kit is built in debug mode, the environment variable
-  `CA_HOST_TARGET_CPU` is also respected across all `host` targets, which can
-  help track down codegen differences among different machine targets. The
-  caveats above apply, and this may result in an illegal instruction crash if
-  your CPU doesn't support the generated instructions.
+  Beware that if `host` is compiled with this option set, running kernels on a
+  CPU that is not compatible with the one specified (or the one compiled with if
+  `native` was specified) is not supported and may result in attempts to execute
+  instructions not supported by that CPU.
 
 * `CA_USE_SPLIT_DWARF`: When building with gcc, enable split dwarf debuginfo.
   This significantly reduces binary size (especially when static linking) and
@@ -1116,6 +1120,11 @@ options without having to modify the source.
   be used.
 * `CA_HOST_NUM_THREADS`: Sets the maximum number of threads the `host` device
   will create. `host` may create fewer threads than this value.
+* `CA_HOST_TARGET_CPU`, `CA_HOST_TARGET_FEATURES`: These environment variables
+  can be used in debug builds to override the default CPU and features. They
+  behave the same way as the `CA_HOST_TARGET_<arch>_CPU` and
+  `CA_HOST_TARGET_<arch>_FEATURES` CMake options and the same caveats about
+  `"native"` apply here.
 
 ## Debugging the LLVM compiler
 
