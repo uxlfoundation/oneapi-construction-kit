@@ -57,20 +57,14 @@ namespace host {
 // Create a target machine, `abi` is optional and may be empty
 static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
                                                 llvm::StringRef CPU,
-                                                llvm::StringRef Features,
-                                                llvm::StringRef ABI) {
+                                                llvm::StringRef Features) {
   // Init the llvm target machine.
-  llvm::TargetOptions Options;
   std::string Error;
   const std::string &TripleStr = TT.str();
   const llvm::Target *LLVMTarget =
       llvm::TargetRegistry::lookupTarget(TripleStr, Error);
   if (nullptr == LLVMTarget) {
     return nullptr;
-  }
-
-  if (!ABI.empty()) {
-    Options.MCOptions.ABIName = ABI;
   }
 
   std::optional<llvm::CodeModel::Model> CM;
@@ -96,6 +90,7 @@ static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
   // models for the architecture.
   // TODO: Investigate whether we can use a loader that does not have this
   // issue.
+  const llvm::TargetOptions Options;
   return LLVMTarget->createTargetMachine(
       TripleStr, CPU, Features, Options, /*RM=*/std::nullopt, CM,
       multi_llvm::CodeGenOptLevel::Aggressive,
@@ -239,7 +234,6 @@ compiler::Result HostTarget::initWithBuiltins(
       break;
   }
 
-  llvm::StringRef ABI = "";
   llvm::StringRef CPUName = "";
   llvm::StringMap<bool> FeatureMap;
 
@@ -281,13 +275,11 @@ compiler::Result HostTarget::initWithBuiltins(
     // These are reasonable defaults, which has been used for various RISC-V
     // target so far. We should allow overriding of the ABI in the future
     if (triple.isArch32Bit()) {
-      ABI = "ilp32d";
       CPUName = "generic-rv32";
 #if defined(CA_HOST_TARGET_RISCV32_CPU)
       CPUName = CA_HOST_TARGET_RISCV32_CPU;
 #endif
     } else {
-      ABI = "lp64d";
       CPUName = "generic-rv64";
 #if defined(CA_HOST_TARGET_RISCV64_CPU)
       CPUName = CA_HOST_TARGET_RISCV64_CPU;
@@ -395,7 +387,7 @@ compiler::Result HostTarget::initWithBuiltins(
         Features += '-' + FeatureName.str();
       }
     }
-    target_machine.reset(createTargetMachine(triple, CPUName, Features, ABI));
+    target_machine.reset(createTargetMachine(triple, CPUName, Features));
   }
 
   return compiler::Result::SUCCESS;
