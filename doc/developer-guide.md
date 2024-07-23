@@ -1125,6 +1125,16 @@ options without having to modify the source.
   behave the same way as the `CA_HOST_TARGET_<arch>_CPU` and
   `CA_HOST_TARGET_<arch>_FEATURES` CMake options and the same caveats about
   `"native"` apply here.
+* `CA_HOST_DEFERRED_COMPILATION`. This allows overriding of whether the `host`
+  device supports deferring compilation, often known as jitting. Setting to `0`
+  will disable deferred compilation, setting to `1` will enable it. If unset,
+  deferred compilation is enabled except on targets where it is known not to
+  work, such as RISC-V. Only available with debug support.
+* `CA_HOST_DUMP_ASM`. This supports dumping of generated assembly. Requires a
+  target which disables deferred compilation, such as `RISC-V` or setting
+  `CA_HOST_DEFERRED_COMPILATION` to 0. This should be set to `1` or unset and
+  handling of other values is subject to change. Only available with debug
+  support.
 
 ## Debugging the LLVM compiler
 
