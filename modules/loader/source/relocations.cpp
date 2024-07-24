@@ -592,6 +592,9 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
           relocation_address);
       break;
     // PC-relative page-granular 21-bit relocation
+    // From ELF for the Arm® 64-bit Architecture (AArch64) 2023Q3:
+    // "Set an ADRP immediate value to bits [32:12] of [the result of the
+    // relocation operation] X; check that -2^32 <= X < 2^32"
     case R_AARCH64_ADR_PREL_PG_HI21: {
       uint64_t page_difference = (symbol_target_address & ~0xFFFULL) -
                                  (relocation_target_address & ~0xFFFULL);
@@ -605,7 +608,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
           29, 2);
       value32 = setBitRange(
           value32, getBitRange(static_cast<uint32_t>(page_difference), 2, 19),
-          3, 19);
+          5, 19);
       cargo::write_little_endian(value32, relocation_address);
       break;
     }
