@@ -186,9 +186,24 @@ compiler::Result HostTarget::initWithBuiltins(
       triple = llvm::Triple("armv7-unknown-linux-gnueabihf-elf");
       break;
     case host::arch::AARCH64:
-      assert(host::os::LINUX == host_device_info.os &&
-             "AArch64 cross-compile only supports Linux");
-      triple = llvm::Triple("aarch64-linux-gnu-elf");
+      switch (host_device_info.os) {
+        case host::os::LINUX:
+          triple = llvm::Triple("aarch64-linux-gnu-elf");
+          break;
+        case host::os::MACOS:
+          assert(host_device_info.native &&
+                 "macOS cross-compile not supported");
+          // Our generated code does not meet Mach-O restrictions: "mach-o
+          // section specifier requires a segment and section separated by a
+          // comma" when we use "notes" as a section name. Force ELF generation
+          // instead, which makes things easier for us anyway as we can reuse
+          // the existing ELF loading logic.
+          triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
+          break;
+        default:
+          assert(!"AArch64 cross-compile only supports Linux");
+          break;
+      }
       break;
     case host::arch::RISCV32:
       assert(host::os::LINUX == host_device_info.os &&
