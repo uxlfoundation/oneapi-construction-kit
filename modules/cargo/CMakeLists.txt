@@ -24,14 +24,18 @@ if(${CA_ENABLE_COVERAGE} AND ${CA_RUNTIME_COMPILER_ENABLED})
 endif()
 
 include(CheckSymbolExists)
+include(CheckSourceCompiles)
 
 # Macros and flags necessary to find the pthread get/set name symbols.
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 set(CMAKE_REQUIRED_FLAGS -pthread)
 # Check for specific symbols in case a platform, e.g. an RTOS, does not
 # support them while otherwise supporting pthreads.
-check_symbol_exists(pthread_setname_np "pthread.h" CARGO_HAS_PTHREAD_SETNAME_NP)
 check_symbol_exists(pthread_getname_np "pthread.h" CARGO_HAS_PTHREAD_GETNAME_NP)
+# Ensure pthread_setname_np exists and takes two arguments.
+check_source_compiles(CXX
+"#include <pthread.h>
+int main(void) { pthread_setname_np(0, 0); }" CARGO_HAS_PTHREAD_SETNAME_NP)
 
 add_ca_library(cargo STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cargo/allocator.h
