@@ -107,11 +107,9 @@ T Remquo7BitRef(T x, T y, cl_int &quo_out) {
 }
 }  // namespace
 
-#ifdef __arm__
-// TODO: CA-2730
-TEST_P(Execution, DISABLED_Precision_01_Pow_Func) {
-#elif defined(_WIN32)
-// TODO: CA-3492
+#if defined(__arm__) || defined(_WIN32) || defined(__APPLE__)
+// TODO This test has double precision reference results and we only pass when
+// we can pretend they are extended precision reference results.
 TEST_P(Execution, DISABLED_Precision_01_Pow_Func) {
 #else
 TEST_P(Execution, Precision_01_Pow_Func) {
