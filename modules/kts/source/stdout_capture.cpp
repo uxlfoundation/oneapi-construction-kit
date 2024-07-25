@@ -115,6 +115,7 @@ void StdoutCapture::RestoreStdout() {
 
   const int restored_fd = DUP2(original_fd, fileno(stdout));
   ASSERT_NE(-1, restored_fd);  // If this has failed stdout is not restored.
+  close(original_fd);
   original_fd = -1;
 }
 
