@@ -388,6 +388,9 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
   if (auto array_string = dyn_cast<ConstantDataSequential>(string_const)) {
     return array_string->getAsString().str();
   }
+  if (isa<ConstantAggregateZero>(string_const)) {
+    return "";
+  }
 
   return std::nullopt;
 }

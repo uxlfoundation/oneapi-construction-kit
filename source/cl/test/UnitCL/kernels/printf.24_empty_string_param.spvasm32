@@ -1,0 +1,43 @@
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos LLVM/SPIR-V Translator; 14
+; Bound: 23
+; Schema: 0
+               OpCapability Addresses
+               OpCapability Kernel
+               OpCapability Int8
+          %1 = OpExtInstImport "OpenCL.std"
+               OpMemoryModel Physical32 OpenCL
+               OpEntryPoint Kernel %20 "empty_string_param" %_str %_str_1
+               OpSource OpenCL_C 102000
+               OpName %_str ".str"
+               OpName %_str_1 ".str.1"
+               OpName %entry "entry"
+               OpName %call "call"
+               OpDecorate %_str Constant
+               OpDecorate %_str Alignment 1
+               OpDecorate %_str_1 Constant
+               OpDecorate %_str_1 Alignment 1
+       %uint = OpTypeInt 32 0
+      %uchar = OpTypeInt 8 0
+     %uint_4 = OpConstant %uint 4
+   %uchar_37 = OpConstant %uchar 37
+  %uchar_115 = OpConstant %uchar 115
+   %uchar_10 = OpConstant %uchar 10
+    %uchar_0 = OpConstant %uchar 0
+     %uint_1 = OpConstant %uint 1
+%_arr_uchar_uint_4 = OpTypeArray %uchar %uint_4
+%_ptr_UniformConstant__arr_uchar_uint_4 = OpTypePointer UniformConstant %_arr_uchar_uint_4
+%_arr_uchar_uint_1 = OpTypeArray %uchar %uint_1
+%_ptr_UniformConstant__arr_uchar_uint_1 = OpTypePointer UniformConstant %_arr_uchar_uint_1
+       %void = OpTypeVoid
+         %19 = OpTypeFunction %void
+         %11 = OpConstantComposite %_arr_uchar_uint_4 %uchar_37 %uchar_115 %uchar_10 %uchar_0
+       %_str = OpVariable %_ptr_UniformConstant__arr_uchar_uint_4 UniformConstant %11
+         %16 = OpConstantNull %_arr_uchar_uint_1
+     %_str_1 = OpVariable %_ptr_UniformConstant__arr_uchar_uint_1 UniformConstant %16
+         %20 = OpFunction %void DontInline %19
+      %entry = OpLabel
+       %call = OpExtInst %uint %1 printf %_str %_str_1
+               OpReturn
+               OpFunctionEnd
