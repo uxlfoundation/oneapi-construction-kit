@@ -238,6 +238,7 @@ set(KERNEL_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/printf.20_multiple_kernels.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/printf.21_float_with_double_conversion.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/printf.22_half_with_double_conversion.cl
+  ${CMAKE_CURRENT_SOURCE_DIR}/printf.24_empty_string_param.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.01_pointer_to_long_cast.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.02_work_dim.cl
   ${CMAKE_CURRENT_SOURCE_DIR}/regression.03_shuffle_cast.cl
