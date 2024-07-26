@@ -130,11 +130,11 @@ void HostInfo::get(compiler::AddCompilerFn add_compiler) {
       HOST_CROSS_DEVICE_NAME_AARCH64));
 #endif
 #ifdef HOST_CROSS_X86
-  add_compiler(getCrossCompilerInfo<host::arch::X86, HOST_OS>(
+  add_compiler(getCrossCompilerInfo<host::arch::X86, host::os::LINUX>(
       HOST_CROSS_DEVICE_NAME_X86));
 #endif
 #ifdef HOST_CROSS_X86_64
-  add_compiler(getCrossCompilerInfo<host::arch::X86_64, HOST_OS>(
+  add_compiler(getCrossCompilerInfo<host::arch::X86_64, host::os::LINUX>(
       HOST_CROSS_DEVICE_NAME_X86_64));
 #endif
 #ifdef HOST_CROSS_RISCV32
