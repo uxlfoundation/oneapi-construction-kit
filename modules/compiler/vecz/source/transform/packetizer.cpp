@@ -106,6 +106,29 @@ Type *getWideType(Type *Ty, ElementCount Factor) {
   }
   return VectorType::get(Ty, Factor * Elts);
 }
+
+llvm::Value *CreateBuiltinCall(IRBuilder<> &B, Function *F, ArrayRef<Value *> args) {
+  // llvm::errs() << "**** CSD CreateBuiltinCall " << *F << " : ";
+  llvm::SmallVector<Value *> CallArgs;
+  unsigned int CallArgsIndex = 0;
+  for (auto &a : F->args()) {
+    // llvm::errs() << "\t" << a << (a.hasByValAttr() ? "ISBYVAL " : "") <<
+      // (a.hasStructRetAttr() ? "SRET " : "") << "\n";
+    if (a.hasByValAttr()) {
+      auto *allocaInst = B.CreateAlloca(a.getParamByValType());
+      auto *storeInst = B.CreateStore(args[CallArgsIndex], allocaInst);
+      CallArgs.push_back(allocaInst);
+      // ? Alignment
+      CallArgsIndex++;
+    } else {
+      CallArgs.push_back(args[CallArgsIndex]);
+      CallArgsIndex++;
+    }
+  }
+  llvm::errs() << "\n";
+  return B.CreateCall(F, CallArgs);
+}
+
 }  // namespace
 
 using ValuePacket = SmallVector<Value *, 16>;
@@ -1874,9 +1897,9 @@ Packetizer::Result Packetizer::Impl::packetizeSubgroupShuffleUpDown(
   SmallVector<Value *, 16> Results(VF);
   for (unsigned i = 0; i != VF; i++) {
     auto *const MuxDelta = B.CreateExtractElement(MuxDeltas, B.getInt32(i));
-    auto *const Shuffle =
-        B.CreateCall(ShuffleFn, {LHSPackVal, RHSPackVal, MuxDelta});
-
+    // auto *const Shuffle =
+    //     B.CreateCall(ShuffleFn, {LHSPackVal, RHSPackVal, MuxDelta});
+    auto *const Shuffle = CreateBuiltinCall(B, ShuffleFn, {LHSPackVal, RHSPackVal, MuxDelta});
     Value *Elt = nullptr;
     auto *const Idx = B.CreateExtractElement(VecEltIDs, B.getInt32(i));
     if (auto *DataVecTy = dyn_cast<VectorType>(LHSOp->getType()); !DataVecTy) {
