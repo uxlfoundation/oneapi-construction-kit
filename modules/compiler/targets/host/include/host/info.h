@@ -66,6 +66,12 @@ struct HostInfo : compiler::Info {
 
   /// @brief Bitfield of all `host::arch`'s being targeted.
   static uint8_t arches;
+
+  bool supports_deferred_compilation() const override;
+
+ private:
+  bool deferred_compilation_enabled;
+  mutable const char *deferred_compilation_warning;
 };
 
 }  // namespace host

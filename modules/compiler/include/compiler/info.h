@@ -56,10 +56,6 @@ struct Info {
   /// @brief Mux device info that this compiler will target. Must not be
   /// `nullptr`.
   mux_device_info_t device_info = nullptr;
-  /// @brief Is `true` if the compiler supports deferred compilation (i.e.
-  /// compiler::Module::getKernel() and the compiler::Kernel class are
-  /// implemented), `false` otherwise.
-  bool supports_deferred_compilation = false;
   /// @brief A semicolon-separated, null-terminated list with static lifetime
   /// duration, of this Mux device's custom compile options.
   ///
@@ -131,6 +127,11 @@ struct Info {
 
     return caps;
   }
+
+  /// @brief Returns `true` if the compiler supports deferred compilation (i.e.
+  /// compiler::Module::getKernel() and the compiler::Kernel class are
+  /// implemented), `false` otherwise.
+  virtual bool supports_deferred_compilation() const { return false; }
 };
 
 /// @brief A functor which is called when a target wants to expose a compiler.

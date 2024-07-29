@@ -416,7 +416,7 @@ compiler::Result HostTarget::initWithBuiltins(
     Features = std::move(NativeFeatures);
   }
 
-  if (compiler_info->supports_deferred_compilation) {
+  if (compiler_info->supports_deferred_compilation()) {
     llvm::orc::JITTargetMachineBuilder TMBuilder(triple);
     TMBuilder.setCPU(CPU);
     TMBuilder.setCodeGenOptLevel(multi_llvm::CodeGenOptLevel::Aggressive);

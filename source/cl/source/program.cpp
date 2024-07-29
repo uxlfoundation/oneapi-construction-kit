@@ -166,7 +166,7 @@ bool cl::device_program::finalize(cl_device_id device) {
 
     // If the compiler does not support deferred compilation, we get the final
     // binary from the module and initialize a mux_kernel_cache.
-    if (!device->compiler_info->supports_deferred_compilation) {
+    if (!device->compiler_info->supports_deferred_compilation()) {
       // Get the Mux binary.
       auto binary_result = compiler_module.getOrCreateMuxBinary();
       if (!binary_result) {
@@ -223,7 +223,7 @@ cl::device_program::createKernel(cl_device_id device,
     } break;
 
     case cl::device_program_type::COMPILER_MODULE: {
-      if (device->compiler_info->supports_deferred_compilation) {
+      if (device->compiler_info->supports_deferred_compilation()) {
         compiler::Kernel *deferred_kernel =
             compiler_module.module->getKernel(kernel_name);
         if (!deferred_kernel) {

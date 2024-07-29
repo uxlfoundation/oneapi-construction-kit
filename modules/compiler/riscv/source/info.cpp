@@ -39,7 +39,6 @@ RiscvInfo::RiscvInfo(mux_device_info_t mux_device_info,
 
   vectorizable = false;
   dma_optimizable = true;
-  supports_deferred_compilation = false;
   kernel_debug = true;
 }
 

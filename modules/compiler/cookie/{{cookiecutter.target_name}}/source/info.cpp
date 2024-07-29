@@ -36,7 +36,6 @@ namespace {{cookiecutter.target_name}} {
   device_info = mux_device_info;
   vectorizable = true;
   dma_optimizable = true;
-  supports_deferred_compilation = false;
   scalable_vector_support = {{cookiecutter.scalable_vector}};
   kernel_debug = true;
 
