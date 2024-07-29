@@ -319,7 +319,7 @@ static inline std::string printDeviceName(
 static inline std::vector<const compiler::Info *> deferrableCompilers() {
   std::vector<const compiler::Info *> deferrable_compilers;
   for (const compiler::Info *compiler : compiler::compilers()) {
-    if (compiler->supports_deferred_compilation) {
+    if (compiler->supports_deferred_compilation()) {
       deferrable_compilers.emplace_back(compiler);
     }
   }
