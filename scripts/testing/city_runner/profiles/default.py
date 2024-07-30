@@ -30,7 +30,13 @@ class DefaultProfile(Profile):
     def create_run(self, test, worker_state=None):
         """ Create a new test run from a test description.  """
         return DefaultTestRun(self, test)
+    def add_options(self, parser):
+        """ Add command-line options that can be used with the profile to the
+         argument parser. """
+        super(DefaultProfile, self).add_options(parser)
 
+        parser.add_argument("--prepend-path", dest="prepend_path", type=str,
+            help="Prepend to path e.g. qemu-riscv64 -L /usr/riscv64-linux-gnu.")
 
 class DefaultTestRun(CTSTestRun):
     """ Represent the execution of a particular test. """
@@ -93,5 +99,15 @@ class DefaultTestRun(CTSTestRun):
         if lib_dirs:
             env[env_var_name] = env_var_separator.join(lib_dirs)
 
-        self.create_process(exe_path, self.test.arguments, working_dir, env)
+        # Support `<command> <args>` invocations by splitting the
+        # value of the --prepend_args option, the first item being the path to
+        # `<command>` binary and subsequent items optional arguments.
+        test_arguments = self.test.arguments
+        if self.profile.args.prepend_path:
+            original_exe_path = exe_path
+            exe_path = self.profile.args.prepend_path.split()[0]
+            test_arguments = self.profile.args.prepend_path.split()[1:]
+            test_arguments.append(os.path.join(self.profile.args.binary_path, original_exe_path))
+            test_arguments.extend(self.test.arguments)
+        self.create_process(exe_path, test_arguments, working_dir, env)
         self.analyze_process_output()
