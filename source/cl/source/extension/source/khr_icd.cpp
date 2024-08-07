@@ -110,7 +110,7 @@ const struct icd_dispatch_table_t {
   ICD_FUNCTION(RetainCommandQueue)
   ICD_FUNCTION(ReleaseCommandQueue)
   ICD_FUNCTION(GetCommandQueueInfo)
-  OCL_ICD_NOT_IMPLEMENTED(clSetCommandQueueProperty)
+  ICD_FUNCTION(SetCommandQueueProperty)
   ICD_FUNCTION(CreateBuffer)
   ICD_FUNCTION(CreateImage2D)
   ICD_FUNCTION(CreateImage3D)

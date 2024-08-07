@@ -84,6 +84,7 @@ OPENCL_1.0 {
     clEnqueueBarrier;
     clUnloadCompiler;
     clGetExtensionFunctionAddress;
+    clSetCommandQueueProperty;
   local:
     *;
 };

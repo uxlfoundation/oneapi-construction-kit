@@ -165,6 +165,7 @@ add_ca_cl_executable(UnitCL
   source/clSetEventCallback.cpp
   source/clSetKernelArg.cpp
   source/clSetMemObjectDestructorCallback.cpp
+  source/clSetCommandQueueProperty.cpp
   source/clSetUserEventStatus.cpp
   source/clUnloadCompiler.cpp
   source/clUnloadPlatformCompiler.cpp

@@ -664,6 +664,22 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueBarrier(cl_command_queue queue);
 CL_API_ENTRY cl_int CL_API_CALL EnqueueMarker(cl_command_queue queue,
                                               cl_event *event);
 
+/// @brief Set a command queue property, deprecated in OpenCL 1.1 and
+/// unsupported
+///
+/// @param command_queue Command queue to enqueue the barrier on.
+/// @param properties Command queue properties to set.
+/// @param enable CL_TRUE specifies to enable property.
+/// @param old_properties old properties.
+///
+/// @return Return error code.
+///
+/// @see
+// https://registry.khronos.org/OpenCL/sdk/1.1/docs/man/xhtml/clSetCommandQueueProperty.html
+CL_API_ENTRY cl_int CL_API_CALL SetCommandQueueProperty(
+    cl_command_queue command_queue, cl_command_queue_properties properties,
+    cl_bool enable, cl_command_queue_properties *old_properties);
+
 /// @}
 }  // namespace cl
 
