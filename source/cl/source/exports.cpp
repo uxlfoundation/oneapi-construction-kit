@@ -14,6 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+// Set this so we can get clSetCommandQueueProperty
+// as the expectation is we return an invalid operation.
+#define CL_USE_DEPRECATED_OPENCL_1_0_APIS 1
+
 #include <CL/cl.h>
 #include <cl/buffer.h>
 #include <cl/command_queue.h>
@@ -667,4 +671,11 @@ CL_API_ENTRY cl_int CL_API_CALL clGetEventProfilingInfo(
     void *param_value, size_t *param_value_size_ret) {
   return cl::GetEventProfilingInfo(event, param_name, param_value_size,
                                    param_value, param_value_size_ret);
+}
+
+CL_API_ENTRY cl_int CL_API_CALL clSetCommandQueueProperty(
+    cl_command_queue command_queue, cl_command_queue_properties properties,
+    cl_bool enable, cl_command_queue_properties *old_properties) {
+  return cl::SetCommandQueueProperty(command_queue, properties, enable,
+                                     old_properties);
 }

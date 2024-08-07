@@ -88,6 +88,7 @@ EXPORTS
   clEnqueueBarrier
   clUnloadCompiler
   clGetExtensionFunctionAddress
+  clSetCommandQueueProperty
   ; Conditionalize the following?
   clIcdGetPlatformIDsKHR
   ; Required for debuggers to detect jitted code
