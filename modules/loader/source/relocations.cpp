@@ -878,6 +878,40 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
       break;
     }
 
+    case R_RISCV_JAL: {
+      // R_RISCV_JAL immediate is for J-Type instructions and is split across 20
+      // bits spread across the instruction and skips the bottom bit of the
+      // input relative offset. See Unconditional jump instructions in the isa
+      // spec.
+
+      // Check that the value, when sign-extended back up to a 64-bit number
+      // will not lose bits.
+      if (signExtendN(relative_value, 21) !=
+          static_cast<int64_t>(relative_value & (~1))) {
+#ifndef NDEBUG
+        auto name =
+            map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+        (void)fprintf(stderr,
+                      "Error: relocation R_RISCV_BRANCH branch > 21 bits or "
+                      "not even for symbol '%.*s'\n",
+                      (int)name.size(), name.data());
+#endif
+        return false;
+      }
+      uint32_t value;
+      const uint32_t trunc_value = static_cast<uint32_t>(relative_value);
+      cargo::read_little_endian(&value, relocation_address);
+      // imm bits 1-10 at bit 21
+      value = setBitRange(value, trunc_value >> 1, 21, 30);
+      // imm bit 11 at bit 22
+      value = setBitRange(value, trunc_value >> 11, 22, 22);
+      // imm bits 12-19 at bit 12
+      value = setBitRange(value, trunc_value >> 12, 12, 19);
+      // imm bit 20 at bit 31
+      value = setBitRange(value, trunc_value >> 20, 31, 31);
+      cargo::write_little_endian(value, relocation_address);
+      break;
+    }
     case R_RISCV_RVC_JUMP: {
       // R_RISCV_RVC_JUMP is for compressed instructions and fits in bits 2-12
       // of a 16 bit value and skips the bottom bit of the input. See CJ format
@@ -902,6 +936,34 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
       cargo::read_little_endian(&value, relocation_address);
       const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
       value = setBitRange(value, offset_16, 2, 11);
+      cargo::write_little_endian(value, relocation_address);
+      break;
+    }
+    case R_RISCV_RVC_BRANCH: {
+      // R_RISCV_RVC_BRANCH is for compressed instructions and fits in bits 1-6
+      // (low) and 10-12 of a 16 bit value and skips the bottom bit of the
+      // input, requiring a total of 8 bits. See CB format in the isa spec.
+
+      // Check that the value, when sign-extended back up to a 64-bit number
+      // will not lose bits.
+      if (signExtendN(relative_value, 9) !=
+          static_cast<int64_t>(relative_value & (~1))) {
+#ifndef NDEBUG
+        auto name =
+            map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+        (void)fprintf(stderr,
+                      "Error: relocation R_RISCV_RVC_BRANCH > 9 bits or not "
+                      "even for symbol '%.*s'\n",
+                      (int)name.size(), name.data());
+#endif
+        return false;
+      }
+
+      uint16_t value;
+      cargo::read_little_endian(&value, relocation_address);
+      const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
+      value = setBitRange(value, getBitRange(offset_16, 0, 4), 1, 6);
+      value = setBitRange(value, getBitRange(offset_16, 5, 7), 10, 12);
       cargo::write_little_endian(value, relocation_address);
       break;
     }

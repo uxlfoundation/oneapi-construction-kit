@@ -472,6 +472,7 @@ enum Type : uint32_t {
   R_RISCV_NONE = 0,
   R_RISCV_64 = 2,
   R_RISCV_BRANCH = 16,
+  R_RISCV_JAL = 17,
   R_RISCV_CALL = 18,
   R_RISCV_CALL_PLT = 19,
   R_RISCV_PCREL_HI20 = 23,
@@ -482,6 +483,7 @@ enum Type : uint32_t {
   R_RISCV_ADD32 = 35,
   R_RISCV_SUB32 = 39,
   R_RISCV_ALIGN = 43,
+  R_RISCV_RVC_BRANCH = 44,
   R_RISCV_RVC_JUMP = 45,
 };
 }  // namespace RISCV
