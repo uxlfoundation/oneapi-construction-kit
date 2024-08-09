@@ -134,27 +134,33 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; The pass non-determinism also affects the placement of padding elements which
 ; further complicates the issue since this too impacts the offsets. See CA-119.
-; CHECK-GE19: #dbg_value(ptr undef
+; CHECK-GE20: #dbg_value(ptr poison
+; CHECK-EQ19: #dbg_value(ptr undef
 ; CHECK-LT19: call void @llvm.dbg.value(metadata ptr undef
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE19: #dbg_value(ptr undef
+; CHECK-GE20: #dbg_value(ptr poison
+; CHECK-EQ19: #dbg_value(ptr undef
 ; CHECK-LT19: call void @llvm.dbg.value(metadata ptr undef
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE19: #dbg_value(ptr undef
+; CHECK-GE20: #dbg_value(ptr poison
+; CHECK-EQ19: #dbg_value(ptr undef
 ; CHECK-LT19: call void @llvm.dbg.value(metadata ptr undef
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE19: #dbg_value(ptr undef
+; CHECK-GE20: #dbg_value(ptr poison
+; CHECK-EQ19: #dbg_value(ptr undef
 ; CHECK-LT19: call void @llvm.dbg.value(metadata ptr undef
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE19: #dbg_value(ptr undef
+; CHECK-GE20: #dbg_value(ptr poison
+; CHECK-EQ19: #dbg_value(ptr undef
 ; CHECK-LT19: call void @llvm.dbg.value(metadata ptr undef
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE19: #dbg_value(ptr undef
+; CHECK-GE20: #dbg_value(ptr poison
+; CHECK-EQ19: #dbg_value(ptr undef
 ; CHECK-LT19: call void @llvm.dbg.value(metadata ptr undef
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
