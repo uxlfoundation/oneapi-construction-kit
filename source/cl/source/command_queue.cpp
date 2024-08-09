@@ -1366,6 +1366,18 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
   return CL_SUCCESS;
 }
 
+CL_API_ENTRY cl_int CL_API_CALL cl::SetCommandQueueProperty(
+    cl_command_queue command_queue, cl_command_queue_properties properties,
+    cl_bool enable, cl_command_queue_properties *old_properties) {
+  const tracer::TraceGuard<tracer::OpenCL> guard("SetCommandQueueProperty");
+  // 	clSetCommandQueueProperty is deprecated by version 1.1.
+  (void)command_queue;
+  (void)properties;
+  (void)enable;
+  (void)old_properties;
+  return CL_INVALID_OPERATION;
+}
+
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
 [[nodiscard]] cl_int _cl_command_queue::enqueueCommandBuffer(
     cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,

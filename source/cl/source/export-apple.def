@@ -111,3 +111,4 @@ _clSetProgramReleaseCallback
 _clSetContextDestructorCallback
 _clCreateBufferWithProperties
 _clCreateImageWithProperties
+_clSetCommandQueueProperty
