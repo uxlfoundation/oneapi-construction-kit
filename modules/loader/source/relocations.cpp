@@ -902,13 +902,13 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
       const uint32_t trunc_value = static_cast<uint32_t>(relative_value);
       cargo::read_little_endian(&value, relocation_address);
       // imm bits 1-10 at bit 21
-      value = setBitRange(value, trunc_value >> 1, 21, 30);
+      value = setBitRange(value, trunc_value >> 1, 21, 10);
       // imm bit 11 at bit 22
-      value = setBitRange(value, trunc_value >> 11, 22, 22);
+      value = setBitRange(value, trunc_value >> 11, 22, 1);
       // imm bits 12-19 at bit 12
-      value = setBitRange(value, trunc_value >> 12, 12, 19);
+      value = setBitRange(value, trunc_value >> 12, 12, 8);
       // imm bit 20 at bit 31
-      value = setBitRange(value, trunc_value >> 20, 31, 31);
+      value = setBitRange(value, trunc_value >> 20, 31, 1);
       cargo::write_little_endian(value, relocation_address);
       break;
     }
@@ -963,7 +963,7 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
       cargo::read_little_endian(&value, relocation_address);
       const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
       value = setBitRange(value, getBitRange(offset_16, 0, 4), 1, 6);
-      value = setBitRange(value, getBitRange(offset_16, 5, 7), 10, 12);
+      value = setBitRange(value, getBitRange(offset_16, 5, 7), 10, 3);
       cargo::write_little_endian(value, relocation_address);
       break;
     }
